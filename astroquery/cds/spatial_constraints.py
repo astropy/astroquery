@@ -3,21 +3,9 @@
 
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-from os import remove
-
 from abc import abstractmethod, ABC
 
-try:
-    from mocpy import MOC
-except ImportError:
-    raise ImportError("Could not import mocpy, which is a requirement for the CDS service."
-                      "Please see https://github.com/cds-astro/mocpy to install it.")
-
-try:
-    from regions import CircleSkyRegion, PolygonSkyRegion
-except ImportError:
-    raise ImportError("Could not import regions, which is a requirement for the CDS service."
-                      "Please see http://astropy-regions.readthedocs.io/en/latest/installation.html to install it.")
+from astropy import coordinates
 
 
 class SpatialConstraint(ABC):
@@ -70,89 +58,90 @@ class SpatialConstraint(ABC):
 
 
 class Cone(SpatialConstraint):
-    """
-    Class defining a circle sky region
 
-    Inherits from SpatialConstraint class
-    and implements the cone search method
-
-    """
-
-    def __init__(self, circle_region, intersect='overlaps'):
+    def __init__(self, center, radius, intersect='overlaps'):
         """
-        CircleSkyRegionSpatialConstraint's constructor
+        Definition a cone region
 
-        Parameters:
-        ----
-        circle_region : regions.CircleSkyRegion
-            defines a circle of center(ra, dec) and radius given
-            specifying the region in which one can ask for the datasets
-            intersecting it
+        A cone region is defined by a center position and a radius.
+        When sending these parameters to the CDS MOC service, the service
+        build a MOC from this region and does the intersection (if `intersect` is
+        equal to overlaps) of this newly constructed MOC with the MOCs of the ~20000
+        data sets that he already has in memory. A data set is chosen by the MOC service when
+        this MOC intersection is not empty.
 
-        Exceptions:
-        ----
-        TypeError:
-            - circleSkyRegion must be of type regions.CircleSkyRegion
+        Parameters
+        ----------
+        center : astropy.coordinates.Skycoord
+            the position of the center of the cone
+        radius : astropy.coordinates.Angle
+            the radius of the cone
+        intersect : str, optional
+            intersection matching law for data sets
+
+        Raises
+        ------
+        TypeError
+            if center is not of type astropy.coordinates.Skycoord or
+            radius is not of type astropy.coordinates.Angle
 
         """
 
-        assert isinstance(circle_region, CircleSkyRegion), TypeError('`circle_region` must be of type'
-                                                                     ' regions.CircleSkyRegion')
+        assert isinstance(center, coordinates.SkyCoord) and isinstance(radius, coordinates.Angle),\
+            TypeError('`center` must be of type astropy.coordinates.SkyCoord and/or '
+                      '`radius` must be of type astropy.coordinates.Angle')
 
         super(Cone, self).__init__(intersect)
-        self.circle_region = circle_region
         self.request_payload.update({
-            'DEC': circle_region.center.dec.to_string(decimal=True),
-            'RA': circle_region.center.ra.to_string(decimal=True),
-            'SR': str(circle_region.radius.value)
+            'DEC': center.dec.to_string(decimal=True),
+            'RA': center.ra.to_string(decimal=True),
+            'SR': str(radius.value)
         })
 
 
 class Polygon(SpatialConstraint):
-    """
-    Class defining a spatial polygon region
 
-    Inherits from SpatialConstraint class
-    and gives the user the possibility to defines
-    a polygon as the region of interest for finding
-    all the datasets intersecting it
-
-    """
-
-    def __init__(self, polygon_region, intersect='overlaps'):
+    def __init__(self, vertices, intersect='overlaps'):
         """
-        PolygonSkyRegionSpatialConstraint's constructor
+        Definition of a Polygon region
 
-        Parameters:
-        ----
-        polygon_region : regions.PolygonSkyRegion
-            defines a Polygon expressed as a list of vertices
-            of type regions.SkyCoord
+        A polygon region is defined by a list of vertices.
+        When sending a polygon region to the CDS MOC service, the service
+        build a MOC from this region and does the intersection (if `intersect` is
+        equal to overlaps) of this newly constructed MOC with the MOCs of the ~20000
+        data sets that he already has in memory. A data set is chosen by the MOC service when
+        this MOC intersection is not empty.
 
-        Exceptions:
-        ----
-        TypeError :
-            - polygonSkyRegion must be of type regions.PolygonSkyRegion
+        Parameters
+        ----------
+        vertices : astropy.coordinates.Skycoord
+            the positions of the polygon vertices
+        intersect : str, optional
+            intersection matching law for data sets
 
-        AttributeError :
-            - the SkyCoord referring to the vertices of the polygon
-            needs to have at least 3 vertices otherwise it is
-            not a polygon but a line or a single vertex
+        Raises
+        ------
+        TypeError
+            if `vertices` is not of type astropy.coordinates.Skycoord
+
+        AttributeError
+            if `vertices` contains at least 3 vertices
 
         """
-        assert isinstance(polygon_region, PolygonSkyRegion), TypeError("`polygon_region` must be"
-                                                                       " of type PolygonSkyRegion")
+
+        assert isinstance(vertices, coordinates.SkyCoord), \
+            TypeError('`vertices` must be of type PolygonSkyRegion')
 
         super(Polygon, self).__init__(intersect)
 
         # test if the polygon has at least 3 vertices
-        if len(polygon_region.vertices.ra) < 3:
-            raise AttributeError('`polygon_region` must have at least 3 vertices')
+        if len(vertices.ra) < 3:
+            raise AttributeError('`vertices` must have a size >= 3')
 
-        self.request_payload.update({'stc': self._to_stc(polygon_region)})
+        self.request_payload.update({'stc': self._skycoords_to_str(vertices)})
 
     @staticmethod
-    def _to_stc(polygon_region):
+    def _skycoords_to_str(vertices):
         """
         Convert a regions.PolygonSkyRegion instance to a string
 
@@ -163,9 +152,9 @@ class Polygon(SpatialConstraint):
         """
 
         polygon_stc = "Polygon"
-        for i in range(len(polygon_region.vertices.ra)):
-            polygon_stc += ' ' + polygon_region.vertices.ra[i].to_string(decimal=True) + \
-                           ' ' + polygon_region.vertices.dec[i].to_string(decimal=True)
+        for i in range(len(vertices.ra)):
+            polygon_stc += ' ' + vertices.ra[i].to_string(decimal=True) + \
+                           ' ' + vertices.dec[i].to_string(decimal=True)
 
         return polygon_stc
 
@@ -181,7 +170,7 @@ class Moc(SpatialConstraint):
         assert isinstance(filename, str), TypeError("`filename` must be of type str")
 
         moc_constraint = cls(intersect=intersect)
-        moc_constraint.request_payload.update({'moc': filename})
+        moc_constraint.request_payload.update({'filename': filename})
         return moc_constraint
 
     @classmethod
@@ -194,6 +183,12 @@ class Moc(SpatialConstraint):
 
     @classmethod
     def from_mocpy_object(cls, mocpy_obj, intersect='overlaps'):
+        try:
+            from mocpy import MOC
+        except ImportError:
+            raise ImportError("Could not import mocpy, which is a requirement for the CDS service."
+                              "Please see https://github.com/cds-astro/mocpy to install it.")
+
         assert isinstance(mocpy_obj, MOC), TypeError("`mocpy_obj` must be of type mocpy.MOC")
 
         import tempfile
@@ -210,5 +205,6 @@ class Moc(SpatialConstraint):
         os.unlink(tmp_moc_file.name)
 
         moc_constraint = cls(intersect=intersect)
-        moc_constraint.request_payload.update({'moc': content})
+
+        moc_constraint.request_payload.update({'moc': content.strip('\n')})
         return moc_constraint

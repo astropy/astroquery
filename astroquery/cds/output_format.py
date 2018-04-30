@@ -2,19 +2,12 @@
 # -*- coding: utf-8 -*
 
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from enum import Enum
 from sys import maxsize
 
 
 class OutputFormat(object):
-    class Type(Enum):
-        id = 1,
-        record = 2,
-        number = 3,
-        moc = 4,
-        i_moc = 5
 
-    def __init__(self, format=Type.id, field_l=[], moc_order=maxsize, case_sensitive=True, max_rec=None):
+    def __init__(self, format, field_l, moc_order, case_sensitive, max_rec):
         """
         OutputFormat object initializer. Specifies what will be returned to the user
 
@@ -37,8 +30,8 @@ class OutputFormat(object):
             implies the CDS MOC service to return all the matching data sets).
 
         """
-
-        assert isinstance(format, OutputFormat.Type), TypeError('`format` must be of type OutputFormat.Type')
+        from .core import cds
+        assert isinstance(format, cds.ReturnFormat), TypeError('`format` must be of type OutputFormat.Type')
         assert isinstance(field_l, list), TypeError('`field_l` must be a list type object')
         assert isinstance(case_sensitive, bool), TypeError('`case_sensitive` must be a bool type object')
         assert not max_rec or isinstance(max_rec, int), TypeError('`max_rec` must be an int type object')
@@ -49,9 +42,9 @@ class OutputFormat(object):
             "casesensitive": str(case_sensitive).lower()
         }
 
-        if format is OutputFormat.Type.id:
+        if format is cds.ReturnFormat.id:
             self.request_payload.update({'get': 'id'})
-        elif format is OutputFormat.Type.record:
+        elif format is cds.ReturnFormat.record:
             self.request_payload.update({'get': 'record'})
 
             # set up the payload str from the list of fields `field_l` param
@@ -70,9 +63,9 @@ class OutputFormat(object):
                 self.request_payload.update({
                     "fields": fields_str
                 })
-        elif format is OutputFormat.Type.number:
+        elif format is cds.ReturnFormat.number:
             self.request_payload.update({'get': 'number'})
-        elif format in (OutputFormat.Type.moc, OutputFormat.Type.i_moc):
+        elif format in (cds.ReturnFormat.moc, cds.ReturnFormat.i_moc):
             if moc_order != maxsize:
                 self.request_payload.update({
                     "order": moc_order
@@ -82,7 +75,7 @@ class OutputFormat(object):
                     "order": "max"
                 })
 
-            if format is OutputFormat.Type.i_moc:
+            if format is cds.ReturnFormat.i_moc:
                 self.request_payload.update({'get': 'imoc'})
             else:
                 self.request_payload.update({'get': 'moc'})

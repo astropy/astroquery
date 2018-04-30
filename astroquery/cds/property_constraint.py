@@ -36,17 +36,18 @@ class PropertyConstraint(object):
 
         self.expr = expr
         self.request_payload = dict()
-        self.compute_payload()
+        self._compute_payload()
 
-    def compute_payload(self):
+    def _compute_payload(self):
         """
         Update the property constraints payload
 
         """
         if isinstance(self.expr, str):
-            self.request_payload = {'expr': self.expr}
-        else:
-            self.request_payload = {'expr': self.expr.eval()}
+            self.request_payload['expr'] = self.expr
+            return
+
+        self.request_payload['expr'] = self.expr.eval()
 
     def __repr__(self):
         result = "Properties constraints' request payload :\n{0}".format(self.request_payload)

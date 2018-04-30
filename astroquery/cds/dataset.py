@@ -9,29 +9,24 @@ except ImportError:
     raise ImportError("Could not import pyvo, which is a requirement for calling services on Dataset objects through"
                       "the CDS service. Please see https://pyvo.readthedocs.io/en/latest/ to install it.")
 
-from enum import Enum
 from copy import copy
 from random import shuffle
 
 
 class Dataset:
-    class ServiceType(Enum):
-        cs = 1,
-        tap = 2,
-        ssa = 4,
-        sia = 5
 
     def __init__(self, **kwargs):
+        from .core import cds
         assert len(kwargs.keys()) >= 1
         self._properties = kwargs
         self._services = {}
 
         # These services are available from the properties of
         # a dataset
-        self._init_service(__class__.ServiceType.tap, vo.dal.TAPService)
-        self._init_service(__class__.ServiceType.cs, vo.dal.SCSService)
-        self._init_service(__class__.ServiceType.ssa, vo.dal.SSAService)
-        self._init_service(__class__.ServiceType.sia, vo.dal.SIAService)
+        self._init_service(cds.ServiceType.tap, vo.dal.TAPService)
+        self._init_service(cds.ServiceType.cs, vo.dal.SCSService)
+        self._init_service(cds.ServiceType.ssa, vo.dal.SSAService)
+        self._init_service(cds.ServiceType.sia, vo.dal.SIAService)
 
     def _init_service(self, service_type, service_class):
         name_srv_property = service_type.name + '_service_url'
@@ -94,7 +89,8 @@ class Dataset:
             an astropy.table.Table containing the sources from the dataset that match the query
 
         """
-        if not isinstance(service_type, Dataset.ServiceType):
+        from .core import cds
+        if not isinstance(service_type, cds.ServiceType):
             raise ValueError('Service {0} not found'.format(service_type))
 
         if service_type not in self._services.keys():

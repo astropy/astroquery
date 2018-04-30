@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*
+
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import pytest
 import os
@@ -6,16 +9,9 @@ from sys import getsizeof
 
 from ..core import cds, CdsClass
 
-from ..constraints import Constraints
-from ..spatial_constraints import *
-from ..property_constraint import *
-from ..output_format import *
-
 from astroquery.utils.testing_tools import MockResponse
-
-from astropy import coordinates
-from regions import CircleSkyRegion, PolygonSkyRegion
 from mocpy import MOC
+from astropy import coordinates
 
 DATA_FILES = {
     'CONE_SEARCH': 'cone_search.json',
@@ -29,13 +25,6 @@ DATA_FILES = {
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     return os.path.join(data_dir, filename)
-
-
-@pytest.fixture
-def init_request():
-    moc_server_constraints = Constraints()
-    moc_server_format = OutputFormat()
-    return moc_server_constraints, moc_server_format
 
 
 @pytest.fixture
@@ -58,15 +47,11 @@ def get_mockreturn(method, url, params=None, timeout=10, **kwargs):
 def get_request_results():
     """Perform the request using the astroquery.MocServer  API"""
 
-    def process_query(spatial_constraint=None, property_constraint=None):
-        assert spatial_constraint or property_constraint
-        moc_server_constraints = Constraints(sc=spatial_constraint, pc=property_constraint)
-        moc_server_format = OutputFormat()
-
-        moc_server_constraints.spatial_constraint = spatial_constraint
-        moc_server_constraints.properties_constraint = property_constraint
-
-        request_result = cds.query_region(moc_server_constraints, moc_server_format)
+    def process_query(type, get_query_payload, verbose, **kwargs):
+        request_result = cds.query_region(type,
+                                          get_query_payload,
+                                          verbose,
+                                          **kwargs)
         return request_result
 
     return process_query
@@ -93,41 +78,17 @@ def get_true_request_results():
 
 """List of all the constraint we want to test"""
 # SPATIAL CONSTRAINTS DEFINITIONS
-polygon1 = PolygonSkyRegion(
-    vertices=coordinates.SkyCoord([57.376, 56.391, 56.025, 56.616], [24.053, 24.622, 24.049, 24.291], frame="icrs",
-                                  unit="deg"))
-polygon2 = PolygonSkyRegion(
-    vertices=coordinates.SkyCoord([58.376, 53.391, 56.025, 54.616], [24.053, 25.622, 22.049, 27.291], frame="icrs",
-                                  unit="deg"))
-polygon_search_constraint = Polygon(polygon1, intersect='overlaps')
+polygon1 = coordinates.SkyCoord([57.376, 56.391, 56.025, 56.616], [24.053, 24.622, 24.049, 24.291],
+                                frame="icrs",
+                                unit="deg")
+polygon2 = coordinates.SkyCoord([58.376, 53.391, 56.025, 54.616], [24.053, 25.622, 22.049, 27.291],
+                                frame="icrs",
+                                unit="deg")
 
 # PROPERTY CONSTRAINTS DEFINITIONS
-properties_ex = PropertyConstraint(ParentNode(
-    OperandExpr.Inter,
-    ParentNode(
-        OperandExpr.Union,
-        ChildNode("moc_sky_fraction <= 0.01"),
-        ChildNode("hips* = *")
-    ),
-    ChildNode("ID = *")
-))
-
-properties_hips_from_saada_alasky = \
-    PropertyConstraint(ParentNode(
-        OperandExpr.Inter,
-        ChildNode("hips_service_url*=http://saada*"),
-        ChildNode("hips_service_url*=http://alasky.*"))
-    )
-
-properties_hips_gaia = PropertyConstraint(
-    ParentNode(OperandExpr.Subtr,
-               ParentNode(OperandExpr.Inter,
-                          ParentNode(OperandExpr.Union,
-                                     ChildNode("obs_*=*gaia*"),
-                                     ChildNode("ID=*gaia*")),
-                          ChildNode("hips_service_url=*")),
-               ChildNode("obs_*=*simu")))
-
+meta_data_ex = 'ID = * && (moc_sky_fraction<=0.01 || hips*=*)'
+meta_data_hips_from_saada_alasky = '(hips_service_url*=http://saada*) && (hips_service_url*=http://alasky.*)'
+meta_data_hips_gaia = '((obs_*=*gaia* || ID=*gaia*) && hips_service_url=*) &! obs_*=*simu'
 """
 Combination of one spatial with a property constraint
 
@@ -136,29 +97,13 @@ with regards to the true results stored in a file located in the data directory
 
 """
 
-
-@pytest.fixture
-def cone_spatial_constraint():
-    center = coordinates.SkyCoord(ra=10.8, dec=6.5, unit="deg")
-    radius = coordinates.Angle(1.5, unit="deg")
-    circle_sky_region = CircleSkyRegion(center, radius)
-
-    return Cone(circle_sky_region, intersect="overlaps")
-
-
-@pytest.fixture
-def moc_spatial_constraint():
-    return Moc.from_url(url='http://alasky.u-strasbg.fr/SDSS/DR9/color/Moc.fits',
-                        intersect='overlaps')
-
-
-@pytest.mark.parametrize('spatial_constraint, property_constraint, data_file_id',
-                         [(cone_spatial_constraint, None, 'CONE_SEARCH'),
-                          (polygon_search_constraint, None, 'POLYGON_SEARCH'),
-                          (None, properties_ex, 'PROPERTIES_SEARCH'),
-                          (None, properties_hips_from_saada_alasky, 'HIPS_FROM_SAADA_AND_ALASKY'),
-                          (None, properties_hips_gaia, 'HIPS_GAIA')])
-def test_request_results(spatial_constraint, property_constraint, data_file_id,
+@pytest.mark.parametrize('type, params, data_file_id',
+                         [(cds.RegionType.Cone, dict(radius=coordinates.Angle(1.5, unit='deg'), center=coordinates.SkyCoord(ra=10.8, dec=6.5, unit="deg")), 'CONE_SEARCH'),
+                          (cds.RegionType.Polygon, dict(vertices=polygon1), 'POLYGON_SEARCH'),
+                          (cds.RegionType.AllSky, dict(meta_data=meta_data_ex), 'PROPERTIES_SEARCH'),
+                          (cds.RegionType.AllSky, dict(meta_data=meta_data_hips_from_saada_alasky), 'HIPS_FROM_SAADA_AND_ALASKY'),
+                          (cds.RegionType.AllSky, dict(meta_data=meta_data_hips_gaia), 'HIPS_GAIA')])
+def test_request_results(type, params, data_file_id,
                          get_true_request_results,
                          get_request_results):
     """
@@ -166,13 +111,11 @@ def test_request_results(spatial_constraint, property_constraint, data_file_id,
 
     with the one obtained on the http://alasky.unistra.fr/MocServer/query
     """
-    request_results = None
-    if callable(spatial_constraint):
-        request_results = get_request_results(spatial_constraint=spatial_constraint(),
-                                              property_constraint=property_constraint)
-    else:
-        request_results = get_request_results(spatial_constraint=spatial_constraint,
-                                              property_constraint=property_constraint)
+    request_results = get_request_results(type=type,
+                                          get_query_payload=False,
+                                          verbose=True,
+                                          **params)
+    print(request_results)
     true_request_results = get_true_request_results(data_file_id=data_file_id)
 
     assert getsizeof(request_results) == getsizeof(true_request_results)
@@ -195,28 +138,27 @@ request param 'intersect' is correct
 def test_cone_search_spatial_request(RA, DEC, RADIUS):
     center = coordinates.SkyCoord(ra=RA, dec=DEC, unit="deg")
     radius = coordinates.Angle(RADIUS, unit="deg")
-    circle_sky_region = CircleSkyRegion(center, radius)
-    moc_server_constraints = Constraints(sc=Cone(circle_sky_region, intersect="overlaps"))
 
-    request_payload = cds.query_region(moc_server_constraints,
-                                       OutputFormat(),
-                                       get_query_payload=True)
+    request_payload = cds.query_region(type=cds.RegionType.Cone,
+                                       get_query_payload=True,
+                                       center=center,
+                                       radius=radius,
+                                       intersect='overlaps')
 
     assert (request_payload['DEC'] == str(DEC)) and \
            (request_payload['RA'] == str(RA)) and \
            (request_payload['SR'] == str(RADIUS))
 
 
+
+
 @pytest.mark.parametrize('poly, poly_payload',
                          [(polygon1, 'Polygon 57.376 24.053 56.391 24.622 56.025 24.049 56.616 24.291'),
                           (polygon2, 'Polygon 58.376 24.053 53.391 25.622 56.025 22.049 54.616 27.291')])
-def test_polygon_spatial_request(poly, poly_payload, init_request):
-    moc_server_constraints, moc_server_format = init_request
-    spatial_constraint = Polygon(poly, intersect="overlaps")
-    moc_server_constraints.spatial_constraint = spatial_constraint
-
-    request_payload = cds.query_region(moc_server_constraints,
-                                       moc_server_format,
+def test_polygon_spatial_request(poly, poly_payload):
+    request_payload = cds.query_region(type=cds.RegionType.Polygon,
+                                       vertices=poly,
+                                       intersect='overlaps',
                                        get_query_payload=True)
 
     assert request_payload['stc'] == poly_payload
@@ -224,29 +166,31 @@ def test_polygon_spatial_request(poly, poly_payload, init_request):
 
 @pytest.mark.parametrize('intersect',
                          ['enclosed', 'overlaps', 'covers'])
-def test_intersect_param(intersect, cone_spatial_constraint):
-    cone_spatial_constraint.intersect = intersect
-    moc_server_constraints = Constraints(sc=cone_spatial_constraint)
-
-    request_payload = cds.query_region(moc_server_constraints,
-                                       OutputFormat(),
+def test_intersect_param(intersect):
+    center = coordinates.SkyCoord(ra=10.8, dec=32.2, unit="deg")
+    radius = coordinates.Angle(1.5, unit="deg")
+    request_payload = cds.query_region(type=cds.RegionType.Cone,
+                                       intersect=intersect,
+                                       center=center,
+                                       radius=radius,
                                        get_query_payload=True)
 
     assert request_payload['intersect'] == intersect
 
 
-@pytest.mark.parametrize('get_attr, get_attr_str', [(OutputFormat.Type.id, 'id'),
-                                                    (OutputFormat.Type.record, 'record'),
-                                                    (OutputFormat.Type.number, 'number'),
-                                                    (OutputFormat.Type.moc, 'moc'),
-                                                    (OutputFormat.Type.i_moc, 'imoc')])
-def test_get_attribute(get_attr, get_attr_str, cone_spatial_constraint):
+@pytest.mark.parametrize('get_attr, get_attr_str', [(cds.ReturnFormat.id, 'id'),
+                                                    (cds.ReturnFormat.record, 'record'),
+                                                    (cds.ReturnFormat.number, 'number'),
+                                                    (cds.ReturnFormat.moc, 'moc'),
+                                                    (cds.ReturnFormat.i_moc, 'imoc')])
+def test_get_attribute(get_attr, get_attr_str):
     """Test if the request parameter 'get' works for a basic cone search request"""
-    moc_server_format = OutputFormat(format=get_attr)
-    moc_server_constraints = Constraints(sc=cone_spatial_constraint)
-
-    result = cds.query_region(moc_server_constraints,
-                              moc_server_format,
+    center = coordinates.SkyCoord(ra=10.8, dec=32.2, unit="deg")
+    radius = coordinates.Angle(1.5, unit="deg")
+    result = cds.query_region(type=cds.RegionType.Cone,
+                              center=center,
+                              radius=radius,
+                              format=get_attr,
                               get_query_payload=True)
 
     assert result['get'] == get_attr_str
@@ -254,25 +198,45 @@ def test_get_attribute(get_attr, get_attr_str, cone_spatial_constraint):
 
 # test of MAXREC payload
 @pytest.mark.parametrize('max_rec', [3, 10, 25, 100])
-def test_max_rec_param(max_rec, cone_spatial_constraint):
-    moc_server_constraints = Constraints(sc=cone_spatial_constraint)
-    output_format = OutputFormat(max_rec=max_rec)
-
-    result = cds.query_region(moc_server_constraints, output_format)
+def test_max_rec_param(max_rec):
+    center = coordinates.SkyCoord(ra=10.8, dec=32.2, unit="deg")
+    radius = coordinates.Angle(1.5, unit="deg")
+    result = cds.query_region(type=cds.RegionType.Cone,
+                              center=center,
+                              radius=radius,
+                              max_rec=max_rec,
+                              get_query_payload=False)
 
     assert max_rec == len(result)
 
 
 # test of moc_order payload
-@pytest.mark.parametrize('moc_order', [5, 10, 11, 13, 25])
-def test_max_rec_param(moc_order, moc_spatial_constraint):
-    moc_server_constraints = Constraints(sc=moc_spatial_constraint)
-    output_format = OutputFormat(format=OutputFormat.Type.moc,
-                                 moc_order=moc_order)
-
-    result = cds.query_region(moc_server_constraints, output_format)
+@pytest.mark.parametrize('moc_order', [5, 10])
+def test_moc_order_param(moc_order):
+    result = cds.query_region(type=cds.RegionType.MOC,
+                              url='http://alasky.u-strasbg.fr/SDSS/DR9/color/Moc.fits',
+                              # return a mocpy obj
+                              format=cds.ReturnFormat.moc,
+                              moc_order=moc_order,
+                              get_query_payload=False)
 
     assert isinstance(result, MOC)
+
+
+def test_from_mocpy_obj():
+    moc = MOC()
+    moc.add_pix(order=5, ipix=3, nest=True)
+    moc.add_pix(order=9, ipix=34, nest=True)
+    moc.add_pix(order=9, ipix=35, nest=True)
+    moc.add_pix(order=9, ipix=36, nest=True)
+    result = cds.query_region(type=cds.RegionType.MOC,
+                              moc=moc,
+                              get_query_payload=True)
+
+    from ast import literal_eval
+    assert literal_eval(result['moc']) == {"5": [3],
+                                           "9": [34, 35, 36]}
+
 
 
 # test of field_l when retrieving dataset records
@@ -280,11 +244,15 @@ def test_max_rec_param(moc_order, moc_spatial_constraint):
                                      ['ID', 'moc_sky_fraction'],
                                      ['data_ucd', 'vizier_popularity', 'ID'],
                                      ['publisher_id', 'ID']])
-def test_field_l_param(field_l, cone_spatial_constraint):
-    moc_server_constraints = Constraints(sc=cone_spatial_constraint)
-    output_format = OutputFormat(format=OutputFormat.Type.record, field_l=field_l)
-
-    datasets = cds.query_region(moc_server_constraints, output_format)
+def test_field_l_param(field_l):
+    center = coordinates.SkyCoord(ra=10.8, dec=32.2, unit="deg")
+    radius = coordinates.Angle(1.5, unit="deg")
+    datasets = cds.query_region(type=cds.RegionType.Cone,
+                                center=center,
+                                radius=radius,
+                                format=cds.ReturnFormat.record,
+                                meta_var=field_l,
+                                get_query_payload=False)
 
     assert isinstance(datasets, dict)
     for id, dataset in datasets.items():
