@@ -1,7 +1,7 @@
 0.3.9 (unreleased)
 ------------------
 
-- none yet
+- HITRAN: use class-based API [#824]
 
 0.3.8 (2018-04-27)
 ------------------
