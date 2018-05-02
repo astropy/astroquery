@@ -1332,7 +1332,7 @@ class ObservationsClass(MastClass):
         """ Turns a dataProduct into a S3 URI """
 
         if self._boto3 is None:
-            raise Exception("Must enable s3 hst dataset before attempting to query the s3 information")
+            raise AtrributeError("Must enable s3 hst dataset before attempting to query the s3 information")
 
         # This is a cheap operation and does not perform any actual work yet
         s3_client = self._boto3.client('s3')
