@@ -824,6 +824,7 @@ class ObservationsClass(MastClass):
 
         self._boto3 = None
         self._botocore = None
+        self._hst_bucket = "stpubdata"
 
     def list_missions(self):
         """
@@ -1322,15 +1323,19 @@ class ObservationsClass(MastClass):
         self._boto3 = None
         self._botocore = None
 
-    def _download_from_s3(self, dataProduct, localPath, cache=True):
-        # The following is a mishmash of BaseQuery._download_file and s3 access through boto
+    def get_hst_s3_uris(self, dataProducts, includeBucket=True, fullUrl=False):
+        """ Takes an `astropy.table.Table` of data products and turns them into s3 uris. """
 
-        bkt_name = 'stpubdata'
+        return [self.get_hst_s3_uri(dataProduct, includeBucket, fullUrl) for dataProduct in dataProducts]
+
+    def get_hst_s3_uri(self, dataProduct, includeBucket=True, fullUrl=False):
+        """ Turns a dataProduct into a S3 URI """
+
+        if self._boto3 is None:
+            raise AtrributeError("Must enable s3 hst dataset before attempting to query the s3 information")
 
         # This is a cheap operation and does not perform any actual work yet
-        s3 = self._boto3.resource('s3')
         s3_client = self._boto3.client('s3')
-        bkt = s3.Bucket(bkt_name)
 
         dataUri = dataProduct['dataURI']
         filename = dataUri.split("/")[-1]
@@ -1354,33 +1359,45 @@ class ObservationsClass(MastClass):
         # So in conclusion we can't trust the last char obs_id from the file or from the database
         # So with that in mind, hold your nose when reading the following:
 
-        info_lookup = None
+        paths = []
+
         sane_path = os.path.join("hst", "public", obs_id[:4], obs_id, filename)
-        try:
-            info_lookup = s3_client.head_object(Bucket=bkt_name, Key=sane_path, RequestPayer='requester')
-            bucketPath = sane_path
-        except self._botocore.exceptions.ClientError as e:
-            if e.response['Error']['Code'] != "404":
-                raise
+        paths += [sane_path]
 
-        if info_lookup is None:
-            # Unfortunately our file placement logic is anything but sane
-            # We put files in folders that don't make sense
-            for ch in (string.digits + string.ascii_lowercase):
-                # The last char of the obs_folder (observation id) can be any lowercase or numeric char
-                insane_obs = obs_id[:-1] + ch
-                insane_path = os.path.join("hst", "public", insane_obs[:4], insane_obs, filename)
+        # Unfortunately our file placement logic is anything but sane
+        # We put files in folders that don't make sense
+        for ch in (string.digits + string.ascii_lowercase):
+            # The last char of the obs_folder (observation id) can be any lowercase or numeric char
+            insane_obs = obs_id[:-1] + ch
+            insane_path = os.path.join("hst", "public", insane_obs[:4], insane_obs, filename)
+            paths += [insane_path]
 
-                try:
-                    info_lookup = s3_client.head_object(Bucket=bkt_name, Key=insane_path, RequestPayer='requester')
-                    bucketPath = insane_path
-                    break
-                except self._botocore.exceptions.ClientError as e:
-                    if e.response['Error']['Code'] != "404":
-                        raise
+        for path in paths:
+            try:
+                s3_client.head_object(Bucket=self._hst_bucket, Key=path, RequestPayer='requester')
+                if includeBucket:
+                    path = "s3://%s/%s" % (self._hst_bucket, path)
+                elif fullUrl:
+                    path = "http://s3.amazonaws.com/%s/%s" % (self._hst_bucket, path)
+                return path
+            except self._botocore.exceptions.ClientError as e:
+                if e.response['Error']['Code'] != "404":
+                    raise
 
-        if info_lookup is None:
-            raise Exception("Unable to locate file!")
+        raise Exception("Unable to locate file!")
+
+    def _download_from_s3(self, dataProduct, localPath, cache=True):
+        # The following is a mishmash of BaseQuery._download_file and s3 access through boto
+
+        self._hst_bucket = 'stpubdata'
+
+        # This is a cheap operation and does not perform any actual work yet
+        s3 = self._boto3.resource('s3')
+        s3_client = self._boto3.client('s3')
+        bkt = s3.Bucket(self._hst_bucket)
+
+        bucketPath = self.get_hst_s3_uri(dataProduct, False)
+        info_lookup = s3_client.head_object(Bucket=self._hst_bucket, Key=bucketPath, RequestPayer='requester')
 
         # Unfortunately, we can't use the reported file size in the reported product.  STScI's backing
         # archive database (CAOM) is frequently out of date and in many cases omits the required information.
@@ -1403,7 +1420,7 @@ class ObservationsClass(MastClass):
                     return
 
         with ProgressBarOrSpinner(length, ('Downloading URL s3://{0}/{1} to {2} ...'.format(
-                bkt_name, bucketPath, localPath))) as pb:
+                self._hst_bucket, bucketPath, localPath))) as pb:
 
             # Bytes read tracks how much data has been received so far
             # This variable will be updated in multiple threads below
