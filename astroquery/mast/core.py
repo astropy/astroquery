@@ -1323,12 +1323,12 @@ class ObservationsClass(MastClass):
         self._boto3 = None
         self._botocore = None
 
-    def get_hst_s3_uris(self, dataProducts, includeBucket=True):
+    def get_hst_s3_uris(self, dataProducts, includeBucket=True, fullUrl=False):
         """ Takes an `astropy.table.Table` of data products and turns them into s3 uris. """
 
-        return [self.get_hst_s3_uri(dataProduct, includeBucket) for dataProduct in dataProducts]
+        return [self.get_hst_s3_uri(dataProduct, includeBucket, fullUrl) for dataProduct in dataProducts]
 
-    def get_hst_s3_uri(self, dataProduct, includeBucket=True):
+    def get_hst_s3_uri(self, dataProduct, includeBucket=True, fullUrl=False):
         """ Turns a dataProduct into a S3 URI """
 
         if self._boto3 is None:
@@ -1377,6 +1377,8 @@ class ObservationsClass(MastClass):
                 s3_client.head_object(Bucket=self._hst_bucket, Key=path, RequestPayer='requester')
                 if includeBucket:
                     path = "s3://%s/%s" % (self._hst_bucket, path)
+                elif fullUrl:
+                    path = "http://s3.amazonaws.com/%s/%s" % (self._hst_bucket, path)
                 return path
             except self._botocore.exceptions.ClientError as e:
                 if e.response['Error']['Code'] != "404":
