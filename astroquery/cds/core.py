@@ -140,9 +140,9 @@ class CdsClass(BaseQuery):
         region_type : ``astroquery.cds.RegionType``
             The type of the region.
         get_query_payload : bool
-            If True, returns a dictionary of the query payload
+            If True, returns a dictionary in the form of a dictionary
         **kwargs
-             Arbitrary keyword arguments depending on the region_type parameter:
+             Arbitrary keyword arguments depending on the ``region_type`` parameter
 
         Returns
         -------
