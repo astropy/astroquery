@@ -155,7 +155,7 @@ matrix:
             provider: pypi
             user: astroquery
             password: 
-            secure: NvwZewQEwW+JadyF1ChzaKvQHLtFQ32BRSpw1Jx/IuE3aZS2QMp3Zdm9AjFJEyoI5BTe2WCdd8UIXusceAN+uCjgdv5s4nSHNjdIo9c+rwRh1mzD62kDVkNZzyTHQ9tBRydOUrQhllraP2AmFfNpMDWOnGeJDZL7NdF+F1pg7Is=
+            secure: DtqyQkllGcWuKOVMsu9RWRiobeL8bdpMxwdSYpob4Cqj0D2hLLx3w50qr0qpDCFzioB3rXnhbtPKEzHB+4fTFT/Rjito32fFPUtee2Rw4SCe4YIlS0ksPOTmxkeoh2TQLIYcNPPoI7UpUX6uC65nzgCUTmZVoiCweQE+i5GhEBI=
             on:
               branch: master
 
@@ -171,7 +171,3 @@ after_success:
     - if [[ $SETUP_CMD == 'test --coverage' ]]; then
           codecov;
       fi
-
-deploy:
-  password:
-    secure: igbQWSv2MhYw8PuvMl+JsU0JeMTETyoAY583lDwBO6VYMt0G6SNXQOoUJ+nhrLeU7LkSd4FAnvkFO+AbIzuCYJyoKcd85ZBVzamnselmU/7xcV6Cp8sIgokjcCI7Ur9IWnrRxTbLP76wOuqmcbRYyzPIihGzGFA41Z7xRSm+hqs=
