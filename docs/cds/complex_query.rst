@@ -1,33 +1,36 @@
+.. _query_on_meta_data:
 
-Performing a complex CDS MOC query involving a constraint on meta datas
------------------------------------------------------------------------
+Performing a complex CDS MOC query involving a constraint on meta data
+----------------------------------------------------------------------
 
-We now want to bind a spatial and a properties constraints to the
-Constraints object so that our mocserver query returns all the datasets
-matching those two constraints.
+We now want to use the `CDS MOC Service`_ to filter data sets having a specific
+set of meta data
 
 .. code:: ipython3
 
     from astroquery.cds import cds
 
-We want to retrieve the 'number' of the data sets :
+As an example, we would like to retrieve the number of data sets matching the query. These data sets
+must :
 
--  belonging to the MOC defined at the url :
-   http://alasky.u-strasbg.fr/SDSS/DR9/color/Moc.fits
--  having the word 'CDS' in their IDs (meta data)
--  covering at most 1% of the sky (meta data)
+-  belong to this `MOC_FILE`_
+-  have the word 'CDS' in their IDs (constraint on the ``ID`` meta data)
+-  cover at most 1% of the sky (constraint on the ``moc_sky_fraction`` meta data)
 
-Meta data constraints are written like an algebraic expression. For more
-details about how to write them, go to :
-http://alasky.unistra.fr/MocServer/query
+Meta data constraint is written like an algebraic expression involving the set of meta data to constraint. For more
+details about how to write them, go to the `CDS MOC Service`_. Please refer to the section
+Advanced queries & parameters part ii.
 
 With that in mind, we can obtain these data sets by typing:
 
+.. _MOC_FILE:
+    http://alasky.u-strasbg.fr/SDSS/DR9/color/Moc.fits
+
 .. code:: ipython3
 
-    num_datasets = cds.query_region(type=cds.RegionType.MOC,
+    num_datasets = cds.query_region(region_type=cds.RegionType.MOC,
                                     url='http://alasky.u-strasbg.fr/SDSS/DR9/color/Moc.fits',
-                                    format=cds.ReturnFormat.number,
+                                    output_format=cds.ReturnFormat.number,
                                     meta_data='ID = *CDS* && moc_sky_fraction <= 0.01')
     num_datasets
 
@@ -38,4 +41,5 @@ With that in mind, we can obtain these data sets by typing:
 
     13701
 
+.. include:: references.rst
 

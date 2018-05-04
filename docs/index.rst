@@ -139,6 +139,7 @@ The following modules have been completed using a common API:
   alma/alma.rst
   atomic/atomic.rst
   besancon/besancon.rst
+  cds/cds.rst
   esasky/esasky.rst
   eso/eso.rst
   gaia/gaia.rst
