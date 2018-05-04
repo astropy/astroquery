@@ -169,7 +169,7 @@ class Dataset:
 
         """
         Mirrors services are queried in a random way (services_l shuffled) until
-        a service does not raise a DALServiceError or a DALQueryError.  
+        a service does not raise a DALServiceError or a DALQueryError.
 
         """
 

@@ -93,7 +93,8 @@ class CdsClass(BaseQuery):
                data sets
             -  ``cds.ReturnFormat.record``. The output is a dictionary of
                :class:`astroquery.cds.Dataset <astroquery.cds.Dataset>` objects indexed by their ID
-            -  ``cds.ReturnFormat.number``. :meth:`~astroquery.cds.CdsClass.query_region` returns the number of matched data sets
+            -  ``cds.ReturnFormat.number``. :meth:`~astroquery.cds.CdsClass.query_region` returns the number of
+               matched data sets
             -  ``cds.ReturnFormat.moc``. The output is a ``mocpy.MOC`` object corresponding
                to the union of the MOCs of the selected data sets
             -  ``cds.ReturnFormat.i_moc``. The output is a ``mocpy.MOC`` object
