@@ -126,9 +126,11 @@ class Dataset:
 
         Examples
         --------
-        Suppose we get a dictionary of data sets ``datasets_d`` after calling the
-        :meth:`~astroquery.cds.CdsClass.query_region` with record outputs.
-        We want to call the SSA service on a dataset whose ID is ``index``
+        We call :meth:`~astroquery.cds.CdsClass.query_region` to get the data sets
+        having observations in a cone region.
+        After that we call the cone search service on a data set named ``CDS/I/200/npm1rgal``.
+        We get a `~astropy.io.votable.tree.Table` object containing the observations inside
+        that cone region.
 
         >>> from astropy import coordinates
         >>> from astroquery.cds import cds

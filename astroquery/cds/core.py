@@ -112,8 +112,8 @@ class CdsClass(BaseQuery):
 
         Returns
         -------
-        The output entirely depends on the ``output_format`` parameter. See the docstring of the parameter
-        ``output_format``.
+        result : depends on the value of ``output_format``. See its definition
+            The parsed HTTP response emitted from the `CDS MOC Service`_.
 
         Examples
         --------

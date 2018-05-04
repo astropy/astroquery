@@ -144,7 +144,7 @@ class Polygon(SpatialConstraint):
             if ``vertices`` is not of type `~astropy.coordinates.SkyCoord`
 
         AttributeError
-            if ``vertices`` contains at least 3 positions
+            if ``vertices`` does not contain at least 3 positions
 
         """
 
