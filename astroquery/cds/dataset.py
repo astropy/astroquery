@@ -14,6 +14,20 @@ from random import shuffle
 
 
 class Dataset:
+    """
+    Data set record object
+
+    :class:`astroquery.cds.Dataset <astroquery.cds.Dataset>` objects are returned
+    only when asking for data sets records through :meth:`~astroquery.cds.CdsClass.query_region`.
+
+    This class offers the ability for users to query specific services on the retrieved data sets.
+    This feature uses the `pyvo <http://pyvo.readthedocs.io/en/latest/>`_ library.
+    Querying available services is handled by the :meth:`~astroquery.cds.Dataset.search` method.
+
+    One can also ask for the meta data associated with the data set by calling the
+    :meth:`~astroquery.cds.Dataset.properties` python property.
+
+    """
 
     def __init__(self, **kwargs):
         from .core import cds
@@ -57,38 +71,92 @@ class Dataset:
 
     @property
     def properties(self):
+        """
+        Meta data access
+
+        Returns
+        -------
+        dict{str : _}
+            dictionary containing the meta data associated to the data set.
+            See `this link <http://alasky.unistra.fr/MocServer/query?get=example&fmt=ascii>`_
+            for examples of meta data names and their possible values.
+
+        """
+
         return copy(self._properties)
 
     @property
     def services(self):
-        return [service_type.name for service_type in self._services.keys()]
+        """
+        Available services access
+
+        Returns
+        -------
+        result : [str]
+            list of the service names available for this data set
+
+        """
+
+        result = [service_type.name for service_type in self._services.keys()]
+        return result
 
     def search(self, service_type, **kwargs):
         """
-        Definition of the search function allowing the user to perform queries on the dataset.
+        Call a service on the data set
 
-        :param service_type:
-            Wait for a Dataset.ServiceType object specifying the type of service to query
-        :param kwargs:
-            The params that PyVO requires to query the services.
-            These depend on the queried service :
-            - a simple cone search requires a pos and radius params expressed in deg
-            - a tap search requires a SQL query
-            - a ssa (simple spectral access) search requires a pos and a diameter params.
-            SSA searches can be extended with two other params : a time and a band such as
-            Dataset.search(service_type=Dataset.ServiceType.SSA,
-                pos=pos, diameter=size,
-                time=time, band=Quantity((1e-13, 1e-12), unit="meter")
-            )
-            - sia and sia2 searches require a pos and a size params where size defines a
-            rectangular region around pos
+        Parameters
+        ----------
+        service_type : ``astroquery.cds.ServiceType``
+            The type of service to query. Can take one of the following values:
 
-            For more explanation about what params to use with a service, see the pyvo
-            doc available at : http://pyvo.readthedocs.io/en/latest/dal/index.html
-        :return:
-            an astropy.table.Table containing the sources from the dataset that match the query
+            * ``cds.ServiceType.cs`` : cone search service
+            * ``cds.ServiceType.tap`` : TAP service
+            * ``cds.ServiceType.ssa`` : SSA service
+            * ``cds.ServiceType.sia`` : SIA service
+
+        **kwargs :
+            Arbitrary keyword arguments asked by the pyvo to query the services
+            See the `pyvo doc <http://pyvo.readthedocs.io/en/latest/>`_
+            for knowing what keyword parameters the different services need.
+
+        Returns
+        -------
+        :class:`astropy.table.Table <astropy.table.Table>`
+            An astropy table containing the observations of the data set matching the query
+
+        Examples
+        --------
+        Suppose we get a dictionary of data sets ``datasets_d`` after calling the
+        :meth:`~astroquery.cds.CdsClass.query_region` with record outputs.
+        We want to call the SSA service on a dataset whose ID is ``index``
+
+        >>> from astropy import coordinates
+        >>> from astroquery.cds import cds
+        >>> center = coordinates.SkyCoord(10.8, 32.2, unit='deg')
+        >>> radius = coordinates.Angle(1.5, unit='deg')
+        >>> datasets_d = cds.query_region(region_type=cds.RegionType.Cone,
+        ...                               center=center,
+        ...                               radius=radius,
+        ...                               output_format=cds.ReturnFormat.record)
+        >>> table = datasets_d['CDS/I/200/npm1rgal'].search(cds.ServiceType.cs,
+        ...                                                 pos=(10.8, 32.2),
+        ...                                                 radius=1.5)
+        >>> print(table)
+             _RAJ2000  _DEJ2000    _r      Name   ... Flag2 Flag3   _RA.icrs     _DE.icrs
+               deg       deg      deg             ...               "h:m:s"      "d:m:s"
+            --------- --------- -------- -------- ... ----- ----- ------------ ------------
+              9.71152  31.54400 1.133477 +31.0014 ...     0     0 00 38 50.765 +31 32 38.40
+             12.19638  31.95690 1.207892 +31.0015 ...     0     0 00 48 47.132 +31 57 24.85
+             12.22010  31.95853 1.227253 +31.0016 ...     0     0 00 48 52.824 +31 57 30.71
+              9.07023  31.99699 1.479329 +31.0013 ...     0     0 00 36 16.856 +31 59 49.18
+             12.41883  32.16893 1.370420 +31.0017 ...     0     0 00 49 40.520 +32 10 08.14
+             10.30302  32.37405 0.454763 +32.0024 ...     0     0 00 41 12.725 +32 22 26.59
+              9.45192  32.60568 1.208313 +32.0023 ...     0     0 00 37 48.460 +32 36 20.44
+             10.82190  32.71765 0.517981 +32.0026 ...     0     0 00 43 17.256 +32 43 03.54
+             10.36668  32.79513 0.698383 +32.0025 ...     0     0 00 41 28.004 +32 47 42.46
 
         """
+
         from .core import cds
         if not isinstance(service_type, cds.ServiceType):
             raise ValueError('Service {0} not found'.format(service_type))
@@ -101,9 +169,10 @@ class Dataset:
 
         """
         Mirrors services are queried in a random way (services_l shuffled) until
-        DALErrors are not raised and we get a votable
+        a service does not raise a DALServiceError or a DALQueryError.  
 
         """
+
         result = None
         index_service = 0
         while not result:

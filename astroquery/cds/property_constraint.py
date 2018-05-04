@@ -9,28 +9,7 @@ from enum import Enum
 
 
 class PropertyConstraint(object):
-    """
-    PropertyConstraint's class definition
-
-    The user can specify a constraint acting only
-    on properties too. The MOCServer asks for an
-    algebraic expression dealing with properties.
-    Example : a user can ask the MOCServer all datasets
-    having the word CDS(Center of astronomical Data of
-    Strasbourg) in its ID property or/and a moc_sky_fraction
-    < 1 %
-
-    """
-
     def __init__(self, expr):
-        """
-        PropertyConstraint's constructor
-
-        :param expr:
-            can be a PropertiesExpr or a string
-
-        """
-
         if not isinstance(expr, PropertiesExpr) and not isinstance(expr, str):
             raise TypeError('`expr` is not of type str nor PropertiesExpr')
 
@@ -39,10 +18,6 @@ class PropertyConstraint(object):
         self._compute_payload()
 
     def _compute_payload(self):
-        """
-        Update the property constraints payload
-
-        """
         if isinstance(self.expr, str):
             self.request_payload['expr'] = self.expr
             return
@@ -55,44 +30,18 @@ class PropertyConstraint(object):
 
 
 class OperandExpr(Enum):
-    """
-    Operand Enum which allow the user to define relationship between expr
-
-    """
     Inter = 1,
     Union = 2,
     Subtr = 3
 
 
 class PropertiesExpr(ABC):
-    """
-    General expression interface
-
-    Expressions are built like a binary tree. A parent expression can
-    have one or two children. The parent defines an operand between
-    its two children (if it is a ParentNode) or nothing in
-    the other case (only one child).
-
-    """
-
     @abstractmethod
     def eval(self):
-        """
-        Evaluate recursively the whole expression
-
-        Returns a str understandable by the MOCServer
-
-        """
-
         pass
 
 
 class ChildNode(PropertiesExpr):
-    """
-    Leaf expression node of the binary tree expression
-
-    """
-
     def __init__(self, condition):
         assert condition is not None
         self.condition = condition
@@ -102,11 +51,6 @@ class ChildNode(PropertiesExpr):
 
 
 class ParentNode(PropertiesExpr):
-    """
-    Parent expression node of the binary tree expression
-
-    """
-
     def __init__(self, operand, left_expr, right_expr):
         assert isinstance(right_expr, PropertiesExpr), TypeError('`right_expr` is not of type PropertiesExpr')
         assert isinstance(left_expr, PropertiesExpr), TypeError('`left_expr` is not of type PropertiesExpr')

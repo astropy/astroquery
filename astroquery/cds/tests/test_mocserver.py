@@ -47,8 +47,8 @@ def get_mockreturn(method, url, params=None, timeout=10, **kwargs):
 def get_request_results():
     """Perform the request using the astroquery.MocServer  API"""
 
-    def process_query(type, get_query_payload, verbose, **kwargs):
-        request_result = cds.query_region(type,
+    def process_query(region_type, get_query_payload, verbose, **kwargs):
+        request_result = cds.query_region(region_type,
                                           get_query_payload,
                                           verbose,
                                           **kwargs)
@@ -97,11 +97,15 @@ with regards to the true results stored in a file located in the data directory
 
 """
 
+
 @pytest.mark.parametrize('type, params, data_file_id',
-                         [(cds.RegionType.Cone, dict(radius=coordinates.Angle(1.5, unit='deg'), center=coordinates.SkyCoord(ra=10.8, dec=6.5, unit="deg")), 'CONE_SEARCH'),
+                         [(cds.RegionType.Cone, dict(radius=coordinates.Angle(1.5, unit='deg'),
+                                                     center=coordinates.SkyCoord(ra=10.8, dec=6.5, unit="deg")),
+                           'CONE_SEARCH'),
                           (cds.RegionType.Polygon, dict(vertices=polygon1), 'POLYGON_SEARCH'),
                           (cds.RegionType.AllSky, dict(meta_data=meta_data_ex), 'PROPERTIES_SEARCH'),
-                          (cds.RegionType.AllSky, dict(meta_data=meta_data_hips_from_saada_alasky), 'HIPS_FROM_SAADA_AND_ALASKY'),
+                          (cds.RegionType.AllSky, dict(meta_data=meta_data_hips_from_saada_alasky),
+                           'HIPS_FROM_SAADA_AND_ALASKY'),
                           (cds.RegionType.AllSky, dict(meta_data=meta_data_hips_gaia), 'HIPS_GAIA')])
 def test_request_results(type, params, data_file_id,
                          get_true_request_results,
@@ -111,7 +115,7 @@ def test_request_results(type, params, data_file_id,
 
     with the one obtained on the http://alasky.unistra.fr/MocServer/query
     """
-    request_results = get_request_results(type=type,
+    request_results = get_request_results(region_type=type,
                                           get_query_payload=False,
                                           verbose=True,
                                           **params)
@@ -139,7 +143,7 @@ def test_cone_search_spatial_request(RA, DEC, RADIUS):
     center = coordinates.SkyCoord(ra=RA, dec=DEC, unit="deg")
     radius = coordinates.Angle(RADIUS, unit="deg")
 
-    request_payload = cds.query_region(type=cds.RegionType.Cone,
+    request_payload = cds.query_region(region_type=cds.RegionType.Cone,
                                        get_query_payload=True,
                                        center=center,
                                        radius=radius,
@@ -150,13 +154,11 @@ def test_cone_search_spatial_request(RA, DEC, RADIUS):
            (request_payload['SR'] == str(RADIUS))
 
 
-
-
 @pytest.mark.parametrize('poly, poly_payload',
                          [(polygon1, 'Polygon 57.376 24.053 56.391 24.622 56.025 24.049 56.616 24.291'),
                           (polygon2, 'Polygon 58.376 24.053 53.391 25.622 56.025 22.049 54.616 27.291')])
 def test_polygon_spatial_request(poly, poly_payload):
-    request_payload = cds.query_region(type=cds.RegionType.Polygon,
+    request_payload = cds.query_region(region_type=cds.RegionType.Polygon,
                                        vertices=poly,
                                        intersect='overlaps',
                                        get_query_payload=True)
@@ -169,7 +171,7 @@ def test_polygon_spatial_request(poly, poly_payload):
 def test_intersect_param(intersect):
     center = coordinates.SkyCoord(ra=10.8, dec=32.2, unit="deg")
     radius = coordinates.Angle(1.5, unit="deg")
-    request_payload = cds.query_region(type=cds.RegionType.Cone,
+    request_payload = cds.query_region(region_type=cds.RegionType.Cone,
                                        intersect=intersect,
                                        center=center,
                                        radius=radius,
@@ -187,10 +189,10 @@ def test_get_attribute(get_attr, get_attr_str):
     """Test if the request parameter 'get' works for a basic cone search request"""
     center = coordinates.SkyCoord(ra=10.8, dec=32.2, unit="deg")
     radius = coordinates.Angle(1.5, unit="deg")
-    result = cds.query_region(type=cds.RegionType.Cone,
+    result = cds.query_region(region_type=cds.RegionType.Cone,
                               center=center,
                               radius=radius,
-                              format=get_attr,
+                              output_format=get_attr,
                               get_query_payload=True)
 
     assert result['get'] == get_attr_str
@@ -201,7 +203,7 @@ def test_get_attribute(get_attr, get_attr_str):
 def test_max_rec_param(max_rec):
     center = coordinates.SkyCoord(ra=10.8, dec=32.2, unit="deg")
     radius = coordinates.Angle(1.5, unit="deg")
-    result = cds.query_region(type=cds.RegionType.Cone,
+    result = cds.query_region(region_type=cds.RegionType.Cone,
                               center=center,
                               radius=radius,
                               max_rec=max_rec,
@@ -213,10 +215,10 @@ def test_max_rec_param(max_rec):
 # test of moc_order payload
 @pytest.mark.parametrize('moc_order', [5, 10])
 def test_moc_order_param(moc_order):
-    result = cds.query_region(type=cds.RegionType.MOC,
+    result = cds.query_region(region_type=cds.RegionType.MOC,
                               url='http://alasky.u-strasbg.fr/SDSS/DR9/color/Moc.fits',
                               # return a mocpy obj
-                              format=cds.ReturnFormat.moc,
+                              output_format=cds.ReturnFormat.moc,
                               moc_order=moc_order,
                               get_query_payload=False)
 
@@ -229,14 +231,13 @@ def test_from_mocpy_obj():
     moc.add_pix(order=9, ipix=34, nest=True)
     moc.add_pix(order=9, ipix=35, nest=True)
     moc.add_pix(order=9, ipix=36, nest=True)
-    result = cds.query_region(type=cds.RegionType.MOC,
+    result = cds.query_region(region_type=cds.RegionType.MOC,
                               moc=moc,
                               get_query_payload=True)
 
     from ast import literal_eval
     assert literal_eval(result['moc']) == {"5": [3],
                                            "9": [34, 35, 36]}
-
 
 
 # test of field_l when retrieving dataset records
@@ -247,10 +248,10 @@ def test_from_mocpy_obj():
 def test_field_l_param(field_l):
     center = coordinates.SkyCoord(ra=10.8, dec=32.2, unit="deg")
     radius = coordinates.Angle(1.5, unit="deg")
-    datasets = cds.query_region(type=cds.RegionType.Cone,
+    datasets = cds.query_region(region_type=cds.RegionType.Cone,
                                 center=center,
                                 radius=radius,
-                                format=cds.ReturnFormat.record,
+                                output_format=cds.ReturnFormat.record,
                                 meta_var=field_l,
                                 get_query_payload=False)
 

@@ -9,32 +9,24 @@ from astropy import coordinates
 
 
 class SpatialConstraint(ABC):
-    """
-    This abstract class provides an interface for spatial constraints
-
-    The user can define a spatial constraint when querying
-    the MOCServer. This class is an interface for different
-    possible spatial constraints. Those are defined below
-    such as CircleSkyRegionSpatialConstraint and
-    PolygonSkyRegionSpatialConstraint
-    """
-
     @abstractmethod
     def __init__(self, intersect):
         """
-        SpatialConstraint's constructor
+        Definition of a SpatialConstraint object
 
-        Parameters:
-        ----
-        intersect : string
-            specify if the defined region must overlaps,
-            covers or encloses the mocs from each dataset
-            stored in the MOCServer
+        Parameters
+        ----------
+        intersect : str
+            This parameter can take only three different values:
 
-        Exceptions:
-        ----
-        ValueError :
-            - intersect must have its value in (overlaps, enclosed, covers)
+            - ``overlaps`` (default). The matching data sets are those overlapping the MOC region.
+            - ``covers``. The matching data sets are those covering the MOC region.
+            - ``enclosed``. The matching data sets are those enclosing the MOC region.
+
+        Raises
+        ------
+        ValueError
+            ``intersect`` must have its value in (overlaps, enclosed, covers)
 
         """
         self._intersect = intersect
@@ -42,10 +34,37 @@ class SpatialConstraint(ABC):
 
     @property
     def intersect(self):
+        """
+        ``intersect`` property
+
+        Returns
+        -------
+        intersect : str
+            ``intersect``
+
+        """
         return self._intersect
 
     @intersect.setter
     def intersect(self, value):
+        """
+        ``intersect`` parameter setter property
+
+        Parameters
+        ----------
+        value : str
+            This parameter can take only three different values:
+
+            - ``overlaps`` (default). The matching data sets are those overlapping the MOC region.
+            - ``covers``. The matching data sets are those covering the MOC region.
+            - ``enclosed``. The matching data sets are those enclosing the MOC region.
+
+        Raises
+        ------
+        ValueError
+            ``intersect`` must have its value in (overlaps, enclosed, covers)
+
+        """
         if value not in ('overlaps', 'enclosed', 'covers'):
             raise ValueError("`intersect` parameter must have a value in ('overlaps', 'enclosed', 'covers')")
 
@@ -65,25 +84,25 @@ class Cone(SpatialConstraint):
 
         A cone region is defined by a center position and a radius.
         When sending these parameters to the CDS MOC service, the service
-        build a MOC from this region and does the intersection (if `intersect` is
-        equal to overlaps) of this newly constructed MOC with the MOCs of the ~20000
-        data sets that he already has in memory. A data set is chosen by the MOC service when
-        this MOC intersection is not empty.
+        build a MOC from this region and does the intersection of this newly constructed MOC with the MOCs of the ~20000
+        data sets that he already has in memory.
+        Selected data sets are those having a not empty MOC intersection (if ``intersect`` is
+        equal to overlaps).
 
         Parameters
         ----------
-        center : astropy.coordinates.Skycoord
+        center : `~astropy.coordinates.SkyCoord`
             the position of the center of the cone
-        radius : astropy.coordinates.Angle
+        radius : `~astropy.coordinates.Angle`
             the radius of the cone
         intersect : str, optional
-            intersection matching law for data sets
+            default to "overlaps"
 
         Raises
         ------
         TypeError
-            if center is not of type astropy.coordinates.Skycoord or
-            radius is not of type astropy.coordinates.Angle
+            if ``center`` is not of type `~astropy.coordinates.SkyCoord` or
+            ``radius`` is not of type `~astropy.coordinates.Angle`
 
         """
 
@@ -103,29 +122,29 @@ class Polygon(SpatialConstraint):
 
     def __init__(self, vertices, intersect='overlaps'):
         """
-        Definition of a Polygon region
+        Definition of a polygon region
 
         A polygon region is defined by a list of vertices.
         When sending a polygon region to the CDS MOC service, the service
-        build a MOC from this region and does the intersection (if `intersect` is
-        equal to overlaps) of this newly constructed MOC with the MOCs of the ~20000
-        data sets that he already has in memory. A data set is chosen by the MOC service when
-        this MOC intersection is not empty.
+        build a MOC from this region and does the intersection of this newly constructed MOC with the MOCs of the ~20000
+        data sets that he already has in memory.
+        Selected data sets are those having a not empty MOC intersection (if ``intersect`` is
+        equal to overlaps).
 
         Parameters
         ----------
-        vertices : astropy.coordinates.Skycoord
+        vertices : [`~astropy.coordinates.SkyCoord`]
             the positions of the polygon vertices
         intersect : str, optional
-            intersection matching law for data sets
+            default to "overlaps"
 
         Raises
         ------
         TypeError
-            if `vertices` is not of type astropy.coordinates.Skycoord
+            if ``vertices`` is not of type `~astropy.coordinates.SkyCoord`
 
         AttributeError
-            if `vertices` contains at least 3 vertices
+            if ``vertices`` contains at least 3 positions
 
         """
 
@@ -143,11 +162,21 @@ class Polygon(SpatialConstraint):
     @staticmethod
     def _skycoords_to_str(vertices):
         """
-        Convert a regions.PolygonSkyRegion instance to a string
+        Convert vertex positions to a string
 
-        MOCServer requests for a polygon expressed in a STC format
-        i.e. a string beginning with 'Polygon' and iterating through
-        all the vertices' ra and dec
+        The CDS MOC server needs a polygon expressed in a STC format
+        i.e. a str beginning with \'Polygon\' and iterating through
+        all the vertices' ra and dec.
+
+        Parameters
+        ----------
+        vertices : [`~astropy.coordinates.SkyCoord`]
+            the positions of the polygon vertices
+
+        Returns
+        -------
+        polygon_stc : str
+            the polygon in stc format
 
         """
 
@@ -161,12 +190,37 @@ class Polygon(SpatialConstraint):
 
 class Moc(SpatialConstraint):
     def __init__(self, intersect='overlaps'):
-        """Contruct a constraint based on the surface covered by a moc"""
+        """
+        Definition a MOC region
+
+        Parameters
+        ----------
+        intersect : str, optional
+
+        """
+
         self.request_payload = {}
         super(Moc, self).__init__(intersect)
 
     @classmethod
     def from_file(cls, filename, intersect='overlaps'):
+        """
+        Construct a MOC from a fits file describing the MOC
+
+        Parameters
+        ----------
+        filename : str
+            the filename
+        intersect : str, optional
+            default to "overlaps"
+
+        Returns
+        -------
+        moc_constraint : `~astroquery.cds.Moc`
+            the MOC region
+
+        """
+
         assert isinstance(filename, str), TypeError("`filename` must be of type str")
 
         moc_constraint = cls(intersect=intersect)
@@ -175,6 +229,23 @@ class Moc(SpatialConstraint):
 
     @classmethod
     def from_url(cls, url, intersect='overlaps'):
+        """
+        Construct a MOC from an url leading to a fits file describing the MOC
+
+        Parameters
+        ----------
+        url : str
+            the url where to find the MOC
+        intersect : str, optional
+            default to "overlaps"
+
+        Returns
+        -------
+        moc_constraint : `~astroquery.cds.Moc`
+            the MOC region
+
+        """
+
         assert isinstance(url, str), TypeError("`url` must be of type str")
 
         moc_constraint = cls(intersect=intersect)
@@ -183,6 +254,23 @@ class Moc(SpatialConstraint):
 
     @classmethod
     def from_mocpy_object(cls, mocpy_obj, intersect='overlaps'):
+        """
+        Construct a MOC from a ``mocpy.MOC`` object
+
+        Parameters
+        ----------
+        mocpy_obj : ``mocpy.MOC``
+            MOC
+        intersect : str, optional
+            default to "overlaps"
+
+        Returns
+        -------
+        moc_constraint : `~astroquery.cds.Moc`
+            the MOC region
+
+        """
+
         try:
             from mocpy import MOC
         except ImportError:

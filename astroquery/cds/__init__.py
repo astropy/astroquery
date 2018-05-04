@@ -1,7 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 """
-MocServer
+astroquery.cds package
 -------------------------
 :author: Matthieu Baumann (matthieu.baumann@astro.unistra.fr)
 """
@@ -17,7 +17,7 @@ from .property_constraint import PropertyConstraint
 
 class Conf(_config.ConfigNamespace):
     """
-    Configuration parameters for `astroquery.template_module`.
+    Configuration parameters for ``astroquery.template_module``.
     """
     server = _config.ConfigItem(
         ["http://alasky.unistra.fr/MocServer/query",
