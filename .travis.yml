@@ -26,6 +26,8 @@ stages:
    - name: Cron tests
      if: type = cron
    - name: Tests with other Python/Numpy versions, remote data
+   - name: deploy
+     if: branch = master
 
 
 env:
@@ -148,6 +150,15 @@ matrix:
           env: MAIN_CMD='pycodestyle astroquery --count'
                SETUP_CMD='' EVENT_TYPE='push pull_request'
 
+        - stage: deploy
+          deploy:
+            provider: pypi
+            user: astroquery
+            password: 
+            secure: NvwZewQEwW+JadyF1ChzaKvQHLtFQ32BRSpw1Jx/IuE3aZS2QMp3Zdm9AjFJEyoI5BTe2WCdd8UIXusceAN+uCjgdv5s4nSHNjdIo9c+rwRh1mzD62kDVkNZzyTHQ9tBRydOUrQhllraP2AmFfNpMDWOnGeJDZL7NdF+F1pg7Is=
+            on:
+              branch: master
+
 install:
     - git clone git://github.com/astropy/ci-helpers.git
     - source ci-helpers/travis/setup_conda.sh
@@ -160,3 +171,7 @@ after_success:
     - if [[ $SETUP_CMD == 'test --coverage' ]]; then
           codecov;
       fi
+
+deploy:
+  password:
+    secure: igbQWSv2MhYw8PuvMl+JsU0JeMTETyoAY583lDwBO6VYMt0G6SNXQOoUJ+nhrLeU7LkSd4FAnvkFO+AbIzuCYJyoKcd85ZBVzamnselmU/7xcV6Cp8sIgokjcCI7Ur9IWnrRxTbLP76wOuqmcbRYyzPIihGzGFA41Z7xRSm+hqs=
