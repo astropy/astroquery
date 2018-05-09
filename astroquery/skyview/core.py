@@ -292,18 +292,21 @@ class SkyViewClass(BaseQuery):
     def survey_dict(self):
         if not hasattr(self, '_survey_dict'):
 
-            response = self._request('GET', self.URL)
+            response = self._request('GET', self.URL, cache=False)
             page = BeautifulSoup(response.content, "html.parser")
             surveys = page.findAll('select', {'name': 'survey'})
 
             self._survey_dict = {
                 sel['id']: [x.text for x in sel.findAll('option')]
-                for sel in surveys}
+                for sel in surveys
+                if 'overlay' not in sel['id']
+            }
 
-            # sanity check
+            # workaround for broken HTML
             for key in self._survey_dict:
                 if 'class=' in key:
-                    raise ValueError("Failed to parse SkyView page.")
+                    self._survey_dict[key.split(" class=")[0]] = self._survey_dict[key]
+                    del self._survey_dict[key]
 
         return self._survey_dict
 
