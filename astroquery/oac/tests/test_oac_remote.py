@@ -1,10 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 
-# performs similar tests as test_module.py, but performs
-# the actual HTTP request rather than monkeypatching them.
-# should be disabled or enabled at will - use the
-# remote_data decorator from astropy:
+import pytest
 
 from astropy import coordinates as coord
 from astropy.table import Table
@@ -65,6 +62,7 @@ class TestOACClass:
         phot = OAC.get_photometry(event="GW170817")
         assert isinstance(phot, Table)
 
+    @pytest.mark.xfail(reason="Upstream API issue.  See #1130")
     def test_get_single_spectrum(self):
         test_time = 54773
         spec = OAC.get_single_spectrum(event="GW170817", time=test_time)
