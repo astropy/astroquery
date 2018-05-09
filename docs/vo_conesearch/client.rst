@@ -131,10 +131,10 @@ here, we silently ignore all the warnings:
 ...     registry_db = VOSDatabase.from_registry(
 ...         validator_conf.conesearch_master_list, encoding='binary',
 ...         cache=False)
-Downloading http://vao.stsci.edu/directory/NVORegInt.asmx/...
-|==========================================|  73M/ 73M (100.00%)         0s
+Downloading http://vao.stsci.edu/regtap/tapservice.aspx/...
+|==========================================|  69M/ 69M (100.00%)         0s
 >>> len(registry_db)
-17832
+19321
 
 Find catalog names containing ``'usno*a2'`` in the registry database:
 
@@ -149,16 +149,15 @@ Find access URLs containing ``'stsci'`` in the registry database:
 >>> stsci_urls = registry_db.list_catalogs_by_url(pattern='stsci')
 >>> stsci_urls
 [b'http://archive.stsci.edu/befs/search.php?',
- b'http://archive.stsci.edu/copernicus/search.php?',
  b'http://archive.stsci.edu/euve/search.php?', ...,
- b'http://galex.stsci.edu/gxWS/ConeSearch/gxConeSearch.aspx?',
- b'http://gsss.stsci.edu/webservices/vo/ConeSearch.aspx?CAT=GSC23&']
+ 'http://gsss.stsci.edu/webservices/vo/ConeSearch.aspx?CAT=TGAS&',
+ 'http://gsss.stsci.edu/webservices/vo/ConeSearch.aspx?CAT=UCAC3&']
 
 Extract a catalog titled ``'USNO-A2 Catalogue 1'`` from the registry:
 
 >>> usno_a2 = registry_db.get_catalog('USNO-A2 Catalogue 1')
 >>> print(usno_a2)
-title: USNO-A2 Catalogue
+title: b'USNO-A2 Catalogue'
 url: http://www.nofs.navy.mil/cgi-bin/vo_cone.cgi?CAT=USNO-A2&
 
 Extract a catalog by known access URL from the registry (the iterator version
@@ -166,11 +165,11 @@ of this functionality is
 :func:`~astroquery.vo_conesearch.vos_catalog.VOSDatabase.get_catalogs_by_url`,
 which is useful in the case of multiple entries with same access URL):
 
->>> gsc_url = 'http://vizier.u-strasbg.fr/viz-bin/votable/-A?-out.all&-source=I/305/out&'
+>>> gsc_url = 'http://vizier.u-strasbg.fr/viz-bin/conesearch/I/305/out?'
 >>> gsc = registry_db.get_catalog_by_url(gsc_url)
 >>> print(gsc)
-title: The Guide Star Catalog, Version 2.3.2 (GSC2.3) (STScI, 2006)
-url: http://vizier.u-strasbg.fr/viz-bin/votable/-A?-out.all&-source=I/305/out&
+title: b'The Guide Star Catalog, Version 2.3.2 (GSC2.3) (STScI, 2006)'
+url: http://vizier.u-strasbg.fr/viz-bin/conesearch/I/305/out?
 
 Add all ``'usno*a2'`` catalogs from registry to your database:
 
@@ -197,14 +196,14 @@ contains a simple catalog that only has given name and access URL:
 >>> other_db = VOSDatabase.create_empty()
 >>> other_db.add_catalog_by_url(
 ...     'My Guide Star Catalogue',
-...     'http://vizier.u-strasbg.fr/viz-bin/votable/-A?-out.all&-source=I/305/out&')
+...     'http://vizier.u-strasbg.fr/viz-bin/conesearch/I/305/out?')
 >>> print(other_db.dumps())
 {
     "__version__": 1,
     "catalogs": {
         "My Guide Star Catalogue": {
             "title": "My Guide Star Catalogue",
-            "url": "url": "http://vizier.u-strasbg.fr/viz-bin/votable/-A?-out.all&-source=I/305/out&"
+            "url": "url": "http://vizier.u-strasbg.fr/viz-bin/conesearch/I/305/out?"
         }
     }
 }
@@ -292,7 +291,7 @@ To call a given VO service; In this case, a Cone Search
 ...     'conesearch_good',
 ...     kwargs={'RA': c.ra.degree, 'DEC': c.dec.degree, 'SR': sr.value},
 ...     catalog_db='The PMM USNO-A1.0 Catalogue (Monet 1997) 1')
-Trying http://vizier.u-strasbg.fr/viz-bin/votable/-A?-out.all&-source=I/243/out&
+Trying http://vizier.u-strasbg.fr/viz-bin/votable/conesearch/I/243/out?
 Downloading ...
 WARNING: W22: ... The DEFINITIONS element is deprecated in VOTable 1.1...
 WARNING: W03: ... Implictly generating an ID from a name 'RA(ICRS)'...
@@ -448,7 +447,7 @@ using cached data, set ``cache=False``:
 >>> sr
 <Quantity 0.5 deg>
 >>> result = conesearch.conesearch(c, sr, catalog_db=my_catname)
-Trying http://vizier.u-strasbg.fr/viz-bin/votable/-A?-out.all&-source=I/243/out&
+Trying http://vizier.u-strasbg.fr/viz-bin/conesearch/I/243/out?
 Downloading ...
 WARNING: W22: ... The DEFINITIONS element is deprecated in VOTable 1.1...
 WARNING: W03: ... Implictly generating an ID from a name 'RA(ICRS)'...
@@ -560,7 +559,7 @@ This example uses a custom timeout of 30 seconds and runs silently
 (except for warnings):
 
 >>> result.url
-'http://vizier.u-strasbg.fr/viz-bin/votable/-A?-out.all&-source=I/243/out&'
+'http://vizier.u-strasbg.fr/viz-bin/conesearch/I/243/out?'
 >>> t_est, n_est = conesearch.predict_search(result.url, c, sr, verbose=False,
 ...                                          plot=True)
 WARNING: W22: ... The DEFINITIONS element is deprecated in VOTable 1.1...
@@ -621,28 +620,28 @@ different order:
  u'The HST Guide Star Catalog, Version 1.2 (Lasker+ 1996) 1',
  u'Guide Star Catalog v2 1']
 >>> gsc_result = conesearch.conesearch(c, sr, catalog_db=gsc_cats_reordered)
-Trying http://vizier.u-strasbg.fr/viz-bin/votable/-A?-out.all&-source=I/255/out&
+Trying http://vizier.u-strasbg.fr/viz-bin/conesearch/I/255/out?
 >>> gsc_result.array.size
 2997
 >>> gsc_result.url
-'http://vizier.u-strasbg.fr/viz-bin/votable/-A?-out.all&-source=I/255/out&'
+'http://vizier.u-strasbg.fr/viz-bin/conesearch/I/255/out?'
 
 To obtain results from *all* the services above:
 
 >>> all_gsc_results = conesearch.search_all(c, sr, catalog_db=gsc_cats)
 Trying http://gsss.stsci.edu/webservices/vo/ConeSearch.aspx?CAT=GSC23&
-Trying http://vizier.u-strasbg.fr/viz-bin/votable/-A?-out.all&-source=I/220/out&
-Trying http://vizier.u-strasbg.fr/viz-bin/votable/-A?-out.all&-source=I/254/out&
-Trying http://vizier.u-strasbg.fr/viz-bin/votable/-A?-out.all&-source=I/255/out&
+Trying http://vizier.u-strasbg.fr/viz-bin/conesearch/I/220/out?
+Trying http://vizier.u-strasbg.fr/viz-bin/conesearch/I/254/out?
+Trying http://vizier.u-strasbg.fr/viz-bin/conesearch/I/255/out?
 >>> len(all_gsc_results)
 4
 >>> for url in sorted(all_gsc_results):
 ...     tab = all_gsc_results[url]
 ...     print('{} has {} results'.format(url, tab.array.size))
 http://gsss.stsci.edu/webservices/vo/ConeSearch.aspx?CAT=GSC23& has 74272 results
-http://vizier.u-strasbg.fr/viz-bin/votable/-A?-out.all&-source=I/220/out& has 2997 results
-http://vizier.u-strasbg.fr/viz-bin/votable/-A?-out.all&-source=I/254/out& has 2998 results
-http://vizier.u-strasbg.fr/viz-bin/votable/-A?-out.all&-source=I/255/out& has 2997 results
+http://vizier.u-strasbg.fr/viz-bin/conesearch/I/220/out? has 2997 results
+http://vizier.u-strasbg.fr/viz-bin/conesearch/I/254/out? has 2998 results
+http://vizier.u-strasbg.fr/viz-bin/conesearch/I/255/out? has 2997 results
 
 To repeat the above asynchronously:
 
@@ -679,7 +678,7 @@ Downloading https://astropy.stsci.edu/aux/vo_databases/conesearch_warn.json
  'USNO-A V2.0, A Catalog of Astrometric Standards 1',
  'USNO-B1 Catalogue 1']
 >>> result = conesearch.conesearch(c, sr)
-Trying http://vizier.u-strasbg.fr/viz-bin/votable/-A?-out.all&-source=II/284/out&
+Trying http://vizier.u-strasbg.fr/viz-bin/conesearch/II/284/out?
 >>> result.array.data.size
 50000
 

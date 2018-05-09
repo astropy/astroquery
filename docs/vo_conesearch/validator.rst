@@ -31,8 +31,8 @@ skipped. There are also options to validate a user-defined list of
 services or all of them.
 
 All Cone Search queries are done using RA, DEC, and SR given by
-``<testQuery>`` XML tag in the registry, and maximum verbosity.
-In an uncommon case where ``<testQuery>`` is not defined for a service,
+``testQuery`` fields in the registry, and maximum verbosity.
+In an uncommon case where ``testQuery`` is not defined for a service,
 it uses a default search for ``RA=0&DEC=0&SR=0.1``.
 
 The results are separated into 4 groups below. Each group
@@ -116,7 +116,7 @@ count of the number of duplicates thrown out in the
 ``'duplicatesIgnored'`` dictionary key of the catalog kept in the database.
 
 All the existing catalog tags will be copied over as dictionary
-keys, except ``'accessURL'`` that is renamed to ``'url'`` for simplicity.
+keys, except ``'access_url'`` that is renamed to ``'url'`` for simplicity.
 In addition, new keys from validation are added:
 
 * ``validate_expected``
@@ -169,15 +169,15 @@ we are not trying to validate the registry itself but the services it contains:
 
 >>> from astroquery.vo_conesearch.validator import validate
 >>> validate.check_conesearch_sites()
-Downloading http://vao.stsci.edu/directory/NVORegInt.asmx/...
-|==========================================|  73M/ 73M (100.00%)         0s
-INFO: Only 30/17832 site(s) are validated [...]
+Downloading http://vao.stsci.edu/regtap/tapservice.aspx/...
+|==========================================|  69M/ 69M (100.00%)         0s
+INFO: Only 18/17832 site(s) are validated [...]
 # ...
-INFO: good: 9 catalog(s) [astroquery.vo_conesearch.validator.validate]
-INFO: warn: 6 catalog(s) [astroquery.vo_conesearch.validator.validate]
-INFO: excp: 4 catalog(s) [astroquery.vo_conesearch.validator.validate]
-INFO: nerr: 9 catalog(s) [astroquery.vo_conesearch.validator.validate]
-INFO: total: 28 out of 30 catalog(s) [...]
+INFO: good: 16 catalog(s) [astroquery.vo_conesearch.validator.validate]
+INFO: warn: 2 catalog(s) [astroquery.vo_conesearch.validator.validate]
+INFO: excp: 0 catalog(s) [astroquery.vo_conesearch.validator.validate]
+INFO: nerr: 0 catalog(s) [astroquery.vo_conesearch.validator.validate]
+INFO: total: 18 out of 18 catalog(s) [...]
 INFO: check_conesearch_sites took 26.626858234405518 s on AVERAGE...
 
 Validate only Cone Search access URLs hosted by ``'stsci.edu'`` without verbose
@@ -271,24 +271,24 @@ Load Cone Search validation results from
 
 >>> r = inspect.ConeSearchResults()
 Downloading http://.../conesearch_good.json
-|==========================================|  37k/ 37k (100.00%)         0s
+...
 Downloading http://.../conesearch_warn.json
-|==========================================| 312k/312k (100.00%)         0s
+...
 Downloading http://.../conesearch_exception.json
-|==========================================|  15k/ 15k (100.00%)         0s
+...
 Downloading http://.../conesearch_error.json
-|==========================================|  44 / 44  (100.00%)         0s
+...
 
-Print tally. In this example, there are 9 Cone Search services that
-passed validation with non-critical warnings, 13 with critical warnings,
-6 with exceptions, and 0 with network error:
+Print tally. In this example, there are 16 Cone Search services that
+passed validation with non-critical warnings, 2 with critical warnings,
+0 with exceptions, and 0 with network error:
 
 >>> r.tally()
-good: 9 catalog(s)
-warn: 13 catalog(s)
-exception: 6 catalog(s)
+good: 16 catalog(s)
+warn: 2 catalog(s)
+exception: 0 catalog(s)
 error: 0 catalog(s)
-total: 28 catalog(s)
+total: 18 catalog(s)
 
 Print a list of good Cone Search catalogs, each with title, access URL,
 warning codes collected, and individual warnings:
@@ -326,13 +326,12 @@ Print the details of catalog titled ``'USNO-A2 Catalogue 1'``:
 
 >>> r.print_cat('USNO-A2 Catalogue 1')
 {
-    "capabilityClass": "ConeSearch",
-    "capabilityStandardID": "ivo://ivoa.net/std/ConeSearch",
-    "capabilityValidationLevel": "2",
-    "contentLevel": "#University#Research#Amateur#",
     # ...
-    "version": "",
-    "waveband": "#Optical#"
+    "cap_type": "conesearch",
+    "content_level": "research",
+    # ...
+    "waveband": "optical",
+    "wsdl_url": ""
 }
 Found in good
 

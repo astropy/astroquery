@@ -2,6 +2,8 @@
 ------------------
 
 - MAST: Enable converting list of products into S3 uris [#1126]
+- VO_CONESEARCH: Service validator now uses new STScI VAO TAP registry. [#1114]
+
 
 0.3.8 (2018-04-27)
 ------------------
@@ -31,7 +33,6 @@
 - utils.TAP: Fix jobsIDs assignment. [#1105]
 - VO_CONESEARCH: URL for validated services have changed. Old URL should still
   redirect but it is deprecated. [#1033]
-
 
 0.3.7 (2018-01-25)
 ------------------

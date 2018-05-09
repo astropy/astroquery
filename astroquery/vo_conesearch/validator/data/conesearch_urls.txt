@@ -5,6 +5,7 @@ http://vizier.u-strasbg.fr/viz-bin/conesearch/I/252/out?
 http://vizier.u-strasbg.fr/viz-bin/conesearch/I/254/out?
 http://vizier.u-strasbg.fr/viz-bin/conesearch/I/255/out?
 http://vizier.u-strasbg.fr/viz-bin/conesearch/I/284/out?
+http://vizier.u-strasbg.fr/viz-bin/conesearch/I/345/gaia2?
 http://vizier.u-strasbg.fr/viz-bin/conesearch/II/246/out?
 http://wfaudata.roe.ac.uk/sdssdr7-dsa/DirectCone?DSACAT=SDSS_DR7&amp;DSATAB=Galaxy&amp;
 http://wfaudata.roe.ac.uk/sdssdr7-dsa/DirectCone?DSACAT=SDSS_DR7&amp;DSATAB=PhotoObj&amp;
