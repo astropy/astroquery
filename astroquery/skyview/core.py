@@ -249,7 +249,7 @@ class SkyViewClass(BaseQuery):
 
         self._validate_surveys(survey)
 
-        if radius:
+        if radius is not None:
             size_deg = str(radius.to(u.deg).value)
         elif width and height:
             size_deg = "{0},{1}".format(width.to(u.deg).value,

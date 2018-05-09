@@ -172,7 +172,8 @@ class TestAlma:
         # Nov 16, 2016: 159
         # Apr 25, 2017: 150
         # Jul 2, 2017: 160
-        assert len(result) == 160
+        # May 9, 2018: 162
+        assert len(result) == 162
 
     # As of April 2017, these data are *MISSING FROM THE ARCHIVE*.
     # This has been reported, as it is definitely a bug.
