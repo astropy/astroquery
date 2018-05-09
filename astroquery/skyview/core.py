@@ -299,6 +299,12 @@ class SkyViewClass(BaseQuery):
             self._survey_dict = {
                 sel['id']: [x.text for x in sel.findAll('option')]
                 for sel in surveys}
+
+            # sanity check
+            for key in self._survey_dict:
+                if 'class=' in key:
+                    raise ValueError("Failed to parse SkyView page.")
+
         return self._survey_dict
 
     @property
