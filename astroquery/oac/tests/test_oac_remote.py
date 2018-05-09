@@ -58,14 +58,24 @@ class TestOACClass:
                                 data_format='json')
         assert isinstance(phot, dict)
 
+    @pytest.mark.xfail(reason="Upstream API issue.  See #1130")
     def test_get_photometry(self):
         phot = OAC.get_photometry(event="GW170817")
+        assert isinstance(phot, Table)
+
+    def test_get_photometry_b(self):
+        phot = OAC.get_photometry(event="SN2014J")
         assert isinstance(phot, Table)
 
     @pytest.mark.xfail(reason="Upstream API issue.  See #1130")
     def test_get_single_spectrum(self):
         test_time = 54773
         spec = OAC.get_single_spectrum(event="GW170817", time=test_time)
+        assert isinstance(spec, Table)
+
+    def test_get_single_spectrum_b(self):
+        test_time = 56680
+        spec = OAC.get_single_spectrum(event="SN2014J", time=test_time)
         assert isinstance(spec, Table)
 
     def test_get_spectra(self):
