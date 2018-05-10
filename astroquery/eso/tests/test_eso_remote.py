@@ -58,7 +58,9 @@ class TestEso:
 
         eso = Eso()
         eso.cache_location = temp_dir
-        eso.ROW_LIMIT = 200  # first b333 is at 157
+        eso.ROW_LIMIT = 1000
+        # first b333 was at 157
+        # first pistol....?
 
         result_s = eso.query_surveys(['VVV', 'XSHOOTER'],
                                      coord1=266.41681662,

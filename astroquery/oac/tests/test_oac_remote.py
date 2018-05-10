@@ -1,10 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 
-# performs similar tests as test_module.py, but performs
-# the actual HTTP request rather than monkeypatching them.
-# should be disabled or enabled at will - use the
-# remote_data decorator from astropy:
+import pytest
 
 from astropy import coordinates as coord
 from astropy.table import Table
@@ -20,21 +17,23 @@ class TestOACClass:
     OAC API astroquery module.
     """
 
-    # A simple test object. The kilonova associated with GW170817.
-    ra = 197.45037
-    dec = -23.38148
-    test_coords = coord.SkyCoord(ra=ra, dec=dec, unit=(u.deg, u.deg))
+    # A simple test object. The famous supernova SN2014J
+    ra = '09:55:42.12'
+    dec = '+69:40:25.9'
+    test_coords = coord.SkyCoord(ra=ra, dec=dec, unit=(u.hourangle, u.deg))
 
-    test_radius = 10*u.arcsecond
-    test_width = 10*u.arcsecond
-    test_height = 10*u.arcsecond
+    test_radius = 60*u.arcsecond
+    test_width = 60*u.arcsecond
+    test_height = 60*u.arcsecond
+
+    test_time = 56680
 
     def test_query_object_csv(self):
-        phot = OAC.query_object(event='GW170817')
+        phot = OAC.query_object(event='SN2014J')
         assert isinstance(phot, Table)
 
     def test_query_object_json(self):
-        phot = OAC.query_object(event='GW170817', data_format='json')
+        phot = OAC.query_object(event='SN2014J', data_format='json')
         assert isinstance(phot, dict)
 
     def test_query_region_cone_csv(self):
@@ -61,15 +60,26 @@ class TestOACClass:
                                 data_format='json')
         assert isinstance(phot, dict)
 
+    @pytest.mark.xfail(reason="Upstream API issue.  See #1130")
     def test_get_photometry(self):
-        phot = OAC.get_photometry(event="GW170817")
+        phot = OAC.get_photometry(event="SN2014J")
         assert isinstance(phot, Table)
 
+    def test_get_photometry_b(self):
+        phot = OAC.get_photometry(event="SN2014J")
+        assert isinstance(phot, Table)
+
+    @pytest.mark.xfail(reason="Upstream API issue.  See #1130")
     def test_get_single_spectrum(self):
-        test_time = 54773
-        spec = OAC.get_single_spectrum(event="GW170817", time=test_time)
+        spec = OAC.get_single_spectrum(event="SN2014J",
+                                       time=self.test_time)
+        assert isinstance(spec, Table)
+
+    def test_get_single_spectrum_b(self):
+        test_time = 56680
+        spec = OAC.get_single_spectrum(event="SN2014J", time=test_time)
         assert isinstance(spec, Table)
 
     def test_get_spectra(self):
-        spec = OAC.get_spectra(event="GW170817")
+        spec = OAC.get_spectra(event="SN2014J")
         assert isinstance(spec, dict)

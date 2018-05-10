@@ -454,7 +454,7 @@ def make_finder_chart_from_image_and_catalog(image, catalog, save_prefix,
                                 clobber=True)
 
     fig = aplpy.FITSFigure(fits.HDUList(image), convention='calabretta')
-    fig.show_grayscale(stretch='arcsinh')
+    fig.show_grayscale(stretch='arcsinh', vmid=np.nanmedian(image.data))
     for band in bands:
         if band in hit_mask_public:
             fig.show_contour(fits.PrimaryHDU(data=hit_mask_public[band],

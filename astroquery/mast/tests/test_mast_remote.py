@@ -52,7 +52,7 @@ class TestMast(object):
     # ObservationsClass tests #
     ###########################
 
-    def test_observastions_list_missions(self):
+    def test_observations_list_missions(self):
         missions = mast.Observations.list_missions()
         assert isinstance(missions, list)
         for m in ['HST', 'HLA', 'GALEX', 'Kepler']:
@@ -84,7 +84,7 @@ class TestMast(object):
         assert len(result) >= 196
         assert result[np.where(result['obs_id'] == 'ktwo200071160-c92_lc')]
 
-    def test_observastions_query_criteria_async(self):
+    def test_observations_query_criteria_async(self):
         # without position
         responses = mast.Observations.query_criteria_async(dataproduct_type=["image"],
                                                            proposal_pi="Ost*",
@@ -96,7 +96,7 @@ class TestMast(object):
                                                            objectname="M101")
         assert isinstance(responses, list)
 
-    def test_observastions_query_criteria(self):
+    def test_observations_query_criteria(self):
         # without position
         result = mast.Observations.query_criteria(target_classification="*Europa*",
                                                   proposal_id=8169,
@@ -129,16 +129,17 @@ class TestMast(object):
         assert result >= 196
         assert result < maxRes
 
-    def test_observastions_query_criteria_count(self):
+    def test_observations_query_criteria_count(self):
         maxRes = mast.Observations.query_criteria_count()
         result = mast.Observations.query_criteria_count(proposal_pi="Osten",
                                                         proposal_id=8880)
         assert isinstance(result, (np.int64, int))
-        assert result == 7
+        # Temporarily commented out (May 9, 2018) due to upstream issue
+        # assert result == 7
         assert result < maxRes
 
     # product functions
-    def test_observastions_get_product_list_async(self):
+    def test_observations_get_product_list_async(self):
         responses = mast.Observations.get_product_list_async('2003738726')
         assert isinstance(responses, list)
 
@@ -152,7 +153,7 @@ class TestMast(object):
         responses = mast.Observations.get_product_list_async(observations[0:4])
         assert isinstance(responses, list)
 
-    def test_observastions_get_product_list(self):
+    def test_observations_get_product_list(self):
         result = mast.Observations.get_product_list('2003738726')
         assert isinstance(result, Table)
         assert len(result) == 22
@@ -175,7 +176,7 @@ class TestMast(object):
         assert isinstance(result, Table)
         assert len(result) == 30
 
-    def test_observastions_filter_products(self):
+    def test_observations_filter_products(self):
         products = mast.Observations.get_product_list('2003738726')
         result = mast.Observations.filter_products(products,
                                                    productType=["SCIENCE"],
@@ -183,7 +184,7 @@ class TestMast(object):
         assert isinstance(result, Table)
         assert len(result) == sum(products['productType'] == "SCIENCE")
 
-    def test_observastions_download_products(self, tmpdir):
+    def test_observations_download_products(self, tmpdir):
         # actually download the products
         result = mast.Observations.download_products('2003738726',
                                                      download_dir=str(tmpdir),
