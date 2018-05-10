@@ -36,7 +36,7 @@ class SimpleQueryClass(object):
 
 
 @remote_data
-def test_utils():
+def test_chunk_read():
     response = urllib.request.urlopen('http://www.ebay.com')
     C = chunk_read(response, report_hook=chunk_report)
     print(C)
