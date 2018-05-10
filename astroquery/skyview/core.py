@@ -302,12 +302,6 @@ class SkyViewClass(BaseQuery):
                 if 'overlay' not in sel['id']
             }
 
-            # workaround for broken HTML
-            for key in self._survey_dict:
-                if 'class=' in key:
-                    self._survey_dict[key.split(" class=")[0]] = self._survey_dict[key]
-                    del self._survey_dict[key]
-
         return self._survey_dict
 
     @property

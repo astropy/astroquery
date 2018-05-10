@@ -102,7 +102,8 @@ class TestHorizonsClass:
                                     epochs=2451544.5).
                ephemerides(get_raw_response=True))
 
-        assert len(res) == 15347
+        # May 10, 2018: this increased to 15463.
+        assert len(res) >= 15463
 
     def test_ephemerides_query_payload(self):
         obj = jplhorizons.Horizons(id='Halley', id_type='comet_name',
