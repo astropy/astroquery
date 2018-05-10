@@ -460,7 +460,7 @@ class NraoClass(QueryWithLogin):
                                   " and the error in self.table_parse_error.")
 
     def _parse_html_result(self, response, verbose=False):
-        # pares the HTML return...
+        # parse the HTML return...
         root = BeautifulSoup(response.content, 'html5lib')
 
         htmltable = root.findAll('table')
@@ -473,7 +473,7 @@ class NraoClass(QueryWithLogin):
         if six.PY2:
             from astropy.io.ascii import html
             from astropy.io.ascii.core import convert_numpy
-            htmlreader = html.HTML()
+            htmlreader = html.HTML({'parser':'html5lib'})
             htmlreader.outputter.default_converters.append(convert_numpy(np.unicode))
             table = htmlreader.read(string_to_parse)
         else:
