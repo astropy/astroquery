@@ -10,6 +10,7 @@ from astropy.tests.helper import remote_data
 
 from .. import OAC
 
+
 @remote_data
 class TestOACClass:
     """Test methods to verify the functionality of methods in the
