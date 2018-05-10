@@ -770,9 +770,18 @@ class EsoClass(QueryWithLogin):
             if _check_response(content):
                 # First line is always garbage
                 content = content.split(b'\n', 1)[1]
-                table = Table.read(BytesIO(content), format="ascii.csv",
-                                   guess=False,  # header_start=1,
-                                   comment="#", encoding='utf-8')
+                try:
+                    table = Table.read(BytesIO(content), format="ascii.csv",
+                                       guess=False,  # header_start=1,
+                                       comment="#", encoding='utf-8')
+                except ValueError as ex:
+                    if 'the encoding parameter is not supported on Python 2' in str(ex):
+                        # astropy python2 does not accept the encoding parameter
+                        table = Table.read(BytesIO(content), format="ascii.csv",
+                                           guess=False,
+                                           comment="#")
+                    else:
+                        raise ex
             else:
                 raise RemoteServiceError("Query returned no results")
 
