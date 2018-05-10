@@ -235,8 +235,8 @@ class NraoClass(QueryWithLogin):
             PASSWD="",  # TODO: implement login...
             SUBMIT="Submit Query")
 
-        if (request_payload['QUERYTYPE'] == "ARCHIVE" and
-            request_payload['PROTOCOL'] != 'HTML'):
+        if ((request_payload['QUERYTYPE'] == "ARCHIVE" and
+             request_payload['PROTOCOL'] != 'HTML')):
             warnings.warn("Changing protocol to HTML: ARCHIVE queries do not"
                           " support votable returns")
             request_payload['PROTOCOL'] = 'HTML'
@@ -277,7 +277,8 @@ class NraoClass(QueryWithLogin):
 
         # Developer notes:
         # Login via https://my.nrao.edu/cas/login
-        # # this can be added to auto-redirect back to the query tool: ?service=https://archive.nrao.edu/archive/advquery.jsp
+        # # this can be added to auto-redirect back to the query tool:
+        # ?service=https://archive.nrao.edu/archive/advquery.jsp
 
         if username is None:
             if not self.USERNAME:
@@ -460,7 +461,7 @@ class NraoClass(QueryWithLogin):
                                   " and the error in self.table_parse_error.")
 
     def _parse_html_result(self, response, verbose=False):
-        # pares the HTML return...
+        # parse the HTML return...
         root = BeautifulSoup(response.content, 'html5lib')
 
         htmltable = root.findAll('table')
@@ -473,7 +474,7 @@ class NraoClass(QueryWithLogin):
         if six.PY2:
             from astropy.io.ascii import html
             from astropy.io.ascii.core import convert_numpy
-            htmlreader = html.HTML()
+            htmlreader = html.HTML({'parser': 'html5lib'})
             htmlreader.outputter.default_converters.append(convert_numpy(np.unicode))
             table = htmlreader.read(string_to_parse)
         else:
