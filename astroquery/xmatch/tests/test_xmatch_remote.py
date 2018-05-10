@@ -15,6 +15,7 @@ from ...xmatch import XMatch
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 
+
 @remote_data
 @pytest.mark.dependency(name='xmatch_up')
 def test_is_vsa_up():
@@ -41,13 +42,11 @@ class TestXMatch:
         assert 'II/311/wise' in tables
         assert 'II/246/out' in tables
 
-
     def test_xmatch_is_avail_table(self, xmatch):
         assert xmatch.is_table_available('II/311/wise')
         assert xmatch.is_table_available('II/246/out')
         assert xmatch.is_table_available('vizier:II/311/wise')
         assert not xmatch.is_table_available('blablabla')
-
 
     def test_xmatch_query(self, xmatch):
         with open(os.path.join(DATA_DIR, 'posList.csv'), 'r') as pos_list:
@@ -67,7 +66,6 @@ class TestXMatch:
         http_test_table = self.http_test()
         assert all(table == http_test_table)
 
-
     def test_xmatch_query_astropy_table(self, xmatch):
         datapath = os.path.join(DATA_DIR, 'posList.csv')
         input_table = Table.read(datapath, format='ascii.csv')
@@ -86,7 +84,6 @@ class TestXMatch:
 
         http_test_table = self.http_test()
         assert all(table == http_test_table)
-
 
     def http_test(self):
         # this can be used to check that the API is still functional & doing as expected
