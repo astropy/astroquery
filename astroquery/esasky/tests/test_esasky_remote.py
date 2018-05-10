@@ -45,7 +45,6 @@ class TestESASky:
 
         shutil.rmtree(download_directory)
 
-    @pytest.mark.xfail(reason='Internal Error. Please try later')
     def test_esasky_get_images_small(self):
         download_directory = "ESASkyRemoteTest"
         if not os.path.exists(download_directory):
@@ -62,6 +61,7 @@ class TestESASky:
 
         shutil.rmtree(download_directory)
 
+    @pytest.mark.xfail(reason='Internal Error. Please try later')
     def test_esasky_get_images_hst(self):
         download_directory = "ESASkyRemoteTest"
         if not os.path.exists(download_directory):
