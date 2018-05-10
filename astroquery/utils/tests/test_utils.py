@@ -306,7 +306,7 @@ docstr3_out = """
 
 def test_return_chomper(doc=docstr3, out=docstr3_out):
     assert (remove_sections(doc, sections=['Returns', 'Parameters']) ==
-                [x.lstrip() for x in out.split('\n')])
+            [x.lstrip() for x in out.split('\n')])
 
 
 def dummyfunc1():

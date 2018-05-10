@@ -302,7 +302,6 @@ class SkyViewClass(BaseQuery):
                 if 'overlay' not in sel['id']
             }
 
-
         return self._survey_dict
 
     @property
