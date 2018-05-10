@@ -6,7 +6,7 @@ from astropy import coordinates
 from astropy.table import Table
 from astropy.tests.helper import remote_data
 
-from urllib.error import URLError
+from six.moves.urllib_error import URLError
 
 from ... import sdss
 from ...exceptions import TimeoutError
