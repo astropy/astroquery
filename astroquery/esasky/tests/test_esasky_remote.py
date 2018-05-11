@@ -26,6 +26,7 @@ class TestESASky:
         assert isinstance(result, TableList)
 
     @pytest.mark.bigdata
+    @pytest.mark.xfail(reason='Unknown.  This regularly fails on travis, but not locally.')
     def test_esasky_get_images(self):
         download_directory = "ESASkyRemoteTest"
         if not os.path.exists(download_directory):
