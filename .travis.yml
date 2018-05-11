@@ -27,9 +27,9 @@ stages:
      if: type = cron
    - name: Tests with other Python/Numpy versions
    - name: deploy
-     if: (branch = master) AND (env(TRAVIS_PULL_REQUEST) = false)
+     if: (branch = master) AND ($TRAVIS_PULL_REQUEST = false)
    - name: Remote data tests
-     if: env(TRAVIS_PULL_REQUEST) = false
+     if: $TRAVIS_PULL_REQUEST = false
 
 env:
     global:
