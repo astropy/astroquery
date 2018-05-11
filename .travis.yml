@@ -29,7 +29,7 @@ stages:
    - name: deploy
      if: (branch = master) AND (env(TRAVIS_PULL_REQUEST) = false)
    - name: Remote data tests
-
+     if: env(TRAVIS_PULL_REQUEST) = false
 
 env:
     global:
