@@ -25,10 +25,11 @@ stages:
    - name: Test docs, astropy dev, and without optional dependencies
    - name: Cron tests
      if: type = cron
-   - name: Tests with other Python/Numpy versions, remote data
+   - name: Tests with other Python/Numpy versions
    - name: deploy
-     if: branch = master
-
+     if: (branch = master) AND (env(TRAVIS_PULL_REQUEST) = false)
+   - name: Remote data tests
+     if: env(TRAVIS_PULL_REQUEST) = false
 
 env:
     global:
@@ -69,11 +70,11 @@ matrix:
         # both short and long versions for remote-data to help test the
         # astropy test command.
         - os: linux
-          stage: Tests with other Python/Numpy versions, remote data
+          stage: Remote data tests
           env: EVENT_TYPE='push cron' DEBUG=True ASTROPY_VERSION=dev
                SETUP_CMD='test -R -V' CONDA_DEPENDENCIES=$CONDA_DEPENDENCIES_REMOTE
         - os: linux
-          stage: Tests with other Python/Numpy versions, remote data
+          stage: Remote data tests
           env: EVENT_TYPE='push cron' PYTHON_VERSION=2.7
                SETUP_CMD='test --remote-data -V' CONDA_DEPENDENCIES=$CONDA_DEPENDENCIES_REMOTE KEYRING_VERSION='<12.0'
 
@@ -98,17 +99,17 @@ matrix:
         # versions of Python, we can vary Python and Numpy versions at the same
         # time. We don't expect any of these to fail in master for cron jobs.
         - os: linux
-          stage: Tests with other Python/Numpy versions, remote data
+          stage: Tests with other Python/Numpy versions
           env: PYTHON_VERSION=2.7 NUMPY_VERSION=1.9  KEYRING_VERSION='<12.0'
         - os: linux
-          stage: Tests with other Python/Numpy versions, remote data
+          stage: Tests with other Python/Numpy versions
           env: PYTHON_VERSION=3.4 NUMPY_VERSION=1.10
         - os: linux
-          stage: Tests with other Python/Numpy versions, remote data
+          stage: Tests with other Python/Numpy versions
           env: PYTHON_VERSION=3.5.5 NUMPY_VERSION=1.11 KEYRING_VERSION='<12.0'
 
         - os: linux
-          stage: Tests with other Python/Numpy versions, remote data
+          stage: Tests with other Python/Numpy versions
           env: NUMPY_VERSION=1.12 ASTROPY_VERSION=1.3 PYTEST_VERSION='<3.2'
 
         # Now try Astropy dev and LTS vesions with the latest Python.
@@ -142,7 +143,7 @@ matrix:
         # Try numpy pre-release version, this runs only when a pre-release
         # is available on pypi.
         - os: linux
-          stage: Tests with other Python/Numpy versions, remote data
+          stage: Tests with other Python/Numpy versions
           env: NUMPY_VERSION=prerelease DEBUG=True EVENT_TYPE='push pull_request cron'
 
         # Do a PEP8 test with pycodestyle
@@ -151,11 +152,11 @@ matrix:
                SETUP_CMD='' EVENT_TYPE='push pull_request'
 
         - stage: deploy
-          env: SETUP_CMD='sdist'
+          env: SETUP_CMD='sdist' EVENT_TYPE='push'
           deploy:
             provider: pypi
             user: astroquery
-            password: 
+            password:
             secure: DtqyQkllGcWuKOVMsu9RWRiobeL8bdpMxwdSYpob4Cqj0D2hLLx3w50qr0qpDCFzioB3rXnhbtPKEzHB+4fTFT/Rjito32fFPUtee2Rw4SCe4YIlS0ksPOTmxkeoh2TQLIYcNPPoI7UpUX6uC65nzgCUTmZVoiCweQE+i5GhEBI=
             on:
               branch: master

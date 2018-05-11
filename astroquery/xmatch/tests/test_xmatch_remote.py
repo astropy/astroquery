@@ -18,7 +18,7 @@ DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 
 @remote_data
 @pytest.mark.dependency(name='xmatch_up')
-def test_is_vsa_up():
+def test_is_xmatch_up():
     try:
         requests.get("http://cdsxmatch.u-strasbg.fr/xmatch/api/v1/sync")
     except Exception as ex:
