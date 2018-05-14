@@ -14,7 +14,7 @@ from .. import Alma
 
 # ALMA tests involving staging take too long, leading to travis timeouts
 # TODO: make this a configuration item
-SKIP_STAGING = True
+SKIP_SLOW = True
 
 all_colnames = {'Project code', 'Source name', 'RA', 'Dec', 'Band',
                 'Frequency resolution', 'Integration', 'Release date',
@@ -68,7 +68,7 @@ class TestAlma:
         # assert b'2011.0.00217.S' in result_c['Project code'] # missing cycle 1 data
         assert b'2012.1.00932.S' in result_c['Project code']
 
-    @pytest.mark.skipif("SKIP_STAGING")
+    @pytest.mark.skipif("SKIP_SLOW")
     def test_m83(self, temp_dir, recwarn):
         alma = Alma()
         alma.cache_location = temp_dir
@@ -96,7 +96,7 @@ class TestAlma:
         #                           'same UIDs, the result returned is probably correct,'
         #                           ' otherwise you may need to create a fresh astroquery.Alma instance.'))
 
-    @pytest.mark.skipif("SKIP_STAGING")
+    @pytest.mark.skipif("SKIP_SLOW")
     def test_stage_data(self, temp_dir, recwarn):
         alma = Alma()
         alma.cache_location = temp_dir
@@ -129,7 +129,7 @@ class TestAlma:
         #                           'same UIDs, the result returned is probably correct,'
         #                           ' otherwise you may need to create a fresh astroquery.Alma instance.'))
 
-    @pytest.mark.skipif("SKIP_STAGING")
+    @pytest.mark.skipif("SKIP_SLOW")
     def test_doc_example(self, temp_dir):
         alma = Alma()
         alma.cache_location = temp_dir
@@ -179,7 +179,7 @@ class TestAlma:
     # This has been reported, as it is definitely a bug.
     @pytest.mark.xfail
     @pytest.mark.bigdata
-    @pytest.mark.skipif("SKIP_STAGING")
+    @pytest.mark.skipif("SKIP_SLOW")
     def test_cycle1(self, temp_dir):
         # About 500 MB
         alma = Alma()
@@ -228,7 +228,7 @@ class TestAlma:
 
         assert len(data) == 6
 
-    @pytest.mark.skipif("SKIP_STAGING")
+    @pytest.mark.skipif("SKIP_SLOW")
     def test_cycle0(self, temp_dir):
         # About 20 MB
 
