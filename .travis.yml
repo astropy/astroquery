@@ -47,10 +47,9 @@ env:
         - HTTP_BIN_CMD="import httpbin; httpbin.app.run()"
         - RUN_HTTPBIN='python -c "$HTTP_BIN_CMD" & ACTIVE_HTTPBIN=True'
         - SETUP_CMD='test'
-        - CONDA_CHANNELS='astropy-ci-extras astropy'
+        - CONDA_CHANNELS='astropy'
         - EVENT_TYPE='pull_request push'
         - ASTROPY_USE_SYSTEM_PYTEST=1
-        - SPHINX_VERSION='>=1.6'
         - DEBUG=true
 
     matrix:
@@ -72,11 +71,14 @@ matrix:
         - os: linux
           stage: Remote data tests
           env: EVENT_TYPE='push cron' DEBUG=True ASTROPY_VERSION=dev
-               SETUP_CMD='test -R -V' CONDA_DEPENDENCIES=$CONDA_DEPENDENCIES_REMOTE
+               SETUP_CMD='test -R -V -a "--dureations=50"'
+               CONDA_DEPENDENCIES=$CONDA_DEPENDENCIES_REMOTE
         - os: linux
           stage: Remote data tests
           env: EVENT_TYPE='push cron' PYTHON_VERSION=2.7
-               SETUP_CMD='test --remote-data -V' CONDA_DEPENDENCIES=$CONDA_DEPENDENCIES_REMOTE KEYRING_VERSION='<12.0'
+               SETUP_CMD='test --remote-data -V -a "--durations=50"'
+               CONDA_DEPENDENCIES=$CONDA_DEPENDENCIES_REMOTE
+               KEYRING_VERSION='<12.0'
 
         # No need to run it from cron
         # Try MacOS X
