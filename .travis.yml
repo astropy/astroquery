@@ -71,7 +71,7 @@ matrix:
         - os: linux
           stage: Remote data tests
           env: EVENT_TYPE='push cron' DEBUG=True ASTROPY_VERSION=dev
-               SETUP_CMD='test -R -V -a "--dureations=50"'
+               SETUP_CMD='test -R -V -a "--durations=50"'
                CONDA_DEPENDENCIES=$CONDA_DEPENDENCIES_REMOTE
         - os: linux
           stage: Remote data tests
