@@ -1055,6 +1055,22 @@ class AlmaClass(QueryWithLogin):
         tbl = Table([Column(name=k, data=v) for k, v in iteritems(columns)])
         return tbl
 
+    def get_project_metadata(self, projectid, cache=True):
+        """
+        Get the metadata - specifically, the project aspect - for a given project ID.
+        """
+        url = urljoin(self._get_dataarchive_url(), 'aq/')
+
+        assert len(projectid) == 14, "Wrong length for project ID"
+        assert projectid[4] == projectid[6] == projectid[12] == '.', "Wrong format for project ID"
+        response = self._request('GET', "{0}meta/project/{1}".format(url, projectid),
+                                 timeout=self.TIMEOUT,
+                                 cache=cache)
+        response.raise_for_status()
+
+        return response.text
+
+
 
 Alma = AlmaClass()
 
