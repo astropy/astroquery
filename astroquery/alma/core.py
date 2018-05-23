@@ -1068,7 +1068,7 @@ class AlmaClass(QueryWithLogin):
                                  cache=cache)
         response.raise_for_status()
 
-        return response.text
+        return response.json()
 
 
 
