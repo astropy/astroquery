@@ -1071,7 +1071,6 @@ class AlmaClass(QueryWithLogin):
         return response.json()
 
 
-
 Alma = AlmaClass()
 
 
