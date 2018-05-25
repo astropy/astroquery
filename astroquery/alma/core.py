@@ -1057,7 +1057,7 @@ class AlmaClass(QueryWithLogin):
 
     def get_project_metadata(self, projectid, cache=True):
         """
-        Get the metadata - specifically, the project aspect - for a given project ID.
+        Get the metadata - specifically, the project abstract - for a given project ID.
         """
         url = urljoin(self._get_dataarchive_url(), 'aq/')
 
