@@ -81,7 +81,7 @@ class CdsClass(BaseQuery):
 
             - ``overlaps`` (default). The matching data sets are those overlapping the MOC region.
             - ``covers``. The matching data sets are those covering the MOC region.
-            - ``enclosed``. The matching data sets are those enclosing the MOC region.
+            - ``encloses``. The matching data sets are those enclosing the MOC region.
         max_rec : int, optional
             Maximum number of data sets to return. By default, there is no upper limit i.e. all the matching data sets
             are returned.

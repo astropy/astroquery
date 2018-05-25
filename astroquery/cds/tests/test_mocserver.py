@@ -17,8 +17,7 @@ DATA_FILES = {
     'CONE_SEARCH': 'cone_search.json',
     'POLYGON_SEARCH': 'polygon_search.json',
     'PROPERTIES_SEARCH': 'properties.json',
-    'HIPS_FROM_SAADA_AND_ALASKY': 'hips_from_saada_alasky.json',
-    'HIPS_GAIA': 'hips_gaia.json'
+    'HIPS_FROM_SAADA_AND_ALASKY': 'hips_from_saada_alasky.json'
 }
 
 
@@ -86,9 +85,8 @@ polygon2 = coordinates.SkyCoord([58.376, 53.391, 56.025, 54.616], [24.053, 25.62
                                 unit="deg")
 
 # PROPERTY CONSTRAINTS DEFINITIONS
-meta_data_ex = 'ID = * && (moc_sky_fraction<=0.01 || hips*=*)'
+meta_data_ex = 'ID = *SDSS* && moc_sky_fraction<=0.01'
 meta_data_hips_from_saada_alasky = '(hips_service_url*=http://saada*) && (hips_service_url*=http://alasky.*)'
-meta_data_hips_gaia = '((obs_*=*gaia* || ID=*gaia*) && hips_service_url=*) &! obs_*=*simu'
 """
 Combination of one spatial with a property constraint
 
@@ -99,14 +97,9 @@ with regards to the true results stored in a file located in the data directory
 
 
 @pytest.mark.parametrize('type, params, data_file_id',
-                         [(cds.RegionType.Cone, dict(radius=coordinates.Angle(1.5, unit='deg'),
-                                                     center=coordinates.SkyCoord(ra=10.8, dec=6.5, unit="deg")),
-                           'CONE_SEARCH'),
-                          (cds.RegionType.Polygon, dict(vertices=polygon1), 'POLYGON_SEARCH'),
-                          (cds.RegionType.AllSky, dict(meta_data=meta_data_ex), 'PROPERTIES_SEARCH'),
+                         [(cds.RegionType.AllSky, dict(meta_data=meta_data_ex), 'PROPERTIES_SEARCH'),
                           (cds.RegionType.AllSky, dict(meta_data=meta_data_hips_from_saada_alasky),
-                           'HIPS_FROM_SAADA_AND_ALASKY'),
-                          (cds.RegionType.AllSky, dict(meta_data=meta_data_hips_gaia), 'HIPS_GAIA')])
+                           'HIPS_FROM_SAADA_AND_ALASKY')])
 def test_request_results(type, params, data_file_id,
                          get_true_request_results,
                          get_request_results):
@@ -167,7 +160,7 @@ def test_polygon_spatial_request(poly, poly_payload):
 
 
 @pytest.mark.parametrize('intersect',
-                         ['enclosed', 'overlaps', 'covers'])
+                         ['encloses', 'overlaps', 'covers'])
 def test_intersect_param(intersect):
     center = coordinates.SkyCoord(ra=10.8, dec=32.2, unit="deg")
     radius = coordinates.Angle(1.5, unit="deg")
@@ -176,8 +169,10 @@ def test_intersect_param(intersect):
                                        center=center,
                                        radius=radius,
                                        get_query_payload=True)
-
-    assert request_payload['intersect'] == intersect
+    if intersect == 'encloses':
+        assert request_payload['intersect'] == 'enclosed'
+    else:
+        assert request_payload['intersect'] == intersect
 
 
 @pytest.mark.parametrize('get_attr, get_attr_str', [(cds.ReturnFormat.id, 'id'),

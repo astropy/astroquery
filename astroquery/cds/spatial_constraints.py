@@ -21,15 +21,18 @@ class SpatialConstraint(ABC):
 
             - ``overlaps`` (default). The matching data sets are those overlapping the MOC region.
             - ``covers``. The matching data sets are those covering the MOC region.
-            - ``enclosed``. The matching data sets are those enclosing the MOC region.
+            - ``encloses``. The matching data sets are those enclosing the MOC region.
 
         Raises
         ------
         ValueError
-            ``intersect`` must have its value in (overlaps, enclosed, covers)
+            ``intersect`` must have its value in (overlaps, encloses, covers)
 
         """
         self._intersect = intersect
+        if self._intersect == 'encloses':
+            self._intersect = 'enclosed'
+
         self.request_payload = {'intersect': self._intersect}
 
     @property
@@ -57,18 +60,22 @@ class SpatialConstraint(ABC):
 
             - ``overlaps`` (default). The matching data sets are those overlapping the MOC region.
             - ``covers``. The matching data sets are those covering the MOC region.
-            - ``enclosed``. The matching data sets are those enclosing the MOC region.
+            - ``encloses``. The matching data sets are those enclosing the MOC region.
 
         Raises
         ------
         ValueError
-            ``intersect`` must have its value in (overlaps, enclosed, covers)
+            ``intersect`` must have its value in (overlaps, encloses, covers)
 
         """
-        if value not in ('overlaps', 'enclosed', 'covers'):
-            raise ValueError("`intersect` parameter must have a value in ('overlaps', 'enclosed', 'covers')")
+        if value not in ('overlaps', 'encloses', 'covers'):
+            raise ValueError("`intersect` parameter must have a value in ('overlaps', 'encloses', 'covers')")
 
         self._intersect = value
+
+        if self._intersect == 'encloses':
+            self._intersect = 'enclosed'
+
         self.request_payload.update({'intersect': self._intersect})
 
     def __repr__(self, *args, **kwargs):

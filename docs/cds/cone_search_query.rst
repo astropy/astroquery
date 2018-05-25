@@ -80,7 +80,7 @@ the data sets. This parameter can take only three different values :
 
 - ``overlaps`` (default). The matching data sets are those overlapping the MOC region.
 - ``covers``. The matching data sets are those covering the MOC region.
-- ``enclosed``. The matching data sets are those enclosing the MOC region.
+- ``encloses``. The matching data sets are those enclosing the MOC region.
 
 An optional ``output_format`` parameter allows the user to specify the format
 of the `CDS MOC service`_'s response. ``output_format`` must have a value among:
