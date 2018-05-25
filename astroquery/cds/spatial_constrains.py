@@ -8,11 +8,11 @@ from abc import abstractmethod, ABC
 from astropy import coordinates
 
 
-class SpatialConstraint(ABC):
+class SpatialConstrain(ABC):
     @abstractmethod
     def __init__(self, intersect):
         """
-        Definition of a SpatialConstraint object
+        Definition of a SpatialConstrain object
 
         Parameters
         ----------
@@ -79,11 +79,11 @@ class SpatialConstraint(ABC):
         self.request_payload.update({'intersect': self._intersect})
 
     def __repr__(self, *args, **kwargs):
-        result = "Spatial constraint having request payload :\n{0}".format(self.request_payload)
+        result = "Spatial constrain having request payload :\n{0}".format(self.request_payload)
         return result
 
 
-class Cone(SpatialConstraint):
+class Cone(SpatialConstrain):
 
     def __init__(self, center, radius, intersect='overlaps'):
         """
@@ -125,7 +125,7 @@ class Cone(SpatialConstraint):
         })
 
 
-class Polygon(SpatialConstraint):
+class Polygon(SpatialConstrain):
 
     def __init__(self, vertices, intersect='overlaps'):
         """
@@ -195,7 +195,7 @@ class Polygon(SpatialConstraint):
         return polygon_stc
 
 
-class Moc(SpatialConstraint):
+class Moc(SpatialConstrain):
     def __init__(self, intersect='overlaps'):
         """
         Definition a MOC region
@@ -223,16 +223,16 @@ class Moc(SpatialConstraint):
 
         Returns
         -------
-        moc_constraint : `~astroquery.cds.Moc`
+        moc_constrain : `~astroquery.cds.Moc`
             the MOC region
 
         """
 
         assert isinstance(filename, str), TypeError("`filename` must be of type str")
 
-        moc_constraint = cls(intersect=intersect)
-        moc_constraint.request_payload.update({'filename': filename})
-        return moc_constraint
+        moc_constrain = cls(intersect=intersect)
+        moc_constrain.request_payload.update({'filename': filename})
+        return moc_constrain
 
     @classmethod
     def from_url(cls, url, intersect='overlaps'):
@@ -248,16 +248,16 @@ class Moc(SpatialConstraint):
 
         Returns
         -------
-        moc_constraint : `~astroquery.cds.Moc`
+        moc_constrain : `~astroquery.cds.Moc`
             the MOC region
 
         """
 
         assert isinstance(url, str), TypeError("`url` must be of type str")
 
-        moc_constraint = cls(intersect=intersect)
-        moc_constraint.request_payload.update({'url': url})
-        return moc_constraint
+        moc_constrain = cls(intersect=intersect)
+        moc_constrain.request_payload.update({'url': url})
+        return moc_constrain
 
     @classmethod
     def from_mocpy_object(cls, mocpy_obj, intersect='overlaps'):
@@ -273,7 +273,7 @@ class Moc(SpatialConstraint):
 
         Returns
         -------
-        moc_constraint : `~astroquery.cds.Moc`
+        moc_constrain : `~astroquery.cds.Moc`
             the MOC region
 
         """
@@ -299,7 +299,7 @@ class Moc(SpatialConstraint):
         import os
         os.unlink(tmp_moc_file.name)
 
-        moc_constraint = cls(intersect=intersect)
+        moc_constrain = cls(intersect=intersect)
 
-        moc_constraint.request_payload.update({'moc': content.strip('\n')})
-        return moc_constraint
+        moc_constrain.request_payload.update({'moc': content.strip('\n')})
+        return moc_constrain

@@ -50,7 +50,7 @@ And we get an ID list of the data sets matching the query:
 
 The ``region_type`` parameter is required. It informs the :meth:`~astroquery.cds.CdsClass.query_region`
 method about the type of region we are querying the `CDS MOC service`_ and
-thus constraints the following parameters of the method.
+thus constrains the following parameters of the method.
 
 You can find below the parameters associated to all the possible ``region_type`` parameter values :
 

@@ -53,7 +53,7 @@ Reference/API
 
 .. automodapi:: astroquery.cds
     :no-inheritance-diagram:
-    :skip: Constraints, PropertyConstraint
+    :skip: Constrains, PropertyConstrain
     :skip: OutputFormat
 
 .. :include:: references.rst

@@ -1,6 +1,6 @@
 .. _query_on_meta_data:
 
-Performing a complex CDS MOC query involving a constraint on meta data
+Performing a complex CDS MOC query involving a constrain on meta data
 ----------------------------------------------------------------------
 
 We now want to use the `CDS MOC Service`_ to filter data sets having a specific
@@ -14,10 +14,10 @@ As an example, we would like to retrieve the number of data sets matching the qu
 must :
 
 -  belong to this `MOC_FILE`_
--  have the word 'CDS' in their IDs (constraint on the ``ID`` meta data)
--  cover at most 1% of the sky (constraint on the ``moc_sky_fraction`` meta data)
+-  have the word 'CDS' in their IDs (constrain on the ``ID`` meta data)
+-  cover at most 1% of the sky (constrain on the ``moc_sky_fraction`` meta data)
 
-Meta data constraint is written like an algebraic expression involving the set of meta data to constraint. For more
+Meta data constrain is written like an algebraic expression involving the set of meta data to constrain. For more
 details about how to write them, go to the `CDS MOC Service`_. Please refer to the section
 Advanced queries & parameters part ii.
 

@@ -75,7 +75,7 @@ def get_true_request_results():
     return load_true_result_query
 
 
-"""List of all the constraint we want to test"""
+"""List of all the constrain we want to test"""
 # SPATIAL CONSTRAINTS DEFINITIONS
 polygon1 = coordinates.SkyCoord([57.376, 56.391, 56.025, 56.616], [24.053, 24.622, 24.049, 24.291],
                                 frame="icrs",
@@ -88,7 +88,7 @@ polygon2 = coordinates.SkyCoord([58.376, 53.391, 56.025, 54.616], [24.053, 25.62
 meta_data_ex = 'ID = *SDSS* && moc_sky_fraction<=0.01'
 meta_data_hips_from_saada_alasky = '(hips_service_url*=http://saada*) && (hips_service_url*=http://alasky.*)'
 """
-Combination of one spatial with a property constraint
+Combination of one spatial with a property constrain
 
 Each tuple(spatial, property) characterizes a specific query and is tested
 with regards to the true results stored in a file located in the data directory
@@ -120,7 +120,7 @@ def test_request_results(type, params, data_file_id,
 
 
 """
-Spatial Constraints requests
+Spatial Constrains requests
 
 We test a polygon/cone/moc search and ensure the
 request param 'intersect' is correct

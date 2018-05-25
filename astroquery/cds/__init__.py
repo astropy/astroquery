@@ -10,9 +10,9 @@ from astropy import config as _config
 
 from .output_format import OutputFormat
 from .dataset import Dataset
-from .constraints import Constraints
-from .spatial_constraints import Cone, Polygon, Moc
-from .property_constraint import PropertyConstraint
+from .constrains import Constrains
+from .spatial_constrains import Cone, Polygon, Moc
+from .property_constrain import PropertyConstrain
 
 
 class Conf(_config.ConfigNamespace):
@@ -36,7 +36,7 @@ from .core import cds, CdsClass
 __all__ = ['cds', 'CdsClass',
            'OutputFormat',
            'Dataset',
-           'Constraints',
+           'Constrains',
            'Cone', 'Polygon', 'Moc',
-           'PropertyConstraint',
+           'PropertyConstrain',
            'Conf', 'conf']

@@ -198,7 +198,7 @@ class CdsClass(BaseQuery):
         # Region Type
         region_type = kwargs['region_type']
         if region_type == CdsClass.RegionType.MOC:
-            from .spatial_constraints import Moc
+            from .spatial_constrains import Moc
 
             if 'filename' not in kwargs and 'url' not in kwargs and 'moc' not in kwargs:
                 raise KeyError('Need at least one of these three following parameters when querying the '
@@ -220,7 +220,7 @@ class CdsClass(BaseQuery):
             # add the moc region payload to the request payload
             request_payload.update(moc.request_payload)
         elif region_type == CdsClass.RegionType.Cone:
-            from .spatial_constraints import Cone
+            from .spatial_constrains import Cone
 
             if 'radius' not in kwargs or 'center' not in kwargs:
                 raise KeyError('Need the radius and the position when querying the CDS MOC service'
@@ -233,7 +233,7 @@ class CdsClass(BaseQuery):
             # add the cone region payload to the request payload
             request_payload.update(cone.request_payload)
         elif region_type == CdsClass.RegionType.Polygon:
-            from .spatial_constraints import Polygon
+            from .spatial_constrains import Polygon
 
             if 'vertices' not in kwargs:
                 raise KeyError('Need to specify the skycoords when querying the CDS MOC service'
@@ -249,9 +249,9 @@ class CdsClass(BaseQuery):
             pass
 
         if 'meta_data' in kwargs:
-            from .property_constraint import PropertyConstraint
-            meta_data_constraint = PropertyConstraint(kwargs['meta_data'])
-            request_payload.update(meta_data_constraint.request_payload)
+            from .property_constrain import PropertyConstrain
+            meta_data_constrain = PropertyConstrain(kwargs['meta_data'])
+            request_payload.update(meta_data_constrain.request_payload)
 
         # Output format payload
         from sys import maxsize

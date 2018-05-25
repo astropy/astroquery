@@ -8,7 +8,7 @@ from abc import abstractmethod, ABC
 from enum import Enum
 
 
-class PropertyConstraint(object):
+class PropertyConstrain(object):
     def __init__(self, expr):
         if not isinstance(expr, PropertiesExpr) and not isinstance(expr, str):
             raise TypeError('`expr` is not of type str nor PropertiesExpr')
@@ -25,7 +25,7 @@ class PropertyConstraint(object):
         self.request_payload['expr'] = self.expr.eval()
 
     def __repr__(self):
-        result = "Properties constraints' request payload :\n{0}".format(self.request_payload)
+        result = "Properties constrains' request payload :\n{0}".format(self.request_payload)
         return result
 
 
