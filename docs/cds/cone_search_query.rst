@@ -72,7 +72,7 @@ You can find below the parameters associated to all the possible ``region_type``
         the local path to a fits file describing the MOC
    -  url : str
         an url to a fits file describing the MOC
-   -  moc : ``mocpy.MOC`` object
+   -  moc : `mocpy.MOC`_ object
         the region expressed directly as a MOC object
 
 An optional ``intersect`` parameter specifies the selection heuristic of
@@ -90,9 +90,9 @@ of the `CDS MOC service`_'s response. ``output_format`` must have a value among:
 -  ``cds.ReturnFormat.record``. The output is a dictionary of
    :class:`astroquery.cds.Dataset <astroquery.cds.Dataset>` objects indexed by their ID
 -  ``cds.ReturnFormat.number``. :meth:`~astroquery.cds.CdsClass.query_region` returns the number of matched data sets
--  ``cds.ReturnFormat.moc``. The output is a ``mocpy.MOC`` object corresponding
+-  ``cds.ReturnFormat.moc``. The output is a `mocpy.MOC`_ object corresponding
    to the union of the MOCs of the selected data sets
--  ``cds.ReturnFormat.i_moc``. The output is a ``mocpy.MOC`` object
+-  ``cds.ReturnFormat.i_moc``. The output is a `mocpy.MOC`_ object
    corresponding to the intersection of the MOCs of the selected data
    sets
 
@@ -116,7 +116,7 @@ More optional parameters are available. For instance:
     ``moc_sky_fraction`` meta data of the matched data sets, then you pass
     to the ``meta_var`` param of :meth:`~astroquery.cds.CdsClass.query_region` the list ``['moc_sky_fraction']``
 -  ``moc_order`` : int
-    the moc order of the ``mocpy.MOC`` returned object in case the user asks for a MOC as the query output
+    the moc order of the ``mocpy.MOC`_ returned object in case the user asks for a MOC as the query output
 -  ``meta_data`` : str
     allows the user to filter data sets following a specific configuration of meta data (see this :ref:`example <query_on_meta_data>`)
 

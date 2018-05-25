@@ -4,6 +4,9 @@
 .. _CDS MOC Server:
     http://alasky.unistra.fr/MocServer/query
 
+.. _Multi-Order Coverage object:
+    https://github.com/cds-astro/mocpy
+
 .. _Centre de Données de Strasbourg (CDS):
     http://cds.u-strasbg.fr/
 
@@ -11,6 +14,9 @@
     http://ivoa.net/documents/MOC/20140602/REC-MOC-1.0-20140602.pdf
 
 .. _mocpy:
+    https://github.com/cds-astro/mocpy
+
+.. _mocpy.MOC:
     https://github.com/cds-astro/mocpy
 
 .. _pyvo:
