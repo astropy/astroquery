@@ -218,7 +218,7 @@ class HorizonsClass(BaseQuery):
         +------------------+-----------------------------------------------+
         | sunTargetPA      | -Sun vector PA (float, deg, EoN, "PsAng")     |
         +------------------+-----------------------------------------------+
-        | velocityPA       | velocity vector PA (float, deg, EoN, "PsAMV") |
+        | velocityPA       | -velocity vector PA (float, deg, EoN, "PsAMV")|
         +------------------+-----------------------------------------------+
         | GlxLon           | galactic longitude (float, deg, "GlxLon")     |
         +------------------+-----------------------------------------------+
