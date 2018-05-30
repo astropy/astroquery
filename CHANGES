@@ -1,6 +1,7 @@
 0.3.9 (unreleased)
 ------------------
 
+- HITRAN: use class-based API [#824]
 - MAST: Enable converting list of products into S3 uris [#1126]
 - VO_CONESEARCH: Service validator now uses new STScI VAO TAP registry. [#1114]
 
