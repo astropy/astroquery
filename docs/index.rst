@@ -183,6 +183,7 @@ The following modules have been completed using a common API:
   gaia/gaia.rst
   gama/gama.rst
   heasarc/heasarc.rst
+  hitran/hitran.rst
   ibe/ibe.rst
   irsa/irsa.rst
   irsa/irsa_dust.rst
@@ -214,7 +215,6 @@ These others are functional, but do not follow a common & consistent API:
   cosmosim/cosmosim.rst
   exoplanet_orbit_database/exoplanet_orbit_database.rst
   fermi/fermi.rst
-  hitran/hitran.rst
   jplhorizons/jplhorizons.rst
   lamda/lamda.rst
   nasa_exoplanet_archive/nasa_exoplanet_archive.rst
