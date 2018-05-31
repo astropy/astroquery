@@ -844,15 +844,21 @@ class HorizonsClass(BaseQuery):
             # read in M1, M2, k1, k2, and phcof (if available)
             if "Comet physical" in line:
                 HGline = src[idx + 2].split('=')
-                M1 = float(HGline[1].rstrip('M2'))
-                k1 = float(HGline[3].rstrip('k2'))
+                try:
+                    M1 = float(HGline[1].rstrip('M2'))
+                    k1 = float(HGline[3].rstrip('k2'))
+                except ValueError as e:
+                    M1 = nan
+                    k1 = nan
                 try:
                     M2 = float(HGline[2].rstrip('k1'))
                     k2 = float(HGline[4].rstrip('PHCOF'))
-                    phcof = float(HGline[5])
                 except ValueError:
                     M2 = nan
                     k2 = nan
+                try:
+                    phcof = float(HGline[5])
+                except ValueError as e:
                     phcof = nan
             # catch unambiguous names
             if (("Multiple major-bodies match string" in line or
