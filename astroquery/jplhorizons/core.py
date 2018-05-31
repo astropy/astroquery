@@ -847,7 +847,7 @@ class HorizonsClass(BaseQuery):
                 try:
                     M1 = float(HGline[1].rstrip('M2'))
                     k1 = float(HGline[3].rstrip('k2'))
-                except ValueError:
+                except ValueError as e:
                     M1 = nan
                     k1 = nan
                 try:
@@ -858,7 +858,7 @@ class HorizonsClass(BaseQuery):
                     k2 = nan
                 try:
                     phcof = float(HGline[5])
-                except ValueError:
+                except ValueError as e:
                     phcof = nan
             # catch unambiguous names
             if (("Multiple major-bodies match string" in line or
