@@ -1,4 +1,6 @@
-from astropy.table import Table
+import itertools
+
+from astropy.table import Table, Column
 from astropy import units as u
 
 from ..query import BaseQuery
@@ -152,6 +154,8 @@ class HitranClass(BaseQuery):
         super(HitranClass, self).__init__()
 
     def _args_to_payload(self, molecule_number=1, isotopologue_number=1,
+                         all_molecules=False,
+                         all_isotopes=False,
                          min_frequency=None, max_frequency=None):
         """
         Code to parse input and construct the payload dictionary.
@@ -176,12 +180,35 @@ class HitranClass(BaseQuery):
 
         payload = dict()
 
-        iso_id = str(self.ISO[(molecule_number,
-                               isotopologue_number)][self.ISO_INDEX['id']])
+        if all_molecules:
+            molecule_number, _ = zip(*self.ISO.keys())
+        if all_isotopes:
+            _, isotopologue_number = zip(*self.ISO.keys())
+
+        try:
+            iter(molecule_number)
+        except TypeError:
+            molecule_number = itertools.cycle([molecule_number])
+        try:
+            iter(isotopologue_number)
+        except TypeError:
+            isotopologue_number = itertools.cycle([isotopologue_number])
+
+        if ((hasattr(isotopologue_number, '__len__') and
+             hasattr(molecule_number, '__len__') and
+             len(isotopologue_number) != len(molecule_number))):
+            raise ValueError("Must provide same number of molecule and "
+                             "isotopologue IDs.")
+
+        iso_ids = []
+        for mnum,inum in zip(molecule_number, isotopologue_number):
+            iso_id = str(self.ISO[(mnum,
+                                   inum)][self.ISO_INDEX['id']])
+            iso_ids.append(iso_id)
         # mol_name = self.ISO[(molecule_number,
         #                      isotopologue_number)][self.ISO_INDEX['mol_name']]
 
-        payload['iso_ids_list'] = iso_id
+        payload['iso_ids_list'] = ",".join(map(str, iso_ids))
 
         if min_frequency is not None:
             min_frequency = min_frequency.to(u.cm**-1, u.spectral())
@@ -245,6 +272,16 @@ class HitranClass(BaseQuery):
                 rows.append(row)
 
         result = Table(rows=rows, names=formats.keys(), dtype=dtypes)
+
+        molnames = Column([self.ISO[(row['molec_id'], row['local_iso_id'])][4]
+                           for row in result],
+                          name='molname')
+        molfullnames = Column([self.ISO[(row['molec_id'], row['local_iso_id'])][1]
+                               for row in result],
+                              name='molisoname')
+
+        result.add_column(molnames)
+        result.add_column(molfullnames)
 
         return result
 
