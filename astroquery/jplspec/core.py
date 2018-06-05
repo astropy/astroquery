@@ -44,7 +44,7 @@ def get_species_table(catfile='catdir.cat'):
                         header_start=None,
                         data_start=1,
                         names=('TAG', 'NAME', 'NLINE', 'QLOG', 'VER'),
-                        col_starts=(0, 6, 19, 25, 74, 76),
+                        col_starts=(0, 6, 19, 26, 75),
                         format='fixed_width')
     return result
 
@@ -61,7 +61,8 @@ class JPLSpecClass(BaseQuery):
         """
         This method is for services that can parse object names. Otherwise
         use :meth:`astroquery.template_module.TemplateClass.query_region`.
-        Put a brief description of what the class does here.
+        Creates an HTTP POST request based on the desired parameters and returns
+        a response.
 
         Parameters
         ----------
