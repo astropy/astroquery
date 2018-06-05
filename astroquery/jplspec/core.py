@@ -1,6 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
 import warnings
+import re
 
 import astropy.units as u
 from astropy.io import ascii
@@ -21,32 +22,6 @@ def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     return os.path.join(data_dir, filename)
 
-
-def get_species_table(catfile='catdir.cat'):
-    """
-    A directory of the catalog is found in a file called 'catdir.cat.'
-    Each element of this directory is an 80-character record with the following
-    format:
-    TAG,  NAME, NLINE,  QLOG,  VER
-    (I6,X, A13,    I6, 7F7.4,  I2)
-
-    TAG:   The species tag or molecular identifier.
-    NAME:  An ASCII name for the species.
-    NLINE: The number of lines in the catalog.
-    QLOG:  A seven-element vector containing the base 10 logarithm of the partition
-        function for temperatures of 300 K, 225 K, 150 K, 75 K, 37.5 K, 18.75 K,
-        and 9.375 K, respectively.
-    VER:   The version of the calculation for this species in the catalog.
-        The version number is followed by * if the entry is newer than the
-        last edition of the catalog.
-    """
-    result = ascii.read(data_path(catfile),
-                        header_start=None,
-                        data_start=1,
-                        names=('TAG', 'NAME', 'NLINE', 'QLOG', 'VER'),
-                        col_starts=(0, 6, 19, 26, 75),
-                        format='fixed_width')
-    return result
 
 
 @async_to_sync
@@ -150,9 +125,11 @@ class JPLSpecClass(BaseQuery):
         QN":   Quantum numbers for the lower state.
         """
 
-        result = ascii.read(response.text,
+        stripped_response = re.sub(r'^\s{12,14}\d{4,6}.*\n','',response.text, flags=re.MULTILINE)
+
+        result = ascii.read(stripped_response,
                             header_start=None,
-                            data_start=1,
+                            data_start=0, #changed to start at 0 since regex sub was applied
                             # Warning for a result with more than 1000 lines:
                             # THIS form is currently limited to 1000 lines.
                             comment='THIS',
@@ -166,5 +143,42 @@ class JPLSpecClass(BaseQuery):
                           "Please limit your search.")
         return result
 
+    def get_species_table(catfile='catdir.cat'):
+        """
+        A directory of the catalog is found in a file called 'catdir.cat.'
+        Each element of this directory is an 80-character record with the following
+        format:
+        TAG,  NAME, NLINE,  QLOG,  VER
+        (I6,X, A13,    I6, 7F7.4,  I2)
+
+        TAG:   The species tag or molecular identifier.
+        NAME:  An ASCII name for the species.
+        NLINE: The number of lines in the catalog.
+        QLOG:  A seven-element vector containing the base 10 logarithm of the partition
+            function for temperatures of 300 K, 225 K, 150 K, 75 K, 37.5 K, 18.75 K,
+            and 9.375 K, respectively.
+        VER:   The version of the calculation for this species in the catalog.
+            The version number is followed by * if the entry is newer than the
+            last edition of the catalog.
+        """
+        result = ascii.read(data_path(catfile),
+                            header_start=None,
+                            names=('TAG', 'NAME', 'NLINE',
+                                   'QLOG1', 'QLOG2',
+                                   'QLOG3', 'QLOG4',
+                                   'QLOG5', 'QLOG6',
+                                   'QLOG7', 'VER'),
+                            col_starts=(0, 6, 20, 26, 33, 40, 47, 54, 61, 68, 75),
+                            format='fixed_width')
+
+        result['QLOG1'].meta = {'Temperature' : 300} #store the corresponding temperatures as metadata
+        result['QLOG2'].meta = {'Temperature' : 225}
+        result['QLOG3'].meta = {'Temperature' : 150}
+        result['QLOG4'].meta = {'Temperature' : 75}
+        result['QLOG5'].meta = {'Temperature' : 37.5}
+        result['QLOG6'].meta = {'Temperature' : 18.75}
+        result['QLOG7'].meta = {'Temperature' : 9.375}
+
+        return result
 
 JPLSpec = JPLSpecClass()
