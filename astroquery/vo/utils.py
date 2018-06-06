@@ -212,34 +212,3 @@ def query_loop(query_function, service, params, verbose=False):
         service_results.append(result)
     return service_results
 
-
-def try_query(url, retries=3, timeout=60, get_params=None, post_data=None, files=None):
-    """ A wrapper to the astroquery _request() function allowing for retries
-    """
-    from requests.exceptions import (Timeout, ReadTimeout)
-    from urllib3.exceptions import ReadTimeoutError
-    from astroquery.query import BaseQuery
-    from IPython.core.debugger import Tracer
-
-    bq = BaseQuery()
-    retry = retries
-    assert get_params is not None or post_data is not None, "Give either get_params or post_data"
-
-    while retry:
-        try:
-            if post_data is not None:
-                response = bq._request('POST', url, data=post_data, cache=False, timeout=timeout, files=files)
-            else:
-                response = bq._request('GET', url, params=get_params, cache=False, timeout=timeout)
-            retry = retries-1
-        except (Timeout, ReadTimeout, ReadTimeoutError, ConnectionError) as e:
-            retry = retry-1
-            if retry == 0:
-                print("ERROR: Got another timeout; quitting.")
-                return response
-            else:
-                print("WARNING: Got a timeout; trying again.")
-        except:
-            raise
-        else:
-            return response
