@@ -1,25 +1,26 @@
-from astroquery.vo import Registry
+import json, os
 from astropy.tests.helper import remote_data
+from astropy.io import ascii
+## Why can't I import astroquery.vo ?
+from astroquery.vo import Registry
+from .shared_registry import SharedRegistryTests
 
-## To run just this test,
 ##
-## ( cd ../../ ; python setup.py test -t astroquery/vo/tests/test_registry_remote.py --remote-data )
+##  Regenerate the output JSON files using:
 ##
-
-
-# Find all SIA services from HEASARC.
-@remote_data
-def test_basic():
-    # Find all SIA services from HEASARC.
-    heasarc_image_services = Registry.query(source='heasarc',
-                                            service_type='image')
-    assert(len(heasarc_image_services) >= 108)
-    print(f"yes, len={len(heasarc_image_services)}")
+##  astroquery/vo > python tests/thetests.py
 
 
 @remote_data
-def test_adql_service():
-    query = Registry._build_adql(service_type="image")
-    assert "sia#query" in query
-    print(f"yes, query={query}")
+class TestRegistryRemote(SharedRegistryTests):
+    ""
+
+    def test_query_basic(self):
+        self.query_basic()
+
+    def test_query_counts(self):
+        self.query_counts()
+
+    def test_query_timeout(self):
+        self.query_timeout()
 
