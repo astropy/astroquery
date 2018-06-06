@@ -3,7 +3,7 @@
 Astrometry.net
 ==============
 Given an astropy `astropy.table.Table` as a source list, calculate the astrometric solution.
-Before querying astrometry.net you will have to register and obtain an api key from 
+Before querying astrometry.net you will have to register and obtain an api key from
 [http://nova.astrometry.net/].
 
 Sample Use
@@ -19,7 +19,7 @@ Sample Use
 
     settings = {
         'scale_units': 'arcsecperpix',
-        'scale_type': 'ul', 
+        'scale_type': 'ul',
         'scale_lower': 0.20,
         'scale_upper': 0.30,
         'center_ra': 8.711675,
@@ -39,13 +39,13 @@ If no settings are passed to the build function then a set of default parameters
 used, although this will increase the time it takes astrometry.net to generate a solution.
 It is recommended to at least set the bounds of the pixel scale to a reasonable value.
 
-Most of the following descriptions are taken directly from 
+Most of the following descriptions are taken directly from
 [astrometry.net](http://nova.astrometry.net/upload).
 
 Scale
 -----
 It is important to set the pixel scale of the image as accurate as possible to increase the
-speed of astrometry.net. From astrometry.net: "Most digital-camera images are at least 10 
+speed of astrometry.net. From astrometry.net: "Most digital-camera images are at least 10
 degrees wide; most professional-grade telescopes are narrower than 2 degrees."
 
 Several parameters are available to set the pixel scale.
@@ -64,14 +64,14 @@ Several parameters are available to set the pixel scale.
               ``scale_upper`` and ``scale_lower`` must be set to the upper and lower bounds
               of the pixel scale respectively
             * ``ev``: Set the estimated value with a given error. If ``scale_type='ev'`` the
-              parameters ``scale_est`` and ``scale_err`` must be set to the estiimated value 
+              parameters ``scale_est`` and ``scale_err`` must be set to the estiimated value
               (in pix) and error (percentage) of the pixel scale.
 
 Parity
 ------
-Flipping an image reverses its "parity". If you point a digital camera at the sky and 
-submit the JPEG, it probably has negative parity. If you have a FITS image, it probably 
-has positive parity. Selecting the right parity will make the solving process run faster, 
+Flipping an image reverses its "parity". If you point a digital camera at the sky and
+submit the JPEG, it probably has negative parity. If you have a FITS image, it probably
+has positive parity. Selecting the right parity will make the solving process run faster,
 but if in doubt just try both. ``parity`` can be set to the following values:
     - ``0``: positive parity
     - ``1``: negative parity
@@ -79,15 +79,15 @@ but if in doubt just try both. ``parity`` can be set to the following values:
 
 Star Positional Error
 ---------------------
-When we find a matching "landmark", we check to see how many of the stars in your field 
-match up with stars we know about. To do this, we need to know how much a star in your 
+When we find a matching "landmark", we check to see how many of the stars in your field
+match up with stars we know about. To do this, we need to know how much a star in your
 field could have moved from where it should be.
 
 The unit for positional error is in pixels and is set by the key ``positional_error``.
 
 Limits
 ------
-In order to narrow down our search, you can supply a field center along with a radius. 
+In order to narrow down our search, you can supply a field center along with a radius.
 We will only search in indexes which fall within this area.
 
 To set limits use all of the following parameters:
@@ -97,13 +97,13 @@ To set limits use all of the following parameters:
 
 Tweak
 -----
-By default we try to compute a SIP polynomial distortion correction with order 2. 
+By default we try to compute a SIP polynomial distortion correction with order 2.
 You can disable this by changing the order to 0, or change the polynomial order by setting
 ``tweak_order``.
 
 CRPIX Center
 ------------
-By default the reference point (CRPIX) of the WCS we compute can be anywhere in your image, 
+By default the reference point (CRPIX) of the WCS we compute can be anywhere in your image,
 but often it's convenient to force it to be the center of the image. This can be set by choosing
 ``crpix_center=True``.
 
@@ -124,13 +124,13 @@ By default all catalogs uploaded are publically available. To change this use th
 License
 ^^^^^^^
 There are two parameters that describe setting a license:
-    ``allow_commercial_use``: 
+    ``allow_commercial_use``:
         Chooses whether or not an image uploaded to astrometry.net is licensed
-        for commercial use. This can either be set to ``y``, ``n``, or ``d``, which 
+        for commercial use. This can either be set to ``y``, ``n``, or ``d``, which
         uses the default license associated with the api key.
     ``allow_modifications``:
         Whether or not images uploaded to astrometry.net are allowed to be modified by
-        other users. This can either be set to ``y``, ``n``, or ``d``, which 
+        other users. This can either be set to ``y``, ``n``, or ``d``, which
         uses the default license associated with the api key.
 """
 
@@ -204,7 +204,7 @@ class AstrometryNetClass(BaseQuery):
         """
         Convert the settings and sources into an object that can be used
         to query astrometry.net.
-        
+
         Parameters
         ----------
         catalog: `astropy.table.Table`
@@ -227,7 +227,7 @@ class AstrometryNetClass(BaseQuery):
         from email.mime.application  import MIMEApplication
         from email.encoders import encode_noop
         import simplejson
-        
+
         # Login to the service
         login_url = apiurl + "login"
         login_headers = {}
@@ -241,15 +241,15 @@ class AstrometryNetClass(BaseQuery):
         if stat == 'error':
             raise Exception("Login error, exiting")
         session_string = result["session"]
-        
+
         # Upload the text file to request a WCS solution
         upload_url = apiurl + "upload"
-        upload_args = { 
-                        'publicly_visible': 'y', 
-                        'allow_commercial_use': 'd', 
-                        'allow_modifications': 'd', 
+        upload_args = {
+                        'publicly_visible': 'y',
+                        'allow_commercial_use': 'd',
+                        'allow_modifications': 'd',
                         'scale_units': 'deg',
-                        'scale_type': 'ul', 
+                        'scale_type': 'ul',
                         'scale_lower': 0.1,
                         'scale_upper': 180,
                         'parity': 2,
@@ -257,20 +257,20 @@ class AstrometryNetClass(BaseQuery):
                         }
         upload_args.update(settings)
         upload_json = simplejson.dumps(upload_args)
-        
+
         # Format the list in the appropriate format
         # Currently this is just using the code from astrometry.net's client.py
         # Ideally this could probably be re-written and improved
-        #src_list = '\n'.join(['{0:.3f}\t{1:.3f}'.format(row[x_colname], row[y_colname]) 
+        #src_list = '\n'.join(['{0:.3f}\t{1:.3f}'.format(row[x_colname], row[y_colname])
         #    for row in catalog])
-        
+
         temp_file = 'temp.cat'
         f = open(temp_file, 'w')
         #f.write(src_list)
         for source in catalog:
             f.write('{0:.3f}\t{1:.3f}\n'.format(source[x_colname], source[y_colname]))
         f.close()
-        
+
         f = open(temp_file, 'rb')
         file_args=(temp_file, f.read())
 
@@ -302,7 +302,7 @@ class AstrometryNetClass(BaseQuery):
                 # We don't want to write the top-level headers;
                 # they go into Request(headers) instead.
                 if self.root:
-                    return                        
+                    return
                 # We need to use \r\n line-terminator, but Generator
                 # doesn't provide the flexibility to override, so we
                 # have to copy-n-paste-n-modify.
@@ -327,13 +327,13 @@ class AstrometryNetClass(BaseQuery):
             'headers': upload_headers,
             'data': upload_data
         }
-        
+
         return upload_package
-    
+
     def submit(self, url, headers, data):
         """
         Submit a list of coordinates to astrometry.net built by Astrometry.build_request
-        
+
         Parameters
         ----------
         url: str
@@ -345,7 +345,7 @@ class AstrometryNetClass(BaseQuery):
         """
         from urllib2 import urlopen, Request
         import simplejson
-        
+
         request = Request(url=url, headers=headers, data=data)
         f = urlopen(request)
         txt = f.read()
@@ -354,21 +354,21 @@ class AstrometryNetClass(BaseQuery):
         if stat == 'error':
             raise Exception("Upload error, exiting.")
         subid = result["subid"]
-        
+
         return subid
-    
+
     def get_submit_status(self, subid, timeout=30):
         """
         Get the status of a submitted source list. This polls astrometry.net every 5
         seconds until it either receives a job status or timeout is reached.
-        
+
         Parameters
         ----------
         subid: str
             - subid returned by ``submit`` function
         timeout: int (optional):
             - Maximum time to wait for a submission status
-        
+
         Result
         ------
         jobs: str
@@ -377,7 +377,7 @@ class AstrometryNetClass(BaseQuery):
         import math
         from urllib2 import urlopen, Request
         import simplejson
-        
+
         # Check submission status
         subcheck_url = apiurl + "submissions/" + str(subid)
 
@@ -402,13 +402,13 @@ class AstrometryNetClass(BaseQuery):
         if n_failed_attempts > max_attempts:
             raise Exception(
                 "The submitted job {0} has apparently timed out, exiting.".format(subid))
-        
+
         return result['jobs']
-    
+
     def get_wcs_file(self, subid, jobs, timeout=90, timeout_error=True):
         """
         Get a wcs file from astrometry.net given a jobid
-        
+
         Parameters
         ----------
         subid: str
@@ -427,7 +427,7 @@ class AstrometryNetClass(BaseQuery):
         import math
         from urllib2 import urlopen, Request
         import simplejson
-        
+
         # Attempt to load wcs from astrometry.net
         n_jobs = len(jobs)
         still_processing = True
@@ -464,7 +464,7 @@ class AstrometryNetClass(BaseQuery):
             import wget
             url = "http://nova.astrometry.net/wcs_file/" + str(solved_job_id)
             wcs_filename = wget.download(url)
-        
+
         # Finally, strip out the WCS header info from this solved fits file and write it
         # into the original fits file.
         string_header_keys_to_copy = [
@@ -509,20 +509,20 @@ class AstrometryNetClass(BaseQuery):
             "BP_1_1",
             "BP_2_0"
             ]
-    
+
 
         wcs_image = wcs_filename
         wcs_hdu = fits.open(wcs_image)
         wcs_header = wcs_hdu[0].header.copy()
         wcs_hdu.close()
-        
-        return wcs_header        
 
-    def solve(self, sources, settings, x_colname="x", y_colname="y", fwhm_colname=None, 
+        return wcs_header
+
+    def solve(self, sources, settings, x_colname="x", y_colname="y", fwhm_colname=None,
             flag_colname=None, flux_colname=None, fwhm_std_cut=2, timeout=30):
         """
         First draft of function to send a catalog or image to astrometry.net and
-        return the astrometric solution. 
+        return the astrometric solution.
 
         Parameters
         ----------
@@ -535,7 +535,7 @@ class AstrometryNetClass(BaseQuery):
         y_colname: str
             Column name of the y coordinate in the table. Defaults to ``y``.
         fwhm_colname: str (optional):
-            Column name of the FWHM. This is only needed to cut sources based on 
+            Column name of the FWHM. This is only needed to cut sources based on
             FWHM (sources where fhwm within ``fwhm_std`` of the median)
         fwhm_std_cut: int (optional):
             Number of standard deviations to use when selecting sources
@@ -563,30 +563,30 @@ class AstrometryNetClass(BaseQuery):
         import simplejson
         from numpy import median, std
         from urllib2 import urlopen, Request
-        
+
         # Remove flagged sources
         if flag_colname is not None:
             catalog = sources[sources[flag_colname]==0]
         else:
             catalog = sources
-        
-        # Remove sources outside the normal 
+
+        # Remove sources outside the normal
         if fwhm_colname is not None:
             fwhm_med = median(catalog[fwhm_colname])
             fwhm_std = std(catalog[fwhm_colname])
             fwhm_lower = fwhm_med-fwhm_std_cut * fwhm_std
             fwhm_upper = fwhm_med+fwhm_std_cut * fwhm_std
-            catalog = catalog[(catalog[fwhm_colname]<fwhm_upper) & 
+            catalog = catalog[(catalog[fwhm_colname]<fwhm_upper) &
                 (catalog[fwhm_colname]>fwhm_lower)]
         catalog.sort(flux_colname)
         catalog.reverse()
         # Only choose the top 50 sources
         if len(catalog)>50:
             catalog = catalog[:50]
-        
+
         # Create a list of coordinates in a format that astrometry.net recognizes
         upload_kwargs = self.build_request(catalog, settings, x_colname, y_colname)
-        
+
         # Submit the job
         log.info('Submitting source list to astrometry.net')
         subid = self.submit(**upload_kwargs)
@@ -601,7 +601,7 @@ class AstrometryNetClass(BaseQuery):
         log.info('jobs generated by submission: {0}'.format(jobs))
         # Get the header
         wcs_fits = self.get_wcs_file(subid, jobs, timeout, True)
-        
+
 
         wcs_fits = self.get_wcs_file(job_id, timeout)
 
