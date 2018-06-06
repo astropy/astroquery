@@ -11,7 +11,53 @@ from . import utils
 __all__ = ['Registry', 'RegistryClass']
 
 
-class RegistryClass(BaseQuery):
+class VoBase(BaseQuery):
+    """
+    Base class for all VO queries.
+    """
+    
+    def try_query(self, url, retries=2, timeout=60, params=None, data=None, files=None, verbose=False):
+        """ 
+        A wrapper to _request() function allowing for retries
+        
+        Parameters
+        ----------
+        url : str
+        retries : int
+            The maximum number of times the request will be tried.
+        params : None or dict
+        data : None or dict
+        files : None or dict
+            See `requests.request`
+        timeout : int
+        verbose : bool
+        """
+        from requests.exceptions import (Timeout, ReadTimeout)
+        from urllib3.exceptions import ReadTimeoutError
+        from IPython.core.debugger import Tracer
+
+        retry = retries
+        assert params is not None or data is not None, "Give either get_params or data"
+    
+        while retry:
+            try:
+                if data is not None:
+                    response = self._request('POST', url, data=data, cache=False, timeout=timeout, files=files)
+                else:
+                    response = self._request('GET', url, params=params, cache=False, timeout=timeout)
+                retry = retries-1
+            except (Timeout, ReadTimeout, ReadTimeoutError, ConnectionError) as e:
+                retry = retry-1
+                if retry > 0:
+                    if (verbose):
+                        print("WARNING: Got a timeout; trying again.")
+            except:
+                raise
+            else:
+                return response
+    
+
+class RegistryClass(VoBase):
     """
     Registry query class.
     """
@@ -65,7 +111,7 @@ class RegistryClass(BaseQuery):
             "query": adql
         }
 
-        response = utils.try_query(url, post_data=tap_params, timeout=self._TIMEOUT, retries=self._RETRIES)
+        response = self.try_query(url, data=tap_params, timeout=self._TIMEOUT, retries=self._RETRIES)
 
         if verbose:
             print('Queried: {}\n'.format(response.url))
