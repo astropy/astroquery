@@ -12,18 +12,7 @@
 # for docs and examples on how to do this
 # Below is a common use case
 
-from astropy.config import ConfigurationItem
 from astropy import config as _config
-
-# Set the server mirrors to query
-SERVER = ConfigurationItem('server',
-                           ['http://dummy_server_mirror_1',
-                            'http://dummy_server_mirror_2',
-                            'http://dummy_server_mirror_n'],
-                           'put a brief description of the item here')
-
-# Set the timeout for connecting to the server in seconds, here we set it to 30s
-TIMEOUT = ConfigurationItem('timeout', 30, 'default timeout for connecting to server')
 
 class Conf(_config.ConfigNamespace):
     """ Configuration parameters for `astroquery.astrometry_net` """
