@@ -122,7 +122,7 @@ class RegistryClass(VoBase):
     def _build_adql(self, service_type="", keyword="", waveband="", source="", publisher="", order_by="", verbose=False):
 
         # Default values
-        logic_string = " and "
+        logic_string =i " and "
 
         if "image" in service_type.lower():
             service_type = "simpleimageaccess"
