@@ -1,7 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
 Virtual Observatory
-===============
+===================
 
 This module contains various methods for querying the Virtual Observatory
 """
@@ -17,8 +17,8 @@ class Conf(_config.ConfigNamespace):
         'https://vao.stsci.edu/RegTAP/TapService.aspx',
         'Base URL of Registry TAP server')
 
-conf = Conf()
 
+conf = Conf()
 
 from .core import Registry, RegistryClass
 

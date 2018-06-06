@@ -1,8 +1,8 @@
 from astroquery.vo import Registry
-from astropy.tests.helper import remote_data 
+from astropy.tests.helper import remote_data
 
-## To run just this test, 
-## 
+## To run just this test,
+##
 ## ( cd ../../ ; python setup.py test -t astroquery/vo/tests/test_registry_remote.py --remote-data )
 ##
 
@@ -19,9 +19,7 @@ def test_basic():
 
 @remote_data
 def test_adql_service():
-    query=Registry._build_adql(service_type="image")
+    query = Registry._build_adql(service_type="image")
     assert "sia#query" in query
     print(f"yes, query={query}")
 
-test_basic()
-test_adql_service()
