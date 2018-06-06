@@ -24,6 +24,35 @@ class RegistryClass(BaseQuery):
         self._REGISTRY_TAP_SYNC_URL = conf.registry_tap_url + "/sync"
 
     def query(self, **kwargs):
+        """
+        Query the Virtual Observatory registry to find services which can then be searched.
+        Based on the 
+        
+        
+        Parameters
+        ----------
+        service_type : string, required
+            Valid VO service types are: "conesearch", "simpleimageaccess", "simplespectralaccess", "tableaccess"
+            They may be shortened to "cone", "image", "spectr", or "table" or "tap", respectively.
+        keyword : string, optional
+            Default is None.
+            The query will return any services which contain this keyword in their ivoid, title, or description.
+        waveband : string, optional
+            Comma-delimited list of wavebands.  Results will contain all services that offer at least one of these wavebands.
+            Legal values are listed below.
+        source : string, optional
+            Any substring in ivoid (a unique identifier of the service)
+        publisher : string, optional
+            The name of any publishing organization (e.g., "stsci", "heasarc")
+        order_by : string, optional
+            What column to order it by.  The returned columns are:
+                "waveband","short_name","ivoid","res_description","access_url","reference_url","publisher", service_type"
+        logic_string : string, optional
+            Any other string you want to add to the ADQL where clause, should start with " and ".
+        verbose : bool, optional
+            Default is False.
+            When True, the ADQL query computed from the keyword arguments will be printed.
+        """
 
         adql = self._build_adql(**kwargs)
         if adql is None:
