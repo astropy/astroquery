@@ -10,30 +10,28 @@ from . import utils
 
 __all__ = ['Registry', 'RegistryClass']
 
+
 class RegistryClass(BaseQuery):
     """
     Registry query class.
     """
 
-
     def __init__(self):
 
         super(RegistryClass, self).__init__()
-        self._TIMEOUT = 60 # seconds
-        self._RETRIES = 2 # total number of times to try
+        self._TIMEOUT = 60   # seconds
+        self._RETRIES = 2    # total number of times to try
         self._REGISTRY_TAP_SYNC_URL = conf.registry_tap_url + "/sync"
 
-    def query(self, **kwargs):
+    def query(self, service_type="", keyword="", waveband="", source="", publisher="", order_by="", verbose=False):
         """
         Query the Virtual Observatory registry to find services which can then be searched.
-        Based on the 
-        
-        
+
         Parameters
         ----------
         service_type : string, required
             Valid VO service types are: "conesearch", "simpleimageaccess", "simplespectralaccess", "tableaccess"
-            They may be shortened to "cone", "image", "spectr", or "table" or "tap", respectively.
+            They may be shortened to "cone", "image", "spectra", "spectrum", or "table" or "tap", respectively.
         keyword : string, optional
             Default is None.
             The query will return any services which contain this keyword in their ivoid, title, or description.
@@ -47,18 +45,16 @@ class RegistryClass(BaseQuery):
         order_by : string, optional
             What column to order it by.  The returned columns are:
                 "waveband","short_name","ivoid","res_description","access_url","reference_url","publisher", service_type"
-        logic_string : string, optional
-            Any other string you want to add to the ADQL where clause, should start with " and ".
         verbose : bool, optional
             Default is False.
             When True, the ADQL query computed from the keyword arguments will be printed.
         """
 
-        adql = self._build_adql(**kwargs)
+        adql = self._build_adql(service_type, keyword, waveband, source, publisher, order_by, verbose)
         if adql is None:
             raise ValueError('Unable to compute query based on input arguments.')
 
-        if kwargs.get('verbose'):
+        if verbose:
             print('Registry:  sending query ADQL = {}\n'.format(adql))
 
         url = self._REGISTRY_TAP_SYNC_URL
@@ -71,41 +67,17 @@ class RegistryClass(BaseQuery):
 
         response = utils.try_query(url, post_data=tap_params, timeout=self._TIMEOUT, retries=self._RETRIES)
 
-        if kwargs.get('verbose'):
+        if verbose:
             print('Queried: {}\n'.format(response.url))
 
         aptable = utils.astropy_table_from_votable_response(response)
         return aptable
 
-    def _build_adql(self, **kwargs):
+    def _build_adql(self, service_type="", keyword="", waveband="", source="", publisher="", order_by="", verbose=False):
 
         # Default values
-        service_type = ""
-        keyword = ""
-        waveband = ""
-        source = ""
-        publisher = ""
-        order_by = ""
         logic_string = " and "
 
-        # Find the keywords we recognize
-        for key, val in kwargs.items():
-            if key == 'service_type':
-                service_type = val
-            elif key == 'keyword':
-                keyword = val
-            elif key == 'waveband':
-                waveband = val
-            elif key == 'source':
-                source = val
-            elif key == 'publisher':
-                publisher = val
-            elif key == 'order_by':
-                order_by = val
-            elif key == 'logic_string':
-                logic_string = val
-
-        ##
         if "image" in service_type.lower():
             service_type = "simpleimageaccess"
         elif "spectr" in service_type.lower():
@@ -115,8 +87,10 @@ class RegistryClass(BaseQuery):
         elif 'tap' in service_type or 'table' in service_type:
             service_type = "tableaccess"
         else:
-            print("ERROR: please give a service_type that is one of image, spectral, cone, or table")
-            return None
+            raise ValueError("""
+            service_type must be one of conesearch, simpleimageaccess, simplespectralaccess, tableaccess, or
+            their alternate strings: cone, image, spectra, spectrum, table or tap.
+            """)
 
         query_retcols = """
           select res.waveband,res.short_name,cap.ivoid,res.res_description,
@@ -124,7 +98,7 @@ class RegistryClass(BaseQuery):
           from rr.capability as cap
             natural join rr.resource as res
             natural join rr.interface as intf
-		    natural join rr.res_role as res_role
+            natural join rr.res_role as res_role
             """
 
         query_where = " where "
@@ -133,7 +107,7 @@ class RegistryClass(BaseQuery):
         if service_type != "":
             wheres.append("cap.cap_type like '%{}%'".format(service_type))
 
-        #currently not supporting SIAv2 in SIA library.
+        # Currently not supporting SIAv2 in SIA library.
         if service_type == 'simpleimageaccess':
             wheres.append("standard_id != 'ivo://ivoa.net/std/sia#query-2.0'")
         if source != "":
@@ -192,7 +166,6 @@ class RegistryClass(BaseQuery):
 
         aptable = utils.astropy_table_from_votable_response(response)
         return aptable
-
 
     def _build_counts_adql(self, field, minimum=1):
 

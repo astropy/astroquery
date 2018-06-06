@@ -2,7 +2,7 @@
 # Imports
 #
 
-import html # to unescape, which shouldn't be neccessary but currently is
+import html   # to unescape, which shouldn't be neccessary but currently is
 import io
 import numpy as np
 from astropy.table import Table
@@ -10,6 +10,7 @@ from astropy.table import Table
 #
 # Support for VOTABLEs as astropy tables
 #
+
 
 def astropy_table_from_votable_response(response):
     """
@@ -32,15 +33,7 @@ def astropy_table_from_votable_response(response):
     # (The reader also accepts just a string, but that seems to have two
     # problems:  It looks for newlines to see if the string is itself a table,
     # and we need to support unicode content.)
-    #Tracer()()
-    try:
-        file_like_content = io.BytesIO(response.content)
-    except IOError:
-        print("ERROR parsing response content? Got:\n    {}...".format(response.content[0:400]))
-        #  Should this return or raise?
-        raise
-    except Exception as e:
-        raise e
+    file_like_content = io.BytesIO(response.content)
 
     # The astropy table reader will auto-detect that the content is a VOTABLE
     # and parse it appropriately.
@@ -49,7 +42,6 @@ def astropy_table_from_votable_response(response):
     except Exception as e:
         print("ERROR parsing response as astropy Table: looks like the content isn't the expected VO table XML? Returning an empty table. Look at its meta data to debug.")
         aptable = Table()
-        #raise e
 
     aptable.meta['url'] = response.url
     aptable.meta['text'] = response.text
@@ -59,6 +51,7 @@ def astropy_table_from_votable_response(response):
     stringify_table(aptable)
 
     return aptable
+
 
 def find_column_by_ucd(table, ucd):
     """
@@ -93,7 +86,6 @@ def find_column_by_ucd(table, ucd):
             if ucd == ucdval:
                 return col
 
-    return None
 
 def find_column_by_utype(table, utype):
     """
@@ -128,11 +120,6 @@ def find_column_by_utype(table, utype):
             if utype == utypeval:
                 return col
 
-    return None
-
-#
-# Functions to help replace bytes with strings in astropy tables that came from VOTABLEs
-#
 
 def sval(val):
     """
@@ -154,8 +141,10 @@ def sval(val):
     else:
         return str(val)
 
+
 # Create a version of sval() that operates on a whole column.
 svalv = np.vectorize(sval)
+
 
 def sval_whole_column(single_column):
     """
@@ -175,6 +164,7 @@ def sval_whole_column(single_column):
     new_col = svalv(single_column)
     new_col.meta = single_column.meta
     return new_col
+
 
 def stringify_table(t):
     """
@@ -203,6 +193,7 @@ def stringify_table(t):
     for colname in scols:
         t[colname] = sval_whole_column(t[colname])
 
+
 def query_loop(query_function, service, params, verbose=False):
     # Only one service, which is expected to be a row of a Registry query result that has  service['access_url']
     if verbose: print("    Querying service {}".format(html.unescape(service['access_url'])))
@@ -215,7 +206,6 @@ def query_loop(query_function, service, params, verbose=False):
         if verbose:
             if len(result) > 0:
                 print("    Got {} results for parameters[{}]".format(len(result), j))
-                #Tracer()()
             else:
                 print("    (Got no results for parameters[{}])".format(j))
 
@@ -235,11 +225,10 @@ def try_query(url, retries=3, timeout=60, get_params=None, post_data=None, files
     retry = retries
     assert get_params is not None or post_data is not None, "Give either get_params or post_data"
 
-    #Tracer()()
     while retry:
         try:
             if post_data is not None:
-                response = bq._request('POST', url, data=post_data, cache=False, timeout=timeout,files=files)
+                response = bq._request('POST', url, data=post_data, cache=False, timeout=timeout, files=files)
             else:
                 response = bq._request('GET', url, params=get_params, cache=False, timeout=timeout)
             retry = retries-1
@@ -247,8 +236,6 @@ def try_query(url, retries=3, timeout=60, get_params=None, post_data=None, files
             retry = retry-1
             if retry == 0:
                 print("ERROR: Got another timeout; quitting.")
-                #Tracer()()
-                #raise e
                 return response
             else:
                 print("WARNING: Got a timeout; trying again.")
