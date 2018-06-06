@@ -32,9 +32,6 @@ class VoBase(BaseQuery):
         timeout : int
         verbose : bool
         """
-        from requests.exceptions import (Timeout, ReadTimeout)
-        from urllib3.exceptions import ReadTimeoutError
-        from IPython.core.debugger import Tracer
 
         retry = retries
         assert params is not None or data is not None, "Give either get_params or data"
