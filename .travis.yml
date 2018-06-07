@@ -26,10 +26,10 @@ stages:
    - name: Cron tests
      if: type = cron
    - name: Tests with other Python/Numpy versions
-   - name: deploy
-     if: (branch = master) AND ($TRAVIS_PULL_REQUEST = false)
+   - name: Deploy
+     if: ((branch = master) AND type != pull_request)
    - name: Remote data tests
-     if: $TRAVIS_PULL_REQUEST = false
+     if: type != pull_request
 
 env:
     global:
@@ -153,7 +153,7 @@ matrix:
           env: MAIN_CMD='pycodestyle astroquery --count'
                SETUP_CMD='' EVENT_TYPE='push pull_request'
 
-        - stage: deploy
+        - stage: Deploy
           env: SETUP_CMD='sdist' EVENT_TYPE='push'
           deploy:
             provider: pypi
