@@ -47,10 +47,10 @@ class ADSClass(BaseQuery):
         request_string = self._args_to_url(query_string)
         request_fields = self._fields_to_url()
         request_url = self.QUERY_SIMPLE_URL + request_string + request_fields
-        headers = {'Authorization': 'Bearer '+ self._get_token()}
+        headers = {'Authorization': 'Bearer ' + self._get_token()}
 
         response = self._request(method='GET', url=request_url,
-                                 headers=headers,timeout=self.TIMEOUT,
+                                 headers=headers, timeout=self.TIMEOUT,
                                  cache=cache)
 
         response.raise_for_status()
@@ -124,17 +124,19 @@ class ADSClass(BaseQuery):
         if self.TOKEN is not None:
             return self.TOKEN
 
-        self.TOKEN = os.environ.get('ADS_DEV_KEY',None)
+        self.TOKEN = os.environ.get('ADS_DEV_KEY', None)
         if self.TOKEN is not None:
             return self.TOKEN
 
-        token_file = '~/.ads/dev_key'
+        token_file = os.path.expanduser('~/.ads/dev_key')
         try:
             with open(token_file) as f:
                 self.TOKEN = f.read().strip()
             return self.TOKEN
         except IOError:
-            raise RuntimeError('No API token found! Get yours from: https://ui.adsabs.harvard.edu/#user/settings/token ' +
+            raise RuntimeError('No API token found! Get yours from: ' +
+                               'https://ui.adsabs.harvard.edu/#user/settings/token ' +
                                'and store it in the API_DEV_KEY environment variable.')
 
 ADS = ADSClass()
+
