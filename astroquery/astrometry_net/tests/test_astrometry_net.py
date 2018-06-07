@@ -4,10 +4,14 @@ import os
 import pytest
 import six
 
+from astropy.table import Table
+from astropy.io import fits
+
 from ...utils.testing_tools import MockResponse
 from ...exceptions import (InvalidQueryError)
 
 from .. import AstrometryNet
+from .. import conf
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 
@@ -38,3 +42,28 @@ def test_setting_validation_basic():
             print(str(e))
             assert str(settings[constraint]) in str(e)
             assert 'The valid values are' in str(e)
+
+
+api_key = conf.api_key or os.environ.get('ASTROMETRY_NET_API_KEY')
+
+
+@pytest.mark.skipif(not api_key, reason='API key not set.')
+def test_solve_by_source_list():
+    a = AstrometryNet()
+    a.api_key = api_key
+    sources = Table.read(os.path.join(DATA_DIR, 'test-source-list.fit'))
+    # The image_width, image_height and crpix_center blo are set to match the
+    # original solve on astrometry.net.
+    result = a.solve_from_source_list(x=sources['X'], y=sources['Y'],
+                                      image_width=4109, image_height=4096,
+                                      crpix_center=True)
+
+    expected_result = fits.getheader(os.path.join(DATA_DIR,
+                                                  'test-wcs-sol.fit'))
+
+    for key in result:
+        try:
+            difference = expected_result[key] - result[key]
+        except TypeError:
+            pass
+        assert difference == 0
