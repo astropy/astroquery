@@ -128,7 +128,7 @@ class ADSClass(BaseQuery):
         if self.TOKEN is not None:
             return self.TOKEN
 
-        token_file = os.path.expanduser('~/.ads/dev_key')
+        token_file = os.path.expanduser(os.path.join('~','.ads','dev_key'))
         try:
             with open(token_file) as f:
                 self.TOKEN = f.read().strip()
