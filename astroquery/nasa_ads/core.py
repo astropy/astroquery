@@ -138,5 +138,5 @@ class ADSClass(BaseQuery):
                                'https://ui.adsabs.harvard.edu/#user/settings/token ' +
                                'and store it in the API_DEV_KEY environment variable.')
 
-ADS = ADSClass()
 
+ADS = ADSClass()
