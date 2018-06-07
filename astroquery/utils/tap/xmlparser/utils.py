@@ -46,11 +46,11 @@ def read_http_response(response, outputFormat, correct_units=True):
             col = result[cn]
             if isinstance(col.unit, u.UnrecognizedUnit):
                 try:
-                    col.unit = u.Unit(col.unit.name.replace(".", " ").replace("'",""))
-                except:
+                    col.unit = u.Unit(col.unit.name.replace(".", " ").replace("'", ""))
+                except Exception as ex:
                     pass
             elif isinstance(col.unit, str):
-                col.unit = col.unit.replace(".", " ").replace("'","")
+                col.unit = col.unit.replace(".", " ").replace("'", "")
 
     return result
         
