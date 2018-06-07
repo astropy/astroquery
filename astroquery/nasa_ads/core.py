@@ -5,8 +5,10 @@ Module to search the SAO/NASA Astrophysics Data System
 :author: Magnus Persson <magnusp@vilhelm.nu>
 
 """
+import os
 
 from astropy.table import Table
+from astropy.extern.six.moves.urllib.parse import quote as urlencode
 
 from ..query import BaseQuery
 from ..utils import async_to_sync
@@ -25,12 +27,12 @@ __all__ = ['ADS', 'ADSClass']
 class ADSClass(BaseQuery):
 
     SERVER = conf.server
-    QUERY_ADVANCED_PATH = conf.advanced_path
     QUERY_SIMPLE_PATH = conf.simple_path
     TIMEOUT = conf.timeout
+    ADS_FIELDS = conf.adsfields
+    TOKEN = conf.token
 
     QUERY_SIMPLE_URL = SERVER + QUERY_SIMPLE_PATH
-    QUERY_ADVANCED_URL = SERVER + QUERY_ADVANCED_PATH
 
     def __init__(self, *args):
         """ set some parameters """
@@ -38,14 +40,17 @@ class ADSClass(BaseQuery):
 
     @class_or_instance
     def query_simple(self, query_string, get_query_payload=False,
-                     get_raw_response=False, cache=True):
+                     get_raw_response=True, cache=True):
         """
         Basic query.  Uses a string and the ADS generic query.
         """
-        request_payload = self._args_to_payload(query_string)
+        request_string = self._args_to_url(query_string)
+        request_fields = self._fields_to_url()
+        request_url = self.QUERY_SIMPLE_URL + request_string + request_fields
+        headers = {'Authorization': 'Bearer '+ self._get_token()}
 
-        response = self._request(method='POST', url=self.QUERY_SIMPLE_URL,
-                                 data=request_payload, timeout=self.TIMEOUT,
+        response = self._request(method='GET', url=request_url,
+                                 headers=headers,timeout=self.TIMEOUT,
                                  cache=cache)
 
         response.raise_for_status()
@@ -53,9 +58,9 @@ class ADSClass(BaseQuery):
         # primarily for debug purposes, but also useful if you want to send
         # someone a URL linking directly to the data
         if get_query_payload:
-            return request_payload
+            return request_url
         if get_raw_response:
-            return response
+            return response.json()
         # parse the XML response into AstroPy Table
         resulttable = self._parse_response(response)
 
@@ -102,10 +107,34 @@ class ADSClass(BaseQuery):
 
         return t
 
-    def _args_to_payload(self, query_string):
+    def _args_to_url(self, query_string):
         # convert arguments to a valid requests payload
         # i.e. a dictionary
-        return {'qsearch': query_string, 'data_type': 'XML'}
+        request_string = 'q=' + urlencode(query_string)
+        return request_string
 
+    def _fields_to_url(self):
+        request_fields = '&fl=' + ','.join(self.ADS_FIELDS)
+        return request_fields
+
+    def _get_token(self):
+        """
+        Try to get token from the places Andy Casey's python ADS client expects it, otherwise return an error
+        """
+        if self.TOKEN is not None:
+            return self.TOKEN
+
+        self.TOKEN = os.environ.get('ADS_DEV_KEY',None)
+        if self.TOKEN is not None:
+            return self.TOKEN
+
+        token_file = '~/.ads/dev_key'
+        try:
+            with open(token_file) as f:
+                self.TOKEN = f.read().strip()
+            return self.TOKEN
+        except IOError:
+            raise RuntimeError('No API token found! Get yours from: https://ui.adsabs.harvard.edu/#user/settings/token ' +
+                               'and store it in the API_DEV_KEY environment variable.')
 
 ADS = ADSClass()
