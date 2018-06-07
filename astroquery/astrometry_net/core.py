@@ -340,7 +340,7 @@ class AstrometryNetClass(BaseQuery):
             # 'positional_error': positional_error,
         }
         if (x is None or y is None or
-            image_width is None or image_height is None):
+                image_width is None or image_height is None):
             raise ValueError('Must provide values for x, y, '
                              'image_width and image_height')
         settings = {k: v for k, v in six.iteritems(settings) if v is not None}
