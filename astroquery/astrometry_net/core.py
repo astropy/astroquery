@@ -224,7 +224,7 @@ class AstrometryNetClass(BaseQuery):
         payload = self._contruct_payload({'apikey': self.api_key})
         result = self._request('POST', login_url,
                                data=payload,
-                               save=False)
+                               cache=False)
         result_dict = result.json()
         if result_dict['status'] != 'success':
             raise RuntimeError('Unable to log in to astrometry.net')
@@ -351,7 +351,7 @@ class AstrometryNetClass(BaseQuery):
         settings['session'] = self._session_id
         payload = self._contruct_payload(settings)
         url = url_helpers.join(self.API_URL, 'url_upload')
-        response = self._request('POST', url, data=payload)
+        response = self._request('POST', url, data=payload, cache=False)
         if response.status_code != 200:
             raise RuntimeError('Post of job failed')
         response_d = response.json()
@@ -361,13 +361,13 @@ class AstrometryNetClass(BaseQuery):
         while not has_completed:
             time.sleep(1)
             sub_stat_url = url_helpers.join(self.API_URL, 'submissions', str(submission_id))
-            sub_stat = self._request('GET', sub_stat_url)
+            sub_stat = self._request('GET', sub_stat_url, cache=False)
             jobs = sub_stat.json()['jobs']
             if jobs:
                 job_id = jobs[0]
             if job_id:
                 job_stat_url = url_helpers.join(self.API_URL, 'jobs', str(job_id), 'info')
-                job_stat = self._request('GET', job_stat_url)
+                job_stat = self._request('GET', job_stat_url, cache=False)
                 has_completed = job_stat.json()['status'] == 'success'
             print(has_completed)
         wcs_url = url_helpers.join(self.URL, 'wcs_file', str(job_id))
