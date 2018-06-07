@@ -26,6 +26,7 @@
 - MAST: Fixing bug in catalog criteria querues, and updating remote tests. [#1223]
 - JPLSDB: New module for querying JPL's Small Body Database Browser [#1214]
 - MAST: Fixing mrp_only but and changing default to False [#1238]
+- VO: Create VO registry query. [#1158]
 
 0.3.8 (2018-04-27)
 ------------------
