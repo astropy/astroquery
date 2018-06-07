@@ -165,7 +165,9 @@ apiurl = 'http://nova.astrometry.net/api/'
 @async_to_sync
 class AstrometryNetClass(BaseQuery):
     """
-    Not all the methods below are necessary but these cover most of the common cases, new methods may be added if necessary, follow the guidelines at <http://astroquery.readthedocs.org/en/latest/api.html>
+    Not all the methods below are necessary but these cover most of the common
+    cases, new methods may be added if necessary, follow the guidelines at
+    <http://astroquery.readthedocs.org/en/latest/api.html>
     """
     URL = conf.server
     TIMEOUT = conf.timeout
@@ -299,7 +301,7 @@ class AstrometryNetClass(BaseQuery):
                                scale_upper=None, scale_est=None,
                                scale_err=None, tweak_order=None,
                                crpix_center=None, parity=None
-                              ):
+                               ):
         """
         Plate solve from a list of source positions.
 
@@ -316,9 +318,9 @@ class AstrometryNetClass(BaseQuery):
             Size of the image in the y-direction.
         """
         settings = {
-#            'allow_commercial_use': allow_commercial_use,
-#            'allow_modifications': allow_modifications,
-#            'publicly_visible': publicly_visible,
+            # 'allow_commercial_use': allow_commercial_use,
+            # 'allow_modifications': allow_modifications,
+            # 'publicly_visible': publicly_visible,
             'scale_units': scale_units,
             'scale_type': scale_type,
             'scale_lower': scale_lower,
@@ -328,14 +330,14 @@ class AstrometryNetClass(BaseQuery):
             'center_ra': center_ra,
             'center_dec': center_dec,
             'radius': radius,
-#            'downsample_factor': downsample_factor,
+            # 'downsample_factor': downsample_factor,
             'tweak_order': tweak_order,
-#            'use_sextractor': use_sextractor,
+            # 'use_sextractor': use_sextractor,
             'crpix_center': crpix_center,
             'parity': parity,
             'image_width': image_width,
             'image_height': image_height,
-#            'positional_error': positional_error,
+            # 'positional_error': positional_error,
         }
         if (x is None or y is None or
             image_width is None or image_height is None):
