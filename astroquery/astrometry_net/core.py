@@ -137,24 +137,15 @@ There are two parameters that describe setting a license:
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 
-# put all imports organized as shown below
-# 1. standard library imports
+import json
 
-# 2. third party imports
-import astropy.units as u
-import astropy.coordinates as coord
-import astropy.io.votable as votable
-from astropy.table import Table
+import six
+from six import string_types
 from astropy.io import fits
 from astropy import log
 
-# 3. local imports - use relative imports
-# commonly required local imports shown below as example
-from ..query import BaseQuery # all Query classes should inherit from this.
-from ..utils import commons # has common functions required by most modules
-from ..utils import prepend_docstr_noreturns # automatically generate docs for similar functions
-from ..utils import async_to_sync # all class methods must be callable as static as well as instance methods.
-from . import SERVER, TIMEOUT # import configurable items declared in __init__.py
+from ..query import BaseQuery
+from ..utils import async_to_sync, url_helpers
 from . import conf
 import time
 
@@ -170,15 +161,39 @@ __all__ = ['AstrometryNet', 'AstrometryNetClass']
 astrometry_net_url = 'http://nova.astrometry.net/'
 apiurl = 'http://nova.astrometry.net/api/'
 
+
 @async_to_sync
 class AstrometryNetClass(BaseQuery):
-
     """
     Not all the methods below are necessary but these cover most of the common cases, new methods may be added if necessary, follow the guidelines at <http://astroquery.readthedocs.org/en/latest/api.html>
     """
-    # use the Configuration Items imported from __init__.py to set the URL, TIMEOUT, etc.
-    URL = SERVER()
-    TIMEOUT = TIMEOUT()
+    URL = conf.server
+    TIMEOUT = conf.timeout
+    API_URL = url_helpers.join(URL, 'api')
+
+    # These are drawn from http://astrometry.net/doc/net/api.html#submitting-a-url
+    _constraints = {
+        'allow_commercial_use': {'default': 'd', 'type': str, 'allowed': ('d', 'y', 'n')},
+        'allow_modifications': {'default': 'd', 'type': str, 'allowed': ('d', 'y', 'n')},
+        'publicly_visible': {'default': 'y', 'type': str, 'allowed': ('y', 'n')},
+        'scale_units': {'default': None, 'type': str, 'allowed': ('degwidth', 'arcminwidth', 'arcsecperpix')},
+        'scale_type': {'default': None, 'type': str, 'allowed': ('ev', 'ul')},
+        'scale_lower': {'default': None, 'type': float, 'allowed': (0,)},
+        'scale_upper': {'default': None, 'type': float, 'allowed': (0,)},
+        'scale_est': {'default': None, 'type': float, 'allowed': (0,)},
+        'scale_err': {'default': None, 'type': float, 'allowed': (0, 100)},
+        'center_ra': {'default': None, 'type': float, 'allowed': (0, 360)},
+        'center_dec': {'default': None, 'type': float, 'allowed': (-90, 90)},
+        'radius': {'default': None, 'type': float, 'allowed': (0,)},
+        'downsample_factor': {'default': None, 'type': int, 'allowed': (1,)},
+        'tweak_order': {'default': 2, 'type': int, 'allowed': (0,)},
+        'use_sextractor': {'default': False, 'type': bool, 'allowed': ()},
+        'crpix_center': {'default': None, 'type': bool, 'allowed': ()},
+        'parity': {'default': None, 'type': int, 'allowed': (0, 2)},
+        'image_width': {'default': None, 'type': int, 'allowed': (0,)},
+        'image_height': {'default': None, 'type': int, 'allowed': (0,)},
+        'positional_error': {'default': None, 'type': float, 'allowed': (0,)},
+    }
 
     @property
     def api_key(self):
@@ -194,418 +209,172 @@ class AstrometryNetClass(BaseQuery):
 
     def __init__(self):
         """ Show a warning message if the API key is not in the configuration file. """
-
+        super(AstrometryNetClass, self).__init__()
         if not conf.api_key:
-            log.warn("Astrometry.net API key not found in configuration file")
-            log.warn("You need to manually edit the configuration file and add it")
-            log.warn("You may also register it for this session with Astrometry.key = 'XXXXXXXX'")
+            log.warning("Astrometry.net API key not found in configuration file")
+            log.warning("You need to manually edit the configuration file and add it")
+            log.warning(
+                "You may also register it for this session with AstrometryNet.key = 'XXXXXXXX'")
+        self._session_id = None
 
-    def build_request(self, catalog, settings={}, x_colname='x', y_colname='y'):
+    def _login(self):
+        if not self.apikey:
+            raise RuntimeError('You must set the API key before using this service.')
+        login_url = url_helpers.join(self.API_URL, 'login')
+        payload = self._contruct_payload({'apikey': self.apikey})
+        result = self._request('POST', login_url,
+                               data=payload,
+                               save=False)
+        result_dict = result.json()
+        if result_dict['status'] != 'success':
+            raise RuntimeError('Unable to log in to astrometry.net')
+        self._session_id = result_dict['session']
+
+    def _contruct_payload(self, settings):
+        return {'request-json': json.dumps(settings)}
+
+    def _validate_settings(self, settings):
         """
-        Convert the settings and sources into an object that can be used
-        to query astrometry.net.
+        Check whether the current settings are consistent with the choices available
+        from astrometry.net.
+        """
+
+        # Check the types and values
+        for key, value in six.iteritems(settings):
+            if key not in self._constraints or value is None:
+                continue
+            if not isinstance(value, self._constraints[key]['type']):
+                failed = True
+                # Try coercing the type...
+                if self._constraints[key]['type'] == float:
+                    try:
+                        _ = self._constraints[key]['type'](value)
+                    except ValueError:
+                        pass
+                    else:
+                        failed = False
+                if failed:
+                    raise ValueError('Value for {} must be of type {}'.format(key, self._constraints[key]['type']))
+            # Switching on the types here...not fond of this, but it works.
+            allowed = self._constraints[key]['allowed']
+            if allowed:
+                if self._constraints[key]['type'] == str:
+                    # Allowed values is a list of choices.
+                    good_value = value in self._constraints[key]['allowed']
+                elif self._constraints[key]['type'] == bool:
+                    # bool is easy to check...
+                    good_value = isinstance(value, bool)
+                else:
+                    # Assume the parameter is a number which has a minimum and
+                    # optionally a maximum.
+                    bounds = self._constraints[key]['allowed']
+                    good_value = value > bounds[0]
+                    try:
+                        good_value = good_value and good_value < bounds[1]
+                    except IndexError:
+                        # No upper bound to check
+                        pass
+                if not good_value:
+                    raise ValueError('Value {} for {} is invalid. '
+                                     'The valid '
+                                     'values are {}'.format(value, key, allowed))
+        # Check some special cases, in which the presence of one value means
+        # others are needed.
+        if 'scale_type' in settings:
+            scale_type = settings['scale_type']
+            if scale_type == 'ev':
+                required_keys = ['scale_est', 'scale_err', 'scale_units']
+            else:
+                required_keys = ['scale_lower', 'scale_upper', 'scale_units']
+            good = all(req in settings for req in required_keys)
+            if not good:
+                raise ValueError('Scale type {} requires '
+                                 'values for {}'.format(scale_type, required_keys))
+
+    def solve_from_source_list(self, x=None, y=None,
+                               image_width=None, image_height=None,
+                               center_ra=None, center_dec=None,
+                               radius=None, scale_type=None,
+                               scale_units=None, scale_lower=None,
+                               scale_upper=None, scale_est=None,
+                               scale_err=None, tweak_order=None,
+                               crpix_center=None, parity=None
+                              ):
+        """
+        Plate solve from a list of source positions.
 
         Parameters
         ----------
-        catalog: `astropy.table.Table`
-            Sources used to generate astrometric solution
-        settings: dict (optional)
-            Settings sent to astrometry.net to help generate the astrometric solution
-        x_colname: str
-            Column name of the x coordinate in the table. Defaults to ``x``.
-        y_colname: str
-            Column name of the y coordinate in the table. Defaults to ``y``.
-        Returns
-        -------
-        result: str
-            String used to send request to astrometry.net
+
+        x : list-like
+            List of x-coordinate of source positions.
+        y : list-like
+            List of y-coordinate of source positions.
+        image_width : int
+            Size of the image in the x-direction.
+        image_height : int
+            Size of the image in the y-direction.
         """
-        from urllib import urlencode
-        from urllib2 import urlopen, Request
-        from email.mime.multipart import MIMEMultipart
-        from email.mime.base import MIMEBase
-        from email.mime.application  import MIMEApplication
-        from email.encoders import encode_noop
-        import simplejson
-
-        # Login to the service
-        login_url = apiurl + "login"
-        login_headers = {}
-        login_data = {'request-json': simplejson.dumps({ 'apikey' : self._key})}
-        login_data = urlencode(login_data)
-        request = Request(url=login_url, headers=login_headers, data=login_data)
-        f = urlopen(request)
-        txt = f.read()
-        result = simplejson.loads(txt)
-        stat = result.get('status')
-        if stat == 'error':
-            raise Exception("Login error, exiting")
-        session_string = result["session"]
-
-        # Upload the text file to request a WCS solution
-        upload_url = apiurl + "upload"
-        upload_args = {
-                        'publicly_visible': 'y',
-                        'allow_commercial_use': 'd',
-                        'allow_modifications': 'd',
-                        'scale_units': 'deg',
-                        'scale_type': 'ul',
-                        'scale_lower': 0.1,
-                        'scale_upper': 180,
-                        'parity': 2,
-                        'session': session_string
-                        }
-        upload_args.update(settings)
-        upload_json = simplejson.dumps(upload_args)
-
-        # Format the list in the appropriate format
-        # Currently this is just using the code from astrometry.net's client.py
-        # Ideally this could probably be re-written and improved
-        #src_list = '\n'.join(['{0:.3f}\t{1:.3f}'.format(row[x_colname], row[y_colname])
-        #    for row in catalog])
-
-        temp_file = 'temp.cat'
-        f = open(temp_file, 'w')
-        #f.write(src_list)
-        for source in catalog:
-            f.write('{0:.3f}\t{1:.3f}\n'.format(source[x_colname], source[y_colname]))
-        f.close()
-
-        f = open(temp_file, 'rb')
-        file_args=(temp_file, f.read())
-
-        m1 = MIMEBase('text', 'plain')
-        m1.add_header('Content-disposition', 'form-data; name="request-json"')
-        m1.set_payload(upload_json)
-
-        m2 = MIMEApplication(file_args[1],'octet-stream',encode_noop)
-        m2.add_header('Content-disposition',
-                      'form-data; name="file"; filename="%s"' % file_args[0])
-
-        #msg.add_header('Content-Disposition', 'attachment',
-        # filename='bud.gif')
-        #msg.add_header('Content-Disposition', 'attachment',
-        # filename=('iso-8859-1', '', 'FuSballer.ppt'))
-
-        mp = MIMEMultipart('form-data', None, [m1, m2])
-
-        # Makie a custom generator to format it the way we need.
-        from cStringIO import StringIO
-        from email.generator import Generator
-
-        class MyGenerator(Generator):
-            def __init__(self, fp, root=True):
-                Generator.__init__(self, fp, mangle_from_=False,
-                                   maxheaderlen=0)
-                self.root = root
-            def _write_headers(self, msg):
-                # We don't want to write the top-level headers;
-                # they go into Request(headers) instead.
-                if self.root:
-                    return
-                # We need to use \r\n line-terminator, but Generator
-                # doesn't provide the flexibility to override, so we
-                # have to copy-n-paste-n-modify.
-                for h, v in msg.items():
-                    self._fp.write('%s: %s\r\n' % (h,v))
-                # A blank line always separates headers from body
-                self._fp.write('\r\n')
-
-            # The _write_multipart method calls "clone" for the
-            # subparts.  We hijack that, setting root=False
-            def clone(self, fp):
-                return MyGenerator(fp, root=False)
-
-        fp = StringIO()
-        g = MyGenerator(fp)
-        g.flatten(mp)
-        upload_data = fp.getvalue()
-        upload_headers = {'Content-type': mp.get('Content-type')}
-
-        upload_package = {
-            'url': upload_url,
-            'headers': upload_headers,
-            'data': upload_data
+        settings = {
+#            'allow_commercial_use': allow_commercial_use,
+#            'allow_modifications': allow_modifications,
+#            'publicly_visible': publicly_visible,
+            'scale_units': scale_units,
+            'scale_type': scale_type,
+            'scale_lower': scale_lower,
+            'scale_upper': scale_upper,
+            'scale_est': scale_est,
+            'scale_err': scale_err,
+            'center_ra': center_ra,
+            'center_dec': center_dec,
+            'radius': radius,
+#            'downsample_factor': downsample_factor,
+            'tweak_order': tweak_order,
+#            'use_sextractor': use_sextractor,
+            'crpix_center': crpix_center,
+            'parity': parity,
+            'image_width': image_width,
+            'image_height': image_height,
+#            'positional_error': positional_error,
         }
+        if (x is None or y is None or
+            image_width is None or image_height is None):
+            raise ValueError('Must provide values for x, y, '
+                             'image_width and image_height')
+        settings = {k: v for k, v in six.iteritems(settings) if v is not None}
+        settings['x'] = [float(v) for v in x]
+        settings['y'] = [float(v) for v in y]
+        self._validate_settings(settings)
+        if self._session_id is None:
+            self._login()
 
-        return upload_package
+        settings['session'] = self._session_id
+        payload = self._contruct_payload(settings)
+        url = url_helpers.join(self.API_URL, 'url_upload')
+        response = self._request('POST', url, data=payload)
+        if response.status_code != 200:
+            raise RuntimeError('Post of job failed')
+        response_d = response.json()
+        submission_id = response_d['subid']
+        has_completed = False
+        job_id = None
+        while not has_completed:
+            time.sleep(1)
+            sub_stat_url = url_helpers.join(self.API_URL, 'submissions', str(submission_id))
+            sub_stat = self._request('GET', sub_stat_url)
+            jobs = sub_stat.json()['jobs']
+            if jobs:
+                job_id = jobs[0]
+            if job_id:
+                job_stat_url = url_helpers.join(self.API_URL, 'jobs', str(job_id), 'info')
+                job_stat = self._request('GET', job_stat_url)
+                has_completed = job_stat.json()['status'] == 'success'
+            print(has_completed)
+        wcs_url = url_helpers.join(self.URL, 'wcs_file', str(job_id))
+        wcs_response = self._request('GET', wcs_url)
+        wcs = fits.Header.fromstring(wcs_response.text)
+        return wcs
 
-    def submit(self, url, headers, data):
-        """
-        Submit a list of coordinates to astrometry.net built by Astrometry.build_request
-
-        Parameters
-        ----------
-        url: str
-            url of the request
-        headers: str
-            headers for the request
-        data: str
-            data packet to send in request
-        """
-        from urllib2 import urlopen, Request
-        import simplejson
-
-        request = Request(url=url, headers=headers, data=data)
-        f = urlopen(request)
-        txt = f.read()
-        result = simplejson.loads(txt)
-        stat = result.get('status')
-        if stat == 'error':
-            raise Exception("Upload error, exiting.")
-        subid = result["subid"]
-
-        return subid
-
-    def get_submit_status(self, subid, timeout=30):
-        """
-        Get the status of a submitted source list. This polls astrometry.net every 5
-        seconds until it either receives a job status or timeout is reached.
-
-        Parameters
-        ----------
-        subid: str
-            - subid returned by ``submit`` function
-        timeout: int (optional):
-            - Maximum time to wait for a submission status
-
-        Result
-        ------
-        jobs: str
-            jobid's astrometry.net has assigned to the submitted list
-        """
-        import math
-        from urllib2 import urlopen, Request
-        import simplejson
-
-        # Check submission status
-        subcheck_url = apiurl + "submissions/" + str(subid)
-
-        print('subcheckurl', subcheck_url)
-
-        request = Request(url=subcheck_url)
-        still_processing = True
-        n_failed_attempts = 0
-        max_attempts = math.ceil(timeout/5)
-        while still_processing and n_failed_attempts < max_attempts:
-            try:
-                f = urlopen(request)
-                txt = f.read()
-                result = simplejson.loads(txt)
-                if result['jobs'][0] is None:
-                    raise Exception()
-                still_processing = False
-            except:
-                log.info("Submission doesn't exist yet, sleeping for 5s.")
-                time.sleep(5)
-                n_failed_attempts += 1
-        if n_failed_attempts > max_attempts:
-            raise Exception(
-                "The submitted job {0} has apparently timed out, exiting.".format(subid))
-
-        return result['jobs']
-
-    def get_wcs_file(self, subid, jobs, timeout=90, timeout_error=True):
-        """
-        Get a wcs file from astrometry.net given a jobid
-
-        Parameters
-        ----------
-        subid: str
-            - subid returned by ``submit`` function
-        jobs: list
-            List of jobs returned by `get_submit_status`
-        timeout: int (optional):
-            Maximum time to wait for an anstrometric solution before timing out
-        timeout_error: bool (optional)
-            Whether or not to raise an Exception if the request times out (default is False)
-        Returns
-        -------
-        header: `astropy.io.fits.Header`
-            Header returned by astrometry.net
-        """
-        import math
-        from urllib2 import urlopen, Request
-        import simplejson
-
-        # Attempt to load wcs from astrometry.net
-        n_jobs = len(jobs)
-        still_processing = True
-        n_failed_attempts = 0
-        n_failed_jobs = 0
-        max_attempts = math.ceil(timeout/5)
-        while still_processing and n_failed_attempts < max_attempts and n_failed_jobs < n_jobs:
-            time.sleep(5)
-            for job_id in jobs:
-                jobcheck_url = apiurl + "jobs/" + str(job_id)
-                request = Request(url=jobcheck_url)
-                f = urlopen(request)
-                txt = f.read()
-                result = simplejson.loads(txt)
-                log.info("Checking astrometry.net for job ID {0}".format(job_id))
-                if result["status"] == "failure":
-                    status_url = astrometry_net_url+"status/"+str(subid)
-                    log.error('job {0} failed. See {1} for details'.format(job_id, status_url))
-                    n_failed_jobs += 1
-                    jobs.remove(job_id)
-                if result["status"] == "success":
-                    log.info('Job {0} executed successfully'.format(job_id))
-                    solved_job_id = job_id
-                    still_processing = False
-            n_failed_attempts += 1
-
-        if still_processing == True:
-            log.error("Astrometry.net took too long to process job {0}, so we're exiting. " +
-                "Try checking astrometry.net again later".format(jobs))
-            if timeout_error:
-                raise Exception("Astrometry.net took too long to process")
-
-        if still_processing == False:
-            import wget
-            url = "http://nova.astrometry.net/wcs_file/" + str(solved_job_id)
-            wcs_filename = wget.download(url)
-
-        # Finally, strip out the WCS header info from this solved fits file and write it
-        # into the original fits file.
-        string_header_keys_to_copy = [
-            "CTYPE1",
-            "CTYPE2",
-            "CUNIT1",
-            "CUNIT2"
-            ]
-
-        float_header_keys_to_copy = [
-            "EQUINOX",
-            "LONPOLE",
-            "LATPOLE",
-            "CRVAL1",
-            "CRVAL2",
-            "CRPIX1",
-            "CRPIX2",
-            "CD1_1",
-            "CD1_2",
-            "CD2_1",
-            "CD2_2",
-            "IMAGEW",
-            "IMAGEH",
-            "A_ORDER",
-            "A_0_2",
-            "A_1_1",
-            "A_2_0",
-            "B_ORDER",
-            "B_0_2",
-            "B_1_1",
-            "B_2_0",
-            "AP_ORDER",
-            "AP_0_1",
-            "AP_0_2",
-            "AP_1_0",
-            "AP_1_1",
-            "AP_2_0",
-            "BP_ORDER",
-            "BP_0_1",
-            "BP_0_2",
-            "BP_1_0",
-            "BP_1_1",
-            "BP_2_0"
-            ]
-
-
-        wcs_image = wcs_filename
-        wcs_hdu = fits.open(wcs_image)
-        wcs_header = wcs_hdu[0].header.copy()
-        wcs_hdu.close()
-
-        return wcs_header
-
-    def solve(self, sources, settings, x_colname="x", y_colname="y", fwhm_colname=None,
-            flag_colname=None, flux_colname=None, fwhm_std_cut=2, timeout=30):
-        """
-        First draft of function to send a catalog or image to astrometry.net and
-        return the astrometric solution.
-
-        Parameters
-        ----------
-        sources : `astropy.table.Table` (for now)
-            Object catalog or image to use for the astrometric solution.
-        settings: dict
-            Settings sent to astrometry.net to help generate the astrometric solution
-        x_colname: str
-            Column name of the x coordinate in the table. Defaults to ``x``.
-        y_colname: str
-            Column name of the y coordinate in the table. Defaults to ``y``.
-        fwhm_colname: str (optional):
-            Column name of the FWHM. This is only needed to cut sources based on
-            FWHM (sources where fhwm within ``fwhm_std`` of the median)
-        fwhm_std_cut: int (optional):
-            Number of standard deviations to use when selecting sources
-        flags_colname: str (optional):
-            Column name of flags for the sources. This is only needed to cut flagged sources
-            (objects where flags=0).
-        timeout: int (optional):
-            Maximum time to wait for an anstrometric solution before timing out
-
-        Returns
-        -------
-        result : `astropy.io.fits.Header`
-            The result is a header that has the new keys giving the astrometric solution.
-
-        Examples
-        --------
-        While this section is optional you may put in some examples that
-        show how to use the method. The examples are written similar to
-        standard doctests in python.
-        """
-        # Temporarily import all of the modules used by astromery.net's client to get the
-        # astrometric solution. In the future this can be cleaned up and done in a more
-        # standard way
-        import astropy.io.fits as pyfits
-        import simplejson
-        from numpy import median, std
-        from urllib2 import urlopen, Request
-
-        # Remove flagged sources
-        if flag_colname is not None:
-            catalog = sources[sources[flag_colname]==0]
-        else:
-            catalog = sources
-
-        # Remove sources outside the normal
-        if fwhm_colname is not None:
-            fwhm_med = median(catalog[fwhm_colname])
-            fwhm_std = std(catalog[fwhm_colname])
-            fwhm_lower = fwhm_med-fwhm_std_cut * fwhm_std
-            fwhm_upper = fwhm_med+fwhm_std_cut * fwhm_std
-            catalog = catalog[(catalog[fwhm_colname]<fwhm_upper) &
-                (catalog[fwhm_colname]>fwhm_lower)]
-        catalog.sort(flux_colname)
-        catalog.reverse()
-        # Only choose the top 50 sources
-        if len(catalog)>50:
-            catalog = catalog[:50]
-
-        # Create a list of coordinates in a format that astrometry.net recognizes
-        upload_kwargs = self.build_request(catalog, settings, x_colname, y_colname)
-
-        # Submit the job
-        log.info('Submitting source list to astrometry.net')
-        subid = self.submit(**upload_kwargs)
-        log.info('Submission ID={0}'.format(subid))
-        time.sleep(15)
-        # Check that submission was successful
-
-        time.sleep(5)
-
-        jobs = self.get_submit_status(subid, 30)
-
-        log.info('jobs generated by submission: {0}'.format(jobs))
-        # Get the header
-        wcs_fits = self.get_wcs_file(subid, jobs, timeout, True)
-
-
-        wcs_fits = self.get_wcs_file(job_id, timeout)
-
-        return result
 
 # the default tool for users to interact with is an instance of the Class
 AstrometryNet = AstrometryNetClass()
