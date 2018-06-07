@@ -34,7 +34,7 @@ Sample Use
 Settings
 ========
 In order to speed up the astrometric solution it is possible to pass a dictionary of settings
-to `astroquery.AstrometryNet.build_pacakge` or `astroquery.AstrometryNet.build_pacakge`.
+to `astroquery.AstrometryNet.build_package` or `astroquery.AstrometryNet.build_pacakge`.
 If no settings are passed to the build function then a set of default parameters will be
 used, although this will increase the time it takes astrometry.net to generate a solution.
 It is recommended to at least set the bounds of the pixel scale to a reasonable value.
@@ -154,12 +154,6 @@ import time
 __all__ = ['AstrometryNet', 'AstrometryNetClass']
 
 # declare global variables and constants if any
-
-# Now begin your main class
-# should be decorated with the async_to_sync imported previously
-
-astrometry_net_url = 'http://nova.astrometry.net/'
-apiurl = 'http://nova.astrometry.net/api/'
 
 
 @async_to_sync
