@@ -53,7 +53,6 @@ def read_http_response(response, outputFormat, correct_units=True):
                 col.unit = col.unit.replace(".", " ").replace("'", "")
 
     return result
-        
 
 
 def get_suitable_astropy_format(outputFormat):

@@ -40,7 +40,7 @@ def read_results_table_from_file(file_name, output_format, correct_units=True):
                         pass
                 elif isinstance(col.unit, str):
                     col.unit = col.unit.replace(".", " ").replace("'", "")
-        
+
         return result
     else:
         return None
