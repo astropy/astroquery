@@ -1,17 +1,13 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 """
-<Put Your Tool Name Here>
+astrometry.net
 -------------------------
 
-:author: <your name> (<your email>)
+:author: Matt Craig (<mattwcraig@gmail.com>)
 """
 
 # Make the URL of the server, timeout and other items configurable
-# See <http://docs.astropy.org/en/latest/config/index.html#developer-usage>
-# for docs and examples on how to do this
-# Below is a common use case
-
 from astropy import config as _config
 
 
