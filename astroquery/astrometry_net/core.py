@@ -218,10 +218,10 @@ class AstrometryNetClass(BaseQuery):
         self._session_id = None
 
     def _login(self):
-        if not self.apikey:
+        if not self.api_key:
             raise RuntimeError('You must set the API key before using this service.')
         login_url = url_helpers.join(self.API_URL, 'login')
-        payload = self._contruct_payload({'apikey': self.apikey})
+        payload = self._contruct_payload({'apikey': self.api_key})
         result = self._request('POST', login_url,
                                data=payload,
                                save=False)
