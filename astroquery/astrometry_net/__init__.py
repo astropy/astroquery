@@ -14,13 +14,18 @@
 
 from astropy import config as _config
 
+
 class Conf(_config.ConfigNamespace):
     """ Configuration parameters for `astroquery.astrometry_net` """
 
     api_key = _config.ConfigItem(
         '',
         "The Astrometry.net API key."
-        )
+    )
+    server = _config.ConfigItem('http://nova.astrometry.net', 'Name of server')
+    timeout = _config.ConfigItem(60,
+                                 'Default timeout for connecting to server')
+
 
 conf = Conf()
 
