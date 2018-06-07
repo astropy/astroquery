@@ -138,8 +138,7 @@ class BaseQuery(object):
         but with added caching-related tools
 
         This is a low-level method not generally intended for use by astroquery
-        end-users.  As such, it is likely to be renamed to, e.g., `_request` in
-        the near future.
+        end-users.
 
         Parameters
         ----------
