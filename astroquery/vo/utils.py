@@ -211,4 +211,3 @@ def query_loop(query_function, service, params, verbose=False):
 
         service_results.append(result)
     return service_results
-

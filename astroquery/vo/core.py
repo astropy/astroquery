@@ -15,11 +15,11 @@ class VoBase(BaseQuery):
     """
     Base class for all VO queries.
     """
-    
+
     def try_query(self, url, retries=2, timeout=60, params=None, data=None, files=None, verbose=False):
-        """ 
+        """
         A wrapper to _request() function allowing for retries
-        
+
         Parameters
         ----------
         url : str
@@ -35,7 +35,7 @@ class VoBase(BaseQuery):
 
         retry = retries
         assert params is not None or data is not None, "Give either get_params or data"
-    
+
         while retry:
             try:
                 if data is not None:
@@ -52,7 +52,7 @@ class VoBase(BaseQuery):
                 raise
             else:
                 return response
-    
+
 
 class RegistryClass(VoBase):
     """
@@ -119,7 +119,7 @@ class RegistryClass(VoBase):
     def _build_adql(self, service_type="", keyword="", waveband="", source="", publisher="", order_by="", verbose=False):
 
         # Default values
-        logic_string =i " and "
+        logic_string = " and "
 
         if "image" in service_type.lower():
             service_type = "simpleimageaccess"
@@ -247,7 +247,7 @@ def display_results(results):
     # short_name, ivoid, res_description and reference_url.
 
     for row in results:
-        md = f'{row["short_name"]} ({row["ivoid"]})'
+        md = '{} ({})'.format(row["short_name"], row["ivoid"])
         print(md)
         print(row['res_description'])
-        print(f'(More info: {row["reference_url"]} )')
+        print('(More info: {} )'.format(row["reference_url"]))
