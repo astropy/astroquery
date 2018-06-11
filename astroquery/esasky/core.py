@@ -320,10 +320,10 @@ class ESASkyClass(BaseQuery):
 
         Parameters
         ----------
-        query_table_list : `~astroquery.utils.TableList` or OrderedDict
-            A TableList or OrderedDict with all the missions wanted and
-            their respective metadata. Usually the return value of
-            query_region_maps.
+        query_table_list : `~astroquery.utils.TableList` or dict or list of (name, `~astropy.table.Table`) pairs
+            A TableList or dict or list of name and Table pairs with all the
+            missions wanted and their respective metadata. Usually the
+            return value of query_region_maps.
         missions : string or list, optional
             Can be either a specific mission or a list of missions (all mission
             names are found in list_missions()) or 'all' to search in all
