@@ -1,6 +1,8 @@
 0.3.9 (unreleased)
 ------------------
 
+- ESASKY: get_maps() accepts dict or list of (name, Table) pairs as input
+  table list. [#1167]
 - HITRAN: use class-based API [#824]
 - MAST: Enable converting list of products into S3 uris [#1126]
 - VO_CONESEARCH: Service validator now uses new STScI VAO TAP registry. [#1114]
