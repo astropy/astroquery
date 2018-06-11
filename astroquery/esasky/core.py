@@ -363,8 +363,8 @@ class ESASkyClass(BaseQuery):
             for mission in sanitized_missions:
                 # INTEGRAL does not have a product url yet.
                 if (query_mission.lower() == self.__INTEGRAL_STRING):
-                    print("INTEGRAL does not yet support downloading of "
-                          "fits files")
+                    log.info("INTEGRAL does not yet support downloading of "
+                             "fits files")
                     break
                 if (query_mission.lower() == mission.lower()):
                     maps[query_mission] = (
@@ -447,8 +447,8 @@ class ESASkyClass(BaseQuery):
         for query_mission in map_query_result.keys():
             # INTEGRAL does not have a product url yet.
             if (query_mission.lower() == self.__INTEGRAL_STRING):
-                print("INTEGRAL does not yet support downloading of "
-                      "fits files")
+                log.info("INTEGRAL does not yet support downloading of "
+                         "fits files")
                 continue
             maps[query_mission] = (
                 self._get_maps_for_mission(
@@ -457,7 +457,7 @@ class ESASkyClass(BaseQuery):
                     download_dir,
                     cache))
 
-        print("Maps available at %s" % os.path.abspath(download_dir))
+        log.info("Maps available at {}".format(os.path.abspath(download_dir)))
         return maps
 
     def _sanitize_input_position(self, position):
@@ -514,8 +514,8 @@ class ESASkyClass(BaseQuery):
         if (len(maps_table[self.__PRODUCT_URL_STRING]) > 0):
             mission_directory = self._create_mission_directory(mission,
                                                                download_dir)
-            print("Starting download of %s data. (%d files)"
-                  % (mission, len(maps_table[self.__PRODUCT_URL_STRING])))
+            log.info("Starting download of {} data. ({} files)".format(
+                mission, len(maps_table[self.__PRODUCT_URL_STRING])))
             for index in range(len(maps_table)):
                 product_url = maps_table[self.__PRODUCT_URL_STRING][index].decode('utf-8')
                 if(mission.lower() == self.__HERSCHEL_STRING):
@@ -523,8 +523,8 @@ class ESASkyClass(BaseQuery):
                 else:
                     observation_id = (maps_table[self._get_tap_observation_id(mission)][index]
                                       .decode('utf-8'))
-                print("Downloading Observation ID: %s from %s"
-                      % (observation_id, product_url), end=" ")
+                log.info("Downloading Observation ID: {} from {}"
+                         .format(observation_id, product_url))
                 sys.stdout.flush()
                 directory_path = mission_directory + "/"
                 if (mission.lower() == self.__HERSCHEL_STRING):
@@ -644,7 +644,8 @@ class ESASkyClass(BaseQuery):
             return content_disposition[start_index: end_index]
         else:
             raise ValueError("Could not find file name in header. "
-                             "Content disposition: %s." % content_disposition)
+                             "Content disposition: {}.".format(
+                                 content_disposition))
 
     def _extract_file_name_from_url(self, product_url):
         start_index = product_url.rindex("/") + 1
@@ -680,20 +681,20 @@ class ESASkyClass(BaseQuery):
         select_query = "SELECT DISTINCT "
 
         metadata = json[self.__METADATA_STRING]
-        metadata_tap_names = ", ".join(["%s" % entry[self.__TAP_NAME_STRING]
+        metadata_tap_names = ", ".join(["{}".format(entry[self.__TAP_NAME_STRING])
                                         for entry in metadata])
 
-        from_query = " FROM %s" % json[self.__TAP_TABLE_STRING]
+        from_query = " FROM {}".format(json[self.__TAP_TABLE_STRING])
         if (radiusDeg != 0 or json[self.__IS_SURVEY_MISSION_STRING]):
             if (json[self.__IS_SURVEY_MISSION_STRING]):
-                where_query = (" WHERE 1=CONTAINS(pos, CIRCLE('ICRS', %f, %f, %f));"
-                               % (ra, dec, radiusDeg))
+                where_query = (" WHERE 1=CONTAINS(pos, CIRCLE('ICRS', {}, {}, {}));".
+                               format(ra, dec, radiusDeg))
             else:
-                where_query = (" WHERE 1=INTERSECTS(CIRCLE('ICRS', %f, %f, %f), fov);"
-                               % (ra, dec, radiusDeg))
+                where_query = (" WHERE 1=INTERSECTS(CIRCLE('ICRS', {}, {}, {}), fov);".
+                               format(ra, dec, radiusDeg))
         else:
-            where_query = (" WHERE 1=CONTAINS(POINT('ICRS', %f, %f), fov);"
-                           % (ra, dec))
+            where_query = (" WHERE 1=CONTAINS(POINT('ICRS', {}, {}), fov);".
+                           format(ra, dec))
 
         query = "".join([
             select_query,
@@ -709,26 +710,26 @@ class ESASkyClass(BaseQuery):
 
         select_query = "SELECT "
         if(row_limit > 0):
-            select_query = "".join([select_query, "TOP %s " % row_limit])
+            select_query = "".join([select_query, "TOP {} ".format(row_limit)])
         elif(not row_limit == -1):
             raise ValueError("Invalid value of row_limit")
 
         metadata = json[self.__METADATA_STRING]
-        metadata_tap_names = ", ".join(["%s" % entry[self.__TAP_NAME_STRING]
+        metadata_tap_names = ", ".join(["{}".format(entry[self.__TAP_NAME_STRING])
                                         for entry in metadata])
 
-        from_query = " FROM %s" % json[self.__TAP_TABLE_STRING]
+        from_query = " FROM {}".format(json[self.__TAP_TABLE_STRING])
         if (radiusDeg == 0):
-            where_query = (" WHERE 1=CONTAINS(POINT('ICRS', ra, dec), CIRCLE('ICRS', %f, %f, %f))"
-                           % (ra,
-                              dec,
-                              commons.radius_to_unit(
-                                  self.__MIN_RADIUS_CATALOG_STRING,
-                                  unit='deg')))
+            where_query = (" WHERE 1=CONTAINS(POINT('ICRS', ra, dec), CIRCLE('ICRS', {}, {}, {}))".
+                           format(ra,
+                                  dec,
+                                  commons.radius_to_unit(
+                                      self.__MIN_RADIUS_CATALOG_STRING,
+                                      unit='deg')))
         else:
-            where_query = (" WHERE 1=CONTAINS(POINT('ICRS', ra, dec), CIRCLE('ICRS', %f, %f, %f))"
-                           % (ra, dec, radiusDeg))
-        order_by_query = " ORDER BY %s;" % json[self.__ORDER_BY_STRING]
+            where_query = (" WHERE 1=CONTAINS(POINT('ICRS', ra, dec), CIRCLE('ICRS', {}, {}, {}))".
+                           format(ra, dec, radiusDeg))
+        order_by_query = " ORDER BY {};".format(json[self.__ORDER_BY_STRING])
 
         query = "".join([select_query, metadata_tap_names, from_query,
                         where_query, order_by_query])
@@ -765,7 +766,7 @@ class ESASkyClass(BaseQuery):
         for mission in json:
             if (mission[self.__TAP_TABLE_STRING] == mission_tap_name):
                 return mission
-        raise ValueError("Input tap name %s not available." % mission_tap_name)
+        raise ValueError("Input tap name {} not available.".format(mission_tap_name))
 
     def _find_observation_tap_table_name(self, mission_name):
         return self._find_mission_tap_table_name(
@@ -782,7 +783,7 @@ class ESASkyClass(BaseQuery):
             if (json[index][self.__MISSION_STRING].lower() == mission_name.lower()):
                 return json[index][self.__TAP_TABLE_STRING]
 
-        raise ValueError("Input %s not available." % mission_name)
+        raise ValueError("Input {} not available.".format(mission_name))
         return None
 
     def _get_observation_json(self):
