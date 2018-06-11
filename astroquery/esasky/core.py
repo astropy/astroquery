@@ -320,9 +320,10 @@ class ESASkyClass(BaseQuery):
 
         Parameters
         ----------
-        query_table_list : `~astroquery.utils.TableList`
-            A TableList with all the missions wanted and their respective
-            metadata. Usually the return value of query_region_maps.
+        query_table_list : `~astroquery.utils.TableList` or OrderedDict
+            A TableList or OrderedDict with all the missions wanted and
+            their respective metadata. Usually the return value of
+            query_region_maps.
         missions : string or list, optional
             Can be either a specific mission or a list of missions (all mission
             names are found in list_missions()) or 'all' to search in all
@@ -495,7 +496,13 @@ class ESASkyClass(BaseQuery):
     def _sanitize_input_table_list(self, table_list):
         if (isinstance(table_list, commons.TableList)):
             return table_list
-        raise ValueError("Query_table_list must be an astropy.utils.TableList")
+        else:
+            try:
+                return commons.TableList(table_list)
+            except ValueError:
+                raise ValueError(
+                    "query_table_list must be an astroquery.utils.TableList "
+                    "or be able to be converted to it.")
 
     def _sanitize_input_row_limit(self, row_limit):
         if (isinstance(row_limit, int)):
