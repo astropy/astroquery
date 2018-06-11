@@ -82,3 +82,29 @@ class TestESASky:
     def test_esasky_query_object_catalogs(self):
         result = ESASkyClass.query_object_catalogs("M51")
         assert isinstance(result, TableList)
+
+    def test_esasky_get_maps(self):
+        download_directory = "ESASkyRemoteTest"
+        if not os.path.exists(download_directory):
+            os.makedirs(download_directory)
+
+        file_path = os.path.join(download_directory,
+                                 ESASkyClass._MAPS_DOWNLOAD_DIR, 'ISO')
+
+        all_maps = ESASkyClass.query_object_maps("M51")
+        isomaps = ESASkyClass.query_object_maps("M51", missions='ISO')
+
+        # Remove a few maps, so the other list will have downloadable ones, too
+        isomaps['ISO'].remove_rows([0, 1])
+
+        isomaps2 = dict({'ISO': all_maps['ISO'][:2]})
+
+        ESASkyClass.get_maps(isomaps, download_dir=download_directory)
+
+        assert len(os.listdir(file_path)) == len(all_maps['ISO']) - 2
+
+        ESASkyClass.get_maps(isomaps2, download_dir=download_directory)
+
+        assert len(os.listdir(file_path)) == len(all_maps['ISO'])
+
+        shutil.rmtree(download_directory)
