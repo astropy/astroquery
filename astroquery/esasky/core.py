@@ -574,11 +574,11 @@ class ESASkyClass(BaseQuery):
     def _get_herschel_map(self, product_url, directory_path, cache):
         observation = dict()
         tar_file = tempfile.NamedTemporaryFile(delete=False)
-        response = self._request(
-            'GET',
-            product_url,
-            cache=cache,
-            headers=self._get_header())
+        response = self._request('GET', product_url, cache=cache,
+                                 headers=self._get_header())
+
+        response.raise_for_status()
+
         tar_file.write(response.content)
         tar_file.close()
         with tarfile.open(tar_file.name, 'r') as tar:
@@ -798,6 +798,9 @@ class ESASkyClass(BaseQuery):
             url,
             cache=False,
             headers=self._get_header())
+
+        response.raise_for_status()
+
         string_response = response.content.decode('utf-8')
         json_response = json.loads(string_response)
         return json_response["descriptors"]
