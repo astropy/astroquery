@@ -30,6 +30,8 @@ class ADSClass(BaseQuery):
     QUERY_SIMPLE_PATH = conf.simple_path
     TIMEOUT = conf.timeout
     ADS_FIELDS = conf.adsfields
+    NROWS = conf.nrows
+    NSTART = conf.nstart
     TOKEN = conf.token
 
     QUERY_SIMPLE_URL = SERVER + QUERY_SIMPLE_PATH
@@ -40,13 +42,14 @@ class ADSClass(BaseQuery):
 
     @class_or_instance
     def query_simple(self, query_string, get_query_payload=False,
-                     get_raw_response=True, cache=True):
+                     get_raw_response=False, cache=True):
         """
         Basic query.  Uses a string and the ADS generic query.
         """
         request_string = self._args_to_url(query_string)
         request_fields = self._fields_to_url()
-        request_url = self.QUERY_SIMPLE_URL + request_string + request_fields
+        request_rows = self._rows_to_url(self.NROWS,self.NSTART)
+        request_url = self.QUERY_SIMPLE_URL + request_string + request_fields + request_rows
         headers = {'Authorization': 'Bearer ' + self._get_token()}
 
         response = self._request(method='GET', url=request_url,
@@ -62,48 +65,25 @@ class ADSClass(BaseQuery):
         if get_raw_response:
             return response.json()
         # parse the XML response into AstroPy Table
-        resulttable = self._parse_response(response)
+        resulttable = self._parse_response(response.json())
 
         return resulttable
 
     def _parse_response(self, response):
 
-        encoded_content = response.text.encode(response.encoding)
-
-        xmlrepr = minidom.parseString(encoded_content)
-        # Check if there are any results!
+        try:
+            response['response']['docs'][0]['bibcode']
+        except:
+            raise RuntimeError('No results returned!')
 
         # get the list of hits
-        hitlist = xmlrepr.childNodes[0].childNodes
-        hitlist = hitlist[1::2]  # every second hit is a "line break"
+        hitlist = response['response']['docs']
 
-        # Grab the various fields
-        titles = _get_data_from_xml(hitlist, 'title')
-        bibcode = _get_data_from_xml(hitlist, 'bibcode')
-        journal = _get_data_from_xml(hitlist, 'journal')
-        volume = _get_data_from_xml(hitlist, 'volume')
-        pubdate = _get_data_from_xml(hitlist, 'pubdate')
-        page = _get_data_from_xml(hitlist, 'page')
-        score = _get_data_from_xml(hitlist, 'score')
-        citations = _get_data_from_xml(hitlist, 'citations')
-        abstract = _get_data_from_xml(hitlist, 'abstract')
-        doi = _get_data_from_xml(hitlist, 'DOI')
-        eprintid = _get_data_from_xml(hitlist, 'eprintid')
-        authors = _get_data_from_xml(hitlist, 'author')
-        # put into AstroPy Table
         t = Table()
-        t['title'] = titles
-        t['bibcode'] = bibcode
-        t['journal'] = journal
-        t['volume'] = volume
-        t['pubdate'] = pubdate
-        t['page'] = page
-        t['score'] = score
-        t['citations'] = citations
-        t['abstract'] = abstract
-        t['doi'] = doi
-        t['eprintid'] = eprintid
-        t['authors'] = authors
+        # Grab the various fields and put into AstroPy table
+        for field in self.ADS_FIELDS:
+            tmp = _get_data_from_xml(hitlist, field)
+            t[field] = tmp
 
         return t
 
@@ -116,6 +96,10 @@ class ADSClass(BaseQuery):
     def _fields_to_url(self):
         request_fields = '&fl=' + ','.join(self.ADS_FIELDS)
         return request_fields
+
+    def _rows_to_url(self, nrows=10, nstart=0):
+        request_rows = '&rows=' + str(nrows) + '&start=' + str(nstart)
+        return request_rows
 
     def _get_token(self):
         """
