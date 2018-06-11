@@ -11,6 +11,7 @@ from astropy.io import fits
 from astropy import log
 import astropy.units
 import astropy.io.votable as votable
+from requests import HTTPError
 
 from ..query import BaseQuery
 from ..utils import commons
@@ -373,10 +374,15 @@ class ESASkyClass(BaseQuery):
                             download_dir,
                             cache))
                     break
-        if (len(sanitized_query_table_list) > 0):
-            log.info("Maps available at %s" % os.path.abspath(download_dir))
+
+        if all([maps[mission].count(None) == len(maps[mission])
+                for mission in maps]):
+            log.info("No maps got downloaded, check errors above.")
+
+        elif (len(sanitized_query_table_list) > 0):
+            log.info("Maps available at {}.".format(os.path.abspath(download_dir)))
         else:
-            print("No maps found")
+            log.info("No maps found.")
         return maps
 
     def get_images(self, position, radius=__ZERO_ARCMIN_STRING, missions=__ALL_STRING,
@@ -522,10 +528,14 @@ class ESASkyClass(BaseQuery):
                 sys.stdout.flush()
                 directory_path = mission_directory + "/"
                 if (mission.lower() == self.__HERSCHEL_STRING):
-                    maps.append(self._get_herschel_map(
-                        product_url,
-                        directory_path,
-                        cache))
+                    try:
+                        maps.append(self._get_herschel_map(
+                            product_url,
+                            directory_path,
+                            cache))
+                    except HTTPError as err:
+                        log.error("Download failed with {}.".format(err))
+                        maps.append(None)
 
                 else:
                     response = self._request(
@@ -533,6 +543,9 @@ class ESASkyClass(BaseQuery):
                         product_url,
                         cache=cache,
                         headers=self._get_header())
+
+                    response.raise_for_status()
+
                     file_name = ""
                     if (product_url.endswith(self.__FITS_STRING)):
                         file_name = (directory_path +
@@ -547,8 +560,14 @@ class ESASkyClass(BaseQuery):
                         fits_file.close()
                         maps.append(fits.open(file_name))
 
-                print("[Done]")
-            print("Downloading of %s data complete." % mission)
+                if None in maps:
+                    log.error("Some downloads were unsuccessfull, please check "
+                              "the warnings for more details")
+
+                else:
+                    log.info("[Done]")
+
+            log.info("Downloading of {} data complete.".format(mission))
 
         return maps
 
