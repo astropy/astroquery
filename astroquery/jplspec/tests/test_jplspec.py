@@ -24,6 +24,8 @@ class MockResponseSpec(object):
         with open(self.filename) as f:
             return f.read()
 
+
+
 def test_input_async():
     response = JPLSpec.query_lines_async(min_frequency=100 * u.GHz,
                                          max_frequency=1000 * u.GHz,
@@ -33,6 +35,19 @@ def test_input_async():
     assert response['Mol'] == "28001 CO"
     np.testing.assert_almost_equal(response['MinNu'], 100.)
     np.testing.assert_almost_equal(response['MaxNu'], 1000.)
+
+def test_input_maxlines_async():
+    response_max = JPLSpec.query_lines_async(min_frequency=100 * u.GHz,
+                                             max_frequency=1000 * u.GHz,
+                                             min_strength=-500,
+                                             molecule="28001 CO",
+                                             max_lines=6,
+                                             get_query_payload=True)
+    assert response_max['Mol'] == "28001 CO"
+    assert response_max['MaxLines'] == 6.
+    np.testing.assert_almost_equal(response_max['MinNu'], 100.)
+    np.testing.assert_almost_equal(response_max['MaxNu'], 1000.)
+
 
 def test_query():
     jplspec = JPLSpec()

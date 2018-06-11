@@ -9,7 +9,7 @@ def test_remote():
     tbl = JPLSpec.query_lines(min_frequency=500 * u.GHz,
                               max_frequency=1000 * u.GHz,
                               min_strength=-500,
-                              molecule="18003 H20")
+                              molecule="18003 H2O")
     assert isinstance(tbl, Table)
     assert len(tbl) == 36
     assert set(tbl.keys()) == set(['FREQ', 'ERR', 'LGINT', 'DR', 'ELO', 'GUP',
@@ -21,6 +21,7 @@ def test_remote():
     assert tbl['ERR'][7] == 12.4193
     assert tbl['FREQ'][35] == 987926.7590
 
+@remote_data
 def test_remote_regex():
     tbl = JPLSpec.query_lines(min_frequency=500 * u.GHz,
                               max_frequency=1000 * u.GHz,
