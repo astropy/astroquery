@@ -33,6 +33,8 @@ conf = Conf()
 conf.adsfields = ['bibcode', 'title', 'author', 'aff', 'pub',
                   'volume', 'pubdate', 'page', 'citations',
                   'abstract', 'doi', 'eid']
+conf.nrows = 10
+conf.nstart = 0
 
 conf.token = None
 
