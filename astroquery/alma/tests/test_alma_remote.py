@@ -3,12 +3,18 @@ import tempfile
 import shutil
 import numpy as np
 import os
-from astropy.tests.helper import pytest, remote_data
+import pytest
+
+from astropy.tests.helper import remote_data
 from astropy import coordinates
 from astropy import units as u
 from astropy.extern.six.moves.urllib_parse import urlparse
 
 from .. import Alma
+
+# ALMA tests involving staging take too long, leading to travis timeouts
+# TODO: make this a configuration item
+SKIP_SLOW = True
 
 all_colnames = {'Project code', 'Source name', 'RA', 'Dec', 'Band',
                 'Frequency resolution', 'Integration', 'Release date',
@@ -62,6 +68,7 @@ class TestAlma:
         # assert b'2011.0.00217.S' in result_c['Project code'] # missing cycle 1 data
         assert b'2012.1.00932.S' in result_c['Project code']
 
+    @pytest.mark.skipif("SKIP_SLOW")
     def test_m83(self, temp_dir, recwarn):
         alma = Alma()
         alma.cache_location = temp_dir
@@ -89,6 +96,7 @@ class TestAlma:
         #                           'same UIDs, the result returned is probably correct,'
         #                           ' otherwise you may need to create a fresh astroquery.Alma instance.'))
 
+    @pytest.mark.skipif("SKIP_SLOW")
     def test_stage_data(self, temp_dir, recwarn):
         alma = Alma()
         alma.cache_location = temp_dir
@@ -121,6 +129,7 @@ class TestAlma:
         #                           'same UIDs, the result returned is probably correct,'
         #                           ' otherwise you may need to create a fresh astroquery.Alma instance.'))
 
+    @pytest.mark.skipif("SKIP_SLOW")
     def test_doc_example(self, temp_dir):
         alma = Alma()
         alma.cache_location = temp_dir
@@ -139,9 +148,9 @@ class TestAlma:
         uids = np.unique(m83_data['Asdm uid'])
         assert b'uid://A002/X3b3400/X90f' in uids
         X90f = (m83_data['Asdm uid'] == b'uid://A002/X3b3400/X90f')
-        assert X90f.sum() == 1  # Nov 16, 2016: reduced from 45
+        assert X90f.sum() == 2  # Jul 2, 2017: increased from 1
         X31 = (m83_data['Member ous id'] == b'uid://A002/X3216af/X31')
-        assert X31.sum() == 1  # Nov 16, 2016: reduced from 225
+        assert X31.sum() == 2  # Jul 2, 2017: increased from 1
 
         asdm = alma.stage_data('uid://A002/X3b3400/X90f')
         totalsize_asdm = asdm['size'].sum() * u.Unit(asdm['size'].unit)
@@ -162,12 +171,15 @@ class TestAlma:
                             public=False, science=True)
         # Nov 16, 2016: 159
         # Apr 25, 2017: 150
-        assert len(result) == 150
+        # Jul 2, 2017: 160
+        # May 9, 2018: 162
+        assert len(result) == 162
 
     # As of April 2017, these data are *MISSING FROM THE ARCHIVE*.
     # This has been reported, as it is definitely a bug.
     @pytest.mark.xfail
     @pytest.mark.bigdata
+    @pytest.mark.skipif("SKIP_SLOW")
     def test_cycle1(self, temp_dir):
         # About 500 MB
         alma = Alma()
@@ -202,7 +214,7 @@ class TestAlma:
         urls_to_download = uid_url_table_mous[small]['URL']
 
         uri = urlparse(urls_to_download[0])
-        assert uri.path == ('/dataPortal/requests/anonymous/{0}/ALMA/2012.1.00912.S_uid___A002_X5a9a13_X528_001_of_001.tar/2012.1.00912.S_uid___A002_X5a9a13_X528_001_of_001.tar'
+        assert uri.path == ('/dataPortal/requests/anonymous/{0}/ALMA/2012.1.00912.S_uid___A002_X5a9a13_X528_001_of_001.tar/2012.1.00912.S_uid___A002_X5a9a13_X528_001_of_001.tar'  # noqa
                             .format(a1._staging_log['staging_page_id']))
 
         # THIS IS FAIL
@@ -216,6 +228,7 @@ class TestAlma:
 
         assert len(data) == 6
 
+    @pytest.mark.skipif("SKIP_SLOW")
     def test_cycle0(self, temp_dir):
         # About 20 MB
 

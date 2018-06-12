@@ -14,8 +14,7 @@ from astropy.table import Table, Column
 
 from ..query import BaseQuery
 from . import conf
-from ..utils import commons, async_to_sync
-from ..utils.docstr_chompers import prepend_docstr_noreturns
+from ..utils import commons, async_to_sync, prepend_docstr_nosections
 from ..exceptions import RemoteServiceError, NoResultsWarning
 from .field_names import (photoobj_defs, specobj_defs,
                           crossid_defs, get_field_info)
@@ -85,10 +84,10 @@ class SDSSClass(BaseQuery):
         timeout : float, optional
             Time limit (in seconds) for establishing successful connection with
             remote server.  Defaults to `SDSSClass.TIMEOUT`.
-        photoobj_fields : float, optional
+        photoobj_fields : list, optional
             PhotoObj quantities to return. If photoobj_fields is None and
             specobj_fields is None then the value of fields is used
-        specobj_fields : float, optional
+        specobj_fields : list, optional
             SpecObj quantities to return. If photoobj_fields is None and
             specobj_fields is None then the value of fields is used
         obj_names : str, or list or `~astropy.table.Column`, optional
@@ -208,10 +207,10 @@ class SDSSClass(BaseQuery):
         timeout : float, optional
             Time limit (in seconds) for establishing successful connection with
             remote server.  Defaults to `SDSSClass.TIMEOUT`.
-        photoobj_fields : float, optional
+        photoobj_fields : list, optional
             PhotoObj quantities to return. If photoobj_fields is None and
             specobj_fields is None then the value of fields is used
-        specobj_fields : float, optional
+        specobj_fields : list, optional
             SpecObj quantities to return. If photoobj_fields is None and
             specobj_fields is None then the value of fields is used
         field_help: str or bool, optional
@@ -584,7 +583,7 @@ class SDSSClass(BaseQuery):
                 run2d = row['run2d']
             link = linkstr.format(
                 base=conf.sas_baseurl, dr=data_release,
-                instrument=row['instrument'].decode().lower(),
+                instrument=row['instrument'].lower(),
                 run2d=run2d, plate=row['plate'],
                 fiber=row['fiberID'], mjd=row['mjd'])
 
@@ -595,7 +594,7 @@ class SDSSClass(BaseQuery):
 
         return results
 
-    @prepend_docstr_noreturns(get_spectra_async.__doc__)
+    @prepend_docstr_nosections(get_spectra_async.__doc__)
     def get_spectra(self, coordinates=None, radius=2. * u.arcsec,
                     matches=None, plate=None, fiberID=None, mjd=None,
                     timeout=TIMEOUT, cache=True, data_release=12,
@@ -740,7 +739,7 @@ class SDSSClass(BaseQuery):
 
         return results
 
-    @prepend_docstr_noreturns(get_images_async.__doc__)
+    @prepend_docstr_nosections(get_images_async.__doc__)
     def get_images(self, coordinates=None, radius=2. * u.arcsec,
                    matches=None, run=None, rerun=301, camcol=None, field=None,
                    band='g', timeout=TIMEOUT, cache=True,
@@ -817,7 +816,7 @@ class SDSSClass(BaseQuery):
 
         return results
 
-    @prepend_docstr_noreturns(get_spectral_template_async.__doc__)
+    @prepend_docstr_nosections(get_spectral_template_async.__doc__)
     def get_spectral_template(self, kind='qso', timeout=TIMEOUT,
                               show_progress=True):
         """
@@ -911,10 +910,10 @@ class SDSSClass(BaseQuery):
             Output of one camera column of CCDs.
         field : integer, optional
             Part of a camcol of size 2048 by 1489 pixels.
-        photoobj_fields: float, optional
+        photoobj_fields: list, optional
             PhotoObj quantities to return. If photoobj_fields is None and
             specobj_fields is None then the value of fields is used
-        specobj_fields: float, optional
+        specobj_fields: list, optional
             SpecObj quantities to return. If photoobj_fields is None and
             specobj_fields is None then the value of fields is used
         field_help: str or bool, optional

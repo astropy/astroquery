@@ -21,7 +21,7 @@ photometry:
     >>> from astropy import coordinates as coords
     >>> pos = coords.SkyCoord('0h8m05.63s +14d50m23.3s', frame='icrs')
     >>> xid = SDSS.query_region(pos, spectro=True)
-    >>> print xid
+    >>> print(xid)
         ra         dec           objid        run  rerun camcol field    z    plate  mjd  fiberID     specobjid      specClass
     ---------- ----------- ------------------ ---- ----- ------ ----- ------- ----- ----- ------- ------------------ ---------
     2.02344483 14.83982059 587727221951234166 1739    40      3   315 0.04541   751 52251     160 211612124516974592         3
@@ -54,7 +54,7 @@ available, do
 .. code-block:: python
 
     >>> from astroquery.sdss import SDSS
-    >>> print SDSS.AVAILABLE_TEMPLATES
+    >>> print(SDSS.AVAILABLE_TEMPLATES)
 
 Then, to download your favorite template, do something like
 

@@ -14,8 +14,10 @@ Introduction
 Astroquery is a set of tools for querying astronomical web forms and databases.
 
 There are two other packages with complimentary functionality as Astroquery:
-`astropy.vo <http://docs.astropy.org/en/latest/vo/index.html>`_ is in the Astropy core and
-`pyvo <https://pyvo.readthedocs.io/en/latest/>`_ is an Astropy affiliated package.
+`pyvo <https://pyvo.readthedocs.io/en/latest/>`_ is an Astropy affiliated package, and
+`Simple-Cone-Search-Creator <https://github.com/tboch/Simple-Cone-Search-Creator/>`_ to
+generate a cone search service complying with the
+`IVOA standard <http://www.ivoa.net/documents/latest/ConeSearch.html>`_.
 They are more oriented to general `virtual observatory <http://www.virtualobservatory.org>`_
 discovery and queries, whereas Astroquery has web service specific interfaces.
 
@@ -23,8 +25,12 @@ Check out the :doc:`gallery` for some nice examples.
 
 Installation
 ------------
+
 The latest version of astroquery can be conda installed while the latest and
 development versions can be pip installed or be downloaded directly from GitHub.
+On Linux systems the recommended way to install astroquery is to use the
+package management system to install the packages offered in the official
+repositories.
 
 Using pip
 ^^^^^^^^^
@@ -42,12 +48,39 @@ Using conda
 ^^^^^^^^^^^
 
 It is also possible to install the latest astroquery with `anaconda
-<http://continuum.io/>`_ from the astropy channel:
+<https://anaconda.com/>`_ from the astropy channel:
 
 .. code-block:: bash
 
     $ conda install -c astropy astroquery
 
+Archlinux
+^^^^^^^^^
+
+The current stable version of astroquery can be installed directly from the
+Arch User Repository `python-astroquery package
+<https://aur.archlinux.org/packages/python-astroquery/>`_,
+while the latest version of the development branch in the git repository
+can be installed from the `python-astroquery-git package
+<https://aur.archlinux.org/packages/python-astroquery-git/>`_.
+
+Debian
+^^^^^^
+
+Astroquery packages for `python 2
+<https://packages.debian.org/python-astroquery>`_ and `python 3
+<https://packages.debian.org/python3-astroquery>`_  have been part of the
+Debian distribution since the release of Debian 9.0 (stretch).  These packages
+can be installed using usual package maintenance tools like ``apt-get`` or
+``aptitude``.
+
+Gentoo
+^^^^^^
+
+An `astroquery ebuild
+<https://packages.gentoo.org/packages/dev-python/astroquery>`_ is available
+from the official Gentoo ebuild repository and can be installed with the
+Portage package manager.
 
 Building from source
 ^^^^^^^^^^^^^^^^^^^^
@@ -75,7 +108,7 @@ The following packages are required for astroquery installation & use:
 * `astropy <http://www.astropy.org>`__ (>=1.0)
 * `requests <http://docs.python-requests.org/en/latest/>`_
 * `keyring <https://pypi.python.org/pypi/keyring>`_
-* `Beautiful Soup <http://www.crummy.com/software/BeautifulSoup/>`_
+* `Beautiful Soup <https://www.crummy.com/software/BeautifulSoup/>`_
 * `html5lib <https://pypi.python.org/pypi/html5lib>`_
 
 and for running the tests:
@@ -142,46 +175,61 @@ The following modules have been completed using a common API:
 .. toctree::
   :maxdepth: 1
 
-  simbad/simbad.rst
-  vizier/vizier.rst
+  alma/alma.rst
+  atomic/atomic.rst
+  besancon/besancon.rst
   esasky/esasky.rst
-  irsa/irsa_dust.rst
-  ned/ned.rst
-  splatalogue/splatalogue.rst
-  vamdc/vamdc.rst
+  eso/eso.rst
+  gaia/gaia.rst
+  gama/gama.rst
+  heasarc/heasarc.rst
+  hitran/hitran.rst
   ibe/ibe.rst
   irsa/irsa.rst
-  ukidss/ukidss.rst
+  irsa/irsa_dust.rst
   magpis/magpis.rst
-  nrao/nrao.rst
-  besancon/besancon.rst
-  nist/nist.rst
-  nvas/nvas.rst
-  gama/gama.rst
-  eso/eso.rst
-  xmatch/xmatch.rst
-  atomic/atomic.rst
-  alma/alma.rst
-  skyview/skyview.rst
+  mast/mast.rst
+  mpc/mpc.rst
   nasa_ads/nasa_ads.rst
-  heasarc/heasarc.rst
-  gaia/gaia.rst
+  ned/ned.rst
+  nist/nist.rst
+  nrao/nrao.rst
+  nvas/nvas.rst
+  simbad/simbad.rst
+  skyview/skyview.rst
+  splatalogue/splatalogue.rst
+  ukidss/ukidss.rst
+  vamdc/vamdc.rst
+  vizier/vizier.rst
   vo_conesearch/vo_conesearch.rst
+  vsa/vsa.rst
+  xmatch/xmatch.rst
+
 
 These others are functional, but do not follow a common & consistent API:
 
 .. toctree::
   :maxdepth: 1
 
-  fermi/fermi.rst
-  sdss/sdss.rst
   alfalfa/alfalfa.rst
-  sha/sha.rst
+  cosmosim/cosmosim.rst
+  exoplanet_orbit_database/exoplanet_orbit_database.rst
+  fermi/fermi.rst
+  jplhorizons/jplhorizons.rst
   lamda/lamda.rst
+  nasa_exoplanet_archive/nasa_exoplanet_archive.rst
+  oac/oac.rst
   ogle/ogle.rst
   open_exoplanet_catalogue/open_exoplanet_catalogue.rst
-  cosmosim/cosmosim.rst
-  hitran/hitran.rst
+  sdss/sdss.rst
+  sha/sha.rst
+
+There are also subpackages that serve as the basis of others.
+
+.. toctree::
+  :maxdepth: 1
+
+  wfau/wfau.rst
 
 Catalog, Archive, and Other
 ===========================
@@ -204,6 +252,7 @@ for each source)
   ibe/ibe.rst
   irsa/irsa.rst
   irsa/irsa_dust.rst
+  mast/mast.rst
   ned/ned.rst
   ogle/ogle.rst
   open_exoplanet_catalogue/open_exoplanet_catalogue.rst
@@ -211,9 +260,12 @@ for each source)
   sha/sha.rst
   simbad/simbad.rst
   ukidss/ukidss.rst
+  vsa/vsa.rst
   vizier/vizier.rst
   xmatch/xmatch.rst
   vo_conesearch/vo_conesearch.rst
+  nasa_exoplanet_archive/nasa_exoplanet_archive.rst
+  exoplanet_orbit_database/exoplanet_orbit_database.rst
 
 Archives
 --------
@@ -233,12 +285,14 @@ generally return a table listing the available data first.
   ibe/ibe.rst
   irsa/irsa.rst
   magpis/magpis.rst
+  mast/mast.rst
   ned/ned.rst
   nrao/nrao.rst
   nvas/nvas.rst
   sdss/sdss.rst
   sha/sha.rst
   ukidss/ukidss.rst
+  vsa/vsa.rst
   skyview/skyview.rst
 
 Simulations
@@ -270,6 +324,7 @@ above categories.
   vamdc/vamdc.rst
   hitran/hitran.rst
   utils/tap.rst
+  jplhorizons/jplhorizons.rst
 
 
 Developer documentation

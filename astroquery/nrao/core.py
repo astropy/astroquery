@@ -18,8 +18,7 @@ from astropy import log
 from bs4 import BeautifulSoup
 
 from ..query import QueryWithLogin
-from ..utils import commons, async_to_sync, system_tools
-from ..utils.docstr_chompers import prepend_docstr_noreturns
+from ..utils import commons, async_to_sync, system_tools, prepend_docstr_nosections
 from ..exceptions import TableParseError, LoginError
 
 from . import conf
@@ -34,12 +33,18 @@ def _validate_params(func):
         telescope_config = kwargs.get('telescope_config', 'all')
         obs_band = kwargs.get('obs_band', 'all')
         sub_array = kwargs.get('sub_array', 'all')
-        if telescope not in Nrao.telescope_code:
-            raise ValueError("'telescope must be one of {!s}"
-                             .format(Nrao.telescope_code.keys()))
-        if telescope_config.upper() not in Nrao.telescope_config:
-            raise ValueError("'telescope_config' must be one of {!s}"
-                             .format(Nrao.telescope_config))
+        if not isinstance(telescope, (list, tuple)):
+            telescope = [telescope]
+        for tel in telescope:
+            if tel not in Nrao.telescope_code:
+                raise ValueError("'telescope must be one of {!s}"
+                                 .format(Nrao.telescope_code.keys()))
+        if not isinstance(telescope_config, (list, tuple)):
+            telescope_config = [telescope_config]
+        for tconf in telescope_config:
+            if tconf.upper() not in Nrao.telescope_config:
+                raise ValueError("'telescope_config' must be one of {!s}"
+                                 .format(Nrao.telescope_config))
         if isinstance(obs_band, (list, tuple)):
             for ob in obs_band:
                 if ob not in Nrao.obs_bands:
@@ -178,6 +183,18 @@ class NraoClass(QueryWithLogin):
         elif isinstance(obs_bands, (list, tuple)):
             obs_bands = [x.upper() for x in obs_bands]
 
+        telescope_config = kwargs.get('telescope_config', 'all')
+        if isinstance(telescope_config, six.string_types):
+            telescope_config = telescope_config.upper()
+        elif isinstance(telescope_config, (list, tuple)):
+            telescope_config = [x.upper() for x in telescope_config]
+
+        telescope_ = kwargs.get('telescope', 'all')
+        if isinstance(telescope_, six.string_types):
+            telescope = Nrao.telescope_code[telescope_]
+        elif isinstance(telescope, (list, tuple)):
+            telescope = [Nrao.telescope_code[telescope_] for x in telescope_]
+
         request_payload = dict(
             QUERYTYPE=kwargs.get('querytype', "OBSSUMMARY"),
             PROTOCOL=kwargs.get('protocol', "VOTable-XML"),
@@ -192,7 +209,7 @@ class NraoClass(QueryWithLogin):
             SITE_CODE="AOC",
             DBHOST="CHEWBACCA",
             WRITELOG=0,
-            TELESCOPE=Nrao.telescope_code[kwargs.get('telescope', 'all')],
+            TELESCOPE=telescope,
             PROJECT_CODE=kwargs.get('project_code', ''),
             SEGMENT="",
             MIN_EXPOSURE='',
@@ -205,7 +222,7 @@ class NraoClass(QueryWithLogin):
             CENTER_DEC='',
             SRAD=str(
                 coordinates.Angle(kwargs.get('radius', "1.0m")).deg) + 'd',
-            TELESCOPE_CONFIG=kwargs.get('telescope_config', 'all').upper(),
+            TELESCOPE_CONFIG=telescope_config,
             OBS_BANDS=obs_bands,
             SUBARRAY=kwargs.get('subarray', 'all').upper(),
             SOURCE_ID=kwargs.get('source_id', ''),
@@ -218,8 +235,8 @@ class NraoClass(QueryWithLogin):
             PASSWD="",  # TODO: implement login...
             SUBMIT="Submit Query")
 
-        if (request_payload['QUERYTYPE'] == "ARCHIVE" and
-            request_payload['PROTOCOL'] != 'HTML'):
+        if ((request_payload['QUERYTYPE'] == "ARCHIVE" and
+             request_payload['PROTOCOL'] != 'HTML')):
             warnings.warn("Changing protocol to HTML: ARCHIVE queries do not"
                           " support votable returns")
             request_payload['PROTOCOL'] = 'HTML'
@@ -260,7 +277,8 @@ class NraoClass(QueryWithLogin):
 
         # Developer notes:
         # Login via https://my.nrao.edu/cas/login
-        # # this can be added to auto-redirect back to the query tool: ?service=https://archive.nrao.edu/archive/advquery.jsp
+        # # this can be added to auto-redirect back to the query tool:
+        # ?service=https://archive.nrao.edu/archive/advquery.jsp
 
         if username is None:
             if not self.USERNAME:
@@ -320,7 +338,7 @@ class NraoClass(QueryWithLogin):
 
         return authenticated
 
-    @prepend_docstr_noreturns(_args_to_payload.__doc__)
+    @prepend_docstr_nosections(_args_to_payload.__doc__)
     def query_async(self,
                     get_query_payload=False,
                     cache=True,
@@ -359,7 +377,7 @@ class NraoClass(QueryWithLogin):
 
         return response
 
-    @prepend_docstr_noreturns(_args_to_payload.__doc__)
+    @prepend_docstr_nosections(_args_to_payload.__doc__)
     def query_region_async(self, coordinates, radius=1 * u.arcmin,
                            equinox='J2000', telescope='all', start_date="",
                            end_date="", freq_low=None, freq_up=None,
@@ -443,7 +461,7 @@ class NraoClass(QueryWithLogin):
                                   " and the error in self.table_parse_error.")
 
     def _parse_html_result(self, response, verbose=False):
-        # pares the HTML return...
+        # parse the HTML return...
         root = BeautifulSoup(response.content, 'html5lib')
 
         htmltable = root.findAll('table')
@@ -456,7 +474,7 @@ class NraoClass(QueryWithLogin):
         if six.PY2:
             from astropy.io.ascii import html
             from astropy.io.ascii.core import convert_numpy
-            htmlreader = html.HTML()
+            htmlreader = html.HTML({'parser': 'html5lib'})
             htmlreader.outputter.default_converters.append(convert_numpy(np.unicode))
             table = htmlreader.read(string_to_parse)
         else:

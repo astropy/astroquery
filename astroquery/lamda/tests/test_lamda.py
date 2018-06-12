@@ -2,10 +2,6 @@
 import os
 import tempfile
 import numpy as np
-import pytest
-import sys
-import platform
-
 from ...lamda import core
 
 DATA_FILES = {'co': 'co.txt'}
@@ -25,9 +21,6 @@ def test_parser():
     assert len(radtransitions) == 40
 
 
-@pytest.mark.xfail(platform.system() == 'Windows' and sys.version_info[0] >= 3,
-                   reason=("https://github.com/astropy/astroquery/pull/894 and "
-                           "https://github.com/astropy/astropy/issues/5126"))
 def test_writer():
     tables = core.parse_lamda_datafile(data_path('co.txt'))
     coll, radtrans, enlevels = tables

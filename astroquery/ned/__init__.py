@@ -17,7 +17,7 @@ Extragalactic Database (NED):
     :Acknowledgements:
 
         Based off Adam Ginsburg's Splatalogue search routine:
-            http://code.google.com/p/agpy/source/browse/trunk/agpy/query_splatalogue.py
+            https://github.com/keflavich/agpy/blob/master/agpy/query_splatalogue.py
 
         Service URLs to acquire the VO Tables are taken from Mazzarella et
         al. (2007) The National Virtual Observatory: Tools and Techniques

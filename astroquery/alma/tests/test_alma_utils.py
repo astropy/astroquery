@@ -1,10 +1,11 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import numpy as np
+import pytest
 import warnings
 
 from astropy import wcs
 from astropy import units as u
-from astropy.tests.helper import pytest, remote_data
+from astropy.tests.helper import remote_data
 try:
     from pyregion.parser_helper import Shape
     pyregion_OK = True
@@ -68,6 +69,12 @@ def approximate_primary_beam_sizes(frq_sup_str=frq_sup_str,
 @remote_data
 @pytest.mark.skipif('not pyregion_OK')
 def test_make_finder_chart():
+    import matplotlib
+    matplotlib.use('agg')
+    if matplotlib.get_backend() != 'agg':
+        pytest.xfail("Matplotlib backend was incorrectly set to {0}, could "
+                     "not run finder chart test.".format(matplotlib.get_backend()))
+
     result = utils.make_finder_chart('Eta Carinae', 3 * u.arcmin,
                                      'Eta Carinae')
     image, catalog, hit_mask_public, hit_mask_private = result

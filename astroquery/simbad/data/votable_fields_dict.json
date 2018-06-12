@@ -13,6 +13,7 @@
   "dec(opt)": "declination. The options are the same as for coo above.", 
   "dec_prec": "declination precision code (0:1/10deg, ..., 8: 1/1000 arcsec)", 
   "diameter": "Stellar diameters, see 2001A&A...367..521P for an explanation of the coding \n              of the methods of measurements.", 
+  "dist": "distance of the corresponding object from the given object id",
   "dim": "main fields related to object dimensions: major and minor axis, angle and inclination", 
   "dim_angle": "angle of the object", 
   "dim_bibcode": "Bibliographical reference", 

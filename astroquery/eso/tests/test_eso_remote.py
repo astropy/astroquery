@@ -1,8 +1,9 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import numpy as np
+import pytest
 import tempfile
 import shutil
-from astropy.tests.helper import pytest, remote_data
+from astropy.tests.helper import remote_data
 from astropy.extern import six
 from ...exceptions import LoginError
 
@@ -12,7 +13,11 @@ instrument_list = [u'fors1', u'fors2', u'sphere', u'vimos', u'omegacam',
                    u'hawki', u'isaac', u'naco', u'visir', u'vircam', u'apex',
                    u'giraffe', u'uves', u'xshooter', u'muse', u'crires',
                    u'kmos', u'sinfoni', u'amber', u'midi', u'pionier',
-                   u'harps', u'gravity', u'feros']
+                   u'gravity']
+
+# Some tests take too long, leading to travis timeouts
+# TODO: make this a configuration item
+SKIP_SLOW = True
 
 
 @remote_data
@@ -57,7 +62,9 @@ class TestEso:
 
         eso = Eso()
         eso.cache_location = temp_dir
-        eso.ROW_LIMIT = 200  # first b333 is at 157
+        eso.ROW_LIMIT = 1000
+        # first b333 was at 157
+        # first pistol....?
 
         result_s = eso.query_surveys(['VVV', 'XSHOOTER'],
                                      coord1=266.41681662,
@@ -67,7 +74,7 @@ class TestEso:
 
         assert result_s is not None
         assert 'Object' in result_s.colnames
-        assert 'b333' in result_s['Object']
+        assert 'b333_414_58214' in result_s['Object']
         assert 'Pistol-Star' in result_s['Object']
 
     def test_nologin(self):
@@ -87,7 +94,6 @@ class TestEso:
         eso = Eso()
         surveys = eso.list_surveys(cache=False)
         assert len(surveys) > 0
-        # result_s = eso.query_survey(surveys[0], target='M51')
         # Avoid SESAME
         result_s = eso.query_surveys(surveys[0], coord1=202.469575,
                                      coord2=47.195258, cache=False)
@@ -97,19 +103,13 @@ class TestEso:
     def test_SgrAstar_remotevslocal(self, temp_dir):
         eso = Eso()
         # Remote version
-        instruments = eso.list_instruments(cache=False)
-        # result1 = eso.query_instrument(instruments[0], target='Sgr A*')
-        result1 = eso.query_instrument(instruments[0], coord1=266.41681662,
+        result1 = eso.query_instrument('gravity', coord1=266.41681662,
                                        coord2=-29.00782497, cache=False)
-
         # Local version
         eso.cache_location = temp_dir
-        instruments = eso.list_instruments(cache=False)
-        # result2 = eso.query_instrument(instruments[0], target='Sgr A*')
-        result2 = eso.query_instrument(instruments[0], coord1=266.41681662,
-                                       coord2=-29.00782497, cache=False)
-
-        assert result1 == result2
+        result2 = eso.query_instrument('gravity', coord1=266.41681662,
+                                       coord2=-29.00782497, cache=True)
+        assert all(result1 == result2)
 
     def test_list_instruments(self):
         # If this test fails, we may simply need to update it
@@ -118,15 +118,6 @@ class TestEso:
 
         # we only care about the sets matching
         assert set(inst) == set(instrument_list)
-
-    # REQUIRES LOGIN!
-    # Can we get a special login specifically for astroquery testing?
-    # def test_data_retrieval():
-    #
-    #    data_product_id = 'AMBER.2006-03-14T07:40:03.741'
-    #    data_files = eso.retrieve_data([data_product_id])
-    #    # How do we know if we're going to get .fits or .fits.Z?
-    #    assert 'AMBER.2006-03-14T07:40:03.741.fits' in data_files[0]
 
     @pytest.mark.skipif('not Eso.USERNAME')
     def test_retrieve_data(self):
@@ -182,6 +173,7 @@ class TestEso:
                                          box='01 00 00',
                                          cache=False)
 
+    @pytest.mark.skipif("SKIP_SLOW")
     @pytest.mark.parametrize('cache', (False, True))
     def test_each_survey_nosource(self, temp_dir, cache):
         eso = Eso()
@@ -192,3 +184,15 @@ class TestEso:
         for survey in surveys:
             # just test that it doesn't crash
             eso.query_surveys(survey, cache=cache)
+
+    def test_mixed_case_instrument(self, temp_dir):
+        eso = Eso()
+        eso.cache_location = temp_dir
+        eso.ROW_LIMIT = 5
+
+        result1 = eso.query_instrument('midi', coord1=266.41681662,
+                                       coord2=-29.00782497, cache=False)
+        result2 = eso.query_instrument('MiDi', coord1=266.41681662,
+                                       coord2=-29.00782497, cache=False)
+
+        assert np.all(result1 == result2)

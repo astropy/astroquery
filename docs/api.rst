@@ -138,9 +138,11 @@ Directory Structure::
             'Time limit for connecting to template_module server.'
             )
 
+    conf = Conf()
+
     from .core import QueryClass
 
-    __all__ = ['QueryClass']
+    __all__ = ['QueryClass', 'conf']
 
 
 ``core.py`` contains:
@@ -148,14 +150,15 @@ Directory Structure::
 .. code-block:: python
 
     from ..utils.class_or_instance import class_or_instance
-    from ..utils import commons, async_to_sync
+    from ..utils import async_to_sync
+    from . import conf
 
     __all__ = ['QueryClass']  # specifies what to import
 
     @async_to_sync
-    class QueryClass(astroquery.BaseQuery):
+    class QueryClass(astroquery.query.BaseQuery):
 
-        server = SERVER()
+        server = conf.server
 
         def __init__(self, *args):
             """ set some parameters """
@@ -167,7 +170,8 @@ Directory Structure::
 
             request_payload = self._args_to_payload(*args)
 
-            response = commons.send_request(self.server, request_payload, TIMEOUT)
+            response = self._request(method="POST", url=self.server,
+                                     data=request_payload, timeout=TIMEOUT)
 
             # primarily for debug purposes, but also useful if you want to send
             # someone a URL linking directly to the data
@@ -185,11 +189,12 @@ Directory Structure::
         @class_or_instance
         def get_image_list(self, *args):
 
-            request_payload = self.args_to_payload(*args)
+            request_payload = self._args_to_payload(*args)
 
-            result = requests.post(url, data=request_payload)
+            response = self._request(method="POST", url=self.server,
+                                     data=request_payload, timeout=TIMEOUT)
 
-            return self.extract_image_urls(result)
+            return self.extract_image_urls(response.text)
 
         def _parse_result(self, result):
             # do something, probably with regexp's

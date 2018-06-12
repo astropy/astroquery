@@ -11,9 +11,7 @@ from astropy.io import ascii
 from astropy.extern.six.moves.urllib_error import URLError
 from collections import OrderedDict
 from ..query import BaseQuery
-from ..utils import commons
-from ..utils import prepend_docstr_noreturns
-from ..utils import async_to_sync
+from ..utils import commons, prepend_docstr_nosections, async_to_sync
 from . import conf
 
 __all__ = ['Besancon', 'BesanconClass', 'parse_besancon_model_string']
@@ -288,7 +286,7 @@ class BesanconClass(BaseQuery):
 
         return request_data
 
-    @prepend_docstr_noreturns("\n" + _parse_args.__doc__ +
+    @prepend_docstr_nosections("\n" + _parse_args.__doc__ +
                               _parse_result.__doc__)
     def query_async(self, *args, **kwargs):
         """

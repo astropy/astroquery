@@ -16,9 +16,10 @@ This amounts to about 1 per cent of the Galactic stellar population.
 If you use public Gaia DR1 data in your paper, please take note of our guide_ on
 how to acknowledge and cite Gaia DR1.
 
-.. _guide: http://gaia.esac.esa.int/documentation/GDR1/Miscellaneous/sec_credit_and_citation_instructions.html
+.. _guide: https://gaia.esac.esa.int/documentation/GDR1/Miscellaneous/sec_credit_and_citation_instructions.html
 
-This package allows the access to the European Space Agency Gaia Archive (http://archives.esac.esa.int/gaia)
+This package allows the access to the European Space Agency Gaia Archive
+(http://gea.esac.esa.int/archive/)
 
 Gaia Archive access is based on a TAP+ REST service. TAP+ is an extension of
 Table Access Protocol (TAP: http://www.ivoa.net/documents/TAP/) specified by the
@@ -78,13 +79,12 @@ Examples
 .. code-block:: python
 
   >>> import astropy.units as u
-  >>> from astropy.coordinates.sky_coordinate import SkyCoord
-  >>> from astropy.units import Quantity
+  >>> from astropy.coordinates import SkyCoord
   >>> from astroquery.gaia import Gaia
   >>>
   >>> coord = SkyCoord(ra=280, dec=-60, unit=(u.degree, u.degree), frame='icrs')
-  >>> width = Quantity(0.1, u.deg)
-  >>> height = Quantity(0.1, u.deg)
+  >>> width = u.Quantity(0.1, u.deg)
+  >>> height = u.Quantity(0.1, u.deg)
   >>> r = Gaia.query_object_async(coordinate=coord, width=width, height=height)
   >>> r.pprint()
 
@@ -121,12 +121,11 @@ Examples
 .. code-block:: python
 
   >>> import astropy.units as u
-  >>> from astropy.coordinates.sky_coordinate import SkyCoord
-  >>> from astropy.units import Quantity
+  >>> from astropy.coordinates import SkyCoord
   >>> from astroquery.gaia import Gaia
   >>>
   >>> coord = SkyCoord(ra=280, dec=-60, unit=(u.degree, u.degree), frame='icrs')
-  >>> radius = Quantity(1.0, u.deg)
+  >>> radius = u.Quantity(1.0, u.deg)
   >>> j = Gaia.cone_search_async(coord, radius)
   >>> r = j.get_results()
   >>> r.pprint()
@@ -169,7 +168,7 @@ To load only table names (TAP+ capability)
   >>> from astroquery.gaia import Gaia
   >>> tables = Gaia.load_tables(only_names=True)
   >>> for table in (tables):
-  >>>   print (table.get_qualified_name())
+  >>>   print(table.get_qualified_name())
 
   public.dual
   public.tycho2
@@ -200,7 +199,7 @@ To load table names (TAP compatible)
   >>> from astroquery.gaia import Gaia
   >>> tables = Gaia.load_tables()
   >>> for table in (tables):
-  >>>   print (table.get_qualified_name())
+  >>>   print(table.get_qualified_name())
 
   public.dual
   public.tycho2
@@ -230,7 +229,7 @@ To load only a table (TAP+ capability)
 
   >>> from astroquery.gaia import Gaia
   >>> table = Gaia.load_table('gaiadr1.gaia_source')
-  >>> print (table)
+  >>> print(table)
 
   Table name: gaiadr1.gaia_source
   Description: This table has an entry for every Gaia observed source as listed in the
@@ -246,9 +245,9 @@ Once a table is loaded, columns can be inspected
 .. code-block:: python
 
   >>> from astroquery.gaia import Gaia
-  >>> table = Gaia.load_table('gaiadr1.gaia_source')
+  >>> gaiadr1_table = Gaia.load_table('gaiadr1.gaia_source')
   >>> for column in (gaiadr1_table.get_columns()):
-  >>>   print (column.get_name())
+  >>>   print(column.get_name())
 
   solution_id
   source_id
@@ -281,7 +280,7 @@ Query without saving results in a file:
   >>> solution_id,ref_epoch,ra_dec_corr,astrometric_n_obs_al,matched_observations,duplicated_source,phot_variable_flag \
   >>> from gaiadr1.gaia_source order by source_id")
   >>>
-  >>> print (job)
+  >>> print(job)
 
   Jobid: None
   Phase: COMPLETED
@@ -290,7 +289,7 @@ Query without saving results in a file:
   Results: None
 
   >>> r = job.get_results()
-  >>> print (r['solution_id'])
+  >>> print(r['solution_id'])
 
     solution_id
   -------------------
@@ -327,7 +326,7 @@ Query saving results in a file:
   >>> solution_id,ref_epoch,ra_dec_corr,astrometric_n_obs_al,matched_observations,duplicated_source,phot_variable_flag \
   >>> from gaiadr1.gaia_source order by source_id", dump_to_file=True)
   >>>
-  >>> print (job)
+  >>> print(job)
 
   Jobid: None
   Phase: COMPLETED
@@ -336,7 +335,7 @@ Query saving results in a file:
   Results: None
 
   >>> r = job.get_results()
-  >>> print (r['solution_id'])
+  >>> print(r['solution_id'])
 
     solution_id
   -------------------
@@ -402,7 +401,7 @@ Query without saving results in a file:
   >>>
   >>> job = Gaia.launch_job_async("select top 100 * from gaiadr1.gaia_source order by source_id")
   >>>
-  >>> print (job)
+  >>> print(job)
 
   Jobid: 1487845273526O
   Phase: COMPLETED
@@ -411,7 +410,7 @@ Query without saving results in a file:
   Results: None
 
   >>> r = job.get_results()
-  >>> print (r['solution_id'])
+  >>> print(r['solution_id'])
 
     solution_id
   -------------------
@@ -447,7 +446,7 @@ Query saving results in a file:
   >>>
   >>> job = Gaia.launch_job_async("select top 100 * from gaiadr1.gaia_source order by source_id", dump_to_file=True)
   >>>
-  >>> print (job)
+  >>> print(job)
 
   Jobid: 1487845273526O
   Phase: COMPLETED
@@ -456,7 +455,7 @@ Query saving results in a file:
   Results: None
 
   >>> r = job.get_results()
-  >>> print (r['solution_id'])
+  >>> print(r['solution_id'])
 
     solution_id
   -------------------
@@ -565,7 +564,7 @@ To perform a logout
   >>> from astroquery.gaia import Gaia
   >>> tables = Gaia.load_tables(only_names=True, include_shared_tables=True)
   >>> for table in (tables):
-  >>>   print (table.get_qualified_name())
+  >>>   print(table.get_qualified_name())
 
   public.dual
   public.tycho2

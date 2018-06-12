@@ -7,7 +7,7 @@ from astropy import units as u
 
 from . import conf
 from ..query import BaseQuery
-from ..utils import prepend_docstr_noreturns, commons, async_to_sync
+from ..utils import prepend_docstr_nosections, commons, async_to_sync
 
 
 __doctest_skip__ = [
@@ -206,7 +206,7 @@ class SkyViewClass(BaseQuery):
                                                  show_progress=show_progress)
         return [obj.get_fits() for obj in readable_objects]
 
-    @prepend_docstr_noreturns(get_images.__doc__)
+    @prepend_docstr_nosections(get_images.__doc__)
     def get_images_async(self, position, survey, coordinates=None,
                          projection=None, pixels=None, scaling=None,
                          sampler=None, resolver=None, deedger=None, lut=None,
@@ -227,7 +227,7 @@ class SkyViewClass(BaseQuery):
                                       show_progress=show_progress)
                 for url in image_urls]
 
-    @prepend_docstr_noreturns(get_images.__doc__)
+    @prepend_docstr_nosections(get_images.__doc__, sections=['Returns', 'Examples'])
     def get_image_list(self, position, survey, coordinates=None,
                        projection=None, pixels=None, scaling=None,
                        sampler=None, resolver=None, deedger=None, lut=None,
@@ -249,7 +249,7 @@ class SkyViewClass(BaseQuery):
 
         self._validate_surveys(survey)
 
-        if radius:
+        if radius is not None:
             size_deg = str(radius.to(u.deg).value)
         elif width and height:
             size_deg = "{0},{1}".format(width.to(u.deg).value,
@@ -292,13 +292,16 @@ class SkyViewClass(BaseQuery):
     def survey_dict(self):
         if not hasattr(self, '_survey_dict'):
 
-            response = self._request('GET', self.URL)
+            response = self._request('GET', self.URL, cache=False)
             page = BeautifulSoup(response.content, "html.parser")
             surveys = page.findAll('select', {'name': 'survey'})
 
             self._survey_dict = {
                 sel['id']: [x.text for x in sel.findAll('option')]
-                for sel in surveys}
+                for sel in surveys
+                if 'overlay' not in sel['id']
+            }
+
         return self._survey_dict
 
     @property

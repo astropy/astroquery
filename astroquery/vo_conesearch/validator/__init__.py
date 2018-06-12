@@ -14,9 +14,14 @@ class Conf(_config.ConfigNamespace):
     """
     Configuration parameters for `astroquery.vo_conesearch.validator`.
     """
+    # http://www.ivoa.net/documents/RegTAP/20171206/WD-RegTAP-1.1-20171206.pdf
     conesearch_master_list = _config.ConfigItem(
-        'http://vao.stsci.edu/directory/NVORegInt.asmx/VOTCapabilityPredOpt?'
-        'predicate=1%3D1&capability=conesearch&VOTStyleOption=2',
+        'http://vao.stsci.edu/regtap/tapservice.aspx/sync?lang=adql&'
+        'query=SELECT%20*%20FROM%20rr.capability%20'
+        'NATURAL%20JOIN%20rr.interface%20NATURAL%20JOIN%20rr.resource%20'
+        'NATURAL%20JOIN%20rr.res_subject%20WHERE%20'
+        'standard_id%20like%20%27ivo://ivoa.net/std/conesearch%%27AND%20'
+        'intf_type=%27vs:paramhttp%27',
         'URL to the cone search services master list for validation.')
     conesearch_urls = _config.ConfigItem(
         get_pkg_data_contents(

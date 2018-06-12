@@ -6,7 +6,8 @@ from __future__ import print_function
 # should be disabled or enabled at will - use the
 # remote_data decorator from astropy:
 
-from astropy.tests.helper import remote_data, pytest
+import pytest
+from astropy.tests.helper import remote_data
 
 
 @remote_data

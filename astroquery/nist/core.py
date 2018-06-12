@@ -7,8 +7,7 @@ import astropy.units as u
 import astropy.io.ascii as asciitable
 
 from ..query import BaseQuery
-from ..utils import async_to_sync
-from ..utils.docstr_chompers import prepend_docstr_noreturns
+from ..utils import async_to_sync, prepend_docstr_nosections
 from . import conf
 from ..exceptions import TableParseError
 
@@ -122,7 +121,7 @@ class NistClass(BaseQuery):
         request_payload["page_size"] = 15
         return request_payload
 
-    @prepend_docstr_noreturns("\n" + _args_to_payload.__doc__)
+    @prepend_docstr_nosections("\n" + _args_to_payload.__doc__)
     def query_async(self, minwav, maxwav, linename="H I",
                     energy_level_unit='eV', output_order='wavelength',
                     wavelength_type='vacuum', get_query_payload=False):

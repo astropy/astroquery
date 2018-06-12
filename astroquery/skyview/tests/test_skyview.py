@@ -2,7 +2,7 @@
 import os.path
 import types
 
-from astropy.tests.helper import pytest
+import pytest
 from astropy import coordinates
 from astropy import units as u
 

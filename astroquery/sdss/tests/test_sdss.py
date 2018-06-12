@@ -8,7 +8,7 @@ from numpy.testing import assert_allclose
 from astropy.extern import six
 from astropy.io import fits
 from astropy.table import Column, Table
-from astropy.tests.helper import pytest
+import pytest
 
 from ... import sdss
 from ...utils.testing_tools import MockResponse

@@ -3,7 +3,7 @@ from contextlib import contextmanager
 import os
 import requests
 from astropy import coordinates
-from astropy.tests.helper import pytest
+import pytest
 from ...utils import commons
 from ...utils.testing_tools import MockResponse
 from ... import alfalfa

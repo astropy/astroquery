@@ -17,11 +17,11 @@ class Conf(_config.ConfigNamespace):
     Configuration parameters for `astroquery.splatalogue`.
     """
     slap_url = _config.ConfigItem(
-        'http://find.nrao.edu/splata-slap/slap',
+        'https://find.nrao.edu/splata-slap/slap',
         'Splatalogue SLAP interface URL (not used).')
     query_url = _config.ConfigItem(
-        'http://www.cv.nrao.edu/php/splat/c_export.php',
-        'SSplatalogue web interface URL.')
+        'https://www.cv.nrao.edu/php/splat/c_export.php',
+        'Splatalogue web interface URL.')
     timeout = _config.ConfigItem(
         60,
         'Time limit for connecting to Splatalogue server.')

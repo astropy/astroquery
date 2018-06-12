@@ -4,7 +4,7 @@ from __future__ import print_function
 import os
 
 from numpy import testing as npt
-from astropy.tests.helper import pytest
+import pytest
 from astropy.table import Table
 import astropy.coordinates as coord
 import astropy.units as u

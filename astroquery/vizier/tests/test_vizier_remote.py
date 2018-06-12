@@ -1,6 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+import pytest
 
-from astropy.tests.helper import remote_data, pytest
+from astropy.tests.helper import remote_data
 import astropy.units as u
 from astropy import coordinates
 from ... import vizier
@@ -124,3 +125,13 @@ class TestVizierRemote(object):
         # assert str(exc.value)==("Maximum number of catalogs exceeded."
         #                        "  Try setting max_catalogs "
         #                        "to a large number and try again")
+
+    def test_findcatalog_ucd(self):
+        V = vizier.core.Vizier()
+        ucdresult = V(ucd='time.age*').find_catalogs('eclipsing binary', max_catalogs=5000)
+        result = V.find_catalogs('eclipsing binary', max_catalogs=5000)
+
+        assert len(ucdresult) >= 12  # count as of 1/15/2018
+        assert len(result) >= 628
+        # important part: we're testing that UCD is parsed and some catalogs are ruled out
+        assert len(ucdresult) < len(result)

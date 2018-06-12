@@ -1,0 +1,12 @@
+name: astroquery
+
+channels:
+    - astropy
+
+dependencies:
+    - python=>3
+    - astropy
+    - Cython
+    - matplotlib
+    - numpy
+    - requests

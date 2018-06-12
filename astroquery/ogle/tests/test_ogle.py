@@ -2,7 +2,7 @@
 from ... import ogle
 
 import os
-from astropy.tests.helper import pytest
+import pytest
 from astropy.coordinates import SkyCoord
 from astropy import units as u
 from ...utils.testing_tools import MockResponse

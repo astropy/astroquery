@@ -1,23 +1,25 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import requests
-from astropy.extern.six.moves import urllib
-from astropy.extern import six
-import astropy.coordinates as coord
-import astropy.units as u
-from ...utils import chunk_read, chunk_report
-from ...utils import class_or_instance
-from ...utils import commons
-from ...utils.process_asyncs import async_to_sync_docstr, async_to_sync
-from ...utils.docstr_chompers import remove_returns, prepend_docstr_noreturns
-from astropy.table import Table
-from astropy.tests.helper import pytest, remote_data
-import astropy.io.votable as votable
-import textwrap
+
 from collections import OrderedDict
 import os
-from astropy.io import fits
-import astropy.utils.data as aud
+import requests
+import pytest
 import tempfile
+import textwrap
+
+import astropy.coordinates as coord
+from astropy.extern.six.moves import urllib
+from astropy.extern import six
+from astropy.io import fits
+import astropy.io.votable as votable
+import astropy.units as u
+from astropy.table import Table
+from astropy.tests.helper import remote_data
+import astropy.utils.data as aud
+
+from ...utils import chunk_read, chunk_report, class_or_instance, commons
+from ...utils.process_asyncs import async_to_sync_docstr, async_to_sync
+from ...utils.docstr_chompers import remove_sections, prepend_docstr_nosections
 
 
 class SimpleQueryClass(object):
@@ -34,10 +36,11 @@ class SimpleQueryClass(object):
 
 
 @remote_data
-def test_utils():
-    response = urllib.request.urlopen('http://www.ebay.com')
+def test_chunk_read():
+    datasize = 50000
+    response = urllib.request.urlopen('http://httpbin.org/stream-bytes/{0}'.format(datasize))
     C = chunk_read(response, report_hook=chunk_report)
-    print(C)
+    assert len(C) == datasize
 
 
 def test_class_or_instance():
@@ -282,6 +285,10 @@ def test_async_to_sync(cls=Dummy):
 
 
 docstr3 = """
+    Parameters
+    ----------
+    first_param
+
     Returns
     -------
     Nothing!
@@ -299,10 +306,11 @@ docstr3_out = """
 
 
 def test_return_chomper(doc=docstr3, out=docstr3_out):
-    assert remove_returns(doc) == [x.lstrip() for x in out.split('\n')]
+    assert (remove_sections(doc, sections=['Returns', 'Parameters']) ==
+            [x.lstrip() for x in out.split('\n')])
 
 
-def dummyfunc():
+def dummyfunc1():
     """
     Returns
     -------
@@ -315,15 +323,28 @@ def dummyfunc():
     pass
 
 
+def dummyfunc2():
+    """
+    Returns
+    -------
+    Nothing!
+    """
+    pass
+
+
 docstr4 = """
     Blah Blah Blah
 
     Returns
     -------
     nothing
+
+    Examples
+    --------
+    no_examples_at_all
 """
 
-docstr4_out = """
+docstr4_out1 = """
     Blah Blah Blah
 
     Returns
@@ -335,10 +356,20 @@ docstr4_out = """
     Nada
 """
 
+docstr4_out2 = """
+    Blah Blah Blah
 
-def test_prepend_docstr(doc=docstr4, func=dummyfunc, out=docstr4_out):
-    fn = prepend_docstr_noreturns(doc)(func)
-    assert fn.__doc__ == textwrap.dedent(docstr4_out)
+    Returns
+    -------
+    Nothing!
+"""
+
+
+@pytest.mark.parametrize("func, out", [(dummyfunc1, docstr4_out1),
+                                       (dummyfunc2, docstr4_out2)])
+def test_prepend_docstr(func, out, doc=docstr4):
+    fn = prepend_docstr_nosections(doc, sections=['Returns', 'Examples'])(func)
+    assert fn.__doc__ == textwrap.dedent(out)
 
 
 @async_to_sync
@@ -379,6 +410,12 @@ def patch_getreadablefileobj(request):
         def __init__(self, fn, *args, **kwargs):
             self.file = open(fn, 'rb')
 
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc_val, exc_tb):
+            self.close()
+
         def info(self):
             return {'Content-Length': filesize}
 
@@ -389,13 +426,16 @@ def patch_getreadablefileobj(request):
             self.file.close()
 
     def monkey_urlopen(x, *args, **kwargs):
+        print("Monkeyed URLopen")
         return MockRemote(fitsfilepath, *args, **kwargs)
 
+    aud.urllib.request.urlopen = monkey_urlopen
     urllib.request.urlopen = monkey_urlopen
 
     def closing():
         aud._is_url = _is_url
         urllib.request.urlopen = _urlopen
+        aud.urllib.request.urlopen = _urlopen
 
     request.addfinalizer(closing)
 

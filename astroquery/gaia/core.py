@@ -20,11 +20,9 @@ from astroquery.utils import commons
 from astropy import units
 from astropy.units import Quantity
 
-__all__ = ['Gaia', 'GaiaClass']
+from . import conf
 
-MAIN_GAIA_TABLE = "gaiadr1.gaia_source"
-MAIN_GAIA_TABLE_RA = "ra"
-MAIN_GAIA_TABLE_DEC = "dec"
+__all__ = ['Gaia', 'GaiaClass']
 
 
 class GaiaClass(object):
@@ -32,6 +30,9 @@ class GaiaClass(object):
     """
     Proxy class to default TapPlus object (pointing to Gaia Archive)
     """
+    MAIN_GAIA_TABLE = conf.MAIN_GAIA_TABLE
+    MAIN_GAIA_TABLE_RA = conf.MAIN_GAIA_TABLE_RA
+    MAIN_GAIA_TABLE_DEC = conf.MAIN_GAIA_TABLE_DEC
 
     def __init__(self, tap_plus_handler=None):
         if tap_plus_handler is None:
@@ -79,9 +80,8 @@ class GaiaClass(object):
         return self.__gaiatap.load_table(table, verbose)
 
     def launch_job(self, query, name=None, output_file=None,
-                        output_format="votable", verbose=False,
-                        dump_to_file=False, upload_resource=None,
-                        upload_table_name=None):
+                   output_format="votable", verbose=False, dump_to_file=False,
+                   upload_resource=None, upload_table_name=None):
         """Launches a synchronous job
         TAP & TAP+
 
@@ -107,14 +107,13 @@ class GaiaClass(object):
         -------
         A Job object
         """
-        return self.__gaiatap.launch_job(query,
-                                              name=name,
-                                              output_file=output_file,
-                                              output_format=output_format,
-                                              verbose=verbose,
-                                              dump_to_file=dump_to_file,
-                                              upload_resource=upload_resource,
-                                              upload_table_name=upload_table_name)
+        return self.__gaiatap.launch_job(query, name=name,
+                                         output_file=output_file,
+                                         output_format=output_format,
+                                         verbose=verbose,
+                                         dump_to_file=dump_to_file,
+                                         upload_resource=upload_resource,
+                                         upload_table_name=upload_table_name)
 
     def launch_job_async(self, query, name=None, output_file=None,
                          output_format="votable", verbose=False,
@@ -246,12 +245,12 @@ class GaiaClass(object):
             heightQuantity = self.__getQuantityInput(height, "height")
             widthDeg = widthQuantity.to(units.deg)
             heightDeg = heightQuantity.to(units.deg)
-            query = "SELECT DISTANCE(POINT('ICRS',"+str(MAIN_GAIA_TABLE_RA)+","\
-                + str(MAIN_GAIA_TABLE_DEC)+"), \
+            query = "SELECT DISTANCE(POINT('ICRS',"+str(self.MAIN_GAIA_TABLE_RA)+","\
+                + str(self.MAIN_GAIA_TABLE_DEC)+"), \
                 POINT('ICRS',"+str(ra)+","+str(dec)+")) AS dist, * \
-                FROM "+str(MAIN_GAIA_TABLE)+" WHERE CONTAINS(\
-                POINT('ICRS',"+str(MAIN_GAIA_TABLE_RA)+","\
-                + str(MAIN_GAIA_TABLE_DEC)+"),\
+                FROM "+str(self.MAIN_GAIA_TABLE)+" WHERE CONTAINS(\
+                POINT('ICRS',"+str(self.MAIN_GAIA_TABLE_RA)+","\
+                + str(self.MAIN_GAIA_TABLE_DEC)+"),\
                 BOX('ICRS',"+str(ra)+","+str(dec)+", "+str(widthDeg.value)+", "\
                 + str(heightDeg.value)+"))=1 \
                 ORDER BY dist ASC"
@@ -283,12 +282,8 @@ class GaiaClass(object):
         -------
         The job results (astropy.table).
         """
-        return self.__query_object(coordinate,
-                                 radius,
-                                 width,
-                                 height,
-                                 async_job=False,
-                                 verbose=verbose)
+        return self.__query_object(coordinate, radius, width, height,
+                                   async_job=False, verbose=verbose)
 
     def query_object_async(self, coordinate, radius=None, width=None,
                            height=None, verbose=False):
@@ -314,12 +309,8 @@ class GaiaClass(object):
         -------
         The job results (astropy.table).
         """
-        return self.__query_object(coordinate,
-                                 radius,
-                                 width,
-                                 height,
-                                 async_job=True,
-                                 verbose=verbose)
+        return self.__query_object(coordinate, radius, width, height,
+                                   async_job=True, verbose=verbose)
 
     def __cone_search(self, coordinate, radius, async_job=False,
                       background=False,
@@ -360,26 +351,26 @@ class GaiaClass(object):
         if radius is not None:
             radiusQuantity = self.__getQuantityInput(radius, "radius")
             radiusDeg = commons.radius_to_unit(radiusQuantity, unit='deg')
-        query = "SELECT DISTANCE(POINT('ICRS',"+str(MAIN_GAIA_TABLE_RA)+","\
-            + str(MAIN_GAIA_TABLE_DEC)+"), \
+        query = "SELECT DISTANCE(POINT('ICRS',"+str(self.MAIN_GAIA_TABLE_RA)+","\
+            + str(self.MAIN_GAIA_TABLE_DEC)+"), \
             POINT('ICRS',"+str(ra)+","+str(dec)+")) AS dist, * \
-            FROM "+str(MAIN_GAIA_TABLE)+" WHERE CONTAINS(\
-            POINT('ICRS',"+str(MAIN_GAIA_TABLE_RA)+","+str(MAIN_GAIA_TABLE_DEC)+"),\
+            FROM "+str(self.MAIN_GAIA_TABLE)+" WHERE CONTAINS(\
+            POINT('ICRS',"+str(self.MAIN_GAIA_TABLE_RA)+","+str(self.MAIN_GAIA_TABLE_DEC)+"),\
             CIRCLE('ICRS',"+str(ra)+","+str(dec)+", "+str(radiusDeg)+"))=1 \
             ORDER BY dist ASC"
         if async_job:
             return self.__gaiatap.launch_job_async(query=query,
-                                         output_file=output_file,
-                                         output_format=output_format,
-                                         verbose=verbose,
-                                         dump_to_file=dump_to_file,
-                                         background=background)
+                                                   output_file=output_file,
+                                                   output_format=output_format,
+                                                   verbose=verbose,
+                                                   dump_to_file=dump_to_file,
+                                                   background=background)
         else:
             return self.__gaiatap.launch_job(query=query,
-                                        output_file=output_file,
-                                        output_format=output_format,
-                                        verbose=verbose,
-                                        dump_to_file=dump_to_file)
+                                             output_file=output_file,
+                                             output_format=output_format,
+                                             verbose=verbose,
+                                             dump_to_file=dump_to_file)
 
     def cone_search(self, coordinate, radius=None, output_file=None,
                     output_format="votable", verbose=False,
@@ -417,8 +408,8 @@ class GaiaClass(object):
                                   dump_to_file=dump_to_file)
 
     def cone_search_async(self, coordinate, radius=None, background=False,
-                    output_file=None, output_format="votable", verbose=False,
-                    dump_to_file=False):
+                          output_file=None, output_format="votable",
+                          verbose=False, dump_to_file=False):
         """Cone search sorted by distance (async)
         TAP & TAP+
 

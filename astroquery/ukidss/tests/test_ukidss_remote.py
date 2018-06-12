@@ -41,12 +41,12 @@ class TestUkidss:
     def test_query_region_async(self):
         response = ukidss.core.Ukidss.query_region_async(
             SkyCoord(l=10.625, b=-0.38, unit=(u.deg, u.deg), frame='galactic'),
-            radius=6 * u.arcsec)
+            radius=6 * u.arcsec, programme_id='GPS')
         assert response is not None
 
     def test_query_region(self):
         table = ukidss.core.Ukidss.query_region(
             SkyCoord(l=10.625, b=-0.38, unit=(u.deg, u.deg), frame='galactic'),
-            radius=6 * u.arcsec)
+            radius=6 * u.arcsec, programme_id='GPS')
         assert isinstance(table, Table)
         assert len(table) > 0

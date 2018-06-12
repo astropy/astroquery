@@ -16,6 +16,7 @@ htmlcov
 .coverage
 MANIFEST
 .ipynb_checkpoints
+.eggs
 
 # Sphinx
 _build
@@ -53,3 +54,4 @@ distribute-*.tar.gz
 
 # Mac OSX
 .DS_Store
+oacapi_test.py

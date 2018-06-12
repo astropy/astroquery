@@ -48,6 +48,21 @@ class VizierClass(BaseQuery):
     def __init__(self, columns=["*"], column_filters={}, catalog=None,
                  keywords=None, ucd="", timeout=conf.timeout,
                  vizier_server=conf.server, row_limit=conf.row_limit):
+        """
+        Parameters
+        ----------
+        columns : list
+            List of strings
+        column_filters : dict
+        catalog : str or None
+        keywords : str or None
+        ucd : string
+            "Unified Content Description" column descriptions.  Specifying
+            these will select only catalogs that have columns matching the
+            column descriptions defined on the Vizier web pages.
+            See http://vizier.u-strasbg.fr/vizier/vizHelp/1.htx#ucd and
+            http://cds.u-strasbg.fr/w/doc/UCD/
+        """
 
         super(VizierClass, self).__init__()
         self.columns = columns
@@ -194,6 +209,9 @@ class VizierClass(BaseQuery):
             keywords = " ".join(keywords)
 
         data_payload = {'-words': keywords, '-meta.all': 1}
+
+        data_payload['-ucd'] = self.ucd
+
         if max_catalogs is not None:
             data_payload['-meta.max'] = max_catalogs
         response = self._request(
@@ -497,9 +515,8 @@ class VizierClass(BaseQuery):
         body = OrderedDict()
         center = kwargs.get('center')
         # process: catalog
-        catalog = kwargs.get('catalog')
-        if catalog is None:
-            catalog = self.catalog
+        catalog = kwargs.get('catalog', self.catalog)
+
         if catalog is not None:
             if isinstance(catalog, six.string_types):
                 body['-source'] = catalog
@@ -508,10 +525,9 @@ class VizierClass(BaseQuery):
             else:
                 raise TypeError("Catalog must be specified as list or string")
         # process: columns
-        columns = kwargs.get('columns')
-        if columns is None:
-            columns = copy.copy(self.columns)
-        else:
+        columns = kwargs.get('columns', copy.copy(self.columns))
+
+        if columns is not None:
             columns = self.columns + columns
 
         # special keywords need to be treated separately

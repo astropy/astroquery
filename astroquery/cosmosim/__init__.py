@@ -6,7 +6,7 @@ CosmoSim Database Query Tool
     Access to all cosmological simulations stored in the CosmoSim database,
     via the uws service.
 
-    http://www.cosmosim.org/uws/query
+    https://www.cosmosim.org/uws/query
 
     :Author: Austen M. Groener <Austen.M.Groener@drexel.edu>
 """
@@ -20,10 +20,10 @@ class Conf(_config.ConfigNamespace):
     """
 
     query_url = _config.ConfigItem(
-        ['http://www.cosmosim.org/uws/query'],
+        ['https://www.cosmosim.org/uws/query'],
         'CosmoSim UWS query URL.')
     schema_url = _config.ConfigItem(
-        ['http://www.cosmosim.org/query/account/databases/json'],
+        ['https://www.cosmosim.org/query/account/databases/json'],
         'CosmoSim json query URL for generating database schema.')
     timeout = _config.ConfigItem(
         60.0,

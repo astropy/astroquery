@@ -2,10 +2,9 @@
 from __future__ import print_function
 
 import os
-import requests
 
 import numpy.testing as npt
-from astropy.tests.helper import pytest
+import pytest
 import astropy.units as u
 
 from ...utils import commons

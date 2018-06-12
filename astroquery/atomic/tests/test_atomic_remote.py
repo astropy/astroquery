@@ -34,13 +34,13 @@ def test_query_with_default_params():
     assert isinstance(table, Table)
     assert len(table) == 500
     assert str(table[:5]) == '''
-LAMBDA VAC ANG SPECTRUM  TT TERM  J J  LEVEL ENERGY  CM 1
--------------- -------- --- ---- ----- ------------------
-      1.010799   Zn XXX  E1 1-10 1/2-* 0.00 - 98933890.00
-      1.013182   Zn XXX  E1  1-9 1/2-* 0.00 - 98701900.00
-      1.016534   Zn XXX  E1  1-8 1/2-* 0.00 - 98377600.00
-       1.02146   Zn XXX  E1  1-7 1/2-* 0.00 - 97904300.00
-       1.02916   Zn XXX  E1  1-6 1/2-* 0.00 - 97174700.00'''.strip()
+LAMBDA VAC ANG SPECTRUM  TT CONFIGURATION TERM  J J    A_ki   LEVEL ENERGY  CM 1
+-------------- -------- --- ------------- ---- ----- -------- ------------------
+      1.010799   Zn XXX  E1        1*-10* 1-10 1/2-* 1.02E+11 0.00 - 98933890.00
+      1.013182   Zn XXX  E1         1*-9*  1-9 1/2-* 1.74E+11 0.00 - 98701900.00
+      1.016534   Zn XXX  E1         1*-8*  1-8 1/2-* 3.14E+11 0.00 - 98377600.00
+       1.02146   Zn XXX  E1         1*-7*  1-7 1/2-* 6.13E+11 0.00 - 97904300.00
+       1.02916   Zn XXX  E1         1*-6*  1-6 1/2-* 1.33E+12 0.00 - 97174700.00'''.strip()
 
 
 @remote_data
@@ -51,8 +51,9 @@ def test_query_with_params():
         wavelength_accuracy=20,
         element_spectrum='C II-IV')
     assert isinstance(table, Table)
-    assert table.colnames == ['LAMBDA VAC ANG', 'SPECTRUM', 'TT', 'TERM',
-                              'J J', 'LEVEL ENERGY  CM 1']
+    assert table.colnames == ['LAMBDA VAC ANG', 'SPECTRUM', 'TT',
+                              'CONFIGURATION', 'TERM', 'J J', 'A_ki',
+                              'LEVEL ENERGY  CM 1']
     assert np.all(table['LAMBDA VAC ANG'] ==
                   np.array([196.8874, 197.7992, 199.0122]))
     assert np.all(table['SPECTRUM'] == np.array(['C IV', 'C IV', 'C IV']))

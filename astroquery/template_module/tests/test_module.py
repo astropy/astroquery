@@ -4,7 +4,7 @@ from __future__ import print_function
 # astroquery uses the pytest framework for testing
 # this is already available in astropy and does
 # not require a separate install. Import it using:
-from astropy.tests.helper import pytest
+import pytest
 
 # It would be best if tests are separated in two
 # modules. This module performs tests on local data

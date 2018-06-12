@@ -59,7 +59,7 @@ class IrsaDustClass(BaseQuery):
             Can be either the name of an object or a coordinate string
             If a name, must be resolvable by NED, SIMBAD, 2MASS, or SWAS.
             Examples of acceptable coordinate strings, can be found `here.
-            <http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html>`_
+            <https://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html>`_
         radius : str / `~astropy.units.Quantity`, optional
             The size of the region to include in the dust query, in radian,
             degree or hour as per format specified by
@@ -105,7 +105,7 @@ class IrsaDustClass(BaseQuery):
             Can be either the name of an object or a coordinate string
             If a name, must be resolvable by NED, SIMBAD, 2MASS, or SWAS.
             Examples of acceptable coordinate strings, can be found `here.
-            <http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html>`_
+            <https://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html>`_
         radius : str / `~astropy.units.Quantity`, optional
             The size of the region to include in the dust query, in radian,
             degree or hour as per format specified by
@@ -151,7 +151,7 @@ class IrsaDustClass(BaseQuery):
             Can be either the name of an object or a coordinate string
             If a name, must be resolvable by NED, SIMBAD, 2MASS, or SWAS.
             Examples of acceptable coordinate strings, can be found `here.
-            <http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html>`_
+            <https://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html>`_
         radius : str / `~astropy.units.Quantity`, optional
             The size of the region to include in the dust query, in radian,
             degree or hour as per format specified by
@@ -192,7 +192,7 @@ class IrsaDustClass(BaseQuery):
             Can be either the name of an object or a coordinate string
             If a name, must be resolvable by NED, SIMBAD, 2MASS, or SWAS.
             Examples of acceptable coordinate strings, can be found `here.
-            <http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html>`_
+            <https://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html>`_
         radius : str / `~astropy.units.Quantity`, optional
             The size of the region to include in the dust query, in radian,
             degree or hour as per format specified by
@@ -212,6 +212,10 @@ class IrsaDustClass(BaseQuery):
         # guess=False to suppress error messages related to bad guesses
         table = Table.read(readable_obj.get_string(), format='ipac',
                            guess=False)
+        # Fix up units: 'micron' and 'mag', not 'microns' and 'mags'
+        for column in table.columns.values():
+            if str(column.unit) in {'microns', 'mags'}:
+                column.unit = str(column.unit)[:-1]
         return table
 
     def get_extinction_table_async(self, coordinate, radius=None,
@@ -229,7 +233,7 @@ class IrsaDustClass(BaseQuery):
             Can be either the name of an object or a coordinate string
             If a name, must be resolvable by NED, SIMBAD, 2MASS, or SWAS.
             Examples of acceptable coordinate strings, can be found `here.
-            <http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html>`_
+            <https://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html>`_
         radius : str, optional
             The size of the region to include in the dust query, in radian,
             degree or hour as per format specified by
@@ -267,7 +271,7 @@ class IrsaDustClass(BaseQuery):
             Can be either the name of an object or a coordinate string
             If a name, must be resolvable by NED, SIMBAD, 2MASS, or SWAS.
             Examples of acceptable coordinate strings, can be found `here.
-            <http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html>`_
+            <https://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html>`_
         radius : str / `~astropy.units.Quantity`, optional
             The size of the region to include in the dust query, in radian,
             degree or hour as per format specified by
@@ -315,7 +319,7 @@ class IrsaDustClass(BaseQuery):
             Can be either the name of an object or a coordinate string
             If a name, must be resolvable by NED, SIMBAD, 2MASS, or SWAS.
             Examples of acceptable coordinate strings, can be found `here
-            <http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html>`_
+            <https://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html>`_
         radius : str / `~astropy.units.Quantity`, optional
             The size of the region to include in the dust query, in radian,
             degree or hour as per format specified by

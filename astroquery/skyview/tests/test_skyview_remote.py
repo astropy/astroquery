@@ -1,5 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from astropy.tests.helper import remote_data, pytest
+import pytest
+import json
+
+from astropy.tests.helper import remote_data
 from astropy.io.fits import HDUList
 
 from ...skyview import SkyView
@@ -29,8 +32,8 @@ class TestSkyviewRemote(object):
     def setup_class(cls):
         cls.SkyView = SkyView()
 
-    with open(data_path('survey_dict.txt'), 'r') as f:
-        survey_dict = eval(f.read())
+    with open(data_path('survey_dict.json'), 'r') as fh:
+        survey_dict = json.load(fh)
 
     @pytest.mark.parametrize(('survey',
                               'survey_data'),
@@ -39,9 +42,9 @@ class TestSkyviewRemote(object):
         # The print should help discover changes
         print("Survey: {0} \n Canned reference return: {1} \n"
               "Online service return: {2}".format(
-                survey, survey_data,
-                self.SkyView.survey_dict.get(
-                    survey, "{0} is not in online version".format(survey))))
+                  survey, survey_data,
+                  self.SkyView.survey_dict.get(
+                      survey, "{0} is not in online version".format(survey))))
 
         assert set(self.SkyView.survey_dict[survey]) == set(survey_data)
 

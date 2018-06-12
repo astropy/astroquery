@@ -356,7 +356,7 @@ class IbeClass(BaseQuery):
             raise ValueError("Invalid dataset {0} specified for mission {1}."
                              "Must be one of: {2}"
                              .format(dataset, mission,
-                                     self.list_datsets(mission, cache=True)))
+                                     self.list_datasets(mission, cache=True)))
 
         url = "{URL}search/{mission}/{dataset}/".format(URL=self.URL,
                                                         mission=mission,

@@ -12,15 +12,14 @@ from astropy.io import ascii
 from astropy import units as u
 from astropy import log
 from ..query import BaseQuery
-from ..utils import async_to_sync
-from ..utils.docstr_chompers import prepend_docstr_noreturns
+from ..utils import async_to_sync, prepend_docstr_nosections
 from . import conf
 from . import load_species_table
 
 __all__ = ['Splatalogue', 'SplatalogueClass']
 
 # example query of SPLATALOGUE directly:
-# http://www.cv.nrao.edu/php/splat/c.php?sid%5B%5D=64&sid%5B%5D=108&calcIn=&data_version=v3.0&from=&to=&frequency_units=MHz&energy_range_from=&energy_range_to=&lill=on&tran=&submit=Search&no_atmospheric=no_atmospheric&no_potential=no_potential&no_probable=no_probable&include_only_nrao=include_only_nrao&displayLovas=displayLovas&displaySLAIM=displaySLAIM&displayJPL=displayJPL&displayCDMS=displayCDMS&displayToyaMA=displayToyaMA&displayOSU=displayOSU&displayRecomb=displayRecomb&displayLisa=displayLisa&displayRFI=displayRFI&ls1=ls1&ls5=ls5&el1=el1
+# https://www.cv.nrao.edu/php/splat/c.php?sid%5B%5D=64&sid%5B%5D=108&calcIn=&data_version=v3.0&from=&to=&frequency_units=MHz&energy_range_from=&energy_range_to=&lill=on&tran=&submit=Search&no_atmospheric=no_atmospheric&no_potential=no_potential&no_probable=no_probable&include_only_nrao=include_only_nrao&displayLovas=displayLovas&displaySLAIM=displaySLAIM&displayJPL=displayJPL&displayCDMS=displayCDMS&displayToyaMA=displayToyaMA&displayOSU=displayOSU&displayRecomb=displayRecomb&displayLisa=displayLisa&displayRFI=displayRFI&ls1=ls1&ls5=ls5&el1=el1
 
 if sys.version_info.major == 2:
     # can't do unicode doctests in py2
@@ -115,6 +114,7 @@ class SplatalogueClass(BaseQuery):
         {'03023 H2CO - Formaldehyde': '194',
          '03109 H2COH+ - Hydroxymethylium ion': '224',
          '04406 c-H2COCH2 - Ethylene Oxide': '21',
+         '06029 NH2CONH2 - Urea': '21166',
          '07510 H2NCH2COOH - I v=0 - Glycine': '389',
          '07511 H2NCH2COOH - I v=1 - Glycine': '1312',
          '07512 H2NCH2COOH - I v=2 - Glycine': '1313',
@@ -414,7 +414,7 @@ class SplatalogueClass(BaseQuery):
                 raise ValueError("Must specify either min/max frequency or "
                                  "a valid Band.")
 
-    @prepend_docstr_noreturns("\n" + _parse_kwargs.__doc__)
+    @prepend_docstr_nosections("\n" + _parse_kwargs.__doc__)
     def query_lines_async(self, min_frequency=None, max_frequency=None,
                           cache=True, **kwargs):
         """
@@ -426,9 +426,8 @@ class SplatalogueClass(BaseQuery):
 
         """
         # have to chomp this kwd here...
-        get_query_payload = (kwargs.pop('get_query_payload')
-                             if 'get_query_payload' in kwargs
-                             else False)
+        get_query_payload = kwargs.pop('get_query_payload', False)
+
         self._validate_kwargs(min_frequency=min_frequency,
                               max_frequency=max_frequency, **kwargs)
 

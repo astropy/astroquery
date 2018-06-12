@@ -18,7 +18,7 @@ from ..query import BaseQuery
 # has common functions required by most modules
 from ..utils import commons
 # prepend_docstr is a way to copy docstrings between methods
-from ..utils import prepend_docstr_noreturns
+from ..utils import prepend_docstr_nosections
 # async_to_sync generates the relevant query tools from _async methods
 from ..utils import async_to_sync
 # import configurable items declared in __init__.py
@@ -252,7 +252,7 @@ class TemplateClass(BaseQuery):
         # otherwise return the images as a list of astropy.fits.HDUList
         return [obj.get_fits() for obj in readable_objs]
 
-    @prepend_docstr_noreturns(get_images.__doc__)
+    @prepend_docstr_nosections(get_images.__doc__)
     def get_images_async(self, coordinates, radius, get_query_payload=False):
         """
         Returns
@@ -274,7 +274,7 @@ class TemplateClass(BaseQuery):
     # the get_image_list method, simply returns the download
     # links for the images as a list
 
-    @prepend_docstr_noreturns(get_images.__doc__)
+    @prepend_docstr_nosections(get_images.__doc__)
     def get_image_list(self, coordinates, radius, get_query_payload=False,
                        cache=True):
         """

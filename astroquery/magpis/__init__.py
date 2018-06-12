@@ -19,7 +19,7 @@ class Conf(_config.ConfigNamespace):
     Configuration parameters for `astroquery.magpis`.
     """
     server = _config.ConfigItem(
-        ['http://third.ucllnl.org/cgi-bin/gpscutout'],
+        ['https://third.ucllnl.org/cgi-bin/gpscutout'],
         'Name of the MAGPIS server.')
     timeout = _config.ConfigItem(
         60,

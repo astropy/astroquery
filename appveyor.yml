@@ -10,19 +10,19 @@ environment:
       PYTHON_ARCH: "64" # needs to be set for CMD_IN_ENV to succeed. If a mix
                         # of 32 bit and 64 bit builds are needed, move this
                         # to the matrix section.
-      CONDA_DEPENDENCIES: "requests beautifulsoup4 matplotlib html5lib keyring aplpy"
+      CONDA_DEPENDENCIES: "requests beautifulsoup4 matplotlib html5lib keyring=11 aplpy sip=4.18"
       PIP_DEPENDENCIES: "pyregion"
-      CONDA_CHANNELS: "astropy conda-forge"
+      CONDA_CHANNELS: "astropy"
+      ASTROPY_USE_SYSTEM_PYTEST: 1
 
   matrix:
       - PYTHON_VERSION: "2.7"
-        ASTROPY_VERSION: "stable"
-        NUMPY_VERSION: "stable"
+        ASTROPY_VERSION: "LTS"
+        NUMPY_VERSION: "1.13"
 
       - PYTHON_VERSION: "3.6"
         ASTROPY_VERSION: "stable"
         NUMPY_VERSION: "stable"
-        ASTROPY_USE_SYSTEM_PYTEST: 1
 
 platform:
     -x64

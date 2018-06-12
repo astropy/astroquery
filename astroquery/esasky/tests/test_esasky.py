@@ -1,7 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 
-from astropy.tests.helper import pytest
+import pytest
 
 import os
 import unittest
@@ -11,7 +11,7 @@ from ...esasky import ESASky
 
 
 DATA_FILES = {'GET':
-              {'http://ammidev.n1data.lan:8080/esasky-tap/observations':
+              {'http://sky.esa.int/esasky-tap/observations':
                'observations.txt',
                'http://sky.esa.int/esasky-tap/catalogs':
                'catalogs.txt'

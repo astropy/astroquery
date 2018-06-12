@@ -1,31 +1,22 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from ... import sdss
-from ...exceptions import TimeoutError
+import numpy as np
+import pytest
+
 from astropy import coordinates
 from astropy.table import Table
-from astropy.tests.helper import pytest, remote_data
+from astropy.tests.helper import remote_data
 
-import numpy as np
+from six.moves.urllib_error import URLError
 
-
-@remote_data
-def test_images_timeout():
-    """
-    An independent timeout test to verify that test_images_timeout in the
-    TestSDSSRemote class should be working.  Consider this a regression test.
-    """
-    coords = coordinates.SkyCoord('0h8m05.63s +14d50m23.3s')
-    xid = sdss.SDSS.query_region(coords)
-    assert len(xid) == 18
-    with pytest.raises(TimeoutError):
-        sdss.SDSS.get_images(matches=xid, timeout=1e-6, cache=False)
+from ... import sdss
+from ...exceptions import TimeoutError
 
 
 @remote_data
 class TestSDSSRemote:
     # Test Case: A Seyfert 1 galaxy
     coords = coordinates.SkyCoord('0h8m05.63s +14d50m23.3s')
-    mintimeout = 1e-6
+    mintimeout = 1e-2
 
     def test_images_timeout(self):
         """
@@ -34,9 +25,14 @@ class TestSDSSRemote:
         """
         xid = sdss.SDSS.query_region(self.coords)
         assert len(xid) == 18
-        with pytest.raises(TimeoutError):
-            sdss.SDSS.get_images(matches=xid, timeout=self.mintimeout,
-                                 cache=False)
+        try:
+            with pytest.raises(TimeoutError):
+                sdss.SDSS.get_images(matches=xid, timeout=self.mintimeout,
+                                     cache=False)
+        except URLError:
+            pytest.xfail("Failed to timeout: instead of timing out, we got a url "
+                         "error with 'No route to host'.  We don't know a "
+                         "workaround for this yet.")
 
     def test_sdss_spectrum(self):
         xid = sdss.SDSS.query_region(self.coords, spectro=True)

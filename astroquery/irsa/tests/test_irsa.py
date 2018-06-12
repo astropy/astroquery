@@ -5,7 +5,7 @@ import re
 import requests
 import numpy as np
 
-from astropy.tests.helper import pytest
+import pytest
 from astropy.table import Table
 import astropy.coordinates as coord
 import astropy.units as u

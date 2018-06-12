@@ -15,10 +15,10 @@ from __future__ import (absolute_import, division, print_function,
 import os
 
 # THIRD-PARTY
-# import pytest  # Future
+import pytest
 
 # ASTROPY
-from astropy.tests.helper import pytest, remote_data
+from astropy.tests.helper import remote_data
 from astropy.utils.data import get_pkg_data_filename
 
 # LOCAL

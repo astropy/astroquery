@@ -3,14 +3,14 @@
 A Gallery of Queries
 ====================
 
-A series of queries folks have performed for research or for kicks.  
+A series of queries folks have performed for research or for kicks.
 
 Example 1
 +++++++++
 
-This illustrates querying Vizier with specific keyword, and the use of 
+This illustrates querying Vizier with specific keyword, and the use of
 `astropy.coordinates` to describe a query.
-Vizier's keywords can indicate wavelength & object type, although only 
+Vizier's keywords can indicate wavelength & object type, although only
 object type is shown here.
 
 .. code-block:: python
@@ -21,7 +21,7 @@ object type is shown here.
     >>> from astropy import units as u
     >>> c = coordinates.SkyCoord(0,0,unit=('deg','deg'),frame='icrs')
     >>> result = v.query_region(c, radius=2*u.deg)
-    >>> print len(result)
+    >>> print(len(result))
     31
     >>> result[0].pprint()
        LP    Rem Name  RA1950   DE1950  Rmag l_Pmag Pmag u_Pmag spClass   pm   pmPA _RA.icrs _DE.icrs
@@ -29,7 +29,7 @@ object type is shown here.
     584-0063          00 03 23 +00 01.8 18.1        18.3              f  0.219   93 00 05 57 +00 18.7
     643-0083          23 50 40 +00 33.4 15.9        17.0              k  0.197   93 23 53 14 +00 50.3
     584-0030          23 54 05 -01 32.3 16.6        17.7              k  0.199  193 23 56 39 -01 15.4
-    
+
 
 Example 2
 +++++++++
@@ -66,7 +66,7 @@ This illustrates finding the spectral type of some particular star.
     'V* g Her'
     >>> result['SP_TYPE'][0]
     'M6III'
-    
+
 
 Example 4
 +++++++++
@@ -104,7 +104,7 @@ Finding the mass of a specific planet:
         >>> from astroquery.open_exoplanet_catalogue import findvalue
         >>> cata = oec.get_catalogue()
         >>> kepler68b = cata.find(".//planet[name='Kepler-68 b']")
-        >>> print findvalue( kepler68b, 'mass')
+        >>> print(findvalue( kepler68b, 'mass'))
         0.02105109
 
 Example 6
@@ -128,7 +128,7 @@ identifying some spectral lines in the data.
    # list(set())
    m83files = Alma.download_and_extract_files(list(set(m83urls['URL'])))
    m83files = m83files
-   
+
    Simbad.add_votable_fields('rvel')
    m83simbad = Simbad.query_object('M83')
    rvel = m83simbad['RVel_Rvel'][0]*u.Unit(m83simbad['RVel_Rvel'].unit)
@@ -166,9 +166,9 @@ Example 7
 +++++++++
 Find ALMA pointings that have been observed toward M83, then overplot the
 various fields-of view on a 2MASS image retrieved from SkyView.  See
-http://nbviewer.ipython.org/gist/keflavich/19175791176e8d1fb204 for the
+http://nbviewer.jupyter.org/gist/keflavich/19175791176e8d1fb204 for the
 notebook.  There is an even more sophisticated version at
-http://nbviewer.ipython.org/gist/keflavich/bb12b772d6668cf9181a, which shows
+http://nbviewer.jupyter.org/gist/keflavich/bb12b772d6668cf9181a, which shows
 Orion KL in all observed bands.
 
 .. code-block:: python
@@ -193,7 +193,7 @@ Orion KL in all observed bands.
 
 
     # Retrieve ALMA archive information *including* private data and non-science fields:
-    # 
+    #
 
     # In[4]:
 
@@ -234,7 +234,7 @@ Orion KL in all observed bands.
 
     # In[8]:
 
-    print "The bands used include: ",np.unique(m83['Band'])
+    print("The bands used include: ",np.unique(m83['Band']))
 
 
     # In[9]:
@@ -248,9 +248,9 @@ Orion KL in all observed bands.
     unique_private_circle_parameters = np.array(list(set(private_circle_parameters)))
     unique_public_circle_parameters = np.array(list(set(public_circle_parameters)))
 
-    print "BAND 3"
-    print "PUBLIC:  Number of rows: {0}.  Unique pointings: {1}".format(len(m83), len(unique_public_circle_parameters))
-    print "PRIVATE: Number of rows: {0}.  Unique pointings: {1}".format(len(m83), len(unique_private_circle_parameters))
+    print("BAND 3")
+    print("PUBLIC:  Number of rows: {0}.  Unique pointings: {1}".format(len(m83), len(unique_public_circle_parameters)))
+    print("PRIVATE: Number of rows: {0}.  Unique pointings: {1}".format(len(m83), len(unique_private_circle_parameters)))
 
     private_circle_parameters_band6 = [(row['RA'],row['Dec'],np.mean(rad).to(u.deg).value)
                                  for row,rad in zip(m83, primary_beam_radii)
@@ -301,7 +301,7 @@ Orion KL in all observed bands.
                        'fixed': '0 ',  'font': '"helvetica 10 normal roman"',  'highlite': '1 ',
                        'include': '1 ',  'move': '1 ',  'select': '1 ',  'source': '1',  'text': '',
                        'width': '1 '})
-    
+
     prv_regions.write('M83_observed_regions_private_March2015.reg')
     pub_regions.write('M83_observed_regions_public_March2015.reg')
 
@@ -333,7 +333,7 @@ Orion KL in all observed bands.
 
 
     # ## More advanced ##
-    # 
+    #
     # Now we create a 'hit mask' showing the relative depth of each observed field in each band
 
     # In[21]:
@@ -357,7 +357,7 @@ Orion KL in all observed bands.
                        'include': '1 ',  'move': '1 ',  'select': '1 ',  'source': '1',  'text': '',
                        'width': '1 '})
         if row['Release date']=='' and row['Band']==3:
-            (xlo,xhi,ylo,yhi),mask = pyregion_subset(shape, hit_mask_band3_private, mywcs) 
+            (xlo,xhi,ylo,yhi),mask = pyregion_subset(shape, hit_mask_band3_private, mywcs)
             hit_mask_band3_private[ylo:yhi,xlo:xhi] += row['Integration']*mask
         elif row['Release date'] and row['Band']==3:
             (xlo,xhi,ylo,yhi),mask = pyregion_subset(shape, hit_mask_band3_public, mywcs)
@@ -430,11 +430,11 @@ Orion KL in all observed bands.
                                                                       xhi=xhi,
                                                                       yhi=yhi))
 
-    
+
         subwcs = mywcs[ylo:yhi, xlo:xhi]
         subhdr = subwcs.sub([wcs.WCSSUB_CELESTIAL]).to_header()
         subdata = data[ylo:yhi, xlo:xhi]
-    
+
         mask = shapelist.get_mask(header=subhdr,
                                   shape=subdata.shape)
         log.debug("Shapes: data={0}, subdata={2}, mask={1}".format(data.shape, mask.shape, subdata.shape))
@@ -448,7 +448,7 @@ Retrieve data from a particular co-I or PI from the ESO archive
 .. code-block:: python
 
    from astroquery.eso import Eso
-   
+
    # log in so you can get proprietary data
    Eso.login('aginsburg')
    # make sure you don't filter out anything
@@ -476,3 +476,64 @@ Retrieve data from a particular co-I or PI from the ESO archive
    import shutil
    for fn in files:
        shutil.move(fn+'.TAR','.')
+
+Example 9
++++++++++
+
+Retrieve an image from skyview and overlay a Vizier catalog on it.
+This example approximately reproduces Figure 1 of 
+`2016ApJ...826...16E <http://adsabs.harvard.edu/abs/2016ApJ...826...16E>`_,
+except with a different background.::
+
+
+    from astropy import coordinates, units as u, wcs
+    from astroquery.skyview import SkyView
+    from astroquery.vizier import Vizier
+    import pylab as pl
+
+    center = coordinates.SkyCoord.from_name('Orion KL')
+
+    # Grab an image from SkyView of the Orion KL nebula region
+    imglist = SkyView.get_images(position=center, survey='2MASS-J')
+
+    # the returned value is a list of images, but there is only one
+    img = imglist[0]
+
+    # 'img' is now a fits.HDUList object; the 0th entry is the image
+    mywcs = wcs.WCS(img[0].header)
+
+    fig = pl.figure(1)
+    fig.clf() # just in case one was open before
+    # use astropy's wcsaxes tool to create an RA/Dec image
+    ax = fig.add_axes([0.15, 0.1, 0.8, 0.8], projection=mywcs)
+    ax.set_xlabel("RA")
+    ax.set_ylabel("Dec")
+    
+    ax.imshow(img[0].data, cmap='gray_r', interpolation='none', origin='lower',
+              norm=pl.matplotlib.colors.LogNorm())
+
+
+    # retrieve a specific table from Vizier to overplot
+    tablelist = Vizier.query_region(center, radius=5*u.arcmin, catalog='J/ApJ/826/16/table1')
+    # again, the result is a list of tables, so we'll get the first one
+    result = tablelist[0]
+
+    # convert the ra/dec entries in the table to astropy coordinates
+    tbl_crds = coordinates.SkyCoord(result['RAJ2000'], result['DEJ2000'],
+                                    unit=(u.hour, u.deg), frame='fk5')
+
+    # we want this table too:
+    tablelist2 = Vizier(row_limit=10000).query_region(center, radius=5*u.arcmin, catalog='J/ApJ/540/236')
+    result2 = tablelist2[0]
+    tbl_crds2 = coordinates.SkyCoord(result2['RAJ2000'], result2['DEJ2000'],
+                                     unit=(u.hour, u.deg), frame='fk5')
+
+
+    # overplot the data in the image
+    ax.plot(tbl_crds.ra, tbl_crds.dec, '*', transform=ax.get_transform('fk5'),
+            mec='b', mfc='none')
+    ax.plot(tbl_crds2.ra, tbl_crds2.dec, 'o', transform=ax.get_transform('fk5'),
+            mec='r', mfc='none')
+    # zoom in on the relevant region
+    ax.axis([100,200,100,200])
+

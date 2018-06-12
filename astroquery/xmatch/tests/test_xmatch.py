@@ -2,7 +2,7 @@
 import os.path
 
 import requests
-from astropy.tests.helper import pytest
+import pytest
 from astropy.io import ascii
 from astropy.table import Table
 from astropy.units import arcsec

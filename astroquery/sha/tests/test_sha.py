@@ -2,7 +2,7 @@
 from ... import sha
 from ...utils.testing_tools import MockResponse
 import os
-from astropy.tests.helper import pytest
+import pytest
 import requests
 
 DATA_FILES = {'img': 'img.fits',

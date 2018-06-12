@@ -3,7 +3,7 @@ from __future__ import print_function
 import socket
 import json
 
-from astropy.tests.helper import pytest
+import pytest
 
 # save original socket method for restoration
 socket_original = socket.socket
@@ -35,7 +35,8 @@ class MockResponse(object):
     """
 
     def __init__(self, content=None, url=None, headers={},
-                 content_type=None, stream=False, auth=None, status_code=200):
+                 content_type=None, stream=False, auth=None, status_code=200,
+                 verify=True):
         assert content is None or hasattr(content, 'decode')
         self.content = content
         self.raw = content
