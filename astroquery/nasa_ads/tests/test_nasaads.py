@@ -20,10 +20,10 @@ def patch_get(request):
     return mp
 
 
-def get_mockreturn(url, params=None, timeout=10):
+def get_mockreturn(method='GET', url=None, data=None, params=None, timeout=10, **kwargs):
     filename = data_path('test_text.txt')
     content = open(filename, 'r').read()
-    return MockResponse(content)
+    return MockResponse(content=content, **kwargs)
 
 
 def test_url():
