@@ -21,7 +21,21 @@ Endpoint            Method      Usage
 /frames/zip/        POST        Returns a zip file containing all of the requested frames. Note this is not the preferred method for downloading files. Use the frame's url property instead.
 /profile/           GET         Returns information about the currently authenticated user.
 
-The service accepts the following keywords,
+The service accepts the following optional keywords,
+
+DATE_OBS:   The UTC time at the start of exposure.
+PROPID: The name of the proposal for which this frame was taken. Not including this will show public data only
+INSTRUME:   The instrument that produced this frame.
+OBJECT: The name of the object given by the user as the target of the observation. Note this is not the same as searching by on sky position - the OBJECT header is free-form text which may or may not match the actual contents of the file.
+SITEID: The site that produced this frame.
+TELID:  The telescope that produced this frame.
+EXPTIME:    The exposure time of the frame.
+FILTER: The filter used to produce this frame.
+L1PUBDAT:   The date this frame become public.
+OBSTYPE:    The type of exposure: EXPOSE, BIAS, SPECTRUM, CATALOG, etc.
+BLKUID: The Block ID of the frame
+REQNUM: The Request number of the frame
+RLEVEL: The reduction level of the frame. Currently, there are 3 reduction levels: Some of the meta-data fields are derived and not found in the FITS headers. 0 (Raw), 11 (Quicklook), 91 (Final reduced).
 
 """
 
@@ -39,7 +53,14 @@ from astropy.io import fits
 from astropy import log
 
 from ..query import BaseQuery, QueryWithLogin
-from ..utils import commons, system_tools, prepend_docstr_noreturns, async_to_sync
+# has common functions required by most modules
+from ..utils import commons
+# prepend_docstr is a way to copy docstrings between methods
+from ..utils import prepend_docstr_nosections
+# async_to_sync generates the relevant query tools from _async methods
+from ..utils import async_to_sync
+
+from ..utils import system_tools
 from . import conf
 
 @async_to_sync
@@ -54,8 +75,9 @@ class LcoClass(QueryWithLogin):
     DATA_NAMES = ['id','filename','url','RLEVEL','DATE_OBS','PROPID','OBJECT','SITEID','TELID','EXPTIME','FILTER','REQNUM']
     TOKEN = None
 
-    def query_object_async(self, object_name, get_query_payload=False,
-                           cache=True, start=None, end=None):
+    def query_object_async(self, object_name,
+                            start='', end='', rlevel='',
+                            get_query_payload=False, cache=True):
         """
         This method is for services that can parse object names. Otherwise
         use :meth:`astroquery.lco.LcoClass.query_region`.
@@ -74,6 +96,9 @@ class LcoClass(QueryWithLogin):
         end: str, optional
             Default is `None`. When set this must be in iso E8601Dw.d datestamp format
             YYYY-MM-DD HH:MM
+        rlevel: str, optional
+            Pipeline reduction level of the data. Default is `None`, and will
+            return all data products. Options are  0 (Raw), 11 (Quicklook), 91 (Final reduced).
         Returns
         -------
         response : `requests.Response`
@@ -81,7 +106,7 @@ class LcoClass(QueryWithLogin):
             id - ID of each Frame
             filename - Name of Frame file
             url - Download URL
-            RLEVEL
+            RLEVEL - 0 (Raw), 11 (Quicklook), 91 (Final reduced).
             DATE_OBS - Observation data
             PROPID - LCO proposal code
             OBJECT - Object Name
@@ -94,41 +119,72 @@ class LcoClass(QueryWithLogin):
         Examples
         --------
         # from astroquery.lco import Lco
-        # Lco.login(username='mpalin')
+        # Lco.login(username='jdowland')
         # Lco.query_object_async('M15', start='2016-01-01 00:00', end='2017-02-01 00:00')
 
         """
+        kwargs  = {
+                'object_name'   : object_name,
+                'start'         : start,
+                'end'           : end,
+                'rlevel'        : rlevel
+                }
 
-        request_payload = self._args_to_payload(**{'object_name':object_name,'start':start, 'end':end})
+        request_payload = self._args_to_payload(**kwargs)
         # similarly fill up the rest of the dict ...
 
         if get_query_payload:
             return request_payload
-        # BaseQuery classes come with a _request method that includes a
-        # built-in caching system
-        if not self.TOKEN:
-            warnings.warn("You have not authenticated and will only get results for non-proprietary data")
-            headers=None
-        else:
-            headers = {'Authorization': 'Token ' + self.TOKEN}
-        response = self._request('GET', self.FRAMES_URL, params=request_payload,
-                                 timeout=self.TIMEOUT, cache=cache, headers=headers)
-        if response.status_code == 200:
-            resp = json.loads(response.content)
-            return self._parse_result(resp)
-        else:
-            log.exception("Failed!")
-            return False
+
+        return self._parse_response(request_payload, cache)
+
+    def query_region_async(self, coordinates,
+                           start='', end='', rlevel='',
+                           get_query_payload=False, cache=True):
+        """
+        Queries a region around the specified coordinates.
+
+        Parameters
+        ----------
+        coordinates : str or `astropy.coordinates`.
+            coordinates around which to query
+        get_query_payload : bool, optional
+            Just return the dict of HTTP request parameters.
+        verbose : bool, optional
+            Display VOTable warnings or not.
+
+        Returns
+        -------
+        response : `requests.Response`
+            The HTTP response returned from the service.
+            All async methods should return the raw HTTP response.
+        """
+        kwargs  = {
+                'coordinates'   : coordinates,
+                'start'         : start,
+                'end'           : end,
+                'rlevel'        : rlevel
+                }
+        request_payload = self._args_to_payload(**kwargs)
+        if get_query_payload:
+            return request_payload
+
+        return self._parse_response(request_payload, cache)
 
     def _args_to_payload(self, *args, **kwargs):
         request_payload = dict()
-        request_payload['OBJECT'] = kwargs['object_name']
-        request_payload['REVEL'] = '91'
+
         request_payload['OBSTYPE'] = 'EXPOSE'
-        if kwargs['start']:
+        if kwargs.get('start',''):
             request_payload['start'] = validate_datetime(kwargs['start'])
-        if kwargs['end']:
+        if kwargs.get('end',''):
             request_payload['end'] = validate_datetime(kwargs['end'])
+        if kwargs.get('rlevel',''):
+            request_payload['rlevel'] = validate_rlevel(kwargs['rlevel'])
+        if kwargs.get('coordinates',''):
+            request_payload['coordinates'] = validate_coordinates(kwargs['coordinates'])
+        elif kwargs.get('object_name',''):
+            request_payload['OBJECT'] = kwargs['object_name']
         return request_payload
 
     def _login(self, username=None, store_password=False,
