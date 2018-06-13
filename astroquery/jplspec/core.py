@@ -1,8 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
 import warnings
-import re
-import time
 
 import astropy.units as u
 from astropy.io import ascii
@@ -33,13 +31,14 @@ class JPLSpecClass(BaseQuery):
     URL = conf.server
     TIMEOUT = conf.timeout
 
-    def query_lines_async(self, min_frequency, max_frequency, min_strength,
+    def query_lines_async(self, min_frequency, max_frequency,
+                          min_strength=-500,
                           max_lines=1000, molecule='All',
                           parse_name_locally=False,
                           get_query_payload=False, cache=True):
         """
-        Creates an HTTP POST request based on the desired parameters and returns
-        a response.
+        Creates an HTTP POST request based on the desired parameters and
+        returns a response.
 
         Parameters
         ----------
@@ -111,7 +110,6 @@ class JPLSpecClass(BaseQuery):
             else:
                 payload['Mol'] = molecule
 
-
         payload['UnitNu'] = 'GHz'
         payload['StrLim'] = min_strength
 
@@ -123,7 +121,6 @@ class JPLSpecClass(BaseQuery):
         # built-in caching system
         response = self._request(method='POST', url=self.URL, data=payload,
                                  timeout=self.TIMEOUT, cache=cache)
-
 
         return response
 
@@ -158,10 +155,9 @@ class JPLSpecClass(BaseQuery):
         QN":   Quantum numbers for the lower state.
         """
 
-
         result = ascii.read(response.text,
                             header_start=None,
-                            data_start=0, #changed to start at 0 since regex was applied
+                            data_start=0,  # start at 0 since regex was applied
                             # Warning for a result with more than 1000 lines:
                             # THIS form is currently limited to 1000 lines.
                             comment='THIS|^\s{12,14}\d{4,6}.*',
@@ -170,10 +166,11 @@ class JPLSpecClass(BaseQuery):
                             col_starts=(0, 13, 21, 29, 31, 41, 44, 51, 55, 67),
                             format='fixed_width')
 
-
         if len(result) > self.maxlines:
-            warnings.warn("This form is currently limited to 100000 lines."
-                          "Please limit your search.")
+            warnings.warn("This form is currently limited to {0} lines.\n\
+                          Please limit your search.".format(
+
+                          self.maxlines))
 
         return result
 
@@ -214,27 +211,33 @@ class JPLSpecClass(BaseQuery):
                                    'QLOG3', 'QLOG4',
                                    'QLOG5', 'QLOG6',
                                    'QLOG7', 'VER'),
-                            col_starts=(0, 6, 20, 26, 33, 40, 47, 54, 61, 68, 75),
+                            col_starts=(0, 6, 20, 26, 33, 40, 47, 54, 61,
+                                        68, 75),
                             format='fixed_width')
 
-        #store the corresponding temperatures as metadata
-        result['QLOG1'].meta = {'Temperature (K)' : 300}
-        result['QLOG2'].meta = {'Temperature (K)' : 225}
-        result['QLOG3'].meta = {'Temperature (K)' : 150}
-        result['QLOG4'].meta = {'Temperature (K)' : 75}
-        result['QLOG5'].meta = {'Temperature (K)' : 37.5}
-        result['QLOG6'].meta = {'Temperature (K)' : 18.75}
-        result['QLOG7'].meta = {'Temperature (K)' : 9.375}
+        # store the corresponding temperatures as metadata
+        result['QLOG1'].meta = {'Temperature (K)': 300}
+        result['QLOG2'].meta = {'Temperature (K)': 225}
+        result['QLOG3'].meta = {'Temperature (K)': 150}
+        result['QLOG4'].meta = {'Temperature (K)': 75}
+        result['QLOG5'].meta = {'Temperature (K)': 37.5}
+        result['QLOG6'].meta = {'Temperature (K)': 18.75}
+        result['QLOG7'].meta = {'Temperature (K)': 9.375}
+        result.meta = {'Temperature (K)': [300, 225, 150, 75, 37.5, 18.5,
+                                           9.375]}
 
         return result
 
 
 JPLSpec = JPLSpecClass()
 
+
 def build_lookup():
+
     result = JPLSpec.get_species_table()
-    keys = list(result[1][:]) #convert NAME column to list
-    values = list(result[0][:]) #convert TAG column to list
-    dictionary = dict(zip(keys,values)) #make k,v dictionary
-    lookuptable = lookup_table.Lookuptable(dictionary) #apply the class above for results
+    keys = list(result[1][:])  # convert NAME column to list
+    values = list(result[0][:])  # convert TAG column to list
+    dictionary = dict(zip(keys, values))  # make k,v dictionary
+    lookuptable = lookup_table.Lookuptable(dictionary)  # apply the class above
+
     return lookuptable

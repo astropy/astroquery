@@ -1,6 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import re
 
+
 class Lookuptable(dict):
 
     def find(self, s, flag=0):
@@ -25,11 +26,11 @@ class Lookuptable(dict):
 
         """
 
-        R = re.compile(s,flag)
+        R = re.compile(s, flag)
 
         out = {}
 
-        for k,v in self.items():
+        for k, v in self.items():
             match = R.search(str(k))
             if match:
                 out[k] = v
