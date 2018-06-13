@@ -14,18 +14,9 @@ from ...utils import commons
 from ... import lco
 from ...lco import conf
 
-DATA_FILES = {'Cone': 'Cone.xml',
-              'Box': 'Box.xml',
-              'Polygon': 'Polygon.xml'}
-
-OBJ_LIST = ["m31", "00h42m44.330s +41d16m07.50s",
+OBJ_LIST = ["M15", "00h42m44.330s +41d16m07.50s",
             commons.GalacticCoordGenerator(l=121.1743, b=-21.5733,
                                            unit=(u.deg, u.deg))]
-
-
-def data_path(filename):
-    data_dir = os.path.join(os.path.dirname(__file__), 'data')
-    return os.path.join(data_dir, filename)
 
 
 @pytest.fixture
@@ -111,67 +102,3 @@ def test_query_region_box_async(coordinates, patch_get):
     response = lco.core.Lco.query_region_async(
         coordinates, catalog='lco_img', spatial='Box', width=2 * u.arcmin)
     assert response is not None
-
-
-@pytest.mark.parametrize(("coordinates"), OBJ_LIST)
-def test_query_region_box(coordinates, patch_get):
-    result = lco.core.Lco.query_region(coordinates, catalog='lco_img',
-                                           spatial='Box', width=2 * u.arcmin)
-
-    assert isinstance(result, Table)
-
-
-poly1 = [SkyCoord(ra=10.1, dec=10.1, unit=(u.deg, u.deg), frame='icrs'),
-         SkyCoord(ra=10.0, dec=10.1, unit=(u.deg, u.deg), frame='icrs'),
-         SkyCoord(ra=10.0, dec=10.0, unit=(u.deg, u.deg), frame='icrs')]
-poly2 = [(10.1 * u.deg, 10.1 * u.deg), (10.0 * u.deg, 10.1 * u.deg),
-         (10.0 * u.deg, 10.0 * u.deg)]
-
-
-@pytest.mark.parametrize(("polygon"),
-                         [poly1,
-                          poly2
-                          ])
-def test_query_region_async_polygon(polygon, patch_get):
-    response = lco.core.Lco.query_region_async(
-        "m31", catalog="lco_img", spatial="Polygon",
-        polygon=polygon, get_query_payload=True)
-
-    for a, b in zip(re.split("[ ,]", response["polygon"]),
-                    re.split("[ ,]", "10.1 +10.1,10.0 +10.1,10.0 +10.0")):
-        for a1, b1 in zip(a.split(), b.split()):
-            a1 = float(a1)
-            b1 = float(b1)
-            np.testing.assert_almost_equal(a1, b1)
-
-    response = lco.core.Lco.query_region_async(
-        "m31", catalog="lco_img", spatial="Polygon", polygon=polygon)
-
-    assert response is not None
-
-
-@pytest.mark.parametrize(("polygon"),
-                         [poly1,
-                          poly2,
-                          ])
-def test_query_region_polygon(polygon, patch_get):
-    result = lco.core.Lco.query_region(
-        "m31", catalog="lco_img", spatial="Polygon", polygon=polygon)
-    assert isinstance(result, Table)
-
-
-@pytest.mark.parametrize(('spatial', 'result'),
-                         zip(('Cone', 'Box', 'Polygon', 'All-Sky'),
-                             ('Cone', 'Box', 'Polygon', 'NONE')))
-def test_spatial_valid(spatial, result):
-    out = lco.core.Lco._parse_spatial(
-        spatial, coordinates='m31', radius=5 * u.deg, width=5 * u.deg,
-        polygon=[(5 * u.hour, 5 * u.deg)] * 3)
-    assert out['spatial'] == result
-
-
-@pytest.mark.parametrize(('spatial'), [('cone', 'box', 'polygon', 'all-Sky',
-                                        'All-sky', 'invalid', 'blah')])
-def test_spatial_invalid(spatial):
-    with pytest.raises(ValueError):
-        lco.core.Lco._parse_spatial(spatial, coordinates='m31')
