@@ -105,7 +105,7 @@ class JPLSpecClass(BaseQuery):
         if molecule is not None:
             if parse_name_locally:
                 self.lookup_ids = build_lookup()
-                payload['Mol'] = tuple(self.lookup_ids.find(molecule,flags))
+                payload['Mol'] = tuple(self.lookup_ids.find(molecule, flags))
                 if len(molecule) == 0:
                     raise ValueError('No matching species found. Please\
                                      refine your search or read the Docs\
