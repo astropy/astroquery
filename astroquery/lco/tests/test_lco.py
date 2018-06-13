@@ -14,10 +14,15 @@ from ...utils import commons
 from ... import lco
 from ...lco import conf
 
-OBJ_LIST = ["M15", "00h42m44.330s +41d16m07.50s",
+OBJ_LIST = ["00h42m44.330s +41d16m07.50s",
             commons.GalacticCoordGenerator(l=121.1743, b=-21.5733,
                                            unit=(u.deg, u.deg))]
 
+DATA_FILES = {'JSON':'response.json'}
+
+def data_path(filename):
+    data_dir = os.path.join(os.path.dirname(__file__), 'data')
+    return os.path.join(data_dir, filename)
 
 @pytest.fixture
 def patch_get(request):
@@ -30,7 +35,7 @@ def patch_get(request):
 
 
 def get_mockreturn(method, url, params=None, timeout=10, cache=True, **kwargs):
-    filename = data_path(DATA_FILES[params['spatial']])
+    filename = data_path(DATA_FILES[params['JSON']])
     content = open(filename, 'rb').read()
     return MockResponse(content, **kwargs)
 
@@ -67,38 +72,14 @@ def test_parse_coordinates(coordinates, expected):
             assert a == b
 
 
-def test_args_to_payload():
-    out = lco.core.Lco._args_to_payload("lco_img")
-    assert out == dict(catalog='lco_img', outfmt=3,
-                       outrows=conf.row_limit, spatial=None)
-
-
 @pytest.mark.parametrize(("coordinates"), OBJ_LIST)
-def test_query_region_cone_async(coordinates, patch_get):
+def test_query_region_async(coordinates, patch_get):
     response = lco.core.Lco.query_region_async(
-        coordinates, catalog='lco_img', spatial='Cone',
-        radius=2 * u.arcmin, get_query_payload=True)
-    assert response['radius'] == 2
-    assert response['radunits'] == 'arcmin'
-    response = lco.core.Lco.query_region_async(
-        coordinates, catalog='lco_img', spatial='Cone', radius=2 * u.arcmin)
+        coordinates, get_query_payload=True)
     assert response is not None
 
-
-@pytest.mark.parametrize(("coordinates"), OBJ_LIST)
-def test_query_region_cone(coordinates, patch_get):
-    result = lco.core.Lco.query_region(coordinates, catalog='lco_img',
-                                           spatial='Cone', radius=2 * u.arcmin)
-
-    assert isinstance(result, Table)
-
-
-@pytest.mark.parametrize(("coordinates"), OBJ_LIST)
-def test_query_region_box_async(coordinates, patch_get):
-    response = lco.core.Lco.query_region_async(
-        coordinates, catalog='lco_img', spatial='Box',
-        width=2 * u.arcmin, get_query_payload=True)
-    assert response['size'] == 120
-    response = lco.core.Lco.query_region_async(
-        coordinates, catalog='lco_img', spatial='Box', width=2 * u.arcmin)
+@pytest.mark.parametrize(("object_name"), "M15")
+def test_query_object_async(object_name, patch_get):
+    response = lco.core.Lco.query_object_async(
+        object_name, get_query_payload=True)
     assert response is not None
