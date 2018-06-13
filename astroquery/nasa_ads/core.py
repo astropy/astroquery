@@ -48,8 +48,14 @@ class ADSClass(BaseQuery):
         """
         request_string = self._args_to_url(query_string)
         request_fields = self._fields_to_url()
-        request_rows = self._rows_to_url(self.NROWS,self.NSTART)
+        request_rows = self._rows_to_url(self.NROWS, self.NSTART)
         request_url = self.QUERY_SIMPLE_URL + request_string + request_fields + request_rows
+
+        # primarily for debug purposes, but also useful if you want to send
+        # someone a URL linking directly to the data
+        if get_query_payload:
+            return request_url
+
         headers = {'Authorization': 'Bearer ' + self._get_token()}
 
         response = self._request(method='GET', url=request_url,
@@ -58,12 +64,8 @@ class ADSClass(BaseQuery):
 
         response.raise_for_status()
 
-        # primarily for debug purposes, but also useful if you want to send
-        # someone a URL linking directly to the data
-        if get_query_payload:
-            return request_url
         if get_raw_response:
-            return response.json()
+            return response
         # parse the XML response into AstroPy Table
         resulttable = self._parse_response(response.json())
 
@@ -73,7 +75,7 @@ class ADSClass(BaseQuery):
 
         try:
             response['response']['docs'][0]['bibcode']
-        except:
+        except IndexError:
             raise RuntimeError('No results returned!')
 
         # get the list of hits
@@ -112,7 +114,7 @@ class ADSClass(BaseQuery):
         if self.TOKEN is not None:
             return self.TOKEN
 
-        token_file = os.path.expanduser(os.path.join('~','.ads','dev_key'))
+        token_file = os.path.expanduser(os.path.join('~', '.ads', 'dev_key'))
         try:
             with open(token_file) as f:
                 self.TOKEN = f.read().strip()
