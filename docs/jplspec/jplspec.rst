@@ -78,7 +78,34 @@ through metadata:
 
    >>> result['QLOG2'].meta
    {'Temperature (K)' : 225}
+   >>> result.meta
+   {'Temperature (K)': [300, 225, 150, 75, 37.5, 18.5,
+                                          9.375]}
 
+One of the advantages of using JPLSpec is the availability in the catalog
+of the partition function at different temperatures for the molecules. As a
+continuation of the example above, an example that accesses and plots the
+partition function against the temperatures found in the metadata is shown
+below:
+
+.. code-block:: python
+
+   >>> import matplotlib.pyplot as plt
+   >>> temp = result.meta['Temperature (K)']
+   >>> part = list(mol['QLOG1','QLOG2','QLOG3', 'QLOG4', 'QLOG5','QLOG6',
+                       'QLOG7'][0])
+   >>> plt.scatter(temp,part)
+   >>> plt.xlabel('Temperature (K)')
+   >>> plt.ylabel('Partition Function Value')
+   >>> plt.title('Parititon Fn vs Temp')
+   >>> plt.show()
+
+
+.. figure:: images/docplot_jplspec.png
+   :scale: 50%
+   :alt: Plot of Partition Function vs Temperature
+
+   The resulting plot from the example above
 
 Querying the Catalog with Regexes and Relative names
 ----------------------------------------------------
@@ -103,9 +130,9 @@ to query these directly.
                                             parse_name_locally=True)
 
 
-Searches like these can lead to very broad results. Since the table yields
-extensive results, we will not show the resulting table, but a dictionary of
-the resulting tags that went into the payload to create a response:
+Searches like these can lead to very broad queries. Since the table yields
+extensive results, we will only show a dictionary of the tags that
+went into the payload to create a response:
 
 .. code-block:: python
 
@@ -158,10 +185,12 @@ contains any character in between, it results in the following molecules
 being queried:
 
    >>> {'H2O': 18003,
-       'HDO': 19002 }
+       'HDO': 19002
+       'HCO': 29004
+       'HNO': 31005 }
 
 Another example of the functionality of this option is the option to obtain
-results from a molecule and its isotopes, in this case H2O:
+results from a molecule and its isotopes, in this case H2O and HDO:
 
 .. code-block:: python
 
@@ -171,12 +200,14 @@ results from a molecule and its isotopes, in this case H2O:
                                             molecule="^H[2D]O(-\d\d|)$",
                                             parse_name_locally=True)
 
-This pattern matches any H2O isotopes and it results in the following molecules
-being part of the payload:
+This pattern matches any H2O and HDO isotopes and it results in the following 
+molecules being part of the payload:
 
    >>> {'H2O': 18003,
        'H2O-17': 19003,
-       'H20-18': 20003 }
+       'H2O-18': 20003,
+       'HDO': 19002,
+       'HDO-18': 21001}
 
 Remember to print your response to see the table of your results.
 
