@@ -1,4 +1,5 @@
 import os
+import requests
 import pytest
 from ... import nasa_ads
 from ...utils.testing_tools import MockResponse
