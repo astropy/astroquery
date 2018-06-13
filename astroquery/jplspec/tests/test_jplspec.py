@@ -59,10 +59,10 @@ def test_input_multi():
     response = JPLSpec.query_lines_async(min_frequency=500 * u.GHz,
                                          max_frequency=1000 * u.GHz,
                                          min_strength=-500,
-                                         molecule="^H[2D]O(-\d\d|)$",
+                                         molecule=r"^H[2D]O(-\d\d|)$",
                                          parse_name_locally=True,
                                          get_query_payload=True)
-    assert response['Mol'] == (18003, 19002, 19003, 20003, 21001)
+    assert set(response['Mol']) == set((18003, 19002, 19003, 20003, 21001))
     np.testing.assert_almost_equal(response['MinNu'], 500.)
     np.testing.assert_almost_equal(response['MaxNu'], 1000.)
 

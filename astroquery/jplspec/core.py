@@ -78,7 +78,7 @@ class JPLSpecClass(BaseQuery):
         >>> table = JPLSpec.query_lines(min_frequency=100*u.GHz,
         ...                             max_frequency=200*u.GHz,
         ...                             min_strength=-500, molecule=18003)
-        >>> print(table)
+        >>> print(table) # doctest: +SKIP
             FREQ     ERR    LGINT    DR    ELO    GUP  TAG   QNFMT   QN'      QN"
         ----------- ------ -------- --- --------- --- ------ ----- -------- --------
         115542.5692 0.6588 -13.2595   3 4606.1683  35  18003  1404 17 810 0 18 513 0
@@ -163,7 +163,7 @@ class JPLSpecClass(BaseQuery):
                             data_start=0,  # start at 0 since regex was applied
                             # Warning for a result with more than 1000 lines:
                             # THIS form is currently limited to 1000 lines.
-                            comment='THIS|^\s{12,14}\d{4,6}.*',
+                            comment=r'THIS|^\s{12,14}\d{4,6}.*',
                             names=('FREQ', 'ERR', 'LGINT', 'DR', 'ELO', 'GUP',
                                    'TAG', 'QNFMT', 'QN\'', 'QN"'),
                             col_starts=(0, 13, 21, 29, 31, 41, 44, 51, 55, 67),
