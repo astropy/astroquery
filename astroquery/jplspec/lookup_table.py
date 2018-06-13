@@ -4,7 +4,7 @@ import re
 
 class Lookuptable(dict):
 
-    def find(self, s, flag=0):
+    def find(self, s, flags):
         """
         Search dictionary keys for a regex match to string s
 
@@ -18,7 +18,7 @@ class Lookuptable(dict):
             catered results, for example: ('H20$' yields only 'H2O')
 
         flags : int
-            regular expression flags.
+            Regular expression flags.
 
         Returns
         -------
@@ -26,7 +26,7 @@ class Lookuptable(dict):
 
         """
 
-        R = re.compile(s, flag)
+        R = re.compile(s, flags)
 
         out = {}
 

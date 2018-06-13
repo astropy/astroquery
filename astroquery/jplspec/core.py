@@ -33,7 +33,7 @@ class JPLSpecClass(BaseQuery):
 
     def query_lines_async(self, min_frequency, max_frequency,
                           min_strength=-500,
-                          max_lines=1000, molecule='All',
+                          max_lines=1000, molecule='All', flags=0,
                           parse_name_locally=False,
                           get_query_payload=False, cache=True):
         """
@@ -55,6 +55,9 @@ class JPLSpecClass(BaseQuery):
         molecule : list, string of regex if parse_name_locally=True
             Identifiers of the molecules to search for. If this parameter
             is not provided the search will match any species.
+
+        flags : int
+            Regular expression flags.
 
         parse_name_locally : bool, optional
             When set to True it allows the method to parse through catdir.cat
@@ -102,7 +105,7 @@ class JPLSpecClass(BaseQuery):
         if molecule is not None:
             if parse_name_locally:
                 self.lookup_ids = build_lookup()
-                payload['Mol'] = tuple(self.lookup_ids.find(molecule))
+                payload['Mol'] = tuple(self.lookup_ids.find(molecule,flags))
                 if len(molecule) == 0:
                     raise ValueError('No matching species found. Please\
                                      refine your search or read the Docs\
