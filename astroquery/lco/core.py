@@ -270,6 +270,22 @@ class LcoClass(QueryWithLogin):
 
         return t
 
+    def _parse_response(self, request_payload, cache):
+        if not self.TOKEN:
+            warnings.warn("You have not authenticated and will only get results for non-proprietary data")
+            headers=None
+        else:
+            headers = {'Authorization': 'Token ' + self.TOKEN}
+
+        response = self._request('GET', self.FRAMES_URL, params=request_payload,
+                                 timeout=self.TIMEOUT, cache=cache, headers=headers)
+        if response.status_code == 200:
+            resp = json.loads(response.content)
+            return self._parse_result(resp)
+        else:
+            log.exception("Failed!")
+            return False
+
 
 Lco = LcoClass()
 
@@ -281,3 +297,21 @@ def validate_datetime(input):
     except ValueError:
         warning.warning('Input {} is not in format {} - ignoring input'.format(input, format_string))
         return ''
+
+def validate_rlevel(input):
+    excepted_vals = ['0','00','11','91']
+    if str(input) in excepted_vals:
+        return input
+    else:
+        warning.warning('Input {} is not one of {} - ignoring'.format(input,','.join(excepted_vals)))
+        return ''
+
+def validate_coordinates(coordinates):
+    c = commons.parse_coordinates(coordinates)
+    if c.frame.name == 'galactic':
+        coords = "POINT({} {})".format(c.icrs.ra.degree, c.icrs.dec.degree)
+    # for any other, convert to ICRS and send
+    else:
+        ra, dec = commons.coord_to_radec(c)
+        coords = "POINT({} {})".format(ra, dec)
+    return coords
