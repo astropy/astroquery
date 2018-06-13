@@ -56,11 +56,9 @@ class ADSClass(BaseQuery):
         if get_query_payload:
             return request_url
 
-        headers = {'Authorization': 'Bearer ' + self._get_token()}
-
         response = self._request(method='GET', url=request_url,
-                                 headers=headers, timeout=self.TIMEOUT,
-                                 cache=cache)
+                                 headers={'Authorization': 'Bearer ' + self._get_token()},
+                                 timeout=self.TIMEOUT, cache=cache)
 
         response.raise_for_status()
 
