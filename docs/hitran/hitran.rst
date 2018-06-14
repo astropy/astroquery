@@ -28,10 +28,10 @@ The data are returned as an `~astropy.table.Table` instance.
 
     >>> from astropy import units as u
     >>> from astroquery.hitran import Hitran
-    >>> tbl = Hitran.query_lines_async(molecule_number=1,
-                                       isotopologue_number=1,
-                                       min_frequency=0. / u.cm,
-                                       max_frequency=10. / u.cm)
+    >>> tbl = Hitran.query_lines(molecule_number=1,
+                                 isotopologue_number=1,
+                                 min_frequency=0. / u.cm,
+                                 max_frequency=10. / u.cm)
 
 Reference/API
 =============
