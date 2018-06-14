@@ -36,7 +36,7 @@ def test_url():
 
 def test_simple(patch_get):
     testADS = nasa_ads.ADS
-    testADS.TOKEN = 'test_token'
+    testADS.TOKEN = 'TDW0FB2mFYsbIErQJnpWjF7vMEXZiSGyaYaZpaAl'
     x = testADS.query_simple(
         "^Persson Origin of water around deeply embedded low-mass protostars")
     assert x['author'][0][0] == 'Persson, M. V.'
