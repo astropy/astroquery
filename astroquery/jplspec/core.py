@@ -33,7 +33,7 @@ class JPLSpecClass(BaseQuery):
 
     def query_lines_async(self, min_frequency, max_frequency,
                           min_strength=-500,
-                          max_lines=1000, molecule='All', flags=0,
+                          max_lines=2000, molecule='All', flags=0,
                           parse_name_locally=False,
                           get_query_payload=False, cache=True):
         """
@@ -46,17 +46,17 @@ class JPLSpecClass(BaseQuery):
             Minimum frequency (or any spectral() equivalent)
         max_frequency : `astropy.units`
             Maximum frequency (or any spectral() equivalent)
-        min_strength : int
+        min_strength : int, optional
             Minimum strength in catalog units
-        max_lines :  int
+        max_lines :  int, optional
             Maximum number of lines to query, the default is 1000.
             The most the query allows is 100000
 
-        molecule : list, string of regex if parse_name_locally=True
+        molecule : list, string of regex if parse_name_locally=True, optional
             Identifiers of the molecules to search for. If this parameter
             is not provided the search will match any species.
 
-        flags : int
+        flags : int, optional
             Regular expression flags.
 
         parse_name_locally : bool, optional
@@ -77,7 +77,7 @@ class JPLSpecClass(BaseQuery):
         --------
         >>> table = JPLSpec.query_lines(min_frequency=100*u.GHz,
         ...                             max_frequency=200*u.GHz,
-        ...                             min_strength=-500, molecule=18003)
+        ...                             min_strength=-500, molecule=18003) # doctest: +SKIP
         >>> print(table) # doctest: +SKIP
             FREQ     ERR    LGINT    DR    ELO    GUP  TAG   QNFMT   QN'      QN"
         ----------- ------ -------- --- --------- --- ------ ----- -------- --------
@@ -175,6 +175,11 @@ class JPLSpecClass(BaseQuery):
 
                           self.maxlines))
 
+        result['FREQ'].unit = u.MHz
+        result['ERR'].unit = u.MHz
+        result['LGINT'].unit = u.nm**2 * u.MHz
+        result['ELO'].unit = u.cm**(-1)
+
         return result
 
     def get_species_table(self, catfile='catdir.cat'):
@@ -193,16 +198,16 @@ class JPLSpecClass(BaseQuery):
 
         Returns
         --------
-        TAG : The species tag or molecular identifier.
-        NAME : An ASCII name for the species.
-        NLINE : The number of lines in the catalog.
-        QLOG : A seven-element vector containing the base 10 logarithm of the
-        partition function for temperatures of 300 K, 225 K, 150 K, 75 K,
-        37.5 K, 18.75 K, and 9.375 K, respectively.
-
-        VER : The version of the calculation for this species in the catalog.
-        The version number is followed by * if the entry is newer than the
-        last edition of the catalog.
+        Table: `~astropy.table.Table`
+            | TAG : The species tag or molecular identifier.
+            | NAME : An ASCII name for the species.
+            | NLINE : The number of lines in the catalog.
+            | QLOG : A seven-element vector containing the base 10 logarithm of
+                the partition function for temperatures of 300 K, 225 K, 150 K,
+                75 K, 37.5 K, 18.75 K, and 9.375 K, respectively.
+            | VER : The version of the calculation for this species in the catalog.
+                The version number is followed by * if the entry is newer than the
+                last edition of the catalog.
 
         """
 

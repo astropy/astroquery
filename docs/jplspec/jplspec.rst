@@ -38,6 +38,7 @@ what each setting yields:
                                             get_query_payload=False)
    >>> print(response)
         FREQ     ERR    LGINT   DR   ELO    GUP  TAG   QNFMT QN' QN"
+        MHz      MHz   MHz nm2      1 / cm
     ----------- ------ ------- --- -------- --- ------ ----- --- ---
     115271.2018 0.0005 -5.0105   2      0.0   3 -28001   101   1   0
     345795.9899 0.0005 -3.6118   2   11.535   7 -28001   101   3   2
@@ -51,8 +52,6 @@ The following example, with ``get_query_payload = True``, returns the payload:
 
 .. code-block:: python
 
-   >>> from astroquery.jplspec import JPLSpec
-   >>> import astropy.units as u
    >>> response = JPLSpec.query_lines(min_frequency=100 * u.GHz,
                                             max_frequency=1000 * u.GHz,
                                             min_strength=-500,
@@ -63,7 +62,23 @@ The following example, with ``get_query_payload = True``, returns the payload:
    {'MinNu': 100.0, 'MaxNu': 1000.0, 'Mol': '28001 CO', 'UnitNu': 'GHz',
    'StrLim': -500, 'MaxLines': 7}
 
-The units of the fields can be displayed by calling ``response.info``.
+The units of the columns can be displayed by calling ``response.info``. These
+come in handy for converting to other units easily, an example using a
+simplified version of the data above is shown below:
+
+.. code-block:: python
+
+   >>> print (response)
+       FREQ      ERR     ELO
+       MHz       MHz    1 / cm
+    ----------- ------- -------
+    115271.2018  0.0005     0.0
+    345795.9899  0.0005  11.535
+    461040.7682  0.0005 23.0695
+   >>> response['FREQ'].quantity
+   <Quantity [115271.2018,345795.9899,461040.7682] MHz>
+   >>> response['FREQ'].to('GHz')
+   <Quantity [115.2712018,345.7959899,461.0407682] GHz>
 
 The parameters and response keys are described in detail under the
 Reference/API section.
@@ -79,6 +94,7 @@ the line frequency has been measured in the laboratory
 
 .. code-block:: python
 
+   >>> import matplotlib.pyplot as plt
    >>> from astroquery.jplspec import JPLSpec
    >>> result = JPLSpec.get_species_table()
    >>> mol = result[result['TAG'] == 28001] #do not include signs of TAG for this
@@ -107,7 +123,6 @@ below:
 
 .. code-block:: python
 
-   >>> import matplotlib.pyplot as plt
    >>> temp = result.meta['Temperature (K)']
    >>> part = list(mol['QLOG1','QLOG2','QLOG3', 'QLOG4', 'QLOG5','QLOG6',
                        'QLOG7'][0])
@@ -140,6 +155,8 @@ to query these directly.
 
 .. code-block:: python
 
+   >>> from astroquery.jplspec import JPLSpec
+   >>> import astropy.units as u
    >>> response = JPLSpec.query_lines_async(min_frequency=100 * u.GHz,
                                             max_frequency=1000 * u.GHz,
                                             min_strength=-500,
@@ -172,8 +189,6 @@ A few examples that show the power of the regex option are the following:
 
 .. code-block:: python
 
-   >>> from astroquery.jplspec import JPLSpec
-   >>> import astropy.units as u
    >>> response = JPLSpec.query_lines_async(min_frequency=100 * u.GHz,
                                             max_frequency=1000 * u.GHz,
                                             min_strength=-500,
