@@ -30,6 +30,7 @@ class ADSClass(BaseQuery):
     QUERY_SIMPLE_PATH = conf.simple_path
     TIMEOUT = conf.timeout
     ADS_FIELDS = conf.adsfields
+    SORT = conf.sort
     NROWS = conf.nrows
     NSTART = conf.nstart
     TOKEN = conf.token
@@ -48,8 +49,9 @@ class ADSClass(BaseQuery):
         """
         request_string = self._args_to_url(query_string)
         request_fields = self._fields_to_url()
+        request_sort = self._sort_to_url()
         request_rows = self._rows_to_url(self.NROWS, self.NSTART)
-        request_url = self.QUERY_SIMPLE_URL + request_string + request_fields + request_rows
+        request_url = self.QUERY_SIMPLE_URL + request_string + request_fields + request_sort + request_rows
 
         # primarily for debug purposes, but also useful if you want to send
         # someone a URL linking directly to the data
@@ -96,6 +98,10 @@ class ADSClass(BaseQuery):
     def _fields_to_url(self):
         request_fields = '&fl=' + ','.join(self.ADS_FIELDS)
         return request_fields
+
+    def _sort_to_url(self):
+        request_sort = '&sort=' + urlencode(self.SORT)
+        return request_sort
 
     def _rows_to_url(self, nrows=10, nstart=0):
         request_rows = '&rows=' + str(nrows) + '&start=' + str(nstart)
