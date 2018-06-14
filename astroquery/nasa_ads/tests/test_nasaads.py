@@ -17,10 +17,12 @@ def patch_get(request):
     except AttributeError:  # pytest < 3
         mp = request.getfuncargvalue("monkeypatch")
     mp.setattr(requests, 'get', get_mockreturn)
+    mp.setattr(nasa_ads.ADS, '_request', get_mockreturn)
     return mp
 
 
-def get_mockreturn(method='GET', url=None, data=None, params=None, timeout=10, **kwargs):
+def get_mockreturn(method='GET', url=None, data=None, params=None, timeout=10,
+                   **kwargs):
     filename = data_path('test_text.txt')
     content = open(filename, 'r').read()
     return MockResponse(content=content, **kwargs)
