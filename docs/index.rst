@@ -148,6 +148,7 @@ The following modules have been completed using a common API:
   ibe/ibe.rst
   irsa/irsa.rst
   irsa/irsa_dust.rst
+  jplspec/jplspec.rst
   magpis/magpis.rst
   mast/mast.rst
   mpc/mpc.rst
@@ -286,6 +287,7 @@ above categories.
   hitran/hitran.rst
   utils/tap.rst
   jplhorizons/jplhorizons.rst
+  jplspec/jplspec.rst
 
 
 Developer documentation

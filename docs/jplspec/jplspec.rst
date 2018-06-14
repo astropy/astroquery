@@ -22,21 +22,21 @@ Examples
 Querying the catalog
 --------------------
 
-The default option to return the query payload is set to false, in this
-example we have explicitly set it to True to show the result of setting
-``get_query_payload = True``:
+The default option to return the query payload is set to false, in the
+following examples we have explicitly set it to False and True to show the
+what each setting yields:
 
 .. code-block:: python
 
-   >>> response = JPLSpec.query_lines_async(min_frequency=100 * u.GHz,
+   >>> from astroquery.jplspec import JPLSpec
+   >>> import astropy.units as u
+   >>> response = JPLSpec.query_lines(min_frequency=100 * u.GHz,
                                             max_frequency=1000 * u.GHz,
                                             min_strength=-500,
                                             molecule="28001 CO",
                                             max_lines = 7,
-                                            get_query_payload=True)
+                                            get_query_payload=False)
    >>> print(response)
-   {'MinNu': 100.0, 'MaxNu': 1000.0, 'Mol': '28001 CO', 'UnitNu': 'GHz',
-   'StrLim': -500, 'MaxLines': 7}
         FREQ     ERR    LGINT   DR   ELO    GUP  TAG   QNFMT QN' QN"
     ----------- ------ ------- --- -------- --- ------ ----- --- ---
     115271.2018 0.0005 -5.0105   2      0.0   3 -28001   101   1   0
@@ -47,6 +47,23 @@ example we have explicitly set it to True to show the result of setting
      806651.806  0.005 -2.6716   2  80.7354  15 -28001   101   7   6
        921799.7  0.005  -2.559   2 107.6424  17 -28001   101   8   7
 
+The following example, with ``get_query_payload = True``, returns the payload:
+
+.. code-block:: python
+
+   >>> from astroquery.jplspec import JPLSpec
+   >>> import astropy.units as u
+   >>> response = JPLSpec.query_lines(min_frequency=100 * u.GHz,
+                                            max_frequency=1000 * u.GHz,
+                                            min_strength=-500,
+                                            molecule="28001 CO",
+                                            max_lines = 7,
+                                            get_query_payload=True)
+   >>> print(response)
+   {'MinNu': 100.0, 'MaxNu': 1000.0, 'Mol': '28001 CO', 'UnitNu': 'GHz',
+   'StrLim': -500, 'MaxLines': 7}
+
+The units of the fields can be displayed by calling ``response.info``.
 
 The parameters and response keys are described in detail under the
 Reference/API section.
@@ -155,6 +172,8 @@ A few examples that show the power of the regex option are the following:
 
 .. code-block:: python
 
+   >>> from astroquery.jplspec import JPLSpec
+   >>> import astropy.units as u
    >>> response = JPLSpec.query_lines_async(min_frequency=100 * u.GHz,
                                             max_frequency=1000 * u.GHz,
                                             min_strength=-500,
@@ -174,6 +193,8 @@ the results to be:
 
 .. code-block:: python
 
+   >>> from astroquery.jplspec import JPLSpec
+   >>> import astropy.units as u
    >>> response = JPLSpec.query_lines_async(min_frequency=100 * u.GHz,
                                             max_frequency=1000 * u.GHz,
                                             min_strength=-500,
@@ -194,13 +215,15 @@ results from a molecule and its isotopes, in this case H2O and HDO:
 
 .. code-block:: python
 
+   >>> from astroquery.jplspec import JPLSpec
+   >>> import astropy.units as u
    >>> response = JPLSpec.query_lines_async(min_frequency=100 * u.GHz,
                                             max_frequency=1000 * u.GHz,
                                             min_strength=-500,
                                             molecule="^H[2D]O(-\d\d|)$",
                                             parse_name_locally=True)
 
-This pattern matches any H2O and HDO isotopes and it results in the following 
+This pattern matches any H2O and HDO isotopes and it results in the following
 molecules being part of the payload:
 
    >>> {'H2O': 18003,
