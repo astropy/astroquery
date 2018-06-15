@@ -22,6 +22,7 @@ class MockResponseADS(MockResponse):
         self.auth = auth
         self.status_code = status_code
 
+
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     return os.path.join(data_dir, filename)
