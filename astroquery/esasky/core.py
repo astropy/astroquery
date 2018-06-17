@@ -320,9 +320,10 @@ class ESASkyClass(BaseQuery):
 
         Parameters
         ----------
-        query_table_list : `~astroquery.utils.TableList`
-            A TableList with all the missions wanted and their respective
-            metadata. Usually the return value of query_region_maps.
+        query_table_list : `~astroquery.utils.TableList` or dict or list of (name, `~astropy.table.Table`) pairs
+            A TableList or dict or list of name and Table pairs with all the
+            missions wanted and their respective metadata. Usually the
+            return value of query_region_maps.
         missions : string or list, optional
             Can be either a specific mission or a list of missions (all mission
             names are found in list_missions()) or 'all' to search in all
@@ -471,9 +472,9 @@ class ESASkyClass(BaseQuery):
                              "astropy.units.Quantity")
 
     def _sanitize_input_mission(self, missions):
-        if (isinstance(missions, list)):
+        if isinstance(missions, list):
             return missions
-        if (isinstance(missions, str)):
+        if isinstance(missions, str):
             if (missions.lower() == self.__ALL_STRING):
                 return self.list_maps()
             else:
@@ -482,9 +483,9 @@ class ESASkyClass(BaseQuery):
                          "missions")
 
     def _sanitize_input_catalogs(self, catalogs):
-        if (isinstance(catalogs, list)):
+        if isinstance(catalogs, list):
             return catalogs
-        if (isinstance(catalogs, str)):
+        if isinstance(catalogs, str):
             if (catalogs.lower() == self.__ALL_STRING):
                 return self.list_catalogs()
             else:
@@ -493,12 +494,18 @@ class ESASkyClass(BaseQuery):
                          "catalogs")
 
     def _sanitize_input_table_list(self, table_list):
-        if (isinstance(table_list, commons.TableList)):
+        if isinstance(table_list, commons.TableList):
             return table_list
-        raise ValueError("Query_table_list must be an astropy.utils.TableList")
+
+        try:
+            return commons.TableList(table_list)
+        except ValueError:
+            raise ValueError(
+                "query_table_list must be an astroquery.utils.TableList "
+                "or be able to be converted to it.")
 
     def _sanitize_input_row_limit(self, row_limit):
-        if (isinstance(row_limit, int)):
+        if isinstance(row_limit, int):
             return row_limit
         raise ValueError("Row_limit must be an integer")
 

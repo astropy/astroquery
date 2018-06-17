@@ -93,11 +93,11 @@ To see the result:
         '1:XMM-EPIC' with 4 column(s) and 2 row(s)
         '2:XMM-OM' with 12 column(s) and 3 row(s)
 
-All the results are returned as a `astroquery.utils.TableList` object. This is a
+All the results are returned as a `~astroquery.utils.TableList` object. This is a
 container for `~astropy.table.Table` objects. It is basically an extension to
-`collections.OrderedDict` for storing a `~astropy.table.Table` against its name.
+`~collections.OrderedDict` for storing a `~astropy.table.Table` against its name.
 
-To access an individual table from the `astroquery.utils.TableList` object
+To access an individual table from the `~astroquery.utils.TableList` object
 
 .. code-block:: python
 
@@ -108,7 +108,7 @@ To access an individual table from the `astroquery.utils.TableList` object
     PCCS2 217 G104.83+68.55 202.485459453 47.2001843799
 
 To do some common processing to all the tables in the returned
-`astroquery.utils.TableList` object, do just what you would do for a python
+`~astroquery.utils.TableList` object, do just what you would do for a python
 dictionary:
 
 .. code-block:: python
