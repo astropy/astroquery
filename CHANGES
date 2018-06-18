@@ -5,6 +5,7 @@
   table list. [#1167]
 - HITRAN: use class-based API [#824]
 - MAST: Enable converting list of products into S3 uris [#1126]
+- NASA_ADS: Use new API [#1162]
 - VO_CONESEARCH: Service validator now uses new STScI VAO TAP registry. [#1114]
 
 
