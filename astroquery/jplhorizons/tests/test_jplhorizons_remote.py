@@ -70,8 +70,8 @@ class TestHorizonsClass:
         assert res['flags'] == "m"
         assert res['elongFlag'] == '/L'
 
-        assert 'H' not in res
-        assert 'G' not in res
+        for value in ['H', 'G']:
+            assert value not in res.colnames
 
     def test_ephemerides_query_three(self):
         # checks no_fragments option for comets
@@ -81,8 +81,7 @@ class TestHorizonsClass:
                                            'stop': '2080-02-01',
                                            'step': '3h'})
 
-        res = obj.ephemerides(closest_apparition=True,
-                              no_fragments=True)
+        res = obj.ephemerides(closest_apparition=True, no_fragments=True)
 
         assert len(res) == 249
 
@@ -94,8 +93,63 @@ class TestHorizonsClass:
         assert res['flags'] == "m"
         assert res['elongFlag'] == '/L'
 
-        assert 'H' not in res
-        assert 'G' not in res
+        for value in ['H', 'G']:
+            assert value not in res.colnames
+
+    def test_ephemerides_query_four(self):
+        # checks for missing M1 with a comet; 167P satisfies this as
+        # of 18 June 2018
+        obj = jplhorizons.Horizons(id='167P', id_type='designation',
+                                   location='I41',
+                                   epochs={'start': '2080-01-01',
+                                           'stop': '2080-02-01',
+                                           'step': '3h'})
+
+        res = obj.ephemerides(closest_apparition=True,
+                              no_fragments=True)
+
+        assert len(res) == 249
+
+        res = res[0]
+
+        assert res['targetname'] == "167P/CINEOS"
+        assert res['datetime_str'] == "2080-Jan-01 00:00"
+        assert res['solar_presence'] == "*"
+        assert res['flags'] == "m"
+        assert res['elongFlag'] == '/T'
+
+        for value in ['H', 'G', 'M1', 'k1']:
+            assert value not in res.colnames
+
+        for value in ['M2', 'k2', 'phasecoeff']:
+            assert value in res.colnames
+
+    def test_ephemerides_query_five(self):
+        # checks for missing phase coefficient with a comet; 12P
+        # satisfies this as of 18 June 2018
+        obj = jplhorizons.Horizons(id='12P', id_type='designation',
+                                   location='I41',
+                                   epochs={'start': '2080-01-01',
+                                           'stop': '2080-02-01',
+                                           'step': '3h'})
+
+        res = obj.ephemerides(closest_apparition=True)
+
+        assert len(res) == 249
+
+        res = res[0]
+
+        assert res['targetname'] == "12P/Pons-Brooks"
+        assert res['datetime_str'] == "2080-Jan-01 00:00"
+        assert res['solar_presence'] == "*"
+        assert res['flags'] == "m"
+        assert res['elongFlag'] == '/L'
+
+        for value in ['H', 'G', 'phasecoeff']:
+            assert value not in res.colnames
+
+        for value in ['M1', 'k1', 'M2', 'k2']:
+            assert value in res.colnames
 
     def test_ephemerides_query_raw(self):
         res = (jplhorizons.Horizons(id='Ceres', location='500',
