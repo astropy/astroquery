@@ -5,8 +5,10 @@ Module to search the SAO/NASA Astrophysics Data System
 :author: Magnus Persson <magnusp@vilhelm.nu>
 
 """
+import os
 
 from astropy.table import Table
+from astropy.extern.six.moves.urllib.parse import quote as urlencode
 
 from ..query import BaseQuery
 from ..utils import async_to_sync
@@ -25,12 +27,15 @@ __all__ = ['ADS', 'ADSClass']
 class ADSClass(BaseQuery):
 
     SERVER = conf.server
-    QUERY_ADVANCED_PATH = conf.advanced_path
     QUERY_SIMPLE_PATH = conf.simple_path
     TIMEOUT = conf.timeout
+    ADS_FIELDS = conf.adsfields
+    SORT = conf.sort
+    NROWS = conf.nrows
+    NSTART = conf.nstart
+    TOKEN = conf.token
 
     QUERY_SIMPLE_URL = SERVER + QUERY_SIMPLE_PATH
-    QUERY_ADVANCED_URL = SERVER + QUERY_ADVANCED_PATH
 
     def __init__(self, *args):
         """ set some parameters """
@@ -42,70 +47,86 @@ class ADSClass(BaseQuery):
         """
         Basic query.  Uses a string and the ADS generic query.
         """
-        request_payload = self._args_to_payload(query_string)
-
-        response = self._request(method='POST', url=self.QUERY_SIMPLE_URL,
-                                 data=request_payload, timeout=self.TIMEOUT,
-                                 cache=cache)
-
-        response.raise_for_status()
+        request_string = self._args_to_url(query_string)
+        request_fields = self._fields_to_url()
+        request_sort = self._sort_to_url()
+        request_rows = self._rows_to_url(self.NROWS, self.NSTART)
+        request_url = self.QUERY_SIMPLE_URL + request_string + request_fields + request_sort + request_rows
 
         # primarily for debug purposes, but also useful if you want to send
         # someone a URL linking directly to the data
         if get_query_payload:
-            return request_payload
+            return request_url
+
+        response = self._request(method='GET', url=request_url,
+                                 headers={'Authorization': 'Bearer ' + self._get_token()},
+                                 timeout=self.TIMEOUT, cache=cache)
+
+        response.raise_for_status()
+
         if get_raw_response:
             return response
         # parse the XML response into AstroPy Table
-        resulttable = self._parse_response(response)
+        resulttable = self._parse_response(response.json())
 
         return resulttable
 
     def _parse_response(self, response):
 
-        encoded_content = response.text.encode(response.encoding)
-
-        xmlrepr = minidom.parseString(encoded_content)
-        # Check if there are any results!
+        try:
+            response['response']['docs'][0]['bibcode']
+        except IndexError:
+            raise RuntimeError('No results returned!')
 
         # get the list of hits
-        hitlist = xmlrepr.childNodes[0].childNodes
-        hitlist = hitlist[1::2]  # every second hit is a "line break"
+        hitlist = response['response']['docs']
 
-        # Grab the various fields
-        titles = _get_data_from_xml(hitlist, 'title')
-        bibcode = _get_data_from_xml(hitlist, 'bibcode')
-        journal = _get_data_from_xml(hitlist, 'journal')
-        volume = _get_data_from_xml(hitlist, 'volume')
-        pubdate = _get_data_from_xml(hitlist, 'pubdate')
-        page = _get_data_from_xml(hitlist, 'page')
-        score = _get_data_from_xml(hitlist, 'score')
-        citations = _get_data_from_xml(hitlist, 'citations')
-        abstract = _get_data_from_xml(hitlist, 'abstract')
-        doi = _get_data_from_xml(hitlist, 'DOI')
-        eprintid = _get_data_from_xml(hitlist, 'eprintid')
-        authors = _get_data_from_xml(hitlist, 'author')
-        # put into AstroPy Table
         t = Table()
-        t['title'] = titles
-        t['bibcode'] = bibcode
-        t['journal'] = journal
-        t['volume'] = volume
-        t['pubdate'] = pubdate
-        t['page'] = page
-        t['score'] = score
-        t['citations'] = citations
-        t['abstract'] = abstract
-        t['doi'] = doi
-        t['eprintid'] = eprintid
-        t['authors'] = authors
+        # Grab the various fields and put into AstroPy table
+        for field in self.ADS_FIELDS:
+            tmp = _get_data_from_xml(hitlist, field)
+            t[field] = tmp
 
         return t
 
-    def _args_to_payload(self, query_string):
+    def _args_to_url(self, query_string):
         # convert arguments to a valid requests payload
         # i.e. a dictionary
-        return {'qsearch': query_string, 'data_type': 'XML'}
+        request_string = 'q=' + urlencode(query_string)
+        return request_string
+
+    def _fields_to_url(self):
+        request_fields = '&fl=' + ','.join(self.ADS_FIELDS)
+        return request_fields
+
+    def _sort_to_url(self):
+        request_sort = '&sort=' + urlencode(self.SORT)
+        return request_sort
+
+    def _rows_to_url(self, nrows=10, nstart=0):
+        request_rows = '&rows=' + str(nrows) + '&start=' + str(nstart)
+        return request_rows
+
+    def _get_token(self):
+        """
+        Try to get token from the places Andy Casey's python ADS client expects it, otherwise return an error
+        """
+        if self.TOKEN is not None:
+            return self.TOKEN
+
+        self.TOKEN = os.environ.get('ADS_DEV_KEY', None)
+        if self.TOKEN is not None:
+            return self.TOKEN
+
+        token_file = os.path.expanduser(os.path.join('~', '.ads', 'dev_key'))
+        try:
+            with open(token_file) as f:
+                self.TOKEN = f.read().strip()
+            return self.TOKEN
+        except IOError:
+            raise RuntimeError('No API token found! Get yours from: '
+                               'https://ui.adsabs.harvard.edu/#user/settings/token '
+                               'and store it in the API_DEV_KEY environment variable.')
 
 
 ADS = ADSClass()
