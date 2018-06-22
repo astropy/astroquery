@@ -10,6 +10,7 @@ from .shared_registry import SharedRegistryTests
 ##
 ##  astroquery/vo > python tests/thetests.py
 
+from .thetests import TestReg
 
 @remote_data
 class TestRegistryRemote(SharedRegistryTests):
@@ -23,4 +24,3 @@ class TestRegistryRemote(SharedRegistryTests):
 
     def test_query_timeout(self):
         self.query_timeout()
-
