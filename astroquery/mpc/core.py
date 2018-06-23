@@ -303,8 +303,29 @@ class MPCClass(BaseQuery):
             mpc_endpoint = mpc_endpoint + '/search_comet_orbits'
         return mpc_endpoint
 
+    _ephemeris_types = {
+        'equatorial': 'a',
+        'heliocentric': 's',
+        'geocentric': 'G'
+    }
+
+    _default_number_of_steps = {
+        'd': 21,
+        'h': 49,
+        'm': 121,
+        's': 301
+    }
+
+    _proper_motions = {
+        'total': 't',
+        'coordinate': 'c',
+        'sky': 's'
+    }
+
     def query_ephemeris_async(self, target, location='500', start=None, step='1d',
-                              number=None, utoffset=0, eph_type='equatorial', **kwargs):
+                              number=None, utoffset=0, eph_type='equatorial',
+                              proper_motion='total', suppress_daytime=False,
+                              suppress_set=False, perturbed=True, **kwargs):
         """Query the Minor Planet Ephemeris Service for ephemerides.
 
         Parameters
@@ -313,11 +334,12 @@ class MPCClass(BaseQuery):
           Designation of the object of interest.  See Notes for
           acceptable formats.
 
-        location : str, tuple, or EarthLocation, optional
-          Observer's location as an IAU observatory code[2]_, an Earth
-          longitude, latitude, altitude tuple (degrees and meters, or
-          astropy units), or an astropy `EarthLocation`.  If `None`,
-          then the geocenter (code 500) is used.
+        location : str, array-like, or EarthLocation, optional
+          Observer's location as an IAU observatory code[2]_, a
+          3-element array of Earth longitude, latitude, altitude
+          (degrees and meters, or astropy units), or an astropy
+          `EarthLocation`.  If `None`, then the geocenter (code 500)
+          is used.
 
         start : str or Time, optional
           First epoch of the ephemeris as a string (UT), or astropy
@@ -476,6 +498,53 @@ class MPCClass(BaseQuery):
            (retrieved 2018 June 19).
 
         """
+
+        from astropy.time import Time
+        import astropy.units as u
+        from astropy.coordinates import EarthLocation
+
+        # HTTP POST data containing MPES parameters
+        data = {
+            'ty': 'e',
+            'TextArea': str(target),
+            'uto': int(utoffset),
+            'igd': 'y' if suppress_daytime else 'n',
+            'ibh': 'y' if suppress_set else 'n',
+            'fp': 'y' if perturbed else 'n',
+            'adir': 'N'  # always measure azimuth eastward from north
+        }
+
+        if isinstance(location, str):
+            data['c'] = location
+        elif isinstance(location, int):
+            data['c'] = '{:03d}'.format(location)
+        elif isinstance(location, EarthLocation):
+            loc = location.geodetic
+            data['long'] = loc.lon.deg
+            data['lat'] = loc.lat.deg
+            data['alt'] = loc.height.to(u.m).value
+        elif np.isiterable(location):
+            data['long'] = u.Quantity(loc[0], u.deg).value
+            data['lat'] = u.Quantity(loc[1], u.deg).value
+            data['alt'] = u.Quantity(loc[2], u.m).value
+
+        if start is None:
+            data['d'] = Time.now().iso[:10]
+        elif isinstance(start, Time):
+            data['d'] = start.iso.replace(':', '').replace('-', ':')[:15]
+        else:
+            data['d'] = start
+
+        _step = u.Quantity(step)
+        assert _step.unit in [
+            u.d, u.h, u.min, u.s], 'step must have units of days, hours, minutues, or seconds.'
+        data['i'] = int(round(step.value))
+        data['u'] = str(step.unit)[:1]
+        data['l'] = self._default_number_of_steps.get(interval_unit, number)
+
+        data['raty'] = self._ephemeris_types[eph_type]
+        data['s'] = self._proper_motions[proper_motion]
+        data['m'] = 'h'  # proper motion always arcsec/hr
 
 
 MPC = MPCClass()
