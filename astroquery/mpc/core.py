@@ -1,4 +1,4 @@
-st  # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 from ..query import BaseQuery
 from . import conf
