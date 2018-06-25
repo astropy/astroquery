@@ -7,14 +7,14 @@ from astroquery.vo import Registry
 ##  
 ##  astroquery/vo > python tests/thetests.py 
 
-DATA_FILES = {'query_basic': 'registry_query_basic.json', 
+DATA_FILES = {'query_basic': 'registry_query_basic.pkl', 
+              "query_counts":"registry_query_counts.pkl",
               'adql_service': 'registry_adql_service.json', 
               "adql_keyword":"registry_adql_keyword.json", 
               "adql_waveband":"registry_adql_waveband.json", 
               "adql_source":"registry_adql_source.json", 
               "adql_publisher":"registry_adql_publisher.json", 
-              "adql_orderby":"registry_adql_orderby.json", 
-              "query_counts":"registry_query_counts.json"
+              "adql_orderby":"registry_adql_orderby.json" 
 }
 
 

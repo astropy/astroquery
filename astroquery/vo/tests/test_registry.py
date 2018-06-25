@@ -4,8 +4,6 @@ import pytest
 from astropy.tests.helper import pytest
 from ...utils.testing_tools import MockResponse
 
-#from astroquery.vo import Registry
-
 from ... import vo 
 
 ## To run just this test,
@@ -16,10 +14,6 @@ from ... import vo
 
 from .thetests import TestReg
 
-
-def data_path(filename):
-    data_dir = os.path.join(os.path.dirname(__file__), 'data')
-    return os.path.join(data_dir, filename)
 
 
 @pytest.fixture
@@ -37,6 +31,7 @@ def post_mockreturn(method="POST", url=None, data=None, timeout=10, **kwargs):
     assert "query" in data
     if "ivoid like 'heasarc'" in data[query] and "cap_type like 'simpleimageaccess'" in data[query]:
         testcase="basic"
+    # ... add more cases ...
 
     filename = data_path(DATA_FILES[testcase])
     content = open(filename, 'rb').read()
