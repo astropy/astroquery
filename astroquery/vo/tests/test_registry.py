@@ -10,7 +10,7 @@ from ... import vo
 
 ## To run just this test,
 ##
-## ( cd ../../ ; python setup.py test -t astroquery/vo/tests/test_registry_remote.py --remote-data )
+## ( cd ../../ ; python setup.py test -t astroquery/vo/tests/test_registry.py )
 ##
 
 

@@ -24,11 +24,13 @@ class TestReg(object):
 
     def data_path(self,filename,reinit=False):
         """ In case these paths change depending on test methods"""
-        if reinit:
-            data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../data'))
-        else:
-            data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../data'))
+        data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data'))
         return os.path.join(data_dir, filename)
+    #   if reinit:
+    #        data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data'))
+    #    else:
+    #        data_dir = os.path.abspath('data')
+    #    return os.path.join(data_dir, filename)
 
     def rewrite(self):
         """Called by main below to re-generate the reference pickle files."""
