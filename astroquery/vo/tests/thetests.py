@@ -1,4 +1,4 @@
-import pickle,json, os
+import pickle,json, os, pandas
 ## Why can't I import astroquery.vo ? 
 from astroquery.vo import Registry
 
@@ -17,20 +17,45 @@ DATA_FILES = {'query_basic': 'registry_query_basic.pkl',
               "adql_orderby":"registry_adql_orderby.json" 
 }
 
+## Convert a table to JSON and write it. 
+def table2json(current,fname,suffix=None):
+    data_dir=os.path.abspath(os.path.join(os.path.dirname(__file__), 'data'))
+    try:
+        currentP=current.to_pandas()
+        with open(fname+suffix,'w') as f:
+            json.dump( currentP.to_json(), f)
+        with open(fname+'_meta'+suffix,'w') as f:
+            json.dump( current.meta, f)
+    except: 
+        raise
+
+
+def data_path(filename,reinit=False):
+    """ In case these paths change depending on test methods?"""
+    data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data'))
+    return os.path.join(data_dir, filename)
+
+
+def table_comp(current,filecomp):
+    """Compare the resulting Tables piece by piece
+    
+    Trying to give more info than just a failed assertion.
+    """
+    reference=pickle.load(open(filecomp,'rb'))
+    ## Check the meta data have the same keys:
+    assert set(current.meta)==set(reference.meta), "current.meta.keys()={},\nreference.meta.keys()={}".format(current.meta.keys(),reference.meta.keys())
+    ## Check their values
+    for k in current.meta.keys():
+        assert current.meta[k]==reference.meta[k],"Run 'python tests/thetests.py' to generate new outputs and 'git diff tests/data/{}.to_json'".format(DATA_FILES['query_basic'])
+    return True
+
+
+
+
 
 ## Keep the tests in one place. Import and decorate or init differently in
 ## test_registry.py or test_registry_remote.py or this main
 class TestReg(object):
-
-    def data_path(self,filename,reinit=False):
-        """ In case these paths change depending on test methods"""
-        data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data'))
-        return os.path.join(data_dir, filename)
-    #   if reinit:
-    #        data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data'))
-    #    else:
-    #        data_dir = os.path.abspath('data')
-    #    return os.path.join(data_dir, filename)
 
     def rewrite(self):
         """Called by main below to re-generate the reference pickle files."""
@@ -45,15 +70,7 @@ class TestReg(object):
         self.test_adql_orderby(True)
 
 
-    def table_comp(self,current,filecomp):
-        """Compare the resulting Tables"""
-        reference=pickle.load(open(filecomp,'rb'))
-        ok=True
-        ## Check the meta data:
-        metadiff={ k : current.meta[k] for k in set(current.meta) - set(reference.meta) }
-        if len(metadiff.keys()) > 0: ok=False
-        return ok
-                              
+
     ##
     ##  Tests that make an http request:
     ## 
@@ -61,16 +78,19 @@ class TestReg(object):
         result = Registry.query(source='heasarc',
                                                 service_type='image')
         if reinit:
-            pickle.dump(result, open(self.data_path(DATA_FILES['query_basic'],reinit),'wb'))
+            pickle.dump(result, open(data_path(DATA_FILES['query_basic'],reinit),'wb'))
+            table2json(result, data_path(DATA_FILES['query_basic']), suffix='.to_json')
         else:
-            assert(self.table_comp(result,self.data_path(DATA_FILES['query_basic'])))
+            assert(table_comp(result,data_path(DATA_FILES['query_basic'])))
+
 
     def test_query_counts(self,reinit=False):
         result = Registry.query_counts('publisher', 15, verbose=True)
         if reinit:
-            pickle.dump(result,open(self.data_path(DATA_FILES['query_counts'],reinit),'wb') )
+            pickle.dump(result,open(data_path(DATA_FILES['query_counts'],reinit),'wb') )
+            table2json(result, data_path(DATA_FILES['query_counts']), suffix='.to_json')
         else:
-            assert(self.table_comp(result,self.data_path(DATA_FILES['query_counts'])))
+            assert(table_comp(result,data_path(DATA_FILES['query_counts'])))
 
     def test_query_timeout(self):
         from requests.exceptions import (Timeout, ReadTimeout)
@@ -93,60 +113,60 @@ class TestReg(object):
     def test_adql_service(self,reinit=False):
         result = Registry._build_adql(service_type="image")
         if reinit:
-            with open(self.data_path(DATA_FILES['adql_service'],reinit),'w') as f:
+            with open(data_path(DATA_FILES['adql_service'],reinit),'w') as f:
                 json.dump(result,f)
         else:
-            with open(self.data_path(DATA_FILES['adql_service']),'r') as f:
+            with open(data_path(DATA_FILES['adql_service']),'r') as f:
                 reference=json.load(f)
             assert(result == reference)
 
     def test_adql_keyword(self,reinit=False):
         result = Registry._build_adql(keyword="foobar", service_type="image")
         if reinit:
-            with open(self.data_path(DATA_FILES['adql_keyword'],reinit),'w') as f:
+            with open(data_path(DATA_FILES['adql_keyword'],reinit),'w') as f:
                 json.dump(result,f)
         else:
-            with open(self.data_path(DATA_FILES['adql_keyword']),'r') as f:
+            with open(data_path(DATA_FILES['adql_keyword']),'r') as f:
                 reference=json.load(f)
             assert(result == reference)
 
     def test_adql_waveband(self,reinit=False):
         result = Registry._build_adql(waveband='foobar', service_type="image")
         if reinit:
-            with open(self.data_path(DATA_FILES['adql_waveband'],reinit),'w') as f:
+            with open(data_path(DATA_FILES['adql_waveband'],reinit),'w') as f:
                 json.dump(result,f)
         else:
-            with open(self.data_path(DATA_FILES['adql_waveband']),'r') as f:
+            with open(data_path(DATA_FILES['adql_waveband']),'r') as f:
                 reference=json.load(f)
             assert(result == reference)
 
     def test_adql_source(self,reinit=False):
         result = Registry._build_adql(source='foobar', service_type="image")
         if reinit:
-            with open(self.data_path(DATA_FILES['adql_source'],reinit),'w') as f:
+            with open(data_path(DATA_FILES['adql_source'],reinit),'w') as f:
                 json.dump(result,f)
         else:
-            with open(self.data_path(DATA_FILES['adql_source']),'r') as f:
+            with open(data_path(DATA_FILES['adql_source']),'r') as f:
                 reference=json.load(f)
             assert(result == reference)
 
     def test_adql_publisher(self,reinit=False):
         result = Registry._build_adql(publisher='foobar', service_type="image")
         if reinit:
-            with open(self.data_path(DATA_FILES['adql_publisher'],reinit),'w') as f:
+            with open(data_path(DATA_FILES['adql_publisher'],reinit),'w') as f:
                 json.dump(result,f)
         else:
-            with open(self.data_path(DATA_FILES['adql_publisher']),'r') as f:
+            with open(data_path(DATA_FILES['adql_publisher']),'r') as f:
                 reference=json.load(f)
             assert(result == reference)
 
     def test_adql_orderby(self,reinit=False):
         result = Registry._build_adql(order_by="foobar", service_type="image")
         if reinit:
-            with open(self.data_path(DATA_FILES['adql_orderby'],reinit),'w') as f:
+            with open(data_path(DATA_FILES['adql_orderby'],reinit),'w') as f:
                 json.dump(result,f)
         else:
-            with open(self.data_path(DATA_FILES['adql_orderby']),'r') as f:
+            with open(data_path(DATA_FILES['adql_orderby']),'r') as f:
                 reference=json.load(f)
             assert(result == reference)
 
