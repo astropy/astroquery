@@ -4,16 +4,14 @@ import pytest
 from astropy.tests.helper import pytest
 from ...utils.testing_tools import MockResponse
 
-from ... import vo 
+from ... import vo
 
 ## To run just this test,
 ##
 ## ( cd ../../ ; python setup.py test -t astroquery/vo/tests/test_registry.py )
 ##
 
-
 from .thetests import TestReg
-
 
 
 @pytest.fixture
@@ -30,7 +28,7 @@ def post_mockreturn(method="POST", url=None, data=None, timeout=10, **kwargs):
     # Determine the test case from the URL and/or data
     assert "query" in data
     if "ivoid like 'heasarc'" in data[query] and "cap_type like 'simpleimageaccess'" in data[query]:
-        testcase="basic"
+        testcase = "basic"
     # ... add more cases ...
 
     filename = data_path(DATA_FILES[testcase])
@@ -38,5 +36,3 @@ def post_mockreturn(method="POST", url=None, data=None, timeout=10, **kwargs):
 
     # returning as list because this is what the mast _request function does
     return [MockResponse(content)]
-
-
