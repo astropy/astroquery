@@ -8,7 +8,6 @@ from ..utils import commons
 from ..utils import async_to_sync
 
 from . import conf
-from .dataset import Dataset
 
 from .output_format import OutputFormat
 
@@ -285,6 +284,8 @@ class CdsClass(BaseQuery):
 
         json_result = response.json()
         if self.output_format.format is cds.ReturnFormat.record:
+            from .dataset import Dataset
+
             # The user will get a dictionary of Dataset objects indexed by their ID names.
             # The http response is a list of dict. Each dict represents one data set. Each dict is a list
             # of (meta-data name, value in str)

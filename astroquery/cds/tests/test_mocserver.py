@@ -7,10 +7,8 @@ import os
 import json
 from sys import getsizeof
 
-from ..core import cds, CdsClass
+from ..core import cds
 
-from astroquery.utils.testing_tools import MockResponse
-from mocpy import MOC
 from astropy import coordinates
 
 DATA_FILES = {
@@ -96,7 +94,6 @@ def test_request_results(type, params, data_file_id,
                                           get_query_payload=False,
                                           verbose=True,
                                           **params)
-    print(request_results)
     true_request_results = get_true_request_results(data_file_id=data_file_id)
 
     assert getsizeof(request_results) == getsizeof(true_request_results)
@@ -159,24 +156,6 @@ def test_intersect_param(intersect):
         assert request_payload['intersect'] == intersect
 
 
-@pytest.mark.parametrize('get_attr, get_attr_str', [(cds.ReturnFormat.id, 'id'),
-                                                    (cds.ReturnFormat.record, 'record'),
-                                                    (cds.ReturnFormat.number, 'number'),
-                                                    (cds.ReturnFormat.moc, 'moc'),
-                                                    (cds.ReturnFormat.i_moc, 'imoc')])
-def test_get_attribute(get_attr, get_attr_str):
-    """Test if the request parameter 'get' works for a basic cone search request"""
-    center = coordinates.SkyCoord(ra=10.8, dec=32.2, unit="deg")
-    radius = coordinates.Angle(1.5, unit="deg")
-    result = cds.query_region(region_type=cds.RegionType.Cone,
-                              center=center,
-                              radius=radius,
-                              output_format=get_attr,
-                              get_query_payload=True)
-
-    assert result['get'] == get_attr_str
-
-
 # test of MAXREC payload
 @pytest.mark.parametrize('max_rec', [3, 10, 25, 100])
 def test_max_rec_param(max_rec):
@@ -191,54 +170,89 @@ def test_max_rec_param(max_rec):
     assert max_rec == len(result)
 
 
-# test of moc_order payload
-@pytest.mark.parametrize('moc_order', [5, 10])
-def test_moc_order_param(moc_order):
-    result = cds.query_region(region_type=cds.RegionType.MOC,
-                              url='http://alasky.u-strasbg.fr/SDSS/DR9/color/Moc.fits',
-                              # return a mocpy obj
-                              output_format=cds.ReturnFormat.moc,
-                              moc_order=moc_order,
-                              get_query_payload=False)
+"""
+Tests requiring mocpy
 
-    assert isinstance(result, MOC)
+"""
+try:
+    from mocpy import MOC
 
+    # test of moc_order payload
+    @pytest.mark.parametrize('moc_order', [5, 10])
+    def test_moc_order_param(moc_order):
+        result = cds.query_region(region_type=cds.RegionType.MOC,
+                                  url='http://alasky.u-strasbg.fr/SDSS/DR9/color/Moc.fits',
+                                  # return a mocpy obj
+                                  output_format=cds.ReturnFormat.moc,
+                                  moc_order=moc_order,
+                                  get_query_payload=False)
 
-def test_from_mocpy_obj():
-    moc = MOC()
-    moc.add_pix(order=5, i_pix=3, nest=True)
-    moc.add_pix(order=9, i_pix=34, nest=True)
-    moc.add_pix(order=9, i_pix=35, nest=True)
-    moc.add_pix(order=9, i_pix=36, nest=True)
-    result = cds.query_region(region_type=cds.RegionType.MOC,
-                              moc=moc,
-                              get_query_payload=True)
-
-    from ast import literal_eval
-    assert literal_eval(result['moc']) == {"5": [3],
-                                           "9": [34, 35, 36]}
+        assert isinstance(result, MOC)
 
 
-# test of field_l when retrieving dataset records
-@pytest.mark.parametrize('field_l', [['ID'],
-                                     ['ID', 'moc_sky_fraction'],
-                                     ['data_ucd', 'vizier_popularity', 'ID'],
-                                     ['publisher_id', 'ID']])
-def test_field_l_param(field_l):
-    center = coordinates.SkyCoord(ra=10.8, dec=32.2, unit="deg")
-    radius = coordinates.Angle(1.5, unit="deg")
-    datasets = cds.query_region(region_type=cds.RegionType.Cone,
-                                center=center,
-                                radius=radius,
-                                output_format=cds.ReturnFormat.record,
-                                meta_var=field_l,
-                                get_query_payload=False)
+    def test_from_mocpy_obj():
+        moc = MOC()
+        moc.add_pix(order=5, i_pix=3, nest=True)
+        moc.add_pix(order=9, i_pix=34, nest=True)
+        moc.add_pix(order=9, i_pix=35, nest=True)
+        moc.add_pix(order=9, i_pix=36, nest=True)
+        result = cds.query_region(region_type=cds.RegionType.MOC,
+                                  moc=moc,
+                                  get_query_payload=True)
 
-    assert isinstance(datasets, dict)
-    for id, dataset in datasets.items():
-        at_least_one_field = False
-        for field in field_l:
-            if field in dataset.properties.keys():
-                at_least_one_field = True
-                break
-        assert at_least_one_field
+        from ast import literal_eval
+        assert literal_eval(result['moc']) == {"5": [3],
+                                               "9": [34, 35, 36]}
+except ImportError:
+    pass
+
+
+"""
+Tests requiring pyvo
+
+"""
+try:
+    # test of field_l when retrieving dataset records
+    @pytest.mark.parametrize('field_l', [['ID'],
+                                         ['ID', 'moc_sky_fraction'],
+                                         ['data_ucd', 'vizier_popularity', 'ID'],
+                                         ['publisher_id', 'ID']])
+    def test_field_l_param(field_l):
+        center = coordinates.SkyCoord(ra=10.8, dec=32.2, unit="deg")
+        radius = coordinates.Angle(1.5, unit="deg")
+        datasets = cds.query_region(region_type=cds.RegionType.Cone,
+                                    center=center,
+                                    radius=radius,
+                                    output_format=cds.ReturnFormat.record,
+                                    meta_var=field_l,
+                                    get_query_payload=False)
+
+        assert isinstance(datasets, dict)
+        for id, dataset in datasets.items():
+            at_least_one_field = False
+            for field in field_l:
+                if field in dataset.properties.keys():
+                    at_least_one_field = True
+                    break
+            assert at_least_one_field
+
+
+    @pytest.mark.parametrize('get_attr, get_attr_str', [(cds.ReturnFormat.id, 'id'),
+                                                        (cds.ReturnFormat.record, 'record'),
+                                                        (cds.ReturnFormat.number, 'number'),
+                                                        (cds.ReturnFormat.moc, 'moc'),
+                                                        (cds.ReturnFormat.i_moc, 'imoc')])
+    def test_get_attribute(get_attr, get_attr_str):
+        """Test if the request parameter 'get' works for a basic cone search request"""
+        center = coordinates.SkyCoord(ra=10.8, dec=32.2, unit="deg")
+        radius = coordinates.Angle(1.5, unit="deg")
+        result = cds.query_region(region_type=cds.RegionType.Cone,
+                                  center=center,
+                                  radius=radius,
+                                  output_format=get_attr,
+                                  get_query_payload=True)
+
+        assert result['get'] == get_attr_str
+
+except ImportError:
+    pass
