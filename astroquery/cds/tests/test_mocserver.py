@@ -27,22 +27,6 @@ def data_path(filename):
 
 
 @pytest.fixture
-def patch_get(request):
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(CdsClass, '_request', get_mockreturn)
-    return mp
-
-
-def get_mockreturn(method, url, params=None, timeout=10, **kwargs):
-    filename = data_path(DATA_FILES[params['get']])
-    content = open(filename, 'rb').read()
-    return MockResponse(content)
-
-
-@pytest.fixture
 def get_request_results():
     """Perform the request using the astroquery.MocServer  API"""
 
