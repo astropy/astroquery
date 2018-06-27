@@ -25,7 +25,7 @@ def table2json(current, fname, suffix='.json'):
 
     try:
         currentP = current.to_pandas()
-        with open(fname+suffix, 'w') as f:
+        with open(fileroot+suffix, 'w') as f:
             json.dump(currentP.to_json(), f, indent=2)
         with open(fileroot+'_meta'+suffix, 'w') as f:
             json.dump(current.meta, f, indent=2)
