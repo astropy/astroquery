@@ -43,8 +43,9 @@ def astropy_table_from_votable_response(response):
         print("ERROR parsing response as astropy Table: looks like the content isn't the expected VO table XML? Returning an empty table. Look at its meta data to debug.")
         aptable = Table()
 
-    aptable.meta['url'] = response.url
-    aptable.meta['text'] = response.text
+    ## This helps in debugging. Other meta data we might want to store?
+    #aptable.meta['astroquery.vo'] = {"url":response.url,"text":response.text}
+    aptable.meta['astroquery.vo'] = {"url":response.url}
     # String values in the VOTABLE are stored in the astropy Table as bytes instead
     # of strings.  To makes accessing them more convenient, we will convert all those
     # bytes values to strings.
