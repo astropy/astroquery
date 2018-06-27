@@ -1,0 +1,5 @@
+{
+  "astroquery.vo": {
+    "url": "https://vao.stsci.edu/RegTAP/TapService.aspx/sync"
+  }
+}
