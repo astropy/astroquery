@@ -222,10 +222,10 @@ def test_moc_order_param(moc_order):
 
 def test_from_mocpy_obj():
     moc = MOC()
-    moc.add_pix(order=5, ipix=3, nest=True)
-    moc.add_pix(order=9, ipix=34, nest=True)
-    moc.add_pix(order=9, ipix=35, nest=True)
-    moc.add_pix(order=9, ipix=36, nest=True)
+    moc.add_pix(order=5, i_pix=3, nest=True)
+    moc.add_pix(order=9, i_pix=34, nest=True)
+    moc.add_pix(order=9, i_pix=35, nest=True)
+    moc.add_pix(order=9, i_pix=36, nest=True)
     result = cds.query_region(region_type=cds.RegionType.MOC,
                               moc=moc,
                               get_query_payload=True)

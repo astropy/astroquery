@@ -286,20 +286,10 @@ class Moc(SpatialConstrain):
 
         assert isinstance(mocpy_obj, MOC), TypeError("`mocpy_obj` must be of type mocpy.MOC")
 
-        import tempfile
-        tmp_moc_file = tempfile.NamedTemporaryFile(delete=False)
-
         # dump the moc in json format in a temp file
-        mocpy_obj.write(tmp_moc_file.name, format='json')
-        # read it to retrieve the moc in json format
-        with open(tmp_moc_file.name, 'r') as f_in:
-            content = f_in.read()
-
-        # finally delete the temp file
-        import os
-        os.unlink(tmp_moc_file.name)
+        json_moc = mocpy_obj.write(format='json')
 
         moc_constrain = cls(intersect=intersect)
 
-        moc_constrain.request_payload.update({'moc': content.strip('\n')})
+        moc_constrain.request_payload.update({'moc': str(json_moc)})
         return moc_constrain

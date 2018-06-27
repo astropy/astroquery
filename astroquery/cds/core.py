@@ -105,7 +105,6 @@ class CdsClass(BaseQuery):
         meta_var : [str], optional
             List of the meta data that the user wants to retrieve, e.g. ['ID', 'moc_sky_fraction'].
             Only if ``output_format`` is set to ``cds.ReturnFormat.record``.
-            See this :ref:`example <query_on_meta_data>`
         meta_data : str
             Algebraic expression on meta_var for filtering data sets.
             See this :ref:`example <query_on_meta_data>`
@@ -309,12 +308,16 @@ class CdsClass(BaseQuery):
             result = int(json_result['number'])
         elif self.output_format.format is cds.ReturnFormat.moc or \
                 self.output_format.format is cds.ReturnFormat.i_moc:
-            # The user will get a mocpy.MOC object that he can manipulate (i.o in fits file,
-            # MOC operations, plot the MOC using matplotlib, etc...)
-            # TODO : just call the MOC.from_json classmethod to get the corresponding mocpy object.
-            # TODO : this method will be available in a new mocpy version
+            # The user will get a mocpy.MOC object that he can manipulate through the
+            # mocpy API https://github.com/cds-astro/mocpy
 
-            result = CdsClass._create_mocpy_object_from_json(json_result)
+            try:
+                from mocpy import MOC
+            except ImportError:
+                raise ImportError("Could not import mocpy, which is a requirement for the CDS service."
+                                  "Please see https://github.com/cds-astro/mocpy to install it.")
+
+            result = MOC.from_json(json_result)
         else:
             # The user will get a list of the matched data sets ID names
             result = json_result
@@ -367,64 +370,6 @@ class CdsClass(BaseQuery):
                 return value_l[0]
 
         return value_l
-
-    @staticmethod
-    def _create_mocpy_object_from_json(json_moc):
-        """
-        ``mocpy.MOC`` object instantiation from a MOC expressed in json
-
-        Parameters
-        ----------
-        json_moc : dict{str : [int]}
-            json MOC definition involving a list of pix for specific orders in string format.
-
-        Returns
-        -------
-        moc : ``mocpy.MOC``
-            the MOC object created
-
-        """
-        """
-        Create a mocpy.MOC object from a moc expressed in json format
-
-        """
-
-        try:
-            from mocpy import MOC
-        except ImportError:
-            raise ImportError("Could not import mocpy, which is a requirement for the CDS service."
-                              "  Please see https://github.com/cds-astro/mocpy to install it.")
-
-        def orderipix2uniq(n_order, i_pix):
-            """
-            Convert an (order, pix) tuple defining a MOC tile into a uniq number
-
-            Parameters
-            ----------
-            n_order : int
-                order of the MOC tile. Must be <= 29
-            i_pix : int
-                pixel number of the MOC tile
-
-            Returns
-            -------
-            order : int
-                uniq singleton number defining a MOC tile
-
-            """
-
-            return ((4 ** n_order) << 2) + i_pix
-
-        from mocpy.interval_set import IntervalSet
-        uniq_interval = IntervalSet()
-        for order, pix_l in json_moc.items():
-            order = int(order)
-
-            for pix in pix_l:
-                uniq_interval.add(orderipix2uniq(order, pix))
-
-        moc = MOC.from_uniq_interval_set(uniq_interval)
-        return moc
 
     class RegionType(Enum):
         """
