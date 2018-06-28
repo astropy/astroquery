@@ -82,11 +82,16 @@ def raw2json(response, fname):
         raise e
   
 def json2raw(fname):
+    import requests
     try:
         with open(fname, 'r') as f:
             x=json.loads(json.load(f))['astroquery.vo']
             #print("Type of x is {}".format(type(x)))
-            return x['url'],str.encode(x['text'])
+            response=requests.models.Response()
+            response.text=str.encode(x['text'])
+            response.url=x['url']
+            #return x['url'],str.encode(x['text'])
+            return response
     except Exception as e:
         raise e
 
