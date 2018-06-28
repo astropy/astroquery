@@ -87,11 +87,12 @@ def json2raw(fname):
         with open(fname, 'r') as f:
             x=json.loads(json.load(f))['astroquery.vo']
             #print("Type of x is {}".format(type(x)))
-            response=requests.models.Response()
-            response.text=str.encode(x['text'])
-            response.url=x['url']
-            #return x['url'],str.encode(x['text'])
-            return response
+            #response=requests.models.Response()
+            #setattr(response,'content',str.encode(x['text']))
+            #setattr(response,'text',x['text'])
+            #setattr(response,'url',x['url'])
+            #return response
+            return x['url'],str.encode(x['text'])
     except Exception as e:
         raise e
 
@@ -109,7 +110,7 @@ def table_comp(current, fileroot, suffix='.json'):
     Trying to give more info than just a failed assertion.
     """
     reference=json2table(fileroot+suffix)
-    table_meta_comp(current,reference)
+    #table_meta_comp(current,reference)
     table_stats_comp(current,reference)
 
     return True

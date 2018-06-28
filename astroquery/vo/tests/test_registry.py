@@ -39,16 +39,15 @@ def mockreturn(method="POST", url=None, data=None, params=None, timeout=10, **kw
 
     filename = data_path(DATA_FILES[testcase])
     url, content=json2raw(filename)
-    return MockResponse(content)
-
-
-##
-##  Tests that make an http request that we need to mock:
-##
+    return MockResponse(content=content,url=url)
 
 from .thetests import *
 
 DATA_FILES=TestReg.DATA_FILES
+
+##
+##  Tests that make an http request that we need to mock:
+##
 
 def test_mockquery_basic(patch):
     t=TestReg()
@@ -58,7 +57,32 @@ def test_mockquery_counts(patch):
     t=TestReg()
     t.query_counts()
 
-def test_mockquery_timeout(patch):
+
+##
+##  Tests that only use internal functions
+##
+
+def test_adql_service():
     t=TestReg()
-    t.query_timeout()
+    t.adql_service()
+
+def test_adql_keyword():
+    t=TestReg()
+    t.adql_keyword()
+
+def test_adql_waveband():
+    t=TestReg()
+    t.adql_waveband()
+
+def test_adql_source():
+    t=TestReg()
+    t.adql_source()
+
+def test_adql_publisher():
+    t=TestReg()
+    t.adql_publisher()
+
+def test_adql_orderby():
+    t=TestReg()
+    t.adql_orderby()
 
