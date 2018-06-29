@@ -11,8 +11,6 @@ from . import conf
 
 from .output_format import OutputFormat
 
-from enum import Enum
-
 __all__ = ['cds', 'CdsClass']
 
 
@@ -373,39 +371,40 @@ class CdsClass(BaseQuery):
 
         return value_l
 
-    class RegionType(Enum):
+    class RegionType:
         """
         Region type enumeration for :meth:`~astroquery.cds.CdsClass.query_region`
 
         """
 
-        MOC = 1,
-        Cone = 2,
-        Polygon = 3,
+        MOC = 1
+        Cone = 2
+        Polygon = 3
         AllSky = 4
 
-    class ReturnFormat(Enum):
+    class ReturnFormat:
         """
         Output format enumeration for :meth:`~astroquery.cds.CdsClass.query_region`
 
         """
 
-        id = 1,
-        record = 2,
-        number = 3,
-        moc = 4,
+        id = 1
+        record = 2
+        number = 3
+        moc = 4
         i_moc = 5
+        return_format_size = 6
 
-    class ServiceType(Enum):
+    class ServiceType:
         """
         Service type enumeration for :meth:`~astroquery.cds.Dataset.search`
 
         """
 
-        cs = 1,
-        tap = 2,
-        ssa = 4,
-        sia = 5
+        cs = 'cs'
+        tap = 'tap'
+        ssa = 'ssa'
+        sia = 'sia'
 
 
 cds = CdsClass()

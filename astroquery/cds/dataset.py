@@ -43,7 +43,7 @@ class Dataset:
         self._init_service(cds.ServiceType.sia, vo.dal.SIAService)
 
     def _init_service(self, service_type, service_class):
-        name_srv_property = service_type.name + '_service_url'
+        name_srv_property = service_type + '_service_url'
 
         id_mirror_server = 1
         while True:
@@ -97,7 +97,7 @@ class Dataset:
 
         """
 
-        result = [service_type.name for service_type in self._services.keys()]
+        result = [service_type for service_type in self._services.keys()]
         return result
 
     def search(self, service_type, **kwargs):
@@ -159,13 +159,12 @@ class Dataset:
 
         """
 
-        from .core import cds
-        if not isinstance(service_type, cds.ServiceType):
+        if service_type not in ('cs', 'tap', 'ssa', 'sia'):
             raise ValueError('Service {0} not found'.format(service_type))
 
         if service_type not in self._services.keys():
             raise KeyError('The service {0:s} is not available for this dataset\n'
-                           'Available services are the following :\n{1}'.format(service_type.name, self.services))
+                           'Available services are the following :\n{1}'.format(service_type, self.services))
 
         services_l = self._services[service_type]
 

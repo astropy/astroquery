@@ -9,7 +9,7 @@ class OutputFormat(object):
     def __init__(self, output_format, field_l, moc_order, case_sensitive, max_rec):
         from .core import cds
 
-        if not isinstance(output_format, cds.ReturnFormat):
+        if output_format not in range(1, cds.ReturnFormat.return_format_size):
             raise TypeError('`output_format` must be of type cds.ReturnFormat')
 
         if not isinstance(field_l, list):

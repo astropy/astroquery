@@ -4,9 +4,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 
-from abc import abstractmethod, ABC
-from enum import Enum
-
 
 class PropertyConstrain(object):
     def __init__(self, expr):
@@ -29,14 +26,13 @@ class PropertyConstrain(object):
         return result
 
 
-class OperandExpr(Enum):
-    Inter = 1,
-    Union = 2,
+class OperandExpr:
+    Inter = 1
+    Union = 2
     Subtr = 3
 
 
-class PropertiesExpr(ABC):
-    @abstractmethod
+class PropertiesExpr:
     def eval(self):
         pass
 

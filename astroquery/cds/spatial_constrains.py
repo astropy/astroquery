@@ -2,14 +2,10 @@
 # -*- coding: utf-8 -*
 
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-
-from abc import abstractmethod, ABC
-
 from astropy import coordinates
 
 
-class SpatialConstrain(ABC):
-    @abstractmethod
+class SpatialConstrain:
     def __init__(self, intersect):
         """
         Definition of a SpatialConstrain object
@@ -117,7 +113,7 @@ class Cone(SpatialConstrain):
             TypeError('`center` must be of type astropy.coordinates.SkyCoord and/or '
                       '`radius` must be of type astropy.coordinates.Angle')
 
-        super(Cone, self).__init__(intersect)
+        SpatialConstrain.__init__(self, intersect)
         self.request_payload.update({
             'DEC': center.dec.to_string(decimal=True),
             'RA': center.ra.to_string(decimal=True),
@@ -158,7 +154,7 @@ class Polygon(SpatialConstrain):
         assert isinstance(vertices, coordinates.SkyCoord), \
             TypeError('`vertices` must be of type PolygonSkyRegion')
 
-        super(Polygon, self).__init__(intersect)
+        SpatialConstrain.__init__(self, intersect)
 
         # test if the polygon has at least 3 vertices
         if len(vertices.ra) < 3:
@@ -207,7 +203,7 @@ class Moc(SpatialConstrain):
         """
 
         self.request_payload = {}
-        super(Moc, self).__init__(intersect)
+        SpatialConstrain.__init__(self, intersect)
 
     @classmethod
     def from_file(cls, filename, intersect='overlaps'):
