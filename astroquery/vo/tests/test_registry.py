@@ -6,8 +6,6 @@ from ...utils.testing_tools import MockResponse
 
 from ... import vo
 
-## Debugging only. Should be in thetests
-import json, os, pandas
 from astroquery.vo import Registry
 
 
@@ -26,6 +24,7 @@ def patch(request):
     mp.setattr(vo.Registry, '_request', mockreturn)
     return mp
 
+
 def mockreturn(method="POST", url=None, data=None, params=None, timeout=10, **kwargs):
     # Determine the test case from the URL and/or data
     print("DEBUGGING:  Got into mockreturn().")
@@ -38,23 +37,27 @@ def mockreturn(method="POST", url=None, data=None, params=None, timeout=10, **kw
         raise ValueError("Can't figure out the test case from data={}".format(data))
 
     filename = data_path(DATA_FILES[testcase])
-    url, content=json2raw(filename)
-    return MockResponse(content=content,url=url)
+    url, content = json2raw(filename)
+    return MockResponse(content=content, url=url)
+
 
 from .thetests import *
 
-DATA_FILES=TestReg.DATA_FILES
+
+DATA_FILES = TestReg.DATA_FILES
+
 
 ##
 ##  Tests that make an http request that we need to mock:
 ##
 
 def test_mockquery_basic(patch):
-    t=TestReg()
+    t = TestReg()
     t.query_basic()
 
+
 def test_mockquery_counts(patch):
-    t=TestReg()
+    t = TestReg()
     t.query_counts()
 
 
@@ -63,26 +66,30 @@ def test_mockquery_counts(patch):
 ##
 
 def test_adql_service():
-    t=TestReg()
+    t = TestReg()
     t.adql_service()
 
+
 def test_adql_keyword():
-    t=TestReg()
+    t = TestReg()
     t.adql_keyword()
 
+
 def test_adql_waveband():
-    t=TestReg()
+    t = TestReg()
     t.adql_waveband()
 
+
 def test_adql_source():
-    t=TestReg()
+    t = TestReg()
     t.adql_source()
 
+
 def test_adql_publisher():
-    t=TestReg()
+    t = TestReg()
     t.adql_publisher()
 
-def test_adql_orderby():
-    t=TestReg()
-    t.adql_orderby()
 
+def test_adql_orderby():
+    t = TestReg()
+    t.adql_orderby()

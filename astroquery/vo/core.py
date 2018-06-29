@@ -114,7 +114,7 @@ class RegistryClass(VoBase):
             print('Queried: {}\n'.format(response.url))
 
         aptable = utils.astropy_table_from_votable_response(response)
-        aptable.meta['astroquery.vo']['data']=tap_params
+        aptable.meta['astroquery.vo']['data'] = tap_params
         if return_raw: return aptable, response
         return aptable
 
@@ -209,7 +209,7 @@ class RegistryClass(VoBase):
             print('Queried: {}\n'.format(response.url))
 
         aptable = utils.astropy_table_from_votable_response(response)
-        aptable.meta['astroquery.vo']['data']=tap_params
+        aptable.meta['astroquery.vo']['data'] = tap_params
         if return_raw: return aptable, response
         return aptable
 

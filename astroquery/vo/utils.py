@@ -44,8 +44,8 @@ def astropy_table_from_votable_response(response):
         aptable = Table()
 
     ## This helps in debugging. Other meta data we might want to store?
-    #aptable.meta['astroquery.vo'] = {"url":response.url,"text":response.text}
-    aptable.meta['astroquery.vo'] = {"url":response.url}
+    ## aptable.meta['astroquery.vo'] = {"url":response.url,"text":response.text}
+    aptable.meta['astroquery.vo'] = {"url": response.url}
     # String values in the VOTABLE are stored in the astropy Table as bytes instead
     # of strings.  To makes accessing them more convenient, we will convert all those
     # bytes values to strings.
