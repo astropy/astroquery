@@ -270,4 +270,3 @@ def test_get_attribute(get_attr, get_attr_str):
                               get_query_payload=True)
 
     assert result['get'] == get_attr_str
-
