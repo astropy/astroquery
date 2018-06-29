@@ -140,10 +140,10 @@ class Dataset:
         ...                               center=center,
         ...                               radius=radius,
         ...                               output_format=cds.ReturnFormat.record)
-        >>> table = datasets_d['CDS/I/200/npm1rgal'].search(cds.ServiceType.cs,
+        >>> votable = datasets_d['CDS/I/200/npm1rgal'].search(cds.ServiceType.cs,
         ...                                                 pos=(10.8, 32.2),
         ...                                                 radius=1.5)
-        >>> print(table)
+        >>> print(votable.get_first_table())
               _RAJ2000     _DEJ2000      _r      Name   ... Flag3   _RA.icrs     _DE.icrs
                 deg          deg        deg             ...         "h:m:s"      "d:m:s"
             ------------ ------------ -------- -------- ... ----- ------------ ------------

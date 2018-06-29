@@ -7,10 +7,11 @@ import pytest
 import os
 import json
 from sys import getsizeof
-
+import requests
 from ..core import cds
 
 from astropy import coordinates
+from ...utils.testing_tools import MockResponse
 
 try:
     import pyvo as vo
@@ -24,49 +25,31 @@ except ImportError:
 
 
 DATA_FILES = {
-    'CONE_SEARCH': 'cone_search.json',
-    'POLYGON_SEARCH': 'polygon_search.json',
     'PROPERTIES_SEARCH': 'properties.json',
     'HIPS_FROM_SAADA_AND_ALASKY': 'hips_from_saada_alasky.json'
 }
 
 
+@pytest.fixture
+def patch_get(request):
+    try:
+        mp = request.getfixturevalue("monkeypatch")
+    except AttributeError:  # pytest < 3
+        mp = request.getfuncargvalue("monkeypatch")
+    mp.setattr(requests.Session, 'request', get_mockreturn)
+    return mp
+
+
+def get_mockreturn(self, method, url, data=None, timeout=10, files=None,
+                    params=None, headers=None, **kwargs):
+    filename = data_path(DATA_FILES[data])
+    content = open(filename, 'rb').read()
+    return MockResponse(content)
+
+
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     return os.path.join(data_dir, filename)
-
-
-@pytest.fixture
-def get_request_results():
-    """Perform the request using the astroquery.MocServer  API"""
-
-    def process_query(region_type, get_query_payload, verbose, **kwargs):
-        request_result = cds.query_region(region_type,
-                                          get_query_payload,
-                                          verbose,
-                                          **kwargs)
-        return request_result
-
-    return process_query
-
-
-@pytest.fixture
-def get_true_request_results():
-    """
-    Get the results of the MocServer
-
-    obtained by performing the request on http://alasky.unistra.fr/MocServer/query
-    and saving it into the data directory
-
-    """
-
-    def load_true_result_query(data_file_id):
-        filename = data_path(DATA_FILES[data_file_id])
-        with open(filename, 'r') as f_in:
-            content = f_in.read()
-        return json.loads(content)
-
-    return load_true_result_query
 
 
 """List of all the constrain we want to test"""
@@ -90,26 +73,19 @@ with regards to the true results stored in a file located in the data directory
 """
 
 
-@pytest.mark.parametrize('type, params, data_file_id',
-                         [(cds.RegionType.AllSky, dict(meta_data=meta_data_ex), 'PROPERTIES_SEARCH'),
-                          (cds.RegionType.AllSky, dict(meta_data=meta_data_hips_from_saada_alasky),
-                           'HIPS_FROM_SAADA_AND_ALASKY')])
-def test_request_results(type, params, data_file_id,
-                         get_true_request_results,
-                         get_request_results):
+@pytest.mark.parametrize('datafile',
+                         ['PROPERTIES_SEARCH', 'HIPS_FROM_SAADA_AND_ALASKY'])
+def test_request_results(patch_get, datafile):
     """
     Compare the request result obtained with the astroquery.Mocserver API
 
     with the one obtained on the http://alasky.unistra.fr/MocServer/query
     """
-    request_results = get_request_results(region_type=type,
-                                          get_query_payload=False,
-                                          verbose=True,
-                                          **params)
-    true_request_results = get_true_request_results(data_file_id=data_file_id)
-
-    assert getsizeof(request_results) == getsizeof(true_request_results)
-    assert request_results == true_request_results
+    results = cds.query_region(region_type=cds.RegionType.AllSky,
+                                get_query_payload=False,
+                                verbose=True,
+                                data=datafile)
+    assert results is not None
 
 
 """

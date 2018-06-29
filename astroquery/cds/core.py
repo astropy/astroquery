@@ -157,6 +157,7 @@ class CdsClass(BaseQuery):
             'method': 'GET',
             'url': self.URL,
             'timeout': self.TIMEOUT,
+            'data': kwargs.get('data', None),
             'cache': False
         }
 
