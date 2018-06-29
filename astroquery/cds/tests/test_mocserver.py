@@ -40,8 +40,8 @@ def patch_get(request):
     return mp
 
 
-def get_mockreturn(self, method, url, data=None, timeout=10, files=None,
-                    params=None, headers=None, **kwargs):
+def get_mockreturn(self, method, url, data=None, timeout=10,
+                   files=None, params=None, headers=None, **kwargs):
     filename = data_path(DATA_FILES[data])
     content = open(filename, 'rb').read()
     return MockResponse(content)
@@ -82,9 +82,9 @@ def test_request_results(patch_get, datafile):
     with the one obtained on the http://alasky.unistra.fr/MocServer/query
     """
     results = cds.query_region(region_type=cds.RegionType.AllSky,
-                                get_query_payload=False,
-                                verbose=True,
-                                data=datafile)
+                               get_query_payload=False,
+                               verbose=True,
+                               data=datafile)
     assert results is not None
 
 
