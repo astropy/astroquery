@@ -102,6 +102,9 @@ class JPLSpecClass(BaseQuery):
         if max_lines is not None:
             payload['MaxLines'] = max_lines
 
+        payload['UnitNu'] = 'GHz'
+        payload['StrLim'] = min_strength
+
         if molecule is not None:
             if parse_name_locally:
                 self.lookup_ids = build_lookup()
@@ -113,10 +116,10 @@ class JPLSpecClass(BaseQuery):
             else:
                 payload['Mol'] = molecule
 
-        payload['UnitNu'] = 'GHz'
-        payload['StrLim'] = min_strength
 
         self.maxlines = max_lines
+
+        payload = list(payload.items())
 
         if get_query_payload:
             return payload

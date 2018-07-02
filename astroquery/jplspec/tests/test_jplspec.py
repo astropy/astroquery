@@ -35,6 +35,7 @@ def test_input_async():
                                          min_strength=-500,
                                          molecule="28001 CO",
                                          get_query_payload=True)
+    response = dict(response)
     assert response['Mol'] == "28001 CO"
     np.testing.assert_almost_equal(response['MinNu'], 100.)
     np.testing.assert_almost_equal(response['MaxNu'], 1000.)
@@ -48,6 +49,7 @@ def test_input_maxlines_async():
                                          molecule="28001 CO",
                                          max_lines=6,
                                          get_query_payload=True)
+    response = dict(response)
     assert response['Mol'] == "28001 CO"
     assert response['MaxLines'] == 6.
     np.testing.assert_almost_equal(response['MinNu'], 100.)
@@ -62,6 +64,7 @@ def test_input_multi():
                                          molecule=r"^H[2D]O(-\d\d|)$",
                                          parse_name_locally=True,
                                          get_query_payload=True)
+    response = dict(response)
     assert set(response['Mol']) == set((18003, 19002, 19003, 20003, 21001))
     np.testing.assert_almost_equal(response['MinNu'], 500.)
     np.testing.assert_almost_equal(response['MaxNu'], 1000.)
