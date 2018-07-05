@@ -675,7 +675,7 @@ class EsoClass(QueryWithLogin):
                 data_download_form = self._activate_form(
                     data_confirmation_form, form_index=-1,
                     cache=False)
-                log.info("Staging form is at {0}."
+                log.info("Staging form is at {0}"
                          .format(data_download_form.url))
                 root = BeautifulSoup(data_download_form.content, 'html5lib')
                 state = root.select('span[id=requestState]')[0].text
