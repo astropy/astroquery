@@ -196,7 +196,10 @@ class AtomicLineListClass(BaseQuery):
         else:
             raise ValueError('parameter wavelength_type must be either "air" '
                              'or "vacuum".')
-        wlrange = wavelength_range or []
+        if wavelength_range is not None:
+            wlrange = wavelength_range
+        else:
+            wlrange = []
         if len(wlrange) not in (0, 2):
             raise ValueError('Length of `wavelength_range` must be 2 or 0, '
                              'but is: {}'.format(len(wlrange)))
@@ -222,11 +225,11 @@ class AtomicLineListClass(BaseQuery):
         lower_level_erange = lower_level_energy_range
         if lower_level_erange is not None:
             lower_level_erange = lower_level_erange.to(
-                u.cm ** -1, equivalencies=u.spectral()).value()
+                u.cm ** -1, equivalencies=u.spectral()).value
         upper_level_erange = upper_level_energy_range
         if upper_level_erange is not None:
             upper_level_erange = upper_level_erange.to(
-                u.cm ** -1, equivalencies=u.spectral()).value()
+                u.cm ** -1, equivalencies=u.spectral()).value
         input = {
             'wavl': '-'.join(map(str, wlrange_in_angstroms)),
             'wave': 'Angstrom',
