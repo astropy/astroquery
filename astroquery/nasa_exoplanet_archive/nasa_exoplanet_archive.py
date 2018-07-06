@@ -61,6 +61,7 @@ class NasaExoplanetArchiveClass(object):
         all_columns : bool (optional)
             Return all available columns. The default returns only the
             columns in the default category at the link above.
+
         Returns
         -------
         table : `~astropy.table.QTable`
@@ -115,6 +116,7 @@ class NasaExoplanetArchiveClass(object):
         all_columns : bool (optional)
             Return all available columns. The default returns only the
             columns in the default category at the link above.
+
         Return
         ------
         table : `~astropy.table.QTable`
