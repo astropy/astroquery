@@ -567,6 +567,51 @@ class EsoClass(QueryWithLogin):
         # Return as Table
         return Table(result)
 
+    def _check_existing_files(self, datasets, continuation=False,
+                              destination=None):
+        """Detect already downloaded datasets."""
+
+        datasets_to_download = []
+        files = []
+
+        for dataset in datasets:
+            ext = os.path.splitext(dataset)[1].lower()
+            if ext in ('.fits', '.tar'):
+                local_filename = dataset
+            elif ext == '.fz':
+                local_filename = dataset[:-3]
+            else:
+                local_filename = dataset + ".fits"
+
+            if destination is not None:
+                local_filename = os.path.join(destination,
+                                              local_filename)
+            elif self.cache_location is not None:
+                local_filename = os.path.join(self.cache_location,
+                                              local_filename)
+            if os.path.exists(local_filename):
+                log.info("Found {0}.fits...".format(dataset))
+                if continuation:
+                    datasets_to_download.append(dataset)
+                else:
+                    files.append(local_filename)
+            elif os.path.exists(local_filename + ".Z"):
+                log.info("Found {0}.fits.Z...".format(dataset))
+                if continuation:
+                    datasets_to_download.append(dataset)
+                else:
+                    files.append(local_filename + ".Z")
+            elif os.path.exists(local_filename + ".fz"):  # RICE-compressed
+                log.info("Found {0}.fits.fz...".format(dataset))
+                if continuation:
+                    datasets_to_download.append(dataset)
+                else:
+                    files.append(local_filename + ".fz")
+            else:
+                datasets_to_download.append(dataset)
+
+        return datasets_to_download, files
+
     def retrieve_data(self, datasets, continuation=False, destination=None,
                       with_calib='none'):
         """
@@ -620,38 +665,8 @@ class EsoClass(QueryWithLogin):
 
         # First: Detect datasets already downloaded
         log.info("Detecting already downloaded datasets...")
-        for dataset in datasets:
-            if os.path.splitext(dataset)[1].lower() in ('.fits', '.tar'):
-                local_filename = dataset
-            else:
-                local_filename = dataset + ".fits"
-
-            if destination is not None:
-                local_filename = os.path.join(destination,
-                                              local_filename)
-            elif self.cache_location is not None:
-                local_filename = os.path.join(self.cache_location,
-                                              local_filename)
-            if os.path.exists(local_filename):
-                log.info("Found {0}.fits...".format(dataset))
-                if continuation:
-                    datasets_to_download.append(dataset)
-                else:
-                    files.append(local_filename)
-            elif os.path.exists(local_filename + ".Z"):
-                log.info("Found {0}.fits.Z...".format(dataset))
-                if continuation:
-                    datasets_to_download.append(dataset)
-                else:
-                    files.append(local_filename + ".Z")
-            elif os.path.exists(local_filename + ".fz"):  # RICE-compressed
-                log.info("Found {0}.fits.fz...".format(dataset))
-                if continuation:
-                    datasets_to_download.append(dataset)
-                else:
-                    files.append(local_filename + ".fz")
-            else:
-                datasets_to_download.append(dataset)
+        datasets_to_download, files = self._check_existing_files(
+            datasets, continuation=continuation, destination=destination)
 
         # Second: Check that the datasets to download are in the archive
         log.info("Checking availability of datasets to download...")
@@ -736,11 +751,22 @@ class EsoClass(QueryWithLogin):
                     fileLinks = re.findall(
                         r'"(https://dataportal.eso.org/dataPortal/api/requests/.*)"',
                         script.content.decode('utf8'))
+
                     # links with api/ do not work, wtf ???
                     fileLinks = [
                         f.replace('https://dataportal.eso.org/dataPortal/api/requests',
                                   'https://dataportal.eso.org/dataPortal/requests')
                         for f in fileLinks]
+
+                    log.info("Detecting already downloaded datasets, "
+                             "including calibrations...")
+                    fileIds = [f.rsplit('/', maxsplit=1)[1] for f in fileLinks]
+                    filteredIds, files = self._check_existing_files(
+                        fileIds, continuation=continuation,
+                        destination=destination)
+
+                    fileLinks = [f for f, fileId in zip(fileLinks, fileIds)
+                                 if fileId in filteredIds]
                 except Exception:
                     fileLinks = []
                     log.error("failed to retrieve the files, please visit {} "
@@ -754,7 +780,7 @@ class EsoClass(QueryWithLogin):
 
             log.debug("Files:\n{}".format('\n'.join(fileLinks)))
             for fileLink in fileLinks:
-                fileId = fileLink.split('/')[-1]
+                fileId = fileLink.rsplit('/', maxsplit=1)[1]
                 log.info("Downloading file {0}...".format(fileId))
                 filename = self._request("GET", fileLink, save=True,
                                          continuation=True)
