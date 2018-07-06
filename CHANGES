@@ -1,6 +1,7 @@
 0.3.9 (unreleased)
 ------------------
 
+- ATOMIC: fix several bugs for using Quantited for the range parameters. [#1187]
 - ESASKY: get_maps() accepts dict or list of (name, Table) pairs as input
   table list. [#1167]
 - HITRAN: use class-based API [#824]
