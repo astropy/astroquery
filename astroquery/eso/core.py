@@ -784,7 +784,7 @@ class EsoClass(QueryWithLogin):
                 log.info("Downloading file {0}...".format(fileId))
                 filename = self._request("GET", fileLink, save=True,
                                          continuation=True)
-                if not filename.endswith(('.xml', '.fz', '.fits')):
+                if filename.endswith(('.gz', '.7z', '.bz2', '.xz')):
                     log.info("Unzipping file {0}...".format(fileId))
                     filename = system_tools.gunzip(filename)
                 if destination is not None:
