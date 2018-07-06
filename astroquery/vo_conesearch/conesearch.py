@@ -23,7 +23,7 @@ from astropy.utils.exceptions import AstropyUserWarning
 
 # LOCAL
 from . import vos_catalog
-from .async import AsyncBase
+from .vo_async import AsyncBase
 from .core import ConeSearchClass, _validate_sr
 from .exceptions import ConeSearchError, VOSError
 
