@@ -222,11 +222,11 @@ class AtomicLineListClass(BaseQuery):
         lower_level_erange = lower_level_energy_range
         if lower_level_erange is not None:
             lower_level_erange = lower_level_erange.to(
-                u.cm ** -1, equivalencies=u.spectral()).value()
+                u.cm ** -1, equivalencies=u.spectral()).value
         upper_level_erange = upper_level_energy_range
         if upper_level_erange is not None:
             upper_level_erange = upper_level_erange.to(
-                u.cm ** -1, equivalencies=u.spectral()).value()
+                u.cm ** -1, equivalencies=u.spectral()).value
         input = {
             'wavl': '-'.join(map(str, wlrange_in_angstroms)),
             'wave': 'Angstrom',
