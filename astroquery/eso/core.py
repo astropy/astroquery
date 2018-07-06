@@ -578,8 +578,15 @@ class EsoClass(QueryWithLogin):
             List of datasets strings to retrieve from the archive.
         destination: string
             Directory where the files are copied.
-            Files already found in the destination directory are skipped.
+            Files already found in the destination directory are skipped,
+            unless continuation=True.
             Default to astropy cache.
+        continuation : bool
+            Force the retrieval of data that are present in the destination
+            directory.
+        with_calib : string
+            Retrieve associated calibration files: 'none' (default), 'raw' for
+            raw calibrations, or 'processed' for processed calibrations.
 
         Returns
         -------
