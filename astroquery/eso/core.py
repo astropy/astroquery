@@ -566,7 +566,8 @@ class EsoClass(QueryWithLogin):
         # Return as Table
         return Table(result)
 
-    def retrieve_data(self, datasets, continuation=False, destination=None):
+    def retrieve_data(self, datasets, continuation=False, destination=None,
+                      with_calib='none'):
         """
         Retrieve a list of datasets form the ESO archive.
 
@@ -593,6 +594,13 @@ class EsoClass(QueryWithLogin):
         """
         datasets_to_download = []
         files = []
+
+        calib_options = {'none': '', 'raw': 'CalSelectorRaw2Raw',
+                         'processed': 'CalSelectorRaw2Master'}
+
+        if with_calib not in calib_options:
+            raise ValueError("invalid value for 'with_calib', "
+                             "it must be 'none', 'raw' or 'processed'")
 
         if isinstance(datasets, six.string_types):
             return_list = False
@@ -671,12 +679,15 @@ class EsoClass(QueryWithLogin):
                 if login_button:
                     raise LoginError("Not logged in. "
                                      "You must be logged in to download data.")
+                inputs = {}
+                if with_calib != 'none':
+                    inputs['requestCommand'] = calib_options[with_calib]
 
                 # TODO: There may be another screen for Not Authorized; that
                 # should be included too
                 # form name is "retrieve"; no id
                 data_download_form = self._activate_form(
-                    data_confirmation_form, form_index=-1,
+                    data_confirmation_form, form_index=-1, inputs=inputs,
                     cache=False)
                 log.info("Staging form is at {0}"
                          .format(data_download_form.url))
@@ -698,7 +709,17 @@ class EsoClass(QueryWithLogin):
                     raise RemoteServiceError("There was a remote service "
                                              "error; perhaps the requested "
                                              "file could not be found?")
-            for fileId in root.select('input[name=fileId]'):
+
+            fileIds = root.select('input[name=fileId]')
+            if len(fileIds) == 0 and with_calib != 'none':
+                # when requested files with calibrations, some javascript is
+                # used to display the files, which prevent retrieving the list
+                # of files...
+                log.warning("files with calibration data cannot be retrieved "
+                            "automatically, please visit {0}"
+                            .format(data_download_form.url))
+
+            for fileId in fileIds:
                 log.info("Downloading file {0}...".format(fileId.attrs['value'].split()[0]))
                 fileLink = ("http://dataportal.eso.org/dataPortal" +
                             fileId.attrs['value'].split()[1])
