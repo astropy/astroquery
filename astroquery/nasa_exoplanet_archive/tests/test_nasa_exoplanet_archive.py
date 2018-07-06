@@ -14,6 +14,20 @@ LOCAL_TABLE_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)),
 
 
 @remote_data
+def test_exoplanet_archive_table_all_columns():
+    table = NasaExoplanetArchive.get_confirmed_planets_table(cache=False, all_columns=True)
+
+    # Check some planets are in the table
+    expected_planets = ['HD 189733 b', 'Kepler-186 f', 'TRAPPIST-1 b',
+                        'HD 209458 b', 'Kepler-62 f', 'GJ 1214 b']
+
+    for planet in expected_planets:
+        assert planet.lower().replace(" ", "") in table['NAME_LOWERCASE']
+
+    assert 'pl_trandep' in table.colnames
+
+
+@remote_data
 def test_exoplanet_archive_table():
     table = NasaExoplanetArchive.get_confirmed_planets_table()
 
@@ -23,6 +37,8 @@ def test_exoplanet_archive_table():
 
     for planet in expected_planets:
         assert planet.lower().replace(" ", "") in table['NAME_LOWERCASE']
+
+    assert 'pl_trandep' not in table.colnames
 
 
 @remote_data
