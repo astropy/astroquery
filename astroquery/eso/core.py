@@ -751,8 +751,9 @@ class EsoClass(QueryWithLogin):
                 log.info("Downloading file {0}...".format(fileId))
                 filename = self._request("GET", fileLink, save=True,
                                          continuation=True)
-                log.info("Unzipping file {0}...".format(fileId))
-                filename = system_tools.gunzip(filename)
+                if not filename.endswith(('.xml', '.fz')):
+                    log.info("Unzipping file {0}...".format(fileId))
+                    filename = system_tools.gunzip(filename)
                 if destination is not None:
                     log.info("Copying file {0} to {1}...".format(fileId, destination))
                     shutil.move(filename, os.path.join(destination, os.path.split(filename)[1]))
