@@ -44,7 +44,7 @@ class AsyncConeSearch(AsyncBase):
 
     .. note::
 
-        See :class:`~astroquery.vo_conesearch.async.AsyncBase`
+        See :class:`~astroquery.vo_conesearch.vo_async.AsyncBase`
         for more details.
 
     Parameters
@@ -260,7 +260,7 @@ class AsyncSearchAll(AsyncBase):
 
     .. note::
 
-        See :class:`~astroquery.vo_conesearch.async.AsyncBase`
+        See :class:`~astroquery.vo_conesearch.vo_async.AsyncBase`
         for more details.
 
     Parameters
