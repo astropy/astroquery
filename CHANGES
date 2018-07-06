@@ -8,7 +8,7 @@
 - MAST: Enable converting list of products into S3 uris [#1126]
 - NASA_ADS: Use new API [#1162]
 - VO_CONESEARCH: Service validator now uses new STScI VAO TAP registry. [#1114]
-
+- VO_CONESEARCH: Renamed async to vo_async as async is reserved keyword starting with Python 3.7. [#1185]
 
 0.3.8 (2018-04-27)
 ------------------
