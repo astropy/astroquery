@@ -196,7 +196,10 @@ class AtomicLineListClass(BaseQuery):
         else:
             raise ValueError('parameter wavelength_type must be either "air" '
                              'or "vacuum".')
-        wlrange = wavelength_range or []
+        if wavelength_range is not None:
+            wlrange = wavelength_range
+        else:
+            wlrange = []
         if len(wlrange) not in (0, 2):
             raise ValueError('Length of `wavelength_range` must be 2 or 0, '
                              'but is: {}'.format(len(wlrange)))
