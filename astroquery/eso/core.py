@@ -9,6 +9,7 @@ import getpass
 import warnings
 import keyring
 import numpy as np
+import re
 from bs4 import BeautifulSoup
 
 from astropy.extern.six import BytesIO
@@ -710,25 +711,50 @@ class EsoClass(QueryWithLogin):
                                              "error; perhaps the requested "
                                              "file could not be found?")
 
-            fileIds = root.select('input[name=fileId]')
-            if len(fileIds) == 0 and with_calib != 'none':
+            if with_calib != 'none':
                 # when requested files with calibrations, some javascript is
-                # used to display the files, which prevent retrieving the list
-                # of files...
-                log.warning("files with calibration data cannot be retrieved "
-                            "automatically, please visit {0}"
-                            .format(data_download_form.url))
+                # used to display the files, which prevent retrieving the files
+                # directly. So instead we retrieve the download script provided
+                # in the web page, and use it to extract the list of files.
+                # The benefit of this is also that in the download script the
+                # list of files is de-duplicated, whereas on the web page the
+                # calibration files would be duplicated for each exposure.
+                try:
+                    link = root.select('a[href$=/script]')[0]
+                    if 'downloadRequest' not in link.text:
+                        # Make sure that we found the correct link
+                        raise Exception
+                    href = link.attrs['href']
+                    script = self._request("GET", href, cache=False)
+                    fileLinks = re.findall(
+                        r'"(https://dataportal.eso.org/dataPortal/api/requests/.*)"',
+                        script.content.decode('utf8'))
+                    # links with api/ do not work, wtf ???
+                    fileLinks = [
+                        f.replace('https://dataportal.eso.org/dataPortal/api/requests',
+                                  'https://dataportal.eso.org/dataPortal/requests')
+                        for f in fileLinks]
+                except Exception:
+                    fileLinks = []
+                    log.error("failed to retrieve the files, please visit {} "
+                              "to check the request result"
+                              .format(data_download_form.url))
+            else:
+                fileIds = root.select('input[name=fileId]')
+                fileLinks = ["http://dataportal.eso.org/dataPortal" +
+                             fileId.attrs['value'].split()[1]
+                             for fileId in fileIds]
 
-            for fileId in fileIds:
-                log.info("Downloading file {0}...".format(fileId.attrs['value'].split()[0]))
-                fileLink = ("http://dataportal.eso.org/dataPortal" +
-                            fileId.attrs['value'].split()[1])
+            log.debug("Files:\n{}".format('\n'.join(fileLinks)))
+            for fileLink in fileLinks:
+                fileId = fileLink.split('/')[-1]
+                log.info("Downloading file {0}...".format(fileId))
                 filename = self._request("GET", fileLink, save=True,
                                          continuation=True)
-                log.info("Unzipping file {0}...".format(fileId.attrs['value'].split()[0]))
+                log.info("Unzipping file {0}...".format(fileId))
                 filename = system_tools.gunzip(filename)
                 if destination is not None:
-                    log.info("Copying file {0} to {1}...".format(fileId.attrs['value'].split()[0], destination))
+                    log.info("Copying file {0} to {1}...".format(fileId, destination))
                     shutil.move(filename, os.path.join(destination, os.path.split(filename)[1]))
 
         # Empty the redirect cache of this request session
