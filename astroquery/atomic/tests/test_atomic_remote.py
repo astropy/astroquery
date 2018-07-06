@@ -71,3 +71,13 @@ def test_empty_result_set():
     assert isinstance(table, Table)
     assert not table
     assert len(table) == 0
+@remote_data
+def test_lower_upper_ranges():
+    result = AtomicLineList.query_object(
+        lower_level_energy_range=u.Quantity((600 * u.cm**(-1), 1000 * u.cm**(-1))),
+        upper_level_energy_range=u.Quantity((15000 * u.cm**(-1), 100000 * u.cm**(-1))),
+        element_spectrum='Ne III')
+    assert isinstance(result, Table)
+
+    assert np.all(result['LAMBDA VAC ANG'] ==
+                  np.array([1814.73, 3968.91, 4013.14]))
