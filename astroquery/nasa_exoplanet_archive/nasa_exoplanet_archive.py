@@ -67,7 +67,7 @@ class NasaExoplanetArchiveClass(object):
         table : `~astropy.table.QTable`
             Table of exoplanet properties.
         """
-        if self._table is None:
+        if self._table is None or not cache:
             if table_path is None:
                 exoplanets_url = EXOPLANETS_CSV_URL
                 if all_columns:
