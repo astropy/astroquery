@@ -29,7 +29,7 @@ Installation
 Astroquery has recently switched to a continuous deployment model, meaning
 that a release will be instantaniously available after each set of changes
 made to the code.
-The latest version of astroquery, thus can be installed.
+The latest version of astroquery can be pip installed.
 
 .. code-block:: bash
 
