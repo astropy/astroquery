@@ -9,6 +9,7 @@
 - MAST: Enable converting list of products into S3 uris [#1126]
 - NASA_ADS: Use new API [#1162]
 - VO_CONESEARCH: Service validator now uses new STScI VAO TAP registry. [#1114]
+- Nasa Exoplanet Arhive: Add option to return all columns. [#1183]
 
 
 0.3.8 (2018-04-27)
