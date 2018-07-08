@@ -26,61 +26,22 @@ Check out the :doc:`gallery` for some nice examples.
 Installation
 ------------
 
-The latest version of astroquery can be conda installed while the latest and
-development versions can be pip installed or be downloaded directly from GitHub.
-On Linux systems the recommended way to install astroquery is to use the
-package management system to install the packages offered in the official
-repositories.
-
-Using pip
-^^^^^^^^^
-.. code-block:: bash
-
-    $ pip install astroquery
-
-and the 'bleeding edge' master version:
+Astroquery has recently switched to a continuous deployment model, meaning
+that a release will be instantaniously available after each set of changes
+made to the code.
+The latest version of astroquery can be pip installed.
 
 .. code-block:: bash
 
-   $ pip install https://github.com/astropy/astroquery/archive/master.zip
+    $ pip install --pre astroquery
 
-Using conda
-^^^^^^^^^^^
-
-It is also possible to install the latest astroquery with `anaconda
-<https://anaconda.com/>`_ from the astropy channel:
+We also keep doing regular, tagged version for maintanence purposes. These
+can be then conda installed from the ``astropy`` conda channel.
 
 .. code-block:: bash
 
     $ conda install -c astropy astroquery
 
-Archlinux
-^^^^^^^^^
-
-The current stable version of astroquery can be installed directly from the
-Arch User Repository `python-astroquery package
-<https://aur.archlinux.org/packages/python-astroquery/>`_,
-while the latest version of the development branch in the git repository
-can be installed from the `python-astroquery-git package
-<https://aur.archlinux.org/packages/python-astroquery-git/>`_.
-
-Debian
-^^^^^^
-
-Astroquery packages for `python 2
-<https://packages.debian.org/python-astroquery>`_ and `python 3
-<https://packages.debian.org/python3-astroquery>`_  have been part of the
-Debian distribution since the release of Debian 9.0 (stretch).  These packages
-can be installed using usual package maintenance tools like ``apt-get`` or
-``aptitude``.
-
-Gentoo
-^^^^^^
-
-An `astroquery ebuild
-<https://packages.gentoo.org/packages/dev-python/astroquery>`_ is available
-from the official Gentoo ebuild repository and can be installed with the
-Portage package manager.
 
 Building from source
 ^^^^^^^^^^^^^^^^^^^^
