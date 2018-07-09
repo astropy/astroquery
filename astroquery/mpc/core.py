@@ -4,6 +4,11 @@ from ..query import BaseQuery
 from . import conf
 from ..utils import async_to_sync
 
+from astropy.time import Time
+import astropy.units as u
+from astropy.coordinates import EarthLocation
+
+
 __all__ = ['MPCClass']
 
 
@@ -15,6 +20,25 @@ class MPCClass(BaseQuery):
     # https://minorplanetcenter.net/web_service/
     MPC_USERNAME = 'mpc_ws'
     MPC_PASSWORD = 'mpc!!ws'
+
+    _ephemeris_types = {
+        'equatorial': 'a',
+        'heliocentric': 's',
+        'geocentric': 'G'
+    }
+
+    _default_number_of_steps = {
+        'd': 21,
+        'h': 49,
+        'm': 121,
+        's': 301
+    }
+
+    _proper_motions = {
+        'total': 't',
+        'coordinate': 'c',
+        'sky': 's'
+    }
 
     def __init__(self):
         super(MPCClass, self).__init__()
@@ -303,25 +327,6 @@ class MPCClass(BaseQuery):
             mpc_endpoint = mpc_endpoint + '/search_comet_orbits'
         return mpc_endpoint
 
-    _ephemeris_types = {
-        'equatorial': 'a',
-        'heliocentric': 's',
-        'geocentric': 'G'
-    }
-
-    _default_number_of_steps = {
-        'd': 21,
-        'h': 49,
-        'm': 121,
-        's': 301
-    }
-
-    _proper_motions = {
-        'total': 't',
-        'coordinate': 'c',
-        'sky': 's'
-    }
-
     def query_ephemeris_async(self, target, location='500', start=None, step='1d',
                               number=None, utoffset=0, eph_type='equatorial',
                               proper_motion='total', suppress_daytime=False,
@@ -500,10 +505,6 @@ class MPCClass(BaseQuery):
            (retrieved 2018 June 19).
 
         """
-
-        from astropy.time import Time
-        import astropy.units as u
-        from astropy.coordinates import EarthLocation
 
         # HTTP POST data containing MPES parameters
         data = {
