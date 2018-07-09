@@ -755,8 +755,10 @@ class EsoClass(QueryWithLogin):
                     r'"(https://dataportal.eso.org/dataPortal/api/requests/.*)"',
                     script.text)
 
-                # links with api/ do not work, not idea why (these links
-                # are used by the download script, so they should work!)
+                # urls with api/ require using Basic Authentication, though
+                # it's easier for us to reuse the existing requests session (to
+                # avoid asking agin for a username/password if it is not
+                # stored). So we remove api/ from the urls:
                 fileLinks = [
                     f.replace('https://dataportal.eso.org/dataPortal/api/requests',
                               'https://dataportal.eso.org/dataPortal/requests')
