@@ -4,6 +4,7 @@ from ..query import BaseQuery
 from . import conf
 from ..utils import async_to_sync
 
+from astropy.io import ascii
 from astropy.time import Time
 import astropy.units as u
 from astropy.coordinates import EarthLocation
@@ -20,6 +21,8 @@ class MPCClass(BaseQuery):
     # https://minorplanetcenter.net/web_service/
     MPC_USERNAME = 'mpc_ws'
     MPC_PASSWORD = 'mpc!!ws'
+
+    TIMEOUT = conf.timeout
 
     _ephemeris_types = {
         'equatorial': 'a',
@@ -567,6 +570,34 @@ class MPCClass(BaseQuery):
         ), "proper_motion must be one of {}".format(self._proper_motions.keys())
         data['s'] = self._proper_motions[proper_motion]
         data['m'] = 'h'  # always return proper_motion as arcsec/hr
+
+    def get_observatory_codes_async(cache=True):
+        """Table of observatory codes from the IAU Minor Planet Center[1].
+
+        Returns
+        -------
+        tab : Table
+            Table of codes, coordinates, and names.
+
+        References
+        ----------
+        .. [1] IAU Minor Planet Center.  List of Observatory codes.
+           https://minorplanetcenter.net/iau/lists/ObsCodesF.html
+           (retrieved 2018 June 19).
+
+        Examples
+        --------
+
+        """
+
+        response = self._request('GET',
+                                 'https://minorplanetcenter.net/iau/lists/ObsCodes.html',
+                                 timeout=self.TIMEOUT, cache=cache)
+
+        text = response.text[6:-7]  # strip <pre> and </pre>
+        tab = ascii.read(text, format='fixed_width',
+                         col_starts=(0, 6, 13, 21, 30))
+        return tab
 
 
 MPC = MPCClass()
