@@ -331,59 +331,61 @@ class MPCClass(BaseQuery):
         Parameters
         ----------
         target : str
-          Designation of the object of interest.  See Notes for
-          acceptable formats.
+            Designation of the object of interest.  See Notes for
+            acceptable formats.
 
         location : str, array-like, or EarthLocation, optional
-          Observer's location as an IAU observatory code[2]_, a
-          3-element array of Earth longitude, latitude, altitude
-          (degrees and meters, or astropy units), or an astropy
-          `EarthLocation`.  If `None`, then the geocenter (code 500)
-          is used.
+            Observer's location as an IAU observatory code[2]_, a
+            3-element array of Earth longitude, latitude, altitude
+            (degrees and meters, or astropy units), or an astropy
+            `EarthLocation`.  If `None`, then the geocenter (code 500)
+            is used.
 
         start : str or Time, optional
-          First epoch of the ephemeris as a string (UT), or astropy
-          `Time`.  If `None`, then today is used.  Valid dates span
-          the time period 1900 Jan 1 - 2099 Dec 31 [1]_.  See Notes
-          for acceptable string forms.
+            First epoch of the ephemeris as a string (UT), or astropy
+            `Time`.  If `None`, then today is used.  Valid dates span
+            the time period 1900 Jan 1 - 2099 Dec 31 [1]_.  See Notes
+            for acceptable string forms.
 
         step : str or Quantity, optional
-          The ephemeris step size or interval in units of days,
-          minutes, or seconds.  Strings are parsed by
-          `astropy.units.Quantity`.  All inputs are rounded to the
-          nearest integer.
+            The ephemeris step size or interval in units of days,
+            minutes, or seconds.  Strings are parsed by
+            `astropy.units.Quantity`.  All inputs are rounded to the
+            nearest integer.
 
         number : int, optional
-          The number of ephemeris dates to compute.  Must be ≤1441.
-          If `None`, the value depends on the units of `step`: 21 for
-          days, 49 for hours, 121 for minutes, or 301 for seconds.
+            The number of ephemeris dates to compute.  Must be ≤1441.
+            If `None`, the value depends on the units of `step`: 21
+            for days, 49 for hours, 121 for minutes, or 301 for
+            seconds.
 
         utoffset : int, optional
-          Number of hours to offset from 0 UT for daily ephemerides.
+            Number of hours to offset from 0 UT for daily ephemerides.
 
         eph_type : str, optional
-          Specify the type of ephemeris:
-            equatorial: RA and Dec (default)
-            heliocentric: heliocentric position and velocity vectors
-            geocentric: geocentric position vector
+            Specify the type of ephemeris:
+                equatorial: RA and Dec (default)
+                heliocentric: heliocentric position and velocity
+                    vectors
+                geocentric: geocentric position vector
 
         proper_motion : str, optional
-          total: total motion and direction (default)
-          coordinate: separate RA and Dec coordinate motion
-          sky: separate RA and Dec sky motion (i.e., includes a cos(Dec)
-               term).
+            total: total motion and direction (default)
+            coordinate: separate RA and Dec coordinate motion
+            sky: separate RA and Dec sky motion (i.e., includes a
+                cos(Dec) term).
 
         suppress_daytime : bool, optional
-          Suppress output when the Sun is above the local
-          horizon. (default `False`)
+            Suppress output when the Sun is above the local
+            horizon. (default `False`)
 
         suppress_set : bool, optional
-          Suppress output when the object is below the local
-          horizon. (default `False`)
+            Suppress output when the object is below the local
+            horizon. (default `False`)
 
         perturbed : bool, optional
-          Generate perturbed ephemerides for unperturbed orbits (default
-          `False`).
+            Generate perturbed ephemerides for unperturbed orbits
+            (default `False`).
 
         Notes
         -----
@@ -398,93 +400,93 @@ class MPCClass(BaseQuery):
 
         Acceptable target names:
 
-          +------------+-----------------------------------+
-          | Target     | Description                       |
-          +============+===================================+
-          | (3202)     | Numbered minor planet (3202)      |
-          +------------+-----------------------------------+
-          | 14829      | Numbered minor planet (14829)     |
-          +------------+-----------------------------------+
-          | 1997 XF11  | Unnumbered minor planet 1997 XF11 |
-          +------------+-----------------------------------+
-          | 1P         | Comet 1P/Halley                   |
-          +------------+-----------------------------------+
-          | C/2003 A2  | Comet C/2003 A2 (Gleason)         |
-          +------------+-----------------------------------+
-          | P/2003 CP7 | Comet P/2003 CP7 (LINEAR-NEAT)    |
-          +------------+-----------------------------------+
+            +------------+-----------------------------------+
+            | Target     | Description                       |
+            +============+===================================+
+            | (3202)     | Numbered minor planet (3202)      |
+            +------------+-----------------------------------+
+            | 14829      | Numbered minor planet (14829)     |
+            +------------+-----------------------------------+
+            | 1997 XF11  | Unnumbered minor planet 1997 XF11 |
+            +------------+-----------------------------------+
+            | 1P         | Comet 1P/Halley                   |
+            +------------+-----------------------------------+
+            | C/2003 A2  | Comet C/2003 A2 (Gleason)         |
+            +------------+-----------------------------------+
+            | P/2003 CP7 | Comet P/2003 CP7 (LINEAR-NEAT)    |
+            +------------+-----------------------------------+
 
-          For comets, P/ and C/ are interchangable.  The designation
-          may also be in a packed format:
+            For comets, P/ and C/ are interchangable.  The designation
+            may also be in a packed format:
 
-          +------------+-----------------------------------+
-          | Target     | Description                       |
-          +============+===================================+
-          | 00233      | Numbered minor planet (233)       |
-          +------------+-----------------------------------+
-          | K03A07A    | Unnumbered minor planet 2003 AA7  |
-          +------------+-----------------------------------+
-          | PK03C07P   | Comet P/2003 CP7 (LINEAR-NEAT)    |
-          +------------+-----------------------------------+
-          | 0039P      | Comet 39P/Oterma                  |
-          +------------+-----------------------------------+
+            +------------+-----------------------------------+
+            | Target     | Description                       |
+            +============+===================================+
+            | 00233      | Numbered minor planet (233)       |
+            +------------+-----------------------------------+
+            | K03A07A    | Unnumbered minor planet 2003 AA7  |
+            +------------+-----------------------------------+
+            | PK03C07P   | Comet P/2003 CP7 (LINEAR-NEAT)    |
+            +------------+-----------------------------------+
+            | 0039P      | Comet 39P/Oterma                  |
+            +------------+-----------------------------------+
 
-          You may also search by name:
+            You may also search by name:
 
-          +------------+-----------------------------------+
-          | Target     | Description                       |
-          +============+===================================+
-          | Encke      | (9134) Encke                      |
-          +------------+-----------------------------------+
-          | Africa     | (1193) Africa                     |
-          +------------+-----------------------------------+
-          | Africano   | (6391) Africano                   |
-          +------------+-----------------------------------+
-          | P/Encke    | 2P/Encke                          |
-          +------------+-----------------------------------+
-          | C/Encke    | 2P/Encke                          |
-          +------------+-----------------------------------+
-          | C/Gleason  | C/2003 A2 (Gleason)               |
-          +------------+-----------------------------------+
+            +------------+-----------------------------------+
+            | Target     | Description                       |
+            +============+===================================+
+            | Encke      | (9134) Encke                      |
+            +------------+-----------------------------------+
+            | Africa     | (1193) Africa                     |
+            +------------+-----------------------------------+
+            | Africano   | (6391) Africano                   |
+            +------------+-----------------------------------+
+            | P/Encke    | 2P/Encke                          |
+            +------------+-----------------------------------+
+            | C/Encke    | 2P/Encke                          |
+            +------------+-----------------------------------+
+            | C/Gleason  | C/2003 A2 (Gleason)               |
+            +------------+-----------------------------------+
 
-          If a comet name is not unique, the first match will be
-          returned.
+            If a comet name is not unique, the first match will be
+            returned.
 
         Acceptable date strings:
 
-          +---------------------+------------------------------+
-          | Start               | Date                         |
-          +=====================+==============================+
-          | 2003 06 10          | 0h UT on 2003 June 10        |
-          +---------------------+------------------------------+
-          | 1965 12 10.5        | 12h UT on 1965 Dec. 10       |
-          +---------------------+------------------------------+
-          | 1903 09 10 12       | 12h UT on 1903 Sept. 10      |
-          +---------------------+------------------------------+
-          | 2003 July 10        | 0h UT on 2003 July 10        |
-          +---------------------+------------------------------+
-          | 2023 June 10.75     | 18h UT on 2023 June 10       |
-          +---------------------+------------------------------+
-          | 1998 Jan. 10 121314 | 12h13m14s UT on 1998 Jan. 10 |
-          +---------------------+------------------------------+
-          | 1923-06-23          | 0h UT on 1923 June 23        |
-          +---------------------+------------------------------+
-          | 1930-Feb-18 19      | 19h UT on 1930 Feb. 18       |
-          +---------------------+------------------------------+
-          | 1997/03/31          | 0h UT on 1997 Mar. 31        |
-          +---------------------+------------------------------+
-          | 1945/11/05.5        | 12h UT on 1945 Nov. 5        |
-          +---------------------+------------------------------+
-          | 1986/Jan/28 05      | 5h UT on 1986 Jan. 28        |
-          +---------------------+------------------------------+
-          | 1956:05:16 1734     | 17h34m UT on 1956 May 16     |
-          +---------------------+------------------------------+
-          | 1965:May:16 1922    | 19h22m UT on 1965 May 16     |
-          +---------------------+------------------------------+
-          | JD 2451000.5        | 0h UT on 1998 July 6         |
-          +---------------------+------------------------------+
-          | MJD 51000           | 0h UT on 1998 July 6         |
-          +---------------------+------------------------------+
+            +---------------------+------------------------------+
+            | Start               | Date                         |
+            +=====================+==============================+
+            | 2003 06 10          | 0h UT on 2003 June 10        |
+            +---------------------+------------------------------+
+            | 1965 12 10.5        | 12h UT on 1965 Dec. 10       |
+            +---------------------+------------------------------+
+            | 1903 09 10 12       | 12h UT on 1903 Sept. 10      |
+            +---------------------+------------------------------+
+            | 2003 July 10        | 0h UT on 2003 July 10        |
+            +---------------------+------------------------------+
+            | 2023 June 10.75     | 18h UT on 2023 June 10       |
+            +---------------------+------------------------------+
+            | 1998 Jan. 10 121314 | 12h13m14s UT on 1998 Jan. 10 |
+            +---------------------+------------------------------+
+            | 1923-06-23          | 0h UT on 1923 June 23        |
+            +---------------------+------------------------------+
+            | 1930-Feb-18 19      | 19h UT on 1930 Feb. 18       |
+            +---------------------+------------------------------+
+            | 1997/03/31          | 0h UT on 1997 Mar. 31        |
+            +---------------------+------------------------------+
+            | 1945/11/05.5        | 12h UT on 1945 Nov. 5        |
+            +---------------------+------------------------------+
+            | 1986/Jan/28 05      | 5h UT on 1986 Jan. 28        |
+            +---------------------+------------------------------+
+            | 1956:05:16 1734     | 17h34m UT on 1956 May 16     |
+            +---------------------+------------------------------+
+            | 1965:May:16 1922    | 19h22m UT on 1965 May 16     |
+            +---------------------+------------------------------+
+            | JD 2451000.5        | 0h UT on 1998 July 6         |
+            +---------------------+------------------------------+
+            | MJD 51000           | 0h UT on 1998 July 6         |
+            +---------------------+------------------------------+
 
         References
         ----------
