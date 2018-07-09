@@ -23,7 +23,7 @@ from astropy.utils.exceptions import AstropyUserWarning
 
 # LOCAL
 from . import vos_catalog
-from .async import AsyncBase
+from .vo_async import AsyncBase
 from .core import ConeSearchClass, _validate_sr
 from .exceptions import ConeSearchError, VOSError
 
@@ -44,7 +44,7 @@ class AsyncConeSearch(AsyncBase):
 
     .. note::
 
-        See :class:`~astroquery.vo_conesearch.async.AsyncBase`
+        See :class:`~astroquery.vo_conesearch.vo_async.AsyncBase`
         for more details.
 
     Parameters
@@ -260,7 +260,7 @@ class AsyncSearchAll(AsyncBase):
 
     .. note::
 
-        See :class:`~astroquery.vo_conesearch.async.AsyncBase`
+        See :class:`~astroquery.vo_conesearch.vo_async.AsyncBase`
         for more details.
 
     Parameters

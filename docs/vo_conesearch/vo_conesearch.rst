@@ -216,7 +216,7 @@ Reference/API
 .. automodapi:: astroquery.vo_conesearch.conesearch
    :no-inheritance-diagram:
 
-.. automodapi:: astroquery.vo_conesearch.async
+.. automodapi:: astroquery.vo_conesearch.vo_async
    :no-inheritance-diagram:
 
 .. automodapi:: astroquery.vo_conesearch.exceptions
