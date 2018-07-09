@@ -392,6 +392,11 @@ class MPCClass(BaseQuery):
             Generate perturbed ephemerides for unperturbed orbits
             (default `False`).
 
+        Returns
+        -------
+        tab : Table
+            Table of ephemerides.
+
         Notes
         -----
         See the MPES user's guide[1]_ for details on options and
@@ -503,6 +508,9 @@ class MPCClass(BaseQuery):
            [2] IAU Minor Planet Center.  List of Observatory codes.
            https://minorplanetcenter.net/iau/lists/ObsCodesF.html
            (retrieved 2018 June 19).
+
+        Examples
+        --------
 
         """
 
