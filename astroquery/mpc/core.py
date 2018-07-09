@@ -7,7 +7,7 @@ from ..utils import async_to_sync
 from astropy.io import ascii
 from astropy.time import Time
 import astropy.units as u
-from astropy.coordinates import EarthLocation
+from astropy.coordinates import EarthLocation, Angle
 
 
 __all__ = ['MPCClass']
@@ -332,8 +332,10 @@ class MPCClass(BaseQuery):
 
     def query_ephemeris_async(self, target, location='500', start=None, step='1d',
                               number=None, utoffset=0, eph_type='equatorial',
-                              proper_motion='total', suppress_daytime=False,
-                              suppress_set=False, perturbed=True, **kwargs):
+                              ra_format={'unit': u.hr, 'sep': ':'},
+                              dec_format={'unit': u.deg, 'sep': ':'},
+                              proper_motion='total', proper_motion_unit='arcsec/hr',
+                              suppress_daytime=False, suppress_set=False, perturbed=True):
         """Query the Minor Planet Ephemeris Service for ephemerides.
 
         Parameters
@@ -377,11 +379,19 @@ class MPCClass(BaseQuery):
                     vectors
                 geocentric: geocentric position vector
 
+        ra_format, dec_format : dict, optional
+            Format for RA or Dec columns.  See
+            `astropy.coordinates.Angle.to_string` for details.
+
         proper_motion : str, optional
             total: total motion and direction (default)
             coordinate: separate RA and Dec coordinate motion
             sky: separate RA and Dec sky motion (i.e., includes a
                 cos(Dec) term).
+
+        proper_motion_unit : string or Unit, optional
+            Convert proper motion to this unit.  Must be an angular
+            rate.  Default is 'arcsec/hr'.
 
         suppress_daytime : bool, optional
             Suppress output when the Sun is above the local
@@ -570,6 +580,7 @@ class MPCClass(BaseQuery):
         ), "proper_motion must be one of {}".format(self._proper_motions.keys())
         data['s'] = self._proper_motions[proper_motion]
         data['m'] = 'h'  # always return proper_motion as arcsec/hr
+        _proper_motion_unit = u.Unit(proper_motion_unit)
 
     def get_observatory_codes_async(cache=True):
         """Table of observatory codes from the IAU Minor Planet Center[1].
