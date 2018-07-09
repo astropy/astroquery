@@ -741,37 +741,36 @@ class EsoClass(QueryWithLogin):
                 # The benefit of this is also that in the download script the
                 # list of files is de-duplicated, whereas on the web page the
                 # calibration files would be duplicated for each exposure.
-                try:
-                    link = root.select('a[href$=/script]')[0]
-                    if 'downloadRequest' not in link.text:
-                        # Make sure that we found the correct link
-                        raise Exception
-                    href = link.attrs['href']
-                    script = self._request("GET", href, cache=False)
-                    fileLinks = re.findall(
-                        r'"(https://dataportal.eso.org/dataPortal/api/requests/.*)"',
-                        script.content.decode('utf8'))
+                link = root.select('a[href$=/script]')[0]
+                if 'downloadRequest' not in link.text:
+                    # Make sure that we found the correct link
+                    raise RemoteServiceError(
+                        "A link was found in the download file for the "
+                        "calibrations that is not a downloadRequest link "
+                        "and therefore appears invalid.")
 
-                    # links with api/ do not work, wtf ???
-                    fileLinks = [
-                        f.replace('https://dataportal.eso.org/dataPortal/api/requests',
-                                  'https://dataportal.eso.org/dataPortal/requests')
-                        for f in fileLinks]
+                href = link.attrs['href']
+                script = self._request("GET", href, cache=False)
+                fileLinks = re.findall(
+                    r'"(https://dataportal.eso.org/dataPortal/api/requests/.*)"',
+                    script.text)
 
-                    log.info("Detecting already downloaded datasets, "
-                             "including calibrations...")
-                    fileIds = [f.rsplit('/', maxsplit=1)[1] for f in fileLinks]
-                    filteredIds, files = self._check_existing_files(
-                        fileIds, continuation=continuation,
-                        destination=destination)
+                # links with api/ do not work, not idea why (these links
+                # are used by the download script, so they should work!)
+                fileLinks = [
+                    f.replace('https://dataportal.eso.org/dataPortal/api/requests',
+                              'https://dataportal.eso.org/dataPortal/requests')
+                    for f in fileLinks]
 
-                    fileLinks = [f for f, fileId in zip(fileLinks, fileIds)
-                                 if fileId in filteredIds]
-                except Exception:
-                    fileLinks = []
-                    log.error("failed to retrieve the files, please visit {} "
-                              "to check the request result"
-                              .format(data_download_form.url))
+                log.info("Detecting already downloaded datasets, "
+                         "including calibrations...")
+                fileIds = [f.rsplit('/', maxsplit=1)[1] for f in fileLinks]
+                filteredIds, files = self._check_existing_files(
+                    fileIds, continuation=continuation,
+                    destination=destination)
+
+                fileLinks = [f for f, fileId in zip(fileLinks, fileIds)
+                             if fileId in filteredIds]
             else:
                 fileIds = root.select('input[name=fileId]')
                 fileLinks = ["http://dataportal.eso.org/dataPortal" +
