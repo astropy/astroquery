@@ -349,9 +349,9 @@ class MPCClass(BaseQuery):
 
         step : str or Quantity, optional
             The ephemeris step size or interval in units of days,
-            minutes, or seconds.  Strings are parsed by
+            hours, minutes, or seconds.  Strings are parsed by
             `astropy.units.Quantity`.  All inputs are rounded to the
-            nearest integer.
+            nearest integer.  Default is 1 day.
 
         number : int, optional
             The number of ephemeris dates to compute.  Must be ≤1441.
