@@ -517,6 +517,8 @@ class MPCClass(BaseQuery):
             'adir': 'N'  # always measure azimuth eastward from north
         }
 
+        assert (isinstance(location, (str, int, EarthLocation))
+                or np.isiterable(location)), "location parameter must be a string, integer, iterable, or EarthLocation"
         if isinstance(location, str):
             data['c'] = location
         elif isinstance(location, int):
@@ -527,10 +529,14 @@ class MPCClass(BaseQuery):
             data['lat'] = loc.lat.deg
             data['alt'] = loc.height.to(u.m).value
         elif np.isiterable(location):
+            assert len(
+                location) == 3, "location arrays require three values: longitude, latitude, and altitude"
             data['long'] = u.Quantity(loc[0], u.deg).value
             data['lat'] = u.Quantity(loc[1], u.deg).value
             data['alt'] = u.Quantity(loc[2], u.m).value
 
+        assert isinstance(start, (NoneType, Time, str)
+                          ), "start must be a string, a Time object, or None."
         if start is None:
             data['d'] = Time.now().iso[:10]
         elif isinstance(start, Time):
@@ -542,12 +548,17 @@ class MPCClass(BaseQuery):
         assert _step.unit in [
             u.d, u.h, u.min, u.s], 'step must have units of days, hours, minutues, or seconds.'
         data['i'] = int(round(step.value))
-        data['u'] = str(step.unit)[:1]
+        data['u'] = str(step.unit)[: 1]
         data['l'] = self._default_number_of_steps.get(interval_unit, number)
 
+        assert eph_type in self._ephemeris_types.keys(
+        ), "eph_type must be one of {}".format(self._ephemeris_types.keys())
         data['raty'] = self._ephemeris_types[eph_type]
+
+        assert proper_motion in self._proper_motions.keys(
+        ), "proper_motion must be one of {}".format(self._proper_motions.keys())
         data['s'] = self._proper_motions[proper_motion]
-        data['m'] = 'h'  # proper motion always arcsec/hr
+        data['m'] = 'h'  # always return proper_motion as arcsec/hr
 
 
 MPC = MPCClass()
