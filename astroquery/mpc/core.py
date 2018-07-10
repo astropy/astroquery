@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 
-from ..query import BaseQuery
-from . import conf
-from ..utils import async_to_sync
+from bs4 import BeautifulSoup
 
 from astropy.io import ascii
 from astropy.time import Time
 import astropy.units as u
 from astropy.coordinates import EarthLocation, Angle
+
+from ..query import BaseQuery
+from . import conf
+from ..utils import async_to_sync
 
 
 __all__ = ['MPCClass']
@@ -15,12 +17,14 @@ __all__ = ['MPCClass']
 
 @async_to_sync
 class MPCClass(BaseQuery):
-    MPC_URL = 'http://' + conf.server + '/web_service'
+    MPC_URL = 'http://' + conf.web_service_server + '/web_service'
     # The authentication credentials for the MPC web service are publicly
     # available and can be openly viewed on the documentation page at
     # https://minorplanetcenter.net/web_service/
     MPC_USERNAME = 'mpc_ws'
     MPC_PASSWORD = 'mpc!!ws'
+
+    MPES_URL = 'https://' + conf.mpes_server + '/cgi-bin/mpeph2.cgi'
 
     TIMEOUT = conf.timeout
 
@@ -305,7 +309,7 @@ class MPCClass(BaseQuery):
 
         if (target_type == 'comet'):
             kwargs['order_by_desc'] = "epoch"
-        request_args = self._args_to_payload(**kwargs)
+        request_args = self._args_to_objects_payload(**kwargs)
 
         # Return payload if requested
         if get_query_payload:
@@ -314,7 +318,7 @@ class MPCClass(BaseQuery):
         auth = (self.MPC_USERNAME, self.MPC_PASSWORD)
         return self._request('GET', mpc_endpoint, params=request_args, auth=auth)
 
-    def _args_to_payload(self, **kwargs):
+    def _args_to_objects_payload(self, **kwargs):
         request_args = kwargs
         kwargs['json'] = 1
         return_fields = kwargs.pop('return_fields', None)
@@ -331,7 +335,7 @@ class MPCClass(BaseQuery):
         return mpc_endpoint
 
     def query_ephemeris_async(self, target, location='500', start=None, step='1d',
-                              number=None, utoffset=0, eph_type='equatorial',
+                              number=None, ut_offset=0, eph_type='equatorial',
                               ra_format={'unit': u.hr, 'sep': ':'},
                               dec_format={'unit': u.deg, 'sep': ':'},
                               proper_motion='total', proper_motion_unit='arcsec/hr',
@@ -369,7 +373,7 @@ class MPCClass(BaseQuery):
             for days, 49 for hours, 121 for minutes, or 301 for
             seconds.
 
-        utoffset : int, optional
+        ut_offset : int, optional
             Number of hours to offset from 0 UT for daily ephemerides.
 
         eph_type : str, optional
@@ -527,60 +531,92 @@ class MPCClass(BaseQuery):
 
         """
 
-        # HTTP POST data containing MPES parameters
-        data = {
-            'ty': 'e',
-            'TextArea': str(target),
-            'uto': int(utoffset),
-            'igd': 'y' if suppress_daytime else 'n',
-            'ibh': 'y' if suppress_set else 'n',
-            'fp': 'y' if perturbed else 'n',
-            'adir': 'N'  # always measure azimuth eastward from north
-        }
-
+        # parameter checks
         assert (isinstance(location, (str, int, EarthLocation))
-                or np.isiterable(location)), "location parameter must be a string, integer, iterable, or EarthLocation"
-        if isinstance(location, str):
-            data['c'] = location
-        elif isinstance(location, int):
-            data['c'] = '{:03d}'.format(location)
-        elif isinstance(location, EarthLocation):
-            loc = location.geodetic
-            data['long'] = loc.lon.deg
-            data['lat'] = loc.lat.deg
-            data['alt'] = loc.height.to(u.m).value
-        elif np.isiterable(location):
-            assert len(
-                location) == 3, "location arrays require three values: longitude, latitude, and altitude"
-            data['long'] = u.Quantity(loc[0], u.deg).value
-            data['lat'] = u.Quantity(loc[1], u.deg).value
-            data['alt'] = u.Quantity(loc[2], u.m).value
+                or np.isiterable(location)), "location parameter must be a string, integer, iterable, or astropy EarthLocation"
 
         assert isinstance(start, (NoneType, Time, str)
-                          ), "start must be a string, a Time object, or None."
-        if start is None:
-            data['d'] = Time.now().iso[:10]
-        elif isinstance(start, Time):
-            data['d'] = start.iso.replace(':', '').replace('-', ':')[:15]
-        else:
-            data['d'] = start
+                          ), "start must be a string, an astropy Time object, or None."
 
         _step = u.Quantity(step)
         assert _step.unit in [
             u.d, u.h, u.min, u.s], 'step must have units of days, hours, minutues, or seconds.'
-        data['i'] = int(round(step.value))
-        data['u'] = str(step.unit)[: 1]
-        data['l'] = self._default_number_of_steps.get(interval_unit, number)
 
         assert eph_type in self._ephemeris_types.keys(
         ), "eph_type must be one of {}".format(self._ephemeris_types.keys())
-        data['raty'] = self._ephemeris_types[eph_type]
 
         assert proper_motion in self._proper_motions.keys(
         ), "proper_motion must be one of {}".format(self._proper_motions.keys())
-        data['s'] = self._proper_motions[proper_motion]
-        data['m'] = 'h'  # always return proper_motion as arcsec/hr
+
+        request_args = self._args_to_mpes_payload(
+            target=target, ut_offset=ut_offset, suppress_daytime=suppress_daytime,
+            suppress_set=suppress_set, perturbed=perturbed, location=location,
+            start=start, step=_step, number=number, eph_type=eph_type,
+            proper_motion=proper_motion)
+
+        if kwargs.get('get_query_payload', False):
+            return request_args
+
         _proper_motion_unit = u.Unit(proper_motion_unit)
+
+        response = self._request('POST', MPES_URL, params=request_args)
+
+        root = BeautifulSoup(response.content, 'html.parser')
+        text_table = root.find('pre').text
+
+        tab = ascii.read(text_table, format='fixed_width',
+                         header_start=1, data_start=3)
+
+        return tab
+
+    def _args_to_mpes_payload(self, **kwargs):
+        request_args = {
+            'ty': 'e',
+            'TextArea': str(kwargs['target']),
+            'uto': int(kwargs['ut_offset']),
+            'igd': 'y' if kwargs['suppress_daytime'] else 'n',
+            'ibh': 'y' if kwargs['suppress_set'] else 'n',
+            'fp': 'y' if kwargs['perturbed'] else 'n',
+            'adir': 'N'  # always measure azimuth eastward from north
+        }
+
+        location = kwargs['location']
+        if isinstance(location, str):
+            request_args['c'] = location
+        elif isinstance(location, int):
+            request_args['c'] = '{:03d}'.format(location)
+        elif isinstance(location, EarthLocation):
+            loc = location.geodetic
+            request_args['long'] = loc.lon.deg
+            request_args['lat'] = loc.lat.deg
+            request_args['alt'] = loc.height.to(u.m).value
+        elif np.isiterable(location):
+            assert len(
+                location) == 3, "location arrays require three values: longitude, latitude, and altitude"
+            request_args['long'] = u.Quantity(loc[0], u.deg).value
+            request_args['lat'] = u.Quantity(loc[1], u.deg).value
+            request_args['alt'] = u.Quantity(loc[2], u.m).value
+
+        if start is None:
+            request_args['d'] = Time.now().iso[:10]
+        elif isinstance(start, Time):
+            request_args['d'] = start.iso.replace(
+                ':', '').replace('-', ':')[:15]
+        else:
+            request_args['d'] = start
+
+        request_args['i'] = int(round(step.value))
+        request_args['u'] = str(step.unit)[: 1]
+        if number is None:
+            request_args['l'] = self._default_number_of_steps['step.unit']
+        else:
+            request_args['l'] = number
+
+        request_args['raty'] = self._ephemeris_types[eph_type]
+        request_args['s'] = self._proper_motions[proper_motion]
+        request_args['m'] = 'h'  # always return proper_motion as arcsec/hr
+
+        return request_args
 
     def get_observatory_codes_async(cache=True):
         """Table of observatory codes from the IAU Minor Planet Center[1].
@@ -605,8 +641,9 @@ class MPCClass(BaseQuery):
                                  'https://minorplanetcenter.net/iau/lists/ObsCodes.html',
                                  timeout=self.TIMEOUT, cache=cache)
 
-        text = response.text[6:-7]  # strip <pre> and </pre>
-        tab = ascii.read(text, format='fixed_width',
+        root = BeautifulSoup(response.content, 'html.parser')
+        text_table = root.find('pre').text
+        tab = ascii.read(text_table, format='fixed_width',
                          col_starts=(0, 6, 13, 21, 30))
         return tab
 
