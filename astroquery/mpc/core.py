@@ -618,7 +618,7 @@ class MPCClass(BaseQuery):
 
         return request_args
 
-    def get_observatory_codes_async(cache=True):
+    def get_observatory_codes_async(self, cache=True):
         """Table of observatory codes from the IAU Minor Planet Center[1].
 
         Returns
