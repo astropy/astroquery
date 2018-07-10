@@ -4,12 +4,13 @@ from __future__ import (absolute_import, division, print_function,
 import abc
 import pickle
 import hashlib
+import io
 import os
 import requests
 
 from astropy.extern import six
 from astropy.config import paths
-from astropy import log
+from astropy.logger import log
 import astropy.units as u
 from astropy.utils.console import ProgressBarOrSpinner
 import astropy.utils.data
@@ -274,9 +275,16 @@ class BaseQuery(object):
 
         bytes_read = 0
 
+        # Only show progress bar if logging level is INFO or lower.
+        if log.getEffectiveLevel() <= 20:
+            progress_stream = None  # Astropy default
+        else:
+            progress_stream = io.StringIO()
+
         with ProgressBarOrSpinner(
-            length, ('Downloading URL {0} to {1} ...'
-                     .format(url, local_filepath))) as pb:
+                length, ('Downloading URL {0} to {1} ...'
+                         .format(url, local_filepath)),
+                file=progress_stream) as pb:
             with open(local_filepath, open_mode) as f:
                 for block in response.iter_content(blocksize):
                     f.write(block)
