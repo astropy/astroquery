@@ -10,6 +10,8 @@
 - NASA_ADS: Use new API [#1162]
 - VO_CONESEARCH: Service validator now uses new STScI VAO TAP registry. [#1114]
 - Nasa Exoplanet Arhive: Add option to return all columns. [#1183]
+- File download progress bar no longer displays when Astropy log level
+  is set to "WARNING", "ERROR", or "CRITICAL". [#1188]
 
 
 0.3.8 (2018-04-27)
