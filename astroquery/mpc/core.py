@@ -9,7 +9,7 @@ from astropy.coordinates import EarthLocation, Angle
 
 from ..query import BaseQuery
 from . import conf
-from ..utils import async_to_sync
+from ..utils import async_to_sync, class_or_instance
 
 
 __all__ = ['MPCClass']
@@ -305,6 +305,7 @@ class MPCClass(BaseQuery):
             Limit the number of results to the given value
 
         """
+        self.query_type = 'object'
         mpc_endpoint = self.get_mpc_endpoint(target_type)
 
         if (target_type == 'comet'):
@@ -318,14 +319,6 @@ class MPCClass(BaseQuery):
         auth = (self.MPC_USERNAME, self.MPC_PASSWORD)
         return self._request('GET', mpc_endpoint, params=request_args, auth=auth)
 
-    def _args_to_objects_payload(self, **kwargs):
-        request_args = kwargs
-        kwargs['json'] = 1
-        return_fields = kwargs.pop('return_fields', None)
-        if return_fields:
-            kwargs['return'] = return_fields
-        return request_args
-
     def get_mpc_endpoint(self, target_type):
         mpc_endpoint = self.MPC_URL
         if target_type == 'asteroid':
@@ -334,13 +327,14 @@ class MPCClass(BaseQuery):
             mpc_endpoint = mpc_endpoint + '/search_comet_orbits'
         return mpc_endpoint
 
-    def query_ephemeris_async(self, target, location='500', start=None, step='1d',
-                              number=None, ut_offset=0, eph_type='equatorial',
-                              ra_format={'unit': u.hr, 'sep': ':'},
-                              dec_format={'unit': u.deg, 'sep': ':'},
-                              proper_motion='total', proper_motion_unit='arcsec/hr',
-                              suppress_daytime=False, suppress_set=False, perturbed=True):
-        """Query the Minor Planet Ephemeris Service for ephemerides.
+    @class_or_instance
+    def get_ephemeris_async(self, target, location='500', start=None, step='1d',
+                            number=None, ut_offset=0, eph_type='equatorial',
+                            ra_format={'unit': u.hr, 'sep': ':'},
+                            dec_format={'unit': u.deg, 'sep': ':'},
+                            proper_motion='total', proper_motion_unit='arcsec/hr',
+                            suppress_daytime=False, suppress_set=False, perturbed=True):
+        """Object ephemerides from the Minor Planet Ephemeris Service.
 
         Parameters
         ----------
@@ -531,6 +525,8 @@ class MPCClass(BaseQuery):
 
         """
 
+        self.query_type = 'ephemeris'
+
         # parameter checks
         assert (isinstance(location, (str, int, EarthLocation))
                 or np.isiterable(location)), "location parameter must be a string, integer, iterable, or astropy EarthLocation"
@@ -561,63 +557,9 @@ class MPCClass(BaseQuery):
 
         response = self._request('POST', MPES_URL, params=request_args)
 
-        root = BeautifulSoup(response.content, 'html.parser')
-        text_table = root.find('pre').text
-
-        tab = ascii.read(text_table, format='fixed_width',
-                         header_start=1, data_start=3)
-
         return tab
 
-    def _args_to_mpes_payload(self, **kwargs):
-        request_args = {
-            'ty': 'e',
-            'TextArea': str(kwargs['target']),
-            'uto': int(kwargs['ut_offset']),
-            'igd': 'y' if kwargs['suppress_daytime'] else 'n',
-            'ibh': 'y' if kwargs['suppress_set'] else 'n',
-            'fp': 'y' if kwargs['perturbed'] else 'n',
-            'adir': 'N'  # always measure azimuth eastward from north
-        }
-
-        location = kwargs['location']
-        if isinstance(location, str):
-            request_args['c'] = location
-        elif isinstance(location, int):
-            request_args['c'] = '{:03d}'.format(location)
-        elif isinstance(location, EarthLocation):
-            loc = location.geodetic
-            request_args['long'] = loc.lon.deg
-            request_args['lat'] = loc.lat.deg
-            request_args['alt'] = loc.height.to(u.m).value
-        elif np.isiterable(location):
-            assert len(
-                location) == 3, "location arrays require three values: longitude, latitude, and altitude"
-            request_args['long'] = u.Quantity(loc[0], u.deg).value
-            request_args['lat'] = u.Quantity(loc[1], u.deg).value
-            request_args['alt'] = u.Quantity(loc[2], u.m).value
-
-        if start is None:
-            request_args['d'] = Time.now().iso[:10]
-        elif isinstance(start, Time):
-            request_args['d'] = start.iso.replace(
-                ':', '').replace('-', ':')[:15]
-        else:
-            request_args['d'] = start
-
-        request_args['i'] = int(round(step.value))
-        request_args['u'] = str(step.unit)[: 1]
-        if number is None:
-            request_args['l'] = self._default_number_of_steps['step.unit']
-        else:
-            request_args['l'] = number
-
-        request_args['raty'] = self._ephemeris_types[eph_type]
-        request_args['s'] = self._proper_motions[proper_motion]
-        request_args['m'] = 'h'  # always return proper_motion as arcsec/hr
-
-        return request_args
-
+    @class_or_instance
     def get_observatory_codes_async(self, cache=True):
         """Table of observatory codes from the IAU Minor Planet Center[1].
 
@@ -634,17 +576,91 @@ class MPCClass(BaseQuery):
 
         Examples
         --------
+        >>> from astroquery.mpc import MPC
+        >>> obs = MPC.get_observatory_codes()
+        >>> print(obs[295])  # doctest: +SKIP
+        Code Longitude   cos       sin         Name    
+        ---- --------- -------- --------- -------------
+        309 289.59569 0.909943 -0.414336 Cerro Paranal
 
         """
 
+        self.query_type = 'observatory_code'
         response = self._request('GET',
                                  'https://minorplanetcenter.net/iau/lists/ObsCodes.html',
                                  timeout=self.TIMEOUT, cache=cache)
 
-        root = BeautifulSoup(response.content, 'html.parser')
-        text_table = root.find('pre').text
-        tab = ascii.read(text_table, format='fixed_width',
-                         col_starts=(0, 6, 13, 21, 30))
+        return response
+
+    def _args_to_payload(self, **kwargs):
+        if self.query_type == 'object':
+            request_args = kwargs
+            kwargs['json'] = 1
+            return_fields = kwargs.pop('return_fields', None)
+            if return_fields:
+                kwargs['return'] = return_fields
+        elif self.query_type == 'ephemeris':
+            request_args = {
+                'ty': 'e',
+                'TextArea': str(kwargs['target']),
+                'uto': int(kwargs['ut_offset']),
+                'igd': 'y' if kwargs['suppress_daytime'] else 'n',
+                'ibh': 'y' if kwargs['suppress_set'] else 'n',
+                'fp': 'y' if kwargs['perturbed'] else 'n',
+                'adir': 'N'  # always measure azimuth eastward from north
+            }
+
+            location = kwargs['location']
+            if isinstance(location, str):
+                request_args['c'] = location
+            elif isinstance(location, int):
+                request_args['c'] = '{:03d}'.format(location)
+            elif isinstance(location, EarthLocation):
+                loc = location.geodetic
+                request_args['long'] = loc.lon.deg
+                request_args['lat'] = loc.lat.deg
+                request_args['alt'] = loc.height.to(u.m).value
+            elif np.isiterable(location):
+                assert len(
+                    location) == 3, "location arrays require three values: longitude, latitude, and altitude"
+                request_args['long'] = u.Quantity(loc[0], u.deg).value
+                request_args['lat'] = u.Quantity(loc[1], u.deg).value
+                request_args['alt'] = u.Quantity(loc[2], u.m).value
+
+            if start is None:
+                request_args['d'] = Time.now().iso[:10]
+            elif isinstance(start, Time):
+                request_args['d'] = start.iso.replace(
+                    ':', '').replace('-', ':')[:15]
+            else:
+                request_args['d'] = start
+
+            request_args['i'] = int(round(step.value))
+            request_args['u'] = str(step.unit)[: 1]
+            if number is None:
+                request_args['l'] = self._default_number_of_steps['step.unit']
+            else:
+                request_args['l'] = number
+
+            request_args['raty'] = self._ephemeris_types[eph_type]
+            request_args['s'] = self._proper_motions[proper_motion]
+            request_args['m'] = 'h'  # always return proper_motion as arcsec/hr
+
+        return request_args
+
+    def _parse_result(self, result, **kwargs):
+        if self.query_type == 'observatory_code':
+            root = BeautifulSoup(result.content, 'html.parser')
+            text_table = root.find('pre').text
+            tab = ascii.read(text_table, format='fixed_width',
+                             names=('Code', 'Longitude', 'cos', 'sin', 'Name'),
+                             col_starts=(0, 4, 13, 21, 30))
+        elif self.query_type == 'ephemeris':
+            root = BeautifulSoup(result.content, 'html.parser')
+            text_table = root.find('pre').text
+            tab = ascii.read(text_table, format='fixed_width',
+                             header_start=1, data_start=3)
+
         return tab
 
 
