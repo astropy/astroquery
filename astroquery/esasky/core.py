@@ -457,7 +457,13 @@ class ESASkyClass(BaseQuery):
                     download_dir,
                     cache))
 
-        log.info("Maps available at {}".format(os.path.abspath(download_dir)))
+        if all([maps[mission].count(None) == len(maps[mission])
+                for mission in maps]):
+            log.info("No maps got downloaded, check errors above.")
+        elif (len(map_query_result) > 0):
+            log.info("Maps available at {}".format(os.path.abspath(download_dir)))
+        else:
+            log.info("No maps found.")
         return maps
 
     def _sanitize_input_position(self, position):
