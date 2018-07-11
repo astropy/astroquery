@@ -561,7 +561,7 @@ class ESASkyClass(BaseQuery):
                         maps.append(fits.open(file_name))
 
                 if None in maps:
-                    log.error("Some downloads were unsuccessfull, please check "
+                    log.error("Some downloads were unsuccessful, please check "
                               "the warnings for more details")
 
                 else:
