@@ -557,21 +557,25 @@ class ESASkyClass(BaseQuery):
                         cache=cache,
                         headers=self._get_header())
 
-                    response.raise_for_status()
+                    try:
+                        response.raise_for_status()
 
-                    file_name = ""
-                    if (product_url.endswith(self.__FITS_STRING)):
-                        file_name = (directory_path +
-                                     self._extract_file_name_from_url(product_url))
-                    else:
-                        file_name = (directory_path +
-                                     self._extract_file_name_from_response_header(response.headers))
+                        file_name = ""
+                        if (product_url.endswith(self.__FITS_STRING)):
+                            file_name = (directory_path +
+                                         self._extract_file_name_from_url(product_url))
+                        else:
+                            file_name = (directory_path +
+                                         self._extract_file_name_from_response_header(response.headers))
 
-                    fits_data = response.content
-                    with open(file_name, 'wb') as fits_file:
-                        fits_file.write(fits_data)
-                        fits_file.close()
-                        maps.append(fits.open(file_name))
+                        fits_data = response.content
+                        with open(file_name, 'wb') as fits_file:
+                            fits_file.write(fits_data)
+                            fits_file.close()
+                            maps.append(fits.open(file_name))
+                    except HTTPError as err:
+                        log.error("Download failed with {}.".format(err))
+                        maps.append(None)
 
                 if None in maps:
                     log.error("Some downloads were unsuccessful, please check "
