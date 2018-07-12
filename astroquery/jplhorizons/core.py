@@ -125,11 +125,13 @@ class HorizonsClass(BaseQuery):
 
     def ephemerides_async(self, airmass_lessthan=99,
                           solar_elongation=(0, 180), hour_angle=0,
+                          rate_cutoff=None,
                           skip_daylight=False,
+                          refraction=False,
+                          refsystem='J2000',
                           closest_apparition=False, no_fragments=False,
                           get_query_payload=False,
                           get_raw_response=False, cache=True):
-
         """
         Query JPL Horizons for ephemerides. The ``location`` parameter
         in ``HorizonsClass`` refers in this case to the location of
@@ -239,8 +241,18 @@ class HorizonsClass(BaseQuery):
             (0,180)
         hour_angle : float, optional
             Defines a maximum hour angle for the query, default: 0
+        rate_cutoff : float, optional
+            Angular range rate upper limit cutoff in arcsec/h; default:
+            disabled
         skip_daylight : boolean, optional
             Crop daylight epochs in query, default: False
+        refraction : boolean
+            If `True`, coordinates account for a standard atmosphere
+            refraction model; if `False`, coordinates do not account for
+            refraction (airless model); default: `False`
+        refsystem : string
+            Coordinate reference system: '`J2000`' or '`B1950`'; default:
+            '`B1950`'
         closest_apparition : boolean, optional
             Only applies to comets. This option will choose the
             closest apparition available in time to the selected
@@ -335,16 +347,21 @@ class HorizonsClass(BaseQuery):
             ('LHA_CUTOFF', (str(hour_angle))),
             ('CSV_FORMAT', ('YES')),
             ('CAL_FORMAT', ('BOTH')),
-            ('ANG_FORMAT', ('DEG'))]
-        )
+            ('ANG_FORMAT', ('DEG')),
+            ('APPARENT', ({False: 'AIRLESS',
+                           True: 'REFRACTED'}[refraction])),
+            ('REF_SYSTEM', (refsystem))])
+
+        if rate_cutoff is not None:
+            request_payload['ANG_RATE_CUTOFF'] = (str(rate_cutoff))
 
         # parse self.epochs
         if isinstance(self.epochs, (list, tuple, ndarray)):
             request_payload['TLIST'] = "\n".join([str(epoch) for epoch in
-                                                 self.epochs])
+                                                  self.epochs])
         elif type(self.epochs) is dict:
             if ('start' not in self.epochs or 'stop' not in self.epochs or
-                'step' not in self.epochs):
+                    'step' not in self.epochs):
                 raise ValueError("'epochs' parameter must contain start, " +
                                  "stop, step")
             request_payload['START_TIME'] = self.epochs['start']
@@ -378,9 +395,11 @@ class HorizonsClass(BaseQuery):
         return response
 
     def elements_async(self, get_query_payload=False,
+                       refsystem='J2000',
+                       refplane='ecliptic',
+                       tp_type='absolute',
                        closest_apparition=False, no_fragments=False,
                        get_raw_response=False, cache=True):
-
         """
         Query JPL Horizons for osculating orbital elements. The ``location``
         parameter in ``HorizonsClass`` refers in this case to the  center
@@ -441,6 +460,18 @@ class HorizonsClass(BaseQuery):
 
         Parameters
         ----------
+        refsystem : string
+            Element reference system for geometric and astrometric
+            quantities: '`J2000`' or '`B1950`'; default: '`B1950`'
+        refplance : string
+            Reference plane for all output quantities: '`ecliptic`'
+            (ecliptic and mean equinox of reference epoch), '`earth`'
+            (Earth mean equator and equinox of reference epoch), or
+            '`body`' (body mean equator and node of date); default:
+            '`ecliptic`'
+        tp_type : string
+            Representation for time-of-perihelion passage: '`absolute`' or
+            '`relative`' (to epoch); default: '`absolute`'
         closest_apparition : boolean, optional
             Only applies to comets. This option will choose the
             closest apparition available in time to the selected
@@ -509,26 +540,29 @@ class HorizonsClass(BaseQuery):
 
         # configure request_payload for ephemerides query
         request_payload = OrderedDict([
-            ('batch', 1),
+            #('batch', 1),
             ('TABLE_TYPE', 'ELEMENTS'),
+            ('MAKE_EPHEM', 'YES'),
             ('OUT_UNITS', 'AU-D'),
             ('COMMAND', '"' + commandline + '"'),
             ('CENTER', ("'" + str(self.location) + "'")),
             ('CSV_FORMAT', ('"YES"')),
-            ('REF_PLANE', 'ECLIPTIC'),
-            ('REF_SYSTEM', 'J2000'),
-            ('TP_TYPE', 'ABSOLUTE'),
             ('ELEM_LABELS', 'YES'),
-            ('OBJ_DATA', 'YES')]
+            ('OBJ_DATA', 'YES'),
+            ('REF_SYSTEM', refsystem),
+            ('REF_PLANE', {'ecliptic': 'ECLIPTIC', 'earth': 'FRAME',
+                           'body': 'BODY EQUATOR'}[refplane]),
+            ('TP_TYPE', {'absolute': 'ABSOLUTE',
+                         'relative': 'RELATIVE'}[tp_type])]
         )
 
         # parse self.epochs
         if isinstance(self.epochs, (list, tuple, ndarray)):
             request_payload['TLIST'] = "\n".join([str(epoch) for epoch in
-                                                 self.epochs])
+                                                  self.epochs])
         elif type(self.epochs) is dict:
             if ('start' not in self.epochs or 'stop' not in self.epochs or
-                'step' not in self.epochs):
+                    'step' not in self.epochs):
                 raise ValueError("'epochs' parameter must contain start, " +
                                  "stop, step")
             request_payload['START_TIME'] = self.epochs['start']
@@ -557,7 +591,6 @@ class HorizonsClass(BaseQuery):
     def vectors_async(self, get_query_payload=False,
                       closest_apparition=False, no_fragments=False,
                       get_raw_response=False, cache=True):
-
         """
         Query JPL Horizons for state vectors. The ``location``
         parameter in ``HorizonsClass`` refers in this case to the center
@@ -713,10 +746,10 @@ class HorizonsClass(BaseQuery):
         # parse self.epochs
         if isinstance(self.epochs, (list, tuple, ndarray)):
             request_payload['TLIST'] = "\n".join([str(epoch) for epoch in
-                                                 self.epochs])
+                                                  self.epochs])
         elif type(self.epochs) is dict:
             if ('start' not in self.epochs or 'stop' not in self.epochs or
-                'step' not in self.epochs):
+                    'step' not in self.epochs):
                 raise ValueError("'epochs' parameter must contain start, " +
                                  "stop, step")
             request_payload['START_TIME'] = self.epochs['start']
@@ -778,7 +811,7 @@ class HorizonsClass(BaseQuery):
         for idx, line in enumerate(src):
             # read in ephemerides header line; replace some field names
             if (self.query_type is 'ephemerides' and
-                "Date__(UT)__HR:MN" in line):
+                    "Date__(UT)__HR:MN" in line):
                 headerline = str(line).split(',')
                 headerline[2] = 'solar_presence'
                 headerline[3] = 'flags'
@@ -824,10 +857,10 @@ class HorizonsClass(BaseQuery):
             # catch unambiguous names
             if (("Multiple major-bodies match string" in line or
                  "Matching small-bodies:" in line) and
-                ("No matches found" not in src[idx + 1])):
+                    ("No matches found" not in src[idx + 1])):
                 for i in range(idx + 2, len(src), 1):
                     if (('To SELECT, enter record' in src[i]) or
-                        ('make unique selection.' in src[i])):
+                            ('make unique selection.' in src[i])):
                         end_idx = i
                         break
                 raise ValueError('Ambiguous target name; provide ' +
@@ -835,7 +868,7 @@ class HorizonsClass(BaseQuery):
                                  '\n'.join(src[idx + 2:end_idx]))
             # catch unknown target
             if ("Matching small-bodies" in line and
-                "No matches found" in src[idx + 1]):
+                    "No matches found" in src[idx + 1]):
                 raise ValueError('Unknown target. Try different id_type.')
             # catch any unavailability of ephemeris data
             if "No ephemeris for target" in line:
@@ -915,7 +948,10 @@ class HorizonsClass(BaseQuery):
 
         # rename columns
         for col in rename:
-            data.rename_column(data[col].name, column_defs[col][0])
+            try:
+                data.rename_column(data[col].name, column_defs[col][0])
+            except KeyError:
+                pass
 
         return data
 
