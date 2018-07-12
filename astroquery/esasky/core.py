@@ -356,25 +356,24 @@ class ESASkyClass(BaseQuery):
 
         """
         sanitized_query_table_list = self._sanitize_input_table_list(query_table_list)
-        sanitized_missions = self._sanitize_input_mission(missions)
+        sanitized_missions = [m.lower() for m in self._sanitize_input_mission(missions)]
 
         maps = dict()
 
         for query_mission in sanitized_query_table_list.keys():
-            for mission in sanitized_missions:
-                # INTEGRAL does not have a product url yet.
-                if (query_mission.lower() == self.__INTEGRAL_STRING):
-                    log.info("INTEGRAL does not yet support downloading of "
-                             "fits files")
-                    break
-                if (query_mission.lower() == mission.lower()):
-                    maps[query_mission] = (
-                        self._get_maps_for_mission(
-                            sanitized_query_table_list[query_mission],
-                            query_mission,
-                            download_dir,
-                            cache))
-                    break
+            # INTEGRAL does not have a product url yet.
+            if (query_mission.lower() == self.__INTEGRAL_STRING):
+                log.info("INTEGRAL does not yet support downloading of "
+                         "fits files")
+                continue
+
+            if (query_mission.lower() in sanitized_missions):
+                maps[query_mission] = (
+                    self._get_maps_for_mission(
+                        sanitized_query_table_list[query_mission],
+                        query_mission,
+                        download_dir,
+                        cache))
 
         if all([maps[mission].count(None) == len(maps[mission])
                 for mission in maps]):
