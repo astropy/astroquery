@@ -5,13 +5,13 @@
 import sys
 import pytest
 import os
-import json
-from sys import getsizeof
 import requests
+
 from ..core import cds
+from ...utils.testing_tools import MockResponse
 
 from astropy import coordinates
-from ...utils.testing_tools import MockResponse
+from regions import CircleSkyRegion, PolygonSkyRegion
 
 try:
     import pyvo as vo
@@ -81,8 +81,7 @@ def test_request_results(patch_get, datafile):
 
     with the one obtained on the http://alasky.unistra.fr/MocServer/query
     """
-    results = cds.query_region(region_type=cds.RegionType.AllSky,
-                               get_query_payload=False,
+    results = cds.query_region(get_query_payload=False,
                                verbose=True,
                                data=datafile)
     assert results is not None
@@ -104,11 +103,10 @@ request param 'intersect' is correct
 def test_cone_search_spatial_request(RA, DEC, RADIUS):
     center = coordinates.SkyCoord(ra=RA, dec=DEC, unit="deg")
     radius = coordinates.Angle(RADIUS, unit="deg")
+    cone_region = CircleSkyRegion(center=center, radius=radius)
 
-    request_payload = cds.query_region(region_type=cds.RegionType.Cone,
+    request_payload = cds.query_region(region=cone_region,
                                        get_query_payload=True,
-                                       center=center,
-                                       radius=radius,
                                        intersect='overlaps')
 
     assert (request_payload['DEC'] == str(DEC)) and \
@@ -120,8 +118,9 @@ def test_cone_search_spatial_request(RA, DEC, RADIUS):
                          [(polygon1, 'Polygon 57.376 24.053 56.391 24.622 56.025 24.049 56.616 24.291'),
                           (polygon2, 'Polygon 58.376 24.053 53.391 25.622 56.025 22.049 54.616 27.291')])
 def test_polygon_spatial_request(poly, poly_payload):
-    request_payload = cds.query_region(region_type=cds.RegionType.Polygon,
-                                       vertices=poly,
+    polygon_region = PolygonSkyRegion(vertices=poly)
+
+    request_payload = cds.query_region(region=polygon_region,
                                        intersect='overlaps',
                                        get_query_payload=True)
 
@@ -133,10 +132,10 @@ def test_polygon_spatial_request(poly, poly_payload):
 def test_intersect_param(intersect):
     center = coordinates.SkyCoord(ra=10.8, dec=32.2, unit="deg")
     radius = coordinates.Angle(1.5, unit="deg")
-    request_payload = cds.query_region(region_type=cds.RegionType.Cone,
+
+    cone_region = CircleSkyRegion(center, radius)
+    request_payload = cds.query_region(region=cone_region,
                                        intersect=intersect,
-                                       center=center,
-                                       radius=radius,
                                        get_query_payload=True)
     if intersect == 'encloses':
         assert request_payload['intersect'] == 'enclosed'
@@ -149,9 +148,9 @@ def test_intersect_param(intersect):
 def test_max_rec_param(max_rec):
     center = coordinates.SkyCoord(ra=10.8, dec=32.2, unit="deg")
     radius = coordinates.Angle(1.5, unit="deg")
-    result = cds.query_region(region_type=cds.RegionType.Cone,
-                              center=center,
-                              radius=radius,
+
+    cone_region = CircleSkyRegion(center, radius)
+    result = cds.query_region(region=cone_region,
                               max_rec=max_rec,
                               get_query_payload=False)
 
@@ -166,34 +165,18 @@ Tests requiring mocpy
 
 # test of moc_order payload
 @pytest.mark.skipif('mocpy' not in sys.modules,
-                    reason="requires the mocpy library")
+                    reason="requires MOCPy")
 @pytest.mark.parametrize('moc_order', [5, 10])
 def test_moc_order_param(moc_order):
-    result = cds.query_region(region_type=cds.RegionType.MOC,
-                              url='http://alasky.u-strasbg.fr/SDSS/DR9/color/Moc.fits',
+    moc_region = MOC.from_url('https://alasky.u-strasbg.fr/GALEX/GR6-03-2014/AIS-FD/Moc.fits')
+
+    result = cds.query_region(region=moc_region,
                               # return a mocpy obj
                               output_format=cds.ReturnFormat.moc,
                               moc_order=moc_order,
                               get_query_payload=False)
 
     assert isinstance(result, MOC)
-
-
-@pytest.mark.skipif('mocpy' not in sys.modules,
-                    reason="requires the mocpy library")
-def test_from_mocpy_obj():
-    moc = MOC()
-    moc.add_pix(order=5, i_pix=3, nest=True)
-    moc.add_pix(order=9, i_pix=34, nest=True)
-    moc.add_pix(order=9, i_pix=35, nest=True)
-    moc.add_pix(order=9, i_pix=36, nest=True)
-    result = cds.query_region(region_type=cds.RegionType.MOC,
-                              moc=moc,
-                              get_query_payload=True)
-
-    from ast import literal_eval
-    assert literal_eval(result['moc']) == {"5": [3],
-                                           "9": [34, 35, 36]}
 
 
 """
@@ -212,9 +195,9 @@ Tests requiring pyvo
 def test_field_l_param(field_l):
     center = coordinates.SkyCoord(ra=10.8, dec=32.2, unit="deg")
     radius = coordinates.Angle(1.5, unit="deg")
-    datasets = cds.query_region(region_type=cds.RegionType.Cone,
-                                center=center,
-                                radius=radius,
+
+    cone_region = CircleSkyRegion(center, radius)
+    datasets = cds.query_region(region=cone_region,
                                 output_format=cds.ReturnFormat.record,
                                 meta_var=field_l,
                                 get_query_payload=False)
@@ -239,9 +222,9 @@ def test_get_attribute(get_attr, get_attr_str):
     """Test if the request parameter 'get' works for a basic cone search request"""
     center = coordinates.SkyCoord(ra=10.8, dec=32.2, unit="deg")
     radius = coordinates.Angle(1.5, unit="deg")
-    result = cds.query_region(region_type=cds.RegionType.Cone,
-                              center=center,
-                              radius=radius,
+
+    cone_region = CircleSkyRegion(center, radius)
+    result = cds.query_region(region=cone_region,
                               output_format=get_attr,
                               get_query_payload=True)
 

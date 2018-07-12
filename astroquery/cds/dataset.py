@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*
 
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
@@ -133,17 +132,17 @@ class Dataset:
         that cone region.
 
         >>> from astropy import coordinates
+        >>> from regions import CircleSkyRegion
         >>> from astroquery.cds import cds
         >>> center = coordinates.SkyCoord(10.8, 32.2, unit='deg')
         >>> radius = coordinates.Angle(1.5, unit='deg')
-        >>> datasets_d = cds.query_region(region_type=cds.RegionType.Cone,
-        ...                               center=center,
-        ...                               radius=radius,
+        >>> cone_region = CircleSkyRegion(center, radius)
+        >>> datasets_d = cds.query_region(region=cone_region,
         ...                               output_format=cds.ReturnFormat.record)
         >>> votable = datasets_d['CDS/I/200/npm1rgal'].search(cds.ServiceType.cs,
         ...                                                 pos=(10.8, 32.2),
         ...                                                 radius=1.5)
-        >>> print(votable.get_first_table())
+        >>> print(votable)
               _RAJ2000     _DEJ2000      _r      Name   ... Flag3   _RA.icrs     _DE.icrs
                 deg          deg        deg             ...         "h:m:s"      "d:m:s"
             ------------ ------------ -------- -------- ... ----- ------------ ------------

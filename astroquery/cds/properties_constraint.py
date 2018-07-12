@@ -1,11 +1,10 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*
 
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 
 
-class PropertyConstrain(object):
+class PropertiesConstraint(object):
     def __init__(self, expr):
         if not isinstance(expr, PropertiesExpr) and not isinstance(expr, str):
             raise TypeError('`expr` is not of type str nor PropertiesExpr')
@@ -22,7 +21,7 @@ class PropertyConstrain(object):
         self.request_payload['expr'] = self.expr.eval()
 
     def __repr__(self):
-        result = "Properties constrains' request payload :\n{0}".format(self.request_payload)
+        result = "Properties constraint's request payload :\n{0}".format(self.request_payload)
         return result
 
 
