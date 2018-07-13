@@ -8,10 +8,6 @@ astroquery.cds package
 
 from astropy import config as _config
 
-from .output_format import OutputFormat
-from .constraints import Constraints
-from .properties_constraint import PropertiesConstraint
-
 
 class Conf(_config.ConfigNamespace):
     """
@@ -32,8 +28,5 @@ conf = Conf()
 from .core import cds, CdsClass
 
 __all__ = ['cds', 'CdsClass',
-           'OutputFormat',
-           'Constraints',
-           'PropertiesConstraint',
            'Conf', 'conf',
            ]

@@ -8,11 +8,12 @@ from ..utils import async_to_sync
 
 from . import conf
 
-from .output_format import OutputFormat
 from .properties_constraint import PropertiesConstraint
 
 import os
 from astropy import units as u
+from astropy.table import Table
+from copy import copy
 
 try:
     from mocpy import MOC
@@ -64,6 +65,7 @@ class CdsClass(BaseQuery):
     def __init__(self):
         super(CdsClass, self).__init__()
         self.path_moc_file = None
+        self.return_moc = False
 
     def query_region(self, region=None, get_query_payload=False, verbose=False, **kwargs):
         """
@@ -112,8 +114,7 @@ class CdsClass(BaseQuery):
             -  ``cds.ReturnFormat.i_moc``. The output is a ``mocpy.MOC`` object
                corresponding to the intersection of the MOCs of the selected data
                sets
-        case_sensitive : bool, optional
-        meta_var : [str], optional
+        field : [str], optional
             List of the meta data that the user wants to retrieve, e.g. ['ID', 'moc_sky_fraction'].
             Only if ``output_format`` is set to ``cds.ReturnFormat.record``.
         TODO : move the filtering on meta datas in query_object (astroquery.cds' objects are datasets).
@@ -201,7 +202,13 @@ class CdsClass(BaseQuery):
         if intersect == 'encloses':
             intersect = 'enclosed'
 
-        request_payload.update({'intersect': intersect})
+        request_payload.update({'intersect': intersect,
+                                'casesensitive': 'true',
+                                'fmt': 'json',
+                                'get': 'record',
+                                })
+
+        self.return_moc = kwargs.get('return_moc', False)
         # Region Type
         region = kwargs['region']
         if isinstance(region, MOC):
@@ -232,14 +239,30 @@ class CdsClass(BaseQuery):
             meta_data_constrain = PropertiesConstraint(kwargs['meta_data'])
             request_payload.update(meta_data_constrain.request_payload)
 
-        # Output format payload
-        from sys import maxsize
-        self.output_format = OutputFormat(output_format=kwargs.get('output_format', cds.ReturnFormat.id),
-                                          field_l=kwargs.get('meta_var', list()),
-                                          moc_order=kwargs.get('moc_order', maxsize),
-                                          case_sensitive=kwargs.get('case_sensitive', True),
-                                          max_rec=kwargs.get('max_rec', None))
-        request_payload.update(self.output_format.request_payload)
+        if 'fields' in kwargs:
+            fields = kwargs['fields']
+            field_l = list(fields) if not isinstance(fields, list) else copy(fields)
+            # The CDS MOC service responds badly to record queries which do not ask
+            # for the ID field. To prevent that, we add it to the list of requested fields
+            field_l.append('ID')
+            field_l = list(set(field_l))
+            fields_str = str(field_l[0])
+            for field in field_l[1:]:
+                fields_str += ', '
+                fields_str += field
+
+            request_payload.update({"fields": fields_str})
+
+        if 'max_rec' in kwargs:
+            max_rec = kwargs['max_rec']
+            request_payload.update({'MAXREC': str(max_rec)})
+
+        if self.return_moc:
+            request_payload.update({'get': 'moc'})
+            if 'max_norder' in kwargs:
+                request_payload.update({'order': kwargs['max_norder']})
+            else:
+                request_payload.update({'order': 'max'})
 
         return request_payload
 
@@ -261,46 +284,60 @@ class CdsClass(BaseQuery):
         if not verbose:
             commons.suppress_vo_warnings()
 
-        json_result = response.json()
-        if self.output_format.format is cds.ReturnFormat.record:
-            from .dataset import Dataset
+        result = response.json()
 
-            # The user will get a dictionary of Dataset objects indexed by their ID names.
-            # The http response is a list of dict. Each dict represents one data set. Each dict is a list
-            # of (meta-data name, value in str)
+        if not self.return_moc:
+            """
+            The user will get `astropy.table.Table` object whose columns refer to the returned data-set meta-datas.
+            """
+            # cast the data-sets meta-datas values to their correct Python type.
+            typed_result = []
+            for d in result:
+                typed_d = {k: self._cast_to_float(v) for k, v in d.items()}
+                typed_result.append(typed_d)
 
-            # 1 : all the meta-data values from the data sets returned by the CDS are cast to floats if possible
-            result = [dict([md_name, CdsClass._cast_to_float(md_val)]
-                           for md_name, md_val in data_set.items())
-                      for data_set in json_result]
-            # 2 : a final dictionary of Dataset objects indexed by their ID names is created
-            result_tmp = {}
-            for data_set in result:
-                data_set_id = data_set['ID']
-                result_tmp[data_set_id] = Dataset(
-                    **dict([md_name, CdsClass._remove_duplicate(data_set.get(md_name))]
-                           for md_name in (data_set.keys() - set('ID')))
-                )
+            # looping over all the record's keys to find all the existing keys
+            column_names_l = []
+            for d in typed_result:
+                column_names_l.extend(d.keys())
 
-            result = result_tmp
-        elif self.output_format.format is cds.ReturnFormat.number:
-            # The user will get the number of matching data sets
-            result = int(json_result['number'])
-        elif self.output_format.format is cds.ReturnFormat.moc or \
-                self.output_format.format is cds.ReturnFormat.i_moc:
-            # The user will get a mocpy.MOC object that he can manipulate through the
-            # mocpy API https://github.com/cds-astro/mocpy
-            empty_order_removed_d = {}
-            for order, ipix_l in json_result.items():
-                if len(ipix_l) > 0:
-                    empty_order_removed_d.update({order: ipix_l})
+            # remove all the doubles
+            column_names_l = list(set(column_names_l))
+            # init a dict mapping all the meta-data's name to an empty list
+            table_d = {key: [] for key in column_names_l}
+            type_d = {key: None for key in column_names_l}
+            mask_column_d = {key: True for key in column_names_l}
 
-            result = MOC.from_json(empty_order_removed_d)
-        else:
-            # The user will get a list of the matched data sets ID names
-            result = json_result
+            # fill the dict with the value of each returned data-set one by one.
+            for d in typed_result:
+                row_table_d = {key: '-' for key in column_names_l}
+                row_table_d.update(d)
 
-        return result
+                row_table_d = {k: _ for k, _ in row_table_d.items() if mask_column_d[k]}
+
+                for k, v in row_table_d.items():
+                    table_d[k].append(v)
+                    current_type = type(v)
+                    if type_d[k] and type_d[k] != current_type and current_type == list:
+                        mask_column_d[k] = False
+                    type_d[k] = current_type
+
+            table_d = {k: _ for k, _ in table_d.items() if mask_column_d[k]}
+
+            # return an `astropy.table.Table` object created from table_d
+            return Table(table_d)
+
+        """
+        The user will get `mocpy.MOC` object.
+        """
+        # remove
+        empty_order_removed_d = {}
+        for order, ipix_l in result.items():
+            if len(ipix_l) > 0:
+                empty_order_removed_d.update({order: ipix_l})
+
+        # return a `mocpy.MOC` object. See https://github.com/cds-astro/mocpy and the MOCPy's doc
+        return MOC.from_json(empty_order_removed_d)
 
     @staticmethod
     def _cast_to_float(value):
@@ -323,39 +360,6 @@ class CdsClass(BaseQuery):
             return float(value)
         except (ValueError, TypeError):
             return value
-
-    @staticmethod
-    def _remove_duplicate(value_l):
-        """
-        Remove doubles in a list
-
-        Parameters
-        ----------
-        value_l : list
-            input list to remove doubles
-
-        Returns
-        -------
-        value_l : list
-            list with no doubles
-        """
-        if isinstance(value_l, list):
-            value_l = list(set(value_l))
-            if len(value_l) == 1:
-                return value_l[0]
-
-        return value_l
-
-    class ReturnFormat:
-        """
-        Output format enumeration for :meth:`~astroquery.cds.CdsClass.query_region`
-        """
-        id = 1
-        record = 2
-        number = 3
-        moc = 4
-        i_moc = 5
-        return_format_size = 6
 
     class ServiceType:
         """
