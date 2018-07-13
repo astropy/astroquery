@@ -8,8 +8,6 @@ from ..utils import async_to_sync
 
 from . import conf
 
-from .properties_constraint import PropertiesConstraint
-
 import os
 from astropy import units as u
 from astropy.table import Table
@@ -20,7 +18,6 @@ try:
 except ImportError:
     raise ImportError("Could not import mocpy, which is a requirement for the CDS service."
                       "Please refer to https://mocpy.readthedocs.io/en/latest/install.html for how to install it.")
-
 
 try:
     from regions import CircleSkyRegion, PolygonSkyRegion
@@ -45,8 +42,6 @@ class CdsClass(BaseQuery):
 
     * A :meth:`~astroquery.cds.CdsClass.query_region` method allowing the user to retrieve the data sets having at least
       one source in a specific region.
-    * A :meth:`~astroquery.cds.CdsClass.query_object` method allowing the user to search for data sets having a specific
-      set of meta datas.
 
     Examples
     --------
@@ -114,7 +109,7 @@ class CdsClass(BaseQuery):
             -  ``cds.ReturnFormat.i_moc``. The output is a ``mocpy.MOC`` object
                corresponding to the intersection of the MOCs of the selected data
                sets
-        field : [str], optional
+        fields : [str], optional
             List of the meta data that the user wants to retrieve, e.g. ['ID', 'moc_sky_fraction'].
             Only if ``output_format`` is set to ``cds.ReturnFormat.record``.
         TODO : move the filtering on meta datas in query_object (astroquery.cds' objects are datasets).
@@ -175,7 +170,7 @@ class CdsClass(BaseQuery):
         if not self.path_moc_file:
             response = self._request(**params_d)
         else:
-            # The user ask for querying on a ``
+            # The user ask for querying on a MOC region.
             with open(self.path_moc_file, 'rb') as f:
                 params_d.update({'files': {'moc': f.read()}})
                 response = self._request(**params_d)
@@ -236,8 +231,7 @@ class CdsClass(BaseQuery):
                                  '`regions.PolygonSkyRegion` or `mocpy.MOC`')
 
         if 'meta_data' in kwargs:
-            meta_data_constrain = PropertiesConstraint(kwargs['meta_data'])
-            request_payload.update(meta_data_constrain.request_payload)
+            request_payload.update({'expr': kwargs['meta_data']})
 
         if 'fields' in kwargs:
             fields = kwargs['fields']
