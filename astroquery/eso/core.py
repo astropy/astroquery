@@ -216,11 +216,14 @@ class EsoClass(QueryWithLogin):
                 username = self.USERNAME
 
         # Get password from keyring or prompt
+        password_from_keyring = None
         if reenter_password is False:
-            password_from_keyring = keyring.get_password(
-                "astroquery:www.eso.org", username)
-        else:
-            password_from_keyring = None
+            try:
+                password_from_keyring = keyring.get_password(
+                    "astroquery:www.eso.org", username)
+            except keyring.errors.KeyringError as exc:
+                log.warning("Failed to get a valid keyring for password "
+                            "storage: {}".format(exc))
 
         if password_from_keyring is None:
             if system_tools.in_ipynb():
