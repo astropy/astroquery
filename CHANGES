@@ -17,6 +17,7 @@
   is set to "WARNING", "ERROR", or "CRITICAL". [#1188]
 - MAST: Updating HSC and Gaia catalog calls (bugfix) [#1203]
 - JPLSpec: New query service for JPL Molecular Spectral Catalog. [#1170]
+- Add docstring and signature for login. [#1199]
 
 
 0.3.8 (2018-04-27)
