@@ -221,8 +221,9 @@ class EsoClass(QueryWithLogin):
             try:
                 password_from_keyring = keyring.get_password(
                     "astroquery:www.eso.org", username)
-            except keyring.errors.KeyringError:
-                log.info("Failed to get a valid keyring for password storage")
+            except keyring.errors.KeyringError as exc:
+                log.warning("Failed to get a valid keyring for password "
+                            "storage: {}".format(exc))
 
         if password_from_keyring is None:
             if system_tools.in_ipynb():
