@@ -7,17 +7,21 @@ import pytest
 import os
 import requests
 
-from ..core import cds
-from ...utils.testing_tools import MockResponse
-
 from astropy import coordinates
 from astropy.table import Table
-from regions import CircleSkyRegion, PolygonSkyRegion
 
 try:
     from mocpy import MOC
 except ImportError:
     pass
+
+try:
+    from regions import CircleSkyRegion, PolygonSkyRegion
+except ImportError:
+    pass
+
+from ..core import cds
+from ...utils.testing_tools import MockResponse
 
 
 DATA_FILES = {
@@ -92,6 +96,8 @@ request param 'intersect' is correct
 """
 
 
+@pytest.mark.skipif('regions' not in sys.modules,
+                    reason="requires astropy-regions")
 @pytest.mark.parametrize('RA, DEC, RADIUS',
                          [(10.8, 6.5, 0.5),
                           (25.6, -23.2, 1.1),
@@ -110,6 +116,8 @@ def test_cone_search_spatial_request(RA, DEC, RADIUS):
            (request_payload['SR'] == str(RADIUS))
 
 
+@pytest.mark.skipif('regions' not in sys.modules,
+                    reason="requires astropy-regions")
 @pytest.mark.parametrize('poly, poly_payload',
                          [(polygon1, 'Polygon 57.376 24.053 56.391 24.622 56.025 24.049 56.616 24.291'),
                           (polygon2, 'Polygon 58.376 24.053 53.391 25.622 56.025 22.049 54.616 27.291')])
@@ -123,6 +131,8 @@ def test_polygon_spatial_request(poly, poly_payload):
     assert request_payload['stc'] == poly_payload
 
 
+@pytest.mark.skipif('regions' not in sys.modules,
+                    reason="requires astropy-regions")
 @pytest.mark.parametrize('intersect',
                          ['encloses', 'overlaps', 'covers'])
 def test_intersect_param(intersect):
@@ -140,6 +150,8 @@ def test_intersect_param(intersect):
 
 
 # test of MAXREC payload
+@pytest.mark.skipif('regions' not in sys.modules,
+                    reason="requires astropy-regions")
 @pytest.mark.parametrize('max_rec', [3, 10, 25, 100])
 def test_max_rec_param(max_rec):
     center = coordinates.SkyCoord(ra=10.8, dec=32.2, unit="deg")
@@ -182,6 +194,8 @@ Tests requiring pyvo
 
 
 # test of field_l when retrieving dataset records
+@pytest.mark.skipif('regions' not in sys.modules,
+                    reason="requires astropy-regions")
 @pytest.mark.parametrize('field_l', [['ID'],
                                      ['ID', 'moc_sky_fraction'],
                                      ['data_ucd', 'vizier_popularity', 'ID'],

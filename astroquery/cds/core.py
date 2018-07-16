@@ -16,15 +16,16 @@ from copy import copy
 try:
     from mocpy import MOC
 except ImportError:
-    raise ImportError("Could not import mocpy, which is a requirement for the CDS service."
-                      "Please refer to https://mocpy.readthedocs.io/en/latest/install.html for how to install it.")
+    print("Could not import mocpy, which is a requirement for the CDS service."
+          "Please refer to https://mocpy.readthedocs.io/en/latest/install.html for how to install it.")
+    pass
 
 try:
     from regions import CircleSkyRegion, PolygonSkyRegion
 except ImportError:
-    raise ImportError("Could not import astropy-regions, which is a requirement for the CDS service."
-                      "Please refer to http://astropy-regions.readthedocs.io/en/latest/installation.html for how to"
-                      "install it.")
+    print("Could not import astropy-regions, which is a requirement for the CDS service."
+          "Please refer to http://astropy-regions.readthedocs.io/en/latest/installation.html for how to install it.")
+    pass
 
 __all__ = ['cds', 'CdsClass']
 

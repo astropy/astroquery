@@ -61,7 +61,6 @@ The first thing to do is to import the `regions`_ and the ``cds`` module.
     >>> from regions import CircleSkyRegion
     >>> from astroquery.cds import cds
 
-
 ``cds`` implements only the method :meth:`~astroquery.cds.CdsClass.query_region`.
 We need to define a cone region. For that purpose we will instantiate a `regions.CircleSkyRegion` object:
 
@@ -76,7 +75,7 @@ And basically call the :meth:`~astroquery.cds.CdsClass.query_region` method with
 
 .. code-block:: python
 
-    >>> table = cds.query_region(region=cone)
+    >>> cds.query_region(region=cone)
              tap_tablename       hips_status_7              hips_creator                hipsgen_date_1  ...   hipsgen_date_6                 hips_service_url_4                hips_pixel_bitpix hips_order_4
     ------------------------ ------------- -------------------------------------- ----------------- ... ----------------- ------------------------------------------------ ----------------- ------------
     ivoa.B/assocdata/obscore             -                                      -                 - ...                 -                                                -                 -            -
@@ -163,7 +162,7 @@ resulting data-sets. We just have to do:
 
 .. code-block:: python
 
-    >>> table = cds.query_region(region=cone, fields=['ID', 'moc_sky_fraction', 'moc_access_url'])
+    >>> cds.query_region(region=cone, fields=['ID', 'moc_sky_fraction', 'moc_access_url'])
     moc_sky_fraction                  ID                                                     moc_access_url
     ---------------- ------------------------------------ ------------------------------------------------------------------------------------
               0.0588              CDS/B/assocdata/obscore http://alasky.unistra.fr/footprints/tables/vizier/B_assocdata_obscore/MOC?nside=2048
@@ -241,8 +240,8 @@ web interface in the Getting Started section i.e. retrieving only the image data
 .. code-block:: python
 
     >>> cds.query_region(region=cone,
-                     fields=['ID', 'dataproduct_type', 'moc_sky_fraction', 'moc_access_url'],
-                     meta_data="dataproduct_type=image")
+    ...                  fields=['ID', 'dataproduct_type', 'moc_sky_fraction', 'moc_access_url'],
+    ...                  meta_data="dataproduct_type=image")
     moc_sky_fraction                              moc_access_url                                                 ID                   dataproduct_type
     ---------------- ------------------------------------------------------------------------ --------------------------------------- ----------------
                  1.0                              http://alasky.u-strasbg.fr/2MASS/H/Moc.fits                           CDS/P/2MASS/H            image
@@ -329,7 +328,6 @@ Another parameter called ``max_rec`` specifies an upper limit for the number of 
           viz7.B/cb/lmxbdata    ivo://CDS ...               2.0
            vcds1.B/cfht/cfht    ivo://CDS ...               5.0
 
-
 This astropy table has only 3 rows although we know more data-sets match the query. It's useful if you do not need
 to retrieve all the data-sets matching a query but only a few. Again, the result will come faster from the MOCServer because
 this operation is done at the server side.
@@ -349,12 +347,12 @@ As an example, we would like to obtain the union of the spatial coverage of all 
     >>> # We want to retrieve all the HST surveys i.e. the HST surveys covering any region of the sky.
     >>> allsky = CircleSkyRegion(coordinates.SkyCoord(0, 0, unit="deg"), coordinates.Angle(180, unit="deg"))
     >>> moc = cds.query_region(region=allsky,
-    >>> # We want a mocpy object instead of an astropy table
-    >>>                        return_moc=True,
-    >>> # The order of the MOC
-    >>>                         max_norder=7,
-    >>> # Expression on the ID meta-data
-    >>>                        meta_data="ID=*HST*")
+    ... # We want a mocpy object instead of an astropy table
+    ...                        return_moc=True,
+    ... # The order of the MOC
+    ...                         max_norder=7,
+    ... # Expression on the ID meta-data
+    ...                        meta_data="ID=*HST*")
     >>> moc.plot(title='Union of the spatial coverage of all the Hubble surveys.')
 
 .. image:: ./HST_union.png
