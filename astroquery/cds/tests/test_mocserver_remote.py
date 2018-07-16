@@ -91,3 +91,4 @@ class TestMOCServerRemote(object):
                                      get_query_payload=False)
 
         assert isinstance(result, Table)
+

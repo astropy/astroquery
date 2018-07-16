@@ -115,7 +115,7 @@ class CdsClass(BaseQuery):
             By default an astropy table of the data-sets matching the query. If ``return_moc`` is set to True, it gives
             a MOC object corresponding to the union of the MOCs from all the retrieved data-sets.
         """
-        response = self._query_moc_server(get_query_payload=get_query_payload, region=region, **kwargs)
+        response = self.query_region_async(get_query_payload=get_query_payload, region=region, **kwargs)
         if get_query_payload:
             return response
 
@@ -123,7 +123,7 @@ class CdsClass(BaseQuery):
 
         return result
 
-    def query_data_sets(self, meta_data, get_query_payload=False, verbose=False, **kwargs):
+    def find_data_sets(self, meta_data, get_query_payload=False, verbose=False, **kwargs):
         """
         Query the `CDS MOCServer <http://alasky.unistra.fr/MocServer/query>`_ to retrieve the data-sets based on their
         meta data values. This method does not need any region argument but it requires an expression on the meta datas.
@@ -169,7 +169,7 @@ class CdsClass(BaseQuery):
             By default an astropy table of the data-sets matching the query. If ``return_moc`` is set to True, it gives
             a MOC object corresponding to the union of the MOCs from all the retrieved data-sets.
         """
-        response = self._query_moc_server(get_query_payload=get_query_payload, meta_data=meta_data, **kwargs)
+        response = self.query_region_async(get_query_payload=get_query_payload, meta_data=meta_data, **kwargs)
         if get_query_payload:
             return response
 
@@ -177,7 +177,7 @@ class CdsClass(BaseQuery):
 
         return result
 
-    def _query_moc_server(self, get_query_payload=False, **kwargs):
+    def query_region_async(self, get_query_payload=False, **kwargs):
         """
         Queries the `CDS MOCServer <http://alasky.unistra.fr/MocServer/query>`_.
 
