@@ -17,6 +17,7 @@ import os
 import re
 import keyring
 import threading
+import datetime
 
 import numpy as np
 
@@ -108,6 +109,11 @@ def _mashup_json_to_table(json_obj, col_config=None):
         if atype == "int":  # int arrays do not admit Non/nan vals
             atype = np.int64
             ignoreValue = -999 if (ignoreValue is None) else ignoreValue
+        if atype == "date":
+            print(col, json_obj['data'][0][col])
+            atype = "str"
+            ignoreValue = "" if (ignoreValue is None) else ignoreValue
+
 
         # Make the column list (don't assign final type yet or there will be errors)
         colData = np.array([x.get(col, ignoreValue) for x in json_obj['data']], dtype=object)
@@ -1600,7 +1606,7 @@ class CatalogsClass(MastClass):
 
     @class_or_instance
     def query_region_async(self, coordinates, radius=0.2*u.deg, catalog="Hsc",
-                           pagesize=None, page=None, **kwargs):
+                           version=None, pagesize=None, page=None, **kwargs):
         """
         Given a sky position and radius, returns a list of catalog entries.
         See column documentation for specific catalogs `here <https://mast.stsci.edu/api/v0/pages.htmll>`__.
@@ -1618,6 +1624,8 @@ class CatalogsClass(MastClass):
         catalog : str, optional
             Default HSC.
             The catalog to be queried.
+        version : int, optional
+            Version number for catalogs that have versions. Default is highest version.
         pagesize : int, optional
             Default None.
             Can be used to override the default pagesize for (set in configs) this query only.
@@ -1627,7 +1635,7 @@ class CatalogsClass(MastClass):
             Can be used to override the default behavior of all results being returned to
             obtain a specific page of results.
         **kwargs
-            Catalog-specific keyword args.
+            Other catalog-specific keyword args.
             These can be found in the (service documentation)[https://mast.stsci.edu/api/v0/_services.html]
             for specific catalogs. For example one can specify the magtype for an HSC search.
 
@@ -1646,11 +1654,26 @@ class CatalogsClass(MastClass):
 
         # Figuring out the service
         if catalog.lower() == "hsc":
-            service = "Mast.Hsc.Db"
+            if version == 2:
+                service = "Mast.Hsc.Db.v2"
+            else:
+                if version not in (3, None):
+                    warnings.warn("Invalid HSC version number, defaulting to v3.", InputWarning)
+                service = "Mast.Hsc.Db.v3"
             self.catalogLimit = kwargs.get('nr', 50000)
+            
         elif catalog.lower() == "galex":
             service = "Mast.Galex.Catalog"
             self.catalogLimit = kwargs.get('maxrecords', 50000)
+
+        elif catalog.lower() == "gaia":
+            if version == 1:
+                service = "Mast.Catalogs.GaiaDR1.Cone"
+            else:
+                if version not in (2, None):
+                    warnings.warn("Invalid Gaia version number, defaulting to DR2.", InputWarning)
+                service = "Mast.Catalogs.GaiaDR2.Cone"
+            
         else:
             service = "Mast.Catalogs." + catalog + ".Cone"
             self.catalogLimit = None
@@ -1801,7 +1824,7 @@ class CatalogsClass(MastClass):
         return self.service_request_async(service, params)
 
     @class_or_instance
-    def query_hsc_matchid_async(self, match, pagesize=None, page=None):
+    def query_hsc_matchid_async(self, match, version=3, pagesize=None, page=None):
         """
         Returns all the matches for a given Hubble Source Catalog MatchID.
 
@@ -1809,6 +1832,8 @@ class CatalogsClass(MastClass):
         ----------
         match : int or `~astropy.table.Row`
             The matchID or HSC entry to return matches for.
+        version : int, optional
+            The HSC version to match against. Default is v3.
         pagesize : int, optional
             Can be used to override the default pagesize.
             E.g. when using a slow internet connection.
@@ -1825,7 +1850,13 @@ class CatalogsClass(MastClass):
             match = match["MatchID"]
         match = str(match)  # np.int64 gives json serializer problems, so strigify right here
 
-        service = "Mast.HscMatches.Db"
+        if version == 2:
+            service = "Mast.HscMatches.Db.v2"
+        else:
+            if version not in (3, None):
+                warnings.warn("Invalid HSC version number, defaulting to v3.", InputWarning)
+            service = "Mast.HscMatches.Db.v3"
+                
         params = {"input": match}
 
         return self.service_request_async(service, params, pagesize, page)
