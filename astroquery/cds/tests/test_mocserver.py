@@ -26,7 +26,7 @@ from ...utils.testing_tools import MockResponse
 
 DATA_FILES = {
     'PROPERTIES_SEARCH': 'properties.json',
-    'HIPS_FROM_SAADA_AND_ALASKY': 'hips_from_saada_alasky.json'
+    'HIPS_FROM_SAADA_AND_ALASKY': 'hips_from_saada_alasky.json',
 }
 
 
@@ -176,7 +176,7 @@ Tests requiring mocpy
                     reason="requires MOCPy")
 @pytest.mark.parametrize('moc_order', [5, 10])
 def test_moc_order_param(moc_order):
-    moc_region = MOC.from_url('https://alasky.u-strasbg.fr/GALEX/GR6-03-2014/AIS-FD/Moc.fits')
+    moc_region = MOC.from_json({'0': [1]})
 
     result = cds.query_region(region=moc_region,
                               # return a mocpy obj
