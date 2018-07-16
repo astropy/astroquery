@@ -27,7 +27,7 @@ __all__ = ['Horizons', 'HorizonsClass']
 @async_to_sync
 class HorizonsClass(BaseQuery):
     """
-    A class for querying the 
+    A class for querying the
     `JPL Horizons <https://ssd.jpl.nasa.gov/horizons.cgi>`_ service.
     """
 
@@ -41,17 +41,25 @@ class HorizonsClass(BaseQuery):
         ----------
         id : str, required
             Name, number, or designation of the object to be queried
-        location : str, optional
+        location : str or dict, optional
             Observer's location for ephemerides queries or center body
             name for orbital element or vector queries. Uses the same
             codes as JPL Horizons. If no location is provided, Earth's
             center is used for ephemerides queries and the Sun's
-            center for elements and vectors queries.
+            center for elements and vectors queries. Arbitrary topocentic
+            coordinates for ephemerides queries can be provided in the
+            format of a dictionary. The
+            dictionary has to be of the form {``'lon'``: longitude in
+            deg (East positive, West negative), ``'lat'``: latitude in
+            deg (North positive, South negative), ``'elevation'``:
+            elevation in km above the reference ellipsoid, [``'body'``:
+            Horizons body ID of the central body; optional; if this value
+            is not provided it is assumed that this location is on Earth]}.
         epochs : scalar, list-like, or dictionary, optional
             Either a list of epochs in JD or MJD format or a dictionary
             defining a range of times and dates; the range dictionary has to
             be of the form {``'start'``:'YYYY-MM-DD [HH:MM:SS]',
-            ``'stop'``:'YYYY-MM-DD [HH:MM:SS]', ``'step'``:'n[y|d|m|s]'}. 
+            ``'stop'``:'YYYY-MM-DD [HH:MM:SS]', ``'step'``:'n[y|d|m|s]'}.
             If no epochs are provided, the current time is used.
         id_type : str, optional
             Identifier type, options:
@@ -404,7 +412,7 @@ class HorizonsClass(BaseQuery):
             refraction model; if `False`, coordinates do not account for
             refraction (airless model); default: `False`
         refsystem : string
-            Coordinate reference system: ``'J2000'`` or ``'B1950'``; 
+            Coordinate reference system: ``'J2000'`` or ``'B1950'``;
             default: ``'B1950'``
         closest_apparition : boolean, optional
             Only applies to comets. This option will choose the
@@ -494,7 +502,6 @@ class HorizonsClass(BaseQuery):
             ('TABLE_TYPE', 'OBSERVER'),
             ('QUANTITIES', conf.eph_quantities),
             ('COMMAND', '"' + commandline + '"'),
-            ('CENTER', ("'" + str(self.location) + "'")),
             ('SOLAR_ELONG', ('"' + str(solar_elongation[0]) + "," +
                              str(solar_elongation[1]) + '"')),
             ('LHA_CUTOFF', (str(hour_angle))),
@@ -505,6 +512,18 @@ class HorizonsClass(BaseQuery):
                            True: 'REFRACTED'}[refraction])),
             ('REF_SYSTEM', (refsystem))])
 
+        if isinstance(self.location, dict):
+            if 'body' not in self.location:
+                self.location['body'] = '399'
+            request_payload['CENTER'] = 'coord@{:s}'.format(
+                str(self.location))
+            request_payload['COORD_TYPE'] = 'GEODETIC'
+            request_payload['SITE_COORD'] = '{:f},{:f},{:f}'.format(
+                self.location['lon'], self.location['lat'],
+                self.location['elevation'])
+        else:
+            request_payload['CENTER'] = "'" + str(self.location) + "'"
+
         if rate_cutoff is not None:
             request_payload['ANG_RATE_CUTOFF'] = (str(rate_cutoff))
 
@@ -512,16 +531,16 @@ class HorizonsClass(BaseQuery):
         if isinstance(self.epochs, (list, tuple, ndarray)):
             request_payload['TLIST'] = "\n".join([str(epoch) for epoch in
                                                   self.epochs])
-        elif type(self.epochs) is dict:
+        elif isinstance(self.epochs, dict):
             if ('start' not in self.epochs or 'stop' not in self.epochs or
                     'step' not in self.epochs):
                 raise ValueError("'epochs' parameter must contain start, " +
                                  "stop, step")
-            request_payload['START_TIME'] = self.epochs['start']
-            request_payload['STOP_TIME'] = self.epochs['stop']
-            request_payload['STEP_SIZE'] = self.epochs['step']
+            request_payload['START_TIME'] = '"'+self.epochs['start']+'"'
+            request_payload['STOP_TIME'] = '"'+self.epochs['stop']+'"'
+            request_payload['STEP_SIZE'] = '"'+self.epochs['step']+'"'
         else:
-            # treat epochs as a list
+            # treat epochs as scalar
             request_payload['TLIST'] = str(self.epochs)
 
         if airmass_lessthan < 99:
@@ -617,16 +636,16 @@ class HorizonsClass(BaseQuery):
         ----------
         refsystem : string
             Element reference system for geometric and astrometric
-            quantities: '`J2000`' or '`B1950`'; default: '`B1950`'
+            quantities: ``'J2000'`` or ``'B1950'``; default: ``'B1950'``
         refplance : string
-            Reference plane for all output quantities: '`ecliptic`'
-            (ecliptic and mean equinox of reference epoch), '`earth`'
+            Reference plane for all output quantities: ``'ecliptic'``
+            (ecliptic and mean equinox of reference epoch), ``'earth'``
             (Earth mean equator and equinox of reference epoch), or
-            '`body`' (body mean equator and node of date); default:
-            '`ecliptic`'
+            ``'body'`` (body mean equator and node of date); default:
+            ``'ecliptic'``
         tp_type : string
-            Representation for time-of-perihelion passage: '`absolute`' or
-            '`relative`' (to epoch); default: '`absolute`'
+            Representation for time-of-perihelion passage: ``'absolute'`` or
+            ``'relative'`` (to epoch); default: ``'absolute'``
         closest_apparition : boolean, optional
             Only applies to comets. This option will choose the
             closest apparition available in time to the selected
@@ -637,8 +656,8 @@ class HorizonsClass(BaseQuery):
             selection; default: False. Do not use this option for
             non-cometary objects.
         get_query_payload : boolean, optional
-            When set to `True` the method returns the HTTP request parameters
-            as a dict, default: False
+            When set to ``True`` the method returns the HTTP request 
+            parameters as a dict, default: False
         get_raw_response: boolean, optional
             Return raw data as obtained by JPL Horizons without parsing the
             data into a table, default: False
