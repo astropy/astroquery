@@ -32,27 +32,17 @@ __all__ = ['cds', 'CdsClass']
 @async_to_sync
 class CdsClass(BaseQuery):
     """
-    Query the `CDS MOC Service`_
+    Query the `CDS MOCServer <http://alasky.unistra.fr/MocServer/query>`_
 
-    The `CDS MOC Service`_ allows the user to retrieve all the data sets (with their
-    meta datas) having sources in a specific region. This region can be a `regions.CircleSkyRegion`, a
-    `regions.PolygonSkyRegion` or a `mocpy.moc.MOC` object.
+    The `CDS MOCServer <http://alasky.unistra.fr/MocServer/query>`_ allows the user to retrieve all the data sets (with
+    their meta-datas) having sources in a specific region. This region can be a `regions.CircleSkyRegion`, a
+    `regions.PolygonSkyRegion` or a `mocpy.MOC` object.
 
-    This astroquery module implements two methods:
+    This astroquery module implements a unique method:
 
     * A :meth:`~astroquery.cds.CdsClass.query_region` method allowing the user to retrieve the data sets having at least
       one source in a specific region.
 
-    Examples
-    --------
-
-    :ref:`This example <query_cone_search>` query the `CDS MOC Service`_ with
-    :meth:`~astroquery.cds.CdsClass.query_region`.
-    :ref:`This one <query_on_meta_data>` query the `CDS MOC Service`_ with
-    :meth:`~astroquery.cds.CdsClass.query_object`.
-
-    .. _CDS MOC Service:
-        http://alasky.unistra.fr/MocServer/query
     """
     URL = conf.server
     TIMEOUT = conf.timeout
@@ -64,69 +54,56 @@ class CdsClass(BaseQuery):
 
     def query_region(self, region=None, get_query_payload=False, verbose=False, **kwargs):
         """
-        Query the `CDS MOC Service`_ with a region.
+        Query the `CDS MOCServer <http://alasky.unistra.fr/MocServer/query>`_ with a region. Returns the data-sets
+        having at least one source in the region.
 
         Parameters
         ----------
-        region : ``regions.CircleSkyRegion``/``regions.PolygonSkyRegion``/``mocpy.moc.MOC``
-            The region in which we want the CDS datasets to have at least one source.
+        region : `regions.CircleSkyRegion`, `regions.PolygonSkyRegion` or `mocpy.MOC`
+            The region to query the MOCServer with.
             Can be one of the following types:
 
             * ``regions.CircleSkyRegion`` : defines an astropy cone region.
-            * ``cds.RegionType.Polygon`` : defines an astropy polygon region.
+            * ``regions.PolygonSkyRegion`` : defines an astropy polygon region.
             * ``mocpy.moc.MOC`` : defines a MOC from the MOCPy library. See the `MOCPy's documentation
-            <https://mocpy.readthedocs.io/en/latest/>`__ for how instantiating a MOC object.
+              <https://mocpy.readthedocs.io/en/latest/>`__ for how to instantiate a MOC object.
 
-        get_query_payload : bool, optional
-            If True, returns a dictionary of the query payload instead of the parsed http response.
-        verbose : bool, optional
         intersect : str, optional
             This parameter can take only three different values:
 
-            - ``overlaps`` (default). The matching data sets are those overlapping the MOC region.
-            - ``covers``. The matching data sets are those covering the MOC region.
-            - ``encloses``. The matching data sets are those enclosing the MOC region.
+            - ``overlaps`` (default). Returned data-sets are those overlapping the MOC region.
+            - ``covers``. Returned data-sets are those covering the MOC region.
+            - ``encloses``. Returned data-sets are those enclosing the MOC region.
         max_rec : int, optional
-            Maximum number of data sets to return. By default, there is no upper limit i.e. all the matching data sets
-            are returned.
-        TODO : should return all the records by default. The return of only ids is redondant with meta_var=['ID'] so
-        TODO : should be removed. number of dataset is easy to get in python afterwards so should be removed to.
-        TODO : mocpy.moc.MOC object is good to have. So just put a bool arg : moc_return. If true returns a mocpy MOC
-        TODO : object, otherwise returns an astropy.table containing all the meta datas by default or only those
-        TODO : specified in meta_var.
-        output_format : ``astroquery.cds.ReturnFormat``
-            Format of the `CDS MOC service`_'s response that will be given to the user.
-            The possible ``output_format`` values and their effects on the response are :
-
-            -  ``cds.ReturnFormat.id`` (default). The output is a ID list of the matching
-               data sets
-            -  ``cds.ReturnFormat.record``. The output is a dictionary of
-               :class:`astroquery.cds.Dataset <astroquery.cds.Dataset>` objects indexed by their ID
-            -  ``cds.ReturnFormat.number``. :meth:`~astroquery.cds.CdsClass.query_region` returns the number of
-               matched data sets
-            -  ``cds.ReturnFormat.moc``. The output is a ``mocpy.MOC`` object corresponding
-               to the union of the MOCs of the selected data sets
-            -  ``cds.ReturnFormat.i_moc``. The output is a ``mocpy.MOC`` object
-               corresponding to the intersection of the MOCs of the selected data
-               sets
+            Maximum number of data-sets to return. By default, there is no upper limit.
+        return_moc : bool, optional
+            Specifies if we want a `mocpy.MOC` object in return. This MOC corresponds to the union of the MOCs of all
+            the matching datasets. By default it is set to False and :meth:`~astroquery.cds.CdsClass.query_region`
+            returns an `astropy.table.Table` object.
+        max_norder : int, optional
+            Has sense only if ``return_moc`` is set to True. Specifies the maximum precision order of the returned MOC.
         fields : [str], optional
-            List of the meta data that the user wants to retrieve, e.g. ['ID', 'moc_sky_fraction'].
-            Only if ``output_format`` is set to ``cds.ReturnFormat.record``.
-        TODO : move the filtering on meta datas in query_object (astroquery.cds' objects are datasets).
-        meta_data : str
-            Algebraic expression on meta_var for filtering data sets.
-            See this :ref:`example <query_on_meta_data>`
+            Has sense only if ``return_moc`` is set to False. Specifies which meta datas to retrieve. The returned
+            `astropy.table.Table` table will only contain the column names given in ``fields``.
+
+            Specifying the fields we want to retrieve allows the request to be faster because of the reduced chunk of
+            data moving from the MOCServer to the client.
+
+            Some meta-datas as ``obs_collection`` or ``data_ucd`` do not keep a constant type throughout all the
+            MOCServer's data-sets and this lead to problems because `astropy.table.Table` supposes a column to have an
+            unique type. When we encounter this problem for a specific meta-data, we remove its corresponding column
+            from the returned astropy table.
+        meta_data : str, optional
+            Algebraic expression on meta-datas for filtering the data-sets at the server side.
+        get_query_payload : bool, optional
+            If True, returns a dictionary of the query payload instead of the parsed response.
+        verbose : bool, optional
 
         Returns
         -------
-        result : depends on the value of ``output_format``. See its definition
-            The parsed HTTP response emitted from the `CDS MOC Service`_.
-
-        Examples
-        --------
-        :ref:`query_cone_search`
-
-        :ref:`query_on_meta_data`
+        response : `astropy.table.Table` or `mocpy.MOC`
+            By default an astropy table of the data-sets matching the query. If ``return_moc`` is set to True, it gives
+            a MOC object corresponding to the union of the MOCs from all the matched data-sets.
         """
         response = self.query_region_async(region, get_query_payload, **kwargs)
         if get_query_payload:
@@ -138,21 +115,21 @@ class CdsClass(BaseQuery):
 
     def query_region_async(self, region, get_query_payload, **kwargs):
         """
-        Performs the `CDS MOC Service`_ query.
+        Performs the `CDS MOCServer <http://alasky.unistra.fr/MocServer/query>`_ query.
 
         Parameters
         ----------
-        region : ``regions.CircleSkyRegion``/``regions.PolygonSkyRegion``/``mocpy.moc.MOC``
-            The region on which the MOCServer will be queried.
+        region : `regions.CircleSkyRegion`, `regions.PolygonSkyRegion` or `mocpy.MOC`
+            The region to query the MOCServer with.
         get_query_payload : bool
-            If True, returns a dictionary in the form of a dictionary.
+            If True, returns a dictionary of the query payload instead of the parsed response.
         **kwargs
              Arbitrary keyword arguments.
 
         Returns
         -------
         response : `~requests.Response`:
-            The HTTP response from the `CDS MOC Service`_
+            The HTTP response from the `CDS MOCServer <http://alasky.unistra.fr/MocServer/query>`_.
         """
         request_payload = self._args_to_payload(region=region, **kwargs)
         if get_query_payload:
@@ -179,7 +156,7 @@ class CdsClass(BaseQuery):
 
     def _args_to_payload(self, **kwargs):
         """
-        Convert ``kwargs`` keyword arguments to a dictionary of payload.
+        Convert the keyword arguments to a payload.
 
         Parameters
         ----------
@@ -189,8 +166,8 @@ class CdsClass(BaseQuery):
 
         Returns
         -------
-        request_payload : dict{str : str}
-            The payloads submitted to the `CDS MOC service`_
+        request_payload : dict
+            The payload submitted to the MOCServer.
         """
         request_payload = dict()
         intersect = kwargs.get('intersect', 'overlaps')
@@ -262,18 +239,20 @@ class CdsClass(BaseQuery):
 
     def _parse_result(self, response, verbose=False):
         """
-        Parsing of the ``response`` following :param:`output_format`.
+        Parsing of the response returned by the MOCServer.
 
         Parameters
         ----------
         response : `~requests.Response`
-            The HTTP response from the `CDS MOC service`_.
+            The HTTP response returned by the MOCServer.
         verbose : bool, optional
             False by default.
+
         Returns
         -------
-        result : depends on :param:`output_format`
-            The result that is returned by the :meth:`~astroquery.cds.CdsClass.query_region` method
+        result : `astropy.table.Table` or `mocpy.MOC`
+            By default an astropy table of the data-sets matching the query. If ``return_moc`` is set to True, it gives
+            a MOC object corresponding to the union of the MOCs from all the matched data-sets.
         """
         if not verbose:
             commons.suppress_vo_warnings()
@@ -336,7 +315,7 @@ class CdsClass(BaseQuery):
     @staticmethod
     def _cast_to_float(value):
         """
-        Cast ``value`` to a float if possible
+        Cast ``value`` to a float if possible.
 
         Parameters
         ----------
@@ -345,24 +324,13 @@ class CdsClass(BaseQuery):
 
         Returns
         -------
-        value : float
-            If castable
-        value : str
-            The original passed string value if not castable
+        value : float or str
+            A float if it can be casted so otherwise the initial string.
         """
         try:
             return float(value)
         except (ValueError, TypeError):
             return value
-
-    class ServiceType:
-        """
-        Service type enumeration for :meth:`~astroquery.cds.Dataset.search`
-        """
-        cs = 'cs'
-        tap = 'tap'
-        ssa = 'ssa'
-        sia = 'sia'
 
 
 cds = CdsClass()
