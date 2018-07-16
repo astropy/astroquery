@@ -25,10 +25,12 @@ DATA_FILES = {'Mast.Caom.Cone': 'caom.json',
               'Mast.Caom.Products': 'products.json',
               'Mast.Bundle.Request': 'bundleResponse.json',
               'Mast.Caom.All': 'missions.extjs',
-              'Mast.Hsc.Db': 'hsc.json',
+              'Mast.Hsc.Db.v3': 'hsc.json',
+              'Mast.Hsc.Db.v2': 'hsc.json',
               'Mast.Catalogs.Filtered.Tic': 'tic.json',
               'Mast.Catalogs.Filtered.DiskDetective.Position': 'dd.json',
-              'Mast.HscMatches.Db': 'matchid.json',
+              'Mast.HscMatches.Db.v3': 'matchid.json',
+              'Mast.HscMatches.Db.v2': 'matchid.json',
               'Mast.HscSpectra.Db.All': 'spectra.json'}
 
 
