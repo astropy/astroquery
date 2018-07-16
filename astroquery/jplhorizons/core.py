@@ -26,6 +26,10 @@ __all__ = ['Horizons', 'HorizonsClass']
 
 @async_to_sync
 class HorizonsClass(BaseQuery):
+    """
+    A class for querying the 
+    `JPL Horizons <https://ssd.jpl.nasa.gov/horizons.cgi>`_ service.
+    """
 
     TIMEOUT = conf.timeout
 
@@ -47,8 +51,8 @@ class HorizonsClass(BaseQuery):
             Either a list of epochs in JD or MJD format or a dictionary
             defining a range of times and dates; the range dictionary has to
             be of the form {``'start'``:'YYYY-MM-DD [HH:MM:SS]',
-            ``'stop'``:'YYYY-MM-DD [HH:MM:SS]', ``'step'``:'n[y|d|m|s]'}. If no
-            epochs are provided, the current time is used.
+            ``'stop'``:'YYYY-MM-DD [HH:MM:SS]', ``'step'``:'n[y|d|m|s]'}. 
+            If no epochs are provided, the current time is used.
         id_type : str, optional
             Identifier type, options:
             ``'smallbody'``, ``'majorbody'`` (planets but also
@@ -137,9 +141,13 @@ class HorizonsClass(BaseQuery):
         in ``HorizonsClass`` refers in this case to the location of
         the observer.
 
-        The following table lists the values queried, their
+        The following tables list the values queried, their
         definitions, data types, units, and original Horizons
-        designations (in quotation marks; where available).
+        designations (where available). For more information on the
+        definitions of these quantities, please refer to the `Horizons
+        User Manual <https://ssd.jpl.nasa.gov/?horizons_doc>`_.
+
+
 
         +------------------+-----------------------------------------------+
         | Column Name      | Definition                                    |
@@ -150,85 +158,230 @@ class HorizonsClass(BaseQuery):
         +------------------+-----------------------------------------------+
         | G                | photometric slope parameter (float)           |
         +------------------+-----------------------------------------------+
-        | M1               | comet total abs mag (float, mag, "M1")        |
+        | M1               | comet total abs mag (float, mag, ``M1``)      |
         +------------------+-----------------------------------------------+
-        | M2               | comet nuclear abs mag (float, mag, "M2")      |
+        | M2               | comet nuclear abs mag (float, mag, ``M2``)    |
         +------------------+-----------------------------------------------+
-        | k1               | total mag scaling factor (float, "k1")        |
+        | k1               | total mag scaling factor (float, ``k1``)      |
         +------------------+-----------------------------------------------+
-        | k2               | nuclear mag scaling factor (float, "k2")      |
+        | k2               | nuclear mag scaling factor (float, ``k2``)    |
         +------------------+-----------------------------------------------+
-        | phasecoeff       | comet phase coeff (float, mag/deg, "PHCOFF")  |
+        | phasecoeff       | comet phase coeff (float, mag/deg, ``PHCOFF``)|
         +------------------+-----------------------------------------------+
-        | datetime         | epoch (str, "Date__(UT)__HR:MN:SC.fff")       |
+        | datetime         | epoch (str, ``Date__(UT)__HR:MN:SC.fff``)     |
         +------------------+-----------------------------------------------+
-        | datetime_jd      | epoch Julian Date (float, "Date_________JDUT")|
+        | datetime_jd      | epoch Julian Date (float,                     |
+        |                  | ``Date_________JDUT``)                        |
         +------------------+-----------------------------------------------+
         | solar_presence   | information on Sun's presence (str)           |
         +------------------+-----------------------------------------------+
         | flags            | information on Moon, target status (str)      |
         +------------------+-----------------------------------------------+
-        | RA               | target RA (float, deg, "R.A._(ICRF/J2000.0)") |
+        | RA               | target RA (float, deg, ``DEC_(XXX)``)         |
         +------------------+-----------------------------------------------+
-        | DEC              | target DEC (float, deg, "DEC_(ICRF/J2000.0)") |
+        | DEC              | target DEC (float, deg, ``DEC_(XXX)``)        |
         +------------------+-----------------------------------------------+
-        | RA_rate          | target rate RA (float, arcsec/hr, "dRA*cosD") |
+        | RA_app           | target apparent RA (float, deg,               |
+        |                  | ``R.A._(a-app)``)                             |
         +------------------+-----------------------------------------------+
-        | DEC_rate         | target RA (float, arcsec/hr, "d(DEC)/dt")     |
+        | DEC_app          | target apparent DEC (float, deg,              |
+        |                  | ``DEC_(a-app)``)                              |
         +------------------+-----------------------------------------------+
-        | AZ               | Azimuth (float, deg, EoN, "Azi_(a-app)")      |
+        | RA_rate          | target rate RA (float, arcsec/hr, ``RA*cosD``)|
         +------------------+-----------------------------------------------+
-        | EL               | Elevation (float, deg, "Elev_(a-app)")        |
+        | DEC_rate         | target RA (float, arcsec/hr, ``d(DEC)/dt``)   |
         +------------------+-----------------------------------------------+
-        | airmass          | target optical airmass (float, "a-mass")      |
+        | AZ               | Azimuth (float, deg, EoN, ``Azi_(a-app)``)    |
         +------------------+-----------------------------------------------+
-        | magextinct       | V-mag extinction (float, mag, "mag_ex")       |
+        | EL               | Elevation (float, deg, ``Elev_(a-app)``)      |
         +------------------+-----------------------------------------------+
-        | V                | V magnitude (float, mag, "APmag")             |
+        | AZ_rate          | Azimuth rate (float, arcsec/minute,           |
+        |                  | ``dAZ*cosE``)                                 |
         +------------------+-----------------------------------------------+
-        | Tmag             | comet Total magnitude (float, mag, "T-mag")   |
+        | EL_rate          | Elevation rate (float, arcsec/minute,         |
+        |                  | ``d(ELV)/dt``)                                |
         +------------------+-----------------------------------------------+
-        | Nmag             | comet Nucleaus magnitude (float, mag, "N-mag")|
+        | sat_X            | satellite X position (arcsec,                 |
+        |                  | ``X_(sat-prim)``)                             |
         +------------------+-----------------------------------------------+
-        | surfbright       | surf brightness (float, mag/arcsec^2, "S-brt")|
+        | sat_Y            | satellite Y position (arcsec,                 |
+        |                  | ``Y_(sat-prim)``)                             |
         +------------------+-----------------------------------------------+
-        | illumination     | frac of illumination (float, percent, "Illu%")|
+        | sat_PANG         | satellite position angle (deg,                |
+        |                  | ``SatPANG``)                                  |
         +------------------+-----------------------------------------------+
-        | EclLon           | heliocentr ecl long (float, deg, "hEcl-Lon")  |
+        | siderealtime     | local apparent sidereal time (str,            |
+        |                  | ``L_Ap_Sid_Time``)                            |
         +------------------+-----------------------------------------------+
-        | EclLat           | heliocentr ecl lat (float, deg, "hEcl-Lat")   |
+        | airmass          | target optical airmass (float, ``a-mass``)    |
         +------------------+-----------------------------------------------+
-        | ObsEclLon        | obscentr ecl long (float, deg, "ObsEcLon")    |
+        | magextinct       | V-mag extinction (float, mag, ``mag_ex``)     |
         +------------------+-----------------------------------------------+
-        | ObsEclLat        | obscentr ecl lat (float, deg, "ObsEcLat")     |
+        | V                | V magnitude (float, mag, ``APmag``)           |
         +------------------+-----------------------------------------------+
-        | r                | heliocentric distance (float, au, "r")        |
+        | Tmag             | comet Total magnitude (float, mag, ``T-mag``) |
         +------------------+-----------------------------------------------+
-        | r_rate           | heliocentric radial rate (float, km/s, "rdot")|
+        | Nmag             | comet Nucleaus magnitude (float, mag,         |
+        |                  | ``N-mag``)                                    |
         +------------------+-----------------------------------------------+
-        | delta            | distance from observer (float, au, "delta")   |
+        | surfbright       | surf brightness (float, mag/arcsec^2,         |
+        |                  | ``S-brt``)                                    |
         +------------------+-----------------------------------------------+
-        | delta_rate       | obs-centric rad rate (float, km/s, "deldot")  |
+        | illumination     | frac of illumination (float, percent,         |
+        |                  | ``Illu%``)                                    |
         +------------------+-----------------------------------------------+
-        | lighttime        | one-way light time (float, min, "1-way_LT")   |
+        | illum_defect     | Defect of illumination (float, arcsec,        |
+        |                  | ``Dec_illu``)                                 |
         +------------------+-----------------------------------------------+
-        | elong            | solar elongation (float, deg, "S-O-T")        |
+        | sat_sep          | Target-primary angular separation (float,     |
+        |                  | arcsec, ``ang-sep``)                          |
         +------------------+-----------------------------------------------+
-        | elongFlag        | app. position relative to Sun (str, "/r")     |
+        | sat_vis          | Target-primary visibility (str, ``v``)        |
         +------------------+-----------------------------------------------+
-        | alpha            | solar phase angle (float, deg, "S-T-O")       |
+        | ang_width        | Angular width of target (float, arcsec,       |
+        |                  | ``Ang-diam``)                                 |
         +------------------+-----------------------------------------------+
-        | sunTargetPA      | -Sun vector PA (float, deg, EoN, "PsAng")     |
+        | PDObsLon         | Apparent planetodetic longitude (float, deg,  |
+        |                  | ``Ob-lon``)                                   |
         +------------------+-----------------------------------------------+
-        | velocityPA       | -velocity vector PA (float, deg, EoN, "PsAMV")|
+        | PDObsLat         | Apparent planetodetic latitude  (float, deg,  |
+        |                  | ``Ob-lat``)                                   |
         +------------------+-----------------------------------------------+
-        | GlxLon           | galactic longitude (float, deg, "GlxLon")     |
+        | PDSunLon         | Apparent planetodetic longitude of the Sun    |
+        |                  | (float, deg, ``Sl-lon``)                      |
         +------------------+-----------------------------------------------+
-        | GlxLat           | galactic latitude  (float, deg, "GlxLat")     |
+        | PDSunLat         | Apparent planetodetic latitude of the Sun     |
+        |                  | (float, deg, ``Sl-lat``)                      |
         +------------------+-----------------------------------------------+
-        | RA_3sigma        | 3sig pos unc RA (float, arcsec, "RA_3sigma")  |
+        | SubSol_ang       | Target sub-solar point position angle         |
+        |                  | (float, deg, ``SN.ang``)                      |
         +------------------+-----------------------------------------------+
-        | DEC_3sigma       | 3sig pos unc DEC (float, arcsec, "DEC_3sigma")|
+        | SubSol_dist      | Target sub-solar point position angle distance|
+        |                  | (float, arcsec, ``SN.dist``)                  |
+        +------------------+-----------------------------------------------+
+        | NPole_ang        | Target's North Pole position angle            |
+        |                  | (float, deg, ``NP.ang``)                      |
+        +------------------+-----------------------------------------------+
+        | NPole_dist       | Target's North Pole position angle distance   |
+        |                  | (float, arcsec, ``NP.dist``)                  |
+        +------------------+-----------------------------------------------+
+        | EclLon           | heliocentr ecl long (float, deg, ``hEcl-Lon``)|
+        +------------------+-----------------------------------------------+
+        | EclLat           | heliocentr ecl lat (float, deg, ``hEcl-Lat``) |
+        +------------------+-----------------------------------------------+
+        | ObsEclLon        | obscentr ecl long (float, deg, ``ObsEcLon``)  |
+        +------------------+-----------------------------------------------+
+        | ObsEclLat        | obscentr ecl lat (float, deg, ``ObsEcLat``)   |
+        +------------------+-----------------------------------------------+
+        | r                | heliocentric distance (float, au, ``r``)      |
+        +------------------+-----------------------------------------------+
+        | r_rate           | heliocentric radial rate (float, km/s,        |
+        |                  | ``rdot``)                                     |
+        +------------------+-----------------------------------------------+
+        | delta            | distance from observer (float, au, ``delta``) |
+        +------------------+-----------------------------------------------+
+        | delta_rate       | obs-centric rad rate (float, km/s, ``deldot``)|
+        +------------------+-----------------------------------------------+
+        | lighttime        | one-way light time (float, min, ``1-way_LT``) |
+        +------------------+-----------------------------------------------+
+        | vel_sun          | Target center velocity wrt Sun                |
+        |                  | (float, km/s, ``VmagSn``)                     |
+        +------------------+-----------------------------------------------+
+        | vel_obs          | Target center velocity wrt Observer           |
+        |                  | (float, km/s, ``VmagOb``)                     |
+        +------------------+-----------------------------------------------+
+        | elong            | solar elongation (float, deg, ``S-O-T``)      |
+        +------------------+-----------------------------------------------+
+        | elongFlag        | app. position relative to Sun (str, ``/r``)   |
+        +------------------+-----------------------------------------------+
+        | alpha            | solar phase angle (float, deg, ``S-T-O``)     |
+        +------------------+-----------------------------------------------+
+        | lunar_elong      | Apparent lunar elongation angle wrt target    |
+        |                  | (float, deg, ``T-O-M``)                       |
+        +------------------+-----------------------------------------------+
+        | lunar_illum      | Lunar illumination percentage                 |
+        |                  | (float, percent, ``MN_Illu%``)                |
+        +------------------+-----------------------------------------------+
+        | sat_alpha        | Observer-Primary-Target angle                 |
+        |                  | (float, deg, ``O-P-T``)                       |
+        +------------------+-----------------------------------------------+
+        | OrbPlaneAng      | orbital plane angle (float, deg, ``PlAng``)   |
+        +------------------+-----------------------------------------------+
+        | sunTargetPA      | -Sun vector PA (float, deg, EoN, ``PsAng``)   |
+        +------------------+-----------------------------------------------+
+        | velocityPA       | -velocity vector PA (float, deg, EoN,         |
+        |                  | ``PsAMV``)                                    |
+        +------------------+-----------------------------------------------+
+        | constellation    | constellation ID containing target (str,      |
+        |                  | ``Cnst``)                                     |
+        +------------------+-----------------------------------------------+
+        | TDB-UT           | difference between TDB and UT (float,         |
+        |                  | seconds, ``TDB-UT``)                          |
+        +------------------+-----------------------------------------------+
+        | NPole_RA         | Target's North Pole RA (float, deg,           |
+        |                  | ``N.Pole-RA``)                                |
+        +------------------+-----------------------------------------------+
+        | NPole_DEC        | Target's North Pole DEC (float, deg,          |
+        |                  | ``N.Pole-DC``)                                |
+        +------------------+-----------------------------------------------+
+        | GlxLon           | galactic longitude (float, deg, ``GlxLon``)   |
+        +------------------+-----------------------------------------------+
+        | GlxLat           | galactic latitude  (float, deg, ``GlxLat``)   |
+        +------------------+-----------------------------------------------+
+        | solartime        | local apparent solar time (string,            |
+        |                  | ``L_Ap_SOL_Time``)                            |
+        +------------------+-----------------------------------------------+
+        | earth_lighttime  | observer lighttime from center of Earth       |
+        |                  | (float, minutes, ``399_ins_LT``               |
+        +------------------+-----------------------------------------------+
+        | RA_3sigma        | 3 sigma positional uncertainty in RA (float,  |
+        |                  | arcsec, ``RA_3sigma``)                        |
+        +------------------+-----------------------------------------------+
+        | DEC_3sigma       | 3 sigma positional uncertainty in  DEC (float,|
+        |                  | arcsec, ``DEC_3sigma``)                       |
+        +------------------+-----------------------------------------------+
+        | SMAA_3sigma      | 3sig pos unc error ellipse semi-major axis    |
+        |                  | (float, arcsec, ``SMAA_3sig``)                |
+        +------------------+-----------------------------------------------+
+        | SMIA_3sigma      | 3sig pos unc error ellipse semi-minor axis    |
+        |                  | (float, arcsec, ``SMIA_3sig``)                |
+        +------------------+-----------------------------------------------+
+        | Theta_3sigma     | pos unc error ellipse position angle          |
+        |                  | (float, deg, ``Theta``)                       |
+        +------------------+-----------------------------------------------+
+        | Area_3sigma      | 3sig pos unc error ellipse are                |
+        |                  | (float, arcsec^2, ``Area_3sig``)              |
+        +------------------+-----------------------------------------------+
+        | RSS_3sigma       | 3sig pos unc error ellipse root-sum-square    |
+        |                  | (float, arcsec, ``POS_3sigma``)               |
+        +------------------+-----------------------------------------------+
+        | r_3sigma         | 3sig range uncertainty                        |
+        |                  | (float, km, ``RNG_3sigma``)                   |
+        +------------------+-----------------------------------------------+
+        | r_rate_3sigma    | 3sig range rate uncertainty                   |
+        |                  | (float, km/second, ``RNGRT_3sigma``)          |
+        +------------------+-----------------------------------------------+
+        | SBand_3sigma     | 3sig Doppler radar uncertainties at S-band    |
+        |                  | (float, Hertz, ``DOP_S_3sig``)                |
+        +------------------+-----------------------------------------------+
+        | XBand_3sigma     | 3sig Doppler radar uncertainties at X-band    |
+        |                  | (float, Hertz, ``DOP_X_3sig``)                |
+        +------------------+-----------------------------------------------+
+        | DoppDelay_3sigma | 3sig Doppler radar round-trip delay           |
+        |                  | unc (float, second, ``RT_delay_3sig``)        |
+        +------------------+-----------------------------------------------+
+        | true_anom        | True Anomaly (float, deg, ``Tru_Anom``)       |
+        +------------------+-----------------------------------------------+
+        | hour_angle       | local apparent hour angle                     |
+        |                  | (string, ``L_Ap_Hour_Ang``)                   |
+        +------------------+-----------------------------------------------+
+        | alpha_true       | true phase angle (float, deg, ``phi``)        |
+        +------------------+-----------------------------------------------+
+        | PABLon           | phase angle bisector longitude                |
+        |                  | (float, deg, ``PAB-LON``)                     |
+        +------------------+-----------------------------------------------+
+        | PABLat           | phase angle bisector latitude                 |
+        |                  | (float, deg, ``PAB-LAT``)                     |
         +------------------+-----------------------------------------------+
 
 
@@ -251,8 +404,8 @@ class HorizonsClass(BaseQuery):
             refraction model; if `False`, coordinates do not account for
             refraction (airless model); default: `False`
         refsystem : string
-            Coordinate reference system: '`J2000`' or '`B1950`'; default:
-            '`B1950`'
+            Coordinate reference system: ``'J2000'`` or ``'B1950'``; 
+            default: ``'B1950'``
         closest_apparition : boolean, optional
             Only applies to comets. This option will choose the
             closest apparition available in time to the selected
@@ -407,54 +560,56 @@ class HorizonsClass(BaseQuery):
 
         The following table lists the values queried, their
         definitions, data types, units, and original Horizons
-        designations (in quotation marks; where available).
+        designations (where available). For more information on the
+        definitions of these quantities, please refer to the `Horizons
+        User Manual <https://ssd.jpl.nasa.gov/?horizons_doc>`_.
 
         +------------------+-----------------------------------------------+
         | Column Name      | Definition                                    |
         +==================+===============================================+
-        | targetname       | official number, name, designation [string]   |
+        | targetname       | official number, name, designation (string)   |
         +------------------+-----------------------------------------------+
         | H                | absolute magnitude in V band (float, mag)     |
         +------------------+-----------------------------------------------+
         | G                | photometric slope parameter (float)           |
         +------------------+-----------------------------------------------+
-        | M1               | comet total abs mag (float, mag, "M1")        |
+        | M1               | comet total abs mag (float, mag, ``M1``)      |
         +------------------+-----------------------------------------------+
-        | M2               | comet nuclear abs mag (float, mag, "M2")      |
+        | M2               | comet nuclear abs mag (float, mag, ``M2``)    |
         +------------------+-----------------------------------------------+
-        | k1               | total mag scaling factor (float, "k1")        |
+        | k1               | total mag scaling factor (float, ``k1``)      |
         +------------------+-----------------------------------------------+
-        | k2               | nuclear mag scaling factor (float, "k2")      |
+        | k2               | nuclear mag scaling factor (float, ``k2``)    |
         +------------------+-----------------------------------------------+
-        | phasecoeff       | comet phase coeff (float, mag/deg, "PHCOFF")  |
+        | phasecoeff       | comet phase coeff (float, mag/deg, ``PHCOFF``)|
         +------------------+-----------------------------------------------+
-        | datetime_str     | epoch Date (str, "Calendar Date (TDB)"        |
+        | datetime_str     | epoch Date (str, ``Calendar Date (TDB)``)     |
         +------------------+-----------------------------------------------+
-        | datetime_jd      | epoch Julian Date (float, "JDTDB"             |
+        | datetime_jd      | epoch Julian Date (float, ``JDTDB``)          |
         +------------------+-----------------------------------------------+
-        | e                | eccentricity (float, "EC")                    |
+        | e                | eccentricity (float, ``EC``)                  |
         +------------------+-----------------------------------------------+
-        | q                | periapsis distance (float, au, "QR")          |
+        | q                | periapsis distance (float, au, ``QR``)        |
         +------------------+-----------------------------------------------+
-        | a                | semi-major axis (float, au, "A")              |
+        | a                | semi-major axis (float, au, ``A``)            |
         +------------------+-----------------------------------------------+
-        | incl             | inclination (float, deg, "IN")                |
+        | incl             | inclination (float, deg, ``IN``)              |
         +------------------+-----------------------------------------------+
-        | Omega            | longitude of Asc. Node (float, deg, "OM")     |
+        | Omega            | longitude of Asc. Node (float, deg, ``OM``)   |
         +------------------+-----------------------------------------------+
-        | w                | argument of the perifocus (float, deg, "W")   |
+        | w                | argument of the perifocus (float, deg, ``W``) |
         +------------------+-----------------------------------------------+
-        | Tp_jd            | time of periapsis (float, Julian Date, "Tp")  |
+        | Tp_jd            | time of periapsis (float, Julian Date, ``Tp``)|
         +------------------+-----------------------------------------------+
-        | n                | mean motion (float, deg/d, "N")               |
+        | n                | mean motion (float, deg/d, ``N``)             |
         +------------------+-----------------------------------------------+
-        | M                | mean anomaly (float, deg, "MA")               |
+        | M                | mean anomaly (float, deg, ``MA``)             |
         +------------------+-----------------------------------------------+
-        | nu               | true anomaly (float, deg, "TA")               |
+        | nu               | true anomaly (float, deg, ``TA``)             |
         +------------------+-----------------------------------------------+
-        | period           | orbital period (float, (Earth) d, "PR")       |
+        | period           | orbital period (float, (Earth) d, ``PR``)     |
         +------------------+-----------------------------------------------+
-        | Q                | apoapsis distance (float, au, "AD")           |
+        | Q                | apoapsis distance (float, au, ``AD``)         |
         +------------------+-----------------------------------------------+
 
 
@@ -594,52 +749,61 @@ class HorizonsClass(BaseQuery):
         """
         Query JPL Horizons for state vectors. The ``location``
         parameter in ``HorizonsClass`` refers in this case to the center
-        body relative to which the vectors are provided.
+        body relative to which the vectors are provided. 
 
         The following table lists the values queried, their
         definitions, data types, units, and original Horizons
-        designations (in quotation marks; where available).
+        designations (where available). For more information on the
+        definitions of these quantities, please refer to the `Horizons
+        User Manual <https://ssd.jpl.nasa.gov/?horizons_doc>`_.
 
         +------------------+-----------------------------------------------+
         | Column Name      | Definition                                    |
         +==================+===============================================+
-        | targetname       | official number, name, designation [string]   |
+        | targetname       | official number, name, designation (string)   |
         +------------------+-----------------------------------------------+
         | H                | absolute magnitude in V band (float, mag)     |
         +------------------+-----------------------------------------------+
         | G                | photometric slope parameter (float)           |
         +------------------+-----------------------------------------------+
-        | M1               | comet total abs mag (float, mag, "M1")        |
+        | M1               | comet total abs mag (float, mag, ``M1``)      |
         +------------------+-----------------------------------------------+
-        | M2               | comet nuclear abs mag (float, mag, "M2")      |
+        | M2               | comet nuclear abs mag (float, mag, ``M2``)    |
         +------------------+-----------------------------------------------+
-        | k1               | total mag scaling factor (float, "k1")        |
+        | k1               | total mag scaling factor (float, ``k1``)      |
         +------------------+-----------------------------------------------+
-        | k2               | nuclear mag scaling factor (float, "k2")      |
+        | k2               | nuclear mag scaling factor (float, ``k2``)    |
         +------------------+-----------------------------------------------+
-        | phasecoeff       | comet phase coeff (float, mag/deg, "PHCOFF")  |
+        | phasecoeff       | comet phase coeff (float, mag/deg, ``PHCOFF``)|
         +------------------+-----------------------------------------------+
-        | datetime_str     | epoch Date (str, "Calendar Date (TDB)"        |
+        | datetime_str     | epoch Date (str, ``Calendar Date (TDB)``)     |
         +------------------+-----------------------------------------------+
-        | datetime_jd      | epoch Julian Date (float, "JDTDB"             |
+        | datetime_jd      | epoch Julian Date (float, ``JDTDB``)          |
         +------------------+-----------------------------------------------+
-        | x                | x-comp of position vector (float, au, "X")    |
+        | x                | x-component of position vector                |
+        |                  | (float, au, ``X``)                            |
         +------------------+-----------------------------------------------+
-        | y                | y-comp of position vector (float, au, "Y")    |
+        | y                | y-component of position vector                |
+        |                  | (float, au, ``Y``)                            |
         +------------------+-----------------------------------------------+
-        | z                | z-comp of position vector (float, au, "Z")    |
+        | z                | z-component of position vector                |
+        |                  | (float, au, ``Z``)                            |
         +------------------+-----------------------------------------------+
-        | vx               | x-comp of velocity vector (float, au/d, "VX") |
+        | vx               | x-component of velocity vector (float, au/d,  |
+        |                  | ``VX``)                                       |
         +------------------+-----------------------------------------------+
-        | vy               | y-comp of velocity vector (float, au/d, "VY") |
+        | vy               | y-component of velocity vector (float, au/d,  |
+        |                  | ``VY``)                                       |
         +------------------+-----------------------------------------------+
-        | vz               | z-comp of velocity vector (float, au/d, "VZ") |
+        | vz               | z-component of velocity vector (float, au/d,  |
+        |                  | ``VZ``)                                       |
         +------------------+-----------------------------------------------+
-        | lighttime        | one-way lighttime (float, d, "LT")            |
+        | lighttime        | one-way lighttime (float, d, ``LT``)          |
         +------------------+-----------------------------------------------+
-        | range            | range from coordinate center (float, au, "RG")|
+        | range            | range from coordinate center (float, au,      |
+        |                  | ``RG``)                                       |
         +------------------+-----------------------------------------------+
-        | range_rate       | range rate (float, au/d, "RR")                |
+        | range_rate       | range rate (float, au/d, ``RR``)              |
         +------------------+-----------------------------------------------+
 
 
@@ -655,8 +819,8 @@ class HorizonsClass(BaseQuery):
             selection; default: False. Do not use this option for
             non-cometary objects.
         get_query_payload : boolean, optional
-            When set to `True` the method returns the HTTP request parameters
-            as a dict, default: False
+            When set to `True` the method returns the HTTP request 
+            parameters as a dict, default: False
         get_raw_response: boolean, optional
             Return raw data as obtained by JPL Horizons without parsing the
             data into a table, default: False
