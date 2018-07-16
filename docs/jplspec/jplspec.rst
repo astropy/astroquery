@@ -2,9 +2,9 @@
 
 .. _astroquery.jplspec:
 
-***********************************************
+*********************************************
 JPL Spectroscopy Queries (astroquery.jplspec)
-***********************************************
+*********************************************
 
 Getting Started
 ===============
@@ -31,11 +31,11 @@ what each setting yields:
    >>> from astroquery.jplspec import JPLSpec
    >>> import astropy.units as u
    >>> response = JPLSpec.query_lines(min_frequency=100 * u.GHz,
-                                            max_frequency=1000 * u.GHz,
-                                            min_strength=-500,
-                                            molecule="28001 CO",
-                                            max_lines = 7,
-                                            get_query_payload=False)
+                                      max_frequency=1000 * u.GHz,
+                                      min_strength=-500,
+                                      molecule="28001 CO",
+                                      max_lines = 7,
+                                      get_query_payload=False)
    >>> print(response)
         FREQ     ERR    LGINT   DR   ELO    GUP  TAG   QNFMT QN' QN"
         MHz      MHz   MHz nm2      1 / cm
@@ -53,17 +53,42 @@ The following example, with ``get_query_payload = True``, returns the payload:
 .. code-block:: python
 
    >>> response = JPLSpec.query_lines(min_frequency=100 * u.GHz,
-                                            max_frequency=1000 * u.GHz,
-                                            min_strength=-500,
-                                            molecule="28001 CO",
-                                            max_lines = 7,
-                                            get_query_payload=True)
+                                      max_frequency=1000 * u.GHz,
+                                      min_strength=-500,
+                                      molecule="28001 CO",
+                                      max_lines = 7,
+                                      get_query_payload=True)
    >>> print(response)
    {'MinNu': 100.0, 'MaxNu': 1000.0, 'Mol': '28001 CO', 'UnitNu': 'GHz',
    'StrLim': -500, 'MaxLines': 7}
 
-The units of the columns can be displayed by calling ``response.info``. These
-come in handy for converting to other units easily, an example using a
+The units of the columns of the query can be displayed by calling
+``response.info``:
+
+.. code-block:: python
+
+   >>> response = JPLSpec.query_lines(min_frequency=100 * u.GHz,
+                                      max_frequency=1000 * u.GHz,
+                                      min_strength=-500,
+                                      molecule="28001 CO",
+                                      max_lines = 7,
+                                      get_query_payload=True)
+   >>> print(response.info)
+      <Table length=7>
+      name  dtype    unit
+    ----- ------- -------
+     FREQ float64     MHz
+      ERR float64     MHz
+    LGINT float64 MHz nm2
+       DR   int64
+      ELO float64  1 / cm
+      GUP   int64
+      TAG   int64
+    QNFMT   int64
+      QN'   int64
+      QN"   int64
+
+These come in handy for converting to other units easily, an example using a
 simplified version of the data above is shown below:
 
 .. code-block:: python
@@ -181,7 +206,7 @@ went into the payload to create a response:
         'HCOCH2OH': 60006,
         'NH2CH2CH2OH': 61004}
 
-As you can see, the 'H20' string was processed as a regular expression,
+As you can see, the 'H2O' string was processed as a regular expression,
 and the search matched any molecule that contained the combination of
 characters 'H20'.
 
@@ -202,9 +227,9 @@ The response:
    >>> {'H2O': 18003}
 
 
-As seen above, the regular expression "H2O$" yields only an exact match.
-This functionality allows you to be as specific or vague as you want to allow
-the results to be:
+As seen above, the regular expression "H2O$" yields only an exact match because
+the special character $ matches the end of the line. This functionality allows
+you to be as specific or vague as you want to allow the results to be:
 
 .. code-block:: python
 

@@ -4,18 +4,13 @@ import warnings
 
 import astropy.units as u
 from astropy.io import ascii
-
-# all Query classes should inherit from BaseQuery.
 from ..query import BaseQuery
-# async_to_sync generates the relevant query tools from _async methods
 from ..utils import async_to_sync
 # import configurable items declared in __init__.py
 from . import conf
-
 from . import lookup_table
 
 
-# export all the public classes and methods
 __all__ = ['JPLSpec', 'JPLSpecClass']
 
 
@@ -173,9 +168,7 @@ class JPLSpecClass(BaseQuery):
 
         if len(result) > self.maxlines:
             warnings.warn("This form is currently limited to {0} lines.\n\
-                          Please limit your search.".format(
-
-                          self.maxlines))
+                          Please limit your search.".format(self.maxlines))
 
         result['FREQ'].unit = u.MHz
         result['ERR'].unit = u.MHz
