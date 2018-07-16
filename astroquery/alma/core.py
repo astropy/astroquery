@@ -2,7 +2,6 @@
 from __future__ import print_function
 import time
 import os.path
-import getpass
 import keyring
 import numpy as np
 import re
@@ -26,7 +25,7 @@ import astropy.io.votable as votable
 
 from ..exceptions import (RemoteServiceError, TableParseError,
                           InvalidQueryError, LoginError)
-from ..utils import commons, system_tools, url_helpers
+from ..utils import commons, url_helpers
 from ..utils.process_asyncs import async_to_sync
 from ..query import QueryWithLogin
 from . import conf
@@ -545,20 +544,9 @@ class AlmaClass(QueryWithLogin):
             return True
 
         # Get password from keyring or prompt
-        if reenter_password is False:
-            password_from_keyring = keyring.get_password(
-                "astroquery:asa.alma.cl", username)
-        else:
-            password_from_keyring = None
+        password, password_from_keyring = self._get_password(
+            "astroquery:asa.alma.cl", username, reenter=reenter_password)
 
-        if password_from_keyring is None:
-            if system_tools.in_ipynb():
-                log.warning("You may be using an ipython notebook:"
-                            " the password form will appear in your terminal.")
-            password = getpass.getpass("{0}, enter your ALMA password:"
-                                       "\n".format(username))
-        else:
-            password = password_from_keyring
         # Authenticate
         log.info("Authenticating {0} on asa.alma.cl ...".format(username))
         # Do not cache pieces of the login process

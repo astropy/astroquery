@@ -7,7 +7,6 @@ import numpy as np
 import sys
 from bs4 import BeautifulSoup
 import keyring
-import getpass
 import time
 import smtplib
 import re
@@ -81,25 +80,8 @@ class CosmoSimClass(QueryWithLogin):
         self.username = username
 
         # Get password from keyring or prompt
-        if reenter_password is False:
-            password_from_keyring = keyring.get_password(
-                "astroquery:www.cosmosim.org", self.username)
-        else:
-            password_from_keyring = None
-
-        if password_from_keyring is None:
-            logging.warning("No password was found in the keychain for the "
-                            "provided username.")
-            if password:
-                self.password = password
-            else:
-                self.password = getpass.getpass("{0}, enter your CosmoSim "
-                                                "password:\n"
-                                                .format(self.username))
-        else:
-            logging.warning("Using the password found in the keychain for "
-                            "the provided username.")
-            self.password = password_from_keyring
+        self.password, password_from_keyring = self._get_password(
+            "astroquery:www.cosmosim.org", username, reenter=reenter_password)
 
         # Authenticate
         warnings.warn("Authenticating {0} on www.cosmosim.org..."

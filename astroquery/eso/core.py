@@ -5,7 +5,6 @@ import sys
 import os.path
 import shutil
 import webbrowser
-import getpass
 import warnings
 import keyring
 import numpy as np
@@ -216,23 +215,9 @@ class EsoClass(QueryWithLogin):
                 username = self.USERNAME
 
         # Get password from keyring or prompt
-        password_from_keyring = None
-        if reenter_password is False:
-            try:
-                password_from_keyring = keyring.get_password(
-                    "astroquery:www.eso.org", username)
-            except keyring.errors.KeyringError as exc:
-                log.warning("Failed to get a valid keyring for password "
-                            "storage: {}".format(exc))
+        password, password_from_keyring = self._get_password(
+            "astroquery:www.eso.org", username, reenter=reenter_password)
 
-        if password_from_keyring is None:
-            if system_tools.in_ipynb():
-                log.warning("You may be using an ipython notebook:"
-                            " the password form will appear in your terminal.")
-            password = getpass.getpass("{0}, enter your ESO password:\n"
-                                       .format(username))
-        else:
-            password = password_from_keyring
         # Authenticate
         log.info("Authenticating {0} on www.eso.org...".format(username))
 
