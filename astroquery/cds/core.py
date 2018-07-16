@@ -55,7 +55,8 @@ class CdsClass(BaseQuery):
 
     def query_region(self, region=None, get_query_payload=False, verbose=False, **kwargs):
         """
-        Query the `CDS MOCServer <http://alasky.unistra.fr/MocServer/query>`_ with a region. Returns the data-sets
+        Query the `CDS MOCServer <http://alasky.unistra.fr/MocServer/query>`_ with a region i.e. a
+        `regions.CircleSkyRegion`, `regions.PolygonSkyRegion` or `mocpy.MOC` object. Returns the data-sets
         having at least one source in the region.
 
         Parameters
@@ -79,7 +80,7 @@ class CdsClass(BaseQuery):
             Maximum number of data-sets to return. By default, there is no upper limit.
         return_moc : bool, optional
             Specifies if we want a `mocpy.MOC` object in return. This MOC corresponds to the union of the MOCs of all
-            the matching datasets. By default it is set to False and :meth:`~astroquery.cds.CdsClass.query_region`
+            the matching data-sets. By default it is set to False and :meth:`~astroquery.cds.CdsClass.query_region`
             returns an `astropy.table.Table` object.
         max_norder : int, optional
             Has sense only if ``return_moc`` is set to True. Specifies the maximum precision order of the returned MOC.
@@ -91,11 +92,19 @@ class CdsClass(BaseQuery):
             data moving from the MOCServer to the client.
 
             Some meta-datas as ``obs_collection`` or ``data_ucd`` do not keep a constant type throughout all the
-            MOCServer's data-sets and this lead to problems because `astropy.table.Table` supposes a column to have an
-            unique type. When we encounter this problem for a specific meta-data, we remove its corresponding column
-            from the returned astropy table.
+            MOCServer's data-sets and this lead to problems because `astropy.table.Table` supposes values in a column
+            to have an unique type. When we encounter this problem for a specific meta-data, we remove its corresponding
+            column from the returned astropy table.
         meta_data : str, optional
             Algebraic expression on meta-datas for filtering the data-sets at the server side.
+            Examples of meta data expressions:
+
+            * Retrieve all the Hubble surveys: "ID=*HST*"
+            * Provides the records of HiPS distributed simultaneously by saada and alasky http server:
+              "(hips_service_url*=http://saada*)&&(hips_service_url*=http://alasky.*)"
+
+            More example of expressions can be found following this `link
+            <http://alasky.unistra.fr/MocServer/example>`_ (especially see the urls).
         get_query_payload : bool, optional
             If True, returns a dictionary of the query payload instead of the parsed response.
         verbose : bool, optional
@@ -104,9 +113,9 @@ class CdsClass(BaseQuery):
         -------
         response : `astropy.table.Table` or `mocpy.MOC`
             By default an astropy table of the data-sets matching the query. If ``return_moc`` is set to True, it gives
-            a MOC object corresponding to the union of the MOCs from all the matched data-sets.
+            a MOC object corresponding to the union of the MOCs from all the retrieved data-sets.
         """
-        response = self.query_region_async(region, get_query_payload, **kwargs)
+        response = self._query_moc_server(get_query_payload=get_query_payload, region=region, **kwargs)
         if get_query_payload:
             return response
 
@@ -114,14 +123,66 @@ class CdsClass(BaseQuery):
 
         return result
 
-    def query_region_async(self, region, get_query_payload, **kwargs):
+    def query_data_sets(self, meta_data, get_query_payload=False, verbose=False, **kwargs):
         """
-        Performs the `CDS MOCServer <http://alasky.unistra.fr/MocServer/query>`_ query.
+        Query the `CDS MOCServer <http://alasky.unistra.fr/MocServer/query>`_ to retrieve the data-sets based on their
+        meta data values. This method does not need any region argument but it requires an expression on the meta datas.
 
         Parameters
         ----------
-        region : `regions.CircleSkyRegion`, `regions.PolygonSkyRegion` or `mocpy.MOC`
-            The region to query the MOCServer with.
+        meta_data : str
+            Algebraic expression on meta-datas for filtering the data-sets at the server side.
+            Examples of meta data expressions:
+
+            * Retrieve all the Hubble surveys: "ID=*HST*"
+            * Provides the records of HiPS distributed simultaneously by saada and alasky http server:
+              "(hips_service_url*=http://saada*)&&(hips_service_url*=http://alasky.*)"
+
+            More example of expressions can be found following this `link
+            <http://alasky.unistra.fr/MocServer/example>`_ (especially see the urls).
+        fields : [str], optional
+            Has sense only if ``return_moc`` is set to False. Specifies which meta datas to retrieve. The returned
+            `astropy.table.Table` table will only contain the column names given in ``fields``.
+
+            Specifying the fields we want to retrieve allows the request to be faster because of the reduced chunk of
+            data moving from the MOCServer to the client.
+
+            Some meta-datas as ``obs_collection`` or ``data_ucd`` do not keep a constant type throughout all the
+            MOCServer's data-sets and this lead to problems because `astropy.table.Table` supposes values in a column
+            to have an unique type. When we encounter this problem for a specific meta-data, we remove its corresponding
+            column from the returned astropy table.
+        max_rec : int, optional
+            Maximum number of data-sets to return. By default, there is no upper limit.
+        return_moc : bool, optional
+            Specifies if we want a `mocpy.MOC` object in return. This MOC corresponds to the union of the MOCs of all
+            the matching data-sets. By default it is set to False and :meth:`~astroquery.cds.CdsClass.query_region`
+            returns an `astropy.table.Table` object.
+        max_norder : int, optional
+            Has sense only if ``return_moc`` is set to True. Specifies the maximum precision order of the returned MOC.
+        get_query_payload : bool, optional
+            If True, returns a dictionary of the query payload instead of the parsed response.
+        verbose : bool, optional
+
+        Returns
+        -------
+        response : `astropy.table.Table` or `mocpy.MOC`
+            By default an astropy table of the data-sets matching the query. If ``return_moc`` is set to True, it gives
+            a MOC object corresponding to the union of the MOCs from all the retrieved data-sets.
+        """
+        response = self._query_moc_server(get_query_payload=get_query_payload, meta_data=meta_data, **kwargs)
+        if get_query_payload:
+            return response
+
+        result = self._parse_result(response, verbose)
+
+        return result
+
+    def _query_moc_server(self, get_query_payload=False, **kwargs):
+        """
+        Queries the `CDS MOCServer <http://alasky.unistra.fr/MocServer/query>`_.
+
+        Parameters
+        ----------
         get_query_payload : bool
             If True, returns a dictionary of the query payload instead of the parsed response.
         **kwargs
@@ -132,7 +193,7 @@ class CdsClass(BaseQuery):
         response : `~requests.Response`:
             The HTTP response from the `CDS MOCServer <http://alasky.unistra.fr/MocServer/query>`_.
         """
-        request_payload = self._args_to_payload(region=region, **kwargs)
+        request_payload = self._args_to_payload(**kwargs)
         if get_query_payload:
             return request_payload
 
@@ -181,32 +242,32 @@ class CdsClass(BaseQuery):
                                 'get': 'record',
                                 })
 
-        self.return_moc = kwargs.get('return_moc', False)
         # Region Type
-        region = kwargs['region']
-        if isinstance(region, MOC):
-            self.path_moc_file = os.path.join(os.getcwd(), 'moc.fits')
-            region.write(format='fits', write_to_file=True, path=self.path_moc_file)
-            # add the moc region payload to the request payload
-        elif isinstance(region, CircleSkyRegion):
-            # add the cone region payload to the request payload
-            request_payload.update({
-                'DEC': str(region.center.dec.to(u.deg).value),
-                'RA': str(region.center.ra.to(u.deg).value),
-                'SR': str(region.radius.to(u.deg).value),
-            })
-        elif isinstance(region, PolygonSkyRegion):
-            # add the polygon region payload to the request payload
-            polygon_payload = "Polygon"
-            vertices = region.vertices
-            for i in range(len(vertices.ra)):
-                polygon_payload += ' ' + str(vertices.ra[i].to(u.deg).value) + \
-                                   ' ' + str(vertices.dec[i].to(u.deg).value)
-                request_payload.update({'stc': polygon_payload})
-        else:
-            if region is not None:
-                raise ValueError('`region` belongs to none of the following types: `regions.CircleSkyRegion`,'
-                                 '`regions.PolygonSkyRegion` or `mocpy.MOC`')
+        if 'region' in kwargs:
+            region = kwargs['region']
+            if isinstance(region, MOC):
+                self.path_moc_file = os.path.join(os.getcwd(), 'moc.fits')
+                region.write(format='fits', write_to_file=True, path=self.path_moc_file)
+                # add the moc region payload to the request payload
+            elif isinstance(region, CircleSkyRegion):
+                # add the cone region payload to the request payload
+                request_payload.update({
+                    'DEC': str(region.center.dec.to(u.deg).value),
+                    'RA': str(region.center.ra.to(u.deg).value),
+                    'SR': str(region.radius.to(u.deg).value),
+                })
+            elif isinstance(region, PolygonSkyRegion):
+                # add the polygon region payload to the request payload
+                polygon_payload = "Polygon"
+                vertices = region.vertices
+                for i in range(len(vertices.ra)):
+                    polygon_payload += ' ' + str(vertices.ra[i].to(u.deg).value) + \
+                                       ' ' + str(vertices.dec[i].to(u.deg).value)
+                    request_payload.update({'stc': polygon_payload})
+            else:
+                if region is not None:
+                    raise ValueError('`region` belongs to none of the following types: `regions.CircleSkyRegion`,'
+                                     '`regions.PolygonSkyRegion` or `mocpy.MOC`')
 
         if 'meta_data' in kwargs:
             request_payload.update({'expr': kwargs['meta_data']})
@@ -229,6 +290,7 @@ class CdsClass(BaseQuery):
             max_rec = kwargs['max_rec']
             request_payload.update({'MAXREC': str(max_rec)})
 
+        self.return_moc = kwargs.get('return_moc', False)
         if self.return_moc:
             request_payload.update({'get': 'moc'})
             if 'max_norder' in kwargs:
