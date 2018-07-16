@@ -15,11 +15,6 @@ from astropy.table import Table
 from regions import CircleSkyRegion, PolygonSkyRegion
 
 try:
-    import pyvo as vo
-except ImportError:
-    pass
-
-try:
     from mocpy import MOC
 except ImportError:
     pass
@@ -186,8 +181,6 @@ Tests requiring pyvo
 """
 
 
-@pytest.mark.skipif('pyvo' not in sys.modules,
-                    reason="requires the pyvo library")
 # test of field_l when retrieving dataset records
 @pytest.mark.parametrize('field_l', [['ID'],
                                      ['ID', 'moc_sky_fraction'],
@@ -204,25 +197,3 @@ def test_field_l_param(field_l):
                              get_query_payload=False)
     assert isinstance(table, Table)
     assert set(table.colnames).issubset(set(field_l))
-
-
-'''
-@pytest.mark.skipif('pyvo' not in sys.modules,
-                    reason="requires the pyvo library")
-@pytest.mark.parametrize('get_attr, get_attr_str', [(cds.ReturnFormat.id, 'id'),
-                                                    (cds.ReturnFormat.record, 'record'),
-                                                    (cds.ReturnFormat.number, 'number'),
-                                                    (cds.ReturnFormat.moc, 'moc'),
-                                                    (cds.ReturnFormat.i_moc, 'imoc')])
-def test_get_attribute(get_attr, get_attr_str):
-    """Test if the request parameter 'get' works for a basic cone search request"""
-    center = coordinates.SkyCoord(ra=10.8, dec=32.2, unit="deg")
-    radius = coordinates.Angle(1.5, unit="deg")
-
-    cone_region = CircleSkyRegion(center, radius)
-    result = cds.query_region(region=cone_region,
-                              output_format=get_attr,
-                              get_query_payload=True)
-
-    assert result['get'] == get_attr_str
-'''

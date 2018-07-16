@@ -316,7 +316,7 @@ Misc
 ----
 
 Limiting the number of returned data-sets
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Another parameter called ``max_rec`` specifies an upper limit for the number of data-sets to be returned:
 
@@ -335,7 +335,7 @@ to retrieve all the data-sets matching a query but only a few. Again, the result
 this operation is done at the server side.
 
 Returning a `~mocpy.MOC` object as a result
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Some users might want the union of all the MOCs from the data-sets matching the query. You can get a `mocpy.MOC` object
 instead of an `astropy.table.Table` by setting the parameter ``return_moc`` to True. An additional parameter ``max_norder``
