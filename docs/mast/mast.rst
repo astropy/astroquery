@@ -297,8 +297,8 @@ Catalog Queries
 The Catalogs class provides access to a subset of the astronomical catalogs stored at MAST.  The catalogs currently available through this interface are:
 
 - The Hubble Source Catalog (HSC)
-- The GALEX Catalog
-- The Gaia and TGAS Catalogs
+- The GALEX Catalog (V2 and V3)
+- The Gaia (DR1 and DR2) and TGAS Catalogs
 - The TESS Input Catalog (TIC)
 - The Disk Detective Catalog
 
@@ -375,6 +375,24 @@ Radius is an optional parameter and the default is 0.2 degrees.
                 189844385 254.289725042 -4.10156744653 ...           --       -- 11.4468393777
                 189844419    254.290767      -4.099757 ...           --       -- 11.9738216615
                 189844454 254.290349435 -4.09754191392 ...           --       -- 12.2100186781
+
+                
+Both the Hubble Source Catalog and the Gaia Catalog have multiple versions.
+An optional version parameter allows you to select which version you want, the default is the highest version.
+
+.. code-block:: python
+
+                >>> catalogData = Catalogs.query_region("158.47924 -7.30962", radius=0.1, catalog="Gaia", version=2)
+                >>> print("Number of results:",len(catalogData))
+                >>> print(catalogData[:4])
+
+                Number of results: 111
+                    solution_id             designation          ...      distance     
+                ------------------- ---------------------------- ... ------------------
+                1635721458409799680 Gaia DR2 3774902350511581696 ... 0.6327882551927051
+                1635721458409799680 Gaia DR2 3774901427093274112 ... 0.8438875783827048
+                1635721458409799680 Gaia DR2 3774902148648277248 ... 0.9198397322382648
+                1635721458409799680 Gaia DR2 3774902453590798208 ... 1.3578882400285217
 
 
 Catalog Criteria Queries

@@ -114,7 +114,6 @@ def _mashup_json_to_table(json_obj, col_config=None):
             atype = "str"
             ignoreValue = "" if (ignoreValue is None) else ignoreValue
 
-
         # Make the column list (don't assign final type yet or there will be errors)
         colData = np.array([x.get(col, ignoreValue) for x in json_obj['data']], dtype=object)
         if ignoreValue is not None:
@@ -1661,7 +1660,7 @@ class CatalogsClass(MastClass):
                     warnings.warn("Invalid HSC version number, defaulting to v3.", InputWarning)
                 service = "Mast.Hsc.Db.v3"
             self.catalogLimit = kwargs.get('nr', 50000)
-            
+
         elif catalog.lower() == "galex":
             service = "Mast.Galex.Catalog"
             self.catalogLimit = kwargs.get('maxrecords', 50000)
@@ -1673,7 +1672,7 @@ class CatalogsClass(MastClass):
                 if version not in (2, None):
                     warnings.warn("Invalid Gaia version number, defaulting to DR2.", InputWarning)
                 service = "Mast.Catalogs.GaiaDR2.Cone"
-            
+
         else:
             service = "Mast.Catalogs." + catalog + ".Cone"
             self.catalogLimit = None
@@ -1856,7 +1855,7 @@ class CatalogsClass(MastClass):
             if version not in (3, None):
                 warnings.warn("Invalid HSC version number, defaulting to v3.", InputWarning)
             service = "Mast.HscMatches.Db.v3"
-                
+
         params = {"input": match}
 
         return self.service_request_async(service, params, pagesize, page)
