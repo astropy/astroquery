@@ -1,4 +1,5 @@
-import json, os, pandas
+import json, os
+from astropy.io import ascii
 ## Why can't I import astroquery.vo ?
 from astroquery.vo import Registry
 
@@ -8,60 +9,54 @@ from astroquery.vo import Registry
 ##  astroquery/vo > python tests/thetests.py
 
 
-def table2json_old(current, fname, suffix='.json'):
-    """Dump a table and its meta data to JSON as separate files"""
+
+def table2ecsv(current, filename):
+    """Dump a table and its meta data to ECSV"""
+    from astropy.io import ascii
     data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data'))
-    fileroot = fname.split(suffix)[0]
     try:
-        with open(fileroot+suffix, 'w') as f:
-            json.dump(current.to_pandas().to_json(), f, indent=2)
-        with open(fileroot+'_meta'+suffix, 'w') as f:
-            json.dump(current.meta, f, indent=2)
+        ascii.write(current, filename, format='ecsv')
     except Exception as e:
         raise e
 
 
-def table2json(current, fname, suffix='.json'):
-    """Dump a table and its meta data to JSON as separate files"""
+def ecsv2table(filename):
+    """Read in the previously saved results from JSON and return an astropy Table.
+
+    Reads both the serialized table JSON and the meta data, then combines."""
+    from astropy.table import Table
+    from astropy.io import ascii
     data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data'))
-    fileroot = fname.split(suffix)[0]
+    print("DEBUGGING:  filename={}".format(filename))
+    try:
+        with open(filename, 'r') as f:
+           table=Table.read(f.read(),format='ascii.ecsv')
+    except Exception as e:
+        raise
+    return table
+
+
+'''
+def table2json(current, filename):
+    """Dump a table and its meta data to JSON"""
+    data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data'))
     outdict = {'table': current.to_pandas().to_json(), 'meta': current.meta}
     try:
-        with open(fileroot+suffix, 'w') as f:
+        with open(filename, 'w') as f:
             json.dump(outdict, f, indent=2)
     except Exception as e:
         raise e
 
 
-def json2table_old(fname, suffix='.json'):
+def json2table(filename):
     """Read in the previously saved results from JSON and return an astropy Table.
 
     Reads both the serialized table JSON and the meta data, then combines."""
     from astropy.table import Table
     import pandas as pd
     data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data'))
-    fileroot = fname.split(suffix)[0]
     try:
-        with open(fileroot+suffix, 'r') as f:
-            table = Table.from_pandas(pd.read_json(json.load(f)))
-        with open(fileroot+'_meta'+suffix, 'r') as f:
-            meta = json.load(f)
-    except Exception as e:
-        raise
-    table.meta = meta
-    return table
-
-
-def json2table(fname, suffix='.json'):
-    """Read in the previously saved results from JSON and return an astropy Table.
-
-    Reads both the serialized table JSON and the meta data, then combines."""
-    from astropy.table import Table
-    import pandas as pd
-    data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data'))
-    fileroot = fname.split(suffix)[0]
-    try:
-        with open(fileroot+suffix, 'r') as f:
+        with open(filename, 'r') as f:
             indict = json.load(f)
             table = Table.from_pandas(pd.read_json(indict['table']))
             meta = indict['meta']
@@ -69,43 +64,44 @@ def json2table(fname, suffix='.json'):
         raise
     table.meta = meta
     return table
+'''
 
 
-def raw2json(response, fname):
+def raw2json(response, filename):
     """Dump the raw response and things used in meta data like url"""
     data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data'))
     dict = {'astroquery.vo': {'url': response.url, 'text': str(response.content, 'utf-8')}}
     myjson = json.dumps(dict)
     try:
-        with open(fname, 'w') as f:
+        with open(filename, 'w') as f:
             json.dump(myjson, f, indent=4)
     except Exception as e:
         raise e
 
 
-def json2raw(fname):
+def json2raw(filename):
     import requests
     try:
-        with open(fname, 'r') as f:
+        with open(filename, 'r') as f:
             x = json.loads(json.load(f))['astroquery.vo']
             return x['url'], str.encode(x['text'])
     except Exception as e:
         raise e
 
 
-def data_path(filename, reinit=False, suffix='.json'):
+def data_path(filename, reinit=False):
     """ In case these paths change depending on test methods?"""
-    if not filename.endswith(suffix): filename = filename+suffix
     data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data'))
     return os.path.join(data_dir, filename)
 
 
-def table_comp(current, fileroot, suffix='.json'):
+def table_comp(current, filename):
     """Compare the resulting Tables piece by piece
 
     Trying to give more info than just a failed assertion.
     """
-    reference = json2table(fileroot+suffix)
+    reference = ecsv2table(filename)
+    #reference = json2table(filename)
     table_meta_comp(current, reference)
     table_stats_comp(current, reference)
 
@@ -135,16 +131,16 @@ def table_stats_comp(current, reference):
 ## test_registry.py or test_registry_remote.py or this main
 class TestReg(object):
 
-    DATA_FILES = {'query_basic_response': 'registry_query_basic_response',
-                  'query_counts_response': 'registry_query_counts_response',
-                  'query_basic_result': 'registry_query_basic_result',
-                  "query_counts_result": "registry_query_counts_result",
-                  'adql_service': 'registry_adql_service',
-                  "adql_keyword": "registry_adql_keyword",
-                  "adql_waveband": "registry_adql_waveband",
-                  "adql_source": "registry_adql_source",
-                  "adql_publisher": "registry_adql_publisher",
-                  "adql_orderby": "registry_adql_orderby"}
+    DATA_FILES = {'query_basic_response': 'registry_query_basic_response.json',
+                  'query_counts_response': 'registry_query_counts_response.json',
+                  'query_basic_result': 'registry_query_basic_result.ecsv',
+                  "query_counts_result": "registry_query_counts_result.ecsv",
+                  'adql_service': 'registry_adql_service.json',
+                  "adql_keyword": "registry_adql_keyword.json",
+                  "adql_waveband": "registry_adql_waveband.json",
+                  "adql_source": "registry_adql_source.json",
+                  "adql_publisher": "registry_adql_publisher.json",
+                  "adql_orderby": "registry_adql_orderby.json"}
 
     def rewrite(self):
         """Called by main below to re-generate the reference files."""
@@ -164,7 +160,8 @@ class TestReg(object):
     def query_basic(self, reinit=False):
         result, raw = Registry.query(source='heasarc', service_type='image', return_raw=True)
         if reinit:
-            table2json(result, data_path(self.DATA_FILES['query_basic_result']))
+            #table2json(result, data_path(self.DATA_FILES['query_basic_result']))
+            table2ecsv(result, data_path(self.DATA_FILES['query_basic_result']))
             raw2json(raw, data_path(self.DATA_FILES['query_basic_response']))
         else:
             assert(table_comp(result, data_path(self.DATA_FILES['query_basic_result'])))
@@ -172,7 +169,8 @@ class TestReg(object):
     def query_counts(self, reinit=False):
         result, raw = Registry.query_counts('publisher', 15, verbose=True, return_raw=True)
         if reinit:
-            table2json(result, data_path(self.DATA_FILES['query_counts_result']))
+            #table2json(result, data_path(self.DATA_FILES['query_counts_result']))
+            table2ecsv(result, data_path(self.DATA_FILES['query_counts_result']))
             raw2json(raw, data_path(self.DATA_FILES['query_counts_response']))
         else:
             assert(table_comp(result, data_path(self.DATA_FILES['query_counts_result'])))
@@ -260,3 +258,4 @@ class TestReg(object):
 if __name__ == "__main__":
     tests = TestReg()
     tests.rewrite()
+    print(tests.query_basic())
