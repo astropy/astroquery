@@ -202,7 +202,8 @@ def query_loop(query_function, service, params, verbose=False):
     for j, param in enumerate(params):
 
         result = query_function(service=service['access_url'], **param)
-        # Need a test that we got something back. Shouldn't error if not, just be empty
+        # Need a test that we got something back.
+        # Shouldn't error if not, just be empty
         if verbose:
             if len(result) > 0:
                 print("    Got {} results for parameters[{}]".format(len(result), j))
