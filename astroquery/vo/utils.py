@@ -2,7 +2,6 @@
 # Imports
 #
 
-import html   # to unescape, which shouldn't be neccessary but currently is
 import io
 import numpy as np
 from astropy.table import Table
@@ -197,12 +196,12 @@ def stringify_table(t):
 
 def query_loop(query_function, service, params, verbose=False):
     # Only one service, which is expected to be a row of a Registry query result that has  service['access_url']
-    if verbose: print("    Querying service {}".format(html.unescape(service['access_url'])))
+    if verbose: print("    Querying service {}".format(service['access_url']))
     # Initialize a table to add results to:
     service_results = []
     for j, param in enumerate(params):
 
-        result = query_function(service=html.unescape(service['access_url']), **param)
+        result = query_function(service=service['access_url'], **param)
         # Need a test that we got something back. Shouldn't error if not, just be empty
         if verbose:
             if len(result) > 0:
