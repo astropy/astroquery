@@ -180,7 +180,7 @@ class CdsClass(BaseQuery):
 
     def query_region_async(self, get_query_payload=False, **kwargs):
         """
-        Serves the same purpose as :meth:`~astroquery.cds.CdsClass.query_object` but only returns the HTTP response
+        Serves the same purpose as :meth:`~astroquery.cds.CdsClass.query_region` but only returns the HTTP response
         rather than the parsed result.
 
         Parameters
