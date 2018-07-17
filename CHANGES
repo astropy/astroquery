@@ -4,6 +4,8 @@
 - ATOMIC: fix several bugs for using Quantited for the range parameters. [#1187]
 - ESASKY: get_maps() accepts dict or list of (name, Table) pairs as input
   table list. [#1167]
+- ESO: Catch exception on login when keyring fails to get a valid storage.
+  [#1198]
 - HITRAN: use class-based API [#824]
 - JPL Horizons: Fix for missing total absolute magnitude or phase coefficient for comets [#1151]
 - MAST: Enable converting list of products into S3 uris [#1126]
@@ -14,6 +16,7 @@
   is set to "WARNING", "ERROR", or "CRITICAL". [#1188]
 - New tool: CDS - added module to query the MOCServer, a CDS tool providing MOCs
   and meta data of various data-sets. [#1111]
+- MAST: Updating HSC and Gaia catalog calls (bugfix) [#1203]
 
 0.3.8 (2018-04-27)
 ------------------
