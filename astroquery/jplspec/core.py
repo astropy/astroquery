@@ -42,26 +42,27 @@ class JPLSpecClass(BaseQuery):
         max_frequency : `astropy.units`
             Maximum frequency (or any spectral() equivalent)
         min_strength : int, optional
-            Minimum strength in catalog units
+            Minimum strength in catalog units, the default is -500
         max_lines :  int, optional
-            Maximum number of lines to query, the default is 1000.
+            Maximum number of lines to query, the default is 2000.
             The most the query allows is 100000
 
         molecule : list, string of regex if parse_name_locally=True, optional
             Identifiers of the molecules to search for. If this parameter
-            is not provided the search will match any species.
+            is not provided the search will match any species. Default is 'All'.
 
         flags : int, optional
-            Regular expression flags.
+            Regular expression flags. Default is set to 0
 
         parse_name_locally : bool, optional
             When set to True it allows the method to parse through catdir.cat
             in order to match the regex inputted in the molecule parameter
-            and request the corresponding tags of the matches instead.
+            and request the corresponding tags of the matches instead. Default
+            is set to False
 
         get_query_payload : bool, optional
             When set to `True` the method should return the HTTP request
-            parameters as a dict.
+            parameters as a dict. Default value is set to False
 
         Returns
         -------
@@ -72,7 +73,7 @@ class JPLSpecClass(BaseQuery):
         --------
         >>> table = JPLSpec.query_lines(min_frequency=100*u.GHz,
         ...                             max_frequency=200*u.GHz,
-        ...                             min_strength=-500, molecule=18003) # doctest: +SKIP
+        ...                             min_strength=-500, molecule=18003) # doctest: +REMOTE_DATA
         >>> print(table) # doctest: +SKIP
             FREQ     ERR    LGINT    DR    ELO    GUP  TAG   QNFMT   QN'      QN"
         ----------- ------ -------- --- --------- --- ------ ----- -------- --------
@@ -167,8 +168,8 @@ class JPLSpecClass(BaseQuery):
                             format='fixed_width')
 
         if len(result) > self.maxlines:
-            warnings.warn("This form is currently limited to {0} lines.\n\
-                          Please limit your search.".format(self.maxlines))
+            warnings.warn("This form is currently limited to {0} lines."
+                          "Please limit your search.".format(self.maxlines))
 
         result['FREQ'].unit = u.MHz
         result['ERR'].unit = u.MHz
@@ -188,7 +189,7 @@ class JPLSpecClass(BaseQuery):
 
         Parameters
         -----------
-        catfile : default 'catdir.cat'
+        catfile : str, name of file, default 'catdir.cat'
             The catalog file, installed locally along with the package
 
         Returns
