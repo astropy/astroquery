@@ -138,7 +138,7 @@ through metadata:
    {'Temperature (K)' : 225}
    >>> result.meta
    {'Temperature (K)': [300, 225, 150, 75, 37.5, 18.5,
-                                          9.375]}
+                        9.375]}
 
 One of the advantages of using JPLSpec is the availability in the catalog
 of the partition function at different temperatures for the molecules. As a
@@ -161,6 +161,36 @@ below:
 .. figure:: images/docplot_jplspec.png
    :scale: 50%
    :alt: Plot of Partition Function vs Temperature
+
+   The resulting plot from the example above
+
+For non-linear molecules like H2O, curve fitting methods can be used to
+calculate production rates at different temperatures with the proportionality:
+``a*T**(3./2.)``. Calling the process above for the H2O molecule (instead of
+for the CO molecule) we can continue to determine the partition function at
+other temperatures using curve fitting models:
+
+.. code-block:: python
+
+   >>> from scipy.optimize import curve_fit
+   >>> def f(T,a):
+           return np.log10(a*T**(1.5))
+   >>> param, cov = curve_fit(f,temp,part)
+   >>> print(param)
+       array([0.03676998])
+   >>> x = np.linspace(5,305)
+   >>> y = f(x,0.03676998)
+   >>> plt.scatter(temp,part,c='r')
+   >>> plt.plot(x,y,'k')
+   >>> plt.title('Partition Function vs Temperature')
+   >>> plt.xlabel('Log10 of Temperature Function')
+   >>> plt.ylabel('Log10 of Partition Function')
+   >>> plt.show()
+
+
+.. figure:: images/docplot_curvefit.png
+   :scale: 50%
+   :alt: Plot of Partition Function vs Temperature and resulting Curve Fit
 
    The resulting plot from the example above
 
