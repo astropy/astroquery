@@ -30,7 +30,9 @@ class Conf(_config.ConfigNamespace):
 
     # quantities queried in ephemerides query (see
     # http://ssd.jpl.nasa.gov/?horizons_doc#table_quantities)
-    eph_quantities = '"1-43"'
+    eph_quantities = ('"1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,'
+                      '21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,'
+                      '38,39,40,41,42,43"')
 
     # provide column names and units for each queried quantity for different
     # query modes
@@ -98,7 +100,9 @@ class Conf(_config.ConfigNamespace):
                    '/r': ('elongFlag', '---'),
                    '    S-T-O': ('alpha', 'deg'),
                    ' T-O-M': ('lunar_elong', 'deg'),
-                   'MN_Illu%': ('lunar_illum', 'deg'),
+                   ' T-O-I': ('IB_elong', 'deg'),
+                   'MN_Illu%': ('lunar_illum', 'percent'),
+                   ' IB_Illu%': ('IB_illum', 'percent'),
                    '    O-P-T': ('sat_alpha', 'deg'),
                    '     PlAng': ('OrbPlaneAng', 'deg'),
                    '   PsAng': ('sunTargetPA', 'deg'),
