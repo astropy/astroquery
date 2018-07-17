@@ -25,7 +25,6 @@ from ..core import cds
 class TestMOCServerRemote(object):
     """
     Tests requiring regions
-
     """
 
     # test of MAXREC payload
@@ -64,7 +63,6 @@ class TestMOCServerRemote(object):
 
     """
     Tests requiring mocpy
-    
     """
 
     # test of moc_order payload
@@ -85,10 +83,9 @@ class TestMOCServerRemote(object):
     @pytest.mark.parametrize('meta_data_expr', ["ID=*HST*",
                                                 "moc_sky_fraction>0.5",
                                                 "(ID=*DSS*)&&(moc_sky_fraction>0.1)"])
-    def test_moc_order_param(self, meta_data_expr):
+    def test_find_data_sets(self, meta_data_expr):
         result = cds.query_data_sets(meta_data=meta_data_expr,
                                      fields=['ID', 'moc_sky_fraction'],
                                      get_query_payload=False)
 
         assert isinstance(result, Table)
-

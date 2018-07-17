@@ -55,8 +55,9 @@ class CdsClass(BaseQuery):
 
     def query_region(self, region=None, get_query_payload=False, verbose=False, **kwargs):
         """
-        Query the `CDS MOCServer <http://alasky.unistra.fr/MocServer/query>`_ with a region i.e. a
-        `regions.CircleSkyRegion`, `regions.PolygonSkyRegion` or `mocpy.MOC` object. Returns the data-sets
+        Query the `CDS MOCServer <http://alasky.unistra.fr/MocServer/query>`_ with a region.
+
+        Can be a `regions.CircleSkyRegion`, `regions.PolygonSkyRegion` or `mocpy.MOC` object. Returns the data-sets
         having at least one source in the region.
 
         Parameters
@@ -179,7 +180,8 @@ class CdsClass(BaseQuery):
 
     def query_region_async(self, get_query_payload=False, **kwargs):
         """
-        Queries the `CDS MOCServer <http://alasky.unistra.fr/MocServer/query>`_.
+        Serves the same purpose as :meth:`~astroquery.cds.CdsClass.query_object` but only returns the HTTP response
+        rather than the parsed result.
 
         Parameters
         ----------
