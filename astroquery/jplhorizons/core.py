@@ -111,6 +111,8 @@ class HorizonsClass(BaseQuery):
 
         self.query_type = None  # ['ephemerides', 'elements', 'vectors']
 
+        self.url = None  # will contain query URL
+
     def __str__(self):
         """
         String representation of HorizonsClass object instance'
@@ -309,6 +311,12 @@ class HorizonsClass(BaseQuery):
         +------------------+-----------------------------------------------+
         | lunar_illum      | Lunar illumination percentage                 |
         |                  | (float, percent, ``MN_Illu%``)                |
+        +------------------+-----------------------------------------------+
+        | IB_elong         | Apparent interfering body elongation angle    |
+        |                  | wrt target (float, deg, ``T-O-I``)            |
+        +------------------+-----------------------------------------------+
+        | IB_illum         | Interfering body illumination percentage      |
+        |                  | (float, percent, ``IB_Illu%``)                |
         +------------------+-----------------------------------------------+
         | sat_alpha        | Observer-Primary-Target angle                 |
         |                  | (float, deg, ``O-P-T``)                       |
@@ -513,6 +521,11 @@ class HorizonsClass(BaseQuery):
             ('REF_SYSTEM', (refsystem))])
 
         if isinstance(self.location, dict):
+            if ('lon' not in self.location or 'lat' not in self.location or
+                    'elevation' not in self.location):
+                raise ValueError(("'location' must contain lon, lat, "
+                                  "elevation"))
+
             if 'body' not in self.location:
                 self.location['body'] = '399'
             request_payload['CENTER'] = 'coord@{:s}'.format(
@@ -534,7 +547,7 @@ class HorizonsClass(BaseQuery):
         elif isinstance(self.epochs, dict):
             if ('start' not in self.epochs or 'stop' not in self.epochs or
                     'step' not in self.epochs):
-                raise ValueError("'epochs' parameter must contain start, " +
+                raise ValueError("'epochs' must contain start, " +
                                  "stop, step")
             request_payload['START_TIME'] = '"'+self.epochs['start']+'"'
             request_payload['STOP_TIME'] = '"'+self.epochs['stop']+'"'
@@ -564,6 +577,8 @@ class HorizonsClass(BaseQuery):
         # query and parse
         response = self._request('GET', URL, params=request_payload,
                                  timeout=self.TIMEOUT, cache=cache)
+        self.url = response.url
+
         return response
 
     def elements_async(self, get_query_payload=False,
@@ -712,22 +727,26 @@ class HorizonsClass(BaseQuery):
             if no_fragments:
                 commandline += ' NOFRAG;'
 
+        if isinstance(self.location, dict):
+            raise ValueError(('cannot use topographic position in orbital'
+                              'elements query'))
+
         # configure request_payload for ephemerides query
         request_payload = OrderedDict([
-            #('batch', 1),
+            ('batch', 1),
             ('TABLE_TYPE', 'ELEMENTS'),
             ('MAKE_EPHEM', 'YES'),
             ('OUT_UNITS', 'AU-D'),
             ('COMMAND', '"' + commandline + '"'),
             ('CENTER', ("'" + str(self.location) + "'")),
             ('CSV_FORMAT', ('"YES"')),
-            ('ELEM_LABELS', 'YES'),
-            ('OBJ_DATA', 'YES'),
+            ('ELEM_LABELS', '"YES"'),
+            ('OBJ_DATA', '"YES"'),
             ('REF_SYSTEM', refsystem),
-            ('REF_PLANE', {'ecliptic': 'ECLIPTIC', 'earth': 'FRAME',
-                           'body': 'BODY EQUATOR'}[refplane]),
-            ('TP_TYPE', {'absolute': 'ABSOLUTE',
-                         'relative': 'RELATIVE'}[tp_type])]
+            ('REF_PLANE', {'ecliptic': '"ECLIPTIC"', 'earth': '"FRAME"',
+                           'body': '"BODY EQUATOR"'}[refplane]),
+            ('TP_TYPE', {'absolute': '"ABSOLUTE"',
+                         'relative': '"RELATIVE"'}[tp_type])]
         )
 
         # parse self.epochs
@@ -737,7 +756,7 @@ class HorizonsClass(BaseQuery):
         elif type(self.epochs) is dict:
             if ('start' not in self.epochs or 'stop' not in self.epochs or
                     'step' not in self.epochs):
-                raise ValueError("'epochs' parameter must contain start, " +
+                raise ValueError("'epochs' must contain start, " +
                                  "stop, step")
             request_payload['START_TIME'] = self.epochs['start']
             request_payload['STOP_TIME'] = self.epochs['stop']
@@ -760,6 +779,8 @@ class HorizonsClass(BaseQuery):
         # query and parse
         response = self._request('GET', URL, params=request_payload,
                                  timeout=self.TIMEOUT, cache=cache)
+        self.url = response.url
+
         return response
 
     def vectors_async(self, get_query_payload=False,
@@ -911,6 +932,10 @@ class HorizonsClass(BaseQuery):
             if no_fragments:
                 commandline += ' NOFRAG;'
 
+        if isinstance(self.location, dict):
+            raise ValueError(('cannot use topographic position in state'
+                              'vectors query'))
+
         # configure request_payload for ephemerides query
         request_payload = OrderedDict([
             ('batch', 1),
@@ -933,7 +958,7 @@ class HorizonsClass(BaseQuery):
         elif type(self.epochs) is dict:
             if ('start' not in self.epochs or 'stop' not in self.epochs or
                     'step' not in self.epochs):
-                raise ValueError("'epochs' parameter must contain start, " +
+                raise ValueError("'epochs' must contain start, " +
                                  "stop, step")
             request_payload['START_TIME'] = self.epochs['start']
             request_payload['STOP_TIME'] = self.epochs['stop']
@@ -956,6 +981,8 @@ class HorizonsClass(BaseQuery):
         # query and parse
         response = self._request('GET', URL, params=request_payload,
                                  timeout=self.TIMEOUT, cache=cache)
+        self.url = response.url
+
         return response
 
     # ---------------------------------- parser functions

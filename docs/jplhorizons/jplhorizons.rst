@@ -78,7 +78,7 @@ respective id number or record number as ``id`` and use ``id_type=id``:
 Querying JPL Horizons
 ---------------------
 
-The `JPL Horizons`_ system provides ephemerides, orbital elements, and
+The `JPL Horizons <https://ssd.jpl.nasa.gov/horizons.cgi>`_ system provides ephemerides, orbital elements, and
 state vectors for almost all known Solar System bodies. These queries
 are provided through three functions:
 
@@ -221,9 +221,14 @@ query response instead of the astropy table. For comets, the options
 the closest apparition in time and reject fragments,
 respectively. Note that these options should only be used for comets
 and will crash the query for other object types.
-   
 
-   
+For all query types, the query url can be obtained after a query has
+been performed (before the query only ``None`` would be returned):
+
+   >>> print(obj.url)
+   https://ssd.jpl.nasa.gov/horizons_batch.cgi?batch=1&TABLE_TYPE=VECTORS&OUT_UNITS=AU-D&COMMAND=%222012+TC4%3B%22&CENTER=%27257%27&CSV_FORMAT=%22YES%22&REF_PLANE=ECLIPTIC&REF_SYSTEM=J2000&TP_TYPE=ABSOLUTE&LABELS=YES&OBJ_DATA=YES&START_TIME=2017-10-01&STOP_TIME=2017-10-02&STEP_SIZE=10m
+
+
 How to Use the Query Tables
 ===========================
 
@@ -437,7 +442,7 @@ documentations for more information.
 Acknowledgements
 ================
 
-This submodule makes use of the `JPL Horizons`_ system. 
+This submodule makes use of the `JPL Horizons <https://ssd.jpl.nasa.gov/horizons.cgi>`_ system. 
 
 The development of this submodule is in part funded through a NASA
 PDART Grant, provided to the sbpy project.
@@ -449,7 +454,6 @@ Reference/API
 .. automodapi:: astroquery.jplhorizons
     :no-inheritance-diagram:
 
-.. _JPL Horizons: http://ssd.jpl.nasa.gov/horizons.cgi
 .. _Solar System Dynamics group at the Jet Propulation Laboratory: http://ssd.jpl.nasa.gov/
 .. _MPC Observatory codes: http://minorplanetcenter.net/iau/lists/ObsCodesF.html
 .. _astropy table: http://docs.astropy.org/en/stable/table/index.html
