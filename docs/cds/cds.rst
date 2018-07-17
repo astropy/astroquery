@@ -39,6 +39,12 @@ It is also possible to ask the MOCServer for retrieving data-sets based on their
 we have queried the MOCServer for only the image data-sets being in the cone defined above (``dataproduct_type``
 meta-data equals to ``"image"``).
 
+This package implements two methods:
+
+* :meth:`~astroquery.cds.CdsClass.query_region` retrieving data-sets (their associated MOCs and meta-datas) having sources in a given region.
+* :meth:`~astroquery.cds.CdsClass.find_data_sets` retrieving data-sets (their associated MOCs and meta-datas) based on the
+  values of their meta-datas.
+
 Requirements
 ----------------------------------------------------
 The following packages are required for the use of this module:
@@ -53,7 +59,7 @@ Examples
 Performing a CDS MOC query on a cone region
 -------------------------------------------
 
-The first thing to do is to import the `regions`_ and the ``cds`` module.
+The first thing to do is to import the `regions`_ package and the ``cds`` module.
 
 .. code-block:: python
 
@@ -61,8 +67,8 @@ The first thing to do is to import the `regions`_ and the ``cds`` module.
     >>> from regions import CircleSkyRegion
     >>> from astroquery.cds import cds
 
-``cds`` implements only the method :meth:`~astroquery.cds.CdsClass.query_region`.
-We need to define a cone region. For that purpose we will instantiate a `regions.CircleSkyRegion` object:
+``cds`` implements the method :meth:`~astroquery.cds.CdsClass.query_region` and this is what we will use.
+First, we need to define a cone region. For that purpose we will instantiate a `regions.CircleSkyRegion` object:
 
 .. code-block:: python
 
@@ -140,7 +146,7 @@ And basically call the :meth:`~astroquery.cds.CdsClass.query_region` method with
                            -             - L. Michel [Observatoire de Strasbourg] 2018-07-09T19:15Z ...                 -                                                -             -32.0            -
     Length = 1289 rows
 
-You can query the MOCServer on a `regions.PolygonSkyRegion` or even an `mocpy.MOC` following the same pattern i.e. just
+You can also query the MOCServer on a `regions.PolygonSkyRegion` or even an `mocpy.MOC` following the same pattern i.e. just
 by replacing ``cone`` with a polygon or a MOC object.
 
 
@@ -152,13 +158,13 @@ associated with this meta-data for this data-set is set to "-". The above astrop
 Retrieve only a subset of meta-datas
 ------------------------------------
 
-This table refers to a lot of meta-datas whereas we could use only a few of them. In fact, it is possible to ask the
-MOCServer to give us only a reduced set of meta-datas for the resulting data-sets. The table returned by the MOCServer
+This table refers to a lot of meta-datas whereas we could only use a few of them. In fact, it is possible to ask the
+MOCServer to give us a reduced set of meta-datas for the resulting data-sets. The table returned by the MOCServer
 will be lighter and thus faster to retrieve.
 
 The parameter ``fields`` of :meth:`~astroquery.cds.CdsClass.query_region` allows us to provide the list of meta-datas we
 want to get. Let's say we would like only the ``ID``, the ``moc_sky_fraction`` and the ``moc_access_url`` of the
-resulting data-sets. We just have to do:
+resulting data-sets:
 
 .. code-block:: python
 
@@ -309,7 +315,64 @@ web interface in the Getting Started section i.e. retrieving only the image data
 Looking at the ``dataproduct_type`` column, all the data-sets seem to be images. We could have been done that using
 numpy operations on `astropy.table.Table` objects but here the MOCServer made it for us.
 
-`This page <http://alasky.unistra.fr/MocServer/example>`_ on the web interface of the MOCServer gives some examples of filtering expressions.
+`This page <http://alasky.unistra.fr/MocServer/example>`_ on the web interface of the MOCServer gives examples of some filtering expressions.
+
+Alternatively, the method :meth:`~astroquery.cds.CdsClass.find_data_sets` searches data-sets on the whole sky. If you want
+to get the MOCs or meta-datas from some specific data-sets this is the method to use. The next example retrieves all the
+``moc_access_url`` of the Hubble surveys:
+
+.. code-block:: python
+
+    >>> cds.find_data_sets(meta_data="ID=*HST*",
+    ...                    fields=['ID', 'moc_access_url'])
+    <Table length=42>
+              ID                             moc_access_url
+            str21                                str51
+    --------------------- ---------------------------------------------------
+              CDS/P/HST/B                                                   -
+             CDS/P/HST/CO                                                   -
+        CDS/P/HST/GOODS/b      http://alasky.unistra.fr/GOODS/GOODSb/Moc.fits
+    CDS/P/HST/GOODS/color http://alasky.unistra.fr/GOODS/GOODS-color/Moc.fits
+        CDS/P/HST/GOODS/i      http://alasky.unistra.fr/GOODS/GOODSi/Moc.fits
+        CDS/P/HST/GOODS/v      http://alasky.unistra.fr/GOODS/GOODSv/Moc.fits
+        CDS/P/HST/GOODS/z      http://alasky.unistra.fr/GOODS/GOODSz/Moc.fits
+              CDS/P/HST/H                                                   -
+            CDS/P/HST/H2O                                                   -
+         CDS/P/HST/Halpha                                                   -
+          CDS/P/HST/Hbeta                                                   -
+              CDS/P/HST/I                                                   -
+              CDS/P/HST/J                                                   -
+            CDS/P/HST/NII                                                   -
+            CDS/P/HST/OII                                                   -
+           CDS/P/HST/OIII                                                   -
+     CDS/P/HST/PHAT/F110W      http://alasky.u-strasbg.fr/PHAT/F110W/Moc.fits
+     CDS/P/HST/PHAT/F160W      http://alasky.u-strasbg.fr/PHAT/F160W/Moc.fits
+     CDS/P/HST/PHAT/F275W      http://alasky.u-strasbg.fr/PHAT/F275W/Moc.fits
+     CDS/P/HST/PHAT/F336W      http://alasky.u-strasbg.fr/PHAT/F336W/Moc.fits
+     CDS/P/HST/PHAT/F475W      http://alasky.u-strasbg.fr/PHAT/F475W/Moc.fits
+     CDS/P/HST/PHAT/F814W      http://alasky.u-strasbg.fr/PHAT/F814W/Moc.fits
+         CDS/P/HST/Palpha                                                   -
+       CDS/P/HST/Palpha_c                                                   -
+              CDS/P/HST/R                                                   -
+          CDS/P/HST/SDSSg                                                   -
+          CDS/P/HST/SDSSr                                                   -
+          CDS/P/HST/SDSSz                                                   -
+           CDS/P/HST/SIII                                                   -
+              CDS/P/HST/U                                                   -
+             CDS/P/HST/UV                                                   -
+              CDS/P/HST/V                                                   -
+              CDS/P/HST/Y                                                   -
+          CDS/P/HST/other                                                   -
+         CDS/P/HST/wideUV                                                   -
+          CDS/P/HST/wideV                                                   -
+     ESAVO/P/HST/ACS-blue                                                   -
+          ESAVO/P/HST/FOC                                                   -
+       ESAVO/P/HST/NICMOS                                                   -
+         ESAVO/P/HST/WFC3                                                   -
+         ESAVO/P/HST/WFPC                                                   -
+        ESAVO/P/HST/WFPC2                                                   -
+
+
 
 Misc
 ----
@@ -353,10 +416,27 @@ As an example, we would like to obtain the union of the spatial coverage of all 
     ...                         max_norder=7,
     ... # Expression on the ID meta-data
     ...                        meta_data="ID=*HST*")
-    >>> moc.plot(title='Union of the spatial coverage of all the Hubble surveys.')
+    >>> moc.plot(title="Union of the spatial coverage of all the Hubble surveys.")
 
 .. image:: ./HST_union.png
 
+Retrieve the `~mocpy.MOC` of a specific data-set
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Finally, if you want to retrieve the MOC of a specific data-set, please consider using the `~astroquery.cds.CdsClass.find_data_sets`
+method with the ID of the data-set you want to retrieve the MOC along with the ``return_moc`` parameter set to True.
+The last example will show you how to get the MOC (i.e. a `mocpy.MOC` object) of the ``GALEXGR6/AIS/FUV`` survey.
+
+.. code-block:: python
+
+    >>> from mocpy import MOC
+    >>> moc_galex=cds.find_data_sets(meta_data="ID=CDS/P/GALEXGR6/AIS/FUV", return_moc=True)
+    >>> moc_galex.plot("MOC associated to CDS/P/GALEXGR6/AIS/FUV.")
+
+.. image:: ./MOC_GALEXGR6_AIS_FUV.png
+
+The ``cds`` package can therefore be used in complementarity with `mocpy`_. We can now retrieve `mocpy.MOC` objects
+coming from the MOCServer and manipulate them in a python session with `mocpy`_.
 
 Reference/API
 =============

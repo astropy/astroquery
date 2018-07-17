@@ -39,10 +39,11 @@ class CdsClass(BaseQuery):
     their meta-datas) having sources in a specific region. This region can be a `regions.CircleSkyRegion`, a
     `regions.PolygonSkyRegion` or a `mocpy.MOC` object.
 
-    This astroquery module implements a unique method:
+    This package implements two methods:
 
-    * A :meth:`~astroquery.cds.CdsClass.query_region` method allowing the user to retrieve the data sets having at least
-      one source in a specific region.
+    * :meth:`~astroquery.cds.CdsClass.query_region` retrieving data-sets (their associated MOCs and meta-datas) having sources in a given region.
+    * :meth:`~astroquery.cds.CdsClass.find_data_sets` retrieving data-sets (their associated MOCs and meta-datas) based on the
+      values of their meta-datas.
 
     """
     URL = conf.server
