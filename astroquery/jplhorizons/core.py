@@ -111,7 +111,7 @@ class HorizonsClass(BaseQuery):
 
         self.query_type = None  # ['ephemerides', 'elements', 'vectors']
 
-        self.url = None  # will contain query URL
+        self.uri = None  # will contain query URL
 
     def __str__(self):
         """
@@ -138,12 +138,13 @@ class HorizonsClass(BaseQuery):
     # ---------------------------------- query functions
 
     def ephemerides_async(self, airmass_lessthan=99,
-                          solar_elongation=(0, 180), hour_angle=0,
+                          solar_elongation=(0, 180), max_hour_angle=0,
                           rate_cutoff=None,
                           skip_daylight=False,
                           refraction=False,
                           refsystem='J2000',
                           closest_apparition=False, no_fragments=False,
+                          quantities=conf.eph_quantities,
                           get_query_payload=False,
                           get_raw_response=False, cache=True):
         """
@@ -388,8 +389,8 @@ class HorizonsClass(BaseQuery):
         +------------------+-----------------------------------------------+
         | true_anom        | True Anomaly (float, deg, ``Tru_Anom``)       |
         +------------------+-----------------------------------------------+
-        | hour_angle       | local apparent hour angle                     |
-        |                  | (string, ``L_Ap_Hour_Ang``)                   |
+        | hour_angle       | local apparent hour angle (string,            |
+        |                  | sexagesimal angular hours, ``L_Ap_Hour_Ang``) |
         +------------------+-----------------------------------------------+
         | alpha_true       | true phase angle (float, deg, ``phi``)        |
         +------------------+-----------------------------------------------+
@@ -408,7 +409,7 @@ class HorizonsClass(BaseQuery):
         solar_elongation : tuple, optional
             Permissible solar elongation range: (minimum, maximum); default:
             (0,180)
-        hour_angle : float, optional
+        max_hour_angle : float, optional
             Defines a maximum hour angle for the query, default: 0
         rate_cutoff : float, optional
             Angular range rate upper limit cutoff in arcsec/h; default:
@@ -421,7 +422,7 @@ class HorizonsClass(BaseQuery):
             refraction (airless model); default: `False`
         refsystem : string
             Coordinate reference system: ``'J2000'`` or ``'B1950'``;
-            default: ``'B1950'``
+            default: ``'J2000'``
         closest_apparition : boolean, optional
             Only applies to comets. This option will choose the
             closest apparition available in time to the selected
@@ -431,9 +432,17 @@ class HorizonsClass(BaseQuery):
             Only applies to comets. Reject all comet fragments from
             selection; default: False. Do not use this option for
             non-cometary objects.
+        quantities : integer or string, optional
+            single integer or comma-separated list in the form of a string
+            corresponding to all the
+            quantities to be queried from JPL Horizons using the coding
+            according to the `JPL Horizons User Manual Definition of
+            Observer Table Quantities
+            <https://ssd.jpl.nasa.gov/?horizons_doc#table_quantities>`_;
+            default: all quantities
         get_query_payload : boolean, optional
-            When set to `True` the method returns the HTTP request parameters
-            as a dict, default: False
+            When set to `True` the method returns the HTTP request
+            parameters as a dict, default: False
         get_raw_response : boolean, optional
             Return raw data as obtained by JPL Horizons without parsing the
             data into a table, default: False
@@ -508,11 +517,11 @@ class HorizonsClass(BaseQuery):
         request_payload = OrderedDict([
             ('batch', 1),
             ('TABLE_TYPE', 'OBSERVER'),
-            ('QUANTITIES', conf.eph_quantities),
+            ('QUANTITIES', "'"+str(quantities)+"'"),
             ('COMMAND', '"' + commandline + '"'),
             ('SOLAR_ELONG', ('"' + str(solar_elongation[0]) + "," +
                              str(solar_elongation[1]) + '"')),
-            ('LHA_CUTOFF', (str(hour_angle))),
+            ('LHA_CUTOFF', (str(max_hour_angle))),
             ('CSV_FORMAT', ('YES')),
             ('CAL_FORMAT', ('BOTH')),
             ('ANG_FORMAT', ('DEG')),
@@ -529,9 +538,9 @@ class HorizonsClass(BaseQuery):
             if 'body' not in self.location:
                 self.location['body'] = '399'
             request_payload['CENTER'] = 'coord@{:s}'.format(
-                str(self.location))
+                str(self.location['body']))
             request_payload['COORD_TYPE'] = 'GEODETIC'
-            request_payload['SITE_COORD'] = '{:f},{:f},{:f}'.format(
+            request_payload['SITE_COORD'] = "'{:f},{:f},{:f}'".format(
                 self.location['lon'], self.location['lat'],
                 self.location['elevation'])
         else:
@@ -577,7 +586,7 @@ class HorizonsClass(BaseQuery):
         # query and parse
         response = self._request('GET', URL, params=request_payload,
                                  timeout=self.TIMEOUT, cache=cache)
-        self.url = response.url
+        self.uri = response.url
 
         return response
 
@@ -651,8 +660,8 @@ class HorizonsClass(BaseQuery):
         ----------
         refsystem : string
             Element reference system for geometric and astrometric
-            quantities: ``'J2000'`` or ``'B1950'``; default: ``'B1950'``
-        refplance : string
+            quantities: ``'J2000'`` or ``'B1950'``; default: ``'J2000'``
+        refplane : string
             Reference plane for all output quantities: ``'ecliptic'``
             (ecliptic and mean equinox of reference epoch), ``'earth'``
             (Earth mean equator and equinox of reference epoch), or
@@ -671,7 +680,7 @@ class HorizonsClass(BaseQuery):
             selection; default: False. Do not use this option for
             non-cometary objects.
         get_query_payload : boolean, optional
-            When set to ``True`` the method returns the HTTP request 
+            When set to ``True`` the method returns the HTTP request
             parameters as a dict, default: False
         get_raw_response: boolean, optional
             Return raw data as obtained by JPL Horizons without parsing the
@@ -739,19 +748,20 @@ class HorizonsClass(BaseQuery):
             ('OUT_UNITS', 'AU-D'),
             ('COMMAND', '"' + commandline + '"'),
             ('CENTER', ("'" + str(self.location) + "'")),
-            ('CSV_FORMAT', ('"YES"')),
-            ('ELEM_LABELS', '"YES"'),
-            ('OBJ_DATA', '"YES"'),
+            ('CSV_FORMAT', 'YES'),
+            ('ELEM_LABELS', 'YES'),
+            ('OBJ_DATA', 'YES'),
             ('REF_SYSTEM', refsystem),
-            ('REF_PLANE', {'ecliptic': '"ECLIPTIC"', 'earth': '"FRAME"',
-                           'body': '"BODY EQUATOR"'}[refplane]),
-            ('TP_TYPE', {'absolute': '"ABSOLUTE"',
-                         'relative': '"RELATIVE"'}[tp_type])]
+            ('REF_PLANE', {'ecliptic': 'ECLIPTIC', 'earth': 'FRAME',
+                           'body': "'BODY EQUATOR'"}[refplane]),
+            ('TP_TYPE', {'absolute': 'ABSOLUTE',
+                         'relative': 'RELATIVE'}[tp_type])]
         )
 
         # parse self.epochs
         if isinstance(self.epochs, (list, tuple, ndarray)):
-            request_payload['TLIST'] = "\n".join([str(epoch) for epoch in
+            request_payload['TLIST'] = "\n".join([str(epoch) for
+                                                  epoch in
                                                   self.epochs])
         elif type(self.epochs) is dict:
             if ('start' not in self.epochs or 'stop' not in self.epochs or
@@ -763,7 +773,6 @@ class HorizonsClass(BaseQuery):
             request_payload['STEP_SIZE'] = self.epochs['step']
 
         else:
-            # treat epochs as a list
             request_payload['TLIST'] = str(self.epochs)
 
         self.query_type = 'elements'
@@ -779,7 +788,7 @@ class HorizonsClass(BaseQuery):
         # query and parse
         response = self._request('GET', URL, params=request_payload,
                                  timeout=self.TIMEOUT, cache=cache)
-        self.url = response.url
+        self.uri = response.url
 
         return response
 
@@ -789,7 +798,7 @@ class HorizonsClass(BaseQuery):
         """
         Query JPL Horizons for state vectors. The ``location``
         parameter in ``HorizonsClass`` refers in this case to the center
-        body relative to which the vectors are provided. 
+        body relative to which the vectors are provided.
 
         The following table lists the values queried, their
         definitions, data types, units, and original Horizons
@@ -859,7 +868,7 @@ class HorizonsClass(BaseQuery):
             selection; default: False. Do not use this option for
             non-cometary objects.
         get_query_payload : boolean, optional
-            When set to `True` the method returns the HTTP request 
+            When set to `True` the method returns the HTTP request
             parameters as a dict, default: False
         get_raw_response: boolean, optional
             Return raw data as obtained by JPL Horizons without parsing the
@@ -981,7 +990,7 @@ class HorizonsClass(BaseQuery):
         # query and parse
         response = self._request('GET', URL, params=request_payload,
                                  timeout=self.TIMEOUT, cache=cache)
-        self.url = response.url
+        self.uri = response.url
 
         return response
 
@@ -1085,7 +1094,8 @@ class HorizonsClass(BaseQuery):
             # catch unknown target
             if ("Matching small-bodies" in line and
                     "No matches found" in src[idx + 1]):
-                raise ValueError('Unknown target. Try different id_type.')
+                raise ValueError(('Unknown target ({:s}). Maybe try '
+                                  'different id_type?').format(self.id))
             # catch any unavailability of ephemeris data
             if "No ephemeris for target" in line:
                 errormsg = line[line.find('No ephemeris for target'):]
@@ -1096,9 +1106,20 @@ class HorizonsClass(BaseQuery):
                 errormsg = line[line.find('Cannot output elements'):]
                 errormsg = errormsg[:errormsg.find('\n')]
                 raise ValueError('Horizons Error: {:s}'.format(errormsg))
+            if 'INPUT ERROR' in line:
+                headerline = []
+                break
 
         if headerline == []:
-            raise IOError('Cannot parse table column names.')
+            err_msg = "".join(src[data_start_idx:data_end_idx])
+            if len(err_msg) > 0:
+                raise ValueError('Query failed with error message:\n' +
+                                 err_msg)
+            else:
+                raise ValueError(('Query failed without error message; '
+                                  'check URI for more information'))
+        # strip whitespaces from column labels
+        headerline = [h.strip() for h in headerline]
 
         # remove all 'Cut-off' messages
         raw_data = [line for line in src[data_start_idx:data_end_idx]
