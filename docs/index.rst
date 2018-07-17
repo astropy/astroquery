@@ -82,6 +82,13 @@ full functionality of the `~astroquery.alma` module:
 * `APLpy <http://aplpy.readthedocs.io/>`_
 * `pyregion <http://pyregion.readthedocs.io/>`_
 
+The following packages are optional dependencies and are required for the
+full functionality of the `~astroquery.cds` module:
+
+* `astropy-healpix <http://astropy-healpix.readthedocs.io/en/latest/>`_
+* `regions <https://astropy-regions.readthedocs.io/en/latest/>`_
+* `mocpy <https://mocpy.readthedocs.io/en/latest/>`_
+
 Using astroquery
 ----------------
 
