@@ -42,7 +42,7 @@ meta-data equals to ``"image"``).
 This package implements two methods:
 
 * :meth:`~astroquery.cds.CdsClass.query_region` retrieving data-sets (their associated MOCs and meta-datas) having sources in a given region.
-* :meth:`~astroquery.cds.CdsClass.find_data_sets` retrieving data-sets (their associated MOCs and meta-datas) based on the
+* :meth:`~astroquery.cds.CdsClass.find_datasets` retrieving data-sets (their associated MOCs and meta-datas) based on the
   values of their meta-datas.
 
 Requirements
@@ -317,13 +317,13 @@ numpy operations on `astropy.table.Table` objects but here the MOCServer made it
 
 `This page <http://alasky.unistra.fr/MocServer/example>`_ on the web interface of the MOCServer gives examples of some filtering expressions.
 
-Alternatively, the method :meth:`~astroquery.cds.CdsClass.find_data_sets` searches data-sets on the whole sky. If you want
+Alternatively, the method :meth:`~astroquery.cds.CdsClass.find_datasets` searches data-sets on the whole sky. If you want
 to get the MOCs or meta-datas from some specific data-sets this is the method to use. The next example retrieves all the
 ``moc_access_url`` of the Hubble surveys:
 
 .. code-block:: python
 
-    >>> cds.find_data_sets(meta_data="ID=*HST*",
+    >>> cds.find_datasets(meta_data="ID=*HST*",
     ...                    fields=['ID', 'moc_access_url'])
     <Table length=42>
               ID                             moc_access_url
@@ -423,14 +423,14 @@ As an example, we would like to obtain the union of the spatial coverage of all 
 Retrieve the `~mocpy.MOC` of a specific data-set
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Finally, if you want to retrieve the MOC of a specific data-set, please consider using the `~astroquery.cds.CdsClass.find_data_sets`
+Finally, if you want to retrieve the MOC of a specific data-set, please consider using the `~astroquery.cds.CdsClass.find_datasets`
 method with the ID of the data-set you want to retrieve the MOC along with the ``return_moc`` parameter set to True.
 The last example will show you how to get the MOC (i.e. a `mocpy.MOC` object) of the ``GALEXGR6/AIS/FUV`` survey.
 
 .. code-block:: python
 
     >>> from mocpy import MOC
-    >>> moc_galex=cds.find_data_sets(meta_data="ID=CDS/P/GALEXGR6/AIS/FUV", return_moc=True)
+    >>> moc_galex=cds.find_datasets(meta_data="ID=CDS/P/GALEXGR6/AIS/FUV", return_moc=True)
     >>> moc_galex.plot("MOC associated to CDS/P/GALEXGR6/AIS/FUV.")
 
 .. image:: ./MOC_GALEXGR6_AIS_FUV.png

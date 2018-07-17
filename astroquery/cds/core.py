@@ -41,9 +41,10 @@ class CdsClass(BaseQuery):
 
     This package implements two methods:
 
-    * :meth:`~astroquery.cds.CdsClass.query_region` retrieving data-sets (their associated MOCs and meta-datas) having sources in a given region.
-    * :meth:`~astroquery.cds.CdsClass.find_data_sets` retrieving data-sets (their associated MOCs and meta-datas) based on the
-      values of their meta-datas.
+    * :meth:`~astroquery.cds.CdsClass.query_region` retrieving data-sets (their associated MOCs and meta-datas) having
+      sources in a given region.
+    * :meth:`~astroquery.cds.CdsClass.find_datasets` retrieving data-sets (their associated MOCs and meta-datas) based
+      on the values of their meta-datas.
 
     """
     URL = conf.server
@@ -125,7 +126,7 @@ class CdsClass(BaseQuery):
 
         return result
 
-    def find_data_sets(self, meta_data, get_query_payload=False, verbose=False, **kwargs):
+    def find_datasets(self, meta_data, get_query_payload=False, verbose=False, **kwargs):
         """
         Query the `CDS MOCServer <http://alasky.unistra.fr/MocServer/query>`_ to retrieve the data-sets based on their
         meta data values. This method does not need any region argument but it requires an expression on the meta datas.
