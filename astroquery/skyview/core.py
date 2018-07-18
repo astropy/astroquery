@@ -189,7 +189,7 @@ class SkyViewClass(BaseQuery):
         >>> paths = sv.get_images(position='Eta Carinae',
         ...                       survey=['Fermi 5', 'HRI', 'DSS'])
         >>> for path in paths:
-        ...     print '\tnew file:', path
+        ...     print('\tnew file:', path)
 
         Returns
         -------
