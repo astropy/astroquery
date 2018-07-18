@@ -288,6 +288,89 @@ class HorizonsClass(BaseQuery):
         +------------------+-----------------------------------------------+
         | r_rate           | heliocentric radial rate (float, km/s,        |
         |                  | ``rdot``)                                     |
+<<<<<<< HEAD
+        +------------------+-----------------------------------------------+
+        | delta            | distance from observer (float, au, ``delta``) |
+        +------------------+-----------------------------------------------+
+        | delta_rate       | obs-centric rad rate (float, km/s, ``deldot``)|
+        +------------------+-----------------------------------------------+
+        | lighttime        | one-way light time (float, min, ``1-way_LT``) |
+        +------------------+-----------------------------------------------+
+        | vel_sun          | Target center velocity wrt Sun                |
+        |                  | (float, km/s, ``VmagSn``)                     |
+        +------------------+-----------------------------------------------+
+        | vel_obs          | Target center velocity wrt Observer           |
+        |                  | (float, km/s, ``VmagOb``)                     |
+        +------------------+-----------------------------------------------+
+        | elong            | solar elongation (float, deg, ``S-O-T``)      |
+        +------------------+-----------------------------------------------+
+        | elongFlag        | app. position relative to Sun (str, ``/r``)   |
+        +------------------+-----------------------------------------------+
+        | alpha            | solar phase angle (float, deg, ``S-T-O``)     |
+        +------------------+-----------------------------------------------+
+        | lunar_elong      | Apparent lunar elongation angle wrt target    |
+        |                  | (float, deg, ``T-O-M``)                       |
+        +------------------+-----------------------------------------------+
+        | lunar_illum      | Lunar illumination percentage                 |
+        |                  | (float, percent, ``MN_Illu%``)                |
+        +------------------+-----------------------------------------------+
+        | IB_elong         | Apparent interfering body elongation angle    |
+        |                  | wrt target (float, deg, ``T-O-I``)            |
+        +------------------+-----------------------------------------------+
+        | IB_illum         | Interfering body illumination percentage      |
+        |                  | (float, percent, ``IB_Illu%``)                |
+        +------------------+-----------------------------------------------+
+        | sat_alpha        | Observer-Primary-Target angle                 |
+        |                  | (float, deg, ``O-P-T``)                       |
+        +------------------+-----------------------------------------------+
+        | OrbPlaneAng      | orbital plane angle (float, deg, ``PlAng``)   |
+        +------------------+-----------------------------------------------+
+        | sunTargetPA      | -Sun vector PA (float, deg, EoN, ``PsAng``)   |
+        +------------------+-----------------------------------------------+
+        | velocityPA       | -velocity vector PA (float, deg, EoN,         |
+        |                  | ``PsAMV``)                                    |
+        +------------------+-----------------------------------------------+
+        | constellation    | constellation ID containing target (str,      |
+        |                  | ``Cnst``)                                     |
+        +------------------+-----------------------------------------------+
+        | TDB-UT           | difference between TDB and UT (float,         |
+        |                  | seconds, ``TDB-UT``)                          |
+        +------------------+-----------------------------------------------+
+        | NPole_RA         | Target's North Pole RA (float, deg,           |
+        |                  | ``N.Pole-RA``)                                |
+        +------------------+-----------------------------------------------+
+        | NPole_DEC        | Target's North Pole DEC (float, deg,          |
+        |                  | ``N.Pole-DC``)                                |
+        +------------------+-----------------------------------------------+
+        | GlxLon           | galactic longitude (float, deg, ``GlxLon``)   |
+        +------------------+-----------------------------------------------+
+        | GlxLat           | galactic latitude  (float, deg, ``GlxLat``)   |
+        +------------------+-----------------------------------------------+
+        | solartime        | local apparent solar time (string,            |
+        |                  | ``L_Ap_SOL_Time``)                            |
+        +------------------+-----------------------------------------------+
+        | earth_lighttime  | observer lighttime from center of Earth       |
+        |                  | (float, minutes, ``399_ins_LT``               |
+        +------------------+-----------------------------------------------+
+        | RA_3sigma        | 3 sigma positional uncertainty in RA (float,  |
+        |                  | arcsec, ``RA_3sigma``)                        |
+        +------------------+-----------------------------------------------+
+        | DEC_3sigma       | 3 sigma positional uncertainty in  DEC (float,|
+        |                  | arcsec, ``DEC_3sigma``)                       |
+        +------------------+-----------------------------------------------+
+        | SMAA_3sigma      | 3sig pos unc error ellipse semi-major axis    |
+        |                  | (float, arcsec, ``SMAA_3sig``)                |
+        +------------------+-----------------------------------------------+
+        | SMIA_3sigma      | 3sig pos unc error ellipse semi-minor axis    |
+        |                  | (float, arcsec, ``SMIA_3sig``)                |
+        +------------------+-----------------------------------------------+
+        | Theta_3sigma     | pos unc error ellipse position angle          |
+        |                  | (float, deg, ``Theta``)                       |
+        +------------------+-----------------------------------------------+
+        | Area_3sigma      | 3sig pos unc error ellipse are                |
+        |                  | (float, arcsec^2, ``Area_3sig``)              |
+        +------------------+-----------------------------------------------+
+=======
         +------------------+-----------------------------------------------+
         | delta            | distance from observer (float, au, ``delta``) |
         +------------------+-----------------------------------------------+
