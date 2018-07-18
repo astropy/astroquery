@@ -72,6 +72,8 @@ with regards to the true results stored in a file located in the data directory
 """
 
 
+@pytest.mark.skipif('regions' not in sys.modules,
+                    reason="requires astropy-regions")
 @pytest.mark.parametrize('datafile',
                          ['PROPERTIES_SEARCH', 'HIPS_FROM_SAADA_AND_ALASKY'])
 def test_request_results(patch_get, datafile):

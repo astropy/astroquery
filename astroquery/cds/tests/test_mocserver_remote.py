@@ -84,8 +84,8 @@ class TestMOCServerRemote(object):
                                                 "moc_sky_fraction>0.5",
                                                 "(ID=*DSS*)&&(moc_sky_fraction>0.1)"])
     def test_find_data_sets(self, meta_data_expr):
-        result = cds.query_data_sets(meta_data=meta_data_expr,
-                                     fields=['ID', 'moc_sky_fraction'],
-                                     get_query_payload=False)
+        result = cds.find_datasets(meta_data=meta_data_expr,
+                                   fields=['ID', 'moc_sky_fraction'],
+                                   get_query_payload=False)
 
         assert isinstance(result, Table)
