@@ -35,10 +35,10 @@ class MPCClass(BaseQuery):
     }
 
     _default_number_of_steps = {
-        'd': 21,
-        'h': 49,
-        'm': 121,
-        's': 301
+        'd': '21',
+        'h': '49',
+        'm': '121',
+        's': '301'
     }
 
     _proper_motions = {
@@ -333,7 +333,8 @@ class MPCClass(BaseQuery):
                             ra_format={'unit': u.hr, 'sep': ':'},
                             dec_format={'unit': u.deg, 'sep': ':'},
                             proper_motion='total', proper_motion_unit='arcsec/hr',
-                            suppress_daytime=False, suppress_set=False, perturbed=True):
+                            suppress_daytime=False, suppress_set=False,
+                            perturbed=True, **kwargs):
         """Object ephemerides from the Minor Planet Ephemeris Service.
 
         Parameters
@@ -531,7 +532,7 @@ class MPCClass(BaseQuery):
         assert (isinstance(location, (str, int, EarthLocation))
                 or np.isiterable(location)), "location parameter must be a string, integer, iterable, or astropy EarthLocation"
 
-        assert isinstance(start, (NoneType, Time, str)
+        assert isinstance(start, (type(None), Time, str)
                           ), "start must be a string, an astropy Time object, or None."
 
         _step = u.Quantity(step)
@@ -544,7 +545,7 @@ class MPCClass(BaseQuery):
         assert proper_motion in self._proper_motions.keys(
         ), "proper_motion must be one of {}".format(self._proper_motions.keys())
 
-        request_args = self._args_to_mpes_payload(
+        request_args = self._args_to_payload(
             target=target, ut_offset=ut_offset, suppress_daytime=suppress_daytime,
             suppress_set=suppress_set, perturbed=perturbed, location=location,
             start=start, step=_step, number=number, eph_type=eph_type,
@@ -555,9 +556,9 @@ class MPCClass(BaseQuery):
 
         _proper_motion_unit = u.Unit(proper_motion_unit)
 
-        response = self._request('POST', MPES_URL, params=request_args)
+        response = self._request('POST', self.MPES_URL, data=request_args)
 
-        return tab
+        return response
 
     @class_or_instance
     def get_observatory_codes_async(self, cache=True):
@@ -603,11 +604,13 @@ class MPCClass(BaseQuery):
             request_args = {
                 'ty': 'e',
                 'TextArea': str(kwargs['target']),
-                'uto': int(kwargs['ut_offset']),
+                'uto': str(kwargs['ut_offset']),
                 'igd': 'y' if kwargs['suppress_daytime'] else 'n',
                 'ibh': 'y' if kwargs['suppress_set'] else 'n',
                 'fp': 'y' if kwargs['perturbed'] else 'n',
-                'adir': 'N'  # always measure azimuth eastward from north
+                'adir': 'N',  # always measure azimuth eastward from north
+                'tit': '',  # dummy page title
+                'bu': ''  # dummy base URL
             }
 
             location = kwargs['location']
@@ -627,23 +630,24 @@ class MPCClass(BaseQuery):
                 request_args['lat'] = u.Quantity(loc[1], u.deg).value
                 request_args['alt'] = u.Quantity(loc[2], u.m).value
 
-            if start is None:
+            if kwargs['start'] is None:
                 request_args['d'] = Time.now().iso[:10]
-            elif isinstance(start, Time):
-                request_args['d'] = start.iso.replace(
+            elif isinstance(kwargs['start'], Time):
+                request_args['d'] = kwargs['start'].iso.replace(
                     ':', '').replace('-', ':')[:15]
             else:
-                request_args['d'] = start
+                request_args['d'] = kwargs['start']
 
-            request_args['i'] = int(round(step.value))
-            request_args['u'] = str(step.unit)[: 1]
-            if number is None:
-                request_args['l'] = self._default_number_of_steps['step.unit']
+            request_args['i'] = str(int(round(kwargs['step'].value)))
+            request_args['u'] = str(kwargs['step'].unit)[:1]
+            if kwargs['number'] is None:
+                request_args['l'] = self._default_number_of_steps[
+                    request_args['u']]
             else:
-                request_args['l'] = number
+                request_args['l'] = kwargs['number']
 
-            request_args['raty'] = self._ephemeris_types[eph_type]
-            request_args['s'] = self._proper_motions[proper_motion]
+            request_args['raty'] = self._ephemeris_types[kwargs['eph_type']]
+            request_args['s'] = self._proper_motions[kwargs['proper_motion']]
             request_args['m'] = 'h'  # always return proper_motion as arcsec/hr
 
         return request_args
@@ -658,8 +662,13 @@ class MPCClass(BaseQuery):
         elif self.query_type == 'ephemeris':
             root = BeautifulSoup(result.content, 'html.parser')
             text_table = root.find('pre').text
-            tab = ascii.read(text_table, format='fixed_width',
-                             header_start=1, data_start=3)
+            tab = ascii.read(text_table, format='fixed_width_no_header',
+                             names=('Date', 'RA', 'Dec', 'Delta', 'r',
+                                    'Elongation', 'Phase', 'V', 'Proper motion',
+                                    'Direction', 'Uncertainty'),
+                             col_starts=(0, 18, 29, 39, 47, 56, 62, 69,
+                                         74, 85, 92),
+                             data_start=3)
 
         return tab
 
