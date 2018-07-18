@@ -82,69 +82,69 @@ And basically call the :meth:`~astroquery.cds.CdsClass.query_region` method with
 .. code-block:: python
 
     >>> cds.query_region(region=cone)
-             tap_tablename       hips_status_7              hips_creator                hipsgen_date_1  ...   hipsgen_date_6                 hips_service_url_4                hips_pixel_bitpix hips_order_4
-    ------------------------ ------------- -------------------------------------- ----------------- ... ----------------- ------------------------------------------------ ----------------- ------------
-    ivoa.B/assocdata/obscore             -                                      -                 - ...                 -                                                -                 -            -
-          viz7.B/cb/lmxbdata             -                                      -                 - ...                 -                                                -                 -            -
-           vcds1.B/cfht/cfht             -                                      -                 - ...                 -                                                -                 -            -
-        vcds1.B/cfht/obscore             -                                      -                 - ...                 -                                                -                 -            -
-      viz1.B/chandra/chandra             -                                      -                 - ...                 -                                                -                 -            -
-         vcds1.B/eso/eso_arc             -                                      -                 - ...                 -                                                -                 -            -
-        viz1.B/gcvs/gcvs_cat             -                                      -                 - ...                 -                                                -                 -            -
-         viz1.B/gcvs/nsv_cat             -                                      -                 - ...                 -                                                -                 -            -
-      vcds1.B/gemini/obscore             -                                      -                 - ...                 -                                                -                 -            -
-           viz1.B/hst/hstlog             -                                      -                 - ...                 -                                                -                 -            -
-         vcds1.B/hst/obscore             -                                      -                 - ...                 -                                                -                 -            -
-            viz1.B/hst/wfpc2             -                                      -                 - ...                 -                                                -                 -            -
-        vcds1.B/jcmt/obscore             -                                      -                 - ...                 -                                                -                 -            -
-        viz4.B/merlin/merlin             -                                      -                 - ...                 -                                                -                 -            -
-           viz7.B/mk/mktypes             -                                      -                 - ...                 -                                                -                 -            -
-        viz7.B/pastel/pastel             -                                      -                 - ...                 -                                                -                 -            -
-             viz7.B/sb9/main             -                                      -                 - ...                 -                                                -                 -            -
-             viz7.B/sn/sncat             -                                      -                 - ...                 -                                                -                 -            -
-       vbig.B/subaru/suprimc             -                                      -                 - ...                 -                                                -                 -            -
-       vizB.B/swift/swiftlog             -                                      -                 - ...                 -                                                -                 -            -
-              vizC.B/vsx/vsx             -                                      -                 - ...                 -                                                -                 -            -
-           viz7.B/wd/catalog             -                                      -                 - ...                 -                                                -                 -            -
-              vizC.B/wds/wds             -                                      -                 - ...                 -                                                -                 -            -
-           viz4.B/xmm/xmmlog             -                                      -                 - ...                 -                                                -                 -            -
-                           -             -                            CDS (C.Bot)                 - ...                 -                                                -              16.0            -
-                           -             -                           M.Buga [CDS] 2017-06-23T19:52Z ...                 - https://alaskybis.u-strasbg.fr/HI4PI/C_HI4PI_NHI             -32.0            -
-             viz1.I/100A/w10             -                                      -                 - ...                 -                                                -                 -            -
-             viz1.I/100A/w25             -                                      -                 - ...                 -                                                -                 -            -
-             viz1.I/100A/w50             -                                      -                 - ...                 -                                                -                 -            -
-                         ...           ...                                    ...               ... ...               ...                                              ...               ...          ...
-                           -             -                                      -                 - ...                 -                                                -             -32.0            -
-                           -             -                                      -                 - ...                 -                                                -             -32.0            -
-                           -             -                                      -                 - ...                 -                                                -             -32.0            -
-                           -             -                                      -                 - ...                 -                                                -             -32.0            -
-                           -             -                 D. Paradis (IRAP/CADE) 2017-12-13T13:32Z ...                 -                                                -             -32.0            -
-                           -             -                 D. Paradis (IRAP/CADE) 2017-12-13T13:33Z ...                 -                                                -             -32.0            -
-                           -             -                 D. Paradis (IRAP/CADE) 2016-09-15T13:35Z ...                 -                                                -             -32.0            -
-                           -             -                 D. Paradis (IRAP/CADE) 2017-02-09T13:41Z ... 2017-02-09T13:48Z                                                -             -32.0            -
-                           -             -                 D. Paradis (IRAP/CADE) 2018-03-05T09:11Z ...                 -                                                -             -32.0            -
-                           -             -                 D. Paradis (IRAP/CADE) 2018-03-05T09:27Z ...                 -                                                -             -32.0            -
-                           -             -                 D. Paradis (IRAP/CADE) 2016-09-15T14:23Z ...                 -                                                -             -32.0            -
-                           -             -                                      -                 - ...                 -                                                -             -32.0            -
-                           -             -                                      -                 - ...                 -                                                -             -32.0            -
-                           -             -                                      -                 - ...                 -                                                -             -32.0            -
-                           -             -                                      -                 - ...                 -                                                -             -32.0            -
-                           -             -                                      -                 - ...                 -                                                -             -32.0            -
-                           -             -                 D. Paradis (IRAP/CADE) 2017-12-07T09:56Z ...                 -                                                -             -32.0            -
-                           -             -                 D. Paradis (IRAP/CADE) 2017-12-06T12:48Z ...                 -                                                -             -32.0            -
-                           -             -                                      -                 - ...                 -                                                -             -32.0            -
-                           -             -                                      -                 - ...                 -                                                -             -32.0            -
-                           -             -                                      -                 - ...                 -                                                -             -32.0            -
-                           -             -                                      -                 - ...                 -                                                -             -32.0            -
-                           -             -                 D. Paradis (IRAP/CADE) 2016-09-15T14:43Z ...                 -                                                -             -32.0            -
-                           -             -                 D. Paradis (IRAP/CADE) 2018-03-12T15:45Z ...                 -                                                -             -32.0            -
-                           -             -                 D. Paradis (IRAP/CADE) 2018-03-12T14:47Z ...                 -                                                -             -32.0            -
-                           -             -                 D. Paradis (IRAP/CADE) 2017-05-15T12:23Z ...                 -                                                -             -32.0            -
-                           -             - L. Michel [Observatoire de Strasbourg] 2018-07-10T06:48Z ...                 -                                                -                 -            -
-                           -             - L. Michel [Observatoire de Strasbourg] 2018-07-09T16:14Z ...                 -                                                -             -32.0            -
-                           -             - L. Michel [Observatoire de Strasbourg] 2018-07-09T17:43Z ...                 -                                                -             -32.0            -
-                           -             - L. Michel [Observatoire de Strasbourg] 2018-07-09T19:15Z ...                 -                                                -             -32.0            -
-    Length = 1289 rows
+    <Table masked=True length=1317>
+    hips_service_url_8        hips_status         hips_status_7 ...   hipsgen_date_5                                  hips_master_url                                  moc_sky_fraction
+          object                 object               object    ...       object                                           object                                          float64
+    ------------------ -------------------------- ------------- ... ----------------- -------------------------------------------------------------------------------- ----------------
+                    --                         --            -- ...                --                                                                               --           0.0588
+                    --                         --            -- ...                --                                                                               --        2.066e-06
+                    --                         --            -- ...                --                                                                               --         0.002134
+                    --                         --            -- ...                --                                                                               --         0.003107
+                    --                         --            -- ...                --                                                                               --        0.0001764
+                    --                         --            -- ...                --                                                                               --         0.008365
+                    --                         --            -- ...                --                                                                               --        0.0009891
+                    --                         --            -- ...                --                                                                               --        0.0004252
+                    --                         --            -- ...                --                                                                               --        0.0006163
+                    --                         --            -- ...                --                                                                               --        0.0008544
+                    --                         --            -- ...                --                                                                               --        0.0009243
+                    --                         --            -- ...                --                                                                               --          0.00016
+                    --                         --            -- ...                --                                                                               --         0.000729
+                    --                         --            -- ...                --                                                                               --        2.998e-05
+                    --                         --            -- ...                --                                                                               --          0.01136
+                    --                         --            -- ...                --                                                                               --        0.0006112
+                    --                         --            -- ...                --                                                                               --        6.632e-05
+                    --                         --            -- ...                --                                                                               --        0.0001141
+                    --                         --            -- ...                --                                                                               --        0.0008666
+                    --                         --            -- ...                --                                                                               --         0.001025
+                    --                         --            -- ...                --                                                                               --         0.008088
+                    --                         --            -- ...                --                                                                               --         0.000282
+                    --                         --            -- ...                --                                                                               --         0.002413
+                    --                         --            -- ...                --                                                                               --        0.0001468
+                    -- public master clonableOnce            -- ...                --                                                                               --           0.3164
+                    -- public master clonableOnce            -- ...                --                                                                               --              1.0
+                    --                         --            -- ...                --                                                                               --        4.444e-05
+                    --                         --            -- ...                --                                                                               --        4.641e-05
+                    --                         --            -- ...                --                                                                               --          0.00044
+                   ...                        ...           ... ...               ...                                                                              ...              ...
+                    --   public master unclonable            -- ...                --                                                                               --              1.0
+                    --   public master unclonable            -- ...                --    http://cade.irap.omp.eu/documents/Ancillary/4Aladin/DRAO-VillaElisa_21cm_POLQ              1.0
+                    --   public master unclonable            -- ...                --    http://cade.irap.omp.eu/documents/Ancillary/4Aladin/DRAO-VillaElisa_21cm_POLU              1.0
+                    --   public master unclonable            -- ...                --                   http://cade.irap.omp.eu/documents/Ancillary/4Aladin/DRAO_22MHz           0.7283
+                    --   public master unclonable            -- ... 2017-02-09T13:48Z                                                                               --           0.5723
+                    --   public master unclonable            -- ...                --                                                                               --           0.5468
+                    --   public master unclonable            -- ...                --                                                                               --              1.0
+                    --   public master unclonable            -- ...                --                http://cade.irap.omp.eu/documents/Ancillary/4Aladin/GAURIBIDANUR/           0.8623
+                    --   public master unclonable            -- ...                --                                                                               --              1.0
+                    --   public master unclonable            -- ...                --                                                                               --              1.0
+                    --   public master unclonable            -- ...                --                                                                               --              1.0
+                    --   public master unclonable            -- ...                --                                                                               --              1.0
+                    --   public master unclonable            -- ...                --                                                                               --              1.0
+                    --   public master unclonable            -- ...                --                                                                               --           0.9635
+                    --   public master unclonable            -- ...                --                                                                               --           0.4284
+                    --   public master unclonable            -- ...                --                                                                               --              1.0
+                    --   public master unclonable            -- ...                --                                                                               --              1.0
+                    --   public master unclonable            -- ...                --                                                                               --              1.0
+                    --   public master unclonable            -- ...                --                                                                               --              1.0
+                    --   public master unclonable            -- ...                -- http://cade.irap.omp.eu/documents/Ancillary/4Aladin/STOCKERT+VILLAELISA_1420MHz/              1.0
+                    --   public master unclonable            -- ...                --                                                                               --            0.181
+                    --   public master unclonable            -- ...                --                                                                               --           0.1918
+                    --   public master unclonable            -- ... 2017-05-15T12:44Z                                                                               --              1.0
+                    --                         --            -- ...                --                                                                               --           0.1553
+                    --                         --            -- ...                --                                                                               --           0.2373
+                    -- public master clonableOnce            -- ...                --                                                                               --          0.08287
+                    -- public master clonableOnce            -- ...                --                                                                               --          0.02227
+                    -- public master clonableOnce            -- ...                --                                                                               --          0.02227
+                    -- public master clonableOnce            -- ...                --                                                                               --          0.02227
 
 You can also query the MOCServer on a `regions.PolygonSkyRegion` or even an `mocpy.MOC` following the same pattern i.e. just
 by replacing ``cone`` with a polygon or a MOC object.
@@ -169,69 +169,69 @@ resulting data-sets:
 .. code-block:: python
 
     >>> cds.query_region(region=cone, fields=['ID', 'moc_sky_fraction', 'moc_access_url'])
-    moc_sky_fraction                  ID                                                     moc_access_url
-    ---------------- ------------------------------------ ------------------------------------------------------------------------------------
-              0.0588              CDS/B/assocdata/obscore http://alasky.unistra.fr/footprints/tables/vizier/B_assocdata_obscore/MOC?nside=2048
-           2.066e-06                    CDS/B/cb/lmxbdata       http://alasky.unistra.fr/footprints/tables/vizier/B_cb_lmxbdata/MOC?nside=2048
-            0.002134                      CDS/B/cfht/cfht         http://alasky.unistra.fr/footprints/tables/vizier/B_cfht_cfht/MOC?nside=2048
-            0.003107                   CDS/B/cfht/obscore      http://alasky.unistra.fr/footprints/tables/vizier/B_cfht_obscore/MOC?nside=2048
-           0.0001764                CDS/B/chandra/chandra   http://alasky.unistra.fr/footprints/tables/vizier/B_chandra_chandra/MOC?nside=2048
-            0.008365                    CDS/B/eso/eso_arc       http://alasky.unistra.fr/footprints/tables/vizier/B_eso_eso_arc/MOC?nside=2048
-           0.0009891                  CDS/B/gcvs/gcvs_cat     http://alasky.unistra.fr/footprints/tables/vizier/B_gcvs_gcvs_cat/MOC?nside=2048
-           0.0004252                   CDS/B/gcvs/nsv_cat      http://alasky.unistra.fr/footprints/tables/vizier/B_gcvs_nsv_cat/MOC?nside=2048
-           0.0006163                 CDS/B/gemini/obscore    http://alasky.unistra.fr/footprints/tables/vizier/B_gemini_obscore/MOC?nside=2048
-           0.0008544                     CDS/B/hst/hstlog        http://alasky.unistra.fr/footprints/tables/vizier/B_hst_hstlog/MOC?nside=2048
-           0.0009243                    CDS/B/hst/obscore       http://alasky.unistra.fr/footprints/tables/vizier/B_hst_obscore/MOC?nside=2048
-             0.00016                      CDS/B/hst/wfpc2         http://alasky.unistra.fr/footprints/tables/vizier/B_hst_wfpc2/MOC?nside=2048
-            0.000729                   CDS/B/jcmt/obscore      http://alasky.unistra.fr/footprints/tables/vizier/B_jcmt_obscore/MOC?nside=2048
-           2.998e-05                  CDS/B/merlin/merlin     http://alasky.unistra.fr/footprints/tables/vizier/B_merlin_merlin/MOC?nside=2048
-             0.01136                     CDS/B/mk/mktypes        http://alasky.unistra.fr/footprints/tables/vizier/B_mk_mktypes/MOC?nside=2048
-           0.0006112                  CDS/B/pastel/pastel     http://alasky.unistra.fr/footprints/tables/vizier/B_pastel_pastel/MOC?nside=2048
-           6.632e-05                       CDS/B/sb9/main          http://alasky.unistra.fr/footprints/tables/vizier/B_sb9_main/MOC?nside=2048
-           0.0001141                       CDS/B/sn/sncat          http://alasky.unistra.fr/footprints/tables/vizier/B_sn_sncat/MOC?nside=2048
-           0.0008666                 CDS/B/subaru/suprimc    http://alasky.unistra.fr/footprints/tables/vizier/B_subaru_suprimc/MOC?nside=2048
-            0.001025                 CDS/B/swift/swiftlog    http://alasky.unistra.fr/footprints/tables/vizier/B_swift_swiftlog/MOC?nside=2048
-            0.008088                        CDS/B/vsx/vsx           http://alasky.unistra.fr/footprints/tables/vizier/B_vsx_vsx/MOC?nside=2048
-            0.000282                     CDS/B/wd/catalog        http://alasky.unistra.fr/footprints/tables/vizier/B_wd_catalog/MOC?nside=2048
-            0.002413                        CDS/B/wds/wds           http://alasky.unistra.fr/footprints/tables/vizier/B_wds_wds/MOC?nside=2048
-           0.0001468                     CDS/B/xmm/xmmlog        http://alasky.unistra.fr/footprints/tables/vizier/B_xmm_xmmlog/MOC?nside=2048
-              0.3164                 CDS/C/GALFAHI/Narrow                                                                                    -
-                 1.0                       CDS/C/HI4PI/HI                                                                                    -
-           4.444e-05                       CDS/I/100A/w10          http://alasky.unistra.fr/footprints/tables/vizier/I_100A_w10/MOC?nside=2048
-           4.641e-05                       CDS/I/100A/w25          http://alasky.unistra.fr/footprints/tables/vizier/I_100A_w25/MOC?nside=2048
-             0.00044                       CDS/I/100A/w50          http://alasky.unistra.fr/footprints/tables/vizier/I_100A_w50/MOC?nside=2048
-                 ...                                  ...                                                                                  ...
-                 1.0                 ov-gso/P/DIRBE/ZSMA6                                                                                    -
-                 1.0                 ov-gso/P/DIRBE/ZSMA7                                                                                    -
-                 1.0                 ov-gso/P/DIRBE/ZSMA8                                                                                    -
-                 1.0                 ov-gso/P/DIRBE/ZSMA9                                                                                    -
-                 1.0   ov-gso/P/DRAO-VillaElisa/21cm/POLQ                                                                                    -
-                 1.0   ov-gso/P/DRAO-VillaElisa/21cm/POLU                                                                                    -
-              0.7283                  ov-gso/P/DRAO/22MHz                                                                                    -
-              0.5723            ov-gso/P/DWINGELOO/820MHz                                                                                    -
-              0.5468                       ov-gso/P/EBHIS                                                                                    -
-                 1.0                  ov-gso/P/GASS+EBHIS                                                                                    -
-              0.8623                ov-gso/P/GAURIBIDANUR                                                                                    -
-                 1.0                      ov-gso/P/IRIS/1                                                                                    -
-                 1.0                      ov-gso/P/IRIS/2                                                                                    -
-                 1.0                      ov-gso/P/IRIS/3                                                                                    -
-                 1.0                      ov-gso/P/IRIS/4                                                                                    -
-                 1.0                         ov-gso/P/LAB                                                                                    -
-              0.9635                    ov-gso/P/MAIPU-MU                                                                                    -
-              0.4284                      ov-gso/P/MITEoR                                                                                    -
-                 1.0                        ov-gso/P/RASS                                                                                    -
-                 1.0                    ov-gso/P/RASS/EXP                                                                                    -
-                 1.0               ov-gso/P/RASS/HardBand                                                                                    -
-                 1.0               ov-gso/P/RASS/SoftBand                                                                                    -
-                 1.0 ov-gso/P/STOCKERT+VILLAELISA/1420MHz                                                                                    -
-               0.181                   ov-gso/P/VTSS/CONT                                                                                    -
-              0.1918                     ov-gso/P/VTSS/Ha                                                                                    -
-                 1.0                        ov-gso/P/WHAM                                                                                    -
-             0.08287                xcatdb/P/XMM/PN/color                                                                                    -
-             0.02227                  xcatdb/P/XMM/PN/eb2                                                                                    -
-             0.02227                  xcatdb/P/XMM/PN/eb3                                                                                    -
-             0.02227                  xcatdb/P/XMM/PN/eb4                                                                                    -
-    Length = 1289 rows
+    <Table masked=True length=1317>
+                                       moc_access_url                                                     ID                  moc_sky_fraction
+                                           object                                                       str48                     float64
+    ------------------------------------------------------------------------------------ ------------------------------------ ----------------
+    http://alasky.unistra.fr/footprints/tables/vizier/B_assocdata_obscore/MOC?nside=2048              CDS/B/assocdata/obscore           0.0588
+          http://alasky.unistra.fr/footprints/tables/vizier/B_cb_lmxbdata/MOC?nside=2048                    CDS/B/cb/lmxbdata        2.066e-06
+            http://alasky.unistra.fr/footprints/tables/vizier/B_cfht_cfht/MOC?nside=2048                      CDS/B/cfht/cfht         0.002134
+         http://alasky.unistra.fr/footprints/tables/vizier/B_cfht_obscore/MOC?nside=2048                   CDS/B/cfht/obscore         0.003107
+      http://alasky.unistra.fr/footprints/tables/vizier/B_chandra_chandra/MOC?nside=2048                CDS/B/chandra/chandra        0.0001764
+          http://alasky.unistra.fr/footprints/tables/vizier/B_eso_eso_arc/MOC?nside=2048                    CDS/B/eso/eso_arc         0.008365
+        http://alasky.unistra.fr/footprints/tables/vizier/B_gcvs_gcvs_cat/MOC?nside=2048                  CDS/B/gcvs/gcvs_cat        0.0009891
+         http://alasky.unistra.fr/footprints/tables/vizier/B_gcvs_nsv_cat/MOC?nside=2048                   CDS/B/gcvs/nsv_cat        0.0004252
+       http://alasky.unistra.fr/footprints/tables/vizier/B_gemini_obscore/MOC?nside=2048                 CDS/B/gemini/obscore        0.0006163
+           http://alasky.unistra.fr/footprints/tables/vizier/B_hst_hstlog/MOC?nside=2048                     CDS/B/hst/hstlog        0.0008544
+          http://alasky.unistra.fr/footprints/tables/vizier/B_hst_obscore/MOC?nside=2048                    CDS/B/hst/obscore        0.0009243
+            http://alasky.unistra.fr/footprints/tables/vizier/B_hst_wfpc2/MOC?nside=2048                      CDS/B/hst/wfpc2          0.00016
+         http://alasky.unistra.fr/footprints/tables/vizier/B_jcmt_obscore/MOC?nside=2048                   CDS/B/jcmt/obscore         0.000729
+        http://alasky.unistra.fr/footprints/tables/vizier/B_merlin_merlin/MOC?nside=2048                  CDS/B/merlin/merlin        2.998e-05
+           http://alasky.unistra.fr/footprints/tables/vizier/B_mk_mktypes/MOC?nside=2048                     CDS/B/mk/mktypes          0.01136
+        http://alasky.unistra.fr/footprints/tables/vizier/B_pastel_pastel/MOC?nside=2048                  CDS/B/pastel/pastel        0.0006112
+             http://alasky.unistra.fr/footprints/tables/vizier/B_sb9_main/MOC?nside=2048                       CDS/B/sb9/main        6.632e-05
+             http://alasky.unistra.fr/footprints/tables/vizier/B_sn_sncat/MOC?nside=2048                       CDS/B/sn/sncat        0.0001141
+       http://alasky.unistra.fr/footprints/tables/vizier/B_subaru_suprimc/MOC?nside=2048                 CDS/B/subaru/suprimc        0.0008666
+       http://alasky.unistra.fr/footprints/tables/vizier/B_swift_swiftlog/MOC?nside=2048                 CDS/B/swift/swiftlog         0.001025
+              http://alasky.unistra.fr/footprints/tables/vizier/B_vsx_vsx/MOC?nside=2048                        CDS/B/vsx/vsx         0.008088
+           http://alasky.unistra.fr/footprints/tables/vizier/B_wd_catalog/MOC?nside=2048                     CDS/B/wd/catalog         0.000282
+              http://alasky.unistra.fr/footprints/tables/vizier/B_wds_wds/MOC?nside=2048                        CDS/B/wds/wds         0.002413
+           http://alasky.unistra.fr/footprints/tables/vizier/B_xmm_xmmlog/MOC?nside=2048                     CDS/B/xmm/xmmlog        0.0001468
+                                                                                      --                 CDS/C/GALFAHI/Narrow           0.3164
+                                                                                      --                       CDS/C/HI4PI/HI              1.0
+             http://alasky.unistra.fr/footprints/tables/vizier/I_100A_w10/MOC?nside=2048                       CDS/I/100A/w10        4.444e-05
+             http://alasky.unistra.fr/footprints/tables/vizier/I_100A_w25/MOC?nside=2048                       CDS/I/100A/w25        4.641e-05
+             http://alasky.unistra.fr/footprints/tables/vizier/I_100A_w50/MOC?nside=2048                       CDS/I/100A/w50          0.00044
+                                                                                     ...                                  ...              ...
+                                                                                      --                 ov-gso/P/DIRBE/ZSMA9              1.0
+                                                                                      --   ov-gso/P/DRAO-VillaElisa/21cm/POLQ              1.0
+                                                                                      --   ov-gso/P/DRAO-VillaElisa/21cm/POLU              1.0
+                                                                                      --                  ov-gso/P/DRAO/22MHz           0.7283
+                                                                                      --            ov-gso/P/DWINGELOO/820MHz           0.5723
+                                                                                      --                       ov-gso/P/EBHIS           0.5468
+                                                                                      --                  ov-gso/P/GASS+EBHIS              1.0
+                                                                                      --                ov-gso/P/GAURIBIDANUR           0.8623
+                                                                                      --                      ov-gso/P/IRIS/1              1.0
+                                                                                      --                      ov-gso/P/IRIS/2              1.0
+                                                                                      --                      ov-gso/P/IRIS/3              1.0
+                                                                                      --                      ov-gso/P/IRIS/4              1.0
+                                                                                      --                         ov-gso/P/LAB              1.0
+                                                                                      --                    ov-gso/P/MAIPU-MU           0.9635
+                                                                                      --                      ov-gso/P/MITEoR           0.4284
+                                                                                      --                        ov-gso/P/RASS              1.0
+                                                                                      --                    ov-gso/P/RASS/EXP              1.0
+                                                                                      --               ov-gso/P/RASS/HardBand              1.0
+                                                                                      --               ov-gso/P/RASS/SoftBand              1.0
+                                                                                      -- ov-gso/P/STOCKERT+VILLAELISA/1420MHz              1.0
+                                                                                      --                   ov-gso/P/VTSS/CONT            0.181
+                                                                                      --                     ov-gso/P/VTSS/Ha           0.1918
+                                                                                      --                        ov-gso/P/WHAM              1.0
+                                                                                      --                   svo.cab/cat/catlib           0.1553
+                                                                                      --                    svo.cab/cat/miles           0.2373
+                                                                                      --                xcatdb/P/XMM/PN/color          0.08287
+                                                                                      --                  xcatdb/P/XMM/PN/eb2          0.02227
+                                                                                      --                  xcatdb/P/XMM/PN/eb3          0.02227
+                                                                                      --                  xcatdb/P/XMM/PN/eb4          0.02227
 
 This astropy table now have only 3 columns and can be manipulated much faster.
 
@@ -248,69 +248,70 @@ web interface in the Getting Started section i.e. retrieving only the image data
     >>> cds.query_region(region=cone,
     ...                  fields=['ID', 'dataproduct_type', 'moc_sky_fraction', 'moc_access_url'],
     ...                  meta_data="dataproduct_type=image")
-    moc_sky_fraction                              moc_access_url                                                 ID                   dataproduct_type
-    ---------------- ------------------------------------------------------------------------ --------------------------------------- ----------------
-                 1.0                              http://alasky.u-strasbg.fr/2MASS/H/Moc.fits                           CDS/P/2MASS/H            image
-                 1.0                              http://alasky.u-strasbg.fr/2MASS/J/Moc.fits                           CDS/P/2MASS/J            image
-                 1.0                              http://alasky.u-strasbg.fr/2MASS/K/Moc.fits                           CDS/P/2MASS/K            image
-                 1.0                          http://alasky.u-strasbg.fr/2MASS/Color/Moc.fits                       CDS/P/2MASS/color            image
-                 1.0                 http://alasky.u-strasbg.fr/AKARI-FIS/ColorLSN60/Moc.fits                   CDS/P/AKARI/FIS/Color            image
-              0.9988                       http://alasky.u-strasbg.fr/AKARI-FIS/N160/Moc.fits                    CDS/P/AKARI/FIS/N160            image
-              0.9976                        http://alasky.u-strasbg.fr/AKARI-FIS/N60/Moc.fits                     CDS/P/AKARI/FIS/N60            image
-              0.9989                      http://alasky.u-strasbg.fr/AKARI-FIS/WideL/Moc.fits                   CDS/P/AKARI/FIS/WideL            image
-              0.9976                      http://alasky.u-strasbg.fr/AKARI-FIS/WideS/Moc.fits                   CDS/P/AKARI/FIS/WideS            image
-                 1.0                                                                        -                     CDS/P/Ariel/Voyager            image
-                 1.0                                   http://alasky.u-strasbg.fr/CO/Moc.fits                                CDS/P/CO            image
-                 1.0                                                                        - CDS/P/Callisto/Voyager-Galileo-simp-1km            image
-                 1.0                                                                        -        CDS/P/Charon/NewHorizon-PIA19866            image
-                 1.0                                                                        -            CDS/P/DM/flux-Bp/I/345/gaia2            image
-                 1.0                                                                        -             CDS/P/DM/flux-G/I/345/gaia2            image
-                 1.0                                                                        -            CDS/P/DM/flux-Rp/I/345/gaia2            image
-                 1.0                                                                        - CDS/P/DM/flux-color-Rp-G-Bp/I/345/gaia2            image
-              0.9943                                                                        -                          CDS/P/DSS2/NIR            image
-              0.9956                   http://alasky.u-strasbg.fr/DSS/DSS2-blue-XJ-S/Moc.fits                         CDS/P/DSS2/blue            image
-                 1.0                         http://alasky.u-strasbg.fr/DSS/DSSColor/Moc.fits                        CDS/P/DSS2/color            image
-                 1.0                       http://alasky.u-strasbg.fr/DSS/DSS2Merged/Moc.fits                          CDS/P/DSS2/red            image
-                 1.0                                                                        -            CDS/P/Dione/Cassini-PIA12577            image
-                 1.0    http://alasky.u-strasbg.fr/EGRET/EGRET-dif/EGRET_dif_100-150/Moc.fits                 CDS/P/EGRET/Dif/100-150            image
-                 1.0  http://alasky.u-strasbg.fr/EGRET/EGRET-dif/EGRET_dif_1000-2000/Moc.fits               CDS/P/EGRET/Dif/1000-2000            image
-                 1.0    http://alasky.u-strasbg.fr/EGRET/EGRET-dif/EGRET_dif_150-300/Moc.fits                 CDS/P/EGRET/Dif/150-300            image
-                 1.0  http://alasky.u-strasbg.fr/EGRET/EGRET-dif/EGRET_dif_2000-4000/Moc.fits               CDS/P/EGRET/Dif/2000-4000            image
-                 1.0      http://alasky.u-strasbg.fr/EGRET/EGRET-dif/EGRET_dif_30-50/Moc.fits                   CDS/P/EGRET/Dif/30-50            image
-                 1.0    http://alasky.u-strasbg.fr/EGRET/EGRET-dif/EGRET_dif_300-500/Moc.fits                 CDS/P/EGRET/Dif/300-500            image
-                 1.0 http://alasky.u-strasbg.fr/EGRET/EGRET-dif/EGRET_dif_4000-10000/Moc.fits              CDS/P/EGRET/Dif/4000-10000            image
-                 ...                                                                      ...                                     ...              ...
-                 1.0                                                                        -                    ov-gso/P/DIRBE/ZSMA6            image
-                 1.0                                                                        -                    ov-gso/P/DIRBE/ZSMA7            image
-                 1.0                                                                        -                    ov-gso/P/DIRBE/ZSMA8            image
-                 1.0                                                                        -                    ov-gso/P/DIRBE/ZSMA9            image
-                 1.0                                                                        -      ov-gso/P/DRAO-VillaElisa/21cm/POLQ            image
-                 1.0                                                                        -      ov-gso/P/DRAO-VillaElisa/21cm/POLU            image
-              0.7283                                                                        -                     ov-gso/P/DRAO/22MHz            image
-              0.5723                                                                        -               ov-gso/P/DWINGELOO/820MHz            image
-              0.5468                                                                        -                          ov-gso/P/EBHIS            image
-                 1.0                                                                        -                     ov-gso/P/GASS+EBHIS            image
-              0.8623                                                                        -                   ov-gso/P/GAURIBIDANUR            image
-                 1.0                                                                        -                         ov-gso/P/IRIS/1            image
-                 1.0                                                                        -                         ov-gso/P/IRIS/2            image
-                 1.0                                                                        -                         ov-gso/P/IRIS/3            image
-                 1.0                                                                        -                         ov-gso/P/IRIS/4            image
-                 1.0                                                                        -                            ov-gso/P/LAB            image
-              0.9635                                                                        -                       ov-gso/P/MAIPU-MU            image
-              0.4284                                                                        -                         ov-gso/P/MITEoR            image
-                 1.0                                                                        -                           ov-gso/P/RASS            image
-                 1.0                                                                        -                       ov-gso/P/RASS/EXP            image
-                 1.0                                                                        -                  ov-gso/P/RASS/HardBand            image
-                 1.0                                                                        -                  ov-gso/P/RASS/SoftBand            image
-                 1.0                                                                        -    ov-gso/P/STOCKERT+VILLAELISA/1420MHz            image
-               0.181                                                                        -                      ov-gso/P/VTSS/CONT            image
-              0.1918                                                                        -                        ov-gso/P/VTSS/Ha            image
-                 1.0                                                                        -                           ov-gso/P/WHAM            image
-             0.08287                                                                        -                   xcatdb/P/XMM/PN/color            image
-             0.02227                                                                        -                     xcatdb/P/XMM/PN/eb2            image
-             0.02227                                                                        -                     xcatdb/P/XMM/PN/eb3            image
-             0.02227                                                                        -                     xcatdb/P/XMM/PN/eb4            image
-    Length = 279 rows
+    <Table masked=True length=279>
+                                 moc_access_url                                                 ID                   dataproduct_type moc_sky_fraction
+                                     object                                                   str48                        str5           float64
+    ------------------------------------------------------------------------ --------------------------------------- ---------------- ----------------
+                                 http://alasky.u-strasbg.fr/2MASS/H/Moc.fits                           CDS/P/2MASS/H            image              1.0
+                                 http://alasky.u-strasbg.fr/2MASS/J/Moc.fits                           CDS/P/2MASS/J            image              1.0
+                                 http://alasky.u-strasbg.fr/2MASS/K/Moc.fits                           CDS/P/2MASS/K            image              1.0
+                             http://alasky.u-strasbg.fr/2MASS/Color/Moc.fits                       CDS/P/2MASS/color            image              1.0
+                    http://alasky.u-strasbg.fr/AKARI-FIS/ColorLSN60/Moc.fits                   CDS/P/AKARI/FIS/Color            image              1.0
+                          http://alasky.u-strasbg.fr/AKARI-FIS/N160/Moc.fits                    CDS/P/AKARI/FIS/N160            image           0.9988
+                           http://alasky.u-strasbg.fr/AKARI-FIS/N60/Moc.fits                     CDS/P/AKARI/FIS/N60            image           0.9976
+                         http://alasky.u-strasbg.fr/AKARI-FIS/WideL/Moc.fits                   CDS/P/AKARI/FIS/WideL            image           0.9989
+                         http://alasky.u-strasbg.fr/AKARI-FIS/WideS/Moc.fits                   CDS/P/AKARI/FIS/WideS            image           0.9976
+                                                                          --                     CDS/P/Ariel/Voyager            image              1.0
+                                      http://alasky.u-strasbg.fr/CO/Moc.fits                                CDS/P/CO            image              1.0
+                                                                          -- CDS/P/Callisto/Voyager-Galileo-simp-1km            image              1.0
+                                                                          --        CDS/P/Charon/NewHorizon-PIA19866            image              1.0
+                                                                          --            CDS/P/DM/flux-Bp/I/345/gaia2            image              1.0
+                                                                          --             CDS/P/DM/flux-G/I/345/gaia2            image              1.0
+                                                                          --            CDS/P/DM/flux-Rp/I/345/gaia2            image              1.0
+                                                                          -- CDS/P/DM/flux-color-Rp-G-Bp/I/345/gaia2            image              1.0
+                                                                          --                          CDS/P/DSS2/NIR            image           0.9943
+                      http://alasky.u-strasbg.fr/DSS/DSS2-blue-XJ-S/Moc.fits                         CDS/P/DSS2/blue            image           0.9956
+                            http://alasky.u-strasbg.fr/DSS/DSSColor/Moc.fits                        CDS/P/DSS2/color            image              1.0
+                          http://alasky.u-strasbg.fr/DSS/DSS2Merged/Moc.fits                          CDS/P/DSS2/red            image              1.0
+                                                                          --            CDS/P/Dione/Cassini-PIA12577            image              1.0
+       http://alasky.u-strasbg.fr/EGRET/EGRET-dif/EGRET_dif_100-150/Moc.fits                 CDS/P/EGRET/Dif/100-150            image              1.0
+     http://alasky.u-strasbg.fr/EGRET/EGRET-dif/EGRET_dif_1000-2000/Moc.fits               CDS/P/EGRET/Dif/1000-2000            image              1.0
+       http://alasky.u-strasbg.fr/EGRET/EGRET-dif/EGRET_dif_150-300/Moc.fits                 CDS/P/EGRET/Dif/150-300            image              1.0
+     http://alasky.u-strasbg.fr/EGRET/EGRET-dif/EGRET_dif_2000-4000/Moc.fits               CDS/P/EGRET/Dif/2000-4000            image              1.0
+         http://alasky.u-strasbg.fr/EGRET/EGRET-dif/EGRET_dif_30-50/Moc.fits                   CDS/P/EGRET/Dif/30-50            image              1.0
+       http://alasky.u-strasbg.fr/EGRET/EGRET-dif/EGRET_dif_300-500/Moc.fits                 CDS/P/EGRET/Dif/300-500            image              1.0
+    http://alasky.u-strasbg.fr/EGRET/EGRET-dif/EGRET_dif_4000-10000/Moc.fits              CDS/P/EGRET/Dif/4000-10000            image              1.0
+                                                                         ...                                     ...              ...              ...
+                                                                          --                    ov-gso/P/DIRBE/ZSMA7            image              1.0
+                                                                          --                    ov-gso/P/DIRBE/ZSMA8            image              1.0
+                                                                          --                    ov-gso/P/DIRBE/ZSMA9            image              1.0
+                                                                          --      ov-gso/P/DRAO-VillaElisa/21cm/POLQ            image              1.0
+                                                                          --      ov-gso/P/DRAO-VillaElisa/21cm/POLU            image              1.0
+                                                                          --                     ov-gso/P/DRAO/22MHz            image           0.7283
+                                                                          --               ov-gso/P/DWINGELOO/820MHz            image           0.5723
+                                                                          --                          ov-gso/P/EBHIS            image           0.5468
+                                                                          --                     ov-gso/P/GASS+EBHIS            image              1.0
+                                                                          --                   ov-gso/P/GAURIBIDANUR            image           0.8623
+                                                                          --                         ov-gso/P/IRIS/1            image              1.0
+                                                                          --                         ov-gso/P/IRIS/2            image              1.0
+                                                                          --                         ov-gso/P/IRIS/3            image              1.0
+                                                                          --                         ov-gso/P/IRIS/4            image              1.0
+                                                                          --                            ov-gso/P/LAB            image              1.0
+                                                                          --                       ov-gso/P/MAIPU-MU            image           0.9635
+                                                                          --                         ov-gso/P/MITEoR            image           0.4284
+                                                                          --                           ov-gso/P/RASS            image              1.0
+                                                                          --                       ov-gso/P/RASS/EXP            image              1.0
+                                                                          --                  ov-gso/P/RASS/HardBand            image              1.0
+                                                                          --                  ov-gso/P/RASS/SoftBand            image              1.0
+                                                                          --    ov-gso/P/STOCKERT+VILLAELISA/1420MHz            image              1.0
+                                                                          --                      ov-gso/P/VTSS/CONT            image            0.181
+                                                                          --                        ov-gso/P/VTSS/Ha            image           0.1918
+                                                                          --                           ov-gso/P/WHAM            image              1.0
+                                                                          --                   xcatdb/P/XMM/PN/color            image          0.08287
+                                                                          --                     xcatdb/P/XMM/PN/eb2            image          0.02227
+                                                                          --                     xcatdb/P/XMM/PN/eb3            image          0.02227
+                                                                          --                     xcatdb/P/XMM/PN/eb4            image          0.02227
+
 
 Looking at the ``dataproduct_type`` column, all the data-sets seem to be images. We could have been done that using
 numpy operations on `astropy.table.Table` objects but here the MOCServer made it for us.
@@ -324,55 +325,53 @@ to get the MOCs or meta-datas from some specific data-sets this is the method to
 .. code-block:: python
 
     >>> cds.find_datasets(meta_data="ID=*HST*",
-    ...                    fields=['ID', 'moc_access_url'])
-    <Table length=42>
-              ID                             moc_access_url
-            str21                                str51
-    --------------------- ---------------------------------------------------
-              CDS/P/HST/B                                                   -
-             CDS/P/HST/CO                                                   -
-        CDS/P/HST/GOODS/b      http://alasky.unistra.fr/GOODS/GOODSb/Moc.fits
-    CDS/P/HST/GOODS/color http://alasky.unistra.fr/GOODS/GOODS-color/Moc.fits
-        CDS/P/HST/GOODS/i      http://alasky.unistra.fr/GOODS/GOODSi/Moc.fits
-        CDS/P/HST/GOODS/v      http://alasky.unistra.fr/GOODS/GOODSv/Moc.fits
-        CDS/P/HST/GOODS/z      http://alasky.unistra.fr/GOODS/GOODSz/Moc.fits
-              CDS/P/HST/H                                                   -
-            CDS/P/HST/H2O                                                   -
-         CDS/P/HST/Halpha                                                   -
-          CDS/P/HST/Hbeta                                                   -
-              CDS/P/HST/I                                                   -
-              CDS/P/HST/J                                                   -
-            CDS/P/HST/NII                                                   -
-            CDS/P/HST/OII                                                   -
-           CDS/P/HST/OIII                                                   -
-     CDS/P/HST/PHAT/F110W      http://alasky.u-strasbg.fr/PHAT/F110W/Moc.fits
-     CDS/P/HST/PHAT/F160W      http://alasky.u-strasbg.fr/PHAT/F160W/Moc.fits
-     CDS/P/HST/PHAT/F275W      http://alasky.u-strasbg.fr/PHAT/F275W/Moc.fits
-     CDS/P/HST/PHAT/F336W      http://alasky.u-strasbg.fr/PHAT/F336W/Moc.fits
-     CDS/P/HST/PHAT/F475W      http://alasky.u-strasbg.fr/PHAT/F475W/Moc.fits
-     CDS/P/HST/PHAT/F814W      http://alasky.u-strasbg.fr/PHAT/F814W/Moc.fits
-         CDS/P/HST/Palpha                                                   -
-       CDS/P/HST/Palpha_c                                                   -
-              CDS/P/HST/R                                                   -
-          CDS/P/HST/SDSSg                                                   -
-          CDS/P/HST/SDSSr                                                   -
-          CDS/P/HST/SDSSz                                                   -
-           CDS/P/HST/SIII                                                   -
-              CDS/P/HST/U                                                   -
-             CDS/P/HST/UV                                                   -
-              CDS/P/HST/V                                                   -
-              CDS/P/HST/Y                                                   -
-          CDS/P/HST/other                                                   -
-         CDS/P/HST/wideUV                                                   -
-          CDS/P/HST/wideV                                                   -
-     ESAVO/P/HST/ACS-blue                                                   -
-          ESAVO/P/HST/FOC                                                   -
-       ESAVO/P/HST/NICMOS                                                   -
-         ESAVO/P/HST/WFC3                                                   -
-         ESAVO/P/HST/WFPC                                                   -
-        ESAVO/P/HST/WFPC2                                                   -
-
-
+    ...                   fields=['ID', 'moc_access_url'])
+    <Table masked=True length=42>
+                       moc_access_url                             ID
+                           object                               str21
+    --------------------------------------------------- ---------------------
+                                                     --           CDS/P/HST/B
+                                                     --          CDS/P/HST/CO
+         http://alasky.unistra.fr/GOODS/GOODSb/Moc.fits     CDS/P/HST/GOODS/b
+    http://alasky.unistra.fr/GOODS/GOODS-color/Moc.fits CDS/P/HST/GOODS/color
+         http://alasky.unistra.fr/GOODS/GOODSi/Moc.fits     CDS/P/HST/GOODS/i
+         http://alasky.unistra.fr/GOODS/GOODSv/Moc.fits     CDS/P/HST/GOODS/v
+         http://alasky.unistra.fr/GOODS/GOODSz/Moc.fits     CDS/P/HST/GOODS/z
+                                                     --           CDS/P/HST/H
+                                                     --         CDS/P/HST/H2O
+                                                     --      CDS/P/HST/Halpha
+                                                     --       CDS/P/HST/Hbeta
+                                                     --           CDS/P/HST/I
+                                                     --           CDS/P/HST/J
+                                                     --         CDS/P/HST/NII
+                                                     --         CDS/P/HST/OII
+                                                     --        CDS/P/HST/OIII
+         http://alasky.u-strasbg.fr/PHAT/F110W/Moc.fits  CDS/P/HST/PHAT/F110W
+         http://alasky.u-strasbg.fr/PHAT/F160W/Moc.fits  CDS/P/HST/PHAT/F160W
+         http://alasky.u-strasbg.fr/PHAT/F275W/Moc.fits  CDS/P/HST/PHAT/F275W
+         http://alasky.u-strasbg.fr/PHAT/F336W/Moc.fits  CDS/P/HST/PHAT/F336W
+         http://alasky.u-strasbg.fr/PHAT/F475W/Moc.fits  CDS/P/HST/PHAT/F475W
+         http://alasky.u-strasbg.fr/PHAT/F814W/Moc.fits  CDS/P/HST/PHAT/F814W
+                                                     --      CDS/P/HST/Palpha
+                                                     --    CDS/P/HST/Palpha_c
+                                                     --           CDS/P/HST/R
+                                                     --       CDS/P/HST/SDSSg
+                                                     --       CDS/P/HST/SDSSr
+                                                     --       CDS/P/HST/SDSSz
+                                                     --        CDS/P/HST/SIII
+                                                     --           CDS/P/HST/U
+                                                     --          CDS/P/HST/UV
+                                                     --           CDS/P/HST/V
+                                                     --           CDS/P/HST/Y
+                                                     --       CDS/P/HST/other
+                                                     --      CDS/P/HST/wideUV
+                                                     --       CDS/P/HST/wideV
+                                                     --  ESAVO/P/HST/ACS-blue
+                                                     --       ESAVO/P/HST/FOC
+                                                     --    ESAVO/P/HST/NICMOS
+                                                     --      ESAVO/P/HST/WFC3
+                                                     --      ESAVO/P/HST/WFPC
+                                                     --     ESAVO/P/HST/WFPC2
 
 Misc
 ----
@@ -385,11 +384,13 @@ Another parameter called ``max_rec`` specifies an upper limit for the number of 
 .. code-block:: python
 
     >>> cds.query_region(region=cone, max_rec=3)
-         tap_tablename       publisher_id ... vizier_popularity
-    ------------------------ ------------ ... -----------------
-    ivoa.B/assocdata/obscore    ivo://CDS ...               7.0
-          viz7.B/cb/lmxbdata    ivo://CDS ...               2.0
-           vcds1.B/cfht/cfht    ivo://CDS ...               5.0
+    <Table masked=True length=3>
+    publisher_id                 obs_description_url                                                     moc_access_url                                    ...    TIMESTAMP    obs_label moc_sky_fraction
+        str9                            str52                                                                str84                                         ...     float64        str8       float64
+    ------------ ---------------------------------------------------- ------------------------------------------------------------------------------------ ... --------------- --------- ----------------
+       ivo://CDS http://cdsarc.u-strasbg.fr/viz-bin/Cat?B%2Fassocdata http://alasky.unistra.fr/footprints/tables/vizier/B_assocdata_obscore/MOC?nside=2048 ... 1531742659000.0   obscore           0.0588
+       ivo://CDS        http://cdsarc.u-strasbg.fr/viz-bin/Cat?B%2Fcb       http://alasky.unistra.fr/footprints/tables/vizier/B_cb_lmxbdata/MOC?nside=2048 ... 1531742660000.0  lmxbdata        2.066e-06
+       ivo://CDS      http://cdsarc.u-strasbg.fr/viz-bin/Cat?B%2Fcfht         http://alasky.unistra.fr/footprints/tables/vizier/B_cfht_cfht/MOC?nside=2048 ... 1531742660000.0      cfht         0.002134
 
 This astropy table has only 3 rows although we know more data-sets match the query. It's useful if you do not need
 to retrieve all the data-sets matching a query but only a few. Again, the result will come faster from the MOCServer because

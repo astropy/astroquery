@@ -11,6 +11,7 @@ from . import conf
 import os
 from astropy import units as u
 from astropy.table import Table
+from astropy.table import MaskedColumn
 from copy import copy
 
 try:
@@ -348,24 +349,41 @@ class CdsClass(BaseQuery):
             type_d = {key: None for key in column_names_l}
             mask_column_d = {key: True for key in column_names_l}
 
+            masked_array_d = {key: [] for key in column_names_l}
             # fill the dict with the value of each returned data-set one by one.
             for d in typed_result:
-                row_table_d = {key: '-' for key in column_names_l}
+                row_table_d = {key: None for key in column_names_l}
                 row_table_d.update(d)
+
+                for k, mask_l in masked_array_d.items():
+                    entry_masked = False if k in d.keys() else True
+                    mask_l.append(entry_masked)
 
                 row_table_d = {k: _ for k, _ in row_table_d.items() if mask_column_d[k]}
 
                 for k, v in row_table_d.items():
+                    if v:
+                        current_type = type(v)
+                        if type_d[k] and type_d[k] != current_type:
+                            mask_column_d[k] = False
+                        type_d[k] = current_type
+
                     table_d[k].append(v)
-                    current_type = type(v)
-                    if type_d[k] and type_d[k] != current_type and current_type == list:
-                        mask_column_d[k] = False
-                    type_d[k] = current_type
 
             table_d = {k: _ for k, _ in table_d.items() if mask_column_d[k]}
 
-            # return an `astropy.table.Table` object created from table_d
-            return Table(table_d)
+            # define all the columns using astropy.table.MaskedColumn objects
+            columns_l = []
+            for k, v in table_d.items():
+                try:
+                    if k != '#':
+                        columns_l.append(MaskedColumn(v, name=k, mask=masked_array_d[k]))
+                except ValueError:
+                    print('Error building the columns of the astropy.table.Table object.', k, v)
+                    return None
+
+            # return an `astropy.table.Table` object created from columns_l
+            return Table(columns_l)
 
         """
         The user will get `mocpy.MOC` object.
