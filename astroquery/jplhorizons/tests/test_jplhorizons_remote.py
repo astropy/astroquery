@@ -50,7 +50,7 @@ class TestHorizonsClass:
              res['RA_3sigma'], res['DEC_3sigma']])
 
     def test_ephemerides_query_two(self):
-        # check comet ephemerides using solarsystem.ephemerides options
+        # check comet ephemerides using options
         obj = jplhorizons.Horizons(id='Halley', id_type='comet_name',
                                    location='290',
                                    epochs={'start': '2080-01-01',
@@ -58,7 +58,7 @@ class TestHorizonsClass:
                                            'step': '3h'})
         res = obj.ephemerides(airmass_lessthan=1.2, skip_daylight=True,
                               closest_apparition=True,
-                              hour_angle=10,
+                              max_hour_angle=10,
                               solar_elongation=(150, 180))
         assert len(res) == 1
 
@@ -151,6 +151,23 @@ class TestHorizonsClass:
         for value in ['M1', 'k1', 'M2', 'k2']:
             assert value in res.colnames
 
+    def test_ephemerides_query_five(self):
+        # tests optional constrains for ephemerides queries
+        obj = jplhorizons.Horizons(id='3552',
+                                   location='I33',
+                                   epochs={'start': '2018-05-01',
+                                           'stop': '2018-08-01',
+                                           'step': '3h'})
+
+        res = obj.ephemerides(skip_daylight=True,
+                              max_hour_angle=8,
+                              refraction=True,
+                              refsystem='B1950',
+                              rate_cutoff=100,
+                              airmass_lessthan=5)
+
+        assert len(res) == 32
+
     def test_ephemerides_query_raw(self):
         res = (jplhorizons.Horizons(id='Ceres', location='500',
                                     epochs=2451544.5).
@@ -159,38 +176,10 @@ class TestHorizonsClass:
         # May 10, 2018: this increased to 15463.
         assert len(res) >= 15463
 
-    def test_ephemerides_query_payload(self):
-        obj = jplhorizons.Horizons(id='Halley', id_type='comet_name',
-                                   location='290',
-                                   epochs={'start': '2080-01-01',
-                                           'stop': '2080-02-01',
-                                           'step': '3h'})
-        res = obj.ephemerides(airmass_lessthan=1.2, skip_daylight=True,
-                              closest_apparition=True,
-                              hour_angle=10,
-                              solar_elongation=(150, 180),
-                              get_query_payload=True)
-
-        assert res == OrderedDict([
-            ('batch', 1),
-            ('TABLE_TYPE', 'OBSERVER'),
-            ('QUANTITIES', '"1,3,4,8,9,10,18,19,20,21,23,24,27,31,33,36"'),
-            ('COMMAND', '"COMNAM=Halley; CAP;"'),
-            ('CENTER', "'290'"),
-            ('SOLAR_ELONG', '"150,180"'),
-            ('LHA_CUTOFF', '10'),
-            ('CSV_FORMAT', 'YES'),
-            ('CAL_FORMAT', 'BOTH'),
-            ('ANG_FORMAT', 'DEG'),
-            ('START_TIME', '2080-01-01'),
-            ('STOP_TIME', '2080-02-01'),
-            ('STEP_SIZE', '3h'),
-            ('AIRMASS', '1.2'),
-            ('SKIP_DAYLT', 'YES')])
-
     def test_elements_query(self):
         res = jplhorizons.Horizons(id='Ceres', location='500@10',
-                                   epochs=2451544.5).elements()[0]
+                                   epochs=[2451544.5,
+                                           2451545.5]).elements()[0]
 
         assert res['targetname'] == "1 Ceres"
         assert res['datetime_str'] == "A.D. 2000-Jan-01 00:00:00.0000"
@@ -215,31 +204,26 @@ class TestHorizonsClass:
              res['a'], res['Q'],
              res['P']])
 
+    def test_elements_query_two(self):
+        obj = jplhorizons.Horizons(id='Ceres', location='500@10',
+                                   epochs=[2451544.5,
+                                           2451545.5])
+
+        res = obj.elements(refsystem='B1950',
+                           refplane='earth',
+                           tp_type='relative')[1]
+
+        npt.assert_allclose([23.24472584135690,
+                             132.6482045485004,
+                             -29.33632558181947],
+                            [res['Omega'], res['w'], res['Tp_jd']])
+
     def test_elements_query_raw(self):
         res = jplhorizons.Horizons(id='Ceres', location='500@10',
                                    epochs=2451544.5).elements(
                                        get_raw_response=True)
 
-        assert len(res) == 7574
-
-    def test_elements_query_payload(self):
-        res = (jplhorizons.Horizons(id='Ceres', location='500@10',
-                                    epochs=2451544.5).elements(
-                                        get_query_payload=True))
-
-        assert res == OrderedDict([
-            ('batch', 1),
-            ('TABLE_TYPE', 'ELEMENTS'),
-            ('OUT_UNITS', 'AU-D'),
-            ('COMMAND', '"Ceres;"'),
-            ('CENTER', "'500@10'"),
-            ('CSV_FORMAT', '"YES"'),
-            ('REF_PLANE', 'ECLIPTIC'),
-            ('REF_SYSTEM', 'J2000'),
-            ('TP_TYPE', 'ABSOLUTE'),
-            ('ELEM_LABELS', 'YES'),
-            ('OBJ_DATA', 'YES'),
-            ('TLIST', '2451544.5')])
+        assert len(res) == 7475
 
     def test_vectors_query(self):
         # check values of Ceres for a given epoch
@@ -271,26 +255,7 @@ class TestHorizonsClass:
                                    epochs=2451544.5).vectors(
                                        get_raw_response=True)
 
-        assert len(res) == 7030
-
-    def test_vectors_query_payload(self):
-        res = jplhorizons.Horizons(id='Ceres', location='500@10',
-                                   epochs=2451544.5).vectors(
-                                       get_query_payload=True)
-
-        assert res == OrderedDict([
-            ('batch', 1),
-            ('TABLE_TYPE', 'VECTORS'),
-            ('OUT_UNITS', 'AU-D'),
-            ('COMMAND', '"Ceres;"'),
-            ('CENTER', "'500@10'"),
-            ('CSV_FORMAT', '"YES"'),
-            ('REF_PLANE', 'ECLIPTIC'),
-            ('REF_SYSTEM', 'J2000'),
-            ('TP_TYPE', 'ABSOLUTE'),
-            ('LABELS', 'YES'),
-            ('OBJ_DATA', 'YES'),
-            ('TLIST', '2451544.5')])
+        assert len(res) == 6916
 
     def test_unknownobject(self):
         try:
@@ -305,3 +270,41 @@ class TestHorizonsClass:
                                  epochs=2451544.5).ephemerides()
         except ValueError:
             pass
+
+    def test_uri(self):
+        target = jplhorizons.Horizons(id='3552', location='500',
+                                      epochs=2451544.5)
+        assert target.uri == None
+
+        target.ephemerides()
+        print(target.uri)
+
+        assert target.uri == ('https://ssd.jpl.nasa.gov/horizons_batch.cgi?'
+                              'batch=1&TABLE_TYPE=OBSERVER&QUANTITIES='
+                              '%271%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9%2C10'
+                              '%2C11%2C12%2C13%2C14%2C15%2C16%2C17%2C18%2C19'
+                              '%2C20%2C21%2C22%2C23%2C24%2C25%2C26%2C27%2C28'
+                              '%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36%2C37'
+                              '%2C38%2C39%2C40%2C41%2C42%2C43%27&'
+                              'COMMAND=%223552%3B%22&SOLAR_ELONG=%220%2C180'
+                              '%22&LHA_CUTOFF=0&CSV_FORMAT=YES&CAL_FORMAT='
+                              'BOTH&ANG_FORMAT=DEG&APPARENT=AIRLESS&'
+                              'REF_SYSTEM=J2000&CENTER=%27500%27&'
+                              'TLIST=2451544.5&SKIP_DAYLT=NO')
+
+    def test__userdefinedlocation_ephemerides_query(self):
+
+        anderson_mesa = {'lon': -111.535833,
+                         'lat': 35.096944,
+                         'elevation': 2.163}
+
+        am_res = jplhorizons.Horizons(id='Ceres',
+                                      location='688',
+                                      epochs=2451544.5).ephemerides()[0]
+
+        user_res = jplhorizons.Horizons(id='Ceres',
+                                        location=anderson_mesa,
+                                        epochs=2451544.5).ephemerides()[0]
+
+        npt.assert_allclose([am_res['RA'], am_res['DEC']],
+                            [user_res['RA'], user_res['DEC']])
