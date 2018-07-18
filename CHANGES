@@ -16,7 +16,10 @@
   is set to "WARNING", "ERROR", or "CRITICAL". [#1188]
 - MAST: Updating HSC and Gaia catalog calls (bugfix) [#1203]
 - JPLSpec: New query service for JPL Molecular Spectral Catalog. [#1170]
-
+- JPLHorizons: JPL server protocol bug fixed [#1192]
+- JPLHorizons: epoch range bug fixed [#1201]
+- JPLHorizons: user-defined location feature added [#1180]
+- JPLHorizons: ephemerides query updated to query all quantities
 
 0.3.8 (2018-04-27)
 ------------------
