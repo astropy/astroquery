@@ -1166,6 +1166,9 @@ class HorizonsClass(BaseQuery):
             data.add_column(Column([phcof] * len(data),
                                    name='phasecoeff'), index=7)
 
+        # replace missing airmass values with 999 (not observable)
+        data['a-mass'] = data['a-mass'].filled(999)
+
         # set column definition dictionary
         if self.query_type is 'ephemerides':
             column_defs = conf.eph_columns
