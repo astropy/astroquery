@@ -274,7 +274,7 @@ class TestHorizonsClass:
     def test_uri(self):
         target = jplhorizons.Horizons(id='3552', location='500',
                                       epochs=2451544.5)
-        assert target.uri == None
+        assert target.uri is None
 
         target.ephemerides()
         print(target.uri)
