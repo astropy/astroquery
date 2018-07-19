@@ -580,6 +580,8 @@ class EsoClass(QueryWithLogin):
                 local_filename = dataset
             elif ext == '.fz':
                 local_filename = dataset[:-3]
+            elif ext == '.z':
+                local_filename = dataset[:-2]
             else:
                 local_filename = dataset + ".fits"
 
