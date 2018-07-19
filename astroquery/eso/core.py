@@ -9,6 +9,7 @@ import getpass
 import warnings
 import keyring
 import numpy as np
+import re
 from bs4 import BeautifulSoup
 
 from astropy.extern.six import BytesIO
@@ -566,47 +567,19 @@ class EsoClass(QueryWithLogin):
         # Return as Table
         return Table(result)
 
-    def retrieve_data(self, datasets, continuation=False, destination=None):
-        """
-        Retrieve a list of datasets form the ESO archive.
+    def _check_existing_files(self, datasets, continuation=False,
+                              destination=None):
+        """Detect already downloaded datasets."""
 
-        Parameters
-        ----------
-        datasets : list of strings or string
-            List of datasets strings to retrieve from the archive.
-        destination: string
-            Directory where the files are copied.
-            Files already found in the destination directory are skipped.
-            Default to astropy cache.
-
-        Returns
-        -------
-        files : list of strings or string
-            List of files that have been locally downloaded from the archive.
-
-        Examples
-        --------
-        >>> dptbl = Eso.query_instrument('apex', pi_coi='ginsburg')
-        >>> dpids = [row['DP.ID'] for row in dptbl if 'Map' in row['Object']]
-        >>> files = Eso.retrieve_data(dpids)
-
-        """
         datasets_to_download = []
         files = []
 
-        if isinstance(datasets, six.string_types):
-            return_list = False
-            datasets = [datasets]
-        else:
-            return_list = True
-        if not isinstance(datasets, (list, tuple, np.ndarray)):
-            raise TypeError("Datasets must be given as a list of strings.")
-
-        # First: Detect datasets already downloaded
-        log.info("Detecting already downloaded datasets...")
         for dataset in datasets:
-            if os.path.splitext(dataset)[1].lower() in ('.fits', '.tar'):
+            ext = os.path.splitext(dataset)[1].lower()
+            if ext in ('.fits', '.tar'):
                 local_filename = dataset
+            elif ext == '.fz':
+                local_filename = dataset[:-3]
             else:
                 local_filename = dataset + ".fits"
 
@@ -636,6 +609,64 @@ class EsoClass(QueryWithLogin):
                     files.append(local_filename + ".fz")
             else:
                 datasets_to_download.append(dataset)
+
+        return datasets_to_download, files
+
+    def retrieve_data(self, datasets, continuation=False, destination=None,
+                      with_calib='none'):
+        """
+        Retrieve a list of datasets form the ESO archive.
+
+        Parameters
+        ----------
+        datasets : list of strings or string
+            List of datasets strings to retrieve from the archive.
+        destination: string
+            Directory where the files are copied.
+            Files already found in the destination directory are skipped,
+            unless continuation=True.
+            Default to astropy cache.
+        continuation : bool
+            Force the retrieval of data that are present in the destination
+            directory.
+        with_calib : string
+            Retrieve associated calibration files: 'none' (default), 'raw' for
+            raw calibrations, or 'processed' for processed calibrations.
+
+        Returns
+        -------
+        files : list of strings or string
+            List of files that have been locally downloaded from the archive.
+
+        Examples
+        --------
+        >>> dptbl = Eso.query_instrument('apex', pi_coi='ginsburg')
+        >>> dpids = [row['DP.ID'] for row in dptbl if 'Map' in row['Object']]
+        >>> files = Eso.retrieve_data(dpids)
+
+        """
+        datasets_to_download = []
+        files = []
+
+        calib_options = {'none': '', 'raw': 'CalSelectorRaw2Raw',
+                         'processed': 'CalSelectorRaw2Master'}
+
+        if with_calib not in calib_options:
+            raise ValueError("invalid value for 'with_calib', "
+                             "it must be 'none', 'raw' or 'processed'")
+
+        if isinstance(datasets, six.string_types):
+            return_list = False
+            datasets = [datasets]
+        else:
+            return_list = True
+        if not isinstance(datasets, (list, tuple, np.ndarray)):
+            raise TypeError("Datasets must be given as a list of strings.")
+
+        # First: Detect datasets already downloaded
+        log.info("Detecting already downloaded datasets...")
+        datasets_to_download, files = self._check_existing_files(
+            datasets, continuation=continuation, destination=destination)
 
         # Second: Check that the datasets to download are in the archive
         log.info("Checking availability of datasets to download...")
@@ -671,12 +702,15 @@ class EsoClass(QueryWithLogin):
                 if login_button:
                     raise LoginError("Not logged in. "
                                      "You must be logged in to download data.")
+                inputs = {}
+                if with_calib != 'none':
+                    inputs['requestCommand'] = calib_options[with_calib]
 
                 # TODO: There may be another screen for Not Authorized; that
                 # should be included too
                 # form name is "retrieve"; no id
                 data_download_form = self._activate_form(
-                    data_confirmation_form, form_index=-1,
+                    data_confirmation_form, form_index=-1, inputs=inputs,
                     cache=False)
                 log.info("Staging form is at {0}"
                          .format(data_download_form.url))
@@ -698,16 +732,64 @@ class EsoClass(QueryWithLogin):
                     raise RemoteServiceError("There was a remote service "
                                              "error; perhaps the requested "
                                              "file could not be found?")
-            for fileId in root.select('input[name=fileId]'):
-                log.info("Downloading file {0}...".format(fileId.attrs['value'].split()[0]))
-                fileLink = ("http://dataportal.eso.org/dataPortal" +
-                            fileId.attrs['value'].split()[1])
+
+            if with_calib != 'none':
+                # when requested files with calibrations, some javascript is
+                # used to display the files, which prevent retrieving the files
+                # directly. So instead we retrieve the download script provided
+                # in the web page, and use it to extract the list of files.
+                # The benefit of this is also that in the download script the
+                # list of files is de-duplicated, whereas on the web page the
+                # calibration files would be duplicated for each exposure.
+                link = root.select('a[href$=/script]')[0]
+                if 'downloadRequest' not in link.text:
+                    # Make sure that we found the correct link
+                    raise RemoteServiceError(
+                        "A link was found in the download file for the "
+                        "calibrations that is not a downloadRequest link "
+                        "and therefore appears invalid.")
+
+                href = link.attrs['href']
+                script = self._request("GET", href, cache=False)
+                fileLinks = re.findall(
+                    r'"(https://dataportal.eso.org/dataPortal/api/requests/.*)"',
+                    script.text)
+
+                # urls with api/ require using Basic Authentication, though
+                # it's easier for us to reuse the existing requests session (to
+                # avoid asking agin for a username/password if it is not
+                # stored). So we remove api/ from the urls:
+                fileLinks = [
+                    f.replace('https://dataportal.eso.org/dataPortal/api/requests',
+                              'https://dataportal.eso.org/dataPortal/requests')
+                    for f in fileLinks]
+
+                log.info("Detecting already downloaded datasets, "
+                         "including calibrations...")
+                fileIds = [f.rsplit('/', maxsplit=1)[1] for f in fileLinks]
+                filteredIds, files = self._check_existing_files(
+                    fileIds, continuation=continuation,
+                    destination=destination)
+
+                fileLinks = [f for f, fileId in zip(fileLinks, fileIds)
+                             if fileId in filteredIds]
+            else:
+                fileIds = root.select('input[name=fileId]')
+                fileLinks = ["http://dataportal.eso.org/dataPortal" +
+                             fileId.attrs['value'].split()[1]
+                             for fileId in fileIds]
+
+            log.debug("Files:\n{}".format('\n'.join(fileLinks)))
+            for fileLink in fileLinks:
+                fileId = fileLink.rsplit('/', maxsplit=1)[1]
+                log.info("Downloading file {0}...".format(fileId))
                 filename = self._request("GET", fileLink, save=True,
                                          continuation=True)
-                log.info("Unzipping file {0}...".format(fileId.attrs['value'].split()[0]))
-                filename = system_tools.gunzip(filename)
+                if filename.endswith(('.gz', '.7z', '.bz2', '.xz')):
+                    log.info("Unzipping file {0}...".format(fileId))
+                    filename = system_tools.gunzip(filename)
                 if destination is not None:
-                    log.info("Copying file {0} to {1}...".format(fileId.attrs['value'].split()[0], destination))
+                    log.info("Copying file {0} to {1}...".format(fileId, destination))
                     shutil.move(filename, os.path.join(destination, os.path.split(filename)[1]))
 
         # Empty the redirect cache of this request session
