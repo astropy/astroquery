@@ -136,6 +136,21 @@ class TestEso:
         result1 = eso.retrieve_data("MIDI.2014-07-25T02:03:11.561")
         result2 = eso.retrieve_data("AMBER.2006-03-14T07:40:19.830")
 
+    @pytest.mark.skipif('not Eso.USERNAME')
+    def test_retrieve_data_and_calib(self):
+        eso = Eso()
+        eso.login()
+        result = eso.retrieve_data(["FORS2.2016-06-22T01:44:01.585"],
+                                   with_calib='raw')
+        assert len(result) == 59
+        # Try again, from cache this time
+        result = eso.retrieve_data(["FORS2.2016-06-22T01:44:01.585"],
+                                   with_calib='raw')
+        # Here we get only 1 file path for the science file: as this file
+        # exists, no request is made to get the associated calibrations file
+        # list.
+        assert len(result) == 1
+
     @pytest.mark.parametrize('instrument', instrument_list)
     def test_help(self, instrument):
         eso = Eso()

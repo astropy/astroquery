@@ -580,6 +580,8 @@ class EsoClass(QueryWithLogin):
                 local_filename = dataset
             elif ext == '.fz':
                 local_filename = dataset[:-3]
+            elif ext == '.z':
+                local_filename = dataset[:-2]
             else:
                 local_filename = dataset + ".fits"
 
@@ -645,9 +647,6 @@ class EsoClass(QueryWithLogin):
         >>> files = Eso.retrieve_data(dpids)
 
         """
-        datasets_to_download = []
-        files = []
-
         calib_options = {'none': '', 'raw': 'CalSelectorRaw2Raw',
                          'processed': 'CalSelectorRaw2Master'}
 
@@ -785,12 +784,18 @@ class EsoClass(QueryWithLogin):
                 log.info("Downloading file {0}...".format(fileId))
                 filename = self._request("GET", fileLink, save=True,
                                          continuation=True)
+
                 if filename.endswith(('.gz', '.7z', '.bz2', '.xz')):
                     log.info("Unzipping file {0}...".format(fileId))
                     filename = system_tools.gunzip(filename)
+
                 if destination is not None:
                     log.info("Copying file {0} to {1}...".format(fileId, destination))
-                    shutil.move(filename, os.path.join(destination, os.path.split(filename)[1]))
+                    destfile = os.path.join(destination, os.path.basename(filename))
+                    shutil.move(filename, destfile)
+                    files.append(destfile)
+                else:
+                    files.append(filename)
 
         # Empty the redirect cache of this request session
         # Only available and needed for requests versions < 2.17
