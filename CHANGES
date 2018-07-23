@@ -15,9 +15,10 @@
 - Nasa Exoplanet Arhive: Add option to return all columns. [#1183]
 - File download progress bar no longer displays when Astropy log level
   is set to "WARNING", "ERROR", or "CRITICAL". [#1188]
+- New tool: CDS - added module to query the MOCServer, a CDS tool providing MOCs
+  and meta data of various data-sets. [#1111]
 - MAST: Updating HSC and Gaia catalog calls (bugfix) [#1203]
 - JPLSpec: New query service for JPL Molecular Spectral Catalog. [#1170]
-
 
 0.3.8 (2018-04-27)
 ------------------
