@@ -151,10 +151,12 @@ class CdsClass(BaseQuery):
             Specifying the fields we want to retrieve allows the request to be faster because of the reduced chunk of
             data moving from the MOCServer to the client.
 
-            Some meta-datas as ``obs_collection`` or ``data_ucd`` do not keep a constant type throughout all the
+            Some meta-datas such as ``obs_collection`` or ``data_ucd`` do not keep a constant type throughout all the
             MOCServer's data-sets and this lead to problems because `astropy.table.Table` supposes values in a column
-            to have an unique type. When we encounter this problem for a specific meta-data, we remove its corresponding
-            column from the returned astropy table.
+            to have an unique type. This case is not common: it is mainly linked to a typing error in the text files
+            describing the meta-datas of the data-sets. When we encounter this for a specific meta-data, we link the
+            generic type ``object`` to the column. Therefore, keep in mind that ``object`` typed columns can contain
+            values of different types (e.g. lists and singletons or string and floats).
         max_rec : int, optional
             Maximum number of data-sets to return. By default, there is no upper limit.
         return_moc : bool, optional
@@ -347,7 +349,6 @@ class CdsClass(BaseQuery):
             # init a dict mapping all the meta-data's name to an empty list
             table_d = {key: [] for key in column_names_l}
             type_d = {key: None for key in column_names_l}
-            mask_column_d = {key: True for key in column_names_l}
 
             masked_array_d = {key: [] for key in column_names_l}
             # fill the dict with the value of each returned data-set one by one.
@@ -359,28 +360,23 @@ class CdsClass(BaseQuery):
                     entry_masked = False if k in d.keys() else True
                     mask_l.append(entry_masked)
 
-                row_table_d = {k: _ for k, _ in row_table_d.items() if mask_column_d[k]}
-
                 for k, v in row_table_d.items():
                     if v:
-                        current_type = type(v)
-                        if type_d[k] and type_d[k] != current_type:
-                            mask_column_d[k] = False
-                        type_d[k] = current_type
+                        type_d[k] = type(v)
 
                     table_d[k].append(v)
-
-            table_d = {k: _ for k, _ in table_d.items() if mask_column_d[k]}
 
             # define all the columns using astropy.table.MaskedColumn objects
             columns_l = []
             for k, v in table_d.items():
                 try:
                     if k != '#':
-                        columns_l.append(MaskedColumn(v, name=k, mask=masked_array_d[k]))
+                        columns_l.append(MaskedColumn(v, name=k, mask=masked_array_d[k], dtype=type_d[k]))
                 except ValueError:
-                    print('Error building the columns of the astropy.table.Table object.', k, v)
-                    return None
+                    # some metadata can be of multiple types when looking on all the datasets.
+                    # this can be due to internal typing errors of the metadatas.
+                    columns_l.append(MaskedColumn(v, name=k, mask=masked_array_d[k], dtype=object))
+                    pass
 
             # return an `astropy.table.Table` object created from columns_l
             return Table(columns_l)
