@@ -504,7 +504,32 @@ web browser to get more information why it failed. Please note that
 :class:`~astroquery.jplhorizons.HorizonsClass` and not the results
 table.
 
+Date Formats
+------------
 
+JPL Horizons puts somewhat strict guidelines on the date formats:
+individual epochs have to be provided as Julian Dates, whereas epoch
+ranges have to be provided as ISO dates (YYYY-MM-DD HH-MM UT). If you
+have your epoch dates in one of these formats but you need the other
+format, make use of :class:`astropy.time.Time` for the conversion. An
+example is provided here:
+
+.. doctest-requires:: astropy
+
+    >>> from astropy.time import Time
+    >>> mydate_fromiso = Time('2018-07-23 15:55:23')  # pass date as string
+    >>> print(mydate_fromiso.jd)  # convert Time object to Julian Date
+    2458323.163460648
+    >>> mydate_fromjd = Time(2458323.163460648, format='jd')
+    >>> print(mydate_fromjd.iso) # convert Time object to ISO
+    2018-07-23 15:55:23.000
+
+:class:`astropy.time.Time` allows you to convert dates across a wide
+range of formats. Please note that when reading in Julian Dates, you
+have to specify the date format as ``'jd'``, as the integer passed to
+:class:`~astropy.time.Time` is ambiguous.
+
+    
 Acknowledgements
 ================
 
