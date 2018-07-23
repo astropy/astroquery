@@ -38,7 +38,6 @@ def nonremote_request(self, request_type, url, **kwargs):
 # that mocks(monkeypatches) the actual 'requests.get' function:
 @pytest.fixture
 def patch_request(request):
-    print(request)
     try:
         mp = request.getfixturevalue("monkeypatch")
     except AttributeError:  # pytest < 3
@@ -62,10 +61,10 @@ def test_ephemerides_query(patch_request):
     assert res['solar_presence'] == ""
     assert res['flags'] == ""
     assert res['elongFlag'] == '/L'
+    assert res['airmass'] == 999
 
     assert is_masked(res['AZ'])
     assert is_masked(res['EL'])
-    assert is_masked(res['airmass'])
     assert is_masked(res['magextinct'])
 
     npt.assert_allclose(
@@ -176,8 +175,6 @@ def test_elements_vectors(patch_request):
         res = (jplhorizons.Horizons(id='Ceres', location='500@10',
                                     epochs=2451544.5).elements(
                                         get_query_payload=True))
-
-        print(res)
 
         assert res == OrderedDict([
             ('batch', 1),

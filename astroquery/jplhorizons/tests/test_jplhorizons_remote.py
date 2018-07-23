@@ -23,10 +23,10 @@ class TestHorizonsClass:
         assert res['solar_presence'] == ""
         assert res['flags'] == ""
         assert res['elongFlag'] == '/L'
+        assert res['airmass'] == 999
 
         assert is_masked(res['AZ'])
         assert is_masked(res['EL'])
-        assert is_masked(res['airmass'])
         assert is_masked(res['magextinct'])
 
         npt.assert_allclose(
@@ -277,7 +277,6 @@ class TestHorizonsClass:
         assert target.uri is None
 
         target.ephemerides()
-        print(target.uri)
 
         assert target.uri == ('https://ssd.jpl.nasa.gov/horizons_batch.cgi?'
                               'batch=1&TABLE_TYPE=OBSERVER&QUANTITIES='

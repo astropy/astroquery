@@ -766,7 +766,7 @@ class HorizonsClass(BaseQuery):
         elif type(self.epochs) is dict:
             if ('start' not in self.epochs or 'stop' not in self.epochs or
                     'step' not in self.epochs):
-                raise ValueError("'epochs' must contain start, " +
+                raise ValueError("'epochs' must contain start, "
                                  "stop, step")
             request_payload['START_TIME'] = self.epochs['start']
             request_payload['STOP_TIME'] = self.epochs['stop']
@@ -1066,7 +1066,7 @@ class HorizonsClass(BaseQuery):
                 try:
                     M1 = float(HGline[1].rstrip('M2'))
                     k1 = float(HGline[3].rstrip('k2'))
-                except ValueError as e:
+                except ValueError:
                     M1 = nan
                     k1 = nan
                 try:
@@ -1077,7 +1077,7 @@ class HorizonsClass(BaseQuery):
                     k2 = nan
                 try:
                     phcof = float(HGline[5])
-                except ValueError as e:
+                except ValueError:
                     phcof = nan
             # catch unambiguous names
             if (("Multiple major-bodies match string" in line or
@@ -1088,9 +1088,9 @@ class HorizonsClass(BaseQuery):
                             ('make unique selection.' in src[i])):
                         end_idx = i
                         break
-                raise ValueError('Ambiguous target name; provide ' +
-                                 'unique id:\n%s' %
-                                 '\n'.join(src[idx + 2:end_idx]))
+                raise ValueError(('Ambiguous target name; provide '
+                                  'unique id:\n%s' %
+                                  '\n'.join(src[idx + 2:end_idx])))
             # catch unknown target
             if ("Matching small-bodies" in line and
                     "No matches found" in src[idx + 1]):
@@ -1167,7 +1167,8 @@ class HorizonsClass(BaseQuery):
                                    name='phasecoeff'), index=7)
 
         # replace missing airmass values with 999 (not observable)
-        data['a-mass'] = data['a-mass'].filled(999)
+        if self.query_type is 'ephemerides':
+            data['a-mass'] = data['a-mass'].filled(999)
 
         # set column definition dictionary
         if self.query_type is 'ephemerides':
