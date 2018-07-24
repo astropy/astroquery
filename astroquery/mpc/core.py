@@ -529,22 +529,38 @@ class MPCClass(BaseQuery):
         self.query_type = 'ephemeris'
 
         # parameter checks
-        assert (isinstance(location, (str, int, EarthLocation))
-                or np.isiterable(location)), "location parameter must be a string, integer, iterable, or astropy EarthLocation"
+        if type(location) not in (str, int, EarthLocation):
+            if np.isiterable(location):
+                if len(location) != 3:
+                    raise ValueError(
+                        "location arrays require three values:"
+                        " longitude, latitude, and altitude")
+            else:
+                raise TypeError(
+                    "location must be a string, integer, iterable,"
+                    " or astropy EarthLocation")
 
-        assert isinstance(start, (type(None), Time, str)
-                          ), "start must be a string, an astropy Time object, or None."
+        if start is not None and type(start) not in (Time, str):
+            raise TypeError(
+                "start must be a string, an astropy Time object, or None.")
 
+        # step must be one of these units, and must be an integer (we
+        # will convert to an integer later).  MPES fails for large
+        # integers, so we cannot just convert everything to seconds.
         _step = u.Quantity(step)
-        assert _step.unit in [
-            u.d, u.h, u.min, u.s], 'step must have units of days, hours, minutues, or seconds.'
+        if _step.unit not in [u.d, u.h, u.min, u.s]:
+            raise ValueError(
+                'step must have units of days, hours, minutues, or seconds.')
 
-        assert eph_type in self._ephemeris_types.keys(
-        ), "eph_type must be one of {}".format(self._ephemeris_types.keys())
+        if eph_type not in self._ephemeris_types.keys():
+            raise ValueError("eph_type must be one of {}".format(
+                self._ephemeris_types.keys()))
 
-        assert proper_motion in self._proper_motions.keys(
-        ), "proper_motion must be one of {}".format(self._proper_motions.keys())
+        if proper_motion not in self._proper_motions.keys():
+            raise ValueError("proper_motion must be one of {}".format(
+                self._proper_motions.keys()))
 
+        # setup payload
         request_args = self._args_to_payload(
             target=target, ut_offset=ut_offset, suppress_daytime=suppress_daytime,
             suppress_set=suppress_set, perturbed=perturbed, location=location,
@@ -554,9 +570,9 @@ class MPCClass(BaseQuery):
         if kwargs.get('get_query_payload', False):
             return request_args
 
-        _proper_motion_unit = u.Unit(proper_motion_unit)
-
         response = self._request('POST', self.MPES_URL, data=request_args)
+
+        _proper_motion_unit = u.Unit(proper_motion_unit)
 
         return response
 
@@ -624,8 +640,6 @@ class MPCClass(BaseQuery):
                 request_args['lat'] = loc.lat.deg
                 request_args['alt'] = loc.height.to(u.m).value
             elif np.isiterable(location):
-                assert len(
-                    location) == 3, "location arrays require three values: longitude, latitude, and altitude"
                 request_args['long'] = u.Quantity(loc[0], u.deg).value
                 request_args['lat'] = u.Quantity(loc[1], u.deg).value
                 request_args['alt'] = u.Quantity(loc[2], u.m).value
