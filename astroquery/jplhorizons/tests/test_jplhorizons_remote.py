@@ -4,7 +4,6 @@ from __future__ import print_function
 from astropy.tests.helper import remote_data
 from numpy.ma import is_masked
 import numpy.testing as npt
-from collections import OrderedDict
 
 from ... import jplhorizons
 
@@ -151,7 +150,7 @@ class TestHorizonsClass:
         for value in ['M1', 'k1', 'M2', 'k2']:
             assert value in res.colnames
 
-    def test_ephemerides_query_five(self):
+    def test_ephemerides_query_six(self):
         # tests optional constrains for ephemerides queries
         obj = jplhorizons.Horizons(id='3552',
                                    location='I33',
