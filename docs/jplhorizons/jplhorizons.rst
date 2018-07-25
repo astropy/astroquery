@@ -62,8 +62,9 @@ strings) in the case of discrete epochs, or, in the case of a range of
 epochs, a dictionary that has to include the keywords ``start``,
 ``stop`` (both using the following format "YYYY-MM-DD [HH:MM:SS]"),
 and ``step`` (e.g., ``'1m'`` for one minute, ``'3h'``three hours,
-``'10d'`` for ten days). By default, ``epochs=None``, which uses the
-current date and time.
+``'10d'`` for ten days). Note that all input epochs, both calendar
+dates/times and Julian Dates, refer to UTC. By default,
+``epochs=None``, which uses the current date and time.
 
 ``id_type`` describes what type of target identifier has been provided
 in order to minimize the risk of confusion when identifying the
