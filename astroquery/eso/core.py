@@ -778,10 +778,13 @@ class EsoClass(QueryWithLogin):
                              fileId.attrs['value'].split()[1]
                              for fileId in fileIds]
 
+            nfiles = len(fileLinks)
+            log.info("Downloading {} files...".format(nfiles))
             log.debug("Files:\n{}".format('\n'.join(fileLinks)))
-            for fileLink in fileLinks:
+            for i, fileLink in enumerate(fileLinks, 1):
                 fileId = fileLink.rsplit('/', maxsplit=1)[1]
-                log.info("Downloading file {0}...".format(fileId))
+                log.info("Downloading file {}/{}: {}..."
+                         .format(i, nfiles, fileId))
                 filename = self._request("GET", fileLink, save=True,
                                          continuation=True)
 
