@@ -1,0 +1,147 @@
++-+ phys_par: 
+| +-- H: 3.34 mag
+| +-- H_sig: None
+| +-- G: 0.12
+| +-- G_sig: None
+| +-- diameter: 939.4 km
+| +-- diameter_sig: 0.2 km
+| +-- extent: 964.4 x 964.2 x 891.8
+| +-- extent_sig: 0.2 x 0.2 x 0.2
+| +-- extent_ref: Nature vol. 537, pp515-517 (22 September 2016)
+| +-- extent_note: fit w.r.t. center of mass and in body-fixed frame
+| +-- GM: 62.6284 km3 / s2
+| +-- GM_sig: 0.0009 km3 / s2
+| +-- density: 2.162 g / cm3
+| +-- density_sig: 0.008 g / cm3
+| +-- rot_per: 9.07417 h
+| +-- rot_per_sig: 1e-06 h
+| +-- pole: 291.421/66.758
+| +-- pole_sig: 0.007/0.002
+| +-- albedo: 0.090
+| +-- albedo_sig: 0.003
+| +-- BV: 0.713 mag
+| +-- BV_sig: 0.014 mag
+| +-- UB: 0.426 mag
+| +-- UB_sig: 0.026 mag
+| +-- spec_T: G
+| +-- spec_T_sig: None
+| +-- spec_B: C
+| +-- spec_B_sig: None
++-+ object: 
+| +-- spkid_alt: []
+| +-- neo: False
+| +-+ des_alt: 
+| | +-- des: ['1943 XB', 'A899 OF']
+| +-+ orbit_class: 
+| | +-- name: Main-belt Asteroid
+| | +-- code: MBA
+| +-- pha: False
+| +-- spkid: 2000001
+| +-- kind: an
+| +-- orbit_id: 34
+| +-- fullname: 1 Ceres
+| +-- des: 1
+| +-- prefix: None
++-+ ca_data: 
+| +-- sigma_t: 0.0627958411938356 min
+| +-- unc_minor: 8.97976877520543 km
+| +-- sigma_tf: < 00:01
+| +-- cd: 2056-Jun-26 01:01
+| +-- orbit_ref: 34.0
+| +-- dist_min: 0.025833755101647 AU
+| +-- dist: 0.0258343455489748
+| +-- v_rel: 4.68387573708663 km / s
+| +-- dist_max: 0.025834936013457 AU
+| +-- body: Hygie
+| +-- unc_angle: 51.1927599439175
+| +-- v_inf: 4.68387541778612 km / s
+| +-- unc_major: 45.5725124262253 km
+| +-- jd: 2472175.542342036 d
++-- vi_data: []
++-+ discovery: 
+| +-- who: Piazzi, G.
+| +-- site: None
+| +-- location: Palermo
+| +-- ref: DISCOVERY.DB
+| +-- date: 1801-Jan-01
++-- alt_orbits: []
++-+ signature: 
+| +-- source: NASA/JPL Small-Body Database (SBDB) API
+| +-- version: 1.0
++-+ orbit: 
+| +-- source: JPL
+| +-- moid_jup: 2.10258 AU
+| +-- t_jup: 3.310
+| +-- condition_code: 0
+| +-- not_valid_before: None
+| +-- rms: .36954
+| +-- model_pars: []
+| +-- orbit_id: 34
+| +-- producer: Davide Farnocchia
+| +-- first_obs: 1950-04-09
+| +-- soln_date: 2017-04-04 16:23:28
+| +-- two_body: None
+| +-- epoch: 2.4582e+06 d
+| +-+ elements: 
+| | +-- e: .07553461024389638
+| | +-- e_sig: 1.1644E-11
+| | +-- a: 2.76705 AU
+| | +-- a_sig: 2.6002e-11 AU
+| | +-- q: 2.55804 AU
+| | +-- q_sig: 5.622e-11 AU
+| | +-- i: 10.5935 deg
+| | +-- i_sig: 1.9258e-09 deg
+| | +-- om: 80.3099 deg
+| | +-- om_sig: 1.1728e-08 deg
+| | +-- w: 73.1153 deg
+| | +-- w_sig: 1.1437e-08 deg
+| | +-- ma: 352.23 deg
+| | +-- ma_sig: 2.6858e-09 deg
+| | +-- tp: 2.45824e+06 d
+| | +-- tp_sig: 1.302e-08 d
+| | +-- per: 1681.21 d
+| | +-- per_sig: 2.3698e-08 d
+| | +-- n: 0.214131 deg / d
+| | +-- n_sig: 3.0183e-12 deg / d
+| | +-- ad: 2.97605 AU
+| | +-- ad_sig: 2.7966e-11 AU
+| +-- equinox: J2000
+| +-- data_arc: 24437
+| +-- not_valid_after: None
+| +-- n_del_obs_used: 405
+| +-- sb_used: SB431-N16
+| +-- n_obs_used: 5993
+| +-+ covariance: 
+| | +-- epoch: 2.44973e+06 d
+| | +-+ elements: 
+| | | +-- e: .07610292126891821
+| | | +-- e_sig: 1.21678807302076e-11
+| | | +-- q: 2.55662 AU
+| | | +-- q_sig: 5.74243860170291e-11 AU
+| | | +-- tp: 2.44982e+06 d
+| | | +-- tp_sig: 1.04497625875816e-07 d
+| | | +-- om: 80.6585 deg
+| | | +-- om_sig: 1.17382967978942e-08 deg
+| | | +-- w: 71.4492 deg
+| | | +-- w_sig: 1.1701178449809e-08 deg
+| | | +-- i: 10.6007 deg
+| | | +-- i_sig: 1.92643077649528e-09 deg
+| | +-- key: [[ 1.48057321e-22 -6.98438580e-22  1.26887779e-18  7.52505795e-20
+  -7.76061134e-20  2.00979568e-20]
+ [-6.98438580e-22  3.29756011e-21 -5.99452244e-18 -3.51878235e-19
+   3.63570991e-19 -9.46754313e-20]
+ [ 1.26887779e-18 -5.99452244e-18  1.09197538e-14  6.39620248e-16
+  -6.58403469e-16  1.71958388e-16]
+ [ 7.52505795e-20 -3.51878235e-19  6.39620248e-16  1.37787612e-16
+  -1.36964043e-16  1.50962356e-17]
+ [-7.76061134e-20  3.63570991e-19 -6.58403469e-16 -1.36964043e-16
+   1.36917577e-16 -1.53111677e-17]
+ [ 2.00979568e-20 -9.46754313e-20  1.71958388e-16  1.50962356e-17
+  -1.53111677e-17  3.71113554e-18]]
+| | +-- labels: ['e', 'q', 'tp', 'node', 'peri', 'i']
+| +-- comment: None
+| +-- pe_used: DE431
+| +-- last_obs: 2017-03-05
+| +-- moid: 1.59353 AU
+| +-- n_dop_obs_used: 0
++-- radar_obs: []
