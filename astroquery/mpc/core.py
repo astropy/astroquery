@@ -10,6 +10,7 @@ from astropy.coordinates import EarthLocation, Angle
 from ..query import BaseQuery
 from . import conf
 from ..utils import async_to_sync, class_or_instance
+from ..exceptions import InvalidQueryError
 
 
 __all__ = ['MPCClass']
@@ -17,7 +18,7 @@ __all__ = ['MPCClass']
 
 @async_to_sync
 class MPCClass(BaseQuery):
-    MPC_URL = 'http://' + conf.web_service_server + '/web_service'
+    MPC_URL = 'https://' + conf.web_service_server + '/web_service'
     # The authentication credentials for the MPC web service are publicly
     # available and can be openly viewed on the documentation page at
     # https://minorplanetcenter.net/web_service/
@@ -176,7 +177,7 @@ class MPCClass(BaseQuery):
 
         """
 
-        mpc_endpoint = self.get_mpc_endpoint(target_type)
+        mpc_endpoint = self.get_mpc_object_endpoint(target_type)
 
         kwargs['limit'] = 1
         return self.query_objects_async(target_type, get_query_payload, *args, **kwargs)
@@ -305,21 +306,21 @@ class MPCClass(BaseQuery):
             Limit the number of results to the given value
 
         """
-        self.query_type = 'object'
-        mpc_endpoint = self.get_mpc_endpoint(target_type)
+        mpc_endpoint = self.get_mpc_object_endpoint(target_type)
 
         if (target_type == 'comet'):
             kwargs['order_by_desc'] = "epoch"
-        request_args = self._args_to_objects_payload(**kwargs)
+        request_args = self._args_to_object_payload(**kwargs)
 
         # Return payload if requested
         if get_query_payload:
             return request_args
 
+        self.query_type = 'object'
         auth = (self.MPC_USERNAME, self.MPC_PASSWORD)
         return self._request('GET', mpc_endpoint, params=request_args, auth=auth)
 
-    def get_mpc_endpoint(self, target_type):
+    def get_mpc_object_endpoint(self, target_type):
         mpc_endpoint = self.MPC_URL
         if target_type == 'asteroid':
             mpc_endpoint = mpc_endpoint + '/search_orbits'
@@ -332,7 +333,7 @@ class MPCClass(BaseQuery):
                             number=None, ut_offset=0, eph_type='equatorial',
                             ra_format={'unit': u.hr, 'sep': ':'},
                             dec_format={'unit': u.deg, 'sep': ':'},
-                            proper_motion='total', proper_motion_unit='arcsec/hr',
+                            proper_motion='total', proper_motion_unit='arcsec/h',
                             suppress_daytime=False, suppress_set=False,
                             perturbed=True, **kwargs):
         """Object ephemerides from the Minor Planet Ephemeris Service.
@@ -345,10 +346,11 @@ class MPCClass(BaseQuery):
 
         location : str, array-like, or EarthLocation, optional
             Observer's location as an IAU observatory code[2]_, a
-            3-element array of Earth longitude, latitude, altitude
-            (degrees and meters, or astropy units), or an astropy
-            `EarthLocation`.  If `None`, then the geocenter (code 500)
-            is used.
+            3-element array of Earth longitude, latitude, altitude, or
+            an astropy `EarthLocation`.  Longitude and latitude should
+            be anything that initializes an astropy Angle object, and
+            altitude should initialize an astropy unit (of length).
+            If `None`, then the geocenter (code 500) is used.
 
         start : str or Time, optional
             First epoch of the ephemeris as a string (UT), or astropy
@@ -390,7 +392,7 @@ class MPCClass(BaseQuery):
 
         proper_motion_unit : string or Unit, optional
             Convert proper motion to this unit.  Must be an angular
-            rate.  Default is 'arcsec/hr'.
+            rate.  Default is 'arcsec/h'.
 
         suppress_daytime : bool, optional
             Suppress output when the Sun is above the local
@@ -526,18 +528,16 @@ class MPCClass(BaseQuery):
 
         """
 
-        self.query_type = 'ephemeris'
-
         # parameter checks
         if type(location) not in (str, int, EarthLocation):
-            if np.isiterable(location):
+            if hasattr(location, '__iter__'):
                 if len(location) != 3:
                     raise ValueError(
                         "location arrays require three values:"
                         " longitude, latitude, and altitude")
             else:
                 raise TypeError(
-                    "location must be a string, integer, iterable,"
+                    "location must be a string, integer, array-like,"
                     " or astropy EarthLocation")
 
         if start is not None and type(start) not in (Time, str):
@@ -550,7 +550,11 @@ class MPCClass(BaseQuery):
         _step = u.Quantity(step)
         if _step.unit not in [u.d, u.h, u.min, u.s]:
             raise ValueError(
-                'step must have units of days, hours, minutues, or seconds.')
+                'step must have units of days, hours, minutes, or seconds.')
+
+        if number is not None:
+            if number > 1441:
+                raise ValueError('number must be <=1441')
 
         if eph_type not in self._ephemeris_types.keys():
             raise ValueError("eph_type must be one of {}".format(
@@ -560,19 +564,23 @@ class MPCClass(BaseQuery):
             raise ValueError("proper_motion must be one of {}".format(
                 self._proper_motions.keys()))
 
+        if not u.Unit(proper_motion_unit).is_equivalent('rad/s'):
+            raise ValueError("proper_motion_unit must be an angular rate.")
+
         # setup payload
-        request_args = self._args_to_payload(
+        request_args = self._args_to_ephemeris_payload(
             target=target, ut_offset=ut_offset, suppress_daytime=suppress_daytime,
             suppress_set=suppress_set, perturbed=perturbed, location=location,
             start=start, step=_step, number=number, eph_type=eph_type,
             proper_motion=proper_motion)
 
+        self._proper_motion_unit = u.Unit(proper_motion_unit)
+
         if kwargs.get('get_query_payload', False):
             return request_args
 
+        self.query_type = 'ephemeris'
         response = self._request('POST', self.MPES_URL, data=request_args)
-
-        _proper_motion_unit = u.Unit(proper_motion_unit)
 
         return response
 
@@ -596,7 +604,7 @@ class MPCClass(BaseQuery):
         >>> from astroquery.mpc import MPC
         >>> obs = MPC.get_observatory_codes()
         >>> print(obs[295])  # doctest: +SKIP
-        Code Longitude   cos       sin         Name    
+        Code Longitude   cos       sin         Name
         ---- --------- -------- --------- -------------
         309 289.59569 0.909943 -0.414336 Cerro Paranal
 
@@ -609,60 +617,64 @@ class MPCClass(BaseQuery):
 
         return response
 
-    def _args_to_payload(self, **kwargs):
-        if self.query_type == 'object':
-            request_args = kwargs
-            kwargs['json'] = 1
-            return_fields = kwargs.pop('return_fields', None)
-            if return_fields:
-                kwargs['return'] = return_fields
-        elif self.query_type == 'ephemeris':
-            request_args = {
-                'ty': 'e',
-                'TextArea': str(kwargs['target']),
-                'uto': str(kwargs['ut_offset']),
-                'igd': 'y' if kwargs['suppress_daytime'] else 'n',
-                'ibh': 'y' if kwargs['suppress_set'] else 'n',
-                'fp': 'y' if kwargs['perturbed'] else 'n',
-                'adir': 'N',  # always measure azimuth eastward from north
-                'tit': '',  # dummy page title
-                'bu': ''  # dummy base URL
-            }
+    def _args_to_object_payload(self, **kwargs):
+        request_args = kwargs
+        kwargs['json'] = 1
+        return_fields = kwargs.pop('return_fields', None)
+        if return_fields:
+            kwargs['return'] = return_fields
 
-            location = kwargs['location']
-            if isinstance(location, str):
-                request_args['c'] = location
-            elif isinstance(location, int):
-                request_args['c'] = '{:03d}'.format(location)
-            elif isinstance(location, EarthLocation):
-                loc = location.geodetic
-                request_args['long'] = loc.lon.deg
-                request_args['lat'] = loc.lat.deg
-                request_args['alt'] = loc.height.to(u.m).value
-            elif np.isiterable(location):
-                request_args['long'] = u.Quantity(loc[0], u.deg).value
-                request_args['lat'] = u.Quantity(loc[1], u.deg).value
-                request_args['alt'] = u.Quantity(loc[2], u.m).value
+        return request_args
 
-            if kwargs['start'] is None:
-                request_args['d'] = Time.now().iso[:10]
-            elif isinstance(kwargs['start'], Time):
-                request_args['d'] = kwargs['start'].iso.replace(
-                    ':', '').replace('-', ':')[:15]
-            else:
-                request_args['d'] = kwargs['start']
+    def _args_to_ephemeris_payload(self, **kwargs):
+        request_args = {
+            'ty': 'e',
+            'TextArea': str(kwargs['target']),
+            'uto': str(kwargs['ut_offset']),
+            'igd': 'y' if kwargs['suppress_daytime'] else 'n',
+            'ibh': 'y' if kwargs['suppress_set'] else 'n',
+            'fp': 'y' if kwargs['perturbed'] else 'n',
+            'adir': 'N',  # always measure azimuth eastward from north
+            'tit': '',  # dummy page title
+            'bu': ''  # dummy base URL
+        }
 
-            request_args['i'] = str(int(round(kwargs['step'].value)))
-            request_args['u'] = str(kwargs['step'].unit)[:1]
-            if kwargs['number'] is None:
-                request_args['l'] = self._default_number_of_steps[
-                    request_args['u']]
-            else:
-                request_args['l'] = kwargs['number']
+        location = kwargs['location']
+        if isinstance(location, str):
+            request_args['c'] = location
+        elif isinstance(location, int):
+            request_args['c'] = '{:03d}'.format(location)
+        elif isinstance(location, EarthLocation):
+            loc = location.geodetic
+            request_args['long'] = loc.lon.deg
+            request_args['lat'] = loc.lat.deg
+            request_args['alt'] = loc.height.to(u.m).value
+        elif hasattr(location, '__iter__'):
+            request_args['long'] = Angle(location[0]).deg
+            request_args['lat'] = Angle(location[1]).deg
+            request_args['alt'] = u.Quantity(location[2]).to('m').value
 
-            request_args['raty'] = self._ephemeris_types[kwargs['eph_type']]
-            request_args['s'] = self._proper_motions[kwargs['proper_motion']]
-            request_args['m'] = 'h'  # always return proper_motion as arcsec/hr
+        if kwargs['start'] is None:
+            _start = Time.now()
+            _start.precision = 0  # integer seconds
+            request_args['d'] = _start.iso.replace(':', '')
+        elif isinstance(kwargs['start'], Time):
+            _start = Time(kwargs['start'], precision=0)  # integer seconds
+            request_args['d'] = _start.iso.replace(':', '')
+        else:
+            request_args['d'] = kwargs['start']
+
+        request_args['i'] = str(int(round(kwargs['step'].value)))
+        request_args['u'] = str(kwargs['step'].unit)[:1]
+        if kwargs['number'] is None:
+            request_args['l'] = self._default_number_of_steps[
+                request_args['u']]
+        else:
+            request_args['l'] = kwargs['number']
+
+        request_args['raty'] = self._ephemeris_types[kwargs['eph_type']]
+        request_args['s'] = self._proper_motions[kwargs['proper_motion']]
+        request_args['m'] = 'h'  # always return proper_motion as arcsec/hr
 
         return request_args
 
@@ -675,14 +687,63 @@ class MPCClass(BaseQuery):
                              col_starts=(0, 4, 13, 21, 30))
         elif self.query_type == 'ephemeris':
             root = BeautifulSoup(result.content, 'html.parser')
-            text_table = root.find('pre').text
+            try:
+                text_table = root.find('pre').text
+            except AttributeError:
+                raise InvalidQueryError(root.get_text())
+
+            columns = '\n'.join(text_table.splitlines()[:2])
+            SKY = '&raty=a' in result.request.body
+            HELIOCENTRIC = '&raty=s' in result.request.body
+            GEOCENTRIC = '&raty=G' in result.request.body
+
+            if SKY:
+                names = ('Date', 'RA', 'Dec', 'Delta',
+                         'r', 'Elongation', 'Phase', 'V')
+                col_starts = (0, 18, 29, 39, 47, 56, 62, 69)
+
+                if '&s=t' in result.request.body:    # total motion
+                    mu_names = ('Proper motion', 'Direction')
+                    mu_units = ('arcsec/h', 'deg')
+                elif '&s=c' in result.request.body:  # coord Motion
+                    mu_names = ('dRA', 'dDec')
+                    mu_units = ('arcsec/h', 'arcsec/h')
+                elif '&s=s' in result.request.body:  # sky Motion
+                    mu_names = ('dRA cos(Dec)', 'dDec')
+                    mu_units = ('arcsec/h', 'arcsec/h')
+                names += mu_names
+                col_starts += (73, 81)
+
+                if 'Moon' in columns:
+                    # table includes Sun and Moon geometry
+                    names += ('Sun altitude', 'Moon phase', 'Moon distance',
+                              'Mooon altitude')
+                if 'Uncertainty' in columns:
+                    names += ('Uncertainty 3sig', 'Unc. P.A.', 'Unc. map',
+                              'Unc. offsets')
+            elif HELIOCENTRIC:
+                names = ('Object', 'JD_TT', 'X', 'Y', 'Z', "X'", "Y'", "Z'")
+                col_starts = (0, 12, 28, 45, 61, 77, 92, 108)
+            elif GEOCENTRIC:
+                names = ('Object', 'JD_TT', 'X', 'Y', 'Z')
+                col_starts = (0, 12, 28, 45, 61)
+
             tab = ascii.read(text_table, format='fixed_width_no_header',
-                             names=('Date', 'RA', 'Dec', 'Delta', 'r',
-                                    'Elongation', 'Phase', 'V', 'Proper motion',
-                                    'Direction', 'Uncertainty'),
-                             col_starts=(0, 18, 29, 39, 47, 56, 62, 69,
-                                         74, 85, 92),
-                             data_start=3)
+                             names=names, col_starts=col_starts, data_start=3)
+
+            if SKY:
+                for i in range(2):
+                    tab[mu_names[i]].unit = mu_units[i]
+                    if mu_names[i] != 'Direction':
+                        tab[mu_names[i]] = tab[mu_names[i]].to(
+                            self._proper_motion_unit)
+            elif HELIOCENTRIC:
+                for col in 'XYZ':
+                    tab[col].unit = 'au'
+                    tab[col + "'"].unit = 'au/d'
+            elif GEOCENTRIC:
+                for col in 'XYZ':
+                    tab[col].unit = 'au'
 
         return tab
 
