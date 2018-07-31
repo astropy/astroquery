@@ -2,6 +2,7 @@
 # Querying ALMA archive for M83 pointings and plotting them on a 2MASS image
 
 
+import numpy as np
 from astroquery.alma import Alma
 from astroquery.skyview import SkyView
 import string
@@ -29,7 +30,7 @@ m83 = Alma.query_object('M83', public=False, science=False)
 def parse_frequency_support(frequency_support_str):
     supports = frequency_support_str.split("U")
     freq_ranges = [(float(sup.strip('[] ').split("..")[0]),
-                    float(sup.strip('[] ').split("..")[1].split(',')[0].strip(string.letters)))
+                    float(sup.strip('[] ').split("..")[1].split(',')[0].strip(string.ascii_letters)))
                    *u.Unit(sup.strip('[] ').split("..")[1].split(',')[0].strip(string.punctuation+string.digits))
                    for sup in supports]
     return u.Quantity(freq_ranges)
@@ -55,10 +56,10 @@ print("The bands used include: ",np.unique(m83['Band']))
 
 private_circle_parameters = [(row['RA'],row['Dec'],np.mean(rad).to(u.deg).value)
                              for row,rad in zip(m83, primary_beam_radii)
-                             if row['Release date']!='' and row['Band']==3]
+                             if row['Release date']!=b'' and row['Band']==3]
 public_circle_parameters = [(row['RA'],row['Dec'],np.mean(rad).to(u.deg).value)
                              for row,rad in zip(m83, primary_beam_radii)
-                             if row['Release date']=='' and row['Band']==3]
+                             if row['Release date']==b'' and row['Band']==3]
 unique_private_circle_parameters = np.array(list(set(private_circle_parameters)))
 unique_public_circle_parameters = np.array(list(set(public_circle_parameters)))
 
@@ -68,17 +69,17 @@ print("PRIVATE: Number of rows: {0}.  Unique pointings: {1}".format(len(m83), le
 
 private_circle_parameters_band6 = [(row['RA'],row['Dec'],np.mean(rad).to(u.deg).value)
                              for row,rad in zip(m83, primary_beam_radii)
-                             if row['Release date']!='' and row['Band']==6]
+                             if row['Release date']!=b'' and row['Band']==6]
 public_circle_parameters_band6 = [(row['RA'],row['Dec'],np.mean(rad).to(u.deg).value)
                              for row,rad in zip(m83, primary_beam_radii)
-                             if row['Release date']=='' and row['Band']==6]
+                             if row['Release date']==b'' and row['Band']==6]
 
 
 # Show all of the private observation pointings that have been acquired
 
 
 fig = aplpy.FITSFigure(m83_images[0])
-fig.show_grayscale(stretch='arcsinh')
+fig.show_grayscale(stretch='arcsinh', vmid=0.1)
 fig.show_circles(unique_private_circle_parameters[:,0],
                  unique_private_circle_parameters[:,1],
                  unique_private_circle_parameters[:,2],
@@ -88,7 +89,7 @@ fig.show_circles(unique_private_circle_parameters[:,0],
 
 
 fig = aplpy.FITSFigure(m83_images[0])
-fig.show_grayscale(stretch='arcsinh')
+fig.show_grayscale(stretch='arcsinh', vmid=0.1)
 fig.show_circles(unique_public_circle_parameters[:,0],
                  unique_public_circle_parameters[:,1],
                  unique_public_circle_parameters[:,2],
@@ -133,7 +134,7 @@ pub_mask.writeto('public_m83_almaobs_mask.fits', clobber=True)
 
 
 fig = aplpy.FITSFigure(m83_images[0])
-fig.show_grayscale(stretch='arcsinh')
+fig.show_grayscale(stretch='arcsinh', vmid=0.1)
 fig.show_contour(prv_mask, levels=[0.5,1], colors=['r','r'])
 fig.show_contour(pub_mask, levels=[0.5,1], colors=['b','b'])
 
@@ -185,10 +186,10 @@ def pyregion_subset(region, data, mywcs):
     xhi, yhi = extent.max
     all_extents = [obj.get_extents() for obj in mpl_objs]
     for ext in all_extents:
-        xlo = xlo if xlo < ext.min[0] else ext.min[0]
-        ylo = ylo if ylo < ext.min[1] else ext.min[1]
-        xhi = xhi if xhi > ext.max[0] else ext.max[0]
-        yhi = yhi if yhi > ext.max[1] else ext.max[1]
+        xlo = int(xlo if xlo < ext.min[0] else ext.min[0])
+        ylo = int(ylo if ylo < ext.min[1] else ext.min[1])
+        xhi = int(xhi if xhi > ext.max[0] else ext.max[0])
+        yhi = int(yhi if yhi > ext.max[1] else ext.max[1])
 
     log.debug("Region boundaries: ")
     log.debug("xlo={xlo}, ylo={ylo}, xhi={xhi}, yhi={yhi}".format(xlo=xlo,
@@ -216,7 +217,7 @@ for row,rad in zip(m83, primary_beam_radii):
                    'fixed': '0 ',  'font': '"helvetica 10 normal roman"',  'highlite': '1 ',
                    'include': '1 ',  'move': '1 ',  'select': '1 ',  'source': '1',  'text': '',
                    'width': '1 '})
-    if row['Release date']=='' and row['Band']==3:
+    if row['Release date']==b'' and row['Band']==3:
         (xlo,xhi,ylo,yhi),mask = pyregion_subset(shape, hit_mask_band3_private, mywcs)
         hit_mask_band3_private[ylo:yhi,xlo:xhi] += row['Integration']*mask
     elif row['Release date'] and row['Band']==3:
@@ -225,21 +226,20 @@ for row,rad in zip(m83, primary_beam_radii):
     elif row['Release date'] and row['Band']==6:
         (xlo,xhi,ylo,yhi),mask = pyregion_subset(shape, hit_mask_band6_public, mywcs)
         hit_mask_band6_public[ylo:yhi,xlo:xhi] += row['Integration']*mask
-    elif row['Release date']=='' and row['Band']==6:
+    elif row['Release date']==b'' and row['Band']==6:
         (xlo,xhi,ylo,yhi),mask = pyregion_subset(shape, hit_mask_band6_private, mywcs)
         hit_mask_band6_private[ylo:yhi,xlo:xhi] += row['Integration']*mask
 
 
 
 fig = aplpy.FITSFigure(m83_images[0])
-fig.show_grayscale(stretch='arcsinh')
-fig.show_contour(fits.PrimaryHDU(data=hit_mask_band3_public, header=m83_images[0][0].header),
-                 levels=np.logspace(0,5,base=2, num=6), colors=['r']*6)
-fig.show_contour(fits.PrimaryHDU(data=hit_mask_band3_private, header=m83_images[0][0].header),
-                 levels=np.logspace(0,5,base=2, num=6), colors=['y']*6)
-fig.show_contour(fits.PrimaryHDU(data=hit_mask_band6_public, header=m83_images[0][0].header),
-                 levels=np.logspace(0,5,base=2, num=6), colors=['c']*6)
-fig.show_contour(fits.PrimaryHDU(data=hit_mask_band6_private, header=m83_images[0][0].header),
-                 levels=np.logspace(0,5,base=2, num=6), colors=['b']*6)
+fig.show_grayscale(stretch='arcsinh', vmid=0.1)
+for mask, color in zip([hit_mask_band3_public,
+                        hit_mask_band3_private,
+                        hit_mask_band6_public,
+                        hit_mask_band6_private,],
+                       'rycb'):
 
-
+    if np.any(mask):
+        fig.show_contour(fits.PrimaryHDU(data=mask, header=m83_images[0][0].header),
+                         levels=np.logspace(0,5,base=2, num=6), colors=[color]*6)
