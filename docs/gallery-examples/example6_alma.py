@@ -10,12 +10,13 @@ m83table = Alma.query_object('M83', public=True)
 m83urls = Alma.stage_data(m83table['Member ous id'])
 # Sometimes there can be duplicates: avoid them with
 # list(set())
-m83files = Alma.download_and_extract_files(list(set(m83urls['URL'])))
+# also, to save time, we just download the first one
+m83files = Alma.download_and_extract_files(list(set(m83urls['URL']))[0])
 m83files = m83files
 
-Simbad.add_votable_fields('rvel')
+Simbad.add_votable_fields('rv_value')
 m83simbad = Simbad.query_object('M83')
-rvel = m83simbad['RVel_Rvel'][0]*u.Unit(m83simbad['RVel_Rvel'].unit)
+rvel = m83simbad['RV_VALUE'][0]*u.Unit(m83simbad['RV_VALUE'].unit)
 
 for fn in m83files:
    if 'line' in fn:
