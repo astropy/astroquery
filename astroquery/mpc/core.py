@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from bs4 import BeautifulSoup
+from json import JSONDecodeError
 
+import numpy as np
 from astropy.io import ascii
 from astropy.time import Time
 import astropy.units as u
@@ -26,8 +28,8 @@ class MPCClass(BaseQuery):
     MPC_PASSWORD = 'mpc!!ws'
 
     MPES_URL = 'https://' + conf.mpes_server + '/cgi-bin/mpeph2.cgi'
-    OBSERVATORY_CODES_URL = ('https://' + conf.web_service_server
-                             + '/iau/lists/ObsCodes.html')
+    OBSERVATORY_CODES_URL = ('https://' + conf.web_service_server +
+                             '/iau/lists/ObsCodes.html')
     TIMEOUT = conf.timeout
 
     _ephemeris_types = {
@@ -332,10 +334,9 @@ class MPCClass(BaseQuery):
     @class_or_instance
     def get_ephemeris_async(self, target, location='500', start=None, step='1d',
                             number=None, ut_offset=0, eph_type='equatorial',
-                            ra_format=None, dec_format=None,
                             proper_motion='total', proper_motion_unit='arcsec/h',
                             suppress_daytime=False, suppress_set=False,
-                            perturbed=True, **kwargs):
+                            perturbed=True, unc_links=False, **kwargs):
         """Object ephemerides from the Minor Planet Ephemeris Service.
 
         Parameters
@@ -380,10 +381,6 @@ class MPCClass(BaseQuery):
                     vectors
                 geocentric: geocentric position vector
 
-        ra_format, dec_format : dict, optional
-            Format for RA or Dec columns.  See
-            `astropy.coordinates.Angle.to_string` for details.
-
         proper_motion : str, optional
             total: total motion and direction (default)
             coordinate: separate RA and Dec coordinate motion
@@ -404,7 +401,10 @@ class MPCClass(BaseQuery):
 
         perturbed : bool, optional
             Generate perturbed ephemerides for unperturbed orbits
-            (default `False`).
+            (default `True`).
+
+        unc_links : bool, optional
+            Return columns with uncertainty map and offset links, if available.
 
         Returns
         -------
@@ -490,6 +490,11 @@ class MPCClass(BaseQuery):
         Examples
         --------
 
+        >>> from astroquery.mpc import MPC
+        >>> tab = astroquery.mpc.MPC.get_ephemeris('(24)', location=568,
+        ...            start='2003-02-26', step='100d', number=3)  # doctest: +SKIP
+        >>> print(tab)  # doctest: +SKIP
+
         """
 
         # parameter checks
@@ -539,18 +544,9 @@ class MPCClass(BaseQuery):
             start=_start, step=_step, number=number, eph_type=eph_type,
             proper_motion=proper_motion)
 
-        # store parameters for retrieval in _parse_result
-        if ra_format is None:
-            self._ra_format = {'unit': u.hourangle, 'sep': ':', 'precision': 1}
-        else:
-            self._ra_format = ra_format
-
-        if dec_format is None:
-            self._dec_format = {'unit': u.deg, 'sep': ':', 'precision': 0}
-        else:
-            self._dec_format = dec_format
-
+        # store for retrieval in _parse_result
         self._proper_motion_unit = u.Unit(proper_motion_unit)
+        self._unc_links = unc_links
 
         if kwargs.get('get_query_payload', False):
             return request_args
@@ -578,7 +574,7 @@ class MPCClass(BaseQuery):
         Examples
         --------
         >>> from astroquery.mpc import MPC
-        >>> obs = MPC.get_observatory_codes()
+        >>> obs = MPC.get_observatory_codes()  # doctest: +SKIP
         >>> print(obs[295])  # doctest: +SKIP
         Code Longitude   cos       sin         Name
         ---- --------- -------- --------- -------------
@@ -653,24 +649,32 @@ class MPCClass(BaseQuery):
         return request_args
 
     def _parse_result(self, result, **kwargs):
-        if self.query_type == 'observatory_code':
+        if self.query_type == 'object':
+            try:
+                data = result.json()
+            except JSONDecodeError:
+                raise InvalidQueryError(result.text)
+            return data
+        elif self.query_type == 'observatory_code':
             root = BeautifulSoup(result.content, 'html.parser')
             text_table = root.find('pre').text
             tab = ascii.read(text_table, format='fixed_width',
                              names=('Code', 'Longitude', 'cos', 'sin', 'Name'),
                              col_starts=(0, 4, 13, 21, 30))
+            return tab
         elif self.query_type == 'ephemeris':
-            root = BeautifulSoup(result.content, 'html.parser')
-            try:
-                text_table = root.find('pre').text
-            except AttributeError:
-                raise InvalidQueryError(root.get_text())
+            content = result.content.decode()
+            table_start = content.find('<pre>')
+            if table_start == -1:
+                raise InvalidQueryError(content)
+            table_end = content.find('</pre>')
+            text_table = content[table_start + 5:table_end]
 
             SKY = '&raty=a' in result.request.body
             HELIOCENTRIC = '&raty=s' in result.request.body
             GEOCENTRIC = '&raty=G' in result.request.body
 
-            #columns = '\n'.join(text_table.splitlines()[:2])
+            # columns = '\n'.join(text_table.splitlines()[:2])
             # find column headings
             if SKY:
                 # slurp to newline after "h m s"
@@ -683,10 +687,13 @@ class MPCClass(BaseQuery):
                 columns = text_table[:i]
                 data_start = columns.count('\n') - 1
 
+            first_row = text_table.splitlines()[data_start + 1]
+
             if SKY:
                 names = ('Date', 'RA', 'Dec', 'Delta',
                          'r', 'Elongation', 'Phase', 'V')
                 col_starts = (0, 18, 29, 39, 47, 56, 62, 69)
+                col_ends = (17, 28, 38, 46, 55, 61, 68, 72)
                 units = (None, None, None, 'au', 'au', 'deg', 'deg', 'mag')
 
                 if '&s=t' in result.request.body:    # total motion
@@ -699,34 +706,48 @@ class MPCClass(BaseQuery):
                     names += ('dRA cos(Dec)', 'dDec')
                     units += ('arcsec/h', 'arcsec/h')
                 col_starts += (73, 81)
-                last = 90
+                col_ends += (80, 89)
 
                 if 'Moon' in columns:
                     # table includes Alt, Az, Sun and Moon geometry
                     names += ('Azimuth', 'Altitude', 'Sun altitude', 'Moon phase',
-                              'Moon distance', 'Mooon altitude')
-                    col_starts += tuple((last + offset for offset in
-                                         (1, 8, 14, 19, 27, 32)))
+                              'Moon distance', 'Moon altitude')
+                    col_starts += tuple((col_ends[-1] + offset for offset in
+                                         (2, 9, 14, 20, 27, 33)))
+                    col_ends += tuple((col_ends[-1] + offset for offset in
+                                       (8, 13, 19, 26, 32, 37)))
                     units += ('deg', 'deg', 'deg', None, 'deg', 'deg')
-                    last += 37
                 if 'Uncertainty' in columns:
-                    names += ('Uncertainty 3sig', 'Unc. P.A.', 'Unc. map',
-                              'Unc. offsets')
-                    col_starts += tuple((last + offset for offset in
-                                         (1, 10, 16, 135)))
-                    units += ('arcsec', 'deg', None, None)
-                    last += 271
+                    names += ('Uncertainty 3sig', 'Unc. P.A.')
+                    col_starts += tuple((col_ends[-1] + offset for offset in
+                                         (2, 11)))
+                    col_ends += tuple((col_ends[-1] + offset for offset in
+                                       (10, 16)))
+                    units += ('arcsec', 'deg')
+                if ">Map</a>" in first_row and self._unc_links:
+                    names += ('Unc. map', 'Unc. offsets')
+                    col_starts += (first_row.index(' / <a') + 3, )
+                    col_starts += (
+                        first_row.index(' / <a', col_starts[-1]) + 3, )
+                    # Unc. offsets is always last
+                    col_ends += (col_starts[-1] - 3,
+                                 first_row.rindex('</a>') + 4)
+                    units += (None, None)
             elif HELIOCENTRIC:
                 names = ('Object', 'JD', 'X', 'Y', 'Z', "X'", "Y'", "Z'")
                 col_starts = (0, 12, 28, 45, 61, 77, 92, 108)
+                col_ends = None
                 units = (None, None, 'au', 'au', 'au', 'au/d', 'au/d', 'au/d')
             elif GEOCENTRIC:
                 names = ('Object', 'JD', 'X', 'Y', 'Z')
                 col_starts = (0, 12, 28, 45, 61)
+                col_ends = None
                 units = (None, None, 'au', 'au', 'au')
 
             tab = ascii.read(text_table, format='fixed_width_no_header',
-                             names=names, col_starts=col_starts, data_start=data_start)
+                             names=names, col_starts=col_starts,
+                             col_ends=col_ends, data_start=data_start,
+                             fill_values=(('N/A', np.nan),))
 
             for col, unit in zip(names, units):
                 tab[col].unit = unit
@@ -739,16 +760,8 @@ class MPCClass(BaseQuery):
                     for d in tab['Date']], scale='utc')
 
                 # convert from MPES string to float:
-                tab['RA'] = Angle(tab['RA'], unit='hourangle').to(
-                    self._ra_format['unit'])
-                tab['Dec'] = Angle(tab['Dec'], unit='deg').to(
-                    self._dec_format['unit'])
-
-                # apply custom format
-                tab['RA'].format = lambda ra: Angle(
-                    ra, self._ra_format['unit']).to_string(**self._ra_format)
-                tab['Dec'].format = lambda dec: Angle(
-                    dec, self._dec_format['unit']).to_string(**self._dec_format)
+                tab['RA'] = Angle(tab['RA'], unit='hourangle')
+                tab['Dec'] = Angle(tab['Dec'], unit='deg')
 
                 # convert propert motion columns
                 for col in ('Proper motion', 'dRA', 'dRA cos(Dec)', 'dDec'):
@@ -758,7 +771,7 @@ class MPCClass(BaseQuery):
                 # convert from MPES string to Time
                 tab['JD'] = Time(tab['JD'], format='jd', scale='tt')
 
-        return tab
+            return tab
 
 
 MPC = MPCClass()
