@@ -26,7 +26,8 @@ class MPCClass(BaseQuery):
     MPC_PASSWORD = 'mpc!!ws'
 
     MPES_URL = 'https://' + conf.mpes_server + '/cgi-bin/mpeph2.cgi'
-
+    OBSERVATORY_CODES_URL = ('https://' + conf.web_service_server
+                             + '/iau/lists/ObsCodes.html')
     TIMEOUT = conf.timeout
 
     _ephemeris_types = {
@@ -331,8 +332,7 @@ class MPCClass(BaseQuery):
     @class_or_instance
     def get_ephemeris_async(self, target, location='500', start=None, step='1d',
                             number=None, ut_offset=0, eph_type='equatorial',
-                            ra_format={'unit': u.hr, 'sep': ':'},
-                            dec_format={'unit': u.deg, 'sep': ':'},
+                            ra_format=None, dec_format=None,
                             proper_motion='total', proper_motion_unit='arcsec/h',
                             suppress_daytime=False, suppress_set=False,
                             perturbed=True, **kwargs):
@@ -354,9 +354,9 @@ class MPCClass(BaseQuery):
 
         start : str or Time, optional
             First epoch of the ephemeris as a string (UT), or astropy
-            `Time`.  If `None`, then today is used.  Valid dates span
-            the time period 1900 Jan 1 - 2099 Dec 31 [1]_.  See Notes
-            for acceptable string forms.
+            `Time`.  Strings are parsed by `astropy.time.Time`.  If
+            `None`, then today is used.  Valid dates span the time
+            period 1900 Jan 1 - 2099 Dec 31 [1]_.
 
         step : str or Quantity, optional
             The ephemeris step size or interval in units of days,
@@ -476,42 +476,6 @@ class MPCClass(BaseQuery):
             If a comet name is not unique, the first match will be
             returned.
 
-        Acceptable date strings:
-
-            +---------------------+------------------------------+
-            | Start               | Date                         |
-            +=====================+==============================+
-            | 2003 06 10          | 0h UT on 2003 June 10        |
-            +---------------------+------------------------------+
-            | 1965 12 10.5        | 12h UT on 1965 Dec. 10       |
-            +---------------------+------------------------------+
-            | 1903 09 10 12       | 12h UT on 1903 Sept. 10      |
-            +---------------------+------------------------------+
-            | 2003 July 10        | 0h UT on 2003 July 10        |
-            +---------------------+------------------------------+
-            | 2023 June 10.75     | 18h UT on 2023 June 10       |
-            +---------------------+------------------------------+
-            | 1998 Jan. 10 121314 | 12h13m14s UT on 1998 Jan. 10 |
-            +---------------------+------------------------------+
-            | 1923-06-23          | 0h UT on 1923 June 23        |
-            +---------------------+------------------------------+
-            | 1930-Feb-18 19      | 19h UT on 1930 Feb. 18       |
-            +---------------------+------------------------------+
-            | 1997/03/31          | 0h UT on 1997 Mar. 31        |
-            +---------------------+------------------------------+
-            | 1945/11/05.5        | 12h UT on 1945 Nov. 5        |
-            +---------------------+------------------------------+
-            | 1986/Jan/28 05      | 5h UT on 1986 Jan. 28        |
-            +---------------------+------------------------------+
-            | 1956:05:16 1734     | 17h34m UT on 1956 May 16     |
-            +---------------------+------------------------------+
-            | 1965:May:16 1922    | 19h22m UT on 1965 May 16     |
-            +---------------------+------------------------------+
-            | JD 2451000.5        | 0h UT on 1998 July 6         |
-            +---------------------+------------------------------+
-            | MJD 51000           | 0h UT on 1998 July 6         |
-            +---------------------+------------------------------+
-
         References
         ----------
 
@@ -540,9 +504,10 @@ class MPCClass(BaseQuery):
                     "location must be a string, integer, array-like,"
                     " or astropy EarthLocation")
 
-        if start is not None and type(start) not in (Time, str):
-            raise TypeError(
-                "start must be a string, an astropy Time object, or None.")
+        if start is not None:
+            _start = Time(start)
+        else:
+            _start = None
 
         # step must be one of these units, and must be an integer (we
         # will convert to an integer later).  MPES fails for large
@@ -571,8 +536,19 @@ class MPCClass(BaseQuery):
         request_args = self._args_to_ephemeris_payload(
             target=target, ut_offset=ut_offset, suppress_daytime=suppress_daytime,
             suppress_set=suppress_set, perturbed=perturbed, location=location,
-            start=start, step=_step, number=number, eph_type=eph_type,
+            start=_start, step=_step, number=number, eph_type=eph_type,
             proper_motion=proper_motion)
+
+        # store parameters for retrieval in _parse_result
+        if ra_format is None:
+            self._ra_format = {'unit': u.hourangle, 'sep': ':', 'precision': 1}
+        else:
+            self._ra_format = ra_format
+
+        if dec_format is None:
+            self._dec_format = {'unit': u.deg, 'sep': ':', 'precision': 0}
+        else:
+            self._dec_format = dec_format
 
         self._proper_motion_unit = u.Unit(proper_motion_unit)
 
@@ -611,8 +587,7 @@ class MPCClass(BaseQuery):
         """
 
         self.query_type = 'observatory_code'
-        response = self._request('GET',
-                                 'https://minorplanetcenter.net/iau/lists/ObsCodes.html',
+        response = self._request('GET', self.OBSERVATORY_CODES_URL,
                                  timeout=self.TIMEOUT, cache=cache)
 
         return response
@@ -658,11 +633,10 @@ class MPCClass(BaseQuery):
             _start = Time.now()
             _start.precision = 0  # integer seconds
             request_args['d'] = _start.iso.replace(':', '')
-        elif isinstance(kwargs['start'], Time):
-            _start = Time(kwargs['start'], precision=0)  # integer seconds
-            request_args['d'] = _start.iso.replace(':', '')
         else:
-            request_args['d'] = kwargs['start']
+            _start = Time(kwargs['start'], precision=0,
+                          scale='utc')  # integer seconds
+            request_args['d'] = _start.iso.replace(':', '')
 
         request_args['i'] = str(int(round(kwargs['step'].value)))
         request_args['u'] = str(kwargs['step'].unit)[:1]
@@ -692,58 +666,97 @@ class MPCClass(BaseQuery):
             except AttributeError:
                 raise InvalidQueryError(root.get_text())
 
-            columns = '\n'.join(text_table.splitlines()[:2])
             SKY = '&raty=a' in result.request.body
             HELIOCENTRIC = '&raty=s' in result.request.body
             GEOCENTRIC = '&raty=G' in result.request.body
+
+            #columns = '\n'.join(text_table.splitlines()[:2])
+            # find column headings
+            if SKY:
+                # slurp to newline after "h m s"
+                i = text_table.index('\n', text_table.index('h m s')) + 1
+                columns = text_table[:i]
+                data_start = columns.count('\n') - 1
+            else:
+                # slurp to newline after "JD_TT"
+                i = text_table.index('\n', text_table.index('JD_TT')) + 1
+                columns = text_table[:i]
+                data_start = columns.count('\n') - 1
 
             if SKY:
                 names = ('Date', 'RA', 'Dec', 'Delta',
                          'r', 'Elongation', 'Phase', 'V')
                 col_starts = (0, 18, 29, 39, 47, 56, 62, 69)
+                units = (None, None, None, 'au', 'au', 'deg', 'deg', 'mag')
 
                 if '&s=t' in result.request.body:    # total motion
-                    mu_names = ('Proper motion', 'Direction')
-                    mu_units = ('arcsec/h', 'deg')
+                    names += ('Proper motion', 'Direction')
+                    units += ('arcsec/h', 'deg')
                 elif '&s=c' in result.request.body:  # coord Motion
-                    mu_names = ('dRA', 'dDec')
-                    mu_units = ('arcsec/h', 'arcsec/h')
+                    names += ('dRA', 'dDec')
+                    units += ('arcsec/h', 'arcsec/h')
                 elif '&s=s' in result.request.body:  # sky Motion
-                    mu_names = ('dRA cos(Dec)', 'dDec')
-                    mu_units = ('arcsec/h', 'arcsec/h')
-                names += mu_names
+                    names += ('dRA cos(Dec)', 'dDec')
+                    units += ('arcsec/h', 'arcsec/h')
                 col_starts += (73, 81)
+                last = 90
 
                 if 'Moon' in columns:
-                    # table includes Sun and Moon geometry
-                    names += ('Sun altitude', 'Moon phase', 'Moon distance',
-                              'Mooon altitude')
+                    # table includes Alt, Az, Sun and Moon geometry
+                    names += ('Azimuth', 'Altitude', 'Sun altitude', 'Moon phase',
+                              'Moon distance', 'Mooon altitude')
+                    col_starts += tuple((last + offset for offset in
+                                         (1, 8, 14, 19, 27, 32)))
+                    units += ('deg', 'deg', 'deg', None, 'deg', 'deg')
+                    last += 37
                 if 'Uncertainty' in columns:
                     names += ('Uncertainty 3sig', 'Unc. P.A.', 'Unc. map',
                               'Unc. offsets')
+                    col_starts += tuple((last + offset for offset in
+                                         (1, 10, 16, 135)))
+                    units += ('arcsec', 'deg', None, None)
+                    last += 271
             elif HELIOCENTRIC:
-                names = ('Object', 'JD_TT', 'X', 'Y', 'Z', "X'", "Y'", "Z'")
+                names = ('Object', 'JD', 'X', 'Y', 'Z', "X'", "Y'", "Z'")
                 col_starts = (0, 12, 28, 45, 61, 77, 92, 108)
+                units = (None, None, 'au', 'au', 'au', 'au/d', 'au/d', 'au/d')
             elif GEOCENTRIC:
-                names = ('Object', 'JD_TT', 'X', 'Y', 'Z')
+                names = ('Object', 'JD', 'X', 'Y', 'Z')
                 col_starts = (0, 12, 28, 45, 61)
+                units = (None, None, 'au', 'au', 'au')
 
             tab = ascii.read(text_table, format='fixed_width_no_header',
-                             names=names, col_starts=col_starts, data_start=3)
+                             names=names, col_starts=col_starts, data_start=data_start)
 
+            for col, unit in zip(names, units):
+                tab[col].unit = unit
+
+            # Time for dates, Angle for RA and Dec; convert columns at user's request
             if SKY:
-                for i in range(2):
-                    tab[mu_names[i]].unit = mu_units[i]
-                    if mu_names[i] != 'Direction':
-                        tab[mu_names[i]] = tab[mu_names[i]].to(
-                            self._proper_motion_unit)
-            elif HELIOCENTRIC:
-                for col in 'XYZ':
-                    tab[col].unit = 'au'
-                    tab[col + "'"].unit = 'au/d'
-            elif GEOCENTRIC:
-                for col in 'XYZ':
-                    tab[col].unit = 'au'
+                # convert from MPES string to Time, MPES uses UT timescale
+                tab['Date'] = Time(['{}-{}-{} {}:{}:{}'.format(
+                    d[:4], d[5:7], d[8:10], d[11:13], d[13:15], d[15:17])
+                    for d in tab['Date']], scale='utc')
+
+                # convert from MPES string to float:
+                tab['RA'] = Angle(tab['RA'], unit='hourangle').to(
+                    self._ra_format['unit'])
+                tab['Dec'] = Angle(tab['Dec'], unit='deg').to(
+                    self._dec_format['unit'])
+
+                # apply custom format
+                tab['RA'].format = lambda ra: Angle(
+                    ra, self._ra_format['unit']).to_string(**self._ra_format)
+                tab['Dec'].format = lambda dec: Angle(
+                    dec, self._dec_format['unit']).to_string(**self._dec_format)
+
+                # convert propert motion columns
+                for col in ('Proper motion', 'dRA', 'dRA cos(Dec)', 'dDec'):
+                    if col in tab.colnames:
+                        tab[col].convert_unit_to(self._proper_motion_unit)
+            else:
+                # convert from MPES string to Time
+                tab['JD'] = Time(tab['JD'], format='jd', scale='tt')
 
         return tab
 

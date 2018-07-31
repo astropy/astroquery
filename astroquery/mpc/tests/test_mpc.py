@@ -1,4 +1,28 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+"""test_mpc
+
+Generate offline ephemeris files for testing with the following
+commands.  The asteroid must be one that returns ephemeris
+uncertainties:
+
+from astroquery.mpc import MPC
+parameters = {
+  '2P_ephemeris_G37-a-c': ('2P', {'location': 'G37'}),
+  '2P_ephemeris_500-s-c': ('2P', {'eph_type': 'heliocentric'}),
+  '2P_ephemeris_500-G-c': ('2P', {'eph_type': 'geocentric'}),
+  '2P_ephemeris_500-a-t': ('2P', {'proper_motion': 'total'}),
+  '2P_ephemeris_500-a-c': ('2P', {'proper_motion': 'coordinate'}),
+  '2P_ephemeris_500-a-s': ('2P', {'proper_motion': 'sky'}),
+  '1994XG_ephemeris_500-a-c': ('1994 XG', {}),
+  '1994XG_ephemeris_G37-a-c': ('1994 XG', {'location': 'G37'}),
+  'testfail_ephemeris_500-a-c': ('test fail', {})
+}
+for prefix, (name, kwargs) in parameters.items():
+    with open(prefix + '.html', 'w') as outf:
+        response = MPC.get_ephemeris_async(name, **kwargs)
+        outf.write(response.text)
+
+"""
 import pytest
 import numpy as np
 
@@ -6,6 +30,7 @@ import astropy.units as u
 from astropy.coordinates import EarthLocation
 from astropy.time import Time
 
+from ...exceptions import InvalidQueryError
 from ... import mpc
 from ...utils.testing_tools import MockResponse
 from ...utils import commons
@@ -37,15 +62,17 @@ def patch_post(request):
 
 
 def post_mockreturn(self, httpverb, url, params, auth):
-    tr = str.maketrans(' /()')
     if url == mpc.core.MPC.MPES_URL:
-        prefix = params['TextArea'].translate(tr)
-        suffix = '-'.join((params['raty'], params['s']))
+        prefix = params['TextArea'].replace(' ', '')
+        suffix = '-'.join((params['c'], params['raty'], params['s']))
         filename = data_path('{}_ephemeris_{}.html'.format(prefix, suffix))
         content = open(filename, 'r').read()
-        return MockResponse(content)
+    elif url == mpc.core.MPC.OBSERVATORY_CODES_URL:
+        content = open(data_path('ObsCodes.html'), 'r').read()
     else:
-        return MockResponse()
+        content = None
+
+    return MockResponse(content)
 
 
 def test_query_object_get_query_payload(patch_post):
@@ -75,9 +102,37 @@ def test_args_to_ephemeris_payload():
     assert payload == {
         'ty': 'e', 'TextArea': 'Ceres', 'uto': '0', 'igd': 'n', 'ibh': 'n',
         'fp': 'y', 'adir': 'N', 'tit': '', 'bu': '', 'c': '500',
-        'd': '2001-01-01', 'i': '1', 'u': 'd', 'l': 1, 'raty': 'a',
+        'd': '2001-01-01 000000', 'i': '1', 'u': 'd', 'l': 1, 'raty': 'a',
         's': 't', 'm': 'h'
     }
+
+
+def test_get_ephemeris_Moon_phase():
+    result = mpc.core.MPC.get_ephemeris('2P', location='G37')
+    assert result['Moon phase'][0] >= 0
+
+
+def test_get_ephemeris_Uncertainty():
+    # this test requires an object with uncertainties != N/A
+    result = mpc.core.MPC.get_ephemeris('1994 XG')
+    assert result['Uncertainty 3sig'].quantity[0] > 0 * u.arcsec
+
+
+def test_get_ephemeris_Moon_phase_and_Uncertainty():
+    # this test requires an object with uncertainties != N/A
+    result = mpc.core.MPC.get_ephemeris('1994 XG', location='G37')
+    assert result['Moon phase'][0] >= 0
+    assert result['Uncertainty 3sig'].quantity[0] > 0 * u.arcsec
+
+
+def test_get_ephemeris_by_name_fail():
+    with pytest.raises(InvalidQueryError):
+        mpc.core.MPC.get_ephemeris('test fail')
+
+
+def test_get_ephemeris_by_name_fail():
+    with pytest.raises(InvalidQueryError):
+        mpc.core.MPC.get_ephemeris('test fail')
 
 
 def test_get_ephemeris_by_location_str():
@@ -104,21 +159,31 @@ def test_get_ephemeris_by_location_latlonalt(location):
     assert np.isclose(payload['alt'], 65.8)
 
 
-def test_get_ephemeris_by_start_str():
-    payload = mpc.core.MPC.get_ephemeris(
-        '(1)', start='2001-1-1', get_query_payload=True)
-    assert payload['d'] == '2001-1-1'
+def test_get_ephemeris_by_location_array_fail():
+    with pytest.raises(ValueError):
+        mpc.core.MPC.get_ephemeris('2P', location=(1, 2, 3, 4))
 
 
-def test_get_ephemeris_by_start_time():
+def test_get_ephemeris_by_location_type_fail():
+    with pytest.raises(TypeError):
+        mpc.core.MPC.get_ephemeris('2P', location=1.0)
+
+
+@pytest.mark.parametrize('start', ('2001-1-1', Time('2001-1-1')))
+def test_get_ephemeris_by_start(start):
     payload = mpc.core.MPC.get_ephemeris(
-        '(1)', start=Time('2001-1-1'), get_query_payload=True)
+        '(1)', start=start, get_query_payload=True)
     assert payload['d'] == '2001-01-01 000000'
 
 
 def test_get_ephemeris_by_start_now():
     payload = mpc.core.MPC.get_ephemeris('(1)', get_query_payload=True)
     assert len(payload['d']) == 17
+
+
+def test_get_ephemeris_by_start_fail():
+    with pytest.raises(ValueError):
+        mpc.core.MPC.get_ephemeris('2P', start=2000)
 
 
 @pytest.mark.parametrize('step,interval,unit', (
@@ -204,3 +269,30 @@ def test_get_ephemeris_by_proper_motion_unit(mu, unit, columns, units):
 def test_get_ephemeris_by_proper_motion_unit_fail():
     with pytest.raises(ValueError):
         result = mpc.core.MPC.get_ephemeris('2P', proper_motion_unit='km/s')
+
+
+def test_get_observatory_codes():
+    result = mpc.core.MPC.get_observatory_codes()
+    greenwich = ['000', 0.0, 0.62411, 0.77873, 'Greenwich']
+    assert all([r == g for r, g in zip(result[0], greenwich)])
+
+
+@pytest.mark.parametrize('suppress_daytime,val', ((True, 'y'), (False, 'n')))
+def test_suppress_daytime(suppress_daytime, val):
+    payload = mpc.core.MPC.get_ephemeris('2P', suppress_daytime=suppress_daytime,
+                                         get_query_payload=True)
+    assert payload['igd'] == val
+
+
+@pytest.mark.parametrize('suppress_set,val', ((True, 'y'), (False, 'n')))
+def test_suppress_set(suppress_set, val):
+    payload = mpc.core.MPC.get_ephemeris('2P', suppress_set=suppress_set,
+                                         get_query_payload=True)
+    assert payload['ibh'] == val
+
+
+@pytest.mark.parametrize('perturbed,val', ((True, 'y'), (False, 'n')))
+def test_suppress_set(perturbed, val):
+    payload = mpc.core.MPC.get_ephemeris('2P', perturbed=perturbed,
+                                         get_query_payload=True)
+    assert payload['fp'] == val
