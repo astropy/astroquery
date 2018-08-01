@@ -1,5 +1,3 @@
-
-
 from astropy import coordinates, units as u, wcs
 from astroquery.skyview import SkyView
 from astroquery.vizier import Vizier
@@ -50,4 +48,3 @@ ax.plot(tbl_crds2.ra, tbl_crds2.dec, 'o', transform=ax.get_transform('fk5'),
         mec='r', mfc='none')
 # zoom in on the relevant region
 ax.axis([100,200,100,200])
-
