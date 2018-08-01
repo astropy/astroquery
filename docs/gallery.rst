@@ -106,7 +106,7 @@ except with a different background.
 
 
 Example 10
-+++++++++
+++++++++++
 Retrieve Hubble archival data of M83 and make a figure
 
 
