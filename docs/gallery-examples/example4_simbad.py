@@ -5,10 +5,10 @@ customSimbad = Simbad()
 
 # We've seen errors where ra_prec was NAN, but it's an int: that's a problem
 # this is a workaround we adapted
-customSimbad.add_votable_fields('ra(d)','dec(d)')
+customSimbad.add_votable_fields('ra(d)', 'dec(d)')
 customSimbad.remove_votable_fields('coordinates')
 
-C = coordinates.SkyCoord(0,0,unit=('deg','deg'), frame='icrs')
+C = coordinates.SkyCoord(0, 0, unit=('deg', 'deg'), frame='icrs')
 
 result = customSimbad.query_region(C, radius='2 degrees')
 

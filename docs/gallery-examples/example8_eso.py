@@ -1,4 +1,5 @@
 from astroquery.eso import Eso
+import shutil
 
 # log in so you can get proprietary data
 Eso.login('aginsburg')
@@ -23,6 +24,5 @@ tbl = Eso.query_apex_quicklooks(prog_id=proj_id)
 files = Eso.retrieve_data(tbl['Product ID'])
 
 # then move the files to your local directory
-import shutil
 for fn in files:
-    shutil.move(fn,'.')
+    shutil.move(fn, '.')

@@ -26,7 +26,8 @@ ax.imshow(img[0].data, cmap='gray_r', interpolation='none', origin='lower',
 
 
 # retrieve a specific table from Vizier to overplot
-tablelist = Vizier.query_region(center, radius=5*u.arcmin, catalog='J/ApJ/826/16/table1')
+tablelist = Vizier.query_region(center, radius=5*u.arcmin,
+                                catalog='J/ApJ/826/16/table1')
 # again, the result is a list of tables, so we'll get the first one
 result = tablelist[0]
 
@@ -35,7 +36,8 @@ tbl_crds = coordinates.SkyCoord(result['RAJ2000'], result['DEJ2000'],
                                 unit=(u.hour, u.deg), frame='fk5')
 
 # we want this table too:
-tablelist2 = Vizier(row_limit=10000).query_region(center, radius=5*u.arcmin, catalog='J/ApJ/540/236')
+tablelist2 = Vizier(row_limit=10000).query_region(center, radius=5*u.arcmin,
+                                                  catalog='J/ApJ/540/236')
 result2 = tablelist2[0]
 tbl_crds2 = coordinates.SkyCoord(result2['RAJ2000'], result2['DEJ2000'],
                                  unit=(u.hour, u.deg), frame='fk5')
@@ -47,4 +49,4 @@ ax.plot(tbl_crds.ra, tbl_crds.dec, '*', transform=ax.get_transform('fk5'),
 ax.plot(tbl_crds2.ra, tbl_crds2.dec, 'o', transform=ax.get_transform('fk5'),
         mec='r', mfc='none')
 # zoom in on the relevant region
-ax.axis([100,200,100,200])
+ax.axis([100, 200, 100, 200])

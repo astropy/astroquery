@@ -13,7 +13,7 @@ selected_bands = result[(result['obs_collection'] == 'HST') &
                         (result['instrument_name'] == 'WFC3/UVIS') &
                         ((result['filters'] == 'F657N') |
                          (result['filters'] == 'F487N') |
-                         (result['filters']=='F336W')) &
+                         (result['filters'] == 'F336W')) &
                         (result['target_name'] == 'MESSIER-083')]
 prodlist = Observations.get_product_list(selected_bands)
 filtered_prodlist = Observations.filter_products(prodlist)
@@ -25,8 +25,8 @@ red = fits.open(downloaded['Local Path'][5])
 green = fits.open(downloaded['Local Path'][8])
 
 target_header = red['SCI'].header
-green_repr,_ = reproject.reproject_interp(green['SCI'], target_header)
-blue_repr,_ = reproject.reproject_interp(blue['SCI'], target_header)
+green_repr, _ = reproject.reproject_interp(green['SCI'], target_header)
+blue_repr, _ = reproject.reproject_interp(blue['SCI'], target_header)
 
 
 rgb_img = make_lupton_rgb(ImageNormalize(vmin=0, vmax=1)(red['SCI'].data),

@@ -42,5 +42,5 @@ for fn in m83files:
         # Write the cube with the specified line name
         fmt = "{Species}{Resolved QNs}"
         row = lines[0]
-        linename = fmt.format(**dict(zip(row.colnames,row.data)))
+        linename = fmt.format(**dict(zip(row.colnames, row.data)))
         vcube.write('M83_ALMA_{linename}.fits'.format(linename=linename))
