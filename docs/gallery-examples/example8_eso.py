@@ -23,7 +23,6 @@ tbl = Eso.query_apex_quicklooks(prog_id=proj_id)
 files = Eso.retrieve_data(tbl['Product ID'])
 
 # then move the files to your local directory
-# note that there is no .TAR suffix... not sure why this is
 import shutil
 for fn in files:
-   shutil.move(fn+'.TAR','.')
+    shutil.move(fn,'.')
