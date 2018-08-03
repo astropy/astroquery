@@ -525,40 +525,6 @@ class MastClass(QueryWithLogin):
 
             return self._shib_login(username, password)
 
-    def login(self, username=None, password=None, session_token=None,
-              store_password=False, reenter_password=False):  # pragma: no cover
-        """
-        Log into the MAST portal.
-
-        Parameters
-        ----------
-        username : string, optional
-            Default is None.
-            The username for the user logging in.
-            Usually this will be the user's email address.
-            If a username is necessary but not supplied it will be prompted for.
-        password : string, optional
-            Default is None.
-            The password associated with the given username.
-            For security passwords should not be typed into the terminal or jupyter
-            notebook, but input using a more secure method such as `~getpass.getpass`.
-            If a password is necessary but not supplied it will be prompted for.
-        session_token : dict or `~http.cookiejar.Cookie`, optional
-            A valid MAST session cookie that will be attached to the current session
-            in lieu of logging in with a username/password.
-            If username and/or password is supplied, this argument will be ignored.
-        store_password : bool, optional
-            Default False.
-            If true, username and password will be stored securely in your keyring.
-        reenter_password : bool, optional
-            Default False.
-            Asks for the password even if it is already stored in the keyring.
-            This is the way to overwrite an already stored password on the keyring.
-        """
-
-        return super(MastClass, self).login(username=username, password=password, session_token=session_token,
-                                            store_password=store_password, reenter_password=reenter_password)
-
     def logout(self):  # pragma: no cover
         """
         Log out of current MAST session.

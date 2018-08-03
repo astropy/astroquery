@@ -2,6 +2,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import abc
+import inspect
 import pickle
 import hashlib
 import io
@@ -106,7 +107,35 @@ class AstroQuery(object):
         return response
 
 
-@six.add_metaclass(abc.ABCMeta)
+class LoginABCMeta(abc.ABCMeta):
+    """
+    The goal of this metaclass is to copy the docstring and signature from
+    ._login methods, implemented in subclasses, to a .login method that is
+    visible by the users.
+
+    It also inherits from the ABCMeta metaclass as _login is an abstract
+    method.
+
+    """
+
+    def __new__(cls, name, bases, attrs):
+        newcls = super(LoginABCMeta, cls).__new__(cls, name, bases, attrs)
+
+        if '_login' in attrs and name not in ('BaseQuery', 'QueryWithLogin'):
+            # skip theses two classes, BaseQuery and QueryWithLogin, so
+            # below bases[0] should always be QueryWithLogin.
+            def login(*args, **kwargs):
+                bases[0].login(*args, **kwargs)
+
+            login.__doc__ = attrs['_login'].__doc__
+            if not six.PY2:
+                login.__signature__ = inspect.signature(attrs['_login'])
+            setattr(newcls, login.__name__, login)
+
+        return newcls
+
+
+@six.add_metaclass(LoginABCMeta)
 class BaseQuery(object):
     """
     This is the base class for all the query classes in astroquery. It
