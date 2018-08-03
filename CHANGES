@@ -20,6 +20,9 @@
 - MAST: Updating HSC and Gaia catalog calls (bugfix) [#1203]
 - JPLSpec: New query service for JPL Molecular Spectral Catalog. [#1170]
 - Add docstring and signature for login. [#1199]
+- JPLHorizons: JPL server protocol and epoch range bug fixes, user-defined
+  location and additional ephemerides information added [#1207]
+
 
 0.3.8 (2018-04-27)
 ------------------
