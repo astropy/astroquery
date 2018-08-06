@@ -1,6 +1,7 @@
 .. doctest-skip-all
 
 .. _astroquery.jplsbdb:
+.. _astroquery.solarsystem.jpl.sbdb:
 
 ***************************************
 JPL SBDB Queries (`astroquery.jplsbdb`)
@@ -20,12 +21,12 @@ including it's orbit, close approaches with major planets, available
 radar observations, detailed information on virtual impactors,
 discovery circumstances, and a few select physical properties.
 
-This module enables the query of these information for an indiviual
-object into a formatted dictionary structure using `~astropy.units`
-and `~numpy.ndarray` objects where possible.  It furthermore provides
-the means to query a list of objects based on their primary
-designation and using a wildcard symbol. This module uses the SBDB API
-as described in the `SBDB API documentation
+This module enables the query of these information for an individual
+object into a formatted `~collections.OrderedDict` structure using
+`~astropy.units` and `~numpy.ndarray` objects where possible.  It
+furthermore provides the means to query a list of objects based on
+their primary designation and using a wildcard symbol. This module
+uses the SBDB API as described in the `SBDB API documentation
 <https://ssd-api.jpl.nasa.gov/doc/sbdb.html>`_ and hence closely
 follows the definitions in that document with some simplifications.
 
@@ -40,7 +41,7 @@ System small-body works as follows:
    >>> from astroquery.jplsbdb import SBDB
    >>> sbdb = SBDB.query('3552')
    >>> sbdb
-   {'object': {'shortname': '3552 Don Quixote', 'neo': True, 'orbit_class': {'name': 'Amor', 'code': 'AMO'}, 'pha': False, 'spkid': '2003552', 'kind': 'an', 'orbit_id': '188', 'fullname': '3552 Don Quixote (1983 SA)', 'des': '3552', 'prefix': None}, 'signature': {'source': 'NASA/JPL Small-Body Database (SBDB) API', 'version': '1.0'}, 'orbit': {'source': 'JPL', 'cov_epoch': Unit("2.45657e+06 d"), 'moid_jup': Unit("0.441 AU"), 't_jup': '2.315', 'condition_code': '0', 'not_valid_before': None, 'rms': '0.51', 'model_pars': [], 'orbit_id': '188', 'producer': 'Otto Matic', 'first_obs': '1983-09-10', 'soln_date': '2018-07-06 06:55:08', 'two_body': None, 'epoch': Unit("2.4582e+06 d"), 'elements': {'e': '0.709', 'e_sig': '4.8e-08', 'a': Unit("4.26 AU"), 'a_sig': Unit("2.3e-08 AU"), 'q': Unit("1.24 AU"), 'q_sig': Unit("2e-07 AU"), 'i': Unit("31.1 deg"), 'i_sig': Unit("1.1e-05 deg"), 'om': Unit("350 deg"), 'om_sig': Unit("1e-05 deg"), 'w': Unit("316 deg"), 'w_sig': Unit("1.1e-05 deg"), 'ma': Unit("355 deg"), 'ma_sig': Unit("3.9e-06 deg"), 'tp': Unit("2.45825e+06 d"), 'tp_sig': Unit("3.5e-05 d"), 'per': Unit("3210 d"), 'per_sig': Unit("2.6e-05 d"), 'n': Unit("0.112 deg / d"), 'n_sig': Unit("9.2e-10 deg / d"), 'ad': Unit("7.27 AU"), 'ad_sig': Unit("4e-08 AU")}, 'equinox': 'J2000', 'data_arc': '12717', 'not_valid_after': None, 'n_del_obs_used': None, 'sb_used': 'SB431-N16', 'n_obs_used': '869', 'comment': None, 'pe_used': 'DE431', 'last_obs': '2018-07-05', 'moid': Unit("0.334 AU"), 'n_dop_obs_used': None}}
+   OrderedDict([('object', OrderedDict([('shortname', '3552 Don Quixote'), ('neo', True), ('orbit_class', OrderedDict([('name', 'Amor'), ('code', 'AMO')])), ('pha', False), ('spkid', '2003552'), ('kind', 'an'), ('orbit_id', '188'), ('fullname', '3552 Don Quixote (1983 SA)'), ('des', '3552'), ('prefix', None)])), ('signature', OrderedDict([('source', 'NASA/JPL Small-Body Database (SBDB) API'), ('version', '1.0')])), ('orbit', OrderedDict([('source', 'JPL'), ('cov_epoch', Unit("2.45657e+06 d")), ('moid_jup', Unit("0.441 AU")), ('t_jup', '2.315'), ('condition_code', '0'), ('not_valid_before', None), ('rms', '0.51'), ('model_pars', []), ('orbit_id', '188'), ('producer', 'Otto Matic'), ('first_obs', '1983-09-10'), ('soln_date', '2018-07-06 06:55:08'), ('two_body', None), ('epoch', Unit("2.4582e+06 d")), ('elements', {'e': '0.709', 'e_sig': '4.8e-08', 'a': Unit("4.26 AU"), 'a_sig': Unit("2.3e-08 AU"), 'q': Unit("1.24 AU"), 'q_sig': Unit("2e-07 AU"), 'i': Unit("31.1 deg"), 'i_sig': Unit("1.1e-05 deg"), 'om': Unit("350 deg"), 'om_sig': Unit("1e-05 deg"), 'w': Unit("316 deg"), 'w_sig': Unit("1.1e-05 deg"), 'ma': Unit("355 deg"), 'ma_sig': Unit("3.9e-06 deg"), 'tp': Unit("2.45825e+06 d"), 'tp_sig': Unit("3.5e-05 d"), 'per': Unit("3210 d"), 'per_sig': Unit("2.6e-05 d"), 'n': Unit("0.112 deg / d"), 'n_sig': Unit("9.2e-10 deg / d"), 'ad': Unit("7.27 AU"), 'ad_sig': Unit("4e-08 AU")}), ('equinox', 'J2000'), ('data_arc', '12717'), ('not_valid_after', None), ('n_del_obs_used', None), ('sb_used', 'SB431-N16'), ('n_obs_used', '869'), ('comment', None), ('pe_used', 'DE431'), ('last_obs', '2018-07-05'), ('moid', Unit("0.334 AU")), ('n_dop_obs_used', None)]))])
 
 This function orders the parsed data into a dictionary. This
 representation of the results is convenient but not easy to read for a
@@ -115,7 +116,7 @@ output dictionary and transform it into a human-readable schematic:
    | +-- last_obs: 2018-07-05
    | +-- moid: 0.334 AU
    | +-- n_dop_obs_used: None
-
+   
 The schematic shows the different levels in the dictionary. Note that
 :meth:`~astroquery.jplsbdb.SBDBClass.schematic` actually only returns
 a string; in order to display it properly, it has to be passed to a
@@ -124,12 +125,12 @@ can also be applied to individual items of the dictionary, e.g.,
 ``print(sbdb['orbit'])``.
 
 In this example, there are three top-level items (``object``,
-``orbit``, ``signature``), each of which is a dictionary itself,
-containing additional information: ``object`` contains general object
-information on the object's dynamical type and identifiers, whereas
-``orbit`` contains detailed information on the target's
-orbit. ``signature`` simply provides information on SBDB and the API
-version used.
+``orbit``, ``signature``), each of which is an
+`~collections.OrderedDict` itself, containing additional information:
+``object`` contains general object information on the object's
+dynamical type and identifiers, whereas ``orbit`` contains detailed
+information on the target's orbit. ``signature`` simply provides
+information on SBDB and the API version used.
 
 ``orbit`` contains a number of items describing the target's orbit. In
 order to use one of these items, you can access it like any dictionary
@@ -184,8 +185,7 @@ per target, but only a list of objects matching this pattern:
 .. code-block:: python
 
     >>> sbdb['list']
-    {'pdes': ['2018 AA4', '2018 AA12'], 'name': ['(2018 AA4)', '(2018 AA12)']}
-
+    OrderedDict([('pdes', ['2018 AA4', '2018 AA12']), ('name', ['(2018 AA4)', '(2018 AA12)'])])
 
 Customizing your Query
 ======================

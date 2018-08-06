@@ -1,16 +1,13 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-# 1. standard library imports
 import json
+from collections import OrderedDict
 
-# 2. third party imports
 from numpy import genfromtxt, isnan, array
 import astropy.units as u
 
-# 3. local imports - use relative imports
 from ..query import BaseQuery
 from ..utils import commons
-from ..utils import prepend_docstr_nosections
 from ..utils import async_to_sync
 from . import conf
 
@@ -50,8 +47,8 @@ class SBDBClass(BaseQuery):
                     cache=True):
         """
         This method queries the `JPL Small-Body Database Browser
-        <https://ssd.jpl.nasa.gov/sbdb.cgi>`_ and returns a dictionary
-        with all queried information.
+        <https://ssd.jpl.nasa.gov/sbdb.cgi>`_ and returns an
+        `~collections.OrderedDict` with all queried information.
 
         Parameters
         ----------
@@ -114,15 +111,16 @@ class SBDBClass(BaseQuery):
 
         Returns
         -------
-        res : dict
-            A dicitionary holding all the parsed data.
+        res : `~collections.OrderedDict`
+            A dictionary holding all the parsed data.
 
         Examples
         --------
         >>> from astroquery.jplsbdb import SBDB
         >>> sbdb = SBDB.query('3552')
         >>> print(sbdb) # doctest: +SKIP
-        {'object': {'shortname': '3552 Don Quixote', 'neo': True, 'orbit_class': {'name': 'Amor', 'code': 'AMO'}, ...'n_dop_obs_used': None}}
+        OrderedDict([('object', OrderedDict([('shortname', '3552 Don Quixote'), ('neo', True), ... ])
+
         """
         URL = conf.server
         TIMEOUT = conf.timeout
@@ -195,7 +193,7 @@ class SBDBClass(BaseQuery):
 
         # decode json response from JPL SBDB server
         try:
-            src = json.loads(response.text)
+            src = OrderedDict(json.loads(response.text))
 
         except ValueError:
             raise ValueError('Server response not readable.')
@@ -215,12 +213,12 @@ class SBDBClass(BaseQuery):
 
     def _process_data(self, src):
         """
-        internal routine to process raw data in dict format, must be able
-        to work recursively
+        internal routine to process raw data in OrderedDict format, must
+        be able to work recursively
 
         """
 
-        res = dict()
+        res = OrderedDict()
 
         for key, val in src.items():
 
@@ -253,7 +251,7 @@ class SBDBClass(BaseQuery):
                     # turn lists of dictionaries into lists/leave as scalars
                     elif isinstance(val[0], dict):
                         names = list(val[0].keys())
-                        res[key] = {}
+                        res[key] = OrderedDict()
                         for field in names:
 
                             try:
@@ -304,7 +302,7 @@ class SBDBClass(BaseQuery):
             elif isinstance(val, dict):
                 res[key] = self._process_data(val)
 
-             # use leaf scalars (and apply units, where applicable)
+            # use leaf scalars (and apply units, where applicable)
             else:
                 res[key] = val
                 if key in conf.field_unit.keys():
@@ -357,10 +355,10 @@ class SBDBClass(BaseQuery):
         """
         Formats the provided dictionary ``d`` into a human-readable tree
         structure schematic. In order to display the structure
-        properly, the resulting ``oustring`` should be passed to
+        properly, the resulting ``outstring`` should be passed to
         the ``print`` function.
 
-                Parameters
+        Parameters
         ----------
         d : dict, optional
             Input dictionary that is to be formatted .
