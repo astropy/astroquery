@@ -3,7 +3,7 @@
 import pytest
 import os
 
-from ...utils.testing_tools import MockResponse
+from astroquery.utils.testing_tools import MockResponse
 
 from ..core import SBDB, SBDBClass
 

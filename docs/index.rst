@@ -297,7 +297,19 @@ above categories.
   utils/tap.rst
   jplhorizons/jplhorizons.rst
   jplspec/jplspec.rst
+  jplsbdb/jplsbdb.rst
 
+
+Topical Collection
+==================
+
+Some services focusing on similar topics are collected in submodules serving as umbrellas.
+
+.. toctree::
+  :maxdepth: 1
+
+  solarsystem/solarsystem.rst
+  
 
 Developer documentation
 -----------------------

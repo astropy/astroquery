@@ -6,9 +6,9 @@ from collections import OrderedDict
 from numpy import genfromtxt, isnan, array
 import astropy.units as u
 
-from ..query import BaseQuery
-from ..utils import commons
-from ..utils import async_to_sync
+from astroquery.query import BaseQuery
+from astroquery.utils import commons
+from astroquery.utils import async_to_sync
 from . import conf
 
 __all__ = ['SBDB', 'SBDBClass']
