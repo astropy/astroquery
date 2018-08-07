@@ -7,4 +7,5 @@ astroquery.solarsystem
 a collection of Solar-System related data services
 """
 
-from . import jpl
+from .jpl import *
+from . import *

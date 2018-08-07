@@ -1,18 +1,32 @@
 +-+ phys_par: 
 | +-- M1: 11.3 mag
 | +-- M1_sig: mag
+| +-- M1_ref: K154/2
+| +-- M1_note: 2 parameter fit from 764 observations, autocmod 2.6m
 | +-- K1: 11.
 | +-- K1_sig: None
+| +-- K1_ref: K154/2
+| +-- K1_note: autocmod 2.6m
 | +-- M2: 13.9 mag
 | +-- M2_sig: 0.9 mag
+| +-- M2_ref: K154/2
+| +-- M2_note: from 4038 observations, autocmod 2.6m
 | +-- K2: 5.
 | +-- K2_sig: None
+| +-- K2_ref: K154/2
+| +-- K2_note: autocmod 2.6m
 | +-- PC: 0.03
 | +-- PC_sig: None
+| +-- PC_ref: K154/2
+| +-- PC_note: autocmod 2.6m
 | +-- diameter: 4 km
 | +-- diameter_sig: None
+| +-- diameter_ref: Lamy,P.L.;Toth,I.;Fernandez,Y.R.;Weaver,H.A. (2004) Comets II, pp. 223-264
+| +-- diameter_note: None
 | +-- rot_per: 12.7614 h
 | +-- rot_per_sig: None
+| +-- rot_per_ref: LCDB (Rev. 2018-June); Warner et al., 2009
+| +-- rot_per_note: [sidereal period (not synodic); Result based on less than full coverage, so that the period may be wrong by 30 percent or so.]  REFERENCE LIST:[Lowry, S.; Duddy, S.R.; Rozitis, B.; Green, S.F.; et al. (2012)   Astron. Astrophys. 548, A12.]
 +-+ object: 
 | +-- spkid_alt: ['4000067']
 | +-- neo: True
@@ -93,7 +107,7 @@
 | +-- soln_date: [None, None, None, None, None, None]
 | +-- two_body: ['F', 'F', 'F', 'F', 'F', 'F']
 | +-- epoch: [2452520.5 2450080.5 2447680.5 2445280.5 2442880.5 2440480.5] d
-| +-- elements: [{'e1': '0.631529', 'e1_sig': None, 'e2': Unit("1.29234 AU"), 'e2_sig': None, 'e3': Unit("2.4525e+06 d"), 'e3_sig': None, 'e4': Unit("50.9693 deg"), 'e4_sig': None, 'e5': Unit("11.4514 deg"), 'e5_sig': None, 'e6': Unit("7.1205 deg"), 'e6_sig': None}, {'e1': '0.630193', 'e1_sig': None, 'e2': Unit("1.30003 AU"), 'e2_sig': None, 'e3': Unit("2.4501e+06 d"), 'e3_sig': None, 'e4': Unit("51.007 deg"), 'e4_sig': None, 'e5': Unit("11.3861 deg"), 'e5_sig': None, 'e6': Unit("7.1135 deg"), 'e6_sig': None}, {'e1': '0.630254', 'e1_sig': None, 'e2': Unit("1.29968 AU"), 'e2_sig': None, 'e3': Unit("2.4477e+06 d"), 'e3_sig': None, 'e4': Unit("51.0115 deg"), 'e4_sig': None, 'e5': Unit("11.4245 deg"), 'e5_sig': None, 'e6': Unit("7.1183 deg"), 'e6_sig': None}, {'e1': '0.629152', 'e1_sig': None, 'e2': Unit("1.30614 AU"), 'e2_sig': None, 'e3': Unit("2.44529e+06 d"), 'e3_sig': None, 'e4': Unit("51.0153 deg"), 'e4_sig': None, 'e5': Unit("11.3667 deg"), 'e5_sig': None, 'e6': Unit("7.117 deg"), 'e6_sig': None}, {'e1': '0.630558', 'e1_sig': None, 'e2': Unit("1.29852 AU"), 'e2_sig': None, 'e3': Unit("2.44288e+06 d"), 'e3_sig': None, 'e4': Unit("51.0284 deg"), 'e4_sig': None, 'e5': Unit("11.3587 deg"), 'e5_sig': None, 'e6': Unit("7.1289 deg"), 'e6_sig': None}, {'e1': '0.633017', 'e1_sig': None, 'e2': Unit("1.28496 AU"), 'e2_sig': None, 'e3': Unit("2.44048e+06 d"), 'e3_sig': None, 'e4': Unit("51.011 deg"), 'e4_sig': None, 'e5': Unit("11.2463 deg"), 'e5_sig': None, 'e6': Unit("7.1494 deg"), 'e6_sig': None}]
+| +-- elements: [OrderedDict([('e1', '0.631529'), ('e1_sig', None), ('e2', Unit("1.29234 AU")), ('e2_sig', None), ('e3', Unit("2.4525e+06 d")), ('e3_sig', None), ('e4', Unit("50.9693 deg")), ('e4_sig', None), ('e5', Unit("11.4514 deg")), ('e5_sig', None), ('e6', Unit("7.1205 deg")), ('e6_sig', None)]), OrderedDict([('e1', '0.630193'), ('e1_sig', None), ('e2', Unit("1.30003 AU")), ('e2_sig', None), ('e3', Unit("2.4501e+06 d")), ('e3_sig', None), ('e4', Unit("51.007 deg")), ('e4_sig', None), ('e5', Unit("11.3861 deg")), ('e5_sig', None), ('e6', Unit("7.1135 deg")), ('e6_sig', None)]), OrderedDict([('e1', '0.630254'), ('e1_sig', None), ('e2', Unit("1.29968 AU")), ('e2_sig', None), ('e3', Unit("2.4477e+06 d")), ('e3_sig', None), ('e4', Unit("51.0115 deg")), ('e4_sig', None), ('e5', Unit("11.4245 deg")), ('e5_sig', None), ('e6', Unit("7.1183 deg")), ('e6_sig', None)]), OrderedDict([('e1', '0.629152'), ('e1_sig', None), ('e2', Unit("1.30614 AU")), ('e2_sig', None), ('e3', Unit("2.44529e+06 d")), ('e3_sig', None), ('e4', Unit("51.0153 deg")), ('e4_sig', None), ('e5', Unit("11.3667 deg")), ('e5_sig', None), ('e6', Unit("7.117 deg")), ('e6_sig', None)]), OrderedDict([('e1', '0.630558'), ('e1_sig', None), ('e2', Unit("1.29852 AU")), ('e2_sig', None), ('e3', Unit("2.44288e+06 d")), ('e3_sig', None), ('e4', Unit("51.0284 deg")), ('e4_sig', None), ('e5', Unit("11.3587 deg")), ('e5_sig', None), ('e6', Unit("7.1289 deg")), ('e6_sig', None)]), OrderedDict([('e1', '0.633017'), ('e1_sig', None), ('e2', Unit("1.28496 AU")), ('e2_sig', None), ('e3', Unit("2.44048e+06 d")), ('e3_sig', None), ('e4', Unit("51.011 deg")), ('e4_sig', None), ('e5', Unit("11.2463 deg")), ('e5_sig', None), ('e6', Unit("7.1494 deg")), ('e6_sig', None)])]
 | +-- equinox: ['J2000', 'J2000', 'J2000', 'J2000', 'J2000', 'J2000']
 | +-- data_arc: [None, None, None, None, None, None]
 | +-- not_valid_after: [None, None, None, None, None, None]
@@ -119,12 +133,16 @@
 | +-+ model_pars: 
 | | +-- A1: 1.06667e-09 AU / d2
 | | +-- A1_sig: 1.783e-11 AU / d2
+| | +-- A1_kind: EST
 | | +-- A2: -3.68915e-11 AU / d2
 | | +-- A2_sig: 4.497e-12 AU / d2
+| | +-- A2_kind: EST
 | | +-- A3: 2.48344e-10 AU / d2
 | | +-- A3_sig: 1.577e-11 AU / d2
+| | +-- A3_kind: EST
 | | +-- DT: 35.0714 d
 | | +-- DT_sig: 0.9227 d
+| | +-- DT_kind: EST
 | +-- orbit_id: K154/2
 | +-- producer: Davide Farnocchia
 | +-- first_obs: 1995-07-03

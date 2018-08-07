@@ -1,16 +1,28 @@
 +-+ phys_par: 
 | +-- H: 14.6 mag
 | +-- H_sig: None
+| +-- H_ref: MPO250234
+| +-- H_note: None
 | +-- diameter: 5.1 km
 | +-- diameter_sig: 0.2 km
+| +-- diameter_ref: IRAS-A-FPA-3-RDR-IMPS-V6.0
+| +-- diameter_note: IRAS observations used: 18
 | +-- rot_per: 3.604 h
 | +-- rot_per_sig: None
+| +-- rot_per_ref: LCDB (Rev. 2018-June); Warner et al., 2009
+| +-- rot_per_note: REFERENCE LIST:[Meech, K.J.; Hainaut, O.R.; Buie, M.W. (1996) Abstracts of ACM   1996, 42.], [Pravec, P.; Wolf, M.; Sarounova, L. (1998) Icarus 136, 124-153.], [Krugly, Yu.N.; Bel'skaya, I.N.; Shevchenko, V.G.; et al. (2002)   Icarus 158, 294-304.], [Pravec, P.; Wolf, M.; Sarounova, L. (2004)   http://www.asu.cas.cz/~ppravec/neo.htm], [Pan, S.K-S.; Abe, S.; Kinos, D. (2012) ACM 2012, #6294.], [Ansdell, M.; Meech, K.J.; Hainaut, O.; Buie, M.W.; et al. (2014)   Astrophys. J. 793, A50.], [Warner, B.D. (2015) Minor Planet Bull. 42, 115-127.], [Hanus, J.; Delbo, M.; Vokrouhlicky, D.; Pravec, P.; et al. (2016).   Astron. Astrophys. 586, A108.], [Warner, B.D. (2017) Minor Planet Bull. 44, 98-107.], [Schmidt, R.E. (2018) Minor Planet Bull. 45, 131.], [Warner, B.D; Stephens, R.D. (2018) (3200 Phaethon).   http://www.planetarysciences.org/PHP/CS3_Lightcurves.php]
 | +-- albedo: 0.1066
 | +-- albedo_sig: 0.011
+| +-- albedo_ref: IRAS-A-FPA-3-RDR-IMPS-V6.0
+| +-- albedo_note: IRAS observations used: 18
 | +-- spec_T: F
 | +-- spec_T_sig: None
+| +-- spec_T_ref: EAR-A-5-DDR-TAXONOMY-V4.0
+| +-- spec_T_note: used 4 color indices
 | +-- spec_B: B
 | +-- spec_B_sig: None
+| +-- spec_B_ref: EAR-A-5-DDR-TAXONOMY-V4.0
+| +-- spec_B_note: based on a high-resolution spectrum by Xu et al. (1995) or Bus and Binzel (2002)
 +-+ object: 
 | +-- spkid_alt: []
 | +-- shortname: 3200 Phaethon
@@ -218,14 +230,19 @@
 | +-+ model_pars: 
 | | +-- A2: -4.86111e-15 AU / d2
 | | +-- A2_sig: 1.386e-15 AU / d2
+| | +-- A2_kind: EST
 | | +-- ALN: 1.
 | | +-- ALN_sig: None
+| | +-- ALN_kind: SET
 | | +-- NK: 0.
 | | +-- NK_sig: None
+| | +-- NK_kind: SET
 | | +-- NM: 2.
 | | +-- NM_sig: None
+| | +-- NM_kind: SET
 | | +-- R0: 1.
 | | +-- R0_sig: None
+| | +-- R0_kind: SET
 | +-- orbit_id: 628
 | +-- producer: Otto Matic
 | +-- first_obs: 1983-10-12

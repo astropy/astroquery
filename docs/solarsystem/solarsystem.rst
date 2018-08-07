@@ -6,9 +6,6 @@
 Solar System Services (`astroquery.solarsystem`)
 ************************************************
 
-Overview
-========
-
 This submodule is a collection of Solar System-related services,
 sorted by the organizations that provide these services.
 
@@ -24,3 +21,4 @@ Reference/API
 =============
 
 .. automodapi:: astroquery.solarsystem
+    :no-inheritance-diagram:

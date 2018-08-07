@@ -3,7 +3,7 @@
 from astropy.tests.helper import remote_data
 import astropy.units as u
 
-from ..core import SBDB
+from .. import SBDB
 
 
 @remote_data

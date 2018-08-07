@@ -186,7 +186,6 @@ These others are functional, but do not follow a common & consistent API:
   exoplanet_orbit_database/exoplanet_orbit_database.rst
   fermi/fermi.rst
   jplhorizons/jplhorizons.rst
-  jplsbdb/jplsbdb.rst
   lamda/lamda.rst
   nasa_exoplanet_archive/nasa_exoplanet_archive.rst
   oac/oac.rst
@@ -297,11 +296,10 @@ above categories.
   utils/tap.rst
   jplhorizons/jplhorizons.rst
   jplspec/jplspec.rst
-  jplsbdb/jplsbdb.rst
 
 
-Topical Collection
-==================
+Topical Collections
+===================
 
 Some services focusing on similar topics are collected in submodules serving as umbrellas.
 
@@ -309,6 +307,7 @@ Some services focusing on similar topics are collected in submodules serving as 
   :maxdepth: 1
 
   solarsystem/solarsystem.rst
+  solarsystem/jpl/sbdb/sbdb.rst
   
 
 Developer documentation

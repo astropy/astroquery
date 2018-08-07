@@ -5,7 +5,7 @@ import os
 
 from astroquery.utils.testing_tools import MockResponse
 
-from ..core import SBDB, SBDBClass
+from .. import SBDB, SBDBClass
 
 # files in data/ for different query types
 DATA_FILES = {'1': 'ceres.dat',

@@ -1,20 +1,19 @@
 .. doctest-skip-all
 
-.. _astroquery.jplsbdb:
 .. _astroquery.solarsystem.jpl.sbdb:
 
-***************************************
-JPL SBDB Queries (`astroquery.jplsbdb`)
-***************************************
+****************************************************
+JPL SBDB Queries (`astroquery.solarsystem.jpl.sbdb`)
+****************************************************
 
 Overview
 ========
 
 
-The :class:`~astroquery.jplsbdb.SBDBClass` class provides an interface
-to the `Small-Body Database Browser
-<https://ssd.jpl.nasa.gov/sbdb.cgi>`_ (SBDB) maintained by the `JPL Solar
-System Dynamics group <http://ssd.jpl.nasa.gov/>`_.
+The :class:`~astroquery.solarsystem.jpl.sbdb.SBDBClass` class provides
+an interface to the `Small-Body Database Browser
+<https://ssd.jpl.nasa.gov/sbdb.cgi>`_ (SBDB) maintained by the `JPL
+Solar System Dynamics group <http://ssd.jpl.nasa.gov/>`_.
 
 The SBDB provides detailed information on a specific known small body,
 including it's orbit, close approaches with major planets, available
@@ -38,15 +37,16 @@ System small-body works as follows:
 
 .. code-block:: python
 
-   >>> from astroquery.jplsbdb import SBDB
+   >>> from astroquery.solarsystem.jpl.sbdb import SBDB
    >>> sbdb = SBDB.query('3552')
-   >>> sbdb
-   OrderedDict([('object', OrderedDict([('shortname', '3552 Don Quixote'), ('neo', True), ('orbit_class', OrderedDict([('name', 'Amor'), ('code', 'AMO')])), ('pha', False), ('spkid', '2003552'), ('kind', 'an'), ('orbit_id', '188'), ('fullname', '3552 Don Quixote (1983 SA)'), ('des', '3552'), ('prefix', None)])), ('signature', OrderedDict([('source', 'NASA/JPL Small-Body Database (SBDB) API'), ('version', '1.0')])), ('orbit', OrderedDict([('source', 'JPL'), ('cov_epoch', Unit("2.45657e+06 d")), ('moid_jup', Unit("0.441 AU")), ('t_jup', '2.315'), ('condition_code', '0'), ('not_valid_before', None), ('rms', '0.51'), ('model_pars', []), ('orbit_id', '188'), ('producer', 'Otto Matic'), ('first_obs', '1983-09-10'), ('soln_date', '2018-07-06 06:55:08'), ('two_body', None), ('epoch', Unit("2.4582e+06 d")), ('elements', {'e': '0.709', 'e_sig': '4.8e-08', 'a': Unit("4.26 AU"), 'a_sig': Unit("2.3e-08 AU"), 'q': Unit("1.24 AU"), 'q_sig': Unit("2e-07 AU"), 'i': Unit("31.1 deg"), 'i_sig': Unit("1.1e-05 deg"), 'om': Unit("350 deg"), 'om_sig': Unit("1e-05 deg"), 'w': Unit("316 deg"), 'w_sig': Unit("1.1e-05 deg"), 'ma': Unit("355 deg"), 'ma_sig': Unit("3.9e-06 deg"), 'tp': Unit("2.45825e+06 d"), 'tp_sig': Unit("3.5e-05 d"), 'per': Unit("3210 d"), 'per_sig': Unit("2.6e-05 d"), 'n': Unit("0.112 deg / d"), 'n_sig': Unit("9.2e-10 deg / d"), 'ad': Unit("7.27 AU"), 'ad_sig': Unit("4e-08 AU")}), ('equinox', 'J2000'), ('data_arc', '12717'), ('not_valid_after', None), ('n_del_obs_used', None), ('sb_used', 'SB431-N16'), ('n_obs_used', '869'), ('comment', None), ('pe_used', 'DE431'), ('last_obs', '2018-07-05'), ('moid', Unit("0.334 AU")), ('n_dop_obs_used', None)]))])
+   >>> print(sbdb)
+   OrderedDict([('object', OrderedDict([('shortname', '3552 Don Quixote'), ('neo', True), ('orbit_class', OrderedDict([('name', 'Amor'), ('code', 'AMO')])), ('pha', False), ('spkid', '2003552'), ('kind', 'an'), ('orbit_id', '188'), ('fullname', '3552 Don Quixote (1983 SA)'), ('des', '3552'), ('prefix', None)])), ('signature', OrderedDict([('source', 'NASA/JPL Small-Body Database (SBDB) API'), ('version', '1.0')])), ('orbit', OrderedDict([('source', 'JPL'), ('cov_epoch', Unit("2.45657e+06 d")), ('moid_jup', Unit("0.441 AU")), ('t_jup', '2.315'), ('condition_code', '0'), ('not_valid_before', None), ('rms', '0.51'), ('model_pars', []), ('orbit_id', '188'), ('producer', 'Otto Matic'), ('first_obs', '1983-09-10'), ('soln_date', '2018-07-06 06:55:08'), ('two_body', None), ('epoch', Unit("2.4582e+06 d")), ('elements', OrderedDict([('e', '0.709'), ('e_sig', '4.8e-08'), ('a', Unit("4.26 AU")), ('a_sig', Unit("2.3e-08 AU")), ('q', Unit("1.24 AU")), ('q_sig', Unit("2e-07 AU")), ('i', Unit("31.1 deg")), ('i_sig', Unit("1.1e-05 deg")), ('om', Unit("350 deg")), ('om_sig', Unit("1e-05 deg")), ('w', Unit("316 deg")), ('w_sig', Unit("1.1e-05 deg")), ('ma', Unit("355 deg")), ('ma_sig', Unit("3.9e-06 deg")), ('tp', Unit("2.45825e+06 d")), ('tp_sig', Unit("3.5e-05 d")), ('per', Unit("3210 d")), ('per_sig', Unit("2.6e-05 d")), ('n', Unit("0.112 deg / d")), ('n_sig', Unit("9.2e-10 deg / d")), ('ad', Unit("7.27 AU")), ('ad_sig', Unit("4e-08 AU"))])), ('equinox', 'J2000'), ('data_arc', '12717'), ('not_valid_after', None), ('n_del_obs_used', None), ('sb_used', 'SB431-N16'), ('n_obs_used', '869'), ('comment', None), ('pe_used', 'DE431'), ('last_obs', '2018-07-05'), ('moid', Unit("0.334 AU")), ('n_dop_obs_used', None)]))])
 
 This function orders the parsed data into a dictionary. This
 representation of the results is convenient but not easy to read for a
-human. :meth:`~astroquery.jplsbdb.SBDBClass.schematic` will use the
-output dictionary and transform it into a human-readable schematic:
+human. :meth:`~astroquery.solarsystem.jpl.SBDBClass.schematic`
+will use the output dictionary and transform it into a human-readable
+schematic:
 
 .. code-block:: python
 
@@ -115,12 +115,13 @@ output dictionary and transform it into a human-readable schematic:
    | +-- pe_used: DE431
    | +-- last_obs: 2018-07-05
    | +-- moid: 0.334 AU
-   | +-- n_dop_obs_used: None
+   | +-- n_dop_obs_used: None   
    
 The schematic shows the different levels in the dictionary. Note that
-:meth:`~astroquery.jplsbdb.SBDBClass.schematic` actually only returns
-a string; in order to display it properly, it has to be passed to a
-``print`` function. :meth:`~astroquery.jplsbdb.SBDBClass.schematic`
+:meth:`~astroquery.solarsystem.jpl.sbdb.SBDBClass.schematic` actually
+only returns a string; in order to display it properly, it has to be
+passed to a ``print``
+function. :meth:`~astroquery.solarsystem.jpl.sbdb.SBDBClass.schematic`
 can also be applied to individual items of the dictionary, e.g.,
 ``print(sbdb['orbit'])``.
 
@@ -158,12 +159,12 @@ the `SBDB API documentation
 document for exact definitions.
 
 The most significant difference between data obtained through
-:class:`~astroquery.jplsbdb.SBDBClass` and directly through the `SBDB API
-<https://ssd-api.jpl.nasa.gov/doc/sbdb.html>`_ is the
-formatting. Where possible and useful, dictionary style formatting has
-been replaced with `~numpy.ndarray` structure to make the data easier
-to access (see e.g., ``sbdb['orbit']['elements']`` in the above
-example).
+:class:`~astroquery.solarsystem.jpl.sbdb.SBDBClass` and directly
+through the `SBDB API <https://ssd-api.jpl.nasa.gov/doc/sbdb.html>`_
+is the formatting. Where possible and useful, dictionary style
+formatting has been replaced with `~numpy.ndarray` structure to make
+the data easier to access (see e.g., ``sbdb['orbit']['elements']`` in
+the above example).
 
 
 Name Search
@@ -190,16 +191,17 @@ per target, but only a list of objects matching this pattern:
 Customizing your Query
 ======================
 
-The default :meth:`~astroquery.jplsbdb.SBDBClass.query` offers only a
-limited amount of target information. The full potential of the `SBDB
-API <https://ssd-api.jpl.nasa.gov/doc/sbdb.html>`_ can be tapped using
-the optional parameters of
-:meth:`~astroquery.jplsbdb.SBDBClass.query`. The following listing
-shows the optional parameters of
-:meth:`~astroquery.jplsbdb.SBDBClass.query` and how they translate to
-the `SBDB API <https://ssd-api.jpl.nasa.gov/doc/sbdb.html>`_. Note
-that most options are or boolean nature and can be triggered by simply
-assigning ``True`` to them.
+The default :meth:`~astroquery.solarsystem.jpl.sbdb.SBDBClass.query`
+offers only a limited amount of target information. The full potential
+of the `SBDB API <https://ssd-api.jpl.nasa.gov/doc/sbdb.html>`_ can be
+tapped using the optional parameters of
+:meth:`~astroquery.solarsystem.jpl.sbdb.SBDBClass.query`. The
+following listing shows the optional parameters of
+:meth:`~astroquery.solarsystem.jpl.sbdb.SBDBClass.query` and how they
+translate to the `SBDB API
+<https://ssd-api.jpl.nasa.gov/doc/sbdb.html>`_. Note that most options
+are or boolean nature and can be triggered by simply assigning
+``True`` to them.
 
 * ``id_type``: available options [``'search'``, ``'spk'``, ``'des'``]
   translate into the different SBDB API search modes [``sstr``,
@@ -270,6 +272,6 @@ Grant No. 80NSSC18K0987 to the `sbpy project <http://sbpy.org>`_.
 Reference/API
 =============
 
-.. automodapi:: astroquery.jplsbdb
+.. automodapi:: astroquery.solarsystem.jpl.sbdb
     :no-inheritance-diagram:
 

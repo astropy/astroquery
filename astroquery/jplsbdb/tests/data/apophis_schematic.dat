@@ -1,16 +1,28 @@
 +-+ phys_par: 
 | +-- H: 19.7 mag
 | +-- H_sig: 0.4 mag
+| +-- H_ref: Delbo, Cellino and Tedesco (Icarus 2007)
+| +-- H_note: None
 | +-- G: 0.25
 | +-- G_sig: None
+| +-- G_ref: Delbo, Cellino and Tedesco (Icarus 2007)
+| +-- G_note: based on taxonomic type (Bowell et al., Asteroids II)
 | +-- diameter: 0.325 km
 | +-- diameter_sig: 0.015 km
+| +-- diameter_ref: T. Mueller (2013)
+| +-- diameter_note: http://www.esa.int/Our_Activities/Space_Science/Herschel_intercepts_asteroid_Apophis
 | +-- rot_per: 30.4 h
 | +-- rot_per_sig: None
+| +-- rot_per_ref: Behrend (2005)
+| +-- rot_per_note: combined light-curve on-line at http://obswww.unige.ch/~behrend/r099942a.png
 | +-- albedo: 0.23
 | +-- albedo_sig: None
+| +-- albedo_ref: T. Mueller (2013)
+| +-- albedo_note: http://www.esa.int/Our_Activities/Space_Science/Herschel_intercepts_asteroid_Apophis
 | +-- spec_B: Sq
 | +-- spec_B_sig: None
+| +-- spec_B_ref: Binzel, R. P. et al.  Spectral properties and composition of potentially hazardo
+| +-- spec_B_note: None
 +-+ object: 
 | +-- spkid_alt: ['3264226']
 | +-- shortname: 99942 Apophis
@@ -271,14 +283,19 @@
 | +-+ model_pars: 
 | | +-- A2: -5.59284e-14 AU / d2
 | | +-- A2_sig: 2.201e-14 AU / d2
+| | +-- A2_kind: EST
 | | +-- ALN: 1.
 | | +-- ALN_sig: None
+| | +-- ALN_kind: SET
 | | +-- NK: 0.
 | | +-- NK_sig: None
+| | +-- NK_kind: SET
 | | +-- NM: 2.
 | | +-- NM_sig: None
+| | +-- NM_kind: SET
 | | +-- R0: 1.
 | | +-- R0_sig: None
+| | +-- R0_kind: SET
 | +-- orbit_id: 199
 | +-- producer: Giorgini
 | +-- first_obs: 2004-03-15

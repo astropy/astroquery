@@ -6,18 +6,16 @@
 JPL Solar System Services (`astroquery.solarsystem.jpl`)
 ********************************************************
 
-This submodule is a collection of Solar System-related services provided by the `Jet Propulsion Laboratory (JPL) <https://www.jpl.nasa.gov/>`_:
+This submodule is a collection of Solar System-related services provided by the `Jet Propulsion Laboratory (JPL) <https://www.jpl.nasa.gov/>`_.
 
-JPL SBDB (`astroquery.solarsystem.jpl.sbdb`)
-============================================
+.. toctree::
+  :maxdepth: 1
 
-This service provides access to `JPL's Small-Body Data Browser
-<https://ssd.jpl.nasa.gov/sbdb.cgi>`_ to query the properties of
-individual Solar System small bodies. 
+  sbdb/sbdb.rst
 
-
-References/APIs
-===============
+  
+Reference/API
+=============
 
 .. automodapi:: astroquery.solarsystem.jpl
-.. automodapi:: astroquery.solarsystem.jpl.sbdb
+    :no-inheritance-diagram:

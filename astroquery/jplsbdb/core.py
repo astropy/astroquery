@@ -6,9 +6,9 @@ from collections import OrderedDict
 from numpy import genfromtxt, isnan, array
 import astropy.units as u
 
-from astroquery.query import BaseQuery
-from astroquery.utils import commons
-from astroquery.utils import async_to_sync
+from ..query import BaseQuery
+from ..utils import commons
+from ..utils import async_to_sync
 from . import conf
 
 __all__ = ['SBDB', 'SBDBClass']
@@ -317,7 +317,7 @@ class SBDBClass(BaseQuery):
 
         """
 
-        eldict = dict()
+        eldict = OrderedDict()
 
         for q in val:
             # change units where necessary
@@ -341,13 +341,13 @@ class SBDBClass(BaseQuery):
                 eldict[q['name']] = str(q['value'])
                 eldict[q['name']+'_sig'] = str(q['sigma'])
 
-                # add additional information where available
-                if 'ref' in q:
-                    eldict[q['name']+'_ref'] = q['ref']
-                if 'kind' in q:
-                    eldict[q['name']+'_kind'] = q['kind']
-                if 'notes' in q:
-                    eldict[q['name']+'_note'] = q['notes']
+            # add additional information where available
+            if 'ref' in q:
+                eldict[q['name']+'_ref'] = q['ref']
+            if 'kind' in q:
+                eldict[q['name']+'_kind'] = q['kind']
+            if 'notes' in q:
+                eldict[q['name']+'_note'] = q['notes']
 
         return eldict
 

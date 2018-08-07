@@ -1,32 +1,56 @@
 +-+ phys_par: 
 | +-- H: 3.34 mag
 | +-- H_sig: None
+| +-- H_ref: IRAS-A-FPA-3-RDR-IMPS-V6.0
+| +-- H_note: IRAS observations used: 15
 | +-- G: 0.12
 | +-- G_sig: None
+| +-- G_ref: PDS3 (MPC 17257)
+| +-- G_note: Fit
 | +-- diameter: 939.4 km
 | +-- diameter_sig: 0.2 km
+| +-- diameter_ref: Nature vol. 537, pp515-517 (22 September 2016)
+| +-- diameter_note: None
 | +-- extent: 964.4 x 964.2 x 891.8
 | +-- extent_sig: 0.2 x 0.2 x 0.2
 | +-- extent_ref: Nature vol. 537, pp515-517 (22 September 2016)
 | +-- extent_note: fit w.r.t. center of mass and in body-fixed frame
 | +-- GM: 62.6284 km3 / s2
 | +-- GM_sig: 0.0009 km3 / s2
+| +-- GM_ref: Nature vol. 537, pp515-517 (22 September 2016)
+| +-- GM_note: None
 | +-- density: 2.162 g / cm3
 | +-- density_sig: 0.008 g / cm3
+| +-- density_ref: Nature vol. 537, pp515-517 (22 September 2016)
+| +-- density_note: None
 | +-- rot_per: 9.07417 h
 | +-- rot_per_sig: 1e-06 h
+| +-- rot_per_ref: Nature vol. 537, pp515-517 (22 September 2016)
+| +-- rot_per_note: derived from published value: 952.1532 +/- â0.0001 deg./day
 | +-- pole: 291.421/66.758
 | +-- pole_sig: 0.007/0.002
+| +-- pole_ref: Nature vol. 537, pp515-517 (22 September 2016)
+| +-- pole_note: None
 | +-- albedo: 0.090
 | +-- albedo_sig: 0.003
+| +-- albedo_ref: Li et al. (2006) Icarus v182:pp143-160
+| +-- albedo_note: V-band geometric albedo
 | +-- BV: 0.713 mag
 | +-- BV_sig: 0.014 mag
+| +-- BV_ref: EAR-A-5-DDR-UBV-MEAN-VALUES-V1.1
+| +-- BV_note: #obs=52; phase (min.=1.47, mean=11.85, max.=22.59) deg.
 | +-- UB: 0.426 mag
 | +-- UB_sig: 0.026 mag
+| +-- UB_ref: EAR-A-5-DDR-UBV-MEAN-VALUES-V1.1
+| +-- UB_note: #obs=52; phase (min.=1.47, mean=12.16, max.=22.59) deg.
 | +-- spec_T: G
 | +-- spec_T_sig: None
+| +-- spec_T_ref: EAR-A-5-DDR-TAXONOMY-V4.0
+| +-- spec_T_note: used 7 color indices; used ground-based radiometric albedo
 | +-- spec_B: C
 | +-- spec_B_sig: None
+| +-- spec_B_ref: EAR-A-5-DDR-TAXONOMY-V4.0
+| +-- spec_B_note: based on a high-resolution spectrum by Xu et al. (1995) or Bus and Binzel (2002)
 +-+ object: 
 | +-- spkid_alt: []
 | +-- neo: False
