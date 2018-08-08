@@ -110,7 +110,7 @@ def _mashup_json_to_table(json_obj, col_config=None):
             atype = np.int64
             ignoreValue = -999 if (ignoreValue is None) else ignoreValue
         if atype == "date":
-            print(col, json_obj['data'][0][col])
+            #print(col, json_obj['data'][0][col])
             atype = "str"
             ignoreValue = "" if (ignoreValue is None) else ignoreValue
 
@@ -409,6 +409,8 @@ class MastClass(QueryWithLogin):
             use this argument. The default sets it to the same as service.
         """
 
+        print("In col config")
+        
         if not fetch_name:
             fetch_name = service
 
@@ -416,10 +418,47 @@ class MastClass(QueryWithLogin):
                    "Content-type": "application/x-www-form-urlencoded",
                    "Accept": "text/plain"}
 
-        response = self._request("POST", self._COLUMNS_CONFIG_URL,
-                                 data=("colConfigId="+fetch_name), headers=headers)
+        if 'All' in fetch_name: # in this case we are using the histogram information to fill the columns config
+            print("fetchname:",fetch_name)
+            
+            mashupRequest = {'service': fetch_name, 'params': {}, 'format': 'extjs'}
+            reqString = _prepare_service_request_string(mashupRequest)
+            response = self._request("POST", self._MAST_REQUEST_URL, data=reqString, headers=headers)
+            jsonResponse = response[0].json()
 
-        self._column_configs[service] = response[0].json()
+            # When using the histogram data to fill to col_config some processing must be done
+            histData = jsonResponse['data']['Tables'][0]['Columns']
+            col_config = dict()
+            for row in histData:
+                properties = row['ExtendedProperties']
+    
+                colname = properties.get('vot.name',properties.get('vot.ID'))
+                if not colname:
+                    continue
+    
+                # getting what we need from the hist obj and deleting the rest
+                if properties.get('histObj'):
+                    if properties['histObj'].get('type'):
+                        properties['type'] = properties['histObj']['type']
+                    properties.pop('histObj', None)
+    
+                # getting rid of the cc. in columns config keys
+                for key in list(properties.keys()): # have to turn the keys iterator into a list
+                                                    # because we are changing the dictionary on the fly
+                    if 'cc' in key:
+                        properties[key.replace('cc.','')] = properties[key]
+                        properties.pop(key)
+    
+                    col_config[colname] = properties
+
+            self._column_configs[service] = col_config      
+
+        else:
+
+            response = self._request("POST", self._COLUMNS_CONFIG_URL,
+                                     data=("colConfigId="+fetch_name), headers=headers)
+
+            self._column_configs[service] = response[0].json()
 
     def _parse_result(self, responses, verbose=False):
         """
@@ -624,7 +663,9 @@ class MastClass(QueryWithLogin):
 
         # setting self._current_service
         if service not in self._column_configs.keys():
-            self._get_col_config(service)
+            fetch_name = kwargs.pop('fetch_name',None)
+            print("fetch_name:",fetch_name)
+            self._get_col_config(service, fetch_name)
         self._current_service = service
 
         # setting up pagination
@@ -728,7 +769,7 @@ class MastClass(QueryWithLogin):
                 continue
 
             colType = "discrete"
-            if (colInfo.get("vot.datatype", colInfo.get("type")) in ("double", "float")) or colInfo.get("treatNumeric"):
+            if (colInfo.get("vot.datatype", colInfo.get("type")) in ("double", "float", "numeric")) or colInfo.get("treatNumeric"):
                 colType = "continuous"
 
             separator = colInfo.get("separator")
@@ -810,7 +851,7 @@ class ObservationsClass(MastClass):
         # getting all the hitogram information
         service = "Mast.Caom.All"
         params = {}
-        response = Mast.service_request_async(service, params, format='extjs')
+        response = self.service_request_async(service, params, format='extjs')
         jsonResponse = response[0].json()
 
         # getting the list of missions
@@ -1617,6 +1658,8 @@ class CatalogsClass(MastClass):
             radius = radius * u.deg
         radius = coord.Angle(radius)
 
+        fetch_name = None # the name of the columns config if different from the service name
+        
         # Figuring out the service
         if catalog.lower() == "hsc":
             if version == 2:
@@ -1634,13 +1677,16 @@ class CatalogsClass(MastClass):
         elif catalog.lower() == "gaia":
             if version == 1:
                 service = "Mast.Catalogs.GaiaDR1.Cone"
+                fetch_name = "Mast.Catalogs.All.GaiaDR1"
             else:
                 if version not in (2, None):
                     warnings.warn("Invalid Gaia version number, defaulting to DR2.", InputWarning)
                 service = "Mast.Catalogs.GaiaDR2.Cone"
+                fetch_name = "Mast.Catalogs.All.GaiaDR2"
 
         else:
             service = "Mast.Catalogs." + catalog + ".Cone"
+            fetch_name = "Mast.Catalogs.All." + catalog
             self.catalogLimit = None
 
         # basic params
@@ -1660,7 +1706,7 @@ class CatalogsClass(MastClass):
         for prop, value in kwargs.items():
             params[prop] = value
 
-        return self.service_request_async(service, params, pagesize, page)
+        return self.service_request_async(service, params, pagesize, page, fetch_name=fetch_name)
 
     @class_or_instance
     def query_object_async(self, objectname, radius=0.2*u.deg, catalog="Hsc",
@@ -1738,19 +1784,19 @@ class CatalogsClass(MastClass):
         coordinates = criteria.pop('coordinates', None)
         objectname = criteria.pop('objectname', None)
         radius = criteria.pop('radius', 0.2*u.deg)
-
+        
         # Build the mashup filter object
         if catalog == "Tic":
             service = "Mast.Catalogs.Filtered.Tic"
             if coordinates or objectname:
                 service += ".Position"
-            mashupFilters = self._build_filter_set("Mast.Catalogs.Tess.Cone", service, **criteria)
+            mashupFilters = self._build_filter_set("Mast.Catalogs.All.Tic", service, **criteria)
 
         elif catalog == "DiskDetective":
             service = "Mast.Catalogs.Filtered.DiskDetective"
             if coordinates or objectname:
                 service += ".Position"
-            mashupFilters = self._build_filter_set("Mast.Catalogs.Dd.Cone", service, **criteria)
+            mashupFilters = self._build_filter_set("Mast.Catalogs.All.DiskDetective", service, **criteria)
 
         else:
             raise InvalidQueryError("Criteria query not availible for {}".format(catalog))
@@ -1786,7 +1832,10 @@ class CatalogsClass(MastClass):
         if catalog == "Tic":
             params["columns"] = "c.*"
 
-        return self.service_request_async(service, params)
+        #print(service)
+        #print(params)
+            
+        return self.service_request_async(service, params, pagesize=pagesize, page=page)
 
     @class_or_instance
     def query_hsc_matchid_async(self, match, version=3, pagesize=None, page=None):
