@@ -1,0 +1,11 @@
+import runpy
+runpy.run_path('example1_vizier.py')
+runpy.run_path('example2_simbad.py')
+runpy.run_path('example3_simbad.py')
+runpy.run_path('example4_simbad.py')
+runpy.run_path('example5_oec.py')
+runpy.run_path('example6_alma.py')
+runpy.run_path('example7_alma.py')
+runpy.run_path('example8_eso.py')
+runpy.run_path('example9_skyview_vizier.py')
+runpy.run_path('example10_mast.py')
