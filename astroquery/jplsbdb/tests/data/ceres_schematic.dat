@@ -26,7 +26,7 @@
 | +-- rot_per: 9.07417 h
 | +-- rot_per_sig: 1e-06 h
 | +-- rot_per_ref: Nature vol. 537, pp515-517 (22 September 2016)
-| +-- rot_per_note: derived from published value: 952.1532 +/- â0.0001 deg./day
+| +-- rot_per_note: derived from published value: 952.1532 +/- 0.0001 deg./day
 | +-- pole: 291.421/66.758
 | +-- pole_sig: 0.007/0.002
 | +-- pole_ref: Nature vol. 537, pp515-517 (22 September 2016)

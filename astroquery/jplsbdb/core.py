@@ -191,7 +191,8 @@ class SBDBClass(BaseQuery):
         if self._return_raw:
             return response.text
 
-        # decode json response from JPL SBDB server
+        # decode json response from JPL SBDB server into ascii
+        # SBDB API: does not provide proper unicode representation
         try:
             src = OrderedDict(json.loads(response.text))
 
@@ -284,8 +285,7 @@ class SBDBClass(BaseQuery):
                                             len(val[i][field]) > 0 and
                                             isinstance(val[i][field][0],
                                                        dict)):
-                                        res[key][field][i] = \
-                                            self._process_data_element(
+                                        res[key][field][i] = self._process_data_element(
                                             val[i][field])
                                     # or use a list instead
                                     else:
@@ -370,6 +370,9 @@ class SBDBClass(BaseQuery):
         outstring : str
             The formatted string based on ``d``.
 
+        Notes
+        -----
+        All non-ASCII unicode characters are removed from ``outstring``.
 
         Examples
         --------
@@ -392,22 +395,24 @@ class SBDBClass(BaseQuery):
         outstring = ''
         for key, val in d.items():
             if isinstance(val, list):
-                val_formatted = str(val)
-                outstring += ('{:s} {:s}: {:s}\n'.format(_prepend,
-                                                         key,
-                                                         val_formatted))
+                val_formatted = str(val).encode(
+                    'ascii', errors='ignore').decode('ascii')
+                outstring += ('{:s} {:s}: {:s}\n'.format(
+                    _prepend, key,
+                    val_formatted))
             elif isinstance(val, dict):
                 val_formatted = ''
-                outstring += ('{:s} {:s}: {:s}\n'.format(_prepend[: -1]+'+',
-                                                         key,
-                                                         val_formatted))
+                outstring += ('{:s} {:s}: {:s}\n'.format(
+                    _prepend[: -1]+'+', key,
+                    val_formatted))
                 new_prepend = ('| '*int(len(_prepend)/2)) + '+--'
                 outstring += self.schematic(val, _prepend=new_prepend)
             else:
-                val_formatted = str(val)
-                outstring += ('{:s} {:s}: {:s}\n'.format(_prepend,
-                                                         key,
-                                                         val_formatted))
+                val_formatted = str(val).encode(
+                    'ascii', errors='ignore').decode('ascii')
+                outstring += ('{:s} {:s}: {:s}\n'.format(
+                    _prepend, key,
+                    val_formatted))
         return outstring
 
 
