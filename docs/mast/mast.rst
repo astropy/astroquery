@@ -71,6 +71,8 @@ Criteria are supplied as keyword arguments, where valid criteria are "coordinate
 "objectname", "radius" (as in `~astroquery.mast.ObservationsClass.query_region` and
 `~astroquery.mast.ObservationsClass.query_object`), and all observation fields listed
 `here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`__.
+Additionally calibration data can be accessed by setting the obstype keyword to 'cal'
+(calibration only) or 'all' (calibration and science). 
 
 Argument values are one or more acceptable values for the criterion,
 except for fields with a float datatype where the argument should be in the form
@@ -382,7 +384,8 @@ An optional version parameter allows you to select which version you want, the d
 
 .. code-block:: python
 
-                >>> catalogData = Catalogs.query_region("158.47924 -7.30962", radius=0.1, catalog="Gaia", version=2)
+                >>> catalogData = Catalogs.query_region("158.47924 -7.30962", radius=0.1,
+                >>>                                      catalog="Gaia", version=2)
                 >>> print("Number of results:",len(catalogData))
                 >>> print(catalogData[:4])
 
