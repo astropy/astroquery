@@ -2,9 +2,9 @@
 
 .. _astroquery.jplhorizons:
 
-***********************************************
-JPL Horizons Queries (`astroquery.jplhorizons`)
-***********************************************
+***********************************************************************************
+JPL Horizons Queries (`astroquery.jplhorizons`/astroquery.solarsystem.jpl.horizons)
+***********************************************************************************
 
 Overview
 ========
@@ -13,6 +13,11 @@ Overview
 The :class:`~astroquery.jplhorizons.HorizonsClass` class provides an
 interface to services provided by the `Solar System Dynamics group at
 the Jet Propulation Laboratory`_.
+
+Because of its relevance to Solar System science, this service can
+also be accessed from the topical submodule
+`astroquery.solarsystem.jpl`. The functionality of that service is
+identical to the one presented here.
 
 In order to query information for a specific Solar System body, a
 ``Horizons`` object has to be instantiated:
