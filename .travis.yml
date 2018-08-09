@@ -43,7 +43,7 @@ env:
         - CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring aplpy matplotlib pyregion jinja2 flask regions'
         # pandas is used as a workaround of an astropy issue, sometimes it's required for the remote tests
         - CONDA_DEPENDENCIES_REMOTE='requests beautifulsoup4 html5lib keyring aplpy matplotlib pyregion jinja2 flask pandas regions'
-        - PIP_DEPENDENCIES='https://github.com/keflavich/httpbin/archive/master.zip astropy_healpix mocpy pytest-3.7 pytest-dependency'
+        - PIP_DEPENDENCIES='https://github.com/keflavich/httpbin/archive/master.zip astropy_healpix mocpy pytest==3.7 pytest-dependency'
         - HTTP_BIN_CMD="import httpbin; httpbin.app.run()"
         - RUN_HTTPBIN='python -c "$HTTP_BIN_CMD" & ACTIVE_HTTPBIN=True'
         - SETUP_CMD='test'
