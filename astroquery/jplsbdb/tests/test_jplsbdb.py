@@ -14,31 +14,10 @@ DATA_FILES = {'1': 'ceres.dat',
               '67P': '67P.dat',
               }
 
-SCHEMATICS = {'1': ('| +-- equinox: J2000\n'
-                    '| +-- data_arc: 24437\n'
-                    '| +-- not_valid_after: None\n'
-                    '| +-- n_del_obs_used: 405\n'
-                    '| +-- sb_used: SB431-N16\n'),
-              'Apophis': ('| +-- albedo: 0.23\n'
-                          '| +-- albedo_sig: None\n'
-                          '| +-- albedo_ref: T. Mueller (2013)\n'
-                          '| +-- albedo_note: http://www.esa.int/Our_'
-                          'Activities/Space_Science/Herschel_intercepts_'
-                          'asteroid_Apophis'),
-              '3200': ('| +-+ model_pars: \n'
-                       '| | +-- A2: -4.86111e-15 AU / d2\n'
-                       '| | +-- A2_sig: 1.386e-15 AU / d2\n'
-                       '| | +-- A2_kind: EST\n'
-                       '| | +-- ALN: 1.\n'
-                       '| | +-- ALN_sig: None\n'),
-              '67P': ('| +-+ des_alt: \n'
-                      '| | +-- yl: [\'1988i\', \'1982f\', \'1975i\', '
-                      '\'1969h\']\n'
-                      '| | +-- rn: [\'1989 VI\', \'1982 VIII\', '
-                      '\'1976 VII\', \'1969 IV\']\n'
-                      '| +-+ orbit_class: \n'
-                      '| | +-- name: Jupiter-family Comet\n'
-                      '| | +-- code: JFc\n')
+SCHEMATICS = {'1': '| +-- n_del_obs_used: 405',
+              'Apophis': '| +-- albedo_note: http://www.esa.int/Our_',
+              '3200': '| | +-- A2_kind: EST',
+              '67P': '| | +-- name: Jupiter-family Comet'
               }
 
 
