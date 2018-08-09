@@ -9,13 +9,37 @@ from .. import SBDB, SBDBClass
 
 # files in data/ for different query types
 DATA_FILES = {'1': 'ceres.dat',
-              '1_schematic': 'ceres_schematic.dat',
               'Apophis': 'apophis.dat',
-              'Apophis_schematic': 'apophis_schematic.dat',
               '3200': 'phaethon.dat',
-              '3200_schematic': 'phaethon_schematic.dat',
               '67P': '67P.dat',
-              '67P_schematic': '67P_schematic.dat'}
+              }
+
+SCHEMATICS = {'1': ('| +-- equinox: J2000\n'
+                    '| +-- data_arc: 24437\n'
+                    '| +-- not_valid_after: None\n'
+                    '| +-- n_del_obs_used: 405\n'
+                    '| +-- sb_used: SB431-N16\n'),
+              'Apophis': ('| +-- albedo: 0.23\n'
+                          '| +-- albedo_sig: None\n'
+                          '| +-- albedo_ref: T. Mueller (2013)\n'
+                          '| +-- albedo_note: http://www.esa.int/Our_'
+                          'Activities/Space_Science/Herschel_intercepts_'
+                          'asteroid_Apophis'),
+              '3200': ('| +-+ model_pars: \n'
+                       '| | +-- A2: -4.86111e-15 AU / d2\n'
+                       '| | +-- A2_sig: 1.386e-15 AU / d2\n'
+                       '| | +-- A2_kind: EST\n'
+                       '| | +-- ALN: 1.\n'
+                       '| | +-- ALN_sig: None\n'),
+              '67P': ('| +-+ des_alt: \n'
+                      '| | +-- yl: [\'1988i\', \'1982f\', \'1975i\', '
+                      '\'1969h\']\n'
+                      '| | +-- rn: [\'1989 VI\', \'1982 VIII\', '
+                      '\'1976 VII\', \'1969 IV\']\n'
+                      '| +-+ orbit_class: \n'
+                      '| | +-- name: Jupiter-family Comet\n'
+                      '| | +-- code: JFc\n')
+              }
 
 
 def data_path(filename):
@@ -50,8 +74,6 @@ def patch_request(request):
 
 def test_objects_against_schema(patch_request):
     for targetname in DATA_FILES.keys():
-        if '_schematic' in targetname:
-            continue
 
         sbdb = SBDB.query(targetname, id_type='search', phys=True,
                           alternate_id=True, full_precision=True,
@@ -60,6 +82,4 @@ def test_objects_against_schema(patch_request):
                           virtual_impactor=True,
                           discovery=True, radar=True)
 
-        with open(data_path(DATA_FILES[targetname][:-4]+'_schematic.dat'),
-                  'r') as f:
-            assert f.read() == SBDB.schematic(sbdb)
+        assert SCHEMATICS[targetname] in SBDB.schematic(sbdb)
