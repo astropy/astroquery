@@ -4,7 +4,8 @@ import pytest
 import os
 
 from astroquery.utils.testing_tools import MockResponse
-
+import astropy.units as u
+from astropy.tests.helper import assert_quantity_allclose
 from .. import SBDB, SBDBClass
 
 # files in data/ for different query types
@@ -19,6 +20,11 @@ SCHEMATICS = {'1': '| +-- n_del_obs_used: 405',
               '3200': '| | +-- A2_kind: EST',
               '67P': '| | +-- name: Jupiter-family Comet'
               }
+
+SEMI_MAJOR = {'1': 2.767046248500289,
+              'Apophis': .9224383019077086,
+              '3200': 1.271196435728355,
+              '67P': 3.46473701803964}
 
 
 def data_path(filename):
@@ -51,7 +57,7 @@ def patch_request(request):
 
 # --------------------------------- actual test functions
 
-def test_objects_against_schema(patch_request):
+def test_objects_numerically(patch_request):
     for targetname in DATA_FILES.keys():
 
         sbdb = SBDB.query(targetname, id_type='search', phys=True,
@@ -61,4 +67,18 @@ def test_objects_against_schema(patch_request):
                           virtual_impactor=True,
                           discovery=True, radar=True)
 
-        assert SCHEMATICS[targetname] in SBDB.schematic(sbdb)
+        assert_quantity_allclose(sbdb['orbit']['elements']['a'].scale,
+                                 SEMI_MAJOR[targetname])
+
+
+# def test_objects_against_schema(patch_request):
+#     for targetname in DATA_FILES.keys():
+
+#         sbdb = SBDB.query(targetname, id_type='search', phys=True,
+#                           alternate_id=True, full_precision=True,
+#                           covariance='mat', validity=True,
+#                           alternate_orbit=True, close_approach=True,
+#                           virtual_impactor=True,
+#                           discovery=True, radar=True)
+
+#         assert SCHEMATICS[targetname] in SBDB.schematic(sbdb)
