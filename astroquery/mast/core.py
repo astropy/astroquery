@@ -746,7 +746,8 @@ class MastClass(QueryWithLogin):
                 continue
 
             colType = "discrete"
-            if (colInfo.get("vot.datatype", colInfo.get("type")) in ("double", "float", "numeric")) or colInfo.get("treatNumeric"):
+            if (colInfo.get("vot.datatype", colInfo.get("type")) in ("double", "float", "numeric")) \
+               or colInfo.get("treatNumeric"):
                 colType = "continuous"
 
             separator = colInfo.get("separator")

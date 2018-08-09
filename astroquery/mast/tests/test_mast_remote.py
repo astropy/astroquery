@@ -102,7 +102,6 @@ class TestMast(object):
                                                   proposal_id=8169,
                                                   t_min=[49335, 51499])
 
-
         assert isinstance(result, Table)
         assert len(result) == 57
         assert ((result['obs_collection'] == 'HST') | (result['obs_collection'] == 'HLA')).all()
@@ -158,17 +157,17 @@ class TestMast(object):
         observations = mast.Observations.query_object("M8", radius=".02 deg")
         test_obs_id = str(observations[0]['obsid'])
         mult_obs_ids = str(observations[0]['obsid']) + ',' + str(observations[2]['obsid'])
-        
+
         result1 = mast.Observations.get_product_list(test_obs_id)
         result2 = mast.Observations.get_product_list(observations[0])
         assert isinstance(result1, Table)
         assert len(result1) == len(result2)
-        
+
         result1 = mast.Observations.get_product_list(mult_obs_ids)
         result2 = mast.Observations.get_product_list(observations[0:2])
         assert isinstance(result1, Table)
         assert len(result1) == len(result2)
-        
+
         obsLoc = np.where(observations["obs_id"] == 'ktwo200071160-c92_lc')
         result = mast.Observations.get_product_list(observations[obsLoc])
         assert isinstance(result, Table)
@@ -192,7 +191,7 @@ class TestMast(object):
     def test_observations_download_products(self, tmpdir):
         observations = mast.Observations.query_object("M8", radius=".02 deg")
         test_obs_id = str(observations[0]['obsid'])
-        
+
         # actually download the products
         result = mast.Observations.download_products(test_obs_id,
                                                      download_dir=str(tmpdir),

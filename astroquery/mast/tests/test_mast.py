@@ -18,7 +18,7 @@ DATA_FILES = {'Mast.Caom.Cone': 'caom.json',
               'Mast.Name.Lookup': 'resolver.json',
               'columnsconfig': 'columnsconfig.json',
               'ticcolumns': 'ticcolumns.json',
-              'ticcol_filtered':  'ticcolumns_filtered.json',
+              'ticcol_filtered': 'ticcolumns_filtered.json',
               'ddcolumns': 'ddcolumns.json',
               'ddcol_filtered': 'ddcolumns_filtered.json',
               'Mast.Caom.Filtered': 'advSearch.json',
@@ -76,7 +76,7 @@ def post_mockreturn(method="POST", url=None, data=None, timeout=10, **kwargs):
         service = "ticcol_filtered"
     elif "Catalogs.All.DiskDetective" in data:
         service = "ddcol_filtered"
-    
+
     # need to distiguish counts queries
     if ("Filtered" in service) and (re.search(r"COUNT_BIG%28%2A%29", data)):
         service = "Counts"
