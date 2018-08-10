@@ -240,13 +240,18 @@ class SBDBClass(BaseQuery):
                     # turn 'data' lists into arrays
                     if key == 'data':
                         if len(array(val).shape) > 1:
-                            res['key'] = []
+                            res[key] = []
                             for i in range(array(val).shape[1]):
-                                res['key'].append(genfromtxt(val[i]))
-                            res['key'] = array(res['key'])
+                                if isinstance(val[i], bytes):
+                                    val[i] = val[i].decode('utf-8')
+                                res[key].append(genfromtxt(val[i]))
+                            if isinstance(key, bytes):
+                                key = key.decode('utf-8')
+                            res[key] = array(res[key])
                         else:
                             res[key] = genfromtxt(val)
-
+                            if isinstance(val[i], bytes):
+                                val[i] = val[i].decode('utf-8')
                         continue
 
                     # turn lists of dictionaries into lists/leave as scalars
