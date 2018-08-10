@@ -245,13 +245,11 @@ class SBDBClass(BaseQuery):
                                 if isinstance(val[i], bytes):
                                     val[i] = val[i].decode('utf-8')
                                 res[key].append(genfromtxt(val[i]))
-                            if isinstance(key, bytes):
-                                key = key.decode('utf-8')
                             res[key] = array(res[key])
                         else:
+                            if isinstance(val, bytes):
+                                val = val.decode('utf-8')
                             res[key] = genfromtxt(val)
-                            if isinstance(val[i], bytes):
-                                val[i] = val[i].decode('utf-8')
                         continue
 
                     # turn lists of dictionaries into lists/leave as scalars
@@ -262,6 +260,10 @@ class SBDBClass(BaseQuery):
 
                             try:
                                 # try to convert list of strings to array
+                                for i in range(len(val)):
+                                    if isinstance(val[i][field], bytes):
+                                        val[i][field] = val[i][field].decode(
+                                            'utf-8')
                                 res[key][field] = genfromtxt(
                                     [val[i][field] for i in
                                      range(len(val))])
