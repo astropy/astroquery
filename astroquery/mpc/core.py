@@ -336,7 +336,8 @@ class MPCClass(BaseQuery):
                             number=None, ut_offset=0, eph_type='equatorial',
                             proper_motion='total', proper_motion_unit='arcsec/h',
                             suppress_daytime=False, suppress_set=False,
-                            perturbed=True, unc_links=False, **kwargs):
+                            perturbed=True, get_query_payload=False,
+                            get_raw_response=False, cache=False):
         """Object ephemerides from the Minor Planet Ephemeris Service.
 
         Parameters
@@ -405,6 +406,17 @@ class MPCClass(BaseQuery):
 
         unc_links : bool, optional
             Return columns with uncertainty map and offset links, if available.
+
+        get_query_payload : bool, optional
+            Return the HTTP request parameters as a dictionary
+            (default: False).
+
+        get_raw_response : bool, optional
+            Return raw data without parsing into a table (default:
+            `False`).
+
+        cache : bool, optional
+            Cache results or use cached results (default: `False`).
 
         Returns
         -------
@@ -548,7 +560,7 @@ class MPCClass(BaseQuery):
         self._proper_motion_unit = u.Unit(proper_motion_unit)
         self._unc_links = unc_links
 
-        if kwargs.get('get_query_payload', False):
+        if get_query_payload:
             return request_args
 
         self.query_type = 'ephemeris'
@@ -557,13 +569,25 @@ class MPCClass(BaseQuery):
         return response
 
     @class_or_instance
-    def get_observatory_codes_async(self, cache=True):
+    def get_observatory_codes_async(self, get_query_payload=False,
+                                    get_raw_response=False, cache=True):
         """Table of observatory codes from the IAU Minor Planet Center[1].
 
         Returns
         -------
         tab : Table
             Table of codes, coordinates, and names.
+
+        get_query_payload : bool, optional
+            Return the HTTP request parameters as a dictionary
+            (default: False).
+
+        get_raw_response : bool, optional
+            Return raw data without parsing into a table (default:
+            `False`).
+
+        cache : bool, optional
+            Cache results or use cached results (default: `True`).
 
         References
         ----------
