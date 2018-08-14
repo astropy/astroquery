@@ -49,7 +49,7 @@ import pytest
 import numpy as np
 
 import astropy.units as u
-from astropy.coordinates import EarthLocation
+from astropy.coordinates import EarthLocation, Angle
 from astropy.time import Time
 
 from ...exceptions import InvalidQueryError
@@ -322,3 +322,16 @@ def test_get_observatory_codes():
     result = mpc.core.MPC.get_observatory_codes()
     greenwich = ['000', 0.0, 0.62411, 0.77873, 'Greenwich']
     assert all([r == g for r, g in zip(result[0], greenwich)])
+
+
+def test_get_observatory_location():
+    result = mpc.core.MPC.get_observatory_location('000')
+    greenwich = [Angle(0.0, 'deg'), 0.62411, 0.77873, 'Greenwich']
+    assert all([r == g for r, g in zip(result, greenwich)])
+
+
+def test_get_observatory_location_fail():
+    with pytest.raises(TypeError):
+        mpc.core.MPC.get_observatory_location(0)
+    with pytest.raises(ValueError):
+        mpc.core.MPC.get_observatory_location('00')

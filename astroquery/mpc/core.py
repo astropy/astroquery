@@ -340,6 +340,7 @@ class MPCClass(BaseQuery):
                             get_raw_response=False, cache=False):
         """Object ephemerides from the Minor Planet Ephemeris Service.
 
+
         Parameters
         ----------
         target : str
@@ -418,10 +419,12 @@ class MPCClass(BaseQuery):
         cache : bool, optional
             Cache results or use cached results (default: `False`).
 
+
         Returns
         -------
         tab : Table
             Table of ephemerides.
+
 
         Notes
         -----
@@ -488,6 +491,7 @@ class MPCClass(BaseQuery):
             If a comet name is not unique, the first match will be
             returned.
 
+
         References
         ----------
 
@@ -498,6 +502,7 @@ class MPCClass(BaseQuery):
            [2] IAU Minor Planet Center.  List of Observatory codes.
            https://minorplanetcenter.net/iau/lists/ObsCodesF.html
            (retrieved 2018 June 19).
+
 
         Examples
         --------
@@ -569,19 +574,12 @@ class MPCClass(BaseQuery):
         return response
 
     @class_or_instance
-    def get_observatory_codes_async(self, get_query_payload=False,
-                                    get_raw_response=False, cache=True):
+    def get_observatory_codes_async(self, get_raw_response=False, cache=True):
         """Table of observatory codes from the IAU Minor Planet Center[1].
 
-        Returns
-        -------
-        tab : Table
-            Table of codes, coordinates, and names.
 
-        get_query_payload : bool, optional
-            Return the HTTP request parameters as a dictionary
-            (default: False).
-
+        Parameters
+        ----------
         get_raw_response : bool, optional
             Return raw data without parsing into a table (default:
             `False`).
@@ -589,11 +587,19 @@ class MPCClass(BaseQuery):
         cache : bool, optional
             Cache results or use cached results (default: `True`).
 
+
+        Returns
+        -------
+        tab : Table
+            Table of codes, coordinates, and names.
+
+
         References
         ----------
         .. [1] IAU Minor Planet Center.  List of Observatory codes.
            https://minorplanetcenter.net/iau/lists/ObsCodesF.html
            (retrieved 2018 June 19).
+
 
         Examples
         --------
@@ -611,6 +617,70 @@ class MPCClass(BaseQuery):
                                  timeout=self.TIMEOUT, cache=cache)
 
         return response
+
+    @class_or_instance
+    def get_observatory_location(self, code, cache=True):
+        """IAU observatory location.
+
+
+        Parameters
+        ----------
+        code : string
+            Three-character IAU observatory code.
+
+        cache : bool, optional
+            Cache observatory table or use cached results (default:
+            `True`).
+
+
+        Returns
+        -------
+        longitude : Angle
+            Observatory longitude (east of Greenwich).
+
+        cos : float
+            Parallax constant `rho * cos(phi)` where `rho` is the
+            geocentric distance in earth radii, and `phi` is the
+            geocentric latitude.
+
+        sin : float
+            Parallax constant `rho * sin(phi)`.
+
+        name : string
+            The name of the observatory.
+
+
+        Raises
+        ------
+        LookupError
+            If `code` is not found in the MPC table.
+
+
+        References
+        ----------
+        .. [1] IAU Minor Planet Center.  List of Observatory codes.
+           https://minorplanetcenter.net/iau/lists/ObsCodesF.html
+           (retrieved 2018 June 19).
+
+
+        Examples
+        --------
+        >>> from astroquery.mpc import MPC
+        >>> obs = MPC.get_observatory_location('000')
+        >>> print(obs)  # doctest: +SKIP
+        (<Angle 0. deg>, 0.62411, 0.77873, 'Greenwich')
+
+        """
+
+        if not isinstance(code, str):
+            raise TypeError('code must be a string')
+        if len(code) != 3:
+            raise ValueError('code must be three charaters long')
+        tab = self.get_observatory_codes(cache=cache)
+        for row in tab:
+            if row[0] == code:
+                return Angle(row[1], 'deg'), row[2], row[3], row[4]
+        raise LookupError('{} not found'.format(code))
 
     def _args_to_object_payload(self, **kwargs):
         request_args = kwargs
