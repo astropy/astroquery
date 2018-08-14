@@ -40,6 +40,10 @@ For ObsCodes.html:
 Then edit and remove all but the first 10 lines of observatories.
 This is sufficient for testing.
 
+Download and trim the observatory codes file for testing:
+$ wget https://www.minorplanetcenter.net/iau/lists/ObsCodes.html
+Then edit to remove all but the first ~10 observatories.
+
 """
 import pytest
 import numpy as np
@@ -301,7 +305,7 @@ def test_get_ephemeris_suppress_set(suppress_set, val):
 
 
 @pytest.mark.parametrize('perturbed,val', ((True, 'y'), (False, 'n')))
-def test_get_ephemeris_suppress_set(perturbed, val):
+def test_get_ephemeris_perturbed(perturbed, val):
     payload = mpc.core.MPC.get_ephemeris('2P', perturbed=perturbed,
                                          get_query_payload=True)
     assert payload['fp'] == val

@@ -1,10 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import numpy as np
 import requests
 import pytest
 
-import astropy.units as u
-from astropy.time import Time
 from astropy.tests.helper import remote_data
 from ...exceptions import InvalidQueryError
 from ... import mpc
@@ -39,10 +36,6 @@ class TestMPC(object):
         response = mpc.core.MPC.query_object_async(
             target_type=type, designation=designation)
         assert response.status_code == requests.codes.ok
-        print(response.json())
-        print(mpc.core.MPC.query_object_async(get_query_payload=True,
-                                              target_type=type, designation=designation))
-        print(response.content)
         assert len(response.json()) == 1
         assert response.json()[0]['designation'].lower() == designation.lower()
 
