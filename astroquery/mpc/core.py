@@ -338,7 +338,8 @@ class MPCClass(BaseQuery):
                             ra_format=None, dec_format=None,
                             proper_motion='total', proper_motion_unit='arcsec/h',
                             suppress_daytime=False, suppress_set=False,
-                            perturbed=True, get_query_payload=False,
+                            perturbed=True, unc_links=False,
+                            get_query_payload=False,
                             get_raw_response=False, cache=False):
         """Object ephemerides from the Minor Planet Ephemeris Service.
 
