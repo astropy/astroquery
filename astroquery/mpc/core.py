@@ -388,12 +388,12 @@ class MPCClass(BaseQuery):
         ra_format : dict, optional
             Format the RA column with
             `~astropy.coordinates.Angle.to_string` using these keyword
-            arguments.
+            arguments, e.g., `{'sep': ':', 'unit': 'hourangle', 'precision': 1}`.
 
         dec_format : dict, optional
             Format the Dec column with
             `~astropy.coordinates.Angle.to_string` using these keyword
-            arguments.
+            arguments, e.g., `{'sep': ':', 'precision': 0}`.
 
         proper_motion : str, optional
             total: total motion and direction (default)
@@ -418,7 +418,8 @@ class MPCClass(BaseQuery):
             (default `True`).
 
         unc_links : bool, optional
-            Return columns with uncertainty map and offset links, if available.
+            Return columns with uncertainty map and offset links, if
+            available.
 
         get_query_payload : bool, optional
             Return the HTTP request parameters as a dictionary
