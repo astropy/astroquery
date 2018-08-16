@@ -506,7 +506,6 @@ class MPCClass(BaseQuery):
 
         Examples
         --------
-
         >>> from astroquery.mpc import MPC
         >>> tab = astroquery.mpc.MPC.get_ephemeris('(24)', location=568,
         ...            start='2003-02-26', step='100d', number=3)  # doctest: +SKIP
