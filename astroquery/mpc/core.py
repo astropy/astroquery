@@ -6,6 +6,7 @@ from json import JSONDecodeError
 import numpy as np
 from astropy.io import ascii
 from astropy.time import Time
+from astropy.table import Column
 import astropy.units as u
 from astropy.coordinates import EarthLocation, Angle
 
@@ -334,6 +335,7 @@ class MPCClass(BaseQuery):
     @class_or_instance
     def get_ephemeris_async(self, target, location='500', start=None, step='1d',
                             number=None, ut_offset=0, eph_type='equatorial',
+                            ra_format=None, dec_format=None,
                             proper_motion='total', proper_motion_unit='arcsec/h',
                             suppress_daytime=False, suppress_set=False,
                             perturbed=True, get_query_payload=False,
@@ -382,6 +384,16 @@ class MPCClass(BaseQuery):
                 heliocentric: heliocentric position and velocity
                     vectors
                 geocentric: geocentric position vector
+
+        ra_format : dict, optional
+            Format the RA column with
+            `~astropy.coordinates.Angle.to_string` using these keyword
+            arguments.
+
+        dec_format : dict, optional
+            Format the Dec column with
+            `~astropy.coordinates.Angle.to_string` using these keyword
+            arguments.
 
         proper_motion : str, optional
             total: total motion and direction (default)
@@ -561,6 +573,8 @@ class MPCClass(BaseQuery):
             proper_motion=proper_motion)
 
         # store for retrieval in _parse_result
+        self._ra_format = ra_format
+        self._dec_format = dec_format
         self._proper_motion_unit = u.Unit(proper_motion_unit)
         self._unc_links = unc_links
 
@@ -852,11 +866,29 @@ class MPCClass(BaseQuery):
                     d[:4], d[5:7], d[8:10], d[11:13], d[13:15], d[15:17])
                     for d in tab['Date']], scale='utc')
 
-                # convert from MPES string to float:
-                tab['RA'] = Angle(tab['RA'], unit='hourangle')
-                tab['Dec'] = Angle(tab['Dec'], unit='deg')
+                # convert from MPES string:
+                ra = Angle(tab['RA'], unit='hourangle').to('deg')
+                dec = Angle(tab['Dec'], unit='deg')
 
-                # convert propert motion columns
+                # optionally convert back to a string
+                if self._ra_format is not None:
+                    ra_unit = self._ra_format.get('unit', ra.unit)
+                    ra = ra.to_string(**self._ra_format)
+                else:
+                    ra_unit = ra.unit
+
+                if self._dec_format is not None:
+                    dec_unit = self._dec_format.get('unit', dec.unit)
+                    dec = dec.to_string(**self._dec_format)
+                else:
+                    dec_unit = dec.unit
+
+                # replace columns
+                tab.remove_columns(('RA', 'Dec'))
+                tab.add_column(Column(ra, name='RA', unit=ra_unit), index=1)
+                tab.add_column(Column(dec, name='Dec', unit=dec_unit), index=2)
+
+                # convert proper motion columns
                 for col in ('Proper motion', 'dRA', 'dRA cos(Dec)', 'dDec'):
                     if col in tab.colnames:
                         tab[col].convert_unit_to(self._proper_motion_unit)

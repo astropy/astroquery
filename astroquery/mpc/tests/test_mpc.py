@@ -241,6 +241,22 @@ def test_get_ephemeris_number_fail():
         mpc.core.MPC.get_ephemeris('2P', number=1500)
 
 
+def test_get_ephemeris_ra_format():
+    result = mpc.core.MPC.get_ephemeris('2P')
+    ra0 = Angle(result['RA'])
+    result = mpc.core.MPC.get_ephemeris('2P', ra_format={'unit': 'hourangle'})
+    ra1 = Angle(result['RA'])
+    assert np.allclose(ra0.deg, ra1.deg)
+
+
+def test_get_ephemeris_dec_format():
+    result = mpc.core.MPC.get_ephemeris('2P')
+    dec0 = Angle(result['Dec'])
+    result = mpc.core.MPC.get_ephemeris('2P', dec_format={'unit': 'deg'})
+    dec1 = Angle(result['Dec'])
+    assert np.allclose(dec0.deg, dec1.deg)
+
+
 @pytest.mark.parametrize('eph_type,cols', (
     ('equatorial', ('RA', 'Dec')),
     ('heliocentric', ('X', 'Y', 'Z', "X'", "Y'", "Z'")),
