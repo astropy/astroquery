@@ -54,3 +54,9 @@ distribute-*.tar.gz
 
 # Mac OSX
 .DS_Store
+/O5HKAX030_FLT.FITS
+/J6FL25S4Q.tar
+/.gitignore
+/metadata.xml
+/HST/
+/version.py
