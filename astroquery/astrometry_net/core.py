@@ -143,6 +143,16 @@ import six
 from six import string_types
 from astropy.io import fits
 from astropy import log
+from astropy.stats import sigma_clipped_stats
+from astropy.nddata import CCDData
+from astropy.coordinates import SkyCoord
+
+try:
+    from photutils import DAOStarFinder
+except ImportError:
+    _HAVE_SOURCE_DETECTION = False
+else:
+    _HAVE_SOURCE_DETECTION = True
 
 from ..query import BaseQuery
 from ..utils import async_to_sync, url_helpers
@@ -190,6 +200,8 @@ class AstrometryNetClass(BaseQuery):
         'image_height': {'default': None, 'type': int, 'allowed': (0,)},
         'positional_error': {'default': None, 'type': float, 'allowed': (0,)},
     }
+
+    _no_source_detector = not _HAVE_SOURCE_DETECTION
 
     @property
     def api_key(self):
@@ -287,6 +299,27 @@ class AstrometryNetClass(BaseQuery):
                 raise ValueError('Scale type {} requires '
                                  'values for {}'.format(scale_type, required_keys))
 
+    def _await_response(self, submission_id):
+        has_completed = False
+        job_id = None
+        print('Solving', end='', flush=True)
+        while not has_completed:
+            time.sleep(1)
+            sub_stat_url = url_helpers.join(self.API_URL, 'submissions', str(submission_id))
+            sub_stat = self._request('GET', sub_stat_url, cache=False)
+            jobs = sub_stat.json()['jobs']
+            if jobs:
+                job_id = jobs[0]
+            if job_id:
+                job_stat_url = url_helpers.join(self.API_URL, 'jobs', str(job_id), 'info')
+                job_stat = self._request('GET', job_stat_url, cache=False)
+                has_completed = job_stat.json()['status'] == 'success'
+            print('.', end='', flush=True)
+        wcs_url = url_helpers.join(self.URL, 'wcs_file', str(job_id))
+        wcs_response = self._request('GET', wcs_url)
+        wcs = fits.Header.fromstring(wcs_response.text)
+        return wcs
+
     def solve_from_source_list(self, x=None, y=None,
                                image_width=None, image_height=None,
                                center_ra=None, center_dec=None,
@@ -294,7 +327,8 @@ class AstrometryNetClass(BaseQuery):
                                scale_units=None, scale_lower=None,
                                scale_upper=None, scale_est=None,
                                scale_err=None, tweak_order=None,
-                               crpix_center=None, parity=None
+                               crpix_center=None, parity=None,
+                               publicly_visible=None
                                ):
         """
         Plate solve from a list of source positions.
@@ -314,7 +348,7 @@ class AstrometryNetClass(BaseQuery):
         settings = {
             # 'allow_commercial_use': allow_commercial_use,
             # 'allow_modifications': allow_modifications,
-            # 'publicly_visible': publicly_visible,
+            'publicly_visible': publicly_visible,
             'scale_units': scale_units,
             'scale_type': scale_type,
             'scale_lower': scale_lower,
@@ -352,24 +386,90 @@ class AstrometryNetClass(BaseQuery):
             raise RuntimeError('Post of job failed')
         response_d = response.json()
         submission_id = response_d['subid']
-        has_completed = False
-        job_id = None
-        while not has_completed:
-            time.sleep(1)
-            sub_stat_url = url_helpers.join(self.API_URL, 'submissions', str(submission_id))
-            sub_stat = self._request('GET', sub_stat_url, cache=False)
-            jobs = sub_stat.json()['jobs']
-            if jobs:
-                job_id = jobs[0]
-            if job_id:
-                job_stat_url = url_helpers.join(self.API_URL, 'jobs', str(job_id), 'info')
-                job_stat = self._request('GET', job_stat_url, cache=False)
-                has_completed = job_stat.json()['status'] == 'success'
-            print(has_completed)
-        wcs_url = url_helpers.join(self.URL, 'wcs_file', str(job_id))
-        wcs_response = self._request('GET', wcs_url)
-        wcs = fits.Header.fromstring(wcs_response.text)
-        return wcs
+        return self._await_response(submission_id)
+
+    def solve_from_image(self, image_file_path, force_image_upload=False,
+                         ra_key=None, dec_key=None,
+                         ra_dec_units=None,
+                         center_ra=None, center_dec=None,
+                         radius=None, scale_type=None,
+                         scale_units=None, scale_lower=None,
+                         scale_upper=None, scale_est=None,
+                         scale_err=None, tweak_order=None,
+                         crpix_center=None, parity=None,
+                         publicly_visible=None):
+
+        if ra_key and dec_key:
+            with fits.open(image_file_path) as f:
+                hdr = f[0].header
+                # The error here if one of these fails should be pretty clear
+                ra = hdr[ra_key]
+                dec = hdr[dec_key]
+                # Convert these to degrees in appropriate range
+                center = SkyCoord(ra, dec, unit=('hour', 'degree'))
+                center_ra = center.ra.degree
+                center_dec = center.dec.degree
+
+        settings = {
+            # 'allow_commercial_use': allow_commercial_use,
+            # 'allow_modifications': allow_modifications,
+            'publicly_visible': publicly_visible,
+            'scale_units': scale_units,
+            'scale_type': scale_type,
+            'scale_lower': scale_lower,
+            'scale_upper': scale_upper,
+            'scale_est': scale_est,
+            'scale_err': scale_err,
+            'center_ra': center_ra,
+            'center_dec': center_dec,
+            'radius': radius,
+            # 'downsample_factor': downsample_factor,
+            'tweak_order': tweak_order,
+            # 'use_sextractor': use_sextractor,
+            'crpix_center': crpix_center,
+            'parity': parity,
+            # 'positional_error': positional_error,
+        }
+        settings = {k: v for k, v in six.iteritems(settings) if v is not None}
+        self._validate_settings(settings)
+
+        if force_image_upload or self._no_source_detector:
+            if self._session_id is None:
+                self._login()
+            settings['session'] = self._session_id
+            payload = self._contruct_payload(settings)
+            url = url_helpers.join(self.API_URL, 'upload')
+            with open(image_file_path, 'rb') as f:
+                response = self._request('POST', url, data=payload,
+                                         cache=False,
+                                         files={'file': f})
+        else:
+            # Detect sources and delegate to solve_from_source_list
+
+            # CCDData requires a unit, so provide one. The unit is completely
+            # irrelevant to the astrometry.net solution.
+            ccd = CCDData.read(image_file_path, unit='adu')
+            print("Determining background stats", flush=True)
+            mean, median, std = sigma_clipped_stats(ccd.data, sigma=3.0,
+                                                    iters=5)
+            daofind = DAOStarFinder(fwhm=3.0, threshold=5. * std)
+            print("Finding sources", flush=True)
+            sources = daofind(ccd.data - median)
+            # astrometry.net wants a sorted list of sources
+            # Sort first (which puts things in ascending order)
+            sources.sort('flux')
+            # Reverse to get descending order
+            sources.reverse()
+            return self.solve_from_source_list(x=sources['xcentroid'],
+                                               y=sources['ycentroid'],
+                                               image_width=ccd.header['naxis1'],
+                                               image_height=ccd.header['naxis2'],
+                                               **settings)
+        if response.status_code != 200:
+            raise RuntimeError('Post of job failed')
+        response_d = response.json()
+        submission_id = response_d['subid']
+        return self._await_response(submission_id)
 
 
 # the default tool for users to interact with is an instance of the Class
