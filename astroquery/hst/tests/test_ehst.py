@@ -16,75 +16,48 @@ import os
 import pytest
 
 from astroquery.hst.core import HstClass
-#import astropy.units as u
-#from astropy.coordinates.sky_coordinate import SkyCoord
-#from astropy.units import Quantity
-#import numpy as np
+from astroquery.hst.tests.dummy_handler import DummyHandler
 
-def data_path(filename):
-    data_dir = os.path.join(os.path.dirname(__file__), 'data')
-    return os.path.join(data_dir, filename)
-
-
-class TestTap(unittest.TestCase):
+class TestEhst(unittest.TestCase):
 
     def test_get_product(self):
-        ehst = HstClass()
-        # default parameters
         parameters = {}
         parameters['observation_id'] = "J6FL25S4Q"
         parameters['calibration_level'] = "RAW"
         parameters['verbose'] = False
-        ehst.test_get_product(
-        dummyTapHandler.check_call('load_tables', parameters)
-        # test with parameters
-        dummyTapHandler.reset()
-        parameters = {}
-        parameters['only_names'] = True
-        parameters['include_shared_tables'] = True
-        parameters['verbose'] = True
-        tap.load_tables(True, True, True)
-        dummyTapHandler.check_call('load_tables', parameters)
+        dummyHandler = DummyHandler("get_product", parameters)
+        ehst = HstClass(dummyHandler)
+        ehst.get_product("J6FL25S4Q","RAW")
+        dummyHandler.check_call("get_product", parameters)
 
     def test_get_artifact(self):
-        ehst = HstClass()
-        # default parameters
         parameters = {}
-        parameters['artifact_id'] = 'O5HKAX030_FLT.FITS'
+        parameters['artifact_id'] = "O5HKAX030_FLT.FITS"
         parameters['verbose'] = False
+        dummyHandler = DummyHandler("get_artifact", parameters)
+        ehst = HstClass(dummyHandler)
+        ehst.get_artifact("O5HKAX030_FLT.FITS")
+        dummyHandler.check_call("get_artifact", parameters)
 
     def test_get_postcard(self):
-        ehst = HstClass()
-        # default parameters
         parameters = {}
-        parameters['table'] = 'table'
+        parameters['observation_id'] = "X0MC5101T"
         parameters['verbose'] = False
-        tap.load_table('table')
-        dummyTapHandler.check_call('load_table', parameters)
-        # test with parameters
-        dummyTapHandler.reset()
-        parameters = {}
-        parameters['table'] = 'table'
-        parameters['verbose'] = True
-        tap.load_table('table', verbose=True)
-        dummyTapHandler.check_call('load_table', parameters)
-    
-    def test_get_metadata(self):
-        ehst = HstClass()
-        # default parameters
-        parameters = {}
-        parameters['table'] = 'table'
-        parameters['verbose'] = False
-        tap.load_table('table')
-        dummyTapHandler.check_call('load_table', parameters)
-        # test with parameters
-        dummyTapHandler.reset()
-        parameters = {}
-        parameters['table'] = 'table'
-        parameters['verbose'] = True
-        tap.load_table('table', verbose=True)
-        dummyTapHandler.check_call('load_table', parameters)
+        dummyHandler = DummyHandler("get_postcard", parameters)
+        ehst = HstClass(dummyHandler)
+        ehst.get_product("X0MC5101T")
+        dummyHandler.check_call("get_postcard", parameters)
 
+    def test_get_metadata(self):
+        parameters = {}
+        parameters['params'] = "RESOURCE_CLASS=ARTIFACT&OBSERVATION.OBSERVATION_ID=i9zg04010&SELECTED_FIELDS=ARTIFACT.ARTIFACT_ID&RETURN_TYPE=VOTABLE"
+        parameters['verbose'] = False
+        dummyHandler = DummyHandler("get_metadata", parameters)
+        ehst = HstClass(dummyHandler)
+        ehst.get_metadata("RESOURCE_CLASS=ARTIFACT&OBSERVATION.OBSERVATION_ID=i9zg04010&SELECTED_FIELDS=ARTIFACT.ARTIFACT_ID&RETURN_TYPE=VOTABLE")
+        dummyHandler.check_call("get_metadata", parameters)
+
+test = TestEhst()
 
 if __name__ == "__main__":
     # import sys;sys.argv = ['', 'Test.testName']

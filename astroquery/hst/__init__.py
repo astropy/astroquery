@@ -29,4 +29,4 @@ conf = Conf()
 
 from .core import Hst, HstClass
 
-__all__ = ['Hst', 'HstClass', 'Conf', 'conf']
+__all__ = ['Hst', 'HstClass', 'Conf', 'conf', 'Handler', 'EhstHandler']

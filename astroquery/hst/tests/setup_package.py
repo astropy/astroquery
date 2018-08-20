@@ -7,7 +7,7 @@ import os
 # setup paths to the test data
 # can specify a single file or a list of files
 def get_package_data():
-    paths = [os.path.join('data', '*.vot'),
+    paths = [os.path.join('data', '*.tar'),
              os.path.join('data', '*.xml'),
              ]  # etc, add other extensions
     # you can also enlist files individually by names
