@@ -1,8 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
-=============
-Gaia TAP plus
-=============
 
 @author: Javier Duran
 @contact: javier.duran@sciops.esa.int

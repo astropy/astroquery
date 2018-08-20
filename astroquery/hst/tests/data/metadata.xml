@@ -1,0 +1,15 @@
+<?xml version="1.0"?><VOTABLE version="1.2" xmlns="http://www.ivoa.net/xml/VOTable/v1.2"><RESOURCE type="eHST results"><DESCRIPTION>eHST Metadata Query Service</DESCRIPTION>
+<INFO name="QUERY_STATUS" value="OK">
+</INFO><TABLE><FIELD ID="ARTIFACT_ID" datatype="char" arraysize="*"/><DATA><TABLEDATA><TR><TD>i9zg04010_asn.fits</TD></TR>
+<TR><TD>i9zg04010_drz.fits</TD></TR>
+<TR><TD>i9zg04010_drz.jpg</TD></TR>
+<TR><TD>i9zg04010_drz_thumb.jpg</TD></TR>
+<TR><TD>i9zg04010_jif.fits</TD></TR>
+<TR><TD>i9zg04010_jit.fits</TD></TR>
+<TR><TD>i9zg04010_spt.fits</TD></TR>
+<TR><TD>i9zg04010_trl.fits</TD></TR>
+</TABLEDATA>
+</DATA>
+</TABLE>
+</RESOURCE>
+</VOTABLE>
