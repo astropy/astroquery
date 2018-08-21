@@ -11,9 +11,13 @@ class DummyHandler(object):
     def get_file(self, url, filename, verbose=False):
         file = data_path(filename)
         print(file)
-        f = open(file)
-        f.close()
-        return
+        if file.endswith(".xml"):
+            with open(file, 'r') as myfile:
+                data=myfile.read().replace("\n", "")
+        else:
+            with open(file, 'rb') as myfile:
+                data=myfile.read()
+        return data
     
     def __init__(self, method, parameters):
         self.__invokedMethod = method
