@@ -350,29 +350,33 @@ class MPCClass(BaseQuery):
             Designation of the object of interest.  See Notes for
             acceptable formats.
 
-        location : str, array-like, or EarthLocation, optional
-            Observer's location as an IAU observatory code[2]_, a
-            3-element array of Earth longitude, latitude, altitude, or
-            an astropy `EarthLocation`.  Longitude and latitude should
-            be anything that initializes an astropy Angle object, and
-            altitude should initialize an astropy unit (of length).
-            If `None`, then the geocenter (code 500) is used.
+        location : str, array-like, or `~astropy.coordinates.EarthLocation`, optional
+            Observer's location as an IAU observatory code
+            [OBSCODES]_, a 3-element array of Earth longitude,
+            latitude, altitude, or a
+            `~astropy.coordinates.EarthLocation`.  Longitude and
+            latitude should be anything that initializes an
+            `~astropy.coordinates.Angle` object, and altitude should
+            initialize an `~astropy.units.Quantity` object (with units
+            of length).  If ``None``, then the geocenter (code 500) is
+            used.
 
-        start : str or Time, optional
+        start : str or `~astropy.time.Time`, optional
             First epoch of the ephemeris as a string (UT), or astropy
-            `Time`.  Strings are parsed by `astropy.time.Time`.  If
-            `None`, then today is used.  Valid dates span the time
-            period 1900 Jan 1 - 2099 Dec 31 [1]_.
+            `~astropy.time.Time`.  Strings are parsed by
+            `~astropy.time.Time`.  If ``None``, then today is used.
+            Valid dates span the time period 1900 Jan 1 - 2099 Dec 31
+            [MPES]_.
 
-        step : str or Quantity, optional
+        step : str or `~astropy.units.Quantity`, optional
             The ephemeris step size or interval in units of days,
             hours, minutes, or seconds.  Strings are parsed by
-            `astropy.units.Quantity`.  All inputs are rounded to the
+            `~astropy.units.Quantity`.  All inputs are rounded to the
             nearest integer.  Default is 1 day.
 
         number : int, optional
             The number of ephemeris dates to compute.  Must be ≤1441.
-            If `None`, the value depends on the units of `step`: 21
+            If ``None``, the value depends on the units of ``step``: 21
             for days, 49 for hours, 121 for minutes, or 301 for
             seconds.
 
@@ -380,27 +384,28 @@ class MPCClass(BaseQuery):
             Number of hours to offset from 0 UT for daily ephemerides.
 
         eph_type : str, optional
-            Specify the type of ephemeris:
+            Specify the type of ephemeris::
+
                 equatorial: RA and Dec (default)
-                heliocentric: heliocentric position and velocity
-                    vectors
+                heliocentric: heliocentric position and velocity vectors
                 geocentric: geocentric position vector
 
         ra_format : dict, optional
             Format the RA column with
             `~astropy.coordinates.Angle.to_string` using these keyword
-            arguments, e.g., `{'sep': ':', 'unit': 'hourangle', 'precision': 1}`.
+            arguments, e.g.,
+            ``{'sep': ':', 'unit': 'hourangle', 'precision': 1}``.
 
         dec_format : dict, optional
             Format the Dec column with
             `~astropy.coordinates.Angle.to_string` using these keyword
-            arguments, e.g., `{'sep': ':', 'precision': 0}`.
+            arguments, e.g., ``{'sep': ':', 'precision': 0}``.
 
         proper_motion : str, optional
             total: total motion and direction (default)
             coordinate: separate RA and Dec coordinate motion
             sky: separate RA and Dec sky motion (i.e., includes a
-                cos(Dec) term).
+            cos(Dec) term).
 
         proper_motion_unit : string or Unit, optional
             Convert proper motion to this unit.  Must be an angular
@@ -408,15 +413,15 @@ class MPCClass(BaseQuery):
 
         suppress_daytime : bool, optional
             Suppress output when the Sun is above the local
-            horizon. (default `False`)
+            horizon. (default ``False``)
 
         suppress_set : bool, optional
             Suppress output when the object is below the local
-            horizon. (default `False`)
+            horizon. (default ``False``)
 
         perturbed : bool, optional
             Generate perturbed ephemerides for unperturbed orbits
-            (default `True`).
+            (default ``True``).
 
         unc_links : bool, optional
             Return columns with uncertainty map and offset links, if
@@ -424,14 +429,14 @@ class MPCClass(BaseQuery):
 
         get_query_payload : bool, optional
             Return the HTTP request parameters as a dictionary
-            (default: False).
+            (default: ``False``).
 
         get_raw_response : bool, optional
             Return raw data without parsing into a table (default:
-            `False`).
+            ``False``).
 
         cache : bool, optional
-            Cache results or use cached results (default: `False`).
+            Cache results or use cached results (default: ``False``).
 
 
         Returns
@@ -442,21 +447,21 @@ class MPCClass(BaseQuery):
 
         Notes
         -----
-        See the MPES user's guide[1]_ for details on options and
+        See the MPES user's guide [MPES]_ for details on options and
         implementation.
 
         MPES allows azimuths to be measured eastwards from the north
-        meridian, or westwards from the south meridian.  However,
-        `astropy`'s `AltAz` coordinate frame assumes eastwards of
-        north.  To remain consistent with `astropy`, eastwards of
-        north is used.
+        meridian, or westwards from the south meridian.  However, the
+        `~astropy.coordinates.AltAz` coordinate frame assumes
+        eastwards of north.  To remain consistent with Astropy,
+        eastwards of north is used.
 
         Acceptable target names:
 
             +------------+-----------------------------------+
             | Target     | Description                       |
             +============+===================================+
-            | (3202)     | Numbered minor planet (3202)      |
+            | \(3202)    | Numbered minor planet (3202)      |
             +------------+-----------------------------------+
             | 14829      | Numbered minor planet (14829)     |
             +------------+-----------------------------------+
@@ -489,11 +494,11 @@ class MPCClass(BaseQuery):
             +------------+-----------------------------------+
             | Target     | Description                       |
             +============+===================================+
-            | Encke      | (9134) Encke                      |
+            | Encke      | \(9134) Encke                     |
             +------------+-----------------------------------+
-            | Africa     | (1193) Africa                     |
+            | Africa     | \(1193) Africa                    |
             +------------+-----------------------------------+
-            | Africano   | (6391) Africano                   |
+            | Africano   | \(6391) Africano                  |
             +------------+-----------------------------------+
             | P/Encke    | 2P/Encke                          |
             +------------+-----------------------------------+
@@ -509,11 +514,12 @@ class MPCClass(BaseQuery):
         References
         ----------
 
-        .. [1] Williams, G. The Minor Planet Ephemeris Service.
+        .. [MPES] Williams, G. The Minor Planet Ephemeris Service.
            https://minorplanetcenter.net/iau/info/MPES.pdf (retrieved
            2018 June 19).
 
-           [2] IAU Minor Planet Center.  List of Observatory codes.
+        .. [OBSCODES] IAU Minor Planet Center.  List of Observatory
+           codes.
            https://minorplanetcenter.net/iau/lists/ObsCodesF.html
            (retrieved 2018 June 19).
 
@@ -591,7 +597,7 @@ class MPCClass(BaseQuery):
     @class_or_instance
     def get_observatory_codes_async(self, get_raw_response=False, cache=True):
         """
-        Table of observatory codes from the IAU Minor Planet Center[1].
+        Table of observatory codes from the IAU Minor Planet Center [OBSCODES]_.
 
 
         Parameters
@@ -612,7 +618,7 @@ class MPCClass(BaseQuery):
 
         References
         ----------
-        .. [1] IAU Minor Planet Center.  List of Observatory codes.
+        .. [OBSCODES] IAU Minor Planet Center.  List of Observatory codes.
            https://minorplanetcenter.net/iau/lists/ObsCodesF.html
            (retrieved 2018 June 19).
 
@@ -656,12 +662,12 @@ class MPCClass(BaseQuery):
             Observatory longitude (east of Greenwich).
 
         cos : float
-            Parallax constant `rho * cos(phi)` where `rho` is the
-            geocentric distance in earth radii, and `phi` is the
+            Parallax constant ``rho * cos(phi)`` where ``rho`` is the
+            geocentric distance in earth radii, and ``phi`` is the
             geocentric latitude.
 
         sin : float
-            Parallax constant `rho * sin(phi)`.
+            Parallax constant ``rho * sin(phi)``.
 
         name : string
             The name of the observatory.
@@ -671,13 +677,6 @@ class MPCClass(BaseQuery):
         ------
         LookupError
             If `code` is not found in the MPC table.
-
-
-        References
-        ----------
-        .. [1] IAU Minor Planet Center.  List of Observatory codes.
-           https://minorplanetcenter.net/iau/lists/ObsCodesF.html
-           (retrieved 2018 June 19).
 
 
         Examples

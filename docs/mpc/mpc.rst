@@ -30,9 +30,10 @@ Asteroid and comet orbits and parameters
 Queries with varying forms of selection parameters
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Individual objects can be found with `MPC.query_object`, and
-`MPC.query_objects` can return multiple objects.  Parameters can
-be queried in three manners:
+Individual objects can be found with ``MPC.query_object``, and
+``MPC.query_objects`` can return multiple objects.  Parameters can be
+queried in three manners:
+
     - exact match
     - with a _min suffix, which sets the minimum value for the parameter
     - with a _max suffix, which sets the maximum value for the parameter
@@ -124,7 +125,7 @@ Dates and intervals
 For the ephemeris of asteroid (24) Themis, starting today with the
 default time step (1 day) and location (geocenter):
 
-.. code-bock:: python
+.. code-block:: python
 
     >>> from astroquery.mpc import MPC
     >>> eph = MPC.get_ephemeris('24')
@@ -143,9 +144,9 @@ default time step (1 day) and location (geocenter):
     2018-09-05 14:34:53.000 103.89458333333332 23.331666666666667 3.264 2.895       60.0  17.6 12.8         48.96      94.9               --        --
     Length = 21 rows
 
-Step sizes are parsed with Astropy's `~astropy.unit.Quantity`.  For a time step of 1 hour:
+Step sizes are parsed with Astropy's `~astropy.units.Quantity`.  For a time step of 1 hour:
 
-.. code-bock:: python
+.. code-block:: python
 
     >>> eph = MPC.get_ephemeris('24', step='1h')
     >>> print(eph)
@@ -166,7 +167,7 @@ Step sizes are parsed with Astropy's `~astropy.unit.Quantity`.  For a time step 
 Start dates are parsed with Astropy's `~astropy.time.Time`.  For a
 weekly ephemeris in 2020:
 
-.. code-bock:: python
+.. code-block:: python
 
     >>> eph = MPC.get_ephemeris('24', start='2020-01-01', step='7d', number=52)
     >>> print(eph)
@@ -192,7 +193,7 @@ Ephemerides may be calculated for Earth-based observers.  To calculate
 Makemake's ephemeris for the Discovery Channel Telescope (IAU
 observatory code G37):
 
-.. code-bock:: python
+.. code-block:: python
 
     >>> eph = MPC.get_ephemeris('Makemake', location='G37')
     >>> print(eph)
@@ -248,11 +249,11 @@ Working with ephemeris tables
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Columns in the returned ephemeris tables carry the appropriate units.
-Convert the columns to Astropy quantities using the `.quantity`
+Convert the columns to Astropy quantities using the ``.quantity``
 attribute.  To find comet Hyakutake's peak proper motion in the sky in
 degrees per hour:
 
-.. code-bock:: python
+.. code-block:: python
 
     >>> eph = MPC.get_ephemeris('C/1996 B2', start='1996-03-01', step='1h', number=30 * 24)
     >>> print(eph['Proper motion'].quantity.to('deg/h').max())
@@ -260,10 +261,10 @@ degrees per hour:
 
 Sky coordinates are returned as quantities carrying units of degrees.
 If a sexagesimal representation is desired, they may be replaced with
-strings using the `ra_format` and `dec_format` keyword arguments (see
-`~astropy.coordinates.Angle.to_string` for formatting options):
+strings using the ``ra_format`` and ``dec_format`` keyword arguments
+(see `~astropy.coordinates.Angle.to_string` for formatting options):
 
-.. code-bock:: python
+.. code-block:: python
 
     >>> eph = MPC.get_ephemeris('2P', ra_format={'sep': ':', 'unit': 'hourangle', 'precision': 1}, dec_format={'sep': ':', 'precision': 0})
     >>> print(eph)
@@ -288,7 +289,7 @@ IAU Observatory Codes
 Two methods are available for working with the MPC's observatory list.
 To retrieve a list of all observatories:
 
-.. code-bock:: python
+.. code-block:: python
 
     >>> obs = MPC.get_observatory_codes()
     >>> print(obs)
@@ -310,22 +311,22 @@ To retrieve a list of all observatories:
     Length = 2099 rows
 
 The results are cached by default.  To update the cache, use the
-`cache=False` optional keyword:
+``cache=False`` optional keyword:
 
-.. code-bock:: python
+.. code-block:: python
 
     >>> obs = MPC.get_observatory_codes(cache=False)
 
 To get the location (longitude, parallax constants, and name) of a
 single observatory:
 
-.. code-bock:: python
+.. code-block:: python
 
     >>> print(MPC.get_observatory_location('371'))
     (<Angle 133.5965 deg>, 0.82433, 0.56431, 'Tokyo-Okayama')
 
-The parallax constants are `rho * cos(phi)` and `rho * sin(phi)` where
-`rho` is the geocentric distance in earth radii, and `phi` is the
+The parallax constants are ``rho * cos(phi)`` and ``rho * sin(phi)`` where
+``rho`` is the geocentric distance in earth radii, and ``phi`` is the
 geocentric latitude.
 
 
