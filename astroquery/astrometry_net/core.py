@@ -222,7 +222,6 @@ class AstrometryNetClass(BaseQuery):
         """
         return {k: self._constraints[k]['default'] for k in self._constraints.keys()}
 
-
     def show_allowed_settings(self):
         """
         There are a ton of options available for solving. This displays
