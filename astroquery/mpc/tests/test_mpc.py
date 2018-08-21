@@ -1,5 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-"""test_mpc
+"""
+test_mpc
 
 Generate offline ephemeris files for testing with the following
 commands.  The asteroid must be one that returns ephemeris

@@ -192,6 +192,8 @@ Ephemerides may be calculated for Earth-based observers.  To calculate
 Makemake's ephemeris for the Discovery Channel Telescope (IAU
 observatory code G37):
 
+.. code-bock:: python
+
     >>> eph = MPC.get_ephemeris('Makemake', location='G37')
     >>> print(eph)
               Date                  RA                Dec         Delta    r    Elongation Phase  V   Proper motion Direction Azimuth Altitude Sun altitude Moon phase Moon distance Moon altitude Uncertainty 3sig Unc. P.A.

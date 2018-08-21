@@ -341,7 +341,8 @@ class MPCClass(BaseQuery):
                             perturbed=True, unc_links=False,
                             get_query_payload=False,
                             get_raw_response=False, cache=False):
-        """Object ephemerides from the Minor Planet Ephemeris Service.
+        """
+        Object ephemerides from the Minor Planet Ephemeris Service.
 
 
         Parameters
@@ -436,8 +437,8 @@ class MPCClass(BaseQuery):
 
         Returns
         -------
-        tab : Table
-            Table of ephemerides.
+        response : `requests.Response`
+            The HTTP response returned from the service.
 
 
         Notes
@@ -590,7 +591,8 @@ class MPCClass(BaseQuery):
 
     @class_or_instance
     def get_observatory_codes_async(self, get_raw_response=False, cache=True):
-        """Table of observatory codes from the IAU Minor Planet Center[1].
+        """
+        Table of observatory codes from the IAU Minor Planet Center[1].
 
 
         Parameters
@@ -605,8 +607,8 @@ class MPCClass(BaseQuery):
 
         Returns
         -------
-        tab : Table
-            Table of codes, coordinates, and names.
+        response : `requests.Response`
+            The HTTP response returned from the service.
 
 
         References
@@ -635,7 +637,8 @@ class MPCClass(BaseQuery):
 
     @class_or_instance
     def get_observatory_location(self, code, cache=True):
-        """IAU observatory location.
+        """
+        IAU observatory location.
 
 
         Parameters
@@ -761,7 +764,7 @@ class MPCClass(BaseQuery):
         if self.query_type == 'object':
             try:
                 data = result.json()
-            except JSONDecodeError:
+            except ValueError:
                 raise InvalidQueryError(result.text)
             return data
         elif self.query_type == 'observatory_code':
