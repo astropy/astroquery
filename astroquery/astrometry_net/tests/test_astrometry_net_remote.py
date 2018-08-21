@@ -21,9 +21,6 @@ DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 def data_path(filename):
     return os.path.join(DATA_DIR, filename)
 
-# class TestDummyClass:
-#     # now write tests for each method here
-#     pass
 
 api_key = conf.api_key or os.environ.get('ASTROMETRY_NET_API_KEY')
 
