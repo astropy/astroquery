@@ -215,6 +215,30 @@ class AstrometryNetClass(BaseQuery):
         """ Temporarily set the API key. """
         conf.api_key = value
 
+    @property
+    def empty_settings(self):
+        """
+        Construct a dict of settings using the defaults
+        """
+        return {k: self._constraints[k]['default'] for k in self._constraints.keys()}
+
+
+    def show_allowed_settings(self):
+        """
+        There are a ton of options available for solving. This displays
+        them in a nice way.
+        """
+        keys = sorted(self._constraints.keys())
+        for key in keys:
+            key_info = self._constraints[key]
+            print('{key}: type {type!r}, '
+                  'default value {default}, '
+                  'allowed values {values}'
+                  ''.format(key=key,
+                            type=key_info['type'].__name__,
+                            default=key_info['default'],
+                            values=key_info['allowed']))
+
     def __init__(self):
         """ Show a warning message if the API key is not in the configuration file. """
         super(AstrometryNetClass, self).__init__()
@@ -322,13 +346,7 @@ class AstrometryNetClass(BaseQuery):
 
     def solve_from_source_list(self, x=None, y=None,
                                image_width=None, image_height=None,
-                               center_ra=None, center_dec=None,
-                               radius=None, scale_type=None,
-                               scale_units=None, scale_lower=None,
-                               scale_upper=None, scale_est=None,
-                               scale_err=None, tweak_order=None,
-                               crpix_center=None, parity=None,
-                               publicly_visible=None
+                               **settings
                                ):
         """
         Plate solve from a list of source positions.
@@ -344,29 +362,11 @@ class AstrometryNetClass(BaseQuery):
             Size of the image in the x-direction.
         image_height : int
             Size of the image in the y-direction.
+
+        For a list of the remaining settings, use the method
+        `~AstrometryNetClass.show_allowed_settings`.
         """
-        settings = {
-            # 'allow_commercial_use': allow_commercial_use,
-            # 'allow_modifications': allow_modifications,
-            'publicly_visible': publicly_visible,
-            'scale_units': scale_units,
-            'scale_type': scale_type,
-            'scale_lower': scale_lower,
-            'scale_upper': scale_upper,
-            'scale_est': scale_est,
-            'scale_err': scale_err,
-            'center_ra': center_ra,
-            'center_dec': center_dec,
-            'radius': radius,
-            # 'downsample_factor': downsample_factor,
-            'tweak_order': tweak_order,
-            # 'use_sextractor': use_sextractor,
-            'crpix_center': crpix_center,
-            'parity': parity,
-            'image_width': image_width,
-            'image_height': image_height,
-            # 'positional_error': positional_error,
-        }
+
         if (x is None or y is None or
                 image_width is None or image_height is None):
             raise ValueError('Must provide values for x, y, '
@@ -391,14 +391,44 @@ class AstrometryNetClass(BaseQuery):
     def solve_from_image(self, image_file_path, force_image_upload=False,
                          ra_key=None, dec_key=None,
                          ra_dec_units=None,
-                         center_ra=None, center_dec=None,
-                         radius=None, scale_type=None,
-                         scale_units=None, scale_lower=None,
-                         scale_upper=None, scale_est=None,
-                         scale_err=None, tweak_order=None,
-                         crpix_center=None, parity=None,
-                         publicly_visible=None):
+                         **settings):
+        """
+        Plate solve from an image, either by uploading the image to
+        astrometry.net or by finding sources locally using photutils
+        and solving with source locations.
 
+        Parameters
+        ----------
+
+        image_file_path : str or Path object
+            Path to the image.
+
+        force_image_upload : bool, optional
+            If ``True``, upload the image to astrometry.net even if it is
+            possible to detect sources in the image locally. This option will
+            almost always take longer than finding sources locally. It will even
+            take longer than installing photutils and then rerunning this.
+
+            Even if this is ``False`` the image image will be upload unless
+            `photutils` is installed.
+
+        ra_key : str, optional
+            Name of the key in the FITS header that contains right ascension of the image.
+            The ra can be specified using the ``center_ra`` setting instead if
+            desired.
+
+        dec_key : str, optional
+            Name of the key in the FITS header that contains declination of the image.
+            The dec can be specified using the ``center_dec`` setting instead if
+            desired.
+
+        ra_dec_units : tuple, optional
+            Tuple specifying the units of the right ascension and declination in
+            the header. The default value is ``('hour', 'degree')``.
+
+        For a list of the remaining settings, use the method
+        `~AstrometryNetClass.show_allowed_settings`.
+        """
         if ra_key and dec_key:
             with fits.open(image_file_path) as f:
                 hdr = f[0].header
@@ -407,29 +437,9 @@ class AstrometryNetClass(BaseQuery):
                 dec = hdr[dec_key]
                 # Convert these to degrees in appropriate range
                 center = SkyCoord(ra, dec, unit=('hour', 'degree'))
-                center_ra = center.ra.degree
-                center_dec = center.dec.degree
+                settings['center_ra'] = center.ra.degree
+                settings['center_dec'] = center.dec.degree
 
-        settings = {
-            # 'allow_commercial_use': allow_commercial_use,
-            # 'allow_modifications': allow_modifications,
-            'publicly_visible': publicly_visible,
-            'scale_units': scale_units,
-            'scale_type': scale_type,
-            'scale_lower': scale_lower,
-            'scale_upper': scale_upper,
-            'scale_est': scale_est,
-            'scale_err': scale_err,
-            'center_ra': center_ra,
-            'center_dec': center_dec,
-            'radius': radius,
-            # 'downsample_factor': downsample_factor,
-            'tweak_order': tweak_order,
-            # 'use_sextractor': use_sextractor,
-            'crpix_center': crpix_center,
-            'parity': parity,
-            # 'positional_error': positional_error,
-        }
         settings = {k: v for k, v in six.iteritems(settings) if v is not None}
         self._validate_settings(settings)
 
