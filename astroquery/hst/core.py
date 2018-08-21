@@ -11,6 +11,9 @@ Created on 13 Ago. 2018
 
 
 """
+from astroquery.utils import commons
+from astropy import units
+from astropy.units import Quantity
 
 import urllib.request
 from . import conf
@@ -122,7 +125,51 @@ class HstClass(object):
             The identifier of the data reduction/processing applied to the data. By default, the most scientifically relevant level will be chosen. RAW, CALIBRATED, PRODUCT or AUXILIARY
             resolution : integer, postcard resolution, optional, default 256
             Resolution of the retrieved postcard. 256 or 1024
-            filename : string, file name to be used to store the postcard, optional, default None 
+            filename : string, file name to be used to store the postcard, optional, default None
+            File name for the artifact
+            verbose : bool, optional, default 'False'
+            Flag to display information about the process
+            
+            Returns
+            -------
+            None. It downloads metadata as a result of the restrictions defined.
+        """
+        
+        link = self.metadata_url + params
+        if filename is None:
+            filename = "metadata.xml"
+        print(link)
+        return self.__handler.get_file(link, filename, verbose)
+
+    def query_region(self, coordinates, radius=None, filename=None, verbose=False):
+        coord = self.__getCoordInput(coordinates, "coordinate")
+        if radius is not None:
+            print("Not yet implemented")
+        else:
+            #RESOURCE_CLASS=OBSERVATION&SELECTED_FIELDS=OBSERVATION&QUERY=(POSITION.RA==10.684708%20AND%20POSITION.DEC==41.26875)&RETURN_TYPE=VOTABLE
+            raHours, dec = commons.coord_to_radec(coord)
+            ra = raHours * 15.0  # Converts to degrees
+            initial = "RESOURCE_CLASS=OBSERVATION&SELECTED_FIELDS=OBSERVATION&QUERY=(POSITION.RA=="
+            middle = "%20AND%20POSITION.DEC=="
+            final = ")&RETURN_TYPE=VOTABLE"
+            link = self.metadata_url + initial + str(ra) + middle + str(dec) + final
+            #widthQuantity = self.__getQuantityInput(width, "width")
+            #heightQuantity = self.__getQuantityInput(height, "height")
+            #widthDeg = widthQuantity.to(units.deg)
+            #heightDeg = heightQuantity.to(units.deg)
+            if filename is None:
+                filename = "region.xml"
+            print(link)
+            return self.__handler.get_file(link, filename, verbose)
+
+    def query_target(self, name, filename=None, verbose=False):
+        """ It executes a query over EHST and download the xml with the results
+            
+            Parameters
+            ----------
+            name : string, target name to be requested, mandatory
+            Target name to be requested.
+            filename : string, file name to be used to store the metadata, optional, default None
             File name for the artifact
             verbose : bool, optional, default 'False'
             Flag to display information about the process
@@ -132,10 +179,44 @@ class HstClass(object):
             None. It downloads metadata as a result of the restrictions defined.
         """
 
-        link = self.metadata_url + params
+        initial = "RESOURCE_CLASS=OBSERVATION&SELECTED_FIELDS=OBSERVATION&QUERY=(TARGET.TARGET_NAME=='"
+        final = "')&RETURN_TYPE=VOTABLE"
+        link = self.metadata_url + initial + name + final
         if filename is None:
-            filename = "metadata.xml"
+            filename = "target.xml"
         print(link)
         return self.__handler.get_file(link, filename, verbose)
+
+    def __checkQuantityInput(self, value, msg):
+        if not (isinstance(value, str) or isinstance(value, units.Quantity)):
+            raise ValueError(
+                             str(msg) + " must be either a string or astropy.coordinates")
+        
+    def __getQuantityInput(self, value, msg):
+        if value is None:
+            raise ValueError("Missing required argument: '"+str(msg)+"'")
+        if not (isinstance(value, str) or isinstance(value, units.Quantity)):
+            raise ValueError(
+                             str(msg) + " must be either a string or astropy.coordinates")
+        if isinstance(value, str):
+            q = Quantity(value)
+            return q
+        else:
+            return value
+        
+    def __checkCoordInput(self, value, msg):
+        if not (isinstance(value, str) or isinstance(value, commons.CoordClasses)):
+            raise ValueError(
+                             str(msg) + " must be either a string or astropy.coordinates")
+
+    def __getCoordInput(self, value, msg):
+        if not (isinstance(value, str) or isinstance(value, commons.CoordClasses)):
+            raise ValueError(
+                             str(msg) + " must be either a string or astropy.coordinates")
+        if isinstance(value, str):
+            c = commons.parse_coordinates(value)
+            return c
+        else:
+            return value
 
 Hst = HstClass()

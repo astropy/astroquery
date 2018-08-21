@@ -27,9 +27,9 @@ class TestEhst(unittest.TestCase):
         parameters['verbose'] = False
         dummyHandler = DummyHandler("get_product", parameters)
         ehst = HstClass(dummyHandler)
-        ehst.get_product("J6FL25S4Q","RAW")
+        product = ehst.get_product("J6FL25S4Q","RAW")
         dummyHandler.check_call("get_product", parameters)
-
+ 
     def test_get_artifact(self):
         parameters = {}
         parameters['artifact_id'] = "O5HKAX030_FLT.FITS"
@@ -54,8 +54,9 @@ class TestEhst(unittest.TestCase):
         parameters['verbose'] = False
         dummyHandler = DummyHandler("get_metadata", parameters)
         ehst = HstClass(dummyHandler)
-        ehst.get_metadata("RESOURCE_CLASS=ARTIFACT&OBSERVATION.OBSERVATION_ID=i9zg04010&SELECTED_FIELDS=ARTIFACT.ARTIFACT_ID&RETURN_TYPE=VOTABLE")
+        metadata = ehst.get_metadata("RESOURCE_CLASS=ARTIFACT&OBSERVATION.OBSERVATION_ID=i9zg04010&SELECTED_FIELDS=ARTIFACT.ARTIFACT_ID&RETURN_TYPE=VOTABLE")
         dummyHandler.check_call("get_metadata", parameters)
+        assert metadata == "<?xml version=\"1.0\"?><VOTABLE version=\"1.2\" xmlns=\"http://www.ivoa.net/xml/VOTable/v1.2\"><RESOURCE type=\"eHST results\"><DESCRIPTION>eHST Metadata Query Service</DESCRIPTION><INFO name=\"QUERY_STATUS\" value=\"OK\"></INFO><TABLE><FIELD ID=\"ARTIFACT_ID\" datatype=\"char\" arraysize=\"*\"/><DATA><TABLEDATA><TR><TD>i9zg04010_asn.fits</TD></TR><TR><TD>i9zg04010_drz.fits</TD></TR><TR><TD>i9zg04010_drz.jpg</TD></TR><TR><TD>i9zg04010_drz_thumb.jpg</TD></TR><TR><TD>i9zg04010_jif.fits</TD></TR><TR><TD>i9zg04010_jit.fits</TD></TR><TR><TD>i9zg04010_spt.fits</TD></TR><TR><TD>i9zg04010_trl.fits</TD></TR></TABLEDATA></DATA></TABLE></RESOURCE></VOTABLE>"
 
 test = TestEhst()
 
