@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from bs4 import BeautifulSoup
-from json import JSONDecodeError
 
 import numpy as np
 from astropy.io import ascii
