@@ -40,7 +40,10 @@ class GaiaClass(object):
         else:
             self.__gaiatap = tap_plus_handler
         if datalink_handler is None:
-            self.__gaiadata = TapPlus(url="http://geadata.esac.esa.int/data-server", tap_context="tap", data_context="data", datalink_context="datalink")
+            self.__gaiadata = TapPlus(url="http://geadata.esac.esa.int/data-server",
+                                      tap_context="tap",
+                                      data_context="data",
+                                      datalink_context="datalink")
         else:
             self.__gaiadata = datalink_handler
 
@@ -83,7 +86,8 @@ class GaiaClass(object):
         """
         return self.__gaiatap.load_table(table, verbose)
 
-    def load_data(self, ids, retrieval_type="epoch_photometry", valid_data=True, band=None, verbose=False):
+    def load_data(self, ids, retrieval_type="epoch_photometry",
+                  valid_data=True, band=None, verbose=False):
         """Loads the specified table
         TAP+ only
 
@@ -94,14 +98,14 @@ class GaiaClass(object):
         retrieval_type : str, optional, default 'epoch_photometry'
             retrieval type identifier
         valid_data : bool, optional, default True
-            By default, the epoch photometry service returns only valid data, 
-            that is, all data rows where flux is not null and 
-            rejected_by_photometry flag is not true. In order to retrieve 
-            all data associated to a given source without this filter, 
-            this request parameter should be included (valid_data=False) 
+            By default, the epoch photometry service returns only valid data,
+            that is, all data rows where flux is not null and
+            rejected_by_photometry flag is not true. In order to retrieve
+            all data associated to a given source without this filter,
+            this request parameter should be included (valid_data=False)
         band : str, optional, default None, valid values: G, BP, RP
-            By default, the epoch photometry service returns all the 
-            available photometry bands for the requested source. 
+            By default, the epoch photometry service returns all the
+            available photometry bands for the requested source.
             This parameter allows to filter the output lightcurve by its band.
         verbose : bool, optional, default 'False'
             flag to display information about the process
@@ -110,7 +114,7 @@ class GaiaClass(object):
         -------
         A table object
         """
-        if valid_data :
+        if valid_data:
             valid_data_arg = "VALID_DATA=true"
         else:
             valid_data_arg = "VALID_DATA=false"
@@ -122,7 +126,11 @@ class GaiaClass(object):
         else:
             band = ""
         extra_args = "" + valid_data_arg + band
-        return self.__gaiadata.load_data(ids=ids, retrieval_type=retrieval_type, format=format, extra_args=extra_args, verbose=verbose)
+        return self.__gaiadata.load_data(ids=ids,
+                                         retrieval_type=retrieval_type,
+                                         format=format,
+                                         extra_args=extra_args,
+                                         verbose=verbose)
 
     def load_datalinks(self, ids, verbose=False):
         """Loads the specified table
