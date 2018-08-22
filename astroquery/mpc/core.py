@@ -340,7 +340,7 @@ class MPCClass(BaseQuery):
                             perturbed=True, unc_links=False,
                             get_query_payload=False,
                             get_raw_response=False, cache=False):
-        """
+        r"""
         Object ephemerides from the Minor Planet Ephemeris Service.
 
 
@@ -456,59 +456,65 @@ class MPCClass(BaseQuery):
         eastwards of north.  To remain consistent with Astropy,
         eastwards of north is used.
 
-        Acceptable target names:
+        Acceptable target names [MPES]_ are listed in the tables below.
 
-            +------------+-----------------------------------+
-            | Target     | Description                       |
-            +============+===================================+
-            | \(3202\)   | Numbered minor planet (3202)      |
-            +------------+-----------------------------------+
-            | 14829      | Numbered minor planet (14829)     |
-            +------------+-----------------------------------+
-            | 1997 XF11  | Unnumbered minor planet 1997 XF11 |
-            +------------+-----------------------------------+
-            | 1P         | Comet 1P/Halley                   |
-            +------------+-----------------------------------+
-            | C/2003 A2  | Comet C/2003 A2 (Gleason)         |
-            +------------+-----------------------------------+
-            | P/2003 CP7 | Comet P/2003 CP7 (LINEAR-NEAT)    |
-            +------------+-----------------------------------+
+        .. attention:: Asteroid designations in the text version of the
+           documentation may be prefixed with a backslash, which
+           should be ignored.  This is to force correct rendering of
+           the designation in the rendered versions of the
+           documentation (e.g., HTML).
 
-            For comets, P/ and C/ are interchangable.  The designation
-            may also be in a packed format:
+        +------------+-----------------------------------+
+        | Target     | Description                       |
+        +============+===================================+
+        | \(3202)    | Numbered minor planet (3202)      |
+        +------------+-----------------------------------+
+        | 14829      | Numbered minor planet (14829)     |
+        +------------+-----------------------------------+
+        | 1997 XF11  | Unnumbered minor planet 1997 XF11 |
+        +------------+-----------------------------------+
+        | 1P         | Comet 1P/Halley                   |
+        +------------+-----------------------------------+
+        | C/2003 A2  | Comet C/2003 A2 (Gleason)         |
+        +------------+-----------------------------------+
+        | P/2003 CP7 | Comet P/2003 CP7 (LINEAR-NEAT)    |
+        +------------+-----------------------------------+
 
-            +------------+-----------------------------------+
-            | Target     | Description                       |
-            +============+===================================+
-            | 00233      | Numbered minor planet (233)       |
-            +------------+-----------------------------------+
-            | K03A07A    | Unnumbered minor planet 2003 AA7  |
-            +------------+-----------------------------------+
-            | PK03C07P   | Comet P/2003 CP7 (LINEAR-NEAT)    |
-            +------------+-----------------------------------+
-            | 0039P      | Comet 39P/Oterma                  |
-            +------------+-----------------------------------+
+        For comets, P/ and C/ are interchangable.  The designation
+        may also be in a packed format:
 
-            You may also search by name:
+        +------------+-----------------------------------+
+        | Target     | Description                       |
+        +============+===================================+
+        | 00233      | Numbered minor planet (233)       |
+        +------------+-----------------------------------+
+        | K03A07A    | Unnumbered minor planet 2003 AA7  |
+        +------------+-----------------------------------+
+        | PK03C07P   | Comet P/2003 CP7 (LINEAR-NEAT)    |
+        +------------+-----------------------------------+
+        | 0039P      | Comet 39P/Oterma                  |
+        +------------+-----------------------------------+
 
-            +------------+-----------------------------------+
-            | Target     | Description                       |
-            +============+===================================+
-            | Encke      | \(9134\) Encke                    |
-            +------------+-----------------------------------+
-            | Africa     | \(1193\) Africa                   |
-            +------------+-----------------------------------+
-            | Africano   | \(6391\) Africano                 |
-            +------------+-----------------------------------+
-            | P/Encke    | 2P/Encke                          |
-            +------------+-----------------------------------+
-            | C/Encke    | 2P/Encke                          |
-            +------------+-----------------------------------+
-            | C/Gleason  | C/2003 A2 (Gleason)               |
-            +------------+-----------------------------------+
+        You may also search by name:
 
-            If a comet name is not unique, the first match will be
-            returned.
+        +------------+-----------------------------------+
+        | Target     | Description                       |
+        +============+===================================+
+        | Encke      | \(9134) Encke                     |
+        +------------+-----------------------------------+
+        | Africa     | \(1193) Africa                    |
+        +------------+-----------------------------------+
+        | Africano   | \(6391) Africano                  |
+        +------------+-----------------------------------+
+        | P/Encke    | 2P/Encke                          |
+        +------------+-----------------------------------+
+        | C/Encke    | 2P/Encke                          |
+        +------------+-----------------------------------+
+        | C/Gleason  | C/2003 A2 (Gleason)               |
+        +------------+-----------------------------------+
+
+        If a comet name is not unique, the first match will be
+        returned.
 
 
         References
