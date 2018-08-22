@@ -34,11 +34,15 @@ class GaiaClass(object):
     MAIN_GAIA_TABLE_RA = conf.MAIN_GAIA_TABLE_RA
     MAIN_GAIA_TABLE_DEC = conf.MAIN_GAIA_TABLE_DEC
 
-    def __init__(self, tap_plus_handler=None):
+    def __init__(self, tap_plus_handler=None, datalink_handler=None):
         if tap_plus_handler is None:
             self.__gaiatap = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
         else:
             self.__gaiatap = tap_plus_handler
+        if datalink_handler is None:
+            self.__gaiadata = TapPlus(url="http://geadata.esac.esa.int/data-server", tap_context="tap", data_context="data", datalink_context="datalink")
+        else:
+            self.__gaiadata = datalink_handler
 
     def load_tables(self, only_names=False, include_shared_tables=False,
                     verbose=False):
@@ -78,6 +82,64 @@ class GaiaClass(object):
         A table object
         """
         return self.__gaiatap.load_table(table, verbose)
+
+    def load_data(self, ids, retrieval_type="epoch_photometry", valid_data=True, band=None, verbose=False):
+        """Loads the specified table
+        TAP+ only
+
+        Parameters
+        ----------
+        ids : str list, mandatory
+            list of identifiers
+        retrieval_type : str, optional, default 'epoch_photometry'
+            retrieval type identifier
+        valid_data : bool, optional, default True
+            By default, the epoch photometry service returns only valid data, 
+            that is, all data rows where flux is not null and 
+            rejected_by_photometry flag is not true. In order to retrieve 
+            all data associated to a given source without this filter, 
+            this request parameter should be included (valid_data=False) 
+        band : str, optional, default None, valid values: G, BP, RP
+            By default, the epoch photometry service returns all the 
+            available photometry bands for the requested source. 
+            This parameter allows to filter the output lightcurve by its band.
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        A table object
+        """
+        if valid_data :
+            valid_data_arg = "VALID_DATA=true"
+        else:
+            valid_data_arg = "VALID_DATA=false"
+        if band is not None:
+            if band != 'G' and band != 'BP' and band != 'RP':
+                raise ValueError("Invalid band value '%s' (Valid values: 'G', 'BP' and 'RP)" % band)
+            else:
+                band_arg = "&BAND=" + band
+        else:
+            band = ""
+        extra_args = "" + valid_data_arg + band
+        return self.__gaiadata.load_data(ids=ids, retrieval_type=retrieval_type, format=format, extra_args=extra_args, verbose=verbose)
+
+    def load_datalinks(self, ids, verbose=False):
+        """Loads the specified table
+        TAP+ only
+
+        Parameters
+        ----------
+        ids : str list, mandatory
+            list of identifiers
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        A table object
+        """
+        return self.__gaiadata.load_datalinks(ids=ids, verbose=verbose)
 
     def launch_job(self, query, name=None, output_file=None,
                    output_format="votable", verbose=False, dump_to_file=False,

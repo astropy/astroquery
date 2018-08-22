@@ -56,7 +56,7 @@ class ConnTest(unittest.TestCase):
         # GET
         subContext = "testSubContextGet"
         context = "/" + serverContext + "/" + tapContext + "/" + subContext
-        r = tap.execute_get(subcontext=subContext)
+        r = tap.execute_tapget(subcontext=subContext)
         assert r.status == 222, \
             "Status code, expected: %d, found: %d" % (222, r.status)
         assert r.get_method() == 'GET', \
@@ -95,7 +95,7 @@ class ConnTest(unittest.TestCase):
         subContext = "testSubContextGet"
         context = "/" + serverContext + "/" + tapContext + "/" + subContext
         data = "postData"
-        r = tap.execute_post(subcontext=subContext, data=data)
+        r = tap.execute_tappost(subcontext=subContext, data=data)
         assert r.status == 111, \
             "Status code, expected: %d, found: %d" % (111, r.status)
         assert r.get_method() == 'POST', \

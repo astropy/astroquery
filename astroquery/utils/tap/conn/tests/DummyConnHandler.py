@@ -51,11 +51,29 @@ class DummyConnHandler(object):
     def set_response(self, request, response):
         self.responses[str(request)] = response
 
-    def execute_get(self, request):
+    def execute_tapget(self, request):
+        return self.__execute_get(request)
+
+    def execute_dataget(self, request):
+        return self.__execute_get(request)
+
+    def execute_datalinkget(self, request):
+        return self.__execute_get(request)
+
+    def __execute_get(self, request):
         self.request = request
         return self.__get_response(request)
 
-    def execute_post(self, subcontext, data):
+    def execute_tappost(self, subcontext, data):
+        return self.__execute_post(subcontext, data)
+
+    def execute_datapost(self, data):
+        return self.__execute_post("", data)
+
+    def execute_datalinkpost(self, subcontext, data):
+        return self.__execute_post(subcontext, data)
+
+    def __execute_post(self, subcontext, data):
         self.data = data
         sortedKey = self.__create_sorted_dict_key(data)
         if subcontext.find('?') == -1:
