@@ -87,7 +87,7 @@ class GaiaClass(object):
         return self.__gaiatap.load_table(table, verbose)
 
     def load_data(self, ids, retrieval_type="epoch_photometry",
-                  valid_data=True, band=None, verbose=False):
+                  valid_data=True, band=None, format="votable", verbose=False):
         """Loads the specified table
         TAP+ only
 
@@ -107,6 +107,8 @@ class GaiaClass(object):
             By default, the epoch photometry service returns all the
             available photometry bands for the requested source.
             This parameter allows to filter the output lightcurve by its band.
+        format : str, optional, default 'votable'
+            loading format
         verbose : bool, optional, default 'False'
             flag to display information about the process
 

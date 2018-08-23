@@ -222,3 +222,19 @@ class DummyTapHandler(object):
         self.__invokedMethod = 'logout'
         self.__parameters['verbose'] = verbose
         return None
+
+    def load_data(self, ids, retrieval_type, format, extra_args,
+                  verbose=False):
+        self.__invokedMethod = 'load_data'
+        self.__parameters['ids'] = ids
+        self.__parameters['retrieval_type'] = retrieval_type
+        self.__parameters['format'] = format
+        self.__parameters['extra_args'] = extra_args
+        self.__parameters['verbose'] = verbose
+        return None
+    
+    def load_datalinks(self, ids, verbose=False):
+        self.__invokedMethod = 'load_datalinks'
+        self.__parameters['ids'] = ids
+        self.__parameters['verbose'] = verbose
+        return None

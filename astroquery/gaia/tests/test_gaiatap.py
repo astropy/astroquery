@@ -492,6 +492,34 @@ class TestTap(unittest.TestCase):
             "Wrong dataType for results column '%s'. Expected: '%s', found '%s'" % \
             (columnName, dataType, c.dtype)
 
+    def test_load_data(self):
+        dummyHandler = DummyTapHandler()
+        tap = GaiaClass(dummyHandler, dummyHandler)
+        
+        ids = ["1", "2", "3", "4"]
+        retrieval_type = "epoch_photometry"
+        valid_data = True
+        band = None
+        format = "votable"
+        verbose = True
+        tap.load_data(ids, retrieval_type, valid_data, band, format, verbose)
+        parameters = {}
+        parameters['ids'] = ids
+        parameters['retrieval_type'] = retrieval_type
+        parameters['format'] = format
+        parameters['extra_args'] = "VALID_DATA=true"
+        parameters['verbose'] = verbose
+        dummyHandler.check_call('load_data', parameters)
+    
+    def test_load_datalinks(self):
+        dummyHandler = DummyTapHandler()
+        tap = GaiaClass(dummyHandler, dummyHandler)
+        
+        parameters = {}
+        parameters['ids'] = ["1", "2", "3", "4"]
+        parameters['verbose'] = True
+        tap.load_datalinks(parameters['ids'], parameters['verbose'])
+        dummyHandler.check_call('load_datalinks', parameters)
 
 if __name__ == "__main__":
     # import sys;sys.argv = ['', 'Test.testName']
