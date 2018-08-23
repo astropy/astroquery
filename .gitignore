@@ -60,3 +60,4 @@ distribute-*.tar.gz
 /metadata.xml
 /HST/
 /version.py
+/region.xml
