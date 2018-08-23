@@ -17,6 +17,8 @@ import pytest
 
 from astroquery.hst.core import HstClass
 from astroquery.hst.tests.dummy_handler import DummyHandler
+from astropy import coordinates
+import astropy.units as u
 
 class TestEhst(unittest.TestCase):
 
@@ -56,7 +58,27 @@ class TestEhst(unittest.TestCase):
         ehst = HstClass(dummyHandler)
         metadata = ehst.get_metadata("RESOURCE_CLASS=ARTIFACT&OBSERVATION.OBSERVATION_ID=i9zg04010&SELECTED_FIELDS=ARTIFACT.ARTIFACT_ID&RETURN_TYPE=VOTABLE")
         dummyHandler.check_call("get_metadata", parameters)
-        assert metadata == "<?xml version=\"1.0\"?><VOTABLE version=\"1.2\" xmlns=\"http://www.ivoa.net/xml/VOTable/v1.2\"><RESOURCE type=\"eHST results\"><DESCRIPTION>eHST Metadata Query Service</DESCRIPTION><INFO name=\"QUERY_STATUS\" value=\"OK\"></INFO><TABLE><FIELD ID=\"ARTIFACT_ID\" datatype=\"char\" arraysize=\"*\"/><DATA><TABLEDATA><TR><TD>i9zg04010_asn.fits</TD></TR><TR><TD>i9zg04010_drz.fits</TD></TR><TR><TD>i9zg04010_drz.jpg</TD></TR><TR><TD>i9zg04010_drz_thumb.jpg</TD></TR><TR><TD>i9zg04010_jif.fits</TD></TR><TR><TD>i9zg04010_jit.fits</TD></TR><TR><TD>i9zg04010_spt.fits</TD></TR><TR><TD>i9zg04010_trl.fits</TD></TR></TABLEDATA></DATA></TABLE></RESOURCE></VOTABLE>"
+
+    def test_query_target(self):
+        parameters = {}
+        parameters['name'] = "m31"
+        parameters['verbose'] = False
+        dummyHandler = DummyHandler("query_target", parameters)
+        ehst = HstClass(dummyHandler)
+        target = ehst.query_target(parameters['name'])
+        dummyHandler.check_call("query_target", parameters)
+
+    def test_cone_search(self):
+        c = coordinates.SkyCoord("00h42m44.51s +41d16m08.45s", frame='icrs')
+        parameters = {}
+        parameters['coordinates'] = c
+        parameters['radius'] = None
+        parameters['file_name'] = None
+        parameters['verbose'] = False
+        dummyHandler = DummyHandler("cone_search", parameters)
+        ehst = HstClass(dummyHandler)
+        target = ehst.cone_search(parameters['coordinates'])
+        dummyHandler.check_call("cone_search", parameters)
 
 test = TestEhst()
 

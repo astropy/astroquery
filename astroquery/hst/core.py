@@ -141,7 +141,7 @@ class HstClass(object):
         print(link)
         return self.__handler.get_file(link, filename, verbose)
 
-    def query_region(self, coordinates, radius=None, filename=None, verbose=False):
+    def cone_search(self, coordinates, radius=None, filename=None, verbose=False):
         coord = self.__getCoordInput(coordinates, "coordinate")
         if radius is not None:
             print("Not yet implemented")
