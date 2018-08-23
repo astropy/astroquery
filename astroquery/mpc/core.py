@@ -351,10 +351,9 @@ class MPCClass(BaseQuery):
             acceptable formats.
 
         location : str, array-like, or `~astropy.coordinates.EarthLocation`, optional
-            Observer's location as an IAU observatory code
-            [OBSCODES]_, a 3-element array of Earth longitude,
-            latitude, altitude, or a
-            `~astropy.coordinates.EarthLocation`.  Longitude and
+            Observer's location as an IAU observatory code, a
+            3-element array of Earth longitude, latitude, altitude, or
+            a `~astropy.coordinates.EarthLocation`.  Longitude and
             latitude should be anything that initializes an
             `~astropy.coordinates.Angle` object, and altitude should
             initialize an `~astropy.units.Quantity` object (with units
@@ -524,8 +523,7 @@ class MPCClass(BaseQuery):
            https://minorplanetcenter.net/iau/info/MPES.pdf (retrieved
            2018 June 19).
 
-        .. [OBSCODES] IAU Minor Planet Center.  List of Observatory
-           codes.
+        .. IAU Minor Planet Center.  List of Observatory codes.
            https://minorplanetcenter.net/iau/lists/ObsCodesF.html
            (retrieved 2018 June 19).
 
@@ -603,7 +601,7 @@ class MPCClass(BaseQuery):
     @class_or_instance
     def get_observatory_codes_async(self, get_raw_response=False, cache=True):
         """
-        Table of observatory codes from the IAU Minor Planet Center [OBSCODES]_.
+        Table of observatory codes from the IAU Minor Planet Center.
 
 
         Parameters
@@ -624,7 +622,7 @@ class MPCClass(BaseQuery):
 
         References
         ----------
-        .. [OBSCODES] IAU Minor Planet Center.  List of Observatory codes.
+        .. IAU Minor Planet Center.  List of Observatory codes.
            https://minorplanetcenter.net/iau/lists/ObsCodesF.html
            (retrieved 2018 June 19).
 
