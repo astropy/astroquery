@@ -23,12 +23,89 @@ In addition, the module provides access to the MPC's hosted list of
 `IAU Observatory Codes
 <https://www.minorplanetcenter.net/iau/lists/ObsCodesF.html>`__.
 
+To return the orbit of Ceres and an ephemeris for the next 20 days:
 
-Asteroid and comet orbits and parameters
-----------------------------------------
+.. code-block:: python
 
-Queries with varying forms of selection parameters
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    >>> from astroquery.mpc import MPC
+    >>> from pprint import pprint
+    >>> result = MPC.query_object('asteroid', name='ceres')
+    >>> pprint(result)
+
+    [{'absolute_magnitude': '3.34',
+      'aphelion_distance': '2.976',
+      'arc_length': 79346,
+      'argument_of_perihelion': '73.11528',
+      'ascending_node': '80.309916',
+      'critical_list_numbered_object': False,
+      'delta_v': 10.5,
+      'designation': None,
+      'earth_moid': 1.59353,
+      'eccentricity': '0.0755347',
+      'epoch': '2018-03-23.0',
+      'epoch_jd': '2458200.5',
+      'first_observation_date_used': '1801-01-31.0',
+      'first_opposition_used': '1801',
+      'inclination': '10.59351',
+      'jupiter_moid': 2.09509,
+      'km_neo': False,
+      'last_observation_date_used': '2018-04-30.0',
+      'last_opposition_used': '2018',
+      'mars_moid': 0.939285,
+      'mean_anomaly': '352.23053',
+      'mean_daily_motion': '0.2141308',
+      'mercury_moid': 2.18454,
+      'name': 'Ceres',
+      'neo': False,
+      'number': 1,
+      'observations': 6714,
+      'oppositions': 114,
+      'orbit_type': 0,
+      'orbit_uncertainty': '0',
+      'p_vector_x': '-0.87827464',
+      'p_vector_y': '0.33795667',
+      'p_vector_z': '0.33825869',
+      'perihelion_date': '2018-04-28.28377',
+      'perihelion_date_jd': '2458236.78377',
+      'perihelion_distance': '2.5580384',
+      'period': '4.6',
+      'pha': False,
+      'phase_slope': '0.12',
+      'q_vector_x': '-0.44248619',
+      'q_vector_y': '-0.84255513',
+      'q_vector_z': '-0.30709418',
+      'residual_rms': '0.6',
+      'saturn_moid': 6.38856,
+      'semimajor_axis': '2.7670463',
+      'tisserand_jupiter': 3.3,
+      'updated_at': '2018-05-31T01:07:39Z',
+      'uranus_moid': 15.6642,
+      'venus_moid': 1.84632}]
+
+    >>> eph = MPC.get_ephemeris('ceres')
+    >>> print(eph)
+    
+              Date                  RA                Dec        Delta   r   Elongation Phase  V  Proper motion Direction Uncertainty 3sig Unc. P.A.
+                                   deg                deg          AU    AU     deg      deg  mag   arcsec / h     deg         arcsec         deg   
+    ----------------------- ------------------ ----------------- ----- ----- ---------- ----- --- ------------- --------- ---------------- ---------
+    2018-08-23 15:56:35.000 177.25874999999996              9.57 3.466 2.581       24.6   9.4 8.7         66.18     115.9               --        --
+    2018-08-24 15:56:35.000          177.66125 9.377222222222223 3.471 2.581       24.1   9.2 8.7         66.24     115.9               --        --
+    2018-08-25 15:56:35.000 178.06416666666667 9.184166666666666 3.476 2.582       23.6   9.0 8.7          66.3     115.9               --        --
+    2018-08-26 15:56:35.000  178.4670833333333  8.99111111111111 3.481 2.582       23.1   8.8 8.7         66.36     115.9               --        --
+                        ...                ...               ...   ...   ...        ...   ... ...           ...       ...              ...       ...
+    2018-09-09 15:56:35.000             184.13 6.287222222222222 3.539 2.588       16.3   6.3 8.7         67.08     115.5               --        --
+    2018-09-10 15:56:35.000          184.53625 6.094444444444444 3.542 2.588       15.9   6.1 8.6         67.12     115.5               --        --
+    2018-09-11 15:56:35.000 184.94249999999997 5.901944444444445 3.545 2.589       15.4   5.9 8.6         67.15     115.5               --        --
+    2018-09-12 15:56:35.000 185.34874999999997 5.709444444444444 3.548 2.589       14.9   5.8 8.6         67.18     115.4               --        --
+    Length = 21 rows
+
+
+
+Orbits and parameters
+=====================
+
+Search parameters
+-----------------
 
 Individual objects can be found with ``MPC.query_object``, and
 ``MPC.query_objects`` can return multiple objects.  Parameters can be
@@ -65,8 +142,19 @@ A maximum value:
     
 which will get all asteroids with an inclination of less than or equal to 1.
 
-Sorting results, setting limits, and ```is_not_null```
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+There is another parameter that can be used, ```is_not_null```. This
+can be used in the following fashion:
+
+.. code-block:: python
+
+    >>> result = MPC.query_objects('asteroid', name="is_not_null")
+
+This will, predictably, find all named objects in the MPC
+database--but that would take a while!
+
+
+Sorting and return limits
+-------------------------
 
 The MPC web service allows a consumer to sort results in order to find
 a number of objects fitting into the top or bottom of a range of
@@ -82,18 +170,8 @@ options.
 
 This will return the 10 furthest asteroids.
 
-There is another parameter that can be used, ```is_not_null```. This
-can be used in the following fashion:
-
-.. code-block:: python
-
-    >>> result = MPC.query_objects('asteroid', name="is_not_null")
-
-This will, predictably, find all named objects in the MPC
-database--but that would take a while!
-
 Customizing return fields
-^^^^^^^^^^^^^^^^^^^^^^^^^
+-------------------------
 
 If a consumer isn't interested in some return fields, they can use the
 MPC to limit the fields they're interested in.
@@ -105,8 +183,8 @@ MPC to limit the fields they're interested in.
     [{'name': 'Ceres', 'number': 1}]
 
 
-Comet and asteroid ephemerides
-------------------------------
+Ephemerides
+===========
 
 Comet and asteroid ephemerides can be generated using the `Minor
 Planet Ephemeris Service
@@ -120,7 +198,7 @@ Astropy `~astropy.table.Table`.
 
 
 Dates and intervals
-^^^^^^^^^^^^^^^^^^^
+-------------------
 
 For the ephemeris of asteroid (24) Themis, starting today with the
 default time step (1 day) and location (geocenter):
@@ -187,7 +265,7 @@ weekly ephemeris in 2020:
 
 
 Observer location
-^^^^^^^^^^^^^^^^^
+-----------------
 
 Ephemerides may be calculated for Earth-based observers.  To calculate
 Makemake's ephemeris for the Discovery Channel Telescope (IAU
@@ -246,7 +324,7 @@ Encke's parallax between Mauna Kea and Botswana:
 
     
 Working with ephemeris tables
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-----------------------------
 
 Columns in the returned ephemeris tables carry the appropriate units.
 Convert the columns to Astropy quantities using the ``.quantity``
@@ -262,7 +340,8 @@ degrees per hour:
 Sky coordinates are returned as quantities carrying units of degrees.
 If a sexagesimal representation is desired, they may be replaced with
 strings using the ``ra_format`` and ``dec_format`` keyword arguments
-(see `~astropy.coordinates.Angle.to_string` for formatting options):
+(see ``Angle``'s `~astropy.coordinates.Angle.to_string` for formatting
+options):
 
 .. code-block:: python
 
@@ -283,8 +362,8 @@ strings using the ``ra_format`` and ``dec_format`` keyword arguments
     Length = 21 rows
 
 
-IAU Observatory Codes
----------------------
+IAU Observatory Codes and Locations
+===================================
 
 Two methods are available for working with the MPC's observatory list.
 To retrieve a list of all observatories:
