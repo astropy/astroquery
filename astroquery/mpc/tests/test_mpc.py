@@ -84,6 +84,11 @@ def patch_post(request):
     return mp
 
 
+def data_path(filename):
+    data_dir = os.path.join(os.path.dirname(__file__), 'data')
+    return os.path.join(data_dir, filename)
+
+
 def post_mockreturn(self, httpverb, url, params, auth):
     if mpc.core.MPC.MPC_URL in url:
         content = open(data_path('comet_object_C2012S1.json'), 'r').read()
