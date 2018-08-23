@@ -36,11 +36,13 @@ class GaiaClass(object):
 
     def __init__(self, tap_plus_handler=None, datalink_handler=None):
         if tap_plus_handler is None:
-            self.__gaiatap = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
+            self.__gaiatap = TapPlus(url="http://gea.esac.esa.int/" +
+                                     "tap-server/tap")
         else:
             self.__gaiatap = tap_plus_handler
         if datalink_handler is None:
-            self.__gaiadata = TapPlus(url="http://geadata.esac.esa.int/data-server",
+            self.__gaiadata = TapPlus(url="http://geadata.esac.esa.int/" +
+                                      "data-server",
                                       tap_context="tap",
                                       data_context="data",
                                       datalink_context="datalink")
@@ -122,7 +124,8 @@ class GaiaClass(object):
             valid_data_arg = "VALID_DATA=false"
         if band is not None:
             if band != 'G' and band != 'BP' and band != 'RP':
-                raise ValueError("Invalid band value '%s' (Valid values: 'G', 'BP' and 'RP)" % band)
+                raise ValueError("Invalid band value '%s' (Valid values: " +
+                                 "'G', 'BP' and 'RP)" % band)
             else:
                 band_arg = "&BAND=" + band
         else:
@@ -172,7 +175,8 @@ class GaiaClass(object):
             if True, the results are saved in a file instead of using memory
         upload_resource: str, optional, default None
             resource to be uploaded to UPLOAD_SCHEMA
-        upload_table_name: str, required if uploadResource is provided, default None
+        upload_table_name: str, required if uploadResource is provided, default
+        None
             resource temporary table name associated to the uploaded resource
 
         Returns
@@ -208,11 +212,13 @@ class GaiaClass(object):
         dump_to_file : bool, optional, default 'False'
             if True, the results are saved in a file instead of using memory
         background : bool, optional, default 'False'
-            when the job is executed in asynchronous mode, this flag specifies whether
+            when the job is executed in asynchronous mode, this flag specifies
+            whether
             the execution will wait until results are available
         upload_resource: str, optional, default None
             resource to be uploaded to UPLOAD_SCHEMA
-        upload_table_name: str, required if uploadResource is provided, default None
+        upload_table_name: str, required if uploadResource is provided, default
+        None
             resource temporary table name associated to the uploaded resource
 
         Returns
@@ -289,7 +295,8 @@ class GaiaClass(object):
         ----------
         coordinate : astropy.coordinate, mandatory
             coordinates center point
-        radius : astropy.units, required if no 'width' nor 'height' are provided
+        radius : astropy.units, required if no 'width' nor 'height' are
+        provided
             radius (deg)
         width : astropy.units, required if no 'radius' is provided
             box width
@@ -341,7 +348,8 @@ class GaiaClass(object):
         ----------
         coordinate : astropy.coordinates, mandatory
             coordinates center point
-        radius : astropy.units, required if no 'width' nor 'height' are provided
+        radius : astropy.units, required if no 'width' nor 'height' are
+        provided
             radius (deg)
         width : astropy.units, required if no 'radius' is provided
             box width
@@ -366,14 +374,16 @@ class GaiaClass(object):
         ----------
         coordinate : astropy.coordinates, mandatory
             coordinates center point
-        radius : astropy.units, required if no 'width' nor 'height' are provided
+        radius : astropy.units, required if no 'width' nor 'height' are
+        provided
             radius
         width : astropy.units, required if no 'radius' is provided
             box width
         height : astropy.units, required if no 'radius' is provided
             box height
         async_job : bool, optional, default 'False'
-            executes the query (job) in asynchronous/synchronous mode (default synchronous)
+            executes the query (job) in asynchronous/synchronous mode
+            (default synchronous)
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
@@ -492,7 +502,8 @@ class GaiaClass(object):
         radius : astropy.units, mandatory
             radius
         background : bool, optional, default 'False'
-            when the job is executed in asynchronous mode, this flag specifies whether
+            when the job is executed in asynchronous mode, this flag
+            specifies whether
             the execution will wait until results are available
         output_file : str, optional, default None
             file name where the results are saved if dumpToFile is True.
@@ -548,7 +559,8 @@ class GaiaClass(object):
               verbose=False):
         """Performs a login.
         TAP+ only
-        User and password can be used or a file that contains user name and password
+        User and password can be used or a file that contains user name and
+        password
         (2 lines: one for user name and the following one for the password)
 
         Parameters
@@ -557,7 +569,8 @@ class GaiaClass(object):
             login name
         password : str, mandatory if 'file' is not provided, default None
             user password
-        credentials_file : str, mandatory if no 'user' & 'password' are provided
+        credentials_file : str, mandatory if no 'user' & 'password' are
+        provided
             file containing user and password in two lines
         verbose : bool, optional, default 'False'
             flag to display information about the process
@@ -607,12 +620,14 @@ class GaiaClass(object):
             return value
 
     def __checkCoordInput(self, value, msg):
-        if not (isinstance(value, str) or isinstance(value, commons.CoordClasses)):
+        if not (isinstance(value, str) or isinstance(value,
+                                                     commons.CoordClasses)):
             raise ValueError(
                 str(msg) + " must be either a string or astropy.coordinates")
 
     def __getCoordInput(self, value, msg):
-        if not (isinstance(value, str) or isinstance(value, commons.CoordClasses)):
+        if not (isinstance(value, str) or isinstance(value,
+                                                     commons.CoordClasses)):
             raise ValueError(
                 str(msg) + " must be either a string or astropy.coordinates")
         if isinstance(value, str):

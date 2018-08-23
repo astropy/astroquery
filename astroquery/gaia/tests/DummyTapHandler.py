@@ -34,9 +34,9 @@ class DummyTapHandler(object):
         if method == self.__invokedMethod:
             return
         else:
-            raise Exception("Method '"+str(method)
-                            + "' not invoked. (Invoked method is '"
-                            + str(self.__invokedMethod)+"')")
+            raise Exception("Method '"+str(method) +
+                            "' not invoked. (Invoked method is '" +
+                            str(self.__invokedMethod)+"')")
 
     def check_parameters(self, parameters, method_name):
         if parameters is None:
@@ -169,7 +169,8 @@ class DummyTapHandler(object):
         return None
 
     def cone_search(self, coordinate, radius, output_file=None,
-                    output_format="votable", verbose=False, dump_to_file=False):
+                    output_format="votable", verbose=False,
+                    dump_to_file=False):
         self.__invokedMethod = 'cone_search'
         self.__parameters['coordinate'] = coordinate
         self.__parameters['radius'] = radius
@@ -180,8 +181,8 @@ class DummyTapHandler(object):
         return None
 
     def cone_search_async(self, coordinate, radius, background=False,
-                    output_file=None, output_format="votable", verbose=False,
-                    dump_to_file=False):
+                          output_file=None, output_format="votable",
+                          verbose=False, dump_to_file=False):
         self.__invokedMethod = 'cone_search_async'
         self.__parameters['coordinate'] = coordinate
         self.__parameters['radius'] = radius
@@ -232,7 +233,7 @@ class DummyTapHandler(object):
         self.__parameters['extra_args'] = extra_args
         self.__parameters['verbose'] = verbose
         return None
-    
+
     def load_datalinks(self, ids, verbose=False):
         self.__invokedMethod = 'load_datalinks'
         self.__parameters['ids'] = ids

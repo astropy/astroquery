@@ -181,7 +181,8 @@ class TestTap(unittest.TestCase):
         connHandler = DummyConnHandler()
         tapplus = TapPlus("http://test:1111/tap", connhandler=connHandler)
         tap = GaiaClass(tapplus)
-        # Launch response: we use default response because the query contains decimals
+        # Launch response: we use default response because the query contains
+        # decimals
         responseLaunchJob = DummyResponse()
         responseLaunchJob.set_status_code(200)
         responseLaunchJob.set_message("OK")
@@ -193,7 +194,8 @@ class TestTap(unittest.TestCase):
                                    headers=None)
         # The query contains decimals: force default response
         connHandler.set_default_response(responseLaunchJob)
-        sc = SkyCoord(ra=29.0, dec=15.0, unit=(u.degree, u.degree), frame='icrs')
+        sc = SkyCoord(ra=29.0, dec=15.0, unit=(u.degree, u.degree),
+                      frame='icrs')
         with pytest.raises(ValueError) as err:
             tap.query_object(sc)
         assert "Missing required argument: 'width'" in err.value.args[0]
@@ -296,7 +298,8 @@ class TestTap(unittest.TestCase):
                                     headers=None)
         req = "async/" + jobid + "/results/result"
         connHandler.set_response(req, responseResultsJob)
-        sc = SkyCoord(ra=29.0, dec=15.0, unit=(u.degree, u.degree), frame='icrs')
+        sc = SkyCoord(ra=29.0, dec=15.0, unit=(u.degree, u.degree),
+                      frame='icrs')
         width = Quantity(12, u.deg)
         height = Quantity(10, u.deg)
         table = tap.query_object_async(sc, width=width, height=height)
@@ -354,7 +357,8 @@ class TestTap(unittest.TestCase):
         connHandler = DummyConnHandler()
         tapplus = TapPlus("http://test:1111/tap", connhandler=connHandler)
         tap = GaiaClass(tapplus)
-        # Launch response: we use default response because the query contains decimals
+        # Launch response: we use default response because the query contains
+        # decimals
         responseLaunchJob = DummyResponse()
         responseLaunchJob.set_status_code(200)
         responseLaunchJob.set_message("OK")
@@ -483,19 +487,22 @@ class TestTap(unittest.TestCase):
                                dataType):
         c = results[columnName]
         assert c.description == description, \
-            "Wrong description for results column '%s'. Expected: '%s', found '%s'" % \
+            "Wrong description for results column '%s'. " % \
+            "Expected: '%s', found '%s'" % \
             (columnName, description, c.description)
         assert c.unit == unit, \
-            "Wrong unit for results column '%s'. Expected: '%s', found '%s'" % \
+            "Wrong unit for results column '%s'. " % \
+            "Expected: '%s', found '%s'" % \
             (columnName, unit, c.unit)
         assert c.dtype == dataType, \
-            "Wrong dataType for results column '%s'. Expected: '%s', found '%s'" % \
+            "Wrong dataType for results column '%s'. " % \
+            "Expected: '%s', found '%s'" % \
             (columnName, dataType, c.dtype)
 
     def test_load_data(self):
         dummyHandler = DummyTapHandler()
         tap = GaiaClass(dummyHandler, dummyHandler)
-        
+
         ids = ["1", "2", "3", "4"]
         retrieval_type = "epoch_photometry"
         valid_data = True
@@ -510,11 +517,11 @@ class TestTap(unittest.TestCase):
         parameters['extra_args'] = "VALID_DATA=true"
         parameters['verbose'] = verbose
         dummyHandler.check_call('load_data', parameters)
-    
+
     def test_load_datalinks(self):
         dummyHandler = DummyTapHandler()
         tap = GaiaClass(dummyHandler, dummyHandler)
-        
+
         parameters = {}
         parameters['ids'] = ["1", "2", "3", "4"]
         parameters['verbose'] = True
