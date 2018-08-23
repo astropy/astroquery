@@ -20,6 +20,7 @@ from astroquery.hst.tests.dummy_handler import DummyHandler
 from astropy import coordinates
 import astropy.units as u
 
+
 class TestEhst(unittest.TestCase):
 
     def test_get_product(self):
@@ -29,9 +30,9 @@ class TestEhst(unittest.TestCase):
         parameters['verbose'] = False
         dummyHandler = DummyHandler("get_product", parameters)
         ehst = HstClass(dummyHandler)
-        product = ehst.get_product("J6FL25S4Q","RAW")
+        product = ehst.get_product("J6FL25S4Q", "RAW")
         dummyHandler.check_call("get_product", parameters)
- 
+
     def test_get_artifact(self):
         parameters = {}
         parameters['artifact_id'] = "O5HKAX030_FLT.FITS"
@@ -52,11 +53,21 @@ class TestEhst(unittest.TestCase):
 
     def test_get_metadata(self):
         parameters = {}
-        parameters['params'] = "RESOURCE_CLASS=ARTIFACT&OBSERVATION.OBSERVATION_ID=i9zg04010&SELECTED_FIELDS=ARTIFACT.ARTIFACT_ID&RETURN_TYPE=VOTABLE"
+        parameters['params'] = "".join((
+                                        "RESOURCE_CLASS=ARTIFACT&OBSERVATION.",
+                                        "OBSERVATION_ID=i9zg04010&",
+                                        "SELECTED_FIELDS=ARTIFACT.ARTIFACT_ID",
+                                        "&RETURN_TYPE=VOTABLE"
+                                        ))
         parameters['verbose'] = False
         dummyHandler = DummyHandler("get_metadata", parameters)
         ehst = HstClass(dummyHandler)
-        metadata = ehst.get_metadata("RESOURCE_CLASS=ARTIFACT&OBSERVATION.OBSERVATION_ID=i9zg04010&SELECTED_FIELDS=ARTIFACT.ARTIFACT_ID&RETURN_TYPE=VOTABLE")
+        metadata = ehst.get_metadata("".join(("RESOURCE_CLASS=ARTIFACT&",
+                                              "OBSERVATION.OBSERVATION_ID=",
+                                              "i9zg04010&SELECTED_FIELDS=",
+                                              "ARTIFACT.ARTIFACT_ID&RETURN",
+                                              "_TYPE=VOTABLE"))
+                                     )
         dummyHandler.check_call("get_metadata", parameters)
 
     def test_query_target(self):
