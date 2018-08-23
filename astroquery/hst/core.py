@@ -17,9 +17,19 @@ from astropy.units import Quantity
 
 import urllib.request
 from . import conf
-from .handler import Handler, EhstHandler
 
 __all__ = ['Hst', 'HstClass', 'Conf', 'conf', 'EhsdtHandler', 'Handler']
+
+class EhstHandler(object):
+    
+    def __init__(self):
+        return
+    
+    def get_file(self, url, filename, verbose=False):
+        urllib.request.urlretrieve(url, filename)
+        return
+
+Handler = EhstHandler()
 
 class HstClass(object):
 
