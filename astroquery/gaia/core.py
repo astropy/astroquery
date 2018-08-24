@@ -129,8 +129,8 @@ class GaiaClass(object):
             else:
                 band_arg = "&BAND=" + band
         else:
-            band = ""
-        extra_args = "" + valid_data_arg + band
+            band_arg = ""
+        extra_args = "" + valid_data_arg + band_arg
         return self.__gaiadata.load_data(ids=ids,
                                          retrieval_type=retrieval_type,
                                          format=format,
