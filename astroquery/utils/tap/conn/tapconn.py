@@ -41,8 +41,10 @@ class TapConn(object):
     """
 
     def __init__(self, ishttps, host, server_context, tap_context=None, 
-                 data_context=None, datalink_context=None, port=80,
-                 sslport=443, connhandler=None):
+                 data_context=None, datalink_context=None,
+                 upload_context='upload', share_context=None,
+                 table_edit_context=None,
+                 port=80, sslport=443, connhandler=None):
         """Constructor
 
         Parameters
@@ -59,6 +61,12 @@ class TapConn(object):
             data context
         datalink_context : str, optional
             datalink context
+        upload_context : str, optional
+            upload context
+        share_context : str, optional
+            share context
+        table_edit_context : str, optional
+            table edit context
         port : int, optional, default 80
             HTTP port
         sslport : int, optional, default 443
@@ -82,6 +90,9 @@ class TapConn(object):
         self.__tapContext = self.__create_context(tap_context)
         self.__dataContext = self.__create_context(data_context)
         self.__datalinkContext = self.__create_context(datalink_context)
+        self.__uploadContext = self.__create_context(upload_context)
+        self.__shareContext = self.__create_context(share_context)
+        self.__tableEditContext = self.__create_context(table_edit_context)
         if connhandler is None:
             self.__connectionHandler = ConnectionHandler(self.__connHost,
                                                          self.__connPort,
@@ -129,6 +140,15 @@ class TapConn(object):
             return self.__datalinkContext + "/" + subContext + "?" + encodedData
         else:
             return self.__datalinkContext + "/" + subContext
+
+    def __get_upload_context(self):
+        return self.__uploadContext
+
+    def __get_share_context(self):
+        return self.__shareContext
+
+    def __get_table_edit_context(self):
+        return self.__tableEditContext
 
     def __get_server_context(self, subContext):
         return self.__serverContext + "/" + subContext
@@ -271,6 +291,36 @@ class TapConn(object):
         """
         context = self.__get_datalink_context(subcontext)
         return self.__execute_post(context, data, content_type, verbose)
+
+    def execute_upload(self, data,
+                     content_type=CONTENT_TYPE_POST_DEFAULT, verbose=False):
+        """Executes a POST upload request
+        The connection is done through HTTP or HTTPS depending on the login
+        status (logged in -> HTTPS)
+
+        Parameters
+        ----------
+        data : str, mandatory
+            POST data
+        content_type: str, optional, default 'application/x-www-form-urlencoded'
+            HTTP(s) content-type header value
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        An HTTP(s) response object
+        """
+        context = self.__get_upload_context()
+        return self.__execute_post(context, data, content_type, verbose)
+    
+    def execute_share(self):
+        #post
+        pass
+    
+    def execute_table_edit(self):
+        #post
+        pass
 
     def __execute_post(self, context, data,
                      content_type=CONTENT_TYPE_POST_DEFAULT, verbose=False):

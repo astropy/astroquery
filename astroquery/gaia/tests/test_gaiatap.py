@@ -522,10 +522,13 @@ class TestTap(unittest.TestCase):
         dummyHandler = DummyTapHandler()
         tap = GaiaClass(dummyHandler, dummyHandler)
 
+        ids = ["1", "2", "3", "4"]
+        verbose = True
+
         parameters = {}
-        parameters['ids'] = ["1", "2", "3", "4"]
-        parameters['verbose'] = True
-        tap.load_datalinks(parameters['ids'], parameters['verbose'])
+        parameters['ids'] = ids
+        parameters['verbose'] = verbose
+        tap.load_datalinks(ids, verbose)
         dummyHandler.check_call('load_datalinks', parameters)
 
 if __name__ == "__main__":
