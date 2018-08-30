@@ -17,6 +17,7 @@ from astropy.units import Quantity
 
 import urllib.request
 from . import conf
+from astroquery.utils.tap.core import TapPlus
 
 __all__ = ['Hst', 'HstClass', 'Conf', 'conf', 'EhsdtHandler', 'Handler']
 
@@ -38,11 +39,17 @@ class HstClass(object):
     data_url = conf.DATA_ACTION
     metadata_url = conf.METADATA_ACTION
 
-    def __init__(self, url_handler=None):
+    def __init__(self, url_handler=None, tap_handler=None):
         if url_handler is None:
             self.__handler = Handler
         else:
             self.__handler = url_handler
+            
+        if tap_handler is None:
+            self.__tap = TapPlus(url="http://hst04.n1data.lan:8080/tap-server/tap/")
+        else:
+            #self.__tap = tap_handler
+            raise ValueError("custom tap server not implemented yet")
 
     def get_product(self, observation_id, calibration_level="RAW",
                     filename=None, verbose=False):
@@ -237,6 +244,30 @@ class HstClass(object):
         print(link)
         return self.__handler.get_file(link, filename, verbose)
 
+    def query_hst_tap(self, query, output_file=None, 
+                       output_format="votable", verbose=False):
+        """Launches a synchronous job to query the HST tap
+
+        Parameters
+        ----------
+        query : str, mandatory
+            query (adql) to be executed
+        output_file : str, optional, default None
+            file name where the results are saved if dumpToFile is True.
+            If this parameter is not provided, the jobid is used instead
+        output_format : str, optional, default 'votable'
+            results format
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        A Job object
+        """
+
+        return self.__tap.launch_job(query=query, output_file=output_file, 
+                              output_format=output_format, verbose=False, dump_to_file=output_file is not None)
+    
     def __checkQuantityInput(self, value, msg):
         if not (isinstance(value, str) or isinstance(value, units.Quantity)):
             raise ValueError(
