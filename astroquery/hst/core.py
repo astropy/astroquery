@@ -48,8 +48,7 @@ class HstClass(object):
         if tap_handler is None:
             self.__tap = TapPlus(url="http://hst04.n1data.lan:8080/tap-server/tap/")
         else:
-            #self.__tap = tap_handler
-            raise ValueError("custom tap server not implemented yet")
+            self.__tap = tap_handler
 
     def get_product(self, observation_id, calibration_level="RAW",
                     filename=None, verbose=False):

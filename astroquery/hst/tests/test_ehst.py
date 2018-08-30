@@ -17,6 +17,7 @@ import pytest
 
 from astroquery.hst.core import HstClass
 from astroquery.hst.tests.dummy_handler import DummyHandler
+from astroquery.hst.tests.dummy_tap_handler import DummyEhstTapHandler
 from astropy import coordinates
 import astropy.units as u
 
@@ -90,6 +91,18 @@ class TestEhst(unittest.TestCase):
         ehst = HstClass(dummyHandler)
         target = ehst.cone_search(parameters['coordinates'])
         dummyHandler.check_call("cone_search", parameters)
+        
+    def test_query_hst_tap(self):
+        parameters = {}
+        parameters['query'] = "select top 10 * from hsc_v2.hubble_sc2"
+        parameters['output_file'] = "test2.vot"
+        parameters['output_format'] = "votable"
+        parameters['verbose'] = False
+        dummyHandler = DummyHandler("launch_job", parameters)
+        dummyTapHandler = DummyEhstTapHandler("launch_job", parameters)
+        ehst = HstClass(dummyHandler, dummyTapHandler)
+        target = ehst.query_hst_tap(parameters['query'], parameters['output_file'], parameters['output_format'], parameters['verbose'])
+        dummyTapHandler.check_call("launch_job", parameters)
 
 test = TestEhst()
 
