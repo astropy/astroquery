@@ -51,3 +51,5 @@ distribute-*.tar.gz
 .*.sw[op]
 *~
 .svn
+/region.xml
+/.gitignore
