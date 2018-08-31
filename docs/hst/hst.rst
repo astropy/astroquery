@@ -46,7 +46,7 @@ This will download all files for the raw calibration level of the observation 'J
   http://archives.esac.esa.int/ehst-sl-server/servlet/data-action?RETRIEVAL_TYPE=POSTCARD&OBSERVATION_ID=\
   J6FL25S4Q&CALIBRATION_LEVEL=RAW&RESOLUTION=256
 
-This will download the postcard for the observation 'J8VP03010' with low resolution (256) and it will store it in a tar called 'raw_postcard_for_J6FL25S4Q.tar'. Resolution of 1024 is also available.
+This will download the postcard for the observation 'J8VP03010' with low resolution (256) and it will stored in a tar called 'raw_postcard_for_J6FL25S4Q.tar'. Resolution of 1024 is also available.
 
 ---------------------------
 3. Getting Hubble artifacts
