@@ -189,31 +189,34 @@ class HstClass(object):
         print(link)
         return self.__handler.get_file(link, filename, verbose)
 
-    def cone_search(self, coordinates, radius=None, filename=None,
+    def cone_search(self, coordinates, radius=0.0, filename=None,
                     verbose=False):
         coord = self.__getCoordInput(coordinates, "coordinate")
-        if radius is not None:
-            print("Not yet implemented")
-        else:
-            raHours, dec = commons.coord_to_radec(coord)
-            ra = raHours * 15.0  # Converts to degrees
-            initial = "".join((
-                               "RESOURCE_CLASS=OBSERVATION&SELECTED_FIELDS=",
-                               "OBSERVATION&QUERY=(POSITION.RA==",
-                               ))
-            middle = "%20AND%20POSITION.DEC=="
-            final = ")&RETURN_TYPE=VOTABLE"
-            link = "".join((
-                            self.metadata_url,
-                            initial,
-                            str(ra),
-                            middle,
-                            str(dec)+final,
-                            ))
-            if filename is None:
-                filename = "region.xml"
-            print(link)
-            return self.__handler.get_file(link, filename, verbose)
+        radiusInDrades = float(radius/60) # Converts to degrees
+
+        raHours, dec = commons.coord_to_radec(coord)
+        ra = raHours * 15.0  # Converts to degrees
+        initial = "".join((
+                        "RESOURCE_CLASS=OBSERVATION&SELECTED_FIELDS=",
+                        "OBSERVATION&QUERY=(POSITION.RA==",
+                        ))
+        middle = " AND POSITION.DEC=="
+        final = ")&RETURN_TYPE=VOTABLE"
+        params = "".join((
+                        initial,
+                        str(ra),
+                        middle,
+                        str(dec)+final
+                        ))
+        params = urllib.request.quote(params)
+        link = "".join((
+                        self.metadata_url,
+                        params
+                        ))
+        if filename is None:
+            filename = "region.xml"
+        print(link)
+        return self.__handler.get_file(link, filename, verbose)
 
     def query_target(self, name, filename=None, verbose=False):
         """ It executes a query over EHST and download the xml with the results
