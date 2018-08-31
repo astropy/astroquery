@@ -44,9 +44,10 @@ class HstClass(object):
             self.__handler = Handler
         else:
             self.__handler = url_handler
-            
+
         if tap_handler is None:
-            self.__tap = TapPlus(url="http://hst04.n1data.lan:8080/tap-server/tap/")
+            self.__tap = TapPlus(url="http://hst04.n1data.lan:8080"
+                                 "/tap-server/tap/")
         else:
             self.__tap = tap_handler
 
@@ -192,29 +193,47 @@ class HstClass(object):
     def cone_search(self, coordinates, radius=0.0, filename=None,
                     verbose=False):
         coord = self.__getCoordInput(coordinates, "coordinate")
-        radiusInDrades = float(radius/60) # Converts to degrees
+        radiusInGrades = float(radius/60)  # Converts to degrees
 
         raHours, dec = commons.coord_to_radec(coord)
         ra = raHours * 15.0  # Converts to degrees
-        initial = "".join((
-                        "RESOURCE_CLASS=OBSERVATION&SELECTED_FIELDS=",
-                        "OBSERVATION&QUERY=(POSITION.RA==",
-                        ))
-        middle = " AND POSITION.DEC=="
-        final = ")&RETURN_TYPE=VOTABLE"
-        params = "".join((
-                        initial,
-                        str(ra),
-                        middle,
-                        str(dec)+final
-                        ))
-        params = urllib.request.quote(params)
+        payload = {"RESOURCE_CLASS": "OBSERVATION",
+                   "ADQLQUERY": "SELECT DISTINCT OBSERVATION,OBSERVATION.TYPE,"
+                   "TARGET.MOVING_TARGET"
+                   ",TARGET.TARGET_NAME,TARGET.TARGET_DESCRIPTION,PROPOSAL."
+                   "PROPOSAL_ID,PROPOSAL.PI_"
+                   "NAME,PROPOSAL.PROPOSAL_TITLE,INSTRUMENT.INSTRUMENT_NAME,"
+                   "PLANE.METADATA_PROVENANCE"
+                   ",PLANE.DATA_PRODUCT_TYPE,PLANE.SOFTWARE_VERSION,POSITION"
+                   ".RA,POSITION.DEC,POSITION."
+                   "GAL_LAT,POSITION.GAL_LON,POSITION.ECL_LAT,POSITION.ECL_LON"
+                   ",POSITION.FOV_SIZE,ENERGY."
+                   "WAVE_CENTRAL,ENERGY.WAVE_BANDWIDTH,ENERGY.WAVE_MAX,ENERGY"
+                   ".WAVE_MIN,ENERGY.FILTER FROM"
+                   " FIELD_NOT_USED  WHERE OBSERVATION.COLLECTION='HST'  AND  "
+                   "PLANE.MAIN_SCIENCE_PLANE="
+                   "'true'  AND  (OBSERVATION.TYPE='HST Composite' OR "
+                   "OBSERVATION.TYPE='HST Singleton')"
+                   "  AND  INTERSECTS(CIRCLE('ICRS'," +
+                   str(ra) +
+                   "," +
+                   str(dec) +
+                   "," +
+                   str(radiusInGrades) +
+                   "),POSITION)=1  AND  PLANE.MAIN_SCIENCE_PLANE='true' "
+                   "ORDER BY PROPOSAL.PROPOSAL_ID "
+                   "DESC",
+                   #"PAGE": "1",
+                   #"PAGE_SIZE": "50",
+                   "RETURN_TYPE": "VOTABLE"}
+        result = urllib.parse.urlencode(payload,
+                                        quote_via=urllib.parse.quote_plus)
         link = "".join((
                         self.metadata_url,
-                        params
+                        result
                         ))
         if filename is None:
-            filename = "region.xml"
+            filename = "cone.vot"
         print(link)
         return self.__handler.get_file(link, filename, verbose)
 
@@ -246,8 +265,8 @@ class HstClass(object):
         print(link)
         return self.__handler.get_file(link, filename, verbose)
 
-    def query_hst_tap(self, query, output_file=None, 
-                       output_format="votable", verbose=False):
+    def query_hst_tap(self, query, output_file=None,
+                      output_format="votable", verbose=False):
         """Launches a synchronous job to query the HST tap
 
         Parameters
@@ -267,9 +286,11 @@ class HstClass(object):
         A Job object
         """
 
-        return self.__tap.launch_job(query=query, output_file=output_file, 
-                              output_format=output_format, verbose=False, dump_to_file=output_file is not None)
-    
+        return self.__tap.launch_job(query=query, output_file=output_file,
+                                     output_format=output_format,
+                                     verbose=False,
+                                     dump_to_file=output_file is not None)
+
     def __checkQuantityInput(self, value, msg):
         if not (isinstance(value, str) or isinstance(value, units.Quantity)):
             raise ValueError(
