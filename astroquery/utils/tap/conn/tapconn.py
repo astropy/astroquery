@@ -41,8 +41,8 @@ class TapConn(object):
     """
 
     def __init__(self, ishttps, host, server_context, tap_context=None, 
-                 data_context=None, datalink_context=None,
-                 upload_context='upload', share_context=None,
+                 data_context=None, upload_context=None,
+                 datalink_context=None, share_context=None,
                  table_edit_context=None,
                  port=80, sslport=443, connhandler=None):
         """Constructor
@@ -59,6 +59,8 @@ class TapConn(object):
             tap context
         data_context : str, optional
             data context
+        upload_context : str, optional
+            upload context
         datalink_context : str, optional
             datalink context
         upload_context : str, optional
@@ -102,10 +104,10 @@ class TapConn(object):
 
     def __create_context(self, context):
         if (context is not None and context != ""):
-            if(context.startswith("/")):
-                return self.__serverContext + context
+            if(str(context).startswith("/")):
+                return self.__serverContext + str(context)
             else:
-                return self.__serverContext + "/" + context
+                return self.__serverContext + "/" + str(context)
         else:
             return self.__serverContext
 
@@ -325,6 +327,10 @@ class TapConn(object):
     def __execute_post(self, context, data,
                      content_type=CONTENT_TYPE_POST_DEFAULT, verbose=False):
         conn = self.__get_connection(verbose)
+        if verbose:
+            print("context = "+ context)
+            print("data = " + data)
+            print("Content-type = " + str(content_type))
         self.__postHeaders["Content-type"] = content_type
         conn.request("POST", context, data, self.__postHeaders)
         response = conn.getresponse()
