@@ -579,10 +579,11 @@ class Tap(object):
             raise ValueError("Table name cannot be null")
         args = {
             "TABLE_NAME": str(table_name),
-            "DELETE": "true"}
+            "DELETE": "TRUE"}
         data = self.__connHandler.url_encode(args)
         response = self.__connHandler.execute_upload(context, data)
         if verbose:
+            print("data = " + str(data))
             print(response.status, response.reason)
             print(response.getheaders())
         return response
