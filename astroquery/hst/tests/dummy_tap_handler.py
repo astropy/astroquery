@@ -31,9 +31,9 @@ class DummyEhstTapHandler(object):
         if method == self.__invokedMethod:
             return
         else:
-            raise Exception("Method '"+str(method)
-                            + "' not invoked. (Invoked method is '"
-                            + str(self.__invokedMethod)+"')")
+            raise Exception("Method '"+str(method) +
+                            "' not invoked. (Invoked method is '" +
+                            str(self.__invokedMethod)+"')")
 
     def check_parameters(self, parameters, method_name):
         if parameters is None:
@@ -58,7 +58,6 @@ class DummyEhstTapHandler(object):
                 raise Exception("Parameter '%s' not found for method '%s'",
                                 (str(key), method_name))
         return False
-
 
     def launch_job(self, query, name=None, output_file=None,
                    output_format="votable", verbose=False, dump_to_file=False,

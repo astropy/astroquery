@@ -98,14 +98,12 @@ This will download metadata for all observations associated with target name 'm3
 
   >>> from astroquery.hst import Hst
   >>> from astropy import coordinates
-  >>> import astropy.units as u
   >>> c = coordinates.SkyCoord("00h42m44.51s +41d16m08.45s", frame='icrs')
   >>>
-  >>> Hst.cone_search(c, 5, "cone_search_m31_5.xml")
-  http://archives.esac.esa.int/ehst-sl-server/servlet/metadata-action?RESOURCE_CLASS=OBSERVATION&SELECTED_FIELDS\
-  =OBSERVATION&QUERY=(POSITION.RA==10.685469872614046%20AND%20POSITION.DEC==41.26901534788858)&RETURN_TYPE=VOTABLE
+  >>> Hst.cone_search(c, 7, "cone_search_m31_5.vot")
+  http://archives.esac.esa.int/ehst-sl-server/servlet/metadata-action?  RESOURCE_CLASS=OBSERVATION&ADQLQUERY=SELECT+DISTINCT+OBSERVATION%2COBSERVATION.TYPE%2CTARGET.MOVING_TARGET%2CTARGET.TARGET_NAME%2CTARGET.TARGET_DESCRIPTION%2CPROPOSAL.PROPOSAL_ID%2CPROPOSAL.PI_NAME%2CPROPOSAL.PROPOSAL_TITLE%2CINSTRUMENT.INSTRUMENT_NAME%2CPLANE.METADATA_PROVENANCE%2CPLANE.DATA_PRODUCT_TYPE%2CPLANE.SOFTWARE_VERSION%2CPOSITION.RA%2CPOSITION.DEC%2CPOSITION.GAL_LAT%2CPOSITION.GAL_LON%2CPOSITION.ECL_LAT%2CPOSITION.ECL_LON%2CPOSITION.FOV_SIZE%2CENERGY.WAVE_CENTRAL%2CENERGY.WAVE_BANDWIDTH%2CENERGY.WAVE_MAX%2CENERGY.WAVE_MIN%2CENERGY.FILTER+FROM+FIELD_NOT_USED++WHERE+OBSERVATION.COLLECTION%3D%27HST%27++AND++PLANE.MAIN_SCIENCE_PLANE%3D%27true%27++AND++%28OBSERVATION.TYPE%3D%27HST+Composite%27+OR+OBSERVATION.TYPE%3D%27HST+Singleton%27%29++AND++INTERSECTS%28CIRCLE%28%27ICRS%27%2C10.685469872614046%2C41.26901534788858%2C0.0%29%2CPOSITION%29%3D1++AND++PLANE.MAIN_SCIENCE_PLANE%3D%27true%27+ORDER+BY+PROPOSAL.PROPOSAL_ID+DESC&RETURN_TYPE=VOTABLE
 
-This will perform a cone search with radius 5 arcmins. The result of the query will be stored in file 'cone_search_m31_5.xml'.
+This will perform a cone search with radius 7 arcmins. The result of the query will be stored in the votable file 'cone_search_m31_5.vot'.
 
 ---------------------------
 7. Getting access to catalogues 

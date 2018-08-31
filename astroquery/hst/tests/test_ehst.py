@@ -12,14 +12,11 @@ Created on 13 Ago. 2018
 
 """
 import unittest
-import os
-import pytest
 
 from astroquery.hst.core import HstClass
 from astroquery.hst.tests.dummy_handler import DummyHandler
 from astroquery.hst.tests.dummy_tap_handler import DummyEhstTapHandler
 from astropy import coordinates
-import astropy.units as u
 
 
 class TestEhst(unittest.TestCase):
@@ -31,7 +28,7 @@ class TestEhst(unittest.TestCase):
         parameters['verbose'] = False
         dummyHandler = DummyHandler("get_product", parameters)
         ehst = HstClass(dummyHandler)
-        product = ehst.get_product("J6FL25S4Q", "RAW")
+        ehst.get_product("J6FL25S4Q", "RAW")
         dummyHandler.check_call("get_product", parameters)
 
     def test_get_artifact(self):
@@ -63,12 +60,11 @@ class TestEhst(unittest.TestCase):
         parameters['verbose'] = False
         dummyHandler = DummyHandler("get_metadata", parameters)
         ehst = HstClass(dummyHandler)
-        metadata = ehst.get_metadata("".join(("RESOURCE_CLASS=ARTIFACT&",
-                                              "OBSERVATION.OBSERVATION_ID=",
-                                              "i9zg04010&SELECTED_FIELDS=",
-                                              "ARTIFACT.ARTIFACT_ID&RETURN",
-                                              "_TYPE=VOTABLE"))
-                                     )
+        ehst.get_metadata("".join(("RESOURCE_CLASS=ARTIFACT&",
+                                   "OBSERVATION.OBSERVATION_ID=",
+                                   "i9zg04010&SELECTED_FIELDS=",
+                                   "ARTIFACT.ARTIFACT_ID&RETURN",
+                                   "_TYPE=VOTABLE")))
         dummyHandler.check_call("get_metadata", parameters)
 
     def test_query_target(self):
@@ -77,7 +73,7 @@ class TestEhst(unittest.TestCase):
         parameters['verbose'] = False
         dummyHandler = DummyHandler("query_target", parameters)
         ehst = HstClass(dummyHandler)
-        target = ehst.query_target(parameters['name'])
+        ehst.query_target(parameters['name'])
         dummyHandler.check_call("query_target", parameters)
 
     def test_cone_search(self):
@@ -89,9 +85,9 @@ class TestEhst(unittest.TestCase):
         parameters['verbose'] = False
         dummyHandler = DummyHandler("cone_search", parameters)
         ehst = HstClass(dummyHandler)
-        target = ehst.cone_search(parameters['coordinates'])
+        ehst.cone_search(parameters['coordinates'])
         dummyHandler.check_call("cone_search", parameters)
-        
+
     def test_query_hst_tap(self):
         parameters = {}
         parameters['query'] = "select top 10 * from hsc_v2.hubble_sc2"
@@ -101,7 +97,8 @@ class TestEhst(unittest.TestCase):
         dummyHandler = DummyHandler("launch_job", parameters)
         dummyTapHandler = DummyEhstTapHandler("launch_job", parameters)
         ehst = HstClass(dummyHandler, dummyTapHandler)
-        target = ehst.query_hst_tap(parameters['query'], parameters['output_file'], parameters['output_format'], parameters['verbose'])
+        ehst.query_hst_tap(parameters['query'], parameters['output_file'],
+                           parameters['output_format'], parameters['verbose'])
         dummyTapHandler.check_call("launch_job", parameters)
 
 test = TestEhst()
