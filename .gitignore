@@ -50,4 +50,3 @@ distribute-*.tar.gz
 .tox
 .*.sw[op]
 *~
-.svn
