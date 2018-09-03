@@ -239,3 +239,20 @@ class DummyTapHandler(object):
         self.__parameters['ids'] = ids
         self.__parameters['verbose'] = verbose
         return None
+    
+    def upload_table(self, upload_resource=None, table_name=None, 
+                     table_description=None,
+                     format=None, verbose=False):
+        self.__invokedMethod = 'update_table'
+        self.__parameters['resource'] = upload_resource
+        self.__parameters['table_name'] = table_name
+        self.__parameters['table_desc'] = table_description
+        self.__parameters['format'] = format
+        self.__parameters['verbose'] = verbose
+        return None
+    
+    def delete_user_table(self, table_name=None, verbose=False):
+        self.__invokedMethod = 'delete_user_table'
+        self.__parameters['table_name'] = table_name
+        self.__parameters['verbose'] = verbose
+        return None

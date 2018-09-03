@@ -636,9 +636,10 @@ class GaiaClass(object):
         else:
             return value
         
-    def upload_table(self, upload_resource=None, table_name=None,
+    def upload_table(self, upload_resource=None, table_name=None, 
+                     table_description=None,
                      format=None, verbose=False):
-        """Uploads a table to the  user private space
+        """Uploads a table to the user private space
 
         Parameters
         ----------
@@ -646,6 +647,8 @@ class GaiaClass(object):
             resource to be uploaded (table or URL)
         table_name: str, required if uploadResource is provided, default None
             resource temporary table name associated to the uploaded resource
+        table_description: str, optional, default None
+            table description
         format : str, optional, default 'votable'
             results format
         verbose : bool, optional, default 'False'
@@ -657,30 +660,9 @@ class GaiaClass(object):
         """
         return self.__gaiatap.upload_table(
             upload_resource=upload_resource,
-            table_name=table_name,
+            table_name=table_name, 
+            table_description=table_description,
             format=format, verbose=verbose)
-        
-    def upload_from_url(self, url=None, table_name=None,
-                     verbose=False):
-        """Uploads a table to the  user private space
-
-        Parameters
-        ----------
-        url : str, mandatory
-            url that provides a VOTable to be uploaded
-        table_name: str, required if uploadResource is provided, default None
-            resource temporary table name associated to the uploaded resource
-        verbose : bool, optional, default 'False'
-            flag to display information about the process
-
-        Returns
-        -------
-        A message (OK/Error) or a job when the table is big
-        """
-        return self.__gaiatap.upload_from_url(
-            url=url,
-            table_name=table_name,
-            verbose=verbose)
 
     def delete_user_table(self, table_name=None, verbose=False):
         """Removes a user table

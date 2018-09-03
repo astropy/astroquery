@@ -490,17 +490,20 @@ class Tap(object):
             print(response.getheaders())
         return response
 
-    def upload_table(self, upload_resource=None, table_name=None,
+    def upload_table(self, upload_resource=None, table_name=None, 
+                     table_description=None,
                      format=None, verbose=False):
         """Uploads a table to the  user private space
 
         Parameters
         ----------
         upload_resource : str, mandatory
-            table to be uploaded
+            table to be uploaded. File or URL.
         table_name: str, required if uploadResource is provided, default None
             resource temporary table name associated to the uploaded resource
-        format : str, optional, default 'votable'
+        table_description: str, optional, default None
+            table description
+        format : str, optional, default 'VOTable'
             results format
         verbose : bool, optional, default 'False'
             flag to display information about the process
@@ -514,33 +517,20 @@ class Tap(object):
             raise ValueError("Missing mandatory argument 'upload_resource'")
         if table_name is None:
             raise ValueError("Missing mandatory argument 'table_name'")
-        # TODO if format is null, try to get format from file extension
-        # test upload_resource is URL
-        if (str(upload_resource)).startswith("http"):
-            pass
-        else:
-            self.__uploadTableMultipart(fileResource=upload_resource, uploadTableName=table_name, format=format, verbose=verbose)
+        if table_description is None:
+            table_description = ""
 
-    def upload_from_url(self, url=None, table_name=None,
-                     verbose=False):
-        """Uploads a table to the  user private space
+        if format is None:
+            if (str(upload_resource).startswith("http") and 
+                (str(upload_resource).endswith(".vot") or 
+                 str(upload_resource).endswith(".votable"))):
+                format = "VOTable"
 
-        Parameters
-        ----------
-        url : str, mandatory
-            url that provides a VOTable to be uploaded
-        table_name: str, required if uploadResource is provided, default None
-            resource temporary table name associated to the uploaded resource
-        verbose : bool, optional, default 'False'
-            flag to display information about the process
+        self.__uploadTableMultipart(resource=upload_resource, table_name=table_name, 
+                                    table_description=table_description, format=format, 
+                                    verbose=verbose)
 
-        Returns
-        -------
-        A message (OK/Error) or a job when the table is big
-        """
-        self.__uploadTableMultipart(urlResource=url, uploadTableName=table_name, verbose=verbose)
-
-    def __uploadTableMultipart(self, fileResource=None, urlResource=None, uploadTableName=None,
+    def __uploadTableMultipart(self, resource, table_name=None, table_description=None,
                                format="VOTable", verbose=False):
         uploadValue = str(uploadTableName) + ",param:" + str(uploadTableName)
         if fileResource is None and urlResource is None:
@@ -551,18 +541,26 @@ class Tap(object):
             args = {
 		"TASKID": str(1),
                 "TABLE_NAME": str(uploadTableName),
+		"TABLE_DESC": str(table_description),
                 "FORMAT": ""+str(format)}
             f = open(uploadResource, "r")
             chunk = f.read()
             f.close()
             files = [['FILE', uploadResource, chunk]]
             contentType, body = self.__connHandler.encode_multipart(args, files)
-        else:
+        else:    # upload from URL
             args = {
-                "TABLE_NAME": str(uploadTableName),
-                "URL": ""+str(urlResource)}
-            contentType, body = self.__connHandler.encode_multipart(args, files=None)
+                "TASKID": str(1),
+                "TABLE_NAME": str(table_name),
+                "TABLE_DESC": str(table_description),
+                "FORMAT": str(format),
+                "URL": str(resource)}
+            files = [['FILE', "", ""]]
+            contentType, body = self.__connHandler.encode_multipart(args, files)
+            
         response = self.__connHandler.execute_upload(body, contentType)
+        if response.status == 303:
+            pass
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())

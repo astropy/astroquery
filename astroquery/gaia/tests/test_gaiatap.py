@@ -530,6 +530,59 @@ class TestTap(unittest.TestCase):
         parameters['verbose'] = verbose
         tap.load_datalinks(ids, verbose)
         dummyHandler.check_call('load_datalinks', parameters)
+        
+    def test_upload_table_file(self):
+        dummyHandler = DummyTapHandler()
+        tap = GaiaClass(dummyHandler, dummyHandler)
+
+        resource = "1535553556177O-result.vot"
+        table_name = "table1"
+        table_desc = "Description"
+        format = "VOTable"
+        verbose = True
+
+        parameters = {}
+        parameters['resource'] = resource
+        parameters['table_name'] = table_name
+        parameters['table_desc'] = table_desc
+        parameters['format'] = format
+        parameters['verbose'] = verbose
+        tap.upload_table(upload_resource=resource, table_name=table_name, 
+                         table_description=table_desc, format=format, verbose=verbose)
+        dummyHandler.check_call('update_table', parameters)
+        
+    def test_upload_table_url(self):
+        dummyHandler = DummyTapHandler()
+        tap = GaiaClass(dummyHandler, dummyHandler)
+
+        resource = "http://foo.com/tests"
+        table_name = "table2"
+        table_desc = "Description"
+        format = "VOTable"
+        verbose = True
+
+        parameters = {}
+        parameters['resource'] = resource
+        parameters['table_name'] = table_name
+        parameters['table_desc'] = table_desc
+        parameters['format'] = format
+        parameters['verbose'] = verbose
+        tap.upload_table(upload_resource=resource, table_name=table_name, 
+                         table_description=table_desc, format=format, verbose=verbose)
+        dummyHandler.check_call('update_table', parameters)
+
+    def test_delete_user_table(self):
+        dummyHandler = DummyTapHandler()
+        tap = GaiaClass(dummyHandler, dummyHandler)
+
+        table_name = "table2"
+        verbose = True
+
+        parameters = {}
+        parameters['table_name'] = table_name
+        parameters['verbose'] = verbose
+        tap.delete_user_table(table_name, verbose)
+        dummyHandler.check_call('delete_user_table', parameters)
 
 if __name__ == "__main__":
     # import sys;sys.argv = ['', 'Test.testName']
