@@ -615,7 +615,7 @@ class EsoClass(QueryWithLogin):
         return datasets_to_download, files
 
     def retrieve_data(self, datasets, continuation=False, destination=None,
-                      with_calib='none'):
+                      with_calib='none', deduplicate=True):
         """
         Retrieve a list of datasets form the ESO archive.
 
@@ -663,9 +663,12 @@ class EsoClass(QueryWithLogin):
             raise TypeError("Datasets must be given as a list of strings.")
 
         # First: Detect datasets already downloaded
-        log.info("Detecting already downloaded datasets...")
-        datasets_to_download, files = self._check_existing_files(
-            datasets, continuation=continuation, destination=destination)
+        if deduplicate:
+            log.info("Detecting already downloaded datasets...")
+            datasets_to_download, files = self._check_existing_files(
+                datasets, continuation=continuation, destination=destination)
+        else:
+            datasets_to_download, files = list(datasets), []
 
         # Second: Check that the datasets to download are in the archive
         log.info("Checking availability of datasets to download...")
