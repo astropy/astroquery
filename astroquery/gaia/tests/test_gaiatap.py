@@ -530,7 +530,7 @@ class TestTap(unittest.TestCase):
         parameters['verbose'] = verbose
         tap.load_datalinks(ids, verbose)
         dummyHandler.check_call('load_datalinks', parameters)
-        
+
     def test_upload_table_file(self):
         dummyHandler = DummyTapHandler()
         tap = GaiaClass(dummyHandler, dummyHandler)
@@ -547,10 +547,12 @@ class TestTap(unittest.TestCase):
         parameters['table_desc'] = table_desc
         parameters['format'] = format
         parameters['verbose'] = verbose
-        tap.upload_table(upload_resource=resource, table_name=table_name, 
-                         table_description=table_desc, format=format, verbose=verbose)
+        tap.upload_table(upload_resource=resource,
+                         table_name=table_name,
+                         table_description=table_desc,
+                         format=format, verbose=verbose)
         dummyHandler.check_call('update_table', parameters)
-        
+
     def test_upload_table_url(self):
         dummyHandler = DummyTapHandler()
         tap = GaiaClass(dummyHandler, dummyHandler)
@@ -567,10 +569,12 @@ class TestTap(unittest.TestCase):
         parameters['table_desc'] = table_desc
         parameters['format'] = format
         parameters['verbose'] = verbose
-        tap.upload_table(upload_resource=resource, table_name=table_name, 
-                         table_description=table_desc, format=format, verbose=verbose)
+        tap.upload_table(upload_resource=resource,
+                         table_name=table_name,
+                         table_description=table_desc,
+                         format=format, verbose=verbose)
         dummyHandler.check_call('update_table', parameters)
-        
+
     def test_upload_table_from_job(self):
         dummyHandler = DummyTapHandler()
         tap = GaiaClass(dummyHandler, dummyHandler)

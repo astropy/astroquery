@@ -239,8 +239,8 @@ class DummyTapHandler(object):
         self.__parameters['ids'] = ids
         self.__parameters['verbose'] = verbose
         return None
-    
-    def upload_table(self, upload_resource=None, table_name=None, 
+
+    def upload_table(self, upload_resource=None, table_name=None,
                      table_description=None,
                      format=None, verbose=False):
         self.__invokedMethod = 'update_table'
@@ -250,7 +250,7 @@ class DummyTapHandler(object):
         self.__parameters['format'] = format
         self.__parameters['verbose'] = verbose
         return None
-    
+
     def upload_table_from_job(self, job=None, verbose=False):
         self.__invokedMethod = 'upload_table_from_job'
         self.__parameters['job'] = job

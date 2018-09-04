@@ -19,10 +19,25 @@ from astroquery.utils.tap import TapPlus
 from astroquery.utils import commons
 from astropy import units
 from astropy.units import Quantity
+from astropy import config as _config
 
-from . import conf
 
-__all__ = ['Gaia', 'GaiaClass']
+class Conf(_config.ConfigNamespace):
+    """
+    Configuration parameters for `astroquery.gaia`.
+    """
+
+    MAIN_GAIA_TABLE = _config.ConfigItem("gaiadr2.gaia_source",
+                                         "GAIA source data table")
+    MAIN_GAIA_TABLE_RA = _config.ConfigItem("ra",
+                                            "Name of RA parameter in table")
+    MAIN_GAIA_TABLE_DEC = _config.ConfigItem("dec",
+                                             "Name of Dec parameter in table")
+
+
+conf = Conf()
+
+gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap", verbose=False)
 
 
 class GaiaClass(object):
@@ -225,15 +240,18 @@ class GaiaClass(object):
         -------
         A Job object
         """
-        return self.__gaiatap.launch_job_async(query,
-                                               name=name,
-                                               output_file=output_file,
-                                               output_format=output_format,
-                                               verbose=verbose,
-                                               dump_to_file=dump_to_file,
-                                               background=background,
-                                               upload_resource=upload_resource,
-                                               upload_table_name=upload_table_name)
+        return (
+            self.__gaiatap.
+            launch_job_async(query,
+                             name=name,
+                             output_file=output_file,
+                             output_format=output_format,
+                             verbose=verbose,
+                             dump_to_file=dump_to_file,
+                             background=background,
+                             upload_resource=upload_resource,
+                             upload_table_name=upload_table_name)
+            )
 
     def load_async_job(self, jobid=None, name=None, verbose=False):
         """Loads an asynchronous job
@@ -324,15 +342,18 @@ class GaiaClass(object):
             heightQuantity = self.__getQuantityInput(height, "height")
             widthDeg = widthQuantity.to(units.deg)
             heightDeg = heightQuantity.to(units.deg)
-            query = "SELECT DISTANCE(POINT('ICRS',"+str(self.MAIN_GAIA_TABLE_RA)+","\
-                + str(self.MAIN_GAIA_TABLE_DEC)+"), \
-                POINT('ICRS',"+str(ra)+","+str(dec)+")) AS dist, * \
-                FROM "+str(self.MAIN_GAIA_TABLE)+" WHERE CONTAINS(\
-                POINT('ICRS',"+str(self.MAIN_GAIA_TABLE_RA)+","\
-                + str(self.MAIN_GAIA_TABLE_DEC)+"),\
-                BOX('ICRS',"+str(ra)+","+str(dec)+", "+str(widthDeg.value)+", "\
-                + str(heightDeg.value)+"))=1 \
-                ORDER BY dist ASC"
+            query = "SELECT DISTANCE(POINT('ICRS',"\
+                    "" + str(self.MAIN_GAIA_TABLE_RA) + ","\
+                    "" + str(self.MAIN_GAIA_TABLE_DEC) + ")"\
+                    ", POINT('ICRS'," + str(ra) + "," + str(dec) + ""\
+                    ")) AS dist, * FROM " + str(self.MAIN_GAIA_TABLE) + ""\
+                    " WHERE CONTAINS(POINT('ICRS'"\
+                    "," + str(self.MAIN_GAIA_TABLE_RA) + ","\
+                    "" + str(self.MAIN_GAIA_TABLE_DEC) + "),BOX('ICRS"\
+                    "'," + str(ra) + "," + str(dec) + ", "\
+                    "" + str(widthDeg.value) + ","\
+                    " " + str(heightDeg.value) + ""\
+                    "))=1 ORDER BY dist ASC"
             if async_job:
                 job = self.__gaiatap.launch_job_async(query, verbose=verbose)
             else:
@@ -395,7 +416,8 @@ class GaiaClass(object):
                                    async_job=True, verbose=verbose)
 
     def __cone_search(self, coordinate, radius, table_name=MAIN_GAIA_TABLE,
-                      ra_column_name=MAIN_GAIA_TABLE_RA, dec_column_name=MAIN_GAIA_TABLE_DEC,
+                      ra_column_name=MAIN_GAIA_TABLE_RA,
+                      dec_column_name=MAIN_GAIA_TABLE_DEC,
                       async_job=False,
                       background=False,
                       output_file=None, output_format="votable", verbose=False,
@@ -462,8 +484,10 @@ class GaiaClass(object):
                                              verbose=verbose,
                                              dump_to_file=dump_to_file)
 
-    def cone_search(self, coordinate, radius=None, table_name=MAIN_GAIA_TABLE,
-                    ra_column_name=MAIN_GAIA_TABLE_RA, dec_column_name=MAIN_GAIA_TABLE_DEC,
+    def cone_search(self, coordinate, radius=None,
+                    table_name=MAIN_GAIA_TABLE,
+                    ra_column_name=MAIN_GAIA_TABLE_RA,
+                    dec_column_name=MAIN_GAIA_TABLE_DEC,
                     output_file=None,
                     output_format="votable", verbose=False,
                     dump_to_file=False):
@@ -508,8 +532,10 @@ class GaiaClass(object):
                                   verbose=verbose,
                                   dump_to_file=dump_to_file)
 
-    def cone_search_async(self, coordinate, radius=None, table_name=MAIN_GAIA_TABLE,
-                          ra_column_name=MAIN_GAIA_TABLE_RA, dec_column_name=MAIN_GAIA_TABLE_DEC,
+    def cone_search_async(self, coordinate, radius=None,
+                          table_name=MAIN_GAIA_TABLE,
+                          ra_column_name=MAIN_GAIA_TABLE_RA,
+                          dec_column_name=MAIN_GAIA_TABLE_DEC,
                           background=False,
                           output_file=None, output_format="votable",
                           verbose=False, dump_to_file=False):
@@ -665,8 +691,8 @@ class GaiaClass(object):
             return c
         else:
             return value
-        
-    def upload_table(self, upload_resource=None, table_name=None, 
+
+    def upload_table(self, upload_resource=None, table_name=None,
                      table_description=None,
                      format=None, verbose=False):
         """Uploads a table to the user private space
@@ -690,7 +716,7 @@ class GaiaClass(object):
         """
         return self.__gaiatap.upload_table(
             upload_resource=upload_resource,
-            table_name=table_name, 
+            table_name=table_name,
             table_description=table_description,
             format=format, verbose=verbose)
 
@@ -712,8 +738,7 @@ class GaiaClass(object):
             table_name=table_name,
             verbose=verbose)
 
-    def upload_table_from_job(self, job=None,
-                     verbose=False):
+    def upload_table_from_job(self, job=None, verbose=False):
         """Uploads a table to the user private space from a job
 
         Parameters
