@@ -14,10 +14,24 @@ Created on 13 Ago. 2018
 from astroquery.utils import commons
 from astropy import units
 from astropy.units import Quantity
-
 import urllib.request
-from . import conf
 from astroquery.utils.tap.core import TapPlus
+from astropy import config as _config
+
+
+class Conf(_config.ConfigNamespace):
+    """
+    Configuration parameters for `astroquery.hst`.
+    """
+    DATA_ACTION = _config.ConfigItem("http://archives.esac.esa.int/" +
+                                     "ehst-sl-server/servlet/data-action?",
+                                     "Main url for retriving hst files")
+    METADATA_ACTION = _config.ConfigItem("http://archives.esac.esa.int/" +
+                                         "ehst-sl-server/servlet/" +
+                                         "metadata-action?",
+                                         "Main url for retriving hst metadata")
+
+conf = Conf()
 
 __all__ = ['Hst', 'HstClass', 'Conf', 'conf', 'EhsdtHandler', 'Handler']
 
@@ -223,8 +237,8 @@ class HstClass(object):
                    "),POSITION)=1  AND  PLANE.MAIN_SCIENCE_PLANE='true' "
                    "ORDER BY PROPOSAL.PROPOSAL_ID "
                    "DESC",
-                   #"PAGE": "1",
-                   #"PAGE_SIZE": "50",
+                   # "PAGE": "1",
+                   # "PAGE_SIZE": "50",
                    "RETURN_TYPE": "VOTABLE"}
         result = urllib.parse.urlencode(payload,
                                         quote_via=urllib.parse.quote_plus)
