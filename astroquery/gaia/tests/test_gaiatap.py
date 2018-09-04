@@ -570,6 +570,19 @@ class TestTap(unittest.TestCase):
         tap.upload_table(upload_resource=resource, table_name=table_name, 
                          table_description=table_desc, format=format, verbose=verbose)
         dummyHandler.check_call('update_table', parameters)
+        
+    def test_upload_table_from_job(self):
+        dummyHandler = DummyTapHandler()
+        tap = GaiaClass(dummyHandler, dummyHandler)
+
+        job = "1536044389256O"
+        verbose = True
+
+        parameters = {}
+        parameters['job'] = job
+        parameters['verbose'] = verbose
+        tap.upload_table_from_job(job, verbose)
+        dummyHandler.check_call('upload_table_from_job', parameters)
 
     def test_delete_user_table(self):
         dummyHandler = DummyTapHandler()

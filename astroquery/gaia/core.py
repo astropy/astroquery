@@ -682,5 +682,26 @@ class GaiaClass(object):
             table_name=table_name,
             verbose=verbose)
 
+    def upload_table_from_job(self, job=None,
+                     verbose=False):
+        """Uploads a table to the user private space from a job
+
+        Parameters
+        ----------
+        job : job, mandatory
+            job used to create a table
+        table_name: str, required if uploadResource is provided, default None
+            resource temporary table name associated to the uploaded resource
+        table_description: str, optional, default None
+            table description
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        A message (OK/Error) or a job when the table is big
+        """
+
+        return self.__gaiatap.upload_table_from_job(job, verbose)
 
 Gaia = GaiaClass()

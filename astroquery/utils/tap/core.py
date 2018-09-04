@@ -566,6 +566,61 @@ class Tap(object):
             print(response.getheaders())
         return response
 
+    def upload_table_from_job(self, job=None,
+                     verbose=False):
+        """Creates a table to the user private space from a job
+
+        Parameters
+        ----------
+        job: job, mandatory
+            job used to create a table. Could be a string with the jobid or 
+            a job itself
+        table_name: str, required if uploadResource is provided, default None
+            resource temporary table name associated to the uploaded resource
+        table_description: str, optional, default None
+            table description
+        verbose: bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        A message (OK/Error) or a job when the table is big
+        """
+
+        if job is None:
+            raise ValueError("Missing mandatory argument 'job'")
+        
+        if isinstance(job, Job):
+            j = job
+        else:
+            j = self.load_async_job(job)
+            if j is None:
+                raise ValueError("Job " + str(job) + " not found")
+                return
+
+        if verbose:
+            print("JOB = " + j.get_jobid())
+        self.__uploadTableMultipartFromJob(resource=j.get_jobid(), table_name="t" + str(j.get_jobid()), 
+                                    table_description=j.get_query(), 
+                                    verbose=verbose)
+    
+    def __uploadTableMultipartFromJob(self, resource, table_name=None, table_description=None,
+                                      verbose=False):
+        args = {
+            "TASKID": str(1),
+            "JOBID": str(resource),
+            "TABLE_NAME": str(table_name),
+            "TABLE_DESC": str(table_description),
+            "FORMAT": str(format)}
+        files = [['FILE', "", ""]]
+        contentType, body = self.__connHandler.encode_multipart(args, files)
+            
+        response = self.__connHandler.execute_upload(body, contentType)
+        if verbose:
+            print(response.status, response.reason)
+            print(response.getheaders())
+        return response
+
     def delete_user_table(self, table_name=None, verbose=False):
         """Removes a user table
 

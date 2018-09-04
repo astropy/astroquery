@@ -251,6 +251,12 @@ class DummyTapHandler(object):
         self.__parameters['verbose'] = verbose
         return None
     
+    def upload_table_from_job(self, job=None, verbose=False):
+        self.__invokedMethod = 'upload_table_from_job'
+        self.__parameters['job'] = job
+        self.__parameters['verbose'] = verbose
+        return None
+
     def delete_user_table(self, table_name=None, verbose=False):
         self.__invokedMethod = 'delete_user_table'
         self.__parameters['table_name'] = table_name
