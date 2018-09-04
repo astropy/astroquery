@@ -394,7 +394,9 @@ class GaiaClass(object):
         return self.__query_object(coordinate, radius, width, height,
                                    async_job=True, verbose=verbose)
 
-    def __cone_search(self, coordinate, radius, async_job=False,
+    def __cone_search(self, coordinate, radius, table_name=MAIN_GAIA_TABLE,
+                      ra_column_name=MAIN_GAIA_TABLE_RA, dec_column_name=MAIN_GAIA_TABLE_DEC,
+                      async_job=False,
                       background=False,
                       output_file=None, output_format="votable", verbose=False,
                       dump_to_file=False):
@@ -407,6 +409,12 @@ class GaiaClass(object):
             coordinates center point
         radius : astropy.units, mandatory
             radius
+        table_name: str, optional, default main gaia table
+            table name doing the cone search against
+        ra_column_name: str, optional, default ra column in main gaia table
+            ra column doing the cone search against
+        dec_column_name: str, optional, default dec column in main gaia table
+            dec column doing the cone search against
         async_job : bool, optional, default 'False'
             executes the job in asynchronous/synchronous mode (default
             synchronous)
@@ -433,11 +441,11 @@ class GaiaClass(object):
         if radius is not None:
             radiusQuantity = self.__getQuantityInput(radius, "radius")
             radiusDeg = commons.radius_to_unit(radiusQuantity, unit='deg')
-        query = "SELECT DISTANCE(POINT('ICRS',"+str(self.MAIN_GAIA_TABLE_RA)+","\
-            + str(self.MAIN_GAIA_TABLE_DEC)+"), \
+        query = "SELECT DISTANCE(POINT('ICRS',"+str(ra_column_name)+","\
+            + str(dec_column_name)+"), \
             POINT('ICRS',"+str(ra)+","+str(dec)+")) AS dist, * \
-            FROM "+str(self.MAIN_GAIA_TABLE)+" WHERE CONTAINS(\
-            POINT('ICRS',"+str(self.MAIN_GAIA_TABLE_RA)+","+str(self.MAIN_GAIA_TABLE_DEC)+"),\
+            FROM "+str(table_name)+" WHERE CONTAINS(\
+            POINT('ICRS',"+str(ra_column_name)+","+str(dec_column_name)+"),\
             CIRCLE('ICRS',"+str(ra)+","+str(dec)+", "+str(radiusDeg)+"))=1 \
             ORDER BY dist ASC"
         if async_job:
@@ -454,7 +462,9 @@ class GaiaClass(object):
                                              verbose=verbose,
                                              dump_to_file=dump_to_file)
 
-    def cone_search(self, coordinate, radius=None, output_file=None,
+    def cone_search(self, coordinate, radius=None, table_name=MAIN_GAIA_TABLE,
+                    ra_column_name=MAIN_GAIA_TABLE_RA, dec_column_name=MAIN_GAIA_TABLE_DEC,
+                    output_file=None,
                     output_format="votable", verbose=False,
                     dump_to_file=False):
         """Cone search sorted by distance (sync.)
@@ -466,6 +476,12 @@ class GaiaClass(object):
             coordinates center point
         radius : astropy.units, mandatory
             radius
+        table_name: str, optional, default main gaia table
+            table name doing the cone search against
+        ra_column_name: str, optional, default ra column in main gaia table
+            ra column doing the cone search against
+        dec_column_name: str, optional, default dec column in main gaia table
+            dec column doing the cone search against
         output_file : str, optional, default None
             file name where the results are saved if dumpToFile is True.
             If this parameter is not provided, the jobid is used instead
@@ -482,6 +498,9 @@ class GaiaClass(object):
         """
         return self.__cone_search(coordinate,
                                   radius=radius,
+                                  table_name=table_name,
+                                  ra_column_name=ra_column_name,
+                                  dec_column_name=dec_column_name,
                                   async_job=False,
                                   background=False,
                                   output_file=output_file,
@@ -489,7 +508,9 @@ class GaiaClass(object):
                                   verbose=verbose,
                                   dump_to_file=dump_to_file)
 
-    def cone_search_async(self, coordinate, radius=None, background=False,
+    def cone_search_async(self, coordinate, radius=None, table_name=MAIN_GAIA_TABLE,
+                          ra_column_name=MAIN_GAIA_TABLE_RA, dec_column_name=MAIN_GAIA_TABLE_DEC,
+                          background=False,
                           output_file=None, output_format="votable",
                           verbose=False, dump_to_file=False):
         """Cone search sorted by distance (async)
@@ -501,6 +522,12 @@ class GaiaClass(object):
             coordinates center point
         radius : astropy.units, mandatory
             radius
+        table_name: str, optional, default main gaia table
+            table name doing the cone search against
+        ra_column_name: str, optional, default ra column in main gaia table
+            ra column doing the cone search against
+        dec_column_name: str, optional, default dec column in main gaia table
+            dec column doing the cone search against
         background : bool, optional, default 'False'
             when the job is executed in asynchronous mode, this flag
             specifies whether
@@ -521,6 +548,9 @@ class GaiaClass(object):
         """
         return self.__cone_search(coordinate,
                                   radius=radius,
+                                  table_name=table_name,
+                                  ra_column_name=ra_column_name,
+                                  dec_column_name=dec_column_name,
                                   async_job=True,
                                   background=background,
                                   output_file=output_file,
