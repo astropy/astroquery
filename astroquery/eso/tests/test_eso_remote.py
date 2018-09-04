@@ -129,7 +129,7 @@ class TestEso:
         result = eso.retrieve_data("MIDI.2014-07-25T02:03:11.561")
         assert isinstance(result, six.string_types)
         result = eso.retrieve_data("MIDI.2014-07-25T02:03:11.561",
-                                   deduplicate=False)
+                                   request_all_objects=True)
         assert isinstance(result, six.string_types)
 
     @pytest.mark.skipif('not Eso.USERNAME')
