@@ -4,7 +4,9 @@ from __future__ import (absolute_import, division, print_function,
 import abc
 import inspect
 import pickle
+import getpass
 import hashlib
+import keyring
 import io
 import os
 import requests
@@ -17,6 +19,7 @@ from astropy.utils.console import ProgressBarOrSpinner
 import astropy.utils.data
 
 from . import version
+from .utils import system_tools
 
 __all__ = ['BaseQuery', 'QueryWithLogin']
 
@@ -356,6 +359,31 @@ class QueryWithLogin(BaseQuery):
     def __init__(self):
         super(QueryWithLogin, self).__init__()
         self._authenticated = False
+
+    def _get_password(self, service_name, username, reenter=False):
+        """Get password from keyring or prompt."""
+
+        password_from_keyring = None
+        if reenter is False:
+            try:
+                password_from_keyring = keyring.get_password(
+                    service_name, username)
+            except keyring.errors.KeyringError as exc:
+                log.warning("Failed to get a valid keyring for password "
+                            "storage: {}".format(exc))
+
+        if password_from_keyring is None:
+            log.warning("No password was found in the keychain for the "
+                        "provided username.")
+            if system_tools.in_ipynb():
+                log.warning("You may be using an ipython notebook:"
+                            " the password form will appear in your terminal.")
+            password = getpass.getpass("{0}, enter your password:\n"
+                                       .format(username))
+        else:
+            password = password_from_keyring
+
+        return password, password_from_keyring
 
     @abc.abstractmethod
     def _login(self, *args, **kwargs):

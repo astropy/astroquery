@@ -5,7 +5,6 @@ import re
 import os
 import warnings
 import functools
-import getpass
 import keyring
 
 import numpy as np
@@ -18,7 +17,7 @@ from astropy import log
 from bs4 import BeautifulSoup
 
 from ..query import QueryWithLogin
-from ..utils import commons, async_to_sync, system_tools, prepend_docstr_nosections
+from ..utils import commons, async_to_sync, prepend_docstr_nosections
 from ..exceptions import TableParseError, LoginError
 
 from . import conf
@@ -296,20 +295,9 @@ class NraoClass(QueryWithLogin):
             return True
 
         # Get password from keyring or prompt
-        if reenter_password is False:
-            password_from_keyring = keyring.get_password(
-                "astroquery:my.nrao.edu", username)
-        else:
-            password_from_keyring = None
+        password, password_from_keyring = self._get_password(
+            "astroquery:my.nrao.edu", username, reenter=reenter_password)
 
-        if password_from_keyring is None:
-            if system_tools.in_ipynb():
-                log.warning("You may be using an ipython notebook:"
-                            " the password form will appear in your terminal.")
-            password = getpass.getpass("{0}, enter your NRAO archive password:"
-                                       "\n".format(username))
-        else:
-            password = password_from_keyring
         # Authenticate
         log.info("Authenticating {0} on my.nrao.edu ...".format(username))
         # Do not cache pieces of the login process
