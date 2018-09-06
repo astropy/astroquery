@@ -51,3 +51,4 @@ distribute-*.tar.gz
 .*.sw[op]
 *~
 .svn
+/.DS_Store

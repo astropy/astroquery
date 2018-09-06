@@ -60,7 +60,7 @@ class HstClass(object):
             self.__handler = url_handler
 
         if tap_handler is None:
-            self.__tap = TapPlus(url="http://hst04.n1data.lan:8080"
+            self.__tap = TapPlus(url="http://hst04.esac.esa.int"
                                  "/tap-server/tap/")
         else:
             self.__tap = tap_handler
