@@ -22,7 +22,7 @@
 - Add docstring and signature for login. [#1199]
 - JPLHorizons: JPL server protocol and epoch range bug fixes, user-defined
   location and additional ephemerides information added [#1207]
-
+- MAST: Fixing bug in catalog criteria querues, and updating remote tests. [#1223]
 
 0.3.8 (2018-04-27)
 ------------------

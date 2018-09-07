@@ -110,7 +110,6 @@ def _mashup_json_to_table(json_obj, col_config=None):
             atype = np.int64
             ignoreValue = -999 if (ignoreValue is None) else ignoreValue
         if atype == "date":
-            print(col, json_obj['data'][0][col])
             atype = "str"
             ignoreValue = "" if (ignoreValue is None) else ignoreValue
 
@@ -416,10 +415,28 @@ class MastClass(QueryWithLogin):
                    "Content-type": "application/x-www-form-urlencoded",
                    "Accept": "text/plain"}
 
-        response = self._request("POST", self._COLUMNS_CONFIG_URL,
-                                 data=("colConfigId="+fetch_name), headers=headers)
+        if "Catalogs.All" in fetch_name:  # Using the histogram properties instead of columngs config
 
-        self._column_configs[service] = response[0].json()
+            mashupRequest = {'service': fetch_name, 'params': {}, 'format': 'extjs'}
+            reqString = _prepare_service_request_string(mashupRequest)
+            response = self._request("POST", self._MAST_REQUEST_URL, data=reqString, headers=headers)
+            jsonResponse = response[0].json()
+
+            # When using the histogram data to fill to col_config some processing must be done
+            col_config = jsonResponse['data']['Tables'][0]['ExtendedProperties']['discreteHistogram']
+            col_config.update(jsonResponse['data']['Tables'][0]['ExtendedProperties']['continuousHistogram'])
+
+            for col, val in col_config.items():
+                val.pop('hist', None)  # don't want to save all this unecessary data
+
+            self._column_configs[service] = col_config
+
+        else:
+
+            response = self._request("POST", self._COLUMNS_CONFIG_URL,
+                                     data=("colConfigId="+fetch_name), headers=headers)
+
+            self._column_configs[service] = response[0].json()
 
     def _parse_result(self, responses, verbose=False):
         """
@@ -624,7 +641,8 @@ class MastClass(QueryWithLogin):
 
         # setting self._current_service
         if service not in self._column_configs.keys():
-            self._get_col_config(service)
+            fetch_name = kwargs.pop('fetch_name', None)
+            self._get_col_config(service, fetch_name)
         self._current_service = service
 
         # setting up pagination
@@ -728,7 +746,8 @@ class MastClass(QueryWithLogin):
                 continue
 
             colType = "discrete"
-            if (colInfo.get("vot.datatype", colInfo.get("type")) in ("double", "float")) or colInfo.get("treatNumeric"):
+            if (colInfo.get("vot.datatype", colInfo.get("type")) in ("double", "float", "numeric")) \
+               or colInfo.get("treatNumeric"):
                 colType = "continuous"
 
             separator = colInfo.get("separator")
@@ -807,10 +826,10 @@ class ObservationsClass(MastClass):
             List of available missions.
         """
 
-        # getting all the hitogram information
+        # getting all the histogram information
         service = "Mast.Caom.All"
         params = {}
-        response = Mast.service_request_async(service, params, format='extjs')
+        response = self.service_request_async(service, params, format='extjs')
         jsonResponse = response[0].json()
 
         # getting the list of missions
@@ -1744,13 +1763,13 @@ class CatalogsClass(MastClass):
             service = "Mast.Catalogs.Filtered.Tic"
             if coordinates or objectname:
                 service += ".Position"
-            mashupFilters = self._build_filter_set("Mast.Catalogs.Tess.Cone", service, **criteria)
+            mashupFilters = self._build_filter_set("Mast.Catalogs.All.Tic", service, **criteria)
 
         elif catalog == "DiskDetective":
             service = "Mast.Catalogs.Filtered.DiskDetective"
             if coordinates or objectname:
                 service += ".Position"
-            mashupFilters = self._build_filter_set("Mast.Catalogs.Dd.Cone", service, **criteria)
+            mashupFilters = self._build_filter_set("Mast.Catalogs.All.DiskDetective", service, **criteria)
 
         else:
             raise InvalidQueryError("Criteria query not availible for {}".format(catalog))
@@ -1786,7 +1805,7 @@ class CatalogsClass(MastClass):
         if catalog == "Tic":
             params["columns"] = "c.*"
 
-        return self.service_request_async(service, params)
+        return self.service_request_async(service, params, pagesize=pagesize, page=page)
 
     @class_or_instance
     def query_hsc_matchid_async(self, match, version=3, pagesize=None, page=None):
