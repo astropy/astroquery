@@ -3,7 +3,7 @@
 import json
 from collections import OrderedDict
 
-from numpy import genfromtxt, isnan, array
+from numpy import fromstring, isnan, array
 import astropy.units as u
 
 from ..query import BaseQuery
@@ -244,12 +244,17 @@ class SBDBClass(BaseQuery):
                             for i in range(array(val).shape[1]):
                                 if isinstance(val[i], bytes):
                                     val[i] = val[i].decode('utf-8')
-                                res[key].append(genfromtxt(val[i]))
+                                # res[key].append(genfromtxt(val[i]))
+                                res[key].append(
+                                    fromstring(" ".join(val[i]), sep=' '))
                             res[key] = array(res[key])
                         else:
                             if isinstance(val, bytes):
                                 val = val.decode('utf-8')
-                            res[key] = genfromtxt(val)
+                            try:
+                                res[key] = float(val)
+                            except ValueErro:
+                                res[key] = val
                         continue
 
                     # turn lists of dictionaries into lists/leave as scalars
@@ -264,9 +269,9 @@ class SBDBClass(BaseQuery):
                                     if isinstance(val[i][field], bytes):
                                         val[i][field] = val[i][field].decode(
                                             'utf-8')
-                                res[key][field] = genfromtxt(
-                                    [val[i][field] for i in
-                                     range(len(val))])
+
+                                res[key][field] = [float(val[i][field])
+                                                   for i in range(len(val))]
 
                                 # make it fail if there are nans
                                 try:
@@ -281,7 +286,7 @@ class SBDBClass(BaseQuery):
                                     res[key][field] = res[key][field] *\
                                         u.Unit(conf.field_unit[field])
 
-                            except (AttributeError, ValueError):
+                            except (AttributeError, ValueError, TypeError):
                                 # if that fails
                                 res[key][field] = [list() for i in
                                                    range(len(val))]
@@ -292,7 +297,8 @@ class SBDBClass(BaseQuery):
                                             len(val[i][field]) > 0 and
                                             isinstance(val[i][field][0],
                                                        dict)):
-                                        res[key][field][i] = self._process_data_element(
+                                        res[key][field][i] = \
+                                            self._process_data_element(
                                             val[i][field])
                                     # or use a list instead
                                     else:
