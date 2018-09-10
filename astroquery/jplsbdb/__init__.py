@@ -23,7 +23,7 @@ class Conf(_config.ConfigNamespace):
         'Time limit for connecting to JPL server.')
 
     # dictionary to replace JPL SBDB units with astropy units in data objects
-    data_unit_replace = {'JED': 'd'}
+    data_unit_replace = {'JED': 'd', 'TDB': 'd'}
 
     # dictionary for units of individual and unique fields
     field_unit = {'epoch': 'd',
