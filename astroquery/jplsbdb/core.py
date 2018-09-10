@@ -117,7 +117,7 @@ class SBDBClass(BaseQuery):
         Examples
         --------
         >>> from astroquery.jplsbdb import SBDB
-        >>> sbdb = SBDB.query('3552')
+        >>> sbdb = SBDB.query('3552')  # doctest: +SKIP
         >>> print(sbdb) # doctest: +SKIP
         OrderedDict([('object', OrderedDict([('shortname', '3552 Don Quixote'), ('neo', True), ... ])
 
@@ -390,7 +390,7 @@ class SBDBClass(BaseQuery):
         Examples
         --------
             >>> from astroquery.jplsbdb import SBDB
-            >>> sbdb = SBDB.query(3552)
+            >>> sbdb = SBDB.query(3552)  # doctest: +SKIP
             >>> print(SBDB.schematic(sbdb))  # doctest: +SKIP
             +-+ object:
             | +-- shortname: 3552 Don Quixote
