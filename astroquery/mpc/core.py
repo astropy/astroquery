@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 import numpy as np
 from astropy.io import ascii
 from astropy.time import Time
-from astropy.table import Column
+from astropy.table import Table, Column
 import astropy.units as u
 from astropy.coordinates import EarthLocation, Angle
 
@@ -772,9 +772,41 @@ class MPCClass(BaseQuery):
         elif self.query_type == 'observatory_code':
             root = BeautifulSoup(result.content, 'html.parser')
             text_table = root.find('pre').text
-            tab = ascii.read(text_table, format='fixed_width',
-                             names=('Code', 'Longitude', 'cos', 'sin', 'Name'),
-                             col_starts=(0, 4, 13, 21, 30))
+            start = text_table.index('000')
+            text_table = text_table[start:]
+
+            # parse table ourselves to make sure the code column is a
+            # string and that blank cells are masked
+            rows = []
+            for line in text_table.splitlines():
+                lon = line[4:13]
+                if len(lon.strip()) == 0:
+                    lon = np.nan
+                else:
+                    lon = float(lon)
+
+                c = line[13:21]
+                if len(c.strip()) == 0:
+                    c = np.nan
+                else:
+                    c = float(c)
+
+                s = line[21:30]
+                if len(s.strip()) == 0:
+                    s = np.nan
+                else:
+                    s = float(s)
+
+                rows.append((line[:3], lon, c, s, line[30:]))
+
+            tab = Table(rows=rows,
+                        names=('Code', 'Longitude', 'cos', 'sin', 'Name'),
+                        dtype=(str, float, float, float, str),
+                        masked=True)
+            tab['Longitude'].mask = ~np.isfinite(tab['Longitude'])
+            tab['cos'].mask = ~np.isfinite(tab['cos'])
+            tab['sin'].mask = ~np.isfinite(tab['sin'])
+
             return tab
         elif self.query_type == 'ephemeris':
             content = result.content.decode()
@@ -784,9 +816,9 @@ class MPCClass(BaseQuery):
             table_end = content.find('</pre>')
             text_table = content[table_start + 5:table_end]
 
-            SKY = '&raty=a' in result.request.body
-            HELIOCENTRIC = '&raty=s' in result.request.body
-            GEOCENTRIC = '&raty=G' in result.request.body
+            SKY = 'raty=a' in result.request.body
+            HELIOCENTRIC = 'raty=s' in result.request.body
+            GEOCENTRIC = 'raty=G' in result.request.body
 
             # columns = '\n'.join(text_table.splitlines()[:2])
             # find column headings
@@ -810,13 +842,13 @@ class MPCClass(BaseQuery):
                 col_ends = (17, 28, 38, 46, 55, 61, 68, 72)
                 units = (None, None, None, 'au', 'au', 'deg', 'deg', 'mag')
 
-                if '&s=t' in result.request.body:    # total motion
+                if 's=t' in result.request.body:    # total motion
                     names += ('Proper motion', 'Direction')
                     units += ('arcsec/h', 'deg')
-                elif '&s=c' in result.request.body:  # coord Motion
+                elif 's=c' in result.request.body:  # coord Motion
                     names += ('dRA', 'dDec')
                     units += ('arcsec/h', 'arcsec/h')
-                elif '&s=s' in result.request.body:  # sky Motion
+                elif 's=s' in result.request.body:  # sky Motion
                     names += ('dRA cos(Dec)', 'dDec')
                     units += ('arcsec/h', 'arcsec/h')
                 col_starts += (73, 81)

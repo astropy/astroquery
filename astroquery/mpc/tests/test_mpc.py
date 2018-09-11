@@ -9,15 +9,15 @@ uncertainties:
 ```
 from astroquery.mpc import MPC
 parameters = {
-  '2P_ephemeris_G37-a-c': ('2P', {'location': 'G37'}),
-  '2P_ephemeris_500-s-c': ('2P', {'eph_type': 'heliocentric'}),
-  '2P_ephemeris_500-G-c': ('2P', {'eph_type': 'geocentric'}),
+  '2P_ephemeris_G37-a-t': ('2P', {'location': 'G37'}),
+  '2P_ephemeris_500-s-t': ('2P', {'eph_type': 'heliocentric'}),
+  '2P_ephemeris_500-G-t': ('2P', {'eph_type': 'geocentric'}),
   '2P_ephemeris_500-a-t': ('2P', {'proper_motion': 'total'}),
   '2P_ephemeris_500-a-c': ('2P', {'proper_motion': 'coordinate'}),
   '2P_ephemeris_500-a-s': ('2P', {'proper_motion': 'sky'}),
-  '1994XG_ephemeris_500-a-c': ('1994 XG', {}),
-  '1994XG_ephemeris_G37-a-c': ('1994 XG', {'location': 'G37'}),
-  'testfail_ephemeris_500-a-c': ('test fail', {})
+  '1994XG_ephemeris_500-a-t': ('1994 XG', {}),
+  '1994XG_ephemeris_G37-a-t': ('1994 XG', {'location': 'G37'}),
+  'testfail_ephemeris_500-a-t': ('test fail', {})
 }
 for prefix, (name, kwargs) in parameters.items():
     with open(prefix + '.html', 'w') as outf:
@@ -41,11 +41,8 @@ For ObsCodes.html:
 Then edit and remove all but the first 10 lines of observatories.
 This is sufficient for testing.
 
-Download and trim the observatory codes file for testing:
-$ wget https://www.minorplanetcenter.net/iau/lists/ObsCodes.html
-Then edit to remove all but the first ~10 observatories.
-
 """
+import os
 import pytest
 import numpy as np
 
@@ -56,7 +53,7 @@ from astropy.time import Time
 from ...exceptions import InvalidQueryError
 from ... import mpc
 from ...utils.testing_tools import MockResponse
-from ...utils import commons
+from requests import Request
 
 
 DEFAULT_EPHEMERIS_ARGS = {
@@ -74,6 +71,11 @@ DEFAULT_EPHEMERIS_ARGS = {
 }
 
 
+def data_path(filename):
+    data_dir = os.path.join(os.path.dirname(__file__), 'data')
+    return os.path.join(data_dir, filename)
+
+
 @pytest.fixture
 def patch_post(request):
     try:
@@ -84,28 +86,43 @@ def patch_post(request):
     return mp
 
 
-def data_path(filename):
-    data_dir = os.path.join(os.path.dirname(__file__), 'data')
-    return os.path.join(data_dir, filename)
+@pytest.fixture
+def patch_get(request):
+    try:
+        mp = request.getfixturevalue("monkeypatch")
+    except AttributeError:  # pytest < 3
+        mp = request.getfuncargvalue("monkeypatch")
+    mp.setattr(mpc.MPCClass, '_request', get_mockreturn)
+    return mp
 
 
-def post_mockreturn(self, httpverb, url, params, auth):
+def get_mockreturn(self, httpverb, url, params={}, auth=None, **kwargs):
     if mpc.core.MPC.MPC_URL in url:
-        content = open(data_path('comet_object_C2012S1.json'), 'r').read()
-    elif url == mpc.core.MPC.MPES_URL:
-        prefix = params['TextArea'].replace(' ', '')
-        suffix = '-'.join((params['c'], params['raty'], params['s']))
-        filename = data_path('{}_ephemeris_{}.html'.format(prefix, suffix))
-        content = open(filename, 'r').read()
+        content = open(data_path('comet_object_C2012S1.json'), 'rb').read()
     elif url == mpc.core.MPC.OBSERVATORY_CODES_URL:
-        content = open(data_path('ObsCodes.html'), 'r').read()
+        content = open(data_path('ObsCodes.html'), 'rb').read()
     else:
         content = None
 
-    return MockResponse(content)
+    return MockResponse(content, url=url, auth=auth)
 
 
-def test_query_object_get_query_payload(patch_post):
+def post_mockreturn(self, httpverb, url, data={}, **kwargs):
+    if url == mpc.core.MPC.MPES_URL:
+        prefix = data['TextArea'].replace(' ', '')
+        suffix = '-'.join((data['c'], data['raty'], data['s']))
+        filename = data_path('{}_ephemeris_{}.html'.format(prefix, suffix))
+        content = open(filename, 'rb').read()
+    else:
+        content = None
+
+    response = MockResponse(content, url=url)
+    response.request = Request('POST', url, data=data).prepare()
+
+    return response
+
+
+def test_query_object_get_query_payload(patch_get):
     request_payload = mpc.core.MPC.query_object_async(
         get_query_payload=True, target_type='asteroid', name='ceres')
     assert request_payload == {"name": "ceres", "json": 1, "limit": 1}
@@ -137,25 +154,25 @@ def test_args_to_ephemeris_payload():
     }
 
 
-def test_get_ephemeris_Moon_phase():
+def test_get_ephemeris_Moon_phase(patch_post):
     result = mpc.core.MPC.get_ephemeris('2P', location='G37')
     assert result['Moon phase'][0] >= 0
 
 
-def test_get_ephemeris_Uncertainty():
+def test_get_ephemeris_Uncertainty(patch_post):
     # this test requires an object with uncertainties != N/A
     result = mpc.core.MPC.get_ephemeris('1994 XG')
     assert result['Uncertainty 3sig'].quantity[0] > 0 * u.arcsec
 
 
-def test_get_ephemeris_Moon_phase_and_Uncertainty():
+def test_get_ephemeris_Moon_phase_and_Uncertainty(patch_post):
     # this test requires an object with uncertainties != N/A
     result = mpc.core.MPC.get_ephemeris('1994 XG', location='G37')
     assert result['Moon phase'][0] >= 0
     assert result['Uncertainty 3sig'].quantity[0] > 0 * u.arcsec
 
 
-def test_get_ephemeris_by_name_fail():
+def test_get_ephemeris_by_name_fail(patch_post):
     with pytest.raises(InvalidQueryError):
         mpc.core.MPC.get_ephemeris('test fail')
 
@@ -172,11 +189,11 @@ def test_get_ephemeris_location_int():
     assert payload['c'] == '000'
 
 
-@pytest.mark.parametrize('location', (
-    (0 * u.deg, '51d28m31.6s', 65.8 * u.m),
-    EarthLocation(0 * u.deg, '51d28m31.6s', 65.8 * u.m)
+@pytest.mark.parametrize('patch_post,location', (
+    (patch_post, (0 * u.deg, '51d28m31.6s', 65.8 * u.m)),
+    (patch_post, EarthLocation(0 * u.deg, '51d28m31.6s', 65.8 * u.m))
 ))
-def test_get_ephemeris_location_latlonalt(location):
+def test_get_ephemeris_location_latlonalt(patch_post, location):
     payload = mpc.core.MPC.get_ephemeris(
         '(1)', location=location, get_query_payload=True)
     assert np.isclose(payload['long'], 0.0)
@@ -247,7 +264,7 @@ def test_get_ephemeris_number_fail():
         mpc.core.MPC.get_ephemeris('2P', number=1500)
 
 
-def test_get_ephemeris_ra_format():
+def test_get_ephemeris_ra_format(patch_post):
     result = mpc.core.MPC.get_ephemeris('2P')
     ra0 = Angle(result['RA'])
     result = mpc.core.MPC.get_ephemeris('2P', ra_format={'unit': 'hourangle'})
@@ -255,7 +272,7 @@ def test_get_ephemeris_ra_format():
     assert np.allclose(ra0.deg, ra1.deg)
 
 
-def test_get_ephemeris_dec_format():
+def test_get_ephemeris_dec_format(patch_post):
     result = mpc.core.MPC.get_ephemeris('2P')
     dec0 = Angle(result['Dec'])
     result = mpc.core.MPC.get_ephemeris('2P', dec_format={'unit': 'deg'})
@@ -268,7 +285,7 @@ def test_get_ephemeris_dec_format():
     ('heliocentric', ('X', 'Y', 'Z', "X'", "Y'", "Z'")),
     ('geocentric', ('X', 'Y', 'Z'))
 ))
-def test_get_ephemeris_eph_type(eph_type, cols):
+def test_get_ephemeris_eph_type(eph_type, cols, patch_post):
     result = mpc.core.MPC.get_ephemeris('2P', eph_type=eph_type)
     for col in cols:
         assert col in result.colnames
@@ -284,7 +301,7 @@ def test_get_ephemeris_eph_type_fail():
     ('coordinate', ('dRA', 'dDec')),
     ('sky', ('dRA cos(Dec)', 'dDec'))
 ))
-def test_get_ephemeris_proper_motion(mu, columns):
+def test_get_ephemeris_proper_motion(mu, columns, patch_post):
     result = mpc.core.MPC.get_ephemeris('2P', proper_motion=mu)
     for col in columns:
         assert col in result.colnames
@@ -296,18 +313,22 @@ def test_get_ephemeris_proper_motion_fail():
 
 
 @pytest.mark.parametrize('mu,unit,columns,units', (
-    ('total', 'arcsec/h', ('Proper motion', 'Direction'), ('arcsec/h', 'deg')),
-    ('coordinate', 'arcmin/h', ('dRA', 'dDec'), ('arcmin/h', 'arcmin/h')),
-    ('sky', 'arcsec/d', ('dRA cos(Dec)', 'dDec'), ('arcsec/d', 'arcsec/d'))
+    ('total', 'arcsec/h',
+     ('Proper motion', 'Direction'), ('arcsec/h', 'deg')),
+    ('coordinate', 'arcmin/h',
+     ('dRA', 'dDec'), ('arcmin/h', 'arcmin/h')),
+    ('sky', 'arcsec/d',
+     ('dRA cos(Dec)', 'dDec'), ('arcsec/d', 'arcsec/d'))
 ))
-def test_get_ephemeris_proper_motion_unit(mu, unit, columns, units):
+def test_get_ephemeris_proper_motion_unit(mu, unit, columns, units,
+                                          patch_post):
     result = mpc.core.MPC.get_ephemeris(
         '2P', proper_motion=mu, proper_motion_unit=unit)
     for col, unit in zip(columns, units):
         assert result[col].unit == u.Unit(unit)
 
 
-def test_get_ephemeris_proper_motion_unit_fail():
+def test_get_ephemeris_proper_motion_unit_fail(patch_post):
     with pytest.raises(ValueError):
         result = mpc.core.MPC.get_ephemeris('2P', proper_motion_unit='km/s')
 
@@ -334,19 +355,19 @@ def test_get_ephemeris_perturbed(perturbed, val):
 
 
 @pytest.mark.parametrize('unc_links', (True, False))
-def test_get_ephemeris_unc_links(unc_links):
+def test_get_ephemeris_unc_links(unc_links, patch_post):
     tab = mpc.core.MPC.get_ephemeris('1994 XG', unc_links=unc_links)
     assert ('Unc. map' in tab.colnames) == unc_links
     assert ('Unc. offsets' in tab.colnames) == unc_links
 
 
-def test_get_observatory_codes():
+def test_get_observatory_codes(patch_get):
     result = mpc.core.MPC.get_observatory_codes()
     greenwich = ['000', 0.0, 0.62411, 0.77873, 'Greenwich']
     assert all([r == g for r, g in zip(result[0], greenwich)])
 
 
-def test_get_observatory_location():
+def test_get_observatory_location(patch_get):
     result = mpc.core.MPC.get_observatory_location('000')
     greenwich = [Angle(0.0, 'deg'), 0.62411, 0.77873, 'Greenwich']
     assert all([r == g for r, g in zip(result, greenwich)])
