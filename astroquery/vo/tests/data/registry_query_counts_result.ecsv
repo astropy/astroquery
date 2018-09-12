@@ -5,21 +5,19 @@
 # - {name: count_publisher, datatype: int32}
 # meta: !!omap
 # - astroquery.vo:
-#     data: {lang: ADQL, query: 'select * from (select role_name as publisher, count(role_name)
-#         as count_publisher from rr.res_role where base_role = ''publisher''  group
-#         by role_name) as count_table where count_publisher >= 15 order by count_publisher
-#         desc', request: doQuery}
+#     data: {lang: ADQL, query: 'select * from (select role_name as publisher, count(role_name) as count_publisher from rr.res_role where
+#         base_role = ''publisher''  group by role_name) as count_table where count_publisher >= 15 order by count_publisher desc', request: doQuery}
 #     url: https://vao.stsci.edu/RegTAP/TapService.aspx/sync
 # schema: astropy-2.0
 publisher count_publisher
-CDS 17410
-"NASA/GSFC HEASARC" 1047
+CDS 17551
+"NASA/GSFC HEASARC" 1048
 "NASA/IPAC Infrared Science Archive" 523
-"The GAVO DC team" 179
-"Space Telescope Science Institute Archive" 106
+"The GAVO DC team" 196
+"Space Telescope Science Institute Archive" 120
 "WFAU, Institute for Astronomy, University of Edinburgh" 101
 "SVO CAB" 35
-IA2 35
+IA2 34
 "Canadian Astronomy Data Centre" 30
 "Sternberg Astronomical Institute Virtual Observatory Project" 29
 HELIO 27

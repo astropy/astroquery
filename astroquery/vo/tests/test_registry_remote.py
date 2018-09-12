@@ -5,13 +5,6 @@ from astropy.io import ascii
 from astroquery.vo import Registry
 from .shared_registry import SharedRegistryTests
 
-##
-##  Regenerate the output JSON files using:
-##
-##  astroquery/vo > python tests/thetests.py
-
-from .thetests import TestReg
-
 @remote_data
 class TestRegistryRemote(SharedRegistryTests):
     ""
