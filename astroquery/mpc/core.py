@@ -731,8 +731,14 @@ class MPCClass(BaseQuery):
             request_args['c'] = '{:03d}'.format(location)
         elif isinstance(location, EarthLocation):
             loc = location.geodetic
-            request_args['long'] = loc.lon.deg
-            request_args['lat'] = loc.lat.deg
+            try:
+                # astropy < 2.0
+                request_args['long'] = loc.longitude.deg
+                request_args['lat'] = loc.latitude.deg
+            except AttributeError:
+                # astropy >= 2.0
+                request_args['long'] = loc.lon.deg
+                request_args['lat'] = loc.lat.deg
             request_args['alt'] = loc.height.to(u.m).value
         elif hasattr(location, '__iter__'):
             request_args['long'] = Angle(location[0]).deg
