@@ -186,6 +186,7 @@ These others are functional, but do not follow a common & consistent API:
   exoplanet_orbit_database/exoplanet_orbit_database.rst
   fermi/fermi.rst
   jplhorizons/jplhorizons.rst
+  jplsbdb/jplsbdb.rst
   lamda/lamda.rst
   nasa_exoplanet_archive/nasa_exoplanet_archive.rst
   oac/oac.rst
@@ -295,8 +296,21 @@ above categories.
   hitran/hitran.rst
   utils/tap.rst
   jplhorizons/jplhorizons.rst
+  jplsbdb/jplsbdb.rst
   jplspec/jplspec.rst
 
+
+Topical Collections
+===================
+
+Some services focusing on similar topics are also collected in
+topical submodules:
+
+.. toctree::
+  :maxdepth: 1
+
+  solarsystem/solarsystem.rst
+  
 
 Developer documentation
 -----------------------
