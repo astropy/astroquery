@@ -26,7 +26,7 @@ from astroquery.utils.tap.xmlparser import utils
 from astroquery.utils.tap.model.filter import Filter
 import requests
 from astropy.logger import log
-
+from sympy.tensor import indexed
 
 __all__ = ['Tap', 'TapPlus']
 
@@ -39,11 +39,18 @@ class Tap(object):
     Provides TAP capabilities
     """
 
-    def __init__(self, url=None, host=None, server_context=None,
-                 tap_context=None, data_context=None, upload_context=None,
+    def __init__(self, url=None,
+                 host=None,
+                 server_context=None,
+                 tap_context=None,
+                 upload_context=None,
+                 table_edit_context=None,
+                 data_context=None,
                  datalink_context=None,
+                 share_context=None,
                  port=80, sslport=443,
-                 default_protocol_is_https=False, connhandler=None,
+                 default_protocol_is_https=False,
+                 connhandler=None,
                  verbose=False):
         """Constructor
 
@@ -53,16 +60,20 @@ class Tap(object):
             TAP URL
         host : str, optional, default None
             host name
-        server_context : str, optional, default None
+        server_context : str, mandatory, default None
             server context
-        tap_context : str, optional, default None
+        tap_context : str, mandatory, default None
             tap context
+        upload_context : str, optional, default None
+            upload context
+        table_edit_context : str, mandatory, default None
+            context for all actions to be performed over a existing table
         data_context : str, optional, default None
             data context
-        upload_context : str, optional, default 'Upload'
-            upload context
         datalink_context : str, optional, default None
             datalink context
+        share_context : str, optional, default None
+            share context
         port : int, optional, default '80'
             HTTP port
         sslport : int, optional, default '443'
@@ -75,17 +86,23 @@ class Tap(object):
         verbose : bool, optional, default 'False'
             flag to display information about the process
         """
+
+        if server_context is None:
+            raise ValueError("server_context must be specified")
+            
         self.__internalInit()
         if url is not None:
-            protocol, host, port, server_context, tap_context = self.__parseUrl(url)
+            protocol, host, port = self.__parseUrl(url)
             if protocol == "http":
                 self.__connHandler = TapConn(ishttps=False,
                                              host=host,
                                              server_context=server_context,
                                              tap_context=tap_context,
-                                             data_context=data_context,
                                              upload_context=upload_context,
+                                             table_edit_context=table_edit_context,
+                                             data_context=data_context,
                                              datalink_context=datalink_context,
+                                             share_context=share_context,
                                              port=port,
                                              sslport=sslport)
             else:
@@ -94,9 +111,11 @@ class Tap(object):
                                              host=host,
                                              server_context=server_context,
                                              tap_context=tap_context,
-                                             data_context=data_context,
                                              upload_context=upload_context,
+                                             table_edit_context=table_edit_context,
+                                             data_context=data_context,
                                              datalink_context=datalink_context,
+                                             share_context=share_context,
                                              port=port,
                                              sslport=port)
         else:
@@ -104,14 +123,17 @@ class Tap(object):
                                          host=host,
                                          server_context=server_context,
                                          tap_context=tap_context,
-                                         data_context=data_context,
                                          upload_context=upload_context,
+                                         table_edit_context=table_edit_context,
+                                         data_context=data_context,
                                          datalink_context=datalink_context,
+                                         share_context=share_context,
                                          port=port,
                                          sslport=sslport)
         # if connectionHandler is set, use it (useful for testing)
         if connhandler is not None:
             self.__connHandler = connhandler
+
         if verbose:
             print("Created TAP+ (v"+VERSION+") - Connection:\n" + str(self.__connHandler))
 
@@ -131,6 +153,35 @@ class Tap(object):
         A list of table objects
         """
         return self.__load_tables(verbose=verbose)
+
+    def load_table(self, table, verbose=False):
+        """Loads the specified table
+
+        Parameters
+        ----------
+        table : str, mandatory
+            full qualified table name (i.e. schema name + table name)
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        A table object
+        """
+        print("Retrieving table '"+str(table)+"'")
+        response = self.__connHandler.execute_tapget("tables?tables="+table)
+        if verbose:
+            print(response.status, response.reason)
+        isError = self.__connHandler.check_launch_response_status(response, verbose, 200)
+        if isError:
+            print(response.status, response.reason)
+            raise requests.exceptions.HTTPError(response.reason)
+            return None
+        print("Parsing table '"+str(table)+"'...")
+        tsp = TableSaxParser()
+        tsp.parseData(response)
+        print("Done.")
+        return tsp.get_table()
 
     def __load_tables(self, only_names=False, include_shared_tables=False,
                       verbose=False):
@@ -621,13 +672,15 @@ class Tap(object):
             print(response.getheaders())
         return response
 
-    def delete_user_table(self, table_name=None, verbose=False):
+    def delete_user_table(self, table_name=None, force_removal=False, verbose=False):
         """Removes a user table
 
         Parameters
         ----------
         table_name: str, required
             table to be removed
+        force_removal : bool, optional, default 'False'
+            flag to indicate if removal should be forced
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
@@ -637,9 +690,16 @@ class Tap(object):
         """
         if table_name is None:
             raise ValueError("Table name cannot be null")
-        args = {
-            "TABLE_NAME": str(table_name),
-            "DELETE": "TRUE"}
+        if force_removal == True:
+            args = {
+                    "TABLE_NAME": str(table_name),
+                    "DELETE": "TRUE",
+                    "FORCE_REMOVAL": "TRUE"}
+        else:
+            args = {
+                    "TABLE_NAME": str(table_name),
+                    "DELETE": "TRUE",
+                    "FORCE_REMOVAL": "FALSE"}
         data = self.__connHandler.url_encode(args)
         response = self.__connHandler.execute_upload(context, data, verbose=verbose)
         if verbose:
@@ -647,7 +707,191 @@ class Tap(object):
             print(response.status, response.reason)
             print(response.getheaders())
         return response
+    
+    def update_user_table(self, table_name=None, list_of_changes=[], 
+                          verbose=False):
+        """Updates a user table
 
+        Parameters
+        ----------
+        table_name: str, required
+            table to be updated
+        list_of_changes: list, required
+            list of lists, each one of them containing sets of 
+            [column_name, field_name, value]. 
+            column_name is the name of the column to be updated
+            field_name is the name of the tap field to be modified
+            field name can be 'utype', 'ucd', 'flags' or 'indexed'
+            value is the new value this field of this column will take
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        A message (OK/Error) or a job when the table is big
+        """
+        if table_name is None:
+            raise ValueError("Table name cannot be null")
+        if list_of_changes is None:
+            raise ValueError("List of changes cannot be null")
+        if len(list_of_changes) == 0:
+            raise ValueError("List of changes cannot be empty")
+        for change in list_of_changes:
+            if change is None:
+                raise ValueError("None of the changes can be null")
+            if len(change) != 3: #  [column_name, field_name, value]
+                raise ValueError("All of the changes must have three "\
+                                 "elements: [column_name, field_name, value]")
+            index = 0
+            for value in change:
+                if value is None:
+                    raise ValueError("None of the values for the changes"\
+                                     " can be null")
+                if (index == 1 and value != 'utype' and value != 'ucd' 
+                    and value != 'flags' and value != 'indexed'):
+                    raise ValueError("Position 2 of all changes must be "\
+                                     "'utype', 'ucd', 'flags' or 'indexed'")
+                index = index + 1
+
+        table = self.load_table(table=table_name, verbose=verbose)
+        if table is None:
+            raise ValueError("Table name not found")
+        columns = table.get_columns()
+        if len(columns) == 0:
+            raise ValueError("Table has no columns")
+
+        for change in list_of_changes:
+            index = 0
+            for value in change:
+                if (index == 0):
+                    found = False
+                    for c in columns:
+                        if c.get_name() == value:
+                            found = True
+                            break
+                    if found == False:
+                        raise ValueError("Column name introduced "
+                                          + str(value)
+                                          + " was not found in the table")
+                index = index + 1
+        
+        num_cols = len(columns)
+        
+        args = {
+                "ACTION": "edit",
+                "NUMTABLES": str(1),
+                "TABLE0_NUMCOLS": str(num_cols),
+                "TABLE0": str(table_name),
+                }
+
+        index = 0
+        for column in columns:
+            if verbose:
+                print(str(column))
+            found_in_changes = False
+            for change in list_of_changes:
+                if (str(change[0]) == str(column.get_name())):
+                    found_in_changes = True
+                    break
+            column_name = column.get_name()
+            flags = column.get_flags()
+            if str(flags) == '1':
+                flags = 'Ra'
+            elif str(flags) == '2':
+                flags = 'Dec'
+            elif str(flags) == '4':
+                flags = 'Flux'
+            elif str(flags) == '8':
+                flags = 'Mag'
+            elif str(flags) == '16':
+                flags = 'PK'
+            elif str(flags) == '33':
+                flags = 'Ra'
+            elif str(flags) == '34':
+                flags = 'Dec'
+            elif str(flags) == '38':
+                flags = 'Flux'
+            elif str(flags) == '40':
+                flags = 'Mag'
+            elif str(flags) == '48':
+                flags = 'PK'
+            else:
+                flags = None
+            indexed = (str(column.get_flag()) == 'indexed'
+                       or str(flags) == 'Ra'
+                       or str(flags) == 'Dec'
+                       or str(flags) == 'PK')
+            ucd = str(column.get_ucd())
+            utype = str(column.get_utype())
+            if found_in_changes:
+                for change in list_of_changes:
+                    if str(change[0]) == str(column.get_name()) and str(change[1]) == 'flags':
+                        flags = str(change[2])  
+                        break
+                    if str(change[0]) == str(column.get_name()) and str(change[1]) == 'indexed':
+                        indexed = str(change[2])
+                        break
+                    if str(change[0]) == str(column.get_name()) and str(change[1]) == 'ucd':
+                        ucd = str(change[2])
+                        break
+                    if str(change[0]) == str(column.get_name()) and str(change[1]) == 'utype':
+                        utype = str(change[2])
+                        break
+            if flags == 'Ra' or flags == 'Dec' or flags == 'PK':
+                indexed = str(True)
+            args["TABLE0_COL" + str(index)] = str(column_name)                
+            args["TABLE0_COL" + str(index) + "_FLAGS"] = str(flags)
+            args["TABLE0_COL" + str(index) + "_INDEXED"] = str(indexed)
+            args["TABLE0_COL" + str(index) + "_UCD"] = str(ucd)
+            args["TABLE0_COL" + str(index) + "_UTYPE"] = str(utype)
+            index = index + 1
+
+        data = self.__connHandler.url_encode(args)
+        response = self.__connHandler.execute_table_edit(data,verbose=verbose)
+        if verbose:
+            print(response.status, response.reason)
+            print(response.getheaders())
+        return response
+
+    def set_ra_dec_columns(self, table_name=None,
+                           ra_column_name=None, dec_column_name=None,
+                           verbose=False):
+        """Set columns of a table as ra and dec respectively a user table
+
+        Parameters
+        ----------
+        table_name: str, required
+            table to be set
+        ra_column_name: str, required
+            ra column to be set
+        dec_column_name: str, required
+            dec column to be set
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        A message (OK/Error) or a job when the table is big
+        """
+
+        if table_name is None:
+            raise ValueError("Table name cannot be null")
+        if ra_column_name is None:
+            raise ValueError("Ra column name cannot be null")
+        if dec_column_name is None:
+            raise ValueError("Dec column name cannot be null")
+
+        args = {
+                "ACTION": "radec",
+                "TABLE_NAME": str(table_name),
+                "RA": str(ra_column_name),
+                "DEC": str(dec_column_name),
+                }
+        data = self.__connHandler.url_encode(args)
+        if verbose:
+            print("data = ", str(data))
+        return self.__connHandler.execute_table_edit(data,verbose=verbose)
+        
     def __launchJob(self, query, outputFormat, context, verbose, name=None):
         args = {
             "REQUEST": "doQuery",
@@ -743,31 +987,35 @@ class Tap(object):
             else:
                 port = 80
 
-        if itemsSize == 1:
-            serverContext = ""
-            tapContext = ""
-        elif itemsSize == 2:
-            serverContext = "/"+items[1]
-            tapContext = ""
-        elif itemsSize == 3:
-            serverContext = "/"+items[1]
-            tapContext = "/"+items[2]
-        else:
-            data = []
-            for i in range(1, itemsSize-1):
-                data.append("/"+items[i])
-            serverContext = utils.util_create_string_from_buffer(data)
-            tapContext = "/"+items[itemsSize-1]
+        #=======================================================================
+        # if itemsSize == 1:
+        #     serverContext = ""
+        #     tapContext = ""
+        # elif itemsSize == 2:
+        #     serverContext = "/"+items[1]
+        #     tapContext = ""
+        # elif itemsSize == 3:
+        #     serverContext = "/"+items[1]
+        #     tapContext = "/"+items[2]
+        # else:
+        #     data = []
+        #     for i in range(1, itemsSize-1):
+        #         data.append("/"+items[i])
+        #     serverContext = utils.util_create_string_from_buffer(data)
+        #     tapContext = "/"+items[itemsSize-1]
+        #=======================================================================
         if verbose:
             print("protocol: '%s'" % protocol)
             print("host: '%s'" % host)
             print("port: '%d'" % port)
-            print("server context: '%s'" % serverContext)
-            print("tap context: '%s'" % tapContext)
-        return protocol, host, port, serverContext, tapContext
+            #===================================================================
+            # print("server context: '%s'" % serverContext)
+            # print("tap context: '%s'" % tapContext)
+            #===================================================================
+        return protocol, host, port, # serverContext, tapContext
 
     def __str__(self):
-        return ("Created TAP+ (v"+VERSION+") - Connection: \n" +
+        return ("Created TAP+ (v"+VERSION+") - Connection:\n" +
                 str(self.__connHandler))
 
 
@@ -775,12 +1023,18 @@ class TapPlus(Tap):
     """TAP plus class
     Provides TAP and TAP+ capabilities
     """
-
-    def __init__(self, url=None, host=None, server_context=None,
-                 tap_context=None, data_context=None, upload_context='Upload',
+    def __init__(self, url=None,
+                 host=None,
+                 server_context=None,
+                 tap_context=None, 
+                 upload_context=None,
+                 table_edit_context=None,
+                 data_context=None,
                  datalink_context=None,
+                 share_context=None,
                  port=80, sslport=443,
-                 default_protocol_is_https=False, connhandler=None,
+                 default_protocol_is_https=False,
+                 connhandler=None,
                  verbose=True):
         """Constructor
 
@@ -794,12 +1048,16 @@ class TapPlus(Tap):
             server context
         tap_context : str, optional, default None
             tap context
-        data_context : str, optional, default None
-            data context
         upload_context : str, optional, default None
             upload context
+        table_edit_context : str, optional, default None
+            context for all actions to be performed over a existing table
+        data_context : str, optional, default None
+            data context
         datalink_context : str, optional, default None
             datalink context
+        share_context : str, optional, default None
+            share context
         port : int, optional, default '80'
             HTTP port
         sslport : int, optional, default '443'
@@ -812,12 +1070,19 @@ class TapPlus(Tap):
         verbose : bool, optional, default 'True'
             flag to display information about the process
         """
-        super(TapPlus, self).__init__(url, host, server_context=server_context, tap_context=tap_context,
-                                      data_context=data_context, upload_context=upload_context, 
+
+        super(TapPlus, self).__init__(url, host, 
+                                      server_context=server_context,
+                                      tap_context=tap_context,
+                                      upload_context=upload_context,
+                                      table_edit_context=table_edit_context,
+                                      data_context=data_context,
                                       datalink_context=datalink_context,
+                                      share_context=share_context,
                                       port=port, sslport=sslport, 
                                       default_protocol_is_https=default_protocol_is_https,
-                                      connhandler=connhandler, verbose=verbose)
+                                      connhandler=connhandler,
+                                      verbose=verbose)
         self.__internalInit()
 
     def __internalInit(self):
@@ -1060,8 +1325,8 @@ class TapPlus(Tap):
         if password is None:
             log.info("Invalid password")
             return
-        self.__user = user
-        self.__pwd = password
+        self.__user = str(user)
+        self.__pwd = str(password)
         self.__dologin(verbose)
 
     def login_gui(self, verbose=False):
@@ -1123,8 +1388,8 @@ class TapPlus(Tap):
     def __execLogin(self, usr, pwd, verbose=False):
         subContext = "login"
         args = {
-            "username": str(usr),
-            "password": str(pwd)}
+            "username": usr,
+            "password": pwd}
         connHandler = self.__getconnhandler()
         data = connHandler.url_encode(args)
         response = connHandler.execute_secure(subContext, data)

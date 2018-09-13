@@ -257,8 +257,10 @@ class DummyTapHandler(object):
         self.__parameters['verbose'] = verbose
         return None
 
-    def delete_user_table(self, table_name=None, verbose=False):
+    def delete_user_table(self, table_name=None, force_removal=False,
+                          verbose=False):
         self.__invokedMethod = 'delete_user_table'
         self.__parameters['table_name'] = table_name
+        self.__parameters['force_removal'] = force_removal
         self.__parameters['verbose'] = verbose
         return None

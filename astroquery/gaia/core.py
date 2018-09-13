@@ -34,11 +34,7 @@ class Conf(_config.ConfigNamespace):
     MAIN_GAIA_TABLE_DEC = _config.ConfigItem("dec",
                                              "Name of Dec parameter in table")
 
-
 conf = Conf()
-
-gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap", verbose=False)
-
 
 class GaiaClass(object):
 
@@ -51,14 +47,21 @@ class GaiaClass(object):
 
     def __init__(self, tap_plus_handler=None, datalink_handler=None):
         if tap_plus_handler is None:
-            self.__gaiatap = TapPlus(url="http://gea.esac.esa.int/" +
-                                     "tap-server/tap")
+            self.__gaiatap = TapPlus(url="http://gea.esac.esa.int/",
+                                     server_context="tap-server",
+                                     tap_context="tap",
+                                     upload_context="Upload",
+                                     table_edit_context="TableTool",
+                                     data_context="data",
+                                     datalink_context="datalink")
         else:
             self.__gaiatap = tap_plus_handler
         if datalink_handler is None:
-            self.__gaiadata = TapPlus(url="http://geadata.esac.esa.int/" +
-                                      "data-server",
+            self.__gaiadata = TapPlus(url="http://geadata.esac.esa.int/", 
+                                      server_context="data-server",
                                       tap_context="tap",
+                                      upload_context="Upload",
+                                      table_edit_context="TableTool",
                                       data_context="data",
                                       datalink_context="datalink")
         else:
@@ -720,24 +723,6 @@ class GaiaClass(object):
             table_description=table_description,
             format=format, verbose=verbose)
 
-    def delete_user_table(self, table_name=None, verbose=False):
-        """Removes a user table
-
-        Parameters
-        ----------
-        table_name: str, required
-            table to be removed
-        verbose : bool, optional, default 'False'
-            flag to display information about the process
-
-        Returns
-        -------
-        A message (OK/Error) or a job when the table is big
-        """
-        return self.__gaiatap.delete_user_table(
-            table_name=table_name,
-            verbose=verbose)
-
     def upload_table_from_job(self, job=None, verbose=False):
         """Uploads a table to the user private space from a job
 
@@ -758,5 +743,78 @@ class GaiaClass(object):
         """
 
         return self.__gaiatap.upload_table_from_job(job, verbose)
+
+    def update_user_table(self, table_name=None, list_of_changes=[],
+                          verbose=False):
+        """Updates a user table
+
+        Parameters
+        ----------
+        table_name: str, required
+            table to be updated
+        list_of_changes: list, required
+            list of lists, each one of them containing sets of
+            [column_name, field_name, value].
+            column_name is the name of the column to be updated
+            field_name is the name of the tap field to be modified
+            field name can be 'utype', 'ucd', 'flags' or 'indexed'
+            value is the new value this field of this column will take
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        A message (OK/Error) or a job when the table is big
+        """
+        return self.__gaiatap.update_user_table(table_name,
+                                                list_of_changes,
+                                                verbose)
+
+    def set_ra_dec_columns(self, table_name=None,
+                           ra_column_name=None, dec_column_name=None,
+                           verbose=False):
+        """Set columns of a table as ra and dec respectively a user table
+
+        Parameters
+        ----------
+        table_name: str, required
+            table to be set
+        ra_column_name: str, required
+            ra column to be set
+        dec_column_name: str, required
+            dec column to be set
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        A message (OK/Error) or a job when the table is big
+        """
+
+        return self.__gaiatap.set_ra_dec_columns(table_name,
+                                                 ra_column_name,
+                                                 dec_column_name,
+                                                 verbose)
+
+    def delete_user_table(self, table_name=None, force_removal=False,
+                          verbose=False):
+        """Removes a user table
+
+        Parameters
+        ----------
+        table_name: str, required
+            table to be removed
+        force_removal : bool, optional, default 'False'
+            flag to indicate if removal should be forced
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        A message (OK/Error) or a job when the table is big
+        """
+        return self.__gaiatap.delete_user_table(
+            table_name=table_name, force_removal=force_removal,
+            verbose=verbose)
 
 Gaia = GaiaClass()

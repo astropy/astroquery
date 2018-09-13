@@ -107,7 +107,7 @@ class TableSaxParser(xml.sax.ContentHandler):
             self.__start_reading_data()
         elif self.__check_item_id("column", name):
             self.__status = READING_TABLE_COLUMN
-            self.__currentColumn = TapColumn()
+            self.__currentColumn = TapColumn(attrs)
 
     def __end_table(self, name):
         if self.__check_item_id("name", name):
@@ -162,6 +162,9 @@ class TableSaxParser(xml.sax.ContentHandler):
             self.__status = READING_TABLE
             self.__currentTable.add_column(self.__currentColumn)
 
+    def __show_attributes(self, attrs):
+        return str(attrs.getNames())
+    
     def __nothing(self, name, attrs):
         pass
 

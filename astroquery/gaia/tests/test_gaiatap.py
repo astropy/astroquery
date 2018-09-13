@@ -593,12 +593,14 @@ class TestTap(unittest.TestCase):
         tap = GaiaClass(dummyHandler, dummyHandler)
 
         table_name = "table2"
+        force_removal = False
         verbose = True
 
         parameters = {}
         parameters['table_name'] = table_name
+        parameters['force_removal'] = force_removal
         parameters['verbose'] = verbose
-        tap.delete_user_table(table_name, verbose)
+        tap.delete_user_table(table_name, force_removal, verbose)
         dummyHandler.check_call('delete_user_table', parameters)
 
 if __name__ == "__main__":

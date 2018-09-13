@@ -40,11 +40,18 @@ class TapConn(object):
     Provides low level HTTP connection capabilities
     """
 
-    def __init__(self, ishttps, host, server_context, tap_context=None, 
-                 data_context=None, upload_context=None,
-                 datalink_context=None, share_context=None,
+    def __init__(self, ishttps,
+                 host,
+                 server_context=None,
+                 tap_context=None, 
+                 upload_context=None,
                  table_edit_context=None,
-                 port=80, sslport=443, connhandler=None):
+                 data_context=None,
+                 datalink_context=None,
+                 share_context=None,
+                 port=80,
+                 sslport=443,
+                 connhandler=None):
         """Constructor
 
         Parameters
@@ -57,18 +64,16 @@ class TapConn(object):
             server context
         tap_context : str, optional
             tap context
-        data_context : str, optional
-            data context
         upload_context : str, optional
             upload context
-        datalink_context : str, optional
-            datalink context
-        upload_context : str, optional
-            upload context
-        share_context : str, optional
-            share context
         table_edit_context : str, optional
             table edit context
+        data_context : str, optional
+            data context
+        datalink_context : str, optional
+            datalink context
+        share_context : str, optional
+            share context
         port : int, optional, default 80
             HTTP port
         sslport : int, optional, default 443
@@ -132,26 +137,41 @@ class TapConn(object):
         return self.__tapContext + "/" + subContext
 
     def __get_data_context(self, encodedData=None):
+        if self.__dataContext is None:
+            raise ValueError("data_context must be specified at TAP object "\
+                             "creation for this action to be performed")
         if encodedData is not None:
             return self.__dataContext + "?" + str(encodedData)
         else:
             return self.__dataContext
 
     def __get_datalink_context(self, subContext, encodedData=None):
+        if self.__datalinkContext is None:
+            raise ValueError("datalink_context must be specified at TAP object "\
+                             "creation for this action to be performed")
         if encodedData is not None:
             return self.__datalinkContext + "/" + subContext + "?" + encodedData
         else:
             return self.__datalinkContext + "/" + subContext
 
     def __get_upload_context(self):
+        if self.__uploadContext is None:
+            raise ValueError("upload_context must be specified at TAP object "\
+                             "creation for this action to be performed")
         return self.__uploadContext
-
+    
     def __get_share_context(self):
+        if self.__shareContext is None:
+            raise ValueError("share_context must be specified at TAP object "\
+                             "creation for this action to be performed")
         return self.__shareContext
 
     def __get_table_edit_context(self):
+        if self.__tableEditContext is None:
+            raise ValueError("table_edit_context must be specified at TAP object "\
+                             "creation for this action to be performed")
         return self.__tableEditContext
-
+    
     def __get_server_context(self, subContext):
         return self.__serverContext + "/" + subContext
 
@@ -320,10 +340,28 @@ class TapConn(object):
         #post
         pass
     
-    def execute_table_edit(self):
-        #post
-        pass
+    def execute_table_edit(self, data,
+                     content_type=CONTENT_TYPE_POST_DEFAULT, verbose=False):
+        """Executes a POST upload request
+        The connection is done through HTTP or HTTPS depending on the login
+        status (logged in -> HTTPS)
 
+        Parameters
+        ----------
+        data : str, mandatory
+            POST data
+        content_type: str, optional, default 'application/x-www-form-urlencoded'
+            HTTP(s) content-type header value
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        An HTTP(s) response object
+        """
+        context = self.__get_table_edit_context()
+        return self.__execute_post(context, data, content_type, verbose)
+    
     def __execute_post(self, context, data,
                      content_type=CONTENT_TYPE_POST_DEFAULT, verbose=False):
         conn = self.__get_connection(verbose)
