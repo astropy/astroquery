@@ -635,7 +635,7 @@ class EsoClass(QueryWithLogin):
             Retrieve associated calibration files: 'none' (default), 'raw' for
             raw calibrations, or 'processed' for processed calibrations.
         request_all_objects : bool
-            When retrieving associated calibrations (``with_calib != 'none'),
+            When retrieving associated calibrations (``with_calib != 'none'``),
             this allows to request all the objects included the already
             downloaded ones, to be sure to retrieve all calibration files.
             This is useful when the download was interrupted. `False` by
