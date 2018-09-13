@@ -10,6 +10,7 @@
 - HITRAN: use class-based API [#824]
 - JPL Horizons: Fix for missing total absolute magnitude or phase coefficient for comets [#1151]
 - MAST: Enable converting list of products into S3 uris [#1126]
+- New tool: MPC module can now request comet and asteroid ephemerides from the Minor Planet Ephemeris Service, and return a table of observatory codes and coordinates. [#1177]
 - NASA_ADS: Use new API [#1162]
 - VO_CONESEARCH: Service validator now uses new STScI VAO TAP registry. [#1114]
 - Nasa Exoplanet Arhive: Add option to return all columns. [#1183]
