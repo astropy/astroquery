@@ -705,7 +705,6 @@ class Tap(object):
         data = self.__connHandler.url_encode(args)
         response = self.__connHandler.execute_upload(context, data, verbose=verbose)
         if verbose:
-            print("data = " + str(data))
             print(response.status, response.reason)
             print(response.getheaders())
         return response
@@ -777,6 +776,29 @@ class Tap(object):
                                           + " was not found in the table")
                 index = index + 1
         
+        currentColumnRa = self.__columnsContainFlag(columns, "Ra")
+        currentColumnDec = self.__columnsContainFlag(columns, "Dec")
+            
+        newColumnRa = self.__changesContainFlag(list_of_changes, "Ra")
+        newColumnDec = self.__changesContainFlag(list_of_changes, "Dec")
+                    
+        if currentColumnRa is None and currentColumnDec is None:#  None of them are in place
+            if ((newColumnRa is not None and newColumnDec is None) or
+                (newColumnRa is None and newColumnDec is not None)):
+                raise ValueError("Both Ra and Dec must be specified when updating "\
+                                 "one of them.")
+            
+        if ((currentColumnRa is None and currentColumnDec is not None) or
+            (currentColumnRa is not None and currentColumnDec is None)):#  Only one of them is present
+            raise ValueError("One of (Ra, Dec) is not present but the other is. "\
+                             "Wrong initial configuration of the table.")
+            
+        if currentColumnRa is not None and currentColumnDec is not None:#  Both are initially present
+            if newColumnRa is not None or newColumnDec is not None:
+                raise ValueError("Both Ra and Dec are already present in this table. "\
+                                 "Only one of each is allowed.")
+
+        
         num_cols = len(columns)
         
         args = {
@@ -784,12 +806,10 @@ class Tap(object):
                 "NUMTABLES": str(1),
                 "TABLE0_NUMCOLS": str(num_cols),
                 "TABLE0": str(table_name),
-                }
-
+                }        
+        
         index = 0
         for column in columns:
-            if verbose:
-                print(str(column))
             found_in_changes = False
             for change in list_of_changes:
                 if (str(change[0]) == str(column.get_name())):
@@ -828,7 +848,7 @@ class Tap(object):
             if found_in_changes:
                 for change in list_of_changes:
                     if str(change[0]) == str(column.get_name()) and str(change[1]) == 'flags':
-                        flags = str(change[2])  
+                        flags = str(change[2])
                         break
                     if str(change[0]) == str(column.get_name()) and str(change[1]) == 'indexed':
                         indexed = str(change[2])
@@ -855,6 +875,40 @@ class Tap(object):
             print(response.getheaders())
         return response
 
+    def __columnsContainFlag(self, columns=None, flag=None, verbose=False):
+        c = None;
+        if (columns is not None and len(columns) > 0):
+            for column in columns:
+                f = column.get_flags()
+                if str(f) == '1' or str(f) == '33':
+                    f = 'Ra'
+                elif str(f) == '2' or str(f) == '34':
+                    f = 'Dec'
+                elif str(f) == '4' or str(f) == '38':
+                    f = 'Flux'
+                elif str(f) == '8' or str(f) == '40':
+                    f = 'Mag'
+                elif str(f) == '16' or str(f) == '48':
+                    f = 'PK'
+                else:
+                    f = None
+                if str(flag) == str(f):
+                    c = column.get_name()
+                    break
+        return c
+    
+    def __changesContainFlag(self, changes=None, flag=None, verbose=False):
+        c = None;
+        if (changes is not None and len(changes) > 0):
+            for change in changes:
+                if str(change[1]) == "flags":
+                    value = str(change[2])
+                    if str(flag) == str(value):
+                        c = str(change[0])
+                        break
+        return c
+
+    
     def set_ra_dec_columns(self, table_name=None,
                            ra_column_name=None, dec_column_name=None,
                            verbose=False):
@@ -890,8 +944,6 @@ class Tap(object):
                 "DEC": str(dec_column_name),
                 }
         data = self.__connHandler.url_encode(args)
-        if verbose:
-            print("data = ", str(data))
         return self.__connHandler.execute_table_edit(data,verbose=verbose)
         
     def __launchJob(self, query, outputFormat, context, verbose, name=None):

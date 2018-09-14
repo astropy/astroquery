@@ -367,7 +367,6 @@ class TapConn(object):
         conn = self.__get_connection(verbose)
         if verbose:
             print("context = "+ context)
-            print("data = " + data)
             print("Content-type = " + str(content_type))
         self.__postHeaders["Content-type"] = content_type
         conn.request("POST", context, data, self.__postHeaders)
