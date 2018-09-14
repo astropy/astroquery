@@ -34,6 +34,7 @@ class Conf(_config.ConfigNamespace):
     MAIN_GAIA_TABLE_DEC = _config.ConfigItem("dec",
                                              "Name of Dec parameter in table")
 
+
 conf = Conf()
 
 
@@ -817,5 +818,6 @@ class GaiaClass(object):
         return self.__gaiatap.delete_user_table(
             table_name=table_name, force_removal=force_removal,
             verbose=verbose)
+
 
 Gaia = GaiaClass()

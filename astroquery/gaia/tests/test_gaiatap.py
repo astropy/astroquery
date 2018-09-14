@@ -603,6 +603,7 @@ class TestTap(unittest.TestCase):
         tap.delete_user_table(table_name, force_removal, verbose)
         dummyHandler.check_call('delete_user_table', parameters)
 
+
 if __name__ == "__main__":
     # import sys;sys.argv = ['', 'Test.testName']
     unittest.main()
