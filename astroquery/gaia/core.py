@@ -36,6 +36,7 @@ class Conf(_config.ConfigNamespace):
 
 conf = Conf()
 
+
 class GaiaClass(object):
 
     """
@@ -57,7 +58,7 @@ class GaiaClass(object):
         else:
             self.__gaiatap = tap_plus_handler
         if datalink_handler is None:
-            self.__gaiadata = TapPlus(url="http://geadata.esac.esa.int/", 
+            self.__gaiadata = TapPlus(url="http://geadata.esac.esa.int/",
                                       server_context="data-server",
                                       tap_context="tap",
                                       upload_context="Upload",

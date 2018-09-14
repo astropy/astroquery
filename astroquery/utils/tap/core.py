@@ -85,14 +85,16 @@ class Tap(object):
             new one is created.
         verbose : bool, optional, default 'False'
             flag to display information about the process
-        """
-
-        if server_context is None:
-            raise ValueError("server_context must be specified")
-            
+        """            
         self.__internalInit()
         if url is not None:
-            protocol, host, port = self.__parseUrl(url)
+            protocol, host, port, server, tap = self.__parseUrl(url)
+            
+            if server_context is None:
+                server_context = server
+            if tap_context is None:
+                tap_context = tap
+                
             if protocol == "http":
                 self.__connHandler = TapConn(ishttps=False,
                                              host=host,
@@ -987,32 +989,28 @@ class Tap(object):
             else:
                 port = 80
 
-        #=======================================================================
-        # if itemsSize == 1:
-        #     serverContext = ""
-        #     tapContext = ""
-        # elif itemsSize == 2:
-        #     serverContext = "/"+items[1]
-        #     tapContext = ""
-        # elif itemsSize == 3:
-        #     serverContext = "/"+items[1]
-        #     tapContext = "/"+items[2]
-        # else:
-        #     data = []
-        #     for i in range(1, itemsSize-1):
-        #         data.append("/"+items[i])
-        #     serverContext = utils.util_create_string_from_buffer(data)
-        #     tapContext = "/"+items[itemsSize-1]
-        #=======================================================================
+        if itemsSize == 1:
+            serverContext = ""
+            tapContext = ""
+        elif itemsSize == 2:
+            serverContext = "/"+items[1]
+            tapContext = ""
+        elif itemsSize == 3:
+            serverContext = "/"+items[1]
+            tapContext = "/"+items[2]
+        else:
+            data = []
+            for i in range(1, itemsSize-1):
+                data.append("/"+items[i])
+            serverContext = utils.util_create_string_from_buffer(data)
+            tapContext = "/"+items[itemsSize-1]
         if verbose:
             print("protocol: '%s'" % protocol)
             print("host: '%s'" % host)
             print("port: '%d'" % port)
-            #===================================================================
-            # print("server context: '%s'" % serverContext)
-            # print("tap context: '%s'" % tapContext)
-            #===================================================================
-        return protocol, host, port, # serverContext, tapContext
+            print("server context: '%s'" % serverContext)
+            print("tap context: '%s'" % tapContext)
+        return protocol, host, port, serverContext, tapContext
 
     def __str__(self):
         return ("Created TAP+ (v"+VERSION+") - Connection:\n" +
