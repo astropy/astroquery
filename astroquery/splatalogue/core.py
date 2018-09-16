@@ -15,6 +15,7 @@ from ..query import BaseQuery
 from ..utils import async_to_sync, prepend_docstr_nosections
 from . import conf
 from . import load_species_table
+from .utils import minimize_table
 
 __all__ = ['Splatalogue', 'SplatalogueClass']
 
@@ -497,6 +498,10 @@ class SplatalogueClass(BaseQuery):
                          'Freq Err': 'eFreq',
                          'Meas Freq-GHz': 'MeasFreq',
                          'Meas Freq Err': 'eMeasFreq',
+                         'Freq-GHz(rest frame,redshifted)': 'Freq',
+                         'Freq Err(rest frame,redshifted)': 'eFreq',
+                         'Meas Freq-GHz(rest frame,redshifted)': 'MeasFreq',
+                         'Meas Freq Err(rest frame,redshifted)': 'eMeasFreq',
                          'Resolved QNs': 'QNs'}
         for cn in long_to_short:
             if cn in table.colnames:
