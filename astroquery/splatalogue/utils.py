@@ -40,8 +40,9 @@ def clean_column_headings(table, renaming_dict=column_headings_map):
     return table
 
 
-def merge_frequencies(table, prefer='measured', theor_kwd='Freq-GHz',
-                      meas_kwd='Meas Freq-GHz'):
+def merge_frequencies(table, prefer='measured',
+                      theor_kwd='Freq-GHz(rest frame,redshifted)',
+                      meas_kwd='Meas Freq-GHz(rest frame,redshifted)'):
     """
     Replace "Freq-GHz" and "Meas Freq-GHz" with a single "Freq" column.
 
