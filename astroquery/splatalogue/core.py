@@ -459,7 +459,7 @@ class SplatalogueClass(BaseQuery):
 
         return response
 
-    def _parse_result(self, response, clean_headers=False, verbose=False):
+    def _parse_result(self, response, verbose=False):
         """
         Parse a response into an `~astropy.table.Table`
 
@@ -479,9 +479,6 @@ class SplatalogueClass(BaseQuery):
             result = ascii.read(response.text.split('\n'),
                                 delimiter=':',
                                 Reader=ascii.Basic)
-
-        if clean_headers:
-            result = clean_column_headings(result)
 
         return result
 
