@@ -73,7 +73,9 @@ def merge_frequencies(table, prefer='measured', theor_kwd='Freq-GHz',
 
 
 def minimize_table(table, columns=['Species', 'Chemical Name',
-                                   'Resolved QNs', 'Freq-GHz', 'Meas Freq-GHz',
+                                   'Resolved QNs',
+                                   'Freq-GHz(rest frame,redshifted)',
+                                   'Meas Freq-GHz(rest frame,redshifted)',
                                    'Log<sub>10</sub> (A<sub>ij</sub>)',
                                    'E_U (K)'],
                    merge=True,
