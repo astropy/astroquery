@@ -112,7 +112,7 @@ class TapConn(object):
     def __get_server_context(self, subContext):
         return self.__serverContext + "/" + subContext
 
-    def execute_get(self, subcontext, verbose=False):
+    def execute_get(self, subcontext, verbose=False, otherlocation=None):
         """Executes a GET request
         The connection is done through HTTP or HTTPS depending on the login
         status (logged in -> HTTPS)
@@ -124,13 +124,19 @@ class TapConn(object):
             TAP list name
         verbose : bool, optional, default 'False'
             flag to display information about the process
+        otherlocation: str, optional
+            when redirecting the url might not be in the same context as the TAP service
+            so otherlocation is a full url to use in the GET request
 
         Returns
         -------
         An HTTP(s) response object
         """
         conn = self.__get_connection(verbose)
-        context = self.__get_tap_context(subcontext)
+        if otherlocation is None:
+            context = self.__get_tap_context(subcontext)
+        else:
+            context=otherlocation
         conn.request("GET", context, None, self.__getHeaders)
         response = conn.getresponse()
         self.__currentReason = response.reason

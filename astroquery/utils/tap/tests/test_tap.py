@@ -344,7 +344,7 @@ class TestTap(unittest.TestCase):
                                     None,
                                     np.int32)
 
-    def test_launc_async_job(self):
+    def test_launch_async_job(self):
         connHandler = DummyConnHandler()
         tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
         jobid = '12345'
@@ -366,7 +366,6 @@ class TestTap(unittest.TestCase):
             "LANG": "ADQL",
             "FORMAT": "votable",
             "tapclient": str(TAP_CLIENT_ID),
-            "PHASE": "RUN",
             "QUERY": str(query)}
         sortedKey = taputils.taputil_create_sorted_dict_key(dictTmp)
         req = "async?" + sortedKey
@@ -393,6 +392,17 @@ class TestTap(unittest.TestCase):
                                     headers=None)
         req = "async/" + jobid + "/results/result"
         connHandler.set_response(req, responseResultsJob)
+
+        #Run phase response
+        runPhase = DummyResponse()
+        runPhase.set_status_code(303)
+        runPhase.set_message("OK")
+        runPhase.set_data(method='GET',
+                               context=None,
+                               body="COMPLETED",
+                               headers=None)
+        req = "async/" + jobid + "/phase?PHASE=RUN"
+        connHandler.set_response(req, runPhase)
 
         with pytest.raises(Exception):
             tap.launch_job_async(query)
