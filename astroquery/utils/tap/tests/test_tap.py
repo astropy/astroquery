@@ -195,7 +195,6 @@ class TestTap(unittest.TestCase):
             "LANG": "ADQL",
             "FORMAT": "votable",
             "tapclient": str(TAP_CLIENT_ID),
-            "PHASE": "RUN",
             "QUERY": str(q)}
         sortedKey = taputils.taputil_create_sorted_dict_key(dictTmp)
         jobRequest = "sync?" + sortedKey
@@ -265,7 +264,6 @@ class TestTap(unittest.TestCase):
             "LANG": "ADQL",
             "FORMAT": "votable",
             "tapclient": str(TAP_CLIENT_ID),
-            "PHASE": "RUN",
             "QUERY": str(q)}
         sortedKey = taputils.taputil_create_sorted_dict_key(dictTmp)
         jobRequest = "sync?" + sortedKey

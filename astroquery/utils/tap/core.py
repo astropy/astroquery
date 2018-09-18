@@ -324,15 +324,15 @@ class Tap(object):
                 response.getheaders(),
                 "location")
             jobid = self.__getJobId(location)
-            runresponse=self.__runJob(jobid, verbose)
+            runresponse = self.__runAsyncJob(jobid, verbose)
             isNextError = self.__connHandler.check_launch_response_status(runresponse,
                                                                       verbose,
                                                                       303)
             if isNextError:
                 job.set_failed(True)
                 if dump_to_file:
-                    self.__connHandler.dump_to_file(suitableOutputFile, response)
-                raise requests.exceptions.HTTPError(response.reason)
+                    self.__connHandler.dump_to_file(suitableOutputFile, runresponse)
+                raise requests.exceptions.HTTPError(runresponse.reason)
             else:
                 if verbose:
                     print("job " + str(jobid) + ", at: " + str(location))
@@ -490,8 +490,6 @@ class Tap(object):
             "QUERY": str(query)}
         if name is not None:
             args['jobname'] = name
-        if context == 'sync':
-            args['PHASE']='RUN'
         data = self.__connHandler.url_encode(args)
         response = self.__connHandler.execute_post(context, data)
         if verbose:
@@ -499,7 +497,7 @@ class Tap(object):
             print(response.getheaders())
         return response
 
-    def __runJob(self, jobid, verbose):
+    def __runAsyncJob(self, jobid, verbose):
         args = {
             "PHASE": "RUN"}
         data = self.__connHandler.url_encode(args)

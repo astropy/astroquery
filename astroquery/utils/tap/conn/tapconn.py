@@ -136,7 +136,7 @@ class TapConn(object):
         if otherlocation is None:
             context = self.__get_tap_context(subcontext)
         else:
-            context=otherlocation
+            context = otherlocation
         conn.request("GET", context, None, self.__getHeaders)
         response = conn.getresponse()
         self.__currentReason = response.reason
