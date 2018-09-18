@@ -244,7 +244,6 @@ with a `~astropy.table.Table` of data products, or a list (or single) obsid as t
 
                 >>> from astroquery.mast import Observations
                 >>> Observations.download_products('2003839997',
-                                                   mrp_only=False,
                                                    productType="SCIENCE",
                                                    curl_flag=True)
                                                    
@@ -258,8 +257,6 @@ Filter keyword arguments can be applied to download only data products that meet
 Available filters are "mrp_only" (Minimum Recommended Products), "extension" (file extension),
 and all products fields listed `here <https://mast.stsci.edu/api/v0/_productsfields.html>`_.
 
-**Important: mrp_only defaults to True.**
-
 The ‘AND' operation is performed for a list of filters, and the ‘OR' operation is performed within a filter set.
 The below example illustrates downloading all product files with the extension "fits" that are either "RAW" or "UNCAL."
 
@@ -267,7 +264,6 @@ The below example illustrates downloading all product files with the extension "
 
                 >>> from astroquery.mast import Observations
                 >>> Observations.download_products('2003839997',
-                                                   mrp_only=False,
                                                    productSubGroupDescription=["RAW", "UNCAL"],
                                                    extension="fits")
                 Downloading URL https://mast.stsci.edu/api/v0/download/file/HST/product/ib3p11p7q_raw.fits to ./mastDownload/HST/IB3P11P7Q/ib3p11p7q_raw.fits ... [Done]
@@ -286,7 +282,6 @@ Product filtering can also be applied directly to a table of products without pr
                 31
                 
                 >>> dataProductsByID = Observations.filter_products(dataProductsByID,
-                                                                    mrp_only=False,
                                                                     productSubGroupDescription=["RAW", "UNCAL"],
                                                                     extenstion="fits")
                 >>> print(len(dataProductsByID))
