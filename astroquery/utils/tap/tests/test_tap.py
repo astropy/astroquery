@@ -352,7 +352,7 @@ class TestTap(unittest.TestCase):
         responseLaunchJob.set_message("ERROR")
         # list of list (httplib implementation for headers in response)
         launchResponseHeaders = [
-           ['location', 'http://test:1111/tap/async/' + jobid]
+            ['location', 'http://test:1111/tap/async/' + jobid]
         ]
         responseLaunchJob.set_data(method='POST',
                                    context=None,
