@@ -501,7 +501,7 @@ class Tap(object):
         args = {
             "PHASE": "RUN"}
         data = self.__connHandler.url_encode(args)
-        jobpath='async/'+jobid+'/phase'
+        jobpath ='async/'+jobid+'/phase'
         response = self.__connHandler.execute_post(jobpath, data)
         if verbose:
             print(response.status, response.reason)
