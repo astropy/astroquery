@@ -1308,7 +1308,7 @@ class ObservationsClass(MastClass):
         log.info("Using the S3 HST public dataset")
         log.warning("Your AWS account will be charged for access to the S3 bucket")
         log.info("See Request Pricing in https://aws.amazon.com/s3/pricing/ for details")
-        log.info("If you have not configured boto3, follow the instructions here: " + \
+        log.info("If you have not configured boto3, follow the instructions here: "
                  "https://boto3.readthedocs.io/en/latest/guide/configuration.html")
 
     def disable_s3_hst_dataset(self):
@@ -1914,11 +1914,11 @@ class CatalogsClass(MastClass):
             pathList = []
             for spec in spectra:
                 if spec['SpectrumType'] < 2:
-                    urlList.append('https://hla.stsci.edu/cgi-bin/getdata.cgi?config=ops&dataset=' + \
+                    urlList.append('https://hla.stsci.edu/cgi-bin/getdata.cgi?config=ops&dataset='
                                    spec['DatasetName'])
 
                 else:
-                    urlList.append('https://hla.stsci.edu/cgi-bin/ecfproxy?file_id=' + \
+                    urlList.append('https://hla.stsci.edu/cgi-bin/ecfproxy?file_id='
                                    spec['DatasetName'] + '.fits')
 
                 pathList.append(downloadFile + "/HSC/" + spec['DatasetName'] + '.fits')
