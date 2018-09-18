@@ -387,7 +387,7 @@ class TapConn(object):
         isError = False
         if response.status != expected_response_status:
             if debug:
-                print("ERROR: " + str(response.status) + ": " + 
+                print("ERROR: " + str(response.status) + ": " +
                       str(response.reason))
             isError = True
         return isError
