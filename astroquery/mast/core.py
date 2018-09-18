@@ -1914,12 +1914,12 @@ class CatalogsClass(MastClass):
             pathList = []
             for spec in spectra:
                 if spec['SpectrumType'] < 2:
-                    urlList.append('https://hla.stsci.edu/cgi-bin/getdata.cgi?config=ops&dataset=' +
-                                   spec['DatasetName'])
+                    urlList.append('https://hla.stsci.edu/cgi-bin/getdata.cgi?config=ops&dataset='
+                                   + spec['DatasetName'])
 
                 else:
-                    urlList.append('https://hla.stsci.edu/cgi-bin/ecfproxy?file_id=' +
-                                   spec['DatasetName'] + '.fits')
+                    urlList.append('https://hla.stsci.edu/cgi-bin/ecfproxy?file_id='
+                                   + spec['DatasetName'] + '.fits')
 
                 pathList.append(downloadFile + "/HSC/" + spec['DatasetName'] + '.fits')
 
