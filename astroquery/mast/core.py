@@ -1184,7 +1184,7 @@ class ObservationsClass(MastClass):
 
         return self.service_request_async(service, params)
 
-    def filter_products(self, products, mrp_only=True, **filters):
+    def filter_products(self, products, mrp_only=False, extension=None, **filters):
         """
         Takes an `astropy.table.Table` of MAST observation data products and filters it based on given filters.
 
@@ -1193,13 +1193,14 @@ class ObservationsClass(MastClass):
         products : `astropy.table.Table`
             Table containing data products to be filtered.
         mrp_only : bool, optional
-            Default True. When set to true only "Minimum Recommended Products" will be returned.
+            Default False. When set to true only "Minimum Recommended Products" will be returned.
+        extension : string, optional
+            Default None. Option to filter by file extension.
         **filters :
             Filters to be applied.  Valid filters are all products fields listed
-            `here <https://masttest.stsci.edu/api/v0/_productsfields.html>`__ and 'extension'
-            which is the desired file extension.
-            The Column Name (or 'extension') is the keyword, with the argument being one or
-            more acceptable values for that parameter.
+            `here <https://masttest.stsci.edu/api/v0/_productsfields.html>`__.
+            The column name is the keyword, with the argument being one or more acceptable values
+            for that parameter.
             Filter behavior is AND between the filters and OR within a filter set.
             For example: productType="SCIENCE",extension=["fits","jpg"]
 
@@ -1208,12 +1209,20 @@ class ObservationsClass(MastClass):
         response : `~astropy.table.Table`
         """
 
-        # Dealing with mrp first, b/c it's special
-        if mrp_only:
-            products.remove_rows(np.where(products['productGroupDescription'] != "Minimum Recommended Products"))
-
         filterMask = np.full(len(products), True, dtype=bool)
 
+        # Applying the special filters (mrp_only and extension)
+        if mrp_only:
+            filterMask &= (products['productGroupDescription'] == "Minimum Recommended Products")
+
+        if extension:
+            mask = np.full(len(products), False, dtype=bool)
+            for elt in extension:
+                mask |= [False if isinstance(x, np.ma.core.MaskedConstant) else x.endswith(elt)
+                         for x in products["productFilename"]]
+            filterMask &= mask
+
+        # Applying the rest of the filters
         for colname, vals in filters.items():
 
             if type(vals) == str:
@@ -1221,11 +1230,7 @@ class ObservationsClass(MastClass):
 
             mask = np.full(len(products), False, dtype=bool)
             for elt in vals:
-                if colname == 'extension':  # extension is not actually a column
-                    mask |= [False if isinstance(x, np.ma.core.MaskedConstant) else x.endswith(elt)
-                             for x in products["productFilename"]]
-                else:
-                    mask |= (products[colname] == elt)
+                mask |= (products[colname] == elt)
 
             filterMask &= mask
 
@@ -1303,7 +1308,7 @@ class ObservationsClass(MastClass):
         log.info("Using the S3 HST public dataset")
         log.warning("Your AWS account will be charged for access to the S3 bucket")
         log.info("See Request Pricing in https://aws.amazon.com/s3/pricing/ for details")
-        log.info("If you have not configured boto3, follow the instructions here: " +
+        log.info("If you have not configured boto3, follow the instructions here: "
                  "https://boto3.readthedocs.io/en/latest/guide/configuration.html")
 
     def disable_s3_hst_dataset(self):
@@ -1495,7 +1500,7 @@ class ObservationsClass(MastClass):
         return manifest
 
     def download_products(self, products, download_dir=None,
-                          cache=True, curl_flag=False, mrp_only=True, **filters):
+                          cache=True, curl_flag=False, mrp_only=False, **filters):
         """
         Download data products.
 
@@ -1513,7 +1518,7 @@ class ObservationsClass(MastClass):
             Default is False.  If true instead of downloading files directly, a curl script
             will be downloaded that can be used to download the data files at a later time.
         mrp_only : bool, optional
-            Default True. When set to true only "Minimum Recommended Products" will be returned.
+            Default False. When set to true only "Minimum Recommended Products" will be returned.
         **filters :
             Filters to be applied.  Valid filters are all products fields listed
             `here <https://masttest.stsci.edu/api/v0/_productsfields.html>`__ and 'extension'
@@ -1909,12 +1914,12 @@ class CatalogsClass(MastClass):
             pathList = []
             for spec in spectra:
                 if spec['SpectrumType'] < 2:
-                    urlList.append('https://hla.stsci.edu/cgi-bin/getdata.cgi?config=ops&dataset=' +
-                                   spec['DatasetName'])
+                    urlList.append('https://hla.stsci.edu/cgi-bin/getdata.cgi?config=ops&dataset={0}'
+                                   .format(spec['DatasetName']))
 
                 else:
-                    urlList.append('https://hla.stsci.edu/cgi-bin/ecfproxy?file_id=' +
-                                   spec['DatasetName'] + '.fits')
+                    urlList.append('https://hla.stsci.edu/cgi-bin/ecfproxy?file_id={0}'
+                                   .format(spec['DatasetName']) + '.fits')
 
                 pathList.append(downloadFile + "/HSC/" + spec['DatasetName'] + '.fits')
 
