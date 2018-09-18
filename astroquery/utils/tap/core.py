@@ -465,7 +465,6 @@ class Tap(object):
             "LANG": "ADQL",
             "FORMAT": str(outputFormat),
             "tapclient": str(TAP_CLIENT_ID),
-            "PHASE": "RUN",
             "QUERY": str(query),
             "UPLOAD": ""+str(uploadValue)}
         if name is not None:
