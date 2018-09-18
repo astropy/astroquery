@@ -326,8 +326,8 @@ class Tap(object):
             jobid = self.__getJobId(location)
             runresponse = self.__runAsyncJob(jobid, verbose)
             isNextError = self.__connHandler.check_launch_response_status(runresponse,
-                                                                      verbose,
-                                                                      303)
+                                                                          verbose,
+                                                                          303)
             if isNextError:
                 job.set_failed(True)
                 if dump_to_file:
@@ -500,7 +500,7 @@ class Tap(object):
         args = {
             "PHASE": "RUN"}
         data = self.__connHandler.url_encode(args)
-        jobpath ='async/'+jobid+'/phase'
+        jobpath = 'async/' + jobid + '/phase'
         response = self.__connHandler.execute_post(jobpath, data)
         if verbose:
             print(response.status, response.reason)

@@ -100,7 +100,7 @@ class TapConn(object):
         self.__postHeaders = {
             "Content-type": CONTENT_TYPE_POST_DEFAULT,
             "Accept": "text/plain"
-            }
+        }
         self.__getHeaders = {}
         self.__cookie = None
         self.__currentStatus = 0
@@ -387,8 +387,8 @@ class TapConn(object):
         isError = False
         if response.status != expected_response_status:
             if debug:
-                print("ERROR: " + str(response.status) + ": "
-                       + str(response.reason))
+                print("ERROR: " + str(response.status) + ": " + 
+                      str(response.reason))
             isError = True
         return isError
 

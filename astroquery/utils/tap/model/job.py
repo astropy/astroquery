@@ -598,7 +598,7 @@ class Job(object):
         wjResponse, wjData = self.wait_for_job_end()
         subContext = "async/" + str(self.__jobid) + "/results/result"
         resultsResponse = self.__connHandler.execute_get(subContext)
-        #resultsResponse = self.__readAsyncResults(self.__jobid, debug)
+        # resultsResponse = self.__readAsyncResults(self.__jobid, debug)
         if debug:
             print(resultsResponse.status, resultsResponse.reason)
             print(resultsResponse.getheaders())
@@ -607,8 +607,7 @@ class Job(object):
         while (resultsResponse.status == 303 or resultsResponse.status == 302) and numberOfRedirects < 20:
             joblocation = self.__connHandler.find_header(resultsResponse.getheaders(), "location")
             resultsResponse = self.__connHandler.execute_get(subContext, otherlocation=joblocation)
-                
-            numberOfRedirects+=1
+            numberOfRedirects += 1
 
             if debug:
                 print(resultsResponse.status, resultsResponse.reason)

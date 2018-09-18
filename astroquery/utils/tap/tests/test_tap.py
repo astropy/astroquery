@@ -248,8 +248,8 @@ class TestTap(unittest.TestCase):
         resultsReq = 'sync/' + jobid
         resultsLocation = 'http://test:1111/tap/' + resultsReq
         launchResponseHeaders = [
-                ['location', resultsLocation]
-            ]
+            ['location', resultsLocation]
+        ]
         responseLaunchJob.set_data(method='POST',
                                    context=None,
                                    body=None,
@@ -352,8 +352,8 @@ class TestTap(unittest.TestCase):
         responseLaunchJob.set_message("ERROR")
         # list of list (httplib implementation for headers in response)
         launchResponseHeaders = [
-                ['location', 'http://test:1111/tap/async/' + jobid]
-            ]
+           ['location', 'http://test:1111/tap/async/' + jobid]
+        ]
         responseLaunchJob.set_data(method='POST',
                                    context=None,
                                    body=None,
@@ -391,14 +391,14 @@ class TestTap(unittest.TestCase):
         req = "async/" + jobid + "/results/result"
         connHandler.set_response(req, responseResultsJob)
 
-        #Run phase response
+        # Run phase response
         runPhase = DummyResponse()
         runPhase.set_status_code(303)
         runPhase.set_message("OK")
         runPhase.set_data(method='GET',
-                               context=None,
-                               body="COMPLETED",
-                               headers=None)
+                          context=None,
+                          body="COMPLETED",
+                          headers=None)
         req = "async/" + jobid + "/phase?PHASE=RUN"
         connHandler.set_response(req, runPhase)
 
