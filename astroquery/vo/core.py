@@ -16,42 +16,27 @@ class VoBase(BaseQuery):
     Base class for all VO queries.
     """
 
-    def try_query(self, url, retries=2, timeout=60, params=None, data=None, files=None, verbose=False):
+    def try_query(self, url, params=None, data=None, files=None, verbose=False):
         """
         A wrapper to _request() function allowing for retries
 
         Parameters
         ----------
         url : str
-        retries : int
-            The maximum number of times the request will be tried.
-        params : None or dict
-        data : None or dict
+        params : None or dict.  Implies a GET request should be used.
+        data : None or dict.  Implies a POST request should be used.
         files : None or dict
             See `requests.request`
-        timeout : int
         verbose : bool
         """
 
-        retry = retries
         assert params is not None or data is not None, "Give either get_params or data"
 
-        while retry:
-            try:
-                if data is not None:
-                    response = self._request('POST', url, data=data, cache=False, timeout=timeout, files=files)
-                else:
-                    response = self._request('GET', url, params=params, cache=False, timeout=timeout)
-                retry = retries-1
-            except (Timeout, ReadTimeout, ReadTimeoutError, ConnectionError) as e:
-                retry = retry-1
-                if retry > 0:
-                    if (verbose):
-                        print("WARNING: Got a timeout; trying again.")
-            except:
-                raise
-            else:
-                return response
+        if data is not None:
+            response = self._request('POST', url, data=data, cache=False, timeout=conf.timeout, files=files)
+        else:
+            response = self._request('GET', url, params=params, cache=False, timeout=conf.timeout)
+        return response
 
 
 class RegistryClass(VoBase):
@@ -62,8 +47,6 @@ class RegistryClass(VoBase):
     def __init__(self):
 
         super(RegistryClass, self).__init__()
-        self._TIMEOUT = 60   # seconds
-        self._RETRIES = 2    # total number of times to try
         self._REGISTRY_TAP_SYNC_URL = conf.registry_tap_url + "/sync"
 
     def query(self, service_type="", keyword="", waveband="", source="", publisher="", order_by="", logic_string=' and ', verbose=False, return_http_response=False):
@@ -108,7 +91,7 @@ class RegistryClass(VoBase):
             "query": adql
         }
 
-        response = self.try_query(url, data=tap_params, timeout=self._TIMEOUT, retries=self._RETRIES)
+        response = self.try_query(url, data=tap_params)
 
         if verbose:
             print('Queried: {}\n'.format(response.url))
@@ -204,7 +187,7 @@ class RegistryClass(VoBase):
             "query": adql
         }
 
-        response = self._request('POST', url, data=tap_params, cache=False)
+        response = self._request('POST', url, data=tap_params, timeout=conf.timeout, cache=False)
         if kwargs.get('verbose'):
             print('Queried: {}\n'.format(response.url))
 

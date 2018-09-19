@@ -3,6 +3,7 @@
 #
 
 import io
+import sys
 import numpy as np
 from astropy.table import Table
 
@@ -48,7 +49,10 @@ def astropy_table_from_votable_response(response):
     # String values in the VOTABLE are stored in the astropy Table as bytes instead
     # of strings.  To makes accessing them more convenient, we will convert all those
     # bytes values to strings.
-    stringify_table(aptable)
+    #
+    # This is only an issue in Python version > 2 because bytes and strings are no longer the same thing.
+    if sys.version_info[0] > 2:
+        stringify_table(aptable)
 
     return aptable
 
