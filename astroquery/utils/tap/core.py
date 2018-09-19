@@ -609,8 +609,7 @@ class Tap(object):
         return protocol, host, port, serverContext, tapContext
 
     def __str__(self):
-        return ("Created TAP+ (v"+VERSION+") - Connection: \n"
-                + str(self.__connHandler))
+        return ("Created TAP+ (v" + VERSION + ") - Connection: \n" + str(self.__connHandler))
 
 
 class TapPlus(Tap):
