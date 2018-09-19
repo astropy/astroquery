@@ -52,13 +52,9 @@ class TestRegistryLocal(SharedRegistryTests):
         shr = SharedRegistryTests()
         shr.query_counts()
 
-    def test_query_timeout(self):
-        shr = SharedRegistryTests()
-        shr.query_timeout()
-
     ##
     ## Below are tests that don't use even the simulated network.
-    ## The test building the ADQL.
+    ## They test building the ADQL query string.
     ##
     def fix_white(self, s):
         fixed = " ".join(s.split())

@@ -1,6 +1,5 @@
 import json, os
 from astropy.tests.helper import pytest
-from requests.exceptions import Timeout, ReadTimeout
 from astropy.tests.helper import remote_data
 from astropy.io import ascii
 from astropy.table import Table
@@ -108,18 +107,6 @@ class SharedRegistryTests(Helpers):
             self.content2file(http_response.content, self.data_path(self.DATA_FILES['query_counts_content']))
         else:
             assert(self.table_comp(result, self.data_path(self.DATA_FILES['query_counts_result'])))
-
-    def query_timeout(self):
-        myReg = Registry()
-        myReg._TIMEOUT = 0.0001
-        try:
-            result = myReg.query(source='heasarc', service_type='image')
-        except (Timeout, ReadTimeout, ConnectionError):
-            pass
-        except Exception as e:
-            pytest.fail("Did not get the expected timeout exception but {}".format(e))
-        else:
-            pytest.fail("Did not get the expected timeout exception but none")
 
 
 ## This main can regenerate the stored JSON for you after you've run a

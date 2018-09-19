@@ -16,6 +16,11 @@ class Conf(_config.ConfigNamespace):
     registry_tap_url = _config.ConfigItem(
         'https://vao.stsci.edu/RegTAP/TapService.aspx',
         'Base URL of Registry TAP server')
+    timeout = _config.ConfigItem(
+        60,
+        'Time limit (seconds) for connecting to VO services.',
+        'float'
+    )
 
 
 conf = Conf()
