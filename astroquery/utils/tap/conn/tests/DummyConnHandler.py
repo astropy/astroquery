@@ -51,9 +51,12 @@ class DummyConnHandler(object):
     def set_response(self, request, response):
         self.responses[str(request)] = response
 
-    def execute_get(self, request):
-        self.request = request
-        return self.__get_response(request)
+    def execute_get(self, request, otherlocation=None):
+        if otherlocation is None:
+            self.request = request
+        else:
+            self.request = "async/12345/redirect"
+        return self.__get_response(self.request)
 
     def execute_post(self, subcontext, data):
         self.data = data
