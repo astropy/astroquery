@@ -109,8 +109,7 @@ class DummyConnHandler(object):
         isError = False
         if response.status != expected_response_status:
             if debug:
-                print("ERROR: " + str(response.status) + ": "
-                       + str(response.reason))
+                print("ERROR: " + str(response.status) + ": " + str(response.reason))
             isError = True
         return isError
 

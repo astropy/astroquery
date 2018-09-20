@@ -383,9 +383,8 @@ class TestTap(unittest.TestCase):
                                     context=None,
                                     body=jobData,
                                     headers=None)
-        req="async/" + jobid + "/results/result"
+        req = "async/" + jobid + "/results/result"
         connHandler.set_response(req, responseResultsJob)
-        
         # Run phase response
         runPhase = DummyResponse()
         runPhase.set_status_code(303)
@@ -446,7 +445,6 @@ class TestTap(unittest.TestCase):
         with pytest.raises(Exception):
             tap.launch_job_async(query)
 
-
         # Response is redirect (303)
         # Results is 200
         # Location available
@@ -484,14 +482,14 @@ class TestTap(unittest.TestCase):
                                     'table1_oid',
                                     None,
                                     np.int32)
-        newLocation='http://secondwebsite:2222/tap/async/12345'
-        newHeaders=[
+        newLocation = 'http://secondwebsite:2222/tap/async/12345'
+        newHeaders = [
             ['location', newLocation]
         ]
         responseResultsJob.set_data(method='POST',
-                                   context=None,
-                                   body=None,
-                                   headers=newHeaders)
+                                    context=None,
+                                    body=None,
+                                    headers=newHeaders)
         responseResultsJob.set_status_code(303)
         responseResultsJob.set_message("SEE OTHER")
         # Redirect response
@@ -506,7 +504,7 @@ class TestTap(unittest.TestCase):
                                     headers=None)
         req = "async/12345/redirect"
         connHandler.set_response(req, redirectResultsJob)
-        job=tap.launch_job_async(query)
+        job = tap.launch_job_async(query)
         assert job is not None, "Expected a valid job"
         assert job.is_async(), "Expected a asynchronous job"
         assert job.get_phase() == 'COMPLETED', \
@@ -538,7 +536,6 @@ class TestTap(unittest.TestCase):
                                     'table1_oid',
                                     None,
                                     np.int32)
-
 
     def test_launch_async_job(self):
         connHandler = DummyConnHandler()
