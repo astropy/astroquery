@@ -1,5 +1,33 @@
 `Documentation`_ | Blog_ |  `View on Github`_ |  `Download Stable ZIP`_  |  `Download Stable TAR`_
 
+.. image:: https://pypip.in/v/astroquery/badge.png
+   :target: https://img.shields.io/pypi/v/astroquery.svg
+   :alt: Latest PyPI version
+
+.. image:: https://travis-ci.org/astropy/astroquery.svg?branch=master
+   :target: https://travis-ci.org/astropy/astroquery
+   :alt: Travis CI Status
+
+.. image:: https://ci.appveyor.com/api/projects/status/srronytiov4mkbna/branch/master?svg=true
+   :target: https://ci.appveyor.com/project/Astropy/astroquery
+   :alt: Appveyor CI Status
+
+.. image:: https://coveralls.io/repos/astropy/astroquery/badge.png
+   :target: https://coveralls.io/r/astropy/astroquery
+   :alt: Coverage Status
+
+.. image:: https://badges.gitter.im/astropy/astroquery.png
+   :target: https://gitter.im/astropy/astroquery
+   :alt: Gitter
+
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.1160627.svg
+   :target: https://doi.org/10.5281/zenodo.1160627
+   :alt: Zenodo
+
+.. .. image:: https://d2weczhvl823v0.cloudfront.net/astropy/astroquery/trend.png
+..    :alt: Bitdeli badge
+..    :target: https://bitdeli.com/free
+
 
 ==================================
 Accessing Online Astronomical Data
@@ -140,30 +168,6 @@ If you use ``astroquery``, please cite our `Zenodo DOI
 
 (Before using Zenodo, ``astroquery`` v0.1 had a `figshare`_ DOI:
 https://doi.org/10.6084/m9.figshare.805208 )
-
-
-Badges
-------
-.. image:: https://pypip.in/v/astroquery/badge.png
-    :target: https://img.shields.io/pypi/v/astroquery.svg
-    :alt: Latest PyPI version
-
-.. image:: https://travis-ci.org/astropy/astroquery.svg?branch=master
-   :target: https://travis-ci.org/astropy/astroquery
-
-.. image:: https://coveralls.io/repos/astropy/astroquery/badge.png
-   :target: https://coveralls.io/r/astropy/astroquery
-
-.. image:: https://badges.gitter.im/astropy/astroquery.png
-   :target: https://gitter.im/astropy/astroquery
-
-.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.1160627.svg
-   :target: https://doi.org/10.5281/zenodo.1160627
-
-
-.. .. image:: https://d2weczhvl823v0.cloudfront.net/astropy/astroquery/trend.png
-..    :alt: Bitdeli badge
-..    :target: https://bitdeli.com/free
 
 
 .. _Download Development ZIP: https://github.com/astropy/astroquery/zipball/master
