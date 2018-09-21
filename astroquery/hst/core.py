@@ -42,8 +42,8 @@ class EhstHandler(object):
         return
 
     def get_file(self, url, filename, verbose=False):
-        urllib.request.urlretrieve(url, filename)
-        return
+        file, headers = urllib.request.urlretrieve(url, filename)
+        return file, headers
 
 Handler = EhstHandler()
 
