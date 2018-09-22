@@ -169,6 +169,20 @@ matrix:
               branch: master
           before_install: if [[ ! -z $(echo $TRAVIS_COMMIT_MESSAGE | grep -E "\[nodeploy\]") ]]; then echo "Skipping deployment as indicated by commit message"; travis_terminate 0; fi
 
+    allow_failures:
+        # Allow remote-data tests to fail.
+        - os: linux
+          stage: Remote data tests
+          env: EVENT_TYPE='push cron' DEBUG=True ASTROPY_VERSION=dev
+               SETUP_CMD='test -R -V -a "--durations=50"'
+               CONDA_DEPENDENCIES=$CONDA_DEPENDENCIES_REMOTE
+        - os: linux
+          stage: Remote data tests
+          env: EVENT_TYPE='push cron' PYTHON_VERSION=2.7
+               SETUP_CMD='test --remote-data -V -a "--durations=50"'
+               CONDA_DEPENDENCIES=$CONDA_DEPENDENCIES_REMOTE
+               KEYRING_VERSION='<12.0'
+
 install:
     - git clone git://github.com/astropy/ci-helpers.git
     - source ci-helpers/travis/setup_conda.sh
