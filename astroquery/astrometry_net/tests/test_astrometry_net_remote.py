@@ -31,10 +31,10 @@ def test_solve_by_source_list():
     a = AstrometryNet()
     a.api_key = api_key
     sources = Table.read(os.path.join(DATA_DIR, 'test-source-list.fit'))
-    # The image_width, image_height and crpix_center blo are set to match the
+    # The image_width, image_height and crpix_center below are set to match the
     # original solve on astrometry.net.
-    result = a.solve_from_source_list(x=sources['X'], y=sources['Y'],
-                                      image_width=4109, image_height=4096,
+    result = a.solve_from_source_list(sources['X'], sources['Y'],
+                                      4109, 4096,
                                       crpix_center=True)
 
     expected_result = fits.getheader(os.path.join(DATA_DIR,

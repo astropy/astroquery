@@ -346,8 +346,7 @@ class AstrometryNetClass(BaseQuery):
         wcs = fits.Header.fromstring(wcs_response.text)
         return wcs
 
-    def solve_from_source_list(self, x=None, y=None,
-                               image_width=None, image_height=None,
+    def solve_from_source_list(self, x, y, image_width, image_height,
                                **settings
                                ):
         """
