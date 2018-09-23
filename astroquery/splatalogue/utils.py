@@ -20,10 +20,10 @@ column_headings_map = {'Log<sub>10</sub> (A<sub>ij</sub>)': 'log10_Aij',
                        'Chemical Name': 'ChemicalName',
                        'Freq Err': 'FreqErr',
                        'Meas Freq Err': 'MeasFreqErr',
-                       'Freq-GHz(rest frame,redshifted)':'FreqGHz',
-                       'Freq Err(rest frame,redshifted)':'eFreqGHz',
-                       'Meas Freq-GHz(rest frame,redshifted)':'MeasFreqGHz',
-                       'Meas Freq Err(rest frame,redshifted)':'eMeasFreqGHz',
+                       'Freq-GHz(rest frame,redshifted)': 'FreqGHz',
+                       'Freq Err(rest frame,redshifted)': 'eFreqGHz',
+                       'Meas Freq-GHz(rest frame,redshifted)': 'MeasFreqGHz',
+                       'Meas Freq Err(rest frame,redshifted)': 'eMeasFreqGHz',
                        }
 
 
