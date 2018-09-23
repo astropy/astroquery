@@ -196,8 +196,6 @@ class AstrometryNetClass(BaseQuery):
         'use_sextractor': {'default': False, 'type': bool, 'allowed': ()},
         'crpix_center': {'default': None, 'type': bool, 'allowed': ()},
         'parity': {'default': None, 'type': int, 'allowed': (0, 2)},
-        'image_width': {'default': None, 'type': int, 'allowed': (0,)},
-        'image_height': {'default': None, 'type': int, 'allowed': (0,)},
         'positional_error': {'default': None, 'type': float, 'allowed': (0,)},
     }
 
@@ -367,18 +365,16 @@ class AstrometryNetClass(BaseQuery):
         For a list of the remaining settings, use the method
         `~AstrometryNetClass.show_allowed_settings`.
         """
-
-        if (x is None or y is None or
-                image_width is None or image_height is None):
-            raise ValueError('Must provide values for x, y, '
-                             'image_width and image_height')
         settings = {k: v for k, v in six.iteritems(settings) if v is not None}
-        settings['x'] = [float(v) for v in x]
-        settings['y'] = [float(v) for v in y]
         self._validate_settings(settings)
         if self._session_id is None:
             self._login()
-
+        # Add the settings required for solving from a source list to the list
+        # after validating the common settings applicable in all cases.
+        settings['x'] = [float(v) for v in x]
+        settings['y'] = [float(v) for v in y]
+        settings['image_width'] = image_width
+        settings['image_height'] = image_height
         settings['session'] = self._session_id
         payload = self._contruct_payload(settings)
         url = url_helpers.join(self.API_URL, 'url_upload')
