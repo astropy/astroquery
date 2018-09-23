@@ -302,9 +302,9 @@ class AstrometryNetClass(BaseQuery):
                     # Assume the parameter is a number which has a minimum and
                     # optionally a maximum.
                     bounds = self._constraints[key]['allowed']
-                    good_value = value > bounds[0]
+                    good_value = value >= bounds[0]
                     try:
-                        good_value = good_value and good_value < bounds[1]
+                        good_value = good_value and good_value <= bounds[1]
                     except IndexError:
                         # No upper bound to check
                         pass
