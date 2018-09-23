@@ -273,7 +273,10 @@ class AstrometryNetClass(BaseQuery):
         # Check the types and values
         for key, value in six.iteritems(settings):
             if key not in self._constraints or value is None:
-                continue
+                message = ('Setting {} is not allowed. Display all of '
+                           'the allowed settings with: '
+                           'AstrometryNet.show_allowed_settings()'.format(key))
+                raise ValueError(message)
             if not isinstance(value, self._constraints[key]['type']):
                 failed = True
                 # Try coercing the type...

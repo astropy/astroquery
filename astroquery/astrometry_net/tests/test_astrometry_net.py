@@ -37,3 +37,15 @@ def test_setting_validation_basic():
             print(str(e))
             assert str(settings[constraint]) in str(e)
             assert 'The valid values are' in str(e)
+
+
+def test_invalid_setting_name_raises_error():
+    a = AstrometryNet()
+    a.api_key = 'nonsensekey'
+    with pytest.raises(ValueError) as e:
+        # First four arguments are required but values are not checked until
+        # after settings are checked (in the current implementation, at
+        # least), so any values should work.
+        # The keyword argument is definitely not one of the allowed ones.
+        a.solve_from_source_list([], [], [], [], im_a_bad_setting_name=5)
+    assert 'im_a_bad_setting_name is not allowed' in str(e)
