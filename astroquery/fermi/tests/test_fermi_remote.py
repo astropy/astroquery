@@ -6,7 +6,7 @@ from astropy.tests.helper import remote_data
 from ... import fermi
 
 # the delayed queries take too long
-SKIP_SLOW=True
+SKIP_SLOW = True
 
 FK5_COORDINATES = coord.SkyCoord(10.68471, 41.26875, unit=('deg', 'deg'))
 
