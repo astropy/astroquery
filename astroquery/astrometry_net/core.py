@@ -156,6 +156,7 @@ else:
 
 from ..query import BaseQuery
 from ..utils import async_to_sync, url_helpers
+from ..exceptions import TimeoutError
 from . import conf
 import time
 
@@ -327,6 +328,8 @@ class AstrometryNetClass(BaseQuery):
         has_completed = False
         job_id = None
         print('Solving', end='', flush=True)
+        start_time = time.time()
+        status = ''
         while not has_completed:
             time.sleep(1)
             sub_stat_url = url_helpers.join(self.API_URL, 'submissions', str(submission_id))
@@ -335,13 +338,27 @@ class AstrometryNetClass(BaseQuery):
             if jobs:
                 job_id = jobs[0]
             if job_id:
-                job_stat_url = url_helpers.join(self.API_URL, 'jobs', str(job_id), 'info')
+                job_stat_url = url_helpers.join(self.API_URL, 'jobs',
+                                                str(job_id), 'info')
                 job_stat = self._request('GET', job_stat_url, cache=False)
-                has_completed = job_stat.json()['status'] == 'success'
+                status = job_stat.json()['status']
+            now = time.time()
+            elapsed = now - start_time
+            timed_out = elapsed > AstrometryNet.TIMEOUT
+            has_completed = (status in ['success', 'failure'] or
+                             timed_out)
             print('.', end='', flush=True)
-        wcs_url = url_helpers.join(self.URL, 'wcs_file', str(job_id))
-        wcs_response = self._request('GET', wcs_url)
-        wcs = fits.Header.fromstring(wcs_response.text)
+        if status == 'success':
+            wcs_url = url_helpers.join(self.URL, 'wcs_file', str(job_id))
+            wcs_response = self._request('GET', wcs_url)
+            wcs = fits.Header.fromstring(wcs_response.text)
+        elif status == 'failure':
+            wcs = {}
+        elif timed_out:
+            raise TimeoutError('Solve timed out without success or failure')
+        else:
+            # Try to future-proof a little bit
+            raise RuntimeError('Unrecognized status {}'.format(status))
         return wcs
 
     def solve_from_source_list(self, x, y, image_width, image_height,
@@ -388,6 +405,7 @@ class AstrometryNetClass(BaseQuery):
     def solve_from_image(self, image_file_path, force_image_upload=False,
                          ra_key=None, dec_key=None,
                          ra_dec_units=None,
+                         fwhm=3, detect_threshold=5,
                          **settings):
         """
         Plate solve from an image, either by uploading the image to
@@ -459,18 +477,21 @@ class AstrometryNetClass(BaseQuery):
             print("Determining background stats", flush=True)
             mean, median, std = sigma_clipped_stats(ccd.data, sigma=3.0,
                                                     iters=5)
-            daofind = DAOStarFinder(fwhm=3.0, threshold=5. * std)
+            daofind = DAOStarFinder(fwhm=fwhm,
+                                    threshold=detect_threshold * std)
             print("Finding sources", flush=True)
             sources = daofind(ccd.data - median)
+            print('Found {} sources'.format(len(sources)), flush=True)
             # astrometry.net wants a sorted list of sources
             # Sort first (which puts things in ascending order)
             sources.sort('flux')
             # Reverse to get descending order
             sources.reverse()
-            return self.solve_from_source_list(x=sources['xcentroid'],
-                                               y=sources['ycentroid'],
-                                               image_width=ccd.header['naxis1'],
-                                               image_height=ccd.header['naxis2'],
+            print(sources)
+            return self.solve_from_source_list(sources['xcentroid'],
+                                               sources['ycentroid'],
+                                               ccd.header['naxis1'],
+                                               ccd.header['naxis2'],
                                                **settings)
         if response.status_code != 200:
             raise RuntimeError('Post of job failed')

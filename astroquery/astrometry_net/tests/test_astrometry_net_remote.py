@@ -46,3 +46,65 @@ def test_solve_by_source_list():
         except TypeError:
             pass
         assert difference == 0
+
+
+@pytest.mark.skipif(not api_key, reason='API key not set.')
+@remote_data
+def test_solve_image_upload():
+    # Test that solving by uploading an image works
+    a = AstrometryNet()
+    a.api_key = api_key
+    image = os.path.join(DATA_DIR, 'thumbnail-image.fit.gz')
+    # The test image only solves if it is not downsampled
+    result = a.solve_from_image(image,
+                                force_image_upload=True,
+                                downsample_factor=1)
+    expected_result = fits.getheader(os.path.join(DATA_DIR,
+                                                  'thumbnail-wcs-sol.fit'))
+    for key in result:
+        try:
+            difference = expected_result[key] - result[key]
+        except TypeError:
+            pass
+        assert difference == 0
+
+
+@pytest.mark.skipif(not api_key, reason='API key not set.')
+@remote_data
+def test_solve_image_upload_expected_failure():
+    # Test that s solve failure is returned as expected
+    a = AstrometryNet()
+    a.api_key = api_key
+    image = os.path.join(DATA_DIR, 'thumbnail-image.fit.gz')
+    # The test image only solves if it is not downsampled
+    result = a.solve_from_image(image,
+                                force_image_upload=True,
+                                downsample_factor=4)
+
+    assert not result
+
+
+@pytest.mark.skipif(not api_key, reason='API key not set.')
+@remote_data
+def test_solve_image_detect_source_local():
+    # Test that solving by uploading an image works
+    a = AstrometryNet()
+    a.api_key = api_key
+    image = os.path.join(DATA_DIR, 'thumbnail-image.fit.gz')
+    # The source detection parameters below (fwhm, detect_threshold)
+    # are specific to this test image. They should not be construed
+    # as a general recommendation.
+    result = a.solve_from_image(image,
+                                force_image_upload=False,
+                                downsample_factor=1,
+                                fwhm=1.5, detect_threshold=5,
+                                center_ra=135.618, center_dec=49.786,
+                                radius=0.5)
+    expected_result = fits.getheader(os.path.join(DATA_DIR,
+                                                  'thumbnail-wcs-sol-from-photutils.fit'))
+    for key in result:
+        try:
+            difference = expected_result[key] - result[key]
+        except TypeError:
+            pass
+        assert difference == 0
