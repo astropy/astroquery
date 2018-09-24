@@ -66,15 +66,3 @@ def test_FermiLAT_query(patch_post):
         FK5_COORDINATES, energyrange_MeV='1000, 100000',
         obsdates='2013-01-01 00:00:00, 2013-01-02 00:00:00')
     assert result == DATA_FILES['fits']
-
-
-def test_FermiLAT_DelayedQuery():
-    pass
-    # result_url = 'http://www.google.com'
-    # query = fermi.FermiLAT_DelayedQuery(result_url)
-    # TODO
-    # print query
-
-
-if __name__ == '__main__':
-    test_FermiLAT_query()

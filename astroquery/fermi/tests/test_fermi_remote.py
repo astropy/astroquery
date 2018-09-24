@@ -22,5 +22,6 @@ def test_FermiLAT_query():
         FK5_COORDINATES, energyrange_MeV='1000, 100000',
         obsdates='2013-01-01 00:00:00, 2013-01-02 00:00:00')
     # this test might be fragile?  I'm not sure how stable the file names are
-    assert result == ['https://fermi.gsfc.nasa.gov/FTP/fermi/data/lat/queries/L1809182001077FA3883F37_SC00.fits',
-                      'https://fermi.gsfc.nasa.gov/FTP/fermi/data/lat/queries/L1809182001077FA3883F37_PH00.fits']
+    for rr in result:
+        assert rr.startswith('https://fermi.gsfc.nasa.gov/FTP/fermi/data/lat/queries/')
+        assert rr.endswith('_SC00.fits') or rr.endswith('_PH00.fits')
