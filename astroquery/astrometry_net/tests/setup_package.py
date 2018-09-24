@@ -5,6 +5,6 @@ import os
 
 
 def get_package_data():
-    paths = [os.path.join('data', '*.fit')]
+    paths = [os.path.join('data', '*.fit')] + [os.path.join('data', '*.fit.gz')]
     # finally construct and return a dict for the sub module
     return {'astroquery.astrometry_net.tests': paths}
