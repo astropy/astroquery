@@ -70,6 +70,59 @@ class Job(object):
         # default output format
         self.parameters['format'] = 'votable'
 
+    def set_phase(self, phase):
+        """Sets the job phase
+
+        Parameters
+        ----------
+        phase : str, mandatory
+            job phase
+        """
+        if self.is_finished():
+            raise ValueError("Cannot assign a pahse when a job is finished")
+        self.__phase = phase
+    
+    def start(self, verbose=False):
+        """Starts the job (allowed in PENDING phase only)
+        """
+        self.__change_phase("RUN")
+    
+    def abort(self):
+        """Starts the job (allowed in PENDING phase only)
+        """
+        self.__change_phase("ABORT")
+    
+    def __change_phase(self, phase):
+        if self.__phase == 'PENDING':
+            context = "async/"+str(self.get_jobid())+"/phase"
+            args = {
+                "PHASE": str(phase)}
+            data = self.__connHandler.url_encode(args)
+            response = self.__connHandler.execute_tappost(context, data)
+            if verbose:
+                print(response.status, response.reason)
+                print(response.getheaders())
+            self.__phase = phase
+            return response
+        else:
+            raise ValueError("Cannot start a job in phase: " + str(self.__phase))
+    
+    def send_parameter(self, name=None, value=None):
+        """Sends a job parameter (allowed in PENDING phase only).
+
+        Parameters
+        ----------
+        name : string
+            Parameter name.
+        value : string
+            Parameter value.
+        """
+        if self.__phase == 'PENDING':
+            #send post parameter/value
+            pass
+        else:
+            raise ValueError("Cannot start a job in phase: " + str(self.__phase))
+
     def get_phase(self, update=False):
         """Returns the job phase. May optionally update the job's phase.
 
@@ -201,22 +254,23 @@ class Job(object):
         """
         currentResponse = None
         responseData = None
+        lphase = None
         while True:
             responseData = self.get_phase(update=True)
             currentResponse = self.__last_phase_response_status
 
-            lphase = responseData.lower().strip()
+            lphase = responseData.upper().strip()
             if verbose:
                 print("Job " + self.jobid + " status: " + lphase)
-            if "pending" != lphase and "queued" != lphase and "executing" != lphase:
+            if "PENDING" != lphase and "QUEUED" != lphase and "EXECUTING" != lphase:
                 break
             # PENDING, QUEUED, EXECUTING, COMPLETED, ERROR, ABORTED, UNKNOWN,
             # HELD, SUSPENDED, ARCHIVED:
             time.sleep(0.5)
-        return currentResponse, responseData
+        return currentResponse, lphase
 
     def __load_async_job_results(self, debug=False):
-        wjResponse, wjData = self.wait_for_job_end()
+        wjResponse, phase = self.wait_for_job_end()
         subContext = "async/" + str(self.jobid) + "/results/result"
         resultsResponse = self.connHandler.execute_get(subContext)
         # resultsResponse = self.__readAsyncResults(self.__jobid, debug)
@@ -226,6 +280,7 @@ class Job(object):
         isError = self.connHandler.check_launch_response_status(resultsResponse,
                                                                   debug,
                                                                   200)
+        self.__phase = phase
         if isError:
             print(resultsResponse.reason)
             raise Exception(resultsResponse.reason)
@@ -234,6 +289,15 @@ class Job(object):
             results = utils.read_http_response(resultsResponse, outputFormat)
             self.set_results(results)
             self._phase = wjData
+    
+    def is_finished(self):
+        """Returns whether the job is finished (ERROR, ABORTED, COMPLETED) or not
+
+        """
+        if self.__phase == 'ERROR' or self.__phase == 'ABORTED' or self.__phase == 'COMPLETED':
+            return True
+        else:
+            return False
 
     def __str__(self):
         if self.results is None:

@@ -306,8 +306,10 @@ class Tap(object):
         job.outputFile = suitableOutputFile
         job.parameters['format'] = output_format
         job.set_response_status(response.status, response.reason)
+        job.set_phase('PENDING')
         if isError:
             job.failed = True
+            job.set_phase('ERROR')
             if dump_to_file:
                 self.__connHandler.dump_to_file(suitableOutputFile, response)
             raise requests.exceptions.HTTPError(response.reason)
@@ -386,8 +388,10 @@ class Tap(object):
         job.outputFile = suitableOutputFile
         job.set_response_status(response.status, response.reason)
         job.parameters['format'] = output_format
+        job.set_phase('PENDING')
         if isError:
             job.set_failed(True)
+            job.set_phase('ERROR')
             if dump_to_file:
                 self.__connHandler.dump_to_file(suitableOutputFile, response)
             raise requests.exceptions.HTTPError(response.reason)
@@ -400,6 +404,7 @@ class Tap(object):
                 print("job " + str(jobid) + ", at: " + str(location))
             job.jobid = jobid
             job.remoteLocation = location
+            job.set_phase('EXECUTING')
             if not background:
                 if verbose:
                     print("Retrieving async. results...")

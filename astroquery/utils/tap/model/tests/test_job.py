@@ -22,6 +22,7 @@ from astroquery.utils.tap.model.job import Job
 from astroquery.utils.tap.conn.tests.DummyConnHandler import DummyConnHandler
 from astroquery.utils.tap.conn.tests.DummyResponse import DummyResponse
 from astroquery.utils.tap.xmlparser import utils
+from sqlalchemy.sql.expression import except_
 
 
 def data_path(filename):
@@ -86,6 +87,32 @@ class TestJob(unittest.TestCase):
             if cn not in res.colnames:
                 self.fail(cn + " column name not found" + str(res.colnames))
 
+    def test_job_phase(self):
+        job = Job(async_job=True)
+        jobid = "12345"
+        outputFormat = "votable"
+        job.set_jobid(jobid)
+        job.set_output_format(outputFormat)
+        job.set_phase("COMPLETED")
+        try:
+            job.set_phase("RUN")
+            self.fail("Exception expected. Phase cannot be changed for a finished job")
+        except ValueError:
+            #ok
+            pass
+        try:
+            job.start()
+            self.fail("Exception expected. A job in 'COMPLETE' phase cannot be started")
+        except ValueError:
+            #ok
+            pass
+        try:
+            job.abort()
+            self.fail("Exception expected. A job in 'COMPLETE' phase cannot be aborted")
+        except ValueError:
+            #ok
+            pass
+        
 
 if __name__ == "__main__":
     # import sys;sys.argv = ['', 'Test.testName']
