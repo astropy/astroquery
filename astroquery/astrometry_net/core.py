@@ -209,8 +209,7 @@ class AstrometryNetClass(BaseQuery):
             now = time.time()
             elapsed = now - start_time
             timed_out = elapsed > AstrometryNet.TIMEOUT
-            has_completed = (status in ['success', 'failure'] or
-                             timed_out)
+            has_completed = (status in ['success', 'failure'] or timed_out)
             print('.', end='', flush=True)
         if status == 'success':
             wcs_url = url_helpers.join(self.URL, 'wcs_file', str(job_id))
