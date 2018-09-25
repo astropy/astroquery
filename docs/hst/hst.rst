@@ -74,8 +74,10 @@ This will download metadata for all artifact (product file) ids associated to ob
 RETURN_TYPE can be VOTABLE, CSV or JSON.
 
 ---------------------------
-5. Querying target names in Hubble archive
+5. Querying target names in the Hubble archive
 ---------------------------
+
+The query_target function queries the name of the target as given by the proposer of the observations.
 
 .. code-block:: python
 
@@ -88,7 +90,7 @@ RETURN_TYPE can be VOTABLE, CSV or JSON.
 This will download metadata for all observations associated with target name 'm31'. The result of the query will be stored in file 'm31_query.xml'.
 
 ---------------------------
-6. Cone searches in Hubble archive
+6. Cone searches in the Hubble archive
 ---------------------------
 
 .. code-block:: python
@@ -106,6 +108,8 @@ This will perform a cone search with radius 7 arcmins. The result of the query w
 7. Getting access to catalogues 
 ---------------------------
 
+The query_hst_tap function provides access to the HST archive database using the Table Access Protocol (TAP) and via the Astronomical Data Query Language (ADQL).
+
 .. code-block:: python
 
   >>> from astroquery.hst import Hst
@@ -113,7 +117,7 @@ This will perform a cone search with radius 7 arcmins. The result of the query w
   >>> print(result)
   >>> result.get_results()
 
-The will execute an ADQL query to download top 10 sources in HSC v2 (format default: votable). The result of the query will be stored in file 'test.vot'. The result of this query can be viewed by doing result.get_results() or printing it by doing print(result).
+This will execute an ADQL query to download the first 10 sources in the Hubble Source Catalog (HSC) version 2.1 (format default: votable). The result of the query will be stored in the file 'test.vot'. The result of this query can be viewed by doing result.get_results() or printing it by doing print(result).
 
 Reference/API
 =============
