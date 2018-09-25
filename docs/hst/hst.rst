@@ -6,16 +6,8 @@
 HST (`astroquery.hst`)
 *****************************
 
-Hubble Space Telescope (HST) is an orbiting astronomical observatory operating from the near-infrared into 
-the ultraviolet. Launched in 1990 and scheduled to operate at least through 2020, HST carries and has 
-carried a wide variety of instruments producing imaging, spectrographic, astrometric, and photometric 
-data through both pointed and parallel observing programs. MAST is the primary archive and distribution 
-center for HST data, distributing science, calibration, and engineering data to HST users and the 
-astronomical community at large. Over 500 000 observations of more than 30000 targets are available 
-for retrieval from the Archive.
-
-This package allows the access to the European Space Agency Hubble Archive
-(http://archives.esac.esa.int/ehst/)
+The Hubble Space Telescope (HST) is a joint ESA/NASA orbiting astronomical observatory operating from the near-infrared into the ultraviolet.  Launched in 1990 and scheduled to operate at least through 2020, HST carries and has carried a wide variety of instruments producing imaging, spectrographic, astrometric, and photometric data through both pointed and parallel observing programs. During its lifetime HST has become one of the most important science projects ever, with over 500 000 observations of more than 30000 targets available for retrieval from the Archive.
+This package allows the access to the European Space Agency Hubble Archive (EHST; http://archives.esac.esa.int/ehst/). All the HST observations available in the EHST are synchronised with the MAST services for HST reprocessed public data and corresponding metadata. Therefore, excluding proprietary data, all HST data in the EHST are identical to those in MAST.
 
 ========
 Examples
@@ -42,11 +34,12 @@ This will download all files for the raw calibration level of the observation 'J
 
   >>> from astroquery.hst import Hst
   >>>
-  >>> Hst.get_postcard("J6FL25S4Q", "RAW", 256, "raw_postcard_for_J6FL25S4Q.tar")
+  >>> Hst.get_postcard("J6FL25S4Q", "RAW", 256, "raw_postcard_for_J6FL25S4Q.jpg")
   http://archives.esac.esa.int/ehst-sl-server/servlet/data-action?RETRIEVAL_TYPE=POSTCARD&OBSERVATION_ID=\
   J6FL25S4Q&CALIBRATION_LEVEL=RAW&RESOLUTION=256
 
-This will download the postcard for the observation 'J8VP03010' with low resolution (256) and it will stored in a tar called 'raw_postcard_for_J6FL25S4Q.tar'. Resolution of 1024 is also available.
+This will download the postcard for the observation 'J8VP03010' with low resolution (256) and it will stored in a tar called 'raw_postcard_for_J6FL25S4Q.jpg'. Resolution of 1024 is also available.
+Calibration levels can be RAW, CALIBRATED, PRODUCT or AUXILIARY.
 
 ---------------------------
 3. Getting Hubble artifacts
@@ -75,6 +68,7 @@ This will download the artifact 'O5HKAX030_FLT.FITS'.
   OBSERVATION_ID=i9zg04010&SELECTED_FIELDS=ARTIFACT.ARTIFACT_ID&RETURN_TYPE=VOTABLE
 
 This will download metadata for all artifact (product file) ids associated to observation 'i9zg04010' in VOTABLE format. The result of the query will be stored in file 'metadata.xml'.
+RETURN_TYPE can be VOTABLE, CSV or JSON.
 
 ---------------------------
 5. Querying target names in Hubble archive
