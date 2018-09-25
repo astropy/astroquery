@@ -28,7 +28,7 @@ def test_setting_validation_basic():
                 assert settings[constraint] in str(e)
                 assert 'is invalid. The valid values' in str(e)
             else:
-                assert "must be of type <class 'bool'>" in str(e)
+                assert "must be of type" in str(e) and "'bool'" in str(e)
         else:
             # Pick a value smaller than the minimum value
             settings = {constraint: vals['allowed'][0] - 10}
