@@ -22,7 +22,7 @@ class FermiLATClass(BaseQuery):
 
     request_url = conf.url
     result_url_re = re.compile('The results of your query may be found at '
-                               '<a href="(http://fermi.gsfc.nasa.gov/.*?)"')
+                               '<a href="(https://fermi.gsfc.nasa.gov/.*?)"')
     TIMEOUT = conf.timeout
 
     def query_object_async(self, *args, **kwargs):
@@ -124,6 +124,8 @@ class GetFermilatDatafile(object):
     """
 
     fitsfile_re = re.compile('<a href="(.*?)">Available</a>')
+    fitsfile_re = re.compile('wget (https://fermi.gsfc.nasa.gov/FTP/fermi/data/lat/queries/[A-Za-z0-9_]*.fits)')
+    # wget https://fermi.gsfc.nasa.gov/FTP/fermi/data/lat/queries/L1809182001077FA3883F37_SC00.fits
 
     TIMEOUT = conf.retrieval_timeout
 
