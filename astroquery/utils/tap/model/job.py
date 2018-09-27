@@ -84,30 +84,50 @@ class Job(object):
     
     def start(self, verbose=False):
         """Starts the job (allowed in PENDING phase only)
+
+        Parameters
+        ----------
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
         """
-        self.__change_phase("RUN")
+        self.__change_phase(phase="RUN", verbose=verbose)
     
-    def abort(self):
-        """Starts the job (allowed in PENDING phase only)
+    def abort(self, verbose=False):
+        """Aborts the job (allowed in PENDING phase only)
+
+        Parameters
+        ----------
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
         """
-        self.__change_phase("ABORT")
+        self.__change_phase(phase="ABORT", verbose=verbose)
     
-    def __change_phase(self, phase):
+    def __change_phase(self, phase, verbose=False):
         if self.__phase == 'PENDING':
             context = "async/"+str(self.get_jobid())+"/phase"
             args = {
                 "PHASE": str(phase)}
             data = self.__connHandler.url_encode(args)
-            response = self.__connHandler.execute_tappost(context, data)
+            response = self.__connHandler.execute_tappost(subcontext=context, 
+                                                          data=data,
+                                                          verbose=verbose)
             if verbose:
                 print(response.status, response.reason)
                 print(response.getheaders())
+            self.__last_phase_response_status = response.status
+            if phase == 'RUN':
+                phase = 'QUEUED'
+                if response.status != 200 and response.status != 303:
+                    raise Exception(response.reason)
+            else:
+                if response.status != 200:
+                    raise Exception(response.reason)
             self.__phase = phase
             return response
         else:
             raise ValueError("Cannot start a job in phase: " + str(self.__phase))
     
-    def send_parameter(self, name=None, value=None):
+    def send_parameter(self, name=None, value=None, verbose=False):
         """Sends a job parameter (allowed in PENDING phase only).
 
         Parameters
@@ -119,7 +139,18 @@ class Job(object):
         """
         if self.__phase == 'PENDING':
             #send post parameter/value
-            pass
+            context = "async/"+str(self.get_jobid())
+            args = {
+                name: str(value)}
+            data = self.__connHandler.url_encode(args)
+            response = self.__connHandler.execute_tappost(subcontext=context, data=data, verbose=verbose)
+            if verbose:
+                print(response.status, response.reason)
+                print(response.getheaders())
+            self.__last_phase_response_status = response.status
+            if response.status != 200:
+                raise Exception(response.reason)
+            return response
         else:
             raise ValueError("Cannot start a job in phase: " + str(self.__phase))
 
@@ -145,7 +176,6 @@ class Job(object):
                 raise Exception(response.reason)
 
             self._phase = str(response.read().decode('utf-8'))
-
         return self._phase
 
     def set_response_status(self, status, msg):

@@ -24,9 +24,11 @@ from astroquery.utils.tap.xmlparser.jobSaxParser import JobSaxParser
 from astroquery.utils.tap.xmlparser.jobListSaxParser import JobListSaxParser
 from astroquery.utils.tap.xmlparser import utils
 from astroquery.utils.tap.model.filter import Filter
+import six
 import requests
 from astropy.logger import log
 from sympy.tensor import indexed
+
 
 __all__ = ['Tap', 'TapPlus']
 
@@ -329,7 +331,8 @@ class Tap(object):
     def launch_job_async(self, query, name=None, output_file=None,
                          output_format="votable", verbose=False,
                          dump_to_file=False, background=False,
-                         upload_resource=None, upload_table_name=None):
+                         upload_resource=None, upload_table_name=None,
+                         autorun=True):
         """Launches an asynchronous job
 
         Parameters
@@ -352,6 +355,9 @@ class Tap(object):
             resource to be uploaded to UPLOAD_SCHEMA
         upload_table_name: str, required if uploadResource is provided, default None
             resource temporary table name associated to the uploaded resource
+        autorun: boolean, optional, default True
+            if 'True', sets 'phase' parameter to 'RUN', so the framework can start
+            the job.
 
         Returns
         -------
@@ -369,13 +375,15 @@ class Tap(object):
                                                  output_format,
                                                  "async",
                                                  verbose,
-                                                 name)
+                                                 name,
+                                                 autorun)
         else:
             response = self.__launchJob(query,
                                         output_format,
                                         "async",
                                         verbose,
-                                        name)
+                                        name,
+                                        autorun)
         isError = self.__connHandler.check_launch_response_status(response,
                                                                   verbose,
                                                                   303)
@@ -404,16 +412,17 @@ class Tap(object):
                 print("job " + str(jobid) + ", at: " + str(location))
             job.jobid = jobid
             job.remoteLocation = location
-            job.set_phase('EXECUTING')
-            if not background:
-                if verbose:
-                    print("Retrieving async. results...")
-                # saveResults or getResults will block (not background)
-                if dump_to_file:
-                    job.save_results(verbose)
-                else:
-                    job.get_results()
-                    log.info("Query finished.")
+            if autorun == True:
+                job.set_phase('EXECUTING')
+                if not background:
+                    if verbose:
+                        print("Retrieving async. results...")
+                    # saveResults or getResults will block (not background)
+                    if dump_to_file:
+                        job.save_results(verbose)
+                    else:
+                        job.get_results()
+                        log.info("Query finished.")
         return job
 
     def load_async_job(self, jobid=None, name=None, verbose=False):
@@ -525,16 +534,18 @@ class Tap(object):
         return jobid
 
     def __launchJobMultipart(self, query, uploadResource, uploadTableName,
-                             outputFormat, context, verbose, name=None):
+                             outputFormat, context, verbose, name=None, 
+                             autorun=True):
         uploadValue = str(uploadTableName) + ",param:" + str(uploadTableName)
         args = {
             "REQUEST": "doQuery",
             "LANG": "ADQL",
             "FORMAT": str(outputFormat),
             "tapclient": str(TAP_CLIENT_ID),
-            "PHASE": "RUN",
             "QUERY": str(query),
             "UPLOAD": ""+str(uploadValue)}
+        if autorun == True:
+            args['PHASE']='RUN'
         if name is not None:
             args['jobname'] = name
         f = open(uploadResource, "r")
@@ -951,18 +962,20 @@ class Tap(object):
         data = self.__connHandler.url_encode(args)
         return self.__connHandler.execute_table_edit(data,verbose=verbose)
         
-    def __launchJob(self, query, outputFormat, context, verbose, name=None):
+    def __launchJob(self, query, outputFormat, context, verbose, name=None,
+                    autorun=True):
         args = {
             "REQUEST": "doQuery",
             "LANG": "ADQL",
             "FORMAT": str(outputFormat),
             "tapclient": str(TAP_CLIENT_ID),
-            "PHASE": "RUN",
             "QUERY": str(query)}
+        if autorun == True:
+            args['PHASE'] = 'RUN'
         if name is not None:
             args['jobname'] = name
         data = self.__connHandler.url_encode(args)
-        response = self.__connHandler.execute_tappost(context, data)
+        response = self.__connHandler.execute_tappost(subcontext=context, data=data, verbose=verbose)
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
@@ -1196,19 +1209,13 @@ class TapPlus(Tap):
         log.info("Done.")
         return tsp.get_table()
 
-    def load_data(self, ids, retrieval_type=None, format="VOTABLE", extra_args=None, verbose=False):
-        """Loads the specified table
+    def load_data(self, params_dict=None, verbose=False):
+        """Loads the specified data
 
         Parameters
         ----------
-        ids : str list, mandatory
-            list of identifiers
-        retrieval_type : str, mandatory
-            retrieval type identifier
-        format : str, mandatory, default value VOTABLE
-            output format type identifier
-        extra_args : str, optional
-            list of optional parameters (must be url enconded properly, without initial '&)
+        params_dict : dictionary, mandatory
+            list of request parameters
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
@@ -1216,23 +1223,14 @@ class TapPlus(Tap):
         -------
         A table object
         """
-        if retrieval_type is None:
-            raise ValueError("Missing mandatory argument 'retrieval_type'")
-        if ids is None:
-            raise ValueError("Missing mandatory argument 'ids'")
         print("Retrieving data.")
-        retrieval_type_arg = "RETRIEVAL_TYPE=" + str(retrieval_type)
-        ids_arg = "&ID=" + ','.join(ids)
-        format_arg = "&FORMAT=" + str(format)
-        if extra_args is not None:
-            data = "" + retrieval_type_arg + ids_arg + format_arg + "&" \
-                + extra_args
-        else:
-            data = "" + retrieval_type_arg + ids_arg + format_arg
+        connHandler = self.__getconnhandler()
+        if not isinstance(params_dict, dict):
+            raise ValueError("Parameters dictionary expected")
+        data =  connHandler.url_encode(params_dict)
         if verbose:
             print ("Data request: " + data)
-        connHandler = self.__getconnhandler()
-        response = connHandler.execute_datapost(data=data)
+        response = connHandler.execute_datapost(data=data, verbose=verbose)
         if verbose:
             print(response.status, response.reason)
         isError = connHandler.check_launch_response_status(response, verbose, 200)
@@ -1241,11 +1239,18 @@ class TapPlus(Tap):
             raise requests.exceptions.HTTPError(response.reason)
             return None
         print("Done.")
-        results = utils.read_http_response(response, "votable")
+        if 'format' in params_dict:
+            output_format = params_dict['format'].lower()
+        else:
+            if 'FORMAT'in params_dict:
+                output_format = params_dict['FORMAT'].lower()
+            else:
+                output_format = "votable"
+        results = utils.read_http_response(response, output_format)
         return results
 
-    def load_datalinks(self, ids, verbose=False):
-        """Loads the specified table
+    def get_datalinks(self, ids, verbose=False):
+        """Gets datalinks associated to the provided identifiers
 
         Parameters
         ----------
@@ -1259,13 +1264,20 @@ class TapPlus(Tap):
         A table object
         """
         print("Retrieving datalink.")
-        ids_arg = "ID=" + ','.join(ids)
         if ids is None:
             raise ValueError("Missing mandatory argument 'ids'")
+        if isinstance(ids, six.string_types):
+            ids_arg = "ID="+ ids
+        else:
+            if isinstance(ids, int):
+                ids_arg = "ID=" + str(ids)
+            else:
+                ids_arg = "ID=" + ','.join(str(item) for item in ids)
         if verbose:
             print ("Datalink request: " + ids_arg)
         connHandler = self.__getconnhandler()
-        response = connHandler.execute_datalinkpost(subcontext="links", data=ids_arg)
+        response = connHandler.execute_datalinkpost(subcontext="links", data=ids_arg, 
+                                                    verbose=verbose)
         if verbose:
             print(response.status, response.reason)
         isError = connHandler.check_launch_response_status(response, verbose, 200)

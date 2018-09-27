@@ -224,18 +224,14 @@ class DummyTapHandler(object):
         self.__parameters['verbose'] = verbose
         return None
 
-    def load_data(self, ids, retrieval_type, format, extra_args,
-                  verbose=False):
+    def load_data(self, params_dict=None, verbose=False):
         self.__invokedMethod = 'load_data'
-        self.__parameters['ids'] = ids
-        self.__parameters['retrieval_type'] = retrieval_type
-        self.__parameters['format'] = format
-        self.__parameters['extra_args'] = extra_args
+        self.__parameters['params_dict'] = params_dict
         self.__parameters['verbose'] = verbose
         return None
 
-    def load_datalinks(self, ids, verbose=False):
-        self.__invokedMethod = 'load_datalinks'
+    def get_datalinks(self, ids, verbose=False):
+        self.__invokedMethod = 'get_datalinks'
         self.__parameters['ids'] = ids
         self.__parameters['verbose'] = verbose
         return None

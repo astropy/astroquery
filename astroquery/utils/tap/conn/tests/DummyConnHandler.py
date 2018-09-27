@@ -29,6 +29,8 @@ class DummyConnHandler(object):
         self.responses = {}
         self.errorFileOutput = None
         self.errorReceivedResponse = None
+        self.contentType = None
+        self.verbose = None
 
     def set_default_response(self, defaultResponse):
         self.defaultResponse = defaultResponse
@@ -64,17 +66,19 @@ class DummyConnHandler(object):
         self.request = request
         return self.__get_response(request)
 
-    def execute_tappost(self, subcontext, data):
-        return self.__execute_post(subcontext, data)
+    def execute_tappost(self, subcontext=None, data=None, content_type=None, verbose=False):
+        return self.__execute_post(subcontext, data, content_type, verbose)
 
-    def execute_datapost(self, data):
-        return self.__execute_post("", data)
+    def execute_datapost(self, data=None, content_type=None, verbose=False):
+        return self.__execute_post("", data, content_type, verbose)
 
-    def execute_datalinkpost(self, subcontext, data):
-        return self.__execute_post(subcontext, data)
+    def execute_datalinkpost(self, subcontext=None, data=None, content_type=None, verbose=False):
+        return self.__execute_post(subcontext, data, content_type, verbose)
 
-    def __execute_post(self, subcontext, data):
+    def __execute_post(self, subcontext=None, data=None, content_type=None, verbose=False):
         self.data = data
+        self.contentType = content_type
+        self.verbose = verbose
         sortedKey = self.__create_sorted_dict_key(data)
         if subcontext.find('?') == -1:
             self.request = subcontext + "?" + sortedKey

@@ -517,19 +517,21 @@ class TestTap(unittest.TestCase):
         parameters['extra_args'] = "VALID_DATA=true"
         parameters['verbose'] = verbose
         dummyHandler.check_call('load_data', parameters)
+        tap.load_data("1,2,3,4", retrieval_type, valid_data, band, format, verbose)
+        dummyHandler.check_call('load_data', parameters)
 
-    def test_load_datalinks(self):
+    def test_get_datalinks(self):
         dummyHandler = DummyTapHandler()
         tap = GaiaClass(dummyHandler, dummyHandler)
-
         ids = ["1", "2", "3", "4"]
         verbose = True
-
         parameters = {}
         parameters['ids'] = ids
         parameters['verbose'] = verbose
-        tap.load_datalinks(ids, verbose)
-        dummyHandler.check_call('load_datalinks', parameters)
+        tap.get_datalinks(ids, verbose)
+        dummyHandler.check_call('get_datalinks', parameters)
+        tap.get_datalinks("1,2,3,4", verbose)
+        dummyHandler.check_call('get_datalinks', parameters)
 
     def test_upload_table_file(self):
         dummyHandler = DummyTapHandler()

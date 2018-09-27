@@ -20,6 +20,7 @@ from astroquery.utils import commons
 from astropy import units
 from astropy.units import Quantity
 from astropy import config as _config
+import six
 
 
 class Conf(_config.ConfigNamespace):
@@ -109,7 +110,7 @@ class GaiaClass(object):
         return self.__gaiatap.load_table(table, verbose)
 
     def load_data(self, ids, retrieval_type="epoch_photometry",
-                  valid_data=True, band=None, format="votable", verbose=False):
+                  valid_data=True, band=None, format="VOTABLE", verbose=False):
         """Loads the specified table
         TAP+ only
 
@@ -138,27 +139,36 @@ class GaiaClass(object):
         -------
         A table object
         """
+        if retrieval_type is None:
+            raise ValueError("Missing mandatory argument 'retrieval_type'")
+        if ids is None:
+            raise ValueError("Missing mandatory argument 'ids'")
+        params_dict = {}
         if valid_data:
-            valid_data_arg = "VALID_DATA=true"
+            params_dict['VALID_DATA'] = "true"
         else:
-            valid_data_arg = "VALID_DATA=false"
+            params_dict['VALID_DATA'] = "false"
         if band is not None:
             if band != 'G' and band != 'BP' and band != 'RP':
                 raise ValueError("Invalid band value '%s' (Valid values: " +
                                  "'G', 'BP' and 'RP)" % band)
             else:
-                band_arg = "&BAND=" + band
+                params_dict['BAND'] = band
+        if isinstance(ids, six.string_types):
+            ids_arg = ids
         else:
-            band_arg = ""
-        extra_args = "" + valid_data_arg + band_arg
-        return self.__gaiadata.load_data(ids=ids,
-                                         retrieval_type=retrieval_type,
-                                         format=format,
-                                         extra_args=extra_args,
+            if isinstance(ids, int):
+                ids_arg = str(ids)
+            else:
+                ids_arg = ','.join(str(item) for item in ids)
+        params_dict['ID'] = ids_arg
+        params_dict['FORMAT'] = str(format)
+        params_dict['RETRIEVAL_TYPE'] = str(retrieval_type)
+        return self.__gaiadata.load_data(params_dict=params_dict,
                                          verbose=verbose)
 
-    def load_datalinks(self, ids, verbose=False):
-        """Loads the specified table
+    def get_datalinks(self, ids, verbose=False):
+        """Gets datalinks associated to the provided identifiers
         TAP+ only
 
         Parameters
@@ -172,7 +182,7 @@ class GaiaClass(object):
         -------
         A table object
         """
-        return self.__gaiadata.load_datalinks(ids=ids, verbose=verbose)
+        return self.__gaiadata.get_datalinks(ids=ids, verbose=verbose)
 
     def launch_job(self, query, name=None, output_file=None,
                    output_format="votable", verbose=False, dump_to_file=False,
