@@ -287,8 +287,8 @@ class Job(object):
         responseData = None
         lphase = None
         # execute job if not running
-        print(self.__phase)
         if self.__phase == 'PENDING':
+            print("Job in PENDING phase, sending phase=RUN request.")
             try:
                 self.start(verbose)
             except:
