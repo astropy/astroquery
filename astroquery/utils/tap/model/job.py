@@ -19,6 +19,7 @@ import time
 
 from astroquery.utils.tap.model import modelutils
 from astroquery.utils.tap.xmlparser import utils
+import sys
 
 __all__ = ['Job']
 
@@ -285,6 +286,15 @@ class Job(object):
         currentResponse = None
         responseData = None
         lphase = None
+        # execute job if not running
+        print(self.__phase)
+        if self.__phase == 'PENDING':
+            try:
+                self.start(verbose)
+            except:
+                # ignore
+                if verbose:
+                    print("Exception when trying to start job", sys.exc_info()[0])
         while True:
             responseData = self.get_phase(update=True)
             currentResponse = self.__last_phase_response_status
