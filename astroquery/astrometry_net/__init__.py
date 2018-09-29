@@ -2,7 +2,7 @@
 
 """
 astrometry.net
--------------------------
+--------------
 
 :author: Matt Craig (<mattwcraig@gmail.com>)
 """
