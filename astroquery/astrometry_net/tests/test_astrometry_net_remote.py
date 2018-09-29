@@ -14,6 +14,7 @@ from astropy.table import Table
 from astropy.io import fits
 
 from .. import conf, AstrometryNet
+from ...exceptions import TimeoutError
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 
@@ -102,6 +103,38 @@ def test_solve_image_detect_source_local():
                                 radius=0.5)
     expected_result = fits.getheader(os.path.join(DATA_DIR,
                                                   'thumbnail-wcs-sol-from-photutils.fit'))
+    for key in result:
+        try:
+            difference = expected_result[key] - result[key]
+        except TypeError:
+            pass
+        assert difference == 0
+
+
+@pytest.mark.skipif(not api_key, reason='API key not set.')
+@remote_data
+def test_solve_timeout_behavior():
+    a = AstrometryNet()
+    a.api_key = api_key
+    sources = Table.read(os.path.join(DATA_DIR, 'test-source-list.fit'))
+    with pytest.raises(TimeoutError) as e:
+        # The timeout is set very low to guarantee an error is raised.
+        result = a.solve_from_source_list(sources['X'], sources['Y'],
+                                          4109, 4096,
+                                          crpix_center=True,
+                                          solve_timeout=2)
+
+    # Submission id should be the second argument of the
+    # exception. The exception is in the value attribute of
+    # pytest's ExceptionInfo object.
+    submission_id = e.value.args[1]
+
+    # The solve itself should succeed; check that it does.
+    result = a.monitor_submission(submission_id, solve_timeout=120)
+
+    expected_result = fits.getheader(os.path.join(DATA_DIR,
+                                                  'test-wcs-sol.fit'))
+
     for key in result:
         try:
             difference = expected_result[key] - result[key]
