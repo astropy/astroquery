@@ -272,8 +272,9 @@ class AstrometryNetClass(BaseQuery):
                          **settings):
         """
         Plate solve from an image, either by uploading the image to
-        astrometry.net or by finding sources locally using photutils
-        and solving with source locations.
+        astrometry.net or by finding sources locally using
+        `photutils <https://photutils.rtfd.io>`_ and solving with source
+        locations.
 
         Parameters
         ----------
@@ -288,7 +289,7 @@ class AstrometryNetClass(BaseQuery):
             take longer than installing photutils and then rerunning this.
 
             Even if this is ``False`` the image image will be upload unless
-            `photutils` is installed.
+            photutils is installed.
 
         ra_key : str, optional
             Name of the key in the FITS header that contains right ascension of the image.
