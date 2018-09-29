@@ -28,8 +28,6 @@ import time
 # export all the public classes and methods
 __all__ = ['AstrometryNet', 'AstrometryNetClass']
 
-# declare global variables and constants if any
-
 
 @async_to_sync
 class AstrometryNetClass(BaseQuery):
@@ -408,9 +406,3 @@ class AstrometryNetClass(BaseQuery):
 
 # the default tool for users to interact with is an instance of the Class
 AstrometryNet = AstrometryNetClass()
-
-# once your class is done, tests should be written
-# See ./tests for examples on this
-
-# Next you should write the docs in astroquery/docs/module_name
-# using Sphinx.
