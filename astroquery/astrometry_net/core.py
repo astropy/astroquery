@@ -119,7 +119,7 @@ class AstrometryNetClass(BaseQuery):
         if not self.api_key:
             raise RuntimeError('You must set the API key before using this service.')
         login_url = url_helpers.join(self.API_URL, 'login')
-        payload = self._contruct_payload({'apikey': self.api_key})
+        payload = self._construct_payload({'apikey': self.api_key})
         result = self._request('POST', login_url,
                                data=payload,
                                cache=False)
@@ -128,7 +128,7 @@ class AstrometryNetClass(BaseQuery):
             raise RuntimeError('Unable to log in to astrometry.net')
         self._session_id = result_dict['session']
 
-    def _contruct_payload(self, settings):
+    def _construct_payload(self, settings):
         return {'request-json': json.dumps(settings)}
 
     def _validate_settings(self, settings):
@@ -296,7 +296,7 @@ class AstrometryNetClass(BaseQuery):
         settings['image_width'] = image_width
         settings['image_height'] = image_height
         settings['session'] = self._session_id
-        payload = self._contruct_payload(settings)
+        payload = self._construct_payload(settings)
         url = url_helpers.join(self.API_URL, 'url_upload')
         response = self._request('POST', url, data=payload, cache=False)
         if response.status_code != 200:
@@ -371,7 +371,7 @@ class AstrometryNetClass(BaseQuery):
             if self._session_id is None:
                 self._login()
             settings['session'] = self._session_id
-            payload = self._contruct_payload(settings)
+            payload = self._construct_payload(settings)
             url = url_helpers.join(self.API_URL, 'upload')
             with open(image_file_path, 'rb') as f:
                 response = self._request('POST', url, data=payload,
