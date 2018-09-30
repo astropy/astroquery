@@ -1,5 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
+import json
+
 import pytest
 import six
 
@@ -13,6 +15,65 @@ DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 
 def data_path(filename):
     return os.path.join(DATA_DIR, filename)
+
+
+def test_api_key_property(caplog):
+    """
+    Check that an empty key is returned if the api key is not in
+    the configuration file and that the expected message shows up in
+    the log.
+    """
+    caplog.clear()
+    a = AstrometryNet()
+    key = a.api_key
+    assert not key
+    assert "Astrometry.net API key not in configuration file" in caplog.messages
+
+
+def test_empty_settings_property():
+    """
+    Check that the empty settings property returns something and that
+    the keys match what we expect.
+    """
+    a = AstrometryNet()
+    empty = a.empty_settings
+    # Ironically, empty should not be devoid of content...
+    assert empty
+    assert set(empty.keys()) == set(a._constraints.keys())
+
+
+def test_show_allowed_settings(capsys):
+    """
+    Check that the expected content is printed to standard out when the
+    show_allowed_settings method is called.
+    """
+    a = AstrometryNet()
+    a.show_allowed_settings()
+    output = capsys.readouterr()
+    for key in a._constraints.keys():
+        assert "{}: type ".format(key) in output.out
+
+
+def test_login_fails_with_no_api_key():
+    """
+    Test for expected behavior when the api_key is not set
+    """
+    a = AstrometryNet()
+    a.api_key = ''
+    with pytest.raises(RuntimeError) as e:
+        a._login()
+    assert "You must set the API key before using this service." in str(e)
+
+
+def test_construct_payload():
+    """
+    Test that _construct_payload returns the expected dictionary
+    """
+    a = AstrometryNet()
+    settings = a.empty_settings
+    payload = a._construct_payload(settings)
+    assert list(payload.keys()) == ['request-json']
+    assert payload['request-json'] == json.dumps(settings)
 
 
 def test_setting_validation_basic():
@@ -39,7 +100,91 @@ def test_setting_validation_basic():
             assert 'The valid values are' in str(e)
 
 
-def test_invalid_setting_name_raises_error():
+def test_setting_validation_with_float_values():
+    """
+    Check that values that are supposed to be float are handled
+    properly.
+    """
+    a = AstrometryNet()
+
+    # Try a setting that should be float and with a value that IS NOT
+    # coercable to float.
+    settings = {'center_ra': 'seven'}
+    with pytest.raises(ValueError) as e:
+        a._validate_settings(settings)
+    assert "Value for center_ra must be of type " in str(e)
+
+    # Try a setting that should be float and with a value that IS
+    # coercable to float.
+    settings = {'center_ra': 7}
+    # Nothing to assert here...success is this not raising an error
+    a._validate_settings(settings)
+
+
+def test_setting_validation_with_bool_values():
+    """
+    Check that values that are supposed to be bool are handled
+    properly.
+    """
+    a = AstrometryNet()
+
+    # Try a setting that should be bool but is not
+    settings = {'crpix_center': 'seven'}
+    with pytest.raises(ValueError) as e:
+        a._validate_settings(settings)
+    assert "Value for crpix_center must be of type " in str(e)
+
+    # Try a setting that should be bool and is bool
+    settings = {'crpix_center': True}
+    # Nothing to assert here...success is this not raising an error
+    a._validate_settings(settings)
+
+
+def test_setting_validation_with_no_upper_bound():
+    """
+    Check that nothing happens when checking bounds for a
+    setting with a lower but not upper bound. scale_lower is
+    an example; it has a lower bound of 0 but no upper bound.
+    """
+    a = AstrometryNet()
+
+    # Try a setting that should be bool but is not
+    settings = {'scale_lower': 1}
+    # Nothing to assert here...success is this not raising an error
+    a._validate_settings(settings)
+
+
+# Order in the required keys is meaningful; the first is supposed
+# to be bigger, the second smaller.
+@pytest.mark.parametrize("scale_type,required_keys", [
+                         ('ev', ('scale_est', 'scale_err')),
+                         ('ul', ('scale_upper', 'scale_lower'))
+                         ])
+def test_setting_validation_scale_type(scale_type, required_keys):
+    """
+    There are two scale types and each has a couple of other
+    keywords that are expected to be present with them.
+    """
+    a = AstrometryNet()
+
+    settings = {'scale_type': scale_type}
+    for key, value in zip(required_keys, [1, 0.1]):
+        settings[key] = value
+
+    # If an expected key is missing we should get an error. The missing
+    # key here is "scale_unit"
+    with pytest.raises(ValueError) as e:
+        a._validate_settings(settings)
+    assert ('Scale type {} requires values '
+            'for '.format(scale_type)) in str(e)
+
+    # If we add the missing key then we should get no error
+    settings['scale_units'] = 'arcsecperpix'
+    # Nothing to assert here...success is this not raising an error
+    a._validate_settings(settings)
+
+
+def test_invalid_setting_in_solve_from_source_list_name_raises_error():
     a = AstrometryNet()
     a.api_key = 'nonsensekey'
     with pytest.raises(ValueError) as e:
