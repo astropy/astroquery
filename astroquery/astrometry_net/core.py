@@ -8,8 +8,14 @@ from six import string_types
 from astropy.io import fits
 from astropy import log
 from astropy.stats import sigma_clipped_stats
-from astropy.nddata import CCDData
 from astropy.coordinates import SkyCoord
+
+try:
+    from astropy.nddata import CCDData
+except ImportError:
+    _HAVE_CCDDATA = False
+else:
+    _HAVE_CCDDATA = True
 
 try:
     from photutils import DAOStarFinder
@@ -373,17 +379,24 @@ class AstrometryNetClass(BaseQuery):
                                          files={'file': f})
         else:
             # Detect sources and delegate to solve_from_source_list
+            if _HAVE_CCDDATA:
+                # CCDData requires a unit, so provide one. It has absolutely
+                # no impact on source detection. The reader for CCDData
+                # tries to find the first ImageHDU in a FITS file, so it
+                # is the preferred way to get the data.
+                ccd = CCDData.read(image_file_path, unit='adu')
+                data = ccd.data
+            else:
+                with fits.open(image_file_path) as f:
+                    data = f[0].data
 
-            # CCDData requires a unit, so provide one. The unit is completely
-            # irrelevant to the astrometry.net solution.
-            ccd = CCDData.read(image_file_path, unit='adu')
             print("Determining background stats", flush=True)
-            mean, median, std = sigma_clipped_stats(ccd.data, sigma=3.0,
+            mean, median, std = sigma_clipped_stats(data, sigma=3.0,
                                                     iters=5)
             daofind = DAOStarFinder(fwhm=fwhm,
                                     threshold=detect_threshold * std)
             print("Finding sources", flush=True)
-            sources = daofind(ccd.data - median)
+            sources = daofind(data - median)
             print('Found {} sources'.format(len(sources)), flush=True)
             # astrometry.net wants a sorted list of sources
             # Sort first (which puts things in ascending order)
