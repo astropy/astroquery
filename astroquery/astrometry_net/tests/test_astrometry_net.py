@@ -27,7 +27,7 @@ def test_api_key_property(caplog):
     a = AstrometryNet()
     key = a.api_key
     assert not key
-    assert "Astrometry.net API key not in configuration file" in caplog.messages
+    assert "Astrometry.net API key not in configuration file" in caplog.text
 
 
 def test_empty_settings_property():
