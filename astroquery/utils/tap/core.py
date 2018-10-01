@@ -22,6 +22,7 @@ from datetime import datetime
 from astroquery.utils.tap.gui.login import LoginDialog
 from astroquery.utils.tap.xmlparser.jobSaxParser import JobSaxParser
 from astroquery.utils.tap.xmlparser.jobListSaxParser import JobListSaxParser
+from astroquery.utils.tap.xmlparser.groupSaxParser import GroupSaxParser
 from astroquery.utils.tap.xmlparser import utils
 from astroquery.utils.tap.model.filter import Filter
 import six
@@ -1248,6 +1249,33 @@ class TapPlus(Tap):
                 output_format = "votable"
         results = utils.read_http_response(response, output_format)
         return results
+
+    def load_groups(self, verbose=False):
+        """Loads groups
+
+        Parameters
+        ----------
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        A set of groups of a user
+        """
+        context = "share?action=GetGroups"
+        response = self.__getconnhandler().execute_tapget(context,verbose=verbose)
+        if verbose:
+            print(response.status, response.reason)
+            print(response.getheaders())
+            
+        print("Parsing groups...")
+        gsp = GroupSaxParser()
+        gsp.parseData(response)
+        print("Done. " + str(gsp.get_groups().__len__()) + " groups found")
+        if verbose:
+            for g in gsp.get_groups():
+                print(g.get_title())
+        return gsp.get_groups()
 
     def get_datalinks(self, ids, verbose=False):
         """Gets datalinks associated to the provided identifiers

@@ -56,7 +56,8 @@ class GaiaClass(object):
                                      upload_context="Upload",
                                      table_edit_context="TableTool",
                                      data_context="data",
-                                     datalink_context="datalink")
+                                     datalink_context="datalink",
+                                     share_context="share")
         else:
             self.__gaiatap = tap_plus_handler
         if datalink_handler is None:
@@ -66,7 +67,8 @@ class GaiaClass(object):
                                       upload_context="Upload",
                                       table_edit_context="TableTool",
                                       data_context="data",
-                                      datalink_context="datalink")
+                                      datalink_context="datalink",
+                                      share_context="share")
         else:
             self.__gaiadata = datalink_handler
 
@@ -828,6 +830,20 @@ class GaiaClass(object):
         return self.__gaiatap.delete_user_table(
             table_name=table_name, force_removal=force_removal,
             verbose=verbose)
+        
+    def load_groups(self, verbose=False):
+        """Loads groups
+
+        Parameters
+        ----------
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        A set of groups of a user
+        """
+        return self.__gaiatap.load_groups(verbose=verbose)
 
 
 Gaia = GaiaClass()
