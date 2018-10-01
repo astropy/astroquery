@@ -845,5 +845,30 @@ class GaiaClass(object):
         """
         return self.__gaiatap.load_groups(verbose=verbose)
 
+    def share_table(self, group_name=None,
+                    table_name=None,
+                    description=None,
+                    verbose=False):
+        """Shares a table with a group
+
+        Parameters
+        ----------
+        group_name: str, required
+            group in which table will be shared
+        table_name: str, required
+            table to be shared
+        description: str, required
+            description of the sharing
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        A message (OK/Error) or a job when the table is big
+        """
+        return self.__gaiatap.share_table(group_name=group_name,
+                                          table_name=table_name,
+                                          description=description,
+                                          verbose=verbose)
 
 Gaia = GaiaClass()

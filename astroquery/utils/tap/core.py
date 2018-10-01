@@ -1277,6 +1277,73 @@ class TapPlus(Tap):
                 print(g.get_title())
         return gsp.get_groups()
 
+    def load_group(self, group_name=None, verbose=False):
+        """Load group with title being group_name
+
+        Parameters
+        ----------
+        group_name: str, required
+            group to be loaded
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        A group with title being group_name
+        """
+        if group_name is None:
+            raise ValueError("'group_name' must be specified")
+
+        groups = self.load_groups(verbose)
+        group = None
+        for g in groups:
+            if str(g.get_title()) == str(group_name):
+                group = g
+                break
+        return group
+
+    def share_table(self, group_name=None,
+                    table_name=None,
+                    description=None,
+                    verbose=False):
+        """Shares a table with a group
+
+        Parameters
+        ----------
+        group_name: str, required
+            group in which table will be shared
+        table_name: str, required
+            table to be shared
+        description: str, required
+            description of the sharing
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        A message (OK/Error) or a job when the table is big
+        """
+        if group_name is None or table_name is None:
+            raise ValueError("Both 'group_name' and table_name' must be specified")
+        if description is None:
+            description = ""
+        group = self.load_group(group_name, verbose)
+        
+        if group is None:
+            raise ValueError("It wasn't impossible to load group " + group_name)     
+            
+        #  context = "share"
+        data = ("action=CreateOrUpdateItem&resource_type=0&title=" + 
+                   str(table_name) +
+                   "&description=" +
+                   str(description) +
+                   "&items_list=" +
+                   group.get_id() + "|Group|Read")
+        response = self.__getconnhandler().execute_share(data,verbose=verbose)
+        if verbose:
+            print(response.status, response.reason)
+            print(response.getheaders())
+
     def get_datalinks(self, ids, verbose=False):
         """Gets datalinks associated to the provided identifiers
 

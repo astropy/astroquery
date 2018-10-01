@@ -98,7 +98,7 @@ class TapConn(object):
         self.__dataContext = self.__create_context(data_context)
         self.__datalinkContext = self.__create_context(datalink_context)
         self.__uploadContext = self.__create_context(upload_context)
-        self.__shareContext = self.__create_context(share_context)
+        self.__shareContext = share_context
         self.__tableEditContext = self.__create_context(table_edit_context)
         if connhandler is None:
             self.__connectionHandler = ConnectionHandler(self.__connHost,
@@ -269,6 +269,7 @@ class TapConn(object):
         An HTTP(s) response object
         """
         context = self.__get_tap_context(subcontext)
+        print("context = " + context)
         return self.__execute_post(context, data, content_type, verbose)
 
     def execute_datapost(self, data,
@@ -357,9 +358,12 @@ class TapConn(object):
         -------
         An HTTP(s) response object
         """
-        context = self.__get_share_context()
-        return self.__execute_post(context, data, verbose)
-    
+        context = self.__get_tap_context(self.__get_share_context())
+        return self.__execute_post(context,
+                                   data,
+                                   content_type=CONTENT_TYPE_POST_DEFAULT,
+                                   verbose=verbose)
+   
     def execute_table_edit(self, data,
                      content_type=CONTENT_TYPE_POST_DEFAULT, verbose=False):
         """Executes a POST upload request
