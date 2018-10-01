@@ -10,6 +10,11 @@ from ...exceptions import (InvalidQueryError)
 
 from .. import AstrometryNet
 
+_pytest_major, _pytest_minor, _ = pytest.__version__.split('.')
+_pytest_major = int(_pytest_major)
+_pytest_minor = int(_pytest_minor)
+_pytest_is_old = not ((_pytest_major == 3) and (_pytest_minor >= 3))
+
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 
 
@@ -17,6 +22,8 @@ def data_path(filename):
     return os.path.join(DATA_DIR, filename)
 
 
+@pytest.mark.skipif(_pytest_is_old,
+                    reason='pytest version too old for caplog')
 def test_api_key_property(caplog):
     """
     Check that an empty key is returned if the api key is not in
@@ -42,6 +49,8 @@ def test_empty_settings_property():
     assert set(empty.keys()) == set(a._constraints.keys())
 
 
+@pytest.mark.skipif(_pytest_is_old,
+                    reason='pytest version too old for output attributes')
 def test_show_allowed_settings(capsys):
     """
     Check that the expected content is printed to standard out when the
