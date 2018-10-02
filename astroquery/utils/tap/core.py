@@ -23,6 +23,7 @@ from astroquery.utils.tap.gui.login import LoginDialog
 from astroquery.utils.tap.xmlparser.jobSaxParser import JobSaxParser
 from astroquery.utils.tap.xmlparser.jobListSaxParser import JobListSaxParser
 from astroquery.utils.tap.xmlparser.groupSaxParser import GroupSaxParser
+from astroquery.utils.tap.xmlparser.sharedItemsSaxParser import SharedItemsSaxParser
 from astroquery.utils.tap.xmlparser import utils
 from astroquery.utils.tap.model.filter import Filter
 import six
@@ -1302,6 +1303,33 @@ class TapPlus(Tap):
                 break
         return group
 
+    def load_shared_items(self, verbose=False):
+        """Loads shared items
+
+        Parameters
+        ----------
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        A set of shared items
+        """
+        context = "share?action=GetSharedItems"
+        response = self.__getconnhandler().execute_tapget(context,verbose=verbose)
+        if verbose:
+            print(response.status, response.reason)
+            print(response.getheaders())
+            
+        print("Parsing shared items...")
+        ssp = SharedItemsSaxParser()
+        ssp.parseData(response)
+        print("Done. " + str(ssp.get_shared_items().__len__()) + " shared items found")
+        if verbose:
+            for g in ssp.get_shared_items():
+                print(g.get_title())
+        return ssp.get_shared_items()
+
     def share_table(self, group_name=None,
                     table_name=None,
                     description=None,
@@ -1324,7 +1352,7 @@ class TapPlus(Tap):
         A message (OK/Error) or a job when the table is big
         """
         if group_name is None or table_name is None:
-            raise ValueError("Both 'group_name' and table_name' must be specified")
+            raise ValueError("Both 'group_name' and 'table_name' must be specified")
         if description is None:
             description = ""
         group = self.load_group(group_name, verbose)
@@ -1332,13 +1360,99 @@ class TapPlus(Tap):
         if group is None:
             raise ValueError("It wasn't impossible to load group " + group_name)     
             
-        #  context = "share"
         data = ("action=CreateOrUpdateItem&resource_type=0&title=" + 
                    str(table_name) +
                    "&description=" +
                    str(description) +
                    "&items_list=" +
                    group.get_id() + "|Group|Read")
+        response = self.__getconnhandler().execute_share(data,verbose=verbose)
+        if verbose:
+            print(response.status, response.reason)
+            print(response.getheaders())
+            
+    def share_table_stop(self,
+                    table_name=None,
+                    verbose=False):
+        """Stop sharing a table
+
+        Parameters
+        ----------
+        table_name: str, required
+            table to be stopped from being shared
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        A message (OK/Error) or a job when the table is big
+        """
+        if table_name is None:
+            raise ValueError("'table_name' must be specified")
+
+    def share_group_create(self,
+                    group_name=None,
+                    description=None,
+                    verbose=False):
+        """Creates a group
+
+        Parameters
+        ----------
+        group_name: str, required
+            group to be created
+        description: str, required
+            description of the group
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        A message (OK/Error) or a job when the table is big
+        """
+        if group_name is None:
+            raise ValueError("'group_name' must be specified")
+        if description is None:
+            description = ""
+        group = self.load_group(group_name, verbose)
+        
+        if group is not None:
+            raise ValueError("Group " + group_name + " already exists")     
+            
+        data = ("action=CreateOrUpdateItem&resource_type=0&title=" + 
+                   str(group_name) +
+                   "&description=" +
+                   str(description))
+        response = self.__getconnhandler().execute_share(data,verbose=verbose)
+        if verbose:
+            print(response.status, response.reason)
+            print(response.getheaders())
+
+    def share_group_delete(self,
+                    group_name=None,
+                    verbose=False):
+        """Deletes a group
+
+        Parameters
+        ----------
+        group_name: str, required
+            group to be created
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        A message (OK/Error) or a job when the table is big
+        """
+        if group_name is None:
+            raise ValueError("'group_name' must be specified")
+
+        group = self.load_group(group_name, verbose)
+        
+        if group is None:
+            raise ValueError("Group " + group_name + " doesn't exist")     
+            
+        data = ("action=RemoveGroup&resource_type=0&group_id=" + 
+                   str(group.get_id()))
         response = self.__getconnhandler().execute_share(data,verbose=verbose)
         if verbose:
             print(response.status, response.reason)

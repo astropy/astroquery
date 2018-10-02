@@ -269,7 +269,6 @@ class TapConn(object):
         An HTTP(s) response object
         """
         context = self.__get_tap_context(subcontext)
-        print("context = " + context)
         return self.__execute_post(context, data, content_type, verbose)
 
     def execute_datapost(self, data,

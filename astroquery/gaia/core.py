@@ -845,6 +845,20 @@ class GaiaClass(object):
         """
         return self.__gaiatap.load_groups(verbose=verbose)
 
+    def load_shared_items(self, verbose=False):
+        """Loads shared items
+
+        Parameters
+        ----------
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        A set of shared items
+        """
+        return self.__gaiatap.load_shared_items(verbose=verbose)
+
     def share_table(self, group_name=None,
                     table_name=None,
                     description=None,
@@ -870,5 +884,69 @@ class GaiaClass(object):
                                           table_name=table_name,
                                           description=description,
                                           verbose=verbose)
+        
+    def share_table_stop(self,
+                    table_name=None,
+                    verbose=False):
+        """Stop sharing a table
+
+        Parameters
+        ----------
+        table_name: str, required
+            table to be stopped from being shared
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        A message (OK/Error) or a job when the table is big
+        """
+        self.__gaiatap.share_table_stop(self,
+                                        table_name=table_name,
+                                        verbose=verbose)
+        
+    def share_group_create(self,
+                    group_name=None,
+                    description=None,
+                    verbose=False):
+        """Creates a group
+
+        Parameters
+        ----------
+        group_name: str, required
+            group to be created
+        description: str, required
+            description of the group
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        A message (OK/Error) or a job when the table is big
+        """
+        self.__gaiatap.share_group_create(self,
+                                          group_name=group_name,
+                                          verbose=verbose)
+    
+    def share_group_delete(self,
+                    group_name=None,
+                    verbose=False):
+        """Deletes a group
+
+        Parameters
+        ----------
+        group_name: str, required
+            group to be created
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        A message (OK/Error) or a job when the table is big
+        """
+        self.__gaiatap.share_group_delete(self,
+                                          group_name=group_name,
+                                          verbose=verbose)
+
 
 Gaia = GaiaClass()
