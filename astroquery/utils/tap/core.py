@@ -52,6 +52,7 @@ class Tap(object):
                  data_context=None,
                  datalink_context=None,
                  share_context=None,
+                 users_context=None,
                  port=80, sslport=443,
                  default_protocol_is_https=False,
                  connhandler=None,
@@ -78,6 +79,8 @@ class Tap(object):
             datalink context
         share_context : str, optional, default None
             share context
+        users_context : str, optional, default None
+            users context
         port : int, optional, default '80'
             HTTP port
         sslport : int, optional, default '443'
@@ -109,6 +112,7 @@ class Tap(object):
                                              data_context=data_context,
                                              datalink_context=datalink_context,
                                              share_context=share_context,
+                                             users_context=users_context,
                                              port=port,
                                              sslport=sslport)
             else:
@@ -122,6 +126,7 @@ class Tap(object):
                                              data_context=data_context,
                                              datalink_context=datalink_context,
                                              share_context=share_context,
+                                             users_context=users_context,
                                              port=port,
                                              sslport=port)
         else:
@@ -134,6 +139,7 @@ class Tap(object):
                                          data_context=data_context,
                                          datalink_context=datalink_context,
                                          share_context=share_context,
+                                         users_context=users_context,
                                          port=port,
                                          sslport=sslport)
         # if connectionHandler is set, use it (useful for testing)
@@ -1102,6 +1108,7 @@ class TapPlus(Tap):
                  data_context=None,
                  datalink_context=None,
                  share_context=None,
+                 users_context=None,
                  port=80, sslport=443,
                  default_protocol_is_https=False,
                  connhandler=None,
@@ -1149,6 +1156,7 @@ class TapPlus(Tap):
                                       data_context=data_context,
                                       datalink_context=datalink_context,
                                       share_context=share_context,
+                                      users_context=users_context,
                                       port=port, sslport=sslport, 
                                       default_protocol_is_https=default_protocol_is_https,
                                       connhandler=connhandler,
@@ -1330,6 +1338,35 @@ class TapPlus(Tap):
                 print(g.get_title())
         return ssp.get_shared_items()
 
+    def is_valid_user(self, user_id=None, verbose=False):
+        """Determines if the specified user is valid
+        TAP+ only
+
+        Parameters
+        ----------
+        user_id : str, mandatory
+            user id to be checked
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        Boolean indicating if the specified user is valid
+        """
+        if user_id is None:
+            raise ValueError("'user_id' must be specified")
+        
+        context = "?USER=" + str(user_id)
+        response = self.__getconnhandler().execute_users(context,verbose)
+        if verbose:
+            print(response.status, response.reason)
+            print(response.getheaders())
+        
+        user = str(response.read())
+        if verbose:
+            print("USER response = " + str(user))
+        return str(user_id) + ":" in user and user.count("\\n") == 1
+
     def share_table(self, group_name=None,
                     table_name=None,
                     description=None,
@@ -1470,6 +1507,110 @@ class TapPlus(Tap):
             
         data = ("action=RemoveGroup&resource_type=0&group_id=" + 
                    str(group.get_id()))
+        response = self.__getconnhandler().execute_share(data,verbose=verbose)
+        if verbose:
+            print(response.status, response.reason)
+            print(response.getheaders())
+
+    def share_group_add_user(self,
+                             group_name=None,
+                             user_id=None,
+                             verbose=False):
+        """Adds user to a group
+
+        Parameters
+        ----------
+        group_name: str, required
+            group which user_id will be added in
+        user_id: str, required
+            user id to be added
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        A message (OK/Error) or a job when the table is big
+        """
+        if group_name is None or user_id is None:
+            raise ValueError("Both 'group_name' and 'user_id' must be specified")
+        
+        group = self.load_group(group_name, verbose)
+        if group is None:
+            raise ValueError("Group " + group_name + " doesn't exist")
+        user_found_in_group = False     
+        for u in group.get_users():
+            if str(u.get_id()) == user_id:
+                user_found_in_group = True
+                break
+        
+        if user_found_in_group == True:
+            raise ValueError("User id " + str(user_id) + " found in group " + str(group_name))
+        
+        if self.is_valid_user(user_id, verbose) == False:
+            raise ValueError("User id " + str(user_id) + " not found in LDAP")
+
+        users = ""
+        for u in group.get_users():
+            users = users + u.get_id() + ","
+        users = users + user_id
+        
+        data = ("action=CreateOrUpdateGroup&group_id=" + 
+                str(group.get_id()) + "&title=" +
+                str(group.get_title()) + "&description=" +
+                str(group.get_description()) + "&users_list=" +
+                str(users))
+        response = self.__getconnhandler().execute_share(data,verbose=verbose)
+        if verbose:
+            print(response.status, response.reason)
+            print(response.getheaders())
+
+    def share_group_delete_user(self,
+                                group_name=None,
+                                user_id=None,
+                                verbose=False):
+        """Deletes user from a group
+
+        Parameters
+        ----------
+        group_name: str, required
+            group which user_id will be removed from
+        user_id: str, required
+            user id to be deleted
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        A message (OK/Error) or a job when the table is big
+        """
+        if group_name is None or user_id is None:
+            raise ValueError("Both 'group_name' and 'user_id' must be specified")
+        
+        group = self.load_group(group_name, verbose)
+        if group is None:
+            raise ValueError("Group " + group_name + " doesn't exist")
+        user_found_in_group = False     
+        for u in group.get_users():
+            if str(u.get_id()) == user_id:
+                user_found_in_group = True
+                break
+        
+        if user_found_in_group == False:
+            raise ValueError("User id " + str(user_id) + " not found in group " + str(group_name))
+        
+        users = ""
+        for u in group.get_users():
+            if str(u.get_id()) == str(user_id):
+                continue
+            users = users + u.get_id() + ","
+        if str(users) != "":
+            users = users[:-1]
+              
+        data = ("action=CreateOrUpdateGroup&group_id=" + 
+                str(group.get_id()) + "&title=" +
+                str(group.get_title()) + "&description=" +
+                str(group.get_description()) + "&users_list=" +
+                str(users))
         response = self.__getconnhandler().execute_share(data,verbose=verbose)
         if verbose:
             print(response.status, response.reason)
