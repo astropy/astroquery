@@ -1435,7 +1435,7 @@ class TapPlus(Tap):
         if group is not None:
             raise ValueError("Group " + group_name + " already exists")     
             
-        data = ("action=CreateOrUpdateItem&resource_type=0&title=" + 
+        data = ("action=CreateOrUpdateGroup&resource_type=0&title=" + 
                    str(group_name) +
                    "&description=" +
                    str(description))

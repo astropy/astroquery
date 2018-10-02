@@ -924,6 +924,7 @@ class GaiaClass(object):
         A message (OK/Error) or a job when the table is big
         """
         self.__gaiatap.share_group_create(group_name=group_name,
+                                          description=description,
                                           verbose=verbose)
     
     def share_group_delete(self,
