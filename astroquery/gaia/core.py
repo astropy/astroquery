@@ -901,8 +901,7 @@ class GaiaClass(object):
         -------
         A message (OK/Error) or a job when the table is big
         """
-        self.__gaiatap.share_table_stop(self,
-                                        table_name=table_name,
+        self.__gaiatap.share_table_stop(table_name=table_name,
                                         verbose=verbose)
         
     def share_group_create(self,
@@ -924,8 +923,7 @@ class GaiaClass(object):
         -------
         A message (OK/Error) or a job when the table is big
         """
-        self.__gaiatap.share_group_create(self,
-                                          group_name=group_name,
+        self.__gaiatap.share_group_create(group_name=group_name,
                                           verbose=verbose)
     
     def share_group_delete(self,
@@ -944,8 +942,7 @@ class GaiaClass(object):
         -------
         A message (OK/Error) or a job when the table is big
         """
-        self.__gaiatap.share_group_delete(self,
-                                          group_name=group_name,
+        self.__gaiatap.share_group_delete(group_name=group_name,
                                           verbose=verbose)
 
 

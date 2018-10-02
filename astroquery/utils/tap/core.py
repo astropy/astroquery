@@ -1389,7 +1389,24 @@ class TapPlus(Tap):
         """
         if table_name is None:
             raise ValueError("'table_name' must be specified")
+        
+        shared_items = self.load_shared_items(verbose)
+        shared_item = None
+        for s in shared_items:
+            if str(s.get_title()) == str(table_name):
+                shared_item = s
+                break
+        if shared_item is None:
+            raise ValueError("'table_name' not found in shared items")
 
+        data = ("action=RemoveItem&resource_type=0&resource_id=" + 
+                   str(shared_item.get_id()) +
+                   "&resource_type=0")
+        response = self.__getconnhandler().execute_share(data,verbose=verbose)
+        if verbose:
+            print(response.status, response.reason)
+            print(response.getheaders())
+            
     def share_group_create(self,
                     group_name=None,
                     description=None,
