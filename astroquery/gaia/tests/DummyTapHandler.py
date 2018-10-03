@@ -224,7 +224,7 @@ class DummyTapHandler(object):
         self.__parameters['verbose'] = verbose
         return None
 
-    def load_data(self, params_dict=None, verbose=False):
+    def load_data(self, params_dict, verbose=False):
         self.__invokedMethod = 'load_data'
         self.__parameters['params_dict'] = params_dict
         self.__parameters['verbose'] = verbose

@@ -503,21 +503,26 @@ class TestTap(unittest.TestCase):
         dummyHandler = DummyTapHandler()
         tap = GaiaClass(dummyHandler, dummyHandler)
 
-        ids = ["1", "2", "3", "4"]
+        ids = "1,2,3,4"
         retrieval_type = "epoch_photometry"
         valid_data = True
         band = None
         format = "votable"
         verbose = True
+
+        params_dict = {}
+        params_dict['VALID_DATA'] = "true"
+        params_dict['ID'] = ids
+        params_dict['FORMAT'] = str(format)
+        params_dict['RETRIEVAL_TYPE'] = str(retrieval_type)
+
         tap.load_data(ids, retrieval_type, valid_data, band, format, verbose)
         parameters = {}
-        parameters['ids'] = ids
-        parameters['retrieval_type'] = retrieval_type
-        parameters['format'] = format
-        parameters['extra_args'] = "VALID_DATA=true"
+        parameters['params_dict'] = params_dict
         parameters['verbose'] = verbose
+
         dummyHandler.check_call('load_data', parameters)
-        tap.load_data("1,2,3,4",
+        tap.load_data(ids,
                       retrieval_type,
                       valid_data,
                       band,
@@ -535,7 +540,7 @@ class TestTap(unittest.TestCase):
         parameters['verbose'] = verbose
         tap.get_datalinks(ids, verbose)
         dummyHandler.check_call('get_datalinks', parameters)
-        tap.get_datalinks("1,2,3,4", verbose)
+        tap.get_datalinks(ids, verbose)
         dummyHandler.check_call('get_datalinks', parameters)
 
     def test_upload_table_file(self):
