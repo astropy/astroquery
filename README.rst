@@ -115,6 +115,7 @@ The following modules have been completed using a common API:
   * `ALMA Archive <http://astroquery.readthedocs.io/en/latest/alma/alma.html>`_
   * `Atomic Line List <http://astroquery.readthedocs.io/en/latest/atomic/atomic.html>`_: A collection of more than 900,000 atomic transitions.
   * `Besancon <http://astroquery.readthedocs.io/en/latest/besancon/besancon.html>`_: Model of stellar population synthesis in the Galaxy.
+  * `CDS MOC Service <https://astroquery.readthedocs.io/en/latest/cds/cds.html>`_: A collection of all-sky survey coverage maps.
   * `ESASky <http://astroquery.readthedocs.io/en/latest/esasky/esasky.html>`_: ESASky is a science driven discovery portal providing easy visualizations and full access to the entire sky as observed with ESA Space astronomy missions.
   * `ESO Archive <http://astroquery.readthedocs.io/en/latest/eso/eso.html>`_
   * `Gaia <http://astroquery.readthedocs.io/en/latest/gaia/gaia.html>`_: European Space Agency Gaia Archive.
