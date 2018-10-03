@@ -260,3 +260,82 @@ class DummyTapHandler(object):
         self.__parameters['force_removal'] = force_removal
         self.__parameters['verbose'] = verbose
         return None
+
+    def load_groups(self, verbose=False):
+        self.__invokedMethod = 'load_groups'
+        self.__parameters['verbose'] = verbose
+        return None
+
+    def load_group(self, group_name=None, verbose=False):
+        self.__invokedMethod = 'load_group'
+        self.__parameters['group_name'] = group_name
+        self.__parameters['verbose'] = verbose
+        return None
+
+    def load_shared_items(self, verbose=False):
+        self.__invokedMethod = 'load_shared_items'
+        self.__parameters['verbose'] = verbose
+        return None
+
+    def share_table(self, group_name=None,
+                    table_name=None,
+                    description=None,
+                    verbose=False):
+        self.__invokedMethod = 'share_table'
+        self.__parameters['group_name'] = group_name
+        self.__parameters['table_name'] = table_name
+        self.__parameters['description'] = description
+        self.__parameters['verbose'] = verbose
+        return None
+
+    def share_table_stop(self,
+                         table_name=None,
+                         verbose=False):
+        self.__invokedMethod = 'share_table_stop'
+        self.__parameters['table_name'] = table_name
+        self.__parameters['verbose'] = verbose
+        return None
+
+    def share_group_create(self,
+                           group_name=None,
+                           description=None,
+                           verbose=False):
+        self.__invokedMethod = 'share_group_create'
+        self.__parameters['group_name'] = group_name
+        self.__parameters['description'] = description
+        self.__parameters['verbose'] = verbose
+        return None
+
+    def share_group_delete(self,
+                           group_name=None,
+                           verbose=False):
+        self.__invokedMethod = 'share_group_delete'
+        self.__parameters['group_name'] = group_name
+        self.__parameters['verbose'] = verbose
+        return None
+
+    def share_group_add_user(self,
+                             group_name=None,
+                             user_id=None,
+                             verbose=False):
+        self.__invokedMethod = 'share_group_add_user'
+        self.__parameters['group_name'] = group_name
+        self.__parameters['user_id'] = user_id
+        self.__parameters['verbose'] = verbose
+        return None
+
+    def share_group_delete_user(self,
+                                group_name=None,
+                                user_id=None,
+                                verbose=False):
+        self.__invokedMethod = 'share_group_delete_user'
+        self.__parameters['group_name'] = group_name
+        self.__parameters['user_id'] = user_id
+        self.__parameters['verbose'] = verbose
+        return None
+
+    def is_valid_user(self, user_id=None, verbose=False):
+        self.__invokedMethod = 'is_valid_user'
+        self.__parameters['user_id'] = user_id
+        self.__parameters['verbose'] = verbose
+        return None

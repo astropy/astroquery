@@ -517,7 +517,12 @@ class TestTap(unittest.TestCase):
         parameters['extra_args'] = "VALID_DATA=true"
         parameters['verbose'] = verbose
         dummyHandler.check_call('load_data', parameters)
-        tap.load_data("1,2,3,4", retrieval_type, valid_data, band, format, verbose)
+        tap.load_data("1,2,3,4",
+                      retrieval_type,
+                      valid_data,
+                      band,
+                      format,
+                      verbose)
         dummyHandler.check_call('load_data', parameters)
 
     def test_get_datalinks(self):
@@ -604,6 +609,120 @@ class TestTap(unittest.TestCase):
         parameters['verbose'] = verbose
         tap.delete_user_table(table_name, force_removal, verbose)
         dummyHandler.check_call('delete_user_table', parameters)
+
+    def test_load_groups(self):
+        dummyHandler = DummyTapHandler()
+        tap = GaiaClass(dummyHandler, dummyHandler)
+
+        verbose = True
+
+        parameters = {}
+        parameters['verbose'] = verbose
+
+        tap.load_groups(verbose)
+        dummyHandler.check_call('load_groups', parameters)
+
+    def test_load_group(self):
+        dummyHandler = DummyTapHandler()
+        tap = GaiaClass(dummyHandler, dummyHandler)
+
+        group_name = "group1"
+        verbose = True
+
+        parameters = {}
+        parameters['group_name'] = group_name
+        parameters['verbose'] = verbose
+
+        tap.load_group(group_name, verbose)
+        dummyHandler.check_call('load_group', parameters)
+
+    def test_load_shared_items(self):
+        dummyHandler = DummyTapHandler()
+        tap = GaiaClass(dummyHandler, dummyHandler)
+
+        verbose = True
+
+        parameters = {}
+        parameters['verbose'] = verbose
+
+        tap.load_shared_items(verbose)
+        dummyHandler.check_call('load_shared_items', parameters)
+
+    def test_share_table(self):
+        dummyHandler = DummyTapHandler()
+        tap = GaiaClass(dummyHandler, dummyHandler)
+
+        group_name = "group1"
+        table_name = "table1"
+        description = "description1"
+        verbose = True
+
+        parameters = {}
+        parameters['group_name'] = group_name
+        parameters['table_name'] = table_name
+        parameters['description'] = description
+        parameters['verbose'] = verbose
+
+        tap.share_table(group_name, table_name, description, verbose)
+        dummyHandler.check_call('share_table', parameters)
+
+    def test_share_table_stop(self):
+        dummyHandler = DummyTapHandler()
+        tap = GaiaClass(dummyHandler, dummyHandler)
+
+        table_name = "table1"
+        verbose = True
+
+        parameters = {}
+        parameters['table_name'] = table_name
+        parameters['verbose'] = verbose
+
+        tap.share_table_stop(table_name, verbose)
+        dummyHandler.check_call('share_table_stop', parameters)
+
+    def test_share_group_create(self):
+        dummyHandler = DummyTapHandler()
+        tap = GaiaClass(dummyHandler, dummyHandler)
+
+        group_name = "group1"
+        description = "description1"
+        verbose = True
+
+        parameters = {}
+        parameters['group_name'] = group_name
+        parameters['description'] = description
+        parameters['verbose'] = verbose
+
+        tap.share_group_create(group_name, description, verbose)
+        dummyHandler.check_call('share_group_create', parameters)
+
+    def test_share_group_delete(self):
+        dummyHandler = DummyTapHandler()
+        tap = GaiaClass(dummyHandler, dummyHandler)
+
+        group_name = "group1"
+        verbose = True
+
+        parameters = {}
+        parameters['group_name'] = group_name
+        parameters['verbose'] = verbose
+
+        tap.share_group_delete(group_name, verbose)
+        dummyHandler.check_call('share_group_delete', parameters)
+
+    def test_is_valid_user(self):
+        dummyHandler = DummyTapHandler()
+        tap = GaiaClass(dummyHandler, dummyHandler)
+
+        user_id = "user1"
+        verbose = True
+
+        parameters = {}
+        parameters['user_id'] = user_id
+        parameters['verbose'] = verbose
+
+        tap.is_valid_user(user_id, verbose)
+        dummyHandler.check_call('is_valid_user', parameters)
 
 
 if __name__ == "__main__":

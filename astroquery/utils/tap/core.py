@@ -899,40 +899,6 @@ class Tap(object):
             print(response.getheaders())
         return response
 
-    def __columnsContainFlag(self, columns=None, flag=None, verbose=False):
-        c = None;
-        if (columns is not None and len(columns) > 0):
-            for column in columns:
-                f = column.get_flags()
-                if str(f) == '1' or str(f) == '33':
-                    f = 'Ra'
-                elif str(f) == '2' or str(f) == '34':
-                    f = 'Dec'
-                elif str(f) == '4' or str(f) == '38':
-                    f = 'Flux'
-                elif str(f) == '8' or str(f) == '40':
-                    f = 'Mag'
-                elif str(f) == '16' or str(f) == '48':
-                    f = 'PK'
-                else:
-                    f = None
-                if str(flag) == str(f):
-                    c = column.get_name()
-                    break
-        return c
-    
-    def __changesContainFlag(self, changes=None, flag=None, verbose=False):
-        c = None;
-        if (changes is not None and len(changes) > 0):
-            for change in changes:
-                if str(change[1]) == "flags":
-                    value = str(change[2])
-                    if str(flag) == str(value):
-                        c = str(change[0])
-                        break
-        return c
-
-    
     def set_ra_dec_columns(self, table_name=None,
                            ra_column_name=None, dec_column_name=None,
                            verbose=False):
@@ -969,6 +935,41 @@ class Tap(object):
                 }
         data = self.__connHandler.url_encode(args)
         return self.__connHandler.execute_table_edit(data,verbose=verbose)
+
+    def __columnsContainFlag(self, columns=None, flag=None, verbose=False):
+        c = None;
+        if (columns is not None and len(columns) > 0):
+            for column in columns:
+                f = column.get_flags()
+                if str(f) == '1' or str(f) == '33':
+                    f = 'Ra'
+                elif str(f) == '2' or str(f) == '34':
+                    f = 'Dec'
+                elif str(f) == '4' or str(f) == '38':
+                    f = 'Flux'
+                elif str(f) == '8' or str(f) == '40':
+                    f = 'Mag'
+                elif str(f) == '16' or str(f) == '48':
+                    f = 'PK'
+                else:
+                    f = None
+                if str(flag) == str(f):
+                    c = column.get_name()
+                    break
+        return c
+    
+    def __changesContainFlag(self, changes=None, flag=None, verbose=False):
+        c = None;
+        if (changes is not None and len(changes) > 0):
+            for change in changes:
+                if str(change[1]) == "flags":
+                    value = str(change[2])
+                    if str(flag) == str(value):
+                        c = str(change[0])
+                        break
+        return c
+
+    
         
     def __launchJob(self, query, outputFormat, context, verbose, name=None,
                     autorun=True):
@@ -1338,35 +1339,6 @@ class TapPlus(Tap):
                 print(g.get_title())
         return ssp.get_shared_items()
 
-    def is_valid_user(self, user_id=None, verbose=False):
-        """Determines if the specified user is valid
-        TAP+ only
-
-        Parameters
-        ----------
-        user_id : str, mandatory
-            user id to be checked
-        verbose : bool, optional, default 'False'
-            flag to display information about the process
-
-        Returns
-        -------
-        Boolean indicating if the specified user is valid
-        """
-        if user_id is None:
-            raise ValueError("'user_id' must be specified")
-        
-        context = "?USER=" + str(user_id)
-        response = self.__getconnhandler().execute_users(context,verbose)
-        if verbose:
-            print(response.status, response.reason)
-            print(response.getheaders())
-        
-        user = str(response.read())
-        if verbose:
-            print("USER response = " + str(user))
-        return str(user_id) + ":" in user and user.count("\\n") == 1
-
     def share_table(self, group_name=None,
                     table_name=None,
                     description=None,
@@ -1615,6 +1587,35 @@ class TapPlus(Tap):
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
+
+    def is_valid_user(self, user_id=None, verbose=False):
+        """Determines if the specified user is valid
+        TAP+ only
+
+        Parameters
+        ----------
+        user_id : str, mandatory
+            user id to be checked
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        Boolean indicating if the specified user is valid
+        """
+        if user_id is None:
+            raise ValueError("'user_id' must be specified")
+        
+        context = "?USER=" + str(user_id)
+        response = self.__getconnhandler().execute_users(context,verbose)
+        if verbose:
+            print(response.status, response.reason)
+            print(response.getheaders())
+        
+        user = str(response.read())
+        if verbose:
+            print("USER response = " + str(user))
+        return str(user_id) + ":" in user and user.count("\\n") == 1
 
     def get_datalinks(self, ids, verbose=False):
         """Gets datalinks associated to the provided identifiers
