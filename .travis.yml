@@ -119,11 +119,11 @@ matrix:
         - os: linux
           stage: Test docs, astropy dev, and without optional dependencies
           env: PYTHON_VERSION=2.7  KEYRING_VERSION='<12.0' PYTEST_VERSION='<3.7'
-               CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring'
+               CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring pyyaml'
                ASTROPY_VERSION=lts NUMPY_VERSION=1.13
         - os: linux
           stage: Test docs, astropy dev, and without optional dependencies
-          env: CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring'
+          env: CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring pyyaml'
                NUMPY_VERSION=1.14
 
         # Do a PEP8 test with pycodestyle
