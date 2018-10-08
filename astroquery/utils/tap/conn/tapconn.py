@@ -101,8 +101,8 @@ class TapConn(object):
         self.__dataContext = self.__create_context(data_context)
         self.__datalinkContext = self.__create_context(datalink_context)
         self.__uploadContext = self.__create_context(upload_context)
-        self.__shareContext = share_context
-        self.__usersContext = users_context
+        self.__shareContext = self.__create_context(share_context)
+        self.__usersContext = self.__create_context(users_context)
         self.__tableEditContext = self.__create_context(table_edit_context)
         if connhandler is None:
             self.__connectionHandler = ConnectionHandler(self.__connHost,
