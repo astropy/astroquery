@@ -634,18 +634,19 @@ class GaiaClass(object):
               verbose=False):
         """Performs a login.
         TAP+ only
-        User and password can be used or a file that contains user name and
-        password
-        (2 lines: one for user name and the following one for the password)
+        User and password arguments can be used or a file that contains
+        user name and password
+        (2 lines: one for user name and the following one for the password).
+        If no arguments are provided, a prompt asking for user name and
+        password will appear.
 
         Parameters
         ----------
-        user : str, mandatory if 'file' is not provided, default None
+        user : str, default None
             login name
-        password : str, mandatory if 'file' is not provided, default None
+        password : str, default None
             user password
-        credentials_file : str, mandatory if no 'user' & 'password' are
-        provided
+        credentials_file : str, default None
             file containing user and password in two lines
         verbose : bool, optional, default 'False'
             flag to display information about the process
