@@ -22,6 +22,9 @@ TAP_UTILS_QUERY_TOP_PATTERN = re.compile(
 TAP_UTILS_QUERY_ALL_DISTINCT_PATTERN = re.compile(
     r"\s*SELECT\s+(ALL\s+|DISTINCT\s+)", re.IGNORECASE)
 
+TAP_UTILS_HTTP_ERROR_MSG_START = "<li><b>Message: </b>"
+TAP_UTILS_HTTP_VOTABLE_ERROR = '<INFO name="QUERY_STATUS" value="ERROR">'
+TAP_UTILS_VOTABLE_INFO = '</INFO>'
 
 def taputil_find_header(headers, key):
     """Searches for the specified keyword
@@ -85,3 +88,28 @@ def set_top_in_query(query, top):
             p = q.find("SELECT ")
             nq = query[0:p+7] + " TOP " + str(top) + " " + query[p+7:]
         return nq
+
+def get_http_response_error(response):
+    responseBytes = response.read()
+    responseStr = responseBytes.decode('utf-8')
+    return parse_http_response_error(responseStr, response.status)
+
+def parse_http_response_error(responseStr, status):
+    pos1 = responseStr.find(TAP_UTILS_HTTP_ERROR_MSG_START)
+    if pos1 == -1:
+        return parse_http_votable_response_error(responseStr, status)
+    pos2 = responseStr.find('</li>', pos1)
+    if pos2 == -1:
+        return parse_http_votable_response_error(responseStr, status)
+    msg = responseStr[(pos1+len(TAP_UTILS_HTTP_ERROR_MSG_START)):pos2]
+    return str("Error " + str(status) + ":\n" + msg)
+
+def parse_http_votable_response_error(responseStr, status):
+    pos1 = responseStr.find(TAP_UTILS_HTTP_VOTABLE_ERROR)
+    if pos1 == -1:
+        return str("Error " + str(status) + ":\n" + responseStr)
+    pos2 = responseStr.find(TAP_UTILS_VOTABLE_INFO, pos1)
+    if pos2 == -1:
+        return str("Error " + str(status) + ":\n" + responseStr)
+    msg = responseStr[(pos1+len(TAP_UTILS_HTTP_VOTABLE_ERROR)):pos2]
+    return str("Error " + str(status) + ": " + msg)
