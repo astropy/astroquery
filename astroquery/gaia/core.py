@@ -740,7 +740,8 @@ class GaiaClass(object):
             table_description=table_description,
             format=format, verbose=verbose)
 
-    def upload_table_from_job(self, job=None, verbose=False):
+    def upload_table_from_job(self,job=None, table_name=None,
+                              table_description=None, verbose=False):
         """Uploads a table to the user private space from a job
 
         Parameters
@@ -759,7 +760,10 @@ class GaiaClass(object):
         A message (OK/Error) or a job when the table is big
         """
 
-        return self.__gaiatap.upload_table_from_job(job, verbose)
+        return self.__gaiatap.upload_table_from_job(job=job,
+                                                    table_name=table_name,
+                                                    table_description=table_description,
+                                                    verbose=verbose)
 
     def update_user_table(self, table_name=None, list_of_changes=[],
                           verbose=False):

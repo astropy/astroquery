@@ -159,3 +159,20 @@ def parse_http_votable_response_error(responseStr, status):
         return str("Error " + str(status) + ":\n" + responseStr)
     msg = responseStr[(pos1+len(TAP_UTILS_HTTP_VOTABLE_ERROR)):pos2]
     return str("Error " + str(status) + ": " + msg)
+
+def get_jobid_from_location(location):
+    """Extracts an HTTP error message from an VO response.
+
+    Parameters
+    ----------
+    location : HTTP VO 303 response location header, mandatory
+        HTTP VO redirection location
+
+    Returns
+    -------
+    A jobid.
+    """
+    pos = location.rfind('/')+1
+    jobid = location[pos:]
+    return jobid
+

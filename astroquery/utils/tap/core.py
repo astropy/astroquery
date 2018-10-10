@@ -32,6 +32,7 @@ from astropy.logger import log
 from sympy.tensor import indexed
 import getpass
 import os
+from tables.tests.test_queries import table_description
 
 
 __all__ = ['Tap', 'TapPlus']
@@ -422,7 +423,7 @@ class Tap(object):
             location = self.__connHandler.find_header(
                 response.getheaders(),
                 "location")
-            jobid = self.__getJobId(location)
+            jobid = taputils.get_jobid_from_location(location)
             if verbose:
                 print("job " + str(jobid) + ", at: " + str(location))
             job.jobid = jobid
@@ -440,7 +441,7 @@ class Tap(object):
                         log.info("Query finished.")
         return job
 
-    def load_async_job(self, jobid=None, name=None, verbose=False):
+    def load_async_job(self, jobid=None, name=None, verbose=False, load_results=True):
         """Loads an asynchronous job
 
         Parameters
@@ -451,6 +452,8 @@ class Tap(object):
             job name
         verbose : bool, optional, default 'False'
             flag to display information about the process
+        load_results: bool, optional, default 'True'
+            load results associated to this job
 
         Returns
         -------
@@ -484,7 +487,8 @@ class Tap(object):
         job = jsp.parseData(response)[0]
         job.set_connhandler(self.__connHandler)
         # load resulst
-        job.get_results()
+        if load_results:
+            job.get_results()
         return job
 
     def list_async_jobs(self, verbose=False):
@@ -542,11 +546,6 @@ class Tap(object):
             flag to display information about the process
         """
         job.save_results(verbose=verbose)
-
-    def __getJobId(self, location):
-        pos = location.rfind('/')+1
-        jobid = location[pos:]
-        return jobid
 
     def __launchJobMultipart(self, query, uploadResource, uploadTableName,
                              outputFormat, context, verbose, name=None, 
@@ -1513,14 +1512,19 @@ class TapPlus(Tap):
                                                format=format, 
                                                verbose=verbose)
         if response.status == 303:
-            location = self.__connHandler.find_header(
+            location = self.__getconnhandler().find_header(
                 response.getheaders(),
                 "location")
-            jobid = self.__getJobId(location)
-            msg = "Job '"+jobid+"' created to upload table '"+str(table_name)+"'."
+            jobid = taputils.get_jobid_from_location(location)
+            job = Job(async_job=True, query=None, connhandler=self.__getconnhandler())
+            job.set_jobid(jobid)
+            job.set_name('Table upload')
+            job.set_phase('EXECUTING')
+            print("Job '"+jobid+"' created to upload table '"+str(table_name)+"'.")
+            return job
         else:
-            msg = "Uploaded table '"+str(table_name)+"'."
-        print(msg)
+            print("Uploaded table '"+str(table_name)+"'.")
+            return None
 
     def __uploadTableMultipart(self, resource, table_name=None, table_description=None,
                                format="VOTable", verbose=False):
@@ -1531,6 +1535,7 @@ class TapPlus(Tap):
                 "TABLE_NAME": str(table_name),
                 "TABLE_DESC": str(table_description),
                 "FORMAT": str(format)}
+            print("Sending file: " + str(resource))
             f = open(resource, "r")
             chunk = f.read()
             f.close()
@@ -1560,7 +1565,7 @@ class TapPlus(Tap):
         return response
 
     def upload_table_from_job(self, job=None, table_name=None,
-                     verbose=False):
+                              table_description=None, verbose=False):
         """Creates a table to the user private space from a job
 
         Parameters
@@ -1581,18 +1586,22 @@ class TapPlus(Tap):
         
         if isinstance(job, Job):
             j = job
+            description = j.get_query()
         else:
-            j = self.load_async_job(job)
+            j = self.load_async_job(jobid=job, load_results=False)
             if j is None:
                 raise ValueError("Job " + str(job) + " not found")
                 return
+            description = j.get_query()
         if table_name == None:
             table_name = "t" + str(j.get_jobid())
+        if table_description == None:
+            table_description = description
         if verbose:
             print("JOB = " + j.get_jobid())
         self.__uploadTableMultipartFromJob(resource=j.get_jobid(), 
                                            table_name=table_name, 
-                                           table_description=j.get_query(), 
+                                           table_description=table_description, 
                                            verbose=verbose)
         msg = "Created table '"+str(table_name)+"' from job: '"+str(j.get_jobid())+"'."
         print(msg)
