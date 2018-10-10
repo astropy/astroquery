@@ -16,7 +16,7 @@ class VoBase(BaseQuery):
     Base class for all VO queries.
     """
 
-    def try_query(self, url, params=None, data=None, files=None, verbose=False):
+    def try_query(self, url, params=None, data=None, files=None):
         """
         A wrapper to _request() function allowing for retries
 
@@ -49,7 +49,8 @@ class RegistryClass(VoBase):
         super(RegistryClass, self).__init__()
         self._REGISTRY_TAP_SYNC_URL = conf.registry_tap_url + "/sync"
 
-    def query(self, service_type="", keyword="", waveband="", source="", publisher="", order_by="", logic_string=' and ', verbose=False, return_http_response=False):
+    def query(self, service_type="", keyword="", waveband="", source="", publisher="", order_by="",
+              verbose=False, return_http_response=False, use_get=False):
         """
         Query the Virtual Observatory registry to find services which can then be searched.
 
@@ -74,11 +75,12 @@ class RegistryClass(VoBase):
         verbose : bool, optional
             Default is False.
             When True, the ADQL query computed from the keyword arguments will be printed.
+        use_get : bool, optional
+            Default is False
+            These registry queries use HTTP POST actions by default.  use_get == True forces the initial query to use GET instead.
         """
 
-        adql = self._build_adql(service_type, keyword, waveband, source, publisher, order_by, verbose)
-        if adql is None:
-            raise ValueError('Unable to compute query based on input arguments.')
+        adql = self._build_adql(service_type, keyword, waveband, source, publisher, order_by)
 
         if verbose:
             print('Registry:  sending query ADQL = {}\n'.format(adql))
@@ -91,17 +93,22 @@ class RegistryClass(VoBase):
             "query": adql
         }
 
-        response = self.try_query(url, data=tap_params)
+        if use_get:
+            response = self.try_query(url, params=tap_params)
+        else:
+            response = self.try_query(url, data=tap_params)
 
         if verbose:
             print('Queried: {}\n'.format(response.url))
 
         aptable = utils.astropy_table_from_votable_response(response)
         aptable.meta['astroquery.vo']['data'] = tap_params
-        if return_http_response: return aptable, response
-        return aptable
+        if return_http_response:
+            return aptable, response
+        else:
+            return aptable
 
-    def _build_adql(self, service_type="", keyword="", waveband="", source="", publisher="", order_by="", verbose=False):
+    def _build_adql(self, service_type="", keyword="", waveband="", source="", publisher="", order_by=""):
 
         # Default values
         logic_string = " and "
@@ -114,7 +121,8 @@ class RegistryClass(VoBase):
             service_type = "conesearch"
         elif 'tap' in service_type or 'table' in service_type:
             service_type = "tableaccess"
-        else:
+
+        if service_type not in ["simpleimageaccess", "simplespectralaccess", "conesearch", "tableaccess"]:
             raise ValueError("""
             service_type must be one of conesearch, simpleimageaccess, simplespectralaccess, tableaccess, or
             their alternate strings: cone, image, spectra, spectrum, table or tap.
@@ -172,11 +180,11 @@ class RegistryClass(VoBase):
 
         return query
 
-    def query_counts(self, field, minimum=1, return_http_response=False, **kwargs):
+    def query_counts(self, field, minimum=1, return_http_response=False, verbose=False):
 
         adql = self._build_counts_adql(field, minimum)
 
-        if kwargs.get('verbose'):
+        if verbose:
             print('Registry:  sending query ADQL = {}\n'.format(adql))
 
         url = self._REGISTRY_TAP_SYNC_URL
@@ -188,13 +196,15 @@ class RegistryClass(VoBase):
         }
 
         response = self._request('POST', url, data=tap_params, timeout=conf.timeout, cache=False)
-        if kwargs.get('verbose'):
+        if verbose:
             print('Queried: {}\n'.format(response.url))
 
         aptable = utils.astropy_table_from_votable_response(response)
         aptable.meta['astroquery.vo']['data'] = tap_params
-        if return_http_response: return aptable, response
-        return aptable
+        if return_http_response:
+            return aptable, response
+        else:
+            return aptable
 
     def _build_counts_adql(self, field, minimum=1):
 
@@ -226,14 +236,3 @@ class RegistryClass(VoBase):
 
 
 Registry = RegistryClass()
-
-
-def display_results(results):
-    # Display results in a readable way including the
-    # short_name, ivoid, res_description and reference_url.
-
-    for row in results:
-        md = '{} ({})'.format(row["short_name"], row["ivoid"])
-        print(md)
-        print(row['res_description'])
-        print('(More info: {} )'.format(row["reference_url"]))

@@ -12,6 +12,48 @@ from astropy.table import Table
 #
 
 
+def astropy_table_from_votable_string(s):
+    """
+    Takes a VOTABLE string and returns an astropy table.
+
+    Parameters
+    ----------
+    string or byte array : s
+        a valid VOTable.
+
+    Returns
+    -------
+    astropy.table.Table
+        Astropy Table containing the data from the first TABLE in the VOTABLE.
+    """
+
+    # The astropy table reader would like a file-like object, so convert
+    # the string to a byte stream.
+    #
+    # (The reader also accepts just a string, but that seems to have two
+    # problems:  It looks for newlines to see if the string is itself a table,
+    # and we need to support unicode content.)
+    file_like_content = io.BytesIO(s)
+
+    # The astropy table reader will auto-detect that the content is a VOTABLE
+    # and parse it appropriately.
+    try:
+        aptable = Table.read(file_like_content, format='votable')
+    except Exception as e:
+        print("ERROR parsing response as astropy Table: looks like the content isn't the expected VO table XML? Returning an empty table. Look at its meta data to debug.")
+        aptable = Table()
+
+    # String values in the VOTABLE are stored in the astropy Table as bytes instead
+    # of strings.  To makes accessing them more convenient, we will convert all those
+    # bytes values to strings.
+    #
+    # This is only an issue in Python version > 2 because bytes and strings are no longer the same thing.
+    if sys.version_info[0] > 2:
+        stringify_table(aptable)
+
+    return aptable
+
+
 def astropy_table_from_votable_response(response):
     """
     Takes a VOTABLE response from a web service and returns an astropy table.
@@ -27,102 +69,15 @@ def astropy_table_from_votable_response(response):
         Astropy Table containing the data from the first TABLE in the VOTABLE.
     """
 
-    # The astropy table reader would like a file-like object, so convert
-    # the response content a byte stream.  This assumes Python 3.x.
-    #
-    # (The reader also accepts just a string, but that seems to have two
-    # problems:  It looks for newlines to see if the string is itself a table,
-    # and we need to support unicode content.)
-    file_like_content = io.BytesIO(response.content)
+    # Create the astropy Table from the VOTable in the reponse content.
+    aptable = astropy_table_from_votable_string(response.content)
 
-    # The astropy table reader will auto-detect that the content is a VOTABLE
-    # and parse it appropriately.
-    try:
-        aptable = Table.read(file_like_content, format='votable')
-    except Exception as e:
-        print("ERROR parsing response as astropy Table: looks like the content isn't the expected VO table XML? Returning an empty table. Look at its meta data to debug.")
-        aptable = Table()
-
-    ## This helps in debugging. Other meta data we might want to store?
-    ## aptable.meta['astroquery.vo'] = {"url":response.url,"text":response.text}
+    # Store addtional metadata from the response on the Astropy Table.
+    # This can help in debugging and may have other uses. Other metadata could be added here.
+    # Do not include response.text since it effectively doubles the storage needed for the table.
     aptable.meta['astroquery.vo'] = {"url": response.url}
-    # String values in the VOTABLE are stored in the astropy Table as bytes instead
-    # of strings.  To makes accessing them more convenient, we will convert all those
-    # bytes values to strings.
-    #
-    # This is only an issue in Python version > 2 because bytes and strings are no longer the same thing.
-    if sys.version_info[0] > 2:
-        stringify_table(aptable)
 
     return aptable
-
-
-def find_column_by_ucd(table, ucd):
-    """
-    Given an astropy table derived from a VOTABLE, this function returns
-    the first Column object that has the given Universal Content Descriptor (UCD).
-    The name field of the returned value contains the column name and can be used
-    for accessing the values in the column.
-
-    Parameters
-    ----------
-    table : astropy.table.Table
-        Astropy Table which was created from a VOTABLE (as if by astropy_table_from_votable_response).
-    ucd : str
-        The UCD identifying the column to be found.
-
-    Returns
-    -------
-    astropy.table.Column
-        The first column found which had the given ucd.  None is no such column found.
-
-    Example
-    -------
-    col = find_column_by_ucd(my_table, 'VOX:Image_Title')
-    print ('1st row title value is:', my_table[col.name][0])
-    """
-
-    # Loop through all the columns looking for the UCD
-    for key in table.columns:
-        col = table.columns[key]
-        ucdval = col.meta.get('ucd')
-        if ucdval is not None:
-            if ucd == ucdval:
-                return col
-
-
-def find_column_by_utype(table, utype):
-    """
-    Given an astropy table derived from a VOTABLE, this function returns
-    the first Column object that has the given utype.
-    The name field of the returned value contains the column name and can be used
-    for accessing the values in the column.
-
-    Parameters
-    ----------
-    table : astropy.table.Table
-        Astropy Table which was created from a VOTABLE (as if by astropy_table_from_votable_response).
-    utype : str
-        The utype identifying the column to be found.
-
-    Returns
-    -------
-    astropy.table.Column
-        The first column found which had the given utype.  None is no such column found.
-
-    Example
-    -------
-    col = find_column_by_utype(my_table, 'Access.Reference')
-    print ('1st row access_url value is:', my_table[col.name][0])
-    """
-
-    # Loop through all the columns looking for the utype
-    for key in table.columns:
-        col = table.columns[key]
-        utypeval = col.meta.get('utype')
-        if utypeval is not None:
-            if utype == utypeval:
-                return col
 
 
 def sval(val):
@@ -196,23 +151,3 @@ def stringify_table(t):
 
     for colname in scols:
         t[colname] = sval_whole_column(t[colname])
-
-
-def query_loop(query_function, service, params, verbose=False):
-    # Only one service, which is expected to be a row of a Registry query result that has  service['access_url']
-    if verbose: print("    Querying service {}".format(service['access_url']))
-    # Initialize a table to add results to:
-    service_results = []
-    for j, param in enumerate(params):
-
-        result = query_function(service=service['access_url'], **param)
-        # Need a test that we got something back.
-        # Shouldn't error if not, just be empty
-        if verbose:
-            if len(result) > 0:
-                print("    Got {} results for parameters[{}]".format(len(result), j))
-            else:
-                print("    (Got no results for parameters[{}])".format(j))
-
-        service_results.append(result)
-    return service_results

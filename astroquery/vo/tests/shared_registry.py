@@ -1,7 +1,4 @@
-import json, os
-from astropy.tests.helper import pytest
-from astropy.tests.helper import remote_data
-from astropy.io import ascii
+import os
 from astropy.table import Table
 from astroquery.vo import Registry
 
@@ -13,9 +10,9 @@ class Helpers(object):
 
     def table2ecsv(self, current, filepath):
         """Dump a table and its meta data to ECSV"""
-        from astropy.io import ascii
+        from astropy.io import ascii as ap_ascii
         try:
-            ascii.write(current, filepath, format='ecsv', overwrite=True)
+            ap_ascii.write(current, filepath, format='ecsv', overwrite=True)
         except Exception as e:
             raise e
 
@@ -80,7 +77,8 @@ class SharedRegistryTests(Helpers):
         'query_basic_content': 'registry_query_basic_content.xml',
         'query_counts_content': 'registry_query_counts_content.xml',
         'query_basic_result': 'registry_query_basic_result.ecsv',
-        "query_counts_result": "registry_query_counts_result.ecsv"
+        'query_counts_result': 'registry_query_counts_result.ecsv',
+        'empty_votable': 'empty_votable.xml'
     }
 
     def rewrite(self):
@@ -102,11 +100,13 @@ class SharedRegistryTests(Helpers):
 
     def query_counts(self, reinit=False):
         result, http_response = Registry.query_counts('publisher', 15, return_http_response=True)
+        result2 = Registry.query_counts('publisher', 15, return_http_response=False)
         if reinit:
             self.table2ecsv(result, self.data_path(self.DATA_FILES['query_counts_result']))
             self.content2file(http_response.content, self.data_path(self.DATA_FILES['query_counts_content']))
         else:
             assert(self.table_comp(result, self.data_path(self.DATA_FILES['query_counts_result'])))
+            assert(self.table_comp(result2, self.data_path(self.DATA_FILES['query_counts_result'])))
 
 
 ## This main can regenerate the stored JSON for you after you've run a

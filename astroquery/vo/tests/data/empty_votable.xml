@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VOTABLE xmlns:vr="http://www.ivoa.net/xml/VOResource/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:vs="http://www.ivoa.net/xml/VODataService/v1.1" version="1.2"
+	xmlns="http://www.ivoa.net/xml/VOTable/v1.2">
+	<RESOURCE type="results">
+		<INFO name="QUERY_STATUS" value="OK"/>
+		<TABLE>
+			<FIELD datatype="char" name="waveband" arraysize="*"/>
+			<FIELD datatype="char" name="short_name" arraysize="*"/>
+			<FIELD datatype="char" name="ivoid" arraysize="*"/>
+			<FIELD datatype="char" name="res_description" arraysize="*"/>
+			<FIELD datatype="char" name="access_url" arraysize="*"/>
+			<FIELD datatype="char" name="reference_url" arraysize="*"/>
+			<FIELD datatype="char" name="publisher" arraysize="*"/>
+			<FIELD datatype="char" name="service_type" arraysize="*"/>
+			<DATA>
+				<TABLEDATA>
+				</TABLEDATA>
+			</DATA>
+		</TABLE>
+	</RESOURCE>
+</VOTABLE>

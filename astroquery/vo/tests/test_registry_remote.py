@@ -1,7 +1,5 @@
-import json, os
 import pytest
 from astropy.tests.helper import remote_data
-from astropy.io import ascii
 from requests.exceptions import Timeout, ReadTimeout
 from astroquery.vo import Registry
 from .shared_registry import SharedRegistryTests
@@ -17,6 +15,11 @@ class TestRegistryRemote(SharedRegistryTests):
 
     def test_counts(self):
         self.query_counts()
+
+    def test_get(self):
+        "Show the using GET returns same results as POST."
+        result = Registry.query(source='heasarc', service_type='image', use_get=True)
+        assert(self.table_comp(result, self.data_path(self.DATA_FILES['query_basic_result'])))
 
     def test_basic_timeout(self):
         try:
