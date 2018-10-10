@@ -1025,8 +1025,9 @@ class TapPlus(Tap):
             raise ValueError("'group_name' must be specified")
         if description is None:
             description = ""
-        if self.__check_group_exists(group_name, verbose):
-            raise ValueError("Group '"+group_name+"' already exists")
+        group = self.load_group(group_name, verbose)
+        if group is not None:
+            raise ValueError("Group " + group_name + " already exists")     
         data = ("action=CreateOrUpdateGroup&resource_type=0&title=" + 
                    str(group_name) +
                    "&description=" +
@@ -1044,28 +1045,6 @@ class TapPlus(Tap):
             return None
         msg = "Created group '"+str(group_name)+"'."
         print(msg)
-    
-    def __check_group_exists(self, group_name=None, verbose=None):
-        context = "share?action=GetGroupsDescriptionsOnly"
-        connHandler = self.__getconnhandler()
-        response = connHandler.execute_tapget(context, verbose=verbose)
-        if verbose:
-            print(response.status, response.reason)
-            print(response.getheaders())
-        isError = connHandler.check_launch_response_status(response, verbose, 200)
-        if isError:
-            errMsg = taputils.get_http_response_error(response)
-            print(response.status, errMsg)
-            raise requests.exceptions.HTTPError(errMsg)
-            return None
-        # Find group name
-        responseBytes = response.read()
-        responseStr = responseBytes.decode('utf-8')
-        if responseStr.find("<title>"+str(group_name)+"</title>") != -1:
-            return True
-        if responseStr.find("<title><![CDATA["+str(group_name)+"]]></title>") != -1:
-            return True
-        return False
 
     def share_group_delete(self,
                     group_name=None,
