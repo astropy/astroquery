@@ -67,6 +67,19 @@ def taputil_create_sorted_dict_key(dictionaryObject):
 
 
 def set_top_in_query(query, top):
+    """Adds TOP statement if the query does not have one.
+
+    Parameters
+    ----------
+    query : ADQL query, mandatory
+        ADQL query
+    top : str, optional
+        ADQL TOP value
+
+    Returns
+    -------
+    The query with the provided TOP statement, if the query does not have one.
+    """
     if query is None:
         return query
     if top is None:
@@ -90,11 +103,33 @@ def set_top_in_query(query, top):
         return nq
 
 def get_http_response_error(response):
+    """Extracts an HTTP error message from an HTML response.
+
+    Parameters
+    ----------
+    response : HTTP response, mandatory
+        HTTP response
+
+    Returns
+    -------
+    A string with the response error message.
+    """
     responseBytes = response.read()
     responseStr = responseBytes.decode('utf-8')
     return parse_http_response_error(responseStr, response.status)
 
 def parse_http_response_error(responseStr, status):
+    """Extracts an HTTP error message from an HTML response.
+
+    Parameters
+    ----------
+    responseStr : HTTP response, mandatory
+        HTTP response
+
+    Returns
+    -------
+    A string with the response error message.
+    """
     pos1 = responseStr.find(TAP_UTILS_HTTP_ERROR_MSG_START)
     if pos1 == -1:
         return parse_http_votable_response_error(responseStr, status)
@@ -105,6 +140,17 @@ def parse_http_response_error(responseStr, status):
     return str("Error " + str(status) + ":\n" + msg)
 
 def parse_http_votable_response_error(responseStr, status):
+    """Extracts an HTTP error message from an VO response.
+
+    Parameters
+    ----------
+    responseStr : HTTP VO response, mandatory
+        HTTP VO response
+
+    Returns
+    -------
+    A string with the response error message.
+    """
     pos1 = responseStr.find(TAP_UTILS_HTTP_VOTABLE_ERROR)
     if pos1 == -1:
         return str("Error " + str(status) + ":\n" + responseStr)
