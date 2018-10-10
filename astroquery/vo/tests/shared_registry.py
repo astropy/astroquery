@@ -90,23 +90,36 @@ class SharedRegistryTests(Helpers):
     ##
     ##  Tests that make an http request:
     ##
-    def query_basic(self, reinit=False):
+    def query_basic(self, capfd, reinit=False):
+        # First test including http_response so that it can be stored if needed to rebaseline.
         result, http_response = Registry.query(source='heasarc', service_type='image', return_http_response=True)
+
         if reinit:
             self.table2ecsv(result, self.data_path(self.DATA_FILES['query_basic_result']))
             self.content2file(http_response.content, self.data_path(self.DATA_FILES['query_basic_content']))
         else:
             assert(self.table_comp(result, self.data_path(self.DATA_FILES['query_basic_result'])))
 
-    def query_counts(self, reinit=False):
+            # Then test without http_reponse and with verbose to cover that code.
+            result2 = Registry.query(source='heasarc', service_type='image', return_http_response=False, verbose=True)
+            assert(self.table_comp(result2, self.data_path(self.DATA_FILES['query_basic_result'])))
+            out, err = capfd.readouterr()
+            assert "sending query ADQL" in out
+
+    def query_counts(self, capfd, reinit=False):
+        # First test including http_response so that it can be stored if needed to rebaseline.
         result, http_response = Registry.query_counts('publisher', 15, return_http_response=True)
-        result2 = Registry.query_counts('publisher', 15, return_http_response=False)
         if reinit:
             self.table2ecsv(result, self.data_path(self.DATA_FILES['query_counts_result']))
             self.content2file(http_response.content, self.data_path(self.DATA_FILES['query_counts_content']))
         else:
             assert(self.table_comp(result, self.data_path(self.DATA_FILES['query_counts_result'])))
+
+            # Then test without http_reponse and with verbose to cover that code.
+            result2 = Registry.query_counts('publisher', 15, return_http_response=False, verbose=True)
             assert(self.table_comp(result2, self.data_path(self.DATA_FILES['query_counts_result'])))
+            out, err = capfd.readouterr()
+            assert "sending query ADQL" in out
 
 
 ## This main can regenerate the stored JSON for you after you've run a

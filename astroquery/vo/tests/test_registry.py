@@ -43,13 +43,13 @@ def mockreturn(method="POST", url=None, data=None, params=None, timeout=10, **kw
 class TestRegistryLocal(SharedRegistryTests):
     "Monkey patch all shared tests.  Also run the local-specific tests."
 
-    def test_query_basic(self):
+    def test_query_basic(self, capfd):
         shr = SharedRegistryTests()
-        shr.query_basic()
+        shr.query_basic(capfd)
 
-    def test_query_counts(self):
+    def test_query_counts(self, capfd):
         shr = SharedRegistryTests()
-        shr.query_counts()
+        shr.query_counts(capfd)
 
     def test_bad_queries(self):
         with pytest.raises(ValueError) as err:
