@@ -33,6 +33,7 @@ from sympy.tensor import indexed
 import getpass
 import os
 from tables.tests.test_queries import table_description
+from click.decorators import group
 
 
 __all__ = ['Tap', 'TapPlus']
@@ -54,8 +55,6 @@ class Tap(object):
                  table_edit_context=None,
                  data_context=None,
                  datalink_context=None,
-                 share_context=None,
-                 users_context=None,
                  port=80, sslport=443,
                  default_protocol_is_https=False,
                  connhandler=None,
@@ -80,10 +79,6 @@ class Tap(object):
             data context
         datalink_context : str, optional, default None
             datalink context
-        share_context : str, optional, default None
-            share context
-        users_context : str, optional, default None
-            users context
         port : int, optional, default '80'
             HTTP port
         sslport : int, optional, default '443'
@@ -114,8 +109,6 @@ class Tap(object):
                                              table_edit_context=table_edit_context,
                                              data_context=data_context,
                                              datalink_context=datalink_context,
-                                             share_context=share_context,
-                                             users_context=users_context,
                                              port=port,
                                              sslport=sslport)
             else:
@@ -184,7 +177,7 @@ class Tap(object):
         A table object
         """
         print("Retrieving table '"+str(table)+"'")
-        response = self.__connHandler.execute_tapget("tables?tables="+table)
+        response = self.__connHandler.execute_tapget("tables?tables="+table, verbose=verbose)
         if verbose:
             print(response.status, response.reason)
         isError = self.__connHandler.check_launch_response_status(response, verbose, 200)
@@ -229,9 +222,9 @@ class Tap(object):
             addedItem = True
         log.info("Retrieving tables...")
         if flags != "":
-            response = self.__connHandler.execute_tapget("tables?"+flags)
+            response = self.__connHandler.execute_tapget("tables?"+flags, verbose=verbose)
         else:
-            response = self.__connHandler.execute_tapget("tables")
+            response = self.__connHandler.execute_tapget("tables", verbose=verbose)
         if verbose:
             print(response.status, response.reason)
         isError = self.__connHandler.check_launch_response_status(response,
@@ -307,7 +300,7 @@ class Tap(object):
             if verbose:
                 print("Redirect to %s", location)
             subcontext = self.__extract_sync_subcontext(location)
-            response = self.__connHandler.execute_tapget(subcontext)
+            response = self.__connHandler.execute_tapget(subcontext, verbose=verbose)
         job = Job(async_job=False, query=query, connhandler=self.__connHandler)
         isError = self.__connHandler.check_launch_response_status(response,
                                                                   verbose,
@@ -471,7 +464,7 @@ class Tap(object):
             log.info("No job identifier found")
             return None
         subContext = "async/" + str(jobid)
-        response = self.__connHandler.execute_tapget(subContext)
+        response = self.__connHandler.execute_tapget(subContext, verbose=verbose)
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
@@ -504,7 +497,7 @@ class Tap(object):
         A list of Job objects
         """
         subContext = "async"
-        response = self.__connHandler.execute_tapget(subContext)
+        response = self.__connHandler.execute_tapget(subContext, verbose=verbose)
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
@@ -567,7 +560,7 @@ class Tap(object):
         f.close()
         files = [[uploadTableName, os.path.basename(uploadResource), chunk]]
         contentType, body = self.__connHandler.encode_multipart(args, files)
-        response = self.__connHandler.execute_tappost(context, body, contentType)
+        response = self.__connHandler.execute_tappost(context, body, contentType, verbose)
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
@@ -736,8 +729,6 @@ class TapPlus(Tap):
             data context
         datalink_context : str, optional, default None
             datalink context
-        share_context : str, optional, default None
-            share context
         port : int, optional, default '80'
             HTTP port
         sslport : int, optional, default '443'
@@ -758,8 +749,6 @@ class TapPlus(Tap):
                                       table_edit_context=table_edit_context,
                                       data_context=data_context,
                                       datalink_context=datalink_context,
-                                      share_context=share_context,
-                                      users_context=users_context,
                                       port=port, sslport=sslport, 
                                       default_protocol_is_https=default_protocol_is_https,
                                       connhandler=connhandler,
@@ -1036,11 +1025,8 @@ class TapPlus(Tap):
             raise ValueError("'group_name' must be specified")
         if description is None:
             description = ""
-        group = self.load_group(group_name, verbose)
-        
-        if group is not None:
-            raise ValueError("Group " + group_name + " already exists")     
-            
+        if self.__check_group_exists(group_name, verbose):
+            raise ValueError("Group '"+group_name+"' already exists")
         data = ("action=CreateOrUpdateGroup&resource_type=0&title=" + 
                    str(group_name) +
                    "&description=" +
@@ -1058,6 +1044,28 @@ class TapPlus(Tap):
             return None
         msg = "Created group '"+str(group_name)+"'."
         print(msg)
+    
+    def __check_group_exists(self, group_name=None, verbose=None):
+        context = "share?action=GetGroupsDescriptionsOnly"
+        connHandler = self.__getconnhandler()
+        response = connHandler.execute_tapget(context, verbose=verbose)
+        if verbose:
+            print(response.status, response.reason)
+            print(response.getheaders())
+        isError = connHandler.check_launch_response_status(response, verbose, 200)
+        if isError:
+            errMsg = taputils.get_http_response_error(response)
+            print(response.status, errMsg)
+            raise requests.exceptions.HTTPError(errMsg)
+            return None
+        # Find group name
+        responseBytes = response.read()
+        responseStr = responseBytes.decode('utf-8')
+        if responseStr.find("<title>"+str(group_name)+"</title>") != -1:
+            return True
+        if responseStr.find("<title><![CDATA["+str(group_name)+"]]></title>") != -1:
+            return True
+        return False
 
     def share_group_delete(self,
                     group_name=None,
@@ -1126,7 +1134,6 @@ class TapPlus(Tap):
             raise ValueError("User id " + str(user_id) + " found in group " + str(group_name))
         
         if self.is_valid_user(user_id, verbose) == False:
-            # raise ValueError("User id " + str(user_id) + " not found in LDAP")
             print("Warning: user id '" + str(user_id)+ "' not found.")
 
         users = ""
@@ -1228,9 +1235,10 @@ class TapPlus(Tap):
         if user_id is None:
             raise ValueError("'user_id' must be specified")
         
-        context = "?USER=" + str(user_id)
+        context = "users?USER=" + str(user_id)
         connHandler = self.__getconnhandler()
-        response = connHandler.execute_users(context,verbose)
+        response = connHandler.execute_tapget(context, verbose=verbose)
+        
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
@@ -1307,7 +1315,7 @@ class TapPlus(Tap):
             if data is not None:
                 subContext = subContext + '?' + self.__appendData(data)
         connHandler = self.__getconnhandler()
-        response = connHandler.execute_tapget(subContext)
+        response = connHandler.execute_tapget(subContext, verbose=verbose)
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
@@ -1352,7 +1360,7 @@ class TapPlus(Tap):
         data = "JOB_IDS=" + jobsIds
         subContext = "deletejobs"
         connHandler = self.__getconnhandler()
-        response = connHandler.execute_tappost(subContext, data)
+        response = connHandler.execute_tappost(subContext, data, verbose=verbose)
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())

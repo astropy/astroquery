@@ -175,4 +175,3 @@ def get_jobid_from_location(location):
     pos = location.rfind('/')+1
     jobid = location[pos:]
     return jobid
-

@@ -56,9 +56,7 @@ class GaiaClass(object):
                                      upload_context="Upload",
                                      table_edit_context="TableTool",
                                      data_context="data",
-                                     datalink_context="datalink",
-                                     share_context="share",
-                                     users_context="users")
+                                     datalink_context="datalink")
         else:
             self.__gaiatap = tap_plus_handler
         if datalink_handler is None:
@@ -68,9 +66,7 @@ class GaiaClass(object):
                                       upload_context="Upload",
                                       table_edit_context="TableTool",
                                       data_context="data",
-                                      datalink_context="datalink",
-                                      share_context="share",
-                                      users_context="users")
+                                      datalink_context="datalink")
         else:
             self.__gaiadata = datalink_handler
 

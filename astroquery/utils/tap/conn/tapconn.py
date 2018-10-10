@@ -48,8 +48,6 @@ class TapConn(object):
                  table_edit_context=None,
                  data_context=None,
                  datalink_context=None,
-                 share_context=None,
-                 users_context=None,
                  port=80,
                  sslport=443,
                  connhandler=None):
@@ -73,10 +71,6 @@ class TapConn(object):
             data context
         datalink_context : str, optional
             datalink context
-        share_context : str, optional
-            share context
-        users_context : str, optional
-            users context
         port : int, optional, default 80
             HTTP port
         sslport : int, optional, default 443
@@ -101,8 +95,6 @@ class TapConn(object):
         self.__dataContext = self.__create_context(data_context)
         self.__datalinkContext = self.__create_context(datalink_context)
         self.__uploadContext = self.__create_context(upload_context)
-        self.__shareContext = self.__create_context(share_context)
-        self.__usersContext = self.__create_context(users_context)
         self.__tableEditContext = self.__create_context(table_edit_context)
         if connhandler is None:
             self.__connectionHandler = ConnectionHandler(self.__connHost,
@@ -164,18 +156,6 @@ class TapConn(object):
                              "creation for this action to be performed")
         return self.__uploadContext
     
-    def __get_share_context(self):
-        if self.__shareContext is None:
-            raise ValueError("share_context must be specified at TAP object "\
-                             "creation for this action to be performed")
-        return self.__shareContext
-    
-    def __get_users_context(self):
-        if self.__usersContext is None:
-            raise ValueError("users_context must be specified at TAP object "\
-                             "creation for this action to be performed")
-        return self.__usersContext
-
     def __get_table_edit_context(self):
         if self.__tableEditContext is None:
             raise ValueError("table_edit_context must be specified at TAP object "\
@@ -367,32 +347,12 @@ class TapConn(object):
         -------
         An HTTP(s) response object
         """
-        context = self.__get_tap_context(self.__get_share_context())
+        context = self.__get_tap_context("share")
         return self.__execute_post(context,
                                    data,
                                    content_type=CONTENT_TYPE_POST_DEFAULT,
                                    verbose=verbose)
    
-    def execute_users(self, context, verbose=False):
-        """Executes a GET upload request
-        The connection is done through HTTP or HTTPS depending on the login
-        status (logged in -> HTTPS)
-
-        Parameters
-        ----------
-        context : str, mandatory
-            GET context
-        verbose : bool, optional, default 'False'
-            flag to display information about the process
-
-        Returns
-        -------
-        An HTTP(s) response object
-        """
-        context = self.__get_users_context() + context
-        return self.execute_tapget(context,
-                                  verbose=verbose)
-
     def execute_table_edit(self, data,
                      content_type=CONTENT_TYPE_POST_DEFAULT, verbose=False):
         """Executes a POST upload request
