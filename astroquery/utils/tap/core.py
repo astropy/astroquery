@@ -1556,7 +1556,7 @@ class TapPlus(Tap):
         connHandler = self.__getconnhandler()
         if not (str(resource).startswith("http")):  # upload from file
             args = {
-                "TASKID": str(1),
+                "TASKID": str(-1),
                 "TABLE_NAME": str(table_name),
                 "TABLE_DESC": str(table_description),
                 "FORMAT": str(format)}
@@ -1567,7 +1567,7 @@ class TapPlus(Tap):
             contentType, body = connHandler.encode_multipart(args, files)
         else:    # upload from URL
             args = {
-                "TASKID": str(1),
+                "TASKID": str(-1),
                 "TABLE_NAME": str(table_name),
                 "TABLE_DESC": str(table_description),
                 "FORMAT": str(format),
@@ -1635,7 +1635,7 @@ class TapPlus(Tap):
     def __uploadTableMultipartFromJob(self, resource, table_name=None, table_description=None,
                                       verbose=False):
         args = {
-            "TASKID": str(1),
+            "TASKID": str(-1),
             "JOBID": str(resource),
             "TABLE_NAME": str(table_name),
             "TABLE_DESC": str(table_description),
