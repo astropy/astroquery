@@ -39,12 +39,6 @@ class Job(object):
         connhandler : TapConn, optional, default None
             Connection handler
         """
-        self.__internal_init()
-        self.__connHandler = connhandler
-        self.__async = async_job
-        self.__parameters['query'] = query
-
-    def __internal_init(self):
         self.__connHandler = None
         self.__isFinished = None
         self.__jobid = None
@@ -71,37 +65,9 @@ class Job(object):
         # default output format
         self.set_output_format('votable')
 
-    def set_connhandler(self, connhandler):
         self.__connHandler = connhandler
-
-    def set_jobid(self, jobid):
-        """Sets job identifier
-
-        Parameters
-        ----------
-        jobid : str, mandatory
-            job identifier
-        """
-        self.__jobid = jobid
-
-    def get_jobid(self):
-        """Returns the job identifier
-
-        Returns
-        -------
-        The job identifier
-        """
-        return self.__jobid
-
-    def set_failed(self, failed=False):
-        """Sets the job status to failed
-
-        Parameters
-        ----------
-        failed : bool, optional, default 'False'
-            failed status
-        """
-        self.__failed = failed
+        self.__async = async_job
+        self.__parameters['query'] = query
 
     def is_failed(self):
         """Returns the job status
@@ -111,35 +77,6 @@ class Job(object):
         'True' if the job is failed
         """
         return self.__failed
-
-    def set_remote_location(self, location):
-        """Sets the job remote location
-
-        Parameters
-        ----------
-        location : str, mandatory
-            job remote location
-        """
-        self.__remoteLocation = location
-
-    def get_remote_location(self):
-        """Returns the job remote location
-
-        Returns
-        -------
-        The job remote location
-        """
-        return self.__remoteLocation
-
-    def set_phase(self, phase):
-        """Sets the job phase
-
-        Parameters
-        ----------
-        phase : str, mandatory
-            job phase
-        """
-        self.__phase = phase
 
     def get_phase(self, update=False):
         """Returns the job phase. May optionally update the job's phase.
@@ -165,25 +102,6 @@ class Job(object):
             self.set_phase(str(response.read().decode('utf-8')))
 
         return self.__phase
-
-    def set_output_file(self, output_file):
-        """Sets the job output file
-
-        Parameters
-        ----------
-        output_file : str, mandatory
-            job output file
-        """
-        self.__outputFile = output_file
-
-    def get_output_file(self):
-        """Returns the job output file
-
-        Returns
-        -------
-        The results output file
-        """
-        return self.__outputFile
 
     def set_response_status(self, status, msg):
         """Sets the HTTP(s) connection status
@@ -261,222 +179,6 @@ class Job(object):
         The job query
         """
         return self.__parameters['query']
-
-    def get_runid(self):
-        """Returns the job run identifier
-
-        Returns
-        -------
-        The job run identifier
-        """
-        return self.__runid
-
-    def set_runid(self, runid):
-        """Sets the job run identifier
-
-        Parameters
-        ----------
-        runid : str, mandatory
-            job run identifier
-        """
-        self.__runid = runid
-
-    def get_ownerid(self):
-        """Returns the job owner identifier
-
-        Returns
-        -------
-        The job owner identifier
-        """
-        return self.__ownerid
-
-    def set_ownerid(self, ownerid):
-        """Sets the job owner identifier
-
-        Parameters
-        ----------
-        ownerid : str, mandatory
-            job owner identifier
-        """
-        self.__ownerid = ownerid
-
-    def set_start_time(self, starttime):
-        """Sets the job start time
-
-        Parameters
-        ----------
-        starttime : str, mandatory
-            job start time
-        """
-        self.__startTime = starttime
-
-    def get_start_time(self):
-        """Returns the job start time
-
-        Returns
-        -------
-        The job start time
-        """
-        return self.__startTime
-
-    def set_end_time(self, endtime):
-        """Sets the job end time
-
-        Parameters
-        ----------
-        endtime : str, mandatory
-            job end time
-        """
-        self.__endTime = endtime
-
-    def get_end_time(self):
-        """Returns the job end time
-
-        Returns
-        -------
-        The job end time
-        """
-        return self.__endTime
-
-    def set_creation_time(self, creationtime):
-        """Sets the job creation time
-
-        Parameters
-        ----------
-        creationtime : str, mandatory
-            job creation time
-        """
-        self.__creationTime = creationtime
-
-    def get_creation_time(self):
-        """Returns the job creation time
-
-        Returns
-        -------
-        The job creation time
-        """
-        return self.__creationTime
-
-    def set_execution_duration(self, executionduration):
-        """Sets the job execution duration
-
-        Parameters
-        ----------
-        executionduration : int, mandatory
-            job execution duration
-        """
-        self.__executionDuration = executionduration
-
-    def get_execution_duration(self):
-        """Returns the job execution duration
-
-        Returns
-        -------
-        The job execution duration
-        """
-        return self.__executionDuration
-
-    def set_destruction(self, destruction):
-        """Sets the job destruction value
-
-        Parameters
-        ----------
-        destruction : int, mandatory
-            job destruction
-        """
-        self.__destruction = destruction
-
-    def get_destruction(self):
-        """Returns the job destruction value
-
-        Returns
-        -------
-        The job destruction value
-        """
-        return self.__destruction
-
-    def set_locationid(self, locationid):
-        """Sets the job location identifier
-
-        Parameters
-        ----------
-        locationid : str, mandatory
-            job location identifier
-        """
-        self.__locationId = locationid
-
-    def get_locationid(self):
-        """Returns the job location identifier
-
-        Returns
-        -------
-        The job location identifier
-        """
-        return self.__locationId
-
-    def set_name(self, name):
-        """Sets the job name
-
-        Parameters
-        ----------
-        name : str, mandatory
-            job name
-        """
-        self.__name = name
-
-    def get_name(self):
-        """Returns the job name
-
-        Returns
-        -------
-        The job name
-        """
-        return self.__name
-
-    def set_quote(self, quote):
-        """Sets the job quote
-
-        Parameters
-        ----------
-        quote : int, mandatory
-            job quote
-        """
-        self.__quote = quote
-
-    def get_quote(self):
-        """Returns the job quote
-
-        Returns
-        -------
-        The job quote
-        """
-        return self.__quote
-
-    def set_parameter(self, key, value):
-        """Sets a job parameter
-
-        Parameters
-        ----------
-        key : str, mandatory
-            job parameter key
-        value : str, mandatory
-            job parameter value
-        """
-        self.__parameters[key] = value
-
-    def get_parameter(self, key):
-        """Returns a job parameter
-
-        Parameters
-        ----------
-        key : str, mandatory
-            job parameter key
-
-        Returns
-        -------
-        The job parameter value
-        """
-        return self.__parameters[key]
 
     def get_parameters(self):
         """Returns the job parameters
