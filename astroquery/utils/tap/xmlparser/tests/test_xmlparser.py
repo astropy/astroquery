@@ -91,11 +91,11 @@ class XmlParserTest(unittest.TestCase):
                 (columnsData[i], c[i].name)
 
     def __check_job(self, job, jobid, jobPhase, jobOwner):
-        assert str(job.get_jobid()) == str(jobid), \
-            "Expected job id: '%s', found '%s'" % (jobid, job.get_jobid())
+        assert str(job.jobid) == str(jobid), \
+            "Expected job id: '%s', found '%s'" % (jobid, job.jobid)
         p = job.get_phase()
         assert str(p) == str(jobPhase), \
             "Expected job phase: %s, found %s" % (jobPhase, p)
-        o = job.get_ownerid()
+        o = job.ownerid
         assert str(o) == str(jobOwner), \
             "Expected job owner: %s, found %s" % (jobOwner, o)
