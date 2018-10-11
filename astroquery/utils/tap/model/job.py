@@ -39,44 +39,34 @@ class Job(object):
         connhandler : TapConn, optional, default None
             Connection handler
         """
-        self.__connHandler = None
-        self.__isFinished = None
-        self.__jobid = None
-        self.__remoteLocation = None
-        self.__phase = None
-        self.__async = None
-        self.__outputFile = None
-        self.__responseStatus = 0
-        self.__responseMsg = None
-        self.__results = None
-        self.__resultInMemory = False
-        self.__failed = False
-        self.__runid = None
-        self.__ownerid = None
-        self.__startTime = None
-        self.__endTime = None
-        self.__creationTime = None
-        self.__executionDuration = None
-        self.__destruction = None
-        self.__locationId = None
-        self.__name = None
-        self.__quote = None
-        self.__parameters = {}
-        # default output format
-        self.set_output_format('votable')
-
-        self.__connHandler = connhandler
         self.__async = async_job
-        self.__parameters['query'] = query
+        self.connHandler = None
+        self.isFinished = None
+        self.jobid = None
+        self.remoteLocation = None
+        self.__phase = None
+        self.outputFile = None
+        self.responseStatus = 0
+        self.responseMsg = None
+        self.results = None
+        self.__resultInMemory = False    # only used within class
+        self.failed = False
+        self.runid = None
+        self.ownerid = None
+        self.startTime = None
+        self.endTime = None
+        self.creationTime = None
+        self.executionDuration = None
+        self.destruction = None
+        self.locationId = None
+        self.name = None
+        self.quote = None
 
-    def is_failed(self):
-        """Returns the job status
-
-        Returns
-        -------
-        'True' if the job is failed
-        """
-        return self.__failed
+        self.connHandler = connhandler
+        self.parameters = {}
+        self.parameters['query'] = query
+        # default output format
+        self.parameters['format'] = 'votable'
 
     def get_phase(self, update=False):
         """Returns the job phase. May optionally update the job's phase.
@@ -92,14 +82,14 @@ class Job(object):
         The job phase
         """
         if update:
-            phase_request = "async/"+str(self.get_jobid())+"/phase"
-            response = self.__connHandler.execute_get(phase_request)
+            phase_request = "async/"+str(self.jobid)+"/phase"
+            response = self.connHandler.execute_get(phase_request)
 
             self.__last_phase_response_status = response.status
             if response.status != 200:
                 raise Exception(response.reason)
 
-            self.set_phase(str(response.read().decode('utf-8')))
+            self.__phase = str(response.read().decode('utf-8'))
 
         return self.__phase
 
@@ -116,61 +106,6 @@ class Job(object):
         self.__responseStatus = status
         self.__responseMsg = msg
 
-    def get_response_status(self):
-        """Returns the HTTP(s) connection status
-
-        Returns
-        -------
-        The HTTP(s) connection response status
-        """
-        return self.__responseStatus
-
-    def get_response_msg(self):
-        """Returns the HTTP(s) connection message
-
-        Returns
-        -------
-        The HTTP(s) connection response message
-        """
-        return self.__responseMsg
-
-    def set_output_format(self, output_format):
-        """Sets the job output format
-
-        Parameters
-        ----------
-        output_format : str, mandatory
-            job results output format
-        """
-        self.__parameters['format'] = output_format
-
-    def get_output_format(self):
-        """Returns the job output format
-
-        Returns
-        -------
-        The job results output format
-        """
-        return self.__parameters['format']
-
-    def is_sync(self):
-        """Returns True if this job was executed synchronously
-
-        Returns
-        -------
-        'True' if the job is synchronous
-        """
-        return not self.__async
-
-    def is_async(self):
-        """Returns True if this job was executed asynchronously
-
-        Returns
-        -------
-        'True' if the job is synchronous
-        """
-        return self.__async
-
     def get_query(self):
         """Returns the job query
 
@@ -179,15 +114,6 @@ class Job(object):
         The job query
         """
         return self.__parameters['query']
-
-    def get_parameters(self):
-        """Returns the job parameters
-
-        Returns
-        -------
-        The job parameters (a list)
-        """
-        return self.__parameters
 
     def get_data(self):
         """Returns the job results (Astroquery API specification)
@@ -209,15 +135,15 @@ class Job(object):
         -------
         The job results (astropy.table).
         """
-        if self.__results is not None:
-            return self.__results
+        if self.results is not None:
+            return self.results
         # try load results from file
         # read_results_table_from_file checks whether the file already exists or not
-        outputFormat = self.get_output_format()
-        results = modelutils.read_results_table_from_file(self.__outputFile,
+        outputFormat = self.parameters['format']
+        results = modelutils.read_results_table_from_file(self.outputFile,
                                                           outputFormat)
         if results is not None:
-            self.set_results(results)
+            self.results = results
             return results
         # Try to load from server: only async
         if not self.__async:
@@ -226,7 +152,7 @@ class Job(object):
         else:
             # async: result is in the server once the job is finished
             self.__load_async_job_results()
-            return self.__results
+            return self.results
 
     def set_results(self, results):
         """Sets the job results
@@ -236,7 +162,7 @@ class Job(object):
         results : Table object, mandatory
             job results
         """
-        self.__results = results
+        self.results = results
         self.__resultInMemory = True
 
     def save_results(self, verbose=False):
@@ -251,7 +177,7 @@ class Job(object):
         """
         output = self.get_output_file()
         if self.__resultInMemory:
-            self.__results.to_xml(output)
+            self.results.to_xml(output)
         else:
             if self.is_sync():
                 # sync: cannot access server again
@@ -298,31 +224,31 @@ class Job(object):
 
     def __load_async_job_results(self, debug=False):
         wjResponse, wjData = self.wait_for_job_end()
-        subContext = "async/" + str(self.__jobid) + "/results/result"
-        resultsResponse = self.__connHandler.execute_get(subContext)
+        subContext = "async/" + str(self.jobid) + "/results/result"
+        resultsResponse = self.connHandler.execute_get(subContext)
         # resultsResponse = self.__readAsyncResults(self.__jobid, debug)
         if debug:
             print(resultsResponse.status, resultsResponse.reason)
             print(resultsResponse.getheaders())
-        isError = self.__connHandler.check_launch_response_status(resultsResponse,
+        isError = self.connHandler.check_launch_response_status(resultsResponse,
                                                                   debug,
                                                                   200)
         if isError:
             print(resultsResponse.reason)
             raise Exception(resultsResponse.reason)
         else:
-            outputFormat = self.get_output_format()
+            outputFormat = self.parameters['format']
             results = utils.read_http_response(resultsResponse, outputFormat)
             self.set_results(results)
             self.__phase = wjData
 
     def __str__(self):
-        if self.__results is None:
+        if self.results is None:
             result = "None"
         else:
-            result = self.__results.info()
-        return "Jobid: " + str(self.__jobid) + \
+            result = self.results.info()
+        return "Jobid: " + str(self.jobid) + \
             "\nPhase: " + str(self.__phase) + \
-            "\nOwner: " + str(self.__ownerid) + \
-            "\nOutput file: " + str(self.__outputFile) + \
+            "\nOwner: " + str(self.ownerid) + \
+            "\nOutput file: " + str(self.outputFile) + \
             "\nResults: " + str(result)
