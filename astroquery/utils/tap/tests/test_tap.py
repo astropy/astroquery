@@ -488,24 +488,24 @@ class TestTap(unittest.TestCase):
 
     def __find_column(self, columnName, columns):
         for c in (columns):
-            if c.get_name() == columnName:
+            if c.name == columnName:
                 return c
         # not found: raise exception
         self.fail("Column '"+columnName+"' not found")
 
     def __check_column(self, column, description, unit, dataType, flag):
-        assert column.get_description() == description, \
+        assert column.description == description, \
             "Wrong description for table %s. Expected: '%s', found '%s'" % \
-            (column.get_name(), description, column.get_description())
-        assert column.get_unit() == unit, \
+            (column.name, description, column.description)
+        assert column.unit == unit, \
             "Wrong unit for table %s. Expected: '%s', found '%s'" % \
-            (column.get_name(), unit, column.get_unit())
-        assert column.get_data_type() == dataType, \
+            (column.name, unit, column.unit)
+        assert column.data_type == dataType, \
             "Wrong dataType for table %s. Expected: '%s', found '%s'" % \
-            (column.get_name(), dataType, column.get_data_type())
-        assert column.get_flag() == flag, \
+            (column.name, dataType, column.data_type)
+        assert column.flag == flag, \
             "Wrong flag for table %s. Expected: '%s', found '%s'" % \
-            (column.get_name(), flag, column.get_flag())
+            (column.name, flag, column.flag)
 
     def __check_results_column(self, results, columnName, description, unit,
                                dataType):

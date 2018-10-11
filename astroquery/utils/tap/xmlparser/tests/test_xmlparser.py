@@ -86,9 +86,9 @@ class XmlParserTest(unittest.TestCase):
         assert len(c) == numColumns, \
             "Expected table1 num columns: %d, found %d" % (numColumns, len(c))
         for i in range(0, numColumns):
-            assert str(c[i].get_name()) == str(columnsData[i]), \
+            assert str(c[i].name) == str(columnsData[i]), \
                 "Expected column name '%s', found: '%s'" % \
-                (columnsData[i], c[i].get_name())
+                (columnsData[i], c[i].name)
 
     def __check_job(self, job, jobid, jobPhase, jobOwner):
         assert str(job.get_jobid()) == str(jobid), \
