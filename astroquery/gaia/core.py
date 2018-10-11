@@ -725,10 +725,6 @@ class GaiaClass(object):
             results format
         verbose : bool, optional, default 'False'
             flag to display information about the process
-
-        Returns
-        -------
-        A message (OK/Error) or a job when the table is big
         """
         return self.__gaiatap.upload_table(
             upload_resource=upload_resource,
@@ -750,10 +746,6 @@ class GaiaClass(object):
             table description
         verbose : bool, optional, default 'False'
             flag to display information about the process
-
-        Returns
-        -------
-        A message (OK/Error) or a job when the table is big
         """
 
         return self.__gaiatap.upload_table_from_job(job=job,
@@ -778,10 +770,6 @@ class GaiaClass(object):
             value is the new value this field of this column will take
         verbose : bool, optional, default 'False'
             flag to display information about the process
-
-        Returns
-        -------
-        A message (OK/Error) or a job when the table is big
         """
         return self.__gaiatap.update_user_table(table_name,
                                                 list_of_changes,
@@ -802,10 +790,6 @@ class GaiaClass(object):
             dec column to be set
         verbose : bool, optional, default 'False'
             flag to display information about the process
-
-        Returns
-        -------
-        A message (OK/Error) or a job when the table is big
         """
 
         return self.__gaiatap.set_ra_dec_columns(table_name,
@@ -825,10 +809,6 @@ class GaiaClass(object):
             flag to indicate if removal should be forced
         verbose : bool, optional, default 'False'
             flag to display information about the process
-
-        Returns
-        -------
-        A message (OK/Error) or a job when the table is big
         """
         return self.__gaiatap.delete_user_table(
             table_name=table_name, force_removal=force_removal,
@@ -895,10 +875,6 @@ class GaiaClass(object):
             description of the sharing
         verbose : bool, optional, default 'False'
             flag to display information about the process
-
-        Returns
-        -------
-        A message (OK/Error) or a job when the table is big
         """
         return self.__gaiatap.share_table(group_name=group_name,
                                           table_name=table_name,
@@ -906,22 +882,22 @@ class GaiaClass(object):
                                           verbose=verbose)
 
     def share_table_stop(self,
+                         group_name=None,
                          table_name=None,
                          verbose=False):
         """Stop sharing a table
 
         Parameters
         ----------
+        group_name: str, required
+            group where the table is shared to
         table_name: str, required
             table to be stopped from being shared
         verbose : bool, optional, default 'False'
             flag to display information about the process
-
-        Returns
-        -------
-        A message (OK/Error) or a job when the table is big
         """
-        return self.__gaiatap.share_table_stop(table_name=table_name,
+        return self.__gaiatap.share_table_stop(group_name=group_name,
+                                               table_name=table_name,
                                                verbose=verbose)
 
     def share_group_create(self,
@@ -938,10 +914,6 @@ class GaiaClass(object):
             description of the group
         verbose : bool, optional, default 'False'
             flag to display information about the process
-
-        Returns
-        -------
-        A message (OK/Error) or a job when the table is big
         """
         return self.__gaiatap.share_group_create(group_name=group_name,
                                                  description=description,
@@ -958,10 +930,6 @@ class GaiaClass(object):
             group to be created
         verbose : bool, optional, default 'False'
             flag to display information about the process
-
-        Returns
-        -------
-        A message (OK/Error) or a job when the table is big
         """
         return self.__gaiatap.share_group_delete(group_name=group_name,
                                                  verbose=verbose)
@@ -980,10 +948,6 @@ class GaiaClass(object):
             user id to be added
         verbose : bool, optional, default 'False'
             flag to display information about the process
-
-        Returns
-        -------
-        A message (OK/Error) or a job when the table is big
         """
         return self.__gaiatap.share_group_add_user(group_name=group_name,
                                                    user_id=user_id,
@@ -1003,10 +967,6 @@ class GaiaClass(object):
             user id to be deleted
         verbose : bool, optional, default 'False'
             flag to display information about the process
-
-        Returns
-        -------
-        A message (OK/Error) or a job when the table is big
         """
         return self.__gaiatap.share_group_delete_user(group_name=group_name,
                                                       user_id=user_id,

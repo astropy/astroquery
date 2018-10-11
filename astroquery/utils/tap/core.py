@@ -938,14 +938,11 @@ class TapPlus(Tap):
         if description is None:
             description = ""
         group = self.load_group(group_name, verbose)
-        
         if group is None:
             raise ValueError("Group '" + group_name + "' not found.")
-        
         table = self.load_table(table=table_name, verbose=verbose)
         if table is None:
             raise ValueError("Table '"+table_name+"' not found.")
-            
         data = ("action=CreateOrUpdateItem&resource_type=0&title=" + 
                    str(table_name) +
                    "&description=" +
@@ -967,35 +964,42 @@ class TapPlus(Tap):
         print(msg)
             
     def share_table_stop(self,
-                    table_name=None,
                     group_name=None,
+                    table_name=None,
                     verbose=False):
         """Stop sharing a table
 
         Parameters
         ----------
-        table_name: str, required
-            table to be stopped from being shared
         group_name: str, required
             group where the table is shared to
+        table_name: str, required
+            table to be stopped from being shared
         verbose : bool, optional, default 'False'
             flag to display information about the process
         """
-        if table_name is None:
-            raise ValueError("'table_name' must be specified")
-        # TODO determine the right group
+        if group_name is None or table_name is None:
+            raise ValueError("Both 'group_name' and 'table_name' must be specified")
+        group = self.load_group(group_name, verbose)
+        if group is None:
+            raise ValueError("Group '" + group_name + "' not found.")
         shared_items = self.load_shared_items(verbose)
         shared_item = None
         for s in shared_items:
             if str(s.get_title()) == str(table_name):
-                shared_item = s
-                break
+                # check group
+                groups = s.get_shared_to_items_list()
+                for g in groups:
+                    if group.get_id() == g.get_id():
+                        shared_item = s
+                        break
+                if shared_item is not None:
+                    break
         if shared_item is None:
-            raise ValueError("'table_name' not found in shared items")
-
+            raise ValueError("Table '"+table_name+"', shared to group '"+group_name+"', not found.")
         data = ("action=RemoveItem&resource_type=0&resource_id=" + 
-                   str(shared_item.get_id()) +
-                   "&resource_type=0")
+                str(shared_item.get_id()) +
+                "&resource_type=0")
         connHandler = self.__getconnhandler()
         response = connHandler.execute_share(data,verbose=verbose)
         if verbose:
@@ -1201,7 +1205,7 @@ class TapPlus(Tap):
         print(msg)
 
     def is_valid_user(self, user_id=None, verbose=False):
-        """Determines if the specified user is valid
+        """Determines if the specified user exists in the system
         TAP+ only
 
         Parameters
@@ -1213,7 +1217,7 @@ class TapPlus(Tap):
 
         Returns
         -------
-        Boolean indicating if the specified user is valid
+        Boolean indicating if the specified user exists
         """
         if user_id is None:
             raise ValueError("'user_id' must be specified")
@@ -1468,7 +1472,7 @@ class TapPlus(Tap):
     def upload_table(self, upload_resource=None, table_name=None, 
                      table_description=None,
                      format=None, verbose=False):
-        """Uploads a table to the  user private space
+        """Uploads a table to the user private space
 
         Parameters
         ----------
@@ -1571,7 +1575,6 @@ class TapPlus(Tap):
         verbose: bool, optional, default 'False'
             flag to display information about the process
         """
-
         if job is None:
             raise ValueError("Missing mandatory argument 'job'")
         
