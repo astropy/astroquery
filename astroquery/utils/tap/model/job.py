@@ -175,28 +175,28 @@ class Job(object):
         verbose : bool, optional, default 'False'
             flag to display information about the process
         """
-        output = self.get_output_file()
+        output = self.outputFile
         if self.__resultInMemory:
             self.results.to_xml(output)
         else:
-            if self.is_sync():
+            if not self.__async:
                 # sync: cannot access server again
                 print("No results to save")
             else:
                 # Async
                 self.wait_for_job_end(verbose)
-                response = self.__connHandler.execute_get(
-                    "async/"+str(self.__jobid)+"/results/result")
+                response = self.connHandler.execute_get(
+                    "async/"+str(self.jobid)+"/results/result")
                 if verbose:
                     print(response.status, response.reason)
                     print(response.getheaders())
-                isError = self.__connHandler.check_launch_response_status(response,
+                isError = self.connHandler.check_launch_response_status(response,
                                                                           verbose,
                                                                           200)
                 if isError:
                     print(response.reason)
                     raise Exception(response.reason)
-                self.__connHandler.dump_to_file(output, response)
+                self.connHandler.dump_to_file(output, response)
 
     def wait_for_job_end(self, verbose=False):
         """Waits until a job is finished
@@ -214,7 +214,7 @@ class Job(object):
 
             lphase = responseData.lower().strip()
             if verbose:
-                print("Job " + self.__jobid + " status: " + lphase)
+                print("Job " + self.jobid + " status: " + lphase)
             if "pending" != lphase and "queued" != lphase and "executing" != lphase:
                 break
             # PENDING, QUEUED, EXECUTING, COMPLETED, ERROR, ABORTED, UNKNOWN,
