@@ -57,10 +57,10 @@ class TestTap(unittest.TestCase):
             "Number of tables expected: %d, found: %d" % (2, len(res))
         # Table 1
         table = self.__find_table('public', 'table1', res)
-        assert table.get_description() == 'Table1 desc', \
+        assert table.description == 'Table1 desc', \
             "Wrong description for table1. Expected: %s, found %s" % \
-            ('Table1 desc', table.get_description())
-        columns = table.get_columns()
+            ('Table1 desc', table.description)
+        columns = table.columns
         assert len(columns) == 2, \
             "Number of columns for table1. Expected: %d, found: %d" % \
             (2, len(columns))
@@ -70,10 +70,10 @@ class TestTap(unittest.TestCase):
         self.__check_column(col, 'Table1 Column2 desc', '', 'INTEGER', None)
         # Table 2
         table = self.__find_table('public', 'table2', res)
-        assert table.get_description() == 'Table2 desc', \
+        assert table.description == 'Table2 desc', \
             "Wrong description for table2. Expected: %s, found %s" % \
-            ('Table2 desc', table.get_description())
-        columns = table.get_columns()
+            ('Table2 desc', table.description)
+        columns = table.columns
         assert len(columns) == 3, \
             "Number of columns for table2. Expected: %d, found: %d" % \
             (3, len(columns))
@@ -161,10 +161,10 @@ class TestTap(unittest.TestCase):
         table = tap.load_table(fullQualifiedTableName)
         assert table is not None, \
             "Table '%s' not found" % (fullQualifiedTableName)
-        assert table.get_description() == 'Table1 desc', \
+        assert table.description == 'Table1 desc', \
             "Wrong description for table1. Expected: %s, found %s" % \
-            ('Table1 desc', table.get_description())
-        columns = table.get_columns()
+            ('Table1 desc', table.description)
+        columns = table.columns
         assert len(columns) == 2, \
             "Number of columns for table1. Expected: %d, found: %d" % \
             (2, len(columns))

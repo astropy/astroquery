@@ -93,7 +93,7 @@ class TableSaxParser(xml.sax.ContentHandler):
         if self.__check_item_id("table", name):
             self.__status = READING_TABLE
             self.__currentTable = TapTableMeta()
-            self.__currentTable.set_schema(self.__currentSchemaName)
+            self.__currentTable.schema = self.__currentSchemaName
 
     def __end_schema(self, name):
         if self.__check_item_id("name", name):
@@ -112,10 +112,10 @@ class TableSaxParser(xml.sax.ContentHandler):
     def __end_table(self, name):
         if self.__check_item_id("name", name):
             self.__stop_reading_data()
-            self.__currentTable.set_name(self.__create_string_from_buffer())
+            self.__currentTable.name = self.__create_string_from_buffer()
         elif self.__check_item_id("description", name):
             self.__stop_reading_data()
-            self.__currentTable.set_description(self.__create_string_from_buffer())
+            self.__currentTable.description = self.__create_string_from_buffer()
         elif self.__check_item_id("table", name):
             self.__tables.append(self.__currentTable)
             self.__status = READING_SCHEMA

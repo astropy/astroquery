@@ -82,7 +82,7 @@ class XmlParserTest(unittest.TestCase):
         assert str(table.get_qualified_name()) == str(qualifiedName), \
             "Expected qualified table name: '%s', found '%s'" % \
             (qualifiedName, table.get_qualified_name())
-        c = table.get_columns()
+        c = table.columns
         assert len(c) == numColumns, \
             "Expected table1 num columns: %d, found %d" % (numColumns, len(c))
         for i in range(0, numColumns):
