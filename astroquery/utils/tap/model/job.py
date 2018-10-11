@@ -39,12 +39,12 @@ class Job(object):
         connhandler : TapConn, optional, default None
             Connection handler
         """
-        self.__async = async_job
+        self._async = async_job
         self.connHandler = None
         self.isFinished = None
         self.jobid = None
         self.remoteLocation = None
-        self.__phase = None
+        self._phase = None
         self.outputFile = None
         self.responseStatus = 0
         self.responseMsg = None
@@ -89,9 +89,9 @@ class Job(object):
             if response.status != 200:
                 raise Exception(response.reason)
 
-            self.__phase = str(response.read().decode('utf-8'))
+            self._phase = str(response.read().decode('utf-8'))
 
-        return self.__phase
+        return self._phase
 
     def set_response_status(self, status, msg):
         """Sets the HTTP(s) connection status
@@ -105,15 +105,6 @@ class Job(object):
         """
         self.__responseStatus = status
         self.__responseMsg = msg
-
-    def get_query(self):
-        """Returns the job query
-
-        Returns
-        -------
-        The job query
-        """
-        return self.__parameters['query']
 
     def get_data(self):
         """Returns the job results (Astroquery API specification)
@@ -146,7 +137,7 @@ class Job(object):
             self.results = results
             return results
         # Try to load from server: only async
-        if not self.__async:
+        if not self._async:
             # sync: result is in a file
             return None
         else:
@@ -179,7 +170,7 @@ class Job(object):
         if self.__resultInMemory:
             self.results.to_xml(output)
         else:
-            if not self.__async:
+            if not self._async:
                 # sync: cannot access server again
                 print("No results to save")
             else:
@@ -240,7 +231,7 @@ class Job(object):
             outputFormat = self.parameters['format']
             results = utils.read_http_response(resultsResponse, outputFormat)
             self.set_results(results)
-            self.__phase = wjData
+            self._phase = wjData
 
     def __str__(self):
         if self.results is None:
@@ -248,7 +239,7 @@ class Job(object):
         else:
             result = self.results.info()
         return "Jobid: " + str(self.jobid) + \
-            "\nPhase: " + str(self.__phase) + \
+            "\nPhase: " + str(self._phase) + \
             "\nOwner: " + str(self.ownerid) + \
             "\nOutput file: " + str(self.outputFile) + \
             "\nResults: " + str(result)
