@@ -39,11 +39,13 @@ class Job(object):
         connhandler : TapConn, optional, default None
             Connection handler
         """
+        # async is a reserved keyword starting python 3.7
         self._async = async_job
         self.connHandler = None
         self.isFinished = None
         self.jobid = None
         self.remoteLocation = None
+        # phase is actually indended to be private as get_phase is non-trivial
         self._phase = None
         self.outputFile = None
         self.responseStatus = 0
