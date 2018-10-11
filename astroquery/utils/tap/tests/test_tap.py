@@ -208,11 +208,11 @@ class TestTap(unittest.TestCase):
         responseLaunchJob.set_message("OK")
         job = tap.launch_job(query)
         assert job is not None, "Expected a valid job"
-        assert job.is_sync(), "Expected a synchronous job"
+        assert job._async is False, "Expected a synchronous job"
         assert job.get_phase() == 'COMPLETED', \
             "Wrong job phase. Expected: %s, found %s" % \
             ('COMPLETED', job.get_phase())
-        assert job.is_failed() is False, "Wrong job status (set Failed = True)"
+        assert job.failed is False, "Wrong job status (set Failed = True)"
         # results
         results = job.get_results()
         assert len(results) == 3, \
@@ -313,11 +313,11 @@ class TestTap(unittest.TestCase):
         responseResultsJob.set_message("OK")
         job = tap.launch_job(query)
         assert job is not None, "Expected a valid job"
-        assert job.is_sync(), "Expected a synchronous job"
+        assert job._async is False, "Expected a synchronous job"
         assert job.get_phase() == 'COMPLETED', \
             "Wrong job phase. Expected: %s, found %s" % \
             ('COMPLETED', job.get_phase())
-        assert job.is_failed() is False, "Wrong job status (set Failed = True)"
+        assert job.failed is False, "Wrong job status (set Failed = True)"
         # Results
         results = job.get_results()
         assert len(results) == 3, \
@@ -411,11 +411,11 @@ class TestTap(unittest.TestCase):
         responseResultsJob.set_message("OK")
         job = tap.launch_job_async(query)
         assert job is not None, "Expected a valid job"
-        assert job.is_sync() is False, "Expected an asynchronous job"
+        assert job._async is True, "Expected an asynchronous job"
         assert job.get_phase() == 'COMPLETED', \
             "Wrong job phase. Expected: %s, found %s" % \
             ('COMPLETED', job.get_phase())
-        assert job.is_failed() is False, "Wrong job status (set Failed = True)"
+        assert job.failed is False, "Wrong job status (set Failed = True)"
         # results
         results = job.get_results()
         assert len(results) == 3, \
@@ -465,18 +465,18 @@ class TestTap(unittest.TestCase):
         assert len(jobs) == 2, \
             "Wrong jobs number. Expected: %d, found %d" % \
             (2, len(jobs))
-        assert jobs[0].get_jobid() == '12345', \
+        assert jobs[0].jobid == '12345', \
             "Wrong job id. Expected: %s, found %s" % \
             ('12345', jobs[0].get_jobid())
         assert jobs[0].get_phase() == 'COMPLETED', \
             "Wrong job phase for job %s. Expected: %s, found %s" % \
-            (jobs[0].get_jobid(), 'COMPLETED', jobs[0].get_phase())
-        assert jobs[1].get_jobid() == '77777', \
+            (jobs[0].jobid, 'COMPLETED', jobs[0].get_phase())
+        assert jobs[1].jobid == '77777', \
             "Wrong job id. Expected: %s, found %s" % \
-            ('77777', jobs[1].get_jobid())
+            ('77777', jobs[1].jobid)
         assert jobs[1].get_phase() == 'ERROR', \
             "Wrong job phase for job %s. Expected: %s, found %s" % \
-            (jobs[1].get_jobid(), 'ERROR', jobs[1].get_phase())
+            (jobs[1].jobid, 'ERROR', jobs[1].get_phase())
 
     def __find_table(self, schemaName, tableName, tables):
         qualifiedName = schemaName + "." + tableName
