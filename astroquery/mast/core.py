@@ -130,6 +130,7 @@ def _mashup_json_to_table(json_obj, col_config=None):
 
     return dataTable
 
+
 @async_to_sync
 class MastClass(QueryWithLogin):
     """
@@ -202,7 +203,6 @@ class MastClass(QueryWithLogin):
             return self._session_info(*args, **kwargs)
         else:
             raise Exception("Unknown MAST Auth mode %s" % self._auth_mode)
-        
 
     def _shib_attach_cookie(self, session_token):  # pragma: no cover
         """
@@ -523,12 +523,15 @@ class MastClass(QueryWithLogin):
             warnings.warn("Query returned no results.", NoResultsWarning)
         return allResults
 
-    def _authorize(self, token=None): # pragma: no cover
+    def _authorize(self, token=None):  # pragma: no cover
         if token is None and "MAST_API_TOKEN" in os.environ:
             token = os.environ["MAST_API_TOKEN"]
 
         if token is None:
-            log.info("If you do not have an API token already, visit the following link to create one: " + conf.server.replace("mast", "auth.mast") + "/token?suggested_name=Astroquery&suggested_scope=mast:proprietary")
+            log.info(
+                "If you do not have an API token already, visit the following link to create one: " +
+                conf.server.replace("mast", "auth.mast") +
+                "/token?suggested_name=Astroquery&suggested_scope=mast:proprietary")
             token = input("Please enter your MAST Auth token: ")
 
         self._session.headers["Accept"] = "application/json"
@@ -543,7 +546,7 @@ class MastClass(QueryWithLogin):
         return not info["anon"]
 
     def _shib_legacy_login(self, username=None, password=None, session_token=None,
-               store_password=False, reenter_password=False):  # pragma: no cover
+                           store_password=False, reenter_password=False):  # pragma: no cover
         """
         Log into the MAST portal.
 
@@ -610,7 +613,7 @@ class MastClass(QueryWithLogin):
         self._session.cookies.clear_session_cookies()
         self._authenticated = False
 
-    def _get_token(self): # pragma: no cover
+    def _get_token(self):  # pragma: no cover
         """
         Returns MAST token cookie.
 
@@ -629,8 +632,8 @@ class MastClass(QueryWithLogin):
             warnings.warn("No auth token found.", AuthenticationWarning)
 
         return tokenCookie
-        
-    def _session_info(self, silent=False): # pragma: no cover
+
+    def _session_info(self, silent=False):  # pragma: no cover
         """
         Displays information about current MAST user, and returns user info dictionary.
 
@@ -680,7 +683,7 @@ class MastClass(QueryWithLogin):
 
         return shibCookie
 
-    def _shib_session_info(self, silent=False): # pragma: no cover
+    def _shib_session_info(self, silent=False):  # pragma: no cover
         """
         Displays information about current MAST session, and returns session info dictionary.
 
