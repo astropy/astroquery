@@ -529,9 +529,9 @@ class MastClass(QueryWithLogin):
 
         if token is None:
             log.info(
-                "If you do not have an API token already, visit the following link to create one: " +
-                conf.server.replace("mast", "auth.mast") +
-                "/token?suggested_name=Astroquery&suggested_scope=mast:proprietary")
+                "If you do not have an API token already, visit the following link to create one: " \
+                + conf.server.replace("mast", "auth.mast") \
+                + "/token?suggested_name=Astroquery&suggested_scope=mast:proprietary")
             token = input("Please enter your MAST Auth token: ")
 
         self._session.headers["Accept"] = "application/json"
