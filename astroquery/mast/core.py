@@ -130,7 +130,6 @@ def _mashup_json_to_table(json_obj, col_config=None):
 
     return dataTable
 
-
 @async_to_sync
 class MastClass(QueryWithLogin):
     """
@@ -148,21 +147,64 @@ class MastClass(QueryWithLogin):
         self._MAST_DOWNLOAD_URL = conf.server + "/api/v0/download/file"
         self._COLUMNS_CONFIG_URL = conf.server + "/portal/Mashup/Mashup.asmx/columnsconfig"
 
-        # shibbolith urls
-        self._SP_TARGET = conf.server + "/api/v0/Mashup/Login/login.html"
-        self._IDP_ENDPOINT = conf.ssoserver + "/idp/profile/SAML2/SOAP/ECP"
-        self._SESSION_INFO_URL = conf.server + "/Shibboleth.sso/Session"
-
         self.TIMEOUT = conf.timeout
         self.PAGESIZE = conf.pagesize
 
         self._column_configs = dict()
         self._current_service = None
 
+        self._auth_mode = "SHIB-ECP"
+
+        # Detect auth mode from auth_type endpoint
+        resp = self._session.get(conf.server + '/auth_type')
+        if resp.status_code == 200:
+            self._auth_mode = resp.text.strip()
+        else:
+            log.warning("Unknown MAST auth mode, defaulting to Legacy Shibboleth login")
+
+        # HACK
+        self._auth_mode = "MAST-AUTH"
+
+        if "SHIB-ECP" == self._auth_mode:
+            log.debug("Using Legacy Shibboleth login")
+            self._SESSION_INFO_URL = conf.server + "/Shibboleth.sso/Session"
+            self._SP_TARGET = conf.server + "/api/v0/Mashup/Login/login.html"
+            self._IDP_ENDPOINT = conf.ssoserver + "/idp/profile/SAML2/SOAP/ECP"
+        elif "MAST-AUTH" == self._auth_mode:
+            log.debug("Using Auth.MAST login")
+            self._SESSION_INFO_URL = conf.server + "/whoami"
+        else:
+            raise Exception("Unknown MAST Auth mode %s" % self._auth_mode)
+
         if username or session_token:
             self.login(username, password, session_token)
 
-    def _attach_cookie(self, session_token):  # pragma: no cover
+    def _login(self, *args, **kwargs):
+        if "SHIB-ECP" == self._auth_mode:
+            return self._shib_legacy_login(*args, **kwargs)
+        elif "MAST-AUTH" == self._auth_mode:
+            return self._authorize(*args, **kwargs)
+        else:
+            raise Exception("Unknown MAST Auth mode %s" % self._auth_mode)
+
+    def get_token(self, *args, **kwargs):
+        if "SHIB-ECP" == self._auth_mode:
+            return self._shib_get_token(*args, **kwargs)
+        elif "MAST-AUTH" == self._auth_mode:
+            return self._get_token(*args, **kwargs)
+        else:
+            raise Exception("Unknown MAST Auth mode %s" % self._auth_mode)
+
+    def session_info(self, *args, **kwargs):
+        if "SHIB-ECP" == self._auth_mode:
+            return self._shib_session_info(*args, **kwargs)
+        elif "MAST-AUTH" == self._auth_mode:
+            return self._session_info(*args, **kwargs)
+        else:
+            raise Exception("Unknown MAST Auth mode %s" % self._auth_mode)
+        
+
+    def _shib_attach_cookie(self, session_token):  # pragma: no cover
         """
         Attaches a valid shibboleth session cookie to the current session.
 
@@ -481,7 +523,26 @@ class MastClass(QueryWithLogin):
             warnings.warn("Query returned no results.", NoResultsWarning)
         return allResults
 
-    def _login(self, username=None, password=None, session_token=None,
+    def _authorize(self, token=None): # pragma: no cover
+        if token is None and "MAST_API_TOKEN" in os.environ:
+            token = os.environ["MAST_API_TOKEN"]
+
+        if token is None:
+            log.info("If you do not have an API token already, visit the following link to create one: " + conf.server.replace("mast", "auth.mast") + "/token?suggested_name=Astroquery&suggested_scope=mast:proprietary")
+            token = input("Please enter your MAST Auth token: ")
+
+        self._session.headers["Accept"] = "application/json"
+        self._session.cookies["mast_token"] = token
+        info = self.session_info(silent=True)
+
+        if not info["anon"]:
+            log.info("MAST API token accepted, welcome %s" % info["attrib"].get("display_name"))
+        else:
+            log.warn("MAST API token invalid!")
+
+        return not info["anon"]
+
+    def _shib_legacy_login(self, username=None, password=None, session_token=None,
                store_password=False, reenter_password=False):  # pragma: no cover
         """
         Log into the MAST portal.
@@ -522,7 +583,7 @@ class MastClass(QueryWithLogin):
                           InputWarning)
 
         if session_token:
-            return self._attach_cookie(session_token)
+            return self._shib_attach_cookie(session_token)
         else:
             # get username if not supplied
             if not username:
@@ -549,7 +610,57 @@ class MastClass(QueryWithLogin):
         self._session.cookies.clear_session_cookies()
         self._authenticated = False
 
-    def get_token(self):  # pragma: no cover
+    def _get_token(self): # pragma: no cover
+        """
+        Returns MAST token cookie.
+
+        Returns
+        -------
+        response : `~http.cookiejar.Cookie`
+        """
+
+        tokenCookie = None
+        for cookie in self._session.cookies:
+            if "mast_token" in cookie.name:
+                tokenCookie = cookie
+                break
+
+        if not tokenCookie:
+            warnings.warn("No auth token found.", AuthenticationWarning)
+
+        return tokenCookie
+        
+    def _session_info(self, silent=False): # pragma: no cover
+        """
+        Displays information about current MAST user, and returns user info dictionary.
+
+        Parameters
+        ----------
+        silent : bool, optional
+            Default False.
+            Suppresses output to stdout.
+
+        Returns
+        -------
+        response : dict
+        """
+
+        # get user information
+        response = self._session.request("GET", self._SESSION_INFO_URL)
+
+        infoDict = json.loads(response.text)
+
+        if not silent:
+            for key, value in infoDict.items():
+                if isinstance(value, dict):
+                    for subkey, subval in value.items():
+                        print("%s.%s: %s" % (key, subkey, subval))
+                else:
+                    print("%s: %s" % (key, value))
+
+        return infoDict
+
+    def _shib_get_token(self):  # pragma: no cover
         """
         Returns MAST session cookie.
 
@@ -569,7 +680,7 @@ class MastClass(QueryWithLogin):
 
         return shibCookie
 
-    def session_info(self, silent=False):
+    def _shib_session_info(self, silent=False): # pragma: no cover
         """
         Displays information about current MAST session, and returns session info dictionary.
 
