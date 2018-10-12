@@ -449,6 +449,7 @@ class Tap(object):
 
     def __launchJobMultipart(self, query, uploadResource, uploadTableName,
                              outputFormat, context, verbose, name=None):
+        from astropy.table import Table
         uploadValue = str(uploadTableName) + ",param:" + str(uploadTableName)
         args = {
             "REQUEST": "doQuery",
@@ -460,9 +461,17 @@ class Tap(object):
             "UPLOAD": ""+str(uploadValue)}
         if name is not None:
             args['jobname'] = name
-        f = open(uploadResource, "r")
-        chunk = f.read()
-        f.close()
+        if isinstance(uploadResource, Table):
+            from io import BytesIO
+            with BytesIO() as f:
+                uploadResource.write(f, format='votable')
+                f.seek(0)
+                chunk = f.read().decode()
+            uploadResource = 'table.xml'
+        else:
+            f = open(uploadResource, "r")
+            chunk = f.read()
+            f.close()
         files = [[uploadTableName, uploadResource, chunk]]
         contentType, body = self.__connHandler.encode_multipart(args, files)
         response = self.__connHandler.execute_post(context, body, contentType)
