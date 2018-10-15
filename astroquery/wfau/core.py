@@ -473,7 +473,7 @@ class BaseWFAUClass(QueryWithLogin):
             Attributes to select from the table.  See, e.g.,
             http://horus.roe.ac.uk/vsa/crossID_notes.html
         constraints : str, optional
-            SQL constraints to the search. Default is empty (no constrains 
+            SQL constraints to the search. Default is empty (no constrains
             applied).
 
         Returns
@@ -537,7 +537,7 @@ class BaseWFAUClass(QueryWithLogin):
             Attributes to select from the table.  See, e.g.,
             http://horus.roe.ac.uk/vsa/crossID_notes.html
         constraints : str, optional
-            SQL constraints to the search. Default is empty (no constrains 
+            SQL constraints to the search. Default is empty (no constrains
             applied).
 
         Returns
@@ -872,11 +872,11 @@ def clean_catalog(wfau_catalog, clean_band='K_1', badclass=-9999,
     """
 
     band = clean_band
-    mask = ((wfau_catalog[band + 'ERRBITS'] <= maxerrbits) *
-            (wfau_catalog[band + 'ERRBITS'] >= minerrbits) *
-            ((wfau_catalog['PRIORSEC'] == wfau_catalog['FRAMESETID']) +
-             (wfau_catalog['PRIORSEC'] == 0)) *
-            (wfau_catalog[band + 'PPERRBITS'] < maxpperrbits)
+    mask = ((wfau_catalog[band + 'ERRBITS'] <= maxerrbits)
+            * (wfau_catalog[band + 'ERRBITS'] >= minerrbits)
+            * ((wfau_catalog['PRIORSEC'] == wfau_catalog['FRAMESETID'])
+            + (wfau_catalog['PRIORSEC'] == 0))
+            * (wfau_catalog[band + 'PPERRBITS'] < maxpperrbits)
             )
     if band + 'CLASS' in wfau_catalog.colnames:
         mask *= (wfau_catalog[band + 'CLASS'] != badclass)
