@@ -155,17 +155,27 @@ def parse_coordinates(coordinates):
     """
     if isinstance(coordinates, six.string_types):
         try:
-            c = ICRSCoord.from_name(coordinates)
-        except coord.name_resolve.NameResolveError:
-            try:
-                c = ICRSCoordGenerator(coordinates)
-                warnings.warn("Coordinate string is being interpreted as an "
-                              "ICRS coordinate.")
-            except u.UnitsError:
-                warnings.warn("Only ICRS coordinates can be entered as "
-                              "strings.\n For other systems please use the "
-                              "appropriate astropy.coordinates object.")
-                raise u.UnitsError
+            c = ICRSCoordGenerator(coordinates)
+            warnings.warn("Coordinate string is being interpreted as an "
+                          "ICRS coordinate.")
+
+        except u.UnitsError:
+            warnings.warn("Only ICRS coordinates can be entered as "
+                          "strings.\n For other systems please use the "
+                          "appropriate astropy.coordinates object.")
+            raise u.UnitsError
+        except ValueError as err:
+            if isinstance(err.args[1], u.UnitsError):
+                try:
+                    c = ICRSCoordGenerator(coordinates, unit='deg')
+                    warnings.warn("Coordinate string is being interpreted as an "
+                                  "ICRS coordinate provided in degrees.")
+
+                except ValueError:
+                    c = ICRSCoord.from_name(coordinates)
+            else:
+                c = ICRSCoord.from_name(coordinates)
+
     elif isinstance(coordinates, CoordClasses):
         if hasattr(coordinates, 'frame'):
             c = coordinates

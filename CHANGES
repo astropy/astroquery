@@ -28,6 +28,10 @@
 - MAST: Fixing mrp_only but and changing default to False [#1238]
 - SPLATALOGUE: Minor - utils & tests updated to match upstream change [#1236]
 - FERMI: Switch to HTTPS [#1241]
+- utils: fix bug in ``parse_coordinates``, now strings that can be
+  interpreted as coordinates are not sent through Sesame. When unit is not
+  provided, degrees is now explicitely assumed. [#1252]
+
 
 0.3.8 (2018-04-27)
 ------------------
