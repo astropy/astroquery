@@ -208,7 +208,7 @@ def get_table_name(full_qualified_table_name):
     """
     pos = full_qualified_table_name.rfind('.')+1
     if pos == -1:
-        return None
+        return full_qualified_table_name
     jobid = full_qualified_table_name[pos:]
     return jobid
 
