@@ -175,3 +175,40 @@ def get_jobid_from_location(location):
     pos = location.rfind('/')+1
     jobid = location[pos:]
     return jobid
+
+def get_schema_name(full_qualified_table_name):
+    """Extracts the schema name form a full qualified table name.
+
+    Parameters
+    ----------
+    full_qualified_table_name : str, mandatory
+        A full qualified table name (i.e. schema name and table name)
+
+    Returns
+    -------
+    The schema name or None.
+    """
+    pos = full_qualified_table_name.rfind('.')+1
+    if pos == -1:
+        return None
+    jobid = full_qualified_table_name[0,pos]
+    return jobid
+
+def get_table_name(full_qualified_table_name):
+    """Extracts the table name form a full qualified table name.
+
+    Parameters
+    ----------
+    full_qualified_table_name : str, mandatory
+        A full qualified table name (i.e. schema name and table name)
+
+    Returns
+    -------
+    The table name or None.
+    """
+    pos = full_qualified_table_name.rfind('.')+1
+    if pos == -1:
+        return None
+    jobid = full_qualified_table_name[pos:]
+    return jobid
+

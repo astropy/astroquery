@@ -21,6 +21,7 @@ from astropy import units
 from astropy.units import Quantity
 from astropy import config as _config
 import six
+from utils.tap import taputils
 
 
 class Conf(_config.ConfigNamespace):
@@ -990,6 +991,68 @@ class GaiaClass(object):
         
         return self.__gaiatap.is_valid_user(user_id=user_id,
                                             verbose=verbose)
+    def cross_match(self, full_qualified_table_name_a=None,
+                    full_qualified_table_name_b=None,
+                    results_table_name=None,
+                    radius=1.0,
+                    background=False,
+                    verbose=False):
+        """Performs a cross match between the specified tables
+        The result is a join table (stored in the user storage area)
+        with the identifies of both tables and the distance.
+        TAP+ only
 
+        Parameters
+        ----------
+        full_qualified_table_name_a : str, mandatory
+            a full qualified table name (i.e. schema name and table name)
+        full_qualified_table_name_b : str, mandatory
+            a full qualified table name (i.e. schema name and table name)
+        results_table_name : str, mandatory
+            a table name without schema. The schema is set to the user one
+        radius : float (arc. seconds), optional, default 1.0
+            radius  (valid range: 0.1-10.0)
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        Boolean indicating if the specified user is valid
+        """
+        if full_qualified_table_name_a is None:
+            raise ValueError("Table name A argument is mandatory")
+        if full_qualified_table_name_b is None:
+            raise ValueError("Table name B argument is mandatory")
+        if results_table_name is None:
+            raise ValueError("Results table name argument is mandatory")
+        if radius < 0.1 and radius > 10.0:
+            raise ValueError("Invalid radius value. Found "+radius+\
+                             ", valid range is: 0.1 to 10.0")
+        schemaA = taputils.get_schema_name(full_qualified_table_name_a)
+        if schemaA is None:
+            raise ValueError("Not found schema name in full qualified table A: '"\
+                             +full_qualified_table_name_a+"'")
+        tableA = taputils.get_table_name(full_qualified_table_name_a)
+        schemaB = taputils.get_schema_name(full_qualified_table_name_b)
+        if schemaB is None:
+            raise ValueError("Not found schema name in full qualified table B: '"\
+                             +full_qualified_table_name_b+"'")
+        tableB = taputils.get_table_name(full_qualified_table_name_b)
+        query = "SELECT crossmatch_positional(\
+            '"+schemaA+"','"+tableA+"',\
+            '"+schemaB+"','"+tableB+"',\
+            "+radius+",\
+            '"+str(results_table_name)+"')\
+            FROM dual;"
+        name=str(results_table_name)
+        return self.launch_job_async(query=query, 
+                                     name=name, 
+                                     output_file=None,
+                                     output_format="votable", 
+                                     verbose=verbose, 
+                                     dump_to_file=False, 
+                                     background=background,
+                                     upload_resource=None,
+                                     upload_table_name=None)
 
 Gaia = GaiaClass()
