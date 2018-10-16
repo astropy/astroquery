@@ -50,3 +50,15 @@ class TestUkidss:
             radius=6 * u.arcsec, programme_id='GPS')
         assert isinstance(table, Table)
         assert len(table) > 0
+
+    def test_query_region_constraints(self):
+        crd = SkyCoord(l=10.625, b=-0.38, unit=(u.deg, u.deg), frame='galactic')
+        rad = 6 * u.arcsec
+        constraints = '(priOrSec<=0 OR priOrSec=frameSetID)'
+        table_noconstraint = ukidss.core.Ukidss.query_region(
+            crd, radius=rad, programme_id='GPS')
+        table_constraint = ukidss.core.Ukidss.query_region(
+            crd, radius=rad, programme_id='GPS', constraints=constraints)
+
+        assert isinstance(table_constraint, Table)
+        assert len(table_noconstraint) >= len(table_constraint)
