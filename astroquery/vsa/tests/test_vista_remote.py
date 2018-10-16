@@ -62,3 +62,14 @@ class TestVista:
         table = vista.query_region(crd, radius=6 * u.arcsec, programme_id='VVV')
         assert isinstance(table, Table)
         assert len(table) > 0
+
+    @pytest.mark.dependency(depends=["vsa_up"])
+    def test_query_region_constraints(self):
+        crd = SkyCoord(l=350.488, b=0.949, unit=(u.deg, u.deg), frame='galactic')
+        rad = 6 * u.arcsec
+        constraints = '(priOrSec<=0 OR priOrSec=frameSetID)'
+        table_noconstraint = vista.query_region(crd, radius=rad, programme_id='VVV')
+        table_constraint = vista.query_region(crd, radius=rad, programme_id='VVV',
+                                              constraints=constraints)
+        assert isinstance(table_constraint, Table)
+        assert len(table_noconstraint) >= len(table_constraint)
