@@ -436,7 +436,8 @@ class BaseWFAUClass(QueryWithLogin):
 
     def query_region(self, coordinates, radius=1 * u.arcmin,
                      programme_id=None, database=None,
-                     verbose=False, get_query_payload=False, system='J2000'):
+                     verbose=False, get_query_payload=False, system='J2000',
+                     attributes=['default'], constraints=''):
         """
         Used to query a region around a known identifier or given
         coordinates from the catalog.
@@ -468,6 +469,12 @@ class BaseWFAUClass(QueryWithLogin):
         system : 'J2000' or 'Galactic'
             The system in which to perform the query. Can affect the output
             data columns.
+        attributes : list, optional.
+            Attributes to select from the table.  See, e.g.,
+            http://horus.roe.ac.uk/vsa/crossID_notes.html
+        constraints : str, optional
+            SQL constraints to the search. Default is empty (no constrains
+            applied).
 
         Returns
         -------
@@ -488,7 +495,8 @@ class BaseWFAUClass(QueryWithLogin):
                                            programme_id=programme_id,
                                            database=database,
                                            get_query_payload=get_query_payload,
-                                           system=system)
+                                           system=system, attributes=attributes,
+                                           constraints=constraints)
         if get_query_payload:
             return response
 
@@ -498,7 +506,8 @@ class BaseWFAUClass(QueryWithLogin):
     def query_region_async(self, coordinates, radius=1 * u.arcmin,
                            programme_id=None,
                            database=None, get_query_payload=False,
-                           system='J2000'):
+                           system='J2000', attributes=['default'],
+                           constraints=''):
         """
         Serves the same purpose as `query_region`. But
         returns the raw HTTP response rather than the parsed result.
@@ -524,6 +533,12 @@ class BaseWFAUClass(QueryWithLogin):
         get_query_payload : bool, optional
             If `True` then returns the dictionary sent as the HTTP request.
             Defaults to `False`.
+        attributes : list, optional.
+            Attributes to select from the table.  See, e.g.,
+            http://horus.roe.ac.uk/vsa/crossID_notes.html
+        constraints : str, optional
+            SQL constraints to the search. Default is empty (no constrains
+            applied).
 
         Returns
         -------
@@ -555,8 +570,8 @@ class BaseWFAUClass(QueryWithLogin):
         request_payload['format'] = 'VOT'
         request_payload['compress'] = 'NONE'
         request_payload['rows'] = 1
-        request_payload['select'] = 'default'
-        request_payload['where'] = ''
+        request_payload['select'] = ','.join(attributes)
+        request_payload['where'] = constraints
 
         # for some reason, this is required on the VISTA website
         if self.archive is not None:
