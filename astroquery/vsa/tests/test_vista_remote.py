@@ -31,10 +31,9 @@ class TestVista:
     @pytest.mark.dependency(depends=["vsa_up"])
     def test_get_images(self):
 
-        crd = SkyCoord(l=336.489, b=-1.48, unit=(u.deg, u.deg),
-                       frame='galactic')
-        images = vista.get_images(crd, frame_type='tilestack', image_width=5 *
-                                  u.arcmin, waveband='H')
+        crd = SkyCoord(l=336.489, b=-1.48, unit=(u.deg, u.deg), frame='galactic')
+        images = vista.get_images(crd, frame_type='tilestack',
+                                  image_width=5 * u.arcmin, waveband='H')
         assert images is not None
 
     @pytest.mark.dependency(depends=["vsa_up"])
