@@ -1025,8 +1025,8 @@ class GaiaClass(object):
             raise ValueError("Table name B argument is mandatory")
         if results_table_name is None:
             raise ValueError("Results table name argument is mandatory")
-        if radius < 0.1 and radius > 10.0:
-            raise ValueError("Invalid radius value. Found "+radius+\
+        if radius < 0.1 or radius > 10.0:
+            raise ValueError("Invalid radius value. Found "+str(radius)+\
                              ", valid range is: 0.1 to 10.0")
         schemaA = taputils.get_schema_name(full_qualified_table_name_a)
         if schemaA is None:

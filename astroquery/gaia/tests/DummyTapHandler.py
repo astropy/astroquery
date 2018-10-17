@@ -247,9 +247,12 @@ class DummyTapHandler(object):
         self.__parameters['verbose'] = verbose
         return None
 
-    def upload_table_from_job(self, job=None, verbose=False):
+    def upload_table_from_job(self, job=None, table_name=None, 
+                              table_description=None, verbose=False):
         self.__invokedMethod = 'upload_table_from_job'
         self.__parameters['job'] = job
+        self.__parameters['table_name'] = table_name
+        self.__parameters['table_description'] = table_description
         self.__parameters['verbose'] = verbose
         return None
 
@@ -289,10 +292,12 @@ class DummyTapHandler(object):
         return None
 
     def share_table_stop(self,
+                         group_name=None,
                          table_name=None,
                          verbose=False):
         self.__invokedMethod = 'share_table_stop'
         self.__parameters['table_name'] = table_name
+        self.__parameters['group_name'] = group_name
         self.__parameters['verbose'] = verbose
         return None
 
@@ -339,3 +344,4 @@ class DummyTapHandler(object):
         self.__parameters['user_id'] = user_id
         self.__parameters['verbose'] = verbose
         return None
+

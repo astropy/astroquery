@@ -593,11 +593,14 @@ class TestTap(unittest.TestCase):
 
         job = "1536044389256O"
         verbose = True
-
+        table_name='table'
+        table_description='desc'
         parameters = {}
         parameters['job'] = job
+        parameters['table_name'] = table_name
+        parameters['table_description'] = table_description
         parameters['verbose'] = verbose
-        tap.upload_table_from_job(job, verbose)
+        tap.upload_table_from_job(job=job, table_name=table_name, table_description=table_description, verbose=verbose)
         dummyHandler.check_call('upload_table_from_job', parameters)
 
     def test_delete_user_table(self):
@@ -676,13 +679,16 @@ class TestTap(unittest.TestCase):
         tap = GaiaClass(dummyHandler, dummyHandler)
 
         table_name = "table1"
+        group_name = "group1"
         verbose = True
 
         parameters = {}
         parameters['table_name'] = table_name
+        parameters['group_name'] = group_name
         parameters['verbose'] = verbose
 
-        tap.share_table_stop(table_name, verbose)
+        tap.share_table_stop(group_name=group_name, table_name=table_name, 
+                             verbose=verbose)
         dummyHandler.check_call('share_table_stop', parameters)
 
     def test_share_group_create(self):
@@ -728,6 +734,85 @@ class TestTap(unittest.TestCase):
 
         tap.is_valid_user(user_id, verbose)
         dummyHandler.check_call('is_valid_user', parameters)
+
+    def test_xmatch(self):
+        dummyTapHandler = DummyTapHandler()
+        tap = GaiaClass(dummyTapHandler)
+        # check parameters
+        # missing table A
+        with pytest.raises(ValueError) as err:
+            tap.cross_match(full_qualified_table_name_a=None, full_qualified_table_name_b='schemaB.tableB', results_table_name='results')
+        assert "Table name A argument is mandatory" in err.value.args[0]
+        # missing schema A
+        with pytest.raises(ValueError) as err:
+            tap.cross_match(full_qualified_table_name_a='tableA', full_qualified_table_name_b='schemaB.tableB', results_table_name='results')
+        assert "Not found schema name in full qualified table A: 'tableA'" in err.value.args[0]
+        # missing table B
+        with pytest.raises(ValueError) as err:
+            tap.cross_match(full_qualified_table_name_a='schemaA.tableA', full_qualified_table_name_b=None, results_table_name='results')
+        assert "Table name B argument is mandatory" in err.value.args[0]
+        # missing schema B
+        with pytest.raises(ValueError) as err:
+            tap.cross_match(full_qualified_table_name_a='schemaA.tableA', full_qualified_table_name_b='tableB', results_table_name='results')
+        assert "Not found schema name in full qualified table B: 'tableB'" in err.value.args[0]
+        # missing results table
+        with pytest.raises(ValueError) as err:
+            tap.cross_match(full_qualified_table_name_a='schemaA.tableA', full_qualified_table_name_b='schemaB.tableB', results_table_name=None)
+        assert "Results table name argument is mandatory" in err.value.args[0]
+        # wrong results table (with schema)
+        with pytest.raises(ValueError) as err:
+            tap.cross_match(full_qualified_table_name_a='schemaA.tableA', full_qualified_table_name_b='schemaB.tableB', results_table_name='schema.results')
+        assert "Please, do not specify schema for 'results_table_name'" in err.value.args[0]
+        # radius < 0.1
+        with pytest.raises(ValueError) as err:
+            tap.cross_match(full_qualified_table_name_a='schemaA.tableA', full_qualified_table_name_b='schemaB.tableB', results_table_name='results', radius=0.01)
+        assert "Invalid radius value. Found 0.01, valid range is: 0.1 to 10.0" in err.value.args[0]
+        # radius > 10.0
+        with pytest.raises(ValueError) as err:
+            tap.cross_match(full_qualified_table_name_a='schemaA.tableA', full_qualified_table_name_b='schemaB.tableB', results_table_name='results', radius=10.1)
+        assert "Invalid radius value. Found 10.1, valid range is: 0.1 to 10.0" in err.value.args[0]
+        # check default parameters
+        parameters = {}
+        query = "SELECT crossmatch_positional(\
+            'schemaA','tableA',\
+            'schemaB','tableB',\
+            1.0,\
+            'results')\
+            FROM dual;"
+        parameters['query'] = query
+        parameters['name'] = 'results'
+        parameters['output_file'] = None
+        parameters['output_format'] = 'votable'
+        parameters['verbose'] = False
+        parameters['dump_to_file'] = False
+        parameters['background'] = False
+        parameters['upload_resource'] = None
+        parameters['upload_table_name'] = None
+        tap.cross_match(full_qualified_table_name_a='schemaA.tableA', full_qualified_table_name_b='schemaB.tableB', results_table_name='results')
+        dummyTapHandler.check_call('launch_job_async', parameters)
+        # test with parameters
+        dummyTapHandler.reset()
+        radius = 1.0
+        verbose = True
+        background = True
+        query = "SELECT crossmatch_positional(\
+            'schemaA','tableA',\
+            'schemaB','tableB',\
+            "+str(radius)+",\
+            'results')\
+            FROM dual;"
+        parameters['query'] = query
+        parameters['name'] = 'results'
+        parameters['output_file'] = None
+        parameters['output_format'] = 'votable'
+        parameters['verbose'] = verbose
+        parameters['dump_to_file'] = False
+        parameters['background'] = background
+        parameters['upload_resource'] = None
+        parameters['upload_table_name'] = None
+        tap.cross_match(full_qualified_table_name_a='schemaA.tableA', full_qualified_table_name_b='schemaB.tableB', \
+                        results_table_name='results', background=background, verbose=verbose)
+        dummyTapHandler.check_call('launch_job_async', parameters)
 
 
 if __name__ == "__main__":
