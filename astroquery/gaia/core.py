@@ -21,7 +21,7 @@ from astropy import units
 from astropy.units import Quantity
 from astropy import config as _config
 import six
-from utils.tap import taputils
+from astroquery.utils.tap import taputils
 
 
 class Conf(_config.ConfigNamespace):
@@ -1038,10 +1038,12 @@ class GaiaClass(object):
             raise ValueError("Not found schema name in full qualified table B: '"\
                              +full_qualified_table_name_b+"'")
         tableB = taputils.get_table_name(full_qualified_table_name_b)
+        if taputils.get_schema_name(results_table_name) != None:
+            raise ValueError("Please, do not specify schema for 'results_table_name'")
         query = "SELECT crossmatch_positional(\
             '"+schemaA+"','"+tableA+"',\
             '"+schemaB+"','"+tableB+"',\
-            "+radius+",\
+            "+str(radius)+",\
             '"+str(results_table_name)+"')\
             FROM dual;"
         name=str(results_table_name)

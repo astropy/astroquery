@@ -121,8 +121,6 @@ class Tap(object):
                                              table_edit_context=table_edit_context,
                                              data_context=data_context,
                                              datalink_context=datalink_context,
-                                             share_context=share_context,
-                                             users_context=users_context,
                                              port=port,
                                              sslport=port)
         else:

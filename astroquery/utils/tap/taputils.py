@@ -188,11 +188,11 @@ def get_schema_name(full_qualified_table_name):
     -------
     The schema name or None.
     """
-    pos = full_qualified_table_name.rfind('.')+1
+    pos = full_qualified_table_name.rfind('.')
     if pos == -1:
         return None
-    jobid = full_qualified_table_name[0,pos]
-    return jobid
+    name = full_qualified_table_name[0:pos]
+    return name
 
 def get_table_name(full_qualified_table_name):
     """Extracts the table name form a full qualified table name.
@@ -206,9 +206,9 @@ def get_table_name(full_qualified_table_name):
     -------
     The table name or None.
     """
-    pos = full_qualified_table_name.rfind('.')+1
+    pos = full_qualified_table_name.rfind('.')
     if pos == -1:
         return full_qualified_table_name
-    jobid = full_qualified_table_name[pos:]
-    return jobid
+    name = full_qualified_table_name[pos+1:]
+    return name
 
