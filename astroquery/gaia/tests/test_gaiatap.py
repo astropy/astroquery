@@ -39,7 +39,7 @@ class TestTap(unittest.TestCase):
 
     def test_load_tables(self):
         dummyTapHandler = DummyTapHandler()
-        tap = GaiaClass(dummyTapHandler)
+        tap = GaiaClass(tap_plus_handler=dummyTapHandler, datalink_handler=dummyTapHandler)
         # default parameters
         parameters = {}
         parameters['only_names'] = False
@@ -58,7 +58,7 @@ class TestTap(unittest.TestCase):
 
     def test_load_table(self):
         dummyTapHandler = DummyTapHandler()
-        tap = GaiaClass(dummyTapHandler)
+        tap = GaiaClass(tap_plus_handler=dummyTapHandler, datalink_handler=dummyTapHandler)
         # default parameters
         parameters = {}
         parameters['table'] = 'table'
@@ -75,7 +75,7 @@ class TestTap(unittest.TestCase):
 
     def test_launch_sync_job(self):
         dummyTapHandler = DummyTapHandler()
-        tap = GaiaClass(dummyTapHandler)
+        tap = GaiaClass(tap_plus_handler=dummyTapHandler, datalink_handler=dummyTapHandler)
         query = "query"
         # default parameters
         parameters = {}
@@ -118,7 +118,7 @@ class TestTap(unittest.TestCase):
 
     def test_launch_async_job(self):
         dummyTapHandler = DummyTapHandler()
-        tap = GaiaClass(dummyTapHandler)
+        tap = GaiaClass(tap_plus_handler=dummyTapHandler, datalink_handler=dummyTapHandler)
         query = "query"
         # default parameters
         parameters = {}
@@ -165,7 +165,7 @@ class TestTap(unittest.TestCase):
 
     def test_list_async_jobs(self):
         dummyTapHandler = DummyTapHandler()
-        tap = GaiaClass(dummyTapHandler)
+        tap = GaiaClass(tap_plus_handler=dummyTapHandler, datalink_handler=dummyTapHandler)
         # default parameters
         parameters = {}
         parameters['verbose'] = False
@@ -180,7 +180,7 @@ class TestTap(unittest.TestCase):
     def test_query_object(self):
         connHandler = DummyConnHandler()
         tapplus = TapPlus("http://test:1111/tap", connhandler=connHandler)
-        tap = GaiaClass(tapplus)
+        tap = GaiaClass(tapplus, tapplus)
         # Launch response: we use default response because the query contains
         # decimals
         responseLaunchJob = DummyResponse()
@@ -261,7 +261,7 @@ class TestTap(unittest.TestCase):
     def test_query_object_async(self):
         connHandler = DummyConnHandler()
         tapplus = TapPlus("http://test:1111/tap", connhandler=connHandler)
-        tap = GaiaClass(tapplus)
+        tap = GaiaClass(tapplus, tapplus)
         jobid = '12345'
         # Launch response
         responseLaunchJob = DummyResponse()
@@ -356,7 +356,7 @@ class TestTap(unittest.TestCase):
     def test_cone_search_sync(self):
         connHandler = DummyConnHandler()
         tapplus = TapPlus("http://test:1111/tap", connhandler=connHandler)
-        tap = GaiaClass(tapplus)
+        tap = GaiaClass(tapplus, tapplus)
         # Launch response: we use default response because the query contains
         # decimals
         responseLaunchJob = DummyResponse()
@@ -409,7 +409,7 @@ class TestTap(unittest.TestCase):
     def test_cone_search_async(self):
         connHandler = DummyConnHandler()
         tapplus = TapPlus("http://test:1111/tap", connhandler=connHandler)
-        tap = GaiaClass(tapplus)
+        tap = GaiaClass(tapplus, tapplus)
         jobid = '12345'
         # Launch response
         responseLaunchJob = DummyResponse()
@@ -737,7 +737,7 @@ class TestTap(unittest.TestCase):
 
     def test_xmatch(self):
         dummyTapHandler = DummyTapHandler()
-        tap = GaiaClass(dummyTapHandler)
+        tap = GaiaClass(dummyTapHandler, dummyTapHandler)
         # check parameters
         # missing table A
         with pytest.raises(ValueError) as err:
