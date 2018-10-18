@@ -32,8 +32,8 @@ from astropy.logger import log
 from sympy.tensor import indexed
 import getpass
 import os
-from tables.tests.test_queries import table_description
-from click.decorators import group
+from astropy.table.table import Table
+import tempfile
 
 
 __all__ = ['Tap', 'TapPlus']
@@ -553,10 +553,22 @@ class Tap(object):
             args['PHASE']='RUN'
         if name is not None:
             args['jobname'] = name
-        f = open(uploadResource, "r")
-        chunk = f.read()
-        f.close()
-        files = [[uploadTableName, os.path.basename(uploadResource), chunk]]
+        if isinstance(uploadResource, Table):
+            fh = tempfile.NamedTemporaryFile(delete=False)
+            uploadResource.write(fh, format='votable')
+            fh.close()
+            f = open(fh.name, "r")
+            chunk = f.read()
+            f.close()
+            os.unlink(fh.name)
+            name = 'pytable'
+            args['format'] = 'votable'
+        else:
+            f = open(uploadResource, "r")
+            chunk = f.read()
+            f.close()
+            name = os.path.basename(uploadResource)
+        files = [[uploadTableName, name, chunk]]
         contentType, body = self.__connHandler.encode_multipart(args, files)
         response = self.__connHandler.execute_tappost(context, body, contentType, verbose)
         if verbose:
@@ -1494,7 +1506,7 @@ class TapPlus(Tap):
             table_description = ""
 
         if format is None:
-            if (str(upload_resource).startswith("http") and 
+            if isinstance(upload_resource, Table) or (str(upload_resource).startswith("http") and 
                 (str(upload_resource).endswith(".vot") or 
                  str(upload_resource).endswith(".votable"))):
                 format = "VOTable"
@@ -1522,33 +1534,50 @@ class TapPlus(Tap):
     def __uploadTableMultipart(self, resource, table_name=None, table_description=None,
                                format="VOTable", verbose=False):
         connHandler = self.__getconnhandler()
-        if not (str(resource).startswith("http")):  # upload from file
+        if isinstance(resource, Table):
             args = {
                 "TASKID": str(-1),
                 "TABLE_NAME": str(table_name),
                 "TABLE_DESC": str(table_description),
-                "FORMAT": str(format)}
-            print("Sending file: " + str(resource))
-            f = open(resource, "r")
+                "FORMAT": 'votable'}
+            print("Sending pytable.")
+            fh = tempfile.NamedTemporaryFile(delete=False)
+            resource.write(fh, format='votable')
+            fh.close()
+            f = open(fh.name, "r")
             chunk = f.read()
             f.close()
-            files = [['FILE', os.path.basename(resource), chunk]]
+            os.unlink(fh.name)
+            files = [['FILE', 'pytable', chunk]]
             contentType, body = connHandler.encode_multipart(args, files)
-        else:    # upload from URL
-            args = {
-                "TASKID": str(-1),
-                "TABLE_NAME": str(table_name),
-                "TABLE_DESC": str(table_description),
-                "FORMAT": str(format),
-                "URL": str(resource)}
-            files = [['FILE', "", ""]]
-            contentType, body = connHandler.encode_multipart(args, files)
+        else:
+            if not (str(resource).startswith("http")):  # upload from file
+                args = {
+                    "TASKID": str(-1),
+                    "TABLE_NAME": str(table_name),
+                    "TABLE_DESC": str(table_description),
+                    "FORMAT": str(format)}
+                print("Sending file: " + str(resource))
+                f = open(resource, "r")
+                chunk = f.read()
+                f.close()
+                files = [['FILE', os.path.basename(resource), chunk]]
+                contentType, body = connHandler.encode_multipart(args, files)
+            else:    # upload from URL
+                args = {
+                    "TASKID": str(-1),
+                    "TABLE_NAME": str(table_name),
+                    "TABLE_DESC": str(table_description),
+                    "FORMAT": str(format),
+                    "URL": str(resource)}
+                files = [['FILE', "", ""]]
+                contentType, body = connHandler.encode_multipart(args, files)
             
         response = connHandler.execute_upload(body, contentType)
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        if response.status != 303:
+        if response.status != 303 and response.status != 302:
             isError = connHandler.check_launch_response_status(response, verbose, 200)
             if isError:
                 errMsg = taputils.get_http_response_error(response)
