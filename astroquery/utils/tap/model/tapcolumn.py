@@ -20,7 +20,7 @@ class TapColumn(object):
     """TAP column object
     """
 
-    def __init__(self, attrs):
+    def __init__(self, flags):
         """
         Constructor
         """

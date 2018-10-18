@@ -31,6 +31,7 @@ class DummyConnHandler(object):
         self.errorReceivedResponse = None
         self.contentType = None
         self.verbose = None
+        self.query = None
 
     def set_default_response(self, defaultResponse):
         self.defaultResponse = defaultResponse
@@ -44,6 +45,9 @@ class DummyConnHandler(object):
     def get_last_data(self):
         return self.data
 
+    def get_last_query(self):
+        return self.query
+
     def get_error_file_output(self):
         return self.errorFileOutput
 
@@ -53,17 +57,19 @@ class DummyConnHandler(object):
     def set_response(self, request, response):
         self.responses[str(request)] = response
 
-    def execute_tapget(self, request):
-        return self.__execute_get(request)
+    def execute_tapget(self, request=None, verbose=False):
+        return self.__execute_get(request, verbose)
 
-    def execute_dataget(self, request):
-        return self.__execute_get(request)
+    def execute_dataget(self, query, verbose=False):
+        return self.__execute_get(query)
 
-    def execute_datalinkget(self, request):
-        return self.__execute_get(request)
+    def execute_datalinkget(self, subcontext, query, verbose=False):
+        self.query = query
+        return self.__execute_get(subcontext, verbose)
 
-    def __execute_get(self, request):
+    def __execute_get(self, request, verbose):
         self.request = request
+        self.verbose = verbose
         return self.__get_response(request)
 
     def execute_tappost(self, subcontext=None, data=None, content_type=None, verbose=False):

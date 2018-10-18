@@ -107,7 +107,7 @@ class TableSaxParser(xml.sax.ContentHandler):
             self.__start_reading_data()
         elif self.__check_item_id("column", name):
             self.__status = READING_TABLE_COLUMN
-            self.__currentColumn = TapColumn(attrs)
+            self.__currentColumn = TapColumn(attrs.getValue('esatapplus:flags'))
 
     def __end_table(self, name):
         if self.__check_item_id("name", name):
