@@ -741,36 +741,57 @@ class TestTap(unittest.TestCase):
         # check parameters
         # missing table A
         with pytest.raises(ValueError) as err:
-            tap.cross_match(full_qualified_table_name_a=None, full_qualified_table_name_b='schemaB.tableB', results_table_name='results')
+            tap.cross_match(full_qualified_table_name_a=None,
+                            full_qualified_table_name_b='schemaB.tableB',
+                            results_table_name='results')
         assert "Table name A argument is mandatory" in err.value.args[0]
         # missing schema A
         with pytest.raises(ValueError) as err:
-            tap.cross_match(full_qualified_table_name_a='tableA', full_qualified_table_name_b='schemaB.tableB', results_table_name='results')
-        assert "Not found schema name in full qualified table A: 'tableA'" in err.value.args[0]
+            tap.cross_match(full_qualified_table_name_a='tableA',
+                            full_qualified_table_name_b='schemaB.tableB',
+                            results_table_name='results')
+        assert "Not found schema name in full qualified table A: 'tableA'" \
+        in err.value.args[0]
         # missing table B
         with pytest.raises(ValueError) as err:
-            tap.cross_match(full_qualified_table_name_a='schemaA.tableA', full_qualified_table_name_b=None, results_table_name='results')
+            tap.cross_match(full_qualified_table_name_a='schemaA.tableA',
+                            full_qualified_table_name_b=None,
+                            results_table_name='results')
         assert "Table name B argument is mandatory" in err.value.args[0]
         # missing schema B
         with pytest.raises(ValueError) as err:
-            tap.cross_match(full_qualified_table_name_a='schemaA.tableA', full_qualified_table_name_b='tableB', results_table_name='results')
-        assert "Not found schema name in full qualified table B: 'tableB'" in err.value.args[0]
+            tap.cross_match(full_qualified_table_name_a='schemaA.tableA',
+                            full_qualified_table_name_b='tableB',
+                            results_table_name='results')
+        assert "Not found schema name in full qualified table B: 'tableB'" \
+        in err.value.args[0]
         # missing results table
         with pytest.raises(ValueError) as err:
-            tap.cross_match(full_qualified_table_name_a='schemaA.tableA', full_qualified_table_name_b='schemaB.tableB', results_table_name=None)
+            tap.cross_match(full_qualified_table_name_a='schemaA.tableA',
+                            full_qualified_table_name_b='schemaB.tableB',
+                            results_table_name=None)
         assert "Results table name argument is mandatory" in err.value.args[0]
         # wrong results table (with schema)
         with pytest.raises(ValueError) as err:
-            tap.cross_match(full_qualified_table_name_a='schemaA.tableA', full_qualified_table_name_b='schemaB.tableB', results_table_name='schema.results')
-        assert "Please, do not specify schema for 'results_table_name'" in err.value.args[0]
+            tap.cross_match(full_qualified_table_name_a='schemaA.tableA',
+                            full_qualified_table_name_b='schemaB.tableB',
+                            results_table_name='schema.results')
+        assert "Please, do not specify schema for 'results_table_name'" \
+        in err.value.args[0]
         # radius < 0.1
         with pytest.raises(ValueError) as err:
-            tap.cross_match(full_qualified_table_name_a='schemaA.tableA', full_qualified_table_name_b='schemaB.tableB', results_table_name='results', radius=0.01)
-        assert "Invalid radius value. Found 0.01, valid range is: 0.1 to 10.0" in err.value.args[0]
+            tap.cross_match(full_qualified_table_name_a='schemaA.tableA',
+                            full_qualified_table_name_b='schemaB.tableB',
+                            results_table_name='results', radius=0.01)
+        assert "Invalid radius value. Found 0.01, valid range is: 0.1 to 10.0" \
+        in err.value.args[0]
         # radius > 10.0
         with pytest.raises(ValueError) as err:
-            tap.cross_match(full_qualified_table_name_a='schemaA.tableA', full_qualified_table_name_b='schemaB.tableB', results_table_name='results', radius=10.1)
-        assert "Invalid radius value. Found 10.1, valid range is: 0.1 to 10.0" in err.value.args[0]
+            tap.cross_match(full_qualified_table_name_a='schemaA.tableA',
+                            full_qualified_table_name_b='schemaB.tableB',
+                            results_table_name='results', radius=10.1)
+        assert "Invalid radius value. Found 10.1, valid range is: 0.1 to 10.0" \
+        in err.value.args[0]
         # check default parameters
         parameters = {}
         query = "SELECT crossmatch_positional(\
