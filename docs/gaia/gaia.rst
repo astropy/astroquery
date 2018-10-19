@@ -594,7 +594,14 @@ To perform a logout
 2.2. Uploading table to user space
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-It is now possible to persist a table in the private user space. The table to be uploaded can be in a url, a file or a job.
+It is now possible to persist a table in the private user space. The table to be uploaded can be in a url, a file, a job or a astropy Table.
+
+The table is stored into the user private area in the database. Each user has a database schema. The schema name is 'user_<user_login_name>'.
+
+For instance, if a login name is 'joe', the database schema is 'user_joe'.
+
+Your uploaded table can be referenced as 'user_joe.table_name'
+
 
 2.2.1. Uploading table from url to user space
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -602,11 +609,22 @@ It is now possible to persist a table in the private user space. The table to be
 .. code-block:: python
 
   >>> from astroquery.gaia import Gaia
-  >>> Gaia.login_gui()
+  >>> Gaia.login()
   >>> url = "http://tapvizier.u-strasbg.fr/TAPVizieR/tap/sync/?REQUEST=doQuery&lang=ADQL&FORMAT=votable&QUERY=select+*+from+TAP_SCHEMA.columns+where+table_name='II/336/apass9'"
   >>> job = Gaia.upload_table(upload_resource=url, table_name="table_test_from_url", table_description="Some description")
 
   Job '1539932326689O' created to upload table 'table_test_from_url'.
+
+Now, you can query your table as follows:
+
+.. code-block:: python
+
+  >>> full_qualified_table_name = 'user_<your_login_name>.table_test_from_url'
+  >>> query = 'select * from ' + full_qualified_table_name
+  >>> job = Gaia.launch_job(query=query)
+  >>> results = job.get_resultsjob)
+  >>> print(results)
+
   
 2.2.2. Uploading table from file to user space
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -614,11 +632,22 @@ It is now possible to persist a table in the private user space. The table to be
 .. code-block:: python
 
   >>> from astroquery.gaia import Gaia
-  >>> Gaia.login_gui()
+  >>> Gaia.login()
   >>> job = Gaia.upload_table(upload_resource="1535553556177O-result.vot", table_name="table_test_from_file", format="VOTable")
 
   Sending file: 1535553556177O-result.vot
   Uploaded table 'table_test_from_file'.
+
+Now, you can query your table as follows:
+
+.. code-block:: python
+  
+  >>> full_qualified_table_name = 'user_<your_login_name>.table_test_from_file'
+  >>> query = 'select * from ' + full_qualified_table_name
+  >>> job = Gaia.launch_job(query=query)
+  >>> results = job.get_resultsjob)
+  >>> print(results)
+
   
 2.2.3. Uploading table from job to user space
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -626,11 +655,47 @@ It is now possible to persist a table in the private user space. The table to be
 .. code-block:: python
 
   >>> from astroquery.gaia import Gaia
-  >>> Gaia.login_gui()
+  >>> Gaia.login()
   >>> j1 = Gaia.launch_job_async("select top 10 * from gaiadr2.gaia_source")
   >>> job = Gaia.upload_table_from_job(j1)
   
   Created table 't1539932994481O' from job: '1539932994481O'.
+
+Now, you can query your table as follows:
+
+.. code-block:: python
+  
+  >>> full_qualified_table_name = 'user_<your_login_name>.t1539932994481O'
+  >>> query = 'select * from ' + full_qualified_table_name
+  >>> job = Gaia.launch_job(query=query)
+  >>> results = job.get_resultsjob)
+  >>> print(results)
+
+2.2.4. Uploading table from a astropy Table
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+  >>> from astroquery.gaia import Gaia
+  >>> from astropy.table import Table
+  >>> a=[1,2,3]
+  >>> b=['a','b','c']
+  >>> table = Table([a,b], names=['col1','col2'], meta={'meta':'first table'})
+  >>>
+  >>> # Upload
+  >>> Gaia.login()
+  >>> Gaia.upload_table(upload_resource=table, table_name='my_table')
+
+Now, you can query your table as follows:
+
+.. code-block:: python
+  
+  >>> full_qualified_table_name = 'user_<your_login_name>.my_table'
+  >>> query = 'select * from ' + full_qualified_table_name
+  >>> job = Gaia.launch_job(query=query)
+  >>> results = job.get_resultsjob)
+  >>> print(results)
+
 
 2.3. Deleting table from user space
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -676,91 +741,36 @@ This is done by putting each of the changes in a list. See example below.
   Done.
   Table 'user_jduran.t1536223951954o' updated.  							
 
-2.3. Persistent table upload
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-It is possible to upload a table into the user private area. The table will be kept in the system and can be used for further queries.
-
-The table can be a astropy.table.Table, a file (different formats are accepted) or a job (query) results.
-
-The table is stored into the user private area in the databse. Each user has a database schema. The schema name is 'user_<user_login_name>'.
-
-For instance, if a login name is 'joe', the database schema is 'user_joe'.
-
-Your uploaded table can be referenced as 'user_joe.table_name'
-
-astropy Table upload:
-
-.. code-block:: python
-
-  >>> from astroquery.gaia import Gaia
-  >>> from astropy.table import Table
-  >>> a=[1,2,3]
-  >>> b=['a','b','c']
-  >>> table = Table([a,b], names=['col1','col2'], meta={'meta':'first table'})
-  >>>
-  >>> # Upload
-  >>> Gaia.login()
-  >>> Gaia.upload_table(upload_resource=table, table_name='my_table')
-  >>> 
-  >>> # You can query that table in the usual way:
-  >>> full_qualified_table_name = 'user_<your_login_name>.my_table'
-  >>> query = 'select * from ' + full_qualified_table_name
-  >>> job = Gaia.launch_job(query=query)
-  >>> results = job.get_resultsjob)
-  >>> print(results)
-
-Table from file upload (you should specify the table format, default is 'votable'):
-
-.. code-block:: python
-
-  >>> from astroquery.gaia import Gaia
-  >>> from astropy.table import Table
-  >>> a=[1,2,3]
-  >>> b=['a','b','c']
-  >>> table = Table([a,b], names=['col1','col2'], meta={'meta':'first table'})
-  >>>
-  >>> # Upload
-  >>> Gaia.login()
-  >>> Gaia.upload_table(upload_resource='<path_to_your_file>', table_name='my_table', format='votable')
-  >>> 
-
-Table from job upload:
-
-.. code-block:: python
-
-  >>> from astroquery.gaia import Gaia
-  >>> Gaia.login()
-  >>> job = a job id or a job object
-  >>> Gaia.upload_table_from_job(job=job, table_name='my_table')
-  >>> 
-
-
-2.4. Tables sharing
+2.5. Tables sharing
 ~~~~~~~~~~~~~~~~~~~
 
 You can share your tables to other users. You have to create a group, populate that group with users, and share your table to that group.
 Then, any user belonging to that group will be able to user your shared table in a query.
 
-To create a group:
+2.5.1 Creating a group
+~~~~~~~~~~~~~~~~~~~~~~
 
+2.5.2 Removing a group
+~~~~~~~~~~~~~~~~~~~~~~
 
 (To remove a group use:
 
 )
 
-To add users to a group:
+2.5.3 Adding users to a group
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To share your table to a group:
-
-
-You can stop sharing your table by typing:
-
-You can remove
+2.5.4 Removing users from a group
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-2.5. Tables edition
-~~~~~~~~~~~~~~~~~~~
+2.5.5 Sharing a table to a group
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+2.5.6 Stop sharing a table
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
 
 2.6. Cross match
