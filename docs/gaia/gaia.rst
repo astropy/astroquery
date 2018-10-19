@@ -591,6 +591,90 @@ To perform a logout
   user_schema_2.table1
   ...
 
+2.2. Uploading table to user space
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+It is now possible to persist a table in the private user space. The table to be uploaded can be in a url, a file or a job.
+
+2.2.1. Uploading table from url to user space
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+  >>> from astroquery.gaia import Gaia
+  >>> Gaia.login_gui()
+  >>> url = "http://tapvizier.u-strasbg.fr/TAPVizieR/tap/sync/?REQUEST=doQuery&lang=ADQL&FORMAT=votable&QUERY=select+*+from+TAP_SCHEMA.columns+where+table_name='II/336/apass9'"
+  >>> job = Gaia.upload_table(upload_resource=url, table_name="table_test_from_url", table_description="Some description")
+
+  Job '1539932326689O' created to upload table 'table_test_from_url'.
+  
+2.2.2. Uploading table from file to user space
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+  >>> from astroquery.gaia import Gaia
+  >>> Gaia.login_gui()
+  >>> job = Gaia.upload_table(upload_resource="1535553556177O-result.vot", table_name="table_test_from_file", format="VOTable")
+
+  Sending file: 1535553556177O-result.vot
+  Uploaded table 'table_test_from_file'.
+  
+2.2.3. Uploading table from job to user space
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+  >>> from astroquery.gaia import Gaia
+  >>> Gaia.login_gui()
+  >>> j1 = Gaia.launch_job_async("select top 10 * from gaiadr2.gaia_source")
+  >>> job = Gaia.upload_table_from_job(j1)
+  
+  Created table 't1539932994481O' from job: '1539932994481O'.
+
+2.3. Deleting table from user space
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+  >>> from astroquery.gaia import Gaia
+  >>> Gaia.login_gui()
+  >>> job = Gaia.delete_user_table("table_test_from_file")
+  
+  Table 'table_test_from_file' deleted.
+  
+2.4. Updating metadata of table in user space
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Metadata of a user table can be updated by specifying the changes to be done.
+
+.. code-block:: python
+
+  >>> Gaia.update_user_table(table_name, list_of_changes)
+
+The format defined to specify a change is the following:
+
+["column name to be changed", "metadata parameter to be changed", "new value"]
+
+metadata parameter to be changed can be 'utype', 'ucd', 'flags' or 'indexed'
+
+values for 'utype' and 'ucd' are free text
+value for 'flags' can be 'Ra', 'Dec', 'Mag', 'Flux' and 'PK'
+value for 'indexed' is a boolean indicating if the column is indexed
+
+It is possible to specify a list of those changes for them to be applied at once. 
+This is done by putting each of the changes in a list. See example below.
+
+.. code-block:: python
+
+  >>> from astroquery.gaia import Gaia
+  >>> Gaia.login_gui()
+  >>> Gaia.update_user_table(table_name="user_jduran.t1536223951954o", list_of_changes=[["recno", "ucd", "ucd sample"], ["nobs","utype","utype sample"], ["raj2000","flags","Ra"], ["dej2000","flags","Dec"]])
+  
+  Retrieving table 'user_jduran.t1536223951954o'
+  Parsing table 'user_jduran.t1536223951954o'...
+  Done.
+  Table 'user_jduran.t1536223951954o' updated.  							
 
 2.3. Persistent table upload
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
