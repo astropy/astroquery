@@ -751,25 +751,58 @@ Then, any user belonging to that group will be able to user your shared table in
 2.5.1 Creating a group
 ~~~~~~~~~~~~~~~~~~~~~~
 
+.. code-block:: python
+
+  >>> from astroquery.gaia import Gaia
+  >>> Gaia.login()
+  >>> Gaia.share_group_create(group_name="my_group", description="description")
+
 2.5.2 Removing a group
 ~~~~~~~~~~~~~~~~~~~~~~
 
-(To remove a group use:
+.. code-block:: python
 
-)
+  >>> from astroquery.gaia import Gaia
+  >>> Gaia.login()
+  >>> Gaia.share_group_delete(group_name="my_group")
 
 2.5.3 Adding users to a group
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+.. code-block:: python
+
+  >>> from astroquery.gaia import Gaia
+  >>> Gaia.login()
+  >>> Gaia.share_group_add_user(group_name="my_group",user_id="<user_login_name")
+
 2.5.4 Removing users from a group
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+  >>> from astroquery.gaia import Gaia
+  >>> Gaia.login()
+  >>> Gaia.share_group_delete_user(group_name="my_group",user_id="<user_login_name>")
 
 
 2.5.5 Sharing a table to a group
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+.. code-block:: python
+
+  >>> from astroquery.gaia import Gaia
+  >>> Gaia.login()
+  >>> Gaia.share_table(group_name="my_group",table_name="user_<user_loign_name>.my_table",description="description")
+
+
 2.5.6 Stop sharing a table
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+  >>> from astroquery.gaia import Gaia
+  >>> Gaia.login()
+  >>> Gaia.share_table_stop(table_name="user_<user_login_name>.my_table", group_name="my_group")
 
 
 
