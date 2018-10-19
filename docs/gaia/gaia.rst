@@ -734,12 +734,12 @@ This is done by putting each of the changes in a list. See example below.
 
   >>> from astroquery.gaia import Gaia
   >>> Gaia.login_gui()
-  >>> Gaia.update_user_table(table_name="user_jduran.t1536223951954o", list_of_changes=[["recno", "ucd", "ucd sample"], ["nobs","utype","utype sample"], ["raj2000","flags","Ra"], ["dej2000","flags","Dec"]])
+  >>> Gaia.update_user_table(table_name="user_<user_login_name>.my_table", list_of_changes=[["recno", "ucd", "ucd sample"], ["nobs","utype","utype sample"], ["raj2000","flags","Ra"], ["dej2000","flags","Dec"]])
   
-  Retrieving table 'user_jduran.t1536223951954o'
-  Parsing table 'user_jduran.t1536223951954o'...
+  Retrieving table 'user_<user_login_name>.my_table'
+  Parsing table 'user_<user_login_name>.my_table'...
   Done.
-  Table 'user_jduran.t1536223951954o' updated.  							
+  Table 'user_<user_login_name>.my_table' updated.  							
 
 
 2.5. Tables sharing

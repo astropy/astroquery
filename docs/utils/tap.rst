@@ -445,6 +445,15 @@ It is possible to use a file where the credentials are stored:
   >>> gaia.login(credentials_file='my_credentials_file')
 
 
+If you do not provide any parameters at all, a prompt will ask for user name and password.
+
+.. code-block:: python
+
+  >>> from astroquery.gaia import Gaia
+  >>> Gaia.login()
+  >>> User: user
+  >>> Password: pwd (not visible) 
+
 
 To perform a logout
 
@@ -487,6 +496,217 @@ To perform a logout
   user_schema_1.table1
   user_schema_2.table1
   ...
+
+2.2. Uploading table to user space
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+It is now possible to persist a table in the private user space. The table to be uploaded can be in a url, a file, a job or a astropy Table.
+
+The table is stored into the user private area in the database. Each user has a database schema. The schema name is 'user_<user_login_name>'.
+
+For instance, if a login name is 'joe', the database schema is 'user_joe'.
+
+Your uploaded table can be referenced as 'user_joe.table_name'
+
+2.2.1. Uploading table from url to user space
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+  >>> from astroquery.gaia import Gaia
+  >>> Gaia.login()
+  >>> url = "http://tapvizier.u-strasbg.fr/TAPVizieR/tap/sync/?REQUEST=doQuery&lang=ADQL&FORMAT=votable&QUERY=select+*+from+TAP_SCHEMA.columns+where+table_name='II/336/apass9'"
+  >>> job = Gaia.upload_table(upload_resource=url, table_name="table_test_from_url", table_description="Some description")
+
+  Job '1539932326689O' created to upload table 'table_test_from_url'.
+
+Now, you can query your table as follows:
+
+.. code-block:: python
+
+  >>> full_qualified_table_name = 'user_<your_login_name>.table_test_from_url'
+  >>> query = 'select * from ' + full_qualified_table_name
+  >>> job = Gaia.launch_job(query=query)
+  >>> results = job.get_resultsjob)
+  >>> print(results)
+
+
+2.2.2. Uploading table from file to user space
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+  >>> from astroquery.gaia import Gaia
+  >>> Gaia.login()
+  >>> job = Gaia.upload_table(upload_resource="1535553556177O-result.vot", table_name="table_test_from_file", format="VOTable")
+
+  Sending file: 1535553556177O-result.vot
+  Uploaded table 'table_test_from_file'.
+
+Now, you can query your table as follows:
+
+.. code-block:: python
+  
+  >>> full_qualified_table_name = 'user_<your_login_name>.table_test_from_file'
+  >>> query = 'select * from ' + full_qualified_table_name
+  >>> job = Gaia.launch_job(query=query)
+  >>> results = job.get_resultsjob)
+  >>> print(results)
+
+2.2.3. Uploading table from job to user space
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+  >>> from astroquery.gaia import Gaia
+  >>> Gaia.login()
+  >>> j1 = Gaia.launch_job_async("select top 10 * from gaiadr2.gaia_source")
+  >>> job = Gaia.upload_table_from_job(j1)
+  
+  Created table 't1539932994481O' from job: '1539932994481O'.
+
+Now, you can query your table as follows:
+
+.. code-block:: python
+  
+  >>> full_qualified_table_name = 'user_<your_login_name>.t1539932994481O'
+  >>> query = 'select * from ' + full_qualified_table_name
+  >>> job = Gaia.launch_job(query=query)
+  >>> results = job.get_resultsjob)
+  >>> print(results)
+
+
+2.2.4. Uploading table from a astropy Table
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+  >>> from astroquery.gaia import Gaia
+  >>> from astropy.table import Table
+  >>> a=[1,2,3]
+  >>> b=['a','b','c']
+  >>> table = Table([a,b], names=['col1','col2'], meta={'meta':'first table'})
+  >>>
+  >>> # Upload
+  >>> Gaia.login()
+  >>> Gaia.upload_table(upload_resource=table, table_name='my_table')
+
+Now, you can query your table as follows:
+
+.. code-block:: python
+  
+  >>> full_qualified_table_name = 'user_<your_login_name>.my_table'
+  >>> query = 'select * from ' + full_qualified_table_name
+  >>> job = Gaia.launch_job(query=query)
+  >>> results = job.get_resultsjob)
+  >>> print(results)
+
+2.3. Deleting table from user space
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+  >>> from astroquery.gaia import Gaia
+  >>> Gaia.login_gui()
+  >>> job = Gaia.delete_user_table("table_test_from_file")
+  
+  Table 'table_test_from_file' deleted.
+  
+2.4. Updating metadata of table in user space
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Metadata of a user table can be updated by specifying the changes to be done.
+
+.. code-block:: python
+
+  >>> Gaia.update_user_table(table_name, list_of_changes)
+
+The format defined to specify a change is the following:
+
+["column name to be changed", "metadata parameter to be changed", "new value"]
+
+metadata parameter to be changed can be 'utype', 'ucd', 'flags' or 'indexed'
+
+values for 'utype' and 'ucd' are free text
+value for 'flags' can be 'Ra', 'Dec', 'Mag', 'Flux' and 'PK'
+value for 'indexed' is a boolean indicating if the column is indexed
+
+It is possible to specify a list of those changes for them to be applied at once. 
+This is done by putting each of the changes in a list. See example below.
+
+.. code-block:: python
+
+  >>> from astroquery.gaia import Gaia
+  >>> Gaia.login_gui()
+  >>> Gaia.update_user_table(table_name="user_<user_login_name>.my_table", list_of_changes=[["recno", "ucd", "ucd sample"], ["nobs","utype","utype sample"], ["raj2000","flags","Ra"], ["dej2000","flags","Dec"]])
+  
+  Retrieving table 'user_<user_login_name>.my_table'
+  Parsing table 'user_<user_login_name>.my_table'...
+  Done.
+  Table 'user_<user_login_name>.my_table' updated.                                                          
+
+2.5. Tables sharing
+^^^^^^^^^^^^^^^^^^^
+
+You can share your tables to other users. You have to create a group, populate that group with users, and share your table to that group.
+Then, any user belonging to that group will be able to user your shared table in a query.
+
+2.5.1 Creating a group
+^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+  >>> from astroquery.gaia import Gaia
+  >>> Gaia.login()
+  >>> Gaia.share_group_create(group_name="my_group", description="description")
+
+2.5.2 Removing a group
+^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+  >>> from astroquery.gaia import Gaia
+  >>> Gaia.login()
+  >>> Gaia.share_group_delete(group_name="my_group")
+
+2.5.3 Adding users to a group
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+  >>> from astroquery.gaia import Gaia
+  >>> Gaia.login()
+  >>> Gaia.share_group_add_user(group_name="my_group",user_id="<user_login_name")
+
+
+2.5.4 Removing users from a group
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+  >>> from astroquery.gaia import Gaia
+  >>> Gaia.login()
+  >>> Gaia.share_group_delete_user(group_name="my_group",user_id="<user_login_name>")
+
+
+2.5.5 Sharing a table to a group
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+  >>> from astroquery.gaia import Gaia
+  >>> Gaia.login()
+  >>> Gaia.share_table(group_name="my_group",table_name="user_<user_loign_name>.my_table",description="description")
+
+
+2.5.6 Stop sharing a table
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+  >>> from astroquery.gaia import Gaia
+  >>> Gaia.login()
+  >>> Gaia.share_table_stop(table_name="user_<user_login_name>.my_table", group_name="my_group")
 
 
 
