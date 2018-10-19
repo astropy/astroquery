@@ -164,7 +164,7 @@ class TableSaxParser(xml.sax.ContentHandler):
 
     def __show_attributes(self, attrs):
         return str(attrs.getNames())
-    
+
     def __nothing(self, name, attrs):
         pass
 

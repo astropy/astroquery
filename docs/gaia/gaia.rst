@@ -545,6 +545,15 @@ It is possible to use a file where the credentials are stored:
   >>> Gaia.login(credentials_file='my_credentials_file')
 
 
+If you do not provide any parameters at all, a prompt will ask for user name and password.
+
+.. code-block:: python
+
+  >>> from astroquery.gaia import Gaia
+  >>> Gaia.login()
+  >>> User: user
+  >>> Password: pwd (not visible) 
+
 
 To perform a logout
 
@@ -581,6 +590,170 @@ To perform a logout
   user_schema_1.table1
   user_schema_2.table1
   ...
+
+
+2.3. Persistent table upload
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+It is possible to upload a table into the user private area. The table will be kept in the system and can be used for further queries.
+
+The table can be a astropy.table.Table, a file (different formats are accepted) or a job (query) results.
+
+The table is stored into the user private area in the databse. Each user has a database schema. The schema name is 'user_<user_login_name>'.
+
+For instance, if a login name is 'joe', the database schema is 'user_joe'.
+
+Your uploaded table can be referenced as 'user_joe.table_name'
+
+astropy Table upload:
+
+.. code-block:: python
+
+  >>> from astroquery.gaia import Gaia
+  >>> from astropy.table import Table
+  >>> a=[1,2,3]
+  >>> b=['a','b','c']
+  >>> table = Table([a,b], names=['col1','col2'], meta={'meta':'first table'})
+  >>>
+  >>> # Upload
+  >>> Gaia.login()
+  >>> Gaia.upload_table(upload_resource=table, table_name='my_table')
+  >>> 
+  >>> # You can query that table in the usual way:
+  >>> full_qualified_table_name = 'user_<your_login_name>.my_table'
+  >>> query = 'select * from ' + full_qualified_table_name
+  >>> job = Gaia.launch_job(query=query)
+  >>> results = job.get_resultsjob)
+  >>> print(results)
+
+Table from file upload (you should specify the table format, default is 'votable'):
+
+.. code-block:: python
+
+  >>> from astroquery.gaia import Gaia
+  >>> from astropy.table import Table
+  >>> a=[1,2,3]
+  >>> b=['a','b','c']
+  >>> table = Table([a,b], names=['col1','col2'], meta={'meta':'first table'})
+  >>>
+  >>> # Upload
+  >>> Gaia.login()
+  >>> Gaia.upload_table(upload_resource='<path_to_your_file>', table_name='my_table', format='votable')
+  >>> 
+
+Table from job upload:
+
+.. code-block:: python
+
+  >>> from astroquery.gaia import Gaia
+  >>> Gaia.login()
+  >>> job = a job id or a job object
+  >>> Gaia.upload_table_from_job(job=job, table_name='my_table')
+  >>> 
+
+
+2.4. Tables sharing
+~~~~~~~~~~~~~~~~~~~
+
+You can share your tables to other users. You have to create a group, populate that group with users, and share your table to that group.
+Then, any user belonging to that group will be able to user your shared table in a query.
+
+To create a group:
+
+
+(To remove a group use:
+
+)
+
+To add users to a group:
+
+To share your table to a group:
+
+
+You can stop sharing your table by typing:
+
+You can remove
+
+
+2.5. Tables edition
+~~~~~~~~~~~~~~~~~~~
+
+
+2.6. Cross match
+~~~~~~~~~~~~~~~~
+
+In gaia you can execute a cross match between tables based on distance.
+
+Usually, you will use an uploaded table or a shared table.
+
+You must be logged in in order to perform a cross match. This is required because the cross match operation will generate a join table in the user private area. That table contains the identifiers of both tables and the distance. Later, the table can be used to obtain the actual data from both tables.
+
+The following example uploads a table and then, the table is used in a cross match:
+
+.. code-block:: python
+
+  >>> from astroquery.gaia import Gaia
+  >>> Gaia.login()
+  >>>
+  >>> table = file or astropy.table
+  >>> Gaia.upload_table(upload_resource=table, table_name='my_sources')
+  >>>
+  >>> # the table will be uploaded into the user private space into the database
+  >>> # the table can be referenced as <database user schema>.<table_name>
+  >>>
+  >>> full_qualified_table_name = 'user_<your_login_name>.my_sources'
+  >>> xmatch_table_name = 'xmatch_table' 
+  >>> Gaia.cross_match(full_qualified_table_name_a=full_qualified_table_name, \
+  >>>               full_qualified_table_name_b='gaiadr2.gaia_source', \
+  >>>               results_table_name=xmatch_table_name, radius=1.0)
+  >>>
+  >>> # Once you have your cross match finished, you can obtain the results:
+  >>> xmatch_table = 'user_<your_login_name>.' + xmatch_table_name
+  >>> query = 'SELECT c."dist", a.*, b.* FROM gaiadr2.data_source AS a, '+\
+  >>> full_qualified_table_name+' AS b, '+\
+  >>> xmatch_table+' AS c '+\
+  >>> 'WHERE (c.gaia_source_source_id = a.source_id AND c.my_sources_my_sources_oid = b.my_sources_oid)'
+  >>> job = Gaia.launch_job(query=query)
+  >>> results = job.get_resultsjob)
+  >>> print(results)
+
+
+
+
+2.7. Epoch photometry access (datalink)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Epoch photometry data are retrieved as a table from the Gaia archive.
+
+In order to download epoch photometry data, you need to know the identifiers of the sources you are interested in.
+
+So, the first step, is to execute a query to obtain the identifiers, and then you can retrieve the data.
+
+.. code-block:: python
+
+  >>> from astroquery.gaia import Gaia
+  >>> query = "SELECT TOP 500 * FROM gaiadr2.gaia_source  \
+  >>> WHERE CONTAINS(POINT('ICRS',gaiadr2.gaia_source.ra,gaiadr2.gaia_source.dec),\
+  >>> CIRCLE('ICRS',COORD1(\
+  >>> EPOCH_PROP_POS(339.8049024487712,64.8585025696523,2.3585,92.7710,190.7920,.3000,2000,2015.5)),\
+  >>> COORD2(EPOCH_PROP_POS(339.8049024487712,64.8585025696523,2.3585,92.7710,190.7920,.3000,2000,2015.5)),0.001388888888888889))=1" 
+  >>>
+  >>> job = Gaia.launch_job(query)
+  >>>
+  >>> results = job.get_results()
+  >>> ids=results['source_id']
+  >>> print(ids)
+  >>>
+  >>> # Retrieve epoch photoemtry data
+  >>> epoch_photometry_data = Gaia.load_data(ids=ids, retrieval_type="epoch_photometry")
+  >>> print("source id \t\tBand \t\tMag \t\tTime \t\tFlux \t\tFluxError")
+  >>> for source, band, mag, time, flux, flux_error in zip(epoch_photometry_data['source_id'], \
+  >>>                          epoch_photometry_data['band'], \
+  >>>                          epoch_photometry_data['mag'],\
+  >>>                          epoch_photometry_data['time'],\
+  >>>                          epoch_photometry_data['flux'],\
+  >>>                          epoch_photometry_data['flux_error']):
+  >>> print(str(source) + "\t"+  str(band, 'utf-8') + "\t\t" + str(mag) + "\t" + str(time) + "\t" + str(flux) + "\t" + str(flux_error))
 
 
 Reference/API

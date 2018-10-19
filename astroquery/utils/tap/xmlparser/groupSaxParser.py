@@ -72,7 +72,7 @@ class GroupSaxParser(xml.sax.ContentHandler):
             self.__reading_group(name, attrs)
         elif self.__status == READING_USERS:
             self.__reading_users(name, attrs)
-            
+
     def endElement(self, name):
         #  print("endElement = " + str(name))
         if self.__status == READING_GROUP:
@@ -100,20 +100,20 @@ class GroupSaxParser(xml.sax.ContentHandler):
             self.__stop_reading_data()
 
     def __reading_users(self, name, attrs):
-        if self.__check_item_id("user", name): 
+        if self.__check_item_id("user", name):
             self.__currentGroup.get_users().append(TapUser(attrs))
-    
+
     def __end_users(self, name):
-        if self.__check_item_id("users", name): 
+        if self.__check_item_id("users", name):
             self.__status = READING_GROUP
-    
+
     def characters(self, content):
         if self.__concatData:
             self.__charBuffer.append(content)
 
     def __show_attributes(self, attrs):
         return str(attrs.getNames())
-    
+
     def __nothing(self, name, attrs):
         pass
 

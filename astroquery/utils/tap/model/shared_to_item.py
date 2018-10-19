@@ -28,7 +28,7 @@ class TapSharedToItem(object):
         self.set_id(attrs.getValue("shareTo"))
         self.set_type(attrs.getValue("shareType"))
         self.set_mode(attrs.getValue("shareMode"))
- 
+
     def __internal_init(self):
         pass
 
@@ -50,7 +50,7 @@ class TapSharedToItem(object):
             id to be set
         """
         self.__id = ident
-        
+
     def get_type(self):
         """Returns type
 
@@ -69,7 +69,7 @@ class TapSharedToItem(object):
             type
         """
         self.__type = t
-        
+
     def get_mode(self):
         """Returns mode
 
@@ -90,6 +90,6 @@ class TapSharedToItem(object):
         self.__mode = m
 
     def __str__(self):
-        return ("Shared to item: " + str(self.get_id()) + \
-                "\n\tType: " + str(self.get_type()) + \
+        return ("Shared to item: " + str(self.get_id()) +
+                "\n\tType: " + str(self.get_type()) +
                 "\n\tMode: " + str(self.get_mode()))

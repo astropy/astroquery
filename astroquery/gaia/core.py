@@ -733,7 +733,7 @@ class GaiaClass(object):
             table_description=table_description,
             format=format, verbose=verbose)
 
-    def upload_table_from_job(self,job=None, table_name=None,
+    def upload_table_from_job(self, job=None, table_name=None,
                               table_description=None, verbose=False):
         """Uploads a table to the user private space from a job
 
@@ -991,6 +991,7 @@ class GaiaClass(object):
         
         return self.__gaiatap.is_valid_user(user_id=user_id,
                                             verbose=verbose)
+
     def cross_match(self, full_qualified_table_name_a=None,
                     full_qualified_table_name_b=None,
                     results_table_name=None,
@@ -1026,19 +1027,19 @@ class GaiaClass(object):
         if results_table_name is None:
             raise ValueError("Results table name argument is mandatory")
         if radius < 0.1 or radius > 10.0:
-            raise ValueError("Invalid radius value. Found "+str(radius)+\
+            raise ValueError("Invalid radius value. Found " + str(radius) +
                              ", valid range is: 0.1 to 10.0")
         schemaA = taputils.get_schema_name(full_qualified_table_name_a)
         if schemaA is None:
-            raise ValueError("Not found schema name in full qualified table A: '"\
-                             +full_qualified_table_name_a+"'")
+            raise ValueError("Not found schema name in full qualified table A: '"
+                             + full_qualified_table_name_a+"'")
         tableA = taputils.get_table_name(full_qualified_table_name_a)
         schemaB = taputils.get_schema_name(full_qualified_table_name_b)
         if schemaB is None:
-            raise ValueError("Not found schema name in full qualified table B: '"\
-                             +full_qualified_table_name_b+"'")
+            raise ValueError("Not found schema name in full qualified table B: '"
+                             + full_qualified_table_name_b+"'")
         tableB = taputils.get_table_name(full_qualified_table_name_b)
-        if taputils.get_schema_name(results_table_name) != None:
+        if taputils.get_schema_name(results_table_name) is not None:
             raise ValueError("Please, do not specify schema for 'results_table_name'")
         query = "SELECT crossmatch_positional(\
             '"+schemaA+"','"+tableA+"',\
@@ -1046,15 +1047,16 @@ class GaiaClass(object):
             "+str(radius)+",\
             '"+str(results_table_name)+"')\
             FROM dual;"
-        name=str(results_table_name)
-        return self.launch_job_async(query=query, 
-                                     name=name, 
+        name = str(results_table_name)
+        return self.launch_job_async(query=query,
+                                     name=name,
                                      output_file=None,
-                                     output_format="votable", 
-                                     verbose=verbose, 
-                                     dump_to_file=False, 
+                                     output_format="votable",
+                                     verbose=verbose,
+                                     dump_to_file=False,
                                      background=background,
                                      upload_resource=None,
                                      upload_table_name=None)
+
 
 Gaia = GaiaClass()

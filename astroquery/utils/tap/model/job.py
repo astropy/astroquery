@@ -20,6 +20,7 @@ import time
 from astroquery.utils.tap.model import modelutils
 from astroquery.utils.tap.xmlparser import utils
 from astroquery.utils.tap import taputils
+import requests
 import sys
 
 __all__ = ['Job']
@@ -83,7 +84,7 @@ class Job(object):
         if self.is_finished():
             raise ValueError("Cannot assign a pahse when a job is finished")
         self.__phase = phase
-    
+
     def start(self, verbose=False):
         """Starts the job (allowed in PENDING phase only)
 
@@ -93,7 +94,7 @@ class Job(object):
             flag to display information about the process
         """
         self.__change_phase(phase="RUN", verbose=verbose)
-    
+
     def abort(self, verbose=False):
         """Aborts the job (allowed in PENDING phase only)
 
@@ -103,14 +104,14 @@ class Job(object):
             flag to display information about the process
         """
         self.__change_phase(phase="ABORT", verbose=verbose)
-    
+
     def __change_phase(self, phase, verbose=False):
         if self.__phase == 'PENDING':
             context = "async/"+str(self.get_jobid())+"/phase"
             args = {
                 "PHASE": str(phase)}
             data = self.__connHandler.url_encode(args)
-            response = self.__connHandler.execute_tappost(subcontext=context, 
+            response = self.__connHandler.execute_tappost(subcontext=context,
                                                           data=data,
                                                           verbose=verbose)
             if verbose:
@@ -132,7 +133,7 @@ class Job(object):
             return response
         else:
             raise ValueError("Cannot start a job in phase: " + str(self.__phase))
-    
+
     def send_parameter(self, name=None, value=None, verbose=False):
         """Sends a job parameter (allowed in PENDING phase only).
 
@@ -144,7 +145,7 @@ class Job(object):
             Parameter value.
         """
         if self.__phase == 'PENDING':
-            #send post parameter/value
+            # send post parameter/value
             context = "async/"+str(self.get_jobid())
             args = {
                 name: str(value)}
@@ -300,7 +301,7 @@ class Job(object):
             print("Job in PENDING phase, sending phase=RUN request.")
             try:
                 self.start(verbose)
-            except:
+            except:  # noqa: E722
                 # ignore
                 if verbose:
                     print("Exception when trying to start job", sys.exc_info()[0])
@@ -338,7 +339,7 @@ class Job(object):
             outputFormat = self.parameters['format']
             results = utils.read_http_response(resultsResponse, outputFormat)
             self.set_results(results)
-            self._phase = wjData
+            self.__phase = phase
     
     def is_finished(self):
         """Returns whether the job is finished (ERROR, ABORTED, COMPLETED) or not

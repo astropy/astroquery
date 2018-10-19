@@ -49,7 +49,7 @@ class TapUser(object):
             id to be set
         """
         self.__id = ident
-        
+
     def get_name(self):
         """Returns user name
 

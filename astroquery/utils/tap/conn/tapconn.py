@@ -43,7 +43,7 @@ class TapConn(object):
     def __init__(self, ishttps,
                  host,
                  server_context=None,
-                 tap_context=None, 
+                 tap_context=None,
                  upload_context=None,
                  table_edit_context=None,
                  data_context=None,
@@ -134,7 +134,7 @@ class TapConn(object):
 
     def __get_data_context(self, encodedData=None):
         if self.__dataContext is None:
-            raise ValueError("data_context must be specified at TAP object "\
+            raise ValueError("data_context must be specified at TAP object " +
                              "creation for this action to be performed")
         if encodedData is not None:
             return self.__dataContext + "?" + str(encodedData)
@@ -143,7 +143,7 @@ class TapConn(object):
 
     def __get_datalink_context(self, subContext, encodedData=None):
         if self.__datalinkContext is None:
-            raise ValueError("datalink_context must be specified at TAP object "\
+            raise ValueError("datalink_context must be specified at TAP object " +
                              "creation for this action to be performed")
         if encodedData is not None:
             return self.__datalinkContext + "/" + subContext + "?" + encodedData
@@ -152,16 +152,16 @@ class TapConn(object):
 
     def __get_upload_context(self):
         if self.__uploadContext is None:
-            raise ValueError("upload_context must be specified at TAP object "\
+            raise ValueError("upload_context must be specified at TAP object " +
                              "creation for this action to be performed")
         return self.__uploadContext
-    
+
     def __get_table_edit_context(self):
         if self.__tableEditContext is None:
-            raise ValueError("table_edit_context must be specified at TAP object "\
+            raise ValueError("table_edit_context must be specified at TAP object " +
                              "creation for this action to be performed")
         return self.__tableEditContext
-    
+
     def __get_server_context(self, subContext):
         return self.__serverContext + "/" + subContext
 
@@ -183,7 +183,7 @@ class TapConn(object):
         An HTTP(s) response object
         """
         context = self.__get_tap_context(subcontext)
-        return self.__execute_get(context, verbose);
+        return self.__execute_get(context, verbose)
 
     def execute_dataget(self, query, verbose=False):
         """Executes a data GET request
@@ -202,7 +202,7 @@ class TapConn(object):
         An HTTP(s) response object
         """
         context = self.__get_data_context(query)
-        return self.__execute_get(context, verbose);
+        return self.__execute_get(context, verbose)
 
     def execute_datalinkget(self, subcontext, query, verbose=False):
         """Executes a datalink GET request
@@ -223,13 +223,13 @@ class TapConn(object):
         An HTTP(s) response object
         """
         context = self.__get_datalink_context(subcontext, query)
-        return self.__execute_get(context, verbose);
+        return self.__execute_get(context, verbose)
 
     def __execute_get(self, context, verbose=False):
         conn = self.__get_connection(verbose)
         if verbose:
             print("host = " + str(conn.host) + ":" + str(conn.port))
-            print("context = "+ context)
+            print("context = " + context)
         conn.request("GET", context, None, self.__getHeaders)
         response = conn.getresponse()
         self.__currentReason = response.reason
@@ -328,7 +328,7 @@ class TapConn(object):
         """
         context = self.__get_upload_context()
         return self.__execute_post(context, data, content_type, verbose)
-    
+
     def execute_share(self, data, verbose=False):
         """Executes a POST upload request
         The connection is done through HTTP or HTTPS depending on the login
@@ -352,7 +352,7 @@ class TapConn(object):
                                    data,
                                    content_type=CONTENT_TYPE_POST_DEFAULT,
                                    verbose=verbose)
-   
+
     def execute_table_edit(self, data,
                      content_type=CONTENT_TYPE_POST_DEFAULT, verbose=False):
         """Executes a POST upload request
@@ -374,13 +374,13 @@ class TapConn(object):
         """
         context = self.__get_table_edit_context()
         return self.__execute_post(context, data, content_type, verbose)
-    
+
     def __execute_post(self, context, data,
                      content_type=CONTENT_TYPE_POST_DEFAULT, verbose=False):
         conn = self.__get_connection(verbose)
         if verbose:
             print("host = " + str(conn.host) + ":" + str(conn.port))
-            print("context = "+ context)
+            print("context = " + context)
             print("Content-type = " + str(content_type))
         self.__postHeaders["Content-type"] = content_type
         conn.request("POST", context, data, self.__postHeaders)

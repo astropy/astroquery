@@ -71,7 +71,7 @@ class SharedItemsSaxParser(xml.sax.ContentHandler):
             self.__reading_item(name, attrs)
         elif self.__status == READING_SHAREDTO:
             self.__reading_shared_to(name, attrs)
-            
+
     def endElement(self, name):
         #  print("endElement = " + str(name))
         if self.__status == READING_ITEM:
@@ -99,20 +99,20 @@ class SharedItemsSaxParser(xml.sax.ContentHandler):
             self.__stop_reading_data()
 
     def __reading_shared_to(self, name, attrs):
-        if self.__check_item_id("sharedToItem", name): 
+        if self.__check_item_id("sharedToItem", name):
             self.__currentItem.add_shared_to_items_list(TapSharedToItem(attrs))
-    
+
     def __end_shared_to(self, name):
-        if self.__check_item_id("sharedToItems", name): 
+        if self.__check_item_id("sharedToItems", name):
             self.__status = READING_ITEM
-    
+
     def characters(self, content):
         if self.__concatData:
             self.__charBuffer.append(content)
 
     def __show_attributes(self, attrs):
         return str(attrs.getNames())
-    
+
     def __nothing(self, name, attrs):
         pass
 

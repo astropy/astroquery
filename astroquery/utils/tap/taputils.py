@@ -26,6 +26,7 @@ TAP_UTILS_HTTP_ERROR_MSG_START = "<li><b>Message: </b>"
 TAP_UTILS_HTTP_VOTABLE_ERROR = '<INFO name="QUERY_STATUS" value="ERROR">'
 TAP_UTILS_VOTABLE_INFO = '</INFO>'
 
+
 def taputil_find_header(headers, key):
     """Searches for the specified keyword
 
@@ -102,6 +103,7 @@ def set_top_in_query(query, top):
             nq = query[0:p+7] + " TOP " + str(top) + " " + query[p+7:]
         return nq
 
+
 def get_http_response_error(response):
     """Extracts an HTTP error message from an HTML response.
 
@@ -117,6 +119,7 @@ def get_http_response_error(response):
     responseBytes = response.read()
     responseStr = responseBytes.decode('utf-8')
     return parse_http_response_error(responseStr, response.status)
+
 
 def parse_http_response_error(responseStr, status):
     """Extracts an HTTP error message from an HTML response.
@@ -139,6 +142,7 @@ def parse_http_response_error(responseStr, status):
     msg = responseStr[(pos1+len(TAP_UTILS_HTTP_ERROR_MSG_START)):pos2]
     return str("Error " + str(status) + ":\n" + msg)
 
+
 def parse_http_votable_response_error(responseStr, status):
     """Extracts an HTTP error message from an VO response.
 
@@ -160,6 +164,7 @@ def parse_http_votable_response_error(responseStr, status):
     msg = responseStr[(pos1+len(TAP_UTILS_HTTP_VOTABLE_ERROR)):pos2]
     return str("Error " + str(status) + ": " + msg)
 
+
 def get_jobid_from_location(location):
     """Extracts an HTTP error message from an VO response.
 
@@ -175,6 +180,7 @@ def get_jobid_from_location(location):
     pos = location.rfind('/')+1
     jobid = location[pos:]
     return jobid
+
 
 def get_schema_name(full_qualified_table_name):
     """Extracts the schema name form a full qualified table name.
@@ -194,6 +200,7 @@ def get_schema_name(full_qualified_table_name):
     name = full_qualified_table_name[0:pos]
     return name
 
+
 def get_table_name(full_qualified_table_name):
     """Extracts the table name form a full qualified table name.
 
@@ -211,4 +218,3 @@ def get_table_name(full_qualified_table_name):
         return full_qualified_table_name
     name = full_qualified_table_name[pos+1:]
     return name
-

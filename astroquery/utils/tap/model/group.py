@@ -51,7 +51,7 @@ class TapGroup(object):
             id to be set
         """
         self.__id = ident
-        
+
     def get_owner(self):
         """Returns group owner
 
@@ -70,7 +70,7 @@ class TapGroup(object):
             id to be set
         """
         self.__owner = owner
-        
+
     def get_users(self):
         """Returns users of this group
 
@@ -131,7 +131,7 @@ class TapGroup(object):
     def __str__(self):
         users = ""
         for u in self.get_users():
-            users = users + "\n\t\t" + u.get_name() + "(" + u.get_id() + ")" 
+            users = users + "\n\t\t" + u.get_name() + "(" + u.get_id() + ")"
         return "Group: " + str(self.get_title()) + \
             "\n\tDescription: " + str(self.get_description()) + \
             "\n\tOwner: " + str(self.get_owner()) + \

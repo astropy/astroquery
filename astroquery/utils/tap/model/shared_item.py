@@ -27,7 +27,7 @@ class TapSharedItem(object):
         self.__attributes = attrs
         self.set_id(attrs.getValue("id"))
         self.set_type(attrs.getValue("type"))
- 
+
     def __internal_init(self):
         self.__shared_to_items = []
 
@@ -49,7 +49,7 @@ class TapSharedItem(object):
             id to be set
         """
         self.__id = ident
-        
+
     def get_type(self):
         """Returns type
 
@@ -68,7 +68,7 @@ class TapSharedItem(object):
             type
         """
         self.__type = t
-        
+
     def get_title(self):
         """Returns title
 
@@ -118,7 +118,7 @@ class TapSharedItem(object):
 
     def add_shared_to_items_list(self, group):
         """Adds a group in which this item is shared
-        
+
         Parameters
         ----------
         group : str, mandatory
@@ -129,10 +129,10 @@ class TapSharedItem(object):
     def __str__(self):
         shared_to = ""
         for u in self.get_shared_to_items_list():
-            shared_to = shared_to + "\n\t\t" + str(u) 
+            shared_to = shared_to + "\n\t\t" + str(u)
 
-        return ("Shared item: " + str(self.get_id()) + \
-            "\n\tType: " + str(self.get_type()) + \
-            "\n\tTitle: " + str(self.get_title()) + \
-            "\n\tDescription: " + str(self.get_description()) + \
+        return ("Shared item: " + str(self.get_id()) +
+            "\n\tType: " + str(self.get_type()) +
+            "\n\tTitle: " + str(self.get_title()) +
+            "\n\tDescription: " + str(self.get_description()) +
             "\n\tShared to: " + str(shared_to))
