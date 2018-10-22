@@ -111,7 +111,8 @@ class GaiaClass(object):
         return self.__gaiatap.load_table(table, verbose)
 
     def load_data(self, ids, retrieval_type="epoch_photometry",
-                  valid_data=True, band=None, format="VOTABLE", verbose=False):
+                  valid_data=True, band=None, format="VOTABLE",
+                  output_file=None, verbose=False):
         """Loads the specified table
         TAP+ only
 
@@ -133,6 +134,9 @@ class GaiaClass(object):
             This parameter allows to filter the output lightcurve by its band.
         format : str, optional, default 'votable'
             loading format
+        output_file : string, optional, default None
+            file where the results are saved.
+            If it is not provided, the http response contents are returned.
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
@@ -166,6 +170,7 @@ class GaiaClass(object):
         params_dict['FORMAT'] = str(format)
         params_dict['RETRIEVAL_TYPE'] = str(retrieval_type)
         return self.__gaiadata.load_data(params_dict=params_dict,
+                                         output_file=output_file,
                                          verbose=verbose)
 
     def get_datalinks(self, ids, verbose=False):

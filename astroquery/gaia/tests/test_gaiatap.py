@@ -519,6 +519,7 @@ class TestTap(unittest.TestCase):
         tap.load_data(ids, retrieval_type, valid_data, band, format, verbose)
         parameters = {}
         parameters['params_dict'] = params_dict
+        parameters['output_file'] = None
         parameters['verbose'] = verbose
 
         dummyHandler.check_call('load_data', parameters)

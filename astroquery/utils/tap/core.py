@@ -788,13 +788,16 @@ class TapPlus(Tap):
                                       include_shared_tables=include_shared_tables,
                                       verbose=verbose)
 
-    def load_data(self, params_dict=None, verbose=False):
+    def load_data(self, params_dict=None, output_file=None, verbose=False):
         """Loads the specified data
 
         Parameters
         ----------
         params_dict : dictionary, mandatory
             list of request parameters
+        output_file : string, optional, default None
+            file where the results are saved.
+            If it is not provided, the http response contents are returned.
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
@@ -819,15 +822,21 @@ class TapPlus(Tap):
             raise requests.exceptions.HTTPError(errMsg)
             return None
         print("Done.")
-        if 'format' in params_dict:
-            output_format = params_dict['format'].lower()
+        if output_file is not None:
+            file = open(output_file, "wb")
+            file.write(response.read())
+            file.close()
+            return None
         else:
-            if 'FORMAT'in params_dict:
-                output_format = params_dict['FORMAT'].lower()
+            if 'format' in params_dict:
+                output_format = params_dict['format'].lower()
             else:
-                output_format = "votable"
-        results = utils.read_http_response(response, output_format)
-        return results
+                if 'FORMAT'in params_dict:
+                    output_format = params_dict['FORMAT'].lower()
+                else:
+                    output_format = "votable"
+            results = utils.read_http_response(response, output_format)
+            return results
 
     def load_groups(self, verbose=False):
         """Loads groups
