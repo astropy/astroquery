@@ -25,6 +25,7 @@ DATA_FILES = {'POST':
               'table': 'response_query_region.fits',
               'image': 'image.fits'}
 
+
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     return os.path.join(data_dir, filename)
@@ -41,11 +42,13 @@ def nonremote_request(self, request_type, url, **kwargs):
 
     return response
 
+
 def nonremote_download_query_result(self, *args):
     with open(data_path(DATA_FILES['table']), 'rb') as f:
         content = f.read()
 
     return content
+
 
 def nonremote_get_fits(self, *args):
     return fits.open(data_path(DATA_FILES['image']))
@@ -61,6 +64,7 @@ def patch_request(request):
                nonremote_request)
     return mp
 
+
 @pytest.fixture
 def patch_download_query_result(request):
     try:
@@ -70,6 +74,7 @@ def patch_download_query_result(request):
     mp.setattr(hsc.core.HscClass, '_download_query_result',
                nonremote_download_query_result)
     return mp
+
 
 @pytest.fixture
 def patch_get_fits(request):
@@ -89,6 +94,7 @@ def test_query_region_async(patch_request):
 
     assert response is not None
 
+
 def test_query_region(patch_request, patch_download_query_result):
     hsc.core.Hsc._authenticated = True
     table = hsc.core.Hsc.query_region(
@@ -98,6 +104,7 @@ def test_query_region(patch_request, patch_download_query_result):
     assert isinstance(table, Table)
     assert len(table) > 0
 
+
 def test_get_images_cutout(patch_request, patch_get_fits):
     image = hsc.core.Hsc.get_images(
         coord.SkyCoord(ra=34.0, dec=-5.0, unit='deg', frame='icrs'))
@@ -105,17 +112,20 @@ def test_get_images_cutout(patch_request, patch_get_fits):
     assert len(image) == 1
     assert isinstance(image[0], fits.HDUList)
 
+
 def test_get_images_async_cutout(patch_request):
     url_list = hsc.core.Hsc.get_images_async(
         coord.SkyCoord(ra=34.0, dec=-5.0, unit='deg', frame='icrs'))
 
     assert len(url_list) == 1
 
+
 def test_get_image_list_cutout(patch_request):
     url_list = hsc.core.Hsc.get_image_list(
         coord.SkyCoord(ra=34.0, dec=-5.0, unit='deg', frame='icrs'))
 
     assert len(url_list) == 1
+
 
 def test_get_images_coadd(patch_request, patch_get_fits):
     image = hsc.core.Hsc.get_images(
@@ -125,12 +135,14 @@ def test_get_images_coadd(patch_request, patch_get_fits):
     assert len(image) == 1
     assert isinstance(image[0], fits.HDUList)
 
+
 def test_get_images_async_coadd(patch_request):
     url_list = hsc.core.Hsc.get_images_async(
         coord.SkyCoord(ra=34.0, dec=-5.0, unit='deg', frame='icrs'),
         radius=6 * u.arcsec)
 
     assert len(url_list) == 1
+
 
 def test_get_image_list_coadd(patch_request):
     url_list = hsc.core.Hsc.get_image_list(
@@ -139,13 +151,12 @@ def test_get_image_list_coadd(patch_request):
 
     assert len(url_list) == 1
 
+
 def test_list_surveys():
     surveys = hsc.core.Hsc.list_surveys()
     assert isinstance(surveys, list)
 
+
 def test_list_releases():
     releases = hsc.core.Hsc.list_releases()
     assert isinstance(releases, list)
-
-    # similarly fill in tests for each of the methods
-# look at tests in existing modules for more examples

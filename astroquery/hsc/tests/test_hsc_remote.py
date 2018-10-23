@@ -13,6 +13,7 @@ import astropy.units as u
 
 from ... import hsc
 
+
 @remote_data
 class TestHsc:
     def test_query_region_async(self):
@@ -21,7 +22,7 @@ class TestHsc:
             SkyCoord(ra=34.0, dec=-5.0, unit='deg', frame='icrs'),
             radius=5 * u.arcsec)
         assert response.ok
-        #assert response is not None
+        # assert response is not None
 
 #    def test_query_region(self):
 #        table = hsc.core.Ukidss.query_region(

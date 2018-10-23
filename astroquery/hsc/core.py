@@ -84,7 +84,7 @@ class HscClass(QueryWithLogin):
 
         return True
 
-    def query_region_async(self, coordinates, radius=1*u.arcmin, 
+    def query_region_async(self, coordinates, radius=1*u.arcmin,
                            columns='default', get_query_payload=False):
         """
         Queries a region around the specified coordinates.
@@ -154,7 +154,7 @@ class HscClass(QueryWithLogin):
 
         # I use self.get_fits() to allow accessing
         # the url images through the active session
-        #return [obj.get_fits() for obj in readable_objs]
+        # return [obj.get_fits() for obj in readable_objs]
         return [self.get_fits(obj) for obj in readable_objs]
 
     @prepend_docstr_nosections(get_images.__doc__)
@@ -267,7 +267,7 @@ class HscClass(QueryWithLogin):
         `astropy.fits.HDUList` object
         """
         with tempfile.NamedTemporaryFile() as temp:
-            self._download_file(readable_obj._target, temp.name)#, cache=cache)
+            self._download_file(readable_obj._target, temp.name)
             temp.seek(0)
 
             return fits.open(temp.name)
@@ -458,7 +458,7 @@ class HscClass(QueryWithLogin):
         return status
 
     def _block_until_query_finishes(self, job_id):
-        interval = 1 # sec.
+        interval = 1   # sec.
 
         with Spinner('Waiting for query to finish...', 'lightred') as s:
             while True:
@@ -492,6 +492,7 @@ def _parse_coordinates(coords):
     C = commons.parse_coordinates(coords).transform_to(coord.ICRS)
     return C.ra.degree, C.dec.degree
 
+
 def _parse_table(release_version, survey, table=None):
     if table is None:
         full_table = '{}_{}'.format(release_version, survey)
@@ -499,6 +500,7 @@ def _parse_table(release_version, survey, table=None):
         full_table = '{}_{}.{}'.format(release_version, survey, table)
 
     return full_table
+
 
 def _parse_image_size(width, height):
     max_value = 35 * u.arcmin
@@ -515,6 +517,7 @@ def _parse_image_size(width, height):
 
     return 0.5*sw, 0.5*sh
 
+
 def _cutout_urls(response):
     if response.status_code == 404:
         warnings.warn('Source outside of the observed area of the survey!')
@@ -523,6 +526,7 @@ def _cutout_urls(response):
         url_list = [response.url]
 
     return url_list
+
 
 def _image_urls(response, base_url, rerun):
     response_json = response.json()
@@ -537,6 +541,7 @@ def _image_urls(response, base_url, rerun):
                     for coadd in response_json['coadds']]
 
     return url_list
+
 
 # the default tool for users to interact with is an instance of the Class
 Hsc = HscClass()
