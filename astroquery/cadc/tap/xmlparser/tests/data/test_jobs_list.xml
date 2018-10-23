@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uws:jobs  xmlns:uws="http://www.ivoa.net/xml/UWS/v1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ivoa.net/xml/UWS/v1.0 http://www.ivoa.net/xml/UWS/v1.0"  total="2">
+<uws:jobref id="1479386030738O" xlink:href="http://gea.esac.esa.int/tap-server/tap/async/1479386030738O"><uws:phase>COMPLETED</uws:phase></uws:jobref>
+<uws:jobref id="14793860307381" xlink:href="http://gea.esac.esa.int/tap-server/tap/async/14793860307381"><uws:phase>ERROR</uws:phase></uws:jobref>
+</uws:jobs>
+
