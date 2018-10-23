@@ -84,8 +84,8 @@ class HscClass(QueryWithLogin):
 
         return True
 
-    def query_region_async(self, coordinates, radius, columns='default',
-                           get_query_payload=False):
+    def query_region_async(self, coordinates, radius=1*u.arcmin, 
+                           columns='default', get_query_payload=False):
         """
         Queries a region around the specified coordinates.
 
@@ -94,7 +94,7 @@ class HscClass(QueryWithLogin):
         coordinates : str or `astropy.coordinates`.
             coordinates around which to query
         radius : str or `astropy.units.Quantity`.
-            the radius of the cone search
+            the radius of the cone search. Default to 1 arcmin.
         columns : str or list, optional
             list of selected columns for query results.
             See the `HSP-SSP schema <https://hsc-release.mtk.nao.ac.jp/schema/>`_
