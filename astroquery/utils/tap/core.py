@@ -324,19 +324,29 @@ class Tap(object):
                 response.getheaders(),
                 "location")
             jobid = self.__getJobId(location)
-            if verbose:
-                print("job " + str(jobid) + ", at: " + str(location))
-            job.set_jobid(jobid)
-            job.set_remote_location(location)
-            if not background:
-                if verbose:
-                    print("Retrieving async. results...")
-                # saveResults or getResults will block (not background)
+            runresponse = self.__runAsyncJob(jobid, verbose)
+            isNextError = self.__connHandler.check_launch_response_status(runresponse,
+                                                                          verbose,
+                                                                          303)
+            if isNextError:
+                job.set_failed(True)
                 if dump_to_file:
-                    job.save_results(verbose)
-                else:
-                    job.get_results()
-                    print("Query finished.")
+                    self.__connHandler.dump_to_file(suitableOutputFile, runresponse)
+                raise requests.exceptions.HTTPError(runresponse.reason)
+            else:
+                if verbose:
+                    print("job " + str(jobid) + ", at: " + str(location))
+                job.set_jobid(jobid)
+                job.set_remote_location(location)
+                if not background:
+                    if verbose:
+                        print("Retrieving async. results...")
+                    # saveResults or getResults will block (not background)
+                    if dump_to_file:
+                        job.save_results(verbose)
+                    else:
+                        job.get_results()
+                        print("Query finished.")
         return job
 
     def load_async_job(self, jobid=None, name=None, verbose=False):
@@ -455,7 +465,6 @@ class Tap(object):
             "LANG": "ADQL",
             "FORMAT": str(outputFormat),
             "tapclient": str(TAP_CLIENT_ID),
-            "PHASE": "RUN",
             "QUERY": str(query),
             "UPLOAD": ""+str(uploadValue)}
         if name is not None:
@@ -477,12 +486,22 @@ class Tap(object):
             "LANG": "ADQL",
             "FORMAT": str(outputFormat),
             "tapclient": str(TAP_CLIENT_ID),
-            "PHASE": "RUN",
             "QUERY": str(query)}
         if name is not None:
             args['jobname'] = name
         data = self.__connHandler.url_encode(args)
         response = self.__connHandler.execute_post(context, data)
+        if verbose:
+            print(response.status, response.reason)
+            print(response.getheaders())
+        return response
+
+    def __runAsyncJob(self, jobid, verbose):
+        args = {
+            "PHASE": "RUN"}
+        data = self.__connHandler.url_encode(args)
+        jobpath = 'async/' + jobid + '/phase'
+        response = self.__connHandler.execute_post(jobpath, data)
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
@@ -590,8 +609,7 @@ class Tap(object):
         return protocol, host, port, serverContext, tapContext
 
     def __str__(self):
-        return ("Created TAP+ (v"+VERSION+") - Connection: \n" +
-                str(self.__connHandler))
+        return ("Created TAP+ (v" + VERSION + ") - Connection: \n" + str(self.__connHandler))
 
 
 class TapPlus(Tap):

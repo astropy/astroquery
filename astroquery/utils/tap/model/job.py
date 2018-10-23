@@ -602,6 +602,17 @@ class Job(object):
         if debug:
             print(resultsResponse.status, resultsResponse.reason)
             print(resultsResponse.getheaders())
+
+        numberOfRedirects = 0
+        while (resultsResponse.status == 303 or resultsResponse.status == 302) and numberOfRedirects < 20:
+            joblocation = self.__connHandler.find_header(resultsResponse.getheaders(), "location")
+            resultsResponse = self.__connHandler.execute_get(subContext, otherlocation=joblocation)
+            numberOfRedirects += 1
+
+            if debug:
+                print(resultsResponse.status, resultsResponse.reason)
+                print(resultsResponse.getheaders())
+
         isError = self.__connHandler.check_launch_response_status(resultsResponse,
                                                                   debug,
                                                                   200)
