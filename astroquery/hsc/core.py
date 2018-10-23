@@ -217,16 +217,11 @@ class HscClass(QueryWithLogin):
         list of image URLs
         """
         if search_type == 'cutout_search':
-            url_list = [response.url]
+            url_list = _cutout_urls(response)
 
         elif search_type == 'image_search':
-            response_json = response.json()
-            rerun = self._parse_table(self.release_version, self.survey)
-            image_path = '/deepCoadd/{0}/{1}/{2}/calexp-{0}-{1}-{2}.fits.gz'
-            image_url = self.ARCHIVE_URL + rerun + image_path
-
-            url_list = [image_url.format(coadd[2], coadd[0], coadd[1])
-                        for coadd in response_json['coadds']]
+            rerun = _parse_table(self.release_version, self.survey)
+            url_list = _image_urls(response, self.ARCHIVE_URL, rerun)
 
         return url_list
 
@@ -325,7 +320,8 @@ class HscClass(QueryWithLogin):
         elif search_type == 'cutout_search':
             # Use HEAD to avoid downloading the file with the request
             response = self._request('HEAD', url, params=request_payload,
-                                     timeout=self.TIMEOUT, cache=cache, stream=True)
+                                     timeout=self.TIMEOUT, cache=cache,
+                                     stream=True)
 
         elif search_type == 'image_search':
             response = self._request('POST', url, data=request_payload,
@@ -390,8 +386,8 @@ class HscClass(QueryWithLogin):
         else:
             columns = ','.join(columns)
 
-        ra, dec = self._parse_coordinates(coords)
-        table = self._parse_table(table=table)
+        ra, dec = _parse_coordinates(coords)
+        table = _parse_table(self.release_version, self.survey, table)
         radius = commons.radius_to_unit(radius, unit='arcsec')
 
         sql = 'SELECT {} FROM {} WHERE coneSearch(coord, {}, {}, {})'
@@ -403,10 +399,10 @@ class HscClass(QueryWithLogin):
         return query
 
     def _cutout_search_query(self, coords, width, height, filters):
-        ra, dec = self._parse_coordinates(coords)
-        sw, sh = self._parse_image_size(width, height)
+        ra, dec = _parse_coordinates(coords)
+        sw, sh = _parse_image_size(width, height)
         filters = self._parse_filters(filters)
-        rerun = self._parse_table(self.release_version, self.survey)
+        rerun = _parse_table(self.release_version, self.survey)
 
         # Use only the first element in filters
         query = {'ra': ra, 'dec': dec, 'sw': sw, 'sh': sh,
@@ -416,10 +412,10 @@ class HscClass(QueryWithLogin):
         return query
 
     def _image_search_query(self, coords, radius, filters):
-        ra, dec = self._parse_coordinates(coords)
+        ra, dec = _parse_coordinates(coords)
         radius = commons.radius_to_unit(radius, unit='deg')
         filters = self._parse_filters(filters)
-        rerun = self._parse_table(self.release_version, self.survey)
+        rerun = _parse_table(self.release_version, self.survey)
 
         query = {
             "sqlCondition": {
@@ -434,38 +430,6 @@ class HscClass(QueryWithLogin):
         }
 
         return query
-
-    def _parse_coordinates(self, coords):
-        C = commons.parse_coordinates(coords).transform_to(coord.ICRS)
-        return C.ra.degree, C.dec.degree
-
-    def _parse_table(self, release_version=None, survey=None, table=None):
-        if survey is None:
-            survey = self.survey
-        if release_version is None:
-            release_version = self.release_version
-
-        if table is None:
-            full_table = '{}_{}'.format(release_version, survey)
-        else:
-            full_table = '{}_{}.{}'.format(release_version, survey, table)
-
-        return full_table
-
-    def _parse_image_size(self, width, height):
-        max_value = 35 * u.arcmin
-
-        sw = commons.radius_to_unit(width, unit='deg')
-        if height is None:
-            sh = commons.radius_to_unit(width, unit='deg')
-        else:
-            sh = commons.radius_to_unit(height, unit='deg')
-
-        if sw*u.deg > max_value or sh*u.deg > max_value:
-            error_message = 'Cut outs cannot be larger than {}!'
-            raise ValueError(error_message.format(max_value))
-
-        return 0.5*sw, 0.5*sh
 
     def _parse_filters(self, filters):
         if filters == 'all':
@@ -523,11 +487,56 @@ class HscClass(QueryWithLogin):
     def _delete_query(self, job_id):
         self._hsc_request(self.DELETE_URL, {'id': job_id})
 
+
+def _parse_coordinates(coords):
+    C = commons.parse_coordinates(coords).transform_to(coord.ICRS)
+    return C.ra.degree, C.dec.degree
+
+def _parse_table(release_version, survey, table=None):
+    if table is None:
+        full_table = '{}_{}'.format(release_version, survey)
+    else:
+        full_table = '{}_{}.{}'.format(release_version, survey, table)
+
+    return full_table
+
+def _parse_image_size(width, height):
+    max_value = 35 * u.arcmin
+
+    sw = commons.radius_to_unit(width, unit='deg')
+    if height is None:
+        sh = commons.radius_to_unit(width, unit='deg')
+    else:
+        sh = commons.radius_to_unit(height, unit='deg')
+
+    if sw*u.deg > max_value or sh*u.deg > max_value:
+        error_message = 'Cut outs cannot be larger than {}!'
+        raise ValueError(error_message.format(max_value))
+
+    return 0.5*sw, 0.5*sh
+
+def _cutout_urls(response):
+    if response.status_code == 404:
+        warnings.warn('Source outside of the observed area of the survey!')
+        url_list = []
+    else:
+        url_list = [response.url]
+
+    return url_list
+
+def _image_urls(response, base_url, rerun):
+    response_json = response.json()
+    if response_json is None:
+        warnings.warn('Source outside of the observed area of the survey!')
+        url_list = []
+    else:
+        image_path = '/deepCoadd/{0}/{1}/{2}/calexp-{0}-{1}-{2}.fits.gz'
+        image_url = base_url + rerun + image_path
+
+        url_list = [image_url.format(coadd[2], coadd[0], coadd[1])
+                    for coadd in response_json['coadds']]
+
+    return url_list
+
 # the default tool for users to interact with is an instance of the Class
 Hsc = HscClass()
-
-# once your class is done, tests should be written
-# See ./tests for examples on this
-
-# Next you should write the docs in astroquery/docs/module_name
-# using Sphinx.
