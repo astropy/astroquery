@@ -163,9 +163,6 @@ class MastClass(QueryWithLogin):
         else:
             log.warning("Unknown MAST auth mode, defaulting to Legacy Shibboleth login")
 
-        # HACK
-        self._auth_mode = "MAST-AUTH"
-
         if "SHIB-ECP" == self._auth_mode:
             log.debug("Using Legacy Shibboleth login")
             self._SESSION_INFO_URL = conf.server + "/Shibboleth.sso/Session"
