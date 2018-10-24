@@ -114,28 +114,29 @@ class JobSaxParser(xml.sax.ContentHandler):
     def __populate_job_value(self, value, name):
         nameLower = name.lower()
         if UWS_JOBID == nameLower:
-            self.__job.set_jobid(value)
+            self.__job.jobid = value
         elif UWS_RUNID == nameLower:
-            self.__job.set_runid(value)
+            self.__job.runid = value
         elif UWS_OWNERID == nameLower:
-            self.__job.set_ownerid(value)
+            self.__job.ownerid = value
         elif UWS_PHASE == nameLower:
-            self.__job.set_phase(value)
+            print("phase was set")
+            self.__job._phase = value
         elif UWS_QUOTE == nameLower:
-            self.__job.set_quote(value)
+            self.__job.quote = value
         elif UWS_START_TIME == nameLower:
-            self.__job.set_start_time(value)
+            self.__job.startTime = value
         elif UWS_END_TIME == nameLower:
-            self.__job.set_end_time(value)
+            self.__job.endTime = value
         elif UWS_CREATION_TIME == nameLower:
-            self.__job.set_creation_time(value)
+            self.__job.creationTime = value
         elif UWS_LOCATIONID == nameLower:
-            self.__job.set_locationid(value)
+            self.__job.locationID = value
         elif UWS_NAME == nameLower:
-            self.__job.set_name(value)
+            self.__job.name = value
         elif UWS_EXECUTION_DURATION == nameLower:
-            self.__job.set_execution_duration(value)
+            self.__job.executionDuration = value
         elif UWS_DESTRUCTION == nameLower:
-            self.__job.set_destruction(value)
+            self.__job.destruction = value
         elif UWS_PARAMETER == nameLower:
             self.__job.set_parameter(self.__paramKey, value)

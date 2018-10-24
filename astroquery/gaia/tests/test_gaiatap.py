@@ -371,11 +371,11 @@ class TestTap(unittest.TestCase):
         connHandler.set_default_response(responseLaunchJob)
         job = tap.cone_search(sc, radius)
         assert job is not None, "Expected a valid job"
-        assert job.is_sync(), "Expected a synchronous job"
+        assert job.async_ is False, "Expected a synchronous job"
         assert job.get_phase() == 'COMPLETED', \
             "Wrong job phase. Expected: %s, found %s" % \
             ('COMPLETED', job.get_phase())
-        assert job.is_failed() is False, "Wrong job status (set Failed = True)"
+        assert job.failed is False, "Wrong job status (set Failed = True)"
         # results
         results = job.get_results()
         assert len(results) == 3, \
@@ -448,11 +448,11 @@ class TestTap(unittest.TestCase):
         connHandler.set_response(req, responseResultsJob)
         job = tap.cone_search_async(sc, radius)
         assert job is not None, "Expected a valid job"
-        assert job.is_sync() is False, "Expected an asynchronous job"
+        assert job.async_ is True, "Expected an asynchronous job"
         assert job.get_phase() == 'COMPLETED', \
             "Wrong job phase. Expected: %s, found %s" % \
             ('COMPLETED', job.get_phase())
-        assert job.is_failed() is False, "Wrong job status (set Failed = True)"
+        assert job.failed is False, "Wrong job status (set Failed = True)"
         # results
         results = job.get_results()
         assert len(results) == 3, \

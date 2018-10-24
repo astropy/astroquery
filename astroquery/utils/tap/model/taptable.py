@@ -23,70 +23,10 @@ class TapTableMeta(object):
     def __init__(self):
         """Constructor
         """
-        self.__internal_init()
-
-    def __internal_init(self):
-        self.__columns = []
-        self.__name = None
-        self.__schema = None
-        self.__description = None
-
-    def get_schema(self):
-        """Returns the TAP table schema name
-
-        Returns
-        -------
-        The TAP table schema name
-        """
-        return self.__schema
-
-    def set_schema(self, schema):
-        """Sets the TAP table schema name
-
-        Parameters
-        ----------
-        schema : str, mandatory
-            TAP table schema name
-        """
-        self.__schema = schema
-
-    def get_name(self):
-        """Returns the TAP table name
-
-        Returns
-        -------
-        The TAP table name
-        """
-        return self.__name
-
-    def set_name(self, name):
-        """Sets the TAP table name
-
-        Parameters
-        ----------
-        name : str, mandatory
-            TAP table name
-        """
-        self.__name = name
-
-    def get_description(self):
-        """Returns the TAP table description
-
-        Returns
-        -------
-        The TAP table description
-        """
-        return self.__description
-
-    def set_description(self, description):
-        """Sets the TAP table description
-
-        Parameters
-        ----------
-        description : str, mandatory
-            TAP table description
-        """
-        self.__description = description
+        self.columns = []
+        self.name = None
+        self.schema = None
+        self.description = None
 
     def get_qualified_name(self):
         """Returns the qualified TAP table name. I.e. schema+table
@@ -95,16 +35,7 @@ class TapTableMeta(object):
         -------
         The the qualified TAP table name (schema+table)
         """
-        return self.__schema + "." + self.__name
-
-    def get_columns(self):
-        """Returns the TAP table columns
-
-        Returns
-        -------
-        The TAP table columns (a list)
-        """
-        return self.__columns
+        return self.schema + "." + self.name
 
     def add_column(self, tap_column):
         """Adds a table TAP column
@@ -114,9 +45,9 @@ class TapTableMeta(object):
         tap_column : TAP Column object, mandatory
             table TAP column
         """
-        self.__columns.append(tap_column)
+        self.columns.append(tap_column)
 
     def __str__(self):
         return "TAP Table name: " + str(self.get_qualified_name()) + \
-            "\nDescription: " + str(self.get_description()) + \
-            "\nNum. columns: " + str(len(self.get_columns()))
+            "\nDescription: " + str(self.description) + \
+            "\nNum. columns: " + str(len(self.columns))

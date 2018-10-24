@@ -57,10 +57,10 @@ class TestTap(unittest.TestCase):
             "Number of tables expected: %d, found: %d" % (2, len(res))
         # Table 1
         table = self.__find_table('public', 'table1', res)
-        assert table.get_description() == 'Table1 desc', \
+        assert table.description == 'Table1 desc', \
             "Wrong description for table1. Expected: %s, found %s" % \
-            ('Table1 desc', table.get_description())
-        columns = table.get_columns()
+            ('Table1 desc', table.description)
+        columns = table.columns
         assert len(columns) == 2, \
             "Number of columns for table1. Expected: %d, found: %d" % \
             (2, len(columns))
@@ -70,10 +70,10 @@ class TestTap(unittest.TestCase):
         self.__check_column(col, 'Table1 Column2 desc', '', 'INTEGER', None)
         # Table 2
         table = self.__find_table('public', 'table2', res)
-        assert table.get_description() == 'Table2 desc', \
+        assert table.description == 'Table2 desc', \
             "Wrong description for table2. Expected: %s, found %s" % \
-            ('Table2 desc', table.get_description())
-        columns = table.get_columns()
+            ('Table2 desc', table.description)
+        columns = table.columns
         assert len(columns) == 3, \
             "Number of columns for table2. Expected: %d, found: %d" % \
             (3, len(columns))
@@ -161,10 +161,10 @@ class TestTap(unittest.TestCase):
         table = tap.load_table(fullQualifiedTableName)
         assert table is not None, \
             "Table '%s' not found" % (fullQualifiedTableName)
-        assert table.get_description() == 'Table1 desc', \
+        assert table.description == 'Table1 desc', \
             "Wrong description for table1. Expected: %s, found %s" % \
-            ('Table1 desc', table.get_description())
-        columns = table.get_columns()
+            ('Table1 desc', table.description)
+        columns = table.columns
         assert len(columns) == 2, \
             "Number of columns for table1. Expected: %d, found: %d" % \
             (2, len(columns))
@@ -208,11 +208,11 @@ class TestTap(unittest.TestCase):
         responseLaunchJob.set_message("OK")
         job = tap.launch_job(query)
         assert job is not None, "Expected a valid job"
-        assert job.is_sync(), "Expected a synchronous job"
+        assert job.async_ is False, "Expected a synchronous job"
         assert job.get_phase() == 'COMPLETED', \
             "Wrong job phase. Expected: %s, found %s" % \
             ('COMPLETED', job.get_phase())
-        assert job.is_failed() is False, "Wrong job status (set Failed = True)"
+        assert job.failed is False, "Wrong job status (set Failed = True)"
         # results
         results = job.get_results()
         assert len(results) == 3, \
@@ -313,11 +313,11 @@ class TestTap(unittest.TestCase):
         responseResultsJob.set_message("OK")
         job = tap.launch_job(query)
         assert job is not None, "Expected a valid job"
-        assert job.is_sync(), "Expected a synchronous job"
+        assert job.async_ is False, "Expected a synchronous job"
         assert job.get_phase() == 'COMPLETED', \
             "Wrong job phase. Expected: %s, found %s" % \
             ('COMPLETED', job.get_phase())
-        assert job.is_failed() is False, "Wrong job status (set Failed = True)"
+        assert job.failed is False, "Wrong job status (set Failed = True)"
         # Results
         results = job.get_results()
         assert len(results) == 3, \
@@ -411,11 +411,11 @@ class TestTap(unittest.TestCase):
         responseResultsJob.set_message("OK")
         job = tap.launch_job_async(query)
         assert job is not None, "Expected a valid job"
-        assert job.is_sync() is False, "Expected an asynchronous job"
+        assert job.async_ is True, "Expected an asynchronous job"
         assert job.get_phase() == 'COMPLETED', \
             "Wrong job phase. Expected: %s, found %s" % \
             ('COMPLETED', job.get_phase())
-        assert job.is_failed() is False, "Wrong job status (set Failed = True)"
+        assert job.failed is False, "Wrong job status (set Failed = True)"
         # results
         results = job.get_results()
         assert len(results) == 3, \
@@ -465,18 +465,18 @@ class TestTap(unittest.TestCase):
         assert len(jobs) == 2, \
             "Wrong jobs number. Expected: %d, found %d" % \
             (2, len(jobs))
-        assert jobs[0].get_jobid() == '12345', \
+        assert jobs[0].jobid == '12345', \
             "Wrong job id. Expected: %s, found %s" % \
             ('12345', jobs[0].get_jobid())
         assert jobs[0].get_phase() == 'COMPLETED', \
             "Wrong job phase for job %s. Expected: %s, found %s" % \
-            (jobs[0].get_jobid(), 'COMPLETED', jobs[0].get_phase())
-        assert jobs[1].get_jobid() == '77777', \
+            (jobs[0].jobid, 'COMPLETED', jobs[0].get_phase())
+        assert jobs[1].jobid == '77777', \
             "Wrong job id. Expected: %s, found %s" % \
-            ('77777', jobs[1].get_jobid())
+            ('77777', jobs[1].jobid)
         assert jobs[1].get_phase() == 'ERROR', \
             "Wrong job phase for job %s. Expected: %s, found %s" % \
-            (jobs[1].get_jobid(), 'ERROR', jobs[1].get_phase())
+            (jobs[1].jobid, 'ERROR', jobs[1].get_phase())
 
     def __find_table(self, schemaName, tableName, tables):
         qualifiedName = schemaName + "." + tableName
@@ -488,24 +488,24 @@ class TestTap(unittest.TestCase):
 
     def __find_column(self, columnName, columns):
         for c in (columns):
-            if c.get_name() == columnName:
+            if c.name == columnName:
                 return c
         # not found: raise exception
         self.fail("Column '"+columnName+"' not found")
 
     def __check_column(self, column, description, unit, dataType, flag):
-        assert column.get_description() == description, \
+        assert column.description == description, \
             "Wrong description for table %s. Expected: '%s', found '%s'" % \
-            (column.get_name(), description, column.get_description())
-        assert column.get_unit() == unit, \
+            (column.name, description, column.description)
+        assert column.unit == unit, \
             "Wrong unit for table %s. Expected: '%s', found '%s'" % \
-            (column.get_name(), unit, column.get_unit())
-        assert column.get_data_type() == dataType, \
+            (column.name, unit, column.unit)
+        assert column.data_type == dataType, \
             "Wrong dataType for table %s. Expected: '%s', found '%s'" % \
-            (column.get_name(), dataType, column.get_data_type())
-        assert column.get_flag() == flag, \
+            (column.name, dataType, column.data_type)
+        assert column.flag == flag, \
             "Wrong flag for table %s. Expected: '%s', found '%s'" % \
-            (column.get_name(), flag, column.get_flag())
+            (column.name, flag, column.flag)
 
     def __check_results_column(self, results, columnName, description, unit,
                                dataType):
