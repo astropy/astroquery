@@ -16,7 +16,7 @@ The scientific goals of the JWST mission can be sorted into four broad themes: T
 * Planetary systems and the origins of life.
 
 This package allows the access to the European Space Agency JWST Archive
-(http://jwst.esac.esa.int/archive/)
+(http://jwstdummyarchive.com/)
 
 ESA JWST Archive access is based on a TAP+ REST service. TAP+ is an extension of
 Table Access Protocol (TAP: http://www.ivoa.net/documents/TAP/) specified by the
