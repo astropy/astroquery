@@ -305,6 +305,72 @@ class HstClass(object):
                                      verbose=False,
                                      dump_to_file=output_file is not None)
 
+    def get_tables(self, only_names=True, verbose=False):
+        """Get the available table in EHST TAP service
+
+        Parameters
+        ----------
+        only_names : bool, TAP+ only, optional, default 'False'
+            True to load table names only
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        A list of tables
+        """
+
+        tables = self.__tap.load_tables(only_names=only_names,
+                                        include_shared_tables=False,
+                                        verbose=verbose)
+        if only_names == True:
+            table_names = []
+            for t in tables:
+                table_names.append(t.get_name())
+            return table_names
+        else:       
+            return tables
+    
+    def get_columns(self, table_name=None, only_names=True, verbose=False):
+        """Get the available columns for a table in EHST TAP service
+
+        Parameters
+        ----------
+        table_name : string, mandatory, default None
+            table name of which, columns will be returned
+        only_names : bool, TAP+ only, optional, default 'False'
+            True to load table names only
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        A list of columns
+        """
+
+        if table_name is None:
+            raise ValueError("table name must be specified")
+        
+        tables = self.__tap.load_tables(only_names=False,
+                                        include_shared_tables=False,
+                                        verbose=verbose)
+        columns = None
+        for t in tables:
+            if str(t.get_name()) == str(table_name):
+                columns = t.get_columns()
+                break
+        
+        if columns is None:
+            raise ValueError("table name specified is not found in EHST TAP service")
+        
+        if only_names == True:
+            column_names = []
+            for c in columns:
+                column_names.append(c.get_name())
+            return column_names
+        else:
+            return columns
+
     def __checkQuantityInput(self, value, msg):
         if not (isinstance(value, str) or isinstance(value, units.Quantity)):
             raise ValueError(
