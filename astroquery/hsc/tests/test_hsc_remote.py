@@ -2,7 +2,6 @@
 from __future__ import print_function
 
 import pytest
-#from pytest.mark import skip
 from astropy.tests.helper import remote_data
 from astropy.table import Table
 from astropy.io import fits
@@ -54,13 +53,13 @@ class TestHsc:
 
         assert len(url_list) == 1
 
-# This test is not included because coadd images are very large (>100Mb)    
+# This test is not included because coadd images are very large (>100Mb)
 #    def test_get_images_coadd(patch_request, patch_get_fits):
 #        image = hsc.core.Hsc.get_images(
 #            coord.SkyCoord(ra=34.0, dec=-5.0, unit='deg', frame='icrs'),
 #            radius=6 * u.arcsec)
-#    
-#        assert len(image) == 1
+#
+#        assert len(image) >= 1
 #        assert isinstance(image[0], fits.HDUList)
 
     def test_get_images_async_coadd(self):
@@ -88,4 +87,3 @@ class TestHsc:
 
         assert len(url_list) >= 1
         assert len(url_list) <= len(filters)
-
