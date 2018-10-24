@@ -189,6 +189,13 @@ class MastClass(QueryWithLogin):
             raise Exception("Unknown MAST Auth mode %s" % self._auth_mode)
 
     def get_token(self, *args, **kwargs):
+        """
+        Returns MAST token cookie.
+
+        Returns
+        -------
+        response : `~http.cookiejar.Cookie`
+        """
         if "SHIB-ECP" == self._auth_mode:
             return self._shib_get_token(*args, **kwargs)
         elif "MAST-AUTH" == self._auth_mode:
@@ -197,6 +204,19 @@ class MastClass(QueryWithLogin):
             raise Exception("Unknown MAST Auth mode %s" % self._auth_mode)
 
     def session_info(self, *args, **kwargs):
+        """
+        Displays information about current MAST user, and returns user info dictionary.
+
+        Parameters
+        ----------
+        silent : bool, optional
+            Default False.
+            Suppresses output to stdout.
+
+        Returns
+        -------
+        response : dict
+        """
         if "SHIB-ECP" == self._auth_mode:
             return self._shib_session_info(*args, **kwargs)
         elif "MAST-AUTH" == self._auth_mode:
@@ -524,6 +544,22 @@ class MastClass(QueryWithLogin):
         return allResults
 
     def _authorize(self, token=None, store_token=False):  # pragma: no cover
+        """
+        Log into the MAST portal.
+
+        Parameters
+        ----------
+        token : string, optional
+            Default is None.
+            The token to authenticate the user.
+            This can be generated at https://auth.mast.stsci.edu/token?suggested_name=Astroquery&suggested_scope=mast:proprietary.
+            If not supplied, it will be prompted for if not in the keyring
+        store_token : bool, optional
+            Default False.
+            If true, username and password will be stored securely in your keyring.
+        """
+        
+
         if token is None and "MAST_API_TOKEN" in os.environ:
             token = os.environ["MAST_API_TOKEN"]
 
