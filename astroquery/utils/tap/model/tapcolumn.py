@@ -33,7 +33,6 @@ class TapColumn(object):
         self.arraysize = None
         self.flag = None
 
-
     def __str__(self):
         return "TAP Column name: " + str(self.name) + \
             "\nDescription: " + str(self.description) + \

@@ -48,7 +48,7 @@ class Filter(object):
         return self.limit is not None
 
     def create_url_data_request(self):
-         # jobs/list?[&session=][&limit=][&offset=][&order=][&metadata_only=true|false]
+        # jobs/list?[&session=][&limit=][&offset=][&order=][&metadata_only=true|false]
         data = self.filters.copy()
         data["metadata_only"] = self.metadataOnly
         if self.offset is not None:
