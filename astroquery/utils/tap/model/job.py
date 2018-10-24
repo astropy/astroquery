@@ -40,7 +40,7 @@ class Job(object):
             Connection handler
         """
         # async is a reserved keyword starting python 3.7
-        self._async = async_job
+        self.async_ = async_job
         self.connHandler = None
         self.isFinished = None
         self.jobid = None
@@ -139,7 +139,7 @@ class Job(object):
             self.results = results
             return results
         # Try to load from server: only async
-        if not self._async:
+        if not self.async_:
             # sync: result is in a file
             return None
         else:
@@ -172,7 +172,7 @@ class Job(object):
         if self.__resultInMemory:
             self.results.to_xml(output)
         else:
-            if not self._async:
+            if not self.async_:
                 # sync: cannot access server again
                 print("No results to save")
             else:

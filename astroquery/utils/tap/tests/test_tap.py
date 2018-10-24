@@ -208,7 +208,7 @@ class TestTap(unittest.TestCase):
         responseLaunchJob.set_message("OK")
         job = tap.launch_job(query)
         assert job is not None, "Expected a valid job"
-        assert job._async is False, "Expected a synchronous job"
+        assert job.async_ is False, "Expected a synchronous job"
         assert job.get_phase() == 'COMPLETED', \
             "Wrong job phase. Expected: %s, found %s" % \
             ('COMPLETED', job.get_phase())
@@ -313,7 +313,7 @@ class TestTap(unittest.TestCase):
         responseResultsJob.set_message("OK")
         job = tap.launch_job(query)
         assert job is not None, "Expected a valid job"
-        assert job._async is False, "Expected a synchronous job"
+        assert job.async_ is False, "Expected a synchronous job"
         assert job.get_phase() == 'COMPLETED', \
             "Wrong job phase. Expected: %s, found %s" % \
             ('COMPLETED', job.get_phase())
@@ -411,7 +411,7 @@ class TestTap(unittest.TestCase):
         responseResultsJob.set_message("OK")
         job = tap.launch_job_async(query)
         assert job is not None, "Expected a valid job"
-        assert job._async is True, "Expected an asynchronous job"
+        assert job.async_ is True, "Expected an asynchronous job"
         assert job.get_phase() == 'COMPLETED', \
             "Wrong job phase. Expected: %s, found %s" % \
             ('COMPLETED', job.get_phase())
