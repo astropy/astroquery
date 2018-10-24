@@ -523,7 +523,7 @@ class MastClass(QueryWithLogin):
             warnings.warn("Query returned no results.", NoResultsWarning)
         return allResults
 
-    def _authorize(self, token=None):  # pragma: no cover
+    def _authorize(self, token=None, store_token=False):  # pragma: no cover
         if token is None and "MAST_API_TOKEN" in os.environ:
             token = os.environ["MAST_API_TOKEN"]
 
@@ -532,7 +532,11 @@ class MastClass(QueryWithLogin):
                 "If you do not have an API token already, visit the following link to create one: " \
                 + conf.server.replace("mast", "auth.mast") \
                 + "/token?suggested_name=Astroquery&suggested_scope=mast:proprietary")
-            token = input("Please enter your MAST Auth token: ")
+            token = keyring.get_password("astroquery:mast.stsci.edu.token", "MAST Auth token")
+
+            # store password if desired
+            if store_token:
+                keyring.set_password("astroquery:mast.stsci.edu.token", "MAST Auth token", token)
 
         self._session.headers["Accept"] = "application/json"
         self._session.cookies["mast_token"] = token
