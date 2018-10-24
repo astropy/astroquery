@@ -26,6 +26,8 @@ class Conf(_config.ConfigNamespace):
 
     JWST_OBSERVATION_TABLE = _config.ConfigItem("jwst.observation",
                                          "JWST observation table")
+    JWST_PLANE_TABLE = _config.ConfigItem("jwst.plane",
+                                         "JWST plane table")
     JWST_OBSERVATION_TABLE_RA = _config.ConfigItem("targetposition_coordinates_cval1",
                                             "Name of RA parameter in table")
     JWST_OBSERVATION_TABLE_DEC = _config.ConfigItem("targetposition_coordinates_cval2",
@@ -34,7 +36,7 @@ class Conf(_config.ConfigNamespace):
 
 conf = Conf()
 
-gaia = TapPlus(url="http://jwstdummytap.com", verbose=False)
+jwst = TapPlus(url="http://jwstdummytap.com", verbose=False)
 
 from .core import Jwst, JwstClass
 

@@ -33,6 +33,7 @@ class JwstClass(object):
     JWST_OBSERVATION_TABLE = conf.JWST_OBSERVATION_TABLE
     JWST_OBSERVATION_TABLE_RA = conf.JWST_OBSERVATION_TABLE_RA
     JWST_OBSERVATION_TABLE_DEC = conf.JWST_OBSERVATION_TABLE_DEC
+    JWST_PLANE_TABLE = conf.JWST_PLANE_TABLE
 
     def __init__(self, tap_plus_handler=None):
         if tap_plus_handler is None:
@@ -245,11 +246,17 @@ class JwstClass(object):
             heightQuantity = self.__getQuantityInput(height, "height")
             widthDeg = widthQuantity.to(units.deg)
             heightDeg = heightQuantity.to(units.deg)
-            query = "SELECT DISTANCE(POINT('ICRS',"+str(self.JWST_OBSERVATION_TABLE_RA)+","\
-                + str(self.JWST_OBSERVATION_TABLE_DEC)+"), \
-                POINT('ICRS',"+str(ra)+","+str(dec)+")) AS dist, * \
-                FROM "+str(self.JWST_OBSERVATION_TABLE)+" WHERE CONTAINS(\
-                POINT('ICRS',"+str(self.JWST_OBSERVATION_TABLE_RA)+","\
+            query = "SELECT DISTANCE(POINT('ICRS',"\
+                +str(self.JWST_OBSERVATION_TABLE_RA)+","\
+                +str(self.JWST_OBSERVATION_TABLE_DEC)+"), \
+                POINT('ICRS',"+str(ra)+","+str(dec)+")) AS dist, \
+                obs.*, plane.* \
+                FROM "+str(self.JWST_OBSERVATION_TABLE)+" AS obs, "\
+                +str(self.JWST_PLANE_TABLE)+" AS plane \
+                WHERE obs.obsid=plane.obsid \
+                AND CONTAINS(\
+                POINT('ICRS',"\
+                +str(self.JWST_OBSERVATION_TABLE_RA)+","\
                 + str(self.JWST_OBSERVATION_TABLE_DEC)+"),\
                 BOX('ICRS',"+str(ra)+","+str(dec)+", "+str(widthDeg.value)+", "\
                 + str(heightDeg.value)+"))=1 \
