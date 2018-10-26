@@ -503,6 +503,35 @@ Individual or ranges of spectra can be downloaded using the `~astroquery.mast.Ca
                 ./mastDownload/HSC/HAG_J072704.73+691808.0_J8HPAOZMQ_V01.SPEC1D.fits ... None
                 
 
+TESSCut
+=======
+
+TESSCut is MAST's tool to provide full-frame image (FFI) cutouts from the Transiting
+Exoplanet Survey Satellite (TESS). The cutouts are returned in the form of target pixel
+files that follow the same format as TESS pipeline target pixel files. This tool can
+be accessed in Astroquery by using the Tesscut class.
+
+The `~astroquery.mast.TesscutClass.get_cutouts` function takes a coordinate and cutout size
+(in pixels or an angular quantity) and downloads the cutout target pixel file(s).
+If a given coordinate appears in more than one TESS sector a target pixel file will be
+produced for each sector.  If the cutout area overlaps more than one camera or chip
+a target pixel file will be produced for each one.
+
+.. code-block:: python
+
+                >>> from astroquery.mast import Tesscut
+                >>> from astropy.coordinates import SkyCoord
+                >>> cutout_coord = SkyCoord(107.18696, -70.50919, unit="deg")
+                >>> manifest = Tesscut.get_cutouts(cutout_coord, 5)
+                Downloading URL https://mast.stsci.edu/tesscut/api/v0.1/astrocut?ra=107.18696&dec=-70.50919&size=5px to ./tesscut_20181026151809.zip ... [Done]
+                Inflating...
+
+                >>> print(manifest)
+                                      local_file                      
+                ------------------------------------------------------
+                ./tess-s0001-4-3_107.18696_-70.50919_5x5_astrocut.fits
+                
+
 
 Accessing Proprietary Data
 ==========================

@@ -69,7 +69,7 @@ class TesscutClass(BaseQuery):
         radius : str, float, or `~astropy.units.Quantity` object, optional
             Default 0.2 degrees.
             If supplied as a float degrees is the assumed unit.
-            The string must be parsable by `astropy.coordinates.Angle`. The
+            The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from
             `astropy.units` may also be used.
 
@@ -127,7 +127,7 @@ class TesscutClass(BaseQuery):
             Default 5 pixels.
             The size of the cutout (cutout will be a ``size x size`` square).
             If supplied as an int pixels is the assumed unit.
-            The string must be parsable by `astropy.coordinates.Angle`.
+            The string must be parsable by `~astropy.coordinates.Angle`.
             `~astropy.units.Quantity` objects must be in pixel or angular units.
         path : str
             Optional.
