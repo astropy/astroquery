@@ -45,15 +45,15 @@ class TesscutClass(BaseQuery):
 
         self._TESSCUT_URL = conf.server + "/tesscut/api/v0.1/"
 
-    def _tesscut_live(self):
+    def _tesscut_livecheck(self):
         """
         Temporary function to check if the tesscut service is live. 
         We'll remove this function once tesscut is released.
         """
-        response = self._request("GET", "https://mast.stsci.edu/tesscut/")
+        response = self._request("GET", conf.server + "/tesscut/")
         if not response == 200:
-            return False
-        return True
+            raise Exception("The TESSCut service hasn't been released yet.\n" +
+                            "Try again Soon!\n( More info at https://archive.stsci.edu/tess/ )")
     
     def get_sectors(self, coordinates, radius=0.2*u.deg):
         """
@@ -79,9 +79,7 @@ class TesscutClass(BaseQuery):
         """
 
         # Check if tesscut is live before proceeding.
-        if not self._tesscut_live():
-            raise Exception("The TESSCut service hasn't been released yet.\n" +
-                            "Try again Soon!\n(More info at http://archive.stsci.edu/tess/)")
+        self._tesscut_livecheck()
         
         # Put coordinates and radius into consistant format
         coordinates = commons.parse_coordinates(coordinates)
@@ -116,7 +114,7 @@ class TesscutClass(BaseQuery):
         return Table(sector_dict)
                   
 
-    def get_cutouts(self, coordinates, size=5, sector=None, path=".", inflate=True):
+    def get_cutouts(self, coordinates, size=5, path=".", inflate=True):
         """
         Get cutout target pixel file(s) around the coordinae of the given size.
 
@@ -131,10 +129,6 @@ class TesscutClass(BaseQuery):
             If supplied as an int pixels is the assumed unit.
             The string must be parsable by `astropy.coordinates.Angle`. 
             `~astropy.units.Quantity` objects must be in pixel or angular units.
-        sector : int
-            Optional.
-            The TESS sector to return the cutout from.  If not supplied cutouts
-            from all available sectors on which the coordinate appear will be returned.
         path : str
             Optional.  
             The directory in which the cutouts will be saved.  
@@ -152,9 +146,7 @@ class TesscutClass(BaseQuery):
         """
 
         # Check if tesscut is live before proceeding.
-        if not self._tesscut_live():
-            raise Exception("The TESSCut service hasn't been released yet.\n" +
-                            "Try again Soon!\n(More info at http://archive.stsci.edu/tess/)")
+        self._tesscut_livecheck()
         
         # Put coordinates and radius into consistant format
         coordinates = commons.parse_coordinates(coordinates)
@@ -196,7 +188,7 @@ class TesscutClass(BaseQuery):
             localpath_table['local_file'] = [zipfile_path]
             return localpath_table
 
-        print(Inflating...)
+        print("Inflating...")
         # unzipping the zipfile
         zip_ref = zipfile.ZipFile(zipfile_path, 'r')
         cutout_files = zip_ref.namelist()
