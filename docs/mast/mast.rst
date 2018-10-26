@@ -583,7 +583,65 @@ Accessing Proprietary Data
 To access data that is not publicly available users may log into their
 `MyST Account <https://archive.stsci.edu/registration/index.html>`_.
 This can be done by using the `~astroquery.mast.MastClass.login` function,
-or by initializing a class instance with a username/password.
+or by initializing a class instance with credentials.
+
+MAST is in the process of upgrading our Auth infrastructure to a token based system.
+This will be deployed early November 2018, at which point the credentials will
+switch from accepting a username/password and instead accept a auth token.
+
+
+Accessing Proprietary Data (Token Method)
+=========================================
+
+This will be enabled in early November 2018.
+
+If a token is not supplied, the user will be prompted to enter one.
+
+To view tokens accessible through your account, visit https://auth.mast.stsci.edu
+
+.. code-block:: python
+
+                >>> from astroquery.mast import Observations
+                >>> Observations.login(token="12348r9w0sa2392ff94as841")
+
+                INFO: MAST API token accepted, welcome User Name [astroquery.mast.core]
+
+                >>> sessionInfo = Observations.session_info()
+
+                eppn: user_name@stsci.edu
+                ezid: uname
+                ...
+              
+.. code-block:: python
+
+                >>> from astroquery.mast import Observations
+                >>> mySession = Observations(token="12348r9w0sa2392ff94as841")
+
+                INFO: MAST API token accepted, welcome User Name [astroquery.mast.core]
+
+                >>> sessionInfo = Observations.session_info()
+
+                eppn: user_name@stsci.edu
+                ezid: uname
+                ...
+
+\* For security tokens should not be typed into a terminal or Jupyter notebook
+but instead input using a more secure method such as `~getpass.getpass`.
+
+
+MAST tokens expire after 10 days of inactivity, at which point the user must generate a new token.  If
+the key is used within that time, the token's expiration pushed back to 10 days.  A token's max
+age is 60 days, afterward the user must generate a token.
+The ``store_token`` argument can be used to store the token securely in the user's keyring.
+This token can be overwritten using the ``reenter_token`` argument.
+To logout before a session expires, the `~astroquery.mast.MastClass.logout` method may be used.
+
+
+Accessing Proprietary Data (Password Method)
+============================================
+
+This will be disabled in early November 2018.
+
 If a password is not supplied, the user will be prompted to enter one.
 
 .. code-block:: python
