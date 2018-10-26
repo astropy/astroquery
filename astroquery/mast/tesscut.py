@@ -40,7 +40,7 @@ class TesscutClass(BaseQuery):
     """
 
     def __init__(self):
-        
+
         super(TesscutClass, self).__init__()
 
         self._TESSCUT_URL = conf.server + "/tesscut/api/v0.1/"
@@ -55,7 +55,7 @@ class TesscutClass(BaseQuery):
         if not response.status_code == 200:
             raise Exception("The TESSCut service hasn't been released yet.\n" +
                             "Try again Soon!\n( More info at https://archive.stsci.edu/tess/ )")
-    
+
     def get_sectors(self, coordinates, radius=0.2*u.deg):
         """
         Get a list of the TESS data sectors whose footprints intersect 
@@ -81,7 +81,7 @@ class TesscutClass(BaseQuery):
 
         # Check if tesscut is live before proceeding.
         self._tesscut_livecheck()
-        
+
         # Put coordinates and radius into consistant format
         coordinates = commons.parse_coordinates(coordinates)
 
@@ -96,7 +96,7 @@ class TesscutClass(BaseQuery):
         response = self._request("GET", self._TESSCUT_URL+"sector",
                                  params=sector_request)
 
-        response.raise_for_status() # Raise any errors
+        response.raise_for_status()  # Raise any errors
 
         sector_json = response.json()['results']
         sector_dict = {'sectorName': [],
@@ -113,7 +113,6 @@ class TesscutClass(BaseQuery):
         if not len(sector_json):
             warning.warn("Coordinates are not in any TESS sector.", NoResultsWarning)
         return Table(sector_dict)
-                  
 
     def get_cutouts(self, coordinates, size=5, path=".", inflate=True):
         """
@@ -128,18 +127,18 @@ class TesscutClass(BaseQuery):
             Default 5 pixels.
             The size of the cutout (cutout will be a ``size x size`` square).
             If supplied as an int pixels is the assumed unit.
-            The string must be parsable by `astropy.coordinates.Angle`. 
+            The string must be parsable by `astropy.coordinates.Angle`.
             `~astropy.units.Quantity` objects must be in pixel or angular units.
         path : str
-            Optional.  
-            The directory in which the cutouts will be saved.  
+            Optional.
+            The directory in which the cutouts will be saved.
             Defaults to current directory.
         inflate : bool
             Optional, default True.
             Cutout target pixel files are returned from the server in a zip file,
-            by default they will be inflated and the zip will be removed. 
+            by default they will be inflated and the zip will be removed.
             Set inflate to false to stop before the inflate step.
-            
+
 
         Returns
         -------
@@ -148,7 +147,7 @@ class TesscutClass(BaseQuery):
 
         # Check if tesscut is live before proceeding.
         self._tesscut_livecheck()
-        
+
         # Put coordinates and radius into consistant format
         coordinates = commons.parse_coordinates(coordinates)
 
@@ -159,33 +158,32 @@ class TesscutClass(BaseQuery):
             unit = 'deg'
         elif isinstance(size, u.Quantity):
             if size.unit.physical_type == 'angle':
-                size =size.deg
+                size = size.deg
                 unit = 'deg'
             elif size.unit == "pix":
                 size = int(size.value)
             else:
                 raise InvalidQueryError("Size must be an agular quantity or pixels.")
 
-        path = os.path.join(path, '')     
+        path = os.path.join(path, '')
         astrocut_request = "ra={}&dec={}&size={}{}".format(coordinates.ra.deg,
                                                            coordinates.dec.deg,
                                                            size, unit)
         astrocut_url = self._TESSCUT_URL + "astrocut?" + astrocut_request
-        zipfile_path = "{}tesscut_{}.zip".format(path,  time.strftime("%Y%m%d%H%M%S"))
+        zipfile_path = "{}tesscut_{}.zip".format(path, time.strftime("%Y%m%d%H%M%S"))
 
         self._download_file(astrocut_url, zipfile_path)
 
-
-        localpath_table = Table(names=["local_file"],dtype=[str]) 
+        localpath_table = Table(names=["local_file"], dtype=[str])
 
         # Checking if we got a zip file or a json no results message
         if not zipfile.is_zipfile(zipfile_path):
-            with open(zipfile_path,'r') as FLE:
+            with open(zipfile_path, 'r') as FLE:
                 response = json.load(FLE)
             warnings.warn(response['msg'], NoResultsWarning)
-            return localpath_table 
-        
-        if not inflate: # not unzipping
+            return localpath_table
+
+        if not inflate:  # not unzipping
             localpath_table['local_file'] = [zipfile_path]
             return localpath_table
 
@@ -193,11 +191,12 @@ class TesscutClass(BaseQuery):
         # unzipping the zipfile
         zip_ref = zipfile.ZipFile(zipfile_path, 'r')
         cutout_files = zip_ref.namelist()
-        zip_ref.extractall(path,members=cutout_files)
+        zip_ref.extractall(path, members=cutout_files)
         zip_ref.close()
         os.remove(zipfile_path)
 
         localpath_table['local_file'] = [path+x for x in cutout_files]
         return localpath_table
-        
+
+
 Tesscut = TesscutClass()
