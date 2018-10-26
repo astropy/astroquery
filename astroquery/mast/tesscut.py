@@ -50,8 +50,9 @@ class TesscutClass(BaseQuery):
         Temporary function to check if the tesscut service is live. 
         We'll remove this function once tesscut is released.
         """
+
         response = self._request("GET", conf.server + "/tesscut/")
-        if not response == 200:
+        if not response.status_code == 200:
             raise Exception("The TESSCut service hasn't been released yet.\n" +
                             "Try again Soon!\n( More info at https://archive.stsci.edu/tess/ )")
     
