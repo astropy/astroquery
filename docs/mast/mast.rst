@@ -591,7 +591,7 @@ switch from accepting a username/password and instead accept a auth token.
 
 
 Accessing Proprietary Data (Token Method)
-=========================================
+-----------------------------------------
 
 This will be enabled in early November 2018.
 
@@ -638,7 +638,7 @@ To logout before a session expires, the `~astroquery.mast.MastClass.logout` meth
 
 
 Accessing Proprietary Data (Password Method)
-============================================
+--------------------------------------------
 
 This will be disabled in early November 2018.
 
