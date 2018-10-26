@@ -389,7 +389,7 @@ class TapConn(object):
         self.__currentStatus = response.status
         return response
 
-    def execute_secure(self, subcontext, data):
+    def execute_secure(self, subcontext, data, verbose=False):
         """Executes a secure POST request
         The connection is done through HTTPS
 
@@ -399,12 +399,14 @@ class TapConn(object):
             context to be added to host+serverContext+tapContext
         data : str, mandatory
             POST data
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
 
         Returns
         -------
         An HTTPS response object
         """
-        conn = self.__get_connection_secure()
+        conn = self.__get_connection_secure(verbose)
         context = self.__get_server_context(subcontext)
         self.__postHeaders["Content-type"] = CONTENT_TYPE_POST_DEFAULT
         conn.request("POST", context, data, self.__postHeaders)

@@ -38,7 +38,7 @@ import tempfile
 
 __all__ = ['Tap', 'TapPlus']
 
-VERSION = "1.2.0"
+VERSION = "1.2.1"
 TAP_CLIENT_ID = "aqtappy-" + VERSION
 
 
@@ -1125,7 +1125,7 @@ class TapPlus(Tap):
                 user_found_in_group = True
                 break
         if user_found_in_group is True:
-            raise ValueError("User id '" + str(user_id) + "' found in group '" + str(group_name)) + "'"
+            raise ValueError("User id '" + str(user_id) + "' found in group '" + str(group_name) + "'")
         if self.is_valid_user(user_id, verbose) is False:
             raise ValueError("User id '" + str(user_id) + "' not found.")
         users = ""
@@ -1177,7 +1177,7 @@ class TapPlus(Tap):
                 user_found_in_group = True
                 break
         if user_found_in_group is False:
-            raise ValueError("User id '" + str(user_id) + "' not found in group '" + str(group_name)) + "'"
+            raise ValueError("User id '" + str(user_id) + "' not found in group '" + str(group_name) + "'")
         users = ""
         for u in group.get_users():
             if str(u.get_id()) == str(user_id):
@@ -1461,7 +1461,7 @@ class TapPlus(Tap):
             "password": pwd}
         connHandler = self.__getconnhandler()
         data = connHandler.url_encode(args)
-        response = connHandler.execute_secure(subContext, data)
+        response = connHandler.execute_secure(subContext, data, verbose)
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
