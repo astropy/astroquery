@@ -473,7 +473,7 @@ class Tap(object):
         # parse job
         jsp = JobSaxParser(async_job=True)
         job = jsp.parseData(response)[0]
-        job.set_connhandler(self.__connHandler)
+        job.connHandler = self.__connHandler
         # load resulst
         if load_results:
             job.get_results()
@@ -1317,7 +1317,7 @@ class TapPlus(Tap):
         jobs = jsp.parseData(response)
         if jobs is not None:
             for j in jobs:
-                j.set_connhandler(connHandler)
+                j.connHandler = connHandler
         return jobs
 
     def remove_jobs(self, jobs_list, verbose=False):
@@ -1510,8 +1510,8 @@ class TapPlus(Tap):
                 "location")
             jobid = taputils.get_jobid_from_location(location)
             job = Job(async_job=True, query=None, connhandler=self.__getconnhandler())
-            job.set_jobid(jobid)
-            job.set_name('Table upload')
+            job.jobid = jobid
+            job.name = 'Table upload'
             job.set_phase('EXECUTING')
             print("Job '"+jobid+"' created to upload table '"+str(table_name)+"'.")
             return job
@@ -1593,24 +1593,24 @@ class TapPlus(Tap):
             raise ValueError("Missing mandatory argument 'job'")
         if isinstance(job, Job):
             j = job
-            description = j.get_query()
+            description = j.parameters['query']
         else:
             j = self.load_async_job(jobid=job, load_results=False)
             if j is None:
                 raise ValueError("Job " + str(job) + " not found")
                 return
-            description = j.get_query()
+            description = j.parameters['query']
         if table_name is None:
-            table_name = "t" + str(j.get_jobid())
+            table_name = "t" + str(j.jobid)
         if table_description is None:
             table_description = description
         if verbose:
-            print("JOB = " + j.get_jobid())
-        self.__uploadTableMultipartFromJob(resource=j.get_jobid(),
+            print("JOB = " + j.jobid)
+        self.__uploadTableMultipartFromJob(resource=j.jobid,
                                            table_name=table_name,
                                            table_description=table_description,
                                            verbose=verbose)
-        msg = "Created table '"+str(table_name)+"' from job: '"+str(j.get_jobid())+"'."
+        msg = "Created table '"+str(table_name)+"' from job: '"+str(j.jobid)+"'."
         print(msg)
 
     def __uploadTableMultipartFromJob(self, resource, table_name=None, table_description=None,
