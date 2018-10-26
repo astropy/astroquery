@@ -15,7 +15,7 @@ class Conf(_config.ConfigNamespace):
     """
 
     server = _config.ConfigItem(
-        'https://mast.stsci.edu',
+        'https://mastdev.stsci.edu',
         'Name of the MAST server.')
     ssoserver = _config.ConfigItem(
         'https://ssoportal.stsci.edu',
@@ -32,9 +32,11 @@ conf = Conf()
 
 
 from .core import Observations, ObservationsClass, Catalogs, CatalogsClass, Mast, MastClass
+from .tesscut import TesscutClass, Tesscut
 
 __all__ = ['Observations', 'ObservationsClass',
            'Catalogs', 'CatalogsClass',
            'Mast', 'MastClass',
+           'Tesscut', 'TesscutClass',
            'Conf', 'conf',
            ]
