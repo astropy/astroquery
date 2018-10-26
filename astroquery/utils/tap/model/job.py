@@ -178,7 +178,7 @@ class Job(object):
         """
         if update:
             phase_request = "async/"+str(self.jobid)+"/phase"
-            response = self.connHandler.execute_get(phase_request)
+            response = self.connHandler.execute_tapget(phase_request)
 
             self.__last_phase_response_status = response.status
             if response.status != 200:
@@ -272,7 +272,7 @@ class Job(object):
             else:
                 # Async
                 self.wait_for_job_end(verbose)
-                response = self.connHandler.execute_get(
+                response = self.connHandler.execute_tapget(
                     "async/"+str(self.jobid)+"/results/result")
                 if verbose:
                     print(response.status, response.reason)
@@ -322,7 +322,7 @@ class Job(object):
     def __load_async_job_results(self, debug=False):
         wjResponse, phase = self.wait_for_job_end()
         subContext = "async/" + str(self.jobid) + "/results/result"
-        resultsResponse = self.connHandler.execute_get(subContext)
+        resultsResponse = self.connHandler.execute_tapget(subContext)
         # resultsResponse = self.__readAsyncResults(self.__jobid, debug)
         if debug:
             print(resultsResponse.status, resultsResponse.reason)
