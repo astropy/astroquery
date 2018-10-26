@@ -218,11 +218,11 @@ class BaseQuery(object):
                 # Windows doesn't allow special characters in filenames like
                 # ":" so replace them with an underscore
                 local_filename = local_filename.replace(':', '_')
-            local_filepath = os.path.join(self.cache_location or savedir or
-                                          '.', local_filename)
+            local_filepath = os.path.join(self.cache_location or savedir or '.', local_filename)
             # REDUNDANT: spinner has this log.info("Downloading
             # {0}...".format(local_filename))
-            self._download_file(url, local_filepath, cache=cache, continuation=continuation, method=method, auth=auth, **req_kwargs)
+            self._download_file(url, local_filepath, cache=cache, continuation=continuation, method=method, auth=auth,
+                                **req_kwargs)
             return local_filepath
         else:
             query = AstroQuery(method, url, **req_kwargs)
@@ -252,10 +252,10 @@ class BaseQuery(object):
 
         if head_safe:
             response = self._session.request("HEAD", url, timeout=timeout, stream=True,
-                                     auth=auth, **kwargs)
+                                             auth=auth, **kwargs)
         else:
             response = self._session.request(method, url, timeout=timeout, stream=True,
-                                     auth=auth, **kwargs)
+                                             auth=auth, **kwargs)
 
         response.raise_for_status()
         if 'content-length' in response.headers:
@@ -289,7 +289,7 @@ class BaseQuery(object):
                                                                         end)
 
                 response = self._session.request(method, url, timeout=timeout, stream=True,
-                                             auth=auth, **kwargs)
+                                                 auth=auth, **kwargs)
                 response.raise_for_status()
 
         elif cache and os.path.exists(local_filepath):
@@ -315,7 +315,7 @@ class BaseQuery(object):
             open_mode = 'wb'
             if head_safe:
                 response = self._session.request(method, url, timeout=timeout, stream=True,
-                                     auth=auth, **kwargs)
+                                                 auth=auth, **kwargs)
                 response.raise_for_status()
 
         blocksize = astropy.utils.data.conf.download_block_size
