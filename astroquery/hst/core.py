@@ -17,6 +17,9 @@ from astropy.units import Quantity
 import urllib.request
 from astroquery.utils.tap.core import TapPlus
 from astropy import config as _config
+import json
+from astroquery.utils.tap.model import modelutils
+
 
 
 class Conf(_config.ConfigNamespace):
@@ -41,9 +44,22 @@ class EhstHandler(object):
     def __init__(self):
         return
 
-    def get_file(self, url, filename, verbose=False):
-        file, headers = urllib.request.urlretrieve(url, filename)
-        return file, headers
+    def get_file(self, url, filename, output_format='votable', verbose=False):
+        urllib.request.urlretrieve(url, filename)
+        table = modelutils.read_results_table_from_file(filename, str(output_format))
+        return table
+#===============================================================================
+#         file = open(str(filename), 'r', encoding='windows-1252')
+#         content = file.read()
+#         parsed_data=json.loads(content)
+#         parsed_data=json.loads(str(parsed_data["data"]))
+#         file.close()
+#         if verbose:
+#             for x in parsed_data:
+#                 print("%s: %s" % (x, parsed_data[x]))
+# 
+#         return parsed_data
+#===============================================================================
 
 Handler = EhstHandler()
 
@@ -170,42 +186,44 @@ class HstClass(object):
         print(link)
         return self.__handler.get_file(link, filename, verbose)
 
-    def get_metadata(self, params, filename=None, verbose=False):
-        """ It executes a query over EHST and download the xml with the results
-
-            Parameters
-            ----------
-            params : string, set of restrictions to be applied during the
-            execution of the query, mandatory
-            Set of restrictions to be applied during the execution of the
-            query.
-            calibration_level : string, calibration level, optional, default
-            'RAW'
-            The identifier of the data reduction/processing applied to the
-            data. By default, the most scientifically relevant level will be
-            chosen. RAW, CALIBRATED, PRODUCT or AUXILIARY
-            resolution : integer, postcard resolution, optional, default 256
-            Resolution of the retrieved postcard. 256 or 1024
-            filename : string, file name to be used to store the postcard,
-            optional, default None
-            File name for the artifact
-            verbose : bool, optional, default 'False'
-            Flag to display information about the process
-
-            Returns
-            -------
-            None. It downloads metadata as a result of the restrictions
-            defined.
-        """
-
-        link = self.metadata_url + params
-        if filename is None:
-            filename = "metadata.xml"
-        print(link)
-        return self.__handler.get_file(link, filename, verbose)
+#===============================================================================
+#     def get_metadata(self, params, filename=None, verbose=False):
+#         """ It executes a query over EHST and download the xml with the results
+# 
+#             Parameters
+#             ----------
+#             params : string, set of restrictions to be applied during the
+#             execution of the query, mandatory
+#             Set of restrictions to be applied during the execution of the
+#             query.
+#             calibration_level : string, calibration level, optional, default
+#             'RAW'
+#             The identifier of the data reduction/processing applied to the
+#             data. By default, the most scientifically relevant level will be
+#             chosen. RAW, CALIBRATED, PRODUCT or AUXILIARY
+#             resolution : integer, postcard resolution, optional, default 256
+#             Resolution of the retrieved postcard. 256 or 1024
+#             filename : string, file name to be used to store the postcard,
+#             optional, default None
+#             File name for the artifact
+#             verbose : bool, optional, default 'False'
+#             Flag to display information about the process
+# 
+#             Returns
+#             -------
+#             None. It downloads metadata as a result of the restrictions
+#             defined.
+#         """
+# 
+#         link = self.metadata_url + params
+#         if filename is None:
+#             filename = "metadata.xml"
+#         print(link)
+#         return self.__handler.get_file(link, filename, verbose)        
+#===============================================================================
 
     def cone_search(self, coordinates, radius=0.0, filename=None,
-                    verbose=False):
+                    output_format='votable', verbose=False):
         coord = self.__getCoordInput(coordinates, "coordinate")
         radiusInGrades = float(radius/60)  # Converts to degrees
 
@@ -239,7 +257,7 @@ class HstClass(object):
                    "DESC",
                    # "PAGE": "1",
                    # "PAGE_SIZE": "50",
-                   "RETURN_TYPE": "VOTABLE"}
+                   "RETURN_TYPE": str(output_format)}
         result = urllib.parse.urlencode(payload,
                                         quote_via=urllib.parse.quote_plus)
         link = "".join((
@@ -247,37 +265,38 @@ class HstClass(object):
                         result
                         ))
         if filename is None:
-            filename = "cone.vot"
+            filename = "cone." + str(output_format)
         print(link)
-        return self.__handler.get_file(link, filename, verbose)
+        return self.__handler.get_file(link, filename, output_format, verbose)
 
-    def query_target(self, name, filename=None, verbose=False):
+    def query_target(self, name, filename=None, output_format='votable', verbose=False):
         """ It executes a query over EHST and download the xml with the results
 
             Parameters
             ----------
             name : string, target name to be requested, mandatory
-            Target name to be requested.
+                Target name to be requested.
             filename : string, file name to be used to store the metadata,
             optional, default None
-            File name for the artifact
+                File name for the artifact
+            output_format : string, optional, default 'votable'
+                output format of the query
             verbose : bool, optional, default 'False'
-            Flag to display information about the process
+                Flag to display information about the process
 
             Returns
             -------
-            None. It downloads metadata as a result of the restrictions
-            defined.
+            Table with the result of the query. It downloads metadata as a file.
         """
 
         initial = ("RESOURCE_CLASS=OBSERVATION&SELECTED_FIELDS=OBSERVATION"
                    "&QUERY=(TARGET.TARGET_NAME=='")
-        final = "')&RETURN_TYPE=VOTABLE"
+        final = "')&RETURN_TYPE=" + str(output_format)
         link = self.metadata_url + initial + name + final
         if filename is None:
             filename = "target.xml"
         print(link)
-        return self.__handler.get_file(link, filename, verbose)
+        return self.__handler.get_file(link, filename, output_format, verbose)
 
     def query_hst_tap(self, query, output_file=None,
                       output_format="votable", verbose=False):
