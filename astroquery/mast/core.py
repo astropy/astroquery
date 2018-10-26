@@ -145,7 +145,6 @@ class MastClass(QueryWithLogin):
         super(MastClass, self).__init__()
 
         self._MAST_REQUEST_URL = conf.server + "/api/v0/invoke"
-        self._MAST_DOWNLOAD_URL = conf.server + "/api/v0/download/file"
         self._COLUMNS_CONFIG_URL = conf.server + "/portal/Mashup/Mashup.asmx/columnsconfig"
 
         self.TIMEOUT = conf.timeout
@@ -168,9 +167,12 @@ class MastClass(QueryWithLogin):
             self._SESSION_INFO_URL = conf.server + "/Shibboleth.sso/Session"
             self._SP_TARGET = conf.server + "/api/v0/Mashup/Login/login.html"
             self._IDP_ENDPOINT = conf.ssoserver + "/idp/profile/SAML2/SOAP/ECP"
+            self._MAST_DOWNLOAD_URL = conf.server + "/api/v0/Download/file"
         elif "MAST-AUTH" == self._auth_mode:
             log.debug("Using Auth.MAST login")
             self._SESSION_INFO_URL = conf.server + "/whoami"
+            self._MAST_DOWNLOAD_URL = conf.server + "/api/v0.1/Download/file"
+            self._MAST_BUNDLE_URL = conf.server + "/api/v0.1/Download/bundle"
         else:
             raise Exception("Unknown MAST Auth mode %s" % self._auth_mode)
 
@@ -1406,11 +1408,45 @@ class ObservationsClass(MastClass):
         response : `astropy.table.Table`
         """
 
+        urlList = [("uri", url) for url in products['dataURI']]
+        downloadFile = "mastDownload_" + time.strftime("%Y%m%d%H%M%S")
+        localPath = os.path.join(out_dir.rstrip('/'), downloadFile + ".sh")
+
+        response = self._download_file(self._MAST_BUNDLE_URL + ".sh", localPath, data=urlList, method="POST")
+
+        status = "COMPLETE"
+        msg = None
+
+        if not os.path.isfile(localPath):
+            status = "ERROR"
+            msg = "Curl could not be downloaded"
+
+        manifest = Table({'Local Path': [localPath],
+                          'Status': [status],
+                          'Message': [msg]})
+        return manifest
+
+    def _shib_download_curl_script(self, products, out_dir):
+        """
+        Takes an `astropy.table.Table` of data products and downloads a curl script to pull the datafiles.
+
+        Parameters
+        ----------
+        products : `astropy.table.Table`
+            Table containing products to be included in the curl script.
+        out_dir : str
+            Directory in which the curl script will be saved.
+
+        Returns
+        -------
+        response : `astropy.table.Table`
+        """
+
         urlList = products['dataURI']
+        downloadFile = "mastDownload_" + time.strftime("%Y%m%d%H%M%S")
         descriptionList = products['description']
         productTypeList = products['dataproduct_type']
 
-        downloadFile = "mastDownload_" + time.strftime("%Y%m%d%H%M%S")
         pathList = [downloadFile+"/"+x['obs_collection']+'/'+x['obs_id']+'/'+x['productFilename'] for x in products]
 
         service = "Mast.Bundle.Request"
@@ -1631,9 +1667,9 @@ class ObservationsClass(MastClass):
                     except Exception as ex:
                         log.exception("Error pulling from S3 bucket: %s" % ex)
                         log.warn("Falling back to mast download...")
-                        self._download_file(dataUrl, localPath, cache=cache)
+                        self._download_file(dataUrl, localPath, cache=cache, head_safe=True)
                 else:
-                    self._download_file(dataUrl, localPath, cache=cache)
+                    self._download_file(dataUrl, localPath, cache=cache, head_safe=True)
 
                 # check if file exists also this is where would perform md5,
                 # and also check the filesize if the database reliably reported file sizes
@@ -1714,7 +1750,10 @@ class ObservationsClass(MastClass):
             download_dir = '.'
 
         if curl_flag:  # don't want to download the files now, just the curl script
-            manifest = self._download_curl_script(products, download_dir)
+            if "SHIB-ECP" == self._auth_mode:
+                manifest = self._shib_download_curl_script(products, download_dir)
+            else:
+                manifest = self._download_curl_script(products, download_dir)
 
         else:
             base_dir = download_dir.rstrip('/') + "/mastDownload"
@@ -2092,7 +2131,7 @@ class CatalogsClass(MastClass):
             bundlerResponse = response[0].json()
 
             localPath = download_dir.rstrip('/') + "/" + downloadFile + ".sh"
-            self._download_file(bundlerResponse['url'], localPath)
+            self._download_file(bundlerResponse['url'], localPath, head_safe=True)
 
             status = "COMPLETE"
             msg = None
@@ -2139,7 +2178,7 @@ class CatalogsClass(MastClass):
                 url = None
 
                 try:
-                    self._download_file(dataUrl, localPath, cache=cache)
+                    self._download_file(dataUrl, localPath, cache=cache, head_safe=True)
 
                     # check file size also this is where would perform md5
                     if not os.path.isfile(localPath):
