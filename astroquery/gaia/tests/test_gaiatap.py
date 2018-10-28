@@ -516,19 +516,24 @@ class TestTap(unittest.TestCase):
         params_dict['FORMAT'] = str(format)
         params_dict['RETRIEVAL_TYPE'] = str(retrieval_type)
 
-        tap.load_data(ids, retrieval_type, valid_data, band, format, verbose)
+        tap.load_data(ids=ids,
+                      retrieval_type=retrieval_type,
+                      valid_data=valid_data,
+                      band=band,
+                      format=format,
+                      verbose=verbose)
         parameters = {}
         parameters['params_dict'] = params_dict
         parameters['output_file'] = None
         parameters['verbose'] = verbose
 
         dummyHandler.check_call('load_data', parameters)
-        tap.load_data(ids,
-                      retrieval_type,
-                      valid_data,
-                      band,
-                      format,
-                      verbose)
+        tap.load_data(ids=ids,
+                      retrieval_type=retrieval_type,
+                      valid_data=valid_data,
+                      band=band,
+                      format=format,
+                      verbose=verbose)
         dummyHandler.check_call('load_data', parameters)
 
     def test_get_datalinks(self):

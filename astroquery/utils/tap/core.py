@@ -803,7 +803,8 @@ class TapPlus(Tap):
 
         Returns
         -------
-        A table object
+        A table object if output_file is None.
+        None if output_file is not None.
         """
         print("Retrieving data.")
         connHandler = self.__getconnhandler()
