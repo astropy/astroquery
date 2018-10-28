@@ -1233,10 +1233,11 @@ class TapPlus(Tap):
             print(response.status, errMsg)
             raise requests.exceptions.HTTPError(errMsg)
             return None
-        user = str(response.read())
+        responseBytes = response.read()
+        user = responseBytes.decode('utf-8')
         if verbose:
             print("USER response = " + str(user))
-        return str(user_id) + ":" in user and user.count("\\n") == 1
+        return user.startswith(str(user_id) + ":") and user.count("\\n") == 0
 
     def get_datalinks(self, ids, verbose=False):
         """Gets datalinks associated to the provided identifiers
