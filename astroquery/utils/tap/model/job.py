@@ -331,16 +331,59 @@ class Job(object):
                                                                   debug,
                                                                   200)
         self.__phase = phase
-        if isError:
+        if phase == 'ERROR':
+            errMsg = self.get_error(debug)
+            raise Exception(errMsg)
+        else:
+            if isError:
+                errMsg = taputils.get_http_response_error(resultsResponse)
+                print(resultsResponse.status, errMsg)
+                raise Exception(errMsg)
+            else:
+                outputFormat = self.parameters['format']
+                results = utils.read_http_response(resultsResponse, outputFormat)
+                self.set_results(results)
+
+    def get_error(self, verbose=False):
+        """Returns the error associated to a job
+
+        Parameters
+        ----------
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        The job error.
+        """
+        subContext = "async/" + str(self.jobid) + "/error"
+        resultsResponse = self.connHandler.execute_tapget(subContext)
+        # resultsResponse = self.__readAsyncResults(self.__jobid, debug)
+        if verbose:
+            print(resultsResponse.status, resultsResponse.reason)
+            print(resultsResponse.getheaders())
+        if resultsResponse.status != 200 and resultsResponse.status != 303 and resultsResponse.status != 302:
             errMsg = taputils.get_http_response_error(resultsResponse)
             print(resultsResponse.status, errMsg)
             raise Exception(errMsg)
         else:
-            outputFormat = self.parameters['format']
-            results = utils.read_http_response(resultsResponse, outputFormat)
-            self.set_results(results)
-            self.__phase = phase
-    
+            if resultsResponse.status == 303 or resultsResponse.status == 302:
+                # get location
+                location = self.connHandler.find_header(resultsResponse.getheaders(),
+                                                          "location")
+                if location is None:
+                    raise requests.exceptions.HTTPError("No location found after redirection was received (303)")
+                if verbose:
+                    print("Redirect to %s", location)
+                # load
+                relativeLocation = self.__extract_relative_location(location, self.jobid)
+                relativeLocationSubContext = "async/" + str(self.jobid) + "/" + str(relativeLocation)
+                response = self.connHandler.execute_tapget(relativeLocationSubContext)
+            else:
+                response = resultsResponse
+            errMsg = taputils.get_http_response_error(response)
+        return errMsg
+
     def is_finished(self):
         """Returns whether the job is finished (ERROR, ABORTED, COMPLETED) or not
 
@@ -349,6 +392,26 @@ class Job(object):
             return True
         else:
             return False
+
+    def __extract_relative_location(self, location, jobid):
+        """Extracts uws subpath from location.
+    
+        Parameters
+        ----------
+        location : str, mandatory
+            A 303 redirection header
+    
+        Returns
+        -------
+        The relative location.
+        """
+        pos = location.find(jobid)
+        if pos < 0:
+            return location
+        pos += len(str(jobid))
+        # skip '/'
+        pos += 1
+        return location[pos:]
 
     def __str__(self):
         if self.results is None:
