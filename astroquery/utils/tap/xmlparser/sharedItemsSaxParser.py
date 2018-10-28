@@ -92,15 +92,15 @@ class SharedItemsSaxParser(xml.sax.ContentHandler):
 
     def __end_item(self, name):
         if self.__check_item_id("title", name):
-            self.__currentItem.set_title(str(self.__create_string_from_buffer()))
+            self.__currentItem.title = str(self.__create_string_from_buffer())
             self.__stop_reading_data()
         if self.__check_item_id("description", name):
-            self.__currentItem.set_description(str(self.__create_string_from_buffer()))
+            self.__currentItem.description = str(self.__create_string_from_buffer())
             self.__stop_reading_data()
 
     def __reading_shared_to(self, name, attrs):
         if self.__check_item_id("sharedToItem", name):
-            self.__currentItem.add_shared_to_items_list(TapSharedToItem(attrs))
+            self.__currentItem.shared_to_items.append(TapSharedToItem(attrs))
 
     def __end_shared_to(self, name):
         if self.__check_item_id("sharedToItems", name):
@@ -121,7 +121,7 @@ class SharedItemsSaxParser(xml.sax.ContentHandler):
             raise ValueError("id must be defined")
         item = None
         for g in self.__shared_items:
-            if g.get_id() == str(ident):
+            if g.id == str(ident):
                 item = g
                 break
         return item

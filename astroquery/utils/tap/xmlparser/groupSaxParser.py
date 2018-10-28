@@ -93,15 +93,15 @@ class GroupSaxParser(xml.sax.ContentHandler):
 
     def __end_group(self, name):
         if self.__check_item_id("title", name):
-            self.__currentGroup.set_title(str(self.__create_string_from_buffer()))
+            self.__currentGroup.title = str(self.__create_string_from_buffer())
             self.__stop_reading_data()
         if self.__check_item_id("description", name):
-            self.__currentGroup.set_description(str(self.__create_string_from_buffer()))
+            self.__currentGroup.description = str(self.__create_string_from_buffer())
             self.__stop_reading_data()
 
     def __reading_users(self, name, attrs):
         if self.__check_item_id("user", name):
-            self.__currentGroup.get_users().append(TapUser(attrs))
+            self.__currentGroup.users.append(TapUser(attrs))
 
     def __end_users(self, name):
         if self.__check_item_id("users", name):
@@ -122,7 +122,7 @@ class GroupSaxParser(xml.sax.ContentHandler):
             raise ValueError("id must be defined")
         group = None
         for g in self.__groups:
-            if g.get_id() == str(ident):
+            if g.id == str(ident):
                 group = g
                 break
         return group

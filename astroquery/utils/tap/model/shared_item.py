@@ -23,116 +23,18 @@ class TapSharedItem(object):
     def __init__(self, attrs):
         """Constructor
         """
-        self.__internal_init()
-        self.__attributes = attrs
-        self.set_id(attrs.getValue("id"))
-        self.set_type(attrs.getValue("type"))
-
-    def __internal_init(self):
-        self.__shared_to_items = []
-
-    def get_id(self):
-        """Returns group id
-
-        Returns
-        -------
-        The group id
-        """
-        return self.__id
-
-    def set_id(self, ident):
-        """Sets group id
-
-        Parameters
-        ----------
-        user : str, mandatory
-            id to be set
-        """
-        self.__id = ident
-
-    def get_type(self):
-        """Returns type
-
-        Returns
-        -------
-        Type
-        """
-        return self.__type
-
-    def set_type(self, t):
-        """Sets type
-
-        Parameters
-        ----------
-        user : str, mandatory
-            type
-        """
-        self.__type = t
-
-    def get_title(self):
-        """Returns title
-
-        Returns
-        -------
-        Title
-        """
-        return self.__title
-
-    def set_title(self, t):
-        """Sets type
-
-        Parameters
-        ----------
-        user : str, mandatory
-            type
-        """
-        self.__title = t
-
-    def get_description(self):
-        """Returns title
-
-        Returns
-        -------
-        Description
-        """
-        return self.__description
-
-    def set_description(self, d):
-        """Sets type
-
-        Parameters
-        ----------
-        user : str, mandatory
-            type
-        """
-        self.__description = d
-
-    def get_shared_to_items_list(self):
-        """Returns groups in which this item is shared
-
-        Returns
-        -------
-        groups in which this item is shared
-        """
-        return self.__shared_to_items
-
-    def add_shared_to_items_list(self, group):
-        """Adds a group in which this item is shared
-
-        Parameters
-        ----------
-        group : str, mandatory
-            group id in which this item is shared
-        """
-        self.__shared_to_items.append(group)
+        self.attributes = attrs
+        self.id = attrs.getValue("id")
+        self.type= attrs.getValue("type")
+        self.shared_to_items = []
 
     def __str__(self):
         shared_to = ""
-        for u in self.get_shared_to_items_list():
+        for u in self.shared_to_items:
             shared_to = shared_to + "\n\t\t" + str(u)
 
-        return ("Shared item: " + str(self.get_id()) +
-            "\n\tType: " + str(self.get_type()) +
-            "\n\tTitle: " + str(self.get_title()) +
-            "\n\tDescription: " + str(self.get_description()) +
+        return ("Shared item: " + str(self.id) +
+            "\n\tType: " + str(self.type) +
+            "\n\tTitle: " + str(self.title) +
+            "\n\tDescription: " + str(self.description) +
             "\n\tShared to: " + str(shared_to))

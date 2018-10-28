@@ -869,7 +869,7 @@ class TapPlus(Tap):
         print("Done. " + str(gsp.get_groups().__len__()) + " groups found")
         if verbose:
             for g in gsp.get_groups():
-                print(g.get_title())
+                print(g.title)
         return gsp.get_groups()
 
     def load_group(self, group_name=None, verbose=False):
@@ -891,7 +891,7 @@ class TapPlus(Tap):
         groups = self.load_groups(verbose)
         group = None
         for g in groups:
-            if str(g.get_title()) == str(group_name):
+            if str(g.title) == str(group_name):
                 group = g
                 break
         return group
@@ -926,7 +926,7 @@ class TapPlus(Tap):
         print("Done. " + str(ssp.get_shared_items().__len__()) + " shared items found")
         if verbose:
             for g in ssp.get_shared_items():
-                print(g.get_title())
+                print(g.title)
         return ssp.get_shared_items()
 
     def share_table(self, group_name=None,
@@ -961,7 +961,7 @@ class TapPlus(Tap):
                    "&description=" +
                    str(description) +
                    "&items_list=" +
-                   group.get_id() + "|Group|Read")
+                   group.id + "|Group|Read")
         connHandler = self.__getconnhandler()
         response = connHandler.execute_share(data, verbose=verbose)
         if verbose:
@@ -999,11 +999,11 @@ class TapPlus(Tap):
         shared_items = self.load_shared_items(verbose)
         shared_item = None
         for s in shared_items:
-            if str(s.get_title()) == str(table_name):
+            if str(s.title) == str(table_name):
                 # check group
-                groups = s.get_shared_to_items_list()
+                groups = s.shared_to_items
                 for g in groups:
-                    if group.get_id() == g.get_id():
+                    if group.id == g.id:
                         shared_item = s
                         break
                 if shared_item is not None:
@@ -1011,7 +1011,7 @@ class TapPlus(Tap):
         if shared_item is None:
             raise ValueError("Table '"+table_name+"', shared to group '"+group_name+"', not found.")
         data = ("action=RemoveItem&resource_type=0&resource_id=" +
-                str(shared_item.get_id()) +
+                str(shared_item.id) +
                 "&resource_type=0")
         connHandler = self.__getconnhandler()
         response = connHandler.execute_share(data, verbose=verbose)
@@ -1085,7 +1085,7 @@ class TapPlus(Tap):
         if group is None:
             raise ValueError("Group '" + group_name + "' doesn't exist")
         data = ("action=RemoveGroup&resource_type=0&group_id=" +
-                   str(group.get_id()))
+                   str(group.id))
         connHandler = self.__getconnhandler()
         response = connHandler.execute_share(data, verbose=verbose)
         if verbose:
@@ -1121,8 +1121,8 @@ class TapPlus(Tap):
         if group is None:
             raise ValueError("Group " + group_name + "' doesn't exist")
         user_found_in_group = False
-        for u in group.get_users():
-            if str(u.get_id()) == user_id:
+        for u in group.users:
+            if str(u.id) == user_id:
                 user_found_in_group = True
                 break
         if user_found_in_group is True:
@@ -1130,13 +1130,13 @@ class TapPlus(Tap):
         if self.is_valid_user(user_id, verbose) is False:
             raise ValueError("User id '" + str(user_id) + "' not found.")
         users = ""
-        for u in group.get_users():
-            users = users + u.get_id() + ","
+        for u in group.users:
+            users = users + u.id + ","
         users = users + user_id
         data = ("action=CreateOrUpdateGroup&group_id=" +
-                str(group.get_id()) + "&title=" +
-                str(group.get_title()) + "&description=" +
-                str(group.get_description()) + "&users_list=" +
+                str(group.id) + "&title=" +
+                str(group.title) + "&description=" +
+                str(group.description) + "&users_list=" +
                 str(users))
         connHandler = self.__getconnhandler()
         response = connHandler.execute_share(data, verbose=verbose)
@@ -1173,23 +1173,23 @@ class TapPlus(Tap):
         if group is None:
             raise ValueError("Group '" + group_name + "' doesn't exist")
         user_found_in_group = False
-        for u in group.get_users():
-            if str(u.get_id()) == user_id:
+        for u in group.users:
+            if str(u.id) == user_id:
                 user_found_in_group = True
                 break
         if user_found_in_group is False:
             raise ValueError("User id '" + str(user_id) + "' not found in group '" + str(group_name) + "'")
         users = ""
-        for u in group.get_users():
-            if str(u.get_id()) == str(user_id):
+        for u in group.users:
+            if str(u.id) == str(user_id):
                 continue
-            users = users + u.get_id() + ","
+            users = users + u.id + ","
         if str(users) != "":
             users = users[:-1]
         data = ("action=CreateOrUpdateGroup&group_id=" +
-                str(group.get_id()) + "&title=" +
-                str(group.get_title()) + "&description=" +
-                str(group.get_description()) + "&users_list=" +
+                str(group.id) + "&title=" +
+                str(group.title) + "&description=" +
+                str(group.description) + "&users_list=" +
                 str(users))
         connHandler = self.__getconnhandler()
         response = connHandler.execute_share(data, verbose=verbose)
@@ -1721,7 +1721,7 @@ class TapPlus(Tap):
         table = self.load_table(table=table_name, verbose=verbose)
         if table is None:
             raise ValueError("Table name not found")
-        columns = table.get_columns()
+        columns = table.columns
         if len(columns) == 0:
             raise ValueError("Table has no columns")
 
@@ -1731,7 +1731,7 @@ class TapPlus(Tap):
                 if (index == 0):
                     found = False
                     for c in columns:
-                        if c.get_name() == value:
+                        if c.name == value:
                             found = True
                             break
                     if found is False:
@@ -1772,11 +1772,11 @@ class TapPlus(Tap):
         for column in columns:
             found_in_changes = False
             for change in list_of_changes:
-                if (str(change[0]) == str(column.get_name())):
+                if (str(change[0]) == str(column.name)):
                     found_in_changes = True
                     break
-            column_name = column.get_name()
-            flags = column.get_flags()
+            column_name = column.name
+            flags = column.flags
             if str(flags) == '1':
                 flags = 'Ra'
             elif str(flags) == '2':
@@ -1799,24 +1799,24 @@ class TapPlus(Tap):
                 flags = 'PK'
             else:
                 flags = None
-            indexed = (str(column.get_flag()) == 'indexed'
+            indexed = (str(column.flag) == 'indexed'
                        or str(flags) == 'Ra'
                        or str(flags) == 'Dec'
                        or str(flags) == 'PK')
-            ucd = str(column.get_ucd())
-            utype = str(column.get_utype())
+            ucd = str(column.ucd)
+            utype = str(column.utype)
             if found_in_changes:
                 for change in list_of_changes:
-                    if str(change[0]) == str(column.get_name()) and str(change[1]) == 'flags':
+                    if str(change[0]) == str(column.name) and str(change[1]) == 'flags':
                         flags = str(change[2])
                         break
-                    if str(change[0]) == str(column.get_name()) and str(change[1]) == 'indexed':
+                    if str(change[0]) == str(column.name) and str(change[1]) == 'indexed':
                         indexed = str(change[2])
                         break
-                    if str(change[0]) == str(column.get_name()) and str(change[1]) == 'ucd':
+                    if str(change[0]) == str(column.name) and str(change[1]) == 'ucd':
                         ucd = str(change[2])
                         break
-                    if str(change[0]) == str(column.get_name()) and str(change[1]) == 'utype':
+                    if str(change[0]) == str(column.name) and str(change[1]) == 'utype':
                         utype = str(change[2])
                         break
             if flags == 'Ra' or flags == 'Dec' or flags == 'PK':
@@ -1982,7 +1982,7 @@ class TapPlus(Tap):
         c = None
         if (columns is not None and len(columns) > 0):
             for column in columns:
-                f = column.get_flags()
+                f = column.flags
                 if str(f) == '1' or str(f) == '33':
                     f = 'Ra'
                 elif str(f) == '2' or str(f) == '34':
@@ -1996,7 +1996,7 @@ class TapPlus(Tap):
                 else:
                     f = None
                 if str(flag) == str(f):
-                    c = column.get_name()
+                    c = column.name
                     break
         return c
 
