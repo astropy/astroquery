@@ -396,12 +396,12 @@ class Job(object):
 
     def __extract_relative_location(self, location, jobid):
         """Extracts uws subpath from location.
-    
+
         Parameters
         ----------
         location : str, mandatory
             A 303 redirection header
-    
+
         Returns
         -------
         The relative location.

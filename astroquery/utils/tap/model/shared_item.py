@@ -25,7 +25,7 @@ class TapSharedItem(object):
         """
         self.attributes = attrs
         self.id = attrs.getValue("id")
-        self.type= attrs.getValue("type")
+        self.type = attrs.getValue("type")
         self.shared_to_items = []
 
     def __str__(self):
