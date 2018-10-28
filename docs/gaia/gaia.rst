@@ -880,7 +880,7 @@ So, the first step, is to execute a query to obtain the identifiers, and then yo
   >>>                          epoch_photometry_data['time'],\
   >>>                          epoch_photometry_data['flux'],\
   >>>                          epoch_photometry_data['flux_error']):
-  >>> print(str(source) + "\t"+  str(band, 'utf-8') + "\t\t" + str(mag) + "\t" + str(time) + "\t" + str(flux) + "\t" + str(flux_error))
+  >>>    print(str(source) + "\t"+  str(band, 'utf-8') + "\t\t" + str(mag) + "\t" + str(time) + "\t" + str(flux) + "\t" + str(flux_error))
 
 
 Reference/API
