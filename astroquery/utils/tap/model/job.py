@@ -119,6 +119,7 @@ class Job(object):
                 print(response.getheaders())
             self.__last_phase_response_status = response.status
             if phase == 'RUN':
+                # a request for RUN does not mean the server executes the job
                 phase = 'QUEUED'
                 if response.status != 200 and response.status != 303:
                     errMsg = taputils.get_http_response_error(response)
@@ -132,7 +133,7 @@ class Job(object):
             self.__phase = phase
             return response
         else:
-            raise ValueError("Cannot start a job in phase: " + str(self.__phase))
+            raise ValueError("Cannot start a job in phase: " + str(self._phase))
 
     def send_parameter(self, name=None, value=None, verbose=False):
         """Sends a job parameter (allowed in PENDING phase only).
