@@ -91,8 +91,8 @@ class TestJob(unittest.TestCase):
         job = Job(async_job=True)
         jobid = "12345"
         outputFormat = "votable"
-        job.jobid(jobid)
-        self.parameters['format'] = outputFormat
+        job.jobid = jobid
+        job.parameters['format'] = outputFormat
         job.set_phase("COMPLETED")
         try:
             job.set_phase("RUN")

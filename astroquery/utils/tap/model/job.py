@@ -145,13 +145,13 @@ class Job(object):
         value : string
             Parameter value.
         """
-        if self.__phase == 'PENDING':
+        if self._phase == 'PENDING':
             # send post parameter/value
-            context = "async/"+str(self.get_jobid())
+            context = "async/"+str(self.jobid)
             args = {
                 name: str(value)}
-            data = self.__connHandler.url_encode(args)
-            response = self.__connHandler.execute_tappost(subcontext=context, data=data, verbose=verbose)
+            data = self.connHandler.url_encode(args)
+            response = self.connHandler.execute_tappost(subcontext=context, data=data, verbose=verbose)
             if verbose:
                 print(response.status, response.reason)
                 print(response.getheaders())
