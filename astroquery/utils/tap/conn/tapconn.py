@@ -182,8 +182,12 @@ class TapConn(object):
         -------
         An HTTP(s) response object
         """
-        context = self.__get_tap_context(subcontext)
-        return self.__execute_get(context, verbose)
+        if subcontext.startswith("http"):
+            # absolute url
+            return self.__execute_get(subcontext, verbose)
+        else:
+            context = self.__get_tap_context(subcontext)
+            return self.__execute_get(context, verbose)
 
     def execute_dataget(self, query, verbose=False):
         """Executes a data GET request

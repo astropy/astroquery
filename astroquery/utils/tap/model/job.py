@@ -328,6 +328,8 @@ class Job(object):
         if debug:
             print(resultsResponse.status, resultsResponse.reason)
             print(resultsResponse.getheaders())
+
+        resultsResponse = self.__handle_redirect_if_required(resultsResponse, debug)
         isError = self.connHandler.check_launch_response_status(resultsResponse,
                                                                   debug,
                                                                   200)
@@ -344,6 +346,20 @@ class Job(object):
                 outputFormat = self.parameters['format']
                 results = utils.read_http_response(resultsResponse, outputFormat)
                 self.set_results(results)
+
+    def __handle_redirect_if_required(self, resultsResponse, verbose=False):
+        # Thanks @emeraldTree24
+        numberOfRedirects = 0
+        while (resultsResponse.status == 303 or resultsResponse.status == 302) and numberOfRedirects < 20:
+            joblocation = self.connHandler.find_header(resultsResponse.getheaders(), "location")
+            if verbose:
+                print("Redirecting to: " + str(joblocation))
+            resultsResponse = self.connHandler.execute_tapget(joblocation)
+            numberOfRedirects += 1
+            if verbose:
+                print(resultsResponse.status, resultsResponse.reason)
+                print(resultsResponse.getheaders())
+        return resultsResponse
 
     def get_error(self, verbose=False):
         """Returns the error associated to a job
@@ -380,6 +396,14 @@ class Job(object):
                 relativeLocation = self.__extract_relative_location(location, self.jobid)
                 relativeLocationSubContext = "async/" + str(self.jobid) + "/" + str(relativeLocation)
                 response = self.connHandler.execute_tapget(relativeLocationSubContext)
+                response = self.__handle_redirect_if_required(response, verbose)
+                isError = self.connHandler.check_launch_response_status(response,
+                                                                        verbose,
+                                                                        200)
+                if isError:
+                    errMsg = taputils.get_http_response_error(resultsResponse)
+                    print(resultsResponse.status, errMsg)
+                    raise Exception(errMsg)
             else:
                 response = resultsResponse
             errMsg = taputils.get_http_response_error(response)
