@@ -65,9 +65,11 @@ class TestTap(unittest.TestCase):
             "Number of columns for table1. Expected: %d, found: %d" % \
             (2, len(columns))
         col = self.__find_column('table1_col1', columns)
-        self.__check_column(col, 'Table1 Column1 desc', '', 'VARCHAR', 'indexed')
+        self.__check_column(col, 'Table1 Column1 desc', '', 'VARCHAR',
+                            'indexed')
         col = self.__find_column('table1_col2', columns)
-        self.__check_column(col, 'Table1 Column2 desc', '', 'INTEGER', None)
+        self.__check_column(col, 'Table1 Column2 desc', '', 'INTEGER',
+                            None)
         # Table 2
         table = self.__find_table('public', 'table2', res)
         assert table.description == 'Table2 desc', \
@@ -78,11 +80,14 @@ class TestTap(unittest.TestCase):
             "Number of columns for table2. Expected: %d, found: %d" % \
             (3, len(columns))
         col = self.__find_column('table2_col1', columns)
-        self.__check_column(col, 'Table2 Column1 desc', '', 'VARCHAR', 'indexed')
+        self.__check_column(col, 'Table2 Column1 desc', '', 'VARCHAR',
+                            'indexed')
         col = self.__find_column('table2_col2', columns)
-        self.__check_column(col, 'Table2 Column2 desc', '', 'INTEGER', None)
+        self.__check_column(col, 'Table2 Column2 desc', '', 'INTEGER',
+                            None)
         col = self.__find_column('table2_col3', columns)
-        self.__check_column(col, 'Table2 Column3 desc', '', 'INTEGER', None)
+        self.__check_column(col, 'Table2 Column3 desc', '', 'INTEGER',
+                            None)
 
     def test_load_tables_parameters(self):
         connHandler = DummyConnHandler()
@@ -104,7 +109,8 @@ class TestTap(unittest.TestCase):
         assert request == tableRequest, \
             "Empty request. Expected: '%s', found: '%s'" % \
             (tableRequest, request)
-        # flag only_names=false & share_accessible=false: equals to empty request
+        # flag only_names=false & share_accessible=false: equals to
+        # empty request
         tap.load_tables(only_names=False, include_shared_tables=False)
         request = connHandler.get_last_request()
         assert request == tableRequest, \
@@ -132,7 +138,8 @@ class TestTap(unittest.TestCase):
         tap.load_tables(only_names=True, include_shared_tables=True)
         request = connHandler.get_last_request()
         assert request == tableRequest, \
-            "Flags only_names and share_accessible. Expected: '%s', found: '%s'" % \
+            "Flags only_names and share_accessible. " +\
+            "Expected: '%s', found: '%s'" % \
             (tableRequest, request)
 
     def test_load_table(self):
@@ -169,9 +176,11 @@ class TestTap(unittest.TestCase):
             "Number of columns for table1. Expected: %d, found: %d" % \
             (2, len(columns))
         col = self.__find_column('table1_col1', columns)
-        self.__check_column(col, 'Table1 Column1 desc', '', 'VARCHAR', 'indexed')
+        self.__check_column(col, 'Table1 Column1 desc', '', 'VARCHAR',
+                            'indexed')
         col = self.__find_column('table1_col2', columns)
-        self.__check_column(col, 'Table1 Column2 desc', '', 'INTEGER', None)
+        self.__check_column(col, 'Table1 Column2 desc', '', 'INTEGER',
+                            None)
 
     def test_launch_sync_job(self):
         connHandler = DummyConnHandler()
@@ -521,7 +530,7 @@ class TestTap(unittest.TestCase):
         assert job.get_phase() == 'COMPLETED', \
             "Wrong job phase. Expected: %s, found %s" % \
             ('COMPLETED', job.get_phase())
-        #try to start again
+        # try to start again
         with pytest.raises(Exception):
             job.start()
 
@@ -572,7 +581,7 @@ class TestTap(unittest.TestCase):
         assert job.get_phase() == 'ABORT', \
             "Wrong job phase. Expected: %s, found %s" % \
             ('ABORT', job.get_phase())
-        #try to abort again
+        # try to abort again
         with pytest.raises(Exception):
             job.abort()
 
@@ -659,7 +668,7 @@ class TestTap(unittest.TestCase):
         assert job.get_phase() == 'QUEUED', \
             "Wrong job phase. Expected: %s, found %s" % \
             ('QUEUED', job.get_phase())
-        #try to send a parameter after execution
+        # try to send a parameter after execution
         with pytest.raises(Exception):
             job.send_parameter("param2", "value2")
 
@@ -701,7 +710,9 @@ class TestTap(unittest.TestCase):
 
     def test_data(self):
         connHandler = DummyConnHandler()
-        tap = TapPlus("http://test:1111/tap", data_context="data", connhandler=connHandler)
+        tap = TapPlus("http://test:1111/tap",
+                      data_context="data",
+                      connhandler=connHandler)
         responseResultsJob = DummyResponse()
         responseResultsJob.set_status_code(200)
         responseResultsJob.set_message("OK")
@@ -718,7 +729,7 @@ class TestTap(unittest.TestCase):
         # error
         responseResultsJob.set_status_code(500)
         responseResultsJob.set_message("ERROR")
-        params_dict={}
+        params_dict = {}
         params_dict['ID'] = "1,2"
         with pytest.raises(Exception):
             tap.load_data(params_dict)
@@ -742,7 +753,9 @@ class TestTap(unittest.TestCase):
 
     def test_datalink(self):
         connHandler = DummyConnHandler()
-        tap = TapPlus("http://test:1111/tap", datalink_context="datalink", connhandler=connHandler)
+        tap = TapPlus("http://test:1111/tap",
+                      datalink_context="datalink",
+                      connhandler=connHandler)
         responseResultsJob = DummyResponse()
         responseResultsJob.set_status_code(200)
         responseResultsJob.set_message("OK")
@@ -768,11 +781,11 @@ class TestTap(unittest.TestCase):
         assert len(results) == 3, \
             "Wrong job results (num rows). Expected: %d, found %d" % \
             (3, len(results))
-        results = tap.get_datalinks([1,2])
+        results = tap.get_datalinks([1, 2])
         assert len(results) == 3, \
             "Wrong job results (num rows). Expected: %d, found %d" % \
             (3, len(results))
-        results = tap.get_datalinks(['1','2'])
+        results = tap.get_datalinks(['1', '2'])
         assert len(results) == 3, \
             "Wrong job results (num rows). Expected: %d, found %d" % \
             (3, len(results))
@@ -810,13 +823,16 @@ class TestTap(unittest.TestCase):
                                dataType):
         c = results[columnName]
         assert c.description == description, \
-            "Wrong description for results column '%s'. Expected: '%s', found '%s'" % \
+            "Wrong description for results column '%s'. " +\
+            "Expected: '%s', found '%s'" % \
             (columnName, description, c.description)
         assert c.unit == unit, \
-            "Wrong unit for results column '%s'. Expected: '%s', found '%s'" % \
+            "Wrong unit for results column '%s'. " +\
+            "Expected: '%s', found '%s'" % \
             (columnName, unit, c.unit)
         assert c.dtype == dataType, \
-            "Wrong dataType for results column '%s'. Expected: '%s', found '%s'" % \
+            "Wrong dataType for results column '%s'. " +\
+            "Expected: '%s', found '%s'" % \
             (columnName, dataType, c.dtype)
 
 

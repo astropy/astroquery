@@ -138,7 +138,8 @@ class Tap(object):
         if connhandler is not None:
             self.__connHandler = connhandler
         if verbose:
-            print("Created TAP+ (v"+VERSION+") - Connection:\n" + str(self.__connHandler))
+            print("Created TAP+ (v" + VERSION + ") - Connection:\n" +
+                  str(self.__connHandler))
 
     def __internalInit(self):
         self.__connHandler = None
@@ -172,10 +173,13 @@ class Tap(object):
         A table object
         """
         print("Retrieving table '"+str(table)+"'")
-        response = self.__connHandler.execute_tapget("tables?tables="+table, verbose=verbose)
+        response = self.__connHandler.execute_tapget("tables?tables=" + table,
+                                                     verbose=verbose)
         if verbose:
             print(response.status, response.reason)
-        isError = self.__connHandler.check_launch_response_status(response, verbose, 200)
+        isError = self.__connHandler.check_launch_response_status(response,
+                                                                  verbose,
+                                                                  200)
         if isError:
             errMsg = taputils.get_http_response_error(response)
             print(response.status, errMsg)
@@ -217,9 +221,11 @@ class Tap(object):
             addedItem = True
         log.info("Retrieving tables...")
         if flags != "":
-            response = self.__connHandler.execute_tapget("tables?"+flags, verbose=verbose)
+            response = self.__connHandler.execute_tapget("tables?"+flags,
+                                                         verbose=verbose)
         else:
-            response = self.__connHandler.execute_tapget("tables", verbose=verbose)
+            response = self.__connHandler.execute_tapget("tables",
+                                                         verbose=verbose)
         if verbose:
             print(response.status, response.reason)
         isError = self.__connHandler.check_launch_response_status(response,
@@ -268,7 +274,8 @@ class Tap(object):
             print("Launched query: '"+str(query)+"'")
         if upload_resource is not None:
             if upload_table_name is None:
-                raise ValueError("Table name is required when a resource is uploaded")
+                raise ValueError("Table name is required when a resource " +
+                                 "is uploaded")
             response = self.__launchJobMultipart(query,
                                                  upload_resource,
                                                  upload_table_name,
@@ -291,11 +298,14 @@ class Tap(object):
                 response.getheaders(),
                 "location")
             if location is None:
-                raise requests.exceptions.HTTPError("No location found after redirection was received (303)")
+                raise requests.exceptions.HTTPError("No location found " +
+                                                    "after redirection was " +
+                                                    "received (303)")
             if verbose:
                 print("Redirect to %s", location)
             subcontext = self.__extract_sync_subcontext(location)
-            response = self.__connHandler.execute_tapget(subcontext, verbose=verbose)
+            response = self.__connHandler.execute_tapget(subcontext,
+                                                         verbose=verbose)
         job = Job(async_job=False, query=query, connhandler=self.__connHandler)
         isError = self.__connHandler.check_launch_response_status(response,
                                                                   verbose,
@@ -315,8 +325,11 @@ class Tap(object):
             responseBytes = response.read()
             responseStr = responseBytes.decode('utf-8')
             if dump_to_file:
-                self.__connHandler.dump_to_file(suitableOutputFile, responseStr)
-            raise requests.exceptions.HTTPError(taputils.parse_http_response_error(responseStr, response.status))
+                self.__connHandler.dump_to_file(suitableOutputFile,
+                                                responseStr)
+            raise requests.exceptions.HTTPError(
+                taputils.parse_http_response_error(responseStr,
+                                                   response.status))
         else:
             if verbose:
                 print("Retrieving sync. results...")
@@ -358,8 +371,8 @@ class Tap(object):
         upload_table_name: str, required if uploadResource is provided, default None
             resource temporary table name associated to the uploaded resource
         autorun: boolean, optional, default True
-            if 'True', sets 'phase' parameter to 'RUN', so the framework can start
-            the job.
+            if 'True', sets 'phase' parameter to 'RUN',
+            so the framework can start the job.
 
         Returns
         -------
@@ -405,7 +418,8 @@ class Tap(object):
             if dump_to_file:
                 responseBytes = response.read()
                 responseStr = responseBytes.decode('utf-8')
-                self.__connHandler.dump_to_file(suitableOutputFile, responseStr)
+                self.__connHandler.dump_to_file(suitableOutputFile,
+                                                responseStr)
             raise requests.exceptions.HTTPError(response.reason)
         else:
             location = self.__connHandler.find_header(
@@ -429,7 +443,8 @@ class Tap(object):
                         log.info("Query finished.")
         return job
 
-    def load_async_job(self, jobid=None, name=None, verbose=False, load_results=True):
+    def load_async_job(self, jobid=None, name=None, verbose=False,
+                       load_results=True):
         """Loads an asynchronous job
 
         Parameters
@@ -459,7 +474,8 @@ class Tap(object):
             log.info("No job identifier found")
             return None
         subContext = "async/" + str(jobid)
-        response = self.__connHandler.execute_tapget(subContext, verbose=verbose)
+        response = self.__connHandler.execute_tapget(subContext,
+                                                     verbose=verbose)
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
@@ -492,7 +508,8 @@ class Tap(object):
         A list of Job objects
         """
         subContext = "async"
-        response = self.__connHandler.execute_tapget(subContext, verbose=verbose)
+        response = self.__connHandler.execute_tapget(subContext,
+                                                     verbose=verbose)
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
@@ -567,7 +584,10 @@ class Tap(object):
             name = os.path.basename(uploadResource)
         files = [[uploadTableName, name, chunk]]
         contentType, body = self.__connHandler.encode_multipart(args, files)
-        response = self.__connHandler.execute_tappost(context, body, contentType, verbose)
+        response = self.__connHandler.execute_tappost(context,
+                                                      body,
+                                                      contentType,
+                                                      verbose)
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
@@ -586,7 +606,9 @@ class Tap(object):
         if name is not None:
             args['jobname'] = name
         data = self.__connHandler.url_encode(args)
-        response = self.__connHandler.execute_tappost(subcontext=context, data=data, verbose=verbose)
+        response = self.__connHandler.execute_tappost(subcontext=context,
+                                                      data=data,
+                                                      verbose=verbose)
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
@@ -810,13 +832,15 @@ class TapPlus(Tap):
         connHandler = self.__getconnhandler()
         if not isinstance(params_dict, dict):
             raise ValueError("Parameters dictionary expected")
-        data =  connHandler.url_encode(params_dict)
+        data = connHandler.url_encode(params_dict)
         if verbose:
             print("Data request: " + data)
         response = connHandler.execute_datapost(data=data, verbose=verbose)
         if verbose:
             print(response.status, response.reason)
-        isError = connHandler.check_launch_response_status(response, verbose, 200)
+        isError = connHandler.check_launch_response_status(response,
+                                                           verbose,
+                                                           200)
         if isError:
             errMsg = taputils.get_http_response_error(response)
             print(response.status, errMsg)
@@ -857,7 +881,9 @@ class TapPlus(Tap):
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        isError = connHandler.check_launch_response_status(response, verbose, 200)
+        isError = connHandler.check_launch_response_status(response,
+                                                           verbose,
+                                                           200)
         if isError:
             errMsg = taputils.get_http_response_error(response)
             print(response.status, errMsg)
@@ -914,7 +940,9 @@ class TapPlus(Tap):
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        isError = connHandler.check_launch_response_status(response, verbose, 200)
+        isError = connHandler.check_launch_response_status(response,
+                                                           verbose,
+                                                           200)
         if isError:
             errMsg = taputils.get_http_response_error(response)
             print(response.status, errMsg)
@@ -923,7 +951,8 @@ class TapPlus(Tap):
         print("Parsing shared items...")
         ssp = SharedItemsSaxParser()
         ssp.parseData(response)
-        print("Done. " + str(ssp.get_shared_items().__len__()) + " shared items found")
+        print("Done. " + str(ssp.get_shared_items().__len__()) +
+              " shared items found")
         if verbose:
             for g in ssp.get_shared_items():
                 print(g.title)
@@ -947,7 +976,8 @@ class TapPlus(Tap):
             flag to display information about the process
         """
         if group_name is None or table_name is None:
-            raise ValueError("Both 'group_name' and 'table_name' must be specified")
+            raise ValueError("Both 'group_name' and 'table_name' " +
+                             "must be specified")
         if description is None:
             description = ""
         group = self.load_group(group_name, verbose)
@@ -957,29 +987,30 @@ class TapPlus(Tap):
         if table is None:
             raise ValueError("Table '"+table_name+"' not found.")
         data = ("action=CreateOrUpdateItem&resource_type=0&title=" +
-                   str(table_name) +
-                   "&description=" +
-                   str(description) +
-                   "&items_list=" +
-                   group.id + "|Group|Read")
+                str(table_name) +
+                "&description=" +
+                str(description) +
+                "&items_list=" +
+                group.id + "|Group|Read")
         connHandler = self.__getconnhandler()
         response = connHandler.execute_share(data, verbose=verbose)
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        isError = connHandler.check_launch_response_status(response, verbose, 200)
+        isError = connHandler.check_launch_response_status(response,
+                                                           verbose,
+                                                           200)
         if isError:
             errMsg = taputils.get_http_response_error(response)
             print(response.status, errMsg)
             raise requests.exceptions.HTTPError(errMsg)
             return None
-        msg = "Shared table '"+str(table_name)+"' to group '"+str(group_name)+"'."
+        msg = "Shared table '" + str(table_name) + "' to group '" +\
+            str(group_name) + "'."
         print(msg)
 
-    def share_table_stop(self,
-                    group_name=None,
-                    table_name=None,
-                    verbose=False):
+    def share_table_stop(self, group_name=None, table_name=None,
+                         verbose=False):
         """Stop sharing a table
 
         Parameters
@@ -992,7 +1023,8 @@ class TapPlus(Tap):
             flag to display information about the process
         """
         if group_name is None or table_name is None:
-            raise ValueError("Both 'group_name' and 'table_name' must be specified")
+            raise ValueError("Both 'group_name' and 'table_name' " +
+                             "must be specified")
         group = self.load_group(group_name, verbose)
         if group is None:
             raise ValueError("Group '" + group_name + "' not found.")
@@ -1009,7 +1041,8 @@ class TapPlus(Tap):
                 if shared_item is not None:
                     break
         if shared_item is None:
-            raise ValueError("Table '"+table_name+"', shared to group '"+group_name+"', not found.")
+            raise ValueError("Table '" + table_name + "', shared to group '" +
+                             group_name + "', not found.")
         data = ("action=RemoveItem&resource_type=0&resource_id=" +
                 str(shared_item.id) +
                 "&resource_type=0")
@@ -1018,19 +1051,20 @@ class TapPlus(Tap):
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        isError = connHandler.check_launch_response_status(response, verbose, 200)
+        isError = connHandler.check_launch_response_status(response,
+                                                           verbose,
+                                                           200)
         if isError:
             errMsg = taputils.get_http_response_error(response)
             print(response.status, errMsg)
             raise requests.exceptions.HTTPError(errMsg)
             return None
-        msg = "Stop sharing table '"+str(table_name)+"' to group '"+str(group_name)+"'."
+        msg = "Stop sharing table '" + str(table_name) + "' to group '" + \
+            str(group_name) + "'."
         print(msg)
 
-    def share_group_create(self,
-                    group_name=None,
-                    description=None,
-                    verbose=False):
+    def share_group_create(self, group_name=None, description=None,
+                           verbose=False):
         """Creates a group
 
         Parameters
@@ -1050,15 +1084,17 @@ class TapPlus(Tap):
         if group is not None:
             raise ValueError("Group " + group_name + " already exists")
         data = ("action=CreateOrUpdateGroup&resource_type=0&title=" +
-                   str(group_name) +
-                   "&description=" +
-                   str(description))
+                str(group_name) +
+                "&description=" +
+                str(description))
         connHandler = self.__getconnhandler()
         response = connHandler.execute_share(data, verbose=verbose)
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        isError = connHandler.check_launch_response_status(response, verbose, 200)
+        isError = connHandler.check_launch_response_status(response,
+                                                           verbose,
+                                                           200)
         if isError:
             errMsg = taputils.get_http_response_error(response)
             print(response.status, errMsg)
@@ -1068,8 +1104,8 @@ class TapPlus(Tap):
         print(msg)
 
     def share_group_delete(self,
-                    group_name=None,
-                    verbose=False):
+                           group_name=None,
+                           verbose=False):
         """Deletes a group
 
         Parameters
@@ -1085,13 +1121,15 @@ class TapPlus(Tap):
         if group is None:
             raise ValueError("Group '" + group_name + "' doesn't exist")
         data = ("action=RemoveGroup&resource_type=0&group_id=" +
-                   str(group.id))
+                str(group.id))
         connHandler = self.__getconnhandler()
         response = connHandler.execute_share(data, verbose=verbose)
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        isError = connHandler.check_launch_response_status(response, verbose, 200)
+        isError = connHandler.check_launch_response_status(response,
+                                                           verbose,
+                                                           200)
         if isError:
             errMsg = taputils.get_http_response_error(response)
             print(response.status, errMsg)
@@ -1116,7 +1154,8 @@ class TapPlus(Tap):
             flag to display information about the process
         """
         if group_name is None or user_id is None:
-            raise ValueError("Both 'group_name' and 'user_id' must be specified")
+            raise ValueError("Both 'group_name' and 'user_id' " +
+                             "must be specified")
         group = self.load_group(group_name, verbose)
         if group is None:
             raise ValueError("Group " + group_name + "' doesn't exist")
@@ -1126,7 +1165,8 @@ class TapPlus(Tap):
                 user_found_in_group = True
                 break
         if user_found_in_group is True:
-            raise ValueError("User id '" + str(user_id) + "' found in group '" + str(group_name) + "'")
+            raise ValueError("User id '" + str(user_id) +
+                             "' found in group '" + str(group_name) + "'")
         if self.is_valid_user(user_id, verbose) is False:
             raise ValueError("User id '" + str(user_id) + "' not found.")
         users = ""
@@ -1143,7 +1183,9 @@ class TapPlus(Tap):
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        isError = connHandler.check_launch_response_status(response, verbose, 200)
+        isError = connHandler.check_launch_response_status(response,
+                                                           verbose,
+                                                           200)
         if isError:
             errMsg = taputils.get_http_response_error(response)
             print(response.status, errMsg)
@@ -1168,7 +1210,8 @@ class TapPlus(Tap):
             flag to display information about the process
         """
         if group_name is None or user_id is None:
-            raise ValueError("Both 'group_name' and 'user_id' must be specified")
+            raise ValueError("Both 'group_name' and 'user_id' " +
+                             "must be specified")
         group = self.load_group(group_name, verbose)
         if group is None:
             raise ValueError("Group '" + group_name + "' doesn't exist")
@@ -1178,7 +1221,9 @@ class TapPlus(Tap):
                 user_found_in_group = True
                 break
         if user_found_in_group is False:
-            raise ValueError("User id '" + str(user_id) + "' not found in group '" + str(group_name) + "'")
+            raise ValueError("User id '" + str(user_id) +
+                             "' not found in group '" +
+                             str(group_name) + "'")
         users = ""
         for u in group.users:
             if str(u.id) == str(user_id):
@@ -1196,13 +1241,16 @@ class TapPlus(Tap):
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        isError = connHandler.check_launch_response_status(response, verbose, 200)
+        isError = connHandler.check_launch_response_status(response,
+                                                           verbose,
+                                                           200)
         if isError:
             errMsg = taputils.get_http_response_error(response)
             print(response.status, errMsg)
             raise requests.exceptions.HTTPError(errMsg)
             return None
-        msg = "Deleted user '"+str(user_id)+"' from group '"+str(group_name)+"'."
+        msg = "Deleted user '" + str(user_id) + "' from group '" +\
+            str(group_name) + "'."
         print(msg)
 
     def is_valid_user(self, user_id=None, verbose=False):
@@ -1228,7 +1276,9 @@ class TapPlus(Tap):
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        isError = connHandler.check_launch_response_status(response, verbose, 200)
+        isError = connHandler.check_launch_response_status(response,
+                                                           verbose,
+                                                           200)
         if isError:
             errMsg = taputils.get_http_response_error(response)
             print(response.status, errMsg)
@@ -1267,11 +1317,14 @@ class TapPlus(Tap):
         if verbose:
             print("Datalink request: " + ids_arg)
         connHandler = self.__getconnhandler()
-        response = connHandler.execute_datalinkpost(subcontext="links", data=ids_arg,
+        response = connHandler.execute_datalinkpost(subcontext="links",
+                                                    data=ids_arg,
                                                     verbose=verbose)
         if verbose:
             print(response.status, response.reason)
-        isError = connHandler.check_launch_response_status(response, verbose, 200)
+        isError = connHandler.check_launch_response_status(response,
+                                                           verbose,
+                                                           200)
         if isError:
             errMsg = taputils.get_http_response_error(response)
             print(response.status, errMsg)
@@ -1347,11 +1400,15 @@ class TapPlus(Tap):
         data = "JOB_IDS=" + jobsIds
         subContext = "deletejobs"
         connHandler = self.__getconnhandler()
-        response = connHandler.execute_tappost(subContext, data, verbose=verbose)
+        response = connHandler.execute_tappost(subContext,
+                                               data,
+                                               verbose=verbose)
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        isError = connHandler.check_launch_response_status(response, verbose, 200)
+        isError = connHandler.check_launch_response_status(response,
+                                                           verbose,
+                                                           200)
         if isError:
             errMsg = taputils.get_http_response_error(response)
             print(response.status, errMsg)
@@ -1496,9 +1553,10 @@ class TapPlus(Tap):
             table_description = ""
 
         if format is None:
-            if isinstance(upload_resource, Table) or (str(upload_resource).startswith("http") and
-                (str(upload_resource).endswith(".vot") or
-                 str(upload_resource).endswith(".votable"))):
+            if (isinstance(upload_resource, Table) or
+                    (str(upload_resource).startswith("http") and
+                    (str(upload_resource).endswith(".vot") or
+                    str(upload_resource).endswith(".votable")))):
                 format = "VOTable"
 
         response = self.__uploadTableMultipart(resource=upload_resource,
@@ -1511,18 +1569,22 @@ class TapPlus(Tap):
                 response.getheaders(),
                 "location")
             jobid = taputils.get_jobid_from_location(location)
-            job = Job(async_job=True, query=None, connhandler=self.__getconnhandler())
+            job = Job(async_job=True,
+                      query=None,
+                      connhandler=self.__getconnhandler())
             job.jobid = jobid
             job.name = 'Table upload'
             job.set_phase('EXECUTING')
-            print("Job '"+jobid+"' created to upload table '"+str(table_name)+"'.")
+            print("Job '" + jobid + "' created to upload table '" +
+                  str(table_name) + "'.")
             return job
         else:
             print("Uploaded table '"+str(table_name)+"'.")
             return None
 
-    def __uploadTableMultipart(self, resource, table_name=None, table_description=None,
-                               format="VOTable", verbose=False):
+    def __uploadTableMultipart(self, resource, table_name=None,
+                               table_description=None, format="VOTable",
+                               verbose=False):
         connHandler = self.__getconnhandler()
         if isinstance(resource, Table):
             args = {
@@ -1567,7 +1629,9 @@ class TapPlus(Tap):
             print(response.status, response.reason)
             print(response.getheaders())
         if response.status != 303 and response.status != 302:
-            isError = connHandler.check_launch_response_status(response, verbose, 200)
+            isError = connHandler.check_launch_response_status(response,
+                                                               verbose,
+                                                               200)
             if isError:
                 errMsg = taputils.get_http_response_error(response)
                 print(response.status, errMsg)
@@ -1612,11 +1676,12 @@ class TapPlus(Tap):
                                            table_name=table_name,
                                            table_description=table_description,
                                            verbose=verbose)
-        msg = "Created table '"+str(table_name)+"' from job: '"+str(j.jobid)+"'."
+        msg = "Created table '" + str(table_name) + "' from job: '" +\
+            str(j.jobid) + "'."
         print(msg)
 
-    def __uploadTableMultipartFromJob(self, resource, table_name=None, table_description=None,
-                                      verbose=False):
+    def __uploadTableMultipartFromJob(self, resource, table_name=None,
+                                      table_description=None, verbose=False):
         args = {
             "TASKID": str(-1),
             "JOBID": str(resource),
@@ -1630,7 +1695,9 @@ class TapPlus(Tap):
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        isError = connHandler.check_launch_response_status(response, verbose, 200)
+        isError = connHandler.check_launch_response_status(response,
+                                                           verbose,
+                                                           200)
         if isError:
             errMsg = taputils.get_http_response_error(response)
             print(response.status, errMsg)
@@ -1638,7 +1705,8 @@ class TapPlus(Tap):
             return None
         return response
 
-    def delete_user_table(self, table_name=None, force_removal=False, verbose=False):
+    def delete_user_table(self, table_name=None, force_removal=False,
+                          verbose=False):
         """Removes a user table
 
         Parameters
@@ -1668,7 +1736,9 @@ class TapPlus(Tap):
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        isError = connHandler.check_launch_response_status(response, verbose, 200)
+        isError = connHandler.check_launch_response_status(response,
+                                                           verbose,
+                                                           200)
         if isError:
             errMsg = taputils.get_http_response_error(response)
             print(response.status, errMsg)
@@ -1712,8 +1782,8 @@ class TapPlus(Tap):
                 if value is None:
                     raise ValueError("None of the values for the changes " +
                                      "can be null")
-                if (index == 1 and value != 'utype' and value != 'ucd'
-                    and value != 'flags' and value != 'indexed'):
+                if (index == 1 and value != 'utype' and value != 'ucd'and
+                        value != 'flags' and value != 'indexed'):
                     raise ValueError("Position 2 of all changes must be " +
                                      "'utype', 'ucd', 'flags' or 'indexed'")
                 index = index + 1
@@ -1735,9 +1805,9 @@ class TapPlus(Tap):
                             found = True
                             break
                     if found is False:
-                        raise ValueError("Column name introduced "
-                                          + str(value)
-                                          + " was not found in the table")
+                        raise ValueError("Column name introduced " +
+                                         str(value) +
+                                         " was not found in the table")
                 index = index + 1
 
         currentColumnRa = self.__columnsContainFlag(columns, "Ra")
@@ -1746,21 +1816,24 @@ class TapPlus(Tap):
         newColumnRa = self.__changesContainFlag(list_of_changes, "Ra")
         newColumnDec = self.__changesContainFlag(list_of_changes, "Dec")
 
-        if currentColumnRa is None and currentColumnDec is None:  # None of them are in place
+        if currentColumnRa is None and currentColumnDec is None:
+            # None of them are in place
             if ((newColumnRa is not None and newColumnDec is None) or
-                (newColumnRa is None and newColumnDec is not None)):
-                raise ValueError("Both Ra and Dec must be specified when updating " +
-                                 "one of them.")
+                    (newColumnRa is None and newColumnDec is not None)):
+                raise ValueError("Both Ra and Dec must be specified when " +
+                                 "updating one of them.")
 
         if ((currentColumnRa is None and currentColumnDec is not None) or
-            (currentColumnRa is not None and currentColumnDec is None)):  # Only one of them is present
-            raise ValueError("One of (Ra, Dec) is not present but the other is. " +
-                             "Wrong initial configuration of the table.")
+                (currentColumnRa is not None and currentColumnDec is None)):
+            # Only one of them is present
+            raise ValueError("One of (Ra, Dec) is not present but the other " +
+                             "is. Wrong initial configuration of the table.")
 
-        if currentColumnRa is not None and currentColumnDec is not None:  # Both are initially present
+        if currentColumnRa is not None and currentColumnDec is not None:
+            # Both are initially present
             if newColumnRa is not None or newColumnDec is not None:
-                raise ValueError("Both Ra and Dec are already present in this table. " +
-                                 "Only one of each is allowed.")
+                raise ValueError("Both Ra and Dec are already present in " +
+                                 "this table. Only one of each is allowed.")
         num_cols = len(columns)
         args = {
                 "ACTION": "edit",
@@ -1799,24 +1872,28 @@ class TapPlus(Tap):
                 flags = 'PK'
             else:
                 flags = None
-            indexed = (str(column.flag) == 'indexed'
-                       or str(flags) == 'Ra'
-                       or str(flags) == 'Dec'
-                       or str(flags) == 'PK')
+            indexed = (str(column.flag) == 'indexed' or
+                       str(flags) == 'Ra' or
+                       str(flags) == 'Dec' or
+                       str(flags) == 'PK')
             ucd = str(column.ucd)
             utype = str(column.utype)
             if found_in_changes:
                 for change in list_of_changes:
-                    if str(change[0]) == str(column.name) and str(change[1]) == 'flags':
+                    if (str(change[0]) == str(column.name) and
+                            str(change[1]) == 'flags'):
                         flags = str(change[2])
                         break
-                    if str(change[0]) == str(column.name) and str(change[1]) == 'indexed':
+                    if (str(change[0]) == str(column.name) and
+                            str(change[1]) == 'indexed'):
                         indexed = str(change[2])
                         break
-                    if str(change[0]) == str(column.name) and str(change[1]) == 'ucd':
+                    if (str(change[0]) == str(column.name) and
+                            str(change[1]) == 'ucd'):
                         ucd = str(change[2])
                         break
-                    if str(change[0]) == str(column.name) and str(change[1]) == 'utype':
+                    if (str(change[0]) == str(column.name) and
+                            str(change[1]) == 'utype'):
                         utype = str(change[2])
                         break
             if flags == 'Ra' or flags == 'Dec' or flags == 'PK':
@@ -1833,7 +1910,9 @@ class TapPlus(Tap):
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        isError = connHandler.check_launch_response_status(response, verbose, 200)
+        isError = connHandler.check_launch_response_status(response,
+                                                           verbose,
+                                                           200)
         if isError:
             errMsg = taputils.get_http_response_error(response)
             print(response.status, errMsg)
@@ -1875,7 +1954,9 @@ class TapPlus(Tap):
         connHandler = self.__getconnhandler()
         data = connHandler.url_encode(args)
         response = connHandler.execute_table_edit(data, verbose=verbose)
-        isError = connHandler.check_launch_response_status(response, verbose, 200)
+        isError = connHandler.check_launch_response_status(response,
+                                                           verbose,
+                                                           200)
         if isError:
             log.info(response.reason)
             raise requests.exceptions.HTTPError(response.reason)

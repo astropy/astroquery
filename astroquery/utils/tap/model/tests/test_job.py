@@ -22,7 +22,6 @@ from astroquery.utils.tap.model.job import Job
 from astroquery.utils.tap.conn.tests.DummyConnHandler import DummyConnHandler
 from astroquery.utils.tap.conn.tests.DummyResponse import DummyResponse
 from astroquery.utils.tap.xmlparser import utils
-from sqlalchemy.sql.expression import except_
 
 
 def data_path(filename):
@@ -67,9 +66,9 @@ class TestJob(unittest.TestCase):
         jobContentFileName = data_path('result_1.vot')
         jobContent = utils.read_file_content(jobContentFileName)
         responseGetData.set_data(method='GET',
-                                context=None,
-                                body=jobContent,
-                                headers=None)
+                                 context=None,
+                                 body=jobContent,
+                                 headers=None)
         dataRequest = "async/" + str(jobid) + "/results/result"
         connHandler.set_response(dataRequest, responseGetData)
 
@@ -96,23 +95,26 @@ class TestJob(unittest.TestCase):
         job.set_phase("COMPLETED")
         try:
             job.set_phase("RUN")
-            self.fail("Exception expected. Phase cannot be changed for a finished job")
+            self.fail("Exception expected. " +
+                      "Phase cannot be changed for a finished job")
         except ValueError:
-            #ok
+            # ok
             pass
         try:
             job.start()
-            self.fail("Exception expected. A job in 'COMPLETE' phase cannot be started")
+            self.fail("Exception expected. " +
+                      "A job in 'COMPLETE' phase cannot be started")
         except ValueError:
-            #ok
+            # ok
             pass
         try:
             job.abort()
-            self.fail("Exception expected. A job in 'COMPLETE' phase cannot be aborted")
+            self.fail("Exception expected. " +
+                      "A job in 'COMPLETE' phase cannot be aborted")
         except ValueError:
-            #ok
+            # ok
             pass
-        
+
 
 if __name__ == "__main__":
     # import sys;sys.argv = ['', 'Test.testName']

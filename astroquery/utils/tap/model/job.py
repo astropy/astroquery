@@ -110,10 +110,10 @@ class Job(object):
             context = "async/"+str(self.get_jobid())+"/phase"
             args = {
                 "PHASE": str(phase)}
-            data = self.__connHandler.url_encode(args)
-            response = self.__connHandler.execute_tappost(subcontext=context,
-                                                          data=data,
-                                                          verbose=verbose)
+            data = self.connHandler.url_encode(args)
+            response = self.connHandler.execute_tappost(subcontext=context,
+                                                        data=data,
+                                                        verbose=verbose)
             if verbose:
                 print(response.status, response.reason)
                 print(response.getheaders())
@@ -133,7 +133,8 @@ class Job(object):
             self.__phase = phase
             return response
         else:
-            raise ValueError("Cannot start a job in phase: " + str(self._phase))
+            raise ValueError("Cannot start a job in phase: " +
+                             str(self._phase))
 
     def send_parameter(self, name=None, value=None, verbose=False):
         """Sends a job parameter (allowed in PENDING phase only).
@@ -151,7 +152,9 @@ class Job(object):
             args = {
                 name: str(value)}
             data = self.connHandler.url_encode(args)
-            response = self.connHandler.execute_tappost(subcontext=context, data=data, verbose=verbose)
+            response = self.connHandler.execute_tappost(subcontext=context,
+                                                        data=data,
+                                                        verbose=verbose)
             if verbose:
                 print(response.status, response.reason)
                 print(response.getheaders())
@@ -162,7 +165,8 @@ class Job(object):
                 raise Exception(errMsg)
             return response
         else:
-            raise ValueError("Cannot start a job in phase: " + str(self.__phase))
+            raise ValueError("Cannot start a job in phase: " +
+                             str(self._phase))
 
     def get_phase(self, update=False):
         """Returns the job phase. May optionally update the job's phase.
@@ -226,7 +230,8 @@ class Job(object):
         if self.results is not None:
             return self.results
         # try load results from file
-        # read_results_table_from_file checks whether the file already exists or not
+        # read_results_table_from_file checks whether
+        # the file already exists or not
         outputFormat = self.parameters['format']
         results = modelutils.read_results_table_from_file(self.outputFile,
                                                           outputFormat)
@@ -279,8 +284,8 @@ class Job(object):
                     print(response.status, response.reason)
                     print(response.getheaders())
                 isError = self.connHandler.check_launch_response_status(response,
-                                                                          verbose,
-                                                                          200)
+                                                                        verbose,
+                                                                        200)
                 if isError:
                     print(response.reason)
                     raise Exception(response.reason)
@@ -305,7 +310,8 @@ class Job(object):
             except:  # noqa: E722
                 # ignore
                 if verbose:
-                    print("Exception when trying to start job", sys.exc_info()[0])
+                    print("Exception when trying to start job",
+                          sys.exc_info()[0])
         while True:
             responseData = self.get_phase(update=True)
             currentResponse = self.__last_phase_response_status
@@ -313,7 +319,8 @@ class Job(object):
             lphase = responseData.upper().strip()
             if verbose:
                 print("Job " + self.jobid + " status: " + lphase)
-            if "PENDING" != lphase and "QUEUED" != lphase and "EXECUTING" != lphase:
+            if ("PENDING" != lphase and "QUEUED" != lphase and
+                    "EXECUTING" != lphase):
                 break
             # PENDING, QUEUED, EXECUTING, COMPLETED, ERROR, ABORTED, UNKNOWN,
             # HELD, SUSPENDED, ARCHIVED:
@@ -329,11 +336,12 @@ class Job(object):
             print(resultsResponse.status, resultsResponse.reason)
             print(resultsResponse.getheaders())
 
-        resultsResponse = self.__handle_redirect_if_required(resultsResponse, debug)
+        resultsResponse = self.__handle_redirect_if_required(resultsResponse,
+                                                             debug)
         isError = self.connHandler.check_launch_response_status(resultsResponse,
-                                                                  debug,
-                                                                  200)
-        self.__phase = phase
+                                                                debug,
+                                                                200)
+        self._phase = phase
         if phase == 'ERROR':
             errMsg = self.get_error(debug)
             raise Exception(errMsg)
@@ -344,14 +352,18 @@ class Job(object):
                 raise Exception(errMsg)
             else:
                 outputFormat = self.parameters['format']
-                results = utils.read_http_response(resultsResponse, outputFormat)
+                results = utils.read_http_response(resultsResponse,
+                                                   outputFormat)
                 self.set_results(results)
 
     def __handle_redirect_if_required(self, resultsResponse, verbose=False):
         # Thanks @emeraldTree24
         numberOfRedirects = 0
-        while (resultsResponse.status == 303 or resultsResponse.status == 302) and numberOfRedirects < 20:
-            joblocation = self.connHandler.find_header(resultsResponse.getheaders(), "location")
+        while ((resultsResponse.status == 303 or
+                resultsResponse.status == 302) and
+                numberOfRedirects < 20):
+            joblocation = self.connHandler.find_header(resultsResponse.getheaders(),
+                                                       "location")
             if verbose:
                 print("Redirecting to: " + str(joblocation))
             resultsResponse = self.connHandler.execute_tapget(joblocation)
@@ -379,7 +391,9 @@ class Job(object):
         if verbose:
             print(resultsResponse.status, resultsResponse.reason)
             print(resultsResponse.getheaders())
-        if resultsResponse.status != 200 and resultsResponse.status != 303 and resultsResponse.status != 302:
+        if (resultsResponse.status != 200 and
+                resultsResponse.status != 303 and
+                resultsResponse.status != 302):
             errMsg = taputils.get_http_response_error(resultsResponse)
             print(resultsResponse.status, errMsg)
             raise Exception(errMsg)
@@ -387,16 +401,21 @@ class Job(object):
             if resultsResponse.status == 303 or resultsResponse.status == 302:
                 # get location
                 location = self.connHandler.find_header(resultsResponse.getheaders(),
-                                                          "location")
+                                                        "location")
                 if location is None:
-                    raise requests.exceptions.HTTPError("No location found after redirection was received (303)")
+                    raise requests.exceptions.HTTPError("No location found " +
+                                                        "after redirection " +
+                                                        "was received (303)")
                 if verbose:
                     print("Redirect to %s", location)
                 # load
-                relativeLocation = self.__extract_relative_location(location, self.jobid)
-                relativeLocationSubContext = "async/" + str(self.jobid) + "/" + str(relativeLocation)
+                relativeLocation = self.__extract_relative_location(location,
+                                                                    self.jobid)
+                relativeLocationSubContext = "async/" + str(self.jobid) +\
+                    "/" + str(relativeLocation)
                 response = self.connHandler.execute_tapget(relativeLocationSubContext)
-                response = self.__handle_redirect_if_required(response, verbose)
+                response = self.__handle_redirect_if_required(response,
+                                                              verbose)
                 isError = self.connHandler.check_launch_response_status(response,
                                                                         verbose,
                                                                         200)

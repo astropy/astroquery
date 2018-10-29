@@ -143,23 +143,27 @@ class TapConn(object):
 
     def __get_datalink_context(self, subContext, encodedData=None):
         if self.__datalinkContext is None:
-            raise ValueError("datalink_context must be specified at TAP object " +
-                             "creation for this action to be performed")
+            raise ValueError("datalink_context must be specified at TAP " +
+                             "object creation for this action to be " +
+                             "performed")
         if encodedData is not None:
-            return self.__datalinkContext + "/" + subContext + "?" + encodedData
+            return self.__datalinkContext + "/" + subContext + "?" +\
+                encodedData
         else:
             return self.__datalinkContext + "/" + subContext
 
     def __get_upload_context(self):
         if self.__uploadContext is None:
-            raise ValueError("upload_context must be specified at TAP object " +
-                             "creation for this action to be performed")
+            raise ValueError("upload_context must be specified at TAP " +
+                             "object creation for this action to be " +
+                             "performed")
         return self.__uploadContext
 
     def __get_table_edit_context(self):
         if self.__tableEditContext is None:
-            raise ValueError("table_edit_context must be specified at TAP object " +
-                             "creation for this action to be performed")
+            raise ValueError("table_edit_context must be specified at TAP " +
+                             "object creation for this action to be " +
+                             "performed")
         return self.__tableEditContext
 
     def __get_server_context(self, subContext):
@@ -241,7 +245,8 @@ class TapConn(object):
         return response
 
     def execute_tappost(self, subcontext, data,
-                     content_type=CONTENT_TYPE_POST_DEFAULT, verbose=False):
+                        content_type=CONTENT_TYPE_POST_DEFAULT,
+                        verbose=False):
         """Executes a POST request
         The connection is done through HTTP or HTTPS depending on the login
         status (logged in -> HTTPS)
@@ -253,7 +258,7 @@ class TapConn(object):
             TAP list name
         data : str, mandatory
             POST data
-        content_type: str, optional, default 'application/x-www-form-urlencoded'
+        content_type: str, optional, default: application/x-www-form-urlencoded
             HTTP(s) content-type header value
         verbose : bool, optional, default 'False'
             flag to display information about the process
@@ -266,7 +271,8 @@ class TapConn(object):
         return self.__execute_post(context, data, content_type, verbose)
 
     def execute_datapost(self, data,
-                     content_type=CONTENT_TYPE_POST_DEFAULT, verbose=False):
+                         content_type=CONTENT_TYPE_POST_DEFAULT,
+                         verbose=False):
         """Executes a POST request
         The connection is done through HTTP or HTTPS depending on the login
         status (logged in -> HTTPS)
@@ -275,7 +281,7 @@ class TapConn(object):
         ----------
         data : str, mandatory
             POST data
-        content_type: str, optional, default 'application/x-www-form-urlencoded'
+        content_type: str, optional, default: application/x-www-form-urlencoded
             HTTP(s) content-type header value
         verbose : bool, optional, default 'False'
             flag to display information about the process
@@ -288,7 +294,8 @@ class TapConn(object):
         return self.__execute_post(context, data, content_type, verbose)
 
     def execute_datalinkpost(self, subcontext, data,
-                     content_type=CONTENT_TYPE_POST_DEFAULT, verbose=False):
+                             content_type=CONTENT_TYPE_POST_DEFAULT,
+                             verbose=False):
         """Executes a POST request
         The connection is done through HTTP or HTTPS depending on the login
         status (logged in -> HTTPS)
@@ -296,10 +303,11 @@ class TapConn(object):
         Parameters
         ----------
         subcontext : str, mandatory
-            datalink subcontext (e.g. 'capabilities', 'availability', 'links', etc.)
+            datalink subcontext (e.g. 'capabilities', 'availability',
+            'links', etc.)
         data : str, mandatory
             POST data
-        content_type: str, optional, default 'application/x-www-form-urlencoded'
+        content_type: str, optional, default: application/x-www-form-urlencoded
             HTTP(s) content-type header value
         verbose : bool, optional, default 'False'
             flag to display information about the process
@@ -312,7 +320,8 @@ class TapConn(object):
         return self.__execute_post(context, data, content_type, verbose)
 
     def execute_upload(self, data,
-                     content_type=CONTENT_TYPE_POST_DEFAULT, verbose=False):
+                       content_type=CONTENT_TYPE_POST_DEFAULT,
+                       verbose=False):
         """Executes a POST upload request
         The connection is done through HTTP or HTTPS depending on the login
         status (logged in -> HTTPS)
@@ -321,7 +330,7 @@ class TapConn(object):
         ----------
         data : str, mandatory
             POST data
-        content_type: str, optional, default 'application/x-www-form-urlencoded'
+        content_type: str, optional, default: application/x-www-form-urlencoded
             HTTP(s) content-type header value
         verbose : bool, optional, default 'False'
             flag to display information about the process
@@ -342,7 +351,7 @@ class TapConn(object):
         ----------
         data : str, mandatory
             POST data
-        content_type: str, optional, default 'application/x-www-form-urlencoded'
+        content_type: str, optional, default: application/x-www-form-urlencoded
             HTTP(s) content-type header value
         verbose : bool, optional, default 'False'
             flag to display information about the process
@@ -358,7 +367,8 @@ class TapConn(object):
                                    verbose=verbose)
 
     def execute_table_edit(self, data,
-                     content_type=CONTENT_TYPE_POST_DEFAULT, verbose=False):
+                           content_type=CONTENT_TYPE_POST_DEFAULT,
+                           verbose=False):
         """Executes a POST upload request
         The connection is done through HTTP or HTTPS depending on the login
         status (logged in -> HTTPS)
@@ -367,7 +377,7 @@ class TapConn(object):
         ----------
         data : str, mandatory
             POST data
-        content_type: str, optional, default 'application/x-www-form-urlencoded'
+        content_type: str, optional, default: application/x-www-form-urlencoded
             HTTP(s) content-type header value
         verbose : bool, optional, default 'False'
             flag to display information about the process
@@ -380,7 +390,8 @@ class TapConn(object):
         return self.__execute_post(context, data, content_type, verbose)
 
     def __execute_post(self, context, data,
-                     content_type=CONTENT_TYPE_POST_DEFAULT, verbose=False):
+                       content_type=CONTENT_TYPE_POST_DEFAULT,
+                       verbose=False):
         conn = self.__get_connection(verbose)
         if verbose:
             print("host = " + str(conn.host) + ":" + str(conn.port))
@@ -589,7 +600,8 @@ class TapConn(object):
     def check_launch_response_status(self, response, debug,
                                      expected_response_status):
         """Checks the response status code
-        Returns True if the response status code is the expected_response_status
+        Returns True if the response status code is the
+        expected_response_status argument
 
         Parameters
         ----------
@@ -608,8 +620,8 @@ class TapConn(object):
         isError = False
         if response.status != expected_response_status:
             if debug:
-                print("ERROR: " + str(response.status) + ": "
-                       + str(response.reason))
+                print("ERROR: " + str(response.status) + ": " +
+                      str(response.reason))
             isError = True
         return isError
 

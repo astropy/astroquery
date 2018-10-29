@@ -72,16 +72,19 @@ class DummyConnHandler(object):
         self.verbose = verbose
         return self.__get_response(request)
 
-    def execute_tappost(self, subcontext=None, data=None, content_type=None, verbose=False):
+    def execute_tappost(self, subcontext=None, data=None,
+                        content_type=None, verbose=False):
         return self.__execute_post(subcontext, data, content_type, verbose)
 
     def execute_datapost(self, data=None, content_type=None, verbose=False):
         return self.__execute_post("", data, content_type, verbose)
 
-    def execute_datalinkpost(self, subcontext=None, data=None, content_type=None, verbose=False):
+    def execute_datalinkpost(self, subcontext=None, data=None,
+                             content_type=None, verbose=False):
         return self.__execute_post(subcontext, data, content_type, verbose)
 
-    def __execute_post(self, subcontext=None, data=None, content_type=None, verbose=False):
+    def __execute_post(self, subcontext=None, data=None,
+                       content_type=None, verbose=False):
         self.data = data
         self.contentType = content_type
         self.verbose = verbose
@@ -134,8 +137,8 @@ class DummyConnHandler(object):
         isError = False
         if response.status != expected_response_status:
             if debug:
-                print("ERROR: " + str(response.status) + ": "
-                       + str(response.reason))
+                print("ERROR: " + str(response.status) + ": " +
+                      str(response.reason))
             isError = True
         return isError
 

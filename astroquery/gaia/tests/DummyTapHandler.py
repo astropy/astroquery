@@ -248,7 +248,7 @@ class DummyTapHandler(object):
         self.__parameters['verbose'] = verbose
         return None
 
-    def upload_table_from_job(self, job=None, table_name=None, 
+    def upload_table_from_job(self, job=None, table_name=None,
                               table_description=None, verbose=False):
         self.__invokedMethod = 'upload_table_from_job'
         self.__parameters['job'] = job
@@ -345,4 +345,3 @@ class DummyTapHandler(object):
         self.__parameters['user_id'] = user_id
         self.__parameters['verbose'] = verbose
         return None
-

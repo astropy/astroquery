@@ -34,7 +34,7 @@ class TapSharedItem(object):
             shared_to = shared_to + "\n\t\t" + str(u)
 
         return ("Shared item: " + str(self.id) +
-            "\n\tType: " + str(self.type) +
-            "\n\tTitle: " + str(self.title) +
-            "\n\tDescription: " + str(self.description) +
-            "\n\tShared to: " + str(shared_to))
+                "\n\tType: " + str(self.type) +
+                "\n\tTitle: " + str(self.title) +
+                "\n\tDescription: " + str(self.description) +
+                "\n\tShared to: " + str(shared_to))
