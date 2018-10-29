@@ -754,10 +754,10 @@ class GaiaClass(object):
             flag to display information about the process
         """
 
-        return self.__gaiatap.upload_table_from_job(job=job,
-                                                    table_name=table_name,
-                                                    table_description=table_description,
-                                                    verbose=verbose)
+        return self.__gaiatap.upload_table_from_job(job,
+                                                    table_name,
+                                                    table_description,
+                                                    verbose)
 
     def update_user_table(self, table_name=None, list_of_changes=[],
                           verbose=False):
