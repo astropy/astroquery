@@ -23,7 +23,7 @@ from astroquery.utils.tap.gui.login import LoginDialog
 from astroquery.utils.tap.xmlparser.jobSaxParser import JobSaxParser
 from astroquery.utils.tap.xmlparser.jobListSaxParser import JobListSaxParser
 from astroquery.utils.tap.xmlparser.groupSaxParser import GroupSaxParser
-from astroquery.utils.tap.xmlparser.sharedItemsSaxParser import SharedItemsSaxParser
+from astroquery.utils.tap.xmlparser.sharedItemsSaxParser import SharedItemsSaxParser  # noqa
 from astroquery.utils.tap.xmlparser import utils
 from astroquery.utils.tap.model.filter import Filter
 import six
@@ -99,41 +99,42 @@ class Tap(object):
             if tap_context is None:
                 tap_context = tap
             if protocol == "http":
-                self.__connHandler = TapConn(ishttps=False,
-                                             host=host,
-                                             server_context=server_context,
-                                             tap_context=tap_context,
-                                             upload_context=upload_context,
-                                             table_edit_context=table_edit_context,
-                                             data_context=data_context,
-                                             datalink_context=datalink_context,
-                                             port=port,
-                                             sslport=sslport)
+                tap = TapConn(ishttps=False,
+                              host=host,
+                              server_context=server_context,
+                              tap_context=tap_context,
+                              upload_context=upload_context,
+                              table_edit_context=table_edit_context,
+                              data_context=data_context,
+                              datalink_context=datalink_context,
+                              port=port,
+                              sslport=sslport)
+                self.__connHandler = tap
             else:
                 # https port -> sslPort
-                self.__connHandler = TapConn(ishttps=True,
-                                             host=host,
-                                             server_context=server_context,
-                                             tap_context=tap_context,
-                                             upload_context=upload_context,
-                                             table_edit_context=table_edit_context,
-                                             data_context=data_context,
-                                             datalink_context=datalink_context,
-                                             port=port,
-                                             sslport=port)
+                tap = TapConn(ishttps=True,
+                              host=host,
+                              server_context=server_context,
+                              tap_context=tap_context,
+                              upload_context=upload_context,
+                              table_edit_context=table_edit_context,
+                              data_context=data_context,
+                              datalink_context=datalink_context,
+                              port=port,
+                              sslport=port)
+                self.__connHandler = tap
         else:
-            self.__connHandler = TapConn(ishttps=default_protocol_is_https,
-                                         host=host,
-                                         server_context=server_context,
-                                         tap_context=tap_context,
-                                         upload_context=upload_context,
-                                         table_edit_context=table_edit_context,
-                                         data_context=data_context,
-                                         datalink_context=datalink_context,
-                                         share_context=share_context,
-                                         users_context=users_context,
-                                         port=port,
-                                         sslport=sslport)
+            tap = TapConn(ishttps=default_protocol_is_https,
+                          host=host,
+                          server_context=server_context,
+                          tap_context=tap_context,
+                          upload_context=upload_context,
+                          table_edit_context=table_edit_context,
+                          data_context=data_context,
+                          datalink_context=datalink_context,
+                          port=port,
+                          sslport=sslport)
+            self.__connHandler = tap
         # if connectionHandler is set, use it (useful for testing)
         if connhandler is not None:
             self.__connHandler = connhandler
@@ -262,7 +263,8 @@ class Tap(object):
             if True, the results are saved in a file instead of using memory
         upload_resource: str, optional, default None
             resource to be uploaded to UPLOAD_SCHEMA
-        upload_table_name: str, required if uploadResource is provided, default None
+        upload_table_name: str, required if upload_resource is
+                provided, default None
             resource temporary table name associated to the uploaded resource
 
         Returns
@@ -310,9 +312,10 @@ class Tap(object):
         isError = self.__connHandler.check_launch_response_status(response,
                                                                   verbose,
                                                                   200)
+        headers = response.getheaders()
         suitableOutputFile = self.__getSuitableOutputFile(False,
                                                           output_file,
-                                                          response.getheaders(),
+                                                          headers,
                                                           isError,
                                                           output_format)
         job.outputFile = suitableOutputFile
@@ -368,7 +371,8 @@ class Tap(object):
             whether the execution will wait until results are available
         upload_resource: str, optional, default None
             resource to be uploaded to UPLOAD_SCHEMA
-        upload_table_name: str, required if uploadResource is provided, default None
+        upload_table_name: str, required if upload_resource is
+                provided, default None
             resource temporary table name associated to the uploaded resource
         autorun: boolean, optional, default True
             if 'True', sets 'phase' parameter to 'RUN',
@@ -403,9 +407,10 @@ class Tap(object):
                                                                   verbose,
                                                                   303)
         job = Job(async_job=True, query=query, connhandler=self.__connHandler)
+        headers = response.getheaders()
         suitableOutputFile = self.__getSuitableOutputFile(True,
                                                           output_file,
-                                                          response.getheaders(),
+                                                          headers,
                                                           isError,
                                                           output_format)
         job.outputFile = suitableOutputFile
@@ -779,7 +784,7 @@ class TapPlus(Tap):
                                       data_context=data_context,
                                       datalink_context=datalink_context,
                                       port=port, sslport=sslport,
-                                      default_protocol_is_https=default_protocol_is_https,
+                                      default_protocol_is_https=default_protocol_is_https,  # noqa
                                       connhandler=connhandler,
                                       verbose=verbose)
         self.__internalInit()
@@ -807,7 +812,7 @@ class TapPlus(Tap):
         A list of table objects
         """
         return self._Tap__load_tables(only_names=only_names,
-                                      include_shared_tables=include_shared_tables,
+                                      include_shared_tables=include_shared_tables,  # noqa
                                       verbose=verbose)
 
     def load_data(self, params_dict=None, output_file=None, verbose=False):
@@ -1540,7 +1545,7 @@ class TapPlus(Tap):
         table_description: str, optional, default None
             table description
         format : str, optional, default 'VOTable'
-            results format
+            resource format
         verbose : bool, optional, default 'False'
             flag to display information about the process
         """
@@ -1550,19 +1555,16 @@ class TapPlus(Tap):
         if table_name is None:
             raise ValueError("Missing mandatory argument 'table_name'")
         if table_description is None:
-            table_description = ""
-
+            description = ""
+        else:
+            description = table_description
         if format is None:
-            if (isinstance(upload_resource, Table) or
-                    (str(upload_resource).startswith("http") and
-                    (str(upload_resource).endswith(".vot") or
-                    str(upload_resource).endswith(".votable")))):
-                format = "VOTable"
+            format = "votable"
 
         response = self.__uploadTableMultipart(resource=upload_resource,
                                                table_name=table_name,
-                                               table_description=table_description,
-                                               format=format,
+                                               table_description=description,
+                                               resource_format=format,
                                                verbose=verbose)
         if response.status == 303:
             location = self.__getconnhandler().find_header(
@@ -1583,7 +1585,8 @@ class TapPlus(Tap):
             return None
 
     def __uploadTableMultipart(self, resource, table_name=None,
-                               table_description=None, format="VOTable",
+                               table_description=None,
+                               resource_format="VOTable",
                                verbose=False):
         connHandler = self.__getconnhandler()
         if isinstance(resource, Table):
@@ -1608,7 +1611,7 @@ class TapPlus(Tap):
                     "TASKID": str(-1),
                     "TABLE_NAME": str(table_name),
                     "TABLE_DESC": str(table_description),
-                    "FORMAT": str(format)}
+                    "FORMAT": str(resource_format)}
                 print("Sending file: " + str(resource))
                 f = open(resource, "r")
                 chunk = f.read()
@@ -1620,7 +1623,7 @@ class TapPlus(Tap):
                     "TASKID": str(-1),
                     "TABLE_NAME": str(table_name),
                     "TABLE_DESC": str(table_description),
-                    "FORMAT": str(format),
+                    "FORMAT": str(resource_format),
                     "URL": str(resource)}
                 files = [['FILE', "", ""]]
                 contentType, body = connHandler.encode_multipart(args, files)
