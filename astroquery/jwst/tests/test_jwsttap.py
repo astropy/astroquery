@@ -18,8 +18,9 @@ import unittest
 import os
 import pytest
 
-from astroquery.jwst.core import JwstClass
+from astroquery.jwst import JwstClass
 from astroquery.jwst.tests.DummyTapHandler import DummyTapHandler
+from astroquery.jwst.tests.DummyDataHandler import DummyDataHandler
 from astroquery.utils.tap.conn.tests.DummyConnHandler import DummyConnHandler
 from astroquery.utils.tap.conn.tests.DummyResponse import DummyResponse
 import astropy.units as u
@@ -177,7 +178,7 @@ class TestTap(unittest.TestCase):
         tap.list_async_jobs(verbose=True)
         dummyTapHandler.check_call('list_async_jobs', parameters)
 
-    def test_query_object(self):
+    def test_query_region(self):
         connHandler = DummyConnHandler()
         tapplus = TapPlus("http://test:1111/tap", connhandler=connHandler)
         tap = JwstClass(tapplus)
@@ -195,17 +196,17 @@ class TestTap(unittest.TestCase):
         connHandler.set_default_response(responseLaunchJob)
         sc = SkyCoord(ra=29.0, dec=15.0, unit=(u.degree, u.degree), frame='icrs')
         with pytest.raises(ValueError) as err:
-            tap.query_object(sc)
+            tap.query_region(sc)
         assert "Missing required argument: 'width'" in err.value.args[0]
 
         width = Quantity(12, u.deg)
 
         with pytest.raises(ValueError) as err:
-            tap.query_object(sc, width=width)
+            tap.query_region(sc, width=width)
         assert "Missing required argument: 'height'" in err.value.args[0]
 
         height = Quantity(10, u.deg)
-        table = tap.query_object(sc, width=width, height=height)
+        table = tap.query_region(sc, width=width, height=height)
         assert len(table) == 3, \
             "Wrong job results (num rows). Expected: %d, found %d" % \
             (3, len(table))
@@ -231,7 +232,7 @@ class TestTap(unittest.TestCase):
                                     np.int32)
         # by radius
         radius = Quantity(1, u.deg)
-        table = tap.query_object(sc, radius=radius)
+        table = tap.query_region(sc, radius=radius)
         assert len(table) == 3, \
             "Wrong job results (num rows). Expected: %d, found %d" % \
             (3, len(table))
@@ -256,7 +257,7 @@ class TestTap(unittest.TestCase):
                                     None,
                                     np.int32)
 
-    def test_query_object_async(self):
+    def test_query_region_async(self):
         connHandler = DummyConnHandler()
         tapplus = TapPlus("http://test:1111/tap", connhandler=connHandler)
         tap = JwstClass(tapplus)
@@ -299,7 +300,7 @@ class TestTap(unittest.TestCase):
         sc = SkyCoord(ra=29.0, dec=15.0, unit=(u.degree, u.degree), frame='icrs')
         width = Quantity(12, u.deg)
         height = Quantity(10, u.deg)
-        table = tap.query_object_async(sc, width=width, height=height)
+        table = tap.query_region_async(sc, width=width, height=height)
         assert len(table) == 3, \
             "Wrong job results (num rows). Expected: %d, found %d" % \
             (3, len(table))
@@ -325,7 +326,7 @@ class TestTap(unittest.TestCase):
                                     np.int32)
         # by radius
         radius = Quantity(1, u.deg)
-        table = tap.query_object_async(sc, radius=radius)
+        table = tap.query_region_async(sc, radius=radius)
         assert len(table) == 3, \
             "Wrong job results (num rows). Expected: %d, found %d" % \
             (3, len(table))
@@ -371,11 +372,11 @@ class TestTap(unittest.TestCase):
         connHandler.set_default_response(responseLaunchJob)
         job = tap.cone_search(sc, radius)
         assert job is not None, "Expected a valid job"
-        assert job.is_sync(), "Expected a synchronous job"
+        assert job.async_ is False, "Expected a synchronous job"
         assert job.get_phase() == 'COMPLETED', \
             "Wrong job phase. Expected: %s, found %s" % \
             ('COMPLETED', job.get_phase())
-        assert job.is_failed() is False, "Wrong job status (set Failed = True)"
+        assert job.failed is False, "Wrong job status (set Failed = True)"
         # results
         results = job.get_results()
         assert len(results) == 3, \
@@ -448,11 +449,11 @@ class TestTap(unittest.TestCase):
         connHandler.set_response(req, responseResultsJob)
         job = tap.cone_search_async(sc, radius)
         assert job is not None, "Expected a valid job"
-        assert job.is_sync() is False, "Expected an asynchronous job"
+        assert job.async_ is True, "Expected an asynchronous job"
         assert job.get_phase() == 'COMPLETED', \
             "Wrong job phase. Expected: %s, found %s" % \
             ('COMPLETED', job.get_phase())
-        assert job.is_failed() is False, "Wrong job status (set Failed = True)"
+        assert job.failed is False, "Wrong job status (set Failed = True)"
         # results
         results = job.get_results()
         assert len(results) == 3, \
@@ -478,7 +479,25 @@ class TestTap(unittest.TestCase):
                                     'table1_oid',
                                     None,
                                     np.int32)
-
+    def test_get_product(self):
+        dummyTapHandler = DummyTapHandler()
+        dummyDataHandler = DummyDataHandler()
+        jwst = JwstClass(dummyTapHandler, dummyDataHandler)
+        # default parameters
+        with pytest.raises(ValueError) as err:
+            jwst.get_product();
+        assert "Missing required argument: 'artifact_id'" in err.value.args[0]
+        
+        # test with parameters
+        dummyDataHandler.reset()
+        parameters = {}
+        parameters['url'] = dummyDataHandler.base_url +\
+                    "RETRIEVAL_TYPE=PRODUCT" +\
+                    "&DATA_RETRIEVAL_ORIGIN=ASTROQUERY" +\
+                    "&ARTIFACTID=my_artifact_id"
+        jwst.get_product('my_artifact_id');
+        dummyDataHandler.check_call('download_file', parameters)
+        
     def __check_results_column(self, results, columnName, description, unit,
                                dataType):
         c = results[columnName]

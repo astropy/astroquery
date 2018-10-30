@@ -24,6 +24,9 @@ class Conf(_config.ConfigNamespace):
     Configuration parameters for `astroquery.jwst`.
     """
 
+    JWST_MAIN_TABLE = _config.ConfigItem("jwst.main",
+                                         "JWST main table, combination of \
+                                         observation and plane tables.")
     JWST_OBSERVATION_TABLE = _config.ConfigItem("jwst.observation",
                                          "JWST observation table")
     JWST_PLANE_TABLE = _config.ConfigItem("jwst.plane",
@@ -36,8 +39,7 @@ class Conf(_config.ConfigNamespace):
 
 conf = Conf()
 
-jwst = TapPlus(url="http://jwstdummytap.com", verbose=False)
-
 from .core import Jwst, JwstClass
+from .data_access import JwstDataHandler
 
-__all__ = ['Jwst', 'JwstClass', 'Conf', 'conf']
+__all__ = ['Jwst', 'JwstClass', 'JwstDataHandler', 'Conf', 'conf']
