@@ -44,22 +44,17 @@ class EhstHandler(object):
     def __init__(self):
         return
 
-    def get_file(self, url, filename, output_format='votable', verbose=False):
+    def get_file(self, url, filename=None, verbose=False):   
+        if filename is None:
+            raise ValueError("filename must be specified")
+        urllib.request.urlretrieve(url, filename)
+
+    def get_table(self, url, filename=None, output_format='votable', verbose=False):
+        if filename is None:
+            raise ValueError("filename must be specified")
         urllib.request.urlretrieve(url, filename)
         table = modelutils.read_results_table_from_file(filename, str(output_format))
         return table
-#===============================================================================
-#         file = open(str(filename), 'r', encoding='windows-1252')
-#         content = file.read()
-#         parsed_data=json.loads(content)
-#         parsed_data=json.loads(str(parsed_data["data"]))
-#         file.close()
-#         if verbose:
-#             for x in parsed_data:
-#                 print("%s: %s" % (x, parsed_data[x]))
-# 
-#         return parsed_data
-#===============================================================================
 
 Handler = EhstHandler()
 
@@ -267,7 +262,7 @@ class HstClass(object):
         if filename is None:
             filename = "cone." + str(output_format)
         print(link)
-        return self.__handler.get_file(link, filename, output_format, verbose)
+        return self.__handler.get_table(link, filename, output_format, verbose)
 
     def query_target(self, name, filename=None, output_format='votable', verbose=False):
         """ It executes a query over EHST and download the xml with the results
@@ -296,7 +291,7 @@ class HstClass(object):
         if filename is None:
             filename = "target.xml"
         print(link)
-        return self.__handler.get_file(link, filename, output_format, verbose)
+        return self.__handler.get_table(link, filename, output_format, verbose)
 
     def query_hst_tap(self, query, output_file=None,
                       output_format="votable", verbose=False):
