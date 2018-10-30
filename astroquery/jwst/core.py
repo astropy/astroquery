@@ -308,7 +308,8 @@ class JwstClass(object):
         height : astropy.units, required if no 'radius' is provided
             box height
         async_job : bool, optional, default 'False'
-            executes the query (job) in asynchronous/synchronous mode (default synchronous)
+            executes the query (job) in asynchronous/synchronous mode (default 
+            synchronous)
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
@@ -358,7 +359,8 @@ class JwstClass(object):
         if radius is not None:
             radiusQuantity = self.__getQuantityInput(radius, "radius")
             radiusDeg = commons.radius_to_unit(radiusQuantity, unit='deg')
-        query = "SELECT DISTANCE(POINT('ICRS',"+str(self.JWST_OBSERVATION_TABLE_RA)+","\
+        query = "SELECT DISTANCE(POINT('ICRS',"\
+            +str(self.JWST_OBSERVATION_TABLE_RA)+","\
             + str(self.JWST_OBSERVATION_TABLE_DEC)+"), \
             POINT('ICRS',"+str(ra)+","+str(dec)+")) AS dist, * \
             FROM "+str(self.JWST_OBSERVATION_TABLE)+" WHERE CONTAINS(\
@@ -428,8 +430,8 @@ class JwstClass(object):
         radius : astropy.units, mandatory
             radius
         background : bool, optional, default 'False'
-            when the job is executed in asynchronous mode, this flag specifies whether
-            the execution will wait until results are available
+            when the job is executed in asynchronous mode, this flag specifies 
+            whether the execution will wait until results are available
         output_file : str, optional, default None
             file name where the results are saved if dumpToFile is True.
             If this parameter is not provided, the jobid is used instead
@@ -484,8 +486,9 @@ class JwstClass(object):
               verbose=False):
         """Performs a login.
         TAP+ only
-        User and password can be used or a file that contains user name and password
-        (2 lines: one for user name and the following one for the password)
+        User and password can be used or a file that contains user name and 
+        password (2 lines: one for user name and the following one for the 
+        password)
 
         Parameters
         ----------
