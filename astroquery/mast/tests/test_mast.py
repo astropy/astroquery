@@ -124,14 +124,15 @@ def tess_download_mockreturn(url, file_path):
     filename = data_path(DATA_FILES['tess_cutout'])
     copyfile(filename, file_path)
     return
-    
 
-def tesscut_livecheck(): # making sure the livecheck passes so we can test the functionality
+
+def tesscut_livecheck():  # making sure the livecheck passes so we can test the functionality
     return True
 
 ###################
 # MastClass tests #
 ###################
+
 
 def test_list_missions(patch_post):
     missions = mast.Observations.list_missions()
