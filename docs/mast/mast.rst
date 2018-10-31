@@ -511,8 +511,13 @@ Exoplanet Survey Satellite (TESS). The cutouts are returned in the form of targe
 files that follow the same format as TESS pipeline target pixel files. This tool can
 be accessed in Astroquery by using the Tesscut class.
 
-The `~astroquery.mast.TesscutClass.get_cutouts` function takes a coordinate and cutout size
-(in pixels or an angular quantity) and downloads the cutout target pixel file(s).
+Cutouts
+-------
+
+The `~astroquery.mast.TesscutClass.get_cutouts` function takes a coordinate and
+cutout size (in pixels or an angular quantity) and returns the cutout target pixel
+file(s) as a list of `~astropy.io.fits.HDUList` objects.
+
 If a given coordinate appears in more than one TESS sector a target pixel file will be
 produced for each sector.  If the cutout area overlaps more than one camera or chip
 a target pixel file will be produced for each one.
@@ -522,7 +527,29 @@ a target pixel file will be produced for each one.
                 >>> from astroquery.mast import Tesscut
                 >>> from astropy.coordinates import SkyCoord
                 >>> cutout_coord = SkyCoord(107.18696, -70.50919, unit="deg")
-                >>> manifest = Tesscut.get_cutouts(cutout_coord, 5)
+                >>> hdulist = Tesscut.get_cutouts(cutout_coord, 5)
+                >>> hdulist[0].info()
+                Filename: tess-s0001-4-3_107.18696_-70.50919_5x5_astrocut.fits
+                No.    Name      Ver    Type      Cards   Dimensions   Format
+                0  PRIMARY       1 PrimaryHDU      45   ()      
+                1  PIXELS        1 BinTableHDU    225   1282R x 12C   [D, E, J, 25J, 25E, 25E, 25E, 25E, J, E, E, 38A]   
+                2  APERTURE      1 ImageHDU       134   (5, 5)   float64
+
+
+The `~astroquery.mast.TesscutClass.download_cutouts` function takes a coordinate
+and cutout size (in pixels or an angular quantity) and downloads the cutout target
+pixel file(s).
+
+If a given coordinate appears in more than one TESS sector a target pixel file will be
+produced for each sector.  If the cutout area overlaps more than one camera or chip
+a target pixel file will be produced for each one.
+
+.. code-block:: python
+
+                >>> from astroquery.mast import Tesscut
+                >>> from astropy.coordinates import SkyCoord
+                >>> cutout_coord = SkyCoord(107.18696, -70.50919, unit="deg")
+                >>> manifest = Tesscut.download_cutouts(cutout_coord, 5)
                 Downloading URL https://mast.stsci.edu/tesscut/api/v0.1/astrocut?ra=107.18696&dec=-70.50919&size=5px to ./tesscut_20181026151809.zip ... [Done]
                 Inflating...
 
@@ -530,8 +557,23 @@ a target pixel file will be produced for each one.
                                       local_file                      
                 ------------------------------------------------------
                 ./tess-s0001-4-3_107.18696_-70.50919_5x5_astrocut.fits
-                
 
+Sector information
+------------------
+
+To access sector information at a particular location there is  `~astroquery.mast.TesscutClass.get_sectors`.
+
+.. code-block:: python
+
+                >>> from astroquery.mast import Tesscut
+                >>> from astropy.coordinates import SkyCoord
+                >>> coord = SkyCoord(324.24368, -27.01029,unit="deg")
+                >>> sector_table = Tesscut.get_sectors(coord)
+                >>> print(sector_table)
+                sectorName   sector camera ccd
+                -------------- ------ ------ ---
+                tess-s0001-1-3      1      1   3
+           
 
 Accessing Proprietary Data
 ==========================
