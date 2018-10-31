@@ -33,7 +33,8 @@ The latest version of astroquery can be pip installed.
 
 \*Note that if an environment already has a release version of astroquery installed
 when this command is run, it will not install the latest release.
-In this case astroquery will need to be uninstalled before the pip command is run.
+In this case astroquery will need to be uninstalled (``pip uninstall astroquery``
+or ``conda uninstall astroquery``) before the pip command is run.
 
 .. code-block:: bash
 
