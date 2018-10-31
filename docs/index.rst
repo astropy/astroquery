@@ -37,7 +37,7 @@ In this case astroquery will need to be uninstalled before the pip command is ru
 
 .. code-block:: bash
 
-    $ pip install --pre astroquery    
+    $ pip install --pre astroquery
 
 We also keep doing regular, tagged version for maintanence purposes. These
 can be then conda installed from the ``astropy`` conda channel.
