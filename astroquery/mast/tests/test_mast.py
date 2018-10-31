@@ -4,9 +4,13 @@ from __future__ import print_function
 import os
 import re
 
+from shutil import copyfile
+
 from astropy.table import Table
 from astropy.tests.helper import pytest
-import astropy.coordinates as coord
+from astropy.coordinates import SkyCoord
+from astropy.io import fits
+
 import astropy.units as u
 
 from ...utils.testing_tools import MockResponse
@@ -33,7 +37,9 @@ DATA_FILES = {'Mast.Caom.Cone': 'caom.json',
               'Mast.Catalogs.Filtered.DiskDetective.Position': 'dd.json',
               'Mast.HscMatches.Db.v3': 'matchid.json',
               'Mast.HscMatches.Db.v2': 'matchid.json',
-              'Mast.HscSpectra.Db.All': 'spectra.json'}
+              'Mast.HscSpectra.Db.All': 'spectra.json',
+              'tess_cutout': 'astrocut_107.27_-70.0_5x5.zip',
+              'tess_sector': 'tess_sector.json'} 
 
 
 def data_path(filename):
@@ -55,6 +61,9 @@ def patch_post(request):
     mp.setattr(mast.Catalogs, '_download_file', download_mockreturn)
     mp.setattr(mast.Mast, 'session_info', session_info_mockreturn)
     mp.setattr(mast.Observations, 'session_info', session_info_mockreturn)
+    mp.setattr(mast.Tesscut, "_request", tesscut_get_mockreturn)
+    mp.setattr(mast.Tesscut, '_download_file', tess_download_mockreturn)
+    mp.setattr(mast.Tesscut, "_tesscut_livecheck", tesscut_livecheck)
     return mp
 
 
@@ -101,6 +110,24 @@ def session_info_mockreturn(silent=False):
     return anonSession
 
 
+def tesscut_get_mockreturn(method="GET", url=None, data=None, timeout=10, **kwargs):
+    if "sector" in url:
+        filename = data_path(DATA_FILES['tess_sector'])
+    else:
+        filename = data_path(DATA_FILES['tess_cutout'])
+
+    content = open(filename, 'rb').read()
+    return MockResponse(content)
+        
+def tess_download_mockreturn(url, file_path):
+    filename = data_path(DATA_FILES['tess_cutout'])
+    copyfile(filename, file_path)
+    return
+    
+
+def tesscut_livecheck(): # making sure the livecheck passes so we can test the functionality
+    return True
+
 ###################
 # MastClass tests #
 ###################
@@ -139,7 +166,7 @@ def test_mast_service_request(patch_post):
 ###########################
 
 
-regionCoords = coord.SkyCoord(23.34086, 60.658, unit=('deg', 'deg'))
+regionCoords = SkyCoord(23.34086, 60.658, unit=('deg', 'deg'))
 
 # query functions
 
@@ -348,3 +375,49 @@ def test_catalogs_download_hsc_spectra(patch_post, tmpdir):
     result = mast.Catalogs.download_hsc_spectra(allSpectra[20:24],
                                                 download_dir=str(tmpdir), curl_flag=True)
     assert isinstance(result, Table)
+
+
+######################
+# TesscutClass tests #
+######################
+
+def test_tesscut_get_sector(patch_post):
+    coord = SkyCoord(324.24368, -27.01029,unit="deg")
+    sector_table = mast.Tesscut.get_sectors(coord)
+    assert isinstance(sector_table,Table)
+    assert len(sector_table) == 1
+    assert sector_table['sectorName'][0] == "tess-s0001-1-3"
+    assert sector_table['sector'][0] == 1
+    assert sector_table['camera'][0] == 1
+    assert sector_table['ccd'][0] == 3
+
+def test_tesscut_download_cutouts(patch_post, tmpdir):
+
+    coord = SkyCoord(107.27,-70.0,unit="deg")
+
+    # Testing with inflate
+    manifest = mast.Tesscut.download_cutouts(coord, 5, path=str(tmpdir))
+    assert isinstance(manifest, Table)
+    assert len(manifest) == 1
+    assert manifest["Local Path"][0][-4:] == "fits"
+    assert os.path.isfile(manifest[0]['Local Path'])
+
+    # Testing without inflate
+    manifest = mast.Tesscut.download_cutouts(coord, 5, path=str(tmpdir), inflate=False)
+    assert isinstance(manifest, Table)
+    assert len(manifest) == 1
+    assert manifest["Local Path"][0][-3:] == "zip"
+    assert os.path.isfile(manifest[0]['Local Path'])
+
+
+def test_tesscut_download_cutouts(patch_post, tmpdir):
+
+    coord = SkyCoord(107.27,-70.0,unit="deg")
+    cutout_hdus_list = mast.Tesscut.get_cutouts(coord, 5)
+    assert isinstance(cutout_hdus_list, list)
+    assert len(cutout_hdus_list) == 1
+    assert isinstance(cutout_hdus_list[0], fits.HDUList)
+
+
+
+    
