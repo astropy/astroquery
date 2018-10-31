@@ -16,16 +16,19 @@ import json
 import zipfile
 import os
 
+from io import BytesIO
+
 import numpy as np
 
 import astropy.units as u
 import astropy.coordinates as coord
 
 from astropy.table import Table
+from astropy.io import fits
 
 from ..query import BaseQuery
 from ..utils import commons
-from ..exceptions import NoResultsWarning, InvalidQueryError
+from ..exceptions import NoResultsWarning, InvalidQueryError, RemoteServiceError
 
 from . import conf
 
@@ -53,8 +56,8 @@ class TesscutClass(BaseQuery):
 
         response = self._request("GET", conf.server + "/tesscut/")
         if not response.status_code == 200:
-            raise Exception("The TESSCut service hasn't been released yet.\n" +
-                            "Try again Soon!\n( More info at https://archive.stsci.edu/tess/ )")
+            raise RemoteServiceError("The TESSCut service hasn't been released yet.\n" +
+                                     "Try again Soon!\n( More info at https://archive.stsci.edu/tess/ )")
 
     def get_sectors(self, coordinates, radius=0.2*u.deg):
         """
@@ -111,12 +114,12 @@ class TesscutClass(BaseQuery):
             sector_dict['ccd'].append(int(entry['ccd']))
 
         if not len(sector_json):
-            warning.warn("Coordinates are not in any TESS sector.", NoResultsWarning)
+            warnings.warn("Coordinates are not in any TESS sector.", NoResultsWarning)
         return Table(sector_dict)
 
-    def get_cutouts(self, coordinates, size=5, path=".", inflate=True):
+    def download_cutouts(self, coordinates, size=5, path=".", inflate=True):
         """
-        Get cutout target pixel file(s) around the coordinae of the given size.
+        Download cutout target pixel file(s) around the given coordinates with indicated size.
 
         Parameters
         ----------
@@ -174,7 +177,7 @@ class TesscutClass(BaseQuery):
 
         self._download_file(astrocut_url, zipfile_path)
 
-        localpath_table = Table(names=["local_file"], dtype=[str])
+        localpath_table = Table(names=["Local Path"], dtype=[str])
 
         # Checking if we got a zip file or a json no results message
         if not zipfile.is_zipfile(zipfile_path):
@@ -184,7 +187,7 @@ class TesscutClass(BaseQuery):
             return localpath_table
 
         if not inflate:  # not unzipping
-            localpath_table['local_file'] = [zipfile_path]
+            localpath_table['Local Path'] = [zipfile_path]
             return localpath_table
 
         print("Inflating...")
@@ -195,8 +198,81 @@ class TesscutClass(BaseQuery):
         zip_ref.close()
         os.remove(zipfile_path)
 
-        localpath_table['local_file'] = [path+x for x in cutout_files]
+        localpath_table['Local Path'] = [path+x for x in cutout_files]
         return localpath_table
+
+
+    def get_cutouts(self, coordinates, size=5):
+        """
+        Get cutout target pixel file(s) around the given coordinates with indicated size,
+        and return them as a list of  `~astropy.fits.HDUList` objects.
+
+        Parameters
+        ----------
+        coordinates : str or `astropy.coordinates` object
+            The target around which to search. It may be specified as a
+            string or as the appropriate `astropy.coordinates` object.
+        size : str, int, or `~astropy.units.Quantity` object, optional
+            Default 5 pixels.
+            The size of the cutout (cutout will be a ``size x size`` square).
+            If supplied as an int pixels is the assumed unit.
+            The string must be parsable by `~astropy.coordinates.Angle`.
+            `~astropy.units.Quantity` objects must be in pixel or angular units.
+        
+
+
+        Returns
+        -------
+        response : A list of `~astropy.fits.HDUList` objects.
+        """
+        
+         # Check if tesscut is live before proceeding.
+        self._tesscut_livecheck()
+
+        # Put coordinates and radius into consistant format
+        coordinates = commons.parse_coordinates(coordinates)
+
+        # if radius is just a number we assume degrees
+        unit = 'px'
+        if isinstance(size, str):
+            size = coord.Angle(size).deg
+            unit = 'deg'
+        elif isinstance(size, u.Quantity):
+            if size.unit.physical_type == 'angle':
+                size = size.deg
+                unit = 'deg'
+            elif size.unit == "pix":
+                size = int(size.value)
+            else:
+                raise InvalidQueryError("Size must be an agular quantity or pixels.")
+
+        astrocut_request = "ra={}&dec={}&size={}{}".format(coordinates.ra.deg,
+                                                           coordinates.dec.deg,
+                                                           size, unit)
+
+        response = self._request("GET", self._TESSCUT_URL+"astrocut", params=astrocut_request)
+        response.raise_for_status()  # Raise any errors
+        
+        try:
+            ZIPFILE = zipfile.ZipFile(BytesIO(response.content),'r')
+        except zipfile.BadZipFile:
+            message = response.json()
+            warnings.warn(message['msg'], NoResultsWarning)
+            return []
+        
+        # Open all the contained fits files:
+        # Since we cannot seek on a compressed zip file,
+        # we have to read the data, wrap it in another BytesIO object,
+        # and then open that using fits.open
+        cutout_hdus_list = []
+        for name in ZIPFILE.namelist():
+            CUTOUT = BytesIO(ZIPFILE.open(name).read())
+            cutout_hdus_list.append(fits.open(CUTOUT))
+            
+            # preserve the original filename in the fits object
+            cutout_hdus_list[-1].filename = name
+            
+        return cutout_hdus_list
 
 
 Tesscut = TesscutClass()
