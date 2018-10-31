@@ -11,7 +11,7 @@ from astropy.io import fits
 
 from ... import mast
 
-from ...exceptions import  RemoteServiceError
+from ...exceptions import RemoteServiceError
 
 
 @remote_data
@@ -374,24 +374,23 @@ class TestMast(object):
     def test_tesscut_get_sectors(self):
 
         # Note: try except will be removed when the service goes live
-        coord = SkyCoord(324.24368, -27.01029,unit="deg")
+        coord = SkyCoord(324.24368, -27.01029, unit="deg")
         try:
             sector_table = mast.Tesscut.get_sectors(coord)
-            assert isinstance(sector_table,Table)
+            assert isinstance(sector_table, Table)
             assert len(sector_table) == 1
             assert sector_table['sectorName'][0] == "tess-s0001-1-3"
             assert sector_table['sector'][0] == 1
             assert sector_table['camera'][0] == 1
             assert sector_table['ccd'][0] == 3
         except RemoteServiceError:
-            pass # service is not live yet so can't test
-
+            pass  # service is not live yet so can't test
 
     def test_tesscut_download_cutouts(self, tmpdir):
 
         # Note: try excepts will be removed when the service goes live
-        
-        coord = SkyCoord(107.18696,-70.50919,unit="deg")
+
+        coord = SkyCoord(107.18696, -70.50919, unit="deg")
 
         # Testing with inflate
         try:
@@ -402,7 +401,7 @@ class TestMast(object):
             for row in manifest:
                 assert os.path.isfile(row['Local Path'])
         except RemoteServiceError:
-            pass # service is not live yet so can't test
+            pass  # service is not live yet so can't test
 
         # Testing without inflate
         try:
@@ -412,18 +411,16 @@ class TestMast(object):
             assert manifest["Local Path"][0][-3:] == "zip"
             assert os.path.isfile(manifest[0]['Local Path'])
         except RemoteServiceError:
-            pass # service is not live yet so can't test
-        
+            pass  # service is not live yet so can't test
+
     def test_tesscut_get_cutouts(self, tmpdir):
 
         # Note: try excepts will be removed when the service goes live
-        coord = SkyCoord(107.18696,-70.50919,unit="deg")
+        coord = SkyCoord(107.18696, -70.50919,unit="deg")
         try:
             cutout_hdus_list = mast.Tesscut.get_cutouts(coord, 5)
             assert isinstance(cutout_hdus_list, list)
             assert len(cutout_hdus_list) >= 1
             assert isinstance(cutout_hdus_list[0], fits.HDUList)
         except RemoteServiceError:
-            pass # service is not live yet so can't test
-
-        
+            pass  # service is not live yet so can't test

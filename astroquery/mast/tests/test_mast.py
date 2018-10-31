@@ -39,7 +39,7 @@ DATA_FILES = {'Mast.Caom.Cone': 'caom.json',
               'Mast.HscMatches.Db.v2': 'matchid.json',
               'Mast.HscSpectra.Db.All': 'spectra.json',
               'tess_cutout': 'astrocut_107.27_-70.0_5x5.zip',
-              'tess_sector': 'tess_sector.json'} 
+              'tess_sector': 'tess_sector.json'}
 
 
 def data_path(filename):
@@ -118,7 +118,8 @@ def tesscut_get_mockreturn(method="GET", url=None, data=None, timeout=10, **kwar
 
     content = open(filename, 'rb').read()
     return MockResponse(content)
-        
+
+
 def tess_download_mockreturn(url, file_path):
     filename = data_path(DATA_FILES['tess_cutout'])
     copyfile(filename, file_path)
@@ -382,18 +383,19 @@ def test_catalogs_download_hsc_spectra(patch_post, tmpdir):
 ######################
 
 def test_tesscut_get_sector(patch_post):
-    coord = SkyCoord(324.24368, -27.01029,unit="deg")
+    coord = SkyCoord(324.24368, -27.01029, unit="deg")
     sector_table = mast.Tesscut.get_sectors(coord)
-    assert isinstance(sector_table,Table)
+    assert isinstance(sector_table, Table)
     assert len(sector_table) == 1
     assert sector_table['sectorName'][0] == "tess-s0001-1-3"
     assert sector_table['sector'][0] == 1
     assert sector_table['camera'][0] == 1
     assert sector_table['ccd'][0] == 3
 
+
 def test_tesscut_download_cutouts(patch_post, tmpdir):
 
-    coord = SkyCoord(107.27,-70.0,unit="deg")
+    coord = SkyCoord(107.27, -70.0, unit="deg")
 
     # Testing with inflate
     manifest = mast.Tesscut.download_cutouts(coord, 5, path=str(tmpdir))
@@ -412,12 +414,8 @@ def test_tesscut_download_cutouts(patch_post, tmpdir):
 
 def test_tesscut_download_cutouts(patch_post, tmpdir):
 
-    coord = SkyCoord(107.27,-70.0,unit="deg")
+    coord = SkyCoord(107.27, -70.0, unit="deg")
     cutout_hdus_list = mast.Tesscut.get_cutouts(coord, 5)
     assert isinstance(cutout_hdus_list, list)
     assert len(cutout_hdus_list) == 1
     assert isinstance(cutout_hdus_list[0], fits.HDUList)
-
-
-
-    

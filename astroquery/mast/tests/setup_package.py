@@ -7,5 +7,3 @@ def get_package_data():
                  [os.path.join('data', '*.zip')]
 
     return {'astroquery.mast.tests': paths_test}
-
-

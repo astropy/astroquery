@@ -50,18 +50,18 @@ class TesscutClass(BaseQuery):
 
     def _tesscut_livecheck(self):
         """
-        Temporary function to check if the tesscut service is live. 
+        Temporary function to check if the tesscut service is live.
         We'll remove this function once tesscut is released.
         """
 
         response = self._request("GET", conf.server + "/tesscut/")
         if not response.status_code == 200:
-            raise RemoteServiceError("The TESSCut service hasn't been released yet.\n" +
+            raise RemoteServiceError("The TESSCut service hasn't been released yet.\n" + \
                                      "Try again Soon!\n( More info at https://archive.stsci.edu/tess/ )")
 
     def get_sectors(self, coordinates, radius=0.2*u.deg):
         """
-        Get a list of the TESS data sectors whose footprints intersect 
+        Get a list of the TESS data sectors whose footprints intersect
         with the given search area.
 
         Parameters
@@ -178,7 +178,7 @@ class TesscutClass(BaseQuery):
                                                            size, unit)
         if sector:
             astrocut_request += "&sector={}".format(sector)
-            
+
         astrocut_url = self._TESSCUT_URL + "astrocut?" + astrocut_request
         zipfile_path = "{}tesscut_{}.zip".format(path, time.strftime("%Y%m%d%H%M%S"))
 
@@ -208,7 +208,6 @@ class TesscutClass(BaseQuery):
         localpath_table['Local Path'] = [path+x for x in cutout_files]
         return localpath_table
 
-
     def get_cutouts(self, coordinates, size=5, sector=None):
         """
         Get cutout target pixel file(s) around the given coordinates with indicated size,
@@ -234,8 +233,8 @@ class TesscutClass(BaseQuery):
         -------
         response : A list of `~astropy.io.fits.HDUList` objects.
         """
-        
-         # Check if tesscut is live before proceeding.
+
+        # Check if tesscut is live before proceeding.
         self._tesscut_livecheck()
 
         # Put coordinates and radius into consistant format
@@ -263,14 +262,14 @@ class TesscutClass(BaseQuery):
 
         response = self._request("GET", self._TESSCUT_URL+"astrocut", params=astrocut_request)
         response.raise_for_status()  # Raise any errors
-        
+
         try:
-            ZIPFILE = zipfile.ZipFile(BytesIO(response.content),'r')
+            ZIPFILE = zipfile.ZipFile(BytesIO(response.content), 'r')
         except zipfile.BadZipFile:
             message = response.json()
             warnings.warn(message['msg'], NoResultsWarning)
             return []
-        
+
         # Open all the contained fits files:
         # Since we cannot seek on a compressed zip file,
         # we have to read the data, wrap it in another BytesIO object,
@@ -279,10 +278,10 @@ class TesscutClass(BaseQuery):
         for name in ZIPFILE.namelist():
             CUTOUT = BytesIO(ZIPFILE.open(name).read())
             cutout_hdus_list.append(fits.open(CUTOUT))
-            
+
             # preserve the original filename in the fits object
             cutout_hdus_list[-1].filename = name
-            
+
         return cutout_hdus_list
 
 
