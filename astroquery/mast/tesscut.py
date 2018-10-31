@@ -117,7 +117,7 @@ class TesscutClass(BaseQuery):
             warnings.warn("Coordinates are not in any TESS sector.", NoResultsWarning)
         return Table(sector_dict)
 
-    def download_cutouts(self, coordinates, size=5, path=".", inflate=True):
+    def download_cutouts(self, coordinates, size=5, sector=None, path=".", inflate=True):
         """
         Download cutout target pixel file(s) around the given coordinates with indicated size.
 
@@ -132,6 +132,10 @@ class TesscutClass(BaseQuery):
             If supplied as an int pixels is the assumed unit.
             The string must be parsable by `~astropy.coordinates.Angle`.
             `~astropy.units.Quantity` objects must be in pixel or angular units.
+        sector : int
+            Optional.
+            The TESS sector to return the cutout from.  If not supplied, cutouts
+            from all available sectors on which the coordinate appears will be returned.
         path : str
             Optional.
             The directory in which the cutouts will be saved.
@@ -172,6 +176,9 @@ class TesscutClass(BaseQuery):
         astrocut_request = "ra={}&dec={}&size={}{}".format(coordinates.ra.deg,
                                                            coordinates.dec.deg,
                                                            size, unit)
+        if sector:
+            astrocut_request += "&sector={}".format(sector)
+            
         astrocut_url = self._TESSCUT_URL + "astrocut?" + astrocut_request
         zipfile_path = "{}tesscut_{}.zip".format(path, time.strftime("%Y%m%d%H%M%S"))
 
@@ -202,10 +209,10 @@ class TesscutClass(BaseQuery):
         return localpath_table
 
 
-    def get_cutouts(self, coordinates, size=5):
+    def get_cutouts(self, coordinates, size=5, sector=None):
         """
         Get cutout target pixel file(s) around the given coordinates with indicated size,
-        and return them as a list of  `~astropy.fits.HDUList` objects.
+        and return them as a list of  `~astropy.io.fits.HDUList` objects.
 
         Parameters
         ----------
@@ -218,12 +225,14 @@ class TesscutClass(BaseQuery):
             If supplied as an int pixels is the assumed unit.
             The string must be parsable by `~astropy.coordinates.Angle`.
             `~astropy.units.Quantity` objects must be in pixel or angular units.
-        
-
+        sector : int
+            Optional.
+            The TESS sector to return the cutout from.  If not supplied, cutouts
+            from all available sectors on which the coordinate appears will be returned.
 
         Returns
         -------
-        response : A list of `~astropy.fits.HDUList` objects.
+        response : A list of `~astropy.io.fits.HDUList` objects.
         """
         
          # Check if tesscut is live before proceeding.
@@ -249,6 +258,8 @@ class TesscutClass(BaseQuery):
         astrocut_request = "ra={}&dec={}&size={}{}".format(coordinates.ra.deg,
                                                            coordinates.dec.deg,
                                                            size, unit)
+        if sector:
+            astrocut_request += "&sector={}".format(sector)
 
         response = self._request("GET", self._TESSCUT_URL+"astrocut", params=astrocut_request)
         response.raise_for_status()  # Raise any errors
