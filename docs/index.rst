@@ -31,9 +31,13 @@ that a release will be instantaniously available after each set of changes
 made to the code.
 The latest version of astroquery can be pip installed.
 
+\*Note that if an environment already has a release version of astroquery installed
+when this command is run, it will not install the latest release.
+In this case astroquery will need to be uninstalled before the pip command is run.
+
 .. code-block:: bash
 
-    $ pip install --pre astroquery
+    $ pip install --pre astroquery    
 
 We also keep doing regular, tagged version for maintanence purposes. These
 can be then conda installed from the ``astropy`` conda channel.
