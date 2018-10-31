@@ -721,8 +721,8 @@ class GaiaClass(object):
 
         Parameters
         ----------
-        upload_resource : str, mandatory
-            resource to be uploaded (table or URL)
+        upload_resource : object, mandatory
+            resource to be uploaded (table, file or URL)
         table_name: str, required if uploadResource is provided, default None
             resource temporary table name associated to the uploaded resource
         table_description: str, optional, default None

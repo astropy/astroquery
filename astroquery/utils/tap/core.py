@@ -1538,8 +1538,8 @@ class TapPlus(Tap):
 
         Parameters
         ----------
-        upload_resource : str, mandatory
-            table to be uploaded. File or URL.
+        upload_resource : object, mandatory
+            table to be uploaded: pyTable, file or URL.
         table_name: str, required if uploadResource is provided, default None
             resource temporary table name associated to the uploaded resource
         table_description: str, optional, default None
