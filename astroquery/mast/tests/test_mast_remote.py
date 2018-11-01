@@ -417,7 +417,7 @@ class TestMast(object):
             pass  # service is not live yet so can't test
 
         try:
-            manifest = mast.Tesscut.download_cutouts(coord, [5,7]*u.pix, path=str(tmpdir))
+            manifest = mast.Tesscut.download_cutouts(coord, [5, 7]*u.pix, path=str(tmpdir))
             assert isinstance(manifest, Table)
             assert len(manifest) >= 1
             assert manifest["Local Path"][0][-4:] == "fits"
@@ -457,7 +457,7 @@ class TestMast(object):
             pass  # service is not live yet so can't test
 
         try:
-            cutout_hdus_list = mast.Tesscut.get_cutouts(coord, [2,4]*u.arcmin)
+            cutout_hdus_list = mast.Tesscut.get_cutouts(coord, [2, 4]*u.arcmin)
             assert isinstance(cutout_hdus_list, list)
             assert len(cutout_hdus_list) >= 1
             assert isinstance(cutout_hdus_list[0], fits.HDUList)

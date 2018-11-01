@@ -117,7 +117,6 @@ class TesscutClass(BaseQuery):
             warnings.warn("Coordinates are not in any TESS sector.", NoResultsWarning)
         return Table(sector_dict)
 
-    
     def download_cutouts(self, coordinates, size=5, sector=None, path=".", inflate=True):
         """
         Download cutout target pixel file(s) around the given coordinates with indicated size.
@@ -129,9 +128,9 @@ class TesscutClass(BaseQuery):
             string or as the appropriate `astropy.coordinates` object.
         size : int, array-like, `~astropy.units.Quantity`
             Optional, default 5 pixels.
-            The size of the cutout array. If ``size`` is a scalar number or 
-            a scalar `~astropy.units.Quantity`, then a square cutout of ``size`` 
-            will be created.  If ``size`` has two elements, they should be in 
+            The size of the cutout array. If ``size`` is a scalar number or
+            a scalar `~astropy.units.Quantity`, then a square cutout of ``size``
+            will be created.  If ``size`` has two elements, they should be in
             ``(ny, nx)`` order.  Scalar numbers in ``size`` are assumed to be in
             units of pixels. `~astropy.units.Quantity` objects must be in pixel or
             angular units.
@@ -169,7 +168,7 @@ class TesscutClass(BaseQuery):
             size = np.atleast_1d(size)
             if len(size) == 1:
                 size = np.repeat(size, 2)
-                
+
         if len(size) > 2:
             warnings.warn("Too many dimensions in cutout size, only the first two will be used.",
                           InputWarning)
@@ -238,9 +237,9 @@ class TesscutClass(BaseQuery):
             string or as the appropriate `astropy.coordinates` object.
         size : int, array-like, `~astropy.units.Quantity`
             Optional, default 5 pixels.
-            The size of the cutout array. If ``size`` is a scalar number or 
-            a scalar `~astropy.units.Quantity`, then a square cutout of ``size`` 
-            will be created.  If ``size`` has two elements, they should be in 
+            The size of the cutout array. If ``size`` is a scalar number or
+            a scalar `~astropy.units.Quantity`, then a square cutout of ``size``
+            will be created.  If ``size`` has two elements, they should be in
             ``(ny, nx)`` order.  Scalar numbers in ``size`` are assumed to be in
             units of pixels. `~astropy.units.Quantity` objects must be in pixel or
             angular units.
@@ -268,7 +267,7 @@ class TesscutClass(BaseQuery):
             size = np.atleast_1d(size)
             if len(size) == 1:
                 size = np.repeat(size, 2)
-                
+
         if len(size) > 2:
             warnings.warn("Too many dimensions in cutout size, only the first two will be used.",
                           InputWarning)
