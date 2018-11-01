@@ -117,6 +117,7 @@ class TesscutClass(BaseQuery):
             warnings.warn("Coordinates are not in any TESS sector.", NoResultsWarning)
         return Table(sector_dict)
 
+    
     def download_cutouts(self, coordinates, size=5, sector=None, path=".", inflate=True):
         """
         Download cutout target pixel file(s) around the given coordinates with indicated size.
@@ -126,12 +127,14 @@ class TesscutClass(BaseQuery):
         coordinates : str or `astropy.coordinates` object
             The target around which to search. It may be specified as a
             string or as the appropriate `astropy.coordinates` object.
-        size : str, int, or `~astropy.units.Quantity` object, optional
-            Default 5 pixels.
-            The size of the cutout (cutout will be a ``size x size`` square).
-            If supplied as an int pixels is the assumed unit.
-            The string must be parsable by `~astropy.coordinates.Angle`.
-            `~astropy.units.Quantity` objects must be in pixel or angular units.
+        size : int, array-like, `~astropy.units.Quantity`
+            Optional, default 5 pixels.
+            The size of the cutout array. If ``size`` is a scalar number or 
+            a scalar `~astropy.units.Quantity`, then a square cutout of ``size`` 
+            will be created.  If ``size`` has two elements, they should be in 
+            ``(ny, nx)`` order.  Scalar numbers in ``size`` are assumed to be in
+            units of pixels. `~astropy.units.Quantity` objects must be in pixel or
+            angular units.
         sector : int
             Optional.
             The TESS sector to return the cutout from.  If not supplied, cutouts
@@ -158,24 +161,39 @@ class TesscutClass(BaseQuery):
         # Put coordinates and radius into consistant format
         coordinates = commons.parse_coordinates(coordinates)
 
-        # if radius is just a number we assume degrees
-        unit = 'px'
-        if isinstance(size, str):
-            size = coord.Angle(size).deg
-            unit = 'deg'
-        elif isinstance(size, u.Quantity):
-            if size.unit.physical_type == 'angle':
-                size = size.deg
-                unit = 'deg'
-            elif size.unit == "pix":
-                size = int(size.value)
-            else:
-                raise InvalidQueryError("Size must be an agular quantity or pixels.")
+        # Making size into an array [ny, nx]
+        if np.isscalar(size):
+            size = np.repeat(size, 2)
+
+        if isinstance(size, u.Quantity):
+            size = np.atleast_1d(size)
+            if len(size) == 1:
+                size = np.repeat(size, 2)
+                
+        if len(size) > 2:
+            warnings.warn("Too many dimensions in cutout size, only the first two will be used.",
+                          InputWarning)
+
+        # Getting x and y out of the size
+        if np.isscalar(size[0]):
+            x = size[1]
+            y = size[0]
+            units = "px"
+        elif size[0].unit == u.pixel:
+            x = size[1].value
+            y = size[0].value
+            units = "px"
+        elif size[0].unit.physical_type == 'angle':
+            x = size[1].to(u.deg).value
+            y = size[0].to(u.deg).value
+            units = "d"
+        else:
+            raise InvalidQueryError("Cutout size must be in pixels or angular quantity.")
 
         path = os.path.join(path, '')
-        astrocut_request = "ra={}&dec={}&size={}{}".format(coordinates.ra.deg,
-                                                           coordinates.dec.deg,
-                                                           size, unit)
+        astrocut_request = "ra={}&dec={}&y={}&x={}&units={}".format(coordinates.ra.deg,
+                                                                    coordinates.dec.deg,
+                                                                    y, x, units)
         if sector:
             astrocut_request += "&sector={}".format(sector)
 
@@ -218,12 +236,14 @@ class TesscutClass(BaseQuery):
         coordinates : str or `astropy.coordinates` object
             The target around which to search. It may be specified as a
             string or as the appropriate `astropy.coordinates` object.
-        size : str, int, or `~astropy.units.Quantity` object, optional
-            Default 5 pixels.
-            The size of the cutout (cutout will be a ``size x size`` square).
-            If supplied as an int pixels is the assumed unit.
-            The string must be parsable by `~astropy.coordinates.Angle`.
-            `~astropy.units.Quantity` objects must be in pixel or angular units.
+        size : int, array-like, `~astropy.units.Quantity`
+            Optional, default 5 pixels.
+            The size of the cutout array. If ``size`` is a scalar number or 
+            a scalar `~astropy.units.Quantity`, then a square cutout of ``size`` 
+            will be created.  If ``size`` has two elements, they should be in 
+            ``(ny, nx)`` order.  Scalar numbers in ``size`` are assumed to be in
+            units of pixels. `~astropy.units.Quantity` objects must be in pixel or
+            angular units.
         sector : int
             Optional.
             The TESS sector to return the cutout from.  If not supplied, cutouts
@@ -240,23 +260,38 @@ class TesscutClass(BaseQuery):
         # Put coordinates and radius into consistant format
         coordinates = commons.parse_coordinates(coordinates)
 
-        # if radius is just a number we assume degrees
-        unit = 'px'
-        if isinstance(size, str):
-            size = coord.Angle(size).deg
-            unit = 'deg'
-        elif isinstance(size, u.Quantity):
-            if size.unit.physical_type == 'angle':
-                size = size.deg
-                unit = 'deg'
-            elif size.unit == "pix":
-                size = int(size.value)
-            else:
-                raise InvalidQueryError("Size must be an agular quantity or pixels.")
+        # Making size into an array [ny, nx]
+        if np.isscalar(size):
+            size = np.repeat(size, 2)
 
-        astrocut_request = "ra={}&dec={}&size={}{}".format(coordinates.ra.deg,
-                                                           coordinates.dec.deg,
-                                                           size, unit)
+        if isinstance(size, u.Quantity):
+            size = np.atleast_1d(size)
+            if len(size) == 1:
+                size = np.repeat(size, 2)
+                
+        if len(size) > 2:
+            warnings.warn("Too many dimensions in cutout size, only the first two will be used.",
+                          InputWarning)
+
+        # Getting x and y out of the size
+        if np.isscalar(size[0]):
+            x = size[1]
+            y = size[0]
+            units = "px"
+        elif size[0].unit == u.pixel:
+            x = size[1].value
+            y = size[0].value
+            units = "px"
+        elif size[0].unit.physical_type == 'angle':
+            x = size[1].to(u.deg).value
+            y = size[0].to(u.deg).value
+            units = "d"
+        else:
+            raise InvalidQueryError("Cutout size must be in pixels or angular quantity.")
+
+        astrocut_request = "ra={}&dec={}&y={}&x={}&units={}".format(coordinates.ra.deg,
+                                                                    coordinates.dec.deg,
+                                                                    y, x, units)
         if sector:
             astrocut_request += "&sector={}".format(sector)
 
