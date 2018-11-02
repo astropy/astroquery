@@ -48,7 +48,7 @@ class TesscutClass(BaseQuery):
 
         self._TESSCUT_URL = conf.server + "/tesscut/api/v0.1/"
 
-    def _tesscut_livecheck(self):
+    def _tesscut_livecheck(self):  # pragma: no cover
         """
         Temporary function to check if the tesscut service is live.
         We'll remove this function once tesscut is released.

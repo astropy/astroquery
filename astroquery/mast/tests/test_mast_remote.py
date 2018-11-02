@@ -388,6 +388,15 @@ class TestMast(object):
         except RemoteServiceError:
             pass  # service is not live yet so can't test
 
+        try:
+            # This should always return no results
+            coord = SkyCoord(0,90,unit="deg")
+            sector_table = mast.Tesscut.get_sectors(coord)
+            assert isinstance(sector_table, Table)
+            assert len(sector_table) == 0
+        except RemoteServiceError:
+            pass  # service is not live yet so can't test
+
     def test_tesscut_download_cutouts(self, tmpdir):
 
         # Note: try excepts will be removed when the service goes live

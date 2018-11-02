@@ -393,6 +393,14 @@ def test_tesscut_get_sector(patch_post):
     assert sector_table['camera'][0] == 1
     assert sector_table['ccd'][0] == 3
 
+    sector_table = mast.Tesscut.get_sectors(coord, radius=0.2)
+    assert isinstance(sector_table, Table)
+    assert len(sector_table) == 1
+    assert sector_table['sectorName'][0] == "tess-s0001-1-3"
+    assert sector_table['sector'][0] == 1
+    assert sector_table['camera'][0] == 1
+    assert sector_table['ccd'][0] == 3
+
 
 def test_tesscut_download_cutouts(patch_post, tmpdir):
 
@@ -413,7 +421,7 @@ def test_tesscut_download_cutouts(patch_post, tmpdir):
     assert os.path.isfile(manifest[0]['Local Path'])
 
 
-def test_tesscut_download_cutouts(patch_post, tmpdir):
+def test_tesscut_get_cutouts(patch_post, tmpdir):
 
     coord = SkyCoord(107.27, -70.0, unit="deg")
     cutout_hdus_list = mast.Tesscut.get_cutouts(coord, 5)
