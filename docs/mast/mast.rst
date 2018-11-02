@@ -548,15 +548,17 @@ a target pixel file will be produced for each one.
 
                 >>> from astroquery.mast import Tesscut
                 >>> from astropy.coordinates import SkyCoord
+                >>> import astropy.units as u
+                >>> 
                 >>> cutout_coord = SkyCoord(107.18696, -70.50919, unit="deg")
-                >>> manifest = Tesscut.download_cutouts(cutout_coord, 5)
-                Downloading URL https://mast.stsci.edu/tesscut/api/v0.1/astrocut?ra=107.18696&dec=-70.50919&size=5px to ./tesscut_20181026151809.zip ... [Done]
+                >>> manifest = Tesscut.download_cutouts(cutout_coord, [5, 7]*u.arcmin)
+                Downloading URL https://mast.stsci.edu/tesscut/api/v0.1/astrocut?ra=107.18696&dec=-70.50919&y=0.08333333333333333&x=0.11666666666666667&units=d&sector=1 to ./tesscut_20181102104719.zip ... [Done]
                 Inflating...
 
                 >>> print(manifest)
                                       local_file                      
                 ------------------------------------------------------
-                ./tess-s0001-4-3_107.18696_-70.50919_5x5_astrocut.fits
+                ./tess-s0001-4-3_107.18696_-70.50919_14x21_astrocut.fits
 
 Sector information
 ------------------
