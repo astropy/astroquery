@@ -390,7 +390,7 @@ class TestMast(object):
 
         try:
             # This should always return no results
-            coord = SkyCoord(0,90,unit="deg")
+            coord = SkyCoord(0, 90, unit="deg")
             sector_table = mast.Tesscut.get_sectors(coord)
             assert isinstance(sector_table, Table)
             assert len(sector_table) == 0
