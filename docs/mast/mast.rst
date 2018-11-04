@@ -519,7 +519,7 @@ cutout size (in pixels or an angular quantity) and returns the cutout target pix
 file(s) as a list of `~astropy.io.fits.HDUList` objects.
 
 If a given coordinate appears in more than one TESS sector a target pixel file will be
-produced for each sector.  If the cutout area overlaps more than one camera or chip
+produced for each sector.  If the cutout area overlaps more than one camera or ccd
 a target pixel file will be produced for each one.
 
 .. code-block:: python
@@ -541,7 +541,7 @@ and cutout size (in pixels or an angular quantity) and downloads the cutout targ
 pixel file(s).
 
 If a given coordinate appears in more than one TESS sector a target pixel file will be
-produced for each sector.  If the cutout area overlaps more than one camera or chip
+produced for each sector.  If the cutout area overlaps more than one camera or ccd
 a target pixel file will be produced for each one.
 
 .. code-block:: python
