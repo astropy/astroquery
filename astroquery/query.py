@@ -226,8 +226,7 @@ class BaseQuery(object):
             return local_filepath
         else:
             query = AstroQuery(method, url, **req_kwargs)
-            if ((self.cache_location is None) or (not self._cache_active) or
-                    (not cache)):
+            if ((self.cache_location is None) or (not self._cache_active) or (not cache)):
                 with suspend_cache(self):
                     response = query.request(self._session, stream=stream,
                                              auth=auth, verify=verify)
@@ -263,9 +262,7 @@ class BaseQuery(object):
         else:
             length = None
 
-        if ((os.path.exists(local_filepath) and ('Accept-Ranges' in
-                                                 response.headers) and
-             continuation)):
+        if ((os.path.exists(local_filepath) and ('Accept-Ranges' in response.headers) and continuation)):
             open_mode = 'ab'
 
             existing_file_length = os.stat(local_filepath).st_size

@@ -567,9 +567,9 @@ class MastClass(QueryWithLogin):
 
         if token is None or reenter_token:
             log.info(
-                "If you do not have an API token already, visit the following link to create one: "
-                + conf.server.replace("mast", "auth.mast")
-                + "/token?suggested_name=Astroquery&suggested_scope=mast:exclusive_access")
+                "If you do not have an API token already, visit the following link to create one: " +
+                conf.server.replace("mast", "auth.mast") +
+                "/token?suggested_name=Astroquery&suggested_scope=mast:exclusive_access")
             token = getpass("Enter MAST API Token: ")
 
         # store password if desired
