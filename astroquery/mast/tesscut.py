@@ -57,7 +57,7 @@ class TesscutClass(BaseQuery):
         response = self._request("GET", conf.server + "/tesscut/")
         if not response.status_code == 200:
             raise RemoteServiceError("The TESSCut service hasn't been released yet.\n"
-                                     + "Try again Soon!\n( More info at https://archive.stsci.edu/tess/ )")
+                                     "Try again Soon!\n( More info at https://archive.stsci.edu/tess/ )")
 
     def get_sectors(self, coordinates, radius=0.2*u.deg):
         """
