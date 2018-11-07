@@ -553,7 +553,7 @@ class MastClass(QueryWithLogin):
             The token to authenticate the user.
             This can be generated at
                 https://auth.mast.stsci.edu/token?suggested_name=Astroquery&suggested_scope=mast:exclusive_access.
-            If not supplied, it will be prompted for if not in the keyring
+            If not supplied, it will be prompted for if not in the keyring or set via $MAST_API_TOKEN
         store_token : bool, optional
             Default False.
             If true, username and password will be stored securely in your keyring.
@@ -566,10 +566,10 @@ class MastClass(QueryWithLogin):
             token = keyring.get_password("astroquery:mast.stsci.edu.token", "masttoken")
 
         if token is None or reenter_token:
-            log.info(
-                "If you do not have an API token already, visit the following link to create one: " +
-                conf.server.replace("mast", "auth.mast") +
-                "/token?suggested_name=Astroquery&suggested_scope=mast:exclusive_access")
+            auth_server = conf.server.replace("mast", "auth.mast")
+            auth_link = auth_server + "/token?suggested_name=Astroquery&suggested_scope=mast:exclusive_access"
+            info_msg = "If you do not have an API token already, visit the following link to create one: "
+            log.info(info_msg + auth_link)
             token = getpass("Enter MAST API Token: ")
 
         # store password if desired
