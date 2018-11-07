@@ -155,7 +155,6 @@ class MastClass(QueryWithLogin):
 
         self._auth_mode = self._get_auth_mode()
 
-
         if "SHIB-ECP" == self._auth_mode:
             log.debug("Using Legacy Shibboleth login")
             self._SESSION_INFO_URL = conf.server + "/Shibboleth.sso/Session"

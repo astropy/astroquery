@@ -110,6 +110,7 @@ def session_info_mockreturn(silent=False):
 
     return anonSession
 
+
 def _get_auth_mode_mockreturn(self):
     return "SHIB-ECP"
 
