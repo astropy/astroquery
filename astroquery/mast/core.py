@@ -153,14 +153,8 @@ class MastClass(QueryWithLogin):
         self._column_configs = dict()
         self._current_service = None
 
-        self._auth_mode = "SHIB-ECP"
+        self._auth_mode = self._get_auth_mode()
 
-        # Detect auth mode from auth_type endpoint
-        resp = self._session.get(conf.server + '/auth_type')
-        if resp.status_code == 200:
-            self._auth_mode = resp.text.strip()
-        else:
-            log.warning("Unknown MAST auth mode, defaulting to Legacy Shibboleth login")
 
         if "SHIB-ECP" == self._auth_mode:
             log.debug("Using Legacy Shibboleth login")
@@ -178,6 +172,17 @@ class MastClass(QueryWithLogin):
 
         if username or session_token:
             self.login(username, password, session_token)
+
+    def _get_auth_mode(self):
+        _auth_mode = "SHIB-ECP"
+
+        # Detect auth mode from auth_type endpoint
+        resp = self._session.get(conf.server + '/auth_type')
+        if resp.status_code == 200:
+            _auth_mode = resp.text.strip()
+        else:
+            log.warning("Unknown MAST auth mode, defaulting to Legacy Shibboleth login")
+        return _auth_mode
 
     def _login(self, *args, **kwargs):
         if "SHIB-ECP" == self._auth_mode:
