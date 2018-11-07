@@ -587,7 +587,7 @@ or by initializing a class instance with credentials.
 
 MAST is in the process of upgrading our Auth infrastructure to a token based system.
 This will be deployed early November 2018, at which point the credentials will
-switch from accepting a username/password and instead accept a auth token.
+switch from accepting a username/password and instead accept an auth token.
 
 
 Accessing Proprietary Data (Token Method)
