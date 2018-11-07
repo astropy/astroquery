@@ -17,13 +17,12 @@ Created on 30 jun. 2016
 
 from astroquery.utils.tap.core import TapPlus
 from astropy import config as _config
-from .core import Gaia, GaiaClass
 
 
-"""
 class Conf(_config.ConfigNamespace):
-
+    """
     Configuration parameters for `astroquery.gaia`.
+    """
 
     MAIN_GAIA_TABLE = _config.ConfigItem("gaiadr2.gaia_source",
                                          "GAIA source data table")
@@ -35,10 +34,8 @@ class Conf(_config.ConfigNamespace):
 
 conf = Conf()
 
-gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap", verbose=False)
 
 from .core import Gaia, GaiaClass
 
-"""
 
 __all__ = ['Gaia', 'GaiaClass', 'Conf', 'conf']

@@ -264,7 +264,7 @@ class Tap(object):
         upload_resource: str, optional, default None
             resource to be uploaded to UPLOAD_SCHEMA
         upload_table_name: str, required if upload_resource is
-                provided, default None
+            provided, default None
             resource temporary table name associated to the uploaded resource
 
         Returns
@@ -372,7 +372,7 @@ class Tap(object):
         upload_resource: str, optional, default None
             resource to be uploaded to UPLOAD_SCHEMA
         upload_table_name: str, required if upload_resource is
-                provided, default None
+            provided, default None
             resource temporary table name associated to the uploaded resource
         autorun: boolean, optional, default True
             if 'True', sets 'phase' parameter to 'RUN',

@@ -604,7 +604,7 @@ Your uploaded table can be referenced as 'user_joe.table_name'
 
 
 2.2.1. Uploading table from url to user space
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
