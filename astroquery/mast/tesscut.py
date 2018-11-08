@@ -21,7 +21,7 @@ from io import BytesIO
 import numpy as np
 
 import astropy.units as u
-import astropy.coordinates as coord
+from astropy.coordinates import Angle
 
 from astropy.table import Table
 from astropy.io import fits
@@ -91,7 +91,7 @@ class TesscutClass(BaseQuery):
         # if radius is just a number we assume degrees
         if isinstance(radius, (int, float)):
             radius = radius * u.deg
-        radius = coord.Angle(radius)
+        radius = Angle(radius)
 
         sector_request = "ra={}&dec={}&radius={}d".format(coordinates.ra.deg,
                                                           coordinates.dec.deg,
