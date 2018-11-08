@@ -32,9 +32,11 @@ conf = Conf()
 
 
 from .core import Observations, ObservationsClass, Catalogs, CatalogsClass, Mast, MastClass
+from .tesscut import TesscutClass, Tesscut
 
 __all__ = ['Observations', 'ObservationsClass',
            'Catalogs', 'CatalogsClass',
            'Mast', 'MastClass',
+           'Tesscut', 'TesscutClass',
            'Conf', 'conf',
            ]

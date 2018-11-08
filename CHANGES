@@ -38,6 +38,7 @@
 - utils: fix bug in ``parse_coordinates``, now strings that can be
   interpreted as coordinates are not sent through Sesame. When unit is not
   provided, degrees is now explicitely assumed. [#1252]
+- MAST: Adding Tesscut interface for accessing TESS cutouts. [#1264]
 
 
 0.3.8 (2018-04-27)
