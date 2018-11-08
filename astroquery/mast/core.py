@@ -155,10 +155,7 @@ class MastClass(QueryWithLogin):
 
         try:
             self._auth_mode = self._get_auth_mode()
-        except requests.exceptions.ConnectionError:
-            # this is fine, we're in test mode
-            self._auth_mode = 'SHIB-ECP'
-        except IOError:
+        except (requests.exceptions.ConnectionError, IOError):
             # this is fine, we're in test mode
             self._auth_mode = 'SHIB-ECP'
 
