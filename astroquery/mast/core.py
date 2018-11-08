@@ -158,6 +158,9 @@ class MastClass(QueryWithLogin):
         except requests.exceptions.ConnectionError:
             # this is fine, we're in test mode
             self._auth_mode = 'SHIB-ECP'
+        except IOError:
+            # this is fine, we're in test mode
+            self._auth_mode = 'SHIB-ECP'
 
         if "SHIB-ECP" == self._auth_mode:
             log.debug("Using Legacy Shibboleth login")
