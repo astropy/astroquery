@@ -43,6 +43,7 @@ from ..exceptions import (TimeoutError, InvalidQueryError, RemoteServiceError,
                           LoginError, ResolverError, MaxResultsWarning,
                           NoResultsWarning, InputWarning, AuthenticationWarning)
 from . import conf
+from . import fpl
 
 __all__ = ['Observations', 'ObservationsClass',
            'Mast', 'MastClass']
@@ -1494,7 +1495,7 @@ class ObservationsClass(MastClass):
                           "URL": [url]})
         return manifest
 
-    @deprecated(alternative="enable_s3_dataset")
+    @deprecated(since="11/9/18", alternative="enable_s3_dataset")
     def enable_s3_hst_dataset(self):
         return self.enable_s3_dataset()
 
@@ -1514,7 +1515,7 @@ class ObservationsClass(MastClass):
         log.info("If you have not configured boto3, follow the instructions here: "
                  "https://boto3.readthedocs.io/en/latest/guide/configuration.html")
 
-    @deprecated(alternative="disable_s3_dataset")
+    @deprecated(since="11/9/18", alternative="disable_s3_dataset")
     def disable_s3_hst_dataset(self):
         return self.disable_s3_dataset()
 
@@ -1525,7 +1526,7 @@ class ObservationsClass(MastClass):
         self._boto3 = None
         self._botocore = None
 
-    @deprecated(alternative="get_s3_uris")
+    @deprecated(since="11/9/18", alternative="get_s3_uris")
     def get_hst_s3_uris(self, dataProducts, includeBucket=True, fullUrl=False):
         return self.get_s3_uris(self, dataproducts, includeBucket, fullUrl)
 
@@ -1534,7 +1535,7 @@ class ObservationsClass(MastClass):
 
         return [self.get_s3_uri(dataProduct, includeBucket, fullUrl) for dataProduct in dataProducts]
 
-    @deprecated(alternative="get_s3_uri")
+    @deprecated(since="11/9/18", alternative="get_s3_uri")
     def get_hst_s3_uri(self, dataProduct, includeBucket=True, fullUrl=False):
         return self.get_s3_uri(self, dataProduct, includeBucket, fullUrl)
 
@@ -1547,40 +1548,9 @@ class ObservationsClass(MastClass):
         # This is a cheap operation and does not perform any actual work yet
         s3_client = self._boto3.client('s3')
 
-        dataUri = dataProduct['dataURI']
-        filename = dataUri.split("/")[-1]
-        obs_id = dataProduct['obs_id']
-
-        obs_id = obs_id.lower()
-
-        # This next part is a bit funky.  Let me explain why:
-        # We have 2 different possible URI schemes for HST:
-        #   mast:HST/product/obs_id_filename.type (old style)
-        #   mast:HST/product/obs_id/obs_id_filename.type (new style)
-        # The first scheme was developed thinking that the obs_id in the filename
-        # would *always* match the actual obs_id folder the file was placed in.
-        # Unfortunately this assumption was false.
-        # We have been trying to switch to the new uri scheme as it specifies the
-        # obs_id used in the folder path correctly.
-        # The cherry on top is that the obs_id in the new style URI is not always correct either!
-        # When we are looking up files we have some code which iterates through all of
-        # the possible permutations of the obs_id's last char which can be *ANYTHING*
-        #
-        # So in conclusion we can't trust the last char obs_id from the file or from the database
-        # So with that in mind, hold your nose when reading the following:
-
-        paths = []
-
-        sane_path = os.path.join("hst", "public", obs_id[:4], obs_id, filename)
-        paths += [sane_path]
-
-        # Unfortunately our file placement logic is anything but sane
-        # We put files in folders that don't make sense
-        for ch in (string.digits + string.ascii_lowercase):
-            # The last char of the obs_folder (observation id) can be any lowercase or numeric char
-            insane_obs = obs_id[:-1] + ch
-            insane_path = os.path.join("hst", "public", insane_obs[:4], insane_obs, filename)
-            paths += [insane_path]
+        paths = fpl.paths(dataProduct)
+        if paths is None:
+            raise Exception("Unsupported mission")
 
         for path in paths:
             try:
