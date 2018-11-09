@@ -1496,11 +1496,11 @@ class ObservationsClass(MastClass):
                           "URL": [url]})
         return manifest
 
-    @deprecated(since="v0.3.9", alternative="enable_s3_dataset")
+    @deprecated(since="v0.3.9", alternative="enable_cloud_dataset")
     def enable_s3_hst_dataset(self):
-        return self.enable_s3_dataset()
+        return self.enable_cloud_dataset()
 
-    def enable_s3_dataset(self):
+    def enable_cloud_dataset(self):
         """
         Attempts to enable downloading public files from S3 instead of MAST.
         Requires the boto3 library to function.
@@ -1516,31 +1516,31 @@ class ObservationsClass(MastClass):
         log.info("If you have not configured boto3, follow the instructions here: "
                  "https://boto3.readthedocs.io/en/latest/guide/configuration.html")
 
-    @deprecated(since="v0.3.9", alternative="disable_s3_dataset")
+    @deprecated(since="v0.3.9", alternative="disable_cloud_dataset")
     def disable_s3_hst_dataset(self):
-        return self.disable_s3_dataset()
+        return self.disable_cloud_dataset()
 
-    def disable_s3_dataset(self):
+    def disable_cloud_dataset(self):
         """
         Disables downloading public files from S3 instead of MAST
         """
         self._boto3 = None
         self._botocore = None
 
-    @deprecated(since="v0.3.9", alternative="get_s3_uris")
+    @deprecated(since="v0.3.9", alternative="get_cloud_uris")
     def get_hst_s3_uris(self, dataProducts, includeBucket=True, fullUrl=False):
-        return self.get_s3_uris(self, dataproducts, includeBucket, fullUrl)
+        return self.get_cloud_uris(self, dataproducts, includeBucket, fullUrl)
 
-    def get_s3_uris(self, dataProducts, includeBucket=True, fullUrl=False):
+    def get_cloud_uris(self, dataProducts, includeBucket=True, fullUrl=False):
         """ Takes an `astropy.table.Table` of data products and turns them into s3 uris. """
 
-        return [self.get_s3_uri(dataProduct, includeBucket, fullUrl) for dataProduct in dataProducts]
+        return [self.get_cloud_uri(dataProduct, includeBucket, fullUrl) for dataProduct in dataProducts]
 
-    @deprecated(since="v0.3.9", alternative="get_s3_uri")
+    @deprecated(since="v0.3.9", alternative="get_cloud_uri")
     def get_hst_s3_uri(self, dataProduct, includeBucket=True, fullUrl=False):
-        return self.get_s3_uri(self, dataProduct, includeBucket, fullUrl)
+        return self.get_cloud_uri(self, dataProduct, includeBucket, fullUrl)
 
-    def get_s3_uri(self, dataProduct, includeBucket=True, fullUrl=False):
+    def get_cloud_uri(self, dataProduct, includeBucket=True, fullUrl=False):
         """ Turns a dataProduct into a S3 URI """
 
         if self._boto3 is None:
@@ -1567,7 +1567,7 @@ class ObservationsClass(MastClass):
 
         raise Exception("Unable to locate file!")
 
-    def _download_from_s3(self, dataProduct, localPath, cache=True):
+    def _download_from_cloud(self, dataProduct, localPath, cache=True):
         # The following is a mishmash of BaseQuery._download_file and s3 access through boto
 
         self._pubdata_bucket = 'stpubdata'
@@ -1577,7 +1577,7 @@ class ObservationsClass(MastClass):
         s3_client = self._boto3.client('s3')
         bkt = s3.Bucket(self._pubdata_bucket)
 
-        bucketPath = self.get_s3_uri(dataProduct, False)
+        bucketPath = self.get_cloud_uri(dataProduct, False)
         info_lookup = s3_client.head_object(Bucket=self._pubdata_bucket, Key=bucketPath, RequestPayer='requester')
 
         # Unfortunately, we can't use the reported file size in the reported product.  STScI's backing
@@ -1659,7 +1659,7 @@ class ObservationsClass(MastClass):
             try:
                 if self._boto3 is not None and fpl.has_path(dataProduct):
                     try:
-                        self._download_from_s3(dataProduct, localPath, cache)
+                        self._download_from_cloud(dataProduct, localPath, cache)
                     except Exception as ex:
                         log.exception("Error pulling from S3 bucket: %s" % ex)
                         log.warn("Falling back to mast download...")
