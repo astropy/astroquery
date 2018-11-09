@@ -65,6 +65,7 @@ def _tess_product_paths(file_name):
     llll = file_name[36:40]
 
     parts = [
+        "tess",
         "public",
         "tid",
         sssss,
@@ -75,7 +76,7 @@ def _tess_product_paths(file_name):
         file_name
     ]
 
-    return "/".join(parts)
+    return ["/".join(parts)]
 
 def _tess_report_paths(file_name):
     """ TESS Report File """
@@ -91,6 +92,7 @@ def _tess_report_paths(file_name):
     llll = file_name[42:46]
 
     parts = [
+        "tess",
         "public",
         "tid",
         eeeee,
@@ -101,7 +103,7 @@ def _tess_report_paths(file_name):
         file_name
     ]
 
-    return "/".join(parts)
+    return ["/".join(parts)]
 
 
 def _tess_ffi_file(file_name):
@@ -117,6 +119,7 @@ def _tess_ffi_file(file_name):
     camera_chip = file_name[24:27]
 
     parts = [
+        "tess",
         "public",
         "ffi",
         sector,
@@ -125,7 +128,7 @@ def _tess_ffi_file(file_name):
         camera_chip,
         file_name
     ]
-    return "/".join(parts)
+    return ["/".join(parts)]
 
 _tess_map = {
     _tess_product_paths: ["tp.fits", "lc.fits"],
