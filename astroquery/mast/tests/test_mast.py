@@ -64,6 +64,7 @@ def patch_post(request):
     mp.setattr(mast.Tesscut, "_request", tesscut_get_mockreturn)
     mp.setattr(mast.Tesscut, '_download_file', tess_download_mockreturn)
     mp.setattr(mast.Tesscut, "_tesscut_livecheck", tesscut_livecheck)
+    mp.setattr(mast.Observations, '_get_auth_mode', _get_auth_mode_mockreturn)
     return mp
 
 
@@ -108,6 +109,10 @@ def session_info_mockreturn(silent=False):
                    'Username': 'anonymous'}
 
     return anonSession
+
+
+def _get_auth_mode_mockreturn(self):
+    return "SHIB-ECP"
 
 
 def tesscut_get_mockreturn(method="GET", url=None, data=None, timeout=10, **kwargs):

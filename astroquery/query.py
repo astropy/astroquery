@@ -205,25 +205,28 @@ class BaseQuery(object):
             a list of strings containing the downloaded local paths if ``save``
             is True
         """
+        req_kwargs = dict(
+            params=params,
+            data=data,
+            headers=headers,
+            files=files,
+            timeout=timeout
+        )
         if save:
             local_filename = url.split('/')[-1]
             if os.name == 'nt':
                 # Windows doesn't allow special characters in filenames like
                 # ":" so replace them with an underscore
                 local_filename = local_filename.replace(':', '_')
-            local_filepath = os.path.join(self.cache_location or savedir or
-                                          '.', local_filename)
+            local_filepath = os.path.join(self.cache_location or savedir or '.', local_filename)
             # REDUNDANT: spinner has this log.info("Downloading
             # {0}...".format(local_filename))
-            self._download_file(url, local_filepath, timeout=timeout,
-                                auth=auth, cache=cache,
-                                continuation=continuation)
+            self._download_file(url, local_filepath, cache=cache, continuation=continuation, method=method, auth=auth,
+                                **req_kwargs)
             return local_filepath
         else:
-            query = AstroQuery(method, url, params=params, data=data,
-                               headers=headers, files=files, timeout=timeout)
-            if ((self.cache_location is None) or (not self._cache_active) or
-                    (not cache)):
+            query = AstroQuery(method, url, **req_kwargs)
+            if ((self.cache_location is None) or (not self._cache_active) or (not cache)):
                 with suspend_cache(self):
                     response = query.request(self._session, stream=stream,
                                              auth=auth, verify=verify)
@@ -240,22 +243,26 @@ class BaseQuery(object):
             return response
 
     def _download_file(self, url, local_filepath, timeout=None, auth=None,
-                       continuation=True, cache=False, **kwargs):
+                       continuation=True, cache=False, method="GET", head_safe=False, **kwargs):
         """
         Download a file.  Resembles `astropy.utils.data.download_file` but uses
         the local ``_session``
         """
-        response = self._session.get(url, timeout=timeout, stream=True,
-                                     auth=auth, **kwargs)
+
+        if head_safe:
+            response = self._session.request("HEAD", url, timeout=timeout, stream=True,
+                                             auth=auth, **kwargs)
+        else:
+            response = self._session.request(method, url, timeout=timeout, stream=True,
+                                             auth=auth, **kwargs)
+
         response.raise_for_status()
         if 'content-length' in response.headers:
             length = int(response.headers['content-length'])
         else:
             length = None
 
-        if ((os.path.exists(local_filepath) and ('Accept-Ranges' in
-                                                 response.headers) and
-             continuation)):
+        if ((os.path.exists(local_filepath) and ('Accept-Ranges' in response.headers) and continuation)):
             open_mode = 'ab'
 
             existing_file_length = os.stat(local_filepath).st_size
@@ -278,8 +285,9 @@ class BaseQuery(object):
                 self._session.headers['Range'] = "bytes={0}-{1}".format(existing_file_length,
                                                                         end)
 
-                response = self._session.get(url, timeout=timeout, stream=True,
-                                             auth=auth, **kwargs)
+                response = self._session.request(method, url, timeout=timeout, stream=True,
+                                                 auth=auth, **kwargs)
+                response.raise_for_status()
 
         elif cache and os.path.exists(local_filepath):
             if length is not None:
@@ -302,6 +310,10 @@ class BaseQuery(object):
                 return
         else:
             open_mode = 'wb'
+            if head_safe:
+                response = self._session.request(method, url, timeout=timeout, stream=True,
+                                                 auth=auth, **kwargs)
+                response.raise_for_status()
 
         blocksize = astropy.utils.data.conf.download_block_size
 

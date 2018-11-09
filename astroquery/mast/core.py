@@ -17,7 +17,7 @@ import os
 import re
 import keyring
 import threading
-import datetime
+import requests
 
 import numpy as np
 
@@ -145,13 +145,7 @@ class MastClass(QueryWithLogin):
         super(MastClass, self).__init__()
 
         self._MAST_REQUEST_URL = conf.server + "/api/v0/invoke"
-        self._MAST_DOWNLOAD_URL = conf.server + "/api/v0/download/file"
         self._COLUMNS_CONFIG_URL = conf.server + "/portal/Mashup/Mashup.asmx/columnsconfig"
-
-        # shibbolith urls
-        self._SP_TARGET = conf.server + "/api/v0/Mashup/Login/login.html"
-        self._IDP_ENDPOINT = conf.ssoserver + "/idp/profile/SAML2/SOAP/ECP"
-        self._SESSION_INFO_URL = conf.server + "/Shibboleth.sso/Session"
 
         self.TIMEOUT = conf.timeout
         self.PAGESIZE = conf.pagesize
@@ -159,10 +153,85 @@ class MastClass(QueryWithLogin):
         self._column_configs = dict()
         self._current_service = None
 
+        try:
+            self._auth_mode = self._get_auth_mode()
+        except (requests.exceptions.ConnectionError, IOError):
+            # this is fine, we're in test mode
+            self._auth_mode = 'SHIB-ECP'
+
+        if "SHIB-ECP" == self._auth_mode:
+            log.debug("Using Legacy Shibboleth login")
+            self._SESSION_INFO_URL = conf.server + "/Shibboleth.sso/Session"
+            self._SP_TARGET = conf.server + "/api/v0/Mashup/Login/login.html"
+            self._IDP_ENDPOINT = conf.ssoserver + "/idp/profile/SAML2/SOAP/ECP"
+            self._MAST_DOWNLOAD_URL = conf.server + "/api/v0/Download/file"
+        elif "MAST-AUTH" == self._auth_mode:
+            log.debug("Using Auth.MAST login")
+            self._SESSION_INFO_URL = conf.server + "/whoami"
+            self._MAST_DOWNLOAD_URL = conf.server + "/api/v0.1/Download/file"
+            self._MAST_BUNDLE_URL = conf.server + "/api/v0.1/Download/bundle"
+        else:
+            raise Exception("Unknown MAST Auth mode %s" % self._auth_mode)
+
         if username or session_token:
             self.login(username, password, session_token)
 
-    def _attach_cookie(self, session_token):  # pragma: no cover
+    def _get_auth_mode(self):
+        _auth_mode = "SHIB-ECP"
+
+        # Detect auth mode from auth_type endpoint
+        resp = self._session.get(conf.server + '/auth_type')
+        if resp.status_code == 200:
+            _auth_mode = resp.text.strip()
+        else:
+            log.warning("Unknown MAST auth mode, defaulting to Legacy Shibboleth login")
+        return _auth_mode
+
+    def _login(self, *args, **kwargs):
+        if "SHIB-ECP" == self._auth_mode:
+            return self._shib_legacy_login(*args, **kwargs)
+        elif "MAST-AUTH" == self._auth_mode:
+            return self._authorize(*args, **kwargs)
+        else:
+            raise Exception("Unknown MAST Auth mode %s" % self._auth_mode)
+
+    def get_token(self, *args, **kwargs):
+        """
+        Returns MAST token cookie.
+
+        Returns
+        -------
+        response : `~http.cookiejar.Cookie`
+        """
+        if "SHIB-ECP" == self._auth_mode:
+            return self._shib_get_token(*args, **kwargs)
+        elif "MAST-AUTH" == self._auth_mode:
+            return self._get_token(*args, **kwargs)
+        else:
+            raise Exception("Unknown MAST Auth mode %s" % self._auth_mode)
+
+    def session_info(self, *args, **kwargs):
+        """
+        Displays information about current MAST user, and returns user info dictionary.
+
+        Parameters
+        ----------
+        silent : bool, optional
+            Default False.
+            Suppresses output to stdout.
+
+        Returns
+        -------
+        response : dict
+        """
+        if "SHIB-ECP" == self._auth_mode:
+            return self._shib_session_info(*args, **kwargs)
+        elif "MAST-AUTH" == self._auth_mode:
+            return self._session_info(*args, **kwargs)
+        else:
+            raise Exception("Unknown MAST Auth mode %s" % self._auth_mode)
+
+    def _shib_attach_cookie(self, session_token):  # pragma: no cover
         """
         Attaches a valid shibboleth session cookie to the current session.
 
@@ -481,8 +550,53 @@ class MastClass(QueryWithLogin):
             warnings.warn("Query returned no results.", NoResultsWarning)
         return allResults
 
-    def _login(self, username=None, password=None, session_token=None,
-               store_password=False, reenter_password=False):  # pragma: no cover
+    def _authorize(self, token=None, store_token=False, reenter_token=False):  # pragma: no cover
+        """
+        Log into the MAST portal.
+
+        Parameters
+        ----------
+        token : string, optional
+            Default is None.
+            The token to authenticate the user.
+            This can be generated at
+                https://auth.mast.stsci.edu/token?suggested_name=Astroquery&suggested_scope=mast:exclusive_access.
+            If not supplied, it will be prompted for if not in the keyring or set via $MAST_API_TOKEN
+        store_token : bool, optional
+            Default False.
+            If true, username and password will be stored securely in your keyring.
+        """
+
+        if token is None and "MAST_API_TOKEN" in os.environ:
+            token = os.environ["MAST_API_TOKEN"]
+
+        if token is None:
+            token = keyring.get_password("astroquery:mast.stsci.edu.token", "masttoken")
+
+        if token is None or reenter_token:
+            auth_server = conf.server.replace("mast", "auth.mast")
+            auth_link = auth_server + "/token?suggested_name=Astroquery&suggested_scope=mast:exclusive_access"
+            info_msg = "If you do not have an API token already, visit the following link to create one: "
+            log.info(info_msg + auth_link)
+            token = getpass("Enter MAST API Token: ")
+
+        # store password if desired
+        if store_token:
+            keyring.set_password("astroquery:mast.stsci.edu.token", "masttoken", token)
+
+        self._session.headers["Accept"] = "application/json"
+        self._session.cookies["mast_token"] = token
+        info = self.session_info(silent=True)
+
+        if not info["anon"]:
+            log.info("MAST API token accepted, welcome %s" % info["attrib"].get("display_name"))
+        else:
+            log.warn("MAST API token invalid!")
+
+        return not info["anon"]
+
+    def _shib_legacy_login(self, username=None, password=None, session_token=None,
+                           store_password=False, reenter_password=False):  # pragma: no cover
         """
         Log into the MAST portal.
 
@@ -522,7 +636,7 @@ class MastClass(QueryWithLogin):
                           InputWarning)
 
         if session_token:
-            return self._attach_cookie(session_token)
+            return self._shib_attach_cookie(session_token)
         else:
             # get username if not supplied
             if not username:
@@ -549,7 +663,57 @@ class MastClass(QueryWithLogin):
         self._session.cookies.clear_session_cookies()
         self._authenticated = False
 
-    def get_token(self):  # pragma: no cover
+    def _get_token(self):  # pragma: no cover
+        """
+        Returns MAST token cookie.
+
+        Returns
+        -------
+        response : `~http.cookiejar.Cookie`
+        """
+
+        tokenCookie = None
+        for cookie in self._session.cookies:
+            if "mast_token" in cookie.name:
+                tokenCookie = cookie
+                break
+
+        if not tokenCookie:
+            warnings.warn("No auth token found.", AuthenticationWarning)
+
+        return tokenCookie
+
+    def _session_info(self, silent=False):  # pragma: no cover
+        """
+        Displays information about current MAST user, and returns user info dictionary.
+
+        Parameters
+        ----------
+        silent : bool, optional
+            Default False.
+            Suppresses output to stdout.
+
+        Returns
+        -------
+        response : dict
+        """
+
+        # get user information
+        response = self._session.request("GET", self._SESSION_INFO_URL)
+
+        infoDict = json.loads(response.text)
+
+        if not silent:
+            for key, value in infoDict.items():
+                if isinstance(value, dict):
+                    for subkey, subval in value.items():
+                        print("%s.%s: %s" % (key, subkey, subval))
+                else:
+                    print("%s: %s" % (key, value))
+
+        return infoDict
+
+    def _shib_get_token(self):  # pragma: no cover
         """
         Returns MAST session cookie.
 
@@ -569,7 +733,7 @@ class MastClass(QueryWithLogin):
 
         return shibCookie
 
-    def session_info(self, silent=False):
+    def _shib_session_info(self, silent=False):  # pragma: no cover
         """
         Displays information about current MAST session, and returns session info dictionary.
 
@@ -1252,11 +1416,45 @@ class ObservationsClass(MastClass):
         response : `astropy.table.Table`
         """
 
+        urlList = [("uri", url) for url in products['dataURI']]
+        downloadFile = "mastDownload_" + time.strftime("%Y%m%d%H%M%S")
+        localPath = os.path.join(out_dir.rstrip('/'), downloadFile + ".sh")
+
+        response = self._download_file(self._MAST_BUNDLE_URL + ".sh", localPath, data=urlList, method="POST")
+
+        status = "COMPLETE"
+        msg = None
+
+        if not os.path.isfile(localPath):
+            status = "ERROR"
+            msg = "Curl could not be downloaded"
+
+        manifest = Table({'Local Path': [localPath],
+                          'Status': [status],
+                          'Message': [msg]})
+        return manifest
+
+    def _shib_download_curl_script(self, products, out_dir):
+        """
+        Takes an `astropy.table.Table` of data products and downloads a curl script to pull the datafiles.
+
+        Parameters
+        ----------
+        products : `astropy.table.Table`
+            Table containing products to be included in the curl script.
+        out_dir : str
+            Directory in which the curl script will be saved.
+
+        Returns
+        -------
+        response : `astropy.table.Table`
+        """
+
         urlList = products['dataURI']
+        downloadFile = "mastDownload_" + time.strftime("%Y%m%d%H%M%S")
         descriptionList = products['description']
         productTypeList = products['dataproduct_type']
 
-        downloadFile = "mastDownload_" + time.strftime("%Y%m%d%H%M%S")
         pathList = [downloadFile+"/"+x['obs_collection']+'/'+x['obs_id']+'/'+x['productFilename'] for x in products]
 
         service = "Mast.Bundle.Request"
@@ -1477,9 +1675,9 @@ class ObservationsClass(MastClass):
                     except Exception as ex:
                         log.exception("Error pulling from S3 bucket: %s" % ex)
                         log.warn("Falling back to mast download...")
-                        self._download_file(dataUrl, localPath, cache=cache)
+                        self._download_file(dataUrl, localPath, cache=cache, head_safe=True)
                 else:
-                    self._download_file(dataUrl, localPath, cache=cache)
+                    self._download_file(dataUrl, localPath, cache=cache, head_safe=True)
 
                 # check if file exists also this is where would perform md5,
                 # and also check the filesize if the database reliably reported file sizes
@@ -1560,7 +1758,10 @@ class ObservationsClass(MastClass):
             download_dir = '.'
 
         if curl_flag:  # don't want to download the files now, just the curl script
-            manifest = self._download_curl_script(products, download_dir)
+            if "SHIB-ECP" == self._auth_mode:
+                manifest = self._shib_download_curl_script(products, download_dir)
+            else:
+                manifest = self._download_curl_script(products, download_dir)
 
         else:
             base_dir = download_dir.rstrip('/') + "/mastDownload"
@@ -1938,7 +2139,7 @@ class CatalogsClass(MastClass):
             bundlerResponse = response[0].json()
 
             localPath = download_dir.rstrip('/') + "/" + downloadFile + ".sh"
-            self._download_file(bundlerResponse['url'], localPath)
+            self._download_file(bundlerResponse['url'], localPath, head_safe=True)
 
             status = "COMPLETE"
             msg = None
@@ -1985,7 +2186,7 @@ class CatalogsClass(MastClass):
                 url = None
 
                 try:
-                    self._download_file(dataUrl, localPath, cache=cache)
+                    self._download_file(dataUrl, localPath, cache=cache, head_safe=True)
 
                     # check file size also this is where would perform md5
                     if not os.path.isfile(localPath):
