@@ -1500,14 +1500,17 @@ class ObservationsClass(MastClass):
     def enable_s3_hst_dataset(self):
         return self.enable_cloud_dataset()
 
-    def enable_cloud_dataset(self, provider="AWS"):
+    def enable_cloud_dataset(self, provider="AWS", profile=None):
         """
         Attempts to enable downloading public files from S3 instead of MAST.
         Requires the boto3 library to function.
         """
         import boto3
         import botocore
-        self._boto3 = boto3
+        if profile is not None:
+            self._boto3 = boto3.Session(profile_name=profile)
+        else:
+            self._boto3 = boto3
         self._botocore = botocore
 
         log.info("Using the S3 STScI public dataset")
