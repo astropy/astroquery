@@ -11,6 +11,7 @@ more than one path per product
 
 import string
 
+
 def hst_paths(dataProduct):
     dataUri = dataProduct['dataURI']
     filename = dataUri.split("/")[-1]
@@ -78,13 +79,14 @@ def _tess_product_paths(file_name):
 
     return ["/".join(parts)]
 
+
 def _tess_report_paths(file_name):
     """ TESS Report File """
     # tess2018206190142-s0001-s0001-0000000349518145-01-00106_dvs.pdf
     #                   sssss eeeee zzzzffffppppllll
     #                   18-23 24-29 30  34  38  42  46
 
-    sssss = file_name[18:23]
+    # sssss = file_name[18:23]
     eeeee = file_name[24:29]
     zzzz = file_name[30:34]
     ffff = file_name[34:38]
@@ -130,11 +132,13 @@ def _tess_ffi_file(file_name):
     ]
     return ["/".join(parts)]
 
+
 _tess_map = {
     _tess_product_paths: ["tp.fits", "lc.fits"],
     _tess_report_paths: ["_dvs.pdf", "_dvr.pdf", "_dvr.xml", "_dvt.fits"],
     _tess_ffi_file: ['ffir.fits', 'ffic.fits', 'col.fits', 'cbv.fits'],
 }
+
 
 def tess_paths(dataProduct):
     dataUri = dataProduct['dataURI']
@@ -148,7 +152,6 @@ def tess_paths(dataProduct):
     return None
 
 
-
 def paths(dataProduct):
     if dataProduct['dataURI'].lower().startswith("mast:hst/product"):
         return hst_paths(dataProduct)
@@ -157,6 +160,7 @@ def paths(dataProduct):
         return tess_paths(dataProduct)
 
     return None
+
 
 def has_path(dataProduct):
     return dataProduct['dataURI'].lower().startswith("mast:hst/product") or \
