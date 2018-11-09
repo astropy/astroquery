@@ -1500,7 +1500,7 @@ class ObservationsClass(MastClass):
     def enable_s3_hst_dataset(self):
         return self.enable_cloud_dataset()
 
-    def enable_cloud_dataset(self):
+    def enable_cloud_dataset(self, provider="AWS"):
         """
         Attempts to enable downloading public files from S3 instead of MAST.
         Requires the boto3 library to function.
