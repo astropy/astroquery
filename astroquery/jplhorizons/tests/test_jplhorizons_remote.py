@@ -306,3 +306,20 @@ class TestHorizonsClass:
 
         npt.assert_allclose([am_res['RA'], am_res['DEC']],
                             [user_res['RA'], user_res['DEC']])
+
+    def test_majorbody(self):
+        """Regression test for "Fix missing columns... #1268"
+        https://github.com/astropy/astroquery/pull/1268
+
+        Horizons.ephemerides would crash for majorbodies because the
+        returned columns have different names from other bodies.  The
+        culprits were: Obsrv-lon, Obsrv-lat, Solar-lon, Solar-lat
+
+        """
+        epochs = dict(start='2019-01-01', stop='2019-01-02', step='1d')
+        quantities = ('1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,'
+                      '21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,'
+                      '38,39,40,41,42,43')
+        target = jplhorizons.Horizons(id='301', location='688', epochs=epochs)
+        eph = target.ephemerides(quantities=quantities)
+        assert len(eph) == 2
