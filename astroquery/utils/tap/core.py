@@ -737,8 +737,6 @@ class TapPlus(Tap):
                  table_edit_context=None,
                  data_context=None,
                  datalink_context=None,
-                 share_context=None,
-                 users_context=None,
                  port=80, sslport=443,
                  default_protocol_is_https=False,
                  connhandler=None,

@@ -27,7 +27,8 @@ from astropy.coordinates.sky_coordinate import SkyCoord
 from astropy.units import Quantity
 import numpy as np
 from astroquery.utils.tap.xmlparser import utils
-from astroquery.utils.tap.core import TapPlus
+from astroquery.utils.tap.core import TapPlus, TAP_CLIENT_ID
+from astroquery.utils.tap import taputils
 
 
 def data_path(filename):
@@ -185,7 +186,7 @@ class TestTap(unittest.TestCase):
     def test_query_object(self):
         connHandler = DummyConnHandler()
         tapplus = TapPlus("http://test:1111/tap", connhandler=connHandler)
-        tap = GaiaClass(tapplus, tapplus)
+        tap = GaiaClass(connHandler, tapplus)
         # Launch response: we use default response because the query contains
         # decimals
         responseLaunchJob = DummyResponse()
@@ -266,7 +267,7 @@ class TestTap(unittest.TestCase):
     def test_query_object_async(self):
         connHandler = DummyConnHandler()
         tapplus = TapPlus("http://test:1111/tap", connhandler=connHandler)
-        tap = GaiaClass(tapplus, tapplus)
+        tap = GaiaClass(connHandler, tapplus)
         jobid = '12345'
         # Launch response
         responseLaunchJob = DummyResponse()
@@ -361,7 +362,7 @@ class TestTap(unittest.TestCase):
     def test_cone_search_sync(self):
         connHandler = DummyConnHandler()
         tapplus = TapPlus("http://test:1111/tap", connhandler=connHandler)
-        tap = GaiaClass(tapplus, tapplus)
+        tap = GaiaClass(connHandler, tapplus)
         # Launch response: we use default response because the query contains
         # decimals
         responseLaunchJob = DummyResponse()
@@ -414,7 +415,7 @@ class TestTap(unittest.TestCase):
     def test_cone_search_async(self):
         connHandler = DummyConnHandler()
         tapplus = TapPlus("http://test:1111/tap", connhandler=connHandler)
-        tap = GaiaClass(tapplus, tapplus)
+        tap = GaiaClass(connHandler, tapplus)
         jobid = '12345'
         # Launch response
         responseLaunchJob = DummyResponse()
@@ -750,8 +751,65 @@ class TestTap(unittest.TestCase):
         dummyHandler.check_call('is_valid_user', parameters)
 
     def test_xmatch(self):
-        dummyTapHandler = DummyTapHandler()
-        tap = GaiaClass(dummyTapHandler, dummyTapHandler)
+        connHandler = DummyConnHandler()
+        tapplus = TapPlus("http://test:1111/tap", connhandler=connHandler)
+        tap = GaiaClass(connHandler, tapplus)
+        jobid = '12345'
+        # Launch response
+        responseLaunchJob = DummyResponse()
+        responseLaunchJob.set_status_code(303)
+        responseLaunchJob.set_message("OK")
+        # list of list (httplib implementation for headers in response)
+        launchResponseHeaders = [
+            ['location', 'http://test:1111/tap/async/' + jobid]
+            ]
+        responseLaunchJob.set_data(method='POST',
+                                   context=None,
+                                   body=None,
+                                   headers=launchResponseHeaders)
+        connHandler.set_default_response(responseLaunchJob)
+        # Phase response
+        responsePhase = DummyResponse()
+        responsePhase.set_status_code(200)
+        responsePhase.set_message("OK")
+        responsePhase.set_data(method='GET',
+                               context=None,
+                               body="COMPLETED",
+                               headers=None)
+        req = "async/" + jobid + "/phase"
+        connHandler.set_response(req, responsePhase)
+        # Results response
+        responseResultsJob = DummyResponse()
+        responseResultsJob.set_status_code(200)
+        responseResultsJob.set_message("OK")
+        jobDataFile = data_path('job_1.vot')
+        jobData = utils.read_file_content(jobDataFile)
+        responseResultsJob.set_data(method='GET',
+                                    context=None,
+                                    body=jobData,
+                                    headers=None)
+        req = "async/" + jobid + "/results/result"
+        connHandler.set_response(req, responseResultsJob)
+        query = "SELECT crossmatch_positional(\
+            'schemaA','tableA',\
+            'schemaB','tableB',\
+            1.0,\
+            'results')\
+            FROM dual;"
+        dTmp = {"q": query}
+        dTmpEncoded = connHandler.url_encode(dTmp)
+        p = dTmpEncoded.find("=")
+        q = dTmpEncoded[p+1:]
+        dictTmp = {
+            "REQUEST": "doQuery",
+            "LANG": "ADQL",
+            "FORMAT": "votable",
+            "tapclient": str(TAP_CLIENT_ID),
+            "PHASE": "RUN",
+            "QUERY": str(q)}
+        sortedKey = taputils.taputil_create_sorted_dict_key(dictTmp)
+        jobRequest = "sync?" + sortedKey
+        connHandler.set_response(jobRequest, responseLaunchJob)
         # check parameters
         # missing table A
         with pytest.raises(ValueError) as err:
@@ -826,32 +884,21 @@ class TestTap(unittest.TestCase):
         tap.cross_match(full_qualified_table_name_a='schemaA.tableA',
                         full_qualified_table_name_b='schemaB.tableB',
                         results_table_name='results')
-        dummyTapHandler.check_call('launch_job_async', parameters)
-        # test with parameters
-        dummyTapHandler.reset()
-        radius = 1.0
-        verbose = True
-        background = True
-        query = "SELECT crossmatch_positional(\
-            'schemaA','tableA',\
-            'schemaB','tableB',\
-            "+str(radius)+",\
-            'results')\
-            FROM dual;"
-        parameters['query'] = query
-        parameters['name'] = 'results'
-        parameters['output_file'] = None
-        parameters['output_format'] = 'votable'
-        parameters['verbose'] = verbose
-        parameters['dump_to_file'] = False
-        parameters['background'] = background
-        parameters['upload_resource'] = None
-        parameters['upload_table_name'] = None
-        tap.cross_match(full_qualified_table_name_a='schemaA.tableA',
+        assert job.async_ is True, "Expected an asynchronous job"
+        assert job.get_phase() == 'COMPLETED', \
+            "Wrong job phase. Expected: %s, found %s" % \
+            ('COMPLETED', job.get_phase())
+        assert job.failed is False, "Wrong job status (set Failed = True)"
+        job = tap.cross_match(
+                        full_qualified_table_name_a='schemaA.tableA',
                         full_qualified_table_name_b='schemaB.tableB',
                         results_table_name='results',
                         background=background, verbose=verbose)
-        dummyTapHandler.check_call('launch_job_async', parameters)
+        assert job.async_ is True, "Expected an asynchronous job"
+        assert job.get_phase() == 'EXECUTING', \
+            "Wrong job phase. Expected: %s, found %s" % \
+            ('EXECUTING', job.get_phase())
+        assert job.failed is False, "Wrong job status (set Failed = True)"
 
 
 if __name__ == "__main__":
