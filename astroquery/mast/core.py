@@ -1496,7 +1496,7 @@ class ObservationsClass(MastClass):
                           "URL": [url]})
         return manifest
 
-    @deprecated(since="11/9/18", alternative="enable_s3_dataset")
+    @deprecated(since="v0.3.9", alternative="enable_s3_dataset")
     def enable_s3_hst_dataset(self):
         return self.enable_s3_dataset()
 
@@ -1516,7 +1516,7 @@ class ObservationsClass(MastClass):
         log.info("If you have not configured boto3, follow the instructions here: "
                  "https://boto3.readthedocs.io/en/latest/guide/configuration.html")
 
-    @deprecated(since="11/9/18", alternative="disable_s3_dataset")
+    @deprecated(since="v0.3.9", alternative="disable_s3_dataset")
     def disable_s3_hst_dataset(self):
         return self.disable_s3_dataset()
 
@@ -1527,7 +1527,7 @@ class ObservationsClass(MastClass):
         self._boto3 = None
         self._botocore = None
 
-    @deprecated(since="11/9/18", alternative="get_s3_uris")
+    @deprecated(since="v0.3.9", alternative="get_s3_uris")
     def get_hst_s3_uris(self, dataProducts, includeBucket=True, fullUrl=False):
         return self.get_s3_uris(self, dataproducts, includeBucket, fullUrl)
 
@@ -1536,7 +1536,7 @@ class ObservationsClass(MastClass):
 
         return [self.get_s3_uri(dataProduct, includeBucket, fullUrl) for dataProduct in dataProducts]
 
-    @deprecated(since="11/9/18", alternative="get_s3_uri")
+    @deprecated(since="v0.3.9", alternative="get_s3_uri")
     def get_hst_s3_uri(self, dataProduct, includeBucket=True, fullUrl=False):
         return self.get_s3_uri(self, dataProduct, includeBucket, fullUrl)
 
