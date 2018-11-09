@@ -9,6 +9,8 @@ Due to the way that several missions work, we may need to check
 more than one path per product
 """
 
+import string
+
 def hst_paths(dataProduct):
     dataUri = dataProduct['dataURI']
     filename = dataUri.split("/")[-1]
@@ -34,7 +36,7 @@ def hst_paths(dataProduct):
 
     paths = []
 
-    sane_path = os.path.join("hst", "public", obs_id[:4], obs_id, filename)
+    sane_path = "/".join(["hst", "public", obs_id[:4], obs_id, filename])
     paths += [sane_path]
 
     # Unfortunately our file placement logic is anything but sane
@@ -42,14 +44,117 @@ def hst_paths(dataProduct):
     for ch in (string.digits + string.ascii_lowercase):
         # The last char of the obs_folder (observation id) can be any lowercase or numeric char
         insane_obs = obs_id[:-1] + ch
-        insane_path = os.path.join("hst", "public", insane_obs[:4], insane_obs, filename)
+        insane_path = "/".join(["hst", "public", insane_obs[:4], insane_obs, filename])
         paths += [insane_path]
 
     return paths
 
 
-def paths(dataProduct):
-    if dataProduct['dataURI'].lower().startswith("mast:hst/product"):
-        return fpl.hst_paths(dataProduct)
+def _tess_product_paths(file_name):
+    """ TESS Product File """
+    # tess2018206045859-s0001-0000000206409997-0120-s_tp.fits
+    # s0001-0000 0002 0640 9997
+    # s0001/0000/0002/0640/9997
+    # sssss/zzzz/ffff/pppp/llll
+    # 18-23 24 28   32   36  40
+
+    sssss = file_name[18:23]
+    zzzz = file_name[24:28]
+    ffff = file_name[28:32]
+    pppp = file_name[32:36]
+    llll = file_name[36:40]
+
+    parts = [
+        "public",
+        "tid",
+        sssss,
+        zzzz,
+        ffff,
+        pppp,
+        llll,
+        file_name
+    ]
+
+    return "/".join(parts)
+
+def _tess_report_paths(file_name):
+    """ TESS Report File """
+    # tess2018206190142-s0001-s0001-0000000349518145-01-00106_dvs.pdf
+    #                   sssss eeeee zzzzffffppppllll
+    #                   18-23 24-29 30  34  38  42  46
+
+    sssss = file_name[18:23]
+    eeeee = file_name[24:29]
+    zzzz = file_name[30:34]
+    ffff = file_name[34:38]
+    pppp = file_name[38:42]
+    llll = file_name[42:46]
+
+    parts = [
+        "public",
+        "tid",
+        eeeee,
+        zzzz,
+        ffff,
+        pppp,
+        llll,
+        file_name
+    ]
+
+    return "/".join(parts)
+
+
+def _tess_ffi_file(file_name):
+    """ TESS FFI File """
+    # tess2018229142941-s0001-4-3-0120-s_ffic.fits
+    #     yyyyddd       sssss ccc
+    # s0001/2018/229/4-3
+    # 18-23 4-8 8-11 24-27
+
+    sector = file_name[18:23]
+    year = file_name[4:8]
+    day_number = file_name[8:11]
+    camera_chip = file_name[24:27]
+
+    parts = [
+        "public",
+        "ffi",
+        sector,
+        year,
+        day_number,
+        camera_chip,
+        file_name
+    ]
+    return "/".join(parts)
+
+_tess_map = {
+    _tess_product_paths: ["tp.fits", "lc.fits"],
+    _tess_report_paths: ["_dvs.pdf", "_dvr.pdf", "_dvr.xml", "_dvt.fits"],
+    _tess_ffi_file: ['ffir.fits', 'ffic.fits', 'col.fits', 'cbv.fits'],
+}
+
+def tess_paths(dataProduct):
+    dataUri = dataProduct['dataURI']
+    filename = dataUri.split("/")[-1]
+
+    for paths_fn, suffixes in _tess_map.items():
+        for suffix in suffixes:
+            if filename.lower().endswith(suffix):
+                return paths_fn(filename)
 
     return None
+
+
+
+def paths(dataProduct):
+    if dataProduct['dataURI'].lower().startswith("mast:hst/product"):
+        return hst_paths(dataProduct)
+
+    if dataProduct['dataURI'].lower().startswith("mast:tess/product"):
+        return tess_paths(dataProduct)
+
+    return None
+
+def has_path(dataProduct):
+    return dataProduct['dataURI'].lower().startswith("mast:hst/product") or \
+            dataProduct['dataURI'].lower().startswith("mast:tess/product")

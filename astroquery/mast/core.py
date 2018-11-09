@@ -45,6 +45,7 @@ from ..exceptions import (TimeoutError, InvalidQueryError, RemoteServiceError,
 from . import conf
 from . import fpl
 
+
 __all__ = ['Observations', 'ObservationsClass',
            'Mast', 'MastClass']
 
@@ -1656,7 +1657,7 @@ class ObservationsClass(MastClass):
             url = None
 
             try:
-                if self._boto3 is not None and dataProduct["dataURI"].startswith("mast:HST/product"):
+                if self._boto3 is not None and fpl.has_path(dataProduct):
                     try:
                         self._download_from_s3(dataProduct, localPath, cache)
                     except Exception as ex:
