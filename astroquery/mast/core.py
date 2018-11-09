@@ -27,6 +27,7 @@ from base64 import b64encode
 
 import astropy.units as u
 import astropy.coordinates as coord
+from astropy.utils import deprecated
 
 from astropy.table import Table, Row, vstack, MaskedColumn
 from astropy.extern.six.moves.urllib.parse import quote as urlencode
@@ -42,6 +43,8 @@ from ..exceptions import (TimeoutError, InvalidQueryError, RemoteServiceError,
                           LoginError, ResolverError, MaxResultsWarning,
                           NoResultsWarning, InputWarning, AuthenticationWarning)
 from . import conf
+from . import fpl
+
 
 __all__ = ['Observations', 'ObservationsClass',
            'Mast', 'MastClass']
@@ -978,7 +981,7 @@ class ObservationsClass(MastClass):
 
         self._boto3 = None
         self._botocore = None
-        self._hst_bucket = "stpubdata"
+        self._pubdata_bucket = "stpubdata"
 
     def list_missions(self):
         """
@@ -1493,9 +1496,13 @@ class ObservationsClass(MastClass):
                           "URL": [url]})
         return manifest
 
+    @deprecated(since="v0.3.9", alternative="enable_s3_dataset")
     def enable_s3_hst_dataset(self):
+        return self.enable_s3_dataset()
+
+    def enable_s3_dataset(self):
         """
-        Attempts to enable downloading HST public files from S3 instead of MAST.
+        Attempts to enable downloading public files from S3 instead of MAST.
         Requires the boto3 library to function.
         """
         import boto3
@@ -1503,75 +1510,56 @@ class ObservationsClass(MastClass):
         self._boto3 = boto3
         self._botocore = botocore
 
-        log.info("Using the S3 HST public dataset")
+        log.info("Using the S3 STScI public dataset")
         log.warning("Your AWS account will be charged for access to the S3 bucket")
         log.info("See Request Pricing in https://aws.amazon.com/s3/pricing/ for details")
         log.info("If you have not configured boto3, follow the instructions here: "
                  "https://boto3.readthedocs.io/en/latest/guide/configuration.html")
 
+    @deprecated(since="v0.3.9", alternative="disable_s3_dataset")
     def disable_s3_hst_dataset(self):
+        return self.disable_s3_dataset()
+
+    def disable_s3_dataset(self):
         """
-        Disables downloading HST public files from S3 instead of MAST
+        Disables downloading public files from S3 instead of MAST
         """
         self._boto3 = None
         self._botocore = None
 
+    @deprecated(since="v0.3.9", alternative="get_s3_uris")
     def get_hst_s3_uris(self, dataProducts, includeBucket=True, fullUrl=False):
+        return self.get_s3_uris(self, dataproducts, includeBucket, fullUrl)
+
+    def get_s3_uris(self, dataProducts, includeBucket=True, fullUrl=False):
         """ Takes an `astropy.table.Table` of data products and turns them into s3 uris. """
 
-        return [self.get_hst_s3_uri(dataProduct, includeBucket, fullUrl) for dataProduct in dataProducts]
+        return [self.get_s3_uri(dataProduct, includeBucket, fullUrl) for dataProduct in dataProducts]
 
+    @deprecated(since="v0.3.9", alternative="get_s3_uri")
     def get_hst_s3_uri(self, dataProduct, includeBucket=True, fullUrl=False):
+        return self.get_s3_uri(self, dataProduct, includeBucket, fullUrl)
+
+    def get_s3_uri(self, dataProduct, includeBucket=True, fullUrl=False):
         """ Turns a dataProduct into a S3 URI """
 
         if self._boto3 is None:
-            raise AtrributeError("Must enable s3 hst dataset before attempting to query the s3 information")
+            raise AtrributeError("Must enable s3 dataset before attempting to query the s3 information")
 
         # This is a cheap operation and does not perform any actual work yet
         s3_client = self._boto3.client('s3')
 
-        dataUri = dataProduct['dataURI']
-        filename = dataUri.split("/")[-1]
-        obs_id = dataProduct['obs_id']
-
-        obs_id = obs_id.lower()
-
-        # This next part is a bit funky.  Let me explain why:
-        # We have 2 different possible URI schemes for HST:
-        #   mast:HST/product/obs_id_filename.type (old style)
-        #   mast:HST/product/obs_id/obs_id_filename.type (new style)
-        # The first scheme was developed thinking that the obs_id in the filename
-        # would *always* match the actual obs_id folder the file was placed in.
-        # Unfortunately this assumption was false.
-        # We have been trying to switch to the new uri scheme as it specifies the
-        # obs_id used in the folder path correctly.
-        # The cherry on top is that the obs_id in the new style URI is not always correct either!
-        # When we are looking up files we have some code which iterates through all of
-        # the possible permutations of the obs_id's last char which can be *ANYTHING*
-        #
-        # So in conclusion we can't trust the last char obs_id from the file or from the database
-        # So with that in mind, hold your nose when reading the following:
-
-        paths = []
-
-        sane_path = os.path.join("hst", "public", obs_id[:4], obs_id, filename)
-        paths += [sane_path]
-
-        # Unfortunately our file placement logic is anything but sane
-        # We put files in folders that don't make sense
-        for ch in (string.digits + string.ascii_lowercase):
-            # The last char of the obs_folder (observation id) can be any lowercase or numeric char
-            insane_obs = obs_id[:-1] + ch
-            insane_path = os.path.join("hst", "public", insane_obs[:4], insane_obs, filename)
-            paths += [insane_path]
+        paths = fpl.paths(dataProduct)
+        if paths is None:
+            raise Exception("Unsupported mission")
 
         for path in paths:
             try:
-                s3_client.head_object(Bucket=self._hst_bucket, Key=path, RequestPayer='requester')
+                s3_client.head_object(Bucket=self._pubdata_bucket, Key=path, RequestPayer='requester')
                 if includeBucket:
-                    path = "s3://%s/%s" % (self._hst_bucket, path)
+                    path = "s3://%s/%s" % (self._pubdata_bucket, path)
                 elif fullUrl:
-                    path = "http://s3.amazonaws.com/%s/%s" % (self._hst_bucket, path)
+                    path = "http://s3.amazonaws.com/%s/%s" % (self._pubdata_bucket, path)
                 return path
             except self._botocore.exceptions.ClientError as e:
                 if e.response['Error']['Code'] != "404":
@@ -1582,15 +1570,15 @@ class ObservationsClass(MastClass):
     def _download_from_s3(self, dataProduct, localPath, cache=True):
         # The following is a mishmash of BaseQuery._download_file and s3 access through boto
 
-        self._hst_bucket = 'stpubdata'
+        self._pubdata_bucket = 'stpubdata'
 
         # This is a cheap operation and does not perform any actual work yet
         s3 = self._boto3.resource('s3')
         s3_client = self._boto3.client('s3')
-        bkt = s3.Bucket(self._hst_bucket)
+        bkt = s3.Bucket(self._pubdata_bucket)
 
-        bucketPath = self.get_hst_s3_uri(dataProduct, False)
-        info_lookup = s3_client.head_object(Bucket=self._hst_bucket, Key=bucketPath, RequestPayer='requester')
+        bucketPath = self.get_s3_uri(dataProduct, False)
+        info_lookup = s3_client.head_object(Bucket=self._pubdata_bucket, Key=bucketPath, RequestPayer='requester')
 
         # Unfortunately, we can't use the reported file size in the reported product.  STScI's backing
         # archive database (CAOM) is frequently out of date and in many cases omits the required information.
@@ -1613,7 +1601,7 @@ class ObservationsClass(MastClass):
                     return
 
         with ProgressBarOrSpinner(length, ('Downloading URL s3://{0}/{1} to {2} ...'.format(
-                self._hst_bucket, bucketPath, localPath))) as pb:
+                self._pubdata_bucket, bucketPath, localPath))) as pb:
 
             # Bytes read tracks how much data has been received so far
             # This variable will be updated in multiple threads below
@@ -1669,7 +1657,7 @@ class ObservationsClass(MastClass):
             url = None
 
             try:
-                if self._boto3 is not None and dataProduct["dataURI"].startswith("mast:HST/product"):
+                if self._boto3 is not None and fpl.has_path(dataProduct):
                     try:
                         self._download_from_s3(dataProduct, localPath, cache)
                     except Exception as ex:
