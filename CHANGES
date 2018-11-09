@@ -40,7 +40,7 @@
   provided, degrees is now explicitely assumed. [#1252]
 - MAST: Adding Tesscut interface for accessing TESS cutouts. [#1264]
 - MAST: Add functionality for switching to auth.mast when it goes live [#1256]
-- MAST: Support downloading data from multiple missions on S3 [#1275]
+- MAST: Support downloading data from multiple missions from the cloud [#1275]
 - JPLHorizons: Fix queries for major solar system bodies when
 
 
