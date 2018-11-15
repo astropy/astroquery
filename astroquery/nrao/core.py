@@ -46,10 +46,10 @@ def _validate_params(func):
                                  .format(Nrao.telescope_config))
         if isinstance(obs_band, (list, tuple)):
             for ob in obs_band:
-                if ob not in Nrao.obs_bands:
+                if ob.upper() not in Nrao.obs_bands:
                     raise ValueError("'obs_band' must be one of {!s}"
                                      .format(Nrao.obs_bands))
-        elif obs_band not in Nrao.obs_bands:
+        elif obs_band.upper() not in Nrao.obs_bands:
             raise ValueError("'obs_band' must be one of {!s}"
                              .format(Nrao.obs_bands))
         if sub_array not in Nrao.subarrays and sub_array != 'all':
@@ -77,10 +77,12 @@ class NraoClass(QueryWithLogin):
 
     telescope_config = ['ALL', 'A', 'AB', 'BnA', 'B', 'BC', 'CnB', 'C',
                         'CD', 'DnC', 'D', 'DA']
-    # we only ever use uppercase versions
-    telescope_config = [x.upper() for x in telescope_config]
 
     obs_bands = ['ALL', 'all', '4', 'P', 'L', 'S', 'C', 'X', 'U', 'K', 'Ka', 'Q', 'W']
+
+    # we only ever use uppercase versions
+    telescope_config = [x.upper() for x in telescope_config]
+    obs_bands = [x.upper() for x in obs_bands]
 
     subarrays = ['ALL', 1, 2, 3, 4, 5]
 
