@@ -77,6 +77,8 @@ class NraoClass(QueryWithLogin):
 
     telescope_config = ['ALL', 'A', 'AB', 'BnA', 'B', 'BC', 'CnB', 'C',
                         'CD', 'DnC', 'D', 'DA']
+    # we only ever use uppercase versions
+    telescope_config = [x.upper() for x in telescope_config]
 
     obs_bands = ['ALL', 'all', '4', 'P', 'L', 'S', 'C', 'X', 'U', 'K', 'Ka', 'Q', 'W']
 
