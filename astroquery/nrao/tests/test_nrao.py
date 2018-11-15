@@ -106,6 +106,7 @@ def test_query_region_multiconfig(patch_post, patch_parse_coordinates):
     )
     assert isinstance(result, Table)
 
+
 def test_query_region_lowercase(patch_post, patch_parse_coordinates):
     # regression test for issue 1282
     # test that the checker allows BnA, etc.
