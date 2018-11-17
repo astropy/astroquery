@@ -325,7 +325,7 @@ class TestHorizonsClass:
         assert len(eph) == 2
 
     def test_airmass(self):
-        """Regression test for "Airmass issues with jplhorizons #"
+        """Regression test for "Airmass issues with jplhorizons #1284"
 
         Horizons.ephemerides would crash when Horizons returned tables
         with no masked data.  The error occurs when attempting to fill
