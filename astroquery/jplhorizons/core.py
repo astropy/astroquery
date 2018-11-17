@@ -8,7 +8,7 @@ from numpy import ndarray
 from collections import OrderedDict
 
 # 2. third party imports
-from astropy.table import Column
+from astropy.table import Table, Column
 from astropy.io import ascii
 from astropy.time import Time
 
@@ -1130,6 +1130,8 @@ class HorizonsClass(BaseQuery):
                           names=headerline,
                           fill_values=[('.n.a.', '0'),
                                        ('n.a.', '0')])
+        # force to a masked table
+        data = Table(data, masked=True)
 
         # convert data to QTable
         # from astropy.table import QTable
@@ -1167,7 +1169,7 @@ class HorizonsClass(BaseQuery):
                                    name='phasecoeff'), index=7)
 
         # replace missing airmass values with 999 (not observable)
-        if self.query_type is 'ephemerides':
+        if self.query_type is 'ephemerides' and 'a-mass' in data.colnames:
             data['a-mass'] = data['a-mass'].filled(999)
 
         # set column definition dictionary
