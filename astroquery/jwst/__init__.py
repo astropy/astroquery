@@ -27,6 +27,8 @@ class Conf(_config.ConfigNamespace):
     JWST_MAIN_TABLE = _config.ConfigItem("jwst.main",
                                          "JWST main table, combination of \
                                          observation and plane tables.")
+    JWST_ARTIFACT_TABLE = _config.ConfigItem("jwst.artifact",
+                                         "JWST artifacts (data files) table.")
     JWST_OBSERVATION_TABLE = _config.ConfigItem("jwst.observation",
                                          "JWST observation table")
     JWST_PLANE_TABLE = _config.ConfigItem("jwst.plane",

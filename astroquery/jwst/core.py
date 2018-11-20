@@ -32,6 +32,7 @@ class JwstClass(object):
     Proxy class to default TapPlus object (pointing to JWST Archive)
     """
     JWST_MAIN_TABLE = conf.JWST_MAIN_TABLE
+    JWST_ARTIFACT_TABLE = conf.JWST_ARTIFACT_TABLE
     JWST_OBSERVATION_TABLE = conf.JWST_OBSERVATION_TABLE
     JWST_OBSERVATION_TABLE_RA = conf.JWST_OBSERVATION_TABLE_RA
     JWST_OBSERVATION_TABLE_DEC = conf.JWST_OBSERVATION_TABLE_DEC
@@ -248,7 +249,7 @@ class JwstClass(object):
         -------
         The job results (astropy.table).
         """
-        coord = self.__getCoordInput(coordinate, "coordinate")
+        coord = self.__get_coord_input(coordinate, "coordinate")
         job = None
         if radius is not None:
             job = self.__cone_search(coord, radius, 
@@ -258,13 +259,13 @@ class JwstClass(object):
         else:
             raHours, dec = commons.coord_to_radec(coord)
             ra = raHours * 15.0  # Converts to degrees
-            widthQuantity = self.__getQuantityInput(width, "width")
-            heightQuantity = self.__getQuantityInput(height, "height")
+            widthQuantity = self.__get_quantity_input(width, "width")
+            heightQuantity = self.__get_quantity_input(height, "height")
             widthDeg = widthQuantity.to(units.deg)
             heightDeg = heightQuantity.to(units.deg)
             
-            cal_level_condition = self.__getCalLevelCondition(cal_level) 
-            public_condition = self.__getPublicCondition(only_public)
+            cal_level_condition = self.__get_callevel_condition(cal_level) 
+            public_condition = self.__get_public_condition(only_public)
             
             query = "SELECT DISTANCE(POINT('ICRS'," +\
                 str(self.JWST_OBSERVATION_TABLE_RA) + "," +\
@@ -396,15 +397,15 @@ class JwstClass(object):
         -------
         A Job object
         """
-        coord = self.__getCoordInput(coordinate, "coordinate")
+        coord = self.__get_coord_input(coordinate, "coordinate")
         raHours, dec = commons.coord_to_radec(coord)
         ra = raHours * 15.0  # Converts to degrees
         
-        cal_level_condition = self.__getCalLevelCondition(cal_level) 
-        public_condition = self.__getPublicCondition(only_public)
+        cal_level_condition = self.__get_callevel_condition(cal_level) 
+        public_condition = self.__get_public_condition(only_public)
             
         if radius is not None:
-            radiusQuantity = self.__getQuantityInput(radius, "radius")
+            radiusQuantity = self.__get_quantity_input(radius, "radius")
             radiusDeg = commons.radius_to_unit(radiusQuantity, unit='deg')
         query = "SELECT DISTANCE(POINT('ICRS'," +\
             str(self.JWST_OBSERVATION_TABLE_RA) + "," +\
@@ -588,6 +589,34 @@ class JwstClass(object):
         """
         return self.__jwsttap.logout(verbose)
     
+    def get_product_list(self, plane_id, product_type=None):
+        """Get the list of products of a given JWST plane.
+
+        Parameters
+        ----------
+        plane_id : str, mandatory
+            Plane ID of the products.
+        product_type : str, optional, default None
+            List only products of the given type. If None, all products are \
+            listed. Possible values: 'thumbnail', 'preview', 'auxiliary', \
+            'science'.
+
+        Returns
+        -------
+        The list of products (astropy.table).
+        """
+        if plane_id is None:
+            raise ValueError("Missing required argument: 'plane_id'")
+        
+        prodtype_condition=self.__get_producttype_condition(product_type)
+        query = "SELECT  * " +\
+            "FROM " + str(self.JWST_ARTIFACT_TABLE) +\
+            " WHERE planeid='"+plane_id+"' " +\
+            prodtype_condition +\
+            "ORDER BY producttype ASC"
+        job = self.__jwsttap.launch_job(query=query)
+        return job.get_results()
+    
     def get_product(self, artifact_id=None):
         """Get a JWST product given its Artifact ID.
 
@@ -614,7 +643,7 @@ class JwstClass(object):
             raise ValueError('Product ' + artifact_id + ' not available')
         return file
     
-    def __getQuantityInput(self, value, msg):
+    def __get_quantity_input(self, value, msg):
         if value is None:
             raise ValueError("Missing required argument: '"+str(msg)+"'")
         if not (isinstance(value, str) or isinstance(value, units.Quantity)):
@@ -626,7 +655,7 @@ class JwstClass(object):
         else:
             return value
 
-    def __getCoordInput(self, value, msg):
+    def __get_coord_input(self, value, msg):
         if not (isinstance(value, str) or isinstance(value, commons.CoordClasses)):
             raise ValueError(
                 str(msg) + " must be either a string or astropy.coordinates")
@@ -636,26 +665,42 @@ class JwstClass(object):
         else:
             return value
         
-    def __getCalLevelCondition(self, cal_level):
-        cal_level_condition = ""
+    def __get_callevel_condition(self, cal_level):
+        condition = ""
         if(cal_level is not None):
             if(isinstance(cal_level, str) and cal_level is 'Top'):
-                cal_level_condition = " AND max_cal_level=calibrationlevel "
+                condition = " AND max_cal_level=calibrationlevel "
             elif(isinstance(cal_level, int)):
-                cal_level_condition = " AND max_cal_level="+\
+                condition = " AND calibrationlevel="+\
                                         str(cal_level)+" "
             else:
                 raise ValueError("cal_level must be either 'Top' or \
                                 an integer. ")
-        return cal_level_condition
+        return condition
     
-    def __getPublicCondition(self, only_public):
-        public_condition = ""
+    def __get_public_condition(self, only_public):
+        condition = ""
         if(not isinstance(only_public, bool)):
             raise ValueError("only_public must be boolean")
         elif(only_public is True):
-            public_condition = " AND public='true' "
-        return public_condition
+            condition = " AND public='true' "
+        return condition
+    
+    def __get_producttype_condition(self, product_type=None):
+        condition = ""
+        if(product_type is not None):
+            if(not isinstance(product_type, str)):
+                raise ValueError("product_type must be string")
+            elif(product_type is not 'thumbnail' and 
+                 product_type is not 'preview' and
+                 product_type is not 'auxiliary' and
+                 product_type is not 'science'):
+                raise ValueError("product_type must be one of: " +\
+                                 "'thumbnail', 'preview', 'auxiliary', " +\
+                                 "'science'")
+            else:
+                condition = " AND producttype='"+product_type+"' "
+        return condition
 
 
 Jwst = JwstClass()

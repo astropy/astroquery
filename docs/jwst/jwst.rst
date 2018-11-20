@@ -6,9 +6,23 @@
 JWST TAP+ (`astroquery.jwst`)
 *****************************
 
-The James Webb Space Telescope (JWST) is a collaborative project between NASA, ESA, and the Canadian Space Agency (CSA). Although radically different in design, and emphasizing the infrared part of the electromagnetic spectrum, JWST is widely seen as the successor to the Hubble Space Telescope (HST). The JWST observatory will consist of a deployable 6.6 meter passively cooled telescope optimized for infrared wavelengths, and will be operated in deep space at the anti-Sun Earth-Sun Lagrangian point (L2). It will carry four scientific instruments: a near-infrared camera (NIRCam), a near-infrared multi-object spectrograph (NIRSpec) covering the 0.6 - 5 μm spectral region, a near-infrared slit-less spectrograph (NIRISS), and a combined mid-infrared camera/spectrograph (MIRI) covering 5 - 28 μm. The JWST focal plane (see image to the right) contains apertures for the science instruments and the Fine Guidance Sensor (FGS). 
+The James Webb Space Telescope (JWST) is a collaborative project between NASA, 
+ESA, and the Canadian Space Agency (CSA). Although radically different in 
+design, and emphasizing the infrared part of the electromagnetic spectrum, 
+JWST is widely seen as the successor to the Hubble Space Telescope (HST). 
+The JWST observatory will consist of a deployable 6.6 meter passively cooled 
+telescope optimized for infrared wavelengths, and will be operated in deep 
+space at the anti-Sun Earth-Sun Lagrangian point (L2). It will carry four 
+scientific instruments: a near-infrared camera (NIRCam), a 
+near-infrared multi-object spectrograph (NIRSpec) covering the 0.6 - 5 μm 
+spectral region, a near-infrared slit-less spectrograph (NIRISS), and a 
+combined mid-infrared camera/spectrograph (MIRI) covering 5 - 28 μm. The JWST 
+focal plane (see image to the right) contains apertures for the science 
+instruments and the Fine Guidance Sensor (FGS). 
 
-The scientific goals of the JWST mission can be sorted into four broad themes: The birth of stars and proto-planetary systems Planetary systems and the origins of life
+The scientific goals of the JWST mission can be sorted into four broad themes: 
+The birth of stars and proto-planetary systems Planetary systems and the 
+origins of life
 
 * The end of the dark ages: first light and re-ionization.
 * The assembly of galaxies.
@@ -44,8 +58,8 @@ ESA JWST TAP+ server provides two access mode: public and authenticated:
   they will remain in the server for a limited space of time.
 
 * Authenticated: some functionalities are restricted to authenticated users only.
-  The results are saved in a private user space and they will remain in the server
-  for ever (they can be removed by the user).
+  The results are saved in a private user space and they will remain in the 
+  server for ever (they can be removed by the user).
 
   * ADQL queries and results are saved in a user private area.
 
@@ -57,7 +71,7 @@ ESA JWST TAP+ server provides two access mode: public and authenticated:
 
 
 This python module provides an Astroquery API access. Nevertheless, only
-``query_object`` and ``query_object_async`` are implemented.
+``query_region`` and ``query_region_async`` are implemented.
 
 
 ========
@@ -68,7 +82,7 @@ Examples
 1. Non authenticated access
 ---------------------------
 
-1.1. Query object
+1.1. Query region
 ~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
@@ -77,37 +91,27 @@ Examples
   >>> from astropy.coordinates import SkyCoord
   >>> from astroquery.jwst import Jwst
   >>>
-  >>> coord = SkyCoord(ra=280, dec=-60, unit=(u.degree, u.degree), frame='icrs')
-  >>> width = u.Quantity(0.1, u.deg)
-  >>> height = u.Quantity(0.1, u.deg)
-  >>> r = Jwst.query_object_async(coordinate=coord, width=width, height=height)
+  >>> coord = SkyCoord(ra=53, dec=-27, unit=(u.degree, u.degree), frame='icrs')
+  >>> width = u.Quantity(5, u.deg)
+  >>> height = u.Quantity(5, u.deg)
+  >>> r = Jwst.query_reguion_async(coordinate=coord, width=width, height=height)
   >>> r.pprint()
 
-           dist             solution_id     ...       ecl_lat
-                                            ...      Angle[deg]
-  --------------------- ------------------- ... -------------------
-  0.0026029414438061079 1635378410781933568 ... -36.779151653783892
-  0.0038537557334594502 1635378410781933568 ... -36.773899692008634
-  0.0045451702670639632 1635378410781933568 ... -36.772645786277522
-  0.0056131312891700424 1635378410781933568 ... -36.781488832325074
-  0.0058494547209840585 1635378410781933568 ... -36.770812028764119
-  0.0062076788443168303 1635378410781933568 ... -36.780588167751368
-  0.008201843586626921 1635378410781933568 ... -36.784730288359086
-  0.0083377863521668077 1635378410781933568 ... -36.784848302904727
-  0.0084057202175603796 1635378410781933568 ... -36.784556953222634
-  0.0092437652172596384 1635378410781933568 ... -36.767784193150469
-                  ...                 ... ...                 ...
-  0.049586988816560117 1635378410781933568 ... -36.824132319326232
-  0.049717306565450765 1635378410781933568 ... -36.823845008396503
-  0.049777020825344041 1635378410781933568 ...  -36.72857293240213
-  0.050385912463710505 1635378410781933568 ... -36.729880776402624
-  0.050826536195428054 1635378410781933568 ... -36.822968947436181
-  0.050859645206141363 1635378410781933568 ... -36.823021426398789
-  0.051040085912766479 1635378410781933568 ... -36.728589237516161
-  0.051211160779507325 1635378410781933568 ... -36.825120633172546
-  0.051958453766310551 1635378410781933568 ... -36.725819366872734
-  0.053207596589671176 1635378410781933568 ... -36.826600298826662
-  Length = 152 rows
+  Query finished.
+         dist                       obsid                 ...  type typecode
+  ------------------ ------------------------------------ ... ----- --------
+  0.8042331552744052 00000000-0000-0000-8f43-c68be243b878 ... PRIME        S
+  0.8042331552744052 00000000-0000-0000-8f43-c68be243b878 ... PRIME        S
+  0.8042331552744052 00000000-0000-0000-94fc-23f102d345d3 ... PRIME        S
+  0.8042331552744052 00000000-0000-0000-94fc-23f102d345d3 ... PRIME        S
+  0.8042331552744052 00000000-0000-0000-a288-14744c2a684b ... PRIME        S
+  0.8042331552744052 00000000-0000-0000-a288-14744c2a684b ... PRIME        S
+  0.8042331552744052 00000000-0000-0000-b3cc-6aa1e2e509c2 ... PRIME        S
+  0.8042331552744052 00000000-0000-0000-b3cc-6aa1e2e509c2 ... PRIME        S
+  0.8042331552744052 00000000-0000-0000-b3eb-870a80410d40 ... PRIME        S
+  0.8042331552744052 00000000-0000-0000-b3eb-870a80410d40 ... PRIME        S
+  0.8042331552744052 00000000-0000-0000-babe-5c1ec63d3301 ... PRIME        S
+  0.8042331552744052 00000000-0000-0000-babe-5c1ec63d3301 ... PRIME        S
 
 
 1.2. Cone search
@@ -117,151 +121,161 @@ Examples
 
   >>> import astropy.units as u
   >>> from astropy.coordinates import SkyCoord
-  >>> from astroquery.gaia import Gaia
+  >>> from astroquery.Jwst import Jwst
   >>>
-  >>> coord = SkyCoord(ra=280, dec=-60, unit=(u.degree, u.degree), frame='icrs')
-  >>> radius = u.Quantity(1.0, u.deg)
-  >>> j = Gaia.cone_search_async(coord, radius)
+  >>> coord = SkyCoord(ra=53, dec=-27, unit=(u.degree, u.degree), frame='icrs')
+  >>> radius = u.Quantity(5.0, u.deg)
+  >>> j = Jwst.cone_search_async(coord, radius)
   >>> r = j.get_results()
   >>> r.pprint()
 
-           dist             solution_id     ...       ecl_lat
-                                          ...      Angle[deg]
-  --------------------- ------------------- ... -------------------
-  0.0026029414438061079 1635378410781933568 ... -36.779151653783892
-  0.0038537557334594502 1635378410781933568 ... -36.773899692008634
-  0.0045451702670639632 1635378410781933568 ... -36.772645786277522
-  0.0056131312891700424 1635378410781933568 ... -36.781488832325074
-  0.0058494547209840585 1635378410781933568 ... -36.770812028764119
-  0.0062076788443168303 1635378410781933568 ... -36.780588167751368
-  0.008201843586626921 1635378410781933568 ... -36.784730288359086
-  0.0083377863521668077 1635378410781933568 ... -36.784848302904727
-  0.0084057202175603796 1635378410781933568 ... -36.784556953222634
-  0.0092437652172596384 1635378410781933568 ... -36.767784193150469
-                  ...                 ... ...                 ...
-  0.14654733241000259 1635378410781933568 ... -36.667789989774818
-  0.14657617264211745 1635378410781933568 ... -36.876849099093427
-  0.14674748663117593 1635378410781933568 ... -36.734323499168184
-  0.14678063354511475 1635378410781933568 ... -36.845214606267504
-  0.14679704339818228 1635378410781933568 ... -36.697986781654343
-  0.14684048305123779 1635378410781933568 ...   -36.6983554058179
-  0.14684061095346052 1635378410781933568 ... -36.854933118845658
-  0.14690380253776872 1635378410781933568 ... -36.700207569397797
-  0.1469069007730108 1635378410781933568 ...  -36.92092859296757
-  0.14690740362559238 1635378410781933568 ... -36.677757522466912
-  Length = 2000 rows
+         dist                       obsid                 ...  type typecode
+  ------------------ ------------------------------------ ... ----- --------
+  0.8042331552744052 00000000-0000-0000-8f43-c68be243b878 ... PRIME        S
+  0.8042331552744052 00000000-0000-0000-8f43-c68be243b878 ... PRIME        S
+  0.8042331552744052 00000000-0000-0000-94fc-23f102d345d3 ... PRIME        S
+  0.8042331552744052 00000000-0000-0000-94fc-23f102d345d3 ... PRIME        S
+  0.8042331552744052 00000000-0000-0000-a288-14744c2a684b ... PRIME        S
+  0.8042331552744052 00000000-0000-0000-a288-14744c2a684b ... PRIME        S
+  0.8042331552744052 00000000-0000-0000-b3cc-6aa1e2e509c2 ... PRIME        S
+  0.8042331552744052 00000000-0000-0000-b3cc-6aa1e2e509c2 ... PRIME        S
+  0.8042331552744052 00000000-0000-0000-b3eb-870a80410d40 ... PRIME        S
+  0.8042331552744052 00000000-0000-0000-b3eb-870a80410d40 ... PRIME        S
+  0.8042331552744052 00000000-0000-0000-babe-5c1ec63d3301 ... PRIME        S
+  0.8042331552744052 00000000-0000-0000-babe-5c1ec63d3301 ... PRIME        S
 
+1.3 Getting data products
+~~~~~~~~~~~~~~~~~~~~~~~~~
+To query the data products associated with a certain plane ID
 
+.. code-block:: python
 
-1.3 Getting public tables
+  >>> from astroquery.jwst import Jwst
+  >>> product_list = Jwst.get_product_list('00000000-0000-0000-aa9c-541cc6e5ff87')
+  >>> print(product_list.group_by(['artifactid', 'filename']).groups.keys)
+
+               artifactid                               filename                
+  ------------------------------------ -----------------------------------------
+  00000000-0000-0000-81df-1e50349b9801                 jw10006010001_01_msa.fits
+  00000000-0000-0000-95e8-4d5c47e0d19f  jw10006010001_01101_00002_nrs2_uncal.jpg
+  00000000-0000-0000-af91-b0375f07283b jw10006010001_01101_00002_nrs2_uncal.fits
+
+To query the science data products associated with a certain plane ID
+
+.. code-block:: python
+
+  >>> from astroquery.jwst import Jwst
+  >>> product_list = Jwst.get_product_list('00000000-0000-0000-aa9c-541cc6e5ff87', 'science')
+  >>> print(product_list.group_by(['artifactid', 'filename']).groups.keys)
+
+               artifactid                               filename                
+ ------------------------------------ -----------------------------------------
+  00000000-0000-0000-af91-b0375f07283b jw10006010001_01101_00002_nrs2_uncal.fits
+
+To download a data product
+
+.. code-block:: python
+
+  >>> from astroquery.jwst import Jwst
+  >>> product_list = Jwst.get_product('00000000-0000-0000-af91-b0375f07283b')
+
+1.4 Getting public tables
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To load only table names (TAP+ capability)
 
 .. code-block:: python
 
-  >>> from astroquery.gaia import Gaia
-  >>> tables = Gaia.load_tables(only_names=True)
+  >>> from astroquery.jwst import Jwst
+  >>> tables = Jwst.load_tables(only_names=True)
   >>> for table in (tables):
-  >>>   print(table.get_qualified_name())
+  >>>   print(table.name)
 
   public.dual
-  public.tycho2
-  public.igsl_source
-  public.hipparcos
-  public.hipparcos_newreduction
-  public.hubble_sc
-  public.igsl_source_catalog_ids
-  tap_schema.tables
-  tap_schema.keys
   tap_schema.columns
-  tap_schema.schemas
   tap_schema.key_columns
-  gaiadr1.phot_variable_time_series_gfov
-  gaiadr1.ppmxl_neighbourhood
-  gaiadr1.gsc23_neighbourhood
-  gaiadr1.ppmxl_best_neighbour
-  gaiadr1.sdss_dr9_neighbourhood
-  ...
-  gaiadr1.tgas_source
-  gaiadr1.urat1_original_valid
-  gaiadr1.allwise_original_valid
+  tap_schema.keys
+  tap_schema.schemas
+  tap_schema.tables
+  jwst.artifact
+  jwst.chunk
+  jwst.main
+  jwst.observation
+  jwst.observationmember
+  jwst.part
+  jwst.plane
+  jwst.plane_inputs
 
 To load table names (TAP compatible)
 
 .. code-block:: python
 
-  >>> from astroquery.gaia import Gaia
-  >>> tables = Gaia.load_tables()
+  >>> from astroquery.jwst import Jwst
+  >>> tables = Jwst.load_tables()
   >>> for table in (tables):
-  >>>   print(table.get_qualified_name())
+  >>>   print(table.name)
 
   public.dual
-  public.tycho2
-  public.igsl_source
-  public.hipparcos
-  public.hipparcos_newreduction
-  public.hubble_sc
-  public.igsl_source_catalog_ids
-  tap_schema.tables
-  tap_schema.keys
   tap_schema.columns
-  tap_schema.schemas
   tap_schema.key_columns
-  gaiadr1.phot_variable_time_series_gfov
-  gaiadr1.ppmxl_neighbourhood
-  gaiadr1.gsc23_neighbourhood
-  gaiadr1.ppmxl_best_neighbour
-  gaiadr1.sdss_dr9_neighbourhood
-  ...
-  gaiadr1.tgas_source
-  gaiadr1.urat1_original_valid
-  gaiadr1.allwise_original_valid
+  tap_schema.keys
+  tap_schema.schemas
+  tap_schema.tables
+  jwst.artifact
+  jwst.chunk
+  jwst.main
+  jwst.observation
+  jwst.observationmember
+  jwst.part
+  jwst.plane
+  jwst.plane_inputs
 
 To load only a table (TAP+ capability)
 
 .. code-block:: python
 
-  >>> from astroquery.gaia import Gaia
-  >>> table = Gaia.load_table('gaiadr1.gaia_source')
+  >>> from astroquery.gaia import Jwst
+  >>> table = Jwst.load_table('jwst.main')
   >>> print(table)
 
-  Table name: gaiadr1.gaia_source
-  Description: This table has an entry for every Gaia observed source as listed in the
-  Main Database accumulating catalogue version from which the catalogue
-  release has been generated. It contains the basic source parameters,
-  that is only final data (no epoch data) and no spectra (neither final
-  nor epoch).
-  Num. columns: 57
+  TAP Table name: jwst.main
+  Description: 
+  Num. columns: 112
 
 
 Once a table is loaded, columns can be inspected
 
 .. code-block:: python
 
-  >>> from astroquery.gaia import Gaia
-  >>> gaiadr1_table = Gaia.load_table('gaiadr1.gaia_source')
-  >>> for column in (gaiadr1_table.get_columns()):
-  >>>   print(column.get_name())
+  >>> from astroquery.jwst import Jwst
+  >>> table = Jwst.load_table('jwst.main')
+  >>> for column in (table.columns):
+  >>>   print(column.name)
 
-  solution_id
-  source_id
-  random_index
-  ref_epoch
-  ra
-  ra_error
-  dec
-  dec_error
+  obsid
+  planeid
+  public
+  calibrationlevel
+  dataproducttype
+  algorithm_name
+  collection
+  creatorid
+  energy_bandpassname
   ...
-  ecl_lon
-  ecl_lat
+  time_exposure
+  time_resolution
+  time_samplesize
+  type
+  typecode
 
-1.4 Synchronous query
+1.5 Synchronous query
 ~~~~~~~~~~~~~~~~~~~~~
 
-A synchronous query will not store the results at server side. These queries must be used when the amount of data to be retrieve is 'small'.
+A synchronous query will not store the results at server side. These queries 
+must be used when the amount of data to be retrieve is 'small'.
 
-There is a limit of 2000 rows. If you need more than that, you must use asynchronous queries.
+There is a limit of 2000 rows. If you need more than that, you must use 
+asynchronous queries.
 
 The results can be saved in memory (default) or in a file.
 
@@ -269,11 +283,13 @@ Query without saving results in a file:
 
 .. code-block:: python
 
-  >>> from astroquery.gaia import Gaia
+  >>> from astroquery.jwst import Jwst
   >>>
-  >>> job = Gaia.launch_job("select top 100 \
-  >>> solution_id,ref_epoch,ra_dec_corr,astrometric_n_obs_al,matched_observations,duplicated_source,phot_variable_flag \
-  >>> from gaiadr1.gaia_source order by source_id")
+  >>> job = Jwst.launch_job("SELECT TOP 100 \
+  >>> instrument_name, observationuri, planeid, calibrationlevel, \
+  >>> dataproducttype, targetposition_coordinates_cval1 as target_ra, \
+  >>> targetposition_coordinates_cval2 as target_dec \
+  >>> FROM jwst.main ORDER BY instrument_name, observationuri")
   >>>
   >>> print(job)
 
@@ -284,93 +300,99 @@ Query without saving results in a file:
   Results: None
 
   >>> r = job.get_results()
-  >>> print(r['solution_id'])
+  >>> print(r['planeid'])
 
-    solution_id
-  -------------------
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-                ...
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  Length = 100 rows
+                planeid               
+  ------------------------------------
+  00000000-0000-0000-9d6d-f192fde74ce4
+  00000000-0000-0000-8a85-d34d6a411611
+  00000000-0000-0000-969c-a49226673efa
+  00000000-0000-0000-8c07-c26c24bec2ee
+  00000000-0000-0000-89d2-b42624493c84
+  00000000-0000-0000-800d-659917e7bb26
+  00000000-0000-0000-8cb6-748fa37d47e3
+  00000000-0000-0000-8573-92ad575b8fb4
+  00000000-0000-0000-8572-b7b226953a2c
+  00000000-0000-0000-8d1d-765c362e3227
+                                   ...
+  00000000-0000-0000-b7d9-b4686ed37bf0
+  00000000-0000-0000-822f-08376ffe6f0b
+  00000000-0000-0000-8a8e-8cd48bb4cd7a
+  00000000-0000-0000-8a9d-3e1aae1281ba
+  00000000-0000-0000-a2ac-1ac288320bf7
+  00000000-0000-0000-a20f-835a58ca7872
+  00000000-0000-0000-aa9c-541cc6e5ff87
+  00000000-0000-0000-8fe4-092c69639602
+  00000000-0000-0000-acfb-6e445e284609
+  00000000-0000-0000-96ff-efd5bbcd5afe
+  00000000-0000-0000-8d90-2ca5ebac4a51
+  Length = 37 rows
 
 Query saving results in a file:
 
 .. code-block:: python
 
-  >>> from astroquery.gaia import Gaia
-  >>> job = Gaia.launch_job("select top 100 \
-  >>> solution_id,ref_epoch,ra_dec_corr,astrometric_n_obs_al,matched_observations,duplicated_source,phot_variable_flag \
-  >>> from gaiadr1.gaia_source order by source_id", dump_to_file=True)
+  >>> from astroquery.jwst import JWST
+  >>> job = Jwst.launch_job("SELECT TOP 100 \
+  >>> instrument_name, observationuri, planeid, calibrationlevel, \
+  >>> dataproducttype, targetposition_coordinates_cval1 as target_ra, \
+  >>> targetposition_coordinates_cval2 as target_dec \
+  >>> FROM jwst.main ORDER BY instrument_name, observationuri", \
+  >>> dump_to_file=True)
   >>>
   >>> print(job)
 
   Jobid: None
   Phase: COMPLETED
   Owner: None
-  Output file: sync_20170223111452.xml.gz
+  Output file: sync_20181116164108.xml.gz
   Results: None
 
   >>> r = job.get_results()
   >>> print(r['solution_id'])
 
-    solution_id
-  -------------------
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-                ...
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  Length = 100 rows
+  >>> r = job.get_results()
+  >>> print(r['planeid'])
+
+                planeid               
+  ------------------------------------
+  00000000-0000-0000-9d6d-f192fde74ce4
+  00000000-0000-0000-8a85-d34d6a411611
+  00000000-0000-0000-969c-a49226673efa
+  00000000-0000-0000-8c07-c26c24bec2ee
+  00000000-0000-0000-89d2-b42624493c84
+  00000000-0000-0000-800d-659917e7bb26
+  00000000-0000-0000-8cb6-748fa37d47e3
+  00000000-0000-0000-8573-92ad575b8fb4
+  00000000-0000-0000-8572-b7b226953a2c
+  00000000-0000-0000-8d1d-765c362e3227
+                                   ...
+  00000000-0000-0000-b7d9-b4686ed37bf0
+  00000000-0000-0000-822f-08376ffe6f0b
+  00000000-0000-0000-8a8e-8cd48bb4cd7a
+  00000000-0000-0000-8a9d-3e1aae1281ba
+  00000000-0000-0000-a2ac-1ac288320bf7
+  00000000-0000-0000-a20f-835a58ca7872
+  00000000-0000-0000-aa9c-541cc6e5ff87
+  00000000-0000-0000-8fe4-092c69639602
+  00000000-0000-0000-acfb-6e445e284609
+  00000000-0000-0000-96ff-efd5bbcd5afe
+  00000000-0000-0000-8d90-2ca5ebac4a51
+  Length = 37 rows
 
 
-1.5 Synchronous query on an 'on-the-fly' uploaded table
+1.6 Synchronous query on an 'on-the-fly' uploaded table
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A table can be uploaded to the server in order to be used in a query.
 
 .. code-block:: python
 
-  from astroquery.gaia import Gaia
-
-  >>> upload_resource = 'my_table.xml'
-  >>> j = Gaia.launch_job(query="select * from tap_upload.table_test", upload_resource=upload_resource, \
-  >>> upload_table_name="table_test", verbose=True)
+  >>> from astroquery.jwst import Jwst
+  >>> upload_resource = 'mytable.xml.gz'
+  >>> j = Jwst.launch_job(query="SELECT * from tap_upload.table_test", \
+  >>>   upload_resource=upload_resource, \
+  >>>   upload_table_name="table_test", verbose=True)
   >>> r = j.get_results()
   >>> r.pprint()
 
@@ -381,7 +403,7 @@ A table can be uploaded to the server in order to be used in a query.
           c   5.0   6.0
 
 
-1.6 Asynchronous query
+1.7 Asynchronous query
 ~~~~~~~~~~~~~~~~~~~~~~
 
 Asynchronous queries save results at server side. These queries can be accessed at any time. For anonymous users, results are kept for three days.
@@ -392,20 +414,18 @@ Query without saving results in a file:
 
 .. code-block:: python
 
-  >>> from astroquery.gaia import Gaia
-  >>>
-  >>> job = Gaia.launch_job_async("select top 100 * from gaiadr1.gaia_source order by source_id")
-  >>>
+  >>> from astroquery.jwst import Jwst
+  >>> job = Jwst.launch_job_async("select top 100 * from jwst.main")
   >>> print(job)
 
-  Jobid: 1487845273526O
+  Jobid: 1542383562372I
   Phase: COMPLETED
   Owner: None
-  Output file: async_20170223112113.vot
+  Output file: async_20181116165244.vot
   Results: None
 
   >>> r = job.get_results()
-  >>> print(r['solution_id'])
+  >>> print(r['planeid'])
 
     solution_id
   -------------------
@@ -452,42 +472,42 @@ Query saving results in a file:
   >>> r = job.get_results()
   >>> print(r['solution_id'])
 
-    solution_id
-  -------------------
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-                ...
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  Length = 100 rows
+               planeid               
+  ------------------------------------
+  00000000-0000-0000-9d6d-f192fde74ce4
+  00000000-0000-0000-8a85-d34d6a411611
+  00000000-0000-0000-969c-a49226673efa
+  00000000-0000-0000-8c07-c26c24bec2ee
+  00000000-0000-0000-89d2-b42624493c84
+  00000000-0000-0000-800d-659917e7bb26
+  00000000-0000-0000-8cb6-748fa37d47e3
+  00000000-0000-0000-8573-92ad575b8fb4
+  00000000-0000-0000-8572-b7b226953a2c
+  00000000-0000-0000-8d1d-765c362e3227
+                                   ...
+  00000000-0000-0000-b7d9-b4686ed37bf0
+  00000000-0000-0000-822f-08376ffe6f0b
+  00000000-0000-0000-8a8e-8cd48bb4cd7a
+  00000000-0000-0000-8a9d-3e1aae1281ba
+  00000000-0000-0000-a2ac-1ac288320bf7
+  00000000-0000-0000-a20f-835a58ca7872
+  00000000-0000-0000-aa9c-541cc6e5ff87
+  00000000-0000-0000-8fe4-092c69639602
+  00000000-0000-0000-acfb-6e445e284609
+  00000000-0000-0000-96ff-efd5bbcd5afe
+  00000000-0000-0000-8d90-2ca5ebac4a51
+  Length = 37 rows
 
 
-1.6 Asynchronous job removal
+1.8 Asynchronous job removal
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To remove asynchronous
 
 .. code-block:: python
 
-  >>> from astroquery.gaia import Gaia
-  >>> job = Gaia.remove_jobs(["job_id_1","job_id_2",...])
+  >>> from astroquery.jwst import Jwst
+  >>> job = Jwst.remove_jobs(["job_id_1","job_id_2",...])
 
 
 ---------------------------
@@ -517,8 +537,8 @@ Graphic interface
 
 .. code-block:: python
 
-  >>> from astroquery.gaia import Gaia
-  >>> Gaia.login_gui()
+  >>> from astroquery.jwst import Jwst
+  >>> Jwst.login_gui()
 
 
 Command line
@@ -526,8 +546,8 @@ Command line
 
 .. code-block:: python
 
-  >>> from astroquery.gaia import Gaia
-  >>> Gaia.login(user='userName', password='userPassword')
+  >>> from astroquery.jwst import Jwst
+  >>> Jwst.login(user='userName', password='userPassword')
 
 
 It is possible to use a file where the credentials are stored:
@@ -536,8 +556,8 @@ It is possible to use a file where the credentials are stored:
 
 .. code-block:: python
 
-  >>> from astroquery.gaia import Gaia
-  >>> Gaia.login(credentials_file='my_credentials_file')
+  >>> from astroquery.jwst import Jwst
+  >>> Jwst.login(credentials_file='my_credentials_file')
 
 
 
@@ -546,8 +566,8 @@ To perform a logout
 
 .. code-block:: python
 
-  >>> from astroquery.gaia import Gaia
-  >>> Gaia.logout()
+  >>> from astroquery.jwst import Jwst
+  >>> Jwst.logout()
 
 
 
@@ -556,22 +576,25 @@ To perform a logout
 
 .. code-block:: python
 
-  >>> from astroquery.gaia import Gaia
-  >>> tables = Gaia.load_tables(only_names=True, include_shared_tables=True)
+  >>> from astroquery.jwst import Jwst
+  >>> tables = Jwst.load_tables(only_names=True, include_shared_tables=True)
   >>> for table in (tables):
-  >>>   print(table.get_qualified_name())
+  >>>   print(table.name)
 
   public.dual
-  public.tycho2
-  public.igsl_source
-  tap_schema.tables
-  tap_schema.keys
   tap_schema.columns
-  tap_schema.schemas
   tap_schema.key_columns
-  gaiadr1.phot_variable_time_series_gfov
-  gaiadr1.ppmxl_neighbourhood
-  gaiadr1.gsc23_neighbourhood
+  tap_schema.keys
+  tap_schema.schemas
+  tap_schema.tables
+  jwst.artifact
+  jwst.chunk
+  jwst.main
+  jwst.observation
+  jwst.observationmember
+  jwst.part
+  jwst.plane
+  jwst.plane_inputs
   ...
   user_schema_1.table1
   user_schema_2.table1
