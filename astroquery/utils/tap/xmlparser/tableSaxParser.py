@@ -93,7 +93,7 @@ class TableSaxParser(xml.sax.ContentHandler):
         if self.__check_item_id("table", name):
             self.__status = READING_TABLE
             self.__currentTable = TapTableMeta()
-            self.__currentTable.set_schema(self.__currentSchemaName)
+            self.__currentTable.schema = self.__currentSchemaName
 
     def __end_schema(self, name):
         if self.__check_item_id("name", name):
@@ -112,10 +112,10 @@ class TableSaxParser(xml.sax.ContentHandler):
     def __end_table(self, name):
         if self.__check_item_id("name", name):
             self.__stop_reading_data()
-            self.__currentTable.set_name(self.__create_string_from_buffer())
+            self.__currentTable.name = self.__create_string_from_buffer()
         elif self.__check_item_id("description", name):
             self.__stop_reading_data()
-            self.__currentTable.set_description(self.__create_string_from_buffer())
+            self.__currentTable.description = self.__create_string_from_buffer()
         elif self.__check_item_id("table", name):
             self.__tables.append(self.__currentTable)
             self.__status = READING_SCHEMA
@@ -138,25 +138,25 @@ class TableSaxParser(xml.sax.ContentHandler):
 
     def __end_table_column(self, name):
         if self.__check_item_id("name", name):
-            self.__currentColumn.set_name(self.__create_string_from_buffer())
+            self.__currentColumn.name = self.__create_string_from_buffer()
             self.__stop_reading_data()
         elif self.__check_item_id("description", name):
-            self.__currentColumn.set_description(self.__create_string_from_buffer())
+            self.__currentColumn.description = self.__create_string_from_buffer()
             self.__stop_reading_data()
         elif self.__check_item_id("unit", name):
-            self.__currentColumn.set_unit(self.__create_string_from_buffer())
+            self.__currentColumn.unit = self.__create_string_from_buffer()
             self.__stop_reading_data()
         elif self.__check_item_id("ucd", name):
-            self.__currentColumn.set_ucd(self.__create_string_from_buffer())
+            self.__currentColumn.ucd = self.__create_string_from_buffer()
             self.__stop_reading_data()
         elif self.__check_item_id("utype", name):
-            self.__currentColumn.set_utype(self.__create_string_from_buffer())
+            self.__currentColumn.utype = self.__create_string_from_buffer()
             self.__stop_reading_data()
         elif self.__check_item_id("datatype", name):
-            self.__currentColumn.set_data_type(self.__create_string_from_buffer())
+            self.__currentColumn.data_type = self.__create_string_from_buffer()
             self.__stop_reading_data()
         elif self.__check_item_id("flag", name):
-            self.__currentColumn.set_flag(self.__create_string_from_buffer())
+            self.__currentColumn.flag = self.__create_string_from_buffer()
             self.__stop_reading_data()
         if self.__check_item_id("column", name):
             self.__status = READING_TABLE

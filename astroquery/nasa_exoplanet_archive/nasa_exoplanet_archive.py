@@ -39,7 +39,7 @@ class NasaExoplanetArchiveClass(object):
         return self._param_units
 
     def get_confirmed_planets_table(self, cache=True, show_progress=True,
-                                    table_path=None):
+                                    table_path=None, all_columns=False):
         """
         Download (and optionally cache) the `NExScI Exoplanet Archive Confirmed
         Planets table <http://exoplanetarchive.ipac.caltech.edu/index.html>`_.
@@ -58,14 +58,22 @@ class NasaExoplanetArchiveClass(object):
         table_path : str (optional)
             Path to a local table file. Default `None` will trigger a
             download of the table from the internet.
+        all_columns : bool (optional)
+            Return all available columns. The default returns only the
+            columns in the default category at the link above.
+
         Returns
         -------
         table : `~astropy.table.QTable`
             Table of exoplanet properties.
         """
-        if self._table is None:
+        if self._table is None or not cache:
             if table_path is None:
-                table_path = download_file(EXOPLANETS_CSV_URL, cache=cache,
+                exoplanets_url = EXOPLANETS_CSV_URL
+                if all_columns:
+                    exoplanets_url = EXOPLANETS_CSV_URL + '&select=*'
+
+                table_path = download_file(exoplanets_url, cache=cache,
                                            show_progress=show_progress,
                                            timeout=120)
             exoplanets_table = ascii.read(table_path)
@@ -93,7 +101,8 @@ class NasaExoplanetArchiveClass(object):
 
         return self._table
 
-    def query_planet(self, planet_name, table_path=None):
+    def query_planet(self, planet_name, table_path=None,
+                     all_columns=False):
         """
         Get table of exoplanet properties.
 
@@ -104,6 +113,10 @@ class NasaExoplanetArchiveClass(object):
         table_path : str (optional)
             Path to a local table file. Default `None` will trigger a
             download of the table from the internet.
+        all_columns : bool (optional)
+            Return all available columns. The default returns only the
+            columns in the default category at the link above.
+
         Return
         ------
         table : `~astropy.table.QTable`

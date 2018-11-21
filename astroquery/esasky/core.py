@@ -11,6 +11,7 @@ from astropy.io import fits
 from astropy import log
 import astropy.units
 import astropy.io.votable as votable
+from requests import HTTPError
 
 from ..query import BaseQuery
 from ..utils import commons
@@ -320,9 +321,10 @@ class ESASkyClass(BaseQuery):
 
         Parameters
         ----------
-        query_table_list : `~astroquery.utils.TableList`
-            A TableList with all the missions wanted and their respective
-            metadata. Usually the return value of query_region_maps.
+        query_table_list : `~astroquery.utils.TableList` or dict or list of (name, `~astropy.table.Table`) pairs
+            A TableList or dict or list of name and Table pairs with all the
+            missions wanted and their respective metadata. Usually the
+            return value of query_region_maps.
         missions : string or list, optional
             Can be either a specific mission or a list of missions (all mission
             names are found in list_missions()) or 'all' to search in all
@@ -354,29 +356,33 @@ class ESASkyClass(BaseQuery):
 
         """
         sanitized_query_table_list = self._sanitize_input_table_list(query_table_list)
-        sanitized_missions = self._sanitize_input_mission(missions)
+        sanitized_missions = [m.lower() for m in self._sanitize_input_mission(missions)]
 
         maps = dict()
 
         for query_mission in sanitized_query_table_list.keys():
-            for mission in sanitized_missions:
-                # INTEGRAL does not have a product url yet.
-                if (query_mission.lower() == self.__INTEGRAL_STRING):
-                    print("INTEGRAL does not yet support downloading of "
-                          "fits files")
-                    break
-                if (query_mission.lower() == mission.lower()):
-                    maps[query_mission] = (
-                        self._get_maps_for_mission(
-                            sanitized_query_table_list[query_mission],
-                            query_mission,
-                            download_dir,
-                            cache))
-                    break
-        if (len(sanitized_query_table_list) > 0):
-            log.info("Maps available at %s" % os.path.abspath(download_dir))
+            # INTEGRAL does not have a product url yet.
+            if (query_mission.lower() == self.__INTEGRAL_STRING):
+                log.info("INTEGRAL does not yet support downloading of "
+                         "fits files")
+                continue
+
+            if (query_mission.lower() in sanitized_missions):
+                maps[query_mission] = (
+                    self._get_maps_for_mission(
+                        sanitized_query_table_list[query_mission],
+                        query_mission,
+                        download_dir,
+                        cache))
+
+        if all([maps[mission].count(None) == len(maps[mission])
+                for mission in maps]):
+            log.info("No maps got downloaded, check errors above.")
+
+        elif (len(sanitized_query_table_list) > 0):
+            log.info("Maps available at {}.".format(os.path.abspath(download_dir)))
         else:
-            print("No maps found")
+            log.info("No maps found.")
         return maps
 
     def get_images(self, position, radius=__ZERO_ARCMIN_STRING, missions=__ALL_STRING,
@@ -441,8 +447,8 @@ class ESASkyClass(BaseQuery):
         for query_mission in map_query_result.keys():
             # INTEGRAL does not have a product url yet.
             if (query_mission.lower() == self.__INTEGRAL_STRING):
-                print("INTEGRAL does not yet support downloading of "
-                      "fits files")
+                log.info("INTEGRAL does not yet support downloading of "
+                         "fits files")
                 continue
             maps[query_mission] = (
                 self._get_maps_for_mission(
@@ -451,7 +457,13 @@ class ESASkyClass(BaseQuery):
                     download_dir,
                     cache))
 
-        print("Maps available at %s" % os.path.abspath(download_dir))
+        if all([maps[mission].count(None) == len(maps[mission])
+                for mission in maps]):
+            log.info("No maps got downloaded, check errors above.")
+        elif (len(map_query_result) > 0):
+            log.info("Maps available at {}".format(os.path.abspath(download_dir)))
+        else:
+            log.info("No maps found.")
         return maps
 
     def _sanitize_input_position(self, position):
@@ -471,9 +483,9 @@ class ESASkyClass(BaseQuery):
                              "astropy.units.Quantity")
 
     def _sanitize_input_mission(self, missions):
-        if (isinstance(missions, list)):
+        if isinstance(missions, list):
             return missions
-        if (isinstance(missions, str)):
+        if isinstance(missions, str):
             if (missions.lower() == self.__ALL_STRING):
                 return self.list_maps()
             else:
@@ -482,9 +494,9 @@ class ESASkyClass(BaseQuery):
                          "missions")
 
     def _sanitize_input_catalogs(self, catalogs):
-        if (isinstance(catalogs, list)):
+        if isinstance(catalogs, list):
             return catalogs
-        if (isinstance(catalogs, str)):
+        if isinstance(catalogs, str):
             if (catalogs.lower() == self.__ALL_STRING):
                 return self.list_catalogs()
             else:
@@ -493,12 +505,18 @@ class ESASkyClass(BaseQuery):
                          "catalogs")
 
     def _sanitize_input_table_list(self, table_list):
-        if (isinstance(table_list, commons.TableList)):
+        if isinstance(table_list, commons.TableList):
             return table_list
-        raise ValueError("Query_table_list must be an astropy.utils.TableList")
+
+        try:
+            return commons.TableList(table_list)
+        except ValueError:
+            raise ValueError(
+                "query_table_list must be an astroquery.utils.TableList "
+                "or be able to be converted to it.")
 
     def _sanitize_input_row_limit(self, row_limit):
-        if (isinstance(row_limit, int)):
+        if isinstance(row_limit, int):
             return row_limit
         raise ValueError("Row_limit must be an integer")
 
@@ -508,8 +526,8 @@ class ESASkyClass(BaseQuery):
         if (len(maps_table[self.__PRODUCT_URL_STRING]) > 0):
             mission_directory = self._create_mission_directory(mission,
                                                                download_dir)
-            print("Starting download of %s data. (%d files)"
-                  % (mission, len(maps_table[self.__PRODUCT_URL_STRING])))
+            log.info("Starting download of {} data. ({} files)".format(
+                mission, len(maps_table[self.__PRODUCT_URL_STRING])))
             for index in range(len(maps_table)):
                 product_url = maps_table[self.__PRODUCT_URL_STRING][index].decode('utf-8')
                 if(mission.lower() == self.__HERSCHEL_STRING):
@@ -517,15 +535,19 @@ class ESASkyClass(BaseQuery):
                 else:
                     observation_id = (maps_table[self._get_tap_observation_id(mission)][index]
                                       .decode('utf-8'))
-                print("Downloading Observation ID: %s from %s"
-                      % (observation_id, product_url), end=" ")
+                log.info("Downloading Observation ID: {} from {}"
+                         .format(observation_id, product_url))
                 sys.stdout.flush()
                 directory_path = mission_directory + "/"
                 if (mission.lower() == self.__HERSCHEL_STRING):
-                    maps.append(self._get_herschel_map(
-                        product_url,
-                        directory_path,
-                        cache))
+                    try:
+                        maps.append(self._get_herschel_map(
+                            product_url,
+                            directory_path,
+                            cache))
+                    except HTTPError as err:
+                        log.error("Download failed with {}.".format(err))
+                        maps.append(None)
 
                 else:
                     response = self._request(
@@ -533,33 +555,46 @@ class ESASkyClass(BaseQuery):
                         product_url,
                         cache=cache,
                         headers=self._get_header())
-                    file_name = ""
-                    if (product_url.endswith(self.__FITS_STRING)):
-                        file_name = (directory_path +
-                                     self._extract_file_name_from_url(product_url))
-                    else:
-                        file_name = (directory_path +
-                                     self._extract_file_name_from_response_header(response.headers))
 
-                    fits_data = response.content
-                    with open(file_name, 'wb') as fits_file:
-                        fits_file.write(fits_data)
-                        fits_file.close()
-                        maps.append(fits.open(file_name))
+                    try:
+                        response.raise_for_status()
 
-                print("[Done]")
-            print("Downloading of %s data complete." % mission)
+                        file_name = ""
+                        if (product_url.endswith(self.__FITS_STRING)):
+                            file_name = (directory_path +
+                                         self._extract_file_name_from_url(product_url))
+                        else:
+                            file_name = (directory_path +
+                                         self._extract_file_name_from_response_header(response.headers))
+
+                        fits_data = response.content
+                        with open(file_name, 'wb') as fits_file:
+                            fits_file.write(fits_data)
+                            fits_file.close()
+                            maps.append(fits.open(file_name))
+                    except HTTPError as err:
+                        log.error("Download failed with {}.".format(err))
+                        maps.append(None)
+
+                if None in maps:
+                    log.error("Some downloads were unsuccessful, please check "
+                              "the warnings for more details")
+
+                else:
+                    log.info("[Done]")
+
+            log.info("Downloading of {} data complete.".format(mission))
 
         return maps
 
     def _get_herschel_map(self, product_url, directory_path, cache):
         observation = dict()
         tar_file = tempfile.NamedTemporaryFile(delete=False)
-        response = self._request(
-            'GET',
-            product_url,
-            cache=cache,
-            headers=self._get_header())
+        response = self._request('GET', product_url, cache=cache,
+                                 headers=self._get_header())
+
+        response.raise_for_status()
+
         tar_file.write(response.content)
         tar_file.close()
         with tarfile.open(tar_file.name, 'r') as tar:
@@ -625,7 +660,8 @@ class ESASkyClass(BaseQuery):
             return content_disposition[start_index: end_index]
         else:
             raise ValueError("Could not find file name in header. "
-                             "Content disposition: %s." % content_disposition)
+                             "Content disposition: {}.".format(
+                                 content_disposition))
 
     def _extract_file_name_from_url(self, product_url):
         start_index = product_url.rindex("/") + 1
@@ -661,20 +697,20 @@ class ESASkyClass(BaseQuery):
         select_query = "SELECT DISTINCT "
 
         metadata = json[self.__METADATA_STRING]
-        metadata_tap_names = ", ".join(["%s" % entry[self.__TAP_NAME_STRING]
+        metadata_tap_names = ", ".join(["{}".format(entry[self.__TAP_NAME_STRING])
                                         for entry in metadata])
 
-        from_query = " FROM %s" % json[self.__TAP_TABLE_STRING]
+        from_query = " FROM {}".format(json[self.__TAP_TABLE_STRING])
         if (radiusDeg != 0 or json[self.__IS_SURVEY_MISSION_STRING]):
             if (json[self.__IS_SURVEY_MISSION_STRING]):
-                where_query = (" WHERE 1=CONTAINS(pos, CIRCLE('ICRS', %f, %f, %f));"
-                               % (ra, dec, radiusDeg))
+                where_query = (" WHERE 1=CONTAINS(pos, CIRCLE('ICRS', {}, {}, {}));".
+                               format(ra, dec, radiusDeg))
             else:
-                where_query = (" WHERE 1=INTERSECTS(CIRCLE('ICRS', %f, %f, %f), fov);"
-                               % (ra, dec, radiusDeg))
+                where_query = (" WHERE 1=INTERSECTS(CIRCLE('ICRS', {}, {}, {}), fov);".
+                               format(ra, dec, radiusDeg))
         else:
-            where_query = (" WHERE 1=CONTAINS(POINT('ICRS', %f, %f), fov);"
-                           % (ra, dec))
+            where_query = (" WHERE 1=CONTAINS(POINT('ICRS', {}, {}), fov);".
+                           format(ra, dec))
 
         query = "".join([
             select_query,
@@ -690,26 +726,26 @@ class ESASkyClass(BaseQuery):
 
         select_query = "SELECT "
         if(row_limit > 0):
-            select_query = "".join([select_query, "TOP %s " % row_limit])
+            select_query = "".join([select_query, "TOP {} ".format(row_limit)])
         elif(not row_limit == -1):
             raise ValueError("Invalid value of row_limit")
 
         metadata = json[self.__METADATA_STRING]
-        metadata_tap_names = ", ".join(["%s" % entry[self.__TAP_NAME_STRING]
+        metadata_tap_names = ", ".join(["{}".format(entry[self.__TAP_NAME_STRING])
                                         for entry in metadata])
 
-        from_query = " FROM %s" % json[self.__TAP_TABLE_STRING]
+        from_query = " FROM {}".format(json[self.__TAP_TABLE_STRING])
         if (radiusDeg == 0):
-            where_query = (" WHERE 1=CONTAINS(POINT('ICRS', ra, dec), CIRCLE('ICRS', %f, %f, %f))"
-                           % (ra,
-                              dec,
-                              commons.radius_to_unit(
-                                  self.__MIN_RADIUS_CATALOG_STRING,
-                                  unit='deg')))
+            where_query = (" WHERE 1=CONTAINS(POINT('ICRS', ra, dec), CIRCLE('ICRS', {}, {}, {}))".
+                           format(ra,
+                                  dec,
+                                  commons.radius_to_unit(
+                                      self.__MIN_RADIUS_CATALOG_STRING,
+                                      unit='deg')))
         else:
-            where_query = (" WHERE 1=CONTAINS(POINT('ICRS', ra, dec), CIRCLE('ICRS', %f, %f, %f))"
-                           % (ra, dec, radiusDeg))
-        order_by_query = " ORDER BY %s;" % json[self.__ORDER_BY_STRING]
+            where_query = (" WHERE 1=CONTAINS(POINT('ICRS', ra, dec), CIRCLE('ICRS', {}, {}, {}))".
+                           format(ra, dec, radiusDeg))
+        order_by_query = " ORDER BY {};".format(json[self.__ORDER_BY_STRING])
 
         query = "".join([select_query, metadata_tap_names, from_query,
                         where_query, order_by_query])
@@ -746,7 +782,7 @@ class ESASkyClass(BaseQuery):
         for mission in json:
             if (mission[self.__TAP_TABLE_STRING] == mission_tap_name):
                 return mission
-        raise ValueError("Input tap name %s not available." % mission_tap_name)
+        raise ValueError("Input tap name {} not available.".format(mission_tap_name))
 
     def _find_observation_tap_table_name(self, mission_name):
         return self._find_mission_tap_table_name(
@@ -763,7 +799,7 @@ class ESASkyClass(BaseQuery):
             if (json[index][self.__MISSION_STRING].lower() == mission_name.lower()):
                 return json[index][self.__TAP_TABLE_STRING]
 
-        raise ValueError("Input %s not available." % mission_name)
+        raise ValueError("Input {} not available.".format(mission_name))
         return None
 
     def _get_observation_json(self):
@@ -779,6 +815,9 @@ class ESASkyClass(BaseQuery):
             url,
             cache=False,
             headers=self._get_header())
+
+        response.raise_for_status()
+
         string_response = response.content.decode('utf-8')
         json_response = json.loads(string_response)
         return json_response["descriptors"]

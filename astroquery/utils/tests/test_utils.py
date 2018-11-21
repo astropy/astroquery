@@ -36,10 +36,11 @@ class SimpleQueryClass(object):
 
 
 @remote_data
-def test_utils():
-    response = urllib.request.urlopen('http://www.ebay.com')
+def test_chunk_read():
+    datasize = 50000
+    response = urllib.request.urlopen('http://httpbin.org/stream-bytes/{0}'.format(datasize))
     C = chunk_read(response, report_hook=chunk_report)
-    print(C)
+    assert len(C) == datasize
 
 
 def test_class_or_instance():
@@ -70,6 +71,13 @@ def test_parse_coordinates_2(coordinates):
 def test_parse_coordinates_3():
     with pytest.raises(Exception):
         commons.parse_coordinates(9.8 * u.kg)
+
+
+def test_parse_coordinates_4():
+    # Regression test for #1251
+    coordinates = "251.51 32.36"
+    c = commons.parse_coordinates(coordinates)
+    assert c.to_string() == coordinates
 
 
 def test_send_request_post(monkeypatch):
@@ -306,7 +314,7 @@ docstr3_out = """
 
 def test_return_chomper(doc=docstr3, out=docstr3_out):
     assert (remove_sections(doc, sections=['Returns', 'Parameters']) ==
-                [x.lstrip() for x in out.split('\n')])
+            [x.lstrip() for x in out.split('\n')])
 
 
 def dummyfunc1():

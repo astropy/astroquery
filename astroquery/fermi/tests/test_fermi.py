@@ -9,9 +9,9 @@ from ... import fermi
 
 DATA_FILES = {'async': "query_result_m31.html",
               'result': 'result_page_m31.html',
-              'result_url': 'http://fermi.gsfc.nasa.gov/cgi-bin/ssc/LAT/QueryResults.cgi?id=L13090120163429E469B432',
-              'fits': ['http://fermi.gsfc.nasa.gov/FTP/fermi/data/lat/queries/L13090110364329E469B418_PH00.fits',
-                       'http://fermi.gsfc.nasa.gov/FTP/fermi/data/lat/queries/L13090110364329E469B418_SC00.fits']}
+              'result_url': 'https://fermi.gsfc.nasa.gov/cgi-bin/ssc/LAT/QueryResults.cgi?id=L13090120163429E469B432',
+              'fits': ['https://fermi.gsfc.nasa.gov/FTP/fermi/data/lat/queries/L13090110364329E469B418_PH00.fits',
+                       'https://fermi.gsfc.nasa.gov/FTP/fermi/data/lat/queries/L13090110364329E469B418_SC00.fits']}
 
 
 def data_path(filename):
@@ -66,15 +66,3 @@ def test_FermiLAT_query(patch_post):
         FK5_COORDINATES, energyrange_MeV='1000, 100000',
         obsdates='2013-01-01 00:00:00, 2013-01-02 00:00:00')
     assert result == DATA_FILES['fits']
-
-
-def test_FermiLAT_DelayedQuery():
-    pass
-    # result_url = 'http://www.google.com'
-    # query = fermi.FermiLAT_DelayedQuery(result_url)
-    # TODO
-    # print query
-
-
-if __name__ == '__main__':
-    test_FermiLAT_query()

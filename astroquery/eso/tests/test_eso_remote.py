@@ -15,6 +15,10 @@ instrument_list = [u'fors1', u'fors2', u'sphere', u'vimos', u'omegacam',
                    u'kmos', u'sinfoni', u'amber', u'midi', u'pionier',
                    u'gravity']
 
+# Some tests take too long, leading to travis timeouts
+# TODO: make this a configuration item
+SKIP_SLOW = True
+
 
 @remote_data
 class TestEso:
@@ -58,7 +62,9 @@ class TestEso:
 
         eso = Eso()
         eso.cache_location = temp_dir
-        eso.ROW_LIMIT = 200  # first b333 is at 157
+        eso.ROW_LIMIT = 1000
+        # first b333 was at 157
+        # first pistol....?
 
         result_s = eso.query_surveys(['VVV', 'XSHOOTER'],
                                      coord1=266.41681662,
@@ -122,6 +128,9 @@ class TestEso:
         assert "MIDI.2014-07-25T02:03:11.561" in result[0]
         result = eso.retrieve_data("MIDI.2014-07-25T02:03:11.561")
         assert isinstance(result, six.string_types)
+        result = eso.retrieve_data("MIDI.2014-07-25T02:03:11.561",
+                                   request_all_objects=True)
+        assert isinstance(result, six.string_types)
 
     @pytest.mark.skipif('not Eso.USERNAME')
     def test_retrieve_data_twice(self):
@@ -129,6 +138,21 @@ class TestEso:
         eso.login()
         result1 = eso.retrieve_data("MIDI.2014-07-25T02:03:11.561")
         result2 = eso.retrieve_data("AMBER.2006-03-14T07:40:19.830")
+
+    @pytest.mark.skipif('not Eso.USERNAME')
+    def test_retrieve_data_and_calib(self):
+        eso = Eso()
+        eso.login()
+        result = eso.retrieve_data(["FORS2.2016-06-22T01:44:01.585"],
+                                   with_calib='raw')
+        assert len(result) == 59
+        # Try again, from cache this time
+        result = eso.retrieve_data(["FORS2.2016-06-22T01:44:01.585"],
+                                   with_calib='raw')
+        # Here we get only 1 file path for the science file: as this file
+        # exists, no request is made to get the associated calibrations file
+        # list.
+        assert len(result) == 1
 
     @pytest.mark.parametrize('instrument', instrument_list)
     def test_help(self, instrument):
@@ -167,6 +191,7 @@ class TestEso:
                                          box='01 00 00',
                                          cache=False)
 
+    @pytest.mark.skipif("SKIP_SLOW")
     @pytest.mark.parametrize('cache', (False, True))
     def test_each_survey_nosource(self, temp_dir, cache):
         eso = Eso()

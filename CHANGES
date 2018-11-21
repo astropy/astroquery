@@ -1,22 +1,77 @@
-0.3.8 (unreleased)
+0.3.9 (unreleased)
 ------------------
 
-- GAIA: Default URL switched to DR2 and made configurable [#1112]
-- TAP: Add tool to check for phase of background job [#1073]
-- splatalogue: Move to https.  Old HTTP post requests were broken [#1066,#1076]
-- heasarc: Add additional functionality and expand query capabilities [#1047]
-- New tool: JPL Horizons service to obtain ephemerides, orbital elements, and
-  state vectors for Solar System objects. [#1023]
-- New tool: MPC to query the Minor Planet Center web service [#1064]
-- ATOMIC: Fixed remote tests that were broken. [#1038]
-- vo_conesearch: URL for validated services have changed. Old URL should still
-  redirect but it is deprecated. [#1033]
-- MAST: bugfix, removing filesize checking due to unreliable filesize reporting in the database [#1050]
-- MAST: Added Catalogs class. [#1049]
-- New tool: Open Astronomy Catalog API to obtain data products on supernovae, TDEs, and kilonovae. [#1053]
-- MPC: Added module to query the Minor Planet Center web service [#1064]
-- IRSA Dust: call over https. [#1069]
+- General: re-enable sandboxing / preventing internet access during non-remote
+  tests, which has been unintentionally disabled for a potentially long time.
+  [#1274]
+- WFAU: Added QSL constraints parameter [#1259]
+- ATOMIC: fix several bugs for using Quantited for the range parameters. [#1187]
+- ESASKY: get_maps() accepts dict or list of (name, Table) pairs as input
+  table list. [#1167]
+- ESO: Catch exception on login when keyring fails to get a valid storage.
+  [#1198]
+- ESO: Add option to retrieve calibrations associated to data. [#1184]
+- HITRAN: use class-based API [#824]
+- JPL Horizons: Fix for missing total absolute magnitude or phase coefficient
+  for comets [#1151]
+- MAST: Enable converting list of products into S3 uris [#1126]
+- New tool: MPC module can now request comet and asteroid ephemerides from the
+  Minor Planet Ephemeris Service, and return a table of observatory codes and
+  coordinates. [#1177]
+- NASA_ADS: Use new API [#1162]
+- VO_CONESEARCH: Service validator now uses new STScI VAO TAP registry. [#1114]
+- Nasa Exoplanet Arhive: Add option to return all columns. [#1183]
+- File download progress bar no longer displays when Astropy log level
+  is set to "WARNING", "ERROR", or "CRITICAL". [#1188]
+- New tool: CDS - added module to query the MOCServer, a CDS tool providing MOCs
+  and meta data of various data-sets. [#1111]
+- MAST: Updating HSC and Gaia catalog calls (bugfix) [#1203]
+- JPLSpec: New query service for JPL Molecular Spectral Catalog. [#1170]
+- Add docstring and signature for login. [#1199]
+- JPLHorizons: JPL server protocol and epoch range bug fixes, user-defined
+  location and additional ephemerides information added [#1207]
+- MAST: Fixing bug in catalog criteria querues, and updating remote tests. [#1223]
+- JPLSDB: New module for querying JPL's Small Body Database Browser [#1214]
+- MAST: Fixing mrp_only but and changing default to False [#1238]
+- SPLATALOGUE: Minor - utils & tests updated to match upstream change [#1236]
+- FERMI: Switch to HTTPS [#1241]
+- utils: fix bug in ``parse_coordinates``, now strings that can be
+  interpreted as coordinates are not sent through Sesame. When unit is not
+  provided, degrees is now explicitely assumed. [#1252]
+- MAST: Adding Tesscut interface for accessing TESS cutouts. [#1264]
+- MAST: Add functionality for switching to auth.mast when it goes live [#1256]
+- MAST: Support downloading data from multiple missions from the cloud [#1275]
+- JPLHorizons: Fix queries for major solar system bodies when
 
+
+0.3.8 (2018-04-27)
+------------------
+
+- New tool ``jplhorizons``: JPL Horizons service to obtain ephemerides,
+  orbital elements, and state vectors for Solar System objects. [#1023]
+- New tool ``mpc``: MPC Module to query the Minor Planet Center web service.
+  [#1064, #1077]
+- New tool ``oac``: Open Astronomy Catalog API to obtain data products on
+  supernovae, TDEs, and kilonovae. [#1053]
+- New tool ``wfau`` and ``vsa``: Refactor of the UKIDSS query tool add full
+  WFAU support.  [#984]
+- ALMA: Adding support for band and polarization selection. [#1108]
+- HEASARC: Add additional functionality and expand query capabilities. [#1047]
+- GAIA: Default URL switched to DR2 and made configurable. [#1112]
+- IRSA: Raise exceptions for exceeding output table size limit. [#1032]
+- IRSA_DUST: Call over https. [#1069]
+- LAMDA: Fix writer for Windows on Python 3. [#1059]
+- MAST: Removing filesize checking due to unreliable filesize reporting in
+  the database. [#1050]
+- MAST: Added Catalogs class. [#1049]
+- MAST: Enable downloading MAST HST data from S3. [#1040]
+- SPLATALOGUE: Move to https as old HTTP post requests were broken. [#1076]
+- UKIDSS: Update to DR10 as default database. [#984]
+- utils.TAP: Add tool to check for phase of background job. [#1073]
+- utils.TAP: Added redirect handling to sync jobs. [#1099]
+- utils.TAP: Fix jobsIDs assignment. [#1105]
+- VO_CONESEARCH: URL for validated services have changed. Old URL should still
+  redirect but it is deprecated. [#1033]
 
 0.3.7 (2018-01-25)
 ------------------

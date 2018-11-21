@@ -189,7 +189,7 @@ class SkyViewClass(BaseQuery):
         >>> paths = sv.get_images(position='Eta Carinae',
         ...                       survey=['Fermi 5', 'HRI', 'DSS'])
         >>> for path in paths:
-        ...     print '\tnew file:', path
+        ...     print('\tnew file:', path)
 
         Returns
         -------
@@ -249,7 +249,7 @@ class SkyViewClass(BaseQuery):
 
         self._validate_surveys(survey)
 
-        if radius:
+        if radius is not None:
             size_deg = str(radius.to(u.deg).value)
         elif width and height:
             size_deg = "{0},{1}".format(width.to(u.deg).value,
@@ -292,13 +292,16 @@ class SkyViewClass(BaseQuery):
     def survey_dict(self):
         if not hasattr(self, '_survey_dict'):
 
-            response = self._request('GET', self.URL)
+            response = self._request('GET', self.URL, cache=False)
             page = BeautifulSoup(response.content, "html.parser")
             surveys = page.findAll('select', {'name': 'survey'})
 
             self._survey_dict = {
                 sel['id']: [x.text for x in sel.findAll('option')]
-                for sel in surveys}
+                for sel in surveys
+                if 'overlay' not in sel['id']
+            }
+
         return self._survey_dict
 
     @property

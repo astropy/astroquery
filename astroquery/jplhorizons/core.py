@@ -26,6 +26,10 @@ __all__ = ['Horizons', 'HorizonsClass']
 
 @async_to_sync
 class HorizonsClass(BaseQuery):
+    """
+    A class for querying the
+    `JPL Horizons <https://ssd.jpl.nasa.gov/horizons.cgi>`_ service.
+    """
 
     TIMEOUT = conf.timeout
 
@@ -37,18 +41,26 @@ class HorizonsClass(BaseQuery):
         ----------
         id : str, required
             Name, number, or designation of the object to be queried
-        location : str, optional
+        location : str or dict, optional
             Observer's location for ephemerides queries or center body
             name for orbital element or vector queries. Uses the same
             codes as JPL Horizons. If no location is provided, Earth's
             center is used for ephemerides queries and the Sun's
-            center for elements and vectors queries.
+            center for elements and vectors queries. Arbitrary topocentic
+            coordinates for ephemerides queries can be provided in the
+            format of a dictionary. The
+            dictionary has to be of the form {``'lon'``: longitude in
+            deg (East positive, West negative), ``'lat'``: latitude in
+            deg (North positive, South negative), ``'elevation'``:
+            elevation in km above the reference ellipsoid, [``'body'``:
+            Horizons body ID of the central body; optional; if this value
+            is not provided it is assumed that this location is on Earth]}.
         epochs : scalar, list-like, or dictionary, optional
             Either a list of epochs in JD or MJD format or a dictionary
             defining a range of times and dates; the range dictionary has to
             be of the form {``'start'``:'YYYY-MM-DD [HH:MM:SS]',
-            ``'stop'``:'YYYY-MM-DD [HH:MM:SS]', ``'step'``:'n[y|d|m|s]'}. If no
-            epochs are provided, the current time is used.
+            ``'stop'``:'YYYY-MM-DD [HH:MM:SS]', ``'step'``:'n[y|d|m|s]'}.
+            If no epochs are provided, the current time is used.
         id_type : str, optional
             Identifier type, options:
             ``'smallbody'``, ``'majorbody'`` (planets but also
@@ -99,6 +111,8 @@ class HorizonsClass(BaseQuery):
 
         self.query_type = None  # ['ephemerides', 'elements', 'vectors']
 
+        self.uri = None  # will contain query URL
+
     def __str__(self):
         """
         String representation of HorizonsClass object instance'
@@ -124,20 +138,27 @@ class HorizonsClass(BaseQuery):
     # ---------------------------------- query functions
 
     def ephemerides_async(self, airmass_lessthan=99,
-                          solar_elongation=(0, 180), hour_angle=0,
+                          solar_elongation=(0, 180), max_hour_angle=0,
+                          rate_cutoff=None,
                           skip_daylight=False,
+                          refraction=False,
+                          refsystem='J2000',
                           closest_apparition=False, no_fragments=False,
+                          quantities=conf.eph_quantities,
                           get_query_payload=False,
                           get_raw_response=False, cache=True):
-
         """
         Query JPL Horizons for ephemerides. The ``location`` parameter
         in ``HorizonsClass`` refers in this case to the location of
         the observer.
 
-        The following table lists the values queried, their
+        The following tables list the values queried, their
         definitions, data types, units, and original Horizons
-        designations (in quotation marks; where available).
+        designations (where available). For more information on the
+        definitions of these quantities, please refer to the `Horizons
+        User Manual <https://ssd.jpl.nasa.gov/?horizons_doc>`_.
+
+
 
         +------------------+-----------------------------------------------+
         | Column Name      | Definition                                    |
@@ -148,85 +169,236 @@ class HorizonsClass(BaseQuery):
         +------------------+-----------------------------------------------+
         | G                | photometric slope parameter (float)           |
         +------------------+-----------------------------------------------+
-        | M1               | comet total abs mag (float, mag, "M1")        |
+        | M1               | comet total abs mag (float, mag, ``M1``)      |
         +------------------+-----------------------------------------------+
-        | M2               | comet nuclear abs mag (float, mag, "M2")      |
+        | M2               | comet nuclear abs mag (float, mag, ``M2``)    |
         +------------------+-----------------------------------------------+
-        | k1               | total mag scaling factor (float, "k1")        |
+        | k1               | total mag scaling factor (float, ``k1``)      |
         +------------------+-----------------------------------------------+
-        | k2               | nuclear mag scaling factor (float, "k2")      |
+        | k2               | nuclear mag scaling factor (float, ``k2``)    |
         +------------------+-----------------------------------------------+
-        | phasecoeff       | comet phase coeff (float, mag/deg, "PHCOFF")  |
+        | phasecoeff       | comet phase coeff (float, mag/deg, ``PHCOFF``)|
         +------------------+-----------------------------------------------+
-        | datetime         | epoch (str, "Date__(UT)__HR:MN:SC.fff")       |
+        | datetime         | epoch (str, ``Date__(UT)__HR:MN:SC.fff``)     |
         +------------------+-----------------------------------------------+
-        | datetime_jd      | epoch Julian Date (float, "Date_________JDUT")|
+        | datetime_jd      | epoch Julian Date (float,                     |
+        |                  | ``Date_________JDUT``)                        |
         +------------------+-----------------------------------------------+
         | solar_presence   | information on Sun's presence (str)           |
         +------------------+-----------------------------------------------+
         | flags            | information on Moon, target status (str)      |
         +------------------+-----------------------------------------------+
-        | RA               | target RA (float, deg, "R.A._(ICRF/J2000.0)") |
+        | RA               | target RA (float, deg, ``DEC_(XXX)``)         |
         +------------------+-----------------------------------------------+
-        | DEC              | target DEC (float, deg, "DEC_(ICRF/J2000.0)") |
+        | DEC              | target DEC (float, deg, ``DEC_(XXX)``)        |
         +------------------+-----------------------------------------------+
-        | RA_rate          | target rate RA (float, arcsec/hr, "dRA*cosD") |
+        | RA_app           | target apparent RA (float, deg,               |
+        |                  | ``R.A._(a-app)``)                             |
         +------------------+-----------------------------------------------+
-        | DEC_rate         | target RA (float, arcsec/hr, "d(DEC)/dt")     |
+        | DEC_app          | target apparent DEC (float, deg,              |
+        |                  | ``DEC_(a-app)``)                              |
         +------------------+-----------------------------------------------+
-        | AZ               | Azimuth (float, deg, EoN, "Azi_(a-app)")      |
+        | RA_rate          | target rate RA (float, arcsec/hr, ``RA*cosD``)|
         +------------------+-----------------------------------------------+
-        | EL               | Elevation (float, deg, "Elev_(a-app)")        |
+        | DEC_rate         | target RA (float, arcsec/hr, ``d(DEC)/dt``)   |
         +------------------+-----------------------------------------------+
-        | airmass          | target optical airmass (float, "a-mass")      |
+        | AZ               | Azimuth (float, deg, EoN, ``Azi_(a-app)``)    |
         +------------------+-----------------------------------------------+
-        | magextinct       | V-mag extinction (float, mag, "mag_ex")       |
+        | EL               | Elevation (float, deg, ``Elev_(a-app)``)      |
         +------------------+-----------------------------------------------+
-        | V                | V magnitude (float, mag, "APmag")             |
+        | AZ_rate          | Azimuth rate (float, arcsec/minute,           |
+        |                  | ``dAZ*cosE``)                                 |
         +------------------+-----------------------------------------------+
-        | Tmag             | comet Total magnitude (float, mag, "T-mag")   |
+        | EL_rate          | Elevation rate (float, arcsec/minute,         |
+        |                  | ``d(ELV)/dt``)                                |
         +------------------+-----------------------------------------------+
-        | Nmag             | comet Nucleaus magnitude (float, mag, "N-mag")|
+        | sat_X            | satellite X position (arcsec,                 |
+        |                  | ``X_(sat-prim)``)                             |
         +------------------+-----------------------------------------------+
-        | surfbright       | surf brightness (float, mag/arcsec^2, "S-brt")|
+        | sat_Y            | satellite Y position (arcsec,                 |
+        |                  | ``Y_(sat-prim)``)                             |
         +------------------+-----------------------------------------------+
-        | illumination     | frac of illumination (float, percent, "Illu%")|
+        | sat_PANG         | satellite position angle (deg,                |
+        |                  | ``SatPANG``)                                  |
         +------------------+-----------------------------------------------+
-        | EclLon           | heliocentr ecl long (float, deg, "hEcl-Lon")  |
+        | siderealtime     | local apparent sidereal time (str,            |
+        |                  | ``L_Ap_Sid_Time``)                            |
         +------------------+-----------------------------------------------+
-        | EclLat           | heliocentr ecl lat (float, deg, "hEcl-Lat")   |
+        | airmass          | target optical airmass (float, ``a-mass``)    |
         +------------------+-----------------------------------------------+
-        | ObsEclLon        | obscentr ecl long (float, deg, "ObsEcLon")    |
+        | magextinct       | V-mag extinction (float, mag, ``mag_ex``)     |
         +------------------+-----------------------------------------------+
-        | ObsEclLat        | obscentr ecl lat (float, deg, "ObsEcLat")     |
+        | V                | V magnitude (float, mag, ``APmag``)           |
         +------------------+-----------------------------------------------+
-        | r                | heliocentric distance (float, au, "r")        |
+        | Tmag             | comet Total magnitude (float, mag, ``T-mag``) |
         +------------------+-----------------------------------------------+
-        | r_rate           | heliocentric radial rate (float, km/s, "rdot")|
+        | Nmag             | comet Nucleaus magnitude (float, mag,         |
+        |                  | ``N-mag``)                                    |
         +------------------+-----------------------------------------------+
-        | delta            | distance from observer (float, au, "delta")   |
+        | surfbright       | surf brightness (float, mag/arcsec^2,         |
+        |                  | ``S-brt``)                                    |
         +------------------+-----------------------------------------------+
-        | delta_rate       | obs-centric rad rate (float, km/s, "deldot")  |
+        | illumination     | frac of illumination (float, percent,         |
+        |                  | ``Illu%``)                                    |
         +------------------+-----------------------------------------------+
-        | lighttime        | one-way light time (float, min, "1-way_LT")   |
+        | illum_defect     | Defect of illumination (float, arcsec,        |
+        |                  | ``Dec_illu``)                                 |
         +------------------+-----------------------------------------------+
-        | elong            | solar elongation (float, deg, "S-O-T")        |
+        | sat_sep          | Target-primary angular separation (float,     |
+        |                  | arcsec, ``ang-sep``)                          |
         +------------------+-----------------------------------------------+
-        | elongFlag        | app. position relative to Sun (str, "/r")     |
+        | sat_vis          | Target-primary visibility (str, ``v``)        |
         +------------------+-----------------------------------------------+
-        | alpha            | solar phase angle (float, deg, "S-T-O")       |
+        | ang_width        | Angular width of target (float, arcsec,       |
+        |                  | ``Ang-diam``)                                 |
         +------------------+-----------------------------------------------+
-        | sunTargetPA      | -Sun vector PA (float, deg, EoN, "PsAng")     |
+        | PDObsLon         | Apparent planetodetic longitude (float, deg,  |
+        |                  | ``Ob-lon``)                                   |
         +------------------+-----------------------------------------------+
-        | velocityPA       | velocity vector PA (float, deg, EoN, "PsAMV") |
+        | PDObsLat         | Apparent planetodetic latitude  (float, deg,  |
+        |                  | ``Ob-lat``)                                   |
         +------------------+-----------------------------------------------+
-        | GlxLon           | galactic longitude (float, deg, "GlxLon")     |
+        | PDSunLon         | Apparent planetodetic longitude of the Sun    |
+        |                  | (float, deg, ``Sl-lon``)                      |
         +------------------+-----------------------------------------------+
-        | GlxLat           | galactic latitude  (float, deg, "GlxLat")     |
+        | PDSunLat         | Apparent planetodetic latitude of the Sun     |
+        |                  | (float, deg, ``Sl-lat``)                      |
         +------------------+-----------------------------------------------+
-        | RA_3sigma        | 3sig pos unc RA (float, arcsec, "RA_3sigma")  |
+        | SubSol_ang       | Target sub-solar point position angle         |
+        |                  | (float, deg, ``SN.ang``)                      |
         +------------------+-----------------------------------------------+
-        | DEC_3sigma       | 3sig pos unc DEC (float, arcsec, "DEC_3sigma")|
+        | SubSol_dist      | Target sub-solar point position angle distance|
+        |                  | (float, arcsec, ``SN.dist``)                  |
+        +------------------+-----------------------------------------------+
+        | NPole_ang        | Target's North Pole position angle            |
+        |                  | (float, deg, ``NP.ang``)                      |
+        +------------------+-----------------------------------------------+
+        | NPole_dist       | Target's North Pole position angle distance   |
+        |                  | (float, arcsec, ``NP.dist``)                  |
+        +------------------+-----------------------------------------------+
+        | EclLon           | heliocentr ecl long (float, deg, ``hEcl-Lon``)|
+        +------------------+-----------------------------------------------+
+        | EclLat           | heliocentr ecl lat (float, deg, ``hEcl-Lat``) |
+        +------------------+-----------------------------------------------+
+        | ObsEclLon        | obscentr ecl long (float, deg, ``ObsEcLon``)  |
+        +------------------+-----------------------------------------------+
+        | ObsEclLat        | obscentr ecl lat (float, deg, ``ObsEcLat``)   |
+        +------------------+-----------------------------------------------+
+        | r                | heliocentric distance (float, au, ``r``)      |
+        +------------------+-----------------------------------------------+
+        | r_rate           | heliocentric radial rate (float, km/s,        |
+        |                  | ``rdot``)                                     |
+        +------------------+-----------------------------------------------+
+        | delta            | distance from observer (float, au, ``delta``) |
+        +------------------+-----------------------------------------------+
+        | delta_rate       | obs-centric rad rate (float, km/s, ``deldot``)|
+        +------------------+-----------------------------------------------+
+        | lighttime        | one-way light time (float, min, ``1-way_LT``) |
+        +------------------+-----------------------------------------------+
+        | vel_sun          | Target center velocity wrt Sun                |
+        |                  | (float, km/s, ``VmagSn``)                     |
+        +------------------+-----------------------------------------------+
+        | vel_obs          | Target center velocity wrt Observer           |
+        |                  | (float, km/s, ``VmagOb``)                     |
+        +------------------+-----------------------------------------------+
+        | elong            | solar elongation (float, deg, ``S-O-T``)      |
+        +------------------+-----------------------------------------------+
+        | elongFlag        | app. position relative to Sun (str, ``/r``)   |
+        +------------------+-----------------------------------------------+
+        | alpha            | solar phase angle (float, deg, ``S-T-O``)     |
+        +------------------+-----------------------------------------------+
+        | lunar_elong      | Apparent lunar elongation angle wrt target    |
+        |                  | (float, deg, ``T-O-M``)                       |
+        +------------------+-----------------------------------------------+
+        | lunar_illum      | Lunar illumination percentage                 |
+        |                  | (float, percent, ``MN_Illu%``)                |
+        +------------------+-----------------------------------------------+
+        | IB_elong         | Apparent interfering body elongation angle    |
+        |                  | wrt target (float, deg, ``T-O-I``)            |
+        +------------------+-----------------------------------------------+
+        | IB_illum         | Interfering body illumination percentage      |
+        |                  | (float, percent, ``IB_Illu%``)                |
+        +------------------+-----------------------------------------------+
+        | sat_alpha        | Observer-Primary-Target angle                 |
+        |                  | (float, deg, ``O-P-T``)                       |
+        +------------------+-----------------------------------------------+
+        | OrbPlaneAng      | orbital plane angle (float, deg, ``PlAng``)   |
+        +------------------+-----------------------------------------------+
+        | sunTargetPA      | -Sun vector PA (float, deg, EoN, ``PsAng``)   |
+        +------------------+-----------------------------------------------+
+        | velocityPA       | -velocity vector PA (float, deg, EoN,         |
+        |                  | ``PsAMV``)                                    |
+        +------------------+-----------------------------------------------+
+        | constellation    | constellation ID containing target (str,      |
+        |                  | ``Cnst``)                                     |
+        +------------------+-----------------------------------------------+
+        | TDB-UT           | difference between TDB and UT (float,         |
+        |                  | seconds, ``TDB-UT``)                          |
+        +------------------+-----------------------------------------------+
+        | NPole_RA         | Target's North Pole RA (float, deg,           |
+        |                  | ``N.Pole-RA``)                                |
+        +------------------+-----------------------------------------------+
+        | NPole_DEC        | Target's North Pole DEC (float, deg,          |
+        |                  | ``N.Pole-DC``)                                |
+        +------------------+-----------------------------------------------+
+        | GlxLon           | galactic longitude (float, deg, ``GlxLon``)   |
+        +------------------+-----------------------------------------------+
+        | GlxLat           | galactic latitude  (float, deg, ``GlxLat``)   |
+        +------------------+-----------------------------------------------+
+        | solartime        | local apparent solar time (string,            |
+        |                  | ``L_Ap_SOL_Time``)                            |
+        +------------------+-----------------------------------------------+
+        | earth_lighttime  | observer lighttime from center of Earth       |
+        |                  | (float, minutes, ``399_ins_LT``               |
+        +------------------+-----------------------------------------------+
+        | RA_3sigma        | 3 sigma positional uncertainty in RA (float,  |
+        |                  | arcsec, ``RA_3sigma``)                        |
+        +------------------+-----------------------------------------------+
+        | DEC_3sigma       | 3 sigma positional uncertainty in  DEC (float,|
+        |                  | arcsec, ``DEC_3sigma``)                       |
+        +------------------+-----------------------------------------------+
+        | SMAA_3sigma      | 3sig pos unc error ellipse semi-major axis    |
+        |                  | (float, arcsec, ``SMAA_3sig``)                |
+        +------------------+-----------------------------------------------+
+        | SMIA_3sigma      | 3sig pos unc error ellipse semi-minor axis    |
+        |                  | (float, arcsec, ``SMIA_3sig``)                |
+        +------------------+-----------------------------------------------+
+        | Theta_3sigma     | pos unc error ellipse position angle          |
+        |                  | (float, deg, ``Theta``)                       |
+        +------------------+-----------------------------------------------+
+        | Area_3sigma      | 3sig pos unc error ellipse are                |
+        |                  | (float, arcsec^2, ``Area_3sig``)              |
+        +------------------+-----------------------------------------------+
+        | RSS_3sigma       | 3sig pos unc error ellipse root-sum-square    |
+        |                  | (float, arcsec, ``POS_3sigma``)               |
+        +------------------+-----------------------------------------------+
+        | r_3sigma         | 3sig range uncertainty                        |
+        |                  | (float, km, ``RNG_3sigma``)                   |
+        +------------------+-----------------------------------------------+
+        | r_rate_3sigma    | 3sig range rate uncertainty                   |
+        |                  | (float, km/second, ``RNGRT_3sigma``)          |
+        +------------------+-----------------------------------------------+
+        | SBand_3sigma     | 3sig Doppler radar uncertainties at S-band    |
+        |                  | (float, Hertz, ``DOP_S_3sig``)                |
+        +------------------+-----------------------------------------------+
+        | XBand_3sigma     | 3sig Doppler radar uncertainties at X-band    |
+        |                  | (float, Hertz, ``DOP_X_3sig``)                |
+        +------------------+-----------------------------------------------+
+        | DoppDelay_3sigma | 3sig Doppler radar round-trip delay           |
+        |                  | unc (float, second, ``RT_delay_3sig``)        |
+        +------------------+-----------------------------------------------+
+        | true_anom        | True Anomaly (float, deg, ``Tru_Anom``)       |
+        +------------------+-----------------------------------------------+
+        | hour_angle       | local apparent hour angle (string,            |
+        |                  | sexagesimal angular hours, ``L_Ap_Hour_Ang``) |
+        +------------------+-----------------------------------------------+
+        | alpha_true       | true phase angle (float, deg, ``phi``)        |
+        +------------------+-----------------------------------------------+
+        | PABLon           | phase angle bisector longitude                |
+        |                  | (float, deg, ``PAB-LON``)                     |
+        +------------------+-----------------------------------------------+
+        | PABLat           | phase angle bisector latitude                 |
+        |                  | (float, deg, ``PAB-LAT``)                     |
         +------------------+-----------------------------------------------+
 
 
@@ -237,10 +409,20 @@ class HorizonsClass(BaseQuery):
         solar_elongation : tuple, optional
             Permissible solar elongation range: (minimum, maximum); default:
             (0,180)
-        hour_angle : float, optional
+        max_hour_angle : float, optional
             Defines a maximum hour angle for the query, default: 0
+        rate_cutoff : float, optional
+            Angular range rate upper limit cutoff in arcsec/h; default:
+            disabled
         skip_daylight : boolean, optional
             Crop daylight epochs in query, default: False
+        refraction : boolean
+            If `True`, coordinates account for a standard atmosphere
+            refraction model; if `False`, coordinates do not account for
+            refraction (airless model); default: `False`
+        refsystem : string
+            Coordinate reference system: ``'J2000'`` or ``'B1950'``;
+            default: ``'J2000'``
         closest_apparition : boolean, optional
             Only applies to comets. This option will choose the
             closest apparition available in time to the selected
@@ -250,9 +432,17 @@ class HorizonsClass(BaseQuery):
             Only applies to comets. Reject all comet fragments from
             selection; default: False. Do not use this option for
             non-cometary objects.
+        quantities : integer or string, optional
+            single integer or comma-separated list in the form of a string
+            corresponding to all the
+            quantities to be queried from JPL Horizons using the coding
+            according to the `JPL Horizons User Manual Definition of
+            Observer Table Quantities
+            <https://ssd.jpl.nasa.gov/?horizons_doc#table_quantities>`_;
+            default: all quantities
         get_query_payload : boolean, optional
-            When set to `True` the method returns the HTTP request parameters
-            as a dict, default: False
+            When set to `True` the method returns the HTTP request
+            parameters as a dict, default: False
         get_raw_response : boolean, optional
             Return raw data as obtained by JPL Horizons without parsing the
             data into a table, default: False
@@ -327,31 +517,52 @@ class HorizonsClass(BaseQuery):
         request_payload = OrderedDict([
             ('batch', 1),
             ('TABLE_TYPE', 'OBSERVER'),
-            ('QUANTITIES', conf.eph_quantities),
+            ('QUANTITIES', "'"+str(quantities)+"'"),
             ('COMMAND', '"' + commandline + '"'),
-            ('CENTER', ("'" + str(self.location) + "'")),
             ('SOLAR_ELONG', ('"' + str(solar_elongation[0]) + "," +
                              str(solar_elongation[1]) + '"')),
-            ('LHA_CUTOFF', (str(hour_angle))),
+            ('LHA_CUTOFF', (str(max_hour_angle))),
             ('CSV_FORMAT', ('YES')),
             ('CAL_FORMAT', ('BOTH')),
-            ('ANG_FORMAT', ('DEG'))]
-        )
+            ('ANG_FORMAT', ('DEG')),
+            ('APPARENT', ({False: 'AIRLESS',
+                           True: 'REFRACTED'}[refraction])),
+            ('REF_SYSTEM', (refsystem))])
+
+        if isinstance(self.location, dict):
+            if ('lon' not in self.location or 'lat' not in self.location or
+                    'elevation' not in self.location):
+                raise ValueError(("'location' must contain lon, lat, "
+                                  "elevation"))
+
+            if 'body' not in self.location:
+                self.location['body'] = '399'
+            request_payload['CENTER'] = 'coord@{:s}'.format(
+                str(self.location['body']))
+            request_payload['COORD_TYPE'] = 'GEODETIC'
+            request_payload['SITE_COORD'] = "'{:f},{:f},{:f}'".format(
+                self.location['lon'], self.location['lat'],
+                self.location['elevation'])
+        else:
+            request_payload['CENTER'] = "'" + str(self.location) + "'"
+
+        if rate_cutoff is not None:
+            request_payload['ANG_RATE_CUTOFF'] = (str(rate_cutoff))
 
         # parse self.epochs
         if isinstance(self.epochs, (list, tuple, ndarray)):
             request_payload['TLIST'] = "\n".join([str(epoch) for epoch in
-                                                 self.epochs])
-        elif type(self.epochs) is dict:
+                                                  self.epochs])
+        elif isinstance(self.epochs, dict):
             if ('start' not in self.epochs or 'stop' not in self.epochs or
-                'step' not in self.epochs):
-                raise ValueError("'epochs' parameter must contain start, " +
+                    'step' not in self.epochs):
+                raise ValueError("'epochs' must contain start, " +
                                  "stop, step")
-            request_payload['START_TIME'] = self.epochs['start']
-            request_payload['STOP_TIME'] = self.epochs['stop']
-            request_payload['STEP_SIZE'] = self.epochs['step']
+            request_payload['START_TIME'] = '"'+self.epochs['start']+'"'
+            request_payload['STOP_TIME'] = '"'+self.epochs['stop']+'"'
+            request_payload['STEP_SIZE'] = '"'+self.epochs['step']+'"'
         else:
-            # treat epochs as a list
+            # treat epochs as scalar
             request_payload['TLIST'] = str(self.epochs)
 
         if airmass_lessthan < 99:
@@ -375,12 +586,16 @@ class HorizonsClass(BaseQuery):
         # query and parse
         response = self._request('GET', URL, params=request_payload,
                                  timeout=self.TIMEOUT, cache=cache)
+        self.uri = response.url
+
         return response
 
     def elements_async(self, get_query_payload=False,
+                       refsystem='J2000',
+                       refplane='ecliptic',
+                       tp_type='absolute',
                        closest_apparition=False, no_fragments=False,
                        get_raw_response=False, cache=True):
-
         """
         Query JPL Horizons for osculating orbital elements. The ``location``
         parameter in ``HorizonsClass`` refers in this case to the  center
@@ -388,59 +603,73 @@ class HorizonsClass(BaseQuery):
 
         The following table lists the values queried, their
         definitions, data types, units, and original Horizons
-        designations (in quotation marks; where available).
+        designations (where available). For more information on the
+        definitions of these quantities, please refer to the `Horizons
+        User Manual <https://ssd.jpl.nasa.gov/?horizons_doc>`_.
 
         +------------------+-----------------------------------------------+
         | Column Name      | Definition                                    |
         +==================+===============================================+
-        | targetname       | official number, name, designation [string]   |
+        | targetname       | official number, name, designation (string)   |
         +------------------+-----------------------------------------------+
         | H                | absolute magnitude in V band (float, mag)     |
         +------------------+-----------------------------------------------+
         | G                | photometric slope parameter (float)           |
         +------------------+-----------------------------------------------+
-        | M1               | comet total abs mag (float, mag, "M1")        |
+        | M1               | comet total abs mag (float, mag, ``M1``)      |
         +------------------+-----------------------------------------------+
-        | M2               | comet nuclear abs mag (float, mag, "M2")      |
+        | M2               | comet nuclear abs mag (float, mag, ``M2``)    |
         +------------------+-----------------------------------------------+
-        | k1               | total mag scaling factor (float, "k1")        |
+        | k1               | total mag scaling factor (float, ``k1``)      |
         +------------------+-----------------------------------------------+
-        | k2               | nuclear mag scaling factor (float, "k2")      |
+        | k2               | nuclear mag scaling factor (float, ``k2``)    |
         +------------------+-----------------------------------------------+
-        | phasecoeff       | comet phase coeff (float, mag/deg, "PHCOFF")  |
+        | phasecoeff       | comet phase coeff (float, mag/deg, ``PHCOFF``)|
         +------------------+-----------------------------------------------+
-        | datetime_str     | epoch Date (str, "Calendar Date (TDB)"        |
+        | datetime_str     | epoch Date (str, ``Calendar Date (TDB)``)     |
         +------------------+-----------------------------------------------+
-        | datetime_jd      | epoch Julian Date (float, "JDTDB"             |
+        | datetime_jd      | epoch Julian Date (float, ``JDTDB``)          |
         +------------------+-----------------------------------------------+
-        | e                | eccentricity (float, "EC")                    |
+        | e                | eccentricity (float, ``EC``)                  |
         +------------------+-----------------------------------------------+
-        | q                | periapsis distance (float, au, "QR")          |
+        | q                | periapsis distance (float, au, ``QR``)        |
         +------------------+-----------------------------------------------+
-        | a                | semi-major axis (float, au, "A")              |
+        | a                | semi-major axis (float, au, ``A``)            |
         +------------------+-----------------------------------------------+
-        | incl             | inclination (float, deg, "IN")                |
+        | incl             | inclination (float, deg, ``IN``)              |
         +------------------+-----------------------------------------------+
-        | Omega            | longitude of Asc. Node (float, deg, "OM")     |
+        | Omega            | longitude of Asc. Node (float, deg, ``OM``)   |
         +------------------+-----------------------------------------------+
-        | w                | argument of the perifocus (float, deg, "W")   |
+        | w                | argument of the perifocus (float, deg, ``W``) |
         +------------------+-----------------------------------------------+
-        | Tp_jd            | time of periapsis (float, Julian Date, "Tp")  |
+        | Tp_jd            | time of periapsis (float, Julian Date, ``Tp``)|
         +------------------+-----------------------------------------------+
-        | n                | mean motion (float, deg/d, "N")               |
+        | n                | mean motion (float, deg/d, ``N``)             |
         +------------------+-----------------------------------------------+
-        | M                | mean anomaly (float, deg, "MA")               |
+        | M                | mean anomaly (float, deg, ``MA``)             |
         +------------------+-----------------------------------------------+
-        | nu               | true anomaly (float, deg, "TA")               |
+        | nu               | true anomaly (float, deg, ``TA``)             |
         +------------------+-----------------------------------------------+
-        | period           | orbital period (float, (Earth) d, "PR")       |
+        | period           | orbital period (float, (Earth) d, ``PR``)     |
         +------------------+-----------------------------------------------+
-        | Q                | apoapsis distance (float, au, "AD")           |
+        | Q                | apoapsis distance (float, au, ``AD``)         |
         +------------------+-----------------------------------------------+
 
 
         Parameters
         ----------
+        refsystem : string
+            Element reference system for geometric and astrometric
+            quantities: ``'J2000'`` or ``'B1950'``; default: ``'J2000'``
+        refplane : string
+            Reference plane for all output quantities: ``'ecliptic'``
+            (ecliptic and mean equinox of reference epoch), ``'earth'``
+            (Earth mean equator and equinox of reference epoch), or
+            ``'body'`` (body mean equator and node of date); default:
+            ``'ecliptic'``
+        tp_type : string
+            Representation for time-of-perihelion passage: ``'absolute'`` or
+            ``'relative'`` (to epoch); default: ``'absolute'``
         closest_apparition : boolean, optional
             Only applies to comets. This option will choose the
             closest apparition available in time to the selected
@@ -451,8 +680,8 @@ class HorizonsClass(BaseQuery):
             selection; default: False. Do not use this option for
             non-cometary objects.
         get_query_payload : boolean, optional
-            When set to `True` the method returns the HTTP request parameters
-            as a dict, default: False
+            When set to ``True`` the method returns the HTTP request
+            parameters as a dict, default: False
         get_raw_response: boolean, optional
             Return raw data as obtained by JPL Horizons without parsing the
             data into a table, default: False
@@ -507,36 +736,43 @@ class HorizonsClass(BaseQuery):
             if no_fragments:
                 commandline += ' NOFRAG;'
 
+        if isinstance(self.location, dict):
+            raise ValueError(('cannot use topographic position in orbital'
+                              'elements query'))
+
         # configure request_payload for ephemerides query
         request_payload = OrderedDict([
             ('batch', 1),
             ('TABLE_TYPE', 'ELEMENTS'),
+            ('MAKE_EPHEM', 'YES'),
             ('OUT_UNITS', 'AU-D'),
             ('COMMAND', '"' + commandline + '"'),
             ('CENTER', ("'" + str(self.location) + "'")),
-            ('CSV_FORMAT', ('"YES"')),
-            ('REF_PLANE', 'ECLIPTIC'),
-            ('REF_SYSTEM', 'J2000'),
-            ('TP_TYPE', 'ABSOLUTE'),
+            ('CSV_FORMAT', 'YES'),
             ('ELEM_LABELS', 'YES'),
-            ('OBJ_DATA', 'YES')]
+            ('OBJ_DATA', 'YES'),
+            ('REF_SYSTEM', refsystem),
+            ('REF_PLANE', {'ecliptic': 'ECLIPTIC', 'earth': 'FRAME',
+                           'body': "'BODY EQUATOR'"}[refplane]),
+            ('TP_TYPE', {'absolute': 'ABSOLUTE',
+                         'relative': 'RELATIVE'}[tp_type])]
         )
 
         # parse self.epochs
         if isinstance(self.epochs, (list, tuple, ndarray)):
-            request_payload['TLIST'] = "\n".join([str(epoch) for epoch in
-                                                 self.epochs])
+            request_payload['TLIST'] = "\n".join([str(epoch) for
+                                                  epoch in
+                                                  self.epochs])
         elif type(self.epochs) is dict:
             if ('start' not in self.epochs or 'stop' not in self.epochs or
-                'step' not in self.epochs):
-                raise ValueError("'epochs' parameter must contain start, " +
+                    'step' not in self.epochs):
+                raise ValueError("'epochs' must contain start, "
                                  "stop, step")
             request_payload['START_TIME'] = self.epochs['start']
             request_payload['STOP_TIME'] = self.epochs['stop']
             request_payload['STEP_SIZE'] = self.epochs['step']
 
         else:
-            # treat epochs as a list
             request_payload['TLIST'] = str(self.epochs)
 
         self.query_type = 'elements'
@@ -552,12 +788,13 @@ class HorizonsClass(BaseQuery):
         # query and parse
         response = self._request('GET', URL, params=request_payload,
                                  timeout=self.TIMEOUT, cache=cache)
+        self.uri = response.url
+
         return response
 
     def vectors_async(self, get_query_payload=False,
                       closest_apparition=False, no_fragments=False,
                       get_raw_response=False, cache=True):
-
         """
         Query JPL Horizons for state vectors. The ``location``
         parameter in ``HorizonsClass`` refers in this case to the center
@@ -565,48 +802,57 @@ class HorizonsClass(BaseQuery):
 
         The following table lists the values queried, their
         definitions, data types, units, and original Horizons
-        designations (in quotation marks; where available).
+        designations (where available). For more information on the
+        definitions of these quantities, please refer to the `Horizons
+        User Manual <https://ssd.jpl.nasa.gov/?horizons_doc>`_.
 
         +------------------+-----------------------------------------------+
         | Column Name      | Definition                                    |
         +==================+===============================================+
-        | targetname       | official number, name, designation [string]   |
+        | targetname       | official number, name, designation (string)   |
         +------------------+-----------------------------------------------+
         | H                | absolute magnitude in V band (float, mag)     |
         +------------------+-----------------------------------------------+
         | G                | photometric slope parameter (float)           |
         +------------------+-----------------------------------------------+
-        | M1               | comet total abs mag (float, mag, "M1")        |
+        | M1               | comet total abs mag (float, mag, ``M1``)      |
         +------------------+-----------------------------------------------+
-        | M2               | comet nuclear abs mag (float, mag, "M2")      |
+        | M2               | comet nuclear abs mag (float, mag, ``M2``)    |
         +------------------+-----------------------------------------------+
-        | k1               | total mag scaling factor (float, "k1")        |
+        | k1               | total mag scaling factor (float, ``k1``)      |
         +------------------+-----------------------------------------------+
-        | k2               | nuclear mag scaling factor (float, "k2")      |
+        | k2               | nuclear mag scaling factor (float, ``k2``)    |
         +------------------+-----------------------------------------------+
-        | phasecoeff       | comet phase coeff (float, mag/deg, "PHCOFF")  |
+        | phasecoeff       | comet phase coeff (float, mag/deg, ``PHCOFF``)|
         +------------------+-----------------------------------------------+
-        | datetime_str     | epoch Date (str, "Calendar Date (TDB)"        |
+        | datetime_str     | epoch Date (str, ``Calendar Date (TDB)``)     |
         +------------------+-----------------------------------------------+
-        | datetime_jd      | epoch Julian Date (float, "JDTDB"             |
+        | datetime_jd      | epoch Julian Date (float, ``JDTDB``)          |
         +------------------+-----------------------------------------------+
-        | x                | x-comp of position vector (float, au, "X")    |
+        | x                | x-component of position vector                |
+        |                  | (float, au, ``X``)                            |
         +------------------+-----------------------------------------------+
-        | y                | y-comp of position vector (float, au, "Y")    |
+        | y                | y-component of position vector                |
+        |                  | (float, au, ``Y``)                            |
         +------------------+-----------------------------------------------+
-        | z                | z-comp of position vector (float, au, "Z")    |
+        | z                | z-component of position vector                |
+        |                  | (float, au, ``Z``)                            |
         +------------------+-----------------------------------------------+
-        | vx               | x-comp of velocity vector (float, au/d, "VX") |
+        | vx               | x-component of velocity vector (float, au/d,  |
+        |                  | ``VX``)                                       |
         +------------------+-----------------------------------------------+
-        | vy               | y-comp of velocity vector (float, au/d, "VY") |
+        | vy               | y-component of velocity vector (float, au/d,  |
+        |                  | ``VY``)                                       |
         +------------------+-----------------------------------------------+
-        | vz               | z-comp of velocity vector (float, au/d, "VZ") |
+        | vz               | z-component of velocity vector (float, au/d,  |
+        |                  | ``VZ``)                                       |
         +------------------+-----------------------------------------------+
-        | lighttime        | one-way lighttime (float, d, "LT")            |
+        | lighttime        | one-way lighttime (float, d, ``LT``)          |
         +------------------+-----------------------------------------------+
-        | range            | range from coordinate center (float, au, "RG")|
+        | range            | range from coordinate center (float, au,      |
+        |                  | ``RG``)                                       |
         +------------------+-----------------------------------------------+
-        | range_rate       | range rate (float, au/d, "RR")                |
+        | range_rate       | range rate (float, au/d, ``RR``)              |
         +------------------+-----------------------------------------------+
 
 
@@ -622,8 +868,8 @@ class HorizonsClass(BaseQuery):
             selection; default: False. Do not use this option for
             non-cometary objects.
         get_query_payload : boolean, optional
-            When set to `True` the method returns the HTTP request parameters
-            as a dict, default: False
+            When set to `True` the method returns the HTTP request
+            parameters as a dict, default: False
         get_raw_response: boolean, optional
             Return raw data as obtained by JPL Horizons without parsing the
             data into a table, default: False
@@ -695,6 +941,10 @@ class HorizonsClass(BaseQuery):
             if no_fragments:
                 commandline += ' NOFRAG;'
 
+        if isinstance(self.location, dict):
+            raise ValueError(('cannot use topographic position in state'
+                              'vectors query'))
+
         # configure request_payload for ephemerides query
         request_payload = OrderedDict([
             ('batch', 1),
@@ -713,11 +963,11 @@ class HorizonsClass(BaseQuery):
         # parse self.epochs
         if isinstance(self.epochs, (list, tuple, ndarray)):
             request_payload['TLIST'] = "\n".join([str(epoch) for epoch in
-                                                 self.epochs])
+                                                  self.epochs])
         elif type(self.epochs) is dict:
             if ('start' not in self.epochs or 'stop' not in self.epochs or
-                'step' not in self.epochs):
-                raise ValueError("'epochs' parameter must contain start, " +
+                    'step' not in self.epochs):
+                raise ValueError("'epochs' must contain start, " +
                                  "stop, step")
             request_payload['START_TIME'] = self.epochs['start']
             request_payload['STOP_TIME'] = self.epochs['stop']
@@ -740,6 +990,8 @@ class HorizonsClass(BaseQuery):
         # query and parse
         response = self._request('GET', URL, params=request_payload,
                                  timeout=self.TIMEOUT, cache=cache)
+        self.uri = response.url
+
         return response
 
     # ---------------------------------- parser functions
@@ -778,7 +1030,7 @@ class HorizonsClass(BaseQuery):
         for idx, line in enumerate(src):
             # read in ephemerides header line; replace some field names
             if (self.query_type is 'ephemerides' and
-                "Date__(UT)__HR:MN" in line):
+                    "Date__(UT)__HR:MN" in line):
                 headerline = str(line).split(',')
                 headerline[2] = 'solar_presence'
                 headerline[3] = 'flags'
@@ -811,32 +1063,39 @@ class HorizonsClass(BaseQuery):
             # read in M1, M2, k1, k2, and phcof (if available)
             if "Comet physical" in line:
                 HGline = src[idx + 2].split('=')
-                M1 = float(HGline[1].rstrip('M2'))
-                k1 = float(HGline[3].rstrip('k2'))
+                try:
+                    M1 = float(HGline[1].rstrip('M2'))
+                    k1 = float(HGline[3].rstrip('k2'))
+                except ValueError:
+                    M1 = nan
+                    k1 = nan
                 try:
                     M2 = float(HGline[2].rstrip('k1'))
                     k2 = float(HGline[4].rstrip('PHCOF'))
-                    phcof = float(HGline[5])
                 except ValueError:
                     M2 = nan
                     k2 = nan
+                try:
+                    phcof = float(HGline[5])
+                except ValueError:
                     phcof = nan
             # catch unambiguous names
             if (("Multiple major-bodies match string" in line or
                  "Matching small-bodies:" in line) and
-                ("No matches found" not in src[idx + 1])):
+                    ("No matches found" not in src[idx + 1])):
                 for i in range(idx + 2, len(src), 1):
                     if (('To SELECT, enter record' in src[i]) or
-                        ('make unique selection.' in src[i])):
+                            ('make unique selection.' in src[i])):
                         end_idx = i
                         break
-                raise ValueError('Ambiguous target name; provide ' +
-                                 'unique id:\n%s' %
-                                 '\n'.join(src[idx + 2:end_idx]))
+                raise ValueError(('Ambiguous target name; provide '
+                                  'unique id:\n%s' %
+                                  '\n'.join(src[idx + 2:end_idx])))
             # catch unknown target
             if ("Matching small-bodies" in line and
-                "No matches found" in src[idx + 1]):
-                raise ValueError('Unknown target. Try different id_type.')
+                    "No matches found" in src[idx + 1]):
+                raise ValueError(('Unknown target ({:s}). Maybe try '
+                                  'different id_type?').format(self.id))
             # catch any unavailability of ephemeris data
             if "No ephemeris for target" in line:
                 errormsg = line[line.find('No ephemeris for target'):]
@@ -847,9 +1106,20 @@ class HorizonsClass(BaseQuery):
                 errormsg = line[line.find('Cannot output elements'):]
                 errormsg = errormsg[:errormsg.find('\n')]
                 raise ValueError('Horizons Error: {:s}'.format(errormsg))
+            if 'INPUT ERROR' in line:
+                headerline = []
+                break
 
         if headerline == []:
-            raise IOError('Cannot parse table column names.')
+            err_msg = "".join(src[data_start_idx:data_end_idx])
+            if len(err_msg) > 0:
+                raise ValueError('Query failed with error message:\n' +
+                                 err_msg)
+            else:
+                raise ValueError(('Query failed without error message; '
+                                  'check URI for more information'))
+        # strip whitespaces from column labels
+        headerline = [h.strip() for h in headerline]
 
         # remove all 'Cut-off' messages
         raw_data = [line for line in src[data_start_idx:data_end_idx]
@@ -896,6 +1166,10 @@ class HorizonsClass(BaseQuery):
             data.add_column(Column([phcof] * len(data),
                                    name='phasecoeff'), index=7)
 
+        # replace missing airmass values with 999 (not observable)
+        if self.query_type is 'ephemerides':
+            data['a-mass'] = data['a-mass'].filled(999)
+
         # set column definition dictionary
         if self.query_type is 'ephemerides':
             column_defs = conf.eph_columns
@@ -915,7 +1189,10 @@ class HorizonsClass(BaseQuery):
 
         # rename columns
         for col in rename:
-            data.rename_column(data[col].name, column_defs[col][0])
+            try:
+                data.rename_column(data[col].name, column_defs[col][0])
+            except KeyError:
+                pass
 
         return data
 

@@ -69,6 +69,12 @@ def approximate_primary_beam_sizes(frq_sup_str=frq_sup_str,
 @remote_data
 @pytest.mark.skipif('not pyregion_OK')
 def test_make_finder_chart():
+    import matplotlib
+    matplotlib.use('agg')
+    if matplotlib.get_backend() != 'agg':
+        pytest.xfail("Matplotlib backend was incorrectly set to {0}, could "
+                     "not run finder chart test.".format(matplotlib.get_backend()))
+
     result = utils.make_finder_chart('Eta Carinae', 3 * u.arcmin,
                                      'Eta Carinae')
     image, catalog, hit_mask_public, hit_mask_private = result

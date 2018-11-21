@@ -10,7 +10,7 @@ def reload_votable_fields_json():
     content = aud.get_file_contents("http://simbad.u-strasbg.fr/simbad/sim-help?Page=sim-fscript#VotableFields")
 
     import bs4
-    htmldoc = bs4.BeautifulSoup(content)
+    htmldoc = bs4.BeautifulSoup(content, 'html5lib')
     search_text = re.compile(r'Field names for VOTable output', re.IGNORECASE)
     foundtext = htmldoc.find('h2', text=search_text)
 

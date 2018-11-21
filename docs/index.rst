@@ -26,61 +26,22 @@ Check out the :doc:`gallery` for some nice examples.
 Installation
 ------------
 
-The latest version of astroquery can be conda installed while the latest and
-development versions can be pip installed or be downloaded directly from GitHub.
-On Linux systems the recommended way to install astroquery is to use the
-package management system to install the packages offered in the official
-repositories.
-
-Using pip
-^^^^^^^^^
-.. code-block:: bash
-
-    $ pip install astroquery
-
-and the 'bleeding edge' master version:
+Astroquery has recently switched to a continuous deployment model, meaning
+that a release will be instantaniously available after each set of changes
+made to the code.
+The latest version of astroquery can be pip installed.
 
 .. code-block:: bash
 
-   $ pip install https://github.com/astropy/astroquery/archive/master.zip
+    $ pip install --pre astroquery
 
-Using conda
-^^^^^^^^^^^
-
-It is also possible to install the latest astroquery with `anaconda
-<https://anaconda.com/>`_ from the astropy channel:
+We also keep doing regular, tagged version for maintanence purposes. These
+can be then conda installed from the ``astropy`` conda channel.
 
 .. code-block:: bash
 
     $ conda install -c astropy astroquery
 
-Archlinux
-^^^^^^^^^
-
-The current stable version of astroquery can be installed directly from the
-Arch User Repository `python-astroquery package
-<https://aur.archlinux.org/packages/python-astroquery/>`_,
-while the latest version of the development branch in the git repository
-can be installed from the `python-astroquery-git package
-<https://aur.archlinux.org/packages/python-astroquery-git/>`_.
-
-Debian
-^^^^^^
-
-Astroquery packages for `python 2
-<https://packages.debian.org/python-astroquery>`_ and `python 3
-<https://packages.debian.org/python3-astroquery>`_  have been part of the
-Debian distribution since the release of Debian 9.0 (stretch).  These packages
-can be installed using usual package maintenance tools like ``apt-get`` or
-``aptitude``.
-
-Gentoo
-^^^^^^
-
-An `astroquery ebuild
-<https://packages.gentoo.org/packages/dev-python/astroquery>`_ is available
-from the official Gentoo ebuild repository and can be installed with the
-Portage package manager.
 
 Building from source
 ^^^^^^^^^^^^^^^^^^^^
@@ -120,6 +81,13 @@ full functionality of the `~astroquery.alma` module:
 
 * `APLpy <http://aplpy.readthedocs.io/>`_
 * `pyregion <http://pyregion.readthedocs.io/>`_
+
+The following packages are optional dependencies and are required for the
+full functionality of the `~astroquery.cds` module:
+
+* `astropy-healpix <http://astropy-healpix.readthedocs.io/en/latest/>`_
+* `regions <https://astropy-regions.readthedocs.io/en/latest/>`_
+* `mocpy <https://mocpy.readthedocs.io/en/latest/>`_
 
 Using astroquery
 ----------------
@@ -178,14 +146,17 @@ The following modules have been completed using a common API:
   alma/alma.rst
   atomic/atomic.rst
   besancon/besancon.rst
+  cds/cds.rst
   esasky/esasky.rst
   eso/eso.rst
   gaia/gaia.rst
   gama/gama.rst
   heasarc/heasarc.rst
+  hitran/hitran.rst
   ibe/ibe.rst
   irsa/irsa.rst
   irsa/irsa_dust.rst
+  jplspec/jplspec.rst
   magpis/magpis.rst
   mast/mast.rst
   mpc/mpc.rst
@@ -201,7 +172,9 @@ The following modules have been completed using a common API:
   vamdc/vamdc.rst
   vizier/vizier.rst
   vo_conesearch/vo_conesearch.rst
+  vsa/vsa.rst
   xmatch/xmatch.rst
+
 
 These others are functional, but do not follow a common & consistent API:
 
@@ -212,8 +185,8 @@ These others are functional, but do not follow a common & consistent API:
   cosmosim/cosmosim.rst
   exoplanet_orbit_database/exoplanet_orbit_database.rst
   fermi/fermi.rst
-  hitran/hitran.rst
   jplhorizons/jplhorizons.rst
+  jplsbdb/jplsbdb.rst
   lamda/lamda.rst
   nasa_exoplanet_archive/nasa_exoplanet_archive.rst
   oac/oac.rst
@@ -221,6 +194,13 @@ These others are functional, but do not follow a common & consistent API:
   open_exoplanet_catalogue/open_exoplanet_catalogue.rst
   sdss/sdss.rst
   sha/sha.rst
+
+There are also subpackages that serve as the basis of others.
+
+.. toctree::
+  :maxdepth: 1
+
+  wfau/wfau.rst
 
 Catalog, Archive, and Other
 ===========================
@@ -251,6 +231,7 @@ for each source)
   sha/sha.rst
   simbad/simbad.rst
   ukidss/ukidss.rst
+  vsa/vsa.rst
   vizier/vizier.rst
   xmatch/xmatch.rst
   vo_conesearch/vo_conesearch.rst
@@ -282,6 +263,7 @@ generally return a table listing the available data first.
   sdss/sdss.rst
   sha/sha.rst
   ukidss/ukidss.rst
+  vsa/vsa.rst
   skyview/skyview.rst
 
 Simulations
@@ -314,7 +296,21 @@ above categories.
   hitran/hitran.rst
   utils/tap.rst
   jplhorizons/jplhorizons.rst
+  jplsbdb/jplsbdb.rst
+  jplspec/jplspec.rst
 
+
+Topical Collections
+===================
+
+Some services focusing on similar topics are also collected in
+topical submodules:
+
+.. toctree::
+  :maxdepth: 1
+
+  solarsystem/solarsystem.rst
+  
 
 Developer documentation
 -----------------------

@@ -15,6 +15,7 @@ from ..query import BaseQuery
 from ..utils import async_to_sync, prepend_docstr_nosections
 from . import conf
 from . import load_species_table
+from .utils import clean_column_headings
 
 __all__ = ['Splatalogue', 'SplatalogueClass']
 
@@ -461,6 +462,12 @@ class SplatalogueClass(BaseQuery):
     def _parse_result(self, response, verbose=False):
         """
         Parse a response into an `~astropy.table.Table`
+
+        Parameters
+        ----------
+        clean_headers : bool
+            Attempt to simplify / clean up the column headers returned by
+            splatalogue to make them more terminal-friendly
         """
 
         try:
@@ -482,25 +489,12 @@ class SplatalogueClass(BaseQuery):
         keyword.  See the source for the defaults.
         """
         if columns is None:
-            columns = ('Species', 'Chemical Name', 'Resolved QNs', 'Freq-GHz',
-                       'Meas Freq-GHz', 'Log<sub>10</sub> (A<sub>ij</sub>)',
+            columns = ('Species', 'Chemical Name', 'Resolved QNs',
+                       'Freq-GHz(rest frame,redshifted)',
+                       'Meas Freq-GHz(rest frame,redshifted)',
+                       'Log<sub>10</sub> (A<sub>ij</sub>)',
                        'E_U (K)')
-        table = self.table[columns]
-        long_to_short = {'Log<sub>10</sub> (A<sub>ij</sub>)': 'log10(Aij)',
-                         'E_U (K)': 'EU_K',
-                         'E_U (cm^-1)': 'EU_cm',
-                         'E_L (K)': 'EL_K',
-                         'E_L (cm^-1)': 'EL_cm',
-                         'Chemical Name': 'Name',
-                         'Lovas/AST Intensity': 'Intensity',
-                         'Freq-GHz': 'Freq',
-                         'Freq Err': 'eFreq',
-                         'Meas Freq-GHz': 'MeasFreq',
-                         'Meas Freq Err': 'eMeasFreq',
-                         'Resolved QNs': 'QNs'}
-        for cn in long_to_short:
-            if cn in table.colnames:
-                table.rename_column(cn, long_to_short[cn])
+        table = clean_column_headings(self.table[columns])
         return table
 
 

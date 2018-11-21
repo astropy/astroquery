@@ -1,6 +1,7 @@
 include LICENSE.rst
 include README.rst
 include CHANGES.rst
+include CITATION
 include astroquery/splatalogue/data/*
 
 include ez_setup.py

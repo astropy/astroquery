@@ -12,9 +12,12 @@ from __future__ import print_function, division
 import warnings
 import json
 import time
+import string
 import os
 import re
 import keyring
+import threading
+import requests
 
 import numpy as np
 
@@ -24,10 +27,12 @@ from base64 import b64encode
 
 import astropy.units as u
 import astropy.coordinates as coord
+from astropy.utils import deprecated
 
 from astropy.table import Table, Row, vstack, MaskedColumn
 from astropy.extern.six.moves.urllib.parse import quote as urlencode
 from astropy.extern.six.moves.http_cookiejar import Cookie
+from astropy.utils.console import ProgressBarOrSpinner
 from astropy.utils.exceptions import AstropyWarning
 from astropy.logger import log
 
@@ -38,6 +43,7 @@ from ..exceptions import (TimeoutError, InvalidQueryError, RemoteServiceError,
                           LoginError, ResolverError, MaxResultsWarning,
                           NoResultsWarning, InputWarning, AuthenticationWarning)
 from . import conf
+from . import fpl
 
 
 __all__ = ['Observations', 'ObservationsClass',
@@ -106,6 +112,9 @@ def _mashup_json_to_table(json_obj, col_config=None):
         if atype == "int":  # int arrays do not admit Non/nan vals
             atype = np.int64
             ignoreValue = -999 if (ignoreValue is None) else ignoreValue
+        if atype == "date":
+            atype = "str"
+            ignoreValue = "" if (ignoreValue is None) else ignoreValue
 
         # Make the column list (don't assign final type yet or there will be errors)
         colData = np.array([x.get(col, ignoreValue) for x in json_obj['data']], dtype=object)
@@ -139,13 +148,7 @@ class MastClass(QueryWithLogin):
         super(MastClass, self).__init__()
 
         self._MAST_REQUEST_URL = conf.server + "/api/v0/invoke"
-        self._MAST_DOWNLOAD_URL = conf.server + "/api/v0/download/file"
         self._COLUMNS_CONFIG_URL = conf.server + "/portal/Mashup/Mashup.asmx/columnsconfig"
-
-        # shibbolith urls
-        self._SP_TARGET = conf.server + "/api/v0/Mashup/Login/login.html"
-        self._IDP_ENDPOINT = conf.ssoserver + "/idp/profile/SAML2/SOAP/ECP"
-        self._SESSION_INFO_URL = conf.server + "/Shibboleth.sso/Session"
 
         self.TIMEOUT = conf.timeout
         self.PAGESIZE = conf.pagesize
@@ -153,10 +156,85 @@ class MastClass(QueryWithLogin):
         self._column_configs = dict()
         self._current_service = None
 
+        try:
+            self._auth_mode = self._get_auth_mode()
+        except (requests.exceptions.ConnectionError, IOError):
+            # this is fine, we're in test mode
+            self._auth_mode = 'SHIB-ECP'
+
+        if "SHIB-ECP" == self._auth_mode:
+            log.debug("Using Legacy Shibboleth login")
+            self._SESSION_INFO_URL = conf.server + "/Shibboleth.sso/Session"
+            self._SP_TARGET = conf.server + "/api/v0/Mashup/Login/login.html"
+            self._IDP_ENDPOINT = conf.ssoserver + "/idp/profile/SAML2/SOAP/ECP"
+            self._MAST_DOWNLOAD_URL = conf.server + "/api/v0/Download/file"
+        elif "MAST-AUTH" == self._auth_mode:
+            log.debug("Using Auth.MAST login")
+            self._SESSION_INFO_URL = conf.server + "/whoami"
+            self._MAST_DOWNLOAD_URL = conf.server + "/api/v0.1/Download/file"
+            self._MAST_BUNDLE_URL = conf.server + "/api/v0.1/Download/bundle"
+        else:
+            raise Exception("Unknown MAST Auth mode %s" % self._auth_mode)
+
         if username or session_token:
             self.login(username, password, session_token)
 
-    def _attach_cookie(self, session_token):  # pragma: no cover
+    def _get_auth_mode(self):
+        _auth_mode = "SHIB-ECP"
+
+        # Detect auth mode from auth_type endpoint
+        resp = self._session.get(conf.server + '/auth_type')
+        if resp.status_code == 200:
+            _auth_mode = resp.text.strip()
+        else:
+            log.warning("Unknown MAST auth mode, defaulting to Legacy Shibboleth login")
+        return _auth_mode
+
+    def _login(self, *args, **kwargs):
+        if "SHIB-ECP" == self._auth_mode:
+            return self._shib_legacy_login(*args, **kwargs)
+        elif "MAST-AUTH" == self._auth_mode:
+            return self._authorize(*args, **kwargs)
+        else:
+            raise Exception("Unknown MAST Auth mode %s" % self._auth_mode)
+
+    def get_token(self, *args, **kwargs):
+        """
+        Returns MAST token cookie.
+
+        Returns
+        -------
+        response : `~http.cookiejar.Cookie`
+        """
+        if "SHIB-ECP" == self._auth_mode:
+            return self._shib_get_token(*args, **kwargs)
+        elif "MAST-AUTH" == self._auth_mode:
+            return self._get_token(*args, **kwargs)
+        else:
+            raise Exception("Unknown MAST Auth mode %s" % self._auth_mode)
+
+    def session_info(self, *args, **kwargs):
+        """
+        Displays information about current MAST user, and returns user info dictionary.
+
+        Parameters
+        ----------
+        silent : bool, optional
+            Default False.
+            Suppresses output to stdout.
+
+        Returns
+        -------
+        response : dict
+        """
+        if "SHIB-ECP" == self._auth_mode:
+            return self._shib_session_info(*args, **kwargs)
+        elif "MAST-AUTH" == self._auth_mode:
+            return self._session_info(*args, **kwargs)
+        else:
+            raise Exception("Unknown MAST Auth mode %s" % self._auth_mode)
+
+    def _shib_attach_cookie(self, session_token):  # pragma: no cover
         """
         Attaches a valid shibboleth session cookie to the current session.
 
@@ -409,10 +487,28 @@ class MastClass(QueryWithLogin):
                    "Content-type": "application/x-www-form-urlencoded",
                    "Accept": "text/plain"}
 
-        response = self._request("POST", self._COLUMNS_CONFIG_URL,
-                                 data=("colConfigId="+fetch_name), headers=headers)
+        if "Catalogs.All" in fetch_name:  # Using the histogram properties instead of columngs config
 
-        self._column_configs[service] = response[0].json()
+            mashupRequest = {'service': fetch_name, 'params': {}, 'format': 'extjs'}
+            reqString = _prepare_service_request_string(mashupRequest)
+            response = self._request("POST", self._MAST_REQUEST_URL, data=reqString, headers=headers)
+            jsonResponse = response[0].json()
+
+            # When using the histogram data to fill to col_config some processing must be done
+            col_config = jsonResponse['data']['Tables'][0]['ExtendedProperties']['discreteHistogram']
+            col_config.update(jsonResponse['data']['Tables'][0]['ExtendedProperties']['continuousHistogram'])
+
+            for col, val in col_config.items():
+                val.pop('hist', None)  # don't want to save all this unecessary data
+
+            self._column_configs[service] = col_config
+
+        else:
+
+            response = self._request("POST", self._COLUMNS_CONFIG_URL,
+                                     data=("colConfigId="+fetch_name), headers=headers)
+
+            self._column_configs[service] = response[0].json()
 
     def _parse_result(self, responses, verbose=False):
         """
@@ -457,8 +553,53 @@ class MastClass(QueryWithLogin):
             warnings.warn("Query returned no results.", NoResultsWarning)
         return allResults
 
-    def _login(self, username=None, password=None, session_token=None,
-               store_password=False, reenter_password=False):  # pragma: no cover
+    def _authorize(self, token=None, store_token=False, reenter_token=False):  # pragma: no cover
+        """
+        Log into the MAST portal.
+
+        Parameters
+        ----------
+        token : string, optional
+            Default is None.
+            The token to authenticate the user.
+            This can be generated at
+                https://auth.mast.stsci.edu/token?suggested_name=Astroquery&suggested_scope=mast:exclusive_access.
+            If not supplied, it will be prompted for if not in the keyring or set via $MAST_API_TOKEN
+        store_token : bool, optional
+            Default False.
+            If true, username and password will be stored securely in your keyring.
+        """
+
+        if token is None and "MAST_API_TOKEN" in os.environ:
+            token = os.environ["MAST_API_TOKEN"]
+
+        if token is None:
+            token = keyring.get_password("astroquery:mast.stsci.edu.token", "masttoken")
+
+        if token is None or reenter_token:
+            auth_server = conf.server.replace("mast", "auth.mast")
+            auth_link = auth_server + "/token?suggested_name=Astroquery&suggested_scope=mast:exclusive_access"
+            info_msg = "If you do not have an API token already, visit the following link to create one: "
+            log.info(info_msg + auth_link)
+            token = getpass("Enter MAST API Token: ")
+
+        # store password if desired
+        if store_token:
+            keyring.set_password("astroquery:mast.stsci.edu.token", "masttoken", token)
+
+        self._session.headers["Accept"] = "application/json"
+        self._session.cookies["mast_token"] = token
+        info = self.session_info(silent=True)
+
+        if not info["anon"]:
+            log.info("MAST API token accepted, welcome %s" % info["attrib"].get("display_name"))
+        else:
+            log.warn("MAST API token invalid!")
+
+        return not info["anon"]
+
+    def _shib_legacy_login(self, username=None, password=None, session_token=None,
+                           store_password=False, reenter_password=False):  # pragma: no cover
         """
         Log into the MAST portal.
 
@@ -498,7 +639,7 @@ class MastClass(QueryWithLogin):
                           InputWarning)
 
         if session_token:
-            return self._attach_cookie(session_token)
+            return self._shib_attach_cookie(session_token)
         else:
             # get username if not supplied
             if not username:
@@ -518,40 +659,6 @@ class MastClass(QueryWithLogin):
 
             return self._shib_login(username, password)
 
-    def login(self, username=None, password=None, session_token=None,
-              store_password=False, reenter_password=False):  # pragma: no cover
-        """
-        Log into the MAST portal.
-
-        Parameters
-        ----------
-        username : string, optional
-            Default is None.
-            The username for the user logging in.
-            Usually this will be the user's email address.
-            If a username is necessary but not supplied it will be prompted for.
-        password : string, optional
-            Default is None.
-            The password associated with the given username.
-            For security passwords should not be typed into the terminal or jupyter
-            notebook, but input using a more secure method such as `~getpass.getpass`.
-            If a password is necessary but not supplied it will be prompted for.
-        session_token : dict or `~http.cookiejar.Cookie`, optional
-            A valid MAST session cookie that will be attached to the current session
-            in lieu of logging in with a username/password.
-            If username and/or password is supplied, this argument will be ignored.
-        store_password : bool, optional
-            Default False.
-            If true, username and password will be stored securely in your keyring.
-        reenter_password : bool, optional
-            Default False.
-            Asks for the password even if it is already stored in the keyring.
-            This is the way to overwrite an already stored password on the keyring.
-        """
-
-        return super(MastClass, self).login(username=username, password=password, session_token=session_token,
-                                            store_password=store_password, reenter_password=reenter_password)
-
     def logout(self):  # pragma: no cover
         """
         Log out of current MAST session.
@@ -559,7 +666,57 @@ class MastClass(QueryWithLogin):
         self._session.cookies.clear_session_cookies()
         self._authenticated = False
 
-    def get_token(self):  # pragma: no cover
+    def _get_token(self):  # pragma: no cover
+        """
+        Returns MAST token cookie.
+
+        Returns
+        -------
+        response : `~http.cookiejar.Cookie`
+        """
+
+        tokenCookie = None
+        for cookie in self._session.cookies:
+            if "mast_token" in cookie.name:
+                tokenCookie = cookie
+                break
+
+        if not tokenCookie:
+            warnings.warn("No auth token found.", AuthenticationWarning)
+
+        return tokenCookie
+
+    def _session_info(self, silent=False):  # pragma: no cover
+        """
+        Displays information about current MAST user, and returns user info dictionary.
+
+        Parameters
+        ----------
+        silent : bool, optional
+            Default False.
+            Suppresses output to stdout.
+
+        Returns
+        -------
+        response : dict
+        """
+
+        # get user information
+        response = self._session.request("GET", self._SESSION_INFO_URL)
+
+        infoDict = json.loads(response.text)
+
+        if not silent:
+            for key, value in infoDict.items():
+                if isinstance(value, dict):
+                    for subkey, subval in value.items():
+                        print("%s.%s: %s" % (key, subkey, subval))
+                else:
+                    print("%s: %s" % (key, value))
+
+        return infoDict
+
+    def _shib_get_token(self):  # pragma: no cover
         """
         Returns MAST session cookie.
 
@@ -579,7 +736,7 @@ class MastClass(QueryWithLogin):
 
         return shibCookie
 
-    def session_info(self, silent=False):
+    def _shib_session_info(self, silent=False):  # pragma: no cover
         """
         Displays information about current MAST session, and returns session info dictionary.
 
@@ -651,7 +808,8 @@ class MastClass(QueryWithLogin):
 
         # setting self._current_service
         if service not in self._column_configs.keys():
-            self._get_col_config(service)
+            fetch_name = kwargs.pop('fetch_name', None)
+            self._get_col_config(service, fetch_name)
         self._current_service = service
 
         # setting up pagination
@@ -755,7 +913,8 @@ class MastClass(QueryWithLogin):
                 continue
 
             colType = "discrete"
-            if (colInfo.get("vot.datatype", colInfo.get("type")) in ("double", "float")) or colInfo.get("treatNumeric"):
+            if (colInfo.get("vot.datatype", colInfo.get("type")) in ("double", "float", "numeric")) \
+               or colInfo.get("treatNumeric"):
                 colType = "continuous"
 
             separator = colInfo.get("separator")
@@ -816,6 +975,14 @@ class ObservationsClass(MastClass):
     Class for querying MAST observational data.
     """
 
+    def __init__(self, *args, **kwargs):
+
+        super(ObservationsClass, self).__init__(*args, **kwargs)
+
+        self._boto3 = None
+        self._botocore = None
+        self._pubdata_bucket = "stpubdata"
+
     def list_missions(self):
         """
         Lists data missions archived by MAST and avaiable through `astroquery.mast`.
@@ -826,10 +993,10 @@ class ObservationsClass(MastClass):
             List of available missions.
         """
 
-        # getting all the hitogram information
+        # getting all the histogram information
         service = "Mast.Caom.All"
         params = {}
-        response = Mast.service_request_async(service, params, format='extjs')
+        response = self.service_request_async(service, params, format='extjs')
         jsonResponse = response[0].json()
 
         # getting the list of missions
@@ -1184,7 +1351,7 @@ class ObservationsClass(MastClass):
 
         return self.service_request_async(service, params)
 
-    def filter_products(self, products, mrp_only=True, **filters):
+    def filter_products(self, products, mrp_only=False, extension=None, **filters):
         """
         Takes an `astropy.table.Table` of MAST observation data products and filters it based on given filters.
 
@@ -1193,13 +1360,14 @@ class ObservationsClass(MastClass):
         products : `astropy.table.Table`
             Table containing data products to be filtered.
         mrp_only : bool, optional
-            Default True. When set to true only "Minimum Recommended Products" will be returned.
+            Default False. When set to true only "Minimum Recommended Products" will be returned.
+        extension : string, optional
+            Default None. Option to filter by file extension.
         **filters :
             Filters to be applied.  Valid filters are all products fields listed
-            `here <https://masttest.stsci.edu/api/v0/_productsfields.html>`__ and 'extension'
-            which is the desired file extension.
-            The Column Name (or 'extension') is the keyword, with the argument being one or
-            more acceptable values for that parameter.
+            `here <https://masttest.stsci.edu/api/v0/_productsfields.html>`__.
+            The column name is the keyword, with the argument being one or more acceptable values
+            for that parameter.
             Filter behavior is AND between the filters and OR within a filter set.
             For example: productType="SCIENCE",extension=["fits","jpg"]
 
@@ -1208,12 +1376,20 @@ class ObservationsClass(MastClass):
         response : `~astropy.table.Table`
         """
 
-        # Dealing with mrp first, b/c it's special
-        if mrp_only:
-            products.remove_rows(np.where(products['productGroupDescription'] != "Minimum Recommended Products"))
-
         filterMask = np.full(len(products), True, dtype=bool)
 
+        # Applying the special filters (mrp_only and extension)
+        if mrp_only:
+            filterMask &= (products['productGroupDescription'] == "Minimum Recommended Products")
+
+        if extension:
+            mask = np.full(len(products), False, dtype=bool)
+            for elt in extension:
+                mask |= [False if isinstance(x, np.ma.core.MaskedConstant) else x.endswith(elt)
+                         for x in products["productFilename"]]
+            filterMask &= mask
+
+        # Applying the rest of the filters
         for colname, vals in filters.items():
 
             if type(vals) == str:
@@ -1221,11 +1397,7 @@ class ObservationsClass(MastClass):
 
             mask = np.full(len(products), False, dtype=bool)
             for elt in vals:
-                if colname == 'extension':  # extension is not actually a column
-                    mask |= [False if isinstance(x, np.ma.core.MaskedConstant) else x.endswith(elt)
-                             for x in products["productFilename"]]
-                else:
-                    mask |= (products[colname] == elt)
+                mask |= (products[colname] == elt)
 
             filterMask &= mask
 
@@ -1247,11 +1419,45 @@ class ObservationsClass(MastClass):
         response : `astropy.table.Table`
         """
 
+        urlList = [("uri", url) for url in products['dataURI']]
+        downloadFile = "mastDownload_" + time.strftime("%Y%m%d%H%M%S")
+        localPath = os.path.join(out_dir.rstrip('/'), downloadFile + ".sh")
+
+        response = self._download_file(self._MAST_BUNDLE_URL + ".sh", localPath, data=urlList, method="POST")
+
+        status = "COMPLETE"
+        msg = None
+
+        if not os.path.isfile(localPath):
+            status = "ERROR"
+            msg = "Curl could not be downloaded"
+
+        manifest = Table({'Local Path': [localPath],
+                          'Status': [status],
+                          'Message': [msg]})
+        return manifest
+
+    def _shib_download_curl_script(self, products, out_dir):
+        """
+        Takes an `astropy.table.Table` of data products and downloads a curl script to pull the datafiles.
+
+        Parameters
+        ----------
+        products : `astropy.table.Table`
+            Table containing products to be included in the curl script.
+        out_dir : str
+            Directory in which the curl script will be saved.
+
+        Returns
+        -------
+        response : `astropy.table.Table`
+        """
+
         urlList = products['dataURI']
+        downloadFile = "mastDownload_" + time.strftime("%Y%m%d%H%M%S")
         descriptionList = products['description']
         productTypeList = products['dataproduct_type']
 
-        downloadFile = "mastDownload_" + time.strftime("%Y%m%d%H%M%S")
         pathList = [downloadFile+"/"+x['obs_collection']+'/'+x['obs_id']+'/'+x['productFilename'] for x in products]
 
         service = "Mast.Bundle.Request"
@@ -1290,6 +1496,136 @@ class ObservationsClass(MastClass):
                           "URL": [url]})
         return manifest
 
+    @deprecated(since="v0.3.9", alternative="enable_cloud_dataset")
+    def enable_s3_hst_dataset(self):
+        return self.enable_cloud_dataset()
+
+    def enable_cloud_dataset(self, provider="AWS", profile=None):
+        """
+        Attempts to enable downloading public files from S3 instead of MAST.
+        Requires the boto3 library to function.
+        """
+        import boto3
+        import botocore
+        if profile is not None:
+            self._boto3 = boto3.Session(profile_name=profile)
+        else:
+            self._boto3 = boto3
+        self._botocore = botocore
+
+        log.info("Using the S3 STScI public dataset")
+        log.warning("Your AWS account will be charged for access to the S3 bucket")
+        log.info("See Request Pricing in https://aws.amazon.com/s3/pricing/ for details")
+        log.info("If you have not configured boto3, follow the instructions here: "
+                 "https://boto3.readthedocs.io/en/latest/guide/configuration.html")
+
+    @deprecated(since="v0.3.9", alternative="disable_cloud_dataset")
+    def disable_s3_hst_dataset(self):
+        return self.disable_cloud_dataset()
+
+    def disable_cloud_dataset(self):
+        """
+        Disables downloading public files from S3 instead of MAST
+        """
+        self._boto3 = None
+        self._botocore = None
+
+    @deprecated(since="v0.3.9", alternative="get_cloud_uris")
+    def get_hst_s3_uris(self, dataProducts, includeBucket=True, fullUrl=False):
+        return self.get_cloud_uris(self, dataproducts, includeBucket, fullUrl)
+
+    def get_cloud_uris(self, dataProducts, includeBucket=True, fullUrl=False):
+        """ Takes an `astropy.table.Table` of data products and turns them into s3 uris. """
+
+        return [self.get_cloud_uri(dataProduct, includeBucket, fullUrl) for dataProduct in dataProducts]
+
+    @deprecated(since="v0.3.9", alternative="get_cloud_uri")
+    def get_hst_s3_uri(self, dataProduct, includeBucket=True, fullUrl=False):
+        return self.get_cloud_uri(self, dataProduct, includeBucket, fullUrl)
+
+    def get_cloud_uri(self, dataProduct, includeBucket=True, fullUrl=False):
+        """ Turns a dataProduct into a S3 URI """
+
+        if self._boto3 is None:
+            raise AtrributeError("Must enable s3 dataset before attempting to query the s3 information")
+
+        # This is a cheap operation and does not perform any actual work yet
+        s3_client = self._boto3.client('s3')
+
+        paths = fpl.paths(dataProduct)
+        if paths is None:
+            raise Exception("Unsupported mission")
+
+        for path in paths:
+            try:
+                s3_client.head_object(Bucket=self._pubdata_bucket, Key=path, RequestPayer='requester')
+                if includeBucket:
+                    path = "s3://%s/%s" % (self._pubdata_bucket, path)
+                elif fullUrl:
+                    path = "http://s3.amazonaws.com/%s/%s" % (self._pubdata_bucket, path)
+                return path
+            except self._botocore.exceptions.ClientError as e:
+                if e.response['Error']['Code'] != "404":
+                    raise
+
+        raise Exception("Unable to locate file!")
+
+    def _download_from_cloud(self, dataProduct, localPath, cache=True):
+        # The following is a mishmash of BaseQuery._download_file and s3 access through boto
+
+        self._pubdata_bucket = 'stpubdata'
+
+        # This is a cheap operation and does not perform any actual work yet
+        s3 = self._boto3.resource('s3')
+        s3_client = self._boto3.client('s3')
+        bkt = s3.Bucket(self._pubdata_bucket)
+
+        bucketPath = self.get_cloud_uri(dataProduct, False)
+        info_lookup = s3_client.head_object(Bucket=self._pubdata_bucket, Key=bucketPath, RequestPayer='requester')
+
+        # Unfortunately, we can't use the reported file size in the reported product.  STScI's backing
+        # archive database (CAOM) is frequently out of date and in many cases omits the required information.
+        # length = dataProduct["size"]
+        # Instead we ask the webserver (in this case S3) what the expected content length is and use that.
+        length = info_lookup["ContentLength"]
+
+        if cache and os.path.exists(localPath):
+            if length is not None:
+                statinfo = os.stat(localPath)
+                if statinfo.st_size != length:
+                    log.warning("Found cached file {0} with size {1} that is "
+                                "different from expected size {2}"
+                                .format(localPath,
+                                        statinfo.st_size,
+                                        length))
+                else:
+                    log.info("Found cached file {0} with expected size {1}."
+                             .format(localPath, statinfo.st_size))
+                    return
+
+        with ProgressBarOrSpinner(length, ('Downloading URL s3://{0}/{1} to {2} ...'.format(
+                self._pubdata_bucket, bucketPath, localPath))) as pb:
+
+            # Bytes read tracks how much data has been received so far
+            # This variable will be updated in multiple threads below
+            global bytes_read
+            bytes_read = 0
+
+            progress_lock = threading.Lock()
+
+            def progress_callback(numbytes):
+                # Boto3 calls this from multiple threads pulling the data from S3
+                global bytes_read
+
+                # This callback can be called in multiple threads
+                # Access to updating the console needs to be locked
+                with progress_lock:
+                    bytes_read += numbytes
+                    pb.update(bytes_read)
+
+            bkt.download_file(bucketPath, localPath, ExtraArgs={"RequestPayer": "requester"},
+                              Callback=progress_callback)
+
     def _download_files(self, products, base_dir, cache=True):
         """
         Takes an `astropy.table.Table` of data products and downloads them into the dirctor given by base_dir.
@@ -1312,7 +1648,7 @@ class ObservationsClass(MastClass):
         for dataProduct in products:
 
             localPath = base_dir + "/" + dataProduct['obs_collection'] + "/" + dataProduct['obs_id']
-            dataUrl = self._MAST_DOWNLOAD_URL + "?uri=" + dataProduct['dataURI']
+            dataUrl = self._MAST_DOWNLOAD_URL + "?uri=" + dataProduct["dataURI"]
 
             if not os.path.exists(localPath):
                 os.makedirs(localPath)
@@ -1324,7 +1660,15 @@ class ObservationsClass(MastClass):
             url = None
 
             try:
-                self._download_file(dataUrl, localPath, cache=cache)
+                if self._boto3 is not None and fpl.has_path(dataProduct):
+                    try:
+                        self._download_from_cloud(dataProduct, localPath, cache)
+                    except Exception as ex:
+                        log.exception("Error pulling from S3 bucket: %s" % ex)
+                        log.warn("Falling back to mast download...")
+                        self._download_file(dataUrl, localPath, cache=cache, head_safe=True)
+                else:
+                    self._download_file(dataUrl, localPath, cache=cache, head_safe=True)
 
                 # check if file exists also this is where would perform md5,
                 # and also check the filesize if the database reliably reported file sizes
@@ -1345,7 +1689,7 @@ class ObservationsClass(MastClass):
         return manifest
 
     def download_products(self, products, download_dir=None,
-                          cache=True, curl_flag=False, mrp_only=True, **filters):
+                          cache=True, curl_flag=False, mrp_only=False, **filters):
         """
         Download data products.
 
@@ -1363,7 +1707,7 @@ class ObservationsClass(MastClass):
             Default is False.  If true instead of downloading files directly, a curl script
             will be downloaded that can be used to download the data files at a later time.
         mrp_only : bool, optional
-            Default True. When set to true only "Minimum Recommended Products" will be returned.
+            Default False. When set to true only "Minimum Recommended Products" will be returned.
         **filters :
             Filters to be applied.  Valid filters are all products fields listed
             `here <https://masttest.stsci.edu/api/v0/_productsfields.html>`__ and 'extension'
@@ -1405,7 +1749,10 @@ class ObservationsClass(MastClass):
             download_dir = '.'
 
         if curl_flag:  # don't want to download the files now, just the curl script
-            manifest = self._download_curl_script(products, download_dir)
+            if "SHIB-ECP" == self._auth_mode:
+                manifest = self._shib_download_curl_script(products, download_dir)
+            else:
+                manifest = self._download_curl_script(products, download_dir)
 
         else:
             base_dir = download_dir.rstrip('/') + "/mastDownload"
@@ -1440,7 +1787,7 @@ class CatalogsClass(MastClass):
 
     @class_or_instance
     def query_region_async(self, coordinates, radius=0.2*u.deg, catalog="Hsc",
-                           pagesize=None, page=None, **kwargs):
+                           version=None, pagesize=None, page=None, **kwargs):
         """
         Given a sky position and radius, returns a list of catalog entries.
         See column documentation for specific catalogs `here <https://mast.stsci.edu/api/v0/pages.htmll>`__.
@@ -1458,6 +1805,8 @@ class CatalogsClass(MastClass):
         catalog : str, optional
             Default HSC.
             The catalog to be queried.
+        version : int, optional
+            Version number for catalogs that have versions. Default is highest version.
         pagesize : int, optional
             Default None.
             Can be used to override the default pagesize for (set in configs) this query only.
@@ -1467,7 +1816,7 @@ class CatalogsClass(MastClass):
             Can be used to override the default behavior of all results being returned to
             obtain a specific page of results.
         **kwargs
-            Catalog-specific keyword args.
+            Other catalog-specific keyword args.
             These can be found in the (service documentation)[https://mast.stsci.edu/api/v0/_services.html]
             for specific catalogs. For example one can specify the magtype for an HSC search.
 
@@ -1486,11 +1835,26 @@ class CatalogsClass(MastClass):
 
         # Figuring out the service
         if catalog.lower() == "hsc":
-            service = "Mast.Hsc.Db"
+            if version == 2:
+                service = "Mast.Hsc.Db.v2"
+            else:
+                if version not in (3, None):
+                    warnings.warn("Invalid HSC version number, defaulting to v3.", InputWarning)
+                service = "Mast.Hsc.Db.v3"
             self.catalogLimit = kwargs.get('nr', 50000)
+
         elif catalog.lower() == "galex":
             service = "Mast.Galex.Catalog"
             self.catalogLimit = kwargs.get('maxrecords', 50000)
+
+        elif catalog.lower() == "gaia":
+            if version == 1:
+                service = "Mast.Catalogs.GaiaDR1.Cone"
+            else:
+                if version not in (2, None):
+                    warnings.warn("Invalid Gaia version number, defaulting to DR2.", InputWarning)
+                service = "Mast.Catalogs.GaiaDR2.Cone"
+
         else:
             service = "Mast.Catalogs." + catalog + ".Cone"
             self.catalogLimit = None
@@ -1596,13 +1960,13 @@ class CatalogsClass(MastClass):
             service = "Mast.Catalogs.Filtered.Tic"
             if coordinates or objectname:
                 service += ".Position"
-            mashupFilters = self._build_filter_set("Mast.Catalogs.Tess.Cone", service, **criteria)
+            mashupFilters = self._build_filter_set("Mast.Catalogs.All.Tic", service, **criteria)
 
         elif catalog == "DiskDetective":
             service = "Mast.Catalogs.Filtered.DiskDetective"
             if coordinates or objectname:
                 service += ".Position"
-            mashupFilters = self._build_filter_set("Mast.Catalogs.Dd.Cone", service, **criteria)
+            mashupFilters = self._build_filter_set("Mast.Catalogs.All.DiskDetective", service, **criteria)
 
         else:
             raise InvalidQueryError("Criteria query not availible for {}".format(catalog))
@@ -1638,10 +2002,10 @@ class CatalogsClass(MastClass):
         if catalog == "Tic":
             params["columns"] = "c.*"
 
-        return self.service_request_async(service, params)
+        return self.service_request_async(service, params, pagesize=pagesize, page=page)
 
     @class_or_instance
-    def query_hsc_matchid_async(self, match, pagesize=None, page=None):
+    def query_hsc_matchid_async(self, match, version=3, pagesize=None, page=None):
         """
         Returns all the matches for a given Hubble Source Catalog MatchID.
 
@@ -1649,6 +2013,8 @@ class CatalogsClass(MastClass):
         ----------
         match : int or `~astropy.table.Row`
             The matchID or HSC entry to return matches for.
+        version : int, optional
+            The HSC version to match against. Default is v3.
         pagesize : int, optional
             Can be used to override the default pagesize.
             E.g. when using a slow internet connection.
@@ -1665,7 +2031,13 @@ class CatalogsClass(MastClass):
             match = match["MatchID"]
         match = str(match)  # np.int64 gives json serializer problems, so strigify right here
 
-        service = "Mast.HscMatches.Db"
+        if version == 2:
+            service = "Mast.HscMatches.Db.v2"
+        else:
+            if version not in (3, None):
+                warnings.warn("Invalid HSC version number, defaulting to v3.", InputWarning)
+            service = "Mast.HscMatches.Db.v3"
+
         params = {"input": match}
 
         return self.service_request_async(service, params, pagesize, page)
@@ -1734,12 +2106,12 @@ class CatalogsClass(MastClass):
             pathList = []
             for spec in spectra:
                 if spec['SpectrumType'] < 2:
-                    urlList.append('https://hla.stsci.edu/cgi-bin/getdata.cgi?config=ops&dataset=' +
-                                   spec['DatasetName'])
+                    urlList.append('https://hla.stsci.edu/cgi-bin/getdata.cgi?config=ops&dataset={0}'
+                                   .format(spec['DatasetName']))
 
                 else:
-                    urlList.append('https://hla.stsci.edu/cgi-bin/ecfproxy?file_id=' +
-                                   spec['DatasetName'] + '.fits')
+                    urlList.append('https://hla.stsci.edu/cgi-bin/ecfproxy?file_id={0}'
+                                   .format(spec['DatasetName']) + '.fits')
 
                 pathList.append(downloadFile + "/HSC/" + spec['DatasetName'] + '.fits')
 
@@ -1758,7 +2130,7 @@ class CatalogsClass(MastClass):
             bundlerResponse = response[0].json()
 
             localPath = download_dir.rstrip('/') + "/" + downloadFile + ".sh"
-            self._download_file(bundlerResponse['url'], localPath)
+            self._download_file(bundlerResponse['url'], localPath, head_safe=True)
 
             status = "COMPLETE"
             msg = None
@@ -1805,7 +2177,7 @@ class CatalogsClass(MastClass):
                 url = None
 
                 try:
-                    self._download_file(dataUrl, localPath, cache=cache)
+                    self._download_file(dataUrl, localPath, cache=cache, head_safe=True)
 
                     # check file size also this is where would perform md5
                     if not os.path.isfile(localPath):

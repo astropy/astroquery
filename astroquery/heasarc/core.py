@@ -8,6 +8,7 @@ from astropy import units as u
 from ..query import BaseQuery
 from ..utils import commons
 from ..utils import async_to_sync
+from ..exceptions import InvalidQueryError
 from . import conf
 
 __all__ = ['Heasarc', 'HeasarcClass']
@@ -206,6 +207,16 @@ class HeasarcClass(BaseQuery):
         # if verbose is False then suppress any VOTable related warnings
         if not verbose:
             commons.suppress_vo_warnings()
+
+        if "BATCH_RETRIEVAL_MSG ERROR:" in response.text:
+            raise InvalidQueryError("One or more inputs is not recognized by HEASARC. "
+                             "Check that the object name is in GRB, SIMBAD+Sesame, or "
+                             "NED format and that the mission name is as listed in "
+                             "query_mission_list().")
+        elif "ERROR" in response.text:
+            raise InvalidQueryError("unspecified error from HEASARC database. "
+                                    "\nCheck error message: \n{!s}".format(response.text))
+
         try:
             data = BytesIO(response.content)
             table = Table.read(data, hdu=1)

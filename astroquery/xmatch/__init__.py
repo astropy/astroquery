@@ -11,7 +11,7 @@ class Conf(_config.ConfigNamespace):
         'xMatch URL')
 
     timeout = _config.ConfigItem(
-        60,
+        300,
         'time limit for connecting to xMatch server')
 
 

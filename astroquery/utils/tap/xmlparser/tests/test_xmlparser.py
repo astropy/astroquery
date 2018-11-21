@@ -82,20 +82,20 @@ class XmlParserTest(unittest.TestCase):
         assert str(table.get_qualified_name()) == str(qualifiedName), \
             "Expected qualified table name: '%s', found '%s'" % \
             (qualifiedName, table.get_qualified_name())
-        c = table.get_columns()
+        c = table.columns
         assert len(c) == numColumns, \
             "Expected table1 num columns: %d, found %d" % (numColumns, len(c))
         for i in range(0, numColumns):
-            assert str(c[i].get_name()) == str(columnsData[i]), \
+            assert str(c[i].name) == str(columnsData[i]), \
                 "Expected column name '%s', found: '%s'" % \
-                (columnsData[i], c[i].get_name())
+                (columnsData[i], c[i].name)
 
     def __check_job(self, job, jobid, jobPhase, jobOwner):
-        assert str(job.get_jobid()) == str(jobid), \
-            "Expected job id: '%s', found '%s'" % (jobid, job.get_jobid())
+        assert str(job.jobid) == str(jobid), \
+            "Expected job id: '%s', found '%s'" % (jobid, job.jobid)
         p = job.get_phase()
         assert str(p) == str(jobPhase), \
             "Expected job phase: %s, found %s" % (jobPhase, p)
-        o = job.get_ownerid()
+        o = job.ownerid
         assert str(o) == str(jobOwner), \
             "Expected job owner: %s, found %s" % (jobOwner, o)

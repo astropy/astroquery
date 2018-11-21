@@ -1,5 +1,33 @@
 `Documentation`_ | Blog_ |  `View on Github`_ |  `Download Stable ZIP`_  |  `Download Stable TAR`_
 
+.. image:: https://pypip.in/v/astroquery/badge.png
+   :target: https://img.shields.io/pypi/v/astroquery.svg
+   :alt: Latest PyPI version
+
+.. image:: https://travis-ci.org/astropy/astroquery.svg?branch=master
+   :target: https://travis-ci.org/astropy/astroquery
+   :alt: Travis CI Status
+
+.. image:: https://ci.appveyor.com/api/projects/status/srronytiov4mkbna/branch/master?svg=true
+   :target: https://ci.appveyor.com/project/Astropy/astroquery
+   :alt: Appveyor CI Status
+
+.. image:: https://coveralls.io/repos/astropy/astroquery/badge.png
+   :target: https://coveralls.io/r/astropy/astroquery
+   :alt: Coverage Status
+
+.. image:: https://badges.gitter.im/astropy/astroquery.png
+   :target: https://gitter.im/astropy/astroquery
+   :alt: Gitter
+
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.1160627.svg
+   :target: https://doi.org/10.5281/zenodo.1160627
+   :alt: Zenodo
+
+.. .. image:: https://d2weczhvl823v0.cloudfront.net/astropy/astroquery/trend.png
+..    :alt: Bitdeli badge
+..    :target: https://bitdeli.com/free
+
 
 ==================================
 Accessing Online Astronomical Data
@@ -87,6 +115,7 @@ The following modules have been completed using a common API:
   * `ALMA Archive <http://astroquery.readthedocs.io/en/latest/alma/alma.html>`_
   * `Atomic Line List <http://astroquery.readthedocs.io/en/latest/atomic/atomic.html>`_: A collection of more than 900,000 atomic transitions.
   * `Besancon <http://astroquery.readthedocs.io/en/latest/besancon/besancon.html>`_: Model of stellar population synthesis in the Galaxy.
+  * `CDS MOC Service <https://astroquery.readthedocs.io/en/latest/cds/cds.html>`_: A collection of all-sky survey coverage maps.
   * `ESASky <http://astroquery.readthedocs.io/en/latest/esasky/esasky.html>`_: ESASky is a science driven discovery portal providing easy visualizations and full access to the entire sky as observed with ESA Space astronomy missions.
   * `ESO Archive <http://astroquery.readthedocs.io/en/latest/eso/eso.html>`_
   * `Gaia <http://astroquery.readthedocs.io/en/latest/gaia/gaia.html>`_: European Space Agency Gaia Archive.
@@ -133,33 +162,13 @@ Additional Links
 
 `Download Development ZIP`_  |  `Download Development TAR`_
 
-Maintained by `Adam Ginsburg`_ (`astropy.astroquery@gmail.com`_)
+Maintained by `Adam Ginsburg`_ and `Brigitta Sipocz <github.com/bsipocz>`_ (`astropy.astroquery@gmail.com`_)
 
-To cite, use our `figshare`_ DOI (http://dx.doi.org/10.6084/m9.figshare.805208) or our Zenodo DOI.
+If you use ``astroquery``, please cite our `Zenodo DOI
+<https://doi.org/10.5281/zenodo.1160627>`_.
 
-
-Badges
-------
-.. image:: https://pypip.in/v/astroquery/badge.png
-    :target: https://img.shields.io/pypi/v/astroquery.svg
-    :alt: Latest PyPI version
-
-.. image:: https://travis-ci.org/astropy/astroquery.svg?branch=master
-   :target: https://travis-ci.org/astropy/astroquery
-
-.. image:: https://coveralls.io/repos/astropy/astroquery/badge.png
-   :target: https://coveralls.io/r/astropy/astroquery
-
-.. image:: https://badges.gitter.im/astropy/astroquery.png
-   :target: https://gitter.im/astropy/astroquery
-
-.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.1160627.svg
-   :target: https://doi.org/10.5281/zenodo.1160627
-
-
-.. .. image:: https://d2weczhvl823v0.cloudfront.net/astropy/astroquery/trend.png
-..    :alt: Bitdeli badge
-..    :target: https://bitdeli.com/free
+(Before using Zenodo, ``astroquery`` v0.1 had a `figshare`_ DOI:
+https://doi.org/10.6084/m9.figshare.805208 )
 
 
 .. _Download Development ZIP: https://github.com/astropy/astroquery/zipball/master

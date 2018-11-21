@@ -18,13 +18,14 @@ import shutil
 
 # THIRD-PARTY
 import pytest
+from numpy.testing import assert_allclose
 
 # ASTROPY
-from astropy.tests.helper import remote_data
+from astropy.tests.helper import remote_data, catch_warnings
 from astropy.utils.data import get_pkg_data_filename
 
 # LOCAL
-from .. import conf, validate
+from .. import conf, validate, tstquery
 from ...vos_catalog import VOSDatabase
 
 __doctest_skip__ = ['*']
@@ -71,8 +72,7 @@ class TestConeSearchValidation(object):
         local_outdir = os.path.join(self.out_dir, 'subtmp1')
         local_list = [
             'http://www.google.com/foo&',
-            'http://vizier.u-strasbg.fr/viz-bin/votable/-A?-out.all&'
-            '-source=I/252/out&']
+            'http://vizier.u-strasbg.fr/viz-bin/conesearch/I/252/out?']
         validate.check_conesearch_sites(destdir=local_outdir,
                                         parallel=parallel,
                                         url_list=local_list)
@@ -82,3 +82,13 @@ class TestConeSearchValidation(object):
 
     def teardown_class(self):
         conf.reset('conesearch_master_list')
+
+
+@remote_data
+def test_tstquery():
+    with catch_warnings() as w:
+        d = tstquery.parse_cs('ivo://cds.vizier/i/252', cap_index=4)
+    assert len(w) == 1
+    assert 'too large' in str(w[0].message)
+    assert_allclose([d['RA'], d['DEC'], d['SR']],
+                    [45, 0.07460390065517808, 0.1])

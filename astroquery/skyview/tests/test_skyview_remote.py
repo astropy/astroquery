@@ -1,5 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import pytest
+import json
 
 from astropy.tests.helper import remote_data
 from astropy.io.fits import HDUList
@@ -31,8 +32,8 @@ class TestSkyviewRemote(object):
     def setup_class(cls):
         cls.SkyView = SkyView()
 
-    with open(data_path('survey_dict.txt'), 'r') as f:
-        survey_dict = eval(f.read())
+    with open(data_path('survey_dict.json'), 'r') as fh:
+        survey_dict = json.load(fh)
 
     @pytest.mark.parametrize(('survey',
                               'survey_data'),

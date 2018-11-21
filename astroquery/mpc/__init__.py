@@ -13,13 +13,17 @@ class Conf(_config.ConfigNamespace):
     """
     Configuration parameters for `astroquery.mpc`.
     """
-    server = _config.ConfigItem(
+    web_service_server = _config.ConfigItem(
         ['minorplanetcenter.net'],
         'Base URL for the MPC web service')
 
+    mpes_server = _config.ConfigItem(
+        ['cgi.minorplanetcenter.net'],
+        'Base URL for the Minor Planet Ephemeris Service')
+
     timeout = _config.ConfigItem(
         60,
-        'Time limit for connecting to MPC web service.')
+        'Time limit for connecting to MPC.')
 
     row_limit = _config.ConfigItem(
         # O defaults to the maximum limit

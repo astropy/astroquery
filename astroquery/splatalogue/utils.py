@@ -20,6 +20,10 @@ column_headings_map = {'Log<sub>10</sub> (A<sub>ij</sub>)': 'log10_Aij',
                        'Chemical Name': 'ChemicalName',
                        'Freq Err': 'FreqErr',
                        'Meas Freq Err': 'MeasFreqErr',
+                       'Freq-GHz(rest frame,redshifted)': 'FreqGHz',
+                       'Freq Err(rest frame,redshifted)': 'eFreqGHz',
+                       'Meas Freq-GHz(rest frame,redshifted)': 'MeasFreqGHz',
+                       'Meas Freq Err(rest frame,redshifted)': 'eMeasFreqGHz',
                        }
 
 
@@ -36,8 +40,9 @@ def clean_column_headings(table, renaming_dict=column_headings_map):
     return table
 
 
-def merge_frequencies(table, prefer='measured', theor_kwd='Freq-GHz',
-                      meas_kwd='Meas Freq-GHz'):
+def merge_frequencies(table, prefer='measured',
+                      theor_kwd='Freq-GHz(rest frame,redshifted)',
+                      meas_kwd='Meas Freq-GHz(rest frame,redshifted)'):
     """
     Replace "Freq-GHz" and "Meas Freq-GHz" with a single "Freq" column.
 
@@ -69,7 +74,9 @@ def merge_frequencies(table, prefer='measured', theor_kwd='Freq-GHz',
 
 
 def minimize_table(table, columns=['Species', 'Chemical Name',
-                                   'Resolved QNs', 'Freq-GHz', 'Meas Freq-GHz',
+                                   'Resolved QNs',
+                                   'Freq-GHz(rest frame,redshifted)',
+                                   'Meas Freq-GHz(rest frame,redshifted)',
                                    'Log<sub>10</sub> (A<sub>ij</sub>)',
                                    'E_U (K)'],
                    merge=True,

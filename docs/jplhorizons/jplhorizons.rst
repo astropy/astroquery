@@ -2,9 +2,9 @@
 
 .. _astroquery.jplhorizons:
 
-***********************************************
-JPL Horizons Queries (`astroquery.jplhorizons`)
-***********************************************
+***********************************************************************************
+JPL Horizons Queries (`astroquery.jplhorizons`/astroquery.solarsystem.jpl.horizons)
+***********************************************************************************
 
 Overview
 ========
@@ -13,6 +13,11 @@ Overview
 The :class:`~astroquery.jplhorizons.HorizonsClass` class provides an
 interface to services provided by the `Solar System Dynamics group at
 the Jet Propulation Laboratory`_.
+
+Because of its relevance to Solar System science, this service can
+also be accessed from the topical submodule
+`astroquery.solarsystem.jpl`. The functionality of that service is
+identical to the one presented here.
 
 In order to query information for a specific Solar System body, a
 ``Horizons`` object has to be instantiated:
@@ -32,15 +37,39 @@ ephemerides query) or the body relative to which orbital elements are
 provided (e.g., Horizons orbital elements or vectors query); the same
 codes as used by Horizons are used here, which includes `MPC
 Observatory codes`_. The default is ``location=None``, which uses a
-geocentric location for ephemerides queries and the Sun as location
-for orbital elements and state vector queries.
+geocentric location for ephemerides queries and the Sun as central body
+for orbital elements and state vector queries. User-defined
+topocentric locations for ephemerides queries can be provided, too, in
+the form of a dictionary. The dictionary has to be formatted as
+follows: {``'lon'``: longitude in degrees (East positive, West
+negative), ``'lat'``: latitude in degrees (North positive, South
+negative), ``'elevation'``: elevation in km above the reference
+ellipsoid}. In addition, ``'body'`` can be set to the Horizons body ID
+of the central body if different from Earth; by default, it is
+assumed that this location is on Earth if it has not been specifically
+set. The following example uses the coordinates of the `Statue of
+Liberty
+<https://www.google.com/maps/place/Statue+of+Liberty+National+Monument/@40.6892534,-74.0466891,17z/data=!3m1!4b1!4m5!3m4!1s0x89c25090129c363d:0x40c6a5770d25022b!8m2!3d40.6892494!4d-74.0445004>`_
+as the observer's location:
 
+    >>> statue_of_liberty = {'lon': -74.0466891,
+    ...                      'lat': 40.6892534,
+    ...                      'elevation': 0.093}
+    >>> obj = Horizons(id='Ceres',
+    ...                location=statue_of_liberty,
+    ...                epochs=2458133.33546)
+    JPLHorizons instance "Ceres"; location={'lon': -74.0466891, 'lat': 40.6892534, 'elevation': 0.093}, epochs=[2458133.33546], id_type=smallbody
+
+
+    
 ``epochs`` is either a scalar or list of Julian Dates (floats or
 strings) in the case of discrete epochs, or, in the case of a range of
-epochs, a dictionary that has to include the keywords ``start``, ``stop``
-(both using the following format "YYYY-MM-DD [HH:MM:SS]"), and ``step``
-(e.g., "1m" for one minute, "3h" three hours, "10d" for ten days). By
-default, ``epochs=None``, which uses the current date and time.
+epochs, a dictionary that has to include the keywords ``start``,
+``stop`` (both using the following format "YYYY-MM-DD [HH:MM:SS]"),
+and ``step`` (e.g., ``'1m'`` for one minute, ``'3h'``three hours,
+``'10d'`` for ten days). Note that all input epochs, both calendar
+dates/times and Julian Dates, refer to UTC. By default,
+``epochs=None``, which uses the current date and time.
 
 ``id_type`` describes what type of target identifier has been provided
 in order to minimize the risk of confusion when identifying the
@@ -78,7 +107,7 @@ respective id number or record number as ``id`` and use ``id_type=id``:
 Querying JPL Horizons
 ---------------------
 
-The `JPL Horizons`_ system provides ephemerides, orbital elements, and
+The `JPL Horizons <https://ssd.jpl.nasa.gov/horizons.cgi>`_ system provides ephemerides, orbital elements, and
 state vectors for almost all known Solar System bodies. These queries
 are provided through three functions:
 
@@ -122,19 +151,39 @@ respectively. In the case of comets, ``H`` and ``G`` are replaced by ``M1``,
 ``M2``, ``k1``, ``k2``, and ``phasecoeff``; please refer to the `Horizons
 documentation`_ for definitions.
 
-Optional parameters of :meth:`~astroquery.jplhorizons.HorizonsClass.ephemerides`
-are corresponding to optional features of the Horizons system:
-``airmass_lessthan`` sets an upper limit to airmass, ``solar_elongation``
-enables the definition of a solar elongation range, ``hour_angle`` sets
-a cutoff of the hour angle, and ``skip_daylight=True`` reject epochs
-during daylight. For comets, the options ``closest_apparation`` and
+Optional parameters of
+:meth:`~astroquery.jplhorizons.HorizonsClass.ephemerides` are
+corresponding to optional features of the Horizons system:
+``airmass_lessthan`` sets an upper limit to airmass,
+``solar_elongation`` enables the definition of a solar elongation
+range, ``max_hour_angle`` sets a cutoff of the hour angle,
+``skip_daylight=True`` reject epochs during daylight, ``rate_cutoff``
+allows to reject targets with sky motion rates higher than provided
+(in units of arcsec/h), ``refraction`` accounts for refraction in the
+computation of the ephemerides (disabled by default), and
+``refsystem`` defines the coordinate reference system used (J2000 by
+default).. For comets, the options ``closest_apparation`` and
 ``no_fragments`` are available, which select the closest apparition in
 time and reject fragments, respectively. Note that these options
 should only be used for comets and will crash the query for other
 object types.  Furthermore, ``get_query_payload=True`` skips the query
 and only returns the query payload, whereas ``get_raw_response=True``
 the raw query response instead of the astropy table returns.
-      
+
+:meth:`~astroquery.jplhorizons.HorizonsClass.ephemerides` queries by
+default all available quantities from the JPL Horizons servers. This
+might take a while. If you are only interested in a subset of the
+available quantities, you can query only those. The corresponding
+optional parameter to be set is ``quantities``. This parameter uses
+the same numerical codes as JPL Horizons defined in the `JPL Horizons
+User Manual Definition of Observer Table Quantities
+<https://ssd.jpl.nasa.gov/?horizons_doc#table_quantities>`_. For
+instance, if you only want to query astrometric RA and Dec, you can
+use ``quantities=1``; if you only want the heliocentric and geocentric
+distances, you can use ``quantities='19,20'`` (note that in this case
+a string with comma-separated codes has to be provided).
+
+
 
 :meth:`~astroquery.jplhorizons.HorizonsClass.elements` returns orbital
 elements relative to some Solar System body (``location``, referred to as 
@@ -163,21 +212,28 @@ The following fields are queried:
    >>> print(el.columns)
    <TableColumns names=('targetname','datetime_jd','datetime_str','H','G','e','q','incl','Omega','w','Tp_jd','n','M','nu','a','Q','P')>
 
-Optional parameters of :meth:`~astroquery.jplhorizons.HorizonsClass.elements`
-are ``get_query_payload=True``, which skips the query and only returns
-the query payload, and ``get_raw_response=True``, which returns the raw
-query response instead of the astropy table. For comets, the options
-``closest_apparation`` and ``no_fragments`` are available, which select
-the closest apparition in time and reject fragments,
-respectively. Note that these options should only be used for comets
-and will crash the query for other object types.
+Optional parameters of
+:meth:`~astroquery.jplhorizons.HorizonsClass.elements` include
+``refsystem``, which defines the coordinate reference system used
+(J2000 by default), ``refplane`` which defines the reference plane of
+the orbital elements queried, and ``tp_type``, which switches between
+a relative and absolute representation of the time of perihelion
+passage.  For comets, the options ``closest_apparation`` and
+``no_fragments`` are available, which select the closest apparition in
+time and reject fragments, respectively. Note that these options
+should only be used for comets and will crash the query for other
+object types. Furthermore,``get_query_payload=True``, which skips the
+query and only returns the query payload, and
+``get_raw_response=True``, which returns the raw query response
+instead of the astropy table, are available. 
 
-:meth:`~astroquery.jplhorizons.HorizonsClass.vectors` returns the state
-vector of the target body relative to some Solar System body
-(``location``, referred to as "CENTER" in Horizons) and for a given
-epoch or a range of epochs (``epochs``) in the form of an astropy
-table. The following example queries the state vector of asteroid 2012
-TC4 as seen from Goldstone for a range of epochs:
+:meth:`~astroquery.jplhorizons.HorizonsClass.vectors` returns the
+state vector of the target body in cartesian coordinates relative to
+some Solar System body (``location``, referred to as "CENTER" in
+Horizons) and for a given epoch or a range of epochs (``epochs``) in
+the form of an astropy table. The following example queries the state
+vector of asteroid 2012 TC4 as seen from Goldstone for a range of
+epochs:
 
 .. code-block:: python
 
@@ -221,9 +277,8 @@ query response instead of the astropy table. For comets, the options
 the closest apparition in time and reject fragments,
 respectively. Note that these options should only be used for comets
 and will crash the query for other object types.
-   
 
-   
+
 How to Use the Query Tables
 ===========================
 
@@ -434,13 +489,60 @@ into ``arcsec / s``:
 Please refer to the `astropy table`_ and `astropy units`_
 documentations for more information.
 
+Hints and Tricks
+================
+
+Checking the original JPL Horizons output
+-----------------------------------------
+
+For all query types, the query URI (the URI is what you would put into
+the URL field of your web browser) that is used to request the data
+from the JPL Horizons server can be obtained from the
+:class:`~astroquery.jplhorizons.HorizonsClass` object after a query
+has been performed (before the query only ``None`` would be returned):
+
+   >>> print(obj.uri)
+   https://ssd.jpl.nasa.gov/horizons_batch.cgi?batch=1&TABLE_TYPE=VECTORS&OUT_UNITS=AU-D&COMMAND=%222012+TC4%3B%22&CENTER=%27257%27&CSV_FORMAT=%22YES%22&REF_PLANE=ECLIPTIC&REF_SYSTEM=J2000&TP_TYPE=ABSOLUTE&LABELS=YES&OBJ_DATA=YES&START_TIME=2017-10-01&STOP_TIME=2017-10-02&STEP_SIZE=10m
+
+If your query failed, it might be useful for you to put the URI into a
+web browser to get more information why it failed. Please note that
+``uri`` is an attribute of
+:class:`~astroquery.jplhorizons.HorizonsClass` and not the results
+table.
+
+Date Formats
+------------
+
+JPL Horizons puts somewhat strict guidelines on the date formats:
+individual epochs have to be provided as Julian Dates, whereas epoch
+ranges have to be provided as ISO dates (YYYY-MM-DD HH-MM UT). If you
+have your epoch dates in one of these formats but you need the other
+format, make use of :class:`astropy.time.Time` for the conversion. An
+example is provided here:
+
+.. doctest-requires:: astropy
+
+    >>> from astropy.time import Time
+    >>> mydate_fromiso = Time('2018-07-23 15:55:23')  # pass date as string
+    >>> print(mydate_fromiso.jd)  # convert Time object to Julian Date
+    2458323.163460648
+    >>> mydate_fromjd = Time(2458323.163460648, format='jd')
+    >>> print(mydate_fromjd.iso) # convert Time object to ISO
+    2018-07-23 15:55:23.000
+
+:class:`astropy.time.Time` allows you to convert dates across a wide
+range of formats. Please note that when reading in Julian Dates, you
+have to specify the date format as ``'jd'``, as the integer passed to
+:class:`~astropy.time.Time` is ambiguous.
+
+    
 Acknowledgements
 ================
 
-This submodule makes use of the `JPL Horizons`_ system. 
+This submodule makes use of the `JPL Horizons <https://ssd.jpl.nasa.gov/horizons.cgi>`_ system. 
 
-The development of this submodule is in part funded through a NASA
-PDART Grant, provided to the sbpy project.
+The development of this submodule is in part funded through NASA PDART
+Grant No. 80NSSC18K0987 to the `sbpy project <http://sbpy.org>`_.
 
      
 Reference/API
@@ -449,7 +551,6 @@ Reference/API
 .. automodapi:: astroquery.jplhorizons
     :no-inheritance-diagram:
 
-.. _JPL Horizons: http://ssd.jpl.nasa.gov/horizons.cgi
 .. _Solar System Dynamics group at the Jet Propulation Laboratory: http://ssd.jpl.nasa.gov/
 .. _MPC Observatory codes: http://minorplanetcenter.net/iau/lists/ObsCodesF.html
 .. _astropy table: http://docs.astropy.org/en/stable/table/index.html

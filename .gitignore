@@ -51,4 +51,7 @@ distribute-*.tar.gz
 .*.sw[op]
 *~
 .svn
-/.DS_Store
+
+# Mac OSX
+.DS_Store
+oacapi_test.py

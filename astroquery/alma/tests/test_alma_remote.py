@@ -12,6 +12,10 @@ from astropy.extern.six.moves.urllib_parse import urlparse
 
 from .. import Alma
 
+# ALMA tests involving staging take too long, leading to travis timeouts
+# TODO: make this a configuration item
+SKIP_SLOW = True
+
 all_colnames = {'Project code', 'Source name', 'RA', 'Dec', 'Band',
                 'Frequency resolution', 'Integration', 'Release date',
                 'Frequency support', 'Velocity resolution', 'Pol products',
@@ -64,6 +68,7 @@ class TestAlma:
         # assert b'2011.0.00217.S' in result_c['Project code'] # missing cycle 1 data
         assert b'2012.1.00932.S' in result_c['Project code']
 
+    @pytest.mark.skipif("SKIP_SLOW")
     def test_m83(self, temp_dir, recwarn):
         alma = Alma()
         alma.cache_location = temp_dir
@@ -91,6 +96,7 @@ class TestAlma:
         #                           'same UIDs, the result returned is probably correct,'
         #                           ' otherwise you may need to create a fresh astroquery.Alma instance.'))
 
+    @pytest.mark.skipif("SKIP_SLOW")
     def test_stage_data(self, temp_dir, recwarn):
         alma = Alma()
         alma.cache_location = temp_dir
@@ -123,6 +129,7 @@ class TestAlma:
         #                           'same UIDs, the result returned is probably correct,'
         #                           ' otherwise you may need to create a fresh astroquery.Alma instance.'))
 
+    @pytest.mark.skipif("SKIP_SLOW")
     def test_doc_example(self, temp_dir):
         alma = Alma()
         alma.cache_location = temp_dir
@@ -165,12 +172,14 @@ class TestAlma:
         # Nov 16, 2016: 159
         # Apr 25, 2017: 150
         # Jul 2, 2017: 160
-        assert len(result) == 160
+        # May 9, 2018: 162
+        assert len(result) == 162
 
     # As of April 2017, these data are *MISSING FROM THE ARCHIVE*.
     # This has been reported, as it is definitely a bug.
     @pytest.mark.xfail
     @pytest.mark.bigdata
+    @pytest.mark.skipif("SKIP_SLOW")
     def test_cycle1(self, temp_dir):
         # About 500 MB
         alma = Alma()
@@ -219,6 +228,7 @@ class TestAlma:
 
         assert len(data) == 6
 
+    @pytest.mark.skipif("SKIP_SLOW")
     def test_cycle0(self, temp_dir):
         # About 20 MB
 

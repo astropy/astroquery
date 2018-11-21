@@ -1,0 +1,45 @@
+If you use Astroquery for work/research presented in a publication (whether
+directly, or as a dependency to another package), we recommend and encourage
+to cite Astroquery. Please use the Zenodo DOI of the release you are using,
+the current latest is can be found at the following page:
+https://zenodo.org/record/1160627
+
+BibTeX entry for the citation is:
+
+@misc{astroquery,
+  author       = {Adam Ginsburg and
+                  Brigitta Sipocz and
+                  Madhura Parikh and
+                  Julien Woillez and
+                  Austen Groener and
+                  Simon Liedtke and
+                  Thomas Robitaille and
+                  Christoph Deil and
+                  jcsegovia and
+                  Henrik Norman and
+                  Brian Svoboda and
+                  C. E. Brasseur and
+                  Erik Tollerud and
+                  Magnus Vilhelm Persson and
+                  adamginsburg and
+                  Loïc Séguin-Charbonneau and
+                  Caden Armstrong and
+                  Miguel de Val-Borro and
+                  Brett M. Morris and
+                  Jordan Mirocha and
+                  Ayush Yadav and
+                  Michael Seifert and
+                  Michael Droettboom and
+                  Fred Moolekamp and
+                  james-allen and
+                  Azalee Bostroem and
+                  Ricky Egeland and
+                  Leo Singer and
+                  Evert Rol and
+                  Frédéric Grollier},
+  title        = {astropy/astroquery: v0.3.7 release},
+  month        = jan,
+  year         = 2018,
+  doi          = {10.5281/zenodo.1160627},
+  url          = {https://doi.org/10.5281/zenodo.1160627}
+}

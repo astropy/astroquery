@@ -71,6 +71,8 @@ Criteria are supplied as keyword arguments, where valid criteria are "coordinate
 "objectname", "radius" (as in `~astroquery.mast.ObservationsClass.query_region` and
 `~astroquery.mast.ObservationsClass.query_object`), and all observation fields listed
 `here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`__.
+Additionally calibration data can be accessed by setting the obstype keyword to 'cal'
+(calibration only) or 'all' (calibration and science). 
 
 Argument values are one or more acceptable values for the criterion,
 except for fields with a float datatype where the argument should be in the form
@@ -242,7 +244,6 @@ with a `~astropy.table.Table` of data products, or a list (or single) obsid as t
 
                 >>> from astroquery.mast import Observations
                 >>> Observations.download_products('2003839997',
-                                                   mrp_only=False,
                                                    productType="SCIENCE",
                                                    curl_flag=True)
                                                    
@@ -256,8 +257,6 @@ Filter keyword arguments can be applied to download only data products that meet
 Available filters are "mrp_only" (Minimum Recommended Products), "extension" (file extension),
 and all products fields listed `here <https://mast.stsci.edu/api/v0/_productsfields.html>`_.
 
-**Important: mrp_only defaults to True.**
-
 The ‘AND' operation is performed for a list of filters, and the ‘OR' operation is performed within a filter set.
 The below example illustrates downloading all product files with the extension "fits" that are either "RAW" or "UNCAL."
 
@@ -265,7 +264,6 @@ The below example illustrates downloading all product files with the extension "
 
                 >>> from astroquery.mast import Observations
                 >>> Observations.download_products('2003839997',
-                                                   mrp_only=False,
                                                    productSubGroupDescription=["RAW", "UNCAL"],
                                                    extension="fits")
                 Downloading URL https://mast.stsci.edu/api/v0/download/file/HST/product/ib3p11p7q_raw.fits to ./mastDownload/HST/IB3P11P7Q/ib3p11p7q_raw.fits ... [Done]
@@ -284,7 +282,6 @@ Product filtering can also be applied directly to a table of products without pr
                 31
                 
                 >>> dataProductsByID = Observations.filter_products(dataProductsByID,
-                                                                    mrp_only=False,
                                                                     productSubGroupDescription=["RAW", "UNCAL"],
                                                                     extenstion="fits")
                 >>> print(len(dataProductsByID))
@@ -297,8 +294,8 @@ Catalog Queries
 The Catalogs class provides access to a subset of the astronomical catalogs stored at MAST.  The catalogs currently available through this interface are:
 
 - The Hubble Source Catalog (HSC)
-- The GALEX Catalog
-- The Gaia and TGAS Catalogs
+- The GALEX Catalog (V2 and V3)
+- The Gaia (DR1 and DR2) and TGAS Catalogs
 - The TESS Input Catalog (TIC)
 - The Disk Detective Catalog
 
@@ -375,6 +372,25 @@ Radius is an optional parameter and the default is 0.2 degrees.
                 189844385 254.289725042 -4.10156744653 ...           --       -- 11.4468393777
                 189844419    254.290767      -4.099757 ...           --       -- 11.9738216615
                 189844454 254.290349435 -4.09754191392 ...           --       -- 12.2100186781
+
+                
+Both the Hubble Source Catalog and the Gaia Catalog have multiple versions.
+An optional version parameter allows you to select which version you want, the default is the highest version.
+
+.. code-block:: python
+
+                >>> catalogData = Catalogs.query_region("158.47924 -7.30962", radius=0.1,
+                >>>                                      catalog="Gaia", version=2)
+                >>> print("Number of results:",len(catalogData))
+                >>> print(catalogData[:4])
+
+                Number of results: 111
+                    solution_id             designation          ...      distance     
+                ------------------- ---------------------------- ... ------------------
+                1635721458409799680 Gaia DR2 3774902350511581696 ... 0.6327882551927051
+                1635721458409799680 Gaia DR2 3774901427093274112 ... 0.8438875783827048
+                1635721458409799680 Gaia DR2 3774902148648277248 ... 0.9198397322382648
+                1635721458409799680 Gaia DR2 3774902453590798208 ... 1.3578882400285217
 
 
 Catalog Criteria Queries
@@ -487,6 +503,79 @@ Individual or ranges of spectra can be downloaded using the `~astroquery.mast.Ca
                 ./mastDownload/HSC/HAG_J072704.73+691808.0_J8HPAOZMQ_V01.SPEC1D.fits ... None
                 
 
+TESSCut
+=======
+
+TESSCut is MAST's tool to provide full-frame image (FFI) cutouts from the Transiting
+Exoplanet Survey Satellite (TESS). The cutouts are returned in the form of target pixel
+files that follow the same format as TESS pipeline target pixel files. This tool can
+be accessed in Astroquery by using the Tesscut class.
+
+Cutouts
+-------
+
+The `~astroquery.mast.TesscutClass.get_cutouts` function takes a coordinate and
+cutout size (in pixels or an angular quantity) and returns the cutout target pixel
+file(s) as a list of `~astropy.io.fits.HDUList` objects.
+
+If a given coordinate appears in more than one TESS sector a target pixel file will be
+produced for each sector.  If the cutout area overlaps more than one camera or ccd
+a target pixel file will be produced for each one.
+
+.. code-block:: python
+
+                >>> from astroquery.mast import Tesscut
+                >>> from astropy.coordinates import SkyCoord
+                >>> cutout_coord = SkyCoord(107.18696, -70.50919, unit="deg")
+                >>> hdulist = Tesscut.get_cutouts(cutout_coord, 5)
+                >>> hdulist[0].info()
+                Filename: tess-s0001-4-3_107.18696_-70.50919_5x5_astrocut.fits
+                No.    Name      Ver    Type      Cards   Dimensions   Format
+                0  PRIMARY       1 PrimaryHDU      45   ()      
+                1  PIXELS        1 BinTableHDU    225   1282R x 12C   [D, E, J, 25J, 25E, 25E, 25E, 25E, J, E, E, 38A]   
+                2  APERTURE      1 ImageHDU       134   (5, 5)   float64
+
+
+The `~astroquery.mast.TesscutClass.download_cutouts` function takes a coordinate
+and cutout size (in pixels or an angular quantity) and downloads the cutout target
+pixel file(s).
+
+If a given coordinate appears in more than one TESS sector a target pixel file will be
+produced for each sector.  If the cutout area overlaps more than one camera or ccd
+a target pixel file will be produced for each one.
+
+.. code-block:: python
+
+                >>> from astroquery.mast import Tesscut
+                >>> from astropy.coordinates import SkyCoord
+                >>> import astropy.units as u
+                >>> 
+                >>> cutout_coord = SkyCoord(107.18696, -70.50919, unit="deg")
+                >>> manifest = Tesscut.download_cutouts(cutout_coord, [5, 7]*u.arcmin)
+                Downloading URL https://mast.stsci.edu/tesscut/api/v0.1/astrocut?ra=107.18696&dec=-70.50919&y=0.08333333333333333&x=0.11666666666666667&units=d&sector=1 to ./tesscut_20181102104719.zip ... [Done]
+                Inflating...
+
+                >>> print(manifest)
+                                      local_file                      
+                ------------------------------------------------------
+                ./tess-s0001-4-3_107.18696_-70.50919_14x21_astrocut.fits
+
+Sector information
+------------------
+
+To access sector information at a particular location there is  `~astroquery.mast.TesscutClass.get_sectors`.
+
+.. code-block:: python
+
+                >>> from astroquery.mast import Tesscut
+                >>> from astropy.coordinates import SkyCoord
+                >>> coord = SkyCoord(324.24368, -27.01029,unit="deg")
+                >>> sector_table = Tesscut.get_sectors(coord)
+                >>> print(sector_table)
+                sectorName   sector camera ccd
+                -------------- ------ ------ ---
+                tess-s0001-1-3      1      1   3
+           
 
 Accessing Proprietary Data
 ==========================
@@ -494,7 +583,65 @@ Accessing Proprietary Data
 To access data that is not publicly available users may log into their
 `MyST Account <https://archive.stsci.edu/registration/index.html>`_.
 This can be done by using the `~astroquery.mast.MastClass.login` function,
-or by initializing a class instance with a username/password.
+or by initializing a class instance with credentials.
+
+MAST is in the process of upgrading our Auth infrastructure to a token based system.
+This will be deployed early November 2018, at which point the credentials will
+switch from accepting a username/password and instead accept an auth token.
+
+
+Accessing Proprietary Data (Token Method)
+-----------------------------------------
+
+This will be enabled in early November 2018.
+
+If a token is not supplied, the user will be prompted to enter one.
+
+To view tokens accessible through your account, visit https://auth.mast.stsci.edu
+
+.. code-block:: python
+
+                >>> from astroquery.mast import Observations
+                >>> Observations.login(token="12348r9w0sa2392ff94as841")
+
+                INFO: MAST API token accepted, welcome User Name [astroquery.mast.core]
+
+                >>> sessionInfo = Observations.session_info()
+
+                eppn: user_name@stsci.edu
+                ezid: uname
+                ...
+              
+.. code-block:: python
+
+                >>> from astroquery.mast import Observations
+                >>> mySession = Observations(token="12348r9w0sa2392ff94as841")
+
+                INFO: MAST API token accepted, welcome User Name [astroquery.mast.core]
+
+                >>> sessionInfo = Observations.session_info()
+
+                eppn: user_name@stsci.edu
+                ezid: uname
+                ...
+
+\* For security tokens should not be typed into a terminal or Jupyter notebook
+but instead input using a more secure method such as `~getpass.getpass`.
+
+
+MAST tokens expire after 10 days of inactivity, at which point the user must generate a new token.  If
+the key is used within that time, the token's expiration pushed back to 10 days.  A token's max
+age is 60 days, afterward the user must generate a token.
+The ``store_token`` argument can be used to store the token securely in the user's keyring.
+This token can be overwritten using the ``reenter_token`` argument.
+To logout before a session expires, the `~astroquery.mast.MastClass.logout` method may be used.
+
+
+Accessing Proprietary Data (Password Method)
+--------------------------------------------
+
+This will be disabled in early November 2018.
+
 If a password is not supplied, the user will be prompted to enter one.
 
 .. code-block:: python

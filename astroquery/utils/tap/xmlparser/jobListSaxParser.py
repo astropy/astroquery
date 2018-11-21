@@ -88,7 +88,7 @@ class JobListSaxParser(xml.sax.ContentHandler):
     def __reading_job(self, name, attrs):
         if self.__check_item_id(UWS_JOBREF, name):
             self.__job = Job(self.__async)
-            self.__job.set_jobid(attrs.get("id"))
+            self.__job.jobid = attrs.get("id")
             self.__status = READING_PHASE
 
     def __end_job(self, name):
@@ -101,5 +101,5 @@ class JobListSaxParser(xml.sax.ContentHandler):
 
     def __end_phase(self, name):
         if self.__check_item_id(UWS_PHASE, name):
-            self.__job.set_phase(self.__create_string_from_buffer())
+            self.__job._phase = self.__create_string_from_buffer()
             self.__status = READING_JOB

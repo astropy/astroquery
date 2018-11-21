@@ -44,30 +44,42 @@ LAMBDA VAC ANG SPECTRUM  TT CONFIGURATION TERM  J J    A_ki   LEVEL ENERGY  CM 1
 
 
 @remote_data
-def test_query_with_params():
-    table = AtomicLineList.query_object(
+def test_query_with_wavelength_params():
+    result = AtomicLineList.query_object(
         wavelength_range=(15 * u.nm, 200 * u.Angstrom),
         wavelength_type='Air',
         wavelength_accuracy=20,
         element_spectrum='C II-IV')
-    assert isinstance(table, Table)
-    assert table.colnames == ['LAMBDA VAC ANG', 'SPECTRUM', 'TT',
+    assert isinstance(result, Table)
+    assert result.colnames == ['LAMBDA VAC ANG', 'SPECTRUM', 'TT',
                               'CONFIGURATION', 'TERM', 'J J', 'A_ki',
                               'LEVEL ENERGY  CM 1']
-    assert np.all(table['LAMBDA VAC ANG'] ==
+    assert np.all(result['LAMBDA VAC ANG'] ==
                   np.array([196.8874, 197.7992, 199.0122]))
-    assert np.all(table['SPECTRUM'] == np.array(['C IV', 'C IV', 'C IV']))
-    assert np.all(table['TT'] == np.array(['E1', 'E1', 'E1']))
-    assert np.all(table['TERM'] == np.array(['2S-2Po', '2S-2Po', '2S-2Po']))
-    assert np.all(table['J J'] == np.array(['1/2-*', '1/2-*', '1/2-*']))
-    assert np.all(table['LEVEL ENERGY  CM 1'] ==
+    assert np.all(result['SPECTRUM'] == np.array(['C IV', 'C IV', 'C IV']))
+    assert np.all(result['TT'] == np.array(['E1', 'E1', 'E1']))
+    assert np.all(result['TERM'] == np.array(['2S-2Po', '2S-2Po', '2S-2Po']))
+    assert np.all(result['J J'] == np.array(['1/2-*', '1/2-*', '1/2-*']))
+    assert np.all(result['LEVEL ENERGY  CM 1'] ==
                   np.array(['0.00 -   507904.40', '0.00 -   505563.30',
                             '0.00 -   502481.80']))
 
 
 @remote_data
 def test_empty_result_set():
-    table = AtomicLineList.query_object(wavelength_accuracy=0)
-    assert isinstance(table, Table)
-    assert not table
-    assert len(table) == 0
+    result = AtomicLineList.query_object(wavelength_accuracy=0)
+    assert isinstance(result, Table)
+    assert not result
+    assert len(result) == 0
+
+
+@remote_data
+def test_lower_upper_ranges():
+    result = AtomicLineList.query_object(
+        lower_level_energy_range=u.Quantity((600 * u.cm**(-1), 1000 * u.cm**(-1))),
+        upper_level_energy_range=u.Quantity((15000 * u.cm**(-1), 100000 * u.cm**(-1))),
+        element_spectrum='Ne III')
+    assert isinstance(result, Table)
+
+    assert np.all(result['LAMBDA VAC ANG'] ==
+                  np.array([1814.73, 3968.91, 4013.14]))

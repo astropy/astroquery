@@ -16,30 +16,12 @@ class Conf(_config.ConfigNamespace):
     """
 
     server = _config.ConfigItem(
-        'http://adswww.harvard.edu',
+        'https://api.adsabs.harvard.edu',
         'SAO/NASA ADS main server.')
 
-    mirrors = _config.ConfigItem(
-        ['http://cdsads.u-strasbg.fr',
-         'http://ukads.nottingham.ac.uk',
-         'http://esoads.eso.org',
-         'http://ads.ari.uni-heidelberg.de',
-         'http://ads.inasan.ru',
-         'http://ads.mao.kiev.ua',
-         'http://ads.astro.puc.cl',
-         'http://ads.nao.ac.jp',
-         'http://ads.bao.ac.cn',
-         'http://ads.iucaa.ernet.in',
-         'http://ads.arsip.lipi.go.id',
-         'http://saaoads.chpc.ac.za',
-         'http://ads.on.br'],
-        'SAO/NASA ADS mirrors around the world')
-    advanced_path = _config.ConfigItem(
-        '/cgi-bin/nph-abs_connect',
-        'Path for advanced query (unconfirmed)')
     simple_path = _config.ConfigItem(
-        '/cgi-bin/basic_connect',
-        'Path for simple query (return XML)')
+        '/v1/search/query?',
+        'Path for simple query (return JSON)')
     timeout = _config.ConfigItem(
         120,
         'Time limit for connecting to ADS server')
@@ -48,10 +30,14 @@ class Conf(_config.ConfigNamespace):
 conf = Conf()
 
 
-conf.adsfields = ['bibcode', 'title', 'author', 'affiliation', 'journal',
-                  'volume', 'pubdate', 'page', 'lastpage', 'keywords',
-                  'keyword', 'origin', 'copyright', 'link', 'name', 'url',
-                  'count', 'score', 'citations', 'abstract', 'doi', 'eprintid']
+conf.adsfields = ['bibcode', 'title', 'author', 'aff', 'pub',
+                  'volume', 'pubdate', 'page', 'citations',
+                  'abstract', 'doi', 'eid']
+conf.sort = 'date desc'
+conf.nrows = 10
+conf.nstart = 0
+
+conf.token = None
 
 from .core import ADSClass, ADS
 

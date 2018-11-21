@@ -1,14 +1,10 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
-Temporary solution until
-``astroquery.vo_conesearch.validator.conf.conesearch_master_list``
-includes ``<testQuery>`` fields.
+Sub-query to obtain test parameters from service providers.
 
 In case USVO service is unstable, it does the following:
 
     #. Try USVO production server.
-    #. If fails, try USVO test server (has latest bug fix, but does not
-       contain all registered services).
     #. If SR > 0.1, force SR to be 0.1.
     #. If fails, use RA=0 DEC=0 SR=0.1.
 
@@ -18,76 +14,68 @@ from __future__ import (absolute_import, division, print_function,
 
 # STDLIB
 import warnings
-from xml.dom import minidom
 from collections import OrderedDict
 
 # ASTROPY
+from astropy.table import Table
 from astropy.utils.data import get_readable_fileobj
 from astropy.utils.exceptions import AstropyUserWarning
 
 
-def parse_cs(rid):
-    """Return ``<testQuery>`` pars as dict for given Resource ID."""
-    if isinstance(rid, bytes):  # pragma: py3
-        rid = rid.decode('ascii')
+def parse_cs(ivoid, cap_index=1):
+    """Return test query pars as dict for given IVO ID and capability index."""
+    if isinstance(ivoid, bytes):  # pragma: py3
+        ivoid = ivoid.decode('ascii')
 
     # Production server.
-    url = ('http://vao.stsci.edu/directory/getRecord.aspx?'
-           'id={0}&format=xml'.format(rid))
+    url = ("http://vao.stsci.edu/regtap/tapservice.aspx/sync?lang=adql&"
+           "query=select%20detail_xpath%2Cdetail_value%20from%20"
+           "rr.res_detail%20where%20"
+           "ivoid%3D%27{0}%27%20and%20cap_index={1}%20and%20"
+           "detail_xpath%20in%20%28%27/capability/testQuery/ra%27%2C"
+           "%27/capability/testQuery/dec%27%2C%27/capability/testQuery/sr%27"
+           "%29".format(ivoid, cap_index))
 
-    # Test server (in case production server fails).
-    backup_url = ('http://vaotest.stsci.edu/directory/getRecord.aspx?'
-                  'id={0}&format=xml'.format(rid))
-
-    tqp = ['ra', 'dec', 'sr']
-    d = OrderedDict()
     urls_failed = False
-    urls_errmsg = ''
+    default_sr = 0.1
 
     try:
         with get_readable_fileobj(url, encoding='binary',
                                   show_progress=False) as fd:
-            dom = minidom.parse(fd)
+            t_query = Table.read(fd, format='votable')
     except Exception as e:  # pragma: no cover
-        try:
-            warnings.warn('{0} raised {1}, trying {2}'.format(
-                url, str(e), backup_url), AstropyUserWarning)
-            with get_readable_fileobj(backup_url, encoding='binary',
-                                      show_progress=False) as fd:
-                dom = minidom.parse(fd)
-        except Exception as e:
-            urls_failed = True
-            urls_errmsg = '{0} raised {1}, using default'.format(
-                backup_url, str(e))
+        urls_failed = True
+        urls_errmsg = '{0} raised {1}, using default'.format(
+            url, str(e))
 
     if not urls_failed:
-        tq = dom.getElementsByTagName('testQuery')
-        if tq:
-            for key in tqp:
-                try:
-                    d[key.upper()] = tq[0].getElementsByTagName(
-                        key)[0].firstChild.nodeValue.strip()
-                except Exception:  # pragma: no cover
-                    urls_failed = True
-                    urls_errmsg = ('Incomplete testQuery for {0}, '
-                                   'using default'.format(rid))
-        else:  # pragma: no cover
+        try:
+            xpath = t_query['detail_xpath']
+            ra = float(
+                t_query[xpath == b'/capability/testQuery/ra']['detail_value'])
+            dec = float(
+                t_query[xpath == b'/capability/testQuery/dec']['detail_value'])
+            sr = float(
+                t_query[xpath == b'/capability/testQuery/sr']['detail_value'])
+
+            # Handle big SR returning too big a table for some queries, causing
+            # tests to fail due to timeout.
+            if sr > default_sr:
+                warnings.warn(
+                    'SR={0} is too large, using SR={1} for {2},{3}'.format(
+                        sr, default_sr, ivoid, cap_index), AstropyUserWarning)
+                sr = default_sr
+
+            d = OrderedDict({'RA': ra, 'DEC': dec, 'SR': sr})
+
+        except Exception as e:  # pragma: no cover
             urls_failed = True
-            urls_errmsg = 'No testQuery found for {0}, using default'.format(
-                rid)
+            urls_errmsg = ('Failed to retrieve test query parameters for '
+                           '{0},{1}, using default'.format(ivoid, cap_index))
 
-    # Handle big SR returning too big a table for some queries, causing
-    # tests to fail due to timeout.
-    default_sr = '0.1'
-
-    # If no testQuery found, use default
+    # If no test query found, use default
     if urls_failed:  # pragma: no cover
-        d = OrderedDict({'RA': '0', 'DEC': '0', 'SR': default_sr})
+        d = OrderedDict({'RA': 0, 'DEC': 0, 'SR': default_sr})
         warnings.warn(urls_errmsg, AstropyUserWarning)
-    # Force SR to be reasonably small
-    elif d['SR'] > default_sr:
-        warnings.warn('SR={0} is too large, using SR={1} for {2}'.format(
-            d['SR'], default_sr, rid), AstropyUserWarning)
-        d['SR'] = default_sr
 
     return d
