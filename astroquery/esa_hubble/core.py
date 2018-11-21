@@ -17,9 +17,7 @@ from astropy.units import Quantity
 import urllib.request
 from astroquery.utils.tap.core import TapPlus
 from astropy import config as _config
-import json
 from astroquery.utils.tap.model import modelutils
-
 
 
 class Conf(_config.ConfigNamespace):
@@ -34,9 +32,11 @@ class Conf(_config.ConfigNamespace):
                                          "metadata-action?",
                                          "Main url for retriving hst metadata")
 
+
 conf = Conf()
 
-__all__ = ['EsaHubble', 'EsaHubbleClass', 'Conf', 'conf', 'EsaHubbleHandler', 'Handler']
+__all__ = ['EsaHubble', 'EsaHubbleClass', 'Conf', 'conf',
+           'EsaHubbleHandler', 'Handler']
 
 
 class ESAHubbleHandler(object):
@@ -44,17 +44,20 @@ class ESAHubbleHandler(object):
     def __init__(self):
         return
 
-    def get_file(self, url, filename=None, verbose=False):   
+    def get_file(self, url, filename=None, verbose=False):
         if filename is None:
             raise ValueError("filename must be specified")
         urllib.request.urlretrieve(url, filename)
 
-    def get_table(self, url, filename=None, output_format='votable', verbose=False):
+    def get_table(self, url, filename=None, output_format='votable',
+                  verbose=False):
         if filename is None:
             raise ValueError("filename must be specified")
         urllib.request.urlretrieve(url, filename)
-        table = modelutils.read_results_table_from_file(filename, str(output_format))
+        table = modelutils.read_results_table_from_file(filename,
+                                                        str(output_format))
         return table
+
 
 Handler = ESAHubbleHandler()
 
@@ -181,10 +184,11 @@ class ESAHubbleClass(object):
         print(link)
         return self.__handler.get_file(link, filename, verbose)
 
-#===============================================================================
+# ========================================================================
 #     def get_metadata(self, params, filename=None, verbose=False):
-#         """ It executes a query over EHST and download the xml with the results
-# 
+#         """ It executes a query over EHST and download the xml with the
+#                results
+#
 #             Parameters
 #             ----------
 #             params : string, set of restrictions to be applied during the
@@ -203,19 +207,19 @@ class ESAHubbleClass(object):
 #             File name for the artifact
 #             verbose : bool, optional, default 'False'
 #             Flag to display information about the process
-# 
+#
 #             Returns
 #             -------
 #             None. It downloads metadata as a result of the restrictions
 #             defined.
 #         """
-# 
+#
 #         link = self.metadata_url + params
 #         if filename is None:
 #             filename = "metadata.xml"
 #         print(link)
-#         return self.__handler.get_file(link, filename, verbose)        
-#===============================================================================
+#         return self.__handler.get_file(link, filename, verbose)
+# =======================================================================
 
     def cone_search(self, coordinates, radius=0.0, filename=None,
                     output_format='votable', verbose=False):
@@ -264,7 +268,8 @@ class ESAHubbleClass(object):
         print(link)
         return self.__handler.get_table(link, filename, output_format, verbose)
 
-    def query_target(self, name, filename=None, output_format='votable', verbose=False):
+    def query_target(self, name, filename=None, output_format='votable',
+                     verbose=False):
         """ It executes a query over EHST and download the xml with the results
 
             Parameters
@@ -281,7 +286,8 @@ class ESAHubbleClass(object):
 
             Returns
             -------
-            Table with the result of the query. It downloads metadata as a file.
+            Table with the result of the query. It downloads metadata
+            as a file.
         """
 
         initial = ("RESOURCE_CLASS=OBSERVATION&SELECTED_FIELDS=OBSERVATION"
@@ -337,14 +343,14 @@ class ESAHubbleClass(object):
         tables = self.__tap.load_tables(only_names=only_names,
                                         include_shared_tables=False,
                                         verbose=verbose)
-        if only_names == True:
+        if only_names is True:
             table_names = []
             for t in tables:
                 table_names.append(t.get_name())
             return table_names
-        else:       
+        else:
             return tables
-    
+
     def get_columns(self, table_name=None, only_names=True, verbose=False):
         """Get the available columns for a table in EHST TAP service
 
@@ -364,7 +370,7 @@ class ESAHubbleClass(object):
 
         if table_name is None:
             raise ValueError("table name must be specified")
-        
+
         tables = self.__tap.load_tables(only_names=False,
                                         include_shared_tables=False,
                                         verbose=verbose)
@@ -373,11 +379,12 @@ class ESAHubbleClass(object):
             if str(t.get_name()) == str(table_name):
                 columns = t.get_columns()
                 break
-        
+
         if columns is None:
-            raise ValueError("table name specified is not found in EHST TAP service")
-        
-        if only_names == True:
+            raise ValueError("table name specified is not found in " +
+                             "EHST TAP service")
+
+        if only_names is True:
             column_names = []
             for c in columns:
                 column_names.append(c.get_name())
@@ -422,5 +429,6 @@ class ESAHubbleClass(object):
             return c
         else:
             return value
+
 
 ESAHubble = ESAHubbleClass()

@@ -1,6 +1,7 @@
 import os
 
-__all__ = ['ESAHubble', 'ESAHubbleClass', 'Conf', 'conf', 'DummyHandler', 'dummy']
+__all__ = ['ESAHubble', 'ESAHubbleClass', 'Conf', 'conf',
+           'DummyHandler', 'dummy']
 
 
 def data_path(filename):

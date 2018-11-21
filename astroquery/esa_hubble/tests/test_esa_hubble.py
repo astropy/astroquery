@@ -101,6 +101,7 @@ class TestESAHubble(unittest.TestCase):
                            parameters['output_format'], parameters['verbose'])
         dummyTapHandler.check_call("launch_job", parameters)
 
+
 test = TestESAHubble()
 
 if __name__ == "__main__":

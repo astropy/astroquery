@@ -16,4 +16,5 @@ Created on 13 Ago. 2018
 
 from .core import ESAHubble, ESAHubbleClass
 
-__all__ = ['ESAHubble', 'ESAHubbleClass', 'Conf', 'conf', 'Handler', 'ESAHubbleHandler']
+__all__ = ['ESAHubble', 'ESAHubbleClass', 'Conf', 'conf', 'Handler',
+           'ESAHubbleHandler']
