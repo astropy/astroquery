@@ -24,7 +24,7 @@ from astroquery.utils.tap.model import modelutils
 
 class Conf(_config.ConfigNamespace):
     """
-    Configuration parameters for `astroquery.hst`.
+    Configuration parameters for `astroquery.esa_hubble`.
     """
     DATA_ACTION = _config.ConfigItem("http://archives.esac.esa.int/" +
                                      "ehst-sl-server/servlet/data-action?",
@@ -36,10 +36,10 @@ class Conf(_config.ConfigNamespace):
 
 conf = Conf()
 
-__all__ = ['Hst', 'HstClass', 'Conf', 'conf', 'EhsdtHandler', 'Handler']
+__all__ = ['EsaHubble', 'EsaHubbleClass', 'Conf', 'conf', 'EsaHubbleHandler', 'Handler']
 
 
-class EhstHandler(object):
+class ESAHubbleHandler(object):
 
     def __init__(self):
         return
@@ -56,10 +56,10 @@ class EhstHandler(object):
         table = modelutils.read_results_table_from_file(filename, str(output_format))
         return table
 
-Handler = EhstHandler()
+Handler = ESAHubbleHandler()
 
 
-class HstClass(object):
+class ESAHubbleClass(object):
 
     data_url = conf.DATA_ACTION
     metadata_url = conf.METADATA_ACTION
@@ -423,4 +423,4 @@ class HstClass(object):
         else:
             return value
 
-Hst = HstClass()
+ESAHubble = ESAHubbleClass()

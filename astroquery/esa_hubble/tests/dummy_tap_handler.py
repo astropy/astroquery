@@ -13,7 +13,7 @@ Created on 30 Aug. 2018
 """
 
 
-class DummyEhstTapHandler(object):
+class DummyESAHubbleTapHandler(object):
 
     def __init__(self, method, parameters):
         self.__invokedMethod = method

@@ -14,6 +14,6 @@ Created on 13 Ago. 2018
 
 """
 
-from .core import Hst, HstClass
+from .core import ESAHubble, ESAHubbleClass
 
-__all__ = ['Hst', 'HstClass', 'Conf', 'conf', 'Handler', 'EhstHandler']
+__all__ = ['ESAHubble', 'ESAHubbleClass', 'Conf', 'conf', 'Handler', 'ESAHubbleHandler']
