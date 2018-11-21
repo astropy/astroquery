@@ -13,13 +13,13 @@ Created on 13 Ago. 2018
 """
 import unittest
 
-from astroquery.hst.core import HstClass
+from astroquery.esa_hubble.core import ESAHubbleClass
 from astroquery.hst.tests.dummy_handler import DummyHandler
 from astroquery.hst.tests.dummy_tap_handler import DummyEhstTapHandler
 from astropy import coordinates
 
 
-class TestEhst(unittest.TestCase):
+class TestESAHubble(unittest.TestCase):
 
     def test_get_product(self):
         parameters = {}
@@ -27,7 +27,7 @@ class TestEhst(unittest.TestCase):
         parameters['calibration_level'] = "RAW"
         parameters['verbose'] = False
         dummyHandler = DummyHandler("get_product", parameters)
-        ehst = HstClass(dummyHandler)
+        ehst = ESAHubbleClass(dummyHandler)
         ehst.get_product("J6FL25S4Q", "RAW")
         dummyHandler.check_call("get_product", parameters)
 
@@ -36,7 +36,7 @@ class TestEhst(unittest.TestCase):
         parameters['artifact_id'] = "O5HKAX030_FLT.FITS"
         parameters['verbose'] = False
         dummyHandler = DummyHandler("get_artifact", parameters)
-        ehst = HstClass(dummyHandler)
+        ehst = ESAHubbleClass(dummyHandler)
         ehst.get_artifact("O5HKAX030_FLT.FITS")
         dummyHandler.check_call("get_artifact", parameters)
 
@@ -45,7 +45,7 @@ class TestEhst(unittest.TestCase):
         parameters['observation_id'] = "X0MC5101T"
         parameters['verbose'] = False
         dummyHandler = DummyHandler("get_postcard", parameters)
-        ehst = HstClass(dummyHandler)
+        ehst = ESAHubbleClass(dummyHandler)
         ehst.get_product("X0MC5101T")
         dummyHandler.check_call("get_postcard", parameters)
 
@@ -59,7 +59,7 @@ class TestEhst(unittest.TestCase):
                                         ))
         parameters['verbose'] = False
         dummyHandler = DummyHandler("get_metadata", parameters)
-        ehst = HstClass(dummyHandler)
+        ehst = ESAHubbleClass(dummyHandler)
         ehst.get_metadata("".join(("RESOURCE_CLASS=ARTIFACT&",
                                    "OBSERVATION.OBSERVATION_ID=",
                                    "i9zg04010&SELECTED_FIELDS=",
@@ -72,7 +72,7 @@ class TestEhst(unittest.TestCase):
         parameters['name'] = "m31"
         parameters['verbose'] = False
         dummyHandler = DummyHandler("query_target", parameters)
-        ehst = HstClass(dummyHandler)
+        ehst = ESAHubbleClass(dummyHandler)
         ehst.query_target(parameters['name'])
         dummyHandler.check_call("query_target", parameters)
 
@@ -84,7 +84,7 @@ class TestEhst(unittest.TestCase):
         parameters['file_name'] = None
         parameters['verbose'] = False
         dummyHandler = DummyHandler("cone_search", parameters)
-        ehst = HstClass(dummyHandler)
+        ehst = ESAHubbleClass(dummyHandler)
         ehst.cone_search(parameters['coordinates'])
         dummyHandler.check_call("cone_search", parameters)
 
@@ -96,12 +96,12 @@ class TestEhst(unittest.TestCase):
         parameters['verbose'] = False
         dummyHandler = DummyHandler("launch_job", parameters)
         dummyTapHandler = DummyEhstTapHandler("launch_job", parameters)
-        ehst = HstClass(dummyHandler, dummyTapHandler)
+        ehst = ESAHubbleClass(dummyHandler, dummyTapHandler)
         ehst.query_hst_tap(parameters['query'], parameters['output_file'],
                            parameters['output_format'], parameters['verbose'])
         dummyTapHandler.check_call("launch_job", parameters)
 
-test = TestEhst()
+test = TestESAHubble()
 
 if __name__ == "__main__":
     # import sys;sys.argv = ['', 'Test.testName']
