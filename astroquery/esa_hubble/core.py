@@ -24,11 +24,11 @@ class Conf(_config.ConfigNamespace):
     """
     Configuration parameters for `astroquery.esa_hubble`.
     """
-    DATA_ACTION = _config.ConfigItem("http://archives.esac.esa.int/" +
+    DATA_ACTION = _config.ConfigItem("http://archives.esac.esa.int/"
                                      "ehst-sl-server/servlet/data-action?",
                                      "Main url for retriving hst files")
-    METADATA_ACTION = _config.ConfigItem("http://archives.esac.esa.int/" +
-                                         "ehst-sl-server/servlet/" +
+    METADATA_ACTION = _config.ConfigItem("http://archives.esac.esa.int/"
+                                         "ehst-sl-server/servlet/"
                                          "metadata-action?",
                                          "Main url for retriving hst metadata")
 
@@ -245,12 +245,8 @@ class ESAHubbleClass(object):
                    "PLANE.MAIN_SCIENCE_PLANE="
                    "'true'  AND  (OBSERVATION.TYPE='HST Composite' OR "
                    "OBSERVATION.TYPE='HST Singleton')"
-                   "  AND  INTERSECTS(CIRCLE('ICRS'," +
-                   str(ra) +
-                   "," +
-                   str(dec) +
-                   "," +
-                   str(radiusInGrades) +
+                   "  AND  INTERSECTS(CIRCLE('ICRS'," + str(ra) + "" 
+                   "," + str(dec) + "," + str(radiusInGrades) + ""
                    "),POSITION)=1  AND  PLANE.MAIN_SCIENCE_PLANE='true' "
                    "ORDER BY PROPOSAL.PROPOSAL_ID "
                    "DESC",
@@ -259,10 +255,7 @@ class ESAHubbleClass(object):
                    "RETURN_TYPE": str(output_format)}
         result = urllib.parse.urlencode(payload,
                                         quote_via=urllib.parse.quote_plus)
-        link = "".join((
-                        self.metadata_url,
-                        result
-                        ))
+        link = "".join((self.metadata_url, result))
         if filename is None:
             filename = "cone." + str(output_format)
         print(link)
@@ -394,16 +387,14 @@ class ESAHubbleClass(object):
 
     def __checkQuantityInput(self, value, msg):
         if not (isinstance(value, str) or isinstance(value, units.Quantity)):
-            raise ValueError(
-                             str(msg) +
+            raise ValueError(str(msg) + ""
                              " must be either a string or astropy.coordinates")
 
     def __getQuantityInput(self, value, msg):
         if value is None:
             raise ValueError("Missing required argument: '"+str(msg)+"'")
         if not (isinstance(value, str) or isinstance(value, units.Quantity)):
-            raise ValueError(
-                             str(msg) +
+            raise ValueError(str(msg) + ""
                              " must be either a string or astropy.coordinates")
         if isinstance(value, str):
             q = Quantity(value)
@@ -414,15 +405,13 @@ class ESAHubbleClass(object):
     def __checkCoordInput(self, value, msg):
         if not (isinstance(value, str) or isinstance(value,
                                                      commons.CoordClasses)):
-            raise ValueError(
-                             str(msg) +
+            raise ValueError(str(msg) + ""
                              " must be either a string or astropy.coordinates")
 
     def __getCoordInput(self, value, msg):
         if not (isinstance(value, str) or isinstance(value,
                                                      commons.CoordClasses)):
-            raise ValueError(
-                             str(msg) +
+            raise ValueError(str(msg) + ""
                              " must be either a string or astropy.coordinates")
         if isinstance(value, str):
             c = commons.parse_coordinates(value)

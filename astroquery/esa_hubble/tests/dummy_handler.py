@@ -38,8 +38,7 @@ class DummyHandler(object):
         if method == self.__invokedMethod:
             return
         else:
-            raise Exception("".join((
-                                     "Method '",
+            raise Exception("".join(("Method '",
                                      str(method),
                                      "' not invoked. (Invoked method is '",
                                      str(self.__invokedMethod)+"')")))
@@ -57,8 +56,7 @@ class DummyHandler(object):
                 if key in self.__parameters:
                     # check value
                     if self.__parameters[key] != parameters[key]:
-                        raise Exception("".join((
-                                                 "Wrong '%s' parameter ",
+                        raise Exception("".join(("Wrong '%s' parameter ",
                                                  "value for method '%s'. ",
                                                  "Found: '%s'. Expected: '%s'",
                                                  (method_name,
