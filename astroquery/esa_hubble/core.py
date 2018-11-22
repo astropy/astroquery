@@ -245,7 +245,7 @@ class ESAHubbleClass(object):
                    "PLANE.MAIN_SCIENCE_PLANE="
                    "'true'  AND  (OBSERVATION.TYPE='HST Composite' OR "
                    "OBSERVATION.TYPE='HST Singleton')"
-                   "  AND  INTERSECTS(CIRCLE('ICRS'," + str(ra) + "" 
+                   "  AND  INTERSECTS(CIRCLE('ICRS'," + str(ra) + ""
                    "," + str(dec) + "," + str(radiusInGrades) + ""
                    "),POSITION)=1  AND  PLANE.MAIN_SCIENCE_PLANE='true' "
                    "ORDER BY PROPOSAL.PROPOSAL_ID "
@@ -374,7 +374,7 @@ class ESAHubbleClass(object):
                 break
 
         if columns is None:
-            raise ValueError("table name specified is not found in " +
+            raise ValueError("table name specified is not found in "
                              "EHST TAP service")
 
         if only_names is True:

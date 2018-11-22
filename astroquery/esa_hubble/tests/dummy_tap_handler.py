@@ -31,7 +31,7 @@ class DummyESAHubbleTapHandler(object):
         if method == self.__invokedMethod:
             return
         else:
-            raise Exception("Method '"+ str(method) + ""
+            raise Exception("Method '" + str(method) + ""
                             "' not invoked. (Invoked method is '"
                             "" + str(self.__invokedMethod)+"')")
 
