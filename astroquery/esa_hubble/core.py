@@ -24,11 +24,11 @@ class Conf(_config.ConfigNamespace):
     """
     Configuration parameters for `astroquery.esa_hubble`.
     """
-    DATA_ACTION = _config.ConfigItem("http://archives.esac.esa.int/" +
+    DATA_ACTION = _config.ConfigItem("http://archives.esac.esa.int/"
                                      "ehst-sl-server/servlet/data-action?",
                                      "Main url for retriving hst files")
-    METADATA_ACTION = _config.ConfigItem("http://archives.esac.esa.int/" +
-                                         "ehst-sl-server/servlet/" +
+    METADATA_ACTION = _config.ConfigItem("http://archives.esac.esa.int/"
+                                         "ehst-sl-server/servlet/"
                                          "metadata-action?",
                                          "Main url for retriving hst metadata")
 
@@ -245,13 +245,13 @@ class ESAHubbleClass(object):
                    "PLANE.MAIN_SCIENCE_PLANE="
                    "'true'  AND  (OBSERVATION.TYPE='HST Composite' OR "
                    "OBSERVATION.TYPE='HST Singleton')"
-                   "  AND  INTERSECTS(CIRCLE('ICRS'," +
-                   str(ra) +
-                   "," +
-                   str(dec) +
-                   "," +
-                   str(radiusInGrades) +
-                   "),POSITION)=1  AND  PLANE.MAIN_SCIENCE_PLANE='true' "
+                   "  AND  INTERSECTS(CIRCLE('ICRS',"
+                   + str(ra) + ""
+                   + ","
+                   + str(dec)
+                   + ","
+                   + str(radiusInGrades)
+                   + "),POSITION)=1  AND  PLANE.MAIN_SCIENCE_PLANE='true' "
                    "ORDER BY PROPOSAL.PROPOSAL_ID "
                    "DESC",
                    # "PAGE": "1",
@@ -259,10 +259,7 @@ class ESAHubbleClass(object):
                    "RETURN_TYPE": str(output_format)}
         result = urllib.parse.urlencode(payload,
                                         quote_via=urllib.parse.quote_plus)
-        link = "".join((
-                        self.metadata_url,
-                        result
-                        ))
+        link = "".join((self.metadata_url, result))
         if filename is None:
             filename = "cone." + str(output_format)
         print(link)

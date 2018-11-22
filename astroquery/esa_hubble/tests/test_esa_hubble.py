@@ -51,12 +51,10 @@ class TestESAHubble(unittest.TestCase):
 
     def test_get_metadata(self):
         parameters = {}
-        parameters['params'] = "".join((
-                                        "RESOURCE_CLASS=ARTIFACT&OBSERVATION.",
+        parameters['params'] = "".join(("RESOURCE_CLASS=ARTIFACT&OBSERVATION.",
                                         "OBSERVATION_ID=i9zg04010&",
                                         "SELECTED_FIELDS=ARTIFACT.ARTIFACT_ID",
-                                        "&RETURN_TYPE=VOTABLE"
-                                        ))
+                                        "&RETURN_TYPE=VOTABLE"))
         parameters['verbose'] = False
         dummyHandler = DummyHandler("get_metadata", parameters)
         ehst = ESAHubbleClass(dummyHandler)
