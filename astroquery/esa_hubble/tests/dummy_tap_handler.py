@@ -17,10 +17,10 @@ class DummyESAHubbleTapHandler(object):
 
     def __init__(self, method, parameters):
         self.__invokedMethod = method
-        self.__parameters = parameters
+        self._parameters = parameters
 
     def reset(self):
-        self.__parameters = {}
+        self._parameters = {}
         self.__invokedMethod = None
 
     def check_call(self, method_name, parameters):
@@ -43,22 +43,22 @@ class DummyESAHubbleTapHandler(object):
 
     def check_parameters(self, parameters, method_name):
         if parameters is None:
-            return len(self.__parameters) == 0
-        if len(parameters) != len(self.__parameters):
+            return len(self._parameters) == 0
+        if len(parameters) != len(self._parameters):
             raise Exception("Wrong number of parameters for method '%s'. \
             Found: %d. Expected %d",
                             (method_name,
-                             len(self.__parameters),
+                             len(self._parameters),
                              len(parameters)))
         for key in parameters:
-            if key in self.__parameters:
+            if key in self._parameters:
                 # check value
-                if self.__parameters[key] != parameters[key]:
+                if self._parameters[key] != parameters[key]:
                     raise Exception("Wrong '%s' parameter value for method '%s'. \
                     Found: '%s'. Expected: '%s'", (
                         method_name,
                         key,
-                        self.__parameters[key],
+                        self._parameters[key],
                         parameters[key]))
             else:
                 raise Exception("Parameter '%s' not found for method '%s'",
@@ -69,12 +69,12 @@ class DummyESAHubbleTapHandler(object):
                    output_format="votable", verbose=False, dump_to_file=False,
                    upload_resource=None, upload_table_name=None):
         self.__invokedMethod = 'launch_job'
-        self.__parameters['query'] = query
-        self.__parameters['name'] = name
-        self.__parameters['output_file'] = output_file
-        self.__parameters['output_format'] = output_format
-        self.__parameters['verbose'] = verbose
-        self.__parameters['dump_to_file'] = dump_to_file
-        self.__parameters['upload_resource'] = upload_resource
-        self.__parameters['upload_table_name'] = upload_table_name
+        self._parameters['query'] = query
+        self._parameters['name'] = name
+        self._parameters['output_file'] = output_file
+        self._parameters['output_format'] = output_format
+        self._parameters['verbose'] = verbose
+        self._parameters['dump_to_file'] = dump_to_file
+        self._parameters['upload_resource'] = upload_resource
+        self._parameters['upload_table_name'] = upload_table_name
         return None

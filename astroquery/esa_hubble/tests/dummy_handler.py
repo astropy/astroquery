@@ -1,4 +1,6 @@
 import os
+import urllib.request
+from astroquery.utils.tap.model import modelutils
 
 __all__ = ['ESAHubble', 'ESAHubbleClass', 'Conf', 'conf',
            'DummyHandler', 'dummy']
@@ -21,47 +23,57 @@ class DummyHandler(object):
             with open(file, 'rb') as myfile:
                 data = myfile.read()
         return data
+    
+    def get_table(self, url, filename=None, output_format='votable',
+                  verbose=False):
+        if filename is None:
+            raise ValueError("filename must be specified")
+        urllib.request.urlretrieve(url, filename)
+        table = modelutils.read_results_table_from_file(filename,
+                                                        str(output_format))
+        return table
+
 
     def __init__(self, method, parameters):
-        self.__invokedMethod = method
-        self.__parameters = parameters
+        self._invokedMethod = method
+        self._parameters = parameters
 
     def reset(self):
-        self.__parameters = {}
-        self.__invokedMethod = None
+        self._parameters = {}
+        self._invokedMethod = None
 
     def check_call(self, method_name, parameters):
         self.check_method(method_name)
         self.check_parameters(parameters, method_name)
 
     def check_method(self, method):
-        if method == self.__invokedMethod:
+        if method == self._invokedMethod:
             return
         else:
             raise Exception("".join(("Method '",
                                      str(method),
                                      "' not invoked. (Invoked method is '",
-                                     str(self.__invokedMethod)+"')")))
+                                     str(self._invokedMethod)+"')")))
 
     def check_parameters(self, parameters, method_name):
         if parameters is None:
-            return len(self.__parameters) == 0
-            if len(parameters) != len(self.__parameters):
+            return len(self._parameters) == 0
+            if len(parameters) != len(self._parameters):
                 raise Exception("Wrong number of parameters for method '%s'. \
                                 Found: %d. Expected %d",
                                 (method_name,
-                                 len(self.__parameters),
+                                 len(self._parameters),
                                  len(parameters)))
             for key in parameters:
-                if key in self.__parameters:
+                if key in self._parameters:
                     # check value
-                    if self.__parameters[key] != parameters[key]:
+                    if self._parameters[key] != parameters[key]:
                         raise Exception("".join(("Wrong '%s' parameter ",
                                                  "value for method '%s'. ",
                                                  "Found: '%s'. Expected: '%s'",
                                                  (method_name,
                                                   key,
-                                                  self.__parameters[key],
+                                                  self._parameters[key],
                                                   parameters[key]))))
                 else:
                     raise Exception("Parameter '%s' not found for method '%s'",
