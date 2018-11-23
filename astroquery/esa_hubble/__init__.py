@@ -14,7 +14,24 @@ Created on 13 Ago. 2018
 
 """
 
+from astropy import config as _config
+
+
+class Conf(_config.ConfigNamespace):
+    """
+    Configuration parameters for `astroquery.esa_hubble`.
+    """
+    DATA_ACTION = _config.ConfigItem("http://archives.esac.esa.int/"
+                                     "ehst-sl-server/servlet/data-action?",
+                                     "Main url for retriving hst files")
+    METADATA_ACTION = _config.ConfigItem("http://archives.esac.esa.int/"
+                                         "ehst-sl-server/servlet/"
+                                         "metadata-action?",
+                                         "Main url for retriving hst metadata")
+
+
+conf = Conf()
+
 from .core import ESAHubble, ESAHubbleClass
 
-__all__ = ['ESAHubble', 'ESAHubbleClass', 'Conf', 'conf', 'Handler',
-           'ESAHubbleHandler']
+__all__ = ['ESAHubble', 'ESAHubbleClass', 'Conf', 'conf']

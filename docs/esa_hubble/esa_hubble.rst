@@ -57,24 +57,7 @@ Calibration levels can be RAW, CALIBRATED, PRODUCT or AUXILIARY.
 This will download the artifact 'O5HKAX030_FLT.FITS'.
 
 ---------------------------
-4. Getting Hubble metadata
----------------------------
-
-.. code-block:: python
-
-  >>> from astroquery.esa_hubble import ESAHubble
-  >>>
-  >>> ESAHubble.get_metadata("RESOURCE_CLASS=ARTIFACT&OBSERVATION.OBSERVATION_ID=i9zg04010&SELECTED_FIELDS=ARTIFACT.\
-  ARTIFACT_ID&RETURN_TYPE=VOTABLE", "metadata.xml")
-  http://archives.esac.esa.int/ehst-sl-server/servlet/metadata-action?RESOURCE_CLASS=ARTIFACT&OBSERVATION.\
-  OBSERVATION_ID=i9zg04010&SELECTED_FIELDS=ARTIFACT.ARTIFACT_ID&RETURN_TYPE=VOTABLE
-
-This will download metadata for all artifact (product file) ids associated to observation 'i9zg04010' in VOTABLE format. The result of the query will be stored in file 'metadata.xml'.
-
-RETURN_TYPE can be VOTABLE, CSV or JSON.
-
----------------------------
-5. Querying target names in the Hubble archive
+4. Querying target names in the Hubble archive
 ---------------------------
 
 The query_target function queries the name of the target as given by the proposer of the observations.
@@ -90,7 +73,7 @@ The query_target function queries the name of the target as given by the propose
 This will download metadata for all observations associated with target name 'm31'. The result of the query will be stored in file 'm31_query.xml'.
 
 ---------------------------
-6. Cone searches in the Hubble archive
+5. Cone searches in the Hubble archive
 ---------------------------
 
 .. code-block:: python
@@ -105,7 +88,7 @@ This will download metadata for all observations associated with target name 'm3
 This will perform a cone search with radius 7 arcmins. The result of the query will be stored in the votable file 'cone_search_m31_5.vot'.
 
 ---------------------------
-7. Getting access to catalogues 
+5. Getting access to catalogues 
 ---------------------------
 
 The query_hst_tap function provides access to the HST archive database using the Table Access Protocol (TAP) and via the Astronomical Data Query Language (ADQL).

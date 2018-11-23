@@ -14,8 +14,8 @@ Created on 13 Ago. 2018
 import unittest
 
 from astroquery.esa_hubble.core import ESAHubbleClass
-from astroquery.hst.tests.dummy_handler import DummyHandler
-from astroquery.hst.tests.dummy_tap_handler import DummyEhstTapHandler
+from astroquery.esa_hubble.tests.dummy_handler import DummyHandler
+from astroquery.esa_hubble.tests.dummy_tap_handler import DummyESAHubbleTapHandler
 from astropy import coordinates
 
 
@@ -49,22 +49,6 @@ class TestESAHubble(unittest.TestCase):
         ehst.get_product("X0MC5101T")
         dummyHandler.check_call("get_postcard", parameters)
 
-    def test_get_metadata(self):
-        parameters = {}
-        parameters['params'] = "".join(("RESOURCE_CLASS=ARTIFACT&OBSERVATION.",
-                                        "OBSERVATION_ID=i9zg04010&",
-                                        "SELECTED_FIELDS=ARTIFACT.ARTIFACT_ID",
-                                        "&RETURN_TYPE=VOTABLE"))
-        parameters['verbose'] = False
-        dummyHandler = DummyHandler("get_metadata", parameters)
-        ehst = ESAHubbleClass(dummyHandler)
-        ehst.get_metadata("".join(("RESOURCE_CLASS=ARTIFACT&",
-                                   "OBSERVATION.OBSERVATION_ID=",
-                                   "i9zg04010&SELECTED_FIELDS=",
-                                   "ARTIFACT.ARTIFACT_ID&RETURN",
-                                   "_TYPE=VOTABLE")))
-        dummyHandler.check_call("get_metadata", parameters)
-
     def test_query_target(self):
         parameters = {}
         parameters['name'] = "m31"
@@ -93,7 +77,7 @@ class TestESAHubble(unittest.TestCase):
         parameters['output_format'] = "votable"
         parameters['verbose'] = False
         dummyHandler = DummyHandler("launch_job", parameters)
-        dummyTapHandler = DummyEhstTapHandler("launch_job", parameters)
+        dummyTapHandler = DummyESAHubbleTapHandler("launch_job", parameters)
         ehst = ESAHubbleClass(dummyHandler, dummyTapHandler)
         ehst.query_hst_tap(parameters['query'], parameters['output_file'],
                            parameters['output_format'], parameters['verbose'])
