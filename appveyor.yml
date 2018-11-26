@@ -11,7 +11,7 @@ environment:
                         # of 32 bit and 64 bit builds are needed, move this
                         # to the matrix section.
       CONDA_DEPENDENCIES: "requests beautifulsoup4 matplotlib html5lib keyring=11 aplpy sip=4.18 regions"
-      PIP_DEPENDENCIES: "pyregion astropy_healpix mocpy"
+      PIP_DEPENDENCIES: "pyregion astropy_healpix mocpy pytest-astropy"
       CONDA_CHANNELS: "astropy"
       ASTROPY_USE_SYSTEM_PYTEST: 1
 
