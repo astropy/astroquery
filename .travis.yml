@@ -109,7 +109,8 @@ matrix:
         # secretstorage is a keyring dependency, we need to pin the version number to make this job work
         - os: linux
           stage: Tests with other Python/Numpy versions
-          env: PYTHON_VERSION=3.4 NUMPY_VERSION=1.10 CONDA_DEPENDENCIES="`echo $CONDA_DEPENDENCIES secretstorage<=3.0.1`"
+          env: PYTHON_VERSION=3.4 NUMPY_VERSION=1.10  KEYRING_VERSION='<12.0'
+               CONDA_DEPENDENCIES="`echo $CONDA_DEPENDENCIES secretstorage<=3.0.1`"
         - os: linux
           stage: Tests with other Python/Numpy versions
           env: PYTHON_VERSION=3.5.5 NUMPY_VERSION=1.11 KEYRING_VERSION='<12.0'
