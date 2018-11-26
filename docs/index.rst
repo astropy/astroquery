@@ -75,6 +75,7 @@ The following packages are required for astroquery installation & use:
 and for running the tests:
 
 * `curl <https://curl.haxx.se/>`__
+* `pytest-astropy <https://github.com/astropy/pytest-astropy>`__
 
 The following packages are optional dependencies and are required for the
 full functionality of the `~astroquery.alma` module:
