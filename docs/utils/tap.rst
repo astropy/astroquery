@@ -579,8 +579,8 @@ Now, you can query your table as follows:
   >>> print(results)
 
 
-2.2.4. Uploading table from a astropy Table
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2.2.4. Uploading table from an astropy Table
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: python
 

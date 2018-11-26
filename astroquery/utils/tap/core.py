@@ -418,7 +418,7 @@ class Tap(object):
         job.parameters['format'] = output_format
         job.set_phase('PENDING')
         if isError:
-            job.set_failed(True)
+            job.failed = True
             job.set_phase('ERROR')
             if dump_to_file:
                 responseBytes = response.read()

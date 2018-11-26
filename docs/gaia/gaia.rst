@@ -671,8 +671,8 @@ Now, you can query your table as follows:
   >>> results = job.get_resultsjob)
   >>> print(results)
 
-2.2.4. Uploading table from a astropy Table
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2.2.4. Uploading table from an astropy Table
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
