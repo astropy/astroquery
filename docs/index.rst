@@ -65,8 +65,8 @@ Astroquery works with Python 2.7 and 3.4 or later.
 
 The following packages are required for astroquery installation & use:
 
-* `numpy <http://www.numpy.org>`_ >= 1.9
-* `astropy <http://www.astropy.org>`__ (>=1.0)
+* `numpy <http://www.numpy.org>`_ >= 1.10
+* `astropy <http://www.astropy.org>`__ (>=1.3)
 * `requests <http://docs.python-requests.org/en/latest/>`_
 * `keyring <https://pypi.python.org/pypi/keyring>`_
 * `Beautiful Soup <https://www.crummy.com/software/BeautifulSoup/>`_
@@ -75,6 +75,7 @@ The following packages are required for astroquery installation & use:
 and for running the tests:
 
 * `curl <https://curl.haxx.se/>`__
+* `pytest-astropy <https://github.com/astropy/pytest-astropy>`__
 
 The following packages are optional dependencies and are required for the
 full functionality of the `~astroquery.alma` module:
@@ -310,7 +311,7 @@ topical submodules:
   :maxdepth: 1
 
   solarsystem/solarsystem.rst
-  
+
 
 Developer documentation
 -----------------------
