@@ -154,6 +154,8 @@ matrix:
                SETUP_CMD='' EVENT_TYPE='push pull_request'
 
         - stage: Deploy
+          git:
+            depth: False
           env: SETUP_CMD='sdist' EVENT_TYPE='push'
           deploy:
             provider: pypi
