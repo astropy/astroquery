@@ -1956,13 +1956,13 @@ class CatalogsClass(MastClass):
         radius = criteria.pop('radius', 0.2*u.deg)
 
         # Build the mashup filter object
-        if catalog == "Tic":
+        if catalog.lower() == "tic":
             service = "Mast.Catalogs.Filtered.Tic"
             if coordinates or objectname:
                 service += ".Position"
             mashupFilters = self._build_filter_set("Mast.Catalogs.All.Tic", service, **criteria)
 
-        elif catalog == "DiskDetective":
+        elif catalog.lower() == "diskdetective":
             service = "Mast.Catalogs.Filtered.DiskDetective"
             if coordinates or objectname:
                 service += ".Position"
