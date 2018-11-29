@@ -114,7 +114,7 @@ class IrsaClass(BaseQuery):
 
     def query_region(self, coordinates=None, catalog=None, spatial='Cone',
                      radius=10 * u.arcsec, width=None, polygon=None,
-                     get_query_payload=False, verbose=False):
+                     get_query_payload=False, verbose=False,selcols=None):
         """
         This function can be used to perform either cone, box, polygon or
         all-sky search in the catalogs hosted by the NASA/IPAC Infrared
@@ -165,14 +165,15 @@ class IrsaClass(BaseQuery):
         response = self.query_region_async(coordinates, catalog=catalog,
                                            spatial=spatial, radius=radius,
                                            width=width, polygon=polygon,
-                                           get_query_payload=get_query_payload)
+                                           get_query_payload=get_query_payload,selcols=selcols)
         if get_query_payload:
             return response
         return self._parse_result(response, verbose=verbose)
 
     def query_region_async(self, coordinates=None, catalog=None,
                            spatial='Cone', radius=10 * u.arcsec, width=None,
-                           polygon=None, get_query_payload=False):
+                           polygon=None, get_query_payload=False,
+                           selcols=None):
         """
         This function serves the same purpose as
         :meth:`~astroquery.irsa.IrsaClass.query_region`, but returns the raw
@@ -219,7 +220,7 @@ class IrsaClass(BaseQuery):
         if catalog is None:
             raise Exception("Catalog name is required!")
 
-        request_payload = self._args_to_payload(catalog)
+        request_payload = self._args_to_payload(catalog,selcols=selcols)
         request_payload.update(self._parse_spatial(spatial=spatial,
                                                    coordinates=coordinates,
                                                    radius=radius, width=width,
@@ -304,7 +305,7 @@ class IrsaClass(BaseQuery):
 
         return request_payload
 
-    def _args_to_payload(self, catalog):
+    def _args_to_payload(self, catalog, selcols=None):
         """
         Sets the common parameters for all cgi -queries
 
@@ -317,9 +318,12 @@ class IrsaClass(BaseQuery):
         -------
         request_payload : dict
         """
+        if selcols is None:
+            selcols=''
         request_payload = dict(catalog=catalog,
                                outfmt=3,
-                               outrows=Irsa.ROW_LIMIT)
+                               outrows=Irsa.ROW_LIMIT,
+                               selcols=selcols)
         return request_payload
 
     def _parse_result(self, response, verbose=False):
