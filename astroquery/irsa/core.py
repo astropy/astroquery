@@ -114,7 +114,7 @@ class IrsaClass(BaseQuery):
 
     def query_region(self, coordinates=None, catalog=None, spatial='Cone',
                      radius=10 * u.arcsec, width=None, polygon=None,
-                     get_query_payload=False, verbose=False,selcols=None):
+                     get_query_payload=False, verbose=False, selcols=None):
         """
         This function can be used to perform either cone, box, polygon or
         all-sky search in the catalogs hosted by the NASA/IPAC Infrared
@@ -165,7 +165,8 @@ class IrsaClass(BaseQuery):
         response = self.query_region_async(coordinates, catalog=catalog,
                                            spatial=spatial, radius=radius,
                                            width=width, polygon=polygon,
-                                           get_query_payload=get_query_payload,selcols=selcols)
+                                           get_query_payload=get_query_payload,
+                                           selcols=selcols)
         if get_query_payload:
             return response
         return self._parse_result(response, verbose=verbose)
@@ -220,7 +221,7 @@ class IrsaClass(BaseQuery):
         if catalog is None:
             raise Exception("Catalog name is required!")
 
-        request_payload = self._args_to_payload(catalog,selcols=selcols)
+        request_payload = self._args_to_payload(catalog, selcols=selcols)
         request_payload.update(self._parse_spatial(spatial=spatial,
                                                    coordinates=coordinates,
                                                    radius=radius, width=width,
@@ -319,7 +320,7 @@ class IrsaClass(BaseQuery):
         request_payload : dict
         """
         if selcols is None:
-            selcols=''
+            selcols = ''
         request_payload = dict(catalog=catalog,
                                outfmt=3,
                                outrows=Irsa.ROW_LIMIT,
@@ -477,8 +478,7 @@ def _format_decimal_coords(ra, dec):
 
 
 def _parse_dimension(dim):
-    if (isinstance(dim, u.Quantity) and
-            dim.unit in u.deg.find_equivalent_units()):
+    if (isinstance(dim, u.Quantity) and dim.unit in u.deg.find_equivalent_units()):
         if dim.unit not in ['arcsec', 'arcmin', 'deg']:
             dim = dim.to(u.degree)
     # otherwise must be an Angle or be specified in hours...
