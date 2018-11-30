@@ -43,6 +43,16 @@ objstr                  Target name or coordinate of the center of a spatial
 
 catalog     Required    Catalog name in the IRSA database management system.
 
+selcols     Optional    Target column list with value separated by a comma(,)
+
+                        The input list always overwrites default selections
+                        defined by a data dictionary. Full lists of columns
+                        can be found at the IRSA catalogs website, e.g.
+                        https://irsa.ipac.caltech.edu/cgi-bin/Gator/nph-dd?catalog=allsky_4band_p1bs_psd
+                        To access the full list of columns, press
+                        the "Long Form" button at the top of the Columns
+                        table.
+
 outfmt      Optional    Defines query's output format.
                         6 - returns a program interface in XML
                         3 - returns a VO Table (XML)
@@ -156,6 +166,9 @@ class IrsaClass(BaseQuery):
         verbose : bool, optional.
             If `True` then displays warnings when the returned VOTable does not
             conform to the standard. Defaults to `False`.
+        selcols : str, optional
+            Target column list with value separated by a comma(,)
+
 
         Returns
         -------
@@ -212,6 +225,8 @@ class IrsaClass(BaseQuery):
         get_query_payload : bool, optional
             If `True` then returns the dictionary sent as the HTTP request.
             Defaults to `False`.
+        selcols : str, optional
+            Target column list with value separated by a comma(,)
 
         Returns
         -------
@@ -314,6 +329,8 @@ class IrsaClass(BaseQuery):
         ----------
         catalog : str
             The name of the catalog to query.
+        selcols : str, optional
+            Target column list with value separated by a comma(,)
 
         Returns
         -------
