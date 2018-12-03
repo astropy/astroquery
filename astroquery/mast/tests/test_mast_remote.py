@@ -3,6 +3,7 @@ from __future__ import print_function
 
 import numpy as np
 import os
+import pytest
 
 from astropy.tests.helper import remote_data
 from astropy.table import Table
@@ -372,7 +373,7 @@ class TestMast(object):
     ######################
     # TesscutClass tests #
     ######################
-
+    @pytest.mark.skip(reason="no way of testing this till tesscut goes live")
     def test_tesscut_get_sectors(self):
 
         # Note: try except will be removed when the service goes live
@@ -397,6 +398,8 @@ class TestMast(object):
         except RemoteServiceError:
             pass  # service is not live yet so can't test
 
+        
+    @pytest.mark.skip(reason="no way of testing this till tesscut goes live")
     def test_tesscut_download_cutouts(self, tmpdir):
 
         # Note: try excepts will be removed when the service goes live
@@ -445,6 +448,7 @@ class TestMast(object):
         except RemoteServiceError:
             pass  # service is not live yet so can't test
 
+    @pytest.mark.skip(reason="no way of testing this till tesscut goes live")
     def test_tesscut_get_cutouts(self, tmpdir):
 
         # Note: try excepts will be removed when the service goes live
