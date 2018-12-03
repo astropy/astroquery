@@ -506,13 +506,12 @@ class MastClass(QueryWithLogin):
             response = self._request("POST", self._MAST_REQUEST_URL, data=reqString, headers=headers)
             jsonResponse = response[0].json()
 
-            self._column_configs[service].update(jsonResponse['data']['Tables'][0]\
+            self._column_configs[service].update(jsonResponse['data']['Tables'][0]
                                                  ['ExtendedProperties']['discreteHistogram'])
-            self._column_configs[service].update(jsonResponse['data']['Tables'][0]\
+            self._column_configs[service].update(jsonResponse['data']['Tables'][0]
                                                  ['ExtendedProperties']['continuousHistogram'])
             for col, val in self._column_configs[service].items():
                 val.pop('hist', None)  # don't want to save all this unecessary data
-
 
     def _parse_result(self, responses, verbose=False):
         """
