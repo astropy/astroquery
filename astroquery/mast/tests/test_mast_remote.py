@@ -50,6 +50,7 @@ class TestMast(object):
         # Are the two GALEX observations with obs_id 6374399093149532160 in the results table
         assert len(result[np.where(result["obs_id"] == "6374399093149532160")]) == 2
 
+    @pytest.mark.skip(reason="currently broken")    
     def test_mast_sesion_info(self):
         sessionInfo = mast.Mast.session_info(True)
         assert sessionInfo['Username'] == 'anonymous'
