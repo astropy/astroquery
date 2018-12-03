@@ -74,6 +74,7 @@
 - utils.TAP: Fix jobsIDs assignment. [#1105]
 - VO_CONESEARCH: URL for validated services have changed. Old URL should still
   redirect but it is deprecated. [#1033]
+- MAST: TESS input catalog bugfix [#1297]
 
 0.3.7 (2018-01-25)
 ------------------

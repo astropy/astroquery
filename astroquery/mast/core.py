@@ -488,14 +488,14 @@ class MastClass(QueryWithLogin):
                    "Accept": "text/plain"}
 
         response = self._request("POST", self._COLUMNS_CONFIG_URL,
-                                     data=("colConfigId="+fetch_name), headers=headers)
+                                 data=("colConfigId="+fetch_name), headers=headers)
 
         self._column_configs[service] = response[0].json()
 
-        more = False # for some catalogs this is not enough information
+        more = False  # for some catalogs this is not enough information
         if "tess" in fetch_name.lower():
             all_name = "Mast.Catalogs.All.Tic"
-            more  = True
+            more = True
         elif "dd." in fetch_name.lower():
             all_name = "Mast.Catalogs.All.DiskDetective"
             more = True
@@ -506,12 +506,13 @@ class MastClass(QueryWithLogin):
             response = self._request("POST", self._MAST_REQUEST_URL, data=reqString, headers=headers)
             jsonResponse = response[0].json()
 
-            self._column_configs[service].update(jsonResponse['data']['Tables'][0]['ExtendedProperties']['discreteHistogram'])
-            self._column_configs[service].update(jsonResponse['data']['Tables'][0]['ExtendedProperties']['continuousHistogram'])
+            self._column_configs[service].update(jsonResponse['data']['Tables'][0]\
+                                                 ['ExtendedProperties']['discreteHistogram'])
+            self._column_configs[service].update(jsonResponse['data']['Tables'][0]\
+                                                 ['ExtendedProperties']['continuousHistogram'])
             for col, val in self._column_configs[service].items():
                 val.pop('hist', None)  # don't want to save all this unecessary data
-           
-        
+
 
     def _parse_result(self, responses, verbose=False):
         """
