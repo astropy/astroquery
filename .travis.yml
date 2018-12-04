@@ -51,6 +51,7 @@ env:
         - EVENT_TYPE='pull_request push'
         - ASTROPY_USE_SYSTEM_PYTEST=1
         - DEBUG=true
+        - MPLBACKEND="Agg"
 
     matrix:
         - PYTHON_VERSION=2.7 SETUP_CMD='egg_info'

@@ -28,7 +28,9 @@ except ImportError:
 def _get_test_runner():
     import os
     from astropy.tests.helper import TestRunner
-    return TestRunner(os.path.dirname(__file__))
+    test = TestRunner(os.path.dirname(__file__))
+    test.__test__ = False
+    return test
 
 
 def test(package=None, test_path=None, args=None, plugins=None,
@@ -138,5 +140,5 @@ if not _ASTROPY_SETUP_:
                             "you are importing from source, this is expected.")
                     warn(config.ConfigurationDefaultMissingWarning(wmsg))
                     del e
-                except:
+                except:  # noqa
                     raise orig_error
