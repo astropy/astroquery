@@ -1532,7 +1532,7 @@ class ObservationsClass(MastClass):
 
     @deprecated(since="v0.3.9", alternative="get_cloud_uris")
     def get_hst_s3_uris(self, dataProducts, includeBucket=True, fullUrl=False):
-        return self.get_cloud_uris(self, dataproducts, includeBucket, fullUrl)
+        return self.get_cloud_uris(dataProducts, includeBucket, fullUrl)
 
     def get_cloud_uris(self, dataProducts, includeBucket=True, fullUrl=False):
         """ Takes an `astropy.table.Table` of data products and turns them into s3 uris. """
@@ -1541,7 +1541,7 @@ class ObservationsClass(MastClass):
 
     @deprecated(since="v0.3.9", alternative="get_cloud_uri")
     def get_hst_s3_uri(self, dataProduct, includeBucket=True, fullUrl=False):
-        return self.get_cloud_uri(self, dataProduct, includeBucket, fullUrl)
+        return self.get_cloud_uri(dataProduct, includeBucket, fullUrl)
 
     def get_cloud_uri(self, dataProduct, includeBucket=True, fullUrl=False):
         """ Turns a dataProduct into a S3 URI """
