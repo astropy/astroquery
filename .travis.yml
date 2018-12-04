@@ -89,6 +89,7 @@ matrix:
 
         - os: linux
           env: SETUP_CMD='test --coverage' PIP_DEPENDENCIES="`echo $PIP_DEPENDENCIES codecov`"
+               MPLBACKEND="Agg"
 
         # Check for sphinx doc build warnings - we do this first because it
         # may run for a long time
