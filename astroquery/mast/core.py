@@ -213,7 +213,7 @@ class MastClass(QueryWithLogin):
         else:
             raise Exception("Unknown MAST Auth mode %s" % self._auth_mode)
 
-    def session_info(self, *args, **kwargs):
+    def session_info(self, *args, **kwargs):  # pragma: no cover
         """
         Displays information about current MAST user, and returns user info dictionary.
 

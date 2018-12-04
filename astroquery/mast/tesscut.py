@@ -59,7 +59,7 @@ class TesscutClass(BaseQuery):
             raise RemoteServiceError("The TESSCut service hasn't been released yet.\n"
                                      "Try again Soon!\n( More info at https://archive.stsci.edu/tess/ )")
 
-    def get_sectors(self, coordinates, radius=0.2*u.deg):
+    def get_sectors(self, coordinates, radius=0.2*u.deg):  # pragma: no cover
         """
         Get a list of the TESS data sectors whose footprints intersect
         with the given search area.
@@ -117,7 +117,7 @@ class TesscutClass(BaseQuery):
             warnings.warn("Coordinates are not in any TESS sector.", NoResultsWarning)
         return Table(sector_dict)
 
-    def download_cutouts(self, coordinates, size=5, sector=None, path=".", inflate=True):
+    def download_cutouts(self, coordinates, size=5, sector=None, path=".", inflate=True):  # pragma: no cover
         """
         Download cutout target pixel file(s) around the given coordinates with indicated size.
 
@@ -225,7 +225,7 @@ class TesscutClass(BaseQuery):
         localpath_table['Local Path'] = [path+x for x in cutout_files]
         return localpath_table
 
-    def get_cutouts(self, coordinates, size=5, sector=None):
+    def get_cutouts(self, coordinates, size=5, sector=None):  # pragma: no cover
         """
         Get cutout target pixel file(s) around the given coordinates with indicated size,
         and return them as a list of  `~astropy.io.fits.HDUList` objects.
