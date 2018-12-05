@@ -44,6 +44,7 @@
 - JPLHorizons: Fix queries for major solar system bodies when sub-observer or sub-solar positions are requested. [#1268]
 - JPLHorizons: Fix bug with airmass column. [#1284]
 - docs: Clarifying install instructions [#1270]
+- MAST: TESS input catalog bugfix [#1297]
 
 
 0.3.8 (2018-04-27)

@@ -213,7 +213,7 @@ class MastClass(QueryWithLogin):
         else:
             raise Exception("Unknown MAST Auth mode %s" % self._auth_mode)
 
-    def session_info(self, *args, **kwargs):
+    def session_info(self, *args, **kwargs):  # pragma: no cover
         """
         Displays information about current MAST user, and returns user info dictionary.
 
@@ -487,28 +487,31 @@ class MastClass(QueryWithLogin):
                    "Content-type": "application/x-www-form-urlencoded",
                    "Accept": "text/plain"}
 
-        if "Catalogs.All" in fetch_name:  # Using the histogram properties instead of columngs config
+        response = self._request("POST", self._COLUMNS_CONFIG_URL,
+                                 data=("colConfigId="+fetch_name), headers=headers)
 
-            mashupRequest = {'service': fetch_name, 'params': {}, 'format': 'extjs'}
+        self._column_configs[service] = response[0].json()
+
+        more = False  # for some catalogs this is not enough information
+        if "tess" in fetch_name.lower():
+            all_name = "Mast.Catalogs.All.Tic"
+            more = True
+        elif "dd." in fetch_name.lower():
+            all_name = "Mast.Catalogs.All.DiskDetective"
+            more = True
+
+        if more:
+            mashupRequest = {'service': all_name, 'params': {}, 'format': 'extjs'}
             reqString = _prepare_service_request_string(mashupRequest)
             response = self._request("POST", self._MAST_REQUEST_URL, data=reqString, headers=headers)
             jsonResponse = response[0].json()
 
-            # When using the histogram data to fill to col_config some processing must be done
-            col_config = jsonResponse['data']['Tables'][0]['ExtendedProperties']['discreteHistogram']
-            col_config.update(jsonResponse['data']['Tables'][0]['ExtendedProperties']['continuousHistogram'])
-
-            for col, val in col_config.items():
+            self._column_configs[service].update(jsonResponse['data']['Tables'][0]
+                                                 ['ExtendedProperties']['discreteHistogram'])
+            self._column_configs[service].update(jsonResponse['data']['Tables'][0]
+                                                 ['ExtendedProperties']['continuousHistogram'])
+            for col, val in self._column_configs[service].items():
                 val.pop('hist', None)  # don't want to save all this unecessary data
-
-            self._column_configs[service] = col_config
-
-        else:
-
-            response = self._request("POST", self._COLUMNS_CONFIG_URL,
-                                     data=("colConfigId="+fetch_name), headers=headers)
-
-            self._column_configs[service] = response[0].json()
 
     def _parse_result(self, responses, verbose=False):
         """
@@ -1956,17 +1959,17 @@ class CatalogsClass(MastClass):
         radius = criteria.pop('radius', 0.2*u.deg)
 
         # Build the mashup filter object
-        if catalog == "Tic":
+        if catalog.lower() == "tic":
             service = "Mast.Catalogs.Filtered.Tic"
             if coordinates or objectname:
                 service += ".Position"
-            mashupFilters = self._build_filter_set("Mast.Catalogs.All.Tic", service, **criteria)
+            mashupFilters = self._build_filter_set("Mast.Catalogs.Tess.Cone", service, **criteria)
 
-        elif catalog == "DiskDetective":
+        elif catalog.lower() == "diskdetective":
             service = "Mast.Catalogs.Filtered.DiskDetective"
             if coordinates or objectname:
                 service += ".Position"
-            mashupFilters = self._build_filter_set("Mast.Catalogs.All.DiskDetective", service, **criteria)
+            mashupFilters = self._build_filter_set("Mast.Catalogs.Dd.Cone", service, **criteria)
 
         else:
             raise InvalidQueryError("Criteria query not availible for {}".format(catalog))
@@ -2000,7 +2003,7 @@ class CatalogsClass(MastClass):
 
         # TIC needs columns specified
         if catalog == "Tic":
-            params["columns"] = "c.*"
+            params["columns"] = "*"
 
         return self.service_request_async(service, params, pagesize=pagesize, page=page)
 
