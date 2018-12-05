@@ -705,7 +705,8 @@ class MastClass(QueryWithLogin):
         """
 
         # get user information
-        response = self._session.request("GET", self._SESSION_INFO_URL, headers={"Accept": "application/json"})
+        self._session.headers["Accept"] = "application/json"
+        response = self._session.request("GET", self._SESSION_INFO_URL)
 
         infoDict = json.loads(response.text)
 
