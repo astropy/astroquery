@@ -79,7 +79,8 @@ def test_parse_coordinates(coordinates, expected):
 
 def test_args_to_payload():
     out = irsa.core.Irsa._args_to_payload("fp_psc")
-    assert out == dict(catalog='fp_psc', outfmt=3, outrows=conf.row_limit)
+    assert out == dict(catalog='fp_psc', outfmt=3, outrows=conf.row_limit,
+                       selcols='')
 
 
 @pytest.mark.parametrize(("coordinates"), OBJ_LIST)
