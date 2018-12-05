@@ -31,6 +31,9 @@ that a release will be instantaniously available after each set of changes
 made to the code.
 The latest version of astroquery can be pip installed.
 
+\*Note: If an environment already has an older version of astroquery installed
+add ``--upgrade`` to make sure the latest version is installed.
+
 .. code-block:: bash
 
     $ pip install --pre astroquery
