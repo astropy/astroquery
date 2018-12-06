@@ -6,9 +6,11 @@
   coordinates. [#1177]
 - New tool ``CDS``:  module to query the MOCServer, a CDS tool providing MOCs
   and meta data of various data-sets. [#1111]
-- New tool ``JPLSDB``: New module for querying JPL's Small Body Database Browser [#1214]
+- New tool ``JPLSDB``: New module for querying JPL's Small Body Database
+  Browser [#1214]
 
-- ATOMIC: fix several bugs for using Quantited for the range parameters. [#1187]
+- ATOMIC: fix several bugs for using Quantited for the range parameters.
+  [#1187]
 - ESASKY: get_maps() accepts dict or list of (name, Table) pairs as input
   table list. [#1167]
 - ESO: Catch exception on login when keyring fails to get a valid storage.
@@ -18,7 +20,8 @@
 - IRSA: Added ``selcols`` keyword. [#1296]
 - JPL Horizons: Fix for missing total absolute magnitude or phase coefficient
   for comets [#1151]
-- JPLHorizons: Fix queries for major solar system bodies when sub-observer or sub-solar positions are requested. [#1268]
+- JPLHorizons: Fix queries for major solar system bodies when sub-observer or
+  sub-solar positions are requested. [#1268]
 - JPLHorizons: Fix bug with airmass column. [#1284]
 - JPLSpec: New query service for JPL Molecular Spectral Catalog. [#1170]
 - JPLHorizons: JPL server protocol and epoch range bug fixes, user-defined
@@ -29,7 +32,8 @@
 - MAST: Add functionality for switching to auth.mast when it goes live [#1256]
 - MAST: Support downloading data from multiple missions from the cloud [#1275]
 - MAST: Updating HSC and Gaia catalog calls (bugfix) [#1203]
-- MAST: Fixing bug in catalog criteria querues, and updating remote tests. [#1223]
+- MAST: Fixing bug in catalog criteria querues, and updating remote tests.
+  [#1223]
 - MAST: Fixing mrp_only but and changing default to False [#1238]
 - MAST: TESS input catalog bugfix [#1297]
 - NASA_ADS: Use new API [#1162]
@@ -40,14 +44,13 @@
 - WFAU: Added QSL constraints parameter [#1259]
 - XMATCH: default timeout has changed from 60s to 300s. [#1137]
 
-- Re-enable sandboxing / preventing internet access during non-remote
-  tests, which has been unintentionally disabled for a potentially long time.
-  [#1274]
-- File download progress bar no longer displays when Astropy log level
-  is set to "WARNING", "ERROR", or "CRITICAL". [#1188]
-- utils: fix bug in ``parse_coordinates``, now strings that can be
-  interpreted as coordinates are not sent through Sesame. When unit is not
-  provided, degrees is now explicitely assumed. [#1252]
+- Re-enable sandboxing / preventing internet access during non-remote tests,
+  which has been unintentionally disabled for a potentially long time.  [#1274]
+- File download progress bar no longer displays when Astropy log level is set
+  to "WARNING", "ERROR", or "CRITICAL". [#1188]
+- utils: fix bug in ``parse_coordinates``, now strings that can be interpreted
+  as coordinates are not sent through Sesame. When unit is not provided,
+  degrees is now explicitely assumed. [#1252]
 
 
 0.3.8 (2018-04-27)
