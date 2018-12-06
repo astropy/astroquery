@@ -123,11 +123,11 @@ class AtomicLineListClass(BaseQuery):
                     transitions of other elements.
                 - A union of the values: One of the following:
                   ``'E1'``, ``'IC'``, ``'M1'``, ``'E2'``
-                  Refer to the documentation_ for the meaning of these values.
+                  Refer to [1]_ for the meaning of these values.
 
         show_fine_structure : bool
              If `True`, the fine structure components will be included in
-             the output. Refer to the documentation_ for more information.
+             the output. Refer to [1]_ for more information.
 
         show_auto_ionizing_transitions : bool
             If `True`, transitions originating from auto-ionizing levels
@@ -149,7 +149,9 @@ class AtomicLineListClass(BaseQuery):
         result : `~astropy.table.Table`
             The result of the query as a `~astropy.table.Table` object.
 
-        .. _documentation: http://www.pa.uky.edu/~peter/atomic/instruction.html
+        References
+        ----------
+        .. [1] http://www.pa.uky.edu/~peter/atomic/instruction.html
         """
         response = self.query_object_async(
             wavelength_range=wavelength_range, wavelength_type=wavelength_type,
