@@ -36,15 +36,16 @@ if int(astropy.__version__[0]) > 1:
     # The warnings_to_ignore_by_pyver parameter was added in astropy 2.0
     enable_deprecations_as_exceptions(modules_to_ignore_on_import=['requests'])
 
+# add '_testrun' to the version name so that the user-agent indicates that
+# it's being run in a test
+from . import version
+version.version += '_testrun'
+
+
 # This is to figure out the affiliated package version, rather than
 # using Astropy's
-try:
-    from .version import version
-    # add '_testrun' to the version name so that the user-agent indicates that
-    # it's being run in a test
-    version += '_testrun'
-except ImportError:
-    version = 'dev'
+from .version import version
+
 
 packagename = os.path.basename(os.path.dirname(__file__))
 TESTED_VERSIONS[packagename] = version
