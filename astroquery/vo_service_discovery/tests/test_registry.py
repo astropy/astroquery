@@ -1,4 +1,4 @@
-import pytest
+import sys
 from ...utils.tap.conn.tests.DummyConnHandler import DummyConnHandler
 from ...utils.tap.conn.tests.DummyResponse import DummyResponse
 from ...utils.tap.core import Tap
@@ -46,7 +46,7 @@ def mock_get_tap_object(query, url, verbose=False):
     trl = TestRegistryLocal()
     filepath = trl.data_path(trl.DATA_FILES[testcase])
     content = trl.file2content(filepath)
-    if isinstance(content, bytes):
+    if sys.version_info[0] > 2 and isinstance(content, bytes):
         content = str(content, 'utf-8')
 
     dummy_repsonse.set_data(method='POST',
