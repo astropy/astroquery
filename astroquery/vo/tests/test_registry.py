@@ -1,10 +1,10 @@
-import sys
 import pytest
-from ...utils.testing_tools import MockResponse
+from ...utils.tap.conn.tests.DummyConnHandler import DummyConnHandler
+from ...utils.tap.conn.tests.DummyResponse import DummyResponse
+from ...utils.tap.core import Tap
 
 from ... import vo
 from astroquery.vo import Registry
-from ..utils import sval, astropy_table_from_votable_string
 from .shared_registry import SharedRegistryTests
 
 ## To run just this test,
@@ -19,24 +19,43 @@ def patch(request):
         mp = request.getfixturevalue("monkeypatch")
     except AttributeError:  # pytest < 3
         mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(vo.Registry, '_request', mockreturn)
+    mp.setattr(vo.Registry, '_get_tap_object', mock_get_tap_object)
     return mp
 
 
-def mockreturn(method="POST", url=None, data=None, params=None, timeout=10, **kwargs):
-    # Determine the test case from the URL and/or data
-    assert "query" in data
-    if "ivoid like '%heasarc%'" in data['query'] and "cap_type like '%simpleimageaccess%'" in data['query']:
+def mock_get_tap_object(query, url, verbose=False):
+    # pylint: disable=unused-argument
+
+    # Create a dummy connection handler to ensure we don't use the network.
+    connHandler = DummyConnHandler()
+    mock_tap = Tap("http://test:1111/tap", connhandler=connHandler)
+
+    # Determine the test case from the query text.
+    if "ivoid like '%heasarc%'" in query and "cap_type like '%simpleimageaccess%'" in query:
         testcase = "query_basic_content"
-    elif "order by count_" in data['query']:
+    elif "order by count_" in query:
         testcase = "query_counts_content"
     else:
-        raise ValueError("Can't figure out the test case from data={}".format(data))
+        raise ValueError("Can't figure out the test case from query={}".format(query))
+
+    # Construct the dummy response.
+    dummy_repsonse = DummyResponse()
+    dummy_repsonse.set_status_code(200)
+    dummy_repsonse.set_message("OK")
 
     trl = TestRegistryLocal()
     filepath = trl.data_path(trl.DATA_FILES[testcase])
     content = trl.file2content(filepath)
-    return MockResponse(content=content)
+    if isinstance(content, bytes):
+        content = str(content, 'utf-8')
+
+    dummy_repsonse.set_data(method='POST',
+                               context=None,
+                               body=content,
+                               headers=None)
+    connHandler.set_default_response(dummy_repsonse)
+
+    return mock_tap
 
 
 @pytest.mark.usefixtures("patch")
@@ -225,20 +244,6 @@ class TestRegistryLocal(SharedRegistryTests):
              """)
 
         assert result == expected
-
-    def test_sval(self):
-        if sys.version_info[0] > 2:
-            assert sval(b'Test byte string') == 'Test byte string'
-            assert sval('Test plain string') == 'Test plain string'
-            assert sval(42) == '42'
-            assert sval(3.14) == '3.14'
-
-    def test_sval_empty_tables(self):
-        # With an empty table, it's difficult to show that stringify_table does nothing,
-        # but exercise the code path anyway.
-        vot_string = self.file2content(self.data_path(self.DATA_FILES['empty_votable']))
-        ap_table = astropy_table_from_votable_string(vot_string)
-        assert len(ap_table) == 0
 
     def test_counts_adql(self):
         counts = self.fix_white(Registry._build_counts_adql('publisher'))

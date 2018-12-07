@@ -1,29 +1,30 @@
 # %ECSV 0.9
 # ---
 # datatype:
-# - {name: publisher, datatype: string}
+# - {name: publisher, datatype: object}
 # - {name: count_publisher, datatype: int32}
 # meta: !!omap
-# - astroquery.vo:
-#     data: {lang: ADQL, query: 'select * from (select role_name as publisher, count(role_name) as count_publisher from rr.res_role where
-#         base_role = ''publisher''  group by role_name) as count_table where count_publisher >= 15 order by count_publisher desc', request: doQuery}
-#     url: https://vao.stsci.edu/RegTAP/TapService.aspx/sync
+# - astroquery.vo_service_discovery: {query: 'select * from (select role_name as publisher, count(role_name) as count_publisher from rr.res_role
+#       where base_role = ''publisher''  group by role_name) as count_table where count_publisher >= 15 order by count_publisher desc',
+#     url: 'https://vao.stsci.edu/RegTAP/TapService.aspx/sync'}
 # schema: astropy-2.0
 publisher count_publisher
-CDS 17551
-"NASA/GSFC HEASARC" 1048
-"NASA/IPAC Infrared Science Archive" 523
-"The GAVO DC team" 196
-"Space Telescope Science Institute Archive" 120
+CDS 17959
+"NASA/GSFC HEASARC" 1046
+"NASA/IPAC Infrared Science Archive" 526
+"The GAVO DC team" 199
+"Space Telescope Science Institute Archive" 124
 "WFAU, Institute for Astronomy, University of Edinburgh" 101
 "SVO CAB" 35
 IA2 34
 "Canadian Astronomy Data Centre" 30
 "Sternberg Astronomical Institute Virtual Observatory Project" 29
-HELIO 27
+Helio 27
 MSSL 24
 Astrogrid 24
-JHU 19
-"The NASA/IPAC Extragalactic Database" 18
+"European Space Agency" 22
+JHU 20
+"The NASA/IPAC Extragalactic Database" 20
+"Stellar Department of Astronomical Institute of the Academy of Sciences of the Czech Republic" 18
 JVO 17
-"European Space Agency" 15
+"Paris Astronomical Data Centre - LESIA" 16

@@ -23,7 +23,7 @@ class Helpers(object):
             with open(filepath, 'r') as f:
                 table = Table.read(f.read(), format='ascii.ecsv')
         except Exception as e:
-            raise
+            raise e
         return table
 
     def content2file(self, content, filepath):
@@ -52,13 +52,13 @@ class Helpers(object):
         return True
 
     def table_meta_comp(self, current, reference):
-        """Check the meta data in the "astroquery.vo" area"""
-        assert set(current.meta['astroquery.vo']) == set(reference.meta['astroquery.vo']), "Keys differ:  current={},\n          reference={}".format(current.meta['astroquery.vo'].keys(), reference.meta['astroquery.vo'].keys())
+        """Check the meta data in the "astroquery.vo_service_discovery" area"""
+        assert set(current.meta['astroquery.vo_service_discovery']) == set(reference.meta['astroquery.vo_service_discovery']), "Keys differ:  current={},\n          reference={}".format(current.meta['astroquery.vo'].keys(), reference.meta['astroquery.vo'].keys())
         ## Check their values
-        for k in current.meta['astroquery.vo'].keys():
+        for k in current.meta['astroquery.vo_service_discovery'].keys():
             if "text" in k: continue
             if k == 'url': continue
-            assert current.meta['astroquery.vo'][k] == reference.meta['astroquery.vo'][k], "The value of key {} differs:\ncurrent={},\nreference={}".format(k, current.meta['astroquery.vo'][k], reference.meta['astroquery.vo'][k])
+            assert current.meta['astroquery.vo_service_discovery'][k] == reference.meta['astroquery.vo_service_discovery'][k], "The value of key {} differs:\ncurrent={},\nreference={}".format(k, current.meta['astroquery.vo'][k], reference.meta['astroquery.vo'][k])
         return True
 
     def table_stats_comp(self, current, reference):
@@ -83,46 +83,74 @@ class SharedRegistryTests(Helpers):
 
     def rewrite(self):
         """Called by main below to re-generate the reference files."""
-        print("DEBUGGING: calling basic(True)")
-        self.query_basic(True)
-        self.query_counts(True)
+        self.query_basic(None, True)
+        self.query_counts(None, True)
 
     ##
     ##  Tests that make an http request:
     ##
     def query_basic(self, capfd, reinit=False):
-        # First test including http_response so that it can be stored if needed to rebaseline.
-        result, http_response = Registry.query(source='heasarc', service_type='image', return_http_response=True)
+
+        # Path of VOTable xml content of actual TAP query.
+        content_baseline = self.data_path(self.DATA_FILES['query_basic_content'])
+
+        # Path of ECSV representation of Astropy Table result.
+        result_baseline = self.data_path(self.DATA_FILES['query_basic_result'])
 
         if reinit:
-            self.table2ecsv(result, self.data_path(self.DATA_FILES['query_basic_result']))
-            self.content2file(http_response.content, self.data_path(self.DATA_FILES['query_basic_content']))
+            # Overwrite the baseline files with new results
+            dump_to_file = True
+            output_file = content_baseline
         else:
-            assert(self.table_comp(result, self.data_path(self.DATA_FILES['query_basic_result'])))
+            dump_to_file = False
+            output_file = None
 
-            # Then test without http_reponse and with verbose to cover that code.
-            result2 = Registry.query(source='heasarc', service_type='image', return_http_response=False, verbose=True)
-            assert(self.table_comp(result2, self.data_path(self.DATA_FILES['query_basic_result'])))
-            out, err = capfd.readouterr()
+        # Perform the query, saving the content if reinit is True.
+        result = Registry.query(source='heasarc', service_type='image',
+                                dump_to_file=dump_to_file, output_file=output_file)
+
+        if reinit:
+            self.table2ecsv(result, result_baseline)
+        else:
+            assert(self.table_comp(result, result_baseline))
+
+            # Then test with verbose to cover that code.
+            result2 = Registry.query(source='heasarc', service_type='image', verbose=True)
+            assert(self.table_comp(result2, result_baseline))
+            out, _err = capfd.readouterr()
             assert "sending query ADQL" in out
 
     def query_counts(self, capfd, reinit=False):
-        # First test including http_response so that it can be stored if needed to rebaseline.
-        result, http_response = Registry.query_counts('publisher', 15, return_http_response=True)
+        # Path of VOTable xml content of actual TAP query.
+        content_baseline = self.data_path(self.DATA_FILES['query_counts_content'])
+
+        # Path of ECSV representation of Astropy Table result.
+        result_baseline = self.data_path(self.DATA_FILES['query_counts_result'])
+
         if reinit:
-            self.table2ecsv(result, self.data_path(self.DATA_FILES['query_counts_result']))
-            self.content2file(http_response.content, self.data_path(self.DATA_FILES['query_counts_content']))
+            # Overwrite the baseline files with new results
+            dump_to_file = True
+            output_file = content_baseline
         else:
-            assert(self.table_comp(result, self.data_path(self.DATA_FILES['query_counts_result'])))
+            dump_to_file = False
+            output_file = None
 
-            # Then test without http_reponse and with verbose to cover that code.
-            result2 = Registry.query_counts('publisher', 15, return_http_response=False, verbose=True)
+        # Perform the query, saving the content if reinit is True.
+        result = Registry.query_counts('publisher', 15, dump_to_file=dump_to_file, output_file=output_file)
+
+        if reinit:
+            self.table2ecsv(result, result_baseline)
+        else:
+            assert(self.table_comp(result, result_baseline))
+
+            # Then test with verbose to cover that code.
+            result2 = Registry.query_counts('publisher', 15, verbose=True)
             assert(self.table_comp(result2, self.data_path(self.DATA_FILES['query_counts_result'])))
-            out, err = capfd.readouterr()
-            assert "sending query ADQL" in out
+            out, _err = capfd.readouterr()
+            assert "sending query_counts ADQL" in out
 
 
-## This main can regenerate the stored JSON for you after you've run a
+## This main can regenerate the stored ECSV for you after you've run a
 ## test and checked that the new results are correct.
 if __name__ == "__main__":
     tests = SharedRegistryTests()
