@@ -127,6 +127,7 @@ coords_column = Column(coords_list, name='coordinates')
 # List of all data releases.
 dr_list = list(range(1, sdss.conf.default_release + 1))
 
+
 # We are not testing queries for DR11 because it is not easily available to
 # query: "DR11 data are distributed primarily to provide reproducibility of
 # published results based on the DR11 data set. As such, not all data-access
