@@ -25,6 +25,7 @@ __doctest_skip__ = ['SDSSClass.*']
 
 sdss_arcsec_per_pixel = 0.396 * u.arcsec / u.pixel
 
+DEFAULT_DATA_RELEASE = 14
 
 @async_to_sync
 class SDSSClass(BaseQuery):
@@ -59,7 +60,8 @@ class SDSSClass(BaseQuery):
     def query_crossid_async(self, coordinates, obj_names=None,
                             photoobj_fields=None, specobj_fields=None,
                             get_query_payload=False, timeout=TIMEOUT,
-                            radius=5. * u.arcsec, data_release=12, cache=True):
+                            radius=5. * u.arcsec,
+                            data_release=DEFAULT_DATA_RELEASE, cache=True):
         """
         Query using the cross-identification web interface.
 
@@ -172,7 +174,8 @@ class SDSSClass(BaseQuery):
                            fields=None, spectro=False, timeout=TIMEOUT,
                            get_query_payload=False, photoobj_fields=None,
                            specobj_fields=None, field_help=False,
-                           obj_names=None, data_release=12, cache=True):
+                           obj_names=None, data_release=DEFAULT_DATA_RELEASE,
+                           cache=True):
         """
         Used to query a region around given coordinates. Equivalent to
         the object cross-ID from the web interface.
@@ -263,7 +266,7 @@ class SDSSClass(BaseQuery):
     def query_specobj_async(self, plate=None, mjd=None, fiberID=None,
                             fields=None, timeout=TIMEOUT,
                             get_query_payload=False, field_help=False,
-                            data_release=12, cache=True):
+                            data_release=DEFAULT_DATA_RELEASE, cache=True):
         """
         Used to query the SpecObjAll table with plate, mjd and fiberID values.
 
@@ -337,7 +340,7 @@ class SDSSClass(BaseQuery):
     def query_photoobj_async(self, run=None, rerun=301, camcol=None,
                              field=None, fields=None, timeout=TIMEOUT,
                              get_query_payload=False, field_help=False,
-                             data_release=12, cache=True):
+                             data_release=DEFAULT_DATA_RELEASE, cache=True):
         """
         Used to query the PhotoObjAll table with run, rerun, camcol and field
         values.
@@ -418,7 +421,8 @@ class SDSSClass(BaseQuery):
             fsql += ' ' + line.split('--')[0]
         return fsql
 
-    def query_sql_async(self, sql_query, timeout=TIMEOUT, data_release=12,
+    def query_sql_async(self, sql_query, timeout=TIMEOUT,
+                        data_release=DEFAULT_DATA_RELEASE,
                         cache=True, **kwargs):
         """
         Query the SDSS database.
@@ -477,7 +481,8 @@ class SDSSClass(BaseQuery):
     def get_spectra_async(self, coordinates=None, radius=2. * u.arcsec,
                           matches=None, plate=None, fiberID=None, mjd=None,
                           timeout=TIMEOUT, get_query_payload=False,
-                          data_release=12, cache=True, show_progress=True):
+                          data_release=DEFAULT_DATA_RELEASE, cache=True,
+                          show_progress=True):
         """
         Download spectrum from SDSS.
 
@@ -597,7 +602,8 @@ class SDSSClass(BaseQuery):
     @prepend_docstr_nosections(get_spectra_async.__doc__)
     def get_spectra(self, coordinates=None, radius=2. * u.arcsec,
                     matches=None, plate=None, fiberID=None, mjd=None,
-                    timeout=TIMEOUT, cache=True, data_release=12,
+                    timeout=TIMEOUT, cache=True,
+                    data_release=DEFAULT_DATA_RELEASE,
                     show_progress=True):
         """
         Returns
@@ -622,7 +628,8 @@ class SDSSClass(BaseQuery):
     def get_images_async(self, coordinates=None, radius=2. * u.arcsec,
                          matches=None, run=None, rerun=301, camcol=None,
                          field=None, band='g', timeout=TIMEOUT,
-                         get_query_payload=False, cache=True, data_release=12,
+                         get_query_payload=False, cache=True,
+                         data_release=DEFAULT_DATA_RELEASE,
                          show_progress=True):
         """
         Download an image from SDSS.
@@ -743,7 +750,7 @@ class SDSSClass(BaseQuery):
     def get_images(self, coordinates=None, radius=2. * u.arcsec,
                    matches=None, run=None, rerun=301, camcol=None, field=None,
                    band='g', timeout=TIMEOUT, cache=True,
-                   get_query_payload=False, data_release=12,
+                   get_query_payload=False, data_release=DEFAULT_DATA_RELEASE,
                    show_progress=True):
         """
         Returns
@@ -865,7 +872,8 @@ class SDSSClass(BaseQuery):
                          plate=None, mjd=None, fiberID=None, run=None,
                          rerun=301, camcol=None, field=None,
                          photoobj_fields=None, specobj_fields=None,
-                         field_help=None, obj_names=None, data_release=12):
+                         field_help=None, obj_names=None,
+                         data_release=DEFAULT_DATA_RELEASE):
         """
         Construct the SQL query from the arguments.
 
