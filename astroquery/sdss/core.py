@@ -27,6 +27,7 @@ sdss_arcsec_per_pixel = 0.396 * u.arcsec / u.pixel
 
 DEFAULT_DATA_RELEASE = 14
 
+
 @async_to_sync
 class SDSSClass(BaseQuery):
     TIMEOUT = conf.timeout
@@ -104,9 +105,9 @@ class SDSSClass(BaseQuery):
         """
 
         if (not isinstance(coordinates, list) and
-                not isinstance(coordinates, Column) and
-                not (isinstance(coordinates, commons.CoordClasses) and
-                     not coordinates.isscalar)):
+            not isinstance(coordinates, Column) and
+            not (isinstance(coordinates, commons.CoordClasses) and
+                 not coordinates.isscalar)):
             coordinates = [coordinates]
 
         if obj_names is None:

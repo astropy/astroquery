@@ -62,7 +62,7 @@ Then, to download your favorite template, do something like
 
     >>> template = SDSS.get_spectral_template('qso')
 
-The variable "template" is a list of PyFITS HDUList objects
+The variable "template" is a list of `~astropy.io.fits.HDUList` objects
 (same object as "sp" in the above example). In this case there is only one
 result, but in a few cases there are multiple templates available to choose
 from (e.g. the "galaxy" spectral template will actually return 3 templates).
