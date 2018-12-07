@@ -19,6 +19,7 @@ class Conf(_config.ConfigNamespace):
     timeout = _config.ConfigItem(
         60,
         'Time limit for connecting to SDSS server.')
+    default_release = _config.ConfigItem(14, 'Default SDSS data release.')
 
 
 conf = Conf()
