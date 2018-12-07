@@ -40,6 +40,9 @@ if int(astropy.__version__[0]) > 1:
 # using Astropy's
 try:
     from .version import version
+    # add '_testrun' to the version name so that the user-agent indicates that
+    # it's being run in a test
+    version += '_testrun'
 except ImportError:
     version = 'dev'
 
