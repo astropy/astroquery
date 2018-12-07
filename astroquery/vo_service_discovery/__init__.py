@@ -11,7 +11,7 @@ from astropy import config as _config
 
 class Conf(_config.ConfigNamespace):
     """
-    Configuration parameters for `astroquery.vo`.
+    Configuration parameters for `astroquery.vo_service_discovery`.
     """
     registry_tap_url = _config.ConfigItem(
         'https://vao.stsci.edu/RegTAP/TapService.aspx',

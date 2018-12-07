@@ -3,8 +3,8 @@ from ...utils.tap.conn.tests.DummyConnHandler import DummyConnHandler
 from ...utils.tap.conn.tests.DummyResponse import DummyResponse
 from ...utils.tap.core import Tap
 
-from ... import vo
-from astroquery.vo import Registry
+from ... import vo_service_discovery
+from astroquery.vo_service_discovery import Registry
 from .shared_registry import SharedRegistryTests
 
 ## To run just this test,

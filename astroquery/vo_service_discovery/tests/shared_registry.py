@@ -1,6 +1,6 @@
 import os
 from astropy.table import Table
-from astroquery.vo import Registry
+from astroquery.vo_service_discovery import Registry
 
 
 class Helpers(object):
