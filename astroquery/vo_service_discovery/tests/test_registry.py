@@ -19,7 +19,7 @@ def patch(request):
         mp = request.getfixturevalue("monkeypatch")
     except AttributeError:  # pytest < 3
         mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(vo.Registry, '_get_tap_object', mock_get_tap_object)
+    mp.setattr(vo_service_discovery.Registry, '_get_tap_object', mock_get_tap_object)
     return mp
 
 
