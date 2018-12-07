@@ -14,7 +14,7 @@ class Conf(_config.ConfigNamespace):
         'http://skyserver.sdss.org',
         'Base URL for catalog-related queries like SQL and Cross-ID.')
     sas_baseurl = _config.ConfigItem(
-        'http://data.sdss3.org/sas',
+        'https://data.sdss.org/sas',
         'Base URL for downloading data products like spectra and images.')
     timeout = _config.ConfigItem(
         60,
