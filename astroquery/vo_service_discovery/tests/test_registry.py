@@ -1,4 +1,5 @@
 import sys
+import pytest
 from ...utils.tap.conn.tests.DummyConnHandler import DummyConnHandler
 from ...utils.tap.conn.tests.DummyResponse import DummyResponse
 from ...utils.tap.core import Tap
