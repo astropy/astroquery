@@ -138,6 +138,7 @@ The following modules have been completed using a common API:
   * `UKIDSS <http://astroquery.readthedocs.io/en/latest/ukidss/ukidss.html>`_: UKIRT Infrared Deep Sky Survey. JHK images of 7500 sq deg. in the northern sky.
   * `Vamdc <http://astroquery.readthedocs.io/en/latest/vamdc/vamdc.html>`_: VAMDC molecular line database.
   * `Vizier <http://astroquery.readthedocs.io/en/latest/vizier/vizier.html>`_: Set of 11,000+ published, multiwavelength catalogues hosted by the CDS.
+  * `VO Service Discovery <http://astroquery.readthedocs.io/en/latest/vo_service_discovery/vo_service_discovery.html>`_: Discover available Virtual Observatory services.
   * `VO Simple Cone Search <http://astroquery.readthedocs.io/en/latest/vo_conesearch/vo_conesearch.html>`_
   * `xMatch <http://astroquery.readthedocs.io/en/latest/xmatch/xmatch.html>`_:  Cross-identify sources between very large data sets or between a user-uploaded list and a large catalogue.
 
