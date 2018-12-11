@@ -15,7 +15,7 @@ at http://vao.stsci.edu/keyword-search/. This module provides methods
 to query this directory by service type, keywords, wavelength band or coverage,
 and source or publisher.
 
-Here is an example showing show to find information about conesearch services
+Here is an example showing how to find information about conesearch services
 provided by the NASA Extragalactic Database (NED).
 
 .. code-block:: python
@@ -41,13 +41,13 @@ can be used to inspect the search result.
 The value of `'access_url'` specifies the endpoint for the service.
 
 Documentation of the service may be found in the `'reference_url'` values.
-We could use capabilities in the standard library to open the first url
+You can use a function from the Python standard library to open the second url
 in a web browser.
 
 .. code-block:: python
 
     >>> import webbrowser
-    >>> webbrowser.open(results['reference_url'][0])
+    >>> webbrowser.open(results['reference_url'][1].decode())
 
 
 Discovering Services
@@ -78,14 +78,20 @@ The ``publisher`` is the name of any publishing organization.
 
 ``order_by`` can be specified to sort the result by any of the column names.
 
-The ``logic_string`` is any other string that is needed for the ADQL ``where``
-clause, and must start with the value ``' and '``.
-
-
 The ADQL query can be printed by specifying ``verbose=True``.
+
+The results of the query can be saved to a file. Set ``dump_to_file=True`` to save
+the results table. The format will be ``'votable'`` by default; you can change this
+with the ``output_format`` option. The result will be saved to a filename using
+the TAP job ID; you can specify the filename with the ``output_file`` option.
+
+By default, the query is made using the  registry TAP URL. The ``url`` option
+will override that value. Alternatively, the configuration can be changed
+to use a different URL.
 
 .. code-block:: python
 
+    >>> from astroquery.vo_service_discovery import Registry
     >>> result = Registry.query(service_type='tap', source='heasarc', verbose=True)
 
     Registry:  sending query ADQL =
@@ -110,10 +116,11 @@ Counting available services
 ===========================
 
 The `query_counts` method will enumerate how many services are available
-for each of the fields in the results table shown above.
+for the ``'service_type''', ``'waveband'`` or ``'publisher'`` fields.
 
 .. code-block:: python
 
+    >>> from astroquery.vo_service_discovery import Registry
     >>> result = Registry.query_counts(field='service_type')
     >>> print(result)
 
@@ -135,11 +142,18 @@ for each of the fields in the results table shown above.
           protospectralaccess                  4
              simplelineaccess                  3
 
-We can get a list of the top 15 publishers:
+The ``minimum`` option defaults to 1 and specifies the minimum counts needed for
+a row to be listed in the results table. `query_counts` includes the same
+``verbose``, ``url`` and file output options as described for the `query` method
+in the preceding section.
+
+
+You can get a table of all publishers with at least 15 services:
 
 .. code-block:: python
 
-    >>> results = Registry.query_counts('publisher', 15, verbose=True)
+    >>> from astroquery.vo_service_discovery import Registry
+    >>> results = Registry.query_counts('publisher', minimum=15, verbose=True)
     >>> print(results)
 
         Registry:  sending query ADQL = select * from (select role_name as publisher, count(role_name) as count_publisher from rr.res_role where base_role = 'publisher'  group by role_name) as count_table where count_publisher >= 15 order by count_publisher desc
