@@ -177,6 +177,7 @@ The following modules have been completed using a common API:
   vamdc/vamdc.rst
   vizier/vizier.rst
   vo_conesearch/vo_conesearch.rst
+  vo_service_discovery/vo_service_discovery.rst
   vsa/vsa.rst
   xmatch/xmatch.rst
 
@@ -309,6 +310,7 @@ above categories. Those services are here:
   
   nasa_ads/nasa_ads.rst
   utils/tap.rst
+  vo_service_discovery/vo_service_discovery.rst
   jplhorizons/jplhorizons.rst
   jplsbdb/jplsbdb.rst
   jplspec/jplspec.rst
