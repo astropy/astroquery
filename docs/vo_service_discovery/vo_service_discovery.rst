@@ -29,18 +29,20 @@ provided by the NASA Extragalactic Database (NED).
                                                         infrared ...   conesearch
         radio#millimeter#infrared#optical#uv#euv#x-ray#gamma-ray ...   conesearch
 
-The result of the query is an `astropy.table.Table` object. The methods of `Table`
+The result of the query is an `astropy.table.Table` object. The methods of
+`~astropy.table.Table`
 can be used to inspect the search result.
 
 .. code-block:: python
+
     >>> print(results.colnames)
 
         ['waveband', 'short_name', 'ivoid', 'res_description', 'access_url',
          'reference_url', 'publisher', 'service_type']
 
-The value of `'access_url'` specifies the endpoint for the service.
+The value of ``'access_url'`` specifies the endpoint for the service.
 
-Documentation of the service may be found in the `'reference_url'` values.
+Documentation of the service may be found in the ``'reference_url'`` values.
 You can use a function from the Python standard library to open the second url
 in a web browser.
 
@@ -53,9 +55,9 @@ in a web browser.
 Discovering Services
 ====================
 
-The `astroquery.vo_service_discovery.Registry.query` method provides several
+The `~astroquery.vo_service_discovery.RegistryClass.query` method provides several
 ways to search for specific services of interest. Each of these options
-can be combined into a single call to the `query` method.
+can be combined into a single call to the method.
 
 The ``service_type`` parameter can be set to the VO service types ``'conesearch'``,
 ``'simpleimageaccess'``, ``'simplespectralaccess'``, or ``'tableaccess'``. These
@@ -84,6 +86,7 @@ The results of the query can be saved to a file. Set ``dump_to_file=True`` to sa
 the results table. The format will be ``'votable'`` by default; you can change this
 with the ``output_format`` option. The result will be saved to a filename using
 the TAP job ID; you can specify the filename with the ``output_file`` option.
+These options are passed to `astroquery.utils.tap.Tap.launch_job`.
 
 By default, the query is made using the  registry TAP URL. The ``url`` option
 will override that value. Alternatively, the configuration can be changed
@@ -115,8 +118,9 @@ to use a different URL.
 Counting available services
 ===========================
 
-The `query_counts` method will enumerate how many services are available
-for the ``'service_type''', ``'waveband'`` or ``'publisher'`` fields.
+The `~astroquery.vo_service_discovery.RegistryClass.query_counts` method will enumerate
+how many services are available for the ``'service_type''', ``'waveband'``
+or ``'publisher'`` fields.
 
 .. code-block:: python
 
@@ -143,9 +147,10 @@ for the ``'service_type''', ``'waveband'`` or ``'publisher'`` fields.
              simplelineaccess                  3
 
 The ``minimum`` option defaults to 1 and specifies the minimum counts needed for
-a row to be listed in the results table. `query_counts` includes the same
-``verbose``, ``url`` and file output options as described for the `query` method
-in the preceding section.
+a row to be listed in the results table.
+`~astroquery.vo_service_discovery.RegistryClass.query_counts` includes the same
+``verbose``, ``url`` and file output options as described for
+`~astroquery.vo_service_discovery.RegistryClass.query`.
 
 
 You can get a table of all publishers with at least 15 services:
