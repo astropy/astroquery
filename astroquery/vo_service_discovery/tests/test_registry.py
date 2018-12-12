@@ -8,9 +8,9 @@ from ... import vo_service_discovery
 from astroquery.vo_service_discovery import Registry
 from .shared_registry import SharedRegistryTests
 
-## To run just this test,
+# To run just this test,
 ##
-## ( cd ../../ ; python setup.py test -t astroquery/vo/tests/test_registry.py )
+# ( cd ../../ ; python setup.py test -t astroquery/vo/tests/test_registry.py )
 ##
 
 
@@ -51,9 +51,9 @@ def mock_get_tap_object(query, url, verbose=False):
         content = content.decode('utf-8')
 
     dummy_repsonse.set_data(method='POST',
-                               context=None,
-                               body=content,
-                               headers=None)
+                            context=None,
+                            body=content,
+                            headers=None)
     connHandler.set_default_response(dummy_repsonse)
 
     return mock_tap
@@ -77,8 +77,8 @@ class TestRegistryLocal(SharedRegistryTests):
         assert "service_type must be one of" in err.value.args[0]
 
     ##
-    ## Below are tests that don't use even the simulated network.
-    ## They test building the ADQL query string.
+    # Below are tests that don't use even the simulated network.
+    # They test building the ADQL query string.
     ##
     def fix_white(self, s):
         fixed = " ".join(s.split())

@@ -53,17 +53,29 @@ class Helpers(object):
 
     def table_meta_comp(self, current, reference):
         """Check the meta data in the "astroquery.vo_service_discovery" area"""
-        assert set(current.meta['astroquery.vo_service_discovery']) == set(reference.meta['astroquery.vo_service_discovery']), "Keys differ:  current={},\n          reference={}".format(current.meta['astroquery.vo'].keys(), reference.meta['astroquery.vo'].keys())
-        ## Check their values
+        assert set(current.meta['astroquery.vo_service_discovery']) == \
+            set(reference.meta['astroquery.vo_service_discovery']), (
+                "Keys differ:  current={},\n          reference={}"
+                .format(current.meta['astroquery.vo'].keys(),
+                        reference.meta['astroquery.vo'].keys()))
+        # Check their values
         for k in current.meta['astroquery.vo_service_discovery'].keys():
-            if "text" in k: continue
-            if k == 'url': continue
-            assert current.meta['astroquery.vo_service_discovery'][k] == reference.meta['astroquery.vo_service_discovery'][k], "The value of key {} differs:\ncurrent={},\nreference={}".format(k, current.meta['astroquery.vo'][k], reference.meta['astroquery.vo'][k])
+            if "text" in k:
+                continue
+            if k == 'url':
+                continue
+            assert current.meta['astroquery.vo_service_discovery'][k] == \
+                reference.meta['astroquery.vo_service_discovery'][k], (
+                    "The value of key {} differs:\ncurrent={},\nreference={}"
+                    .format(k, current.meta['astroquery.vo'][k],
+                            reference.meta['astroquery.vo'][k]))
         return True
 
     def table_stats_comp(self, current, reference):
         """Check some basic properties of the tables like length and columns."""
-        assert len(current) >= len(reference), "Current results have {} rows compared to reference with {}".format(len(current), len(reference))
+        assert len(current) >= len(reference), (
+            "Current results have {} rows compared to reference with {}"
+            .format(len(current), len(reference)))
         for col in reference.colnames:
             assert col in current.colnames, "Column {} missing from current result.".format(col)
         return True
@@ -87,7 +99,7 @@ class SharedRegistryTests(Helpers):
         self.query_counts(None, True)
 
     ##
-    ##  Tests that make an http request:
+    #  Tests that make an http request:
     ##
     def query_basic(self, capfd, reinit=False):
 
@@ -150,8 +162,8 @@ class SharedRegistryTests(Helpers):
             assert "sending query_counts ADQL" in out
 
 
-## This main can regenerate the stored ECSV for you after you've run a
-## test and checked that the new results are correct.
+# This main can regenerate the stored ECSV for you after you've run a
+# test and checked that the new results are correct.
 if __name__ == "__main__":
     tests = SharedRegistryTests()
     tests.rewrite()

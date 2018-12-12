@@ -74,15 +74,16 @@ class RegistryClass(BaseQuery):
         keyword : str, optional, default is None
             The query will return any services which contain this keyword in their ivoid, title, or description.
         waveband : str, optional, default is None
-            Comma-delimited list of wavebands.  Results will contain all services that offer at least one of these wavebands.
-            Legal values are listed below.
+            Comma-delimited list of wavebands.  Results will contain all services that offer
+            at least one of these wavebands. Legal values are listed below.
         source : str, optional, default is None
             Any substring in ivoid (a unique identifier of the service)
         publisher : str, optional, default is None
             The name of any publishing organization (e.g., "stsci", "heasarc")
         order_by : str, optional, default is None
             What column to order the results by.  The returned columns are:
-                "waveband","short_name","ivoid","res_description","access_url","reference_url","publisher", service_type"
+                "waveband", "short_name", "ivoid", "res_description", "access_url",
+                "reference_url", "publisher", service_type"
         url : str, optional, default points to the STScI Registry TAP service
             Base URL for the desired TAP service.
         output_file : str, optional, default is to use the TAP job ID
@@ -99,8 +100,9 @@ class RegistryClass(BaseQuery):
         if verbose:
             print('Registry:  sending query ADQL = {}\n'.format(query))
 
-        aptable = self._sync_tap_query(query, url=url, output_file=output_file, output_format=output_format,
-                                      dump_to_file=dump_to_file, verbose=verbose)
+        aptable = self._sync_tap_query(query, url=url, output_file=output_file,
+                                       output_format=output_format,
+                                       dump_to_file=dump_to_file, verbose=verbose)
 
         return aptable
 
@@ -132,8 +134,9 @@ class RegistryClass(BaseQuery):
         if verbose:
             print('Registry:  sending query_counts ADQL = {}\n'.format(query))
 
-        aptable = self._sync_tap_query(query, url=url, output_file=output_file, output_format=output_format,
-                                      dump_to_file=dump_to_file, verbose=verbose)
+        aptable = self._sync_tap_query(query, url=url, output_file=output_file,
+                                       output_format=output_format,
+                                       dump_to_file=dump_to_file, verbose=verbose)
 
         return aptable
 
@@ -237,7 +240,8 @@ class RegistryClass(BaseQuery):
             query_group_by = ' group by ' + field
             query_order_by = ' order by count_' + field_alias + ' desc'
 
-            query = 'select * from (' + query_select + query_from + query_where_filter + query_group_by + ') as count_table' + query_where_count_min + query_order_by
+            query = ('select * from (' + query_select + query_from + query_where_filter + query_group_by +
+                     ') as count_table' + query_where_count_min + query_order_by)
 
             return query
 
