@@ -47,7 +47,7 @@ def mock_get_tap_object(query, url, verbose=False):
     trl = TestRegistryLocal()
     filepath = trl.data_path(trl.DATA_FILES[testcase])
     content = trl.file2content(filepath)
-    if sys.version_info[0] > 2 and isinstance(content, bytes):
+    if isinstance(content, bytes):
         content = str(content, 'utf-8')
 
     dummy_repsonse.set_data(method='POST',
