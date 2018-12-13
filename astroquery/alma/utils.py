@@ -114,18 +114,17 @@ def footprint_to_reg(footprint):
     -28.694332 266.521332 -28.699778'
     Some of them have *additional* polygons
     """
-    if footprint[:7] != 'Polygon':
+    if footprint[:7] != 'Polygon' and footprint[:6] != 'Circle':
         raise ValueError("Unrecognized footprint type")
 
     from pyregion.parser_helper import Shape
 
-    entries = footprint.split()
-    polygons = [ii for ii, xx in enumerate(entries) if xx == 'Polygon']
-
     reglist = []
-    for start, stop in zip(polygons, polygons[1:]+[None]):
-        reg = Shape('polygon', [float(x) for x in entries[start+2:stop]])
-        reg.coord_format = footprint.split()[1].lower()
+
+    entries = footprint.split()
+    if entries[0] == 'Circle':
+        reg = Shape('circle', [float(x) for x in entries[1:]])
+        reg.coord_format = 'icrs'
         reg.coord_list = reg.params  # the coord_list attribute is needed somewhere
         reg.attr = ([], {'color': 'green', 'dash': '0 ', 'dashlist': '8 3',
                          'delete': '1 ', 'edit': '1 ', 'fixed': '0 ', 'font':
@@ -133,6 +132,20 @@ def footprint_to_reg(footprint):
                          'include': '1 ', 'move': '1 ', 'select': '1',
                          'source': '1', 'text': '', 'width': '1 '})
         reglist.append(reg)
+
+    else:
+        polygons = [ii for ii, xx in enumerate(entries) if xx == 'Polygon']
+
+        for start, stop in zip(polygons, polygons[1:]+[None]):
+            reg = Shape('polygon', [float(x) for x in entries[start+1:stop]])
+            reg.coord_format = 'icrs'
+            reg.coord_list = reg.params  # the coord_list attribute is needed somewhere
+            reg.attr = ([], {'color': 'green', 'dash': '0 ', 'dashlist': '8 3',
+                             'delete': '1 ', 'edit': '1 ', 'fixed': '0 ', 'font':
+                             '"helvetica 10 normal roman"', 'highlite': '1 ',
+                             'include': '1 ', 'move': '1 ', 'select': '1',
+                             'source': '1', 'text': '', 'width': '1 '})
+            reglist.append(reg)
 
     return reglist
 
@@ -443,33 +456,37 @@ def make_finder_chart_from_image_and_catalog(image, catalog, save_prefix,
         if save_masks:
             for band in bands:
                 if band in hit_mask_public:
-                    hdu = fits.PrimaryHDU(data=hit_mask_public[band],
-                                          header=image.header)
-                    hdu.writeto('{0}_band{1}_public.fits'.format(save_prefix, band),
-                                clobber=True)
+                    if hit_mask_public[band].any():
+                        hdu = fits.PrimaryHDU(data=hit_mask_public[band],
+                                              header=image.header)
+                        hdu.writeto('{0}_band{1}_public.fits'.format(save_prefix, band),
+                                    clobber=True)
                 if band in hit_mask_private:
-                    hdu = fits.PrimaryHDU(data=hit_mask_private[band],
-                                          header=image.header)
-                    hdu.writeto('{0}_band{1}_private.fits'.format(save_prefix, band),
-                                clobber=True)
+                    if hit_mask_private[band].any():
+                        hdu = fits.PrimaryHDU(data=hit_mask_private[band],
+                                              header=image.header)
+                        hdu.writeto('{0}_band{1}_private.fits'.format(save_prefix, band),
+                                    clobber=True)
 
     fig = aplpy.FITSFigure(fits.HDUList(image), convention='calabretta')
     fig.show_grayscale(stretch='arcsinh', vmid=np.nanmedian(image.data))
     for band in bands:
         if band in hit_mask_public:
-            fig.show_contour(fits.PrimaryHDU(data=hit_mask_public[band],
-                                             header=image.header),
-                             levels=integration_time_contour_levels,
-                             colors=[band_colors_pub[int(band)]] * len(integration_time_contour_levels),
-                             linewidth=linewidth,
-                             convention='calabretta')
+            if hit_mask_public[band].any():
+                fig.show_contour(fits.PrimaryHDU(data=hit_mask_public[band],
+                                                 header=image.header),
+                                 levels=integration_time_contour_levels,
+                                 colors=[band_colors_pub[int(band)]] * len(integration_time_contour_levels),
+                                 linewidth=linewidth,
+                                 convention='calabretta')
         if band in hit_mask_private:
-            fig.show_contour(fits.PrimaryHDU(data=hit_mask_private[band],
-                                             header=image.header),
-                             levels=integration_time_contour_levels,
-                             colors=[band_colors_priv[int(band)]] * len(integration_time_contour_levels),
-                             linewidth=linewidth,
-                             convention='calabretta')
+            if hit_mask_private[band].any():
+                fig.show_contour(fits.PrimaryHDU(data=hit_mask_private[band],
+                                                 header=image.header),
+                                 levels=integration_time_contour_levels,
+                                 colors=[band_colors_priv[int(band)]] * len(integration_time_contour_levels),
+                                 linewidth=linewidth,
+                                 convention='calabretta')
 
     fig.save('{0}_almafinderchart.png'.format(save_prefix))
 
