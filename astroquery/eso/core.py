@@ -616,7 +616,8 @@ class EsoClass(QueryWithLogin):
 
             # trying to detect the failing authentication:
             # - content type should not be html
-            if resp.headers['Content-Type'] == 'text/html;charset=UTF-8':
+            if (resp.headers['Content-Type'] == 'text/html;charset=UTF-8' and
+                    resp.url.startswith('https://www.eso.org/sso/login')):
                 if trials == 1:
                     log.warning("Session expired, trying to re-authenticate")
                     self.login()
