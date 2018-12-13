@@ -43,7 +43,7 @@ can be used to inspect the search result.
 The value of ``'access_url'`` specifies the endpoint for the service.
 
 Documentation of the service may be found in the ``'reference_url'`` values.
-You can use a function from the Python standard library to open the second url
+You can use a function from the Python standard library to open the second URL
 in a web browser.
 
 .. code-block:: python
@@ -68,8 +68,8 @@ The value of the ``keyword`` parameter will return results containg that string
 in the ``ivoid``, ``short_name``, or ``res_description`` fields.
 
 Wavelength range can be specified by a string containing one or more band names.
-The options include gamma-ray (wavelength below 0.1 Angstrom), x-ray
-(0.1 to 100 Angstrom), euv (100-1000 Angstrom), uv (1000 to 3000 Angstrom),
+The options include gamma-ray (wavelength below 0.1 Angstrom), X-ray
+(0.1 to 100 Angstrom), EUV (100-1000 Angstrom), UV (1000 to 3000 Angstrom),
 optical (3000 to 10000 Angstrom), infrared (1 to 100 micron), millimeter (0.1 to
 10 mm), or radio (greater than 10 mm wavelength). Multiple bands can be specified
 with a comma-separated list.
