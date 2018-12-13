@@ -147,7 +147,6 @@ def footprint_to_reg(footprint):
                              'source': '1', 'text': '', 'width': '1 '})
             reglist.append(reg)
 
-
     return reglist
 
 
