@@ -308,11 +308,10 @@ class Job(object):
             print("Job in PENDING phase, sending phase=RUN request.")
             try:
                 self.start(verbose)
-            except:  # noqa: E722
+            except Exception as ex:
                 # ignore
                 if verbose:
-                    print("Exception when trying to start job",
-                          sys.exc_info()[0])
+                    print("Exception when trying to start job", ex)
         while True:
             responseData = self.get_phase(update=True)
             currentResponse = self.__last_phase_response_status
