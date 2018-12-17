@@ -82,7 +82,7 @@ class Job(object):
             job phase
         """
         if self.is_finished():
-            raise ValueError("Cannot assign a pahse when a job is finished")
+            raise ValueError("Cannot assign a phase when a job is finished")
         self._phase = phase
 
     def start(self, verbose=False):
