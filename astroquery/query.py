@@ -340,6 +340,7 @@ class BaseQuery(object):
                         pb.update(bytes_read)
 
         response.close()
+        return response
 
 
 class suspend_cache:

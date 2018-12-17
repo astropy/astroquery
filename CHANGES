@@ -1,6 +1,7 @@
 0.3.10 (unreleased)
 -------------------
 
+- ESO: Try to re-authenticate when logged out from the ESO server. [#1315]
 
 
 
