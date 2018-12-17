@@ -183,7 +183,7 @@ def get_jobid_from_location(location):
 
 
 def get_schema_name(full_qualified_table_name):
-    """Extracts the schema name form a full qualified table name.
+    """Extracts the schema name from a full qualified table name.
 
     Parameters
     ----------
