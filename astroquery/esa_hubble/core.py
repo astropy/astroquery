@@ -290,7 +290,7 @@ class ESAHubbleClass(object):
         if only_names is True:
             table_names = []
             for t in tables:
-                table_names.append(t.get_name())
+                table_names.append(t.name)
             return table_names
         else:
             return tables
@@ -320,8 +320,8 @@ class ESAHubbleClass(object):
                                        verbose=verbose)
         columns = None
         for t in tables:
-            if str(t.get_name()) == str(table_name):
-                columns = t.get_columns()
+            if str(t.name) == str(table_name):
+                columns = t.columns
                 break
 
         if columns is None:
@@ -331,7 +331,7 @@ class ESAHubbleClass(object):
         if only_names is True:
             column_names = []
             for c in columns:
-                column_names.append(c.get_name())
+                column_names.append(c.name)
             return column_names
         else:
             return columns
