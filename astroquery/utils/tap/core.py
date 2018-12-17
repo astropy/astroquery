@@ -85,7 +85,7 @@ class Tap(object):
             HTTPS port
         default_protocol_is_https : bool, optional, default False
             Specifies whether the default protocol to be used is HTTPS
-        connhandler connection handler object, optional, default None
+        connhandler : connection handler object, optional, default None
             HTTP(s) connection hander (creator). If no handler is provided, a
             new one is created.
         verbose : bool, optional, default 'False'
@@ -173,19 +173,16 @@ class Tap(object):
         -------
         A table object
         """
+        if table is None:
+            raise ValueError("Table name is required")
         print("Retrieving table '"+str(table)+"'")
         response = self.__connHandler.execute_tapget("tables?tables=" + table,
                                                      verbose=verbose)
         if verbose:
             print(response.status, response.reason)
-        isError = self.__connHandler.check_launch_response_status(response,
-                                                                  verbose,
-                                                                  200)
-        if isError:
-            errMsg = taputils.get_http_response_error(response)
-            print(response.status, errMsg)
-            raise requests.exceptions.HTTPError(errMsg)
-            return None
+        self.__connHandler.check_launch_response_status(response,
+                                                        verbose,
+                                                        200)
         print("Parsing table '"+str(table)+"'...")
         tsp = TableSaxParser()
         tsp.parseData(response)
@@ -261,11 +258,11 @@ class Tap(object):
             flag to display information about the process
         dump_to_file : bool, optional, default 'False'
             if True, the results are saved in a file instead of using memory
-        upload_resource: str, optional, default None
+        upload_resource : str, optional, default None
             resource to be uploaded to UPLOAD_SCHEMA
-        upload_table_name: str, required if upload_resource is
-            provided, default None
-            resource temporary table name associated to the uploaded resource
+        upload_table_name : str, optional, default None
+            resource temporary table name associated to the uploaded resource.
+            This argument is required if upload_resource is provided.
 
         Returns
         -------
@@ -300,8 +297,8 @@ class Tap(object):
                 response.getheaders(),
                 "location")
             if location is None:
-                raise requests.exceptions.HTTPError("No location found " +
-                                                    "after redirection was " +
+                raise requests.exceptions.HTTPError("No location found "
+                                                    "after redirection was "
                                                     "received (303)")
             if verbose:
                 print("Redirect to %s", location)
@@ -311,7 +308,8 @@ class Tap(object):
         job = Job(async_job=False, query=query, connhandler=self.__connHandler)
         isError = self.__connHandler.check_launch_response_status(response,
                                                                   verbose,
-                                                                  200)
+                                                                  200,
+                                                                  False)
         headers = response.getheaders()
         suitableOutputFile = self.__getSuitableOutputFile(False,
                                                           output_file,
@@ -369,12 +367,12 @@ class Tap(object):
         background : bool, optional, default 'False'
             when the job is executed in asynchronous mode, this flag specifies
             whether the execution will wait until results are available
-        upload_resource: str, optional, default None
+        upload_resource : str, optional, default None
             resource to be uploaded to UPLOAD_SCHEMA
-        upload_table_name: str, required if upload_resource is
-            provided, default None
-            resource temporary table name associated to the uploaded resource
-        autorun: boolean, optional, default True
+        upload_table_name : str, optional, default None
+            resource temporary table name associated to the uploaded resource.
+            This argument is required if upload_resource is provided.
+        autorun : boolean, optional, default True
             if 'True', sets 'phase' parameter to 'RUN',
             so the framework can start the job.
 
@@ -405,7 +403,8 @@ class Tap(object):
                                         autorun)
         isError = self.__connHandler.check_launch_response_status(response,
                                                                   verbose,
-                                                                  303)
+                                                                  303,
+                                                                  False)
         job = Job(async_job=True, query=query, connhandler=self.__connHandler)
         headers = response.getheaders()
         suitableOutputFile = self.__getSuitableOutputFile(True,
@@ -421,10 +420,8 @@ class Tap(object):
             job.failed = True
             job.set_phase('ERROR')
             if dump_to_file:
-                responseBytes = response.read()
-                responseStr = responseBytes.decode('utf-8')
                 self.__connHandler.dump_to_file(suitableOutputFile,
-                                                responseStr)
+                                                response)
             raise requests.exceptions.HTTPError(response.reason)
         else:
             location = self.__connHandler.find_header(
@@ -460,7 +457,7 @@ class Tap(object):
             job name
         verbose : bool, optional, default 'False'
             flag to display information about the process
-        load_results: bool, optional, default 'True'
+        load_results : bool, optional, default 'True'
             load results associated to this job
 
         Returns
@@ -583,9 +580,8 @@ class Tap(object):
             name = 'pytable'
             args['format'] = 'votable'
         else:
-            f = open(uploadResource, "r")
-            chunk = f.read()
-            f.close()
+            with open(uploadResource, "r") as fh:
+                chunk = fh.read()
             name = os.path.basename(uploadResource)
         files = [[uploadTableName, name, chunk]]
         contentType, body = self.__connHandler.encode_multipart(args, files)
@@ -767,7 +763,7 @@ class TapPlus(Tap):
             HTTPS port
         default_protocol_is_https : bool, optional, default False
             Specifies whether the default protocol to be used is HTTPS
-        connhandler connection handler object, optional, default None
+        connhandler : connection handler object, optional, default None
             HTTP(s) connection hander (creator). If no handler is provided, a
             new one is created.
         verbose : bool, optional, default 'True'
@@ -841,14 +837,9 @@ class TapPlus(Tap):
         response = connHandler.execute_datapost(data=data, verbose=verbose)
         if verbose:
             print(response.status, response.reason)
-        isError = connHandler.check_launch_response_status(response,
-                                                           verbose,
-                                                           200)
-        if isError:
-            errMsg = taputils.get_http_response_error(response)
-            print(response.status, errMsg)
-            raise requests.exceptions.HTTPError(errMsg)
-            return None
+        connHandler.check_launch_response_status(response,
+                                                 verbose,
+                                                 200)
         print("Done.")
         if output_file is not None:
             file = open(output_file, "wb")
@@ -884,14 +875,9 @@ class TapPlus(Tap):
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        isError = connHandler.check_launch_response_status(response,
-                                                           verbose,
-                                                           200)
-        if isError:
-            errMsg = taputils.get_http_response_error(response)
-            print(response.status, errMsg)
-            raise requests.exceptions.HTTPError(errMsg)
-            return None
+        connHandler.check_launch_response_status(response,
+                                                 verbose,
+                                                 200)
         print("Parsing groups...")
         gsp = GroupSaxParser()
         gsp.parseData(response)
@@ -906,7 +892,7 @@ class TapPlus(Tap):
 
         Parameters
         ----------
-        group_name: str, required
+        group_name : str, required
             group to be loaded
         verbose : bool, optional, default 'False'
             flag to display information about the process
@@ -943,14 +929,9 @@ class TapPlus(Tap):
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        isError = connHandler.check_launch_response_status(response,
-                                                           verbose,
-                                                           200)
-        if isError:
-            errMsg = taputils.get_http_response_error(response)
-            print(response.status, errMsg)
-            raise requests.exceptions.HTTPError(errMsg)
-            return None
+        connHandler.check_launch_response_status(response,
+                                                 verbose,
+                                                 200)
         print("Parsing shared items...")
         ssp = SharedItemsSaxParser()
         ssp.parseData(response)
@@ -969,11 +950,11 @@ class TapPlus(Tap):
 
         Parameters
         ----------
-        group_name: str, required
+        group_name : str, required
             group in which table will be shared
-        table_name: str, required
+        table_name : str, required
             table to be shared
-        description: str, required
+        description : str, required
             description of the sharing
         verbose : bool, optional, default 'False'
             flag to display information about the process
@@ -1000,14 +981,9 @@ class TapPlus(Tap):
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        isError = connHandler.check_launch_response_status(response,
-                                                           verbose,
-                                                           200)
-        if isError:
-            errMsg = taputils.get_http_response_error(response)
-            print(response.status, errMsg)
-            raise requests.exceptions.HTTPError(errMsg)
-            return None
+        connHandler.check_launch_response_status(response,
+                                                 verbose,
+                                                 200)
         msg = "Shared table '" + str(table_name) + "' to group '" +\
             str(group_name) + "'."
         print(msg)
@@ -1018,9 +994,9 @@ class TapPlus(Tap):
 
         Parameters
         ----------
-        group_name: str, required
+        group_name : str, required
             group where the table is shared to
-        table_name: str, required
+        table_name : str, required
             table to be stopped from being shared
         verbose : bool, optional, default 'False'
             flag to display information about the process
@@ -1054,14 +1030,9 @@ class TapPlus(Tap):
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        isError = connHandler.check_launch_response_status(response,
-                                                           verbose,
-                                                           200)
-        if isError:
-            errMsg = taputils.get_http_response_error(response)
-            print(response.status, errMsg)
-            raise requests.exceptions.HTTPError(errMsg)
-            return None
+        connHandler.check_launch_response_status(response,
+                                                 verbose,
+                                                 200)
         msg = "Stop sharing table '" + str(table_name) + "' to group '" + \
             str(group_name) + "'."
         print(msg)
@@ -1072,9 +1043,9 @@ class TapPlus(Tap):
 
         Parameters
         ----------
-        group_name: str, required
+        group_name : str, required
             group to be created
-        description: str, required
+        description : str, required
             description of the group
         verbose : bool, optional, default 'False'
             flag to display information about the process
@@ -1095,14 +1066,9 @@ class TapPlus(Tap):
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        isError = connHandler.check_launch_response_status(response,
-                                                           verbose,
-                                                           200)
-        if isError:
-            errMsg = taputils.get_http_response_error(response)
-            print(response.status, errMsg)
-            raise requests.exceptions.HTTPError(errMsg)
-            return None
+        connHandler.check_launch_response_status(response,
+                                                 verbose,
+                                                 200)
         msg = "Created group '"+str(group_name)+"'."
         print(msg)
 
@@ -1113,7 +1079,7 @@ class TapPlus(Tap):
 
         Parameters
         ----------
-        group_name: str, required
+        group_name : str, required
             group to be created
         verbose : bool, optional, default 'False'
             flag to display information about the process
@@ -1130,14 +1096,9 @@ class TapPlus(Tap):
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        isError = connHandler.check_launch_response_status(response,
-                                                           verbose,
-                                                           200)
-        if isError:
-            errMsg = taputils.get_http_response_error(response)
-            print(response.status, errMsg)
-            raise requests.exceptions.HTTPError(errMsg)
-            return None
+        connHandler.check_launch_response_status(response,
+                                                 verbose,
+                                                 200)
         msg = "Deleted group '"+str(group_name)+"'."
         print(msg)
 
@@ -1149,9 +1110,9 @@ class TapPlus(Tap):
 
         Parameters
         ----------
-        group_name: str, required
+        group_name : str, required
             group which user_id will be added in
-        user_id: str, required
+        user_id : str, required
             user id to be added
         verbose : bool, optional, default 'False'
             flag to display information about the process
@@ -1186,14 +1147,9 @@ class TapPlus(Tap):
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        isError = connHandler.check_launch_response_status(response,
-                                                           verbose,
-                                                           200)
-        if isError:
-            errMsg = taputils.get_http_response_error(response)
-            print(response.status, errMsg)
-            raise requests.exceptions.HTTPError(errMsg)
-            return None
+        connHandler.check_launch_response_status(response,
+                                                 verbose,
+                                                 200)
         msg = "Added user '"+str(user_id)+"' from group '"+str(group_name)+"'."
         print(msg)
 
@@ -1205,9 +1161,9 @@ class TapPlus(Tap):
 
         Parameters
         ----------
-        group_name: str, required
+        group_name : str, required
             group which user_id will be removed from
-        user_id: str, required
+        user_id : str, required
             user id to be deleted
         verbose : bool, optional, default 'False'
             flag to display information about the process
@@ -1244,14 +1200,9 @@ class TapPlus(Tap):
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        isError = connHandler.check_launch_response_status(response,
-                                                           verbose,
-                                                           200)
-        if isError:
-            errMsg = taputils.get_http_response_error(response)
-            print(response.status, errMsg)
-            raise requests.exceptions.HTTPError(errMsg)
-            return None
+        connHandler.check_launch_response_status(response,
+                                                 verbose,
+                                                 200)
         msg = "Deleted user '" + str(user_id) + "' from group '" +\
             str(group_name) + "'."
         print(msg)
@@ -1279,14 +1230,9 @@ class TapPlus(Tap):
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        isError = connHandler.check_launch_response_status(response,
-                                                           verbose,
-                                                           200)
-        if isError:
-            errMsg = taputils.get_http_response_error(response)
-            print(response.status, errMsg)
-            raise requests.exceptions.HTTPError(errMsg)
-            return None
+        connHandler.check_launch_response_status(response,
+                                                 verbose,
+                                                 200)
         responseBytes = response.read()
         user = responseBytes.decode('utf-8')
         if verbose:
@@ -1325,14 +1271,9 @@ class TapPlus(Tap):
                                                     verbose=verbose)
         if verbose:
             print(response.status, response.reason)
-        isError = connHandler.check_launch_response_status(response,
-                                                           verbose,
-                                                           200)
-        if isError:
-            errMsg = taputils.get_http_response_error(response)
-            print(response.status, errMsg)
-            raise requests.exceptions.HTTPError(errMsg)
-            return None
+        connHandler.check_launch_response_status(response,
+                                                 verbose,
+                                                 200)
         print("Done.")
         results = utils.read_http_response(response, "votable")
         return results
@@ -1362,14 +1303,9 @@ class TapPlus(Tap):
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        isError = connHandler.check_launch_response_status(response,
-                                                           verbose,
-                                                           200)
-        if isError:
-            errMsg = taputils.get_http_response_error(response)
-            print(response.status, errMsg)
-            raise requests.exceptions.HTTPError(errMsg)
-            return None
+        connHandler.check_launch_response_status(response,
+                                                 verbose,
+                                                 200)
         # parse jobs
         jsp = JobSaxParser(async_job=True)
         jobs = jsp.parseData(response)
@@ -1409,13 +1345,9 @@ class TapPlus(Tap):
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        isError = connHandler.check_launch_response_status(response,
-                                                           verbose,
-                                                           200)
-        if isError:
-            errMsg = taputils.get_http_response_error(response)
-            print(response.status, errMsg)
-            raise requests.exceptions.HTTPError(errMsg)
+        connHandler.check_launch_response_status(response,
+                                                 verbose,
+                                                 200)
         msg = "Removed jobs: '"+str(jobs_list)+"'."
         print(msg)
 
@@ -1483,19 +1415,14 @@ class TapPlus(Tap):
         response = self.__execLogin(self.__user, self.__pwd, verbose)
         # check response
         connHandler = self.__getconnhandler()
-        isError = connHandler.check_launch_response_status(response,
-                                                           verbose,
-                                                           200)
-        if isError:
-            errMsg = taputils.get_http_response_error(response)
-            print(response.status, errMsg)
-            raise requests.exceptions.HTTPError(errMsg)
-        else:
-            # extract cookie
-            cookie = self._Tap__findCookieInHeader(response.getheaders())
-            if cookie is not None:
-                self.__isLoggedIn = True
-                connHandler.set_cookie(cookie)
+        connHandler.check_launch_response_status(response,
+                                                 verbose,
+                                                 200)
+        # extract cookie
+        cookie = self._Tap__findCookieInHeader(response.getheaders())
+        if cookie is not None:
+            self.__isLoggedIn = True
+            connHandler.set_cookie(cookie)
         print("OK: user logged in.")
 
     def logout(self, verbose=False):
@@ -1538,9 +1465,9 @@ class TapPlus(Tap):
         ----------
         upload_resource : object, mandatory
             table to be uploaded: pyTable, file or URL.
-        table_name: str, required if uploadResource is provided, default None
+        table_name : str, required if uploadResource is provided, default None
             resource temporary table name associated to the uploaded resource
-        table_description: str, optional, default None
+        table_description : str, optional, default None
             table description
         format : str, optional, default 'VOTable'
             resource format
@@ -1611,9 +1538,8 @@ class TapPlus(Tap):
                     "TABLE_DESC": str(table_description),
                     "FORMAT": str(resource_format)}
                 print("Sending file: " + str(resource))
-                f = open(resource, "r")
-                chunk = f.read()
-                f.close()
+                with open(resource, "r") as f:
+                    chunk = f.read()
                 files = [['FILE', os.path.basename(resource), chunk]]
                 contentType, body = connHandler.encode_multipart(args, files)
             else:    # upload from URL
@@ -1630,14 +1556,9 @@ class TapPlus(Tap):
             print(response.status, response.reason)
             print(response.getheaders())
         if response.status != 303 and response.status != 302:
-            isError = connHandler.check_launch_response_status(response,
-                                                               verbose,
-                                                               200)
-            if isError:
-                errMsg = taputils.get_http_response_error(response)
-                print(response.status, errMsg)
-                raise requests.exceptions.HTTPError(errMsg)
-                return None
+            connHandler.check_launch_response_status(response,
+                                                     verbose,
+                                                     200)
         return response
 
     def upload_table_from_job(self, job=None, table_name=None,
@@ -1649,11 +1570,11 @@ class TapPlus(Tap):
         job: job, mandatory
             job used to create a table. Could be a string with the jobid or
             a job itself
-        table_name: str, default 't'+jobid
+        table_name : str, default 't'+jobid
             resource temporary table name associated to the uploaded resource
-        table_description: str, optional, default None
+        table_description : str, optional, default None
             table description
-        verbose: bool, optional, default 'False'
+        verbose : bool, optional, default 'False'
             flag to display information about the process
         """
         if job is None:
@@ -1696,14 +1617,9 @@ class TapPlus(Tap):
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        isError = connHandler.check_launch_response_status(response,
-                                                           verbose,
-                                                           200)
-        if isError:
-            errMsg = taputils.get_http_response_error(response)
-            print(response.status, errMsg)
-            raise requests.exceptions.HTTPError(errMsg)
-            return None
+        connHandler.check_launch_response_status(response,
+                                                 verbose,
+                                                 200)
         return response
 
     def delete_user_table(self, table_name=None, force_removal=False,
@@ -1712,7 +1628,7 @@ class TapPlus(Tap):
 
         Parameters
         ----------
-        table_name: str, required
+        table_name : str, required
             table to be removed
         force_removal : bool, optional, default 'False'
             flag to indicate if removal should be forced
@@ -1737,14 +1653,9 @@ class TapPlus(Tap):
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        isError = connHandler.check_launch_response_status(response,
-                                                           verbose,
-                                                           200)
-        if isError:
-            errMsg = taputils.get_http_response_error(response)
-            print(response.status, errMsg)
-            raise requests.exceptions.HTTPError(errMsg)
-            return None
+        connHandler.check_launch_response_status(response,
+                                                 verbose,
+                                                 200)
         msg = "Table '"+str(table_name)+"' deleted."
         print(msg)
 
@@ -1754,9 +1665,9 @@ class TapPlus(Tap):
 
         Parameters
         ----------
-        table_name: str, required
+        table_name : str, required
             table to be updated
-        list_of_changes: list, required
+        list_of_changes : list, required
             list of lists, each one of them containing sets of
             [column_name, field_name, value].
             column_name is the name of the column to be updated
@@ -1911,14 +1822,9 @@ class TapPlus(Tap):
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        isError = connHandler.check_launch_response_status(response,
-                                                           verbose,
-                                                           200)
-        if isError:
-            errMsg = taputils.get_http_response_error(response)
-            print(response.status, errMsg)
-            raise requests.exceptions.HTTPError(errMsg)
-            return None
+        connHandler.check_launch_response_status(response,
+                                                 verbose,
+                                                 200)
         msg = "Table '"+str(table_name)+"' updated."
         print(msg)
 
@@ -1929,11 +1835,11 @@ class TapPlus(Tap):
 
         Parameters
         ----------
-        table_name: str, required
+        table_name : str, required
             table to be set
-        ra_column_name: str, required
+        ra_column_name : str, required
             ra column to be set
-        dec_column_name: str, required
+        dec_column_name : str, required
             dec column to be set
         verbose : bool, optional, default 'False'
             flag to display information about the process

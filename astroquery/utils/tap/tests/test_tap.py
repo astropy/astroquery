@@ -145,6 +145,11 @@ class TestTap(unittest.TestCase):
     def test_load_table(self):
         connHandler = DummyConnHandler()
         tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
+
+        # No arguments
+        with pytest.raises(Exception):
+            tap.load_table()
+
         responseLoadTable = DummyResponse()
         responseLoadTable.set_status_code(500)
         responseLoadTable.set_message("ERROR")

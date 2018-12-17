@@ -18,6 +18,8 @@ from astroquery.utils.tap import taputils
 
 from six.moves.urllib.parse import urlencode
 
+import requests
+
 
 class DummyConnHandler(object):
 
@@ -133,14 +135,20 @@ class DummyConnHandler(object):
         return taputils.taputil_create_sorted_dict_key(dictTmp)
 
     def check_launch_response_status(self, response, debug,
-                                     expected_response_status):
+                                     expected_response_status,
+                                     raise_exception=True):
         isError = False
         if response.status != expected_response_status:
             if debug:
                 print("ERROR: " + str(response.status) + ": " +
                       str(response.reason))
             isError = True
-        return isError
+        if isError and raise_exception:
+            errMsg = taputils.get_http_response_error(response)
+            print(response.status, errMsg)
+            raise requests.exceptions.HTTPError(errMsg)
+        else:
+            return isError
 
     def url_encode(self, data):
         return urlencode(data)
