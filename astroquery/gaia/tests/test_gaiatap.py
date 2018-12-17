@@ -790,12 +790,9 @@ class TestTap(unittest.TestCase):
                                     headers=None)
         req = "async/" + jobid + "/results/result"
         connHandler.set_response(req, responseResultsJob)
-        query = "SELECT crossmatch_positional(\
-            'schemaA','tableA',\
-            'schemaB','tableB',\
-            1.0,\
-            'results')\
-            FROM dual;"
+        query = ("SELECT crossmatch_positional(",
+                "'schemaA','tableA','schemaB','tableB',1.0,'results')",
+                "FROM dual;")
         dTmp = {"q": query}
         dTmpEncoded = connHandler.url_encode(dTmp)
         p = dTmpEncoded.find("=")
