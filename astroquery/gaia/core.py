@@ -199,8 +199,7 @@ class GaiaClass(TapPlus):
         ----------
         coordinate : astropy.coordinates, mandatory
             coordinates center point
-        radius : astropy.units, required if no 'width' nor 'height' are
-        provided
+        radius : astropy.units, required if no 'width'/'height' are provided
             radius (deg)
         width : astropy.units, required if no 'radius' is provided
             box width
@@ -225,8 +224,7 @@ class GaiaClass(TapPlus):
         ----------
         coordinate : astropy.coordinates, mandatory
             coordinates center point
-        radius : astropy.units, required if no 'width' nor 'height' are
-        provided
+        radius : astropy.units, required if no 'width'/'height' are provided
             radius
         width : astropy.units, required if no 'radius' is provided
             box width
@@ -261,11 +259,11 @@ class GaiaClass(TapPlus):
             coordinates center point
         radius : astropy.units, mandatory
             radius
-        table_name: str, optional, default main gaia table
+        table_name : str, optional, default main gaia table
             table name doing the cone search against
-        ra_column_name: str, optional, default ra column in main gaia table
+        ra_column_name : str, optional, default ra column in main gaia table
             ra column doing the cone search against
-        dec_column_name: str, optional, default dec column in main gaia table
+        dec_column_name : str, optional, default dec column in main gaia table
             dec column doing the cone search against
         async_job : bool, optional, default 'False'
             executes the job in asynchronous/synchronous mode (default
@@ -330,11 +328,11 @@ class GaiaClass(TapPlus):
             coordinates center point
         radius : astropy.units, mandatory
             radius
-        table_name: str, optional, default main gaia table
+        table_name : str, optional, default main gaia table
             table name doing the cone search against
-        ra_column_name: str, optional, default ra column in main gaia table
+        ra_column_name : str, optional, default ra column in main gaia table
             ra column doing the cone search against
-        dec_column_name: str, optional, default dec column in main gaia table
+        dec_column_name : str, optional, default dec column in main gaia table
             dec column doing the cone search against
         output_file : str, optional, default None
             file name where the results are saved if dumpToFile is True.
@@ -378,11 +376,11 @@ class GaiaClass(TapPlus):
             coordinates center point
         radius : astropy.units, mandatory
             radius
-        table_name: str, optional, default main gaia table
+        table_name : str, optional, default main gaia table
             table name doing the cone search against
-        ra_column_name: str, optional, default ra column in main gaia table
+        ra_column_name : str, optional, default ra column in main gaia table
             ra column doing the cone search against
-        dec_column_name: str, optional, default dec column in main gaia table
+        dec_column_name : str, optional, default dec column in main gaia table
             dec column doing the cone search against
         background : bool, optional, default 'False'
             when the job is executed in asynchronous mode, this flag
