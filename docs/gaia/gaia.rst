@@ -610,6 +610,7 @@ Your uploaded table can be referenced as 'user_joe.table_name'
 
   >>> from astroquery.gaia import Gaia
   >>> Gaia.login()
+  >>> # Provide a URL pointing to valid VOTable resource
   >>> url = "http://tapvizier.u-strasbg.fr/TAPVizieR/tap/sync/?REQUEST=doQuery&lang=ADQL&FORMAT=votable&QUERY=select+*+from+TAP_SCHEMA.columns+where+table_name='II/336/apass9'"
   >>> job = Gaia.upload_table(upload_resource=url, table_name="table_test_from_url", table_description="Some description")
 
