@@ -124,13 +124,13 @@ class Job(object):
                 if response.status != 200 and response.status != 303:
                     errMsg = taputils.get_http_response_error(response)
                     print(response.status, errMsg)
-                    raise Exception(errMsg)
+                    raise requests.exceptions.HTTPError(errMsg)
             else:
                 if response.status != 200:
                     errMsg = taputils.get_http_response_error(response)
                     print(response.status, errMsg)
-                    raise Exception(errMsg)
-            self.__phase = phase
+                    raise requests.exceptions.HTTPError(errMsg)
+            self._phase = phase
             return response
         else:
             raise ValueError("Cannot start a job in phase: " +
@@ -162,7 +162,7 @@ class Job(object):
             if response.status != 200:
                 errMsg = taputils.get_http_response_error(response)
                 print(response.status, errMsg)
-                raise Exception(errMsg)
+                raise requests.exceptions.HTTPError(errMsg)
             return response
         else:
             raise ValueError("Cannot start a job in phase: " +
@@ -189,7 +189,7 @@ class Job(object):
             if response.status != 200:
                 errMsg = taputils.get_http_response_error(response)
                 print(response.status, errMsg)
-                raise Exception(errMsg)
+                raise requests.exceptions.HTTPError(errMsg)
 
             self._phase = str(response.read().decode('utf-8'))
         return self._phase
@@ -345,12 +345,12 @@ class Job(object):
         self._phase = phase
         if phase == 'ERROR':
             errMsg = self.get_error(debug)
-            raise Exception(errMsg)
+            raise SystemError(errMsg)
         else:
             if isError:
                 errMsg = taputils.get_http_response_error(resultsResponse)
                 print(resultsResponse.status, errMsg)
-                raise Exception(errMsg)
+                raise requests.exceptions.HTTPError(errMsg)
             else:
                 outputFormat = self.parameters['format']
                 results = utils.read_http_response(resultsResponse,
@@ -397,7 +397,7 @@ class Job(object):
                 resultsResponse.status != 302):
             errMsg = taputils.get_http_response_error(resultsResponse)
             print(resultsResponse.status, errMsg)
-            raise Exception(errMsg)
+            raise requests.exceptions.HTTPError(errMsg)
         else:
             if resultsResponse.status == 303 or resultsResponse.status == 302:
                 # get location
@@ -423,7 +423,7 @@ class Job(object):
                 if isError:
                     errMsg = taputils.get_http_response_error(resultsResponse)
                     print(resultsResponse.status, errMsg)
-                    raise Exception(errMsg)
+                    raise requests.exceptions.HTTPError(errMsg)
             else:
                 response = resultsResponse
             errMsg = taputils.get_http_response_error(response)
