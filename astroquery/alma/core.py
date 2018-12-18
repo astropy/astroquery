@@ -885,7 +885,7 @@ class AlmaClass(QueryWithLogin):
             # allowed
             self._valid_params.append('download')
             self._valid_params.append('format')
-            self._valid_params.append('member_ouss_id')
+            self._valid_params.append('member_ous_id')
         invalid_params = [k for k in payload if k not in self._valid_params]
         if len(invalid_params) > 0:
             raise InvalidQueryError("The following parameters are not accepted"
