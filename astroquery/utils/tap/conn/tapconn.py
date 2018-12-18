@@ -29,6 +29,7 @@ from six.moves.urllib.parse import urlencode
 from astroquery.utils.tap.xmlparser import utils
 from astroquery.utils.tap import taputils
 
+import requests
 
 __all__ = ['TapConn']
 
@@ -598,7 +599,8 @@ class TapConn(object):
             + str(self.__get_tap_context(""))
 
     def check_launch_response_status(self, response, debug,
-                                     expected_response_status):
+                                     expected_response_status,
+                                     raise_exception=True):
         """Checks the response status code
         Returns True if the response status code is the
         expected_response_status argument
@@ -611,6 +613,9 @@ class TapConn(object):
             flag to display information about the process
         expected_response_status : int, mandatory
             expected response status code
+        raise_exception : boolean, optional, default True
+            if 'True' and the response status is not the
+            expected one, an exception is raised.
 
         Returns
         -------
@@ -623,7 +628,12 @@ class TapConn(object):
                 print("ERROR: " + str(response.status) + ": " +
                       str(response.reason))
             isError = True
-        return isError
+        if isError and raise_exception:
+            errMsg = taputils.get_http_response_error(response)
+            print(response.status, errMsg)
+            raise requests.exceptions.HTTPError(errMsg)
+        else:
+            return isError
 
     def __get_connection(self, verbose=False):
         return self.__connectionHandler.get_connection(self.__isHttps,
