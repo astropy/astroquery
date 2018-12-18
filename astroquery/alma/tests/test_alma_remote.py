@@ -176,7 +176,7 @@ class TestAlma:
         assert len(result) == 162
 
         result = alma.query(payload={'member_ous_id': 'uid://A001/X11a2/X11'},
-                            public=False, science=True)
+                            science=True)
         assert len(result) == 1
 
     # As of April 2017, these data are *MISSING FROM THE ARCHIVE*.
