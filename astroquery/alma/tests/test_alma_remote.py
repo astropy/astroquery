@@ -175,6 +175,10 @@ class TestAlma:
         # May 9, 2018: 162
         assert len(result) == 162
 
+        result = alma.query(payload={'member_ous_id': 'uid://A001/X11a2/X11'},
+                            science=True)
+        assert len(result) == 1
+
     # As of April 2017, these data are *MISSING FROM THE ARCHIVE*.
     # This has been reported, as it is definitely a bug.
     @pytest.mark.xfail
