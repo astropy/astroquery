@@ -117,6 +117,7 @@ class RegistryClass(BaseQuery):
         field : str, required
             One of 'service_type', 'waveband' or 'publisher'
         minimum : int, optional, default is 1
+            Include only those results with at least this many counts.
         url : str, optional, default points to the STScI Registry TAP service
             Base URL for the desired TAP service.
         output_file : str, optional, default is to use the TAP job ID

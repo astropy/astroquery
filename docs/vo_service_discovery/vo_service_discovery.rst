@@ -67,12 +67,12 @@ values may be shortened to ``'cone'``, ``'image'``, ``'spectra'`` or
 The value of the ``keyword`` parameter will return results containg that string
 in the ``ivoid``, ``short_name``, or ``res_description`` fields.
 
-Wavelength range can be specified by a string containing one or more band names.
-The options include gamma-ray (wavelength below 0.1 Angstrom), X-ray
-(0.1 to 100 Angstrom), EUV (100-1000 Angstrom), UV (1000 to 3000 Angstrom),
-optical (3000 to 10000 Angstrom), infrared (1 to 100 micron), millimeter (0.1 to
-10 mm), or radio (greater than 10 mm wavelength). Multiple bands can be specified
-with a comma-separated list.
+The ``waveband`` parameter can be used to limit results to those services with 
+data in a particular wavelength range (or multiple ranges when specified as a 
+comma-separated list).  The options include ``'gamma-ray'`` (wavelength 
+below 0.1 Angstrom), ``'X-ray'`` (0.1 to 100 Angstrom), ``'EUV'`` (100-1000 Angstrom), 
+``'UV'`` (1000 to 3000 Angstrom), ``'optical'`` (3000 to 10000 Angstrom), ``'infrared'`` 
+(1 to 100 micron), ``'millimeter'`` (0.1 to 10 mm), or ``'radio'`` (greater than 10 mm).
 
 The ``source`` parameter is a string that is matched to any substring in ivoid.
 
