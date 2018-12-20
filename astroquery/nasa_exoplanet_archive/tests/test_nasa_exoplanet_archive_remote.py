@@ -90,7 +90,7 @@ def test_exoplanet_archive_query_plant_all_columns():
     # Same test as above but get all the columns
     params = NasaExoplanetArchive.query_planet('HD 209458 b ', cache=False, all_columns=True)
 
-    # Check some planets are in the table
+    # Check non-default column in table
     assert 'pl_tranflag' in params.columns
 
 
