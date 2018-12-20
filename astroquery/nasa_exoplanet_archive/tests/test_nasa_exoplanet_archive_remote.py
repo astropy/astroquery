@@ -81,6 +81,18 @@ def test_hd209458b_exoplanet_archive():
     assert not params['pl_kepflag']
     assert not params['pl_ttvflag']
 
+    # Default columns don't include planet columns
+    assert 'pl_tranflag' not in params.columns
+
+
+@remote_data
+def test_exoplanet_archive_query_plant_all_columns():
+    # Same test as above but get all the columns
+    params = NasaExoplanetArchive.query_planet('HD 209458 b ', cache=False, all_columns=True)
+
+    # Check some planets are in the table
+    assert 'pl_tranflag' in params.columns
+
 
 @pytest.mark.skipif('APY_LT12')
 def test_hd209458b_exoplanets_archive_apy_lt12():
