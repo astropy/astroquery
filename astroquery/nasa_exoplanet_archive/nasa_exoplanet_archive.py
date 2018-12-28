@@ -123,7 +123,8 @@ class NasaExoplanetArchiveClass(object):
             Table of one exoplanet's properties.
         """
 
-        exoplanet_table = self.get_confirmed_planets_table(table_path=table_path)
+        exoplanet_table = self.get_confirmed_planets_table(table_path=table_path,
+                                                           all_columns=all_columns)
         return exoplanet_table.loc[planet_name.strip().lower().replace(' ', '')]
 
 
