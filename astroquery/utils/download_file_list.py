@@ -4,7 +4,7 @@ import string
 import os
 import gzip
 
-from astropy.extern.six import StringIO
+from six import StringIO
 import astropy.io.fits as fits
 from .commons import get_readable_fileobj
 

@@ -5,7 +5,7 @@ import socket
 import numpy as np
 from numpy.testing import assert_allclose
 
-from astropy.extern import six
+import six
 from astropy.io import fits
 from astropy.table import Column, Table
 import pytest

@@ -10,8 +10,8 @@ Common utilities for accessing VO simple services.
 """
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
-from astropy.extern import six
-from astropy.extern.six.moves import urllib
+import six
+from six.moves import urllib
 
 import fnmatch
 import json

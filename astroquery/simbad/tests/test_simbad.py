@@ -2,7 +2,7 @@
 import os
 import re
 
-from astropy.extern import six
+import six
 import pytest
 import astropy.units as u
 from astropy.table import Table

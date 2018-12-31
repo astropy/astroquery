@@ -8,7 +8,7 @@ import pytest
 from astropy.tests.helper import remote_data
 from astropy import coordinates
 from astropy import units as u
-from astropy.extern.six.moves.urllib_parse import urlparse
+from six.moves.urllib_parse import urlparse
 
 from .. import Alma
 

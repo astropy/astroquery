@@ -1,6 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 try:
-    from astropy.extern.six.moves.urllib_parse import SplitResult, urlsplit
+    from six.moves.urllib_parse import SplitResult, urlsplit
 except ImportError:
     from six.moves.urllib_parse import SplitResult, urlsplit
 import os.path
@@ -17,7 +17,7 @@ def urljoin_keep_path(url, path):
     --------
     >>> urljoin_keep_path('http://example.com/foo', 'bar')
     'http://example.com/foo/bar'
-    >>> from astropy.extern.six.moves.urllib import parse as urlparse
+    >>> from six.moves.urllib import parse as urlparse
     >>> urlparse.urljoin('http://example.com/foo', 'bar')
     'http://example.com/bar'
 

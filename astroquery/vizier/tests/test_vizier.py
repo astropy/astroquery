@@ -5,8 +5,8 @@ from numpy import testing as npt
 import pytest
 from astropy.table import Table
 import astropy.units as u
-from astropy.extern import six
-from astropy.extern.six.moves import urllib_parse as urlparse
+import six
+from six.moves import urllib_parse as urlparse
 from ... import vizier
 from ...utils import commons
 from ...utils.testing_tools import MockResponse

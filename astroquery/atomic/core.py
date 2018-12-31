@@ -1,9 +1,9 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-from astropy.extern.six.moves.urllib import parse as urlparse
-from astropy.extern.six.moves import map, zip
-from astropy.extern.six import StringIO
-from astropy.extern import six
+from six.moves.urllib import parse as urlparse
+from six.moves import map, zip
+from six import StringIO
+import six
 
 from collections import defaultdict
 

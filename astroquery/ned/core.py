@@ -6,7 +6,7 @@ from collections import namedtuple
 from xml.dom.minidom import parseString
 from datetime import datetime
 
-from astropy.extern import six
+import six
 import astropy.units as u
 import astropy.coordinates as coord
 import astropy.io.votable as votable

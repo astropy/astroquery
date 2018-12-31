@@ -11,8 +11,8 @@ import numpy as np
 import re
 from bs4 import BeautifulSoup
 
-from astropy.extern.six import BytesIO
-from astropy.extern import six
+from six import BytesIO
+import six
 from astropy.table import Table, Column
 from astropy import log
 

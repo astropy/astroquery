@@ -30,8 +30,8 @@ import astropy.coordinates as coord
 from astropy.utils import deprecated
 
 from astropy.table import Table, Row, vstack, MaskedColumn
-from astropy.extern.six.moves.urllib.parse import quote as urlencode
-from astropy.extern.six.moves.http_cookiejar import Cookie
+from six.moves.urllib.parse import quote as urlencode
+from six.moves.http_cookiejar import Cookie
 from astropy.utils.console import ProgressBarOrSpinner
 from astropy.utils.exceptions import AstropyWarning
 from astropy.logger import log
