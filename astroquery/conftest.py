@@ -9,12 +9,6 @@ from astropy.tests.pytest_plugins import (PYTEST_HEADER_MODULES,
                                           enable_deprecations_as_exceptions,
                                           TESTED_VERSIONS)
 
-try:
-    packagename = os.path.basename(os.path.dirname(__file__))
-    TESTED_VERSIONS[packagename] = version.version
-except NameError:
-    pass
-
 # Add astropy to test header information and remove unused packages.
 # Pytest header customisation was introduced in astropy 1.0.
 
@@ -44,8 +38,9 @@ version.version += '_testrun'
 
 # This is to figure out the affiliated package version, rather than
 # using Astropy's
-from .version import version
+from .version import version, astropy_helpers_version
 
 
 packagename = os.path.basename(os.path.dirname(__file__))
 TESTED_VERSIONS[packagename] = version
+TESTED_VERSIONS['astropy_helpers'] = astropy_helpers_version
