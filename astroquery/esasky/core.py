@@ -6,7 +6,7 @@ import tempfile
 import tarfile
 import sys
 
-from astropy.extern import six
+import six
 from astropy.io import fits
 from astropy import log
 import astropy.units

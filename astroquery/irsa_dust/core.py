@@ -2,7 +2,7 @@
 from astropy.table import Table, Column
 import astropy.units as u
 from astropy import coordinates
-from astropy.extern import six
+import six
 from . import utils
 from . import conf
 from ..utils import commons

@@ -1,6 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
-from astropy.extern.six import BytesIO
+from six import BytesIO
 from astropy.table import Table
 from astropy.io import fits
 from astropy import coordinates

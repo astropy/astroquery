@@ -1,6 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-from astropy.extern import six
+import six
 from astropy.io import ascii
 from astropy.units import arcsec
 from astropy.table import Table

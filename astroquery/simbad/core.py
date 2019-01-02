@@ -14,7 +14,7 @@ from astropy.utils.data import get_pkg_data_filename
 import astropy.coordinates as coord
 from astropy.table import Table
 import astropy.io.votable as votable
-from astropy.extern.six import BytesIO
+from six import BytesIO
 from ..query import BaseQuery
 from ..utils import commons
 from ..exceptions import TableParseError, LargeQueryWarning

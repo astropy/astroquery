@@ -1,9 +1,9 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
-from astropy.extern import six
-from astropy.extern.six import BytesIO
-from astropy.extern.six.moves import urllib
+import six
+from six import BytesIO
+from six.moves import urllib
 
 from numbers import Number
 

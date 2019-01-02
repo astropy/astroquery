@@ -9,7 +9,7 @@ import requests
 from bs4 import BeautifulSoup
 from io import StringIO
 
-from astropy.extern.six import BytesIO
+from six import BytesIO
 import astropy.units as u
 import astropy.coordinates as coord
 import astropy.io.votable as votable

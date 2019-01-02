@@ -74,6 +74,7 @@ The following packages are required for astroquery installation & use:
 * `keyring <https://pypi.python.org/pypi/keyring>`_
 * `Beautiful Soup <https://www.crummy.com/software/BeautifulSoup/>`_
 * `html5lib <https://pypi.python.org/pypi/html5lib>`_
+* `six <http://pypi.python.org/pypi/six/>`_
 
 and for running the tests:
 

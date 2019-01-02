@@ -103,7 +103,7 @@ from __future__ import print_function, division
 import warnings
 import xml.etree.ElementTree as tree
 
-from astropy.extern import six
+import six
 import astropy.units as u
 import astropy.coordinates as coord
 import astropy.io.votable as votable

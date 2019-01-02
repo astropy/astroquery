@@ -4,7 +4,7 @@ import os
 from contextlib import contextmanager
 import pytest
 from astropy.io.ascii.tests.common import assert_equal
-from astropy.extern.six import string_types
+from six import string_types
 from ... import besancon
 from ...utils import commons
 from ...utils.testing_tools import MockResponse

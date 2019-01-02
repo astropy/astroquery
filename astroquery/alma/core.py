@@ -13,9 +13,9 @@ import sys
 from pkg_resources import resource_filename
 from bs4 import BeautifulSoup
 
-from astropy.extern.six.moves.urllib_parse import urljoin, urlparse
-from astropy.extern.six import iteritems, StringIO
-from astropy.extern import six
+from six.moves.urllib_parse import urljoin, urlparse
+from six import iteritems, StringIO
+import six
 from astropy.table import Table, Column
 from astropy import log
 from astropy.utils.console import ProgressBar

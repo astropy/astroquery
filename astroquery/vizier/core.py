@@ -7,8 +7,8 @@ import json
 import copy
 import re
 
-from astropy.extern import six
-from astropy.extern.six import BytesIO
+import six
+from six import BytesIO
 import astropy.units as u
 import astropy.coordinates as coord
 import astropy.table as tbl

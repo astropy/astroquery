@@ -11,7 +11,7 @@ import io
 import os
 import requests
 
-from astropy.extern import six
+import six
 from astropy.config import paths
 from astropy.logger import log
 import astropy.units as u

@@ -24,7 +24,7 @@ except ImportError:
     # python 2
     import httplib
 
-from astropy.extern.six.moves.urllib.parse import urlencode
+from six.moves.urllib.parse import urlencode
 
 
 import mimetypes
