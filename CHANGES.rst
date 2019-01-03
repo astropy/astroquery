@@ -1189,6 +1189,11 @@ noirlab
 - Module added to access the NOIRLab (formally NOAO) archive. [#1638]
 
 
+higal
+^^^^^
+
+- Herschel Hi-Gal catalog & cutout service [#1324]
+
 Service fixes and enhancements
 ------------------------------
 
