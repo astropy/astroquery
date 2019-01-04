@@ -243,16 +243,15 @@ class HiGalClass(BaseQuery):
         json_data = dataline.split('fitsHeaders = JSON.parse(\'')[1].strip('\');')
 
         jdict = json.loads(json_data)
-        filename = jdict['4048']['FILENAME']
-
-        assert self._session_id in filename
+        filenames = {wlname: jdict[str(wlnum)]['FILENAME']
+                     for wlname, wlnum in self.HIGAL_CATALOGS.items()
+                     if str(wlnum) in jdict}
 
         image_list = [urljoin(conf.server,
-                              filename
-                              .replace("PLW", wlname.upper())
-                              .replace("500", wlval)
-                              .replace('jpeg', 'fits'))
-                      for wlname, wlval in self.HIGAL_WAVELENGTHS.items()]
+                              filenames[wlname].replace('jpeg', 'fits'))
+                      for wlname in self.HIGAL_CATALOGS
+                      if wlname in filenames
+                     ]
 
         return image_list
 
