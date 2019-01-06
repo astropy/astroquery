@@ -2,7 +2,8 @@
 -------------------
 
 - ESO: Try to re-authenticate when logged out from the ESO server. [#1315]
-
+- New tool ``neos``: Near Earth Object Web Service to obtain orbital elements
+  for Near Earth Objects. [#1325]
 
 
 
