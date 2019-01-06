@@ -41,7 +41,8 @@ class NeowsClass(BaseQuery):
             "cad": "0",
         }
         SBDB_URL = conf.sbdb_server
-        response = self._request("GET", SBDB_URL, params=payload, timeout=self.TIMEOUT)
+        response = self._request(
+            "GET", SBDB_URL, params=payload, timeout=self.TIMEOUT)
 
         # response = requests.get(SBDB_URL, params=payload)
         response.raise_for_status()
@@ -53,7 +54,8 @@ class NeowsClass(BaseQuery):
 
         # If there is a 'table' sibling, the object was found.
         if page_identifier.find_next_sibling("table") is not None:
-            data = page_identifier.find_next_sibling("table").table.find_all("td")
+            data = page_identifier.find_next_sibling(
+                "table").table.find_all("td")
 
             complete_string = ""
             for string in data[1].stripped_strings:
@@ -79,13 +81,8 @@ class NeowsClass(BaseQuery):
             )
 
         # If everything else failed
-        raise ValueError(
-            "Object could not be found. You can visit: "
-            + SBDB_URL
-            + "?sstr="
-            + name
-            + " for more information."
-        )
+        raise ValueError("Object could not be found. You can visit: " +
+                         SBDB_URL + "?sstr=" + name + " for more information.")
 
     def from_spk_id(self, spk_id):
         """Return :py:class:`~astropy.table.Table` given a SPK-ID.
