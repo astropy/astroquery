@@ -167,6 +167,7 @@ def test_get_catalogs(patch_post):
     result = vizier.core.Vizier.get_catalogs('J/ApJ/706/83')
     assert isinstance(result, commons.TableList)
 
+
 def test_catalog_consistency_issue1326(patch_post):
     # regression test for issue 1326
     result1 = vizier.core.Vizier(catalog='J/ApJ/706/83').query_constraints_async(testconstraint='blah', get_query_payload=True)
