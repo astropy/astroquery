@@ -25,7 +25,3 @@ class Conf(_config.ConfigNamespace):
 conf = Conf()
 
 from .core import SDSS, SDSSClass
-
-import warnings
-warnings.warn("Experimental: SDSS has not yet been refactored to have its API "
-              "match the rest of astroquery (but it's nearly there).")
