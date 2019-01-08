@@ -105,7 +105,7 @@ class SDSSClass(BaseQuery):
         if (not isinstance(coordinates, list) and
                 not isinstance(coordinates, Column) and
                 not (isinstance(coordinates, commons.CoordClasses) and
-                    not coordinates.isscalar)):
+                     not coordinates.isscalar)):
             coordinates = [coordinates]
 
         if obj_names is None:
