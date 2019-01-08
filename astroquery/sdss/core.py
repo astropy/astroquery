@@ -34,7 +34,7 @@ class SDSSClass(BaseQuery):
     QUERY_URL_SUFFIX_DR_NEW = '/dr{dr}/en/tools/search/x_results.aspx'
     XID_URL_SUFFIX_OLD = '/dr{dr}/en/tools/crossid/x_crossid.aspx'
     XID_URL_SUFFIX_NEW = '/dr{dr}/en/tools/search/X_Results.aspx'
-    IMAGING_URL_SUFFIX = ('{base}/dr{dr}/boss/photoObj/frames/'
+    IMAGING_URL_SUFFIX = ('{base}/dr{dr}/{instrument}/photoObj/frames/'
                           '{rerun}/{run}/{camcol}/'
                           'frame-{band}-{run:06d}-{camcol}-'
                           '{field:04d}.fits.bz2')
@@ -734,8 +734,11 @@ class SDSSClass(BaseQuery):
             for b in band:
                 # Download and read in image data
                 linkstr = self.IMAGING_URL_SUFFIX
+                instrument = 'boss'
+                if data_release > 12:
+                    instrument = 'eboss'
                 link = linkstr.format(base=conf.sas_baseurl, run=row['run'],
-                                      dr=data_release,
+                                      dr=data_release, instrument=instrument,
                                       rerun=row['rerun'], camcol=row['camcol'],
                                       field=row['field'], band=b)
 
