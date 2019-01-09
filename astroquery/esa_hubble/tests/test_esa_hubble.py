@@ -22,51 +22,87 @@ from astropy import coordinates
 class TestESAHubble(unittest.TestCase):
 
     def test_get_product(self):
+        parameterst = {}
+        parameterst['query'] = "select top 10 * from hsc_v2.hubble_sc2"
+        parameterst['output_file'] = "test2.vot"
+        parameterst['output_format'] = "votable"
+        parameterst['verbose'] = False
+        dummyTapHandler = DummyESAHubbleTapHandler("launch_job", parameterst)
+
         parameters = {}
         parameters['observation_id'] = "J6FL25S4Q"
         parameters['calibration_level'] = "RAW"
         parameters['verbose'] = False
         dummyHandler = DummyHandler("get_product", parameters)
-        ehst = ESAHubbleClass(dummyHandler)
+        ehst = ESAHubbleClass(dummyHandler, dummyTapHandler)
         ehst.get_product("J6FL25S4Q", "RAW")
         dummyHandler.check_call("get_product", parameters)
 
     def test_get_artifact(self):
+        parameterst = {}
+        parameterst['query'] = "select top 10 * from hsc_v2.hubble_sc2"
+        parameterst['output_file'] = "test2.vot"
+        parameterst['output_format'] = "votable"
+        parameterst['verbose'] = False
+        dummyTapHandler = DummyESAHubbleTapHandler("launch_job", parameterst)
+
         parameters = {}
         parameters['artifact_id'] = "O5HKAX030_FLT.FITS"
         parameters['verbose'] = False
         dummyHandler = DummyHandler("get_artifact", parameters)
-        ehst = ESAHubbleClass(dummyHandler)
+        ehst = ESAHubbleClass(dummyHandler, dummyTapHandler)
         ehst.get_artifact("O5HKAX030_FLT.FITS")
         dummyHandler.check_call("get_artifact", parameters)
 
     def test_get_postcard(self):
+        parameterst = {}
+        parameterst['query'] = "select top 10 * from hsc_v2.hubble_sc2"
+        parameterst['output_file'] = "test2.vot"
+        parameterst['output_format'] = "votable"
+        parameterst['verbose'] = False
+        dummyTapHandler = DummyESAHubbleTapHandler("launch_job", parameterst)
+
         parameters = {}
         parameters['observation_id'] = "X0MC5101T"
         parameters['verbose'] = False
         dummyHandler = DummyHandler("get_postcard", parameters)
-        ehst = ESAHubbleClass(dummyHandler)
+        ehst = ESAHubbleClass(dummyHandler, dummyTapHandler)
         ehst.get_product("X0MC5101T")
         dummyHandler.check_call("get_postcard", parameters)
 
     def test_query_target(self):
+        parameterst = {}
+        parameterst['query'] = "select top 10 * from hsc_v2.hubble_sc2"
+        parameterst['output_file'] = "test2.vot"
+        parameterst['output_format'] = "votable"
+        parameterst['verbose'] = False
+        dummyTapHandler = DummyESAHubbleTapHandler("launch_job", parameterst)
+
         parameters = {}
         parameters['name'] = "m31"
         parameters['verbose'] = False
         dummyHandler = DummyHandler("query_target", parameters)
-        ehst = ESAHubbleClass(dummyHandler)
+        ehst = ESAHubbleClass(dummyHandler, dummyTapHandler)
         ehst.query_target(parameters['name'])
         dummyHandler.check_call("query_target", parameters)
 
     def test_cone_search(self):
         c = coordinates.SkyCoord("00h42m44.51s +41d16m08.45s", frame='icrs')
+        parameterst = {}
+        parameterst['query'] = "select top 10 * from hsc_v2.hubble_sc2"
+        parameterst['output_file'] = "test2.vot"
+        parameterst['output_format'] = "votable"
+        parameterst['verbose'] = False
+        dummyTapHandler = DummyESAHubbleTapHandler("launch_job", parameterst)
+
         parameters = {}
         parameters['coordinates'] = c
         parameters['radius'] = None
         parameters['file_name'] = None
         parameters['verbose'] = False
         dummyHandler = DummyHandler("cone_search", parameters)
-        ehst = ESAHubbleClass(dummyHandler)
+
+        ehst = ESAHubbleClass(dummyHandler, dummyTapHandler)
         ehst.cone_search(parameters['coordinates'])
         dummyHandler.check_call("cone_search", parameters)
 

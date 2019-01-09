@@ -23,7 +23,7 @@ class DummyHandler(object):
             with open(file, 'rb') as myfile:
                 data = myfile.read()
         return data
-    
+
     def get_table(self, url, filename=None, output_format='votable',
                   verbose=False):
         if filename is None:
@@ -32,7 +32,6 @@ class DummyHandler(object):
         table = modelutils.read_results_table_from_file(filename,
                                                         str(output_format))
         return table
-
 
     def __init__(self, method, parameters):
         self._invokedMethod = method
