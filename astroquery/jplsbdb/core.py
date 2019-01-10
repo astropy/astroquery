@@ -318,7 +318,7 @@ class SBDBClass(BaseQuery):
             # use leaf scalars (and apply units, where applicable)
             else:
                 res[key] = val
-                if key in conf.field_unit.keys():
+                if key in conf.field_unit.keys() and val is not None:
                     res[key] *= u.Unit(conf.field_unit[key])
 
         return res
