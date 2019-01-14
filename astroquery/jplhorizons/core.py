@@ -1058,8 +1058,12 @@ class HorizonsClass(BaseQuery):
             if "rotational period in hours)" in line:
                 HGline = src[idx + 2].split('=')
                 if 'B-V' in HGline[2] and 'G' in HGline[1]:
-                    H = float(HGline[1].rstrip('G'))
-                    G = float(HGline[2].rstrip('B-V'))
+                    try:
+                        H = float(HGline[1].rstrip('G'))
+                        G = float(HGline[2].rstrip('B-V'))
+                    except ValueError:
+                        H = nan
+                        G = nan
             # read in M1, M2, k1, k2, and phcof (if available)
             if "Comet physical" in line:
                 HGline = src[idx + 2].split('=')
