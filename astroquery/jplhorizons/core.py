@@ -6,6 +6,7 @@ from numpy import nan as nan
 from numpy import isnan
 from numpy import ndarray
 from collections import OrderedDict
+import warnings
 
 # 2. third party imports
 from astropy.table import Table, Column
@@ -588,6 +589,13 @@ class HorizonsClass(BaseQuery):
                                  timeout=self.TIMEOUT, cache=cache)
         self.uri = response.url
 
+        # check length of uri
+        if len(self.uri) >= 2000:
+            warnings.warn(('The URI used in this query is very long '
+                           'and might have been truncated. The results of '
+                           'the query might be compromised. If you queried '
+                           'a list of epochs, consider querying a range.'))
+
         return response
 
     def elements_async(self, get_query_payload=False,
@@ -790,6 +798,13 @@ class HorizonsClass(BaseQuery):
                                  timeout=self.TIMEOUT, cache=cache)
         self.uri = response.url
 
+        # check length of uri
+        if len(self.uri) >= 2000:
+            warnings.warn(('The URI used in this query is very long '
+                           'and might have been truncated. The results of '
+                           'the query might be compromised. If you queried '
+                           'a list of epochs, consider querying a range.'))
+
         return response
 
     def vectors_async(self, get_query_payload=False,
@@ -991,6 +1006,13 @@ class HorizonsClass(BaseQuery):
         response = self._request('GET', URL, params=request_payload,
                                  timeout=self.TIMEOUT, cache=cache)
         self.uri = response.url
+
+        # check length of uri
+        if len(self.uri) >= 2000:
+            warnings.warn(('The URI used in this query is very long '
+                           'and might have been truncated. The results of '
+                           'the query might be compromised. If you queried '
+                           'a list of epochs, consider querying a range.'))
 
         return response
 
