@@ -102,7 +102,7 @@ matrix:
           stage: Tests with other Python/Numpy versions
           env: PYTHON_VERSION=3.4 NUMPY_VERSION=1.10  KEYRING_VERSION='<12.0'
                CONDA_DEPENDENCIES="`echo $CONDA_DEPENDENCIES 'secretstorage<3.0.1'`"
-               ASTROPY_VERSION=1.3 PYTEST_VERSION='>3.2'
+               ASTROPY_VERSION=1.3 PYTEST_VERSION='<3.2'
         - os: linux
           stage: Tests with other Python/Numpy versions
           env: PYTHON_VERSION=3.5.5 NUMPY_VERSION=1.11 KEYRING_VERSION='<12.0'
