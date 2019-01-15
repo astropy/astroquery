@@ -14,9 +14,9 @@ Created on 13 Ago. 2018
 from astroquery.utils import commons
 from astropy import units
 from astropy.units import Quantity
-import urllib.request
 from astroquery.utils.tap.core import TapPlus
 from astroquery.utils.tap.model import modelutils
+from six.moves import urllib
 
 from . import conf
 
