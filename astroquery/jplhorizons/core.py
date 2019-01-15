@@ -776,9 +776,9 @@ class HorizonsClass(BaseQuery):
                     'step' not in self.epochs):
                 raise ValueError("'epochs' must contain start, "
                                  "stop, step")
-            request_payload['START_TIME'] = self.epochs['start']
-            request_payload['STOP_TIME'] = self.epochs['stop']
-            request_payload['STEP_SIZE'] = self.epochs['step']
+            request_payload['START_TIME'] = '"'+self.epochs['start']+'"'
+            request_payload['STOP_TIME'] = '"'+self.epochs['stop']+'"'
+            request_payload['STEP_SIZE'] = '"'+self.epochs['step']+'"'
 
         else:
             request_payload['TLIST'] = str(self.epochs)
@@ -984,9 +984,9 @@ class HorizonsClass(BaseQuery):
                     'step' not in self.epochs):
                 raise ValueError("'epochs' must contain start, " +
                                  "stop, step")
-            request_payload['START_TIME'] = self.epochs['start']
-            request_payload['STOP_TIME'] = self.epochs['stop']
-            request_payload['STEP_SIZE'] = self.epochs['step']
+            request_payload['START_TIME'] = '"'+self.epochs['start']+'"'
+            request_payload['STOP_TIME'] = '"'+self.epochs['stop']+'"'
+            request_payload['STEP_SIZE'] = '"'+self.epochs['step']+'"'
 
         else:
             # treat epochs as a list
