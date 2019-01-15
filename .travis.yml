@@ -15,8 +15,6 @@ addons:
     apt:
         packages:
             - graphviz
-            - texlive-latex-extra
-            - dvipng
 
 stage: Initial tests
 
