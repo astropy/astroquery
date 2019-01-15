@@ -14,7 +14,8 @@ from ... import jplhorizons
 # files in data/ for different query types
 DATA_FILES = {'ephemerides': 'ceres_ephemerides.txt',
               'elements': 'ceres_elements.txt',
-              'vectors': 'ceres_vectors.txt'}
+              'vectors': 'ceres_vectors.txt',
+              '"2010 NY104;"': 'no_H.txt'}
 
 
 def data_path(filename):
@@ -24,13 +25,20 @@ def data_path(filename):
 
 # monkeypatch replacement request function
 def nonremote_request(self, request_type, url, **kwargs):
-    # pick DATA_FILE based on query type
-    query_type = {'OBSERVER': 'ephemerides',
-                  'ELEMENTS': 'elements',
-                  'VECTORS': 'vectors'}[kwargs['params']['TABLE_TYPE']]
 
-    with open(data_path(DATA_FILES[query_type]), 'rb') as f:
-        response = MockResponse(content=f.read(), url=url)
+    if kwargs['params']['COMMAND'] == '"Ceres;"':
+        # pick DATA_FILE based on query type
+        query_type = {'OBSERVER': 'ephemerides',
+                      'ELEMENTS': 'elements',
+                      'VECTORS': 'vectors'}[kwargs['params']['TABLE_TYPE']]
+
+        with open(data_path(DATA_FILES[query_type]), 'rb') as f:
+            response = MockResponse(content=f.read(), url=url)
+    else:
+        with open(data_path(DATA_FILES[kwargs['params']['COMMAND']]),
+                  'rb') as f:
+            response = MockResponse(content=f.read(), url=url)
+
     return response
 
 
@@ -210,3 +218,9 @@ def test_vectors_query_payload():
         ('LABELS', 'YES'),
         ('OBJ_DATA', 'YES'),
         ('TLIST', '2451544.5')])
+
+
+def test_no_H(patch_request):
+    """testing missing H value (also applies for G, M1, k1, M2, k2)"""
+    res = jplhorizons.Horizons(id='2010 NY104').ephemerides()[0]
+    assert 'H' not in res
