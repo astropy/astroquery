@@ -5,9 +5,14 @@ import os
 # by importing them here in conftest.py they are discoverable by py.test
 # no matter how it is invoked within the source tree.
 
-from astropy.tests.pytest_plugins import (PYTEST_HEADER_MODULES,
-                                          enable_deprecations_as_exceptions,
-                                          TESTED_VERSIONS)
+try:
+    from astropy.tests.plugins.display import (PYTEST_HEADER_MODULES,
+                                               TESTED_VERSIONS)
+    from astropy.tests.helper import enable_deprecations_as_exceptions
+except ImportError:
+    from astropy.tests.pytest_plugins import (PYTEST_HEADER_MODULES,
+                                              enable_deprecations_as_exceptions,
+                                              TESTED_VERSIONS)
 
 # Add astropy to test header information and remove unused packages.
 # Pytest header customisation was introduced in astropy 1.0.
