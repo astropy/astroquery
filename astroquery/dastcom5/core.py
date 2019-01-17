@@ -49,8 +49,8 @@ class Dastcom5Class(BaseQuery):
 
         if os.path.isdir(dastcom5_dir):
             raise FileExistsError(
-                "dastcom5 is already created in " + \
-                    os.path.abspath(dastcom5_dir)
+                "dastcom5 is already created in " +
+                os.path.abspath(dastcom5_dir)
             )
         if not zipfile.is_zipfile(dastcom5_zip_path):
             if not os.path.isdir(self.local_path):
@@ -167,9 +167,9 @@ class Dastcom5Class(BaseQuery):
 
         ast_database = pd.DataFrame(
             ast_database[
-                list(ast_database.dtype.names[:17])
-                + list(ast_database.dtype.names[-4:-3])
-                + list(ast_database.dtype.names[-2:])
+                list(ast_database.dtype.names[:17]) +
+                list(ast_database.dtype.names[-4:-3]) +
+                list(ast_database.dtype.names[-2:])
             ]
         )
         ast_database.rename(
@@ -177,9 +177,9 @@ class Dastcom5Class(BaseQuery):
         )
         com_database = pd.DataFrame(
             com_database[
-                list(com_database.dtype.names[:17])
-                + list(com_database.dtype.names[-4:-3])
-                + list(com_database.dtype.names[-2:])
+                list(com_database.dtype.names[:17]) +
+                list(com_database.dtype.names[-4:-3]) +
+                list(com_database.dtype.names[-2:])
             ]
         )
         com_database.rename(
