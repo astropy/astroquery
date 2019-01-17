@@ -2,9 +2,9 @@
 
 .. _astroquery. esa_hubble:
 
-*****************************
-esa_hubble (`astroquery. esa_hubble `)
-*****************************
+************************************
+esa_hubble ('astroquery.esa_hubble')
+************************************
 
 The Hubble Space Telescope (HST) is a joint ESA/NASA orbiting astronomical observatory operating from the near-infrared into the ultraviolet.  Launched in 1990 and scheduled to operate at least through 2020, HST carries and has carried a wide variety of instruments producing imaging, spectrographic, astrometric, and photometric data through both pointed and parallel observing programs. During its lifetime HST has become one of the most important science projects ever, with over 500 000 observations of more than 30000 targets available for retrieval from the Archive.
 
@@ -56,9 +56,9 @@ Calibration levels can be RAW, CALIBRATED, PRODUCT or AUXILIARY.
 
 This will download the artifact 'O5HKAX030_FLT.FITS'.
 
----------------------------
+----------------------------------------------
 4. Querying target names in the Hubble archive
----------------------------
+----------------------------------------------
 
 The query_target function queries the name of the target as given by the proposer of the observations.
 
@@ -72,9 +72,9 @@ The query_target function queries the name of the target as given by the propose
 
 This will download metadata for all observations associated with target name 'm31'. The result of the query will be stored in file 'm31_query.xml'.
 
----------------------------
+--------------------------------------
 5. Cone searches in the Hubble archive
----------------------------
+--------------------------------------
 
 .. code-block:: python
 
@@ -87,9 +87,9 @@ This will download metadata for all observations associated with target name 'm3
 
 This will perform a cone search with radius 7 arcmins. The result of the query will be stored in the votable file 'cone_search_m31_5.vot'.
 
----------------------------
+-------------------------------
 5. Getting access to catalogues 
----------------------------
+-------------------------------
 
 The query_hst_tap function provides access to the HST archive database using the Table Access Protocol (TAP) and via the Astronomical Data Query Language (ADQL).
 
