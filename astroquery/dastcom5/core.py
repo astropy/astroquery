@@ -12,6 +12,7 @@ from . import conf
 from ..query import BaseQuery
 from ..utils import async_to_sync
 
+
 @async_to_sync
 class Dastcom5Class(BaseQuery):
     """
@@ -36,11 +37,10 @@ class Dastcom5Class(BaseQuery):
         self.ast_dtype = conf.AST_DTYPE
         self.ftp_url = conf.FTP_DB_URL
 
-
     def download_dastcom5(self):
         """Downloads DASTCOM5 database.
 
-        Downloads and unzip DASTCOM5 file in default poliastro path (~/.poliastro).
+        Downloads and unzip DASTCOM5 file in default astroquery path (~/.astroquery).
 
         """
 
@@ -49,7 +49,8 @@ class Dastcom5Class(BaseQuery):
 
         if os.path.isdir(dastcom5_dir):
             raise FileExistsError(
-                "dastcom5 is already created in " + os.path.abspath(dastcom5_dir)
+                "dastcom5 is already created in " + \
+                    os.path.abspath(dastcom5_dir)
             )
         if not zipfile.is_zipfile(dastcom5_zip_path):
             if not os.path.isdir(self.local_path):
@@ -66,7 +67,6 @@ class Dastcom5Class(BaseQuery):
         total_mb = totalsize / (1024 * 1024)
         print("%.2f MB / %.2f MB" % (trans_mb, total_mb), end="\r", flush=True)
 
-
     def asteroid_db(self):
         """Return complete DASTCOM5 asteroid database.
 
@@ -81,8 +81,6 @@ class Dastcom5Class(BaseQuery):
             data = np.fromfile(f, dtype=self.ast_dtype)
         return data
 
-
-
     def comet_db(self):
         """Return complete DASTCOM5 comet database.
 
@@ -96,7 +94,6 @@ class Dastcom5Class(BaseQuery):
             f.seek(976, os.SEEK_SET)
             data = np.fromfile(f, dtype=self.com_dtype)
         return data
-
 
     def read_headers(self):
         """Read `DASTCOM5` headers and return asteroid and comet headers.
@@ -153,7 +150,6 @@ class Dastcom5Class(BaseQuery):
 
         return ast_header, com_header
 
-
     def entire_db(self):
         """Return complete DASTCOM5 database.
 
@@ -195,7 +191,6 @@ class Dastcom5Class(BaseQuery):
         )
         return df
 
-
     def read_record(self, record):
         """Read `DASTCOM5` record and return body data.
 
@@ -235,7 +230,7 @@ class Dastcom5Class(BaseQuery):
         return body_data
 
     def orbit_from_name(self, name):
-        """Return :py:class:`~poliastro.twobody.orbit.Orbit` given a name.
+        """Return :py:class:`~astropy.table.Table` given a name.
 
         Retrieve info from JPL DASTCOM5 database.
 
@@ -255,7 +250,6 @@ class Dastcom5Class(BaseQuery):
         for i in range(1, len(records)):
             table = vstack([table, self.orbit_from_record(records[i])[1]])
         return table
-
 
     def orbit_from_record(self, record):
         """Return :py:class:`~astropy.table.Table` given a record.
@@ -287,7 +281,6 @@ class Dastcom5Class(BaseQuery):
 
         return data
 
-
     def record_from_name(self, name):
         """Search `dastcom.idx` and return logical records that match a given string.
 
@@ -309,7 +302,6 @@ class Dastcom5Class(BaseQuery):
         for line in lines:
             records.append(int(line[:6].lstrip()))
         return records
-
 
     def string_record_from_name(self, name):
         """Search `dastcom.idx` and return body full record.
