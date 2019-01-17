@@ -52,12 +52,8 @@ distribute-*.tar.gz
 .*.sw[op]
 *~
 .svn
-<<<<<<< Upstream, based on astroquery/master
 
 # Mac OSX
 .DS_Store
 oacapi_test.py
 /.pytest_cache/
-=======
-/.DS_Store
->>>>>>> 5b41be0 TAP url for HST changed to http://hst04.esac.esa.int/tap-server/tap/
