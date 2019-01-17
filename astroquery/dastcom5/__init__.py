@@ -11,6 +11,9 @@ DASTCOM5.
 
 All of the methods are coded as part of SOCIS 2017 for poliastro by Antonio Hidalgo[1].
 """
+import os
+import numpy as np
+
 from astropy import config as _config
 
 
