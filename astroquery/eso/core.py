@@ -812,7 +812,7 @@ class EsoClass(QueryWithLogin):
                 filename = self._request("GET", fileLink, save=True,
                                          continuation=True)
 
-                if filename.endswith(('.gz', '.7z', '.bz2', '.xz')):
+                if filename.endswith(('.gz', '.7z', '.bz2', '.xz', '.Z')):
                     log.info("Unzipping file {0}...".format(fileId))
                     filename = system_tools.gunzip(filename)
 
