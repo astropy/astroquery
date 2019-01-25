@@ -2,6 +2,7 @@
 -------------------
 
 - ESO: Try to re-authenticate when logged out from the ESO server. [#1315]
+- ADS: Fix an error in one of the default keys, citations->citation [#1337]
 
 
 
