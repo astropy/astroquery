@@ -443,7 +443,7 @@ class VizierClass(BaseQuery):
         return response
 
     def query_constraints_async(self, catalog=None, return_type='votable',
-                                cache=True,
+                                cache=True, get_query_payload=False,
                                 **kwargs):
         """
         Send a query to Vizier in which you specify constraints with
@@ -502,6 +502,8 @@ class VizierClass(BaseQuery):
             catalog=catalog,
             column_filters=kwargs,
             center={'-c.rd': 180})
+        if get_query_payload:
+            return data_payload
         response = self._request(
             method='POST', url=self._server_to_url(return_type=return_type),
             data=data_payload, timeout=self.TIMEOUT, cache=cache)
@@ -515,7 +517,7 @@ class VizierClass(BaseQuery):
         body = OrderedDict()
         center = kwargs.get('center')
         # process: catalog
-        catalog = kwargs.get('catalog', self.catalog)
+        catalog = kwargs.get('catalog') or self.catalog
 
         if catalog is not None:
             if isinstance(catalog, six.string_types):
