@@ -51,7 +51,7 @@ def test_url():
         "^Persson Origin of water around deeply embedded low-mass protostars", get_query_payload=True)
     assert url == ('https://api.adsabs.harvard.edu/v1/search/query?'
                    'q=%5EPersson%20Origin%20of%20water%20around%20deeply%20embedded%20low-mass%20protostars'
-                   '&fl=bibcode,title,author,aff,pub,volume,pubdate,page,citations,abstract,doi,eid'
+                   '&fl=bibcode,title,author,aff,pub,volume,pubdate,page,citation,citation_count,abstract,doi,eid'
                    '&sort=date%20desc'
                    '&rows=10&start=0')
 
