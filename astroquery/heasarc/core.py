@@ -213,8 +213,8 @@ class HeasarcClass(BaseQuery):
                              "Check that the object name is in GRB, SIMBAD+Sesame, or "
                              "NED format and that the mission name is as listed in "
                              "query_mission_list().")
-        elif "ERROR" in response.text:
-            raise InvalidQueryError("unspecified error from HEASARC database. "
+        elif "Software error:" in response.text:
+            raise InvalidQueryError("Unspecified error from HEASARC database. "
                                     "\nCheck error message: \n{!s}".format(response.text))
 
         try:
