@@ -7,7 +7,7 @@ from distutils.version import LooseVersion
 
 from astropy.version import version as astropy_version
 
-if astropy_version < LooseVersion('2.0.3'):
+if LooseVersion(astropy_version) < LooseVersion('2.0.3'):
     # Astropy is not compatible with the standalone plugins prior this while
     # astroquery requires them, so we need this workaround. This will mess
     # up the test header, but everything else will work.
