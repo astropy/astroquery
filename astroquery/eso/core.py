@@ -764,7 +764,7 @@ class EsoClass(QueryWithLogin):
                 # The benefit of this is also that in the download script the
                 # list of files is de-duplicated, whereas on the web page the
                 # calibration files would be duplicated for each exposure.
-                link = root.select('a[href$=/script]')[0]
+                link = root.select('a[href$="/script"]')[0]
                 if 'downloadRequest' not in link.text:
                     # Make sure that we found the correct link
                     raise RemoteServiceError(
