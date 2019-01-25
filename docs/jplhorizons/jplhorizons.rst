@@ -535,7 +535,17 @@ range of formats. Please note that when reading in Julian Dates, you
 have to specify the date format as ``'jd'``, as the integer passed to
 :class:`~astropy.time.Time` is ambiguous.
 
-    
+Keep Queries Short
+------------------
+
+Keep in mind that queries are sent as URIs to the Horizons server. If
+you query a large number of epochs (in the form of a list), this list
+might be truncated as URIs are typically expected to be shorter than
+2,000 symbols and your results might be compromised. If your query URI
+is longer than this limit, a warning is given. In that case, please
+try using a range of dates instead of a list of individual dates.
+
+
 Acknowledgements
 ================
 
