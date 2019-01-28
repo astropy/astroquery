@@ -4,7 +4,6 @@ from unittest import mock
 import numpy as np
 import pytest
 
-import ...dastcom5
 from ...dastcom5 import Dastcom5
 
 from astropy.table import Table

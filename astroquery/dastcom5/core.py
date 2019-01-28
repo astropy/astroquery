@@ -3,6 +3,7 @@ import os
 import urllib.request
 import zipfile
 import numpy as np
+import pandas as pd
 
 from astropy.time import Time
 from astropy.table import Table, vstack
