@@ -43,15 +43,17 @@ def get_mockreturn(method='GET', url=None, headers=None, timeout=10,
                    **kwargs):
     filename = data_path('test_text.txt')
     content = open(filename, 'r').read()
+
     return MockResponseADS(content=content)
 
 
 def test_url():
     url = nasa_ads.ADS.query_simple(
         "^Persson Origin of water around deeply embedded low-mass protostars", get_query_payload=True)
+
     assert url == ('https://api.adsabs.harvard.edu/v1/search/query?'
                    'q=%5EPersson%20Origin%20of%20water%20around%20deeply%20embedded%20low-mass%20protostars'
-                   '&fl=bibcode,title,author,aff,pub,volume,pubdate,page,citations,abstract,doi,eid'
+                   '&fl=bibcode,title,author,aff,pub,volume,pubdate,page,citation,citation_count,abstract,doi,eid'
                    '&sort=date%20desc'
                    '&rows=10&start=0')
 
@@ -62,3 +64,6 @@ def test_simple(patch_get):
     x = testADS.query_simple(
         "^Persson Origin of water around deeply embedded low-mass protostars")
     assert x['author'][0][0] == 'Persson, M. V.'
+
+    assert 'citation' in x.columns
+    assert 'citation_count' in x.columns

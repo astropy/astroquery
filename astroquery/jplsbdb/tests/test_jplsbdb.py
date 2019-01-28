@@ -13,18 +13,21 @@ DATA_FILES = {'1': 'ceres.dat',
               'Apophis': 'apophis.dat',
               '3200': 'phaethon.dat',
               '67P': '67P.dat',
+              'Ceres': 'ceres_missing_value.dat'
               }
 
 SCHEMATICS = {'1': '| +-- n_del_obs_used: 405',
               'Apophis': '| +-- albedo_note: http://www.esa.int/Our_',
               '3200': '| | +-- A2_kind: EST',
-              '67P': '| | +-- name: Jupiter-family Comet'
+              '67P': '| | +-- name: Jupiter-family Comet',
+              'Ceres': '| +-- n_del_obs_used: 405'
               }
 
 SEMI_MAJOR = {'1': 2.767046248500289,
               'Apophis': .9224383019077086,
               '3200': 1.271196435728355,
-              '67P': 3.46473701803964}
+              '67P': 3.46473701803964,
+              'Ceres': 2.767046248500289}
 
 
 def data_path(filename):
@@ -69,6 +72,18 @@ def test_objects_numerically(patch_request):
 
         assert_quantity_allclose(sbdb['orbit']['elements']['a'].scale,
                                  SEMI_MAJOR[targetname])
+
+
+def test_missing_value(patch_request):
+    """test whether a missing value causes an error"""
+    sbdb = SBDB.query('Ceres', id_type='search', phys=True,
+                      alternate_id=True, full_precision=True,
+                      covariance='mat', validity=True,
+                      alternate_orbit=True, close_approach=True,
+                      virtual_impactor=True,
+                      discovery=True, radar=True)
+
+    assert sbdb['orbit']['elements']['per'] is None
 
 
 # def test_objects_against_schema(patch_request):

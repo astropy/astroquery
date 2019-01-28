@@ -764,7 +764,7 @@ class EsoClass(QueryWithLogin):
                 # The benefit of this is also that in the download script the
                 # list of files is de-duplicated, whereas on the web page the
                 # calibration files would be duplicated for each exposure.
-                link = root.select('a[href$=/script]')[0]
+                link = root.select('a[href$="/script"]')[0]
                 if 'downloadRequest' not in link.text:
                     # Make sure that we found the correct link
                     raise RemoteServiceError(
@@ -812,7 +812,7 @@ class EsoClass(QueryWithLogin):
                 filename = self._request("GET", fileLink, save=True,
                                          continuation=True)
 
-                if filename.endswith(('.gz', '.7z', '.bz2', '.xz')):
+                if filename.endswith(('.gz', '.7z', '.bz2', '.xz', '.Z')):
                     log.info("Unzipping file {0}...".format(fileId))
                     filename = system_tools.gunzip(filename)
 

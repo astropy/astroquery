@@ -2,9 +2,9 @@
 -------------------
 
 - ESO: Try to re-authenticate when logged out from the ESO server. [#1315]
+- ADS: Fix an error in one of the default keys, citations->citation [#1337]
+- HEASARC: Fixing error handling to filter out only the query errors. [#1338]
 - CDS: Apply MOCPy v0.5.* API changes. [#1343]
-
-
 
 0.3.9 (2018-12-06)
 ------------------
@@ -26,7 +26,7 @@
 - ESO: Add option to retrieve calibrations associated to data. [#1184]
 - FERMI: Switch to HTTPS [#1241]
 - IRSA: Added ``selcols`` keyword. [#1296]
-- JPL Horizons: Fix for missing total absolute magnitude or phase coefficient
+- JPLHorizons: Fix for missing total absolute magnitude or phase coefficient
   for comets [#1151]
 - JPLHorizons: Fix queries for major solar system bodies when sub-observer or
   sub-solar positions are requested. [#1268]
@@ -59,7 +59,10 @@
 - utils: fix bug in ``parse_coordinates``, now strings that can be interpreted
   as coordinates are not sent through Sesame. When unit is not provided,
   degrees is now explicitely assumed. [#1252]
-
+- JPLHorizons: fix for #1201 issue in elements() and vectors(), test added
+- JPLHorizons: fix for missing H, G values [#1332]
+- JPLHorizons: warn if URI is longer than 2000 chars, docs updated
+- JPLSBDB: fix for missing value, test added
 
 0.3.8 (2018-04-27)
 ------------------

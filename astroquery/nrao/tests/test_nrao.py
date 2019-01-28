@@ -105,3 +105,19 @@ def test_query_region_multiconfig(patch_post, patch_parse_coordinates):
         telescope_config=['A', 'AB', 'B', 'BC', 'C', 'CD', 'D'],
     )
     assert isinstance(result, Table)
+
+
+def test_query_region_lowercase(patch_post, patch_parse_coordinates):
+    # regression test for issue 1282
+    # test that the checker allows BnA, etc.
+    result = nrao.core.Nrao.query_region(
+        commons.ICRSCoordGenerator("05h35.8m 35d43m"), querytype='ARCHIVE',
+        telescope_config=['A', 'BnA', 'AB', 'B', 'BC', 'C', 'CD', 'D'],
+    )
+    assert isinstance(result, Table)
+
+    result = nrao.core.Nrao.query_region(
+        commons.ICRSCoordGenerator("05h35.8m 35d43m"), querytype='ARCHIVE',
+        obs_band=['K', 'Ka'],
+    )
+    assert isinstance(result, Table)
