@@ -92,7 +92,7 @@ full functionality of the `~astroquery.cds` module:
 
 * `astropy-healpix <http://astropy-healpix.readthedocs.io/en/latest/>`_
 * `regions <https://astropy-regions.readthedocs.io/en/latest/>`_
-* `mocpy <https://mocpy.readthedocs.io/en/latest/>`_
+* `mocpy>=0.5.1 <https://mocpy.readthedocs.io/en/latest/>`_
 
 Using astroquery
 ----------------
