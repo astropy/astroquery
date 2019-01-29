@@ -254,7 +254,7 @@ class CdsClass(BaseQuery):
             region = kwargs['region']
             if isinstance(region, MOC):
                 self.path_moc_file = os.path.join(os.getcwd(), 'moc.fits')
-                region.write(format='fits', write_to_file=True, path=self.path_moc_file)
+                region.write(self.path_moc_file, format="fits")
                 # add the moc region payload to the request payload
             elif isinstance(region, CircleSkyRegion):
                 # add the cone region payload to the request payload
