@@ -17,6 +17,7 @@ htmlcov
 MANIFEST
 .ipynb_checkpoints
 .eggs
+pip-wheel-metadata
 
 # Sphinx
 _build
