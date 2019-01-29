@@ -125,6 +125,43 @@ class TestESAHubble(unittest.TestCase):
         ehst.query_hst_tap(parameters['query'], parameters['output_file'],
                            parameters['output_format'], parameters['verbose'])
         dummyTapHandler.check_call("launch_job", parameters)
+        
+    @remote_data
+    def test_get_tables(self):
+        parameters = {}
+        parameters['query'] = "select top 10 * from hsc_v2.hubble_sc2"
+        parameters['output_file'] = "test2.vot"
+        parameters['output_format'] = "votable"
+        parameters['verbose'] = False
+
+        parameters2 = {}
+        parameters2['only_names'] = True
+        parameters2['verbose'] = True
+
+        dummyHandler = DummyHandler("launch_job", parameters)
+        dummyTapHandler = DummyESAHubbleTapHandler("get_tables", parameters2)
+        ehst = ESAHubbleClass(dummyHandler, dummyTapHandler)
+        ehst.get_tables(True, True)
+        dummyTapHandler.check_call("get_tables", parameters2)
+
+    @remote_data
+    def test_get_columns(self):
+        parameters = {}
+        parameters['query'] = "select top 10 * from hsc_v2.hubble_sc2"
+        parameters['output_file'] = "test2.vot"
+        parameters['output_format'] = "votable"
+        parameters['verbose'] = False
+
+        parameters2 = {}
+        parameters2['table_name'] = "table"
+        parameters2['only_names'] = True
+        parameters2['verbose'] = True
+
+        dummyHandler = DummyHandler("launch_job", parameters)
+        dummyTapHandler = DummyESAHubbleTapHandler("get_columns", parameters2)
+        ehst = ESAHubbleClass(dummyHandler, dummyTapHandler)
+        ehst.get_columns("table", True, True)
+        dummyTapHandler.check_call("get_columns", parameters2)
 
 
 if __name__ == "__main__":
