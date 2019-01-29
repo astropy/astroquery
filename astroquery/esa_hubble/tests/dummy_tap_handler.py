@@ -93,10 +93,10 @@ class DummyESAHubbleTapHandler(object):
         self._parameters['verbose'] = verbose
         return None
 
-    def load_tables(self, only_names=True,
-                                       include_shared_tables=False,
-                                       verbose=True):
+    def load_tables(self,
+                    only_names=True,
+                    include_shared_tables=False,
+                    verbose=True):
         table = TapTableMeta()
         table.name = "table"
         return [table]
-

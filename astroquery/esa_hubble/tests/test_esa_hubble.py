@@ -125,7 +125,7 @@ class TestESAHubble(unittest.TestCase):
         ehst.query_hst_tap(parameters['query'], parameters['output_file'],
                            parameters['output_format'], parameters['verbose'])
         dummyTapHandler.check_call("launch_job", parameters)
-        
+
     @remote_data
     def test_get_tables(self):
         parameters = {}
