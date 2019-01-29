@@ -1,5 +1,5 @@
 import os
-import urllib.request
+from six.moves import urllib
 from astroquery.utils.tap.model import modelutils
 
 __all__ = ['ESAHubble', 'ESAHubbleClass', 'Conf', 'conf',
