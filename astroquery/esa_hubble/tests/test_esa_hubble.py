@@ -127,8 +127,6 @@ class TestESAHubble(unittest.TestCase):
         dummyTapHandler.check_call("launch_job", parameters)
 
 
-test = TestESAHubble()
-
 if __name__ == "__main__":
     # import sys;sys.argv = ['', 'Test.testName']
     unittest.main()
