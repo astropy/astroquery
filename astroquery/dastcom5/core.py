@@ -268,7 +268,7 @@ class Dastcom5Class(BaseQuery):
             Table : ~astropy.table.Table
                 Near Earth Asteroid/Comet orbit parameters.
 
-            """
+        """
         body_data = self.read_record(record)
         a = body_data["A"].item()
         ecc = body_data["EC"].item()
@@ -320,8 +320,8 @@ class Dastcom5Class(BaseQuery):
         -------
         lines: list(str)
             Body records
-        """
 
+        """
         idx_path = os.path.join(self.dbs_path, "dastcom.idx")
         lines = []
         with open(idx_path, "r") as inF:
