@@ -15,7 +15,7 @@ from bs4 import BeautifulSoup
 
 import astropy.coordinates as coord
 from astropy.table import Table
-from astropy.extern import six
+import six
 
 from ..exceptions import InvalidQueryError
 from ..query import BaseQuery

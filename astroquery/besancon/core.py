@@ -8,7 +8,7 @@ import re
 import os
 import warnings
 from astropy.io import ascii
-from astropy.extern.six.moves.urllib_error import URLError
+from six.moves.urllib_error import URLError
 from collections import OrderedDict
 from ..query import BaseQuery
 from ..utils import commons, prepend_docstr_nosections, async_to_sync

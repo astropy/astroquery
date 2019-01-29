@@ -51,7 +51,7 @@ Installation and Requirements
 -----------------------------
 
 Astroquery works with Python 2.7 and 3.3 or later.
-As an `astropy`_ affiliate, astroquery requires `astropy`_ version 0.4 or later.
+As an `astropy`_ affiliate, astroquery requires `astropy`_ version 1.3 or later.
 
 astroquery uses the `requests <http://docs.python-requests.org/en/latest/>`_
 module to communicate with the internet.  `BeautifulSoup
@@ -149,6 +149,7 @@ These others are functional, but do not follow a common or consistent API:
   * `Fermi <http://astroquery.readthedocs.io/en/latest/fermi/fermi.html>`_: Fermi gamma-ray telescope archive.
   * `HITRAN <http://astroquery.readthedocs.io/en/latest/hitran/hitran.html>`_: Access to the high-resolution transmission molecular absorption database.
   * `JPL Horizons <http://astroquery.readthedocs.io/en/latest/jplhorizons/jplhorizons.html>`_: JPL Solar System Dynamics Horizons Service.
+  * `JPL SBDB <http://astroquery.readthedocs.io/en/latest/jplsbdb/jplsbdb.html>`_: JPL Solar System Dynamics Small-Body Database Browser Service.  
   * `Lamda <http://astroquery.readthedocs.io/en/latest/lamda/lamda.html>`_: Leiden Atomic and Molecular Database; energy levels, radiative transitions, and collisional rates for astrophysically relevant atoms and molecules.
   * `NASA Exoplanet Archive  <http://astroquery.readthedocs.io/en/latest/nasa_exoplanet_archive/nasa_exoplanet_archive.html>`_
   * `OAC API <http://astroquery.readthedocs.io/en/latest/oac/oac.html>`_: Open Astronomy Catalog REST API Service.

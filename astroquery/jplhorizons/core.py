@@ -6,9 +6,10 @@ from numpy import nan as nan
 from numpy import isnan
 from numpy import ndarray
 from collections import OrderedDict
+import warnings
 
 # 2. third party imports
-from astropy.table import Column
+from astropy.table import Table, Column
 from astropy.io import ascii
 from astropy.time import Time
 
@@ -588,6 +589,13 @@ class HorizonsClass(BaseQuery):
                                  timeout=self.TIMEOUT, cache=cache)
         self.uri = response.url
 
+        # check length of uri
+        if len(self.uri) >= 2000:
+            warnings.warn(('The URI used in this query is very long '
+                           'and might have been truncated. The results of '
+                           'the query might be compromised. If you queried '
+                           'a list of epochs, consider querying a range.'))
+
         return response
 
     def elements_async(self, get_query_payload=False,
@@ -768,9 +776,9 @@ class HorizonsClass(BaseQuery):
                     'step' not in self.epochs):
                 raise ValueError("'epochs' must contain start, "
                                  "stop, step")
-            request_payload['START_TIME'] = self.epochs['start']
-            request_payload['STOP_TIME'] = self.epochs['stop']
-            request_payload['STEP_SIZE'] = self.epochs['step']
+            request_payload['START_TIME'] = '"'+self.epochs['start']+'"'
+            request_payload['STOP_TIME'] = '"'+self.epochs['stop']+'"'
+            request_payload['STEP_SIZE'] = '"'+self.epochs['step']+'"'
 
         else:
             request_payload['TLIST'] = str(self.epochs)
@@ -789,6 +797,13 @@ class HorizonsClass(BaseQuery):
         response = self._request('GET', URL, params=request_payload,
                                  timeout=self.TIMEOUT, cache=cache)
         self.uri = response.url
+
+        # check length of uri
+        if len(self.uri) >= 2000:
+            warnings.warn(('The URI used in this query is very long '
+                           'and might have been truncated. The results of '
+                           'the query might be compromised. If you queried '
+                           'a list of epochs, consider querying a range.'))
 
         return response
 
@@ -969,9 +984,9 @@ class HorizonsClass(BaseQuery):
                     'step' not in self.epochs):
                 raise ValueError("'epochs' must contain start, " +
                                  "stop, step")
-            request_payload['START_TIME'] = self.epochs['start']
-            request_payload['STOP_TIME'] = self.epochs['stop']
-            request_payload['STEP_SIZE'] = self.epochs['step']
+            request_payload['START_TIME'] = '"'+self.epochs['start']+'"'
+            request_payload['STOP_TIME'] = '"'+self.epochs['stop']+'"'
+            request_payload['STEP_SIZE'] = '"'+self.epochs['step']+'"'
 
         else:
             # treat epochs as a list
@@ -991,6 +1006,13 @@ class HorizonsClass(BaseQuery):
         response = self._request('GET', URL, params=request_payload,
                                  timeout=self.TIMEOUT, cache=cache)
         self.uri = response.url
+
+        # check length of uri
+        if len(self.uri) >= 2000:
+            warnings.warn(('The URI used in this query is very long '
+                           'and might have been truncated. The results of '
+                           'the query might be compromised. If you queried '
+                           'a list of epochs, consider querying a range.'))
 
         return response
 
@@ -1058,8 +1080,12 @@ class HorizonsClass(BaseQuery):
             if "rotational period in hours)" in line:
                 HGline = src[idx + 2].split('=')
                 if 'B-V' in HGline[2] and 'G' in HGline[1]:
-                    H = float(HGline[1].rstrip('G'))
-                    G = float(HGline[2].rstrip('B-V'))
+                    try:
+                        H = float(HGline[1].rstrip('G'))
+                        G = float(HGline[2].rstrip('B-V'))
+                    except ValueError:
+                        H = nan
+                        G = nan
             # read in M1, M2, k1, k2, and phcof (if available)
             if "Comet physical" in line:
                 HGline = src[idx + 2].split('=')
@@ -1130,6 +1156,8 @@ class HorizonsClass(BaseQuery):
                           names=headerline,
                           fill_values=[('.n.a.', '0'),
                                        ('n.a.', '0')])
+        # force to a masked table
+        data = Table(data, masked=True)
 
         # convert data to QTable
         # from astropy.table import QTable
@@ -1167,7 +1195,7 @@ class HorizonsClass(BaseQuery):
                                    name='phasecoeff'), index=7)
 
         # replace missing airmass values with 999 (not observable)
-        if self.query_type is 'ephemerides':
+        if self.query_type is 'ephemerides' and 'a-mass' in data.colnames:
             data['a-mass'] = data['a-mass'].filled(999)
 
         # set column definition dictionary

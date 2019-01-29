@@ -1,8 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import pprint
 from bs4 import BeautifulSoup
-from astropy.extern.six.moves.urllib import parse as urlparse
-from astropy.extern import six
+from six.moves.urllib import parse as urlparse
+import six
 from astropy import units as u
 
 from . import conf

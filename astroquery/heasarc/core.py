@@ -1,6 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
-from astropy.extern.six import BytesIO
+from six import BytesIO
 from astropy.table import Table
 from astropy.io import fits
 from astropy import coordinates
@@ -213,8 +213,8 @@ class HeasarcClass(BaseQuery):
                              "Check that the object name is in GRB, SIMBAD+Sesame, or "
                              "NED format and that the mission name is as listed in "
                              "query_mission_list().")
-        elif "ERROR" in response.text:
-            raise InvalidQueryError("unspecified error from HEASARC database. "
+        elif "Software error:" in response.text:
+            raise InvalidQueryError("Unspecified error from HEASARC database. "
                                     "\nCheck error message: \n{!s}".format(response.text))
 
         try:

@@ -8,8 +8,8 @@ import tempfile
 import textwrap
 
 import astropy.coordinates as coord
-from astropy.extern.six.moves import urllib
-from astropy.extern import six
+from six.moves import urllib
+import six
 from astropy.io import fits
 import astropy.io.votable as votable
 import astropy.units as u

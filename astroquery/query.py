@@ -11,7 +11,7 @@ import io
 import os
 import requests
 
-from astropy.extern import six
+import six
 from astropy.config import paths
 from astropy.logger import log
 import astropy.units as u
@@ -340,6 +340,7 @@ class BaseQuery(object):
                         pb.update(bytes_read)
 
         response.close()
+        return response
 
 
 class suspend_cache:

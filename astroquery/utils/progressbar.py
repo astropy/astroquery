@@ -1,8 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import gzip
 import sys
-from astropy.extern.six import StringIO
-from astropy.extern.six.moves import urllib
+from six import StringIO
+from six.moves import urllib
 from astropy.io import fits
 
 

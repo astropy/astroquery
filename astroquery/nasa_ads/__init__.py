@@ -30,9 +30,9 @@ class Conf(_config.ConfigNamespace):
 conf = Conf()
 
 
-conf.adsfields = ['bibcode', 'title', 'author', 'aff', 'pub',
-                  'volume', 'pubdate', 'page', 'citations',
-                  'abstract', 'doi', 'eid']
+conf.adsfields = ['bibcode', 'title', 'author', 'aff', 'pub', 'volume',
+                  'pubdate', 'page', 'citation', 'citation_count', 'abstract',
+                  'doi', 'eid']
 conf.sort = 'date desc'
 conf.nrows = 10
 conf.nstart = 0

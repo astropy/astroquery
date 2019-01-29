@@ -323,3 +323,28 @@ class TestHorizonsClass:
         target = jplhorizons.Horizons(id='301', location='688', epochs=epochs)
         eph = target.ephemerides(quantities=quantities)
         assert len(eph) == 2
+
+    def test_airmass(self):
+        """Regression test for "Airmass issues with jplhorizons #1284"
+
+        Horizons.ephemerides would crash when Horizons returned tables
+        with no masked data.  The error occurs when attempting to fill
+        bad values in the 'a-mass' column:
+        ``data['a-mass'].filled(99)``.  However, with no masked data,
+        ascii.read returns a normal Table, and the 'a-mass' column was
+        missing the ``filled`` method.
+
+        In addition, the same lines would crash if airmass was not
+        requested in the returned table.
+
+        """
+
+        # verify data['a-mass'].filled(99) works:
+        target = jplhorizons.Horizons('Ceres', location='I41',
+                                      epochs=[2458300.5])
+        eph = target.ephemerides(quantities='1,8')
+        assert len(eph) == 1
+
+        # skip data['a-mass'].filled(99) if 'a-mass' not returned
+        eph = target.ephemerides(quantities='1')
+        assert len(eph) == 1

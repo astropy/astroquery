@@ -15,7 +15,7 @@ Created on 30 jun. 2016
 
 """
 
-from astropy.extern import six
+import six
 
 try:
     from six.moves.tkinter import Tk as TKTk

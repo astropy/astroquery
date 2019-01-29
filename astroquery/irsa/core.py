@@ -43,6 +43,16 @@ objstr                  Target name or coordinate of the center of a spatial
 
 catalog     Required    Catalog name in the IRSA database management system.
 
+selcols     Optional    Target column list with value separated by a comma(,)
+
+                        The input list always overwrites default selections
+                        defined by a data dictionary. Full lists of columns
+                        can be found at the IRSA catalogs website, e.g.
+                        https://irsa.ipac.caltech.edu/cgi-bin/Gator/nph-dd?catalog=allsky_4band_p1bs_psd
+                        To access the full list of columns, press
+                        the "Long Form" button at the top of the Columns
+                        table.
+
 outfmt      Optional    Defines query's output format.
                         6 - returns a program interface in XML
                         3 - returns a VO Table (XML)
@@ -93,7 +103,7 @@ from __future__ import print_function, division
 import warnings
 import xml.etree.ElementTree as tree
 
-from astropy.extern import six
+import six
 import astropy.units as u
 import astropy.coordinates as coord
 import astropy.io.votable as votable
@@ -114,7 +124,7 @@ class IrsaClass(BaseQuery):
 
     def query_region(self, coordinates=None, catalog=None, spatial='Cone',
                      radius=10 * u.arcsec, width=None, polygon=None,
-                     get_query_payload=False, verbose=False):
+                     get_query_payload=False, verbose=False, selcols=None):
         """
         This function can be used to perform either cone, box, polygon or
         all-sky search in the catalogs hosted by the NASA/IPAC Infrared
@@ -156,6 +166,9 @@ class IrsaClass(BaseQuery):
         verbose : bool, optional.
             If `True` then displays warnings when the returned VOTable does not
             conform to the standard. Defaults to `False`.
+        selcols : str, optional
+            Target column list with value separated by a comma(,)
+
 
         Returns
         -------
@@ -165,14 +178,16 @@ class IrsaClass(BaseQuery):
         response = self.query_region_async(coordinates, catalog=catalog,
                                            spatial=spatial, radius=radius,
                                            width=width, polygon=polygon,
-                                           get_query_payload=get_query_payload)
+                                           get_query_payload=get_query_payload,
+                                           selcols=selcols)
         if get_query_payload:
             return response
         return self._parse_result(response, verbose=verbose)
 
     def query_region_async(self, coordinates=None, catalog=None,
                            spatial='Cone', radius=10 * u.arcsec, width=None,
-                           polygon=None, get_query_payload=False):
+                           polygon=None, get_query_payload=False,
+                           selcols=None):
         """
         This function serves the same purpose as
         :meth:`~astroquery.irsa.IrsaClass.query_region`, but returns the raw
@@ -210,6 +225,8 @@ class IrsaClass(BaseQuery):
         get_query_payload : bool, optional
             If `True` then returns the dictionary sent as the HTTP request.
             Defaults to `False`.
+        selcols : str, optional
+            Target column list with value separated by a comma(,)
 
         Returns
         -------
@@ -219,7 +236,7 @@ class IrsaClass(BaseQuery):
         if catalog is None:
             raise Exception("Catalog name is required!")
 
-        request_payload = self._args_to_payload(catalog)
+        request_payload = self._args_to_payload(catalog, selcols=selcols)
         request_payload.update(self._parse_spatial(spatial=spatial,
                                                    coordinates=coordinates,
                                                    radius=radius, width=width,
@@ -304,7 +321,7 @@ class IrsaClass(BaseQuery):
 
         return request_payload
 
-    def _args_to_payload(self, catalog):
+    def _args_to_payload(self, catalog, selcols=None):
         """
         Sets the common parameters for all cgi -queries
 
@@ -312,14 +329,19 @@ class IrsaClass(BaseQuery):
         ----------
         catalog : str
             The name of the catalog to query.
+        selcols : str, optional
+            Target column list with value separated by a comma(,)
 
         Returns
         -------
         request_payload : dict
         """
+        if selcols is None:
+            selcols = ''
         request_payload = dict(catalog=catalog,
                                outfmt=3,
-                               outrows=Irsa.ROW_LIMIT)
+                               outrows=Irsa.ROW_LIMIT,
+                               selcols=selcols)
         return request_payload
 
     def _parse_result(self, response, verbose=False):
@@ -473,8 +495,7 @@ def _format_decimal_coords(ra, dec):
 
 
 def _parse_dimension(dim):
-    if (isinstance(dim, u.Quantity) and
-            dim.unit in u.deg.find_equivalent_units()):
+    if (isinstance(dim, u.Quantity) and dim.unit in u.deg.find_equivalent_units()):
         if dim.unit not in ['arcsec', 'arcmin', 'deg']:
             dim = dim.to(u.degree)
     # otherwise must be an Angle or be specified in hours...

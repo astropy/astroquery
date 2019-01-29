@@ -40,7 +40,7 @@ except ImportError:
 
 # Load all of the global Astropy configuration
 from astropy_helpers.sphinx.conf import *
-from astropy.extern.six.moves import urllib
+from six.moves import urllib
 
 # Get configuration information from setup.cfg
 try:

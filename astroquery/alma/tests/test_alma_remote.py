@@ -8,7 +8,7 @@ import pytest
 from astropy.tests.helper import remote_data
 from astropy import coordinates
 from astropy import units as u
-from astropy.extern.six.moves.urllib_parse import urlparse
+from six.moves.urllib_parse import urlparse
 
 from .. import Alma
 
@@ -174,6 +174,10 @@ class TestAlma:
         # Jul 2, 2017: 160
         # May 9, 2018: 162
         assert len(result) == 162
+
+        result = alma.query(payload={'member_ous_id': 'uid://A001/X11a2/X11'},
+                            science=True)
+        assert len(result) == 1
 
     # As of April 2017, these data are *MISSING FROM THE ARCHIVE*.
     # This has been reported, as it is definitely a bug.

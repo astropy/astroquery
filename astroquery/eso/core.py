@@ -11,8 +11,8 @@ import numpy as np
 import re
 from bs4 import BeautifulSoup
 
-from astropy.extern.six import BytesIO
-from astropy.extern import six
+from six import BytesIO
+import six
 from astropy.table import Table, Column
 from astropy import log
 
@@ -47,6 +47,7 @@ class EsoClass(QueryWithLogin):
         super(EsoClass, self).__init__()
         self._instrument_list = None
         self._survey_list = None
+        self.username = None
 
     def _activate_form(self, response, form_index=0, form_id=None, inputs={},
                        cache=True, method=None):
@@ -209,11 +210,16 @@ class EsoClass(QueryWithLogin):
             on the keyring. Default is False.
         """
         if username is None:
-            if self.USERNAME == "":
+            if self.USERNAME != "":
+                username = self.USERNAME
+            elif self.username is not None:
+                username = self.username
+            else:
                 raise LoginError("If you do not pass a username to login(), "
                                  "you should configure a default one!")
-            else:
-                username = self.USERNAME
+        else:
+            # store username as we may need it to re-authenticate
+            self.username = username
 
         # Get password from keyring or prompt
         password, password_from_keyring = self._get_password(
@@ -599,6 +605,30 @@ class EsoClass(QueryWithLogin):
 
         return datasets_to_download, files
 
+    def _download_file(self, url, local_filepath, **kwargs):
+        """ Wraps QueryWithLogin._download_file to detect if the
+        authentication expired.
+        """
+        trials = 1
+        while trials <= 2:
+            resp = super(EsoClass, self)._download_file(url, local_filepath,
+                                                        **kwargs)
+
+            # trying to detect the failing authentication:
+            # - content type should not be html
+            if (resp.headers['Content-Type'] == 'text/html;charset=UTF-8' and
+                    resp.url.startswith('https://www.eso.org/sso/login')):
+                if trials == 1:
+                    log.warning("Session expired, trying to re-authenticate")
+                    self.login()
+                    trials += 1
+                else:
+                    raise LoginError("Could not authenticate")
+            else:
+                break
+
+        return resp
+
     def retrieve_data(self, datasets, continuation=False, destination=None,
                       with_calib='none', request_all_objects=False):
         """
@@ -734,7 +764,7 @@ class EsoClass(QueryWithLogin):
                 # The benefit of this is also that in the download script the
                 # list of files is de-duplicated, whereas on the web page the
                 # calibration files would be duplicated for each exposure.
-                link = root.select('a[href$=/script]')[0]
+                link = root.select('a[href$="/script"]')[0]
                 if 'downloadRequest' not in link.text:
                     # Make sure that we found the correct link
                     raise RemoteServiceError(
@@ -782,7 +812,7 @@ class EsoClass(QueryWithLogin):
                 filename = self._request("GET", fileLink, save=True,
                                          continuation=True)
 
-                if filename.endswith(('.gz', '.7z', '.bz2', '.xz')):
+                if filename.endswith(('.gz', '.7z', '.bz2', '.xz', '.Z')):
                     log.info("Unzipping file {0}...".format(fileId))
                     filename = system_tools.gunzip(filename)
 

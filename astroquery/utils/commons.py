@@ -11,8 +11,8 @@ import socket
 
 import requests
 
-from astropy.extern.six.moves.urllib_error import URLError
-from astropy.extern import six
+from six.moves.urllib_error import URLError
+import six
 import astropy.units as u
 from astropy import coordinates as coord
 from collections import OrderedDict

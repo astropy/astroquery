@@ -16,7 +16,7 @@ Created on 30 jun. 2016
 """
 from astroquery.utils.tap import taputils
 
-from astropy.extern.six.moves.urllib.parse import urlencode
+from six.moves.urllib.parse import urlencode
 
 
 class DummyConnHandler(object):

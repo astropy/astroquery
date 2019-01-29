@@ -197,6 +197,48 @@ is an ra, dec pair expressed in degrees:
      10.011  10.094 00h40m02.68s 10d05m38.05s    0.23 ... 0.378 0.602  0.98   5
      10.006  10.018 00h40m01.33s 10d01m06.24s    0.16 ... 0.662 0.566 1.228   6
 
+Selecting Columns
+--------------------
+
+The IRSA service allows to query either a subset of the default columns for a given table, or additional columns that are not present by default. This can be done by listing all the required columns separated by a comma (,) in a string with the ``selcols`` argument.
+
+An example where the AllWISE Source Catalog needs to be queried around the star HIP 12 with just the ra, dec and w1mpro columns would be:
+
+.. code-block:: python
+
+    >>> from astroquery.irsa import Irsa
+    >>> table = Irsa.query_region("HIP 12", catalog="allwise_p3as_psd", spatial="Cone", selcols="ra,dec,w1mpro")
+    >>> print(table)
+
+       ra     dec       clon          clat     w1mpro   dist     angle     id
+      deg     deg                               mag    arcsec     deg
+    ------- ------- ------------ ------------- ------ -------- ---------- ---
+      0.041 -35.960 00h00m09.79s -35d57m36.94s  4.837 0.350806 245.442148   0
+
+A list of available columns for each catalog can be found at https://irsa.ipac.caltech.edu/holdings/catalogs.html. The "Long Form" button at the top of the column names table must be clicked to access a full list of all available columns.
+
+Changing the precision of ascii output
+--------------------------------------
+
+The precision of the table display of each column is set upstream by the archive,
+and appears as the ``.format`` attribute of individual columns. This attribute affects
+not only the display of columns, but also the precision that is output when the table
+is written in ``ascii.ipac`` or ``ascii.csv`` formats. The ``.format`` attribute of
+individual columns may be set to increase the precision.
+
+.. code-block:: python
+
+    >>> from astroquery.irsa import Irsa
+    >>> table = Irsa.query_region("HIP 12", catalog="allwise_p3as_psd", spatial="Cone", selcols="ra,dec,w1mpro")
+    >>> table['ra'].format = '{:10.6f}'
+    >>> table['dec'].format = '{:10.6f}'
+    >>> print(table)
+
+        ra         dec         clon          clat     w1mpro   dist     angle     id
+        deg         deg                                 mag     arcs      deg
+    ----------- ----------- ------------ ------------- ------ -------- ---------- ---
+      0.0407905 -35.9602605 00h00m09.79s -35d57m36.94s  4.837 0.350806 245.442148   0
+
 Other Configurations
 --------------------
 

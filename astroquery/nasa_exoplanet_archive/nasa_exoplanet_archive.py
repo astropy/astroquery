@@ -101,8 +101,7 @@ class NasaExoplanetArchiveClass(object):
 
         return self._table
 
-    def query_planet(self, planet_name, table_path=None,
-                     all_columns=False):
+    def query_planet(self, planet_name, **kwargs):
         """
         Get table of exoplanet properties.
 
@@ -110,12 +109,8 @@ class NasaExoplanetArchiveClass(object):
         ----------
         planet_name : str
             Name of planet
-        table_path : str (optional)
-            Path to a local table file. Default `None` will trigger a
-            download of the table from the internet.
-        all_columns : bool (optional)
-            Return all available columns. The default returns only the
-            columns in the default category at the link above.
+        kwargs : dict (optional)
+            Extra keyword arguments passed to ``get_confirmed_planets_table``.
 
         Return
         ------
@@ -123,7 +118,7 @@ class NasaExoplanetArchiveClass(object):
             Table of one exoplanet's properties.
         """
 
-        exoplanet_table = self.get_confirmed_planets_table(table_path=table_path)
+        exoplanet_table = self.get_confirmed_planets_table(**kwargs)
         return exoplanet_table.loc[planet_name.strip().lower().replace(' ', '')]
 
 

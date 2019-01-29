@@ -1,0 +1,4 @@
+[tool.astropy-bot]
+
+[tool.astropy-bot.changelog_checker]
+filename = "CHANGES"

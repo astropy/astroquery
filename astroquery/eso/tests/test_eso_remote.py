@@ -4,7 +4,7 @@ import pytest
 import tempfile
 import shutil
 from astropy.tests.helper import remote_data
-from astropy.extern import six
+import six
 from ...exceptions import LoginError
 
 from ...eso import Eso

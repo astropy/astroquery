@@ -98,7 +98,7 @@ def post_mockreturn(method="POST", url=None, data=None, timeout=10, **kwargs):
     return [MockResponse(content)]
 
 
-def download_mockreturn(method="GET", url=None, data=None, timeout=10, **kwargs):
+def download_mockreturn(*args, **kwargs):
     return
 
 

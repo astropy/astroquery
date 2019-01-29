@@ -7,7 +7,7 @@ Support VO Simple Cone Search capabilities.
 """
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
-from astropy.extern import six
+import six
 
 # STDLIB
 import warnings
