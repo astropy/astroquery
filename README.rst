@@ -133,6 +133,7 @@ The following modules have been completed using a common API:
   * `NRAO <http://astroquery.readthedocs.io/en/latest/nrao/nrao.html>`_: Science data archive of the National Radio Astronomy Observatory. VLA, JVLA, VLBA and GBT data products.
   * `NVAS archive <http://astroquery.readthedocs.io/en/latest/nvas/nvas.html>`_
   * `Simbad <http://astroquery.readthedocs.io/en/latest/simbad/simbad.html>`_: Basic data, cross-identifications, bibliography and measurements for astronomical objects outside the solar system.
+  * `Skybot <http://astroquery.readthedocs.io/en/latest/skybot/skybot.html>`_: IMCCE SkyBoT service to identify Solar System objects in imaging fields. 
   * `Skyview <http://astroquery.readthedocs.io/en/latest/skyview/skyview.html>`_: NASA SkyView service for imaging surveys.
   * `Splatalogue <http://astroquery.readthedocs.io/en/latest/splatalogue/splatalogue.html>`_: National Radio Astronomy Observatory (NRAO)-maintained (mostly) molecular radio and millimeter line list service.
   * `UKIDSS <http://astroquery.readthedocs.io/en/latest/ukidss/ukidss.html>`_: UKIRT Infrared Deep Sky Survey. JHK images of 7500 sq deg. in the northern sky.

@@ -303,7 +303,8 @@ above categories.
   jplhorizons/jplhorizons.rst
   jplsbdb/jplsbdb.rst
   jplspec/jplspec.rst
-
+  skybot/skybot.rst
+  
 
 Topical Collections
 ===================
