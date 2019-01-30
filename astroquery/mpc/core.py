@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
-from bs4 import BeautifulSoup
+import json
 
 import numpy as np
+from bs4 import BeautifulSoup
 from astropy.io import ascii
 from astropy.time import Time
 from astropy.table import Table, Column
 import astropy.units as u
-from astropy.coordinates import EarthLocation, Angle
+from astropy.coordinates import EarthLocation, Angle, SkyCoord
 
 from ..query import BaseQuery
 from . import conf
@@ -762,6 +763,50 @@ class MPCClass(BaseQuery):
 
         return request_args
 
+    @class_or_instance
+    def get_observations_async(self, number=None, desig=None,
+                               objtype='asteroid',
+                               get_mpcformat=False,
+                               get_raw_response=False, cache=True):
+        """Obtain all reported observations for object """
+
+        URL = conf.mpcdb_server
+        TIMEOUT = conf.timeout
+
+        request_payload = {'table': 'observations'}
+
+        if number is not None:
+            request_payload['number'] = number
+        if desig is not None:
+            request_payload['designation'] = desig
+        request_payload['object_type'] = {'asteroid': 'M',
+                                          'M': 'M',
+                                          'long-period comet': 'C',
+                                          'C': 'C',
+                                          'short-period comet': 'P',
+                                          'periodic comet': 'P',
+                                          'P': 'P'}[objtype]
+
+        self.query_type = 'observations'
+
+        response = self._request(method='GET', url=URL,
+                                 params=request_payload,
+                                 auth=(self.MPC_USERNAME,
+                                       self.MPC_PASSWORD),
+                                 timeout=TIMEOUT, cache=cache)
+
+        if get_mpcformat:
+            self.obsformat = 'mpc'
+        else:
+            self.obsformat = 'table'
+
+        if get_raw_response:
+            self.get_raw_response = True
+        else:
+            self.get_raw_response = False
+
+        return response
+
     def _parse_result(self, result, **kwargs):
         if self.query_type == 'object':
             try:
@@ -936,6 +981,145 @@ class MPCClass(BaseQuery):
                 tab['JD'] = Time(tab['JD'], format='jd', scale='tt')
 
             return tab
+
+        elif self.query_type == 'observations':
+
+            try:
+                src = json.loads(result.text)
+            except ValueError:
+                raise ValueError('Server response not readable.')
+
+            if len(src) == 0:
+                raise RuntimeError(('No data queried. Are the target '
+                                    'identifiers correct?'))
+
+            # return raw response if requested
+            if self.get_raw_response:
+                return src
+
+            # return raw 80-column observation format if requested
+            if self.obsformat == 'mpc':
+                tab = Table([[o['original_record'] for o in src]])
+                tab.rename_column('col0', 'obs')
+                return tab
+
+            if all([o['object_type'] == 'M' for o in src]):
+                # minor planets (asteroids)
+                data = ascii.read("\n".join([o['original_record']
+                                             for o in src]),
+                                  format='fixed_width_no_header',
+                                  names=('number', 'desig', 'discovery',
+                                         'note1', 'note2', 'epoch',
+                                         'RA', 'DEC', 'mag', 'band',
+                                         'observatory'),
+                                  col_starts=(0, 5, 12, 13, 14, 15,
+                                              32, 44, 65, 70, 77),
+                                  col_ends=(4, 11, 12, 13, 14, 31,
+                                            43, 55, 69, 70, 79))
+
+                # convert asteroid designations
+                # old designation style, e.g.: 1989AB
+                ident = data['desig'][0]
+                if (len(ident) < 7 and ident[:4].isdigit() and
+                        ident[4:6].isalpha()):
+                    ident = ident[:4]+' '+ident[4:6]
+                # Palomar Survey
+                elif 'PLS' in ident:
+                    ident = ident[3:] + " P-L"
+                # Trojan Surveys
+                elif 'T1S' in ident:
+                    ident = ident[3:] + " T-1"
+                elif 'T2S' in ident:
+                    ident = ident[3:] + " T-2"
+                elif 'T3S' in ident:
+                    ident = ident[3:] + " T-3"
+                # standard MPC packed 7-digit designation
+                elif (ident[0].isalpha() and ident[1:3].isdigit() and
+                      ident[-1].isalpha() and ident[-2].isdigit()):
+                    yr = str(conf.pkd.find(ident[0]))+ident[1:3]
+                    let = ident[3]+ident[-1]
+                    num = str(conf.pkd.find(ident[4]))+ident[5]
+                    num = num.lstrip("0")
+                    ident = yr+' '+let+num
+                data['desig'] = ident
+
+            elif all([o['object_type'] == 'C' or o['object_type'] == 'P'
+                      for o in src]):
+                # comets
+                data = ascii.read("\n".join([o['original_record']
+                                             for o in src]),
+                                  format='fixed_width_no_header',
+                                  names=('number', 'comettype', 'desig',
+                                         'note1', 'note2', 'epoch',
+                                         'RA', 'DEC', 'mag', 'band',
+                                         'observatory'),
+                                  col_starts=(0, 4, 5, 13, 14, 15,
+                                              32, 44, 65, 70, 77),
+                                  col_ends=(3, 4, 12, 13, 14, 31,
+                                            43, 55, 69, 70, 79))
+
+                # convert comet designations
+                ident = data['desig'][0]
+                yr = str(conf.pkd.find(ident[0]))+ident[1:3]
+                let = ident[3]
+                num = str(conf.pkd.find(ident[4]))+ident[5]
+                num = num.lstrip("0")
+                frag = ident[6] if ident[6] != '0' else ''
+                ident = yr+' '+let+num+frag
+                data['desig'] = ident
+
+            # convert dates to Julian Dates
+            dates = [d[:10].replace(' ', '-') for d in data['epoch']]
+            times = np.array([float(d[10:]) for d in data['epoch']])
+            jds = Time(dates, format='iso').jd+times
+            data['epoch'] = jds
+            data['epoch'].unit = u.d
+
+            # convert ra and dec to degrees
+            coo = SkyCoord(ra=data['RA'], dec=data['DEC'],
+                           unit=(u.hourangle, u.deg),
+                           frame='icrs')
+            data['RA'] = coo.ra.deg * u.deg
+            data['DEC'] = coo.dec.deg * u.deg
+
+            # tab columns:
+            # number (asteroid number, comet number, satellite number)
+            # provisional designation
+            # (asteroid discovery, comet type, satellite planet)
+            # note1
+            # note2
+            # date of observation
+            # ra
+            # dec
+            # magnitude
+            # obs info (asteroids: band, comet: nuclear/total flag)
+            # observatory code
+
+            ascii.write(data, 'test.dat', format='csv', overwrite=True)
+
+   #          for i, line in enumerate(src):
+   #              if line['object_type'] == 'M':
+   #                  tab[i][0].append(
+   #              elif line['object_type'] == 'C':
+
+   #              elif line['object_type'] == 'S':
+   # Columns     Format   Use
+   # 14            A1     Note 1
+   # 15            A1     Note 2
+   # 16 - 32              Date of observation
+   # 33 - 44              Observed RA(J2000.0)
+   # 45 - 56              Observed Decl. (J2000.0)
+   # 57 - 65       9X     Must be blank
+   # 66 - 71    F5.2, A1   Observed magnitude and band
+   #                         (or nuclear/total flag for comets)
+   # 72 - 77       X      Must be blank
+   # 78 - 80       A3     Observatory code
+
+   #          num=[int(float(o['original_record'][:5])) for o in src]
+   #          desig=[o['original_record'][5:12] for o in src]
+   #          discovery=[o['original_record'][12:13] for o in src]
+
+        return data
 
 
 MPC = MPCClass()
