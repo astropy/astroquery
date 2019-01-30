@@ -34,7 +34,7 @@ class SDSSClass(BaseQuery):
     QUERY_URL_SUFFIX_DR_NEW = '/dr{dr}/en/tools/search/x_results.aspx'
     XID_URL_SUFFIX_OLD = '/dr{dr}/en/tools/crossid/x_crossid.aspx'
     XID_URL_SUFFIX_NEW = '/dr{dr}/en/tools/search/X_Results.aspx'
-    IMAGING_URL_SUFFIX = ('{base}/dr{dr}/boss/photoObj/frames/'
+    IMAGING_URL_SUFFIX = ('{base}/dr{dr}/{instrument}/photoObj/frames/'
                           '{rerun}/{run}/{camcol}/'
                           'frame-{band}-{run:06d}-{camcol}-'
                           '{field:04d}.fits.bz2')
@@ -59,7 +59,8 @@ class SDSSClass(BaseQuery):
     def query_crossid_async(self, coordinates, obj_names=None,
                             photoobj_fields=None, specobj_fields=None,
                             get_query_payload=False, timeout=TIMEOUT,
-                            radius=5. * u.arcsec, data_release=12, cache=True):
+                            radius=5. * u.arcsec,
+                            data_release=conf.default_release, cache=True):
         """
         Query using the cross-identification web interface.
 
@@ -172,7 +173,8 @@ class SDSSClass(BaseQuery):
                            fields=None, spectro=False, timeout=TIMEOUT,
                            get_query_payload=False, photoobj_fields=None,
                            specobj_fields=None, field_help=False,
-                           obj_names=None, data_release=12, cache=True):
+                           obj_names=None, data_release=conf.default_release,
+                           cache=True):
         """
         Used to query a region around given coordinates. Equivalent to
         the object cross-ID from the web interface.
@@ -263,7 +265,7 @@ class SDSSClass(BaseQuery):
     def query_specobj_async(self, plate=None, mjd=None, fiberID=None,
                             fields=None, timeout=TIMEOUT,
                             get_query_payload=False, field_help=False,
-                            data_release=12, cache=True):
+                            data_release=conf.default_release, cache=True):
         """
         Used to query the SpecObjAll table with plate, mjd and fiberID values.
 
@@ -337,7 +339,7 @@ class SDSSClass(BaseQuery):
     def query_photoobj_async(self, run=None, rerun=301, camcol=None,
                              field=None, fields=None, timeout=TIMEOUT,
                              get_query_payload=False, field_help=False,
-                             data_release=12, cache=True):
+                             data_release=conf.default_release, cache=True):
         """
         Used to query the PhotoObjAll table with run, rerun, camcol and field
         values.
@@ -418,7 +420,8 @@ class SDSSClass(BaseQuery):
             fsql += ' ' + line.split('--')[0]
         return fsql
 
-    def query_sql_async(self, sql_query, timeout=TIMEOUT, data_release=12,
+    def query_sql_async(self, sql_query, timeout=TIMEOUT,
+                        data_release=conf.default_release,
                         cache=True, **kwargs):
         """
         Query the SDSS database.
@@ -477,7 +480,8 @@ class SDSSClass(BaseQuery):
     def get_spectra_async(self, coordinates=None, radius=2. * u.arcsec,
                           matches=None, plate=None, fiberID=None, mjd=None,
                           timeout=TIMEOUT, get_query_payload=False,
-                          data_release=12, cache=True, show_progress=True):
+                          data_release=conf.default_release, cache=True,
+                          show_progress=True):
         """
         Download spectrum from SDSS.
 
@@ -597,7 +601,8 @@ class SDSSClass(BaseQuery):
     @prepend_docstr_nosections(get_spectra_async.__doc__)
     def get_spectra(self, coordinates=None, radius=2. * u.arcsec,
                     matches=None, plate=None, fiberID=None, mjd=None,
-                    timeout=TIMEOUT, cache=True, data_release=12,
+                    timeout=TIMEOUT, cache=True,
+                    data_release=conf.default_release,
                     show_progress=True):
         """
         Returns
@@ -622,7 +627,8 @@ class SDSSClass(BaseQuery):
     def get_images_async(self, coordinates=None, radius=2. * u.arcsec,
                          matches=None, run=None, rerun=301, camcol=None,
                          field=None, band='g', timeout=TIMEOUT,
-                         get_query_payload=False, cache=True, data_release=12,
+                         get_query_payload=False, cache=True,
+                         data_release=conf.default_release,
                          show_progress=True):
         """
         Download an image from SDSS.
@@ -728,8 +734,11 @@ class SDSSClass(BaseQuery):
             for b in band:
                 # Download and read in image data
                 linkstr = self.IMAGING_URL_SUFFIX
+                instrument = 'boss'
+                if data_release > 12:
+                    instrument = 'eboss'
                 link = linkstr.format(base=conf.sas_baseurl, run=row['run'],
-                                      dr=data_release,
+                                      dr=data_release, instrument=instrument,
                                       rerun=row['rerun'], camcol=row['camcol'],
                                       field=row['field'], band=b)
 
@@ -743,7 +752,7 @@ class SDSSClass(BaseQuery):
     def get_images(self, coordinates=None, radius=2. * u.arcsec,
                    matches=None, run=None, rerun=301, camcol=None, field=None,
                    band='g', timeout=TIMEOUT, cache=True,
-                   get_query_payload=False, data_release=12,
+                   get_query_payload=False, data_release=conf.default_release,
                    show_progress=True):
         """
         Returns
@@ -865,7 +874,8 @@ class SDSSClass(BaseQuery):
                          plate=None, mjd=None, fiberID=None, run=None,
                          rerun=301, camcol=None, field=None,
                          photoobj_fields=None, specobj_fields=None,
-                         field_help=None, obj_names=None, data_release=12):
+                         field_help=None, obj_names=None,
+                         data_release=conf.default_release):
         """
         Construct the SQL query from the arguments.
 
