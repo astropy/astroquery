@@ -21,69 +21,50 @@ from astropy import coordinates
 
 
 class TestESAHubble():
-
-    def test_get_product(self):
+    
+    def get_dummy_tap_handler(self):
         parameterst = {}
         parameterst['query'] = "select top 10 * from hsc_v2.hubble_sc2"
         parameterst['output_file'] = "test2.vot"
         parameterst['output_format'] = "votable"
         parameterst['verbose'] = False
         dummyTapHandler = DummyESAHubbleTapHandler("launch_job", parameterst)
+        return dummyTapHandler
 
+    def test_get_product(self):
         parameters = {}
         parameters['observation_id'] = "J6FL25S4Q"
         parameters['calibration_level'] = "RAW"
         parameters['verbose'] = False
         dummyHandler = DummyHandler("get_product", parameters)
-        ehst = ESAHubbleClass(dummyHandler, dummyTapHandler)
+        ehst = ESAHubbleClass(dummyHandler, self.get_dummy_tap_handler())
         ehst.get_product("J6FL25S4Q", "RAW")
         dummyHandler.check_call("get_product", parameters)
 
     def test_get_artifact(self):
-        parameterst = {}
-        parameterst['query'] = "select top 10 * from hsc_v2.hubble_sc2"
-        parameterst['output_file'] = "test2.vot"
-        parameterst['output_format'] = "votable"
-        parameterst['verbose'] = False
-        dummyTapHandler = DummyESAHubbleTapHandler("launch_job", parameterst)
-
         parameters = {}
         parameters['artifact_id'] = "O5HKAX030_FLT.FITS"
         parameters['verbose'] = False
         dummyHandler = DummyHandler("get_artifact", parameters)
-        ehst = ESAHubbleClass(dummyHandler, dummyTapHandler)
+        ehst = ESAHubbleClass(dummyHandler, self.get_dummy_tap_handler())
         ehst.get_artifact("O5HKAX030_FLT.FITS")
         dummyHandler.check_call("get_artifact", parameters)
 
     def test_get_postcard(self):
-        parameterst = {}
-        parameterst['query'] = "select top 10 * from hsc_v2.hubble_sc2"
-        parameterst['output_file'] = "test2.vot"
-        parameterst['output_format'] = "votable"
-        parameterst['verbose'] = False
-        dummyTapHandler = DummyESAHubbleTapHandler("launch_job", parameterst)
-
         parameters = {}
         parameters['observation_id'] = "X0MC5101T"
         parameters['verbose'] = False
         dummyHandler = DummyHandler("get_postcard", parameters)
-        ehst = ESAHubbleClass(dummyHandler, dummyTapHandler)
+        ehst = ESAHubbleClass(dummyHandler, self.get_dummy_tap_handler())
         ehst.get_product("X0MC5101T")
         dummyHandler.check_call("get_postcard", parameters)
 
     def test_query_target(self):
-        parameterst = {}
-        parameterst['query'] = "select top 10 * from hsc_v2.hubble_sc2"
-        parameterst['output_file'] = "test2.vot"
-        parameterst['output_format'] = "votable"
-        parameterst['verbose'] = False
-        dummyTapHandler = DummyESAHubbleTapHandler("launch_job", parameterst)
-
         parameters = {}
         parameters['name'] = "m31"
         parameters['verbose'] = False
         dummyHandler = DummyHandler("query_target", parameters)
-        ehst = ESAHubbleClass(dummyHandler, dummyTapHandler)
+        ehst = ESAHubbleClass(dummyHandler, self.get_dummy_tap_handler())
         ehst.query_target(parameters['name'])
         dummyHandler.check_call("query_target", parameters)
 
@@ -114,11 +95,11 @@ class TestESAHubble():
         parameters['output_format'] = "votable"
         parameters['verbose'] = False
         dummyHandler = DummyHandler("launch_job", parameters)
-        dummyTapHandler = DummyESAHubbleTapHandler("launch_job", parameters)
-        ehst = ESAHubbleClass(dummyHandler, dummyTapHandler)
+
+        ehst = ESAHubbleClass(dummyHandler, self.get_dummy_tap_handler())
         ehst.query_hst_tap(parameters['query'], parameters['output_file'],
                            parameters['output_format'], parameters['verbose'])
-        dummyTapHandler.check_call("launch_job", parameters)
+        self.get_dummy_tap_handler().check_call("launch_job", parameters)
 
     def test_get_tables(self):
         parameters = {}
@@ -133,7 +114,7 @@ class TestESAHubble():
 
         dummyHandler = DummyHandler("launch_job", parameters)
         dummyTapHandler = DummyESAHubbleTapHandler("get_tables", parameters2)
-        ehst = ESAHubbleClass(dummyHandler, dummyTapHandler)
+        ehst = ESAHubbleClass(dummyHandler, self.get_dummy_tap_handler())
         ehst.get_tables(True, True)
         dummyTapHandler.check_call("get_tables", parameters2)
 
@@ -151,7 +132,7 @@ class TestESAHubble():
 
         dummyHandler = DummyHandler("launch_job", parameters)
         dummyTapHandler = DummyESAHubbleTapHandler("get_columns", parameters2)
-        ehst = ESAHubbleClass(dummyHandler, dummyTapHandler)
+        ehst = ESAHubbleClass(dummyHandler, self.get_dummy_tap_handler())
         ehst.get_columns("table", True, True)
         dummyTapHandler.check_call("get_columns", parameters2)
 

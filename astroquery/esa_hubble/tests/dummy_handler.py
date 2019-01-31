@@ -14,6 +14,7 @@ def data_path(filename):
 class DummyHandler(object):
 
     def get_file(self, url, filename, verbose=False):
+        print("************* DummyHandler!!!!!!!!")
         file = data_path(filename)
         print(file)
         if file.endswith(".xml"):
@@ -26,6 +27,7 @@ class DummyHandler(object):
 
     def get_table(self, url, filename=None, output_format='votable',
                   verbose=False):
+        print("************* DummyHandler!!!!!!!!")
         if filename is None:
             raise ValueError("filename must be specified")
         urllib.request.urlretrieve(url, filename)
