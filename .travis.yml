@@ -40,7 +40,7 @@ env:
         - CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring aplpy matplotlib pyregion jinja2 flask regions'
         # pandas is used as a workaround of an astropy issue, sometimes it's required for the remote tests
         - CONDA_DEPENDENCIES_REMOTE='requests beautifulsoup4 html5lib keyring aplpy matplotlib pyregion jinja2 flask pandas regions'
-        - PIP_DEPENDENCIES='https://github.com/keflavich/httpbin/archive/master.zip astropy_healpix mocpy==0.4.* pytest-dependency pytest-astropy'
+        - PIP_DEPENDENCIES='https://github.com/keflavich/httpbin/archive/master.zip astropy_healpix mocpy>=0.5.2 pytest-dependency pytest-astropy'
         - HTTP_BIN_CMD="import httpbin; httpbin.app.run()"
         - RUN_HTTPBIN='python -c "$HTTP_BIN_CMD" & ACTIVE_HTTPBIN=True'
         - SETUP_CMD='test'
@@ -98,13 +98,13 @@ matrix:
         # Test the oldest astropy version without optional dependencies.
         - os: linux
           stage: Tests with other Python/Numpy versions
-          env: PYTHON_VERSION=3.4 NUMPY_VERSION=1.10  KEYRING_VERSION='<12.0'
+          env: PYTHON_VERSION=3.5 NUMPY_VERSION=1.12  KEYRING_VERSION='<12.0'
                CONDA_DEPENDENCIES="keyring requests beautifulsoup4 html5lib secretstorage"
                SECRETSTORAGE_VERSION='<3.0.1'
-               ASTROPY_VERSION=1.3 PYTEST_VERSION='3.1' ASTROPY_USE_SYSTEM_PYTEST=1
+               ASTROPY_VERSION=2 PYTEST_VERSION='<3.7'
         - os: linux
           stage: Tests with other Python/Numpy versions
-          env: PYTHON_VERSION=3.5.5 NUMPY_VERSION=1.11 KEYRING_VERSION='<12.0'
+          env: PYTHON_VERSION=3.5.5 NUMPY_VERSION=1.12 KEYRING_VERSION='<12.0'
                ASTROPY_VERSION=3.0
 
         - os: linux

@@ -5,6 +5,9 @@ import glob
 import os
 import sys
 
+# Workaround for https://github.com/pypa/pip/issues/6163
+sys.path.insert(0, os.path.dirname(__file__))
+
 import ah_bootstrap
 from setuptools import setup
 
@@ -19,6 +22,7 @@ from astropy_helpers.setup_helpers import (
     register_commands, get_debug_option, get_package_info)
 from astropy_helpers.git_helpers import get_git_devstr
 from astropy_helpers.version_helpers import generate_version_py
+
 
 # Get some values from the setup.cfg
 try:
@@ -110,7 +114,7 @@ for root, dirs, files in os.walk(PACKAGENAME):
                     os.path.relpath(root, PACKAGENAME), filename))
 package_info['package_data'][PACKAGENAME].extend(c_files)
 
-required_packages = ['astropy>=1.3', 'requests>=2.4.3', 'keyring>=4.0',
+required_packages = ['astropy>=2.0', 'requests>=2.4.3', 'keyring>=4.0',
                      'beautifulsoup4>=4.3.2', 'html5lib>=0.999', 'six']
 
 extras_require = {
