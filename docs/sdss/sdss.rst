@@ -43,11 +43,18 @@ each corresponding object in xid.
 
 Note that in SDSS, image downloads retrieve the entire plate, so further
 processing will be required to excise an image centered around the point of
-interest (i.e. the object(s) returned by
+interest (*i.e.*, the object(s) returned by
 `~astroquery.sdss.SDSSClass.query_region`).
 
 Spectral templates
 ==================
+
+.. warning::
+
+    These templates are from the SDSS-I/II spectroscopic pipeline
+    (DR7 and earlier). SDSS-III/IV (DR8 and later) spectroscopic processing
+    pipelines use different templates.
+
 It is also possible to download spectral templates from SDSS. To see what is
 available, do
 
@@ -62,10 +69,10 @@ Then, to download your favorite template, do something like
 
     >>> template = SDSS.get_spectral_template('qso')
 
-The variable "template" is a list of PyFITS HDUList objects
+The variable "template" is a list of `~astropy.io.fits.HDUList` objects
 (same object as "sp" in the above example). In this case there is only one
 result, but in a few cases there are multiple templates available to choose
-from (e.g. the "galaxy" spectral template will actually return 3 templates).
+from (*e.g.*, the "galaxy" spectral template will actually return 3 templates).
 
 Reference/API
 =============
