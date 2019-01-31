@@ -4,7 +4,9 @@
 - ESO: Try to re-authenticate when logged out from the ESO server. [#1315]
 - ADS: Fix an error in one of the default keys, citations->citation [#1337]
 - HEASARC: Fixing error handling to filter out only the query errors. [#1338]
-
+- CDS: Apply MOCPy v0.5.* API changes. [#1343]
+- SDSS: Update to SDSS-IV URLs and general clean-up. [#1308]
+- New tool: esa_hubble - adding new service for accessing the European Hubble Archive [#1345]
 
 
 0.3.9 (2018-12-06)
