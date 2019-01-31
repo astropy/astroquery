@@ -124,6 +124,9 @@ coords_list = [coords, coords]
 # Test Case: Column of coordinates
 coords_column = Column(coords_list, name='coordinates')
 
+# List of all data releases.
+dr_list = list(range(1, sdss.conf.default_release + 1))
+
 
 # We are not testing queries for DR11 because it is not easily available to
 # query: "DR11 data are distributed primarily to provide reproducibility of
@@ -134,6 +137,8 @@ def url_tester(data_release):
         baseurl = 'http://skyserver.sdss.org/dr{}/en/tools/search/x_sql.asp'
     if data_release == 10:
         baseurl = 'http://skyserver.sdss.org/dr{}/en/tools/search/x_sql.aspx'
+    if data_release == 11:
+        return
     if data_release >= 12:
         baseurl = 'http://skyserver.sdss.org/dr{}/en/tools/search/x_results.aspx'
     assert sdss.SDSS._last_url == baseurl.format(data_release)
@@ -142,21 +147,19 @@ def url_tester(data_release):
 def url_tester_crossid(data_release):
     if data_release < 11:
         baseurl = 'http://skyserver.sdss.org/dr{}/en/tools/crossid/x_crossid.aspx'
+    if data_release == 11:
+        return
     if data_release >= 12:
         baseurl = 'http://skyserver.sdss.org/dr{}/en/tools/search/X_Results.aspx'
     assert sdss.SDSS._last_url == baseurl.format(data_release)
 
 
 def compare_xid_data(xid, data):
-    if six.PY3:
-        pytest.xfail('xid/data comparison fails in PY3 because the instrument '
-                     'column is bytes in xid and str in data')
-    else:
-        for col in xid.colnames:
-            if xid[col].dtype.type is np.string_:
-                assert xid[col] == data[col]
-            else:
-                assert_allclose(xid[col], data[col])
+    for col in xid.colnames:
+        if xid[col].dtype.type is np.string_:
+            assert xid[col] == data[col]
+        else:
+            assert_allclose(xid[col], data[col])
 
 
 def image_tester(images, filetype):
@@ -167,7 +170,7 @@ def image_tester(images, filetype):
     assert images[0][0].data == data[0].data
 
 
-@pytest.mark.parametrize("dr", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12])
+@pytest.mark.parametrize("dr", dr_list)
 def test_sdss_spectrum(patch_get, patch_get_readable_fileobj, dr,
                        coords=coords):
     xid = sdss.SDSS.query_region(coords, data_release=dr, spectro=True)
@@ -177,20 +180,20 @@ def test_sdss_spectrum(patch_get, patch_get_readable_fileobj, dr,
     url_tester(dr)
 
 
-@pytest.mark.parametrize("dr", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12])
+@pytest.mark.parametrize("dr", dr_list)
 def test_sdss_spectrum_mjd(patch_get, patch_get_readable_fileobj, dr):
     sp = sdss.SDSS.get_spectra(plate=2345, fiberID=572, data_release=dr)
     image_tester(sp, 'spectra')
 
 
-@pytest.mark.parametrize("dr", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12])
+@pytest.mark.parametrize("dr", dr_list)
 def test_sdss_spectrum_coords(patch_get, patch_get_readable_fileobj, dr,
                               coords=coords):
     sp = sdss.SDSS.get_spectra(coords, data_release=dr)
     image_tester(sp, 'spectra')
 
 
-@pytest.mark.parametrize("dr", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12])
+@pytest.mark.parametrize("dr", dr_list)
 def test_sdss_sql(patch_get, patch_get_readable_fileobj, dr):
     query = """
             select top 10
@@ -213,7 +216,7 @@ def test_sdss_sql(patch_get, patch_get_readable_fileobj, dr):
     url_tester(dr)
 
 
-@pytest.mark.parametrize("dr", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12])
+@pytest.mark.parametrize("dr", dr_list)
 def test_sdss_image_from_query_region(patch_get, patch_get_readable_fileobj,
                                       dr, coords=coords):
     xid = sdss.SDSS.query_region(coords, data_release=dr)
@@ -223,13 +226,13 @@ def test_sdss_image_from_query_region(patch_get, patch_get_readable_fileobj,
     url_tester(dr)
 
 
-@pytest.mark.parametrize("dr", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12])
+@pytest.mark.parametrize("dr", dr_list)
 def test_sdss_image_run(patch_get, patch_get_readable_fileobj, dr):
     img = sdss.SDSS.get_images(run=1904, camcol=3, field=164, data_release=dr)
     image_tester(img, 'images')
 
 
-@pytest.mark.parametrize("dr", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12])
+@pytest.mark.parametrize("dr", dr_list)
 def test_sdss_image_coord(patch_get, patch_get_readable_fileobj, dr,
                           coord=coords):
     img = sdss.SDSS.get_images(coords, data_release=dr)
@@ -241,7 +244,7 @@ def test_sdss_template(patch_get, patch_get_readable_fileobj):
     image_tester(template, 'spectra')
 
 
-@pytest.mark.parametrize("dr", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12])
+@pytest.mark.parametrize("dr", dr_list)
 def test_sdss_specobj(patch_get, dr):
     xid = sdss.SDSS.query_specobj(plate=2340, data_release=dr)
     data = Table.read(data_path(DATA_FILES['spectra_id']),
@@ -255,7 +258,7 @@ def test_sdss_specobj(patch_get, dr):
     url_tester(dr)
 
 
-@pytest.mark.parametrize("dr", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12])
+@pytest.mark.parametrize("dr", dr_list)
 def test_sdss_photoobj(patch_get, dr):
     xid = sdss.SDSS.query_photoobj(
         run=1904, camcol=3, field=164, data_release=dr)
@@ -269,7 +272,7 @@ def test_sdss_photoobj(patch_get, dr):
     url_tester(dr)
 
 
-@pytest.mark.parametrize("dr", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12])
+@pytest.mark.parametrize("dr", dr_list)
 def test_list_coordinates(patch_get, dr):
     xid = sdss.SDSS.query_region(coords_list, data_release=dr)
     data = Table.read(data_path(DATA_FILES['images_id']),
@@ -281,7 +284,7 @@ def test_list_coordinates(patch_get, dr):
     compare_xid_data(xid, data)
 
 
-@pytest.mark.parametrize("dr", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12])
+@pytest.mark.parametrize("dr", dr_list)
 def test_column_coordinates(patch_get, dr):
     xid = sdss.SDSS.query_region(coords_column, data_release=dr)
     data = Table.read(data_path(DATA_FILES['images_id']),
@@ -309,7 +312,7 @@ def test_images_timeout(patch_get, patch_get_readable_fileobj_slow):
         sdss.SDSS.get_images(run=1904, camcol=3, field=164)
 
 
-@pytest.mark.parametrize("dr", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12])
+@pytest.mark.parametrize("dr", dr_list)
 def test_query_crossid(patch_post, dr):
     xid = sdss.SDSS.query_crossid(coords_column, data_release=dr)
     data = Table.read(data_path(DATA_FILES['images_id']),
@@ -325,7 +328,7 @@ def test_query_crossid(patch_post, dr):
 # ===========
 # Payload tests
 
-@pytest.mark.parametrize("dr", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12])
+@pytest.mark.parametrize("dr", dr_list)
 def test_list_coordinates_payload(patch_get, dr):
     expect = ("SELECT DISTINCT "
               "p.ra, p.dec, p.objid, p.run, p.rerun, p.camcol, p.field "
@@ -341,7 +344,7 @@ def test_list_coordinates_payload(patch_get, dr):
     assert query_payload['format'] == 'csv'
 
 
-@pytest.mark.parametrize("dr", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12])
+@pytest.mark.parametrize("dr", dr_list)
 def test_column_coordinates_payload(patch_get, dr):
     expect = ("SELECT DISTINCT "
               "p.ra, p.dec, p.objid, p.run, p.rerun, p.camcol, p.field "

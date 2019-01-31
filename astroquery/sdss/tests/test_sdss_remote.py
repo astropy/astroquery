@@ -1,5 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import numpy as np
+from numpy.testing import assert_allclose
 import pytest
 
 from astropy import coordinates
@@ -99,7 +100,13 @@ class TestSDSSRemote:
         xid = sdss.SDSS.query_specobj(plate=2340)
         assert isinstance(xid, Table)
         for row in table:
-            assert row in xid
+            i = np.nonzero(xid['specobjid'] == row['specobjid'])[0]
+            assert len(i) == 1
+            for j, c in enumerate(colnames):
+                if dtypes[j] is float:
+                    assert_allclose(xid[i][c], row[c])
+                else:
+                    assert xid[i][c] == row[c]
 
     def test_sdss_photoobj(self):
         colnames = ['ra', 'dec', 'objid', 'run', 'rerun', 'camcol', 'field']
@@ -120,7 +127,13 @@ class TestSDSSRemote:
         xid = sdss.SDSS.query_photoobj(run=1904, camcol=3, field=164)
         assert isinstance(xid, Table)
         for row in table:
-            assert row in xid
+            i = np.nonzero(xid['objid'] == row['objid'])[0]
+            assert len(i) == 1
+            for j, c in enumerate(colnames):
+                if dtypes[j] is float:
+                    assert_allclose(xid[i][c], row[c])
+                else:
+                    assert xid[i][c] == row[c]
 
     @pytest.mark.xfail(reason=("Timeout isn't raised since switching to "
                                "self._request, fix it before merging #586"))
