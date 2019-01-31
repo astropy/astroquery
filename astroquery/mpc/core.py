@@ -6,7 +6,7 @@ import numpy as np
 from bs4 import BeautifulSoup
 from astropy.io import ascii
 from astropy.time import Time
-from astropy.table import Table, Column
+from astropy.table import Table, QTable, Column
 import astropy.units as u
 from astropy.coordinates import EarthLocation, Angle, SkyCoord
 
@@ -31,6 +31,9 @@ class MPCClass(BaseQuery):
     MPES_URL = 'https://' + conf.mpes_server + '/cgi-bin/mpeph2.cgi'
     OBSERVATORY_CODES_URL = ('https://' + conf.web_service_server +
                              '/iau/lists/ObsCodes.html')
+
+    MPCOBS_URL = conf.mpcdb_server
+
     TIMEOUT = conf.timeout
 
     _ephemeris_types = {
@@ -765,35 +768,130 @@ class MPCClass(BaseQuery):
 
     @class_or_instance
     def get_observations_async(self, number=None, desig=None,
-                               objtype='asteroid',
+                               comettype=None,
                                get_mpcformat=False,
                                get_raw_response=False, cache=True):
-        """Obtain all reported observations for object """
+        """Obtain all reported observations for object from the Minor
+        Planet Center `observations database 
+        <https://minorplanetcenter.net/db_search>`_.
 
-        URL = conf.mpcdb_server
-        TIMEOUT = conf.timeout
+        Parameters
+        ----------
+        number : int or str, either this argument or ``desig`` is required
+            Official number of the target. By default, the number is
+            considered to refer to an asteroid. If a periodic comet number
+            is provided, ``comettype='P'`` must be used. 
+        desig : str, either this argument or ``number`` is required
+            Provisional target designation, e.g., ``'1998 Q55'`` for
+            asteroids or ``'2018 E1'`` for comets. The whitespace between
+            the year and the remainder of the designation is required.
+            Packed designations are not permitted. If a comet designation
+            is provided, the ``comettype`` must be set.
+        comettype : str or None, optional
+            Defines the orbital type of the comet, if a comet is to be
+            queried: ``'P'`` refers to a short-period comets, ``'C'``
+            refers to a long-period comet, ``None`` refers to a non-cometary
+            object. This argument has to be set if ``number`` refers to a
+            short-period number or ``desig`` refers to a cometary
+            provisional designation. Default: ``None``
+        get_mpcformat : bool, optional
+            If ``True``, this method will return an `~astropy.table.Table`
+            with only a single column holding the original MPC 80-column
+            observation format. Default: ``False``
+        get_raw_response : bool, optional
+            If ``True``, this method will return the raw output from the
+            MPC servers. Default: ``False``
+        cache : bool, optional
+            If ``True``, queries will be cached. Default: ``True``
+
+        Returns
+        -------
+        data : `~astropy.table.Table`
+
+        Notes
+        -----
+        The following quantities are included in the output table:
+
+        +------------------+-----------------------------------------------+
+        | Column Name      | Definition                                    |
+        +==================+===============================================+
+        | ``number``       | official IAU target number (int)              |
+        +------------------+-----------------------------------------------+
+        | ``desig``        | provisional target designation (str)          |
+        +------------------+-----------------------------------------------+
+        | ``discovery``*   | target discovery flag (str)                   |
+        +------------------+-----------------------------------------------+
+        | ``comettype``*   | orbital type of comet (str)                   |
+        +------------------+-----------------------------------------------+
+        | ``note1``        | Note1 as defined `here`_ (str)                |
+        +------------------+-----------------------------------------------+
+        | ``note2``        | Note2 as defined `here`_ (str)                |
+        +------------------+-----------------------------------------------+
+        | ``epoch``        | epoch of observation (Julian Date, float)     |
+        +------------------+-----------------------------------------------+
+        | ``RA``           | RA reported (J2000, deg, float)               |
+        +------------------+-----------------------------------------------+
+        | ``DEC``          | declination reported (J2000, deg, float)      |
+        +------------------+-----------------------------------------------+
+        | ``mag``          | reported magnitude (mag, float)               |
+        +------------------+-----------------------------------------------+
+        | ``band``*        | photometric band for ``mag`` (str)            |
+        +------------------+-----------------------------------------------+
+        | ``phottype``*    | comet photometry type (nuclear/total, str)    |
+        +------------------+-----------------------------------------------+
+        | ``observatory``  | IAU observatory code (str)                    |
+        +------------------+-----------------------------------------------+
+
+        Column names marked with and asterisk (*) are optional and depend
+        on whether an asteroid or a comet has been queried.
+
+        .. here https://minorplanetcenter.net/iau/info/OpticalObs.html
+
+        Examples
+        --------
+        >>> from astroquery.mpc import MPC
+        >>> MPC.get_observations(number=12893)  # doctest: +SKIP
+        <QTable masked=True length=1401>
+        number   desig   discovery note1 ...   mag   band observatory
+                                         ...   mag                   
+        int64     str9      str1    str1 ... float64 str1     str3   
+        ------ --------- --------- ----- ... ------- ---- -----------
+         12893 1998 QS55        --    -- ...     0.0   --         413
+         12893 1998 QS55        --    -- ...     0.0   --         413
+         12893 1998 QS55         *     4 ...     0.0   --         809
+         12893 1998 QS55        --     4 ...     0.0   --         809
+         12893 1998 QS55        --     4 ...     0.0   --         809
+         12893 1998 QS55        --     4 ...    18.4   --         809
+           ...       ...       ...   ... ...     ...  ...         ...
+         12893 1998 QS55        --    -- ...   18.63    c         T05
+         12893 1998 QS55        --    -- ...   18.55    c         T05
+         12893 1998 QS55        --    -- ...    18.3    r         I41
+         12893 1998 QS55        --    -- ...    18.3    r         I41
+         12893 1998 QS55        --    -- ...    18.2    r         I41
+         12893 1998 QS55        --    -- ...    18.3    r         I41
+        """
 
         request_payload = {'table': 'observations'}
 
         if number is not None:
             request_payload['number'] = number
+        if comettype is not None:
+            if desig is None:
+                request_payload['object_type'] = comettype
+            else:
+                if not desig.startswith(comettype+'/'):
+                    desig = comettype+'/'+desig
+
         if desig is not None:
             request_payload['designation'] = desig
-        request_payload['object_type'] = {'asteroid': 'M',
-                                          'M': 'M',
-                                          'long-period comet': 'C',
-                                          'C': 'C',
-                                          'short-period comet': 'P',
-                                          'periodic comet': 'P',
-                                          'P': 'P'}[objtype]
 
         self.query_type = 'observations'
 
-        response = self._request(method='GET', url=URL,
+        response = self._request('GET', url=self.MPCOBS_URL,
                                  params=request_payload,
                                  auth=(self.MPC_USERNAME,
                                        self.MPC_PASSWORD),
-                                 timeout=TIMEOUT, cache=cache)
+                                 timeout=self.TIMEOUT, cache=cache)
 
         if get_mpcformat:
             self.obsformat = 'mpc'
@@ -1008,7 +1106,7 @@ class MPCClass(BaseQuery):
                 data = ascii.read("\n".join([o['original_record']
                                              for o in src]),
                                   format='fixed_width_no_header',
-                                  names=('number', 'desig', 'discovery',
+                                  names=('number', 'pdesig', 'discovery',
                                          'note1', 'note2', 'epoch',
                                          'RA', 'DEC', 'mag', 'band',
                                          'observatory'),
@@ -1019,7 +1117,7 @@ class MPCClass(BaseQuery):
 
                 # convert asteroid designations
                 # old designation style, e.g.: 1989AB
-                ident = data['desig'][0]
+                ident = data['pdesig'][0]
                 if (len(ident) < 7 and ident[:4].isdigit() and
                         ident[4:6].isalpha()):
                     ident = ident[:4]+' '+ident[4:6]
@@ -1041,7 +1139,9 @@ class MPCClass(BaseQuery):
                     num = str(conf.pkd.find(ident[4]))+ident[5]
                     num = num.lstrip("0")
                     ident = yr+' '+let+num
-                data['desig'] = ident
+                data.add_column(Column([ident]*len(data), name='desig'),
+                                index=1)
+                data.remove_column('pdesig')
 
             elif all([o['object_type'] == 'C' or o['object_type'] == 'P'
                       for o in src]):
@@ -1051,7 +1151,7 @@ class MPCClass(BaseQuery):
                                   format='fixed_width_no_header',
                                   names=('number', 'comettype', 'desig',
                                          'note1', 'note2', 'epoch',
-                                         'RA', 'DEC', 'mag', 'band',
+                                         'RA', 'DEC', 'mag', 'phottype',
                                          'observatory'),
                                   col_starts=(0, 4, 5, 13, 14, 15,
                                               32, 44, 65, 70, 77),
@@ -1082,44 +1182,9 @@ class MPCClass(BaseQuery):
             data['RA'] = coo.ra.deg * u.deg
             data['DEC'] = coo.dec.deg * u.deg
 
-            # tab columns:
-            # number (asteroid number, comet number, satellite number)
-            # provisional designation
-            # (asteroid discovery, comet type, satellite planet)
-            # note1
-            # note2
-            # date of observation
-            # ra
-            # dec
-            # magnitude
-            # obs info (asteroids: band, comet: nuclear/total flag)
-            # observatory code
+            data['mag'].unit = u.mag
 
-            ascii.write(data, 'test.dat', format='csv', overwrite=True)
-
-   #          for i, line in enumerate(src):
-   #              if line['object_type'] == 'M':
-   #                  tab[i][0].append(
-   #              elif line['object_type'] == 'C':
-
-   #              elif line['object_type'] == 'S':
-   # Columns     Format   Use
-   # 14            A1     Note 1
-   # 15            A1     Note 2
-   # 16 - 32              Date of observation
-   # 33 - 44              Observed RA(J2000.0)
-   # 45 - 56              Observed Decl. (J2000.0)
-   # 57 - 65       9X     Must be blank
-   # 66 - 71    F5.2, A1   Observed magnitude and band
-   #                         (or nuclear/total flag for comets)
-   # 72 - 77       X      Must be blank
-   # 78 - 80       A3     Observatory code
-
-   #          num=[int(float(o['original_record'][:5])) for o in src]
-   #          desig=[o['original_record'][5:12] for o in src]
-   #          discovery=[o['original_record'][12:13] for o in src]
-
-        return data
+        return QTable(data)
 
 
 MPC = MPCClass()

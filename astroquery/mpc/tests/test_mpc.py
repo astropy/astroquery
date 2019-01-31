@@ -101,6 +101,9 @@ def get_mockreturn(self, httpverb, url, params={}, auth=None, **kwargs):
         content = open(data_path('comet_object_C2012S1.json'), 'rb').read()
     elif url == mpc.core.MPC.OBSERVATORY_CODES_URL:
         content = open(data_path('ObsCodes.html'), 'rb').read()
+    elif mpc.core.MPC.MPCOBS_URL in url:
+        content = open(data_path('mpc_obs.dat'), 'rb').read()
+        print(type(content))
     else:
         content = None
 
@@ -378,3 +381,9 @@ def test_get_observatory_location_fail():
         mpc.core.MPC.get_observatory_location(0)
     with pytest.raises(ValueError):
         mpc.core.MPC.get_observatory_location('00')
+
+
+def test_get_observations(patch_get):
+    result = mpc.core.MPC.get_observations(number='12893')
+    print(result)
+    assert result['desig'][0] == '1998 QS55'
