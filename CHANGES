@@ -11,6 +11,7 @@
 - JPLHorizons: Add ``refplane`` keyword to ``vectors_async`` to return data for
   different available reference planes [#1335]
 - ALMA: Fix some broken VOtable returns and a broken login URL [#1369]
+- CADC: Initial version [#1354]
 
 0.3.9 (2018-12-06)
 ------------------

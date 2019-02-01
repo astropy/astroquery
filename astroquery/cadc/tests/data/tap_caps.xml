@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<vosi:capabilities xmlns:vosi="http://www.ivoa.net/xml/VOSICapabilities/v1.0" xmlns:uws="http://www.ivoa.net/xml/UWSRegExt/v0.1" xmlns:vs="http://www.ivoa.net/xml/VODataService/v1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <capability standardID="ivo://ivoa.net/std/VOSI#capabilities">
+    <interface xsi:type="vs:ParamHTTP" role="std">
+      <accessURL use="full">https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/tap/capabilities</accessURL>
+    </interface>
+  </capability>
+  <capability standardID="ivo://ivoa.net/std/VOSI#availability">
+    <interface xsi:type="vs:ParamHTTP" role="std">
+      <accessURL use="full">https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/tap/availability</accessURL>
+    </interface>
+  </capability>
+  <capability standardID="vos://cadc.nrc.ca~vospace/CADC/std/Logging#control-1.0">
+    <interface xsi:type="vs:ParamHTTP" role="std" version="1.0">
+      <accessURL use="full">https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/tap/logControl</accessURL>
+      <securityMethod standardID="ivo://ivoa.net/sso#BasicAA" />
+    </interface>
+  </capability>
+  <capability standardID="ivo://ivoa.net/std/VOSI#tables-1.1">
+    <interface xsi:type="vs:ParamHTTP" role="std" version="1.1">
+      <accessURL use="base">https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/tap/tables</accessURL>
+    </interface>
+  </capability>
+  <!-- TAP-1.1 -->
+  <capability xmlns:tr="http://www.ivoa.net/xml/TAPRegExt/v1.0" standardID="ivo://ivoa.net/std/TAP" xsi:type="tr:TableAccess">
+    <interface xsi:type="vs:ParamHTTP" role="std" version="1.1">
+      <accessURL use="base">https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/tap</accessURL>
+      <securityMethod />
+      <securityMethod standardID="ivo://ivoa.net/sso#cookie" />
+      <securityMethod standardID="ivo://ivoa.net/sso#tls-with-certificate" />
+    </interface>
+    <dataModel ivo-id="ivo://ivoa.net/std/ObsCore/v1.1">ObsCore-1.1</dataModel>
+    <language>
+      <name>ADQL</name>
+      <version ivo-id="ivo://ivoa.net/std/ADQL#v2.0">2.0</version>
+      <description>ADQL-2.0</description>
+      <languageFeatures type="ivo://ivoa.net/std/TAPRegExt#features-adqlgeo">
+        <feature>
+          <form>POINT</form>
+        </feature>
+        <feature>
+          <form>CIRCLE</form>
+        </feature>
+        <feature>
+          <form>BOX</form>
+        </feature>
+        <feature>
+          <form>POLYGON</form>
+        </feature>
+        <feature>
+          <form>REGION</form>
+        </feature>
+        <feature>
+          <form>CONTAINS</form>
+        </feature>
+        <feature>
+          <form>INTERSECTS</form>
+        </feature>
+        <feature>
+          <form>AREA</form>
+        </feature>
+        <feature>
+          <form>CENTROID</form>
+        </feature>
+        <feature>
+          <form>COORDSYS</form>
+        </feature>
+        <feature>
+          <form>COORD1</form>
+        </feature>
+        <feature>
+          <form>COORD2</form>
+        </feature>
+      </languageFeatures>
+    </language>
+    <language>
+      <name>PQL</name>
+      <version>0.1</version>
+      <description>non-standard experimental PQL</description>
+    </language>
+    <outputFormat ivo-id="ivo://ivoa.net/std/TAPRegExt#output-votable-td">
+      <mime>application/x-votable+xml</mime>
+      <alias>votable</alias>
+    </outputFormat>
+    <outputFormat ivo-id="ivo://ivoa.net/std/TAPRegExt#output-votable-td">
+      <mime>text/xml</mime>
+    </outputFormat>
+    <outputFormat>
+      <mime>text/csv</mime>
+      <alias>csv</alias>
+    </outputFormat>
+    <outputFormat>
+      <mime>text/tab-separated-values</mime>
+      <alias>tsv</alias>
+    </outputFormat>
+    <uploadMethod ivo-id="ivo://ivoa.net/std/TAPRegExt#upload-inline" />
+    <uploadMethod ivo-id="ivo://ivoa.net/std/TAPRegExt#upload-http" />
+    <uploadMethod ivo-id="ivo://ivoa.net/std/TAPRegExt#upload-https" />
+    <retentionPeriod>
+      <default>604800</default>
+      <hard>604800</hard>
+    </retentionPeriod>
+    <executionDuration>
+      <default>600</default>
+      <hard>600</hard>
+    </executionDuration>
+    <!-- outputLimit for async queries: 128MB -->
+    <outputLimit>
+      <default unit="byte">134217728</default>
+      <hard unit="byte">134217728</hard>
+    </outputLimit>
+    <!-- outputLimit for sync queries: no limit -->
+    <uploadLimit>
+      <default unit="row">100000</default>
+      <hard unit="row">100000</hard>
+    </uploadLimit>
+  </capability>
+</vosi:capabilities>

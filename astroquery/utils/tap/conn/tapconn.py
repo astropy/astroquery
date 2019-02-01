@@ -14,8 +14,6 @@ Created on 30 jun. 2016
 
 
 """
-from astroquery.utils.tap.xmlparser import utils
-from astroquery.utils.tap import taputils
 
 try:
     # python 3
@@ -23,12 +21,13 @@ try:
 except ImportError:
     # python 2
     import httplib
+import mimetypes
+import time
 
 from six.moves.urllib.parse import urlencode
 
-
-import mimetypes
-import time
+from astroquery.utils.tap.xmlparser import utils
+from astroquery.utils.tap import taputils
 
 
 __all__ = ['TapConn']

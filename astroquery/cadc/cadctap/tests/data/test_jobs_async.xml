@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uws:job>
+	<uws:jobId><![CDATA[1234]]></uws:jobId>
+	<uws:runId xsi:nil="true"/>
+	<uws:ownerId><![CDATA[anonymous]]></uws:ownerId>
+	<uws:phase>COMPLETED</uws:phase>
+	<uws:quote>-1</uws:quote>
+	<uws:startTime>2016-11-17T13:33:50.755+0100</uws:startTime>
+	<uws:endTime>2016-11-17T13:33:50.786+0100</uws:endTime>
+	<uws:executionDuration>1800</uws:executionDuration>
+	<uws:destruction>2016-11-20T13:33:50.738+0100</uws:destruction>
+	<uws:creationTime>2016-11-17T13:33:50.738+0100</uws:creationTime>
+	<uws:locationId>anonymous/2016/11/17/1479386030738O</uws:locationId>
+	<uws:name><![CDATA[]]></uws:name>
+	<uws:parameters>
+        	<uws:parameter id="LANG">ADQL</uws:parameter>
+		<uws:parameter id="REQUEST">doQuery</uws:parameter>
+		<uws:parameter id="tapclient">aqtappy-1.0.1</uws:parameter>
+		<uws:parameter id="FORMAT">votable</uws:parameter>
+		<uws:parameter id="QUERY">SELECT * FROM table</uws:parameter>
+	</uws:parameters>
+	<uws:results>
+	</uws:results>
+	<uws:errorSummary type="fatal" hasDetail="true">
+		<uws:message>IllegalArgumentException:net.sf.jsqlparser.JSQLParserException</uws:message>
+	</uws:errorSummary>
+</uws:job>
