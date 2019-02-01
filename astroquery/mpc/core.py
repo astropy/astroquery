@@ -773,7 +773,7 @@ class MPCClass(BaseQuery):
                                get_raw_response=False, cache=True):
         """
         Obtain all reported observations for an asteroid or a comet
-        from the `Minor Planet Center observations database 
+        from the `Minor Planet Center observations database
         <https://minorplanetcenter.net/db_search>`_.
 
         Parameters
@@ -782,11 +782,11 @@ class MPCClass(BaseQuery):
         number : int, either this argument or ``desig`` is required
             Official target number. By default, the number is
             considered to refer to an asteroid. If a periodic comet number
-            is provided, ``comettype='P'`` must be used. 
+            is provided, ``comettype='P'`` must be used.
 
         desig : str, either this argument or ``number`` is required
             Provisional target designation, e.g., ``'1998 Q55'`` for
-            asteroids, ``'2018 E1'`` or ``'C/2018 E1'`` for comets. The 
+            asteroids, ``'2018 E1'`` or ``'C/2018 E1'`` for comets. The
             whitespace between
             the year and the remainder of the designation is required.
             Packed designations are not permitted. If a comet designation
@@ -851,7 +851,7 @@ class MPCClass(BaseQuery):
         (*): Column names are optional and
         depend on whether an asteroid or a comet has been queried.
 
-        (#): Parameters ``Note1`` and ``Note2`` are defined `here 
+        (#): Parameters ``Note1`` and ``Note2`` are defined `here
         <https://minorplanetcenter.net/iau/info/OpticalObs.html>`_.
 
 
@@ -862,8 +862,8 @@ class MPCClass(BaseQuery):
         >>> MPC.get_observations(number=12893)  # doctest: +SKIP
         <QTable masked=True length=1401>
         number   desig   discovery note1 ...   mag   band observatory
-                                         ...   mag                   
-        int64     str9      str1    str1 ... float64 str1     str3   
+                                         ...   mag
+        int64     str9      str1    str1 ... float64 str1     str3
         ------ --------- --------- ----- ... ------- ---- -----------
          12893 1998 QS55        --    -- ...     0.0   --         413
          12893 1998 QS55        --    -- ...     0.0   --         413
