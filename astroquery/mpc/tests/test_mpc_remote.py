@@ -84,25 +84,28 @@ class TestMPC(object):
 
     def test_get_observations(self):
         # asteroids
-        a = MPC.get_observations(number=12893)
+        a = mpc.core.MPC.get_observations(number=12893)
         assert a['number'][0] == 12893
         assert a['desig'][-1] == '1998 QS55'
-        a = MPC.get_observations(desig="2019 AA")
+        a = mpc.core.MPC.get_observations(desig="2019 AA")
         assert a['desig'][0] == '2019 AA'
-        a = MPC.get_observations(desig="2017 BC136")
+        a = mpc.core.MPC.get_observations(desig="2017 BC136")
         assert a['desig'][0] == '2017 BC136'
 
         # comets
-        a = MPC.get_observations(number=258, comettype='P')
+        a = mpc.core.MPC.get_observations(number=258, comettype='P')
         assert a['number'][0] == 258
         assert a['comettype'][0] == 'P'
-        a = MPC.get_observations(desig="2018 P4", comettype='P')
+        a = mpc.core.MPC.get_observations(desig="2018 P4", comettype='P')
         assert a['desig'][0] == "2018 P4"
         with pytest.raises(RuntimeError):
-            a = MPC.get_observations(desig="2018 P4")
-        a = MPC.get_observations(desig="P/2018 P4")
+            a = mpc.core.MPC.get_observations(desig="2018 P4")
+        a = mpc.core.MPC.get_observations(desig="P/2018 P4")
         assert a['desig'][0] == "2018 P4"
-        a = MPC.get_observations(desig="C/2013 K1")
+        a = mpc.core.MPC.get_observations(desig="C/2013 K1")
         assert a['desig'][0] == "2013 K1"
-        a = MPC.get_observations(desig="2013 K1", comettype='C')
+        a = mpc.core.MPC.get_observations(desig="2013 K1", comettype='C')
         assert a['desig'][0] == "2013 K1"
+
+        with pytest.raises(RuntimeError):
+            a = mpc.core.MPC.get_observations()
