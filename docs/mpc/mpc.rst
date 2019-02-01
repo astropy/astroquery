@@ -2,9 +2,9 @@
 
 .. _astroquery.mpc:
 
-**********************************************
-Minor Planet Center Queries (`astroquery.mpc`)
-**********************************************
+*************************************************************************
+Minor Planet Center Queries (`astroquery.mpc`/astroquery.solarsystem.MPC)
+*************************************************************************
 
 Getting started
 ===============
