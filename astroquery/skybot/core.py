@@ -25,7 +25,8 @@ class SkybotClass(BaseQuery):
 
     @property
     def uri(self):
-        """URI used in query to service.
+        """
+        URI used in query to service.
 
         Examples
         --------
@@ -50,7 +51,8 @@ class SkybotClass(BaseQuery):
                           get_query_payload=False,
                           get_raw_response=False,
                           cache=True):
-        """This method queries the IMCCE
+        """
+        This method queries the IMCCE
         `SkyBoT <http://vo.imcce.fr/webservices/skybot/?conesearch>`_
         cone search service and produces a `~astropy.table.QTable` object
         containing all Solar System bodies that might be in the cone
@@ -68,8 +70,8 @@ class SkybotClass(BaseQuery):
             are assumed. The maximum search radius is 10 degrees; if this
             maximum radius is exceeded, it will be clipped and a warning
             will be provided to the user.
-        epoch : `~astropy.time.Time` object, int, or string
-            Epoch of search process. If provided as int, it is interpreted
+        epoch : `~astropy.time.Time` object, float, or string
+            Epoch of search process. If provided as float, it is interpreted
             as Julian Date, if provided as string, it is interpreted as
             date in the form ``'YYYY-MM-DD HH-MM-SS'``.
         location : int or str, optional
