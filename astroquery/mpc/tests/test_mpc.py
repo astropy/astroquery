@@ -103,7 +103,6 @@ def get_mockreturn(self, httpverb, url, params={}, auth=None, **kwargs):
         content = open(data_path('ObsCodes.html'), 'rb').read()
     elif mpc.core.MPC.MPCOBS_URL in url:
         content = open(data_path('mpc_obs.dat'), 'rb').read()
-        print(type(content))
     else:
         content = None
 
@@ -385,5 +384,16 @@ def test_get_observatory_location_fail():
 
 def test_get_observations(patch_get):
     result = mpc.core.MPC.get_observations(number='12893')
-    print(result)
     assert result['desig'][0] == '1998 QS55'
+    assert result['mag'].unit == u.mag
+    assert result['RA'].unit == u.deg
+    assert result['DEC'].unit == u.deg
+    assert result['epoch'].unit == u.d
+
+    result = mpc.core.MPC.get_observations(number='12893',
+                                           get_raw_response=True)
+    assert "{'designation': None, 'discovery_flag': None," in str(result)
+
+    result = mpc.core.MPC.get_observations(number='12893',
+                                           get_mpcformat=True)
+    assert "12893J93S07X*4 1993 09 17.25833" in str(result)

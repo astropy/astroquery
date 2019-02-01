@@ -771,84 +771,93 @@ class MPCClass(BaseQuery):
                                comettype=None,
                                get_mpcformat=False,
                                get_raw_response=False, cache=True):
-        """Obtain all reported observations for object from the Minor
-        Planet Center `observations database 
+        """
+        Obtain all reported observations for an asteroid or a comet
+        from the `Minor Planet Center observations database 
         <https://minorplanetcenter.net/db_search>`_.
 
         Parameters
         ----------
-        number : int or str, either this argument or ``desig`` is required
-            Official number of the target. By default, the number is
+
+        number : int, either this argument or ``desig`` is required
+            Official target number. By default, the number is
             considered to refer to an asteroid. If a periodic comet number
             is provided, ``comettype='P'`` must be used. 
+
         desig : str, either this argument or ``number`` is required
             Provisional target designation, e.g., ``'1998 Q55'`` for
-            asteroids or ``'2018 E1'`` for comets. The whitespace between
+            asteroids, ``'2018 E1'`` or ``'C/2018 E1'`` for comets. The 
+            whitespace between
             the year and the remainder of the designation is required.
             Packed designations are not permitted. If a comet designation
-            is provided, the ``comettype`` must be set.
+            is provided, the ``comettype`` keyword must be set.
+
         comettype : str or None, optional
             Defines the orbital type of the comet, if a comet is to be
-            queried: ``'P'`` refers to a short-period comets, ``'C'``
+            queried: ``'P'`` refers to a short-period comet, ``'C'``
             refers to a long-period comet, ``None`` refers to a non-cometary
             object. This argument has to be set if ``number`` refers to a
             short-period number or ``desig`` refers to a cometary
             provisional designation. Default: ``None``
+
         get_mpcformat : bool, optional
-            If ``True``, this method will return an `~astropy.table.Table`
+            If ``True``, this method will return an `~astropy.table.QTable`
             with only a single column holding the original MPC 80-column
             observation format. Default: ``False``
+
         get_raw_response : bool, optional
             If ``True``, this method will return the raw output from the
-            MPC servers. Default: ``False``
+            MPC servers (json). Default: ``False``
+
         cache : bool, optional
             If ``True``, queries will be cached. Default: ``True``
 
-        Returns
-        -------
-        data : `~astropy.table.Table`
 
         Notes
         -----
-        The following quantities are included in the output table:
 
-        +------------------+-----------------------------------------------+
-        | Column Name      | Definition                                    |
-        +==================+===============================================+
-        | ``number``       | official IAU target number (int)              |
-        +------------------+-----------------------------------------------+
-        | ``desig``        | provisional target designation (str)          |
-        +------------------+-----------------------------------------------+
-        | ``discovery``*   | target discovery flag (str)                   |
-        +------------------+-----------------------------------------------+
-        | ``comettype``*   | orbital type of comet (str)                   |
-        +------------------+-----------------------------------------------+
-        | ``note1``        | Note1 as defined `here`_ (str)                |
-        +------------------+-----------------------------------------------+
-        | ``note2``        | Note2 as defined `here`_ (str)                |
-        +------------------+-----------------------------------------------+
-        | ``epoch``        | epoch of observation (Julian Date, float)     |
-        +------------------+-----------------------------------------------+
-        | ``RA``           | RA reported (J2000, deg, float)               |
-        +------------------+-----------------------------------------------+
-        | ``DEC``          | declination reported (J2000, deg, float)      |
-        +------------------+-----------------------------------------------+
-        | ``mag``          | reported magnitude (mag, float)               |
-        +------------------+-----------------------------------------------+
-        | ``band``*        | photometric band for ``mag`` (str)            |
-        +------------------+-----------------------------------------------+
-        | ``phottype``*    | comet photometry type (nuclear/total, str)    |
-        +------------------+-----------------------------------------------+
-        | ``observatory``  | IAU observatory code (str)                    |
-        +------------------+-----------------------------------------------+
+        The following quantities are included in the output table
 
-        Column names marked with and asterisk (*) are optional and depend
-        on whether an asteroid or a comet has been queried.
+        +-------------------+--------------------------------------------+
+        | Column Name       | Definition                                 |
+        +===================+============================================+
+        | ``number``        | official IAU target number (int)           |
+        +-------------------+--------------------------------------------+
+        | ``desig``         | provisional target designation (str)       |
+        +-------------------+--------------------------------------------+
+        | ``discovery`` (*) | target discovery flag (str)                |
+        +-------------------+--------------------------------------------+
+        | ``comettype`` (*) | orbital type of comet (str)                |
+        +-------------------+--------------------------------------------+
+        | ``note1`` (#)     | Note1 (str)                                |
+        +-------------------+--------------------------------------------+
+        | ``note2`` (#)     | Note2 (str)                                |
+        +-------------------+--------------------------------------------+
+        | ``epoch``         | epoch of observation (Julian Date, float)  |
+        +-------------------+--------------------------------------------+
+        | ``RA``            | RA reported (J2000, deg, float)            |
+        +-------------------+--------------------------------------------+
+        | ``DEC``           | declination reported (J2000, deg, float)   |
+        +-------------------+--------------------------------------------+
+        | ``mag``           | reported magnitude (mag, float)            |
+        +-------------------+--------------------------------------------+
+        | ``band`` (*)      | photometric band for ``mag`` (str)         |
+        +-------------------+--------------------------------------------+
+        | ``phottype`` (*)  | comet photometry type (nuclear/total, str) |
+        +-------------------+--------------------------------------------+
+        | ``observatory``   | IAU observatory code (str)                 |
+        +-------------------+--------------------------------------------+
 
-        .. here https://minorplanetcenter.net/iau/info/OpticalObs.html
+        (*): Column names are optional and
+        depend on whether an asteroid or a comet has been queried.
+
+        (#): Parameters ``Note1`` and ``Note2`` are defined `here 
+        <https://minorplanetcenter.net/iau/info/OpticalObs.html>`_.
+
 
         Examples
         --------
+
         >>> from astroquery.mpc import MPC
         >>> MPC.get_observations(number=12893)  # doctest: +SKIP
         <QTable masked=True length=1401>
@@ -869,6 +878,7 @@ class MPCClass(BaseQuery):
          12893 1998 QS55        --    -- ...    18.3    r         I41
          12893 1998 QS55        --    -- ...    18.2    r         I41
          12893 1998 QS55        --    -- ...    18.3    r         I41
+
         """
 
         request_payload = {'table': 'observations'}
@@ -1084,8 +1094,10 @@ class MPCClass(BaseQuery):
 
             try:
                 src = json.loads(result.text)
-            except ValueError:
-                raise ValueError('Server response not readable.')
+            except (ValueError, json.decoder.JSONDecodeError):
+                raise RuntimeError(
+                    'Server response not readable: "{}"'.format(
+                        result.text))
 
             if len(src) == 0:
                 raise RuntimeError(('No data queried. Are the target '
