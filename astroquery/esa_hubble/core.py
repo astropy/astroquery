@@ -17,7 +17,6 @@ from astropy.units import Quantity
 from astroquery.utils.tap.core import TapPlus
 from astroquery.utils.tap.model import modelutils
 from astroquery.query import BaseQuery
-from six.moves import urllib
 
 from . import conf
 from astropy import log
@@ -54,12 +53,13 @@ class ESAHubbleHandler(BaseQuery):
 Handler = ESAHubbleHandler()
 
 
-class ESAHubbleClass(object):
+class ESAHubbleClass(BaseQuery):
 
     data_url = conf.DATA_ACTION
     metadata_url = conf.METADATA_ACTION
 
     def __init__(self, url_handler=None, tap_handler=None):
+        super(ESAHubbleClass, self).__init__()
         if url_handler is None:
             self._handler = Handler
         else:
@@ -212,8 +212,8 @@ class ESAHubbleClass(object):
                    # "PAGE": "1",
                    # "PAGE_SIZE": "50",
                    "RETURN_TYPE": str(output_format)}
-        result = urllib.parse.urlencode(payload)
-        link = "".join((self.metadata_url, result))
+        response = self._request('GET', self.metadata_url, params=payload)
+        link = response.url
         if verbose:
             log.info(link)
         if filename is None:
