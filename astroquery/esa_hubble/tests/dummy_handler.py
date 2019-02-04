@@ -1,5 +1,4 @@
 import os
-from six.moves import urllib
 from astroquery.utils.tap.model import modelutils
 
 __all__ = ['ESAHubble', 'ESAHubbleClass', 'Conf', 'conf',
@@ -30,7 +29,6 @@ class DummyHandler(object):
         print("************* DummyHandler!!!!!!!!")
         if filename is None:
             raise ValueError("filename must be specified")
-        urllib.request.urlretrieve(url, filename)
         table = modelutils.read_results_table_from_file(filename,
                                                         str(output_format))
         return table
