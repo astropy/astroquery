@@ -12,6 +12,7 @@ Created on 30 Aug. 2018
 
 """
 from astroquery.utils.tap.model.taptable import TapTableMeta
+from astroquery.utils.tap.model.job import Job
 
 
 class DummyESAHubbleTapHandler(object):
@@ -72,7 +73,7 @@ class DummyESAHubbleTapHandler(object):
         self._parameters['dump_to_file'] = dump_to_file
         self._parameters['upload_resource'] = upload_resource
         self._parameters['upload_table_name'] = upload_table_name
-        return None
+        return Job(False)
 
     def get_tables(self, only_names=True, verbose=False):
         self.__invokedMethod = 'get_tables'
