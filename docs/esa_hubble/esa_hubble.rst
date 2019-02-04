@@ -47,6 +47,8 @@ Calibration levels can be RAW, CALIBRATED, PRODUCT or AUXILIARY.
 3. Getting Hubble artifacts
 ---------------------------
 
+Note: Artifact is a single Hubble product file.
+
 .. code-block:: python
 
   >>> from astroquery.esa_hubble import ESAHubble
@@ -54,7 +56,7 @@ Calibration levels can be RAW, CALIBRATED, PRODUCT or AUXILIARY.
   >>> ESAHubble.get_artifact("O5HKAX030_FLT.FITS")
   http://archives.esac.esa.int/ehst-sl-server/servlet/data-action?ARTIFACT_ID=O5HKAX030_FLT.FITS
 
-This will download the artifact 'O5HKAX030_FLT.FITS'.
+This will download the artifact 'O5HKAX030_FLT.FITS'. 'O5HKAX030_FLT.FITS' is the name of the Hubble artifact to be download.
 
 ----------------------------------------------
 4. Querying target names in the Hubble archive
@@ -66,11 +68,13 @@ The query_target function queries the name of the target as given by the propose
 
   >>> from astroquery.esa_hubble import ESAHubble
   >>>
-  >>> ESAHubble.query_target("m31", "m31_query.xml")
+  >>> table = ESAHubble.query_target("m31", "m31_query.xml")
+  >>> str(table)
   http://archives.esac.esa.int/ehst-sl-server/servlet/metadata-action?RESOURCE_CLASS=OBSERVATION&\
   SELECTED_FIELDS=OBSERVATION&QUERY=(TARGET.TARGET_NAME=='m31')&RETURN_TYPE=VOTABLE
 
-This will download metadata for all observations associated with target name 'm31'. The result of the query will be stored in file 'm31_query.xml'.
+This will retrieve a table with the output of the query.
+It will also download a file storing all metadata for all observations associated with target name 'm31'. The result of the query will be stored in file 'm31_query.xml'.
 
 --------------------------------------
 5. Cone searches in the Hubble archive
@@ -82,16 +86,17 @@ This will download metadata for all observations associated with target name 'm3
   >>> from astropy import coordinates
   >>> c = coordinates.SkyCoord("00h42m44.51s +41d16m08.45s", frame='icrs')
   >>>
-  >>> ESAHubble.cone_search(c, 7, "cone_search_m31_5.vot")
+  >>> table = ESAHubble.cone_search(c, 7, "cone_search_m31_5.vot")
+  >>> str(table)
   http://archives.esac.esa.int/ehst-sl-server/servlet/metadata-action?  RESOURCE_CLASS=OBSERVATION&ADQLQUERY=SELECT+DISTINCT+OBSERVATION%2COBSERVATION.TYPE%2CTARGET.MOVING_TARGET%2CTARGET.TARGET_NAME%2CTARGET.TARGET_DESCRIPTION%2CPROPOSAL.PROPOSAL_ID%2CPROPOSAL.PI_NAME%2CPROPOSAL.PROPOSAL_TITLE%2CINSTRUMENT.INSTRUMENT_NAME%2CPLANE.METADATA_PROVENANCE%2CPLANE.DATA_PRODUCT_TYPE%2CPLANE.SOFTWARE_VERSION%2CPOSITION.RA%2CPOSITION.DEC%2CPOSITION.GAL_LAT%2CPOSITION.GAL_LON%2CPOSITION.ECL_LAT%2CPOSITION.ECL_LON%2CPOSITION.FOV_SIZE%2CENERGY.WAVE_CENTRAL%2CENERGY.WAVE_BANDWIDTH%2CENERGY.WAVE_MAX%2CENERGY.WAVE_MIN%2CENERGY.FILTER+FROM+FIELD_NOT_USED++WHERE+OBSERVATION.COLLECTION%3D%27HST%27++AND++PLANE.MAIN_SCIENCE_PLANE%3D%27true%27++AND++%28OBSERVATION.TYPE%3D%27HST+Composite%27+OR+OBSERVATION.TYPE%3D%27HST+Singleton%27%29++AND++INTERSECTS%28CIRCLE%28%27ICRS%27%2C10.685469872614046%2C41.26901534788858%2C0.0%29%2CPOSITION%29%3D1++AND++PLANE.MAIN_SCIENCE_PLANE%3D%27true%27+ORDER+BY+PROPOSAL.PROPOSAL_ID+DESC&RETURN_TYPE=VOTABLE
 
-This will perform a cone search with radius 7 arcmins. The result of the query will be stored in the votable file 'cone_search_m31_5.vot'.
+This will perform a cone search with radius 7 arcmins. The result of the query will be returned and stored in the votable file 'cone_search_m31_5.vot'.
 
 -------------------------------
-5. Getting access to catalogues 
+6. Getting access to catalogues 
 -------------------------------
 
-The query_hst_tap function provides access to the HST archive database using the Table Access Protocol (TAP) and via the Astronomical Data Query Language (ADQL).
+The `~ESAHubble.query_hst_tap` function provides access to the HST archive database using the Table Access Protocol (TAP) and via the Astronomical Data Query Language (ADQL).
 
 .. code-block:: python
 
