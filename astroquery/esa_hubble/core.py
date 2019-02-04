@@ -36,7 +36,8 @@ class ESAHubbleHandler(BaseQuery):
             raise ValueError("filename must be specified")
         self._download_file(url, filename)
         if "/" not in filename:
-            log.info("File " + str(filename) + " downloaded to current directory")
+            log.info("File " + str(filename) + " downloaded to current "
+                     "directory")
         else:
             log.info("File " + str(filename) + " downloaded")
 
@@ -274,9 +275,9 @@ class ESAHubbleClass(object):
         """
 
         job = self._tap.launch_job(query=query, output_file=output_file,
-                                    output_format=output_format,
-                                    verbose=False,
-                                    dump_to_file=output_file is not None)
+                                   output_format=output_format,
+                                   verbose=False,
+                                   dump_to_file=output_file is not None)
         table = job.get_results()
         return table
 
