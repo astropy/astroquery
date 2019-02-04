@@ -222,8 +222,7 @@ class ESAHubbleClass(object):
                    # "PAGE": "1",
                    # "PAGE_SIZE": "50",
                    "RETURN_TYPE": str(output_format)}
-        result = urllib.parse.urlencode(payload,
-                                        quote_via=urllib.parse.quote_plus)
+        result = urllib.parse.urlencode(payload)
         link = "".join((self.metadata_url, result))
         if verbose:
             log.info(link)
