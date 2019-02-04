@@ -41,15 +41,6 @@ class TestESAHubble():
         ehst.get_product("J6FL25S4Q", "RAW")
         dummyHandler.check_call("get_product", parameters)
 
-    def test_get_artifact(self):
-        parameters = {}
-        parameters['artifact_id'] = "O5HKAX030_FLT.FITS"
-        parameters['verbose'] = False
-        dummyHandler = DummyHandler("get_artifact", parameters)
-        ehst = ESAHubbleClass(dummyHandler, self.get_dummy_tap_handler())
-        ehst.get_artifact("O5HKAX030_FLT.FITS")
-        dummyHandler.check_call("get_artifact", parameters)
-
     def test_get_postcard(self):
         parameters = {}
         parameters['observation_id'] = "X0MC5101T"
