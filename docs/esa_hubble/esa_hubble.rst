@@ -1,9 +1,9 @@
 .. doctest-skip-all
 
-.. _astroquery. esa_hubble:
+.. _astroquery.esa_hubble:
 
 ************************************
-esa_hubble ('astroquery.esa_hubble')
+esa_hubble (`astroquery.esa_hubble`)
 ************************************
 
 The Hubble Space Telescope (HST) is a joint ESA/NASA orbiting astronomical observatory operating from the near-infrared into the ultraviolet.  Launched in 1990 and scheduled to operate at least through 2020, HST carries and has carried a wide variety of instruments producing imaging, spectrographic, astrometric, and photometric data through both pointed and parallel observing programs. During its lifetime HST has become one of the most important science projects ever, with over 500 000 observations of more than 30000 targets available for retrieval from the Archive.
@@ -96,7 +96,7 @@ This will perform a cone search with radius 7 arcmins. The result of the query w
 6. Getting access to catalogues 
 -------------------------------
 
-The `~ESAHubble.query_hst_tap` function provides access to the HST archive database using the Table Access Protocol (TAP) and via the Astronomical Data Query Language (ADQL).
+This function provides access to the HST archive database using the Table Access Protocol (TAP) and via the Astronomical Data Query Language (ADQL).
 
 .. code-block:: python
 
