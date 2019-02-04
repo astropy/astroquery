@@ -15,20 +15,20 @@ import pytest
 
 from astroquery.esa_hubble.core import ESAHubbleClass
 from astroquery.esa_hubble.tests.dummy_handler import DummyHandler
-from astroquery.esa_hubble.tests.dummy_tap_handler import DummyESAHubbleTapHandler
+from astroquery.esa_hubble.tests.dummy_tap_handler import DummyHubbleTapHandler
 from astropy import coordinates
 # from astropy.tests.helper import remote_data
 
 
 class TestESAHubble():
-    
+
     def get_dummy_tap_handler(self):
         parameterst = {}
         parameterst['query'] = "select top 10 * from hsc_v2.hubble_sc2"
         parameterst['output_file'] = "test2.vot"
         parameterst['output_format'] = "votable"
         parameterst['verbose'] = False
-        dummyTapHandler = DummyESAHubbleTapHandler("launch_job", parameterst)
+        dummyTapHandler = DummyHubbleTapHandler("launch_job", parameterst)
         return dummyTapHandler
 
     def test_get_product(self):
@@ -75,7 +75,7 @@ class TestESAHubble():
         parameterst['output_file'] = "test2.vot"
         parameterst['output_format'] = "votable"
         parameterst['verbose'] = False
-        dummyTapHandler = DummyESAHubbleTapHandler("launch_job", parameterst)
+        dummyTapHandler = DummyHubbleTapHandler("launch_job", parameterst)
 
         parameters = {}
         parameters['coordinates'] = c
@@ -113,7 +113,7 @@ class TestESAHubble():
         parameters2['verbose'] = True
 
         dummyHandler = DummyHandler("launch_job", parameters)
-        dummyTapHandler = DummyESAHubbleTapHandler("get_tables", parameters2)
+        dummyTapHandler = DummyHubbleTapHandler("get_tables", parameters2)
         ehst = ESAHubbleClass(dummyHandler, self.get_dummy_tap_handler())
         ehst.get_tables(True, True)
         dummyTapHandler.check_call("get_tables", parameters2)
@@ -131,7 +131,7 @@ class TestESAHubble():
         parameters2['verbose'] = True
 
         dummyHandler = DummyHandler("launch_job", parameters)
-        dummyTapHandler = DummyESAHubbleTapHandler("get_columns", parameters2)
+        dummyTapHandler = DummyHubbleTapHandler("get_columns", parameters2)
         ehst = ESAHubbleClass(dummyHandler, self.get_dummy_tap_handler())
         ehst.get_columns("table", True, True)
         dummyTapHandler.check_call("get_columns", parameters2)
