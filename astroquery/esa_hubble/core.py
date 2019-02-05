@@ -30,9 +30,9 @@ class ESAHubbleHandler(BaseQuery):
     def __init__(self):
         super(ESAHubbleHandler, self).__init__()
 
-    def get_file(self, filename, content, verbose=False):
+    def get_file(self, filename, response, verbose=False):
         file = open(filename, 'wb')
-        file.write(content)
+        file.write(response.content)
         file.close()
 
         if "/" not in filename:
@@ -41,15 +41,18 @@ class ESAHubbleHandler(BaseQuery):
         else:
             log.info("File " + str(filename) + " downloaded")
 
-    def get_table(self, filename, content, output_format='votable',
+    def get_table(self, filename, response, output_format='votable',
                   verbose=False):
         file = open(filename, 'wb')
-        file.write(content)
+        file.write(response.content)
         file.close()
 
         table = modelutils.read_results_table_from_file(filename,
                                                         str(output_format))
         return table
+
+    def request(self, t="GET", link=None, params=None):
+        return self._request(method=t, url=link, params=params)
 
 
 Handler = ESAHubbleHandler()
@@ -102,12 +105,12 @@ class ESAHubbleClass(BaseQuery):
         obs_id = "OBSERVATION_ID=" + observation_id
         cal_level = "CALIBRATION_LEVEL=" + calibration_level
         link = self.data_url + obs_id + "&" + cal_level
-        result = self._request('GET', link, params=None)
+        result = self._handler.request('GET', link, params=None)
         if verbose:
             log.info(link)
         if filename is None:
             filename = observation_id + ".tar"
-        self._handler.get_file(filename, content=result.content,
+        self._handler.get_file(filename, response=result,
                                verbose=verbose)
 
     def get_artifact(self, artifact_id, filename=None, verbose=False):
@@ -132,12 +135,12 @@ class ESAHubbleClass(BaseQuery):
 
         art_id = "ARTIFACT_ID=" + artifact_id
         link = self.data_url + art_id
-        result = self._request('GET', link, params=None)
+        result = self._handler.request('GET', link, params=None)
         if verbose:
             log.info(link)
         if filename is None:
             filename = artifact_id
-        self._handler.get_file(filename, content=result.content, verbose=verbose)
+        self._handler.get_file(filename, response=result, verbose=verbose)
 
     def get_postcard(self, observation_id, calibration_level="RAW",
                      resolution=256, filename=None, verbose=False):
@@ -179,12 +182,12 @@ class ESAHubbleClass(BaseQuery):
                         cal_level,
                         "&",
                         res))
-        result = self._request('GET', link, params=None)
+        result = self._handler.request('GET', link, params=None)
         if verbose:
             log.info(link)
         if filename is None:
             filename = observation_id + ".tar"
-        self._handler.get_file(filename, content=result.content, verbose=verbose)
+        self._handler.get_file(filename, response=result, verbose=verbose)
 
     def cone_search(self, coordinates, radius=0.0, filename=None,
                     output_format='votable', verbose=False):
@@ -216,14 +219,11 @@ class ESAHubbleClass(BaseQuery):
                    "ORDER BY PROPOSAL.PROPOSAL_ID "
                    "DESC",
                    "RETURN_TYPE": str(output_format)}
-        # result = urllib.parse.urlencode(payload)
-        result = self._request('GET', self.metadata_url, params=payload)
-        link = result.url
-        if verbose:
-            log.info(link)
+        result = self._handler.request('GET', self.metadata_url,
+                                       params=payload)
         if filename is None:
             filename = "cone." + str(output_format)
-        return self._handler.get_table(filename, content=result.content,
+        return self._handler.get_table(filename, response=result,
                                        output_format=output_format,
                                        verbose=verbose)
 
@@ -253,13 +253,13 @@ class ESAHubbleClass(BaseQuery):
                    "&QUERY=(TARGET.TARGET_NAME=='")
         final = "')&RETURN_TYPE=" + str(output_format)
         link = self.metadata_url + initial + name + final
-        result = self._request('GET', link, params=None)
+        result = self._handler.request('GET', link, params=None)
         if verbose:
             log.info(link)
         if filename is None:
             filename = "target.xml"
         return self._handler.get_table(filename,
-                                       content=result.content,
+                                       response=result,
                                        output_format=output_format,
                                        verbose=verbose)
 
