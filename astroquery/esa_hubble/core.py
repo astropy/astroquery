@@ -17,7 +17,6 @@ from astropy.units import Quantity
 from astroquery.utils.tap.core import TapPlus
 from astroquery.utils.tap.model import modelutils
 from astroquery.query import BaseQuery
-from six.moves import urllib
 
 from . import conf
 from astropy import log
@@ -31,21 +30,23 @@ class ESAHubbleHandler(BaseQuery):
     def __init__(self):
         super(ESAHubbleHandler, self).__init__()
 
-    def get_file(self, url, filename=None, verbose=False):
-        if filename is None:
-            raise ValueError("filename must be specified")
-        self._download_file(url, filename)
+    def get_file(self, filename, content, verbose=False):
+        file = open(filename, 'wb')
+        file.write(content)
+        file.close()
+
         if "/" not in filename:
             log.info("File " + str(filename) + " downloaded to current "
                      "directory")
         else:
             log.info("File " + str(filename) + " downloaded")
 
-    def get_table(self, url, filename=None, output_format='votable',
+    def get_table(self, filename, content, output_format='votable',
                   verbose=False):
-        if filename is None:
-            raise ValueError("filename must be specified")
-        self._download_file(url, filename)
+        file = open(filename, 'wb')
+        file.write(content)
+        file.close()
+
         table = modelutils.read_results_table_from_file(filename,
                                                         str(output_format))
         return table
@@ -54,12 +55,13 @@ class ESAHubbleHandler(BaseQuery):
 Handler = ESAHubbleHandler()
 
 
-class ESAHubbleClass(object):
+class ESAHubbleClass(BaseQuery):
 
     data_url = conf.DATA_ACTION
     metadata_url = conf.METADATA_ACTION
 
     def __init__(self, url_handler=None, tap_handler=None):
+        super(ESAHubbleClass, self).__init__()
         if url_handler is None:
             self._handler = Handler
         else:
@@ -100,11 +102,13 @@ class ESAHubbleClass(object):
         obs_id = "OBSERVATION_ID=" + observation_id
         cal_level = "CALIBRATION_LEVEL=" + calibration_level
         link = self.data_url + obs_id + "&" + cal_level
+        result = self._request('GET', link, params=None)
         if verbose:
             log.info(link)
         if filename is None:
             filename = observation_id + ".tar"
-        self._handler.get_file(link, filename, verbose)
+        self._handler.get_file(filename, content=result.content,
+                               verbose=verbose)
 
     def get_artifact(self, artifact_id, filename=None, verbose=False):
         """ Download artifacts from EHST. Artifact is a single Hubble product
@@ -128,11 +132,12 @@ class ESAHubbleClass(object):
 
         art_id = "ARTIFACT_ID=" + artifact_id
         link = self.data_url + art_id
+        result = self._request('GET', link, params=None)
         if verbose:
             log.info(link)
         if filename is None:
             filename = artifact_id
-        self._handler.get_file(link, filename, verbose)
+        self._handler.get_file(filename, content=result.content, verbose=verbose)
 
     def get_postcard(self, observation_id, calibration_level="RAW",
                      resolution=256, filename=None, verbose=False):
@@ -174,11 +179,12 @@ class ESAHubbleClass(object):
                         cal_level,
                         "&",
                         res))
+        result = self._request('GET', link, params=None)
         if verbose:
             log.info(link)
         if filename is None:
             filename = observation_id + ".tar"
-        self._handler.get_file(link, filename, verbose)
+        self._handler.get_file(filename, content=result.content, verbose=verbose)
 
     def cone_search(self, coordinates, radius=0.0, filename=None,
                     output_format='votable', verbose=False):
@@ -209,16 +215,17 @@ class ESAHubbleClass(object):
                    "),POSITION)=1  AND  PLANE.MAIN_SCIENCE_PLANE='true' "
                    "ORDER BY PROPOSAL.PROPOSAL_ID "
                    "DESC",
-                   # "PAGE": "1",
-                   # "PAGE_SIZE": "50",
                    "RETURN_TYPE": str(output_format)}
-        result = urllib.parse.urlencode(payload)
-        link = "".join((self.metadata_url, result))
+        # result = urllib.parse.urlencode(payload)
+        result = self._request('GET', self.metadata_url, params=payload)
+        link = result.url
         if verbose:
             log.info(link)
         if filename is None:
             filename = "cone." + str(output_format)
-        return self._handler.get_table(link, filename, output_format, verbose)
+        return self._handler.get_table(filename, content=result.content,
+                                       output_format=output_format,
+                                       verbose=verbose)
 
     def query_target(self, name, filename=None, output_format='votable',
                      verbose=False):
@@ -246,11 +253,15 @@ class ESAHubbleClass(object):
                    "&QUERY=(TARGET.TARGET_NAME=='")
         final = "')&RETURN_TYPE=" + str(output_format)
         link = self.metadata_url + initial + name + final
+        result = self._request('GET', link, params=None)
         if verbose:
             log.info(link)
         if filename is None:
             filename = "target.xml"
-        return self._handler.get_table(link, filename, output_format, verbose)
+        return self._handler.get_table(filename,
+                                       content=result.content,
+                                       output_format=output_format,
+                                       verbose=verbose)
 
     def query_hst_tap(self, query, output_file=None,
                       output_format="votable", verbose=False):

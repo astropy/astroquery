@@ -12,10 +12,9 @@ def data_path(filename):
 
 class DummyHandler(object):
 
-    def get_file(self, url, filename, verbose=False):
+    def get_file(self, filename, content=None, verbose=False):
         file = data_path(filename)
-        print(file)
-        if file.endswith(".xml"):
+        if file.upper().endswith(".xml"):
             with open(file, 'r') as myfile:
                 data = myfile.read().replace("\n", "")
         else:
@@ -23,7 +22,7 @@ class DummyHandler(object):
                 data = myfile.read()
         return data
 
-    def get_table(self, url, filename=None, output_format='votable',
+    def get_table(self, filename=None, content=None, output_format='votable',
                   verbose=False):
         if filename is None:
             raise ValueError("filename must be specified")
