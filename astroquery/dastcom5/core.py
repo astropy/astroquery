@@ -8,7 +8,7 @@ import pandas as pd
 from tqdm import tqdm
 
 from astropy.time import Time
-from astropy.table import Table, vstack
+from astropy.table import Table
 import astropy.units as u
 
 from . import conf
@@ -254,10 +254,9 @@ class Dastcom5Class(BaseQuery):
 
         """
         records = self.record_from_name(name)
-        table = self.orbit_from_record(records[0])
-        for i in range(1, len(records)):
-            table = vstack([table, self.orbit_from_record(records[i])[1]])
-        return table
+        orbits = [self.orbit_from_record(rec) for rec in records]
+        tbl = Table(orbits)
+        return tbl
 
     def orbit_from_record(self, record):
         """Return :py:class:`~astropy.table.Table` given a record.
