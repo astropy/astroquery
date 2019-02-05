@@ -1,5 +1,6 @@
 import os
-from astroquery.utils.tap.model import modelutils
+from astroquery.utils.tap.model import modelutils, taptable
+from requests.models import Response
 
 __all__ = ['ESAHubble', 'ESAHubbleClass', 'Conf', 'conf',
            'DummyHandler', 'dummy']
@@ -12,23 +13,15 @@ def data_path(filename):
 
 class DummyHandler(object):
 
-    def get_file(self, filename, content=None, verbose=False):
-        file = data_path(filename)
-        if file.upper().endswith(".xml"):
-            with open(file, 'r') as myfile:
-                data = myfile.read().replace("\n", "")
-        else:
-            with open(file, 'rb') as myfile:
-                data = myfile.read()
-        return data
+    def get_file(self, filename, response=None, verbose=False):
+        return None
 
-    def get_table(self, filename=None, content=None, output_format='votable',
+    def get_table(self, filename=None, response=None, output_format='votable',
                   verbose=False):
-        if filename is None:
-            raise ValueError("filename must be specified")
-        table = modelutils.read_results_table_from_file(filename,
-                                                        str(output_format))
-        return table
+        return None
+
+    def request(self, method="GET", link=None, params=None):
+        return None
 
     def __init__(self, method, parameters):
         self._invokedMethod = method

@@ -53,10 +53,10 @@ Note: Artifact is a single Hubble product file.
 
   >>> from astroquery.esa_hubble import ESAHubble
   >>>
-  >>> ESAHubble.get_artifact("O5HKAX030_FLT.FITS")
+  >>> ESAHubble.get_artifact("w0ji0v01t_c2f.fits.gz")
   http://archives.esac.esa.int/ehst-sl-server/servlet/data-action?ARTIFACT_ID=O5HKAX030_FLT.FITS
 
-This will download the artifact 'O5HKAX030_FLT.FITS'. 'O5HKAX030_FLT.FITS' is the name of the Hubble artifact to be download.
+This will download the compressed artifact 'w0ji0v01t_c2f.fits.gz'. 'w0ji0v01t_c2f.fits' is the name of the Hubble artifact to be download.
 
 ----------------------------------------------
 4. Querying target names in the Hubble archive
@@ -101,11 +101,11 @@ This function provides access to the HST archive database using the Table Access
 .. code-block:: python
 
   >>> from astroquery.esa_hubble import ESAHubble
-  >>> result = ESAHubble.query_hst_tap("select top 10 * from hsc_v2.hubble_sc2", "test.vot")
+  >>> result = ESAHubble.query_hst_tap("select top 10 * from hsc_v2.hubble_sc2", "test.vot.gz")
   >>> print(result)
   >>> result.get_results()
 
-This will execute an ADQL query to download the first 10 sources in the Hubble Source Catalog (HSC) version 2.1 (format default: votable). The result of the query will be stored in the file 'test.vot'. The result of this query can be viewed by doing result.get_results() or printing it by doing print(result).
+This will execute an ADQL query to download the first 10 sources in the Hubble Source Catalog (HSC) version 2.1 (format default: compressed votable). The result of the query will be stored in the file 'test.vot.gz'. The result of this query can be viewed by doing result.get_results() or printing it by doing print(result).
 
 Reference/API
 =============
