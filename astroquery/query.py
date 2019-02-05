@@ -171,7 +171,9 @@ class BaseQuery(object):
         but with added caching-related tools
 
         This is a low-level method not generally intended for use by astroquery
-        end-users.
+        end-users.  However, it should _always_ be used by astroquery
+        developers; direct uses of `urllib` or `requests` are almost never
+        correct.
 
         Parameters
         ----------
@@ -194,7 +196,12 @@ class BaseQuery(object):
         timeout : int
         cache : bool
         verify : bool
+            Verify the server's TLS certificate?
+            (see http://docs.python-requests.org/en/master/_modules/requests/sessions/?highlight=verify)
         continuation : bool
+            If the file is partly downloaded to the target location, this
+            parameter will try to continue the download where it left off.
+            See `_download_file`.
         stream : bool
 
         Returns
@@ -219,10 +226,9 @@ class BaseQuery(object):
                 # ":" so replace them with an underscore
                 local_filename = local_filename.replace(':', '_')
             local_filepath = os.path.join(self.cache_location or savedir or '.', local_filename)
-            # REDUNDANT: spinner has this log.info("Downloading
-            # {0}...".format(local_filename))
-            self._download_file(url, local_filepath, cache=cache, continuation=continuation, method=method, auth=auth,
-                                **req_kwargs)
+            self._download_file(url, local_filepath, cache=cache,
+                                continuation=continuation, method=method,
+                                auth=auth, **req_kwargs)
             return local_filepath
         else:
             query = AstroQuery(method, url, **req_kwargs)
@@ -243,10 +249,25 @@ class BaseQuery(object):
             return response
 
     def _download_file(self, url, local_filepath, timeout=None, auth=None,
-                       continuation=True, cache=False, method="GET", head_safe=False, **kwargs):
+                       continuation=True, cache=False, method="GET",
+                       head_safe=False, **kwargs):
         """
         Download a file.  Resembles `astropy.utils.data.download_file` but uses
         the local ``_session``
+
+        Parameters
+        ----------
+        url : string
+        local_filepath : string
+        timeout : int
+        auth : dict or None
+        continuation : bool
+            If the file has already been partially downloaded *and* the server
+            supports HTTP "range" requests, the download will be continued
+            where it left off.
+        cache : bool
+        method : "GET" or "POST"
+        head_safe : bool
         """
 
         if head_safe:
