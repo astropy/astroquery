@@ -38,7 +38,8 @@ def test_read_headers(mocker):
 def test_read_record(mocker):
     mock_np_fromfile = mocker.patch("poliastro.neos.dastcom5.np.fromfile")
     mock_open = mocker.patch("poliastro.neos.dastcom5.open")
-    mock_read_headers = mocker.patch("astroquery.dastcom5.Dastcom5.read_headers")
+    mock_read_headers = mocker.patch(
+        "astroquery.dastcom5.Dastcom5.read_headers")
     mocked_ast_headers = np.array(
         [(3184, -1, b"00740473", b"00496815")],
         dtype=[
@@ -88,7 +89,8 @@ def test_download_dastcom5_creates_folder(mocker):
 
 
 def test_download_dastcom5_downloads_file(mocker):
-    mock_request = mocker.patch("astroquery.dastcom5.urllib.request.urlretrieve")
+    mock_request = mocker.patch(
+        "astroquery.dastcom5.urllib.request.urlretrieve")
     mock_isdir = mocker.patch("astroquery.dastcom5.os.path.isdir")
     mock_zipfile = mocker.patch("astroquery.dastcom5.zipfile")
     mock_isdir.side_effect = lambda x: x == Dastcom5.local_path
@@ -97,5 +99,6 @@ def test_download_dastcom5_downloads_file(mocker):
     mock_request.assert_called_once_with(
         Dastcom5.ftp_url + "dastcom5.zip",
         filename=os.path.join(Dastcom5.local_path, "dastcom5.zip"),
-        reporthook=Dastcom5.self._show_download_progress(unit='B', unit_scale=True, miniters=1, desc="dastcom5.zip").update_to,
+        reporthook=Dastcom5.self._show_download_progress(
+            unit='B', unit_scale=True, miniters=1, desc="dastcom5.zip").update_to,
     )
