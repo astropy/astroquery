@@ -62,7 +62,8 @@ class Dastcom5Class(BaseQuery):
 
             print("Downloading datscom5.zip")
             with self._show_download_progress(unit='B', unit_scale=True, miniters=1, desc="dastcom5.zip") as t:
-                urllib.request.urlretrieve(self.ftp_url + "dastcom5.zip", filename=dastcom5_zip_path, reporthook=t.update_to)
+                urllib.request.urlretrieve(
+                    self.ftp_url + "dastcom5.zip", filename=dastcom5_zip_path, reporthook=t.update_to)
 
         with zipfile.ZipFile(dastcom5_zip_path) as myzip:
             myzip.extractall(self.local_path)
