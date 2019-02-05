@@ -1,31 +1,31 @@
 import os
-from unittest import mock
 
 import numpy as np
 import pytest
+from pytest_mock import mocker
 
 from ...dastcom5 import Dastcom5
 
 from astropy.table import Table
 
 
-@mock.patch("astroquery.dastcom5.np.fromfile")
-@mock.patch("astroquery.dastcom5.open")
-def test_asteroid_db_is_called_with_right_path(mock_open, mock_np_fromfile):
+def test_asteroid_db_is_called_with_right_path(mocker):
+    mock_np_fromfile = mocker.patch("poliastro.neos.dastcom5.np.fromfile")
+    mock_open = mocker.patch("poliastro.neos.dastcom5.open")
     Dastcom5.asteroid_db()
     mock_open.assert_called_with(Dastcom5.ast_path, "rb")
 
 
-@mock.patch("astroquery.dastcom5.np.fromfile")
-@mock.patch("astroquery.dastcom5.open")
-def test_comet_db_is_called_with_right_path(mock_open, mock_np_fromfile):
+def test_comet_db_is_called_with_right_path(mocker):
+    mock_np_fromfile = mocker.patch("poliastro.neos.dastcom5.np.fromfile")
+    mock_open = mocker.patch("poliastro.neos.dastcom5.open")
     Dastcom5.comet_db()
     mock_open.assert_called_with(Dastcom5.com_path, "rb")
 
 
-@mock.patch("astroquery.dastcom5.np.fromfile")
-@mock.patch("astroquery.dastcom5.open")
-def test_read_headers(mock_open, mock_np_fromfile):
+def test_read_headers(mocker):
+    mock_np_fromfile = mocker.patch("poliastro.neos.dastcom5.np.fromfile")
+    mock_open = mocker.patch("poliastro.neos.dastcom5.open")
     Dastcom5.read_headers()
     mock_open.assert_any_call(
         os.path.join(Dastcom5.dbs_path, "dast5_le.dat"), "rb"
@@ -35,10 +35,10 @@ def test_read_headers(mock_open, mock_np_fromfile):
     )
 
 
-@mock.patch("astroquery.dastcom5.Dastcom5.read_headers")
-@mock.patch("astroquery.dastcom5.np.fromfile")
-@mock.patch("astroquery.dastcom5.open")
-def test_read_record(mock_open, mock_np_fromfile, mock_read_headers):
+def test_read_record(mocker):
+    mock_np_fromfile = mocker.patch("poliastro.neos.dastcom5.np.fromfile")
+    mock_open = mocker.patch("poliastro.neos.dastcom5.open")
+    mock_read_headers = mocker.patch("astroquery.dastcom5.Dastcom5.read_headers")
     mocked_ast_headers = np.array(
         [(3184, -1, b"00740473", b"00496815")],
         dtype=[
@@ -61,13 +61,11 @@ def test_read_record(mock_open, mock_np_fromfile, mock_read_headers):
     )
 
 
-@mock.patch("astroquery.dastcom5.os.makedirs")
-@mock.patch("astroquery.dastcom5.zipfile")
-@mock.patch("astroquery.dastcom5.os.path.isdir")
-@mock.patch("astroquery.dastcom5.urllib.request")
-def test_download_dastcom5_raises_error_when_folder_exists(
-    mock_request, mock_isdir, mock_zipfile, mock_makedirs
-):
+def test_download_dastcom5_raises_error_when_folder_exists(mocker):
+    mock_request = mocker.patch("astroquery.dastcom5.urllib.request")
+    mock_isdir = mocker.patch("astroquery.dastcom5.os.path.isdir")
+    mock_zipfile = mocker.patch("astroquery.dastcom5.zipfile")
+    mock_makedirs = mocker.patch("astroquery.dastcom5.os.makedirs")
     mock_isdir.side_effect = lambda x: x == os.path.join(
         Dastcom5.local_path, "dastcom5"
     )
@@ -78,28 +76,26 @@ def test_download_dastcom5_raises_error_when_folder_exists(
     )
 
 
-@mock.patch("astroquery.dastcom5.urllib.request")
-@mock.patch("astroquery.dastcom5.os.makedirs")
-@mock.patch("astroquery.dastcom5.zipfile")
-@mock.patch("astroquery.dastcom5.os.path.isdir")
-def test_download_dastcom5_creates_folder(
-    mock_isdir, mock_zipfile, mock_makedirs, mock_request
-):
+def test_download_dastcom5_creates_folder(mocker):
+    mock_request = mocker.patch("astroquery.dastcom5.urllib.request")
+    mock_isdir = mocker.patch("astroquery.dastcom5.os.path.isdir")
+    mock_zipfile = mocker.patch("astroquery.dastcom5.zipfile")
+    mock_makedirs = mocker.patch("astroquery.dastcom5.os.makedirs")
     mock_isdir.return_value = False
     mock_zipfile.is_zipfile.return_value = False
     Dastcom5.download_dastcom5()
     mock_makedirs.assert_called_once_with(Dastcom5.local_path)
 
 
-@mock.patch("astroquery.dastcom5.zipfile")
-@mock.patch("astroquery.dastcom5.os.path.isdir")
-@mock.patch("astroquery.dastcom5.urllib.request.urlretrieve")
-def test_download_dastcom5_downloads_file(mock_request, mock_isdir, mock_zipfile):
+def test_download_dastcom5_downloads_file(mocker):
+    mock_request = mocker.patch("astroquery.dastcom5.urllib.request.urlretrieve")
+    mock_isdir = mocker.patch("astroquery.dastcom5.os.path.isdir")
+    mock_zipfile = mocker.patch("astroquery.dastcom5.zipfile")
     mock_isdir.side_effect = lambda x: x == Dastcom5.local_path
     mock_zipfile.is_zipfile.return_value = False
     Dastcom5.download_dastcom5()
     mock_request.assert_called_once_with(
-        Dastcom5.FTP_DB_URL + "dastcom5.zip",
-        os.path.join(Dastcom5.local_path, "dastcom5.zip"),
-        Dastcom5._show_download_progress,
+        Dastcom5.ftp_url + "dastcom5.zip",
+        filename=os.path.join(Dastcom5.local_path, "dastcom5.zip"),
+        reporthook=Dastcom5.self._show_download_progress(unit='B', unit_scale=True, miniters=1, desc="dastcom5.zip").update_to,
     )
