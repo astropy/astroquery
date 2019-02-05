@@ -62,6 +62,7 @@ class ESAHubbleClass(BaseQuery):
 
     data_url = conf.DATA_ACTION
     metadata_url = conf.METADATA_ACTION
+    TIMEOUT = conf.TIMEOUT
 
     def __init__(self, url_handler=None, tap_handler=None):
         super(ESAHubbleClass, self).__init__()
@@ -76,8 +77,11 @@ class ESAHubbleClass(BaseQuery):
         else:
             self._tap = tap_handler
 
-    def get_product(self, observation_id, calibration_level="RAW",
-                    filename=None, verbose=False):
+
+
+    def download_product(self, observation_id, calibration_level="RAW",
+                         filename=None, verbose=False, cache=False,
+                         continuation=False):
         """ Download products from EHST
 
             Parameters
@@ -105,13 +109,20 @@ class ESAHubbleClass(BaseQuery):
         obs_id = "OBSERVATION_ID=" + observation_id
         cal_level = "CALIBRATION_LEVEL=" + calibration_level
         link = self.data_url + obs_id + "&" + cal_level
-        result = self._handler.request('GET', link, params=None)
-        if verbose:
-            log.info(link)
+
         if filename is None:
             filename = observation_id + ".tar"
-        self._handler.get_file(filename, response=result,
-                               verbose=verbose)
+
+        response = self._download_file(link, local_filepath=filename,
+                                       timeout=self.TIMEOUT, cache=cache,
+                                       continuation=continuation)
+        response.raise_for_status()
+
+        if verbose:
+            log.info("Wrote {0} to {1}".format(link, filename))
+
+        return filename
+
 
     def get_artifact(self, artifact_id, filename=None, verbose=False):
         """ Download artifacts from EHST. Artifact is a single Hubble product
