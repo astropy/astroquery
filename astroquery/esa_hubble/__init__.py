@@ -28,6 +28,7 @@ class Conf(_config.ConfigNamespace):
                                          "ehst-sl-server/servlet/"
                                          "metadata-action?",
                                          "Main url for retriving hst metadata")
+    TIMEOUT = 60
 
 
 conf = Conf()
