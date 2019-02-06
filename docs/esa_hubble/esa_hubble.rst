@@ -22,7 +22,7 @@ Examples
 
   >>> from astroquery.esa_hubble import ESAHubble
   >>>
-  >>> ESAHubble.get_product("J6FL25S4Q", "RAW", "raw_data_for_J6FL25S4Q.tar")
+  >>> ESAHubble.download_product("J6FL25S4Q", "RAW", "raw_data_for_J6FL25S4Q.tar")
   http://archives.esac.esa.int/ehst-sl-server/servlet/data-action?OBSERVATION_ID=J6FL25S4Q&CALIBRATION_LEVEL=RAW
 
 This will download all files for the raw calibration level of the observation 'J6FL25S4Q' and it will store them in a tar called 'raw_data_for_J6FL25S4Q.tar'.
