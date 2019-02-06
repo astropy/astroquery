@@ -17,6 +17,8 @@ from astropy.units import Quantity
 from astroquery.utils.tap.core import TapPlus
 from astroquery.utils.tap.model import modelutils
 from astroquery.query import BaseQuery
+from astropy.table import Table
+from six import BytesIO
 
 from . import conf
 from astropy import log
@@ -62,6 +64,7 @@ class ESAHubbleClass(BaseQuery):
 
     data_url = conf.DATA_ACTION
     metadata_url = conf.METADATA_ACTION
+    TIMEOUT = conf.TIMEOUT
 
     def __init__(self, url_handler=None, tap_handler=None):
         super(ESAHubbleClass, self).__init__()
@@ -76,8 +79,11 @@ class ESAHubbleClass(BaseQuery):
         else:
             self._tap = tap_handler
 
-    def get_product(self, observation_id, calibration_level="RAW",
-                    filename=None, verbose=False):
+
+
+    def download_product(self, observation_id, calibration_level="RAW",
+                         filename=None, verbose=False, cache=False,
+                         continuation=False):
         """ Download products from EHST
 
             Parameters
@@ -105,13 +111,20 @@ class ESAHubbleClass(BaseQuery):
         obs_id = "OBSERVATION_ID=" + observation_id
         cal_level = "CALIBRATION_LEVEL=" + calibration_level
         link = self.data_url + obs_id + "&" + cal_level
-        result = self._handler.request('GET', link, params=None)
-        if verbose:
-            log.info(link)
+
         if filename is None:
             filename = observation_id + ".tar"
-        self._handler.get_file(filename, response=result,
-                               verbose=verbose)
+
+        response = self._download_file(link, local_filepath=filename,
+                                       timeout=self.TIMEOUT, cache=cache,
+                                       continuation=continuation)
+        response.raise_for_status()
+
+        if verbose:
+            log.info("Wrote {0} to {1}".format(link, filename))
+
+        return filename
+
 
     def get_artifact(self, artifact_id, filename=None, verbose=False):
         """ Download artifacts from EHST. Artifact is a single Hubble product
@@ -190,7 +203,24 @@ class ESAHubbleClass(BaseQuery):
         self._handler.get_file(filename, response=result, verbose=verbose)
 
     def cone_search(self, coordinates, radius=0.0, filename=None,
-                    output_format='votable', verbose=False):
+                    output_format='votable', cache=True):
+        """
+        Example
+        -------
+        >>> from astroquery.esa_hubble import ESAHubble
+        >>> from astropy import coordinates
+        >>> c = coordinates.SkyCoord("00h42m44.51s +41d16m08.45s", frame='icrs')
+        >>> table = ESAHubble.cone_search(c, 7, "cone_search_m31_5.vot")
+        >>> table[:3]
+        <Table masked=True length=3>
+        OBSERVATION_ID       START_TIME       ...      WAVE_MIN      FILTER
+                              iso-8601        ...
+            object             object         ...      float64       object
+        -------------- ---------------------- ... ------------------ ------
+             u8gp9c01m 2002-06-29 12:28:16.79 ...          510.89001  F606W
+             u8gp9c02m 2002-06-29 12:33:16.79 ...          510.89001  F606W
+             u8gp9c03m 2002-06-29 14:05:16.79 ... 400.82000999999997  F450W
+        """
         coord = self._getCoordInput(coordinates, "coordinate")
         radiusInGrades = float(radius/60)  # Converts to degrees
 
@@ -219,13 +249,18 @@ class ESAHubbleClass(BaseQuery):
                    "ORDER BY PROPOSAL.PROPOSAL_ID "
                    "DESC",
                    "RETURN_TYPE": str(output_format)}
-        result = self._handler.request('GET', self.metadata_url,
-                                       params=payload)
+        result = self._request('GET', self.metadata_url, params=payload,
+                               cache=cache, timeout=self.TIMEOUT)
         if filename is None:
             filename = "cone." + str(output_format)
-        return self._handler.get_table(filename, response=result,
-                                       output_format=output_format,
-                                       verbose=verbose)
+
+        fileobj = BytesIO(result.content)
+
+        table = Table.read(fileobj, format=output_format)
+
+        # TODO: add "correct units" material here
+
+        return table
 
     def query_target(self, name, filename=None, output_format='votable',
                      verbose=False):
