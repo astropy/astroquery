@@ -74,13 +74,18 @@ class TestESAHubble():
 
         parameters = {}
         parameters['coordinates'] = c
-        parameters['radius'] = None
-        parameters['file_name'] = None
-        parameters['verbose'] = False
+        parameters['radius'] = 0.0
+        parameters['file_name'] = 'file_cone'
+        parameters['output_format'] = 'votable'
+        parameters['cache'] = True
         dummyHandler = DummyHandler("cone_search", parameters)
 
         ehst = ESAHubbleClass(dummyHandler, dummyTapHandler)
-        ehst.cone_search(parameters['coordinates'])
+        ehst.cone_search(parameters['coordinates'],
+                         parameters['radius'],
+                         parameters['file_name'],
+                         parameters['output_format'],
+                         parameters['cache'])
         dummyHandler.check_call("cone_search", parameters)
 
     def test_query_hst_tap(self):
