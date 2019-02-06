@@ -213,8 +213,7 @@ class ESAHubbleClass(BaseQuery):
         -------
         >>> from astroquery.esa_hubble import ESAHubble
         >>> from astropy import coordinates
-        >>> c = coordinates.SkyCoord("00h42m44.51s +41d16m08.45s",
-            frame='icrs')
+        >>> c = coordinates.SkyCoord("00h42m44.51s +41d16m08.45s", frame='icrs')
         >>> table = ESAHubble.cone_search(c, 7, "cone_search_m31_5.vot")
         >>> table[:3]
         <Table masked=True length=3>
