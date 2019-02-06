@@ -20,7 +20,9 @@ class DummyHandler(object):
                   verbose=False):
         return None
 
-    def request(self, method="GET", link=None, params=None):
+    def request(self, t="GET", link=None, params=None,
+                cache=None,
+                timeout=None):
         return None
 
     def __init__(self, method, parameters):

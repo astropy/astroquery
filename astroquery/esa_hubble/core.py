@@ -53,8 +53,12 @@ class ESAHubbleHandler(BaseQuery):
                                                         str(output_format))
         return table
 
-    def request(self, t="GET", link=None, params=None):
-        return self._request(method=t, url=link, params=params)
+    def request(self, t="GET", link=None, params=None,
+                cache=None,
+                timeout=None):
+        return self._request(method=t, url=link,
+                             params=params, cache=cache,
+                             timeout=timeout)
 
 
 Handler = ESAHubbleHandler()
@@ -112,14 +116,19 @@ class ESAHubbleClass(BaseQuery):
         if filename is None:
             filename = observation_id + ".tar"
 
-        response = self._download_file(link, local_filepath=filename,
-                                       timeout=self.TIMEOUT)
-        response.raise_for_status()
+        # response = self._download_file(link, local_filepath=filename,
+        #                                timeout=self.TIMEOUT)
+        response = self._handler.request('GET', link)
+        if response is None:
+            return None
+        else:
+            self._handler.get_file(filename, response=response,
+                               verbose=verbose)
+            response.raise_for_status()
 
-        if verbose:
-            log.info("Wrote {0} to {1}".format(link, filename))
-
-        return filename
+            if verbose:
+                log.info("Wrote {0} to {1}".format(link, filename))
+            return filename
 
     def get_artifact(self, artifact_id, filename=None, verbose=False):
         """ Download artifacts from EHST. Artifact is a single Hubble product
@@ -245,16 +254,20 @@ class ESAHubbleClass(BaseQuery):
                    "ORDER BY PROPOSAL.PROPOSAL_ID "
                    "DESC",
                    "RETURN_TYPE": str(output_format)}
-        result = self._request('GET', self.metadata_url, params=payload,
-                               cache=cache, timeout=self.TIMEOUT)
+        result = self._handler.request('GET',
+                                       self.metadata_url,
+                                       params=payload,
+                                       cache=cache,
+                                       timeout=self.TIMEOUT)
         if filename is None:
             filename = "cone." + str(output_format)
 
-        fileobj = BytesIO(result.content)
-
-        table = Table.read(fileobj, format=output_format)
-
-        # TODO: add "correct units" material here
+        if result is None:
+            table = None
+        else:
+            fileobj = BytesIO(result.content)
+            table = Table.read(fileobj, format=output_format)
+            # TODO: add "correct units" material here
 
         return table
 
