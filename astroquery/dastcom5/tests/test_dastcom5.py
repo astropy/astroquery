@@ -89,16 +89,14 @@ def test_download_dastcom5_creates_folder(mocker):
 
 
 def test_download_dastcom5_downloads_file(mocker):
-    mock_request = mocker.patch(
-        "astroquery.dastcom5.urllib.request.urlretrieve")
+    mock_download = mocker.patch(
+        "astroquery.query.BaseQuery._download_file")
     mock_isdir = mocker.patch("astroquery.dastcom5.os.path.isdir")
     mock_zipfile = mocker.patch("astroquery.dastcom5.zipfile")
     mock_isdir.side_effect = lambda x: x == Dastcom5.local_path
     mock_zipfile.is_zipfile.return_value = False
     Dastcom5.download_dastcom5()
-    mock_request.assert_called_once_with(
-        Dastcom5.ftp_url + "dastcom5.zip",
-        filename=os.path.join(Dastcom5.local_path, "dastcom5.zip"),
-        reporthook=Dastcom5.self._show_download_progress(
-            unit='B', unit_scale=True, miniters=1, desc="dastcom5.zip").update_to,
+    mock_download.assert_called_once_with(
+        url=Dastcom5.ftp_url + "dastcom5.zip",
+        local_filepath=os.path.join(Dastcom5.local_path, "dastcom5.zip"),
     )
