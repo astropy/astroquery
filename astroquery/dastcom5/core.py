@@ -1,11 +1,9 @@
 from __future__ import print_function
 import re
 import os
-import urllib.request
 import zipfile
 import numpy as np
 import pandas as pd
-from tqdm import tqdm
 
 from astropy.time import Time
 from astropy.table import Table
@@ -39,7 +37,6 @@ class Dastcom5Class(BaseQuery):
         self.com_dtype = conf.COM_DTYPE
         self.ast_dtype = conf.AST_DTYPE
         self.ftp_url = conf.FTP_DB_URL
-        self._show_download_progress = self._Show_Download_Progress
 
     def download_dastcom5(self):
         """Downloads DASTCOM5 database.
@@ -50,6 +47,7 @@ class Dastcom5Class(BaseQuery):
 
         dastcom5_dir = os.path.join(self.local_path, "dastcom5")
         dastcom5_zip_path = os.path.join(self.local_path, "dastcom5.zip")
+        ftp_path = self.ftp_url + "dastcom5.zip"
 
         if os.path.isdir(dastcom5_dir):
             raise FileExistsError(
@@ -61,20 +59,10 @@ class Dastcom5Class(BaseQuery):
                 os.makedirs(self.local_path)
 
             print("Downloading datscom5.zip")
-            with self._show_download_progress(unit='B', unit_scale=True, miniters=1, desc="dastcom5.zip") as t:
-                urllib.request.urlretrieve(
-                    self.ftp_url + "dastcom5.zip", filename=dastcom5_zip_path, reporthook=t.update_to)
+            self._download_file(url=ftp_path, local_filepath=dastcom5_zip_path)
 
         with zipfile.ZipFile(dastcom5_zip_path) as myzip:
             myzip.extractall(self.local_path)
-
-    class _Show_Download_Progress(tqdm):
-        """Helper class for displaying download progress bar when using download_dastcom5() function
-        """
-        def update_to(self, b=1, bsize=1, tsize=None):
-            if tsize is not None:
-                self.total = tsize
-            self.update(b * bsize - self.n)
 
     def asteroid_db(self):
         """Return complete DASTCOM5 asteroid database.
