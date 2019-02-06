@@ -209,21 +209,6 @@ class ESAHubbleClass(BaseQuery):
     def cone_search(self, coordinates, radius=0.0, filename=None,
                     output_format='votable', cache=True):
         """
-        Example
-        -------
-        >>> from astroquery.esa_hubble import ESAHubble
-        >>> from astropy import coordinates
-        >>> c = coordinates.SkyCoord("00h42m44.51s +41d16m08.45s", frame='icrs')
-        >>> table = ESAHubble.cone_search(c, 7, "cone_search_m31_5.vot")
-        >>> table[:3]
-        <Table masked=True length=3>
-        OBSERVATION_ID       START_TIME       ...      WAVE_MIN      FILTER
-                              iso-8601        ...
-            object             object         ...      float64       object
-        -------------- ---------------------- ... ------------------ ------
-             u8gp9c01m 2002-06-29 12:28:16.79 ...          510.89001  F606W
-             u8gp9c02m 2002-06-29 12:33:16.79 ...          510.89001  F606W
-             u8gp9c03m 2002-06-29 14:05:16.79 ... 400.82000999999997  F450W
         """
         coord = self._getCoordInput(coordinates, "coordinate")
         radiusInGrades = float(radius/60)  # Converts to degrees
