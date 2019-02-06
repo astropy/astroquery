@@ -79,11 +79,8 @@ class ESAHubbleClass(BaseQuery):
         else:
             self._tap = tap_handler
 
-
-
     def download_product(self, observation_id, calibration_level="RAW",
-                         filename=None, verbose=False, cache=False,
-                         continuation=False):
+                         filename=None, verbose=False):
         """ Download products from EHST
 
             Parameters
@@ -116,15 +113,13 @@ class ESAHubbleClass(BaseQuery):
             filename = observation_id + ".tar"
 
         response = self._download_file(link, local_filepath=filename,
-                                       timeout=self.TIMEOUT, cache=cache,
-                                       continuation=continuation)
+                                       timeout=self.TIMEOUT)
         response.raise_for_status()
 
         if verbose:
             log.info("Wrote {0} to {1}".format(link, filename))
 
         return filename
-
 
     def get_artifact(self, artifact_id, filename=None, verbose=False):
         """ Download artifacts from EHST. Artifact is a single Hubble product
@@ -209,7 +204,8 @@ class ESAHubbleClass(BaseQuery):
         -------
         >>> from astroquery.esa_hubble import ESAHubble
         >>> from astropy import coordinates
-        >>> c = coordinates.SkyCoord("00h42m44.51s +41d16m08.45s", frame='icrs')
+        >>> c = coordinates.SkyCoord("00h42m44.51s +41d16m08.45s",
+            frame='icrs')
         >>> table = ESAHubble.cone_search(c, 7, "cone_search_m31_5.vot")
         >>> table[:3]
         <Table masked=True length=3>

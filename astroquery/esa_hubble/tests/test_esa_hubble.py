@@ -31,15 +31,19 @@ class TestESAHubble():
         dummyTapHandler = DummyHubbleTapHandler("launch_job", parameterst)
         return dummyTapHandler
 
-    def test_get_product(self):
+    def test_download_product(self):
         parameters = {}
         parameters['observation_id'] = "J6FL25S4Q"
         parameters['calibration_level'] = "RAW"
+        parameters['filename'] = 'file'
         parameters['verbose'] = False
-        dummyHandler = DummyHandler("get_product", parameters)
+        dummyHandler = DummyHandler("download_product", parameters)
         ehst = ESAHubbleClass(dummyHandler, self.get_dummy_tap_handler())
-        ehst.get_product("J6FL25S4Q", "RAW")
-        dummyHandler.check_call("get_product", parameters)
+        ehst.download_product(parameters['observation_id'],
+                              parameters['calibration_level'],
+                              parameters['filename'],
+                              parameters['verbose'])
+        dummyHandler.check_call("download_product", parameters)
 
     def test_get_postcard(self):
         parameters = {}
@@ -47,7 +51,7 @@ class TestESAHubble():
         parameters['verbose'] = False
         dummyHandler = DummyHandler("get_postcard", parameters)
         ehst = ESAHubbleClass(dummyHandler, self.get_dummy_tap_handler())
-        ehst.get_product("X0MC5101T")
+        ehst.get_postcard("X0MC5101T")
         dummyHandler.check_call("get_postcard", parameters)
 
     def test_query_target(self):
