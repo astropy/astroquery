@@ -10,6 +10,7 @@ import keyring
 import io
 import os
 import requests
+import urllib.request
 
 import six
 from astropy.config import paths
@@ -248,6 +249,8 @@ class BaseQuery(object):
         Download a file.  Resembles `astropy.utils.data.download_file` but uses
         the local ``_session``
         """
+        if url[:3] == 'ftp':
+            return self._ftp_download(url, local_filepath)
 
         if head_safe:
             response = self._session.request("HEAD", url, timeout=timeout, stream=True,
@@ -341,6 +344,9 @@ class BaseQuery(object):
 
         response.close()
         return response
+
+    def __ftp_download(self, url, local_filepath):
+        urllib.request.urlretrieve(url, local_filepath)
 
 
 class suspend_cache:
