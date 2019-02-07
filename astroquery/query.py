@@ -345,7 +345,7 @@ class BaseQuery(object):
         response.close()
         return response
 
-    def __ftp_download(self, url, local_filepath):
+    def _ftp_download(self, url, local_filepath):
         urllib.request.urlretrieve(url, local_filepath)
 
 
