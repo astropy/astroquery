@@ -392,7 +392,8 @@ def test_get_observations(patch_get):
 
     result = mpc.core.MPC.get_observations(number='12893',
                                            get_raw_response=True)
-    assert "{'designation': None, 'discovery_flag': None," in str(result)
+
+    assert result[0]['designation'] == "1998 QS55"
 
     result = mpc.core.MPC.get_observations(number='12893',
                                            get_mpcformat=True)
