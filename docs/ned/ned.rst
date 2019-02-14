@@ -231,7 +231,7 @@ Fetching other data tables for an object
 
 Several other data tables for an object may be fetched via the :meth:`~astroquery.ned.NedClass.get_table`
 queries. These take a keyword argument ``table``, which may be set to one of
-``photometry``, ``diameters``, ``redshifts``, ``references`` or ``object-notes``. For
+``photometry``, ``diameters``, ``redshifts``, ``references`` or ``object_notes``. For
 instance the ``table=photometry`` will fetch all the relevant photometric data
 for the specified object. We look at a simple example:
 
