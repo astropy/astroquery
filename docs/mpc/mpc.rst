@@ -420,7 +420,7 @@ asteroid 12893:
 
 .. code-block:: python
 
-   >>> obs = MPC.get_observations(number=12893)
+   >>> obs = MPC.get_observations(12893)
    >>> print(obs)
    number   desig   discovery note1 ...         DEC          mag  band observatory
 				    ...         deg          mag                  
@@ -446,19 +446,19 @@ into a `~astropy.table.QTable` by default; it is also possible to
 output the original MPC 80-column format strings using the optional
 argument ``get_mpcformat``.
 
-The query can only be run for single targets. The target is identified
-either through a ``number`` (asteroids or periodic comets) or a
-provisional designation, ``desig``. In case a periodic comet is
-queried with a number, e.g., 258P, the query would include the
-``comettype`` keyword to identify the number provided as a periodic
-comet number: ``get_observations(number=258, comettype='P')``. If a
-comet designation is queried, e.g., P/2019 A4, the comet orbit type
-letter ``P`` either has to be included in the designation followed by
-a slash (``/``) or using the ``comettype`` keyword:
-``get_observations(desig='P/2019 A4')`` or
-``get_observations(desig='2019 A4', comettype='P')`` are allowed. If
-``comettype == None``, which is the default behavior, the queried
-number or designation is assumed to be asteroidal.
+The query can only be run for single targets. The target body is
+identified either through an asteroid number (as int or str), a
+periodic comet number (as str, e.g., ``'2P'``), a provisional asteroid
+designation (as str, e.g., ``'1998 QS55'``), or a provisional comet
+designation (as str, e.g., ``'P/2019 A4'``). Note that comet
+identifiers have to be accompanied by a comet type identifier (``P``,
+``C``, ``X``, etc.), e.g., ``'1P'``, ``'354P'``, ``'P/2019 A4'``,
+``'C/1932 Y1'``. The lack of a comet type identifier may lead to a
+misleading target identification or an error being raised. Asteroid or
+comet names cannot be queried, as well as Palomar-Leiden Survey
+designations, and individual comet fragments. In case an object name
+cannot be resolved, a ``ValueError`` is raised. If a query returns no
+results, a ``RuntimeError`` is raised.
 
 Reference/API
 =============

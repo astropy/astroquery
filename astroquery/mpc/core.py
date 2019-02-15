@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import json
+import re
+import warnings
 
 import numpy as np
 from bs4 import BeautifulSoup
@@ -9,6 +11,7 @@ from astropy.time import Time
 from astropy.table import Table, QTable, Column
 import astropy.units as u
 from astropy.coordinates import EarthLocation, Angle, SkyCoord
+from astropy._erfa.core import ErfaWarning
 
 from ..query import BaseQuery
 from . import conf
@@ -767,7 +770,7 @@ class MPCClass(BaseQuery):
         return request_args
 
     @class_or_instance
-    def get_observations_async(self, number=None, desig=None,
+    def get_observations_async(self, targetid,
                                comettype=None,
                                get_mpcformat=False,
                                get_raw_response=False, cache=True):
@@ -778,27 +781,20 @@ class MPCClass(BaseQuery):
 
         Parameters
         ----------
-
-        number : int, either this argument or ``desig`` is required
-            Official target number. By default, the number is
-            considered to refer to an asteroid. If a periodic comet number
-            is provided, ``comettype='P'`` must be used.
-
-        desig : str, either this argument or ``number`` is required
-            Provisional target designation, e.g., ``'1998 Q55'`` for
-            asteroids, ``'2018 E1'`` or ``'C/2018 E1'`` for comets. The
-            whitespace between
-            the year and the remainder of the designation is required.
-            Packed designations are not permitted. If a comet designation
-            is provided, the ``comettype`` keyword must be set.
-
-        comettype : str or None, optional
-            Defines the orbital type of the comet, if a comet is to be
-            queried: ``'P'`` refers to a short-period comet, ``'C'``
-            refers to a long-period comet, ``None`` refers to a non-cometary
-            object. This argument has to be set if ``number`` refers to a
-            short-period number or ``desig`` refers to a cometary
-            provisional designation. Default: ``None``
+        targetid : int or str
+            Official target number or
+            designation. If a number is provided (either as int or
+            str), the input is interpreted as an asteroid number;
+            asteroid designations are interpreted as such (note that a
+            whitespace between the year and the remainder of the
+            designation is required and no packed designations are
+            allowed). To query a periodic comet number, you have to
+            append ``'P'``, e.g., ``'234P'``. To query any comet
+            designation, the designation has to start with a letter
+            describing the comet type and a slash, e.g., ``'C/2018 E1'``.
+            Comet or asteroid names, Palomar-Leiden Survey
+            designations, and individual comet fragments cannot be
+            queried.
 
         get_mpcformat : bool, optional
             If ``True``, this method will return an `~astropy.table.QTable`
@@ -813,9 +809,18 @@ class MPCClass(BaseQuery):
             If ``True``, queries will be cached. Default: ``True``
 
 
+        Raises
+        ------
+        RuntimeError
+            If query did not return any data.
+
+        ValueError
+            If target name could not be parsed properly and target type
+            could not be identified.
+
+
         Notes
         -----
-
         The following quantities are included in the output table
 
         +-------------------+--------------------------------------------+
@@ -857,9 +862,8 @@ class MPCClass(BaseQuery):
 
         Examples
         --------
-
         >>> from astroquery.mpc import MPC
-        >>> MPC.get_observations(number=12893)  # doctest: +SKIP
+        >>> MPC.get_observations(12893)  # doctest: +SKIP
         <QTable masked=True length=1401>
         number   desig   discovery note1 ...   mag   band observatory
                                          ...   mag
@@ -878,22 +882,49 @@ class MPCClass(BaseQuery):
          12893 1998 QS55        --    -- ...    18.3    r         I41
          12893 1998 QS55        --    -- ...    18.2    r         I41
          12893 1998 QS55        --    -- ...    18.3    r         I41
-
         """
 
         request_payload = {'table': 'observations'}
 
-        if number is not None:
-            request_payload['number'] = number
-        if comettype is not None:
-            if desig is None:
-                request_payload['object_type'] = comettype
-            else:
-                if not desig.startswith(comettype+'/'):
-                    desig = comettype+'/'+desig
+        # identify target type and identifier
 
-        if desig is not None:
-            request_payload['designation'] = desig
+        pat = ('(^[0-9]*$)|'  # [0] asteroid number
+               '(^[0-9]*[PIA])'  # [1] periodic comet number
+               '(-[1-9A-Z]{0,2})?$|'  # [2] fragment
+               '(^[PDCXAI]/[-]?[0-9]{3,4}[ _][A-Z]{1,2}[0-9]{1,3})'
+               # [3] comet designation
+               '(-[1-9A-Z]{0,2})?$|'  # [4] fragment
+               '(^([1A][8-9][0-9]{2}[ _][A-Z]{2}[0-9]{0,3}$|'
+               '^20[0-9]{2}[ _][A-Z]{2}[0-9]{0,3}$)|'
+               '(^[1-9][0-9]{3}[ _](P-L|T-[1-3]))$)'
+               # asteroid designation [5] (old/new/Palomar-Leiden style)
+               )
+
+        # comet fragments are extracted here, but the MPC server does
+        # not allow for fragment-based queries
+
+        m = re.findall(pat, str(targetid))
+
+        if len(m) == 0:
+            raise ValueError(('Cannot interpret target '
+                              'identifier "{}".').format(targetid))
+        else:
+            m = m[0]
+
+        request_payload['object_type'] = 'M'
+        if m[1] != '':
+            request_payload['object_type'] = 'P'
+        if m[3] != '':
+            request_payload['object_type'] = m[3][0]
+
+        if m[0] != '':
+            request_payload['number'] = m[0]  # asteroid number
+        elif m[1] != '':
+            request_payload['number'] = m[1][:-1]  # periodic comet number
+        elif m[3] != '':
+            request_payload['designation'] = m[3]  # comet designation
+        elif m[5] != '':
+            request_payload['designation'] = m[5]  # asteroid designation
 
         self.query_type = 'observations'
 
@@ -1092,6 +1123,8 @@ class MPCClass(BaseQuery):
 
         elif self.query_type == 'observations':
 
+            warnings.simplefilter("ignore", ErfaWarning)
+
             try:
                 src = json.loads(result.text)
             except (ValueError, json.decoder.JSONDecodeError):
@@ -1130,7 +1163,9 @@ class MPCClass(BaseQuery):
                 # convert asteroid designations
                 # old designation style, e.g.: 1989AB
                 ident = data['pdesig'][0]
-                if (len(ident) < 7 and ident[:4].isdigit() and
+                if isinstance(ident, np.ma.masked_array) and ident.mask:
+                    ident = ''
+                elif (len(ident) < 7 and ident[:4].isdigit() and
                         ident[4:6].isalpha()):
                     ident = ident[:4]+' '+ident[4:6]
                 # Palomar Survey
@@ -1155,8 +1190,9 @@ class MPCClass(BaseQuery):
                                 index=1)
                 data.remove_column('pdesig')
 
-            elif all([o['object_type'] == 'C' or o['object_type'] == 'P'
-                      for o in src]):
+                print(data)
+
+            elif all([o['object_type'] != 'M' for o in src]):
                 # comets
                 data = ascii.read("\n".join([o['original_record']
                                              for o in src]),
@@ -1172,13 +1208,21 @@ class MPCClass(BaseQuery):
 
                 # convert comet designations
                 ident = data['desig'][0]
-                yr = str(conf.pkd.find(ident[0]))+ident[1:3]
-                let = ident[3]
-                num = str(conf.pkd.find(ident[4]))+ident[5]
-                num = num.lstrip("0")
-                frag = ident[6] if ident[6] != '0' else ''
-                ident = yr+' '+let+num+frag
-                data['desig'] = ident
+
+                if (not isinstance(ident, (np.ma.masked_array,
+                                           np.ma.core.MaskedConstant))
+                        or not ident.mask):
+                    yr = str(conf.pkd.find(ident[0]))+ident[1:3]
+                    let = ident[3]
+                    num = str(conf.pkd.find(ident[4]))+ident[5]
+                    num = num.lstrip("0")
+                    frag = ident[6] if ident[6] != '0' else ''
+                    ident = yr+' '+let+num+frag
+                    data['desig'] = ident
+            else:
+                raise ValueError(('Object type is ambiguous. "{}" '
+                                  'are present.').format(
+                                      set([o['object_type'] for o in src])))
 
             # convert dates to Julian Dates
             dates = [d[:10].replace(' ', '-') for d in data['epoch']]

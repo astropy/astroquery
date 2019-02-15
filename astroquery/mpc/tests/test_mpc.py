@@ -383,18 +383,18 @@ def test_get_observatory_location_fail():
 
 
 def test_get_observations(patch_get):
-    result = mpc.core.MPC.get_observations(number='12893')
+    result = mpc.core.MPC.get_observations(12893)
     assert result['desig'][0] == '1998 QS55'
     assert result['mag'].unit == u.mag
     assert result['RA'].unit == u.deg
     assert result['DEC'].unit == u.deg
     assert result['epoch'].unit == u.d
 
-    result = mpc.core.MPC.get_observations(number='12893',
+    result = mpc.core.MPC.get_observations('12893',
                                            get_raw_response=True)
 
     assert result[0]['designation'] == "1998 QS55"
 
-    result = mpc.core.MPC.get_observations(number='12893',
+    result = mpc.core.MPC.get_observations('12893',
                                            get_mpcformat=True)
     assert "12893J93S07X*4 1993 09 17.25833" in str(result)
