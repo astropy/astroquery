@@ -274,7 +274,7 @@ generally return a table listing the available data first.
 Simulations
 -----------
 
-Simulation services query databases of simulated or synthetic data
+These services query databases of simulated or synthetic data:
 
 .. toctree::
   :maxdepth: 1
