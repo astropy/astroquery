@@ -282,12 +282,11 @@ Simulation services query databases of simulated or synthetic data
   besancon/besancon.rst
   cosmosim/cosmosim.rst
 
-Other
------
+Line List Services
+------------------
 
-There are other astronomically significant services, e.g. line list and
-atomic/molecular cross section and collision rate services, that don't fit the
-above categories.
+There are several web services that provide atomic or molecular line lists, as
+well as  cross section and collision rates.  Those services are:
 
 .. toctree::
   :maxdepth: 1
@@ -296,9 +295,18 @@ above categories.
   lamda/lamda.rst
   nist/nist.rst
   splatalogue/splatalogue.rst
-  nasa_ads/nasa_ads.rst
   vamdc/vamdc.rst
   hitran/hitran.rst
+
+Other
+-----
+
+There are other astronomically significant services, that don't fit the
+above categories. Those services are here:
+
+.. toctree::
+  :maxdepth: 1
+  nasa_ads/nasa_ads.rst
   utils/tap.rst
   jplhorizons/jplhorizons.rst
   jplsbdb/jplsbdb.rst
