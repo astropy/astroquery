@@ -41,7 +41,8 @@ from ..utils import commons, async_to_sync
 from ..utils.class_or_instance import class_or_instance
 from ..exceptions import (TimeoutError, InvalidQueryError, RemoteServiceError,
                           LoginError, ResolverError, MaxResultsWarning,
-                          NoResultsWarning, InputWarning, AuthenticationWarning)
+                          NoResultsWarning, InputWarning, AuthenticationWarning,
+                          FutureWarning)
 from . import conf
 from . import fpl
 
@@ -1126,8 +1127,27 @@ class ObservationsClass(MastClass):
         objectname = criteria.pop('objectname', None)
         radius = criteria.pop('radius', 0.2*u.deg)
 
+        if ('obstype' in criteria) and ('intentType' in criteria):
+            warn_string = "Cannot specify both obstype and intentType, "
+            warn_string += "obstype is the deprecated version of intentType and will be ignored."
+            warnings.warn(warn_string, InputWarning)
+            criteria.pop('obstype', None)
+        
+        # Temporarily issuing warning about change in behavior
+        # continuing old behavior
         # grabbing the observation type (science vs calibration)
-        obstype = criteria.pop('obstype', 'science')
+        obstype = criteria.pop('obstype', None)
+        if obstype:
+            warn_string = "Criteria obstype argument will disappear in May 2019. "
+            warn_string = "Criteria 'obstype' is now 'intentType', options are 'science' or 'calibration', "
+            warn_string += "if intentType is not supplied all observations (science and calibration) are returned."
+            warnings.warn(warn_string, FutureWarning)
+            
+            if obstype == "science":
+                criteria["intentType"] = "science"
+            elif obstype == "cal":
+                criteria["intentType"] = "calibration"
+            
 
         # Build the mashup filter object and store it in the correct service_name entry
         if coordinates or objectname:

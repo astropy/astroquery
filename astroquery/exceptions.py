@@ -77,7 +77,7 @@ class LargeQueryWarning(AstropyWarning):
 
 class InputWarning(AstropyWarning):
     """
-    Astroquery warning class to be issued when use input is incorrect
+    Astroquery warning class to be issued when user input is incorrect
     in some way but doesn't prevent the function from running.
     """
     pass
@@ -94,5 +94,12 @@ class MaxResultsWarning(AstropyWarning):
     """
     Astroquery warning class to be issued when the maximum allowed
     results are returned.
+    """
+    pass
+
+class FutureWarning(AstropyWarning):
+    """
+    Astroquery warning class to be issued when behavior will be
+    changing in the future.
     """
     pass
