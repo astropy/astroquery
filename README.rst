@@ -163,7 +163,7 @@ Additional Links
 
 `Download Development ZIP`_  |  `Download Development TAR`_
 
-Maintained by `Adam Ginsburg`_ and `Brigitta Sipocz <github.com/bsipocz>`_ (`astropy.astroquery@gmail.com`_)
+Maintained by `Adam Ginsburg`_ and `Brigitta Sipocz <https://github.com/bsipocz>`_ (`astropy.astroquery@gmail.com`_)
 
 If you use ``astroquery``, please cite our `Zenodo DOI
 <https://doi.org/10.5281/zenodo.1160627>`_.
