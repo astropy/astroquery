@@ -51,7 +51,8 @@ class DaceClass(BaseQuery):
             raise ParseException(
                 "Failed to parse DACE result! Exception : " + str(ex) + "\n" + "Raw content : " + response.text)
 
-    def _transform_data_as_dict(self, json_data):
+    @staticmethod
+    def _transform_data_as_dict(json_data):
         """
         Internally DACE data are provided using protobuff. The format is a list of parameters. Here we parse
         these data to give to the user something more readable and ignore the internal stuff
