@@ -97,6 +97,7 @@ class MaxResultsWarning(AstropyWarning):
     """
     pass
 
+
 class FutureWarning(AstropyWarning):
     """
     Astroquery warning class to be issued when behavior will be

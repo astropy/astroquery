@@ -1132,7 +1132,7 @@ class ObservationsClass(MastClass):
             warn_string += "obstype is the deprecated version of intentType and will be ignored."
             warnings.warn(warn_string, InputWarning)
             criteria.pop('obstype', None)
-        
+
         # Temporarily issuing warning about change in behavior
         # continuing old behavior
         # grabbing the observation type (science vs calibration)
@@ -1147,7 +1147,6 @@ class ObservationsClass(MastClass):
                 criteria["intentType"] = "science"
             elif obstype == "cal":
                 criteria["intentType"] = "calibration"
-            
 
         # Build the mashup filter object and store it in the correct service_name entry
         if coordinates or objectname:
