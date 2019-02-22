@@ -7,9 +7,8 @@ from astroquery.dace import Dace
 class TestDaceClass(unittest.TestCase):
 
     def test_should_get_radial_velocities(self):
-        radial_velocities = Dace.query_radial_velocities('HD40307')
-        assert radial_velocities is not None and 'rv' in radial_velocities.colnames
-
+        radial_velocities_table = Dace.query_radial_velocities('HD40307')
+        assert radial_velocities_table is not None and 'rv' in radial_velocities_table.colnames
 
 if __name__ == "__main__":
     unittest.main()
