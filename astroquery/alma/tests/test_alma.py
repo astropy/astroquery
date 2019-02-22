@@ -15,7 +15,7 @@ def data_path(filename):
 
 
 DATA_FILES = {
-    'GET': {'http://almascience.eso.org/aq/': {'Sgr A*': 'sgra_query.xml',
+    'GET': {'http://almascience.eso.org/aq/': {'eta carinae': 'etacar_query.xml',
                                                'NGC4945': 'ngc4945.xml',
                                                '': 'querypage.html',
                                                },
@@ -94,11 +94,10 @@ def test_SgrAstar(monkeypatch):
     alma.cache_location = DATA_DIR
 
     # the failure should occur here
-    result = alma.query_object('Sgr A*')
+    result = alma.query_object('eta carinae')
 
-    # test that max_results = 50
-    assert len(result) == 92
-    assert b'2011.0.00217.S' in result['Project code']
+    assert len(result) == 15
+    assert b'2011.0.00497.S' in result['Project code']
 
 
 def test_staging(monkeypatch):

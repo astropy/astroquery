@@ -173,7 +173,8 @@ class TestAlma:
         # Apr 25, 2017: 150
         # Jul 2, 2017: 160
         # May 9, 2018: 162
-        assert len(result) == 162
+        # March 18, 2019: 171 (seriously, how do they keep changing history?)
+        assert len(result) == 171
 
         result = alma.query(payload={'member_ous_id': 'uid://A001/X11a2/X11'},
                             science=True)
@@ -269,3 +270,17 @@ class TestAlma:
 
         # There are 10 small files, but only 8 unique
         assert len(data) == 8
+
+    def test_keywords(self, temp_dir):
+
+        alma = Alma()
+        alma.cache_location = temp_dir
+
+        result = alma.query(payload={'spatial_resolution': '<0.1',
+                                     'science_keyword':
+                                     ['High-mass star formation',
+                                      'Disks around high-mass stars']},
+                            public=False, cache=False)
+
+        assert len(result) >= 72
+        assert 'Orion_Source_I' in result['Source name']
