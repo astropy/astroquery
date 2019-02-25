@@ -50,6 +50,7 @@ from . import fpl
 __all__ = ['Observations', 'ObservationsClass',
            'Mast', 'MastClass']
 
+
 def _prepare_service_request_string(json_obj):
     """
     Takes a mashup JSON request object and turns it into a url-safe string.
@@ -1137,8 +1138,8 @@ class ObservationsClass(MastClass):
         # grabbing the observation type (science vs calibration)
         obstype = criteria.pop('obstype', None)
         if obstype:
-            warn_string = ("Criteria obstype argument will disappear in May 2019. " + \
-                          "Criteria 'obstype' is now 'intentType', options are 'science' or 'calibration', " + \
+            warn_string = ("Criteria obstype argument will disappear in May 2019. "
+                          "Criteria 'obstype' is now 'intentType', options are 'science' or 'calibration', "
                           "if intentType is not supplied all observations (science and calibration) are returned.")
             warnings.warn(warn_string, AstropyDeprecationWarning)
 
