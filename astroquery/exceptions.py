@@ -96,11 +96,3 @@ class MaxResultsWarning(AstropyWarning):
     results are returned.
     """
     pass
-
-
-class FutureWarning(AstropyWarning):
-    """
-    Astroquery warning class to be issued when behavior will be
-    changing in the future.
-    """
-    pass

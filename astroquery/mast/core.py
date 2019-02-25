@@ -33,7 +33,7 @@ from astropy.table import Table, Row, vstack, MaskedColumn
 from six.moves.urllib.parse import quote as urlencode
 from six.moves.http_cookiejar import Cookie
 from astropy.utils.console import ProgressBarOrSpinner
-from astropy.utils.exceptions import AstropyWarning
+from astropy.utils.exceptions import AstropyWarning, AstropyDeprecationWarning
 from astropy.logger import log
 
 from ..query import QueryWithLogin
@@ -41,15 +41,14 @@ from ..utils import commons, async_to_sync
 from ..utils.class_or_instance import class_or_instance
 from ..exceptions import (TimeoutError, InvalidQueryError, RemoteServiceError,
                           LoginError, ResolverError, MaxResultsWarning,
-                          NoResultsWarning, InputWarning, AuthenticationWarning,
-                          FutureWarning)
+                          NoResultsWarning, InputWarning, AuthenticationWarning)
+
 from . import conf
 from . import fpl
 
 
 __all__ = ['Observations', 'ObservationsClass',
            'Mast', 'MastClass']
-
 
 def _prepare_service_request_string(json_obj):
     """
@@ -1138,10 +1137,10 @@ class ObservationsClass(MastClass):
         # grabbing the observation type (science vs calibration)
         obstype = criteria.pop('obstype', None)
         if obstype:
-            warn_string = "Criteria obstype argument will disappear in May 2019. "
-            warn_string = "Criteria 'obstype' is now 'intentType', options are 'science' or 'calibration', "
-            warn_string += "if intentType is not supplied all observations (science and calibration) are returned."
-            warnings.warn(warn_string, FutureWarning)
+            warn_string = "Criteria obstype argument will disappear in May 2019. " + \
+                          "Criteria 'obstype' is now 'intentType', options are 'science' or 'calibration', " + \
+                          "if intentType is not supplied all observations (science and calibration) are returned."
+            warnings.warn(warn_string, AstropyDeprecationWarning)
 
             if obstype == "science":
                 criteria["intentType"] = "science"
