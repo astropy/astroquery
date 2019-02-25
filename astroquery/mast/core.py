@@ -1142,7 +1142,7 @@ class ObservationsClass(MastClass):
             warn_string = "Criteria 'obstype' is now 'intentType', options are 'science' or 'calibration', "
             warn_string += "if intentType is not supplied all observations (science and calibration) are returned."
             warnings.warn(warn_string, FutureWarning)
-            
+
             if obstype == "science":
                 criteria["intentType"] = "science"
             elif obstype == "cal":
