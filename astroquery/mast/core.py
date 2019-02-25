@@ -1183,13 +1183,11 @@ class ObservationsClass(MastClass):
             service = "Mast.Caom.Filtered.Position"
             params = {"columns": "*",
                       "filters": mashupFilters,
-                      "obstype": obstype,
                       "position": position}
         else:
             service = "Mast.Caom.Filtered"
             params = {"columns": "*",
-                      "filters": mashupFilters,
-                      "obstype": obstype}
+                      "filters": mashupFilters}
 
         return self.service_request_async(service, params)
 
