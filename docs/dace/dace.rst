@@ -35,3 +35,8 @@ If you need to get radial velocities data for an object you can do the following
     56596.82446234021   31334.9563430348  0.508056405864858   HARPS03
     56602.871036310215   31337.4095684621 0.4167374664543639   HARPS03
 
+Reference/API
+=============
+
+.. automodapi:: astroquery.dace
+    :no-inheritance-diagram:
