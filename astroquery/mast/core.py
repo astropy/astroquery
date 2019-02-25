@@ -1127,8 +1127,8 @@ class ObservationsClass(MastClass):
         radius = criteria.pop('radius', 0.2*u.deg)
 
         if ('obstype' in criteria) and ('intentType' in criteria):
-            warn_string = "Cannot specify both obstype and intentType, "
-            warn_string += "obstype is the deprecated version of intentType and will be ignored."
+            warn_string = ("Cannot specify both obstype and intentType, "
+                           "obstype is the deprecated version of intentType and will be ignored.")
             warnings.warn(warn_string, InputWarning)
             criteria.pop('obstype', None)
 
@@ -1137,9 +1137,9 @@ class ObservationsClass(MastClass):
         # grabbing the observation type (science vs calibration)
         obstype = criteria.pop('obstype', None)
         if obstype:
-            warn_string = "Criteria obstype argument will disappear in May 2019. " + \
+            warn_string = ("Criteria obstype argument will disappear in May 2019. " + \
                           "Criteria 'obstype' is now 'intentType', options are 'science' or 'calibration', " + \
-                          "if intentType is not supplied all observations (science and calibration) are returned."
+                          "if intentType is not supplied all observations (science and calibration) are returned.")
             warnings.warn(warn_string, AstropyDeprecationWarning)
 
             if obstype == "science":
