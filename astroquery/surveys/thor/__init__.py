@@ -19,7 +19,7 @@ class Conf(_config.ConfigNamespace):
     Configuration parameters for `astroquery.magpis`.
     """
     server = _config.ConfigItem(
-        ['http://astro.kent.ac.uk/thor_server/image_server'],
+        ['http://astro.kent.ac.uk'],
         'Name of the THOR server.')
     timeout = _config.ConfigItem(
         60,

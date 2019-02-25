@@ -6,9 +6,11 @@ import astropy.coordinates as coord
 from astropy.io import fits
 from ...query import BaseQuery
 from ...utils import commons, prepend_docstr_nosections
-from ...process_asyncs import async_to_sync
+from ...utils.process_asyncs import async_to_sync
 from . import conf
 from ...exceptions import InvalidQueryError
+
+import tarfile
 from bs4 import BeautifulSoup
 
 __all__ = ['Thor', 'ThorClass']
@@ -38,14 +40,20 @@ class ThorClass(BaseQuery):
            image. Defaults to 1 arcmin.
         """
         request_payload = {}
-        request_payload["catalog"] = "thor"
+        request_payload["catalogue"] = "thor"
         c = commons.parse_coordinates(coordinates).transform_to('galactic')
-        request_payload["x_coord"] = c.lon
-        request_payload["y_coord"] = c.lat
+        request_payload["x_coord"] = "{0:0.5f}".format(c.l.deg)
+        request_payload["y_coord"] = "{0:0.5f}".format(c.b.deg)
         request_payload["coord_type"] = "Galactic"
         request_payload["size_long"] = coord.Angle(image_size).deg
         request_payload["size_lat"] = coord.Angle(image_size).deg
         request_payload["size_type"] = "degrees"
+        request_payload["cmap"] = "Greyscale"
+        request_payload["scale"] = "99.99"
+        request_payload["sigma_value"] = ""
+
+        assert len(request_payload) == 10
+
         return request_payload
 
     @prepend_docstr_nosections("\n" + _args_to_payload.__doc__)
@@ -65,27 +73,52 @@ class ThorClass(BaseQuery):
                                                 image_size=image_size)
         if get_query_payload:
             return request_payload
-        response = self._request("POST", url=self.URL, data=request_payload,
+
+        # the THOR server expects WebkitForm stuff, i.e., files
+        files = {key:(None, str(val)) for key, val in request_payload.items()}
+
+        # initialize the session; probably not needed?
+        imageserver = self.URL + '/thor_server/image_server'
+        init_session = self._request("GET", imageserver)
+        init_session.raise_for_status()
+
+        response = self._request("POST", url=imageserver, files=files,
                                  timeout=self.TIMEOUT, verify=False)
+        response.raise_for_status()
+
         return response
 
     def _parse_result(self, response, verbose=False):
         """
         """
-        soup = BeautifulSoup(response.text)
+        soup = BeautifulSoup(response.text, 'html5lib')
 
         links = soup.findAll('a')
 
         download_link = [x for x in links if x.text == 'Download FITS Files'][0]
 
-        url = download_link.href
+        url = self.URL + download_link.attrs['href']
         filename = url.split("/")[-1]
 
         local_filepath = os.path.join(self.cache_location, filename)
 
-        fileobj = self._download_file(url, local_filepath, timeout=self.TIMEOUT)
+        self._download_file(url, local_filepath, timeout=self.TIMEOUT)
 
-        return fileobj
+        tf = tarfile.open(local_filepath)
+
+        paths = []
+
+        for ff in tf.getmembers():
+            if '.fits' in ff.name:
+                # remove the leading path
+                ff.name = os.path.basename(ff.name)
+
+                tf.extract(member=ff, path=self.cache_location)
+                paths.append(os.path.join(self.cache_location, ff.name))
+
+        tf.close()
+
+        return paths
 
 
 
