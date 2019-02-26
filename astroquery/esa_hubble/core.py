@@ -245,6 +245,7 @@ class ESAHubbleClass(object):
                    "PLANE.MAIN_SCIENCE_PLANE="
                    "'true'  AND  (OBSERVATION.TYPE='HST Composite' OR "
                    "OBSERVATION.TYPE='HST Singleton')"
+<<<<<<< Upstream, based on astroquery/master
                    "  AND  INTERSECTS(CIRCLE('ICRS',"
                    + str(ra) + ""
                    + ","
@@ -252,6 +253,11 @@ class ESAHubbleClass(object):
                    + ","
                    + str(radiusInGrades)
                    + "),POSITION)=1  AND  PLANE.MAIN_SCIENCE_PLANE='true' "
+=======
+                   "  AND  INTERSECTS(CIRCLE('ICRS'," + str(ra) + "" 
+                   "," + str(dec) + "," + str(radiusInGrades) + ""
+                   "),POSITION)=1  AND  PLANE.MAIN_SCIENCE_PLANE='true' "
+>>>>>>> fcb68cb pep8speaks feedback II
                    "ORDER BY PROPOSAL.PROPOSAL_ID "
                    "DESC",
                    # "PAGE": "1",
@@ -391,16 +397,14 @@ class ESAHubbleClass(object):
 
     def __checkQuantityInput(self, value, msg):
         if not (isinstance(value, str) or isinstance(value, units.Quantity)):
-            raise ValueError(
-                             str(msg) +
+            raise ValueError(str(msg) + ""
                              " must be either a string or astropy.coordinates")
 
     def __getQuantityInput(self, value, msg):
         if value is None:
             raise ValueError("Missing required argument: '"+str(msg)+"'")
         if not (isinstance(value, str) or isinstance(value, units.Quantity)):
-            raise ValueError(
-                             str(msg) +
+            raise ValueError(str(msg) + ""
                              " must be either a string or astropy.coordinates")
         if isinstance(value, str):
             q = Quantity(value)
@@ -411,15 +415,13 @@ class ESAHubbleClass(object):
     def __checkCoordInput(self, value, msg):
         if not (isinstance(value, str) or isinstance(value,
                                                      commons.CoordClasses)):
-            raise ValueError(
-                             str(msg) +
+            raise ValueError(str(msg) + ""
                              " must be either a string or astropy.coordinates")
 
     def __getCoordInput(self, value, msg):
         if not (isinstance(value, str) or isinstance(value,
                                                      commons.CoordClasses)):
-            raise ValueError(
-                             str(msg) +
+            raise ValueError(str(msg) + ""
                              " must be either a string or astropy.coordinates")
         if isinstance(value, str):
             c = commons.parse_coordinates(value)

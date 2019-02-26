@@ -31,9 +31,15 @@ class DummyESAHubbleTapHandler(object):
         if method == self.__invokedMethod:
             return
         else:
+<<<<<<< Upstream, based on astroquery/master
             raise Exception("Method '"+str(method)
                             + "' not invoked. (Invoked method is '"
                             + str(self.__invokedMethod)+"')")
+=======
+            raise Exception("Method '"+ str(method) + ""
+                            "' not invoked. (Invoked method is '"
+                            "" + str(self.__invokedMethod)+"')")
+>>>>>>> fcb68cb pep8speaks feedback II
 
     def check_parameters(self, parameters, method_name):
         if parameters is None:
