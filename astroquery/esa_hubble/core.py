@@ -257,7 +257,7 @@ class ESAHubbleClass(BaseQuery):
 
     def query_target(self, name, filename=None, output_format='votable',
                      verbose=False):
-        """ It executes a query over EHST and download the xml with the results
+        """ It executes a query over EHST and download the xml with the results.
 
             Parameters
             ----------
