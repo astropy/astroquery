@@ -331,7 +331,11 @@ class ESAHubbleClass(object):
         columns = None
         for t in tables:
             if str(t.name) == str(table_name):
+<<<<<<< Upstream, based on astroquery/master
                 columns = t.get_columns()
+=======
+                columns = t.columns
+>>>>>>> 7a19157 Refactoring after following change from Semyeong Oh:
                 break
 
         if columns is None:
