@@ -232,19 +232,9 @@ class ESAHubbleClass(BaseQuery):
                    "PLANE.MAIN_SCIENCE_PLANE="
                    "'true'  AND  (OBSERVATION.TYPE='HST Composite' OR "
                    "OBSERVATION.TYPE='HST Singleton')"
-<<<<<<< Upstream, based on astroquery/master
-                   "  AND  INTERSECTS(CIRCLE('ICRS',"
-                   + str(ra) + ""
-                   + ","
-                   + str(dec)
-                   + ","
-                   + str(radiusInGrades)
-                   + "),POSITION)=1  AND  PLANE.MAIN_SCIENCE_PLANE='true' "
-=======
-                   "  AND  INTERSECTS(CIRCLE('ICRS'," + str(ra) + "" 
+                   "  AND  INTERSECTS(CIRCLE('ICRS'," + str(ra) + ""
                    "," + str(dec) + "," + str(radiusInGrades) + ""
                    "),POSITION)=1  AND  PLANE.MAIN_SCIENCE_PLANE='true' "
->>>>>>> fcb68cb pep8speaks feedback II
                    "ORDER BY PROPOSAL.PROPOSAL_ID "
                    "DESC",
                    "RETURN_TYPE": str(output_format)}
@@ -381,15 +371,11 @@ class ESAHubbleClass(BaseQuery):
         columns = None
         for t in tables:
             if str(t.name) == str(table_name):
-<<<<<<< Upstream, based on astroquery/master
-                columns = t.get_columns()
-=======
                 columns = t.columns
->>>>>>> 7a19157 Refactoring after following change from Semyeong Oh:
                 break
 
         if columns is None:
-            raise ValueError("table name specified is not found in " +
+            raise ValueError("table name specified is not found in "
                              "EHST TAP service")
 
         if only_names is True:

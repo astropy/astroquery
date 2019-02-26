@@ -276,7 +276,7 @@ generally return a table listing the available data first.
 Simulations
 -----------
 
-These services query databases of simulated or synthetic data:
+Simulation services query databases of simulated or synthetic data
 
 .. toctree::
   :maxdepth: 1
@@ -284,11 +284,12 @@ These services query databases of simulated or synthetic data:
   besancon/besancon.rst
   cosmosim/cosmosim.rst
 
-Line List Services
-------------------
+Other
+-----
 
-There are several web services that provide atomic or molecular line lists, as
-well as  cross section and collision rates.  Those services are:
+There are other astronomically significant services, e.g. line list and
+atomic/molecular cross section and collision rate services, that don't fit the
+above categories.
 
 .. toctree::
   :maxdepth: 1
