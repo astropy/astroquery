@@ -1,10 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
-THOR Image and Catalog Query Tool
------------------------------------
+THOR Image Query Tool
+---------------------
 .. topic:: Revision History
-
-    Refactored using common API as a part of Google Summer of Code 2013.
 
     :Originally contributed by:
 
