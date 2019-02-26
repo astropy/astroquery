@@ -10,5 +10,6 @@ class TestDaceClass(unittest.TestCase):
         radial_velocities_table = Dace.query_radial_velocities('HD40307')
         assert radial_velocities_table is not None and 'rv' in radial_velocities_table.colnames
 
+
 if __name__ == "__main__":
     unittest.main()

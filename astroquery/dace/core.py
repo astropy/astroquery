@@ -13,20 +13,19 @@ class ParseException(Exception):
     """Raised when parsing Dace data fails"""
 
 
-"""
-DACE class to access DACE (Data Analysis Center for Exoplanets) data based in Geneva Observatory  
-"""
-
-
 @async_to_sync
 class DaceClass(BaseQuery):
+    """
+    DACE class to access DACE (Data Analysis Center for Exoplanets) data based in Geneva Observatory
+    """
+
     __DACE_URL = conf.server
     __DACE_TIMEOUT = conf.timeout
     __OBSERVATION_ENDPOINT = 'ObsAPI/observation/'
     __RADIAL_VELOCITIES_ENDPOINT = __OBSERVATION_ENDPOINT + 'radialVelocities/'
     __HEADERS = {'Accept': 'application/json'}
 
-    def query_radial_velocities(self, object_name):
+    def query_radial_velocities_async(self, object_name):
         """
         Get radial velocities data for an object_name. For example : HD40307
 
@@ -36,13 +35,12 @@ class DaceClass(BaseQuery):
 
         Return
         ------
-        table : ~astropy.table.Table Table containing radial velocities data for the object_name given
+        Raw HTTP response
         """
-        response = self._request("GET", ''.join([self.__DACE_URL, self.__RADIAL_VELOCITIES_ENDPOINT, object_name]),
-                                 timeout=self.__DACE_TIMEOUT, headers=self.__HEADERS)
-        return self._parse_result(response)
+        return self._request("GET", ''.join([self.__DACE_URL, self.__RADIAL_VELOCITIES_ENDPOINT, object_name]),
+                             timeout=self.__DACE_TIMEOUT, headers=self.__HEADERS)
 
-    def _parse_result(self, response):
+    def _parse_result(self, response, verbose=False):
         try:
             json_data = response.json()
             dace_dict = self._transform_data_as_dict(json_data)
@@ -75,6 +73,3 @@ class DaceClass(BaseQuery):
 
 
 Dace = DaceClass()
-
-# Next you should write the docs in astroquery/docs/module_name
-# using Sphinx.
