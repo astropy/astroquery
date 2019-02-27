@@ -31,11 +31,12 @@ class DaceClass(BaseQuery):
 
         Parameters
         ----------
-        object_name : the target you want radial velocities data
+        object_name : str
+            The target you want radial velocities data
 
         Return
         ------
-        Raw HTTP response
+        response : a ``requests.Response`` from DACE
         """
         return self._request("GET", ''.join([self.__DACE_URL, self.__RADIAL_VELOCITIES_ENDPOINT, object_name]),
                              timeout=self.__DACE_TIMEOUT, headers=self.__HEADERS)
@@ -47,7 +48,7 @@ class DaceClass(BaseQuery):
             return Table(dace_dict)
         except Exception as ex:
             raise ParseException(
-                "Failed to parse DACE result! Exception : " + str(ex) + "\n" + "Raw content : " + response.text)
+                "Failed to parse DACE result! Exception : {} \nRaw content : {}".format(ex, response.text))
 
     @staticmethod
     def _transform_data_as_dict(json_data):
