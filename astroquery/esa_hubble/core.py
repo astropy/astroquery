@@ -33,21 +33,19 @@ class ESAHubbleHandler(BaseQuery):
         super(ESAHubbleHandler, self).__init__()
 
     def get_file(self, filename, response, verbose=False):
-        file = open(filename, 'wb')
-        file.write(response.content)
-        file.close()
+        with open(filename, 'wb') as fh:
+            fh.write(response.content)
 
         if "/" not in filename:
-            log.info("File " + str(filename) + " downloaded to current "
-                     "directory")
+            log.info("File {0} downloaded to current "
+                     "directory".format(filename))
         else:
-            log.info("File " + str(filename) + " downloaded")
+            log.info("File {0} downloaded".format(filename))
 
     def get_table(self, filename, response, output_format='votable',
                   verbose=False):
-        file = open(filename, 'wb')
-        file.write(response.content)
-        file.close()
+        with open(filename, 'wb') as fh:
+            fh.write(response.content)
 
         table = modelutils.read_results_table_from_file(filename,
                                                         str(output_format))
@@ -85,28 +83,31 @@ class ESAHubbleClass(BaseQuery):
 
     def download_product(self, observation_id, calibration_level="RAW",
                          filename=None, verbose=False):
-        """ Download products from EHST
+        """
+        Download products from EHST
 
-            Parameters
-            ----------
-            observation_id : string, id of the observation to be downloaded,
-            mandatory
+        Parameters
+        ----------
+        observation_id : string
+            id of the observation to be downloaded, mandatory
             The identifier of the observation we want to retrieve, regardless
             of whether it is simple or composite.
-            calibration_level : string, calibration level, optional, default
-            'RAW'
+        calibration_level : string
+            calibration level, optional, default 'RAW'
             The identifier of the data reduction/processing applied to the
             data. By default, the most scientifically relevant level will be
             chosen. RAW, CALIBRATED, PRODUCT or AUXILIARY
-            filename : string, file name to be used to store the artifact,
-            optional, default None
+        filename : string
+            file name to be used to store the artifact, optional, default
+            None
             File name for the observation.
-            verbose : bool, optional, default 'False'
+        verbose : bool
+            optional, default 'False'
             flag to display information about the process
 
-            Returns
-            -------
-            None. It downloads the observation indicated
+        Returns
+        -------
+        None. It downloads the observation indicated
         """
 
         obs_id = "OBSERVATION_ID=" + observation_id
@@ -119,36 +120,35 @@ class ESAHubbleClass(BaseQuery):
         # response = self._download_file(link, local_filepath=filename,
         #                                timeout=self.TIMEOUT)
         response = self._handler.request('GET', link)
-        if response is None:
-            return None
-        else:
-            self._handler.get_file(filename, response=response,
-                               verbose=verbose)
+        if response is not None:
             response.raise_for_status()
+            self._handler.get_file(filename, response=response,
+                                   verbose=verbose)
 
             if verbose:
                 log.info("Wrote {0} to {1}".format(link, filename))
             return filename
 
     def get_artifact(self, artifact_id, filename=None, verbose=False):
-        """ Download artifacts from EHST. Artifact is a single Hubble product
-            file.
+        """
+        Download artifacts from EHST. Artifact is a single Hubble product file.
 
-            Parameters
-            ----------
-            artifact_id : string, id of the artifact to be downloaded,
-            mandatory
+        Parameters
+        ----------
+        artifact_id : string
+            id of the artifact to be downloaded, mandatory
             The identifier of the physical product (file) we want to retrieve.
-            filename : string, file name to be used to store the artifact,
-            optional, default None
+        filename : string
+            file name to be used to store the artifact, optional, default None
             File name for the artifact
-            verbose : bool, optional, default 'False'
+        verbose : bool
+            optional, default 'False'
             flag to display information about the process
 
-            Returns
-            -------
-            None. It downloads the artifact indicated
-            """
+        Returns
+        -------
+        None. It downloads the artifact indicated
+        """
 
         art_id = "ARTIFACT_ID=" + artifact_id
         link = self.data_url + art_id
@@ -161,44 +161,41 @@ class ESAHubbleClass(BaseQuery):
 
     def get_postcard(self, observation_id, calibration_level="RAW",
                      resolution=256, filename=None, verbose=False):
-        """ Download postcards from EHST
+        """
+        Download postcards from EHST
 
-            Parameters
-            ----------
-            observation_id : string, id of the observation for which download
-            the postcard, mandatory
+        Parameters
+        ----------
+        observation_id : string
+            id of the observation for which download the postcard, mandatory
             The identifier of the observation we want to retrieve, regardless
             of whether it is simple or composite.
-            calibration_level : string, calibration level, optional, default
-            'RAW'
+        calibration_level : string
+            calibration level, optional, default 'RAW'
             The identifier of the data reduction/processing applied to the
             data. By default, the most scientifically relevant level will be
             chosen. RAW, CALIBRATED, PRODUCT or AUXILIARY
-            resolution : integer, postcard resolution, optional, default 256
+        resolution : integer
+            postcard resolution, optional, default 256
             Resolution of the retrieved postcard. 256 or 1024
-            filename : string, file name to be used to store the postcard,
-            optional, default None
+        filename : string
+            file name to be used to store the postcard, optional, default None
             File name for the artifact
-            verbose : bool, optional, default 'False'
+        verbose : bool
+            optional, default 'False'
             Flag to display information about the process
 
-            Returns
-            -------
-            None. It downloads the observation postcard indicated
+        Returns
+        -------
+        None. It downloads the observation postcard indicated
         """
 
         retri_type = "RETRIEVAL_TYPE=POSTCARD"
         obs_id = "OBSERVATION_ID=" + observation_id
         cal_level = "CALIBRATION_LEVEL=" + calibration_level
         res = "RESOLUTION=" + str(resolution)
-        link = "".join((self.data_url,
-                        retri_type,
-                        "&",
-                        obs_id,
-                        "&",
-                        cal_level,
-                        "&",
-                        res))
+        link = self.data_url + "&".join([retri_type, obs_id, cal_level, res])
+
         result = self._handler.request('GET', link, params=None)
         if verbose:
             log.info(link)
@@ -257,24 +254,25 @@ class ESAHubbleClass(BaseQuery):
 
     def query_target(self, name, filename=None, output_format='votable',
                      verbose=False):
-        """ It executes a query over EHST and download the xml with the results.
+        """
+        It executes a query over EHST and download the xml with the results.
 
-            Parameters
-            ----------
-            name : string, target name to be requested, mandatory
-                Target name to be requested.
-            filename : string, file name to be used to store the metadata,
-            optional, default None
-                File name for the artifact
-            output_format : string, optional, default 'votable'
-                output format of the query
-            verbose : bool, optional, default 'False'
-                Flag to display information about the process
+        Parameters
+        ----------
+        name : string
+            target name to be requested, mandatory
+        filename : string
+            file name to be used to store the metadata, optional, default None
+        output_format : string
+            optional, default 'votable'
+            output format of the query
+        verbose : bool
+            optional, default 'False'
+            Flag to display information about the process
 
-            Returns
-            -------
-            Table with the result of the query. It downloads metadata
-            as a file.
+        Returns
+        -------
+        Table with the result of the query. It downloads metadata as a file.
         """
 
         initial = ("RESOURCE_CLASS=OBSERVATION&SELECTED_FIELDS=OBSERVATION"

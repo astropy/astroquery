@@ -30,9 +30,7 @@ class DummyHubbleTapHandler(object):
         self.check_parameters(parameters, method_name)
 
     def check_method(self, method):
-        if method == self.__invokedMethod:
-            return
-        else:
+        if method != self.__invokedMethod:
             raise Exception("Method '" + str(method) + ""
                             "' not invoked. (Invoked method is '"
                             "" + str(self.__invokedMethod)+"')")
@@ -79,14 +77,12 @@ class DummyHubbleTapHandler(object):
         self.__invokedMethod = 'get_tables'
         self._parameters['only_names'] = only_names
         self._parameters['verbose'] = verbose
-        return None
 
     def get_columns(self, table_name=None, only_names=True, verbose=False):
         self.__invokedMethod = 'get_columns'
         self._parameters['table_name'] = table_name
         self._parameters['only_names'] = only_names
         self._parameters['verbose'] = verbose
-        return None
 
     def load_tables(self,
                     only_names=True,
