@@ -7,7 +7,7 @@
 European Space Astronomy Centre (ESAC)
 European Space Agency (ESA)
 
-Created on 13 Ago. 2018
+Created on 13 Aug. 2018
 
 
 """
@@ -117,8 +117,6 @@ class ESAHubbleClass(BaseQuery):
         if filename is None:
             filename = observation_id + ".tar"
 
-        # response = self._download_file(link, local_filepath=filename,
-        #                                timeout=self.TIMEOUT)
         response = self._handler.request('GET', link)
         if response is not None:
             response.raise_for_status()
@@ -343,7 +341,7 @@ class ESAHubbleClass(BaseQuery):
         else:
             return tables
 
-    def get_columns(self, table_name=None, only_names=True, verbose=False):
+    def get_columns(self, table_name, only_names=True, verbose=False):
         """Get the available columns for a table in EHST TAP service
 
         Parameters
@@ -359,9 +357,6 @@ class ESAHubbleClass(BaseQuery):
         -------
         A list of columns
         """
-
-        if table_name is None:
-            raise ValueError("table name must be specified")
 
         tables = self._tap.load_tables(only_names=False,
                                        include_shared_tables=False,

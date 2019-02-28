@@ -7,7 +7,7 @@
 European Space Astronomy Centre (ESAC)
 European Space Agency (ESA)
 
-Created on 13 Ago. 2018
+Created on 13 Aug. 2018
 
 
 """
@@ -17,7 +17,6 @@ from astroquery.esa_hubble.core import ESAHubbleClass
 from astroquery.esa_hubble.tests.dummy_handler import DummyHandler
 from astroquery.esa_hubble.tests.dummy_tap_handler import DummyHubbleTapHandler
 from astropy import coordinates
-# from astropy.tests.helper import remote_data
 
 
 class TestESAHubble():

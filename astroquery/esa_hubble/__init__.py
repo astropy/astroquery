@@ -1,8 +1,4 @@
-# Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
-=============
-ehst
-=============
 
 @author: Javier Duran
 @contact: javier.duran@sciops.esa.int
@@ -10,7 +6,7 @@ ehst
 European Space Astronomy Centre (ESAC)
 European Space Agency (ESA)
 
-Created on 13 Ago. 2018
+Created on 13 Aug. 2018
 
 """
 

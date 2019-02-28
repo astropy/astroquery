@@ -2,8 +2,7 @@ import os
 from astroquery.utils.tap.model import modelutils, taptable
 from requests.models import Response
 
-__all__ = ['ESAHubble', 'ESAHubbleClass', 'Conf', 'conf',
-           'DummyHandler', 'dummy']
+__all__ = ['DummyHandler']
 
 
 def data_path(filename):
@@ -50,9 +49,9 @@ class DummyHandler(object):
         if parameters is None:
             return len(self._parameters) == 0
             if len(parameters) != len(self._parameters):
-                raise Exception("Wrong number of parameters for method '%s'. \
-                                Found: %d. Expected %d",
-                                (method_name,
+                raise ValueError("Wrong number of parameters for method '%s'. \
+                                 Found: %d. Expected %d",
+                                 (method_name,
                                  len(self._parameters),
                                  len(parameters)))
             for key in parameters:
