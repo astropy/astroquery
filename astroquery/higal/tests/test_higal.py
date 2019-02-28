@@ -65,6 +65,6 @@ def patch_request(request):
 
 
 # finally test the methods using the mock HTTP response
-def test_query_object(patch_request):
-    result = higal.core.HiGalClass().query_object('m1')
+def test_query_region(patch_request):
+    result = higal.core.HiGalClass().query_region('m1')
     assert isinstance(result, Table)
