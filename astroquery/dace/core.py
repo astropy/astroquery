@@ -57,19 +57,21 @@ class DaceClass(BaseQuery):
         these data to give to the user something more readable and ignore the internal stuff
         """
         data = defaultdict(list)
-        parameters = json_data['parameters']
+        parameters = json_data.get('parameters')
         for parameter in parameters:
-            variable_name = parameter['variableName']
-            data[variable_name].extend(parameter['doubleValues']) if 'doubleValues' in parameter \
-                else None
-            data[variable_name].extend(parameter['intValues']) if 'intValues' in parameter \
-                else None
-            data[variable_name].extend(parameter['stringValues']) if 'stringValues' in parameter \
-                else None
-            data[variable_name].extend(parameter['boolValues']) if 'boolValues' in parameter \
-                else None
-            data[variable_name + '_err'].extend(parameter['minErrorValues']) \
-                if 'minErrorValues' in parameter else []  # min or max is symmetric
+            variable_name = parameter.get('variableName')
+            double_values = parameter.get('doubleValues')
+            int_values = parameter.get('intValues')
+            string_values = parameter.get('stringValues')
+            bool_values = parameter.get('boolValues')
+            # Only one type of values can be present. So we look for the next occurence not None
+            values = next(values_list for values_list in [double_values, int_values, string_values, bool_values] if
+                          values_list is not None)
+            data[variable_name].extend(values)
+
+            error_values = parameter.get('minErrorValues')  # min or max is symmetric
+            if error_values is not None:
+                data[variable_name + '_err'].extend(error_values)
         return data
 
 
