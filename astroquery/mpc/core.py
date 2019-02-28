@@ -1190,8 +1190,6 @@ class MPCClass(BaseQuery):
                                 index=1)
                 data.remove_column('pdesig')
 
-                print(data)
-
             elif all([o['object_type'] != 'M' for o in src]):
                 # comets
                 data = ascii.read("\n".join([o['original_record']
