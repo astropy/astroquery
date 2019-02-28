@@ -1,18 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 
-# astroquery uses the pytest framework for testing
-# this is already available in astropy and does
-# not require a separate install. Import it using:
 import pytest
 
-# It would be best if tests are separated in two
-# modules. This module performs tests on local data
-# by mocking HTTP requests and responses. To test the
-# same functions on the remote server, put the relevant
-# tests in the 'test_module_remote.py'
-
-# Now import other commonly used modules for tests
 import os
 import requests
 
@@ -23,10 +13,8 @@ import astropy.units as u
 
 from ...utils.testing_tools import MockResponse
 
-# finally import the module which is to be tested
-# and the various configuration items created
-from ... import template_module
-from ...template_module import conf
+from ... import higal
+from ...higal import conf
 
 # Local tests should have the corresponding data stored
 # in the ./data folder. This is the actual HTTP response
@@ -71,15 +59,12 @@ def patch_request(request):
         mp = request.getfixturevalue("monkeypatch")
     except AttributeError:  # pytest < 3
         mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(template_module.core.TemplateClass, '_request',
+    mp.setattr(higal.core.HiGalClass, '_request',
                nonremote_request)
     return mp
 
 
 # finally test the methods using the mock HTTP response
 def test_query_object(patch_request):
-    result = template_module.core.TemplateClass().query_object('m1')
+    result = higal.core.HiGalClass().query_object('m1')
     assert isinstance(result, Table)
-
-# similarly fill in tests for each of the methods
-# look at tests in existing modules for more examples

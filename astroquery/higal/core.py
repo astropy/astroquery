@@ -100,10 +100,6 @@ class HiGalClass(BaseQuery):
 
         return response
 
-    # as we mentioned earlier use various python regular expressions, etc
-    # to create the dict of HTTP request parameters by parsing the user
-    # entered values. For cleaner code keep this as a separate private method:
-
     def _args_to_payload(self, coords=None, name=None, radius=10*u.arcmin,
                          catalog_id=None, catalog_query=True, *args, **kwargs):
 
@@ -111,6 +107,7 @@ class HiGalClass(BaseQuery):
             # set up session: get cookies
             initial_response = self._request('GET', self.URL, cache=False,
                                              timeout=self.TIMEOUT)
+            initial_response.raise_for_status()
 
             # multiple cookies are returned
             self._session_id = self._session.cookies.values()[1]
