@@ -12,13 +12,13 @@ data_filenames = {"good": "testing_table_good.fits",
                   "bad_object": "bad_object.html",
                   "fallback": "table_fallback.fits"}
 
-
 # some basic defs of names
 good_object = "3c273"
 good_table = "rospublic"
 bad_object = "ImABadObject"
 bad_table = "ImABadTable"
 fallback_table = "numaster"
+
 
 def get_mockreturn(type, url, params=None, timeout=10, cache=True, **kwargs):
     object_name = params.get('Entry')
@@ -32,7 +32,13 @@ def get_mockreturn(type, url, params=None, timeout=10, cache=True, **kwargs):
         content = open(data_path(data_filenames['bad_table']), "rb").read()
     elif table_name == fallback_table:
         content = open(data_path(data_filenames['fallback']), "rb").read()
-    payload = "?Entry={object_name}&tablehead=BATCHRETRIEVALCATALOG_2.0+{table_name}".format(object_name=object_name, table_name=table_name)
+    else:
+        # Default to good
+        content = open(data_path(data_filenames['good']), "rb").read()
+
+    payload = "?Entry={object_name}&tablehead=BATCHRETRIEVALCATALOG_2.0+" \
+              "{table_name}".format(object_name=object_name,
+                                    table_name=table_name)
     return MockResponse(content, url=Heasarc.URL + payload, **kwargs)
 
 
@@ -49,7 +55,8 @@ def patch_get(request):
 
 
 bad_table_msg = 'Error: No table info found for heasarc for table ImABadTable'
-bad_object_msg = 'Object ImABadObject is not recognized by the GRB or SIMBAD+Sesame or NED name resolvers.'
+bad_object_msg = 'Object ImABadObject is not recognized by the GRB or ' \
+                 'SIMBAD+Sesame or NED name resolvers.'
 
 
 def test_good(patch_get):
