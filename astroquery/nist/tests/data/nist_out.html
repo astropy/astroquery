@@ -1,100 +1,103 @@
-<!DOCTYPE html
-	PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-	 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US">
 <head>
 <title>NIST ASD Output: Lines</title>
-<meta http-equiv="Content-Script-Type" content="text/javascript" />
-<link rel="stylesheet" type="text/css" href="http://physics.nist.gov/PhysRefData/ASD/Scripts/1.css" />
-<script src="/js/federated-analytics.all.min.js?agency=NIST&amp;subagency=pml&amp;pua=UA-37115410-46&amp;yt=true" type="text/javascript"></script>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<link rel="stylesheet" type="text/css" href="https://physics.nist.gov/PhysRefData/ASD/Scripts/1.css" />
+<script async id="_fed_an_js_tag" src="/js/federated-analytics.all.min.js?agency=NIST&amp;subagency=pml&amp;pua=UA-37115410-46&amp;yt=true" type="text/javascript"></script>
+<script type="text/javascript">//<![CDATA[
+
+function selectById(id) {
+  var url = "https://physics.nist.gov/cgi-bin/ASD/lines1.pl?spectra=H I&low_wl=4000.0&upp_wl=7000.0&unit=1&submit=Retrieve Data&format=1&line_out=0&en_unit=1&output=0&bibrefs=1&show_obs_wl=1&show_calc_wl=1&order_out=0&show_av=3&tsb_value=0&A_out=0&f_out=on&intens_out=on&allowed_out=1&forbid_out=1&conf_out=on&term_out=on&enrg_out=on&J_out=on&page_size=15&remove_js=on\&" + "level_id=" + id;
+  var newwindow = window.open(url,"lin_lev");
+  if (window.focus) {newwindow.focus()}
+  return true;
+}
+function setMOn(x) {
+  x.style.backgroundColor = "LightGray";
+}
+function setMOff(x) {
+  x.style.backgroundColor = "transparent";
+}
+  
+//]]></script>
+<script src="/js/clickjack.js" type="text/javascript"></script>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 </head>
-<body bgcolor="white">
-<script type="text/javascript" src="http://physics.nist.gov/PhysRefData/ASD/Scripts/balloon.js"></script>
-<script type="text/javascript" src="http://physics.nist.gov/PhysRefData/ASD/Scripts/setup.js"></script>
-<script type="text/javascript" src="http://physics.nist.gov/PhysRefData/ASD/Scripts/go.js"></script>
-<A href="#start"><img src="/Images/dot_t.gif" width="1" height="1" border="0" alt="[skip navigation]"></A>
-<table width="100%">
-<tr>
-<td align="left">
-<a
-href="http://physics.nist.gov/PhysRefData/ASD/index.html"><img src="http://physics.nist.gov/PhysRefData/ASD/Images/ASD-sm.gif" border="0" width="100" height="47" alt="[ASD Home]"/></a><a
-href="http://physics.nist.gov/PhysRefData/ASD/lines_form.html"><img
-src="http://physics.nist.gov/PhysRefData/ASD/Images/Lines.gif" border="0" width="70" height="47" alt="[Lines Query]"/></a><a
-href="http://physics.nist.gov/PhysRefData/ASD/levels_form.html"><img
-src="http://physics.nist.gov/PhysRefData/ASD/Images/Levels.gif" border="0" width="79" height="47" alt="[Levels Query]"/></a><a
-href="http://physics.nist.gov/PhysRefData/ASD/Html/contents.html"><img
-src="http://physics.nist.gov/PhysRefData/ASD/Images/List.gif" border="0" width="77" height="47" alt="[List of Spectra]"/></a><a
-href="http://physics.nist.gov/PhysRefData/ASD/ionEnergy.html"><img
-src="http://physics.nist.gov/PhysRefData/ASD/Images/GS-IE.gif" border="0" width="124" height="47" alt="[Ground States and Ionization Energies]"/></a><a
-href="http://physics.nist.gov/PhysRefData/ASBib1/index.html"><img
-src="http://physics.nist.gov/PhysRefData/ASD/Images/Bib.gif" border="0" width="98" height="47" alt="[Bibliography]"/></a><a
-href="http://physics.nist.gov/PhysRefData/ASD/Html/help.html"><img
-src="http://physics.nist.gov/PhysRefData/ASD/Images/Help.gif" border="0" width="55" height="47" alt="[Help]"/></a></td>
-<td align="right">
-<img src="http://physics.nist.gov/PhysRefData/ASD/Images/nist-pl-black.gif" border="0" width="136" height="68" usemap="#NIST-PL" alt="NIST Physical Measurement Laboratory"/>
-</td>
+<body style="margin-top:0">
+<span>
+<a href="#start"><img src="/Images/dot_t.gif" width="1" height="1" style="border:0;margin-top:0;margin-bottom:0" alt="[skip navigation]" /></a>
+</span>
+<table style="width:100%; border:0; margin-top:0">
+<tr><td style="text-align:left"><a href="https://physics.nist.gov/PhysRefData/ASD/index.html"><img
+src="https://physics.nist.gov/PhysRefData/ASD/Images/ASD-sm.gif" style="border:0" width="100" height="47"
+alt="[ASD Home]" title="ASD Home"></a><a href="https://physics.nist.gov/PhysRefData/ASD/lines_form.html"><img
+src="https://physics.nist.gov/PhysRefData/ASD/Images/Lines.gif" style="border:0" width="70" height="47"
+alt="[Lines Query]" title="Lines Query"></a><a href="https://physics.nist.gov/PhysRefData/ASD/levels_form.html"><img
+src="https://physics.nist.gov/PhysRefData/ASD/Images/Levels.gif" style="border:0" width="79" height="47"
+alt="[Levels Query]" title="Levels Query"></a><a href="https://www.nist.gov/pml/atomic-spectra-database-contents"><img
+src="https://physics.nist.gov/PhysRefData/ASD/Images/List.gif" style="border:0" width="77" height="47"
+alt="[List of Spectra]" title="List of Spectra"></a><a href="https://physics.nist.gov/PhysRefData/ASD/ionEnergy.html"><img
+src="https://physics.nist.gov/PhysRefData/ASD/Images/GS-IE.gif" style="border:0" width="124" height="47"
+alt="[Ground States and Ionization Energies]" title="Ground States and Ionization Energies"></a><a
+href="https://physics.nist.gov/PhysRefData/ASBib1/index.html"><img src="https://physics.nist.gov/PhysRefData/ASD/Images/Bib.gif" style="border:0"
+width="98" height="47" alt="[Bibliography]" title="Bibliography"></a><a
+href="https://physics.nist.gov/PhysRefData/ASD/Html/help.html"><img src="https://physics.nist.gov/PhysRefData/ASD/Images/Help.gif" style="border:0"
+width="55" height="47" alt="[Help]" title="Help"/></a></td>
+<td style="text-align:right"><img src="https://physics.nist.gov/PhysRefData/ASD/Images/nist-pl-black.gif" style="border:0" width="136" height="68"
+usemap="#NIST-PL" alt="NIST Physical Measurement Laboratory"/></td>
 </tr></table>
 
 <map name="NIST-PL" id="NIST-PL">
-  <area shape="rect" coords="1,1,135,48" href="http://www.nist.gov" alt="National Institute of Standards and Technology"/>
-  <area shape="rect" coords="1,50,135,67" href="/" alt="NIST Physical Measurement Laboratory"/>
+  <area shape="rect" coords="1,1,135,48" href="http://www.nist.gov" alt="National Institute of Standards and Technology" title="National Institute of Standards and Technology"/>
+  <area shape="rect" coords="1,50,135,67" href="/" alt="NIST Physical Measurement Laboratory" title="NIST Physical Measurement Laboratory"/>
 </map>
-<A name="start"><!-- filler --></A>
-<SCRIPT Language="JavaScript">
+<a id="start"><!-- filler --></a>
+<script type="text/javascript">
 <!-- //
 var newwindow
-var n
+//var n
 function popdef(n){
-newwindow = window.open(n,"data1","toolbar=no,location=no,alwaysRaised=yes,directories=no,status=no,menubar=yes,scrollbars=yes,resizable=yes,copyhistory=no,width=500,height=450");
+newwindow = window.open(n,"data1","toolbar=no,location=no,alwaysRaised=yes,directories=no,status=no,menubar=yes,scrollbars=yes,resizable=yes,copyhistory=no,width=600,height=450");
 if (window.focus) {newwindow.focus()}
 return true;
 }
-// -->
-//  -->
-</SCRIPT>
-
-<SCRIPT Language="JavaScript">
-<!-- //
-var newwindow
-var n
 function popbib(n){
 newwindow = window.open(n,"data2","toolbar=no,location=no,alwaysRaised=yes,directories=no,status=no,menubar=yes,scrollbars=yes,resizable=yes,copyhistory=no,width=950,height=800");
 if (window.focus) {newwindow.focus()}
 return true;
 }
-// -->
-//  -->
-</SCRIPT>
-
-<SCRIPT Language="JavaScript">
-<!-- //
-var newwindow
-var n
 function popded(n){
 //newwindow = window.open(n,"data3","toolbar=no,location=no,alwaysRaised=yes,directories=no,status=no,menubar=yes,scrollbars=yes,resizable=yes,copyhistory=no,width=640,height=250");
 newwindow = window.open(n,"data3","toolbar=no,location=no,alwaysRaised=yes,directories=no,status=no,menubar=yes,scrollbars=yes,resizable=yes,copyhistory=no,width=800,height=320");if (window.focus) {newwindow.focus()}
 return true;
 }
+function popdiag(n){
+newwindow = window.open(n,"data3","toolbar=no,location=no,alwaysRaised=yes,directories=no,status=no,menubar=yes,scrollbars=yes,resizable=yes,copyhistory=no,width=800,height=1000");if (window.focus) {newwindow.focus()}
+return true;
+}
 // -->
-//  -->
-</SCRIPT>
+</script>
 
-<table width="100%">
+<table style="width:100%">
   <tr>
-    <td valign="center" style="color:#223388; font-size:150%"><font style="color:black; font-weight: 600">NIST Atomic Spectra Database Lines Data</font><p>
-      <U>H I</U>: 37 Lines of Data Found<br />
-<b><font size="+1"><i>Z</i> = 1, H isoelectronic sequence</font></b><font style="size=300%">&nbsp;</font>
+    <td style="color:#223388; font-size:150%; vertical-align:middle"><span style="color:black; font-weight:600">NIST Atomic Spectra Database Lines Data</span><p>
+      <u>H I</u>: 37 Lines of Data Found<br />
+<span style="font-size:larger; font-weight:bold"><i>Z</i> = 1, H isoelectronic sequence</span><span style="font-size=300%">&nbsp;</span></p>
     </td>
-    <td align="right" valign="center">
+    <td style="text-align:right; vertical-align:middle">
 <div class='ref'>
-<b>Example of how to reference these results:</b><br>
+<b>Example of how to reference these results:</b><br />
 
-Kramida,&nbsp;A., Ralchenko,&nbsp;Yu., Reader,&nbsp;J., and NIST ASD Team (2012).
-  <i>NIST Atomic Spectra Database</i> (ver.&nbsp;5.0),
-  [Online]. Available: <span style="color:#0000cc;">http://physics.nist.gov/asd</span>
-  [2013, August 5].
+Kramida,&nbsp;A., Ralchenko,&nbsp;Yu., Reader,&nbsp;J., and NIST ASD Team (2018).
+  <i>NIST Atomic Spectra Database</i> (ver.&nbsp;5.6.1),
+  [Online]. Available: <span style="color:#0000cc;">https://physics.nist.gov/asd</span>
+  [2019, February 15].
   National Institute of Standards and Technology, Gaithersburg, MD.
+	DOI: <span style="color:#0000cc;">https://doi.org/10.18434/T4W30F</span>
+<br />
+<div style="text-align: right; font-size: x-small">
+<a href="javascript:void(0)" onclick="popdef('/cgi-bin/ASD/bibtex.pl?y=2019&amp;m=February&amp;d=15');return true" target="_top">BibTex Citation</a> (new window)
+</div>
 </div>
     </td>
   </tr>
@@ -102,159 +105,155 @@ Kramida,&nbsp;A., Ralchenko,&nbsp;Yu., Reader,&nbsp;J., and NIST ASD Team (2012)
     <td colspan="2">&nbsp;</td>
   </tr>
   <tr>
-    <td colspan="2" style="color:#655665; font-family: helvetica,arial; font-size:80%"><b><u>Wavelength range</u>: 4000 - 7000 nm<br>
-<u>Wavelength in</u>: <font color='darkred'>vacuum below 200 nm, air between 200 and 2000 nm, vacuum above 2000 nm</font> <font color='navy'></font><br>
+    <td colspan="2" style="color:#655665; font-family: helvetica,arial; font-size:80%"><b><u>Wavelength range</u>: 4000 - 7000 nm<br />
+<u>Wavelength in</u>: <span style="color:darkred">vacuum</span> <span style="color:navy"></span><br />
 <u>Highest relative intensity</u>: 11000</b></td>
   </tr>
 </table>
 
-<P/>
-<TABLE BGCOLOR="black" frame="box" cellspacing="1" cellpadding="2" WIDTH="75%">
-  <TR>
-    <TD BGCOLOR="#224477" COLSPAN=3 ALIGN="center" style="color: white; font-size: 10pt;" WIDTH="70%">
+<p>
+<table style="background-color:black; width:75%; border-spacing:1px" >
+  <tr>
+    <td colspan="3" style="color:white; font-size:10pt; width:70%; background-color:#224477; text-align:center">
       <b>Primary data sources</b>
-    </TD>
-    <TD ROWSPAN="4" width="1px">
-    </TD>
-    <TD wrap="nowrap" BGCOLOR="#446655" ALIGN="center" style="color: white; font-size: 10pt;">
-      <table>
+    </td>
+    <td rowspan="4">
+    </td>
+    <td style="white-space:nowrap; color:white; font-size:10pt; background-color:#446655; text-align:center">
+      <table style="border:thin hidden;text-align:center;width:100%">
         <tr>
-          <td ALIGN="center" wrap="nowrap">Query NIST Bibliographic Databases for</td>
+          <td style="text-align:center; white-space:nowrap">Query NIST Bibliographic Databases for</td>
         </tr>
         <tr>
-          <td ALIGN="center"><b>H  I</b> (new window)</td>
+          <td style="text-align:center"><b>H  I</b> (new window)</td>
         </tr>
       </table>
-    </TD>
-  </TR>
-  <TR>
-    <TD class='brt1'>
+    </td>
+  </tr>
+  <tr>
+    <td class='brt1'>
       Energy Levels:
-    </TD>
-    <TD class='bcn'>
-      &nbsp;<a ONMOUSEOVER="self.status='Bibliographic Reference for H I';return true;" ONMOUSEOUT="self.status='';return true;" TARGET="_blank" href="javascript:void(0)" ONCLICK="popded('http://physics.nist.gov/cgi-bin/ASBib1/get_ASBib_ref.cgi?db=el&db_id=15291&element=H&spectr_charge=1&type=E');return false">Kramida 2010 </a>&nbsp;
-    </TD>
-    <TD class='blf'>
-      &nbsp;(Most of the given level values are essentially experimental ones. More accurate theoretical data on fine-structure energy levels and transitions between them can be obtained in the <a target="_blank" href="http://physics.nist.gov/PhysRefData/HDEL/index.html">NIST Database of Energy Levels of Hydrogen and Deuterium</a>. The levels designated only by a principal quantum number n in the configuration column represent centers of groups of all fine-structure levels having the given n. Their values were derived from line series observed in emission from solar corona and are relevant only for this type of observations. Uncertainties of the level values vary between 3 and 23 in the units of the last given decimal place. The level values in square brackets were obtained by interpolation or extrapolation of experimental fine-structure intervals or by fitting the Ritz-type formulas along series of levels. The level values in parentheses were derived from the theoretical values in the <a target="_blank" href="http://physics.nist.gov/PhysRefData/HDEL/index.html">NIST Database of Energy Levels of Hydrogen and Deuterium</a> by adding to them calculated off-diagonal magnetic-dipole hyperfine shifts)&nbsp;
-    </TD>
-    <TD class='bcn1'>
-      <A HREF="javascript:void(0)" ONCLICK="popbib('http://physics.nist.gov/cgi-bin/ASBib1/Elevbib/make_query.cgi?spectra=H%20I&method=EL&method=TE&method=ND&method=IP&method=SF&method=QF&order=1');return false"
-        ONMOUSEOVER="self.status='H  I: bibliography energy levels query';return true;"
-        ONMOUSEOUT="self.status=''; return true;" TARGET=_blank>H  I Energy Levels</A>
-    </TD>
-  </TR>
-  <TR>
-    <TD class='brt1'>
+    </td>
+    <td class='bcn'>
+      &nbsp;<a onmouseover="self.status='Bibliographic Reference for H I';return true;" onmouseout="self.status='';return true;" target="_blank" href="javascript:void(0)" onclick="popded('https://physics.nist.gov/cgi-bin/ASBib1/get_ASBib_ref.cgi?db=el&amp;db_id=15291&amp;comment_code=&amp;element=H&amp;spectr_charge=1&amp;type=E');return false">Kramida 2010</a>&nbsp;
+    </td>
+    <td class='blf'>
+      &nbsp;&nbsp;&nbsp;Most of the given level values are essentially experimental ones. More accurate theoretical data on fine-structure energy levels and transitions between them can be obtained in the <a target="_blank" href="http://physics.nist.gov/PhysRefData/HDEL/index.html">NIST Database of Energy Levels of Hydrogen and Deuterium</a>. The levels designated only by a principal quantum number n in the configuration column represent centers of groups of all fine-structure levels having the given n. Their values were derived from line series observed in emission from solar corona and are relevant only for this type of observations. Uncertainties of the level values vary between 3 and 23 in the units of the last given decimal place. The level values in square brackets were obtained by interpolation or extrapolation of experimental fine-structure intervals or by fitting the Ritz-type formulas along series of levels. The level values in parentheses were derived from the theoretical values in the <a target="_blank" href="http://physics.nist.gov/PhysRefData/HDEL/index.html">NIST Database of Energy Levels of Hydrogen and Deuterium</a> by adding to them calculated off-diagonal magnetic-dipole hyperfine shifts.
+    </td>
+    <td class='bcn1'>
+      <a href="javascript:void(0)" onclick="popbib('https://physics.nist.gov/cgi-bin/ASBib1/Elevbib/make_query.cgi?spectra=H%20I&amp;method=EL&amp;method=TE&amp;method=ND&amp;method=IP&amp;method=SF&amp;method=QF&amp;order=1');return false"
+        onmouseover="self.status='H  I: bibliography energy levels query';return true;"
+        onmouseout="self.status=''; return true;" target="_blank">H  I Energy Levels</a>
+    </td>
+  </tr>
+  <tr>
+    <td class='brt1'>
       Lines:
-    </TD>
-    <TD class='bcn'>
-      &nbsp;<a ONMOUSEOVER="self.status='Bibliographic Reference for H I';return true;" ONMOUSEOUT="self.status='';return true;" TARGET="_blank" href="javascript:void(0)" ONCLICK="popded('http://physics.nist.gov/cgi-bin/ASBib1/get_ASBib_ref.cgi?db=el&db_id=15291&element=H&spectr_charge=1&type=L');return false">Kramida 2010 </a>&nbsp;
-    </TD>
-    <TD class='blf'>
-      &nbsp;(The lines corresponding to transitions associated with the levels designated only by the principal quantum numbers (e.g., 2-3 or 1s-2) correspond to observations in which the fine structure of transitions is completely unresolved. Their observed and calculated (Ritz) wavelengths, given here, are pertinent to observations of the solar corona. The observed intensity values of these lines, given in arbitrary units, are pertinent to the same type of observations. Intensity values given in parentheses are extrapolated values. Relative intensities of lines in laboratory light sources differ from those in the solar corona by several orders of magnitude and strongly depend on experimental conditions. Wavelengths of centers of gravity and various blended groups of fine-structure components of the Balmer series lines, derived assuming Boltzmann populations in an optically thin medium, are given without level classifications. Their identities and uncertainties are explained in the "Line Ref." column)&nbsp;
-    </TD>
-    <TD class='bcn1'>
-      <A HREF="javascript:void(0)" ONCLICK="popbib('http://physics.nist.gov/cgi-bin/ASBib1/Elevbib/make_query.cgi?spectra=H%20I&method=W&method=CL&order=1');return false"
-        ONMOUSEOVER="self.status='H  I: bibliography wavelengths query';return true;"
-        ONMOUSEOUT="self.status=''; return true;" TARGET=_blank>H  I Line Wavelengths and Classification</A>
-    </TD>
-  </TR>
-  <TR>
-    <TD class='brt1'>
+    </td>
+    <td class='bcn'>
+      &nbsp;<a onmouseover="self.status='Bibliographic Reference for H I';return true;" onmouseout="self.status='';return true;" target="_blank" href="javascript:void(0)" onclick="popded('https://physics.nist.gov/cgi-bin/ASBib1/get_ASBib_ref.cgi?db=el&amp;db_id=15291&amp;comment_code=&amp;element=H&amp;spectr_charge=1&amp;type=L');return false">Kramida 2010</a>&nbsp;
+    </td>
+    <td class='blf'>
+      &nbsp;&nbsp;&nbsp;The lines corresponding to transitions associated with the levels designated only by the principal quantum numbers (e.g., 2-3 or 1s-2) correspond to observations in which the fine structure of transitions is completely unresolved. Their observed and calculated (Ritz) wavelengths, given here, are pertinent to observations of the solar corona. The observed intensity values of these lines, given in arbitrary units, are pertinent to the same type of observations. Intensity values given in parentheses are extrapolated values. Relative intensities of lines in laboratory light sources differ from those in the solar corona by several orders of magnitude and strongly depend on experimental conditions. Wavelengths of centers of gravity and various blended groups of fine-structure components of the Balmer series lines, derived assuming Boltzmann populations in an optically thin medium, are given without level classifications. Their identities and uncertainties are explained in the "Line Ref." column.
+    </td>
+    <td class='bcn1'>
+      <a href="javascript:void(0)" onclick="popbib('https://physics.nist.gov/cgi-bin/ASBib1/Elevbib/make_query.cgi?spectra=H%20I&amp;method=W&amp;method=CL&amp;order=1');return false"
+        onmouseover="self.status='H  I: bibliography wavelengths query';return true;"
+        onmouseout="self.status=''; return true;" target="_blank">H  I Line Wavelengths and Classification</a>
+    </td>
+  </tr>
+  <tr>
+    <td class='brt1'>
       Transition Probabilities:
-    </TD>
-    <TD class='bcn'>
-      &nbsp;<a ONMOUSEOVER="self.status='Bibliographic Reference for H I';return true;" ONMOUSEOUT="self.status='';return true;" TARGET="_blank" href="javascript:void(0)" ONCLICK="popded('http://physics.nist.gov/cgi-bin/ASBib1/get_ASBib_ref.cgi?db=tp&db_id=8610&element=H&spectr_charge=1&type=T');return false">Wiese and Fuhr 2009 </a>&nbsp;
-    </TD>
-    <TD class='blf'>
+    </td>
+    <td class='bcn'>
+      &nbsp;<a onmouseover="self.status='Bibliographic Reference for H I';return true;" onmouseout="self.status='';return true;" target="_blank" href="javascript:void(0)" onclick="popded('https://physics.nist.gov/cgi-bin/ASBib1/get_ASBib_ref.cgi?db=tp&amp;db_id=8610&amp;comment_code=&amp;element=H&amp;spectr_charge=1&amp;type=T');return false">Wiese and Fuhr 2009</a>&nbsp;
+    </td>
+    <td class='blf'>
       
-    </TD>
-    <TD class='bcn1'>
-      <A HREF="javascript:void(0)" ONCLICK="popbib('http://physics.nist.gov/cgi-bin/ASBib1/Fvalbib/make_query.cgi?spectra=H%20I&order=1');return false"
-        ONMOUSEOVER="self.status='H  I: bibliography transition probability query';return true;"
-        ONMOUSEOUT="self.status=''; return true;" TARGET=_blank>H  I Transition Probabilities</A>
-    </TD>
-  </TR>
-</TABLE>
-    <P>
-<hr noshade>
-<P>
-<pre>
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-            Observed  |              Ritz    |  Rel. |     Aki    | Acc. |           Ei           Ek             |     Lower level     |     Upper level     |Type|    TP  |    Line  |
-           Wavelength |           Wavelength |  Int. |     s^-1   |      |         (cm-1)       (cm-1)           |---------------------|---------------------|    |   Ref. |    Ref.  |
-            Vac (nm)  |            Vac (nm)  |  <a class='bal' href="javascript:void(toggleBalloon('intensity'))" onmouseover="showBalloon('intensity',event);self.status='Help';return true" onmouseout="hideBalloon('intensity',event);self.status='';return true">(?) </a> |            |      |                                       | Conf.  | Term | J   | Conf.  | Term | J   |    |        |          |
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-                      |                      |       |            |      |                                       |        |      |     |        |      |     |    |        |          |
-                      |        4020.871      | (200) | 5.5265e+03 | AAA  | 106632.1681      - <a class='bal' href="javascript:void(toggleBalloon('['))" onmouseover="showBalloon('[',event);self.status='Help';return true" onmouseout="hideBalloon('[',event);self.status='';return true">[</a>109119.1917<a class='bal' href="javascript:void(toggleBalloon(']'))" onmouseover="showBalloon(']',event);self.status='Help';return true" onmouseout="hideBalloon(']',event);self.status='';return true">]</a>      | 6      |      |     | 14     |      |     |    |  <a class='bib' ONMOUSEOVER="self.status='TP Bibliographic Reference for H I'; return true;" ONMOUSEOUT="self.status='';return true;" TARGET="_blank"  HREF="javascript:void(0)" ONCLICK="popded('http://physics.nist.gov/cgi-bin/ASBib1/get_ASBib_ref.cgi?db=tp&db_id=8637&comment_code=&element=H&spectr_charge=1&ref=8637&type=');return false">T8637</a> |          |
-                      |        4052.18664    |       | 1.2381e+06 | AAA  | 102823.8485825   -  105291.651993     | 4p     | 2P*  | 1/2 | 5d     | 2D   | 3/2 |    |  <a class='bib' ONMOUSEOVER="self.status='TP Bibliographic Reference for H I'; return true;" ONMOUSEOUT="self.status='';return true;" TARGET="_blank"  HREF="javascript:void(0)" ONCLICK="popded('http://physics.nist.gov/cgi-bin/ASBib1/get_ASBib_ref.cgi?db=tp&db_id=8637&comment_code=&element=H&spectr_charge=1&ref=8637&type=');return false">T8637</a> |          |
-                      |        4052.19376    |       | 7.3716e+05 | AAA  | 102823.8530211   -  105291.65209      | 4s     | 2S   | 1/2 | 5p     | 2P*  | 3/2 |    |  <a class='bib' ONMOUSEOVER="self.status='TP Bibliographic Reference for H I'; return true;" ONMOUSEOUT="self.status='';return true;" TARGET="_blank"  HREF="javascript:void(0)" ONCLICK="popded('http://physics.nist.gov/cgi-bin/ASBib1/get_ASBib_ref.cgi?db=tp&db_id=8637&comment_code=&element=H&spectr_charge=1&ref=8637&type=');return false">T8637</a> |          |
-                      |        4052.22121    |       | 2.1503e+05 | AAA  | 102823.8485825   - <a class='bal' href="javascript:void(toggleBalloon('['))" onmouseover="showBalloon('[',event);self.status='Help';return true" onmouseout="hideBalloon('[',event);self.status='';return true">[</a>105291.63094<a class='bal' href="javascript:void(toggleBalloon(']'))" onmouseover="showBalloon(']',event);self.status='Help';return true" onmouseout="hideBalloon(']',event);self.status='';return true">]</a>     | 4p     | 2P*  | 1/2 | 5s     | 2S   | 1/2 |    |  <a class='bib' ONMOUSEOVER="self.status='TP Bibliographic Reference for H I'; return true;" ONMOUSEOUT="self.status='';return true;" TARGET="_blank"  HREF="javascript:void(0)" ONCLICK="popded('http://physics.nist.gov/cgi-bin/ASBib1/get_ASBib_ref.cgi?db=tp&db_id=8637&comment_code=&element=H&spectr_charge=1&ref=8637&type=');return false">T8637</a> |          |
-                      |        4052.23222    |       | 7.3721e+05 | AAA  | 102823.8530211   -  105291.62867      | 4s     | 2S   | 1/2 | 5p     | 2P*  | 1/2 |    |  <a class='bib' ONMOUSEOVER="self.status='TP Bibliographic Reference for H I'; return true;" ONMOUSEOUT="self.status='';return true;" TARGET="_blank"  HREF="javascript:void(0)" ONCLICK="popded('http://physics.nist.gov/cgi-bin/ASBib1/get_ASBib_ref.cgi?db=tp&db_id=8637&comment_code=&element=H&spectr_charge=1&ref=8637&type=');return false">T8637</a> |          |
-                      |                      |       |            |      |                                       |        |      |     |        |      |     |    |        |          |
-                      |        4052.248747   |       | 2.4121e+06 | AAA  | 102823.894250    - <a class='bal' href="javascript:void(toggleBalloon('T'))" onmouseover="showBalloon('T',event);self.status='Help';return true" onmouseout="hideBalloon('T',event);self.status='';return true">(</a>105291.65983494<a class='bal' href="javascript:void(toggleBalloon('T'))" onmouseover="showBalloon('T',event);self.status='Help';return true" onmouseout="hideBalloon('T',event);self.status='';return true">)</a>  | 4d     | 2D   | 3/2 | 5f     | 2F*  | 5/2 |    |  <a class='bib' ONMOUSEOVER="self.status='TP Bibliographic Reference for H I'; return true;" ONMOUSEOUT="self.status='';return true;" TARGET="_blank"  HREF="javascript:void(0)" ONCLICK="popded('http://physics.nist.gov/cgi-bin/ASBib1/get_ASBib_ref.cgi?db=tp&db_id=8637&comment_code=&element=H&spectr_charge=1&ref=8637&type=');return false">T8637</a> |          |
-                      |        4052.24892    |       | 1.4858e+06 | AAA  | 102823.8943175   - <a class='bal' href="javascript:void(toggleBalloon('['))" onmouseover="showBalloon('[',event);self.status='Help';return true" onmouseout="hideBalloon('[',event);self.status='';return true">[</a>105291.659796<a class='bal' href="javascript:void(toggleBalloon(']'))" onmouseover="showBalloon(']',event);self.status='Help';return true" onmouseout="hideBalloon(']',event);self.status='';return true">]</a>    | 4p     | 2P*  | 3/2 | 5d     | 2D   | 5/2 |    |  <a class='bib' ONMOUSEOVER="self.status='TP Bibliographic Reference for H I'; return true;" ONMOUSEOUT="self.status='';return true;" TARGET="_blank"  HREF="javascript:void(0)" ONCLICK="popded('http://physics.nist.gov/cgi-bin/ASBib1/get_ASBib_ref.cgi?db=tp&db_id=8637&comment_code=&element=H&spectr_charge=1&ref=8637&type=');return false">T8637</a> |          |
-                      |        4052.26147    |       | 1.8846e+04 | AAA  | 102823.894250    -  105291.65209      | 4d     | 2D   | 3/2 | 5p     | 2P*  | 3/2 |    |  <a class='bib' ONMOUSEOVER="self.status='TP Bibliographic Reference for H I'; return true;" ONMOUSEOUT="self.status='';return true;" TARGET="_blank"  HREF="javascript:void(0)" ONCLICK="popded('http://physics.nist.gov/cgi-bin/ASBib1/get_ASBib_ref.cgi?db=tp&db_id=8637&comment_code=&element=H&spectr_charge=1&ref=8637&type=');return false">T8637</a> |          |
-                      |        4052.26174    |       | 2.4763e+05 | AAA  | 102823.8943175   -  105291.651993     | 4p     | 2P*  | 3/2 | 5d     | 2D   | 3/2 |    |  <a class='bib' ONMOUSEOVER="self.status='TP Bibliographic Reference for H I'; return true;" ONMOUSEOUT="self.status='';return true;" TARGET="_blank"  HREF="javascript:void(0)" ONCLICK="popded('http://physics.nist.gov/cgi-bin/ASBib1/get_ASBib_ref.cgi?db=tp&db_id=8637&comment_code=&element=H&spectr_charge=1&ref=8637&type=');return false">T8637</a> |          |
-                      |        4052.26738    |       | 4.1023e+06 | AAA  | 102823.90949     - <a class='bal' href="javascript:void(toggleBalloon('T'))" onmouseover="showBalloon('T',event);self.status='Help';return true" onmouseout="hideBalloon('T',event);self.status='';return true">(</a>105291.66373033<a class='bal' href="javascript:void(toggleBalloon('T'))" onmouseover="showBalloon('T',event);self.status='Help';return true" onmouseout="hideBalloon('T',event);self.status='';return true">)</a>  | 4f     | 2F*  | 5/2 | 5g     | 2G   | 7/2 |    |  <a class='bib' ONMOUSEOVER="self.status='TP Bibliographic Reference for H I'; return true;" ONMOUSEOUT="self.status='';return true;" TARGET="_blank"  HREF="javascript:void(0)" ONCLICK="popded('http://physics.nist.gov/cgi-bin/ASBib1/get_ASBib_ref.cgi?db=tp&db_id=8637&comment_code=&element=H&spectr_charge=1&ref=8637&type=');return false">T8637</a> |          |
-                      |                      |       |            |      |                                       |        |      |     |        |      |     |    |        |          |
-                      |        4052.26742    |       | 2.5844e+06 | AAA  | 102823.9094871   -  105291.66370      | 4d     | 2D   | 5/2 | 5f     | 2F*  | 7/2 |    |  <a class='bib' ONMOUSEOVER="self.status='TP Bibliographic Reference for H I'; return true;" ONMOUSEOUT="self.status='';return true;" TARGET="_blank"  HREF="javascript:void(0)" ONCLICK="popded('http://physics.nist.gov/cgi-bin/ASBib1/get_ASBib_ref.cgi?db=tp&db_id=8637&comment_code=&element=H&spectr_charge=1&ref=8637&type=');return false">T8637</a> |          |
-                      |        4052.2737678  |       | 1.7229e+05 | AAA  | 102823.9094871   - <a class='bal' href="javascript:void(toggleBalloon('T'))" onmouseover="showBalloon('T',event);self.status='Help';return true" onmouseout="hideBalloon('T',event);self.status='';return true">(</a>105291.65983494<a class='bal' href="javascript:void(toggleBalloon('T'))" onmouseover="showBalloon('T',event);self.status='Help';return true" onmouseout="hideBalloon('T',event);self.status='';return true">)</a>  | 4d     | 2D   | 5/2 | 5f     | 2F*  | 5/2 |    |  <a class='bib' ONMOUSEOVER="self.status='TP Bibliographic Reference for H I'; return true;" ONMOUSEOUT="self.status='';return true;" TARGET="_blank"  HREF="javascript:void(0)" ONCLICK="popded('http://physics.nist.gov/cgi-bin/ASBib1/get_ASBib_ref.cgi?db=tp&db_id=8637&comment_code=&element=H&spectr_charge=1&ref=8637&type=');return false">T8637</a> |          |
-                      |        4052.27384    |       | 2.4037e+03 | AAA  | 102823.90949     - <a class='bal' href="javascript:void(toggleBalloon('['))" onmouseover="showBalloon('[',event);self.status='Help';return true" onmouseout="hideBalloon('[',event);self.status='';return true">[</a>105291.659796<a class='bal' href="javascript:void(toggleBalloon(']'))" onmouseover="showBalloon(']',event);self.status='Help';return true" onmouseout="hideBalloon(']',event);self.status='';return true">]</a>    | 4f     | 2F*  | 5/2 | 5d     | 2D   | 5/2 |    |  <a class='bib' ONMOUSEOVER="self.status='TP Bibliographic Reference for H I'; return true;" ONMOUSEOUT="self.status='';return true;" TARGET="_blank"  HREF="javascript:void(0)" ONCLICK="popded('http://physics.nist.gov/cgi-bin/ASBib1/get_ASBib_ref.cgi?db=tp&db_id=8637&comment_code=&element=H&spectr_charge=1&ref=8637&type=');return false">T8637</a> |          |
-                      |        4052.276012   |       | 4.2542e+06 | AAA  | 102823.917091    - <a class='bal' href="javascript:void(toggleBalloon('T'))" onmouseover="showBalloon('T',event);self.status='Help';return true" onmouseout="hideBalloon('T',event);self.status='';return true">(</a>105291.66607200<a class='bal' href="javascript:void(toggleBalloon('T'))" onmouseover="showBalloon('T',event);self.status='Help';return true" onmouseout="hideBalloon('T',event);self.status='';return true">)</a>  | 4f     | 2F*  | 7/2 | 5g     | 2G   | 9/2 |    |  <a class='bib' ONMOUSEOVER="self.status='TP Bibliographic Reference for H I'; return true;" ONMOUSEOUT="self.status='';return true;" TARGET="_blank"  HREF="javascript:void(0)" ONCLICK="popded('http://physics.nist.gov/cgi-bin/ASBib1/get_ASBib_ref.cgi?db=tp&db_id=8637&comment_code=&element=H&spectr_charge=1&ref=8637&type=');return false">T8637</a> |          |
-        4052.279      |        4052.269      | 11000 | 2.6993e+06 | AAA  | 102823.904       -  105291.657        | 4      |      |     | 5      |      |     |    |  <a class='bib' ONMOUSEOVER="self.status='TP Bibliographic Reference for H I'; return true;" ONMOUSEOUT="self.status='';return true;" TARGET="_blank"  HREF="javascript:void(0)" ONCLICK="popded('http://physics.nist.gov/cgi-bin/ASBib1/get_ASBib_ref.cgi?db=tp&db_id=8637&comment_code=&element=H&spectr_charge=1&ref=8637&type=');return false">T8637</a> |   <a class='bib' ONMOUSEOVER="self.status='Line Bibliographic Reference for H I'; return true;" ONMOUSEOUT="self.status='';return true;" TARGET="_blank"  HREF="javascript:void(0)" ONCLICK="popded('http://physics.nist.gov/cgi-bin/ASBib1/get_ASBib_ref.cgi?db=el&db_id=7421&comment_code=&element=H&spectr_charge=1&ref=7421&type=');return false">L7421</a>  |
-                      |                      |       |            |      |                                       |        |      |     |        |      |     |    |        |          |
-                      |        4052.279858   |       | 1.5193e+05 | AAA  | 102823.917091    - <a class='bal' href="javascript:void(toggleBalloon('T'))" onmouseover="showBalloon('T',event);self.status='Help';return true" onmouseout="hideBalloon('T',event);self.status='';return true">(</a>105291.66373033<a class='bal' href="javascript:void(toggleBalloon('T'))" onmouseover="showBalloon('T',event);self.status='Help';return true" onmouseout="hideBalloon('T',event);self.status='';return true">)</a>  | 4f     | 2F*  | 7/2 | 5g     | 2G   | 7/2 |    |  <a class='bib' ONMOUSEOVER="self.status='TP Bibliographic Reference for H I'; return true;" ONMOUSEOUT="self.status='';return true;" TARGET="_blank"  HREF="javascript:void(0)" ONCLICK="popded('http://physics.nist.gov/cgi-bin/ASBib1/get_ASBib_ref.cgi?db=tp&db_id=8637&comment_code=&element=H&spectr_charge=1&ref=8637&type=');return false">T8637</a> |          |
-                      |        4052.28632    |       | 4.8075e+04 | AAA  | 102823.917091    - <a class='bal' href="javascript:void(toggleBalloon('['))" onmouseover="showBalloon('[',event);self.status='Help';return true" onmouseout="hideBalloon('[',event);self.status='';return true">[</a>105291.659796<a class='bal' href="javascript:void(toggleBalloon(']'))" onmouseover="showBalloon(']',event);self.status='Help';return true" onmouseout="hideBalloon(']',event);self.status='';return true">]</a>    | 4f     | 2F*  | 7/2 | 5d     | 2D   | 5/2 |    |  <a class='bib' ONMOUSEOVER="self.status='TP Bibliographic Reference for H I'; return true;" ONMOUSEOUT="self.status='';return true;" TARGET="_blank"  HREF="javascript:void(0)" ONCLICK="popded('http://physics.nist.gov/cgi-bin/ASBib1/get_ASBib_ref.cgi?db=tp&db_id=8637&comment_code=&element=H&spectr_charge=1&ref=8637&type=');return false">T8637</a> |          |
-                      |        4052.28649    |       | 1.6962e+05 | AAA  | 102823.9094871   -  105291.65209      | 4d     | 2D   | 5/2 | 5p     | 2P*  | 3/2 |    |  <a class='bib' ONMOUSEOVER="self.status='TP Bibliographic Reference for H I'; return true;" ONMOUSEOUT="self.status='';return true;" TARGET="_blank"  HREF="javascript:void(0)" ONCLICK="popded('http://physics.nist.gov/cgi-bin/ASBib1/get_ASBib_ref.cgi?db=tp&db_id=8637&comment_code=&element=H&spectr_charge=1&ref=8637&type=');return false">T8637</a> |          |
-                      |        4052.28665    |       | 5.0480e+04 | AAA  | 102823.90949     -  105291.651993     | 4f     | 2F*  | 5/2 | 5d     | 2D   | 3/2 |    |  <a class='bib' ONMOUSEOVER="self.status='TP Bibliographic Reference for H I'; return true;" ONMOUSEOUT="self.status='';return true;" TARGET="_blank"  HREF="javascript:void(0)" ONCLICK="popded('http://physics.nist.gov/cgi-bin/ASBib1/get_ASBib_ref.cgi?db=tp&db_id=8637&comment_code=&element=H&spectr_charge=1&ref=8637&type=');return false">T8637</a> |          |
-                      |        4052.29631    |       | 4.3010e+05 | AAA  | 102823.8943175   - <a class='bal' href="javascript:void(toggleBalloon('['))" onmouseover="showBalloon('[',event);self.status='Help';return true" onmouseout="hideBalloon('[',event);self.status='';return true">[</a>105291.63094<a class='bal' href="javascript:void(toggleBalloon(']'))" onmouseover="showBalloon(']',event);self.status='Help';return true" onmouseout="hideBalloon(']',event);self.status='';return true">]</a>     | 4p     | 2P*  | 3/2 | 5s     | 2S   | 1/2 |    |  <a class='bib' ONMOUSEOVER="self.status='TP Bibliographic Reference for H I'; return true;" ONMOUSEOUT="self.status='';return true;" TARGET="_blank"  HREF="javascript:void(0)" ONCLICK="popded('http://physics.nist.gov/cgi-bin/ASBib1/get_ASBib_ref.cgi?db=tp&db_id=8637&comment_code=&element=H&spectr_charge=1&ref=8637&type=');return false">T8637</a> |          |
-                      |                      |       |            |      |                                       |        |      |     |        |      |     |    |        |          |
-                      |        4052.29992    |       | 1.8849e+05 | AAA  | 102823.894250    -  105291.62867      | 4d     | 2D   | 3/2 | 5p     | 2P*  | 1/2 |    |  <a class='bib' ONMOUSEOVER="self.status='TP Bibliographic Reference for H I'; return true;" ONMOUSEOUT="self.status='';return true;" TARGET="_blank"  HREF="javascript:void(0)" ONCLICK="popded('http://physics.nist.gov/cgi-bin/ASBib1/get_ASBib_ref.cgi?db=tp&db_id=8637&comment_code=&element=H&spectr_charge=1&ref=8637&type=');return false">T8637</a> |          |
-                      |        4170.797      | (240) | 8.2716e+03 | AAA  | 106632.1681      - <a class='bal' href="javascript:void(toggleBalloon('['))" onmouseover="showBalloon('[',event);self.status='Help';return true" onmouseout="hideBalloon('[',event);self.status='';return true">[</a>109029.7913<a class='bal' href="javascript:void(toggleBalloon(']'))" onmouseover="showBalloon(']',event);self.status='Help';return true" onmouseout="hideBalloon(']',event);self.status='';return true">]</a>      | 6      |      |     | 13     |      |     |    |  <a class='bib' ONMOUSEOVER="self.status='TP Bibliographic Reference for H I'; return true;" ONMOUSEOUT="self.status='';return true;" TARGET="_blank"  HREF="javascript:void(0)" ONCLICK="popded('http://physics.nist.gov/cgi-bin/ASBib1/get_ASBib_ref.cgi?db=tp&db_id=8637&comment_code=&element=H&spectr_charge=1&ref=8637&type=');return false">T8637</a> |          |
-                      |        4376.458      | (300) | 1.2884e+04 | AAA  | 106632.1681      -  108917.1209       | 6      |      |     | 12     |      |     |    |  <a class='bib' ONMOUSEOVER="self.status='TP Bibliographic Reference for H I'; return true;" ONMOUSEOUT="self.status='';return true;" TARGET="_blank"  HREF="javascript:void(0)" ONCLICK="popded('http://physics.nist.gov/cgi-bin/ASBib1/get_ASBib_ref.cgi?db=tp&db_id=8637&comment_code=&element=H&spectr_charge=1&ref=8637&type=');return false">T8637</a> |          |
-        4653.78       |        4653.773      |  4200 | 3.2528e+05 | AAA  | 105291.657       -  107440.4508       | 5      |      |     | 7      |      |     |    |  <a class='bib' ONMOUSEOVER="self.status='TP Bibliographic Reference for H I'; return true;" ONMOUSEOUT="self.status='';return true;" TARGET="_blank"  HREF="javascript:void(0)" ONCLICK="popded('http://physics.nist.gov/cgi-bin/ASBib1/get_ASBib_ref.cgi?db=tp&db_id=8637&comment_code=&element=H&spectr_charge=1&ref=8637&type=');return false">T8637</a> |   <a class='bib' ONMOUSEOVER="self.status='Line Bibliographic Reference for H I'; return true;" ONMOUSEOUT="self.status='';return true;" TARGET="_blank"  HREF="javascript:void(0)" ONCLICK="popded('http://physics.nist.gov/cgi-bin/ASBib1/get_ASBib_ref.cgi?db=el&db_id=7421&comment_code=&element=H&spectr_charge=1&ref=7421&type=');return false">L7421</a>  |
-                      |        4672.512      | (370) | 2.1096e+04 | AAA  | 106632.1681      -  108772.3445       | 6      |      |     | 11     |      |     |    |  <a class='bib' ONMOUSEOVER="self.status='TP Bibliographic Reference for H I'; return true;" ONMOUSEOUT="self.status='';return true;" TARGET="_blank"  HREF="javascript:void(0)" ONCLICK="popded('http://physics.nist.gov/cgi-bin/ASBib1/get_ASBib_ref.cgi?db=tp&db_id=8637&comment_code=&element=H&spectr_charge=1&ref=8637&type=');return false">T8637</a> |          |
-                      |                      |       |            |      |                                       |        |      |     |        |      |     |    |        |          |
-                      |        5091.321      |       | 7.5169e+02 | AAA  | 107440.4508      - <a class='bal' href="javascript:void(toggleBalloon('['))" onmouseover="showBalloon('[',event);self.status='Help';return true" onmouseout="hideBalloon('[',event);self.status='';return true">[</a>109404.5776<a class='bal' href="javascript:void(toggleBalloon(']'))" onmouseover="showBalloon(']',event);self.status='Help';return true" onmouseout="hideBalloon(']',event);self.status='';return true">]</a>      | 7      |      |     | 20     |      |     |    |  <a class='bib' ONMOUSEOVER="self.status='TP Bibliographic Reference for H I'; return true;" ONMOUSEOUT="self.status='';return true;" TARGET="_blank"  HREF="javascript:void(0)" ONCLICK="popded('http://physics.nist.gov/cgi-bin/ASBib1/get_ASBib_ref.cgi?db=tp&db_id=8637&comment_code=&element=H&spectr_charge=1&ref=8637&type=');return false">T8637</a> |          |
-        5128.65       |        5128.662      | (450) | 3.6881e+04 | AAA  | 106632.1681      -  108581.9945       | 6      |      |     | 10     |      |     |    |  <a class='bib' ONMOUSEOVER="self.status='TP Bibliographic Reference for H I'; return true;" ONMOUSEOUT="self.status='';return true;" TARGET="_blank"  HREF="javascript:void(0)" ONCLICK="popded('http://physics.nist.gov/cgi-bin/ASBib1/get_ASBib_ref.cgi?db=tp&db_id=8637&comment_code=&element=H&spectr_charge=1&ref=8637&type=');return false">T8637</a> |  <a class='bib' ONMOUSEOVER="self.status='Line Bibliographic Reference for H I'; return true;" ONMOUSEOUT="self.status='';return true;" TARGET="_blank"  HREF="javascript:void(0)" ONCLICK="popded('http://physics.nist.gov/cgi-bin/ASBib1/get_ASBib_ref.cgi?db=el&db_id=7452 &comment_code=&element=H&spectr_charge=1&ref=7452 &type=');return false">L7452 </a>  |
-                      |        5169.282      |       | 9.8498e+02 | AAA  | 107440.4508      - <a class='bal' href="javascript:void(toggleBalloon('['))" onmouseover="showBalloon('[',event);self.status='Help';return true" onmouseout="hideBalloon('[',event);self.status='';return true">[</a>109374.9555<a class='bal' href="javascript:void(toggleBalloon(']'))" onmouseover="showBalloon(']',event);self.status='Help';return true" onmouseout="hideBalloon(']',event);self.status='';return true">]</a>      | 7      |      |     | 19     |      |     |    |  <a class='bib' ONMOUSEOVER="self.status='TP Bibliographic Reference for H I'; return true;" ONMOUSEOUT="self.status='';return true;" TARGET="_blank"  HREF="javascript:void(0)" ONCLICK="popded('http://physics.nist.gov/cgi-bin/ASBib1/get_ASBib_ref.cgi?db=tp&db_id=8637&comment_code=&element=H&spectr_charge=1&ref=8637&type=');return false">T8637</a> |          |
-                      |        5263.685      |       | 1.3121e+03 | AAA  | 107440.4508      - <a class='bal' href="javascript:void(toggleBalloon('['))" onmouseover="showBalloon('[',event);self.status='Help';return true" onmouseout="hideBalloon('[',event);self.status='';return true">[</a>109340.2604<a class='bal' href="javascript:void(toggleBalloon(']'))" onmouseover="showBalloon(']',event);self.status='Help';return true" onmouseout="hideBalloon(']',event);self.status='';return true">]</a>      | 7      |      |     | 18     |      |     |    |  <a class='bib' ONMOUSEOVER="self.status='TP Bibliographic Reference for H I'; return true;" ONMOUSEOUT="self.status='';return true;" TARGET="_blank"  HREF="javascript:void(0)" ONCLICK="popded('http://physics.nist.gov/cgi-bin/ASBib1/get_ASBib_ref.cgi?db=tp&db_id=8637&comment_code=&element=H&spectr_charge=1&ref=8637&type=');return false">T8637</a> |          |
-                      |        5379.776      |       | 1.7812e+03 | AAA  | 107440.4508      - <a class='bal' href="javascript:void(toggleBalloon('['))" onmouseover="showBalloon('[',event);self.status='Help';return true" onmouseout="hideBalloon('[',event);self.status='';return true">[</a>109299.2642<a class='bal' href="javascript:void(toggleBalloon(']'))" onmouseover="showBalloon(']',event);self.status='Help';return true" onmouseout="hideBalloon(']',event);self.status='';return true">]</a>      | 7      |      |     | 17     |      |     |    |  <a class='bib' ONMOUSEOVER="self.status='TP Bibliographic Reference for H I'; return true;" ONMOUSEOUT="self.status='';return true;" TARGET="_blank"  HREF="javascript:void(0)" ONCLICK="popded('http://physics.nist.gov/cgi-bin/ASBib1/get_ASBib_ref.cgi?db=tp&db_id=8637&comment_code=&element=H&spectr_charge=1&ref=8637&type=');return false">T8637</a> |          |
-                      |                      |       |            |      |                                       |        |      |     |        |      |     |    |        |          |
-                      |        5525.190      | (150) | 2.4709e+03 | AAA  | 107440.4508      - <a class='bal' href="javascript:void(toggleBalloon('['))" onmouseover="showBalloon('[',event);self.status='Help';return true" onmouseout="hideBalloon('[',event);self.status='';return true">[</a>109250.3433<a class='bal' href="javascript:void(toggleBalloon(']'))" onmouseover="showBalloon(']',event);self.status='Help';return true" onmouseout="hideBalloon(']',event);self.status='';return true">]</a>      | 7      |      |     | 16     |      |     |    |  <a class='bib' ONMOUSEOVER="self.status='TP Bibliographic Reference for H I'; return true;" ONMOUSEOUT="self.status='';return true;" TARGET="_blank"  HREF="javascript:void(0)" ONCLICK="popded('http://physics.nist.gov/cgi-bin/ASBib1/get_ASBib_ref.cgi?db=tp&db_id=8637&comment_code=&element=H&spectr_charge=1&ref=8637&type=');return false">T8637</a> |          |
-                      |        5711.464      | (180) | 3.5158e+03 | AAA  | 107440.4508      - <a class='bal' href="javascript:void(toggleBalloon('['))" onmouseover="showBalloon('[',event);self.status='Help';return true" onmouseout="hideBalloon('[',event);self.status='';return true">[</a>109191.3154<a class='bal' href="javascript:void(toggleBalloon(']'))" onmouseover="showBalloon(']',event);self.status='Help';return true" onmouseout="hideBalloon(']',event);self.status='';return true">]</a>      | 7      |      |     | 15     |      |     |    |  <a class='bib' ONMOUSEOVER="self.status='TP Bibliographic Reference for H I'; return true;" ONMOUSEOUT="self.status='';return true;" TARGET="_blank"  HREF="javascript:void(0)" ONCLICK="popded('http://physics.nist.gov/cgi-bin/ASBib1/get_ASBib_ref.cgi?db=tp&db_id=8637&comment_code=&element=H&spectr_charge=1&ref=8637&type=');return false">T8637</a> |          |
-                      |        5908.220      | (540) | 7.0652e+04 | AAA  | 106632.1681      -  108324.7253       | 6      |      |     | 9      |      |     |    |  <a class='bib' ONMOUSEOVER="self.status='TP Bibliographic Reference for H I'; return true;" ONMOUSEOUT="self.status='';return true;" TARGET="_blank"  HREF="javascript:void(0)" ONCLICK="popded('http://physics.nist.gov/cgi-bin/ASBib1/get_ASBib_ref.cgi?db=tp&db_id=8637&comment_code=&element=H&spectr_charge=1&ref=8637&type=');return false">T8637</a> |          |
-                      |        5956.845      | (210) | 5.1562e+03 | AAA  | 107440.4508      - <a class='bal' href="javascript:void(toggleBalloon('['))" onmouseover="showBalloon('[',event);self.status='Help';return true" onmouseout="hideBalloon('[',event);self.status='';return true">[</a>109119.1917<a class='bal' href="javascript:void(toggleBalloon(']'))" onmouseover="showBalloon(']',event);self.status='Help';return true" onmouseout="hideBalloon(']',event);self.status='';return true">]</a>      | 7      |      |     | 14     |      |     |    |  <a class='bib' ONMOUSEOVER="self.status='TP Bibliographic Reference for H I'; return true;" ONMOUSEOUT="self.status='';return true;" TARGET="_blank"  HREF="javascript:void(0)" ONCLICK="popded('http://physics.nist.gov/cgi-bin/ASBib1/get_ASBib_ref.cgi?db=tp&db_id=8637&comment_code=&element=H&spectr_charge=1&ref=8637&type=');return false">T8637</a> |          |
-                      |        6291.918      | (250) | 7.8457e+03 | AAA  | 107440.4508      - <a class='bal' href="javascript:void(toggleBalloon('['))" onmouseover="showBalloon('[',event);self.status='Help';return true" onmouseout="hideBalloon('[',event);self.status='';return true">[</a>109029.7913<a class='bal' href="javascript:void(toggleBalloon(']'))" onmouseover="showBalloon(']',event);self.status='Help';return true" onmouseout="hideBalloon(']',event);self.status='';return true">]</a>      | 7      |      |     | 13     |      |     |    |  <a class='bib' ONMOUSEOVER="self.status='TP Bibliographic Reference for H I'; return true;" ONMOUSEOUT="self.status='';return true;" TARGET="_blank"  HREF="javascript:void(0)" ONCLICK="popded('http://physics.nist.gov/cgi-bin/ASBib1/get_ASBib_ref.cgi?db=tp&db_id=8637&comment_code=&element=H&spectr_charge=1&ref=8637&type=');return false">T8637</a> |          |
-                      |                      |       |            |      |                                       |        |      |     |        |      |     |    |        |          |
-                      |        6771.993      | (300) | 1.2503e+04 | AAA  | 107440.4508      -  108917.1209       | 7      |      |     | 12     |      |     |    |  <a class='bib' ONMOUSEOVER="self.status='TP Bibliographic Reference for H I'; return true;" ONMOUSEOUT="self.status='';return true;" TARGET="_blank"  HREF="javascript:void(0)" ONCLICK="popded('http://physics.nist.gov/cgi-bin/ASBib1/get_ASBib_ref.cgi?db=tp&db_id=8637&comment_code=&element=H&spectr_charge=1&ref=8637&type=');return false">T8637</a> |          |
-                      |        6946.756      |       | 6.8858e+02 | AAA  | 107965.0568      - <a class='bal' href="javascript:void(toggleBalloon('['))" onmouseover="showBalloon('[',event);self.status='Help';return true" onmouseout="hideBalloon('[',event);self.status='';return true">[</a>109404.5776<a class='bal' href="javascript:void(toggleBalloon(']'))" onmouseover="showBalloon(']',event);self.status='Help';return true" onmouseout="hideBalloon(']',event);self.status='';return true">]</a>      | 8      |      |     | 20     |      |     |    |  <a class='bib' ONMOUSEOVER="self.status='TP Bibliographic Reference for H I'; return true;" ONMOUSEOUT="self.status='';return true;" TARGET="_blank"  HREF="javascript:void(0)" ONCLICK="popded('http://physics.nist.gov/cgi-bin/ASBib1/get_ASBib_ref.cgi?db=tp&db_id=8637&comment_code=&element=H&spectr_charge=1&ref=8637&type=');return false">T8637</a> |          |
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-</pre>
-<P>
-<small>Query time: 0.2 sec</small><P>
+    </td>
+    <td class='bcn1'>
+      <a href="javascript:void(0)" onclick="popbib('https://physics.nist.gov/cgi-bin/ASBib1/Fvalbib/make_query.cgi?spectra=H%20I&amp;order=1');return false"
+        onmouseover="self.status='H  I: bibliography transition probability query';return true;"
+        onmouseout="self.status=''; return true;" target="_blank">H  I Transition Probabilities</a>
+    </td>
+  </tr>
+</table>
+    <p>
+<hr class="noshade" />
 
-<p style="color:black; font-family: helvetica,arial; font-weight:bold">If you did not find the data you need, please <a href="mailto:alexander.kramida@nist.gov?subject=Missing%20data%20in%20ASD&body=H%20I%20lines">inform the ASD Team</a>.</p><table width="100%">
-<tr>
-<td align="left">
-<a
-href="http://physics.nist.gov/PhysRefData/ASD/index.html"><img src="http://physics.nist.gov/PhysRefData/ASD/Images/ASD-sm.gif" border="0" width="100" height="47" alt="[ASD Home]"/></a><a
-href="http://physics.nist.gov/PhysRefData/ASD/lines_form.html"><img
-src="http://physics.nist.gov/PhysRefData/ASD/Images/Lines.gif" border="0" width="70" height="47" alt="[Lines Query]"/></a><a
-href="http://physics.nist.gov/PhysRefData/ASD/levels_form.html"><img
-src="http://physics.nist.gov/PhysRefData/ASD/Images/Levels.gif" border="0" width="79" height="47" alt="[Levels Query]"/></a><a
-href="http://physics.nist.gov/PhysRefData/ASD/Html/contents.html"><img
-src="http://physics.nist.gov/PhysRefData/ASD/Images/List.gif" border="0" width="77" height="47" alt="[List of Spectra]"/></a><a
-href="http://physics.nist.gov/PhysRefData/ASD/ionEnergy.html"><img
-src="http://physics.nist.gov/PhysRefData/ASD/Images/GS-IE.gif" border="0" width="124" height="47" alt="[Ground States and Ionization Energies]"/></a><a
-href="http://physics.nist.gov/PhysRefData/ASBib1/index.html"><img
-src="http://physics.nist.gov/PhysRefData/ASD/Images/Bib.gif" border="0" width="98" height="47" alt="[Bibliography]"/></a><a
-href="http://physics.nist.gov/PhysRefData/ASD/Html/help.html"><img
-src="http://physics.nist.gov/PhysRefData/ASD/Images/Help.gif" border="0" width="55" height="47" alt="[Help]"/></a></td>
-<td align="right">
-<img src="http://physics.nist.gov/PhysRefData/ASD/Images/nist-pl-black.gif" border="0" width="136" height="68" usemap="#NIST-PL" alt="NIST Physical Measurement Laboratory"/>
-</td>
+<pre>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+       Observed        |         Ritz          |  Rel. |     Aki      |     fik      | Acc. |        Ei           Ek         |     Lower level     |     Upper level     |Type|    TP  |   Line  |
+      Wavelength       |      Wavelength       |  Int. |    (s^-1)    |              |      |       (eV)         (eV)        |---------------------|---------------------|    |   Ref. |   Ref.  |
+       Vac (nm)        |       Vac (nm)        |       |              |              |      |                                | Conf.  | Term | J   | Conf.  | Term | J   |    |        |         |
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                       |                       |       |              |              |      |                                |        |      |     |        |      |     |    |        |         |
+                       |          4020.871     | (200) | 5.5265e+03   | 7.2912e-03   | AAA  |  13.22070378  -  [13.52905540] | 6      |      |     | 14     |      |     |    |  T8637 |         |
+                       |          4052.18664   |       | 1.2381e+06   | 6.0958e-01   | AAA  |  12.74853234  -   13.05450096  | 4p     | 2P*  | 1/2 | 5d     | 2D   | 3/2 |    |  T8637 |         |
+                       |          4052.19376   |       | 7.3716e+05   | 3.6293e-01   | AAA  |  12.74853289  -   13.05450098  | 4s     | 2S   | 1/2 | 5p     | 2P*  | 3/2 |    |  T8637 |         |
+                       |          4052.22121   |       | 2.1503e+05   | 5.2935e-02   | AAA  |  12.74853234  -  [13.05449835] | 4p     | 2P*  | 1/2 | 5s     | 2S   | 1/2 |    |  T8637 |         |
+                       |          4052.23222   |       | 7.3721e+05   | 1.8148e-01   | AAA  |  12.74853289  -   13.05449807  | 4s     | 2S   | 1/2 | 5p     | 2P*  | 1/2 |    |  T8637 |         |
+                       |                       |       |              |              |      |                                |        |      |     |        |      |     |    |        |         |
+                       |          4052.248747  |       | 2.4121e+06   | 8.9072e-01   | AAA  |  12.74853800  -  (13.05450194) | 4d     | 2D   | 3/2 | 5f     | 2F*  | 5/2 |    |  T8637 |         |
+                       |          4052.24892   |       | 1.4858e+06   | 5.4865e-01   | AAA  |  12.74853801  -  [13.05450193] | 4p     | 2P*  | 3/2 | 5d     | 2D   | 5/2 |    |  T8637 |         |
+                       |          4052.26147   |       | 1.8846e+04   | 4.6395e-03   | AAA  |  12.74853800  -   13.05450098  | 4d     | 2D   | 3/2 | 5p     | 2P*  | 3/2 |    |  T8637 |         |
+                       |          4052.26174   |       | 2.4763e+05   | 6.0962e-02   | AAA  |  12.74853801  -   13.05450096  | 4p     | 2P*  | 3/2 | 5d     | 2D   | 3/2 |    |  T8637 |         |
+                       |          4052.26738   |       | 4.1023e+06   | 1.3465e+00   | AAA  |  12.74853989  -  (13.05450242) | 4f     | 2F*  | 5/2 | 5g     | 2G   | 7/2 |    |  T8637 |         |
+                       |                       |       |              |              |      |                                |        |      |     |        |      |     |    |        |         |
+                       |          4052.26742   |       | 2.5844e+06   | 8.4831e-01   | AAA  |  12.74853989  -   13.05450242  | 4d     | 2D   | 5/2 | 5f     | 2F*  | 7/2 |    |  T8637 |         |
+                       |          4052.2737678 |       | 1.7229e+05   | 4.2416e-02   | AAA  |  12.74853989  -  (13.05450194) | 4d     | 2D   | 5/2 | 5f     | 2F*  | 5/2 |    |  T8637 |         |
+                       |          4052.27384   |       | 2.4037e+03   | 5.9174e-04   | AAA  |  12.74853989  -  [13.05450193] | 4f     | 2F*  | 5/2 | 5d     | 2D   | 5/2 |    |  T8637 |         |
+                       |          4052.276012  |       | 4.2542e+06   | 1.3091e+00   | AAA  |  12.74854083  -  (13.05450271) | 4f     | 2F*  | 7/2 | 5g     | 2G   | 9/2 |    |  T8637 |         |
+          4052.279     |          4052.269     | 11000 | 2.6993e+06   | 1.0383e+00   | AAA  |  12.7485392   -   13.0545016   | 4      |      |     | 5      |      |     |    |  T8637 |  L7421  |
+                       |                       |       |              |              |      |                                |        |      |     |        |      |     |    |        |         |
+                       |          4052.279858  |       | 1.5193e+05   | 3.7403e-02   | AAA  |  12.74854083  -  (13.05450242) | 4f     | 2F*  | 7/2 | 5g     | 2G   | 7/2 |    |  T8637 |         |
+                       |          4052.28632   |       | 4.8075e+04   | 8.8763e-03   | AAA  |  12.74854083  -  [13.05450193] | 4f     | 2F*  | 7/2 | 5d     | 2D   | 5/2 |    |  T8637 |         |
+                       |          4052.28649   |       | 1.6962e+05   | 2.7838e-02   | AAA  |  12.74853989  -   13.05450098  | 4d     | 2D   | 5/2 | 5p     | 2P*  | 3/2 |    |  T8637 |         |
+                       |          4052.28665   |       | 5.0480e+04   | 8.2848e-03   | AAA  |  12.74853989  -   13.05450096  | 4f     | 2F*  | 5/2 | 5d     | 2D   | 3/2 |    |  T8637 |         |
+                       |          4052.29631   |       | 4.3010e+05   | 5.2942e-02   | AAA  |  12.74853801  -  [13.05449835] | 4p     | 2P*  | 3/2 | 5s     | 2S   | 1/2 |    |  T8637 |         |
+                       |                       |       |              |              |      |                                |        |      |     |        |      |     |    |        |         |
+                       |          4052.29992   |       | 1.8849e+05   | 2.3201e-02   | AAA  |  12.74853800  -   13.05449807  | 4d     | 2D   | 3/2 | 5p     | 2P*  | 1/2 |    |  T8637 |         |
+                       |          4170.797     | (240) | 8.2716e+03   | 1.0124e-02   | AAA  |  13.22070378  -  [13.51797117] | 6      |      |     | 13     |      |     |    |  T8637 |         |
+                       |          4376.458     | (300) | 1.2884e+04   | 1.4794e-02   | AAA  |  13.22070378  -   13.50400182  | 6      |      |     | 12     |      |     |    |  T8637 |         |
+          4653.78      |          4653.774     |  4200 | 3.2528e+05   | 2.0700e-01   | AAA  |  13.0545016   -   13.32091806  | 5      |      |     | 7      |      |     |    |  T8637 |  L7421  |
+                       |          4672.512     | (370) | 2.1096e+04   | 2.3202e-02   | AAA  |  13.22070378  -   13.48605183  | 6      |      |     | 11     |      |     |    |  T8637 |         |
+                       |                       |       |              |              |      |                                |        |      |     |        |      |     |    |        |         |
+                       |          5091.321     |       | 7.5169e+02   | 2.3839e-03   | AAA  |  13.32091806  -  [13.56443874] | 7      |      |     | 20     |      |     |    |  T8637 |         |
+          5128.65      |          5128.662     | (450) | 3.6881e+04   | 4.0387e-02   | AAA  |  13.22070378  -   13.46245144  | 6      |      |     | 10     |      |     |    |  T8637 |  L7452  |
+                       |          5169.282     |       | 9.8498e+02   | 2.9062e-03   | AAA  |  13.32091806  -  [13.56076607] | 7      |      |     | 19     |      |     |    |  T8637 |         |
+                       |          5263.685     |       | 1.3121e+03   | 3.6028e-03   | AAA  |  13.32091806  -  [13.55646443] | 7      |      |     | 18     |      |     |    |  T8637 |         |
+                       |          5379.776     |       | 1.7812e+03   | 4.5568e-03   | AAA  |  13.32091806  -  [13.55138155] | 7      |      |     | 17     |      |     |    |  T8637 |         |
+                       |                       |       |              |              |      |                                |        |      |     |        |      |     |    |        |         |
+                       |          5525.190     | (150) | 2.4709e+03   | 5.9062e-03   | AAA  |  13.32091806  -  [13.54531613] | 7      |      |     | 16     |      |     |    |  T8637 |         |
+                       |          5711.464     | (180) | 3.5158e+03   | 7.8926e-03   | AAA  |  13.32091806  -  [13.53799760] | 7      |      |     | 15     |      |     |    |  T8637 |         |
+                       |          5908.220     | (540) | 7.0652e+04   | 8.3164e-02   | AAA  |  13.22070378  -   13.43055412  | 6      |      |     | 9      |      |     |    |  T8637 |         |
+                       |          5956.845     | (210) | 5.1562e+03   | 1.0968e-02   | AAA  |  13.32091806  -  [13.52905540] | 7      |      |     | 14     |      |     |    |  T8637 |         |
+                       |          6291.918     | (250) | 7.8457e+03   | 1.6054e-02   | AAA  |  13.32091806  -  [13.51797117] | 7      |      |     | 13     |      |     |    |  T8637 |         |
+                       |                       |       |              |              |      |                                |        |      |     |        |      |     |    |        |         |
+                       |          6771.993     | (300) | 1.2503e+04   | 2.5253e-02   | AAA  |  13.32091806  -   13.50400182  | 7      |      |     | 12     |      |     |    |  T8637 |         |
+                       |          6946.756     |       | 6.8858e+02   | 3.1136e-03   | AAA  |  13.38596091  -  [13.56443874] | 8      |      |     | 20     |      |     |    |  T8637 |         |
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+</pre>
+
+<p style="color:black; font-family: helvetica,arial; font-weight:bold">If you did not find the data you need, please <a href="mailto:alexander.kramida@nist.gov?subject=Missing%20data%20in%20ASD&amp;body=H%20I%20levels">inform the ASD Team</a>.</p><table style="width:100%; border:0; margin-top:0">
+<tr><td style="text-align:left"><a href="https://physics.nist.gov/PhysRefData/ASD/index.html"><img
+src="https://physics.nist.gov/PhysRefData/ASD/Images/ASD-sm.gif" style="border:0" width="100" height="47"
+alt="[ASD Home]" title="ASD Home"></a><a href="https://physics.nist.gov/PhysRefData/ASD/lines_form.html"><img
+src="https://physics.nist.gov/PhysRefData/ASD/Images/Lines.gif" style="border:0" width="70" height="47"
+alt="[Lines Query]" title="Lines Query"></a><a href="https://physics.nist.gov/PhysRefData/ASD/levels_form.html"><img
+src="https://physics.nist.gov/PhysRefData/ASD/Images/Levels.gif" style="border:0" width="79" height="47"
+alt="[Levels Query]" title="Levels Query"></a><a href="https://www.nist.gov/pml/atomic-spectra-database-contents"><img
+src="https://physics.nist.gov/PhysRefData/ASD/Images/List.gif" style="border:0" width="77" height="47"
+alt="[List of Spectra]" title="List of Spectra"></a><a href="https://physics.nist.gov/PhysRefData/ASD/ionEnergy.html"><img
+src="https://physics.nist.gov/PhysRefData/ASD/Images/GS-IE.gif" style="border:0" width="124" height="47"
+alt="[Ground States and Ionization Energies]" title="Ground States and Ionization Energies"></a><a
+href="https://physics.nist.gov/PhysRefData/ASBib1/index.html"><img src="https://physics.nist.gov/PhysRefData/ASD/Images/Bib.gif" style="border:0"
+width="98" height="47" alt="[Bibliography]" title="Bibliography"></a><a
+href="https://physics.nist.gov/PhysRefData/ASD/Html/help.html"><img src="https://physics.nist.gov/PhysRefData/ASD/Images/Help.gif" style="border:0"
+width="55" height="47" alt="[Help]" title="Help"/></a></td>
+<td style="text-align:right"><img src="https://physics.nist.gov/PhysRefData/ASD/Images/nist-pl-black.gif" style="border:0" width="136" height="68"
+usemap="#NIST-PL" alt="NIST Physical Measurement Laboratory"/></td>
 </tr></table>
 
 
