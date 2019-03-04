@@ -5,6 +5,7 @@ from astropy.tests.helper import remote_data
 
 from astropy import coordinates
 from astropy import units as u
+from astropy.io import fits
 
 from ..core import HiGal
 
@@ -33,3 +34,14 @@ class TestTemplateClass:
                                            cache=False, catalog_query=True)
 
         assert 'HIGALPB030.6606-0.0878' in catalog['DESIGNATION']
+
+    def test_get_images(self):
+        crd = coordinates.SkyCoord(49.5, -0.3, frame='galactic',
+                                   unit=(u.deg, u.deg))
+
+        imlist = HiGal.get_images(crd, radius=3*u.arcmin)
+
+        assert len(imlist) == 5
+
+        for im in imlist:
+            assert isinstance(im, fits.HDUList)

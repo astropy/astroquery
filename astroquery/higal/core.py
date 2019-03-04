@@ -105,9 +105,11 @@ class HiGalClass(BaseQuery):
 
         if not hasattr(self, '_session_id'):
             # set up session: get cookies
-            initial_response = self._request('GET', self.URL, cache=False,
-                                             timeout=self.TIMEOUT)
-            initial_response.raise_for_status()
+            # (save _initial_response for later debugging)
+            self._initial_response = self._request('GET', self.URL,
+                                                   cache=False,
+                                                   timeout=self.TIMEOUT)
+            self._initial_response.raise_for_status()
 
             # multiple cookies are returned
             self._session_id = self._session.cookies.values()[1]

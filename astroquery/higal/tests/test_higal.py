@@ -16,25 +16,18 @@ from ...utils.testing_tools import MockResponse
 from ... import higal
 from ...higal import conf
 
-# Local tests should have the corresponding data stored
-# in the ./data folder. This is the actual HTTP response
-# one would expect from the server when a valid query is made.
-# Its best to keep the data file small, so that testing is
-# quicker. When running tests locally the stored data is used
-# to mock the HTTP requests and response part of the query
-# thereby saving time and bypassing unreliability for
-# an actual remote network query.
-
-DATA_FILES = {'GET':
-              # You might have a different response for each URL you're
-              # querying:
-              {'http://dummy_server_mirror_1':
-               'dummy.dat'}}
+DATA_FILES = {'POST':
+              {'https://tools.ssdc.asi.it/HiGALSearch.jsp':
+               'g49.html'},
+              'GET':
+              {'https://tools.ssdc.asi.it/MMCAjaxFunction':
+               'g49.html',
+               'https://tools.ssdc.asi.it/HiGALSearch.jsp':
+               'frontpage.html',
+              }
+             }
 
 
-# ./setup_package.py helps the test function locate the data file
-# define a function that can construct the full path to the file in the
-# ./data directory:
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     return os.path.join(data_dir, filename)
@@ -63,8 +56,35 @@ def patch_request(request):
                nonremote_request)
     return mp
 
+class FakeCookieJar(list):
+    def values(self):
+        return self
 
-# finally test the methods using the mock HTTP response
+    def clear(self, arg1, arg2, arg3, **kwargs):
+        return
+
+class FakeCookie(object):
+    def __init__(self):
+        self.name = "JSESSIONID"
+        self.path = '/cas/'
+        self.domain = ""
+
+
 def test_query_region(patch_request):
-    result = higal.core.HiGalClass().query_region('m1')
+    target = coord.SkyCoord(49.5, -0.3, frame='galactic', unit=(u.deg, u.deg))
+    hg = higal.core.HiGalClass()
+    hg._session.cookies = FakeCookieJar([FakeCookie()]*2)
+
+    result = hg.query_region(coordinates=target, radius=0.25*u.deg, catalog_query=True)
     assert isinstance(result, Table)
+
+    result = hg.query_region(coordinates=target, radius=0.25*u.deg, catalog_query=False)
+    assert isinstance(result, Table)
+
+# these tests are challenging to do locally; we'll rely on the remote ones for
+# now =(
+# def test_get_images(patch_request):
+#     target = coord.SkyCoord(49.5, -0.3, frame='galactic', unit=(u.deg, u.deg))
+#     result = higal.core.HiGalClass().get_images(coordinates=target,
+#                                                 radius=0.25*u.deg)
+#     assert isinstance(result, Table)
