@@ -45,10 +45,10 @@ Important Guidelines
 --------------------
 
 Astroquery is based on the requests module.  All contributions must be based on
-the `requests` module and should not use `urllib` or any of the base python url
+the `requests`_ module and should not use `urllib` or any of the base python url
 modules unless there is a demonstrated necessity.
 
-The `requests` module also generally should not be directly used, since the
+The `requests`_ module also generally should not be directly used, since the
 `astroquery.query.BaseQuery` class, which all astroquery classes should inherit
 from, provides access to its own `_request` method.  This custom `_request`
 method is a wrapper around the `requests.request` function that provides
@@ -57,3 +57,4 @@ generation, progressbars, and local writing-to-disk.
 
 .. _astroquery API: docs/api.rst
 .. _template: docs/template.rst
+.. _requests: http://docs.python-requests.org/en/master/
