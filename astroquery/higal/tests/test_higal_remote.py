@@ -8,6 +8,7 @@ from astropy import units as u
 
 from ..core import HiGal
 
+
 @remote_data
 class TestTemplateClass:
     def test_basic_query(self):

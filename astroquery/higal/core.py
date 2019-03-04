@@ -37,8 +37,8 @@ class HiGalClass(BaseQuery):
     URL = conf.server + "HiGALSearch.jsp"
     TIMEOUT = conf.timeout
     CATALOG_URL = conf.server + "MMCAjaxFunction"
-    #https://tools.ssdc.asi.it/MMCAjaxFunction?
-    #&mission=Hi-GAL&action=getMMCCatalogData&catalogId=4048&radius=10&ra=281.85238759&dec=-1.93488693&_=1546540568988
+    # https://tools.ssdc.asi.it/MMCAjaxFunction?
+    # &mission=Hi-GAL&action=getMMCCatalogData&catalogId=4048&radius=10&ra=281.85238759&dec=-1.93488693&_=1546540568988
     HIGAL_CATALOGS = {'blue': 4047,
                       'red': 4051,
                       'psw': 4050,
@@ -121,15 +121,14 @@ class HiGalClass(BaseQuery):
                                                     cookie.path,
                                                     cookie.name)
 
-
         if name is not None:
             coords = coordinates.SkyCoord.from_name(name)
 
         if catalog_query:
             request_payload = {
-                'mission':'Hi-GAL',
+                'mission': 'Hi-GAL',
                 'action': 'getMMCCatalogData',
-                'catalogId': catalog_id, #[4048-4051
+                'catalogId': catalog_id,  #[4048-4051
                 "radius": "{0}".format(radius.to(u.arcmin).value),
                 "ra": coords.fk5.ra.value,
                 "dec": coords.fk5.dec.value,
@@ -142,7 +141,7 @@ class HiGalClass(BaseQuery):
                                               coords.fk5.dec.value),
                 "RA": coords.fk5.ra.value,
                 "DEC": coords.fk5.dec.value,
-                "coordsType": "RADEC", # or "LB"
+                "coordsType": "RADEC",  # or "LB"
                 "NameResolverLOCAL": "LOCAL",
                 "radius": "arcmin",
                 "size": "",
