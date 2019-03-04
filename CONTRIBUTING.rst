@@ -41,5 +41,20 @@ As shown in the template_ module, the minimum requirements for a new feature are
 
 PRs will not be accepted if tests fail.
 
+Important Guidelines
+--------------------
+
+Astroquery is based on the requests module.  All contributions must be based on
+the `requests`_ module and should not use `urllib` or any of the base python url
+modules unless there is a demonstrated necessity.
+
+The `requests`_ module also generally should not be directly used, since the
+`astroquery.query.BaseQuery` class, which all astroquery classes should inherit
+from, provides access to its own `_request` method.  This custom `_request`
+method is a wrapper around the `requests.request` function that provides
+important astroquery-specific utility, including caching, HTTP header
+generation, progressbars, and local writing-to-disk.
+
 .. _astroquery API: docs/api.rst
 .. _template: docs/template.rst
+.. _requests: http://docs.python-requests.org/en/master/
