@@ -22,3 +22,7 @@ class TestNist:
     def test_query(self):
         result = nist.core.Nist.query(4000 * u.nm, 7000 * u.nm)
         assert isinstance(result, Table)
+
+        # check that no javascript was left in the table
+        # (regression test for 1355)
+        assert np.all(result['TP'] == 'T8637')
