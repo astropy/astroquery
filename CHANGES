@@ -6,6 +6,7 @@
 - HEASARC: Fixing error handling to filter out only the query errors. [#1338]
 - CDS: Apply MOCPy v0.5.* API changes. [#1343]
 - SDSS: Update to SDSS-IV URLs and general clean-up. [#1308]
+- NIST: Fixed an upstream issue where js was included in returned data [#1359]
 
 0.3.9 (2018-12-06)
 ------------------
