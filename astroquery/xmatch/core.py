@@ -77,7 +77,8 @@ class XMatchClass(BaseQuery):
                                     **kwargs)
         if get_query_payload:
             return response
-        return self._parse_text(response.text)
+
+        return Table.read(BytesIO(response.content), format='votable')
 
     @prepend_docstr_nosections("\n" + query.__doc__)
     def query_async(self, cat1, cat2, max_distance, colRA1=None, colDec1=None,
@@ -92,12 +93,11 @@ class XMatchClass(BaseQuery):
         if max_distance > 180 * u.arcsec:
             raise ValueError(
                 'max_distance argument must not be greater than 180')
-        payload = {
-            'request': 'xmatch',
-            'distMaxArcsec': max_distance.to(u.arcsec).value,
-            'RESPONSEFORMAT': 'csv',
-            **kwargs
-        }
+        payload = {'request': 'xmatch',
+                   'distMaxArcsec': max_distance.to(u.arcsec).value,
+                   'RESPONSEFORMAT': 'votable',
+                   **kwargs}
+
         kwargs = {}
 
         self._prepare_sending_table(1, payload, kwargs, cat1, colRA1, colDec1)
