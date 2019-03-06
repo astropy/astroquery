@@ -40,10 +40,10 @@ class DummyHandler(object):
         if method == self._invokedMethod:
             return
         else:
-            raise Exception("".join(("Method '",
-                                     str(method),
-                                     "' not invoked. (Invoked method is '",
-                                     str(self._invokedMethod)+"')")))
+            raise ValueError("".join(("Method '",
+                                      str(method),
+                                      "' not invoked. (Invoked method is '",
+                                      str(self._invokedMethod)+"')")))
 
     def check_parameters(self, parameters, method_name):
         if parameters is None:
@@ -52,20 +52,20 @@ class DummyHandler(object):
                 raise ValueError("Wrong number of parameters for method '%s'. \
                                  Found: %d. Expected %d",
                                  (method_name,
-                                 len(self._parameters),
-                                 len(parameters)))
+                                  len(self._parameters),
+                                  len(parameters)))
             for key in parameters:
                 if key in self._parameters:
                     # check value
                     if self._parameters[key] != parameters[key]:
-                        raise Exception("".join(("Wrong '%s' parameter ",
-                                                 "value for method '%s'. ",
-                                                 "Found: '%s'. Expected: '%s'",
-                                                 (method_name,
-                                                  key,
-                                                  self._parameters[key],
-                                                  parameters[key]))))
+                        raise ValueError("".join(("Wrong '%s' parameter ",
+                                                  "value for method '%s'. ",
+                                                  "Found:'%s'. Expected:'%s'",
+                                                  (method_name,
+                                                   key,
+                                                   self._parameters[key],
+                                                   parameters[key]))))
                 else:
-                    raise Exception("Parameter '%s' not found for method '%s'",
-                                    (str(key), method_name))
+                    raise ValueError("Parameter '%s' not found in method '%s'",
+                                     (str(key), method_name))
         return False

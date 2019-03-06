@@ -19,6 +19,7 @@ from astroquery.utils.tap.model import modelutils
 from astroquery.query import BaseQuery
 from astropy.table import Table
 from six import BytesIO
+import os
 
 from . import conf
 from astropy import log
@@ -36,7 +37,7 @@ class ESAHubbleHandler(BaseQuery):
         with open(filename, 'wb') as fh:
             fh.write(response.content)
 
-        if "/" not in filename:
+        if os.pathsep not in filename:
             log.info("File {0} downloaded to current "
                      "directory".format(filename))
         else:
@@ -227,11 +228,10 @@ class ESAHubbleClass(BaseQuery):
                    "PLANE.MAIN_SCIENCE_PLANE="
                    "'true'  AND  (OBSERVATION.TYPE='HST Composite' OR "
                    "OBSERVATION.TYPE='HST Singleton')"
-                   "  AND  INTERSECTS(CIRCLE('ICRS'," + str(ra) + ""
-                   "," + str(dec) + "," + str(radiusInGrades) + ""
+                   "  AND  INTERSECTS(CIRCLE('ICRS', {0}, {1}, {2}"
                    "),POSITION)=1  AND  PLANE.MAIN_SCIENCE_PLANE='true' "
                    "ORDER BY PROPOSAL.PROPOSAL_ID "
-                   "DESC",
+                   "DESC".format(str(ra), str(dec), str(radiusInGrades)),
                    "RETURN_TYPE": str(output_format)}
         result = self._handler.request('GET',
                                        self.metadata_url,
