@@ -147,6 +147,10 @@ class TestMast(object):
                                                       dataproduct_type="IMAGE", obstype="science")
             assert (result["intentType"] == "science").all()
 
+            result = mast.Observations.query_criteria(objectname="M101",
+                                                      dataproduct_type="IMAGE", obstype="cal")
+            assert (result["intentType"] == "calibration").all()
+
         result = mast.Observations.query_criteria(objectname="M101",
                                                   dataproduct_type="IMAGE", intentType="calibration")
         assert (result["intentType"] == "calibration").all()
