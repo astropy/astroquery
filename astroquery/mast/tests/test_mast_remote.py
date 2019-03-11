@@ -143,13 +143,8 @@ class TestMast(object):
 
         # TEMPORARY test the obstype deprecation
         with catch_warnings(AstropyDeprecationWarning) as warning_lines:
-            print("In the problem test")
             result = mast.Observations.query_criteria(objectname="M101",
                                                       dataproduct_type="IMAGE", obstype="science")
-            print((result["intentType"] == "science").all())
-            print(sum((result["intentType"] == "science")))
-            print(len(result))
-            print(result["intentType"][0])
             assert (result["intentType"] == "science").all()
 
         result = mast.Observations.query_criteria(objectname="M101",
