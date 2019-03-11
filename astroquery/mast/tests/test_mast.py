@@ -236,7 +236,6 @@ def test_observations_query_region_count(patch_post):
     result = mast.Observations.query_region_count(regionCoords, radius="0.2 deg")
     assert result == 599
 
-
 def test_observations_query_object_count(patch_post):
     result = mast.Observations.query_object_count("M8", radius=0.2*u.deg)
     assert result == 599
