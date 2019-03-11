@@ -122,7 +122,7 @@ class TestMast(object):
 
         # clear columns config
         mast.Observations._column_configs = dict()
-        
+
         # without position
         result = mast.Observations.query_criteria(instrument_name="*WFPC2*",
                                                   proposal_id=8169,
@@ -153,7 +153,7 @@ class TestMast(object):
             assert (result["intentType"] == "science").all()
 
         result = mast.Observations.query_criteria(objectname="M101",
-                                                  dataproduct_type="IMAGE",intentType="calibration")
+                                                  dataproduct_type="IMAGE", intentType="calibration")
         assert (result["intentType"] == "calibration").all()
 
     # count functions
