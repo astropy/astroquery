@@ -235,13 +235,17 @@ class RegistryClass(BaseQuery):
         if field_table is None:
             return None
         else:
-            query_select = 'select ' + field + ' as ' + field_alias + ', count(' + field + ') as count_' + field_alias
-            query_from = ' from ' + field_table
-            query_where_count_min = ' where count_' + field_alias + ' >= ' + str(minimum)
-            query_group_by = ' group by ' + field
-            query_order_by = ' order by count_' + field_alias + ' desc'
+            query_select = 'select {} as {}, count({}) as count_{}'.format(field, field_alias, field, field_alias)
+            query_from = ' from {}'.format(field_table)
+            query_group_by = ' group by {}'.format(field)
 
-            query = ('select * from (' + query_select + query_from + query_where_filter + query_group_by +
+            query_where_count_min = ' where count_{} >= {}'.format(field_alias, str(minimum))
+            query_order_by = ' order by count_{} desc'.format(field_alias)
+
+            query = ('select * from (' +
+                     query_select + query_from +
+                     query_where_filter +
+                     query_group_by +
                      ') as count_table' + query_where_count_min + query_order_by)
 
             return query

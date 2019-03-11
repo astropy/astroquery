@@ -10,20 +10,12 @@ class Helpers(object):
 
     def table2ecsv(self, current, filepath):
         """Dump a table and its meta data to ECSV"""
-        from astropy.io import ascii as ap_ascii
-        try:
-            ap_ascii.write(current, filepath, format='ecsv', overwrite=True)
-        except Exception as e:
-            raise e
+        current.write(filepath, format='ascii.ecsv', overwrite=True)
 
     def ecsv2table(self, filepath):
         """
         """
-        try:
-            with open(filepath, 'r') as f:
-                table = Table.read(f.read(), format='ascii.ecsv')
-        except Exception as e:
-            raise e
+        table = Table.read(filepath, format='ascii.ecsv')
         return table
 
     def content2file(self, content, filepath):
@@ -72,8 +64,10 @@ class Helpers(object):
         return True
 
     def table_stats_comp(self, current, reference):
-        """Check some basic properties of the tables like length and columns."""
-        assert len(current) >= len(reference), (
+        """Check some basic properties of the tables like length and columns.
+        The test result length should be no less than 90% of the baseline.
+        """
+        assert len(current) >= 0.9 * len(reference), (
             "Current results have {} rows compared to reference with {}"
             .format(len(current), len(reference)))
         for col in reference.colnames:
@@ -118,7 +112,7 @@ class SharedRegistryTests(Helpers):
             output_file = None
 
         # Perform the query, saving the content if reinit is True.
-        result = Registry.query(source='heasarc', service_type='image',
+        result = Registry.query(source='astronet', service_type='cone',
                                 dump_to_file=dump_to_file, output_file=output_file)
 
         if reinit:
@@ -127,7 +121,7 @@ class SharedRegistryTests(Helpers):
             assert(self.table_comp(result, result_baseline))
 
             # Then test with verbose to cover that code.
-            result2 = Registry.query(source='heasarc', service_type='image', verbose=True)
+            result2 = Registry.query(source='astronet', service_type='cone', verbose=True)
             assert(self.table_comp(result2, result_baseline))
             out, _err = capfd.readouterr()
             assert "sending query ADQL" in out

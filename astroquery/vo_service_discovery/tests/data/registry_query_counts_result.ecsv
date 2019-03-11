@@ -9,22 +9,22 @@
 #     url: 'https://vao.stsci.edu/RegTAP/TapService.aspx/sync'}
 # schema: astropy-2.0
 publisher count_publisher
-CDS 17959
-"NASA/GSFC HEASARC" 1046
-"NASA/IPAC Infrared Science Archive" 526
-"The GAVO DC team" 199
+CDS 18333
+"NASA/GSFC HEASARC" 1043
+"NASA/IPAC Infrared Science Archive" 527
+"The GAVO DC team" 200
 "Space Telescope Science Institute Archive" 124
 "WFAU, Institute for Astronomy, University of Edinburgh" 101
 "SVO CAB" 35
 IA2 34
 "Canadian Astronomy Data Centre" 30
 "Sternberg Astronomical Institute Virtual Observatory Project" 29
-Helio 27
+HELIO 27
 MSSL 24
 Astrogrid 24
 "European Space Agency" 22
-JHU 20
-"The NASA/IPAC Extragalactic Database" 20
+JHU 19
+"The NASA/IPAC Extragalactic Database" 19
 "Stellar Department of Astronomical Institute of the Academy of Sciences of the Czech Republic" 18
+"Paris Astronomical Data Centre - LESIA" 17
 JVO 17
-"Paris Astronomical Data Centre - LESIA" 16

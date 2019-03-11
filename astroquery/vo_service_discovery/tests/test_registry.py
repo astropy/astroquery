@@ -1,4 +1,3 @@
-import sys
 import pytest
 from ...utils.tap.conn.tests.DummyConnHandler import DummyConnHandler
 from ...utils.tap.conn.tests.DummyResponse import DummyResponse
@@ -7,11 +6,6 @@ from ...utils.tap.core import Tap
 from ... import vo_service_discovery
 from astroquery.vo_service_discovery import Registry
 from .shared_registry import SharedRegistryTests
-
-# To run just this test,
-##
-# ( cd ../../ ; python setup.py test -t astroquery/vo/tests/test_registry.py )
-##
 
 
 @pytest.fixture()
@@ -32,7 +26,7 @@ def mock_get_tap_object(query, url, verbose=False):
     mock_tap = Tap("http://test:1111/tap", connhandler=connHandler)
 
     # Determine the test case from the query text.
-    if "ivoid like '%heasarc%'" in query and "cap_type like '%simpleimageaccess%'" in query:
+    if "ivoid like '%astronet%'" in query and "cap_type like '%conesearch%'" in query:
         testcase = "query_basic_content"
     elif "order by count_" in query:
         testcase = "query_counts_content"
