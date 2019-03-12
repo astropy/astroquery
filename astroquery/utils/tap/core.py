@@ -25,9 +25,8 @@ from astroquery.utils.tap.xmlparser.jobListSaxParser import JobListSaxParser
 from astroquery.utils.tap.xmlparser import utils
 from astroquery.utils.tap.model.filter import Filter
 import requests
-import logging
+from astropy.logger import log
 
-logging.basicConfig(level=logging.DEBUG)
 
 __all__ = ['Tap', 'TapPlus']
 
@@ -144,7 +143,7 @@ class Tap(object):
                 flags += "&"
             flags += "share_accessible=true"
             addedItem = True
-        print("Retrieving tables...")
+        log.info("Retrieving tables...")
         if flags != "":
             response = self.__connHandler.execute_get("tables?"+flags)
         else:
@@ -155,13 +154,13 @@ class Tap(object):
                                                                   verbose,
                                                                   200)
         if isError:
-            print(response.status, response.reason)
+            log.info(response.status, response.reason)
             raise requests.exceptions.HTTPError(response.reason)
             return None
-        print("Parsing tables...")
+        log.info("Parsing tables...")
         tsp = TableSaxParser()
         tsp.parseData(response)
-        print("Done.")
+        log.info("Done.")
         return tsp.get_tables()
 
     def launch_job(self, query, name=None, output_file=None,
@@ -194,7 +193,7 @@ class Tap(object):
         """
         query = taputils.set_top_in_query(query, 2000)
         if verbose:
-            logging.debug("Launched query: '"+str(query)+"'")
+            print("Launched query: '"+str(query)+"'")
         if upload_resource is not None:
             if upload_table_name is None:
                 raise ValueError("Table name is required when a resource is uploaded")
@@ -244,14 +243,14 @@ class Tap(object):
             raise requests.exceptions.HTTPError(response.reason)
         else:
             if verbose:
-                logging.debug("Retrieving sync. results...")
+                print("Retrieving sync. results...")
             if dump_to_file:
                 self.__connHandler.dump_to_file(suitableOutputFile, response)
             else:
                 results = utils.read_http_response(response, output_format)
                 job.set_results(results)
             if verbose:
-                logging.debug("Query finished.")
+                print("Query finished.")
             job._phase = 'COMPLETED'
         return job
 
@@ -287,7 +286,7 @@ class Tap(object):
         A Job object
         """
         if verbose:
-            logging.debug("Launched query: '"+str(query)+"'")
+            print("Launched query: '"+str(query)+"'")
         if upload_resource is not None:
             if upload_table_name is None:
                 raise ValueError(
@@ -333,13 +332,13 @@ class Tap(object):
             job.remoteLocation = location
             if not background:
                 if verbose:
-                    logging.debug("Retrieving async. results...")
+                    print("Retrieving async. results...")
                 # saveResults or getResults will block (not background)
                 if dump_to_file:
                     job.save_results(verbose)
                 else:
                     job.get_results()
-                    print("Query finished.")
+                    log.info("Query finished.")
         return job
 
     def load_async_job(self, jobid=None, name=None, verbose=False):
@@ -363,7 +362,7 @@ class Tap(object):
             jobfilter.add_filter('name', name)
             jobs = self.search_async_jobs(jobfilter)
             if jobs is None or len(jobs) < 1:
-                print("No job found for name '"+str(name)+"'")
+                log.info("No job found for name '"+str(name)+"'")
                 return None
             jobid = jobs[0].get_jobid()
         if jobid is None:
