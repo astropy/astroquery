@@ -9,6 +9,8 @@ from astropy.tests.helper import remote_data
 from astropy.table import Table
 from astropy.coordinates import SkyCoord
 from astropy.io import fits
+from astropy.tests.helper import catch_warnings
+from astropy.utils.exceptions import AstropyDeprecationWarning
 
 import astropy.units as u
 
@@ -34,6 +36,10 @@ class TestMast(object):
         assert isinstance(responses, list)
 
     def test_mast_service_request(self):
+
+        # clear columns config
+        mast.Mast._column_configs = dict()
+
         service = 'Mast.Caom.Cone'
         params = {'ra': 184.3,
                   'dec': 54.5,
@@ -72,6 +78,10 @@ class TestMast(object):
         assert isinstance(responses, list)
 
     def test_observations_query_region(self):
+
+        # clear columns config
+        mast.Observations._column_configs = dict()
+
         result = mast.Observations.query_region("322.49324 12.16683", radius="0.005 deg")
         assert isinstance(result, Table)
         assert len(result) > 500
@@ -87,6 +97,10 @@ class TestMast(object):
         assert isinstance(responses, list)
 
     def test_observations_query_object(self):
+
+        # clear columns config
+        mast.Observations._column_configs = dict()
+
         result = mast.Observations.query_object("M8", radius=".02 deg")
         assert isinstance(result, Table)
         assert len(result) > 150
@@ -105,6 +119,10 @@ class TestMast(object):
         assert isinstance(responses, list)
 
     def test_observations_query_criteria(self):
+
+        # clear columns config
+        mast.Observations._column_configs = dict()
+
         # without position
         result = mast.Observations.query_criteria(instrument_name="*WFPC2*",
                                                   proposal_id=8169,
@@ -122,6 +140,20 @@ class TestMast(object):
         assert len(result) == 12
         assert (result['obs_collection'] == 'GALEX').all()
         assert sum(result['filters'] == 'NUV') == 6
+
+        # TEMPORARY test the obstype deprecation
+        with catch_warnings(AstropyDeprecationWarning) as warning_lines:
+            result = mast.Observations.query_criteria(objectname="M101",
+                                                      dataproduct_type="IMAGE", obstype="science")
+            assert (result["intentType"] == "science").all()
+
+            result = mast.Observations.query_criteria(objectname="M101",
+                                                      dataproduct_type="IMAGE", obstype="cal")
+            assert (result["intentType"] == "calibration").all()
+
+        result = mast.Observations.query_criteria(objectname="M101",
+                                                  dataproduct_type="IMAGE", intentType="calibration")
+        assert (result["intentType"] == "calibration").all()
 
     # count functions
     def test_observations_query_region_count(self):
@@ -162,9 +194,13 @@ class TestMast(object):
         assert isinstance(responses, list)
 
     def test_observations_get_product_list(self):
+
+        # clear columns config
+        mast.Observations._column_configs = dict()
+
         observations = mast.Observations.query_object("M8", radius=".02 deg")
         test_obs_id = str(observations[0]['obsid'])
-        mult_obs_ids = str(observations[0]['obsid']) + ',' + str(observations[2]['obsid'])
+        mult_obs_ids = str(observations[0]['obsid']) + ',' + str(observations[1]['obsid'])
 
         result1 = mast.Observations.get_product_list(test_obs_id)
         result2 = mast.Observations.get_product_list(observations[0])
@@ -232,6 +268,10 @@ class TestMast(object):
         assert isinstance(responses, list)
 
     def test_catalogs_query_region(self):
+
+        # clear columns config
+        mast.Catalogs._column_configs = dict()
+
         result = mast.Catalogs.query_region("158.47924 -7.30962", radius=0.1,
                                             catalog="Gaia")
         assert isinstance(result, Table)
@@ -262,6 +302,10 @@ class TestMast(object):
         assert isinstance(responses, list)
 
     def test_catalogs_query_object(self):
+
+        # clear columns config
+        mast.Catalogs._column_configs = dict()
+
         result = mast.Catalogs.query_object("M10", radius=".02 deg", catalog="TIC")
         assert isinstance(result, Table)
         assert len(result) >= 300
@@ -297,6 +341,10 @@ class TestMast(object):
         assert isinstance(responses, list)
 
     def test_catalogs_query_criteria(self):
+
+        # clear columns config
+        mast.Catalogs._column_configs = dict()
+
         # without position
         result = mast.Catalogs.query_criteria(catalog="Tic", Bmag=[30, 50], objType="STAR")
         assert isinstance(result, Table)
@@ -332,6 +380,10 @@ class TestMast(object):
         assert isinstance(responses, list)
 
     def test_catalogs_query_hsc_matchid(self):
+
+        # clear columns config
+        mast.Catalogs._column_configs = dict()
+
         catalogData = mast.Catalogs.query_object("M10", radius=.001, catalog="HSC", magtype=1)
         matchid = catalogData[0]["MatchID"]
 
@@ -350,6 +402,10 @@ class TestMast(object):
         assert isinstance(responses, list)
 
     def test_catalogs_get_hsc_spectra(self):
+
+        # clear columns config
+        mast.Catalogs._column_configs = dict()
+
         result = mast.Catalogs.get_hsc_spectra()
         assert isinstance(result, Table)
         assert len(result) >= 45762

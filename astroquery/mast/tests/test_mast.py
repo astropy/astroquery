@@ -10,6 +10,8 @@ from astropy.table import Table
 from astropy.tests.helper import pytest
 from astropy.coordinates import SkyCoord
 from astropy.io import fits
+from astropy.tests.helper import catch_warnings
+from astropy.utils.exceptions import AstropyDeprecationWarning
 
 import astropy.units as u
 
@@ -222,6 +224,12 @@ def test_observations_query_criteria(patch_post):
     result = mast.Observations.query_criteria(filters=["NUV", "FUV"],
                                               objectname="M101")
     assert isinstance(result, Table)
+
+    # TEMPORARY test the obstype deprecation
+    with catch_warnings(AstropyDeprecationWarning) as warning_lines:
+        result = mast.Observations.query_criteria(objectname="M101",
+                                                  dataproduct_type="IMAGE", obstype="science")
+        assert isinstance(result, Table)
 
 
 # count functions

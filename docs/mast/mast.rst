@@ -71,8 +71,7 @@ Criteria are supplied as keyword arguments, where valid criteria are "coordinate
 "objectname", "radius" (as in `~astroquery.mast.ObservationsClass.query_region` and
 `~astroquery.mast.ObservationsClass.query_object`), and all observation fields listed
 `here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`__.
-Additionally calibration data can be accessed by setting the obstype keyword to 'cal'
-(calibration only) or 'all' (calibration and science). 
+**Note:** The obstype keyword has been replaced by intentType, with valid values "calibration" and "science." If the intentType keyword is not supplied, both science and calibration observations will be returned.
 
 Argument values are one or more acceptable values for the criterion,
 except for fields with a float datatype where the argument should be in the form
