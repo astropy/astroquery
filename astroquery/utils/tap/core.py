@@ -25,6 +25,9 @@ from astroquery.utils.tap.xmlparser.jobListSaxParser import JobListSaxParser
 from astroquery.utils.tap.xmlparser import utils
 from astroquery.utils.tap.model.filter import Filter
 import requests
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 __all__ = ['Tap', 'TapPlus']
 
@@ -191,7 +194,7 @@ class Tap(object):
         """
         query = taputils.set_top_in_query(query, 2000)
         if verbose:
-            print("Launched query: '"+str(query)+"'")
+            logging.debug("Launched query: '"+str(query)+"'")
         if upload_resource is not None:
             if upload_table_name is None:
                 raise ValueError("Table name is required when a resource is uploaded")
@@ -241,14 +244,14 @@ class Tap(object):
             raise requests.exceptions.HTTPError(response.reason)
         else:
             if verbose:
-                print("Retrieving sync. results...")
+                logging.debug("Retrieving sync. results...")
             if dump_to_file:
                 self.__connHandler.dump_to_file(suitableOutputFile, response)
             else:
                 results = utils.read_http_response(response, output_format)
                 job.set_results(results)
             if verbose:
-                print("Query finished.")
+                logging.debug("Query finished.")
             job._phase = 'COMPLETED'
         return job
 
@@ -284,7 +287,7 @@ class Tap(object):
         A Job object
         """
         if verbose:
-            print("Launched query: '"+str(query)+"'")
+            logging.debug("Launched query: '"+str(query)+"'")
         if upload_resource is not None:
             if upload_table_name is None:
                 raise ValueError(
@@ -330,7 +333,7 @@ class Tap(object):
             job.remoteLocation = location
             if not background:
                 if verbose:
-                    print("Retrieving async. results...")
+                    logging.debug("Retrieving async. results...")
                 # saveResults or getResults will block (not background)
                 if dump_to_file:
                     job.save_results(verbose)
