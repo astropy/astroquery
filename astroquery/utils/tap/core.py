@@ -154,7 +154,7 @@ class Tap(object):
                                                                   verbose,
                                                                   200)
         if isError:
-            log.info(response.status, response.reason)
+            log.info("{} {}".format(response.status, response.reason))
             raise requests.exceptions.HTTPError(response.reason)
             return None
         log.info("Parsing tables...")
@@ -681,7 +681,7 @@ class TapPlus(Tap):
             print(response.status, response.reason)
         isError = connHandler.check_launch_response_status(response, verbose, 200)
         if isError:
-            log.info(response.status, response.reason)
+            log.info("{} {}".format(response.status, response.reason))
             raise requests.exceptions.HTTPError(response.reason)
             return None
         log.info("Parsing table '"+str(table)+"'...")
