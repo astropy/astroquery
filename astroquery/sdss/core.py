@@ -6,11 +6,14 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import io
 import warnings
+import webbrowser
+import requests
 import numpy as np
 
 from astropy import units as u
 import astropy.coordinates as coord
 from astropy.table import Table, Column
+from astropy.coordinates import SkyCoord, Angle
 
 from ..query import BaseQuery
 from . import conf
@@ -1075,6 +1078,58 @@ class SDSSClass(BaseQuery):
         url = conf.skyserver_baseurl + suffix.format(dr=data_release)
         self._last_url = url
         return url
+
+
+    def view_in_sdss_navigate(self, sc):
+        """
+        To view "Navigate" given the SkyCoord sc of the point of interest.
+        
+        Parameters
+        ----------
+        sc: SkyCoord of a point
+        
+        Returns
+        -------
+        Response: Open a browser tab in the SDSS "Navigate" interface
+        
+        """
+        if isinstance(sc, SkyCoord):
+            if sc.shape == ():
+                payload = { "ra": str(Angle(sc.ra).degree), "dec": str(Angle(sc.dec).degree), "opt": "GO" }
+                r = requests.get("http://skyserver.sdss.org/dr15/en/tools/chart/navi.aspx", params=payload)
+                webbrowser.open_new_tab(r.url)
+            else:
+                raise TypeError("The given SkyCoord object is not of the right shape.")
+        else:
+            raise TypeError("The given data is not a SkyCoord object.")
+
+
+    def view_in_sdss_imagelist(self, scs):
+        """
+        To view a list of images in ImageList given the SkyCoord scs of a
+        region of interest.
+        
+        Parameters
+        ----------
+        None
+        
+        Returns
+        -------
+        Response: Open a browser tab in the SDSS "Image List" interface
+        
+        """
+        if isinstance(scs, SkyCoord):
+            if scs.shape != ():
+                items = []
+                for i, coord in enumerate(scs):
+                    items.append("{} {}\r\n".format(scs.ra[i].value, scs.dec[i].value))
+                    payload = {"paste": items, "opt": "GO"}
+                    r = requests.post("https://skyserver.sdss.org/dr15/en/tools/chart/listinfo.aspx", params=payload)
+                    webbrowser.open_new_tab(r.url)
+            else:
+                raise TypeError("The given SkyCoord object is not of the right shape.")
+        else:
+            raise TypeError("The given data is not a SkyCoord object.")
 
 
 SDSS = SDSSClass()
