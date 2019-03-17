@@ -15,6 +15,7 @@ import csv
 
 import astropy.units as u
 from astropy.table import Column, Table
+from astropy.logger import log
 
 from . import conf
 from ..query import BaseQuery
@@ -445,7 +446,7 @@ class OACClass(BaseQuery):
                             quotechar='"'))[0]
 
             if (len(columns) != len(test_row)):
-                print("The API did not return a valid CSV output! \n"
+                log.info("The API did not return a valid CSV output! \n"
                       "Outputing JSON-compliant dictionary instead.")
 
                 output = json.loads(raw_output)
@@ -487,13 +488,12 @@ class OACClass(BaseQuery):
             output_response = self._format_output(raw_output)
 
         except AttributeError:
-            print("ERROR: The web service returned error code: %s" %
+            log.debug("ERROR: The web service returned error code: %s" %
                   response.status_code)
             return
 
         except KeyError:
-            print("ERROR: API Server returned the following error:")
-            print(response.text)
+            log.debug("ERROR: API Server returned the following error:\n{}".format(response.text))
             return
 
         return output_response
