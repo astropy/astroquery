@@ -1,31 +1,211 @@
 0.3.10 (unreleased)
--------------------
+===================
 
-- ESO: Try to re-authenticate when logged out from the ESO server. [#1315]
-- ADS: Fix an error in one of the default keys, citations->citation [#1337]
-- HEASARC: Fixing error handling to filter out only the query errors. [#1338]
-- CDS: Apply MOCPy v0.5.* API changes. [#1343]
-- SDSS: Update to SDSS-IV URLs and general clean-up. [#1308]
-- NIST: Fixed an upstream issue where js was included in returned data [#1359]
-- MAST: Update query_criteria keyword obstype->intentType [#1366]
-- JPLHorizons: Add ``refplane`` keyword to ``vectors_async`` to return data for
-  different available reference planes [#1335]
-- ALMA: Fix some broken VOtable returns and a broken login URL [#1369]
-- CADC: Initial version [#1354]
-- MAST: Remove deprecated authorization code, fix unit tests, general code
-  cleanup, documentation additions [#1409]
-- NIST: Unescape raw HTML codes in returned data back into Unicode equivalents
-  to stop them silently breaking Table parsing [#1431]
-- utils: adding deprecation decorators from astropy to be used while we
-  support astropy v3.1.2. [#1435]
-- Gaia: added tables sharing, tables edition, upload from pytable and job results, cross match, data access and datalink access. [#1266]
-- utils.tap: added tables sharing, tables edition, upload from pytable and job results, data access and datalink access. [#1266]
+New Tools and Services
+----------------------
+
+cadc
+^^^^
+
+- Module added to access data at the Canadian Astronomy Data Centre. [#1354]
+
+gaia
+^^^^
+
+- Added tables sharing, tables edition, upload from pytable and job results,
+  cross match, data access and datalink access. [#1266]
+
+
+Bug fixes and enhacements
+-------------------------
+
+alfalfa
+^^^^^^^
+
+alma
+^^^^
+
+- Fix some broken VOtable returns and a broken login URL [#1369]
+
+atomic
+^^^^^^
+
+besancon
+^^^^^^^^
+
+cds
+^^^
+
+- Apply MOCPy v0.5.* API changes. [#1343]
+
+cosmosim
+^^^^^^^^
+
+esasky
+^^^^^^
+
+eso
+^^^
+
+- Try to re-authenticate when logged out from the ESO server. [#1315]
+
+exoplanet_orbit_database
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+fermi
+^^^^^
+
+gaia
+^^^^
+
+gama
+^^^^
+
+heasarc
+^^^^^^^
+
+- Fixing error handling to filter out only the query errors. [#1338]
+
+hitran
+^^^^^^
+
+ibe
+^^^
+
+irsa
+^^^^
+
+irsa_dust
+^^^^^^^^^
+
+jplhorizons
+^^^^^^^^^^^
+
+- Add ``refplane`` keyword to ``vectors_async`` to return data for different
+  available reference planes. [#1335]
+
+- Vector queries provide different aberrations, ephemerides queries provide
+  extra precision option. [#1478]
+
+jplsbdb
+^^^^^^^
+
+jplspec
+^^^^^^^
+
+lamda
+^^^^^
+
+lcogt
+^^^^^
+
+magpis
+^^^^^^
+
+mast
+^^^^
+
+- Update query_criteria keyword obstype->intentType. [#1366]
+
+- Remove deprecated authorization code, fix unit tests, general code cleanup,
+  documentation additions. [#1409]
+
+mpc
+^^^
+
+nasa_ads
+^^^^^^^^
+
+- Fix an error in one of the default keys, citations->citation. [#1337]
+
+nasa_exoplanet_archive
+^^^^^^^^^^^^^^^^^^^^^^
+
+ned
+^^^
+
+nist
+^^^^
+
+- Fixed an upstream issue where js was included in returned data. [#1359]
+
+- Unescape raw HTML codes in returned data back into Unicode equivalents to
+  stop them silently breaking Table parsing. [#1431]
+
+nrao
+^^^^
+
+nvas
+^^^^
+
+oac
+^^^
+
+ogle
+^^^^
+
+open_exoplanet_catalogue
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+sdss
+^^^^
+
+- Update to SDSS-IV URLs and general clean-up. [#1308]
+
+sha
+^^^
+
+simbad
+^^^^^^
+
+skyview
+^^^^^^^
+
+solarsystem
+^^^^^^^^^^^
+
+splatalogue
+^^^^^^^^^^^
+
+template_module
+^^^^^^^^^^^^^^^
+
+ukidss
+^^^^^^
+
+vamdc
+^^^^^
+
+vizier
+^^^^^^
+
+- Support using the output values of ``find_catalog`` in ``get_catalog``. [#603]
+
+vo_conesearch
+^^^^^^^^^^^^^
+
+vsa
+^^^
+
+wfau
+^^^^
+
+xmatch
+^^^^^^
+
+
+Infrastructure, Utility and Other Changes and Additions
+-------------------------------------------------------
+
+- Adding deprecation decorators to ``utils`` from astropy to be used while we
+  support astropy <v3.1.2. [#1435]
+
+- Added tables sharing, tables edition, upload from pytable and job results,
+  data access and datalink access to ``utils.tap``. [#1266]
+
 - Added a new ``astroquery.__citation__`` and ``astroquery.__bibtex__``
   attributes which give a citation for astroquery in bibtex format. [#1391]
-- VIZIER: Support using the output values of ``find_catalog`` in
-  ``get_catalog``. [#603]
-- JPLHorizons: Vector queries provide different aberrations, ephemerides queries
-  provide extra precision option. [#1478]
+
 
 
 0.3.9 (2018-12-06)
