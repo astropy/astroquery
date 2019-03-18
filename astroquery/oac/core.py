@@ -488,12 +488,12 @@ class OACClass(BaseQuery):
             output_response = self._format_output(raw_output)
 
         except AttributeError:
-            log.debug("ERROR: The web service returned error code: %s" %
+            log.info("ERROR: The web service returned error code: %s" %
                   response.status_code)
             return
 
         except KeyError:
-            log.debug("ERROR: API Server returned the following error:\n{}".format(response.text))
+            log.info("ERROR: API Server returned the following error:\n{}".format(response.text))
             return
 
         return output_response
