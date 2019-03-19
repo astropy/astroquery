@@ -122,6 +122,32 @@ schematic:
    | +-- moid: 0.334 AU
    | +-- n_dop_obs_used: None   
    
+Where FULL NAME of different symbols mentioned in Object -> Elements section is as follows :-
+
+e - eccentricity
+
+a - semi-major axis
+
+q - perihelion distance
+
+i - inclination
+
+om - longitude of the ascending node
+
+w - argument of perihelion
+
+ma - mean anomaly
+
+tp - time of perihelion passage
+
+per - orbital period
+
+n - mean motion
+
+ad - aphelion distance
+
+----------------------------------------------------------------------------------------------------------------
+
 The schematic shows the different levels in the dictionary. Note that
 :meth:`~astroquery.jplsbdb.SBDBClass.schematic` actually
 only returns a string; in order to display it properly, it has to be
