@@ -1079,23 +1079,22 @@ class SDSSClass(BaseQuery):
         self._last_url = url
         return url
 
-
     def view_in_sdss_navigate(self, sc):
         """
         To view "Navigate" given the SkyCoord sc of the point of interest.
-        
+
         Parameters
         ----------
         sc: SkyCoord of a point
-        
+
         Returns
         -------
         Response: Open a browser tab in the SDSS "Navigate" interface
-        
+
         """
         if isinstance(sc, SkyCoord):
             if sc.shape == ():
-                payload = { "ra": str(Angle(sc.ra).degree), "dec": str(Angle(sc.dec).degree), "opt": "GO" }
+                payload = {"ra": str(Angle(sc.ra).degree), "dec": str(Angle(sc.dec).degree), "opt": "GO"}
                 r = requests.get("http://skyserver.sdss.org/dr15/en/tools/chart/navi.aspx", params=payload)
                 webbrowser.open_new_tab(r.url)
             else:
@@ -1103,20 +1102,19 @@ class SDSSClass(BaseQuery):
         else:
             raise TypeError("The given data is not a SkyCoord object.")
 
-
     def view_in_sdss_imagelist(self, scs):
         """
         To view a list of images in ImageList given the SkyCoord scs of a
         region of interest.
-        
+
         Parameters
         ----------
         None
-        
+
         Returns
         -------
         Response: Open a browser tab in the SDSS "Image List" interface
-        
+
         """
         if isinstance(scs, SkyCoord):
             if scs.shape != ():
