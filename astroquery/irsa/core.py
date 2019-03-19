@@ -451,7 +451,7 @@ def _parse_coordinates(coordinates):
             warnings.warn("Coordinate string is being interpreted as an "
                           "ICRS coordinate.")
         except u.UnitsError as ex:
-            warnings.warn("Only ICRS coordinates can be entered as strings \n"
+            warnings.warn("Only ICRS coordinates can be entered as strings\n"
                           "For other systems please use the appropriate "
                           "astropy.coordinates object")
 
