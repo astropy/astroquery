@@ -24,7 +24,7 @@ stages:
      if: type = cron
    - name: Tests with other Python/Numpy versions
    - name: Deploy
-     if: ((branch = master) AND type != pull_request)
+     if: ((branch = master) AND type != pull_request AND type != cron)
    - name: Remote data tests
      if: type != pull_request
 
