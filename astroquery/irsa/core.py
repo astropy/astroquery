@@ -234,7 +234,7 @@ class IrsaClass(BaseQuery):
             The HTTP response returned from the service
         """
         if catalog is None:
-            raise Exception("Catalog name is required!")
+            raise KeyError("Catalog name is required!")
 
         request_payload = self._args_to_payload(catalog, selcols=selcols)
         request_payload.update(self._parse_spatial(spatial=spatial,
@@ -368,24 +368,24 @@ class IrsaClass(BaseQuery):
 
         # Check if results were returned
         if 'The catalog is not on the list' in content:
-            raise Exception("Catalog not found")
+            raise ValueError("Catalog not found")
 
         # Check that object name was not malformed
         if 'Either wrong or missing coordinate/object name' in content:
-            raise Exception("Malformed coordinate/object name")
+            raise NameError("Malformed coordinate/object name")
 
         # Check to see that output table size limit hasn't been exceeded
         if 'Exceeding output table size limit' in content:
-            raise Exception("Exceeded output table size - reduce number "
+            raise OverflowError("Exceeded output table size - reduce number "
                             "of output columns and/or limit search area")
 
         # Check to see that the query engine is working
         if 'SQLConnect failed' in content:
-            raise Exception("The IRSA server is currently down")
+            raise RuntimeError("The IRSA server is currently down")
 
         # Check that the results are not of length zero
         if len(content) == 0:
-            raise Exception("The IRSA server sent back an empty reply")
+            raise ValueError("The IRSA server sent back an empty reply")
 
         # Read it in using the astropy VO table reader
         try:
@@ -451,10 +451,10 @@ def _parse_coordinates(coordinates):
             warnings.warn("Coordinate string is being interpreted as an "
                           "ICRS coordinate.")
         except u.UnitsError as ex:
-            warnings.warn("Only ICRS coordinates can be entered as strings\n"
+            warnings.warn("Only ICRS coordinates can be entered as strings \n"
                           "For other systems please use the appropriate "
                           "astropy.coordinates object")
-            raise ex
+
     elif isinstance(coordinates, commons.CoordClasses):
         c = coordinates
     else:
