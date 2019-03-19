@@ -454,6 +454,7 @@ def _parse_coordinates(coordinates):
             warnings.warn("Only ICRS coordinates can be entered as strings\n"
                           "For other systems please use the appropriate "
                           "astropy.coordinates object")
+            raise ex
 
     elif isinstance(coordinates, commons.CoordClasses):
         c = coordinates
