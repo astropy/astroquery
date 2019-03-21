@@ -16,8 +16,14 @@ gaia
   cross match, data access and datalink access. [#1266]
 
 
-Bug fixes and enhacements
--------------------------
+
+Infrastructure fixes and enhancements
+-------------------------------------
+
+
+
+Service fixes and enhacements
+-----------------------------
 
 alfalfa
 ^^^^^^^
@@ -166,9 +172,6 @@ solarsystem
 
 splatalogue
 ^^^^^^^^^^^
-
-template_module
-^^^^^^^^^^^^^^^
 
 ukidss
 ^^^^^^
