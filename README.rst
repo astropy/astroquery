@@ -159,18 +159,30 @@ These others are functional, but do not follow a common or consistent API:
   * `SDSS <http://astroquery.readthedocs.io/en/latest/sdss/sdss.html>`_: Sloan Digital Sky Survey data, including optical images, spectra, and spectral templates.
   * `SHA <http://astroquery.readthedocs.io/en/latest/sha/sha.html>`_: Spitzer Heritage Archive; infrared data products from the Spitzer Space Telescope.
 
+
+Citing Astroquery
+-----------------
+
+If you use ``astroquery``, please cite the paper we published in `The
+Astronomical Journal <http://adsabs.harvard.edu/abs/2019AJ....157...98G>`__.
+
+The BibTeX entry is available from the package itself::
+
+  import astroquery
+  astroquery.__citation__
+
+
+In addition you may also want to refer to specific versions of the
+package. We create a separate Zenodo DOI for each version, they can be
+looked up at the following `Zenodo page <https://doi.org/10.5281/zenodo.591669>`__
+
+
 Additional Links
 ----------------
 
 `Download Development ZIP`_  |  `Download Development TAR`_
 
 Maintained by `Adam Ginsburg`_ and `Brigitta Sipocz <https://github.com/bsipocz>`_ (`astropy.astroquery@gmail.com`_)
-
-If you use ``astroquery``, please cite our `Zenodo DOI
-<https://doi.org/10.5281/zenodo.1160627>`_.
-
-(Before using Zenodo, ``astroquery`` v0.1 had a `figshare`_ DOI:
-https://doi.org/10.6084/m9.figshare.805208 )
 
 
 .. _Download Development ZIP: https://github.com/astropy/astroquery/zipball/master
@@ -180,9 +192,7 @@ https://doi.org/10.6084/m9.figshare.805208 )
 .. _View on Github: https://github.com/astropy/astroquery/
 .. _docs: http://astroquery.readthedocs.io
 .. _Documentation: http://astroquery.readthedocs.io
-.. _latest release: https://github.com/astropy/astroquery/tarball/v0.2
 .. _astropy.astroquery@gmail.com: mailto:astropy.astroquery@gmail.com
 .. _Adam Ginsburg: http://www.adamgginsburg.com
 .. _Blog: http://astropy.org/astroquery-blog
 .. _API: http://astroquery.readthedocs.io/en/latest/api.html
-.. _figshare: http://figshare.com/articles/Astroquery_v0_1/805208
