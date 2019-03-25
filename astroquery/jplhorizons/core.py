@@ -807,9 +807,9 @@ class HorizonsClass(BaseQuery):
 
         return response
 
-    def vectors_async(self, get_query_payload=False, refplane='ecliptic',
+    def vectors_async(self, get_query_payload=False,
                       closest_apparition=False, no_fragments=False,
-                      get_raw_response=False, cache=True):
+                      get_raw_response=False, cache=True, refplane='ecliptic'):
         """
         Query JPL Horizons for state vectors. The ``location``
         parameter in ``HorizonsClass`` refers in this case to the center
@@ -885,15 +885,15 @@ class HorizonsClass(BaseQuery):
         get_query_payload : boolean, optional
             When set to `True` the method returns the HTTP request
             parameters as a dict, default: False
+        get_raw_response: boolean, optional
+            Return raw data as obtained by JPL Horizons without parsing the
+            data into a table, default: False
         refplane : string
             Reference plane for all output quantities: ``'ecliptic'``
             (ecliptic and mean equinox of reference epoch), ``'earth'``
             (Earth mean equator and equinox of reference epoch), or
             ``'body'`` (body mean equator and node of date); default:
             ``'ecliptic'``
-        get_raw_response: boolean, optional
-            Return raw data as obtained by JPL Horizons without parsing the
-            data into a table, default: False
 
 
         Returns
