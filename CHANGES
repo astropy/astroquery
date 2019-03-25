@@ -8,6 +8,8 @@
 - SDSS: Update to SDSS-IV URLs and general clean-up. [#1308]
 - NIST: Fixed an upstream issue where js was included in returned data [#1359]
 - MAST: Update query_criteria keyword obstype->intentType [#1366]
+- JPLHorizons: Add ``refplane`` keyword to ``vectors_async`` to return data for
+  different available reference planes [#1335]
 
 0.3.9 (2018-12-06)
 ------------------
