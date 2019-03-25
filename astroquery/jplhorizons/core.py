@@ -809,7 +809,7 @@ class HorizonsClass(BaseQuery):
 
     def vectors_async(self, get_query_payload=False,
                       closest_apparition=False, no_fragments=False,
-                      get_raw_response=False, cache=True):
+                      get_raw_response=False, cache=True, refplane='ecliptic'):
         """
         Query JPL Horizons for state vectors. The ``location``
         parameter in ``HorizonsClass`` refers in this case to the center
@@ -888,6 +888,12 @@ class HorizonsClass(BaseQuery):
         get_raw_response: boolean, optional
             Return raw data as obtained by JPL Horizons without parsing the
             data into a table, default: False
+        refplane : string
+            Reference plane for all output quantities: ``'ecliptic'``
+            (ecliptic and mean equinox of reference epoch), ``'earth'``
+            (Earth mean equator and equinox of reference epoch), or
+            ``'body'`` (body mean equator and node of date); default:
+            ``'ecliptic'``
 
 
         Returns
@@ -968,7 +974,8 @@ class HorizonsClass(BaseQuery):
             ('COMMAND', '"' + commandline + '"'),
             ('CENTER', ("'" + str(self.location) + "'")),
             ('CSV_FORMAT', ('"YES"')),
-            ('REF_PLANE', 'ECLIPTIC'),
+            ('REF_PLANE', {'ecliptic': 'ECLIPTIC', 'earth': 'FRAME',
+                           'body': "'BODY EQUATOR'"}[refplane]),
             ('REF_SYSTEM', 'J2000'),
             ('TP_TYPE', 'ABSOLUTE'),
             ('LABELS', 'YES'),
