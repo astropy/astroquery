@@ -120,6 +120,7 @@ class NistClass(BaseQuery):
         request_payload["J_out"] = "on"
         request_payload["page_size"] = 15
         request_payload["remove_js"] = "on"
+        request_payload["show_wn"] = 1
         return request_payload
 
     @prepend_docstr_nosections("\n" + _args_to_payload.__doc__)
