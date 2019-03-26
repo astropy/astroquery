@@ -1,0 +1,674 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VOTABLE xmlns="http://www.ivoa.net/xml/VOTable/v1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.3">
+  <RESOURCE type="results">
+    <INFO name="QUERY_STATUS" value="OK" />
+    <INFO name="QUERY" value="SELECT&#xA; distinct asa_ous.asa_project_code AS &quot;Project code&quot;,&#xA;asa_science.source_name AS &quot;Source name&quot;,&#xA;asa_science.ra AS &quot;RA&quot;,&#xA;asa_science.dec AS &quot;Dec&quot;,&#xA;asa_science.gal_longitude AS &quot;Galactic longitude&quot;,&#xA;asa_science.gal_latitude AS &quot;Galactic latitude&quot;,&#xA;asa_science.band_list AS &quot;Band&quot;,&#xA;to_number(asa_science.spatial_resolution) AS &quot;Spatial resolution&quot;,&#xA;asa_science.frequency_resolution AS &quot;Frequency resolution&quot;,&#xA;concat(concat(case when asa_science.ant_main_num &gt; 0 then '12m' else '' end, case when asa_science.ant_aca_num &gt; 0 then '7m' else '' end), case when asa_science.ant_tp_num &gt; 0 then 'TP' else '' end) as &quot;Array&quot;,&#xA;(case when asa_science.is_mosaic = 'Y' then 'mosaic' else '' end) as &quot;Mosaic&quot;,&#xA;asa_science.int_time AS &quot;Integration&quot;,&#xA;(case when asa_delivery_status.release_date is null then null when aqua_ous_flag.flag_name is null then to_char(asa_delivery_status.release_date, 'YYYY-MM-DD') else '3000-01-01' end) AS &quot;Release date&quot;,&#xA;asa_science.frequency_support AS &quot;Frequency support&quot;,&#xA;asa_science.velocity_resolution AS &quot;Velocity resolution&quot;,&#xA;asa_science.pol_products AS &quot;Pol products&quot;,&#xA;to_char(asa_science.start_date, 'YYYY-MM-DD HH24:MI:SS') AS &quot;Observation date&quot;,&#xA;asa_project.pi_name AS &quot;PI name&quot;,&#xA;asa_science.schedblock_name as &quot;SB name&quot;,&#xA;asa_project.coi_name AS &quot;Proposal authors&quot;,&#xA;min(asa_energy.sensitivity_10kms) AS &quot;Line sensitivity (10 km/s)&quot;,&#xA;asa_science.cont_sensitivity_bandwidth AS &quot;Continuum sensitivity&quot;,&#xA;asa_science.pwv AS &quot;PWV&quot;,&#xA;asa_ous.group_ous_uid as &quot;Group ous id&quot;,&#xA;asa_ous.member_ous_uid as &quot;Member ous id&quot;,&#xA;asa_science.asdm_uid AS &quot;Asdm uid&quot;,&#xA;asa_project.title AS &quot;Project title&quot;,&#xA;asa_project.type AS &quot;Project type&quot;,&#xA;asa_science.scan_intent AS &quot;Scan intent&quot;,&#xA;asa_science.fov AS &quot;Field of view&quot;,&#xA;asa_science.spatial_scale_max AS &quot;Largest angular scale&quot;,&#xA;asa_delivery_status.qa2_passed AS &quot;QA2 Status&quot;,&#xA;(select count(distinct asab.bibcode) from alma.asa_project_bibliography asab where project_code = alma.asa_ous.asa_project_code) AS &quot;Pub&quot;,&#xA;asa_project.science_keyword AS &quot;Science keyword&quot;,&#xA;asa_project.scientific_category AS &quot;Scientific category&quot;,&#xA;asa_ous.asa_project_code&#xA; FROM alma.asa_science &#xA;  inner join alma.asa_science rawdata on rawdata.parent_dataset_id = asa_science.dataset_id&#xA;  inner join alma.aqua_execblock on rawdata.asdm_uid = aqua_execblock.execblockuid&#xA;  inner join alma.asa_ous on asa_science.asa_ous_id = asa_ous.asa_ous_id&#xA;  inner join alma.asa_project on rawdata.project_code = asa_project.code&#xA;  left outer join alma.asa_project_bibliography on rawdata.project_code = asa_project_bibliography.project_code&#xA;  left outer join alma.asa_delivery_asdm_ous on rawdata.asdm_uid = asa_delivery_asdm_ous.asdm_uid&#xA;  left outer join alma.asa_delivery_status on asa_delivery_asdm_ous.deliverable_name = asa_delivery_status.delivery_id&#xA;  inner join alma.asa_energy on asa_science.dataset_id = asa_energy.asa_dataset_id&#xA;  left join alma.AQUA_OUS_FLAG on AQUA_OUS_FLAG.ous_status_entity_id = asa_ous.asa_ous_id and AQUA_OUS_FLAG.FLAG_NAME = 'QA3_ONGOING'&#xA;WHERE (1=1)&#xA; AND asa_science.product_type = 'MOUS'&#xA;  AND lower(asa_ous.asa_project_code) not like '%.csv'&#xA; AND  ( asa_science.DEC BETWEEN -59.85112583333333 AND -59.5177925&#xA; AND  asa_science.RA BETWEEN 160.93454423953239 AND 161.5949224271343&#xA; AND (asin(sqrt((-0.478016 - asa_science.cx) * (-0.478016 - asa_science.cx) + (0.162127 - asa_science.cy) * (0.162127 - asa_science.cy) + (-0.863259 - asa_science.cz) * (-0.863259 - asa_science.cz)) / 2.0) &lt; 0.001454))&#xA; AND  (asa_delivery_status.release_date &lt; to_date('2019-03-26', 'YYYY-mm-dd'))&#xA; AND  (lower(ASA_SCIENCE.scan_intent) LIKE '%target%')&#xA;GROUP BY asa_ous.asa_project_code, asa_science.source_name, asa_science.ra, asa_science.dec, asa_science.gal_longitude, asa_science.gal_latitude, asa_science.band_list, asa_science.spatial_resolution, asa_science.frequency_resolution, asa_science.ant_main_num, asa_science.ant_aca_num, asa_science.ant_tp_num, asa_science.is_mosaic, asa_science.int_time, asa_delivery_status.release_date, aqua_ous_flag.flag_name, asa_science.frequency_support, asa_science.velocity_resolution, asa_science.pol_products, asa_science.start_date, asa_project.pi_name, asa_science.schedblock_name, asa_project.coi_name, asa_science.cont_sensitivity_bandwidth, asa_science.pwv, asa_ous.group_ous_uid, asa_ous.member_ous_uid, asa_science.asdm_uid, asa_project.title, asa_project.type, asa_science.scan_intent, asa_science.fov, asa_science.spatial_scale_max, asa_delivery_status.qa2_passed, asa_project.science_keyword, asa_project.scientific_category, asa_science.footprint&#xA; ORDER BY &quot;Release date&quot; asc" />
+    <TABLE>
+      <FIELD name="Project code" datatype="char" ID="32846" xtype="adql:VARCHAR" arraysize="64*">
+        <DESCRIPTION>OUS Project Code</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Source name" datatype="char" ID="1206" ucd="meta.id;pos" utype="Observation.Target.name" xtype="adql:VARCHAR" arraysize="256*">
+        <DESCRIPTION>Name of the source as registered in the ASDM. Partial matches through wildcards (?, *), and boolean OR expressions ("|"), can be used.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="RA" datatype="double" ID="1186" ucd="pos.eq.ra;meta.main" unit="deg" utype="Characterisation.SpatialAxis.Coverage.Location.coord.Position2D.Value2.C1" xtype="adql:DOUBLE">
+        <DESCRIPTION>Right Ascension of the field pointing.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Dec" datatype="double" ID="1187" ucd="pos.eq.dec;meta.main" unit="deg" utype="Characterisation.SpatialAxis.Coverage.Location.coord.Position2D.Value2.C2" xtype="adql:DOUBLE">
+        <DESCRIPTION>Declination of the field pointing.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Galactic longitude" datatype="double" ID="1197" ucd="pos.galactic.lon" unit="deg" xtype="adql:DOUBLE">
+        <DESCRIPTION>Galactic longitude of the observation for RA/Dec. Estimated using PyEphem and RA/Dec.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Galactic latitude" datatype="double" ID="1198" ucd="pos.galactic.lat" unit="deg" xtype="adql:DOUBLE">
+        <DESCRIPTION>Galactic latitude of the observation for RA/Dec. Estimated using PyEphem and RA/Dec.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Band" datatype="char" ID="32817" xtype="adql:VARCHAR" arraysize="30*">
+        <DESCRIPTION>Space delimited list of bands</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Spatial resolution" datatype="double" unit="" xtype="adql:DOUBLE" />
+      <FIELD name="Frequency resolution" datatype="double" ID="1217" ucd="spect.resolution" unit="kHz" utype="Char.SpectralAxis.Resolution.refval" xtype="adql:DOUBLE">
+        <DESCRIPTION>Estimated frequency resolution from all the spectral windows, using median values of channel widths.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Array" datatype="char" unit="" xtype="adql:VARCHAR" arraysize="*" />
+      <FIELD name="Mosaic" />
+      <FIELD name="Integration" datatype="double" ID="1213" ucd="time.duration;obs.exposure" unit="s" utype="Char.TimeAxis.Coverage.Support.Extent" xtype="adql:DOUBLE">
+        <DESCRIPTION>Aggregated integration time for the field in the ASDM.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Release date" />
+      <FIELD name="Frequency support" datatype="char" ID="1216" ucd="em.freq;obs;meta.main" unit="GHz" utype="Char.SpectralAxis.Coverage.Location.support" xtype="adql:VARCHAR" arraysize="2700*">
+        <DESCRIPTION>All frequency ranges used by the field</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Velocity resolution" datatype="double" ID="1225" ucd="phys.veloc;spect.resolution" unit="m/s" utype="Char.VelocityAxis.Resolution.refval" xtype="adql:DOUBLE">
+        <DESCRIPTION>Estimated velocity resolution from all the spectral windows, from frequency resolution.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Pol products" datatype="char" ID="1238" ucd="phys.polarization;meta.code" xtype="adql:VARCHAR" arraysize="64*">
+        <DESCRIPTION>Polarisation products provided.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Observation date" datatype="char" unit="" xtype="adql:VARCHAR" arraysize="*" />
+      <FIELD name="PI name" datatype="char" ID="1260" ucd="meta.id.PI" xtype="adql:VARCHAR" arraysize="256*">
+        <DESCRIPTION>case-insensitive partial match over the full PI name. Wildcards can be used</DESCRIPTION>
+      </FIELD>
+      <FIELD name="SB name" datatype="char" ID="1252" ucd="meta.code;obs;instr.setup" xtype="adql:VARCHAR" arraysize="128*">
+        <DESCRIPTION>Name of the Scheduling Block used as a template for executing the ASDM containing this Field.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Proposal authors" datatype="char" ID="1262" ucd="meta.id.CoI" xtype="adql:VARCHAR" arraysize="512*">
+        <DESCRIPTION>Full name of CoIs .</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Line sensitivity (10 km/s)" datatype="double" unit="" xtype="adql:DOUBLE" />
+      <FIELD name="Continuum sensitivity" datatype="double" ID="32852" unit="mJy/beam" xtype="adql:DOUBLE">
+        <DESCRIPTION>Estimated noise in the aggregated continuum bandwidth. Note this is an indication only, it does not include the effects of flagging or dynamic range limitations.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="PWV" datatype="float" ID="1240" ucd="obs.atmos.extinction" unit="mm" xtype="adql:FLOAT">
+        <DESCRIPTION>Estimated precipitable water vapour from the XML_CALWVR_ENTITIES table.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Group ous id" datatype="char" ID="32844" xtype="adql:VARCHAR" arraysize="64*">
+        <DESCRIPTION>Group OUS ID</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Member ous id" datatype="char" ID="32845" xtype="adql:VARCHAR" arraysize="64*">
+        <DESCRIPTION>Member OUS ID</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Asdm uid" datatype="char" ID="1182" ucd="meta.id" xtype="adql:VARCHAR" arraysize="32*">
+        <DESCRIPTION>UID of the ASDM containing this Field.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Project title" datatype="char" ID="1263" ucd="meta.title;obs.proposal" xtype="adql:VARCHAR" arraysize="256*">
+        <DESCRIPTION>Case-insensitive search over the project title</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Project type" datatype="char" ID="1264" ucd="meta.code.class;obs.proposal" xtype="adql:VARCHAR" arraysize="16*">
+        <DESCRIPTION>Project type.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Scan intent" datatype="char" ID="1254" ucd="meta.code.class;obs" xtype="adql:VARCHAR" arraysize="256*">
+        <DESCRIPTION>Scan intent list for the observed field.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Field of view" datatype="double" ID="1204" ucd="phys.angSize;instr.fov" unit="arcsec" utype="Characterisation.SpatialAxis.Coverage.Bounds" xtype="adql:DOUBLE">
+        <DESCRIPTION>Field of view (arcsec). Estimated from the frequency and antennas</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Largest angular scale" datatype="double" ID="1202" ucd="pos.angResolution;stat.max" unit="arcsec" utype="Characterisation.SpatialAxis.Coverage.Bounds.limits.Interval.HiLim" xtype="adql:DOUBLE">
+        <DESCRIPTION>Due to the fact that radio antennas can not be placed infinitely close, measurements do have a smallest separation which translates into a maximal angular distance beyond which features can not be resolved reliably any more. Adding observations with the ALMA Total Power array can add those missing largest scales.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="QA2 Status" datatype="char" ID="1289" ucd="meta.flag" xtype="adql:CHAR" arraysize="1">
+        <DESCRIPTION>Quality Assessment 2 status: does the Member / Group OUS fulfil the PI's requirements?</DESCRIPTION>
+      </FIELD>
+      <FIELD name="COUNT" datatype="long" unit="" xtype="adql:BIGINT" />
+      <FIELD name="Science keyword" datatype="char" ID="32831" xtype="adql:VARCHAR" arraysize="200*" />
+      <FIELD name="Scientific category" datatype="char" ID="32834" xtype="adql:VARCHAR" arraysize="200*" />
+      <FIELD name="ASA_PROJECT_CODE" datatype="char" xtype="adql:VARCHAR" arraysize="64*">
+        <DESCRIPTION>OUS Project Code</DESCRIPTION>
+      </FIELD>
+      <DATA>
+        <TABLEDATA>
+          <TR>
+            <TD>2011.0.00497.S</TD>
+            <TD>Eta Carinae</TD>
+            <TD>161.26493488004834</TD>
+            <TD>-59.684513431585316</TD>
+            <TD>287.5969129459595</TD>
+            <TD>-0.6295925029136487</TD>
+            <TD>6</TD>
+            <TD>1.9795063914539812</TD>
+            <TD>976.5817063463455</TD>
+            <TD>12m</TD>
+            <TD />
+            <TD>120.96</TD>
+            <TD>2014-01-11</TD>
+            <TD>[216.09..217.96GHz,976.58kHz,4.3mJy/beam@10km/s,269.7uJy/beam@native, XX YY] U [218.09..219.96GHz,976.58kHz,4.3mJy/beam@10km/s,270.2uJy/beam@native, XX YY] U [230.98..232.85GHz,976.58kHz,4.4mJy/beam@10km/s,280.1uJy/beam@native, XX YY] U [232.79..234.66GHz,976.58kHz,4.6mJy/beam@10km/s,299.1uJy/beam@native, XX YY]</TD>
+            <TD>1247.6599771762271</TD>
+            <TD>XX YY</TD>
+            <TD>2012-11-05 14:44:00</TD>
+            <TD>Abraham, Zulema</TD>
+            <TD>Eta Carinae B6</TD>
+            <TD>Falceta-Goncalves, Diego;</TD>
+            <TD>4.32856105485961</TD>
+            <TD>0.13952785196775314</TD>
+            <TD>0.85920495</TD>
+            <TD />
+            <TD>uid://A002/X391d0b/X13a</TD>
+            <TD>uid://A002/X535168/Xd17</TD>
+            <TD>Eta Carinae: Continuum and H and He recombination lines v1.3</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+            <TD>27.953630530658828</TD>
+            <TD>9.360318639551718</TD>
+            <TD>Y</TD>
+            <TD>2</TD>
+            <TD>Luminous Blue Variables (LBV), Evolved stars: Shaping/physical structure</TD>
+            <TD>Stars and stellar evolution</TD>
+            <TD>2011.0.00497.S</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00497.S</TD>
+            <TD>Eta Carinae</TD>
+            <TD>161.264934886023</TD>
+            <TD>-59.684513432371446</TD>
+            <TD>287.59691294899415</TD>
+            <TD>-0.6295925022028408</TD>
+            <TD>3</TD>
+            <TD>3.7352511418130678</TD>
+            <TD>976.5824041526663</TD>
+            <TD>12m</TD>
+            <TD />
+            <TD>90.72</TD>
+            <TD>2014-02-04</TD>
+            <TD>[84.77..86.65GHz,976.58kHz,6.2mJy/beam@10km/s,242.2uJy/beam@native, XX YY] U [86.47..88.35GHz,976.58kHz,6.1mJy/beam@10km/s,239.8uJy/beam@native, XX YY] U [96.97..98.85GHz,976.58kHz,5.7mJy/beam@10km/s,236.7uJy/beam@native, XX YY] U [98.67..100.54GHz,976.58kHz,5.6mJy/beam@10km/s,237.6uJy/beam@native, XX YY]</TD>
+            <TD>2912.000516389232</TD>
+            <TD>XX YY</TD>
+            <TD>2012-11-04 13:55:01</TD>
+            <TD>Abraham, Zulema</TD>
+            <TD>Eta Carinae B3</TD>
+            <TD>Falceta-Goncalves, Diego;</TD>
+            <TD>5.6451894383904895</TD>
+            <TD>0.11954010190009448</TD>
+            <TD>0.6652312</TD>
+            <TD />
+            <TD>uid://A002/X391d0b/X13c</TD>
+            <TD>uid://A002/X533e2c/X785</TD>
+            <TD>Eta Carinae: Continuum and H and He recombination lines v1.3</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+            <TD>67.9923825064339</TD>
+            <TD>16.891589447693104</TD>
+            <TD>Y</TD>
+            <TD>2</TD>
+            <TD>Luminous Blue Variables (LBV), Evolved stars: Shaping/physical structure</TD>
+            <TD>Stars and stellar evolution</TD>
+            <TD>2011.0.00497.S</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00497.S</TD>
+            <TD>Eta Carinae</TD>
+            <TD>161.2649348863403</TD>
+            <TD>-59.6845134324132</TD>
+            <TD>287.59691294915524</TD>
+            <TD>-0.6295925021650981</TD>
+            <TD>7</TD>
+            <TD>1.0743766926991665</TD>
+            <TD>976.582231499582</TD>
+            <TD>12m</TD>
+            <TD />
+            <TD>181.44</TD>
+            <TD>2014-02-04</TD>
+            <TD>[283.34..285.22GHz,976.58kHz,4.2mJy/beam@10km/s,298.3uJy/beam@native, XX YY] U [285.20..287.07GHz,976.58kHz,5.8mJy/beam@10km/s,412.2uJy/beam@native, XX YY] U [295.34..297.22GHz,976.58kHz,4.2mJy/beam@10km/s,308.2uJy/beam@native, XX YY] U [297.20..299.07GHz,976.58kHz,4.4mJy/beam@10km/s,318.3uJy/beam@native, XX YY]</TD>
+            <TD>978.9605471297716</TD>
+            <TD>XX YY</TD>
+            <TD>2012-11-04 12:35:48</TD>
+            <TD>Abraham, Zulema</TD>
+            <TD>Eta Carinae B7</TD>
+            <TD>Falceta-Goncalves, Diego;</TD>
+            <TD>4.194668703553804</TD>
+            <TD>0.16325508618287435</TD>
+            <TD>0.55200446</TD>
+            <TD />
+            <TD>uid://A002/X391d0b/X138</TD>
+            <TD>uid://A002/X533e2c/X648</TD>
+            <TD>Eta Carinae: Continuum and H and He recombination lines v1.3</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+            <TD>21.634209653765257</TD>
+            <TD>4.85855684564111</TD>
+            <TD>Y</TD>
+            <TD>2</TD>
+            <TD>Luminous Blue Variables (LBV), Evolved stars: Shaping/physical structure</TD>
+            <TD>Stars and stellar evolution</TD>
+            <TD>2011.0.00497.S</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00497.S</TD>
+            <TD>Eta Carinae</TD>
+            <TD>161.26493488658818</TD>
+            <TD>-59.684513432445826</TD>
+            <TD>287.5969129492812</TD>
+            <TD>-0.6295925021356094</TD>
+            <TD>9</TD>
+            <TD>0.46022748193374657</TD>
+            <TD>976.5820911972766</TD>
+            <TD>12m</TD>
+            <TD />
+            <TD>725.76</TD>
+            <TD>2014-02-28</TD>
+            <TD>[661.53..663.41GHz,976.58kHz,17.5mJy/beam@10km/s,1.9mJy/beam@native, XX YY] U [663.39..665.26GHz,976.58kHz,17.3mJy/beam@10km/s,1.9mJy/beam@native, XX YY] U [678.14..680.01GHz,976.58kHz,18mJy/beam@10km/s,2mJy/beam@native, XX YY] U [680.03..681.91GHz,976.58kHz,18.1mJy/beam@10km/s,2mJy/beam@native, XX YY]</TD>
+            <TD>429.3524612685367</TD>
+            <TD>XX YY</TD>
+            <TD>2012-11-04 11:34:23</TD>
+            <TD>Abraham, Zulema</TD>
+            <TD>Eta Carinae B9</TD>
+            <TD>Falceta-Goncalves, Diego;</TD>
+            <TD>17.330026007892872</TD>
+            <TD>0.9682299437988194</TD>
+            <TD>0.53612256</TD>
+            <TD />
+            <TD>uid://A002/X391d0b/X13e</TD>
+            <TD>uid://A002/X533e2c/X53c</TD>
+            <TD>Eta Carinae: Continuum and H and He recombination lines v1.3</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+            <TD>9.3789347865876</TD>
+            <TD>2.0812452448905487</TD>
+            <TD>Y</TD>
+            <TD>2</TD>
+            <TD>Luminous Blue Variables (LBV), Evolved stars: Shaping/physical structure</TD>
+            <TD>Stars and stellar evolution</TD>
+            <TD>2011.0.00497.S</TD>
+          </TR>
+          <TR>
+            <TD>2013.1.00661.S</TD>
+            <TD>Eta_Carinae</TD>
+            <TD>161.2648982117529</TD>
+            <TD>-59.68451276344549</TD>
+            <TD>287.5968962600622</TD>
+            <TD>-0.6296005424254474</TD>
+            <TD>6</TD>
+            <TD>1.9914782628014032</TD>
+            <TD>976.5915434360307</TD>
+            <TD>12m</TD>
+            <TD />
+            <TD>151.2</TD>
+            <TD>2016-05-19</TD>
+            <TD>[215.71..217.59GHz,976.59kHz,2.6mJy/beam@10km/s,162.8uJy/beam@native, XX YY] U [217.59..219.46GHz,976.59kHz,2.6mJy/beam@10km/s,163.2uJy/beam@native, XX YY] U [229.64..231.51GHz,976.59kHz,2.6mJy/beam@10km/s,168.6uJy/beam@native, XX YY] U [231.59..233.47GHz,976.59kHz,2.7mJy/beam@10km/s,170.7uJy/beam@native, XX YY]</TD>
+            <TD>1254.075138744532</TD>
+            <TD>XX YY</TD>
+            <TD>2015-04-03 03:35:36</TD>
+            <TD>Smith, Nathan</TD>
+            <TD>Eta_Cari_a_06_TC</TD>
+            <TD>Bally, John; Ginsburg, Adam;</TD>
+            <TD>2.616744713816928</TD>
+            <TD>0.08310595427935624</TD>
+            <TD>1.7398131</TD>
+            <TD>uid://A001/X13f/X109</TD>
+            <TD>uid://A001/X13f/X10c</TD>
+            <TD>uid://A002/X9d26c8/X8c5</TD>
+            <TD>Measuring the mass in the nebula around Eta Carinae</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+            <TD>28.051126285755192</TD>
+            <TD>10.450034144186038</TD>
+            <TD>Y</TD>
+            <TD>1</TD>
+            <TD>Transients</TD>
+            <TD>Stars and stellar evolution</TD>
+            <TD>2013.1.00661.S</TD>
+          </TR>
+          <TR>
+            <TD>2013.1.00661.S</TD>
+            <TD>Eta_Carinae</TD>
+            <TD>161.26489851037334</TD>
+            <TD>-59.68451278327863</TD>
+            <TD>287.5968964026606</TD>
+            <TD>-0.6296004896844618</TD>
+            <TD>3</TD>
+            <TD>4.221602026358009</TD>
+            <TD>976.5701345245175</TD>
+            <TD>12m7m</TD>
+            <TD />
+            <TD>544.32</TD>
+            <TD>2016-10-29</TD>
+            <TD>[100.18..102.05GHz,976.57kHz,1.9mJy/beam@10km/s,80.2uJy/beam@native, XX YY] U [101.98..103.86GHz,976.57kHz,1.9mJy/beam@10km/s,81.2uJy/beam@native, XX YY] U [112.25..114.13GHz,976.57kHz,2.4mJy/beam@10km/s,108.9uJy/beam@native, XX YY] U [114.05..115.93GHz,976.57kHz,3.2mJy/beam@10km/s,146.2uJy/beam@native, XX YY]</TD>
+            <TD>2525.489508834745</TD>
+            <TD>XX YY</TD>
+            <TD>2015-03-08 01:42:47</TD>
+            <TD>Smith, Nathan</TD>
+            <TD>Eta_Cari_a_03_TE</TD>
+            <TD>Bally, John; Ginsburg, Adam;</TD>
+            <TD>1.890645593666963</TD>
+            <TD>0.047766116019146064</TD>
+            <TD>7.2218404</TD>
+            <TD>uid://A001/X13f/X101</TD>
+            <TD>uid://A001/X13f/X102</TD>
+            <TD>uid://A002/X9baf64/X5dc</TD>
+            <TD>Measuring the mass in the nebula around Eta Carinae</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+            <TD>58.3059683315748</TD>
+            <TD>22.609249567235523</TD>
+            <TD>Y</TD>
+            <TD>1</TD>
+            <TD>Transients</TD>
+            <TD>Stars and stellar evolution</TD>
+            <TD>2013.1.00661.S</TD>
+          </TR>
+          <TR>
+            <TD>2016.1.00585.S</TD>
+            <TD>eta_Carinae</TD>
+            <TD>161.26467322328094</TD>
+            <TD>-59.684411411842625</TD>
+            <TD>287.59674852780074</TD>
+            <TD>-0.6295638395500714</TD>
+            <TD>7</TD>
+            <TD>0.27829591452589419</TD>
+            <TD>488.2955554476385</TD>
+            <TD>12m</TD>
+            <TD />
+            <TD>665.28</TD>
+            <TD>2018-02-02</TD>
+            <TD>[344.90..345.84GHz,976.59kHz,1.4mJy/beam@10km/s,150.4uJy/beam@native, XX YY] U [345.36..346.30GHz,488.30kHz,1.4mJy/beam@10km/s,150.7uJy/beam@native, XX YY] U [354.40..355.34GHz,976.59kHz,1.5mJy/beam@10km/s,168.6uJy/beam@native, XX YY] U [356.30..357.24GHz,976.59kHz,1.5mJy/beam@10km/s,166.6uJy/beam@native, XX YY]</TD>
+            <TD>422.73630787916414</TD>
+            <TD>XX YY</TD>
+            <TD>2016-10-24 10:24:05</TD>
+            <TD>Pech-Castillo, Gerardo</TD>
+            <TD>eta_Cari_a_07_TM1</TD>
+            <TD>Chu, You-Hua; Kaminski, Tomasz; Taam, Ronald; Zapata, Luis; Loinard, Laurent; Guesten, Rolf; Menten, Karl; Toala, Jesus; Rodriguez, Luis; Gull, Theodore;</TD>
+            <TD>1.3566741335718708</TD>
+            <TD>0.07918999262626317</TD>
+            <TD>0.56899893</TD>
+            <TD>uid://A001/X888/X2d</TD>
+            <TD>uid://A001/X888/X2e</TD>
+            <TD>uid://A002/Xb9c01c/X4406</TD>
+            <TD>Giant factory caught contaminating the environment: dust and molecules expelled by eta Carinae</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+            <TD>17.94516171226243</TD>
+            <TD>1.4142667799315656</TD>
+            <TD>Y</TD>
+            <TD>0</TD>
+            <TD>Luminous Blue Variables (LBV)</TD>
+            <TD>Stars and stellar evolution</TD>
+            <TD>2016.1.00585.S</TD>
+          </TR>
+          <TR>
+            <TD>2016.1.01537.S</TD>
+            <TD>HH_900</TD>
+            <TD>161.3304166699665</TD>
+            <TD>-59.73972222000463</TD>
+            <TD>287.65185901654684</TD>
+            <TD>-0.6630589179727506</TD>
+            <TD>7</TD>
+            <TD>0.34171693949381127</TD>
+            <TD>122.07317161289532</TD>
+            <TD>12m</TD>
+            <TD />
+            <TD>907.2</TD>
+            <TD>2018-10-03</TD>
+            <TD>[329.28..329.40GHz,122.07kHz,1.5mJy/beam@10km/s,464.7uJy/beam@native, XX YY] U [330.54..330.66GHz,122.07kHz,1.3mJy/beam@10km/s,411uJy/beam@native, XX YY] U [330.68..332.56GHz,3906.34kHz,1.3mJy/beam@10km/s,97.4uJy/beam@native, XX YY] U [341.07..342.95GHz,3906.34kHz,1.1mJy/beam@10km/s,88uJy/beam@native, XX YY] U [343.07..344.95GHz,3906.34kHz,1.1mJy/beam@10km/s,88.7uJy/beam@native, XX YY]</TD>
+            <TD>110.68088095506636</TD>
+            <TD>XX YY</TD>
+            <TD>2016-10-31 11:04:53</TD>
+            <TD>Guzman, Andres Ernesto</TD>
+            <TD>HH_900_a_07_TM2</TD>
+            <TD>Garay, Guido; Reiter, Megan;</TD>
+            <TD>1.1286741955691257</TD>
+            <TD>0.05185027981063337</TD>
+            <TD>0.49020195</TD>
+            <TD>uid://A001/X895/X2c</TD>
+            <TD>uid://A001/X895/X2f</TD>
+            <TD>uid://A002/Xba035e/X31e7</TD>
+            <TD>Measuring disk and outflows properties around the intermediate-mass jet-driving source HH900</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+            <TD>18.68795555242854</TD>
+            <TD>1.6543122234187568</TD>
+            <TD>Y</TD>
+            <TD>0</TD>
+            <TD>Outflows, jets and ionized winds, Intermediate-mass star formation</TD>
+            <TD>ISM and star formation</TD>
+            <TD>2016.1.01537.S</TD>
+          </TR>
+          <TR>
+            <TD>2016.1.01537.S</TD>
+            <TD>HH_900</TD>
+            <TD>161.33041666661896</TD>
+            <TD>-59.7397222222331</TD>
+            <TD>287.65185901609095</TD>
+            <TD>-0.663058920730279</TD>
+            <TD>6</TD>
+            <TD>0.56523935836929118</TD>
+            <TD>122.07761772596741</TD>
+            <TD>12m</TD>
+            <TD />
+            <TD>907.2</TD>
+            <TD>2018-10-09</TD>
+            <TD>[216.88..217.35GHz,488.31kHz,944.2uJy/beam@10km/s,117.4uJy/beam@native, XX YY] U [219.51..219.63GHz,122.08kHz,941.9uJy/beam@10km/s,235.5uJy/beam@native, XX YY] U [220.35..220.46GHz,122.08kHz,941.3uJy/beam@10km/s,235.8uJy/beam@native, XX YY] U [230.48..230.72GHz,244.16kHz,949uJy/beam@10km/s,171.9uJy/beam@native, XX YY] U [232.06..233.93GHz,3906.48kHz,965.2uJy/beam@10km/s,62.1uJy/beam@native, XX YY]</TD>
+            <TD>166.0136506858541</TD>
+            <TD>XX YY</TD>
+            <TD>2017-05-08 22:00:27</TD>
+            <TD>Guzman, Andres Ernesto</TD>
+            <TD>HH_900_a_06_TM2</TD>
+            <TD>Garay, Guido; Reiter, Megan;</TD>
+            <TD>0.9413033304982478</TD>
+            <TD>0.049911464907273065</TD>
+            <TD>1.4831578</TD>
+            <TD>uid://A001/X894/X47</TD>
+            <TD>uid://A001/X894/X4a</TD>
+            <TD>uid://A002/Xc02418/X7d0</TD>
+            <TD>Measuring disk and outflows properties around the intermediate-mass jet-driving source HH900</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+            <TD>27.949738984605528</TD>
+            <TD>3.370745425261778</TD>
+            <TD>Y</TD>
+            <TD>0</TD>
+            <TD>Outflows, jets and ionized winds, Intermediate-mass star formation</TD>
+            <TD>ISM and star formation</TD>
+            <TD>2016.1.01537.S</TD>
+          </TR>
+          <TR>
+            <TD>2016.1.01537.S</TD>
+            <TD>HH_900</TD>
+            <TD>161.33041666662544</TD>
+            <TD>-59.73972222226184</TD>
+            <TD>287.6518590161072</TD>
+            <TD>-0.6630589207541919</TD>
+            <TD>6</TD>
+            <TD>0.077068039654726028</TD>
+            <TD>122.07697592860112</TD>
+            <TD>12m</TD>
+            <TD />
+            <TD>2975.616</TD>
+            <TD>2018-12-15</TD>
+            <TD>[216.88..217.35GHz,488.31kHz,456.7uJy/beam@10km/s,56.8uJy/beam@native, XX YY] U [219.51..219.63GHz,122.08kHz,455.1uJy/beam@10km/s,113.8uJy/beam@native, XX YY] U [220.35..220.46GHz,122.08kHz,454.7uJy/beam@10km/s,113.9uJy/beam@native, XX YY] U [230.48..230.72GHz,244.15kHz,455.4uJy/beam@10km/s,82.5uJy/beam@native, XX YY] U [232.06..233.93GHz,3906.46kHz,463uJy/beam@10km/s,29.8uJy/beam@native, XX YY]</TD>
+            <TD>166.01191229611115</TD>
+            <TD>XX YY</TD>
+            <TD>2017-09-25 10:22:49</TD>
+            <TD>Guzman, Andres Ernesto</TD>
+            <TD>HH_900_a_06_TM1</TD>
+            <TD>Garay, Guido; Reiter, Megan;</TD>
+            <TD>0.45465019029616516</TD>
+            <TD>0.023992951528240814</TD>
+            <TD>0.26872924</TD>
+            <TD>uid://A001/X894/X47</TD>
+            <TD>uid://A001/X894/X48</TD>
+            <TD>uid://A002/Xc4c2da/X7f7e</TD>
+            <TD>Measuring disk and outflows properties around the intermediate-mass jet-driving source HH900</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+            <TD>27.949742249139213</TD>
+            <TD>0.7012038855184777</TD>
+            <TD>Y</TD>
+            <TD>0</TD>
+            <TD>Outflows, jets and ionized winds, Intermediate-mass star formation</TD>
+            <TD>ISM and star formation</TD>
+            <TD>2016.1.01537.S</TD>
+          </TR>
+          <TR>
+            <TD>2017.1.00555.S</TD>
+            <TD>eta_carina</TD>
+            <TD>161.2648543263068</TD>
+            <TD>-59.68449631503083</TD>
+            <TD>287.59686899257645</TD>
+            <TD>-0.6295963209725781</TD>
+            <TD>3</TD>
+            <TD>0.18089220430700681</TD>
+            <TD>244.14354023050603</TD>
+            <TD>12m</TD>
+            <TD />
+            <TD>308.448</TD>
+            <TD>2018-12-15</TD>
+            <TD>[92.95..93.41GHz,488.29kHz,1.6mJy/beam@10km/s,126.2uJy/beam@native, XX YY] U [93.87..94.10GHz,244.14kHz,1.6mJy/beam@10km/s,180.7uJy/beam@native, XX YY] U [103.31..105.18GHz,1953.15kHz,1.5mJy/beam@10km/s,65.9uJy/beam@native, XX YY] U [103.96..104.43GHz,244.14kHz,1.5mJy/beam@10km/s,131.8uJy/beam@native, XX YY]</TD>
+            <TD>700.8769495890801</TD>
+            <TD>XX YY</TD>
+            <TD>2017-11-14 09:41:01</TD>
+            <TD>Quintana-Lacaci, Guillermo</TD>
+            <TD>eta_cari_b_03_TM1</TD>
+            <TD>Castro-Carrizo, Arancha; Velilla Prieto, Luis; Cernicharo, Jose; SÃ¡nchez Contreras, Carmen; Smith, Nathan; Agundez, Marcelino;</TD>
+            <TD>1.5306639034482215</TD>
+            <TD>0.05122411523870163</TD>
+            <TD>3.6277819</TD>
+            <TD>uid://A001/X1284/X2b8</TD>
+            <TD>uid://A001/X1284/X2b9</TD>
+            <TD>uid://A002/Xc6d2f9/X31a7</TD>
+            <TD>Nitrogen chemistry in Eta Carninae</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+            <TD>63.59504575787271</TD>
+            <TD>1.5981821327825543</TD>
+            <TD>Y</TD>
+            <TD>0</TD>
+            <TD>Astrochemistry</TD>
+            <TD>ISM and star formation</TD>
+            <TD>2017.1.00555.S</TD>
+          </TR>
+          <TR>
+            <TD>2017.1.00555.S</TD>
+            <TD>eta_carina</TD>
+            <TD>161.26485432606137</TD>
+            <TD>-59.6844963149795</TD>
+            <TD>287.596868992443</TD>
+            <TD>-0.6295963209849226</TD>
+            <TD>3</TD>
+            <TD>0.19177519140199156</TD>
+            <TD>488.2871049537639</TD>
+            <TD>12m</TD>
+            <TD />
+            <TD>308.448</TD>
+            <TD>2018-12-18</TD>
+            <TD>[88.40..88.87GHz,488.29kHz,1.6mJy/beam@10km/s,126.4uJy/beam@native, XX YY] U [88.96..89.43GHz,488.29kHz,1.6mJy/beam@10km/s,126.3uJy/beam@native, XX YY] U [89.07..90.94GHz,1953.15kHz,1.6mJy/beam@10km/s,63.1uJy/beam@native, XX YY] U [90.44..90.90GHz,488.29kHz,1.6mJy/beam@10km/s,126.1uJy/beam@native, XX YY]</TD>
+            <TD>1610.344934554768</TD>
+            <TD>XX YY</TD>
+            <TD>2017-11-14 10:02:59</TD>
+            <TD>Quintana-Lacaci, Guillermo</TD>
+            <TD>eta_cari_a_03_TM1</TD>
+            <TD>Castro-Carrizo, Arancha; Velilla Prieto, Luis; Cernicharo, Jose; SÃ¡nchez Contreras, Carmen; Smith, Nathan; Agundez, Marcelino;</TD>
+            <TD>1.5698486693240086</TD>
+            <TD>0.0476938036008964</TD>
+            <TD>3.736441</TD>
+            <TD>uid://A001/X1284/X2b2</TD>
+            <TD>uid://A001/X1284/X2b3</TD>
+            <TD>uid://A002/Xc6d2f9/X32d6</TD>
+            <TD>Nitrogen chemistry in Eta Carninae</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+            <TD>70.25514416253647</TD>
+            <TD>1.6943332941503968</TD>
+            <TD>Y</TD>
+            <TD>0</TD>
+            <TD>Astrochemistry</TD>
+            <TD>ISM and star formation</TD>
+            <TD>2017.1.00555.S</TD>
+          </TR>
+          <TR>
+            <TD>2017.1.00555.S</TD>
+            <TD>Eta_Carninae</TD>
+            <TD>161.264854341622</TD>
+            <TD>-59.684496317891714</TD>
+            <TD>287.5968690007496</TD>
+            <TD>-0.629596319898669</TD>
+            <TD>4</TD>
+            <TD>0.1019472741402007</TD>
+            <TD>488.2875966130523</TD>
+            <TD>12m</TD>
+            <TD />
+            <TD>308.448</TD>
+            <TD>2018-12-21</TD>
+            <TD>[149.51..151.39GHz,1953.15kHz,1.7mJy/beam@10km/s,86.2uJy/beam@native, XX YY] U [149.99..150.46GHz,488.29kHz,1.7mJy/beam@10km/s,172.2uJy/beam@native, XX YY] U [150.21..150.68GHz,488.29kHz,1.7mJy/beam@10km/s,172.4uJy/beam@native, XX YY] U [150.42..150.89GHz,488.29kHz,1.7mJy/beam@10km/s,172.6uJy/beam@native, XX YY]</TD>
+            <TD>970.1646869057764</TD>
+            <TD>XX YY</TD>
+            <TD>2017-11-13 11:34:29</TD>
+            <TD>Quintana-Lacaci, Guillermo</TD>
+            <TD>Eta_Carn_a_04_TM1</TD>
+            <TD>Castro-Carrizo, Arancha; Velilla Prieto, Luis; Cernicharo, Jose; SÃ¡nchez Contreras, Carmen; Smith, Nathan; Agundez, Marcelino;</TD>
+            <TD>1.6658330485186503</TD>
+            <TD>0.06517455471547128</TD>
+            <TD>2.8815682</TD>
+            <TD>uid://A001/X1284/X2bc</TD>
+            <TD>uid://A001/X1284/X2bd</TD>
+            <TD>uid://A002/Xc6c0d5/X8340</TD>
+            <TD>Nitrogen chemistry in Eta Carninae</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+            <TD>41.874183627945975</TD>
+            <TD>0.9646078221364053</TD>
+            <TD>Y</TD>
+            <TD>0</TD>
+            <TD>Astrochemistry</TD>
+            <TD>ISM and star formation</TD>
+            <TD>2017.1.00555.S</TD>
+          </TR>
+          <TR>
+            <TD>2017.1.00555.S</TD>
+            <TD>eta_carina</TD>
+            <TD>161.26485308680407</TD>
+            <TD>-59.68449608183419</TD>
+            <TD>287.5968683303274</TD>
+            <TD>-0.6295964064211216</TD>
+            <TD>3</TD>
+            <TD>1.4421250364431619</TD>
+            <TD>488.2754315208774</TD>
+            <TD>12m</TD>
+            <TD />
+            <TD>302.4</TD>
+            <TD>2019-02-23</TD>
+            <TD>[88.40..88.87GHz,488.28kHz,2mJy/beam@10km/s,158.3uJy/beam@native, XX YY] U [88.96..89.43GHz,488.28kHz,2mJy/beam@10km/s,158.3uJy/beam@native, XX YY] U [89.07..90.94GHz,1953.10kHz,2mJy/beam@10km/s,79.2uJy/beam@native, XX YY] U [90.44..90.90GHz,488.28kHz,2mJy/beam@10km/s,158.6uJy/beam@native, XX YY]</TD>
+            <TD>1610.26830547919</TD>
+            <TD>XX YY</TD>
+            <TD>2018-01-28 04:35:57</TD>
+            <TD>Quintana-Lacaci, Guillermo</TD>
+            <TD>eta_cari_a_03_TM2</TD>
+            <TD>Castro-Carrizo, Arancha; Velilla Prieto, Luis; Cernicharo, Jose; SÃ¡nchez Contreras, Carmen; Smith, Nathan; Agundez, Marcelino;</TD>
+            <TD>1.973883525803546</TD>
+            <TD>0.05986757022841816</TD>
+            <TD>6.1473603</TD>
+            <TD>uid://A001/X1284/X2b2</TD>
+            <TD>uid://A001/X1284/X2b5</TD>
+            <TD>uid://A002/Xc9c531/X2d3c</TD>
+            <TD>Nitrogen chemistry in Eta Carninae</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+            <TD>70.2551531101762</TD>
+            <TD>9.77876030159935</TD>
+            <TD>Y</TD>
+            <TD>0</TD>
+            <TD>Astrochemistry</TD>
+            <TD>ISM and star formation</TD>
+            <TD>2017.1.00555.S</TD>
+          </TR>
+          <TR>
+            <TD>2017.1.00912.S</TD>
+            <TD>hh900</TD>
+            <TD>161.33041666661578</TD>
+            <TD>-59.739722222236026</TD>
+            <TD>287.65185901609084</TD>
+            <TD>-0.6630589207336124</TD>
+            <TD>6</TD>
+            <TD>0.31637200266702575</TD>
+            <TD>488.2749890341188</TD>
+            <TD>12m</TD>
+            <TD />
+            <TD>544.32</TD>
+            <TD>2019-03-02</TD>
+            <TD>[217.02..219.00GHz,31249.60kHz,1.1mJy/beam@10km/s,68.6uJy/beam@native, XX YY] U [219.34..219.81GHz,488.27kHz,1.1mJy/beam@10km/s,142uJy/beam@native, XX YY] U [230.08..231.02GHz,976.55kHz,1.1mJy/beam@10km/s,103.6uJy/beam@native, XX YY] U [230.77..231.70GHz,976.55kHz,1.3mJy/beam@10km/s,120.3uJy/beam@native, XX YY]</TD>
+            <TD>665.9378534202351</TD>
+            <TD>XX YY</TD>
+            <TD>2018-01-01 06:09:34</TD>
+            <TD>Ho, Paul</TD>
+            <TD>hh900_a_06_TM1</TD>
+            <TD>Mesa-Delgado, Adal; Takahashi, Satoko; Zapata, Luis;</TD>
+            <TD>1.135772207994659</TD>
+            <TD>0.04855103282703784</TD>
+            <TD>1.3458837</TD>
+            <TD>uid://A001/X1284/X339</TD>
+            <TD>uid://A001/X1284/X33a</TD>
+            <TD>uid://A002/Xc89480/Xaa55</TD>
+            <TD>Protoplanetary Disks in the Hostile Environment of Carina</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+            <TD>28.079632962112534</TD>
+            <TD>2.5461809912073567</TD>
+            <TD>Y</TD>
+            <TD>0</TD>
+            <TD>Low-mass star formation</TD>
+            <TD>ISM and star formation</TD>
+            <TD>2017.1.00912.S</TD>
+          </TR>
+        </TABLEDATA>
+      </DATA>
+    </TABLE>
+    <INFO name="QUERY_STATUS" value="OK" />
+  </RESOURCE>
+</VOTABLE>
