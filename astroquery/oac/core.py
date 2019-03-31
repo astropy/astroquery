@@ -484,8 +484,8 @@ class OACClass(BaseQuery):
         if 'message' in response.text:
             raise KeyError("ERROR: API Server returned the following error:\n{}".format(response.text))
 
-            raw_output = response.text
-            output_response = self._format_output(raw_output)
+        raw_output = response.text
+        output_response = self._format_output(raw_output)
 
         return output_response
 
