@@ -477,22 +477,15 @@ class OACClass(BaseQuery):
         if not verbose:
             commons.suppress_vo_warnings()
 
-        try:
-            if response.status_code != 200:
-                raise AttributeError("ERROR: The web service returned error code: %s" %
-                  response.status_code)
+        if response.status_code != 200:
+            raise AttributeError("ERROR: The web service returned error code: %s" %
+                response.status_code)
 
-            if 'message' in response.text:
-                raise KeyError("ERROR: API Server returned the following error:\n{}".format(response.text))
+        if 'message' in response.text:
+            raise KeyError("ERROR: API Server returned the following error:\n{}".format(response.text))
 
             raw_output = response.text
             output_response = self._format_output(raw_output)
-
-        except AttributeError:
-            raise
-
-        except KeyError:
-            raise
 
         return output_response
 
