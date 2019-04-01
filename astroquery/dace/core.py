@@ -1,6 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 from collections import defaultdict
+from json import JSONDecodeError
 from astropy.table import Table
 from ..query import BaseQuery
 from ..utils import async_to_sync
@@ -46,9 +47,8 @@ class DaceClass(BaseQuery):
             json_data = response.json()
             dace_dict = self.transform_data_as_dict(json_data)
             return Table(dace_dict)
-        except Exception as ex:
-            raise ParseException(
-                "Failed to parse DACE result! Exception : {} \nRaw content : {}".format(ex, response.text))
+        except JSONDecodeError as error:
+            raise ParseException("Failed to parse DACE result. Request response : {}".format(response.text)) from error
 
     @staticmethod
     def transform_data_as_dict(json_data):
