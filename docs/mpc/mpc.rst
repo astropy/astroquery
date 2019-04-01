@@ -454,11 +454,13 @@ designation (as str, e.g., ``'P/2019 A4'``). Note that comet
 identifiers have to be accompanied by a comet type identifier (``P``,
 ``C``, ``X``, etc.), e.g., ``'1P'``, ``'354P'``, ``'P/2019 A4'``,
 ``'C/1932 Y1'``. The lack of a comet type identifier may lead to a
-misleading target identification or an error being raised. Asteroid or
-comet names cannot be queried, as well as Palomar-Leiden Survey
-designations, and individual comet fragments. In case an object name
-cannot be resolved, a ``ValueError`` is raised. If a query returns no
-results, a ``RuntimeError`` is raised.
+misleading target identification or an error being raised. If the
+target identifier is not parsed properly, the user can use the keyword
+argument ``id_type`` to set the target type and identifier type
+manually. Asteroid or comet names cannot be queried, as well as
+Palomar-Leiden Survey designations, and individual comet fragments. In
+case an object name cannot be resolved, a ``ValueError`` is raised. If
+a query returns no results, a ``RuntimeError`` is raised.
 
 Reference/API
 =============

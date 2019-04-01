@@ -771,9 +771,12 @@ class MPCClass(BaseQuery):
 
     @class_or_instance
     def get_observations_async(self, targetid,
+                               id_type=None,
                                comettype=None,
                                get_mpcformat=False,
-                               get_raw_response=False, cache=True):
+                               get_raw_response=False,
+                               get_query_payload=False,
+                               cache=True):
         """
         Obtain all reported observations for an asteroid or a comet
         from the `Minor Planet Center observations database
@@ -796,6 +799,14 @@ class MPCClass(BaseQuery):
             designations, and individual comet fragments cannot be
             queried.
 
+        id_type : str, optional
+            Manual override for identifier type. If ``None``, the
+            identifier type is derived by parsing ``targetid``; if this
+            automated classification fails, it can be set manually using
+            this parameter. Possible values are ``'asteroid number'``,
+            ``'asteroid designation'``, ``'comet number'``, and
+            ``'comet designation'``. Default: ``None``
+
         get_mpcformat : bool, optional
             If ``True``, this method will return an `~astropy.table.QTable`
             with only a single column holding the original MPC 80-column
@@ -804,6 +815,10 @@ class MPCClass(BaseQuery):
         get_raw_response : bool, optional
             If ``True``, this method will return the raw output from the
             MPC servers (json). Default: ``False``
+
+        get_query_payload : bool, optional
+            Return the HTTP request parameters as a dictionary
+            (default: ``False``).
 
         cache : bool, optional
             If ``True``, queries will be cached. Default: ``True``
@@ -886,47 +901,78 @@ class MPCClass(BaseQuery):
 
         request_payload = {'table': 'observations'}
 
-        # identify target type and identifier
+        if id_type is None:
 
-        pat = ('(^[0-9]*$)|'  # [0] asteroid number
-               '(^[0-9]*[PIA])'  # [1] periodic comet number
-               '(-[1-9A-Z]{0,2})?$|'  # [2] fragment
-               '(^[PDCXAI]/[-]?[0-9]{3,4}[ _][A-Z]{1,2}[0-9]{1,3})'
-               # [3] comet designation
-               '(-[1-9A-Z]{0,2})?$|'  # [4] fragment
-               '(^([1A][8-9][0-9]{2}[ _][A-Z]{2}[0-9]{0,3}$|'
-               '^20[0-9]{2}[ _][A-Z]{2}[0-9]{0,3}$)|'
-               '(^[1-9][0-9]{3}[ _](P-L|T-[1-3]))$)'
-               # asteroid designation [5] (old/new/Palomar-Leiden style)
-               )
+            pat = ('(^[0-9]*$)|'  # [0] asteroid number
+                   '(^[0-9]{1,3}[PIA]$)'  # [1] periodic comet number
+                   '(-[1-9A-Z]{0,2})?$|'  # [2] fragment
+                   '(^[PDCXAI]/[- 0-9A-Za-z]*)'
+                   # [3] comet designation
+                   '(-[1-9A-Z]{0,2})?$|'  # [4] fragment
+                   '(^([1A][8-9][0-9]{2}[ _][A-Z]{2}[0-9]{0,3}$|'
+                   '^20[0-9]{2}[ _][A-Z]{2}[0-9]{0,3}$)|'
+                   '(^[1-9][0-9]{3}[ _](P-L|T-[1-3]))$)'
+                   # asteroid designation [5] (old/new/Palomar-Leiden style)
+                   )
 
-        # comet fragments are extracted here, but the MPC server does
-        # not allow for fragment-based queries
+            # comet fragments are extracted here, but the MPC server does
+            # not allow for fragment-based queries
 
-        m = re.findall(pat, str(targetid))
+            m = re.findall(pat, str(targetid))
 
-        if len(m) == 0:
-            raise ValueError(('Cannot interpret target '
-                              'identifier "{}".').format(targetid))
+            if len(m) == 0:
+                raise ValueError(('Cannot interpret target '
+                                  'identifier "{}".').format(targetid))
+            else:
+                m = m[0]
+
+            request_payload['object_type'] = 'M'
+            if m[1] != '':
+                request_payload['object_type'] = 'P'
+            if m[3] != '':
+                request_payload['object_type'] = m[3][0]
+
+            if m[0] != '':
+                request_payload['number'] = m[0]  # asteroid number
+            elif m[1] != '':
+                request_payload['number'] = m[1][:-1]  # per.  comet number
+            elif m[3] != '':
+                request_payload['designation'] = m[3]  # comet designation
+            elif m[5] != '':
+                request_payload['designation'] = m[5]  # ast. designation
         else:
-            m = m[0]
+            if 'asteroid' in id_type:
+                request_payload['object_type'] = 'M'
+                if 'number' in id_type:
+                    request_payload['number'] = str(targetid)
+                elif 'designation' in id_type:
+                    request_payload['designation'] = targetid
+            if 'comet' in id_type:
+                pat = ('(^[0-9]{1,3}[PIA])|'  # [0] number
+                       '(^[PDCXAI]/[- 0-9A-Za-z]*)'  # [1] designation
+                       )
+                m = re.findall(pat, str(targetid))
 
-        request_payload['object_type'] = 'M'
-        if m[1] != '':
-            request_payload['object_type'] = 'P'
-        if m[3] != '':
-            request_payload['object_type'] = m[3][0]
+                if len(m) == 0:
+                    raise ValueError(('Cannot parse comet type '
+                                      'from "{}".').format(targetid))
+                else:
+                    m = m[0]
 
-        if m[0] != '':
-            request_payload['number'] = m[0]  # asteroid number
-        elif m[1] != '':
-            request_payload['number'] = m[1][:-1]  # periodic comet number
-        elif m[3] != '':
-            request_payload['designation'] = m[3]  # comet designation
-        elif m[5] != '':
-            request_payload['designation'] = m[5]  # asteroid designation
+                if m[0] != '':
+                    request_payload['object_type'] = m[0][-1]
+                elif m[1] != '':
+                    request_payload['object_type'] = m[1][0]
+
+                if 'number' in id_type:
+                    request_payload['number'] = targetid[:-1]
+                elif 'designation' in id_type:
+                    request_payload['designation'] = targetid
 
         self.query_type = 'observations'
+
+        if get_query_payload:
+            return request_payload
 
         response = self._request('GET', url=self.MPCOBS_URL,
                                  params=request_payload,
@@ -1212,11 +1258,21 @@ class MPCClass(BaseQuery):
                         or not ident.mask):
                     yr = str(conf.pkd.find(ident[0]))+ident[1:3]
                     let = ident[3]
+                    # patch to parse asteroid designations
+                    if len(ident) == 7 and str.isalpha(ident[6]):
+                        let += ident[6]
+                        ident = ident[:6] + ident[7:]
                     num = str(conf.pkd.find(ident[4]))+ident[5]
                     num = num.lstrip("0")
-                    frag = ident[6] if ident[6] != '0' else ''
+                    if len(ident) >= 7:
+                        frag = ident[6] if ident[6] != '0' else ''
+                    else:
+                        frag = ''
                     ident = yr+' '+let+num+frag
-                    data['desig'] = ident
+                    # remove and add desig column to overcome length limit
+                    data.remove_column('desig')
+                    data.add_column(Column([ident]*len(data),
+                                           name='desig'), index=3)
             else:
                 raise ValueError(('Object type is ambiguous. "{}" '
                                   'are present.').format(
@@ -1227,18 +1283,22 @@ class MPCClass(BaseQuery):
             times = np.array([float(d[10:]) for d in data['epoch']])
             jds = Time(dates, format='iso').jd+times
             data['epoch'] = jds
-            data['epoch'].unit = u.d
 
             # convert ra and dec to degrees
             coo = SkyCoord(ra=data['RA'], dec=data['DEC'],
                            unit=(u.hourangle, u.deg),
                            frame='icrs')
-            data['RA'] = coo.ra.deg * u.deg
-            data['DEC'] = coo.dec.deg * u.deg
+            data['RA'] = coo.ra.deg
+            data['DEC'] = coo.dec.deg
 
-            data['mag'].unit = u.mag
+        # convert Table to QTable
+        data = QTable(data)
+        data['epoch'].unit = u.d
+        data['RA'].unit = u.deg
+        data['DEC'].unit = u.deg
+        data['mag'].unit = u.mag
 
-        return QTable(data)
+        return data
 
 
 MPC = MPCClass()
