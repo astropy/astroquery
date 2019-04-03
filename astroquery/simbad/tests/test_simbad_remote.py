@@ -157,7 +157,7 @@ class TestSimbad(object):
     # Special case : zero-sized region with one object
     def test_query_zero_sized_region(self):
         result = simbad.core.Simbad.query_region(
-            coord.SkyCoord("20h54m05.6889s 37d01m17.380s"), radius="0d",
+            coord.SkyCoord("20h54m05.6889s 37d01m17.380s"), radius="1s",
             equinox=2000.0, epoch='J2000')
         # This should find a single star, BD+36 4308
         assert len(result) == 1
