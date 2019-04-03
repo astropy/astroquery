@@ -1,15 +1,13 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 
+import numpy as np
+
 from astropy.tests.helper import remote_data
 from astropy.table import Table
 import astropy.units as u
-import requests
-import imp
 
 from ... import nist
-
-imp.reload(requests)
 
 
 @remote_data
