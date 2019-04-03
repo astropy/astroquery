@@ -146,9 +146,10 @@ class AlmaClass(QueryWithLogin):
         if get_query_payload:
             return payload
 
-        response = self._request('GET', url, params=payload,
-                                 timeout=self.TIMEOUT,
-                                 cache=cache and not get_html_version)
+        response = self._request('GET', url, params=payload, data=None, headers=None,
+                                 files=None, save=False, savedir='', timeout=self.TIMEOUT,
+                                 cache=cache and not get_html_version,
+                                 stream=False, auth=None, continuation=True, verify=True)
         self._last_response = response
         response.raise_for_status()
 
@@ -170,9 +171,10 @@ class AlmaClass(QueryWithLogin):
                                           response.text),
                                       params={'query_url':
                                               response.url.split("?")[-1]},
+                                      data=None, headers=None, files=None, save=False, savedir='',
                                       timeout=self.TIMEOUT,
-                                      cache=False,
-                                      )
+                                      cache=False, stream=False, auth=None, continuation=True,
+                                      verify=True)
             self._last_response = response2
             response2.raise_for_status()
             if len(response2.text) == 0:
@@ -207,8 +209,10 @@ class AlmaClass(QueryWithLogin):
         for kw in payload:
             vpayload = {'field': kw,
                         kw: payload[kw]}
-            response = self._request('GET', vurl, params=vpayload, cache=cache,
-                                     timeout=self.TIMEOUT)
+            response = self._request('GET', vurl, params=vpayload, data=None, headers=None,
+                                     files=None, save=False, savedir='', timeout=self.TIMEOUT,
+                                     cache=cache, stream=False, auth=None, continuation=True,
+                                     verify=True)
 
             if response.content:
                 bad_kws[kw] = response.content
@@ -224,8 +228,10 @@ class AlmaClass(QueryWithLogin):
         """
         if not hasattr(self, 'dataarchive_url'):
             if self.archive_url in ('http://almascience.org', 'https://almascience.org'):
-                response = self._request('GET', self.archive_url + "/aq",
-                                         cache=False)
+                response = self._request('GET', self.archive_url + "/aq", params=None,
+                                         data=None, headers=None, files=None, save=False,
+                                         savedir='', timeout=None, cache=False, stream=False,
+                                         auth=None, continuation=True, verify=True)
                 response.raise_for_status()
                 # Jan 2017: we have to force https because the archive doesn't
                 # tell us it needs https.
@@ -282,8 +288,10 @@ class AlmaClass(QueryWithLogin):
         # Request staging for the UIDs
         # This component cannot be cached, since the returned data can change
         # if new data are uploaded
-        response = self._request('POST', url, data=payload,
-                                 timeout=self.TIMEOUT, cache=False)
+        response = self._request('POST', url, params=None, data=payload, headers=None,
+                                 files=None, save=False, savedir='',
+                                 timeout=self.TIMEOUT, cache=False, stream=False, auth=None,
+                                 continuation=True, verify=True)
         self._staging_log['initial_response'] = response
         log.debug("First response URL: {0}".format(response.url))
         if 'login' in response.url:
@@ -306,8 +314,10 @@ class AlmaClass(QueryWithLogin):
             time.sleep(1)
             # CANNOT cache this stage: it not a real data page!  results in
             # infinite loops
-            response = self._request('POST', url, data=payload,
-                                     timeout=self.TIMEOUT, cache=False)
+            response = self._request('POST', url, params=None, data=payload, headers=None,
+                                     files=None, save=False, savedir='',
+                                     timeout=self.TIMEOUT, cache=False, stream=False,
+                                     auth=None, continuation=True, verify=True)
             self._staging_log['initial_response'] = response
             if 'j_spring_cas_security_check' in response.url:
                 log.warning("Staging request was not successful.  Try again?")
@@ -328,7 +338,10 @@ class AlmaClass(QueryWithLogin):
                                  url_helpers.join('rh/submission', request_id))
         log.debug("Submission URL: {0}".format(submission_url))
         self._staging_log['submission_url'] = submission_url
-        staging_submission = self._request('GET', submission_url, cache=True)
+        staging_submission = self._request('GET', submission_url, params=None, data=None,
+                                           headers=None, files=None, save=False, savedir='',
+                                           timeout=None, cache=True, stream=False, auth=None,
+                                           continuation=True, verify=True)
         self._staging_log['staging_submission'] = staging_submission
         staging_submission.raise_for_status()
 
@@ -338,16 +351,20 @@ class AlmaClass(QueryWithLogin):
         self._staging_log['staging_page_id'] = dpid
 
         # CANNOT cache this step: please_wait will happen infinitely
-        data_page = self._request('GET', data_page_url, cache=False)
+        data_page = self._request('GET', data_page_url, params=None, data=None, headers=None,
+                                  files=None, save=False, savedir='', timeout=None,
+                                  cache=False, stream=False, auth=None, continuation=True,
+                                  verify=True)
         self._staging_log['data_page'] = data_page
         data_page.raise_for_status()
 
         has_completed = False
         while not has_completed:
             time.sleep(1)
-            summary = self._request('GET', url_helpers.join(data_page_url,
-                                                            'summary'),
-                                    cache=False)
+            summary = self._request('GET', url_helpers.join(data_page_url, 'summary'),
+                                    params=None, data=None, headers=None, files=None,
+                                    save=False, savedir='', timeout=None, cache=False,
+                                    stream=False, auth=None, continuation=True, verify=True)
             summary.raise_for_status()
             print(".", end='')
             sys.stdout.flush()
@@ -389,8 +406,10 @@ class AlmaClass(QueryWithLogin):
         data_sizes = {}
         pb = ProgressBar(len(files))
         for ii, fileLink in enumerate(files):
-            response = self._request('HEAD', fileLink, stream=False,
-                                     cache=False, timeout=self.TIMEOUT)
+            response = self._request('HEAD', fileLink, params=None, data=None, headers=None,
+                                     files=None, save=False, savedir='', timeout=self.TIMEOUT,
+                                     cache=False, stream=False, auth=None, continuation=True,
+                                     verify=True)
             filesize = (int(response.headers['content-length']) * u.B).to(u.GB)
             totalsize += filesize
             data_sizes[fileLink] = filesize
@@ -412,10 +431,10 @@ class AlmaClass(QueryWithLogin):
             savedir = self.cache_location
         for fileLink in unique(files):
             try:
-                filename = self._request("GET", fileLink, save=True,
-                                         savedir=savedir,
-                                         timeout=self.TIMEOUT, cache=cache,
-                                         continuation=continuation)
+                filename = self._request("GET", fileLink, params=None, data=None, headers=None,
+                                         files=None, save=True, savedir=savedir,
+                                         timeout=self.TIMEOUT, cache=cache, stream=False,
+                                         auth=None, continuation=continuation, verify=True)
                 downloaded_files.append(filename)
             except requests.HTTPError as ex:
                 if ex.response.status_code == 401:
@@ -541,16 +560,19 @@ class AlmaClass(QueryWithLogin):
 
         # set session cookies (they do not get set otherwise)
         cookiesetpage = self._request("GET",
-                                      urljoin(self._get_dataarchive_url(),
-                                              'rh/forceAuthentication'),
-                                      cache=False)
+                                      urljoin(self._get_dataarchive_url(), 'rh/forceAuthentication'),
+                                      params=None, data=None, headers=None, files=None,
+                                      save=False, savedir='', timeout=None, cache=False,
+                                      stream=False, auth=None, continuation=True, verify=True)
         self._login_cookiepage = cookiesetpage
         cookiesetpage.raise_for_status()
         assert 'rh-cas.alma.cl/cas/login' in cookiesetpage.request.url
 
         # Check if already logged in
-        loginpage = self._request("GET", "https://rh-cas.alma.cl/cas/login",
-                                  cache=False)
+        loginpage = self._request("GET", "https://rh-cas.alma.cl/cas/login", params=None,
+                                  data=None, headers=None, files=None, save=False, savedir='',
+                                  timeout=None, cache=False, stream=False, auth=None,
+                                  continuation=True, verify=True)
         root = BeautifulSoup(loginpage.content, 'html5lib')
         if root.find('div', class_='success'):
             log.info("Already logged in.")
@@ -571,8 +593,9 @@ class AlmaClass(QueryWithLogin):
 
         login_response = self._request("POST", "https://rh-cas.alma.cl/cas/login",
                                        params={'service': self._get_dataarchive_url()},
-                                       data=data,
-                                       cache=False)
+                                       data=data, headers=None, files=None, save=False,
+                                       savedir='', timeout=None, cache=False, stream=False,
+                                       auth=None, continuation=True, verify=True)
 
         # save the login response for debugging purposes
         self._login_response = login_response
@@ -626,8 +649,10 @@ class AlmaClass(QueryWithLogin):
         if not hasattr(self, '_cycle0_tarfile_content_table'):
             url = urljoin(self._get_dataarchive_url(),
                           'alma-data/archive/cycle-0-tarfile-content')
-            response = self._request('GET', url, cache=True)
-
+            response = self._request('GET', url, params=None, data=None, headers=None,
+                                     files=None, save=False, savedir='', timeout=None,
+                                     cache=True, stream=False, auth=None, continuation=True,
+                                     verify=True)
             # html.parser is needed because some <tr>'s have form:
             # <tr width="blah"> which the default parser does not pick up
             root = BeautifulSoup(response.content, 'html.parser')
@@ -757,8 +782,10 @@ class AlmaClass(QueryWithLogin):
                     continue
 
             try:
-                tarball_name = self._request('GET', url, save=True,
-                                             timeout=self.TIMEOUT)
+                tarball_name = self._request('GET', url, params=None, data=None, headers=None,
+                                             files=None, save=True, savedir='',
+                                             timeout=self.TIMEOUT, cache=True, stream=False,
+                                             auth=None, continuation=True, verify=True)
             except requests.ConnectionError as ex:
                 self.partial_file_list = all_files
                 log.error("There was an error downloading the file. "
@@ -823,9 +850,10 @@ class AlmaClass(QueryWithLogin):
 
     def _get_help_page(self, cache=True):
         if not hasattr(self, '_help_list') or not self._help_list:
-            querypage = self._request(
-                'GET', self._get_dataarchive_url() + "/aq/",
-                cache=cache, timeout=self.TIMEOUT)
+            querypage = self._request('GET', self._get_dataarchive_url() + "/aq/",
+                                      params=None, data=None, headers=None, files=None,
+                                      save=False, savedir='', timeout=self.TIMEOUT, cache=cache,
+                                      stream=False, auth=None, continuation=True, verify=True)
             root = BeautifulSoup(querypage.content, "html5lib")
             sections = root.findAll('td', class_='category')
 
