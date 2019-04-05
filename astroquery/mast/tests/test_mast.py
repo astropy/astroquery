@@ -112,6 +112,7 @@ def session_info_mockreturn(silent=False):
                    'token': None}
     return anon_session
 
+
 def tesscut_get_mockreturn(method="GET", url=None, data=None, timeout=10, **kwargs):
     if "sector" in url:
         filename = data_path(DATA_FILES['tess_sector'])
