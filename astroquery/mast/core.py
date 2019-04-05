@@ -217,10 +217,10 @@ class MastClass(QueryWithLogin):
 
     @deprecated(since="v0.3.10", message=("The get_token function is deprecated, "
                                           "session token is now the token used for login."))
-    def get_token(self):  
+    def get_token(self):
         return None
 
-    def session_info(self, silent=False): 
+    def session_info(self, silent=False):
         """
         Displays information about current MAST user, and returns user info dictionary.
 
@@ -1111,7 +1111,7 @@ class ObservationsClass(MastClass):
         """
         import boto3
         import botocore
-        
+
         if profile is not None:
             self._boto3 = boto3.Session(profile_name=profile)
         else:
