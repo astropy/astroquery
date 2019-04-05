@@ -3,8 +3,7 @@
 MAST Portal
 ===========
 
-Module to query the Barbara A. Mikulski Archive for Space Telescopes (MAST).
-
+This module contains various methods for querying the MAST Portal.
 """
 
 from __future__ import print_function, division
