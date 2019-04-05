@@ -232,10 +232,7 @@ class TestMast(object):
         assert len(result) == sum(products['productType'] == "SCIENCE")
 
     def test_observations_download_products(self, tmpdir):
-        observations = mast.Observations.query_object("M8", radius=".02 deg")
-        test_obs_id = str(observations[210]['obsid'])
-
-        # actually download the products
+        test_obs_id = '2003600312'
         result = mast.Observations.download_products(test_obs_id,
                                                      download_dir=str(tmpdir),
                                                      productType=["SCIENCE"],

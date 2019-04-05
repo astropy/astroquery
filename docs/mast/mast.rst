@@ -687,6 +687,15 @@ In this case, the async method should be used to get the raw http response, whic
                  'status': ''}
 
 
+
+Additional Resources
+====================
+
+`Accessing MAST Holdings with Astroquery, <https://stsci.app.box.com/s/4no7430kswla4gsg8bt2avs72k9agpne>`_ slides from an introductory MAST Astroquery talk.
+
+The Space Telescope Science Institute `Notebooks Repository <https://github.com/spacetelescope/notebooks>`_ includes many examples that use Astroquery.
+
+                 
 Reference/API
 =============
 
