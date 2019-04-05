@@ -172,7 +172,7 @@ class MastClass(QueryWithLogin):
             Default is None.
             The token to authenticate the user.
             This can be generated at
-                https://auth.mast.stsci.edu/token?suggested_name=Astroquery&suggested_scope=mast:exclusive_access.
+            https://auth.mast.stsci.edu/token?suggested_name=Astroquery&suggested_scope=mast:exclusive_access.
             If not supplied, it will be prompted for if not in the keyring or set via $MAST_API_TOKEN
         store_token : bool, optional
             Default False.
@@ -1674,7 +1674,7 @@ class CatalogsClass(MastClass):
 
         Parameters
         ----------
-        specrtra : `~astropy.table.Table` or `astropy.table.Row`
+        spectra : `~astropy.table.Table` or `astropy.table.Row`
             One or more HSC spectra to be downloaded.
         download_dir : str, optional
            Specify the base directory to download spectra into.
