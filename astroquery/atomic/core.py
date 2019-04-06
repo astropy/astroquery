@@ -186,8 +186,10 @@ class AtomicLineListClass(BaseQuery):
             The HTTP response returned from the service.
         """
         if self._default_form_values is None:
-            response = self._request("GET", url=self.FORM_URL, data={},
-                                     timeout=self.TIMEOUT)
+            response = self._request("GET", url=self.FORM_URL, params=None, data={},
+                                     headers=None, files=None, save=False, savedir='',
+                                     timeout=self.TIMEOUT, cache=True, stream=False,
+                                     auth=None, continuation=True, verify=True)
             bs = BeautifulSoup(response.text)
             form = bs.find('form')
             self._default_form_values = self._get_default_form_values(form)
@@ -296,8 +298,10 @@ class AtomicLineListClass(BaseQuery):
         """
         if input is None:
             input = {}
-        response = self._request("GET", url=self.FORM_URL, data={},
-                                 timeout=self.TIMEOUT)
+        response = self._request("GET", url=self.FORM_URL, params=None, data={},
+                                 headers=None, files=None, save=False, savedir='',
+                                 timeout=self.TIMEOUT, cache=True, stream=False,
+                                 auth=None, continuation=True, verify=True)
         bs = BeautifulSoup(response.text)
         form = bs.find('form')
         # cache the default values to save HTTP traffic
@@ -310,8 +314,10 @@ class AtomicLineListClass(BaseQuery):
             if v is not None:
                 payload[k] = v
         url = urlparse.urljoin(self.FORM_URL, form.get('action'))
-        response = self._request("POST", url=url, data=payload,
-                                 timeout=self.TIMEOUT)
+        response = self._request("POST", url=url, params=None, data=payload,
+                                 headers=None, files=None, save=False, savedir='',
+                                 timeout=self.TIMEOUT, cache=True, stream=False,
+                                 auth=None, continuation=True, verify=True)
         return response
 
     def _get_default_form_values(self, form):
