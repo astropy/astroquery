@@ -114,7 +114,7 @@ This will then shows the user the "image list" tool at
 After pressing "Get image" this is what you would get:
 
 .. image:: ../_static/sdss_imagelist_2.png
-  :width: 500
+  :width: 400
   :alt: Alternative text 3
 
 Reference/API

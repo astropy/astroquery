@@ -1,3 +1,4 @@
+<<<<<<< HEAD:CHANGES.rst
 0.4.2 (unreleased)
 ==================
 
@@ -409,6 +410,22 @@ Infrastructure, Utility and Other Changes and Additions
 - Added a new ``astroquery.__citation__`` and ``astroquery.__bibtex__``
   attributes which give a citation for astroquery in bibtex format. [#1391]
 
+=======
+0.3.10 (unreleased)
+-------------------
+
+- ESO: Try to re-authenticate when logged out from the ESO server. [#1315]
+- ADS: Fix an error in one of the default keys, citations->citation [#1337]
+- HEASARC: Fixing error handling to filter out only the query errors. [#1338]
+- CDS: Apply MOCPy v0.5.* API changes. [#1343]
+- SDSS: Update to SDSS-IV URLs and general clean-up. [#1308]
+- NIST: Fixed an upstream issue where js was included in returned data [#1359]
+- MAST: Update query_criteria keyword obstype->intentType [#1366]
+- JPLHorizons: Add ``refplane`` keyword to ``vectors_async`` to return data for
+  different available reference planes [#1335]
+- ALMA: Fix some broken VOtable returns and a broken login URL [#1369]
+- SDSS: Add image cutout query tools to SDSS() class. [#1383]
+>>>>>>> Move changelog entry to end of list to reflect order of addition:CHANGES
 
 
 0.3.9 (2018-12-06)
