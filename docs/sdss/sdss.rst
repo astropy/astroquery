@@ -74,6 +74,49 @@ The variable "template" is a list of `~astropy.io.fits.HDUList` objects
 result, but in a few cases there are multiple templates available to choose
 from (*e.g.*, the "galaxy" spectral template will actually return 3 templates).
 
+Image cutout query tools
+========================
+There is a pair of image cutout query tools the user can use to access the
+SDSS "navigate" interface and "image list" interface with the ease of a few
+command lines. So the first of these cases can be accessed by, for examnple,
+something like 
+
+.. code-block:: python
+
+    >>> from astropy.coordinates import SkyCoord
+    >>> from astropy import units as u
+    >>> from astroquery.sdss import SDSS
+    >>> sc = SkyCoord(1*u.deg, 2*u.deg)
+    >>> SDSS.view_in_sdss_navigate(sc)
+
+This will take the user to a new web browser tab in the SDSS "navigate" interface
+at `http://skyserver.sdss.org/dr15/en/tools/chart/navi.aspx?ra=1&dec=2&opt=GO <http://skyserver.sdss.org/dr15/en/tools/chart/navi.aspx?ra=1&dec=2&opt=GO>`_.
+So the new screen would look like the following:
+
+.. image:: ../_static/sdss_navigate.png
+  :width: 500
+  :alt: Alternative text 1
+
+On the other hand, the second tool can be used with the following:
+
+.. code-block:: python
+
+    >>> scs = SkyCoord([1, 2]*u.deg, [3,4]*u.deg)
+    >>> SDSS.view_in_sdss_imagelist(scs)
+
+This will then shows the user the "image list" tool at 
+`http://skyserver.sdss.org/dr15/en/tools/chart/listinfo.aspx <http://skyserver.sdss.org/dr15/en/tools/chart/listinfo.aspx>`_. Upon pressing the "Get image" button on the left panel, the desired images would then pops up on the right panel. Some example screenshots are as follows:
+
+.. image:: ../_static/sdss_imagelist_1.png
+  :width: 500
+  :alt: Alternative text 2
+
+After pressing "Get image" this is what you would get:
+
+.. image:: ../_static/sdss_imagelist_2.png
+  :width: 500
+  :alt: Alternative text 3
+
 Reference/API
 =============
 

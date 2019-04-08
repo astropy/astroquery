@@ -118,6 +118,9 @@ html_theme_options = {
     'logotext3': ':docs',   # white,  light
 }
 
+# Add html static path
+html_static_path = ['_static']
+
 # Add any paths that contain custom themes here, relative to this directory.
 # To use a different custom theme, add the directory containing the theme.
 # html_theme_path = []
