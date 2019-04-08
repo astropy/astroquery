@@ -7,7 +7,6 @@ from __future__ import (absolute_import, division, print_function,
 import io
 import warnings
 import webbrowser
-import requests
 import numpy as np
 
 from astropy import units as u
@@ -1093,14 +1092,14 @@ class SDSSClass(BaseQuery):
 
         """
         if isinstance(sc, SkyCoord):
-            if sc.shape == ():
+            if sc.ndim == 0:
                 payload = {"ra": str(Angle(sc.ra).degree), "dec": str(Angle(sc.dec).degree), "opt": "GO"}
-                r = requests.get("http://skyserver.sdss.org/dr15/en/tools/chart/navi.aspx", params=payload)
+                r = self._request("GET", "http://skyserver.sdss.org/dr15/en/tools/chart/navi.aspx", params=payload)
                 webbrowser.open_new_tab(r.url)
             else:
                 raise TypeError("The given SkyCoord object is not of the right shape.")
         else:
-            raise TypeError("The given data is not a SkyCoord object.")
+            raise TypeError("Only scalar SkyCoordinates are allowed.")
 
     def view_in_sdss_imagelist(self, scs):
         """
@@ -1117,17 +1116,17 @@ class SDSSClass(BaseQuery):
 
         """
         if isinstance(scs, SkyCoord):
-            if scs.shape != ():
+            if scs.ndim != 0:
                 items = []
-                for i, coord in enumerate(scs):
+                for i, element in enumerate(scs):
                     items.append("{} {}\r\n".format(scs.ra[i].value, scs.dec[i].value))
                     payload = {"paste": items, "opt": "GO"}
-                    r = requests.post("https://skyserver.sdss.org/dr15/en/tools/chart/listinfo.aspx", params=payload)
+                    r = self._request("POST", "https://skyserver.sdss.org/dr15/en/tools/chart/listinfo.aspx", params=payload)
                     webbrowser.open_new_tab(r.url)
             else:
                 raise TypeError("The given SkyCoord object is not of the right shape.")
         else:
-            raise TypeError("The given data is not a SkyCoord object.")
+            raise TypeError("Only scalar SkyCoordinates are allowed.")
 
 
 SDSS = SDSSClass()
