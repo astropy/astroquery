@@ -134,8 +134,8 @@ Once a table is loaded, columns can be inspected
   >>>
   >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
   >>> table = gaia.load_table('gaiadr1.gaia_source')
-  >>> for column in (gaiadr1_table.get_columns()):
-  >>>   print(column.get_name())
+  >>> for column in (table.columns):
+  >>>   print(column.name)
 
   solution_id
   source_id
