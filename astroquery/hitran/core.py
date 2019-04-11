@@ -218,8 +218,17 @@ class HitranClass(BaseQuery):
         response = self._request(method='GET',
                                  url=self.QUERY_URL,
                                  params=params,
+                                 data=None,
+                                 headers=None,
+                                 files=None,
+                                 save=False,
+                                 savedir='',
                                  timeout=self.TIMEOUT,
-                                 cache=cache)
+                                 cache=cache,
+                                 stream=False,
+                                 auth=None,
+                                 continuation=True,
+                                 verify=True)
 
         return response
 
