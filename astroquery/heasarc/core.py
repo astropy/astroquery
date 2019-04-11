@@ -33,8 +33,20 @@ class HeasarcClass(BaseQuery):
         Submit a query based on a given request_payload. This allows detailed
         control of the query to be submitted.
         """
-        response = self._request('GET', url, params=request_payload,
-                                 timeout=self.TIMEOUT, cache=cache)
+        response = self._request('GET',
+                                 url,
+                                 params=request_payload,
+                                 data=None,
+                                 headeres=None,
+                                 files=None,
+                                 save=False,
+                                 savedir='',
+                                 timeout=self.TIMEOUT,
+                                 cache=cache,
+                                 stream=False,
+                                 auth=None,
+                                 continuation=True,
+                                 verify=True)
         return response
 
     def query_mission_list(self, cache=True, get_query_payload=False):
