@@ -299,8 +299,10 @@ class BesanconClass(BaseQuery):
         if kwargs.get('get_query_payload'):
             return data_payload
 
-        response = self._request("POST", url=self.QUERY_URL, data=data_payload,
-                                 timeout=self.TIMEOUT, stream=True)
+        response = self._request("POST", url=self.QUERY_URL, params=None, data=data_payload,
+                                 headers=None, file=None, save=False, savedir='',
+                                 timeout=self.TIMEOUT, cache=True, stream=True,
+                                 auth=None, continuation=True, verify=True)
         return response
 
 
