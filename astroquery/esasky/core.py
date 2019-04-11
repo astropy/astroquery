@@ -553,8 +553,19 @@ class ESASkyClass(BaseQuery):
                     response = self._request(
                         'GET',
                         product_url,
+                        params=None,
+                        data=None,
+                        headers=self._get_header(),
+                        files=None,
+                        save=False,
+                        savedir='',
+                        timeout=None,
                         cache=cache,
-                        headers=self._get_header())
+                        stream=False,
+                        auth=None,
+                        continuation=True,
+                        verify=True
+                        )
 
                     try:
                         response.raise_for_status()
@@ -590,8 +601,10 @@ class ESASkyClass(BaseQuery):
     def _get_herschel_map(self, product_url, directory_path, cache):
         observation = dict()
         tar_file = tempfile.NamedTemporaryFile(delete=False)
-        response = self._request('GET', product_url, cache=cache,
-                                 headers=self._get_header())
+        response = self._request('GET', product_url, params=None, data=None,
+                                 headers=self._get_header(), files=None, save=False,
+                                 savedir='', timeout=None, cache=cache, stream=False,
+                                 auth=None, continuation=True, verify=True)
 
         response.raise_for_status()
 
@@ -813,8 +826,18 @@ class ESASkyClass(BaseQuery):
         response = self._request(
             'GET',
             url,
+            params=None,
+            data=None,
+            headers=self._get_header(),
+            files=None,
+            save=False,
+            savedir='',
+            timeout=None,
             cache=False,
-            headers=self._get_header())
+            stream=False,
+            auth=None,
+            continuation=True,
+            verify=True)
 
         response.raise_for_status()
 
@@ -849,9 +872,17 @@ class ESASkyClass(BaseQuery):
         return self._request('GET',
                              url,
                              params=request_payload,
+                             data=None,
+                             headers=self._get_header(),
+                             files=None,
+                             save=False,
+                             savedir='',
                              timeout=self.TIMEOUT,
                              cache=cache,
-                             headers=self._get_header())
+                             stream=False,
+                             auth=None,
+                             continuation=True,
+                             verify=True)
 
     def _parse_xml_table(self, response):
         # try to parse the result into an astropy.Table, else
