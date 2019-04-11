@@ -184,11 +184,23 @@ class EsoClass(QueryWithLogin):
 
         # Send payload
         if fmt == 'get':
-            response = self._request("GET", url, params=payload, cache=cache)
+            response = self._request("GET", url, params=payload, data=None,
+                                     headers=None, files=None, save=False,
+                                     savedir='', timeout=None, cache=cache,
+                                     stream=False, auth=None, continuation=True,
+                                     verify=True)
         elif fmt == 'multipart/form-data':
-            response = self._request("POST", url, files=payload, cache=cache)
+            response = self._request("POST", url, params=None, data=None,
+                                     headers=None, files=payload, save=False,
+                                     savedir='', timeout=None, cache=cache,
+                                     stream=False, auth=None, continuation=True,
+                                     verify=True)
         elif fmt == 'application/x-www-form-urlencoded':
-            response = self._request("POST", url, data=payload, cache=cache)
+            response = self._request("POST", url, params=None, data=payload,
+                                     headers=None, files=None, save=False,
+                                     savedir='', timeout=None, cache=cache,
+                                     stream=False, auth=None, continuation=True,
+                                     verify=True)
 
         return response
 
@@ -230,20 +242,36 @@ class EsoClass(QueryWithLogin):
 
         # Do not cache pieces of the login process
         login_response = self._request("GET", "https://www.eso.org/sso/login",
-                                       cache=False)
+                                       params=None, data=None, headers=None,
+                                       files=None, save=False, savedir='',
+                                       timeout=None, cache=False, stream=False,
+                                       auth=None, continuation=True,
+                                       verify=True)
         root = BeautifulSoup(login_response.content, 'html5lib')
         login_input = root.find(name='input', attrs={'name': 'execution'})
         if login_input is None:
             raise ValueError("ESO login page did not have the correct attributes.")
         execution = login_input.get('value')
 
-        login_result_response = self._request("POST", "https://www.eso.org/sso/login",
+        login_result_response = self._request("POST",
+                                              "https://www.eso.org/sso/login",
+                                              params=None,
                                               data={'username': username,
                                                     'password': password,
                                                     'execution': execution,
                                                     '_eventId': 'submit',
                                                     'geolocation': '',
-                                                    })
+                                                    }
+                                              headers=None,
+                                              files=None,
+                                              save=False,
+                                              savedir='',
+                                              timeout=None,
+                                              cache=True,
+                                              stream=False,
+                                              auth=None,
+                                              continuation=True,
+                                              verify=True)
         login_result_response.raise_for_status()
         root = BeautifulSoup(login_result_response.content, 'html5lib')
         authenticated = root.find('h4').text == 'Login successful'
@@ -270,7 +298,20 @@ class EsoClass(QueryWithLogin):
         """
         if self._instrument_list is None:
             url = "http://archive.eso.org/cms/eso-data/instrument-specific-query-forms.html"
-            instrument_list_response = self._request("GET", url, cache=cache)
+            instrument_list_response = self._request("GET",
+                                                     url,
+                                                     params=None,
+                                                     data=None,
+                                                     headers=None,
+                                                     files=None,
+                                                     save=False,
+                                                     savedir='',
+                                                     timeout=None,
+                                                     cache=cache,
+                                                     stream=False,
+                                                     auth=None,
+                                                     continuation=True,
+                                                     verify=True)
             root = BeautifulSoup(instrument_list_response.content, 'html5lib')
             self._instrument_list = []
             for element in root.select("div[id=col3] a[href]"):
@@ -293,7 +334,9 @@ class EsoClass(QueryWithLogin):
         if self._survey_list is None:
             survey_list_response = self._request(
                 "GET", "http://archive.eso.org/wdb/wdb/adp/phase3_main/form",
-                cache=cache)
+                params=None, data=None, headers=None, files=None,
+                save=False, savedir='', timeout=None, cache=cache,
+                stream=False, auth=None, continuation=True, verify=True)
             root = BeautifulSoup(survey_list_response.content, 'html5lib')
             self._survey_list = []
             collections_table = root.find('table', id='collections_table')
@@ -344,7 +387,20 @@ class EsoClass(QueryWithLogin):
         elif help:
             self._print_surveys_help(url, cache=cache)
         else:
-            survey_form = self._request("GET", url, cache=cache)
+            survey_form = self._request("GET",
+                                        url,
+                                        params=None,
+                                        data=None,
+                                        headers=None,
+                                        files=None,
+                                        save=False,
+                                        savedir='',
+                                        timeout=None,
+                                        cache=cache,
+                                        stream=False,
+                                        auth=None,
+                                        continuation=True,
+                                        verify=True)
             query_dict = kwargs
             query_dict["wdbo"] = "csv/download"
             if isinstance(surveys, six.string_types):
@@ -451,7 +507,20 @@ class EsoClass(QueryWithLogin):
         elif help:
             self._print_query_help(url)
         else:
-            instrument_form = self._request("GET", url, cache=cache)
+            instrument_form = self._request("GET",
+                                            url,
+                                            params=None,
+                                            data=None,
+                                            headers=None,
+                                            files=None,
+                                            save=False,
+                                            savedir='',
+                                            timeout=None,
+                                            cache=cache,
+                                            stream=False,
+                                            auth=None,
+                                            continuation=True,
+                                            verify=True)
             query_dict = {}
             query_dict.update(column_filters)
             # TODO: replace this with individually parsed kwargs
@@ -517,7 +586,9 @@ class EsoClass(QueryWithLogin):
         for dp_id in product_ids:
             response = self._request(
                 "GET", "http://archive.eso.org/hdr?DpId={0}".format(dp_id),
-                cache=cache)
+                params=None, data=None, headers=None, files=None,
+                save=False, savedir='', timeout=None, cache=cache,
+                stream=False, auth=None, continuation=True, verify=True)
             root = BeautifulSoup(response.content, 'html5lib')
             hdr = root.select('pre')[0].text
             header = {'DP.ID': dp_id}
@@ -612,6 +683,12 @@ class EsoClass(QueryWithLogin):
         trials = 1
         while trials <= 2:
             resp = super(EsoClass, self)._download_file(url, local_filepath,
+                                                        timeout=None,
+                                                        auth=None,
+                                                        continuation=True,
+                                                        cache=False,
+                                                        method="GET",
+                                                        head_safe=False,
                                                         **kwargs)
 
             # trying to detect the failing authentication:
@@ -709,7 +786,20 @@ class EsoClass(QueryWithLogin):
             url = "http://archive.eso.org/cms/eso-data/eso-data-direct-retrieval.html"
             with suspend_cache(self):  # Never cache staging operations
                 log.info("Contacting retrieval server...")
-                retrieve_data_form = self._request("GET", url, cache=False)
+                retrieve_data_form = self._request("GET",
+                                                   url,
+                                                   params=None,
+                                                   data=None,
+                                                   headeres=None,
+                                                   files=None,
+                                                   save=False,
+                                                   savedir='',
+                                                   timeout=None,
+                                                   cache=False,
+                                                   stream=False,
+                                                   auth=None,
+                                                   continuation=True,
+                                                   verify=True)
                 retrieve_data_form.raise_for_status()
                 log.info("Staging request...")
                 inputs = {"list_of_datasets": "\n".join(datasets_to_download)}
@@ -744,7 +834,18 @@ class EsoClass(QueryWithLogin):
                     time.sleep(2.0)
                     data_download_form = self._request("GET",
                                                        data_download_form.url,
-                                                       cache=False)
+                                                       params=None,
+                                                       data=None,
+                                                       headers=None,
+                                                       files=None,
+                                                       save=False,
+                                                       savedir='',
+                                                       timeout=None,
+                                                       cache=False,
+                                                       stream=False,
+                                                       auth=None,
+                                                       continuation=True,
+                                                       verify=True)
                     root = BeautifulSoup(data_download_form.content,
                                          'html5lib')
                     state = root.select('span[id=requestState]')[0].text
@@ -773,7 +874,11 @@ class EsoClass(QueryWithLogin):
                         "and therefore appears invalid.")
 
                 href = link.attrs['href']
-                script = self._request("GET", href, cache=False)
+                script = self._request("GET", href, params=None, data=None,
+                                       headers=None, files=None, save=False,
+                                       savedir='', timeout=None, cache=False,
+                                       stream=False, auth=None,
+                                       continuation=True, verify=True)
                 fileLinks = re.findall(
                     r'"(https://dataportal.eso.org/dataPortal/api/requests/.*)"',
                     script.text)
@@ -809,9 +914,20 @@ class EsoClass(QueryWithLogin):
                 fileId = fileLink.rsplit('/', maxsplit=1)[1]
                 log.info("Downloading file {}/{}: {}..."
                          .format(i, nfiles, fileId))
-                filename = self._request("GET", fileLink, save=True,
-                                         continuation=True)
-
+                filename = self._request("GET",
+                                         fileLink,
+                                         params=None,
+                                         data=None,
+                                         headers=None,
+                                         files=None,
+                                         save=True,
+                                         savedir='',
+                                         timeout=None,
+                                         cache=True,
+                                         stream=False,
+                                         auth=None,
+                                         continuation=True,
+                                         verify=True)
                 if filename.endswith(('.gz', '.7z', '.bz2', '.xz', '.Z')):
                     log.info("Unzipping file {0}...".format(fileId))
                     filename = system_tools.gunzip(filename)
@@ -845,7 +961,11 @@ class EsoClass(QueryWithLogin):
                    'ascii_out_mode': 'true',
                    }
         # Never cache this as it is verifying the existence of remote content
-        response = self._request("POST", url, params=payload, cache=False)
+        response = self._request("POST", url, params=payload, data=None,
+                                 headers=None, files=None, save=False,
+                                 savedir='', timeout=None, cache=False,
+                                 stream=False, auth=None, continuation=True,
+                                 verify=True)
 
         content = response.text
 
@@ -878,7 +998,11 @@ class EsoClass(QueryWithLogin):
                 payload['prog_id'] = project_id
             payload.update(kwargs)
 
-            apex_form = self._request("GET", apex_query_url, cache=cache)
+            apex_form = self._request("GET", apex_query_url, params=None,
+                                      data=None, headers=None, files=None,
+                                      save=False, savedir='', timeout=None,
+                                      cache=cache, stream=False, auth=None,
+                                      continuation=True, verify=True)
             apex_response = self._activate_form(
                 apex_form, form_id='queryform', form_index=0, inputs=payload,
                 cache=cache, method='application/x-www-form-urlencoded')
@@ -916,7 +1040,10 @@ class EsoClass(QueryWithLogin):
 
         result_string = []
 
-        resp = self._request("GET", url, cache=cache)
+        resp = self._request("GET", url, params=None, data=None, headers=None,
+                             files=None, save=False, savedir='', timeout=None,
+                             cache=cache, stream=False, auth=None,
+                             continuation=True, verify=True)
         doc = BeautifulSoup(resp.content, 'html5lib')
         form = doc.select("html body form pre")[0]
         # Unwrap all paragraphs
@@ -979,7 +1106,10 @@ class EsoClass(QueryWithLogin):
 
         result_string = []
 
-        resp = self._request("GET", url, cache=cache)
+        resp = self._request("GET", url, params=None, data=None, headers=None,
+                             files=None, save=False, savedir='', timeout=None,
+                             cache=cache, stream=False, auth=None,
+                             continuation=True, verify=True)
         doc = BeautifulSoup(resp.content, 'html5lib')
         form = doc.select("html body form")[0]
 
