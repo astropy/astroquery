@@ -909,7 +909,7 @@ class SimbadClass(BaseQuery):
                                                  'query id %s' % object_name)))
         response = self._request("POST", self.SIMBAD_URL, data=request_payload,
                                  timeout=self.TIMEOUT, cache=cache)
-        return response
+        return response.text
 
     def _get_query_header(self, get_raw=False):
         votable_fields = ','.join(self.get_votable_fields())
