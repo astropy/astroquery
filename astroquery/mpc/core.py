@@ -321,7 +321,20 @@ class MPCClass(BaseQuery):
 
         self.query_type = 'object'
         auth = (self.MPC_USERNAME, self.MPC_PASSWORD)
-        return self._request('GET', mpc_endpoint, params=request_args, auth=auth)
+        return self._request('GET',
+                             mpc_endpoint,
+                             params=request_args,
+                             data=None,
+                             headers=None,
+                             files=None,
+                             save=False,
+                             savedir='',
+                             timeout=None,
+                             cache=True,
+                             stream=False,
+                             auth=auth,
+                             continuation=True,
+                             verify=True)
 
     def get_mpc_object_endpoint(self, target_type):
         mpc_endpoint = self.MPC_URL
@@ -594,7 +607,20 @@ class MPCClass(BaseQuery):
             return request_args
 
         self.query_type = 'ephemeris'
-        response = self._request('POST', self.MPES_URL, data=request_args)
+        response = self._request('POST',
+                                 self.MPES_URL,
+                                 params=None,
+                                 data=request_args,
+                                 headers=None,
+                                 files=None,
+                                 save=False,
+                                 savedir='',
+                                 timeout=None,
+                                 cache=True,
+                                 stream=False,
+                                 auth=None,
+                                 continuation=True,
+                                 verfiy=True)
 
         return response
 
@@ -639,8 +665,20 @@ class MPCClass(BaseQuery):
         """
 
         self.query_type = 'observatory_code'
-        response = self._request('GET', self.OBSERVATORY_CODES_URL,
-                                 timeout=self.TIMEOUT, cache=cache)
+        response = self._request('GET',
+                                 self.OBSERVATORY_CODES_URL,
+                                 params=None,
+                                 data=None,
+                                 headers=None,
+                                 files=None,
+                                 save=False,
+                                 savedir='',
+                                 timeout=self.TIMEOUT,
+                                 cache=cache,
+                                 stream=False,
+                                 auth=None,
+                                 continuation=True,
+                                 verify=True)
 
         return response
 
