@@ -394,7 +394,8 @@ class MastClass(QueryWithLogin):
         return True
 
     def _request(self, method, url, params=None, data=None, headers=None,
-                 files=None, stream=False, auth=None, retrieve_all=True):
+                 files=None, timeout=None, cache=False, stream=False,
+                 auth=None, retrieve_all=True):
         """
         Override of the parent method:
         A generic HTTP request method, similar to ``requests.Session.request``
@@ -439,9 +440,16 @@ class MastClass(QueryWithLogin):
             status = "EXECUTING"
 
             while status == "EXECUTING":
-                response = super(MastClass, self)._request(method, url, params=params, data=data,
-                                                           headers=headers, files=files, cache=False,
-                                                           stream=stream, auth=auth)
+                response = super(MastClass, self)._request(method,
+                                                           url,
+                                                           params=params,
+                                                           data=data,
+                                                           headers=headers,
+                                                           files=files,
+                                                           timeout=timeout,
+                                                           cache=cache,
+                                                           stream=stream,
+                                                           auth=auth)
 
                 if (time.time() - startTime) >= self.TIMEOUT:
                     raise TimeoutError("Timeout limit of {} exceeded.".format(self.TIMEOUT))
@@ -488,8 +496,17 @@ class MastClass(QueryWithLogin):
                    "Content-type": "application/x-www-form-urlencoded",
                    "Accept": "text/plain"}
 
-        response = self._request("POST", self._COLUMNS_CONFIG_URL,
-                                 data=("colConfigId="+fetch_name), headers=headers)
+        response = self._request("POST",
+                                 self._COLUMNS_CONFIG_URL,
+                                 params=None,
+                                 data=("colConfigId="+fetch_name),
+                                 headers=headers,
+                                 files=None,
+                                 timeout=None,
+                                 cache=False,
+                                 stream=False,
+                                 auth=None,
+                                 retrieve_all=True)
 
         self._column_configs[service] = response[0].json()
 
@@ -504,7 +521,17 @@ class MastClass(QueryWithLogin):
         if more:
             mashupRequest = {'service': all_name, 'params': {}, 'format': 'extjs'}
             reqString = _prepare_service_request_string(mashupRequest)
-            response = self._request("POST", self._MAST_REQUEST_URL, data=reqString, headers=headers)
+            response = self._request("POST",
+                                     self._MAST_REQUEST_URL,
+                                     params=None,
+                                     data=reqString,
+                                     headers=headers,
+                                     files=None,
+                                     timeout=None,
+                                     cache=False,
+                                     stream=False,
+                                     auth=None,
+                                     retrieve_all=True)
             jsonResponse = response[0].json()
 
             self._column_configs[service].update(jsonResponse['data']['Tables'][0]
@@ -840,7 +867,16 @@ class MastClass(QueryWithLogin):
             mashupRequest[prop] = value
 
         reqString = _prepare_service_request_string(mashupRequest)
-        response = self._request("POST", self._MAST_REQUEST_URL, data=reqString, headers=headers,
+        response = self._request("POST",
+                                 self._MAST_REQUEST_URL,
+                                 params=None,
+                                 data=reqString,
+                                 headers=headers,
+                                 files=None,
+                                 timeout=None,
+                                 cache=False,
+                                 stream=False,
+                                 auth=None,
                                  retrieve_all=retrieveAll)
 
         return response
