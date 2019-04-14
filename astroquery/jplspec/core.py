@@ -120,8 +120,20 @@ class JPLSpecClass(BaseQuery):
             return payload
         # BaseQuery classes come with a _request method that includes a
         # built-in caching system
-        response = self._request(method='POST', url=self.URL, data=payload,
-                                 timeout=self.TIMEOUT, cache=cache)
+        response = self._request(method='POST',
+                                 url=self.URL,
+                                 params=None,
+                                 data=payload,
+                                 headers=None,
+                                 files=None,
+                                 save=False,
+                                 savedir='',
+                                 timeout=self.TIMEOUT,
+                                 cache=cache,
+                                 stream=False,
+                                 auth=None,
+                                 continuation=True,
+                                 verify=True)
 
         return response
 
