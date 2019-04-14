@@ -291,8 +291,20 @@ class NraoClass(QueryWithLogin):
                 username = self.USERNAME
 
         # Check if already logged in
-        loginpage = self._request("GET", "https://my.nrao.edu/cas/login",
-                                  cache=False)
+        loginpage = self._request("GET",
+                                  "https://my.nrao.edu/cas/login",
+                                  params=None,
+                                  data=None,
+                                  headers=None,
+                                  files=None,
+                                  save=False,
+                                  savedir='',
+                                  timeout=None,
+                                  cache=False,
+                                  stream=False,
+                                  auth=None,
+                                  continuation=True,
+                                  verify=True)
         root = BeautifulSoup(loginpage.content, 'html5lib')
         if root.find('div', class_='success'):
             log.info("Already logged in.")
@@ -313,8 +325,20 @@ class NraoClass(QueryWithLogin):
         data['_eventId'] = 'submit'
         data['submit'] = 'LOGIN'
 
-        login_response = self._request("POST", "https://my.nrao.edu/cas/login",
-                                       data=data, cache=False)
+        login_response = self._request("POST",
+                                       "https://my.nrao.edu/cas/login",
+                                       params=None,
+                                       data=data,
+                                       headers=None,
+                                       files=None,
+                                       save=False,
+                                       savedir='',
+                                       timeout=None,
+                                       cache=False,
+                                       stream=False,
+                                       auth=None,
+                                       continuation=True,
+                                       verify=True)
 
         authenticated = ('You have successfully logged in' in
                          login_response.text)
@@ -347,8 +371,20 @@ class NraoClass(QueryWithLogin):
 
         if get_query_payload:
             return request_payload
-        response = self._request('POST', self.DATA_URL, params=request_payload,
-                                 timeout=self.TIMEOUT, cache=cache)
+        response = self._request('POST',
+                                 self.DATA_URL,
+                                 params=request_payload,
+                                 data=None,
+                                 headers=None,
+                                 files=None,
+                                 save=False,
+                                 savedir='',
+                                 timeout=self.TIMEOUT,
+                                 cache=cache,
+                                 stream=False,
+                                 auth=None,
+                                 continuation=True,
+                                 verify=True)
         self._last_response = response
 
         response.raise_for_status()
