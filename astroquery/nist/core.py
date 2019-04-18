@@ -146,7 +146,7 @@ class NistClass(BaseQuery):
 
     def _parse_result(self, response, verbose=False):
         """
-        Parses the results form the HTTP response to `astropy.table.Table`.
+        Parses the results from the HTTP response to `astropy.table.Table`.
 
         Parameters
         ----------
