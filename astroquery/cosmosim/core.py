@@ -86,9 +86,20 @@ class CosmoSimClass(QueryWithLogin):
         # Authenticate
         warnings.warn("Authenticating {0} on www.cosmosim.org..."
                       .format(self.username))
-        authenticated = self._request('POST', CosmoSim.QUERY_URL,
+        authenticated = self._request('POST',
+                                      CosmoSim.QUERY_URL,
+                                      params=None,
+                                      data=None,
+                                      headers=None,
+                                      files=None,
+                                      save=False,
+                                      savedir='',
+                                      timeout=None,
+                                      cache=False,
+                                      stream=False,
                                       auth=(self.username, self.password),
-                                      cache=False)
+                                      continuation=True,
+                                      verify=True)
         if authenticated.status_code == 200:
             warnings.warn("Authentication successful!")
         elif (authenticated.status_code == 401 or
@@ -153,9 +164,20 @@ class CosmoSimClass(QueryWithLogin):
 
         if (hasattr(self, 'username') and hasattr(self, 'password') and
                 hasattr(self, 'session')):
-            authenticated = self._request('POST', CosmoSim.QUERY_URL,
+            authenticated = self._request('POST',
+                                          CosmoSim.QUERY_URL,
+                                          params=None,
+                                          data=None,
+                                          headers=None,
+                                          files=None,
+                                          save=False,
+                                          savedir='',
+                                          timeout=None,
+                                          cache=False,
+                                          stream=False,
                                           auth=(self.username, self.password),
-                                          cache=False)
+                                          continuation=True,
+                                          verify=True)
             if authenticated.status_code == 200:
                 warnings.warn("Status: You are logged in as {0}."
                               .format(self.username))
@@ -208,10 +230,20 @@ class CosmoSimClass(QueryWithLogin):
         if tablename in self.table_dict.values():
             result = self._request('POST',
                                    CosmoSim.QUERY_URL,
-                                   auth=(self.username, self.password),
+                                   params=None,
+                                   params=None,
                                    data={'query': query_string, 'phase': 'run',
                                          'queue': queue},
-                                   cache=cache)
+                                   headers=None,
+                                   files=None,
+                                   save=False,
+                                   savedir='',
+                                   timeout=None,
+                                   cache=cache,
+                                   stream=False,
+                                   auth=(self.username, self.password),
+                                   continuation=True,
+                                   verfity=True)
             soup = BeautifulSoup(result.content, "lxml")
             phase = soup.find("uws:phase").string
             if phase in ['ERROR']:
@@ -224,18 +256,38 @@ class CosmoSimClass(QueryWithLogin):
                             .format(tablename))
             warnings.warn("Generated table name: {0}".format(gen_tablename))
         elif tablename is None:
-            result = self._request('POST', CosmoSim.QUERY_URL,
-                                   auth=(self.username, self.password),
+            result = self._request('POST',
+                                   CosmoSim.QUERY_URL,
+                                   params=None,
                                    data={'query': query_string, 'phase': 'run',
                                          'queue': queue},
-                                   cache=cache)
-        else:
-            result = self._request('POST', CosmoSim.QUERY_URL,
+                                   headers=None,
+                                   files=None,
+                                   save=False,
+                                   savedir='',
+                                   timeout=None,
+                                   cache=cache,
+                                   stream=False,
                                    auth=(self.username, self.password),
+                                   continuation=True,
+                                   verify=True)
+        else:
+            result = self._request('POST',
+                                   CosmoSim.QUERY_URL,
+                                   params=None,
                                    data={'query': query_string,
                                          'table': str(tablename),
                                          'phase': 'run', 'queue': queue},
-                                   cache=cache)
+                                   headers=None,
+                                   files=None,
+                                   save=False,
+                                   savedir='',
+                                   timeout=None,
+                                   cache=cache,
+                                   stream=False,
+                                   auth=(self.username, self.password),
+                                   continuation=True,
+                                   verify=True)
             self._existing_tables()
 
         soup = BeautifulSoup(result.content, "lxml")
@@ -288,10 +340,20 @@ class CosmoSimClass(QueryWithLogin):
             else:
                 jobid = self.current_job
 
-        response = self._request(
-            'GET', CosmoSim.QUERY_URL + '/{}'.format(jobid) + '/phase',
-            auth=(self.username, self.password), data={'print': 'b'},
-            cache=False)
+        response = self._request('GET',
+                                 CosmoSim.QUERY_URL + '/{}'.format(jobid) + '/phase',
+                                 params=None,
+                                 data={'print': 'b'},
+                                 headers=None,
+                                 files=None,
+                                 save=False,
+                                 savedir='',
+                                 timeout=None,
+                                 cache=False,
+                                 stream=False,
+                                 auth=(self.username, self.password),
+                                 continuation=True,
+                                 verify=True)
 
         logging.info("Job {}: {}".format(jobid, response.content))
         return response.content
@@ -322,9 +384,20 @@ class CosmoSimClass(QueryWithLogin):
             The requests response for the GET request for finding all
             existing jobs.
         """
-        checkalljobs = self._request('GET', CosmoSim.QUERY_URL,
+        checkalljobs = self._request('GET',
+                                     CosmoSim.QUERY_URL,
+                                     params={'print': 'b'},
+                                     data=None,
+                                     headers=None,
+                                     files=None,
+                                     save=False,
+                                     savedir='',
+                                     timeout=None,
+                                     cache=False,
+                                     stream=False,
                                      auth=(self.username, self.password),
-                                     params={'print': 'b'}, cache=False)
+                                     continuation=True,
+                                     verify=True)
 
         self.job_dict = {}
         soup = BeautifulSoup(checkalljobs.content, "lxml")
@@ -549,10 +622,20 @@ class CosmoSimClass(QueryWithLogin):
             completed_jobids = [key for key in self.job_dict.keys()
                                 if self.job_dict[key] == 'COMPLETED']
             response_list = [
-                self._request(
-                    'GET',
-                    CosmoSim.QUERY_URL + "/{}".format(completed_jobids[i]),
-                    auth=(self.username, self.password), cache=False)
+                self._request('GET',
+                              CosmoSim.QUERY_URL + "/{}".format(completed_jobids[i]),
+                              params=None,
+                              data=None,
+                              headers=None,
+                              files=None,
+                              save=False,
+                              savedir='',
+                              timeout=None,
+                              cache=False,
+                              stream=False,
+                              auth=(self.username, self.password),
+                              continuation=True,
+                              verify=True)
                 for i in range(len(completed_jobids))]
             self.response_dict_current = {}
             for i, vals in enumerate(completed_jobids):
@@ -561,9 +644,22 @@ class CosmoSimClass(QueryWithLogin):
         else:
             if self.job_dict[jobid] == 'COMPLETED':
                 response_list = [
-                    self._request(
-                        'GET', CosmoSim.QUERY_URL + "/{}".format(jobid),
-                        auth=(self.username, self.password), cache=False)]
+                    self._request('GET',
+                                  CosmoSim.QUERY_URL + "/{}".format(jobid),
+                                  params=None,
+                                  data=None,
+                                  headers=None,
+                                  files=None,
+                                  save=False,
+                                  savedir='',
+                                  timeout=None,
+                                  cache=False,
+                                  stream=False,
+                                  auth=(self.username, self.password),
+                                  continuation=True,
+                                  verify=True)
+                                 ]
+                                  
                 self.response_dict_current = {}
                 self.response_dict_current[jobid] = (
                     self._generate_response_dict(response_list[0]))
@@ -630,8 +726,18 @@ class CosmoSimClass(QueryWithLogin):
                          if self.job_dict[key] == 'COMPLETED']
         response_list = [self._request('GET',
                                        CosmoSim.QUERY_URL + "/{}".format(i),
+                                       params=None,
+                                       data=None,
+                                       headers=None,
+                                       files=None,
+                                       save=False,
+                                       savedir='',
+                                       timeout=None,
+                                       cache=False,
+                                       stream=False,
                                        auth=(self.username, self.password),
-                                       cache=False)
+                                       continuation=True,
+                                       verify=True)
                          for i in completed_ids]
         soups = [BeautifulSoup(response_list[i].content, "lxml")
                  for i in range(len(response_list))]
@@ -675,9 +781,20 @@ class CosmoSimClass(QueryWithLogin):
                           self.job_dict.values().count('QUEUED')))
             return
         else:
-            response_list = [self._request(
-                'GET', CosmoSim.QUERY_URL + "/{}".format(jobid),
-                auth=(self.username, self.password), cache=False)]
+            response_list = [self._request('GET',
+                                           CosmoSim.QUERY_URL + "/{}".format(jobid),
+                                           params=None,
+                                           data=None,
+                                           headers=None,
+                                           files=None,
+                                           save=False,
+                                           savedir='',
+                                           timeout=None,
+                                           cache=False,
+                                           stream=False,
+                                           auth=(self.username, self.password),
+                                           continuation=True,
+                                           verify=True)]
 
             if response_list[0].ok is False:
                 logging.error('Must provide a valid jobid.')
@@ -836,10 +953,20 @@ class CosmoSimClass(QueryWithLogin):
         the database (in the form of a dictionary).
         """
 
-        response = self._request('GET', CosmoSim.SCHEMA_URL,
-                                 auth=(self.username, self.password),
+        response = self._request('GET',
+                                 CosmoSim.SCHEMA_URL,
+                                 params=None,
+                                 data=None,
                                  headers={'Accept': 'application/json'},
-                                 cache=False)
+                                 files=None,
+                                 save=False,
+                                 savedir='',
+                                 timeout=None,
+                                 cache=False,
+                                 stream=False,
+                                 auth=(self.username, self.password),
+                                 continuation=True,
+                                 verify=True)
         data = response.json()
         self.db_dict = {}
         for i in range(len(data['databases'])):
@@ -1116,9 +1243,20 @@ class CosmoSimClass(QueryWithLogin):
                                     'Put In Description']
                 t.pprint()
             if format:
-                results = self._request(
-                    'GET', self.QUERY_URL + "/{}/results".format(jobid),
-                    auth=(self.username, self.password))
+                results = self._request('GET',
+                                        self.QUERY_URL + "/{}/results".format(jobid),
+                                        params=None,
+                                        data=None,
+                                        headers=None,
+                                        files=None,
+                                        save=False,
+                                        savedir='',
+                                        timeout=None,
+                                        cache=True,
+                                        stream=False,
+                                        auth=(self.username, self.password),
+                                        continuation=True,
+                                        verify=True)
                 soup = BeautifulSoup(results.content, "lxml")
                 urls = [i.get('xlink:href')
                         for i in soup.findAll({'uws:result'})]
@@ -1134,10 +1272,20 @@ class CosmoSimClass(QueryWithLogin):
                                         auth=(self.username, self.password))
                 elif not filename:
                     if format.upper() == 'CSV':
-                        raw_table_data = self._request(
-                            'GET', downloadurl,
-                            auth=(self.username, self.password),
-                            cache=cache).content
+                        raw_table_data = self._request('GET',
+                                                       downloadurl,
+                                                       params=None,
+                                                       data=None,
+                                                       headers=None,
+                                                       files=None,
+                                                       save=False,
+                                                       savedir='',
+                                                       timeout=None,
+                                                       cache=cache,
+                                                       stream=False,
+                                                       auth=(self.username, self.password),
+                                                       continuation=True,
+                                                       verify=True).content
                         raw_headers = raw_table_data.split('\n')[0]
                         num_cols = len(raw_headers.split(','))
                         num_rows = len(raw_table_data.split('\n')) - 2
@@ -1157,10 +1305,20 @@ class CosmoSimClass(QueryWithLogin):
                     elif format.upper() == 'VOTABLE':
                         # for terminal output, get data in csv format
                         tmp_downloadurl = urls[formatlist.index('CSV')]
-                        raw_table_data = self._request(
-                            'GET', tmp_downloadurl,
-                            auth=(self.username, self.password),
-                            cache=cache).content
+                        raw_table_data = self._request('GET',
+                                                       tmp_downloadurl,
+                                                       params=None,
+                                                       data=None,
+                                                       headers=None,
+                                                       files=None,
+                                                       save=False,
+                                                       savedir='',
+                                                       timeout=None,
+                                                       cache=cache,
+                                                       stream=False,
+                                                       auth=(self.username, self.password),
+                                                       continuation=True,
+                                                       verify=True).content
                         raw_headers = raw_table_data.split('\n')[0]
                         num_cols = len(raw_headers.split(','))
                         num_rows = len(raw_table_data.split('\n')) - 2
