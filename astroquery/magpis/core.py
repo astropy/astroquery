@@ -113,8 +113,12 @@ class MagpisClass(BaseQuery):
             coordinates, image_size=image_size, survey=survey)
         if get_query_payload:
             return request_payload
-        response = self._request("POST", url=self.URL, data=request_payload,
-                                 timeout=self.TIMEOUT, verify=False)
+        response = self._request("POST",
+                                 url=self.URL,
+                                 data=request_payload,
+                                 timeout=self.TIMEOUT,
+                                 cache=True,
+                                 verify=False)
         return response
 
     def list_surveys(self):

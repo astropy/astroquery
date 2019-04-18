@@ -41,7 +41,7 @@ def patch_post(request):
     return mp
 
 
-def post_mockreturn(method, url, data, timeout, **kwargs):
+def post_mockreturn(method, url, data, timeout, cache, **kwargs):
     filename = data_path(DATA_FILES['image'])
     content = open(filename, 'rb').read()
     return MockResponse(content, **kwargs)
