@@ -43,18 +43,9 @@ class FermiLATClass(BaseQuery):
 
         result = self._request("POST",
                                url=self.request_url,
-                               params=None,
                                data=payload,
-                               headers=None,
-                               files=None,
-                               save=False,
-                               savedir='',
-                               timeout=self.TIMEOUT
-                               cache=True,
-                               stream=False,
-                               auth=None,
-                               continuation=True,
-                               verify=True)
+                               timeout=self.TIMEOUT,
+                               cache=True)
         re_result = self.result_url_re.findall(result.text)
 
         if len(re_result) == 0:

@@ -261,7 +261,7 @@ class EsoClass(QueryWithLogin):
                                                     'execution': execution,
                                                     '_eventId': 'submit',
                                                     'geolocation': '',
-                                                    }
+                                                    },
                                               headers=None,
                                               files=None,
                                               save=False,

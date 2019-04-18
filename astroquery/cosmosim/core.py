@@ -231,7 +231,6 @@ class CosmoSimClass(QueryWithLogin):
             result = self._request('POST',
                                    CosmoSim.QUERY_URL,
                                    params=None,
-                                   params=None,
                                    data={'query': query_string, 'phase': 'run',
                                          'queue': queue},
                                    headers=None,

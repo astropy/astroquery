@@ -30,7 +30,7 @@ def patch_post(request):
     return mp
 
 
-def post_mockreturn(method="POST", url=None, data=None, timeout=50, **kwargs):
+def post_mockreturn(method="POST", url=None, data=None, timeout=50, cache=False, **kwargs):
     if data is not None:
         with open(data_path(DATA_FILES['async']), 'rb') as r:
             response = MockResponse(r.read(), **kwargs)
@@ -62,7 +62,5 @@ def test_getfermilatdatafile(patch_post):
 
 def test_FermiLAT_query(patch_post):
     # Make a query that results in small SC and PH file sizes
-    result = fermi.core.FermiLAT.query_object(
-        FK5_COORDINATES, energyrange_MeV='1000, 100000',
-        obsdates='2013-01-01 00:00:00, 2013-01-02 00:00:00')
+    result = fermi.core.FermiLAT.query_object(FK5_COORDINATES, energyrange_MeV='1000, 100000', obsdates='2013-01-01 00:00:00, 2013-01-02 00:00:00')
     assert result == DATA_FILES['fits']
