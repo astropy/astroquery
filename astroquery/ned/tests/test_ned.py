@@ -65,7 +65,7 @@ def patch_get_readable_fileobj(request):
     return mp
 
 
-def get_mockreturn(method, url, params=None, timeout=10, **kwargs):
+def get_mockreturn(method, url, params=None, timeout=10, cache=False, **kwargs):
     search_type = params.get('search_type')
     if search_type is not None:
         filename = data_path(DATA_FILES[search_type])
