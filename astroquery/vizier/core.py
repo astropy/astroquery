@@ -214,9 +214,20 @@ class VizierClass(BaseQuery):
 
         if max_catalogs is not None:
             data_payload['-meta.max'] = max_catalogs
-        response = self._request(
-            method='POST', url=self._server_to_url(return_type=return_type),
-            data=data_payload, timeout=self.TIMEOUT)
+        response = self._request(method='POST',
+                                 url=self._server_to_url(return_type=return_type),
+                                 params=None,
+                                 data=data_payload,
+                                 headers=None,
+                                 files=None,
+                                 save=False,
+                                 savedir='',
+                                 timeout=self.TIMEOUT,
+                                 cache=True,
+                                 stream=False,
+                                 auth=None,
+                                 continuation=True,
+                                 verify=True)
 
         if 'STOP, Max. number of RESOURCE reached' in response.text:
             raise ValueError("Maximum number of catalogs exceeded.  Try "
@@ -256,9 +267,20 @@ class VizierClass(BaseQuery):
         if get_query_payload:
             return data_payload
 
-        response = self._request(
-            method='POST', url=self._server_to_url(return_type=return_type),
-            data=data_payload, timeout=self.TIMEOUT)
+        response = self._request(method='POST',
+                                 url=self._server_to_url(return_type=return_type),
+                                 params=None,
+                                 data=data_payload,
+                                 headers=None,
+                                 files=None,
+                                 save=False,
+                                 savedir='',
+                                 timeout=self.TIMEOUT,
+                                 cache=True,
+                                 stream=False,
+                                 auth=None,
+                                 continuation=True,
+                                 verify=True)
 
         return response
 
@@ -308,9 +330,20 @@ class VizierClass(BaseQuery):
             catalog=catalog)
         if get_query_payload:
             return data_payload
-        response = self._request(
-            method='POST', url=self._server_to_url(return_type=return_type),
-            data=data_payload, timeout=self.TIMEOUT, cache=cache)
+        response = self._request(method='POST',
+                                 url=self._server_to_url(return_type=return_type),
+                                 params=None,
+                                 data=data_payload,
+                                 headers=None,
+                                 files=None,
+                                 save=False,
+                                 savedir='',
+                                 timeout=self.TIMEOUT,
+                                 cache=cache,
+                                 stream=False,
+                                 auth=None,
+                                 continuation=True,
+                                 verify=True)
         return response
 
     def query_region_async(self, coordinates, radius=None, inner_radius=None,
@@ -437,9 +470,20 @@ class VizierClass(BaseQuery):
         if get_query_payload:
             return data_payload
 
-        response = self._request(
-            method='POST', url=self._server_to_url(return_type=return_type),
-            data=data_payload, timeout=self.TIMEOUT, cache=cache)
+        response = self._request(method='POST',
+                                 url=self._server_to_url(return_type=return_type),
+                                 params=None,
+                                 data=data_payload,
+                                 headers=None,
+                                 files=None,
+                                 save=False,
+                                 savedir='',
+                                 timeout=self.TIMEOUT,
+                                 cache=cache,
+                                 stream=False,
+                                 auth=None,
+                                 continuation=True,
+                                 verify=True)
         return response
 
     def query_constraints_async(self, catalog=None, return_type='votable',
@@ -504,9 +548,20 @@ class VizierClass(BaseQuery):
             center={'-c.rd': 180})
         if get_query_payload:
             return data_payload
-        response = self._request(
-            method='POST', url=self._server_to_url(return_type=return_type),
-            data=data_payload, timeout=self.TIMEOUT, cache=cache)
+        response = self._request(method='POST',
+                                 url=self._server_to_url(return_type=return_type),
+                                 params=None,
+                                 data=data_payload,
+                                 headers=None,
+                                 files=None,
+                                 save=False,
+                                 savedir='',
+                                 timeout=self.TIMEOUT,
+                                 cache=cache,
+                                 stream=False,
+                                 auth=None,
+                                 continuation=True,
+                                 verify=True)
         return response
 
     def _args_to_payload(self, *args, **kwargs):
