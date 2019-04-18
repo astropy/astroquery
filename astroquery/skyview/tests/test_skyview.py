@@ -42,7 +42,7 @@ class MockResponseSkyView(MockResponse):
 
 
 class MockResponseSkyviewForm(MockResponse):
-    def __init__(self, method, url, cache=False, params=None, **kwargs):
+    def __init__(self, method, url, timeout=None, cache=False, params=None, **kwargs):
         super(MockResponseSkyviewForm, self).__init__(**kwargs)
         self.content = self.get_content(method, url)
 
