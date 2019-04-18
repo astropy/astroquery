@@ -140,8 +140,11 @@ class NistClass(BaseQuery):
         if get_query_payload:
             return request_payload
 
-        response = self._request("GET", url=Nist.URL, params=request_payload,
-                                 timeout=Nist.TIMEOUT)
+        response = self._request("GET",
+                                 url=Nist.URL,
+                                 params=request_payload,
+                                 timeout=Nist.TIMEOUT,
+                                 cache=True)
         return response
 
     def _parse_result(self, response, verbose=False):
