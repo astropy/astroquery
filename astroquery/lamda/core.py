@@ -49,8 +49,20 @@ class LamdaClass(BaseQuery):
         if mol not in self.molecule_dict:
             raise InvalidQueryError("Molecule {0} is not in the valid "
                                     "molecule list.  See Lamda.molecule_dict")
-        response = self._request('GET', self.molecule_dict[mol],
-                                 timeout=timeout, cache=cache)
+        response = self._request('GET',
+                                 self.molecule_dict[mol],
+                                 params=None,
+                                 data=None,
+                                 headers=None,
+                                 files=None,
+                                 save=False,
+                                 savedir='',
+                                 timeout=timeout,
+                                 cache=cache,
+                                 stream=False,
+                                 auth=None,
+                                 continuation=True,
+                                 verify=True)
         response.raise_for_status()
         return response
 
@@ -117,7 +129,20 @@ class LamdaClass(BaseQuery):
             return md
 
         main_url = 'http://home.strw.leidenuniv.nl/~moldata/'
-        response = self._request('GET', main_url, cache=cache)
+        response = self._request('GET',
+                                 main_url,
+                                 params=None,
+                                 data=None,
+                                 headers=None,
+                                 files=None,
+                                 save=False,
+                                 savedir='',
+                                 timeout=None,
+                                 cache=cache,
+                                 stream=False,
+                                 auth=None,
+                                 continuation=True,
+                                 verify=True)
         response.raise_for_status()
 
         soup = BeautifulSoup(response.content)
@@ -157,7 +182,20 @@ class LamdaClass(BaseQuery):
             # assume this is a bad URL, like a mailto:blah href
             return []
 
-        response = self._request('GET', myurl)
+        response = self._request('GET',
+                                 myurl,
+                                 params=None,
+                                 data=None,
+                                 headers=None,
+                                 files=None,
+                                 save=False,
+                                 savedir='',
+                                 timeout=None,
+                                 cache=True,
+                                 stream=False,
+                                 auth=None,
+                                 continuation=True,
+                                 verify=True)
         if raise_for_status:
             response.raise_for_status()
         elif not response.ok:
