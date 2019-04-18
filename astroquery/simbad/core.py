@@ -473,8 +473,11 @@ class SimbadClass(BaseQuery):
 
         request_payload = self._args_to_payload(caller='query_criteria_async',
                                                 *args, **kwargs)
-        response = self._request("POST", self.SIMBAD_URL, data=request_payload,
-                                 timeout=self.TIMEOUT, cache=cache)
+        response = self._request("POST",
+                                 self.SIMBAD_URL,
+                                 data=request_payload,
+                                 timeout=self.TIMEOUT,
+                                 cache=cache)
         return response
 
     def query_object(self, object_name, wildcard=False, verbose=False,
@@ -537,8 +540,11 @@ class SimbadClass(BaseQuery):
         if get_query_payload:
             return request_payload
 
-        response = self._request("POST", self.SIMBAD_URL, data=request_payload,
-                                 timeout=self.TIMEOUT, cache=cache)
+        response = self._request("POST",
+                                 self.SIMBAD_URL,
+                                 data=request_payload,
+                                 timeout=self.TIMEOUT,
+                                 cache=cache)
         return response
 
     def query_objects(self, object_names, wildcard=False, verbose=False,
@@ -675,8 +681,11 @@ class SimbadClass(BaseQuery):
         if get_query_payload:
             return request_payload
 
-        response = self._request("POST", self.SIMBAD_URL, data=request_payload,
-                                 timeout=self.TIMEOUT, cache=cache)
+        response = self._request("POST",
+                                 self.SIMBAD_URL,
+                                 data=request_payload,
+                                 timeout=self.TIMEOUT,
+                                 cache=cache)
         return response
 
     def query_catalog(self, catalog, verbose=False, cache=True,
@@ -732,8 +741,11 @@ class SimbadClass(BaseQuery):
         if get_query_payload:
             return request_payload
 
-        response = self._request("POST", self.SIMBAD_URL, data=request_payload,
-                                 timeout=self.TIMEOUT, cache=cache)
+        response = self._request("POST",
+                                 self.SIMBAD_URL,
+                                 data=request_payload,
+                                 timeout=self.TIMEOUT,
+                                 cache=cache)
         return response
 
     def query_bibobj(self, bibcode, verbose=False, get_query_payload=False):
@@ -787,8 +799,11 @@ class SimbadClass(BaseQuery):
         if get_query_payload:
             return request_payload
 
-        response = self._request("POST", self.SIMBAD_URL, data=request_payload,
-                                 timeout=self.TIMEOUT, cache=cache)
+        response = self._request("POST",
+                                 self.SIMBAD_URL,
+                                 data=request_payload,
+                                 timeout=self.TIMEOUT,
+                                 cache=cache)
         return response
 
     def query_bibcode(self, bibcode, wildcard=False, verbose=False,
@@ -855,8 +870,11 @@ class SimbadClass(BaseQuery):
         if get_query_payload:
             return request_payload
 
-        response = self._request("POST", self.SIMBAD_URL, cache=cache,
-                                 data=request_payload, timeout=self.TIMEOUT)
+        response = self._request("POST",
+                                 self.SIMBAD_URL,
+                                 data=request_payload,
+                                 timeout=self.TIMEOUT,
+                                 cache=cache)
 
         return response
 
@@ -907,8 +925,11 @@ class SimbadClass(BaseQuery):
         """
         request_payload = dict(script="\n".join(('format object "%IDLIST"',
                                                  'query id %s' % object_name)))
-        response = self._request("POST", self.SIMBAD_URL, data=request_payload,
-                                 timeout=self.TIMEOUT, cache=cache)
+        response = self._request("POST",
+                                 self.SIMBAD_URL,
+                                 data=request_payload,
+                                 timeout=self.TIMEOUT,
+                                 cache=cache)
         return response
 
     def _get_query_header(self, get_raw=False):
