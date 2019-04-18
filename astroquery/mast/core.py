@@ -64,9 +64,9 @@ def _prepare_service_request_string(json_obj):
     response : str
         URL encoded Mashup Request string.
     """
+
     request_string = json.dumps(json_obj)
-    request_string = urlencode(request_string)
-    return "request="+request_string
+    return 'request={}'.format(urlencode(request_string))
 
 
 def _mashup_json_to_table(json_obj, col_config=None):
@@ -303,6 +303,9 @@ class MastClass(QueryWithLogin):
 
                 if (time.time() - start_time) >= self.TIMEOUT:
                     raise TimeoutError("Timeout limit of {} exceeded.".format(self.TIMEOUT))
+
+                # Raising error based on HTTP status if necessary
+                response.raise_for_status()
 
                 result = response.json()
 
@@ -1252,13 +1255,13 @@ class ObservationsClass(MastClass):
         manifest_array = []
         for data_product in products:
 
-            local_path = base_dir + "/" + data_product['obs_collection'] + "/" + data_product['obs_id']
+            local_path = os.path.join(base_dir, data_product['obs_collection'], data_product['obs_id'])
             data_url = self._MAST_DOWNLOAD_URL + "?uri=" + data_product["dataURI"]
 
             if not os.path.exists(local_path):
                 os.makedirs(local_path)
 
-            local_path += '/' + data_product['productFilename']
+            local_path = os.path.join(local_path, data_product['productFilename'])
 
             status = "COMPLETE"
             msg = None
@@ -1731,7 +1734,7 @@ class CatalogsClass(MastClass):
             response = self.service_request_async(service, params)
             bundler_response = response[0].json()
 
-            local_path = download_dir.rstrip('/') + "/" + download_file + ".sh"
+            local_path = os.path.join(download_dir, "{}.sh".format(download_file))
             self._download_file(bundler_response['url'], local_path, head_safe=True, continuation=False)
 
             status = "COMPLETE"
@@ -1763,8 +1766,6 @@ class CatalogsClass(MastClass):
             manifest_array = []
             for spec in spectra:
 
-                # local_path = base_dir + "/HSC"# + spec['DatasetName'] + ".fits"
-
                 if spec['SpectrumType'] < 2:
                     data_url = 'https://hla.stsci.edu/cgi-bin/getdata.cgi?config=ops&dataset=' \
                               + spec['DatasetName']
@@ -1772,7 +1773,7 @@ class CatalogsClass(MastClass):
                     data_url = 'https://hla.stsci.edu/cgi-bin/ecfproxy?file_id=' \
                               + spec['DatasetName'] + '.fits'
 
-                local_path = base_dir + '/' + spec['DatasetName'] + ".fits"
+                local_path = os.path.join(base_dir, "{}.fits".format(spec['DatasetName']))
 
                 status = "COMPLETE"
                 msg = None
