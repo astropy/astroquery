@@ -332,7 +332,7 @@ class TestDust(DustTestCase):
         types = IrsaDust().list_image_types()
         assert types is not None
 
-    def send_request_mockreturn(self, method, url, data, timeout):
+    def send_request_mockreturn(self, method, url, data, timeout, cache):
         class MockResponse:
             text = self.read_data(M31_XML)
         return MockResponse
