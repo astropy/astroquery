@@ -49,7 +49,7 @@ def patch_parse_coordinates(request):
     return mp
 
 
-def post_mockreturn(method, url, data, timeout, **kwargs):
+def post_mockreturn(method, url, data, timeout, cache, **kwargs):
     filename = data_path(DATA_FILES['image_search'])
     content = open(filename, 'rb').read()
     response = MockResponse(content, **kwargs)

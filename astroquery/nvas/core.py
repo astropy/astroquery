@@ -185,8 +185,11 @@ class NvasClass(BaseQuery):
         request_payload["nvas_bnd"] = "" if band == "all" else band.upper()
         if get_query_payload:
             return request_payload
-        response = self._request("POST", url=Nvas.URL, data=request_payload,
-                                 timeout=Nvas.TIMEOUT)
+        response = self._request("POST",
+                                 url=Nvas.URL,
+                                 data=request_payload,
+                                 timeout=Nvas.TIMEOUT,
+                                 cache=True)
         image_urls = self.extract_image_urls(response.text,
                                              get_uvfits=get_uvfits)
         return image_urls
