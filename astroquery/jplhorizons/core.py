@@ -585,8 +585,20 @@ class HorizonsClass(BaseQuery):
             self.return_raw = True
 
         # query and parse
-        response = self._request('GET', URL, params=request_payload,
-                                 timeout=self.TIMEOUT, cache=cache)
+        response = self._request('GET',
+                                 URL,
+                                 params=request_payload,
+                                 data=None,
+                                 headers=None,
+                                 files=None,
+                                 save=False,
+                                 savedir='',
+                                 timeout=self.TIMEOUT,
+                                 cache=cache,
+                                 stream=False,
+                                 auth=None,
+                                 continuation=True,
+                                 verify=True)
         self.uri = response.url
 
         # check length of uri
@@ -794,8 +806,20 @@ class HorizonsClass(BaseQuery):
             self.return_raw = True
 
         # query and parse
-        response = self._request('GET', URL, params=request_payload,
-                                 timeout=self.TIMEOUT, cache=cache)
+        response = self._request('GET',
+                                 URL,
+                                 params=request_payload,
+                                 data=None,
+                                 headers=None,
+                                 files=None,
+                                 save=False,
+                                 savedir='',
+                                 timeout=self.TIMEOUT,
+                                 cache=cache,
+                                 stream=False,
+                                 auth=None,
+                                 continuation=True,
+                                 verify=True)
         self.uri = response.url
 
         # check length of uri
@@ -1010,8 +1034,20 @@ class HorizonsClass(BaseQuery):
             self.return_raw = True
 
         # query and parse
-        response = self._request('GET', URL, params=request_payload,
-                                 timeout=self.TIMEOUT, cache=cache)
+        response = self._request('GET',
+                                 URL,
+                                 params=request_payload,
+                                 data=None,
+                                 headers=None,
+                                 files=None,
+                                 save=False,
+                                 savedir='',
+                                 timeout=self.TIMEOUT,
+                                 cache=cache,
+                                 stream=False,
+                                 auth=None,
+                                 continuation=True,
+                                 verify=True)
         self.uri = response.url
 
         # check length of uri
