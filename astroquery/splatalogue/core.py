@@ -451,9 +451,18 @@ class SplatalogueClass(BaseQuery):
 
         response = self._request(method='POST',
                                  url=self.QUERY_URL,
+                                 params=None,
                                  data=data_payload,
+                                 headers=None,
+                                 files=None,
+                                 save=False,
+                                 savedir='',
                                  timeout=self.TIMEOUT,
-                                 cache=cache)
+                                 cache=cache,
+                                 stream=False,
+                                 auth=None,
+                                 continuation=True,
+                                 verify=True)
 
         self.response = response
 
