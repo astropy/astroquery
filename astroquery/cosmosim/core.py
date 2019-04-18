@@ -658,7 +658,6 @@ class CosmoSimClass(QueryWithLogin):
                                   continuation=True,
                                   verify=True)
                                  ]
-                                  
                 self.response_dict_current = {}
                 self.response_dict_current[jobid] = (
                     self._generate_response_dict(response_list[0]))

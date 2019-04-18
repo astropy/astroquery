@@ -6,7 +6,7 @@ from contextlib import contextmanager
 import pytest
 from astropy.table import Table
 import astropy.units as u
-import numpy.testing as npt
+# import numpy.testing as npt
 
 from ... import ukidss
 from ...utils import commons
@@ -72,7 +72,11 @@ def patch_parse_coordinates(request):
 
 
 def get_mockreturn(method='GET', url='default_url',
-                   params=None, timeout=10, **kwargs):
+                   params=None, data=None, headers=None,
+                   files=None, save=False, savedir='',
+                   timeout=10, cache=False, stream=False,
+                   auth=None, continuation=False, verify=False,
+                   **kwargs):
     if "Image" in url:
         filename = DATA_FILES["image_results"]
         url = "Image_URL"

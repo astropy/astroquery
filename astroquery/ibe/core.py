@@ -421,7 +421,7 @@ class IbeClass(BaseQuery):
 
         response = self._request('GET',
                                  url,
-                                 params = {'FORMAT': 'METADATA'},
+                                 params={'FORMAT': 'METADATA'},
                                  timeout=self.TIMEOUT,
                                  cache=True)
 
