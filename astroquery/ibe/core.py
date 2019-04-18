@@ -419,8 +419,11 @@ class IbeClass(BaseQuery):
                 dataset=dataset or self.DATASET,
                 table=table or self.TABLE)
 
-        response = self._request(
-            'GET', url, {'FORMAT': 'METADATA'}, timeout=self.TIMEOUT)
+        response = self._request('GET',
+                                 url,
+                                 params = {'FORMAT': 'METADATA'},
+                                 timeout=self.TIMEOUT,
+                                 cache=True)
 
         # Raise exception, if request failed
         response.raise_for_status()
