@@ -170,9 +170,20 @@ class SBDBClass(BaseQuery):
         if get_query_payload:
             return request_payload
 
-        response = self._request(method='GET', url=URL,
+        response = self._request(method='GET',
+                                 url=URL,
                                  params=request_payload,
-                                 timeout=TIMEOUT, cache=cache)
+                                 data=None,
+                                 headers=None,
+                                 files=None,
+                                 save=False,
+                                 savedir='',
+                                 timeout=TIMEOUT,
+                                 cache=cache,
+                                 stream=False,
+                                 auth=None,
+                                 continuation=True,
+                                 verify=True)
 
         if get_raw_response:
             self._return_raw = True
