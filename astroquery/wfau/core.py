@@ -697,8 +697,20 @@ class BaseWFAUClass(QueryWithLogin):
             response = self.session.get(url, params=request_payload,
                                         timeout=self.TIMEOUT)
         else:
-            response = self._request("GET", url=url, params=request_payload,
-                                     timeout=self.TIMEOUT)
+            response = self._request("GET",
+                                     url=url,
+                                     params=request_payload,
+                                     data=None,
+                                     headers=None,
+                                     files=None,
+                                     save=False,
+                                     savedir='',
+                                     timeout=self.TIMEOUT,
+                                     cache=True,
+                                     stream=False,
+                                     auth=None,
+                                     continuation=True,
+                                     verify=True)
         return response
 
     def _check_page(self, url, keyword, wait_time=1, max_attempts=30):
@@ -820,10 +832,20 @@ class BaseWFAUClass(QueryWithLogin):
                                          files={'file.txt': fh},
                                          timeout=self.TIMEOUT)
         else:
-            response = self._request("POST", url=self.CROSSID_URL,
+            response = self._request("POST",
+                                     url=self.CROSSID_URL,
                                      params=request_payload,
+                                     data=None,
+                                     headers=None,
                                      files={'file.txt': fh},
-                                     timeout=self.TIMEOUT)
+                                     save=False,
+                                     savedir='',
+                                     timeout=self.TIMEOUT,
+                                     cache=True,
+                                     stream=False,
+                                     auth=None,
+                                     continuation=True,
+                                     verify=True)
 
         raise NotImplementedError("It appears we haven't implemented the file "
                                   "upload correctly.  Help is needed.")
