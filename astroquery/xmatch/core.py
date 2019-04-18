@@ -88,8 +88,20 @@ class XMatchClass(BaseQuery):
         if get_query_payload:
             return payload, kwargs
 
-        response = self._request(method='POST', url=self.URL, data=payload,
-                                 timeout=self.TIMEOUT, cache=cache, **kwargs)
+        response = self._request(method='POST',
+                                 url=self.URL,
+                                 params=None,
+                                 data=payload,
+                                 headers=None,
+                                 files=None,
+                                 save=False,
+                                 savedir='',
+                                 timeout=self.TIMEOUT,
+                                 cache=cache,
+                                 stream=False,
+                                 auth=None,
+                                 continuation=True,
+                                 verify=True)
         response.raise_for_status()
 
         return response
@@ -135,12 +147,20 @@ class XMatchClass(BaseQuery):
         xMatch service and return them as a list of strings.
 
         """
-        response = self._request(
-            'GET',
-            url_helpers.urljoin_keep_path(self.URL, 'tables'),
-            {'action': 'getVizieRTableNames', 'RESPONSEFORMAT': 'txt'},
-            cache=cache,
-        )
+        response = self._request('GET',
+                                 url_helpers.urljoin_keep_path(self.URL, 'tables'),
+                                 params={'action': 'getVizieRTableNames', 'RESPONSEFORMAT': 'txt'},
+                                 data=None,
+                                 headers=None,
+                                 files=None,
+                                 save=False,
+                                 savedir='',
+                                 timeout=None,
+                                 cache=cache,
+                                 stream=False,
+                                 auth=None,
+                                 continuation=True,
+                                 verify=True)
 
         content = response.text
 
