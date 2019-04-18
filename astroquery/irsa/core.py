@@ -244,8 +244,11 @@ class IrsaClass(BaseQuery):
 
         if get_query_payload:
             return request_payload
-        response = self._request("GET", url=Irsa.IRSA_URL,
-                                 params=request_payload, timeout=Irsa.TIMEOUT)
+        response = self._request("GET",
+                                 url=Irsa.IRSA_URL,
+                                 params=request_payload,
+                                 timeout=Irsa.TIMEOUT,
+                                 cache=True)
         return response
 
     def _parse_spatial(self, spatial, coordinates, radius=None, width=None,
@@ -419,8 +422,11 @@ class IrsaClass(BaseQuery):
             name to be used in query functions, and the value is the verbose
             description of the catalog.
         """
-        response = self._request("GET", url=Irsa.GATOR_LIST_URL,
-                                 params=dict(mode='xml'), timeout=Irsa.TIMEOUT)
+        response = self._request("GET",
+                                 url=Irsa.GATOR_LIST_URL,
+                                 params=dict(mode='xml'),
+                                 timeout=Irsa.TIMEOUT,
+                                 cache=True)
 
         root = tree.fromstring(response.content)
         catalogs = {}
