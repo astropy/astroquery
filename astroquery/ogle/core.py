@@ -136,8 +136,12 @@ class OgleClass(BaseQuery):
         files = self._args_to_payload(*args, **kwargs)
         # Make request
         params = {'dnfile': 'submit'}
-        response = self._request("POST", url=self.DATA_URL, data=params,
-                                 timeout=self.TIMEOUT, files=files)
+        response = self._request("POST",
+                                 url=self.DATA_URL,
+                                 data=params,
+                                 timeout=self.TIMEOUT,
+                                 cache=True,
+                                 files=files)
 
         response.raise_for_status()
         return response

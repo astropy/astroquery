@@ -26,7 +26,7 @@ def patch_post(request):
     return mp
 
 
-def post_mockreturn(method, url, data, timeout, files=None, **kwargs):
+def post_mockreturn(method, url, data, timeout, cache, files=None, **kwargs):
     if files is not None:
         content = open(data_path(DATA_FILES['gal_0_3']), 'rb').read()
         response = MockResponse(content, **kwargs)
