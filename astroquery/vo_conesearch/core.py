@@ -137,8 +137,20 @@ class ConeSearchClass(BaseQuery):
         else:
             url = self.URL
 
-        response = self._request('GET', url, params=request_payload,
-                                 timeout=self.TIMEOUT, cache=cache)
+        response = self._request('GET',
+                                 url,
+                                 params=request_payload,
+                                 data=None,
+                                 headers=None,
+                                 files=None,
+                                 save=False,
+                                 savedir='',
+                                 timeout=self.TIMEOUT,
+                                 cache=cache,
+                                 stream=False,
+                                 auth=None,
+                                 continuation=True,
+                                 verify=True)
         result = self._parse_result(response, pars=request_payload,
                                     verbose=verbose)
         return result
