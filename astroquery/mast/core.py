@@ -11,35 +11,38 @@ from __future__ import print_function, division
 import warnings
 import json
 import time
-import string
+#import string
 import os
-import re
+#import re
 import keyring
 import threading
-import requests
+#import requests
 
 import numpy as np
 
 from requests import HTTPError
 from getpass import getpass
-from base64 import b64encode
+#from base64 import b64encode
 
 import astropy.units as u
 import astropy.coordinates as coord
-from astropy.utils import deprecated
 
 from astropy.table import Table, Row, vstack, MaskedColumn
-from six.moves.urllib.parse import quote as urlencode
-from six.moves.http_cookiejar import Cookie
-from astropy.utils.console import ProgressBarOrSpinner
-from astropy.utils.exceptions import AstropyWarning, AstropyDeprecationWarning
 from astropy.logger import log
+
+from astropy.utils import deprecated
+from astropy.utils.decorators import deprecated_renamed_argument
+from astropy.utils.console import ProgressBarOrSpinner
+from astropy.utils.exceptions import AstropyDeprecationWarning
+
+from six.moves.urllib.parse import quote as urlencode
+#from six.moves.http_cookiejar import Cookie
 
 from ..query import QueryWithLogin
 from ..utils import commons, async_to_sync
 from ..utils.class_or_instance import class_or_instance
 from ..exceptions import (TimeoutError, InvalidQueryError, RemoteServiceError,
-                          LoginError, ResolverError, MaxResultsWarning,
+                          ResolverError, MaxResultsWarning,
                           NoResultsWarning, InputWarning, AuthenticationWarning)
 
 from . import conf
@@ -203,7 +206,7 @@ class MastClass(QueryWithLogin):
 
         self._session.headers["Accept"] = "application/json"
         self._session.cookies["mast_token"] = token
-        info = self.session_info(silent=True)
+        info = self.session_info(verbose=False)
 
         if not info["anon"]:
             log.info("MAST API token accepted, welcome %s" % info["attrib"].get("display_name"))
@@ -215,20 +218,22 @@ class MastClass(QueryWithLogin):
 
         return not info["anon"]
 
-    @deprecated(since="v0.3.10", message=("The get_token function is deprecated, "
-                                          "session token is now the token used for login."))
+    @deprecated(since="v0.3.9.dev", message=("The get_token function is deprecated, "
+                                             "session token is now the token used for login."))
     def get_token(self):
         return None
 
-    def session_info(self, silent=False):
+    @deprecated_renamed_argument('silent', new_name=None, since="v0.3.9.dev", alternative='verbose')
+    def session_info(self, silent=None, verbose=True):
         """
         Displays information about current MAST user, and returns user info dictionary.
 
         Parameters
         ----------
-        silent : bool, optional
-            Default False.
-            Suppresses output to stdout.
+        silent :
+            Deprecated. Use verbose instead.
+        verbose : bool, optional
+            Default True. Set to False to suppress output to stdout.
 
         Returns
         -------
@@ -241,7 +246,7 @@ class MastClass(QueryWithLogin):
 
         info_dict = response.json()
 
-        if not silent:
+        if verbose:
             for key, value in info_dict.items():
                 if isinstance(value, dict):
                     for subkey, subval in value.items():
@@ -255,7 +260,7 @@ class MastClass(QueryWithLogin):
                  files=None, stream=False, auth=None, retrieve_all=True):
         """
         Override of the parent method:
-        A generic HTTP request method, similar to ``requests.Session.request``
+        A generic HTTP request method, similar to `~requests.Session.request`
 
         This is a low-level method not generally intended for use by astroquery
         end-users.
@@ -278,13 +283,13 @@ class MastClass(QueryWithLogin):
         auth : None or dict
         files : None or dict
         stream : bool
-            See ``requests.request``
+            See `~requests.request`
         retrieve_all : bool
             Default True. Retrieve all pages of data or just the one indicated in the params value.
 
         Returns
         -------
-        response : ``requests.Response``
+        response : `~requests.Response`
             The response from the server.
         """
 
@@ -377,12 +382,12 @@ class MastClass(QueryWithLogin):
 
     def _parse_result(self, responses, verbose=False):
         """
-        Parse the results of a list of ``requests.Response`` objects and returns an `astropy.table.Table` of results.
+        Parse the results of a list of `~requests.Response` objects and returns an `astropy.table.Table` of results.
 
         Parameters
         ----------
-        responses : list of ``requests.Response``
-            List of ``requests.Response`` objects.
+        responses : list of `~requests.Response`
+            List of `~requests.Response` objects.
         verbose : bool
             (presently does nothing - there is no output with verbose set to
             True or False)
@@ -390,7 +395,7 @@ class MastClass(QueryWithLogin):
 
         Returns
         -------
-        response : `astropy.table.Table`
+        response : `~astropy.table.Table`
         """
 
         # loading the columns config
@@ -453,7 +458,7 @@ class MastClass(QueryWithLogin):
 
         Returns
         -------
-        response : list of ``requests.Response``
+        response : list of `~requests.Response`
         """
 
         # setting self._current_service
@@ -685,7 +690,7 @@ class ObservationsClass(MastClass):
 
         Returns
         -------
-        response : list of ``requests.Response``
+        response : list of `~requests.Response`
         """
 
         # Put coordinates and radius into consistant format
@@ -729,7 +734,7 @@ class ObservationsClass(MastClass):
 
         Returns
         -------
-        response : list of ``requests.Response``
+        response : list of `~requests.Response`
         """
 
         coordinates = self._resolve_object(objectname)
@@ -764,7 +769,7 @@ class ObservationsClass(MastClass):
 
         Returns
         -------
-        response : list(`requests.Response`)
+        response : list of `~requests.Response`
         """
 
         # Seperating any position info from the rest of the filters
@@ -1001,7 +1006,7 @@ class ObservationsClass(MastClass):
 
         Returns
         -------
-            response : list(`requests.Response`)
+            response : list of `~requests.Response`
         """
 
         # getting the obsid list
@@ -1427,7 +1432,7 @@ class CatalogsClass(MastClass):
 
         Returns
         -------
-        response: list of ``requests.Response``
+        response : list of `~requests.Response`
         """
 
         # Put coordinates and radius into consistant format
@@ -1517,7 +1522,7 @@ class CatalogsClass(MastClass):
 
         Returns
         -------
-        response: list of ``requests.Response``
+        response : list of `~requests.Response`
         """
 
         coordinates = self._resolve_object(objectname)
@@ -1549,10 +1554,9 @@ class CatalogsClass(MastClass):
             RA and Dec must be given in decimal degrees, and datetimes in MJD.
             For example: filters=["FUV","NUV"],proposal_pi="Ost*",t_max=[52264.4586,54452.8914]
 
-
         Returns
         -------
-        response : list(`requests.Response`)
+        response : list of `~requests.Response`
         """
 
         # Seperating any position info from the rest of the filters
@@ -1627,9 +1631,9 @@ class CatalogsClass(MastClass):
             Can be used to override the default behavior of all results being returned to obtain
             one sepcific page of results.
 
-        Response
+        Returns
         --------
-        response : list(`requests.Response`)
+        response : list of `~requests.Response`
         """
 
         if isinstance(match, Row):
@@ -1661,9 +1665,9 @@ class CatalogsClass(MastClass):
             Can be used to override the default behavior of all results being returned to obtain
             one sepcific page of results.
 
-        Response
+        Returns
         --------
-        response : list(`requests.Response`)
+        response : list of `~requests.Response`
         """
 
         service = "Mast.HscSpectra.Db.All"
@@ -1690,9 +1694,9 @@ class CatalogsClass(MastClass):
             Default is False.  If true instead of downloading files directly, a curl script
             will be downloaded that can be used to download the data files at a later time.
 
-        Response
+        Returns
         --------
-        response : list(`requests.Response`)
+        response : list of `~requests.Response`
         """
 
         # if spectra is not a Table, put it in a list
