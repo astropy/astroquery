@@ -11,18 +11,14 @@ from __future__ import print_function, division
 import warnings
 import json
 import time
-#import string
 import os
-#import re
 import keyring
 import threading
-#import requests
 
 import numpy as np
 
 from requests import HTTPError
 from getpass import getpass
-#from base64 import b64encode
 
 import astropy.units as u
 import astropy.coordinates as coord
@@ -36,7 +32,6 @@ from astropy.utils.console import ProgressBarOrSpinner
 from astropy.utils.exceptions import AstropyDeprecationWarning
 
 from six.moves.urllib.parse import quote as urlencode
-#from six.moves.http_cookiejar import Cookie
 
 from ..query import QueryWithLogin
 from ..utils import commons, async_to_sync
