@@ -151,6 +151,7 @@ The following modules have been completed using a common API:
   alma/alma.rst
   atomic/atomic.rst
   besancon/besancon.rst
+  cadc/cadc.rst
   cds/cds.rst
   esasky/esasky.rst
   eso/eso.rst
@@ -254,6 +255,7 @@ generally return a table listing the available data first.
 
   alfalfa/alfalfa.rst
   alma/alma.rst
+  cadc/cadc.rst
   eso/eso.rst
   fermi/fermi.rst
   gaia/gaia.rst

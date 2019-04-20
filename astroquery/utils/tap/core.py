@@ -235,7 +235,7 @@ class Tap(object):
         job.parameters['format'] = output_format
         job.set_response_status(response.status, response.reason)
         if isError:
-            job.set_failed(True)
+            job.failed = True
             if dump_to_file:
                 self.__connHandler.dump_to_file(suitableOutputFile, response)
             raise requests.exceptions.HTTPError(response.reason)
