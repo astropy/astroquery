@@ -27,7 +27,6 @@ from astropy.table import Table, Row, vstack, MaskedColumn
 from astropy.logger import log
 
 from astropy.utils import deprecated
-from astropy.utils.decorators import deprecated_renamed_argument
 from astropy.utils.console import ProgressBarOrSpinner
 from astropy.utils.exceptions import AstropyDeprecationWarning
 
@@ -218,8 +217,7 @@ class MastClass(QueryWithLogin):
     def get_token(self):
         return None
 
-    @deprecated_renamed_argument('silent', new_name=None, since="v0.3.9.dev (use 'verbose' instead)")
-    def session_info(self, silent=None, verbose=True):
+    def session_info(self, silent=None, verbose=None):
         """
         Displays information about current MAST user, and returns user info dictionary.
 
@@ -235,6 +233,19 @@ class MastClass(QueryWithLogin):
         response : dict
         """
 
+        # Dealing with deprecated argument
+        if (silent is not None) and (verbose is not None):
+            warnings.warn(("Argument 'silent' has been deprecated, "
+                           "will be ignored in favor of 'verbose'"), AstropyDeprecationWarning)
+        elif silent is not None:
+            warnings.warn(("Argument 'silent' has been deprecated, "
+                           "and will be removed in the future. "
+                           " Use 'verbose' instead."), AstropyDeprecationWarning)
+            verbose = not silent
+        elif (silent is None) and  (verbose is None):
+            verbose = True
+
+        
         # get user information
         self._session.headers["Accept"] = "application/json"
         response = self._session.request("GET", self._SESSION_INFO_URL)
