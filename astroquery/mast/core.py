@@ -218,7 +218,7 @@ class MastClass(QueryWithLogin):
     def get_token(self):
         return None
 
-    @deprecated_renamed_argument('silent', new_name=None, since="v0.3.9.dev", alternative='verbose')
+    @deprecated_renamed_argument('silent', new_name=None, since="v0.3.9.dev (use 'verbose' instead)")
     def session_info(self, silent=None, verbose=True):
         """
         Displays information about current MAST user, and returns user info dictionary.
