@@ -242,10 +242,9 @@ class MastClass(QueryWithLogin):
                            "and will be removed in the future. "
                            " Use 'verbose' instead."), AstropyDeprecationWarning)
             verbose = not silent
-        elif (silent is None) and  (verbose is None):
+        elif (silent is None) and (verbose is None):
             verbose = True
 
-        
         # get user information
         self._session.headers["Accept"] = "application/json"
         response = self._session.request("GET", self._SESSION_INFO_URL)
