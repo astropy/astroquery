@@ -276,7 +276,7 @@ class IbeClass(BaseQuery):
 
             root = BeautifulSoup(response.text)
             links = root.findAll('a')
-            missions = [os.path.basename(a.attrs['href']) for a in links]
+            missions = [os.path.basename(a.attrs['href'].rstrip('/')) for a in links]
             self._missions = missions
 
         return missions
