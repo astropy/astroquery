@@ -304,7 +304,7 @@ class IbeClass(BaseQuery):
             A list of dataset names
         """
 
-        return [ "images" ]
+        return ["images"]
 
     def list_tables(self, mission=None, dataset=None, cache=True):
         """
