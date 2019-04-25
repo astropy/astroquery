@@ -24,12 +24,11 @@ class Conf(_config.ConfigNamespace):
 
     dataset = _config.ConfigItem(
         'images',
-        ('Default data set. See, for example, '
-         'http://irsa.ipac.caltech.edu/ibe/search/ptf for options.'))
+        ('This option is meaningless in the context of IRSA\'s ibe.'))
     table = _config.ConfigItem(
-        'level1',
-        ('Default table. See, for example, '
-         'http://irsa.ipac.caltech.edu/ibe/search/ptf/images for options.'))
+        'ptf.ptf_procimg',
+        ('Default table. Select the desired mission at '
+         'http://irsa.ipac.caltech.edu/ibe/search/ for options.'))
     timeout = _config.ConfigItem(
         60,
         'Time limit for connecting to the IRSA server.')

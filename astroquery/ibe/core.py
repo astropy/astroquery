@@ -15,6 +15,7 @@ from bs4 import BeautifulSoup
 
 import astropy.coordinates as coord
 from astropy.table import Table
+from astropy.io.ascii.html import HTML
 import six
 
 from ..exceptions import InvalidQueryError
@@ -285,7 +286,8 @@ class IbeClass(BaseQuery):
 
     def list_datasets(self, mission=None, cache=True):
         """
-        For a given mission, list the available datasets
+        For a given mission, list the available datasets.
+        This level has no meaning in IRSA's ibe service.
 
         Parameters
         ----------
@@ -301,24 +303,9 @@ class IbeClass(BaseQuery):
         datasets : list
             A list of dataset names
         """
-        if mission is None:
-            mission = self.MISSION
-        if mission not in self.list_missions():
-            raise ValueError("Invalid mission specified: {0}."
-                             "Must be one of: {1}"
-                             .format(mission, self.list_missions()))
+        # This level
 
-        url = "{URL}search/{mission}/".format(URL=self.URL, mission=mission)
-        response = self._request('GET', url, timeout=self.TIMEOUT,
-                                 cache=cache)
-
-        root = BeautifulSoup(response.text)
-        links = root.findAll('a')
-        datasets = [a.text for a in links
-                    if a.attrs['href'].count('/') >= 4  # shown as '..'; ignore
-                    ]
-
-        return datasets
+        return [ "images" ]
 
     def list_tables(self, mission=None, dataset=None, cache=True):
         """
@@ -360,9 +347,7 @@ class IbeClass(BaseQuery):
                              .format(dataset, mission,
                                      self.list_datasets(mission, cache=True)))
 
-        url = "{URL}search/{mission}/{dataset}/".format(URL=self.URL,
-                                                        mission=mission,
-                                                        dataset=dataset)
+        url = "{URL}search/{mission}/".format(URL=self.URL, mission=mission)
         response = self._request('GET', url, timeout=self.TIMEOUT,
                                  cache=cache)
 
@@ -388,10 +373,9 @@ class IbeClass(BaseQuery):
             The table to be queried (if not the default table).
         """
 
-        url = "{URL}docs/{mission}/{dataset}/{table}".format(
+        url = "{URL}docs/{mission}/{table}".format(
                 URL=self.URL,
                 mission=mission or self.MISSION,
-                dataset=dataset or self.DATASET,
                 table=table or self.TABLE)
 
         return webbrowser.open(url)
@@ -415,19 +399,20 @@ class IbeClass(BaseQuery):
             A table containing a description of the columns
         """
 
-        url = "{URL}search/{mission}/{dataset}/{table}".format(
+        url = "{URL}search/{mission}/{table}/".format(
                 URL=self.URL,
                 mission=mission or self.MISSION,
-                dataset=dataset or self.DATASET,
                 table=table or self.TABLE)
 
         response = self._request(
-            'GET', url, {'FORMAT': 'METADATA'}, timeout=self.TIMEOUT)
+            'GET', url, {'FORMAT': 'METADATA'},
+            timeout=self.TIMEOUT)
 
         # Raise exception, if request failed
         response.raise_for_status()
+        HTMLtoTable = HTML()
 
-        return Table.read(response.text, format='ipac', guess=False)
+        return HTMLtoTable.read(response.text)
 
 
 Ibe = IbeClass()
