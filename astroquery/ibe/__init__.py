@@ -14,8 +14,9 @@ class Conf(_config.ConfigNamespace):
     Configuration parameters for `astroquery.ibe`.
     """
 
+    # For some reason the IBE in the URL is case sensitive
     server = _config.ConfigItem(
-        'http://irsa.ipac.caltech.edu/ibe/',
+        'http://irsa.ipac.caltech.edu/IBE/', 
         'Name of the IBE server to use.')
     mission = _config.ConfigItem(
         'ptf',

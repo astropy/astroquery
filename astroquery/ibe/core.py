@@ -10,6 +10,8 @@ API from
 from __future__ import print_function, division
 
 import os
+import sys
+
 import webbrowser
 from bs4 import BeautifulSoup
 
@@ -24,6 +26,14 @@ from ..utils import commons
 from . import conf
 
 __all__ = ['Ibe', 'IbeClass']
+
+if sys.version_info[0] >= 3:
+    decode = lambda x: x.decode()
+    encode = lambda x: bytes(x, "ascii")
+    
+else:
+    decode = lambda x: x
+    encode = lambda x: x
 
 
 class IbeClass(BaseQuery):
@@ -108,7 +118,8 @@ class IbeClass(BaseQuery):
         # Raise exception, if request failed
         response.raise_for_status()
 
-        return Table.read(response.text, format='ipac', guess=False)
+        return commons.parse_votable(
+            encode(response.text)).get_first_table().to_table()
 
     def query_region_sia(self, coordinate=None, mission=None,
                          dataset=None, table=None, width=None,
@@ -157,8 +168,10 @@ class IbeClass(BaseQuery):
             SQL-like query string. Required if ``coordinates`` is absent.
         mission : str
             The mission to be used (if not the default mission).
+            Note: this kwarg is not actually used here.
         dataset : str
             The dataset to be used (if not the default dataset).
+            Note: this option is meaningless to the ibe service.
         table : str
             The table to be queried (if not the default table).
         columns : str, list
@@ -196,7 +209,8 @@ class IbeClass(BaseQuery):
             The action to perform at the server.  The default is ``'search'``,
             which returns a table of the available data.  ``'data'`` requires
             advanced path construction that is not yet supported. ``'sia'``
-            provides access to the 'simple image access' IVOA protocol
+            is here for legacy reasons. This function is built around IRSA's
+            VO TAP API. IRSA's SIA API is completely different.
 
         Returns
         -------
@@ -221,8 +235,17 @@ class IbeClass(BaseQuery):
                 "The action='data' option is a placeholder for future " +
                 "functionality.")
 
+        if action == "sia":
+            raise ValueError(
+                "The action='sia' is not implemented for IRSA's IBE "
+                "interface because IRSA's SIA interface is radically "
+                "different.")
+        
+
         args = {
-            'INTERSECT': intersect
+            'INTERSECT': intersect,
+            'TABLE': table or self.TABLE,
+            'RESPONSEFORMAT': "VOTABLE"
         }
 
         # Note: in IBE, if 'mcen' argument is present, it is true.
@@ -248,14 +271,11 @@ class IbeClass(BaseQuery):
                 columns = columns.split()
             args['columns'] = ','.join(columns)
 
-        url = "{URL}{action}/{mission}/{dataset}/{table}".format(
-                URL=self.URL,
-                action=action,
-                mission=mission or self.MISSION,
-                dataset=dataset or self.DATASET,
-                table=table or self.TABLE)
+        url = self.URL.rstrip("/")
 
-        return self._request('GET', url, args, timeout=self.TIMEOUT)
+        response = self._request('GET', url, args, timeout=self.TIMEOUT)
+
+        return response
 
     def list_missions(self, cache=True):
         """
