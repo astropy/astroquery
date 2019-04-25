@@ -303,7 +303,6 @@ class IbeClass(BaseQuery):
         datasets : list
             A list of dataset names
         """
-        # This level
 
         return [ "images" ]
 
