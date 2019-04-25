@@ -16,7 +16,7 @@ class Conf(_config.ConfigNamespace):
 
     # For some reason the IBE in the URL is case sensitive
     server = _config.ConfigItem(
-        'http://irsa.ipac.caltech.edu/IBE/', 
+        'http://irsa.ipac.caltech.edu/IBE/',
         'Name of the IBE server to use.')
     mission = _config.ConfigItem(
         'ptf',

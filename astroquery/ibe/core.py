@@ -30,7 +30,7 @@ __all__ = ['Ibe', 'IbeClass']
 if sys.version_info[0] >= 3:
     decode = lambda x: x.decode()
     encode = lambda x: bytes(x, "ascii")
-    
+
 else:
     decode = lambda x: x
     encode = lambda x: x
@@ -240,7 +240,6 @@ class IbeClass(BaseQuery):
                 "The action='sia' is not implemented for IRSA's IBE "
                 "interface because IRSA's SIA interface is radically "
                 "different.")
-        
 
         args = {
             'INTERSECT': intersect,
@@ -324,7 +323,7 @@ class IbeClass(BaseQuery):
             A list of dataset names
         """
 
-        return [ "images" ]
+        return ["images"]
 
     def list_tables(self, mission=None, dataset=None, cache=True):
         """
