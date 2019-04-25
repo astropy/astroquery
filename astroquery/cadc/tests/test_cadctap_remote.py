@@ -21,12 +21,16 @@ class TestCadcClass:
         result = cadc.query_region('08h45m07.5s +54d18m00s', collection='CFHT')
         # do some manipulation of the results. Below it's filtering out based
         # on target name but other manipulations are possible.
+        assert len(result) > 0
         urls = cadc.get_data_urls(result[result['target_name'] == 'Nr3491_1'])
-        assert 1 == len(urls)
+        assert len(urls) > 0
+        # urls are a subset of the results that match target_name==Nr3491_1
+        assert len(result) >= len(urls)
+        urls_data_only = len(urls)
         # now get the auxilary files too
         urls = cadc.get_data_urls(result[result['target_name'] == 'Nr3491_1'],
                                   include_auxiliaries=True)
-        assert 4 == len(urls)
+        assert urls_data_only <= len(urls)
 
         # the same result should be obtained by querying the entire region
         # and filtering out on the CFHT collection
