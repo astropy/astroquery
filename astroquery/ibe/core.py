@@ -29,12 +29,11 @@ __all__ = ['Ibe', 'IbeClass']
 class IbeClass(BaseQuery):
     URL = conf.server
     MISSION = conf.mission
-    DATASET = conf.dataset
     TABLE = conf.table
     TIMEOUT = conf.timeout
 
     def query_region(
-            self, coordinate=None, where=None, mission=None, dataset=None,
+            self, coordinate=None, where=None, mission=None,
             table=None, columns=None, width=None, height=None,
             intersect='OVERLAPS', most_centered=False):
         """
@@ -57,10 +56,6 @@ class IbeClass(BaseQuery):
             `~astropy.coordinates.SkyCoord`. Required if ``where`` is absent.
         where : str
             SQL-like query string. Required if ``coordinates`` is absent.
-        mission : str
-            The mission to be used (if not the default mission).
-        dataset : str
-            The dataset to be used (if not the default dataset).
         table : str
             The table to be queried (if not the default table).
         columns : str, list
@@ -101,8 +96,8 @@ class IbeClass(BaseQuery):
             A table containing the results of the query
         """
         response = self.query_region_async(
-            coordinate=coordinate, where=where, mission=mission,
-            dataset=dataset, table=table, columns=columns, width=width,
+            coordinate=coordinate, where=where,
+            table=table, columns=columns, width=width,
             height=height, intersect=intersect, most_centered=most_centered)
 
         # Raise exception, if request failed
@@ -112,7 +107,7 @@ class IbeClass(BaseQuery):
             response.content).get_first_table().to_table()
 
     def query_region_sia(self, coordinate=None, mission=None,
-                         dataset=None, table=None, width=None,
+                         table=None, width=None,
                          height=None, intersect='OVERLAPS',
                          most_centered=False):
         """
@@ -120,8 +115,8 @@ class IbeClass(BaseQuery):
         details.  The returned table will include a list of URLs.
         """
         response = self.query_region_async(
-            coordinate=coordinate, mission=mission,
-            dataset=dataset, table=table, width=width,
+            coordinate=coordinate,
+            table=table, width=width,
             height=height, intersect=intersect, most_centered=most_centered,
             action='sia')
 
@@ -132,7 +127,7 @@ class IbeClass(BaseQuery):
             response.text).get_first_table().to_table()
 
     def query_region_async(
-            self, coordinate=None, where=None, mission=None, dataset=None,
+            self, coordinate=None, where=None,
             table=None, columns=None, width=None, height=None,
             action='search',
             intersect='OVERLAPS', most_centered=False):
@@ -156,12 +151,6 @@ class IbeClass(BaseQuery):
             `~astropy.coordinates.SkyCoord`. Required if ``where`` is absent.
         where : str
             SQL-like query string. Required if ``coordinates`` is absent.
-        mission : str
-            The mission to be used (if not the default mission).
-            Note: this kwarg is not actually used here.
-        dataset : str
-            The dataset to be used (if not the default dataset).
-            Note: this option is meaningless to the ibe service.
         table : str
             The table to be queried (if not the default table).
         columns : str, list
@@ -226,7 +215,7 @@ class IbeClass(BaseQuery):
                 "functionality.")
 
         if action == "sia":
-            raise ValueError(
+            raise NotImplementedError(
                 "The action='sia' is not implemented for IRSA's IBE "
                 "interface because IRSA's SIA interface is radically "
                 "different.")
@@ -293,33 +282,10 @@ class IbeClass(BaseQuery):
 
         return missions
 
-    def list_datasets(self, mission=None, cache=True):
+    def list_tables(self, mission=None, cache=True):
         """
-        For a given mission, list the available datasets.
-        This level has no meaning in IRSA's ibe service.
-
-        Parameters
-        ----------
-        mission : str
-            A mission name.  Must be one of the valid missions from
-            `~astroquery.ibe.IbeClass.list_missions`.  Defaults to the
-            configured Mission
-        cache : bool
-            Cache the query result
-
-        Returns
-        -------
-        datasets : list
-            A list of dataset names
-        """
-
-        return ["images"]
-
-    def list_tables(self, mission=None, dataset=None, cache=True):
-        """
-        For a given mission and dataset (see
-        `~.astroquery.ibe.IbeClass.list_missions`,
-        `~astroquery.ibe.IbeClass.list_datasets`), return the list of valid
+        For a given mission (see
+        `~.astroquery.ibe.IbeClass.list_missions`), return the list of valid
         table names to query.
 
         Parameters
@@ -328,9 +294,6 @@ class IbeClass(BaseQuery):
             A mission name.  Must be one of the valid missions from
             `~.astroquery.ibe.IbeClass.list_missions`.  Defaults to the
             configured Mission
-        dataset : str
-            A dataset name.  Must be one of the valid dataset from
-            ``list_datsets(mission)``.  Defaults to the configured Dataset
         cache : bool
             Cache the query result
 
@@ -341,19 +304,11 @@ class IbeClass(BaseQuery):
         """
         if mission is None:
             mission = self.MISSION
-        if dataset is None:
-            dataset = self.DATASET
 
         if mission not in self.list_missions():
             raise ValueError("Invalid mission specified: {0}."
                              "Must be one of: {1}"
                              .format(mission, self.list_missions()))
-
-        if dataset not in self.list_datasets(mission, cache=cache):
-            raise ValueError("Invalid dataset {0} specified for mission {1}."
-                             "Must be one of: {2}"
-                             .format(dataset, mission,
-                                     self.list_datasets(mission, cache=True)))
 
         url = "{URL}search/{mission}/".format(URL=self.URL, mission=mission)
         response = self._request('GET', url, timeout=self.TIMEOUT,
@@ -367,7 +322,7 @@ class IbeClass(BaseQuery):
     # def get_data(self, **kwargs):
     #    return self.query_region_async(retrieve_data=True, **kwargs)
 
-    def show_docs(self, mission=None, dataset=None, table=None):
+    def show_docs(self, mission=None, table=None):
         """
         Open the documentation for a given table in a web browser.
 
@@ -375,8 +330,6 @@ class IbeClass(BaseQuery):
         ----------
         mission : str
             The mission to be used (if not the default mission).
-        dataset : str
-            The dataset to be used (if not the default dataset).
         table : str
             The table to be queried (if not the default table).
         """
@@ -388,7 +341,7 @@ class IbeClass(BaseQuery):
 
         return webbrowser.open(url)
 
-    def get_columns(self, mission=None, dataset=None, table=None):
+    def get_columns(self, mission=None, table=None):
         """
         Get the schema for a given table.
 
@@ -396,8 +349,6 @@ class IbeClass(BaseQuery):
         ----------
         mission : str
             The mission to be used (if not the default mission).
-        dataset : str
-            The dataset to be used (if not the default dataset).
         table : str
             The table to be queried (if not the default table).
 
