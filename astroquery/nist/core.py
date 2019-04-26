@@ -1,6 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 
+import html
 import re
 
 import astropy.units as u
@@ -169,6 +170,7 @@ class NistClass(BaseQuery):
         try:
             table = _strip_blanks(pre)
             table = links_re.sub(r'\1', table)
+            table = html.unescape(table)
             table = asciitable.read(table, Reader=asciitable.FixedWidth,
                                     data_start=3, delimiter='|')
             return table
