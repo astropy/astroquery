@@ -23,9 +23,6 @@ class Conf(_config.ConfigNamespace):
         ('Default mission. See, for example, '
          'http://irsa.ipac.caltech.edu/ibe/search/ for options.'))
 
-    dataset = _config.ConfigItem(
-        'images',
-        ('This option is meaningless in the context of IRSA\'s ibe.'))
     table = _config.ConfigItem(
         'ptf.ptf_procimg',
         ('Default table. Select the desired mission at '
