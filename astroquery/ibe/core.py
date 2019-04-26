@@ -10,7 +10,6 @@ API from
 from __future__ import print_function, division
 
 import os
-import sys
 
 import webbrowser
 from bs4 import BeautifulSoup
@@ -26,15 +25,6 @@ from ..utils import commons
 from . import conf
 
 __all__ = ['Ibe', 'IbeClass']
-
-if sys.version_info[0] >= 3:
-    decode = lambda x: x.decode()
-    encode = lambda x: bytes(x, "ascii")
-
-else:
-    decode = lambda x: x
-    encode = lambda x: x
-
 
 class IbeClass(BaseQuery):
     URL = conf.server
@@ -119,7 +109,7 @@ class IbeClass(BaseQuery):
         response.raise_for_status()
 
         return commons.parse_votable(
-            encode(response.text)).get_first_table().to_table()
+            response.content).get_first_table().to_table()
 
     def query_region_sia(self, coordinate=None, mission=None,
                          dataset=None, table=None, width=None,
