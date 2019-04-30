@@ -163,8 +163,8 @@ The product fields are documented `here <https://mast.stsci.edu/api/v0/_products
 
                 >>> from astroquery.mast import Observations
                 >>> obs_table = Observations.query_object("M8",radius=".02 deg")
-                >>> dataProductsByObservation = Observations.get_product_list(obs_table[0:2])
-                >>> print(dataProductsByObservation)
+                >>> data_products_by_observation = Observations.get_product_list(obs_table[0:2])
+                >>> print(data_products_by_observation)
 
                   obsID    obs_collection ...          productFilename             size
                 ---------- -------------- ... ---------------------------------- --------
@@ -186,8 +186,8 @@ The product fields are documented `here <https://mast.stsci.edu/api/v0/_products
                 9500243833             K2 ...    k2-tpf-only-target_bw_thumb.png     1301
 
                 >>> obsids = obs_table[0:2]['obsid']
-                >>> dataProductsByID = Observations.get_product_list(obsids)
-                >>> print(dataProductsByID)
+                >>> data_products_by_id = Observations.get_product_list(obsids)
+                >>> print(data_products_by_id)
 
                   obsID    obs_collection ...          productFilename             size
                 ---------- -------------- ... ---------------------------------- --------
@@ -208,7 +208,7 @@ The product fields are documented `here <https://mast.stsci.edu/api/v0/_products
                 9500243833             K2 ... ktwo200071160-c92_lpd-targ.fits.gz 62213068
                 9500243833             K2 ...    k2-tpf-only-target_bw_thumb.png     1301
 
-                >>> print((dataProductsByObservation == dataProductsByID).all())
+                >>> print((data_products_by_observation == data_products_by_id).all())
                 True
 
 
@@ -226,8 +226,8 @@ with a `~astropy.table.Table` of data products, or a list (or single) obsid as t
 
                 >>> from astroquery.mast import Observations
                 >>> obsid = '3000007760'
-                >>> dataProductsByID = Observations.get_product_list(obsid)
-                >>> manifest = Observations.download_products(dataProductsByID)
+                >>> data_products_by_id = Observations.get_product_list(obsid)
+                >>> manifest = Observations.download_products(data_products_by_id)
                 Downloading URL http://archive.stsci.edu/pub/iue/data/lwp/13000/lwp13058.mxlo.gz to ./mastDownload/IUE/lwp13058/lwp13058.mxlo.gz ... [Done]
                 Downloading URL http://archive.stsci.edu/pub/vospectra/iue2/lwp13058mxlo_vo.fits to ./mastDownload/IUE/lwp13058/lwp13058mxlo_vo.fits ... [Done]
                 >>> print(manifest)
@@ -276,14 +276,14 @@ Product filtering can also be applied directly to a table of products without pr
 .. code-block:: python
 
                 >>> from astroquery.mast import Observations
-                >>> dataProductsByID = Observations.get_product_list('2003839997')
-                >>> print(len(dataProductsByID))
+                >>> data_products_by_id = Observations.get_product_list('2003839997')
+                >>> print(len(data_products_by_id))
                 31
 
-                >>> dataProductsByID = Observations.filter_products(dataProductsByID,
+                >>> data_products_by_id = Observations.filter_products(data_products_by_id,
                                                                     productSubGroupDescription=["RAW", "UNCAL"],
                                                                     extenstion="fits")
-                >>> print(len(dataProductsByID))
+                >>> print(len(data_products_by_id))
                 4
 
 
