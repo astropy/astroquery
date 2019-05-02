@@ -212,8 +212,8 @@ class MastClass(QueryWithLogin):
 
         return not info["anon"]
 
-    @deprecated(since="v0.3.9.dev", message=("The get_token function is deprecated, "
-                                             "session token is now the token used for login."))
+    @deprecated(since="v0.3.9", message=("The get_token function is deprecated, "
+                                         "session token is now the token used for login."))
     def get_token(self):
         return None
 
