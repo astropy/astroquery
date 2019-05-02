@@ -3,8 +3,7 @@
 MAST Portal
 ===========
 
-Module to query the Barbara A. Mikulski Archive for Space Telescopes (MAST).
-
+This module contains various methods for querying the MAST Portal.
 """
 
 from __future__ import print_function, division
@@ -12,35 +11,32 @@ from __future__ import print_function, division
 import warnings
 import json
 import time
-import string
 import os
-import re
 import keyring
 import threading
-import requests
 
 import numpy as np
 
 from requests import HTTPError
 from getpass import getpass
-from base64 import b64encode
 
 import astropy.units as u
 import astropy.coordinates as coord
-from astropy.utils import deprecated
 
 from astropy.table import Table, Row, vstack, MaskedColumn
-from six.moves.urllib.parse import quote as urlencode
-from six.moves.http_cookiejar import Cookie
-from astropy.utils.console import ProgressBarOrSpinner
-from astropy.utils.exceptions import AstropyWarning, AstropyDeprecationWarning
 from astropy.logger import log
+
+from astropy.utils import deprecated
+from astropy.utils.console import ProgressBarOrSpinner
+from astropy.utils.exceptions import AstropyDeprecationWarning
+
+from six.moves.urllib.parse import quote as urlencode
 
 from ..query import QueryWithLogin
 from ..utils import commons, async_to_sync
 from ..utils.class_or_instance import class_or_instance
 from ..exceptions import (TimeoutError, InvalidQueryError, RemoteServiceError,
-                          LoginError, ResolverError, MaxResultsWarning,
+                          ResolverError, MaxResultsWarning,
                           NoResultsWarning, InputWarning, AuthenticationWarning)
 
 from . import conf
@@ -65,9 +61,9 @@ def _prepare_service_request_string(json_obj):
     response : str
         URL encoded Mashup Request string.
     """
-    requestString = json.dumps(json_obj)
-    requestString = urlencode(requestString)
-    return "request="+requestString
+
+    request_string = json.dumps(json_obj)
+    return 'request={}'.format(urlencode(request_string))
 
 
 def _mashup_json_to_table(json_obj, col_config=None):
@@ -86,8 +82,7 @@ def _mashup_json_to_table(json_obj, col_config=None):
     response : `~astropy.table.Table`
     """
 
-    dataTable = Table(masked=True)
-    absCorr = None
+    data_table = Table(masked=True)
 
     if not all(x in json_obj.keys() for x in ['fields', 'data']):
         raise KeyError("Missing required key(s) 'data' and/or 'fields.'")
@@ -99,40 +94,40 @@ def _mashup_json_to_table(json_obj, col_config=None):
             continue
 
         # reading the colum config if given
-        ignoreValue = None
+        ignore_value = None
         if col_config:
-            colProps = col_config.get(col, {})
-            ignoreValue = colProps.get("ignoreValue", None)
+            col_props = col_config.get(col, {})
+            ignore_value = col_props.get("ignoreValue", None)
 
         # making type adjustments
         if atype == "string":
             atype = "str"
-            ignoreValue = "" if (ignoreValue is None) else ignoreValue
+            ignore_value = "" if (ignore_value is None) else ignore_value
         if atype == "boolean":
             atype = "bool"
         if atype == "int":  # int arrays do not admit Non/nan vals
             atype = np.int64
-            ignoreValue = -999 if (ignoreValue is None) else ignoreValue
+            ignore_value = -999 if (ignore_value is None) else ignore_value
         if atype == "date":
             atype = "str"
-            ignoreValue = "" if (ignoreValue is None) else ignoreValue
+            ignore_value = "" if (ignore_value is None) else ignore_value
 
         # Make the column list (don't assign final type yet or there will be errors)
-        colData = np.array([x.get(col, ignoreValue) for x in json_obj['data']], dtype=object)
-        if ignoreValue is not None:
-            colData[np.where(np.equal(colData, None))] = ignoreValue
+        col_data = np.array([x.get(col, ignore_value) for x in json_obj['data']], dtype=object)
+        if ignore_value is not None:
+            col_data[np.where(np.equal(col_data, None))] = ignore_value
 
         # no consistant way to make the mask because np.equal fails on ''
         # and array == value fails with None
         if atype == 'str':
-            colMask = (colData == ignoreValue)
+            col_mask = (col_data == ignore_value)
         else:
-            colMask = np.equal(colData, ignoreValue)
+            col_mask = np.equal(col_data, ignore_value)
 
         # add the column
-        dataTable.add_column(MaskedColumn(colData.astype(atype), name=col, mask=colMask))
+        data_table.add_column(MaskedColumn(col_data.astype(atype), name=col, mask=col_mask))
 
-    return dataTable
+    return data_table
 
 
 @async_to_sync
@@ -144,7 +139,7 @@ class MastClass(QueryWithLogin):
     more flexible but less user friendly than `ObservationsClass`.
     """
 
-    def __init__(self, username=None, password=None, session_token=None):
+    def __init__(self, mast_token=None):
 
         super(MastClass, self).__init__()
 
@@ -157,247 +152,120 @@ class MastClass(QueryWithLogin):
         self._column_configs = dict()
         self._current_service = None
 
-        try:
-            self._auth_mode = self._get_auth_mode()
-        except (requests.exceptions.ConnectionError, IOError):
-            # this is fine, we're in test mode
-            self._auth_mode = 'SHIB-ECP'
+        self._SESSION_INFO_URL = conf.server + "/whoami"
+        self._MAST_DOWNLOAD_URL = conf.server + "/api/v0.1/Download/file"
+        self._MAST_BUNDLE_URL = conf.server + "/api/v0.1/Download/bundle"
 
-        if "SHIB-ECP" == self._auth_mode:
-            log.debug("Using Legacy Shibboleth login")
-            self._SESSION_INFO_URL = conf.server + "/Shibboleth.sso/Session"
-            self._SP_TARGET = conf.server + "/api/v0/Mashup/Login/login.html"
-            self._IDP_ENDPOINT = conf.ssoserver + "/idp/profile/SAML2/SOAP/ECP"
-            self._MAST_DOWNLOAD_URL = conf.server + "/api/v0/Download/file"
-        elif "MAST-AUTH" == self._auth_mode:
-            log.debug("Using Auth.MAST login")
-            self._SESSION_INFO_URL = conf.server + "/whoami"
-            self._MAST_DOWNLOAD_URL = conf.server + "/api/v0.1/Download/file"
-            self._MAST_BUNDLE_URL = conf.server + "/api/v0.1/Download/bundle"
-        else:
-            raise Exception("Unknown MAST Auth mode %s" % self._auth_mode)
+        if mast_token:
+            self.login(token=mast_token)
 
-        if username or session_token:
-            self.login(username, password, session_token)
-
-    def _get_auth_mode(self):
-        _auth_mode = "SHIB-ECP"
-
-        # Detect auth mode from auth_type endpoint
-        resp = self._session.get(conf.server + '/auth_type')
-        if resp.status_code == 200:
-            _auth_mode = resp.text.strip()
-        else:
-            log.warning("Unknown MAST auth mode, defaulting to Legacy Shibboleth login")
-        return _auth_mode
-
-    def _login(self, *args, **kwargs):
-        if "SHIB-ECP" == self._auth_mode:
-            return self._shib_legacy_login(*args, **kwargs)
-        elif "MAST-AUTH" == self._auth_mode:
-            return self._authorize(*args, **kwargs)
-        else:
-            raise Exception("Unknown MAST Auth mode %s" % self._auth_mode)
-
-    def get_token(self, *args, **kwargs):
+    def _login(self, token=None, store_token=False, reenter_token=False):  # pragma: no cover
         """
-        Returns MAST token cookie.
+        Log into the MAST portal.
 
-        Returns
-        -------
-        response : `~http.cookiejar.Cookie`
+        Parameters
+        ----------
+        token : string, optional
+            Default is None.
+            The token to authenticate the user.
+            This can be generated at
+            https://auth.mast.stsci.edu/token?suggested_name=Astroquery&suggested_scope=mast:exclusive_access.
+            If not supplied, it will be prompted for if not in the keyring or set via $MAST_API_TOKEN
+        store_token : bool, optional
+            Default False.
+            If true, MAST token will be stored securely in your keyring.
+        reenter_token :  bool, optional
+            Default False.
+            Asks for the token even if it is already stored in the keyring or $MAST_API_TOKEN environment variable.
+            This is the way to overwrite an already stored password on the keyring.
         """
-        if "SHIB-ECP" == self._auth_mode:
-            return self._shib_get_token(*args, **kwargs)
-        elif "MAST-AUTH" == self._auth_mode:
-            return self._get_token(*args, **kwargs)
-        else:
-            raise Exception("Unknown MAST Auth mode %s" % self._auth_mode)
 
-    def session_info(self, *args, **kwargs):  # pragma: no cover
+        auth_link = (conf.server.replace("mast", "auth.mast") +
+                     "/token?suggested_name=Astroquery&suggested_scope=mast:exclusive_access")
+
+        if token is None and "MAST_API_TOKEN" in os.environ:
+            token = os.environ["MAST_API_TOKEN"]
+
+        if token is None:
+            token = keyring.get_password("astroquery:mast.stsci.edu.token", "masttoken")
+
+        if token is None or reenter_token:
+            info_msg = "If you do not have an API token already, visit the following link to create one: "
+            log.info(info_msg + auth_link)
+            token = getpass("Enter MAST API Token: ")
+
+        # store token if desired
+        if store_token:
+            keyring.set_password("astroquery:mast.stsci.edu.token", "masttoken", token)
+
+        self._session.headers["Accept"] = "application/json"
+        self._session.cookies["mast_token"] = token
+        info = self.session_info(verbose=False)
+
+        if not info["anon"]:
+            log.info("MAST API token accepted, welcome %s" % info["attrib"].get("display_name"))
+        else:
+            warn_msg = ("MAST API token invalid!\n"
+                        "To make create a new API token visit to following link: " +
+                        auth_link)
+            warnings.warn(warn_msg, AuthenticationWarning)
+
+        return not info["anon"]
+
+    @deprecated(since="v0.3.9", message=("The get_token function is deprecated, "
+                                         "session token is now the token used for login."))
+    def get_token(self):
+        return None
+
+    def session_info(self, silent=None, verbose=None):
         """
         Displays information about current MAST user, and returns user info dictionary.
 
         Parameters
         ----------
-        silent : bool, optional
-            Default False.
-            Suppresses output to stdout.
+        silent :
+            Deprecated. Use verbose instead.
+        verbose : bool, optional
+            Default True. Set to False to suppress output to stdout.
 
         Returns
         -------
         response : dict
         """
-        if "SHIB-ECP" == self._auth_mode:
-            return self._shib_session_info(*args, **kwargs)
-        elif "MAST-AUTH" == self._auth_mode:
-            return self._session_info(*args, **kwargs)
-        else:
-            raise Exception("Unknown MAST Auth mode %s" % self._auth_mode)
 
-    def _shib_attach_cookie(self, session_token):  # pragma: no cover
-        """
-        Attaches a valid shibboleth session cookie to the current session.
-
-        Parameters
-        ----------
-        session_token : dict or  `http.cookiejar.Cookie`
-            A valid MAST shibboleth session cookie.
-        """
-
-        # clear any previous shib cookies
-        self._session.cookies.clear_session_cookies()
-
-        if isinstance(session_token, Cookie):
-            # check it's a shibsession cookie
-            if "shibsession" not in session_token.name:
-                raise LoginError("Invalid session token")
-
-            # add cookie to session
-            self._session.cookies.set_cookie(session_token)
-
-        elif isinstance(session_token, dict):
-            if len(session_token) > 1:
-                warnings.warn("Too many entries in token dictionary, only shibsession cookie will be used",
-                              InputWarning)
-
-            # get the shibsession cookie
-            value = None
-            for name in session_token.keys():
-                if "shibsession" in name:
-                    value = session_token[name]
-                    break
-
-            if not value:
-                raise LoginError("Invalid session token")
-
-            # add cookie to session
-            self._session.cookies.set(name, value)
-
-        else:
-            # raise datatype error
-            raise LoginError("Session token must be given as a dictionary or http.cookiejar.Cookie object")
-
-        # Print session info
-        # get user information
-        response = self._session.request("GET", self._SESSION_INFO_URL)
-
-        if response.status_code != 200:
-            warnings.warn("Status code: {}\nAuthentication failed!".format(response.status_code),
-                          AuthenticationWarning)
-            return False
-
-        exp = re.findall(r'<strong>Session Expiration \(barring inactivity\):</strong> (.*?)\n', response.text)
-        if len(exp) == 0:
-            warnings.warn("{}\nAuthentication failed!".format(response.text),
-                          AuthenticationWarning)
-            return False
-        else:
-            exp = exp[0]
-
-        log.info("Authentication successful!\nSession Expiration: {}".format(exp))
-        return True
-
-    def _shib_login(self, username, password):  # pragma: no cover
-        """
-        Given username and password, logs into the MAST shibboleth client.
-
-        Parameters
-        ----------
-        username : string
-            The user's username, will usually be the users email address.
-        password : string
-            Password associated with the given username.
-        """
-
-        # clear any previous shib cookies
-        self._session.cookies.clear_session_cookies()
-
-        authenticationString = b64encode((('{}:{}'.format(username, password)).replace('\n', '')).encode('utf-8'))
-        del password  # do not let password hang around
-
-        # The initial get request (will direct the user to the sso login)
-        self._session.headers['Accept-Encoding'] = 'identity'
-        self._session.headers['Connection'] = 'close'
-        self._session.headers['Accept'] = 'text/html; application/vnd.paos+xml'
-        self._session.headers['PAOS'] = 'ver="urn:liberty:paos:2003-08";"urn:oasis:names:tc:SAML:2.0:profiles:SSO:ecp"'
-        resp = self._session.request("GET", self._SP_TARGET)
-
-        # The idp request is the sp response sanse header
-        sp_response = resp.text
-        idp_request = re.sub(r'<S:Header>.*?</S:Header>', '', sp_response)
-
-        # Removing unneeded headers
-        del self._session.headers['PAOS']
-        del self._session.headers['Accept']
-
-        # Getting the idp response
-        self._session.headers['Content-Type'] = 'text/xml; charset=utf-8'
-        self._session.headers['Authorization'] = 'Basic {}'.format(authenticationString.decode('utf-8'))
-        responseIdp = self._session.request("POST", self._IDP_ENDPOINT, data=idp_request)
-        idp_response = responseIdp.text
-
-        # Do not let the password hang around in the session headers (or anywhere else)
-        del self._session.headers['Authorization']
-        del authenticationString
-
-        # collecting the information we need
-        relay_state = re.findall(r'<ecp:RelayState.*ecp:RelayState>', sp_response)[0]
-        response_consumer_url = re.findall(r'<paos:Request.*?responseConsumerURL="(.*?)".*?/>', sp_response)[0]
-        assertion_consumer_service = re.findall(r'<ecp:Response.*?AssertionConsumerServiceURL="(.*?)".*?/>',
-                                                idp_response)[0]
-
-        # the response_consumer_url and assertion_consumer_service should be the same
-        assert response_consumer_url == assertion_consumer_service
-
-        # adding the relay_state to the sp_packacge and removing the xml header
-        relay_state = re.sub(r'S:', 'soap11:', relay_state)  # is this exactly how I want to do this?
-        sp_package = re.sub(r'<\?xml version="1.0" encoding="UTF-8"\?>\n(.*?)<ecp:Response.*?/>', r'\g<1>'+relay_state,
-                            idp_response)
-
-        # Sending the last post (that should result in the shibbolith session cookie being set)
-        self._session.headers['Content-Type'] = 'application/vnd.paos+xml'
-        response = self._session.request("POST", assertion_consumer_service, data=sp_package)
-
-        # setting the headers back to where they should be
-        del self._session.headers['Content-Type']
-        self._session.headers['Accept-Encoding'] = 'gzip, deflate'
-        self._session.headers['Accept'] = '*/*'
-        self._session.headers['Connection'] = 'keep-alive'
-
-        # check that the cookie was set
-        # (the name of the shib session cookie is not fixed so we have to search for it)
-        cookieFound = False
-        for cookie in self._session.cookies:
-            if "shibsession" in cookie.name:
-                cookieFound = True
-                break
-        if not cookieFound:
-            warnings.warn("Authentication failed!", AuthenticationWarning)
-            return
+        # Dealing with deprecated argument
+        if (silent is not None) and (verbose is not None):
+            warnings.warn(("Argument 'silent' has been deprecated, "
+                           "will be ignored in favor of 'verbose'"), AstropyDeprecationWarning)
+        elif silent is not None:
+            warnings.warn(("Argument 'silent' has been deprecated, "
+                           "and will be removed in the future. "
+                           " Use 'verbose' instead."), AstropyDeprecationWarning)
+            verbose = not silent
+        elif (silent is None) and (verbose is None):
+            verbose = True
 
         # get user information
+        self._session.headers["Accept"] = "application/json"
         response = self._session.request("GET", self._SESSION_INFO_URL)
 
-        if response.status_code != 200:
-            warnings.warn("Authentication failed!", AuthenticationWarning)
-            return
+        info_dict = response.json()
 
-        exp = re.findall(r'<strong>Session Expiration \(barring inactivity\):</strong> (.*?)\n', response.text)
-        if len(exp) == 0:
-            warnings.warn("Authentication failed!", AuthenticationWarning)
-            return False
-        else:
-            exp = exp[0]
+        if verbose:
+            for key, value in info_dict.items():
+                if isinstance(value, dict):
+                    for subkey, subval in value.items():
+                        print("%s.%s: %s" % (key, subkey, subval))
+                else:
+                    print("%s: %s" % (key, value))
 
-        log.info("Authentication successful!\nSession Expiration: {}".format(exp))
-        return True
+        return info_dict
 
     def _request(self, method, url, params=None, data=None, headers=None,
                  files=None, stream=False, auth=None, retrieve_all=True):
         """
         Override of the parent method:
-        A generic HTTP request method, similar to ``requests.Session.request``
+        A generic HTTP request method, similar to `~requests.Session.request`
 
         This is a low-level method not generally intended for use by astroquery
         end-users.
@@ -420,22 +288,22 @@ class MastClass(QueryWithLogin):
         auth : None or dict
         files : None or dict
         stream : bool
-            See ``requests.request``
+            See `~requests.request`
         retrieve_all : bool
             Default True. Retrieve all pages of data or just the one indicated in the params value.
 
         Returns
         -------
-        response : ``requests.Response``
+        response : `~requests.Response`
             The response from the server.
         """
 
-        startTime = time.time()
-        allResponses = []
-        totalPages = 1
-        curPage = 0
+        start_time = time.time()
+        all_responses = []
+        total_pages = 1
+        cur_page = 0
 
-        while curPage < totalPages:
+        while cur_page < total_pages:
             status = "EXECUTING"
 
             while status == "EXECUTING":
@@ -443,8 +311,11 @@ class MastClass(QueryWithLogin):
                                                            headers=headers, files=files, cache=False,
                                                            stream=stream, auth=auth)
 
-                if (time.time() - startTime) >= self.TIMEOUT:
+                if (time.time() - start_time) >= self.TIMEOUT:
                     raise TimeoutError("Timeout limit of {} exceeded.".format(self.TIMEOUT))
+
+                # Raising error based on HTTP status if necessary
+                response.raise_for_status()
 
                 result = response.json()
 
@@ -453,7 +324,7 @@ class MastClass(QueryWithLogin):
                 else:
                     status = result.get("status")
 
-            allResponses.append(response)
+            all_responses.append(response)
 
             if (status != "COMPLETE") or (not retrieve_all):
                 break
@@ -461,12 +332,12 @@ class MastClass(QueryWithLogin):
             paging = result.get("paging")
             if paging is None:
                 break
-            totalPages = paging['pagesFiltered']
-            curPage = paging['page']
+            total_pages = paging['pagesFiltered']
+            cur_page = paging['page']
 
-            data = data.replace("page%22%3A%20"+str(curPage)+"%2C", "page%22%3A%20"+str(curPage+1)+"%2C")
+            data = data.replace("page%22%3A%20"+str(cur_page)+"%2C", "page%22%3A%20"+str(cur_page+1)+"%2C")
 
-        return allResponses
+        return all_responses
 
     def _get_col_config(self, service, fetch_name=None):
         """
@@ -502,26 +373,26 @@ class MastClass(QueryWithLogin):
             more = True
 
         if more:
-            mashupRequest = {'service': all_name, 'params': {}, 'format': 'extjs'}
-            reqString = _prepare_service_request_string(mashupRequest)
-            response = self._request("POST", self._MAST_REQUEST_URL, data=reqString, headers=headers)
-            jsonResponse = response[0].json()
+            mashup_request = {'service': all_name, 'params': {}, 'format': 'extjs'}
+            req_string = _prepare_service_request_string(mashup_request)
+            response = self._request("POST", self._MAST_REQUEST_URL, data=req_string, headers=headers)
+            json_response = response[0].json()
 
-            self._column_configs[service].update(jsonResponse['data']['Tables'][0]
+            self._column_configs[service].update(json_response['data']['Tables'][0]
                                                  ['ExtendedProperties']['discreteHistogram'])
-            self._column_configs[service].update(jsonResponse['data']['Tables'][0]
+            self._column_configs[service].update(json_response['data']['Tables'][0]
                                                  ['ExtendedProperties']['continuousHistogram'])
             for col, val in self._column_configs[service].items():
                 val.pop('hist', None)  # don't want to save all this unecessary data
 
     def _parse_result(self, responses, verbose=False):
         """
-        Parse the results of a list of ``requests.Response`` objects and returns an `astropy.table.Table` of results.
+        Parse the results of a list of `~requests.Response` objects and returns an `astropy.table.Table` of results.
 
         Parameters
         ----------
-        responses : list of ``requests.Response``
-            List of ``requests.Response`` objects.
+        responses : list of `~requests.Response`
+            List of `~requests.Response` objects.
         verbose : bool
             (presently does nothing - there is no output with verbose set to
             True or False)
@@ -529,16 +400,16 @@ class MastClass(QueryWithLogin):
 
         Returns
         -------
-        response : `astropy.table.Table`
+        response : `~astropy.table.Table`
         """
 
         # loading the columns config
-        colConfig = None
+        col_config = None
         if self._current_service:
-            colConfig = self._column_configs.get(self._current_service)
+            col_config = self._column_configs.get(self._current_service)
             self._current_service = None  # clearing current service
 
-        resultList = []
+        result_list = []
 
         for resp in responses:
             result = resp.json()
@@ -547,121 +418,15 @@ class MastClass(QueryWithLogin):
             if result['status'] == "ERROR":
                 raise RemoteServiceError(result.get('msg', "There was an error with your request."))
 
-            resTable = _mashup_json_to_table(result, colConfig)
-            resultList.append(resTable)
+            result_table = _mashup_json_to_table(result, col_config)
+            result_list.append(result_table)
 
-        allResults = vstack(resultList)
+        all_results = vstack(result_list)
 
         # Check for no results
-        if not allResults:
+        if not all_results:
             warnings.warn("Query returned no results.", NoResultsWarning)
-        return allResults
-
-    def _authorize(self, token=None, store_token=False, reenter_token=False):  # pragma: no cover
-        """
-        Log into the MAST portal.
-
-        Parameters
-        ----------
-        token : string, optional
-            Default is None.
-            The token to authenticate the user.
-            This can be generated at
-                https://auth.mast.stsci.edu/token?suggested_name=Astroquery&suggested_scope=mast:exclusive_access.
-            If not supplied, it will be prompted for if not in the keyring or set via $MAST_API_TOKEN
-        store_token : bool, optional
-            Default False.
-            If true, username and password will be stored securely in your keyring.
-        """
-
-        if token is None and "MAST_API_TOKEN" in os.environ:
-            token = os.environ["MAST_API_TOKEN"]
-
-        if token is None:
-            token = keyring.get_password("astroquery:mast.stsci.edu.token", "masttoken")
-
-        if token is None or reenter_token:
-            auth_server = conf.server.replace("mast", "auth.mast")
-            auth_link = auth_server + "/token?suggested_name=Astroquery&suggested_scope=mast:exclusive_access"
-            info_msg = "If you do not have an API token already, visit the following link to create one: "
-            log.info(info_msg + auth_link)
-            token = getpass("Enter MAST API Token: ")
-
-        # store password if desired
-        if store_token:
-            keyring.set_password("astroquery:mast.stsci.edu.token", "masttoken", token)
-
-        self._session.headers["Accept"] = "application/json"
-        self._session.cookies["mast_token"] = token
-        info = self.session_info(silent=True)
-
-        if not info["anon"]:
-            log.info("MAST API token accepted, welcome %s" % info["attrib"].get("display_name"))
-        else:
-            log.warn("MAST API token invalid!")
-
-        return not info["anon"]
-
-    def _shib_legacy_login(self, username=None, password=None, session_token=None,
-                           store_password=False, reenter_password=False):  # pragma: no cover
-        """
-        Log into the MAST portal.
-
-        Parameters
-        ----------
-        username : string, optional
-            Default is None.
-            The username for the user logging in.
-            Usually this will be the user's email address.
-            If a username is necessary but not supplied it will be prompted for.
-        password : string, optional
-            Default is None.
-            The password associated with the given username.
-            For security passwords should not be typed into the terminal or jupyter
-            notebook, but input using a more secure method such as `~getpass.getpass`.
-            If a password is necessary but not supplied it will be prompted for.
-        session_token : dict or `~http.cookiejar.Cookie`, optional
-            A valid MAST session cookie that will be attached to the current session
-            in lieu of logging in with a username/password.
-            If username and/or password is supplied, this argument will be ignored.
-        store_password : bool, optional
-            Default False.
-            If true, username and password will be stored securely in your keyring.
-        reenter_password : bool, optional
-            Default False.
-            Asks for the password even if it is already stored in the keyring.
-            This is the way to overwrite an already stored password on the keyring.
-        """
-
-        # checking the inputs
-        if (username or password) and session_token:
-            warnings.warn("Both username and session token supplied, session token will be ignored.",
-                          InputWarning)
-            session_token = None
-        elif session_token and store_password:
-            warnings.warn("Password is not used for token based login, therefor password cannot be stored.",
-                          InputWarning)
-
-        if session_token:
-            return self._shib_attach_cookie(session_token)
-        else:
-            # get username if not supplied
-            if not username:
-                username = input("Enter your username: ")
-
-            # check keyring get password if not supplied
-            if not password and not reenter_password:
-                password = keyring.get_password("astroquery:mast.stsci.edu", username)
-
-            # get password if no password is found (or reenter_password is set)
-            if not password:
-                password = getpass("Enter password for {}: ".format(username))
-
-            # store password if desired
-            if store_password:
-                keyring.set_password("astroquery:mast.stsci.edu", username, password)
-
-            return self._shib_login(username, password)
+        return all_results
 
     def logout(self):  # pragma: no cover
         """
@@ -669,116 +434,6 @@ class MastClass(QueryWithLogin):
         """
         self._session.cookies.clear_session_cookies()
         self._authenticated = False
-
-    def _get_token(self):  # pragma: no cover
-        """
-        Returns MAST token cookie.
-
-        Returns
-        -------
-        response : `~http.cookiejar.Cookie`
-        """
-
-        tokenCookie = None
-        for cookie in self._session.cookies:
-            if "mast_token" in cookie.name:
-                tokenCookie = cookie
-                break
-
-        if not tokenCookie:
-            warnings.warn("No auth token found.", AuthenticationWarning)
-
-        return tokenCookie
-
-    def _session_info(self, silent=False):  # pragma: no cover
-        """
-        Displays information about current MAST user, and returns user info dictionary.
-
-        Parameters
-        ----------
-        silent : bool, optional
-            Default False.
-            Suppresses output to stdout.
-
-        Returns
-        -------
-        response : dict
-        """
-
-        # get user information
-        self._session.headers["Accept"] = "application/json"
-        response = self._session.request("GET", self._SESSION_INFO_URL)
-
-        infoDict = json.loads(response.text)
-
-        if not silent:
-            for key, value in infoDict.items():
-                if isinstance(value, dict):
-                    for subkey, subval in value.items():
-                        print("%s.%s: %s" % (key, subkey, subval))
-                else:
-                    print("%s: %s" % (key, value))
-
-        return infoDict
-
-    def _shib_get_token(self):  # pragma: no cover
-        """
-        Returns MAST session cookie.
-
-        Returns
-        -------
-        response : `~http.cookiejar.Cookie`
-        """
-
-        shibCookie = None
-        for cookie in self._session.cookies:
-            if "shibsession" in cookie.name:
-                shibCookie = cookie
-                break
-
-        if not shibCookie:
-            warnings.warn("No session token found.", AuthenticationWarning)
-
-        return shibCookie
-
-    def _shib_session_info(self, silent=False):  # pragma: no cover
-        """
-        Displays information about current MAST session, and returns session info dictionary.
-
-        Parameters
-        ----------
-        silent : bool, optional
-            Default False.
-            Suppresses output to stdout.
-
-        Returns
-        -------
-        response : dict
-        """
-
-        # get user information
-        response = self._session.request("GET", self._SESSION_INFO_URL)
-
-        sessionInfo = response.text
-
-        patternString = r'Session Expiration \(barring inactivity\):</strong> (.*?)\n.*?STScI_Email</strong>: ' + \
-                        r'(.*?)\n<strong>STScI_FirstName</strong>: (.*?)\n<strong>STScI_LastName</strong>: (.*?)\n'
-
-        userCats = ("Session Expiration", "Username", "First Name", "Last Name")
-        userInfo = re.findall(patternString, sessionInfo, re.DOTALL)
-
-        if len(userInfo) == 0:
-            infoDict = dict(zip(userCats, (None, "anonymous", "", "")))
-        else:
-            infoDict = dict(zip(userCats, userInfo[0]))
-            infoDict['Session Expiration'] = int(re.findall(r"(\d+) minute\(s\)",
-                                                            infoDict['Session Expiration'])[0])*u.min
-
-        if not silent:
-            for key in infoDict:
-                print(key+":", infoDict[key])
-
-        return infoDict
 
     @class_or_instance
     def service_request_async(self, service, params, pagesize=None, page=None, **kwargs):
@@ -808,7 +463,7 @@ class MastClass(QueryWithLogin):
 
         Returns
         -------
-        response : list of ``requests.Response``
+        response : list of `~requests.Response`
         """
 
         # setting self._current_service
@@ -822,26 +477,26 @@ class MastClass(QueryWithLogin):
             pagesize = self.PAGESIZE
         if not page:
             page = 1
-            retrieveAll = True
+            retrieve_all = True
         else:
-            retrieveAll = False
+            retrieve_all = False
 
         headers = {"User-Agent": self._session.headers["User-Agent"],
                    "Content-type": "application/x-www-form-urlencoded",
                    "Accept": "text/plain"}
 
-        mashupRequest = {'service': service,
+        mashup_request = {'service': service,
                          'params': params,
                          'format': 'json',
                          'pagesize': pagesize,
                          'page': page}
 
         for prop, value in kwargs.items():
-            mashupRequest[prop] = value
+            mashup_request[prop] = value
 
-        reqString = _prepare_service_request_string(mashupRequest)
-        response = self._request("POST", self._MAST_REQUEST_URL, data=reqString, headers=headers,
-                                 retrieve_all=retrieveAll)
+        req_string = _prepare_service_request_string(mashup_request)
+        response = self._request("POST", self._MAST_REQUEST_URL, data=req_string, headers=headers,
+                                 retrieve_all=retrieve_all)
 
         return response
 
@@ -902,9 +557,9 @@ class MastClass(QueryWithLogin):
         if not self._column_configs.get(service_name):
             self._get_col_config(service_name, fetch_name=column_config_name)
 
-        caomColConfig = self._column_configs[service_name]
+        caom_col_config = self._column_configs[service_name]
 
-        mashupFilters = []
+        mashup_filters = []
         for colname, value in filters.items():
 
             # make sure value is a list-like thing
@@ -912,33 +567,33 @@ class MastClass(QueryWithLogin):
                 value = [value]
 
             # Get the column type and separator
-            colInfo = caomColConfig.get(colname)
-            if not colInfo:
+            col_info = caom_col_config.get(colname)
+            if not col_info:
                 warnings.warn("Filter {} does not exist. This filter will be skipped.".format(colname), InputWarning)
                 continue
 
             colType = "discrete"
-            if (colInfo.get("vot.datatype", colInfo.get("type")) in ("double", "float", "numeric")) \
-               or colInfo.get("treatNumeric"):
+            if (col_info.get("vot.datatype", col_info.get("type")) in ("double", "float", "numeric")) \
+               or col_info.get("treatNumeric"):
                 colType = "continuous"
 
-            separator = colInfo.get("separator")
-            freeText = None
+            separator = col_info.get("separator")
+            free_text = None
 
             # validate user input
             if colType == "continuous":
                 if len(value) < 2:
-                    warningString = "{} is continuous, ".format(colname) + \
+                    warning_string = "{} is continuous, ".format(colname) + \
                                     "and filters based on min and max values.\n" + \
                                     "Not enough values provided, skipping..."
-                    warnings.warn(warningString, InputWarning)
+                    warnings.warn(warning_string, InputWarning)
                     continue
                 elif len(value) > 2:
-                    warningString = "{} is continuous, ".format(colname) + \
+                    warning_string = "{} is continuous, ".format(colname) + \
                                     "and filters based on min and max values.\n" + \
                                     "Too many values provided, the first two will be " + \
                                     "assumed to be the min and max values."
-                    warnings.warn(warningString, InputWarning)
+                    warnings.warn(warning_string, InputWarning)
             else:  # coltype is discrete, all values should be represented as strings, even if numerical
                 value = [str(x) for x in value]
 
@@ -946,13 +601,13 @@ class MastClass(QueryWithLogin):
 
                 for i, val in enumerate(value):
                     if ('*' in val) or ('%' in val):
-                        if freeText:  # freeText is already set cannot set again
-                            warningString = "Only one wildcarded value may be used per filter, " + \
-                                            "all others must be exact.\n" + \
-                                            "Skipping {}...".format(val)
-                            warnings.warn(warningString, InputWarning)
+                        if free_text:  # free_text is already set cannot set again
+                            warning_string = ("Only one wildcarded value may be used per filter, "
+                                             "all others must be exact.\n"
+                                             "Skipping {}...".format(val))
+                            warnings.warn(warning_string, InputWarning)
                         else:
-                            freeText = val.replace('*', '%')
+                            free_text = val.replace('*', '%')
                         value.pop(i)
 
             # craft mashup filter entry
@@ -964,12 +619,12 @@ class MastClass(QueryWithLogin):
                 entry["values"] = [{"min": value[0], "max":value[1]}]
             else:
                 entry["values"] = value
-            if freeText:
-                entry["freeText"] = freeText
+            if free_text:
+                entry["freeText"] = free_text
 
-            mashupFilters.append(entry)
+            mashup_filters.append(entry)
 
-        return mashupFilters
+        return mashup_filters
 
 
 @async_to_sync
@@ -1002,14 +657,14 @@ class ObservationsClass(MastClass):
         service = "Mast.Caom.All"
         params = {}
         response = self.service_request_async(service, params, format='extjs')
-        jsonResponse = response[0].json()
+        json_response = response[0].json()
 
         # getting the list of missions
-        histData = jsonResponse['data']['Tables'][0]['Columns']
-        for facet in histData:
+        hist_data = json_response['data']['Tables'][0]['Columns']
+        for facet in hist_data:
             if facet['text'] == "obs_collection":
-                missionInfo = facet['ExtendedProperties']['histObj']
-                missions = list(missionInfo.keys())
+                mission_info = facet['ExtendedProperties']['histObj']
+                missions = list(mission_info.keys())
                 missions.remove('hist')
                 return missions
 
@@ -1040,7 +695,7 @@ class ObservationsClass(MastClass):
 
         Returns
         -------
-        response : list of ``requests.Response``
+        response : list of `~requests.Response`
         """
 
         # Put coordinates and radius into consistant format
@@ -1084,7 +739,7 @@ class ObservationsClass(MastClass):
 
         Returns
         -------
-        response : list of ``requests.Response``
+        response : list of `~requests.Response`
         """
 
         coordinates = self._resolve_object(objectname)
@@ -1119,7 +774,7 @@ class ObservationsClass(MastClass):
 
         Returns
         -------
-        response : list(`requests.Response`)
+        response : list of `~requests.Response`
         """
 
         # Seperating any position info from the rest of the filters
@@ -1150,11 +805,11 @@ class ObservationsClass(MastClass):
 
         # Build the mashup filter object and store it in the correct service_name entry
         if coordinates or objectname:
-            mashupFilters = self._build_filter_set("Mast.Caom.Cone", "Mast.Caom.Filtered.Position", **criteria)
+            mashup_filters = self._build_filter_set("Mast.Caom.Cone", "Mast.Caom.Filtered.Position", **criteria)
         else:
-            mashupFilters = self._build_filter_set("Mast.Caom.Cone", "Mast.Caom.Filtered", **criteria)
+            mashup_filters = self._build_filter_set("Mast.Caom.Cone", "Mast.Caom.Filtered", **criteria)
 
-        if not mashupFilters:
+        if not mashup_filters:
             raise InvalidQueryError("At least one non-positional criterion must be supplied.")
 
         # handle position info (if any)
@@ -1182,12 +837,12 @@ class ObservationsClass(MastClass):
         if position:
             service = "Mast.Caom.Filtered.Position"
             params = {"columns": "*",
-                      "filters": mashupFilters,
+                      "filters": mashup_filters,
                       "position": position}
         else:
             service = "Mast.Caom.Filtered"
             params = {"columns": "*",
-                      "filters": mashupFilters}
+                      "filters": mashup_filters}
 
         return self.service_request_async(service, params)
 
@@ -1301,9 +956,9 @@ class ObservationsClass(MastClass):
 
         # Build the mashup filter object and store it in the correct service_name entry
         if coordinates or objectname:
-            mashupFilters = self._build_filter_set("Mast.Caom.Cone", "Mast.Caom.Filtered.Position", **criteria)
+            mashup_filters = self._build_filter_set("Mast.Caom.Cone", "Mast.Caom.Filtered.Position", **criteria)
         else:
-            mashupFilters = self._build_filter_set("Mast.Caom.Cone", "Mast.Caom.Filtered", **criteria)
+            mashup_filters = self._build_filter_set("Mast.Caom.Cone", "Mast.Caom.Filtered", **criteria)
 
         # handle position info (if any)
         position = None
@@ -1330,13 +985,13 @@ class ObservationsClass(MastClass):
         if position:
             service = "Mast.Caom.Filtered.Position"
             params = {"columns": "COUNT_BIG(*)",
-                      "filters": mashupFilters,
+                      "filters": mashup_filters,
                       "obstype": obstype,
                       "position": position}
         else:
             service = "Mast.Caom.Filtered"
             params = {"columns": "COUNT_BIG(*)",
-                      "filters": mashupFilters,
+                      "filters": mashup_filters,
                       "obstype": obstype}
 
         return self.service_request(service, params)[0][0].astype(int)
@@ -1356,7 +1011,7 @@ class ObservationsClass(MastClass):
 
         Returns
         -------
-            response : list(`requests.Response`)
+            response : list of `~requests.Response`
         """
 
         # getting the obsid list
@@ -1397,18 +1052,18 @@ class ObservationsClass(MastClass):
         response : `~astropy.table.Table`
         """
 
-        filterMask = np.full(len(products), True, dtype=bool)
+        filter_mask = np.full(len(products), True, dtype=bool)
 
         # Applying the special filters (mrp_only and extension)
         if mrp_only:
-            filterMask &= (products['productGroupDescription'] == "Minimum Recommended Products")
+            filter_mask &= (products['productGroupDescription'] == "Minimum Recommended Products")
 
         if extension:
             mask = np.full(len(products), False, dtype=bool)
             for elt in extension:
                 mask |= [False if isinstance(x, np.ma.core.MaskedConstant) else x.endswith(elt)
                          for x in products["productFilename"]]
-            filterMask &= mask
+            filter_mask &= mask
 
         # Applying the rest of the filters
         for colname, vals in filters.items():
@@ -1420,9 +1075,9 @@ class ObservationsClass(MastClass):
             for elt in vals:
                 mask |= (products[colname] == elt)
 
-            filterMask &= mask
+            filter_mask &= mask
 
-        return products[np.where(filterMask)]
+        return products[np.where(filter_mask)]
 
     def _download_curl_script(self, products, out_dir):
         """
@@ -1440,81 +1095,22 @@ class ObservationsClass(MastClass):
         response : `astropy.table.Table`
         """
 
-        urlList = [("uri", url) for url in products['dataURI']]
-        downloadFile = "mastDownload_" + time.strftime("%Y%m%d%H%M%S")
-        localPath = os.path.join(out_dir.rstrip('/'), downloadFile + ".sh")
+        url_list = [("uri", url) for url in products['dataURI']]
+        download_file = "mastDownload_" + time.strftime("%Y%m%d%H%M%S")
+        local_path = os.path.join(out_dir.rstrip('/'), download_file + ".sh")
 
-        response = self._download_file(self._MAST_BUNDLE_URL + ".sh", localPath, data=urlList, method="POST")
+        response = self._download_file(self._MAST_BUNDLE_URL + ".sh", local_path, data=url_list, method="POST")
 
         status = "COMPLETE"
         msg = None
 
-        if not os.path.isfile(localPath):
+        if not os.path.isfile(local_path):
             status = "ERROR"
             msg = "Curl could not be downloaded"
 
-        manifest = Table({'Local Path': [localPath],
+        manifest = Table({'Local Path': [local_path],
                           'Status': [status],
                           'Message': [msg]})
-        return manifest
-
-    def _shib_download_curl_script(self, products, out_dir):
-        """
-        Takes an `astropy.table.Table` of data products and downloads a curl script to pull the datafiles.
-
-        Parameters
-        ----------
-        products : `astropy.table.Table`
-            Table containing products to be included in the curl script.
-        out_dir : str
-            Directory in which the curl script will be saved.
-
-        Returns
-        -------
-        response : `astropy.table.Table`
-        """
-
-        urlList = products['dataURI']
-        downloadFile = "mastDownload_" + time.strftime("%Y%m%d%H%M%S")
-        descriptionList = products['description']
-        productTypeList = products['dataproduct_type']
-
-        pathList = [downloadFile+"/"+x['obs_collection']+'/'+x['obs_id']+'/'+x['productFilename'] for x in products]
-
-        service = "Mast.Bundle.Request"
-        params = {"urlList": ",".join(urlList),
-                  "filename": downloadFile,
-                  "pathList": ",".join(pathList),
-                  "descriptionList": list(descriptionList),
-                  "productTypeList": list(productTypeList),
-                  "extension": 'curl'}
-
-        response = self.service_request_async(service, params)
-
-        bundlerResponse = response[0].json()
-
-        localPath = out_dir.rstrip('/') + "/" + downloadFile + ".sh"
-        self._download_file(bundlerResponse['url'], localPath)
-
-        status = "COMPLETE"
-        msg = None
-        url = None
-
-        if not os.path.isfile(localPath):
-            status = "ERROR"
-            msg = "Curl could not be downloaded"
-            url = bundlerResponse['url']
-        else:
-            missingFiles = [x for x in bundlerResponse['statusList'].keys()
-                            if bundlerResponse['statusList'][x] != 'COMPLETE']
-            if len(missingFiles):
-                msg = "{} files could not be added to the curl script".format(len(missingFiles))
-                url = ",".join(missingFiles)
-
-        manifest = Table({'Local Path': [localPath],
-                          'Status': [status],
-                          'Message': [msg],
-                          "URL": [url]})
         return manifest
 
     @deprecated(since="v0.3.9", alternative="enable_cloud_dataset")
@@ -1528,6 +1124,7 @@ class ObservationsClass(MastClass):
         """
         import boto3
         import botocore
+
         if profile is not None:
             self._boto3 = boto3.Session(profile_name=profile)
         else:
@@ -1552,20 +1149,20 @@ class ObservationsClass(MastClass):
         self._botocore = None
 
     @deprecated(since="v0.3.9", alternative="get_cloud_uris")
-    def get_hst_s3_uris(self, dataProducts, includeBucket=True, fullUrl=False):
-        return self.get_cloud_uris(dataProducts, includeBucket, fullUrl)
+    def get_hst_s3_uris(self, data_products, include_bucket=True, full_url=False):
+        return self.get_cloud_uris(data_products, include_bucket, full_url)
 
-    def get_cloud_uris(self, dataProducts, includeBucket=True, fullUrl=False):
+    def get_cloud_uris(self, data_products, include_bucket=True, full_url=False):
         """ Takes an `astropy.table.Table` of data products and turns them into s3 uris. """
 
-        return [self.get_cloud_uri(dataProduct, includeBucket, fullUrl) for dataProduct in dataProducts]
+        return [self.get_cloud_uri(data_product, include_bucket, full_url) for data_product in data_products]
 
     @deprecated(since="v0.3.9", alternative="get_cloud_uri")
-    def get_hst_s3_uri(self, dataProduct, includeBucket=True, fullUrl=False):
-        return self.get_cloud_uri(dataProduct, includeBucket, fullUrl)
+    def get_hst_s3_uri(self, data_product, include_bucket=True, full_url=False):
+        return self.get_cloud_uri(data_product, include_bucket, full_url)
 
-    def get_cloud_uri(self, dataProduct, includeBucket=True, fullUrl=False):
-        """ Turns a dataProduct into a S3 URI """
+    def get_cloud_uri(self, data_product, include_bucket=True, full_url=False):
+        """ Turns a data_product into a S3 URI """
 
         if self._boto3 is None:
             raise AtrributeError("Must enable s3 dataset before attempting to query the s3 information")
@@ -1573,16 +1170,16 @@ class ObservationsClass(MastClass):
         # This is a cheap operation and does not perform any actual work yet
         s3_client = self._boto3.client('s3')
 
-        paths = fpl.paths(dataProduct)
+        paths = fpl.paths(data_product)
         if paths is None:
             raise Exception("Unsupported mission")
 
         for path in paths:
             try:
                 s3_client.head_object(Bucket=self._pubdata_bucket, Key=path, RequestPayer='requester')
-                if includeBucket:
+                if include_bucket:
                     path = "s3://%s/%s" % (self._pubdata_bucket, path)
-                elif fullUrl:
+                elif full_url:
                     path = "http://s3.amazonaws.com/%s/%s" % (self._pubdata_bucket, path)
                 return path
             except self._botocore.exceptions.ClientError as e:
@@ -1591,7 +1188,7 @@ class ObservationsClass(MastClass):
 
         raise Exception("Unable to locate file!")
 
-    def _download_from_cloud(self, dataProduct, localPath, cache=True):
+    def _download_from_cloud(self, data_product, local_path, cache=True):
         # The following is a mishmash of BaseQuery._download_file and s3 access through boto
 
         self._pubdata_bucket = 'stpubdata'
@@ -1601,31 +1198,31 @@ class ObservationsClass(MastClass):
         s3_client = self._boto3.client('s3')
         bkt = s3.Bucket(self._pubdata_bucket)
 
-        bucketPath = self.get_cloud_uri(dataProduct, False)
-        info_lookup = s3_client.head_object(Bucket=self._pubdata_bucket, Key=bucketPath, RequestPayer='requester')
+        bucket_path = self.get_cloud_uri(data_product, False)
+        info_lookup = s3_client.head_object(Bucket=self._pubdata_bucket, Key=bucket_path, RequestPayer='requester')
 
         # Unfortunately, we can't use the reported file size in the reported product.  STScI's backing
         # archive database (CAOM) is frequently out of date and in many cases omits the required information.
-        # length = dataProduct["size"]
+        # length = data_product["size"]
         # Instead we ask the webserver (in this case S3) what the expected content length is and use that.
         length = info_lookup["ContentLength"]
 
-        if cache and os.path.exists(localPath):
+        if cache and os.path.exists(local_path):
             if length is not None:
-                statinfo = os.stat(localPath)
+                statinfo = os.stat(local_path)
                 if statinfo.st_size != length:
                     log.warning("Found cached file {0} with size {1} that is "
                                 "different from expected size {2}"
-                                .format(localPath,
+                                .format(local_path,
                                         statinfo.st_size,
                                         length))
                 else:
                     log.info("Found cached file {0} with expected size {1}."
-                             .format(localPath, statinfo.st_size))
+                             .format(local_path, statinfo.st_size))
                     return
 
         with ProgressBarOrSpinner(length, ('Downloading URL s3://{0}/{1} to {2} ...'.format(
-                self._pubdata_bucket, bucketPath, localPath))) as pb:
+                self._pubdata_bucket, bucket_path, local_path))) as pb:
 
             # Bytes read tracks how much data has been received so far
             # This variable will be updated in multiple threads below
@@ -1644,7 +1241,7 @@ class ObservationsClass(MastClass):
                     bytes_read += numbytes
                     pb.update(bytes_read)
 
-            bkt.download_file(bucketPath, localPath, ExtraArgs={"RequestPayer": "requester"},
+            bkt.download_file(bucket_path, local_path, ExtraArgs={"RequestPayer": "requester"},
                               Callback=progress_callback)
 
     def _download_files(self, products, base_dir, cache=True):
@@ -1665,47 +1262,47 @@ class ObservationsClass(MastClass):
         response : `~astropy.table.Table`
         """
 
-        manifestArray = []
-        for dataProduct in products:
+        manifest_array = []
+        for data_product in products:
 
-            localPath = base_dir + "/" + dataProduct['obs_collection'] + "/" + dataProduct['obs_id']
-            dataUrl = self._MAST_DOWNLOAD_URL + "?uri=" + dataProduct["dataURI"]
+            local_path = os.path.join(base_dir, data_product['obs_collection'], data_product['obs_id'])
+            data_url = self._MAST_DOWNLOAD_URL + "?uri=" + data_product["dataURI"]
 
-            if not os.path.exists(localPath):
-                os.makedirs(localPath)
+            if not os.path.exists(local_path):
+                os.makedirs(local_path)
 
-            localPath += '/' + dataProduct['productFilename']
+            local_path = os.path.join(local_path, data_product['productFilename'])
 
             status = "COMPLETE"
             msg = None
             url = None
 
             try:
-                if self._boto3 is not None and fpl.has_path(dataProduct):
+                if self._boto3 is not None and fpl.has_path(data_product):
                     try:
-                        self._download_from_cloud(dataProduct, localPath, cache)
+                        self._download_from_cloud(data_product, local_path, cache)
                     except Exception as ex:
                         log.exception("Error pulling from S3 bucket: %s" % ex)
                         log.warn("Falling back to mast download...")
-                        self._download_file(dataUrl, localPath, cache=cache, head_safe=True)
+                        self._download_file(data_url, local_path, cache=cache, head_safe=True, continuation=False)
                 else:
-                    self._download_file(dataUrl, localPath, cache=cache, head_safe=True)
+                    self._download_file(data_url, local_path, cache=cache, head_safe=True, continuation=False)
 
                 # check if file exists also this is where would perform md5,
                 # and also check the filesize if the database reliably reported file sizes
-                if not os.path.isfile(localPath):
+                if not os.path.isfile(local_path):
                     status = "ERROR"
                     msg = "File was not downloaded"
-                    url = dataUrl
+                    url = data_url
 
             except HTTPError as err:
                 status = "ERROR"
                 msg = "HTTPError: {0}".format(err)
-                url = dataUrl
+                url = data_url
 
-            manifestArray.append([localPath, status, msg, url])
+            manifest_array.append([local_path, status, msg, url])
 
-        manifest = Table(rows=manifestArray, names=('Local Path', 'Status', 'Message', "URL"))
+        manifest = Table(rows=manifest_array, names=('Local Path', 'Status', 'Message', "URL"))
 
         return manifest
 
@@ -1752,11 +1349,11 @@ class ObservationsClass(MastClass):
                 products = [products]
 
             # collect list of products
-            productLists = []
+            product_lists = []
             for oid in products:
-                productLists.append(self.get_product_list(oid))
+                product_lists.append(self.get_product_list(oid))
 
-            products = vstack(productLists)
+            products = vstack(product_lists)
 
         # apply filters
         products = self.filter_products(products, mrp_only, **filters)
@@ -1770,10 +1367,7 @@ class ObservationsClass(MastClass):
             download_dir = '.'
 
         if curl_flag:  # don't want to download the files now, just the curl script
-            if "SHIB-ECP" == self._auth_mode:
-                manifest = self._shib_download_curl_script(products, download_dir)
-            else:
-                manifest = self._download_curl_script(products, download_dir)
+            manifest = self._download_curl_script(products, download_dir)
 
         else:
             base_dir = download_dir.rstrip('/') + "/mastDownload"
@@ -1794,17 +1388,17 @@ class CatalogsClass(MastClass):
 
         super(CatalogsClass, self).__init__()
 
-        self.catalogLimit = None
+        self.catalog_limit = None
 
     def _parse_result(self, response, verbose=False):
 
-        resultsTable = super(CatalogsClass, self)._parse_result(response, verbose)
+        results_table = super(CatalogsClass, self)._parse_result(response, verbose)
 
-        if len(resultsTable) == self.catalogLimit:
+        if len(results_table) == self.catalog_limit:
             warnings.warn("Maximum catalog results returned, may not include all sources within radius.",
                           MaxResultsWarning)
 
-        return resultsTable
+        return results_table
 
     @class_or_instance
     def query_region_async(self, coordinates, radius=0.2*u.deg, catalog="Hsc",
@@ -1843,7 +1437,7 @@ class CatalogsClass(MastClass):
 
         Returns
         -------
-        response: list of ``requests.Response``
+        response : list of `~requests.Response`
         """
 
         # Put coordinates and radius into consistant format
@@ -1862,11 +1456,11 @@ class CatalogsClass(MastClass):
                 if version not in (3, None):
                     warnings.warn("Invalid HSC version number, defaulting to v3.", InputWarning)
                 service = "Mast.Hsc.Db.v3"
-            self.catalogLimit = kwargs.get('nr', 50000)
+            self.catalog_limit = kwargs.get('nr', 50000)
 
         elif catalog.lower() == "galex":
             service = "Mast.Galex.Catalog"
-            self.catalogLimit = kwargs.get('maxrecords', 50000)
+            self.catalog_limit = kwargs.get('maxrecords', 50000)
 
         elif catalog.lower() == "gaia":
             if version == 1:
@@ -1878,7 +1472,7 @@ class CatalogsClass(MastClass):
 
         else:
             service = "Mast.Catalogs." + catalog + ".Cone"
-            self.catalogLimit = None
+            self.catalog_limit = None
 
         # basic params
         params = {'ra': coordinates.ra.deg,
@@ -1933,7 +1527,7 @@ class CatalogsClass(MastClass):
 
         Returns
         -------
-        response: list of ``requests.Response``
+        response : list of `~requests.Response`
         """
 
         coordinates = self._resolve_object(objectname)
@@ -1965,10 +1559,9 @@ class CatalogsClass(MastClass):
             RA and Dec must be given in decimal degrees, and datetimes in MJD.
             For example: filters=["FUV","NUV"],proposal_pi="Ost*",t_max=[52264.4586,54452.8914]
 
-
         Returns
         -------
-        response : list(`requests.Response`)
+        response : list of `~requests.Response`
         """
 
         # Seperating any position info from the rest of the filters
@@ -1981,18 +1574,18 @@ class CatalogsClass(MastClass):
             service = "Mast.Catalogs.Filtered.Tic"
             if coordinates or objectname:
                 service += ".Position"
-            mashupFilters = self._build_filter_set("Mast.Catalogs.Tess.Cone", service, **criteria)
+            mashup_filters = self._build_filter_set("Mast.Catalogs.Tess.Cone", service, **criteria)
 
         elif catalog.lower() == "diskdetective":
             service = "Mast.Catalogs.Filtered.DiskDetective"
             if coordinates or objectname:
                 service += ".Position"
-            mashupFilters = self._build_filter_set("Mast.Catalogs.Dd.Cone", service, **criteria)
+            mashup_filters = self._build_filter_set("Mast.Catalogs.Dd.Cone", service, **criteria)
 
         else:
             raise InvalidQueryError("Criteria query not availible for {}".format(catalog))
 
-        if not mashupFilters:
+        if not mashup_filters:
             raise InvalidQueryError("At least one non-positional criterion must be supplied.")
 
         if objectname and coordinates:
@@ -2012,12 +1605,12 @@ class CatalogsClass(MastClass):
 
         # build query
         if coordinates:
-            params = {"filters": mashupFilters,
+            params = {"filters": mashup_filters,
                       "ra": coordinates.ra.deg,
                       "dec": coordinates.dec.deg,
                       "radius": radius.deg}
         else:
-            params = {"filters": mashupFilters}
+            params = {"filters": mashup_filters}
 
         # TIC needs columns specified
         if catalog == "Tic":
@@ -2043,9 +1636,9 @@ class CatalogsClass(MastClass):
             Can be used to override the default behavior of all results being returned to obtain
             one sepcific page of results.
 
-        Response
+        Returns
         --------
-        response : list(`requests.Response`)
+        response : list of `~requests.Response`
         """
 
         if isinstance(match, Row):
@@ -2077,9 +1670,9 @@ class CatalogsClass(MastClass):
             Can be used to override the default behavior of all results being returned to obtain
             one sepcific page of results.
 
-        Response
+        Returns
         --------
-        response : list(`requests.Response`)
+        response : list of `~requests.Response`
         """
 
         service = "Mast.HscSpectra.Db.All"
@@ -2093,7 +1686,7 @@ class CatalogsClass(MastClass):
 
         Parameters
         ----------
-        specrtra : `~astropy.table.Table` or `astropy.table.Row`
+        spectra : `~astropy.table.Table` or `astropy.table.Row`
             One or more HSC spectra to be downloaded.
         download_dir : str, optional
            Specify the base directory to download spectra into.
@@ -2106,9 +1699,9 @@ class CatalogsClass(MastClass):
             Default is False.  If true instead of downloading files directly, a curl script
             will be downloaded that can be used to download the data files at a later time.
 
-        Response
+        Returns
         --------
-        response : list(`requests.Response`)
+        response : list of `~requests.Response`
         """
 
         # if spectra is not a Table, put it in a list
@@ -2121,54 +1714,54 @@ class CatalogsClass(MastClass):
 
         if curl_flag:  # don't want to download the files now, just the curl script
 
-            downloadFile = "mastDownload_" + time.strftime("%Y%m%d%H%M%S")
+            download_file = "mastDownload_" + time.strftime("%Y%m%d%H%M%S")
 
-            urlList = []
-            pathList = []
+            url_list = []
+            path_list = []
             for spec in spectra:
                 if spec['SpectrumType'] < 2:
-                    urlList.append('https://hla.stsci.edu/cgi-bin/getdata.cgi?config=ops&dataset={0}'
+                    url_list.append('https://hla.stsci.edu/cgi-bin/getdata.cgi?config=ops&dataset={0}'
                                    .format(spec['DatasetName']))
 
                 else:
-                    urlList.append('https://hla.stsci.edu/cgi-bin/ecfproxy?file_id={0}'
+                    url_list.append('https://hla.stsci.edu/cgi-bin/ecfproxy?file_id={0}'
                                    .format(spec['DatasetName']) + '.fits')
 
-                pathList.append(downloadFile + "/HSC/" + spec['DatasetName'] + '.fits')
+                path_list.append(download_file + "/HSC/" + spec['DatasetName'] + '.fits')
 
-            descriptionList = [""]*len(spectra)
-            productTypeList = ['spectrum']*len(spectra)
+            description_list = [""]*len(spectra)
+            producttype_list = ['spectrum']*len(spectra)
 
             service = "Mast.Bundle.Request"
-            params = {"urlList": ",".join(urlList),
-                      "filename": downloadFile,
-                      "pathList": ",".join(pathList),
-                      "descriptionList": list(descriptionList),
-                      "productTypeList": list(productTypeList),
+            params = {"urlList": ",".join(url_list),
+                      "filename": download_file,
+                      "pathList": ",".join(path_list),
+                      "descriptionList": list(description_list),
+                      "productTypeList": list(producttype_list),
                       "extension": 'curl'}
 
             response = self.service_request_async(service, params)
-            bundlerResponse = response[0].json()
+            bundler_response = response[0].json()
 
-            localPath = download_dir.rstrip('/') + "/" + downloadFile + ".sh"
-            self._download_file(bundlerResponse['url'], localPath, head_safe=True)
+            local_path = os.path.join(download_dir, "{}.sh".format(download_file))
+            self._download_file(bundler_response['url'], local_path, head_safe=True, continuation=False)
 
             status = "COMPLETE"
             msg = None
             url = None
 
-            if not os.path.isfile(localPath):
+            if not os.path.isfile(local_path):
                 status = "ERROR"
                 msg = "Curl could not be downloaded"
-                url = bundlerResponse['url']
+                url = bundler_response['url']
             else:
-                missingFiles = [x for x in bundlerResponse['statusList'].keys()
-                                if bundlerResponse['statusList'][x] != 'COMPLETE']
-                if len(missingFiles):
-                    msg = "{} files could not be added to the curl script".format(len(missingFiles))
-                    url = ",".join(missingFiles)
+                missing_files = [x for x in bundler_response['statusList'].keys()
+                                if bundler_response['statusList'][x] != 'COMPLETE']
+                if len(missing_files):
+                    msg = "{} files could not be added to the curl script".format(len(missing_files))
+                    url = ",".join(missing_files)
 
-            manifest = Table({'Local Path': [localPath],
+            manifest = Table({'Local Path': [local_path],
                               'Status': [status],
                               'Message': [msg],
                               "URL": [url]})
@@ -2179,41 +1772,39 @@ class CatalogsClass(MastClass):
             if not os.path.exists(base_dir):
                 os.makedirs(base_dir)
 
-            manifestArray = []
+            manifest_array = []
             for spec in spectra:
 
-                # localPath = base_dir + "/HSC"# + spec['DatasetName'] + ".fits"
-
                 if spec['SpectrumType'] < 2:
-                    dataUrl = 'https://hla.stsci.edu/cgi-bin/getdata.cgi?config=ops&dataset=' \
+                    data_url = 'https://hla.stsci.edu/cgi-bin/getdata.cgi?config=ops&dataset=' \
                               + spec['DatasetName']
                 else:
-                    dataUrl = 'https://hla.stsci.edu/cgi-bin/ecfproxy?file_id=' \
+                    data_url = 'https://hla.stsci.edu/cgi-bin/ecfproxy?file_id=' \
                               + spec['DatasetName'] + '.fits'
 
-                localPath = base_dir + '/' + spec['DatasetName'] + ".fits"
+                local_path = os.path.join(base_dir, "{}.fits".format(spec['DatasetName']))
 
                 status = "COMPLETE"
                 msg = None
                 url = None
 
                 try:
-                    self._download_file(dataUrl, localPath, cache=cache, head_safe=True)
+                    self._download_file(data_url, local_path, cache=cache, head_safe=True)
 
                     # check file size also this is where would perform md5
-                    if not os.path.isfile(localPath):
+                    if not os.path.isfile(local_path):
                         status = "ERROR"
                         msg = "File was not downloaded"
-                        url = dataUrl
+                        url = data_url
 
                 except HTTPError as err:
                     status = "ERROR"
                     msg = "HTTPError: {0}".format(err)
-                    url = dataUrl
+                    url = data_url
 
-                manifestArray.append([localPath, status, msg, url])
+                manifest_array.append([local_path, status, msg, url])
 
-                manifest = Table(rows=manifestArray, names=('Local Path', 'Status', 'Message', "URL"))
+                manifest = Table(rows=manifest_array, names=('Local Path', 'Status', 'Message', "URL"))
 
         return manifest
 

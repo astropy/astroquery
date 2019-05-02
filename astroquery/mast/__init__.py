@@ -3,7 +3,7 @@
 MAST Query Tool
 ===============
 
-This module contains various methods for querying the MAST Portal.
+Module to query the Barbara A. Mikulski Archive for Space Telescopes (MAST).
 """
 
 from astropy import config as _config

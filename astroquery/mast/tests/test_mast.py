@@ -65,8 +65,6 @@ def patch_post(request):
     mp.setattr(mast.Observations, 'session_info', session_info_mockreturn)
     mp.setattr(mast.Tesscut, "_request", tesscut_get_mockreturn)
     mp.setattr(mast.Tesscut, '_download_file', tess_download_mockreturn)
-    mp.setattr(mast.Tesscut, "_tesscut_livecheck", tesscut_livecheck)
-    mp.setattr(mast.Observations, '_get_auth_mode', _get_auth_mode_mockreturn)
     return mp
 
 
@@ -105,16 +103,14 @@ def download_mockreturn(*args, **kwargs):
 
 
 def session_info_mockreturn(silent=False):
-    anonSession = {'First Name': '',
-                   'Last Name': '',
-                   'Session Expiration': None,
-                   'Username': 'anonymous'}
-
-    return anonSession
-
-
-def _get_auth_mode_mockreturn(self):
-    return "SHIB-ECP"
+    anon_session = {'eppn': '',
+                   'ezid': 'anonymous',
+                   'attrib': {},
+                   'anon': True,
+                   'scopes': [],
+                   'session': None,
+                   'token': None}
+    return anon_session
 
 
 def tesscut_get_mockreturn(method="GET", url=None, data=None, timeout=10, **kwargs):
@@ -131,10 +127,6 @@ def tess_download_mockreturn(url, file_path):
     filename = data_path(DATA_FILES['tess_cutout'])
     copyfile(filename, file_path)
     return
-
-
-def tesscut_livecheck():  # making sure the livecheck passes so we can test the functionality
-    return True
 
 ###################
 # MastClass tests #

@@ -48,17 +48,6 @@ class TesscutClass(BaseQuery):
 
         self._TESSCUT_URL = conf.server + "/tesscut/api/v0.1/"
 
-    def _tesscut_livecheck(self):  # pragma: no cover
-        """
-        Temporary function to check if the tesscut service is live.
-        We'll remove this function once tesscut is released.
-        """
-
-        response = self._request("GET", conf.server + "/tesscut/")
-        if not response.status_code == 200:
-            raise RemoteServiceError("The TESSCut service hasn't been released yet.\n"
-                                     "Try again Soon!\n( More info at https://archive.stsci.edu/tess/ )")
-
     def get_sectors(self, coordinates, radius=0.2*u.deg):  # pragma: no cover
         """
         Get a list of the TESS data sectors whose footprints intersect
@@ -81,9 +70,6 @@ class TesscutClass(BaseQuery):
         response : `~astropy.table.Table`
             Sector/camera/chip information for given coordinates/raduis.
         """
-
-        # Check if tesscut is live before proceeding.
-        self._tesscut_livecheck()
 
         # Put coordinates and radius into consistant format
         coordinates = commons.parse_coordinates(coordinates)
@@ -153,9 +139,6 @@ class TesscutClass(BaseQuery):
         -------
         response : `~astropy.table.Table`
         """
-
-        # Check if tesscut is live before proceeding.
-        self._tesscut_livecheck()
 
         # Put coordinates and radius into consistant format
         coordinates = commons.parse_coordinates(coordinates)
@@ -252,9 +235,6 @@ class TesscutClass(BaseQuery):
         -------
         response : A list of `~astropy.io.fits.HDUList` objects.
         """
-
-        # Check if tesscut is live before proceeding.
-        self._tesscut_livecheck()
 
         # Put coordinates and radius into consistant format
         coordinates = commons.parse_coordinates(coordinates)
