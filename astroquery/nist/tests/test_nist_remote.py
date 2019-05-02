@@ -6,6 +6,8 @@ import numpy as np
 from astropy.tests.helper import remote_data
 from astropy.table import Table
 import astropy.units as u
+from six import PY2
+import pytest
 
 from ... import nist
 
@@ -25,6 +27,7 @@ class TestNist:
         # (regression test for 1355)
         assert np.all(result['TP'] == 'T8637')
 
+    @pytest.mark.skipif('PY2')
     def test_unescape_html(self):
         response = nist.core.Nist.query_async(4333 * u.AA, 4334 * u.AA, "V I")
         assert '&dagger;' in response.text
