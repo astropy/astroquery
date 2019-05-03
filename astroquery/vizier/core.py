@@ -423,8 +423,8 @@ class VizierClass(BaseQuery):
                 h_box = coord.Angle(height)
                 if w_box.unit != h_box.unit:
                     h_box = h_box.to(w_box.unit)
-                w_unit, w_value = _parse_angle(h_box)
-                h_unit, h_value = _parse_angle(w_box)
+                w_unit, w_value = _parse_angle(w_box)
+                h_unit, h_value = _parse_angle(h_box)
                 key = "-c.b" + w_unit
                 center[key] = "x".join([str(w_value), str(h_value)])
         else:
