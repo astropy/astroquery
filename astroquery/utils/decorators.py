@@ -7,8 +7,8 @@ from distutils.version import LooseVersion
 import astropy
 from astropy.utils.exceptions import AstropyDeprecationWarning, AstropyUserWarning
 
-# We use functionality of the deprecated decorator from astropy that was
-# added in v2.0.12 LTS and v3.1
+# We use functionality of the deprecated and deprecated_renamed_argument
+# decorators from astropy that was added in v2.0.12 LTS and v3.1.2
 av = astropy.__version__
 ASTROPY_LT_31 = (LooseVersion(av) < LooseVersion("2.0.12") or
                  (LooseVersion("3.0") <= LooseVersion(av) and LooseVersion(av) < LooseVersion("3.1.2")))
