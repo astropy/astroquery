@@ -11,7 +11,7 @@ import astropy.io.votable as votable
 from astropy.table import Table
 from astropy.io import fits
 
-from ..query import BaseQuery
+from ..query import BaseQuery, AstroQuery
 from ..utils import commons
 from ..utils import prepend_docstr_nosections
 from ..utils import async_to_sync
@@ -188,34 +188,44 @@ class HiGalClass(BaseQuery):
         -------
         A list of `astropy.fits.HDUList` objects
         """
-        responses = self.get_images_async(coordinates, radius,
+        filenames = self.get_images_async(coordinates, radius,
                                           get_query_payload=get_query_payload,
                                           cache=cache)
         if get_query_payload:
-            return responses
-        return [fits.open(io.BytesIO(response.content)) for response in responses]
+            return filenames
+        return [fits.open(fn) for fn in filenames]
 
     @prepend_docstr_nosections(get_images.__doc__)
     def get_images_async(self, coordinates, radius, get_query_payload=False,
-                         cache=False):
+                         cache=False, timeout=None):
         """
         Returns
         -------
         A list of context-managers that yield readable file-like objects
         """
+        print(f"Getting image list at {coordinates} with {radius}")
         image_urls = self.get_image_list(coordinates, radius,
                                          get_query_payload=get_query_payload)
         if get_query_payload:
             return image_urls
 
         responses = []
+        filenames = []
         for url in image_urls:
-            response = self._request('GET', url, timeout=self.TIMEOUT,
-                                     cache=cache)
-            response.raise_for_status()
+            print("Downloading URL {0}".format(url))
+            query = AstroQuery('GET', url)
+            cachefile = query.request_file(self.cache_location)
+            response = self._download_file(url, cachefile, cache=cache,
+                                           timeout=timeout or self.TIMEOUT,
+                                           close_response=False
+                                          )
+            filenames.append(cachefile)
+            #response = self._request('GET', url, timeout=self.TIMEOUT,
+            #                         cache=cache)
+            #response.raise_for_status()
             responses.append(response)
 
-        return responses
+        return filenames
 
     @prepend_docstr_nosections(get_images.__doc__)
     def get_image_list(self, coordinates, radius, get_query_payload=False,
