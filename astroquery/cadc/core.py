@@ -443,7 +443,9 @@ class CadcClass(BaseQuery):
 
     def _args_to_payload(self, *args, **kwargs):
         # convert arguments to a valid requests payload
-        coordinates = commons.parse_coordinates(kwargs['coordinates'])
+        # and force the coordinates to FK5 (assuming FK5/ICRS are
+        # interchangeable) since RA/Dec are used below
+        coordinates = commons.parse_coordinates(kwargs['coordinates']).fk5
         radius = kwargs['radius']
         payload = {format: 'VOTable'}
         payload['query'] = \
@@ -544,4 +546,4 @@ def get_access_url(service, capability=None):
                        "anonymous or cookie access".format(capability))
 
 
-Cadc = CadcClass
+Cadc = CadcClass()
