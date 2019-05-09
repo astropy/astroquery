@@ -286,6 +286,42 @@ Product filtering can also be applied directly to a table of products without pr
                 >>> print(len(dataProductsByID))
                 4
 
+Cloud Data Access
+------------------
+All public datasets from Hubble are also available on Amazon Web Services in a `public S3 bucket <https://registry.opendata.aws/hst/>`__. If you are using AWS resources to process public data you can take access these data in the following way. An `AWS credentials file <https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html>`__ is required to access the data. Instructions on generating such credentials are available `here <https://stackoverflow.com/questions/21440709/how-do-i-get-aws-access-key-id-for-amazon>`__. The `~astroquery.mast.ObservationsClass.enable_cloud_dataset` function reads in the credentials. Next, the `~astroquery.mast.ObservationsClass.get_cloud_uris` function will return S3-like URLs the data products (e.g., s3://stpubdata/hst/public/icde/icde43l0q/icde43l0q_drz.fits). Finally, the cloud downloads can be disabled using `~astroquery.mast.ObservationsClass.disable_cloud_dataset`. 
+
+
+**Note:** Only public datasets are available on AWS. Therefore we recommend using the "dataRights='Public'" flag when filtering the observations. 
+
+
+.. code-block:: python
+
+                >>> from astroquery.mast import Observations
+                >>> import boto3
+
+                >>> obsTable = Observations.query_criteria(obs_collection='HST',
+                                                           filters='F160W',
+                                                           instrument_name='WFC3/IR',
+                                                           proposal_id=['12062'],
+                                                           dataRights='PUBLIC') 
+                >>> products = Observations.get_product_list(obsTable)
+                >>> filtered = Observations.filter_products(products,
+                                                            mrp_only=False,
+                                                            productSubGroupDescription='DRZ')
+
+                >>> # If your profile is not called [default], update the next line:
+                >>> Observations.enable_cloud_dataset(provider='AWS', profile='default') 
+                >>> s3_urls = Observations.get_cloud_uris(filtered)
+
+                >>> s3 = boto3.resource('s3')
+                >>> bucket = s3.Bucket('stpubdata')
+
+                >>> for url in s3_urls:
+                        fits_s3_key = url.replace("s3://stpubdata/", "")
+                        file_name = url.split('/')[-1]
+                        bucket.download_file(fits_s3_key, file_name, ExtraArgs={"RequestPayer": "requester"})
+
+                >>> Observations.disable_cloud_dataset()
 
 Catalog Queries
 ===============
