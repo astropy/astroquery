@@ -25,6 +25,8 @@ from astroquery.utils.tap.xmlparser.jobListSaxParser import JobListSaxParser
 from astroquery.utils.tap.xmlparser import utils
 from astroquery.utils.tap.model.filter import Filter
 import requests
+from astropy.logger import log
+
 
 __all__ = ['Tap', 'TapPlus']
 
@@ -141,7 +143,7 @@ class Tap(object):
                 flags += "&"
             flags += "share_accessible=true"
             addedItem = True
-        print("Retrieving tables...")
+        log.info("Retrieving tables...")
         if flags != "":
             response = self.__connHandler.execute_get("tables?"+flags)
         else:
@@ -152,13 +154,13 @@ class Tap(object):
                                                                   verbose,
                                                                   200)
         if isError:
-            print(response.status, response.reason)
+            log.info("{} {}".format(response.status, response.reason))
             raise requests.exceptions.HTTPError(response.reason)
             return None
-        print("Parsing tables...")
+        log.info("Parsing tables...")
         tsp = TableSaxParser()
         tsp.parseData(response)
-        print("Done.")
+        log.info("Done.")
         return tsp.get_tables()
 
     def launch_job(self, query, name=None, output_file=None,
@@ -336,7 +338,7 @@ class Tap(object):
                     job.save_results(verbose)
                 else:
                     job.get_results()
-                    print("Query finished.")
+                    log.info("Query finished.")
         return job
 
     def load_async_job(self, jobid=None, name=None, verbose=False):
@@ -360,11 +362,11 @@ class Tap(object):
             jobfilter.add_filter('name', name)
             jobs = self.search_async_jobs(jobfilter)
             if jobs is None or len(jobs) < 1:
-                print("No job found for name '"+str(name)+"'")
+                log.info("No job found for name '"+str(name)+"'")
                 return None
             jobid = jobs[0].get_jobid()
         if jobid is None:
-            print("No job identifier found")
+            log.info("No job identifier found")
             return None
         subContext = "async/" + str(jobid)
         response = self.__connHandler.execute_get(subContext)
@@ -375,7 +377,7 @@ class Tap(object):
                                                                   verbose,
                                                                   200)
         if isError:
-            print(response.reason)
+            log.info(response.reason)
             raise requests.exceptions.HTTPError(response.reason)
             return None
         # parse job
@@ -407,7 +409,7 @@ class Tap(object):
                                                                   verbose,
                                                                   200)
         if isError:
-            print(response.reason)
+            log.info(response.reason)
             raise requests.exceptions.HTTPError(response.reason)
             return None
         # parse jobs
@@ -672,20 +674,20 @@ class TapPlus(Tap):
         -------
         A table object
         """
-        print("Retrieving table '"+str(table)+"'")
+        log.info("Retrieving table '"+str(table)+"'")
         connHandler = self.__getconnhandler()
         response = connHandler.execute_get("tables?tables="+table)
         if verbose:
             print(response.status, response.reason)
         isError = connHandler.check_launch_response_status(response, verbose, 200)
         if isError:
-            print(response.status, response.reason)
+            log.info("{} {}".format(response.status, response.reason))
             raise requests.exceptions.HTTPError(response.reason)
             return None
-        print("Parsing table '"+str(table)+"'...")
+        log.info("Parsing table '"+str(table)+"'...")
         tsp = TableSaxParser()
         tsp.parseData(response)
-        print("Done.")
+        log.info("Done.")
         return tsp.get_table()
 
     def search_async_jobs(self, jobfilter=None, verbose=False):
@@ -717,7 +719,7 @@ class TapPlus(Tap):
                                                            verbose,
                                                            200)
         if isError:
-            print(response.reason)
+            log.info(response.reason)
             raise requests.exceptions.HTTPError(response.reason)
             return None
         # parse jobs
@@ -759,7 +761,7 @@ class TapPlus(Tap):
             print(response.getheaders())
         isError = connHandler.check_launch_response_status(response, verbose, 200)
         if isError:
-            print(response.reason)
+            log.info(response.reason)
             raise requests.exceptions.HTTPError(response.reason)
 
     def login(self, user=None, password=None, credentials_file=None,
@@ -786,10 +788,10 @@ class TapPlus(Tap):
                 user = ins.readline().strip()
                 password = ins.readline().strip()
         if user is None:
-            print("Invalid user name")
+            log.info("Invalid user name")
             return
         if password is None:
-            print("Invalid password")
+            log.info("Invalid password")
             return
         self.__user = user
         self.__pwd = password
@@ -824,7 +826,7 @@ class TapPlus(Tap):
                                                            verbose,
                                                            200)
         if isError:
-            print("Login error: " + str(response.reason))
+            log.info("Login error: " + str(response.reason))
             raise requests.exceptions.HTTPError("Login error: " + str(response.reason))
         else:
             # extract cookie
