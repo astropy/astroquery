@@ -14,6 +14,7 @@ import time
 import os
 import keyring
 import threading
+import uuid
 
 import numpy as np
 
@@ -62,9 +63,26 @@ def _prepare_service_request_string(json_obj):
         URL encoded Mashup Request string.
     """
 
+    # Append cache breaker
+    if not 'cacheBreaker' in json_obj:
+        json_obj['cacheBreaker'] = _generate_uuid_string()
     request_string = json.dumps(json_obj)
     return 'request={}'.format(urlencode(request_string))
 
+def _generate_uuid_string():
+    """
+    Generates a UUID using Pythong's UUID module
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    response: str
+        Generated UUID string
+
+    """
+    return str(uuid.uuid4())
 
 def _mashup_json_to_table(json_obj, col_config=None):
     """
@@ -129,6 +147,68 @@ def _mashup_json_to_table(json_obj, col_config=None):
 
     return data_table
 
+def _fabric_json_to_table(json_obj):
+    """
+    Takes a JSON object as returned from a MAST microservice request and turns it into an `astropy.table.Table`.
+
+    Parameters
+    ----------
+    json_obj : dict
+        A MAST microservice response JSON object (python dictionary)
+
+    Returns
+    -------
+    response : `~astropy.table.Table`
+    """
+    data_table = Table(masked=True)
+
+    if not all(x in json_obj.keys() for x in ['info', 'data']):
+        raise KeyError("Missing required key(s) 'data' and/or 'info.'")
+
+    # determine database type key in case missing
+    type_key = 'db_type' if json_obj['info'][0].get('db_type') else 'type'
+
+    # for each item in info, store the type and column name
+    for idx, col, db_type, ignore_value in \
+            [(idx, x['name'], x[type_key], "NULL") for idx, x in enumerate(json_obj['info'])]:
+            # [(idx, x['name'], x[type_key], x['default_value']) for idx, x in enumerate(json_obj['info'])]:
+
+        # if default value is NULL, set ignore value to None
+        if ignore_value == "NULL":
+            ignore_value = None
+        # making type adjustments
+        if db_type == "STRING":
+            db_type = "str"
+            ignore_value = "" if (ignore_value is None) else ignore_value
+        if db_type == "BINARY":
+            db_type = "bool"
+        if db_type == "NUMBER":  # int arrays do not admit Non/nan vals
+            db_type = np.int64
+            ignore_value = -999 if (ignore_value is None) else ignore_value
+        if db_type == "DECIMAL":  # int arrays do not admit Non/nan vals
+            db_type = np.float64
+            ignore_value = -999 if (ignore_value is None) else ignore_value
+        if db_type == "DATETIME":
+            db_type = "str"
+            ignore_value = "" if (ignore_value is None) else ignore_value
+
+        # Make the column list (don't assign final type yet or there will be errors)
+        # Step through data array of values
+        col_data = np.array([x[idx] for x in json_obj['data']], dtype=object)
+        if ignore_value is not None:
+            col_data[np.where(np.equal(col_data, None))] = ignore_value
+
+        # no consistant way to make the mask because np.equal fails on ''
+        # and array == value fails with None
+        if db_type == 'str':
+            col_mask = (col_data == ignore_value)
+        else:
+            col_mask = np.equal(col_data, ignore_value)
+
+        # add the column
+        data_table.add_column(MaskedColumn(col_data.astype(db_type), name=col, mask=col_mask))
+
+    return data_table
 
 @async_to_sync
 class MastClass(QueryWithLogin):
@@ -145,6 +225,14 @@ class MastClass(QueryWithLogin):
 
         self._MAST_REQUEST_URL = conf.server + "/api/v0/invoke"
         self._COLUMNS_CONFIG_URL = conf.server + "/portal/Mashup/Mashup.asmx/columnsconfig"
+
+        self._MAST_CATALOGS_REQUEST_URL = conf.catalogsserver + "/api/v0.1/"
+        self._MAST_CATALOGS_SERVICES = {
+            "panstarrs": {
+                "path": "panstarrs/{data_release}/{table}.json",
+                "args": ["data_release", "table"]
+            }
+        }
 
         self.TIMEOUT = conf.timeout
         self.PAGESIZE = conf.pagesize
@@ -260,6 +348,49 @@ class MastClass(QueryWithLogin):
                     print("%s: %s" % (key, value))
 
         return info_dict
+    def _fabric_request(self, method, url, params=None, data=None, headers=None,
+                 files=None, stream=False, auth=None, cache=False):
+        """
+        Override of the parent method:
+        A generic HTTP request method, similar to `~requests.Session.request`
+
+        This is a low-level method not generally intended for use by astroquery
+        end-users.
+
+        This method wraps the _request functionality to include raise_for_status
+        Caching is defaulted to False but may be modified as needed
+        Also parameters that allow for file download through this method are removed
+
+
+        Parameters
+        ----------
+        method : 'GET' or 'POST'
+        url : str
+        params : None or dict
+        data : None or dict
+        headers : None or dict
+        auth : None or dict
+        files : None or dict
+        stream : bool
+            See `~requests.request`
+        cache : bool
+            Default False. Use of bulit in _request caching
+
+        Returns
+        -------
+        response : `~requests.Response`
+            The response from the server.
+        """
+
+        start_time = time.time()
+
+        response = super(MastClass, self)._request(method, url, params=params, data=data, headers=headers,
+                                                   files=files, cache=cache, stream=stream, auth=auth)
+        if (time.time() - start_time) >= self.TIMEOUT:
+            raise TimeoutError("Timeout limit of {} exceeded.".format(self.TIMEOUT))
+
+        response.raise_for_status()
+        return [response]
 
     def _request(self, method, url, params=None, data=None, headers=None,
                  files=None, stream=False, auth=None, retrieve_all=True):
@@ -403,23 +534,34 @@ class MastClass(QueryWithLogin):
         response : `~astropy.table.Table`
         """
 
-        # loading the columns config
-        col_config = None
-        if self._current_service:
-            col_config = self._column_configs.get(self._current_service)
-            self._current_service = None  # clearing current service
-
         result_list = []
+        catalogs_service = True if self._current_service in self._MAST_CATALOGS_SERVICES else False
 
-        for resp in responses:
-            result = resp.json()
+        if catalogs_service:
+            self._current_service = None  # clearing current service
+            if not isinstance(responses, list):
+                responses = [responses]
+            for resp in responses:
+                result = resp.json()
+                result_table = _fabric_json_to_table(result)
+                result_list.append(result_table)
+        else:
+            # loading the columns config
+            col_config = None
+            if self._current_service:
+                col_config = self._column_configs.get(self._current_service)
+                self._current_service = None  # clearing current service
 
-            # check for error message
-            if result['status'] == "ERROR":
-                raise RemoteServiceError(result.get('msg', "There was an error with your request."))
 
-            result_table = _mashup_json_to_table(result, col_config)
-            result_list.append(result_table)
+            for resp in responses:
+                result = resp.json()
+
+                # check for error message
+                if result['status'] == "ERROR":
+                    raise RemoteServiceError(result.get('msg', "There was an error with your request."))
+
+                result_table = _mashup_json_to_table(result, col_config)
+                result_list.append(result_table)
 
         all_results = vstack(result_list)
 
@@ -499,6 +641,114 @@ class MastClass(QueryWithLogin):
                                  retrieve_all=retrieve_all)
 
         return response
+
+    @class_or_instance
+    def catalogs_service_request_async(self, service, params, page_size=None, page=None, **kwargs):
+        """
+           Given a MAST fabric service and parameters, builds and excecutes a fabric microservice catalog query.
+           See documentation `here <https://catalogs.mast.stsci.edu/docs/index.html>`__
+           for information about how to build a MAST catalogs microservice  request.
+
+           Parameters
+           ----------
+           service : str
+               The MAST catalogs service to query. Should represent the subpath for the query path
+               e.g. /panstarrs/dr1/mean
+           params : dict
+               JSON object containing service parameters.
+           page_size : int, optional
+               Default None.
+               Can be used to override the default pagesize (set in configs) for this query only.
+               E.g. when using a slow internet connection.
+           page : int, optional
+               Default None.
+               Can be used to override the default behavior of all results being returned to obtain
+               a specific page of results.
+           **kwargs :
+               See MashupRequest properties
+               `here <https://mast.stsci.edu/api/v0/class_mashup_1_1_mashup_request.html>`__
+               for additional keyword arguments.
+
+           Returns
+           -------
+           response : list of `~requests.Response`
+           """
+        self._current_service = service.lower()
+        service_config = self._MAST_CATALOGS_SERVICES.get(service.lower())
+        service_url = service_config.get('path')
+        compiled_service_args = {}
+
+        # Gather URL specific parameters
+        for service_argument in service_config.get('args'):
+            found_argument = params.pop(service_argument, None)
+            if not found_argument:
+                kwargs.pop(service_argument, None)
+            compiled_service_args[service_argument] = found_argument.lower()
+
+        request_url = self._MAST_CATALOGS_REQUEST_URL + service_url.format(**compiled_service_args)
+        headers = {
+            'User-Agent': self._session.headers['User-Agent'],
+            'Content-type': 'application/x-www-form-urlencoded',
+            'Accept': 'application/json'
+        }
+        # Params as a list of tuples to allow for multiple parameters added
+        catalogs_request = []
+        if not page:
+            page = params.pop('page', None)
+        if not page_size:
+            page_size = params.pop('page_size', None)
+
+        if page is not None:
+            catalogs_request.append(('page', page))
+        if page_size is not None:
+            catalogs_request.append(('pagesize', page_size))
+
+        # Decompose filters, sort
+        for prop, value in kwargs.items():
+            params[prop] = value
+        catalogs_request.extend(self._build_catalogs_params(params))
+        response = self._fabric_request('POST', request_url, data=catalogs_request, headers=headers)
+        return response
+
+    def _build_catalogs_params(self, params):
+        catalog_params = []
+        for prop, value in params.items():
+            if prop == 'format':
+                # Ignore format changes
+                continue
+            elif prop == 'sort_by':
+                # Loop through each value if list
+                if isinstance(value, list):
+                    for sort_item in value:
+                        # Determine if tuple with sort direction
+                        if isinstance(sort_item, tuple):
+                            catalog_params.append(('sort_by', sort_item[0] + '.' + sort_item[1]))
+                        else:
+                            catalog_params.append(('sort_by', sort_item))
+                else:
+                    # A single sort
+                    # Determine if tuple with sort direction
+                    if isinstance(value, tuple):
+                        catalog_params.append(('sort_by', value[0] + '.' + value[1]))
+                    else:
+                        catalog_params.append(('sort_by', value))
+            elif prop == 'columns':
+                catalog_params.extend(tuple(('columns', col) for col in value))
+            else:
+                if isinstance(value, list):
+                    # A composed list of multiple filters for a single column
+                        # Extract each filter value in list
+                    for filter_value in value:
+                        # Determine if tuple with filter decorator
+                        if isinstance(filter_value, tuple):
+                            catalog_params.append((prop + filter_value[0], filter_value[1]))
+                        else:
+                            # Otherwise just append the value without a decorator
+                            catalog_params.append((prop, filter_value))
+                else:
+                    catalog_params.append((prop, value))
+
+        return catalog_params
 
     def _resolve_object(self, objectname):
         """
@@ -1440,6 +1690,7 @@ class CatalogsClass(MastClass):
 
         self.catalog_limit = None
 
+
     def _parse_result(self, response, verbose=False):
 
         results_table = super(CatalogsClass, self)._parse_result(response, verbose)
@@ -1490,6 +1741,7 @@ class CatalogsClass(MastClass):
         response : list of `~requests.Response`
         """
 
+        catalogs_service = False
         # Put coordinates and radius into consistant format
         coordinates = commons.parse_coordinates(coordinates)
 
@@ -1499,7 +1751,11 @@ class CatalogsClass(MastClass):
         radius = coord.Angle(radius)
 
         # Figuring out the service
-        if catalog.lower() == "hsc":
+        if catalog.lower() in self._MAST_CATALOGS_SERVICES:
+            catalogs_service = True
+            service = catalog
+            # service = self._MAST_CATALOGS_SERVICES.get(catalog.lower())
+        elif catalog.lower() == "hsc":
             if version == 2:
                 service = "Mast.Hsc.Db.v2"
             else:
@@ -1529,18 +1785,21 @@ class CatalogsClass(MastClass):
                   'dec': coordinates.dec.deg,
                   'radius': radius.deg}
 
-        # Hsc specific parameters (can be overridden by user)
-        params['nr'] = 50000
-        params['ni'] = 1
-        params['magtype'] = 1
+        if not catalogs_service:
+            # Hsc specific parameters (can be overridden by user)
+            params['nr'] = 50000
+            params['ni'] = 1
+            params['magtype'] = 1
 
-        # galex specific parameters (can be overridden by user)
-        params['maxrecords'] = 50000
+            # galex specific parameters (can be overridden by user)
+            params['maxrecords'] = 50000
 
         # adding additional parameters
         for prop, value in kwargs.items():
             params[prop] = value
 
+        if catalogs_service:
+            return self.catalogs_service_request_async(service, params)
         return self.service_request_async(service, params, pagesize, page)
 
     @class_or_instance
@@ -1614,13 +1873,18 @@ class CatalogsClass(MastClass):
         response : list of `~requests.Response`
         """
 
+        catalogs_service = False
         # Seperating any position info from the rest of the filters
         coordinates = criteria.pop('coordinates', None)
         objectname = criteria.pop('objectname', None)
         radius = criteria.pop('radius', 0.2*u.deg)
 
         # Build the mashup filter object
-        if catalog.lower() == "tic":
+        if catalog.lower() in self._MAST_CATALOGS_SERVICES:
+            catalogs_service = True
+            service = catalog
+            # service = self._MAST_CATALOGS_SERVICES.get(catalog.lower())
+        elif catalog.lower() == "tic":
             service = "Mast.Catalogs.Filtered.Tic"
             if coordinates or objectname:
                 service += ".Position"
@@ -1654,18 +1918,26 @@ class CatalogsClass(MastClass):
             radius = coord.Angle(radius)
 
         # build query
+        params = {}
         if coordinates:
-            params = {"filters": mashup_filters,
-                      "ra": coordinates.ra.deg,
-                      "dec": coordinates.dec.deg,
-                      "radius": radius.deg}
-        else:
-            params = {"filters": mashup_filters}
+            params["ra"] = coordinates.ra.deg,
+            params["dec"] = coordinates.dec.deg,
+            params["radius"] = radius.deg
+
+        if not catalogs_service:
+            params["filters"] =  mashup_filters
 
         # TIC needs columns specified
         if catalog == "Tic":
             params["columns"] = "*"
 
+        if catalogs_service:
+            # For catalogs service append criteria to main parameters
+            for prop, value in criteria.items():
+                params[prop] = value
+
+        if catalogs_service:
+            return self.catalogs_service_request_async(service, params, pagesize=pagesize, page=page)
         return self.service_request_async(service, params, pagesize=pagesize, page=page)
 
     @class_or_instance
