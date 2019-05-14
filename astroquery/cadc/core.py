@@ -99,7 +99,6 @@ class CadcClass(BaseQuery):
 
         self._verbose = verbose
 
-
     @property
     def _cadctap(self):
         if self._tap_plus_handler is None:
