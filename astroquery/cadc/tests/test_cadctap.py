@@ -1,13 +1,13 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
 =============
-Cadc TAP plus
+CadcClass TAP plus
 =============
 
 """
 import os
 
-from astroquery.cadc import Cadc, conf
+from astroquery.cadc import CadcClass, conf
 import astroquery.cadc.core as cadc_core
 from astroquery.utils.commons import parse_coordinates
 from astroquery.cadc.tests.DummyTapHandler import DummyTapHandler
@@ -27,7 +27,7 @@ def data_path(filename):
 def test_get_tables(monkeypatch):
     dummyTapHandler = DummyTapHandler()
     monkeypatch.setattr(cadc_core, 'get_access_url', get_access_url_mock)
-    tap = Cadc(tap_plus_handler=dummyTapHandler)
+    tap = CadcClass(tap_plus_handler=dummyTapHandler)
     # default parameters
     parameters = {}
     parameters['only_names'] = False
@@ -46,7 +46,7 @@ def test_get_tables(monkeypatch):
 def test_get_table(monkeypatch):
     dummyTapHandler = DummyTapHandler()
     monkeypatch.setattr(cadc_core, 'get_access_url', get_access_url_mock)
-    tap = Cadc(tap_plus_handler=dummyTapHandler)
+    tap = CadcClass(tap_plus_handler=dummyTapHandler)
     # default parameters
     parameters = {}
     parameters['table'] = 'table'
@@ -65,7 +65,7 @@ def test_get_table(monkeypatch):
 def test_run_query(monkeypatch):
     dummyTapHandler = DummyTapHandler()
     monkeypatch.setattr(cadc_core, 'get_access_url', get_access_url_mock)
-    tap = Cadc(tap_plus_handler=dummyTapHandler)
+    tap = CadcClass(tap_plus_handler=dummyTapHandler)
     query = "query"
     operation = 'sync'
     # default parameters
@@ -108,7 +108,7 @@ def test_run_query(monkeypatch):
 def test_load_async_job(monkeypatch):
     dummyTapHandler = DummyTapHandler()
     monkeypatch.setattr(cadc_core, 'get_access_url', get_access_url_mock)
-    tap = Cadc(tap_plus_handler=dummyTapHandler)
+    tap = CadcClass(tap_plus_handler=dummyTapHandler)
     jobid = '123'
     # default parameters
     parameters = {}
@@ -127,7 +127,7 @@ def test_load_async_job(monkeypatch):
 def test_list_async_jobs(monkeypatch):
     dummyTapHandler = DummyTapHandler()
     monkeypatch.setattr(cadc_core, 'get_access_url', get_access_url_mock)
-    tap = Cadc(tap_plus_handler=dummyTapHandler)
+    tap = CadcClass(tap_plus_handler=dummyTapHandler)
     # default parameters
     parameters = {}
     parameters['verbose'] = False
@@ -143,7 +143,7 @@ def test_list_async_jobs(monkeypatch):
 def test_save_results(monkeypatch):
     dummyTapHandler = DummyTapHandler()
     monkeypatch.setattr(cadc_core, 'get_access_url', get_access_url_mock)
-    tap = Cadc(tap_plus_handler=dummyTapHandler)
+    tap = CadcClass(tap_plus_handler=dummyTapHandler)
     job = '123'
     # default parameters
     parameters = {}
@@ -167,7 +167,7 @@ def test_login(monkeypatch):
 
     monkeypatch.setattr(cadc_core, 'get_access_url', get_access_url_mock)
     dummyTapHandler = DummyTapHandler()
-    tap = Cadc(tap_plus_handler=dummyTapHandler)
+    tap = CadcClass(tap_plus_handler=dummyTapHandler)
     user = 'user'
     password = 'password'
     cert = 'cert'
@@ -193,7 +193,7 @@ def test_login(monkeypatch):
 def test_logout(monkeypatch):
     dummyTapHandler = DummyTapHandler()
     monkeypatch.setattr(cadc_core, 'get_access_url', get_access_url_mock)
-    tap = Cadc(tap_plus_handler=dummyTapHandler)
+    tap = CadcClass(tap_plus_handler=dummyTapHandler)
     # default parameters
     parameters = {}
     parameters['verbose'] = False
@@ -263,7 +263,7 @@ def test_get_data_urls(monkeypatch):
 
     monkeypatch.setattr(cadc_core, 'parse_single_table', lambda x: vot_result)
     dummyTapHandler = DummyTapHandler()
-    cadc = Cadc(tap_plus_handler=dummyTapHandler)
+    cadc = CadcClass(tap_plus_handler=dummyTapHandler)
     cadc._request = get  # mock the request
     assert [vot_result.array[0]['access_url'].decode('ascii')] == \
         cadc.get_data_urls({'caomPublisherID': ['ivo://cadc.nrc.ca/foo']})
@@ -280,7 +280,7 @@ def test_get_data_urls(monkeypatch):
 def test_misc(monkeypatch):
     dummyTapHandler = DummyTapHandler()
     monkeypatch.setattr(cadc_core, 'get_access_url', get_access_url_mock)
-    cadc = Cadc(tap_plus_handler=dummyTapHandler)
+    cadc = CadcClass(tap_plus_handler=dummyTapHandler)
 
     class Result(object):
         pass
