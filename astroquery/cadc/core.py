@@ -296,8 +296,7 @@ class CadcClass(BaseQuery):
         -------
         A table object
         """
-        return self._cadctap.load_table(table,
-                                         verbose)
+        return self._cadctap.load_table(table, verbose)
 
     def query_async(self, query):
         """
