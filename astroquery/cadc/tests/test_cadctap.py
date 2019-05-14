@@ -15,8 +15,8 @@ import pytest
 
 
 # monkeypatch get_access_url to prevent internet calls
-def get_access_url_mock(arg1, arg2):
-    return "some.url"
+def get_access_url_mock(arg1, arg2=None):
+    return "https://some.url"
 
 
 def data_path(filename):
@@ -28,6 +28,10 @@ def test_get_tables(monkeypatch):
     dummyTapHandler = DummyTapHandler()
     monkeypatch.setattr(cadc_core, 'get_access_url', get_access_url_mock)
     tap = CadcClass(tap_plus_handler=dummyTapHandler)
+
+    # sanity check: make sure our Cadc instance is using the handler
+    assert tap._cadctap == dummyTapHandler
+
     # default parameters
     parameters = {}
     parameters['only_names'] = False
@@ -293,8 +297,8 @@ def test_misc(monkeypatch):
     result.results = 'WELL DONE'
     assert result.results == cadc._parse_result(result)
     coords = '08h45m07.5s +54d18m00s'
-    coords_ra = parse_coordinates(coords).ra.degree
-    coords_dec = parse_coordinates(coords).dec.degree
+    coords_ra = parse_coordinates(coords).fk5.ra.degree
+    coords_dec = parse_coordinates(coords).fk5.dec.degree
 
     assert "SELECT * from caom2.Observation o join caom2.Plane p ON " \
            "o.obsID=p.obsID WHERE INTERSECTS( CIRCLE('ICRS', " \

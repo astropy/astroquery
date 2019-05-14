@@ -89,22 +89,41 @@ class CadcClass(BaseQuery):
         if url is not None and tap_plus_handler is not None:
             raise AttributeError('Can not input both url and tap handler')
 
-        if tap_plus_handler is None:
-            if url is None:
+        self._cadc_url = None
+        self._tap_plus_handler = None
+
+        if url is not None:
+            self._cadc_url = url
+        elif tap_plus_handler is not None:
+            self._tap_plus_handler = tap_plus_handler
+
+        self._verbose = verbose
+
+
+    @property
+    def _cadctap(self):
+        if self._tap_plus_handler is None:
+            if self._cadc_url is None:
                 u = get_access_url(self.CADCTAP_SERVICE_URI)
                 # remove capabilities endpoint to get to the service url
                 u = u.rstrip('capabilities')
-                self.__cadctap = TapPlusCadc(
+                self._tap_plus_handler = TapPlusCadc(
                     url=u,
-                    verbose=verbose)
+                    verbose=self._verbose)
             else:
-                self.__cadctap = TapPlusCadc(url=url, verbose=verbose)
-        else:
-            self.__cadctap = tap_plus_handler
+                self._tap_plus_handler = TapPlusCadc(url=self._cadc_url,
+                                                     verbose=self._verbose)
 
-        self.data_link_url = get_access_url(
-            self.CADCDATALINK_SERVICE_URI,
-            "ivo://ivoa.net/std/DataLink#links-1.0")
+        return self._tap_plus_handler
+
+    @property
+    def data_link_url(self):
+        if not hasattr(self, '__data_link_url'):
+            self.__data_link_url = get_access_url(
+                self.CADCDATALINK_SERVICE_URI,
+                "ivo://ivoa.net/std/DataLink#links-1.0")
+
+        return self.__data_link_url
 
     def login(self, user=None, password=None, certificate_file=None):
         """
@@ -121,7 +140,7 @@ class CadcClass(BaseQuery):
         """
         login_url = get_access_url(self.CADCLOGIN_SERVICE_URI,
                                    'ivo://ivoa.net/std/UMS#login-0.1')
-        return self.__cadctap.login(user=user, password=password,
+        return self._cadctap.login(user=user, password=password,
                                     certificate_file=certificate_file,
                                     cookie_prefix=CADC_COOKIE_PREFIX,
                                     login_url=login_url,
@@ -131,7 +150,7 @@ class CadcClass(BaseQuery):
         """
         Logout
         """
-        return self.__cadctap.logout(verbose)
+        return self._cadctap.logout(verbose)
 
     @class_or_instance
     def query_region_async(self, coordinates, radius=0.016666666666667,
@@ -260,7 +279,7 @@ class CadcClass(BaseQuery):
         -------
         A list of table objects
         """
-        return self.__cadctap.load_tables(only_names, verbose)
+        return self._cadctap.load_tables(only_names, verbose)
 
     def get_table(self, table, verbose=False):
         """
@@ -277,7 +296,7 @@ class CadcClass(BaseQuery):
         -------
         A table object
         """
-        return self.__cadctap.load_table(table,
+        return self._cadctap.load_table(table,
                                          verbose)
 
     def query_async(self, query):
@@ -337,7 +356,7 @@ class CadcClass(BaseQuery):
         else:
             save_to_file = False
         if operation == 'sync':
-            job = self.__cadctap.launch_job(
+            job = self._cadctap.launch_job(
                 query,
                 None,
                 output_file=output_file,
@@ -348,7 +367,7 @@ class CadcClass(BaseQuery):
                 upload_table_name=upload_table_name)
             op = False
         elif operation == 'async':
-            job = self.__cadctap.launch_job_async(
+            job = self._cadctap.launch_job_async(
                 query,
                 None,
                 output_file=output_file,
@@ -360,7 +379,7 @@ class CadcClass(BaseQuery):
                 upload_table_name=upload_table_name)
             op = True
         cjob = JobCadc(async_job=op, query=job.parameters['query'],
-                       connhandler=self.__cadctap._TapPlus__getconnhandler())
+                       connhandler=self._cadctap._TapPlus__getconnhandler())
         cjob.jobid = job.jobid
         cjob.outputFile = job.outputFile
         cjob.set_response_status(job._Job__responseStatus,
@@ -393,7 +412,7 @@ class CadcClass(BaseQuery):
         -------
         A Job object
         """
-        return self.__cadctap.load_async_job(jobid, verbose=verbose)
+        return self._cadctap.load_async_job(jobid, verbose=verbose)
 
     def list_async_jobs(self, verbose=False):
         """
@@ -409,7 +428,7 @@ class CadcClass(BaseQuery):
         A list of Job objects
         """
         try:
-            joblist = self.__cadctap.list_async_jobs(verbose)
+            joblist = self._cadctap.list_async_jobs(verbose)
             cadclist = []
             if joblist is not None:
                 for job in joblist:
@@ -432,7 +451,7 @@ class CadcClass(BaseQuery):
         verbose : bool, optional, default 'False'
             flag to display information about the process
         """
-        return self.__cadctap.save_results(job, filename, verbose)
+        return self._cadctap.save_results(job, filename, verbose)
 
     def _parse_result(self, result, verbose=False):
         # result is a job
