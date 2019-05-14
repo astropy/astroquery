@@ -907,8 +907,13 @@ class SimbadClass(BaseQuery):
         """
         request_payload = dict(script="\n".join(('format object "%IDLIST"',
                                                  'query id %s' % object_name)))
+
+        if get_query_payload:
+            return request_payload
+
         response = self._request("POST", self.SIMBAD_URL, data=request_payload,
                                  timeout=self.TIMEOUT, cache=cache)
+
         return response
 
     def _get_query_header(self, get_raw=False):
