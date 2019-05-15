@@ -94,6 +94,11 @@ full functionality of the `~astroquery.cds` module:
 * `regions <https://astropy-regions.readthedocs.io/en/latest/>`_
 * `mocpy <https://mocpy.readthedocs.io/en/latest/>`_ >= 0.5.2
 
+The following packages are optional dependencies and are required for the
+full functionality of the `~astroquery.mast` module:
+
+* `boto3 <https://boto3.readthedocs.io/>`_
+
 Using astroquery
 ----------------
 
