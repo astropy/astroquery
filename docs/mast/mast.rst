@@ -288,10 +288,24 @@ Product filtering can also be applied directly to a table of products without pr
 
 Cloud Data Access
 ------------------
-All public datasets from Hubble are also available on Amazon Web Services in a `public S3 bucket <https://registry.opendata.aws/hst/>`__. If you are using AWS resources to process public data you can take access these data in the following way. An `AWS credentials file <https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html>`__ is required to access the data. Instructions on generating such credentials are available `here <https://stackoverflow.com/questions/21440709/how-do-i-get-aws-access-key-id-for-amazon>`__. The `~astroquery.mast.ObservationsClass.enable_cloud_dataset` function reads in the credentials. Next, the `~astroquery.mast.ObservationsClass.get_cloud_uris` function will return S3-like URLs the data products (e.g., s3://stpubdata/hst/public/icde/icde43l0q/icde43l0q_drz.fits). Finally, the cloud downloads can be disabled using `~astroquery.mast.ObservationsClass.disable_cloud_dataset`. 
+All public datasets from Hubble are also available on Amazon Web Services in a `public S3 bucket
+<https://registry.opendata.aws/hst/>`__. If you are using AWS resources to process public data 
+you can access these data in the following way. An `AWS credentials file 
+<https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html>`__ is 
+required by both ~astroquery.mast.ObservationsClass.enable_cloud_dataset` and by "boto3" to access the data. 
+Instructions on generating such credentials are available 
+`here <https://stackoverflow.com/questions/21440709/how-do-i-get-aws-access-key-id-for-amazon>`__. 
+The `~astroquery.mast.ObservationsClass.enable_cloud_dataset` function reads in the credentials. 
+Next, the `~astroquery.mast.ObservationsClass.get_cloud_uris` function will return S3-like URLs 
+for the data products (e.g., s3://stpubdata/hst/public/icde/icde43l0q/icde43l0q_drz.fits). Files can be 
+accessed on "S3" using the "boto3" library. The argument "ExtraArgs={"RequestPayer": "requester"}" specifies 
+that data transfer charges are the responsibility of the requester, however transfers are free 
+within the US-East AWS region. Finally, the cloud downloads can be disabled using
+`~astroquery.mast.ObservationsClass.disable_cloud_dataset`. 
 
 
-**Note:** Only public datasets are available on AWS. Therefore we recommend using the "dataRights='Public'" flag when filtering the observations. 
+**Note:** Only public datasets are available on AWS. Therefore we recommend using the "dataRights='Public'" 
+flag when filtering the observations. 
 
 
 .. code-block:: python
