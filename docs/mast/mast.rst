@@ -292,7 +292,7 @@ All public datasets from Hubble are also available on Amazon Web Services in a `
 <https://registry.opendata.aws/hst/>`__. If you are using AWS resources to process public data 
 you can access these data in the following way. An `AWS credentials file 
 <https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html>`__ is 
-required by both ~astroquery.mast.ObservationsClass.enable_cloud_dataset` and by "boto3" to access the data. 
+required by both ~astroquery.mast.ObservationsClass.enable_cloud_dataset` and by `"boto3" <https://boto3.amazonaws.com/v1/documentation/api/latest/guide/configuration.html#shared-credentials-file>`__ to access the data. 
 Instructions on generating such credentials are available 
 `here <https://stackoverflow.com/questions/21440709/how-do-i-get-aws-access-key-id-for-amazon>`__. 
 The `~astroquery.mast.ObservationsClass.enable_cloud_dataset` function reads in the credentials. 
