@@ -117,12 +117,12 @@ class CadcClass(BaseQuery):
 
     @property
     def data_link_url(self):
-        if not hasattr(self, '__data_link_url'):
-            self.__data_link_url = get_access_url(
+        if not hasattr(self, '_data_link_url'):
+            self._data_link_url = get_access_url(
                 self.CADCDATALINK_SERVICE_URI,
                 "ivo://ivoa.net/std/DataLink#links-1.0")
 
-        return self.__data_link_url
+        return self._data_link_url
 
     def login(self, user=None, password=None, certificate_file=None):
         """
@@ -507,7 +507,6 @@ def get_access_url(service, capability=None):
     CADC registry
     """
 
-    query = BaseQuery()
     caps_url = ''
     if service.startswith('http'):
         if not capability:
@@ -517,13 +516,13 @@ def get_access_url(service, capability=None):
         # get caps from the CADC registry
         if not get_access_url.caps:
             try:
-                r = query._request('GET', conf.CADC_REGISTRY_URL)
-                r.raise_for_status()
+                response = requests.get(conf.CADC_REGISTRY_URL)
+                response.raise_for_status()
             except requests.exceptions.HTTPError as err:
                 logger.debug(
                     "ERROR getting the CADC registry: {}".format(str(err)))
                 raise err
-            for line in r.text.splitlines():
+            for line in response.text.splitlines():
                 if len(line) > 0 and not line.startswith('#'):
                     service_id, capabilies_url = line.split('=')
                     get_access_url.caps[service_id.strip()] = \
@@ -541,14 +540,14 @@ def get_access_url(service, capability=None):
         if not capability:
             return caps_url
     try:
-        c = query._request('GET', caps_url)
-        c.raise_for_status()
+        response2 = requests.get(caps_url)
+        response2.raise_for_status()
     except Exception as e:
         logger.debug(
             "ERROR getting the service capabilities: {}".format(str(e)))
         raise e
 
-    soup = BeautifulSoup(c.text, features="html5lib")
+    soup = BeautifulSoup(response2.text, features="html5lib")
     for cap in soup.find_all('capability'):
         if cap.get("standardid", None) == capability:
             if len(cap.find_all('interface')) == 1:
