@@ -50,13 +50,13 @@ class Tap(object):
                  host=None,
                  server_context=None,
                  tap_context=None,
+                 port=80, sslport=443,
+                 default_protocol_is_https=False,
+                 connhandler=None,
                  upload_context=None,
                  table_edit_context=None,
                  data_context=None,
                  datalink_context=None,
-                 port=80, sslport=443,
-                 default_protocol_is_https=False,
-                 connhandler=None,
                  verbose=False):
         """Constructor
 
@@ -728,13 +728,13 @@ class TapPlus(Tap):
                  host=None,
                  server_context=None,
                  tap_context=None,
+                 port=80, sslport=443,
+                 default_protocol_is_https=False,
+                 connhandler=None,
                  upload_context=None,
                  table_edit_context=None,
                  data_context=None,
                  datalink_context=None,
-                 port=80, sslport=443,
-                 default_protocol_is_https=False,
-                 connhandler=None,
                  verbose=True):
         """Constructor
 

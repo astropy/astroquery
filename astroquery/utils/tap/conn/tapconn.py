@@ -44,14 +44,15 @@ class TapConn(object):
     def __init__(self, ishttps,
                  host,
                  server_context=None,
+                 port=80,
+                 sslport=443,
+                 connhandler=None,
                  tap_context=None,
                  upload_context=None,
                  table_edit_context=None,
                  data_context=None,
-                 datalink_context=None,
-                 port=80,
-                 sslport=443,
-                 connhandler=None):
+                 datalink_context=None):
+
         """Constructor
 
         Parameters
