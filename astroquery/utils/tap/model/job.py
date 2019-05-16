@@ -106,7 +106,7 @@ class Job(object):
         self.__change_phase(phase="ABORT", verbose=verbose)
 
     def __change_phase(self, phase, verbose=False):
-        if self.__phase == 'PENDING':
+        if self._phase == 'PENDING':
             context = "async/"+str(self.get_jobid())+"/phase"
             args = {
                 "PHASE": str(phase)}
@@ -304,7 +304,7 @@ class Job(object):
         responseData = None
         lphase = None
         # execute job if not running
-        if self.__phase == 'PENDING':
+        if self._phase == 'PENDING':
             print("Job in PENDING phase, sending phase=RUN request.")
             try:
                 self.start(verbose)
