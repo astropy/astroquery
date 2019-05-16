@@ -130,7 +130,8 @@ class TapPlusCadc(TapPlus):
         return
 
     def _Tap__launchJobMultipart(self, query, uploadResource, uploadTableName,
-                                 outputFormat, context, verbose, name=None):
+                                 outputFormat, context, verbose, name=None,
+                                 autorun=True):
         """
 
         Notes
@@ -152,9 +153,8 @@ class TapPlusCadc(TapPlus):
         files = [[uploadTableName, uploadResource, chunk]]
         contentType, body = self._Tap__connHandler.encode_multipart(args,
                                                                     files)
-        response = self._Tap__connHandler.execute_post(context,
-                                                       body,
-                                                       contentType)
+        response = self._Tap__connHandler.execute_tappost(context, body,
+                                                          contentType)
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
@@ -169,7 +169,7 @@ class TapPlusCadc(TapPlus):
         return response
 
     def _Tap__launchJob(self, query, outputFormat,
-                        context, verbose, name=None):
+                        context, verbose, name=None, autorun=True):
         """
 
         Notes
@@ -184,7 +184,7 @@ class TapPlusCadc(TapPlus):
             "tapclient": str(TAP_CLIENT_ID),
             "QUERY": str(query)}
         data = self._Tap__connHandler.url_encode(args)
-        response = self._Tap__connHandler.execute_post(context, data)
+        response = self._Tap__connHandler.execute_tappost(context, data)
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
@@ -206,8 +206,8 @@ class TapPlusCadc(TapPlus):
         args = {
             "PHASE": "RUN"}
         data = self._Tap__connHandler.url_encode(args)
-        response = self._Tap__connHandler.execute_post('async/'+jobid+'/phase',
-                                                       data)
+        response = self._Tap__connHandler.execute_tappost('async/'+jobid+'/phase',
+                                                          data)
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
@@ -237,7 +237,7 @@ class TapPlusCadc(TapPlus):
                 print("No job identifier found")
             return
         subContext = "async/" + str(jobid)
-        response = self._Tap__connHandler.execute_get(subContext)
+        response = self._Tap__connHandler.execute_tapget(subContext)
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
@@ -310,6 +310,7 @@ class TapPlusCadc(TapPlus):
             raise AttributeError(
                 'Choose one form of authentication only')
         if certificate_file is not None:
+            print(dir(self._TapPlus__getconnhandler().cookies_set))
             if self._TapPlus__getconnhandler().cookies_set():
                 raise AttributeError('Already logged in with user/password')
             if not os.path.isfile(certificate_file):
