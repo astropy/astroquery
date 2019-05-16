@@ -29,7 +29,6 @@ from astroquery.utils.tap.model.filter import Filter
 import six
 import requests
 from astropy.logger import log
-from sympy.tensor import indexed
 import getpass
 import os
 from astropy.table.table import Table
