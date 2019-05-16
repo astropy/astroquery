@@ -42,4 +42,3 @@ class TapColumn(object):
             "\nDataType: " + str(self.datatype) + \
             "\nArraySize: " + str(self.arraysize) + \
             "\nFlag: " + str(self.flag)
-

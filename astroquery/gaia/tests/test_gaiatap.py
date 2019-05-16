@@ -409,7 +409,7 @@ class TestTap(unittest.TestCase):
         dummyHandler.check_call('get_datalinks', parameters)
         tap.get_datalinks(ids, verbose)
         dummyHandler.check_call('get_datalinks', parameters)
-   
+
     def test_xmatch(self):
         connHandler = DummyConnHandler()
         tapplus = TapPlus("http://test:1111/tap", connhandler=connHandler)

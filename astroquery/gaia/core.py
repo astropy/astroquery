@@ -461,7 +461,7 @@ class GaiaClass(TapPlus):
         -------
         A user
         """
-        
+
         return self.is_valid_user(user_id=user_id,
                                             verbose=verbose)
 

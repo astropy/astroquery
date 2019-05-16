@@ -18,6 +18,7 @@ from six.moves.urllib.parse import urlencode
 
 CONTENT_TYPE_POST_DEFAULT = "application/x-www-form-urlencoded"
 
+
 class DummyTapHandler(object):
 
     def __init__(self):

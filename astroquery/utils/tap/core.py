@@ -431,7 +431,7 @@ class Tap(object):
                 print("job " + str(jobid) + ", at: " + str(location))
             job.jobid = jobid
             job.remoteLocation = location
-            if autorun == True:
+            if autorun is True:
                 job.set_phase('EXECUTING')
                 if not background:
                     if verbose:
