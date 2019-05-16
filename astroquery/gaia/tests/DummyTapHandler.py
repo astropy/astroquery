@@ -14,7 +14,9 @@ Created on 30 jun. 2016
 
 
 """
+from six.moves.urllib.parse import urlencode
 
+CONTENT_TYPE_POST_DEFAULT = "application/x-www-form-urlencoded"
 
 class DummyTapHandler(object):
 
@@ -29,6 +31,11 @@ class DummyTapHandler(object):
     def check_call(self, method_name, parameters):
         self.check_method(method_name)
         self.check_parameters(parameters, method_name)
+
+    def execute_upload(self, data,
+                       content_type=CONTENT_TYPE_POST_DEFAULT,
+                       verbose=False):
+        pass
 
     def check_method(self, method):
         if method == self.__invokedMethod:
@@ -310,3 +317,6 @@ class DummyTapHandler(object):
         self.__invokedMethod = 'is_valid_user'
         self.__parameters['user_id'] = user_id
         self.__parameters['verbose'] = verbose
+
+    def url_encode(self, data):
+        return urlencode(data)

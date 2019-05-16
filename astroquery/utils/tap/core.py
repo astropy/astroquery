@@ -175,7 +175,7 @@ class Tap(object):
         """
         if table is None:
             raise ValueError("Table name is required")
-        print("Retrieving table '"+str(table)+"'")
+        print("Retrieving table '{}'".format(table))
         response = self.__connHandler.execute_tapget("tables?tables=" + table,
                                                      verbose=verbose)
         if verbose:
@@ -183,7 +183,7 @@ class Tap(object):
         self.__connHandler.check_launch_response_status(response,
                                                         verbose,
                                                         200)
-        print("Parsing table '"+str(table)+"'...")
+        print("Parsing table '{}'...".format(table))
         tsp = TableSaxParser()
         tsp.parseData(response)
         print("Done.")
@@ -471,7 +471,7 @@ class Tap(object):
             if jobs is None or len(jobs) < 1:
                 log.info("No job found for name '"+str(name)+"'")
                 return None
-            jobid = jobs[0].get_jobid()
+            jobid = jobs[0].jobid
         if jobid is None:
             log.info("No job identifier found")
             return None
@@ -1867,8 +1867,8 @@ class TapPlus(Tap):
         if isError:
             log.info(response.reason)
             raise requests.exceptions.HTTPError(response.reason)
-	msg = "Table '"+str(table_name)+"' updated (ra/dec)."
-	return msg
+        msg = "Table '{}' updated (ra/dec).".format(table_name)
+        return msg
 
     def login(self, user=None, password=None, credentials_file=None,
               verbose=False):

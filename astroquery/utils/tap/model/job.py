@@ -107,7 +107,7 @@ class Job(object):
 
     def __change_phase(self, phase, verbose=False):
         if self._phase == 'PENDING':
-            context = "async/"+str(self.get_jobid())+"/phase"
+            context = "async/"+str(self.jobid)+"/phase"
             args = {
                 "PHASE": str(phase)}
             data = self.connHandler.url_encode(args)

@@ -38,151 +38,6 @@ def data_path(filename):
 
 class TestTap(unittest.TestCase):
 
-    def test_load_tables(self):
-        dummyTapHandler = DummyTapHandler()
-        tap = GaiaClass(tap_plus_handler=dummyTapHandler,
-                        datalink_handler=dummyTapHandler)
-        # default parameters
-        parameters = {}
-        parameters['only_names'] = False
-        parameters['include_shared_tables'] = False
-        parameters['verbose'] = False
-        tap.load_tables()
-        dummyTapHandler.check_call('load_tables', parameters)
-        # test with parameters
-        dummyTapHandler.reset()
-        parameters = {}
-        parameters['only_names'] = True
-        parameters['include_shared_tables'] = True
-        parameters['verbose'] = True
-        tap.load_tables(True, True, True)
-        dummyTapHandler.check_call('load_tables', parameters)
-
-    def test_load_table(self):
-        dummyTapHandler = DummyTapHandler()
-        tap = GaiaClass(tap_plus_handler=dummyTapHandler,
-                        datalink_handler=dummyTapHandler)
-        # default parameters
-        parameters = {}
-        parameters['table'] = 'table'
-        parameters['verbose'] = False
-        tap.load_table('table')
-        dummyTapHandler.check_call('load_table', parameters)
-        # test with parameters
-        dummyTapHandler.reset()
-        parameters = {}
-        parameters['table'] = 'table'
-        parameters['verbose'] = True
-        tap.load_table('table', verbose=True)
-        dummyTapHandler.check_call('load_table', parameters)
-
-    def test_launch_sync_job(self):
-        dummyTapHandler = DummyTapHandler()
-        tap = GaiaClass(tap_plus_handler=dummyTapHandler,
-                        datalink_handler=dummyTapHandler)
-        query = "query"
-        # default parameters
-        parameters = {}
-        parameters['query'] = query
-        parameters['name'] = None
-        parameters['output_file'] = None
-        parameters['output_format'] = 'votable'
-        parameters['verbose'] = False
-        parameters['dump_to_file'] = False
-        parameters['upload_resource'] = None
-        parameters['upload_table_name'] = None
-        tap.launch_job(query)
-        dummyTapHandler.check_call('launch_job', parameters)
-        # test with parameters
-        dummyTapHandler.reset()
-        name = 'name'
-        output_file = 'output'
-        output_format = 'format'
-        verbose = True
-        dump_to_file = True
-        upload_resource = 'upload_res'
-        upload_table_name = 'upload_table'
-        parameters['query'] = query
-        parameters['name'] = name
-        parameters['output_file'] = output_file
-        parameters['output_format'] = output_format
-        parameters['verbose'] = verbose
-        parameters['dump_to_file'] = dump_to_file
-        parameters['upload_resource'] = upload_resource
-        parameters['upload_table_name'] = upload_table_name
-        tap.launch_job(query,
-                       name=name,
-                       output_file=output_file,
-                       output_format=output_format,
-                       verbose=verbose,
-                       dump_to_file=dump_to_file,
-                       upload_resource=upload_resource,
-                       upload_table_name=upload_table_name)
-        dummyTapHandler.check_call('launch_job', parameters)
-
-    def test_launch_async_job(self):
-        dummyTapHandler = DummyTapHandler()
-        tap = GaiaClass(tap_plus_handler=dummyTapHandler,
-                        datalink_handler=dummyTapHandler)
-        query = "query"
-        # default parameters
-        parameters = {}
-        parameters['query'] = query
-        parameters['name'] = None
-        parameters['output_file'] = None
-        parameters['output_format'] = 'votable'
-        parameters['verbose'] = False
-        parameters['dump_to_file'] = False
-        parameters['background'] = False
-        parameters['upload_resource'] = None
-        parameters['upload_table_name'] = None
-        tap.launch_job_async(query)
-        dummyTapHandler.check_call('launch_job_async', parameters)
-        # test with parameters
-        dummyTapHandler.reset()
-        name = 'name'
-        output_file = 'output'
-        output_format = 'format'
-        verbose = True
-        dump_to_file = True
-        background = True
-        upload_resource = 'upload_res'
-        upload_table_name = 'upload_table'
-        parameters['query'] = query
-        parameters['name'] = name
-        parameters['output_file'] = output_file
-        parameters['output_format'] = output_format
-        parameters['verbose'] = verbose
-        parameters['dump_to_file'] = dump_to_file
-        parameters['background'] = background
-        parameters['upload_resource'] = upload_resource
-        parameters['upload_table_name'] = upload_table_name
-        tap.launch_job_async(query,
-                             name=name,
-                             output_file=output_file,
-                             output_format=output_format,
-                             verbose=verbose,
-                             dump_to_file=dump_to_file,
-                             background=background,
-                             upload_resource=upload_resource,
-                             upload_table_name=upload_table_name)
-        dummyTapHandler.check_call('launch_job_async', parameters)
-
-    def test_list_async_jobs(self):
-        dummyTapHandler = DummyTapHandler()
-        tap = GaiaClass(tap_plus_handler=dummyTapHandler,
-                        datalink_handler=dummyTapHandler)
-        # default parameters
-        parameters = {}
-        parameters['verbose'] = False
-        tap.list_async_jobs()
-        dummyTapHandler.check_call('list_async_jobs', parameters)
-        # test with parameters
-        dummyTapHandler.reset()
-        parameters['verbose'] = True
-        tap.list_async_jobs(verbose=True)
-        dummyTapHandler.check_call('list_async_jobs', parameters)
-
     def test_query_object(self):
         connHandler = DummyConnHandler()
         tapplus = TapPlus("http://test:1111/tap", connhandler=connHandler)
@@ -554,202 +409,7 @@ class TestTap(unittest.TestCase):
         dummyHandler.check_call('get_datalinks', parameters)
         tap.get_datalinks(ids, verbose)
         dummyHandler.check_call('get_datalinks', parameters)
-
-    def test_upload_table_file(self):
-        dummyHandler = DummyTapHandler()
-        tap = GaiaClass(dummyHandler, dummyHandler)
-
-        resource = "1535553556177O-result.vot"
-        table_name = "table1"
-        table_desc = "Description"
-        format = "VOTable"
-        verbose = True
-
-        parameters = {}
-        parameters['resource'] = resource
-        parameters['table_name'] = table_name
-        parameters['table_desc'] = table_desc
-        parameters['format'] = format
-        parameters['verbose'] = verbose
-        tap.upload_table(upload_resource=resource,
-                         table_name=table_name,
-                         table_description=table_desc,
-                         format=format, verbose=verbose)
-        dummyHandler.check_call('update_table', parameters)
-
-    def test_upload_table_url(self):
-        dummyHandler = DummyTapHandler()
-        tap = GaiaClass(dummyHandler, dummyHandler)
-
-        resource = "http://foo.com/tests"
-        table_name = "table2"
-        table_desc = "Description"
-        format = "VOTable"
-        verbose = True
-
-        parameters = {}
-        parameters['resource'] = resource
-        parameters['table_name'] = table_name
-        parameters['table_desc'] = table_desc
-        parameters['format'] = format
-        parameters['verbose'] = verbose
-        tap.upload_table(upload_resource=resource,
-                         table_name=table_name,
-                         table_description=table_desc,
-                         format=format, verbose=verbose)
-        dummyHandler.check_call('update_table', parameters)
-
-    def test_upload_table_from_job(self):
-        dummyHandler = DummyTapHandler()
-        tap = GaiaClass(dummyHandler, dummyHandler)
-
-        job = "1536044389256O"
-        verbose = True
-        table_name = 'table'
-        table_description = 'desc'
-        parameters = {}
-        parameters['job'] = job
-        parameters['table_name'] = table_name
-        parameters['table_description'] = table_description
-        parameters['verbose'] = verbose
-        tap.upload_table_from_job(job=job,
-                                  table_name=table_name,
-                                  table_description=table_description,
-                                  verbose=verbose)
-        dummyHandler.check_call('upload_table_from_job', parameters)
-
-    def test_delete_user_table(self):
-        dummyHandler = DummyTapHandler()
-        tap = GaiaClass(dummyHandler, dummyHandler)
-
-        table_name = "table2"
-        force_removal = False
-        verbose = True
-
-        parameters = {}
-        parameters['table_name'] = table_name
-        parameters['force_removal'] = force_removal
-        parameters['verbose'] = verbose
-        tap.delete_user_table(table_name, force_removal, verbose)
-        dummyHandler.check_call('delete_user_table', parameters)
-
-    def test_load_groups(self):
-        dummyHandler = DummyTapHandler()
-        tap = GaiaClass(dummyHandler, dummyHandler)
-
-        verbose = True
-
-        parameters = {}
-        parameters['verbose'] = verbose
-
-        tap.load_groups(verbose)
-        dummyHandler.check_call('load_groups', parameters)
-
-    def test_load_group(self):
-        dummyHandler = DummyTapHandler()
-        tap = GaiaClass(dummyHandler, dummyHandler)
-
-        group_name = "group1"
-        verbose = True
-
-        parameters = {}
-        parameters['group_name'] = group_name
-        parameters['verbose'] = verbose
-
-        tap.load_group(group_name, verbose)
-        dummyHandler.check_call('load_group', parameters)
-
-    def test_load_shared_items(self):
-        dummyHandler = DummyTapHandler()
-        tap = GaiaClass(dummyHandler, dummyHandler)
-
-        verbose = True
-
-        parameters = {}
-        parameters['verbose'] = verbose
-
-        tap.load_shared_items(verbose)
-        dummyHandler.check_call('load_shared_items', parameters)
-
-    def test_share_table(self):
-        dummyHandler = DummyTapHandler()
-        tap = GaiaClass(dummyHandler, dummyHandler)
-
-        group_name = "group1"
-        table_name = "table1"
-        description = "description1"
-        verbose = True
-
-        parameters = {}
-        parameters['group_name'] = group_name
-        parameters['table_name'] = table_name
-        parameters['description'] = description
-        parameters['verbose'] = verbose
-
-        tap.share_table(group_name, table_name, description, verbose)
-        dummyHandler.check_call('share_table', parameters)
-
-    def test_share_table_stop(self):
-        dummyHandler = DummyTapHandler()
-        tap = GaiaClass(dummyHandler, dummyHandler)
-
-        table_name = "table1"
-        group_name = "group1"
-        verbose = True
-
-        parameters = {}
-        parameters['table_name'] = table_name
-        parameters['group_name'] = group_name
-        parameters['verbose'] = verbose
-
-        tap.share_table_stop(group_name=group_name, table_name=table_name,
-                             verbose=verbose)
-        dummyHandler.check_call('share_table_stop', parameters)
-
-    def test_share_group_create(self):
-        dummyHandler = DummyTapHandler()
-        tap = GaiaClass(dummyHandler, dummyHandler)
-
-        group_name = "group1"
-        description = "description1"
-        verbose = True
-
-        parameters = {}
-        parameters['group_name'] = group_name
-        parameters['description'] = description
-        parameters['verbose'] = verbose
-
-        tap.share_group_create(group_name, description, verbose)
-        dummyHandler.check_call('share_group_create', parameters)
-
-    def test_share_group_delete(self):
-        dummyHandler = DummyTapHandler()
-        tap = GaiaClass(dummyHandler, dummyHandler)
-
-        group_name = "group1"
-        verbose = True
-
-        parameters = {}
-        parameters['group_name'] = group_name
-        parameters['verbose'] = verbose
-
-        tap.share_group_delete(group_name, verbose)
-        dummyHandler.check_call('share_group_delete', parameters)
-
-    def test_is_valid_user(self):
-        dummyHandler = DummyTapHandler()
-        tap = GaiaClass(dummyHandler, dummyHandler)
-
-        user_id = "user1"
-        verbose = True
-
-        parameters = {}
-        parameters['user_id'] = user_id
-        parameters['verbose'] = verbose
-
-        tap.is_valid_user(user_id, verbose)
-        dummyHandler.check_call('is_valid_user', parameters)
-
+   
     def test_xmatch(self):
         connHandler = DummyConnHandler()
         tapplus = TapPlus("http://test:1111/tap", connhandler=connHandler)
@@ -852,14 +512,14 @@ class TestTap(unittest.TestCase):
             tap.cross_match(full_qualified_table_name_a='schemaA.tableA',
                             full_qualified_table_name_b='schemaB.tableB',
                             results_table_name='results', radius=0.01)
-        assert "Invalid radius value. Found 0.01, valid range: 0.1 to 10.0" \
+        assert "Invalid radius value. Found 0.01, valid range is: 0.1 to 10.0" \
             in err.value.args[0]
         # radius > 10.0
         with pytest.raises(ValueError) as err:
             tap.cross_match(full_qualified_table_name_a='schemaA.tableA',
                             full_qualified_table_name_b='schemaB.tableB',
                             results_table_name='results', radius=10.1)
-        assert "Invalid radius value. Found 10.1, valid range: 0.1 to 10.0" \
+        assert "Invalid radius value. Found 10.1, valid range is: 0.1 to 10.0" \
             in err.value.args[0]
         # check default parameters
         parameters = {}
@@ -878,7 +538,7 @@ class TestTap(unittest.TestCase):
         parameters['background'] = False
         parameters['upload_resource'] = None
         parameters['upload_table_name'] = None
-        tap.cross_match(full_qualified_table_name_a='schemaA.tableA',
+        job = tap.cross_match(full_qualified_table_name_a='schemaA.tableA',
                         full_qualified_table_name_b='schemaB.tableB',
                         results_table_name='results')
         assert job.async_ is True, "Expected an asynchronous job"
@@ -890,7 +550,7 @@ class TestTap(unittest.TestCase):
                         full_qualified_table_name_a='schemaA.tableA',
                         full_qualified_table_name_b='schemaB.tableB',
                         results_table_name='results',
-                        background=background, verbose=verbose)
+                        background=True)
         assert job.async_ is True, "Expected an asynchronous job"
         assert job.get_phase() == 'EXECUTING', \
             "Wrong job phase. Expected: %s, found %s" % \
