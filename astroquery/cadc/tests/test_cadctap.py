@@ -213,7 +213,7 @@ def test_logout(monkeypatch):
 def test_get_access_ur(monkeypatch):
     assert 'http://some.url' == cadc_core.get_access_url('http://some.url')
 
-    def get(self, method, url, **kwargs):
+    def get(url, **kwargs):
         class ServiceResponse(object):
             def __init__(self):
                 self.text = 'ivo://cadc.nrc.ca/mytap = http://my.org/mytap'
@@ -234,7 +234,7 @@ def test_get_access_ur(monkeypatch):
             return CapabilitiesResponse()
 
     # don't know why the decorator doesnt work here
-    monkeypatch.setattr(cadc_core.BaseQuery, '_request', get)
+    monkeypatch.setattr(cadc_core.requests, 'get', get)
     monkeypatch.setattr(cadc_core.get_access_url, 'caps', {})
     assert 'http://my.org/mytap' == cadc_core.get_access_url('mytap')
 
