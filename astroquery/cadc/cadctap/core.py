@@ -14,6 +14,7 @@ from six.moves import http_client as httplib
 from astroquery.utils.tap.core import TapPlus
 from astroquery.cadc.cadctap.tapconn import TapConnCadc
 from astroquery.cadc.cadctap.jobSaxParser import JobSaxParserCadc
+from astroquery.utils.tap import taputils
 
 
 __all__ = ['TapPlusCadc']
@@ -74,31 +75,35 @@ class TapPlusCadc(TapPlus):
                 tap_context = self._Tap__parseUrl(url)
             if protocol == "http":
                 connHandler = TapConnCadc(False,
-                                          host,
-                                          server_context,
-                                          tap_context,
-                                          port,
-                                          sslport)
+                                          host=host,
+                                          server_context=server_context,
+                                          tap_context=tap_context,
+                                          port=port,
+                                          sslport=sslport)
             else:
                 # https port -> sslPort
                 connHandler = TapConnCadc(True,
-                                          host,
-                                          server_context,
-                                          tap_context,
-                                          port,
-                                          port)
+                                          host=host,
+                                          server_context=server_context,
+                                          tap_context=tap_context,
+                                          port=port,
+                                          sslport=port)
         else:
             connHandler = TapConnCadc(default_protocol_is_https,
-                                      host,
-                                      server_context,
-                                      tap_context,
-                                      port,
-                                      sslport)
+                                      host=host,
+                                      server_context=server_context,
+                                      tap_context=tap_context,
+                                      port=port,
+                                      sslport=sslport)
         self.__certificate = None
-        super(TapPlusCadc, self).__init__(url, host, server_context,
-                                          tap_context, port, sslport,
-                                          default_protocol_is_https,
-                                          connHandler, verbose)
+        super(TapPlusCadc, self).__init__(url=url, host=host,
+                                          server_context=server_context,
+                                          tap_context=tap_context, port=port,
+                                          sslport=sslport,
+                                          default_protocol_is_https=default_protocol_is_https,
+
+                                          connhandler=connHandler,
+                                          verbose=verbose)
 
     def load_table(self, table, verbose=False):
         """Loads the specified table
@@ -163,7 +168,7 @@ class TapPlusCadc(TapPlus):
             location = self._Tap__connHandler.find_header(
                 response.getheaders(),
                 "location")
-            jobid = self._Tap__getJobId(location)
+            jobid = taputils.get_jobid_from_location(location)
             runresponse = self.__runAsyncQuery(jobid, verbose)
             return runresponse
         return response
@@ -192,7 +197,7 @@ class TapPlusCadc(TapPlus):
             location = self._Tap__connHandler.find_header(
                 response.getheaders(),
                 "location")
-            jobid = self._Tap__getJobId(location)
+            jobid = taputils.get_jobid_from_location(location)
             runresponse = self.__runAsyncQuery(jobid, verbose)
             return runresponse
         return response
