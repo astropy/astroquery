@@ -9,13 +9,31 @@ import pytest
 import os
 from datetime import datetime
 from astropy.tests.helper import remote_data
-from astroquery.cadc import Cadc
 from astropy.coordinates import SkyCoord
+
+from astroquery.cadc import Cadc
+from astropy.utils.exceptions import AstropyDeprecationWarning
+
+try:
+    pyvo_OK = True
+    import pyvo   # noqa
+except ImportError:
+    pyvo_OK = False
+except AstropyDeprecationWarning as e:
+    if str(e) == 'The astropy.vo.samp module has now been moved to astropy.samp':
+        print('AstropyDeprecationWarning: {}'.format(str(e)))
+    else:
+        raise e
+
+# to run just one test during development, set this variable to True
+# and comment out the skipif of the single test to run.
+one_test = False
 
 
 @remote_data
 class TestCadcClass:
     # now write tests for each method here
+    @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
     def test_get_collections(self):
         cadc = Cadc()
         result = cadc.get_collections()
@@ -35,6 +53,8 @@ class TestCadcClass:
         assert 'Infrared' in result['DAO']['Bands']
         assert 'Optical' in result['DAO']['Bands']
 
+    @pytest.mark.skipif(one_test, reason='One test mode')
+    @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
     def test_query_region(self):
         cadc = Cadc()
         result = cadc.query_region('08h45m07.5s +54d18m00s', collection='CFHT')
@@ -60,6 +80,8 @@ class TestCadcClass:
         results = cadc.query_region(SkyCoord.from_name('M31'))
         assert len(results) > 20
 
+    @pytest.mark.skipif(one_test, reason='One test mode')
+    @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
     def test_query_name(self):
         cadc = Cadc()
         result1 = cadc.query_name('M31-B14')
@@ -68,9 +90,11 @@ class TestCadcClass:
         result2 = cadc.query_name('m31-b14')
         assert len(result1) == len(result2)
 
+    @pytest.mark.skipif(one_test, reason='One test mode')
+    @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
     def test_query(self):
         cadc = Cadc()
-        result = cadc.query(
+        result = cadc.exec_sync(
             "select count(*) from caom2.Observation where target_name='M31'")
         assert 1000 < result[0][0]
 
@@ -78,18 +102,104 @@ class TestCadcClass:
         now = datetime.utcnow()
         query = "select top 1 * from caom2.Plane where " \
                 "metaRelease>'{}'".format(now.strftime('%Y-%m-%dT%H:%M:%S.%f'))
-        result = cadc.query(query)
+        result = cadc.exec_sync(query)
         assert len(result) == 0
 
+    @pytest.mark.skipif(one_test, reason='One test mode')
+    @pytest.mark.skip('Disabled for now until pyvo starts supporting '
+                      'different output formats')
+    @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
+    def test_query_format(self):
+        cadc = Cadc()
+        query = "select top 1 observationID, collection from caom2.Observation"
+        result = cadc.exec_sync(query, output_format='csv')
+        print(result)
+
+    @pytest.mark.skipif(one_test, reason='One test mode')
     @pytest.mark.skipif(('CADC_USER' not in os.environ or
                         'CADC_PASSWD' not in os.environ),
                         reason='Requires real CADC user/password (CADC_USER '
                                'and CADC_PASSWD environment variables)')
-    def test_login(self):
+    @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
+    def test_login_with_user_password(self):
         cadc = Cadc()
+        cadc.logout()
         now = datetime.utcnow()
         cadc.login(os.environ['CADC_USER'], os.environ['CADC_PASSWD'])
         query = "select top 1 * from caom2.Plane where " \
                 "metaRelease>'{}'".format(now.strftime('%Y-%m-%dT%H:%M:%S.%f'))
-        result = cadc.query(query)
+        result = cadc.exec_sync(query)
+        cadc.logout()
         assert len(result) == 1
+
+    @pytest.mark.skipif(one_test, reason='One test mode')
+    @pytest.mark.skipif('CADC_CERT' not in os.environ,
+                        reason='Requires real CADC certificate (CADC_CERT '
+                               'environment variable)')
+    @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
+    def test_login_with_cert(self):
+        # repeat previous test
+        cadc = Cadc()
+        cadc.logout()
+        now = datetime.utcnow()
+        # following query is to test login with certificates when an
+        # anonymous query is executed first.
+        cadc.exec_sync('select top 1 * from caom2.Observation')
+        cadc.login(certificate_file=os.environ['CADC_CERT'])
+        query = "select top 1 * from caom2.Plane where " \
+                "metaRelease>'{}'".format(now.strftime('%Y-%m-%dT%H:%M:%S.%f'))
+        result = cadc.exec_sync(query)
+        assert len(result) == 1
+        cadc.logout()
+
+    @pytest.mark.skipif(one_test, reason='One test mode')
+    @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
+    def test_async(self):
+        # test async calls
+        cadc = Cadc()
+
+        # run the query in sync mode first
+        expected = cadc.exec_sync(
+            "select top 3 observationID from caom2.Observation where "
+            "collection='IRIS' order by observationID")
+
+        # now run the query in async mode
+        job = cadc.create_async(
+            "select top 3 observationID from caom2.Observation where "
+            "collection='IRIS' order by observationID")
+        job = job.run().wait()
+        job.raise_if_error()
+        result = job.fetch_result().to_table()
+        assert len(expected) == len(result)
+        for i in range(0, 2):
+            assert expected['observationID'][i] == result['observationID'][i]
+        # load job again
+        loaded_job = cadc.load_async_job(job.job_id)
+        result = loaded_job.fetch_result().to_table()
+        assert len(expected) == len(result)
+        for i in range(0, 2):
+            assert expected['observationID'][i] == result['observationID'][i]
+        # job.delete()  # BUG in CADC
+
+    @pytest.mark.skipif(one_test, reason='One test mode')
+    @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
+    def test_list_tables(self):
+        cadc = Cadc()
+        table_names = cadc.get_tables(only_names=True)
+        assert len(table_names) > 20
+        assert 'caom2.Observation' in table_names
+        assert 'ivoa.ObsCore' in table_names
+        assert 'tap_schema.tables' in table_names
+        tables = cadc.get_tables()
+        assert len(table_names) == len(tables)
+        for table in tables:
+            assert table.name in table_names
+
+        table = cadc.get_table('caom2.Observation')
+        assert 'caom2.Observation' == table.name
+
+    @pytest.mark.skip('Waiting for implementation in pyvo')
+    @pytest.mark.skipif(one_test, reason='One test mode')
+    @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
+    def test_list_jobs(self):
+        raise NotImplementedError('Not implemented in pyvo')
