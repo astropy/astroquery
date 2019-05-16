@@ -6,13 +6,20 @@ CadcClass TAP plus
 
 """
 import os
+import sys
 
-from astropy.table import Table
-from astroquery.cadc import CadcClass, conf
+from astropy.table import Table as AstroTable
+from astropy.io.votable.tree import VOTableFile, Resource, Table, Field
+from astropy.io.votable import parse
+from astropy.utils.diff import report_diff_values
+from six import BytesIO
+from astroquery.cadc import Cadc, conf
 import astroquery.cadc.core as cadc_core
 from astroquery.utils.commons import parse_coordinates
-from astroquery.cadc.tests.DummyTapHandler import DummyTapHandler
+from unittest.mock import Mock, patch, PropertyMock
 import pytest
+import tempfile
+from pyvo.dal import tap
 
 
 # monkeypatch get_access_url to prevent internet calls
@@ -25,195 +32,116 @@ def data_path(filename):
     return os.path.join(data_dir, filename)
 
 
-def test_get_tables(monkeypatch):
-    dummyTapHandler = DummyTapHandler()
-    monkeypatch.setattr(cadc_core, 'get_access_url', get_access_url_mock)
-    tap = CadcClass(tap_plus_handler=dummyTapHandler)
-
-    # sanity check: make sure our Cadc instance is using the handler
-    assert tap._cadctap == dummyTapHandler
-
+@patch('astroquery.cadc.core.get_access_url',
+       Mock(side_effect=lambda x: 'https://some.url'))
+def test_get_tables():
     # default parameters
-    parameters = {}
-    parameters['only_names'] = False
-    parameters['verbose'] = False
-    tap.get_tables()
-    dummyTapHandler.check_call('get_tables', parameters)
-    # test with parameters
-    dummyTapHandler.reset()
-    parameters = {}
-    parameters['only_names'] = True
-    parameters['verbose'] = True
-    tap.get_tables(True, True)
-    dummyTapHandler.check_call('get_tables', parameters)
+    table_set = PropertyMock()
+    table_set.keys.return_value = ['table1', 'table2']
+    table_set.values.return_value = ['tab1val', 'tab2val', 'tab3val']
+    with patch('astroquery.cadc.core.pyvo.dal.TAPService', autospec=True) as m:
+        m.return_value.tables = table_set
+        tap = Cadc()
+        assert len(tap.get_tables(only_names=True)) == 2
+        assert len(tap.get_tables()) == 3
 
 
-def test_get_table(monkeypatch):
-    dummyTapHandler = DummyTapHandler()
-    monkeypatch.setattr(cadc_core, 'get_access_url', get_access_url_mock)
-    tap = CadcClass(tap_plus_handler=dummyTapHandler)
-    # default parameters
-    parameters = {}
-    parameters['table'] = 'table'
-    parameters['verbose'] = False
-    tap.get_table('table')
-    dummyTapHandler.check_call('get_table', parameters)
-    # test with parameters
-    dummyTapHandler.reset()
-    parameters = {}
-    parameters['table'] = 'table'
-    parameters['verbose'] = True
-    tap.get_table('table', verbose=True)
-    dummyTapHandler.check_call('get_table', parameters)
+@patch('astroquery.cadc.core.get_access_url',
+       Mock(side_effect=lambda x: 'https://some.url'))
+def test_get_table():
+    table_set = PropertyMock()
+    tables_result = [Mock(), Mock(), Mock()]
+    tables_result[0].name = 'tab1'
+    tables_result[1].name = 'tab2'
+    tables_result[2].name = 'tab3'
+    table_set.values.return_value = tables_result
+
+    with patch('astroquery.cadc.core.pyvo.dal.TAPService', autospec=True) as m:
+        m.return_value.tables = table_set
+        tap = Cadc()
+        assert tap.get_table('tab2').name == 'tab2'
+        assert tap.get_table('foo') is None
 
 
-def test_run_query(monkeypatch):
-    dummyTapHandler = DummyTapHandler()
-    monkeypatch.setattr(cadc_core, 'get_access_url', get_access_url_mock)
-    tap = CadcClass(tap_plus_handler=dummyTapHandler)
-    query = "query"
-    operation = 'sync'
-    # default parameters
-    parameters = {}
-    parameters['query'] = query
-    parameters['name'] = None
-    parameters['output_file'] = None
-    parameters['output_format'] = 'votable'
-    parameters['verbose'] = False
-    parameters['dump_to_file'] = False
-    parameters['upload_resource'] = None
-    parameters['upload_table_name'] = None
-    tap.run_query(query, operation)
-    dummyTapHandler.check_call('run_query', parameters)
-    # test with parameters
-    dummyTapHandler.reset()
-    output_file = 'output'
-    output_format = 'format'
-    verbose = True
-    upload_resource = 'upload_res'
-    upload_table_name = 'upload_table'
-    parameters['query'] = query
-    parameters['name'] = None
-    parameters['output_file'] = output_file
-    parameters['output_format'] = output_format
-    parameters['verbose'] = verbose
-    parameters['dump_to_file'] = True
-    parameters['upload_resource'] = upload_resource
-    parameters['upload_table_name'] = upload_table_name
-    tap.run_query(query,
-                  operation,
-                  output_file=output_file,
-                  output_format=output_format,
-                  verbose=verbose,
-                  upload_resource=upload_resource,
-                  upload_table_name=upload_table_name)
-    dummyTapHandler.check_call('run_query', parameters)
+@patch('astroquery.cadc.core.get_access_url',
+       Mock(side_effect=lambda x: 'https://some.url'))
+def test_get_collections():
+    cadc = Cadc()
+
+    def mock_run_query(query, output_format=None, maxrec=None,
+                       output_file=None):
+        assert query == \
+               'select distinct collection, energy_emBand from caom2.EnumField'
+        assert output_format is None
+        assert maxrec is None
+        assert output_file is None
+        table = AstroTable(rows=[('CFHT', 'Optical'), ('CFHT', 'Infrared'),
+                                 ('JCMT', 'Millimeter'), ('DAO', 'Optical'),
+                                 ('DAO', 'Infrared')],
+                           names=('collection', 'energy_emBand'))
+        return table
+    cadc.exec_sync = mock_run_query
+    result = cadc.get_collections()
+    assert len(result) == 3
+    assert 'CFHT' in result
+    assert 'JCMT' in result
+    assert 'DAO' in result
 
 
-def test_load_async_job(monkeypatch):
-    dummyTapHandler = DummyTapHandler()
-    monkeypatch.setattr(cadc_core, 'get_access_url', get_access_url_mock)
-    tap = CadcClass(tap_plus_handler=dummyTapHandler)
-    jobid = '123'
-    # default parameters
-    parameters = {}
-    parameters['jobid'] = jobid
-    parameters['verbose'] = False
-    tap.load_async_job(jobid)
-    dummyTapHandler.check_call('load_async_job', parameters)
-    # test with parameters
-    dummyTapHandler.reset()
-    parameters['jobid'] = jobid
-    parameters['verbose'] = True
-    tap.load_async_job(jobid, verbose=True)
-    dummyTapHandler.check_call('load_async_job', parameters)
+@patch('astroquery.cadc.core.get_access_url',
+       Mock(side_effect=lambda x: 'https://some.url'))
+def test_load_async_job():
+    with patch('astroquery.cadc.core.pyvo.dal.TAPService', autospec=True) as t:
+        with patch('astroquery.cadc.core.pyvo.dal.AsyncTAPJob',
+                   autospec=True) as j:
+            t.return_value.baseurl.return_value = 'https://www.example.com/tap'
+            mock_job = Mock()
+            mock_job.job_id = '123'
+            j.return_value = mock_job
+            tap = Cadc()
+            jobid = '123'
+            job = tap.load_async_job(jobid)
+            assert job.job_id == '123'
 
 
-def test_list_async_jobs(monkeypatch):
-    dummyTapHandler = DummyTapHandler()
-    monkeypatch.setattr(cadc_core, 'get_access_url', get_access_url_mock)
-    tap = CadcClass(tap_plus_handler=dummyTapHandler)
-    # default parameters
-    parameters = {}
-    parameters['verbose'] = False
-    tap.list_async_jobs()
-    dummyTapHandler.check_call('list_async_jobs', parameters)
-    # test with parameters
-    dummyTapHandler.reset()
-    parameters['verbose'] = True
-    tap.list_async_jobs(verbose=True)
-    dummyTapHandler.check_call('list_async_jobs', parameters)
+@pytest.mark.skip('Disabled until job listing available in pyvo')
+@patch('astroquery.cadc.core.get_access_url',
+       Mock(side_effect=lambda x: 'https://some.url'))
+def test_list_async_jobs():
+    with patch('astroquery.cadc.core.pyvo.dal.TAPService', autospec=True) as t:
+        t.return_value.baseurl.return_value = 'https://www.example.com/tap'
+        tap = Cadc()
+        tap.list_async_jobs()
 
 
-def test_save_results(monkeypatch):
-    dummyTapHandler = DummyTapHandler()
-    monkeypatch.setattr(cadc_core, 'get_access_url', get_access_url_mock)
-    tap = CadcClass(tap_plus_handler=dummyTapHandler)
-    job = '123'
-    # default parameters
-    parameters = {}
-    parameters['job'] = job
-    parameters['filename'] = 'file.txt'
-    parameters['verbose'] = False
-    tap.save_results(job, 'file.txt')
-    dummyTapHandler.check_call('save_results', parameters)
-    # test with parameters
-    dummyTapHandler.reset()
-    parameters['job'] = job
-    parameters['filename'] = 'file.txt'
-    parameters['verbose'] = True
-    tap.save_results(job, 'file.txt', verbose=True)
-    dummyTapHandler.check_call('save_results', parameters)
-
-
-def test_login(monkeypatch):
-    def get_access_url_mock(arg1, arg2):
-        return "some.url"
-
-    monkeypatch.setattr(cadc_core, 'get_access_url', get_access_url_mock)
-    dummyTapHandler = DummyTapHandler()
-    tap = CadcClass(tap_plus_handler=dummyTapHandler)
+@patch('astroquery.cadc.core.get_access_url',
+       Mock(side_effect=lambda x, y=None: 'https://some.url'))
+def test_auth():
+    cadc = Cadc()
     user = 'user'
     password = 'password'
     cert = 'cert'
-    # default parameters
-    parameters = {}
-    parameters['cookie_prefix'] = cadc_core.CADC_COOKIE_PREFIX
-    parameters['login_url'] = "some.url"
-    parameters['verbose'] = False
-    parameters['user'] = None
-    parameters['password'] = None
-    parameters['certificate_file'] = None
-    tap.login(None, None, None)
-    dummyTapHandler.check_call('login', parameters)
-    # test with parameters
-    dummyTapHandler.reset()
-    parameters['user'] = user
-    parameters['password'] = password
-    parameters['certificate_file'] = cert
-    tap.login(user, password, cert)
-    dummyTapHandler.check_call('login', parameters)
+    with pytest.raises(AttributeError):
+        cadc.login(None, None, None)
+    with pytest.raises(AttributeError):
+        cadc.login(user=user)
+    with pytest.raises(AttributeError):
+        cadc.login(password=password)
+    cadc.login(certificate_file=cert)
+    assert tap.s.cert == cert
+    cadc.logout()
+    assert tap.s.cert is None
+    with patch('astroquery.cadc.core.requests.post') as m:
+        cookie = 'ABC'
+        mock_resp = Mock()
+        mock_resp.text = cookie
+        m.return_value = mock_resp
+        cadc.login(user=user, password=password)
+    assert tap.s.cookies[cadc_core.CADC_COOKIE_PREFIX] == '"{}"'.format(cookie)
 
 
-def test_logout(monkeypatch):
-    dummyTapHandler = DummyTapHandler()
-    monkeypatch.setattr(cadc_core, 'get_access_url', get_access_url_mock)
-    tap = CadcClass(tap_plus_handler=dummyTapHandler)
-    # default parameters
-    parameters = {}
-    parameters['verbose'] = False
-    tap.logout(False)
-    dummyTapHandler.check_call('logout', parameters)
-    # test with parameters
-    dummyTapHandler.reset()
-    parameters['verbose'] = True
-    tap.logout(True)
-    dummyTapHandler.check_call('logout', parameters)
-
-
-def test_get_access_ur(monkeypatch):
-    assert 'http://some.url' == cadc_core.get_access_url('http://some.url')
-
+def test_get_access_url():
+    # testing implementation of requests.get method:
     def get(url, **kwargs):
         class ServiceResponse(object):
             def __init__(self):
@@ -234,47 +162,18 @@ def test_get_access_ur(monkeypatch):
         else:
             return CapabilitiesResponse()
 
-    # don't know why the decorator doesnt work here
-    monkeypatch.setattr(cadc_core.requests, 'get', get)
-    monkeypatch.setattr(cadc_core.get_access_url, 'caps', {})
-    assert 'http://my.org/mytap' == cadc_core.get_access_url('mytap')
-
-    assert \
-        'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/tap/tables' == \
-        cadc_core.get_access_url('mytap', 'ivo://ivoa.net/std/VOSI#tables-1.1')
-
-
-def test_get_collections(monkeypatch):
-    monkeypatch.setattr(cadc_core, 'get_access_url', get_access_url_mock)
-    dummyTapHandler = DummyTapHandler()
-    cadc = CadcClass(dummyTapHandler)
-
-    def mock_run_query(query, output_format, operation):
-        assert query == \
-               'select distinct collection, energy_emBand from caom2.EnumField'
-        assert output_format == 'csv'
-        assert operation == 'sync'
-        table = Table(rows=[('CFHT', 'Optical'), ('CFHT', 'Infrared'),
-                            ('JCMT', 'Millimeter'), ('DAO', 'Optical'),
-                            ('DAO', 'Infrared')],
-                      names=('collection', 'energy_emBand'))
-
-        class Response(object):
-            pass
-        response = Response()
-        response.results = table
-        return response
-
-    cadc.run_query = mock_run_query
-    result = cadc.get_collections()
-    assert len(result) == 3
-    assert 'CFHT' in result
-    assert 'JCMT' in result
-    assert 'DAO' in result
+    # now use it in testing
+    with patch.object(cadc_core.requests, 'get', get):
+        cadc_core.get_access_url.caps = {}
+        assert 'http://my.org/mytap' == cadc_core.get_access_url('mytap')
+        assert 'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/tap/tables' == \
+            cadc_core.get_access_url('mytap',
+                                     'ivo://ivoa.net/std/VOSI#tables-1.1')
 
 
-def test_get_data_urls(monkeypatch):
-    monkeypatch.setattr(cadc_core, 'get_access_url', get_access_url_mock)
+@patch('astroquery.cadc.core.get_access_url',
+       Mock(side_effect=lambda x, y=None: 'https://some.url'))
+def test_get_data_urls():
 
     def get(*args, **kwargs):
         class CapsResponse(object):
@@ -295,37 +194,26 @@ def test_get_data_urls(monkeypatch):
                         {'semantics': b'#aux',
                          'access_url': b'https://get.your.data/auxpath'}]
 
-    monkeypatch.setattr(cadc_core, 'parse_single_table', lambda x: vot_result)
-    dummyTapHandler = DummyTapHandler()
-    cadc = CadcClass(tap_plus_handler=dummyTapHandler)
-    cadc._request = get  # mock the request
-    assert [vot_result.array[0]['access_url'].decode('ascii')] == \
-        cadc.get_data_urls({'caomPublisherID': ['ivo://cadc.nrc.ca/foo']})
-    assert [vot_result.array[0]['access_url'].decode('ascii'),
-            vot_result.array[1]['access_url'].decode('ascii')] == \
-        cadc.get_data_urls({'caomPublisherID': ['ivo://cadc.nrc.ca/foo']},
-                           include_auxiliaries=True)
+    with patch.object(cadc_core, 'parse_single_table', lambda x: vot_result):
+        cadc = Cadc()
+        cadc._request = get  # mock the request
+        assert [vot_result.array[0]['access_url'].decode('ascii')] == \
+            cadc.get_data_urls({'publisherID': ['ivo://cadc.nrc.ca/foo']})
+        assert [vot_result.array[0]['access_url'].decode('ascii'),
+                vot_result.array[1]['access_url'].decode('ascii')] == \
+            cadc.get_data_urls({'publisherID': ['ivo://cadc.nrc.ca/foo']},
+                               include_auxiliaries=True)
     with pytest.raises(AttributeError):
         cadc.get_data_urls(None)
     with pytest.raises(AttributeError):
         cadc.get_data_urls({'noPublisherID': 'test'})
 
 
-def test_misc(monkeypatch):
-    dummyTapHandler = DummyTapHandler()
-    monkeypatch.setattr(cadc_core, 'get_access_url', get_access_url_mock)
-    cadc = CadcClass(tap_plus_handler=dummyTapHandler)
+@patch('astroquery.cadc.core.get_access_url',
+       Mock(side_effect=lambda x, y=None: 'https://some.url'))
+def test_misc():
+    cadc = Cadc()
 
-    class Result(object):
-        pass
-    result = Result()
-    result._phase = 'RUN'
-    with pytest.raises(RuntimeError):
-        cadc._parse_result(result)
-
-    result._phase = 'COMPLETED'
-    result.results = 'WELL DONE'
-    assert result.results == cadc._parse_result(result)
     coords = '08h45m07.5s +54d18m00s'
     coords_ra = parse_coordinates(coords).fk5.ra.degree
     coords_dec = parse_coordinates(coords).fk5.dec.degree
@@ -345,3 +233,37 @@ def test_misc(monkeypatch):
            "quality_flag != 'junk')".format(coords_ra, coords_dec) ==  \
            cadc._args_to_payload(**{'coordinates': coords,
                                  'radius': 0.3})['query']
+
+
+@patch('astroquery.cadc.core.get_access_url',
+       Mock(side_effect=lambda x, y=None: 'https://some.url'))
+def test_exec_sync():
+    # save results in a file
+    # create the VOTable result
+    # example from http://docs.astropy.org/en/stable/io/votable/
+    votable = VOTableFile()
+    resource = Resource()
+    votable.resources.append(resource)
+    table = Table(votable)
+    resource.tables.append(table)
+    table.fields.extend([
+        Field(votable, name="filename", datatype="char", arraysize="*"),
+        Field(votable, name="matrix", datatype="double", arraysize="2x2")])
+    table.create_arrays(2)
+    table.array[0] = ('test1.xml', [[1, 0], [0, 1]])
+    table.array[1] = ('test2.xml', [[0.5, 0.3], [0.2, 0.1]])
+    buffer = BytesIO()
+    votable.to_xml(buffer)
+    cadc = Cadc()
+    response = Mock()
+    response.to_table.return_value = buffer.getvalue()
+    cadc.cadctap.search = Mock(return_value=response)
+    output_file = '{}/test_vooutput.xml'.format(tempfile.tempdir)
+    cadc.exec_sync('some query', output_file=output_file)
+
+    actual = parse(output_file)
+    assert len(votable.resources) == len(actual.resources) == 1
+    assert len(votable.resources[0].tables) ==\
+        len(actual.resources[0].tables) == 1
+    actual_table = actual.resources[0].tables[0]
+    assert report_diff_values(table, actual_table, fileobj=sys.stdout)
