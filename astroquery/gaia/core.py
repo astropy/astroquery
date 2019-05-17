@@ -19,13 +19,12 @@ from astroquery.utils.tap import TapPlus
 from astroquery.utils import commons
 from astropy import units
 from astropy.units import Quantity
-
+import six
+from astroquery.utils.tap import taputils
 from . import conf
 
-__all__ = ['Gaia', 'GaiaClass']
 
-
-class GaiaClass(object):
+class GaiaClass(TapPlus):
 
     """
     Proxy class to default TapPlus object (pointing to Gaia Archive)
@@ -34,42 +33,54 @@ class GaiaClass(object):
     MAIN_GAIA_TABLE_RA = conf.MAIN_GAIA_TABLE_RA
     MAIN_GAIA_TABLE_DEC = conf.MAIN_GAIA_TABLE_DEC
 
-    def __init__(self, tap_plus_handler=None):
-        if tap_plus_handler is None:
-            self.__gaiatap = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
+    def __init__(self, tap_plus_conn_handler=None, datalink_handler=None):
+        super(GaiaClass, self).__init__(url="http://gea.esac.esa.int/",
+                                        server_context="tap-server",
+                                        tap_context="tap",
+                                        upload_context="Upload",
+                                        table_edit_context="TableTool",
+                                        data_context="data",
+                                        datalink_context="datalink",
+                                        connhandler=tap_plus_conn_handler)
+        # Data uses a different TapPlus connection
+        if datalink_handler is None:
+            self.__gaiadata = TapPlus(url="http://geadata.esac.esa.int/",
+                                      server_context="data-server",
+                                      tap_context="tap",
+                                      upload_context="Upload",
+                                      table_edit_context="TableTool",
+                                      data_context="data",
+                                      datalink_context="datalink")
         else:
-            self.__gaiatap = tap_plus_handler
+            self.__gaiadata = datalink_handler
 
-    def load_tables(self, only_names=False, include_shared_tables=False,
-                    verbose=False):
-        """Loads all public tables
-        TAP & TAP+
-
-        Parameters
-        ----------
-        only_names : bool, TAP+ only, optional, default 'False'
-            True to load table names only
-        include_shared_tables : bool, TAP+, optional, default 'False'
-            True to include shared tables
-        verbose : bool, optional, default 'False'
-            flag to display information about the process
-
-        Returns
-        -------
-        A list of table objects
-        """
-        return self.__gaiatap.load_tables(only_names,
-                                          include_shared_tables,
-                                          verbose)
-
-    def load_table(self, table, verbose=False):
+    def load_data(self, ids, retrieval_type="epoch_photometry",
+                  valid_data=True, band=None, format="VOTABLE",
+                  output_file=None, verbose=False):
         """Loads the specified table
         TAP+ only
 
         Parameters
         ----------
-        table : str, mandatory
-            full qualified table name (i.e. schema name + table name)
+        ids : str list, mandatory
+            list of identifiers
+        retrieval_type : str, optional, default 'epoch_photometry'
+            retrieval type identifier
+        valid_data : bool, optional, default True
+            By default, the epoch photometry service returns only valid data,
+            that is, all data rows where flux is not null and
+            rejected_by_photometry flag is not true. In order to retrieve
+            all data associated to a given source without this filter,
+            this request parameter should be included (valid_data=False)
+        band : str, optional, default None, valid values: G, BP, RP
+            By default, the epoch photometry service returns all the
+            available photometry bands for the requested source.
+            This parameter allows to filter the output lightcurve by its band.
+        format : str, optional, default 'votable'
+            loading format
+        output_file : string, optional, default None
+            file where the results are saved.
+            If it is not provided, the http response contents are returned.
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
@@ -77,136 +88,51 @@ class GaiaClass(object):
         -------
         A table object
         """
-        return self.__gaiatap.load_table(table, verbose)
-
-    def launch_job(self, query, name=None, output_file=None,
-                   output_format="votable", verbose=False, dump_to_file=False,
-                   upload_resource=None, upload_table_name=None):
-        """Launches a synchronous job
-        TAP & TAP+
-
-        Parameters
-        ----------
-        query : str, mandatory
-            query to be executed
-        output_file : str, optional, default None
-            file name where the results are saved if dumpToFile is True.
-            If this parameter is not provided, the jobid is used instead
-        output_format : str, optional, default 'votable'
-            results format
-        verbose : bool, optional, default 'False'
-            flag to display information about the process
-        dump_to_file : bool, optional, default 'False'
-            if True, the results are saved in a file instead of using memory
-        upload_resource: str, optional, default None
-            resource to be uploaded to UPLOAD_SCHEMA
-        upload_table_name: str, required if uploadResource is provided, default None
-            resource temporary table name associated to the uploaded resource
-
-        Returns
-        -------
-        A Job object
-        """
-        return self.__gaiatap.launch_job(query, name=name,
+        if retrieval_type is None:
+            raise ValueError("Missing mandatory argument 'retrieval_type'")
+        if ids is None:
+            raise ValueError("Missing mandatory argument 'ids'")
+        params_dict = {}
+        if valid_data:
+            params_dict['VALID_DATA'] = "true"
+        else:
+            params_dict['VALID_DATA'] = "false"
+        if band is not None:
+            if band != 'G' and band != 'BP' and band != 'RP':
+                raise ValueError("Invalid band value '%s' (Valid values: " +
+                                 "'G', 'BP' and 'RP)" % band)
+            else:
+                params_dict['BAND'] = band
+        if isinstance(ids, six.string_types):
+            ids_arg = ids
+        else:
+            if isinstance(ids, int):
+                ids_arg = str(ids)
+            else:
+                ids_arg = ','.join(str(item) for item in ids)
+        params_dict['ID'] = ids_arg
+        params_dict['FORMAT'] = str(format)
+        params_dict['RETRIEVAL_TYPE'] = str(retrieval_type)
+        return self.__gaiadata.load_data(params_dict=params_dict,
                                          output_file=output_file,
-                                         output_format=output_format,
-                                         verbose=verbose,
-                                         dump_to_file=dump_to_file,
-                                         upload_resource=upload_resource,
-                                         upload_table_name=upload_table_name)
+                                         verbose=verbose)
 
-    def launch_job_async(self, query, name=None, output_file=None,
-                         output_format="votable", verbose=False,
-                         dump_to_file=False, background=False,
-                         upload_resource=None, upload_table_name=None):
-        """Launches an asynchronous job
-        TAP & TAP+
-
-        Parameters
-        ----------
-        query : str, mandatory
-            query to be executed
-        output_file : str, optional, default None
-            file name where the results are saved if dumpToFile is True.
-            If this parameter is not provided, the jobid is used instead
-        output_format : str, optional, default 'votable'
-            results format
-        verbose : bool, optional, default 'False'
-            flag to display information about the process
-        dump_to_file : bool, optional, default 'False'
-            if True, the results are saved in a file instead of using memory
-        background : bool, optional, default 'False'
-            when the job is executed in asynchronous mode, this flag specifies whether
-            the execution will wait until results are available
-        upload_resource: str, optional, default None
-            resource to be uploaded to UPLOAD_SCHEMA
-        upload_table_name: str, required if uploadResource is provided, default None
-            resource temporary table name associated to the uploaded resource
-
-        Returns
-        -------
-        A Job object
-        """
-        return self.__gaiatap.launch_job_async(query,
-                                               name=name,
-                                               output_file=output_file,
-                                               output_format=output_format,
-                                               verbose=verbose,
-                                               dump_to_file=dump_to_file,
-                                               background=background,
-                                               upload_resource=upload_resource,
-                                               upload_table_name=upload_table_name)
-
-    def load_async_job(self, jobid=None, name=None, verbose=False):
-        """Loads an asynchronous job
-        TAP & TAP+
-
-        Parameters
-        ----------
-        jobid : str, mandatory if no name is provided, default None
-            job identifier
-        name : str, mandatory if no jobid is provided, default None
-            job name
-        verbose : bool, optional, default 'False'
-            flag to display information about the process
-
-        Returns
-        -------
-        A Job object
-        """
-        return self.__gaiatap.load_async_job(jobid, name, verbose)
-
-    def search_async_jobs(self, jobfilter=None, verbose=False):
-        """Searches for jobs applying the specified filter
+    def get_datalinks(self, ids, verbose=False):
+        """Gets datalinks associated to the provided identifiers
         TAP+ only
 
         Parameters
         ----------
-        jobfilter : JobFilter, optional, default None
-            job filter
+        ids : str list, mandatory
+            list of identifiers
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
         Returns
         -------
-        A list of Job objects
+        A table object
         """
-        return self.__gaiatap.search_async_jobs(jobfilter, verbose)
-
-    def list_async_jobs(self, verbose=False):
-        """Returns all the asynchronous jobs
-        TAP & TAP+
-
-        Parameters
-        ----------
-        verbose : bool, optional, default 'False'
-            flag to display information about the process
-
-        Returns
-        -------
-        A list of Job objects
-        """
-        return self.__gaiatap.list_async_jobs(verbose)
+        return self.__gaiadata.get_datalinks(ids=ids, verbose=verbose)
 
     def __query_object(self, coordinate, radius=None, width=None, height=None,
                        async_job=False, verbose=False):
@@ -217,7 +143,8 @@ class GaiaClass(object):
         ----------
         coordinate : astropy.coordinate, mandatory
             coordinates center point
-        radius : astropy.units, required if no 'width' nor 'height' are provided
+        radius : astropy.units, required if no 'width' nor 'height' are
+        provided
             radius (deg)
         width : astropy.units, required if no 'radius' is provided
             box width
@@ -245,19 +172,22 @@ class GaiaClass(object):
             heightQuantity = self.__getQuantityInput(height, "height")
             widthDeg = widthQuantity.to(units.deg)
             heightDeg = heightQuantity.to(units.deg)
-            query = "SELECT DISTANCE(POINT('ICRS',"+str(self.MAIN_GAIA_TABLE_RA)+","\
-                + str(self.MAIN_GAIA_TABLE_DEC)+"), \
-                POINT('ICRS',"+str(ra)+","+str(dec)+")) AS dist, * \
-                FROM "+str(self.MAIN_GAIA_TABLE)+" WHERE CONTAINS(\
-                POINT('ICRS',"+str(self.MAIN_GAIA_TABLE_RA)+","\
-                + str(self.MAIN_GAIA_TABLE_DEC)+"),\
-                BOX('ICRS',"+str(ra)+","+str(dec)+", "+str(widthDeg.value)+", "\
-                + str(heightDeg.value)+"))=1 \
-                ORDER BY dist ASC"
+            query = "SELECT DISTANCE(POINT('ICRS',"\
+                    "" + str(self.MAIN_GAIA_TABLE_RA) + ","\
+                    "" + str(self.MAIN_GAIA_TABLE_DEC) + ")"\
+                    ", POINT('ICRS'," + str(ra) + "," + str(dec) + ""\
+                    ")) AS dist, * FROM " + str(self.MAIN_GAIA_TABLE) + ""\
+                    " WHERE CONTAINS(POINT('ICRS'"\
+                    "," + str(self.MAIN_GAIA_TABLE_RA) + ","\
+                    "" + str(self.MAIN_GAIA_TABLE_DEC) + "),BOX('ICRS"\
+                    "'," + str(ra) + "," + str(dec) + ", "\
+                    "" + str(widthDeg.value) + ","\
+                    " " + str(heightDeg.value) + ""\
+                    "))=1 ORDER BY dist ASC"
             if async_job:
-                job = self.__gaiatap.launch_job_async(query, verbose=verbose)
+                job = self.launch_job_async(query, verbose=verbose)
             else:
-                job = self.__gaiatap.launch_job(query, verbose=verbose)
+                job = self.launch_job(query, verbose=verbose)
         return job.get_results()
 
     def query_object(self, coordinate, radius=None, width=None, height=None,
@@ -269,7 +199,7 @@ class GaiaClass(object):
         ----------
         coordinate : astropy.coordinates, mandatory
             coordinates center point
-        radius : astropy.units, required if no 'width' nor 'height' are provided
+        radius : astropy.units, required if no 'width'/'height' are provided
             radius (deg)
         width : astropy.units, required if no 'radius' is provided
             box width
@@ -294,14 +224,15 @@ class GaiaClass(object):
         ----------
         coordinate : astropy.coordinates, mandatory
             coordinates center point
-        radius : astropy.units, required if no 'width' nor 'height' are provided
+        radius : astropy.units, required if no 'width'/'height' are provided
             radius
         width : astropy.units, required if no 'radius' is provided
             box width
         height : astropy.units, required if no 'radius' is provided
             box height
         async_job : bool, optional, default 'False'
-            executes the query (job) in asynchronous/synchronous mode (default synchronous)
+            executes the query (job) in asynchronous/synchronous mode
+            (default synchronous)
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
@@ -312,7 +243,10 @@ class GaiaClass(object):
         return self.__query_object(coordinate, radius, width, height,
                                    async_job=True, verbose=verbose)
 
-    def __cone_search(self, coordinate, radius, async_job=False,
+    def __cone_search(self, coordinate, radius, table_name=MAIN_GAIA_TABLE,
+                      ra_column_name=MAIN_GAIA_TABLE_RA,
+                      dec_column_name=MAIN_GAIA_TABLE_DEC,
+                      async_job=False,
                       background=False,
                       output_file=None, output_format="votable", verbose=False,
                       dump_to_file=False):
@@ -325,6 +259,12 @@ class GaiaClass(object):
             coordinates center point
         radius : astropy.units, mandatory
             radius
+        table_name : str, optional, default main gaia table
+            table name doing the cone search against
+        ra_column_name : str, optional, default ra column in main gaia table
+            ra column doing the cone search against
+        dec_column_name : str, optional, default dec column in main gaia table
+            dec column doing the cone search against
         async_job : bool, optional, default 'False'
             executes the job in asynchronous/synchronous mode (default
             synchronous)
@@ -351,28 +291,32 @@ class GaiaClass(object):
         if radius is not None:
             radiusQuantity = self.__getQuantityInput(radius, "radius")
             radiusDeg = commons.radius_to_unit(radiusQuantity, unit='deg')
-        query = "SELECT DISTANCE(POINT('ICRS',"+str(self.MAIN_GAIA_TABLE_RA)+","\
-            + str(self.MAIN_GAIA_TABLE_DEC)+"), \
+        query = "SELECT DISTANCE(POINT('ICRS',"+str(ra_column_name)+","\
+            + str(dec_column_name)+"), \
             POINT('ICRS',"+str(ra)+","+str(dec)+")) AS dist, * \
-            FROM "+str(self.MAIN_GAIA_TABLE)+" WHERE CONTAINS(\
-            POINT('ICRS',"+str(self.MAIN_GAIA_TABLE_RA)+","+str(self.MAIN_GAIA_TABLE_DEC)+"),\
+            FROM "+str(table_name)+" WHERE CONTAINS(\
+            POINT('ICRS',"+str(ra_column_name)+","+str(dec_column_name)+"),\
             CIRCLE('ICRS',"+str(ra)+","+str(dec)+", "+str(radiusDeg)+"))=1 \
             ORDER BY dist ASC"
         if async_job:
-            return self.__gaiatap.launch_job_async(query=query,
-                                                   output_file=output_file,
-                                                   output_format=output_format,
-                                                   verbose=verbose,
-                                                   dump_to_file=dump_to_file,
-                                                   background=background)
+            return self.launch_job_async(query=query,
+                                         output_file=output_file,
+                                         output_format=output_format,
+                                         verbose=verbose,
+                                         dump_to_file=dump_to_file,
+                                         background=background)
         else:
-            return self.__gaiatap.launch_job(query=query,
-                                             output_file=output_file,
-                                             output_format=output_format,
-                                             verbose=verbose,
-                                             dump_to_file=dump_to_file)
+            return self.launch_job(query=query,
+                                   output_file=output_file,
+                                   output_format=output_format,
+                                   verbose=verbose,
+                                   dump_to_file=dump_to_file)
 
-    def cone_search(self, coordinate, radius=None, output_file=None,
+    def cone_search(self, coordinate, radius=None,
+                    table_name=MAIN_GAIA_TABLE,
+                    ra_column_name=MAIN_GAIA_TABLE_RA,
+                    dec_column_name=MAIN_GAIA_TABLE_DEC,
+                    output_file=None,
                     output_format="votable", verbose=False,
                     dump_to_file=False):
         """Cone search sorted by distance (sync.)
@@ -384,6 +328,12 @@ class GaiaClass(object):
             coordinates center point
         radius : astropy.units, mandatory
             radius
+        table_name : str, optional, default main gaia table
+            table name doing the cone search against
+        ra_column_name : str, optional, default ra column in main gaia table
+            ra column doing the cone search against
+        dec_column_name : str, optional, default dec column in main gaia table
+            dec column doing the cone search against
         output_file : str, optional, default None
             file name where the results are saved if dumpToFile is True.
             If this parameter is not provided, the jobid is used instead
@@ -400,6 +350,9 @@ class GaiaClass(object):
         """
         return self.__cone_search(coordinate,
                                   radius=radius,
+                                  table_name=table_name,
+                                  ra_column_name=ra_column_name,
+                                  dec_column_name=dec_column_name,
                                   async_job=False,
                                   background=False,
                                   output_file=output_file,
@@ -407,7 +360,11 @@ class GaiaClass(object):
                                   verbose=verbose,
                                   dump_to_file=dump_to_file)
 
-    def cone_search_async(self, coordinate, radius=None, background=False,
+    def cone_search_async(self, coordinate, radius=None,
+                          table_name=MAIN_GAIA_TABLE,
+                          ra_column_name=MAIN_GAIA_TABLE_RA,
+                          dec_column_name=MAIN_GAIA_TABLE_DEC,
+                          background=False,
                           output_file=None, output_format="votable",
                           verbose=False, dump_to_file=False):
         """Cone search sorted by distance (async)
@@ -419,8 +376,15 @@ class GaiaClass(object):
             coordinates center point
         radius : astropy.units, mandatory
             radius
+        table_name : str, optional, default main gaia table
+            table name doing the cone search against
+        ra_column_name : str, optional, default ra column in main gaia table
+            ra column doing the cone search against
+        dec_column_name : str, optional, default dec column in main gaia table
+            dec column doing the cone search against
         background : bool, optional, default 'False'
-            when the job is executed in asynchronous mode, this flag specifies whether
+            when the job is executed in asynchronous mode, this flag
+            specifies whether
             the execution will wait until results are available
         output_file : str, optional, default None
             file name where the results are saved if dumpToFile is True.
@@ -438,84 +402,15 @@ class GaiaClass(object):
         """
         return self.__cone_search(coordinate,
                                   radius=radius,
+                                  table_name=table_name,
+                                  ra_column_name=ra_column_name,
+                                  dec_column_name=dec_column_name,
                                   async_job=True,
                                   background=background,
                                   output_file=output_file,
                                   output_format=output_format,
                                   verbose=verbose,
                                   dump_to_file=dump_to_file)
-
-    def remove_jobs(self, jobs_list, verbose=False):
-        """Removes the specified jobs
-        TAP+
-
-        Parameters
-        ----------
-        jobs_list : str, mandatory
-            jobs identifiers to be removed
-        verbose : bool, optional, default 'False'
-            flag to display information about the process
-
-        """
-        return self.__gaiatap.remove_jobs(jobs_list)
-
-    def save_results(self, job, verbose=False):
-        """Saves job results
-        TAP & TAP+
-
-        Parameters
-        ----------
-        job : Job, mandatory
-            job
-        verbose : bool, optional, default 'False'
-            flag to display information about the process
-        """
-        return self.__gaiatap.save_results(job, verbose)
-
-    def login(self, user=None, password=None, credentials_file=None,
-              verbose=False):
-        """Performs a login.
-        TAP+ only
-        User and password can be used or a file that contains user name and password
-        (2 lines: one for user name and the following one for the password)
-
-        Parameters
-        ----------
-        user : str, mandatory if 'file' is not provided, default None
-            login name
-        password : str, mandatory if 'file' is not provided, default None
-            user password
-        credentials_file : str, mandatory if no 'user' & 'password' are provided
-            file containing user and password in two lines
-        verbose : bool, optional, default 'False'
-            flag to display information about the process
-        """
-        return self.__gaiatap.login(user=user,
-                                    password=password,
-                                    credentials_file=credentials_file,
-                                    verbose=verbose)
-
-    def login_gui(self, verbose=False):
-        """Performs a login using a GUI dialog
-        TAP+ only
-
-        Parameters
-        ----------
-        verbose : bool, optional, default 'False'
-            flag to display information about the process
-        """
-        return self.__gaiatap.login_gui(verbose)
-
-    def logout(self, verbose=False):
-        """Performs a logout
-        TAP+ only
-
-        Parameters
-        ----------
-        verbose : bool, optional, default 'False'
-            flag to display information about the process
-        """
-        return self.__gaiatap.logout(verbose)
 
     def __checkQuantityInput(self, value, msg):
         if not (isinstance(value, str) or isinstance(value, units.Quantity)):
@@ -535,12 +430,14 @@ class GaiaClass(object):
             return value
 
     def __checkCoordInput(self, value, msg):
-        if not (isinstance(value, str) or isinstance(value, commons.CoordClasses)):
+        if not (isinstance(value, str) or isinstance(value,
+                                                     commons.CoordClasses)):
             raise ValueError(
                 str(msg) + " must be either a string or astropy.coordinates")
 
     def __getCoordInput(self, value, msg):
-        if not (isinstance(value, str) or isinstance(value, commons.CoordClasses)):
+        if not (isinstance(value, str) or isinstance(value,
+                                                     commons.CoordClasses)):
             raise ValueError(
                 str(msg) + " must be either a string or astropy.coordinates")
         if isinstance(value, str):
@@ -548,6 +445,94 @@ class GaiaClass(object):
             return c
         else:
             return value
+
+    def load_user(self, user_id, verbose=False):
+        """Loads the specified user
+        TAP+ only
+
+        Parameters
+        ----------
+        user_id : str, mandatory
+            user id to load
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        A user
+        """
+
+        return self.is_valid_user(user_id=user_id,
+                                            verbose=verbose)
+
+    def cross_match(self, full_qualified_table_name_a=None,
+                    full_qualified_table_name_b=None,
+                    results_table_name=None,
+                    radius=1.0,
+                    background=False,
+                    verbose=False):
+        """Performs a cross match between the specified tables
+        The result is a join table (stored in the user storage area)
+        with the identifies of both tables and the distance.
+        TAP+ only
+
+        Parameters
+        ----------
+        full_qualified_table_name_a : str, mandatory
+            a full qualified table name (i.e. schema name and table name)
+        full_qualified_table_name_b : str, mandatory
+            a full qualified table name (i.e. schema name and table name)
+        results_table_name : str, mandatory
+            a table name without schema. The schema is set to the user one
+        radius : float (arc. seconds), optional, default 1.0
+            radius  (valid range: 0.1-10.0)
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        Boolean indicating if the specified user is valid
+        """
+        if full_qualified_table_name_a is None:
+            raise ValueError("Table name A argument is mandatory")
+        if full_qualified_table_name_b is None:
+            raise ValueError("Table name B argument is mandatory")
+        if results_table_name is None:
+            raise ValueError("Results table name argument is mandatory")
+        if radius < 0.1 or radius > 10.0:
+            raise ValueError("Invalid radius value. Found " + str(radius) +
+                             ", valid range is: 0.1 to 10.0")
+        schemaA = taputils.get_schema_name(full_qualified_table_name_a)
+        if schemaA is None:
+            raise ValueError("Not found schema name in " +
+                             "full qualified table A: '" +
+                             full_qualified_table_name_a + "'")
+        tableA = taputils.get_table_name(full_qualified_table_name_a)
+        schemaB = taputils.get_schema_name(full_qualified_table_name_b)
+        if schemaB is None:
+            raise ValueError("Not found schema name in " +
+                             "full qualified table B: '" +
+                             full_qualified_table_name_b + "'")
+        tableB = taputils.get_table_name(full_qualified_table_name_b)
+        if taputils.get_schema_name(results_table_name) is not None:
+            raise ValueError("Please, do not specify schema for " +
+                             "'results_table_name'")
+        query = "SELECT crossmatch_positional(\
+            '"+schemaA+"','"+tableA+"',\
+            '"+schemaB+"','"+tableB+"',\
+            "+str(radius)+",\
+            '"+str(results_table_name)+"')\
+            FROM dual;"
+        name = str(results_table_name)
+        return self.launch_job_async(query=query,
+                                     name=name,
+                                     output_file=None,
+                                     output_format="votable",
+                                     verbose=verbose,
+                                     dump_to_file=False,
+                                     background=background,
+                                     upload_resource=None,
+                                     upload_table_name=None)
 
 
 Gaia = GaiaClass()

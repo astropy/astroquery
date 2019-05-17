@@ -18,6 +18,8 @@ from astroquery.utils.tap import taputils
 
 from six.moves.urllib.parse import urlencode
 
+import requests
+
 
 class DummyConnHandler(object):
 
@@ -29,6 +31,9 @@ class DummyConnHandler(object):
         self.responses = {}
         self.errorFileOutput = None
         self.errorReceivedResponse = None
+        self.contentType = None
+        self.verbose = None
+        self.query = None
 
     def set_default_response(self, defaultResponse):
         self.defaultResponse = defaultResponse
@@ -42,6 +47,9 @@ class DummyConnHandler(object):
     def get_last_data(self):
         return self.data
 
+    def get_last_query(self):
+        return self.query
+
     def get_error_file_output(self):
         return self.errorFileOutput
 
@@ -51,12 +59,37 @@ class DummyConnHandler(object):
     def set_response(self, request, response):
         self.responses[str(request)] = response
 
-    def execute_get(self, request):
+    def execute_tapget(self, request=None, verbose=False):
+        return self.__execute_get(request, verbose)
+
+    def execute_dataget(self, query, verbose=False):
+        return self.__execute_get(query)
+
+    def execute_datalinkget(self, subcontext, query, verbose=False):
+        self.query = query
+        return self.__execute_get(subcontext, verbose)
+
+    def __execute_get(self, request, verbose):
         self.request = request
+        self.verbose = verbose
         return self.__get_response(request)
 
-    def execute_post(self, subcontext, data):
+    def execute_tappost(self, subcontext=None, data=None,
+                        content_type=None, verbose=False):
+        return self.__execute_post(subcontext, data, content_type, verbose)
+
+    def execute_datapost(self, data=None, content_type=None, verbose=False):
+        return self.__execute_post("", data, content_type, verbose)
+
+    def execute_datalinkpost(self, subcontext=None, data=None,
+                             content_type=None, verbose=False):
+        return self.__execute_post(subcontext, data, content_type, verbose)
+
+    def __execute_post(self, subcontext=None, data=None,
+                       content_type=None, verbose=False):
         self.data = data
+        self.contentType = content_type
+        self.verbose = verbose
         sortedKey = self.__create_sorted_dict_key(data)
         if subcontext.find('?') == -1:
             self.request = subcontext + "?" + sortedKey
@@ -102,14 +135,20 @@ class DummyConnHandler(object):
         return taputils.taputil_create_sorted_dict_key(dictTmp)
 
     def check_launch_response_status(self, response, debug,
-                                     expected_response_status):
+                                     expected_response_status,
+                                     raise_exception=True):
         isError = False
         if response.status != expected_response_status:
             if debug:
-                print("ERROR: " + str(response.status) + ": "
-                       + str(response.reason))
+                print("ERROR: " + str(response.status) + ": " +
+                      str(response.reason))
             isError = True
-        return isError
+        if isError and raise_exception:
+            errMsg = taputils.get_http_response_error(response)
+            print(response.status, errMsg)
+            raise requests.exceptions.HTTPError(errMsg)
+        else:
+            return isError
 
     def url_encode(self, data):
         return urlencode(data)

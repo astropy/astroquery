@@ -65,9 +65,11 @@ class TestTap(unittest.TestCase):
             "Number of columns for table1. Expected: %d, found: %d" % \
             (2, len(columns))
         col = self.__find_column('table1_col1', columns)
-        self.__check_column(col, 'Table1 Column1 desc', '', 'VARCHAR', 'indexed')
+        self.__check_column(col, 'Table1 Column1 desc', '', 'VARCHAR',
+                            'indexed')
         col = self.__find_column('table1_col2', columns)
-        self.__check_column(col, 'Table1 Column2 desc', '', 'INTEGER', None)
+        self.__check_column(col, 'Table1 Column2 desc', '', 'INTEGER',
+                            None)
         # Table 2
         table = self.__find_table('public', 'table2', res)
         assert table.description == 'Table2 desc', \
@@ -78,11 +80,14 @@ class TestTap(unittest.TestCase):
             "Number of columns for table2. Expected: %d, found: %d" % \
             (3, len(columns))
         col = self.__find_column('table2_col1', columns)
-        self.__check_column(col, 'Table2 Column1 desc', '', 'VARCHAR', 'indexed')
+        self.__check_column(col, 'Table2 Column1 desc', '', 'VARCHAR',
+                            'indexed')
         col = self.__find_column('table2_col2', columns)
-        self.__check_column(col, 'Table2 Column2 desc', '', 'INTEGER', None)
+        self.__check_column(col, 'Table2 Column2 desc', '', 'INTEGER',
+                            None)
         col = self.__find_column('table2_col3', columns)
-        self.__check_column(col, 'Table2 Column3 desc', '', 'INTEGER', None)
+        self.__check_column(col, 'Table2 Column3 desc', '', 'INTEGER',
+                            None)
 
     def test_load_tables_parameters(self):
         connHandler = DummyConnHandler()
@@ -104,7 +109,8 @@ class TestTap(unittest.TestCase):
         assert request == tableRequest, \
             "Empty request. Expected: '%s', found: '%s'" % \
             (tableRequest, request)
-        # flag only_names=false & share_accessible=false: equals to empty request
+        # flag only_names=false & share_accessible=false: equals to
+        # empty request
         tap.load_tables(only_names=False, include_shared_tables=False)
         request = connHandler.get_last_request()
         assert request == tableRequest, \
@@ -132,12 +138,18 @@ class TestTap(unittest.TestCase):
         tap.load_tables(only_names=True, include_shared_tables=True)
         request = connHandler.get_last_request()
         assert request == tableRequest, \
-            "Flags only_names and share_accessible. Expected: '%s', found: '%s'" % \
+            "Flags only_names and share_accessible. " +\
+            "Expected: '%s', found: '%s'" % \
             (tableRequest, request)
 
     def test_load_table(self):
         connHandler = DummyConnHandler()
         tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
+
+        # No arguments
+        with pytest.raises(Exception):
+            tap.load_table()
+
         responseLoadTable = DummyResponse()
         responseLoadTable.set_status_code(500)
         responseLoadTable.set_message("ERROR")
@@ -169,9 +181,11 @@ class TestTap(unittest.TestCase):
             "Number of columns for table1. Expected: %d, found: %d" % \
             (2, len(columns))
         col = self.__find_column('table1_col1', columns)
-        self.__check_column(col, 'Table1 Column1 desc', '', 'VARCHAR', 'indexed')
+        self.__check_column(col, 'Table1 Column1 desc', '', 'VARCHAR',
+                            'indexed')
         col = self.__find_column('table1_col2', columns)
-        self.__check_column(col, 'Table1 Column2 desc', '', 'INTEGER', None)
+        self.__check_column(col, 'Table1 Column2 desc', '', 'INTEGER',
+                            None)
 
     def test_launch_sync_job(self):
         connHandler = DummyConnHandler()
@@ -344,7 +358,7 @@ class TestTap(unittest.TestCase):
                                     None,
                                     np.int32)
 
-    def test_launc_async_job(self):
+    def test_launch_async_job(self):
         connHandler = DummyConnHandler()
         tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
         jobid = '12345'
@@ -442,6 +456,227 @@ class TestTap(unittest.TestCase):
                                     None,
                                     np.int32)
 
+    def test_start_job(self):
+        connHandler = DummyConnHandler()
+        tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
+        jobid = '12345'
+        # Phase POST response
+        responsePhase = DummyResponse()
+        responsePhase.set_status_code(200)
+        responsePhase.set_message("OK")
+        responsePhase.set_data(method='POST',
+                               context=None,
+                               body=None,
+                               headers=None)
+        req = "async/" + jobid + "/phase?PHASE=RUN"
+        connHandler.set_response(req, responsePhase)
+        # Launch response
+        responseLaunchJob = DummyResponse()
+        responseLaunchJob.set_status_code(303)
+        responseLaunchJob.set_message("OK")
+        # list of list (httplib implementation for headers in response)
+        launchResponseHeaders = [
+                ['location', 'http://test:1111/tap/async/' + jobid]
+            ]
+        responseLaunchJob.set_data(method='POST',
+                                   context=None,
+                                   body=None,
+                                   headers=launchResponseHeaders)
+        query = 'query'
+        dictTmp = {
+            "REQUEST": "doQuery",
+            "LANG": "ADQL",
+            "FORMAT": "votable",
+            "tapclient": str(TAP_CLIENT_ID),
+            "QUERY": str(query)}
+        sortedKey = taputils.taputil_create_sorted_dict_key(dictTmp)
+        req = "async?" + sortedKey
+        connHandler.set_response(req, responseLaunchJob)
+        # Phase response
+        responsePhase = DummyResponse()
+        responsePhase.set_status_code(200)
+        responsePhase.set_message("OK")
+        responsePhase.set_data(method='GET',
+                               context=None,
+                               body="COMPLETED",
+                               headers=None)
+        req = "async/" + jobid + "/phase"
+        connHandler.set_response(req, responsePhase)
+        # Results response
+        responseResultsJob = DummyResponse()
+        responseResultsJob.set_status_code(200)
+        responseResultsJob.set_message("OK")
+        jobDataFile = data_path('job_1.vot')
+        jobData = utils.read_file_content(jobDataFile)
+        responseResultsJob.set_data(method='GET',
+                                    context=None,
+                                    body=jobData,
+                                    headers=None)
+        req = "async/" + jobid + "/results/result"
+        connHandler.set_response(req, responseResultsJob)
+
+        responseResultsJob.set_status_code(200)
+        responseResultsJob.set_message("OK")
+        job = tap.launch_job_async(query, autorun=False)
+        assert job is not None, "Expected a valid job"
+        assert job.get_phase() == 'PENDING', \
+            "Wrong job phase. Expected: %s, found %s" % \
+            ('PENDING', job.get_phase())
+        # start job
+        job.start()
+        assert job.get_phase() == 'QUEUED', \
+            "Wrong job phase. Expected: %s, found %s" % \
+            ('QUEUED', job.get_phase())
+        # results
+        results = job.get_results()
+        assert len(results) == 3, \
+            "Wrong job results (num rows). Expected: %d, found %d" % \
+            (3, len(results))
+        assert job.get_phase() == 'COMPLETED', \
+            "Wrong job phase. Expected: %s, found %s" % \
+            ('COMPLETED', job.get_phase())
+        # try to start again
+        with pytest.raises(Exception):
+            job.start()
+
+    def test_abort_job(self):
+        connHandler = DummyConnHandler()
+        tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
+        jobid = '12345'
+        # Phase POST response
+        responsePhase = DummyResponse()
+        responsePhase.set_status_code(200)
+        responsePhase.set_message("OK")
+        responsePhase.set_data(method='POST',
+                               context=None,
+                               body=None,
+                               headers=None)
+        req = "async/" + jobid + "/phase?PHASE=ABORT"
+        connHandler.set_response(req, responsePhase)
+        # Launch response
+        responseLaunchJob = DummyResponse()
+        responseLaunchJob.set_status_code(303)
+        responseLaunchJob.set_message("OK")
+        # list of list (httplib implementation for headers in response)
+        launchResponseHeaders = [
+                ['location', 'http://test:1111/tap/async/' + jobid]
+            ]
+        responseLaunchJob.set_data(method='POST',
+                                   context=None,
+                                   body=None,
+                                   headers=launchResponseHeaders)
+        query = 'query'
+        dictTmp = {
+            "REQUEST": "doQuery",
+            "LANG": "ADQL",
+            "FORMAT": "votable",
+            "tapclient": str(TAP_CLIENT_ID),
+            "QUERY": str(query)}
+        sortedKey = taputils.taputil_create_sorted_dict_key(dictTmp)
+        req = "async?" + sortedKey
+        connHandler.set_response(req, responseLaunchJob)
+
+        job = tap.launch_job_async(query, autorun=False)
+        assert job is not None, "Expected a valid job"
+        assert job.get_phase() == 'PENDING', \
+            "Wrong job phase. Expected: %s, found %s" % \
+            ('PENDING', job.get_phase())
+        # abort job
+        job.abort()
+        assert job.get_phase() == 'ABORT', \
+            "Wrong job phase. Expected: %s, found %s" % \
+            ('ABORT', job.get_phase())
+        # try to abort again
+        with pytest.raises(Exception):
+            job.abort()
+
+    def test_job_parameters(self):
+        connHandler = DummyConnHandler()
+        tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
+        jobid = '12345'
+        # Launch response
+        responseLaunchJob = DummyResponse()
+        responseLaunchJob.set_status_code(303)
+        responseLaunchJob.set_message("OK")
+        # list of list (httplib implementation for headers in response)
+        launchResponseHeaders = [
+                ['location', 'http://test:1111/tap/async/' + jobid]
+            ]
+        responseLaunchJob.set_data(method='POST',
+                                   context=None,
+                                   body=None,
+                                   headers=launchResponseHeaders)
+        query = 'query'
+        dictTmp = {
+            "REQUEST": "doQuery",
+            "LANG": "ADQL",
+            "FORMAT": "votable",
+            "tapclient": str(TAP_CLIENT_ID),
+            "QUERY": str(query)}
+        sortedKey = taputils.taputil_create_sorted_dict_key(dictTmp)
+        req = "async?" + sortedKey
+        connHandler.set_response(req, responseLaunchJob)
+        # Phase response
+        responsePhase = DummyResponse()
+        responsePhase.set_status_code(200)
+        responsePhase.set_message("OK")
+        responsePhase.set_data(method='GET',
+                               context=None,
+                               body="COMPLETED",
+                               headers=None)
+        req = "async/" + jobid + "/phase"
+        connHandler.set_response(req, responsePhase)
+        # Results response
+        responseResultsJob = DummyResponse()
+        responseResultsJob.set_status_code(200)
+        responseResultsJob.set_message("OK")
+        jobDataFile = data_path('job_1.vot')
+        jobData = utils.read_file_content(jobDataFile)
+        responseResultsJob.set_data(method='GET',
+                                    context=None,
+                                    body=jobData,
+                                    headers=None)
+        req = "async/" + jobid + "/results/result"
+        connHandler.set_response(req, responseResultsJob)
+
+        responseResultsJob.set_status_code(200)
+        responseResultsJob.set_message("OK")
+        job = tap.launch_job_async(query, autorun=False)
+        assert job is not None, "Expected a valid job"
+        assert job.get_phase() == 'PENDING', \
+            "Wrong job phase. Expected: %s, found %s" % \
+            ('PENDING', job.get_phase())
+        # parameter response
+        responseParameters = DummyResponse()
+        responseParameters.set_status_code(200)
+        responseParameters.set_message("OK")
+        responseParameters.set_data(method='GET',
+                                    context=None,
+                                    body=None,
+                                    headers=None)
+        req = "async/" + jobid + "?param1=value1"
+        connHandler.set_response(req, responseParameters)
+        # Phase POST response
+        responsePhase = DummyResponse()
+        responsePhase.set_status_code(200)
+        responsePhase.set_message("OK")
+        responsePhase.set_data(method='POST',
+                               context=None,
+                               body=None,
+                               headers=None)
+        req = "async/" + jobid + "/phase?PHASE=RUN"
+        connHandler.set_response(req, responsePhase)
+        # send parameter OK
+        job.send_parameter("param1", "value1")
+        # start job
+        job.start()
+        assert job.get_phase() == 'QUEUED', \
+            "Wrong job phase. Expected: %s, found %s" % \
+            ('QUEUED', job.get_phase())
+        # try to send a parameter after execution
+        with pytest.raises(Exception):
+            job.send_parameter("param2", "value2")
+
     def test_list_async_jobs(self):
         connHandler = DummyConnHandler()
         tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
@@ -478,6 +713,88 @@ class TestTap(unittest.TestCase):
             "Wrong job phase for job %s. Expected: %s, found %s" % \
             (jobs[1].jobid, 'ERROR', jobs[1].get_phase())
 
+    def test_data(self):
+        connHandler = DummyConnHandler()
+        tap = TapPlus("http://test:1111/tap",
+                      data_context="data",
+                      connhandler=connHandler)
+        responseResultsJob = DummyResponse()
+        responseResultsJob.set_status_code(200)
+        responseResultsJob.set_message("OK")
+        jobDataFile = data_path('job_1.vot')
+        jobData = utils.read_file_content(jobDataFile)
+        responseResultsJob.set_data(method='GET',
+                                    context=None,
+                                    body=jobData,
+                                    headers=None)
+        req = "?ID=1%2C2&format=votable"
+        connHandler.set_response(req, responseResultsJob)
+        req = "?ID=1%2C2"
+        connHandler.set_response(req, responseResultsJob)
+        # error
+        responseResultsJob.set_status_code(500)
+        responseResultsJob.set_message("ERROR")
+        params_dict = {}
+        params_dict['ID'] = "1,2"
+        with pytest.raises(Exception):
+            tap.load_data(params_dict)
+        # OK
+        responseResultsJob.set_status_code(200)
+        responseResultsJob.set_message("OK")
+        # results
+        results = tap.load_data(params_dict)
+        assert len(results) == 3, \
+            "Wrong job results (num rows). Expected: %d, found %d" % \
+            (3, len(results))
+        # error: no params dictionary
+        with pytest.raises(Exception):
+            # no dictionary: exception
+            tap.load_data("1,2")
+        params_dict['format'] = "votable"
+        results = tap.load_data(params_dict)
+        assert len(results) == 3, \
+            "Wrong job results (num rows). Expected: %d, found %d" % \
+            (3, len(results))
+
+    def test_datalink(self):
+        connHandler = DummyConnHandler()
+        tap = TapPlus("http://test:1111/tap",
+                      datalink_context="datalink",
+                      connhandler=connHandler)
+        responseResultsJob = DummyResponse()
+        responseResultsJob.set_status_code(200)
+        responseResultsJob.set_message("OK")
+        jobDataFile = data_path('job_1.vot')
+        jobData = utils.read_file_content(jobDataFile)
+        responseResultsJob.set_data(method='GET',
+                                    context=None,
+                                    body=jobData,
+                                    headers=None)
+        req = "links?ID=1,2"
+        connHandler.set_response(req, responseResultsJob)
+        # error
+        responseResultsJob.set_status_code(500)
+        responseResultsJob.set_message("ERROR")
+        with pytest.raises(Exception):
+            # missing IDS parameter
+            tap.get_datalinks(ids=None)
+        # OK
+        responseResultsJob.set_status_code(200)
+        responseResultsJob.set_message("OK")
+        # results
+        results = tap.get_datalinks("1,2")
+        assert len(results) == 3, \
+            "Wrong job results (num rows). Expected: %d, found %d" % \
+            (3, len(results))
+        results = tap.get_datalinks([1, 2])
+        assert len(results) == 3, \
+            "Wrong job results (num rows). Expected: %d, found %d" % \
+            (3, len(results))
+        results = tap.get_datalinks(['1', '2'])
+        assert len(results) == 3, \
+            "Wrong job results (num rows). Expected: %d, found %d" % \
+            (3, len(results))
+
     def __find_table(self, schemaName, tableName, tables):
         qualifiedName = schemaName + "." + tableName
         for table in (tables):
@@ -511,13 +828,16 @@ class TestTap(unittest.TestCase):
                                dataType):
         c = results[columnName]
         assert c.description == description, \
-            "Wrong description for results column '%s'. Expected: '%s', found '%s'" % \
+            "Wrong description for results column '%s'. " +\
+            "Expected: '%s', found '%s'" % \
             (columnName, description, c.description)
         assert c.unit == unit, \
-            "Wrong unit for results column '%s'. Expected: '%s', found '%s'" % \
+            "Wrong unit for results column '%s'. " +\
+            "Expected: '%s', found '%s'" % \
             (columnName, unit, c.unit)
         assert c.dtype == dataType, \
-            "Wrong dataType for results column '%s'. Expected: '%s', found '%s'" % \
+            "Wrong dataType for results column '%s'. " +\
+            "Expected: '%s', found '%s'" % \
             (columnName, dataType, c.dtype)
 
 

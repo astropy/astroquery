@@ -103,7 +103,7 @@ class JobCadc(Job):
                 # Async
                 self.wait_for_job_end(verbose)
                 context = 'async/' + str(self.jobid) + "/results/result"
-                response = self.connHandler.execute_get(context)
+                response = self.connHandler.execute_tapget(context)
                 if verbose:
                     print(response.status, response.reason)
                     print(response.getheaders())
@@ -162,7 +162,7 @@ class JobCadc(Job):
         args = {
             "PHASE": "ABORT"}
         data = self.connHandler.url_encode(args)
-        response = self.connHandler.execute_post(
+        response = self.connHandler.execute_tappost(
             'async/'+str(self.jobid)+'/phase',
             data)
         if verbose:
@@ -180,7 +180,7 @@ class JobCadc(Job):
         if wjData != 'COMPLETED':
             if wjData == 'ERROR':
                 subcontext = 'async/' + self.jobid
-                errresponse = self.connHandler.execute_get(
+                errresponse = self.connHandler.execute_tapget(
                     subcontext)
                 # parse job
                 jsp = astroquery.cadc.cadctap.jobSaxParser. \
@@ -193,7 +193,7 @@ class JobCadc(Job):
                 raise requests.exceptions.HTTPError(
                     'Error running query, PHASE: '+wjData)
         subContext = "async/" + str(self.jobid) + "/results/result"
-        resultsResponse = self.connHandler.execute_get(subContext)
+        resultsResponse = self.connHandler.execute_tapget(subContext)
         if debug:
             print(resultsResponse.status, resultsResponse.reason)
             print(resultsResponse.getheaders())

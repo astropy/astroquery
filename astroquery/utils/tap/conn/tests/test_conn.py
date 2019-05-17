@@ -56,15 +56,19 @@ class ConnTest(unittest.TestCase):
         # GET
         subContext = "testSubContextGet"
         context = "/" + serverContext + "/" + tapContext + "/" + subContext
-        r = tap.execute_get(subcontext=subContext)
+        r = tap.execute_tapget(subcontext=subContext)
         assert r.status == 222, \
-            "Status code, expected: %d, found: %d" % (222, r.status)
+            "Status code, expected: %d, found: %d" % (222,
+                                                      r.status)
         assert r.get_method() == 'GET', \
-            "Request method. Expected %s, found %s" % ('GET', r.get_method())
+            "Request method. Expected %s, found %s" % ('GET',
+                                                       r.get_method())
         assert r.get_context() == context, \
-            "Request context. Expected %s, found %s" % (context, r.get_context())
+            "Request context. Expected %s, found %s" % (context,
+                                                        r.get_context())
         assert r.get_body() is None, \
-            "Request body. Expected %s, found %s" % ('None', str(r.get_body()))
+            "Request body. Expected %s, found %s" % ('None',
+                                                     str(r.get_body()))
 
     def test_post(self):
         conn = DummyConn('http')
@@ -95,15 +99,19 @@ class ConnTest(unittest.TestCase):
         subContext = "testSubContextGet"
         context = "/" + serverContext + "/" + tapContext + "/" + subContext
         data = "postData"
-        r = tap.execute_post(subcontext=subContext, data=data)
+        r = tap.execute_tappost(subcontext=subContext, data=data)
         assert r.status == 111, \
-            "Status code, expected: %d, found: %d" % (111, r.status)
+            "Status code, expected: %d, found: %d" % (111,
+                                                      r.status)
         assert r.get_method() == 'POST', \
-            "Request method. Expected %s, found %s" % ('POST', r.get_method())
+            "Request method. Expected %s, found %s" % ('POST',
+                                                       r.get_method())
         assert r.get_context() == context, \
-            "Request context. Expected %s, found %s" % (context, r.get_context())
+            "Request context. Expected %s, found %s" % (context,
+                                                        r.get_context())
         assert r.get_body() == data, \
-            "Request body. Expected %s, found %s" % (data, str(r.get_body()))
+            "Request body. Expected %s, found %s" % (data,
+                                                     str(r.get_body()))
 
     def test_login(self):
         connSecure = DummyConn("https")
@@ -136,10 +144,14 @@ class ConnTest(unittest.TestCase):
         data = "testData"
         r = tap.execute_secure(subcontext=subContext, data=data)
         assert r.status == 333, \
-            "Status code, expected: %d, found: %d" % (333, r.status)
+            "Status code, expected: %d, found: %d" % (333,
+                                                      r.status)
         assert r.get_method() == 'POST', \
-            "Request method. Expected %s, found %s" % ('POST', r.get_method())
+            "Request method. Expected %s, found %s" % ('POST',
+                                                       r.get_method())
         assert r.get_context() == context, \
-            "Request context. Expected %s, found %s" % (context, r.get_context())
+            "Request context. Expected %s, found %s" % (context,
+                                                        r.get_context())
         assert r.get_body() == data, \
-            "Request body. Expected %s, found %s" % (data, str(r.get_body()))
+            "Request body. Expected %s, found %s" % (data,
+                                                     str(r.get_body()))

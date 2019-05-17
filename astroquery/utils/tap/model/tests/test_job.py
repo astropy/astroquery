@@ -66,9 +66,9 @@ class TestJob(unittest.TestCase):
         jobContentFileName = data_path('result_1.vot')
         jobContent = utils.read_file_content(jobContentFileName)
         responseGetData.set_data(method='GET',
-                                context=None,
-                                body=jobContent,
-                                headers=None)
+                                 context=None,
+                                 body=jobContent,
+                                 headers=None)
         dataRequest = "async/" + str(jobid) + "/results/result"
         connHandler.set_response(dataRequest, responseGetData)
 
@@ -85,6 +85,35 @@ class TestJob(unittest.TestCase):
         for cn in ['alpha', 'delta', 'source_id', 'table1_oid']:
             if cn not in res.colnames:
                 self.fail(cn + " column name not found" + str(res.colnames))
+
+    def test_job_phase(self):
+        job = Job(async_job=True)
+        jobid = "12345"
+        outputFormat = "votable"
+        job.jobid = jobid
+        job.parameters['format'] = outputFormat
+        job.set_phase("COMPLETED")
+        try:
+            job.set_phase("RUN")
+            self.fail("Exception expected. " +
+                      "Phase cannot be changed for a finished job")
+        except ValueError:
+            # ok
+            pass
+        try:
+            job.start()
+            self.fail("Exception expected. " +
+                      "A job in 'COMPLETE' phase cannot be started")
+        except ValueError:
+            # ok
+            pass
+        try:
+            job.abort()
+            self.fail("Exception expected. " +
+                      "A job in 'COMPLETE' phase cannot be aborted")
+        except ValueError:
+            # ok
+            pass
 
 
 if __name__ == "__main__":
