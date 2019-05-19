@@ -13,7 +13,7 @@ instrument_list = [u'fors1', u'fors2', u'sphere', u'vimos', u'omegacam',
                    u'hawki', u'isaac', u'naco', u'visir', u'vircam', u'apex',
                    u'giraffe', u'uves', u'xshooter', u'muse', u'crires',
                    u'kmos', u'sinfoni', u'amber', u'midi', u'pionier',
-                   u'gravity']
+                   u'gravity', u'espresso', u'wlgsu', u'matisse']
 
 # Some tests take too long, leading to travis timeouts
 # TODO: make this a configuration item
@@ -165,7 +165,7 @@ class TestEso:
         tbl = eso.query_apex_quicklooks(prog_id='095.F-9802')
         tblb = eso.query_apex_quicklooks('095.F-9802')
 
-        assert len(tbl) == 4
+        assert len(tbl) == 10
         assert set(tbl['Release Date']) == {'2015-07-17', '2015-07-18',
                                             '2015-09-15', '2015-09-18'}
 
