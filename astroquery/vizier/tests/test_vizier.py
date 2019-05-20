@@ -192,7 +192,6 @@ def test_find_resource_then_get(patch_post):
     assert len(result[0]) == len(resultl[0])
 
 
-
 def test_catalog_consistency_issue1326(patch_post):
     # regression test for issue 1326
     result1 = vizier.core.Vizier(catalog='J/ApJ/706/83').query_constraints_async(testconstraint='blah',
