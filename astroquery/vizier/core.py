@@ -610,7 +610,9 @@ class VizierClass(BaseQuery):
             for (key, value) in center.items():
                 body[key] = value
         # add column metadata: name, unit, UCD1+, and description
-        body["-out.meta"] = "huUD"
+        # big L: data link that we need to parse
+        # big l: data link that is parsed on the server side
+        body["-out.meta"] = "huUDL"
         # merge tables when a list is queried against a single catalog
         body["-out.form"] = "mini"
         # computed position should always be in decimal degrees
