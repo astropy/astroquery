@@ -37,6 +37,7 @@ class VizierClass(BaseQuery):
     _schema_columns = schema.Schema([_str_schema],
                                     error="columns must be a list of strings")
     _schema_ucd = schema.Schema(_str_schema, error="ucd must be string")
+    _schema_out_meta = schema.Schema(_str_schema, error="out_meta must be string")
     _schema_column_filters = schema.Schema(
         {schema.Optional(_str_schema): _str_schema},
         error=("column_filters must be a dictionary where both keys "
@@ -47,7 +48,9 @@ class VizierClass(BaseQuery):
 
     def __init__(self, columns=["*"], column_filters={}, catalog=None,
                  keywords=None, ucd="", timeout=conf.timeout,
-                 vizier_server=conf.server, row_limit=conf.row_limit):
+                 vizier_server=conf.server, row_limit=conf.row_limit,
+                 out_meta='hu2DL',
+                ):
         """
         Parameters
         ----------
@@ -80,6 +83,7 @@ class VizierClass(BaseQuery):
         self.catalog = catalog
         self._keywords = None
         self.ucd = ucd
+        self.out_meta = out_meta
         if keywords:
             self.keywords = keywords
         self.TIMEOUT = timeout
@@ -137,6 +141,29 @@ class VizierClass(BaseQuery):
     def ucd(self, values):
         self._ucd = VizierClass._schema_ucd.validate(values)
 
+    @property
+    def out_meta(self):
+        """
+        The metadata to include in the output.  This is a string flag
+        of the approximate form 'huUDL', where the meaning of the columns
+        is not documented on the webpage but is known to the CDS folks.
+
+        Parameters
+        ----------
+        h : name
+        u : unit
+        U : UCD-1 descriptors
+        2 : UCD-2 descriptors
+        D : description
+        L : DataLink as a header value
+        l : DataLink as a populated column (e.g., a column of http:// etc)
+        """
+        return self._out_meta
+
+    @out_meta.setter
+    def out_meta(self, value):
+        self._out_meta = VizierClass._schema_out_meta.validate(value)
+
     def _server_to_url(self, return_type='votable'):
         """
         Not generally meant to be modified, but there are different valid
@@ -154,7 +181,8 @@ class VizierClass(BaseQuery):
         # Only votable is supported now, but in case we try to support
         # something in the future we should disallow invalid ones.
         assert return_type in ('votable', 'asu-tsv', 'asu-fits',
-                               'asu-binfits', 'asu-txt')
+                               'asu-binfits', 'asu-txt', 'votable/-b64',
+                               'votable/-b2_64')
         if return_type in ('asu-txt',):
             # I had a look at the format of these "tables" and... they just
             # aren't.  They're quasi-fixed-width without schema.  I think they
@@ -612,7 +640,7 @@ class VizierClass(BaseQuery):
         # add column metadata: name, unit, UCD1+, and description
         # big L: data link that we need to parse
         # big l: data link that is parsed on the server side
-        body["-out.meta"] = "huUDL"
+        body["-out.meta"] = self.out_meta
         # merge tables when a list is queried against a single catalog
         body["-out.form"] = "mini"
         # computed position should always be in decimal degrees
@@ -644,7 +672,7 @@ class VizierClass(BaseQuery):
         return "\n".join(script)
 
     def _parse_result(self, response, get_catalog_names=False, verbose=False,
-                      invalid='warn'):
+                      invalid='warn', parse_links=True):
         """
         Parses the HTTP response to create a `~astropy.table.Table`.
 
@@ -677,7 +705,7 @@ class VizierClass(BaseQuery):
         """
         if response.content[:5] == b'<?xml':
             try:
-                return parse_vizier_votable(
+                result = parse_vizier_votable(
                     response.content, verbose=verbose, invalid=invalid,
                     get_catalog_names=get_catalog_names)
             except Exception as ex:
@@ -690,6 +718,12 @@ class VizierClass(BaseQuery):
                                       "parsed result is in "
                                       "self.parsed_result.\n Exception: " +
                                       str(self.table_parse_error))
+
+            if parse_links:
+                for table in result:
+                    vo_link_parser_table(table)
+            return result
+
         elif response.content[:5] == b'#\n#  ':
             return parse_vizier_tsvfile(response.content, verbose=verbose)
         elif response.content[:6] == b'SIMPLE':
@@ -729,7 +763,6 @@ def parse_vizier_tsvfile(data, verbose=False):
                          header_start=0, comment="#") for
               a, b in split_limits]
     return tables
-
 
 def parse_vizier_votable(data, verbose=False, invalid='warn',
                          get_catalog_names=False):
@@ -797,6 +830,47 @@ def _parse_angle(angle):
     else:
         return u.deg, "d", angle.to_value(u.deg)
 
+def vo_link_parser_onerow(volink, tablerow):
+    """
+    VO tables can have 'LINK' associated metadata in Vizier; the votable 1.1
+    and 1.2 format may be different from 1.3 but we don't have to worry about
+    that yet.
+
+    Example
+    -------
+    >>> linkstr = 'http://vizier.u-strasbg.fr/viz-bin/getassocdata?obs_publisher_did=ivo://CDS.VizieR/V/127A?res=${img}_ha.fits'
+    >>> vo_link_parser(linkstr, row)
+    'http://vizier.u-strasbg.fr/viz-bin/getassocdata?obs_publisher_did=ivo://CDS.VizieR/V/127A?res=1001_ha.fits'
+    """
+
+    rowdict = dict(zip(tablerow.colnames, tablerow))
+    pstring = volink.replace("$","").format(**rowdict)
+
+    return pstring
+
+def vo_link_parser_table(votable):
+    """
+    VO tables can have 'LINK' associated metadata in Vizier; the votable 1.1
+    and 1.2 format may be different from 1.3 but we don't have to worry about
+    that yet.
+
+    Example
+    -------
+    >>> linkstr = 'http://vizier.u-strasbg.fr/viz-bin/getassocdata?obs_publisher_did=ivo://CDS.VizieR/V/127A?res=${img}_ha.fits'
+    >>> vo_link_parser(linkstr, row)
+    'http://vizier.u-strasbg.fr/viz-bin/getassocdata?obs_publisher_did=ivo://CDS.VizieR/V/127A?res=1001_ha.fits'
+    """
+
+    for colname in votable.colnames:
+        column = votable[colname]
+        if 'links' in column.meta:
+            hrefs = column.meta['links']
+            if len(hrefs) > 1:
+                raise NotImplementedError("Don't know how to parse multi-link metadata")
+            href = hrefs[0]['href']
+            new_column = tbl.Column(data=[vo_link_parser_onerow(href, row) for row in votable],
+                                    name=column.name+"_link")
+            votable.add_column(new_column)
 
 class VizierKeyword(list):
 
