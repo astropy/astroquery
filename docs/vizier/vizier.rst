@@ -50,6 +50,28 @@ the complete contents of those catalogs:
        '1:J/ApJS/191/232/table1' with 13 column(s) and 50 row(s)
        '2:J/ApJS/191/232/map' with 2 column(s) and 2 row(s)
 
+Similarly, the ``Resource`` objects (the values of the dictionary resulting from
+:meth:`~astroquery.vizier.VizierClass.find_catalogs`) can be used in the same
+way:
+
+.. code-block:: python
+
+    >>> catalogs = Vizier.get_catalogs(catalog_list.values())
+    >>> print(catalogs)
+    TableList with 3 tables:
+       '0:J/ApJ/706/83/ysos' with 22 column(s) and 50 row(s)
+       '1:J/ApJS/191/232/table1' with 13 column(s) and 50 row(s)
+       '2:J/ApJS/191/232/map' with 2 column(s) and 2 row(s)
+
+.. code-block:: python
+
+   >>> catalogs = Vizier.get_catalogs(catalog_list.keys())
+   >>> print(catalogs)
+   TableList with 3 tables:
+      '0:J/ApJ/706/83/ysos' with 22 column(s) and 50 row(s)
+      '1:J/ApJS/191/232/table1' with 13 column(s) and 50 row(s)
+      '2:J/ApJS/191/232/map' with 2 column(s) and 2 row(s)
+
 Note that the row limit is set to 50 by default, so if you want to get a truly
 complete catalog, you need to change that:
 
