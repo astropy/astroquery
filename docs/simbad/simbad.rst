@@ -14,6 +14,17 @@ examples that illustrate the different types of queries that can be
 formulated. If successful all the queries will return the results in a
 `~astropy.table.Table`.
 
+A warning about big queries
+---------------------------
+The SIMBAD database has limited querying capacity.  If you spam them
+with queries, you may be temporary blacklisted.  The rate limit may
+vary, but you should not submit more than ~5-10 queries per second.
+
+If you want to perform large queries, we suggest using vectorized queries
+when possible.  You can pass `~astroquery.simbad.Simbad.query_region`
+a vector of coordinates, and SIMBAD will treat this as one query.
+See `query regions <Query Regions>`_ below.
+
 Query an Identifier
 -------------------
 
@@ -209,6 +220,38 @@ to 2000.0. So here is a query with all the options utilized:
               TYC  608-60-1  00 51 13.314 ... 2000A&A...355L..27H
              TYC  608-432-1  00 51 05.289 ... 2000A&A...355L..27H
              TYC  607-418-1  00 49 09.636 ... 2000A&A...355L..27H
+
+
+Query Regions
+-------------
+
+You can query multiple regions at once using vectorized queries.
+Each region must have the same radius.
+
+.. code-block:: python
+
+    >>> from astroquery.simbad import Simbad
+    >>> import astropy.coordinates as coord
+    >>> import astropy.units as u
+    >>> result_table = Simbad.query_region(coord.SkyCoord(ra=[10,11], dec=[10,11], 
+    ...                                    unit=(u.deg, u.deg), frame='fk5'),
+    ...                                    radius=0.1 * u.deg)
+    >>> print(result_table)
+             MAIN_ID                RA           DEC      RA_PREC DEC_PREC COO_ERR_MAJA COO_ERR_MINA COO_ERR_ANGLE COO_QUAL COO_WAVELENGTH     COO_BIBCODE
+                                 "h:m:s"       "d:m:s"                         mas          mas           deg
+    ------------------------- ------------- ------------- ------- -------- ------------ ------------ ------------- -------- -------------- -------------------
+        PLCKECC G118.25-52.70    00 39 55.5     +10 03 42       5        5           --           --             0        E              m 2011A&A...536A...7P
+              IRAS 00373+0947    00 39 55.6     +10 04 15       5        5    39000.000    29000.000            67        E              F 1988NASAR1190....1B
+              IRAS 00371+0946    00 39 43.1     +10 03 21       5        5    88000.000    32000.000            67        E              F 1988NASAR1190....1B
+                 LEDA 1387229    00 43 57.2     +10 58 54       5        5           --           --             0        D              O 2003A&A...412...45P
+                 LEDA 1387610    00 43 50.3     +11 00 32       5        5           --           --             0        D              O 2003A&A...412...45P
+                 LEDA 1386801    00 43 53.1     +10 56 59       5        5           --           --             0        D              O 2003A&A...412...45P
+                 LEDA 1387466    00 43 41.3     +10 59 57       5        5           --           --             0        D              O 2003A&A...412...45P
+          NVSS J004420+110010   00 44 20.74   +11 00 10.8       6        6     2800.000     1200.000            90        D                1996AJ....111.1945D
+     SDSS J004340.18+105815.6 00 43 40.1841 +10 58 15.602      14       14        0.207        0.124            90        A              O 2018yCat.1345....0G
+    GALEX 2675641789401008459  00 43 57.698  +10 54 46.15       7        7           --           --             0        D                2007ApJ...664...53A
+     SDSS J004422.75+110104.3  00 44 22.753  +11 01 04.34       7        7           --           --             0        C              O 2017A&A...597A..79P
+               TYC  607-628-1 00 44 05.6169 +11 05 41.195      14       14        0.047        0.033            90        A              O 2018yCat.1345....0G
 
 
 Query a catalogue
