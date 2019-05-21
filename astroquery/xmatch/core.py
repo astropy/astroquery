@@ -60,7 +60,7 @@ class XMatchClass(BaseQuery):
                                     get_query_payload=get_query_payload)
         if get_query_payload:
             return response
-        return ascii.read(response.text, format='csv')
+        return self._parse_text(response.text)
 
     @prepend_docstr_nosections("\n" + query.__doc__)
     def query_async(self, cat1, cat2, max_distance, colRA1=None, colDec1=None,
@@ -145,6 +145,23 @@ class XMatchClass(BaseQuery):
         content = response.text
 
         return content.splitlines()
+
+    def _parse_text(self, text):
+        """
+        Parse a CSV text file that has potentially duplicated header names
+        """
+        header = text.split("\n")[0]
+        colnames = header.split(",")
+        for cn in colnames:
+            if colnames.count(cn) > 1:
+                ii = 1
+                while colnames.count(cn) > 0:
+                    colnames[colnames.index(cn)] = cn + "_{ii}".format(ii=ii)
+                    ii += 1
+        new_text = ",".join(colnames) + "\n" + "\n".join(text.split("\n")[1:])
+        result = ascii.read(new_text, format='csv')
+
+        return result
 
 
 XMatch = XMatchClass()

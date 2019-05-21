@@ -14,6 +14,8 @@ from ...xmatch import XMatch
 DATA_FILES = {
     'get': 'tables.csv',  # .action.getVizieRTableNames
     'post': 'query_res.csv',  # .request.xmatch
+    'poslist': 'posList.csv',
+    'poslist_duplicates': 'posList_duplicates.csv',
 }
 
 
@@ -119,3 +121,9 @@ def test_xmatch_query_cat1_table_local(monkeypatch):
         'errHalfMaj', 'errHalfMin', 'errPosAng', 'Jmag', 'Hmag', 'Kmag',
         'e_Jmag', 'e_Hmag', 'e_Kmag', 'Qfl', 'Rfl', 'X', 'MeasureJD']
     assert len(table) == 11
+
+
+@pytest.mark.parametrize('datafile', DATA_FILES.values())
+def test_parse_text(datafile):
+    xm = XMatch()
+    xm._parse_text(datafile)
