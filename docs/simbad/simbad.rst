@@ -22,8 +22,9 @@ vary, but you should not submit more than ~5-10 queries per second.
 
 If you want to perform large queries, we suggest using vectorized queries
 when possible.  You can pass `~astroquery.simbad.Simbad.query_region`
-a vector of coordinates, and SIMBAD will treat this as one query.
-See `query regions <Query Regions>`_ below.
+a vector of coordinates or `~astroquery.simbad.Simbad.query_objects`
+a list of object names, and SIMBAD will treat this submission as a single
+query.  See `vectorized queries <Vectorized Queries>`_ below.
 
 Query an Identifier
 -------------------
@@ -222,8 +223,8 @@ to 2000.0. So here is a query with all the options utilized:
              TYC  607-418-1  00 49 09.636 ... 2000A&A...355L..27H
 
 
-Query Regions
--------------
+Vectorized Queries
+------------------
 
 You can query multiple regions at once using vectorized queries.
 Each region must have the same radius.
@@ -252,6 +253,23 @@ Each region must have the same radius.
     GALEX 2675641789401008459  00 43 57.698  +10 54 46.15       7        7           --           --             0        D                2007ApJ...664...53A
      SDSS J004422.75+110104.3  00 44 22.753  +11 01 04.34       7        7           --           --             0        C              O 2017A&A...597A..79P
                TYC  607-628-1 00 44 05.6169 +11 05 41.195      14       14        0.047        0.033            90        A              O 2018yCat.1345....0G
+
+You can do the same based on IDs:
+
+    >>> from astroquery.simbad import Simbad
+    >>> result_table = Simbad.query_objects(["m1","m2","m3","m4"])
+    >>> print(result_table)
+
+However, note that missing data will result in missing lines:
+
+    >>> from astroquery.simbad import Simbad
+    >>> result_table = Simbad.query_objects(["m1","notanobject","m2","m1000"])
+    >>> print(result_table)
+
+Only the results for m1 and m2 are included.  As of May 2019, there is a
+feature request in place with SIMBAD to return blank rows with the queried
+identifier indicated.
+
 
 
 Query a catalogue
