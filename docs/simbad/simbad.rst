@@ -21,10 +21,10 @@ with queries, you may be temporary blacklisted.  The rate limit may
 vary, but you should not submit more than ~5-10 queries per second.
 
 If you want to perform large queries, we suggest using vectorized queries
-when possible.  You can pass `~astroquery.simbad.Simbad.query_region`
-a vector of coordinates or `~astroquery.simbad.Simbad.query_objects`
+when possible.  You can pass `~astroquery.simbad.core.Simbad.query_region`
+a vector of coordinates or `~astroquery.simbad.core.Simbad.query_objects`
 a list of object names, and SIMBAD will treat this submission as a single
-query.  See `vectorized queries <Vectorized Queries>`_ below.
+query.  See `vectorized queries <#Vectorized-Queries>` below.
 
 Query an Identifier
 -------------------
@@ -221,69 +221,6 @@ to 2000.0. So here is a query with all the options utilized:
               TYC  608-60-1  00 51 13.314 ... 2000A&A...355L..27H
              TYC  608-432-1  00 51 05.289 ... 2000A&A...355L..27H
              TYC  607-418-1  00 49 09.636 ... 2000A&A...355L..27H
-
-
-Vectorized Queries
-------------------
-
-You can query multiple regions at once using vectorized queries.
-Each region must have the same radius.
-
-.. code-block:: python
-
-    >>> from astroquery.simbad import Simbad
-    >>> import astropy.coordinates as coord
-    >>> import astropy.units as u
-    >>> result_table = Simbad.query_region(coord.SkyCoord(ra=[10,11], dec=[10,11], 
-    ...                                    unit=(u.deg, u.deg), frame='fk5'),
-    ...                                    radius=0.1 * u.deg)
-    >>> print(result_table)
-             MAIN_ID                RA           DEC      RA_PREC DEC_PREC COO_ERR_MAJA COO_ERR_MINA COO_ERR_ANGLE COO_QUAL COO_WAVELENGTH     COO_BIBCODE
-                                 "h:m:s"       "d:m:s"                         mas          mas           deg
-    ------------------------- ------------- ------------- ------- -------- ------------ ------------ ------------- -------- -------------- -------------------
-        PLCKECC G118.25-52.70    00 39 55.5     +10 03 42       5        5           --           --             0        E              m 2011A&A...536A...7P
-              IRAS 00373+0947    00 39 55.6     +10 04 15       5        5    39000.000    29000.000            67        E              F 1988NASAR1190....1B
-              IRAS 00371+0946    00 39 43.1     +10 03 21       5        5    88000.000    32000.000            67        E              F 1988NASAR1190....1B
-                 LEDA 1387229    00 43 57.2     +10 58 54       5        5           --           --             0        D              O 2003A&A...412...45P
-                 LEDA 1387610    00 43 50.3     +11 00 32       5        5           --           --             0        D              O 2003A&A...412...45P
-                 LEDA 1386801    00 43 53.1     +10 56 59       5        5           --           --             0        D              O 2003A&A...412...45P
-                 LEDA 1387466    00 43 41.3     +10 59 57       5        5           --           --             0        D              O 2003A&A...412...45P
-          NVSS J004420+110010   00 44 20.74   +11 00 10.8       6        6     2800.000     1200.000            90        D                1996AJ....111.1945D
-     SDSS J004340.18+105815.6 00 43 40.1841 +10 58 15.602      14       14        0.207        0.124            90        A              O 2018yCat.1345....0G
-    GALEX 2675641789401008459  00 43 57.698  +10 54 46.15       7        7           --           --             0        D                2007ApJ...664...53A
-     SDSS J004422.75+110104.3  00 44 22.753  +11 01 04.34       7        7           --           --             0        C              O 2017A&A...597A..79P
-               TYC  607-628-1 00 44 05.6169 +11 05 41.195      14       14        0.047        0.033            90        A              O 2018yCat.1345....0G
-
-You can do the same based on IDs:
-
-    >>> from astroquery.simbad import Simbad
-    >>> result_table = Simbad.query_objects(["m1","m2","m3","m4"])
-    >>> print(result_table)
-    MAIN_ID      RA         DEC     RA_PREC DEC_PREC COO_ERR_MAJA COO_ERR_MINA COO_ERR_ANGLE COO_QUAL COO_WAVELENGTH     COO_BIBCODE
-              "h:m:s"     "d:m:s"                        mas          mas           deg
-    ------- ----------- ----------- ------- -------- ------------ ------------ ------------- -------- -------------- -------------------
-      M   1 05 34 31.94 +22 00 52.2       6        6           --           --             0        C              R 2011A&A...533A..10L
-      M   2 21 33 27.02 -00 49 23.7       6        6      100.000      100.000            90        C              O 2010AJ....140.1830G
-      M   3 13 42 11.62 +28 22 38.2       6        6      200.000      200.000            90        C              O 2010AJ....140.1830G
-      M   4 16 23 35.22 -26 31 32.7       6        6      400.000      400.000            90        C              O 2010AJ....140.1830G
-
-However, note that missing data will result in missing lines:
-
-    >>> from astroquery.simbad import Simbad
-    >>> result_table = Simbad.query_objects(["m1","notanobject","m2","m1000"])
-    >>> print(result_table)
-    /Users/adam/repos/astroquery/astroquery/simbad/core.py:136: UserWarning: Warning: The script line number 4 raised an error (recorded in the `errors` attribute of the result table): 'notanobject': No known catalog could be found
-    (error.line, error.msg))
-    MAIN_ID      RA         DEC     RA_PREC DEC_PREC COO_ERR_MAJA COO_ERR_MINA COO_ERR_ANGLE COO_QUAL COO_WAVELENGTH     COO_BIBCODE
-              "h:m:s"     "d:m:s"                        mas          mas           deg
-    ------- ----------- ----------- ------- -------- ------------ ------------ ------------- -------- -------------- -------------------
-      M   1 05 34 31.94 +22 00 52.2       6        6           --           --             0        C              R 2011A&A...533A..10L
-      M   2 21 33 27.02 -00 49 23.7       6        6      100.000      100.000            90        C              O 2010AJ....140.1830G
-
-Only the results for m1 and m2 are included.  As of May 2019, there is a
-feature request in place with SIMBAD to return blank rows with the queried
-identifier indicated.
-
 
 
 Query a catalogue
@@ -486,6 +423,93 @@ See that link for details of how these queries are formed.
          SNR G000.3+00.0  17 46 14.9   -28 37 15       5        5     3000.000     3000.000             1        D
          SNR G001.0-00.1     17 48.5      -28 09       3        3          nan          nan             0        E              R 2009BASI...37...45G
          NAME SGR A EAST    17 45 47    -29 00.2       4        4    18000.000    18000.000             1        E
+
+
+Vectorized Queries
+------------------
+
+You can query multiple regions at once using vectorized queries.
+Each region must have the same radius.
+
+.. code-block:: python
+
+    >>> from astroquery.simbad import Simbad
+    >>> import astropy.coordinates as coord
+    >>> import astropy.units as u
+    >>> result_table = Simbad.query_region(coord.SkyCoord(ra=[10,11], dec=[10,11], 
+    ...                                    unit=(u.deg, u.deg), frame='fk5'),
+    ...                                    radius=0.1 * u.deg)
+    >>> print(result_table)
+             MAIN_ID                RA           DEC      RA_PREC DEC_PREC COO_ERR_MAJA COO_ERR_MINA COO_ERR_ANGLE COO_QUAL COO_WAVELENGTH     COO_BIBCODE
+                                 "h:m:s"       "d:m:s"                         mas          mas           deg
+    ------------------------- ------------- ------------- ------- -------- ------------ ------------ ------------- -------- -------------- -------------------
+        PLCKECC G118.25-52.70    00 39 55.5     +10 03 42       5        5           --           --             0        E              m 2011A&A...536A...7P
+              IRAS 00373+0947    00 39 55.6     +10 04 15       5        5    39000.000    29000.000            67        E              F 1988NASAR1190....1B
+              IRAS 00371+0946    00 39 43.1     +10 03 21       5        5    88000.000    32000.000            67        E              F 1988NASAR1190....1B
+                 LEDA 1387229    00 43 57.2     +10 58 54       5        5           --           --             0        D              O 2003A&A...412...45P
+                 LEDA 1387610    00 43 50.3     +11 00 32       5        5           --           --             0        D              O 2003A&A...412...45P
+                 LEDA 1386801    00 43 53.1     +10 56 59       5        5           --           --             0        D              O 2003A&A...412...45P
+                 LEDA 1387466    00 43 41.3     +10 59 57       5        5           --           --             0        D              O 2003A&A...412...45P
+          NVSS J004420+110010   00 44 20.74   +11 00 10.8       6        6     2800.000     1200.000            90        D                1996AJ....111.1945D
+     SDSS J004340.18+105815.6 00 43 40.1841 +10 58 15.602      14       14        0.207        0.124            90        A              O 2018yCat.1345....0G
+    GALEX 2675641789401008459  00 43 57.698  +10 54 46.15       7        7           --           --             0        D                2007ApJ...664...53A
+     SDSS J004422.75+110104.3  00 44 22.753  +11 01 04.34       7        7           --           --             0        C              O 2017A&A...597A..79P
+               TYC  607-628-1 00 44 05.6169 +11 05 41.195      14       14        0.047        0.033            90        A              O 2018yCat.1345....0G
+
+You can do the same based on IDs:
+
+.. code-block:: python
+
+    >>> from astroquery.simbad import Simbad
+    >>> result_table = Simbad.query_objects(["m1","m2","m3","m4"])
+    >>> print(result_table)
+    MAIN_ID      RA         DEC     RA_PREC DEC_PREC COO_ERR_MAJA COO_ERR_MINA COO_ERR_ANGLE COO_QUAL COO_WAVELENGTH     COO_BIBCODE
+              "h:m:s"     "d:m:s"                        mas          mas           deg
+    ------- ----------- ----------- ------- -------- ------------ ------------ ------------- -------- -------------- -------------------
+      M   1 05 34 31.94 +22 00 52.2       6        6           --           --             0        C              R 2011A&A...533A..10L
+      M   2 21 33 27.02 -00 49 23.7       6        6      100.000      100.000            90        C              O 2010AJ....140.1830G
+      M   3 13 42 11.62 +28 22 38.2       6        6      200.000      200.000            90        C              O 2010AJ....140.1830G
+      M   4 16 23 35.22 -26 31 32.7       6        6      400.000      400.000            90        C              O 2010AJ....140.1830G
+
+However, note that missing data will result in missing lines:
+
+.. code-block:: python
+
+    >>> from astroquery.simbad import Simbad
+    >>> # if you add the "typed_id", a column showing your input identifier will be added
+    >>> Simbad.add_votable_fields('typed_id')
+    >>> result_table = Simbad.query_objects(["m1","notanobject","m2","m1000"])
+    >>> print(result_table)
+    /Users/adam/repos/astroquery/astroquery/simbad/core.py:136: UserWarning: Warning: The script line number 4 raised an error (recorded in the `errors` attribute of the result table): 'notanobject': No known catalog could be found
+    (error.line, error.msg))
+    MAIN_ID      RA         DEC     RA_PREC DEC_PREC COO_ERR_MAJA COO_ERR_MINA COO_ERR_ANGLE COO_QUAL COO_WAVELENGTH     COO_BIBCODE
+              "h:m:s"     "d:m:s"                        mas          mas           deg
+    ------- ----------- ----------- ------- -------- ------------ ------------ ------------- -------- -------------- -------------------
+      M   1 05 34 31.94 +22 00 52.2       6        6           --           --             0        C              R 2011A&A...533A..10L
+      M   2 21 33 27.02 -00 49 23.7       6        6      100.000      100.000            90        C              O 2010AJ....140.1830G
+
+Only the results for m1 and m2 are included.  As of May 2019, there is a
+feature request in place with SIMBAD to return blank rows with the queried
+identifier indicated.
+
+You can also stitch together region queries by writing a sophisticated script:
+
+.. code-block:: python
+
+   >>> from astroquery.simbad import Simbad
+   >>> script = '(region(box, GAL, 0 +0, 0.5d 0.5d) | region(box, GAL, 43.3 -0.2, 0.25d 0.25d))'
+   >>> result = Simbad.query_criteria(script, otype='SNR')
+   >>> print(result)
+   <Table masked=True length=4>
+         MAIN_ID           RA          DEC      RA_PREC DEC_PREC COO_ERR_MAJA COO_ERR_MINA COO_ERR_ANGLE COO_QUAL COO_WAVELENGTH     COO_BIBCODE
+                        "h:m:s"      "d:m:s"                         mas          mas           deg
+          object         str13        str13      int16   int16     float32      float32        int16       str1        str1             object
+    ----------------- ------------ ------------ ------- -------- ------------ ------------ ------------- -------- -------------- -------------------
+      SNR G359.9-00.9      17 45.8       -29 03       3        3           --           --             0
+      NAME Sgr A East     17 45 41     -29 00.8       4        4           --           --             0        D                2010ApJS..188..405A
+                W 49b 19 11 09.000 +09 06 24.00       7        7           --           --             0        D                2015ApJS..217....2M
+    SNR G000.13-00.12      17 46.4       -28 53       3        3           --           --             0        E                2013MNRAS.434.1339H
+
 
 
 Customizing the default settings
