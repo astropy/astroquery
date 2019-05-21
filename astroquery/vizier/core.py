@@ -323,7 +323,7 @@ class VizierClass(BaseQuery):
 
         Parameters
         ----------
-        coordinates : str, `astropy.coordinates` object, or `~astropy.table.Table`
+        coordinates : str,`mocpy.MOC` object, `astropy.coordinates` object, or `~astropy.table.Table`
             The target around which to search. It may be specified as a
             string in which case it is resolved using online services or as
             the appropriate `astropy.coordinates` object. ICRS coordinates
