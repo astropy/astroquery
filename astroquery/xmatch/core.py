@@ -3,11 +3,17 @@
 import six
 from astropy.io import ascii
 from astropy.units import arcsec
+import astropy.units as u
 from astropy.table import Table
 
 from . import conf
 from ..query import BaseQuery
 from ..utils import url_helpers, prepend_docstr_nosections, async_to_sync
+
+try:
+    from regions import CircleSkyRegion
+except ImportError:
+    print('Could not import CircleSkyRegion')
 
 
 @async_to_sync
@@ -15,8 +21,11 @@ class XMatchClass(BaseQuery):
     URL = conf.url
     TIMEOUT = conf.timeout
 
-    def query(self, cat1, cat2, max_distance, colRA1=None, colDec1=None,
-              colRA2=None, colDec2=None, cache=True, get_query_payload=False):
+    def query(self, cat1, cat2, max_distance, 
+              colRA1=None, colDec1=None,
+              colRA2=None, colDec2=None, 
+              area='allsky', 
+              cache=True, get_query_payload=False):
         """
         Query the `CDS cross-match service
         <http://cdsxmatch.u-strasbg.fr/xmatch>`_ by finding matches between
@@ -49,6 +58,10 @@ class XMatchClass(BaseQuery):
         colDec2 : str
             Name of the column holding the declination. Only required if
             ``cat2`` is an uploaded table or a pointer to a URL.
+        area : CirleSkyRegion or 'allsky' str
+            Restrict the area taken into account when performing the xmatch
+            Default value is 'allsky' (no restriction). If a CirleSkyRegion 
+            object is given, only sources in this region will be considered.
 
         Returns
         -------
@@ -56,7 +69,7 @@ class XMatchClass(BaseQuery):
             Query results table
         """
         response = self.query_async(cat1, cat2, max_distance, colRA1, colDec1,
-                                    colRA2, colDec2, cache=cache,
+                                    colRA2, colDec2, area=area, cache=cache,
                                     get_query_payload=get_query_payload)
         if get_query_payload:
             return response
@@ -64,7 +77,7 @@ class XMatchClass(BaseQuery):
 
     @prepend_docstr_nosections("\n" + query.__doc__)
     def query_async(self, cat1, cat2, max_distance, colRA1=None, colDec1=None,
-                    colRA2=None, colDec2=None, cache=True,
+                    colRA2=None, colDec2=None, area, cache=True,
                     get_query_payload=False):
         """
         Returns
@@ -84,6 +97,7 @@ class XMatchClass(BaseQuery):
 
         self._prepare_sending_table(1, payload, kwargs, cat1, colRA1, colDec1)
         self._prepare_sending_table(2, payload, kwargs, cat2, colRA2, colDec2)
+        self._prepare_area(payload, area)
 
         if get_query_payload:
             return payload, kwargs
@@ -120,6 +134,20 @@ class XMatchClass(BaseQuery):
             # it is assumed it's either a URL or an uploaded table
             payload['colRA{0}'.format(i)] = colRA
             payload['colDec{0}'.format(i)] = colDec
+
+    def _prepare_area(self, payload, area):
+        '''Set the area parameter in the payload'''
+        if area is None or area=='allsky':
+            payload['area'] = 'allsky'
+        elif isinstance(area, CircleSkyRegion):
+            payload['area'] = 'cone'
+            cone_center = cone.center
+            payload['coneRA'] = center.icrs.ra.deg
+            payload['coneDec'] = center.icrs.dec.deg
+            payload['coneRadiusDeg'] = area.radius.to_value(u.deg) 
+        else:
+            raise ValueError('Unsupported area {}'.format(str(area)))
+
 
     def is_table_available(self, table_id):
         """Return True if the passed CDS table identifier is one of the
