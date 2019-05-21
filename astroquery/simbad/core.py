@@ -232,7 +232,7 @@ class SimbadBaseQuery(BaseQuery):
     """
     def _request(self, *args, **kwargs):
         try:
-            return super(SimbadBaseQuery, self)._request(*args, **kwargs)
+            response = super(SimbadBaseQuery, self)._request(*args, **kwargs)
         except requests.exceptions.ConnectionError as ex:
             if 'Errno 61' in str(ex):
                 extratext = ("\n\n"
@@ -246,9 +246,20 @@ class SimbadBaseQuery(BaseQuery):
                              "Blacklists are generally cleared after ~1 hour.  "
                              "Please reconsider your approach, you may want "
                              "to use vectorized queries."
-                            )
+                             )
                 ex.args[0].args = (ex.args[0].args[0] + extratext,)
             raise ex
+
+        if response.status_code == 403:
+            errmsg = ("Error 403: Forbidden.  You may get this error if you "
+                      "exceed the SIMBAD server's rate limits.  Try again in "
+                      "a few seconds or minutes.")
+            raise requests.exceptions.HTTPError(errmsg)
+        else:
+            response.raise_for_status()
+
+        return response
+
 
 @async_to_sync
 class SimbadClass(SimbadBaseQuery):
