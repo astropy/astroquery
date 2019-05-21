@@ -16,9 +16,9 @@ formulated. If successful all the queries will return the results in a
 
 A warning about big queries
 ---------------------------
-The SIMBAD database has limited querying capacity.  If you spam them
-with queries, you may be temporary blacklisted.  The rate limit may
-vary, but you should not submit more than ~5-10 queries per second.
+The SIMBAD database has limited querying capacity.  If you spam the server with
+queries, you may be temporary blacklisted.  The rate limit may vary, but you
+should not submit more than ~5-10 queries per second.
 
 If you want to perform large queries, we suggest using vectorized queries
 when possible.  You can pass `~astroquery.simbad.core.Simbad.query_region`
@@ -31,12 +31,12 @@ Query an Identifier
 
 
 This is useful if you want to query a known identifier. For instance to query
-the messier object m1:
+the messier object M1:
 
 .. code-block:: python
 
     >>> from astroquery.simbad import Simbad
-    >>> result_table = Simbad.query_object("m1")
+    >>> result_table = Simbad.query_object("M1")
     >>> print(result_table)
 
     MAIN_ID      RA         DEC     RA_PREC DEC_PREC COO_ERR_MAJA COO_ERR_MINA COO_ERR_ANGLE COO_QUAL COO_WAVELENGTH     COO_BIBCODE
@@ -436,7 +436,7 @@ Each region must have the same radius.
     >>> from astroquery.simbad import Simbad
     >>> import astropy.coordinates as coord
     >>> import astropy.units as u
-    >>> result_table = Simbad.query_region(coord.SkyCoord(ra=[10,11], dec=[10,11], 
+    >>> result_table = Simbad.query_region(coord.SkyCoord(ra=[10, 11], dec=[10, 11], 
     ...                                    unit=(u.deg, u.deg), frame='fk5'),
     ...                                    radius=0.1 * u.deg)
     >>> print(result_table)
@@ -456,31 +456,31 @@ Each region must have the same radius.
      SDSS J004422.75+110104.3  00 44 22.753  +11 01 04.34       7        7           --           --             0        C              O 2017A&A...597A..79P
                TYC  607-628-1 00 44 05.6169 +11 05 41.195      14       14        0.047        0.033            90        A              O 2018yCat.1345....0G
 
-You can do the same based on IDs:
+You can do the same based on IDs.  If you add the votable field ``typed_id``, a
+column showing your input identifier will be added:
 
 .. code-block:: python
 
     >>> from astroquery.simbad import Simbad
-    >>> result_table = Simbad.query_objects(["m1","m2","m3","m4"])
+    >>> Simbad.add_votable_fields('typed_id')
+    >>> result_table = Simbad.query_objects(["M1", "M2", "M3", "M4"])
     >>> print(result_table)
-    MAIN_ID      RA         DEC     RA_PREC DEC_PREC COO_ERR_MAJA COO_ERR_MINA COO_ERR_ANGLE COO_QUAL COO_WAVELENGTH     COO_BIBCODE
+    MAIN_ID      RA         DEC     RA_PREC DEC_PREC COO_ERR_MAJA COO_ERR_MINA COO_ERR_ANGLE COO_QUAL COO_WAVELENGTH     COO_BIBCODE     TYPED_ID
               "h:m:s"     "d:m:s"                        mas          mas           deg
-    ------- ----------- ----------- ------- -------- ------------ ------------ ------------- -------- -------------- -------------------
-      M   1 05 34 31.94 +22 00 52.2       6        6           --           --             0        C              R 2011A&A...533A..10L
-      M   2 21 33 27.02 -00 49 23.7       6        6      100.000      100.000            90        C              O 2010AJ....140.1830G
-      M   3 13 42 11.62 +28 22 38.2       6        6      200.000      200.000            90        C              O 2010AJ....140.1830G
-      M   4 16 23 35.22 -26 31 32.7       6        6      400.000      400.000            90        C              O 2010AJ....140.1830G
+    ------- ----------- ----------- ------- -------- ------------ ------------ ------------- -------- -------------- ------------------- --------
+      M   1 05 34 31.94 +22 00 52.2       6        6           --           --             0        C              R 2011A&A...533A..10L       M1
+      M   2 21 33 27.02 -00 49 23.7       6        6      100.000      100.000            90        C              O 2010AJ....140.1830G       M2
+      M   3 13 42 11.62 +28 22 38.2       6        6      200.000      200.000            90        C              O 2010AJ....140.1830G       M3
+      M   4 16 23 35.22 -26 31 32.7       6        6      400.000      400.000            90        C              O 2010AJ....140.1830G       M4
 
 However, note that missing data will result in missing lines:
 
 .. code-block:: python
 
     >>> from astroquery.simbad import Simbad
-    >>> # if you add the "typed_id", a column showing your input identifier will be added
-    >>> Simbad.add_votable_fields('typed_id')
-    >>> result_table = Simbad.query_objects(["m1","notanobject","m2","m1000"])
+    >>> result_table = Simbad.query_objects(["M1", "notanobject", "m2", "m1000"])
     >>> print(result_table)
-    /Users/adam/repos/astroquery/astroquery/simbad/core.py:136: UserWarning: Warning: The script line number 4 raised an error (recorded in the `errors` attribute of the result table): 'notanobject': No known catalog could be found
+    UserWarning: Warning: The script line number 4 raised an error (recorded in the `errors` attribute of the result table): 'notanobject': No known catalog could be found
     (error.line, error.msg))
     MAIN_ID      RA         DEC     RA_PREC DEC_PREC COO_ERR_MAJA COO_ERR_MINA COO_ERR_ANGLE COO_QUAL COO_WAVELENGTH     COO_BIBCODE
               "h:m:s"     "d:m:s"                        mas          mas           deg
@@ -488,7 +488,7 @@ However, note that missing data will result in missing lines:
       M   1 05 34 31.94 +22 00 52.2       6        6           --           --             0        C              R 2011A&A...533A..10L
       M   2 21 33 27.02 -00 49 23.7       6        6      100.000      100.000            90        C              O 2010AJ....140.1830G
 
-Only the results for m1 and m2 are included.  As of May 2019, there is a
+Only the results for M1 and M2 are included.  As of May 2019, there is a
 feature request in place with SIMBAD to return blank rows with the queried
 identifier indicated.
 
