@@ -122,6 +122,7 @@ def test_xmatch_query_cat1_table_local(monkeypatch):
         'e_Jmag', 'e_Hmag', 'e_Kmag', 'Qfl', 'Rfl', 'X', 'MeasureJD']
     assert len(table) == 11
 
+
 @pytest.mark.parametrize('datafile', DATA_FILES.values())
 def test_parse_text(datafile):
     xm = XMatch()
