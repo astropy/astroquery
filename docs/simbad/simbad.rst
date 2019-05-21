@@ -21,10 +21,10 @@ queries, you may be temporary blacklisted.  The rate limit may vary, but you
 should not submit more than ~5-10 queries per second.
 
 If you want to perform large queries, we suggest using vectorized queries
-when possible.  You can pass `~astroquery.simbad.core.Simbad.query_region`
-a vector of coordinates or `~astroquery.simbad.core.Simbad.query_objects`
+when possible.  You can pass `~astroquery.simbad.SimbadClass.query_region`
+a vector of coordinates or `~astroquery.simbad.SimbadClass.query_objects`
 a list of object names, and SIMBAD will treat this submission as a single
-query.  See `vectorized queries <#Vectorized-Queries>` below.
+query.  See :ref:`vectorized queries <vectorqueries>` below.
 
 Query an Identifier
 -------------------
@@ -424,6 +424,8 @@ See that link for details of how these queries are formed.
          SNR G001.0-00.1     17 48.5      -28 09       3        3          nan          nan             0        E              R 2009BASI...37...45G
          NAME SGR A EAST    17 45 47    -29 00.2       4        4    18000.000    18000.000             1        E
 
+
+.. _vectorqueries:
 
 Vectorized Queries
 ------------------

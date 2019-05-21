@@ -34,5 +34,6 @@ conf = Conf()
 from .core import Simbad, SimbadClass
 
 __all__ = ['Simbad', 'SimbadClass',
+           'SimbadBaseQuery',
            'Conf', 'conf',
            ]

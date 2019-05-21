@@ -5,6 +5,7 @@ Simbad query class for accessing the Simbad Service
 from __future__ import print_function
 import copy
 import re
+import requests
 import json
 import os
 from collections import namedtuple
@@ -15,13 +16,14 @@ import astropy.coordinates as coord
 from astropy.table import Table
 import astropy.io.votable as votable
 from six import BytesIO
+
 from ..query import BaseQuery
 from ..utils import commons
 from ..exceptions import TableParseError, LargeQueryWarning
 from . import conf
 from ..utils.process_asyncs import async_to_sync
 
-__all__ = ['Simbad', 'SimbadClass']
+__all__ = ['Simbad', 'SimbadClass', 'SimbadBaseQuery']
 
 
 def validate_epoch(value):
@@ -221,8 +223,35 @@ class SimbadObjectIDsResult(SimbadResult):
         return table
 
 
+class SimbadBaseQuery(BaseQuery):
+    """
+    SimbadBaseQuery overloads the base query because we know that SIMBAD will
+    sometimes blacklist users for exceeding rate limits.  This warning results
+    in a "connection refused" error (error 61) instead of a more typical "error
+    8" that you would get from not having an internet connection at all.
+    """
+    def _request(self, *args, **kwargs):
+        try:
+            return super(SimbadBaseQuery, self)._request(*args, **kwargs)
+        except requests.exceptions.ConnectionError as ex:
+            if 'Errno 61' in str(ex):
+                extratext = ("\n\n"
+                             "************************* \n"
+                             "ASTROQUERY ADDED WARNING: \n"
+                             "************************* \n"
+                             "Error 61 received from SIMBAD server.  "
+                             "This may indicate that you have been "
+                             "blacklisted for exceeding the query rate limit."
+                             "  See the astroquery SIMBAD documentation.  "
+                             "Blacklists are generally cleared after ~1 hour.  "
+                             "Please reconsider your approach, you may want "
+                             "to use vectorized queries."
+                            )
+                ex.args[0].args = (ex.args[0].args[0] + extratext,)
+            raise ex
+
 @async_to_sync
-class SimbadClass(BaseQuery):
+class SimbadClass(SimbadBaseQuery):
     """
     The class for querying the Simbad web service.
 
