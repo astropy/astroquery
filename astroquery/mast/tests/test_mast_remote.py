@@ -263,6 +263,10 @@ class TestMast(object):
         responses = mast.Catalogs.query_region_async("322.49324 12.16683", radius="0.02 deg")
         assert isinstance(responses, list)
 
+        responses = mast.Catalogs.query_region_async("322.49324 12.16683", radius="0.02 deg",
+                                                     catalog="panstarrs", table="mean")
+        assert isinstance(responses, list)
+
     def test_catalogs_query_region(self):
 
         # clear columns config
@@ -293,6 +297,11 @@ class TestMast(object):
         assert isinstance(result, Table)
         assert len(result) > 550
 
+        result = mast.Catalogs.query_region("322.49324 12.16683", radius=0.01,
+                                            catalog="panstarrs", table="mean")
+        assert isinstance(result, Table)
+        assert len(result) > 800
+
     def test_catalogs_query_object_async(self):
         responses = mast.Catalogs.query_object_async("M10", radius=.02, catalog="TIC")
         assert isinstance(responses, list)
@@ -310,6 +319,10 @@ class TestMast(object):
         result = mast.Catalogs.query_object("M10", radius=.001, catalog="HSC", magtype=1)
         assert isinstance(result, Table)
         assert len(result) >= 50
+
+        result = mast.Catalogs.query_object("M10", radius=.001, catalog="panstarrs", table="mean")
+        assert isinstance(result, Table)
+        assert len(result) >= 500
 
     def test_catalogs_query_criteria_async(self):
         # without position
@@ -334,6 +347,12 @@ class TestMast(object):
                                                        objectname="M10",
                                                        radius=2,
                                                        state="complete")
+        assert isinstance(responses, list)
+
+        responses = mast.Catalogs.query_criteria_async(catalog="panstarrs", table="mean",
+                                                       objectname="M10",
+                                                       radius=2,
+                                                       qualityFlag=48)
         assert isinstance(responses, list)
 
     def test_catalogs_query_criteria(self):
@@ -365,6 +384,11 @@ class TestMast(object):
         assert isinstance(result, Table)
         assert len(result) >= 5
         assert result[np.where(result['designation'] == 'J165628.40-054630.8')]
+
+        result = mast.Catalogs.query_criteria(catalog="panstarrs", objectname="M10", radius=.01,
+                                              qualityFlag=48, zoneID=17320)
+        assert isinstance(result, Table)
+        assert len(result) >= 10
 
     def test_catalogs_query_hsc_matchid_async(self):
         catalogData = mast.Catalogs.query_object("M10", radius=.001, catalog="HSC", magtype=1)

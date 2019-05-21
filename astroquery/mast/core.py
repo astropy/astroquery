@@ -166,10 +166,10 @@ def _fabric_json_to_table(json_obj):
         raise KeyError("Missing required key(s) 'data' and/or 'info.'")
 
     # determine database type key in case missing
-    type_key = 'db_type' if json_obj['info'][0].get('db_type') else 'type'
+    type_key = 'type' if json_obj['info'][0].get('type') else 'db_type'
 
     # for each item in info, store the type and column name
-    for idx, col, db_type, ignore_value in \
+    for idx, col, col_type, ignore_value in \
             [(idx, x['name'], x[type_key], "NULL") for idx, x in enumerate(json_obj['info'])]:
             # [(idx, x['name'], x[type_key], x['default_value']) for idx, x in enumerate(json_obj['info'])]:
 
@@ -177,19 +177,23 @@ def _fabric_json_to_table(json_obj):
         if ignore_value == "NULL":
             ignore_value = None
         # making type adjustments
-        if db_type == "STRING":
-            db_type = "str"
+        if col_type =="char" or col_type == "STRING":
+            col_type = "str"
             ignore_value = "" if (ignore_value is None) else ignore_value
-        if db_type == "BINARY":
-            db_type = "bool"
-        if db_type == "NUMBER":  # int arrays do not admit Non/nan vals
-            db_type = np.int64
+        elif col_type == "boolean" or col_type == "BINARY":
+            col_type = "bool"
+        elif col_type == "unsignedByte":
+            col_type = np.ubyte
+        elif col_type == "int" or col_type == "short" or col_type == "long" or col_type == "NUMBER":
+            # int arrays do not admit Non/nan vals
+            col_type = np.int64
             ignore_value = -999 if (ignore_value is None) else ignore_value
-        if db_type == "DECIMAL":  # int arrays do not admit Non/nan vals
-            db_type = np.float64
+        elif col_type == "double" or col_type == "float" or col_type == "DECIMAL":
+            # int arrays do not admit Non/nan vals
+            col_type = np.float64
             ignore_value = -999 if (ignore_value is None) else ignore_value
-        if db_type == "DATETIME":
-            db_type = "str"
+        elif col_type == "DATETIME":
+            col_type = "str"
             ignore_value = "" if (ignore_value is None) else ignore_value
 
         # Make the column list (don't assign final type yet or there will be errors)
@@ -200,13 +204,13 @@ def _fabric_json_to_table(json_obj):
 
         # no consistant way to make the mask because np.equal fails on ''
         # and array == value fails with None
-        if db_type == 'str':
+        if col_type == 'str':
             col_mask = (col_data == ignore_value)
         else:
             col_mask = np.equal(col_data, ignore_value)
 
         # add the column
-        data_table.add_column(MaskedColumn(col_data.astype(db_type), name=col, mask=col_mask))
+        data_table.add_column(MaskedColumn(col_data.astype(col_type), name=col, mask=col_mask))
 
     return data_table
 
@@ -230,7 +234,7 @@ class MastClass(QueryWithLogin):
         self._MAST_CATALOGS_SERVICES = {
             "panstarrs": {
                 "path": "panstarrs/{data_release}/{table}.json",
-                "args": ["data_release", "table"]
+                "args": {"data_release": "dr2", "table": None}
             }
         }
 
@@ -679,10 +683,10 @@ class MastClass(QueryWithLogin):
         compiled_service_args = {}
 
         # Gather URL specific parameters
-        for service_argument in service_config.get('args'):
+        for service_argument, default_value in service_config.get('args').items():
             found_argument = params.pop(service_argument, None)
-            if not found_argument:
-                kwargs.pop(service_argument, None)
+            if found_argument is None:
+                found_argument = kwargs.pop(service_argument, default_value)
             compiled_service_args[service_argument] = found_argument.lower()
 
         request_url = self._MAST_CATALOGS_REQUEST_URL + service_url.format(**compiled_service_args)
@@ -711,18 +715,33 @@ class MastClass(QueryWithLogin):
         return response
 
     def _build_catalogs_params(self, params):
+        """
+        Gathers parameters for Catalogs.MAST usage and translates to valid API syntax tuples
+
+        Parameters
+        ----------
+        params: dict
+            A dict of parameters to convert into valid API syntax. Will omit the "format" parameter
+
+        Returns
+        -------
+        response : list(tuple)
+            List of tuples representing API syntax parameters
+        """
         catalog_params = []
         for prop, value in params.items():
             if prop == 'format':
                 # Ignore format changes
                 continue
+            elif prop == 'page_size':
+                catalog_params.extend(('pagesize', value))
             elif prop == 'sort_by':
                 # Loop through each value if list
                 if isinstance(value, list):
                     for sort_item in value:
                         # Determine if tuple with sort direction
                         if isinstance(sort_item, tuple):
-                            catalog_params.append(('sort_by', sort_item[0] + '.' + sort_item[1]))
+                            catalog_params.append(('sort_by', sort_item[1] + '.' + sort_item[0]))
                         else:
                             catalog_params.append(('sort_by', sort_item))
                 else:
@@ -749,6 +768,30 @@ class MastClass(QueryWithLogin):
                     catalog_params.append((prop, value))
 
         return catalog_params
+
+    def _check_catalogs_criteria_params(self, criteria):
+        """
+        Tests a dict of passed criteria for Catalogs.MAST to ensure that at least one parameter is for a given criteria
+
+        Parameters
+        ----------
+        criteria: dict
+            A dict of parameters to test for at least one criteria parameter
+
+        Returns
+        -------
+        response : boolean
+            Whether the passed dict has at least one criteria parameter
+        """
+        criteria_check = False
+        non_criteria_params = ["columns", "sort_by", "page_size", "pagesize", "page"]
+        criteria_keys = criteria.keys()
+        for key in criteria_keys:
+            if key not in non_criteria_params:
+                criteria_check = True
+                break
+
+        return criteria_check
 
     def _resolve_object(self, objectname):
         """
@@ -1799,7 +1842,7 @@ class CatalogsClass(MastClass):
             params[prop] = value
 
         if catalogs_service:
-            return self.catalogs_service_request_async(service, params)
+            return self.catalogs_service_request_async(service, params, pagesize, page)
         return self.service_request_async(service, params, pagesize, page)
 
     @class_or_instance
@@ -1867,6 +1910,12 @@ class CatalogsClass(MastClass):
             only one wildcarded value can be processed per criterion.
             RA and Dec must be given in decimal degrees, and datetimes in MJD.
             For example: filters=["FUV","NUV"],proposal_pi="Ost*",t_max=[52264.4586,54452.8914]
+            For catalogs available through Catalogs.MAST (PanSTARRS), the Column Name is the keyword with the argument
+            should be either an acceptable value for that parameter, or a list consisting values or  tuples of decorator,
+            value pairs (decorator, value). In addition, columns may be used to select the return columns, consisting
+            of a list of column names. Results may also be sorted through the query with the parameter sort_by composed of
+            either a single Column Name to sort ASC, or a list of Column Nmaes to sort ASC or tuples of Column Name and
+            Direction (ASC, DESC) to indicate sort order (Column Name, DESC).
 
         Returns
         -------
@@ -1878,12 +1927,13 @@ class CatalogsClass(MastClass):
         coordinates = criteria.pop('coordinates', None)
         objectname = criteria.pop('objectname', None)
         radius = criteria.pop('radius', 0.2*u.deg)
+        mashup_filters = None
 
         # Build the mashup filter object
         if catalog.lower() in self._MAST_CATALOGS_SERVICES:
             catalogs_service = True
             service = catalog
-            # service = self._MAST_CATALOGS_SERVICES.get(catalog.lower())
+            mashup_filters = self._check_catalogs_criteria_params(criteria)
         elif catalog.lower() == "tic":
             service = "Mast.Catalogs.Filtered.Tic"
             if coordinates or objectname:
@@ -1937,7 +1987,7 @@ class CatalogsClass(MastClass):
                 params[prop] = value
 
         if catalogs_service:
-            return self.catalogs_service_request_async(service, params, pagesize=pagesize, page=page)
+            return self.catalogs_service_request_async(service, params, page_size=pagesize, page=page)
         return self.service_request_async(service, params, pagesize=pagesize, page=page)
 
     @class_or_instance

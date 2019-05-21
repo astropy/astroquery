@@ -347,6 +347,7 @@ The Catalogs class provides access to a subset of the astronomical catalogs stor
 - The Gaia (DR1 and DR2) and TGAS Catalogs
 - The TESS Input Catalog (TIC)
 - The Disk Detective Catalog
+- PanSTARRS (DR1, DR2)
 
 Positional Queries
 ------------------
@@ -441,11 +442,35 @@ An optional version parameter allows you to select which version you want, the d
                 1635721458409799680 Gaia DR2 3774902148648277248 ... 0.9198397322382648
                 1635721458409799680 Gaia DR2 3774902453590798208 ... 1.3578882400285217
 
+The PanSTARRS Catalog has multiple data releases as well as multiple queryable tables.
+An optional data release parameter allows you to select which data release is desired, with the default being the latest version (dr2).
+The table to query is a required parameter.
+
+.. code-block:: python
+
+                >>> catalogData = Catalogs.query_region("158.47924 -7.30962", radius=0.1,
+                >>>                                      catalog="Panstarrs", data_release="dr1", table="mean")
+                >>> print("Number of results:",len(catalogData))
+                >>> print(catalogData[:10])
+
+                Number of results: 7007
+                       objName        objAltName1 objAltName2 ... yMeanApMagNpt yFlags distance
+                --------------------- ----------- ----------- ... ------------- ------ --------
+                PSO J158.4130-07.2557        -999        -999 ...             0      0        0
+                PSO J158.4133-07.2564        -999        -999 ...             0      0        0
+                PSO J158.4136-07.2571        -999        -999 ...             0 114720        0
+                PSO J158.4156-07.2530        -999        -999 ...             0      0        0
+                PSO J158.4157-07.2511        -999        -999 ...             0      0        0
+                PSO J158.4159-07.2535        -999        -999 ...             0      0        0
+                PSO J158.4159-07.2554        -999        -999 ...             0 114720        0
+                PSO J158.4160-07.2534        -999        -999 ...             0 114720        0
+                PSO J158.4164-07.2568        -999        -999 ...             0      0        0
+                PSO J158.4175-07.2574        -999        -999 ...             0  16416        0
 
 Catalog Criteria Queries
 ------------------------
 
-The TESS Input Catalog (TIC, and Disk Detective Catalog can also be queried based on non-positional criteria.
+The TESS Input Catalog (TIC), Disk Detective Catalog, and PanSTARRS Catalog can also be queried based on non-positional criteria.
 
 .. code-block:: python
 
@@ -477,7 +502,40 @@ The TESS Input Catalog (TIC, and Disk Detective Catalog can also be queried base
                 J165949.90-054300.7 ... https://talk.diskdetective.org/#/subjects/AWI0005ckk
                 J170314.11-035210.4 ... https://talk.diskdetective.org/#/subjects/AWI0005ckv
 
-                
+
+The PanSTARRS catalog also accepts additional parameters to allow for query refinement. These options include column selection,
+sorting, column criteria, page size and page number. Additional information on PanSTARRS queries may be found
+`here <https://catalogs.mast.stsci.edu/docs/panstarrs.html>`__.
+
+Columns returned from the query may be submitted with the columns parameter as a list of column names.
+
+The query may be sorted  with the sort_by parameter composed of either a single column name (to sort ascending),
+or a list of multiple column names and/or tuples of direction and column name (ASC/DESC, column name).
+
+To filter the query, criteria per column name are accepted. The 'AND' operation is performed between all
+column name criteria, and the 'OR' operation is performed within column name criteria. Per each column name
+parameter, criteria may consist of either a value or a list. The list may consist of a mix of values and
+tuples of criteria decorator (min, gte, gt, max, lte, lt, like, contains) and value,
+
+.. code-block:: python
+
+                >>> catalogData = Catalogs.query_criteria("5.97754 32.53617", radius=0.01, catalog="PANSTARRS",
+                                                        table="mean", data_release="dr1",
+                                                        columns=["objName", "objID", "lambda", "beta", "distance"],
+                                                        sort_by=[("desc", "distance")], page_size=5, page=3)
+                >>> print("Number of results:",len(catalogData))
+                >>> print(catalogData[:10])
+
+                Number of results: 5
+                         objName                 objID        ...       distance
+                -------------------------- ------------------ ... --------------------
+                PSO J002353.427+323139.907 147030059727583992 ...   0.0093857181370567
+                PSO J002354.885+323243.119 147050059787164914 ... 0.009176550286380453
+                PSO J002355.429+323240.965 147050059809724247 ... 0.009015001349267648
+                PSO J002354.373+323242.063 147050059765724612 ... 0.008886262151892286
+                PSO J002352.667+323149.775 147030059694587185 ... 0.008875602280019946
+
+
 Hubble Source Catalog (HSC) specific queries
 --------------------------------------------
 

@@ -40,6 +40,7 @@ DATA_FILES = {'Mast.Caom.Cone': 'caom.json',
               'Mast.HscMatches.Db.v3': 'matchid.json',
               'Mast.HscMatches.Db.v2': 'matchid.json',
               'Mast.HscSpectra.Db.All': 'spectra.json',
+              'panstarrs': 'panstarrs.json',
               'tess_cutout': 'astrocut_107.27_-70.0_5x5.zip',
               'tess_sector': 'tess_sector.json'}
 
@@ -56,6 +57,7 @@ def patch_post(request):
     except AttributeError:  # pytest < 3
         mp = request.getfuncargvalue("monkeypatch")
     mp.setattr(mast.Mast, '_request', post_mockreturn)
+    mp.setattr(mast.Mast, '_fabric_request', post_mockreturn)
     mp.setattr(mast.Observations, '_request', post_mockreturn)
     mp.setattr(mast.Catalogs, '_request', post_mockreturn)
     mp.setattr(mast.Mast, '_download_file', download_mockreturn)
@@ -308,21 +310,33 @@ def test_catalogs_query_region_async(patch_post):
     responses = mast.Catalogs.query_region_async(regionCoords, radius=0.002)
     assert isinstance(responses, list)
 
+def test_catalogs_fabric_query_region_async(patch_post):
+    responses = mast.Catalogs.query_region_async(regionCoords, radius=0.002, catalog="panstarrs", table="mean")
+    assert isinstance(responses, list)
 
 def test_catalogs_query_region(patch_post):
     result = mast.Catalogs.query_region(regionCoords, radius=0.002 * u.deg)
     assert isinstance(result, Table)
 
+def test_catalogs_fabric_query_region(patch_post):
+    result = mast.Catalogs.query_region(regionCoords, radius=0.002 * u.deg, catalog="panstarrs", table="mean")
+    assert isinstance(result, Table)
 
 def test_catalogs_query_object_async(patch_post):
     responses = mast.Catalogs.query_object_async("M101", radius="0.002 deg")
     assert isinstance(responses, list)
 
+def test_catalogs_fabric_query_object_async(patch_post):
+    responses = mast.Catalogs.query_object_async("M101", radius="0.002 deg", catalog="panstarrs", table="mean")
+    assert isinstance(responses, list)
 
 def test_catalogs_query_object(patch_post):
     result = mast.Catalogs.query_object("M101", radius=".002 deg")
     assert isinstance(result, Table)
 
+def test_catalogs_fabric_query_object(patch_post):
+    result = mast.Catalogs.query_object("M101", radius=".002 deg", catalog="panstarrs", table="mean")
+    assert isinstance(result, Table)
 
 def test_catalogs_query_criteria_async(patch_post):
     # without position
