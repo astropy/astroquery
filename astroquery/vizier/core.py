@@ -21,14 +21,13 @@ from ..query import BaseQuery
 from ..utils import commons
 from ..utils import async_to_sync
 from ..utils import schema
+from ..utils import url_helpers
 from . import conf
 from ..exceptions import TableParseError
-
 
 __all__ = ['Vizier', 'VizierClass']
 
 __doctest_skip__ = ['VizierClass.*']
-
 
 @async_to_sync
 class VizierClass(BaseQuery):
@@ -44,6 +43,8 @@ class VizierClass(BaseQuery):
     _schema_catalog = schema.Schema(
         schema.Or([_str_schema], _str_schema, None),
         error="catalog must be a list of strings or a single string")
+
+    _available_xmatch_tables = None
 
     def __init__(self, columns=["*"], column_filters={}, catalog=None,
                  keywords=None, ucd="", timeout=conf.timeout,
@@ -313,6 +314,97 @@ class VizierClass(BaseQuery):
             data=data_payload, timeout=self.TIMEOUT, cache=cache)
         return response
 
+    def query_moc_region_async(self, moc, table, get_query_payload=False, cache=True):
+        """
+        Queries the service with a MOC (Multi-Order Coverage) region.
+
+        A MOC is a set of HEALPix cells (which can be of different depths). It allows
+        to define arbitrary and complex sky regions. For more details about MOCs please
+        refer to the documentation of `mocpy 
+        <https://mocpy.readthedocs.io/en/latest/examples/examples.html#loading-and-plotting-the-moc-of-sdss>`__
+        and the standard paper about MOC coming from the
+        `IVOA <http://ivoa.net/documents/MOC/20190404/PR-MOC-1.1-20190404.pdf>`__.
+
+        Parameters
+        ----------
+        moc : `~mocpy.MOC`
+            Multi-Order Coverage map. A MOC is a set of HEALPix cells (that can be of different depth)
+            allowing to describe any arbitrary regions on the sky.
+        table : str or list
+            The tables(s) which must be searched for this identifier.
+            Querying for a list of tables is currently not handled by the XMatch QueryCat service. 
+
+        Returns
+        -------
+        response : `requests.Response`
+            The response of the HTTP request.
+
+        """
+        try:
+            from mocpy import MOC
+        except ImportError:
+            pass
+
+        table = VizierClass._schema_catalog.validate(table)
+        # XMatch does not support querying a list of table names
+        if isinstance(table, list):
+            raise NotImplementedError('Query several tables by a MOC is not' \
+                'currently implemented by the XMatch QueryCat service: ' \
+                'http://cdsxmatch.u-strasbg.fr/QueryCat/QueryCat')
+
+        # Query the XMatch service to know which tables are supported
+        if self._available_xmatch_tables is None:
+            self._available_xmatch_tables = self._get_available_xmatch_tables(cache)
+
+        # Handles the 'vizier:<table_name>' notation
+        if isinstance(table, six.string_types) and (table[:7] == 'vizier:'):
+            table = table[7:]
+
+        # Check whether the table given will be accepted by the XMatch service
+        if table not in self._available_xmatch_tables:
+            raise ValueError('{0} is not a table name accepted by the XMatch service! ' \
+                'Please follow this link to see the table names accepted by the XMatch service: ' \
+                'http://cdsxmatch.u-strasbg.fr/xmatch/api/v1/sync/tables?action=getVizieRTableNames'.format(table))
+
+        moc_file = BytesIO()
+        moc_fits = moc.serialize(format='fits')
+        moc_fits.writeto(moc_file)
+
+        data_payload = {
+            'mode': 'mocfile',
+            'catName': table,
+            'format': 'votable',
+            'limit': self.ROW_LIMIT,
+        }
+        
+        if get_query_payload:
+            return data_payload
+        
+        response = self._request(
+            method='POST', url='http://cdsxmatch.u-strasbg.fr/QueryCat/QueryCat',
+            data=data_payload,
+            files={'moc': moc_file.getvalue()},
+            stream=True,
+            timeout=self.TIMEOUT,
+            cache=cache)
+
+        return response
+
+    def _get_available_xmatch_tables(self, cache=True):
+        response = self._request(
+            method='GET',
+            url=url_helpers.urljoin_keep_path('http://cdsxmatch.u-strasbg.fr/xmatch/api/v1/sync', 'tables'),
+            params={
+                'action': 'getVizieRTableNames',
+                'RESPONSEFORMAT': 'txt'
+            },
+            cache=cache,
+        )
+
+        content = response.text
+        tables = content.splitlines()
+        return tables
+
     def query_region_async(self, coordinates, radius=None, inner_radius=None,
                            width=None, height=None, catalog=None,
                            get_query_payload=False, cache=True,
@@ -323,7 +415,10 @@ class VizierClass(BaseQuery):
 
         Parameters
         ----------
-        coordinates : str,`mocpy.MOC` object, `astropy.coordinates` object, or `~astropy.table.Table`
+        moc : `~mocpy.MOC`
+            Multi-Order Coverage map. A MOC is a set of HEALPix cells (that can be of different depth)
+            allowing to describe any arbitrary regions on the sky.
+        coordinates : str, `astropy.coordinates` object, or `~astropy.table.Table`
             The target around which to search. It may be specified as a
             string in which case it is resolved using online services or as
             the appropriate `astropy.coordinates` object. ICRS coordinates
@@ -361,7 +456,7 @@ class VizierClass(BaseQuery):
                 pos_list = []
                 for pos in c:
                     ra_deg = pos.ra.to_string(unit="deg", decimal=True,
-                                              precision=8)
+                                            precision=8)
                     dec_deg = pos.dec.to_string(unit="deg", decimal=True,
                                                 precision=8, alwayssign=True)
                     pos_list += ["{}{}".format(ra_deg, dec_deg)]
@@ -370,19 +465,19 @@ class VizierClass(BaseQuery):
             else:
                 ra = c.ra.to_string(unit='deg', decimal=True, precision=8)
                 dec = c.dec.to_string(unit="deg", decimal=True, precision=8,
-                                      alwayssign=True)
+                                    alwayssign=True)
                 center["-c"] = "{ra}{dec}".format(ra=ra, dec=dec)
         elif isinstance(coordinates, tbl.Table):
             if (("_RAJ2000" in coordinates.keys()) and ("_DEJ2000" in
                                                         coordinates.keys())):
                 pos_list = []
                 sky_coord = coord.SkyCoord(coordinates["_RAJ2000"],
-                                           coordinates["_DEJ2000"],
-                                           unit=(coordinates["_RAJ2000"].unit,
-                                                 coordinates["_DEJ2000"].unit))
+                                        coordinates["_DEJ2000"],
+                                        unit=(coordinates["_RAJ2000"].unit,
+                                                coordinates["_DEJ2000"].unit))
                 for (ra, dec) in zip(sky_coord.ra, sky_coord.dec):
                     ra_deg = ra.to_string(unit="deg", decimal=True,
-                                          precision=8)
+                                        precision=8)
                     dec_deg = dec.to_string(unit="deg", decimal=True,
                                             precision=8, alwayssign=True)
                     pos_list += ["{}{}".format(ra_deg, dec_deg)]
@@ -390,10 +485,10 @@ class VizierClass(BaseQuery):
                 columns += ["_q"]  # request a reference to the input table
             else:
                 raise ValueError("Table must contain '_RAJ2000' and "
-                                 "'_DEJ2000' columns!")
+                                "'_DEJ2000' columns!")
         else:
             raise TypeError("Coordinates must be one of: string, astropy "
-                            "coordinates, or table containing coordinates!")
+                            "coordinates, moc, or table containing coordinates!")
         # decide whether box or radius
         if radius is not None:
             # is radius a disk or an annulus?
@@ -428,11 +523,11 @@ class VizierClass(BaseQuery):
                 key = "-c.b" + w_unit
                 center[key] = "x".join([str(w_value), str(h_value)])
         else:
-            raise Exception(
+            raise ValueError(
                 "At least one of radius, width/height must be specified")
 
         data_payload = self._args_to_payload(center=center, columns=columns,
-                                             catalog=catalog)
+                                            catalog=catalog)
 
         if get_query_payload:
             return data_payload
