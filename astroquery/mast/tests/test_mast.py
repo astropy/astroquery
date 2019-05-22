@@ -60,6 +60,7 @@ def patch_post(request):
     mp.setattr(mast.Mast, '_fabric_request', post_mockreturn)
     mp.setattr(mast.Observations, '_request', post_mockreturn)
     mp.setattr(mast.Catalogs, '_request', post_mockreturn)
+    mp.setattr(mast.Catalogs, '_fabric_request', post_mockreturn)
     mp.setattr(mast.Mast, '_download_file', download_mockreturn)
     mp.setattr(mast.Observations, '_download_file', download_mockreturn)
     mp.setattr(mast.Catalogs, '_download_file', download_mockreturn)
@@ -71,7 +72,6 @@ def patch_post(request):
 
 
 def post_mockreturn(method="POST", url=None, data=None, timeout=10, **kwargs):
-
     if "columnsconfig" in url:
         if "Mast.Catalogs.Tess.Cone" in data:
             service = "ticcolumns"
@@ -79,7 +79,8 @@ def post_mockreturn(method="POST", url=None, data=None, timeout=10, **kwargs):
             service = "ddcolumns"
         else:
             service = 'columnsconfig'
-
+    elif "catalogs.mast" in url:
+        service = re.search(r"(\/api\/v\d*.\d*\/)(\w*)", url).group(2)
     else:
         service = re.search(r"service%22%3A%20%22([\w\.]*)%22", data).group(1)
 
@@ -92,7 +93,6 @@ def post_mockreturn(method="POST", url=None, data=None, timeout=10, **kwargs):
     # need to distiguish counts queries
     if ("Filtered" in service) and (re.search(r"COUNT_BIG%28%2A%29", data)):
         service = "Counts"
-
     filename = data_path(DATA_FILES[service])
     content = open(filename, 'rb').read()
 

@@ -1910,12 +1910,14 @@ class CatalogsClass(MastClass):
             only one wildcarded value can be processed per criterion.
             RA and Dec must be given in decimal degrees, and datetimes in MJD.
             For example: filters=["FUV","NUV"],proposal_pi="Ost*",t_max=[52264.4586,54452.8914]
-            For catalogs available through Catalogs.MAST (PanSTARRS), the Column Name is the keyword with the argument
-            should be either an acceptable value for that parameter, or a list consisting values or  tuples of decorator,
-            value pairs (decorator, value). In addition, columns may be used to select the return columns, consisting
-            of a list of column names. Results may also be sorted through the query with the parameter sort_by composed of
-            either a single Column Name to sort ASC, or a list of Column Nmaes to sort ASC or tuples of Column Name and
-            Direction (ASC, DESC) to indicate sort order (Column Name, DESC).
+            For catalogs available through Catalogs.MAST (PanSTARRS), the Column Name is the keyword, and the argument
+            should be either an acceptable value for that parameter, or a list consisting values, or  tuples of
+            decorator, value pairs (decorator, value). In addition, columns may be used to select the return columns,
+            consisting of a list of column names. Results may also be sorted through the query with the parameter
+            sort_by composed of either a single Column Name to sort ASC, or a list of Column Nmaes to sort ASC or
+            tuples of Column Name and Direction (ASC, DESC) to indicate sort order (Column Name, DESC).
+            Detailed information of Catalogs.MAST criteria usage can be found
+            `here <https://catalogs.mast.stsci.edu/docs/index.html>'__.
 
         Returns
         -------
