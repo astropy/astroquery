@@ -318,8 +318,8 @@ class VizierClass(BaseQuery):
         """
         Queries the service with a MOC (Multi-Order Coverage) region.
 
-        A MOC is a set of HEALPix cells (which can be of different depths). It allows
-        to define arbitrary and complex sky regions. For more details about MOCs please
+        A MOC is a set of HEALPix cells (which can be of different depths). It allows the
+        user to define any arbitrary and complex sky regions. For more details about MOCs please
         refer to the documentation of `mocpy 
         <https://mocpy.readthedocs.io/en/latest/examples/examples.html#loading-and-plotting-the-moc-of-sdss>`__
         and the standard paper about MOC coming from the
@@ -327,12 +327,11 @@ class VizierClass(BaseQuery):
 
         Parameters
         ----------
-        moc : `~mocpy.MOC`
-            Multi-Order Coverage map. A MOC is a set of HEALPix cells (that can be of different depth)
-            allowing to describe any arbitrary regions on the sky.
+        moc : `mocpy.MOC`
+            A Multi-Order Coverage map.
         table : str or list
             The tables(s) which must be searched for this identifier.
-            Querying for a list of tables is currently not handled by the XMatch QueryCat service. 
+            Querying the XMatch QueryCat service with a list of tables is not currently implemented. 
 
         Returns
         -------
@@ -348,8 +347,8 @@ class VizierClass(BaseQuery):
         table = VizierClass._schema_catalog.validate(table)
         # XMatch does not support querying a list of table names
         if isinstance(table, list):
-            raise NotImplementedError('Query several tables by a MOC is not' \
-                'currently implemented by the XMatch QueryCat service: ' \
+            raise NotImplementedError('Querying the XMatch QueryCat service with a ' \
+                'list of tables is not currently implemented: ' \
                 'http://cdsxmatch.u-strasbg.fr/QueryCat/QueryCat')
 
         # Query the XMatch service to know which tables are supported

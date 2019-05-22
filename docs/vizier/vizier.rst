@@ -203,6 +203,44 @@ coordinate. Finally the ``catalog`` keyword argument may be passed in either
 :meth:`~astroquery.vizier.VizierClass.query_region` methods. This may be a string
 (if only a single catalog) or a list of strings otherwise.
 
+Query a MOC region
+------------------
+
+MOC stands for Multi-Order Coverage map. A MOC is basically a set of HEALPix cells
+that can be of different depths. With that in mind, MOC can be used to describe any
+arbitrary and complex sky regions.
+See for example the MOC of the SDSS9 survey plotted on a matplotlib axe by the 
+`mocpy <https://mocpy.readthedocs.io/en/latest/>`__ library:
+
+ .. figure:: plot_SDSS_r.png
+    
+    Coverage of the SDSS9 sky survey plotted with `mocpy <https://mocpy.readthedocs.io/en/latest/>`__
+
+It is possible to query a specific vizier table with a `mocpy.MOC` object. 
+
+.. code-block:: python
+
+    >>> from mocpy import MOC
+    >>> from astroquery.vizier import Vizier
+    >>> moc = MOC.from_json({'0': [0]})
+    >>> result = Vizier.query_moc_region(moc, table='II/106/catalog')
+    TableList with 1 tables:
+        '0:II/106/catalog' with 11 column(s) and 50 row(s)
+
+Please note that table is mandatory here, you must specify a str referring to a valid table. Follow this `link
+<http://cdsxmatch.u-strasbg.fr/xmatch/api/v1/sync/tables?action=getVizieRTableNames>`__ for the table names 
+accepted by the XMatch service.
+
+.. note:: Submitting a list of tables is currently not implemented by the 
+    `XMatch QueryCat service <http://cdsxmatch.u-strasbg.fr/QueryCat/catfs.html>`__.
+
+.. warning:: Querying a table containing millions or billions of rows with a MOC covering for example
+    50% of the sky is usually a bad idea and will tend to quickly overflow the 
+    `XMatch QueryCat service <http://cdsxmatch.u-strasbg.fr/QueryCat/catfs.html>`__. 
+    Remember that you can change the **ROW_LIMIT** to limit the number of rows
+    returned by the XMatch service. Knowing that, you can still query the 2MASS (470 millions rows) catalog 
+    with a large MOC without breaking the service!
+
 Specifying keywords, output columns and constraints on columns
 --------------------------------------------------------------
 
