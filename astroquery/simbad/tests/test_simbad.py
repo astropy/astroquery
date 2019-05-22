@@ -93,7 +93,6 @@ def patch_query_moc_region(request):
         mp = request.getfixturevalue("monkeypatch")
     except AttributeError:  # pytest < 3
         mp = request.getfuncargvalue("monkeypatch")
-    #mp.setattr(simbad.SimbadClass, '_request', query_moc_region_mockreturn)
     mp.setattr(requests.Session, 'request', query_moc_region_mockreturn)
     return mp
 

@@ -9,8 +9,7 @@ def get_package_data():
                   os.path.join('data', 'kang2010.xml'),
                   os.path.join('data', 'afgl2591_iram.xml'),
                   os.path.join('data', 'find_kangapj70683.xml'),
-                  os.path.join('data', 'II_106_catalog.xml'),
-                 ]
+                  os.path.join('data', 'II_106_catalog.xml')]
 
     paths_core = [os.path.join('data', 'inverse_dict.json'),
                   os.path.join('data', 'keywords_dict.json')]

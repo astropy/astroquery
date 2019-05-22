@@ -44,6 +44,7 @@ def patch_post(request):
     mp.setattr(requests.Session, 'request', post_mockreturn)
     return mp
 
+
 @pytest.fixture
 def patch_query_moc_region(request):
     try:
@@ -52,6 +53,7 @@ def patch_query_moc_region(request):
         mp = request.getfuncargvalue("monkeypatch")
     mp.setattr(requests.Session, 'request', query_moc_region_mockreturn)
     return mp
+
 
 def post_mockreturn(self, method, url, data=None, timeout=10, files=None,
                     params=None, headers=None, **kwargs):
@@ -71,8 +73,10 @@ def post_mockreturn(self, method, url, data=None, timeout=10, files=None,
         content = open(filename, "rb").read()
     return MockResponse(content, **kwargs)
 
-def query_moc_region_mockreturn(self, method, url, data=None, timeout=10, files=None,
-                    params=None, headers=None, **kwargs):
+
+def query_moc_region_mockreturn(self, method, url, data=None,
+                                timeout=10, files=None,
+                                params=None, headers=None, **kwargs):
     if method == 'POST':
         # a request to the XMatch QueryCat service
         if isinstance(data, dict):
@@ -87,7 +91,6 @@ def query_moc_region_mockreturn(self, method, url, data=None, timeout=10, files=
         # supported by the service
         content = b'II/106/catalog'
     return MockResponse(content, **kwargs)
-
 
 
 def parse_objname(obj):
@@ -169,12 +172,14 @@ def test_query_region(patch_post):
 
     assert isinstance(result, commons.TableList)
 
+
 @pytest.mark.skipif('mocpy' not in sys.modules,
                     reason="requires mocpy")
 def test_query_moc_region_async(patch_query_moc_region):
     moc = MOC.from_json({'0': [0]})
     response = vizier.core.Vizier.query_moc_region_async(moc, 'II/106/catalog')
     assert response is not None
+
 
 @pytest.mark.skipif('mocpy' not in sys.modules,
                     reason="requires mocpy")
@@ -185,6 +190,7 @@ def test_query_moc_region(patch_query_moc_region):
     assert isinstance(result, commons.TableList)
     assert len(result['II/106/catalog']) == 111
 
+
 @pytest.mark.skipif('mocpy' not in sys.modules,
                     reason="requires mocpy")
 def test_query_moc_region_bad_table_name(patch_query_moc_region):
@@ -193,6 +199,7 @@ def test_query_moc_region_bad_table_name(patch_query_moc_region):
     with pytest.raises(ValueError) as excinfo:
         result = vizier.core.Vizier.query_moc_region(moc, 'II/246')
     assert "not a table name accepted" in str(excinfo.value)
+
 
 def test_query_regions(patch_post):
     """

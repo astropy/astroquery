@@ -209,7 +209,7 @@ class QueryCatVOTableResult(SimbadResult):
     @property
     def data(self):
         return self.__txt
-    
+
     @property
     def table(self):
         if self.__table is None:
@@ -218,6 +218,7 @@ class QueryCatVOTableResult(SimbadResult):
             self.__table = tbl.to_table()
             self.__table.convert_bytestring_to_unicode()
         return self.__table
+
 
 bibcode_regex = re.compile(r'query\s+bibcode\s+(wildcard)?\s+([\w]*)')
 

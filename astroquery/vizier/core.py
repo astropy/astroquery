@@ -29,6 +29,7 @@ __all__ = ['Vizier', 'VizierClass']
 
 __doctest_skip__ = ['VizierClass.*']
 
+
 @async_to_sync
 class VizierClass(BaseQuery):
 
@@ -320,7 +321,7 @@ class VizierClass(BaseQuery):
 
         A MOC is a set of HEALPix cells (which can be of different depths). It allows the
         user to define any arbitrary and complex sky regions. For more details about MOCs please
-        refer to the documentation of `mocpy 
+        refer to the documentation of `mocpy
         <https://mocpy.readthedocs.io/en/latest/examples/examples.html#loading-and-plotting-the-moc-of-sdss>`__
         and the standard paper about MOC coming from the
         `IVOA <http://ivoa.net/documents/MOC/20190404/PR-MOC-1.1-20190404.pdf>`__.
@@ -331,7 +332,7 @@ class VizierClass(BaseQuery):
             A Multi-Order Coverage region.
         table : str or list
             The tables(s) which must be searched for this identifier.
-            Querying the XMatch QueryCat service with a list of tables is not currently implemented. 
+            Querying the XMatch QueryCat service with a list of tables is not currently implemented.
 
         Returns
         -------
@@ -347,8 +348,8 @@ class VizierClass(BaseQuery):
         table = VizierClass._schema_catalog.validate(table)
         # XMatch does not support querying a list of table names
         if isinstance(table, list):
-            raise NotImplementedError('Querying the XMatch QueryCat service with a ' \
-                'list of tables is not currently implemented: ' \
+            raise NotImplementedError('Querying the XMatch QueryCat service with a '
+                'list of tables is not currently implemented: '
                 'http://cdsxmatch.u-strasbg.fr/QueryCat/QueryCat')
 
         # Query the XMatch service to know which tables are supported
@@ -361,9 +362,11 @@ class VizierClass(BaseQuery):
 
         # Check whether the table given will be accepted by the XMatch service
         if table not in self._available_xmatch_tables:
-            raise ValueError('{0} is not a table name accepted by the XMatch service! ' \
-                'Please follow this link to see the table names accepted by the XMatch service: ' \
-                'http://cdsxmatch.u-strasbg.fr/xmatch/api/v1/sync/tables?action=getVizieRTableNames'.format(table))
+            raise ValueError('{0} is not a table name accepted by the XMatch '
+                             'service! Please follow this link to see the table '
+                             'names accepted by the XMatch service: '
+                             'http://cdsxmatch.u-strasbg.fr/xmatch/api/v1/'
+                             'sync/tables?action=getVizieRTableNames'.format(table))
 
         moc_file = BytesIO()
         moc_fits = moc.serialize(format='fits')
@@ -375,12 +378,13 @@ class VizierClass(BaseQuery):
             'format': 'votable',
             'limit': self.ROW_LIMIT,
         }
-        
+
         if get_query_payload:
             return data_payload
-        
+
         response = self._request(
-            method='POST', url='http://cdsxmatch.u-strasbg.fr/QueryCat/QueryCat',
+            method='POST',
+            url='http://cdsxmatch.u-strasbg.fr/QueryCat/QueryCat',
             data=data_payload,
             files={'moc': moc_file.getvalue()},
             stream=True,
@@ -392,7 +396,9 @@ class VizierClass(BaseQuery):
     def _get_available_xmatch_tables(self, cache=True):
         response = self._request(
             method='GET',
-            url=url_helpers.urljoin_keep_path('http://cdsxmatch.u-strasbg.fr/xmatch/api/v1/sync', 'tables'),
+            url=url_helpers.urljoin_keep_path(
+                'http://cdsxmatch.u-strasbg.fr/xmatch/api/v1/sync',
+                'tables'),
             params={
                 'action': 'getVizieRTableNames',
                 'RESPONSEFORMAT': 'txt'

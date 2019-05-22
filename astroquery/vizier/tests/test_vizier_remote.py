@@ -17,6 +17,7 @@ try:
 except ImportError:
     pass
 
+
 @remote_data
 class TestVizierRemote(object):
 
@@ -67,10 +68,13 @@ class TestVizierRemote(object):
 
         assert isinstance(result, commons.TableList)
         assert len(result[0]) >= 5
-    
+
     @pytest.mark.skipif('mocpy' not in sys.modules,
                         reason="requires mocpy")
-    @pytest.mark.parametrize("table", ["II/246/out", "II/106/catalog", "vizier:II/246/out"])
+    @pytest.mark.parametrize("table", [
+        "II/246/out",
+        "II/106/catalog",
+        "vizier:II/246/out"])
     def test_query_moc_region_async(self, table):
         moc = MOC.from_json({'10': [0]})
         response = vizier.core.Vizier.query_moc_region_async(
