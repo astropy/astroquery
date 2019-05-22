@@ -6,6 +6,7 @@ import pytest
 from astropy.table import Table
 import astropy.units as u
 import six
+import sys
 from six.moves import urllib_parse as urlparse
 from ... import vizier
 from ...utils import commons
@@ -14,11 +15,19 @@ from ...utils.testing_tools import MockResponse
 if six.PY3:
     str, = six.string_types
 
+try:
+    # import mocpy for testing query_moc_region
+    from mocpy import MOC
+except ImportError:
+    pass
+
+
 VO_DATA = {'HIP,NOMAD,UCAC': "viz.xml",
            'NOMAD,UCAC': "viz.xml",
            'B/iram/pdbi': "afgl2591_iram.xml",
            'J/ApJ/706/83': "kang2010.xml",
-           "find_2009ApJ...706...83K": "find_kangapj70683.xml"}
+           "find_2009ApJ...706...83K": "find_kangapj70683.xml",
+           "II/106/catalog": "II_106_catalog.xml"}
 
 
 def data_path(filename):
@@ -35,6 +44,14 @@ def patch_post(request):
     mp.setattr(requests.Session, 'request', post_mockreturn)
     return mp
 
+@pytest.fixture
+def patch_query_moc_region(request):
+    try:
+        mp = request.getfixturevalue("monkeypatch")
+    except AttributeError:  # pytest < 3
+        mp = request.getfuncargvalue("monkeypatch")
+    mp.setattr(requests.Session, 'request', query_moc_region_mockreturn)
+    return mp
 
 def post_mockreturn(self, method, url, data=None, timeout=10, files=None,
                     params=None, headers=None, **kwargs):
@@ -53,6 +70,24 @@ def post_mockreturn(self, method, url, data=None, timeout=10, files=None,
         filename = data_path(VO_DATA['find_' + datad['-words']])
         content = open(filename, "rb").read()
     return MockResponse(content, **kwargs)
+
+def query_moc_region_mockreturn(self, method, url, data=None, timeout=10, files=None,
+                    params=None, headers=None, **kwargs):
+    if method == 'POST':
+        # a request to the XMatch QueryCat service
+        if isinstance(data, dict):
+            datad = data
+        else:
+            datad = dict([urlparse.parse_qsl(d)[0] for d in data.split('\n')])
+
+        filename = data_path(VO_DATA[datad['catName']])
+        content = open(filename, "rb").read()
+    elif method == 'GET':
+        # a request to the XMatch for getting the available tables
+        # supported by the service
+        content = b'II/106/catalog'
+    return MockResponse(content, **kwargs)
+
 
 
 def parse_objname(obj):
@@ -134,6 +169,30 @@ def test_query_region(patch_post):
 
     assert isinstance(result, commons.TableList)
 
+@pytest.mark.skipif('mocpy' not in sys.modules,
+                    reason="requires mocpy")
+def test_query_moc_region_async(patch_query_moc_region):
+    moc = MOC.from_json({'0': [0]})
+    response = vizier.core.Vizier.query_moc_region_async(moc, 'II/106/catalog')
+    assert response is not None
+
+@pytest.mark.skipif('mocpy' not in sys.modules,
+                    reason="requires mocpy")
+def test_query_moc_region(patch_query_moc_region):
+    moc = MOC.from_json({'0': [0]})
+    result = vizier.core.Vizier.query_moc_region(moc, 'II/106/catalog')
+
+    assert isinstance(result, commons.TableList)
+    assert len(result['II/106/catalog']) == 111
+
+@pytest.mark.skipif('mocpy' not in sys.modules,
+                    reason="requires mocpy")
+def test_query_moc_region_bad_table_name(patch_query_moc_region):
+    moc = MOC.from_json({'0': [0]})
+
+    with pytest.raises(ValueError) as excinfo:
+        result = vizier.core.Vizier.query_moc_region(moc, 'II/246')
+    assert "not a table name accepted" in str(excinfo.value)
 
 def test_query_regions(patch_post):
     """

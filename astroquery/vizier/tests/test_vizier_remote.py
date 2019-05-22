@@ -7,12 +7,25 @@ from astropy import coordinates
 from ... import vizier
 from ...utils import commons
 import requests
+import sys
 import imp
 imp.reload(requests)
 
+try:
+    # import mocpy for testing query_moc_region
+    from mocpy import MOC
+except ImportError:
+    pass
 
 @remote_data
 class TestVizierRemote(object):
+
+    def setup_class(self):
+        # Reset the available XMatch tables that was monkeypatched
+        # during the non-remote tests to None
+        # This will force Vizier to request the XMatch service again for
+        # the whole list of available tables
+        vizier.core.Vizier._available_xmatch_tables = None
 
     target = commons.ICRSCoordGenerator(ra=299.590, dec=35.201,
                                         unit=(u.deg, u.deg))
@@ -42,6 +55,26 @@ class TestVizierRemote(object):
     def test_query_region_async(self):
         response = vizier.core.Vizier.query_region_async(
             self.target, radius=5 * u.deg, catalog=["HIP", "NOMAD", "UCAC"])
+
+        assert response is not None
+
+    @pytest.mark.skipif('mocpy' not in sys.modules,
+                        reason="requires mocpy")
+    def test_query_moc_region(self):
+        moc = MOC.from_json({'10': [0]})
+        result = vizier.core.Vizier.query_moc_region(
+            moc, table="II/246/out")
+
+        assert isinstance(result, commons.TableList)
+        assert len(result[0]) >= 5
+    
+    @pytest.mark.skipif('mocpy' not in sys.modules,
+                        reason="requires mocpy")
+    @pytest.mark.parametrize("table", ["II/246/out", "II/106/catalog", "vizier:II/246/out"])
+    def test_query_moc_region_async(self, table):
+        moc = MOC.from_json({'10': [0]})
+        response = vizier.core.Vizier.query_moc_region_async(
+            moc, table)
 
         assert response is not None
 
