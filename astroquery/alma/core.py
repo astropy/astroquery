@@ -515,7 +515,8 @@ class AlmaClass(QueryWithLogin):
         return b"\n".join(newlines)
 
     def _login(self, username=None, store_password=False,
-               reenter_password=False):
+               reenter_password=False, auth_urls=['asa.alma.cl',
+                                                  'rh-cas.alma.cl']):
         """
         Login to the ALMA Science Portal.
 
@@ -539,17 +540,25 @@ class AlmaClass(QueryWithLogin):
             else:
                 username = self.USERNAME
 
-        # set session cookies (they do not get set otherwise)
-        cookiesetpage = self._request("GET",
-                                      urljoin(self._get_dataarchive_url(),
-                                              'rh/forceAuthentication'),
-                                      cache=False)
-        self._login_cookiepage = cookiesetpage
-        cookiesetpage.raise_for_status()
-        assert 'rh-cas.alma.cl/cas/login' in cookiesetpage.request.url
+        for auth_url in auth_urls:
+            # set session cookies (they do not get set otherwise)
+            cookiesetpage = self._request("GET",
+                                          urljoin(self._get_dataarchive_url(),
+                                                  'rh/forceAuthentication'),
+                                          cache=False)
+            self._login_cookiepage = cookiesetpage
+            cookiesetpage.raise_for_status()
+
+            if (auth_url+'/cas/login' in cookiesetpage.request.url):
+                # we've hit a target, we're good
+                success = True
+                break
+        if not success:
+            raise LoginError("Could not log in to any of the known ALMA "
+                             "authorization portals: {0}".format(auth_urls))
 
         # Check if already logged in
-        loginpage = self._request("GET", "https://rh-cas.alma.cl/cas/login",
+        loginpage = self._request("GET", "https://{auth_url}/cas/login".format(auth_url=auth_url),
                                   cache=False)
         root = BeautifulSoup(loginpage.content, 'html5lib')
         if root.find('div', class_='success'):
@@ -558,10 +567,10 @@ class AlmaClass(QueryWithLogin):
 
         # Get password from keyring or prompt
         password, password_from_keyring = self._get_password(
-            "astroquery:rh-cas.alma.cl", username, reenter=reenter_password)
+            "astroquery:{0}".format(auth_url), username, reenter=reenter_password)
 
         # Authenticate
-        log.info("Authenticating {0} on rh-cas.alma.cl ...".format(username))
+        log.info("Authenticating {0} on {1} ...".format(username, auth_url))
         # Do not cache pieces of the login process
         data = {kw: root.find('input', {'name': kw})['value']
                 for kw in ('lt', '_eventId', 'execution')}
@@ -569,7 +578,7 @@ class AlmaClass(QueryWithLogin):
         data['password'] = password
         data['submit'] = 'LOGIN'
 
-        login_response = self._request("POST", "https://rh-cas.alma.cl/cas/login",
+        login_response = self._request("POST", "https://{0}/cas/login".format(auth_url),
                                        params={'service': self._get_dataarchive_url()},
                                        data=data,
                                        cache=False)
@@ -591,7 +600,7 @@ class AlmaClass(QueryWithLogin):
             log.exception("Authentication failed!")
         # When authenticated, save password in keyring if needed
         if authenticated and password_from_keyring is None and store_password:
-            keyring.set_password("astroquery:rh-cas.alma.cl", username, password)
+            keyring.set_password("astroquery:{0}".format(auth_url), username, password)
         return authenticated
 
     def get_cycle0_uid_contents(self, uid):
