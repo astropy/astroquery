@@ -696,8 +696,7 @@ class MastClass(QueryWithLogin):
            Parameters
            ----------
            service : str
-               The MAST catalogs service to query. Should represent the subpath for the query path
-               e.g. /panstarrs/dr1/mean
+               The MAST catalogs service to query. Should be present in self._MAST_CATALOGS_SERVICES
            params : dict
                JSON object containing service parameters.
            page_size : int, optional
