@@ -57,7 +57,7 @@ class TestMast(object):
         assert len(result[np.where(result["obs_id"] == "6374399093149532160")]) == 2
 
     def test_mast_sesion_info(self):
-        sessionInfo = mast.Mast.session_info(True)
+        sessionInfo = mast.Mast.session_info(verbose=False)
         assert sessionInfo['ezid'] == 'anonymous'
         assert sessionInfo['token'] is None
 
@@ -70,6 +70,22 @@ class TestMast(object):
         assert isinstance(missions, list)
         for m in ['HST', 'HLA', 'GALEX', 'Kepler']:
             assert m in missions
+
+    def test_get_metadata(self):
+        # observations
+        meta_table = mast.Observations.get_metadata("observations")
+        assert isinstance(meta_table, Table)
+        assert "Column Name" in meta_table.colnames
+        assert "Mission" in meta_table["Column Label"]
+        assert "obsid" in meta_table["Column Name"]
+
+        # products
+        meta_table = mast.Observations.get_metadata("products")
+        assert isinstance(meta_table, Table)
+        assert "Column Name" in meta_table.colnames
+        assert "Observation ID" in meta_table["Column Label"]
+        assert "parent_obsid" in meta_table["Column Name"]
+
 
     # query functions
     def test_observations_query_region_async(self):
@@ -100,7 +116,7 @@ class TestMast(object):
         # clear columns config
         mast.Observations._column_configs = dict()
 
-        result = mast.Observations.query_object("M8", radius=".02 deg")
+        result = mast.Observations.query_object("M8", radius=".04 deg")
         assert isinstance(result, Table)
         assert len(result) > 150
         assert result[np.where(result['obs_id'] == 'ktwo200071160-c92_lc')]
@@ -197,7 +213,7 @@ class TestMast(object):
         # clear columns config
         mast.Observations._column_configs = dict()
 
-        observations = mast.Observations.query_object("M8", radius=".02 deg")
+        observations = mast.Observations.query_object("M8", radius=".04 deg")
         test_obs_id = str(observations[0]['obsid'])
         mult_obs_ids = str(observations[0]['obsid']) + ',' + str(observations[1]['obsid'])
 
@@ -222,7 +238,7 @@ class TestMast(object):
         assert len(result) == 27
 
     def test_observations_filter_products(self):
-        observations = mast.Observations.query_object("M8", radius=".02 deg")
+        observations = mast.Observations.query_object("M8", radius=".04 deg")
         obsLoc = np.where(observations["obs_id"] == 'ktwo200071160-c92_lc')
         products = mast.Observations.get_product_list(observations[obsLoc])
         result = mast.Observations.filter_products(products,

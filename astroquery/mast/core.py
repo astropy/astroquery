@@ -69,6 +69,51 @@ def _prepare_service_request_string(json_obj):
     request_string = json.dumps(json_obj)
     return 'request={}'.format(urlencode(request_string))
 
+
+def _parse_type(dbtype):
+    """
+    Takes a data type as returned by a database call and regularizes it into a
+    triplet of the form (human readable datatype, python datatype, default value).
+
+    Parameters
+    ----------
+    dbtype : str
+        A data type, as returned by a database call (ex. 'char').
+
+    Returns
+    -------
+    response : tuple
+        Regularized type tuple of the form (human readable datatype, python datatype, default value).
+        
+    For example:
+    
+    >>> Mast._parse_type("short")
+    ('integer', np.int64, -999)
+    """
+    
+    dbtype = dbtype.lower()
+    
+    return {
+        'char': ('string', str, ""),
+        'string': ('string', str, ""),
+        'datetime': ('string', str, ""), # TODO: handle datetimes correctly
+        'date': ('string', str, ""), # TODO: handle datetimes correctly
+        
+        'double': ('float', np.float64, np.nan),
+        'float': ('float', np.float64, np.nan),
+        'decimal': ('float', np.float64, np.nan),
+        
+        'int': ('integer', np.int64, -999),
+        'short':('integer', np.int64, -999),
+        'long':('integer', np.int64, -999),
+        'number':('integer', np.int64, -999),
+        
+        'boolean':('boolean', bool, None),
+        'binary':('boolean', bool, None),
+        
+        'unsignedbyte':('byte', np.ubyte, -999)
+    }.get(dbtype, (dbtype, dbtype, dbtype))
+
 def _generate_uuid_string():
     """
     Generates a UUID using Pythong's UUID module
@@ -83,6 +128,7 @@ def _generate_uuid_string():
 
     """
     return str(uuid.uuid4())
+
 
 def _mashup_json_to_table(json_obj, col_config=None):
     """
@@ -110,25 +156,17 @@ def _mashup_json_to_table(json_obj, col_config=None):
         # Removing "_selected_" column
         if col == "_selected_":
             continue
-
+        
         # reading the colum config if given
         ignore_value = None
         if col_config:
             col_props = col_config.get(col, {})
             ignore_value = col_props.get("ignoreValue", None)
 
-        # making type adjustments
-        if atype == "string":
-            atype = "str"
-            ignore_value = "" if (ignore_value is None) else ignore_value
-        if atype == "boolean":
-            atype = "bool"
-        if atype == "int":  # int arrays do not admit Non/nan vals
-            atype = np.int64
-            ignore_value = -999 if (ignore_value is None) else ignore_value
-        if atype == "date":
-            atype = "str"
-            ignore_value = "" if (ignore_value is None) else ignore_value
+        # regularlizing the type
+        reg_type = _parse_type(atype)
+        atype = reg_type[1]
+        ignore_value = reg_type[2] if (ignore_value is None) else ignore_value
 
         # Make the column list (don't assign final type yet or there will be errors)
         col_data = np.array([x.get(col, ignore_value) for x in json_obj['data']], dtype=object)
@@ -146,6 +184,7 @@ def _mashup_json_to_table(json_obj, col_config=None):
         data_table.add_column(MaskedColumn(col_data.astype(atype), name=col, mask=col_mask))
 
     return data_table
+
 
 def _fabric_json_to_table(json_obj):
     """
@@ -213,6 +252,7 @@ def _fabric_json_to_table(json_obj):
         data_table.add_column(MaskedColumn(col_data.astype(col_type), name=col, mask=col_mask))
 
     return data_table
+
 
 @async_to_sync
 class MastClass(QueryWithLogin):
@@ -919,6 +959,76 @@ class MastClass(QueryWithLogin):
 
         return mashup_filters
 
+    def _get_columnsconfig_metadata(self, colconf_name):
+        """
+        Given a columns config id make a table of the associated metadata properties.
+
+        Parameters
+        ----------
+        colconf_name : str
+            The columns config idea to find metadata for (ex. Mast.Caom.Cone).
+
+        Returns
+        -------
+        response : `~astropy.table.Table`
+            The metadata table.
+        """
+
+        headers = {"User-Agent": self._session.headers["User-Agent"],
+                   "Content-type": "application/x-www-form-urlencoded",
+                   "Accept": "text/plain"}
+        response = self._request("POST", self._COLUMNS_CONFIG_URL,
+                                 data=("colConfigId={}".format(colconf_name)), headers=headers)
+
+        column_dict = response[0].json()
+
+        meta_fields = ["Column Name","Column Label","Data Type","Units","Description","Examples/Valid Values"]
+        names = []
+        labels = []
+        data_types = []
+        field_units = []
+        descriptions = []
+        examples = []
+
+        for colname in column_dict:
+            # skipping the _selected column (gets rmoved in return table)
+            if colname == "_selected_":
+                continue
+        
+            field = column_dict[colname]
+        
+            # skipping any columns that are removed
+            if field.get("remove",False):
+                continue
+        
+            names.append(colname)
+            labels.append(field.get("text",colname))
+    
+            # datatype is a little more complicated
+            d_type = _parse_type(field.get("type",""))[0]
+            if not d_type:
+                d_type = _parse_type(field.get("vot.datatype",""))[0]
+            data_types.append(d_type)
+        
+            # units
+            units = field.get("unit","")
+            if not units:
+                units = field.get("vot.unit","")
+            field_units.append(units)
+    
+            descriptions.append(field.get("vot.description",""))
+            examples.append(field.get("example",""))
+        
+        meta_table = Table(names=meta_fields,data=[names,labels,data_types,field_units,descriptions,examples])
+
+        # Removing any empty columns
+        for colname in meta_table.colnames:
+            if (meta_table[colname] == "").all():
+                meta_table.remove_column(colname)
+
+        return meta_table
+    
+
 
 @async_to_sync
 class ObservationsClass(MastClass):
@@ -960,6 +1070,32 @@ class ObservationsClass(MastClass):
                 missions = list(mission_info.keys())
                 missions.remove('hist')
                 return missions
+
+    def get_metadata(self, query_type):
+        """
+        Returns metadata about the requested query type.
+
+        Parameters
+        ----------
+        query_type : str
+            The query to get metadata for. Options are observations, and products.
+
+        Returns
+        --------
+        response : `~astropy.table.Table`
+            The metadata table.
+        """
+
+        if query_type.lower() == "observations":
+            colconf_name = "Mast.Caom.Cone"
+        elif query_type.lower() == "products":
+            colconf_name = "Mast.Caom.Products"
+        else:
+            raise InvalidQueryError("Unknown query type.")
+
+        return self._get_columnsconfig_metadata(colconf_name)
+
+                 
 
     @class_or_instance
     def query_region_async(self, coordinates, radius=0.2*u.deg, pagesize=None, page=None):
@@ -1980,7 +2116,7 @@ class CatalogsClass(MastClass):
             params["filters"] =  mashup_filters
 
         # TIC needs columns specified
-        if catalog == "Tic":
+        if catalog.lower() == "tic":
             params["columns"] = "*"
 
         if catalogs_service:
