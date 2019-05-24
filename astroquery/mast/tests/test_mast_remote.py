@@ -86,8 +86,8 @@ class TestMast(object):
         assert "Observation ID" in meta_table["Column Label"]
         assert "parent_obsid" in meta_table["Column Name"]
 
-
     # query functions
+
     def test_observations_query_region_async(self):
         responses = mast.Observations.query_region_async("322.49324 12.16683", radius="0.005 deg")
         assert isinstance(responses, list)

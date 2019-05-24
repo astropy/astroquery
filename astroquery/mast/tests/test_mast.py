@@ -310,33 +310,41 @@ def test_catalogs_query_region_async(patch_post):
     responses = mast.Catalogs.query_region_async(regionCoords, radius=0.002)
     assert isinstance(responses, list)
 
+
 def test_catalogs_fabric_query_region_async(patch_post):
     responses = mast.Catalogs.query_region_async(regionCoords, radius=0.002, catalog="panstarrs", table="mean")
     assert isinstance(responses, list)
+
 
 def test_catalogs_query_region(patch_post):
     result = mast.Catalogs.query_region(regionCoords, radius=0.002 * u.deg)
     assert isinstance(result, Table)
 
+
 def test_catalogs_fabric_query_region(patch_post):
     result = mast.Catalogs.query_region(regionCoords, radius=0.002 * u.deg, catalog="panstarrs", table="mean")
     assert isinstance(result, Table)
+
 
 def test_catalogs_query_object_async(patch_post):
     responses = mast.Catalogs.query_object_async("M101", radius="0.002 deg")
     assert isinstance(responses, list)
 
+
 def test_catalogs_fabric_query_object_async(patch_post):
     responses = mast.Catalogs.query_object_async("M101", radius="0.002 deg", catalog="panstarrs", table="mean")
     assert isinstance(responses, list)
+
 
 def test_catalogs_query_object(patch_post):
     result = mast.Catalogs.query_object("M101", radius=".002 deg")
     assert isinstance(result, Table)
 
+
 def test_catalogs_fabric_query_object(patch_post):
     result = mast.Catalogs.query_object("M101", radius=".002 deg", catalog="panstarrs", table="mean")
     assert isinstance(result, Table)
+
 
 def test_catalogs_query_criteria_async(patch_post):
     # without position

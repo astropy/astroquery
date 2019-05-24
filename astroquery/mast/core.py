@@ -84,35 +84,36 @@ def _parse_type(dbtype):
     -------
     response : tuple
         Regularized type tuple of the form (human readable datatype, python datatype, default value).
-        
+
     For example:
-    
-    >>> Mast._parse_type("short")
+
+    _parse_type("short")
     ('integer', np.int64, -999)
     """
-    
+
     dbtype = dbtype.lower()
-    
+
     return {
         'char': ('string', str, ""),
         'string': ('string', str, ""),
-        'datetime': ('string', str, ""), # TODO: handle datetimes correctly
-        'date': ('string', str, ""), # TODO: handle datetimes correctly
-        
+        'datetime': ('string', str, ""),  # TODO: handle datetimes correctly
+        'date': ('string', str, ""),  # TODO: handle datetimes correctly
+
         'double': ('float', np.float64, np.nan),
         'float': ('float', np.float64, np.nan),
         'decimal': ('float', np.float64, np.nan),
-        
+
         'int': ('integer', np.int64, -999),
-        'short':('integer', np.int64, -999),
-        'long':('integer', np.int64, -999),
-        'number':('integer', np.int64, -999),
-        
-        'boolean':('boolean', bool, None),
-        'binary':('boolean', bool, None),
-        
-        'unsignedbyte':('byte', np.ubyte, -999)
+        'short': ('integer', np.int64, -999),
+        'long': ('integer', np.int64, -999),
+        'number': ('integer', np.int64, -999),
+
+        'boolean': ('boolean', bool, None),
+        'binary': ('boolean', bool, None),
+
+        'unsignedbyte': ('byte', np.ubyte, -999)
     }.get(dbtype, (dbtype, dbtype, dbtype))
+
 
 def _generate_uuid_string():
     """
@@ -156,7 +157,7 @@ def _mashup_json_to_table(json_obj, col_config=None):
         # Removing "_selected_" column
         if col == "_selected_":
             continue
-        
+
         # reading the colum config if given
         ignore_value = None
         if col_config:
@@ -216,7 +217,7 @@ def _fabric_json_to_table(json_obj):
         if ignore_value == "NULL":
             ignore_value = None
         # making type adjustments
-        if col_type =="char" or col_type == "STRING":
+        if col_type == "char" or col_type == "STRING":
             col_type = "str"
             ignore_value = "" if (ignore_value is None) else ignore_value
         elif col_type == "boolean" or col_type == "BINARY":
@@ -392,6 +393,7 @@ class MastClass(QueryWithLogin):
                     print("%s: %s" % (key, value))
 
         return info_dict
+
     def _fabric_request(self, method, url, params=None, data=None, headers=None,
                  files=None, stream=False, auth=None, cache=False):
         """
@@ -595,7 +597,6 @@ class MastClass(QueryWithLogin):
             if self._current_service:
                 col_config = self._column_configs.get(self._current_service)
                 self._current_service = None  # clearing current service
-
 
             for resp in responses:
                 result = resp.json()
@@ -981,7 +982,7 @@ class MastClass(QueryWithLogin):
 
         column_dict = response[0].json()
 
-        meta_fields = ["Column Name","Column Label","Data Type","Units","Description","Examples/Valid Values"]
+        meta_fields = ["Column Name", "Column Label", "Data Type", "Units", "Description", "Examples/Valid Values"]
         names = []
         labels = []
         data_types = []
@@ -993,32 +994,32 @@ class MastClass(QueryWithLogin):
             # skipping the _selected column (gets rmoved in return table)
             if colname == "_selected_":
                 continue
-        
+
             field = column_dict[colname]
-        
+
             # skipping any columns that are removed
-            if field.get("remove",False):
+            if field.get("remove", False):
                 continue
-        
+
             names.append(colname)
-            labels.append(field.get("text",colname))
-    
+            labels.append(field.get("text", colname))
+
             # datatype is a little more complicated
-            d_type = _parse_type(field.get("type",""))[0]
+            d_type = _parse_type(field.get("type", ""))[0]
             if not d_type:
-                d_type = _parse_type(field.get("vot.datatype",""))[0]
+                d_type = _parse_type(field.get("vot.datatype", ""))[0]
             data_types.append(d_type)
-        
+
             # units
-            units = field.get("unit","")
+            units = field.get("unit", "")
             if not units:
-                units = field.get("vot.unit","")
+                units = field.get("vot.unit", "")
             field_units.append(units)
-    
-            descriptions.append(field.get("vot.description",""))
-            examples.append(field.get("example",""))
-        
-        meta_table = Table(names=meta_fields,data=[names,labels,data_types,field_units,descriptions,examples])
+
+            descriptions.append(field.get("vot.description", ""))
+            examples.append(field.get("example", ""))
+
+        meta_table = Table(names=meta_fields, data=[names, labels, data_types, field_units, descriptions, examples])
 
         # Removing any empty columns
         for colname in meta_table.colnames:
@@ -1026,7 +1027,6 @@ class MastClass(QueryWithLogin):
                 meta_table.remove_column(colname)
 
         return meta_table
-    
 
 
 @async_to_sync
@@ -1093,8 +1093,6 @@ class ObservationsClass(MastClass):
             raise InvalidQueryError("Unknown query type.")
 
         return self._get_columnsconfig_metadata(colconf_name)
-
-                 
 
     @class_or_instance
     def query_region_async(self, coordinates, radius=0.2*u.deg, pagesize=None, page=None):
@@ -1867,7 +1865,6 @@ class CatalogsClass(MastClass):
         super(CatalogsClass, self).__init__()
 
         self.catalog_limit = None
-
 
     def _parse_result(self, response, verbose=False):
 
