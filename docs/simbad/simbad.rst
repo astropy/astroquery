@@ -236,6 +236,50 @@ to 2000.0. So here is a query with all the options utilized:
              TYC  608-432-1  00 51 05.289 ... 2000A&A...355L..27H
              TYC  607-418-1  00 49 09.636 ... 2000A&A...355L..27H
 
+Query a MOC region
+------------------
+
+MOC stands for Multi-Order Coverage map. A MOC is basically a set of HEALPix
+cells that can be of different depths. With that in mind, a MOC can be used to
+describe any arbitrary and complex sky regions.
+See for example the MOC of the SDSS9 survey plotted on a `matplotlib.axes.Axes`
+by the `mocpy <https://mocpy.readthedocs.io/en/latest/>`__ library:
+
+ .. figure:: ../vizier/plot_SDSS_r.png
+
+    Coverage of the SDSS9 sky survey plotted with `mocpy <https://mocpy.readthedocs.io/en/latest/>`__
+
+It is possible to query SIMBAD with a `mocpy.MOC` object.
+The following code snippet calls
+:meth:`~astroquery.vizier.VizierClass.query_moc_region`
+and returns all the SIMBAD sources being contained in a `mocpy.MOC` object:
+
+.. code-block:: python
+
+    >>> from mocpy import MOC
+    >>> from astroquery.simbad import Simbad
+    >>> moc = MOC.from_json({'0': [0]})
+    >>> result = Simbad.query_moc_region(moc)
+    >>> print(result)
+    <Table masked=True length=50>
+             main_id                ra          dec      coo_err_maj coo_err_min coo_err_angle nbref    ra_sexa     ...    J       H       K       u       g       r       i       z
+                                   deg          deg         arcsec      arcsec        deg               "h:m:s"     ...   mag     mag     mag     mag     mag     mag     mag     mag
+              str47              float64      float64      float32     float32      float32    int16     str14      ... float32 float32 float32 float32 float32 float32 float32 float32
+    ------------------------- ------------- ------------ ----------- ----------- ------------- ----- -------------- ... ------- ------- ------- ------- ------- ------- ------- -------
+    2SLAQ J030003.38+000110.9 45.0141166667 0.0197138889       0.057       0.054          90.0     1   03 00 03.388 ...      --      --      --   21.51   21.54   21.23   21.08   21.67
+     SDSS J030006.41+000454.1 45.0267263828 0.0816994915         0.0       0.001          90.0     2 03 00 06.41433 ...      --      --      --  24.503  20.823  19.428  18.811  18.467
+                          ...           ...          ...         ...         ...           ...   ...            ... ...     ...     ...     ...     ...     ...     ...     ...     ...
+            Anon J030107+0021     45.281679     0.355605       0.182       0.135           0.0     1   03 01 07.603 ...      --      --      --  23.073  22.463  21.624  21.563  20.653
+              TYC   55-1191-1 45.0861417935 0.2488310307         0.0         0.0          90.0     1 03 00 20.67403 ...   10.03   9.853    9.78      --      --      --      --      --
+
+.. note:: Submitting a list of tables to the `XMatch QueryCat service <http://cdsxmatch.u-strasbg.fr/QueryCat/catfs.html>`__
+    is currently not possible.
+
+.. warning:: By default, the number of sources returned by the
+    `XMatch QueryCat service <http://cdsxmatch.u-strasbg.fr/QueryCat/catfs.html>`__ is limited to 50.
+    If you want to retrieve more rows, you can still change the **Simbad.ROW_LIMIT** attribute,
+    but please be reasonable when doing that! Querying a table containing millions or billions of rows with a MOC covering for example
+    50% of the sky is usually a bad idea and will tend to quickly overflow the service.
 
 Query a catalogue
 -----------------

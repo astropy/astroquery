@@ -206,17 +206,20 @@ coordinate. Finally the ``catalog`` keyword argument may be passed in either
 Query a MOC region
 ------------------
 
-MOC stands for Multi-Order Coverage map. A MOC is basically a set of HEALPix cells
-that can be of different depths. With that in mind, MOC can be used to describe any
-arbitrary and complex sky regions.
-See for example the MOC of the SDSS9 survey plotted on a matplotlib axe by the 
-`mocpy <https://mocpy.readthedocs.io/en/latest/>`__ library:
+MOC stands for Multi-Order Coverage map. A MOC is basically a set of HEALPix
+cells that can be of different depths. With that in mind, a MOC can be used to
+describe any arbitrary and complex sky regions.
+See for example the MOC of the SDSS9 survey plotted on a `matplotlib.axes.Axes`
+by the `mocpy <https://mocpy.readthedocs.io/en/latest/>`__ library:
 
  .. figure:: plot_SDSS_r.png
-    
+
     Coverage of the SDSS9 sky survey plotted with `mocpy <https://mocpy.readthedocs.io/en/latest/>`__
 
-It is possible to query a specific vizier table with a `mocpy.MOC` object. 
+It is possible to query a specific vizier table with a `mocpy.MOC` object.
+The following code snippet calls
+:meth:`~astroquery.vizier.VizierClass.query_moc_region`
+on the *II/106/catalog* table.
 
 .. code-block:: python
 
@@ -224,15 +227,20 @@ It is possible to query a specific vizier table with a `mocpy.MOC` object.
     >>> from astroquery.vizier import Vizier
     >>> moc = MOC.from_json({'0': [0]})
     >>> result = Vizier.query_moc_region(moc, table='II/106/catalog')
+    >>> print(result)
     TableList with 1 tables:
         '0:II/106/catalog' with 11 column(s) and 50 row(s)
 
-Please note that table is mandatory here, you must specify a str referring to a valid table. Follow this `link
+Please note that table is mandatory here, you must specify a **str** referring to a valid table. Follow this `link
 <http://cdsxmatch.u-strasbg.fr/xmatch/api/v1/sync/tables?action=getVizieRTableNames>`__ for the table names 
 accepted by the XMatch service.
 
-.. note:: Submitting a list of tables is currently not implemented by the 
-    `XMatch QueryCat service <http://cdsxmatch.u-strasbg.fr/QueryCat/catfs.html>`__.
+.. note:: Please note that the `XMatch QueryCat service <http://cdsxmatch.u-strasbg.fr/QueryCat/catfs.html>`__ is
+    currently a prototype and is still under development:
+
+    * The VOTABLE returned by the service **does not contain all the columns** of the table asked, but only some
+      *default* columns that are tagged by Vizier as important (e.g. the magnitudes, the position or the redshift).
+    * Submitting a list of tables is currently not available.
 
 .. warning:: Querying a table containing millions or billions of rows with a MOC covering for example
     50% of the sky is usually a bad idea and will tend to quickly overflow the 
