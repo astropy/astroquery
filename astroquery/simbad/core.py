@@ -19,6 +19,7 @@ from six import BytesIO
 
 from ..query import BaseQuery
 from ..utils import commons
+from ..utils import url_helpers
 from ..exceptions import TableParseError, LargeQueryWarning
 from . import conf
 from ..utils.process_asyncs import async_to_sync
@@ -98,11 +99,11 @@ VersionInfo = namedtuple('VersionInfo', ('major', 'minor', 'micro', 'patch'))
 class SimbadResult(object):
     __sections = ('script', 'console', 'error', 'data')
 
-    def __init__(self, txt, verbose=False):
+    def __init__(self, txt, verbose):
         self.__txt = txt
         self.__stringio = None
         self.__indexes = {}
-        self.verbose = verbose
+
         self.exectime = None
         self.sim_version = None
         self.__split_sections()
@@ -194,6 +195,29 @@ class SimbadVOTableResult(SimbadResult):
             self.__table.convert_bytestring_to_unicode()
         return self.__table
 
+
+class QueryCatVOTableResult(SimbadResult):
+    """VOTable-type result from the XMatch QueryCat service"""
+    def __init__(self, txt, verbose=False, pedantic=False):
+        self.__pedantic = pedantic
+        self.__txt = txt
+        self.__table = None
+        if not verbose:
+            commons.suppress_vo_warnings()
+        super(QueryCatVOTableResult, self).__init__(txt, verbose=verbose)
+
+    @property
+    def data(self):
+        return self.__txt
+    
+    @property
+    def table(self):
+        if self.__table is None:
+            self.bytes = BytesIO(self.data.encode('utf8'))
+            tbl = votable.parse_single_table(self.bytes, pedantic=False)
+            self.__table = tbl.to_table()
+            self.__table.convert_bytestring_to_unicode()
+        return self.__table
 
 bibcode_regex = re.compile(r'query\s+bibcode\s+(wildcard)?\s+([\w]*)')
 
@@ -300,6 +324,8 @@ class SimbadClass(SimbadBaseQuery):
     # tried something for this in this ipython nb
     # <http://nbviewer.ipython.org/5851110>
     _VOTABLE_FIELDS = ['main_id', 'coordinates']
+
+    _available_xmatch_tables = None
 
     def __init__(self):
         super(SimbadClass, self).__init__()
@@ -718,6 +744,122 @@ class SimbadClass(SimbadBaseQuery):
         response = self._request("POST", self.SIMBAD_URL, data=request_payload,
                                  timeout=self.TIMEOUT, cache=cache)
         return response
+
+    def query_moc_region(self, moc, verbose=False, cache=True,
+                        get_query_payload=False):
+        """
+        Query Simbad with a sky coverage (i.e. a MOC).
+
+        A MOC is a set of HEALPix cells (which can be of different depths). It allows the
+        user to define any sky coverage. For more details about MOCs please
+        refer to the documentation of `mocpy
+        <https://mocpy.readthedocs.io/en/latest/examples/examples.html#loading-and-plotting-the-moc-of-sdss>`__
+        and its `standard paper <http://ivoa.net/documents/MOC/20190404/PR-MOC-1.1-20190404.pdf>`__ coming from the
+        IVOA.
+
+        Parameters
+        ----------
+        moc : `mocpy.MOC`
+            A sky coverage.
+        get_query_payload : bool, optional
+            When set to `True` the method returns the HTTP request parameters.
+            Defaults to `False`.
+
+        Returns
+        -------
+        table : `~astropy.table.Table`
+            Query results table
+
+        """
+        response = self.query_moc_region_async(moc, cache=cache,
+                                              get_query_payload=get_query_payload)
+        if get_query_payload:
+            return response
+
+        return self._parse_result(response, QueryCatVOTableResult,
+                                  verbose=verbose)
+
+    def query_moc_region_async(self, moc, get_query_payload=False, cache=True):
+        """
+        Queries Simbad with a MOC (Multi-Order Coverage) region.
+
+        A MOC is a set of HEALPix cells (which can be of different depths). It allows the
+        user to define any sky coverage. For more details about MOCs please
+        refer to the documentation of `mocpy
+        <https://mocpy.readthedocs.io/en/latest/examples/examples.html#loading-and-plotting-the-moc-of-sdss>`__
+        and the standard paper about MOC coming from the
+        `IVOA <http://ivoa.net/documents/MOC/20190404/PR-MOC-1.1-20190404.pdf>`__.
+
+        Parameters
+        ----------
+        moc : `mocpy.MOC`
+            A sky coverage.
+
+        Returns
+        -------
+        response : `requests.Response`
+            The response of the HTTP request.
+
+        """
+        try:
+            from mocpy import MOC
+        except ImportError:
+            pass
+
+        # Query the XMatch service to know which tables are supported
+        if self._available_xmatch_tables is None:
+            self._available_xmatch_tables = self._get_available_xmatch_tables(cache)
+
+        table = 'simbad'
+        # Check whether the table given will be accepted by the XMatch service
+        if table not in self._available_xmatch_tables:
+            raise ValueError('{0} is not a table name accepted by the XMatch '
+                             'service! Please follow this link to see the table '
+                             'names accepted by the XMatch service: '
+                             'http://cdsxmatch.u-strasbg.fr/xmatch/api/v1/'
+                             'sync/tables?action=getVizieRTableNames'.format(table))
+
+        moc_file = BytesIO()
+        moc_fits = moc.serialize(format='fits')
+        moc_fits.writeto(moc_file)
+
+        data_payload = {
+            'mode': 'mocfile',
+            'catName': table,
+            'format': 'votable',
+            'limit': 50 if self.ROW_LIMIT == 0 else self.ROW_LIMIT,
+        }
+
+        if get_query_payload:
+            return data_payload
+
+        response = self._request(
+            method='POST',
+            url='http://cdsxmatch.u-strasbg.fr/QueryCat/QueryCat',
+            data=data_payload,
+            files={'moc': moc_file.getvalue()},
+            stream=True,
+            timeout=self.TIMEOUT,
+            cache=cache)
+
+        return response
+
+    def _get_available_xmatch_tables(self, cache=True):
+        response = self._request(
+            method='GET',
+            url=url_helpers.urljoin_keep_path(
+                'http://cdsxmatch.u-strasbg.fr/xmatch/api/v1/sync',
+                'tables'),
+            params={
+                'action': 'getVizieRTableNames',
+                'RESPONSEFORMAT': 'txt'
+            },
+            cache=cache,
+        )
+
+        content = response.text
+        tables = content.splitlines()
+        return tables
 
     def query_catalog(self, catalog, verbose=False, cache=True,
                       get_query_payload=False):

@@ -328,7 +328,7 @@ class VizierClass(BaseQuery):
         Parameters
         ----------
         moc : `mocpy.MOC`
-            A Multi-Order Coverage map.
+            A Multi-Order Coverage region.
         table : str or list
             The tables(s) which must be searched for this identifier.
             Querying the XMatch QueryCat service with a list of tables is not currently implemented. 
