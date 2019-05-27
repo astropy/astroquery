@@ -95,12 +95,10 @@ class TestXMatch:
         try:
             table = xmatch.query(
                 cat1='vizier:II/311/wise', cat2='vizier:II/246/out', max_distance=5 * arcsec,
-                area=CircleSkyRegion(center = SkyCoord(10, 10, unit='deg', frame='icrs'), radius = 12 * arcmin))
+                area=CircleSkyRegion(center=SkyCoord(10, 10, unit='deg', frame='icrs'), radius=12 * arcmin))
         except ReadTimeout:
             pytest.xfail("xmatch query timed out.")
         assert len(table) == 185
-
-
 
     def http_test(self):
         # this can be used to check that the API is still functional & doing as expected

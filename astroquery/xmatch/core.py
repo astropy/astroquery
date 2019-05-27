@@ -21,10 +21,10 @@ class XMatchClass(BaseQuery):
     URL = conf.url
     TIMEOUT = conf.timeout
 
-    def query(self, cat1, cat2, max_distance, 
+    def query(self, cat1, cat2, max_distance,
               colRA1=None, colDec1=None,
-              colRA2=None, colDec2=None, 
-              area='allsky', 
+              colRA2=None, colDec2=None,
+              area='allsky',
               cache=True, get_query_payload=False):
         """
         Query the `CDS cross-match service
@@ -60,7 +60,7 @@ class XMatchClass(BaseQuery):
             ``cat2`` is an uploaded table or a pointer to a URL.
         area : CirleSkyRegion or 'allsky' str
             Restrict the area taken into account when performing the xmatch
-            Default value is 'allsky' (no restriction). If a CirleSkyRegion 
+            Default value is 'allsky' (no restriction). If a CirleSkyRegion
             object is given, only sources in this region will be considered.
 
         Returns
@@ -137,17 +137,16 @@ class XMatchClass(BaseQuery):
 
     def _prepare_area(self, payload, area):
         '''Set the area parameter in the payload'''
-        if area is None or area=='allsky':
+        if area is None or area == 'allsky':
             payload['area'] = 'allsky'
         elif isinstance(area, CircleSkyRegion):
             payload['area'] = 'cone'
             cone_center = area.center
             payload['coneRA'] = cone_center.icrs.ra.deg
             payload['coneDec'] = cone_center.icrs.dec.deg
-            payload['coneRadiusDeg'] = area.radius.to_value(u.deg) 
+            payload['coneRadiusDeg'] = area.radius.to_value(u.deg)
         else:
             raise ValueError('Unsupported area {}'.format(str(area)))
-
 
     def is_table_available(self, table_id):
         """Return True if the passed CDS table identifier is one of the
