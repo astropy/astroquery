@@ -540,6 +540,7 @@ class AlmaClass(QueryWithLogin):
             else:
                 username = self.USERNAME
 
+        success = False
         for auth_url in auth_urls:
             # set session cookies (they do not get set otherwise)
             cookiesetpage = self._request("GET",
