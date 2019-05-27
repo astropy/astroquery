@@ -77,7 +77,7 @@ class XMatchClass(BaseQuery):
 
     @prepend_docstr_nosections("\n" + query.__doc__)
     def query_async(self, cat1, cat2, max_distance, colRA1=None, colDec1=None,
-                    colRA2=None, colDec2=None, area, cache=True,
+                    colRA2=None, colDec2=None, area='allsky', cache=True,
                     get_query_payload=False):
         """
         Returns
@@ -141,9 +141,9 @@ class XMatchClass(BaseQuery):
             payload['area'] = 'allsky'
         elif isinstance(area, CircleSkyRegion):
             payload['area'] = 'cone'
-            cone_center = cone.center
-            payload['coneRA'] = center.icrs.ra.deg
-            payload['coneDec'] = center.icrs.dec.deg
+            cone_center = area.center
+            payload['coneRA'] = cone_center.icrs.ra.deg
+            payload['coneDec'] = cone_center.icrs.dec.deg
             payload['coneRadiusDeg'] = area.radius.to_value(u.deg) 
         else:
             raise ValueError('Unsupported area {}'.format(str(area)))
