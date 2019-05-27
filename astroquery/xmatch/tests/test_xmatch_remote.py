@@ -1,6 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os.path
 import os
+import sys
 import pytest
 import requests
 from requests import ReadTimeout
