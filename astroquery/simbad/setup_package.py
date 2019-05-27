@@ -13,6 +13,7 @@ def get_package_data():
                   os.path.join('data', 'query_error.data'),
                   os.path.join('data', 'query_*.data'),
                   os.path.join('data', 'm1.data'),
+                  os.path.join('data', 'query_moc_region.data'),
                   ]
 
     paths_core = [os.path.join('data', 'votable_fields_notes.json'),

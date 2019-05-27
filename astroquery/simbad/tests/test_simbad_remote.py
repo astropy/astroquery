@@ -1,5 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import pytest
+import sys
 
 from astropy.tests.helper import remote_data
 import astropy.coordinates as coord
@@ -12,6 +13,12 @@ from ... import simbad
 import requests
 import imp
 imp.reload(requests)
+
+try:
+    # import mocpy for testing query_moc_region
+    from mocpy import MOC
+except ImportError:
+    pass
 
 # M42 coordinates
 ICRS_COORDS_M42 = coord.SkyCoord("05h35m17.3s -05h23m28s", frame='icrs')
@@ -88,6 +95,32 @@ class TestSimbad(object):
         result = simbad.core.Simbad.query_region(multicoords, radius=1 * u.arcmin,
                                                  equinox=2000.0, epoch='J2000')
         assert isinstance(result, Table)
+
+    @pytest.mark.skipif('mocpy' not in sys.modules,
+                        reason="requires mocpy")
+    def test_query_moc_region_limit(self):
+        moc = MOC.from_json({'5': [0]})
+        simbad.core.Simbad.ROW_LIMIT = 1000
+        result = simbad.core.Simbad.query_moc_region(moc)
+        simbad.core.Simbad.ROW_LIMIT = 5
+        assert isinstance(result, Table)
+
+    @pytest.mark.skipif('mocpy' not in sys.modules,
+                        reason="requires mocpy")
+    def test_query_moc_region(self):
+        moc = MOC.from_json({'5': [0]})
+        result = simbad.core.Simbad.query_moc_region(moc)
+
+        assert isinstance(result, Table)
+        assert len(result) == 5
+
+    @pytest.mark.skipif('mocpy' not in sys.modules,
+                        reason="requires mocpy")
+    def test_query_moc_region_async(self):
+        moc = MOC.from_json({'10': [0]})
+        response = simbad.core.Simbad.query_moc_region(moc)
+
+        assert response is not None
 
     def test_query_object_async(self):
         response = simbad.core.Simbad.query_object_async("m [0-9]",

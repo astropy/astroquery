@@ -2,11 +2,20 @@
 import os
 import re
 
+import requests
 import six
+from six.moves import urllib_parse as urlparse
 import pytest
+import sys
 import astropy.units as u
 from astropy.table import Table
 import numpy as np
+
+try:
+    # import mocpy for testing query_moc_region
+    from mocpy import MOC
+except ImportError:
+    pass
 
 from ... import simbad
 from ...utils.testing_tools import MockResponse
@@ -32,6 +41,7 @@ DATA_FILES = {
     'error': 'query_error.data',
     'sample': 'query_sample.data',
     'region': 'query_sample_region.data',
+    'moc_region': 'query_moc_region.data',
 }
 
 
@@ -75,6 +85,36 @@ def post_mockreturn(self, method, url, data, timeout, **kwargs):
     self._last_query = last_query()
     self._last_query.data = data
     return response
+
+
+@pytest.fixture
+def patch_query_moc_region(request):
+    try:
+        mp = request.getfixturevalue("monkeypatch")
+    except AttributeError:  # pytest < 3
+        mp = request.getfuncargvalue("monkeypatch")
+    #mp.setattr(simbad.SimbadClass, '_request', query_moc_region_mockreturn)
+    mp.setattr(requests.Session, 'request', query_moc_region_mockreturn)
+    return mp
+
+
+def query_moc_region_mockreturn(self, method, url, data=None,
+                                timeout=10, files=None,
+                                params=None, headers=None, **kwargs):
+    if method == 'POST':
+        # a request to the XMatch QueryCat service
+        if isinstance(data, dict):
+            datad = data
+        else:
+            datad = dict([urlparse.parse_qsl(d)[0] for d in data.split('\n')])
+
+        filename = data_path(DATA_FILES['moc_region'])
+        content = open(filename, "rb").read()
+    elif method == 'GET':
+        # a request to the XMatch for getting the available tables
+        # supported by the service
+        content = b'simbad'
+    return MockResponse(content, **kwargs)
 
 
 @pytest.mark.parametrize(('radius', 'expected_radius'),
@@ -266,6 +306,26 @@ def test_query_region(patch_post, coordinates, radius, equinox, epoch):
                                                 equinox=equinox, epoch=epoch)
     assert isinstance(result1, Table)
     assert isinstance(result2, Table)
+
+
+@pytest.mark.skipif('mocpy' not in sys.modules,
+                    reason="requires mocpy")
+def test_query_moc_region_async(patch_query_moc_region):
+    moc = MOC.from_json({'7': [0]})
+    response1 = simbad.core.Simbad.query_moc_region_async(moc)
+    response2 = simbad.core.Simbad().query_moc_region_async(moc)
+
+    assert response1 is not None and response2 is not None
+    assert response1.content == response2.content
+
+
+@pytest.mark.skipif('mocpy' not in sys.modules,
+                    reason="requires mocpy")
+def test_query_moc_region(patch_query_moc_region):
+    moc = MOC.from_json({'7': [0]})
+    result = simbad.core.Simbad.query_moc_region(moc)
+
+    assert isinstance(result, Table)
 
 
 @pytest.mark.parametrize(('coordinates', 'radius', 'equinox', 'epoch'),
