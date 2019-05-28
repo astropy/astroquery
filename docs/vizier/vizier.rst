@@ -231,22 +231,21 @@ on the *II/106/catalog* table.
     TableList with 1 tables:
         '0:II/106/catalog' with 11 column(s) and 50 row(s)
 
-Please note that table is mandatory here, you must specify a **str** referring to a valid table. Follow this `link
+Please note that ``table`` parameter is mandatory here, you must specify a **str** referring to a valid table. Follow this `link
 <http://cdsxmatch.u-strasbg.fr/xmatch/api/v1/sync/tables?action=getVizieRTableNames>`__ for the table names 
-accepted by the XMatch service.
+accepted by the service.
 
-.. note:: Please note that the `XMatch QueryCat service <http://cdsxmatch.u-strasbg.fr/QueryCat/catfs.html>`__ is
+.. note:: Please note that the service queried is
     currently a prototype and is still under development:
 
     * The VOTABLE returned by the service **does not contain all the columns** of the table asked, but only some
       *default* columns that are tagged by Vizier as important (e.g. the magnitudes, the position or the redshift).
     * Submitting a list of tables is currently not available.
 
-.. warning:: Querying a table containing millions or billions of rows with a MOC covering for example
-    50% of the sky is usually a bad idea and will tend to quickly overflow the 
-    `XMatch QueryCat service <http://cdsxmatch.u-strasbg.fr/QueryCat/catfs.html>`__. 
+.. warning:: Querying a Vizier table containing millions or billions of rows with a MOC covering for example
+    80% of the sky is usually a bad idea and will tend to quickly overflow the service. 
     Remember that you can change the **ROW_LIMIT** to limit the number of rows
-    returned by the XMatch service. Knowing that, you can still query the 2MASS (470 millions rows) catalog 
+    returned by the service. Knowing that, you can still query the 2MASS (470 millions rows) catalog 
     with a large MOC without breaking the service!
 
 Specifying keywords, output columns and constraints on columns

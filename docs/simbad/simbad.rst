@@ -272,14 +272,15 @@ and returns all the SIMBAD sources being contained in a `mocpy.MOC` object:
             Anon J030107+0021     45.281679     0.355605       0.182       0.135           0.0     1   03 01 07.603 ...      --      --      --  23.073  22.463  21.624  21.563  20.653
               TYC   55-1191-1 45.0861417935 0.2488310307         0.0         0.0          90.0     1 03 00 20.67403 ...   10.03   9.853    9.78      --      --      --      --      --
 
-.. note:: Submitting a list of tables to the `XMatch QueryCat service <http://cdsxmatch.u-strasbg.fr/QueryCat/catfs.html>`__
-    is currently not possible.
+.. note:: Please note that the service queried is
+    currently a prototype and is still under development.
 
 .. warning:: By default, the number of sources returned by the
-    `XMatch QueryCat service <http://cdsxmatch.u-strasbg.fr/QueryCat/catfs.html>`__ is limited to 50.
+    service is limited to 50.
     If you want to retrieve more rows, you can still change the **Simbad.ROW_LIMIT** attribute,
-    but please be reasonable when doing that! Querying a table containing millions or billions of rows with a MOC covering for example
-    50% of the sky is usually a bad idea and will tend to quickly overflow the service.
+    but please be reasonable when doing that! Querying SIMBAD with a MOC covering for example
+    80% of the sky is usually a bad idea and will tend to quickly overflow the service
+    for **Simbad.ROW_LIMIT** set to several millions!
 
 Query a catalogue
 -----------------
