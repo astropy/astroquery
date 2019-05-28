@@ -13,7 +13,10 @@ from astropy.io import ascii
 
 from astropy.coordinates import SkyCoord
 
-from regions import CircleSkyRegion
+try:
+    from regions import CircleSkyRegion
+except ImportError:
+    pass
 
 from ...xmatch import XMatch
 
