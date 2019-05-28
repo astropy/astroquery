@@ -1121,6 +1121,14 @@ class ObservationsClass(MastClass):
         """
         Attempts to enable downloading public files from S3 instead of MAST.
         Requires the boto3 library to function.
+
+        Parameters
+        ----------
+        provider : str
+            Which cloud data provider to use.  We may in the future support multiple providers,
+            though at the moment this argument is ignored.
+        profile : str
+            Profile to use to identify yourself to the cloud provider (usually in ~/.aws/config).
         """
         import boto3
         import botocore
@@ -1153,7 +1161,22 @@ class ObservationsClass(MastClass):
         return self.get_cloud_uris(data_products, include_bucket, full_url)
 
     def get_cloud_uris(self, data_products, include_bucket=True, full_url=False):
-        """ Takes an `astropy.table.Table` of data products and turns them into s3 uris. """
+        """
+        Takes an `astropy.table.Table` of data products and turns them into cloud data uris.
+
+        Parameters
+        ----------
+        data_products : `astropy.table.Table`
+            Table containing products to be converted into cloud data uris.
+        include_bucket : bool
+            When either to include the cloud bucket prefix in the result or not.
+        full_url : str
+            Return a HTTP fetchable url instead of a uri.
+
+        Returns
+        -------
+        list : List of uris generated from the data products
+        """
 
         return [self.get_cloud_uri(data_product, include_bucket, full_url) for data_product in data_products]
 
@@ -1162,7 +1185,22 @@ class ObservationsClass(MastClass):
         return self.get_cloud_uri(data_product, include_bucket, full_url)
 
     def get_cloud_uri(self, data_product, include_bucket=True, full_url=False):
-        """ Turns a data_product into a S3 URI """
+        """
+        Turns a data_product into a cloud URI
+
+        Parameters
+        ----------
+        data_product : `astropy.table.Table`
+            Product to be converted into cloud data uri.
+        include_bucket : bool
+            When either to include the cloud bucket prefix in the result or not.
+        full_url : str
+            Return a HTTP fetchable url instead of a uri.
+
+        Returns
+        -------
+        str : uri generated from the data product
+        """
 
         if self._boto3 is None:
             raise AtrributeError("Must enable s3 dataset before attempting to query the s3 information")
@@ -1189,6 +1227,18 @@ class ObservationsClass(MastClass):
         raise Exception("Unable to locate file!")
 
     def _download_from_cloud(self, data_product, local_path, cache=True):
+        """
+        Takes a data product in the form of an `astropy.table.Table` and downloads it into the given directory
+
+        Parameters
+        ----------
+        data_product : `astropy.table.Table`
+            Product to download.
+        local_path : str
+            Directory in which files will be downloaded.
+        cache : bool
+            Default is True. If file is found on disc it will not be downloaded again.
+        """
         # The following is a mishmash of BaseQuery._download_file and s3 access through boto
 
         self._pubdata_bucket = 'stpubdata'
