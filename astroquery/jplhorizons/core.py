@@ -147,7 +147,8 @@ class HorizonsClass(BaseQuery):
                           closest_apparition=False, no_fragments=False,
                           quantities=conf.eph_quantities,
                           get_query_payload=False,
-                          get_raw_response=False, cache=True):
+                          get_raw_response=False, cache=True,
+                          extra_precision=False):
         """
         Query JPL Horizons for ephemerides. The ``location`` parameter
         in ``HorizonsClass`` refers in this case to the location of
@@ -434,7 +435,7 @@ class HorizonsClass(BaseQuery):
             selection; default: False. Do not use this option for
             non-cometary objects.
         quantities : integer or string, optional
-            single integer or comma-separated list in the form of a string
+            Single integer or comma-separated list in the form of a string
             corresponding to all the
             quantities to be queried from JPL Horizons using the coding
             according to the `JPL Horizons User Manual Definition of
@@ -447,6 +448,8 @@ class HorizonsClass(BaseQuery):
         get_raw_response : boolean, optional
             Return raw data as obtained by JPL Horizons without parsing the
             data into a table, default: False
+        extra_precision : boolean, optional
+            Enables extra precision in RA and DEC values; default: False
 
 
         Returns
@@ -528,7 +531,8 @@ class HorizonsClass(BaseQuery):
             ('ANG_FORMAT', ('DEG')),
             ('APPARENT', ({False: 'AIRLESS',
                            True: 'REFRACTED'}[refraction])),
-            ('REF_SYSTEM', (refsystem))])
+            ('REF_SYSTEM', (refsystem)),
+            ('EXTRA_PREC', {True: 'YES', False: 'NO'}[extra_precision])])
 
         if isinstance(self.location, dict):
             if ('lon' not in self.location or 'lat' not in self.location or
@@ -763,8 +767,7 @@ class HorizonsClass(BaseQuery):
             ('REF_PLANE', {'ecliptic': 'ECLIPTIC', 'earth': 'FRAME',
                            'body': "'BODY EQUATOR'"}[refplane]),
             ('TP_TYPE', {'absolute': 'ABSOLUTE',
-                         'relative': 'RELATIVE'}[tp_type])]
-        )
+                         'relative': 'RELATIVE'}[tp_type])])
 
         # parse self.epochs
         if isinstance(self.epochs, (list, tuple, ndarray)):
@@ -809,7 +812,9 @@ class HorizonsClass(BaseQuery):
 
     def vectors_async(self, get_query_payload=False,
                       closest_apparition=False, no_fragments=False,
-                      get_raw_response=False, cache=True, refplane='ecliptic'):
+                      get_raw_response=False, cache=True,
+                      refplane='ecliptic', aberrations='geometric',
+                      delta_T=False,):
         """
         Query JPL Horizons for state vectors. The ``location``
         parameter in ``HorizonsClass`` refers in this case to the center
@@ -843,6 +848,9 @@ class HorizonsClass(BaseQuery):
         | datetime_str     | epoch Date (str, ``Calendar Date (TDB)``)     |
         +------------------+-----------------------------------------------+
         | datetime_jd      | epoch Julian Date (float, ``JDTDB``)          |
+        +------------------+-----------------------------------------------+
+        | delta_T          | time-varying difference between TDB and UT    |
+        |                  | (float, ``delta-T``, optional)                |
         +------------------+-----------------------------------------------+
         | x                | x-component of position vector                |
         |                  | (float, au, ``X``)                            |
@@ -894,6 +902,12 @@ class HorizonsClass(BaseQuery):
             (Earth mean equator and equinox of reference epoch), or
             ``'body'`` (body mean equator and node of date); default:
             ``'ecliptic'``
+        aberrations : string, optional
+            Aberrations to be accounted for: [``'geometric'``,
+            ``'astrometric'``, ``'apparent'``]. Default: ``'geometric'``
+        delta_T : boolean, optional
+            Triggers output of time-varying difference between TDB and UT
+            time-scales. Default: False
 
 
         Returns
@@ -979,6 +993,9 @@ class HorizonsClass(BaseQuery):
             ('REF_SYSTEM', 'J2000'),
             ('TP_TYPE', 'ABSOLUTE'),
             ('LABELS', 'YES'),
+            ('VECT_CORR', {'geometric': '"NONE"', 'astrometric': '"LT"',
+                           'apparent': '"LT+S"'}[aberrations]),
+            ('VEC_DELTA_T', {True: 'YES', False: 'NO'}[delta_T]),
             ('OBJ_DATA', 'YES')]
         )
 

@@ -177,7 +177,8 @@ def test_elements_vectors(patch_request):
             ('STOP_TIME', '"2080-02-01"'),
             ('STEP_SIZE', '"3h"'),
             ('AIRMASS', '1.2'),
-            ('SKIP_DAYLT', 'YES')])
+            ('SKIP_DAYLT', 'YES'),
+            ('EXTRA_PREC', 'NO')])
 
     def test_elements_query_payload():
         res = (jplhorizons.Horizons(id='Ceres', location='500@10',
@@ -197,6 +198,7 @@ def test_elements_vectors(patch_request):
             ('REF_SYSTEM', 'J2000'),
             ('REF_PLANE', 'ECLIPTIC'),
             ('TP_TYPE', 'ABSOLUTE'),
+            ('EXTRA_PREC', 'NO')
             ('TLIST', '2451544.5')])
 
 
@@ -216,6 +218,8 @@ def test_vectors_query_payload():
         ('REF_SYSTEM', 'J2000'),
         ('TP_TYPE', 'ABSOLUTE'),
         ('LABELS', 'YES'),
+        ('VECT_CORR', '"NONE"'),
+        ('VEC_DELTA_T', 'NO'),
         ('OBJ_DATA', 'YES'),
         ('TLIST', '2451544.5')])
 

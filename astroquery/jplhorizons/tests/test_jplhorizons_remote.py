@@ -1,7 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 
-from astropy.tests.helper import remote_data
+from astropy.tests.helper import remote_data, assert_quantity_allclose
 from numpy.ma import is_masked
 import numpy.testing as npt
 
@@ -348,3 +348,33 @@ class TestHorizonsClass:
         # skip data['a-mass'].filled(99) if 'a-mass' not returned
         eph = target.ephemerides(quantities='1')
         assert len(eph) == 1
+
+    def test_vectors_aberrations(self):
+        """Check functionality of `aberrations` options"""
+        obj = jplhorizons.Horizons(id='1', epochs=2458500, location='500@0')
+
+        vec = obj.vectors(aberrations='geometric')
+        assert_quantity_allclose(vec['x'][0], -2.08648627706842)
+
+        vec = obj.vectors(aberrations='astrometric')
+        assert_quantity_allclose(vec['x'][0], -2.086575559005298)
+
+        vec = obj.vectors(aberrations='apparent')
+        assert_quantity_allclose(vec['x'][0], -2.086575559005298)
+
+    def test_vectors_delta_T(self):
+        obj = Horizons(id='1', epochs=2458500, location='500@0')
+
+        vec = obj.vectors(delta_T=False)
+        assert 'delta_T' not in vec.columns
+
+        vec = obj.vectors(delta_T=True)
+        assert_quantity_allclose(vec['delta_T'][0], 69.184373)
+
+    def test_ephemerides_extraprecision(self):
+        obj = jplhorizons.Horizons(id='1', epochs=2458500, location='G37')
+
+        vec_simple = obj.ephemerides(extra_precision=False)
+        vec_highprec = obj.ephemerides(extra_precision=True)
+
+        assert (vec_simple['RA'][0]-vec_highprec['RA'][0]) > 1e-7

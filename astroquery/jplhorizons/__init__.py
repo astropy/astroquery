@@ -175,6 +175,7 @@ class Conf(_config.ConfigNamespace):
                    'JDTDB': ('datetime_jd', 'd'),
                    'Calendar Date (TDB)': ('datetime_str',
                                            '---'),
+                   'delta-T': ('delta_T', 's'),
                    'H': ('H', 'mag'),
                    'G': ('G', '---'),
                    'M1': ('M1', 'mag'),
