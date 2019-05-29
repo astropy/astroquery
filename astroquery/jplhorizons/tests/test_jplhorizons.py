@@ -216,6 +216,8 @@ def test_vectors_query_payload():
         ('REF_SYSTEM', 'J2000'),
         ('TP_TYPE', 'ABSOLUTE'),
         ('LABELS', 'YES'),
+        ('VECT_CORR', '"NONE"'),
+        ('VEC_DELTA_T', 'NO'),
         ('OBJ_DATA', 'YES'),
         ('TLIST', '2451544.5')])
 

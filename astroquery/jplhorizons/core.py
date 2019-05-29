@@ -809,7 +809,9 @@ class HorizonsClass(BaseQuery):
 
     def vectors_async(self, get_query_payload=False,
                       closest_apparition=False, no_fragments=False,
-                      get_raw_response=False, cache=True, refplane='ecliptic'):
+                      refplane='ecliptic', aberrations='geometric',
+                      delta_T=False,
+                      get_raw_response=False, cache=True):
         """
         Query JPL Horizons for state vectors. The ``location``
         parameter in ``HorizonsClass`` refers in this case to the center
@@ -843,6 +845,9 @@ class HorizonsClass(BaseQuery):
         | datetime_str     | epoch Date (str, ``Calendar Date (TDB)``)     |
         +------------------+-----------------------------------------------+
         | datetime_jd      | epoch Julian Date (float, ``JDTDB``)          |
+        +------------------+-----------------------------------------------+
+        | delta_T          | time-varying difference between TDB and UT    |
+        |                  | (float, ``delta-T``, optional)                |
         +------------------+-----------------------------------------------+
         | x                | x-component of position vector                |
         |                  | (float, au, ``X``)                            |
@@ -882,18 +887,24 @@ class HorizonsClass(BaseQuery):
             Only applies to comets. Reject all comet fragments from
             selection; default: False. Do not use this option for
             non-cometary objects.
-        get_query_payload : boolean, optional
-            When set to `True` the method returns the HTTP request
-            parameters as a dict, default: False
-        get_raw_response: boolean, optional
-            Return raw data as obtained by JPL Horizons without parsing the
-            data into a table, default: False
         refplane : string
             Reference plane for all output quantities: ``'ecliptic'``
             (ecliptic and mean equinox of reference epoch), ``'earth'``
             (Earth mean equator and equinox of reference epoch), or
             ``'body'`` (body mean equator and node of date); default:
             ``'ecliptic'``
+        aberrations : string, optional
+            Aberrations to be accounted for: [``'geometric'``,
+            ``'astrometric'``, ``'apparent'``]. Default: ``'geometric'``
+        delta_T : boolean, optional
+            Triggers output of time-varying difference between TDB and UT
+            time-scales. Default: False
+        get_query_payload : boolean, optional
+            When set to `True` the method returns the HTTP request
+            parameters as a dict, default: False
+        get_raw_response: boolean, optional
+            Return raw data as obtained by JPL Horizons without parsing the
+            data into a table, default: False
 
 
         Returns
@@ -979,6 +990,9 @@ class HorizonsClass(BaseQuery):
             ('REF_SYSTEM', 'J2000'),
             ('TP_TYPE', 'ABSOLUTE'),
             ('LABELS', 'YES'),
+            ('VECT_CORR', {'geometric': '"NONE"', 'astrometric': '"LT"',
+                           'apparent': '"LT+S"'}[aberrations]),
+            ('VEC_DELTA_T', {True: 'YES', False: 'NO'}[delta_T]),
             ('OBJ_DATA', 'YES')]
         )
 

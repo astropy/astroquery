@@ -268,15 +268,19 @@ The following fields are queried:
    <TableColumns names=('targetname','datetime_jd','datetime_str','H','G','x','y','z','vx','vy','vz','lighttime','range','range_rate')>
 
 
-Similar to the other :class:`~astroquery.jplhorizons.HorizonsClass` functions,
-optional parameters of :meth:`~astroquery.jplhorizons.HorizonsClass.vectors` are
+Similar to the other :class:`~astroquery.jplhorizons.HorizonsClass`
+functions, optional parameters of
+:meth:`~astroquery.jplhorizons.HorizonsClass.vectors` are
 ``get_query_payload=True``, which skips the query and only returns the
 query payload, and ``get_raw_response=True``, which returns the raw
 query response instead of the astropy table. For comets, the options
-``closest_apparation`` and ``no_fragments`` are available, which select
-the closest apparition in time and reject fragments,
+``closest_apparation`` and ``no_fragments`` are available, which
+select the closest apparition in time and reject fragments,
 respectively. Note that these options should only be used for comets
-and will crash the query for other object types.
+and will crash the query for other object types. Options
+``aberrations`` and ``delta_T`` provide different choices for
+aberration corrections as well as a measure for time-varying
+differences between TDB and UT time-scales, respectively.
 
 
 How to Use the Query Tables
