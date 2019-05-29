@@ -146,6 +146,7 @@ class HorizonsClass(BaseQuery):
                           refsystem='J2000',
                           closest_apparition=False, no_fragments=False,
                           quantities=conf.eph_quantities,
+                          extra_precision=False,
                           get_query_payload=False,
                           get_raw_response=False, cache=True):
         """
@@ -434,13 +435,15 @@ class HorizonsClass(BaseQuery):
             selection; default: False. Do not use this option for
             non-cometary objects.
         quantities : integer or string, optional
-            single integer or comma-separated list in the form of a string
+            Single integer or comma-separated list in the form of a string
             corresponding to all the
             quantities to be queried from JPL Horizons using the coding
             according to the `JPL Horizons User Manual Definition of
             Observer Table Quantities
             <https://ssd.jpl.nasa.gov/?horizons_doc#table_quantities>`_;
             default: all quantities
+        extra_precision : boolean, optional
+            Enables extra precision in RA and DEC values; default: False
         get_query_payload : boolean, optional
             When set to `True` the method returns the HTTP request
             parameters as a dict, default: False
@@ -528,7 +531,8 @@ class HorizonsClass(BaseQuery):
             ('ANG_FORMAT', ('DEG')),
             ('APPARENT', ({False: 'AIRLESS',
                            True: 'REFRACTED'}[refraction])),
-            ('REF_SYSTEM', (refsystem))])
+            ('REF_SYSTEM', (refsystem)),
+            ('EXTRA_PREC', {True: 'YES', False: 'NO'}[extra_precision])])
 
         if isinstance(self.location, dict):
             if ('lon' not in self.location or 'lat' not in self.location or
@@ -763,8 +767,7 @@ class HorizonsClass(BaseQuery):
             ('REF_PLANE', {'ecliptic': 'ECLIPTIC', 'earth': 'FRAME',
                            'body': "'BODY EQUATOR'"}[refplane]),
             ('TP_TYPE', {'absolute': 'ABSOLUTE',
-                         'relative': 'RELATIVE'}[tp_type])]
-        )
+                         'relative': 'RELATIVE'}[tp_type])])
 
         # parse self.epochs
         if isinstance(self.epochs, (list, tuple, ndarray)):

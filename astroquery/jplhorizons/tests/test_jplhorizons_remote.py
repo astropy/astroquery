@@ -370,3 +370,11 @@ class TestHorizonsClass:
 
         vec = obj.vectors(delta_T=True)
         assert_quantity_allclose(vec['delta_T'][0], 69.184373)
+
+    def test_ephemerides_extraprecision(self):
+        obj = jplhorizons.Horizons(id='1', epochs=2458500, location='G37')
+
+        vec_simple = obj.ephemerides(extra_precision=False)
+        vec_highprec = obj.ephemerides(extra_precision=True)
+
+        assert (vec_simple['RA'][0]-vec_highprec['RA'][0]) > 1e-7

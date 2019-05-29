@@ -166,9 +166,11 @@ default).. For comets, the options ``closest_apparation`` and
 ``no_fragments`` are available, which select the closest apparition in
 time and reject fragments, respectively. Note that these options
 should only be used for comets and will crash the query for other
-object types.  Furthermore, ``get_query_payload=True`` skips the query
-and only returns the query payload, whereas ``get_raw_response=True``
-the raw query response instead of the astropy table returns.
+object types. Extra precision in the queried properties can be
+requested using the ``extra_precision`` option. Furthermore,
+``get_query_payload=True`` skips the query and only returns the query
+payload, whereas ``get_raw_response=True`` the raw query response
+instead of the astropy table returns.
 
 :meth:`~astroquery.jplhorizons.HorizonsClass.ephemerides` queries by
 default all available quantities from the JPL Horizons servers. This
