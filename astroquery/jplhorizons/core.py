@@ -146,9 +146,9 @@ class HorizonsClass(BaseQuery):
                           refsystem='J2000',
                           closest_apparition=False, no_fragments=False,
                           quantities=conf.eph_quantities,
-                          extra_precision=False,
                           get_query_payload=False,
-                          get_raw_response=False, cache=True):
+                          get_raw_response=False, cache=True,
+                          extra_precision=False):
         """
         Query JPL Horizons for ephemerides. The ``location`` parameter
         in ``HorizonsClass`` refers in this case to the location of
@@ -442,14 +442,14 @@ class HorizonsClass(BaseQuery):
             Observer Table Quantities
             <https://ssd.jpl.nasa.gov/?horizons_doc#table_quantities>`_;
             default: all quantities
-        extra_precision : boolean, optional
-            Enables extra precision in RA and DEC values; default: False
         get_query_payload : boolean, optional
             When set to `True` the method returns the HTTP request
             parameters as a dict, default: False
         get_raw_response : boolean, optional
             Return raw data as obtained by JPL Horizons without parsing the
             data into a table, default: False
+        extra_precision : boolean, optional
+            Enables extra precision in RA and DEC values; default: False
 
 
         Returns
@@ -812,9 +812,9 @@ class HorizonsClass(BaseQuery):
 
     def vectors_async(self, get_query_payload=False,
                       closest_apparition=False, no_fragments=False,
+                      get_raw_response=False, cache=True,
                       refplane='ecliptic', aberrations='geometric',
-                      delta_T=False,
-                      get_raw_response=False, cache=True):
+                      delta_T=False,):
         """
         Query JPL Horizons for state vectors. The ``location``
         parameter in ``HorizonsClass`` refers in this case to the center
@@ -890,6 +890,12 @@ class HorizonsClass(BaseQuery):
             Only applies to comets. Reject all comet fragments from
             selection; default: False. Do not use this option for
             non-cometary objects.
+        get_query_payload : boolean, optional
+            When set to `True` the method returns the HTTP request
+            parameters as a dict, default: False
+        get_raw_response: boolean, optional
+            Return raw data as obtained by JPL Horizons without parsing the
+            data into a table, default: False
         refplane : string
             Reference plane for all output quantities: ``'ecliptic'``
             (ecliptic and mean equinox of reference epoch), ``'earth'``
@@ -902,12 +908,6 @@ class HorizonsClass(BaseQuery):
         delta_T : boolean, optional
             Triggers output of time-varying difference between TDB and UT
             time-scales. Default: False
-        get_query_payload : boolean, optional
-            When set to `True` the method returns the HTTP request
-            parameters as a dict, default: False
-        get_raw_response: boolean, optional
-            Return raw data as obtained by JPL Horizons without parsing the
-            data into a table, default: False
 
 
         Returns
