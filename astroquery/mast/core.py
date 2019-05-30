@@ -709,9 +709,7 @@ class MastClass(QueryWithLogin):
                Can be used to override the default behavior of all results being returned to obtain
                a specific page of results.
            **kwargs :
-               See MashupRequest properties
-               `here <https://mast.stsci.edu/api/v0/class_mashup_1_1_mashup_request.html>`__
-               for additional keyword arguments.
+               See Catalogs.MAST properties in documentation referenced above
 
            Returns
            -------
@@ -2048,8 +2046,8 @@ class CatalogsClass(MastClass):
             consisting of a list of column names. Results may also be sorted through the query with the parameter
             sort_by composed of either a single Column Name to sort ASC, or a list of Column Nmaes to sort ASC or
             tuples of Column Name and Direction (ASC, DESC) to indicate sort order (Column Name, DESC).
-            Detailed information of Catalogs.MAST criteria usage can be found
-            `here <https://catalogs.mast.stsci.edu/docs/index.html>'__.
+            Detailed information of Catalogs.MAST criteria usage can
+            be found `here <https://catalogs.mast.stsci.edu/docs/index.html>`__.
 
         Returns
         -------
