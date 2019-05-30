@@ -275,7 +275,7 @@ class MastClass(QueryWithLogin):
         self._MAST_CATALOGS_SERVICES = {
             "panstarrs": {
                 "path": "panstarrs/{data_release}/{table}.json",
-                "args": {"data_release": "dr2", "table": None}
+                "args": {"data_release": "dr2", "table": "mean"}
             }
         }
 
@@ -2079,7 +2079,7 @@ class CatalogsClass(MastClass):
             mashup_filters = self._build_filter_set("Mast.Catalogs.Dd.Cone", service, **criteria)
 
         else:
-            raise InvalidQueryError("Criteria query not availible for {}".format(catalog))
+            raise InvalidQueryError("Criteria query not available for {}".format(catalog))
 
         if not mashup_filters:
             raise InvalidQueryError("At least one non-positional criterion must be supplied.")

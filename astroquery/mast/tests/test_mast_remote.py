@@ -318,6 +318,11 @@ class TestMast(object):
         assert isinstance(result, Table)
         assert len(result) > 800
 
+        result = mast.Catalogs.query_region("322.49324 12.16683", radius=0.01,
+                                            catalog="panstarrs", table="mean", pagesize=3)
+        assert isinstance(result, Table)
+        assert len(result) > 800
+
     def test_catalogs_query_object_async(self):
         responses = mast.Catalogs.query_object_async("M10", radius=.02, catalog="TIC")
         assert isinstance(responses, list)
