@@ -8,4 +8,5 @@ a collection of Solar-System related data services
 """
 
 from .jpl import *
+from .imcce import *
 from . import *
