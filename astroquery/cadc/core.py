@@ -9,6 +9,8 @@ Module to query the Canadian Astronomy Data Centre (CADC).
 
 import logging
 import warnings
+import requests
+from numpy import ma
 
 from ..utils.class_or_instance import class_or_instance
 from ..utils import async_to_sync, commons
@@ -20,7 +22,6 @@ from astroquery.cadc.cadctap.core import TapPlusCadc
 from astroquery.cadc.cadctap.job import JobCadc
 from . import conf
 
-import requests
 
 __all__ = ['Cadc', 'CadcClass']
 
@@ -140,10 +141,10 @@ class CadcClass(BaseQuery):
         login_url = get_access_url(self.CADCLOGIN_SERVICE_URI,
                                    'ivo://ivoa.net/std/UMS#login-0.1')
         return self._cadctap.login(user=user, password=password,
-                                    certificate_file=certificate_file,
-                                    cookie_prefix=CADC_COOKIE_PREFIX,
-                                    login_url=login_url,
-                                    verbose=False)
+                                   certificate_file=certificate_file,
+                                   cookie_prefix=CADC_COOKIE_PREFIX,
+                                   login_url=login_url,
+                                   verbose=False)
 
     def logout(self, verbose=False):
         """
@@ -207,6 +208,34 @@ class CadcClass(BaseQuery):
             "on o.obsID=p.obsID where lower(target_name) like '%{}%'".
             format(name.lower()), operation='sync')
         return response
+
+    @class_or_instance
+    def get_collections(self):
+        """
+        Query CADC for all the hosted collections
+
+        Returns
+        -------
+        A dictionary of collections hosted at the CADC where the key is the
+        collection and value represents details of that collection.
+        """
+        response = self.run_query(
+            'select distinct collection, energy_emBand from caom2.EnumField',
+            output_format='csv',
+            operation='sync')
+        collections = {}
+        for row in response.results:
+            if row['collection'] not in collections:
+                collection = {
+                    'Description': 'The {} collection at the CADC'.
+                        format(row['collection']), 'Bands': []}
+                if row['energy_emBand'] is not ma.masked:
+                    collection['Bands'].append(row['energy_emBand'])
+                collections[row['collection']] = collection
+            elif row['energy_emBand'] is not ma.masked:
+                collections[row['collection']]['Bands'].\
+                    append(row['energy_emBand'])
+        return collections
 
     @class_or_instance
     def get_data_urls(self, query_result, include_auxiliaries=False):

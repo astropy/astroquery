@@ -17,6 +17,47 @@ This package allows the access to the data at the CADC
 Basic Access
 ============
 
+The CADC hosts a number of collections and ```get_collections``` returns a list
+of all these collectins:
+
+.. code-block:: python
+
+  >>> from astroquery.cadc import Cadc
+  >>>
+  >>> cadc = Cadc()
+  >>> for collection, details in sorted(cadc.get_collections().items()):
+  >>>    print('{} : {}'.format(collection, details))
+
+  APASS : {'Description': 'The APASS collection at the CADC', 'Bands': ['Optical', 'Infrared']}
+  BLAST : {'Description': 'The BLAST collection at the CADC', 'Bands': ['Millimeter']}
+  CFHT : {'Description': 'The CFHT collection at the CADC', 'Bands': ['Optical', 'Infrared']}
+  CFHTMEGAPIPE : {'Description': 'The CFHTMEGAPIPE collection at the CADC', 'Bands': ['Infrared', 'Optical']}
+  CFHTTERAPIX : {'Description': 'The CFHTTERAPIX collection at the CADC', 'Bands': ['Optical', 'Infrared']}
+  CFHTWIRWOLF : {'Description': 'The CFHTWIRWOLF collection at the CADC', 'Bands': ['Infrared']}
+  CGPS : {'Description': 'The CGPS collection at the CADC', 'Bands': ['Radio', 'Millimeter', 'Infrared']}
+  CHANDRA : {'Description': 'The CHANDRA collection at the CADC', 'Bands': ['X-ray']}
+  DAO : {'Description': 'The DAO collection at the CADC', 'Bands': ['Infrared', 'Optical']}
+  DAOPLATES : {'Description': 'The DAOPLATES collection at the CADC', 'Bands': ['Optical']}
+  FUSE : {'Description': 'The FUSE collection at the CADC', 'Bands': ['UV']}
+  GEMINI : {'Description': 'The GEMINI collection at the CADC', 'Bands': ['Infrared', 'Optical']}
+  HST : {'Description': 'The HST collection at the CADC', 'Bands': ['Infrared', 'Optical', 'UV']}
+  HSTHLA : {'Description': 'The HSTHLA collection at the CADC', 'Bands': ['Optical', 'Infrared', 'UV']}
+  IRIS : {'Description': 'The IRIS collection at the CADC', 'Bands': ['Infrared']}
+  JCMT : {'Description': 'The JCMT collection at the CADC', 'Bands': ['Millimeter']}
+  JCMTLS : {'Description': 'The JCMTLS collection at the CADC', 'Bands': ['Millimeter']}
+  MACHO : {'Description': 'The MACHO collection at the CADC', 'Bands': ['Optical']}
+  MOST : {'Description': 'The MOST collection at the CADC', 'Bands': ['Optical']}
+  NOAO : {'Description': 'The NOAO collection at the CADC', 'Bands': ['Optical', 'Infrared']}
+  OMM : {'Description': 'The OMM collection at the CADC', 'Bands': ['Optical', 'Infrared']}
+  SDSS : {'Description': 'The SDSS collection at the CADC', 'Bands': ['Infrared', 'Optical']}
+  SUBARU : {'Description': 'The SUBARU collection at the CADC', 'Bands': ['Optical']}
+  TESS : {'Description': 'The TESS collection at the CADC', 'Bands': ['Optical']}
+  UKIRT : {'Description': 'The UKIRT collection at the CADC', 'Bands': ['Optical', 'Infrared']}
+  VGPS : {'Description': 'The VGPS collection at the CADC', 'Bands': ['Radio']}
+  VLASS : {'Description': 'The VLASS collection at the CADC', 'Bands': ['Radio']}
+  XMM : {'Description': 'The XMM collection at the CADC', 'Bands': ['Optical', 'UV', 'X-ray']}
+
+
 The most basic ways to access the CADC data and metadata is by region or by
 name. The following example queries CADC for Canada France Hawaii Telescope
 data for a given region and resolves the URLs for downloading the corresponding

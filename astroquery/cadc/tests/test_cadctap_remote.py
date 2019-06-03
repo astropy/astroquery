@@ -16,6 +16,25 @@ from astropy.coordinates import SkyCoord
 @remote_data
 class TestCadcClass:
     # now write tests for each method here
+    def test_get_collections(self):
+        cadc = Cadc()
+        result = cadc.get_collections()
+        assert len(result) > 10
+        # test for the presence of a few known collections
+        assert 'CFHT' in result
+        assert 'Infrared' in result['CFHT']['Bands']
+        assert 'Optical' in result['CFHT']['Bands']
+        assert 'MOST' in result
+        assert 'Optical' in result['MOST']['Bands']
+        assert 'GEMINI' in result
+        assert 'Infrared' in result['GEMINI']['Bands']
+        assert 'Optical' in result['GEMINI']['Bands']
+        assert 'JCMT' in result
+        assert 'Millimeter' in result['JCMT']['Bands']
+        assert 'DAO' in result
+        assert 'Infrared' in result['DAO']['Bands']
+        assert 'Optical' in result['DAO']['Bands']
+
     def test_query_region(self):
         cadc = Cadc()
         result = cadc.query_region('08h45m07.5s +54d18m00s', collection='CFHT')
@@ -43,10 +62,10 @@ class TestCadcClass:
 
     def test_query_name(self):
         cadc = Cadc()
-        result1 = cadc.query_name('M31')
+        result1 = cadc.query_name('M31-B14')
         assert len(result1) > 20
         # test case insensitive
-        result2 = cadc.query_name('m31')
+        result2 = cadc.query_name('m31-b14')
         assert len(result1) == len(result2)
 
     def test_query(self):

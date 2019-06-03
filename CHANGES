@@ -241,6 +241,7 @@ Infrastructure, Utility and Other Changes and Additions
 
 - ATOMIC: fix several bugs for using Quantited for the range parameters.
   [#1187]
+- CADC: added the get_collections method. [#1482]
 - ESASKY: get_maps() accepts dict or list of (name, Table) pairs as input
   table list. [#1167]
 - ESO: Catch exception on login when keyring fails to get a valid storage.
