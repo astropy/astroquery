@@ -319,7 +319,8 @@ above categories. Those services are here:
   jplhorizons/jplhorizons.rst
   jplsbdb/jplsbdb.rst
   jplspec/jplspec.rst
-
+  imcce/imcce.rst
+  
 
 Topical Collections
 ===================

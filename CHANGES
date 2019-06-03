@@ -78,6 +78,13 @@ hitran
 ibe
 ^^^
 
+imcce
+^^^^^
+
+- service ``miriade`` added, querying asteroid and comets ephemerides [#1353]
+
+- service ``skybot`` added, identifying Solar System objects in a given field at a given epoch [#1353]
+
 irsa
 ^^^^
 
@@ -169,6 +176,8 @@ skyview
 
 solarsystem
 ^^^^^^^^^^^
+
+- ``imcce`` services added [#1353]
 
 splatalogue
 ^^^^^^^^^^^

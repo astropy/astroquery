@@ -1,0 +1,61 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<vot:VOTABLE version='1.3' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:vot='http://www.ivoa.net/xml/VOTable/v1.3' xsi:schemaLocation='http://www.ivoa.net/xml/VOTable/v1.3 http://www.ivoa.net/xml/VOTable/VOTable-1.3.xsd' xmlns:stc='http://www.ivoa.net/xml/STC/v1.30'>
+<vot:COOSYS ID='J2000RefFrame' system='eq_FK5' equinox='J2000'/>
+<vot:COOSYS ID='EphRefFrame' system='eq_FK5' equinox='J2000'/>
+<vot:INFO ID='supplier' name='supplier' value='Provided by IMCCE/CNRS/OBSPM' />
+<vot:RESOURCE name='Miriade.ephemcc'>
+<vot:DESCRIPTION>Miriade - Positional ephemeris</vot:DESCRIPTION>
+<vot:TABLE name='Miriade.ephemcc.results' nrows='1'>
+<vot:DESCRIPTION>Positional ephemeris</vot:DESCRIPTION>
+<vot:PARAM ID='targettype' name='targetType' datatype='char' ucd='src.class' arraysize='*' value='Asteroid' />
+<vot:PARAM ID='targetnum' name='targetNumber' datatype='int' ucd='meta.id.part'  value="3552" />
+<vot:PARAM ID='targetname' name='targetName' datatype='char' ucd='meta.id' arraysize='*' value="Don Quixote" />
+<vot:PARAM ID='diameter' name='Diameter' datatype='float' ucd='phys.size.diameter' width='10' unit='km' value='0.00' />
+<vot:PARAM ID='ceu' name='CEU' datatype='float' ucd='stat.error;pos' width='16' unit='arcsec' value='0.26000000E-01' />
+<vot:PARAM ID='ceurate' name='CEU rate' datatype='float' ucd='stat.error;arith.rate;pos' width='16' unit='arcsec/d' value='-0.99000000E-04' />
+<vot:PARAM ID='orbital_period' name='Orbital period' datatype='float' ucd='time.period' width='15' unit='d' value='3.20980559E+03' />
+<vot:PARAM ID='system_mass' name='System mass' datatype='float' ucd='phys.mass' width='10' unit='kg' value='0.0000E+00' />
+<vot:PARAM ID='dynamical_class' name='Dynamical class' datatype='char' ucd='meta.code.class' arraysize='*' value='NEA&gt;Apollo' />
+<vot:PARAM ID='taxonomic_class' name='Taxonomic class' datatype='char' ucd='meta.code.class' arraysize='*' value='D' />
+<vot:PARAM ID='taxonomic_param' name='Taxonomic parameter' datatype='char' ucd='meta.code.class' arraysize='*' value='4' />
+<vot:PARAM ID='taxonomic_source' name='Taxonomic source' datatype='char' ucd='meta.ref' arraysize='*' value='Tholen (1984, 1989)' />
+<vot:PARAM ID='time_scale' name='Time_Scale' datatype='char' ucd='meta.note' arraysize='*' value='UTC' />
+<vot:PARAM ID='planetary_theory' name='Planetary_Theory' datatype='char' ucd='meta.note' arraysize='8' value='INPOP13C' />
+<vot:PARAM ID='coordinates' name='Coordinates' datatype='char' ucd='meta.note' arraysize='*' value='Local' />
+<vot:PARAM ID='frametype' name='frameType' datatype='char' ucd='pos.frame' arraysize='*' value='Astrometric J2000' />
+<vot:PARAM ID='framecentre' name='frameCentre' datatype='char' ucd='meta.note' arraysize='*' value='Topocenter' />
+<vot:PARAM ID='location_name' name='Location_Name' datatype='char' ucd='meta.note' arraysize='*' value='Observatoire de Paris [syst. GRS80]' />
+<vot:PARAM ID='location_coord' name='Location_Coordinates' datatype='char' ucd='meta.note' arraysize='*' value=' 0h  9m 20.769s E ; 48d 50m 11.035s N ;  131.98m' />
+<vot:FIELD ID='target' name='Target' ucd='meta.id' datatype='char' arraysize='20'>
+<vot:DESCRIPTION>Name or designation of the target</vot:DESCRIPTION>
+</vot:FIELD>
+<vot:FIELD ID='epoch' name='Date' ucd='time.epoch' datatype='double' width='20'>
+<vot:DESCRIPTION>Julian day (UTC)</vot:DESCRIPTION>
+</vot:FIELD>
+<vot:FIELD ID='azimut' name='Azimut' ucd='pos.az.azi' ref='EphRefFrame' datatype='char' arraysize='13' unit='"d:m:s"'>
+<vot:DESCRIPTION>Azimuth of target centre</vot:DESCRIPTION>
+</vot:FIELD>
+<vot:FIELD ID='elevation' name='Elevation' ucd='pos.az.alt' ref='EphRefFrame' datatype='char' arraysize='13' unit='"d:m:s"'>
+<vot:DESCRIPTION>Elevation of target centre</vot:DESCRIPTION>
+</vot:FIELD>
+<vot:FIELD ID='mv' name='Mv' ucd='em.opt.V' datatype='float' width='6' precision='2' unit='-'>
+<vot:DESCRIPTION>Apparent visual magnitude</vot:DESCRIPTION>
+</vot:FIELD>
+<vot:FIELD ID='distance' name='Distance' ucd='phys.distance' datatype='double' width='16' unit='au'>
+<vot:DESCRIPTION>Distance from observer</vot:DESCRIPTION>
+</vot:FIELD>
+<vot:FIELD ID='phase' name='Phase' ucd='pos.phaseAng' datatype='double' width='6' unit='deg'>
+<vot:DESCRIPTION>Phase angle</vot:DESCRIPTION>
+</vot:FIELD>
+<vot:FIELD ID='elongation' name='Elongation' ucd='pos.angDistance' datatype='double' width='6' unit='deg'>
+<vot:DESCRIPTION>Solar elongation</vot:DESCRIPTION>
+</vot:FIELD>
+<vot:DATA>
+<vot:TABLEDATA>
+<vot:TR><vot:TD>Don Quixote</vot:TD><vot:TD> 2458516.42997361580</vot:TD><vot:TD>299 13  9.022</vot:TD><vot:TD>+34 16 22.96</vot:TD><vot:TD> 18.72</vot:TD><vot:TD>   3.008884287</vot:TD><vot:TD> 18.36</vot:TD><vot:TD> 87.55</vot:TD></vot:TR>
+</vot:TABLEDATA>
+</vot:DATA>
+</vot:TABLE>
+</vot:RESOURCE>
+</vot:VOTABLE>
+
