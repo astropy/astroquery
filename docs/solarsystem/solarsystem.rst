@@ -18,8 +18,8 @@ The currently available service providers and services are:
 
   jpl/jpl.rst
   imcce/imcce.rst
-  
-  
+  mpc/mpc.rst
+
 Reference/API
 =============
 

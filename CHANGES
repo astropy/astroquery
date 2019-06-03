@@ -126,6 +126,8 @@ mast
 mpc
 ^^^
 
+- functionality added to query observations database. [#1350]
+
 nasa_ads
 ^^^^^^^^
 
@@ -178,6 +180,8 @@ solarsystem
 ^^^^^^^^^^^
 
 - ``imcce`` services added [#1353]
+
+- updates to jplhorizons [#1335, #1478] and mpc [#1350]
 
 splatalogue
 ^^^^^^^^^^^

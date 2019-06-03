@@ -21,6 +21,10 @@ class Conf(_config.ConfigNamespace):
         ['cgi.minorplanetcenter.net'],
         'Base URL for the Minor Planet Ephemeris Service')
 
+    mpcdb_server = _config.ConfigItem(
+        ['http://minorplanetcenter.net/search_db'],
+        'Base URL for MPC search_db services')
+
     timeout = _config.ConfigItem(
         60,
         'Time limit for connecting to MPC.')
@@ -29,6 +33,10 @@ class Conf(_config.ConfigNamespace):
         # O defaults to the maximum limit
         0,
         'Maximum number of rows that will be fetched from the result.')
+
+    # packed numbers translation string
+    pkd = ('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+           'abcdefghifklmnopqrstuvwxyz')
 
 
 conf = Conf()

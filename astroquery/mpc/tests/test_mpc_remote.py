@@ -81,3 +81,37 @@ class TestMPC(object):
         # test that query failed
         with pytest.raises(InvalidQueryError):
             mpc.core.MPC.get_ephemeris('test fail')
+
+    def test_get_observations(self):
+        # asteroids
+        a = mpc.core.MPC.get_observations(2)
+        assert a['number'][0] == 2
+
+        a = mpc.core.MPC.get_observations(12893)
+        assert a['number'][0] == 12893
+        assert a['desig'][-1] == '1998 QS55'
+        a = mpc.core.MPC.get_observations("2019 AA")
+        assert a['desig'][0] == '2019 AA'
+        a = mpc.core.MPC.get_observations("2017 BC136")
+        assert a['desig'][0] == '2017 BC136'
+
+        # comets
+        a = mpc.core.MPC.get_observations('2P')
+        assert a['number'][0] == 2
+        assert a['comettype'][0] == 'P'
+        a = mpc.core.MPC.get_observations('258P')
+        assert a['number'][0] == 258
+        assert a['comettype'][0] == 'P'
+        a = mpc.core.MPC.get_observations("P/2018 P4")
+        assert a['desig'][0] == "2018 P4"
+        with pytest.raises(ValueError):
+            a = mpc.core.MPC.get_observations("2018 P4")
+        a = mpc.core.MPC.get_observations("P/2018 P4")
+        assert a['desig'][0] == "2018 P4"
+        a = mpc.core.MPC.get_observations("C/2013 K1")
+        assert a['desig'][0] == "2013 K1"
+        a = mpc.core.MPC.get_observations("P/2019 A4")
+        assert a['desig'][0] == "2019 A4"
+
+        with pytest.raises(TypeError):
+            a = mpc.core.MPC.get_observations()

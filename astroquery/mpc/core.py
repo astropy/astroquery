@@ -1,13 +1,17 @@
 # -*- coding: utf-8 -*-
 
-from bs4 import BeautifulSoup
+import json
+import re
+import warnings
 
 import numpy as np
+from bs4 import BeautifulSoup
 from astropy.io import ascii
 from astropy.time import Time
-from astropy.table import Table, Column
+from astropy.table import Table, QTable, Column
 import astropy.units as u
-from astropy.coordinates import EarthLocation, Angle
+from astropy.coordinates import EarthLocation, Angle, SkyCoord
+from astropy._erfa.core import ErfaWarning
 
 from ..query import BaseQuery
 from . import conf
@@ -30,6 +34,9 @@ class MPCClass(BaseQuery):
     MPES_URL = 'https://' + conf.mpes_server + '/cgi-bin/mpeph2.cgi'
     OBSERVATORY_CODES_URL = ('https://' + conf.web_service_server +
                              '/iau/lists/ObsCodes.html')
+
+    MPCOBS_URL = conf.mpcdb_server
+
     TIMEOUT = conf.timeout
 
     _ephemeris_types = {
@@ -762,6 +769,229 @@ class MPCClass(BaseQuery):
 
         return request_args
 
+    @class_or_instance
+    def get_observations_async(self, targetid,
+                               id_type=None,
+                               comettype=None,
+                               get_mpcformat=False,
+                               get_raw_response=False,
+                               get_query_payload=False,
+                               cache=True):
+        """
+        Obtain all reported observations for an asteroid or a comet
+        from the `Minor Planet Center observations database
+        <https://minorplanetcenter.net/db_search>`_.
+
+        Parameters
+        ----------
+        targetid : int or str
+            Official target number or
+            designation. If a number is provided (either as int or
+            str), the input is interpreted as an asteroid number;
+            asteroid designations are interpreted as such (note that a
+            whitespace between the year and the remainder of the
+            designation is required and no packed designations are
+            allowed). To query a periodic comet number, you have to
+            append ``'P'``, e.g., ``'234P'``. To query any comet
+            designation, the designation has to start with a letter
+            describing the comet type and a slash, e.g., ``'C/2018 E1'``.
+            Comet or asteroid names, Palomar-Leiden Survey
+            designations, and individual comet fragments cannot be
+            queried.
+
+        id_type : str, optional
+            Manual override for identifier type. If ``None``, the
+            identifier type is derived by parsing ``targetid``; if this
+            automated classification fails, it can be set manually using
+            this parameter. Possible values are ``'asteroid number'``,
+            ``'asteroid designation'``, ``'comet number'``, and
+            ``'comet designation'``. Default: ``None``
+
+        get_mpcformat : bool, optional
+            If ``True``, this method will return an `~astropy.table.QTable`
+            with only a single column holding the original MPC 80-column
+            observation format. Default: ``False``
+
+        get_raw_response : bool, optional
+            If ``True``, this method will return the raw output from the
+            MPC servers (json). Default: ``False``
+
+        get_query_payload : bool, optional
+            Return the HTTP request parameters as a dictionary
+            (default: ``False``).
+
+        cache : bool, optional
+            If ``True``, queries will be cached. Default: ``True``
+
+
+        Raises
+        ------
+        RuntimeError
+            If query did not return any data.
+
+        ValueError
+            If target name could not be parsed properly and target type
+            could not be identified.
+
+
+        Notes
+        -----
+        The following quantities are included in the output table
+
+        +-------------------+--------------------------------------------+
+        | Column Name       | Definition                                 |
+        +===================+============================================+
+        | ``number``        | official IAU target number (int)           |
+        +-------------------+--------------------------------------------+
+        | ``desig``         | provisional target designation (str)       |
+        +-------------------+--------------------------------------------+
+        | ``discovery`` (*) | target discovery flag (str)                |
+        +-------------------+--------------------------------------------+
+        | ``comettype`` (*) | orbital type of comet (str)                |
+        +-------------------+--------------------------------------------+
+        | ``note1`` (#)     | Note1 (str)                                |
+        +-------------------+--------------------------------------------+
+        | ``note2`` (#)     | Note2 (str)                                |
+        +-------------------+--------------------------------------------+
+        | ``epoch``         | epoch of observation (Julian Date, float)  |
+        +-------------------+--------------------------------------------+
+        | ``RA``            | RA reported (J2000, deg, float)            |
+        +-------------------+--------------------------------------------+
+        | ``DEC``           | declination reported (J2000, deg, float)   |
+        +-------------------+--------------------------------------------+
+        | ``mag``           | reported magnitude (mag, float)            |
+        +-------------------+--------------------------------------------+
+        | ``band`` (*)      | photometric band for ``mag`` (str)         |
+        +-------------------+--------------------------------------------+
+        | ``phottype`` (*)  | comet photometry type (nuclear/total, str) |
+        +-------------------+--------------------------------------------+
+        | ``observatory``   | IAU observatory code (str)                 |
+        +-------------------+--------------------------------------------+
+
+        (*): Column names are optional and
+        depend on whether an asteroid or a comet has been queried.
+
+        (#): Parameters ``Note1`` and ``Note2`` are defined `here
+        <https://minorplanetcenter.net/iau/info/OpticalObs.html>`_.
+
+
+        Examples
+        --------
+        >>> from astroquery.mpc import MPC
+        >>> MPC.get_observations(12893)  # doctest: +SKIP
+        <QTable masked=True length=1401>
+        number   desig   discovery note1 ...   mag   band observatory
+                                         ...   mag
+        int64     str9      str1    str1 ... float64 str1     str3
+        ------ --------- --------- ----- ... ------- ---- -----------
+         12893 1998 QS55        --    -- ...     0.0   --         413
+         12893 1998 QS55        --    -- ...     0.0   --         413
+         12893 1998 QS55         *     4 ...     0.0   --         809
+         12893 1998 QS55        --     4 ...     0.0   --         809
+         12893 1998 QS55        --     4 ...     0.0   --         809
+         12893 1998 QS55        --     4 ...    18.4   --         809
+           ...       ...       ...   ... ...     ...  ...         ...
+         12893 1998 QS55        --    -- ...   18.63    c         T05
+         12893 1998 QS55        --    -- ...   18.55    c         T05
+         12893 1998 QS55        --    -- ...    18.3    r         I41
+         12893 1998 QS55        --    -- ...    18.3    r         I41
+         12893 1998 QS55        --    -- ...    18.2    r         I41
+         12893 1998 QS55        --    -- ...    18.3    r         I41
+        """
+
+        request_payload = {'table': 'observations'}
+
+        if id_type is None:
+
+            pat = ('(^[0-9]*$)|'  # [0] asteroid number
+                   '(^[0-9]{1,3}[PIA]$)'  # [1] periodic comet number
+                   '(-[1-9A-Z]{0,2})?$|'  # [2] fragment
+                   '(^[PDCXAI]/[- 0-9A-Za-z]*)'
+                   # [3] comet designation
+                   '(-[1-9A-Z]{0,2})?$|'  # [4] fragment
+                   '(^([1A][8-9][0-9]{2}[ _][A-Z]{2}[0-9]{0,3}$|'
+                   '^20[0-9]{2}[ _][A-Z]{2}[0-9]{0,3}$)|'
+                   '(^[1-9][0-9]{3}[ _](P-L|T-[1-3]))$)'
+                   # asteroid designation [5] (old/new/Palomar-Leiden style)
+                   )
+
+            # comet fragments are extracted here, but the MPC server does
+            # not allow for fragment-based queries
+
+            m = re.findall(pat, str(targetid))
+
+            if len(m) == 0:
+                raise ValueError(('Cannot interpret target '
+                                  'identifier "{}".').format(targetid))
+            else:
+                m = m[0]
+
+            request_payload['object_type'] = 'M'
+            if m[1] != '':
+                request_payload['object_type'] = 'P'
+            if m[3] != '':
+                request_payload['object_type'] = m[3][0]
+
+            if m[0] != '':
+                request_payload['number'] = m[0]  # asteroid number
+            elif m[1] != '':
+                request_payload['number'] = m[1][:-1]  # per.  comet number
+            elif m[3] != '':
+                request_payload['designation'] = m[3]  # comet designation
+            elif m[5] != '':
+                request_payload['designation'] = m[5]  # ast. designation
+        else:
+            if 'asteroid' in id_type:
+                request_payload['object_type'] = 'M'
+                if 'number' in id_type:
+                    request_payload['number'] = str(targetid)
+                elif 'designation' in id_type:
+                    request_payload['designation'] = targetid
+            if 'comet' in id_type:
+                pat = ('(^[0-9]{1,3}[PIA])|'  # [0] number
+                       '(^[PDCXAI]/[- 0-9A-Za-z]*)'  # [1] designation
+                       )
+                m = re.findall(pat, str(targetid))
+
+                if len(m) == 0:
+                    raise ValueError(('Cannot parse comet type '
+                                      'from "{}".').format(targetid))
+                else:
+                    m = m[0]
+
+                if m[0] != '':
+                    request_payload['object_type'] = m[0][-1]
+                elif m[1] != '':
+                    request_payload['object_type'] = m[1][0]
+
+                if 'number' in id_type:
+                    request_payload['number'] = targetid[:-1]
+                elif 'designation' in id_type:
+                    request_payload['designation'] = targetid
+
+        self.query_type = 'observations'
+
+        if get_query_payload:
+            return request_payload
+
+        response = self._request('GET', url=self.MPCOBS_URL,
+                                 params=request_payload,
+                                 auth=(self.MPC_USERNAME,
+                                       self.MPC_PASSWORD),
+                                 timeout=self.TIMEOUT, cache=cache)
+
+        if get_mpcformat:
+            self.obsformat = 'mpc'
+        else:
+            self.obsformat = 'table'
+
+        if get_raw_response:
+            self.get_raw_response = True
+        else:
+            self.get_raw_response = False
+
+        return response
+
     def _parse_result(self, result, **kwargs):
         if self.query_type == 'object':
             try:
@@ -936,6 +1166,139 @@ class MPCClass(BaseQuery):
                 tab['JD'] = Time(tab['JD'], format='jd', scale='tt')
 
             return tab
+
+        elif self.query_type == 'observations':
+
+            warnings.simplefilter("ignore", ErfaWarning)
+
+            try:
+                src = json.loads(result.text)
+            except (ValueError, json.decoder.JSONDecodeError):
+                raise RuntimeError(
+                    'Server response not readable: "{}"'.format(
+                        result.text))
+
+            if len(src) == 0:
+                raise RuntimeError(('No data queried. Are the target '
+                                    'identifiers correct?'))
+
+            # return raw response if requested
+            if self.get_raw_response:
+                return src
+
+            # return raw 80-column observation format if requested
+            if self.obsformat == 'mpc':
+                tab = Table([[o['original_record'] for o in src]])
+                tab.rename_column('col0', 'obs')
+                return tab
+
+            if all([o['object_type'] == 'M' for o in src]):
+                # minor planets (asteroids)
+                data = ascii.read("\n".join([o['original_record']
+                                             for o in src]),
+                                  format='fixed_width_no_header',
+                                  names=('number', 'pdesig', 'discovery',
+                                         'note1', 'note2', 'epoch',
+                                         'RA', 'DEC', 'mag', 'band',
+                                         'observatory'),
+                                  col_starts=(0, 5, 12, 13, 14, 15,
+                                              32, 44, 65, 70, 77),
+                                  col_ends=(4, 11, 12, 13, 14, 31,
+                                            43, 55, 69, 70, 79))
+
+                # convert asteroid designations
+                # old designation style, e.g.: 1989AB
+                ident = data['pdesig'][0]
+                if isinstance(ident, np.ma.masked_array) and ident.mask:
+                    ident = ''
+                elif (len(ident) < 7 and ident[:4].isdigit() and
+                        ident[4:6].isalpha()):
+                    ident = ident[:4]+' '+ident[4:6]
+                # Palomar Survey
+                elif 'PLS' in ident:
+                    ident = ident[3:] + " P-L"
+                # Trojan Surveys
+                elif 'T1S' in ident:
+                    ident = ident[3:] + " T-1"
+                elif 'T2S' in ident:
+                    ident = ident[3:] + " T-2"
+                elif 'T3S' in ident:
+                    ident = ident[3:] + " T-3"
+                # standard MPC packed 7-digit designation
+                elif (ident[0].isalpha() and ident[1:3].isdigit() and
+                      ident[-1].isalpha() and ident[-2].isdigit()):
+                    yr = str(conf.pkd.find(ident[0]))+ident[1:3]
+                    let = ident[3]+ident[-1]
+                    num = str(conf.pkd.find(ident[4]))+ident[5]
+                    num = num.lstrip("0")
+                    ident = yr+' '+let+num
+                data.add_column(Column([ident]*len(data), name='desig'),
+                                index=1)
+                data.remove_column('pdesig')
+
+            elif all([o['object_type'] != 'M' for o in src]):
+                # comets
+                data = ascii.read("\n".join([o['original_record']
+                                             for o in src]),
+                                  format='fixed_width_no_header',
+                                  names=('number', 'comettype', 'desig',
+                                         'note1', 'note2', 'epoch',
+                                         'RA', 'DEC', 'mag', 'phottype',
+                                         'observatory'),
+                                  col_starts=(0, 4, 5, 13, 14, 15,
+                                              32, 44, 65, 70, 77),
+                                  col_ends=(3, 4, 12, 13, 14, 31,
+                                            43, 55, 69, 70, 79))
+
+                # convert comet designations
+                ident = data['desig'][0]
+
+                if (not isinstance(ident, (np.ma.masked_array,
+                                           np.ma.core.MaskedConstant))
+                        or not ident.mask):
+                    yr = str(conf.pkd.find(ident[0]))+ident[1:3]
+                    let = ident[3]
+                    # patch to parse asteroid designations
+                    if len(ident) == 7 and str.isalpha(ident[6]):
+                        let += ident[6]
+                        ident = ident[:6] + ident[7:]
+                    num = str(conf.pkd.find(ident[4]))+ident[5]
+                    num = num.lstrip("0")
+                    if len(ident) >= 7:
+                        frag = ident[6] if ident[6] != '0' else ''
+                    else:
+                        frag = ''
+                    ident = yr+' '+let+num+frag
+                    # remove and add desig column to overcome length limit
+                    data.remove_column('desig')
+                    data.add_column(Column([ident]*len(data),
+                                           name='desig'), index=3)
+            else:
+                raise ValueError(('Object type is ambiguous. "{}" '
+                                  'are present.').format(
+                                      set([o['object_type'] for o in src])))
+
+            # convert dates to Julian Dates
+            dates = [d[:10].replace(' ', '-') for d in data['epoch']]
+            times = np.array([float(d[10:]) for d in data['epoch']])
+            jds = Time(dates, format='iso').jd+times
+            data['epoch'] = jds
+
+            # convert ra and dec to degrees
+            coo = SkyCoord(ra=data['RA'], dec=data['DEC'],
+                           unit=(u.hourangle, u.deg),
+                           frame='icrs')
+            data['RA'] = coo.ra.deg
+            data['DEC'] = coo.dec.deg
+
+        # convert Table to QTable
+        data = QTable(data)
+        data['epoch'].unit = u.d
+        data['RA'].unit = u.deg
+        data['DEC'].unit = u.deg
+        data['mag'].unit = u.mag
+
+        return data
 
 
 MPC = MPCClass()
