@@ -51,15 +51,17 @@ This function orders the parsed data into a dictionary. This
 representation of the results is convenient but not easy to read for a
 human. :meth:`~astroquery.jplsbdb.SBDBClass.schematic`
 will use the output dictionary and transform it into a human-readable
-schematic:
+schematic. Please consult the `Data Output section
+<https://ssd-api.jpl.nasa.gov/doc/sbdb.html#data-output>`__ of the SBDB API
+documentation to learn more about the meaning of the different output fields:
 
 .. code-block:: python
 
    >>> print(SBDB.schematic(sbdb))
-   +-+ object: 
+   +-+ object:
    | +-- shortname: 3552 Don Quixote
    | +-- neo: True
-   | +-+ orbit_class: 
+   | +-+ orbit_class:
    | | +-- name: Amor
    | | +-- code: AMO
    | +-- pha: False
@@ -69,10 +71,10 @@ schematic:
    | +-- fullname: 3552 Don Quixote (1983 SA)
    | +-- des: 3552
    | +-- prefix: None
-   +-+ signature: 
+   +-+ signature:
    | +-- source: NASA/JPL Small-Body Database (SBDB) API
    | +-- version: 1.0
-   +-+ orbit: 
+   +-+ orbit:
    | +-- source: JPL
    | +-- cov_epoch: 2.45657e+06 d
    | +-- moid_jup: 0.441 AU
@@ -87,7 +89,7 @@ schematic:
    | +-- soln_date: 2018-07-06 06:55:08
    | +-- two_body: None
    | +-- epoch: 2.4582e+06 d
-   | +-+ elements: 
+   | +-+ elements:
    | | +-- e: 0.709
    | | +-- e_sig: 4.8e-08
    | | +-- a: 4.26 AU
@@ -120,8 +122,8 @@ schematic:
    | +-- pe_used: DE431
    | +-- last_obs: 2018-07-05
    | +-- moid: 0.334 AU
-   | +-- n_dop_obs_used: None   
-   
+   | +-- n_dop_obs_used: None
+
 The schematic shows the different levels in the dictionary. Note that
 :meth:`~astroquery.jplsbdb.SBDBClass.schematic` actually
 only returns a string; in order to display it properly, it has to be
@@ -273,10 +275,9 @@ This submodule makes use of the `JPL Horizons
 The development of this submodule is funded through NASA PDART
 Grant No. 80NSSC18K0987 to the `sbpy project <http://sbpy.org>`_.
 
-     
+
 Reference/API
 =============
 
 .. automodapi:: astroquery.jplsbdb
     :no-inheritance-diagram:
-
