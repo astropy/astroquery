@@ -2070,7 +2070,7 @@ class CatalogsClass(MastClass):
             service = "Mast.Catalogs.Filtered.Tic"
             if coordinates or objectname:
                 service += ".Position"
-            service += ".Rows" # Using the rowstore version of the query for speed
+            service += ".Rows"  # Using the rowstore version of the query for speed
             mashup_filters = self._build_filter_set("Mast.Catalogs.Tess.Cone", service, **criteria)
 
         elif catalog.lower() == "diskdetective":

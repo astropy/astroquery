@@ -130,6 +130,8 @@ mast
   
 - MAST: Addition of observation metadata query. Addition of catalogs.MAST PanSTARRS catalog queries. [#1473]
 
+- TIC catalog search update. [#1483]
+
 mpc
 ^^^
 
