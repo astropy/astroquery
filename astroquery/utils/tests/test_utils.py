@@ -102,6 +102,7 @@ def test_send_request_post(monkeypatch):
     assert response.url == 'https://github.com/astropy/astroquery'
     assert response.data == dict(msg='ok')
     assert 'astroquery' in response.headers['User-Agent']
+    assert response.headers['User-Agent'].endswith("_testrun")
 
 
 def test_send_request_get(monkeypatch):
