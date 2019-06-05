@@ -47,6 +47,7 @@ import astropy
 if int(astropy.__version__[0]) > 1:
     # The warnings_to_ignore_by_pyver parameter was added in astropy 2.0
     enable_deprecations_as_exceptions(modules_to_ignore_on_import=['requests'])
+    enable_deprecations_as_exceptions(modules_to_ignore_on_import=['regions'])
 
 # add '_testrun' to the version name so that the user-agent indicates that
 # it's being run in a test
