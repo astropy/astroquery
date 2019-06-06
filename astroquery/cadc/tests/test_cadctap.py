@@ -7,6 +7,7 @@ CadcClass TAP plus
 """
 import os
 
+from astropy.table import Table
 from astroquery.cadc import CadcClass, conf
 import astroquery.cadc.core as cadc_core
 from astroquery.utils.commons import parse_coordinates
@@ -241,6 +242,35 @@ def test_get_access_ur(monkeypatch):
     assert \
         'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/tap/tables' == \
         cadc_core.get_access_url('mytap', 'ivo://ivoa.net/std/VOSI#tables-1.1')
+
+
+def test_get_collections(monkeypatch):
+    monkeypatch.setattr(cadc_core, 'get_access_url', get_access_url_mock)
+    dummyTapHandler = DummyTapHandler()
+    cadc = CadcClass(dummyTapHandler)
+
+    def mock_run_query(query, output_format, operation):
+        assert query == \
+               'select distinct collection, energy_emBand from caom2.EnumField'
+        assert output_format == 'csv'
+        assert operation == 'sync'
+        table = Table(rows=[('CFHT', 'Optical'), ('CFHT', 'Infrared'),
+                            ('JCMT', 'Millimeter'), ('DAO', 'Optical'),
+                            ('DAO', 'Infrared')],
+                      names=('collection', 'energy_emBand'))
+
+        class Response(object):
+            pass
+        response = Response()
+        response.results = table
+        return response
+
+    cadc.run_query = mock_run_query
+    result = cadc.get_collections()
+    assert len(result) == 3
+    assert 'CFHT' in result
+    assert 'JCMT' in result
+    assert 'DAO' in result
 
 
 def test_get_data_urls(monkeypatch):
