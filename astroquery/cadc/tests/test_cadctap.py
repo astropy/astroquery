@@ -13,7 +13,9 @@ import astroquery.cadc.core as cadc_core
 from astroquery.utils.commons import parse_coordinates
 from astroquery.cadc.tests.DummyTapHandler import DummyTapHandler
 import pytest
-
+from astropy.io.votable import parse
+from pyvo.dal.adhoc import DatalinkResults
+from urllib.parse import urlencode
 
 # monkeypatch get_access_url to prevent internet calls
 def get_access_url_mock(arg1, arg2=None):
@@ -345,3 +347,34 @@ def test_misc(monkeypatch):
            "quality_flag != 'junk')".format(coords_ra, coords_dec) ==  \
            cadc._args_to_payload(**{'coordinates': coords,
                                  'radius': 0.3})['query']
+
+def test_get_image_list(monkeypatch):
+    datalink_file = data_path('datalink_result.xml')
+    table = parse(datalink_file)
+    monkeypatch.setattr(cadc_core, 'get_access_url', get_access_url_mock)
+
+    def datalink(*args, **kwargs):
+        return DatalinkResults(table)
+
+    dummyTapHandler = DummyTapHandler()
+    cadc = CadcClass(tap_plus_handler=dummyTapHandler)
+    DatalinkResults.from_result_url = datalink
+
+    coords = '08h45m07.5s +54d18m00s'
+    coords_ra = parse_coordinates(coords).fk5.ra.degree
+    coords_dec = parse_coordinates(coords).fk5.dec.degree
+    radius = 10
+
+    info_dict = {'ID': 'ad:CFHT/282502o.fits.gz', 'RUNID': 'aqy7icng7ncbafj5',
+                 'POS': 'CIRCLE {} {} {}'.format(coords_ra, coords_dec, radius)}
+    base_url = 'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync'
+    url = '{}?{}'.format(base_url, urlencode(info_dict))
+
+    assert [url] == \
+           cadc.get_image_list({'caomPublisherID': ['ivo://cadc.nrc.ca/foo']},
+                               coords, radius)
+    with pytest.raises(TypeError):
+        cadc.get_image_list(None)
+    with pytest.raises(AttributeError):
+        cadc.get_image_list({'noPublisherID': 'test'}, coords, radius)
+

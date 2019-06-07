@@ -11,7 +11,8 @@ import logging
 import warnings
 import requests
 from numpy import ma
-
+from urllib.parse import urlencode
+from pyvo.dal.adhoc import DatalinkResults
 from ..utils.class_or_instance import class_or_instance
 from ..utils import async_to_sync, commons
 from ..query import BaseQuery
@@ -236,6 +237,121 @@ class CadcClass(BaseQuery):
                 collections[row['collection']]['Bands'].\
                     append(row['energy_emBand'])
         return collections
+
+    @class_or_instance
+    def get_images(self, coordinates, radius=None,
+                   collection=None,
+                   get_query_payload=False,
+                   show_progress=True):
+        """
+        A coordinate-based query function that returns a list of
+        fits files with cutouts around the passed in coordinates.
+
+        Parameters
+        ----------
+        coordinates : str or `astropy.coordinates`.
+            Coordinates around which to query
+        radius : str or `astropy.units.Quantity`.
+            The radius of the cone search AND cutout area
+        collection: str, optional
+            Name of the CADC collection to query, optional
+        get_query_payload : bool, optional
+            Just return the dict of HTTP request parameters.
+        show_progress: bool, optional
+            Whether to display a progress bar if the file is downloaded
+            from a remote server.  Default is `True`.
+
+        Returns
+        -------
+        list : A list of `~astropy.io.fits.HDUList` objects
+        """
+        # TODO: Implement threading
+        request_payload = self._args_to_payload(coordinates=coordinates,
+                                                radius=radius,
+                                                collection=collection)
+
+        if get_query_payload:
+            return request_payload
+
+        query_result = self.query_region(coordinates, radius=radius, collection=collection)
+        images_urls = self.get_image_list(query_result, coordinates, radius)
+        readable_objects = [commons.FileContainer(url, encoding='binary',
+                                                  show_progress=show_progress) for url in images_urls]
+
+        return [obj.get_fits() for obj in readable_objects]
+
+    @class_or_instance
+    def get_image_list(self, query_result, coordinates, radius):
+        """
+        Function to map the results of a CADC query into URLs to
+        corresponding data and cutouts that can be later downloaded.
+
+        The function uses the IVOA DataLink Service
+        (http://www.ivoa.net/documents/DataLink/) implemented at the CADC.
+        It works directly with the results produced by Cadc.query_region and
+        Cadc.query_name but in principle it can work with other query
+        results produced with the Cadc query as long as the results
+        contain the 'caomPublisherID' column. This column is part of the
+        caom2.Plane table.
+
+        Parameters
+        ----------
+        query_result : result returned by Cadc.query_region() or
+                    Cadc.query_name(). In general, the result of any
+                    CADC TAP query that contains the 'caomPublisherID' column
+                    can be use here.
+        coordinates : str or `astropy.coordinates`.
+            Coordinates around which to query
+        radius : str or `astropy.units.Quantity`.
+            The radius of the cone search AND cutout area
+
+        Returns
+        -------
+        A list of URLs to data.
+        """
+
+        # TODO: Get access url from publisher ID to find which datalink service to use (i.e. datalink or sc2links)
+        # TODO: Check datalink reponse
+
+        def chunks(l, n):
+            # For item i in a range that is a length of l,
+            for i in range(0, len(l), n):
+                # Create an index range for l of n items:
+                yield l[i:i + n]
+
+        n_pids = 20
+        parsed_coordinates = commons.parse_coordinates(coordinates).fk5
+        ra = parsed_coordinates.ra.degree
+        dec = parsed_coordinates.dec.degree
+        cutout_params = {'POS': 'CIRCLE {} {} {}'.format(ra, dec, radius)}
+
+        if not query_result:
+            raise AttributeError('Missing metadata argument')
+
+        try:
+            publisher_ids = query_result['caomPublisherID']
+        except KeyError:
+            raise AttributeError(
+                'caomPublisherID column missing from query_result argument')
+        result = []
+
+        for pid_chunk in chunks(publisher_ids, n_pids):
+            try:
+                datalink = DatalinkResults.from_result_url(
+                    '{}?{}'.format(self.data_link_url, urlencode({'ID': pid_chunk}, True)))
+                # Need a raise_for_status() or equivalent here
+                for service_def in datalink.bysemantics('#cutout'):
+                    access_url = service_def.access_url.decode('ascii')
+                    if '/sync' in access_url:
+                        service_params = service_def.input_params
+                        input_params = {param.name: param.value for param in service_params if
+                                        param.name in ['ID', 'RUNID']}
+                        url_params = {**input_params, **cutout_params}
+                        result.append('{}?{}'.format(access_url, urlencode(url_params)))
+
+            except StopIteration:
+                continue
+        return result
 
     @class_or_instance
     def get_data_urls(self, query_result, include_auxiliaries=False):

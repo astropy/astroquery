@@ -93,3 +93,14 @@ class TestCadcClass:
                 "metaRelease>'{}'".format(now.strftime('%Y-%m-%dT%H:%M:%S.%f'))
         result = cadc.query(query)
         assert len(result) == 1
+
+    def test_get_image_list(self):
+        cadc = Cadc()
+        query = "select top 1 * from caom2.Plane"
+        query_result = cadc.query(query)
+
+        coords = SkyCoord.from_name(10, 20, unit='deg')
+        radius = 10
+
+        image_list = cadc.get_image_list(self, query_result, coords, radius)
+        assert len(image_list) == 1
