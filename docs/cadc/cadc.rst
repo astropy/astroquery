@@ -145,16 +145,15 @@ resolve the cutout of a result.
   >>> from astroquery.cadc import Cadc
   >>>
   >>> cadc = Cadc()
-  >>> coords = '00h42m44.3s +41d16m07.5s'
   >>> coords = '08h45m07.5s +54d18m00s'
   >>> radius = 0.1
   >>> images = cadc.get_images(coords, radius, collection='APASS')
   >>> for image in images:
   ...    print(image)
+
     [<astropy.io.fits.hdu.image.PrimaryHDU object at 0x7f0addae4cc0>]
     [<astropy.io.fits.hdu.image.PrimaryHDU object at 0x7f0addb044e0>]
     [<astropy.io.fits.hdu.image.PrimaryHDU object at 0x7f0addb7c278>]
-    ...
 
 Alternatively, if the query result is large and data does not need to be
 downloaded, the cutout urls can be retrieved and downloaded when
@@ -171,11 +170,10 @@ convenient.
   >>> for image_url in image_list:
   ...    print(image_url)
 
-    https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=ad%3AIRIS%2FI374B4H0.fits&RUNID=ue2sastu2l04w91b&POS=CIRCLE+131.2812539293342+54.29999417826928+0.01
-    https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=vos%3A%2F%2Fcadc.nrc.ca%21vospace%2FAPASS%2Fnorth%2F140327%2Fn140327.0254.new.fz&RUNID=ue2sastu2l04w91b&POS=CIRCLE+131.2812539293342+54.29999417826928+0.01
-    https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=vos%3A%2F%2Fcadc.nrc.ca%21vospace%2FAPASS%2Fnorth%2F140327%2Fn140327.0255.new.fz&RUNID=ue2sastu2l04w91b&POS=CIRCLE+131.2812539293342+54.29999417826928+0.01
-    https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=vos%3A%2F%2Fcadc.nrc.ca%21vospace%2FAPASS%2Fnorth%2F140327%2Fn140327.0252.new.fz&RUNID=ue2sastu2l04w91b&POS=CIRCLE+131.2812539293342+54.29999417826928+0.01
-    ...
+    https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=vos%3A%2F%2Fcadc.nrc.ca%21vospace%2FAPASS%2Fnorth%2F120108%2Fn120108.0201.new.fz&RUNID=rvrb37s2jrt5cwux&POS=CIRCLE+131.2812539293342+54.29999417826928+0.1
+    https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=vos%3A%2F%2Fcadc.nrc.ca%21vospace%2FAPASS%2Fnorth%2F120107%2Fn120107.0568.new.fz&RUNID=rvrb37s2jrt5cwux&POS=CIRCLE+131.2812539293342+54.29999417826928+0.1
+    https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=vos%3A%2F%2Fcadc.nrc.ca%21vospace%2FAPASS%2Fnorth%2F120107%2Fn120107.0570.new.fz&RUNID=rvrb37s2jrt5cwux&POS=CIRCLE+131.2812539293342+54.29999417826928+0.1
+    https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=ad%3AIRIS%2FI396B4H0.fits&RUNID=nhbcj1pgkobe5nfq&POS=CIRCLE+131.2812539293342+54.29999417826928+0.1
 
 Note that the examples above are for accessing data anonymously. Users with
 access to proprietary data can call ```login``` on the ```cadc``` object

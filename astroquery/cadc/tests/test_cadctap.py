@@ -17,6 +17,7 @@ from astropy.io.votable import parse
 from pyvo.dal.adhoc import DatalinkResults
 from urllib.parse import urlencode
 
+
 # monkeypatch get_access_url to prevent internet calls
 def get_access_url_mock(arg1, arg2=None):
     return "https://some.url"
