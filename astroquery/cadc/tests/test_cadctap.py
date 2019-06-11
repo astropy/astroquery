@@ -348,6 +348,7 @@ def test_misc(monkeypatch):
            cadc._args_to_payload(**{'coordinates': coords,
                                  'radius': 0.3})['query']
 
+
 def test_get_image_list(monkeypatch):
     datalink_file = data_path('datalink_result.xml')
     table = parse(datalink_file)
@@ -376,5 +377,6 @@ def test_get_image_list(monkeypatch):
     with pytest.raises(TypeError):
         cadc.get_image_list(None)
     with pytest.raises(AttributeError):
+        cadc.get_image_list([], coords, radius)
+    with pytest.raises(AttributeError):
         cadc.get_image_list({'noPublisherID': 'test'}, coords, radius)
-

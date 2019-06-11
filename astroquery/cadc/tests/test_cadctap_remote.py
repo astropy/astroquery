@@ -94,13 +94,7 @@ class TestCadcClass:
         result = cadc.query(query)
         assert len(result) == 1
 
-    def test_get_image_list(self):
+    def test_get_images(self):
         cadc = Cadc()
-        query = "select top 1 * from caom2.Plane"
-        query_result = cadc.query(query)
-
-        coords = SkyCoord.from_name(10, 20, unit='deg')
-        radius = 10
-
-        image_list = cadc.get_image_list(self, query_result, coords, radius)
-        assert len(image_list) == 1
+        images = cadc.get_images('08h45m07.5s +54d18m00s')
+        assert images is not None

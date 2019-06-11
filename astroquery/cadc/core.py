@@ -11,6 +11,7 @@ import logging
 import warnings
 import requests
 from numpy import ma
+from urllib.error import HTTPError
 from urllib.parse import urlencode
 from pyvo.dal.adhoc import DatalinkResults
 from ..utils.class_or_instance import class_or_instance
@@ -239,7 +240,7 @@ class CadcClass(BaseQuery):
         return collections
 
     @class_or_instance
-    def get_images(self, coordinates, radius=None,
+    def get_images(self, coordinates, radius=0.016666666666667,
                    collection=None,
                    get_query_payload=False,
                    show_progress=True):
@@ -265,20 +266,36 @@ class CadcClass(BaseQuery):
         -------
         list : A list of `~astropy.io.fits.HDUList` objects
         """
-        # TODO: Implement threading
+
         request_payload = self._args_to_payload(coordinates=coordinates,
                                                 radius=radius,
                                                 collection=collection)
+        request_payload['query'] = request_payload['query'] + " AND (dataProductType = 'image')"
 
         if get_query_payload:
             return request_payload
 
-        query_result = self.query_region(coordinates, radius=radius, collection=collection)
-        images_urls = self.get_image_list(query_result, coordinates, radius)
-        readable_objects = [commons.FileContainer(url, encoding='binary',
-                                                  show_progress=show_progress) for url in images_urls]
+        query = request_payload['query'] + " AND (dataProductType = 'image')"
+        response = self.run_query(query, operation='sync')
+        query_result = response.get_results()
 
-        return [obj.get_fits() for obj in readable_objects]
+        if query_result and len(query_result) == 2000:
+            logger.debug("Synchronous query results capped at 2000 results - results may be truncated")
+
+        images_urls = self.get_image_list(query_result, coordinates, radius)
+        images = []
+
+        try:
+            readable_objects = [commons.FileContainer(url, encoding='binary',
+                                                      show_progress=show_progress) for url in images_urls]
+            for obj in readable_objects:
+                images.append(obj.get_fits())
+        except HTTPError as err:
+            logger.debug(
+                "{} - Problem retrieving the file: {}".format(str(err), str(err.url)))
+            pass
+
+        return images
 
     @class_or_instance
     def get_image_list(self, query_result, coordinates, radius):
@@ -310,23 +327,25 @@ class CadcClass(BaseQuery):
         A list of URLs to data.
         """
 
-        # TODO: Get access url from publisher ID to find which datalink service to use (i.e. datalink or sc2links)
-        # TODO: Check datalink reponse
+        def chunks(obj_list, chunk_len):
+            """
+            A generator that breaks list obj_list into sublists of length chunk_len
+            :param obj_list: The list to be chunked
+            :param chunk_len: The length of each chunked sublist
+            :return: An iterator that goes through each sublist
+            """
+            for idx in range(0, len(obj_list), chunk_len):
+                yield obj_list[idx:idx + chunk_len]
 
-        def chunks(l, n):
-            # For item i in a range that is a length of l,
-            for i in range(0, len(l), n):
-                # Create an index range for l of n items:
-                yield l[i:i + n]
+        if not query_result:
+            raise AttributeError('Missing query_result argument')
 
+        # Send datalink requests in batches of 20 publisher ids
         n_pids = 20
         parsed_coordinates = commons.parse_coordinates(coordinates).fk5
         ra = parsed_coordinates.ra.degree
         dec = parsed_coordinates.dec.degree
         cutout_params = {'POS': 'CIRCLE {} {} {}'.format(ra, dec, radius)}
-
-        if not query_result:
-            raise AttributeError('Missing metadata argument')
 
         try:
             publisher_ids = query_result['caomPublisherID']
@@ -335,22 +354,19 @@ class CadcClass(BaseQuery):
                 'caomPublisherID column missing from query_result argument')
         result = []
 
-        for pid_chunk in chunks(publisher_ids, n_pids):
-            try:
-                datalink = DatalinkResults.from_result_url(
-                    '{}?{}'.format(self.data_link_url, urlencode({'ID': pid_chunk}, True)))
-                # Need a raise_for_status() or equivalent here
-                for service_def in datalink.bysemantics('#cutout'):
-                    access_url = service_def.access_url.decode('ascii')
-                    if '/sync' in access_url:
-                        service_params = service_def.input_params
-                        input_params = {param.name: param.value for param in service_params if
-                                        param.name in ['ID', 'RUNID']}
-                        url_params = {**input_params, **cutout_params}
-                        result.append('{}?{}'.format(access_url, urlencode(url_params)))
+        # Iterate through list of sublists to send datalink requests in batches
+        for pid_sublist in chunks(publisher_ids, n_pids):
+            datalink = DatalinkResults.from_result_url(
+                '{}?{}'.format(self.data_link_url, urlencode({'ID': pid_sublist}, True)))
+            for service_def in datalink.bysemantics('#cutout'):
+                access_url = service_def.access_url.decode('ascii')
+                if '/sync' in access_url:
+                    service_params = service_def.input_params
+                    input_params = {param.name: param.value for param in service_params if
+                                    param.name in ['ID', 'RUNID']}
+                    input_params.update(cutout_params)
+                    result.append('{}?{}'.format(access_url, urlencode(input_params)))
 
-            except StopIteration:
-                continue
         return result
 
     @class_or_instance
