@@ -286,6 +286,7 @@ Infrastructure, Utility and Other Changes and Additions
 - JPLHorizons: fix for missing H, G values [#1332]
 - JPLHorizons: warn if URI is longer than 2000 chars, docs updated
 - JPLSBDB: fix for missing value, test added
+- CADC: Added the get_images and get_image_list functions [#1486]
 
 0.3.8 (2018-04-27)
 ------------------

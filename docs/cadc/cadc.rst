@@ -18,7 +18,7 @@ Basic Access
 ============
 
 The CADC hosts a number of collections and ```get_collections``` returns a list
-of all these collectins:
+of all these collections:
 
 .. code-block:: python
 
@@ -124,7 +124,7 @@ resolved. Instead it is matched against the target name in the CADC metadata.
   >>> from astroquery.cadc import Cadc
   >>>
   >>> cadc = Cadc()
-  >>> result = cadc.query_name('M31)
+  >>> result = cadc.query_name('M31')
   >>> print(len(result))
 
     2000
@@ -137,6 +137,45 @@ resolved. Instead it is matched against the target name in the CADC metadata.
     ------------------ -------------- ----------------- --------------- ... ---------------------------- --------------------------------- ------------------- -----------------------
      caom:CFHT/2376828        2376828                                 0 ...                              58546.328009 .. 58546.32960815509                     2019-03-04T08:14:46.470
 
+
+If only a subsection of the fits file is needed, CADC can query an area and
+resolve the cutout of a result.
+
+.. code-block:: python
+  >>> from astroquery.cadc import Cadc
+  >>>
+  >>> cadc = Cadc()
+  >>> coords = '00h42m44.3s +41d16m07.5s'
+  >>> coords = '08h45m07.5s +54d18m00s'
+  >>> radius = 0.1
+  >>> images = cadc.get_images(coords, radius, collection='APASS')
+  >>> for image in images:
+  ...    print(image)
+    [<astropy.io.fits.hdu.image.PrimaryHDU object at 0x7f0addae4cc0>]
+    [<astropy.io.fits.hdu.image.PrimaryHDU object at 0x7f0addb044e0>]
+    [<astropy.io.fits.hdu.image.PrimaryHDU object at 0x7f0addb7c278>]
+    ...
+
+Alternatively, if the query result is large and data does not need to be
+downloaded, the cutout urls can be retrieved and downloaded when
+convenient. 
+
+.. code-block:: python
+  >>> from astroquery.cadc import Cadc
+  >>>
+  >>> cadc = Cadc()
+  >>> coords = '08h45m07.5s +54d18m00s'
+  >>> radius = 0.1
+  >>> result = cadc.query_region(coords, radius=radius)
+  >>> image_list = cadc.get_image_list(result, coords, radius)
+  >>> for image_url in image_list:
+  ...    print(image_url)
+
+    https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=ad%3AIRIS%2FI374B4H0.fits&RUNID=ue2sastu2l04w91b&POS=CIRCLE+131.2812539293342+54.29999417826928+0.01
+    https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=vos%3A%2F%2Fcadc.nrc.ca%21vospace%2FAPASS%2Fnorth%2F140327%2Fn140327.0254.new.fz&RUNID=ue2sastu2l04w91b&POS=CIRCLE+131.2812539293342+54.29999417826928+0.01
+    https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=vos%3A%2F%2Fcadc.nrc.ca%21vospace%2FAPASS%2Fnorth%2F140327%2Fn140327.0255.new.fz&RUNID=ue2sastu2l04w91b&POS=CIRCLE+131.2812539293342+54.29999417826928+0.01
+    https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=vos%3A%2F%2Fcadc.nrc.ca%21vospace%2FAPASS%2Fnorth%2F140327%2Fn140327.0252.new.fz&RUNID=ue2sastu2l04w91b&POS=CIRCLE+131.2812539293342+54.29999417826928+0.01
+    ...
 
 Note that the examples above are for accessing data anonymously. Users with
 access to proprietary data can call ```login``` on the ```cadc``` object
@@ -405,7 +444,7 @@ Query without saving results in a file:
 
 .. code-block:: python
 
-  >>> from astroquery.cadc import cadc
+  >>> from astroquery.cadc import Cadc
   >>> cadc = Cadc()
   >>> job = cadc.run_query("SELECT observationID, instrument_name, target_name FROM caom2.Observation AS Observation", 'async')
   >>> print(job.get_results())
