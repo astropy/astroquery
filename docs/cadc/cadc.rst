@@ -17,6 +17,9 @@ This package allows the access to the data at the CADC
 Basic Access
 ============
 
+NOTE: ```astroquery.cadc``` is dependent on the ```pyvo``` package. Please
+install it prior to using the ```cadc``` module.
+
 The CADC hosts a number of collections and ```get_collections``` returns a list
 of all these collections:
 
@@ -127,7 +130,7 @@ resolved. Instead it is matched against the target name in the CADC metadata.
   >>> result = cadc.query_name('M31')
   >>> print(len(result))
 
-    2000
+    103949
 
   >>> result = cadc.query_name('Nr3491_1')
   >>> print(result)
@@ -260,13 +263,10 @@ To get list of table objects
   >>> from astroquery.cadc import Cadc
   >>>
   >>> cadc = Cadc()
-  >>> tables=cadc.get_tables()
+  >>> tables=cadc.get_tables(only_names=True)
   >>> for table in tables:
-  >>>   print(table.get_qualified_name())
+  >>>   print(table)
 
-  Retrieving tables...
-  Parsing tables...
-  Done.
   caom2.caom2.Observation
   caom2.caom2.Plane
   caom2.caom2.Artifact
@@ -301,14 +301,10 @@ To get a single table object
   >>> from astroquery.cadc import Cadc
   >>>
   >>> cadc = Cadc()
-  >>> table=cadc.get_table(table='caom2.caom2.Observation')
+  >>> table=cadc.get_table(table='caom2.Observation')
   >>> for col in table.columns:
   >>>   print(col.name)
 
-  in load  caom2.caom2.Observation
-  Retrieving tables...
-  Parsing tables...
-  Done.
   observationURI
   obsID
   collection
@@ -370,8 +366,8 @@ Query without saving results in a file:
 
   >>> from astroquery.cadc import Cadc
   >>> cadc = Cadc()
-  >>> job = cadc.run_query("SELECT observationID, intent FROM caom2.Observation", 'sync')
-  >>> print(job.get_results())
+  >>> results = cadc.exec_sync("SELECT top 100 observationID, intent FROM caom2.Observation")
+  >>> print(results)
 
             observationID             intent
   ------------------------------ -----------
@@ -397,7 +393,7 @@ Query without saving results in a file:
                        jbte02020     science
                          1083689 calibration
                          1005486 calibration
-  Length = 2000 rows
+  Length = 100 rows
 
 Query saving results in a file:
 
@@ -405,7 +401,7 @@ Query saving results in a file:
 
   >>> from astroquery.cadc import Cadc
   >>> cadc = Cadc()
-  >>> job = cadc.run_query("SELECT TOP 10 observationID, obsID FROM caom2.Observation AS Observation", 'sync',
+  >>> job = cadc.exec_sync("SELECT TOP 10 observationID, obsID FROM caom2.Observation AS Observation",
   >>>                      output_file='test_output_noauth.tsv', output_format='tsv')
 
 1.5 Synchronous query with temporary uploaded table
@@ -444,8 +440,10 @@ Query without saving results in a file:
 
   >>> from astroquery.cadc import Cadc
   >>> cadc = Cadc()
-  >>> job = cadc.run_query("SELECT observationID, instrument_name, target_name FROM caom2.Observation AS Observation", 'async')
-  >>> print(job.get_results())
+  >>> job = cadc.create_async("SELECT TOP 100 observationID, instrument_name, target_name FROM caom2.Observation AS Observation")
+  >>> job.run().wait()
+  >>> job.raise_if_error()
+  >>> print(job.fetch_result().to_table())
 
           observationID          instrument_name           target_name
   ------------------------------ --------------- --------------------------------
@@ -471,44 +469,7 @@ Query without saving results in a file:
            GN-CAL20040311-20-036            NIRI                         GCALflat
            GS-CAL20150411-11-054          GMOS-S                             Bias
                           168750           HRCAM                          TAU CET
-  Length = 716975 rows
-
-
-Query saving results in a file:
-
-.. code-block:: python
-
-  >>> from astroquery.cadc import Cadc
-  >>> cadc = Cadc()
-  >>> job = cadc.run_query("SELECT observationID, instrument_name, target_name FROM caom2.Observation AS Observation", \
-  >>>                      'async', output_file='outputFile.tsv', output_format='tsv')
-  >>> print(job.get_results())
-
-          observationID            instrument_name      target_name
-  --------------------------- ----------------------- -------------
-         GN-CAL20150720-1-079                  GMOS-N          Bias
-         dao_c122_2018_001088   McKellar Spectrograph          FLAT
-         GS-CAL20150603-1-049                  GMOS-S          Bias
-                    jc9v89ksq                 ACS/WFC ESO-364--G029
-                    jbsr02q4q                 ACS/WFC  SGR-STREAM-1
-        GN-CAL20041020-70-161                    NIRI      GCALflat
-         GN-CAL20100916-4-019                    NIRI          Dark
-                    jbsta8xbq                 ACS/WFC MACS0416-2403
-       GN-2008A-Q-45-1214-010                    NIRI          Dark
-        GN-2008B-Q-49-129-014                    NIRI      GCALflat
-                          ...                     ...           ...
-      182_192708110408_015529 Cassegrain Spectrograph           M85
-      182_192708110524_015530 Cassegrain Spectrograph      30S DARK
-                       855277                  WIRCam          BIAS
-                      1704383               MegaPrime      30S DARK
-                      1535828                  WIRCam          BIAS
-                      2052519                 SITELLE     300S DARK
-                       600310                   GECKO          BIAS
-                       989296                  WIRCam     HD 151604
-  acsis_00004_20160811T043656              HARP-ACSIS        SY Her
-                      1704382               MegaPrime        HR 246
-                      1536408                  WIRCam TwilightFlats
-  Length = 1720713 rows
+  Length = 100 rows
 
 
 1.7 Load job
@@ -521,35 +482,37 @@ Asynchronous jobs can be loaded. You need the jobid in order to load the job.
 
   >>> from astroquery.cadc import Cadc
   >>> cadc = Cadc()
-  >>> job = cadc.load_async_job(jobid='ichozdcz23g5r20f')
-  >>> print(job.get_results())
+  >>> job = cadc.create_async("SELECT TOP 100 observationID, instrument_name, target_name FROM caom2.Observation AS Observation")
+  >>> job.run().wait()
+  >>> job.raise_if_error()
+  >>> loaded_job = cadc.load_async_job(jobid=job.job_id)
+  >>> print(loaded_job.fetch_result().to_table())
 
-          observationID          ...            caomObservationURI
-  ------------------------------ ... ----------------------------------------
-                        m1030610 ...                       caom:FUSE/m1030610
-    myc03@930813_093655_ukt_0129 ...   caom:JCMT/myc03@930813_093655_ukt_0129
-  m99bu22@000130_165639_das_0112 ... caom:JCMT/m99bu22@000130_165639_das_0112
-  m95an03@950515_134612_das_0447 ... caom:JCMT/m95an03@950515_134612_das_0447
-    myc03@930813_093836_ukt_0130 ...   caom:JCMT/myc03@930813_093836_ukt_0130
-  m99bu22@000130_170940_cbe_0113 ... caom:JCMT/m99bu22@000130_170940_cbe_0113
-  m95an03@950515_135307_cbe_0448 ... caom:JCMT/m95an03@950515_135307_cbe_0448
-    myc03@930813_093951_ukt_0131 ...   caom:JCMT/myc03@930813_093951_ukt_0131
-  m99bu22@000130_171325_cbe_0114 ... caom:JCMT/m99bu22@000130_171325_cbe_0114
-  m95an03@950515_135732_das_0449 ... caom:JCMT/m95an03@950515_135732_das_0449
-                             ... ...                                      ...
-    myc03@930813_095216_ukt_0138 ...   caom:JCMT/myc03@930813_095216_ukt_0138
-  m99bu22@000202_211750_cbe_0120 ... caom:JCMT/m99bu22@000202_211750_cbe_0120
-  m95an03@950515_152820_das_0456 ... caom:JCMT/m95an03@950515_152820_das_0456
-  m99bu22@000202_212023_cbe_0121 ... caom:JCMT/m99bu22@000202_212023_cbe_0121
-    myc03@930813_095327_ukt_0139 ...   caom:JCMT/myc03@930813_095327_ukt_0139
-  m95an03@950515_154550_cbe_0457 ... caom:JCMT/m95an03@950515_154550_cbe_0457
-    myc03@930813_095438_ukt_0140 ...   caom:JCMT/myc03@930813_095438_ukt_0140
-  m99bu22@000202_212602_das_0122 ... caom:JCMT/m99bu22@000202_212602_das_0122
-  m99bu22@991127_135008_cbe_0001 ... caom:JCMT/m99bu22@991127_135008_cbe_0001
-    myc03@930813_095654_ukt_0141 ...   caom:JCMT/myc03@930813_095654_ukt_0141
-  m95an03@950515_155031_das_0458 ... caom:JCMT/m95an03@950515_155031_das_0458
-  Length = 50 rows
-
+          observationID          instrument_name           target_name
+  ------------------------------ --------------- --------------------------------
+  m95au08@950207_091918_ukt_0062           UKT14                             OMC1
+    myn03@931121_092519_das_0193             DAS                             G225
+     ml83@920201_073519_ukt_0049           UKT14
+  m95au08@950207_092056_ukt_0063           UKT14                             OMC1
+    myn03@931121_094005_das_0194             DAS                             G225
+     ml83@920201_074436_ukt_0050           UKT14
+  m95au08@950207_092119_ukt_0064           UKT14                             OMC1
+                       o4qpk0exq        STIS/CCD                           LIST-2
+                          299729           SISFP FLAT POUR LE FILTRE 6611/10 FILT
+                          201314        COUDE_F8                             TEST
+                             ...             ...                              ...
+     hst_07909_f8_wfpc2_total_wf           WFPC2                             HIGH
+  hst_07909_g0_wfpc2_f450w_pc_04           WFPC2                             HIGH
+  hst_07909_hp_wfpc2_f300w_pc_02           WFPC2                             HIGH
+             GN-2015A-Q-86-5-046          GMOS-N                       J1655+2533
+     hst_07909_ia_wfpc2_f606w_pc           WFPC2                              ANY
+                         1943508       MegaPrime                               D4
+    scuba2_00001_20180212T035813         SCUBA-2
+            GS-CAL20150607-2-046          GMOS-S                             Bias
+           GN-CAL20040311-20-036            NIRI                         GCALflat
+           GS-CAL20150411-11-054          GMOS-S                             Bias
+                          168750           HRCAM                          TAU CET
+  Length = 100 rows
 
 ---------------------------
 2. Authenticated access
@@ -592,53 +555,6 @@ To perform a logout
   >>> from astroquery.cadc import Cadc
   >>> cadc = Cadc()
   >>> cadc.logout()
-
-2.2 List asynchronous jobs
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-List all asynchronous jobs the user has created. Must be logged in in order to know whose jobs to get.
-
-.. code-block:: python
-
-  >>> from astroquery.cadc import Cadc
-  >>> cadc = Cadc()
-  >>> cadc.login(user=user, password=password)
-  >>> job_list=cadc.list_async_jobs()
-  >>> for job in job_list:
-  >>>   print(job.jobid)
-
-  a07ow6t1iz0g6t9i
-  a08eohn7nv26a9co
-  a0bgkjy2dxglk9et
-  a20nk3ipdfnhfwon
-  a2j1uzuq539k0juw
-  a2p9ptit64eo6a60
-  a2quy2vhy2jcf7vd
-  a2rhhclcf5jrvki6
-  a3ndlvrgwiyxh725
-  a4ifu7jd90ikg4n9
-  a4mx6zsetzrusa77
-  a5m4s8iv63adnvqv
-  a67b6m0plmzrc6lh
-  a6986enjq841jpmf
-  a6utdlldgm7r3wdk
-  a7ql0xabjywp4gb1
-  a8l4p7wjfe5sj5qh
-  a8lwo6yx7lhlw3fc
-  a9ompdxms2ym6s6e
-  aa2hcryt8opz6n8w
-  aaekwjipwt5ts00d
-  abo34amxg89swk82
-  ac1zko0xzyipw8jh
-  acwqcbis6c61kdqb
-  aczrbnw5cqghsed5
-  adh8errtdud1c4zf
-  adkxjhdtjhysg95j
-  af35uk819cuzsknu
-  afg2fn2k11fdxk0k
-  afqwdvyfhtkoty1
-  ...
-
 
 Reference/API
 =============
