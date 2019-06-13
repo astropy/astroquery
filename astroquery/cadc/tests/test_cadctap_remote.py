@@ -5,12 +5,16 @@ Canadian Astronomy Data Centre
 =============
 """
 
-import pytest
 import os
 from datetime import datetime
-from astropy.tests.helper import remote_data
-from astroquery.cadc import Cadc
+
+import pytest
+import requests
 from astropy.coordinates import SkyCoord
+from astropy.tests.helper import remote_data
+
+from astroquery.cadc import Cadc
+from astroquery.utils.commons import parse_coordinates
 
 # to run just one test during development, set this variable to True
 # and comment out the skipif of the single test to run.
@@ -132,10 +136,37 @@ class TestCadcClass:
         assert len(result) == 1
         cadc.logout()
 
+    @pytest.mark.skipif(one_test, reason='One test mode')
     def test_get_images(self):
         cadc = Cadc()
-        images = cadc.get_images('08h45m07.5s +54d18m00s')
+        coords = '08h45m07.5s +54d18m00s'
+        radius = 0.05
+        images = cadc.get_images(coords, radius=radius)
         assert images is not None
+
+        # Compare results from cadc advanced search to get_images
+        query = cadc._args_to_payload(**{'coordinates': coords,
+                                         'radius': radius,
+                                         'data_product_type': 'image'})['query']
+        result = cadc.exec_sync(query)
+        uri_list = [uri.decode('ascii') for uri in result['publisherID']]
+        access_url = 'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/en/download'
+        icrs_coords = parse_coordinates(coords).icrs
+        data = {'uris': ' '.join(uri_list),
+                'params': 'cutout=Circle ICRS {} {} {}'.
+                    format(icrs_coords.ra.degree, icrs_coords.dec.degree, radius),
+                'method': 'URL List'
+                }
+
+        resp_urls = requests.post(access_url, data).text.split('\r\n')
+
+        # Filter out the errors and empty strings
+        filtered_resp_urls = list(filter(lambda url: not url.startswith('ERROR') and url != '', resp_urls))
+
+        # This function should return nearly the same urls (different RUN_ID and cutout syntax)
+        image_urls = cadc.get_images(coords, radius=radius, get_url_list=True)
+
+        assert len(filtered_resp_urls) == len(image_urls)
 
     @pytest.mark.skipif(one_test, reason='One test mode')
     def test_async(self):

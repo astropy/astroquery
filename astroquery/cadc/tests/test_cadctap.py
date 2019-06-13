@@ -7,21 +7,21 @@ CadcClass TAP plus
 """
 import os
 import sys
-
-from astropy.table import Table as AstroTable
-from astropy.io.votable.tree import VOTableFile, Resource, Table, Field
-from astropy.io.votable import parse
-from astropy.utils.diff import report_diff_values
-from six import BytesIO
-from astroquery.cadc import Cadc, conf
-import astroquery.cadc.core as cadc_core
-from astroquery.utils.commons import parse_coordinates
+import tempfile
 from unittest.mock import Mock, patch, PropertyMock
+from urllib.parse import urlencode
+
 import pytest
 from astropy.io.votable import parse
-from urllib.parse import urlencode
-import tempfile
+from astropy.io.votable.tree import VOTableFile, Resource, Table, Field
+from astropy.table import Table as AstroTable
+from astropy.utils.diff import report_diff_values
 from pyvo.dal import tap, adhoc
+from six import BytesIO
+
+import astroquery.cadc.core as cadc_core
+from astroquery.cadc import Cadc, conf
+from astroquery.utils.commons import parse_coordinates
 
 
 # monkeypatch get_access_url to prevent internet calls
@@ -224,11 +224,13 @@ def test_misc():
            "o.obsID=p.obsID WHERE INTERSECTS( CIRCLE('ICRS', " \
            "{}, {}, 0.3), position_bounds) = 1 " \
            "AND (quality_flag IS NULL OR quality_flag != 'junk') " \
-           "AND collection='CFHT'".format(coords_ra, coords_dec) == \
+           "AND collection='CFHT' AND dataProductType='image'".\
+               format(coords_ra, coords_dec) == \
            cadc._args_to_payload(**{'coordinates': coords,
-                                 'radius': 0.3, 'collection': 'CFHT'})['query']
+                                    'radius': 0.3, 'collection': 'CFHT',
+                                    'data_product_type': 'image'})['query']
 
-    # no collection
+    # no collection or data_product_type
     assert "SELECT * from caom2.Observation o join caom2.Plane p ON " \
            "o.obsID=p.obsID WHERE INTERSECTS( CIRCLE('ICRS', " \
            "{}, {}, 0.3), position_bounds) = 1 AND (quality_flag IS NULL OR " \
@@ -237,16 +239,15 @@ def test_misc():
                                  'radius': 0.3})['query']
 
 
-def test_get_image_list(monkeypatch):
+@patch('astroquery.cadc.core.get_access_url',
+       Mock(side_effect=lambda x, y=None: 'https://some.url'))
+def test__get_image_list():
     datalink_file = data_path('datalink_result.xml')
     table = parse(datalink_file)
-    monkeypatch.setattr(cadc_core, 'get_access_url', get_access_url_mock)
 
     def datalink(*args, **kwargs):
         return adhoc.DatalinkResults(table)
 
-    dummyTapHandler = DummyTapHandler()
-    cadc = CadcClass(tap_plus_handler=dummyTapHandler)
     adhoc.DatalinkResults.from_result_url = datalink
 
     coords = '08h45m07.5s +54d18m00s'
@@ -259,15 +260,16 @@ def test_get_image_list(monkeypatch):
     base_url = 'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync'
     url = '{}?{}'.format(base_url, urlencode(info_dict))
 
+    cadc = Cadc()
     assert [url] == \
-           cadc.get_image_list({'caomPublisherID': ['ivo://cadc.nrc.ca/foo']},
+           cadc._get_image_list({'publisherID': ['ivo://cadc.nrc.ca/foo']},
                                coords, radius)
     with pytest.raises(TypeError):
-        cadc.get_image_list(None)
+        cadc._get_image_list(None)
     with pytest.raises(AttributeError):
-        cadc.get_image_list([], coords, radius)
+        cadc._get_image_list([], coords, radius)
     with pytest.raises(AttributeError):
-        cadc.get_image_list({'noPublisherID': 'test'}, coords, radius)
+        cadc._get_image_list({'noPublisherID': 'test'}, coords, radius)
 
 
 @patch('astroquery.cadc.core.get_access_url',

@@ -9,19 +9,21 @@ Module to query the Canadian Astronomy Data Centre (CADC).
 
 import logging
 import warnings
-import requests
-from numpy import ma
 from urllib.error import HTTPError
 from urllib.parse import urlencode
-from pyvo.dal.adhoc import DatalinkResults
-from ..utils.class_or_instance import class_or_instance
-from ..utils import async_to_sync, commons
-from ..query import BaseQuery
-from bs4 import BeautifulSoup
-from six import BytesIO
+
+import requests
 from astropy.io.votable import parse_single_table
+from bs4 import BeautifulSoup
+from numpy import ma
+from six import BytesIO
+
 from astroquery.utils.decorators import deprecated
 from . import conf
+from ..query import BaseQuery
+from ..utils import async_to_sync, commons
+from ..utils.class_or_instance import class_or_instance
+
 try:
     import pyvo
 except ImportError as e:
@@ -277,8 +279,8 @@ class CadcClass(BaseQuery):
     @class_or_instance
     def get_images(self, coordinates, radius=0.016666666666667,
                    collection=None,
-                   get_query_payload=False,
-                   show_progress=True):
+                   get_url_list=False,
+                   show_progress=False):
         """
         A coordinate-based query function that returns a list of
         fits files with cutouts around the passed in coordinates.
@@ -286,38 +288,34 @@ class CadcClass(BaseQuery):
         Parameters
         ----------
         coordinates : str or `astropy.coordinates`.
-            Coordinates around which to query
-        radius : str or `astropy.units.Quantity`.
-            The radius of the cone search AND cutout area
+            Coordinates around which to query.
+        radius : str or `astropy.units.Quantity`, optional
+            The radius of the cone search AND cutout area.
         collection: str, optional
-            Name of the CADC collection to query, optional
-        get_query_payload : bool, optional
-            Just return the dict of HTTP request parameters.
+            Name of the CADC collection to query.
+        get_url_list: bool, optional
+            If true, returns the list of data urls rather than
+            the downloaded FITS files. Default is `False`.
         show_progress: bool, optional
             Whether to display a progress bar if the file is downloaded
-            from a remote server.  Default is `True`.
+            from a remote server.  Default is `False`.
 
         Returns
         -------
-        list : A list of `~astropy.io.fits.HDUList` objects
+        list : A list of `~astropy.io.fits.HDUList` objects (or a list
+            of str if the `get_url_list` argument is True).
         """
 
         request_payload = self._args_to_payload(coordinates=coordinates,
                                                 radius=radius,
-                                                collection=collection)
-        request_payload['query'] = request_payload['query'] + " AND (dataProductType = 'image')"
+                                                collection=collection,
+                                                data_product_type='image')
+        query_result = self.exec_sync(request_payload['query'])
+        images_urls = self._get_image_list(query_result, coordinates, radius)
 
-        if get_query_payload:
-            return request_payload
+        if get_url_list:
+            return images_urls
 
-        query = request_payload['query'] + " AND (dataProductType = 'image')"
-        response = self.run_query(query, operation='sync')
-        query_result = response.get_results()
-
-        if query_result and len(query_result) == 2000:
-            logger.debug("Synchronous query results capped at 2000 results - results may be truncated")
-
-        images_urls = self.get_image_list(query_result, coordinates, radius)
         images = []
 
         try:
@@ -332,8 +330,7 @@ class CadcClass(BaseQuery):
 
         return images
 
-    @class_or_instance
-    def get_image_list(self, query_result, coordinates, radius):
+    def _get_image_list(self, query_result, coordinates, radius):
         """
         Function to map the results of a CADC query into URLs to
         corresponding data and cutouts that can be later downloaded.
@@ -343,55 +340,47 @@ class CadcClass(BaseQuery):
         It works directly with the results produced by Cadc.query_region and
         Cadc.query_name but in principle it can work with other query
         results produced with the Cadc query as long as the results
-        contain the 'caomPublisherID' column. This column is part of the
+        contain the 'publisherID' column. This column is part of the
         caom2.Plane table.
 
         Parameters
         ----------
         query_result : result returned by Cadc.query_region() or
                     Cadc.query_name(). In general, the result of any
-                    CADC TAP query that contains the 'caomPublisherID' column
+                    CADC TAP query that contains the 'publisherID' column
                     can be use here.
         coordinates : str or `astropy.coordinates`.
-            Coordinates around which to query
+            Center of the cutout area.
         radius : str or `astropy.units.Quantity`.
-            The radius of the cone search AND cutout area
+            The radius of the cutout area.
 
         Returns
         -------
-        A list of URLs to data.
+        A list of URLs to cutout data.
         """
-
-        def chunks(obj_list, chunk_len):
-            """
-            A generator that breaks list obj_list into sublists of length chunk_len
-            :param obj_list: The list to be chunked
-            :param chunk_len: The length of each chunked sublist
-            :return: An iterator that goes through each sublist
-            """
-            for idx in range(0, len(obj_list), chunk_len):
-                yield obj_list[idx:idx + chunk_len]
 
         if not query_result:
             raise AttributeError('Missing query_result argument')
 
-        # Send datalink requests in batches of 20 publisher ids
-        n_pids = 20
         parsed_coordinates = commons.parse_coordinates(coordinates).fk5
         ra = parsed_coordinates.ra.degree
         dec = parsed_coordinates.dec.degree
         cutout_params = {'POS': 'CIRCLE {} {} {}'.format(ra, dec, radius)}
 
         try:
-            publisher_ids = query_result['caomPublisherID']
+            publisher_ids = query_result['publisherID']
         except KeyError:
             raise AttributeError(
-                'caomPublisherID column missing from query_result argument')
+                'publisherID column missing from query_result argument')
+
         result = []
 
+        # Send datalink requests in batches of 20 publisher ids
+        batch_size = 20
+
         # Iterate through list of sublists to send datalink requests in batches
-        for pid_sublist in chunks(publisher_ids, n_pids):
-            datalink = DatalinkResults.from_result_url(
+        for pid_sublist in (publisher_ids[pos:pos + batch_size] for pos in range(0, len(publisher_ids), batch_size)):
+            datalink = pyvo.dal.adhoc.DatalinkResults.from_result_url(
                 '{}?{}'.format(self.data_link_url, urlencode({'ID': pid_sublist}, True)))
             for service_def in datalink.bysemantics('#cutout'):
                 access_url = service_def.access_url.decode('ascii')
@@ -415,7 +404,7 @@ class CadcClass(BaseQuery):
         It works directly with the results produced by Cadc.query_region and
         Cadc.query_name but in principle it can work with other query
         results produced with the Cadc query as long as the results
-        contain the 'caomPublisherID' column. This column is part of the
+        contain the 'publisherID' column. This column is part of the
         caom2.Plane table.
 
         Parameters
@@ -440,7 +429,7 @@ class CadcClass(BaseQuery):
             publisher_ids = query_result['publisherID']
         except KeyError:
             raise AttributeError(
-                'caomPublisherID column missing from query_result argument')
+                'publisherID column missing from query_result argument')
         result = []
         for pid in publisher_ids:
             response = self._request('GET', self.data_link_url,
@@ -695,6 +684,9 @@ class CadcClass(BaseQuery):
         if 'collection' in kwargs and kwargs['collection']:
             payload['query'] = "{} AND collection='{}'".\
                 format(payload['query'], kwargs['collection'])
+        if 'data_product_type' in kwargs and kwargs['data_product_type']:
+            payload['query'] = "{} AND dataProductType='{}'".\
+                format(payload['query'], kwargs['data_product_type'])
         return payload
 
 
