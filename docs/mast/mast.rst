@@ -559,25 +559,29 @@ or a list of multiple column names and/or tuples of direction and column name (A
 To filter the query, criteria per column name are accepted. The 'AND' operation is performed between all
 column name criteria, and the 'OR' operation is performed within column name criteria. Per each column name
 parameter, criteria may consist of either a value or a list. The list may consist of a mix of values and
-tuples of criteria decorator (min, gte, gt, max, lte, lt, like, contains) and value,
+tuples of criteria decorator (min, gte, gt, max, lte, lt, like, contains) and value.
 
 .. code-block:: python
 
-                >>> catalogData = Catalogs.query_criteria("5.97754 32.53617", radius=0.01, catalog="PANSTARRS",
-                                                        table="mean", data_release="dr1",
-                                                        columns=["objName", "objID", "lambda", "beta", "distance"],
-                                                        sort_by=[("desc", "distance")], page_size=5, page=3)
-                >>> print("Number of results:",len(catalogData))
+                >>> catalogData = Catalogs.query_criteria(coordinates="5.97754 32.53617", radius=0.01,
+                                                            catalog="PANSTARRS", table="mean", data_release="dr2",
+                                                            nStackDetections=[("gte", 2)],
+                                                            columns=["objName", "objID", "nStackDetections", "distance"],
+                                                            sort_by=[("desc", "distance")], pagesize=15)
                 >>> print(catalogData[:10])
 
-                Number of results: 5
-                         objName                 objID        ...       distance
-                -------------------------- ------------------ ... --------------------
-                PSO J002353.427+323139.907 147030059727583992 ...   0.0093857181370567
-                PSO J002354.885+323243.119 147050059787164914 ... 0.009176550286380453
-                PSO J002355.429+323240.965 147050059809724247 ... 0.009015001349267648
-                PSO J002354.373+323242.063 147050059765724612 ... 0.008886262151892286
-                PSO J002352.667+323149.775 147030059694587185 ... 0.008875602280019946
+                       objName              objID        nStackDetections        distance
+                --------------------- ------------------ ---------------- ---------------------
+                PSO J005.9812+32.5270 147030059812483022                5  0.009651200148871086
+                PSO J005.9726+32.5278 147030059727583992                2    0.0093857181370567
+                PSO J005.9787+32.5453 147050059787164914                4  0.009179045509852305
+                PSO J005.9722+32.5418 147050059721440704                4  0.007171813230776031
+                PSO J005.9857+32.5377 147040059855825725                4  0.007058815429178634
+                PSO J005.9810+32.5424 147050059809651427                2  0.006835678269917365
+                PSO J005.9697+32.5368 147040059697224794                2  0.006654002479439699
+                PSO J005.9712+32.5330 147040059711340087                4  0.006212461367287632
+                PSO J005.9747+32.5413 147050059747400181                5 0.0056515210592035965
+                PSO J005.9775+32.5314 147030059774678271                3  0.004739286624336443
 
 
 Hubble Source Catalog (HSC) specific queries

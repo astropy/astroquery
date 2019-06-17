@@ -690,31 +690,31 @@ class MastClass(QueryWithLogin):
     @class_or_instance
     def catalogs_service_request_async(self, service, params, page_size=None, page=None, **kwargs):
         """
-           Given a MAST fabric service and parameters, builds and excecutes a fabric microservice catalog query.
-           See documentation `here <https://catalogs.mast.stsci.edu/docs/index.html>`__
-           for information about how to build a MAST catalogs microservice  request.
+        Given a MAST fabric service and parameters, builds and excecutes a fabric microservice catalog query.
+        See documentation `here <https://catalogs.mast.stsci.edu/docs/index.html>`__
+        for information about how to build a MAST catalogs microservice  request.
 
-           Parameters
-           ----------
-           service : str
-               The MAST catalogs service to query. Should be present in self._MAST_CATALOGS_SERVICES
-           params : dict
-               JSON object containing service parameters.
-           page_size : int, optional
-               Default None.
-               Can be used to override the default pagesize (set in configs) for this query only.
-               E.g. when using a slow internet connection.
-           page : int, optional
-               Default None.
-               Can be used to override the default behavior of all results being returned to obtain
-               a specific page of results.
-           **kwargs :
-               See Catalogs.MAST properties in documentation referenced above
+        Parameters
+        ----------
+        service : str
+           The MAST catalogs service to query. Should be present in self._MAST_CATALOGS_SERVICES
+        params : dict
+           JSON object containing service parameters.
+        page_size : int, optional
+           Default None.
+           Can be used to override the default pagesize (set in configs) for this query only.
+           E.g. when using a slow internet connection.
+        page : int, optional
+           Default None.
+           Can be used to override the default behavior of all results being returned to obtain
+           a specific page of results.
+        **kwargs :
+           See Catalogs.MAST properties in documentation referenced above
 
-           Returns
-           -------
-           response : list of `~requests.Response`
-           """
+        Returns
+        -------
+        response : list of `~requests.Response`
+        """
         self._current_service = service.lower()
         service_config = self._MAST_CATALOGS_SERVICES.get(service.lower())
         service_url = service_config.get('path')
@@ -798,7 +798,7 @@ class MastClass(QueryWithLogin):
                     for filter_value in value:
                         # Determine if tuple with filter decorator
                         if isinstance(filter_value, tuple):
-                            catalog_params.append((prop + filter_value[0], filter_value[1]))
+                            catalog_params.append((prop + '.' + filter_value[0], filter_value[1]))
                         else:
                             # Otherwise just append the value without a decorator
                             catalog_params.append((prop, filter_value))
