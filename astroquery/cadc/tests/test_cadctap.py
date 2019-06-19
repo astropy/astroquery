@@ -256,34 +256,56 @@ def test_misc():
 @patch('astroquery.cadc.core.get_access_url',
        Mock(side_effect=lambda x, y=None: 'https://some.url'))
 def test__get_image_list():
-    datalink_file = data_path('datalink_result.xml')
-    table = parse(datalink_file)
+    def get(*args, **kwargs):
+        class CapsResponse(object):
+            def __init__(self):
+                self.status_code = 200
+                self.content = b''
 
-    def datalink(*args, **kwargs):
-        return adhoc.DatalinkResults(table)
+            def raise_for_status(self):
+                pass
 
-    adhoc.DatalinkResults.from_result_url = datalink
+        return CapsResponse()
+
+    class Params(object):
+        def __init__(self, **param_dict):
+            self.__dict__.update(param_dict)
 
     coords = '08h45m07.5s +54d18m00s'
     coords_ra = parse_coordinates(coords).fk5.ra.degree
     coords_dec = parse_coordinates(coords).fk5.dec.degree
     radius = 10
 
-    info_dict = {'ID': 'ad:CFHT/282502o.fits.gz', 'RUNID': 'aqy7icng7ncbafj5',
-                 'POS': 'CIRCLE {} {} {}'.format(coords_ra, coords_dec, radius)}
-    base_url = 'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync'
-    url = '{}?{}'.format(base_url, urlencode(info_dict))
+    uri = 'im_an_ID'
+    run_id = 'im_a_RUNID'
 
-    cadc = Cadc()
-    assert [url] == \
-           cadc._get_image_list({'publisherID': ['ivo://cadc.nrc.ca/foo']},
-                               coords, radius)
+    service_def1 = Mock()
+    service_def1.access_url = b'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync'
+    service_def1.input_params = [Params(name='ID', value=uri),
+                                 Params(name='RUNID', value=run_id)]
+
+    service_def2 = Mock()
+    service_def2.access_url = b'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/async'
+    service_def2.input_params = [Params(name='ID', value=uri),
+                                 Params(name='RUNID', value=run_id)]
+
+    expected_url = 'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID={}&RUNID={}&POS=CIRCLE+{}+{}+{}' \
+        .format(uri, run_id, coords_ra, coords_dec, radius)
+
+    result = Mock()
+    service_def_list = [service_def1, service_def2]
+    result.bysemantics.return_value = service_def_list
+
+    with patch('pyvo.dal.adhoc.DatalinkResults.from_result_url') as m:
+        m.return_value = result
+        cadc = Cadc()
+        cadc._request = get  # mock the request
+        assert [expected_url] == \
+               cadc._get_image_list({'publisherID': ['ivo://cadc.nrc.ca/foo']}, coords, radius)
     with pytest.raises(TypeError):
         cadc._get_image_list(None)
     with pytest.raises(AttributeError):
-        cadc._get_image_list([], coords, radius)
-    with pytest.raises(AttributeError):
-        cadc._get_image_list({'noPublisherID': 'test'}, coords, radius)
+        cadc._get_image_list(None, coords, radius)
 
 
 @patch('astroquery.cadc.core.get_access_url',

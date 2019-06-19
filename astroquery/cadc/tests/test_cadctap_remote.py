@@ -15,7 +15,7 @@ from astropy.io import fits
 from astropy.tests.helper import remote_data
 
 from astroquery.cadc import Cadc
-from astroquery.utils.commons import parse_coordinates
+from astroquery.utils.commons import parse_coordinates, FileContainer
 
 # to run just one test during development, set this variable to True
 # and comment out the skipif of the single test to run.
@@ -171,6 +171,16 @@ class TestCadcClass:
         image_urls = cadc.get_images(coords, radius, get_url_list=True)
 
         assert len(filtered_resp_urls) == len(image_urls)
+
+    @pytest.mark.skipif(one_test, reason='One test mode')
+    def test_get_images_async(self):
+        cadc = Cadc()
+        coords = '01h45m07.5s +23d18m00s'
+        radius = 0.05
+        readable_objs = cadc.get_images_async(coords, radius, collection="CFHT")
+        assert readable_objs is not None
+        for obj in readable_objs:
+            assert isinstance(obj, FileContainer)
 
     @pytest.mark.skipif(one_test, reason='One test mode')
     def test_async(self):
