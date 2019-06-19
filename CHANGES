@@ -1,3 +1,16 @@
+0.4.0 (unreleased)
+===================
+
+New Tools and Services
+----------------------
+
+cadc
+^^^^
+
+- Added the get_images function [#1486]
+
+
+
 0.3.10 (unreleased)
 ===================
 
@@ -8,7 +21,6 @@ cadc
 ^^^^
 
 - Module added to access data at the Canadian Astronomy Data Centre. [#1354]
-- Added the get_images and get_image_list functions [#1486]
 
 esa
 ^^^
