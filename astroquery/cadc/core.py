@@ -9,11 +9,11 @@ Module to query the Canadian Astronomy Data Centre (CADC).
 
 import logging
 import warnings
-from six.moves.urllib.error import HTTPError
 
 import requests
 from bs4 import BeautifulSoup
 from numpy import ma
+from six.moves.urllib_error import HTTPError
 from six.moves.urllib.parse import urlencode
 
 from astroquery.utils.decorators import deprecated
@@ -273,7 +273,7 @@ class CadcClass(BaseQuery):
         return collections
 
     @class_or_instance
-    def get_images(self, coordinates, radius=0.016666666666667,
+    def get_images(self, coordinates, radius,
                    collection=None,
                    get_url_list=False,
                    show_progress=False):
@@ -285,7 +285,7 @@ class CadcClass(BaseQuery):
         ----------
         coordinates : str or `astropy.coordinates`.
             Coordinates around which to query.
-        radius : str or `astropy.units.Quantity`, optional
+        radius : str or `astropy.units.Quantity`
             The radius of the cone search AND cutout area.
         collection: str, optional
             Name of the CADC collection to query.
@@ -302,6 +302,48 @@ class CadcClass(BaseQuery):
             of str if the `get_url_list` argument is True).
         """
 
+        filenames = self.get_images_async(coordinates, radius, collection, get_url_list, show_progress)
+
+        if get_url_list:
+            return filenames
+
+        images = []
+
+        for fn in filenames:
+            try:
+                images.append(fn.get_fits())
+            except HTTPError as err:
+                # Catch HTTPError if user is unauthorized to access file
+                logger.debug(
+                    "{} - Problem retrieving the file: {}".format(str(err), str(err.url)))
+                pass
+
+        return images
+
+    def get_images_async(self, coordinates, radius, collection=None, get_url_list=False, show_progress=False):
+        """
+        A coordinate-based query function that returns a list of
+        context managers with cutouts around the passed in coordinates.
+
+        Parameters
+        ----------
+        coordinates : str or `astropy.coordinates`.
+            Coordinates around which to query.
+        radius : str or `astropy.units.Quantity`
+            The radius of the cone search AND cutout area.
+        collection: str, optional
+            Name of the CADC collection to query.
+        get_url_list: bool, optional
+            If true, returns the list of data urls rather than
+            the dlist of context managers. Default is `False`.
+        show_progress: bool, optional
+            Whether to display a progress bar if the file is downloaded
+            from a remote server.  Default is `False`.
+
+        Returns
+        -------
+        list : A list of context-managers that yield readable file-like objects
+        """
         request_payload = self._args_to_payload(coordinates=coordinates,
                                                 radius=radius,
                                                 collection=collection,
@@ -312,19 +354,7 @@ class CadcClass(BaseQuery):
         if get_url_list:
             return images_urls
 
-        images = []
-
-        try:
-            readable_objects = [commons.FileContainer(url, encoding='binary',
-                                                      show_progress=show_progress) for url in images_urls]
-            for obj in readable_objects:
-                images.append(obj.get_fits())
-        except HTTPError as err:
-            logger.debug(
-                "{} - Problem retrieving the file: {}".format(str(err), str(err.url)))
-            pass
-
-        return images
+        return [commons.FileContainer(url, encoding='binary', show_progress=show_progress) for url in images_urls]
 
     def _get_image_list(self, query_result, coordinates, radius):
         """
