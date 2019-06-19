@@ -11,6 +11,7 @@ from datetime import datetime
 import pytest
 import requests
 from astropy.coordinates import SkyCoord
+from astropy.io import fits
 from astropy.tests.helper import remote_data
 
 from astroquery.cadc import Cadc
@@ -141,8 +142,11 @@ class TestCadcClass:
         cadc = Cadc()
         coords = '08h45m07.5s +54d18m00s'
         radius = 0.05
-        images = cadc.get_images(coords, radius=radius)
+        images = cadc.get_images(coords, radius)
         assert images is not None
+
+        for image in images:
+            assert isinstance(image, fits.HDUList)
 
         # Compare results from cadc advanced search to get_images
         query = cadc._args_to_payload(**{'coordinates': coords,
@@ -164,7 +168,7 @@ class TestCadcClass:
         filtered_resp_urls = list(filter(lambda url: not url.startswith('ERROR') and url != '', resp_urls))
 
         # This function should return nearly the same urls (different RUN_ID and cutout syntax)
-        image_urls = cadc.get_images(coords, radius=radius, get_url_list=True)
+        image_urls = cadc.get_images(coords, radius, get_url_list=True)
 
         assert len(filtered_resp_urls) == len(image_urls)
 
@@ -216,4 +220,3 @@ class TestCadcClass:
     @pytest.mark.skipif(one_test, reason='One test mode')
     def test_list_jobs(self):
         raise NotImplementedError('Not implemented in pyvo')
-
