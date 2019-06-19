@@ -11,15 +11,20 @@ import sys
 from astropy.table import Table as AstroTable
 from astropy.io.votable.tree import VOTableFile, Resource, Table, Field
 from astropy.io.votable import parse
-from astropy.utils.diff import report_diff_values
 from six import BytesIO
-from astroquery.cadc import Cadc, conf
-import astroquery.cadc.core as cadc_core
 from astroquery.utils.commons import parse_coordinates
-from unittest.mock import Mock, patch, PropertyMock
 import pytest
 import tempfile
-from pyvo.dal import tap
+try:
+    from pyvo.dal import tap
+    from astroquery.cadc import Cadc, conf
+    import astroquery.cadc.core as cadc_core
+except ImportError:
+    pytest.skip("Install pyvo for the cadc module.", allow_module_level=True)
+try:
+    from unittest.mock import Mock, patch, PropertyMock
+except ImportError:
+    pytest.skip("Install mock for the cadc tests.", allow_module_level=True)
 
 
 # monkeypatch get_access_url to prevent internet calls
@@ -188,19 +193,26 @@ def test_get_data_urls():
     class Result(object):
         pass
 
-    vot_result = Result()
-    vot_result.array = [{'semantics': b'#this',
-                         'access_url': b'https://get.your.data/path'},
-                        {'semantics': b'#aux',
-                         'access_url': b'https://get.your.data/auxpath'}]
-
-    with patch.object(cadc_core, 'parse_single_table', lambda x: vot_result):
+    file1 = Mock()
+    file1.semantics = '#this'
+    file1.access_url = 'https://get.your.data/path'
+    file2 = Mock()
+    file2.semantics = '#aux'
+    file2.access_url = 'https://get.your.data/auxpath'
+    file3 = Mock()
+    file3.semantics = '#preview'
+    file3.access_url = 'https://get.your.data/previewpath'
+    # add the package file that should be filtered out
+    package_file = Mock()
+    package_file.semantics = 'http://www.openadc.org/caom2#pkg'
+    result = [file1, file2, file3, package_file]
+    with patch('pyvo.dal.adhoc.DatalinkResults.from_result_url') as m:
+        m.return_value = result
         cadc = Cadc()
         cadc._request = get  # mock the request
-        assert [vot_result.array[0]['access_url'].decode('ascii')] == \
+        assert [file1.access_url] == \
             cadc.get_data_urls({'publisherID': ['ivo://cadc.nrc.ca/foo']})
-        assert [vot_result.array[0]['access_url'].decode('ascii'),
-                vot_result.array[1]['access_url'].decode('ascii')] == \
+        assert [file1.access_url, file2.access_url, file3.access_url] == \
             cadc.get_data_urls({'publisherID': ['ivo://cadc.nrc.ca/foo']},
                                include_auxiliaries=True)
     with pytest.raises(AttributeError):
@@ -266,4 +278,9 @@ def test_exec_sync():
     assert len(votable.resources[0].tables) ==\
         len(actual.resources[0].tables) == 1
     actual_table = actual.resources[0].tables[0]
-    assert report_diff_values(table, actual_table, fileobj=sys.stdout)
+    try:
+        # TODO remove when astropy LTS upgraded
+        from astropy.utils.diff import report_diff_values
+        assert report_diff_values(table, actual_table, fileobj=sys.stdout)
+    except ImportError:
+        pass

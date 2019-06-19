@@ -11,15 +11,15 @@ import logging
 import warnings
 import requests
 from numpy import ma
+from six.moves.urllib.parse import urlencode
 
 from ..utils.class_or_instance import class_or_instance
 from ..utils import async_to_sync, commons
 from ..query import BaseQuery
 from bs4 import BeautifulSoup
-from six import BytesIO
-from astropy.io.votable import parse_single_table
 from astroquery.utils.decorators import deprecated
 from . import conf
+
 try:
     import pyvo
 except ImportError as e:
@@ -72,7 +72,7 @@ class CadcClass(BaseQuery):
     CADCLOGIN_SERVICE_URI = conf.CADCLOGIN_SERVICE_URI
     TIMEOUT = conf.TIMEOUT
 
-    def __init__(self, url=None, tap_handler=None, verbose=None):
+    def __init__(self, url=None, tap_plus_handler=None, verbose=None):
         """
         Initialize Cadc object
 
@@ -87,14 +87,12 @@ class CadcClass(BaseQuery):
         -------
         Cadc object
         """
-        if tap_handler:
-            warnings.warn('tap_handler deprecated since version 0.4.0')
+        if tap_plus_handler:
+            raise AttributeError('tap handler no longer supported')
         if verbose is not None:
             warnings.warn('verbose deprecated since version 0.4.0')
 
         super(CadcClass, self).__init__()
-        if url is not None and tap_handler is not None:
-            raise AttributeError('Can not input both url and tap handler')
         self.baseurl = url
 
     @property
@@ -308,23 +306,32 @@ class CadcClass(BaseQuery):
             publisher_ids = query_result['publisherID']
         except KeyError:
             raise AttributeError(
-                'caomPublisherID column missing from query_result argument')
+                'publisherID column missing from query_result argument')
         result = []
-        for pid in publisher_ids:
-            response = self._request('GET', self.data_link_url,
-                                     params={'ID': pid})
-            response.raise_for_status()
-            buffer = BytesIO(response.content)
+        # Send datalink requests in batches of 20 publisher ids
+        batch_size = 20
 
-            # at this point we don't need cutouts or other SODA services so
-            # just get the urls from the response VOS table
-            tb = parse_single_table(buffer)
-            for row in tb.array:
-                semantics = row['semantics'].decode('ascii')
-                if semantics == '#this':
-                    result.append(row['access_url'].decode('ascii'))
-                elif row['access_url'] and include_auxiliaries:
-                    result.append(row['access_url'].decode('ascii'))
+        # Iterate through list of sublists to send datalink requests in batches
+        for pid_sublist in (publisher_ids[pos:pos + batch_size] for pos in
+                            range(0, len(publisher_ids), batch_size)):
+            # REQUEST=download-only is a CADC optimization to restrict
+            # restrict results to downloadable URLs as opposed to redirects
+            # to other services such as cutouts that are not required
+            datalink = pyvo.dal.adhoc.DatalinkResults.from_result_url(
+                '{}?{}'.format(self.data_link_url,
+                               urlencode({'ID': pid_sublist,
+                                          'REQUEST': 'downloads-only'}, True)))
+            for service_def in datalink:
+                if service_def.semantics == 'http://www.openadc.org/caom2#pkg':
+                    # pkg is an alternative for downloading multiple
+                    # data files in a tar file as an alternative to separate
+                    # downloads. It doesn't make much sense in this case so
+                    # filter it out.
+                    continue
+                if not include_auxiliaries \
+                   and service_def.semantics != '#this':
+                    continue
+                result.append(service_def.access_url)
         return result
 
     def get_tables(self, only_names=False, verbose=None):
@@ -419,7 +426,7 @@ class CadcClass(BaseQuery):
         result = job.fetch_result()
         job.delete() # optional
 
-        See ``pyvo.dal.tap`` for details about the `AsyncTAPJob`
+        See ``pyvo.dal.tap`` for details about the ``AsyncTAPJob``
 
         Parameters
         ----------
@@ -481,29 +488,8 @@ class CadcClass(BaseQuery):
         -------
         A Job object
         """
-        # if verbose is not None:
-        #     warnings.warn('verbose deprecated since 0.4.0')
-        # if output_file is not None:
-        #     save_to_file = True
-        # else:
-        #     save_to_file = False
-        # uploads = {} # TODO
-        # if operation == 'sync':
-        #     self.exec_sync(query)
-        # elif operation == 'async':
-        #     job = AsyncTAPJob.create(
-        #         self.baseurl, query, 'ADQL', None, uploads)
-        #     job = job.run().wait()
-        #     job.raise_if_error()
-        #     result = job.fetch_result()
-        #     job.delete()
-        #
-        # if save_to_file:
-        #     raise NotImplementedError("TODO")
-        #     cjob.save_results(output_file)
-        # else:
-        #     job.get_results = job.results
-        # return cjob
+        raise NotImplementedError('No longer supported.'
+                                  'Use exec_sync or create_async instead.')
 
     def load_async_job(self, jobid, verbose=None):
         """
