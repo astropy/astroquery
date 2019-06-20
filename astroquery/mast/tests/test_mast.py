@@ -16,6 +16,7 @@ from astropy.utils.exceptions import AstropyDeprecationWarning
 import astropy.units as u
 
 from ...utils.testing_tools import MockResponse
+from ...exceptions import (InvalidQueryError, InputWarning)
 
 from ... import mast
 
@@ -35,11 +36,16 @@ DATA_FILES = {'Mast.Caom.Cone': 'caom.json',
               'Mast.Caom.All': 'missions.extjs',
               'Mast.Hsc.Db.v3': 'hsc.json',
               'Mast.Hsc.Db.v2': 'hsc.json',
+              'Mast.Galex.Catalog': 'hsc.json',
+              'Mast.Catalogs.GaiaDR2.Cone': 'hsc.json',
+              'Mast.Catalogs.GaiaDR1.Cone': 'hsc.json',
+              'Mast.Catalogs.Sample.Cone': 'hsc.json',
               'Mast.Catalogs.Filtered.Tic': 'tic.json',
               'Mast.Catalogs.Filtered.DiskDetective.Position': 'dd.json',
               'Mast.HscMatches.Db.v3': 'matchid.json',
               'Mast.HscMatches.Db.v2': 'matchid.json',
               'Mast.HscSpectra.Db.All': 'spectra.json',
+              'panstarrs': 'panstarrs.json',
               'tess_cutout': 'astrocut_107.27_-70.0_5x5.zip',
               'tess_sector': 'tess_sector.json'}
 
@@ -56,8 +62,10 @@ def patch_post(request):
     except AttributeError:  # pytest < 3
         mp = request.getfuncargvalue("monkeypatch")
     mp.setattr(mast.Mast, '_request', post_mockreturn)
+    mp.setattr(mast.Mast, '_fabric_request', post_mockreturn)
     mp.setattr(mast.Observations, '_request', post_mockreturn)
     mp.setattr(mast.Catalogs, '_request', post_mockreturn)
+    mp.setattr(mast.Catalogs, '_fabric_request', post_mockreturn)
     mp.setattr(mast.Mast, '_download_file', download_mockreturn)
     mp.setattr(mast.Observations, '_download_file', download_mockreturn)
     mp.setattr(mast.Catalogs, '_download_file', download_mockreturn)
@@ -69,7 +77,6 @@ def patch_post(request):
 
 
 def post_mockreturn(method="POST", url=None, data=None, timeout=10, **kwargs):
-
     if "columnsconfig" in url:
         if "Mast.Catalogs.Tess.Cone" in data:
             service = "ticcolumns"
@@ -77,12 +84,13 @@ def post_mockreturn(method="POST", url=None, data=None, timeout=10, **kwargs):
             service = "ddcolumns"
         else:
             service = 'columnsconfig'
-
+    elif "catalogs.mast" in url:
+        service = re.search(r"(\/api\/v\d*.\d*\/)(\w*)", url).group(2)
     else:
         service = re.search(r"service%22%3A%20%22([\w\.]*)%22", data).group(1)
 
     # Grabbing the Catalogs.all columns config calls
-    if "Catalogs.All.Tic" in data:
+    if "Catalogs.All.Tic" in data or "Mast.Catalogs.Filtered.Tic.Position" in data:
         service = "ticcol_filtered"
     elif "Catalogs.All.DiskDetective" in data:
         service = "ddcol_filtered"
@@ -90,7 +98,6 @@ def post_mockreturn(method="POST", url=None, data=None, timeout=10, **kwargs):
     # need to distiguish counts queries
     if ("Filtered" in service) and (re.search(r"COUNT_BIG%28%2A%29", data)):
         service = "Counts"
-
     filename = data_path(DATA_FILES[service])
     content = open(filename, 'rb').read()
 
@@ -223,6 +230,18 @@ def test_observations_query_criteria(patch_post):
                                                   dataproduct_type="IMAGE", obstype="science")
         assert isinstance(result, Table)
 
+    with pytest.warns(InputWarning) as i_w:
+        mast.Observations.query_criteria(obstype="science", intentType="science")
+    assert "obstype and intentType" in str(i_w[0].message)
+
+    with pytest.raises(InvalidQueryError) as invalid_query:
+        mast.Observations.query_criteria(objectname="M101")
+    assert "least one non-positional criterion" in str(invalid_query.value)
+
+    with pytest.raises(InvalidQueryError) as invalid_query:
+        mast.Observations.query_criteria(objectname="M101", coordinates=regionCoords, intentType="science")
+    assert "one of objectname and coordinates" in str(invalid_query.value)
+
 
 # count functions
 def test_observations_query_region_count(patch_post):
@@ -240,6 +259,15 @@ def test_observations_query_criteria_count(patch_post):
                                                     proposal_pi="Ost*",
                                                     s_dec=[43.5, 45.5])
     assert result == 599
+
+    result = mast.Observations.query_criteria_count(dataproduct_type=["image"],
+                                                    proposal_pi="Ost*",
+                                                    s_dec=[43.5, 45.5], coordinates=regionCoords)
+    assert result == 599
+
+    with pytest.raises(InvalidQueryError) as invalid_query:
+        mast.Observations.query_criteria_count(coordinates=regionCoords, objectname="M101", proposal_pi="Ost*")
+    assert "one of objectname and coordinates" in str(invalid_query.value)
 
 
 # product functions
@@ -309,8 +337,41 @@ def test_catalogs_query_region_async(patch_post):
     assert isinstance(responses, list)
 
 
+def test_catalogs_fabric_query_region_async(patch_post):
+    responses = mast.Catalogs.query_region_async(regionCoords, radius=0.002, catalog="panstarrs", table="mean")
+    assert isinstance(responses, list)
+
+
 def test_catalogs_query_region(patch_post):
     result = mast.Catalogs.query_region(regionCoords, radius=0.002 * u.deg)
+    assert isinstance(result, Table)
+
+    result = mast.Catalogs.query_region(regionCoords, radius=0.002 * u.deg, catalog="hsc", version=2)
+    assert isinstance(result, Table)
+
+    with pytest.warns(InputWarning) as i_w:
+        mast.Catalogs.query_region(regionCoords, radius=0.002 * u.deg, catalog="hsc", version=5)
+    assert "Invalid HSC version number" in str(i_w[0].message)
+
+    result = mast.Catalogs.query_region(regionCoords, radius=0.002 * u.deg, catalog="galex")
+    assert isinstance(result, Table)
+
+    result = mast.Catalogs.query_region(regionCoords, radius=0.002 * u.deg, catalog="gaia", version=2)
+    assert isinstance(result, Table)
+
+    result = mast.Catalogs.query_region(regionCoords, radius=0.002 * u.deg, catalog="gaia", version=1)
+    assert isinstance(result, Table)
+
+    with pytest.warns(InputWarning) as i_w:
+        mast.Catalogs.query_region(regionCoords, radius=0.002 * u.deg, catalog="gaia", version=5)
+    assert "Invalid Gaia version number" in str(i_w[0].message)
+
+    result = mast.Catalogs.query_region(regionCoords, radius=0.002 * u.deg, catalog="Sample")
+    assert isinstance(result, Table)
+
+
+def test_catalogs_fabric_query_region(patch_post):
+    result = mast.Catalogs.query_region(regionCoords, radius=0.002 * u.deg, catalog="panstarrs", table="mean")
     assert isinstance(result, Table)
 
 
@@ -319,8 +380,18 @@ def test_catalogs_query_object_async(patch_post):
     assert isinstance(responses, list)
 
 
+def test_catalogs_fabric_query_object_async(patch_post):
+    responses = mast.Catalogs.query_object_async("M101", radius="0.002 deg", catalog="panstarrs", table="mean")
+    assert isinstance(responses, list)
+
+
 def test_catalogs_query_object(patch_post):
     result = mast.Catalogs.query_object("M101", radius=".002 deg")
+    assert isinstance(result, Table)
+
+
+def test_catalogs_fabric_query_object(patch_post):
+    result = mast.Catalogs.query_object("M101", radius=".002 deg", catalog="panstarrs", table="mean")
     assert isinstance(result, Table)
 
 
@@ -330,11 +401,32 @@ def test_catalogs_query_criteria_async(patch_post):
                                                    Bmag=[30, 50], objType="STAR")
     assert isinstance(responses, list)
 
+    responses = mast.Catalogs.query_criteria_async(catalog="Tic", objectname="M10",
+                                                   Bmag=[30, 50], objType="STAR")
+    assert isinstance(responses, list)
+
     # with position
     responses = mast.Catalogs.query_criteria_async(catalog="DiskDetective",
                                                    objectname="M10", radius=2,
                                                    state="complete")
     assert isinstance(responses, list)
+
+    responses = mast.Catalogs.query_criteria_async(catalog="panstarrs", objectname="M10", radius=2,
+                                                   table="mean", qualityFlag=48)
+    assert isinstance(responses, list)
+
+    with pytest.raises(InvalidQueryError) as invalid_query:
+        mast.Catalogs.query_criteria_async(catalog="Tic")
+    assert "non-positional" in str(invalid_query.value)
+
+    with pytest.raises(InvalidQueryError) as invalid_query:
+        mast.Catalogs.query_criteria_async(catalog="SampleFail")
+    assert "query not available" in str(invalid_query.value)
+
+    with pytest.raises(InvalidQueryError) as invalid_query:
+        mast.Catalogs.query_criteria_async(catalog="panstarrs", objectname="M10", coordinates=regionCoords,
+                                           objType="STAR")
+    assert "one of objectname and coordinates" in str(invalid_query.value)
 
 
 def test_catalogs_query_criteria(patch_post):
@@ -350,10 +442,21 @@ def test_catalogs_query_criteria(patch_post):
                                           state="complete")
     assert isinstance(result, Table)
 
+    with pytest.raises(InvalidQueryError) as invalid_query:
+        mast.Catalogs.query_criteria(catalog="Tic", objectName="M10")
+    assert "non-positional" in str(invalid_query.value)
+
 
 def test_catalogs_query_hsc_matchid_async(patch_post):
     responses = mast.Catalogs.query_hsc_matchid_async(82371983)
     assert isinstance(responses, list)
+
+    responses = mast.Catalogs.query_hsc_matchid_async(82371983, version=2)
+    assert isinstance(responses, list)
+
+    with pytest.warns(InputWarning) as i_w:
+        mast.Catalogs.query_hsc_matchid_async(82371983, version=5)
+    assert "Invalid HSC version number" in str(i_w[0].message)
 
 
 def test_catalogs_query_hsc_matchid(patch_post):

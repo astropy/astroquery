@@ -57,7 +57,7 @@ class TestMast(object):
         assert len(result[np.where(result["obs_id"] == "6374399093149532160")]) == 2
 
     def test_mast_sesion_info(self):
-        sessionInfo = mast.Mast.session_info(True)
+        sessionInfo = mast.Mast.session_info(verbose=False)
         assert sessionInfo['ezid'] == 'anonymous'
         assert sessionInfo['token'] is None
 
@@ -71,7 +71,23 @@ class TestMast(object):
         for m in ['HST', 'HLA', 'GALEX', 'Kepler']:
             assert m in missions
 
+    def test_get_metadata(self):
+        # observations
+        meta_table = mast.Observations.get_metadata("observations")
+        assert isinstance(meta_table, Table)
+        assert "Column Name" in meta_table.colnames
+        assert "Mission" in meta_table["Column Label"]
+        assert "obsid" in meta_table["Column Name"]
+
+        # products
+        meta_table = mast.Observations.get_metadata("products")
+        assert isinstance(meta_table, Table)
+        assert "Column Name" in meta_table.colnames
+        assert "Observation ID" in meta_table["Column Label"]
+        assert "parent_obsid" in meta_table["Column Name"]
+
     # query functions
+
     def test_observations_query_region_async(self):
         responses = mast.Observations.query_region_async("322.49324 12.16683", radius="0.005 deg")
         assert isinstance(responses, list)
@@ -100,7 +116,7 @@ class TestMast(object):
         # clear columns config
         mast.Observations._column_configs = dict()
 
-        result = mast.Observations.query_object("M8", radius=".02 deg")
+        result = mast.Observations.query_object("M8", radius=".04 deg")
         assert isinstance(result, Table)
         assert len(result) > 150
         assert result[np.where(result['obs_id'] == 'ktwo200071160-c92_lc')]
@@ -197,7 +213,7 @@ class TestMast(object):
         # clear columns config
         mast.Observations._column_configs = dict()
 
-        observations = mast.Observations.query_object("M8", radius=".02 deg")
+        observations = mast.Observations.query_object("M8", radius=".04 deg")
         test_obs_id = str(observations[0]['obsid'])
         mult_obs_ids = str(observations[0]['obsid']) + ',' + str(observations[1]['obsid'])
 
@@ -222,7 +238,7 @@ class TestMast(object):
         assert len(result) == 27
 
     def test_observations_filter_products(self):
-        observations = mast.Observations.query_object("M8", radius=".02 deg")
+        observations = mast.Observations.query_object("M8", radius=".04 deg")
         obsLoc = np.where(observations["obs_id"] == 'ktwo200071160-c92_lc')
         products = mast.Observations.get_product_list(observations[obsLoc])
         result = mast.Observations.filter_products(products,
@@ -263,6 +279,10 @@ class TestMast(object):
         responses = mast.Catalogs.query_region_async("322.49324 12.16683", radius="0.02 deg")
         assert isinstance(responses, list)
 
+        responses = mast.Catalogs.query_region_async("322.49324 12.16683", radius="0.02 deg",
+                                                     catalog="panstarrs", table="mean")
+        assert isinstance(responses, list)
+
     def test_catalogs_query_region(self):
 
         # clear columns config
@@ -293,6 +313,16 @@ class TestMast(object):
         assert isinstance(result, Table)
         assert len(result) > 550
 
+        result = mast.Catalogs.query_region("322.49324 12.16683", radius=0.01,
+                                            catalog="panstarrs", table="mean")
+        assert isinstance(result, Table)
+        assert len(result) > 800
+
+        result = mast.Catalogs.query_region("322.49324 12.16683", radius=0.01,
+                                            catalog="panstarrs", table="mean", pagesize=3)
+        assert isinstance(result, Table)
+        assert len(result) > 800
+
     def test_catalogs_query_object_async(self):
         responses = mast.Catalogs.query_object_async("M10", radius=.02, catalog="TIC")
         assert isinstance(responses, list)
@@ -310,6 +340,10 @@ class TestMast(object):
         result = mast.Catalogs.query_object("M10", radius=.001, catalog="HSC", magtype=1)
         assert isinstance(result, Table)
         assert len(result) >= 50
+
+        result = mast.Catalogs.query_object("M10", radius=.001, catalog="panstarrs", table="mean")
+        assert isinstance(result, Table)
+        assert len(result) >= 500
 
     def test_catalogs_query_criteria_async(self):
         # without position
@@ -334,6 +368,12 @@ class TestMast(object):
                                                        objectname="M10",
                                                        radius=2,
                                                        state="complete")
+        assert isinstance(responses, list)
+
+        responses = mast.Catalogs.query_criteria_async(catalog="panstarrs", table="mean",
+                                                       objectname="M10",
+                                                       radius=2,
+                                                       qualityFlag=48)
         assert isinstance(responses, list)
 
     def test_catalogs_query_criteria(self):
@@ -365,6 +405,11 @@ class TestMast(object):
         assert isinstance(result, Table)
         assert len(result) >= 5
         assert result[np.where(result['designation'] == 'J165628.40-054630.8')]
+
+        result = mast.Catalogs.query_criteria(catalog="panstarrs", objectname="M10", radius=.01,
+                                              qualityFlag=48, zoneID=17320)
+        assert isinstance(result, Table)
+        assert len(result) >= 10
 
     def test_catalogs_query_hsc_matchid_async(self):
         catalogData = mast.Catalogs.query_object("M10", radius=.001, catalog="HSC", magtype=1)
