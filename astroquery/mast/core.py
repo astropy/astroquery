@@ -2033,7 +2033,7 @@ class CatalogsClass(MastClass):
         **criteria
             Criteria to apply. At least one non-positional criteria must be supplied.
             Valid criteria are coordinates, objectname, radius (as in `query_region` and `query_object`),
-            and all observation fields listed `here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`__.
+            and all fields listed in the column documentation for the catalog being queried.
             The Column Name is the keyword, with the argument being one or more acceptable values for that parameter,
             except for fields with a float datatype where the argument should be in the form [minVal, maxVal].
             For non-float type criteria wildcards maybe used (both * and % are considered wildcards), however
@@ -2070,6 +2070,7 @@ class CatalogsClass(MastClass):
             service = "Mast.Catalogs.Filtered.Tic"
             if coordinates or objectname:
                 service += ".Position"
+            service += ".Rows"  # Using the rowstore version of the query for speed
             mashup_filters = self._build_filter_set("Mast.Catalogs.Tess.Cone", service, **criteria)
 
         elif catalog.lower() == "diskdetective":
