@@ -54,7 +54,7 @@ either be ``post`` or ``get``.
             mp = request.getfixturevalue("monkeypatch")
         except AttributeError:  # pytest < 3
             mp = request.getfuncargvalue("monkeypatch")
-        mp.setattr(requests, 'get', get_mockreturn)
+        mp.setattr(requests.Session, 'request', get_mockreturn)
         return mp
 
 This function, when called, changes the `requests.get` method (i.e., the ``get``
