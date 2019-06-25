@@ -54,11 +54,11 @@ either be ``post`` or ``get``.
             mp = request.getfixturevalue("monkeypatch")
         except AttributeError:  # pytest < 3
             mp = request.getfuncargvalue("monkeypatch")
-        mp.setattr(requests, 'get', get_mockreturn)
+        mp.setattr(requests.Session, 'request', get_mockreturn)
         return mp
 
-This function, when called, changes the `requests.get` method (i.e., the ``get``
-method of the ``requests`` module) to call the ``get_mockreturn`` function, defined
+This function, when called, changes the `requests.Session`'s ``request`` method
+to call the ``get_mockreturn`` function, defined
 below.  ``@pytest.fixture`` means that, if any function in this ``test_module.py``
 file accepts ``patch_get`` as an argument, ``patch_get`` will be called prior to
 running that function.
