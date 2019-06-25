@@ -255,7 +255,7 @@ def test_misc():
 
 @patch('astroquery.cadc.core.get_access_url',
        Mock(side_effect=lambda x, y=None: 'https://some.url'))
-def test__get_image_list():
+def test_get_image_list():
     def get(*args, **kwargs):
         class CapsResponse(object):
             def __init__(self):
@@ -301,11 +301,11 @@ def test__get_image_list():
         cadc = Cadc()
         cadc._request = get  # mock the request
         assert [expected_url] == \
-               cadc._get_image_list({'publisherID': ['ivo://cadc.nrc.ca/foo']}, coords, radius)
+               cadc.get_image_list({'publisherID': ['ivo://cadc.nrc.ca/foo']}, coords, radius)
     with pytest.raises(TypeError):
-        cadc._get_image_list(None)
+        cadc.get_image_list(None)
     with pytest.raises(AttributeError):
-        cadc._get_image_list(None, coords, radius)
+        cadc.get_image_list(None, coords, radius)
 
 
 @patch('astroquery.cadc.core.get_access_url',

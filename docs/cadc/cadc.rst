@@ -180,6 +180,26 @@ of access urls.
     Downloaded object from URL https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=ad%3ACFHT%2F2228383p.fits.fz&RUNID=pxzsggm04kdvps1l&POS=CIRCLE+26.2812589776878+23.299999818906816+0.1 with ID 140458270070600
     Downloaded object from URL https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=ad%3ACFHT%2F2368279o.fits.fz&RUNID=pxzsggm04kdvps1l&POS=CIRCLE+26.2812589776878+23.299999818906816+0.1 with ID 140458270064368
 
+
+If the cutout urls from a complicated query are needed, the result table
+can be passed into the `get_image_list` function along with the cutout coordinates
+and radius.
+.. code-block:: python
+  >>> from astroquery.cadc import Cadc
+  >>>
+  >>> cadc = Cadc()
+  >>> coords = '01h45m07.5s +23d18m00s'
+  >>> radius = 0.1
+  >>> results = cadc.query_region(coords, radius, collection='CFHT')
+  >>> filtered_results = results[results['time_exposure'] > 120.0]
+  >>> image_list = cadc.get_image_list(filtered_results, coords, radius)
+  >>> print(image_list)
+    ['https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=ad%3ACFHT%2F2368279o.fits.fz&RUNID=z8zh87jsbp154wbq&POS=CIRCLE+26.2812589776878+23.299999818906816+0.1',
+    'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=ad%3ACFHT%2F2368278o.fits.fz&RUNID=z8zh87jsbp154wbq&POS=CIRCLE+26.2812589776878+23.299999818906816+0.1',
+    'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=ad%3ACFHT%2F2368279p.fits.fz&RUNID=z8zh87jsbp154wbq&POS=CIRCLE+26.2812589776878+23.299999818906816+0.1',
+    'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=ad%3ACFHT%2F2368278p.fits.fz&RUNID=z8zh87jsbp154wbq&POS=CIRCLE+26.2812589776878+23.299999818906816+0.1']
+
+
 Note that the examples above are for accessing data anonymously. Users with
 access to proprietary data can call ```login``` on the ```cadc``` object
 before querying or accessing the data.

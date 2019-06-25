@@ -349,14 +349,14 @@ class CadcClass(BaseQuery):
                                                 collection=collection,
                                                 data_product_type='image')
         query_result = self.exec_sync(request_payload['query'])
-        images_urls = self._get_image_list(query_result, coordinates, radius)
+        images_urls = self.get_image_list(query_result, coordinates, radius)
 
         if get_url_list:
             return images_urls
 
         return [commons.FileContainer(url, encoding='binary', show_progress=show_progress) for url in images_urls]
 
-    def _get_image_list(self, query_result, coordinates, radius):
+    def get_image_list(self, query_result, coordinates, radius):
         """
         Function to map the results of a CADC query into URLs to
         corresponding data and cutouts that can be later downloaded.
