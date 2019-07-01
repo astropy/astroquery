@@ -26,6 +26,19 @@ a vector of coordinates or `~astroquery.simbad.SimbadClass.query_objects`
 a list of object names, and SIMBAD will treat this submission as a single
 query.  See :ref:`vectorized queries <vectorqueries>` below.
 
+Different ways to access Simbad
+-------------------------------
+The Simbad tool described here provides a number of convenient methods that
+internally creates a `script query
+<http://simbad.u-strasbg.fr/simbad/sim-fscript>`__ to Simbad server, which is
+also how the `Simbad web interface <http://simbad.u-strasbg.fr/simbad/>`__
+operates.
+
+Simbad provides another way to access its database via `TAP
+Service<http://simbad.u-strasbg.fr/simbad/sim-tap>`__. This may be better
+suited for some usage. If you need a python client for TAP Services,
+check out `pyvo<https://pyvo.readthedocs.io/en/latest/>`__.
+
 Query an Identifier
 -------------------
 
