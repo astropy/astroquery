@@ -1461,7 +1461,7 @@ class ObservationsClass(MastClass):
             Table containing data products to be filtered.
         mrp_only : bool, optional
             Default False. When set to true only "Minimum Recommended Products" will be returned.
-        extension : string, optional
+        extension : string or array, optional
             Default None. Option to filter by file extension.
         **filters :
             Filters to be applied.  Valid filters are all products fields listed
@@ -1483,6 +1483,9 @@ class ObservationsClass(MastClass):
             filter_mask &= (products['productGroupDescription'] == "Minimum Recommended Products")
 
         if extension:
+            if type(extension) == str:
+                extension = [extension]
+                
             mask = np.full(len(products), False, dtype=bool)
             for elt in extension:
                 mask |= [False if isinstance(x, np.ma.core.MaskedConstant) else x.endswith(elt)
