@@ -72,6 +72,7 @@ def _parse_input_location(coordinates=None, objectname=None):
 
     return obj_coord
 
+
 class TesscutClass(BaseQuery):
     """
     MAST TESS FFI cutout query class.

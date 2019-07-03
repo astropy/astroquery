@@ -174,7 +174,6 @@ def test_resolve_object(patch_post):
     assert m103_loc.separation(SkyCoord("23.34086 60.658", unit='deg')).value == 0
 
 
-
 ###########################
 # ObservationsClass tests #
 ###########################
