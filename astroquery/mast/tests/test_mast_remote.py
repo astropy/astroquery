@@ -72,7 +72,6 @@ class TestMast(object):
     # ObservationsClass tests #
     ###########################
 
-
     def test_observations_list_missions(self):
         missions = mast.Observations.list_missions()
         assert isinstance(missions, list)
