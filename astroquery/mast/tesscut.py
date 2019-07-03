@@ -35,6 +35,7 @@ from .core import Mast
 
 __all__ = ["TesscutClass", "Tesscut"]
 
+
 def _parse_input_location(coordinates=None, objectname=None):
     """
     Convenience function to parse user input of coordinates and objectname.
@@ -46,7 +47,7 @@ def _parse_input_location(coordinates=None, objectname=None):
         string or as the appropriate `astropy.coordinates` object.
         One and only one of coordinates and objectname must be supplied.
     objectname : str, optional
-        The target around which to search, by name (objectname="M104") 
+        The target around which to search, by name (objectname="M104")
         or TIC ID (objectname="TIC 141914082").
         One and only one of coordinates and objectname must be supplied.
 
@@ -70,7 +71,7 @@ def _parse_input_location(coordinates=None, objectname=None):
         obj_coord = commons.parse_coordinates(coordinates)
 
     return obj_coord
-    
+
 class TesscutClass(BaseQuery):
     """
     MAST TESS FFI cutout query class.
@@ -96,7 +97,7 @@ class TesscutClass(BaseQuery):
             string or as the appropriate `astropy.coordinates` object.
             One and only one of coordinates and objectname must be supplied.
         objectname : str, optional
-            The target around which to search, by name (objectname="M104") 
+            The target around which to search, by name (objectname="M104")
             or TIC ID (objectname="TIC 141914082").
             One and only one of coordinates and objectname must be supplied.
         radius : str, float, or `~astropy.units.Quantity` object, optional
@@ -155,7 +156,7 @@ class TesscutClass(BaseQuery):
             string or as the appropriate `astropy.coordinates` object.
             One and only one of coordinates and objectname must be supplied.
         objectname : str, optional
-            The target around which to search, by name (objectname="M104") 
+            The target around which to search, by name (objectname="M104")
             or TIC ID (objectname="TIC 141914082").
             One and only one of coordinates and objectname must be supplied.
         size : int, array-like, `~astropy.units.Quantity`
@@ -266,7 +267,7 @@ class TesscutClass(BaseQuery):
             string or as the appropriate `astropy.coordinates` object.
             One and only one of coordinates and objectname must be supplied.
         objectname : str, optional
-            The target around which to search, by name (objectname="M104") 
+            The target around which to search, by name (objectname="M104")
             or TIC ID (objectname="TIC 141914082").
             One and only one of coordinates and objectname must be supplied.
         size : int, array-like, `~astropy.units.Quantity`

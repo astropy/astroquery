@@ -68,7 +68,7 @@ class TestMast(object):
         ticobj_loc = mast.Mast.resolve_object("TIC 141914082")
         assert round(ticobj_loc.separation(SkyCoord("94.6175354 -72.04484622", unit='deg')).value, 4) == 0
 
-        
+
     ###########################
     # ObservationsClass tests #
     ###########################
@@ -498,7 +498,7 @@ class TestMast(object):
 
         sector_table = mast.Tesscut.get_sectors(objectname="M104")
         assert isinstance(sector_table, Table)
-        assert len(sector_table) >=1
+        assert len(sector_table) >= 1
         assert sector_table['sectorName'][0] == "tess-s0010-1-4"
         assert sector_table['sector'][0] == 10
         assert sector_table['camera'][0] == 1

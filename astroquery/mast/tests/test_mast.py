@@ -168,14 +168,13 @@ def test_mast_service_request(patch_post):
 
     assert isinstance(result, Table)
 
-def test_resolve_object(patch_post):
 
+def test_resolve_object(patch_post):
     m103_loc = mast.Mast.resolve_object("M103")
     assert m103_loc.separation(SkyCoord("23.34086 60.658", unit='deg')).value == 0
 
 
 
-    
 ###########################
 # ObservationsClass tests #
 ###########################

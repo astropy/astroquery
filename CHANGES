@@ -132,6 +132,8 @@ mast
 
 - TIC catalog search update. [#1483]
 
+- Add search by object name to Tesscut, make resolver_object public, minor bugfixes. [#1499]
+
 mpc
 ^^^
 

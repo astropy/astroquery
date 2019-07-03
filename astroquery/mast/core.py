@@ -480,7 +480,7 @@ class MastClass(QueryWithLogin):
         total_pages = 1
         cur_page = 0
 
-        while cur_page < total_pages: 
+        while cur_page < total_pages:
             status = "EXECUTING"
 
             while status == "EXECUTING":
@@ -837,7 +837,6 @@ class MastClass(QueryWithLogin):
 
     def resolve_object(self, objectname):
         """
-        
         Resolves an object name to a position on the sky.
 
         Parameters
@@ -1495,7 +1494,7 @@ class ObservationsClass(MastClass):
         if extension:
             if type(extension) == str:
                 extension = [extension]
-                
+
             mask = np.full(len(products), False, dtype=bool)
             for elt in extension:
                 mask |= [False if isinstance(x, np.ma.core.MaskedConstant) else x.endswith(elt)
@@ -2131,7 +2130,7 @@ class CatalogsClass(MastClass):
             # For catalogs service append criteria to main parameters
             for prop, value in criteria.items():
                 params[prop] = value
-        
+
         if catalogs_service:
             return self.catalogs_service_request_async(service, params, page_size=pagesize, page=page)
         return self.service_request_async(service, params, pagesize=pagesize, page=page)
