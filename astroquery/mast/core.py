@@ -480,7 +480,7 @@ class MastClass(QueryWithLogin):
         total_pages = 1
         cur_page = 0
 
-        while cur_page < total_pages:
+        while cur_page < total_pages: 
             status = "EXECUTING"
 
             while status == "EXECUTING":
@@ -831,14 +831,24 @@ class MastClass(QueryWithLogin):
 
         return criteria_check
 
+    @deprecated(since="v0.3.10", alternative="resolve_object")
     def _resolve_object(self, objectname):
+        return self.resolve_object(objectname)
+
+    def resolve_object(self, objectname):
         """
+        
         Resolves an object name to a position on the sky.
 
         Parameters
         ----------
         objectname : str
             Name of astronomical object to resolve.
+
+        Returns
+        -------
+        response : `~astropy.coordinates.SkyCoord`
+            The sky position of the given object.
         """
 
         service = 'Mast.Name.Lookup'
@@ -1166,7 +1176,7 @@ class ObservationsClass(MastClass):
         response : list of `~requests.Response`
         """
 
-        coordinates = self._resolve_object(objectname)
+        coordinates = self.resolve_object(objectname)
 
         return self.query_region_async(coordinates, radius, pagesize, page)
 
@@ -1243,7 +1253,7 @@ class ObservationsClass(MastClass):
             raise InvalidQueryError("Only one of objectname and coordinates may be specified.")
 
         if objectname:
-            coordinates = self._resolve_object(objectname)
+            coordinates = self.resolve_object(objectname)
 
         if coordinates:
             # Put coordinates and radius into consitant format
@@ -1337,7 +1347,7 @@ class ObservationsClass(MastClass):
         response : int
         """
 
-        coordinates = self._resolve_object(objectname)
+        coordinates = self.resolve_object(objectname)
 
         return self.query_region_count(coordinates, radius, pagesize, page)
 
@@ -1391,7 +1401,7 @@ class ObservationsClass(MastClass):
             raise InvalidQueryError("Only one of objectname and coordinates may be specified.")
 
         if objectname:
-            coordinates = self._resolve_object(objectname)
+            coordinates = self.resolve_object(objectname)
 
         if coordinates:
             # Put coordinates and radius into consitant format
@@ -2015,7 +2025,7 @@ class CatalogsClass(MastClass):
         response : list of `~requests.Response`
         """
 
-        coordinates = self._resolve_object(objectname)
+        coordinates = self.resolve_object(objectname)
 
         return self.query_region_async(coordinates, radius, catalog, pagesize, page, **kwargs)
 
@@ -2092,7 +2102,7 @@ class CatalogsClass(MastClass):
             raise InvalidQueryError("Only one of objectname and coordinates may be specified.")
 
         if objectname:
-            coordinates = self._resolve_object(objectname)
+            coordinates = self.resolve_object(objectname)
 
         if coordinates:
             # Put coordinates and radius into consitant format
@@ -2106,8 +2116,8 @@ class CatalogsClass(MastClass):
         # build query
         params = {}
         if coordinates:
-            params["ra"] = coordinates.ra.deg,
-            params["dec"] = coordinates.dec.deg,
+            params["ra"] = coordinates.ra.deg
+            params["dec"] = coordinates.dec.deg
             params["radius"] = radius.deg
 
         if not catalogs_service:
@@ -2121,7 +2131,7 @@ class CatalogsClass(MastClass):
             # For catalogs service append criteria to main parameters
             for prop, value in criteria.items():
                 params[prop] = value
-
+        
         if catalogs_service:
             return self.catalogs_service_request_async(service, params, page_size=pagesize, page=page)
         return self.service_request_async(service, params, pagesize=pagesize, page=page)

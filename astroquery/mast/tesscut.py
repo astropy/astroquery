@@ -31,10 +31,46 @@ from ..utils import commons
 from ..exceptions import NoResultsWarning, InvalidQueryError, RemoteServiceError
 
 from . import conf
+from .core import Mast
 
 __all__ = ["TesscutClass", "Tesscut"]
 
+def _parse_input_location(coordinates=None, objectname=None):
+    """
+    Convenience function to parse user input of coordinates and objectname.
 
+    Parameters
+    ----------
+    coordinates : str or `astropy.coordinates` object, optional
+        The target around which to search. It may be specified as a
+        string or as the appropriate `astropy.coordinates` object.
+        One and only one of coordinates and objectname must be supplied.
+    objectname : str, optional
+        The target around which to search, by name (objectname="M104") 
+        or TIC ID (objectname="TIC 141914082").
+        One and only one of coordinates and objectname must be supplied.
+
+    Returns
+    -------
+    response : `~astropy.coordinates.SkyCoord`
+        The given coordinates, or object's location as an `~astropy.coordinates.SkyCoord` object.
+    """
+
+    # Checking for valid input
+    if objectname and coordinates:
+        raise InvalidQueryError("Only one of objectname and coordinates may be specified.")
+
+    if not (objectname or coordinates):
+        raise InvalidQueryError("One of objectname and coordinates must be specified.")
+
+    if objectname:
+        obj_coord = Mast.resolve_object(objectname)
+
+    if coordinates:
+        obj_coord = commons.parse_coordinates(coordinates)
+
+    return obj_coord
+    
 class TesscutClass(BaseQuery):
     """
     MAST TESS FFI cutout query class.
@@ -48,16 +84,21 @@ class TesscutClass(BaseQuery):
 
         self._TESSCUT_URL = conf.server + "/tesscut/api/v0.1/"
 
-    def get_sectors(self, coordinates, radius=0.2*u.deg):  # pragma: no cover
+    def get_sectors(self, coordinates=None, radius=0.2*u.deg, objectname=None):
         """
         Get a list of the TESS data sectors whose footprints intersect
         with the given search area.
 
         Parameters
         ----------
-        coordinates : str or `astropy.coordinates` object
+        coordinates : str or `astropy.coordinates` object, optional
             The target around which to search. It may be specified as a
             string or as the appropriate `astropy.coordinates` object.
+            One and only one of coordinates and objectname must be supplied.
+        objectname : str, optional
+            The target around which to search, by name (objectname="M104") 
+            or TIC ID (objectname="TIC 141914082").
+            One and only one of coordinates and objectname must be supplied.
         radius : str, float, or `~astropy.units.Quantity` object, optional
             Default 0.2 degrees.
             If supplied as a float degrees is the assumed unit.
@@ -71,10 +112,10 @@ class TesscutClass(BaseQuery):
             Sector/camera/chip information for given coordinates/raduis.
         """
 
-        # Put coordinates and radius into consistant format
-        coordinates = commons.parse_coordinates(coordinates)
+        # Get Skycoord object for coordinates/object
+        coordinates = _parse_input_location(coordinates, objectname)
 
-        # if radius is just a number we assume degrees
+        # If radius is just a number we assume degrees
         if isinstance(radius, (int, float)):
             radius = radius * u.deg
         radius = Angle(radius)
@@ -103,15 +144,20 @@ class TesscutClass(BaseQuery):
             warnings.warn("Coordinates are not in any TESS sector.", NoResultsWarning)
         return Table(sector_dict)
 
-    def download_cutouts(self, coordinates, size=5, sector=None, path=".", inflate=True):  # pragma: no cover
+    def download_cutouts(self, coordinates=None, size=5, sector=None, path=".", inflate=True, objectname=None):
         """
         Download cutout target pixel file(s) around the given coordinates with indicated size.
 
         Parameters
         ----------
-        coordinates : str or `astropy.coordinates` object
+        coordinates : str or `astropy.coordinates` object, optional
             The target around which to search. It may be specified as a
             string or as the appropriate `astropy.coordinates` object.
+            One and only one of coordinates and objectname must be supplied.
+        objectname : str, optional
+            The target around which to search, by name (objectname="M104") 
+            or TIC ID (objectname="TIC 141914082").
+            One and only one of coordinates and objectname must be supplied.
         size : int, array-like, `~astropy.units.Quantity`
             Optional, default 5 pixels.
             The size of the cutout array. If ``size`` is a scalar number or
@@ -140,8 +186,8 @@ class TesscutClass(BaseQuery):
         response : `~astropy.table.Table`
         """
 
-        # Put coordinates and radius into consistant format
-        coordinates = commons.parse_coordinates(coordinates)
+        # Get Skycoord object for coordinates/object
+        coordinates = _parse_input_location(coordinates, objectname)
 
         # Making size into an array [ny, nx]
         if np.isscalar(size):
@@ -208,16 +254,21 @@ class TesscutClass(BaseQuery):
         localpath_table['Local Path'] = [path+x for x in cutout_files]
         return localpath_table
 
-    def get_cutouts(self, coordinates, size=5, sector=None):  # pragma: no cover
+    def get_cutouts(self, coordinates=None, size=5, sector=None, objectname=None):
         """
         Get cutout target pixel file(s) around the given coordinates with indicated size,
         and return them as a list of  `~astropy.io.fits.HDUList` objects.
 
         Parameters
         ----------
-        coordinates : str or `astropy.coordinates` object
+        coordinates : str or `astropy.coordinates` object, optional
             The target around which to search. It may be specified as a
             string or as the appropriate `astropy.coordinates` object.
+            One and only one of coordinates and objectname must be supplied.
+        objectname : str, optional
+            The target around which to search, by name (objectname="M104") 
+            or TIC ID (objectname="TIC 141914082").
+            One and only one of coordinates and objectname must be supplied.
         size : int, array-like, `~astropy.units.Quantity`
             Optional, default 5 pixels.
             The size of the cutout array. If ``size`` is a scalar number or
@@ -236,8 +287,8 @@ class TesscutClass(BaseQuery):
         response : A list of `~astropy.io.fits.HDUList` objects.
         """
 
-        # Put coordinates and radius into consistant format
-        coordinates = commons.parse_coordinates(coordinates)
+        # Get Skycoord object for coordinates/object
+        coordinates = _parse_input_location(coordinates, objectname)
 
         # Making size into an array [ny, nx]
         if np.isscalar(size):
