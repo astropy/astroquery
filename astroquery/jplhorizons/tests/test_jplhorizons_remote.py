@@ -3,8 +3,7 @@ from __future__ import print_function
 
 from astropy.tests.helper import remote_data, assert_quantity_allclose
 from numpy.ma import is_masked
-import numpy.testing as npt
-from astropy.units.quantity import allclose
+
 
 from ... import jplhorizons
 
@@ -29,7 +28,7 @@ class TestHorizonsClass:
         assert is_masked(res['EL'])
         assert is_masked(res['magextinct'])
 
-        allclose(
+        assert_quantity_allclose(
             [2451544.5,
              188.70280, 9.09829, 34.40955, -2.68358,
              8.27, 6.83, 96.171,
@@ -47,7 +46,7 @@ class TestHorizonsClass:
              res['velocityPA'],
              res['ObsEclLon'], res['ObsEclLat'], res['GlxLon'],
              res['GlxLat'],
-             res['RA_3sigma'], res['DEC_3sigma']])
+             res['RA_3sigma'], res['DEC_3sigma']], rtol=1e-3)
 
     def test_ephemerides_query_two(self):
         # check comet ephemerides using options
@@ -183,7 +182,7 @@ class TestHorizonsClass:
         assert res['targetname'] == "1 Ceres"
         assert res['datetime_str'] == "A.D. 2000-Jan-01 00:00:00.0000"
 
-        allclose(
+        assert_quantity_allclose(
             [2451544.5,
              7.837505767652506E-02, 2.549670133211852E+00,
              1.058336086929457E+01,
@@ -201,7 +200,7 @@ class TestHorizonsClass:
              res['n'], res['M'],
              res['nu'],
              res['a'], res['Q'],
-             res['P']])
+             res['P']], rtol=1e-3)
 
     def test_elements_query_two(self):
         obj = jplhorizons.Horizons(id='Ceres', location='500@10',
@@ -212,10 +211,11 @@ class TestHorizonsClass:
                            refplane='earth',
                            tp_type='relative')[1]
 
-        allclose([23.24472584135690,
-                  132.6482045485004,
-                  -29.33632558181947],
-                 [res['Omega'], res['w'], res['Tp_jd']])
+        assert_quantity_allclose([23.24472584135690,
+                                  132.6482045485004,
+                                  -29.33632558181947],
+                                 [res['Omega'], res['w'], res['Tp_jd']],
+                                 rtol=1e-3)
 
     def test_elements_query_raw(self):
         res = jplhorizons.Horizons(id='Ceres', location='500@10',
@@ -233,7 +233,7 @@ class TestHorizonsClass:
         assert res['targetname'] == "1 Ceres"
         assert res['datetime_str'] == "A.D. 2000-Jan-01 00:00:00.0000"
 
-        allclose(
+        assert_quantity_allclose(
             [2451544.5,
              -2.377530254715913E+00, 8.007773098011088E-01,
              4.628376171505864E-01,
@@ -247,7 +247,7 @@ class TestHorizonsClass:
              res['vx'], res['vy'],
              res['vz'],
              res['lighttime'], res['range'],
-             res['range_rate']])
+             res['range_rate']], rtol=1e-3)
 
     def test_vectors_query_raw(self):
         res = jplhorizons.Horizons(id='Ceres', location='500@10',
@@ -305,8 +305,8 @@ class TestHorizonsClass:
                                         location=anderson_mesa,
                                         epochs=2451544.5).ephemerides()[0]
 
-        allclose([am_res['RA'], am_res['DEC']],
-                 [user_res['RA'], user_res['DEC']])
+        assert_quantity_allclose([am_res['RA'], am_res['DEC']],
+                                 [user_res['RA'], user_res['DEC']])
 
     def test_majorbody(self):
         """Regression test for "Fix missing columns... #1268"
