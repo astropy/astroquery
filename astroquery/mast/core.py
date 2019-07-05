@@ -831,10 +831,6 @@ class MastClass(QueryWithLogin):
 
         return criteria_check
 
-    @deprecated(since="v0.3.10", alternative="resolve_object")
-    def _resolve_object(self, objectname):
-        return self.resolve_object(objectname)
-
     def resolve_object(self, objectname):
         """
         Resolves an object name to a position on the sky.

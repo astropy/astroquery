@@ -97,16 +97,16 @@ class TesscutClass(BaseQuery):
             The target around which to search. It may be specified as a
             string or as the appropriate `astropy.coordinates` object.
             One and only one of coordinates and objectname must be supplied.
-        objectname : str, optional
-            The target around which to search, by name (objectname="M104")
-            or TIC ID (objectname="TIC 141914082").
-            One and only one of coordinates and objectname must be supplied.
         radius : str, float, or `~astropy.units.Quantity` object, optional
             Default 0.2 degrees.
             If supplied as a float degrees is the assumed unit.
             The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from
             `astropy.units` may also be used.
+        objectname : str, optional
+            The target around which to search, by name (objectname="M104")
+            or TIC ID (objectname="TIC 141914082").
+            One and only one of coordinates and objectname must be supplied.
 
         Returns
         -------
@@ -156,10 +156,6 @@ class TesscutClass(BaseQuery):
             The target around which to search. It may be specified as a
             string or as the appropriate `astropy.coordinates` object.
             One and only one of coordinates and objectname must be supplied.
-        objectname : str, optional
-            The target around which to search, by name (objectname="M104")
-            or TIC ID (objectname="TIC 141914082").
-            One and only one of coordinates and objectname must be supplied.
         size : int, array-like, `~astropy.units.Quantity`
             Optional, default 5 pixels.
             The size of the cutout array. If ``size`` is a scalar number or
@@ -181,7 +177,10 @@ class TesscutClass(BaseQuery):
             Cutout target pixel files are returned from the server in a zip file,
             by default they will be inflated and the zip will be removed.
             Set inflate to false to stop before the inflate step.
-
+        objectname : str, optional
+            The target around which to search, by name (objectname="M104")
+            or TIC ID (objectname="TIC 141914082").
+            One and only one of coordinates and objectname must be supplied.
 
         Returns
         -------
@@ -267,10 +266,6 @@ class TesscutClass(BaseQuery):
             The target around which to search. It may be specified as a
             string or as the appropriate `astropy.coordinates` object.
             One and only one of coordinates and objectname must be supplied.
-        objectname : str, optional
-            The target around which to search, by name (objectname="M104")
-            or TIC ID (objectname="TIC 141914082").
-            One and only one of coordinates and objectname must be supplied.
         size : int, array-like, `~astropy.units.Quantity`
             Optional, default 5 pixels.
             The size of the cutout array. If ``size`` is a scalar number or
@@ -283,6 +278,10 @@ class TesscutClass(BaseQuery):
             Optional.
             The TESS sector to return the cutout from.  If not supplied, cutouts
             from all available sectors on which the coordinate appears will be returned.
+        objectname : str, optional
+            The target around which to search, by name (objectname="M104")
+            or TIC ID (objectname="TIC 141914082").
+            One and only one of coordinates and objectname must be supplied.
 
         Returns
         -------
