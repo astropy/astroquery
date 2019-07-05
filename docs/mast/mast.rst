@@ -672,13 +672,13 @@ be accessed in Astroquery by using the Tesscut class.
 Cutouts
 -------
 
-The `~astroquery.mast.TesscutClass.get_cutouts` function takes a coordinate and
-cutout size (in pixels or an angular quantity) and returns the cutout target pixel
-file(s) as a list of `~astropy.io.fits.HDUList` objects.
+The `~astroquery.mast.TesscutClass.get_cutouts` function takes a coordinate or object name
+(such as "M104" or "TIC 32449963") and cutout size (in pixels or an angular quantity) and
+returns the cutout target pixel file(s) as a list of `~astropy.io.fits.HDUList` objects.
 
-If a given coordinate appears in more than one TESS sector a target pixel file will be
-produced for each sector.  If the cutout area overlaps more than one camera or ccd
-a target pixel file will be produced for each one.
+If the given coordinate/object location appears in more than one TESS sector a target pixel
+file will be produced for each sector.  If the cutout area overlaps more than one camera or
+ccd a target pixel file will be produced for each one.
 
 .. code-block:: python
 
@@ -686,18 +686,31 @@ a target pixel file will be produced for each one.
                 >>> from astropy.coordinates import SkyCoord
                 
                 >>> cutout_coord = SkyCoord(107.18696, -70.50919, unit="deg")
-                >>> hdulist = Tesscut.get_cutouts(cutout_coord, 5)
+                >>> hdulist = Tesscut.get_cutouts(coordinates=cutout_coord, size=5)
                 >>> hdulist[0].info()
-                Filename: tess-s0001-4-3_107.18696_-70.50919_5x5_astrocut.fits
+                Filename: <class '_io.BytesIO'>
                 No.    Name      Ver    Type      Cards   Dimensions   Format
-                0  PRIMARY       1 PrimaryHDU      45   ()      
-                1  PIXELS        1 BinTableHDU    225   1282R x 12C   [D, E, J, 25J, 25E, 25E, 25E, 25E, J, E, E, 38A]   
-                2  APERTURE      1 ImageHDU       134   (5, 5)   float64
+                  0  PRIMARY       1 PrimaryHDU      55   ()      
+                  1  PIXELS        1 BinTableHDU    279   1282R x 12C   [D, E, J, 25J, 25E, 25E, 25E, 25E, J, E, E, 38A]   
+                  2  APERTURE      1 ImageHDU        79   (5, 5)   int32
 
 
-The `~astroquery.mast.TesscutClass.download_cutouts` function takes a coordinate
-and cutout size (in pixels or an angular quantity) and downloads the cutout target
-pixel file(s).
+.. code-block:: python
+
+                >>> from astroquery.mast import Tesscut
+                
+                >>> hdulist = Tesscut.get_cutouts(objectname="TIC 32449963", size=5)
+                >>> hdulist[0].info()
+                Filename: <class '_io.BytesIO'>
+                No.    Name      Ver    Type      Cards   Dimensions   Format
+                  0  PRIMARY       1 PrimaryHDU      56   ()      
+                  1  PIXELS        1 BinTableHDU    280   1211R x 12C   [D, E, J, 25J, 25E, 25E, 25E, 25E, J, E, E, 38A]   
+                  2  APERTURE      1 ImageHDU        80   (5, 5)   int32 
+
+                
+The `~astroquery.mast.TesscutClass.download_cutouts` function takes a coordinate or object name
+(such as "M104" or "TIC 32449963") and cutout size (in pixels or an angular quantity) and
+downloads the cutout target pixel file(s).
 
 If a given coordinate appears in more than one TESS sector a target pixel file will be
 produced for each sector.  If the cutout area overlaps more than one camera or ccd
@@ -710,7 +723,7 @@ a target pixel file will be produced for each one.
                 >>> import astropy.units as u
                  
                 >>> cutout_coord = SkyCoord(107.18696, -70.50919, unit="deg")
-                >>> manifest = Tesscut.download_cutouts(cutout_coord, [5, 7]*u.arcmin)
+                >>> manifest = Tesscut.download_cutouts(coordinates=cutout_coord, size=[5, 7]*u.arcmin)
                 Downloading URL https://mast.stsci.edu/tesscut/api/v0.1/astrocut?ra=107.18696&dec=-70.50919&y=0.08333333333333333&x=0.11666666666666667&units=d&sector=1 to ./tesscut_20181102104719.zip ... [Done]
                 Inflating...
 
@@ -730,11 +743,22 @@ To access sector information at a particular location there is  `~astroquery.mas
                 >>> from astropy.coordinates import SkyCoord
                 
                 >>> coord = SkyCoord(324.24368, -27.01029,unit="deg")
-                >>> sector_table = Tesscut.get_sectors(coord)
+                >>> sector_table = Tesscut.get_sectors(coordinates=coord)
                 >>> print(sector_table)
-                sectorName   sector camera ccd
+                  sectorName   sector camera ccd
                 -------------- ------ ------ ---
                 tess-s0001-1-3      1      1   3
+
+
+.. code-block:: python
+
+                >>> from astroquery.mast import Tesscut
+                
+                >>> sector_table = Tesscut.get_sectors(objectname="TIC 32449963")
+                >>> print(sector_table)
+                  sectorName   sector camera ccd
+                -------------- ------ ------ ---
+                tess-s0010-1-4     10      1   4
            
 
 Accessing Proprietary Data

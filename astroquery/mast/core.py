@@ -831,7 +831,7 @@ class MastClass(QueryWithLogin):
 
         return criteria_check
 
-    def _resolve_object(self, objectname):
+    def resolve_object(self, objectname):
         """
         Resolves an object name to a position on the sky.
 
@@ -839,6 +839,11 @@ class MastClass(QueryWithLogin):
         ----------
         objectname : str
             Name of astronomical object to resolve.
+
+        Returns
+        -------
+        response : `~astropy.coordinates.SkyCoord`
+            The sky position of the given object.
         """
 
         service = 'Mast.Name.Lookup'
@@ -1166,7 +1171,7 @@ class ObservationsClass(MastClass):
         response : list of `~requests.Response`
         """
 
-        coordinates = self._resolve_object(objectname)
+        coordinates = self.resolve_object(objectname)
 
         return self.query_region_async(coordinates, radius, pagesize, page)
 
@@ -1243,7 +1248,7 @@ class ObservationsClass(MastClass):
             raise InvalidQueryError("Only one of objectname and coordinates may be specified.")
 
         if objectname:
-            coordinates = self._resolve_object(objectname)
+            coordinates = self.resolve_object(objectname)
 
         if coordinates:
             # Put coordinates and radius into consitant format
@@ -1337,7 +1342,7 @@ class ObservationsClass(MastClass):
         response : int
         """
 
-        coordinates = self._resolve_object(objectname)
+        coordinates = self.resolve_object(objectname)
 
         return self.query_region_count(coordinates, radius, pagesize, page)
 
@@ -1391,7 +1396,7 @@ class ObservationsClass(MastClass):
             raise InvalidQueryError("Only one of objectname and coordinates may be specified.")
 
         if objectname:
-            coordinates = self._resolve_object(objectname)
+            coordinates = self.resolve_object(objectname)
 
         if coordinates:
             # Put coordinates and radius into consitant format
@@ -1461,7 +1466,7 @@ class ObservationsClass(MastClass):
             Table containing data products to be filtered.
         mrp_only : bool, optional
             Default False. When set to true only "Minimum Recommended Products" will be returned.
-        extension : string, optional
+        extension : string or array, optional
             Default None. Option to filter by file extension.
         **filters :
             Filters to be applied.  Valid filters are all products fields listed
@@ -1483,6 +1488,9 @@ class ObservationsClass(MastClass):
             filter_mask &= (products['productGroupDescription'] == "Minimum Recommended Products")
 
         if extension:
+            if type(extension) == str:
+                extension = [extension]
+
             mask = np.full(len(products), False, dtype=bool)
             for elt in extension:
                 mask |= [False if isinstance(x, np.ma.core.MaskedConstant) else x.endswith(elt)
@@ -2012,7 +2020,7 @@ class CatalogsClass(MastClass):
         response : list of `~requests.Response`
         """
 
-        coordinates = self._resolve_object(objectname)
+        coordinates = self.resolve_object(objectname)
 
         return self.query_region_async(coordinates, radius, catalog, pagesize, page, **kwargs)
 
@@ -2089,7 +2097,7 @@ class CatalogsClass(MastClass):
             raise InvalidQueryError("Only one of objectname and coordinates may be specified.")
 
         if objectname:
-            coordinates = self._resolve_object(objectname)
+            coordinates = self.resolve_object(objectname)
 
         if coordinates:
             # Put coordinates and radius into consitant format
@@ -2103,8 +2111,8 @@ class CatalogsClass(MastClass):
         # build query
         params = {}
         if coordinates:
-            params["ra"] = coordinates.ra.deg,
-            params["dec"] = coordinates.dec.deg,
+            params["ra"] = coordinates.ra.deg
+            params["dec"] = coordinates.dec.deg
             params["radius"] = radius.deg
 
         if not catalogs_service:

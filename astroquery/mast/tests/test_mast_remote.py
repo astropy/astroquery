@@ -61,6 +61,13 @@ class TestMast(object):
         assert sessionInfo['ezid'] == 'anonymous'
         assert sessionInfo['token'] is None
 
+    def test_resolve_object(self):
+        m101_loc = mast.Mast.resolve_object("M101")
+        assert round(m101_loc.separation(SkyCoord("210.80227 54.34895", unit='deg')).value, 4) == 0
+
+        ticobj_loc = mast.Mast.resolve_object("TIC 141914082")
+        assert round(ticobj_loc.separation(SkyCoord("94.6175354 -72.04484622", unit='deg')).value, 4) == 0
+
     ###########################
     # ObservationsClass tests #
     ###########################
@@ -321,7 +328,7 @@ class TestMast(object):
         result = mast.Catalogs.query_region("322.49324 12.16683", radius=0.01,
                                             catalog="panstarrs", table="mean", pagesize=3)
         assert isinstance(result, Table)
-        assert len(result) > 800
+        assert len(result) == 3
 
     def test_catalogs_query_object_async(self):
         responses = mast.Catalogs.query_object_async("M10", radius=.02, catalog="TIC")
@@ -343,7 +350,7 @@ class TestMast(object):
 
         result = mast.Catalogs.query_object("M10", radius=.001, catalog="panstarrs", table="mean")
         assert isinstance(result, Table)
-        assert len(result) >= 500
+        assert len(result) >= 5
 
     def test_catalogs_query_criteria_async(self):
         # without position
@@ -372,7 +379,7 @@ class TestMast(object):
 
         responses = mast.Catalogs.query_criteria_async(catalog="panstarrs", table="mean",
                                                        objectname="M10",
-                                                       radius=2,
+                                                       radius=.02,
                                                        qualityFlag=48)
         assert isinstance(responses, list)
 
@@ -407,9 +414,9 @@ class TestMast(object):
         assert result[np.where(result['designation'] == 'J165628.40-054630.8')]
 
         result = mast.Catalogs.query_criteria(catalog="panstarrs", objectname="M10", radius=.01,
-                                              qualityFlag=48, zoneID=17320)
+                                              qualityFlag=32, zoneID=10306)
         assert isinstance(result, Table)
-        assert len(result) >= 10
+        assert len(result) >= 5
 
     def test_catalogs_query_hsc_matchid_async(self):
         catalogData = mast.Catalogs.query_object("M10", radius=.001, catalog="HSC", magtype=1)
@@ -473,9 +480,8 @@ class TestMast(object):
     ######################
     def test_tesscut_get_sectors(self):
 
-        # Note: try except will be removed when the service goes live
         coord = SkyCoord(324.24368, -27.01029, unit="deg")
-        sector_table = mast.Tesscut.get_sectors(coord)
+        sector_table = mast.Tesscut.get_sectors(coordinates=coord)
         assert isinstance(sector_table, Table)
         assert len(sector_table) >= 1
         assert sector_table['sectorName'][0] == "tess-s0001-1-3"
@@ -485,56 +491,75 @@ class TestMast(object):
 
         # This should always return no results
         coord = SkyCoord(0, 90, unit="deg")
-        sector_table = mast.Tesscut.get_sectors(coord)
+        sector_table = mast.Tesscut.get_sectors(coordinates=coord)
         assert isinstance(sector_table, Table)
         assert len(sector_table) == 0
+
+        sector_table = mast.Tesscut.get_sectors(objectname="M104")
+        assert isinstance(sector_table, Table)
+        assert len(sector_table) >= 1
+        assert sector_table['sectorName'][0] == "tess-s0010-1-4"
+        assert sector_table['sector'][0] == 10
+        assert sector_table['camera'][0] == 1
+        assert sector_table['ccd'][0] == 4
 
     def test_tesscut_download_cutouts(self, tmpdir):
 
         coord = SkyCoord(107.18696, -70.50919, unit="deg")
 
-        manifest = mast.Tesscut.download_cutouts(coord, 5, path=str(tmpdir))
+        manifest = mast.Tesscut.download_cutouts(coordinates=coord, size=5, path=str(tmpdir))
         assert isinstance(manifest, Table)
         assert len(manifest) >= 1
         assert manifest["Local Path"][0][-4:] == "fits"
         for row in manifest:
             assert os.path.isfile(row['Local Path'])
 
-        manifest = mast.Tesscut.download_cutouts(coord, 5, sector=1, path=str(tmpdir))
+        manifest = mast.Tesscut.download_cutouts(coordinates=coord, size=5, sector=1, path=str(tmpdir))
         assert isinstance(manifest, Table)
         assert len(manifest) == 1
         assert manifest["Local Path"][0][-4:] == "fits"
-        for row in manifest:
-            assert os.path.isfile(row['Local Path'])
+        assert os.path.isfile(manifest[0]['Local Path'])
 
-        manifest = mast.Tesscut.download_cutouts(coord, [5, 7]*u.pix, path=str(tmpdir))
+        manifest = mast.Tesscut.download_cutouts(coordinates=coord, size=[5, 7]*u.pix, path=str(tmpdir))
         assert isinstance(manifest, Table)
         assert len(manifest) >= 1
         assert manifest["Local Path"][0][-4:] == "fits"
         for row in manifest:
             assert os.path.isfile(row['Local Path'])
 
-        manifest = mast.Tesscut.download_cutouts(coord, 5, path=str(tmpdir), inflate=False)
+        manifest = mast.Tesscut.download_cutouts(coordinates=coord, size=5, path=str(tmpdir), inflate=False)
         assert isinstance(manifest, Table)
         assert len(manifest) == 1
         assert manifest["Local Path"][0][-3:] == "zip"
         assert os.path.isfile(manifest[0]['Local Path'])
 
+        manifest = mast.Tesscut.download_cutouts(objectname="TIC 32449963", size=5, path=str(tmpdir))
+        assert isinstance(manifest, Table)
+        assert len(manifest) >= 1
+        assert manifest["Local Path"][0][-4:] == "fits"
+        for row in manifest:
+            assert os.path.isfile(row['Local Path'])
+
     def test_tesscut_get_cutouts(self, tmpdir):
 
         coord = SkyCoord(107.18696, -70.50919, unit="deg")
 
-        cutout_hdus_list = mast.Tesscut.get_cutouts(coord, 5)
+        cutout_hdus_list = mast.Tesscut.get_cutouts(coordinates=coord, size=5)
         assert isinstance(cutout_hdus_list, list)
         assert len(cutout_hdus_list) >= 1
         assert isinstance(cutout_hdus_list[0], fits.HDUList)
 
-        cutout_hdus_list = mast.Tesscut.get_cutouts(coord, 5, sector=1)
+        cutout_hdus_list = mast.Tesscut.get_cutouts(coordinates=coord, size=5, sector=1)
         assert isinstance(cutout_hdus_list, list)
         assert len(cutout_hdus_list) == 1
         assert isinstance(cutout_hdus_list[0], fits.HDUList)
 
-        cutout_hdus_list = mast.Tesscut.get_cutouts(coord, [2, 4]*u.arcmin)
+        cutout_hdus_list = mast.Tesscut.get_cutouts(coordinates=coord, size=[2, 4]*u.arcmin)
+        assert isinstance(cutout_hdus_list, list)
+        assert len(cutout_hdus_list) >= 1
+        assert isinstance(cutout_hdus_list[0], fits.HDUList)
+
+        cutout_hdus_list = mast.Tesscut.get_cutouts(objectname="TIC 32449963", size=5)
         assert isinstance(cutout_hdus_list, list)
         assert len(cutout_hdus_list) >= 1
         assert isinstance(cutout_hdus_list[0], fits.HDUList)
