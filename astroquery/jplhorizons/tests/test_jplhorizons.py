@@ -5,9 +5,9 @@ import pytest
 import os
 from collections import OrderedDict
 
-from numpy import testing as npt
 from numpy.ma import is_masked
 from ...utils.testing_tools import MockResponse
+from astropy.tests.helper import assert_quantity_allclose
 
 from ... import jplhorizons
 
@@ -75,7 +75,7 @@ def test_ephemerides_query(patch_request):
     assert is_masked(res['EL'])
     assert is_masked(res['magextinct'])
 
-    npt.assert_allclose(
+    assert_quantity_allclose(
         [2451544.5,
          188.70280, 9.09829, 34.40955, -2.68358,
          8.27, 6.83, 96.171,
@@ -91,7 +91,7 @@ def test_ephemerides_query(patch_request):
          res['delta'], res['delta_rate'], res['lighttime'],
          res['elong'], res['alpha'], res['sunTargetPA'], res['velocityPA'],
          res['ObsEclLon'], res['ObsEclLat'], res['GlxLon'], res['GlxLat'],
-         res['RA_3sigma'], res['DEC_3sigma']])
+         res['RA_3sigma'], res['DEC_3sigma']], rtol=1e-3)
 
 
 def test_elements_query(patch_request):
@@ -103,7 +103,7 @@ def test_elements_query(patch_request):
     assert res['targetname'] == "1 Ceres"
     assert res['datetime_str'] == "A.D. 2000-Jan-01 00:00:00.0000"
 
-    npt.assert_allclose(
+    assert_quantity_allclose(
         [2451544.5,
          7.837505767652506E-02, 2.549670133211852E+00,
          1.058336086929457E+01,
@@ -121,7 +121,7 @@ def test_elements_query(patch_request):
          res['n'], res['M'],
          res['nu'],
          res['a'], res['Q'],
-         res['P']])
+         res['P']], rtol=1e-3)
 
 
 def test_elements_vectors(patch_request):
@@ -133,7 +133,7 @@ def test_elements_vectors(patch_request):
     assert res['targetname'] == "1 Ceres"
     assert res['datetime_str'] == "A.D. 2000-Jan-01 00:00:00.0000"
 
-    npt.assert_allclose(
+    assert_quantity_allclose(
         [2451544.5,
          -2.377530254715913E+00, 8.007773098011088E-01,
          4.628376171505864E-01,
@@ -144,7 +144,7 @@ def test_elements_vectors(patch_request):
         [res['datetime_jd'],
          res['x'], res['y'], res['z'],
          res['vx'], res['vy'], res['vz'],
-         res['lighttime'], res['range'], res['range_rate']])
+         res['lighttime'], res['range'], res['range_rate']], rtol=1e-3)
 
     def test_ephemerides_query_payload(self):
         obj = jplhorizons.Horizons(id='Halley', id_type='comet_name',
