@@ -28,16 +28,17 @@ query.  See :ref:`vectorized queries <vectorqueries>` below.
 
 Different ways to access Simbad
 -------------------------------
+
 The Simbad tool described here provides a number of convenient methods that
 internally creates a `script query
-<http://simbad.u-strasbg.fr/simbad/sim-fscript>`__ to Simbad server, which is
-also how the `Simbad web interface <http://simbad.u-strasbg.fr/simbad/>`__
+<http://simbad.u-strasbg.fr/simbad/sim-fscript>`__ to the Simbad server, which
+is also how the `Simbad web interface <http://simbad.u-strasbg.fr/simbad/>`__
 operates.
 
 Simbad provides another way to access its database via `TAP
-Service<http://simbad.u-strasbg.fr/simbad/sim-tap>`__. This may be better
+Service <http://simbad.u-strasbg.fr/simbad/sim-tap>`__. This may be better
 suited for some usage. If you need a python client for TAP Services,
-check out `pyvo<https://pyvo.readthedocs.io/en/latest/>`__.
+check out `pyvo <https://pyvo.readthedocs.io/en/latest/>`__.
 
 Query an Identifier
 -------------------
@@ -208,7 +209,7 @@ to 2000.0. So here is a query with all the options utilized:
     >>> from astroquery.simbad import Simbad
     >>> import astropy.coordinates as coord
     >>> import astropy.units as u
-    >>> result_table = Simbad.query_region(coord.SkyCoord(ra=11.70, dec=10.90, 
+    >>> result_table = Simbad.query_region(coord.SkyCoord(ra=11.70, dec=10.90,
     ...                                    unit=(u.deg, u.deg), frame='fk5'),
     ...                                    radius=0.5 * u.deg,
     ...                                    epoch='B1950',
@@ -340,7 +341,7 @@ associated with an object.
     >>> from astroquery.simbad import Simbad
     >>> result_table = Simbad.query_objectids("Polaris")
     >>> print(result_table)
-               ID          
+               ID
     -----------------------
                NAME Polaris
             NAME North Star
@@ -391,8 +392,8 @@ article specified by the bibcode:
     >>> result_table = Simbad.query_bibobj('2006AJ....131.1163S')
     >>> print(result_table)
 
-            MAIN_ID              RA          DEC      RA_PREC DEC_PREC ... COO_ERR_MINA COO_ERR_ANGLE COO_QUAL COO_WAVELENGTH     COO_BIBCODE    
-                              "h:m:s"      "d:m:s"                     ...     mas           deg                                                 
+            MAIN_ID              RA          DEC      RA_PREC DEC_PREC ... COO_ERR_MINA COO_ERR_ANGLE COO_QUAL COO_WAVELENGTH     COO_BIBCODE
+                              "h:m:s"      "d:m:s"                     ...     mas           deg
     ----------------------- ------------ ------------ ------- -------- ... ------------ ------------- -------- -------------- -------------------
                       M  32 00 42 41.825 +40 51 54.61       7        7 ...           --             0        B              I 2006AJ....131.1163S
                       M  31 00 42 44.330 +41 16 07.50       7        7 ...           --             0        B              I 2006AJ....131.1163S
@@ -401,7 +402,7 @@ article specified by the bibcode:
     2MASX J04504846-7531580 04 50 48.462 -75 31 58.08       7        7 ...           --             0        B              I 2006AJ....131.1163S
                    NAME LMC   05 23 34.6    -69 45 22       5        5 ...           --             0        D              O 2003A&A...412...45P
           NAME Lockman Hole   10 45 00.0    +58 00 00       5        5 ...           --             0        E                2011ApJ...734...99H
-            NAME Gal Center  17 45 40.04  -29 00 28.1       6        6 ...           --             0        E                                   
+            NAME Gal Center  17 45 40.04  -29 00 28.1       6        6 ...           --             0        E
 
 
 Query based on any criteria
@@ -451,7 +452,7 @@ Each region must have the same radius.
     >>> from astroquery.simbad import Simbad
     >>> import astropy.coordinates as coord
     >>> import astropy.units as u
-    >>> result_table = Simbad.query_region(coord.SkyCoord(ra=[10, 11], dec=[10, 11], 
+    >>> result_table = Simbad.query_region(coord.SkyCoord(ra=[10, 11], dec=[10, 11],
     ...                                    unit=(u.deg, u.deg), frame='fk5'),
     ...                                    radius=0.1 * u.deg)
     >>> print(result_table)
@@ -578,7 +579,7 @@ also want to be fetched in the result. To see the list of the fields:
      >>> from astroquery.simbad import Simbad
      >>> Simbad.list_votable_fields()
 
-              col0                   col1              col2     
+              col0                   col1              col2
     ------------------------ -------------------- --------------
           bibcodelist(y1-y2) fluxdata(filtername)       plx_qual
                          cel                 gcrv             pm
