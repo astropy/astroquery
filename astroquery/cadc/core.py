@@ -9,25 +9,30 @@ Module to query the Canadian Astronomy Data Centre (CADC).
 
 import logging
 import warnings
-
 import requests
-from bs4 import BeautifulSoup
 from numpy import ma
-from six.moves.urllib_error import HTTPError
 from six.moves.urllib.parse import urlencode
+from six.moves.urllib_error import HTTPError
 
+from ..utils.class_or_instance import class_or_instance
+from ..utils import async_to_sync, commons
+from ..query import BaseQuery
+from bs4 import BeautifulSoup
+from astropy.utils.exceptions import AstropyDeprecationWarning
 from astroquery.utils.decorators import deprecated
 from . import conf
-from ..query import BaseQuery
-from ..utils import async_to_sync, commons
-from ..utils.class_or_instance import class_or_instance
+
 
 try:
     import pyvo
-except ImportError as e:
-    msg = 'Please install pyvo. astropy.cadc does not work without it.'
-    raise ImportError(msg)
-
+except ImportError:
+    print('Please install pyvo. astropy.cadc does not work without it.')
+except AstropyDeprecationWarning as e:
+    if str(e) == 'The astropy.vo.samp module has now been moved to astropy.samp':
+        # CADC does not use samp and thisonly affects Python 2.7
+        print('AstropyDeprecationWarning: {}'.format(str(e)))
+    else:
+        raise e
 
 __all__ = ['Cadc', 'CadcClass']
 

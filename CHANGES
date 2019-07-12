@@ -140,6 +140,12 @@ mast
 
 - Remove deprecated authorization code, fix unit tests, general code cleanup,
   documentation additions. [#1409]
+  
+- MAST: Addition of observation metadata query. Addition of catalogs.MAST PanSTARRS catalog queries. [#1473]
+
+- TIC catalog search update. [#1483]
+
+- Add search by object name to Tesscut, make resolver_object public, minor bugfixes. [#1499]
 
 mpc
 ^^^

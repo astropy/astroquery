@@ -7,33 +7,32 @@ CadcClass TAP plus
 """
 import os
 import sys
-import tempfile
 
-from urllib.parse import urlencode
-
-import pytest
-from astropy.io.votable import parse
-from astropy.io.votable.tree import VOTableFile, Resource, Table, Field
 from astropy.table import Table as AstroTable
+from astropy.io.votable.tree import VOTableFile, Resource, Table, Field
+from astropy.io.votable import parse
 from six import BytesIO
-
 from astroquery.utils.commons import parse_coordinates
-
+from astropy.utils.exceptions import AstropyDeprecationWarning
+import pytest
+import tempfile
 try:
+    pyvo_OK = True
     from pyvo.dal import tap, adhoc
     from astroquery.cadc import Cadc, conf
     import astroquery.cadc.core as cadc_core
 except ImportError:
+    pyvo_OK = False
     pytest.skip("Install pyvo for the cadc module.", allow_module_level=True)
+except AstropyDeprecationWarning as e:
+    if str(e) == 'The astropy.vo.samp module has now been moved to astropy.samp':
+        print('AstropyDeprecationWarning: {}'.format(str(e)))
+    else:
+        raise e
 try:
     from unittest.mock import Mock, patch, PropertyMock
 except ImportError:
     pytest.skip("Install mock for the cadc tests.", allow_module_level=True)
-
-
-# monkeypatch get_access_url to prevent internet calls
-def get_access_url_mock(arg1, arg2=None):
-    return "https://some.url"
 
 
 def data_path(filename):
@@ -42,7 +41,8 @@ def data_path(filename):
 
 
 @patch('astroquery.cadc.core.get_access_url',
-       Mock(side_effect=lambda x: 'https://some.url'))
+      Mock(side_effect=lambda x: 'https://some.url'))
+@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
 def test_get_tables():
     # default parameters
     table_set = PropertyMock()
@@ -57,6 +57,7 @@ def test_get_tables():
 
 @patch('astroquery.cadc.core.get_access_url',
        Mock(side_effect=lambda x: 'https://some.url'))
+@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
 def test_get_table():
     table_set = PropertyMock()
     tables_result = [Mock(), Mock(), Mock()]
@@ -74,6 +75,7 @@ def test_get_table():
 
 @patch('astroquery.cadc.core.get_access_url',
        Mock(side_effect=lambda x: 'https://some.url'))
+@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
 def test_get_collections():
     cadc = Cadc()
 
@@ -99,6 +101,7 @@ def test_get_collections():
 
 @patch('astroquery.cadc.core.get_access_url',
        Mock(side_effect=lambda x: 'https://some.url'))
+@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
 def test_load_async_job():
     with patch('astroquery.cadc.core.pyvo.dal.TAPService', autospec=True) as t:
         with patch('astroquery.cadc.core.pyvo.dal.AsyncTAPJob',
@@ -116,6 +119,7 @@ def test_load_async_job():
 @pytest.mark.skip('Disabled until job listing available in pyvo')
 @patch('astroquery.cadc.core.get_access_url',
        Mock(side_effect=lambda x: 'https://some.url'))
+@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
 def test_list_async_jobs():
     with patch('astroquery.cadc.core.pyvo.dal.TAPService', autospec=True) as t:
         t.return_value.baseurl.return_value = 'https://www.example.com/tap'
@@ -125,30 +129,39 @@ def test_list_async_jobs():
 
 @patch('astroquery.cadc.core.get_access_url',
        Mock(side_effect=lambda x, y=None: 'https://some.url'))
+@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
 def test_auth():
     cadc = Cadc()
-    user = 'user'
-    password = 'password'
-    cert = 'cert'
-    with pytest.raises(AttributeError):
-        cadc.login(None, None, None)
-    with pytest.raises(AttributeError):
-        cadc.login(user=user)
-    with pytest.raises(AttributeError):
-        cadc.login(password=password)
-    cadc.login(certificate_file=cert)
-    assert tap.s.cert == cert
-    cadc.logout()
-    assert tap.s.cert is None
-    with patch('astroquery.cadc.core.requests.post') as m:
-        cookie = 'ABC'
-        mock_resp = Mock()
-        mock_resp.text = cookie
-        m.return_value = mock_resp
-        cadc.login(user=user, password=password)
-    assert tap.s.cookies[cadc_core.CADC_COOKIE_PREFIX] == '"{}"'.format(cookie)
+    try:
+        user = 'user'
+        password = 'password'
+        cert = 'cert'
+        with pytest.raises(AttributeError):
+            cadc.login(None, None, None)
+        with pytest.raises(AttributeError):
+            cadc.login(user=user)
+        with pytest.raises(AttributeError):
+            cadc.login(password=password)
+        cadc.login(certificate_file=cert)
+        assert tap.s.cert == cert
+        cadc.logout()
+        assert tap.s.cert is None
+        with patch('astroquery.cadc.core.requests.post') as m:
+            cookie = 'ABC'
+            mock_resp = Mock()
+            mock_resp.text = cookie
+            m.return_value = mock_resp
+            cadc.login(user=user, password=password)
+        assert tap.s.cookies[cadc_core.CADC_COOKIE_PREFIX] == \
+            '"{}"'.format(cookie)
+    finally:
+        # for the sake of other following tests reset the session
+        cadc.logout()
 
 
+# make sure that caps is reset at the end of the test
+@patch('astroquery.cadc.core.get_access_url.caps', {})
+@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
 def test_get_access_url():
     # testing implementation of requests.get method:
     def get(url, **kwargs):
@@ -182,6 +195,7 @@ def test_get_access_url():
 
 @patch('astroquery.cadc.core.get_access_url',
        Mock(side_effect=lambda x, y=None: 'https://some.url'))
+@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
 def test_get_data_urls():
 
     def get(*args, **kwargs):
@@ -227,6 +241,7 @@ def test_get_data_urls():
 
 @patch('astroquery.cadc.core.get_access_url',
        Mock(side_effect=lambda x, y=None: 'https://some.url'))
+@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
 def test_misc():
     cadc = Cadc()
 
@@ -255,6 +270,7 @@ def test_misc():
 
 @patch('astroquery.cadc.core.get_access_url',
        Mock(side_effect=lambda x, y=None: 'https://some.url'))
+@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
 def test_get_image_list():
     def get(*args, **kwargs):
         class CapsResponse(object):
@@ -280,16 +296,19 @@ def test_get_image_list():
     run_id = 'im_a_RUNID'
 
     service_def1 = Mock()
-    service_def1.access_url = b'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync'
+    service_def1.access_url = \
+        b'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync'
     service_def1.input_params = [Params(name='ID', value=uri),
                                  Params(name='RUNID', value=run_id)]
 
     service_def2 = Mock()
-    service_def2.access_url = b'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/async'
+    service_def2.access_url = \
+        b'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/async'
     service_def2.input_params = [Params(name='ID', value=uri),
                                  Params(name='RUNID', value=run_id)]
 
-    expected_url = 'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID={}&RUNID={}&POS=CIRCLE+{}+{}+{}' \
+    expected_url = 'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/' \
+                   'sync?ID={}&RUNID={}&POS=CIRCLE+{}+{}+{}' \
         .format(uri, run_id, coords_ra, coords_dec, radius)
 
     result = Mock()
@@ -301,7 +320,8 @@ def test_get_image_list():
         cadc = Cadc()
         cadc._request = get  # mock the request
         assert [expected_url] == \
-               cadc.get_image_list({'publisherID': ['ivo://cadc.nrc.ca/foo']}, coords, radius)
+               cadc.get_image_list({'publisherID': ['ivo://cadc.nrc.ca/foo']},
+                                   coords, radius)
     with pytest.raises(TypeError):
         cadc.get_image_list(None)
     with pytest.raises(AttributeError):
@@ -310,6 +330,7 @@ def test_get_image_list():
 
 @patch('astroquery.cadc.core.get_access_url',
        Mock(side_effect=lambda x, y=None: 'https://some.url'))
+@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
 def test_exec_sync():
     # save results in a file
     # create the VOTable result

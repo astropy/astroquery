@@ -14,6 +14,7 @@ import time
 import os
 import keyring
 import threading
+import uuid
 
 import numpy as np
 
@@ -62,8 +63,72 @@ def _prepare_service_request_string(json_obj):
         URL encoded Mashup Request string.
     """
 
+    # Append cache breaker
+    if not 'cacheBreaker' in json_obj:
+        json_obj['cacheBreaker'] = _generate_uuid_string()
     request_string = json.dumps(json_obj)
     return 'request={}'.format(urlencode(request_string))
+
+
+def _parse_type(dbtype):
+    """
+    Takes a data type as returned by a database call and regularizes it into a
+    triplet of the form (human readable datatype, python datatype, default value).
+
+    Parameters
+    ----------
+    dbtype : str
+        A data type, as returned by a database call (ex. 'char').
+
+    Returns
+    -------
+    response : tuple
+        Regularized type tuple of the form (human readable datatype, python datatype, default value).
+
+    For example:
+
+    _parse_type("short")
+    ('integer', np.int64, -999)
+    """
+
+    dbtype = dbtype.lower()
+
+    return {
+        'char': ('string', str, ""),
+        'string': ('string', str, ""),
+        'datetime': ('string', str, ""),  # TODO: handle datetimes correctly
+        'date': ('string', str, ""),  # TODO: handle datetimes correctly
+
+        'double': ('float', np.float64, np.nan),
+        'float': ('float', np.float64, np.nan),
+        'decimal': ('float', np.float64, np.nan),
+
+        'int': ('integer', np.int64, -999),
+        'short': ('integer', np.int64, -999),
+        'long': ('integer', np.int64, -999),
+        'number': ('integer', np.int64, -999),
+
+        'boolean': ('boolean', bool, None),
+        'binary': ('boolean', bool, None),
+
+        'unsignedbyte': ('byte', np.ubyte, -999)
+    }.get(dbtype, (dbtype, dbtype, dbtype))
+
+
+def _generate_uuid_string():
+    """
+    Generates a UUID using Pythong's UUID module
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    response: str
+        Generated UUID string
+
+    """
+    return str(uuid.uuid4())
 
 
 def _mashup_json_to_table(json_obj, col_config=None):
@@ -99,18 +164,10 @@ def _mashup_json_to_table(json_obj, col_config=None):
             col_props = col_config.get(col, {})
             ignore_value = col_props.get("ignoreValue", None)
 
-        # making type adjustments
-        if atype == "string":
-            atype = "str"
-            ignore_value = "" if (ignore_value is None) else ignore_value
-        if atype == "boolean":
-            atype = "bool"
-        if atype == "int":  # int arrays do not admit Non/nan vals
-            atype = np.int64
-            ignore_value = -999 if (ignore_value is None) else ignore_value
-        if atype == "date":
-            atype = "str"
-            ignore_value = "" if (ignore_value is None) else ignore_value
+        # regularlizing the type
+        reg_type = _parse_type(atype)
+        atype = reg_type[1]
+        ignore_value = reg_type[2] if (ignore_value is None) else ignore_value
 
         # Make the column list (don't assign final type yet or there will be errors)
         col_data = np.array([x.get(col, ignore_value) for x in json_obj['data']], dtype=object)
@@ -130,6 +187,74 @@ def _mashup_json_to_table(json_obj, col_config=None):
     return data_table
 
 
+def _fabric_json_to_table(json_obj):
+    """
+    Takes a JSON object as returned from a MAST microservice request and turns it into an `astropy.table.Table`.
+
+    Parameters
+    ----------
+    json_obj : dict
+        A MAST microservice response JSON object (python dictionary)
+
+    Returns
+    -------
+    response : `~astropy.table.Table`
+    """
+    data_table = Table(masked=True)
+
+    if not all(x in json_obj.keys() for x in ['info', 'data']):
+        raise KeyError("Missing required key(s) 'data' and/or 'info.'")
+
+    # determine database type key in case missing
+    type_key = 'type' if json_obj['info'][0].get('type') else 'db_type'
+
+    # for each item in info, store the type and column name
+    for idx, col, col_type, ignore_value in \
+            [(idx, x['name'], x[type_key], "NULL") for idx, x in enumerate(json_obj['info'])]:
+            # [(idx, x['name'], x[type_key], x['default_value']) for idx, x in enumerate(json_obj['info'])]:
+
+        # if default value is NULL, set ignore value to None
+        if ignore_value == "NULL":
+            ignore_value = None
+        # making type adjustments
+        if col_type == "char" or col_type == "STRING":
+            col_type = "str"
+            ignore_value = "" if (ignore_value is None) else ignore_value
+        elif col_type == "boolean" or col_type == "BINARY":
+            col_type = "bool"
+        elif col_type == "unsignedByte":
+            col_type = np.ubyte
+        elif col_type == "int" or col_type == "short" or col_type == "long" or col_type == "NUMBER":
+            # int arrays do not admit Non/nan vals
+            col_type = np.int64
+            ignore_value = -999 if (ignore_value is None) else ignore_value
+        elif col_type == "double" or col_type == "float" or col_type == "DECIMAL":
+            # int arrays do not admit Non/nan vals
+            col_type = np.float64
+            ignore_value = -999 if (ignore_value is None) else ignore_value
+        elif col_type == "DATETIME":
+            col_type = "str"
+            ignore_value = "" if (ignore_value is None) else ignore_value
+
+        # Make the column list (don't assign final type yet or there will be errors)
+        # Step through data array of values
+        col_data = np.array([x[idx] for x in json_obj['data']], dtype=object)
+        if ignore_value is not None:
+            col_data[np.where(np.equal(col_data, None))] = ignore_value
+
+        # no consistant way to make the mask because np.equal fails on ''
+        # and array == value fails with None
+        if col_type == 'str':
+            col_mask = (col_data == ignore_value)
+        else:
+            col_mask = np.equal(col_data, ignore_value)
+
+        # add the column
+        data_table.add_column(MaskedColumn(col_data.astype(col_type), name=col, mask=col_mask))
+
+    return data_table
+
+
 @async_to_sync
 class MastClass(QueryWithLogin):
     """
@@ -145,6 +270,14 @@ class MastClass(QueryWithLogin):
 
         self._MAST_REQUEST_URL = conf.server + "/api/v0/invoke"
         self._COLUMNS_CONFIG_URL = conf.server + "/portal/Mashup/Mashup.asmx/columnsconfig"
+
+        self._MAST_CATALOGS_REQUEST_URL = conf.catalogsserver + "/api/v0.1/"
+        self._MAST_CATALOGS_SERVICES = {
+            "panstarrs": {
+                "path": "panstarrs/{data_release}/{table}.json",
+                "args": {"data_release": "dr2", "table": "mean"}
+            }
+        }
 
         self.TIMEOUT = conf.timeout
         self.PAGESIZE = conf.pagesize
@@ -260,6 +393,50 @@ class MastClass(QueryWithLogin):
                     print("%s: %s" % (key, value))
 
         return info_dict
+
+    def _fabric_request(self, method, url, params=None, data=None, headers=None,
+                 files=None, stream=False, auth=None, cache=False):
+        """
+        Override of the parent method:
+        A generic HTTP request method, similar to `~requests.Session.request`
+
+        This is a low-level method not generally intended for use by astroquery
+        end-users.
+
+        This method wraps the _request functionality to include raise_for_status
+        Caching is defaulted to False but may be modified as needed
+        Also parameters that allow for file download through this method are removed
+
+
+        Parameters
+        ----------
+        method : 'GET' or 'POST'
+        url : str
+        params : None or dict
+        data : None or dict
+        headers : None or dict
+        auth : None or dict
+        files : None or dict
+        stream : bool
+            See `~requests.request`
+        cache : bool
+            Default False. Use of bulit in _request caching
+
+        Returns
+        -------
+        response : `~requests.Response`
+            The response from the server.
+        """
+
+        start_time = time.time()
+
+        response = super(MastClass, self)._request(method, url, params=params, data=data, headers=headers,
+                                                   files=files, cache=cache, stream=stream, auth=auth)
+        if (time.time() - start_time) >= self.TIMEOUT:
+            raise TimeoutError("Timeout limit of {} exceeded.".format(self.TIMEOUT))
+
+        response.raise_for_status()
+        return [response]
 
     def _request(self, method, url, params=None, data=None, headers=None,
                  files=None, stream=False, auth=None, retrieve_all=True):
@@ -403,23 +580,33 @@ class MastClass(QueryWithLogin):
         response : `~astropy.table.Table`
         """
 
-        # loading the columns config
-        col_config = None
-        if self._current_service:
-            col_config = self._column_configs.get(self._current_service)
-            self._current_service = None  # clearing current service
-
         result_list = []
+        catalogs_service = True if self._current_service in self._MAST_CATALOGS_SERVICES else False
 
-        for resp in responses:
-            result = resp.json()
+        if catalogs_service:
+            self._current_service = None  # clearing current service
+            if not isinstance(responses, list):
+                responses = [responses]
+            for resp in responses:
+                result = resp.json()
+                result_table = _fabric_json_to_table(result)
+                result_list.append(result_table)
+        else:
+            # loading the columns config
+            col_config = None
+            if self._current_service:
+                col_config = self._column_configs.get(self._current_service)
+                self._current_service = None  # clearing current service
 
-            # check for error message
-            if result['status'] == "ERROR":
-                raise RemoteServiceError(result.get('msg', "There was an error with your request."))
+            for resp in responses:
+                result = resp.json()
 
-            result_table = _mashup_json_to_table(result, col_config)
-            result_list.append(result_table)
+                # check for error message
+                if result['status'] == "ERROR":
+                    raise RemoteServiceError(result.get('msg', "There was an error with your request."))
+
+                result_table = _mashup_json_to_table(result, col_config)
+                result_list.append(result_table)
 
         all_results = vstack(result_list)
 
@@ -500,7 +687,151 @@ class MastClass(QueryWithLogin):
 
         return response
 
-    def _resolve_object(self, objectname):
+    @class_or_instance
+    def catalogs_service_request_async(self, service, params, page_size=None, page=None, **kwargs):
+        """
+        Given a MAST fabric service and parameters, builds and excecutes a fabric microservice catalog query.
+        See documentation `here <https://catalogs.mast.stsci.edu/docs/index.html>`__
+        for information about how to build a MAST catalogs microservice  request.
+
+        Parameters
+        ----------
+        service : str
+           The MAST catalogs service to query. Should be present in self._MAST_CATALOGS_SERVICES
+        params : dict
+           JSON object containing service parameters.
+        page_size : int, optional
+           Default None.
+           Can be used to override the default pagesize (set in configs) for this query only.
+           E.g. when using a slow internet connection.
+        page : int, optional
+           Default None.
+           Can be used to override the default behavior of all results being returned to obtain
+           a specific page of results.
+        **kwargs :
+           See Catalogs.MAST properties in documentation referenced above
+
+        Returns
+        -------
+        response : list of `~requests.Response`
+        """
+        self._current_service = service.lower()
+        service_config = self._MAST_CATALOGS_SERVICES.get(service.lower())
+        service_url = service_config.get('path')
+        compiled_service_args = {}
+
+        # Gather URL specific parameters
+        for service_argument, default_value in service_config.get('args').items():
+            found_argument = params.pop(service_argument, None)
+            if found_argument is None:
+                found_argument = kwargs.pop(service_argument, default_value)
+            compiled_service_args[service_argument] = found_argument.lower()
+
+        request_url = self._MAST_CATALOGS_REQUEST_URL + service_url.format(**compiled_service_args)
+        headers = {
+            'User-Agent': self._session.headers['User-Agent'],
+            'Content-type': 'application/x-www-form-urlencoded',
+            'Accept': 'application/json'
+        }
+        # Params as a list of tuples to allow for multiple parameters added
+        catalogs_request = []
+        if not page:
+            page = params.pop('page', None)
+        if not page_size:
+            page_size = params.pop('page_size', None)
+
+        if page is not None:
+            catalogs_request.append(('page', page))
+        if page_size is not None:
+            catalogs_request.append(('pagesize', page_size))
+
+        # Decompose filters, sort
+        for prop, value in kwargs.items():
+            params[prop] = value
+        catalogs_request.extend(self._build_catalogs_params(params))
+        response = self._fabric_request('POST', request_url, data=catalogs_request, headers=headers)
+        return response
+
+    def _build_catalogs_params(self, params):
+        """
+        Gathers parameters for Catalogs.MAST usage and translates to valid API syntax tuples
+
+        Parameters
+        ----------
+        params: dict
+            A dict of parameters to convert into valid API syntax. Will omit the "format" parameter
+
+        Returns
+        -------
+        response : list(tuple)
+            List of tuples representing API syntax parameters
+        """
+        catalog_params = []
+        for prop, value in params.items():
+            if prop == 'format':
+                # Ignore format changes
+                continue
+            elif prop == 'page_size':
+                catalog_params.extend(('pagesize', value))
+            elif prop == 'sort_by':
+                # Loop through each value if list
+                if isinstance(value, list):
+                    for sort_item in value:
+                        # Determine if tuple with sort direction
+                        if isinstance(sort_item, tuple):
+                            catalog_params.append(('sort_by', sort_item[1] + '.' + sort_item[0]))
+                        else:
+                            catalog_params.append(('sort_by', sort_item))
+                else:
+                    # A single sort
+                    # Determine if tuple with sort direction
+                    if isinstance(value, tuple):
+                        catalog_params.append(('sort_by', value[0] + '.' + value[1]))
+                    else:
+                        catalog_params.append(('sort_by', value))
+            elif prop == 'columns':
+                catalog_params.extend(tuple(('columns', col) for col in value))
+            else:
+                if isinstance(value, list):
+                    # A composed list of multiple filters for a single column
+                        # Extract each filter value in list
+                    for filter_value in value:
+                        # Determine if tuple with filter decorator
+                        if isinstance(filter_value, tuple):
+                            catalog_params.append((prop + '.' + filter_value[0], filter_value[1]))
+                        else:
+                            # Otherwise just append the value without a decorator
+                            catalog_params.append((prop, filter_value))
+                else:
+                    catalog_params.append((prop, value))
+
+        return catalog_params
+
+    def _check_catalogs_criteria_params(self, criteria):
+        """
+        Tests a dict of passed criteria for Catalogs.MAST to ensure that at least one parameter is for a given criteria
+
+        Parameters
+        ----------
+        criteria: dict
+            A dict of parameters to test for at least one criteria parameter
+
+        Returns
+        -------
+        response : boolean
+            Whether the passed dict has at least one criteria parameter
+        """
+        criteria_check = False
+        non_criteria_params = ["columns", "sort_by", "page_size", "pagesize", "page"]
+        criteria_keys = criteria.keys()
+        for key in criteria_keys:
+            if key not in non_criteria_params:
+                criteria_check = True
+                break
+
+        return criteria_check
+
+    def resolve_object(self, objectname):
         """
         Resolves an object name to a position on the sky.
 
@@ -508,6 +839,11 @@ class MastClass(QueryWithLogin):
         ----------
         objectname : str
             Name of astronomical object to resolve.
+
+        Returns
+        -------
+        response : `~astropy.coordinates.SkyCoord`
+            The sky position of the given object.
         """
 
         service = 'Mast.Name.Lookup'
@@ -626,6 +962,75 @@ class MastClass(QueryWithLogin):
 
         return mashup_filters
 
+    def _get_columnsconfig_metadata(self, colconf_name):
+        """
+        Given a columns config id make a table of the associated metadata properties.
+
+        Parameters
+        ----------
+        colconf_name : str
+            The columns config idea to find metadata for (ex. Mast.Caom.Cone).
+
+        Returns
+        -------
+        response : `~astropy.table.Table`
+            The metadata table.
+        """
+
+        headers = {"User-Agent": self._session.headers["User-Agent"],
+                   "Content-type": "application/x-www-form-urlencoded",
+                   "Accept": "text/plain"}
+        response = self._request("POST", self._COLUMNS_CONFIG_URL,
+                                 data=("colConfigId={}".format(colconf_name)), headers=headers)
+
+        column_dict = response[0].json()
+
+        meta_fields = ["Column Name", "Column Label", "Data Type", "Units", "Description", "Examples/Valid Values"]
+        names = []
+        labels = []
+        data_types = []
+        field_units = []
+        descriptions = []
+        examples = []
+
+        for colname in column_dict:
+            # skipping the _selected column (gets rmoved in return table)
+            if colname == "_selected_":
+                continue
+
+            field = column_dict[colname]
+
+            # skipping any columns that are removed
+            if field.get("remove", False):
+                continue
+
+            names.append(colname)
+            labels.append(field.get("text", colname))
+
+            # datatype is a little more complicated
+            d_type = _parse_type(field.get("type", ""))[0]
+            if not d_type:
+                d_type = _parse_type(field.get("vot.datatype", ""))[0]
+            data_types.append(d_type)
+
+            # units
+            units = field.get("unit", "")
+            if not units:
+                units = field.get("vot.unit", "")
+            field_units.append(units)
+
+            descriptions.append(field.get("vot.description", ""))
+            examples.append(field.get("example", ""))
+
+        meta_table = Table(names=meta_fields, data=[names, labels, data_types, field_units, descriptions, examples])
+
+        # Removing any empty columns
+        for colname in meta_table.colnames:
+            if (meta_table[colname] == "").all():
+                meta_table.remove_column(colname)
+
+        return meta_table
+
 
 @async_to_sync
 class ObservationsClass(MastClass):
@@ -667,6 +1072,30 @@ class ObservationsClass(MastClass):
                 missions = list(mission_info.keys())
                 missions.remove('hist')
                 return missions
+
+    def get_metadata(self, query_type):
+        """
+        Returns metadata about the requested query type.
+
+        Parameters
+        ----------
+        query_type : str
+            The query to get metadata for. Options are observations, and products.
+
+        Returns
+        --------
+        response : `~astropy.table.Table`
+            The metadata table.
+        """
+
+        if query_type.lower() == "observations":
+            colconf_name = "Mast.Caom.Cone"
+        elif query_type.lower() == "products":
+            colconf_name = "Mast.Caom.Products"
+        else:
+            raise InvalidQueryError("Unknown query type.")
+
+        return self._get_columnsconfig_metadata(colconf_name)
 
     @class_or_instance
     def query_region_async(self, coordinates, radius=0.2*u.deg, pagesize=None, page=None):
@@ -742,7 +1171,7 @@ class ObservationsClass(MastClass):
         response : list of `~requests.Response`
         """
 
-        coordinates = self._resolve_object(objectname)
+        coordinates = self.resolve_object(objectname)
 
         return self.query_region_async(coordinates, radius, pagesize, page)
 
@@ -819,7 +1248,7 @@ class ObservationsClass(MastClass):
             raise InvalidQueryError("Only one of objectname and coordinates may be specified.")
 
         if objectname:
-            coordinates = self._resolve_object(objectname)
+            coordinates = self.resolve_object(objectname)
 
         if coordinates:
             # Put coordinates and radius into consitant format
@@ -913,7 +1342,7 @@ class ObservationsClass(MastClass):
         response : int
         """
 
-        coordinates = self._resolve_object(objectname)
+        coordinates = self.resolve_object(objectname)
 
         return self.query_region_count(coordinates, radius, pagesize, page)
 
@@ -967,7 +1396,7 @@ class ObservationsClass(MastClass):
             raise InvalidQueryError("Only one of objectname and coordinates may be specified.")
 
         if objectname:
-            coordinates = self._resolve_object(objectname)
+            coordinates = self.resolve_object(objectname)
 
         if coordinates:
             # Put coordinates and radius into consitant format
@@ -1037,7 +1466,7 @@ class ObservationsClass(MastClass):
             Table containing data products to be filtered.
         mrp_only : bool, optional
             Default False. When set to true only "Minimum Recommended Products" will be returned.
-        extension : string, optional
+        extension : string or array, optional
             Default None. Option to filter by file extension.
         **filters :
             Filters to be applied.  Valid filters are all products fields listed
@@ -1059,6 +1488,9 @@ class ObservationsClass(MastClass):
             filter_mask &= (products['productGroupDescription'] == "Minimum Recommended Products")
 
         if extension:
+            if type(extension) == str:
+                extension = [extension]
+
             mask = np.full(len(products), False, dtype=bool)
             for elt in extension:
                 mask |= [False if isinstance(x, np.ma.core.MaskedConstant) else x.endswith(elt)
@@ -1490,6 +1922,7 @@ class CatalogsClass(MastClass):
         response : list of `~requests.Response`
         """
 
+        catalogs_service = False
         # Put coordinates and radius into consistant format
         coordinates = commons.parse_coordinates(coordinates)
 
@@ -1499,7 +1932,11 @@ class CatalogsClass(MastClass):
         radius = coord.Angle(radius)
 
         # Figuring out the service
-        if catalog.lower() == "hsc":
+        if catalog.lower() in self._MAST_CATALOGS_SERVICES:
+            catalogs_service = True
+            service = catalog
+            # service = self._MAST_CATALOGS_SERVICES.get(catalog.lower())
+        elif catalog.lower() == "hsc":
             if version == 2:
                 service = "Mast.Hsc.Db.v2"
             else:
@@ -1529,18 +1966,21 @@ class CatalogsClass(MastClass):
                   'dec': coordinates.dec.deg,
                   'radius': radius.deg}
 
-        # Hsc specific parameters (can be overridden by user)
-        params['nr'] = 50000
-        params['ni'] = 1
-        params['magtype'] = 1
+        if not catalogs_service:
+            # Hsc specific parameters (can be overridden by user)
+            params['nr'] = 50000
+            params['ni'] = 1
+            params['magtype'] = 1
 
-        # galex specific parameters (can be overridden by user)
-        params['maxrecords'] = 50000
+            # galex specific parameters (can be overridden by user)
+            params['maxrecords'] = 50000
 
         # adding additional parameters
         for prop, value in kwargs.items():
             params[prop] = value
 
+        if catalogs_service:
+            return self.catalogs_service_request_async(service, params, pagesize, page)
         return self.service_request_async(service, params, pagesize, page)
 
     @class_or_instance
@@ -1580,7 +2020,7 @@ class CatalogsClass(MastClass):
         response : list of `~requests.Response`
         """
 
-        coordinates = self._resolve_object(objectname)
+        coordinates = self.resolve_object(objectname)
 
         return self.query_region_async(coordinates, radius, catalog, pagesize, page, **kwargs)
 
@@ -1601,29 +2041,44 @@ class CatalogsClass(MastClass):
         **criteria
             Criteria to apply. At least one non-positional criteria must be supplied.
             Valid criteria are coordinates, objectname, radius (as in `query_region` and `query_object`),
-            and all observation fields listed `here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`__.
+            and all fields listed in the column documentation for the catalog being queried.
             The Column Name is the keyword, with the argument being one or more acceptable values for that parameter,
             except for fields with a float datatype where the argument should be in the form [minVal, maxVal].
             For non-float type criteria wildcards maybe used (both * and % are considered wildcards), however
             only one wildcarded value can be processed per criterion.
             RA and Dec must be given in decimal degrees, and datetimes in MJD.
             For example: filters=["FUV","NUV"],proposal_pi="Ost*",t_max=[52264.4586,54452.8914]
+            For catalogs available through Catalogs.MAST (PanSTARRS), the Column Name is the keyword, and the argument
+            should be either an acceptable value for that parameter, or a list consisting values, or  tuples of
+            decorator, value pairs (decorator, value). In addition, columns may be used to select the return columns,
+            consisting of a list of column names. Results may also be sorted through the query with the parameter
+            sort_by composed of either a single Column Name to sort ASC, or a list of Column Nmaes to sort ASC or
+            tuples of Column Name and Direction (ASC, DESC) to indicate sort order (Column Name, DESC).
+            Detailed information of Catalogs.MAST criteria usage can
+            be found `here <https://catalogs.mast.stsci.edu/docs/index.html>`__.
 
         Returns
         -------
         response : list of `~requests.Response`
         """
 
+        catalogs_service = False
         # Seperating any position info from the rest of the filters
         coordinates = criteria.pop('coordinates', None)
         objectname = criteria.pop('objectname', None)
         radius = criteria.pop('radius', 0.2*u.deg)
+        mashup_filters = None
 
         # Build the mashup filter object
-        if catalog.lower() == "tic":
+        if catalog.lower() in self._MAST_CATALOGS_SERVICES:
+            catalogs_service = True
+            service = catalog
+            mashup_filters = self._check_catalogs_criteria_params(criteria)
+        elif catalog.lower() == "tic":
             service = "Mast.Catalogs.Filtered.Tic"
             if coordinates or objectname:
                 service += ".Position"
+            service += ".Rows"  # Using the rowstore version of the query for speed
             mashup_filters = self._build_filter_set("Mast.Catalogs.Tess.Cone", service, **criteria)
 
         elif catalog.lower() == "diskdetective":
@@ -1633,7 +2088,7 @@ class CatalogsClass(MastClass):
             mashup_filters = self._build_filter_set("Mast.Catalogs.Dd.Cone", service, **criteria)
 
         else:
-            raise InvalidQueryError("Criteria query not availible for {}".format(catalog))
+            raise InvalidQueryError("Criteria query not available for {}".format(catalog))
 
         if not mashup_filters:
             raise InvalidQueryError("At least one non-positional criterion must be supplied.")
@@ -1642,7 +2097,7 @@ class CatalogsClass(MastClass):
             raise InvalidQueryError("Only one of objectname and coordinates may be specified.")
 
         if objectname:
-            coordinates = self._resolve_object(objectname)
+            coordinates = self.resolve_object(objectname)
 
         if coordinates:
             # Put coordinates and radius into consitant format
@@ -1654,18 +2109,26 @@ class CatalogsClass(MastClass):
             radius = coord.Angle(radius)
 
         # build query
+        params = {}
         if coordinates:
-            params = {"filters": mashup_filters,
-                      "ra": coordinates.ra.deg,
-                      "dec": coordinates.dec.deg,
-                      "radius": radius.deg}
-        else:
-            params = {"filters": mashup_filters}
+            params["ra"] = coordinates.ra.deg
+            params["dec"] = coordinates.dec.deg
+            params["radius"] = radius.deg
+
+        if not catalogs_service:
+            params["filters"] =  mashup_filters
 
         # TIC needs columns specified
-        if catalog == "Tic":
+        if catalog.lower() == "tic":
             params["columns"] = "*"
 
+        if catalogs_service:
+            # For catalogs service append criteria to main parameters
+            for prop, value in criteria.items():
+                params[prop] = value
+
+        if catalogs_service:
+            return self.catalogs_service_request_async(service, params, page_size=pagesize, page=page)
         return self.service_request_async(service, params, pagesize=pagesize, page=page)
 
     @class_or_instance
