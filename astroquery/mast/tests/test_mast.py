@@ -448,7 +448,7 @@ def test_catalogs_query_criteria(patch_post):
                                           Bmag=[30, 50], objType="STAR")
 
     assert isinstance(result, Table)
-    
+
     # with position
     result = mast.Catalogs.query_criteria(catalog="DiskDetective",
                                           objectname="M10", radius=2,

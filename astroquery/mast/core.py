@@ -2079,7 +2079,7 @@ class CatalogsClass(MastClass):
                 service += ".Position"
             service += ".Rows"  # Using the rowstore version of the query for speed
             mashup_filters = self._build_filter_set("Mast.Catalogs.Tess.Cone", service, **criteria)
-        elif  catalog.lower() == "ctl":
+        elif catalog.lower() == "ctl":
             service = "Mast.Catalogs.Filtered.Ctl"
             if coordinates or objectname:
                 service += ".Position"

@@ -345,7 +345,7 @@ class TestMast(object):
 
         result = mast.Catalogs.query_region("210.80227 54.34895", radius=1, catalog="diskdetective")
         assert isinstance(result, Table)
-        assert len(result) > 10    
+        assert len(result) > 10
 
     def test_catalogs_query_object_async(self):
         responses = mast.Catalogs.query_object_async("M10", radius=.02, catalog="TIC")
