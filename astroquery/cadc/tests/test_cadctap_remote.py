@@ -171,14 +171,14 @@ class TestCadcClass:
         job.raise_if_error()
         result = job.fetch_result().to_table()
         assert len(expected) == len(result)
-        for i in range(0, 2):
-            assert expected['observationID'][i] == result['observationID'][i]
+        for ii in range(0, 2):
+            assert expected['observationID'][ii] == result['observationID'][ii]
         # load job again
         loaded_job = cadc.load_async_job(job.job_id)
         result = loaded_job.fetch_result().to_table()
         assert len(expected) == len(result)
-        for i in range(0, 2):
-            assert expected['observationID'][i] == result['observationID'][i]
+        for ii in range(0, 2):
+            assert expected['observationID'][ii] == result['observationID'][ii]
         # job.delete()  # BUG in CADC
 
     @pytest.mark.skipif(one_test, reason='One test mode')

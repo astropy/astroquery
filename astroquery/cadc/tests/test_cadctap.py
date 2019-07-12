@@ -18,16 +18,19 @@ import pytest
 import tempfile
 import requests
 try:
-    from pyvo.dal import tap
+    pyvo_OK = True
+    from pyvo.dal import tap, adhoc
     from astroquery.cadc import Cadc, conf
     import astroquery.cadc.core as cadc_core
 except ImportError:
+    pyvo_OK = False
     pytest.skip("Install pyvo for the cadc module.", allow_module_level=True)
-except AstropyDeprecationWarning as e:
-    if str(e) == 'The astropy.vo.samp module has now been moved to astropy.samp':
-        print('AstropyDeprecationWarning: {}'.format(str(e)))
+except AstropyDeprecationWarning as ex:
+    if str(ex) == \
+            'The astropy.vo.samp module has now been moved to astropy.samp':
+        print('AstropyDeprecationWarning: {}'.format(str(ex)))
     else:
-        raise e
+        raise ex
 try:
     from unittest.mock import Mock, patch, PropertyMock
 except ImportError:
@@ -40,7 +43,8 @@ def data_path(filename):
 
 
 @patch('astroquery.cadc.core.get_access_url',
-       Mock(side_effect=lambda x: 'https://some.url'))
+      Mock(side_effect=lambda x: 'https://some.url'))
+@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
 def test_get_tables():
     # default parameters
     table_set = PropertyMock()
@@ -55,9 +59,10 @@ def test_get_tables():
 
 @patch('astroquery.cadc.core.get_access_url',
        Mock(side_effect=lambda x: 'https://some.url'))
+@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
 def test_get_table():
     table_set = PropertyMock()
-    tables_result = [Mock(), Mock(), Mock()]
+    tables_result = [Mock() for _ in range(3)]
     tables_result[0].name = 'tab1'
     tables_result[1].name = 'tab2'
     tables_result[2].name = 'tab3'
@@ -72,6 +77,7 @@ def test_get_table():
 
 @patch('astroquery.cadc.core.get_access_url',
        Mock(side_effect=lambda x: 'https://some.url'))
+@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
 def test_get_collections():
     cadc = Cadc()
 
@@ -97,6 +103,7 @@ def test_get_collections():
 
 @patch('astroquery.cadc.core.get_access_url',
        Mock(side_effect=lambda x: 'https://some.url'))
+@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
 def test_load_async_job():
     with patch('astroquery.cadc.core.pyvo.dal.TAPService', autospec=True) as t:
         with patch('astroquery.cadc.core.pyvo.dal.AsyncTAPJob',
@@ -114,6 +121,7 @@ def test_load_async_job():
 @pytest.mark.skip('Disabled until job listing available in pyvo')
 @patch('astroquery.cadc.core.get_access_url',
        Mock(side_effect=lambda x: 'https://some.url'))
+@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
 def test_list_async_jobs():
     with patch('astroquery.cadc.core.pyvo.dal.TAPService', autospec=True) as t:
         t.return_value.baseurl.return_value = 'https://www.example.com/tap'
@@ -123,6 +131,7 @@ def test_list_async_jobs():
 
 @patch('astroquery.cadc.core.get_access_url',
        Mock(side_effect=lambda x, y=None: 'https://some.url'))
+@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
 def test_auth():
     cadc = Cadc()
     try:
@@ -139,11 +148,12 @@ def test_auth():
         assert tap.s.cert == cert
         cadc.logout()
         assert tap.s.cert is None
-        with patch('astroquery.cadc.core.requests.post') as m:
+        with patch('astroquery.cadc.core.requests.Session') as ss:
             cookie = 'ABC'
             mock_resp = Mock()
             mock_resp.text = cookie
-            m.return_value = mock_resp
+            ss.return_value.cookies = requests.cookies.RequestsCookieJar()
+            ss.return_value.post.return_value = mock_resp
             cadc.login(user=user, password=password)
         assert tap.s.cookies[cadc_core.CADC_COOKIE_PREFIX] == \
             '"{}"'.format(cookie)
@@ -154,6 +164,7 @@ def test_auth():
 
 # make sure that caps is reset at the end of the test
 @patch('astroquery.cadc.core.get_access_url.caps', {})
+@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
 def test_get_access_url():
     # testing implementation of requests.get method:
     def get(url, **kwargs):
@@ -187,6 +198,7 @@ def test_get_access_url():
 
 @patch('astroquery.cadc.core.get_access_url',
        Mock(side_effect=lambda x, y=None: 'https://some.url'))
+@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
 def test_get_data_urls():
 
     def get(*args, **kwargs):
@@ -232,6 +244,7 @@ def test_get_data_urls():
 
 @patch('astroquery.cadc.core.get_access_url',
        Mock(side_effect=lambda x, y=None: 'https://some.url'))
+@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
 def test_misc():
     cadc = Cadc()
 
@@ -258,6 +271,7 @@ def test_misc():
 
 @patch('astroquery.cadc.core.get_access_url',
        Mock(side_effect=lambda x, y=None: 'https://some.url'))
+@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
 def test_exec_sync():
     # save results in a file
     # create the VOTable result
