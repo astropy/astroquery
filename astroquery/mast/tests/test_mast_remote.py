@@ -283,6 +283,7 @@ class TestMast(object):
         responses = mast.Catalogs.query_region_async("158.47924 -7.30962", catalog="Galex")
         assert isinstance(responses, list)
 
+        # Default catalog is HSC
         responses = mast.Catalogs.query_region_async("322.49324 12.16683", radius="0.02 deg")
         assert isinstance(responses, list)
 
@@ -330,6 +331,22 @@ class TestMast(object):
         assert isinstance(result, Table)
         assert len(result) == 3
 
+        result = mast.Catalogs.query_region("158.47924 -7.30962", catalog="Galex")
+        assert isinstance(result, Table)
+        assert len(result) > 700
+
+        result = mast.Catalogs.query_region("158.47924 -7.30962", catalog="tic")
+        assert isinstance(result, Table)
+        assert len(result) > 450
+
+        result = mast.Catalogs.query_region("158.47924 -7.30962", catalog="ctl")
+        assert isinstance(result, Table)
+        assert len(result) > 10
+
+        result = mast.Catalogs.query_region("210.80227 54.34895", radius=1, catalog="diskdetective")
+        assert isinstance(result, Table)
+        assert len(result) > 10    
+
     def test_catalogs_query_object_async(self):
         responses = mast.Catalogs.query_object_async("M10", radius=.02, catalog="TIC")
         assert isinstance(responses, list)
@@ -352,9 +369,26 @@ class TestMast(object):
         assert isinstance(result, Table)
         assert len(result) >= 5
 
+        result = mast.Catalogs.query_object("M101", radius=1, catalog="diskdetective")
+        assert isinstance(result, Table)
+        assert len(result) > 10
+
+        result = mast.Catalogs.query_object("M10", radius=0.01, catalog="Gaia", version=1)
+        assert isinstance(result, Table)
+        assert len(result) > 200
+
+        result = mast.Catalogs.query_object("TIC 441662144", radius=0.01, catalog="ctl")
+        assert isinstance(result, Table)
+        assert len(result) == 1
+
     def test_catalogs_query_criteria_async(self):
         # without position
         responses = mast.Catalogs.query_criteria_async(catalog="Tic",
+                                                       Bmag=[30, 50],
+                                                       objType="STAR")
+        assert isinstance(responses, list)
+
+        responses = mast.Catalogs.query_criteria_async(catalog="ctl",
                                                        Bmag=[30, 50],
                                                        objType="STAR")
         assert isinstance(responses, list)
@@ -367,6 +401,11 @@ class TestMast(object):
 
         # with position
         responses = mast.Catalogs.query_criteria_async(catalog="Tic",
+                                                       objectname="M10",
+                                                       objType="EXTENDED")
+        assert isinstance(responses, list)
+
+        responses = mast.Catalogs.query_criteria_async(catalog="CTL",
                                                        objectname="M10",
                                                        objType="EXTENDED")
         assert isinstance(responses, list)
@@ -394,6 +433,11 @@ class TestMast(object):
         assert len(result) >= 10
         assert result[np.where(result['ID'] == '81609218')]
 
+        result = mast.Catalogs.query_criteria(catalog="ctl", Tmag=[10.5, 11], POSflag="2mass")
+        assert isinstance(result, Table)
+        assert len(result) >= 400
+        assert result[np.where(result['ID'] == '291067184')]
+
         result = mast.Catalogs.query_criteria(catalog="DiskDetective",
                                               state=["inactive", "disabled"],
                                               oval=[8, 10], multi=[3, 7])
@@ -406,6 +450,11 @@ class TestMast(object):
         assert isinstance(result, Table)
         assert len(result) >= 7
         assert result[np.where(result['ID'] == '10000732589')]
+
+        result = mast.Catalogs.query_criteria(objectname='TIC 291067184', catalog="ctl",
+                                              Tmag=[10.5, 11], POSflag="2mass")
+        assert isinstance(result, Table)
+        assert len(result) == 1
 
         result = mast.Catalogs.query_criteria(catalog="DiskDetective", objectname="M10", radius=2,
                                               state="complete")

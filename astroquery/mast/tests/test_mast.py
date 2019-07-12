@@ -41,6 +41,7 @@ DATA_FILES = {'Mast.Caom.Cone': 'caom.json',
               'Mast.Catalogs.GaiaDR1.Cone': 'hsc.json',
               'Mast.Catalogs.Sample.Cone': 'hsc.json',
               'Mast.Catalogs.Filtered.Tic.Rows': 'tic.json',
+              'Mast.Catalogs.Filtered.Ctl.Rows': 'tic.json',
               'Mast.Catalogs.Filtered.DiskDetective.Position': 'dd.json',
               'Mast.HscMatches.Db.v3': 'matchid.json',
               'Mast.HscMatches.Db.v2': 'matchid.json',
@@ -401,8 +402,11 @@ def test_catalogs_fabric_query_object(patch_post):
 
 
 def test_catalogs_query_criteria_async(patch_post):
-    # without position
     responses = mast.Catalogs.query_criteria_async(catalog="Tic",
+                                                   Bmag=[30, 50], objType="STAR")
+    assert isinstance(responses, list)
+
+    responses = mast.Catalogs.query_criteria_async(catalog="Ctl",
                                                    Bmag=[30, 50], objType="STAR")
     assert isinstance(responses, list)
 
@@ -410,7 +414,6 @@ def test_catalogs_query_criteria_async(patch_post):
                                                    Bmag=[30, 50], objType="STAR")
     assert isinstance(responses, list)
 
-    # with position
     responses = mast.Catalogs.query_criteria_async(catalog="DiskDetective",
                                                    objectname="M10", radius=2,
                                                    state="complete")
@@ -441,6 +444,11 @@ def test_catalogs_query_criteria(patch_post):
 
     assert isinstance(result, Table)
 
+    result = mast.Catalogs.query_criteria(catalog="Ctl",
+                                          Bmag=[30, 50], objType="STAR")
+
+    assert isinstance(result, Table)
+    
     # with position
     result = mast.Catalogs.query_criteria(catalog="DiskDetective",
                                           objectname="M10", radius=2,

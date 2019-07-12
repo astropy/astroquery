@@ -24,8 +24,8 @@ The observation fields are documented
 
                 >>> from astroquery.mast import Observations
                 
-                >>> obsTable = Observations.query_region("322.49324 12.16683")
-                >>> print(obsTable[:10])
+                >>> obs_table = Observations.query_region("322.49324 12.16683")
+                >>> print(obs_table[:10])
 
                 dataproduct_type obs_collection instrument_name ... distance 
                 ---------------- -------------- --------------- ... -------- 
@@ -46,8 +46,8 @@ Radius is an optional parameter and the default is 0.2 degrees.
 
                 >>> from astroquery.mast import Observations
                 
-                >>> obsTable = Observations.query_object("M8",radius=".02 deg")
-                >>> print(obsTable[:10])
+                >>> obs_table = Observations.query_object("M8",radius=".02 deg")
+                >>> print(obs_table[:10])
                 
                 dataproduct_type obs_collection instrument_name ...    distance   
                 ---------------- -------------- --------------- ... ------------- 
@@ -86,10 +86,10 @@ RA and Dec must be given in decimal degrees, and datetimes in MJD.
                 
                 >>> from astroquery.mast import Observations
                 
-                >>> obsTable = Observations.query_criteria(dataproduct_type=["image"],
-                ...                                        proposal_pi="Osten*",
-                ...                                        s_dec=[43.5,45.5])
-                >>> print(obsTable)
+                >>> obs_table = Observations.query_criteria(dataproduct_type=["image"],
+                ...                                         proposal_pi="Osten*",
+                ...                                         s_dec=[43.5,45.5])
+                >>> print(obs_table)
 
                 dataproduct_type calib_level obs_collection ... dataURL   obsid      objID   
                 ---------------- ----------- -------------- ... ------- ---------- ----------
@@ -97,8 +97,8 @@ RA and Dec must be given in decimal degrees, and datetimes in MJD.
                            image           1            HST ...    None 2003520267 2011133419
                            image           1            HST ...    None 2003520268 2011133420
 
-                >>> obsTable = Observations.query_criteria(filters=["*UV","Kepler"],objectname="M101")
-                >>> print(obsTable)
+                >>> obs_table = Observations.query_criteria(filters=["*UV","Kepler"],objectname="M101")
+                >>> print(obs_table)
 
                 dataproduct_type calib_level obs_collection ...   objID1      distance  
                 ---------------- ----------- -------------- ... ---------- -------------
@@ -197,9 +197,9 @@ The product fields are documented `here <https://mast.stsci.edu/api/v0/_products
                 
                 >>> from astroquery.mast import Observations
                 
-                >>> obsTable = Observations.query_object("M8",radius=".02 deg")
-                >>> dataProductsByObservation = Observations.get_product_list(obsTable[0:2])
-                >>> print(dataProductsByObservation)
+                >>> obs_table = Observations.query_object("M8",radius=".02 deg")
+                >>> data_products_by_obs = Observations.get_product_list(obs_table[0:2])
+                >>> print(data_products_by_obs)
                 
                   obsID    obs_collection ...          productFilename             size  
                 ---------- -------------- ... ---------------------------------- --------
@@ -221,8 +221,8 @@ The product fields are documented `here <https://mast.stsci.edu/api/v0/_products
                 9500243833             K2 ...    k2-tpf-only-target_bw_thumb.png     1301
                 
                 >>> obsids = obsTable[0:2]['obsid']
-                >>> dataProductsByID = Observations.get_product_list(obsids)
-                >>> print(dataProductsByID)
+                >>> data_products_by_id = Observations.get_product_list(obsids)
+                >>> print(data_products_by_id)
                 
                   obsID    obs_collection ...          productFilename             size  
                 ---------- -------------- ... ---------------------------------- --------
@@ -243,7 +243,7 @@ The product fields are documented `here <https://mast.stsci.edu/api/v0/_products
                 9500243833             K2 ... ktwo200071160-c92_lpd-targ.fits.gz 62213068
                 9500243833             K2 ...    k2-tpf-only-target_bw_thumb.png     1301
                 
-                >>> print((dataProductsByObservation == dataProductsByID).all())
+                >>> print((data_products_by_obs == data_products_by_id).all())
                 True
 
                 
@@ -261,8 +261,8 @@ with a `~astropy.table.Table` of data products, or a list (or single) obsid as t
                 >>> from astroquery.mast import Observations
                 
                 >>> obsid = '3000007760'
-                >>> dataProductsByID = Observations.get_product_list(obsid)
-                >>> manifest = Observations.download_products(dataProductsByID)
+                >>> data_products = Observations.get_product_list(obsid)
+                >>> manifest = Observations.download_products(data_products)
                 Downloading URL http://archive.stsci.edu/pub/iue/data/lwp/13000/lwp13058.mxlo.gz to ./mastDownload/IUE/lwp13058/lwp13058.mxlo.gz ... [Done]
                 Downloading URL http://archive.stsci.edu/pub/vospectra/iue2/lwp13058mxlo_vo.fits to ./mastDownload/IUE/lwp13058/lwp13058mxlo_vo.fits ... [Done]
                 >>> print(manifest)
@@ -314,14 +314,14 @@ Product filtering can also be applied directly to a table of products without pr
 
                 >>> from astroquery.mast import Observations
                 
-                >>> dataProductsByID = Observations.get_product_list('2003839997')
-                >>> print(len(dataProductsByID))
+                >>> products = Observations.get_product_list('2003839997')
+                >>> print(len(products))
                 31
                 
-                >>> dataProductsByID = Observations.filter_products(dataProductsByID,
-                ...                                                 productSubGroupDescription=["RAW", "UNCAL"],
-                ...                                                 extenstion="fits")
-                >>> print(len(dataProductsByID))
+                >>> products = Observations.filter_products(data_products,
+                ...                                         productSubGroupDescription=["RAW", "UNCAL"],
+                ...                                         extension="fits")
+                >>> print(len(products))
                 4
 
 Cloud Data Access
@@ -351,12 +351,12 @@ flag when filtering the observations.
                 >>> from astroquery.mast import Observations
                 >>> import boto3
 
-                >>> obsTable = Observations.query_criteria(obs_collection='HST',
-                ...                                        filters='F160W',
-                ...                                        instrument_name='WFC3/IR',
-                ...                                        proposal_id=['12062'],
-                ...                                        dataRights='PUBLIC') 
-                >>> products = Observations.get_product_list(obsTable)
+                >>> obs_table = Observations.query_criteria(obs_collection='HST',
+                ...                                         filters='F160W',
+                ...                                         instrument_name='WFC3/IR',
+                ...                                         proposal_id=['12062'],
+                ...                                         dataRights='PUBLIC') 
+                >>> products = Observations.get_product_list(obs_table)
                 >>> filtered = Observations.filter_products(products,
                 ...                                         mrp_only=False,
                 ...                                         productSubGroupDescription='DRZ')
@@ -385,6 +385,7 @@ The Catalogs class provides access to a subset of the astronomical catalogs stor
 - The GALEX Catalog (V2 and V3)
 - The Gaia (DR1 and DR2) and TGAS Catalogs
 - The TESS Input Catalog (TIC)
+- The TESS Candidate Target List (CTL)
 - The Disk Detective Catalog
 - PanSTARRS (DR1, DR2)
 
@@ -398,8 +399,8 @@ The returned fields vary by catalog, find the field documentation for specific c
 
                 >>> from astroquery.mast import Catalogs
                 
-                >>> catalogData = Catalogs.query_object("158.47924 -7.30962", catalog="Galex")
-                >>> print(catalogData[:10])
+                >>> catalog_data = Catalogs.query_object("158.47924 -7.30962", catalog="Galex")
+                >>> print(catalog_data[:10])
 
                 distance_arcmin        objID        survey ... fuv_flux_aper_7 fuv_artifact
                 --------------- ------------------- ------ ... --------------- ------------
@@ -422,12 +423,12 @@ If a query results in this maximum number of results a warning will be displayed
 
                 >>> from astroquery.mast import Catalogs
                 
-                >>> catTable = Catalogs.query_region("322.49324 12.16683", catalog="HSC", magtype=2)
+                >>> catalog_data = Catalogs.query_region("322.49324 12.16683", catalog="HSC", magtype=2)
 
                 WARNING: MaxResultsWarning: Maximum catalog results returned, may not include all
                 sources within radius. [astroquery.mast.core]
 
-                >>> print(catTable[:10])
+                >>> print(catalog_data[:10])
 
                 MatchID      Distance        MatchRA    ... W3_F160W W3_F160W_Sigma W3_F160W_N
                 -------- ---------------- ------------- ... -------- -------------- ----------
@@ -449,8 +450,8 @@ Radius is an optional parameter and the default is 0.2 degrees.
 
                 >>> from astroquery.mast import Catalogs
                 
-                >>> catalogData = Catalogs.query_object("M10", radius=.02, catalog="TIC")
-                >>> print(catalogData[:10])
+                >>> catalog_data = Catalogs.query_object("M10", radius=.02, catalog="TIC")
+                >>> print(catalog_data[:10])
 
                     ID          ra           dec       ... duplicate_id priority   dstArcSec  
                 --------- ------------- -------------- ... ------------ -------- -------------
@@ -466,15 +467,15 @@ Radius is an optional parameter and the default is 0.2 degrees.
                 189844454 254.290349435 -4.09754191392 ...           --       -- 12.2100186781
 
                 
-Both the Hubble Source Catalog and the Gaia Catalog have multiple versions.
+The Hubble Source Catalog, the Gaia Catalog, and the PanSTARRS Catalog have multiple versions.
 An optional version parameter allows you to select which version you want, the default is the highest version.
 
 .. code-block:: python
 
-                >>> catalogData = Catalogs.query_region("158.47924 -7.30962", radius=0.1,
-                ...                                      catalog="Gaia", version=2)
-                >>> print("Number of results:",len(catalogData))
-                >>> print(catalogData[:4])
+                >>> catalog_data = Catalogs.query_region("158.47924 -7.30962", radius=0.1,
+                ...                                       catalog="Gaia", version=2)
+                >>> print("Number of results:",len(catalog_data))
+                >>> print(catalog_data[:4])
 
                 Number of results: 111
                     solution_id             designation          ...      distance     
@@ -490,10 +491,10 @@ The table to query is a required parameter.
 
 .. code-block:: python
 
-                >>> catalogData = Catalogs.query_region("158.47924 -7.30962", radius=0.1,
-                >>>                                      catalog="Panstarrs", data_release="dr1", table="mean")
-                >>> print("Number of results:",len(catalogData))
-                >>> print(catalogData[:10])
+                >>> catalog_data = Catalogs.query_region("158.47924 -7.30962", radius=0.1,
+                >>>                                       catalog="Panstarrs", data_release="dr1", table="mean")
+                >>> print("Number of results:",len(catalog_data))
+                >>> print(catalog_data[:10])
 
                 Number of results: 7007
                        objName        objAltName1 objAltName2 ... yMeanApMagNpt yFlags distance
@@ -518,8 +519,8 @@ The TESS Input Catalog (TIC), Disk Detective Catalog, and PanSTARRS Catalog can 
 
                 >>> from astroquery.mast import Catalogs
                 
-                >>> catalogData = Catalogs.query_criteria(catalog="Tic",Bmag=[30,50],objType="STAR")
-                >>> print(catalogData)
+                >>> catalog_data = Catalogs.query_criteria(catalog="Tic",Bmag=[30,50],objType="STAR")
+                >>> print(catalog_data)
 
                     ID    version  HIP TYC ... disposition duplicate_id priority   objID  
                 --------- -------- --- --- ... ----------- ------------ -------- ---------
@@ -532,9 +533,28 @@ The TESS Input Catalog (TIC), Disk Detective Catalog, and PanSTARRS Catalog can 
 
                 >>> from astroquery.mast import Catalogs
                 
-                >>> catalogTable = Catalogs.query_criteria(catalog="DiskDetective",
+                >>> catalog_data = Catalogs.query_criteria(catalog="Ctl",
+                ...                                        objectname='M101', radius=1, Tmag=[10.75,11])
+                >>> print(catalog_data)
+                    ID    version  HIP     TYC      ... wdflag     ctlPriority        objID  
+                --------- -------- --- ------------ ... ------ -------------------- ---------
+                441639577 20190415  -- 3852-00429-1 ...      0  0.00138923974233085 150848150
+                441662028 20190415  -- 3855-00941-1 ...      0  0.00100773800289492 151174508
+                233458861 20190415  -- 3852-01407-1 ...      0 0.000843468567169446 151169732
+                441658008 20190415  -- 3852-00116-1 ...      0 0.000337697695047815 151025336
+                154258521 20190415  -- 3852-01403-1 ...      0 0.000791883530388075 151060938
+                441658179 20190415  -- 3855-00816-1 ...      0 0.000933466312394693 151025457
+                441659970 20190415  -- 3852-00505-1 ...      0 0.000894696498704202 151075682
+                441660006 20190415  -- 3852-00341-1 ...      0 0.000600037898043061 151075713
+
+     
+.. code-block:: python
+
+                >>> from astroquery.mast import Catalogs
+                
+                >>> catalog_data = Catalogs.query_criteria(catalog="DiskDetective",
                 ...                                        objectname="M10",radius=2,state="complete")
-                >>> print(catalogTable)
+                >>> print(catalog_data)
 
                     designation     ...                    ZooniverseURL                    
                 ------------------- ... ----------------------------------------------------
@@ -563,12 +583,12 @@ tuples of criteria decorator (min, gte, gt, max, lte, lt, like, contains) and va
 
 .. code-block:: python
 
-                >>> catalogData = Catalogs.query_criteria(coordinates="5.97754 32.53617", radius=0.01,
-                                                            catalog="PANSTARRS", table="mean", data_release="dr2",
-                                                            nStackDetections=[("gte", 2)],
-                                                            columns=["objName", "objID", "nStackDetections", "distance"],
-                                                            sort_by=[("desc", "distance")], pagesize=15)
-                >>> print(catalogData[:10])
+                >>> catalog_data = Catalogs.query_criteria(coordinates="5.97754 32.53617", radius=0.01,
+                ...                                        catalog="PANSTARRS", table="mean", data_release="dr2",
+                ...                                        nStackDetections=[("gte", 2)],
+                ...                                        columns=["objName", "objID", "nStackDetections", "distance"],
+                ...                                        sort_by=[("desc", "distance")], pagesize=15)
+                >>> print(catalog_data[:10])
 
                        objName              objID        nStackDetections        distance
                 --------------------- ------------------ ---------------- ---------------------
@@ -593,13 +613,13 @@ Given an HSC Match ID, return all catalog results.
 
                 >>> from astroquery.mast import Catalogs
                 
-                >>> catalogData = Catalogs.query_object("M10", radius=.02, catalog="HSC")
-                >>> matchId = catalogData[0]["MatchID"]
-                >>> print(matchId)
+                >>> catalog_data = Catalogs.query_object("M10", radius=.02, catalog="HSC")
+                >>> matchid = catalog_data[0]["MatchID"]
+                >>> print(matchid)
 
                 17554326
 
-                >>> matches = Catalogs.query_hsc_matchid(matchId)
+                >>> matches = Catalogs.query_hsc_matchid(matchid)
                 >>> print(matches)
 
                   CatID   MatchID  ...                       cd_matrix                       
@@ -620,8 +640,8 @@ HSC spectra accessed through this class as well. `~astroquery.mast.CatalogsClass
 
                 >>> from astroquery.mast import Catalogs
                 
-                >>> allSpectra = Catalogs.get_hsc_spectra()
-                >>> print(allSpectra[:10])
+                >>> all_spectra = Catalogs.get_hsc_spectra()
+                >>> print(all_spectra[:10])
 
                 ObjID                 DatasetName                  MatchID  ... PropID HSCMatch
                 ----- -------------------------------------------- -------- ... ------ --------
@@ -643,8 +663,8 @@ Individual or ranges of spectra can be downloaded using the `~astroquery.mast.Ca
 
                 >>> from astroquery.mast import Catalogs
                 
-                >>> allSpectra = Catalogs.get_hsc_spectra()
-                >>> manifest = Catalogs.download_hsc_spectra(allSpectra[100:104])
+                >>> all_spectra = Catalogs.get_hsc_spectra()
+                >>> manifest = Catalogs.download_hsc_spectra(all_spectra[100:104])
 
                 Downloading URL https://hla.stsci.edu/cgi-bin/ecfproxy?file_id=HAG_J072704.61+691530.3_J8HPAOZMQ_V01.SPEC1D.fits to ./mastDownload/HSC/HAG_J072704.61+691530.3_J8HPAOZMQ_V01.SPEC1D.fits ... [Done]
                 Downloading URL https://hla.stsci.edu/cgi-bin/ecfproxy?file_id=HAG_J072704.68+691535.9_J8HPAOZMQ_V01.SPEC1D.fits to ./mastDownload/HSC/HAG_J072704.68+691535.9_J8HPAOZMQ_V01.SPEC1D.fits ... [Done]
@@ -781,7 +801,7 @@ To view tokens accessible through your account, visit https://auth.mast.stsci.ed
 
                 INFO: MAST API token accepted, welcome User Name [astroquery.mast.core]
 
-                >>> sessionInfo = Observations.session_info()
+                >>> sessioninfo = Observations.session_info()
 
                 eppn: user_name@stsci.edu
                 ezid: uname
@@ -791,11 +811,11 @@ To view tokens accessible through your account, visit https://auth.mast.stsci.ed
 
                 >>> from astroquery.mast import Observations
                 
-                >>> mySession = Observations(token="12348r9w0sa2392ff94as841")
+                >>> my_session = Observations(token="12348r9w0sa2392ff94as841")
 
                 INFO: MAST API token accepted, welcome User Name [astroquery.mast.core]
 
-                >>> sessionInfo = Observations.session_info()
+                >>> sessioninfo = Observations.session_info()
 
                 eppn: user_name@stsci.edu
                 ezid: uname

@@ -1935,7 +1935,6 @@ class CatalogsClass(MastClass):
         if catalog.lower() in self._MAST_CATALOGS_SERVICES:
             catalogs_service = True
             service = catalog
-            # service = self._MAST_CATALOGS_SERVICES.get(catalog.lower())
         elif catalog.lower() == "hsc":
             if version == 2:
                 service = "Mast.Hsc.Db.v2"
@@ -1985,7 +1984,7 @@ class CatalogsClass(MastClass):
 
     @class_or_instance
     def query_object_async(self, objectname, radius=0.2*u.deg, catalog="Hsc",
-                           pagesize=None, page=None, **kwargs):
+                           version=None, pagesize=None, page=None, **kwargs):
         """
         Given an object name, returns a list of catalog entries.
         See column documentation for specific catalogs `here <https://mast.stsci.edu/api/v0/pages.html>`__.
@@ -2022,7 +2021,7 @@ class CatalogsClass(MastClass):
 
         coordinates = self.resolve_object(objectname)
 
-        return self.query_region_async(coordinates, radius, catalog, pagesize, page, **kwargs)
+        return self.query_region_async(coordinates, radius, catalog, version, pagesize, page, **kwargs)
 
     @class_or_instance
     def query_criteria_async(self, catalog, pagesize=None, page=None, **criteria):
@@ -2080,7 +2079,12 @@ class CatalogsClass(MastClass):
                 service += ".Position"
             service += ".Rows"  # Using the rowstore version of the query for speed
             mashup_filters = self._build_filter_set("Mast.Catalogs.Tess.Cone", service, **criteria)
-
+        elif  catalog.lower() == "ctl":
+            service = "Mast.Catalogs.Filtered.Ctl"
+            if coordinates or objectname:
+                service += ".Position"
+            service += ".Rows"  # Using the rowstore version of the query for speed
+            mashup_filters = self._build_filter_set("Mast.Catalogs.Tess.Cone", service, **criteria)
         elif catalog.lower() == "diskdetective":
             service = "Mast.Catalogs.Filtered.DiskDetective"
             if coordinates or objectname:
