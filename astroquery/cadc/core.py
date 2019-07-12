@@ -307,7 +307,8 @@ class CadcClass(BaseQuery):
             of str if the `get_url_list` argument is True).
         """
 
-        filenames = self.get_images_async(coordinates, radius, collection, get_url_list, show_progress)
+        filenames = self.get_images_async(coordinates, radius, collection,
+                                          get_url_list, show_progress)
 
         if get_url_list:
             return filenames
@@ -320,12 +321,14 @@ class CadcClass(BaseQuery):
             except HTTPError as err:
                 # Catch HTTPError if user is unauthorized to access file
                 logger.debug(
-                    "{} - Problem retrieving the file: {}".format(str(err), str(err.url)))
+                    "{} - Problem retrieving the file: {}".
+                    format(str(err), str(err.url)))
                 pass
 
         return images
 
-    def get_images_async(self, coordinates, radius, collection=None, get_url_list=False, show_progress=False):
+    def get_images_async(self, coordinates, radius, collection=None,
+                         get_url_list=False, show_progress=False):
         """
         A coordinate-based query function that returns a list of
         context managers with cutouts around the passed in coordinates.
@@ -359,7 +362,9 @@ class CadcClass(BaseQuery):
         if get_url_list:
             return images_urls
 
-        return [commons.FileContainer(url, encoding='binary', show_progress=show_progress) for url in images_urls]
+        return [commons.FileContainer(url, encoding='binary',
+                                      show_progress=show_progress)
+                for url in images_urls]
 
     def get_image_list(self, query_result, coordinates, radius):
         """
@@ -410,17 +415,21 @@ class CadcClass(BaseQuery):
         batch_size = 20
 
         # Iterate through list of sublists to send datalink requests in batches
-        for pid_sublist in (publisher_ids[pos:pos + batch_size] for pos in range(0, len(publisher_ids), batch_size)):
+        for pid_sublist in (publisher_ids[pos:pos + batch_size] for pos in
+                            range(0, len(publisher_ids), batch_size)):
             datalink = pyvo.dal.adhoc.DatalinkResults.from_result_url(
-                '{}?{}'.format(self.data_link_url, urlencode({'ID': pid_sublist}, True)))
+                '{}?{}'.format(self.data_link_url,
+                               urlencode({'ID': pid_sublist}, True)))
             for service_def in datalink.bysemantics('#cutout'):
                 access_url = service_def.access_url.decode('ascii')
                 if '/sync' in access_url:
                     service_params = service_def.input_params
-                    input_params = {param.name: param.value for param in service_params if
+                    input_params = {param.name: param.value
+                                    for param in service_params if
                                     param.name in ['ID', 'RUNID']}
                     input_params.update(cutout_params)
-                    result.append('{}?{}'.format(access_url, urlencode(input_params)))
+                    result.append('{}?{}'.format(access_url,
+                                                 urlencode(input_params)))
 
         return result
 

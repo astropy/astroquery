@@ -178,16 +178,18 @@ class TestCadcClass:
         icrs_coords = parse_coordinates(coords).icrs
         data = {'uris': ' '.join(uri_list),
                 'params': 'cutout=Circle ICRS {} {} {}'.
-                    format(icrs_coords.ra.degree, icrs_coords.dec.degree, radius),
+                format(icrs_coords.ra.degree, icrs_coords.dec.degree, radius),
                 'method': 'URL List'
                 }
 
         resp_urls = requests.post(access_url, data).text.split('\r\n')
 
         # Filter out the errors and empty strings
-        filtered_resp_urls = list(filter(lambda url: not url.startswith('ERROR') and url != '', resp_urls))
+        filtered_resp_urls = list(filter(lambda url:
+                                         not url.startswith('ERROR') and
+                                         url != '', resp_urls))
 
-        # This function should return nearly the same urls (different RUN_ID and cutout syntax)
+        # This function should return nearly the same urls
         image_urls = cadc.get_images(coords, radius, get_url_list=True)
 
         assert len(filtered_resp_urls) == len(image_urls)

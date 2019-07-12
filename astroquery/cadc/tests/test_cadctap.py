@@ -18,7 +18,7 @@ import pytest
 import tempfile
 try:
     pyvo_OK = True
-    from pyvo.dal import tap, adhoc
+    from pyvo.dal import tap
     from astroquery.cadc import Cadc, conf
     import astroquery.cadc.core as cadc_core
 except ImportError:
@@ -41,7 +41,7 @@ def data_path(filename):
 
 
 @patch('astroquery.cadc.core.get_access_url',
-      Mock(side_effect=lambda x: 'https://some.url'))
+       Mock(side_effect=lambda x: 'https://some.url'))
 @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
 def test_get_tables():
     # default parameters
@@ -254,7 +254,7 @@ def test_misc():
            "{}, {}, 0.3), position_bounds) = 1 " \
            "AND (quality_flag IS NULL OR quality_flag != 'junk') " \
            "AND collection='CFHT' AND dataProductType='image'".\
-               format(coords_ra, coords_dec) == \
+           format(coords_ra, coords_dec) == \
            cadc._args_to_payload(**{'coordinates': coords,
                                     'radius': 0.3, 'collection': 'CFHT',
                                     'data_product_type': 'image'})['query']
@@ -320,8 +320,8 @@ def test_get_image_list():
         cadc = Cadc()
         cadc._request = get  # mock the request
         assert [expected_url] == \
-               cadc.get_image_list({'publisherID': ['ivo://cadc.nrc.ca/foo']},
-                                   coords, radius)
+            cadc.get_image_list({'publisherID': ['ivo://cadc.nrc.ca/foo']},
+                                coords, radius)
     with pytest.raises(TypeError):
         cadc.get_image_list(None)
     with pytest.raises(AttributeError):
