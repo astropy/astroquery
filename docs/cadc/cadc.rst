@@ -162,9 +162,7 @@ resolve the cutout of a result.
 
 
 Alternatively, if the query result is large and data does not need to be
-in memory, lazy access to the downloaded FITS file can be used. If no downloading
-is needed, the `get_url_list=True` argument can be passed in to return a list
-of access urls.
+in memory, lazy access to the downloaded FITS file can be used.
 
 .. code-block:: python
 
@@ -184,8 +182,8 @@ of access urls.
 
 
 If the cutout urls from a complicated query are needed, the result table
-can be passed into the `get_image_list` function along with the cutout coordinates
-and radius.
+can be passed into the function, along with the cutout coordinates and radius.
+
 .. code-block:: python
 
   >>> from astroquery.cadc import Cadc
