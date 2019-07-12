@@ -304,7 +304,7 @@ class CadcClass(BaseQuery):
         Returns
         -------
         list : A list of `~astropy.io.fits.HDUList` objects (or a list
-            of str if the `get_url_list` argument is True).
+            of str if returning urls).
         """
 
         filenames = self.get_images_async(coordinates, radius, collection,
@@ -343,7 +343,7 @@ class CadcClass(BaseQuery):
             Name of the CADC collection to query.
         get_url_list: bool, optional
             If true, returns the list of data urls rather than
-            the dlist of context managers. Default is `False`.
+            the list of context managers. Default is `False`.
         show_progress: bool, optional
             Whether to display a progress bar if the file is downloaded
             from a remote server.  Default is `False`.
