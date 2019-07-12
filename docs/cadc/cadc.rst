@@ -145,6 +145,7 @@ If only a subsection of the FITS file is needed, CADC can query an area and
 resolve the cutout of a result.
 
 .. code-block:: python
+
   >>> from astroquery.cadc import Cadc
   >>>
   >>> cadc = Cadc()
@@ -166,6 +167,7 @@ is needed, the `get_url_list=True` argument can be passed in to return a list
 of access urls.
 
 .. code-block:: python
+
   >>> from astroquery.cadc import Cadc
   >>>
   >>> cadc = Cadc()
@@ -185,6 +187,7 @@ If the cutout urls from a complicated query are needed, the result table
 can be passed into the `get_image_list` function along with the cutout coordinates
 and radius.
 .. code-block:: python
+
   >>> from astroquery.cadc import Cadc
   >>>
   >>> cadc = Cadc()
