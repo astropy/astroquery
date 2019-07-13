@@ -1,7 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
 import json
-from distutls.version import LooseVersion
+from distutils.version import LooseVersion
 
 import pytest
 import six
