@@ -41,7 +41,9 @@ an `astropy.table.Table`, pandas data frame or something other structure.
 The only important requirement is that **the list must be sorted by flux in
 descending order**.
 
-In the example below, assume that ``catalog.fits`` is a table of pixel positions (columns ``X_IMAGE`` and ``Y_IMAGE``) and flux (column ``FLUX``) and perhaps other columns, and that the image is 3073 by 2048 pixels.
+In the example below, assume that ``catalog.fits`` is a table of pixel positions
+(columns ``X_IMAGE`` and ``Y_IMAGE``) and flux (column ``FLUX``) and perhaps
+other columns, and that the image is 3073 by 2048 pixels.
 
 The ``solve_timeout`` used below is the time, in seconds, to allow the
 `astrometry.net`_ server to find a solution. It typically makes sense for this
@@ -131,7 +133,9 @@ Upload image
 ------------
 
 Keep in mind that uploading an image requires transferring roughly 10,000 times
-the data as uploading a source list. It would almost certainly take less time to find the sources in your image locally and upload that source list than it would to upload the image.
+the data as uploading a source list. It would almost certainly take less time to
+find the sources in your image locally and upload that source list than it would
+to upload the image.
 
 The image will be uploaded under two circumstances. You call
 `~astroquery.astrometry_net.AstrometryNetClass.solve_from_image` and either
@@ -227,6 +231,7 @@ Most of the following descriptions are taken directly from
 
 Scale
 -----
+
 It is important to set the pixel scale of the image as accurate as possible to increase the
 speed of astrometry.net. From astrometry.net: "Most digital-camera images are at least 10
 degrees wide; most professional-grade telescopes are narrower than 2 degrees."
@@ -252,6 +257,7 @@ Several parameters are available to set the pixel scale.
 
 Parity
 ------
+
 Flipping an image reverses its "parity". If you point a digital camera at the sky and
 submit the JPEG, it probably has negative parity. If you have a FITS image, it probably
 has positive parity. Selecting the right parity will make the solving process run faster,
@@ -263,6 +269,7 @@ but if in doubt just try both. ``parity`` can be set to the following values:
 
 Star Positional Error
 ---------------------
+
 When we find a matching "landmark", we check to see how many of the stars in your field
 match up with stars we know about. To do this, we need to know how much a star in your
 field could have moved from where it should be.
@@ -271,6 +278,7 @@ The unit for positional error is in pixels and is set by the key ``positional_er
 
 Limits
 ------
+
 In order to narrow down our search, you can supply a field center along with a radius.
 We will only search in indexes which fall within this area.
 
@@ -281,18 +289,21 @@ To set limits use all of the following parameters:
 
 Tweak
 -----
+
 By default we try to compute a SIP polynomial distortion correction with order 2.
 You can disable this by changing the order to 0, or change the polynomial order by setting
 ``tweak_order``.
 
 CRPIX Center
 ------------
+
 By default the reference point (CRPIX) of the WCS we compute can be anywhere in your image,
 but often it's convenient to force it to be the center of the image. This can be set by choosing
 ``crpix_center=True``.
 
 License and Sharing
 -------------------
+
 The Astrometry.net [website](http://nova.astrometry.net/) allows users to upload images
 as well as catalogs to be used in generating an astrometric solution, so the site gives
 users the choice of licenses for their publically available images. Since the astroquery
@@ -302,6 +313,7 @@ to their defaults, although their settings are described below
 
 Visibility
 ^^^^^^^^^^
+
 By default all images/source lists uploaded are publicly available. To change this use the setting
 ``publicly_visible='n'``.
 
@@ -317,6 +329,7 @@ By default all images/source lists uploaded are publicly available. To change th
 
 License
 ^^^^^^^
+
 There are two parameters that describe setting a license:
     ``allow_commercial_use``:
         Chooses whether or not an image uploaded to astrometry.net is licensed
