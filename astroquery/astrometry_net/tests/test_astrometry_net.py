@@ -1,6 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
 import json
+from distutls.version import LooseVersion
 
 import pytest
 import six
@@ -10,10 +11,7 @@ from ...exceptions import (InvalidQueryError)
 
 from .. import AstrometryNet
 
-_pytest_major, _pytest_minor, _ = pytest.__version__.split('.')
-_pytest_major = int(_pytest_major)
-_pytest_minor = int(_pytest_minor)
-_pytest_is_old = not ((_pytest_major == 3) and (_pytest_minor >= 3))
+_pytest_is_old = LooseVersion(pytest.__version__) < LooseVersion('3.3')
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 
