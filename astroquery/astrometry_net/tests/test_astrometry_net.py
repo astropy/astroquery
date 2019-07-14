@@ -69,7 +69,7 @@ def test_login_fails_with_no_api_key():
     a.api_key = ''
     with pytest.raises(RuntimeError) as e:
         a._login()
-    assert "You must set the API key before using this service." in str(e)
+    assert "You must set the API key before using this service." in str(e.value)
 
 
 def test_construct_payload():
@@ -93,18 +93,17 @@ def test_setting_validation_basic():
             with pytest.raises(ValueError) as e:
                 a._validate_settings(settings)
             if vals['type'] == str:
-                assert settings[constraint] in str(e)
-                assert 'is invalid. The valid values' in str(e)
+                assert settings[constraint] in str(e.value)
+                assert 'is invalid. The valid values' in str(e.value)
             else:
-                assert "must be of type" in str(e) and "'bool'" in str(e)
+                assert "must be of type" in str(e.value) and "'bool'" in str(e.value)
         else:
             # Pick a value smaller than the minimum value
             settings = {constraint: vals['allowed'][0] - 10}
             with pytest.raises(ValueError) as e:
                 a._validate_settings(settings)
-            print(str(e))
-            assert str(settings[constraint]) in str(e)
-            assert 'The valid values are' in str(e)
+            assert str(settings[constraint]) in str(e.value)
+            assert 'The valid values are' in str(e.value)
 
 
 def test_setting_validation_with_float_values():
@@ -119,7 +118,7 @@ def test_setting_validation_with_float_values():
     settings = {'center_ra': 'seven'}
     with pytest.raises(ValueError) as e:
         a._validate_settings(settings)
-    assert "Value for center_ra must be of type " in str(e)
+    assert "Value for center_ra must be of type " in str(e.value)
 
     # Try a setting that should be float and with a value that IS
     # coercable to float.
@@ -139,7 +138,7 @@ def test_setting_validation_with_bool_values():
     settings = {'crpix_center': 'seven'}
     with pytest.raises(ValueError) as e:
         a._validate_settings(settings)
-    assert "Value for crpix_center must be of type " in str(e)
+    assert "Value for crpix_center must be of type " in str(e.value)
 
     # Try a setting that should be bool and is bool
     settings = {'crpix_center': True}
@@ -183,7 +182,7 @@ def test_setting_validation_scale_type(scale_type, required_keys):
     with pytest.raises(ValueError) as e:
         a._validate_settings(settings)
     assert ('Scale type {} requires values '
-            'for '.format(scale_type)) in str(e)
+            'for '.format(scale_type)) in str(e.value)
 
     # If we add the missing key then we should get no error
     settings['scale_units'] = 'arcsecperpix'
@@ -200,4 +199,4 @@ def test_invalid_setting_in_solve_from_source_list_name_raises_error():
         # least), so any values should work.
         # The keyword argument is definitely not one of the allowed ones.
         a.solve_from_source_list([], [], [], [], im_a_bad_setting_name=5)
-    assert 'im_a_bad_setting_name is not allowed' in str(e)
+    assert 'im_a_bad_setting_name is not allowed' in str(e.value)
