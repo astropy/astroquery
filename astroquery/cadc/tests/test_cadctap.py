@@ -12,6 +12,7 @@ from astropy.table import Table as AstroTable
 from astropy.io.votable.tree import VOTableFile, Resource, Table, Field
 from astropy.io.votable import parse
 from six import BytesIO
+from six.moves.urllib_parse import urlsplit, parse_qs
 from astroquery.utils.commons import parse_coordinates
 from astropy.utils.exceptions import AstropyDeprecationWarning
 import pytest
@@ -294,6 +295,7 @@ def test_get_image_list():
 
     uri = 'im_an_ID'
     run_id = 'im_a_RUNID'
+    pos = 'CIRCLE {} {} {}'.format(coords_ra, coords_dec, radius)
 
     service_def1 = Mock()
     service_def1.access_url = \
@@ -307,10 +309,6 @@ def test_get_image_list():
     service_def2.input_params = [Params(name='ID', value=uri),
                                  Params(name='RUNID', value=run_id)]
 
-    expected_url = 'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/' \
-                   'sync?ID={}&RUNID={}&POS=CIRCLE+{}+{}+{}' \
-        .format(uri, run_id, coords_ra, coords_dec, radius)
-
     result = Mock()
     service_def_list = [service_def1, service_def2]
     result.bysemantics.return_value = service_def_list
@@ -318,10 +316,19 @@ def test_get_image_list():
     with patch('pyvo.dal.adhoc.DatalinkResults.from_result_url') as m:
         m.return_value = result
         cadc = Cadc()
-        cadc._request = get  # mock the request
-        assert [expected_url] == \
-            cadc.get_image_list({'publisherID': ['ivo://cadc.nrc.ca/foo']},
+        cadc._request = get  # Mock the request
+        url_list = cadc.get_image_list({'publisherID': [
+            'ivo://cadc.nrc.ca/foo']},
                                 coords, radius)
+
+        assert len(url_list) == 1
+
+        params = parse_qs(urlsplit(url_list[0]).query)
+
+        assert params['ID'][0] == uri
+        assert params['RUNID'][0] == run_id
+        assert params['POS'][0] == pos
+
     with pytest.raises(TypeError):
         cadc.get_image_list(None)
     with pytest.raises(AttributeError):
