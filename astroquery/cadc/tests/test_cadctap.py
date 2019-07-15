@@ -9,11 +9,12 @@ import os
 import sys
 
 from astropy.table import Table as AstroTable
+from astropy.io.fits.hdu.hdulist import HDUList
 from astropy.io.votable.tree import VOTableFile, Resource, Table, Field
 from astropy.io.votable import parse
 from six import BytesIO
 from six.moves.urllib_parse import urlsplit, parse_qs
-from astroquery.utils.commons import parse_coordinates
+from astroquery.utils.commons import parse_coordinates, FileContainer
 from astropy.utils.exceptions import AstropyDeprecationWarning
 import pytest
 import tempfile
@@ -373,3 +374,39 @@ def test_exec_sync():
         assert report_diff_values(table, actual_table, fileobj=sys.stdout)
     except ImportError:
         pass
+
+
+@patch('astroquery.cadc.core.CadcClass.exec_sync', Mock())
+@patch('astroquery.cadc.core.CadcClass.get_image_list',
+       Mock(side_effect=lambda x, y, z: ['https://some.url']))
+@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
+def test_get_images():
+    with patch('astroquery.utils.commons.get_readable_fileobj', autospec=True) as t:
+        t.return_value = open(data_path('query_images.fits'), 'rb')
+
+        cadc = Cadc()
+        fits_images = cadc.get_images('08h45m07.5s +54d18m00s', 0.01,
+                                      get_url_list=True)
+        assert fits_images == ['https://some.url']
+
+        fits_images = cadc.get_images('08h45m07.5s +54d18m00s', 0.01)
+        assert fits_images is not None
+        assert isinstance(fits_images[0], HDUList)
+
+
+@patch('astroquery.cadc.core.CadcClass.exec_sync', Mock())
+@patch('astroquery.cadc.core.CadcClass.get_image_list',
+       Mock(side_effect=lambda x, y, z: ['https://some.url']))
+@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
+def test_get_images_async():
+    with patch('astroquery.utils.commons.get_readable_fileobj', autospec=True) as t:
+        t.return_value = open(data_path('query_images.fits'), 'rb')
+
+    cadc = Cadc()
+    readable_objs = cadc.get_images_async('08h45m07.5s +54d18m00s', 0.01,
+                                          get_url_list=True)
+    assert readable_objs == ['https://some.url']
+
+    readable_objs = cadc.get_images_async('08h45m07.5s +54d18m00s', 0.01)
+    assert readable_objs is not None
+    assert isinstance(readable_objs[0], FileContainer)

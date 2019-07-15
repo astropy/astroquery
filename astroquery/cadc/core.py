@@ -22,7 +22,6 @@ from astropy.utils.exceptions import AstropyDeprecationWarning
 from astroquery.utils.decorators import deprecated
 from . import conf
 
-
 try:
     import pyvo
 except ImportError:
