@@ -19,7 +19,7 @@ import pytest
 import tempfile
 try:
     pyvo_OK = True
-    from pyvo.dal import tap
+    from pyvo.dal import tap, adhoc
     from astroquery.cadc import Cadc, conf
     import astroquery.cadc.core as cadc_core
 except ImportError:
