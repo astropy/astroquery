@@ -48,7 +48,7 @@ def data_path(filename):
 
 
 def isclose(value1, value2, abs_tol=1e-09):
-    return abs (value1 - value2) < abs_tol
+    return abs(value1 - value2) < abs_tol
 
 
 def test_query_region_text_radius(patch_get):
