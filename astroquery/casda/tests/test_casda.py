@@ -47,6 +47,10 @@ def data_path(filename):
     return os.path.join(data_dir, filename)
 
 
+def isclose(value1, value2, abs_tol=1e-09):
+    return abs (value1 - value2) < abs_tol
+
+
 def test_query_region_text_radius(patch_get):
     ra = 333.9092
     dec = -45.8418
@@ -58,9 +62,9 @@ def test_query_region_text_radius(patch_get):
     assert query_payload['POS'].startswith('CIRCLE 333')
     pos_parts = query_payload['POS'].split(' ')
     assert pos_parts[0] == 'CIRCLE'
-    assert math.isclose(float(pos_parts[1]), ra, abs_tol=1e-4)
-    assert math.isclose(float(pos_parts[2]), dec, abs_tol=1e-4)
-    assert math.isclose(float(pos_parts[3]), radius)
+    assert isclose(float(pos_parts[1]), ra, abs_tol=1e-4)
+    assert isclose(float(pos_parts[2]), dec, abs_tol=1e-4)
+    assert isclose(float(pos_parts[3]), radius)
     assert len(pos_parts) == 4
 
     responses = Casda.query_region('22h15m38.2s -45d50m30.5s', radius=0.5 * u.deg, cache=False)
@@ -79,9 +83,9 @@ def test_query_region_radius(patch_get):
     assert query_payload['POS'].startswith('CIRCLE 333')
     pos_parts = query_payload['POS'].split(' ')
     assert pos_parts[0] == 'CIRCLE'
-    assert math.isclose(float(pos_parts[1]), ra, abs_tol=1e-5)
-    assert math.isclose(float(pos_parts[2]), dec, abs_tol=1e-5)
-    assert math.isclose(float(pos_parts[3]), radius)
+    assert isclose(float(pos_parts[1]), ra, abs_tol=1e-5)
+    assert isclose(float(pos_parts[2]), dec, abs_tol=1e-5)
+    assert isclose(float(pos_parts[3]), radius)
     assert len(pos_parts) == 4
 
     responses = Casda.query_region(centre, radius=0.5 * u.deg, cache=False)
@@ -100,9 +104,9 @@ def test_query_region_async_radius(patch_get):
     assert query_payload['POS'].startswith('CIRCLE 333')
     pos_parts = query_payload['POS'].split(' ')
     assert pos_parts[0] == 'CIRCLE'
-    assert math.isclose(float(pos_parts[1]), ra, abs_tol=1e-5)
-    assert math.isclose(float(pos_parts[2]), dec, abs_tol=1e-5)
-    assert math.isclose(float(pos_parts[3]), radius)
+    assert isclose(float(pos_parts[1]), ra, abs_tol=1e-5)
+    assert isclose(float(pos_parts[2]), dec, abs_tol=1e-5)
+    assert isclose(float(pos_parts[3]), radius)
     assert len(pos_parts) == 4
 
     responses = Casda.query_region_async(centre, radius=0.5 * u.deg, cache=False)
@@ -122,10 +126,10 @@ def test_query_region_box(patch_get):
     assert query_payload['POS'].startswith('RANGE 333')
     pos_parts = query_payload['POS'].split(' ')
     assert pos_parts[0] == 'RANGE'
-    assert math.isclose(float(pos_parts[1]), ra - width / 2, abs_tol=1e-5)
-    assert math.isclose(float(pos_parts[2]), ra + width / 2, abs_tol=1e-5)
-    assert math.isclose(float(pos_parts[3]), dec - height / 2, abs_tol=1e-5)
-    assert math.isclose(float(pos_parts[4]), dec + height / 2, abs_tol=1e-5)
+    assert isclose(float(pos_parts[1]), ra - width / 2, abs_tol=1e-5)
+    assert isclose(float(pos_parts[2]), ra + width / 2, abs_tol=1e-5)
+    assert isclose(float(pos_parts[3]), dec - height / 2, abs_tol=1e-5)
+    assert isclose(float(pos_parts[4]), dec + height / 2, abs_tol=1e-5)
     assert len(pos_parts) == 5
 
     responses = Casda.query_region(centre, width=width * u.deg, height=height * u.deg, cache=False)
@@ -146,10 +150,10 @@ def test_query_region_async_box(patch_get):
     assert query_payload['POS'].startswith('RANGE 333')
     pos_parts = query_payload['POS'].split(' ')
     assert pos_parts[0] == 'RANGE'
-    assert math.isclose(float(pos_parts[1]), ra - width / 2, abs_tol=1e-5)
-    assert math.isclose(float(pos_parts[2]), ra + width / 2, abs_tol=1e-5)
-    assert math.isclose(float(pos_parts[3]), dec - height / 2, abs_tol=1e-5)
-    assert math.isclose(float(pos_parts[4]), dec + height / 2, abs_tol=1e-5)
+    assert isclose(float(pos_parts[1]), ra - width / 2, abs_tol=1e-5)
+    assert isclose(float(pos_parts[2]), ra + width / 2, abs_tol=1e-5)
+    assert isclose(float(pos_parts[3]), dec - height / 2, abs_tol=1e-5)
+    assert isclose(float(pos_parts[4]), dec + height / 2, abs_tol=1e-5)
     assert len(pos_parts) == 5
 
     responses = Casda.query_region_async(centre, width=width * u.deg, height=height * u.deg, cache=False)
