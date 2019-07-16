@@ -26,6 +26,11 @@ besancon
 cadc
 ^^^^
 
+casda
+^^^^^
+
+- New query_region service [#1493]
+
 cds
 ^^^
 

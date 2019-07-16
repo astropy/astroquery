@@ -88,9 +88,6 @@ class CasdaClass(BaseQuery):
     # entered values.
     def _args_to_payload(self, **kwargs):
         request_payload = dict()
-        # code to parse input and construct the dict
-        # goes here. Then return the dict to the caller
-
 
         # Convert the coordinates to FK5
         coordinates = kwargs.get('coordinates')
