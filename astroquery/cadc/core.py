@@ -27,7 +27,7 @@ except ImportError:
     print('Please install pyvo. astropy.cadc does not work without it.')
 except AstropyDeprecationWarning as e:
     if str(e) == 'The astropy.vo.samp module has now been moved to astropy.samp':
-        # CADC does not use samp and thisonly affects Python 2.7
+        # CADC does not use samp and this only affects Python 2.7
         print('AstropyDeprecationWarning: {}'.format(str(e)))
     else:
         raise e
@@ -138,10 +138,9 @@ class CadcClass(BaseQuery):
         This will soon be deprecated as it does not make sense to login with
         certificates.
         """
+        # start with a new session
+        pyvo.dal.tap.s = requests.Session()
         if certificate_file:
-            # In order to force an HTTPS hand shake on the session is to
-            # recreate it.
-            pyvo.dal.tap.s = requests.Session()
             pyvo.dal.tap.s.cert = certificate_file
         elif not user or not password:
             raise AttributeError('login credentials missing (user/password '
@@ -159,7 +158,8 @@ class CadcClass(BaseQuery):
                 "Content-type": "application/x-www-form-urlencoded",
                 "Accept": "text/plain"
             }
-            response = requests.post(login_url, data=args, headers=header)
+            response = pyvo.dal.tap.s.post(login_url, data=args,
+                                           headers=header)
             try:
                 response.raise_for_status()
             except Exception as e:
@@ -320,7 +320,7 @@ class CadcClass(BaseQuery):
         for pid_sublist in (publisher_ids[pos:pos + batch_size] for pos in
                             range(0, len(publisher_ids), batch_size)):
             # REQUEST=download-only is a CADC optimization to restrict
-            # restrict results to downloadable URLs as opposed to redirects
+            # results to downloadable URLs as opposed to redirects
             # to other services such as cutouts that are not required
             datalink = pyvo.dal.adhoc.DatalinkResults.from_result_url(
                 '{}?{}'.format(self.data_link_url,
@@ -413,10 +413,8 @@ class CadcClass(BaseQuery):
             if isinstance(output_file, str):
                 with open(output_file, 'bw') as f:
                     f.write(result)
-                    return
             else:
                 output_file.write(result)
-                return
         return result
 
     def create_async(self, query, maxrec=None, uploads=None):
@@ -425,11 +423,11 @@ class CadcClass(BaseQuery):
         caller then can start the execution and monitor the job.
         Typical (no error handling) sequence of events:
 
-        job = create_async(query)
-        job = job.run().wait()
-        job.raise_if_error()
-        result = job.fetch_result()
-        job.delete() # optional
+            job = create_async(query)
+            job = job.run().wait()
+            job.raise_if_error()
+            result = job.fetch_result()
+            job.delete() # optional
 
         See ``pyvo.dal.tap`` for details about the ``AsyncTAPJob``
 
@@ -457,7 +455,7 @@ class CadcClass(BaseQuery):
         return self.cadctap.submit_job(query, language='ADQL',
                                        uploads=uploads)
 
-    @deprecated('0.4.0', 'Use axec_sync or create_async instead')
+    @deprecated('0.4.0', 'Use exec_sync or create_async instead')
     def run_query(self, query, operation, output_file=None,
                   output_format="votable", verbose=None,
                   background=False, upload_resource=None,
@@ -493,7 +491,7 @@ class CadcClass(BaseQuery):
         -------
         A Job object
         """
-        raise NotImplementedError('No longer supported.'
+        raise NotImplementedError('No longer supported. '
                                   'Use exec_sync or create_async instead.')
 
     def load_async_job(self, jobid, verbose=None):

@@ -16,6 +16,7 @@ from astroquery.utils.commons import parse_coordinates
 from astropy.utils.exceptions import AstropyDeprecationWarning
 import pytest
 import tempfile
+import requests
 try:
     pyvo_OK = True
     from pyvo.dal import tap, adhoc
@@ -24,11 +25,12 @@ try:
 except ImportError:
     pyvo_OK = False
     pytest.skip("Install pyvo for the cadc module.", allow_module_level=True)
-except AstropyDeprecationWarning as e:
-    if str(e) == 'The astropy.vo.samp module has now been moved to astropy.samp':
-        print('AstropyDeprecationWarning: {}'.format(str(e)))
+except AstropyDeprecationWarning as ex:
+    if str(ex) == \
+            'The astropy.vo.samp module has now been moved to astropy.samp':
+        print('AstropyDeprecationWarning: {}'.format(str(ex)))
     else:
-        raise e
+        raise ex
 try:
     from unittest.mock import Mock, patch, PropertyMock
 except ImportError:
@@ -60,7 +62,7 @@ def test_get_tables():
 @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
 def test_get_table():
     table_set = PropertyMock()
-    tables_result = [Mock(), Mock(), Mock()]
+    tables_result = [Mock() for _ in range(3)]
     tables_result[0].name = 'tab1'
     tables_result[1].name = 'tab2'
     tables_result[2].name = 'tab3'
@@ -146,11 +148,12 @@ def test_auth():
         assert tap.s.cert == cert
         cadc.logout()
         assert tap.s.cert is None
-        with patch('astroquery.cadc.core.requests.post') as m:
+        with patch('astroquery.cadc.core.requests.Session') as ss:
             cookie = 'ABC'
             mock_resp = Mock()
             mock_resp.text = cookie
-            m.return_value = mock_resp
+            ss.return_value.cookies = requests.cookies.RequestsCookieJar()
+            ss.return_value.post.return_value = mock_resp
             cadc.login(user=user, password=password)
         assert tap.s.cookies[cadc_core.CADC_COOKIE_PREFIX] == \
             '"{}"'.format(cookie)
