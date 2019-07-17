@@ -291,19 +291,19 @@ class CadcClass(BaseQuery):
             Coordinates around which to query.
         radius : str or `astropy.units.Quantity`
             The radius of the cone search AND cutout area.
-        collection: str, optional
+        collection : str, optional
             Name of the CADC collection to query.
-        get_url_list: bool, optional
-            If true, returns the list of data urls rather than
-            the downloaded FITS files. Default is `False`.
-        show_progress: bool, optional
+        get_url_list : bool, optional
+            If ``True``, returns the list of data urls rather than
+            the downloaded FITS files. Default is ``False``.
+        show_progress : bool, optional
             Whether to display a progress bar if the file is downloaded
-            from a remote server.  Default is `False`.
+            from a remote server.  Default is ``False``.
 
         Returns
         -------
-        list : A list of `~astropy.io.fits.HDUList` objects (or a list
-            of str if returning urls).
+        list : A list of `~astropy.io.fits.HDUList` objects (or a list of
+        str if returning urls).
         """
 
         filenames = self.get_images_async(coordinates, radius, collection,
@@ -338,14 +338,14 @@ class CadcClass(BaseQuery):
             Coordinates around which to query.
         radius : str or `astropy.units.Quantity`
             The radius of the cone search AND cutout area.
-        collection: str, optional
+        collection : str, optional
             Name of the CADC collection to query.
-        get_url_list: bool, optional
-            If true, returns the list of data urls rather than
-            the list of context managers. Default is `False`.
-        show_progress: bool, optional
+        get_url_list : bool, optional
+            If ``True``, returns the list of data urls rather than
+            the list of context managers. Default is ``False``.
+        show_progress : bool, optional
             Whether to display a progress bar if the file is downloaded
-            from a remote server.  Default is `False`.
+            from a remote server.  Default is ``False``.
 
         Returns
         -------
@@ -372,18 +372,19 @@ class CadcClass(BaseQuery):
 
         The function uses the IVOA DataLink Service
         (http://www.ivoa.net/documents/DataLink/) implemented at the CADC.
-        It works directly with the results produced by Cadc.query_region and
-        Cadc.query_name but in principle it can work with other query
+        It works directly with the results produced by `query_region` and
+        `query_name` but in principle it can work with other query
         results produced with the Cadc query as long as the results
         contain the 'publisherID' column. This column is part of the
-        caom2.Plane table.
+        'caom2.Plane' table.
 
         Parameters
         ----------
-        query_result : result returned by Cadc.query_region() or
-                    Cadc.query_name(). In general, the result of any
-                    CADC TAP query that contains the 'publisherID' column
-                    can be use here.
+        query_result : A `~astropy.table.Table` object
+            Result returned by `query_region` or
+            `query_name`. In general, the result of any
+            CADC TAP query that contains the 'publisherID'
+            column can be used here.
         coordinates : str or `astropy.coordinates`.
             Center of the cutout area.
         radius : str or `astropy.units.Quantity`.
@@ -391,7 +392,7 @@ class CadcClass(BaseQuery):
 
         Returns
         -------
-        A list of URLs to cutout data.
+        list : A list of URLs to cutout data.
         """
 
         if not query_result:
@@ -440,21 +441,22 @@ class CadcClass(BaseQuery):
 
         The function uses the IVOA DataLink Service
         (http://www.ivoa.net/documents/DataLink/) implemented at the CADC.
-        It works directly with the results produced by Cadc.query_region and
-        Cadc.query_name but in principle it can work with other query
+        It works directly with the results produced by `query_region` and
+        `query_name` but in principle it can work with other query
         results produced with the Cadc query as long as the results
         contain the 'publisherID' column. This column is part of the
-        caom2.Plane table.
+        'caom2.Plane' table.
 
         Parameters
         ----------
-        query_result : result returned by Cadc.query_region() or
-                    Cadc.query_name(). In general, the result of any
-                    CADC TAP query that contains the 'caomPublisherID' column
-                    can be use here.
+        query_result : A `~astropy.table.Table` object
+                Result returned by `query_region` or
+                `query_name`. In general, the result of any
+                CADC TAP query that contains the 'publisherID' column
+                can be use here.
         include_auxiliaries : boolean
-                    True to return URLs to auxiliary files such as
-                    previews, False otherwise
+                ``True`` to return URLs to auxiliary files such as
+                previews, ``False`` otherwise
 
         Returns
         -------
@@ -502,7 +504,7 @@ class CadcClass(BaseQuery):
 
         Parameters
         ----------
-        only_names : bool, optional, default 'False'
+        only_names : bool, optional, default False
             True to load table names only
         verbose : deprecated
 
