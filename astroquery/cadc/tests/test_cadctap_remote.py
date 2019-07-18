@@ -36,6 +36,7 @@ one_test = False
 # Skip the very slow tests to avoid timeout errors
 skip_slow = True
 
+
 @remote_data
 class TestCadcClass:
     # now write tests for each method here
