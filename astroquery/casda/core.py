@@ -77,7 +77,7 @@ class CasdaClass(BaseQuery):
                                                 width=width, kwargs=kwargs)
         if get_query_payload:
             return request_payload
-        print(request_payload)
+
         response = self._request('GET', self.URL, params=request_payload,
                                  timeout=self.TIMEOUT, cache=cache)
 
@@ -99,7 +99,6 @@ class CasdaClass(BaseQuery):
         elif kwargs['width'] is not None and kwargs['height'] is not None:
             width = u.Quantity(kwargs['width']).to(u.deg).value
             height = u.Quantity(kwargs['height']).to(u.deg).value
-            print(c.dec.degree, height)
             top = c.dec.degree - (height/2)
             bottom = c.dec.degree + (height/2)
             left = c.ra.degree - (width/2)
