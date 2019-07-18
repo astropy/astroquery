@@ -33,6 +33,8 @@ except AstropyDeprecationWarning as e:
 # and comment out the skipif of the single test to run.
 one_test = False
 
+# Skip the very slow tests to avoid timeout errors
+skip_slow = True
 
 @remote_data
 class TestCadcClass:
@@ -162,11 +164,19 @@ class TestCadcClass:
         cadc = Cadc()
         coords = '08h45m07.5s +54d18m00s'
         radius = 0.05
-        images = cadc.get_images(coords, radius)
+        images = cadc.get_images(coords, radius, collection='CFHT')
         assert images is not None
 
         for image in images:
             assert isinstance(image, fits.HDUList)
+
+    @pytest.mark.skipif(one_test, reason='One test mode')
+    @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
+    @pytest.mark.skipif(skip_slow, reason='Avoid timeout errors')
+    def test_get_images_against_AS(self):
+        cadc = Cadc()
+        coords = '08h45m07.5s +54d18m00s'
+        radius = 0.05
 
         # Compare results from cadc advanced search to get_images
         query = cadc._args_to_payload(**{'coordinates': coords,
