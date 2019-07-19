@@ -7,12 +7,16 @@ Canadian Astronomy Data Centre
 
 import pytest
 import os
+import requests
 from datetime import datetime
-from astropy.tests.helper import remote_data
 from astropy.coordinates import SkyCoord
+from astropy.io import fits
+from astropy.tests.helper import remote_data
+
 
 from astroquery.cadc import Cadc
 from astropy.utils.exceptions import AstropyDeprecationWarning
+from astroquery.utils.commons import parse_coordinates, FileContainer
 
 try:
     pyvo_OK = True
@@ -28,6 +32,9 @@ except AstropyDeprecationWarning as e:
 # to run just one test during development, set this variable to True
 # and comment out the skipif of the single test to run.
 one_test = False
+
+# Skip the very slow tests to avoid timeout errors
+skip_slow = True
 
 
 @remote_data
@@ -151,6 +158,62 @@ class TestCadcClass:
         result = cadc.exec_sync(query)
         assert len(result) == 1
         cadc.logout()
+
+    @pytest.mark.skipif(one_test, reason='One test mode')
+    @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
+    def test_get_images(self):
+        cadc = Cadc()
+        coords = '08h45m07.5s +54d18m00s'
+        radius = 0.05
+        images = cadc.get_images(coords, radius, collection='CFHT')
+        assert images is not None
+
+        for image in images:
+            assert isinstance(image, fits.HDUList)
+
+    @pytest.mark.skipif(one_test, reason='One test mode')
+    @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
+    @pytest.mark.skipif(skip_slow, reason='Avoid timeout errors')
+    def test_get_images_against_AS(self):
+        cadc = Cadc()
+        coords = '08h45m07.5s +54d18m00s'
+        radius = 0.05
+
+        # Compare results from cadc advanced search to get_images
+        query = cadc._args_to_payload(**{'coordinates': coords,
+                                         'radius': radius,
+                                         'data_product_type': 'image'})['query']
+        result = cadc.exec_sync(query)
+        uri_list = [uri.decode('ascii') for uri in result['publisherID']]
+        access_url = 'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/en/download'
+        icrs_coords = parse_coordinates(coords).icrs
+        data = {'uris': ' '.join(uri_list),
+                'params': 'cutout=Circle ICRS {} {} {}'.
+                format(icrs_coords.ra.degree, icrs_coords.dec.degree, radius),
+                'method': 'URL List'
+                }
+
+        resp_urls = requests.post(access_url, data).text.split('\r\n')
+
+        # Filter out the errors and empty strings
+        filtered_resp_urls = list(filter(lambda url:
+                                         not url.startswith('ERROR') and
+                                         url != '', resp_urls))
+
+        # This function should return nearly the same urls
+        image_urls = cadc.get_images(coords, radius, get_url_list=True)
+
+        assert len(filtered_resp_urls) == len(image_urls)
+
+    @pytest.mark.skipif(one_test, reason='One test mode')
+    def test_get_images_async(self):
+        cadc = Cadc()
+        coords = '01h45m07.5s +23d18m00s'
+        radius = 0.05
+        readable_objs = cadc.get_images_async(coords, radius, collection="CFHT")
+        assert readable_objs is not None
+        for obj in readable_objs:
+            assert isinstance(obj, FileContainer)
 
     @pytest.mark.skipif(one_test, reason='One test mode')
     @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')

@@ -12,6 +12,7 @@ import warnings
 import requests
 from numpy import ma
 from six.moves.urllib.parse import urlencode
+from six.moves.urllib_error import HTTPError
 
 from ..utils.class_or_instance import class_or_instance
 from ..utils import async_to_sync, commons
@@ -276,6 +277,163 @@ class CadcClass(BaseQuery):
         return collections
 
     @class_or_instance
+    def get_images(self, coordinates, radius,
+                   collection=None,
+                   get_url_list=False,
+                   show_progress=False):
+        """
+        A coordinate-based query function that returns a list of
+        fits files with cutouts around the passed in coordinates.
+
+        Parameters
+        ----------
+        coordinates : str or `astropy.coordinates`.
+            Coordinates around which to query.
+        radius : str or `astropy.units.Quantity`
+            The radius of the cone search AND cutout area.
+        collection : str, optional
+            Name of the CADC collection to query.
+        get_url_list : bool, optional
+            If ``True``, returns the list of data urls rather than
+            the downloaded FITS files. Default is ``False``.
+        show_progress : bool, optional
+            Whether to display a progress bar if the file is downloaded
+            from a remote server.  Default is ``False``.
+
+        Returns
+        -------
+        list : A list of `~astropy.io.fits.HDUList` objects (or a list of
+        str if returning urls).
+        """
+
+        filenames = self.get_images_async(coordinates, radius, collection,
+                                          get_url_list, show_progress)
+
+        if get_url_list:
+            return filenames
+
+        images = []
+
+        for fn in filenames:
+            try:
+                images.append(fn.get_fits())
+            except HTTPError as err:
+                # Catch HTTPError if user is unauthorized to access file
+                logger.debug(
+                    "{} - Problem retrieving the file: {}".
+                    format(str(err), str(err.url)))
+                pass
+
+        return images
+
+    def get_images_async(self, coordinates, radius, collection=None,
+                         get_url_list=False, show_progress=False):
+        """
+        A coordinate-based query function that returns a list of
+        context managers with cutouts around the passed in coordinates.
+
+        Parameters
+        ----------
+        coordinates : str or `astropy.coordinates`.
+            Coordinates around which to query.
+        radius : str or `astropy.units.Quantity`
+            The radius of the cone search AND cutout area.
+        collection : str, optional
+            Name of the CADC collection to query.
+        get_url_list : bool, optional
+            If ``True``, returns the list of data urls rather than
+            the list of context managers. Default is ``False``.
+        show_progress : bool, optional
+            Whether to display a progress bar if the file is downloaded
+            from a remote server.  Default is ``False``.
+
+        Returns
+        -------
+        list : A list of context-managers that yield readable file-like objects
+        """
+        request_payload = self._args_to_payload(coordinates=coordinates,
+                                                radius=radius,
+                                                collection=collection,
+                                                data_product_type='image')
+        query_result = self.exec_sync(request_payload['query'])
+        images_urls = self.get_image_list(query_result, coordinates, radius)
+
+        if get_url_list:
+            return images_urls
+
+        return [commons.FileContainer(url, encoding='binary',
+                                      show_progress=show_progress)
+                for url in images_urls]
+
+    def get_image_list(self, query_result, coordinates, radius):
+        """
+        Function to map the results of a CADC query into URLs to
+        corresponding data and cutouts that can be later downloaded.
+
+        The function uses the IVOA DataLink Service
+        (http://www.ivoa.net/documents/DataLink/) implemented at the CADC.
+        It works directly with the results produced by `query_region` and
+        `query_name` but in principle it can work with other query
+        results produced with the Cadc query as long as the results
+        contain the 'publisherID' column. This column is part of the
+        'caom2.Plane' table.
+
+        Parameters
+        ----------
+        query_result : A `~astropy.table.Table` object
+            Result returned by `query_region` or
+            `query_name`. In general, the result of any
+            CADC TAP query that contains the 'publisherID'
+            column can be used here.
+        coordinates : str or `astropy.coordinates`.
+            Center of the cutout area.
+        radius : str or `astropy.units.Quantity`.
+            The radius of the cutout area.
+
+        Returns
+        -------
+        list : A list of URLs to cutout data.
+        """
+
+        if not query_result:
+            raise AttributeError('Missing query_result argument')
+
+        parsed_coordinates = commons.parse_coordinates(coordinates).fk5
+        ra = parsed_coordinates.ra.degree
+        dec = parsed_coordinates.dec.degree
+        cutout_params = {'POS': 'CIRCLE {} {} {}'.format(ra, dec, radius)}
+
+        try:
+            publisher_ids = query_result['publisherID']
+        except KeyError:
+            raise AttributeError(
+                'publisherID column missing from query_result argument')
+
+        result = []
+
+        # Send datalink requests in batches of 20 publisher ids
+        batch_size = 20
+
+        # Iterate through list of sublists to send datalink requests in batches
+        for pid_sublist in (publisher_ids[pos:pos + batch_size] for pos in
+                            range(0, len(publisher_ids), batch_size)):
+            datalink = pyvo.dal.adhoc.DatalinkResults.from_result_url(
+                '{}?{}'.format(self.data_link_url,
+                               urlencode({'ID': pid_sublist}, True)))
+            for service_def in datalink.bysemantics('#cutout'):
+                access_url = service_def.access_url.decode('ascii')
+                if '/sync' in access_url:
+                    service_params = service_def.input_params
+                    input_params = {param.name: param.value
+                                    for param in service_params if
+                                    param.name in ['ID', 'RUNID']}
+                    input_params.update(cutout_params)
+                    result.append('{}?{}'.format(access_url,
+                                                 urlencode(input_params)))
+
+        return result
+
+    @class_or_instance
     def get_data_urls(self, query_result, include_auxiliaries=False):
         """
         Function to map the results of a CADC query into URLs to
@@ -283,21 +441,22 @@ class CadcClass(BaseQuery):
 
         The function uses the IVOA DataLink Service
         (http://www.ivoa.net/documents/DataLink/) implemented at the CADC.
-        It works directly with the results produced by Cadc.query_region and
-        Cadc.query_name but in principle it can work with other query
+        It works directly with the results produced by `query_region` and
+        `query_name` but in principle it can work with other query
         results produced with the Cadc query as long as the results
-        contain the 'caomPublisherID' column. This column is part of the
-        caom2.Plane table.
+        contain the 'publisherID' column. This column is part of the
+        'caom2.Plane' table.
 
         Parameters
         ----------
-        query_result : result returned by Cadc.query_region() or
-                    Cadc.query_name(). In general, the result of any
-                    CADC TAP query that contains the 'caomPublisherID' column
-                    can be use here.
+        query_result : A `~astropy.table.Table` object
+                Result returned by `query_region` or
+                `query_name`. In general, the result of any
+                CADC TAP query that contains the 'publisherID' column
+                can be use here.
         include_auxiliaries : boolean
-                    True to return URLs to auxiliary files such as
-                    previews, False otherwise
+                ``True`` to return URLs to auxiliary files such as
+                previews, ``False`` otherwise
 
         Returns
         -------
@@ -345,7 +504,7 @@ class CadcClass(BaseQuery):
 
         Parameters
         ----------
-        only_names : bool, optional, default 'False'
+        only_names : bool, optional, default False
             True to load table names only
         verbose : deprecated
 
@@ -552,6 +711,9 @@ class CadcClass(BaseQuery):
         if 'collection' in kwargs and kwargs['collection']:
             payload['query'] = "{} AND collection='{}'".\
                 format(payload['query'], kwargs['collection'])
+        if 'data_product_type' in kwargs and kwargs['data_product_type']:
+            payload['query'] = "{} AND dataProductType='{}'".\
+                format(payload['query'], kwargs['data_product_type'])
         return payload
 
 

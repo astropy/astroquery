@@ -9,10 +9,12 @@ import os
 import sys
 
 from astropy.table import Table as AstroTable
+from astropy.io.fits.hdu.hdulist import HDUList
 from astropy.io.votable.tree import VOTableFile, Resource, Table, Field
 from astropy.io.votable import parse
 from six import BytesIO
-from astroquery.utils.commons import parse_coordinates
+from six.moves.urllib_parse import urlsplit, parse_qs
+from astroquery.utils.commons import parse_coordinates, FileContainer
 from astropy.utils.exceptions import AstropyDeprecationWarning
 import pytest
 import tempfile
@@ -43,7 +45,7 @@ def data_path(filename):
 
 
 @patch('astroquery.cadc.core.get_access_url',
-      Mock(side_effect=lambda x: 'https://some.url'))
+       Mock(side_effect=lambda x: 'https://some.url'))
 @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
 def test_get_tables():
     # default parameters
@@ -256,17 +258,85 @@ def test_misc():
            "o.obsID=p.obsID WHERE INTERSECTS( CIRCLE('ICRS', " \
            "{}, {}, 0.3), position_bounds) = 1 " \
            "AND (quality_flag IS NULL OR quality_flag != 'junk') " \
-           "AND collection='CFHT'".format(coords_ra, coords_dec) == \
+           "AND collection='CFHT' AND dataProductType='image'".\
+           format(coords_ra, coords_dec) == \
            cadc._args_to_payload(**{'coordinates': coords,
-                                 'radius': 0.3, 'collection': 'CFHT'})['query']
+                                    'radius': 0.3, 'collection': 'CFHT',
+                                    'data_product_type': 'image'})['query']
 
-    # no collection
+    # no collection or data_product_type
     assert "SELECT * from caom2.Observation o join caom2.Plane p ON " \
            "o.obsID=p.obsID WHERE INTERSECTS( CIRCLE('ICRS', " \
            "{}, {}, 0.3), position_bounds) = 1 AND (quality_flag IS NULL OR " \
            "quality_flag != 'junk')".format(coords_ra, coords_dec) ==  \
            cadc._args_to_payload(**{'coordinates': coords,
                                  'radius': 0.3})['query']
+
+
+@patch('astroquery.cadc.core.get_access_url',
+       Mock(side_effect=lambda x, y=None: 'https://some.url'))
+@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
+def test_get_image_list():
+    def get(*args, **kwargs):
+        class CapsResponse(object):
+            def __init__(self):
+                self.status_code = 200
+                self.content = b''
+
+            def raise_for_status(self):
+                pass
+
+        return CapsResponse()
+
+    class Params(object):
+        def __init__(self, **param_dict):
+            self.__dict__.update(param_dict)
+
+    coords = '08h45m07.5s +54d18m00s'
+    coords_ra = parse_coordinates(coords).fk5.ra.degree
+    coords_dec = parse_coordinates(coords).fk5.dec.degree
+    radius = 10
+
+    uri = 'im_an_ID'
+    run_id = 'im_a_RUNID'
+    pos = 'CIRCLE {} {} {}'.format(coords_ra, coords_dec, radius)
+
+    service_def1 = Mock()
+    service_def1.access_url = \
+        b'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync'
+    service_def1.input_params = [Params(name='ID', value=uri),
+                                 Params(name='RUNID', value=run_id)]
+
+    service_def2 = Mock()
+    service_def2.access_url = \
+        b'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/async'
+    service_def2.input_params = [Params(name='ID', value=uri),
+                                 Params(name='RUNID', value=run_id)]
+
+    result = Mock()
+    service_def_list = [service_def1, service_def2]
+    result.bysemantics.return_value = service_def_list
+
+    with patch('pyvo.dal.adhoc.DatalinkResults.from_result_url') as m:
+        m.return_value = result
+        cadc = Cadc()
+        cadc._request = get  # Mock the request
+        url_list = cadc.get_image_list({'publisherID': [
+            'ivo://cadc.nrc.ca/foo']},
+                                coords, radius)
+
+        assert len(url_list) == 1
+
+        params = parse_qs(urlsplit(url_list[0]).query)
+
+        assert params['ID'][0] == uri
+        assert params['RUNID'][0] == run_id
+        assert params['POS'][0] == pos
+
+    with pytest.raises(TypeError):
+        cadc.get_image_list(None)
+    with pytest.raises(AttributeError):
+        cadc.get_image_list(None, coords, radius)
 
 
 @patch('astroquery.cadc.core.get_access_url',
@@ -307,3 +377,39 @@ def test_exec_sync():
         assert report_diff_values(table, actual_table, fileobj=sys.stdout)
     except ImportError:
         pass
+
+
+@patch('astroquery.cadc.core.CadcClass.exec_sync', Mock())
+@patch('astroquery.cadc.core.CadcClass.get_image_list',
+       Mock(side_effect=lambda x, y, z: ['https://some.url']))
+@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
+def test_get_images():
+    with patch('astroquery.utils.commons.get_readable_fileobj', autospec=True) as t:
+        t.return_value = open(data_path('query_images.fits'), 'rb')
+
+        cadc = Cadc()
+        fits_images = cadc.get_images('08h45m07.5s +54d18m00s', 0.01,
+                                      get_url_list=True)
+        assert fits_images == ['https://some.url']
+
+        fits_images = cadc.get_images('08h45m07.5s +54d18m00s', 0.01)
+        assert fits_images is not None
+        assert isinstance(fits_images[0], HDUList)
+
+
+@patch('astroquery.cadc.core.CadcClass.exec_sync', Mock())
+@patch('astroquery.cadc.core.CadcClass.get_image_list',
+       Mock(side_effect=lambda x, y, z: ['https://some.url']))
+@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
+def test_get_images_async():
+    with patch('astroquery.utils.commons.get_readable_fileobj', autospec=True) as t:
+        t.return_value = open(data_path('query_images.fits'), 'rb')
+
+    cadc = Cadc()
+    readable_objs = cadc.get_images_async('08h45m07.5s +54d18m00s', 0.01,
+                                          get_url_list=True)
+    assert readable_objs == ['https://some.url']
+
+    readable_objs = cadc.get_images_async('08h45m07.5s +54d18m00s', 0.01)
+    assert readable_objs is not None
+    assert isinstance(readable_objs[0], FileContainer)

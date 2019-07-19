@@ -21,7 +21,7 @@ NOTE: ```astroquery.cadc``` is dependent on the ```pyvo``` package. Please
 install it prior to using the ```cadc``` module.
 
 The CADC hosts a number of collections and ```get_collections``` returns a list
-of all these collectins:
+of all these collections:
 
 .. code-block:: python
 
@@ -139,6 +139,66 @@ resolved. Instead it is matched against the target name in the CADC metadata.
                                                                         ...                                              d
     ------------------ -------------- ----------------- --------------- ... ---------------------------- --------------------------------- ------------------- -----------------------
      caom:CFHT/2376828        2376828                                 0 ...                              58546.328009 .. 58546.32960815509                     2019-03-04T08:14:46.470
+
+
+If only a subsection of the FITS file is needed, CADC can query an area and
+resolve the cutout of a result.
+
+.. code-block:: python
+
+  >>> from astroquery.cadc import Cadc
+  >>>
+  >>> cadc = Cadc()
+  >>> coords = '01h45m07.5s +23d18m00s'
+  >>> radius = 0.1
+  >>> images = cadc.get_images(coords, radius, collection='CFHT')
+  >>> for image in images:
+  ...    print(image)
+
+    [<astropy.io.fits.hdu.image.PrimaryHDU object at 0x7fbf210e5080>, ..., <astropy.io.fits.hdu.image.ImageHDU object at 0x7fbf13f72cf8>]
+    [<astropy.io.fits.hdu.image.PrimaryHDU object at 0x7fbf2041a160>, ..., <astropy.io.fits.hdu.image.ImageHDU object at 0x7fbf0bb33c50>]
+    [<astropy.io.fits.hdu.image.PrimaryHDU object at 0x7fbf20079ef0>, ..., <astropy.io.fits.hdu.image.ImageHDU object at 0x7fbf09170668>]
+    [<astropy.io.fits.hdu.image.PrimaryHDU object at 0x7fbf13f91e48>, ..., <astropy.io.fits.hdu.image.ImageHDU object at 0x7fbf08b3cda0>]
+
+
+Alternatively, if the query result is large and data does not need to be
+in memory, lazy access to the downloaded FITS file can be used.
+
+.. code-block:: python
+
+  >>> from astroquery.cadc import Cadc
+  >>>
+  >>> cadc = Cadc()
+  >>> coords = '01h45m07.5s +23d18m00s'
+  >>> radius = 0.1
+  >>> readable_objs = cadc.get_images_async(coords, radius, collection='CFHT')
+  >>> for obj in readable_objs:
+  ...    print(obj)
+
+    Downloaded object from URL https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=ad%3ACFHT%2F2228689p.fits.fz&RUNID=pxzsggm04kdvps1l&POS=CIRCLE+26.2812589776878+23.299999818906816+0.1 with ID 140458871653208
+    Downloaded object from URL https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=ad%3ACFHT%2F2228383o.fits.fz&RUNID=pxzsggm04kdvps1l&POS=CIRCLE+26.2812589776878+23.299999818906816+0.1 with ID 140458270069200
+    Downloaded object from URL https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=ad%3ACFHT%2F2228383p.fits.fz&RUNID=pxzsggm04kdvps1l&POS=CIRCLE+26.2812589776878+23.299999818906816+0.1 with ID 140458270070600
+    Downloaded object from URL https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=ad%3ACFHT%2F2368279o.fits.fz&RUNID=pxzsggm04kdvps1l&POS=CIRCLE+26.2812589776878+23.299999818906816+0.1 with ID 140458270064368
+
+
+If the cutout urls from a complicated query are needed, the result table
+can be passed into the function, along with the cutout coordinates and radius.
+
+.. code-block:: python
+
+  >>> from astroquery.cadc import Cadc
+  >>>
+  >>> cadc = Cadc()
+  >>> coords = '01h45m07.5s +23d18m00s'
+  >>> radius = 0.1
+  >>> results = cadc.query_region(coords, radius, collection='CFHT')
+  >>> filtered_results = results[results['time_exposure'] > 120.0]
+  >>> image_list = cadc.get_image_list(filtered_results, coords, radius)
+  >>> print(image_list)
+    ['https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=ad%3ACFHT%2F2368279o.fits.fz&RUNID=z8zh87jsbp154wbq&POS=CIRCLE+26.2812589776878+23.299999818906816+0.1',
+    'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=ad%3ACFHT%2F2368278o.fits.fz&RUNID=z8zh87jsbp154wbq&POS=CIRCLE+26.2812589776878+23.299999818906816+0.1',
+    'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=ad%3ACFHT%2F2368279p.fits.fz&RUNID=z8zh87jsbp154wbq&POS=CIRCLE+26.2812589776878+23.299999818906816+0.1',
+    'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=ad%3ACFHT%2F2368278p.fits.fz&RUNID=z8zh87jsbp154wbq&POS=CIRCLE+26.2812589776878+23.299999818906816+0.1']
 
 
 Note that the examples above are for accessing data anonymously. Users with
@@ -401,7 +461,7 @@ Query without saving results in a file:
 
 .. code-block:: python
 
-  >>> from astroquery.cadc import cadc
+  >>> from astroquery.cadc import Cadc
   >>> cadc = Cadc()
   >>> job = cadc.create_async("SELECT TOP 100 observationID, instrument_name, target_name FROM caom2.Observation AS Observation")
   >>> job.run().wait()
