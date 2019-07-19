@@ -20,6 +20,7 @@ from ..query import BaseQuery
 from bs4 import BeautifulSoup
 from astropy.utils.exceptions import AstropyDeprecationWarning
 from astroquery.utils.decorators import deprecated
+from astropy import units as u
 from . import conf
 
 try:
@@ -194,7 +195,7 @@ class CadcClass(BaseQuery):
         pyvo.dal.tap.s = requests.Session()
 
     @class_or_instance
-    def query_region_async(self, coordinates, radius=0.016666666666667,
+    def query_region_async(self, coordinates, radius=0.016666666666667*u.deg,
                            collection=None,
                            get_query_payload=False):
         """
@@ -216,6 +217,11 @@ class CadcClass(BaseQuery):
             The HTTP response returned from the service.
             All async methods should return the raw HTTP response.
         """
+
+        if isinstance(radius, (int, float)):
+            warnings.warn('Radius should be of type str or '
+                          '`astropy.units.Quantity`')
+            radius = radius * u.deg
 
         request_payload = self._args_to_payload(coordinates=coordinates,
                                                 radius=radius,
@@ -399,9 +405,10 @@ class CadcClass(BaseQuery):
             raise AttributeError('Missing query_result argument')
 
         parsed_coordinates = commons.parse_coordinates(coordinates).fk5
+        radius_deg = commons.radius_to_unit(radius, unit='degree')
         ra = parsed_coordinates.ra.degree
         dec = parsed_coordinates.dec.degree
-        cutout_params = {'POS': 'CIRCLE {} {} {}'.format(ra, dec, radius)}
+        cutout_params = {'POS': 'CIRCLE {} {} {}'.format(ra, dec, radius_deg)}
 
         try:
             publisher_ids = query_result['publisherID']
@@ -699,7 +706,7 @@ class CadcClass(BaseQuery):
         # and force the coordinates to FK5 (assuming FK5/ICRS are
         # interchangeable) since RA/Dec are used below
         coordinates = commons.parse_coordinates(kwargs['coordinates']).fk5
-        radius = kwargs['radius']
+        radius_deg = commons.radius_to_unit(kwargs['radius'], unit='degree')
         payload = {format: 'VOTable'}
         payload['query'] = \
             "SELECT * from caom2.Observation o join caom2.Plane p " \
@@ -707,7 +714,7 @@ class CadcClass(BaseQuery):
             "WHERE INTERSECTS( " \
             "CIRCLE('ICRS', {}, {}, {}), position_bounds) = 1 AND " \
             "(quality_flag IS NULL OR quality_flag != 'junk')".\
-            format(coordinates.ra.degree, coordinates.dec.degree, radius)
+            format(coordinates.ra.degree, coordinates.dec.degree, radius_deg)
         if 'collection' in kwargs and kwargs['collection']:
             payload['query'] = "{} AND collection='{}'".\
                 format(payload['query'], kwargs['collection'])
