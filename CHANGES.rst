@@ -150,6 +150,8 @@ ukidss
 utils
 ^^^^^
 
+- Added timer functions. [#1508]
+
 vamdc
 ^^^^^
 
