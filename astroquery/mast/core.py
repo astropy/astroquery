@@ -2126,7 +2126,7 @@ class CatalogsClass(MastClass):
             params["filters"] =  mashup_filters
 
         # TIC and CTL need columns specified
-        if catalog.lower() in ("tic","ctl"):
+        if catalog.lower() in ("tic", "ctl"):
             params["columns"] = "*"
 
         if catalogs_service:
