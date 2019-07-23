@@ -36,6 +36,7 @@ try:
     PYTEST_HEADER_MODULES['pyregion'] = 'pyregion'
     del PYTEST_HEADER_MODULES['h5py']
     del PYTEST_HEADER_MODULES['Scipy']
+    del PYTEST_HEADER_MODULES['Pandas']
 except (NameError, KeyError):
     pass
 
@@ -46,8 +47,7 @@ except (NameError, KeyError):
 import astropy
 if int(astropy.__version__[0]) > 1:
     # The warnings_to_ignore_by_pyver parameter was added in astropy 2.0
-    enable_deprecations_as_exceptions(modules_to_ignore_on_import=['requests'])
-    enable_deprecations_as_exceptions(modules_to_ignore_on_import=['regions'])
+    enable_deprecations_as_exceptions(warnings_to_ignore_entire_module=['pyregion'])
 
 # add '_testrun' to the version name so that the user-agent indicates that
 # it's being run in a test
