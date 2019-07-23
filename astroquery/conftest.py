@@ -34,20 +34,18 @@ try:
     PYTEST_HEADER_MODULES['Astropy'] = 'astropy'
     PYTEST_HEADER_MODULES['APLpy'] = 'aplpy'
     PYTEST_HEADER_MODULES['pyregion'] = 'pyregion'
+    PYTEST_HEADER_MODULES['pyVO'] = 'pyvo'
+    # keyring doesn't provide __version__ any more
+    # PYTEST_HEADER_MODULES['keyring'] = 'keyring'
     del PYTEST_HEADER_MODULES['h5py']
     del PYTEST_HEADER_MODULES['Scipy']
     del PYTEST_HEADER_MODULES['Pandas']
 except (NameError, KeyError):
     pass
 
-# Uncomment the following line to treat all DeprecationWarnings as
-# exceptions
-#
-# The workaround can be removed once pyopenssl 1.7.20+ is out.
-import astropy
-if int(astropy.__version__[0]) > 1:
-    # The warnings_to_ignore_by_pyver parameter was added in astropy 2.0
-    enable_deprecations_as_exceptions(warnings_to_ignore_entire_module=['pyregion'])
+# ignoring pyvo can be removed once we require >0.9.3
+enable_deprecations_as_exceptions(warnings_to_ignore_entire_module=['pyregion'],
+                                  modules_to_ignore_on_import=['pyvo'])
 
 # add '_testrun' to the version name so that the user-agent indicates that
 # it's being run in a test
