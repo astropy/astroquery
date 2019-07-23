@@ -470,8 +470,7 @@ class AlmaClass(QueryWithLogin):
             if response.text == "":
                 raise RemoteServiceError("Empty return.")
             # this is a CSV-like table returned via a direct browser request
-            import pandas
-            table = Table.from_pandas(pandas.read_csv(StringIO(response.text)))
+            table = Table.read(response.text, format='ascii.csv', fast_reader=False)
 
         else:
             fixed_content = self._hack_bad_arraysize_vofix(response.content)
