@@ -149,6 +149,8 @@ mast
 
 - Add search by object name to Tesscut, make resolver_object public, minor bugfixes. [#1499]
 
+- Add option to query TESS Candidate Target List (CTL) Catalog. [#1503]
+
 mpc
 ^^^
 
