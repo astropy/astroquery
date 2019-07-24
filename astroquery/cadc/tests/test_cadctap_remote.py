@@ -12,7 +12,7 @@ from datetime import datetime
 from astropy.coordinates import SkyCoord
 from astropy.io import fits
 from astropy.tests.helper import remote_data
-
+from astropy import units as u
 
 from astroquery.cadc import Cadc
 from astropy.utils.exceptions import AstropyDeprecationWarning
@@ -84,7 +84,7 @@ class TestCadcClass:
         assert len(result) == len(result2[result2['collection'] == 'CFHT'])
 
         # search for a target
-        results = cadc.query_region(SkyCoord.from_name('M31'))
+        results = cadc.query_region(SkyCoord.from_name('M31'), radius=0.016)
         assert len(results) > 20
 
     @pytest.mark.skipif(one_test, reason='One test mode')
@@ -164,7 +164,7 @@ class TestCadcClass:
     def test_get_images(self):
         cadc = Cadc()
         coords = '08h45m07.5s +54d18m00s'
-        radius = 0.05
+        radius = 0.005*u.deg
         images = cadc.get_images(coords, radius, collection='CFHT')
         assert images is not None
 
@@ -177,7 +177,7 @@ class TestCadcClass:
     def test_get_images_against_AS(self):
         cadc = Cadc()
         coords = '08h45m07.5s +54d18m00s'
-        radius = 0.05
+        radius = 0.05*u.deg
 
         # Compare results from cadc advanced search to get_images
         query = cadc._args_to_payload(**{'coordinates': coords,
@@ -189,7 +189,8 @@ class TestCadcClass:
         icrs_coords = parse_coordinates(coords).icrs
         data = {'uris': ' '.join(uri_list),
                 'params': 'cutout=Circle ICRS {} {} {}'.
-                format(icrs_coords.ra.degree, icrs_coords.dec.degree, radius),
+                format(icrs_coords.ra.degree, icrs_coords.dec.degree,
+                       radius.value),
                 'method': 'URL List'
                 }
 
@@ -209,7 +210,7 @@ class TestCadcClass:
     def test_get_images_async(self):
         cadc = Cadc()
         coords = '01h45m07.5s +23d18m00s'
-        radius = 0.05
+        radius = '0.05 deg'
         readable_objs = cadc.get_images_async(coords, radius, collection="CFHT")
         assert readable_objs is not None
         for obj in readable_objs:

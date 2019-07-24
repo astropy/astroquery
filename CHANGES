@@ -22,6 +22,8 @@ cadc
 
 - Module added to access data at the Canadian Astronomy Data Centre. [#1354]
 
+- Bugfix for radius parsing. [#1507]
+
 esa
 ^^^
 

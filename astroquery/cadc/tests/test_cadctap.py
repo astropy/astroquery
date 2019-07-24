@@ -15,6 +15,7 @@ from astropy.io.votable import parse
 from six import BytesIO
 from six.moves.urllib_parse import urlsplit, parse_qs
 from astroquery.utils.commons import parse_coordinates, FileContainer
+from astropy import units as u
 from astropy.utils.exceptions import AstropyDeprecationWarning
 import pytest
 import tempfile
@@ -261,7 +262,8 @@ def test_misc():
            "AND collection='CFHT' AND dataProductType='image'".\
            format(coords_ra, coords_dec) == \
            cadc._args_to_payload(**{'coordinates': coords,
-                                    'radius': 0.3, 'collection': 'CFHT',
+                                    'radius': 0.3 * u.deg, 'collection':
+                                        'CFHT',
                                     'data_product_type': 'image'})['query']
 
     # no collection or data_product_type
@@ -270,7 +272,7 @@ def test_misc():
            "{}, {}, 0.3), position_bounds) = 1 AND (quality_flag IS NULL OR " \
            "quality_flag != 'junk')".format(coords_ra, coords_dec) ==  \
            cadc._args_to_payload(**{'coordinates': coords,
-                                 'radius': 0.3})['query']
+                                 'radius': '0.3 deg'})['query']
 
 
 @patch('astroquery.cadc.core.get_access_url',
@@ -295,11 +297,11 @@ def test_get_image_list():
     coords = '08h45m07.5s +54d18m00s'
     coords_ra = parse_coordinates(coords).fk5.ra.degree
     coords_dec = parse_coordinates(coords).fk5.dec.degree
-    radius = 10
+    radius = 0.1*u.deg
 
     uri = 'im_an_ID'
     run_id = 'im_a_RUNID'
-    pos = 'CIRCLE {} {} {}'.format(coords_ra, coords_dec, radius)
+    pos = 'CIRCLE {} {} {}'.format(coords_ra, coords_dec, radius.value)
 
     service_def1 = Mock()
     service_def1.access_url = \
@@ -337,7 +339,9 @@ def test_get_image_list():
         cadc.get_image_list(None)
     with pytest.raises(AttributeError):
         cadc.get_image_list(None, coords, radius)
-
+    with pytest.raises(TypeError):
+        cadc.get_image_list({'publisherID': [
+            'ivo://cadc.nrc.ca/foo']}, coords, 0.1)
 
 @patch('astroquery.cadc.core.get_access_url',
        Mock(side_effect=lambda x, y=None: 'https://some.url'))
@@ -388,11 +392,11 @@ def test_get_images():
         t.return_value = open(data_path('query_images.fits'), 'rb')
 
         cadc = Cadc()
-        fits_images = cadc.get_images('08h45m07.5s +54d18m00s', 0.01,
+        fits_images = cadc.get_images('08h45m07.5s +54d18m00s', 0.01*u.deg,
                                       get_url_list=True)
         assert fits_images == ['https://some.url']
 
-        fits_images = cadc.get_images('08h45m07.5s +54d18m00s', 0.01)
+        fits_images = cadc.get_images('08h45m07.5s +54d18m00s', '0.01 deg')
         assert fits_images is not None
         assert isinstance(fits_images[0], HDUList)
 
@@ -406,10 +410,12 @@ def test_get_images_async():
         t.return_value = open(data_path('query_images.fits'), 'rb')
 
     cadc = Cadc()
-    readable_objs = cadc.get_images_async('08h45m07.5s +54d18m00s', 0.01,
+    readable_objs = cadc.get_images_async('08h45m07.5s +54d18m00s',
+                                          0.01*u.arcmin,
                                           get_url_list=True)
     assert readable_objs == ['https://some.url']
 
-    readable_objs = cadc.get_images_async('08h45m07.5s +54d18m00s', 0.01)
+    readable_objs = cadc.get_images_async('08h45m07.5s +54d18m00s',
+                                          '0.01 arcsec')
     assert readable_objs is not None
     assert isinstance(readable_objs[0], FileContainer)
