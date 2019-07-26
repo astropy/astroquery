@@ -348,8 +348,13 @@ flag when filtering the observations.
 
 .. code-block:: python
 
-                >>> from astroquery.mast import Observations
+                >>> import os
                 >>> import boto3
+                >>> from astroquery.mast import Observations
+
+                >>> # Need to set credentials as environment variables too.
+                >>> os.environ['AWS_ACCESS_KEY_ID'] = 'myaccesskeyid'
+                >>> os.environ['AWS_SECRET_ACCESS_KEY'] = 'mysecretaccesskey'
 
                 >>> obs_table = Observations.query_criteria(obs_collection='HST',
                 ...                                         filters='F160W',
