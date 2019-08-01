@@ -1,6 +1,7 @@
-# We set the language to minimal because the language ends up being
-# irrelevant anyway, since we install Python ourselves using conda.
-language: minimal
+# We set the language to c because the language ends up being
+# irrelevant anyway and windows has a very limited support.
+# Anyhow, we install Python ourselves using conda.
+language: c
 
 os:
     - linux
