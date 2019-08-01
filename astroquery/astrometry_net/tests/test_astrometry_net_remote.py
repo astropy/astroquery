@@ -14,7 +14,15 @@ from astropy.table import Table
 from astropy.io import fits
 
 from .. import conf, AstrometryNet
+from ..core import _HAVE_SOURCE_DETECTION
 from ...exceptions import TimeoutError
+
+try:
+    import scipy
+except ModuleNotFoundError:
+    HAVE_SCIPY = False
+else:
+    HAVE_SCIPY = True
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 
@@ -73,7 +81,7 @@ def test_solve_image_upload():
 @pytest.mark.skipif(not api_key, reason='API key not set.')
 @remote_data
 def test_solve_image_upload_expected_failure():
-    # Test that s solve failure is returned as expected
+    # Test that a solve failure is returned as expected
     a = AstrometryNet()
     a.api_key = api_key
     image = os.path.join(DATA_DIR, 'thumbnail-image.fit.gz')
@@ -86,6 +94,10 @@ def test_solve_image_upload_expected_failure():
 
 
 @pytest.mark.skipif(not api_key, reason='API key not set.')
+@pytest.mark.skipif(not _HAVE_SOURCE_DETECTION,
+                    reason='photutils not installed')
+@pytest.mark.skipif(not HAVE_SCIPY,
+                    reason='no scipy, which photutils needs')
 @remote_data
 def test_solve_image_detect_source_local():
     # Test that solving by uploading an image works
