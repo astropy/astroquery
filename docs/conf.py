@@ -74,10 +74,10 @@ rst_epilog += """
 del intersphinx_mapping['scipy']
 del intersphinx_mapping['h5py']
 intersphinx_mapping.update({
-    'astropy': ('http://docs.astropy.org/en/latest/', None),
-    'requests': ('http://docs.python-requests.org/en/latest/', None),
-    'pyregion': ('http://pyregion.readthedocs.io/en/latest/', None),
-    'regions': ('http://astropy-regions.readthedocs.io/en/latest/', None),
+    'astropy': ('http://docs.astropy.org/en/stable/', None),
+    'requests': ('http://docs.python-requests.org/en/stable/', None),
+    'pyregion': ('http://pyregion.readthedocs.io/en/stable/', None),
+    'regions': ('http://astropy-regions.readthedocs.io/en/stable/', None),
     'mocpy': ('https://mocpy.readthedocs.io/en/latest/', None),
 })
 
