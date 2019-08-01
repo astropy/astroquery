@@ -23,6 +23,7 @@ stages:
    - name: Cron tests
      if: type = cron
    - name: Tests with other Python/Numpy versions
+   - name: Windows test
    - name: Deploy
      if: ((branch = master) AND type != pull_request AND type != cron)
    - name: Remote data tests
@@ -129,6 +130,11 @@ matrix:
         - os: linux
           env: MAIN_CMD='pycodestyle astroquery --count'
                SETUP_CMD='' EVENT_TYPE='push pull_request'
+
+        # Do the windows test at the end as installing takes a long time
+        - os: windows
+          stage: Windows test
+          env: PYTHON_VERSION=3.7 SETUP_CMD='test'
 
         - stage: Deploy
           git:
