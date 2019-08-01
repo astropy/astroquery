@@ -104,8 +104,8 @@ class TestConeSearch(object):
         with pytest.raises(VOSError) as e:
             conesearch.conesearch(
                 SCS_CENTER, SCS_RADIUS, pedantic=self.pedantic, cache=False,
-                verbose=self.verbose, catalog_db=self.url, timeout=0.0001)
-        assert 'timed out' in str(e), 'test_timeout failed'
+                verbose=self.verbose, catalog_db=self.url, timeout=1e-6)
+        assert 'timed out' in str(e.value), 'test_timeout failed'
 
     def test_searches(self):
         tab_2 = conesearch.conesearch(
