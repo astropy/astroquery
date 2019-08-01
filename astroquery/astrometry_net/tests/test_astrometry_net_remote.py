@@ -19,7 +19,7 @@ from ...exceptions import TimeoutError
 
 try:
     import scipy
-except ModuleNotFoundError:
+except ImportError:
     HAVE_SCIPY = False
 else:
     HAVE_SCIPY = True
