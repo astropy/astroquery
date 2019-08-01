@@ -48,6 +48,8 @@ env:
         - CONDA_CHANNELS='astropy'
         - EVENT_TYPE='pull_request push'
         - DEBUG=True
+        # astrometry.net API key
+        - secure: "al9u/QSQfrwNljdu8gYUaT9z4BxEL1FlE4ntsn6eqtN2Y0rurqll+gq46quYjtE6zgcpb0uYtGIubusJkp7ceE6IBGhQdsel4UY16VIqeEuQ3GpVDb4RiJgU51SAjbmXYV1dMAJnOm4Ra41WzxokStKRDdoRraAsae9zK3H6AnI="
 
     matrix:
         - PYTHON_VERSION=2.7 SETUP_CMD='egg_info'
