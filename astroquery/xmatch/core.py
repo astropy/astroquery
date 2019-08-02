@@ -16,7 +16,8 @@ class XMatchClass(BaseQuery):
     TIMEOUT = conf.timeout
 
     def query(self, cat1, cat2, max_distance, colRA1=None, colDec1=None,
-              colRA2=None, colDec2=None, cache=True, get_query_payload=False):
+              colRA2=None, colDec2=None, cache=True, get_query_payload=False,
+              **kwargs):
         """
         Query the `CDS cross-match service
         <http://cdsxmatch.u-strasbg.fr/xmatch>`_ by finding matches between
@@ -57,7 +58,7 @@ class XMatchClass(BaseQuery):
         """
         response = self.query_async(cat1, cat2, max_distance, colRA1, colDec1,
                                     colRA2, colDec2, cache=cache,
-                                    get_query_payload=get_query_payload)
+                                    get_query_payload=get_query_payload, **kwargs)
         if get_query_payload:
             return response
         return self._parse_text(response.text)
@@ -65,7 +66,7 @@ class XMatchClass(BaseQuery):
     @prepend_docstr_nosections("\n" + query.__doc__)
     def query_async(self, cat1, cat2, max_distance, colRA1=None, colDec1=None,
                     colRA2=None, colDec2=None, cache=True,
-                    get_query_payload=False):
+                    get_query_payload=False, **kwargs):
         """
         Returns
         -------
@@ -79,6 +80,7 @@ class XMatchClass(BaseQuery):
             'request': 'xmatch',
             'distMaxArcsec': max_distance.to(arcsec).value,
             'RESPONSEFORMAT': 'csv',
+            **kwargs
         }
         kwargs = {}
 
