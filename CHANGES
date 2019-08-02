@@ -17,6 +17,11 @@ cadc
 New Tools and Services
 ----------------------
 
+astrometry_net
+^^^^^^^^^^^^^^
+
+- Module added to interface to astrometry.net plate-solving service. [#1163]
+
 cadc
 ^^^^
 
@@ -34,6 +39,7 @@ gaia
 
 - Added tables sharing, tables edition, upload from pytable and job results,
   cross match, data access and datalink access. [#1266]
+
 
 
 
@@ -264,7 +270,7 @@ Infrastructure, Utility and Other Changes and Additions
 - New tool ``JPLSDB``: New module for querying JPL's Small Body Database
   Browser [#1214]
 
-- ATOMIC: fix several bugs for using Quantited for the range parameters.
+- ATOMIC: fix several bugs for using Quantities for the range parameters.
   [#1187]
 - CADC: added the get_collections method. [#1482]
 - ESASKY: get_maps() accepts dict or list of (name, Table) pairs as input
@@ -288,7 +294,7 @@ Infrastructure, Utility and Other Changes and Additions
 - MAST: Add functionality for switching to auth.mast when it goes live [#1256]
 - MAST: Support downloading data from multiple missions from the cloud [#1275]
 - MAST: Updating HSC and Gaia catalog calls (bugfix) [#1203]
-- MAST: Fixing bug in catalog criteria querues, and updating remote tests.
+- MAST: Fixing bug in catalog criteria queries, and updating remote tests.
   [#1223]
 - MAST: Fixing mrp_only but and changing default to False [#1238]
 - MAST: TESS input catalog bugfix [#1297]
@@ -311,6 +317,7 @@ Infrastructure, Utility and Other Changes and Additions
 - JPLHorizons: fix for missing H, G values [#1332]
 - JPLHorizons: warn if URI is longer than 2000 chars, docs updated
 - JPLSBDB: fix for missing value, test added
+
 
 0.3.8 (2018-04-27)
 ------------------

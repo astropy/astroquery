@@ -118,7 +118,7 @@ required_packages = ['astropy>=2.0', 'requests>=2.4.3', 'keyring>=4.0',
                      'beautifulsoup4>=4.3.2', 'html5lib>=0.999', 'six']
 
 extras_require = {
-    'test': ['pytest-astropy']
+    'test': ['pytest-astropy', 'photutils', 'scipy']
 }
 
 setup(name=PACKAGENAME,

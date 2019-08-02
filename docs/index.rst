@@ -315,14 +315,15 @@ above categories. Those services are here:
 
 .. toctree::
   :maxdepth: 1
-  
+
   nasa_ads/nasa_ads.rst
   utils/tap.rst
   jplhorizons/jplhorizons.rst
   jplsbdb/jplsbdb.rst
   jplspec/jplspec.rst
   imcce/imcce.rst
-  
+  astrometry_net/astrometry_net.rst
+
 
 Topical Collections
 ===================
