@@ -5,6 +5,7 @@ import six
 from six import BytesIO
 from six.moves import urllib
 
+import warnings
 from numbers import Number
 
 from astropy import units as u
@@ -12,8 +13,9 @@ from astropy.coordinates import (BaseCoordinateFrame, ICRS, SkyCoord,
                                  Longitude, Latitude)
 from astropy.io.votable import table
 
-from .exceptions import ConeSearchError, InvalidAccessURL
+from .exceptions import VOSError, ConeSearchError, InvalidAccessURL
 from .vos_catalog import vo_tab_parse
+from ..exceptions import NoResultsWarning
 from ..query import BaseQuery
 from ..utils import commons
 
@@ -170,7 +172,12 @@ class ConeSearchClass(BaseQuery):
         # Parse the result
         tab = table.parse(BytesIO(response.content), filename=parsed_url,
                           pedantic=self.PEDANTIC)
-        return vo_tab_parse(tab, self.URL, pars)
+        try:
+            result = vo_tab_parse(tab, self.URL, pars)
+        except VOSError as exc:
+            result = None
+            warnings.warn(str(exc), NoResultsWarning)
+        return result
 
 
 def _validate_coord(coordinates):

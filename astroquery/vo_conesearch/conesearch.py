@@ -24,7 +24,8 @@ from astropy.utils.exceptions import AstropyUserWarning
 from . import vos_catalog
 from .vo_async import AsyncBase
 from .core import ConeSearchClass, _validate_sr
-from .exceptions import ConeSearchError, VOSError
+from .exceptions import ConeSearchError
+from ..exceptions import NoResultsWarning
 from ..utils.timer import timefunc, RunTimePredictor
 
 # Import configurable items declared in __init__.py
@@ -248,7 +249,7 @@ def conesearch(center, radius, verb=1, catalog_db=None, pedantic=None,
         err_msg = 'None of the available catalogs returned valid results.'
         if n_timed_out > 0:
             err_msg += ' ({0} URL(s) timed out.)'.format(n_timed_out)
-        raise VOSError(err_msg)
+        warnings.warn(err_msg, NoResultsWarning)
 
     return result
 

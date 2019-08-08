@@ -20,8 +20,9 @@ from astropy.utils import data
 
 # LOCAL
 from .. import conf, conesearch, vos_catalog
-from ..core import _validate_coord
+from ..core import _validate_coord, ConeSearch
 from ..exceptions import VOSError, ConeSearchError
+from ...exceptions import NoResultsWarning
 
 __doctest_skip__ = ['*']
 
@@ -54,6 +55,9 @@ class TestConeSearch(object):
                     '-source=I/252/out&')
         self.catname = 'USNO-A2'
 
+        # Ensure consistent result for astroquery API
+        ConeSearch.URL = self.url
+
         # Avoid downloading the full database
         conf.conesearch_dbname = 'conesearch_simple'
 
@@ -69,26 +73,39 @@ class TestConeSearch(object):
         assert (conesearch.list_catalogs(pattern='usno*a') ==
                 ['USNO ACT', 'USNO NOMAD', 'USNO-A2'])
 
-    def test_no_result(self):
-        with pytest.raises(VOSError):
-            conesearch.conesearch(
+    def test_no_result_classic(self):
+        with pytest.warns(
+                NoResultsWarning,
+                match='None of the available catalogs returned valid results'):
+            result = conesearch.conesearch(
                 SCS_CENTER, 0.001, catalog_db=self.url,
                 pedantic=self.pedantic, verbose=self.verbose)
+        assert result is None
+
+    def test_no_result_astroquery(self):
+        with pytest.warns(NoResultsWarning, match='returned 0 result'):
+            result = ConeSearch.query_region(
+                SCS_CENTER, '0.001 deg', verbose=self.verbose)
+        assert result is None
 
     @pytest.mark.parametrize(('center', 'radius'),
                              [((SCS_RA, SCS_DEC), SCS_SR),
                               (SCS_CENTER, SCS_RADIUS)])
-    def test_one_search(self, center, radius):
+    def test_one_search_classic(self, center, radius):
         """
         This does not necessarily uses ``self.url`` because of
         unordered dict in JSON tree.
         """
         tab_1 = conesearch.conesearch(
             center, radius, pedantic=None, verbose=self.verbose)
-
         assert tab_1.array.size > 0
 
-    def test_sky_coord(self):
+    def test_one_search_astroquery(self):
+        tab_1 = ConeSearch.query_region(
+            SCS_CENTER, SCS_RADIUS, verbose=self.verbose)
+        assert tab_1.array.size > 0
+
+    def test_sky_coord_classic(self):
         """
         Check that searching with a SkyCoord works too.
         """
@@ -99,15 +116,15 @@ class TestConeSearch(object):
 
         assert tab.array.size > 0
 
-    def test_timeout(self):
-        """Test time out error."""
-        with pytest.raises(VOSError) as e:
-            conesearch.conesearch(
+    def test_timeout_classic(self):
+        """Test timed out query."""
+        with pytest.warns(NoResultsWarning, match='timed out'):
+            result = conesearch.conesearch(
                 SCS_CENTER, SCS_RADIUS, pedantic=self.pedantic, cache=False,
                 verbose=self.verbose, catalog_db=self.url, timeout=1e-6)
-        assert 'timed out' in str(e.value), 'test_timeout failed'
+        assert result is None
 
-    def test_searches(self):
+    def test_searches_classic(self):
         tab_2 = conesearch.conesearch(
             SCS_CENTER, SCS_RADIUS, catalog_db=self.url,
             pedantic=self.pedantic, verbose=self.verbose)
@@ -239,10 +256,9 @@ class TestErrorResponse(object):
                          'see astropy.io.votable.exceptions.W22')
 
         url = get_pkg_data_filename(os.path.join(self.datadir, xmlfile))
-        try:
+        with pytest.raises(VOSError) as excinfo:
             vos_catalog._vo_service_request(url, self.pedantic, {})
-        except VOSError as e:
-            assert msg in str(e)
+        assert msg in str(excinfo.value)
 
     @pytest.mark.parametrize(('id'), [1, 2, 3, 4])
     def test_conesearch_response(self, id):
