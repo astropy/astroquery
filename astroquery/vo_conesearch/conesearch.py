@@ -23,7 +23,7 @@ from astropy.utils.exceptions import AstropyUserWarning
 # LOCAL
 from . import vos_catalog
 from .vo_async import AsyncBase
-from .core import ConeSearchClass, _validate_sr
+from .core import ConeSearch, _validate_sr
 from .exceptions import ConeSearchError
 from ..exceptions import NoResultsWarning
 from ..utils.timer import timefunc, RunTimePredictor
@@ -88,12 +88,24 @@ class AsyncConeSearch(AsyncBase):
         super(AsyncConeSearch, self).__init__(conesearch, *args, **kwargs)
 
 
-def conesearch(center, radius, verb=1, catalog_db=None, pedantic=None,
-               verbose=True, cache=True, timeout=None, query_all=False,
+def conesearch(center, radius, verb=1, catalog_db=None,
+               verbose=True, cache=True, query_all=False,
                return_astropy_table=True, use_names_over_ids=False):
     """
     Perform Cone Search and returns the result of the
     first successful query.
+
+    .. note::
+
+        Use ``astroquery.vo_conesearch.conf.pedantic`` to control
+        pedantry. When `True`, will raise an error when the result
+        violates the spec, otherwise issue a warning. Warnings may
+        be controlled using :py:mod:`warnings` module.
+
+    .. note::
+
+        Use ``astroquery.vo_conesearch.conf.timeout`` to control
+        timeout limit in seconds for each service being queried.
 
     Parameters
     ----------
@@ -159,13 +171,6 @@ def conesearch(center, radius, verb=1, catalog_db=None, pedantic=None,
             - Any of the above 3 options combined in a list, in which case
               they are tried in order.
 
-    pedantic : bool or `None`
-        When `True`, raise an error when the result violates the spec,
-        otherwise issue a warning. Warnings may be controlled using
-        :py:mod:`warnings` module. When not provided, uses the
-        configuration setting ``astroquery.vo_conesearch.conf.pedantic``,
-        which defaults to `False`.
-
     verbose : bool
         Verbose output.
 
@@ -173,10 +178,6 @@ def conesearch(center, radius, verb=1, catalog_db=None, pedantic=None,
         Use caching for VO Service database. Access to actual VO
         websites referenced by the database still needs internet
         connection.
-
-    timeout : number or `None`
-        Timeout limit in seconds for each service being queries.
-        If `None`, use default.
 
     query_all : bool
         This is used by :func:`search_all`.
@@ -207,10 +208,6 @@ def conesearch(center, radius, verb=1, catalog_db=None, pedantic=None,
         If VO service request fails.
 
     """
-    # Not using default ConeSearch instance because the attributes are
-    # tweaked to match user inputs to this function.
-    cs = ConeSearchClass()
-
     n_timed_out = 0
     service_type = conf.conesearch_dbname
     catalogs = vos_catalog._get_catalogs(
@@ -219,11 +216,6 @@ def conesearch(center, radius, verb=1, catalog_db=None, pedantic=None,
         result = {}
     else:
         result = None
-
-    if pedantic is not None:
-        cs.PEDANTIC = pedantic
-    if timeout is not None:
-        cs.TIMEOUT = timeout
 
     for name, catalog in catalogs:
         if isinstance(catalog, six.string_types):
@@ -237,33 +229,30 @@ def conesearch(center, radius, verb=1, catalog_db=None, pedantic=None,
         else:
             url = catalog['url']
 
-        cs.URL = url
-
         if verbose:  # pragma: no cover
             color_print('Trying {0}'.format(url), 'green')
 
         try:
-            r = cs.query_region(center, radius, verb=verb, cache=cache,
-                                verbose=verbose,
-                                return_astropy_table=return_astropy_table,
-                                use_names_over_ids=use_names_over_ids)
-
+            r = ConeSearch.query_region(
+                center, radius, verb=verb, cache=cache, verbose=verbose,
+                service_url=url, return_astropy_table=return_astropy_table,
+                use_names_over_ids=use_names_over_ids)
         except Exception as e:
             err_msg = str(e)
             vo_warn(W25, (url, err_msg))
             if not query_all and 'ConnectTimeoutError' in err_msg:
                 n_timed_out += 1
         else:
-            if query_all:
-                result[r.url] = r
-            else:
-                result = r
-                break
+            if r is not None:
+                if query_all:
+                    result[r.url] = r
+                else:
+                    result = r
+                    break
 
-    if result is None:
-        err_msg = 'None of the available catalogs returned valid results.'
-        if n_timed_out > 0:
-            err_msg += ' ({0} URL(s) timed out.)'.format(n_timed_out)
+    if result is None and n_timed_out > 0:
+        err_msg = ('None of the available catalogs returned valid results.'
+                   ' ({0} URL(s) timed out.)'.format(n_timed_out))
         warnings.warn(err_msg, NoResultsWarning)
 
     return result
@@ -453,6 +442,7 @@ def predict_search(url, *args, **kwargs):
     if len(args) != 2:  # pragma: no cover
         raise ConeSearchError('conesearch must have exactly 2 arguments')
 
+    kwargs['service_url'] = url
     kwargs['return_astropy_table'] = False
     plot = kwargs.pop('plot', False)
     center, radius = args
@@ -462,10 +452,7 @@ def predict_search(url, *args, **kwargs):
 
     # Not using default ConeSearch instance because the attributes are
     # tweaked to match user inputs to this function.
-    cs = ConeSearchClass()
-    cs.URL = url
-    cs.PEDANTIC = kwargs.pop('pedantic', conf.pedantic)
-    cs_pred = RunTimePredictor(cs.query_region, center, **kwargs)
+    cs_pred = RunTimePredictor(ConeSearch.query_region, center, **kwargs)
 
     # Search properties for timer extrapolation
     num_datapoints = 10  # Number of desired data points for extrapolation
@@ -485,10 +472,10 @@ def predict_search(url, *args, **kwargs):
         warnings.warn(
             'Estimated runtime ({0} s) is non-physical with slope of '
             '{1}'.format(t_est, t_coeffs[1]), AstropyUserWarning)
-    elif t_est > cs.TIMEOUT:  # pragma: no cover
+    elif t_est > conf.timeout:  # pragma: no cover
         warnings.warn(
             'Estimated runtime is longer than timeout of '
-            '{0} s'.format(cs.TIMEOUT), AstropyUserWarning)
+            '{0} s'.format(conf.timeout), AstropyUserWarning)
 
     # Predict number of objects
     sr_arr = sorted(cs_pred.results)  # Orig with floating point error

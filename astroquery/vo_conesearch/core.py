@@ -50,14 +50,8 @@ class ConeSearchClass(BaseQuery):
     23323175812948 00424403+4116069 ... 6453800072297      --
     23323175812930 00424403+4116108 ... 6453800072279      --
     """
-    TIMEOUT = conf.timeout
-    URL = conf.fallback_url
-    PEDANTIC = conf.pedantic
 
     def __init__(self):
-        if not self.URL.endswith(('?', '&')):
-            raise InvalidAccessURL("URL should end with '?' or '&'")
-
         super(ConeSearchClass, self).__init__()
 
     def query_region_async(self, *args, **kwargs):
@@ -70,7 +64,8 @@ class ConeSearchClass(BaseQuery):
 
     def query_region(self, coordinates, radius, verb=1,
                      get_query_payload=False, cache=True, verbose=False,
-                     return_astropy_table=True, use_names_over_ids=False):
+                     service_url=None, return_astropy_table=True,
+                     use_names_over_ids=False):
         """
         Perform Cone Search and returns the result of the
         first successful query.
@@ -123,6 +118,10 @@ class ConeSearchClass(BaseQuery):
         verbose : bool, optional
             Verbose output, including VO table warnings.
 
+        service_url : str or `None`
+            URL for the Cone Search service. If not given, will use
+            ``fallback_url`` from ``vo_conesearch`` configuration.
+
         return_astropy_table : bool
             Returned ``result`` will be `astropy.table.Table` rather
             than `astropy.io.votable.tree.Table`.
@@ -146,15 +145,10 @@ class ConeSearchClass(BaseQuery):
         if get_query_payload:
             return request_payload
 
-        # && in URL can break some queries, so remove trailing & if needed
-        if self.URL.endswith('&'):
-            url = self.URL[:-1]
-        else:
-            url = self.URL
-
+        url = _validate_url(service_url)
         response = self._request('GET', url, params=request_payload,
-                                 timeout=self.TIMEOUT, cache=cache)
-        result = self._parse_result(response, pars=request_payload,
+                                 timeout=conf.timeout, cache=cache)
+        result = self._parse_result(response, url, pars=request_payload,
                                     verbose=verbose)
 
         # Convert to an astropy.table.Table object
@@ -174,7 +168,7 @@ class ConeSearchClass(BaseQuery):
         v = _validate_verb(verb)
         return {'RA': ra, 'DEC': dec, 'SR': sr, 'VERB': v}
 
-    def _parse_result(self, response, pars={}, verbose=False):
+    def _parse_result(self, response, url, pars={}, verbose=False):
         """
         Parse the raw HTTP response and return it as a table.
         """
@@ -186,17 +180,34 @@ class ConeSearchClass(BaseQuery):
         for key, value in six.iteritems(pars):
             query.append('{0}={1}'.format(urllib.parse.quote(key),
                                           urllib.parse.quote_plus(str(value))))
-        parsed_url = self.URL + '&'.join(query)
+        parsed_url = url + '&'.join(query)
 
         # Parse the result
         tab = table.parse(BytesIO(response.content), filename=parsed_url,
-                          pedantic=self.PEDANTIC)
+                          pedantic=conf.pedantic)
         try:
-            result = vo_tab_parse(tab, self.URL, pars)
+            result = vo_tab_parse(tab, url, pars)
         except VOSError as exc:
             result = None
             warnings.warn(str(exc), NoResultsWarning)
         return result
+
+
+def _validate_url(url):
+    """Validate Cone Search service URL."""
+    if url is None:
+        url = conf.fallback_url
+
+    # This is the standard expectation of a service URL
+    if not url.endswith(('?', '&')):
+        raise InvalidAccessURL("URL should end with '?' or '&'")
+
+    # && in URL can break some queries, so remove trailing & if needed
+    # as & will be added back later
+    if url.endswith('&'):
+        url = url[:-1]
+
+    return url
 
 
 def _validate_coord(coordinates):
