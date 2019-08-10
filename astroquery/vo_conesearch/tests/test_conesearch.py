@@ -14,6 +14,8 @@ import pytest
 # ASTROPY
 from astropy import units as u
 from astropy.coordinates import ICRS, SkyCoord
+from astropy.io.votable.tree import Table as VOTable
+from astropy.table import Table
 from astropy.tests.helper import remote_data
 from astropy.utils.data import get_pkg_data_filename
 from astropy.utils import data
@@ -97,13 +99,18 @@ class TestConeSearch(object):
         unordered dict in JSON tree.
         """
         tab_1 = conesearch.conesearch(
-            center, radius, pedantic=None, verbose=self.verbose)
+            center, radius, pedantic=None, verbose=self.verbose,
+            return_astropy_table=False)
+        assert isinstance(tab_1, VOTable)
+        assert hasattr(tab_1, 'url')
         assert tab_1.array.size > 0
 
     def test_one_search_astroquery(self):
         tab_1 = ConeSearch.query_region(
             SCS_CENTER, SCS_RADIUS, verbose=self.verbose)
-        assert tab_1.array.size > 0
+        assert isinstance(tab_1, Table)
+        assert hasattr(tab_1, 'url')
+        assert len(tab_1) > 0
 
     def test_sky_coord_classic(self):
         """
@@ -113,8 +120,7 @@ class TestConeSearch(object):
         tab = conesearch.conesearch(
             sc_cen, SCS_RADIUS, catalog_db=self.url,
             pedantic=self.pedantic, verbose=self.verbose)
-
-        assert tab.array.size > 0
+        assert len(tab) > 0
 
     def test_timeout_classic(self):
         """Test timed out query."""
@@ -127,27 +133,27 @@ class TestConeSearch(object):
     def test_searches_classic(self):
         tab_2 = conesearch.conesearch(
             SCS_CENTER, SCS_RADIUS, catalog_db=self.url,
-            pedantic=self.pedantic, verbose=self.verbose)
+            pedantic=self.pedantic, verbose=self.verbose,
+            return_astropy_table=False)
 
         tab_3 = conesearch.conesearch(
             SCS_CENTER, SCS_RADIUS,
             catalog_db=[self.catname, self.url],
-            pedantic=self.pedantic, verbose=self.verbose)
+            pedantic=self.pedantic, verbose=self.verbose,
+            return_astropy_table=False)
 
         tab_4 = conesearch.conesearch(
             SCS_CENTER, SCS_RADIUS,
             catalog_db=vos_catalog.get_remote_catalog_db(
                 conf.conesearch_dbname),
-            pedantic=self.pedantic, verbose=self.verbose)
+            pedantic=self.pedantic, verbose=self.verbose,
+            return_astropy_table=False)
 
         assert tab_2.url == tab_3.url
         np.testing.assert_array_equal(tab_2.array, tab_3.array)
 
-        # If this fails, it is because of dict hashing, no big deal.
-        if tab_2.url == tab_4.url:
-            np.testing.assert_array_equal(tab_2.array, tab_4.array)
-        else:
-            pytest.xfail('conesearch_simple.json used a different URL')
+        assert tab_2.url == tab_4.url
+        np.testing.assert_array_equal(tab_2.array, tab_4.array)
 
     @pytest.mark.parametrize(('center', 'radius'),
                              [((SCS_RA, SCS_DEC), SCS_SR),
@@ -155,7 +161,8 @@ class TestConeSearch(object):
     def test_search_all(self, center, radius):
         all_results = conesearch.search_all(
             center, radius, catalog_db=['BROKEN', self.url],
-            pedantic=self.pedantic, verbose=self.verbose)
+            pedantic=self.pedantic, verbose=self.verbose,
+            return_astropy_table=False)
 
         assert len(all_results) == 1
 
@@ -165,7 +172,8 @@ class TestConeSearch(object):
 
     def test_async(self):
         async_search = conesearch.AsyncConeSearch(
-            SCS_CENTER, SCS_RADIUS, pedantic=self.pedantic)
+            SCS_CENTER, SCS_RADIUS, pedantic=self.pedantic,
+            return_astropy_table=False)
 
         # Wait a little for the instance to set up properly
         time.sleep(1)
@@ -181,7 +189,8 @@ class TestConeSearch(object):
 
     def test_async_all(self):
         async_search_all = conesearch.AsyncSearchAll(
-            SCS_CENTER, SCS_RADIUS, pedantic=self.pedantic)
+            SCS_CENTER, SCS_RADIUS, pedantic=self.pedantic,
+            return_astropy_table=False)
 
         # Wait a little for the instance to set up properly
         time.sleep(1)
@@ -204,7 +213,8 @@ class TestConeSearch(object):
         """Prediction tests are not very accurate but will have to do."""
         t_1, tab_1 = conesearch.conesearch_timer(
             center, radius, catalog_db=self.url,
-            pedantic=self.pedantic, verbose=self.verbose)
+            pedantic=self.pedantic, verbose=self.verbose,
+            return_astropy_table=False)
         n_1 = tab_1.array.size
 
         t_2, n_2 = conesearch.predict_search(

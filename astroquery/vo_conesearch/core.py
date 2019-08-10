@@ -69,7 +69,8 @@ class ConeSearchClass(BaseQuery):
             'Use astroquery.vo_conesearch.conesearch.AsyncConeSearch class.')
 
     def query_region(self, coordinates, radius, verb=1,
-                     get_query_payload=False, cache=True, verbose=False):
+                     get_query_payload=False, cache=True, verbose=False,
+                     return_astropy_table=True, use_names_over_ids=False):
         """
         Perform Cone Search and returns the result of the
         first successful query.
@@ -122,10 +123,22 @@ class ConeSearchClass(BaseQuery):
         verbose : bool, optional
             Verbose output, including VO table warnings.
 
+        return_astropy_table : bool
+            Returned ``result`` will be `astropy.table.Table` rather
+            than `astropy.io.votable.tree.Table`.
+
+        use_names_over_ids : bool
+            When `True` use the ``name`` attributes of columns as the names
+            of columns in the `~astropy.table.Table` instance.  Since names
+            are not guaranteed to be unique, this may cause some columns
+            to be renamed by appending numbers to the end.  Otherwise
+            (default), use the ID attributes as the column names.
+
         Returns
         -------
-        result : `astropy.io.votable.tree.Table`
+        result : `astropy.table.Table` or `astropy.io.votable.tree.Table`
             Table from successful VO service request.
+            See ``return_astropy_table`` option for the kind of table returned.
 
         """
         request_payload = self._args_to_payload(coordinates, radius, verb)
@@ -143,6 +156,12 @@ class ConeSearchClass(BaseQuery):
                                  timeout=self.TIMEOUT, cache=cache)
         result = self._parse_result(response, pars=request_payload,
                                     verbose=verbose)
+
+        # Convert to an astropy.table.Table object
+        if result is not None and return_astropy_table:
+            result = result.to_table(use_names_over_ids=use_names_over_ids)
+            result.url = url  # To be consistent with votable option
+
         return result
 
     def _args_to_payload(self, coordinates, radius, verb):

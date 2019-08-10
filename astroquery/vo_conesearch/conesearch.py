@@ -89,7 +89,8 @@ class AsyncConeSearch(AsyncBase):
 
 
 def conesearch(center, radius, verb=1, catalog_db=None, pedantic=None,
-               verbose=True, cache=True, timeout=None, query_all=False):
+               verbose=True, cache=True, timeout=None, query_all=False,
+               return_astropy_table=True, use_names_over_ids=False):
     """
     Perform Cone Search and returns the result of the
     first successful query.
@@ -180,10 +181,22 @@ def conesearch(center, radius, verb=1, catalog_db=None, pedantic=None,
     query_all : bool
         This is used by :func:`search_all`.
 
+    return_astropy_table : bool
+        Returned ``obj`` will be `astropy.table.Table` rather
+        than `astropy.io.votable.tree.Table`.
+
+    use_names_over_ids : bool
+        When `True` use the ``name`` attributes of columns as the names
+        of columns in the `~astropy.table.Table` instance.  Since names
+        are not guaranteed to be unique, this may cause some columns
+        to be renamed by appending numbers to the end.  Otherwise
+        (default), use the ID attributes as the column names.
+
     Returns
     -------
-    obj : `astropy.io.votable.tree.Table`
+    obj : `astropy.table.Table` or `astropy.io.votable.tree.Table`
         First table from first successful VO service request.
+        See ``return_astropy_table`` option for the kind of table returned.
 
     Raises
     ------
@@ -231,7 +244,9 @@ def conesearch(center, radius, verb=1, catalog_db=None, pedantic=None,
 
         try:
             r = cs.query_region(center, radius, verb=verb, cache=cache,
-                                verbose=verbose)
+                                verbose=verbose,
+                                return_astropy_table=return_astropy_table,
+                                use_names_over_ids=use_names_over_ids)
 
         except Exception as e:
             err_msg = str(e)
@@ -438,6 +453,7 @@ def predict_search(url, *args, **kwargs):
     if len(args) != 2:  # pragma: no cover
         raise ConeSearchError('conesearch must have exactly 2 arguments')
 
+    kwargs['return_astropy_table'] = False
     plot = kwargs.pop('plot', False)
     center, radius = args
     sr = _validate_sr(radius)
