@@ -30,7 +30,7 @@ are validated (also see :ref:`vo-sec-default-scs-services`), while the rest are
 skipped. There are also options to validate a user-defined list of
 services or all of them.
 
-All Cone Search queries are done using RA, DEC, and SR given by
+All Cone Search queries are done using RA, Dec, and SR given by
 ``testQuery`` fields in the registry, and maximum verbosity.
 In an uncommon case where ``testQuery`` is not defined for a service,
 it uses a default search for ``RA=0&DEC=0&SR=0.1``.
@@ -170,15 +170,18 @@ we are not trying to validate the registry itself but the services it contains:
 >>> from astroquery.vo_conesearch.validator import validate
 >>> validate.check_conesearch_sites()
 Downloading http://vao.stsci.edu/regtap/tapservice.aspx/...
-|==========================================|  69M/ 69M (100.00%)         0s
+|==========================================|  44M/ 44M (100.00%)         0s
 INFO: Only 18/17832 site(s) are validated [...]
 # ...
-INFO: good: 16 catalog(s) [astroquery.vo_conesearch.validator.validate]
+WARNING: 2 not found in registry! Skipped:
+# ...
+INFO: good: 13 catalog(s) [astroquery.vo_conesearch.validator.validate]
 INFO: warn: 2 catalog(s) [astroquery.vo_conesearch.validator.validate]
 INFO: excp: 0 catalog(s) [astroquery.vo_conesearch.validator.validate]
-INFO: nerr: 0 catalog(s) [astroquery.vo_conesearch.validator.validate]
-INFO: total: 18 out of 18 catalog(s) [...]
-INFO: check_conesearch_sites took 26.626858234405518 s on AVERAGE...
+INFO: nerr: 2 catalog(s) [astroquery.vo_conesearch.validator.validate]
+INFO: total: 17 out of 19 catalog(s) [...]
+INFO: check_conesearch_sites took 16.862793922424316 s on AVERAGE...
+(16.862793922424316, None)
 
 Validate only Cone Search access URLs hosted by ``'stsci.edu'`` without verbose
 outputs (except warnings that are controlled by :py:mod:`warnings`) or
@@ -189,12 +192,13 @@ current directory. For this example, we use ``registry_db`` from
 >>> urls = registry_db.list_catalogs_by_url(pattern='stsci.edu')
 >>> urls
 ['http://archive.stsci.edu/befs/search.php?',
- 'http://archive.stsci.edu/copernicus/search.php?', ...,
- 'http://gsss.stsci.edu/webservices/vo/ConeSearch.aspx?CAT=GSC23&']
+ 'http://archive.stsci.edu/euve/search.php?', ..,
+ 'http://gsss.stsci.edu/webservices/vo/ConeSearch.aspx?CAT=viking&']
 >>> validate.check_conesearch_sites(
 ...     destdir='./subset', verbose=False, parallel=False, url_list=urls)
 # ...
-INFO: check_conesearch_sites took 22.44089651107788 s on AVERAGE...
+INFO: check_conesearch_sites took 64.51968932151794 s on AVERAGE...
+(64.51968932151794, None)
 
 Add ``'W24'`` from `astropy.io.votable.exceptions` to the list of
 non-critical warnings to be ignored and re-run default validation.

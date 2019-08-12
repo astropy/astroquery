@@ -126,37 +126,37 @@ here, we silently ignore all the warnings:
 
 >>> import warnings
 >>> from astroquery.vo_conesearch.validator import conf as validator_conf
->>> with warnings.catch_warnings():
+>>> with warnings.catch_warnings():  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
 ...     warnings.simplefilter('ignore')
 ...     registry_db = VOSDatabase.from_registry(
 ...         validator_conf.conesearch_master_list, encoding='binary',
 ...         cache=False)
 Downloading http://vao.stsci.edu/regtap/tapservice.aspx/...
-|==========================================|  69M/ 69M (100.00%)         0s
->>> len(registry_db)
-19321
+|==========================================|  44M/ 44M (100.00%)         0s
+>>> len(registry_db)  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
+21326
 
 Find catalog names containing ``'usno*a2'`` in the registry database:
 
->>> usno_a2_list = registry_db.list_catalogs(pattern='usno*a2')
->>> usno_a2_list
+>>> usno_a2_list = registry_db.list_catalogs(pattern='usno*a2')  # doctest: +REMOTE_DATA
+>>> usno_a2_list  # doctest: +REMOTE_DATA
 ['ROSAT All-Sky Survey Bright Source Catalog USNO A2 Cross-Associations 1',
  'The USNO-A2.0 Catalogue (Monet+ 1998) 1',
  'USNO-A2 Catalogue 1']
 
 Find access URLs containing ``'stsci'`` in the registry database:
 
->>> stsci_urls = registry_db.list_catalogs_by_url(pattern='stsci')
->>> stsci_urls
-[b'http://archive.stsci.edu/befs/search.php?',
- b'http://archive.stsci.edu/euve/search.php?', ...,
- 'http://gsss.stsci.edu/webservices/vo/ConeSearch.aspx?CAT=TGAS&',
- 'http://gsss.stsci.edu/webservices/vo/ConeSearch.aspx?CAT=UCAC3&']
+>>> stsci_urls = registry_db.list_catalogs_by_url(pattern='stsci')  # doctest: +REMOTE_DATA
+>>> stsci_urls  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
+['http://archive.stsci.edu/befs/search.php?',
+ 'http://archive.stsci.edu/euve/search.php?', ...,
+ 'http://gsss.stsci.edu/webservices/vo/ConeSearch.aspx?CAT=ultravista&',
+ 'http://gsss.stsci.edu/webservices/vo/ConeSearch.aspx?CAT=viking&']
 
 Extract a catalog titled ``'USNO-A2 Catalogue 1'`` from the registry:
 
->>> usno_a2 = registry_db.get_catalog('USNO-A2 Catalogue 1')
->>> print(usno_a2)
+>>> usno_a2 = registry_db.get_catalog('USNO-A2 Catalogue 1')  # doctest: +REMOTE_DATA
+>>> print(usno_a2)  # doctest: +REMOTE_DATA
 title: b'USNO-A2 Catalogue'
 url: http://www.nofs.navy.mil/cgi-bin/vo_cone.cgi?CAT=USNO-A2&
 
@@ -166,17 +166,17 @@ of this functionality is
 which is useful in the case of multiple entries with same access URL):
 
 >>> gsc_url = 'http://vizier.u-strasbg.fr/viz-bin/conesearch/I/305/out?'
->>> gsc = registry_db.get_catalog_by_url(gsc_url)
->>> print(gsc)
+>>> gsc = registry_db.get_catalog_by_url(gsc_url)  # doctest: +REMOTE_DATA
+>>> print(gsc)  # doctest: +REMOTE_DATA
 title: b'The Guide Star Catalog, Version 2.3.2 (GSC2.3) (STScI, 2006)'
 url: http://vizier.u-strasbg.fr/viz-bin/conesearch/I/305/out?
 
 Add all ``'usno*a2'`` catalogs from registry to your database:
 
->>> for name, cat in registry_db.get_catalogs():
+>>> for name, cat in registry_db.get_catalogs():  # doctest: +REMOTE_DATA
 ...     if name in usno_a2_list:
 ...         my_db.add_catalog(name, cat)
->>> my_db.list_catalogs()
+>>> my_db.list_catalogs()  # doctest: +REMOTE_DATA
 ['My Catalog 1',
  'ROSAT All-Sky Survey Bright Source Catalog USNO A2 Cross-Associations 1',
  'The USNO-A2.0 Catalogue (Monet+ 1998) 1',
@@ -184,10 +184,11 @@ Add all ``'usno*a2'`` catalogs from registry to your database:
 
 You can delete a catalog from the database either by name or access URL:
 
->>> my_db.delete_catalog('USNO-A2 Catalogue 1')
->>> my_db.delete_catalog_by_url('https://heasarc.gsfc.nasa.gov/cgi-bin/vo/'
-...                             'cone/coneGet.pl?table=rassusnoid&')
->>> my_db.list_catalogs()
+>>> my_db.delete_catalog('USNO-A2 Catalogue 1')  # doctest: +REMOTE_DATA
+>>> my_db.delete_catalog('The USNO-A2.0 Catalogue (Monet+ 1998) 1')  # doctest: +REMOTE_DATA
+>>> my_db.delete_catalog_by_url(
+...     'https://heasarc.gsfc.nasa.gov/cgi-bin/vo/cone/coneGet.pl?table=rassusnoid&')  # doctest: +REMOTE_DATA
+>>> my_db.list_catalogs()  # doctest: +REMOTE_DATA
 ['My Catalog 1', 'The USNO-A2.0 Catalogue (Monet+ 1998) 1']
 
 You can also merge two database together. In this example, the second database
@@ -203,15 +204,13 @@ contains a simple catalog that only has given name and access URL:
     "catalogs": {
         "My Guide Star Catalogue": {
             "title": "My Guide Star Catalogue",
-            "url": "url": "http://vizier.u-strasbg.fr/viz-bin/conesearch/I/305/out?"
+            "url": "http://vizier.u-strasbg.fr/viz-bin/conesearch/I/305/out?"
         }
     }
 }
 >>> merged_db = my_db.merge(other_db)
 >>> merged_db.list_catalogs()
-['My Catalog 1',
- 'My Guide Star Catalogue',
- 'The USNO-A2.0 Catalogue (Monet+ 1998) 1']
+['My Catalog 1', 'My Guide Star Catalogue']
 
 
 .. _vo-sec-client-vos:
@@ -245,29 +244,28 @@ cone search services that cleanly passed daily validations;
 also see :ref:`Cone Search Examples <vo-sec-scs-examples>`):
 
 >>> from astroquery.vo_conesearch import vos_catalog
->>> my_db = vos_catalog.get_remote_catalog_db('conesearch_good')
+>>> my_db = vos_catalog.get_remote_catalog_db('conesearch_good')  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
 Downloading https://astroconda.org/aux/vo_databases/conesearch_good.json
-|==========================================|  37k/ 37k (100.00%)         0s
->>> print(my_db)
-Guide Star Catalog v2 1
-SDSS DR8 - Sloan Digital Sky Survey Data Release 8 1
+|==========================================|  59k/ 59k (100.00%)         0s
+>>> print(my_db)  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
+Guide Star Catalog 2.3 Cone Search 1
+SDSS DR7 - Sloan Digital Sky Survey Data Release 7 1
 # ...
-USNO-A2 Catalogue 1
+Two Micron All Sky Survey (2MASS) 2
 
 If you get timeout error, you need to use a custom timeout as follows:
 
 >>> from astropy.utils import data
->>> with data.conf.set_temp('remote_timeout', 30):
+>>> with data.conf.set_temp('remote_timeout', 30):  # doctest: +REMOTE_DATA
 ...     my_db = vos_catalog.get_remote_catalog_db('conesearch_good')
 
 To see validation warnings generated by :ref:`vo-sec-validator-validate`
 for the one of the catalogs above:
 
->>> my_cat = my_db.get_catalog('Guide Star Catalog v2 1')
->>> for w in my_cat['validate_warnings']:
+>>> my_cat = my_db.get_catalog('Guide Star Catalog 2.3 Cone Search 1')  # doctest: +REMOTE_DATA
+>>> for w in my_cat['validate_warnings']:  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
 ...     print(w)
 /.../vo.xml:136:0: W50: Invalid unit string 'pixel'
-/.../vo.xml:155:0: W48: Unknown attribute 'nrows' on TABLEDATA
 
 By default, pedantic is ``False``:
 
@@ -280,8 +278,8 @@ To call a given VO service; In this case, a Cone Search
 
 >>> from astropy import coordinates as coord
 >>> from astropy import units as u
->>> c = coord.SkyCoord.from_name('47 Tuc')
->>> c
+>>> c = coord.SkyCoord.from_name('47 Tuc')  # doctest: +REMOTE_DATA
+>>> c  # doctest: +REMOTE_DATA
 <SkyCoord (ICRS): (ra, dec) in deg
     (6.0223292, -72.0814444)>
 >>> sr = 0.5 * u.degree
@@ -290,13 +288,11 @@ To call a given VO service; In this case, a Cone Search
 >>> result = vos_catalog.call_vo_service(
 ...     'conesearch_good',
 ...     kwargs={'RA': c.ra.degree, 'DEC': c.dec.degree, 'SR': sr.value},
-...     catalog_db='The PMM USNO-A1.0 Catalogue (Monet 1997) 1')
-Trying http://vizier.u-strasbg.fr/viz-bin/votable/conesearch/I/243/out?
+...     catalog_db='Guide Star Catalog 2.3 Cone Search 1')  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
+Trying http://gsss.stsci.edu/webservices/vo/ConeSearch.aspx?CAT=GSC23&...
 Downloading ...
-WARNING: W22: ... The DEFINITIONS element is deprecated in VOTable 1.1...
-WARNING: W03: ... Implictly generating an ID from a name 'RA(ICRS)'...
-WARNING: W03: ... Implictly generating an ID from a name 'DE(ICRS)'...
->>> result
+WARNING: W50: ...: Invalid unit string 'pixel' [astropy.io.votable.tree]
+>>> result  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
 <Table masked=True length=36184>
    _r      USNO-A1.0    RA_ICRS_   DE_ICRS_  ...   Bmag    Rmag   Epoch
   deg                     deg        deg     ...   mag     mag      yr
@@ -308,29 +304,36 @@ float64     bytes13     float64    float64   ... float64 float64 float64
      ...           ...        ...        ... ...     ...     ...      ...
 0.499917 0150-00226223   7.647400 -72.087600 ...    23.4    21.7 1975.829
 
+Unlike :func:`~astroquery.vo_conesearch.conesearch.conesearch`,
+:func:`~astroquery.vo_conesearch.vos_catalog.call_vo_service` is a low-level
+function and returns `astropy.io.votable.tree.Table`. To convert it to
+`astropy.table.Table`:
+
+>>> tab = result.to_table()  # doctest: +REMOTE_DATA
+
 To repeat the above and suppress *all* the screen outputs (not recommended):
 
 >>> import warnings
->>> with warnings.catch_warnings():
+>>> with warnings.catch_warnings():  # doctest: +REMOTE_DATA
 ...     warnings.simplefilter('ignore')
 ...     result = vos_catalog.call_vo_service(
 ...         'conesearch_good',
 ...         kwargs={'RA': c.ra.degree, 'DEC': c.dec.degree, 'SR': sr.value},
-...         catalog_db='The PMM USNO-A1.0 Catalogue (Monet 1997) 1',
+...         catalog_db='Guide Star Catalog 2.3 Cone Search 1',
 ...         verbose=False)
 
 You can also use custom VO database, say, ``'my_vo_database.json'`` from
 :ref:`VO database examples <vo-sec-client-db-manip-examples>`:
 
 >>> import os
->>> with conf.set_temp('vos_baseurl', os.curdir):
+>>> with conf.set_temp('vos_baseurl', os.curdir):  # doctest: +SKIP
 ...     try:
 ...         result = vos_catalog.call_vo_service(
 ...             'my_vo_database',
 ...             kwargs={'RA': c.ra.degree, 'DEC': c.dec.degree,
 ...                     'SR': sr.value})
 ...     except Exception as e:
-...         print(e)
+...         print(str(e))
 Trying http://ex.org/cgi-bin/cs.pl?
 WARNING: W25: ... failed with: <urlopen error timed out> [...]
 None of the available catalogs returned valid results. (1 URL(s) timed out.)
@@ -403,26 +406,21 @@ Examples
 
 Shows a sorted list of Cone Search services to be searched:
 
->>> conesearch.list_catalogs()
-['Guide Star Catalog v2 1',
- 'SDSS DR8 - Sloan Digital Sky Survey Data Release 8 1',
- 'SDSS DR8 - Sloan Digital Sky Survey Data Release 8 2',
- 'The HST Guide Star Catalog, Version 1.1 (Lasker+ 1992) 1',
- 'The HST Guide Star Catalog, Version 1.2 (Lasker+ 1996) 1',
- 'The HST Guide Star Catalog, Version GSC-ACT (Lasker+ 1996-99) 1',
- 'The PMM USNO-A1.0 Catalogue (Monet 1997) 1',
- 'The USNO-A2.0 Catalogue (Monet+ 1998) 1',
- 'USNO-A2 Catalogue 1']
+>>> conesearch.list_catalogs()  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
+[Guide Star Catalog 2.3 Cone Search 1',
+ 'SDSS DR7 - Sloan Digital Sky Survey Data Release 7 1',
+ 'SDSS DR7 - Sloan Digital Sky Survey Data Release 7 2', ...,
+ 'Two Micron All Sky Survey (2MASS) 2']
 
 To inspect them in detail, do the following and then refer to the examples in
 :ref:`vo-sec-client-db-manip`:
 
 >>> from astroquery.vo_conesearch import vos_catalog
->>> good_db = vos_catalog.get_remote_catalog_db('conesearch_good')
+>>> good_db = vos_catalog.get_remote_catalog_db('conesearch_good')  # doctest: +REMOTE_DATA
 
 Select a catalog to search:
 
->>> my_catname = 'The PMM USNO-A1.0 Catalogue (Monet 1997) 1'
+>>> my_catname = 'Guide Star Catalog 2.3 Cone Search 1'
 
 By default, pedantic is ``False``:
 
@@ -430,98 +428,103 @@ By default, pedantic is ``False``:
 >>> conf.pedantic
 False
 
-Perform Cone Search in the selected catalog above for 0.5 degree radius
+Perform Cone Search in the selected catalog above for 0.01 degree radius
 around 47 Tucanae with minimum verbosity, if supported.
 The ``catalog_db`` keyword gives control over which catalog(s) to use.
 If running this for the first time, a copy of the catalogs database will be
-downloaded to local cache. To run this again without
-using cached data, set ``cache=False``:
+downloaded to local cache. To run this again without using cached data,
+set ``cache=False``:
 
 >>> from astropy import coordinates as coord
 >>> from astropy import units as u
->>> c = coord.SkyCoord.from_name('47 Tuc')
->>> c
+>>> c = coord.SkyCoord.from_name('47 Tuc')  # doctest: +REMOTE_DATA
+>>> c  # doctest: +REMOTE_DATA
 <SkyCoord (ICRS): (ra, dec) in deg
     (6.0223292, -72.0814444)>
->>> sr = 0.5 * u.degree
+>>> sr = 0.01 * u.degree
 >>> sr
-<Quantity 0.5 deg>
->>> result = conesearch.conesearch(c, sr, catalog_db=my_catname)
-Trying http://vizier.u-strasbg.fr/viz-bin/conesearch/I/243/out?
+<Quantity 0.01 deg>
+>>> result = conesearch.conesearch(c, sr, catalog_db=my_catname)  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
+Trying http://gsss.stsci.edu/webservices/vo/ConeSearch.aspx?CAT=GSC23&
 Downloading ...
-WARNING: W22: ... The DEFINITIONS element is deprecated in VOTable 1.1...
-WARNING: W03: ... Implictly generating an ID from a name 'RA(ICRS)'...
-WARNING: W03: ... Implictly generating an ID from a name 'DE(ICRS)'...
+WARNING: W50: ...: Invalid unit string 'pixel' [astropy.io.votable.tree]
 
 To run the command above using custom timeout of
-30 seconds for each Cone Search service query:
+60 seconds for each Cone Search service query:
 
->>> result = conesearch.conesearch(c, sr, catalog_db=my_catname, timeout=30)
+>>> with conf.set_temp('timeout', 60):  # doctest: +REMOTE_DATA
+...     result = conesearch.conesearch(c, sr, catalog_db=my_catname)
 
 To suppress *all* the screen outputs (not recommended):
 
 >>> import warnings
->>> with warnings.catch_warnings():
+>>> with warnings.catch_warnings():  # doctest: +REMOTE_DATA
 ...     warnings.simplefilter('ignore')
 ...     result = conesearch.conesearch(c, sr, catalog_db=my_catname,
 ...                                    verbose=False)
 
-Extract Numpy array containing the matched objects. See
-`numpy` for available operations:
+If the query is successful, result is returned as `astropy.table.Table` and
+can be manipulated further as such:
 
->>> cone_arr = result.array.data
->>> cone_arr
-array([ (0.499298, '0150-00088188', 4.403473, -72.124045, ...),
-        (0.499075, '0150-00088198', 4.403906, -72.122762, ...), ...],
-      dtype=[('_r', '<f8'), ('USNO-A1.0', 'S13'), ...])
->>> cone_arr.dtype.names
-('_r',
- 'USNO-A1.0',
- 'RA_ICRS_',
- 'DE_ICRS_',
- 'GSCflag',
- 'Mflag',
- 'Bmag',
- 'Rmag',
- 'Epoch')
->>> cone_arr.size
-36184
->>> ra_list = cone_arr['RA_ICRS_']
->>> ra_list
-array([ 4.403473,  4.403906,  4.404531, ...,  7.641731,  7.645489,  7.6474  ])
->>> cone_arr[0]  # First row
-(0.499298, '0150-00088188', 4.403473, -72.124045, '', '', 20.6, 19.4, 1977.781)
->>> cone_arr[-1]  # Last row
-(0.499917, '0150-00226223', 7.6474, -72.0876, '', '', 23.4, 21.7, 1975.829)
->>> cone_arr[:10]  # First 10 rows
-array([ (0.499298, '0150-00088188', 4.403473, -72.124045, ...),
-        (0.499075, '0150-00088198', 4.403906, -72.122762, ...), ...],
-      dtype=[('_r', '<f8'), ('USNO-A1.0', 'S13'), ...])
+>>> result  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
+<Table length=70>
+    objID           gsc2ID      gsc1ID ... multipleFlag compassGSC2id   Mag
+                                       ...                              mag
+    int64           object      object ...    int32         int64     float32
+-------------- ---------------- ------ ... ------------ ------------- -------
+23323176818483 00240514-7204542        ...            0 3392500290739   9.317
+23323176818639 00240573-7204494        ...            0 3392500290895  10.637
+23323176818627 00240399-7204512        ...            0 3392500290883  10.303
+23323176818661 00240462-7204462        ...            0 3392500290917   9.688
+23323176818631 00240697-7204506        ...            0 3392500290887  10.697
+23323176818667 00240628-7204452        ...            0 3392500290923   8.427
+           ...              ...    ... ...          ...           ...     ...
+23323176818820 00240446-7204201        ...            0 3392500291076  10.614
+20102011262474   S0102011262474        ...            0 3392500262474  22.314
+23323176818777 00241049-7204275        ...            0 3392500291033  13.057
+23323176818696 00235824-7204410        ...            0 3392500290952  10.203
+23323176818177 00240143-7205238        ...            0 3392500290433   9.067
+23323176818825 00240370-7204181        ...            0 3392500291081   9.984
+>>> result.colnames  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
+['objID',
+ 'gsc2ID',
+ 'gsc1ID',
+ 'hstID',
+ 'ra',
+ 'dec',
+ 'epoch',
+ ...,
+ 'Mag']
 
-Sort the matched objects by angular separation in ascending order:
+For example, you can select only objects with 10 mag or brighter. Then, you
+can calculate angular separation for those objects and sort them in
+descending order by separation:
 
->>> import numpy as np
->>> sep = cone_arr['_r']
->>> i_sorted = np.argsort(sep)
->>> cone_arr[i_sorted]
-array([ (0.081971, '0150-00145335', 5.917787, -72.006075, ...),
-        (0.083181, '0150-00149799', 6.020339, -72.164623, ...), ...,
-        (0.499989, '0150-00192872', 6.899589, -72.5043, ...)],
-      dtype=[('_r', '<f8'), ('USNO-A1.0', 'S13'), ...])
-
-Result can also be manipulated as :ref:`astropy-io-votable`
-and its unit can be manipulated as :ref:`astropy-units`.
-In this example, we convert RA values from degree to arcsec:
-
->>> from astropy import units as u
->>> ra_field = result.get_field_by_id('RA_ICRS_')
->>> ra_field.title
-u'Right ascension (ICRS) mean of blue/red plates'
->>> ra_field.unit
-Unit("deg")
->>> ra_field.unit.to(u.arcsec) * ra_list
-array([ 15852.5028,  15854.0616,  15856.3116, ...,  27510.2316,
-        27523.7604,  27530.64  ])
+>>> from astropy.table import Column
+>>> bright_ones = result[result['Mag'] <= 10]  # doctest: +REMOTE_DATA
+>>> bright_skycoord = coord.SkyCoord(bright_ones['ra'], bright_ones['dec'])  # doctest: +REMOTE_DATA
+>>> angular_sep = Column(name='ang_sep', data=c.separation(bright_skycoord))  # doctest: +REMOTE_DATA
+>>> bright_ones.add_column(angular_sep)  # doctest: +REMOTE_DATA
+>>> bright_ones.sort('ang_sep', reverse=True)  # doctest: +REMOTE_DATA
+>>> bright_ones  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
+<Table length=34>
+    objID           gsc2ID      gsc1ID ...   Mag          ang_sep
+                                       ...   mag            deg
+    int64           object      object ... float32        float64
+-------------- ---------------- ------ ... ------- ----------------------
+23323176818825 00240370-7204181        ...   9.984   0.009972117338396163
+23323176818177 00240143-7205238        ...   9.067    0.00988160278196351
+23323176818497 00241238-7204519        ...   8.571   0.009016872507840567
+23323176818800 00240774-7204233        ...    9.58   0.008849138901697263
+23323176818403 00235917-7205064        ...   9.958   0.008732143392583538
+23323176818385 00241116-7205093        ...   8.234   0.008684087872339485
+           ...              ...    ... ...     ...                    ...
+23323176818688 00240544-7204421        ...   8.628  0.0030771767133611246
+23323176818478 00240305-7204554        ...   8.277  0.0030253920512680397
+23323176818630 00240317-7204507        ...   8.377   0.002884701330619627
+23323176818667 00240628-7204452        ...   8.427  0.0025032267406569163
+23323176818661 00240462-7204462        ...   9.688  0.0021564610200608928
+23323176818483 00240514-7204542        ...   9.317 0.00040921297020182925
 
 Perform the same Cone Search as above but asynchronously using
 `~astroquery.vo_conesearch.conesearch.AsyncConeSearch`. Queries to
@@ -530,14 +533,14 @@ individual Cone Search services are still governed by
 in silent mode asynchronously, but warnings are still controlled by
 :py:mod:`warnings`:
 
->>> async_search = conesearch.AsyncConeSearch(c, sr, catalog_db=my_catname)
+>>> async_search = conesearch.AsyncConeSearch(c, sr, catalog_db=my_catname)  # doctest: +REMOTE_DATA
 
 Check asynchronous search status:
 
->>> async_search.running()
-True
->>> async_search.done()
+>>> async_search.running()  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
 False
+>>> async_search.done()  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
+True
 
 Get search results after a 30-second wait (not to be confused with
 ``astroquery.vo_conesearch.conf.timeout`` that governs individual Cone
@@ -546,28 +549,42 @@ Search queries). If search is still not done after 30 seconds,
 and can be manipulated as above. If no ``timeout`` keyword given, it
 waits until completion:
 
->>> async_result = async_search.get(timeout=30)
->>> cone_arr = async_result.array.data
->>> cone_arr.size
-36184
+>>> async_result = async_search.get(timeout=30)  # doctest: +REMOTE_DATA
+>>> async_result  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
+<Table length=70>
+    objID           gsc2ID      gsc1ID ... multipleFlag compassGSC2id   Mag
+                                       ...                              mag
+    int64           object      object ...    int32         int64     float32
+-------------- ---------------- ------ ... ------------ ------------- -------
+23323176818483 00240514-7204542        ...            0 3392500290739   9.317
+23323176818639 00240573-7204494        ...            0 3392500290895  10.637
+23323176818627 00240399-7204512        ...            0 3392500290883  10.303
+23323176818661 00240462-7204462        ...            0 3392500290917   9.688
+23323176818631 00240697-7204506        ...            0 3392500290887  10.697
+23323176818667 00240628-7204452        ...            0 3392500290923   8.427
+           ...              ...    ... ...          ...           ...     ...
+23323176818820 00240446-7204201        ...            0 3392500291076  10.614
+20102011262474   S0102011262474        ...            0 3392500262474  22.314
+23323176818777 00241049-7204275        ...            0 3392500291033  13.057
+23323176818696 00235824-7204410        ...            0 3392500290952  10.203
+23323176818177 00240143-7205238        ...            0 3392500290433   9.067
+23323176818825 00240370-7204181        ...            0 3392500291081   9.984
 
-Estimate the execution time and the number of objects for
-the Cone Search service URL from above. The prediction naively
-assumes a linear model, which might not be accurate for some cases.
+Estimate the execution time and the number of objects for a Cone Search
+service URL. Estimation only makes sense for a query that would
+return a huge amount of matches. The prediction naively assumes a linear model,
+which might not be accurate for some cases.
 It also uses the normal Cone Search, not the asynchronous version.
 This example uses a custom timeout of 30 seconds and runs silently
 (except for warnings):
 
->>> result.url
-'http://vizier.u-strasbg.fr/viz-bin/conesearch/I/243/out?'
->>> t_est, n_est = conesearch.predict_search(result.url, c, sr, verbose=False,
-...                                          plot=True)
-WARNING: W22: ... The DEFINITIONS element is deprecated in VOTable 1.1...
-# ...
->>> t_est  # Predicted execution time
-10.757875269998323
->>> n_est  # Predicted number of objects
-37340
+>>> url_to_time = 'http://vizier.u-strasbg.fr/viz-bin/conesearch/I/305/out?'
+>>> t_est, n_est = conesearch.predict_search(
+...     url_to_time, c, 0.5 * u.deg, verbose=False, plot=True)  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
+>>> t_est  # Predicted execution time  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
+12.193151943611374
+>>> n_est  # Predicted number of objects  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
+55322
 
 .. image:: images/client_predict_search_t.png
     :width: 450px
@@ -584,12 +601,12 @@ Keep in mind that running this for every prediction
 would defeat the purpose of the prediction itself:
 
 >>> t_real, tab = conesearch.conesearch_timer(
-...     c, sr, catalog_db=result.url, verbose=False)
-INFO: conesearch_timer took 11.5103080273 s on AVERAGE for 1 call(s). [...]
->>> t_real  # Actual execution time
-11.5103080273
->>> tab.array.size  # Actual number of objects
-36184
+...     c,  0.5 * u.deg, catalog_db=url_to_time, verbose=False)  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
+INFO: conesearch_timer took 9.93050742149353 s on AVERAGE for 1 call(s). [...]
+>>> t_real  # Actual execution time  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
+9.93050742149353
+>>> len(tab)  # Actual number of objects  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
+50000
 
 One can also search in a list of catalogs instead of a single one.
 In this example, we look for all catalogs containing ``'guide*star'`` in their
@@ -597,61 +614,70 @@ titles and only perform Cone Search using those services.
 The first catalog in the list to successfully return non-zero result is used.
 Therefore, the order of catalog names given in ``catalog_db`` is important:
 
->>> gsc_cats = conesearch.list_catalogs(pattern='guide*star')
->>> gsc_cats
-[u'Guide Star Catalog v2 1',
- u'The HST Guide Star Catalog, Version 1.1 (Lasker+ 1992) 1',
- u'The HST Guide Star Catalog, Version 1.2 (Lasker+ 1996) 1',
- u'The HST Guide Star Catalog, Version GSC-ACT (Lasker+ 1996-99) 1']
->>> gsc_result = conesearch.conesearch(c, sr, catalog_db=gsc_cats)
+>>> gsc_cats = conesearch.list_catalogs(pattern='guide*star')  # doctest: +REMOTE_DATA
+>>> gsc_cats  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
+['Guide Star Catalog 2.3 Cone Search 1',
+ 'The HST Guide Star Catalog, Version 1.1 (Lasker+ 1992) 1',
+ 'The HST Guide Star Catalog, Version 1.2 (Lasker+ 1996) 1',
+ 'The HST Guide Star Catalog, Version GSC-ACT (Lasker+ 1996-99) 1']
+>>> gsc_result = conesearch.conesearch(c, 0.05 * u.deg, catalog_db=gsc_cats)  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
 Trying http://gsss.stsci.edu/webservices/vo/ConeSearch.aspx?CAT=GSC23&
->>> gsc_result.array.size
-74272
->>> gsc_result.url
-'http://gsss.stsci.edu/webservices/vo/ConeSearch.aspx?CAT=GSC23&'
+>>> len(gsc_result)  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
+1444
+>>> gsc_result.url  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
+'http://gsss.stsci.edu/webservices/vo/ConeSearch.aspx?CAT=GSC23'
 
 To repeat the Cone Search above with the services listed in a
 different order:
 
->>> gsc_cats_reordered = [gsc_cats[i] for i in (3, 1, 2, 0)]
->>> gsc_cats_reordered
-[u'The HST Guide Star Catalog, Version GSC-ACT (Lasker+ 1996-99) 1',
- u'The HST Guide Star Catalog, Version 1.1 (Lasker+ 1992) 1',
- u'The HST Guide Star Catalog, Version 1.2 (Lasker+ 1996) 1',
- u'Guide Star Catalog v2 1']
->>> gsc_result = conesearch.conesearch(c, sr, catalog_db=gsc_cats_reordered)
+>>> gsc_cats_reordered = [gsc_cats[i] for i in (3, 1, 2, 0)]  # doctest: +REMOTE_DATA
+>>> gsc_cats_reordered  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
+['The HST Guide Star Catalog, Version GSC-ACT (Lasker+ 1996-99) 1',
+ 'The HST Guide Star Catalog, Version 1.1 (Lasker+ 1992) 1',
+ 'The HST Guide Star Catalog, Version 1.2 (Lasker+ 1996) 1',
+ 'Guide Star Catalog 2.3 Cone Search 1']
+>>> gsc_result = conesearch.conesearch(c, 0.05 * u.deg, catalog_db=gsc_cats_reordered)  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
 Trying http://vizier.u-strasbg.fr/viz-bin/conesearch/I/255/out?
->>> gsc_result.array.size
-2997
->>> gsc_result.url
-'http://vizier.u-strasbg.fr/viz-bin/conesearch/I/255/out?'
+WARNING: NoResultsWarning: Catalog server ... returned 0 result [...]
+Trying http://vizier.u-strasbg.fr/viz-bin/conesearch/I/220/out?
+WARNING: NoResultsWarning: Catalog server ... returned 0 result [...]
+Trying http://vizier.u-strasbg.fr/viz-bin/conesearch/I/254/out?
+>>> len(gsc_result)  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
+1
+>>> gsc_result.url  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
+'http://vizier.u-strasbg.fr/viz-bin/conesearch/I/254/out?'
 
 To obtain results from *all* the services above:
 
->>> all_gsc_results = conesearch.search_all(c, sr, catalog_db=gsc_cats)
+>>> all_gsc_results = conesearch.search_all(c, 0.05 * u.deg, catalog_db=gsc_cats)  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
 Trying http://gsss.stsci.edu/webservices/vo/ConeSearch.aspx?CAT=GSC23&
 Trying http://vizier.u-strasbg.fr/viz-bin/conesearch/I/220/out?
+WARNING: NoResultsWarning: Catalog server ... returned 0 result [...]
 Trying http://vizier.u-strasbg.fr/viz-bin/conesearch/I/254/out?
 Trying http://vizier.u-strasbg.fr/viz-bin/conesearch/I/255/out?
->>> len(all_gsc_results)
-4
->>> for url in sorted(all_gsc_results):
+WARNING: NoResultsWarning: Catalog server ... returned 0 result [...]
+>>> len(all_gsc_results)  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
+2
+>>> for url in sorted(all_gsc_results):  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
 ...     tab = all_gsc_results[url]
-...     print('{} has {} results'.format(url, tab.array.size))
-http://gsss.stsci.edu/webservices/vo/ConeSearch.aspx?CAT=GSC23& has 74272 results
-http://vizier.u-strasbg.fr/viz-bin/conesearch/I/220/out? has 2997 results
-http://vizier.u-strasbg.fr/viz-bin/conesearch/I/254/out? has 2998 results
-http://vizier.u-strasbg.fr/viz-bin/conesearch/I/255/out? has 2997 results
+...     print('{} has {} results'.format(url, len(tab)))
+http://gsss.stsci.edu/webservices/vo/ConeSearch.aspx?CAT=GSC23 has 1444 results
+http://vizier.u-strasbg.fr/viz-bin/conesearch/I/254/out? has 1 results
 
 To repeat the above asynchronously:
 
 >>> async_search_all = conesearch.AsyncSearchAll(
-...     c, sr, catalog_db=gsc_cats, timeout=60)
->>> async_search_all.running()
-True
->>> async_search_all.done()
+...     c, 0.05 * u.deg, catalog_db=gsc_cats)  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
+>>> async_search_all.running()  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
 False
->>> all_gsc_results = async_search_all.get()
+>>> async_search_all.done()  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
+True
+>>> all_gsc_results = async_search_all.get()  # doctest: +REMOTE_DATA
+>>> for url in sorted(all_gsc_results):  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
+...     tab = all_gsc_results[url]
+...     print('{} has {} results'.format(url, len(tab)))
+http://gsss.stsci.edu/webservices/vo/ConeSearch.aspx?CAT=GSC23 has 1444 results
+http://vizier.u-strasbg.fr/viz-bin/conesearch/I/254/out? has 1 results
 
 If one is unable to obtain any desired results using the default
 Cone Search database, ``'conesearch_good'``, that only contains
@@ -661,26 +687,15 @@ validation warnings. One should use these sites with caution:
 
 >>> from astroquery.vo_conesearch import conf
 >>> conf.conesearch_dbname = 'conesearch_warn'
->>> conesearch.list_catalogs()
-Downloading https://astroconda.org/aux/vo_databases/conesearch_warn.json
-|==========================================| 312k/312k (100.00%)         0s
-['2MASS All-Sky Catalog of Point Sources (Cutri+ 2003) 1',
- 'Data release 7 of Sloan Digital Sky Survey catalogs 1',
- 'Data release 7 of Sloan Digital Sky Survey catalogs 2',
- 'Data release 7 of Sloan Digital Sky Survey catalogs 3',
- 'Data release 7 of Sloan Digital Sky Survey catalogs 4',
- 'Data release 7 of Sloan Digital Sky Survey catalogs 5',
- 'Data release 7 of Sloan Digital Sky Survey catalogs 6',
- 'The 2MASS All-Sky Catalog 1',
- 'The 2MASS All-Sky Catalog 2',
- 'The USNO-B1.0 Catalog (Monet+ 2003) 1',
- 'The USNO-B1.0 Catalog 1',
- 'USNO-A V2.0, A Catalog of Astrometric Standards 1',
- 'USNO-B1 Catalogue 1']
->>> result = conesearch.conesearch(c, sr)
-Trying http://vizier.u-strasbg.fr/viz-bin/conesearch/II/284/out?
->>> result.array.data.size
-50000
+>>> conesearch.list_catalogs()  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
+Downloading http://astroconda.org/aux/vo_databases/conesearch_warn.json
+|==========================================|  20k/ 20k (100.00%)         0s
+['Gaia DR2 (Gaia Collaboration, 2018) 2',
+ 'The USNO-B1.0 Catalog (Monet+ 2003) 1']
+>>> result = conesearch.conesearch(c, sr)  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
+Trying http://vizier.u-strasbg.fr/viz-bin/conesearch/I/345/gaia2?
+>>> len(result)  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
+81
 
 You can also use custom Cone Search database, say, ``'my_vo_database.json'``
 from :ref:`VO database examples <vo-sec-client-db-manip-examples>`:
@@ -690,8 +705,7 @@ from :ref:`VO database examples <vo-sec-client-db-manip-examples>`:
 >>> conf.vos_baseurl = os.curdir
 >>> conf.conesearch_dbname = 'my_vo_database'
 >>> conesearch.list_catalogs()
-[u'My Catalog 1']
->>> result = conesearch.conesearch(c, sr)
+['My Catalog 1']
+>>> result = conesearch.conesearch(c, sr)  # doctest: +SKIP
 Trying http://ex.org/cgi-bin/cs.pl?
-# ...
-VOSError: None of the available catalogs returned valid results. (1 URL(s) timed out.)
+WARNING: NoResultsWarning: None of the available catalogs returned valid results. (1 URL(s) timed out.) [...]

@@ -1,10 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-"""
-Support VO Simple Cone Search capabilities.
-
-.. note:: This maintains a similar API as ``astropy.vo.client``.
-
-"""
+"""Support VO Simple Cone Search capabilities."""
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import six
@@ -61,7 +56,7 @@ class AsyncConeSearch(AsyncBase):
     >>> c = coord.ICRS(6.0223 * u.degree, -72.0814 * u.degree)
     >>> async_search = conesearch.AsyncConeSearch(
     ...     c, 0.5 * u.degree,
-    ...     catalog_db='The PMM USNO-A1.0 Catalogue (Monet 1997) 1')
+    ...     catalog_db='Guide Star Catalog 2.3 Cone Search 1')
 
     Check search status:
 
@@ -79,9 +74,8 @@ class AsyncConeSearch(AsyncBase):
     If no ``timeout`` keyword given, it waits until completion:
 
     >>> async_result = async_search.get(timeout=30)
-    >>> cone_arr = async_result.array.data
-    >>> cone_arr.size
-    36184
+    >>> len(async_result)
+    74271
 
     """
     def __init__(self, *args, **kwargs):
@@ -204,9 +198,6 @@ def conesearch(center, radius, verb=1, catalog_db=None,
     ConeSearchError
         When invalid inputs are passed into Cone Search.
 
-    VOSError
-        If VO service request fails.
-
     """
     n_timed_out = 0
     service_type = conf.conesearch_dbname
@@ -296,11 +287,11 @@ class AsyncSearchAll(AsyncBase):
     :ref:`Simple Cone Search Examples <vo-sec-scs-examples>`.
     If no ``timeout`` keyword given, it waits until completion:
 
-    >>> async_allresults = async_search.get(timeout=30)
+    >>> async_allresults = async_search.get(timeout=60)
     >>> all_catalogs = list(async_allresults)
-    >>> first_cone_arr = async_allresults[all_catalogs[0]].array.data
-    >>> first_cone_arr.size
-    36184
+    >>> first_cone_arr = async_allresults[all_catalogs[0]]
+    >>> len(first_cone_arr)
+    74271
 
     """
     def __init__(self, *args, **kwargs):
