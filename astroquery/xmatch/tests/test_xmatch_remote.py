@@ -1,14 +1,22 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os.path
 import os
+import sys
 import pytest
 import requests
 from requests import ReadTimeout
 
 from astropy.tests.helper import remote_data
 from astropy.table import Table
-from astropy.units import arcsec
+from astropy.units import arcsec, arcmin
 from astropy.io import ascii
+
+from astropy.coordinates import SkyCoord
+
+try:
+    from regions import CircleSkyRegion
+except ImportError:
+    pass
 
 from ...xmatch import XMatch
 
@@ -84,6 +92,17 @@ class TestXMatch:
 
         http_test_table = self.http_test()
         assert all(table == http_test_table)
+
+    @pytest.mark.skipif('regions' not in sys.modules,
+                        reason="requires astropy-regions")
+    def test_xmatch_query_with_cone_area(self, xmatch):
+        try:
+            table = xmatch.query(
+                cat1='vizier:II/311/wise', cat2='vizier:II/246/out', max_distance=5 * arcsec,
+                area=CircleSkyRegion(center=SkyCoord(10, 10, unit='deg', frame='icrs'), radius=12 * arcmin))
+        except ReadTimeout:
+            pytest.xfail("xmatch query timed out.")
+        assert len(table) == 185
 
     def http_test(self):
         # this can be used to check that the API is still functional & doing as expected
