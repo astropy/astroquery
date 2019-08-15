@@ -223,13 +223,16 @@ is identical to :meth:`~astroquery.eso.EsoClass.query_instrument`.
 
 ESO instruments without a specific query interface can be queried with
 :meth:`~astroquery.eso.EsoClass.query_main`, specifying the ``instrument`` constraint.
-This is the case of e.g. ``harps``, ``feros`` or the all sky cameras APICAM and MASCOT. Here is an example to query all-sky images from APICAM with ``luminance`` filter. 
+This is the case of e.g. ``harps``, ``feros`` or the all sky cameras APICAM and MASCOT. Here is an example to
+query all-sky images from APICAM with ``luminance`` filter. 
 
 .. code-block:: python
 
-    >>> table = eso.query_main(column_filters={'instrument': 'APICAM', 'filter_path': 'LUMINANCE', 'stime':'2019-04-26', 'etime':'2019-04-27'}, cache=False)
+    >>> eso.ROW_LIMIT = -1   # Return all results
+    >>> table = eso.query_main(column_filters={'instrument': 'APICAM', 'filter_path': 'LUMINANCE',
+    ...                                        'stime':'2019-04-26', 'etime':'2019-04-27'}, cache=False)
     >>> print(len(table))
-    50
+    207
     >>> print(table.columns)
     <TableColumns names=('OBJECT','RA','DEC','Program_ID','Instrument','Category','Type','Mode','Dataset ID','Release_Date','TPL ID','TPL START','Exptime','Exposure','Filter','MJD-OBS','Airmass','DIMM Seeing at Start')>
     >>> table.pprint(max_width=100)
