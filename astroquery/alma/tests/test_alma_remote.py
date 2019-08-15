@@ -286,6 +286,7 @@ class TestAlma:
         assert 'Orion_Source_I' in result['Source name']
 
 
+@remote_data
 def test_project_metadata():
     alma = Alma()
     metadata = alma.get_project_metadata('2013.1.00269.S')
