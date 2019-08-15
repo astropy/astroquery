@@ -223,7 +223,28 @@ is identical to :meth:`~astroquery.eso.EsoClass.query_instrument`.
 
 ESO instruments without a specific query interface can be queried with
 :meth:`~astroquery.eso.EsoClass.query_main`, specifying the ``instrument`` constraint.
-This is the case of e.g. ``harps`` or ``feros``.
+This is the case of e.g. ``harps``, ``feros`` or the all sky cameras APICAM and MASCOT. Here is an example to
+query all-sky images from APICAM with ``luminance`` filter. 
+
+.. code-block:: python
+
+    >>> eso.ROW_LIMIT = -1   # Return all results
+    >>> table = eso.query_main(column_filters={'instrument': 'APICAM', 'filter_path': 'LUMINANCE',
+    ...                                        'stime':'2019-04-26', 'etime':'2019-04-27'}, cache=False)
+    >>> print(len(table))
+    207
+    >>> print(table.columns)
+    <TableColumns names=('OBJECT','RA','DEC','Program_ID','Instrument','Category','Type','Mode','Dataset ID','Release_Date','TPL ID','TPL START','Exptime','Exposure','Filter','MJD-OBS','Airmass','DIMM Seeing at Start')>
+    >>> table.pprint(max_width=100)
+     OBJECT      RA         DEC      Program_ID  ...   Filter    MJD-OBS    Airmass DIMM Seeing at Start
+    ------- ----------- ----------- ------------ ... --------- ------------ ------- --------------------
+    ALL SKY 09:18:37.39 -24:32:32.7 60.A-9008(A) ... LUMINANCE 58599.987766     1.0                  N/A
+    ALL SKY 09:21:07.68 -24:32:30.1 60.A-9008(A) ... LUMINANCE 58599.989502     1.0                  N/A
+    ALL SKY 09:23:38.98 -24:32:27.5 60.A-9008(A) ... LUMINANCE  58599.99125     1.0                  N/A
+        ...         ...         ...          ... ...       ...          ...     ...                  ...
+    ALL SKY 11:47:35.12 -24:31:07.7 60.A-9008(A) ... LUMINANCE 58600.091019     1.0                  N/A
+    ALL SKY 11:50:07.40 -24:31:07.6 60.A-9008(A) ... LUMINANCE 58600.092778     1.0                  N/A
+    Length = 50 rows
 
 
 Obtaining extended information on data products
