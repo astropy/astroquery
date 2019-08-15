@@ -59,6 +59,8 @@ alma
 
 - Fix some broken VOtable returns and a broken login URL [#1369]
 
+- ``get_project_metadata()`` is added to query project metadata. [#1147]
+
 atomic
 ^^^^^^
 
