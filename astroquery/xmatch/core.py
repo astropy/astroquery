@@ -2,7 +2,6 @@
 
 import six
 from astropy.io import ascii
-from astropy.units import arcsec
 import astropy.units as u
 from astropy.table import Table
 
@@ -13,7 +12,8 @@ from ..utils import url_helpers, prepend_docstr_nosections, async_to_sync
 try:
     from regions import CircleSkyRegion
 except ImportError:
-    print('Could not import CircleSkyRegion')
+    print('Could not import regions, which is required for some of the '
+          'functionalities of this module.')
 
 
 @async_to_sync
@@ -58,10 +58,11 @@ class XMatchClass(BaseQuery):
         colDec2 : str
             Name of the column holding the declination. Only required if
             ``cat2`` is an uploaded table or a pointer to a URL.
-        area : CirleSkyRegion or 'allsky' str
+        area : ``regions.CircleSkyRegion`` or 'allsky' str
             Restrict the area taken into account when performing the xmatch
-            Default value is 'allsky' (no restriction). If a CirleSkyRegion
-            object is given, only sources in this region will be considered.
+            Default value is 'allsky' (no restriction). If a
+            ``regions.CircleSkyRegion`` object is given, only sources in
+            this region will be considered.
 
         Returns
         -------
@@ -85,12 +86,12 @@ class XMatchClass(BaseQuery):
         response : `~requests.Response`
             The HTTP response returned from the service.
         """
-        if max_distance > 180 * arcsec:
+        if max_distance > 180 * u.arcsec:
             raise ValueError(
                 'max_distance argument must not be greater than 180')
         payload = {
             'request': 'xmatch',
-            'distMaxArcsec': max_distance.to(arcsec).value,
+            'distMaxArcsec': max_distance.to(u.arcsec).value,
             'RESPONSEFORMAT': 'csv',
         }
         kwargs = {}
