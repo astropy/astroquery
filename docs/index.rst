@@ -158,7 +158,7 @@ The following modules have been completed using a common API:
   besancon/besancon.rst
   cadc/cadc.rst
   cds/cds.rst
-  esa_hubble/esa_hubble.rst
+  esa/esa_hubble.rst
   esasky/esasky.rst
   eso/eso.rst
   gaia/gaia.rst
@@ -262,7 +262,7 @@ generally return a table listing the available data first.
   alfalfa/alfalfa.rst
   alma/alma.rst
   cadc/cadc.rst
-  esa_hubble/esa_hubble.rst
+  esa/esa_hubble.rst
   eso/eso.rst
   fermi/fermi.rst
   gaia/gaia.rst
