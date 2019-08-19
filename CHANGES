@@ -41,8 +41,6 @@ gaia
   cross match, data access and datalink access. [#1266]
 
 
-
-
 Infrastructure fixes and enhancements
 -------------------------------------
 
@@ -164,7 +162,10 @@ mast
 mpc
 ^^^
 
-- functionality added to query observations database. [#1350]
+- Functionality added to query observations database. [#1350]
+
+- Add verbose keyword for option to silence logger info and warning about S3
+  in enable_cloud_dataset(). [#1536]
 
 nasa_ads
 ^^^^^^^^

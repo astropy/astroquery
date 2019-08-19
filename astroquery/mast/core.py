@@ -1549,7 +1549,7 @@ class ObservationsClass(MastClass):
     def enable_s3_hst_dataset(self):
         return self.enable_cloud_dataset()
 
-    def enable_cloud_dataset(self, provider="AWS", profile=None):
+    def enable_cloud_dataset(self, provider="AWS", profile=None, verbose=True):
         """
         Attempts to enable downloading public files from S3 instead of MAST.
         Requires the boto3 library to function.
@@ -1561,6 +1561,9 @@ class ObservationsClass(MastClass):
             though at the moment this argument is ignored.
         profile : str
             Profile to use to identify yourself to the cloud provider (usually in ~/.aws/config).
+        verbose : bool
+            Default True.
+            Logger to display extra info and warning.
         """
         import boto3
         import botocore
@@ -1571,11 +1574,12 @@ class ObservationsClass(MastClass):
             self._boto3 = boto3
         self._botocore = botocore
 
-        log.info("Using the S3 STScI public dataset")
-        log.warning("Your AWS account will be charged for access to the S3 bucket")
-        log.info("See Request Pricing in https://aws.amazon.com/s3/pricing/ for details")
-        log.info("If you have not configured boto3, follow the instructions here: "
-                 "https://boto3.readthedocs.io/en/latest/guide/configuration.html")
+        if verbose:
+            log.info("Using the S3 STScI public dataset")
+            log.warning("Your AWS account will be charged for access to the S3 bucket")
+            log.info("See Request Pricing in https://aws.amazon.com/s3/pricing/ for details")
+            log.info("If you have not configured boto3, follow the instructions here: "
+                     "https://boto3.readthedocs.io/en/latest/guide/configuration.html")
 
     @deprecated(since="v0.3.9", alternative="disable_cloud_dataset")
     def disable_s3_hst_dataset(self):
