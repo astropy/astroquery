@@ -78,7 +78,6 @@ def query_moc_region_mockreturn(self, method, url, data=None,
                                 timeout=10, files=None,
                                 params=None, headers=None, **kwargs):
     if method == 'POST':
-        # a request to the XMatch QueryCat service
         if isinstance(data, dict):
             datad = data
         else:

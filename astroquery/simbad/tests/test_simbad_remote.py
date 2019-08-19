@@ -119,7 +119,6 @@ class TestSimbad(object):
     def test_query_moc_region_async(self):
         moc = MOC.from_json({'10': [0]})
         response = simbad.core.Simbad.query_moc_region(moc)
-
         assert response is not None
 
     def test_query_object_async(self):

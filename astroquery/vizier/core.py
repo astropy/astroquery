@@ -332,7 +332,6 @@ class VizierClass(BaseQuery):
             A Multi-Order Coverage region.
         table : str or list
             The tables(s) which must be searched for this identifier.
-            Querying the XMatch QueryCat service with a list of tables is not currently implemented.
 
         Returns
         -------
@@ -348,9 +347,9 @@ class VizierClass(BaseQuery):
         table = VizierClass._schema_catalog.validate(table)
         # XMatch does not support querying a list of table names
         if isinstance(table, list):
-            raise NotImplementedError('Querying the XMatch QueryCat service with a '
+            raise NotImplementedError('Querying the Simbad sim-moc service with a '
                 'list of tables is not currently implemented: '
-                'http://cdsxmatch.u-strasbg.fr/QueryCat/QueryCat')
+                'http://simbad.u-strasbg.fr/simbad/sim-moc')
 
         # Query the XMatch service to know which tables are supported
         if self._available_xmatch_tables is None:
@@ -382,9 +381,10 @@ class VizierClass(BaseQuery):
         if get_query_payload:
             return data_payload
 
+        url = 'http://simbad.u-strasbg.fr/simbad/sim-moc' 
         response = self._request(
             method='POST',
-            url='http://cdsxmatch.u-strasbg.fr/QueryCat/QueryCat',
+            url=url,
             data=data_payload,
             files={'moc': moc_file.getvalue()},
             stream=True,

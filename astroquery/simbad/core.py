@@ -196,15 +196,15 @@ class SimbadVOTableResult(SimbadResult):
         return self.__table
 
 
-class QueryCatVOTableResult(SimbadResult):
-    """VOTable-type result from the XMatch QueryCat service"""
+class SimbadCoverageVOTableResult(SimbadResult):
+    """VOTable-type result from the Simbad coverage service"""
     def __init__(self, txt, verbose=False, pedantic=False):
         self.__pedantic = pedantic
         self.__txt = txt
         self.__table = None
         if not verbose:
             commons.suppress_vo_warnings()
-        super(QueryCatVOTableResult, self).__init__(txt, verbose=verbose)
+        super(SimbadCoverageVOTableResult, self).__init__(txt, verbose=verbose)
 
     @property
     def data(self):
@@ -325,8 +325,6 @@ class SimbadClass(SimbadBaseQuery):
     # tried something for this in this ipython nb
     # <http://nbviewer.ipython.org/5851110>
     _VOTABLE_FIELDS = ['main_id', 'coordinates']
-
-    _available_xmatch_tables = None
 
     def __init__(self):
         super(SimbadClass, self).__init__()
@@ -777,7 +775,7 @@ class SimbadClass(SimbadBaseQuery):
         if get_query_payload:
             return response
 
-        return self._parse_result(response, QueryCatVOTableResult,
+        return self._parse_result(response, SimbadCoverageVOTableResult,
                                   verbose=verbose)
 
     def query_moc_region_async(self, moc, get_query_payload=False, cache=True):
@@ -807,26 +805,13 @@ class SimbadClass(SimbadBaseQuery):
         except ImportError:
             pass
 
-        # Query the XMatch service to know which tables are supported
-        if self._available_xmatch_tables is None:
-            self._available_xmatch_tables = self._get_available_xmatch_tables(cache)
-
-        table = 'simbad'
-        # Check whether the table given will be accepted by the XMatch service
-        if table not in self._available_xmatch_tables:
-            raise ValueError('{0} is not a table name accepted by the XMatch '
-                             'service! Please follow this link to see the table '
-                             'names accepted by the XMatch service: '
-                             'http://cdsxmatch.u-strasbg.fr/xmatch/api/v1/'
-                             'sync/tables?action=getVizieRTableNames'.format(table))
-
         moc_file = BytesIO()
         moc_fits = moc.serialize(format='fits')
         moc_fits.writeto(moc_file)
 
         data_payload = {
             'mode': 'mocfile',
-            'catName': table,
+            'catName': 'simbad',
             'format': 'votable',
             'limit': 50 if self.ROW_LIMIT == 0 else self.ROW_LIMIT,
         }
@@ -834,9 +819,10 @@ class SimbadClass(SimbadBaseQuery):
         if get_query_payload:
             return data_payload
 
+        sim_coverage_url = 'http://simbad.u-strasbg.fr/simbad/sim-moc'
         response = self._request(
             method='POST',
-            url='http://cdsxmatch.u-strasbg.fr/QueryCat/QueryCat',
+            url=sim_coverage_url,
             data=data_payload,
             files={'moc': moc_file.getvalue()},
             stream=True,
@@ -844,23 +830,6 @@ class SimbadClass(SimbadBaseQuery):
             cache=cache)
 
         return response
-
-    def _get_available_xmatch_tables(self, cache=True):
-        response = self._request(
-            method='GET',
-            url=url_helpers.urljoin_keep_path(
-                'http://cdsxmatch.u-strasbg.fr/xmatch/api/v1/sync',
-                'tables'),
-            params={
-                'action': 'getVizieRTableNames',
-                'RESPONSEFORMAT': 'txt'
-            },
-            cache=cache,
-        )
-
-        content = response.text
-        tables = content.splitlines()
-        return tables
 
     def query_catalog(self, catalog, verbose=False, cache=True,
                       get_query_payload=False):

@@ -101,7 +101,7 @@ def query_moc_region_mockreturn(self, method, url, data=None,
                                 timeout=10, files=None,
                                 params=None, headers=None, **kwargs):
     if method == 'POST':
-        # a request to the XMatch QueryCat service
+        # a request to the Simbad Coverage service
         if isinstance(data, dict):
             datad = data
         else:
@@ -110,7 +110,7 @@ def query_moc_region_mockreturn(self, method, url, data=None,
         filename = data_path(DATA_FILES['moc_region'])
         content = open(filename, "rb").read()
     elif method == 'GET':
-        # a request to the XMatch for getting the available tables
+        # a request to the Sim-cov for getting the available tables
         # supported by the service
         content = b'simbad'
     return MockResponse(content, **kwargs)
