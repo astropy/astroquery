@@ -381,7 +381,7 @@ class VizierClass(BaseQuery):
         if get_query_payload:
             return data_payload
 
-        url = 'http://simbad.u-strasbg.fr/simbad/sim-moc' 
+        url = 'http://simbad.u-strasbg.fr/simbad/sim-moc'
         response = self._request(
             method='POST',
             url=url,
