@@ -13,9 +13,9 @@ Created on 13 Aug. 2018
 """
 import pytest
 
-from astroquery.esa_hubble.core import ESAHubbleClass
-from astroquery.esa_hubble.tests.dummy_handler import DummyHandler
-from astroquery.esa_hubble.tests.dummy_tap_handler import DummyHubbleTapHandler
+from astroquery.esa.hubble import ESAHubbleClass
+from astroquery.esa.hubble.tests.dummy_handler import DummyHandler
+from astroquery.esa.hubble.tests.dummy_tap_handler import DummyHubbleTapHandler
 from astropy import coordinates
 
 

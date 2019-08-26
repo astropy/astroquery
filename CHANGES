@@ -32,7 +32,7 @@ cadc
 esa
 ^^^
 
-- Module added ``esa_hubble`` for accessing the ESA Hubble Archive. [#1373]
+- Module added ``hubble`` for accessing the ESA Hubble Archive. [#1373, #1534]
 
 gaia
 ^^^^

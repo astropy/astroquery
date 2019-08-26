@@ -15,7 +15,7 @@ from astropy import config as _config
 
 class Conf(_config.ConfigNamespace):
     """
-    Configuration parameters for `astroquery.esa_hubble`.
+    Configuration parameters for `astroquery.esa.hubble`.
     """
     DATA_ACTION = _config.ConfigItem("http://archives.esac.esa.int/"
                                      "ehst-sl-server/servlet/data-action?",
