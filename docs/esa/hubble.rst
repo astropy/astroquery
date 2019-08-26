@@ -1,10 +1,10 @@
 .. doctest-skip-all
 
-.. _astroquery.esa.esa_hubble:
+.. _astroquery.esa.hubble:
 
-****************************************
-esa_hubble (`astroquery.esa.esa_hubble`)
-****************************************
+************************************
+esa.hubble (`astroquery.esa.hubble`)
+************************************
 
 The Hubble Space Telescope (HST) is a joint ESA/NASA orbiting astronomical
 observatory operating from the near-infrared into the ultraviolet.  Launched
@@ -31,9 +31,9 @@ Examples
 
 .. code-block:: python
 
-  >>> from astroquery.esa.esa_hubble import ESAHubble
-  >>>
-  >>> ESAHubble.download_product("J6FL25S4Q", "RAW", "raw_data_for_J6FL25S4Q.tar")
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = EsaHubble()
+  >>> esahubble.download_product("J6FL25S4Q", "RAW", "raw_data_for_J6FL25S4Q.tar")
 
 This will download all files for the raw calibration level of the
 observation 'J6FL25S4Q' and it will store them in a tar called
@@ -45,9 +45,9 @@ observation 'J6FL25S4Q' and it will store them in a tar called
 
 .. code-block:: python
 
-  >>> from astroquery.esa.esa_hubble import ESAHubble
-  >>>
-  >>> ESAHubble.get_postcard("J6FL25S4Q", "RAW", 256, "raw_postcard_for_J6FL25S4Q.jpg")
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = EsaHubble()
+  >>> esahubble.get_postcard("J6FL25S4Q", "RAW", 256, "raw_postcard_for_J6FL25S4Q.jpg")
 
 This will download the postcard for the observation 'J8VP03010' with low
 resolution (256) and it will stored in a jpg called
@@ -63,9 +63,9 @@ Note: Artifact is a single Hubble product file.
 
 .. code-block:: python
 
-  >>> from astroquery.esa.esa_hubble import ESAHubble
-  >>>
-  >>> ESAHubble.get_artifact("w0ji0v01t_c2f.fits.gz")
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = EsaHubble()
+  >>> esahubble.get_artifact("w0ji0v01t_c2f.fits.gz")
 
 This will download the compressed artifact
 'w0ji0v01t_c2f.fits.gz'. 'w0ji0v01t_c2f.fits' is the name of the Hubble
@@ -79,9 +79,9 @@ The query_target function queries the name of the target as given by the propose
 
 .. code-block:: python
 
-  >>> from astroquery.esa.esa_hubble import ESAHubble
-  >>>
-  >>> table = ESAHubble.query_target("m31", "m31_query.xml")
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = EsaHubble()
+  >>> table = esahubble.query_target("m31", "m31_query.xml")
   >>> str(table)
 
 This will retrieve a table with the output of the query.
@@ -95,11 +95,11 @@ file 'm31_query.xml'.
 
 .. code-block:: python
 
-  >>> from astroquery.esa.esa_hubble import ESAHubble
   >>> from astropy import coordinates
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = ESAHubble()
   >>> c = coordinates.SkyCoord("00h42m44.51s +41d16m08.45s", frame='icrs')
-  >>>
-  >>> table = ESAHubble.cone_search(c, 7, "cone_search_m31_5.vot")
+  >>> table = esahubble.cone_search(c, 7, "cone_search_m31_5.vot")
   >>> str(table)
 
 This will perform a cone search with radius 7 arcmins. The result of the
@@ -115,8 +115,9 @@ Access Protocol (TAP) and via the Astronomical Data Query Language (ADQL).
 
 .. code-block:: python
 
-  >>> from astroquery.esa.esa_hubble import ESAHubble
-  >>> result = ESAHubble.query_hst_tap("select top 10 * from hsc_v2.hubble_sc2", "test.vot.gz")
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = ESAHubble()
+  >>> result = esahubble.query_hst_tap("select top 10 * from hsc_v2.hubble_sc2", "test.vot.gz")
   >>> print(result)
   >>> result.get_results()
 
@@ -129,5 +130,5 @@ result.get_results() or printing it by doing print(result).
 Reference/API
 =============
 
-.. automodapi:: astroquery.esa.esa_hubble
+.. automodapi:: astroquery.esa.hubble
     :no-inheritance-diagram:
