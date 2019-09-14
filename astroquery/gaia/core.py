@@ -135,7 +135,7 @@ class GaiaClass(TapPlus):
         return self.__gaiadata.get_datalinks(ids=ids, verbose=verbose)
 
     def __query_object(self, coordinate, radius=None, width=None, height=None,
-                       async_job=False, verbose=False):
+                       async_job=False, verbose=False, columns=[]):
         """Launches a job
         TAP & TAP+
 
@@ -155,6 +155,8 @@ class GaiaClass(TapPlus):
             synchronous)
         verbose : bool, optional, default 'False'
             flag to display information about the process
+        columns: list, optional, default []
+            if empty, all columns will be selected
 
         Returns
         -------
@@ -172,18 +174,41 @@ class GaiaClass(TapPlus):
             heightQuantity = self.__getQuantityInput(height, "height")
             widthDeg = widthQuantity.to(units.deg)
             heightDeg = heightQuantity.to(units.deg)
-            query = "SELECT DISTANCE(POINT('ICRS',"\
-                    "" + str(self.MAIN_GAIA_TABLE_RA) + ","\
-                    "" + str(self.MAIN_GAIA_TABLE_DEC) + ")"\
-                    ", POINT('ICRS'," + str(ra) + "," + str(dec) + ""\
-                    ")) AS dist, * FROM " + str(self.MAIN_GAIA_TABLE) + ""\
-                    " WHERE CONTAINS(POINT('ICRS'"\
-                    "," + str(self.MAIN_GAIA_TABLE_RA) + ","\
-                    "" + str(self.MAIN_GAIA_TABLE_DEC) + "),BOX('ICRS"\
-                    "'," + str(ra) + "," + str(dec) + ", "\
-                    "" + str(widthDeg.value) + ","\
-                    " " + str(heightDeg.value) + ""\
-                    "))=1 ORDER BY dist ASC"
+
+            if columns:
+                columns = ','.join(map(str, columns))
+            else:
+                columns = "*"
+
+            query = """
+                    SELECT
+                      DISTANCE(
+                        POINT('ICRS', {ra_column}, {dec_column}),
+                        POINT('ICRS', {ra}, {dec})
+                      ) as dist,
+                      {columns}
+                    FROM
+                      {table_name}
+                    WHERE
+                      1 = CONTAINS(
+                        POINT('ICRS', {ra_column}, {dec_column}),
+                        BOX(
+                          'ICRS',
+                          {ra},
+                          {dec},
+                          {width},
+                          {height}
+                        )
+                      )
+                    ORDER BY
+                      dist ASC
+                    """.format(**{
+                        'ra_column': self.MAIN_GAIA_TABLE_RA, 
+                        'dec_column': self.MAIN_GAIA_TABLE_DEC, 
+                        'columns': columns, 'table_name': self.MAIN_GAIA_TABLE,
+                        'ra': ra, 'dec': dec, 'width': widthDeg.value, 'height': heightDeg.value, 
+                    })
+
             if async_job:
                 job = self.launch_job_async(query, verbose=verbose)
             else:
@@ -191,7 +216,7 @@ class GaiaClass(TapPlus):
         return job.get_results()
 
     def query_object(self, coordinate, radius=None, width=None, height=None,
-                     verbose=False):
+                     verbose=False, columns=[]):
         """Launches a job
         TAP & TAP+
 
@@ -207,16 +232,18 @@ class GaiaClass(TapPlus):
             box height
         verbose : bool, optional, default 'False'
             flag to display information about the process
+        columns: list, optional, default []
+            if empty, all columns will be selected
 
         Returns
         -------
         The job results (astropy.table).
         """
         return self.__query_object(coordinate, radius, width, height,
-                                   async_job=False, verbose=verbose)
+                                   async_job=False, verbose=verbose, columns=columns)
 
     def query_object_async(self, coordinate, radius=None, width=None,
-                           height=None, verbose=False):
+                           height=None, verbose=False, columns=[]):
         """Launches a job (async)
         TAP & TAP+
 
@@ -241,7 +268,7 @@ class GaiaClass(TapPlus):
         The job results (astropy.table).
         """
         return self.__query_object(coordinate, radius, width, height,
-                                   async_job=True, verbose=verbose)
+                                   async_job=True, verbose=verbose, columns=columns)
 
     def __cone_search(self, coordinate, radius, table_name=MAIN_GAIA_TABLE,
                       ra_column_name=MAIN_GAIA_TABLE_RA,
@@ -249,7 +276,8 @@ class GaiaClass(TapPlus):
                       async_job=False,
                       background=False,
                       output_file=None, output_format="votable", verbose=False,
-                      dump_to_file=False):
+                      dump_to_file=False,
+                      columns=[]):
         """Cone search sorted by distance
         TAP & TAP+
 
@@ -280,6 +308,8 @@ class GaiaClass(TapPlus):
             flag to display information about the process
         dump_to_file : bool, optional, default 'False'
             if True, the results are saved in a file instead of using memory
+        columns: list, optional, default []
+            if empty, all columns will be selected
 
         Returns
         -------
@@ -291,13 +321,36 @@ class GaiaClass(TapPlus):
         if radius is not None:
             radiusQuantity = self.__getQuantityInput(radius, "radius")
             radiusDeg = commons.radius_to_unit(radiusQuantity, unit='deg')
-        query = "SELECT DISTANCE(POINT('ICRS',"+str(ra_column_name)+","\
-            + str(dec_column_name)+"), \
-            POINT('ICRS',"+str(ra)+","+str(dec)+")) AS dist, * \
-            FROM "+str(table_name)+" WHERE CONTAINS(\
-            POINT('ICRS',"+str(ra_column_name)+","+str(dec_column_name)+"),\
-            CIRCLE('ICRS',"+str(ra)+","+str(dec)+", "+str(radiusDeg)+"))=1 \
-            ORDER BY dist ASC"
+
+        if columns:
+            columns = ','.join(map(str, columns))
+        else:
+            columns = "*"
+
+        query = """
+                SELECT
+                  {columns},
+                  DISTANCE(
+                    POINT('ICRS', {ra_column}, {dec_column}),
+                    POINT('ICRS', {ra}, {dec})
+                  ) AS dist
+                FROM
+                  {table_name}
+                WHERE
+                  1 = CONTAINS(
+                    POINT('ICRS', {ra_column}, {dec_column}),
+                    CIRCLE('ICRS', {ra}, {dec}, {radius})
+                  )
+                ORDER BY
+                  dist ASC
+                """.format(**{
+                    'ra_column': ra_column_name, 
+                    'dec_column': dec_column_name, 
+                    'columns': columns, 'ra': ra, 
+                    'dec': dec, 'radius': radiusDeg, 
+                    'table_name': table_name
+                })
+
         if async_job:
             return self.launch_job_async(query=query,
                                          output_file=output_file,
@@ -318,7 +371,8 @@ class GaiaClass(TapPlus):
                     dec_column_name=MAIN_GAIA_TABLE_DEC,
                     output_file=None,
                     output_format="votable", verbose=False,
-                    dump_to_file=False):
+                    dump_to_file=False,
+                    columns=[]):
         """Cone search sorted by distance (sync.)
         TAP & TAP+
 
@@ -343,6 +397,8 @@ class GaiaClass(TapPlus):
             flag to display information about the process
         dump_to_file : bool, optional, default 'False'
             if True, the results are saved in a file instead of using memory
+        columns: list, optional, default []
+            if empty, all columns will be selected
 
         Returns
         -------
@@ -358,7 +414,7 @@ class GaiaClass(TapPlus):
                                   output_file=output_file,
                                   output_format=output_format,
                                   verbose=verbose,
-                                  dump_to_file=dump_to_file)
+                                  dump_to_file=dump_to_file, columns=columns)
 
     def cone_search_async(self, coordinate, radius=None,
                           table_name=MAIN_GAIA_TABLE,
@@ -366,7 +422,7 @@ class GaiaClass(TapPlus):
                           dec_column_name=MAIN_GAIA_TABLE_DEC,
                           background=False,
                           output_file=None, output_format="votable",
-                          verbose=False, dump_to_file=False):
+                          verbose=False, dump_to_file=False, columns=[]):
         """Cone search sorted by distance (async)
         TAP & TAP+
 
@@ -410,7 +466,7 @@ class GaiaClass(TapPlus):
                                   output_file=output_file,
                                   output_format=output_format,
                                   verbose=verbose,
-                                  dump_to_file=dump_to_file)
+                                  dump_to_file=dump_to_file, columns=columns)
 
     def __checkQuantityInput(self, value, msg):
         if not (isinstance(value, str) or isinstance(value, units.Quantity)):
