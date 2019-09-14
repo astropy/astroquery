@@ -165,7 +165,7 @@ class DummyTapHandler(object):
 
     def cone_search(self, coordinate, radius, output_file=None,
                     output_format="votable", verbose=False,
-                    dump_to_file=False):
+                    dump_to_file=False, columns=[]):
         self.__invokedMethod = 'cone_search'
         self.__parameters['coordinate'] = coordinate
         self.__parameters['radius'] = radius
@@ -173,10 +173,11 @@ class DummyTapHandler(object):
         self.__parameters['output_format'] = output_format
         self.__parameters['verbose'] = verbose
         self.__parameters['dump_to_file'] = dump_to_file
+        self.__parameters['columns'] = columns
 
     def cone_search_async(self, coordinate, radius, background=False,
                           output_file=None, output_format="votable",
-                          verbose=False, dump_to_file=False):
+                          verbose=False, dump_to_file=False, columns=[]):
         self.__invokedMethod = 'cone_search_async'
         self.__parameters['coordinate'] = coordinate
         self.__parameters['radius'] = radius
@@ -185,6 +186,7 @@ class DummyTapHandler(object):
         self.__parameters['output_format'] = output_format
         self.__parameters['verbose'] = verbose
         self.__parameters['dump_to_file'] = dump_to_file
+        self.__parameters['columns'] = columns
 
     def remove_jobs(self, jobs_list, verbose=False):
         self.__invokedMethod = 'remove_jobs'
