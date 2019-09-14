@@ -203,10 +203,10 @@ class GaiaClass(TapPlus):
                     ORDER BY
                       dist ASC
                     """.format(**{
-                        'ra_column': self.MAIN_GAIA_TABLE_RA, 
-                        'dec_column': self.MAIN_GAIA_TABLE_DEC, 
+                        'ra_column': self.MAIN_GAIA_TABLE_RA,
+                        'dec_column': self.MAIN_GAIA_TABLE_DEC,
                         'columns': columns, 'table_name': self.MAIN_GAIA_TABLE,
-                        'ra': ra, 'dec': dec, 'width': widthDeg.value, 'height': heightDeg.value, 
+                        'ra': ra, 'dec': dec, 'width': widthDeg.value, 'height': heightDeg.value,
                     })
 
             if async_job:
@@ -344,10 +344,10 @@ class GaiaClass(TapPlus):
                 ORDER BY
                   dist ASC
                 """.format(**{
-                    'ra_column': ra_column_name, 
-                    'dec_column': dec_column_name, 
-                    'columns': columns, 'ra': ra, 
-                    'dec': dec, 'radius': radiusDeg, 
+                    'ra_column': ra_column_name,
+                    'dec_column': dec_column_name,
+                    'columns': columns, 'ra': ra,
+                    'dec': dec, 'radius': radiusDeg,
                     'table_name': table_name
                 })
 
