@@ -34,7 +34,7 @@ class GaiaClass(TapPlus):
     MAIN_GAIA_TABLE_DEC = conf.MAIN_GAIA_TABLE_DEC
 
     def __init__(self, tap_plus_conn_handler=None, datalink_handler=None):
-        super(GaiaClass, self).__init__(url="http://gea.esac.esa.int/",
+        super(GaiaClass, self).__init__(url="https://gea.esac.esa.int/",
                                         server_context="tap-server",
                                         tap_context="tap",
                                         upload_context="Upload",
@@ -44,7 +44,7 @@ class GaiaClass(TapPlus):
                                         connhandler=tap_plus_conn_handler)
         # Data uses a different TapPlus connection
         if datalink_handler is None:
-            self.__gaiadata = TapPlus(url="http://geadata.esac.esa.int/",
+            self.__gaiadata = TapPlus(url="https://geadata.esac.esa.int/",
                                       server_context="data-server",
                                       tap_context="tap",
                                       upload_context="Upload",
@@ -463,7 +463,7 @@ class GaiaClass(TapPlus):
         """
 
         return self.is_valid_user(user_id=user_id,
-                                            verbose=verbose)
+                                  verbose=verbose)
 
     def cross_match(self, full_qualified_table_name_a=None,
                     full_qualified_table_name_b=None,
