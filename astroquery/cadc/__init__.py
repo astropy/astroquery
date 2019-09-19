@@ -12,7 +12,7 @@ class Conf(_config.ConfigNamespace):
     CADC_REGISTRY_URL = _config.ConfigItem(
         'http://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/reg/resource-caps',
         'CADC registry information')
-    CADCTAP_SERVICE_URI = _config.ConfigItem('ivo://cadc.nrc.ca/tap',
+    CADCTAP_SERVICE_URI = _config.ConfigItem('ivo://cadc.nrc.ca/argus',
                                              'CADC TAP service identifier')
     CADCDATLINK_SERVICE_URI = _config.ConfigItem(
         'ivo://cadc.nrc.ca/caom2ops', 'CADC DataLink service identifier')
