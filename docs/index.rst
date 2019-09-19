@@ -186,6 +186,7 @@ The following modules have been completed using a common API:
   vo_conesearch/vo_conesearch.rst
   vsa/vsa.rst
   xmatch/xmatch.rst
+  xmm_newton/xmm_newton.rst
 
 
 These others are functional, but do not follow a common & consistent API:
@@ -279,6 +280,7 @@ generally return a table listing the available data first.
   ukidss/ukidss.rst
   vsa/vsa.rst
   skyview/skyview.rst
+  xmm_newton/xmm_newton.rst
 
 Simulations
 -----------
