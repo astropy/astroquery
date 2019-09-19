@@ -88,7 +88,7 @@ This will download the EPIC postcard for the observation '0505720401' and it wil
 'P0505720401EPX000OIMAGE8000.PNG'. The parameters available are:
 
 	observation_id : string
-    	id of the observation for which download the postcard, mandatory
+		id of the observation for which download the postcard, mandatory
     	
 	image_type : string
 		image type, optional, default 'OBS_EPIC', values: OBS_EPIC, OBS_RGS_FLUXED, OBS_RGS_FLUXED_2, OBS_RGS_FLUXED_3, OBS_EPIC_MT, OBS_RGS_FLUXED_MT, OBS_OM_V, OBS_OM_B, OBS_OM_U, OBS_OM_L, OBS_OM_M, OBS_OM_S, OBS_OM_W
