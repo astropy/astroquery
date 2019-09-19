@@ -89,14 +89,15 @@ This will download the EPIC postcard for the observation '0505720401' and it wil
 
 	observation_id : string
     	id of the observation for which download the postcard, mandatory
+    	
 	image_type : string
-		image type, optional, default 'OBS_EPIC'
-        It can be: OBS_EPIC, OBS_RGS_FLUXED, OBS_RGS_FLUXED_2, OBS_RGS_FLUXED_3, OBS_EPIC_MT, OBS_RGS_FLUXED_MT, OBS_OM_V, OBS_OM_B, OBS_OM_U, OBS_OM_L, OBS_OM_M, OBS_OM_S, OBS_OM_W
+		image type, optional, default 'OBS_EPIC', values: OBS_EPIC, OBS_RGS_FLUXED, OBS_RGS_FLUXED_2, OBS_RGS_FLUXED_3, OBS_EPIC_MT, OBS_RGS_FLUXED_MT, OBS_OM_V, OBS_OM_B, OBS_OM_U, OBS_OM_L, OBS_OM_M, OBS_OM_S, OBS_OM_W
+	
 	filename : string
  		file name to be used to store the postcard, optional, default None
+	
 	verbose : bool
-		optional, default 'False'
-		Flag to display information about the process
+		optional, default 'False', flag to display information about the process
 
 
 ------------------------------------------
@@ -113,17 +114,19 @@ Query Language (ADQL).
   >>> print(result)
 
 This will execute an ADQL query to download the first 10 observations in the XMM-Newton Science Archive. The result of the query will be 
-stored in the file 'results10.csv'. The result of this query can be printed by doing print(result).
+stored in the file 'results10.csv'. The result of this query can be printed by doing print(result). The parameters available are:
 
-The parameters available are:
-		query : str, mandatory
-            query (adql) to be executed
-        output_file : str, optional, default None
-            file name where the results are saved
-        output_format : str, optional, default 'votable'
-            results format
-        verbose : bool, optional, default 'False'
-            flag to display information about the process
+	query : str, mandatory
+		query (adql) to be executed
+    
+	output_file : str, optional, default None
+		file name where the results are saved
+		
+	output_format : str, optional, default 'votable'
+		results format
+
+	verbose : bool, optional, default 'False'
+		flag to display information about the process
             
 -----------------------------------
 4. Getting table details of XSA TAP 
@@ -134,13 +137,13 @@ The parameters available are:
   >>> from astroquery.xmm_newton import XMMNewton
   >>> XMMNewton.get_tables(True)
 
-This will show the available tables in XSA TAP service in the XMM-Newton Science Archive.
+This will show the available tables in XSA TAP service in the XMM-Newton Science Archive. The parameters available are:
 
-The parameters available are:
-		only_names : bool, TAP+ only, optional, default 'False'
-            True to load table names only
-        verbose : bool, optional, default 'False'
-            flag to display information about the process
+	only_names : bool, TAP+ only, optional, default 'False'
+		True to load table names only
+	
+	verbose : bool, optional, default 'False'
+		flag to display information about the process
             
 -------------------------------------
 4. Getting columns details of XSA TAP 
@@ -151,15 +154,16 @@ The parameters available are:
   >>> from astroquery.xmm_newton import XMMNewton
   >>> XMMNewton.get_columns('public.v_all_observations')
 
-This will show the column details of the table 'v_all_observations' in XSA TAP service in the XMM-Newton Science Archive.
+This will show the column details of the table 'v_all_observations' in XSA TAP service in the XMM-Newton Science Archive. The parameters available are:
 
-The parameters available are:
-		table_name : string, mandatory, default None
-            table name of which, columns will be returned
-        only_names : bool, TAP+ only, optional, default 'False'
-            True to load table names only
-        verbose : bool, optional, default 'False'
-            flag to display information about the process
+	table_name : string, mandatory, default None
+		table name of which, columns will be returned
+	
+	only_names : bool, TAP+ only, optional, default 'False'
+		True to load table names only
+        
+	verbose : bool, optional, default 'False'
+		flag to display information about the process
             
 
 Reference/API
