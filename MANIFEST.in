@@ -1,6 +1,6 @@
 include LICENSE.rst
 include README.rst
-include CHANGES
+include CHANGES.rst
 include CITATION
 include astroquery/CITATION
 include astroquery/splatalogue/data/*
