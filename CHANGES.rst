@@ -1,11 +1,4 @@
-0.4.0 (unreleased)
-===================
-
-New Tools and Services
-----------------------
-
-
-0.3.10 (unreleased)
+0.3.10 (2019-09-19)
 ===================
 
 New Tools and Services
@@ -56,9 +49,6 @@ mpc
 Service fixes and enhancements
 ------------------------------
 
-alfalfa
-^^^^^^^
-
 alma
 ^^^^
 
@@ -68,56 +58,20 @@ alma
 
 - Add access to the ``member_ous_id`` attribute. [#1316]
 
-atomic
-^^^^^^
-
-besancon
-^^^^^^^^
-
 cds
 ^^^
 
 - Apply MOCPy v0.5.* API changes. [#1343]
-
-cosmosim
-^^^^^^^^
-
-esasky
-^^^^^^
 
 eso
 ^^^
 
 - Try to re-authenticate when logged out from the ESO server. [#1315]
 
-exoplanet_orbit_database
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-fermi
-^^^^^
-
-gaia
-^^^^
-
-gama
-^^^^
-
 heasarc
 ^^^^^^^
 
 - Fixing error handling to filter out only the query errors. [#1338]
-
-hitran
-^^^^^^
-
-ibe
-^^^
-
-irsa
-^^^^
-
-irsa_dust
-^^^^^^^^^
 
 jplhorizons
 ^^^^^^^^^^^
@@ -136,18 +90,6 @@ jplsbdb
 ^^^^^^^
 
 - Fix for missing values. [#1333]
-
-jplspec
-^^^^^^^
-
-lamda
-^^^^^
-
-lcogt
-^^^^^
-
-magpis
-^^^^^^
 
 mast
 ^^^^
@@ -171,12 +113,6 @@ nasa_ads
 
 - Fix an error in one of the default keys, citations->citation. [#1337]
 
-nasa_exoplanet_archive
-^^^^^^^^^^^^^^^^^^^^^^
-
-ned
-^^^
-
 nist
 ^^^^
 
@@ -190,40 +126,10 @@ nrao
 
 - Fix parameter validation allowing for hybrid telescope configuration. [#1283]
 
-nvas
-^^^^
-
-oac
-^^^
-
-ogle
-^^^^
-
-open_exoplanet_catalogue
-^^^^^^^^^^^^^^^^^^^^^^^^
-
 sdss
 ^^^^
 
 - Update to SDSS-IV URLs and general clean-up. [#1308]
-
-sha
-^^^
-
-simbad
-^^^^^^
-
-skyview
-^^^^^^^
-
-splatalogue
-^^^^^^^^^^^
-
-ukidss
-^^^^^^
-
-vamdc
-^^^^^
 
 vizier
 ^^^^^^
@@ -233,22 +139,12 @@ vizier
 - Fix to ensure to fall back on the default catalog when it's not provided as
   part of the query method. [#1328]
 
-- Fix swapped width and lenght parameters. [#1406]
-
-vo_conesearch
-^^^^^^^^^^^^^
-
-vsa
-^^^
-
-wfau
-^^^^
+- Fix swapped width and length parameters. [#1406]
 
 xmatch
 ^^^^^^
 
 - Add parameter ``area`` to restrict sky  region considered. [#1476]
-
 
 
 Infrastructure, Utility and Other Changes and Additions
@@ -265,6 +161,7 @@ Infrastructure, Utility and Other Changes and Additions
 
 - Added a new ``astroquery.__citation__`` and ``astroquery.__bibtex__``
   attributes which give a citation for astroquery in bibtex format. [#1391]
+
 
 
 0.3.9 (2018-12-06)
