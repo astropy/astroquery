@@ -194,7 +194,7 @@ def test_get_access_url():
     with patch.object(cadc_core.requests, 'get', get):
         cadc_core.get_access_url.caps = {}
         assert 'http://my.org/mytap' == cadc_core.get_access_url('mytap')
-        assert 'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/tap/tables' == \
+        assert 'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/argus/tables' == \
             cadc_core.get_access_url('mytap',
                                      'ivo://ivoa.net/std/VOSI#tables-1.1')
 
