@@ -11,9 +11,7 @@ if LooseVersion(astropy_version) < LooseVersion('2.0.3'):
     # Astropy is not compatible with the standalone plugins prior this while
     # astroquery requires them, so we need this workaround. This will mess
     # up the test header, but everything else will work.
-    from astropy.tests.pytest_plugins import (pytest_report_header,
-                                              PYTEST_HEADER_MODULES,
-                                              enable_deprecations_as_exceptions,
+    from astropy.tests.pytest_plugins import (PYTEST_HEADER_MODULES,
                                               TESTED_VERSIONS)
 elif astropy_version < '3.0':
     # With older versions of Astropy, we actually need to import the pytest
@@ -24,9 +22,14 @@ else:
     # automatically made available when Astropy is installed. This means it's
     # not necessary to import them here, but we still need to import global
     # variables that are used for configuration.
-    from astropy.tests.plugins.display import (pytest_report_header,
-                                               PYTEST_HEADER_MODULES,
+    from astropy.tests.plugins.display import (PYTEST_HEADER_MODULES,
                                                TESTED_VERSIONS)
+    try:
+        # The astropy test runner sets up the header automatically,
+        # we should import it only when runnig pytest directly.
+        _ASTROPY_TEST_
+    except NameError:
+        from astropy.tests.plugins.display import pytest_report_header
 
 from astropy.tests.helper import enable_deprecations_as_exceptions
 

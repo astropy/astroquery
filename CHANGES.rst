@@ -4,12 +4,6 @@
 New Tools and Services
 ----------------------
 
-cadc
-^^^^
-
-- Added the get_images function [#1486]
-
-
 
 0.3.10 (unreleased)
 ===================
@@ -25,9 +19,7 @@ astrometry_net
 cadc
 ^^^^
 
-- Module added to access data at the Canadian Astronomy Data Centre. [#1354]
-
-- Bugfix for radius parsing. [#1507]
+- Module added to access data at the Canadian Astronomy Data Centre. [#1354, #1486]
 
 esa
 ^^^
@@ -40,10 +32,25 @@ gaia
 - Added tables sharing, tables edition, upload from pytable and job results,
   cross match, data access and datalink access. [#1266]
 
+imcce
+^^^^^
 
-Infrastructure fixes and enhancements
--------------------------------------
+- Service ``miriade`` added, querying asteroid and comets ephemerides. [#1353]
 
+- Service ``skybot`` added, identifying Solar System objects in a given
+  field at a given epoch. [#1353]
+
+mast
+^^^^
+
+- Addition of observation metadata query. [#1473]
+
+- Addition of catalogs.MAST PanSTARRS catalog queries. [#1473]
+
+mpc
+^^^
+
+- Functionality added to query observations database. [#1350]
 
 
 Service fixes and enhancements
@@ -55,9 +62,11 @@ alfalfa
 alma
 ^^^^
 
-- Fix some broken VOtable returns and a broken login URL [#1369]
+- Fix some broken VOtable returns and a broken login URL. [#1369]
 
 - ``get_project_metadata()`` is added to query project metadata. [#1147]
+
+- Add access to the ``member_ous_id`` attribute. [#1316]
 
 atomic
 ^^^^^^
@@ -104,13 +113,6 @@ hitran
 ibe
 ^^^
 
-imcce
-^^^^^
-
-- service ``miriade`` added, querying asteroid and comets ephemerides [#1353]
-
-- service ``skybot`` added, identifying Solar System objects in a given field at a given epoch [#1353]
-
 irsa
 ^^^^
 
@@ -128,8 +130,12 @@ jplhorizons
 
 - Fix crash when precision to the second on epoch is requested. [#1488]
 
+- Fix for missing H, G values. [#1333]
+
 jplsbdb
 ^^^^^^^
+
+- Fix for missing values. [#1333]
 
 jplspec
 ^^^^^^^
@@ -151,18 +157,11 @@ mast
 - Remove deprecated authorization code, fix unit tests, general code cleanup,
   documentation additions. [#1409]
 
-- MAST: Addition of observation metadata query. Addition of catalogs.MAST PanSTARRS catalog queries. [#1473]
-
 - TIC catalog search update. [#1483]
 
 - Add search by object name to Tesscut, make resolver_object public, minor bugfixes. [#1499]
 
 - Add option to query TESS Candidate Target List (CTL) Catalog. [#1503]
-
-mpc
-^^^
-
-- Functionality added to query observations database. [#1350]
 
 - Add verbose keyword for option to silence logger info and warning about S3
   in enable_cloud_dataset(). [#1536]
@@ -188,6 +187,8 @@ nist
 
 nrao
 ^^^^
+
+- Fix parameter validation allowing for hybrid telescope configuration. [#1283]
 
 nvas
 ^^^^
@@ -215,13 +216,6 @@ simbad
 skyview
 ^^^^^^^
 
-solarsystem
-^^^^^^^^^^^
-
-- ``imcce`` services added [#1353]
-
-- updates to jplhorizons [#1335, #1478] and mpc [#1350]
-
 splatalogue
 ^^^^^^^^^^^
 
@@ -235,6 +229,11 @@ vizier
 ^^^^^^
 
 - Support using the output values of ``find_catalog`` in ``get_catalog``. [#603]
+
+- Fix to ensure to fall back on the default catalog when it's not provided as
+  part of the query method. [#1328]
+
+- Fix swapped width and lenght parameters. [#1406]
 
 vo_conesearch
 ^^^^^^^^^^^^^
@@ -255,6 +254,9 @@ xmatch
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
 
+- HTTP user-agent now has the string ``_testrun`` in the version number of astroquery,
+  for queries triggered by testing. [#1307]
+
 - Adding deprecation decorators to ``utils`` from astropy to be used while we
   support astropy <v3.1.2. [#1435]
 
@@ -266,7 +268,7 @@ Infrastructure, Utility and Other Changes and Additions
 
 
 0.3.9 (2018-12-06)
-------------------
+==================
 
 - New tool: MPC module can now request comet and asteroid ephemerides from the
   Minor Planet Ephemeris Service, and return a table of observatory codes and
@@ -326,7 +328,7 @@ Infrastructure, Utility and Other Changes and Additions
 
 
 0.3.8 (2018-04-27)
-------------------
+==================
 
 - New tool ``jplhorizons``: JPL Horizons service to obtain ephemerides,
   orbital elements, and state vectors for Solar System objects. [#1023]
@@ -355,7 +357,7 @@ Infrastructure, Utility and Other Changes and Additions
   redirect but it is deprecated. [#1033]
 
 0.3.7 (2018-01-25)
-------------------
+==================
 
 - New tool: Exoplanet Orbit Catalog, NASA Exoplanet Archive [#771]
 - ESO: The upstream API changed.  We have adapted.  [#970]
@@ -394,7 +396,7 @@ Infrastructure, Utility and Other Changes and Additions
 - GAMA: Updated to use the newer DR3 release. [#1005]
 
 0.3.6 (2017-07-03)
-------------------
+==================
 
 - New tool: MAST - added module to access the Barbara A. Mikulski Archive
   for Space Telescopes. [#920, #937]
@@ -412,7 +414,7 @@ Infrastructure, Utility and Other Changes and Additions
   for services that have HTTPS URLs but missing certificates. [#928]
 
 0.3.5 (2017-03-29)
-------------------
+==================
 
 - New tool: Gaia - added module to access the European Space Agency Gaia
   Archive. (#836)
@@ -439,7 +441,7 @@ Infrastructure, Utility and Other Changes and Additions
 - NRAO: Change default radius from 1 degree to 1 arcmin. (#813)
 
 0.3.4 (2016-11-21)
-------------------
+==================
 
 - New tool: basic HITRAN queries support (#617)
 - Fix #737, an issue with broken ALMA archive tables, via a hack (#775)
@@ -453,7 +455,7 @@ Infrastructure, Utility and Other Changes and Additions
 - Fix issue with exclude keyword in Splatalogue queries (#616)
 
 0.3.3 (2016-10-11)
-------------------
+==================
 
 - Option to toggle the display of the download bar (#734)
 - ESASKY - added new module for querying the ESASKY archive (#758, #763, #765)
@@ -464,7 +466,7 @@ Infrastructure, Utility and Other Changes and Additions
 - Minor fixes to ESO to match upstream form changes (#729)
 
 0.3.2 (2016-06-10)
-------------------
+==================
 
 - Update ESO tool to work with new web API (#696)
 - Added new instruments for ESO: ``ambient_paranal`` and ``meteo_paranal``
@@ -479,7 +481,7 @@ Infrastructure, Utility and Other Changes and Additions
 - VIZIER add a flag to return the query payload for debugging (#668)
 
 0.3.1 (2016-01-19)
-------------------
+==================
 
 - Fix bug in xmatch service that required astropy tables to have exactly 2
   columns on input (#641)
@@ -491,14 +493,14 @@ Infrastructure, Utility and Other Changes and Additions
   data in particular. (#450)
 
 0.3.0 (2015-10-26)
-------------------
+==================
 
 - Fix ESO APEX project ID keyword (#591)
 - Fix ALMA queries when accessing private data (#601)
 - Allow data downloads to use the cache (#601)
 
 0.2.6 (2015-07-23)
-------------------
+==================
 
 - ESO bugfixes for handling radio buttons (#560)
 - ESO: added SPHERE to list (#551)
@@ -507,7 +509,7 @@ Infrastructure, Utility and Other Changes and Additions
 - Fix Splatalogue version keyword (#557)
 
 0.2.4 (2015-03-27)
-------------------
+==================
 
 - Bugfix for ``utils.commons.send_request()``: Raise exception if error status
   is returned in the response. (#491)
@@ -517,7 +519,7 @@ Infrastructure, Utility and Other Changes and Additions
   calculation utility (#546)
 
 0.2.3 (2014-09-30)
-------------------
+==================
 
 
 - AstroResponse has been removed, which means that all cached objects will have
@@ -538,7 +540,7 @@ Infrastructure, Utility and Other Changes and Additions
   the payload before querying. (#438)
 
 0.2.2 (2014-09-10)
-------------------
+==================
 
 - Support direct transmission of SQL queries to the SDSS server (#410)
 - Added email/text job completion alert (#407) to the CosmoSim tool (#267).
@@ -551,7 +553,7 @@ Infrastructure, Utility and Other Changes and Additions
 - setup script and installation fixes
 
 0.2 (2014-08-17)
-----------------
+================
 
 - New tools: ESO, GAMA, xmatch, skyview, OEC
 - Consistent with astropy 0.4 API for coordinates
@@ -563,6 +565,6 @@ Infrastructure, Utility and Other Changes and Additions
 
 
 0.1 (2013-09-19)
-----------------
+================
 
 - Initial release.  Includes features!
