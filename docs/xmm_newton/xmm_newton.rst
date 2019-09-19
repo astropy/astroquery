@@ -32,58 +32,57 @@ Examples
 This will download all PPS files for the observation '0505720401' and instrument MOS1, with 'PDF' extension and 
 it will store them in a tar called 'result0505720401.tar'. The parameters available are:
 
-observation_id : string
-id of the observation to be downloaded 10 digits, mandatory
-example: 0144090201
+	observation_id : string
+	id of the observation to be downloaded 10 digits, mandatory
+	example: 0144090201
 
-level : string
-level to download, optional, by default everything is downloaded
-values: ODF, PPS
+	level : string
+	level to download, optional, by default everything is downloaded
+	values: ODF, PPS
 
-instname : string
-instrument name, optional, two characters, by default everything
-values: OM, R1, R2, M1, M2, PN
+	instname : string
+	instrument name, optional, two characters, by default everything
+	values: OM, R1, R2, M1, M2, PN
 
-instmode : string
-instrument mode, optional
-examples: Fast, FlatFieldLow, Image, PrimeFullWindow
+	instmode : string
+	instrument mode, optional
+	examples: Fast, FlatFieldLow, Image, PrimeFullWindow
 
-filter : string
-filter, optional
-examples: Closed, Open, Thick, UVM2, UVW1, UVW2, V
+	filter : string
+	filter, optional
+	examples: Closed, Open, Thick, UVM2, UVW1, UVW2, V
 
-expflag : string
-exposure flag, optional, by default everything
-values: S, U, X(not applicable)
+	expflag : string
+	exposure flag, optional, by default everything
+	values: S, U, X(not applicable)
 
-expno : integer
-exposure number with 3 digits, by default all exposures
-examples: 001, 003
+	expno : integer
+	exposure number with 3 digits, by default all exposures
+	examples: 001, 003
 
-name : string
-product type, optional, 6 characters, by default all product types
-examples: 3COLIM, ATTTSR, EVENLI, SBSPEC, EXPMAP, SRCARF
+	name : string
+	product type, optional, 6 characters, by default all product types
+	examples: 3COLIM, ATTTSR, EVENLI, SBSPEC, EXPMAP, SRCARF
 
-datasubsetno : character
-data subset number, optional, by default all
-examples: 0, 1
+	datasubsetno : character
+	data subset number, optional, by default all
+	examples: 0, 1
 
-sourceno : hex value
-source number, optional, by default all sources
-example: 00A, 021, 001
+	sourceno : hex value
+	source number, optional, by default all sources
+	example: 00A, 021, 001
 
-extension : string
-file format, optional, by default all formats
-values: ASC, ASZ, FTZ, HTM, IND, PDF, PNG
+	extension : string
+	file format, optional, by default all formats
+	values: ASC, ASZ, FTZ, HTM, IND, PDF, PNG
 
-filename : string
-file name to be used to store the file, optional, default
-None
+	filename : string
+	file name to be used to store the file, optional, default
+	None
 
-verbose : bool
-optional, default 'False'
-flag to display information about the process
-            
+	verbose : bool
+	optional, default 'False'
+	flag to display information about the process        
             
 For more details of the parameters check the section 3.4 at:
 		'http://nxsa.esac.esa.int/nxsa-web/#aio'
