@@ -20,14 +20,14 @@ Examples
 ========
 
 ------------------------------
-1. Getting XMM-Newton products
+1. Getting XMM-Newton data
 ------------------------------
 
 .. code-block:: python
 
   >>> from astroquery.xmm_newton import XMMNewton
   >>>
-  >>> XMMNewton.download_product('0505720401',level="PPS",extension="PDF",instname="M1",filename="result0505720401.tar")
+  >>> XMMNewton.download_data('0505720401',level="PPS",extension="PDF",instname="M1",filename="result0505720401.tar")
 
 This will download all PPS files for the observation '0505720401' and instrument MOS1, with 'PDF' extension and 
 it will store them in a tar called 'result0505720401.tar'. The parameters available are:
@@ -99,7 +99,6 @@ This will download the EPIC postcard for the observation '0505720401' and it wil
 	verbose : bool
 		optional, default 'False', flag to display information about the process
 
-
 ------------------------------------------
 3. Getting XMM-Newton metadata through TAP 
 ------------------------------------------
@@ -116,17 +115,17 @@ Query Language (ADQL).
 This will execute an ADQL query to download the first 10 observations in the XMM-Newton Science Archive. The result of the query will be 
 stored in the file 'results10.csv'. The result of this query can be printed by doing print(result). The parameters available are:
 
-	query : str, mandatory
-		query (adql) to be executed
+	query : str
+		query (adql) to be executed, mandatory
     
-	output_file : str, optional, default None
-		file name where the results are saved
+	output_file : str
+		file name where the results are saved, optional, default None
 		
-	output_format : str, optional, default 'votable'
-		results format
+	output_format : str
+		results format, optional, default 'votable', values: 'votable', 'csv'
 
-	verbose : bool, optional, default 'False'
-		flag to display information about the process
+	verbose : bool
+		flag to display information about the process, optional, default 'False'
             
 -----------------------------------
 4. Getting table details of XSA TAP 
@@ -139,11 +138,11 @@ stored in the file 'results10.csv'. The result of this query can be printed by d
 
 This will show the available tables in XSA TAP service in the XMM-Newton Science Archive. The parameters available are:
 
-	only_names : bool, TAP+ only, optional, default 'False'
-		True to load table names only
+	only_names : bool
+		TAP+ only, true to load table names only, optional, default 'False'
 	
-	verbose : bool, optional, default 'False'
-		flag to display information about the process
+	verbose : bool
+		flag to display information about the process, optional, default 'False'
             
 -------------------------------------
 4. Getting columns details of XSA TAP 
@@ -156,14 +155,14 @@ This will show the available tables in XSA TAP service in the XMM-Newton Science
 
 This will show the column details of the table 'v_all_observations' in XSA TAP service in the XMM-Newton Science Archive. The parameters available are:
 
-	table_name : string, mandatory, default None
-		table name of which, columns will be returned
+	table_name : string
+		table name of which, columns will be returned, mandatory, default None
 	
-	only_names : bool, TAP+ only, optional, default 'False'
-		True to load table names only
+	only_names : bool
+		TAP+ only, true to load table names only, optional, default 'False'
         
-	verbose : bool, optional, default 'False'
-		flag to display information about the process
+	verbose : bool
+		flag to display information about the process, optional, default 'False'
             
 
 Reference/API

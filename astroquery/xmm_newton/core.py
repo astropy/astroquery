@@ -84,13 +84,13 @@ class XMMNewtonClass(BaseQuery):
         else:
             self._tap = tap_handler
 
-    def download_product(self, observation_id, level=None, instname=None,
+    def download_data(self, observation_id, level=None, instname=None,
                          instmode=None, filter=None, expflag=None,
                          expno=None, name=None, datasubsetno=None,
                          sourceno=None, extension=None,
                          filename=None, verbose=False):
         """
-        Download products from XMM-Newton
+        Download data from XMM-Newton
 
         Parameters
         ----------
@@ -259,7 +259,7 @@ class XMMNewtonClass(BaseQuery):
             file name where the results are saved if dumpToFile is True.
             If this parameter is not provided, the jobid is used instead
         output_format : str, optional, default 'votable'
-            results format
+            possible values 'votable' or 'csv'
         verbose : bool, optional, default 'False'
             flag to display information about the process
 

@@ -28,7 +28,7 @@ class TestXMMNewton():
         dummyTapHandler = DummyXMMNewtonTapHandler("launch_job", parameterst)
         return dummyTapHandler
 
-    def test_download_product(self):
+    def test_download_data(self):
         parameters = {'observation_id': "0112880801",
                       'level': "ODF",
                       'instname': None,
@@ -44,7 +44,7 @@ class TestXMMNewton():
                       'verbose': False}
         dummyHandler = DummyHandler("download_product", parameters)
         xsa = XMMNewtonClass(dummyHandler, self.get_dummy_tap_handler())
-        xsa.download_product(parameters['observation_id'],
+        xsa.download_data(parameters['observation_id'],
                              parameters['level'],
                              parameters['instname'],
                              parameters['instmode'],
