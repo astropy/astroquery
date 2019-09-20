@@ -694,6 +694,11 @@ Exoplanet Survey Satellite (TESS). The cutouts are returned in the form of targe
 files that follow the same format as TESS pipeline target pixel files. This tool can
 be accessed in Astroquery by using the Tesscut class.
 
+**Note:** TESScut limits each user to no more than 10 simultaneous calls to the service.
+After the user has reached this limit TESScut will return a
+``503 Service Temporarily Unavailable Error``.
+
+
 Cutouts
 -------
 
