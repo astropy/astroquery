@@ -85,10 +85,10 @@ class XMMNewtonClass(BaseQuery):
             self._tap = tap_handler
 
     def download_data(self, observation_id, level=None, instname=None,
-                         instmode=None, filter=None, expflag=None,
-                         expno=None, name=None, datasubsetno=None,
-                         sourceno=None, extension=None,
-                         filename=None, verbose=False):
+                      instmode=None, filter=None, expflag=None,
+                      expno=None, name=None, datasubsetno=None,
+                      sourceno=None, extension=None,
+                      filename=None, verbose=False):
         """
         Download data from XMM-Newton
 
