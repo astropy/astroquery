@@ -1626,7 +1626,7 @@ class ObservationsClass(MastClass):
 
         Parameters
         ----------
-        data_product : `astropy.table.Table`
+        data_product : `~astropy.table.Row`
             Product to be converted into cloud data uri.
         include_bucket : bool
             When either to include the cloud bucket prefix in the result or not.

@@ -152,6 +152,26 @@ def tess_paths(dataProduct):
     return None
 
 
+def kepler_paths(data_product):
+    """
+    Takes a MAST uri for the Kepler mission and translates it into
+    a uri that can be used to access files stores in S3.
+    mast:Kepler/url/missions/kepler/lightcurves/0117/011754056/kplr011754056-2009131105131_llc.fits
+    mast:KeplerFFI/url/missions/kepler/ffi/kplr2009115002613_ffi-cal.fits
+
+
+    Parameters
+    ----------
+    data_product : `~astropy.table.Row`
+        MAST data product.
+
+    Returns
+    -------
+    response : str
+        The S3 ready uri.
+    """
+
+
 def paths(dataProduct):
     if dataProduct['dataURI'].lower().startswith("mast:hst/product"):
         return hst_paths(dataProduct)
