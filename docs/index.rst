@@ -64,7 +64,7 @@ The development version can be obtained and installed from github:
 Requirements
 ------------
 
-Astroquery works with Python 2.7 and 3.5 or later.
+Astroquery works with Python 3.5 or later.
 
 The following packages are required for astroquery installation & use:
 
