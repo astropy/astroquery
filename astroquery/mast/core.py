@@ -73,7 +73,7 @@ def _prepare_service_request_string(json_obj):
 def _parse_type(dbtype):
     """
     Takes a data type as returned by a database call and regularizes it into a
-    triplet of the form (human readable datatype, python datatype, default value).
+    triplet of the form (human readable datatype, python datatype, defult value).
 
     Parameters
     ----------
@@ -117,7 +117,8 @@ def _parse_type(dbtype):
 
 def _generate_uuid_string():
     """
-    Generates a UUID using Pythong's UUID module
+    Generates a UUID using Python's UUID module
+
     Parameters
     ----------
     None
@@ -133,7 +134,7 @@ def _generate_uuid_string():
 
 def _mashup_json_to_table(json_obj, col_config=None):
     """
-    Takes a JSON object as returned from a Mashup request and turns it into an `astropy.table.Table`.
+    Takes a JSON object as returned from a Mashup request and turns it into an `~astropy.table.Table`.
 
     Parameters
     ----------
@@ -189,7 +190,7 @@ def _mashup_json_to_table(json_obj, col_config=None):
 
 def _fabric_json_to_table(json_obj):
     """
-    Takes a JSON object as returned from a MAST microservice request and turns it into an `astropy.table.Table`.
+    Takes a JSON object as returned from a MAST microservice request and turns it into an `~astropy.table.Table`.
 
     Parameters
     ----------
@@ -336,7 +337,7 @@ class MastClass(QueryWithLogin):
         info = self.session_info(verbose=False)
 
         if not info["anon"]:
-            log.info("MAST API token accepted, welcome %s" % info["attrib"].get("display_name"))
+            log.info("MAST API token accepted, welcome {}".format(info["attrib"].get("display_name")))
         else:
             warn_msg = ("MAST API token invalid!\n"
                         "To make create a new API token visit to following link: " +
@@ -388,9 +389,9 @@ class MastClass(QueryWithLogin):
             for key, value in info_dict.items():
                 if isinstance(value, dict):
                     for subkey, subval in value.items():
-                        print("%s.%s: %s" % (key, subkey, subval))
+                        print("{}.{}: {}".format(key, subkey, subval))
                 else:
-                    print("%s: %s" % (key, value))
+                    print("{}: {}".format((key, value)))
 
         return info_dict
 
@@ -564,7 +565,7 @@ class MastClass(QueryWithLogin):
 
     def _parse_result(self, responses, verbose=False):
         """
-        Parse the results of a list of `~requests.Response` objects and returns an `astropy.table.Table` of results.
+        Parse the results of a list of `~requests.Response` objects and returns an `~astropy.table.Table` of results.
 
         Parameters
         ----------
@@ -1105,14 +1106,14 @@ class ObservationsClass(MastClass):
 
         Parameters
         ----------
-        coordinates : str or `astropy.coordinates` object
+        coordinates : str or `~astropy.coordinates` object
             The target around which to search. It may be specified as a
-            string or as the appropriate `astropy.coordinates` object.
+            string or as the appropriate `~astropy.coordinates` object.
         radius : str or `~astropy.units.Quantity` object, optional
             Default 0.2 degrees.
-            The string must be parsable by `astropy.coordinates.Angle`. The
+            The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from
-            `astropy.units` may also be used. Defaults to 0.2 deg.
+            `~astropy.units` may also be used. Defaults to 0.2 deg.
         pagesize : int, optional
             Default None.
             Can be used to override the default pagesize for (set in configs) this query only.
@@ -1154,9 +1155,9 @@ class ObservationsClass(MastClass):
             The name of the target around which to search.
         radius : str or `~astropy.units.Quantity` object, optional
             Default 0.2 degrees.
-            The string must be parsable by `astropy.coordinates.Angle`.
+            The string must be parsable by `~astropy.coordinates.Angle`.
             The appropriate `~astropy.units.Quantity` object from
-            `astropy.units` may also be used. Defaults to 0.2 deg.
+            `~astropy.units` may also be used. Defaults to 0.2 deg.
         pagesize : int, optional
             Default None.
             Can be used to override the default pagesize for (set in configs) this query only.
@@ -1178,8 +1179,9 @@ class ObservationsClass(MastClass):
     @class_or_instance
     def query_criteria_async(self, pagesize=None, page=None, **criteria):
         """
-        Given an set of filters, returns a list of MAST observations.
-        See column documentation `here <https://masttest.stsci.edu/api/v0/_c_a_o_mfields.html>`__.
+        Given an set of criteria, returns a list of MAST observations. 
+        Valid criteria are returned by the `get_metadata` function with query_type = ‘observations’. 
+        
 
         Parameters
         ----------
@@ -1192,7 +1194,7 @@ class ObservationsClass(MastClass):
         **criteria
             Criteria to apply. At least one non-positional criteria must be supplied.
             Valid criteria are coordinates, objectname, radius (as in `query_region` and `query_object`),
-            and all observation fields listed `here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`__.
+            and all observation fields returned by the `get_metadata` function with query_type = ‘observations’. 
             The Column Name is the keyword, with the argument being one or more acceptable values for that parameter,
             except for fields with a float datatype where the argument should be in the form [minVal, maxVal].
             For non-float type criteria wildcards maybe used (both * and % are considered wildcards), however
@@ -1281,13 +1283,13 @@ class ObservationsClass(MastClass):
 
         Parameters
         ----------
-        coordinates : str or `astropy.coordinates` object
+        coordinates : str or `~astropy.coordinates` object
             The target around which to search. It may be specified as a
-            string or as the appropriate `astropy.coordinates` object.
+            string or as the appropriate `~astropy.coordinates` object.
         radius : str or `~astropy.units.Quantity` object, optional
-            The string must be parsable by `astropy.coordinates.Angle`. The
+            The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from
-            `astropy.units` may also be used. Defaults to 0.2 deg.
+            `~astropy.units` may also be used. Defaults to 0.2 deg.
         pagesize : int, optional
             Can be used to override the default pagesize for.
             E.g. when using a slow internet connection.
@@ -1327,9 +1329,9 @@ class ObservationsClass(MastClass):
         objectname : str
             The name of the target around which to search.
         radius : str or `~astropy.units.Quantity` object, optional
-            The string must be parsable by `astropy.coordinates.Angle`. The
+            The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from
-            `astropy.units` may also be used. Defaults to 0.2 deg.
+            `~astropy.units` may also be used. Defaults to 0.2 deg.
         pagesize : int, optional
             Can be used to override the default pagesize.
             E.g. when using a slow internet connection.
@@ -1433,7 +1435,7 @@ class ObservationsClass(MastClass):
 
         Parameters
         ----------
-        observations : str or `astropy.table.Row` or list/Table of same
+        observations : str or `~astropy.table.Row` or list/Table of same
             Row/Table of MAST query results (e.g. output from `query_object`)
             or single/list of MAST Product Group Id(s) (obsid).
             See description `here <https://masttest.stsci.edu/api/v0/_c_a_o_mfields.html>`__.
@@ -1458,11 +1460,11 @@ class ObservationsClass(MastClass):
 
     def filter_products(self, products, mrp_only=False, extension=None, **filters):
         """
-        Takes an `astropy.table.Table` of MAST observation data products and filters it based on given filters.
+        Takes an `~astropy.table.Table` of MAST observation data products and filters it based on given filters.
 
         Parameters
         ----------
-        products : `astropy.table.Table`
+        products : `~astropy.table.Table`
             Table containing data products to be filtered.
         mrp_only : bool, optional
             Default False. When set to true only "Minimum Recommended Products" will be returned.
@@ -1513,18 +1515,18 @@ class ObservationsClass(MastClass):
 
     def _download_curl_script(self, products, out_dir):
         """
-        Takes an `astropy.table.Table` of data products and downloads a curl script to pull the datafiles.
+        Takes an `~astropy.table.Table` of data products and downloads a curl script to pull the datafiles.
 
         Parameters
         ----------
-        products : `astropy.table.Table`
+        products : `~astropy.table.Table`
             Table containing products to be included in the curl script.
         out_dir : str
             Directory in which the curl script will be saved.
 
         Returns
         -------
-        response : `astropy.table.Table`
+        response : `~astropy.table.Table`
         """
 
         url_list = [("uri", url) for url in products['dataURI']]
@@ -1551,7 +1553,7 @@ class ObservationsClass(MastClass):
 
     def enable_cloud_dataset(self, provider="AWS", profile=None, verbose=True):
         """
-        Attempts to enable downloading public files from S3 instead of MAST.
+        Enable downloading public files from S3 instead of MAST.
         Requires the boto3 library to function.
 
         Parameters
@@ -1598,11 +1600,11 @@ class ObservationsClass(MastClass):
 
     def get_cloud_uris(self, data_products, include_bucket=True, full_url=False):
         """
-        Takes an `astropy.table.Table` of data products and turns them into cloud data uris.
+        Takes an `~astropy.table.Table` of data products and returns the associated cloud data uris.
 
         Parameters
         ----------
-        data_products : `astropy.table.Table`
+        data_products : `~astropy.table.Table`
             Table containing products to be converted into cloud data uris.
         include_bucket : bool
             When either to include the cloud bucket prefix in the result or not.
@@ -1611,7 +1613,9 @@ class ObservationsClass(MastClass):
 
         Returns
         -------
-        list : List of uris generated from the data products
+        response : list
+            List of URIs generated from the data products, list way contain entries that are None
+            if data_products includes products not found in the cloud. 
         """
 
         return [self.get_cloud_uri(data_product, include_bucket, full_url) for data_product in data_products]
@@ -1622,7 +1626,10 @@ class ObservationsClass(MastClass):
 
     def get_cloud_uri(self, data_product, include_bucket=True, full_url=False):
         """
-        Turns a data_product into a cloud URI
+        For a given data product, returns the associated cloud URI. 
+        If the product is from a mission that does not support cloud access an 
+        exception is raised. If the mission is supported but the product
+        cannot be found in the cloud, the returned path is None.
 
         Parameters
         ----------
@@ -1635,7 +1642,9 @@ class ObservationsClass(MastClass):
 
         Returns
         -------
-        str : uri generated from the data product
+        response : str or None
+            Cloud URI generated from the data product. If the product cannot be 
+            found in the cloud, None is returned.
         """
 
         if self._boto3 is None:
@@ -1646,29 +1655,31 @@ class ObservationsClass(MastClass):
 
         paths = fpl.paths(data_product)
         if paths is None:
-            raise Exception("Unsupported mission")
+            raise Exception("Unsupported mission {}".format(data_product['obs_collection']))
 
         for path in paths:
             try:
                 s3_client.head_object(Bucket=self._pubdata_bucket, Key=path, RequestPayer='requester')
                 if include_bucket:
-                    path = "s3://%s/%s" % (self._pubdata_bucket, path)
+                    path = "s3://{}/{}".format(self._pubdata_bucket, path)
                 elif full_url:
-                    path = "http://s3.amazonaws.com/%s/%s" % (self._pubdata_bucket, path)
+                    path = "http://s3.amazonaws.com/{}/{}".format(self._pubdata_bucket, path)
                 return path
             except self._botocore.exceptions.ClientError as e:
                 if e.response['Error']['Code'] != "404":
                     raise
 
-        raise Exception("Unable to locate file!")
+        warnings.warn("Unable to locate file {}.".format(data_product['productFilename']), NoResultsWarning)
+        return None
 
     def _download_from_cloud(self, data_product, local_path, cache=True):
         """
-        Takes a data product in the form of an `astropy.table.Table` and downloads it into the given directory
+        Takes a data product in the form of an  `~astropy.table.Row` and downloads it from the cloud into 
+        the given directory. 
 
         Parameters
         ----------
-        data_product : `astropy.table.Table`
+        data_product :  `~astropy.table.Row`
             Product to download.
         local_path : str
             Directory in which files will be downloaded.
@@ -1730,18 +1741,22 @@ class ObservationsClass(MastClass):
             bkt.download_file(bucket_path, local_path, ExtraArgs={"RequestPayer": "requester"},
                               Callback=progress_callback)
 
-    def _download_files(self, products, base_dir, cache=True):
+    def _download_files(self, products, base_dir, cache=True, cloud_only=False,):
         """
-        Takes an `astropy.table.Table` of data products and downloads them into the dirctor given by base_dir.
+        Takes an `~astropy.table.Table` of data products and downloads them into the dirctory given by base_dir.
 
         Parameters
         ----------
-        products : `astropy.table.Table`
+        products : `~astropy.table.Table`
             Table containing products to be downloaded.
         base_dir : str
             Directory in which files will be downloaded.
         cache : bool
-            Default is True. If file is found on disc it will not be downloaded again.
+            Default is True. If file is found on disk it will not be downloaded again.
+        cloud_only : bool, optional
+            Default False. If set to True and cloud data access is enabled (see `enable_cloud_dataset`)
+            files that are not found in the cloud will be skipped rather than downloaded from MAST
+            as is the default behavior. If cloud access is not enables this argument as no affect.
 
         Returns
         -------
@@ -1768,15 +1783,20 @@ class ObservationsClass(MastClass):
                     try:
                         self._download_from_cloud(data_product, local_path, cache)
                     except Exception as ex:
-                        log.exception("Error pulling from S3 bucket: %s" % ex)
-                        log.warn("Falling back to mast download...")
-                        self._download_file(data_url, local_path, cache=cache, head_safe=True, continuation=False)
+                        log.exception("Error pulling from S3 bucket: {}".format(ex))
+                        if cloud_only:
+                            log.warn("Skipping file...")
+                            local_path = ""
+                            status = "SKIPPED"
+                        else:
+                            log.warn("Falling back to mast download...")
+                            self._download_file(data_url, local_path, cache=cache, head_safe=True, continuation=False)
                 else:
                     self._download_file(data_url, local_path, cache=cache, head_safe=True, continuation=False)
 
                 # check if file exists also this is where would perform md5,
                 # and also check the filesize if the database reliably reported file sizes
-                if not os.path.isfile(local_path):
+                if (not os.path.isfile(local_path)) and (status != "SKIPPED"):
                     status = "ERROR"
                     msg = "File was not downloaded"
                     url = data_url
@@ -1793,13 +1813,14 @@ class ObservationsClass(MastClass):
         return manifest
 
     def download_products(self, products, download_dir=None,
-                          cache=True, curl_flag=False, mrp_only=False, **filters):
+                          cache=True, curl_flag=False, mrp_only=False, cloud_only=False, **filters):
         """
-        Download data products.
+        Download data products. 
+        If cloud access is enabled, files will be downloaded from the cloud if possible.
 
         Parameters
         ----------
-        products : str, list, `astropy.table.Table`
+        products : str, list, `~astropy.table.Table`
             Either a single or list of obsids (as can be given to `get_product_list`),
             or a Table of products (as is returned by `get_product_list`)
         download_dir : str, optional
@@ -1812,10 +1833,13 @@ class ObservationsClass(MastClass):
             will be downloaded that can be used to download the data files at a later time.
         mrp_only : bool, optional
             Default False. When set to true only "Minimum Recommended Products" will be returned.
+        cloud_only : bool, optional
+            Default False. If set to True and cloud data access is enabled (see `enable_cloud_dataset`)
+            files that are not found in the cloud will be skipped rather than downloaded from MAST
+            as is the default behavior. If cloud access is not enables this argument as no affect.
         **filters :
-            Filters to be applied.  Valid filters are all products fields listed
-            `here <https://masttest.stsci.edu/api/v0/_productsfields.html>`__ and 'extension'
-            which is the desired file extension.
+            Filters to be applied.  Valid filters are all products fields returned by 
+            `get_metadata` with query_type = 'products' and 'extension' which is the desired file extension.
             The Column Name (or 'extension') is the keyword, with the argument being one or
             more acceptable values for that parameter.
             Filter behavior is AND between the filters and OR within a filter set.
@@ -1857,7 +1881,7 @@ class ObservationsClass(MastClass):
 
         else:
             base_dir = download_dir.rstrip('/') + "/mastDownload"
-            manifest = self._download_files(products, base_dir, cache)
+            manifest = self._download_files(products, base_dir, cache, cloud_only)
 
         return manifest
 
@@ -1895,14 +1919,14 @@ class CatalogsClass(MastClass):
 
         Parameters
         ----------
-        coordinates : str or `astropy.coordinates` object
+        coordinates : str or `~astropy.coordinates` object
             The target around which to search. It may be specified as a
-            string or as the appropriate `astropy.coordinates` object.
+            string or as the appropriate `~astropy.coordinates` object.
         radius : str or `~astropy.units.Quantity` object, optional
             Default 0.2 degrees.
-            The string must be parsable by `astropy.coordinates.Angle`. The
+            The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from
-            `astropy.units` may also be used. Defaults to 0.2 deg.
+            `~astropy.units` may also be used. Defaults to 0.2 deg.
         catalog : str, optional
             Default HSC.
             The catalog to be queried.
@@ -1999,9 +2023,9 @@ class CatalogsClass(MastClass):
             The name of the target around which to search.
         radius : str or `~astropy.units.Quantity` object, optional
             Default 0.2 degrees.
-            The string must be parsable by `astropy.coordinates.Angle`.
+            The string must be parsable by `~astropy.coordinates.Angle`.
             The appropriate `~astropy.units.Quantity` object from
-            `astropy.units` may also be used. Defaults to 0.2 deg.
+            `~astropy.units` may also be used. Defaults to 0.2 deg.
         catalog : str, optional
             Default HSC.
             The catalog to be queried.
@@ -2210,7 +2234,7 @@ class CatalogsClass(MastClass):
 
         Parameters
         ----------
-        spectra : `~astropy.table.Table` or `astropy.table.Row`
+        spectra : `~astropy.table.Table` or `~astropy.table.Row`
             One or more HSC spectra to be downloaded.
         download_dir : str, optional
            Specify the base directory to download spectra into.
