@@ -1179,9 +1179,8 @@ class ObservationsClass(MastClass):
     @class_or_instance
     def query_criteria_async(self, pagesize=None, page=None, **criteria):
         """
-        Given an set of criteria, returns a list of MAST observations. 
-        Valid criteria are returned by the `get_metadata` function with query_type = ‘observations’. 
-        
+        Given an set of criteria, returns a list of MAST observations.
+        Valid criteria are returned by the `get_metadata` function with query_type = ‘observations’.
 
         Parameters
         ----------
@@ -1194,7 +1193,7 @@ class ObservationsClass(MastClass):
         **criteria
             Criteria to apply. At least one non-positional criteria must be supplied.
             Valid criteria are coordinates, objectname, radius (as in `query_region` and `query_object`),
-            and all observation fields returned by the `get_metadata` function with query_type = ‘observations’. 
+            and all observation fields returned by the `get_metadata` function with query_type = ‘observations’.
             The Column Name is the keyword, with the argument being one or more acceptable values for that parameter,
             except for fields with a float datatype where the argument should be in the form [minVal, maxVal].
             For non-float type criteria wildcards maybe used (both * and % are considered wildcards), however
@@ -1608,14 +1607,14 @@ class ObservationsClass(MastClass):
             Table containing products to be converted into cloud data uris.
         include_bucket : bool
             When either to include the cloud bucket prefix in the result or not.
-        full_url : str
+        full_url : bool
             Return a HTTP fetchable url instead of a uri.
 
         Returns
         -------
         response : list
             List of URIs generated from the data products, list way contain entries that are None
-            if data_products includes products not found in the cloud. 
+            if data_products includes products not found in the cloud.
         """
 
         return [self.get_cloud_uri(data_product, include_bucket, full_url) for data_product in data_products]
@@ -1626,8 +1625,8 @@ class ObservationsClass(MastClass):
 
     def get_cloud_uri(self, data_product, include_bucket=True, full_url=False):
         """
-        For a given data product, returns the associated cloud URI. 
-        If the product is from a mission that does not support cloud access an 
+        For a given data product, returns the associated cloud URI.
+        If the product is from a mission that does not support cloud access an
         exception is raised. If the mission is supported but the product
         cannot be found in the cloud, the returned path is None.
 
@@ -1637,13 +1636,13 @@ class ObservationsClass(MastClass):
             Product to be converted into cloud data uri.
         include_bucket : bool
             When either to include the cloud bucket prefix in the result or not.
-        full_url : str
+        full_url : bool
             Return a HTTP fetchable url instead of a uri.
 
         Returns
         -------
         response : str or None
-            Cloud URI generated from the data product. If the product cannot be 
+            Cloud URI generated from the data product. If the product cannot be
             found in the cloud, None is returned.
         """
 
@@ -1674,8 +1673,8 @@ class ObservationsClass(MastClass):
 
     def _download_from_cloud(self, data_product, local_path, cache=True):
         """
-        Takes a data product in the form of an  `~astropy.table.Row` and downloads it from the cloud into 
-        the given directory. 
+        Takes a data product in the form of an  `~astropy.table.Row` and downloads it from the cloud into
+        the given directory.
 
         Parameters
         ----------
@@ -1815,7 +1814,7 @@ class ObservationsClass(MastClass):
     def download_products(self, products, download_dir=None,
                           cache=True, curl_flag=False, mrp_only=False, cloud_only=False, **filters):
         """
-        Download data products. 
+        Download data products.
         If cloud access is enabled, files will be downloaded from the cloud if possible.
 
         Parameters
@@ -1838,7 +1837,7 @@ class ObservationsClass(MastClass):
             files that are not found in the cloud will be skipped rather than downloaded from MAST
             as is the default behavior. If cloud access is not enables this argument as no affect.
         **filters :
-            Filters to be applied.  Valid filters are all products fields returned by 
+            Filters to be applied.  Valid filters are all products fields returned by
             `get_metadata` with query_type = 'products' and 'extension' which is the desired file extension.
             The Column Name (or 'extension') is the keyword, with the argument being one or
             more acceptable values for that parameter.

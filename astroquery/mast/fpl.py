@@ -14,9 +14,9 @@ import string
 
 def hst_paths(data_product):
     """
-    Given an HST data product in the form of an  `~astropy.table.Row` returns the 
+    Given an HST data product in the form of an  `~astropy.table.Row` returns the
     associated possible cloud data paths.
-    
+
     Parameters
     ----------
     data_product :  `~astropy.table.Row`
@@ -27,7 +27,7 @@ def hst_paths(data_product):
     response : list
         List of possible cloud paths for the given HST product.
     """
-    
+
     data_uri = data_product['dataURI']
     filename = data_uri.split("/")[-1]
     obs_id = data_product['obs_id']
@@ -157,9 +157,9 @@ _tess_map = {
 
 def tess_paths(data_product):
     """
-    Given a TESS data product in the form of an  `~astropy.table.Row` returns the 
+    Given a TESS data product in the form of an  `~astropy.table.Row` returns the
     associated cloud data path.
-    
+
     Parameters
     ----------
     data_product :  `~astropy.table.Row`
@@ -170,7 +170,7 @@ def tess_paths(data_product):
     response : list
         List containing the product's cloud path.
     """
-    
+
     data_uri = data_product['dataURI']
     filename = data_uri.split("/")[-1]
 
@@ -184,9 +184,9 @@ def tess_paths(data_product):
 
 def kepler_paths(data_product):
     """
-    Given a Kepler data product in the form of an  `~astropy.table.Row` returns the 
+    Given a Kepler data product in the form of an  `~astropy.table.Row` returns the
     associated cloud data path.
-    
+
     Parameters
     ----------
     data_product :  `~astropy.table.Row`
@@ -197,19 +197,18 @@ def kepler_paths(data_product):
     response : list
         List containing the product's cloud path.
     """
-    
+
     data_uri_parts = data_product['dataURI'].split("/")
     s3_uri_parts = ["kepler", "public"] + data_uri_parts[4:]
-    
+
     return ["/".join(s3_uri_parts)]
 
-    
 
 def paths(data_product):
     """
-    Given a data product in the form of an  `~astropy.table.Row` returns the 
+    Given a data product in the form of an  `~astropy.table.Row` returns the
     associated possible cloud data paths.
-    
+
     Parameters
     ----------
     data_product :  `~astropy.table.Row`
