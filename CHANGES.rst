@@ -91,6 +91,10 @@ magpis
 
 mast
 ^^^^
+- Add Kepler to missions with cloud support,
+  Update ``get_cloud_uri`` so that if a file is not found it produces a warning
+  and returns None rather than throwing an exception. [#1561]
+
 
 mpc
 ^^^

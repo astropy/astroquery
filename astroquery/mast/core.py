@@ -73,7 +73,7 @@ def _prepare_service_request_string(json_obj):
 def _parse_type(dbtype):
     """
     Takes a data type as returned by a database call and regularizes it into a
-    triplet of the form (human readable datatype, python datatype, defult value).
+    triplet of the form (human readable datatype, python datatype, default value).
 
     Parameters
     ----------
@@ -1180,7 +1180,7 @@ class ObservationsClass(MastClass):
     def query_criteria_async(self, pagesize=None, page=None, **criteria):
         """
         Given an set of criteria, returns a list of MAST observations.
-        Valid criteria are returned by the `get_metadata` function with query_type = ‘observations’.
+        Valid criteria are returned by ``get_metadata("observations")``
 
         Parameters
         ----------
@@ -1193,7 +1193,7 @@ class ObservationsClass(MastClass):
         **criteria
             Criteria to apply. At least one non-positional criteria must be supplied.
             Valid criteria are coordinates, objectname, radius (as in `query_region` and `query_object`),
-            and all observation fields returned by the `get_metadata` function with query_type = ‘observations’.
+            and all observation fields returned by the ``get_metadata("observations")``.
             The Column Name is the keyword, with the argument being one or more acceptable values for that parameter,
             except for fields with a float datatype where the argument should be in the form [minVal, maxVal].
             For non-float type criteria wildcards maybe used (both * and % are considered wildcards), however
@@ -1742,7 +1742,7 @@ class ObservationsClass(MastClass):
 
     def _download_files(self, products, base_dir, cache=True, cloud_only=False,):
         """
-        Takes an `~astropy.table.Table` of data products and downloads them into the dirctory given by base_dir.
+        Takes an `~astropy.table.Table` of data products and downloads them into the directory given by base_dir.
 
         Parameters
         ----------
@@ -1838,7 +1838,7 @@ class ObservationsClass(MastClass):
             as is the default behavior. If cloud access is not enables this argument as no affect.
         **filters :
             Filters to be applied.  Valid filters are all products fields returned by
-            `get_metadata` with query_type = 'products' and 'extension' which is the desired file extension.
+            ``get_metadata("products")`` and 'extension' which is the desired file extension.
             The Column Name (or 'extension') is the keyword, with the argument being one or
             more acceptable values for that parameter.
             Filter behavior is AND between the filters and OR within a filter set.
