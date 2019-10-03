@@ -46,7 +46,8 @@ class DummyHandler(object):
         if method == self._invokedMethod:
             return
         else:
-            raise ValueError("".join(("Method '",
+            raise ValueError("Method '{}' is not invoked. (Invoked method is '{}'.)"
+                             .format(method, self_invokedMethod))
                                       str(method),
                                       "' not invoked. (Invoked method is '",
                                       str(self._invokedMethod)+"')")))
