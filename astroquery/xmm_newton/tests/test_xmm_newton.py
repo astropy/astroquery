@@ -15,7 +15,6 @@ import pytest
 from astroquery.xmm_newton.core import XMMNewtonClass
 from astroquery.xmm_newton.tests.dummy_handler import DummyHandler
 from astroquery.xmm_newton.tests.dummy_tap_handler import DummyXMMNewtonTapHandler
-from astropy import coordinates
 
 
 class TestXMMNewton():
