@@ -1,4 +1,4 @@
-0.4 (unreleased)
+0.4.0 (unreleased)
 ================
 
 New Tools and Services
