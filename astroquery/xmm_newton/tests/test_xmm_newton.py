@@ -30,32 +30,14 @@ class TestXMMNewton():
     def test_download_data(self):
         parameters = {'observation_id': "0112880801",
                       'level': "ODF",
-                      'instname': None,
-                      'instmode': None,
-                      'filter': None,
-                      'expflag': None,
-                      'expno': None,
-                      'name': None,
-                      'datasubsetno': None,
-                      'sourceno': None,
-                      'extension': None,
                       'filename': 'file',
                       'verbose': False}
         dummyHandler = DummyHandler("download_product", parameters)
         xsa = XMMNewtonClass(dummyHandler, self.get_dummy_tap_handler())
         xsa.download_data(parameters['observation_id'],
+                          parameters['filename'],
                           parameters['verbose'],
-                          level=parameters['level'],
-                          instname=parameters['instname'],
-                          instmode=parameters['instmode'],
-                          filter=parameters['filter'],
-                          expflag=parameters['expflag'],
-                          expno=parameters['expno'],
-                          name=parameters['name'],
-                          datasubsetno=parameters['datasubsetno'],
-                          sourceno=parameters['sourceno'],
-                          extension=parameters['extension'],
-                          filename=parameters['filename']
+                          level=parameters['level']
                           )
         dummyHandler.check_call("download_product", parameters)
 

@@ -53,13 +53,6 @@ class XMMNewtonHandler(BaseQuery):
                                                         str(output_format))
         return table
 
-    def request(self, t="GET", link=None, params=None,
-                cache=None,
-                timeout=None):
-        return self._request(method=t, url=link,
-                             params=params, cache=cache,
-                             timeout=timeout)
-
 
 Handler = XMMNewtonHandler()
 
@@ -84,7 +77,8 @@ class XMMNewtonClass(BaseQuery):
         else:
             self._tap = tap_handler
 
-    def download_data(self, observation_id, verbose=False, **kwargs):
+    def download_data(self, observation_id, filename=None, verbose=False,
+                      **kwargs):
         """
         Download data from XMM-Newton
 
@@ -94,6 +88,12 @@ class XMMNewtonClass(BaseQuery):
             id of the observation to be downloaded, mandatory
             The identifier of the observation we want to retrieve, 10 digits
             example: 0144090201
+        filename : string
+            file name to be used to store the file, optional, default
+            None
+        verbose : bool
+            optional, default 'False'
+            flag to display information about the process
         level : string
             level to download, optional, by default everything is downloaded
             values: ODF, PPS
@@ -124,12 +124,7 @@ class XMMNewtonClass(BaseQuery):
         extension : string
             file format, optional, by default all formats
             values: ASC, ASZ, FTZ, HTM, IND, PDF, PNG
-        filename : string
-            file name to be used to store the file, optional, default
-            None
-        verbose : bool
-            optional, default 'False'
-            flag to display information about the process
+
 
         Returns
         -------
@@ -138,9 +133,10 @@ class XMMNewtonClass(BaseQuery):
 
         link = self.data_aio_url + "obsno=" + observation_id
 
-        link = link + "".join("&{key}={val}" for key, val in kwargs.items())
+        link = link + "".join("&{0}={1}".format(key, val)
+                              for key, val in kwargs.items())
 
-        response = self._handler.request('GET', link)
+        response = self._request('GET', link)
         if response is not None:
             response.raise_for_status()
 
@@ -158,7 +154,7 @@ class XMMNewtonClass(BaseQuery):
             if verbose:
                 log.info("Wrote {0} to {1}".format(link, filename))
 
-            return filename
+                return filename
 
     def get_postcard(self, observation_id, image_type="OBS_EPIC",
                      filename=None, verbose=False):
@@ -195,7 +191,7 @@ class XMMNewtonClass(BaseQuery):
         link = self.data_url + "&".join([retri_type, obs_id,
                                          img_type, protocol])
 
-        result = self._handler.request('GET', link, params=None)
+        result = self._request('GET', link, params=None)
 
         if verbose:
             log.info(link)
