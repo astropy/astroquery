@@ -34,7 +34,13 @@ it will store them in a tar called 'result0505720401.tar'. The parameters availa
 
 	observation_id : string
 		id of the observation to be downloaded 10 digits, mandatory, example: 0144090201
-		
+	
+	filename : string
+		file name to be used to store the file, optional
+
+	verbose : bool
+		optional, default 'False', flag to display information about the process
+			
 	level : string
 		level to download, optional, by default everything is downloaded, values: ODF, PPS
 		
@@ -64,12 +70,7 @@ it will store them in a tar called 'result0505720401.tar'. The parameters availa
 
 	extension : string
 		file format, optional, by default all formats, values: ASC, ASZ, FTZ, HTM, IND, PDF, PNG
-
-	filename : string
-		file name to be used to store the file, optional
-
-	verbose : bool
-		optional, default 'False', flag to display information about the process        
+        
             
 For more details of the parameters check the section 3.4 at:
 		'http://nxsa.esac.esa.int/nxsa-web/#aio'
@@ -145,7 +146,7 @@ This will show the available tables in XSA TAP service in the XMM-Newton Science
 		flag to display information about the process, optional, default 'False'
             
 -------------------------------------
-4. Getting columns details of XSA TAP 
+5. Getting columns details of XSA TAP 
 -------------------------------------
 
 .. code-block:: python
