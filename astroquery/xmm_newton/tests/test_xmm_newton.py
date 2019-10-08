@@ -44,18 +44,19 @@ class TestXMMNewton():
         dummyHandler = DummyHandler("download_product", parameters)
         xsa = XMMNewtonClass(dummyHandler, self.get_dummy_tap_handler())
         xsa.download_data(parameters['observation_id'],
-                          parameters['level'],
-                          parameters['instname'],
-                          parameters['instmode'],
-                          parameters['filter'],
-                          parameters['expflag'],
-                          parameters['expno'],
-                          parameters['name'],
-                          parameters['datasubsetno'],
-                          parameters['sourceno'],
-                          parameters['extension'],
-                          parameters['filename'],
-                          parameters['verbose'])
+                          parameters['verbose'],
+                          level=parameters['level'],
+                          instname=parameters['instname'],
+                          instmode=parameters['instmode'],
+                          filter=parameters['filter'],
+                          expflag=parameters['expflag'],
+                          expno=parameters['expno'],
+                          name=parameters['name'],
+                          datasubsetno=parameters['datasubsetno'],
+                          sourceno=parameters['sourceno'],
+                          extension=parameters['extension'],
+                          filename=parameters['filename']
+                          )
         dummyHandler.check_call("download_product", parameters)
 
     def test_get_postcard(self):

@@ -84,11 +84,7 @@ class XMMNewtonClass(BaseQuery):
         else:
             self._tap = tap_handler
 
-    def download_data(self, observation_id, level=None, instname=None,
-                      instmode=None, filter=None, expflag=None,
-                      expno=None, name=None, datasubsetno=None,
-                      sourceno=None, extension=None,
-                      filename=None, verbose=False):
+    def download_data(self, observation_id, verbose=False, **kwargs):
         """
         Download data from XMM-Newton
 
@@ -142,35 +138,7 @@ class XMMNewtonClass(BaseQuery):
 
         link = self.data_aio_url + "obsno=" + observation_id
 
-        if level is not None:
-            link = link + "&level=" + level
-
-        if instname is not None:
-            link = link + "&instname=" + instname
-
-        if instmode is not None:
-            link = link + "&instmode=" + instmode
-
-        if filter is not None:
-            link = link + "&filter=" + filter
-
-        if expflag is not None:
-            link = link + "&expflag=" + expflag
-
-        if expno is not None:
-            link = link + "&expno=" + expno
-
-        if name is not None:
-            link = link + "&name=" + name
-
-        if datasubsetno is not None:
-            link = link + "&datasubsetno=" + datasubsetno
-
-        if sourceno is not None:
-            link = link + "&sourceno=" + sourceno
-
-        if extension is not None:
-            link = link + "&extension=" + extension
+        link = link + "".join("&{key}={val}" for key, val in kwargs.items())
 
         response = self._handler.request('GET', link)
         if response is not None:
@@ -322,9 +290,9 @@ class XMMNewtonClass(BaseQuery):
                                        include_shared_tables=False,
                                        verbose=verbose)
         columns = None
-        for t in tables:
-            if str(t.name) == str(table_name):
-                columns = t.columns
+        for table in tables:
+            if str(table.name) == str(table_name):
+                columns = table.columns
                 break
 
         if columns is None:
