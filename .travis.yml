@@ -94,13 +94,7 @@ matrix:
         # Test the oldest astropy version without optional dependencies.
         - os: linux
           stage: Tests with other Python/Numpy versions
-          env: PYTHON_VERSION=3.5 NUMPY_VERSION=1.12  KEYRING_VERSION='<12.0'
-               CONDA_DEPENDENCIES="keyring requests beautifulsoup4 html5lib secretstorage pyvo"
-               SECRETSTORAGE_VERSION='<3.0.1'
-               ASTROPY_VERSION=2 PYTEST_VERSION='<3.7'
-        - os: linux
-          stage: Tests with other Python/Numpy versions
-          env: PYTHON_VERSION=3.5.5 NUMPY_VERSION=1.14 KEYRING_VERSION='<12.0'
+          env: PYTHON_VERSION=3.6 NUMPY_VERSION=1.14 KEYRING_VERSION='<12.0'
                ASTROPY_VERSION=3.0 APLPY_VERSION='<2.0'
 
         - os: linux
