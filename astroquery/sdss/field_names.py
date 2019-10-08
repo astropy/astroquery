@@ -46,7 +46,7 @@ def get_field_info(cls, tablename, sqlurl, timeout=conf.timeout):
         try:
             _cached_table_fields[key] = _columns_json_to_table(qryres.json())
         except ValueError:
-            if isinstance(qryres, MockResponse):# and data_release == 12:
+            if isinstance(qryres, MockResponse):
                 return _load_builtin_table_fields()[tablename]
 
             else:
