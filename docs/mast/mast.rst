@@ -326,58 +326,113 @@ Product filtering can also be applied directly to a table of products without pr
 
 Cloud Data Access
 ------------------
-All public datasets from Hubble are also available on Amazon Web Services in a `public S3 bucket
-<https://registry.opendata.aws/hst/>`__. If you are using AWS resources to process public data 
-you can access these data in the following way. An `AWS credentials file 
-<https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html>`__ is 
-required by both `~astroquery.mast.ObservationsClass.enable_cloud_dataset` and by `boto3 <https://boto3.amazonaws.com/v1/documentation/api/latest/guide/configuration.html#shared-credentials-file>`__ to access the data. 
-Instructions on generating such credentials are available 
-`here <https://stackoverflow.com/questions/21440709/how-do-i-get-aws-access-key-id-for-amazon>`__. 
-The `~astroquery.mast.ObservationsClass.enable_cloud_dataset` function reads in the credentials. 
-Next, the `~astroquery.mast.ObservationsClass.get_cloud_uris` function will return S3-like URLs 
-for the data products (e.g., ``s3://stpubdata/hst/public/icde/icde43l0q/icde43l0q_drz.fits``). Files can be 
-accessed on ``S3`` using the ``boto3`` library. The argument ``ExtraArgs={"RequestPayer": "requester"}`` specifies 
-that data transfer charges are the responsibility of the requester, however transfers are free 
-within the US-East AWS region. Finally, the cloud downloads can be disabled using
-`~astroquery.mast.ObservationsClass.disable_cloud_dataset`. 
+Public datasets from the Hubble, Kepler and TESS telescopes are also available on Amazon Web Services
+in `public S3 buckets <https://registry.opendata.aws/collab/stsci/>`__.
+
+Using AWS resources to process public data requires an `AWS account <https://aws.amazon.com/>`__ and associated
+`credentials file <https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html>`__. The `boto3
+<https://boto3.amazonaws.com/v1/documentation/api/latest/index.html>`__ library is also required as it handles
+connections to the AWS servers. Instructions for creating AWS credentials are available `here
+<https://stackoverflow.com/questions/21440709/how-do-i-get-aws-access-key-id-for-amazon>`__. Data transfer charges
+are the responsibility of the requester  (see `request pricing <https://aws.amazon.com/s3/pricing/>`__), however
+transfers are free within the US-East AWS region.
+
+Cload data access is enabled using the `~astroquery.mast.ObservationsClass.enable_cloud_dataset` function, which
+will cause AWS to become the prefered source for data access until it is disabled
+(`~astroquery.mast.ObservationsClass.disable_cloud_dataset`).
+
+To directly access a list of cloud URIs for a given dataset, use the `~astroquery.mast.ObservationsClass.get_cloud_uris`
+function, however when cloud access is enabled, the standatd download function
+`~astroquery.mast.ObservationsClass.download_products` will preferentially pull files from AWS when they are avilable.
+There is also a ``cloud_only`` flag, which when set to True will cause all data products not available in the
+cloud to be skipped.
 
 
-**Note:** Only public datasets are available on AWS. Therefore we recommend using the ``dataRights='Public'`` 
-flag when filtering the observations. 
-
+Getting a list of S3 URIs:
 
 .. code-block:: python
 
                 >>> import os
-                >>> import boto3
                 >>> from astroquery.mast import Observations
 
-                >>> # Need to set credentials as environment variables too.
+                >>> # If credential environment are not already set, we can set them within python.
                 >>> os.environ['AWS_ACCESS_KEY_ID'] = 'myaccesskeyid'
                 >>> os.environ['AWS_SECRET_ACCESS_KEY'] = 'mysecretaccesskey'
 
+                >>> # If your profile is not called [default], update the next line:
+                >>> Observations.enable_cloud_dataset(provider='AWS', profile='default')
+                INFO: Using the S3 STScI public dataset [astroquery.mast.core]
+                INFO: See Request Pricing in https://aws.amazon.com/s3/pricing/ for details [astroquery.mast.core]
+                INFO: If you have not configured boto3, follow the instructions here: https://boto3.readthedocs.io/en/latest/guide/configuration.html [astroquery.mast.core]
+
+                >>> # Getting the cloud URIs
                 >>> obs_table = Observations.query_criteria(obs_collection='HST',
-                ...                                         filters='F160W',
-                ...                                         instrument_name='WFC3/IR',
+                ...                                         filters='F606W',
+                ...                                         instrument_name='ACS/WFC',
                 ...                                         proposal_id=['12062'],
                 ...                                         dataRights='PUBLIC') 
                 >>> products = Observations.get_product_list(obs_table)
                 >>> filtered = Observations.filter_products(products,
-                ...                                         mrp_only=False,
                 ...                                         productSubGroupDescription='DRZ')
+                >>> s3_uris = Observations.get_cloud_uris(filtered)
+                >>> print(s3_uris)
+                ['s3://stpubdata/hst/public/jbev/jbeveo010/jbeveo010_drz.fits',
+                 's3://stpubdata/hst/public/jbev/jbevet010/jbevet010_drz.fits']
+                 
+                >>> Observations.disable_cloud_dataset()
+
+                 
+Downloading data products from S3:
+                 
+.. code-block:: python
+
+                >>> import os
+                >>> from astroquery.mast import Observations
+
+                >>> # If credential environment are not already set, we can set them within python.
+                >>> os.environ['AWS_ACCESS_KEY_ID'] = 'myaccesskeyid'
+                >>> os.environ['AWS_SECRET_ACCESS_KEY'] = 'mysecretaccesskey'
 
                 >>> # If your profile is not called [default], update the next line:
-                >>> Observations.enable_cloud_dataset(provider='AWS', profile='default') 
-                >>> s3_urls = Observations.get_cloud_uris(filtered)
+                >>> Observations.enable_cloud_dataset(provider='AWS', profile='default')
+                INFO: Using the S3 STScI public dataset [astroquery.mast.core]
+                INFO: See Request Pricing in https://aws.amazon.com/s3/pricing/ for details [astroquery.mast.core]
+                INFO: If you have not configured boto3, follow the instructions here: https://boto3.readthedocs.io/en/latest/guide/configuration.html [astroquery.mast.core]
+                
+                >>> # Downloading from the cloud
+                >>> obs_table = Observations.query_criteria(obs_collection=['Kepler'],
+                ...                                         objectname="Kepler 12b", radius=0)
+                >>> products = Observations.get_product_list(obs_table[0])
+                >>> manifest = Observations.download_products(products[:10], cloud_only=True)
+                ERROR: Error pulling from S3 bucket: Parameter validation failed: Invalid type for parameter Key, value: None, type: <class 'NoneType'>, valid types: <class 'str'> [astroquery.mast.core]
+                WARNING: Skipping file... [astroquery.mast.core]
+                ERROR: Error pulling from S3 bucket: Parameter validation failed: Invalid type for parameter Key, value: None, type: <class 'NoneType'>, valid types: <class 'str'> [astroquery.mast.core]
+                WARNING: Skipping file... [astroquery.mast.core]
+                ERROR: Error pulling from S3 bucket: Parameter validation failed: Invalid type for parameter Key, value: None, type: <class 'NoneType'>, valid types: <class 'str'> [astroquery.mast.core]
+                WARNING: Skipping file... [astroquery.mast.core]
+                ERROR: Error pulling from S3 bucket: Parameter validation failed: Invalid type for parameter Key, value: None, type: <class 'NoneType'>, valid types: <class 'str'> [astroquery.mast.core]
+                WARNING: Skipping file... [astroquery.mast.core]
+                ERROR: Error pulling from S3 bucket: Parameter validation failed: Invalid type for parameter Key, value: None, type: <class 'NoneType'>, valid types: <class 'str'> [astroquery.mast.core]
+                WARNING: Skipping file... [astroquery.mast.core]
+                Downloading URL s3://stpubdata/kepler/public/lightcurves/0118/011804465/kplr011804465-2009131105131_llc.fits to ./mastDownload/Kepler/kplr011804465_lc_Q111111110111011101/kplr011804465-2009131105131_llc.fits ... [Done]
+                Downloading URL s3://stpubdata/kepler/public/lightcurves/0118/011804465/kplr011804465-2009166043257_llc.fits to ./mastDownload/Kepler/kplr011804465_lc_Q111111110111011101/kplr011804465-2009166043257_llc.fits ... [Done]
+                Downloading URL s3://stpubdata/kepler/public/lightcurves/0118/011804465/kplr011804465-2009259160929_llc.fits to ./mastDownload/Kepler/kplr011804465_lc_Q111111110111011101/kplr011804465-2009259160929_llc.fits ... [Done]
+                Downloading URL s3://stpubdata/kepler/public/lightcurves/0118/011804465/kplr011804465-2009350155506_llc.fits to ./mastDownload/Kepler/kplr011804465_lc_Q111111110111011101/kplr011804465-2009350155506_llc.fits ... [Done]
+                Downloading URL s3://stpubdata/kepler/public/lightcurves/0118/011804465/kplr011804465-2010009091648_llc.fits to ./mastDownload/Kepler/kplr011804465_lc_Q111111110111011101/kplr011804465-2010009091648_llc.fits ... [Done]
 
-                >>> s3 = boto3.resource('s3')
-                >>> bucket = s3.Bucket('stpubdata')
-
-                >>> for url in s3_urls:
-                ...     fits_s3_key = url.replace("s3://stpubdata/", "")
-                ...     file_name = url.split('/')[-1]
-                ...     bucket.download_file(fits_s3_key, file_name,
-                ...                          ExtraArgs={"RequestPayer": "requester"})
+                >>> print(manifest["Status"])
+                 Status 
+                --------
+                 SKIPPED
+                 SKIPPED
+                 SKIPPED
+                 SKIPPED
+                 SKIPPED
+                COMPLETE
+                COMPLETE
+                COMPLETE
+                COMPLETE
+                COMPLETE
 
                 >>> Observations.disable_cloud_dataset()
 

@@ -12,10 +12,25 @@ more than one path per product
 import string
 
 
-def hst_paths(dataProduct):
-    dataUri = dataProduct['dataURI']
-    filename = dataUri.split("/")[-1]
-    obs_id = dataProduct['obs_id']
+def hst_paths(data_product):
+    """
+    Given an HST data product in the form of an  `~astropy.table.Row` returns the
+    associated possible cloud data paths.
+
+    Parameters
+    ----------
+    data_product :  `~astropy.table.Row`
+        HST product to determine the S3 paths.
+
+    Returns
+    -------
+    response : list
+        List of possible cloud paths for the given HST product.
+    """
+
+    data_uri = data_product['dataURI']
+    filename = data_uri.split("/")[-1]
+    obs_id = data_product['obs_id']
 
     obs_id = obs_id.lower()
 
@@ -140,9 +155,24 @@ _tess_map = {
 }
 
 
-def tess_paths(dataProduct):
-    dataUri = dataProduct['dataURI']
-    filename = dataUri.split("/")[-1]
+def tess_paths(data_product):
+    """
+    Given a TESS data product in the form of an  `~astropy.table.Row` returns the
+    associated cloud data path.
+
+    Parameters
+    ----------
+    data_product :  `~astropy.table.Row`
+        TESS product to determine the S3 path.
+
+    Returns
+    -------
+    response : list
+        List containing the product's cloud path.
+    """
+
+    data_uri = data_product['dataURI']
+    filename = data_uri.split("/")[-1]
 
     for paths_fn, suffixes in _tess_map.items():
         for suffix in suffixes:
@@ -152,16 +182,61 @@ def tess_paths(dataProduct):
     return None
 
 
-def paths(dataProduct):
-    if dataProduct['dataURI'].lower().startswith("mast:hst/product"):
-        return hst_paths(dataProduct)
+def kepler_paths(data_product):
+    """
+    Given a Kepler data product in the form of an  `~astropy.table.Row` returns the
+    associated cloud data path.
 
-    if dataProduct['dataURI'].lower().startswith("mast:tess/product"):
-        return tess_paths(dataProduct)
+    Parameters
+    ----------
+    data_product :  `~astropy.table.Row`
+        Kepler product to determine the S3 path.
+
+    Returns
+    -------
+    response : list
+        List containing the product's cloud path.
+    """
+
+    data_uri_parts = data_product['dataURI'].split("/")
+    s3_uri_parts = ["kepler", "public"] + data_uri_parts[4:]
+
+    return ["/".join(s3_uri_parts)]
+
+
+def paths(data_product):
+    """
+    Given a data product in the form of an  `~astropy.table.Row` returns the
+    associated possible cloud data paths.
+
+    Parameters
+    ----------
+    data_product :  `~astropy.table.Row`
+        HST product to determine the S3 paths.
+
+    Returns
+    -------
+    response : list or None
+        List of possible cloud paths for the given product, returns None is product
+        is from a mission that is not avilable in the cloud.
+    """
+    if data_product['dataURI'].lower().startswith("mast:hst/product"):
+        return hst_paths(data_product)
+
+    if data_product['dataURI'].lower().startswith("mast:tess/product"):
+        return tess_paths(data_product)
+
+    if data_product['dataURI'].lower().startswith("mast:kepler"):
+        return kepler_paths(data_product)
 
     return None
 
 
-def has_path(dataProduct):
-    return dataProduct['dataURI'].lower().startswith("mast:hst/product") or \
-            dataProduct['dataURI'].lower().startswith("mast:tess/product")
+def has_path(data_product):
+    """
+    Given a data product in the form of an  `~astropy.table.Row` returns
+    True if it's mission supports cloud access, False if not.
+    """
+    return data_product['dataURI'].lower().startswith("mast:hst/product") or \
+            data_product['dataURI'].lower().startswith("mast:tess/product") or \
+            data_product['dataURI'].lower().startswith("mast:kepler")
