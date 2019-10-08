@@ -10,6 +10,7 @@ from astropy.utils.data import get_pkg_data_contents
 from astropy.utils.exceptions import AstropyUserWarning
 
 from . import conf
+from ..utils.testing_tools import MockResponse
 
 __all__ = ['get_field_info', 'photoobj_defs', 'specobj_defs', 'crossid_defs']
 
@@ -29,7 +30,6 @@ def get_field_info(cls, tablename, sqlurl, timeout=conf.timeout):
     key = (tablename, sqlurl)
     # Figure out the DR from the url
     data_release = int(sqlurl.split('/dr')[1].split('/')[0])
-
     # Empty tables could be cached when running local mock tests, those should
     # always be discarded
     if key not in _cached_table_fields or not _cached_table_fields[key]:
@@ -46,9 +46,13 @@ def get_field_info(cls, tablename, sqlurl, timeout=conf.timeout):
         try:
             _cached_table_fields[key] = _columns_json_to_table(qryres.json())
         except ValueError:
-            warnings.warn("Field info are not available for this data release",
-                          AstropyUserWarning)
-            _cached_table_fields[key] = Table(names=('name',))
+            if isinstance(qryres, MockResponse):# and data_release == 12:
+                return _load_builtin_table_fields()[tablename]
+
+            else:
+                warnings.warn("Field info are not available for this data release",
+                              AstropyUserWarning)
+                _cached_table_fields[key] = Table(names=('name',))
     return _cached_table_fields[key]
 
 
@@ -65,23 +69,14 @@ def _columns_json_to_table(jsonobj):
 
 # below here are builtin data files
 def _load_builtin_table_fields():
-    key1 = ('PhotoObjAll',
-            conf.skyserver_baseurl + '/dr12/en/tools/search/x_sql.aspx')
-    _cached_table_fields[key1] = _columns_json_to_table(
+    _cached_table_fields['PhotoObjAll'] = _columns_json_to_table(
         json.loads(get_pkg_data_contents('data/PhotoObjAll_dr12.json')))
     # PhotoObj and PhotoObjAll are the same in DR12
-    key2 = ('PhotoObj',
-            conf.skyserver_baseurl + '/dr12/en/tools/search/x_sql.aspx')
-    _cached_table_fields[key2] = _cached_table_fields[key1]
+    _cached_table_fields['PhotoObj'] = _cached_table_fields['PhotoObjAll']
 
-    key1 = ('SpecObjAll',
-            conf.skyserver_baseurl + '/dr12/en/tools/search/x_sql.aspx')
-    _cached_table_fields[key1] = _columns_json_to_table(
+    _cached_table_fields['SpecObjAll'] = _columns_json_to_table(
         json.loads(get_pkg_data_contents('data/SpecObjAll_dr12.json')))
     # SpecObj and SpecObjAll are the same in DR12
-    key2 = ('SpecObj',
-            conf.skyserver_baseurl + '/dr12/en/tools/search/x_sql.aspx')
-    _cached_table_fields[key2] = _cached_table_fields[key1]
+    _cached_table_fields['SpecObj'] = _cached_table_fields['SpecObjAll']
 
-
-_load_builtin_table_fields()
+    return _cached_table_fields
