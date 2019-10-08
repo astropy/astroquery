@@ -366,10 +366,16 @@ def test_field_help_region(patch_get):
     assert 'photoobj_all' in valid_field
 
     existing_p_field = sdss.SDSS.query_region(coords,
-                                              field_help='psfmag_r')
+                                              field_help='psfMag_r')
 
-    existing_p_s_field = sdss.SDSS.query_region(coords,
-                                                field_help='psfmag_r')
+    existing_s_field = sdss.SDSS.query_region(coords,
+                                              field_help='spectroSynFlux_r')
 
     non_existing_field = sdss.SDSS.query_region(coords,
                                                 field_help='nonexist')
+
+    assert existing_p_field is None
+    assert existing_s_field is None
+
+    assert len(non_existing_field) == 2
+    assert set(non_existing_field.keys()) == set(('photoobj_all', 'specobj_all'))

@@ -950,14 +950,16 @@ class SDSSClass(BaseQuery):
                                      self.TIMEOUT)['name']
 
         if field_help:
-            ret = 0
-            if field_help in photoobj_all:
-                print("{0} is a valid 'photoobj_field'".format(field_help))
-                ret += 1
-            elif field_help in specobj_all:
-                print("{0} is a valid 'specobj_field'".format(field_help))
-                ret += 1
-
+            if field_help is True:
+                ret = 0
+            elif field_help:
+                ret = 0
+                if field_help in photoobj_all:
+                    print("{0} is a valid 'photoobj_field'".format(field_help))
+                    ret += 1
+                if field_help in specobj_all:
+                    print("{0} is a valid 'specobj_field'".format(field_help))
+                    ret += 1
             if ret > 0:
                 return
             else:

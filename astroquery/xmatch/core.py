@@ -127,6 +127,7 @@ class XMatchClass(BaseQuery):
         else:
             # assume it's a file-like object, support duck-typing
             kwargs['files'] = {catstr: ('cat1.csv', cat.read())}
+
         if not self.is_table_available(cat):
             if ((colRA is None) or (colDec is None)):
                 raise ValueError('Specify the name of the RA/Dec columns in' +
@@ -154,8 +155,15 @@ class XMatchClass(BaseQuery):
         available VizieR tables, otherwise False.
 
         """
-        if isinstance(table_id, six.string_types) and (table_id[:7] == 'vizier:'):
+
+        # table_id can actually be a Table instance, there is no point in
+        # comparing those to stings
+        if not isinstance(table_id, six.string_types):
+            return False
+
+        if (table_id[:7] == 'vizier:'):
             table_id = table_id[7:]
+
         return table_id in self.get_available_tables()
 
     def get_available_tables(self, cache=True):
@@ -171,7 +179,6 @@ class XMatchClass(BaseQuery):
         )
 
         content = response.text
-
         return content.splitlines()
 
     def _parse_text(self, text):

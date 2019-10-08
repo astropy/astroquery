@@ -5,6 +5,7 @@ import warnings
 import functools
 import numpy as np
 from astropy.table import Table
+from astropy.utils.exceptions import AstropyDeprecationWarning
 
 from ..query import BaseQuery
 from ..utils import commons, async_to_sync, prepend_docstr_nosections
@@ -190,8 +191,8 @@ class OgleClass(BaseQuery):
                     raise CoordParseError()
             # list-like of values
             elif (len(shape) == 2) & (shape[0] == 2):
-                warnings.warn('Non-Astropy coordinates may not be supported \
-                              in a future version.', FutureWarning)
+                warnings.warn('Non-Astropy coordinates may not be supported '
+                              'in a future version.', AstropyDeprecationWarning)
                 return coord
             else:
                 raise CoordParseError()
