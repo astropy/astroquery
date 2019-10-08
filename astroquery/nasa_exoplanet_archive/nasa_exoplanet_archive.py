@@ -112,8 +112,8 @@ class NasaExoplanetArchiveClass(object):
         kwargs : dict (optional)
             Extra keyword arguments passed to ``get_confirmed_planets_table``.
 
-        Return
-        ------
+        Returns
+        -------
         table : `~astropy.table.QTable`
             Table of one exoplanet's properties.
         """
