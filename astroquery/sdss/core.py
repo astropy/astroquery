@@ -957,7 +957,7 @@ class SDSSClass(BaseQuery):
                 if field_help in photoobj_all:
                     print("{0} is a valid 'photoobj_field'".format(field_help))
                     ret += 1
-                elif field_help in specobj_all:
+                if field_help in specobj_all:
                     print("{0} is a valid 'specobj_field'".format(field_help))
                     ret += 1
             if ret > 0:
