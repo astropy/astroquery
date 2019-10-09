@@ -11,6 +11,9 @@ Created on 3 Sept 2019
 
 
 """
+import os
+import re
+from six import BytesIO
 from astroquery.utils import commons
 from astropy import units
 from astropy.units import Quantity
@@ -18,9 +21,7 @@ from astroquery.utils.tap.core import TapPlus
 from astroquery.utils.tap.model import modelutils
 from astroquery.query import BaseQuery
 from astropy.table import Table
-from six import BytesIO
-import os
-import re
+
 
 from . import conf
 from astropy import log
