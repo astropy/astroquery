@@ -96,8 +96,3 @@ class TestXMMNewton():
         xsa = XMMNewtonClass(dummyHandler, self.get_dummy_tap_handler())
         xsa.get_columns("table", True, True)
         dummyTapHandler.check_call("get_columns", parameters2)
-
-
-if __name__ == "__main__":
-    # import sys;sys.argv = ['', 'Test.testName']
-    pytest.main()
