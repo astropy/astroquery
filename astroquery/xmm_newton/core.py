@@ -31,7 +31,7 @@ __all__ = ['XMMNewton', 'XMMNewtonClass']
 
 class XMMNewtonHandler(BaseQuery):
 
-    def retrieve_file(self, filename, response, verbose=False):
+    def retrieve_file(self, filename, response):
         with open(filename, 'wb') as fh:
             fh.write(response.content)
 
@@ -41,8 +41,7 @@ class XMMNewtonHandler(BaseQuery):
         else:
             log.info("File {0} downloaded".format(filename))
 
-    def retrieve_table(self, filename, response, output_format='votable',
-                       verbose=False):
+    def retrieve_table(self, filename, response, output_format='votable'):
         with open(filename, 'wb') as fh:
             fh.write(response.content)
 
