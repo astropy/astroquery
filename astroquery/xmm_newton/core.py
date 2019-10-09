@@ -34,7 +34,7 @@ class XMMNewtonHandler(BaseQuery):
     def __init__(self):
         super(XMMNewtonHandler, self).__init__()
 
-    def get_file(self, filename, response, verbose=False):
+    def retrieve_file(self, filename, response, verbose=False):
         with open(filename, 'wb') as fh:
             fh.write(response.content)
 
@@ -44,8 +44,8 @@ class XMMNewtonHandler(BaseQuery):
         else:
             log.info("File {0} downloaded".format(filename))
 
-    def get_table(self, filename, response, output_format='votable',
-                  verbose=False):
+    def retrieve_table(self, filename, response, output_format='votable',
+                       verbose=False):
         with open(filename, 'wb') as fh:
             fh.write(response.content)
 
@@ -148,8 +148,8 @@ class XMMNewtonClass(BaseQuery):
                 else:
                     filename = observation_id + ".tar"
 
-            self._handler.get_file(filename, response=response,
-                                   verbose=verbose)
+            self._handler.retrieve_file(filename, response=response,
+                                        verbose=verbose)
 
             if verbose:
                 log.info("Wrote {0} to {1}".format(link, filename))
@@ -184,17 +184,15 @@ class XMMNewtonClass(BaseQuery):
         None. It downloads the observation postcard indicated
         """
 
-        retri_type = "RETRIEVAL_TYPE=POSTCARD"
-        obs_id = "OBSERVATION_ID=" + observation_id
-        img_type = "OBS_IMAGE_TYPE=" + image_type
-        protocol = "PROTOCOL=HTTP"
-        link = self.data_url + "&".join([retri_type, obs_id,
-                                         img_type, protocol])
+        params = {'RETRIEVAL_TYPE': 'POSTCARD',
+                  'OBSERVATION_ID': observation_id,
+                  'OBS_IMAGE_TYPE': image_type,
+                  'PROTOCOL': 'HTTP'}
 
-        result = self._request('GET', link, params=None)
+        result = self._request('GET', self.data_url, params)
 
         if verbose:
-            log.info(link)
+            log.info(self.data_url)
 
         if result is not None:
             result.raise_for_status()
@@ -207,7 +205,8 @@ class XMMNewtonClass(BaseQuery):
                 else:
                     filename = observation_id + ".PNG"
 
-            self._handler.get_file(filename, response=result, verbose=verbose)
+            self._handler.retrieve_file(filename, response=result,
+                                        verbose=verbose)
 
             return filename
 

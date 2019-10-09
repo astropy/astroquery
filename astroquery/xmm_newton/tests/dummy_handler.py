@@ -18,11 +18,11 @@ __all__ = ['DummyHandler']
 
 class DummyHandler(object):
 
-    def get_file(self, filename, response=None, verbose=False):
+    def retrieve_file(self, filename, response=None, verbose=False):
         return None
 
-    def get_table(self, filename=None, response=None, output_format='votable',
-                  verbose=False):
+    def retrieve_table(self, filename=None, response=None,
+                       output_format='votable', verbose=False):
         return None
 
     def __init__(self, method, parameters):
