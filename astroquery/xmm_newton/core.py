@@ -31,9 +31,6 @@ __all__ = ['XMMNewton', 'XMMNewtonClass']
 
 class XMMNewtonHandler(BaseQuery):
 
-    def __init__(self):
-        super(XMMNewtonHandler, self).__init__()
-
     def retrieve_file(self, filename, response, verbose=False):
         with open(filename, 'wb') as fh:
             fh.write(response.content)
