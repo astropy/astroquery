@@ -18,7 +18,6 @@ from astropy.io.votable.validator import html, result
 from astropy.logger import log
 from astropy.utils import data
 from astropy.utils.exceptions import AstropyUserWarning
-from astropy.utils.timer import timefunc
 from astropy.utils.xml.unescaper import unescape_all
 
 # LOCAL
@@ -27,6 +26,7 @@ from .exceptions import (ValidationMultiprocessingError,
                          InvalidValidationAttribute)
 from ..exceptions import VOSError
 from ..vos_catalog import VOSDatabase, vo_tab_parse
+from ...utils.timer import timefunc
 
 # Import configurable items declared in __init__.py
 from . import conf

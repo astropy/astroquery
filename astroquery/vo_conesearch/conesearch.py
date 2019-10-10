@@ -18,7 +18,6 @@ import numpy as np
 # ASTROPY
 from astropy.io.votable.exceptions import vo_warn, W25
 from astropy.utils.console import color_print
-from astropy.utils.timer import timefunc, RunTimePredictor
 from astropy.utils.exceptions import AstropyUserWarning
 
 # LOCAL
@@ -26,6 +25,7 @@ from . import vos_catalog
 from .vo_async import AsyncBase
 from .core import ConeSearchClass, _validate_sr
 from .exceptions import ConeSearchError, VOSError
+from ..utils.timer import timefunc, RunTimePredictor
 
 # Import configurable items declared in __init__.py
 from . import conf
@@ -375,7 +375,7 @@ def predict_search(url, *args, **kwargs):
     for a Cone Search for the given access URL, position, and
     radius.
 
-    Run time prediction uses `astropy.utils.timer.RunTimePredictor`.
+    Run time prediction uses `astroquery.utils.timer.RunTimePredictor`.
     Baseline searches are done with starting and ending radii at
     0.05 and 0.5 of the given radius, respectively.
 
@@ -508,7 +508,7 @@ def predict_search(url, *args, **kwargs):
 @timefunc(1)
 def conesearch_timer(*args, **kwargs):
     """
-    Time a single Cone Search using `astropy.utils.timer.timefunc`
+    Time a single Cone Search using `astroquery.utils.timer.timefunc`
     with a single try and a verbose timer.
 
     Parameters
