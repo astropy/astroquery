@@ -191,7 +191,7 @@ def conesearch(center, radius, verb=1, catalog_db=None,
     -------
     obj : `astropy.table.Table` or `astropy.io.votable.tree.Table`
         First table from first successful VO service request.
-        See ``return_astropy_table`` option for the kind of table returned.
+        See ``return_astropy_table`` parameter for the kind of table returned.
 
     Raises
     ------
