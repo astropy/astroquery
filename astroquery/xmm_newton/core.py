@@ -13,7 +13,6 @@ Created on 3 Sept 2019
 """
 import os
 import re
-from six import BytesIO
 from astroquery.utils import commons
 from astropy import units
 from astropy.units import Quantity

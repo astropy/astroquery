@@ -41,11 +41,8 @@ class DummyHandler(object):
         if method == self._invokedMethod:
             return
         else:
-            raise ValueError("Method '{}' is not invoked. (Invoked method is '{}'.)"
-                             .format(method, self_invokedMethod))
-                                      str(method),
-                                      "' not invoked. (Invoked method is '",
-                                      str(self._invokedMethod)+"')")))
+            raise ValueError("Method '{}' is not invoked. (Invoked method \
+                             is '{}'.)").format(method, self_invokedMethod)
 
     def check_parameters(self, parameters, method_name):
         if parameters is None:
