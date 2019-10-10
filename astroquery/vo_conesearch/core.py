@@ -1,11 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-import six
-from six import BytesIO
-from six.moves import urllib
 
+import urllib
 import warnings
+from io import BytesIO
 from numbers import Number
 
 from astropy import units as u
@@ -177,7 +174,7 @@ class ConeSearchClass(BaseQuery):
             commons.suppress_vo_warnings()
 
         query = []
-        for key, value in six.iteritems(pars):
+        for key, value in pars.items():
             query.append('{0}={1}'.format(urllib.parse.quote(key),
                                           urllib.parse.quote_plus(str(value))))
         parsed_url = url + '&'.join(query)

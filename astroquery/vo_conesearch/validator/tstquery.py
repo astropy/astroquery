@@ -9,9 +9,6 @@ In case USVO service is unstable, it does the following:
     #. If fails, use RA=0 DEC=0 SR=0.1.
 
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 # STDLIB
 import warnings
 from collections import OrderedDict

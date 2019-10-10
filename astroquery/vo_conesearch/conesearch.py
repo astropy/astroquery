@@ -1,8 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """Support VO Simple Cone Search capabilities."""
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-import six
 
 # STDLIB
 import warnings
@@ -209,7 +206,7 @@ def conesearch(center, radius, verb=1, catalog_db=None,
         result = None
 
     for name, catalog in catalogs:
-        if isinstance(catalog, six.string_types):
+        if isinstance(catalog, str):
             if catalog.startswith('http'):
                 url = catalog
             else:
