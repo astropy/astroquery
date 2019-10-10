@@ -52,7 +52,6 @@ env:
         - secure: "al9u/QSQfrwNljdu8gYUaT9z4BxEL1FlE4ntsn6eqtN2Y0rurqll+gq46quYjtE6zgcpb0uYtGIubusJkp7ceE6IBGhQdsel4UY16VIqeEuQ3GpVDb4RiJgU51SAjbmXYV1dMAJnOm4Ra41WzxokStKRDdoRraAsae9zK3H6AnI="
 
     matrix:
-        - PYTHON_VERSION=2.7 SETUP_CMD='egg_info'
         - PYTHON_VERSION=3.7 SETUP_CMD='egg_info'
 
 matrix:
@@ -70,12 +69,6 @@ matrix:
           env: EVENT_TYPE='push cron' DEBUG=True ASTROPY_VERSION=dev
                SETUP_CMD='test -R -V -a "--durations=50"'
                CONDA_DEPENDENCIES=$CONDA_DEPENDENCIES_REMOTE
-        - os: linux
-          stage: Remote data tests
-          env: EVENT_TYPE='push cron' PYTHON_VERSION=2.7
-               SETUP_CMD='test --remote-data -V -a "--durations=50"'
-               CONDA_DEPENDENCIES=$CONDA_DEPENDENCIES_REMOTE
-               KEYRING_VERSION='<12.0' PYTEST_VERSION='<3.7'
 
         # No need to run it from cron
         # Try MacOS X
@@ -101,13 +94,7 @@ matrix:
         # Test the oldest astropy version without optional dependencies.
         - os: linux
           stage: Tests with other Python/Numpy versions
-          env: PYTHON_VERSION=3.5 NUMPY_VERSION=1.12  KEYRING_VERSION='<12.0'
-               CONDA_DEPENDENCIES="keyring requests beautifulsoup4 html5lib secretstorage pyvo"
-               SECRETSTORAGE_VERSION='<3.0.1'
-               ASTROPY_VERSION=2 PYTEST_VERSION='<3.7'
-        - os: linux
-          stage: Tests with other Python/Numpy versions
-          env: PYTHON_VERSION=3.5.5 NUMPY_VERSION=1.14 KEYRING_VERSION='<12.0'
+          env: PYTHON_VERSION=3.6 NUMPY_VERSION=1.14 KEYRING_VERSION='<12.0'
                ASTROPY_VERSION=3.0 APLPY_VERSION='<2.0'
 
         - os: linux
@@ -119,11 +106,6 @@ matrix:
           env: ASTROPY_VERSION=development EVENT_TYPE='pull_request'
 
         # Try with optional dependencies disabled
-        - os: linux
-          stage: Test docs, astropy dev, and without optional dependencies
-          env: PYTHON_VERSION=2.7  KEYRING_VERSION='<12.0' PYTEST_VERSION='<3.7'
-               CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring'
-               ASTROPY_VERSION=lts NUMPY_VERSION=1.13
         - os: linux
           stage: Test docs, astropy dev, and without optional dependencies
           env: CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring'
@@ -159,12 +141,7 @@ matrix:
           env: EVENT_TYPE='push cron' DEBUG=True ASTROPY_VERSION=dev
                SETUP_CMD='test -R -V -a "--durations=50"'
                CONDA_DEPENDENCIES=$CONDA_DEPENDENCIES_REMOTE
-        - os: linux
-          stage: Remote data tests
-          env: EVENT_TYPE='push cron' PYTHON_VERSION=2.7
-               SETUP_CMD='test --remote-data -V -a "--durations=50"'
-               CONDA_DEPENDENCIES=$CONDA_DEPENDENCIES_REMOTE
-               KEYRING_VERSION='<12.0' PYTEST_VERSION='<3.7'
+
 
 install:
     - git clone git://github.com/astropy/ci-helpers.git
