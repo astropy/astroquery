@@ -79,7 +79,7 @@ class AsyncConeSearch(AsyncBase):
         super(AsyncConeSearch, self).__init__(conesearch, *args, **kwargs)
 
 
-def conesearch(center, radius, verb=1, catalog_db=None,
+def conesearch(center, radius, *, verb=1, catalog_db=None,
                verbose=True, cache=True, query_all=False,
                return_astropy_table=True, use_names_over_ids=False):
     """

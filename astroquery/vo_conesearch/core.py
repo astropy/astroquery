@@ -59,7 +59,7 @@ class ConeSearchClass(BaseQuery):
         raise NotImplementedError(
             'Use astroquery.vo_conesearch.conesearch.AsyncConeSearch class.')
 
-    def query_region(self, coordinates, radius, verb=1,
+    def query_region(self, coordinates, radius, *, verb=1,
                      get_query_payload=False, cache=True, verbose=False,
                      service_url=None, return_astropy_table=True,
                      use_names_over_ids=False):
