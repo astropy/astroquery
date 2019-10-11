@@ -144,8 +144,7 @@ class XMMNewtonClass(BaseQuery):
                 else:
                     filename = observation_id + ".tar"
 
-            self._handler.retrieve_file(filename, response=response,
-                                        verbose=verbose)
+            self._handler.retrieve_file(filename, response=response)
 
             if verbose:
                 log.info("Wrote {0} to {1}".format(link, filename))
@@ -201,8 +200,7 @@ class XMMNewtonClass(BaseQuery):
                 else:
                     filename = observation_id + ".PNG"
 
-            self._handler.retrieve_file(filename, response=result,
-                                        verbose=verbose)
+            self._handler.retrieve_file(filename, response=result)
 
             return filename
 

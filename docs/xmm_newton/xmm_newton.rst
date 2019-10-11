@@ -28,50 +28,11 @@ Examples
   >>> from astroquery.xmm_newton import XMMNewton
   >>>
   >>> XMMNewton.download_data('0505720401',level="PPS",extension="PDF",instname="M1",filename="result0505720401.tar")
+  INFO: File result0505720401.tar downloaded to current directory [astroquery.xmm_newton.core]
 
 This will download all PPS files for the observation '0505720401' and instrument MOS1, with 'PDF' extension and 
-it will store them in a tar called 'result0505720401.tar'. The parameters available are:
+it will store them in a tar called 'result0505720401.tar'. The parameters available are detailed in the API.       
 
-	observation_id : string
-		id of the observation to be downloaded 10 digits, mandatory, example: 0144090201
-	
-	filename : string
-		file name to be used to store the file, optional
-
-	verbose : bool
-		optional, default 'False', flag to display information about the process
-			
-	level : string
-		level to download, optional, by default everything is downloaded, values: ODF, PPS
-		
-	instname : string
-		instrument name, optional, two characters, by default everything, values: OM, R1, R2, M1, M2, PN
-		
-	instmode : string
-		instrument mode, optional, examples: Fast, FlatFieldLow, Image, PrimeFullWindow
-		
-	filter : string
-		filter, optional, examples: Closed, Open, Thick, UVM2, UVW1, UVW2, V
-
-	expflag : string
-		exposure flag, optional, by default everything, values: S, U, X(not applicable)
-
-	expno : integer
-		exposure number with 3 digits, by default all exposures, examples: 001, 003
-
-	name : string
-		product type, optional, 6 characters, by default all product types, examples: 3COLIM, ATTTSR, EVENLI, SBSPEC, EXPMAP, SRCARF
-
-	datasubsetno : character
-		data subset number, optional, by default all, examples: 0, 1
-
-	sourceno : hex value
-		source number, optional, by default all sources, example: 00A, 021, 001
-
-	extension : string
-		file format, optional, by default all formats, values: ASC, ASZ, FTZ, HTM, IND, PDF, PNG
-        
-            
 For more details of the parameters check the section 3.4 at:
 		'http://nxsa.esac.esa.int/nxsa-web/#aio'
 
@@ -84,21 +45,11 @@ For more details of the parameters check the section 3.4 at:
   >>> from astroquery.xmm_newton import XMMNewton
   >>>
   >>> XMMNewton.get_postcard('0505720401')
+  INFO: File P0505720401EPX000OIMAGE8000.PNG downloaded to current directory [astroquery.xmm_newton.core]
+  'P0505720401EPX000OIMAGE8000.PNG'
 
 This will download the EPIC postcard for the observation '0505720401' and it will stored in a PNG called
-'P0505720401EPX000OIMAGE8000.PNG'. The parameters available are:
-
-	observation_id : string
-		id of the observation for which download the postcard, mandatory
-    	
-	image_type : string
-		image type, optional, default 'OBS_EPIC', values: OBS_EPIC, OBS_RGS_FLUXED, OBS_RGS_FLUXED_2, OBS_RGS_FLUXED_3, OBS_EPIC_MT, OBS_RGS_FLUXED_MT, OBS_OM_V, OBS_OM_B, OBS_OM_U, OBS_OM_L, OBS_OM_M, OBS_OM_S, OBS_OM_W
-	
-	filename : string
- 		file name to be used to store the postcard, optional, default None
-	
-	verbose : bool
-		optional, default 'False', flag to display information about the process
+'P0505720401EPX000OIMAGE8000.PNG'.
 
 ------------------------------------------
 3. Getting XMM-Newton metadata through TAP 
@@ -110,23 +61,24 @@ Query Language (ADQL).
 .. code-block:: python
 
   >>> from astroquery.xmm_newton import XMMNewton
+  >>>
   >>> result = XMMNewton.query_xsa_tap("select top 10 * from v_public_observations", output_format='csv', output_file='results10.csv')
   >>> print(result)
+          bii             dec    duration ...      target      with_science
+  -------------------- --------- -------- ... ---------------- ------------
+  4.1331178178373715  55.99944    32913 ...    XTE J0421+560         true
+  0.05069186370709437 -32.58167    17083 ...         HD159176         true
+  0.05069186370709437 -32.58167     9362 ...         HD159176         true
+  0.05069186370709437 -32.58167    10859 ...         HD159176         true
+  -0.31119608673831345  6.135278    21939 ...          HD47129         true
+  -0.31119608673831345  6.135278    21863 ...          HD47129         true
+  -51.687075256085755  10.68917    26609 ... IRAS F00235+1024         true
+  73.04737400339847  10.18639    25192 ... IRAS F12514+1027         true
+  46.71747372703565 -15.78639    12101 ...      Denis-J1228         true
+  -15.881772371450268 -77.61555    33986 ...         Cha-Ha-3         true
 
 This will execute an ADQL query to download the first 10 observations in the XMM-Newton Science Archive. The result of the query will be 
-stored in the file 'results10.csv'. The result of this query can be printed by doing print(result). The parameters available are:
-
-	query : str
-		query (adql) to be executed, mandatory
-    
-	output_file : str
-		file name where the results are saved, optional, default None
-		
-	output_format : str
-		results format, optional, default 'votable', values: 'votable', 'csv'
-
-	verbose : bool
-		flag to display information about the process, optional, default 'False'
+stored in the file 'results10.csv'. The result of this query can be printed by doing print(result).
             
 -----------------------------------
 4. Getting table details of XSA TAP 
@@ -135,15 +87,20 @@ stored in the file 'results10.csv'. The result of this query can be printed by d
 .. code-block:: python
 
   >>> from astroquery.xmm_newton import XMMNewton
+  >>>
   >>> XMMNewton.get_tables(True)
+  INFO: Retrieving tables... [astroquery.utils.tap.core]
+  INFO: Parsing tables... [astroquery.utils.tap.core]
+  INFO: Done. [astroquery.utils.tap.core]
+  ['public.dual', 'public.v_all_observations', 'public.v_epic_source', 'public.v_epic_source_cat', 'public.v_epic_xmm_stack_cat', 
+  'public.v_exposure', 'public.v_instrument_mode', 'public.v_om_source', 'public.v_om_source_cat', 'public.v_proposal', 
+  'public.v_proposal_observation_info', 'public.v_publication', 'public.v_publication_observation', 
+  'public.v_publication_slew_observation', 'public.v_public_observations', 'public.v_rgs_source', 'public.v_slew_exposure', 
+  'public.v_slew_observation', 'public.v_slew_source', 'public.v_slew_source_cat', 'public.v_target_type', 
+  'public.v_uls_exposure_image', 'public.v_uls_slew_exposure_image', 'tap_schema.columns', 'tap_schema.key_columns', 
+  'tap_schema.keys', 'tap_schema.schemas', 'tap_schema.tables']
 
-This will show the available tables in XSA TAP service in the XMM-Newton Science Archive. The parameters available are:
-
-	only_names : bool
-		TAP+ only, true to load table names only, optional, default 'False'
-	
-	verbose : bool
-		flag to display information about the process, optional, default 'False'
+This will show the available tables in XSA TAP service in the XMM-Newton Science Archive.
             
 -------------------------------------
 5. Getting columns details of XSA TAP 
@@ -152,18 +109,17 @@ This will show the available tables in XSA TAP service in the XMM-Newton Science
 .. code-block:: python
 
   >>> from astroquery.xmm_newton import XMMNewton
+  >>>
   >>> XMMNewton.get_columns('public.v_all_observations')
+  INFO: Retrieving tables... [astroquery.utils.tap.core]
+  INFO: Parsing tables... [astroquery.utils.tap.core]
+  INFO: Done. [astroquery.utils.tap.core]
+  ['bii', 'citext', 'dec', 'duration', 'end_utc', 'footprint_fov', 'heasarc_code', 'lii', 'moving_target', 
+  'observation_equatorial_spoint', 'observation_fov_scircle', 'observation_galactic_spoint', 'observation_id', 
+  'observation_oid', 'odf_proc_date', 'odf_version', 'position_angle', 'pps_proc_date', 'pps_version', 'proposal_id', 
+  'proposal_oid', 'proprietary_end_date', 'ra', 'ra_nom', 'revolution', 'sas_version', 'start_utc', 'stc_s', 'with_science']
 
-This will show the column details of the table 'v_all_observations' in XSA TAP service in the XMM-Newton Science Archive. The parameters available are:
-
-	table_name : string
-		table name of which, columns will be returned, mandatory, default None
-	
-	only_names : bool
-		TAP+ only, true to load table names only, optional, default 'False'
-        
-	verbose : bool
-		flag to display information about the process, optional, default 'False'
+This will show the column details of the table 'v_all_observations' in XSA TAP service in the XMM-Newton Science Archive.
             
 
 Reference/API
