@@ -4,15 +4,13 @@
 
 import math
 import pytest
-import requests
-import os
 
-from astropy.coordinates import SkyCoord
 from astropy.tests.helper import remote_data
 import astropy.units as u
 from astropy.table import Table
 
 from astroquery.casda import Casda
+
 
 @remote_data
 class TestCasda:
@@ -39,4 +37,3 @@ class TestCasda:
         print(responses[0])
         for key in ('dataproduct_type', 'obs_id', 'access_url', 'access_format', 'obs_release_date'):
             assert key in responses.keys()
-
