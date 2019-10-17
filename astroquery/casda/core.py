@@ -1,9 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from __future__ import print_function
 
-# put all imports organized as shown below
 # 1. standard library imports
-from six import BytesIO
+from io import BytesIO
 
 # 2. third party imports
 import astropy.units as u
@@ -40,13 +38,8 @@ class CasdaClass(BaseQuery):
     URL = conf.server
     TIMEOUT = conf.timeout
 
-    # all query methods are implemented with an "async" method that handles
-    # making the actual HTTP request and returns the raw HTTP response, which
-    # should be parsed by a separate _parse_result method.   The query_object
-    # method is created by async_to_sync automatically.
     def query_region_async(self, coordinates, radius=None, height=None, width=None,
-                           get_query_payload=False, cache=True,
-                           **kwargs):
+                           get_query_payload=False, cache=True):
         """
         Queries a region around the specified coordinates. Either a radius or both a height and a width must be provided.
 
@@ -64,8 +57,6 @@ class CasdaClass(BaseQuery):
             Just return the dict of HTTP request parameters.
         cache: bool, optional
             Use the astroquery internal query result cache
-        verbose : bool, optional
-            Display VOTable warnings or not.
 
         Returns
         -------
@@ -74,7 +65,7 @@ class CasdaClass(BaseQuery):
             All async methods should return the raw HTTP response.
         """
         request_payload = self._args_to_payload(coordinates=coordinates, radius=radius, height=height,
-                                                width=width, kwargs=kwargs)
+                                                width=width)
         if get_query_payload:
             return request_payload
 

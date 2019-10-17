@@ -8,6 +8,7 @@ CASDA Queries (`astroquery.casda`)
 
 The CSIRO ASKAP Science Data Archive (CASDA) provides access to science-ready data products
 from observations at the `Australian Square Kilometre Array Pathfinder (ASKAP) <https://www.atnf.csiro.au/projects/askap/index.html>`_ telescope.
+These data products include source catalogues, images, spectral line and polarisation cubes, spectra and visbilities.
 This package allows querying of the data products available in CASDA (`<https://casda.csiro.au/>`_).
 
 Listing Data Products
