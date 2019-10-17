@@ -37,4 +37,3 @@ class TestCasda:
         print(responses[0])
         for key in ('dataproduct_type', 'obs_id', 'access_url', 'access_format', 'obs_release_date'):
             assert key in responses.keys()
-            
