@@ -157,6 +157,7 @@ The following modules have been completed using a common API:
   atomic/atomic.rst
   besancon/besancon.rst
   cadc/cadc.rst
+  casda/casda.rst
   cds/cds.rst
   esa/hubble.rst
   esasky/esasky.rst

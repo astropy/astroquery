@@ -4,6 +4,11 @@
 New Tools and Services
 ----------------------
 
+casda
+^^^^^
+
+- Module added to access data from the CSIRO ASKAP Science Data Archive (CASDA)  [#1505]
+
 
 Service fixes and enhancements
 ------------------------------
@@ -25,6 +30,9 @@ besancon
 
 cadc
 ^^^^
+
+casda
+^^^^^
 
 cds
 ^^^
