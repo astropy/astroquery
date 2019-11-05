@@ -10,6 +10,7 @@ import warnings
 import uuid
 import json
 import time
+import re
 
 import numpy as np
 
@@ -210,7 +211,39 @@ class PortalAPI(BaseQuery):
 
         return all_responses
 
-    def _get_col_config(self, service, fetch_name=None):
+    def _request_w_cache(self, method, url, data=None, headers=None, retrieve_all=True,
+                         cache=False, cache_opts=None):
+        # Note: the method only exposes 4 parameters of the underlying _request() function
+        # to play nice with existing mocks
+        # Caching:  follow BaseQuery._request()'s pattern, which uses an AstroQuery object
+        if not cache:
+            response = self._request(method, url, data=data, headers=headers, retrieve_all=retrieve_all)
+        else:
+            cacher = self._get_cacher(method, url, data, headers, retrieve_all)
+            response = cacher.from_cache(self.cache_location)
+            if not response:
+                response = self._request(method, url, data=data, headers=headers, retrieve_all=retrieve_all)
+                to_cache(response, cacher.request_file(self.cache_location))
+        return response
+
+    def _get_cacher(self, method, url, data, headers, retrieve_all):
+        """
+        Return an object that can cache the HTTP request based on the supplied arguments
+        """
+
+        # cacheBreaker parameter (to underlying MAST service) is not relevant (and breaks) local caching
+        # remove it from part of the cache key
+        data_no_cache_breaker = re.sub(r'^(.+)cacheBreaker%22%3A%20%22.+%22', r'\1', data)
+        # include retrieve_all as part of the cache key by appending it to data
+        # it cannot be added as part of req_kwargs dict, as it will be rejected by AstroQuery
+        data_w_retrieve_all = data_no_cache_breaker + " retrieve_all={}".format(retrieve_all)
+        req_kwargs = dict(
+            data=data_no_cache_breaker,
+            headers=headers
+        )
+        return AstroQuery(method, url, **req_kwargs)
+
+    def _get_col_config(self, service, fetch_name=None, cache=False):
         """
         Gets the columnsConfig entry for given service and stores it in `self._column_configs`.
 
@@ -246,7 +279,7 @@ class PortalAPI(BaseQuery):
         if more:
             mashup_request = {'service': all_name, 'params': {}, 'format': 'extjs'}
             req_string = _prepare_service_request_string(mashup_request)
-            response = self._request("POST", self.MAST_REQUEST_URL, data=req_string, headers=headers)
+            response = self._request_w_cache("POST", self.MAST_REQUEST_URL, data=req_string, headers=headers, cache=cache)
             json_response = response[0].json()
 
             self._column_configs[service].update(json_response['data']['Tables'][0]
@@ -300,7 +333,7 @@ class PortalAPI(BaseQuery):
         return all_results
 
     @class_or_instance
-    def service_request_async(self, service, params, pagesize=None, page=None, **kwargs):
+    def service_request_async(self, service, params, pagesize=None, page=None, cache=False, cache_opts=None, **kwargs):
         """
         Given a Mashup service and parameters, builds and excecutes a Mashup query.
         See documentation `here <https://mast.stsci.edu/api/v0/class_mashup_1_1_mashup_request.html>`__
@@ -320,6 +353,10 @@ class PortalAPI(BaseQuery):
             Default None.
             Can be used to override the default behavior of all results being returned to obtain
             a specific page of results.
+        cache : Boolean, optional
+            try to use cached the query result if set to True
+        cache_opts : dict, optional
+            cache options, details TBD, e.g., cache expiration policy, etc.
         **kwargs :
             See MashupRequest properties
             `here <https://mast.stsci.edu/api/v0/class_mashup_1_1_mashup_request.html>`__
@@ -333,7 +370,7 @@ class PortalAPI(BaseQuery):
         # setting self._current_service
         if service not in self._column_configs.keys():
             fetch_name = kwargs.pop('fetch_name', None)
-            self._get_col_config(service, fetch_name)
+            self._get_col_config(service, fetch_name, cache)
         self._current_service = service
 
         # setting up pagination
@@ -359,12 +396,12 @@ class PortalAPI(BaseQuery):
             mashup_request[prop] = value
 
         req_string = _prepare_service_request_string(mashup_request)
-        response = self._request("POST", self.MAST_REQUEST_URL, data=req_string, headers=headers,
-                                 retrieve_all=retrieve_all)
+        response = self._request_w_cache("POST", self.MAST_REQUEST_URL, data=req_string, headers=headers,
+                                 retrieve_all=retrieve_all, cache=cache, cache_opts=cache_opts)
 
         return response
 
-    def build_filter_set(self, column_config_name, service_name=None, **filters):
+    def build_filter_set(self, column_config_name, service_name=None, cache=False, **filters):
         """
         Takes user input dictionary of filters and returns a filterlist that the Mashup can understand.
 
@@ -392,7 +429,7 @@ class PortalAPI(BaseQuery):
             service_name = column_config_name
 
         if not self._column_configs.get(service_name):
-            self._get_col_config(service_name, fetch_name=column_config_name)
+            self._get_col_config(service_name, fetch_name=column_config_name, cache=cache)
 
         caom_col_config = self._column_configs[service_name]
 
