@@ -172,7 +172,7 @@ def test_launch_sync_job():
     connHandler.set_response(jobRequest, responseLaunchJob)
 
     with pytest.raises(Exception):
-        tap.launch_job(query)
+        tap.launch_job(query, maxrec=10)
 
     responseLaunchJob.set_status_code(200)
     job = tap.launch_job(query)
@@ -449,6 +449,7 @@ def test_abort_job():
         "REQUEST": "doQuery",
         "LANG": "ADQL",
         "FORMAT": "votable",
+        "MAXREC": 10,
         "tapclient": str(TAP_CLIENT_ID),
         "QUERY": str(query)}
     sortedKey = taputils.taputil_create_sorted_dict_key(dictTmp)
@@ -482,6 +483,7 @@ def test_job_parameters():
         "REQUEST": "doQuery",
         "LANG": "ADQL",
         "FORMAT": "votable",
+        "MAXREC": 10,
         "tapclient": str(TAP_CLIENT_ID),
         "QUERY": str(query)}
     sortedKey = taputils.taputil_create_sorted_dict_key(dictTmp)
@@ -501,7 +503,7 @@ def test_job_parameters():
     connHandler.set_response(req, responseResultsJob)
 
     responseResultsJob.set_status_code(200)
-    job = tap.launch_job_async(query, autorun=False)
+    job = tap.launch_job_async(query, maxrec=10, autorun=False)
     assert job is not None
     assert job.get_phase() == 'PENDING'
 
