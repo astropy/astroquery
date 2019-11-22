@@ -8,7 +8,11 @@ https://astroquery.readthedocs.io/en/latest/testing.html
 import os
 import pytest
 import requests
+from astropy import units
+from astropy.coordinates import SkyCoord
+from astropy.table import Table
 
+from astroquery import gemini
 
 DATA_FILES = {"m101": "m101.json"}
 
@@ -29,8 +33,8 @@ def patch_get(request):
     return mp
 
 
-def get_mockreturn(url, params=None, timeout=10):
-    filename = data_path(DATA_FILES['votable'])
+def get_mockreturn(url, *args, **kwargs):
+    filename = data_path(DATA_FILES['m101'])
     content = open(filename, 'r').read()
     return MockResponse(content)
 
@@ -38,3 +42,16 @@ def get_mockreturn(url, params=None, timeout=10):
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     return os.path.join(data_dir, filename)
+
+
+coords = SkyCoord(210.80242917, 54.34875, unit="deg")
+
+
+def test_observations_query_region_async(patch_get):
+    responses = gemini.Observations.query_region_async(coords, radius=0.3)
+    assert isinstance(responses, list)
+
+
+def test_observations_query_region(patch_get):
+    result = gemini.Observations.query_region(coords, radius=0.3 * units.deg)
+    assert isinstance(result, Table)
