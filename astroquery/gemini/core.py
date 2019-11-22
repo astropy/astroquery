@@ -99,7 +99,7 @@ class ObservationsClass(BaseQuery):
         super().__init__()
 
     @class_or_instance
-    def query_region(self, coordinates, radius=0.3*units.deg, pi_name=None, program_id=None, utc_date=None,
+    def query_region(self, coordinates=None, radius=None, pi_name=None, program_id=None, utc_date=None,
                      instrument=None, observation_class=None, observation_type=None, mode=None,
                      adaptive_optics=None, program_text=None, object=None, raw_reduced=None):
         """
@@ -197,9 +197,10 @@ class ObservationsClass(BaseQuery):
         -------
         response : `~requests.Response`
         """
-        if isinstance(radius, (int, float)):
-            radius = radius * units.deg
-        radius = astropy.coordinates.Angle(radius)
+        if radius is not None:
+            if isinstance(radius, (int, float)):
+                radius = radius * units.deg
+            radius = astropy.coordinates.Angle(radius)
 
         url = "%s/jsonsummary/notengineering/NotFail" % self.server
         if coordinates is not None:

@@ -164,6 +164,7 @@ The following modules have been completed using a common API:
   eso/eso.rst
   gaia/gaia.rst
   gama/gama.rst
+  gemini/gemini.rst
   heasarc/heasarc.rst
   hitran/hitran.rst
   ibe/ibe.rst
@@ -271,6 +272,7 @@ generally return a table listing the available data first.
   ibe/ibe.rst
   irsa/irsa.rst
   magpis/magpis.rst
+  gemini/gemini.rst
   mast/mast.rst
   ned/ned.rst
   nrao/nrao.rst
