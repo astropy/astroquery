@@ -109,6 +109,7 @@ The following modules have been completed using a common API:
   * `ESO Archive <http://astroquery.readthedocs.io/en/latest/eso/eso.html>`_
   * `Gaia <http://astroquery.readthedocs.io/en/latest/gaia/gaia.html>`_: European Space Agency Gaia Archive.
   * `GAMA database <http://astroquery.readthedocs.io/en/latest/gama/gama.html>`_
+  * `Gemini <http://astroquery.readthedocs.io/en/latest/gemini/gemini.html>`_: Gemini Archive.
   * `HEASARC <http://astroquery.readthedocs.io/en/latest/heasarc/heasarc.html>`_: NASA's High Energy Astrophysics Science Archive Research Center.
   * `IBE <http://astroquery.readthedocs.io/en/latest/ibe/ibe.html>`_: IRSA Image Server program interface (IBE) Query Tool provides access to the 2MASS, WISE, and PTF image archives.
   * `IRSA <http://astroquery.readthedocs.io/en/latest/irsa/irsa.html>`_: NASA/IPAC Infrared Science Archive. Science products for all of NASA's infrared and sub-mm missions.

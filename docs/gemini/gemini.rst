@@ -41,8 +41,8 @@ Observation Criteria Queries
 Additional search terms are available as optional arguments to the `~astroquery.gemini.ObservationsClass.query_region`
 call.  These all have default values of None, in which case they will not be considered during the search.
 
-The full API is provided below, but some examples are the instrument used via instrument, the
-observation_type, such as BIAS, and the program ID via program_id.
+The full API is provided below, but some examples are the instrument used, such as GMOS-N, the
+observation_type, such as BIAS, and the program ID.
 
 .. code-block:: python
                 
