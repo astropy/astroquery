@@ -84,7 +84,8 @@ __valid_raw_reduced__ = [
     'PREPARED',
     'PROCESSED_BIAS',
     'PROCESSED_FLAT',
-    'PROCESSED_FRINGE'
+    'PROCESSED_FRINGE',
+    'PROCESSED_ARC'
 ]
 
 
@@ -99,7 +100,11 @@ class ObservationsClass(BaseQuery):
         super().__init__()
 
     @class_or_instance
-    def query_region(self, coordinates=None, radius=None, pi_name=None, program_id=None, utc_date=None,
+    def query_region(self, coordinates, radius):
+        return self.query_criteria(coordinates=coordinates, radius=radius)
+
+    @class_or_instance
+    def query_criteria(self, coordinates=None, radius=None, pi_name=None, program_id=None, utc_date=None,
                      instrument=None, observation_class=None, observation_type=None, mode=None,
                      adaptive_optics=None, program_text=None, object=None, raw_reduced=None):
         """
