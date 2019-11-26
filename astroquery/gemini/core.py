@@ -1,3 +1,9 @@
+"""
+Search functionality for the Gemini archive of observations.
+
+For questions, contact ooberdorf@gemini.edu
+"""
+
 from datetime import date
 
 import warnings
@@ -92,7 +98,6 @@ __valid_raw_reduced__ = [
 ]
 
 
-@async_to_sync
 class ObservationsClass(BaseQuery):
 
     server = conf.server
@@ -104,6 +109,26 @@ class ObservationsClass(BaseQuery):
 
     @class_or_instance
     def query_region(self, coordinates, radius):
+        """
+        search for Gemini observations by target on the sky.
+
+        Given a sky position and radius, returns a list of Gemini observations.
+
+        Parameters
+        ----------
+        coordinates : str or `~astropy.coordinates` object
+            The target around which to search. It may be specified as a
+            string or as the appropriate `~astropy.coordinates` object.
+        radius : str or `~astropy.units.Quantity` object, optional
+            Default 0.3 degrees.
+            The string must be parsable by `~astropy.coordinates.Angle`. The
+            appropriate `~astropy.units.Quantity` object from
+            `~astropy.units` may also be used. Defaults to 0.3 deg.
+
+        Returns
+        -------
+        response : `~astropy.table.Table`
+        """
         return self.query_criteria(coordinates=coordinates, radius=radius)
 
     @class_or_instance
@@ -111,7 +136,9 @@ class ObservationsClass(BaseQuery):
                      instrument=None, observation_class=None, observation_type=None, mode=None,
                      adaptive_optics=None, program_text=None, object=None, raw_reduced=None):
         """
-        Given a sky position and radius, returns a list of Gemini observations.
+        search a variety of known parameters against the Gemini observations.
+
+        Given various criteria, search the Gemini archive for matching observations.
 
         Parameters
         ----------
@@ -204,7 +231,7 @@ class ObservationsClass(BaseQuery):
 
         Returns
         -------
-        response : `~requests.Response`
+        response : `~astropy.table.Table`
         """
 
         # This could be refactored to rely on query_raw, but I am not convinced
@@ -271,6 +298,8 @@ class ObservationsClass(BaseQuery):
     @class_or_instance
     def query_raw(self, *args, **kwargs):
         """
+        perform flexible query against Gemini observations
+
         This is a more flexible query method.  This method will do special handling for
         coordinates and radius if present in kwargs.  However, for the remaining arguments
         it assumes all of args are useable as query path elements.  For kwargs, it assumes
@@ -301,7 +330,7 @@ class ObservationsClass(BaseQuery):
 
         Returns
         -------
-        response : `~requests.Response`
+        response : `~astropy.table.Table`
         """
         if 'radius' in kwargs:
             radius = kwargs['radius']
@@ -336,14 +365,12 @@ class ObservationsClass(BaseQuery):
 
 def _gemini_json_to_table(json):
     """
-    Takes a JSON object as returned from a Mashup request and turns it into an `~astropy.table.Table`.
+    takes a JSON object as returned from the Gemini archive webserver and turns it into an `~astropy.table.Table`
 
     Parameters
     ----------
-    json_obj : dict
-        A Mashup response JSON object (python dictionary)
-    col_config : dict, optional
-        Dictionary that defines column properties, e.g. default value.
+    json : dict
+        A JSON object from the Gemini archive webserver
 
     Returns
     -------
