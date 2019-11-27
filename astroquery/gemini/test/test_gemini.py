@@ -25,6 +25,7 @@ class MockResponse(object):
 
 @pytest.fixture
 def patch_get(request):
+    """ mock get requests so they return our canned JSON to mimic Gemini's archive website """
     try:
         mp = request.getfixturevalue("monkeypatch")
     except AttributeError:  # pytest < 3
@@ -34,6 +35,7 @@ def patch_get(request):
 
 
 def get_mockreturn(url, *args, **kwargs):
+    """ generate the actual mock textual data from our included datafile with json results """
     filename = data_path(DATA_FILES['m101'])
     f = open(filename, 'r')
     text = f.read()
@@ -43,23 +45,29 @@ def get_mockreturn(url, *args, **kwargs):
 
 
 def data_path(filename):
+    """ determine the path to our sample data file """
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     return os.path.join(data_dir, filename)
 
 
+""" Coordinates to use for testing """
 coords = SkyCoord(210.80242917, 54.34875, unit="deg")
 
 
 def test_observations_query_region(patch_get):
+    """ test query against a region of the sky """
     result = gemini.Observations.query_region(coords, radius=0.3 * units.deg)
     assert isinstance(result, Table)
 
 
 def test_observations_query_criteria(patch_get):
-    result = gemini.Observations.query_criteria(instrument='GMOS-N', program_id='GN-CAL20191122', observation_type='BIAS')
+    """ test query against an instrument/program via criteria """
+    result = gemini.Observations.query_criteria(instrument='GMOS-N', program_id='GN-CAL20191122',
+                                                observation_type='BIAS')
     assert isinstance(result, Table)
 
 
 def test_observations_query_raw(patch_get):
+    """ test querying raw """
     result = gemini.Observations.query_raw('GMOS-N', 'BIAS', progid='GN-CAL20191122')
     assert isinstance(result, Table)
