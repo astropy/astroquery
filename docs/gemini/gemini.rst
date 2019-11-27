@@ -69,12 +69,12 @@ Finally, for ultimate flexibility, a method is provided for driving the "raw" qu
 webserver.  For this option, no validation is done on the inputs.  That also means this method may allow
 for values or even new fields that were not present at the time this module was last updated.
 
-Regular *args search terms are sent down as part of the URL path.  Any **kwargs are then sent down with
+Regular *args* search terms are sent down as part of the URL path.  Any *kwargs* are then sent down with
 key=value.  You can infer what to pass the function by inspecting the URL after a search in the
 Gemini website.
 
-This example is equivalent to doing a web search with `https://archive.gemini.edu/searchform/RAW/cols=CTOWEQ/notengineering/GMOS-N/PIname=Hirst/NotFail`.
-Note that `NotFail`, `notengineering`, `RAW`, and `cols` are all sent automatically.  Only the additional 
+This example is equivalent to doing a web search with `https://archive.gemini.edu/searchform/RAW/cols=CTOWEQ/notengineering/GMOS-N/PIname=Hirst/NotFail`_.
+Note that *NotFail*, *notengineering*, *RAW*, and *cols* are all sent automatically.  Only the additional 
 terms need be passed into the method.
 
 .. code-block:: python
