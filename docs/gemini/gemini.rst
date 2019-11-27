@@ -38,7 +38,7 @@ Positional queries can be based on a sky position.  Radius is an optional parame
 Observation Criteria Queries
 ----------------------------
 
-Additional search terms are available as optional arguments to the `~astroquery.gemini.ObservationsClass.query_region`
+Additional search terms are available as optional arguments to the `~astroquery.gemini.ObservationsClass.query_criteria`
 call.  These all have default values of None, in which case they will not be considered during the search.
 
 The full API is provided below, but some examples are the instrument used, such as GMOS-N, the
@@ -47,11 +47,41 @@ observation_type, such as BIAS, and the program ID.
 .. code-block:: python
                 
                 >>> from astroquery.gemini import Observations
-                >>> from astropy import coordinates, units
 
-                >>> data = Observations.query_region(instrument='GMOS-N',
-                ...                                  program_id='GN-CAL20191122',
-                ...                                  observation_type='BIAS')
+                >>> data = Observations.query_criteria(instrument='GMOS-N',
+                ...                                    program_id='GN-CAL20191122',
+                ...                                    observation_type='BIAS')
+                >>> print(data[0:5])
+
+                exposure_time detector_roi_setting detector_welldepth_setting  telescope   mdready ...
+                ------------- -------------------- -------------------------- ------------ ------- ...
+                          0.0        Central Stamp                         -- Gemini-North    True ...
+                          0.0           Full Frame                         -- Gemini-North    True ...
+                          0.0           Full Frame                         -- Gemini-North    True ...
+                          0.0           Full Frame                         -- Gemini-North    True ...
+                          0.0           Full Frame                         -- Gemini-North    True ...
+
+
+Observation Raw Queries
+----------------------------
+
+Finally, for ultimate flexibility, a method is provided for driving the "raw" query that is sent to the
+webserver.  For this option, no validation is done on the inputs.  That also means this method may allow
+for values or even new fields that were not present at the time this module was last updated.
+
+Regular *args search terms are sent down as part of the URL path.  Any **kwargs are then sent down with
+key=value.  You can infer what to pass the function by inspecting the URL after a search in the
+Gemini website.
+
+This example is equivalent to doing a web search with `https://archive.gemini.edu/searchform/RAW/cols=CTOWEQ/notengineering/GMOS-N/PIname=Hirst/NotFail`.
+Note that `NotFail`, `notengineering`, `RAW`, and `cols` are all sent automatically.  Only the additional 
+terms need be passed into the method.
+
+.. code-block:: python
+                
+                >>> from astroquery.gemini import Observations
+
+                >>> data = Observations.query_raw('GMOS-N', 'BIAS', progid='GN-CAL20191122')
                 >>> print(data[0:5])
 
                 exposure_time detector_roi_setting detector_welldepth_setting  telescope   mdready ...
