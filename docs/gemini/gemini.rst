@@ -73,7 +73,8 @@ Regular *args* search terms are sent down as part of the URL path.  Any *kwargs*
 key=value.  You can infer what to pass the function by inspecting the URL after a search in the
 Gemini website.
 
-This example is equivalent to doing a web search with `https://archive.gemini.edu/searchform/RAW/cols=CTOWEQ/notengineering/GMOS-N/PIname=Hirst/NotFail`_.
+This example is equivalent to doing a web search with 
+`Sample Search <https://archive.gemini.edu/searchform/RAW/cols=CTOWEQ/notengineering/GMOS-N/PIname=Hirst/NotFail>`_ .
 Note that *NotFail*, *notengineering*, *RAW*, and *cols* are all sent automatically.  Only the additional 
 terms need be passed into the method.
 
