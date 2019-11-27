@@ -74,7 +74,7 @@ key=value.  You can infer what to pass the function by inspecting the URL after 
 Gemini website.
 
 This example is equivalent to doing a web search with 
-`Sample Search <https://archive.gemini.edu/searchform/RAW/cols=CTOWEQ/notengineering/GMOS-N/PIname=Hirst/NotFail>`_ .
+`this example search <https://archive.gemini.edu/searchform/RAW/cols=CTOWEQ/notengineering/GMOS-N/PIname=Hirst/NotFail>`_ .
 Note that *NotFail*, *notengineering*, *RAW*, and *cols* are all sent automatically.  Only the additional 
 terms need be passed into the method.
 
