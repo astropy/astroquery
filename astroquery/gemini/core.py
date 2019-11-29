@@ -406,7 +406,7 @@ def _gemini_json_to_table(json):
     data_table = Table(masked=True)
 
     for key in __keys__:
-        col_data = np.array([obj.get(key) for obj in json])
+        col_data = np.array([obj.get(key, None) for obj in json])
 
         atype = str
 
