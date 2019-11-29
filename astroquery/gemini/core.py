@@ -131,10 +131,36 @@ class ObservationsClass(BaseQuery):
         """
         return self.query_criteria(coordinates=coordinates, radius=radius)
 
+
+    @class_or_instance
+    def query_object(self, objectname):
+        """
+        search for Gemini observations by target on the sky.
+
+        Given a sky position and radius, returns a list of Gemini observations.
+
+        Parameters
+        ----------
+        coordinates : str or `~astropy.coordinates` object
+            The target around which to search. It may be specified as a
+            string or as the appropriate `~astropy.coordinates` object.
+        radius : str or `~astropy.units.Quantity` object, optional
+            Default 0.3 degrees.
+            The string must be parsable by `~astropy.coordinates.Angle`. The
+            appropriate `~astropy.units.Quantity` object from
+            `~astropy.units` may also be used. Defaults to 0.3 deg.
+
+        Returns
+        -------
+        response : `~astropy.table.Table`
+        """
+        return self.query_criteria(objectname=objectname)
+
+
     @class_or_instance
     def query_criteria(self, coordinates=None, radius=None, pi_name=None, program_id=None, utc_date=None,
-                     instrument=None, observation_class=None, observation_type=None, mode=None,
-                     adaptive_optics=None, program_text=None, object=None, raw_reduced=None):
+                       instrument=None, observation_class=None, observation_type=None, mode=None,
+                       adaptive_optics=None, program_text=None, objectname=None, raw_reduced=None):
         """
         search a variety of known parameters against the Gemini observations.
 
@@ -218,7 +244,7 @@ class ObservationsClass(BaseQuery):
                 'LGS'
         program_text : str, optional
             Specify text in the information about the program.  This is free form text.
-        object : str, optional
+        objectname : str, optional
             Give the name of the target.
         raw_reduced : str, optional
             Indicate the raw or reduced status of the observations to search for.  Valid values are:
@@ -283,8 +309,8 @@ class ObservationsClass(BaseQuery):
             url = "%s/%s" % (url, adaptive_optics)
         if program_text is not None:
             url = "%s/ProgramText=%s" % (url, program_text)
-        if object is not None:
-            url = "%s/object=%s" % (url, object)
+        if objectname is not None:
+            url = "%s/object=%s" % (url, objectname)
         if raw_reduced is not None:
             if raw_reduced not in __valid_raw_reduced__:
                 raise ValueError("Unrecognized raw/reduced setting: %s" % raw_reduced)
