@@ -35,13 +35,33 @@ Positional queries can be based on a sky position.  Radius is an optional parame
                       99.9983           Full Frame                         -- Gemini-North ...
 
 
+Observation Name Queries
+
+You may also do a query by the name of the object you are interested in.
+
+.. code-block:: python
+
+                >>> from astroquery.gemini import Observations
+
+                >>> data = Observations.query_object(objectname='m101')
+                >>> print(data[0:5])
+
+                exposure_time detector_roi_setting detector_welldepth_setting  telescope   ...
+                ------------- -------------------- -------------------------- ------------ ...
+                     119.9986           Full Frame                         -- Gemini-North ...
+                     119.9983           Full Frame                         -- Gemini-North ...
+                     119.9986           Full Frame                         -- Gemini-North ...
+                     119.9983           Full Frame                         -- Gemini-North ...
+                      99.9983           Full Frame                         -- Gemini-North ...
+
+
 Observation Criteria Queries
 ----------------------------
 
 Additional search terms are available as optional arguments to the `~astroquery.gemini.ObservationsClass.query_criteria`
 call.  These all have default values of None, in which case they will not be considered during the search.
 
-The full API is provided below, but some examples are the instrument used, such as GMOS-N, the
+The full API is in the api documentation, but some examples are the instrument used, such as GMOS-N, the
 observation_type, such as BIAS, and the program ID.
 
 .. code-block:: python
@@ -70,7 +90,7 @@ webserver.  For this option, no validation is done on the inputs.  That also mea
 for values or even new fields that were not present at the time this module was last updated.
 
 Regular *args* search terms are sent down as part of the URL path.  Any *kwargs* are then sent down with
-key=value.  You can infer what to pass the function by inspecting the URL after a search in the
+key=value also in the URL path.  You can infer what to pass the function by inspecting the URL after a search in the
 Gemini website.
 
 This example is equivalent to doing a web search with 
