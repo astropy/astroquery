@@ -10,7 +10,7 @@ from astropy.utils.data import get_pkg_data_contents
 from astropy.utils.exceptions import AstropyUserWarning
 
 from . import conf
-from ..utils.testing_tools import MockResponse
+from ..utils.mocks import MockResponse
 
 __all__ = ['get_field_info', 'photoobj_defs', 'specobj_defs', 'crossid_defs']
 
