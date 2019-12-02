@@ -1,9 +1,12 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 import socket
-import json
 
 import pytest
+
+# Import MockResponse to keep the API while it's temporarily factored out to
+# a separate file to avoid requiring pytest as a dependency in non-test code
+from .mocks import MockResponse
 
 # save original socket method for restoration
 socket_original = socket.socket
@@ -27,40 +30,3 @@ def turn_on_internet(verbose=False):
         print("Internet access enabled")
     setattr(socket, 'socket', socket_original)
     return socket
-
-
-class MockResponse(object):
-    """
-    A mocked/non-remote version of `astroquery.query.AstroResponse`
-    """
-
-    def __init__(self, content=None, url=None, headers={},
-                 content_type=None, stream=False, auth=None, status_code=200,
-                 verify=True):
-        assert content is None or hasattr(content, 'decode')
-        self.content = content
-        self.raw = content
-        self.headers = headers
-        if content_type is not None:
-            self.headers.update({'Content-Type': content_type})
-        self.url = url
-        self.auth = auth
-        self.status_code = status_code
-
-    def iter_lines(self):
-        c = self.content.split(b"\n")
-        for l in c:
-            yield l
-
-    def raise_for_status(self):
-        pass
-
-    def json(self):
-        try:
-            return json.loads(self.content)
-        except TypeError:
-            return json.loads(self.content.decode('utf-8'))
-
-    @property
-    def text(self):
-        return self.content.decode(errors='replace')
