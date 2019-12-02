@@ -94,7 +94,7 @@ Examples
   >>> coord = SkyCoord(ra=53, dec=-27, unit=(u.degree, u.degree), frame='icrs')
   >>> width = u.Quantity(5, u.deg)
   >>> height = u.Quantity(5, u.deg)
-  >>> r = Jwst.query_reguion_async(coordinate=coord, width=width, height=height)
+  >>> r = Jwst.query_region_async(coordinate=coord, width=width, height=height)
   >>> r.pprint()
 
   Query finished.
