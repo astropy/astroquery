@@ -6,12 +6,8 @@ from astropy.table import Table
 from astropy.coordinates import SkyCoord
 import astropy.units as u
 
-import requests
-import imp
-
 from ... import irsa
 
-imp.reload(requests)
 
 OBJ_LIST = ["m31", "00h42m44.330s +41d16m07.50s",
             SkyCoord(l=121.1743, b=-21.5733, unit=(u.deg, u.deg),

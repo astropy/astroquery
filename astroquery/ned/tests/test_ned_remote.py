@@ -3,12 +3,8 @@ from __future__ import print_function
 
 from astropy.tests.helper import remote_data
 from astropy.table import Table
-import requests
-import imp
 
 from ... import ned
-
-imp.reload(requests)
 
 
 @remote_data
