@@ -10,7 +10,6 @@ from astropy.utils.data import get_pkg_data_contents
 from astropy.utils.exceptions import AstropyUserWarning
 
 from . import conf
-from ..utils.testing_tools import MockResponse
 
 __all__ = ['get_field_info', 'photoobj_defs', 'specobj_defs', 'crossid_defs']
 
@@ -46,6 +45,7 @@ def get_field_info(cls, tablename, sqlurl, timeout=conf.timeout):
         try:
             _cached_table_fields[key] = _columns_json_to_table(qryres.json())
         except ValueError:
+            from ..utils.testing_tools import MockResponse
             if isinstance(qryres, MockResponse):
                 return _load_builtin_table_fields()[tablename]
 
