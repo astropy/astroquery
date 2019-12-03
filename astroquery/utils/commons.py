@@ -365,7 +365,7 @@ class FileContainer(object):
         filedata = self.get_string()
 
         if len(filedata) == 0:
-            raise ValueError("The file retrieved was empty.")
+            raise TypeError("The file retrieved was empty.")
 
         self._fits = fits.HDUList.fromstring(filedata)
 
