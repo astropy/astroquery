@@ -122,3 +122,17 @@ def test_get_raw_response(patch_request):
     raw = core.Skybot.cone_search(
         (0, 0), 0.5, 2451200, get_raw_response=True)
     assert " 299383 | 2005 VC73 | 23 59 45.7861 |" in raw
+
+
+def test_parsing_unnumbered_asteroids(patch_request):
+    """
+    test a query that returns at least one unnumbered asteroids
+    in this case asteroid 2018 UO10 from the patch DATA_FILE
+    """
+    coord = SkyCoord(ra=271.74541667, dec=-19.94805556, unit=(u.deg, u.deg), frame='icrs')
+    a = core.Skybot.cone_search(coord,
+                                rad=1.7*u.deg,
+                                epoch=Time(56734.74982639, format='mjd'),
+                                location=260,
+                                position_error=15*u.arcsec)
+    assert(len(a) > 100)
