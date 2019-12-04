@@ -604,5 +604,5 @@ To perform a logout
 Reference/API
 =============
 
-.. automodapi:: astroquery.gaia
+.. automodapi:: astroquery.jwst
     :no-inheritance-diagram:

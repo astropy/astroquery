@@ -24,7 +24,6 @@ class JwstDataHandler(object):
     def __init__(self, base_url=None):
         if base_url is None:
             self.base_url = "http://jwstdummydata.com"
-
         else:
             self.base_url = base_url
             

@@ -40,12 +40,13 @@ class JwstClass(object):
 
     def __init__(self, tap_plus_handler=None, data_handler=None):
         if tap_plus_handler is None:
-            self.__jwsttap = TapPlus(url="http://jwstdummytap.com")
+
+            self.__jwsttap = TapPlus(url="http://jwstdummytap.com", data_context='data')
         else:
             self.__jwsttap = tap_plus_handler
             
         if data_handler is None:
-            self.__jwstdata = JwstDataHandler(base_url="http://jwstdummydata.com");
+            self.__jwstdata = self.__jwsttap;
         else:
             self.__jwstdata = data_handler;
 
@@ -617,7 +618,7 @@ class JwstClass(object):
         job = self.__jwsttap.launch_job(query=query)
         return job.get_results()
     
-    def get_product(self, artifact_id=None):
+    def get_product(self, artifact_id=None, file_name=None):
         """Get a JWST product given its Artifact ID.
 
         Parameters
@@ -630,19 +631,41 @@ class JwstClass(object):
         local_path : str
             Returns the local path that the file was download to.
         """
-        
-        if artifact_id is None:
-            raise ValueError("Missing required argument: 'artifact_id'")
-        
-        url=self.__jwstdata.base_url+"RETRIEVAL_TYPE=PRODUCT&DATA_RETRIEVAL_ORIGIN=ASTROQUERY" +\
-                    "&ARTIFACTID=" + artifact_id
-        
+
+        params_dict = {}
+        params_dict['RETRIEVAL_TYPE'] = 'PRODUCT'
+        params_dict['DATA_RETRIEVAL_ORIGIN'] = 'ASTROQUERY'
+
+        if artifact_id is None and file_name is None:
+            raise ValueError("Missing required argument: 'artifact_id' or file_name")
+        else:
+            if file_name is None:
+                output_file_name = str(artifact_id)
+                err_msg = str(artifact_id)
+            else:
+                output_file_name = str(file_name)
+                err_msg = str(file_name)
+
+            if artifact_id is not None:
+                params_dict['ARTIFACTID'] = str(artifact_id)
+            else:
+                params_dict['ARTIFACT_URI'] = 'mast:JWST/product/' + str(file_name)
+
+        #url=self.__jwstdata.base_url+"RETRIEVAL_TYPE=PRODUCT&DATA_RETRIEVAL_ORIGIN=ASTROQUERY" +\
+        #            "&ARTIFACTID=" + artifact_id
+        #
+        #try:
+        #    file = self.__jwstdata.download_file(url)
+        #except:
+        #    raise ValueError('Product ' + artifact_id + ' not available')
+        #return file
         try:
-            file = self.__jwstdata.download_file(url)
+            self.__jwsttap.load_data(params_dict=params_dict, output_file=output_file_name)
         except:
-            raise ValueError('Product ' + artifact_id + ' not available')
-        return file
-    
+            raise ValueError('Product ' + err_msg + ' not available')
+        print("Product saved at: %s" % (output_file_name))
+        return output_file_name
+
     def __get_quantity_input(self, value, msg):
         if value is None:
             raise ValueError("Missing required argument: '"+str(msg)+"'")
