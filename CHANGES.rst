@@ -152,6 +152,8 @@ solarsystem
 splatalogue
 ^^^^^^^^^^^
 
+- Added new 'only_astronomically_observed' option [#1600]
+
 ukidss
 ^^^^^^
 

@@ -168,7 +168,9 @@ class SplatalogueClass(BaseQuery):
                       chem_re_flags=0, energy_min=None, energy_max=None,
                       energy_type=None, intensity_lower_limit=None,
                       intensity_type=None, transition=None, version=None,
-                      exclude=None, only_NRAO_recommended=None,
+                      exclude=None,
+                      only_astronomically_observed=None,
+                      only_NRAO_recommended=None,
                       line_lists=None, line_strengths=None, energy_levels=None,
                       export=None, export_limit=None, noHFS=None,
                       displayHFS=None, show_unres_qn=None,
@@ -239,6 +241,8 @@ class SplatalogueClass(BaseQuery):
             Can also exclude ``'known'``.
             To exclude nothing, use 'none', not the python object None, since
             the latter is meant to indicate 'leave as default'
+        only_astronomically_observed : bool
+            Show only astronomically observed species?
         only_NRAO_recommended : bool
             Show only NRAO recommended species?
         line_lists : list
@@ -356,6 +360,8 @@ class SplatalogueClass(BaseQuery):
             for e in exclude:
                 payload['no_' + e] = 'no_' + e
 
+        if only_astronomically_observed:
+            payload['include_only_observed'] = 'include_only_observed'
         if only_NRAO_recommended:
             payload['include_only_nrao'] = 'include_only_nrao'
 
