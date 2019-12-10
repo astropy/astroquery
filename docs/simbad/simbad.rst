@@ -642,7 +642,7 @@ the above example:
 
 Returning the queried name in the return table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-You can include the name(s) queried in the output table by adding `typed_id` to
+You can include the name(s) queried in the output table by adding ``typed_id`` to
 the votable fields.  This was also mentioned in :ref:`vectorized queries
 <vectorqueries>` above, but we emphasize here that it works for all queries.
 
