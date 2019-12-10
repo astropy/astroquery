@@ -643,7 +643,8 @@ the above example:
 Returning the queried name in the return table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 You can include the name(s) queried in the output table by adding `typed_id` to
-the votable fields.
+the votable fields.  This was also mentioned in :ref:`vectorized queries
+<vectorqueries>` above, but we emphasize here that it works for all queries.
 
     >>> Simbad.add_votable_fields('typed_id')
     >>> Simbad.query_objects(['M31', 'Eta Carinae', 'Alpha Centauri'])
@@ -655,6 +656,14 @@ the votable fields.
         M  31  00 42 44.330  +41 16 07.50       7        7           --           --             0        C              I 2006AJ....131.1163S            M31
     + eta Car 10 45 03.5455 -59 41 03.951      11       11       11.000       10.000            90        B              O 2000A&A...355L..27H    Eta Carinae
     + alf Cen 14 39 29.7199 -60 49 55.999       9        9           --           --             0        C              O 2016A&A...589A.115S Alpha Centauri
+
+    >>> Simbad.query_object('M31')
+    <Table masked=True length=1>
+     MAIN_ID      RA          DEC      RA_PREC DEC_PREC COO_ERR_MAJA COO_ERR_MINA COO_ERR_ANGLE COO_QUAL COO_WAVELENGTH     COO_BIBCODE     TYPED_ID
+              "h:m:s"      "d:m:s"                         mas          mas           deg
+     object    str13        str13      int16   int16     float32      float32        int16       str1        str1             object        object
+    ------- ------------ ------------ ------- -------- ------------ ------------ ------------- -------- -------------- ------------------- --------
+      M  31 00 42 44.330 +41 16 07.50       7        7           --           --             0        C              I 2006AJ....131.1163S      M31
 
 Specifying the format of the included VOTable fields
 ----------------------------------------------------
