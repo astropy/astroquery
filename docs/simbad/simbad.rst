@@ -645,12 +645,11 @@ Returning the queried name in the return table
 You can include the name(s) queried in the output table by adding `typed_id` to
 the votable fields.
 
-     >>> Simbad.add_votable_fields('typed_id')
-     >>> Simbad.query_objects(['M31', 'Eta Carinae', 'Alpha Centauri'])
- 
-     <Table masked=True length=3>
+    >>> Simbad.add_votable_fields('typed_id')
+    >>> Simbad.query_objects(['M31', 'Eta Carinae', 'Alpha Centauri'])
+    <Table masked=True length=3>
      MAIN_ID        RA           DEC      RA_PREC DEC_PREC COO_ERR_MAJA COO_ERR_MINA COO_ERR_ANGLE COO_QUAL COO_WAVELENGTH     COO_BIBCODE        TYPED_ID
-                 "h:m:s"       "d:m:s"                         mas          mas           deg
+                "h:m:s"       "d:m:s"                         mas          mas           deg
       object      str13         str13      int16   int16     float32      float32        int16       str1        str1             object           object
     --------- ------------- ------------- ------- -------- ------------ ------------ ------------- -------- -------------- ------------------- --------------
         M  31  00 42 44.330  +41 16 07.50       7        7           --           --             0        C              I 2006AJ....131.1163S            M31
