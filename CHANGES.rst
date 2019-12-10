@@ -9,6 +9,11 @@ casda
 
 - Module added to access data from the CSIRO ASKAP Science Data Archive (CASDA)  [#1505]
 
+dace
+^^^^
+- Added DACE Service. See https://dace.unige.ch/ for details. [#1370]
+
+
 
 Service fixes and enhancements
 ------------------------------

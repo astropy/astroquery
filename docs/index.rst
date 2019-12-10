@@ -187,6 +187,7 @@ The following modules have been completed using a common API:
   vo_conesearch/vo_conesearch.rst
   vsa/vsa.rst
   xmatch/xmatch.rst
+  dace/dace.rst
 
 
 These others are functional, but do not follow a common & consistent API:
