@@ -8,9 +8,6 @@ Tests for VO Service Catalog.
     Cone Search tests.
 
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 # STDLIB
 import os
 

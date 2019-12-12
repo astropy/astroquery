@@ -176,6 +176,18 @@ vizier
 vo_conesearch
 ^^^^^^^^^^^^^
 
+- ``query_region()`` now accepts ``service_url`` keyword and uses
+  ``conf.pedantic`` and ``conf.timeout`` directly. As a result, ``URL``,
+  ``PEDANTIC``, and ``TIMEOUT`` class attributes are no longer needed, so
+  they are removed from ``ConeSearchClass`` and ``ConeSearch``. [#1528]
+
+- The classic API ``conesearch()`` no longer takes ``timeout`` and ``pedantic``
+  keywords. It uses ``conf.pedantic`` and ``conf.timeout`` directly. [#1528]
+
+- Null result now emits warning instead of exception. [#1528]
+
+- Result is now returned as ``astropy.table.Table`` by default. [#1528]
+
 vsa
 ^^^
 

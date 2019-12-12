@@ -9,9 +9,6 @@ In case USVO service is unstable, it does the following:
     #. If fails, use RA=0 DEC=0 SR=0.1.
 
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 # STDLIB
 import warnings
 from collections import OrderedDict
@@ -68,7 +65,7 @@ def parse_cs(ivoid, cap_index=1):
 
             d = OrderedDict({'RA': ra, 'DEC': dec, 'SR': sr})
 
-        except Exception as e:  # pragma: no cover
+        except Exception:  # pragma: no cover
             urls_failed = True
             urls_errmsg = ('Failed to retrieve test query parameters for '
                            '{0},{1}, using default'.format(ivoid, cap_index))

@@ -8,7 +8,7 @@ VO Simple Cone Search (``astroquery.vo_conesearch``)
 
 Astroquery offers Simple Cone Search Version 1.03 as defined in IVOA
 Recommendation (February 22, 2008). Cone Search queries an
-area encompassed by a given radius centered on a given RA and DEC and returns
+area encompassed by a given radius centered on a given RA and Dec and returns
 all the objects found within the area in the given catalog.
 
 This was ported from ``astropy.vo``:
@@ -78,100 +78,95 @@ around M31 with a 0.1-degree search radius:
 
 >>> from astropy.coordinates import SkyCoord
 >>> from astroquery.vo_conesearch import ConeSearch
->>> ConeSearch.URL
-'http://gsss.stsci.edu/webservices/vo/ConeSearch.aspx?CAT=GSC23&'
 >>> c = SkyCoord.from_name('M31')
->>> c.ra, c.dec
-(<Longitude 10.6847929 deg>, <Latitude 41.269065 deg>)
+>>> c
+<SkyCoord (ICRS): (ra, dec) in deg
+    (10.6847083, 41.26875)>
 >>> result = ConeSearch.query_region(c, '0.1 deg')
 >>> result
-<Table masked=True length=4027>
-    objID           gscID2      GSC1ID ... multipleFlag compassGSC2id    Mag
-                                       ...                               mag
-    int64           object      object ...    object        object     float32
--------------- ---------------- ------ ... ------------ ------------- ---------
-23323175812944 00424433+4116085        ...            0 6453800072293        --
-23323175812933 00424455+4116103        ...            0 6453800072282        --
-23323175812939 00424464+4116092        ...            0 6453800072288        --
-23323175812931 00424464+4116106        ...            0 6453800072280        --
-23323175812948 00424403+4116069        ...            0 6453800072297        --
-23323175812930 00424403+4116108        ...            0 6453800072279        --
-           ...              ...    ... ...          ...           ...       ...
- 1330012210212    N330012210212        ...            0 6453800010212 20.276699
-23323175812087 00425926+4121267        ...            0 6453800071571        --
- 1330012231849    N330012231849        ...            0 6453800031849   20.2869
- 1330012244053    N330012244053        ...            0 6453800044053        --
- 1330012243728    N330012243728        ...            0 6453800043728        --
-  133001228698     N33001228698        ...            0 6453800008698 20.563999
+<Table length=4028>
+    objID           gsc2ID      gsc1ID ... multipleFlag compassGSC2id   Mag
+                                       ...                              mag
+    int64           object      object ...    int32         int64     float32
+-------------- ---------------- ------ ... ------------ ------------- -------
+23323175812944 00424433+4116085        ...            0 6453800072293   9.453
+23323175812948 00424403+4116069        ...            0 6453800072297   9.321
+23323175812933 00424455+4116103        ...            0 6453800072282  10.773
+23323175812939 00424464+4116092        ...            0 6453800072288   9.299
+23323175812930 00424403+4116108        ...            0 6453800072279  11.507
+23323175812931 00424464+4116106        ...            0 6453800072280   9.399
+           ...              ...    ... ...          ...           ...     ...
+  133001227000     N33001227000        ...            0 6453800007000 20.1382
+ 1330012244001    N330012244001        ...            0 6453800044001 21.8968
+ 1330012228861    N330012228861        ...            0 6453800028861 20.3572
+ 1330012212014    N330012212014        ...            0 6453800012014 16.5079
+ 1330012231849    N330012231849        ...            0 6453800031849 20.2869
+ 1330012210212    N330012210212        ...            0 6453800010212 20.2767
+>>> result.url
+'http://gsss.stsci.edu/webservices/vo/ConeSearch.aspx?CAT=GSC23'
 
 List the available Cone Search catalogs that passed daily validation:
 
 >>> from astroquery.vo_conesearch import conesearch
 >>> conesearch.list_catalogs()
 Downloading https://astroconda.org/aux/vo_databases/conesearch_good.json
-|==========================================|  37k/ 37k (100.00%)         0s
-['Guide Star Catalog v2 1',
- 'SDSS DR8 - Sloan Digital Sky Survey Data Release 8 1',
- 'SDSS DR8 - Sloan Digital Sky Survey Data Release 8 2',
- 'The HST Guide Star Catalog, Version 1.1 (Lasker+ 1992) 1',
- 'The HST Guide Star Catalog, Version 1.2 (Lasker+ 1996) 1',
- 'The HST Guide Star Catalog, Version GSC-ACT (Lasker+ 1996-99) 1',
- 'The PMM USNO-A1.0 Catalogue (Monet 1997) 1',
- 'The USNO-A2.0 Catalogue (Monet+ 1998) 1',
- 'USNO-A2 Catalogue 1']
+|==========================================|  59k/ 59k (100.00%)         0s
+['Guide Star Catalog 2.3 Cone Search 1',
+ 'SDSS DR7 - Sloan Digital Sky Survey Data Release 7 1',
+ 'SDSS DR7 - Sloan Digital Sky Survey Data Release 7 2', ...,
+ 'Two Micron All Sky Survey (2MASS) 2']
 
 Query the HST Guide Star Catalog around M31 with a 0.1-degree search radius.
 This is the same query as above but using "classic" Astropy-style API:
 
 >>> from astropy import units as u
->>> my_catname = 'Guide Star Catalog v2 1'
+>>> my_catname = 'Guide Star Catalog 2.3 Cone Search 1'
 >>> result = conesearch.conesearch(c, 0.1 * u.degree, catalog_db=my_catname)
 Trying http://gsss.stsci.edu/webservices/vo/ConeSearch.aspx?CAT=GSC23&
+WARNING: W50: ...: Invalid unit string 'pixel' [...]
 >>> result
-<Table masked=True length=4027>
-    objID           gscID2      GSC1ID ... multipleFlag compassGSC2id    Mag
-                                       ...                               mag
-    int64           object      object ...    object        object     float32
--------------- ---------------- ------ ... ------------ ------------- ---------
-23323175812944 00424433+4116085        ...            0 6453800072293        --
-23323175812933 00424455+4116103        ...            0 6453800072282        --
-23323175812939 00424464+4116092        ...            0 6453800072288        --
-23323175812931 00424464+4116106        ...            0 6453800072280        --
-23323175812948 00424403+4116069        ...            0 6453800072297        --
-23323175812930 00424403+4116108        ...            0 6453800072279        --
-           ...              ...    ... ...          ...           ...       ...
- 1330012210212    N330012210212        ...            0 6453800010212 20.276699
-23323175812087 00425926+4121267        ...            0 6453800071571        --
- 1330012231849    N330012231849        ...            0 6453800031849   20.2869
- 1330012244053    N330012244053        ...            0 6453800044053        --
- 1330012243728    N330012243728        ...            0 6453800043728        --
-  133001228698     N33001228698        ...            0 6453800008698 20.563999
+<Table length=4028>
+    objID           gsc2ID      gsc1ID ... multipleFlag compassGSC2id   Mag
+                                       ...                              mag
+    int64           object      object ...    int32         int64     float32
+-------------- ---------------- ------ ... ------------ ------------- -------
+23323175812944 00424433+4116085        ...            0 6453800072293   9.453
+23323175812948 00424403+4116069        ...            0 6453800072297   9.321
+23323175812933 00424455+4116103        ...            0 6453800072282  10.773
+23323175812939 00424464+4116092        ...            0 6453800072288   9.299
+23323175812930 00424403+4116108        ...            0 6453800072279  11.507
+23323175812931 00424464+4116106        ...            0 6453800072280   9.399
+           ...              ...    ... ...          ...           ...     ...
+  133001227000     N33001227000        ...            0 6453800007000 20.1382
+ 1330012244001    N330012244001        ...            0 6453800044001 21.8968
+ 1330012228861    N330012228861        ...            0 6453800028861 20.3572
+ 1330012212014    N330012212014        ...            0 6453800012014 16.5079
+ 1330012231849    N330012231849        ...            0 6453800031849 20.2869
+ 1330012210212    N330012210212        ...            0 6453800010212 20.2767
 >>> result.url
-'http://gsss.stsci.edu/webservices/vo/ConeSearch.aspx?CAT=GSC23&'
+'http://gsss.stsci.edu/webservices/vo/ConeSearch.aspx?CAT=GSC23'
 
 Get the number of matches and returned column names:
 
->>> result.array.size
-4027
->>> result.array.dtype.names
-(objID',
- 'gscID2',
- 'GSC1ID',
+>>> len(result)
+4028
+>>> result.colnames
+['objID',
+ 'gsc2ID',
+ 'gsc1ID',
  'hstID',
  'ra',
  'dec', ...,
- 'Mag')
+ 'Mag']
 
-Extract RA and DEC of the matches:
+Extract RA and Dec of the matches:
 
->>> result.array['ra']
-masked_array(data = [10.684737 10.685657 10.686026 ..., 10.8028268814087],
-             mask = [False False False ..., False],
-       fill_value = 1e+20)
->>> result.array['dec']
-masked_array(data = [41.269035 41.26955 41.269226 ..., 41.2230453491211],
-             mask = [False False False ..., False],
-       fill_value = 1e+20)
+>>> result_skycoord = SkyCoord(result['ra'], result['dec'])
+>>> result_skycoord
+<SkyCoord (ICRS): (ra, dec) in deg
+    [(10.684737  , 41.269035  ), (10.683469  , 41.268585  ),
+     (10.685657  , 41.26955   ), ..., (10.58375359, 41.33386612),
+     (10.55860996, 41.30061722), (10.817729  , 41.26915741)]>
 
 
 Using ``astroquery.vo_conesearch``
