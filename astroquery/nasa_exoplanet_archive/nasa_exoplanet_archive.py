@@ -121,5 +121,25 @@ class NasaExoplanetArchiveClass(object):
         exoplanet_table = self.get_confirmed_planets_table(**kwargs)
         return exoplanet_table.loc[planet_name.strip().lower().replace(' ', '')]
 
+    def query_star(self, host_name, **kwargs):
+        """
+        Get table of exoplanets around a specific stellar system.
+
+        Parameters
+        ----------
+        star_name : str
+            Name of stellar system
+        kwargs : dict (optional)
+            Extra keyword arguments passed to ``get_confirmed_planets_table``.
+
+        Returns
+        -------
+        table : `~astropy.table.QTable`
+            Table of properties of exoplanets in that stellar system.
+        """
+        exoplanet_table_star = self.get_confirmed_planets_table(**kwargs).group_by('pl_hostname')
+        mask = exoplanet_table_star.groups.keys['pl_hostname'] == host_name
+        return exoplanet_table_star.groups[mask]
+
 
 NasaExoplanetArchive = NasaExoplanetArchiveClass()

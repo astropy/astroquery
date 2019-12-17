@@ -29,6 +29,15 @@ docs/_build
 .pydevproject
 .settings
 
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
 # Pycharm editor project files
 .idea
 
