@@ -36,6 +36,7 @@ Positional queries can be based on a sky position.  Radius is an optional parame
 
 
 Observation Name Queries
+------------------------
 
 You may also do a query by the name of the object you are interested in.
 
