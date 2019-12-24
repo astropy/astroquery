@@ -131,7 +131,6 @@ class ObservationsClass(BaseQuery):
         """
         return self.query_criteria(coordinates=coordinates, radius=radius)
 
-
     @class_or_instance
     def query_object(self, objectname):
         """
@@ -155,7 +154,6 @@ class ObservationsClass(BaseQuery):
         response : `~astropy.table.Table`
         """
         return self.query_criteria(objectname=objectname)
-
 
     @class_or_instance
     def query_criteria(self, coordinates=None, radius=None, pi_name=None, program_id=None, utc_date=None,
@@ -320,7 +318,6 @@ class ObservationsClass(BaseQuery):
         js = json.loads(response.text)
         return _gemini_json_to_table(js)
 
-
     @class_or_instance
     def query_raw(self, *args, **kwargs):
         """
@@ -341,17 +338,17 @@ class ObservationsClass(BaseQuery):
         website is:
 
         https://archive.gemini.edu/searchform/RAW/cols=CTOWEQ/notengineering/GMOS-N/PIname=Hirst/NotFail
-        
+
         You can disregard NotFail, cols=x and notengineering.  You would run this query as
 
         query_raw('GMOS-N', PIname='Hirst')
 
         Parameters
         ----------
-        args : 
+        args :
             The list of parameters to be passed via the query path to the webserver
         kwargs :
-            The dictionary of parameters to be passed by name=value within the query 
+            The dictionary of parameters to be passed by name=value within the query
             path to the webserver
 
         Returns
@@ -371,7 +368,7 @@ class ObservationsClass(BaseQuery):
             coordinates = commons.parse_coordinates(coordinates)
         else:
             coordinates = None
-        
+
         if coordinates is not None:
             url = "%s/ra=%f/dec=%f" % (url, coordinates.ra.deg, coordinates.dec.deg)
         if radius is not None:
@@ -481,4 +478,3 @@ __keys__ = ["exposure_time",
         "dec"]
 
 Observations = ObservationsClass()
-
