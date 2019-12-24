@@ -412,6 +412,7 @@ def patch_getreadablefileobj(request):
     _is_url = aud._is_url
     aud._is_url = lambda x: True
     _urlopen = urllib.request.urlopen
+    _urlrequest = urllib.request.Request
     filesize = os.path.getsize(fitsfilepath)
 
     class MockRemote(object):
@@ -437,13 +438,21 @@ def patch_getreadablefileobj(request):
         print("Monkeyed URLopen")
         return MockRemote(fitsfilepath, *args, **kwargs)
 
+    def monkey_urlrequest(x, *args, **kwargs):
+        # urlrequest allows passing headers; this will just return the URL
+        # because we're ignoring headers during mocked actions
+        print("Monkeyed URLrequest")
+        return x
+
     aud.urllib.request.urlopen = monkey_urlopen
+    aud.urllib.request.Request = monkey_urlrequest
     urllib.request.urlopen = monkey_urlopen
 
     def closing():
         aud._is_url = _is_url
         urllib.request.urlopen = _urlopen
         aud.urllib.request.urlopen = _urlopen
+        aud.urllib.request.Request = _urlrequest
 
     request.addfinalizer(closing)
 

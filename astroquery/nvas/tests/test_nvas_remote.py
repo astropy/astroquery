@@ -4,12 +4,8 @@ from __future__ import print_function
 from astropy.coordinates import SkyCoord
 import astropy.units as u
 from astropy.tests.helper import remote_data
-import requests
-import imp
 
 from ...import nvas
-
-imp.reload(requests)
 
 
 @remote_data

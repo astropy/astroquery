@@ -5,12 +5,8 @@ from astropy.tests.helper import remote_data
 from astropy.table import Table
 import astropy.coordinates as coord
 from astropy import units as u
-import requests
-import imp
 
 from ... import nrao
-
-imp.reload(requests)
 
 
 @remote_data

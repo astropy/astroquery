@@ -8,10 +8,6 @@ from astropy.table import Table
 from ...utils.testing_tools import MockResponse
 from ... import simbad
 
-# double-check super-undo monkeypatching...
-import requests
-import imp
-imp.reload(requests)
 
 # M42 coordinates
 ICRS_COORDS_M42 = coord.SkyCoord("05h35m17.3s -05h23m28s", frame='icrs')

@@ -6,11 +6,8 @@ from astropy.table import Table
 from astropy.coordinates import SkyCoord
 import astropy.units as u
 import requests
-import imp
 
 from ... import ukidss
-
-imp.reload(requests)
 
 
 @remote_data

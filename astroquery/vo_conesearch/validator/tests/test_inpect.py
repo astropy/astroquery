@@ -1,8 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """Tests for `astroquery.vo_conesearch.validator.inspect`."""
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-from six.moves import zip
 
 # STDLIB
 import os

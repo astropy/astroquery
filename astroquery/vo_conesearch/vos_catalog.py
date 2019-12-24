@@ -8,16 +8,12 @@ Common utilities for accessing VO simple services.
     backward-compatibility with ``astropy.vo.client``.
 
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-import six
-from six.moves import urllib
-
 import fnmatch
 import json
 import os
 import re
 import socket
+import urllib
 import warnings
 from collections import defaultdict
 from copy import deepcopy
@@ -612,7 +608,7 @@ class VOSDatabase(VOSBase):
                 # otherwise no change.
                 if field == 'access_url':
                     s = unescape_all(arr['access_url'])
-                    if isinstance(s, six.binary_type):
+                    if isinstance(s, bytes):
                         s = s.decode('utf-8')
                     cur_cat['url'] = s
                 elif field == 'res_title':
@@ -697,11 +693,11 @@ def _get_catalogs(service_type, catalog_db, **kwargs):
         catalogs = catalog_db.get_catalogs()
     elif isinstance(catalog_db, VOSDatabase):
         catalogs = catalog_db.get_catalogs()
-    elif isinstance(catalog_db, (VOSCatalog, six.string_types)):
+    elif isinstance(catalog_db, (VOSCatalog, str)):
         catalogs = [(None, catalog_db)]
     elif isinstance(catalog_db, list):
         for x in catalog_db:
-            assert (isinstance(x, (VOSCatalog, six.string_types)) and
+            assert (isinstance(x, (VOSCatalog, str)) and
                     not isinstance(x, VOSDatabase))
         catalogs = [(None, x) for x in catalog_db]
     else:  # pragma: no cover
@@ -725,7 +721,7 @@ def _vo_service_request(url, pedantic, kwargs, cache=True, verbose=False):
         raise InvalidAccessURL("url should already end with '?' or '&'")
 
     query = []
-    for key, value in six.iteritems(kwargs):
+    for key, value in kwargs.items():
         query.append('{0}={1}'.format(
             urllib.parse.quote(key), urllib.parse.quote_plus(str(value))))
 
@@ -884,7 +880,7 @@ def call_vo_service(service_type, catalog_db=None, pedantic=None,
         pedantic = conf.pedantic
 
     for name, catalog in catalogs:
-        if isinstance(catalog, six.string_types):
+        if isinstance(catalog, str):
             if catalog.startswith('http'):
                 url = catalog
             else:

@@ -9,9 +9,6 @@ Tests for `astroquery.vo_conesearch.validator.validate`.
     When this happens, rerun or update the test.
 
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 # STDLIB
 import os
 import shutil

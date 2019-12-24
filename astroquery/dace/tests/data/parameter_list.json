@@ -1,0 +1,62 @@
+{
+  "parameters": [
+    {
+      "variableName": "ccf_noise",
+      "label": "CCF Noise",
+      "unit": "",
+      "doubleValues": [
+        0.005320016177906,
+        0.00393390440796704,
+        0.0032324617496158
+      ]
+    },
+    {
+      "variableName": "ins_name",
+      "label": "Instrument Name",
+      "unit": "",
+      "stringValues": [
+        "CORALIE98",
+        "CORALIE98",
+        "HARPS"
+      ]
+    },
+    {
+      "variableName": "drs_qc",
+      "label": "DRS Quality check",
+      "unit": "",
+      "boolValues": [
+        true,
+        true,
+        false
+      ]
+    },
+    {
+      "variableName": "rjd",
+      "label": "Barycentric Reduced Julian Day",
+      "unit": "RJD",
+      "intValues": [
+        51031,
+        51039,
+        51088
+      ]
+    },
+    {
+      "variableName": "rv",
+      "label": "Radial Velocity",
+      "unit": "MPS",
+      "doubleValues": [
+        31300.4226771379,
+        31295.5671320506,
+        31294.3391634734
+      ],
+      "minErrorValues": [
+        5.420218247708816,
+        4.0697289792344185,
+        3.4386352834851026
+      ]
+    }
+  ]
+}
+
+
+
