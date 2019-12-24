@@ -109,6 +109,6 @@ def test_url_helper_coordinates():
     """ test the urlhelper logic """
     urlh = URLHelper()
     args = []
-    kwargs = {"coordinates": "210.80242917, 54.348753"}
+    kwargs = {"coordinates": "210.80242917 54.348753"}
     url = urlh.build_url(*args, **kwargs)
     assert url == "https://archive.gemini.edu/jsonsummary/notengineering/NotFail/ra=210.802429/dec=54.348753"
