@@ -61,6 +61,11 @@ gaia
 gama
 ^^^^
 
+gemini
+^^^^^^
+
+- initial support for the Gemini archive [#1596]
+
 heasarc
 ^^^^^^^
 
