@@ -5,7 +5,7 @@
  "Optical:SDSS": ["SDSSg", "SDSSi", "SDSSr", "SDSSu", "SDSSz", "SDSSdr7g", "SDSSdr7i", "SDSSdr7r", "SDSSdr7u", "SDSSdr7z"],
  "OtherOptical": ["Mellinger Red", "Mellinger Green", "Mellinger Blue", "NEAT", "H-Alpha Comp", "SHASSA H", "SHASSA CC", "SHASSA C", "SHASSA Sm"],
  "IR:IRAS": ["IRIS  12", "IRIS  25", "IRIS  60", "IRIS 100", "SFD100m", "SFD Dust Map", "IRAS  12 micron", "IRAS  25 micron", "IRAS  60 micron", "IRAS 100 micron"],
- "IR:Planck": ["Planck 857", "Planck 545", "Planck 353", "Planck 217", "Planck 143", "Planck 100", "Planck 070", "Planck 044", "Planck 030"],
+ "IR:Planck": ["Planck 857 I", "Planck 545 I", "Planck 353 I", "Planck 353 Q", "Planck 353 U", "Planck 353 PI", "Planck 353 PA", "Planck 353 PI/I", "Planck 217 I", "Planck 217 Q", "Planck 217 U", "Planck 217 PI", "Planck 217 PA", "Planck 217 PI/I", "Planck 143 I", "Planck 143 Q", "Planck 143 U", "Planck 143 PI", "Planck 143 PA", "Planck 143 PI/I", "Planck 100 I", "Planck 100 Q", "Planck 100 U", "Planck 100 PI", "Planck 100 PA", "Planck 100 PI/I", "Planck 070 I", "Planck 070 Q", "Planck 070 U", "Planck 070 PI", "Planck 070 PA", "Planck 070 PI/I", "Planck 044 I", "Planck 044 Q", "Planck 044 U", "Planck 044 PI", "Planck 044 PA", "Planck 044 PI/I", "Planck 030 I", "Planck 030 Q", "Planck 030 U", "Planck 030 PI", "Planck 030 PA", "Planck 030 PI/I"],
  "IR:WMAP&COBE": ["WMAP ILC", "WMAP Ka", "WMAP K", "WMAP Q", "WMAP V", "WMAP W", "COBE DIRBE/AAM", "COBE DIRBE/ZSMA"],
  "Radio:GHz": ["CO", "GB6 (4850MHz)", "VLA FIRST (1.4 GHz)", "NVSS", "Stripe82VLA", "1420MHz (Bonn)", "HI4PI", "EBHIS", "nH"],
  "Allbands:GOODS/HDF/CDF": ["GOODS: Chandra ACIS HB", "GOODS: Chandra ACIS FB", "GOODS: Chandra ACIS SB", "GOODS: VLT VIMOS U", "GOODS: VLT VIMOS R", "GOODS: HST ACS B", "GOODS: HST ACS V", "GOODS: HST ACS I", "GOODS: HST ACS Z", "Hawaii HDF U", "Hawaii HDF B", "Hawaii HDF V0201", "Hawaii HDF V0401", "Hawaii HDF R", "Hawaii HDF I", "Hawaii HDF z", "Hawaii HDF HK", "GOODS: HST NICMOS", "GOODS: VLT ISAAC J", "GOODS: VLT ISAAC H", "GOODS: VLT ISAAC Ks", "HUDF: VLT ISAAC Ks", "GOODS: Spitzer IRAC 3.6", "GOODS: Spitzer IRAC 4.5", "GOODS: Spitzer IRAC 5.8", "GOODS: Spitzer IRAC 8.0", "GOODS: Spitzer MIPS 24", "GOODS: Herschel 100", "GOODS: Herschel 160", "GOODS: Herschel 250", "GOODS: Herschel 350", "GOODS: Herschel 500", "CDFS: LESS", "GOODS: VLA North"],
@@ -19,5 +19,5 @@
  "IR:UKIDSS class=": ["UKIDSS-Y", "UKIDSS-J", "UKIDSS-H", "UKIDSS-K"],
  "IR:WISE class=": ["WISE 3.4", "WISE 4.6", "WISE 12", "WISE 22"],
  "IR:AKARI class=": ["AKARI N60", "AKARI WIDE-S", "AKARI WIDE-L", "AKARI N160"],
- "Radio:MHz class=": ["SUMSS 843 MHz", "0408MHz", "WENSS", "TGSS ADR1", "VLSSr", "0035MHz"],
+ "Radio:MHz class=": ["SUMSS 843 MHz", "0408MHz", "WENSS", "TGSS ADR1", "VLSSr", "0035MHz", "0022MHz"],
  "Radio:GLEAM class=": ["GLEAM 72-103 MHz", "GLEAM 103-134 MHz", "GLEAM 139-170 MHz", "GLEAM 170-231 MHz"]}
