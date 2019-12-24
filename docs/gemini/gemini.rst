@@ -62,8 +62,9 @@ Observation Criteria Queries
 Additional search terms are available as optional arguments to the `~astroquery.gemini.ObservationsClass.query_criteria`
 call.  These all have default values of None, in which case they will not be considered during the search.
 
-The full API is in the api documentation, but some examples are the instrument used, such as GMOS-N, the
-observation_type, such as BIAS, and the program ID.
+Some examples of available search fields are the instrument used, such as GMOS-N, the observation_type, such as BIAS,
+and the program ID.  For a complete list of available search fields, see
+`~astroquery.gemini.ObservationsClass.query_criteria`
 
 .. code-block:: python
                 
@@ -84,7 +85,7 @@ observation_type, such as BIAS, and the program ID.
 
 
 Observation Raw Queries
-----------------------------
+-----------------------
 
 Finally, for ultimate flexibility, a method is provided for driving the "raw" query that is sent to the
 webserver.  For this option, no validation is done on the inputs.  That also means this method may allow
