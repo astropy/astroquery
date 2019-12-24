@@ -103,16 +103,20 @@ class ObservationsClass(BaseQuery):
     server = conf.server
 
     def __init__(self, *args):
-        """ set some parameters """
-        # do login here
+        """
+        Query class for observations in the Gemini archive.
+
+        This class provides query capabilities against the gemini archive.  Queries
+        can be done by cone search, by name, or by a set of criteria.
+        """
         super().__init__()
 
     @class_or_instance
-    def query_region(self, coordinates, radius):
+    def query_region(self, coordinates, radius=0.3*units.deg):
         """
         search for Gemini observations by target on the sky.
 
-        Given a sky position and radius, returns a list of Gemini observations.
+        Given a sky position and radius, returns a `~astropy.table.Table` of Gemini observations.
 
         Parameters
         ----------
@@ -132,17 +136,18 @@ class ObservationsClass(BaseQuery):
         return self.query_criteria(coordinates=coordinates, radius=radius)
 
     @class_or_instance
-    def query_object(self, objectname):
+    def query_object(self, objectname, radius=0.3*units.deg):
         """
         search for Gemini observations by target on the sky.
 
-        Given a sky position and radius, returns a list of Gemini observations.
+        Given an object name and optional radius, returns a `~astropy.table.Table` of Gemini observations.
 
         Parameters
         ----------
-        coordinates : str or `~astropy.coordinates` object
-            The target around which to search. It may be specified as a
-            string or as the appropriate `~astropy.coordinates` object.
+        objectname : str
+            The name of an object to search for.  This attempts to resolve the object
+            by name and do a search on that area of the sky.  This does not handle
+            moving targets.
         radius : str or `~astropy.units.Quantity` object, optional
             Default 0.3 degrees.
             The string must be parsable by `~astropy.coordinates.Angle`. The
@@ -153,10 +158,10 @@ class ObservationsClass(BaseQuery):
         -------
         response : `~astropy.table.Table`
         """
-        return self.query_criteria(objectname=objectname)
+        return self.query_criteria(objectname=objectname, radius=radius)
 
     @class_or_instance
-    def query_criteria(self, coordinates=None, radius=None, pi_name=None, program_id=None, utc_date=None,
+    def query_criteria(self, coordinates=None, radius=0.3*units.deg, pi_name=None, program_id=None, utc_date=None,
                        instrument=None, observation_class=None, observation_type=None, mode=None,
                        adaptive_optics=None, program_text=None, objectname=None, raw_reduced=None):
         """
@@ -369,12 +374,12 @@ class ObservationsClass(BaseQuery):
         else:
             coordinates = None
 
+        url = "%s/jsonsummary/notengineering/NotFail" % self.server
+
         if coordinates is not None:
             url = "%s/ra=%f/dec=%f" % (url, coordinates.ra.deg, coordinates.dec.deg)
         if radius is not None:
             url = "%s/sr=%fd" % (url, radius.deg)
-
-        url = "%s/jsonsummary/notengineering/NotFail" % self.server
         for arg in args:
             url = "%s/%s" % (url, arg)
         for key in filter(lambda key: key not in ["coordinates", "radius"], kwargs):
@@ -382,7 +387,7 @@ class ObservationsClass(BaseQuery):
 
         response = self._request(method="GET", url=url, data={}, timeout=180, cache=False)
 
-        js = json.loads(response.text)
+        js = response.json()
         return _gemini_json_to_table(js)
 
 
