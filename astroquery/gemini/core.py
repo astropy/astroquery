@@ -6,20 +6,14 @@ For questions, contact ooberdorf@gemini.edu
 
 from datetime import date
 
-import warnings
-
-import astropy
 from astropy import units
 from astropy.table import Table, MaskedColumn
-from astropy.utils.exceptions import AstropyUserWarning
-from ..utils import commons
-import numpy as np
 
-import json
+from astroquery.gemini.urlhelper import URLHelper
+import numpy as np
 
 from ..query import BaseQuery
 from ..utils.class_or_instance import class_or_instance
-from ..utils import async_to_sync
 from . import conf
 
 __all__ = ['Observations', 'ObservationsClass']  # specifies what to import
@@ -101,6 +95,7 @@ __valid_raw_reduced__ = [
 class ObservationsClass(BaseQuery):
 
     server = conf.server
+    url_helper = URLHelper(server)
 
     def __init__(self, *args):
         """
@@ -263,65 +258,59 @@ class ObservationsClass(BaseQuery):
         response : `~astropy.table.Table`
         """
 
-        # This could be refactored to rely on query_raw, but I am not convinced
-        # that is a good long-term approach.  I prefer the clarity of keeping
-        # this as an independent implementation.
-        if radius is not None:
-            if isinstance(radius, (int, float)):
-                radius = radius * units.deg
-            radius = astropy.coordinates.Angle(radius)
+        # Build parameters into raw query
+        #
+        # This consists of a set of unnamed arguments, args, and key/value pairs, kwargs
+        args = list()
+        kwargs = dict()
 
-        url = "%s/jsonsummary/notengineering/NotFail" % self.server
-        if coordinates is not None:
-            coordinates = commons.parse_coordinates(coordinates)
-            url = "%s/ra=%f/dec=%f" % (url, coordinates.ra.deg, coordinates.dec.deg)
         if radius is not None:
-            url = "%s/sr=%fd" % (url, radius.deg)
+            kwargs["radius"] = radius
+        if coordinates is not None:
+            kwargs["coordinates"] = coordinates
         if pi_name is not None:
-            url = "%s/PIname=%s" % (url, pi_name)
+            kwargs["PIname"] = pi_name
         if program_id is not None:
-            url = "%s/progid=%s" % (url, program_id.upper())
+            kwargs["progid"] = program_id.upper()
         if utc_date is not None:
             if isinstance(utc_date, date):
-                url = "%s/%s" % (url, utc_date.strftime("YYYYMMdd"))
+                args.append(utc_date.strftime("YYYYMMdd"))
             elif isinstance(utc_date, tuple):
                 if len(utc_date) != 2:
                     raise ValueError("utc_date tuple should have two values")
                 if not isinstance(utc_date[0], date) or not isinstance(utc_date[1], date):
                     raise ValueError("utc_date tuple should have date values in it")
-                url = "%s/%s-%s" % (url, utc_date[0].strftime("YYYYMMdd"), utc_date[1].strftime("YYYYMMdd"))
+                args.append("%s-%s" % utc_date[0].strftime("YYYYMMdd"), utc_date[1].strftime("YYYYMMdd"))
         if instrument is not None:
             if instrument.upper() not in __valid_instruments__:
                 raise ValueError("Unrecognized instrument: %s" % instrument)
-            url = "%s/%s" % (url, instrument)
+            args.append(instrument)
         if observation_class is not None:
             if observation_class not in __valid_observation_class__:
                 raise ValueError("Unrecognized observation class: %s" % observation_class)
-            url = "%s/%s" % (url, observation_class)
+            args.append(observation_class)
         if observation_type is not None:
             if observation_type not in __valid_observation_types__:
                 raise ValueError("Unrecognized observation type: %s" % observation_type)
-            url = "%s/%s" % (url, observation_type)
+            args.append(observation_type)
         if mode is not None:
             if mode not in __valid_modes__:
                 raise ValueError("Unrecognized mode: %s" % mode)
-            url = "%s/%s" % mode
+            args.append(mode)
         if adaptive_optics is not None:
             if adaptive_optics not in __valid_adaptive_optics__:
                 raise ValueError("Unrecognized adaptive optics: %s" % adaptive_optics)
-            url = "%s/%s" % (url, adaptive_optics)
+            args.append(adaptive_optics)
         if program_text is not None:
-            url = "%s/ProgramText=%s" % (url, program_text)
+            kwargs["ProgramText"] = program_text
         if objectname is not None:
-            url = "%s/object=%s" % (url, objectname)
+            kwargs["object"] = objectname
         if raw_reduced is not None:
             if raw_reduced not in __valid_raw_reduced__:
                 raise ValueError("Unrecognized raw/reduced setting: %s" % raw_reduced)
-            url = "%s/%s" % (url, raw_reduced)
-        response = self._request(method="GET", url=url, data={}, timeout=180, cache=False)
+            args.append(raw_reduced)
 
-        js = json.loads(response.text)
-        return _gemini_json_to_table(js)
+        return self.query_raw(*args, **kwargs)
 
     @class_or_instance
     def query_raw(self, *args, **kwargs):
@@ -360,30 +349,7 @@ class ObservationsClass(BaseQuery):
         -------
         response : `~astropy.table.Table`
         """
-        if 'radius' in kwargs:
-            radius = kwargs['radius']
-        else:
-            radius = None
-        if radius is not None:
-            if isinstance(radius, (int, float)):
-                radius = radius * units.deg
-            radius = astropy.coordinates.Angle(radius)
-        if 'coordinates' in kwargs:
-            coordinates = kwargs['coordinates']
-            coordinates = commons.parse_coordinates(coordinates)
-        else:
-            coordinates = None
-
-        url = "%s/jsonsummary/notengineering/NotFail" % self.server
-
-        if coordinates is not None:
-            url = "%s/ra=%f/dec=%f" % (url, coordinates.ra.deg, coordinates.dec.deg)
-        if radius is not None:
-            url = "%s/sr=%fd" % (url, radius.deg)
-        for arg in args:
-            url = "%s/%s" % (url, arg)
-        for key in filter(lambda key: key not in ["coordinates", "radius"], kwargs):
-            url = "%s/%s=%s" % (url, key, kwargs[key])
+        url = self.url_helper.build_url(*args, **kwargs)
 
         response = self._request(method="GET", url=url, data={}, timeout=180, cache=False)
 

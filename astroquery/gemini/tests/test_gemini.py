@@ -14,6 +14,7 @@ from astropy.coordinates import SkyCoord
 from astropy.table import Table
 
 from astroquery import gemini
+from astroquery.gemini.urlhelper import URLHelper
 
 DATA_FILES = {"m101": "m101.json"}
 
@@ -75,3 +76,39 @@ def test_observations_query_raw(patch_get):
     """ test querying raw """
     result = gemini.Observations.query_raw('GMOS-N', 'BIAS', progid='GN-CAL20191122')
     assert isinstance(result, Table)
+
+
+def test_url_helper_arg():
+    """ test the urlhelper logic """
+    urlh = URLHelper()
+    args = ["foo"]
+    kwargs = {}
+    url = urlh.build_url(*args, **kwargs)
+    assert url == "https://archive.gemini.edu/jsonsummary/notengineering/NotFail/foo"
+
+
+def test_url_helper_kwarg():
+    """ test the urlhelper logic """
+    urlh = URLHelper()
+    args = []
+    kwargs = {"foo": "bar"}
+    url = urlh.build_url(*args, **kwargs)
+    assert url == "https://archive.gemini.edu/jsonsummary/notengineering/NotFail/foo=bar"
+
+
+def test_url_helper_radius():
+    """ test the urlhelper logic """
+    urlh = URLHelper()
+    args = []
+    kwargs = {"radius": "0.4d"}
+    url = urlh.build_url(*args, **kwargs)
+    assert url == "https://archive.gemini.edu/jsonsummary/notengineering/NotFail/sr=0.400000d"
+
+
+def test_url_helper_coordinates():
+    """ test the urlhelper logic """
+    urlh = URLHelper()
+    args = []
+    kwargs = {"coordinates": "210.80242917, 54.348753"}
+    url = urlh.build_url(*args, **kwargs)
+    assert url == "https://archive.gemini.edu/jsonsummary/notengineering/NotFail/ra=210.802429/dec=54.348753"
