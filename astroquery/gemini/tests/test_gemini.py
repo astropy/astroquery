@@ -5,6 +5,7 @@ documentation at:
 
 https://astroquery.readthedocs.io/en/latest/testing.html
 """
+import json
 import os
 import pytest
 import requests
@@ -21,6 +22,9 @@ class MockResponse(object):
 
     def __init__(self, text):
         self.text = text
+
+    def json(self):
+        return json.loads(self.text)
 
 
 @pytest.fixture
