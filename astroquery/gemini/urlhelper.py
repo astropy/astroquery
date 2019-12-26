@@ -10,12 +10,12 @@ from astropy import units
 from astroquery.utils import commons
 
 
-def __handle_keyword_arg__(url, key, value):
+def handle_keyword_arg(url, key, value):
     """ Handler function for generic keyword argument with no special handling. """
     return "%s/%s=%s" % (url, key, value)
 
 
-def __handle_radius__(url, key, radius):
+def handle_radius(url, key, radius):
     """ Handler function for radius keyword with smart conversion to a degrees value """
     assert(key == "radius")
     if isinstance(radius, (int, float)):
@@ -26,7 +26,7 @@ def __handle_radius__(url, key, radius):
     return url
 
 
-def __handle_coordinates__(url, key, coordinates):
+def handle_coordinates(url, key, coordinates):
     """ Handler function for coordinates """
     assert(key == "coordinates")
     coordinates = commons.parse_coordinates(coordinates)
@@ -42,9 +42,9 @@ This dictionary will pass keyword/value pairs to the appropriate handler, if
 they are present.  By default, the url will use `__handle_keyword_arg` to
 add the key/value pair to the URL.
 """
-__handlers__ = {
-    "radius": __handle_radius__,
-    "coordinates": __handle_coordinates__
+handlers = {
+    "radius": handle_radius,
+    "coordinates": handle_coordinates
 }
 
 
@@ -79,6 +79,6 @@ class URLHelper(object):
         for arg in args:
             url = "%s/%s" % (url, arg)
         for key, value in kwargs.items():
-            handler = __handlers__.get(key, __handle_keyword_arg__)
+            handler = handlers.get(key, handle_keyword_arg)
             url = handler(url, key, value)
         return url
