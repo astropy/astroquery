@@ -47,7 +47,7 @@ class NasaExoplanetArchiveClass(object):
         return self._param_units
 
     def query_planet(self, planet_name, cache=True, show_progress=True,
-                        table_path=None, all_columns=False):
+                     table_path=None, all_columns=False):
         """
         Download (and optionally cache) the NASA Exoplanet
         table for a certain planet.
@@ -74,11 +74,11 @@ class NasaExoplanetArchiveClass(object):
             Table of one exoplanet's properties.
         """
 
-        planet_name = '\'' + planet_name + '\''
+        planet_name = ("'{0}'".format(planet_name.strip()))
         EXOPLANET_URL_PLANET = EXOPLANETS_CSV_URL + '&where=pl_name=' + quote(planet_name)
 
         if self._table is not None and self._cache_planet is planet_name and cache:
-            pass
+            return self._table
 
         else:
             if table_path is None:
@@ -108,7 +108,7 @@ class NasaExoplanetArchiveClass(object):
         return self._table
 
     def query_star(self, host_name, cache=True, show_progress=True,
-                        table_path=None, all_columns=False):
+                   table_path=None, all_columns=False):
         """
         Download (and optionally cache) the NASA Exoplanet
         table for a certain planet.
@@ -135,11 +135,11 @@ class NasaExoplanetArchiveClass(object):
             Table of one exoplanet's properties.
         """
 
-        host_name = '\'' + host_name + '\''
+        host_name = ("'{0}'".format(host_name.strip()))
         EXOPLANET_URL_PLANET = EXOPLANETS_CSV_URL + '&where=pl_hostname=' + quote(host_name)
 
         if self._table is not None and self._cache_star is host_name and cache:
-            pass
+            return self._table
 
         else:
             if table_path is None:
