@@ -48,15 +48,15 @@ class SvoFpsClass(BaseQuery):
     def get_filter_index(self, wavelength_eff_min=0, wavelength_eff_max=FLOAT_MAX):
         """Get master list (index) of all filters at SVO
         Optional parameters can be given to get filters data for specified
-        Wavelength Eff. range from SVO
+        Wavelength Effective range from SVO
 
         Parameters
         ----------
         wavelength_eff_min : float, optional
-            Minimum value of Wavelength Eff. (default is 0)
+            Minimum value of Wavelength Effective (default is 0)
         wavelength_eff_max : float, optional
-            Maximum value of Wavelength Eff. (default is a very large no.
-            FLOAT_MAX - maximum value of np.float64)
+            Maximum value of Wavelength Effective (default is a very large
+            number FLOAT_MAX - maximum value of np.float64)
 
         Returns
         -------
@@ -67,7 +67,7 @@ class SvoFpsClass(BaseQuery):
         wavelength_eff_max = u.Quantity(wavelength_eff_max, u.angstrom)
         query = {'WavelengthEff_min': wavelength_eff_min.value,
                  'WavelengthEff_max': wavelength_eff_max.value}
-        error_msg = 'No filter found for requested Wavelength Eff. range'
+        error_msg = 'No filter found for requested Wavelength Effective range'
         return self.data_from_svo(query, error_msg)
 
     def get_transmission_data(self, filter_id):
