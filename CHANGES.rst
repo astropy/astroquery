@@ -122,6 +122,9 @@ nasa_ads
 
 nasa_exoplanet_archive
 ^^^^^^^^^^^^^^^^^^^^^^
+- Redefined the query API so as to prevent downloading of the whole database.
+  Added two functions ``query_planet`` (to query for a specific exoplanet), and
+  ``query_star`` (to query for all exoplanets under a specific stellar system) [#1606]
 
 ned
 ^^^
