@@ -33,14 +33,14 @@ class SvoFpsClass(BaseQuery):
 
         Returns
         -------
-        astropy.io.votable.tree.Table object
-            Table element of the VOTable fetched from SVO (in response to query)
+        astropy.table.table.Table object
+            Table containing data fetched from SVO (in response to query)
         """
         response = self._request("GET", self.SVO_MAIN_URL, params=query)
         response.raise_for_status()
         votable = io.BytesIO(response.content)
         try:
-            return parse_single_table(votable)
+            return parse_single_table(votable).to_table()
         except IndexError:
             # If no table element found in VOTable
             raise ValueError(error_msg)
@@ -60,8 +60,8 @@ class SvoFpsClass(BaseQuery):
 
         Returns
         -------
-        astropy.io.votable.tree.Table object
-            Table element of the VOTable fetched from SVO (in response to query)
+        astropy.table.table.Table object
+            Table containing data fetched from SVO (in response to query)
         """
         wavelength_eff_min = u.Quantity(wavelength_eff_min, u.angstrom)
         wavelength_eff_max = u.Quantity(wavelength_eff_max, u.angstrom)
@@ -80,8 +80,8 @@ class SvoFpsClass(BaseQuery):
 
         Returns
         -------
-        astropy.io.votable.tree.Table object
-            Table element of the VOTable fetched from SVO (in response to query)
+        astropy.table.table.Table object
+            Table containing data fetched from SVO (in response to query)
         """
         query = {'ID': filter_id}
         error_msg = 'No filter found for requested Filter ID'
@@ -100,8 +100,8 @@ class SvoFpsClass(BaseQuery):
 
         Returns
         -------
-        astropy.io.votable.tree.Table object
-            Table element of the VOTable fetched from SVO (in response to query)
+        astropy.table.table.Table object
+            Table containing data fetched from SVO (in response to query)
         """
         query = {'Facility': facility,
                  'Instrument': instrument}
