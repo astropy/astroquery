@@ -1,0 +1,312 @@
+<?xml version="1.0"?>
+<VOTABLE version="1.1" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <INFO name="QUERY_STATUS" value="OK"/>
+  <RESOURCE type="results">
+    <TABLE>
+    <FIELD name="FilterProfileService" ucd="meta.ref.ivorn" utype="PhotometryFilter.fpsIdentifier" unit="" datatype="char" arraysize="*"/>
+    <FIELD name="filterID" ucd="meta.id" utype="photdm:PhotometryFilter.identifier" unit="" datatype="char" arraysize="*"/>
+    <FIELD name="WavelengthUnit" ucd="meta.unit" utype="PhotometryFilter.SpectralAxis.unit" unit="" datatype="char" arraysize="*"/>
+    <FIELD name="WavelengthUCD" ucd="meta.ucd" utype="PhotometryFilter.SpectralAxis.UCD" unit="" datatype="char" arraysize="*"/>
+    <FIELD name="PhotSystem" ucd="" utype="photdm:PhotometricSystem.description" unit="" datatype="char" arraysize="*"/>
+    <FIELD name="DetectorType" ucd="" utype="photdm:PhotometricSystem.detectorType" unit="" datatype="char" arraysize="*"/>
+    <FIELD name="Band" ucd="" utype="photdm:PhotometryFilter.bandName" unit="" datatype="char" arraysize="*"/>
+    <FIELD name="Instrument" ucd="instr" utype="" unit="" datatype="char" arraysize="*"/>
+    <FIELD name="Facility" ucd="instr.obsty" utype="" unit="" datatype="char" arraysize="*"/>
+    <FIELD name="ProfileReference" ucd="" utype="" unit="" datatype="char" arraysize="*"/>
+    <FIELD name="CalibrationReference" ucd="" utype="" unit="" datatype="char" arraysize="*"/>
+    <FIELD name="Description" ucd="meta.note" utype="photdm:PhotometryFilter.description" unit="" datatype="char" arraysize="*"/>
+    <FIELD name="Comments" ucd="meta.note" utype="" unit="" datatype="char" arraysize="*"/>
+    <FIELD name="WavelengthMean" ucd="em.wl" utype="photdm:PhotometryFilter.SpectralAxis.Coverage.Location.Value" unit="Angstrom" datatype="float" />
+    <FIELD name="WavelengthEff" ucd="em.wl.effective" utype="" unit="Angstrom" datatype="float" />
+    <FIELD name="WavelengthMin" ucd="em.wl;stat.min" utype="photdm:PhotometryFilter.SpectralAxis.Coverage.Bounds.Start" unit="Angstrom" datatype="float" />
+    <FIELD name="WavelengthMax" ucd="em.wl;stat.max" utype="photdm:PhotometryFilter.SpectralAxis.Coverage.Bounds.Stop" unit="Angstrom" datatype="float" />
+    <FIELD name="WidthEff" ucd="instr.bandwidth" utype="photdm:PhotometryFilter.SpectralAxis.Coverage.Bounds.Extent" unit="Angstrom" datatype="float" />
+    <FIELD name="WavelengthCen" ucd="em.wl" utype="" unit="Angstrom" datatype="float" />
+    <FIELD name="WavelengthPivot" ucd="em.wl" utype="" unit="Angstrom" datatype="float" />
+    <FIELD name="WavelengthPeak" ucd="em.wl" utype="" unit="Angstrom" datatype="float" />
+    <FIELD name="WavelengthPhot" ucd="em.wl" utype="" unit="Angstrom" datatype="float" />
+    <FIELD name="FWHM" ucd="instr.bandwidth" utype="" unit="Angstrom" datatype="float" />
+    <FIELD name="PhotCalID" ucd="meta.id" utype="photdm:PhotCal.identifier" unit="" datatype="char" arraysize="*"/>
+    <FIELD name="MagSys" ucd="meta.code" utype="photdm:PhotCal.MagnitudeSystem.type" unit="" datatype="char" arraysize="*"/>
+    <FIELD name="ZeroPoint" ucd="phot.flux.density" utype="photdm:PhotCal.ZeroPoint.Flux.value" unit="Jy" datatype="float" />
+    <FIELD name="ZeroPointUnit" ucd="meta.unit" utype="photdm:PhotCal.ZeroPoint.Flux.unit" unit="" datatype="char" arraysize="*"/>
+    <FIELD name="Mag0" ucd="phot.mag" utype="photdm:PhotCal.ZeroPoint.referenceMagnitude.value" unit="" datatype="float" />
+    <FIELD name="ZeroPointType" ucd="meta.code" utype="photdm:PhotCal.ZeroPoint.type" unit="" datatype="char" arraysize="*"/>
+    <FIELD name="AsinhSoft" ucd="obs.param" utype="photdm:PhotCal.AsinhZeroPoint.softeningParameter" unit="" datatype="float" />
+      <FIELD name="TrasmissionCurve" ucd="DATA_LINK" utype="phfdm:PhotometryFilter.filterTransmissionCurve" datatype="char" arraysize="*"/>
+      <DATA>
+        <TABLEDATA>
+          <TR>
+            <TD>ivo://svo/fps</TD>
+            <TD>Gemini/NIRI.Jcont1207-G0232w</TD>
+            <TD>Angstrom</TD>
+            <TD>em.wl</TD>
+            <TD>NIRI</TD>
+            <TD>0</TD>
+            <TD></TD>
+            <TD>NIRI</TD>
+            <TD>Gemini</TD>
+            <TD>http://www.gemini.edu/sciops/instruments/niri/imaging/filters</TD>
+            <TD></TD>
+            <TD>NIRI Jcont1207, G0232w</TD>
+            <TD>J continuum 1.207 G0232
+ scanned warm and tilted by ~5 deg
+</TD>
+            <TD>12036.8605361</TD>
+            <TD>12035.7031725</TD>
+            <TD>11839.2639448</TD>
+            <TD>12219.902648</TD>
+            <TD>184.507586603</TD>
+            <TD>12038.6453899</TD>
+            <TD>12036.366861821</TD>
+            <TD>12070</TD>
+            <TD>12036.0340826</TD>
+            <TD>179.657003082</TD>
+            <TD>Gemini/NIRI.Jcont1207-G0232w/Vega</TD>
+            <TD>Vega</TD>
+            <TD>1663.57481729</TD>
+            <TD>Jy</TD>
+            <TD>0</TD>
+            <TD>Pogson</TD>
+            <TD>0</TD>
+            <TD><![CDATA[http://svo2.cab.inta-csic.es//theory/fps/fps.php?ID=Gemini/NIRI.Jcont1207-G0232w]]></TD>
+          </TR>
+          <TR>
+            <TD>ivo://svo/fps</TD>
+            <TD>CAHA/Omega2000.NB1207</TD>
+            <TD>Angstrom</TD>
+            <TD>em.wl</TD>
+            <TD>Omega2000</TD>
+            <TD>0</TD>
+            <TD></TD>
+            <TD>Omega2000</TD>
+            <TD>CAHA</TD>
+            <TD>http://www.caha.es/CAHA/Instruments/O2000/FILTERS/filters.html</TD>
+            <TD></TD>
+            <TD>Omega2000 NB1207</TD>
+            <TD></TD>
+            <TD>12058.9438386</TD>
+            <TD>12058.431153</TD>
+            <TD>11929.2405941</TD>
+            <TD>12201.0872611</TD>
+            <TD>113.504756402</TD>
+            <TD>12058.8202276</TD>
+            <TD>12058.728505435</TD>
+            <TD>12039</TD>
+            <TD>12058.5746555</TD>
+            <TD>109.496273983</TD>
+            <TD>CAHA/Omega2000.NB1207/Vega</TD>
+            <TD>Vega</TD>
+            <TD>1658.98297085</TD>
+            <TD>Jy</TD>
+            <TD>0</TD>
+            <TD>Pogson</TD>
+            <TD>0</TD>
+            <TD><![CDATA[http://svo2.cab.inta-csic.es//theory/fps/fps.php?ID=CAHA/Omega2000.NB1207]]></TD>
+          </TR>
+          <TR>
+            <TD>ivo://svo/fps</TD>
+            <TD>P200/WIRC.Jcont</TD>
+            <TD>Angstrom</TD>
+            <TD>em.wl</TD>
+            <TD></TD>
+            <TD>0</TD>
+            <TD></TD>
+            <TD>WIRC</TD>
+            <TD>Palomar</TD>
+            <TD>http://www.astro.caltech.edu/palomar/observer/200inchResources/WIRC/wirc_filters.html</TD>
+            <TD></TD>
+            <TD>WIRC Jcont filter (corrected for tilt and temperature)</TD>
+            <TD></TD>
+            <TD>12064.188610335</TD>
+            <TD>12063.006504724</TD>
+            <TD>11853.224728571</TD>
+            <TD>12247.016322222</TD>
+            <TD>184.64037432683</TD>
+            <TD>12065.877153019</TD>
+            <TD>12063.680534432</TD>
+            <TD>12116.53</TD>
+            <TD>12063.347318282</TD>
+            <TD>179.98763039912</TD>
+            <TD>P200/WIRC.Jcont/Vega</TD>
+            <TD>Vega</TD>
+            <TD>1658.1097121951</TD>
+            <TD>Jy</TD>
+            <TD>0</TD>
+            <TD>Pogson</TD>
+            <TD>0</TD>
+            <TD><![CDATA[http://svo2.cab.inta-csic.es//theory/fps/fps.php?ID=P200/WIRC.Jcont]]></TD>
+          </TR>
+          <TR>
+            <TD>ivo://svo/fps</TD>
+            <TD>Gemini/GSAOI.JCont</TD>
+            <TD>Angstrom</TD>
+            <TD>em.wl</TD>
+            <TD>GSAOI</TD>
+            <TD>0</TD>
+            <TD></TD>
+            <TD>GSAOI</TD>
+            <TD>Gemini</TD>
+            <TD>https://www.gemini.edu/sciops/instruments/gsaoi/instrument-description/filters</TD>
+            <TD></TD>
+            <TD>GSAOI J-continuum filter, ID: ED190</TD>
+            <TD></TD>
+            <TD>12084.053931209</TD>
+            <TD>12082.804158152</TD>
+            <TD>11898.346549894</TD>
+            <TD>12272.996858974</TD>
+            <TD>205.31421005289</TD>
+            <TD>12083.99595735</TD>
+            <TD>12083.510870814</TD>
+            <TD>12025</TD>
+            <TD>12083.166320236</TD>
+            <TD>199.98437185256</TD>
+            <TD>Gemini/GSAOI.JCont/Vega</TD>
+            <TD>Vega</TD>
+            <TD>1654.2587375041</TD>
+            <TD>Jy</TD>
+            <TD>0</TD>
+            <TD>Pogson</TD>
+            <TD>0</TD>
+            <TD><![CDATA[http://svo2.cab.inta-csic.es//theory/fps/fps.php?ID=Gemini/GSAOI.JCont]]></TD>
+          </TR>
+          <TR>
+            <TD>ivo://svo/fps</TD>
+            <TD>WHT/INGRID.Jcont</TD>
+            <TD>Angstrom</TD>
+            <TD>em.wl</TD>
+            <TD>INGRID</TD>
+            <TD>0</TD>
+            <TD></TD>
+            <TD>INGRID</TD>
+            <TD>WHT</TD>
+            <TD>http://www.ing.iac.es/Astronomy/instruments/ingrid/ingrid_filters.html</TD>
+            <TD></TD>
+            <TD>INGRID Jcont</TD>
+            <TD>Temp=77K, tilted 5 deg
+calculated from data at room temperature and O deg incidence
+</TD>
+            <TD>12085.2891966</TD>
+            <TD>12084.1828878</TD>
+            <TD>11900.4821353</TD>
+            <TD>12267.8903848</TD>
+            <TD>185.224174707</TD>
+            <TD>12085.9866378</TD>
+            <TD>12084.810630344</TD>
+            <TD>12049.9</TD>
+            <TD>12084.5034225</TD>
+            <TD>184.693782181</TD>
+            <TD>WHT/INGRID.Jcont/Vega</TD>
+            <TD>Vega</TD>
+            <TD>1654.01158958</TD>
+            <TD>Jy</TD>
+            <TD>0</TD>
+            <TD>Pogson</TD>
+            <TD>0</TD>
+            <TD><![CDATA[http://svo2.cab.inta-csic.es//theory/fps/fps.php?ID=WHT/INGRID.Jcont]]></TD>
+          </TR>
+          <TR>
+            <TD>ivo://svo/fps</TD>
+            <TD>ING/ING.608</TD>
+            <TD>Angstrom</TD>
+            <TD>em.wl</TD>
+            <TD></TD>
+            <TD>0</TD>
+            <TD></TD>
+            <TD></TD>
+            <TD>ING</TD>
+            <TD>http://catserver.ing.iac.es/filter/list.php</TD>
+            <TD></TD>
+            <TD>ING filter 608, IN-jcont</TD>
+            <TD></TD>
+            <TD>12085.294215378</TD>
+            <TD>12084.161552001</TD>
+            <TD>11900.544827586</TD>
+            <TD>12267.989</TD>
+            <TD>185.6101722402</TD>
+            <TD>12085.988425755</TD>
+            <TD>12084.80421977</TD>
+            <TD>12049.9</TD>
+            <TD>12084.489730857</TD>
+            <TD>184.69257477974</TD>
+            <TD>ING/ING.608/Vega</TD>
+            <TD>Vega</TD>
+            <TD>1654.0080888194</TD>
+            <TD>Jy</TD>
+            <TD>0</TD>
+            <TD>Pogson</TD>
+            <TD>0</TD>
+            <TD><![CDATA[http://svo2.cab.inta-csic.es//theory/fps/fps.php?ID=ING/ING.608]]></TD>
+          </TR>
+          <TR>
+            <TD>ivo://svo/fps</TD>
+            <TD>NOT/NOTcam.Jcont</TD>
+            <TD>Angstrom</TD>
+            <TD>em.wl</TD>
+            <TD>NOTcam</TD>
+            <TD>0</TD>
+            <TD></TD>
+            <TD>NOTcam</TD>
+            <TD>NOT</TD>
+            <TD>http://www.not.iac.es/instruments/notcam/filters/</TD>
+            <TD></TD>
+            <TD>J-continuum</TD>
+            <TD></TD>
+            <TD>12092.1059359</TD>
+            <TD>12090.8462411</TD>
+            <TD>11900.1331213</TD>
+            <TD>12287.2980074</TD>
+            <TD>192.634948438</TD>
+            <TD>12093.7040205</TD>
+            <TD>12091.558261181</TD>
+            <TD>12057.6</TD>
+            <TD>12091.2113988</TD>
+            <TD>194.641678309</TD>
+            <TD>NOT/NOTcam.Jcont/Vega</TD>
+            <TD>Vega</TD>
+            <TD>1652.6719148</TD>
+            <TD>Jy</TD>
+            <TD>0</TD>
+            <TD>Pogson</TD>
+            <TD>0</TD>
+            <TD><![CDATA[http://svo2.cab.inta-csic.es//theory/fps/fps.php?ID=NOT/NOTcam.Jcont]]></TD>
+          </TR>
+          <TR>
+            <TD>ivo://svo/fps</TD>
+            <TD>Gemini/NIRI.Jsort-G0209</TD>
+            <TD>Angstrom</TD>
+            <TD>em.wl</TD>
+            <TD>NIRI</TD>
+            <TD>0</TD>
+            <TD></TD>
+            <TD>NIRI</TD>
+            <TD>Gemini</TD>
+            <TD>https://www.gemini.edu/sciops/instruments/niri/spectroscopy/blocking-filters</TD>
+            <TD></TD>
+            <TD>NIRI J order sorting filter	G0209</TD>
+            <TD>scanned warm
+</TD>
+            <TD>13023.593554349</TD>
+            <TD>12040.189423997</TD>
+            <TD>9502.0831586303</TD>
+            <TD>16615.952105585</TD>
+            <TD>6124.1358500666</TD>
+            <TD>13063.747843205</TD>
+            <TD>12585.797700742</TD>
+            <TD>11400</TD>
+            <TD>12307.682249121</TD>
+            <TD>6680.0813086552</TD>
+            <TD>Gemini/NIRI.Jsort-G0209/Vega</TD>
+            <TD>Vega</TD>
+            <TD>1489.3266172251</TD>
+            <TD>Jy</TD>
+            <TD>0</TD>
+            <TD>Pogson</TD>
+            <TD>0</TD>
+            <TD><![CDATA[http://svo2.cab.inta-csic.es//theory/fps/fps.php?ID=Gemini/NIRI.Jsort-G0209]]></TD>
+          </TR>
+        </TABLEDATA>
+      </DATA>
+    </TABLE>
+  </RESOURCE>
+</VOTABLE>
