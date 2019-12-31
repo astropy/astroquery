@@ -25,3 +25,9 @@ class TestSvoFpsClass:
         table = SvoFps.get_filter_list(test_facility, test_instrument)
         # Check if column for Filter ID (named 'filterID') exists in table
         assert 'filterID' in table.colnames
+
+    # Test for failing case (a dummy invalid query)
+    def test_ValueError_in_data_from_svo(self):
+        invalid_query = {'Invalid_param': 0}
+        pytest.raises(ValueError, gfd.data_from_svo, invalid_query, 
+            'Invalid search parameters')
