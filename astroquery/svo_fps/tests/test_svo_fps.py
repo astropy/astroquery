@@ -6,7 +6,7 @@ from ..core import SvoFps
 DATA_FILES = {'filter_index': 'svo_fps?WavelengthEff_min=12000&WavelengthEff_max=12100.xml',
               'transmission_data': 'svo_fps?ID=2MASS.2MASS.H.xml',
               'filter_list': 'svo_fps?Facility=Keck&Instrument=NIRC2.xml'
-             }
+              }
 TEST_LAMBDA = 12000
 TEST_FILTER_ID = '2MASS/2MASS.H'
 TEST_FACILITY = 'Keck'
@@ -39,7 +39,7 @@ def get_mockreturn(method, url, params=None, timeout=10, **kwargs):
         filename = data_path(DATA_FILES['filter_list'])
     else:
         raise NotImplementedError("Test type not implemented")
-    
+
     content = open(filename, 'rb').read()
     return MockResponse(content, **kwargs)
 
