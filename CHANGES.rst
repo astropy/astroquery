@@ -14,6 +14,12 @@ gaia
 - Allow for setting row limits in query submissions through class
   attribute. [#1641]
 
+gemini
+^^^^^^
+
+- Allow for additional search terms to be sent to query_criteria and passed to
+  the raw web query against the Gemini Archive [#1659]
+
 jplhorizons
 ^^^^^^^^^^^
 

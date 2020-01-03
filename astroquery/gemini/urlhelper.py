@@ -79,6 +79,9 @@ class URLHelper(object):
         for arg in args:
             url = "%s/%s" % (url, arg)
         for key, value in kwargs.items():
-            handler = handlers.get(key, handle_keyword_arg)
-            url = handler(url, key, value)
+            if key != "orderby":
+                handler = handlers.get(key, handle_keyword_arg)
+                url = handler(url, key, value)
+        if "orderby" in kwargs:
+            url = "%s?orderby=%s" % (url, kwargs["orderby"])
         return url
