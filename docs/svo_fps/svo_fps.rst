@@ -29,34 +29,34 @@ The filter index (all available filters with their properties) can be listed as:
     -------------------- ------- ----
     FilterProfileService  object     
                 filterID  object     
-        WavelengthUnit  object     
-        WavelengthUCD  object     
-            PhotSystem  object     
+          WavelengthUnit  object     
+           WavelengthUCD  object     
+              PhotSystem  object     
             DetectorType  object     
                     Band  object     
-            Instrument  object     
+              Instrument  object     
                 Facility  object     
         ProfileReference  object     
     CalibrationReference  object     
-            Description  object     
+             Description  object     
                 Comments  object     
-        WavelengthMean float32   AA
-        WavelengthEff float32   AA
-        WavelengthMin float32   AA
-        WavelengthMax float32   AA
+          WavelengthMean float32   AA
+           WavelengthEff float32   AA
+           WavelengthMin float32   AA
+           WavelengthMax float32   AA
                 WidthEff float32   AA
-        WavelengthCen float32   AA
-        WavelengthPivot float32   AA
-        WavelengthPeak float32   AA
-        WavelengthPhot float32   AA
+           WavelengthCen float32   AA
+         WavelengthPivot float32   AA
+          WavelengthPeak float32   AA
+          WavelengthPhot float32   AA
                     FWHM float32   AA
-            PhotCalID  object     
-                MagSys  object     
-            ZeroPoint float32   Jy
-        ZeroPointUnit  object     
+               PhotCalID  object     
+                  MagSys  object     
+               ZeroPoint float32   Jy
+           ZeroPointUnit  object     
                     Mag0 float32     
-        ZeroPointType  object     
-            AsinhSoft float32     
+           ZeroPointType  object     
+               AsinhSoft float32     
         TrasmissionCurve  object     
 
 
@@ -132,34 +132,34 @@ Instrument (Instrument is optional to specify).
     -------------------- ------- ----
     FilterProfileService  object     
                 filterID  object     
-        WavelengthUnit  object     
-        WavelengthUCD  object     
-            PhotSystem  object     
+          WavelengthUnit  object     
+           WavelengthUCD  object     
+              PhotSystem  object     
             DetectorType  object     
                     Band  object     
-            Instrument  object     
+              Instrument  object     
                 Facility  object     
         ProfileReference  object     
     CalibrationReference  object     
-            Description  object     
+             Description  object     
                 Comments  object     
-        WavelengthMean float32   AA
-        WavelengthEff float32   AA
-        WavelengthMin float32   AA
-        WavelengthMax float32   AA
+          WavelengthMean float32   AA
+           WavelengthEff float32   AA
+           WavelengthMin float32   AA
+           WavelengthMax float32   AA
                 WidthEff float32   AA
-        WavelengthCen float32   AA
-        WavelengthPivot float32   AA
-        WavelengthPeak float32   AA
-        WavelengthPhot float32   AA
+           WavelengthCen float32   AA
+         WavelengthPivot float32   AA
+          WavelengthPeak float32   AA
+          WavelengthPhot float32   AA
                     FWHM float32   AA
-            PhotCalID  object     
-                MagSys  object     
-            ZeroPoint float32   Jy
-        ZeroPointUnit  object     
+               PhotCalID  object     
+                  MagSys  object     
+               ZeroPoint float32   Jy
+           ZeroPointUnit  object     
                     Mag0 float32     
-        ZeroPointType  object     
-            AsinhSoft float32     
+           ZeroPointType  object     
+               AsinhSoft float32     
         TrasmissionCurve  object 
 
 
