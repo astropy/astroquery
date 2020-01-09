@@ -1,6 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
-import subprocess
 import os
 
 # Import DEVNULL for py3 or py3
@@ -11,7 +10,7 @@ except ImportError:
 
 # Check availability of some system tools
 # Exceptions are raised if not found
-    
+
 def gunzip(filename):
     """ Decompress a file with gzip.
 
@@ -25,10 +24,10 @@ def gunzip(filename):
         Name of the decompressed file (or input filename if gzip is not
         available).
     """
-	import shutil
-	import gzip
+    import shutil
+    import gzip
 
-    # @EP 09/01/20: system-wide 'gzip' was removed, Python gzip used instead. 
+    # @EP 09/01/20: system-wide 'gzip' was removed, Python gzip used instead.
     # See #1538 : https://github.com/astropy/astroquery/issues/1538
 
     if not filename.endswith('.fz'):
