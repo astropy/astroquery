@@ -11,6 +11,7 @@ except ImportError:
 # Check availability of some system tools
 # Exceptions are raised if not found
 
+
 def gunzip(filename):
     """ Decompress a file with gzip.
 
