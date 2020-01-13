@@ -7,6 +7,7 @@
 import gzip
 import os
 from os.path import exists
+import tempfile
 
 # THIRD-PARTY
 import pytest
@@ -15,7 +16,8 @@ import pytest
 from ..system_tools import gunzip
 
 def test_gunzip():
-    filename = 'test_system_tools.txt.gz'
+    filehandle = tempfile.NamedTemporaryFile(suffix='.txt.gz')
+    filename = filehandle.name
     unziped_filename = filename.rsplit(".", 1)[0]
     for f in [filename, unziped_filename]:
         if exists(f):
