@@ -15,6 +15,7 @@ import pytest
 # LOCAL
 from ..system_tools import gunzip
 
+
 def test_gunzip():
     filehandle = tempfile.NamedTemporaryFile(suffix='.txt.gz')
     filename = filehandle.name
@@ -22,12 +23,12 @@ def test_gunzip():
     for f in [filename, unziped_filename]:
         if exists(f):
             os.remove(f)
-            
+
     # First create a gzip file
     content = b"Bla"
     with gzip.open(filename, 'wb') as f:
         f.write(content)
-    
+
     # Then test our gunzip command works and creates an unziped file
     gunzip(filename)
     assert exists(unziped_filename)
