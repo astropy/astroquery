@@ -629,7 +629,8 @@ class EsoClass(QueryWithLogin):
         return resp
 
     def retrieve_data(self, datasets, continuation=False, destination=None,
-                      with_calib='none', request_all_objects=False, unzip=True):
+                      with_calib='none', request_all_objects=False, unzip=True,
+                      request_id=None):
         """
         Retrieve a list of datasets form the ESO archive.
 
@@ -657,6 +658,12 @@ class EsoClass(QueryWithLogin):
         unzip : bool
             Unzip compressed files from the archive after download. `True` by
             default.
+        request_id : str, int
+            Retrieve from an existing request number rather than sending a new
+            query, with the `request_id` from the URL in the email sent from
+            the archive from the earlier request as in:
+
+                https://dataportal.eso.org/rh/requests/[USERNAME]/[request_id]
 
         Returns
         -------
@@ -694,9 +701,14 @@ class EsoClass(QueryWithLogin):
                 datasets, continuation=continuation, destination=destination)
 
         # Second: Check that the datasets to download are in the archive
-        log.info("Checking availability of datasets to download...")
-        valid_datasets = [self.verify_data_exists(ds)
+        if request_id is None:
+            log.info("Checking availability of datasets to download...")
+            valid_datasets = [self.verify_data_exists(ds)
                           for ds in datasets_to_download]
+        else:
+            # Assume all valid if a request_id was provided
+            valid_datasets = [(ds, True) for ds in datasets_to_download]
+
         if not all(valid_datasets):
             invalid_datasets = [ds for ds, v in zip(datasets_to_download,
                                                     valid_datasets) if not v]
@@ -710,33 +722,42 @@ class EsoClass(QueryWithLogin):
                 self.login()
             url = "http://archive.eso.org/cms/eso-data/eso-data-direct-retrieval.html"
             with suspend_cache(self):  # Never cache staging operations
-                log.info("Contacting retrieval server...")
-                retrieve_data_form = self._request("GET", url, cache=False)
-                retrieve_data_form.raise_for_status()
-                log.info("Staging request...")
-                inputs = {"list_of_datasets": "\n".join(datasets_to_download)}
-                data_confirmation_form = self._activate_form(
-                    retrieve_data_form, form_index=-1, inputs=inputs,
-                    cache=False)
+                if request_id is None:
+                    log.info("Contacting retrieval server...")
+                    retrieve_data_form = self._request("GET", url,
+                                                        cache=False)
+                    retrieve_data_form.raise_for_status()
+                    log.info("Staging request...")
+                    inputs = {"list_of_datasets": "\n".join(datasets_to_download)}
+                    data_confirmation_form = self._activate_form(
+                        retrieve_data_form, form_index=-1, inputs=inputs,
+                        cache=False)
 
-                data_confirmation_form.raise_for_status()
+                    data_confirmation_form.raise_for_status()
 
-                root = BeautifulSoup(data_confirmation_form.content,
-                                     'html5lib')
-                login_button = root.select('input[value=LOGIN]')
-                if login_button:
-                    raise LoginError("Not logged in. "
-                                     "You must be logged in to download data.")
-                inputs = {}
-                if with_calib != 'none':
-                    inputs['requestCommand'] = calib_options[with_calib]
+                    root = BeautifulSoup(data_confirmation_form.content,
+                                         'html5lib')
+                    login_button = root.select('input[value=LOGIN]')
+                    if login_button:
+                        raise LoginError("Not logged in. "
+                                    "You must be logged in to download data.")
+                    inputs = {}
+                    if with_calib != 'none':
+                        inputs['requestCommand'] = calib_options[with_calib]
 
-                # TODO: There may be another screen for Not Authorized; that
-                # should be included too
-                # form name is "retrieve"; no id
-                data_download_form = self._activate_form(
-                    data_confirmation_form, form_index=-1, inputs=inputs,
-                    cache=False)
+                    # TODO: There may be another screen for Not Authorized;
+                    # that should be included too
+                    # form name is "retrieve"; no id
+                    data_download_form = self._activate_form(
+                        data_confirmation_form, form_index=-1, inputs=inputs,
+                        cache=False)
+                else:
+                    # Build URL by hand
+                    request_url = 'https://dataportal.eso.org/rh/requests/'
+                    request_url += f'{self.USERNAME}/{request_id}'
+                    data_download_form = self._request("GET", request_url,
+                                                       cache=False)
+
                 log.info("Staging form is at {0}"
                          .format(data_download_form.url))
                 root = BeautifulSoup(data_download_form.content, 'html5lib')
@@ -809,6 +830,14 @@ class EsoClass(QueryWithLogin):
             log.debug("Files:\n{}".format('\n'.join(fileLinks)))
             for i, fileLink in enumerate(fileLinks, 1):
                 fileId = fileLink.rsplit('/', maxsplit=1)[1]
+
+                if request_id is not None:
+                    # Since we fetched the script directly without sending
+                    # a new request, check here that the file in the list
+                    # is among those requested in the input list
+                    if fileId.split('.fits')[0] not in datasets_to_download:
+                        continue
+
                 log.info("Downloading file {}/{}: {}..."
                          .format(i, nfiles, fileId))
                 filename = self._request("GET", fileLink, save=True,
