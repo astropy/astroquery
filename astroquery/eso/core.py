@@ -758,6 +758,16 @@ class EsoClass(QueryWithLogin):
                     data_download_form = self._request("GET", request_url,
                                                        cache=False)
 
+                    if  ('Request Handler - Error' in
+                              data_download_form.content.decode('utf-8')):
+                        # Likely a problem with the request_url
+                        msg = (f"The form at {request_url} returned an error."
+                                " See your recent requests at "
+                                "https://dataportal.eso.org/rh/requests/"
+                                f"{self.USERNAME}/recentRequests")
+
+                        raise RemoteServiceError(msg)
+
                 log.info("Staging form is at {0}"
                          .format(data_download_form.url))
                 root = BeautifulSoup(data_download_form.content, 'html5lib')
