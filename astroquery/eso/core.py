@@ -758,8 +758,8 @@ class EsoClass(QueryWithLogin):
                     data_download_form = self._request("GET", request_url,
                                                        cache=False)
 
-                    if  ('Request Handler - Error' in
-                              data_download_form.content.decode('utf-8')):
+                    _content = data_download_form.content.decode('utf-8')
+                    if ('Request Handler - Error' in _content):
                         # Likely a problem with the request_url
                         msg = (f"The form at {request_url} returned an error."
                                 " See your recent requests at "
