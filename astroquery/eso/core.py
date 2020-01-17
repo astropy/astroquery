@@ -629,8 +629,8 @@ class EsoClass(QueryWithLogin):
         return resp
 
     def retrieve_data(self, datasets, continuation=False, destination=None,
-                      with_calib='none', request_all_objects=False, unzip=True,
-                      request_id=None):
+                      with_calib='none', request_all_objects=False,
+                      unzip=True, request_id=None):
         """
         Retrieve a list of datasets form the ESO archive.
 
@@ -660,7 +660,7 @@ class EsoClass(QueryWithLogin):
             default.
         request_id : str, int
             Retrieve from an existing request number rather than sending a new
-            query, with the `request_id` from the URL in the email sent from
+            query, with the identifier from the URL in the email sent from
             the archive from the earlier request as in:
 
                 https://dataportal.eso.org/rh/requests/[USERNAME]/[request_id]
