@@ -51,6 +51,8 @@ class Conf(_config.ConfigNamespace):
                    'phasecoeff': ('phasecoeff', 'mag/deg'),
                    'solar_presence': ('solar_presence', '---'),
                    'flags': ('flags', '---'),
+                   'R.A._(ICRF)': ('RA', 'deg'),
+                   'DEC_(ICRF)': ('DEC', 'deg'),
                    'R.A._(ICRF/J2000.0)': ('RA', 'deg'),
                    'DEC_(ICRF/J2000.0)': ('DEC', 'deg'),
                    'R.A._(FK4/B1950.0)': ('RA', 'deg'),
