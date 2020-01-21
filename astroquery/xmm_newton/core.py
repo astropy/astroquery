@@ -124,7 +124,8 @@ class XMMNewtonClass(BaseQuery):
 
         Returns
         -------
-        None. It downloads the observation indicated
+        None if not verbose. It downloads the observation indicated
+        If verbose returns the filename
         """
 
         link = self.data_aio_url + "obsno=" + observation_id
@@ -250,7 +251,7 @@ class XMMNewtonClass(BaseQuery):
         tables = self._tap.load_tables(only_names=only_names,
                                        include_shared_tables=False,
                                        verbose=verbose)
-        if only_names is True:
+        if only_names:
             table_names = []
             for t in tables:
                 table_names.append(t.name)
@@ -288,7 +289,7 @@ class XMMNewtonClass(BaseQuery):
             raise ValueError("table name specified is not found in "
                              "XSA TAP service")
 
-        if only_names is True:
+        if only_names:
             column_names = []
             for c in columns:
                 column_names.append(c.name)
