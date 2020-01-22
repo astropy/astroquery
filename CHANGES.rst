@@ -73,6 +73,8 @@ ibe
 imcce
 ^^^^^
 
+- Fix Skybot return for unumbered asteroids. [#1598]
+
 irsa
 ^^^^
 

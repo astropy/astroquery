@@ -5,7 +5,6 @@ from collections import OrderedDict
 import warnings
 from io import BytesIO
 
-import numpy as np
 from astropy.table import QTable, MaskedColumn
 from astropy.io import ascii
 from astropy.time import Time
@@ -649,16 +648,15 @@ class SkybotClass(BaseQuery):
                     conf.field_names[fieldname]]
 
         # convert object numbers to int
-        # unnumered asteroids return as non numeric values ('-')
+        # unnumbered asteroids return as non numeric values ('-')
         # this is treated as defaulting to 0, and masking the entry
         unnumbered_mask = [not str(x).isdigit() for x in results['Number']]
         numbers = [int(float(x)) if str(x).isdigit()
                    else 0
                    for x in results['Number']]
-        asteroid_number_col = MaskedColumn(numbers,
-                                           name='Number',
-                                           mask=unnumbered_mask,
-                                           dtype=np.int)
+        asteroid_number_col = MaskedColumn(numbers, name='Number',
+                                           mask=unnumbered_mask)
+
         results.replace_column('Number', asteroid_number_col)
 
         return results
