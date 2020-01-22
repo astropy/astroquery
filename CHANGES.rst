@@ -92,6 +92,8 @@ irsa_dust
 jplhorizons
 ^^^^^^^^^^^
 
+- fix for changes in HORIZONS return results after 2020 Jan 21 update [#1619]
+
 jplsbdb
 ^^^^^^^
 
