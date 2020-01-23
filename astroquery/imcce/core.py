@@ -629,7 +629,7 @@ class SkybotClass(BaseQuery):
 
         results = ascii.read(response_txt[1:], delimiter='|',
                              names=response_txt[0].replace('# ',
-                                                           '').split(' | '))
+                                                           '').strip().split(' | '))
         results = QTable(results)
 
         # convert coordinates to degrees
@@ -651,7 +651,7 @@ class SkybotClass(BaseQuery):
         # unnumbered asteroids return as non numeric values ('-')
         # this is treated as defaulting to 0, and masking the entry
         unnumbered_mask = [not str(x).isdigit() for x in results['Number']]
-        numbers = [int(float(x)) if str(x).isdigit()
+        numbers = [int(x) if str(x).isdigit()
                    else 0
                    for x in results['Number']]
         asteroid_number_col = MaskedColumn(numbers, name='Number',
