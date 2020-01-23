@@ -28,7 +28,7 @@ def gunzip(filename):
     import shutil
     import gzip
 
-    # @EP 09/01/20: system-wide 'gzip' was removed, Python gzip used instead.
+    # system-wide 'gzip' was removed, Python gzip used instead.
     # See #1538 : https://github.com/astropy/astroquery/issues/1538
 
     if not filename.endswith('.fz'):

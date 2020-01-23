@@ -1,21 +1,21 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-"""Test `astroquery.utils.system_tools`.
 
-"""
+try:
+    import gzip
+    HAS_GZIP = True
+except ImportError:
+    HAS_GZIP = False
 
-# STDLIB
-import gzip
 import os
 from os.path import exists
 import tempfile
 
-# THIRD-PARTY
 import pytest
 
-# LOCAL
 from ..system_tools import gunzip
 
 
+@pytest.mark.skipif('not HAS_GZIP')
 def test_gunzip():
     filehandle = tempfile.NamedTemporaryFile(suffix='.txt.gz')
     filename = filehandle.name
