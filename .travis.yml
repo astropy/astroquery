@@ -99,7 +99,7 @@ matrix:
 
         - os: linux
           stage: Tests with other Python/Numpy versions
-          env: PYTHON_VERSION=3.6 NUMPY_VERSION=1.15
+          env: PYTHON_VERSION=3.6 NUMPY_VERSION=1.15 ASTROPY_VERSION=3.2
 
         - os: linux
           stage: Test docs, astropy dev, and without optional dependencies
