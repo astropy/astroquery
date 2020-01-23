@@ -51,7 +51,7 @@ class Conf(_config.ConfigNamespace):
                    'vx(au/d)': 'vx',
                    'vy(au/d)': 'vy',
                    'vz(au/d)': 'vz',
-                   'Ref. Epoch(JD) ': 'epoch'}
+                   'Ref. Epoch(JD)': 'epoch'}
     field_units = {'RA': u.deg,  # after conversion to deg
                    'DEC': u.deg,  # after conversion to deg
                    'V': u.mag,

@@ -5,7 +5,7 @@ from collections import OrderedDict
 import warnings
 from io import BytesIO
 
-from astropy.table import QTable
+from astropy.table import QTable, MaskedColumn
 from astropy.io import ascii
 from astropy.time import Time
 from astropy.io.votable import parse
@@ -629,7 +629,7 @@ class SkybotClass(BaseQuery):
 
         results = ascii.read(response_txt[1:], delimiter='|',
                              names=response_txt[0].replace('# ',
-                                                           '').split(' | '))
+                                                           '').strip().split(' | '))
         results = QTable(results)
 
         # convert coordinates to degrees
@@ -648,7 +648,16 @@ class SkybotClass(BaseQuery):
                     conf.field_names[fieldname]]
 
         # convert object numbers to int
-        results['Number'] = [int(float(n)) for n in results['Number']]
+        # unnumbered asteroids return as non numeric values ('-')
+        # this is treated as defaulting to 0, and masking the entry
+        unnumbered_mask = [not str(x).isdigit() for x in results['Number']]
+        numbers = [int(x) if str(x).isdigit()
+                   else 0
+                   for x in results['Number']]
+        asteroid_number_col = MaskedColumn(numbers, name='Number',
+                                           mask=unnumbered_mask)
+
+        results.replace_column('Number', asteroid_number_col)
 
         return results
 

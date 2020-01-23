@@ -8,6 +8,7 @@ from astroquery.utils.testing_tools import MockResponse
 import astropy.units as u
 from astropy.time import Time
 from astropy.coordinates import SkyCoord, Angle
+from astropy.table import MaskedColumn
 
 from .. import core, SkybotClass
 
@@ -122,3 +123,20 @@ def test_get_raw_response(patch_request):
     raw = core.Skybot.cone_search(
         (0, 0), 0.5, 2451200, get_raw_response=True)
     assert " 299383 | 2005 VC73 | 23 59 45.7861 |" in raw
+
+
+def test_parsing_unnumbered_asteroids(patch_request):
+    """
+    test a query that returns at least one unnumbered asteroid.
+    Checking that the Numbers column is indeed masked.
+    """
+    coord = SkyCoord(ra=271.74541667, dec=-19.94805556, unit=(u.deg, u.deg), frame='icrs')
+    a = core.Skybot.cone_search(coord,
+                                rad=1.7*u.deg,
+                                epoch=Time(56734.74982639, format='mjd'),
+                                location=260,
+                                position_error=15*u.arcsec)
+
+    assert(isinstance(a['Number'], MaskedColumn))
+
+    assert(a['Number'].mask.sum() > 0)
