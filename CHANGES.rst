@@ -1,4 +1,4 @@
-0.4 (unreleased)
+0.4 (2020-01-24)
 ================
 
 New Tools and Services
