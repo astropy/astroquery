@@ -207,6 +207,7 @@ class TestCadcClass:
         assert len(filtered_resp_urls) == len(image_urls)
 
     @pytest.mark.skipif(one_test, reason='One test mode')
+    @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
     def test_get_images_async(self):
         cadc = Cadc()
         coords = '01h45m07.5s +23d18m00s'

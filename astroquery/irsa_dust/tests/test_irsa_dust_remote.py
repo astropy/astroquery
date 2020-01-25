@@ -1,10 +1,11 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
-import astropy.units as u
 import pytest
+import requests
 
 from astropy.tests.helper import remote_data
 from astropy.table import Table
+import astropy.units as u
 from ... import irsa_dust
 
 

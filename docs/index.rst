@@ -87,6 +87,12 @@ full functionality of the `~astroquery.alma` module:
 * `APLpy <http://aplpy.readthedocs.io/>`_
 * `pyregion <http://pyregion.readthedocs.io/>`_
 
+
+The following packages are optional dependencies and are required for the
+functionality of the `~astroquery.cadc` module:
+
+* `pyVO`_ (>=1.0)
+
 The following packages are optional dependencies and are required for the
 full functionality of the `~astroquery.cds` module:
 

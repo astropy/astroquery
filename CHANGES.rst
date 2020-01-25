@@ -7,122 +7,42 @@ New Tools and Services
 casda
 ^^^^^
 
-- Module added to access data from the CSIRO ASKAP Science Data Archive (CASDA)  [#1505]
+- Module added to access data from the CSIRO ASKAP Science Data Archive.  [#1505]
 
 dace
 ^^^^
+
 - Added DACE Service. See https://dace.unige.ch/ for details. [#1370]
 
+gemini
+^^^^^^
+
+- Module added to access the Gemini archive. [#1596]
 
 
 Service fixes and enhancements
 ------------------------------
 
-alfalfa
-^^^^^^^
-
-alma
-^^^^
-
-astrometry_net
-^^^^^^^^^^^^^^
-
-atomic
-^^^^^^
-
-besancon
-^^^^^^^^
-
-cadc
-^^^^
-
-casda
-^^^^^
-
-cds
-^^^
-
-cosmosim
-^^^^^^^^
-
-esa
-^^^
-
-esasky
-^^^^^^
-
-eso
-^^^
-
-exoplanet_orbit_database
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-fermi
-^^^^^
-
 gaia
 ^^^^
-
-gama
-^^^^
-
-gemini
-^^^^^^
-
-- initial support for the Gemini archive [#1596]
-
-heasarc
-^^^^^^^
-
-hitran
-^^^^^^
-
-ibe
-^^^
+- Add optional 'columns' parameter to select specific columns. [#1548]
 
 imcce
 ^^^^^
 
 - Fix Skybot return for unumbered asteroids. [#1598]
 
-irsa
-^^^^
-
-irsa_dust
-^^^^^^^^^
-
 jplhorizons
 ^^^^^^^^^^^
 
-- fix for changes in HORIZONS return results after 2020 Jan 21 update [#1620]
-
-jplsbdb
-^^^^^^^
-
-jplspec
-^^^^^^^
-
-lamda
-^^^^^
-
-lcogt
-^^^^^
-
-magpis
-^^^^^^
+- Fix for changes in HORIZONS return results after their 2020 Jan 21 update. [#1620]
 
 mast
 ^^^^
+
 - Add Kepler to missions with cloud support,
   Update ``get_cloud_uri`` so that if a file is not found it produces a warning
   and returns None rather than throwing an exception. [#1561]
-
-
-mpc
-^^^
-
-nasa_ads
-^^^^^^^^
 
 nasa_exoplanet_archive
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -130,60 +50,10 @@ nasa_exoplanet_archive
   Added two functions ``query_planet`` (to query for a specific exoplanet), and
   ``query_star`` (to query for all exoplanets under a specific stellar system) [#1606]
 
-ned
-^^^
-
-nist
-^^^^
-
-nrao
-^^^^
-
-nvas
-^^^^
-
-oac
-^^^
-
-ogle
-^^^^
-
-open_exoplanet_catalogue
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-sdss
-^^^^
-
-sha
-^^^
-
-simbad
-^^^^^^
-
-skyview
-^^^^^^^
-
-solarsystem
-^^^^^^^^^^^
-
 splatalogue
 ^^^^^^^^^^^
 
-- Added new 'only_astronomically_observed' option [#1600]
-
-ukidss
-^^^^^^
-
-utils
-^^^^^
-
-- Added timer functions. [#1508]
-
-vamdc
-^^^^^
-
-vizier
-^^^^^^
+- Added new 'only_astronomically_observed' option. [#1600]
 
 vo_conesearch
 ^^^^^^^^^^^^^
@@ -200,18 +70,14 @@ vo_conesearch
 
 - Result is now returned as ``astropy.table.Table`` by default. [#1528]
 
-vsa
-^^^
-
-wfau
-^^^^
-
-xmatch
-^^^^^^
-
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
+
+utils
+^^^^^
+
+- Added timer functions. [#1508]
 
 
 0.3.10 (2019-09-19)
