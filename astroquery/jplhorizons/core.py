@@ -2,7 +2,7 @@
 from __future__ import print_function
 
 # 1. standard library imports
-from numpy import nan as nan
+from numpy import nan
 from numpy import isnan
 from numpy import ndarray
 from collections import OrderedDict
@@ -1084,19 +1084,19 @@ class HorizonsClass(BaseQuery):
         headerline = []
         for idx, line in enumerate(src):
             # read in ephemerides header line; replace some field names
-            if (self.query_type is 'ephemerides' and
+            if (self.query_type == 'ephemerides' and
                     "Date__(UT)__HR:MN" in line):
                 headerline = str(line).split(',')
                 headerline[2] = 'solar_presence'
                 headerline[3] = 'flags'
                 headerline[-1] = '_dump'
             # read in elements header line
-            elif (self.query_type is 'elements' and
+            elif (self.query_type == 'elements' and
                   "JDTDB," in line):
                 headerline = str(line).split(',')
                 headerline[-1] = '_dump'
             # read in vectors header line
-            elif (self.query_type is 'vectors' and
+            elif (self.query_type == 'vectors' and
                   "JDTDB," in line):
                 headerline = str(line).split(',')
                 headerline[-1] = '_dump'
@@ -1228,15 +1228,15 @@ class HorizonsClass(BaseQuery):
                                    name='phasecoeff'), index=7)
 
         # replace missing airmass values with 999 (not observable)
-        if self.query_type is 'ephemerides' and 'a-mass' in data.colnames:
+        if self.query_type == 'ephemerides' and 'a-mass' in data.colnames:
             data['a-mass'] = data['a-mass'].filled(999)
 
         # set column definition dictionary
-        if self.query_type is 'ephemerides':
+        if self.query_type == 'ephemerides':
             column_defs = conf.eph_columns
-        elif self.query_type is 'elements':
+        elif self.query_type == 'elements':
             column_defs = conf.elem_columns
-        elif self.query_type is 'vectors':
+        elif self.query_type == 'vectors':
             column_defs = conf.vec_columns
         else:
             raise TypeError('Query type unknown.')
