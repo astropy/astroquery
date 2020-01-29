@@ -113,6 +113,7 @@ class HorizonsClass(BaseQuery):
         self.query_type = None  # ['ephemerides', 'elements', 'vectors']
 
         self.uri = None  # will contain query URL
+        self.raw_response = None # will contain raw response from server
 
     def __str__(self):
         """
@@ -598,7 +599,7 @@ class HorizonsClass(BaseQuery):
 
         # check length of uri
         if len(self.uri) >= 2000:
-            warnings.warn(('The URI used in this query is very long '
+            warnings.warn(('The uri used in this query is very long '
                            'and might have been truncated. The results of '
                            'the query might be compromised. If you queried '
                            'a list of epochs, consider querying a range.'))
@@ -809,7 +810,7 @@ class HorizonsClass(BaseQuery):
 
         # check length of uri
         if len(self.uri) >= 2000:
-            warnings.warn(('The URI used in this query is very long '
+            warnings.warn(('The uri used in this query is very long '
                            'and might have been truncated. The results of '
                            'the query might be compromised. If you queried '
                            'a list of epochs, consider querying a range.'))
@@ -1042,7 +1043,7 @@ class HorizonsClass(BaseQuery):
 
         # check length of uri
         if len(self.uri) >= 2000:
-            warnings.warn(('The URI used in this query is very long '
+            warnings.warn(('The uri used in this query is very long '
                            'and might have been truncated. The results of '
                            'the query might be compromised. If you queried '
                            'a list of epochs, consider querying a range.'))
@@ -1068,11 +1069,13 @@ class HorizonsClass(BaseQuery):
         data : `astropy.Table`
         """
 
+        self.raw_response = src
+
         # return raw response, if desired
         if self.return_raw:
             # reset return_raw flag
             self.return_raw = False
-            return src
+            return self.raw_response
 
         # split response by line break
         src = src.split('\n')
@@ -1165,6 +1168,11 @@ class HorizonsClass(BaseQuery):
                 errormsg = line[line.find('Cannot output elements'):]
                 errormsg = errormsg[:errormsg.find('\n')]
                 raise ValueError('Horizons Error: {:s}'.format(errormsg))
+            # catch date error
+            if "Cannot interpret date" in line:
+                errormsg = line[line.find('Cannot interpret date'):]
+                errormsg = errormsg[:errormsg.find('\n')]
+                raise ValueError('Horizons Error: {:s}'.format(errormsg))
             if 'INPUT ERROR' in line:
                 headerline = []
                 break
@@ -1175,8 +1183,9 @@ class HorizonsClass(BaseQuery):
                 raise ValueError('Query failed with error message:\n' +
                                  err_msg)
             else:
-                raise ValueError(('Query failed without error message; '
-                                  'check URI for more information'))
+                raise ValueError(('Query failed without known error message; '
+                                  'received the following response:\n'
+                                  '{}').format(self.raw_response))
         # strip whitespaces from column labels
         headerline = [h.strip() for h in headerline]
 

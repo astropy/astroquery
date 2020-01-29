@@ -501,6 +501,11 @@ Hints and Tricks
 Checking the original JPL Horizons output
 -----------------------------------------
 
+Once either of the query methods has been called, the retrieved raw response is
+stored in the attribute ``raw_response``. Inspecting this response can help
+to understand issues with your query, or you can process the results
+differently.
+
 For all query types, the query URI (the URI is what you would put into
 the URL field of your web browser) that is used to request the data
 from the JPL Horizons server can be obtained from the
