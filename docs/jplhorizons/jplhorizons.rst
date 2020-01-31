@@ -63,12 +63,14 @@ as the observer's location:
 
     
 ``epochs`` is either a scalar or list of Julian Dates (floats or
-strings) in the case of discrete epochs, or, in the case of a range of
+strings) in the case of discrete epochs, or, in
+the case of a range of
 epochs, a dictionary that has to include the keywords ``start``,
 ``stop`` (both using the following format "YYYY-MM-DD [HH:MM:SS]"),
 and ``step`` (e.g., ``'1m'`` for one minute, ``'3h'``three hours,
 ``'10d'`` for ten days). Note that all input epochs, both calendar
-dates/times and Julian Dates, refer to UTC. By default,
+dates/times and Julian Dates, refer to UTC for ephemerides queries, TDB for
+element queries, and CT for vector queries. By default,
 ``epochs=None``, which uses the current date and time.
 
 ``id_type`` describes what type of target identifier has been provided
@@ -500,6 +502,11 @@ Hints and Tricks
 
 Checking the original JPL Horizons output
 -----------------------------------------
+
+Once either of the query methods has been called, the retrieved raw response is
+stored in the attribute ``raw_response``. Inspecting this response can help
+to understand issues with your query, or you can process the results
+differently.
 
 For all query types, the query URI (the URI is what you would put into
 the URL field of your web browser) that is used to request the data

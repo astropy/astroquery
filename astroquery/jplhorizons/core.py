@@ -61,6 +61,8 @@ class HorizonsClass(BaseQuery):
             defining a range of times and dates; the range dictionary has to
             be of the form {``'start'``:'YYYY-MM-DD [HH:MM:SS]',
             ``'stop'``:'YYYY-MM-DD [HH:MM:SS]', ``'step'``:'n[y|d|m|s]'}.
+            Epoch timescales depend on the type of query performed: UTC for
+            ephemerides queries, TDB for element queries, CT for vector queries.
             If no epochs are provided, the current time is used.
         id_type : str, optional
             Identifier type, options:
@@ -78,7 +80,7 @@ class HorizonsClass(BaseQuery):
             ...              epochs={'start':'2017-01-01',
             ...                      'stop':'2017-02-01',
             ...                      'step':'1d'})
-            >>> print(eros) # doctest: +SKIP
+            >>> print(eros)  # doctest: +SKIP
             JPLHorizons instance "433"; location=568, epochs={'start': '2017-01-01', 'step': '1d', 'stop': '2017-02-01'}, id_type=smallbody
         """
         super(HorizonsClass, self).__init__()
@@ -113,6 +115,7 @@ class HorizonsClass(BaseQuery):
         self.query_type = None  # ['ephemerides', 'elements', 'vectors']
 
         self.uri = None  # will contain query URL
+        self.raw_response = None  # will contain raw response from server
 
     def __str__(self):
         """
@@ -126,7 +129,7 @@ class HorizonsClass(BaseQuery):
             ...                 epochs={'start':'2017-01-01',
             ...                         'stop':'2017-02-01',
             ...                         'step':'1d'})
-            >>> print(eros) # doctest: +SKIP
+            >>> print(eros)  # doctest: +SKIP
             JPLHorizons instance "433"; location=568, epochs={'start': '2017-01-01', 'step': '1d', 'stop': '2017-02-01'}, id_type=smallbody
         """
         return ('JPLHorizons instance \"{:s}\"; location={:s}, '
@@ -465,8 +468,8 @@ class HorizonsClass(BaseQuery):
             ...             epochs={'start':'2010-01-01',
             ...                     'stop':'2010-03-01',
             ...                     'step':'10d'})
-            >>> eph = obj.ephemerides() # doctest: +SKIP
-            >>> print(eph) # doctest: +SKIP
+            >>> eph = obj.ephemerides()  # doctest: +SKIP
+            >>> print(eph)  # doctest: +SKIP
             targetname    datetime_str   datetime_jd ...   GlxLat  RA_3sigma
             DEC_3sigma
                ---            ---             d      ...    deg      arcsec
@@ -598,7 +601,7 @@ class HorizonsClass(BaseQuery):
 
         # check length of uri
         if len(self.uri) >= 2000:
-            warnings.warn(('The URI used in this query is very long '
+            warnings.warn(('The uri used in this query is very long '
                            'and might have been truncated. The results of '
                            'the query might be compromised. If you queried '
                            'a list of epochs, consider querying a range.'))
@@ -713,8 +716,8 @@ class HorizonsClass(BaseQuery):
             >>> from astroquery.jplhorizons import Horizons
             >>> obj = Horizons(id='433', location='500@10',
             ...                epochs=2458133.33546)
-            >>> el = obj.elements() # doctest: +SKIP
-            >>> print(el) # doctest: +SKIP
+            >>> el = obj.elements()  # doctest: +SKIP
+            >>> print(el)  # doctest: +SKIP
                 targetname      datetime_jd  ...       Q            P
                    ---               d       ...       AU           d
             ------------------ ------------- ... ------------- ------------
@@ -809,7 +812,7 @@ class HorizonsClass(BaseQuery):
 
         # check length of uri
         if len(self.uri) >= 2000:
-            warnings.warn(('The URI used in this query is very long '
+            warnings.warn(('The uri used in this query is very long '
                            'and might have been truncated. The results of '
                            'the query might be compromised. If you queried '
                            'a list of epochs, consider querying a range.'))
@@ -929,8 +932,8 @@ class HorizonsClass(BaseQuery):
             ...             epochs={'start':'2017-10-01',
             ...                     'stop':'2017-10-02',
             ...                     'step':'10m'})
-            >>> vec = obj.vectors() # doctest: +SKIP
-            >>> print(vec) # doctest: +SKIP
+            >>> vec = obj.vectors()  # doctest: +SKIP
+            >>> print(vec)  # doctest: +SKIP
             targetname  datetime_jd  ...      range          range_rate
                ---           d       ...        AU             AU / d
             ---------- ------------- ... --------------- -----------------
@@ -1042,7 +1045,7 @@ class HorizonsClass(BaseQuery):
 
         # check length of uri
         if len(self.uri) >= 2000:
-            warnings.warn(('The URI used in this query is very long '
+            warnings.warn(('The uri used in this query is very long '
                            'and might have been truncated. The results of '
                            'the query might be compromised. If you queried '
                            'a list of epochs, consider querying a range.'))
@@ -1068,11 +1071,13 @@ class HorizonsClass(BaseQuery):
         data : `astropy.Table`
         """
 
+        self.raw_response = src
+
         # return raw response, if desired
         if self.return_raw:
             # reset return_raw flag
             self.return_raw = False
-            return src
+            return self.raw_response
 
         # split response by line break
         src = src.split('\n')
@@ -1165,6 +1170,11 @@ class HorizonsClass(BaseQuery):
                 errormsg = line[line.find('Cannot output elements'):]
                 errormsg = errormsg[:errormsg.find('\n')]
                 raise ValueError('Horizons Error: {:s}'.format(errormsg))
+            # catch date error
+            if "Cannot interpret date" in line:
+                errormsg = line[line.find('Cannot interpret date'):]
+                errormsg = errormsg[:errormsg.find('\n')]
+                raise ValueError('Horizons Error: {:s}'.format(errormsg))
             if 'INPUT ERROR' in line:
                 headerline = []
                 break
@@ -1175,8 +1185,9 @@ class HorizonsClass(BaseQuery):
                 raise ValueError('Query failed with error message:\n' +
                                  err_msg)
             else:
-                raise ValueError(('Query failed without error message; '
-                                  'check URI for more information'))
+                raise ValueError(('Query failed without known error message; '
+                                  'received the following response:\n'
+                                  '{}').format(self.raw_response))
         # strip whitespaces from column labels
         headerline = [h.strip() for h in headerline]
 
