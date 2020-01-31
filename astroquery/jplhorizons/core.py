@@ -80,7 +80,7 @@ class HorizonsClass(BaseQuery):
             ...              epochs={'start':'2017-01-01',
             ...                      'stop':'2017-02-01',
             ...                      'step':'1d'})
-            >>> print(eros) # doctest: +SKIP
+            >>> print(eros)  # doctest: +SKIP
             JPLHorizons instance "433"; location=568, epochs={'start': '2017-01-01', 'step': '1d', 'stop': '2017-02-01'}, id_type=smallbody
         """
         super(HorizonsClass, self).__init__()
@@ -115,7 +115,7 @@ class HorizonsClass(BaseQuery):
         self.query_type = None  # ['ephemerides', 'elements', 'vectors']
 
         self.uri = None  # will contain query URL
-        self.raw_response = None # will contain raw response from server
+        self.raw_response = None  # will contain raw response from server
 
     def __str__(self):
         """
@@ -129,7 +129,7 @@ class HorizonsClass(BaseQuery):
             ...                 epochs={'start':'2017-01-01',
             ...                         'stop':'2017-02-01',
             ...                         'step':'1d'})
-            >>> print(eros) # doctest: +SKIP
+            >>> print(eros)  # doctest: +SKIP
             JPLHorizons instance "433"; location=568, epochs={'start': '2017-01-01', 'step': '1d', 'stop': '2017-02-01'}, id_type=smallbody
         """
         return ('JPLHorizons instance \"{:s}\"; location={:s}, '
@@ -468,8 +468,8 @@ class HorizonsClass(BaseQuery):
             ...             epochs={'start':'2010-01-01',
             ...                     'stop':'2010-03-01',
             ...                     'step':'10d'})
-            >>> eph = obj.ephemerides() # doctest: +SKIP
-            >>> print(eph) # doctest: +SKIP
+            >>> eph = obj.ephemerides()  # doctest: +SKIP
+            >>> print(eph)  # doctest: +SKIP
             targetname    datetime_str   datetime_jd ...   GlxLat  RA_3sigma
             DEC_3sigma
                ---            ---             d      ...    deg      arcsec
@@ -716,8 +716,8 @@ class HorizonsClass(BaseQuery):
             >>> from astroquery.jplhorizons import Horizons
             >>> obj = Horizons(id='433', location='500@10',
             ...                epochs=2458133.33546)
-            >>> el = obj.elements() # doctest: +SKIP
-            >>> print(el) # doctest: +SKIP
+            >>> el = obj.elements()  # doctest: +SKIP
+            >>> print(el)  # doctest: +SKIP
                 targetname      datetime_jd  ...       Q            P
                    ---               d       ...       AU           d
             ------------------ ------------- ... ------------- ------------
@@ -932,8 +932,8 @@ class HorizonsClass(BaseQuery):
             ...             epochs={'start':'2017-10-01',
             ...                     'stop':'2017-10-02',
             ...                     'step':'10m'})
-            >>> vec = obj.vectors() # doctest: +SKIP
-            >>> print(vec) # doctest: +SKIP
+            >>> vec = obj.vectors()  # doctest: +SKIP
+            >>> print(vec)  # doctest: +SKIP
             targetname  datetime_jd  ...      range          range_rate
                ---           d       ...        AU             AU / d
             ---------- ------------- ... --------------- -----------------
