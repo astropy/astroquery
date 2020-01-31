@@ -15,5 +15,5 @@ http://wfaudata.roe.ac.uk/sdssdr8-dsa/DirectCone?DSACAT=SDSS_DR8&amp;DSATAB=Phot
 http://wfaudata.roe.ac.uk/sdssdr8-dsa/DirectCone?DSACAT=SDSS_DR8&amp;DSATAB=SpecObjAll&amp;
 http://wfaudata.roe.ac.uk/twomass-dsa/DirectCone?DSACAT=TWOMASS&amp;DSATAB=twomass_psc&amp;
 http://wfaudata.roe.ac.uk/twomass-dsa/DirectCone?DSACAT=TWOMASS&amp;DSATAB=twomass_xsc&amp;
-http://www.nofs.navy.mil/cgi-bin/vo_cone.cgi?CAT=USNO-A2&amp;
-http://www.nofs.navy.mil/cgi-bin/vo_cone.cgi?CAT=USNO-B1&amp;
+http://astrometry.mit.edu/cgi-bin/vo_cone6.cgi?CAT=USNO-A2&amp;
+http://astrometry.mit.edu/cgi-bin/vo_cone6.cgi?CAT=USNO-B1&amp;
