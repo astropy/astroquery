@@ -112,5 +112,5 @@ class TestXMatch:
                   '-F cat1=@{1} -F colRA1=ra -F colDec1=dec -F cat2=vizier:II/246/out  '
                   'http://cdsxmatch.u-strasbg.fr/xmatch/api/v1/sync > {0}'.
                   format(outfile, infile))
-        table = ascii.read(outfile, format='csv')
+        table = ascii.read(outfile, format='csv', fast_reader=False)
         return table

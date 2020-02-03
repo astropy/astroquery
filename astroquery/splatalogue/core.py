@@ -476,15 +476,8 @@ class SplatalogueClass(BaseQuery):
             splatalogue to make them more terminal-friendly
         """
 
-        try:
-            result = ascii.read(response.text.split('\n'),
-                                delimiter=':',
-                                format='basic')
-        except TypeError:
-            # deprecated
-            result = ascii.read(response.text.split('\n'),
-                                delimiter=':',
-                                Reader=ascii.Basic)
+        result = ascii.read(response.text.split('\n'), delimiter=':',
+                            format='basic', fast_reader=False)
 
         return result
 

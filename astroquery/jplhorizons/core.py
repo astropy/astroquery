@@ -1188,7 +1188,8 @@ class HorizonsClass(BaseQuery):
         data = ascii.read(raw_data,
                           names=headerline,
                           fill_values=[('.n.a.', '0'),
-                                       ('n.a.', '0')])
+                                       ('n.a.', '0')],
+                          fast_reader=False)
         # force to a masked table
         data = Table(data, masked=True)
 

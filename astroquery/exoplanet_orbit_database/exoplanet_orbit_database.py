@@ -63,7 +63,7 @@ class ExoplanetOrbitDatabaseClass(object):
             if table_path is None:
                 table_path = download_file(EXOPLANETS_CSV_URL, cache=cache,
                                            show_progress=show_progress)
-            exoplanets_table = ascii.read(table_path)
+            exoplanets_table = ascii.read(table_path, fast_reader=False)
 
             # Store column of lowercase names for indexing:
             lowercase_names = [i.lower().replace(" ", "")
