@@ -13,6 +13,7 @@ import requests
 import textwrap
 
 from datetime import datetime, timedelta
+from pathlib import Path
 
 from astropy.config import paths
 from astroquery import log
@@ -29,10 +30,14 @@ __all__ = ['BaseQuery', 'QueryWithLogin']
 
 def to_cache(response, cache_file):
     log.debug("Caching data to {0}".format(cache_file))
+
     response = copy.deepcopy(response)
     if hasattr(response, 'request'):
         for key in tuple(response.request.hooks.keys()):
             del response.request.hooks[key]
+
+    chache_dir, _ = os.path.split(cache_file)
+    Path(chache_dir).mkdir(parents=True, exist_ok=True)
     with open(cache_file, "wb") as f:
         pickle.dump(response, f)
 
