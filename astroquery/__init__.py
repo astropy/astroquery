@@ -12,7 +12,6 @@ to access online Astronomical data. Each web service has its own sub-package.
 from ._astropy_init import __version__, __githash__, test
 # ----------------------------------------------------------------------------
 
-
 import os
 import logging
 
@@ -45,9 +44,16 @@ log = _init_log()
 class Conf(_config.ConfigNamespace):
     
     default_cache_timeout = _config.ConfigItem(
-          60.0*60.0*24.0,
+          86400, # 24 hours
           'Astroquery-wide default cache timeout (seconds).'
           )
-
+    cache_location = _config.ConfigItem(
+          os.path.join(_config.paths.get_cache_dir(), 'astroquery'),
+          'Astroquery default cache location (within astropy cache).'
+          )
+    use_cache = _config.ConfigItem(
+        True,
+        "Astroquery global cache usage, False turns off all caching."
+        )
 
 conf = Conf()

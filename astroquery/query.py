@@ -117,9 +117,12 @@ class AstroQuery:
     def from_cache(self, cache_location):
         request_file = self.request_file(cache_location)
         try:
-            current_time = datetime.utcnow()
-            cache_time = datetime.utcfromtimestamp(os.path.getmtime(request_file))
-            expired = ((current_time-cache_time) > timedelta(seconds=conf.default_cache_timeout))
+            if conf.default_cache_timeout is None:
+                expired = False
+            else:
+                current_time = datetime.utcnow()
+                cache_time = datetime.utcfromtimestamp(os.path.getmtime(request_file))
+                expired = ((current_time-cache_time) > timedelta(seconds=conf.default_cache_timeout))
             if not expired:
                 with open(request_file, "rb") as f:
                     response = pickle.load(f)
@@ -193,7 +196,10 @@ class BaseQuery(metaclass=LoginABCMeta):
             paths.get_cache_dir(), 'astroquery',
             self.__class__.__name__.split("Class")[0])
         os.makedirs(self.cache_location, exist_ok=True)
-        self._cache_active = True
+
+        self.name = self.__class__.__name__.split("Class")[0]
+        self._cache_active = conf.use_cache
+
 
     def __call__(self, *args, **kwargs):
         """ init a fresh copy of self """
@@ -269,6 +275,7 @@ class BaseQuery(metaclass=LoginABCMeta):
             somewhere other than `BaseQuery.cache_location`
         timeout : int
         cache : bool
+            Override global cache settings.
         verify : bool
             Verify the server's TLS certificate?
             (see http://docs.python-requests.org/en/master/_modules/requests/sessions/?highlight=verify)
@@ -294,12 +301,21 @@ class BaseQuery(metaclass=LoginABCMeta):
             is True.
         """
 
+        # Set up cache
+        if (cache is True) or ((cache is not False) and conf.use_cache):
+            cache_location = os.path.join(conf.cache_location, self.name)
+            cache = True
+        else:
+            cache_location = None
+            cache = False
+            
         if save:
             local_filename = url.split('/')[-1]
             if os.name == 'nt':
                 # Windows doesn't allow special characters in filenames like
                 # ":" so replace them with an underscore
                 local_filename = local_filename.replace(':', '_')
+
             local_filepath = os.path.join(savedir or self.cache_location or '.', local_filename)
 
             response = self._download_file(url, local_filepath, cache=cache, timeout=timeout,
@@ -321,16 +337,17 @@ class BaseQuery(metaclass=LoginABCMeta):
                                              allow_redirects=allow_redirects,
                                              json=json)
             else:
-                response = query.from_cache(self.cache_location)
+                response = query.from_cache(cache_location)
                 if not response:
                     response = query.request(self._session,
-                                             self.cache_location,
+                                             cache_location,
                                              stream=stream,
                                              auth=auth,
                                              allow_redirects=allow_redirects,
                                              verify=verify,
                                              json=json)
                     to_cache(response, query.request_file(self.cache_location))
+
             self._last_query = query
             return response
 
@@ -352,6 +369,7 @@ class BaseQuery(metaclass=LoginABCMeta):
             supports HTTP "range" requests, the download will be continued
             where it left off.
         cache : bool
+            Cache downloaded file. Defaults to False.
         method : "GET" or "POST"
         head_safe : bool
         """
