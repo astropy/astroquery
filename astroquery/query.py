@@ -119,6 +119,7 @@ class AstroQuery:
                 current_time = datetime.utcnow()
                 cache_time = datetime.utcfromtimestamp(request_file.stat().st_mtime)
                 expired = current_time-cache_time > timedelta(seconds=cache_timeout)
+
             if not expired:
                 with open(request_file, "rb") as f:
                     response = pickle.load(f)
@@ -344,7 +345,7 @@ class BaseQuery(metaclass=LoginABCMeta):
                 response = query.from_cache(self.cache_location, cache_conf.cache_timeout)
                 if not response:
                     response = query.request(self._session,
-                                             self.cache_location,
+                                             cache_location,
                                              stream=stream,
                                              auth=auth,
                                              allow_redirects=allow_redirects,

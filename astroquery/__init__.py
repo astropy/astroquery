@@ -12,7 +12,6 @@ to access online Astronomical data. Each web service has its own sub-package.
 from ._astropy_init import __version__, __githash__, test
 # ----------------------------------------------------------------------------
 
-
 import os
 import logging
 
