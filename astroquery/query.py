@@ -229,6 +229,23 @@ class BaseQuery(metaclass=LoginABCMeta):
                     f"{response.text}\n"
                     f"-----------------------------------------", '\t')
             log.log(5, f"HTTP response\n{response_log}")
+     
+     def clear_cache():
+        """Removes all cache files."""
+
+        cache_files = [x for x in os.listdir(self.cache_location) if x.endswidth("pickle")]
+        for fle in cache_files:
+            os.remove(fle)
+
+    def reset_cache_preferences():
+        """Resets cache preferences to default values"""
+
+        self.cache_location = os.path.join(
+            conf.cache_location,
+            self.__class__.__name__.split("Class")[0])
+        
+        self.use_cache = conf.use_cache
+        self.cache_timeout = conf.default_cache_timeout
 
     @property
     def cache_location(self):
@@ -345,7 +362,7 @@ class BaseQuery(metaclass=LoginABCMeta):
                 response = query.from_cache(self.cache_location, cache_conf.cache_timeout)
                 if not response:
                     response = query.request(self._session,
-                                             cache_location,
+                                             self.cache_location,
                                              stream=stream,
                                              auth=auth,
                                              allow_redirects=allow_redirects,
