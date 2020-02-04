@@ -194,7 +194,7 @@ class XMatchClass(BaseQuery):
                     colnames[colnames.index(cn)] = cn + "_{ii}".format(ii=ii)
                     ii += 1
         new_text = ",".join(colnames) + "\n" + "\n".join(text.split("\n")[1:])
-        result = ascii.read(new_text, format='csv')
+        result = ascii.read(new_text, format='csv', fast_reader=False)
 
         return result
 

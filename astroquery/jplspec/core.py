@@ -156,16 +156,15 @@ class JPLSpecClass(BaseQuery):
         QN":   Quantum numbers for the lower state.
         """
 
-        result = ascii.read(response.text,
-                            header_start=None,
-                            data_start=0,  # start at 0 since regex was applied
-                            # Warning for a result with more than 1000 lines:
-                            # THIS form is currently limited to 1000 lines.
+        # data starts at 0 since regex was applied
+        # Warning for a result with more than 1000 lines:
+        # THIS form is currently limited to 1000 lines.
+        result = ascii.read(response.text, header_start=None, data_start=0,
                             comment=r'THIS|^\s{12,14}\d{4,6}.*',
                             names=('FREQ', 'ERR', 'LGINT', 'DR', 'ELO', 'GUP',
                                    'TAG', 'QNFMT', 'QN\'', 'QN"'),
                             col_starts=(0, 13, 21, 29, 31, 41, 44, 51, 55, 67),
-                            format='fixed_width')
+                            format='fixed_width', fast_reader=False)
 
         if len(result) > self.maxlines:
             warnings.warn("This form is currently limited to {0} lines."
@@ -207,17 +206,13 @@ class JPLSpecClass(BaseQuery):
 
         """
 
-        result = ascii.read(data_path(catfile),
-                            header_start=None,
-                            data_start=0,
-                            names=('TAG', 'NAME', 'NLINE',
-                                   'QLOG1', 'QLOG2',
-                                   'QLOG3', 'QLOG4',
-                                   'QLOG5', 'QLOG6',
+        result = ascii.read(data_path(catfile), header_start=None, data_start=0,
+                            names=('TAG', 'NAME', 'NLINE', 'QLOG1', 'QLOG2',
+                                   'QLOG3', 'QLOG4', 'QLOG5', 'QLOG6',
                                    'QLOG7', 'VER'),
                             col_starts=(0, 6, 20, 26, 33, 40, 47, 54, 61,
                                         68, 75),
-                            format='fixed_width')
+                            format='fixed_width', fast_reader=False)
 
         # store the corresponding temperatures as metadata
         result['QLOG1'].meta = {'Temperature (K)': 300}

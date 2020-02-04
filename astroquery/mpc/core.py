@@ -1123,7 +1123,7 @@ class MPCClass(BaseQuery):
             tab = ascii.read(text_table, format='fixed_width_no_header',
                              names=names, col_starts=col_starts,
                              col_ends=col_ends, data_start=data_start,
-                             fill_values=(('N/A', np.nan),))
+                             fill_values=(('N/A', np.nan),), fast_reader=False)
 
             for col, unit in zip(names, units):
                 tab[col].unit = unit
@@ -1204,7 +1204,8 @@ class MPCClass(BaseQuery):
                                   col_starts=(0, 5, 12, 13, 14, 15,
                                               32, 44, 65, 70, 77),
                                   col_ends=(4, 11, 12, 13, 14, 31,
-                                            43, 55, 69, 70, 79))
+                                            43, 55, 69, 70, 79),
+                                  fast_reader=False)
 
                 # convert asteroid designations
                 # old designation style, e.g.: 1989AB
@@ -1248,7 +1249,8 @@ class MPCClass(BaseQuery):
                                   col_starts=(0, 4, 5, 13, 14, 15,
                                               32, 44, 65, 70, 77),
                                   col_ends=(3, 4, 12, 13, 14, 31,
-                                            43, 55, 69, 70, 79))
+                                            43, 55, 69, 70, 79),
+                                  fast_reader=False)
 
                 # convert comet designations
                 ident = data['desig'][0]

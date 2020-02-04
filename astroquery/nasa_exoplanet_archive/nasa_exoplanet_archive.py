@@ -89,7 +89,7 @@ class NasaExoplanetArchiveClass(object):
                 table_path = download_file(exoplanets_url, cache=cache,
                                            show_progress=show_progress,
                                            timeout=120)
-            exoplanets_table = ascii.read(table_path)
+            exoplanets_table = ascii.read(table_path, fast_reader=False)
 
             # Create sky coordinate mixin column
             exoplanets_table['sky_coord'] = SkyCoord(ra=exoplanets_table['ra'] * u.deg,
@@ -150,7 +150,7 @@ class NasaExoplanetArchiveClass(object):
                 table_path = download_file(exoplanets_url, cache=cache,
                                            show_progress=show_progress,
                                            timeout=120)
-            exoplanets_table = ascii.read(table_path)
+            exoplanets_table = ascii.read(table_path, fast_reader=False)
 
             # Create sky coordinate mixin column
             exoplanets_table['sky_coord'] = SkyCoord(ra=exoplanets_table['ra'] * u.deg,

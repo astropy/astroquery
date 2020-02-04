@@ -627,9 +627,9 @@ class SkybotClass(BaseQuery):
         if len(response_txt) < 3 and len(response_txt[-1].split('|')) < 21:
             raise RuntimeError(response_txt[-1])
 
+        names = response_txt[0].replace('# ', '').strip().split(' | ')
         results = ascii.read(response_txt[1:], delimiter='|',
-                             names=response_txt[0].replace('# ',
-                                                           '').strip().split(' | '))
+                             names=names, fast_reader=False)
         results = QTable(results)
 
         # convert coordinates to degrees
