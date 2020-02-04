@@ -114,15 +114,15 @@ class AstroQuery:
         fn = os.path.join(cache_location, self.hash() + ".pickle")
         return fn
 
-    def from_cache(self, cache_location):
+    def from_cache(self, cache_location, cache_timeout):
         request_file = self.request_file(cache_location)
         try:
-            if conf.default_cache_timeout is None:
+            if cache_timeout is None:
                 expired = False
             else:
                 current_time = datetime.utcnow()
                 cache_time = datetime.utcfromtimestamp(os.path.getmtime(request_file))
-                expired = ((current_time-cache_time) > timedelta(seconds=conf.default_cache_timeout))
+                expired = ((current_time-cache_time) > timedelta(seconds=cache_timeout))
             if not expired:
                 with open(request_file, "rb") as f:
                     response = pickle.load(f)
@@ -199,6 +199,8 @@ class BaseQuery(metaclass=LoginABCMeta):
 
         self.name = self.__class__.__name__.split("Class")[0]
         self._cache_active = conf.use_cache
+        self.use_cache = conf.use_cache
+        self.cache_timeout = conf.default_cache_timeout
 
 
     def __call__(self, *args, **kwargs):
@@ -238,6 +240,23 @@ class BaseQuery(metaclass=LoginABCMeta):
                     f"{response.text}\n"
                     f"-----------------------------------------", '\t')
             log.log(5, f"HTTP response\n{response_log}")
+     
+     def clear_cache():
+        """Removes all cache files."""
+
+        cache_files = [x for x in os.listdir(self.cache_location) if x.endswidth("pickle")]
+        for fle in cache_files:
+            os.remove(fle)
+
+    def reset_cache_preferences():
+        """Resets cache preferences to default values"""
+
+        self.cache_location = os.path.join(
+            conf.cache_location,
+            self.__class__.__name__.split("Class")[0])
+        
+        self.use_cache = conf.use_cache
+        self.cache_timeout = conf.default_cache_timeout
 
     def _request(self, method, url,
                  params=None, data=None, headers=None,
@@ -300,13 +319,10 @@ class BaseQuery(metaclass=LoginABCMeta):
             and the server response object, if ``save`` is True and ``return_response_on_save``
             is True.
         """
-
-        # Set up cache
-        if (cache is True) or ((cache is not False) and conf.use_cache):
-            cache_location = os.path.join(conf.cache_location, self.name)
+    
+        if (cache is not False) and self.use_cache:
             cache = True
         else:
-            cache_location = None
             cache = False
             
         if save:
@@ -337,10 +353,10 @@ class BaseQuery(metaclass=LoginABCMeta):
                                              allow_redirects=allow_redirects,
                                              json=json)
             else:
-                response = query.from_cache(cache_location)
+                response = query.from_cache(self.cache_location, self.cache_timeout)
                 if not response:
                     response = query.request(self._session,
-                                             cache_location,
+                                             self.cache_location,
                                              stream=stream,
                                              auth=auth,
                                              allow_redirects=allow_redirects,
