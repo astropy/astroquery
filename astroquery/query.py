@@ -243,7 +243,7 @@ class BaseQuery(metaclass=LoginABCMeta):
         self.cache_location = os.path.join(
             conf.cache_location,
             self.__class__.__name__.split("Class")[0])
-        
+
         self.use_cache = conf.use_cache
         self.cache_timeout = conf.default_cache_timeout
 
