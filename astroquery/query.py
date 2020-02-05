@@ -246,7 +246,7 @@ class BaseQuery(metaclass=LoginABCMeta):
 
         cache_files = [x for x in os.listdir(self.cache_location) if x.endswith("pickle")]
         for fle in cache_files:
-            os.remove(os.path.join(self.cache_location,fle))
+            os.remove(os.path.join(self.cache_location, fle))
 
     def reset_cache_preferences(self):
         """Resets cache preferences to default values"""
@@ -254,7 +254,7 @@ class BaseQuery(metaclass=LoginABCMeta):
         self.cache_location = os.path.join(
             conf.cache_location,
             self.__class__.__name__.split("Class")[0])
-        
+
         self.use_cache = conf.use_cache
         self.cache_timeout = conf.default_cache_timeout
 
@@ -319,12 +319,12 @@ class BaseQuery(metaclass=LoginABCMeta):
             and the server response object, if ``save`` is True and ``return_response_on_save``
             is True.
         """
-    
+
         if (cache is not False) and self.use_cache:
             cache = True
         else:
             cache = False
-            
+
         if save:
             local_filename = url.split('/')[-1]
             if os.name == 'nt':
