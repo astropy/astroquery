@@ -1,0 +1,14 @@
+from astropy import units as u
+from astropy.coordinates import SkyCoord
+import astroquery.noao
+from importlib import reload
+
+c = SkyCoord(ra=10.625*u.degree, dec=41.2*u.degree, frame='icrs')
+arch = astroquery.noao.Noao
+r = arch.query_region(c,radius='0.1')
+
+reload(astroquery.noao)
+arch = astroquery.noao.Noao
+r = arch.query_region(c,radius='0.1')
+r['ra','dec','caldat']
+r.pprint_all(max_lines=5)
