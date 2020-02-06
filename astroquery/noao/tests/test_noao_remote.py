@@ -8,7 +8,7 @@ from astropy.coordinates import SkyCoord
 from astropy.tests.helper import remote_data
 # Local packages
 import astroquery.noao
-from astroquery.noao.tests import expected
+from astroquery.noao.tests import expected as expsia
 
 # performs similar tests as test_module.py, but performs
 # the actual HTTP request rather than monkeypatching them.
@@ -16,17 +16,19 @@ from astroquery.noao.tests import expected
 # remote_data decorator from astropy:
 
 
-#@remote_data
+@remote_data
 class TestNoaoClass(object):
     @classmethod
     def setup_class(cls):
         cls.arch = astroquery.noao.Noao
 
-
     def test_query_region_1(self):
+        """Insure query gets at least the set of files we expect.
+        Its ok if more files have been added to the remote Archive."""
+        
         c = SkyCoord(ra=10.625*u.degree, dec=41.2*u.degree, frame='icrs')
-        r = self.arch.query_region(c,radius='0.1')
-        actual = r.pformat_all(max_lines=3)
+        r = self.arch.query_region(c, radius='0.1')
+        actual = set(list(r['md5sum'])[1:])
         print(f'DBG: query_region_1; actual={actual}')
-        assert actual == expected.query_region_1
-
+        expected = expsia.query_region_1
+        assert expected.issubset(actual)

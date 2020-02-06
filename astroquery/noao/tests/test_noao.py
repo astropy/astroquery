@@ -14,10 +14,9 @@ class NoaoSia(TestCase):
 
     def query_region_1(self):
         c = SkyCoord(ra=10.625*u.degree, dec=41.2*u.degree, frame='icrs')
-        r = self.arch.query_region(c,radius='0.1')
+        r = self.arch.query_region(c, radius='0.1')
         actual = r.pformat_all(max_lines=5)
         self.assertEqual(actual, expected.query_region_1)
-        
 
 
 if __name__ == '__main__':

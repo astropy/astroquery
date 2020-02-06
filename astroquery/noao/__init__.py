@@ -1,6 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """NSF's OIR Lab Astro Data Archive(Beta)
--------------------------------------- 
+-----------------------------------------
 
 The NSF's OIR Lab Astro Data Archive (formerly NOAO Science Archive)
 provides access to data taken with more than 40 telescope and
@@ -70,6 +70,7 @@ class Conf(_config.ConfigNamespace):
         30,
         'Time limit for connecting to NOAO server.'
         )
+
 
 conf = Conf()
 
