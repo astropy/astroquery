@@ -1,4 +1,4 @@
-"""\
+"""
 Provide astroquery API access to OIR Lab Astro Data Archive (natica).
 
 This does DB access through web-services. It allows query against ALL
@@ -58,10 +58,6 @@ class NoaoClass(astroquery.query.BaseQuery):
         response = requests.get(url)
         # #!response = self._request('GET', url)
         return astropy.table.Table(data=response.json())
-
-    def _parse_result(self, result):
-        # do something, probably with regexp's
-        return astropy.table.Table(tabular_data)
 
     def _args_to_payload(self, *args):
         # convert arguments to a valid requests payload

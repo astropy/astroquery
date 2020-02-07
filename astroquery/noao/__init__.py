@@ -56,6 +56,7 @@ See also: gemini, nrao
 """
 
 from astropy import config as _config
+from .core import Noao, NoaoClass
 
 
 class Conf(_config.ConfigNamespace):
@@ -75,7 +76,6 @@ class Conf(_config.ConfigNamespace):
 
 conf = Conf()
 
-from .core import Noao, NoaoClass
 
 __all__ = ['Noao', 'NoaoClass',
            'conf', 'Conf']
