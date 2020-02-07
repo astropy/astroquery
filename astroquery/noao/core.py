@@ -18,9 +18,9 @@ import astropy.table
 # all Query classes should inherit from BaseQuery.
 from ..query import BaseQuery
 # has common functions required by most modules
-from ..utils import commons
+# #!from ..utils import commons
 # prepend_docstr is a way to copy docstrings between methods
-from ..utils import prepend_docstr_nosections
+# #!from ..utils import prepend_docstr_nosections
 # async_to_sync generates the relevant query tools from _async methods
 from ..utils import async_to_sync
 from ..utils.class_or_instance import class_or_instance
@@ -51,10 +51,11 @@ class NoaoClass(BaseQuery):
 
     @property
     def api_version(self):
-        if self._api_version == None:
+        if self._api_version is None:
             response = requests.get(f'{self.NAT_URL}/api/version')
             # Following gets error:
-            #   AttributeError: 'NoaoClass' object has no attribute 'cache_location'
+            #   AttributeError: 'NoaoClass' object has
+            #      no attribute 'cache_location'
             # Don't see documenation saying what that should be.
             # #!response = self._request('GET',
             # #!                         f'{self.NAT_URL}/api/version',
@@ -71,7 +72,7 @@ class NoaoClass(BaseQuery):
                    f'Expected version {KNOWN_GOOD_API_VERSION} but got '
                    f'{self.api_version} from the API.')
             raise Exception(msg)
-    
+
     @class_or_instance
     def query_region(self, coordinate, radius='1'):
         self.validate_version()

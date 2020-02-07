@@ -8,7 +8,7 @@ from astropy.tests.helper import remote_data
 # Local packages
 from .. import Noao
 from . import expected as expsia
-import pytest
+# #!import pytest
 
 # performs similar tests as test_module.py, but performs
 # the actual HTTP request rather than monkeypatching them.
@@ -18,6 +18,7 @@ import pytest
 
 @remote_data
 class TestNoaoClass(object):
+
     @classmethod
     def setup_class(cls):
         cls.arch = Noao(which='voimg')

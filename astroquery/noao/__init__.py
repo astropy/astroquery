@@ -77,5 +77,6 @@ conf = Conf()
 
 from .core import Noao, NoaoClass
 
+
 __all__ = ['Noao', 'NoaoClass',
            'conf', 'Conf']
