@@ -98,7 +98,7 @@ full functionality of the `~astroquery.cds` module:
 
 * `astropy-healpix <http://astropy-healpix.readthedocs.io/en/latest/>`_
 * `regions <https://astropy-regions.readthedocs.io/en/latest/>`_
-* `mocpy <https://mocpy.readthedocs.io/en/latest/>`_ >= 0.5.2
+* `mocpy <https://cds-astro.github.io/mocpy/>`_ >= 0.5.2
 
 The following packages are optional dependencies and are required for the
 full functionality of the `~astroquery.mast` module:

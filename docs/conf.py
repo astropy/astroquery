@@ -78,7 +78,7 @@ intersphinx_mapping.update({
     'requests': ('https://requests.kennethreitz.org/en/stable/', None),
     'pyregion': ('http://pyregion.readthedocs.io/en/stable/', None),
     'regions': ('http://astropy-regions.readthedocs.io/en/stable/', None),
-    'mocpy': ('https://mocpy.readthedocs.io/en/latest/', None),
+    'mocpy': ('https://cds-astro.github.io/mocpy/', None),
 })
 
 # -- Project information ------------------------------------------------------
