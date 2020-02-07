@@ -12,16 +12,27 @@ be much faster but much more limitted in what can be used in query.  """
 import requests
 import astropy.table
 # Local packages
-from astroquery.utils.class_or_instance import class_or_instance
-from astroquery.utils import async_to_sync
-import astroquery.query
+
+# 3. local imports - use relative imports
+# commonly required local imports shown below as example
+# all Query classes should inherit from BaseQuery.
+from ..query import BaseQuery
+# has common functions required by most modules
+from ..utils import commons
+# prepend_docstr is a way to copy docstrings between methods
+from ..utils import prepend_docstr_nosections
+# async_to_sync generates the relevant query tools from _async methods
+from ..utils import async_to_sync
+from ..utils.class_or_instance import class_or_instance
+# import configurable items declared in __init__.py
 from . import conf
+
 
 __all__ = ['Noao', 'NoaoClass']  # specifies what to import
 
 
 @async_to_sync
-class NoaoClass(astroquery.query.BaseQuery):
+class NoaoClass(BaseQuery):
 
     NAT_URL = conf.server
     ADS_URL = f'{NAT_URL}/api/adv_search/fasearch'

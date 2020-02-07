@@ -6,8 +6,9 @@ from astropy import units as u
 from astropy.coordinates import SkyCoord
 from astropy.tests.helper import remote_data
 # Local packages
-import astroquery.noao
-from astroquery.noao.tests import expected as expsia
+from .. import Noao
+from . import expected as expsia
+import pytest
 
 # performs similar tests as test_module.py, but performs
 # the actual HTTP request rather than monkeypatching them.
@@ -19,7 +20,7 @@ from astroquery.noao.tests import expected as expsia
 class TestNoaoClass(object):
     @classmethod
     def setup_class(cls):
-        cls.arch = astroquery.noao.Noao
+        cls.arch = Noao(which='voimg')
 
     def test_query_region_1(self):
         """Ensure query gets at least the set of files we expect.
