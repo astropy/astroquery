@@ -1,23 +1,13 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 # Python library
-from unittest import TestCase
+from __future__ import print_function
 # External packages
+import pytest
 from astropy import units as u
 from astropy.coordinates import SkyCoord
+from astropy.tests.helper import remote_data
 # Local packages
 import astroquery.noao
-import astroquery.noao.tests.expected
+from astroquery.noao.tests import expected as expsia
 
 
-class NoaoSia(TestCase):
-    def setUp(self):
-        self.arch = astroquery.noao.Noao
-
-    def query_region_1(self):
-        c = SkyCoord(ra=10.625*u.degree, dec=41.2*u.degree, frame='icrs')
-        r = self.arch.query_region(c, radius='0.1')
-        actual = r.pformat_all(max_lines=5)
-        self.assertEqual(actual, expected.query_region_1)
-
-
-if __name__ == '__main__':
-    unittest.main()
