@@ -30,9 +30,9 @@ class NoaoClass(astroquery.query.BaseQuery):
     def __init__(self, which='voimg'):
         """ set some parameters """
         # Change following to match current https://<root>/api/version
-        KNOWN_GOOD_API_VERSION = 2.0  
-        #!response = self._request('GET', f'{self.NAT_URL}/api/version',
-        #!                         cache=False)
+        KNOWN_GOOD_API_VERSION = 2.0
+        # #!response = self._request('GET', f'{self.NAT_URL}/api/version',
+        # #!                         cache=False)
         response = requests.get(f'{self.NAT_URL}/api/version')
         api_version = float(response.content)
         if (int(api_version) - int(KNOWN_GOOD_API_VERSION)) >= 1:
@@ -42,7 +42,7 @@ class NoaoClass(astroquery.query.BaseQuery):
                    f'Expected version {KNOWN_GOOD_API_VERSION} but got '
                    f'{api_version} from the API.')
             raise Exception(msg)
-        
+
         if which == 'vohdu':
             self.url = f'{self.NAT_URL}/api/sia/vohdu'
         if which == 'voimg':
@@ -52,13 +52,13 @@ class NoaoClass(astroquery.query.BaseQuery):
 
     @class_or_instance
     def query_region(self, coordinate, radius='1'):
-        ra,dec = coordinate.to_string('decimal').split()
+        ra, dec = coordinate.to_string('decimal').split()
         size = radius
         url = f'{self.url}?POS={ra},{dec}&SIZE={size}&format=json'
         response = requests.get(url)
-        #!response = self._request('GET', url)
+        # #!response = self._request('GET', url)
         return astropy.table.Table(data=response.json())
-        
+
     def _parse_result(self, result):
         # do something, probably with regexp's
         return astropy.table.Table(tabular_data)
@@ -67,5 +67,5 @@ class NoaoClass(astroquery.query.BaseQuery):
         # convert arguments to a valid requests payload
         return dict
 
-    
+
 Noao = NoaoClass()
