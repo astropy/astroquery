@@ -31,8 +31,10 @@ class NoaoClass(astroquery.query.BaseQuery):
         """ set some parameters """
         # Change following to match current https://<root>/api/version
         KNOWN_GOOD_API_VERSION = 2.0  
-
-        api_version = float(requests.get(f'{self.NAT_URL}/api/version').content)
+        #!response = self._request('GET', f'{self.NAT_URL}/api/version',
+        #!                         cache=False)
+        response = requests.get(f'{self.NAT_URL}/api/version')
+        api_version = float(response.content)
         if (int(api_version) - int(KNOWN_GOOD_API_VERSION)) >= 1:
             msg = (f'The astroquery.noao module is expecting an older version '
                    f'of the {self.NAT_URL} API services.  '
@@ -54,6 +56,7 @@ class NoaoClass(astroquery.query.BaseQuery):
         size = radius
         url = f'{self.url}?POS={ra},{dec}&SIZE={size}&format=json'
         response = requests.get(url)
+        #!response = self._request('GET', url)
         return astropy.table.Table(data=response.json())
         
     def _parse_result(self, result):
