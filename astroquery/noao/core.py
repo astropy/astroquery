@@ -40,19 +40,7 @@ class NoaoClass(BaseQuery):
 
     def __init__(self, which='voimg'):
         """ set some parameters """
-        # Change following to match current https://<root>/api/version
-        KNOWN_GOOD_API_VERSION = 2.0
-        # #!response = self._request('GET', f'{self.NAT_URL}/api/version',
-        # #!                         cache=False)
-        response = requests.get(f'{self.NAT_URL}/api/version')
-        api_version = float(response.content)
-        if (int(api_version) - int(KNOWN_GOOD_API_VERSION)) >= 1:
-            msg = (f'The astroquery.noao module is expecting an older version '
-                   f'of the {self.NAT_URL} API services.  '
-                   f'Please upgrade to latest astroquery.  '
-                   f'Expected version {KNOWN_GOOD_API_VERSION} but got '
-                   f'{api_version} from the API.')
-            raise Exception(msg)
+        self._api_version = None
 
         if which == 'vohdu':
             self.url = f'{self.NAT_URL}/api/sia/vohdu'
@@ -61,8 +49,32 @@ class NoaoClass(BaseQuery):
         else:
             self.url = f'{self.NAT_URL}/api/sia/voimg'
 
+    @property
+    def api_version(self):
+        if self._api_version == None:
+            response = requests.get(f'{self.NAT_URL}/api/version')
+            # Following gets error:
+            #   AttributeError: 'NoaoClass' object has no attribute 'cache_location'
+            # Don't see documenation saying what that should be.
+            # #!response = self._request('GET',
+            # #!                         f'{self.NAT_URL}/api/version',
+            # #!                         cache=False)
+            self._api_version = float(response.content)
+        return self._api_version
+
+    def validate_version(self):
+        KNOWN_GOOD_API_VERSION = 2.0
+        if (int(self.api_version) - int(KNOWN_GOOD_API_VERSION)) >= 1:
+            msg = (f'The astroquery.noao module is expecting an older version '
+                   f'of the {self.NAT_URL} API services.  '
+                   f'Please upgrade to latest astroquery.  '
+                   f'Expected version {KNOWN_GOOD_API_VERSION} but got '
+                   f'{self.api_version} from the API.')
+            raise Exception(msg)
+    
     @class_or_instance
     def query_region(self, coordinate, radius='1'):
+        self.validate_version()
         ra, dec = coordinate.to_string('decimal').split()
         size = radius
         url = f'{self.url}?POS={ra},{dec}&SIZE={size}&format=json'
