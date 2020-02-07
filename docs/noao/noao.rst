@@ -9,3 +9,10 @@ NOAO Queries (`astroquery.noao`)
 Getting started
 ===============
 
+
+Reference/API
+=============
+
+.. automodapi:: astroquery.noao
+    :no-inheritance-diagram:
+
