@@ -12,6 +12,15 @@ Service fixes and enhancements
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
 
+Service Fixes and Enhancements
+------------------------------
+
+gaia
+^^^^
+
+- Allow for setting row limits in query submissions through class attribute. [#1641]
+
+
 
 0.4 (2020-01-24)
 ================
