@@ -324,11 +324,12 @@ class AlmaClass(QueryWithLogin):
         log.debug("Request ID: {0}".format(request_id))
 
         # Submit a request for the specific request ID identified above
-        submission_url = urljoin(self._get_dataarchive_url(),
-                                 url_helpers.join('rh/submission', request_id))
+        # this is the "new version" as of feb 12, 2020
+        submission_url = urljoin(self._get_dataarchive_url(), 'rh/submission')
         log.debug("Submission URL: {0}".format(submission_url))
         self._staging_log['submission_url'] = submission_url
-        staging_submission = self._request('GET', submission_url, cache=True)
+        staging_submission = self._request('POST', submission_url,
+                                           data=payload, cache=True)
         self._staging_log['staging_submission'] = staging_submission
         staging_submission.raise_for_status()
 
