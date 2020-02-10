@@ -12,14 +12,12 @@ import warnings
 import json
 import time
 import os
-import keyring
 import threading
 import uuid
 
 import numpy as np
 
 from requests import HTTPError
-from getpass import getpass
 
 import astropy.units as u
 import astropy.coordinates as coord
@@ -40,8 +38,9 @@ from ..exceptions import (TimeoutError, InvalidQueryError, RemoteServiceError,
                           ResolverError, MaxResultsWarning,
                           NoResultsWarning, InputWarning, AuthenticationWarning)
 
-from . import conf
-from . import fpl
+from . import conf, fpl
+
+from .auth import MastAuth
 
 
 __all__ = ['Observations', 'ObservationsClass',
@@ -286,12 +285,13 @@ class MastClass(QueryWithLogin):
         self._column_configs = dict()
         self._current_service = None
 
-        self._SESSION_INFO_URL = conf.server + "/whoami"
         self._MAST_DOWNLOAD_URL = conf.server + "/api/v0.1/Download/file"
         self._MAST_BUNDLE_URL = conf.server + "/api/v0.1/Download/bundle"
 
         if mast_token:
-            self.login(token=mast_token)
+            self._auth_obj = MastAuth(self._session, mast_token)
+        else:
+            self._auth_obj = MastAuth(self._session)
 
     def _login(self, token=None, store_token=False, reenter_token=False):  # pragma: no cover
         """
@@ -314,37 +314,8 @@ class MastClass(QueryWithLogin):
             This is the way to overwrite an already stored password on the keyring.
         """
 
-        auth_link = (conf.server.replace("mast", "auth.mast") +
-                     "/token?suggested_name=Astroquery&suggested_scope=mast:exclusive_access")
-
-        if token is None and "MAST_API_TOKEN" in os.environ:
-            token = os.environ["MAST_API_TOKEN"]
-
-        if token is None:
-            token = keyring.get_password("astroquery:mast.stsci.edu.token", "masttoken")
-
-        if token is None or reenter_token:
-            info_msg = "If you do not have an API token already, visit the following link to create one: "
-            log.info(info_msg + auth_link)
-            token = getpass("Enter MAST API Token: ")
-
-        # store token if desired
-        if store_token:
-            keyring.set_password("astroquery:mast.stsci.edu.token", "masttoken", token)
-
-        self._session.headers["Accept"] = "application/json"
-        self._session.cookies["mast_token"] = token
-        info = self.session_info(verbose=False)
-
-        if not info["anon"]:
-            log.info("MAST API token accepted, welcome {}".format(info["attrib"].get("display_name")))
-        else:
-            warn_msg = ("MAST API token invalid!\n"
-                        "To make create a new API token visit to following link: " +
-                        auth_link)
-            warnings.warn(warn_msg, AuthenticationWarning)
-
-        return not info["anon"]
+        return self._auth_obj.login(token, store_token, reenter_token)
+        
 
     @deprecated(since="v0.3.9", message=("The get_token function is deprecated, "
                                          "session token is now the token used for login."))
@@ -379,21 +350,7 @@ class MastClass(QueryWithLogin):
         elif (silent is None) and (verbose is None):
             verbose = True
 
-        # get user information
-        self._session.headers["Accept"] = "application/json"
-        response = self._session.request("GET", self._SESSION_INFO_URL)
-
-        info_dict = response.json()
-
-        if verbose:
-            for key, value in info_dict.items():
-                if isinstance(value, dict):
-                    for subkey, subval in value.items():
-                        print("{}.{}: {}".format(key, subkey, subval))
-                else:
-                    print("{}: {}".format((key, value)))
-
-        return info_dict
+        return self._auth_obj.session_info(verbose)
 
     def _fabric_request(self, method, url, params=None, data=None, headers=None,
                  files=None, stream=False, auth=None, cache=False):
@@ -620,7 +577,7 @@ class MastClass(QueryWithLogin):
         """
         Log out of current MAST session.
         """
-        self._session.cookies.clear_session_cookies()
+        self._auth_obj.logout()
         self._authenticated = False
 
     @class_or_instance
