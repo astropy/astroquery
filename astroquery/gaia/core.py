@@ -32,6 +32,7 @@ class GaiaClass(TapPlus):
     MAIN_GAIA_TABLE = conf.MAIN_GAIA_TABLE
     MAIN_GAIA_TABLE_RA = conf.MAIN_GAIA_TABLE_RA
     MAIN_GAIA_TABLE_DEC = conf.MAIN_GAIA_TABLE_DEC
+    ROW_LIMIT = conf.ROW_LIMIT
 
     def __init__(self, tap_plus_conn_handler=None, datalink_handler=None):
         super(GaiaClass, self).__init__(url="https://gea.esac.esa.int/",
@@ -182,6 +183,7 @@ class GaiaClass(TapPlus):
 
             query = """
                     SELECT
+                      {row_limit}
                       DISTANCE(
                         POINT('ICRS', {ra_column}, {dec_column}),
                         POINT('ICRS', {ra}, {dec})
@@ -203,6 +205,7 @@ class GaiaClass(TapPlus):
                     ORDER BY
                       dist ASC
                     """.format(**{
+                        'row_limit': "TOP {0}".format(self.ROW_LIMIT) if self.ROW_LIMIT > 0 else "",
                         'ra_column': self.MAIN_GAIA_TABLE_RA,
                         'dec_column': self.MAIN_GAIA_TABLE_DEC,
                         'columns': columns, 'table_name': self.MAIN_GAIA_TABLE,
@@ -329,6 +332,7 @@ class GaiaClass(TapPlus):
 
         query = """
                 SELECT
+                  {row_limit}
                   {columns},
                   DISTANCE(
                     POINT('ICRS', {ra_column}, {dec_column}),
@@ -345,6 +349,7 @@ class GaiaClass(TapPlus):
                   dist ASC
                 """.format(**{
                     'ra_column': ra_column_name,
+                    'row_limit': "TOP {0}".format(self.ROW_LIMIT) if self.ROW_LIMIT > 0 else "",
                     'dec_column': dec_column_name,
                     'columns': columns, 'ra': ra,
                     'dec': dec, 'radius': radiusDeg,
