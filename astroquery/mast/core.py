@@ -293,7 +293,7 @@ class MastClass(QueryWithLogin):
         else:
             self._auth_obj = MastAuth(self._session)
 
-    def _login(self, token=None, store_token=False, reenter_token=False):  # pragma: no cover
+    def _login(self, token=None, store_token=False, reenter_token=False):
         """
         Log into the MAST portal.
 
@@ -573,7 +573,7 @@ class MastClass(QueryWithLogin):
             warnings.warn("Query returned no results.", NoResultsWarning)
         return all_results
 
-    def logout(self):  # pragma: no cover
+    def logout(self):
         """
         Log out of current MAST session.
         """

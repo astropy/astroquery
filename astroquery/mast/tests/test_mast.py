@@ -62,18 +62,24 @@ def patch_post(request):
         mp = request.getfixturevalue("monkeypatch")
     except AttributeError:  # pytest < 3
         mp = request.getfuncargvalue("monkeypatch")
+        
     mp.setattr(mast.Mast, '_request', post_mockreturn)
     mp.setattr(mast.Mast, '_fabric_request', post_mockreturn)
-    mp.setattr(mast.Observations, '_request', post_mockreturn)
-    mp.setattr(mast.Catalogs, '_request', post_mockreturn)
-    mp.setattr(mast.Catalogs, '_fabric_request', post_mockreturn)
     mp.setattr(mast.Mast, '_download_file', download_mockreturn)
+    #mp.setattr(mast.Mast, 'session_info', session_info_mockreturn)
+    mp.setattr(mast.Mast._auth_obj, 'session_info', session_info_mockreturn)
+
+    mp.setattr(mast.Observations, '_request', post_mockreturn)
     mp.setattr(mast.Observations, '_download_file', download_mockreturn)
-    mp.setattr(mast.Catalogs, '_download_file', download_mockreturn)
-    mp.setattr(mast.Mast, 'session_info', session_info_mockreturn)
     mp.setattr(mast.Observations, 'session_info', session_info_mockreturn)
+
+    mp.setattr(mast.Catalogs, '_request', post_mockreturn)
+    mp.setattr(mast.Catalogs, '_fabric_request', post_mockreturn) 
+    mp.setattr(mast.Catalogs, '_download_file', download_mockreturn)
+
     mp.setattr(mast.Tesscut, "_request", tesscut_get_mockreturn)
     mp.setattr(mast.Tesscut, '_download_file', tess_download_mockreturn)
+
     return mp
 
 
@@ -111,14 +117,20 @@ def download_mockreturn(*args, **kwargs):
 
 
 def session_info_mockreturn(silent=False):
-    anon_session = {'eppn': '',
-                   'ezid': 'anonymous',
-                   'attrib': {},
-                   'anon': True,
-                   'scopes': [],
-                   'session': None,
-                   'token': None}
-    return anon_session
+    test_session = {'eppn': 'alice@stsci.edu',
+                    'ezid': 'alice',
+                    'attrib': {'uuid': '2913e6f7-e863-4f94-9416-a6af27258ba7',
+                               'first_name': 'A.',
+                               'last_name': 'User',
+                               'display_name': 'A. User',
+                               'internal': '0',
+                               'email': 'alice@gmail.com',
+                               'Jwstcalengdataaccess': 'false'},
+                    'anon': False,
+                    'scopes': ['mast:user:info', 'mast:exclusive_access'],
+                    'session': None,
+                    'token': '56a9cf3d...'}
+    return test_session
 
 
 def tesscut_get_mockreturn(method="GET", url=None, data=None, timeout=10, **kwargs):
@@ -173,6 +185,24 @@ def test_mast_service_request(patch_post):
 def test_resolve_object(patch_post):
     m103_loc = mast.Mast.resolve_object("M103")
     assert m103_loc.separation(SkyCoord("23.34086 60.658", unit='deg')).value == 0
+
+def test_login_logout(patch_post):
+    test_token = "56a9cf3df4c04052atest43feb87f282"
+    
+    mast.Mast.login(token=test_token)
+    assert mast.Mast._authenticated == True
+    assert mast.Mast._session.cookies.get("mast_token") == test_token
+
+    mast.Mast.logout()
+    assert mast.Mast._authenticated == False
+    assert not mast.Mast._session.cookies.get("mast_token")
+
+def test_session_info(patch_post):
+    info = mast.Mast.session_info(verbose=False)
+    assert isinstance(info, dict)
+    assert info['ezid'] == 'alice'
+
+
 
 
 ###########################

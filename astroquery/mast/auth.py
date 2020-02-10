@@ -34,7 +34,7 @@ class MastAuth(object):
             self.login(token)
 
     
-    def login(self, token=None, store_token=False, reenter_token=False):  # pragma: no cover
+    def login(self, token=None, store_token=False, reenter_token=False):
         """
         Log session into the MAST portal.
 
