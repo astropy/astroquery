@@ -239,14 +239,24 @@ class AlmaClass(QueryWithLogin):
         Obtain table of ALMA files
         """
         tables = []
-        for uid in uids:
+        for uu in uids:
+            uid = clean_uid(uu)
             jdata = self._request('GET', f'{self.dataarchive_url}/rh/data/expand/{uid}').json()
+            if jdata['type'] != 'PROJECT':
+                log.error(f"Skipped uid {uu} because it is not a project and"
+                          "lacks the appropriate metadata; it is a "
+                          f"{jdata['type']}")
+                continue
             table = uid_json_to_table(jdata)
             table['sizeInBytes'].unit = u.B
             table.rename_column('sizeInBytes', 'size')
             table.add_column(Column(data=[f'{self.dataarchive_url}/dataPortal/{name}'
                                           for name in table['name']],
                                     name='URL'))
+            tables.append(table)
+
+        if len(tables) == 0:
+            raise ValueError("No valid UIDs supplied.")
 
         table = table_vstack(tables)
 
@@ -983,13 +993,20 @@ def filter_printable(s):
 
 def uid_json_to_table(jdata):
     rows = []
-    for sgous in jdata['children']:
-        for gous in sgous['children']:
-            for mous in gous['children']:
-                for lowest in mous['children']:
-                    if lowest['sizeInBytes'] > 0:
-                        rows.append(lowest)
-    keys = lowest.keys()
+
+    def flatten_jdata(jj):
+        if isinstance(jj, list):
+            for kk in jj:
+                flatten_jdata(kk)
+        elif len(jj['children']) > 0:
+            flatten_jdata(jj['children'])
+        else:
+            rows.append(jj)
+
+    flatten_jdata(jdata)
+
+    keys = rows[-1].keys()
+
     columns = [Column(data=[row[key] for row in rows], name=key)
                for key in keys if key not in ('children', 'allMousUids')]
 
