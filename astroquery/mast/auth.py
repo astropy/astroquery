@@ -3,7 +3,7 @@
 MAST Authentication
 ===================
 
-This file contains functionality related to 
+This file contains functionality related to
 authenticating MAST users.
 """
 
@@ -17,6 +17,7 @@ from astropy.logger import log
 
 from . import conf
 
+
 class MastAuth(object):
     """
     MAST authentication class, handles MAST authentication token.
@@ -27,13 +28,12 @@ class MastAuth(object):
         self.SESSION_INFO_URL = conf.server + "/whoami"
         self.AUTH_URL = (conf.server.replace("mast", "auth.mast") +
                          "/token?suggested_name=Astroquery&suggested_scope=mast:exclusive_access")
-        
+
         self.session = session
-  
+
         if token:
             self.login(token)
 
-    
     def login(self, token=None, store_token=False, reenter_token=False):
         """
         Log session into the MAST portal.
@@ -119,5 +119,3 @@ class MastAuth(object):
                     print("{}: {}".format(key, value))
 
         return info
-
-                    

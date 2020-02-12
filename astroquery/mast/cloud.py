@@ -25,7 +25,7 @@ class CloudAccess(object):  # pragma:no-cover
 
     def __init__(self, provider="AWS", profile=None, verbose=False):
         """
-        Initialize class to enable downloading public files from S3 
+        Initialize class to enable downloading public files from S3
         instead of STScI servers.
         Requires the boto3 and botocore libraries to function.
 
@@ -70,11 +70,11 @@ class CloudAccess(object):  # pragma:no-cover
         data_product : `~astropy.table.Row`
             Product to be converted into cloud data uri.
         include_bucket : bool
-            Default True. When false returns the path of the file relative to the 
-            top level cloud storage location. 
+            Default True. When false returns the path of the file relative to the
+            top level cloud storage location.
             Must be set to False when using the full_url argument.
         full_url : bool
-            Default False. Return an HTTP fetchable url instead of a cloud uri. 
+            Default False. Return an HTTP fetchable url instead of a cloud uri.
             Must set include_bucket to False to use this option.
 
         Returns
@@ -105,7 +105,6 @@ class CloudAccess(object):  # pragma:no-cover
         warnings.warn("Unable to locate file {}.".format(data_product['productFilename']), NoResultsWarning)
         return None
 
-
     def get_cloud_uri_list(self, data_products, include_bucket=True, full_url=False):
         """
         Takes an `~astropy.table.Table` of data products and returns the associated cloud data uris.
@@ -115,11 +114,11 @@ class CloudAccess(object):  # pragma:no-cover
         data_products : `~astropy.table.Table`
             Table containing products to be converted into cloud data uris.
         include_bucket : bool
-            Default True. When false returns the path of the file relative to the 
-            top level cloud storage location. 
+            Default True. When false returns the path of the file relative to the
+            top level cloud storage location.
             Must be set to False when using the full_url argument.
         full_url : bool
-            Default False. Return an HTTP fetchable url instead of a cloud uri. 
+            Default False. Return an HTTP fetchable url instead of a cloud uri.
             Must set include_bucket to False to use this option.
 
         Returns
@@ -158,7 +157,7 @@ class CloudAccess(object):  # pragma:no-cover
         # Ask the webserver (in this case S3) what the expected content length is and use that.
         info_lookup = s3_client.head_object(Bucket=self.pubdata_bucket, Key=bucket_path, RequestPayer='requester')
         length = info_lookup["ContentLength"]
-        
+
         if cache and os.path.exists(local_path):
             if length is not None:
                 statinfo = os.stat(local_path)
@@ -172,7 +171,7 @@ class CloudAccess(object):  # pragma:no-cover
                     log.info("Found cached file {0} with expected size {1}."
                              .format(local_path, statinfo.st_size))
                     return
-  
+
         with ProgressBarOrSpinner(length, ('Downloading URL s3://{0}/{1} to {2} ...'.format(
                 self.pubdata_bucket, bucket_path, local_path))) as pb:
 

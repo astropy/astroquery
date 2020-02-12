@@ -30,6 +30,7 @@ jplhorizons
 - Fix for changes in HORIZONS return results after their 2020 Feb 12
   update. [#1650]
 
+
 alma
 ^^^^
 
@@ -40,6 +41,11 @@ alma
   several columns have been added [#1644,#1665,#1683]
 - The contents of tarfiles can be shown with the ``expand_tarfiles`` keyword
   to ``stage_data`` [#1683]
+
+
+mast
+^^^^
+- Module refactor [#1645]
 
 
 Infrastructure, Utility and Other Changes and Additions

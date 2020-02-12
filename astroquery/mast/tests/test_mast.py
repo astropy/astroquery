@@ -62,11 +62,10 @@ def patch_post(request):
         mp = request.getfixturevalue("monkeypatch")
     except AttributeError:  # pytest < 3
         mp = request.getfuncargvalue("monkeypatch")
-        
+
     mp.setattr(mast.Mast, '_request', post_mockreturn)
     mp.setattr(mast.Mast, '_fabric_request', post_mockreturn)
     mp.setattr(mast.Mast, '_download_file', download_mockreturn)
-    #mp.setattr(mast.Mast, 'session_info', session_info_mockreturn)
     mp.setattr(mast.Mast._auth_obj, 'session_info', session_info_mockreturn)
 
     mp.setattr(mast.Observations, '_request', post_mockreturn)
@@ -74,7 +73,7 @@ def patch_post(request):
     mp.setattr(mast.Observations, 'session_info', session_info_mockreturn)
 
     mp.setattr(mast.Catalogs, '_request', post_mockreturn)
-    mp.setattr(mast.Catalogs, '_fabric_request', post_mockreturn) 
+    mp.setattr(mast.Catalogs, '_fabric_request', post_mockreturn)
     mp.setattr(mast.Catalogs, '_download_file', download_mockreturn)
 
     mp.setattr(mast.Tesscut, "_request", tesscut_get_mockreturn)
@@ -186,16 +185,18 @@ def test_resolve_object(patch_post):
     m103_loc = mast.Mast.resolve_object("M103")
     assert m103_loc.separation(SkyCoord("23.34086 60.658", unit='deg')).value == 0
 
+
 def test_login_logout(patch_post):
     test_token = "56a9cf3df4c04052atest43feb87f282"
-    
+
     mast.Mast.login(token=test_token)
-    assert mast.Mast._authenticated == True
+    assert mast.Mast._authenticated is True
     assert mast.Mast._session.cookies.get("mast_token") == test_token
 
     mast.Mast.logout()
-    assert mast.Mast._authenticated == False
+    assert mast.Mast._authenticated is False
     assert not mast.Mast._session.cookies.get("mast_token")
+
 
 def test_session_info(patch_post):
     info = mast.Mast.session_info(verbose=False)

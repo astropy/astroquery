@@ -1544,11 +1544,11 @@ class ObservationsClass(MastClass):
         data_products : `~astropy.table.Table`
             Table containing products to be converted into cloud data uris.
         include_bucket : bool
-            Default True. When false returns the path of the file relative to the 
-            top level cloud storage location. 
+            Default True. When false returns the path of the file relative to the
+            top level cloud storage location.
             Must be set to False when using the full_url argument.
         full_url : bool
-            Default False. Return an HTTP fetchable url instead of a cloud uri. 
+            Default False. Return an HTTP fetchable url instead of a cloud uri.
             Must set include_bucket to False to use this option.
 
         Returns
@@ -1579,11 +1579,11 @@ class ObservationsClass(MastClass):
         data_product : `~astropy.table.Row`
             Product to be converted into cloud data uri.
         include_bucket : bool
-            Default True. When false returns the path of the file relative to the 
-            top level cloud storage location. 
+            Default True. When false returns the path of the file relative to the
+            top level cloud storage location.
             Must be set to False when using the full_url argument.
         full_url : bool
-            Default False. Return an HTTP fetchable url instead of a cloud uri. 
+            Default False. Return an HTTP fetchable url instead of a cloud uri.
             Must set include_bucket to False to use this option.
 
         Returns
