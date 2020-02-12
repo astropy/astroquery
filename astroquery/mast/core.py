@@ -12,7 +12,6 @@ import warnings
 import json
 import time
 import os
-import threading
 import uuid
 
 import numpy as np
@@ -39,8 +38,8 @@ from ..exceptions import (TimeoutError, InvalidQueryError, RemoteServiceError,
                           NoResultsWarning, InputWarning, AuthenticationWarning)
 
 from . import conf, fpl
-
 from .auth import MastAuth
+from .cloud import CloudAccess
 
 
 __all__ = ['Observations', 'ObservationsClass',
@@ -1001,10 +1000,7 @@ class ObservationsClass(MastClass):
     def __init__(self, *args, **kwargs):
 
         super(ObservationsClass, self).__init__(*args, **kwargs)
-
-        self._boto3 = None
-        self._botocore = None
-        self._pubdata_bucket = "stpubdata"
+        self._cloud_connection = None
 
     def list_missions(self):
         """
@@ -1523,21 +1519,8 @@ class ObservationsClass(MastClass):
             Default True.
             Logger to display extra info and warning.
         """
-        import boto3
-        import botocore
 
-        if profile is not None:
-            self._boto3 = boto3.Session(profile_name=profile)
-        else:
-            self._boto3 = boto3
-        self._botocore = botocore
-
-        if verbose:
-            log.info("Using the S3 STScI public dataset")
-            log.warning("Your AWS account will be charged for access to the S3 bucket")
-            log.info("See Request Pricing in https://aws.amazon.com/s3/pricing/ for details")
-            log.info("If you have not configured boto3, follow the instructions here: "
-                     "https://boto3.readthedocs.io/en/latest/guide/configuration.html")
+        self._cloud_connection = CloudAccess(provider, profile, verbose)
 
     @deprecated(since="v0.3.9", alternative="disable_cloud_dataset")
     def disable_s3_hst_dataset(self):
@@ -1547,8 +1530,7 @@ class ObservationsClass(MastClass):
         """
         Disables downloading public files from S3 instead of MAST
         """
-        self._boto3 = None
-        self._botocore = None
+        self._cloud_connection = None
 
     @deprecated(since="v0.3.9", alternative="get_cloud_uris")
     def get_hst_s3_uris(self, data_products, include_bucket=True, full_url=False):
@@ -1574,7 +1556,10 @@ class ObservationsClass(MastClass):
             if data_products includes products not found in the cloud.
         """
 
-        return [self.get_cloud_uri(data_product, include_bucket, full_url) for data_product in data_products]
+        if self._cloud_connection is None:
+            raise AttributeError("Must enable s3 dataset before attempting to query the s3 information")
+
+        return self._cloud_connection.get_uri_list(data_products, include_bucket, full_url)
 
     @deprecated(since="v0.3.9", alternative="get_cloud_uri")
     def get_hst_s3_uri(self, data_product, include_bucket=True, full_url=False):
@@ -1603,99 +1588,10 @@ class ObservationsClass(MastClass):
             found in the cloud, None is returned.
         """
 
-        if self._boto3 is None:
-            raise AtrributeError("Must enable s3 dataset before attempting to query the s3 information")
+        if self._cloud_connection is None:
+            raise AttributeError("Must enable s3 dataset before attempting to query the s3 information")
 
-        # This is a cheap operation and does not perform any actual work yet
-        s3_client = self._boto3.client('s3')
-
-        paths = fpl.paths(data_product)
-        if paths is None:
-            raise Exception("Unsupported mission {}".format(data_product['obs_collection']))
-
-        for path in paths:
-            try:
-                s3_client.head_object(Bucket=self._pubdata_bucket, Key=path, RequestPayer='requester')
-                if include_bucket:
-                    path = "s3://{}/{}".format(self._pubdata_bucket, path)
-                elif full_url:
-                    path = "http://s3.amazonaws.com/{}/{}".format(self._pubdata_bucket, path)
-                return path
-            except self._botocore.exceptions.ClientError as e:
-                if e.response['Error']['Code'] != "404":
-                    raise
-
-        warnings.warn("Unable to locate file {}.".format(data_product['productFilename']), NoResultsWarning)
-        return None
-
-    def _download_from_cloud(self, data_product, local_path, cache=True):
-        """
-        Takes a data product in the form of an  `~astropy.table.Row` and downloads it from the cloud into
-        the given directory.
-
-        Parameters
-        ----------
-        data_product :  `~astropy.table.Row`
-            Product to download.
-        local_path : str
-            Directory in which files will be downloaded.
-        cache : bool
-            Default is True. If file is found on disc it will not be downloaded again.
-        """
-        # The following is a mishmash of BaseQuery._download_file and s3 access through boto
-
-        self._pubdata_bucket = 'stpubdata'
-
-        # This is a cheap operation and does not perform any actual work yet
-        s3 = self._boto3.resource('s3')
-        s3_client = self._boto3.client('s3')
-        bkt = s3.Bucket(self._pubdata_bucket)
-
-        bucket_path = self.get_cloud_uri(data_product, False)
-        info_lookup = s3_client.head_object(Bucket=self._pubdata_bucket, Key=bucket_path, RequestPayer='requester')
-
-        # Unfortunately, we can't use the reported file size in the reported product.  STScI's backing
-        # archive database (CAOM) is frequently out of date and in many cases omits the required information.
-        # length = data_product["size"]
-        # Instead we ask the webserver (in this case S3) what the expected content length is and use that.
-        length = info_lookup["ContentLength"]
-
-        if cache and os.path.exists(local_path):
-            if length is not None:
-                statinfo = os.stat(local_path)
-                if statinfo.st_size != length:
-                    log.warning("Found cached file {0} with size {1} that is "
-                                "different from expected size {2}"
-                                .format(local_path,
-                                        statinfo.st_size,
-                                        length))
-                else:
-                    log.info("Found cached file {0} with expected size {1}."
-                             .format(local_path, statinfo.st_size))
-                    return
-
-        with ProgressBarOrSpinner(length, ('Downloading URL s3://{0}/{1} to {2} ...'.format(
-                self._pubdata_bucket, bucket_path, local_path))) as pb:
-
-            # Bytes read tracks how much data has been received so far
-            # This variable will be updated in multiple threads below
-            global bytes_read
-            bytes_read = 0
-
-            progress_lock = threading.Lock()
-
-            def progress_callback(numbytes):
-                # Boto3 calls this from multiple threads pulling the data from S3
-                global bytes_read
-
-                # This callback can be called in multiple threads
-                # Access to updating the console needs to be locked
-                with progress_lock:
-                    bytes_read += numbytes
-                    pb.update(bytes_read)
-
-            bkt.download_file(bucket_path, local_path, ExtraArgs={"RequestPayer": "requester"},
-                              Callback=progress_callback)
+        return self._cloud_connection.get_uri(data_product, include_bucket, full_url)
 
     def _download_files(self, products, base_dir, cache=True, cloud_only=False,):
         """
@@ -1735,9 +1631,9 @@ class ObservationsClass(MastClass):
             url = None
 
             try:
-                if self._boto3 is not None and fpl.has_path(data_product):
+                if self._cloud_connection is not None and fpl.has_path(data_product):
                     try:
-                        self._download_from_cloud(data_product, local_path, cache)
+                        self._cloud_connection.download_file(data_product, local_path, cache)
                     except Exception as ex:
                         log.exception("Error pulling from S3 bucket: {}".format(ex))
                         if cloud_only:
