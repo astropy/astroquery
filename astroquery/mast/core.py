@@ -314,7 +314,6 @@ class MastClass(QueryWithLogin):
         """
 
         return self._auth_obj.login(token, store_token, reenter_token)
-        
 
     @deprecated(since="v0.3.9", message=("The get_token function is deprecated, "
                                          "session token is now the token used for login."))
@@ -1545,9 +1544,12 @@ class ObservationsClass(MastClass):
         data_products : `~astropy.table.Table`
             Table containing products to be converted into cloud data uris.
         include_bucket : bool
-            When either to include the cloud bucket prefix in the result or not.
+            Default True. When false returns the path of the file relative to the 
+            top level cloud storage location. 
+            Must be set to False when using the full_url argument.
         full_url : bool
-            Return a HTTP fetchable url instead of a uri.
+            Default False. Return an HTTP fetchable url instead of a cloud uri. 
+            Must set include_bucket to False to use this option.
 
         Returns
         -------
@@ -1559,7 +1561,7 @@ class ObservationsClass(MastClass):
         if self._cloud_connection is None:
             raise AttributeError("Must enable s3 dataset before attempting to query the s3 information")
 
-        return self._cloud_connection.get_uri_list(data_products, include_bucket, full_url)
+        return self._cloud_connection.get_cloud_uri_list(data_products, include_bucket, full_url)
 
     @deprecated(since="v0.3.9", alternative="get_cloud_uri")
     def get_hst_s3_uri(self, data_product, include_bucket=True, full_url=False):
@@ -1577,9 +1579,12 @@ class ObservationsClass(MastClass):
         data_product : `~astropy.table.Row`
             Product to be converted into cloud data uri.
         include_bucket : bool
-            When either to include the cloud bucket prefix in the result or not.
+            Default True. When false returns the path of the file relative to the 
+            top level cloud storage location. 
+            Must be set to False when using the full_url argument.
         full_url : bool
-            Return a HTTP fetchable url instead of a uri.
+            Default False. Return an HTTP fetchable url instead of a cloud uri. 
+            Must set include_bucket to False to use this option.
 
         Returns
         -------
@@ -1591,7 +1596,7 @@ class ObservationsClass(MastClass):
         if self._cloud_connection is None:
             raise AttributeError("Must enable s3 dataset before attempting to query the s3 information")
 
-        return self._cloud_connection.get_uri(data_product, include_bucket, full_url)
+        return self._cloud_connection.get_cloud_uri(data_product, include_bucket, full_url)
 
     def _download_files(self, products, base_dir, cache=True, cloud_only=False,):
         """

@@ -25,14 +25,14 @@ class CloudAccess(object):  # pragma:no-cover
 
     def __init__(self, provider="AWS", profile=None, verbose=False):
         """
-        Initialize class te enable downloading public files from S3 
+        Initialize class to enable downloading public files from S3 
         instead of STScI servers.
         Requires the boto3 and botocore libraries to function.
 
         Parameters
         ----------
         provider : str
-            Which cloud data provider to use. Currently only S3 is supported,
+            Which cloud data provider to use. Currently only AWS S3 is supported,
             so at the moment this argument is ignored.
         profile : str
             Profile to use to identify yourself to the cloud provider (usually in ~/.aws/config).
@@ -58,7 +58,7 @@ class CloudAccess(object):  # pragma:no-cover
             log.info("If you have not configured boto3, follow the instructions here: "
                      "https://boto3.readthedocs.io/en/latest/guide/configuration.html")
 
-    def get_uri(self, data_product, include_bucket=True, full_url=False):
+    def get_cloud_uri(self, data_product, include_bucket=True, full_url=False):
         """
         For a given data product, returns the associated cloud URI.
         If the product is from a mission that does not support cloud access an
@@ -70,9 +70,12 @@ class CloudAccess(object):  # pragma:no-cover
         data_product : `~astropy.table.Row`
             Product to be converted into cloud data uri.
         include_bucket : bool
-            When either to include the cloud bucket prefix in the result or not.
+            Default True. When false returns the path of the file relative to the 
+            top level cloud storage location. 
+            Must be set to False when using the full_url argument.
         full_url : bool
-            Return a HTTP fetchable url instead of a uri.
+            Default False. Return an HTTP fetchable url instead of a cloud uri. 
+            Must set include_bucket to False to use this option.
 
         Returns
         -------
@@ -103,7 +106,7 @@ class CloudAccess(object):  # pragma:no-cover
         return None
 
 
-    def get_uri_list(self, data_products, include_bucket=True, full_url=False):
+    def get_cloud_uri_list(self, data_products, include_bucket=True, full_url=False):
         """
         Takes an `~astropy.table.Table` of data products and returns the associated cloud data uris.
 
@@ -112,9 +115,12 @@ class CloudAccess(object):  # pragma:no-cover
         data_products : `~astropy.table.Table`
             Table containing products to be converted into cloud data uris.
         include_bucket : bool
-            When either to include the cloud bucket prefix in the result or not.
+            Default True. When false returns the path of the file relative to the 
+            top level cloud storage location. 
+            Must be set to False when using the full_url argument.
         full_url : bool
-            Return a HTTP fetchable url instead of a uri.
+            Default False. Return an HTTP fetchable url instead of a cloud uri. 
+            Must set include_bucket to False to use this option.
 
         Returns
         -------
@@ -135,7 +141,7 @@ class CloudAccess(object):  # pragma:no-cover
         data_product :  `~astropy.table.Row`
             Product to download.
         local_path : str
-            Directory in which files will be downloaded.
+            The local filename to which toe downloaded file will be saved.
         cache : bool
             Default is True. If file is found on disc it will not be downloaded again.
         """
