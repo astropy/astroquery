@@ -129,7 +129,7 @@ class CloudAccess(object):  # pragma:no-cover
             if data_products includes products not found in the cloud.
         """
 
-        return [self.get_uri(product, include_bucket, full_url) for product in data_products]
+        return [self.get_cloud_uri(product, include_bucket, full_url) for product in data_products]
 
     def download_file(self, data_product, local_path, cache=True):
         """
@@ -151,7 +151,7 @@ class CloudAccess(object):  # pragma:no-cover
         bkt = s3.Bucket(self.pubdata_bucket)
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            bucket_path = self.get_uri(data_product, False)
+            bucket_path = self.get_cloud_uri(data_product, False)
         if not bucket_path:
             raise Exception("Unable to locate file {}.".format(data_product['productFilename']))
 
