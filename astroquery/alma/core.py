@@ -573,7 +573,7 @@ class AlmaClass(QueryWithLogin):
         log.info("Authenticating {0} on {1} ...".format(username, auth_url))
         # Do not cache pieces of the login process
         data = {kw: root.find('input', {'name': kw})['value']
-                for kw in ('lt', '_eventId', 'execution')}
+                for kw in ('execution', '_eventId')}
         data['username'] = username
         data['password'] = password
         data['submit'] = 'LOGIN'
