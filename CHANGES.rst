@@ -8,9 +8,17 @@ New Tools and Services
 Service fixes and enhancements
 ------------------------------
 
+gaia
+^^^^
+
+- Allow for setting row limits in query submissions through class
+  attribute. [#1641]
+
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
+
+
 
 
 0.4 (2020-01-24)

@@ -30,6 +30,9 @@ class Conf(_config.ConfigNamespace):
                                             "Name of RA parameter in table")
     MAIN_GAIA_TABLE_DEC = _config.ConfigItem("dec",
                                              "Name of Dec parameter in table")
+    ROW_LIMIT = _config.ConfigItem(50,
+                                   "Number of rows to return from database "
+                                   "query (set to -1 for unlimited).")
 
 
 conf = Conf()
