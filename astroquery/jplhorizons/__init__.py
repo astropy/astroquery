@@ -92,14 +92,18 @@ class Conf(_config.ConfigNamespace):
                    'v': ('sat_vis', '---'),
                    'vis.': ('sat_vis', '---'),
                    'Ang-diam': ('ang_width', 'arcsec'),
-                   'Ob-lon': ('PDObsLon', 'deg'),
-                   'Ob-lat': ('PDObsLat', 'deg'),
-                   'Sl-lon': ('PDSunLon', 'deg'),
-                   'Sl-lat': ('PDSunLat', 'deg'),
-                   'Obsrv-lon': ('PDObsLon', 'deg'),
-                   'Obsrv-lat': ('PDObsLat', 'deg'),
-                   'Solar-lon': ('PDSunLon', 'deg'),
-                   'Solar-lat': ('PDSunLat', 'deg'),
+                   'ObsSub-LON': ('PDObsLon', 'deg'),
+                   'ObsSub-LAT': ('PDObsLat', 'deg'),
+                   'SunSub-LON': ('PDSunLon', 'deg'),
+                   'SunSub-LAT': ('PDSunLat', 'deg'),
+                   'Ob-lon': ('PDObsLon', 'deg'),  # deprecated
+                   'Ob-lat': ('PDObsLat', 'deg'),  # deprecated
+                   'Sl-lon': ('PDSunLon', 'deg'),  # deprecated
+                   'Sl-lat': ('PDSunLat', 'deg'),  # deprecated
+                   'Obsrv-lon': ('PDObsLon', 'deg'),  # deprecated
+                   'Obsrv-lat': ('PDObsLat', 'deg'),  # deprecated
+                   'Solar-lon': ('PDSunLon', 'deg'),  # deprecated
+                   'Solar-lat': ('PDSunLat', 'deg'),  # deprecated
                    'SN.ang': ('SubSol_ang', 'deg'),
                    'SN.dist': ('SubSol_dist', 'arcsec'),
                    'NP.ang': ('NPole_ang', 'deg'),

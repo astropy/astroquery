@@ -14,6 +14,12 @@ gaia
 - Allow for setting row limits in query submissions through class
   attribute. [#1641]
 
+jplhorizons
+^^^^^^^^^^^
+
+- Fix for changes in HORIZONS return results after their 2020 Feb 12
+  update. [#1650]
+
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------

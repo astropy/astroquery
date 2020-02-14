@@ -258,16 +258,16 @@ class HorizonsClass(BaseQuery):
         |                  | ``Ang-diam``)                                 |
         +------------------+-----------------------------------------------+
         | PDObsLon         | Apparent planetodetic longitude (float, deg,  |
-        |                  | ``Ob-lon``)                                   |
+        |                  | ``ObsSub-LON``)                               |
         +------------------+-----------------------------------------------+
         | PDObsLat         | Apparent planetodetic latitude  (float, deg,  |
-        |                  | ``Ob-lat``)                                   |
+        |                  | ``ObsSub-LAT``)                               |
         +------------------+-----------------------------------------------+
-        | PDSunLon         | Apparent planetodetic longitude of the Sun    |
-        |                  | (float, deg, ``Sl-lon``)                      |
+        | PDSunLon         | Subsolar planetodetic longitude (float, deg,  |
+        |                  | ``SunSub-LON``)                               |
         +------------------+-----------------------------------------------+
-        | PDSunLat         | Apparent planetodetic latitude of the Sun     |
-        |                  | (float, deg, ``Sl-lat``)                      |
+        | PDSunLat         | Subsolar planetodetic latitude  (float, deg,  |
+        |                  | ``SunSub-LAT``)                               |
         +------------------+-----------------------------------------------+
         | SubSol_ang       | Target sub-solar point position angle         |
         |                  | (float, deg, ``SN.ang``)                      |
