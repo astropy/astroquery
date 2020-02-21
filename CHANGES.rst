@@ -26,6 +26,13 @@ jplhorizons
 - Fix for changes in HORIZONS return results after their 2020 Feb 12
   update. [#1650]
 
+alma
+^^^^
+
+- A new API was deployed in late February / early March 2020, requiring a
+  refactor.  The user-facing API should remain the same, but some service
+  interruption may have occurred. [#1644]
+
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------

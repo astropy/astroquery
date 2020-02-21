@@ -237,7 +237,20 @@ class AlmaClass(QueryWithLogin):
     def stage_data(self, uids):
         """
         Obtain table of ALMA files
+
+        Parameters
+        ----------
+        uids : list or str
+            A list of valid UIDs or a single UID.
+            UIDs should have the form: 'uid://A002/X391d0b/X7b'
+
+        Returns
+        -------
+        data_file_table : Table
+            A table containing 3 columns: the UID, the file URL (for future
+            downloading), and the file size
         """
+
         tables = []
         for uu in uids:
             uid = clean_uid(uu)

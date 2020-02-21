@@ -20,6 +20,11 @@ class Conf(_config.ConfigNamespace):
          'https://beta.cadc-ccda.hia-iha.nrc-cnrc.gc.ca'],
         'The ALMA Archive mirror to use.')
 
+    debug_url = _config.ConfigItem(
+        ['https://2020feb.asa-test.alma.cl'],
+        ['https://asa.hq.eso.org:8443'],
+    )
+
     username = _config.ConfigItem(
         "",
         'Optional default username for ALMA archive.')
