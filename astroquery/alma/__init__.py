@@ -20,11 +20,13 @@ class Conf(_config.ConfigNamespace):
          'https://beta.cadc-ccda.hia-iha.nrc-cnrc.gc.ca'],
         'The ALMA Archive mirror to use.')
 
-    debug_url = _config.ConfigItem(
-        ['https://2020feb.asa-test.alma.cl',
-         'https://asa.hq.eso.org:8443'],
-        'ALMA Archive Test Mirrors (temporary)'
-    )
+    # archive_url = _config.ConfigItem(
+    #     [
+    #      'https://asa.hq.eso.org:8443',
+    #      'https://2020feb.asa-test.alma.cl',
+    #     ],
+    #     'ALMA Archive Test Mirrors (temporary)'
+    # )
 
     username = _config.ConfigItem(
         "",
