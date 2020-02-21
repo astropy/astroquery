@@ -411,7 +411,8 @@ class AlmaClass(QueryWithLogin):
         return b"\n".join(newlines)
 
     def _login(self, username=None, store_password=False,
-               reenter_password=False, auth_urls=['asa.alma.cl',
+               reenter_password=False, auth_urls=['2020feb.asa-test.hq.eso.org',
+                                                  'asa.alma.cl',
                                                   'rh-cas.alma.cl']):
         """
         Login to the ALMA Science Portal.
@@ -870,23 +871,25 @@ def filter_printable(s):
     return filter(lambda x: x in string.printable, s)
 
 
-def uid_json_to_table(jdata):
+def uid_json_to_table(jdata, productlist=['ASDM', 'PIPELINE_PRODUCT',
+                                          'PIPELINE_PRODUCT_TARFILE',
+                                          'PIPELINE_AUXILIARY_TARFILE'],
+                     ):
     rows = []
 
     def flatten_jdata(jj):
         if isinstance(jj, list):
             for kk in jj:
-                flatten_jdata(kk)
-        elif len(jj['children']) > 0:
-            flatten_jdata(jj['children'])
-        else:
-            rows.append(jj)
+                if kk['type'] in productlist:
+                    rows.append(kk)
+                elif len(jj['children']) > 0:
+                    flatten_jdata(kk['children'])
 
-    flatten_jdata(jdata)
+    flatten_jdata(jdata['children'])
 
     keys = rows[-1].keys()
 
     columns = [Column(data=[row[key] for row in rows], name=key)
-               for key in keys if key not in ('children', 'allMousUids')]
+               for key in keys if key not in ('children', 'allMousUids', 'id')]
 
     return Table(columns)
