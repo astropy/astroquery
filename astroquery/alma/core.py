@@ -871,10 +871,10 @@ def filter_printable(s):
     return filter(lambda x: x in string.printable, s)
 
 
-def uid_json_to_table(jdata, productlist=['ASDM', 'PIPELINE_PRODUCT',
-                                          'PIPELINE_PRODUCT_TARFILE',
-                                          'PIPELINE_AUXILIARY_TARFILE'],
-                     ):
+def uid_json_to_table(jdata,
+                      productlist=['ASDM', 'PIPELINE_PRODUCT',
+                                   'PIPELINE_PRODUCT_TARFILE',
+                                   'PIPELINE_AUXILIARY_TARFILE']):
     rows = []
 
     def flatten_jdata(jj):
