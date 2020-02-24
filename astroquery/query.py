@@ -36,12 +36,14 @@ def _replace_none_iterable(iterable):
 
 class AstroQuery(object):
 
-    def __init__(self, method, url, params=None, data=None, headers=None,
+    def __init__(self, method, url,
+                 params=None, data=None, json=None, headers=None,
                  files=None, timeout=None):
         self.method = method
         self.url = url
         self.params = params
         self.data = data
+        self.json = json
         self.headers = headers
         self.files = files
         self._hash = None
@@ -64,12 +66,14 @@ class AstroQuery(object):
                                data=self.data, headers=self.headers,
                                files=self.files, timeout=self.timeout,
                                stream=stream, auth=auth, verify=verify,
-                               allow_redirects=allow_redirects)
+                               allow_redirects=allow_redirects,
+                               json=self.json)
 
     def hash(self):
         if self._hash is None:
             request_key = (self.method, self.url)
-            for k in (self.params, self.data, self.headers, self.files):
+            for k in (self.params, self.data, self.json,
+                      self.headers, self.files):
                 if isinstance(k, dict):
                     entry = (tuple(sorted(k.items(),
                                           key=_replace_none_iterable)))
@@ -164,7 +168,8 @@ class BaseQuery(object):
         """ init a fresh copy of self """
         return self.__class__(*args, **kwargs)
 
-    def _request(self, method, url, params=None, data=None, headers=None,
+    def _request(self, method, url,
+                 params=None, data=None, json=None, headers=None,
                  files=None, save=False, savedir='', timeout=None, cache=True,
                  stream=False, auth=None, continuation=True, verify=True,
                  allow_redirects=True):
@@ -184,6 +189,7 @@ class BaseQuery(object):
         url : str
         params : None or dict
         data : None or dict
+        json : None or dict
         headers : None or dict
         auth : None or dict
         files : None or dict
@@ -217,6 +223,7 @@ class BaseQuery(object):
         req_kwargs = dict(
             params=params,
             data=data,
+            json=json,
             headers=headers,
             files=files,
             timeout=timeout
@@ -228,6 +235,7 @@ class BaseQuery(object):
                 # ":" so replace them with an underscore
                 local_filename = local_filename.replace(':', '_')
             local_filepath = os.path.join(savedir or self.cache_location or '.', local_filename)
+
             self._download_file(url, local_filepath, cache=cache,
                                 continuation=continuation, method=method,
                                 allow_redirects=allow_redirects,
@@ -276,10 +284,12 @@ class BaseQuery(object):
         """
 
         if head_safe:
-            response = self._session.request("HEAD", url, timeout=timeout, stream=True,
+            response = self._session.request("HEAD", url,
+                                             timeout=timeout, stream=True,
                                              auth=auth, **kwargs)
         else:
-            response = self._session.request(method, url, timeout=timeout, stream=True,
+            response = self._session.request(method, url,
+                                             timeout=timeout, stream=True,
                                              auth=auth, **kwargs)
 
         response.raise_for_status()
@@ -290,7 +300,9 @@ class BaseQuery(object):
         else:
             length = None
 
-        if ((os.path.exists(local_filepath) and ('Accept-Ranges' in response.headers) and continuation)):
+        if ((os.path.exists(local_filepath)
+             and ('Accept-Ranges' in response.headers)
+             and continuation)):
             open_mode = 'ab'
 
             existing_file_length = os.stat(local_filepath).st_size
@@ -313,7 +325,8 @@ class BaseQuery(object):
                 self._session.headers['Range'] = "bytes={0}-{1}".format(existing_file_length,
                                                                         end)
 
-                response = self._session.request(method, url, timeout=timeout, stream=True,
+                response = self._session.request(method, url,
+                                                 timeout=timeout, stream=True,
                                                  auth=auth, **kwargs)
                 response.raise_for_status()
 
@@ -339,7 +352,8 @@ class BaseQuery(object):
         else:
             open_mode = 'wb'
             if head_safe:
-                response = self._session.request(method, url, timeout=timeout, stream=True,
+                response = self._session.request(method, url,
+                                                 timeout=timeout, stream=True,
                                                  auth=auth, **kwargs)
                 response.raise_for_status()
 
