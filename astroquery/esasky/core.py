@@ -745,7 +745,9 @@ class ESASkyClass(BaseQuery):
         else:
             where_query = (" WHERE 1=CONTAINS(POINT('ICRS', ra, dec), CIRCLE('ICRS', {}, {}, {}))".
                            format(ra, dec, radiusDeg))
-        order_by_query = " ORDER BY {};".format(json[self.__ORDER_BY_STRING])
+        order_by_query = ""
+        if(json[self.__ORDER_BY_STRING] != ""):
+            order_by_query = " ORDER BY {};".format(json[self.__ORDER_BY_STRING])
 
         query = "".join([select_query, metadata_tap_names, from_query,
                         where_query, order_by_query])
