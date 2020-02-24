@@ -17,6 +17,7 @@ __all__ = ['Noao', 'NoaoClass']  # specifies what to import
 @async_to_sync
 class NoaoClass(BaseQuery):
 
+    TIMEOUT = conf.timeout
     NAT_URL = conf.server
     ADS_URL = f'{NAT_URL}/api/adv_search/fasearch'
     SIA_URL = f'{NAT_URL}/api/sia/voimg'
@@ -39,6 +40,7 @@ class NoaoClass(BaseQuery):
         if self._api_version is None:
             response = self._request('GET',
                                      f'{self.NAT_URL}/api/version',
+                                     timeout=self.TIMEOUT,
                                      cache=True)
             self._api_version = float(response.content)
         return self._api_version
@@ -54,12 +56,14 @@ class NoaoClass(BaseQuery):
             raise Exception(msg)
 
     @class_or_instance
-    def query_region(self, coordinate, radius='1'):
+    def query_region(self, coordinate, radius='1', cache=True):
         self.validate_version()
         ra, dec = coordinate.to_string('decimal').split()
         size = radius
         url = f'{self.url}?POS={ra},{dec}&SIZE={size}&format=json'
-        response = self._request('GET', url, cache=True)
+        response = self._request('GET', url,
+                                 timeout=self.TIMEOUT,
+                                 cache=cache)
         return astropy.table.Table(data=response.json())
 
     def _args_to_payload(self, *args):
