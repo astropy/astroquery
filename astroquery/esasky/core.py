@@ -54,6 +54,7 @@ class ESASkyClass(BaseQuery):
     __HERSCHEL_STRING = 'herschel'
     __HST_STRING = 'hst'
     __INTEGRAL_STRING = 'integral'
+    __AKARI_STRING = 'akari'
 
     __HERSCHEL_FILTERS = {
         'psw': '250',
@@ -361,13 +362,14 @@ class ESASkyClass(BaseQuery):
         maps = dict()
 
         for query_mission in sanitized_query_table_list.keys():
-            # INTEGRAL does not have a product url yet.
-            if (query_mission.lower() == self.__INTEGRAL_STRING):
-                log.info("INTEGRAL does not yet support downloading of "
-                         "fits files")
-                continue
 
             if (query_mission.lower() in sanitized_missions):
+                # INTEGRAL & AKARI does not have a product url yet.
+                if (query_mission.lower() == self.__INTEGRAL_STRING
+                    or query_mission.lower() == self.__AKARI_STRING):
+                    log.info(query_mission + " does not yet support downloading of "
+                            "fits files")
+                    continue
                 maps[query_mission] = (
                     self._get_maps_for_mission(
                         sanitized_query_table_list[query_mission],
@@ -445,10 +447,11 @@ class ESASkyClass(BaseQuery):
                                                   cache=cache)
 
         for query_mission in map_query_result.keys():
-            # INTEGRAL does not have a product url yet.
-            if (query_mission.lower() == self.__INTEGRAL_STRING):
-                log.info("INTEGRAL does not yet support downloading of "
-                         "fits files")
+            # INTEGRAL & AKARI does not have a product url yet.
+            if (query_mission.lower() == self.__INTEGRAL_STRING
+                or query_mission.lower() == self.__AKARI_STRING):
+                log.info(query_mission + " does not yet support downloading of "
+                        "fits files")
                 continue
             maps[query_mission] = (
                 self._get_maps_for_mission(
