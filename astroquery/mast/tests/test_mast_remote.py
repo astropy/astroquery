@@ -60,12 +60,12 @@ class TestMast(object):
         assert sessionInfo['ezid'] == 'anonymous'
         assert sessionInfo['token'] is None
 
-    def test_resolve_object(self):
-        m101_loc = mast.Mast.resolve_object("M101")
-        assert round(m101_loc.separation(SkyCoord("210.80227 54.34895", unit='deg')).value, 4) == 0
+    #def test_resolve_object(self):
+    #    m101_loc = mast.Mast.resolve_object("M101")
+    #    assert round(m101_loc.separation(SkyCoord("210.80227 54.34895", unit='deg')).value, 4) == 0
 
-        ticobj_loc = mast.Mast.resolve_object("TIC 141914082")
-        assert round(ticobj_loc.separation(SkyCoord("94.6175354 -72.04484622", unit='deg')).value, 4) == 0
+    #    ticobj_loc = mast.Mast.resolve_object("TIC 141914082")
+    #    assert round(ticobj_loc.separation(SkyCoord("94.6175354 -72.04484622", unit='deg')).value, 4) == 0
 
     ###########################
     # ObservationsClass tests #

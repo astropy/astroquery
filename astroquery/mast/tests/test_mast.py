@@ -64,8 +64,8 @@ def patch_post(request):
         mp = request.getfuncargvalue("monkeypatch")
 
     mp.setattr(mast.Mast, '_request', post_mockreturn)
-    mp.setattr(mast.Mast, '_fabric_request', post_mockreturn)
-    mp.setattr(mast.Mast, '_download_file', download_mockreturn)
+    #mp.setattr(mast.Mast, '_fabric_request', post_mockreturn)
+    #mp.setattr(mast.Mast, '_download_file', download_mockreturn)
     mp.setattr(mast.Mast._auth_obj, 'session_info', session_info_mockreturn)
 
     mp.setattr(mast.Observations, '_request', post_mockreturn)
@@ -181,9 +181,9 @@ def test_mast_service_request(patch_post):
     assert isinstance(result, Table)
 
 
-def test_resolve_object(patch_post):
-    m103_loc = mast.Mast.resolve_object("M103")
-    assert m103_loc.separation(SkyCoord("23.34086 60.658", unit='deg')).value == 0
+#def test_resolve_object(patch_post):
+#    m103_loc = mast.Mast.resolve_object("M103")
+#    assert m103_loc.separation(SkyCoord("23.34086 60.658", unit='deg')).value == 0
 
 
 def test_login_logout(patch_post):
