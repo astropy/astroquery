@@ -37,8 +37,8 @@ def _replace_none_iterable(iterable):
 class AstroQuery(object):
 
     def __init__(self, method, url,
-                 params=None, data=None, json=None, headers=None,
-                 files=None, timeout=None):
+                 params=None, data=None, headers=None,
+                 files=None, timeout=None, json=None):
         self.method = method
         self.url = url
         self.params = params
@@ -169,10 +169,11 @@ class BaseQuery(object):
         return self.__class__(*args, **kwargs)
 
     def _request(self, method, url,
-                 params=None, data=None, json=None, headers=None,
+                 params=None, data=None, headers=None,
                  files=None, save=False, savedir='', timeout=None, cache=True,
                  stream=False, auth=None, continuation=True, verify=True,
-                 allow_redirects=True):
+                 allow_redirects=True,
+                 json=None):
         """
         A generic HTTP request method, similar to `requests.Session.request`
         but with added caching-related tools
@@ -223,10 +224,10 @@ class BaseQuery(object):
         req_kwargs = dict(
             params=params,
             data=data,
-            json=json,
             headers=headers,
             files=files,
-            timeout=timeout
+            timeout=timeout,
+            json=json
         )
         if save:
             local_filename = url.split('/')[-1]
