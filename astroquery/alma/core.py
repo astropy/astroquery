@@ -229,6 +229,15 @@ class AlmaClass(QueryWithLogin):
                 self.dataarchive_url = response.url.replace("/aq/", "").replace("http://", "https://")
             else:
                 self.dataarchive_url = self.archive_url
+        elif self.dataarchive_url in ('http://almascience.org',
+                                      'https://almascience.org'):
+            raise ValueError("'dataarchive_url' was set to a disambiguation "
+                             "page that is meant to redirect to a real "
+                             "archive.  You should only reach this message "
+                             "if you manually specified Alma.dataarchive_url. "
+                             "If you did so, instead consider setting "
+                             "Alma.archive_url.  Otherwise, report an error "
+                             "on github.")
         return self.dataarchive_url
 
     def stage_data(self, uids):

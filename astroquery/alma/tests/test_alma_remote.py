@@ -298,7 +298,7 @@ def test_project_metadata():
 def test_staging_postfeb2020(dataarchive_url):
 
     alma = Alma()
-    alma.dataarchive_url = dataarchive_url
+    alma.archive_url = dataarchive_url
     tbl = alma.stage_data('uid://A001/X121/X4ba')
 
     assert '2013.1.00269.S_uid___A002_X9de499_X3d6c.asdm.sdm.tar' in tbl['name']
@@ -309,7 +309,7 @@ def test_staging_postfeb2020(dataarchive_url):
 def test_staging_uptofeb2020(dataarchive_url):
 
     alma = Alma()
-    alma.dataarchive_url = dataarchive_url
+    alma.archive_url = dataarchive_url
     tbl = alma.stage_data('uid://A001/X121/X4ba')
 
     assert 'uid' in tbl.colnames
