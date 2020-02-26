@@ -115,9 +115,11 @@ class PortalAPI(BaseQuery):
     """
 
     
-    def __init__(self):
+    def __init__(self, session=None):
         
         super(PortalAPI, self).__init__()
+        if session:
+            self._session = session
 
         self._MAST_REQUEST_URL = conf.server + "/api/v0/invoke"
         self._COLUMNS_CONFIG_URL = conf.server + "/portal/Mashup/Mashup.asmx/columnsconfig"
@@ -546,8 +548,8 @@ class MastClass(QueryWithLogin):
 
          super(MastClass, self).__init__()
 
-         self._portal_api_connection = PortalAPI()
-         self._portal_api_connection._session = self._session
+         self._portal_api_connection = PortalAPI(self._session)
+         #self._portal_api_connection._session = self._session
 
          if mast_token:
              self._authenticated = self._auth_obj = MastAuth(self._session, mast_token)
@@ -672,6 +674,22 @@ class MastClass(QueryWithLogin):
         """
 
         return self._portal_api_connection.service_request_async(service, params, pagesize, page, **kwargs)
+
+    def resolve_object(self, objectname):
+        """
+        Resolves an object name to a position on the sky.
+
+        Parameters
+        ----------
+        objectname : str
+            Name of astronomical object to resolve.
+
+        Returns
+        -------
+        response : `~astropy.coordinates.SkyCoord`
+            The sky position of the given object.
+        """
+        return utils.resolve_object(objectname)
 
 
 Mast = MastClass()

@@ -31,7 +31,7 @@ from ..utils import commons
 from ..exceptions import NoResultsWarning, InvalidQueryError, RemoteServiceError
 
 from . import conf
-from .core import Mast
+from .utils import resolve_object
 
 __all__ = ["TesscutClass", "Tesscut"]
 
@@ -65,7 +65,7 @@ def _parse_input_location(coordinates=None, objectname=None):
         raise InvalidQueryError("One of objectname and coordinates must be specified.")
 
     if objectname:
-        obj_coord = Mast.resolve_object(objectname)
+        obj_coord = resolve_object(objectname)
 
     if coordinates:
         obj_coord = commons.parse_coordinates(coordinates)

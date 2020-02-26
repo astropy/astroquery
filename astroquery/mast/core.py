@@ -42,8 +42,7 @@ from .auth import MastAuth
 from .cloud import CloudAccess
 
 
-__all__ = ['Observations', 'ObservationsClass',
-           'Mast', 'MastClass']
+__all__ = ['Observations', 'ObservationsClass']
 
 
 def _prepare_service_request_string(json_obj):
@@ -255,7 +254,7 @@ def _fabric_json_to_table(json_obj):
 
 
 @async_to_sync
-class MastClass(QueryWithLogin):
+class MastClass_old(QueryWithLogin):
     """
     MAST query class.
 
@@ -265,7 +264,7 @@ class MastClass(QueryWithLogin):
 
     def __init__(self, mast_token=None):
 
-        super(MastClass, self).__init__()
+        super(MastClass_old, self).__init__()
 
         self._MAST_REQUEST_URL = conf.server + "/api/v0/invoke"
         self._COLUMNS_CONFIG_URL = conf.server + "/portal/Mashup/Mashup.asmx/columnsconfig"
@@ -386,7 +385,7 @@ class MastClass(QueryWithLogin):
 
         start_time = time.time()
 
-        response = super(MastClass, self)._request(method, url, params=params, data=data, headers=headers,
+        response = super(MastClass_old, self)._request(method, url, params=params, data=data, headers=headers,
                                                    files=files, cache=cache, stream=stream, auth=auth)
         if (time.time() - start_time) >= self.TIMEOUT:
             raise TimeoutError("Timeout limit of {} exceeded.".format(self.TIMEOUT))
@@ -440,7 +439,7 @@ class MastClass(QueryWithLogin):
             status = "EXECUTING"
 
             while status == "EXECUTING":
-                response = super(MastClass, self)._request(method, url, params=params, data=data,
+                response = super(MastClass_old, self)._request(method, url, params=params, data=data,
                                                            headers=headers, files=files, cache=False,
                                                            stream=stream, auth=auth)
 
@@ -989,7 +988,7 @@ class MastClass(QueryWithLogin):
 
 
 @async_to_sync
-class ObservationsClass(MastClass):
+class ObservationsClass(MastClass_old):
     """
     MAST Observations query class.
 
@@ -1744,7 +1743,7 @@ class ObservationsClass(MastClass):
 
 
 @async_to_sync
-class CatalogsClass(MastClass):
+class CatalogsClass(MastClass_old):
     """
     MAST catalog query class.
 
@@ -2216,4 +2215,4 @@ class CatalogsClass(MastClass):
 
 Observations = ObservationsClass()
 Catalogs = CatalogsClass()
-Mast = MastClass()
+#Mast = MastClass()

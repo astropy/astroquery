@@ -8,6 +8,16 @@ Miscellaneous functions used through the MAST module.
 
 import numpy as np
 
+import requests
+import json
+from urllib.parse import quote as urlencode
+import astropy.coordinates as coord
+
+from ..version import version
+from ..exceptions import ResolverError
+
+from . import conf
+
 
 def _parse_type(dbtype):
     """
@@ -52,3 +62,45 @@ def _parse_type(dbtype):
 
         'unsignedbyte': ('byte', np.ubyte, -999)
     }.get(dbtype, (dbtype, dbtype, dbtype))
+
+
+def resolve_object(objectname):
+    """
+    Resolves an object name to a position on the sky.
+
+    Parameters
+    ----------
+    objectname : str
+        Name of astronomical object to resolve.
+
+    Returns
+    -------
+    response : `~astropy.coordinates.SkyCoord`
+        The sky position of the given object.
+    """
+
+    session = requests.session()
+    
+    request_args = {"service":"Mast.Name.Lookup",
+                    "params":{'input': objectname,'format': 'json'}}
+    request_string =  'request={}'.format(urlencode(json.dumps(request_args)))
+
+    headers = {"User-Agent": "astroquery/{} {}".format(version, session.headers['User-Agent']),
+               "Content-type": "application/x-www-form-urlencoded",
+               "Accept": "text/plain"}
+
+    response = session.get("{}/api/v0/invoke".format(conf.server),
+                           params=request_string, headers=headers)
+    response.raise_for_status()
+
+    result = response.json()
+
+    if len(result['resolvedCoordinate']) == 0:
+        raise ResolverError("Could not resolve {} to a sky position.".format(objectname))
+
+    ra = result['resolvedCoordinate'][0]['ra']
+    dec = result['resolvedCoordinate'][0]['decl']
+    coordinates = coord.SkyCoord(ra, dec, unit="deg")
+
+    return coordinates
+    
