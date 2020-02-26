@@ -478,28 +478,6 @@ class AlmaClass(QueryWithLogin):
 
         return data_sizes, totalsize.to(u.GB)
 
-    def _HEADER_data_size(self, files):
-        """
-        Given a list of file URLs, return the data size.  This is useful for
-        assessing how much data you might be downloading!
-        (This is discouraged by the ALMA archive, as it puts unnecessary load
-        on their system)
-        """
-        totalsize = 0 * u.B
-        data_sizes = {}
-        pb = ProgressBar(len(files))
-        for ii, fileLink in enumerate(files):
-            response = self._request('HEAD', fileLink, stream=False,
-                                     cache=False, timeout=self.TIMEOUT)
-            filesize = (int(response.headers['content-length']) * u.B).to(u.GB)
-            totalsize += filesize
-            data_sizes[fileLink] = filesize
-            log.debug("File {0}: size {1}".format(fileLink, filesize))
-            pb.update(ii + 1)
-            response.raise_for_status()
-
-        return data_sizes, totalsize.to(u.GB)
-
     def download_files(self, files, savedir=None, cache=True, continuation=True):
         """
         Given a list of file URLs, download them
@@ -614,9 +592,7 @@ class AlmaClass(QueryWithLogin):
         return b"\n".join(newlines)
 
     def _login(self, username=None, store_password=False,
-               reenter_password=False, auth_urls=['2020feb.asa-test.hq.eso.org',
-                                                  'asa.alma.cl',
-                                                  'rh-cas.alma.cl']):
+               reenter_password=False, auth_urls=conf.auth_url):
         """
         Login to the ALMA Science Portal.
 
@@ -1127,9 +1103,9 @@ def uid_json_to_table(jdata,
                                    'PIPELINE_AUXILIARY_TARFILE']):
     rows = []
 
-    def flatten_jdata(jj):
-        if isinstance(jj, list):
-            for kk in jj:
+    def flatten_jdata(this_jdata):
+        if isinstance(this_jdata, list):
+            for kk in this_jdata:
                 if kk['type'] in productlist:
                     rows.append(kk)
                 elif len(kk['children']) > 0:

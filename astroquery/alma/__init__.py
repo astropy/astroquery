@@ -17,6 +17,8 @@ _test_url_list = ['https://asa.hq.eso.org:8443',
                   # not a valid test server as of Feb 25, 2020 'https://2020feb.asa-test.alma.cl',
                  ]
 
+_auth_urls = ['asa.alma.cl', 'rh-cas.alma.cl', '2020feb.asa-test.hq.eso.org']
+
 class Conf(_config.ConfigNamespace):
     """
     Configuration parameters for `astroquery.alma`.
@@ -31,6 +33,11 @@ class Conf(_config.ConfigNamespace):
     test_archive_url = _config.ConfigItem(
         _test_url_list,
         'ALMA Archive Test Mirrors (temporary)'
+    )
+
+    auth_url = _config.ConfigItem(
+        _auth_urls,
+        'ALMA Central Authentication Service URLs'
     )
 
     username = _config.ConfigItem(
