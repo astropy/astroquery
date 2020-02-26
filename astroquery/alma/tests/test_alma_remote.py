@@ -301,7 +301,7 @@ def test_staging_postfeb2020(dataarchive_url):
     alma.dataarchive_url = dataarchive_url
     tbl = alma.stage_data('uid://A001/X121/X4ba')
 
-    assert '2013.1.00269.S_uid___A002_X9de499_X3d6c.asdm.sdm.tar' in tbl'name']
+    assert '2013.1.00269.S_uid___A002_X9de499_X3d6c.asdm.sdm.tar' in tbl['name']
 
 
 @remote_data
