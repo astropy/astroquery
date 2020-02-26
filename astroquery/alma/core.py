@@ -266,9 +266,10 @@ class AlmaClass(QueryWithLogin):
                 jdata = req.json()
             except json.JSONDecodeError:
                 if 'Central Authentication Service' in req.text:
-                    raise ValueError("Error: staging data on {dataarchive_url} "
-                                     "requires a login"
-                                     .format(dataarchive_url=dataarchive_url))
+                    # this indicates a wrong server is being used;
+                    # the "pre-feb2020" stager will be phased out
+                    # when the new services are deployed
+                    return self.stage_data_prefeb2020(uids)
                 else:
                     raise
             if jdata['type'] != 'PROJECT':
@@ -292,6 +293,181 @@ class AlmaClass(QueryWithLogin):
         table = table_vstack(tables)
 
         return table
+
+    def stage_data_prefeb2020(self, uids):
+        """
+        Stage ALMA data - old server style
+
+        NOTE: this method will be removed when a new ALMA service is deployed
+        in March 2020
+
+        Parameters
+        ----------
+        uids : list or str
+            A list of valid UIDs or a single UID.
+            UIDs should have the form: 'uid://A002/X391d0b/X7b'
+
+        Returns
+        -------
+        data_file_table : Table
+            A table containing 3 columns: the UID, the file URL (for future
+            downloading), and the file size
+        """
+
+        """
+        With log.set_level(10)
+        INFO: Staging files... [astroquery.alma.core]
+        DEBUG: First request URL: https://almascience.eso.org/rh/submission [astroquery.alma.core]
+        DEBUG: First request payload: {'dataset': [u'ALMA+uid___A002_X3b3400_X90f']} [astroquery.alma.core]
+        DEBUG: First response URL: https://almascience.eso.org/rh/checkAuthenticationStatus/3f98de33-197e-4692-9afa-496842032ea9/submission [astroquery.alma.core]
+        DEBUG: Request ID: 3f98de33-197e-4692-9afa-496842032ea9 [astroquery.alma.core]
+        DEBUG: Submission URL: https://almascience.eso.org/rh/submission/3f98de33-197e-4692-9afa-496842032ea9 [astroquery.alma.core]
+        .DEBUG: Data list URL: https://almascience.eso.org/rh/requests/anonymous/786823226 [astroquery.alma.core]
+        """
+
+        import time
+        from requests import HTTPError
+        from ..utils import url_helpers
+        import sys
+        from six.moves.urllib_parse import urlparse
+
+        if isinstance(uids, six.string_types + (np.bytes_,)):
+            uids = [uids]
+        if not isinstance(uids, (list, tuple, np.ndarray)):
+            raise TypeError("Datasets must be given as a list of strings.")
+
+        log.info("Staging files...")
+
+        self._get_dataarchive_url()
+
+        url = urljoin(self._get_dataarchive_url(), 'rh/submission')
+        log.debug("First request URL: {0}".format(url))
+        # 'ALMA+uid___A002_X391d0b_X7b'
+        payload = {'dataset': ['ALMA+' + clean_uid(uid) for uid in uids]}
+        log.debug("First request payload: {0}".format(payload))
+
+        self._staging_log = {'first_post_url': url}
+
+        # Request staging for the UIDs
+        # This component cannot be cached, since the returned data can change
+        # if new data are uploaded
+        response = self._request('POST', url, data=payload,
+                                 timeout=self.TIMEOUT, cache=False)
+        self._staging_log['initial_response'] = response
+        log.debug("First response URL: {0}".format(response.url))
+        if 'login' in response.url:
+            raise ValueError("You must login before downloading this data set.")
+
+        if response.status_code == 405:
+            if hasattr(self, '_last_successful_staging_log'):
+                log.warning("Error 405 received.  If you have previously staged "
+                            "the same UIDs, the result returned is probably "
+                            "correct, otherwise you may need to create a fresh "
+                            "astroquery.Alma instance.")
+                return self._last_successful_staging_log['result']
+            else:
+                raise HTTPError("Received an error 405: this may indicate you "
+                                "have already staged the data.  Try downloading "
+                                "the file URLs directly with download_files.")
+        response.raise_for_status()
+
+        if 'j_spring_cas_security_check' in response.url:
+            time.sleep(1)
+            # CANNOT cache this stage: it not a real data page!  results in
+            # infinite loops
+            response = self._request('POST', url, data=payload,
+                                     timeout=self.TIMEOUT, cache=False)
+            self._staging_log['initial_response'] = response
+            if 'j_spring_cas_security_check' in response.url:
+                log.warning("Staging request was not successful.  Try again?")
+            response.raise_for_status()
+
+        if 'j_spring_cas_security_check' in response.url:
+            raise RemoteServiceError("Could not access data.  This error "
+                                     "can arise if the data are private and "
+                                     "you do not have access rights or are "
+                                     "not logged in.")
+
+        request_id = response.url.split("/")[-2]
+        self._staging_log['request_id'] = request_id
+        log.debug("Request ID: {0}".format(request_id))
+
+        # Submit a request for the specific request ID identified above
+        submission_url = urljoin(self._get_dataarchive_url(),
+                                 url_helpers.join('rh/submission', request_id))
+        log.debug("Submission URL: {0}".format(submission_url))
+        self._staging_log['submission_url'] = submission_url
+        staging_submission = self._request('GET', submission_url, cache=True)
+        self._staging_log['staging_submission'] = staging_submission
+        staging_submission.raise_for_status()
+
+        data_page_url = staging_submission.url
+        self._staging_log['data_page_url'] = data_page_url
+        dpid = data_page_url.split("/")[-1]
+        self._staging_log['staging_page_id'] = dpid
+
+        # CANNOT cache this step: please_wait will happen infinitely
+        data_page = self._request('GET', data_page_url, cache=False)
+        self._staging_log['data_page'] = data_page
+        data_page.raise_for_status()
+
+        has_completed = False
+        while not has_completed:
+            time.sleep(1)
+            summary = self._request('GET', url_helpers.join(data_page_url,
+                                                            'summary'),
+                                    cache=False)
+            summary.raise_for_status()
+            print(".", end='')
+            sys.stdout.flush()
+            has_completed = summary.json()['complete']
+
+        self._staging_log['summary'] = summary
+        summary.raise_for_status()
+        self._staging_log['json_data'] = json_data = summary.json()
+
+        username = self.USERNAME if self.USERNAME else 'anonymous'
+
+        # templates:
+        # https://almascience.eso.org/dataPortal/requests/keflavich/946895898/ALMA/
+        # 2013.1.00308.S_uid___A001_X196_X93_001_of_001.tar/2013.1.00308.S_uid___A001_X196_X93_001_of_001.tar
+        # uid___A002_X9ee74a_X26f0/2013.1.00308.S_uid___A002_X9ee74a_X26f0.asdm.sdm.tar
+
+        url_decomposed = urlparse(data_page_url)
+        base_url = ('{uri.scheme}://{uri.netloc}/'
+                    'dataPortal/requests/{username}/'
+                    '{staging_page_id}/ALMA'.format(uri=url_decomposed,
+                                                    staging_page_id=dpid,
+                                                    username=username,
+                                                    ))
+        tbl = self._json_summary_to_table(json_data, base_url=base_url)
+        self._staging_log['result'] = tbl
+        self._staging_log['file_urls'] = tbl['URL']
+        self._last_successful_staging_log = self._staging_log
+
+        return tbl
+
+    def _HEADER_data_size(self, files):
+        """
+        Given a list of file URLs, return the data size.  This is useful for
+        assessing how much data you might be downloading!
+        (This is discouraged by the ALMA archive, as it puts unnecessary load
+        on their system)
+        """
+        totalsize = 0 * u.B
+        data_sizes = {}
+        pb = ProgressBar(len(files))
+        for ii, fileLink in enumerate(files):
+            response = self._request('HEAD', fileLink, stream=False,
+                                     cache=False, timeout=self.TIMEOUT)
+            filesize = (int(response.headers['content-length']) * u.B).to(u.GB)
+            totalsize += filesize
+            data_sizes[fileLink] = filesize
+            log.debug("File {0}: size {1}".format(fileLink, filesize))
+            pb.update(ii + 1)
+            response.raise_for_status()
+
+        return data_sizes, totalsize.to(u.GB)
 
     def _HEADER_data_size(self, files):
         """
