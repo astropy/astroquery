@@ -251,10 +251,15 @@ class AlmaClass(QueryWithLogin):
             downloading), and the file size
         """
 
+        dataarchive_url = self._get_dataarchive_url()
+
         tables = []
         for uu in uids:
             uid = clean_uid(uu)
-            jdata = self._request('GET', f'{self.dataarchive_url}/rh/data/expand/{uid}').json()
+            jdata = self._request('GET',
+                                  '{dataarchive_url}/rh/data/expand/{uid}'
+                                  .format(dataarchive_url=dataarchive_url,
+                                          uid=uid)).json()
             if jdata['type'] != 'PROJECT':
                 log.error(f"Skipped uid {uu} because it is not a project and"
                           "lacks the appropriate metadata; it is a "
@@ -263,7 +268,9 @@ class AlmaClass(QueryWithLogin):
             table = uid_json_to_table(jdata)
             table['sizeInBytes'].unit = u.B
             table.rename_column('sizeInBytes', 'size')
-            table.add_column(Column(data=[f'{self.dataarchive_url}/dataPortal/{name}'
+            table.add_column(Column(data=['{dataarchive_url}/dataPortal/{name}'
+                                          .format(dataarchive_url=dataarchive_url,
+                                                  name=name)
                                           for name in table['name']],
                                     name='URL'))
             tables.append(table)
