@@ -95,7 +95,7 @@ matrix:
         - os: linux
           stage: Tests with other Python/Numpy versions
           env: PYTHON_VERSION=3.6 NUMPY_VERSION=1.14 KEYRING_VERSION='<12.0'
-               ASTROPY_VERSION=3.0 APLPY_VERSION='<2.0'
+               ASTROPY_VERSION=3.0 APLPY_VERSION='<2.0' DEBUG=True
 
         - os: linux
           stage: Tests with other Python/Numpy versions
