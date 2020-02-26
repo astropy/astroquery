@@ -1,6 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
-import time
+import json
 import os.path
 import keyring
 import numpy as np
@@ -8,13 +8,10 @@ import re
 import tarfile
 import string
 import requests
-from requests import HTTPError
-import sys
 from pkg_resources import resource_filename
 from bs4 import BeautifulSoup
 
-from six.moves.urllib_parse import urljoin, urlparse
-from six import iteritems, StringIO
+from six.moves.urllib_parse import urljoin
 import six
 from astropy.table import Table, Column, vstack as table_vstack
 from astropy import log
@@ -25,7 +22,7 @@ import astropy.io.votable as votable
 
 from ..exceptions import (RemoteServiceError, TableParseError,
                           InvalidQueryError, LoginError)
-from ..utils import commons, url_helpers
+from ..utils import commons
 from ..utils.process_asyncs import async_to_sync
 from ..query import QueryWithLogin
 from . import conf
@@ -253,13 +250,27 @@ class AlmaClass(QueryWithLogin):
 
         dataarchive_url = self._get_dataarchive_url()
 
+        # allow for the uid to be specified as single entry
+        if isinstance(uids, str):
+            uids = [uids]
+
         tables = []
         for uu in uids:
             uid = clean_uid(uu)
-            jdata = self._request('GET',
-                                  '{dataarchive_url}/rh/data/expand/{uid}'
-                                  .format(dataarchive_url=dataarchive_url,
-                                          uid=uid)).json()
+            req = self._request('GET', '{dataarchive_url}/rh/data/expand/{uid}'
+                                .format(dataarchive_url=dataarchive_url,
+                                        uid=uid),
+                                cache=False)
+            req.raise_for_status()
+            try:
+                jdata = req.json()
+            except json.JSONDecodeError:
+                if 'Central Authentication Service' in req.text:
+                    raise ValueError("Error: staging data on {dataarchive_url} "
+                                     "requires a login"
+                                     .format(dataarchive_url=dataarchive_url))
+                else:
+                    raise
             if jdata['type'] != 'PROJECT':
                 log.error(f"Skipped uid {uu} because it is not a project and"
                           "lacks the appropriate metadata; it is a "
@@ -889,7 +900,7 @@ def uid_json_to_table(jdata,
             for kk in jj:
                 if kk['type'] in productlist:
                     rows.append(kk)
-                elif len(jj['children']) > 0:
+                elif len(kk['children']) > 0:
                     flatten_jdata(kk['children'])
 
     flatten_jdata(jdata['children'])
