@@ -1004,7 +1004,7 @@ class AlmaClass(QueryWithLogin):
         """
         from ..utils import url_helpers
         from six import iteritems
-        columns = {'uid': [], 'URL': [], 'size': []}
+        columns = {'mous_uid': [], 'URL': [], 'size': []}
         for entry in data['node_data']:
             # de_type can be useful (e.g., MOUS), but it is not necessarily
             # specified
@@ -1013,7 +1013,7 @@ class AlmaClass(QueryWithLogin):
                        entry['file_key'] != 'null')
             if is_file:
                 # "de_name": "ALMA+uid://A001/X122/X35e",
-                columns['uid'].append(entry['de_name'][5:])
+                columns['mous_uid'].append(entry['de_name'][5:])
                 if entry['file_size'] == 'null':
                     columns['size'].append(np.nan * u.Gbyte)
                 else:
@@ -1103,19 +1103,23 @@ def uid_json_to_table(jdata,
                                    'PIPELINE_AUXILIARY_TARFILE']):
     rows = []
 
-    def flatten_jdata(this_jdata):
+    def flatten_jdata(this_jdata, mousID=None):
         if isinstance(this_jdata, list):
             for kk in this_jdata:
                 if kk['type'] in productlist:
+                    kk['mous_uid'] = mousID
                     rows.append(kk)
                 elif len(kk['children']) > 0:
-                    flatten_jdata(kk['children'])
+                    if len(kk['allMousUids']) == 1:
+                        flatten_jdata(kk['children'], kk['allMousUids'][0])
+                    else:
+                        flatten_jdata(kk['children'])
 
     flatten_jdata(jdata['children'])
 
     keys = rows[-1].keys()
 
     columns = [Column(data=[row[key] for row in rows], name=key)
-               for key in keys if key not in ('children', 'allMousUids', 'id')]
+               for key in keys if key not in ('children', 'allMousUids')]
 
     return Table(columns)

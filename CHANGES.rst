@@ -30,8 +30,10 @@ alma
 ^^^^
 
 - A new API was deployed in late February / early March 2020, requiring a
-  refactor.  The user-facing API should remain the same, but some service
-  interruption may have occurred. [#1644]
+  refactor.  The user-facing API should remain mostly the same, but some
+  service interruption may have occurred.  Note that the ``stage_data`` column
+  ``uid`` has been renamed ``mous_uid``, which is a technical correction, and
+  several columns have been added [#1644]
 
 
 Infrastructure, Utility and Other Changes and Additions
