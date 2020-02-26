@@ -301,6 +301,8 @@ def test_staging_postfeb2020(dataarchive_url):
     alma.archive_url = dataarchive_url
     tbl = alma.stage_data('uid://A001/X121/X4ba')
 
+    assert 'mous_uid' in tbl.colnames
+
     assert '2013.1.00269.S_uid___A002_X9de499_X3d6c.asdm.sdm.tar' in tbl['name']
 
 
@@ -312,7 +314,7 @@ def test_staging_uptofeb2020(dataarchive_url):
     alma.archive_url = dataarchive_url
     tbl = alma.stage_data('uid://A001/X121/X4ba')
 
-    assert 'uid' in tbl.colnames
+    assert 'mous_uid' in tbl.colnames
 
     names = [x.split("/")[-1] for x in tbl[tbl['uid'] == 'uid://A001/X147/X92']['URL']]
 
