@@ -5,6 +5,17 @@ ALMA Archive service.
 from astropy import config as _config
 
 
+# list the URLs here separately so they can be used in tests.
+_url_list =['http://almascience.org',
+            'https://almascience.eso.org',
+            'https://almascience.nrao.edu',
+            'https://almascience.nao.ac.jp',
+            'https://beta.cadc-ccda.hia-iha.nrc-cnrc.gc.ca']
+
+_test_url_list = ['https://asa.hq.eso.org:8443',
+                  'https://2020feb.asa-test.alma.cl',
+                 ]
+
 class Conf(_config.ConfigNamespace):
     """
     Configuration parameters for `astroquery.alma`.
@@ -13,20 +24,13 @@ class Conf(_config.ConfigNamespace):
     timeout = _config.ConfigItem(60, "Timeout in seconds.")
 
     archive_url = _config.ConfigItem(
-        ['http://almascience.org',
-         'https://almascience.eso.org',
-         'https://almascience.nrao.edu',
-         'https://almascience.nao.ac.jp',
-         'https://beta.cadc-ccda.hia-iha.nrc-cnrc.gc.ca'],
+        _url_list,
         'The ALMA Archive mirror to use.')
 
-    # archive_url = _config.ConfigItem(
-    #     [
-    #      'https://asa.hq.eso.org:8443',
-    #      'https://2020feb.asa-test.alma.cl',
-    #     ],
-    #     'ALMA Archive Test Mirrors (temporary)'
-    # )
+    test_archive_url = _config.ConfigItem(
+        _test_url_list,
+        'ALMA Archive Test Mirrors (temporary)'
+    )
 
     username = _config.ConfigItem(
         "",
