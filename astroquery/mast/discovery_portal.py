@@ -27,6 +27,7 @@ from .auth import MastAuth
 
 __all__ = ['MastClass', 'Mast']
 
+
 def _prepare_service_request_string(json_obj):
     """
     Takes a mashup JSON request object and turns it into a url-safe string.
@@ -113,10 +114,9 @@ class PortalAPI(BaseQuery):
     Class that allows direct programatic access to the MAST Portal.
     Should be used to facilitate all Portal API queries.
     """
-
-    
+ 
     def __init__(self, session=None):
-        
+
         super(PortalAPI, self).__init__()
         if session:
             self._session = session
@@ -125,13 +125,12 @@ class PortalAPI(BaseQuery):
         self._COLUMNS_CONFIG_URL = conf.server + "/portal/Mashup/Mashup.asmx/columnsconfig"
         self._MAST_DOWNLOAD_URL = conf.server + "/api/v0.1/Download/file"
         self._MAST_BUNDLE_URL = conf.server + "/api/v0.1/Download/bundle"
-        
+
         self.TIMEOUT = conf.timeout
         self.PAGESIZE = conf.pagesize
 
         self._column_configs = dict()
         self._current_service = None
-
 
     def _request(self, method, url, params=None, data=None, headers=None,
                  files=None, stream=False, auth=None, retrieve_all=True):
@@ -210,7 +209,7 @@ class PortalAPI(BaseQuery):
             data = data.replace("page%22%3A%20"+str(cur_page)+"%2C", "page%22%3A%20"+str(cur_page+1)+"%2C")
 
         return all_responses
-        
+
     def _get_col_config(self, service, fetch_name=None):
         """
         Gets the columnsConfig entry for given service and stores it in `self._column_configs`.
@@ -256,7 +255,6 @@ class PortalAPI(BaseQuery):
                                                  ['ExtendedProperties']['continuousHistogram'])
             for col, val in self._column_configs[service].items():
                 val.pop('hist', None)  # don't want to save all this unecessary data
-
 
     def _parse_result(self, responses, verbose=False):
         """
@@ -546,15 +544,14 @@ class MastClass(QueryWithLogin):
 
     def __init__(self, mast_token=None):
 
-         super(MastClass, self).__init__()
+        super(MastClass, self).__init__()
 
-         self._portal_api_connection = PortalAPI(self._session)
-         #self._portal_api_connection._session = self._session
+        self._portal_api_connection = PortalAPI(self._session)
 
-         if mast_token:
-             self._authenticated = self._auth_obj = MastAuth(self._session, mast_token)
-         else:
-             self._auth_obj = MastAuth(self._session)
+        if mast_token:
+            self._authenticated = self._auth_obj = MastAuth(self._session, mast_token)
+        else:
+            self._auth_obj = MastAuth(self._session)
 
     def _login(self, token=None, store_token=False, reenter_token=False):
         """
@@ -613,14 +610,13 @@ class MastClass(QueryWithLogin):
             verbose = True
 
         return self._auth_obj.session_info(verbose)
-    
+
     def logout(self):
         """
         Log out of current MAST session.
         """
         self._auth_obj.logout()
         self._authenticated = False
-
 
     def _parse_result(self, responses, verbose=False):
         """
@@ -641,7 +637,7 @@ class MastClass(QueryWithLogin):
         """
 
         return self._portal_api_connection._parse_result(responses, verbose)
-        
+
     @class_or_instance
     def service_request_async(self, service, params, pagesize=None, page=None, **kwargs):
         """

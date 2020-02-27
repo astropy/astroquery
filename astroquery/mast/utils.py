@@ -73,10 +73,10 @@ def _simple_request(url, params):
     headers = {"User-Agent": "astroquery/{} {}".format(version, session.headers['User-Agent']),
                "Content-type": "application/x-www-form-urlencoded",
                "Accept": "text/plain"}
-    
+
     response = requests.get(url, params=params, headers=headers)
     response.raise_for_status()
-    
+
     return response
 
 
@@ -94,9 +94,9 @@ def resolve_object(objectname):
     response : `~astropy.coordinates.SkyCoord`
         The sky position of the given object.
     """
-    
-    request_args = {"service":"Mast.Name.Lookup",
-                    "params":{'input': objectname,'format': 'json'}}
+
+    request_args = {"service": "Mast.Name.Lookup",
+                    "params": {'input': objectname, 'format': 'json'}}
     request_string =  'request={}'.format(urlencode(json.dumps(request_args)))
 
     response = _simple_request("{}/api/v0/invoke".format(conf.server), request_string)
@@ -110,4 +110,3 @@ def resolve_object(objectname):
     coordinates = coord.SkyCoord(ra, dec, unit="deg")
 
     return coordinates
-    

@@ -63,7 +63,7 @@ def patch_post(request):
         mp = request.getfuncargvalue("monkeypatch")
 
     mp.setattr(mast.utils, '_simple_request', resolver_mockreturn)
-        
+
     mp.setattr(mast.discovery_portal.PortalAPI, '_request', post_mockreturn_with_self)
     mp.setattr(mast.Mast._auth_obj, 'session_info', session_info_mockreturn)
 
@@ -77,7 +77,7 @@ def patch_post(request):
 
     mp.setattr(mast.Tesscut, "_request", tesscut_get_mockreturn)
     mp.setattr(mast.Tesscut, '_download_file', tess_download_mockreturn)
-    
+
     return mp
 
 
@@ -564,13 +564,13 @@ def test_tesscut_get_sector(patch_post):
     assert sector_table['ccd'][0] == 3
 
     # Exercising the search by object name
-    #sector_table = mast.Tesscut.get_sectors(objectname="M103")
-    #assert isinstance(sector_table, Table)
-    #assert len(sector_table) == 1
-    #assert sector_table['sectorName'][0] == "tess-s0001-1-3"
-    #assert sector_table['sector'][0] == 1
-    #assert sector_table['camera'][0] == 1
-    #assert sector_table['ccd'][0] == 3
+    sector_table = mast.Tesscut.get_sectors(objectname="M103")
+    assert isinstance(sector_table, Table)
+    assert len(sector_table) == 1
+    assert sector_table['sectorName'][0] == "tess-s0001-1-3"
+    assert sector_table['sector'][0] == 1
+    assert sector_table['camera'][0] == 1
+    assert sector_table['ccd'][0] == 3
 
 
 def test_tesscut_download_cutouts(patch_post, tmpdir):
@@ -593,11 +593,11 @@ def test_tesscut_download_cutouts(patch_post, tmpdir):
     assert os.path.isfile(manifest[0]['Local Path'])
 
     # Exercising the search by object name
-    #manifest = mast.Tesscut.download_cutouts(objectname="M103", size=5, path=str(tmpdir))
-    #assert isinstance(manifest, Table)
-    #assert len(manifest) == 1
-    #assert manifest["Local Path"][0][-4:] == "fits"
-    #assert os.path.isfile(manifest[0]['Local Path'])
+    manifest = mast.Tesscut.download_cutouts(objectname="M103", size=5, path=str(tmpdir))
+    assert isinstance(manifest, Table)
+    assert len(manifest) == 1
+    assert manifest["Local Path"][0][-4:] == "fits"
+    assert os.path.isfile(manifest[0]['Local Path'])
 
 
 def test_tesscut_get_cutouts(patch_post, tmpdir):
@@ -609,7 +609,7 @@ def test_tesscut_get_cutouts(patch_post, tmpdir):
     assert isinstance(cutout_hdus_list[0], fits.HDUList)
 
     # Exercising the search by object name
-    #cutout_hdus_list = mast.Tesscut.get_cutouts(objectname="M103", size=5)
-    #assert isinstance(cutout_hdus_list, list)
-    #assert len(cutout_hdus_list) == 1
-    #assert isinstance(cutout_hdus_list[0], fits.HDUList)
+    cutout_hdus_list = mast.Tesscut.get_cutouts(objectname="M103", size=5)
+    assert isinstance(cutout_hdus_list, list)
+    assert len(cutout_hdus_list) == 1
+    assert isinstance(cutout_hdus_list[0], fits.HDUList)
