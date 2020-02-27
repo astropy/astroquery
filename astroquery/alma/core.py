@@ -25,7 +25,7 @@ from ..exceptions import (RemoteServiceError, TableParseError,
 from ..utils import commons
 from ..utils.process_asyncs import async_to_sync
 from ..query import QueryWithLogin
-from . import conf
+from . import conf, auth_urls
 
 __doctest_skip__ = ['AlmaClass.*']
 
@@ -592,7 +592,7 @@ class AlmaClass(QueryWithLogin):
         return b"\n".join(newlines)
 
     def _login(self, username=None, store_password=False,
-               reenter_password=False, auth_urls=conf.auth_url):
+               reenter_password=False, auth_urls=auth_urls):
         """
         Login to the ALMA Science Portal.
 

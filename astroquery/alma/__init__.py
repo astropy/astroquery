@@ -17,7 +17,7 @@ _test_url_list = ['https://asa.hq.eso.org:8443',
                   # not a valid test server as of Feb 25, 2020 'https://2020feb.asa-test.alma.cl',
                  ]
 
-_auth_urls = ['asa.alma.cl', 'rh-cas.alma.cl', '2020feb.asa-test.hq.eso.org']
+auth_urls = ['asa.alma.cl', 'rh-cas.alma.cl', '2020feb.asa-test.hq.eso.org']
 
 class Conf(_config.ConfigNamespace):
     """
@@ -36,7 +36,7 @@ class Conf(_config.ConfigNamespace):
     )
 
     auth_url = _config.ConfigItem(
-        _auth_urls,
+        auth_urls,
         'ALMA Central Authentication Service URLs'
     )
 
