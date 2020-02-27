@@ -214,8 +214,6 @@ def test_session_info(patch_post):
     assert info['ezid'] == 'alice'
 
 
-
-
 ###########################
 # ObservationsClass tests #
 ###########################
@@ -224,8 +222,6 @@ def test_session_info(patch_post):
 regionCoords = SkyCoord(23.34086, 60.658, unit=('deg', 'deg'))
 
 # query functions
-
-
 def test_observations_query_region_async(patch_post):
     responses = mast.Observations.query_region_async(regionCoords, radius=0.2)
     assert isinstance(responses, list)

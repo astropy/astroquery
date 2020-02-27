@@ -114,7 +114,7 @@ class PortalAPI(BaseQuery):
     Class that allows direct programatic access to the MAST Portal.
     Should be used to facilitate all Portal API queries.
     """
- 
+
     def __init__(self, session=None):
 
         super(PortalAPI, self).__init__()

@@ -78,7 +78,6 @@ class TestMast(object):
         ticobj_loc = mast.Mast.resolve_object("TIC 141914082")
         assert round(ticobj_loc.separation(SkyCoord("94.6175354 -72.04484622", unit='deg')).value, 4) == 0
 
-
     ###########################
     # ObservationsClass tests #
     ###########################

@@ -2215,4 +2215,3 @@ class CatalogsClass(MastClass_old):
 
 Observations = ObservationsClass()
 Catalogs = CatalogsClass()
-#Mast = MastClass()
