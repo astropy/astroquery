@@ -64,6 +64,22 @@ def _parse_type(dbtype):
     }.get(dbtype, (dbtype, dbtype, dbtype))
 
 
+def _simple_request(url, params):
+    """
+    Light wrapper on requests.session().get basically to make monkey patched testing easier/more effective.
+    """
+
+    session = requests.session()
+    headers = {"User-Agent": "astroquery/{} {}".format(version, session.headers['User-Agent']),
+               "Content-type": "application/x-www-form-urlencoded",
+               "Accept": "text/plain"}
+    
+    response = requests.get(url, params=params, headers=headers)
+    response.raise_for_status()
+    
+    return response
+
+
 def resolve_object(objectname):
     """
     Resolves an object name to a position on the sky.
@@ -78,21 +94,12 @@ def resolve_object(objectname):
     response : `~astropy.coordinates.SkyCoord`
         The sky position of the given object.
     """
-
-    session = requests.session()
     
     request_args = {"service":"Mast.Name.Lookup",
                     "params":{'input': objectname,'format': 'json'}}
     request_string =  'request={}'.format(urlencode(json.dumps(request_args)))
 
-    headers = {"User-Agent": "astroquery/{} {}".format(version, session.headers['User-Agent']),
-               "Content-type": "application/x-www-form-urlencoded",
-               "Accept": "text/plain"}
-
-    response = session.get("{}/api/v0/invoke".format(conf.server),
-                           params=request_string, headers=headers)
-    response.raise_for_status()
-
+    response = _simple_request("{}/api/v0/invoke".format(conf.server), request_string)
     result = response.json()
 
     if len(result['resolvedCoordinate']) == 0:

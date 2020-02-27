@@ -62,9 +62,9 @@ def patch_post(request):
     except AttributeError:  # pytest < 3
         mp = request.getfuncargvalue("monkeypatch")
 
-    mp.setattr(mast.utils, 'resolve_object', resolver_mockreturn)
+    mp.setattr(mast.utils, '_simple_request', resolver_mockreturn)
         
-    #mp.setattr(PortalAPI, '_request', post_mockreturn)
+    mp.setattr(mast.discovery_portal.PortalAPI, '_request', post_mockreturn_with_self)
     mp.setattr(mast.Mast._auth_obj, 'session_info', session_info_mockreturn)
 
     mp.setattr(mast.Observations, '_request', post_mockreturn)
@@ -108,6 +108,10 @@ def post_mockreturn(method="POST", url=None, data=None, timeout=10, **kwargs):
 
     # returning as list because this is what the mast _request function does
     return [MockResponse(content)]
+
+
+def post_mockreturn_with_self(self, method="POST", url=None, data=None, timeout=10, **kwargs):
+    return post_mockreturn(method=method, url=url, data=data, timeout=timeout, **kwargs)
 
 
 def resolver_mockreturn(*args, **kwargs):
@@ -164,31 +168,32 @@ def test_list_missions(patch_post):
         assert m in missions
 
 
-#def test_mast_service_request_async(patch_post):
-#    service = 'Mast.Name.Lookup'
-#    params = {'input': "M103",
-#              'format': 'json'}
-#    responses = mast.Mast.service_request_async(service, params)
+def test_mast_service_request_async(patch_post):
+    service = 'Mast.Name.Lookup'
+    params = {'input': "M103",
+              'format': 'json'}
+    responses = mast.Mast.service_request_async(service, params)
 
-#    output = responses[0].json()
+    output = responses[0].json()
 
-#    assert isinstance(responses, list)
-#    assert output
-
-
-#def test_mast_service_request(patch_post):
-#    service = 'Mast.Caom.Cone'
-#    params = {'ra': 23.34086,
-#              'dec': 60.658,
-#              'radius': 0.2}
-#    result = mast.Mast.service_request(service, params)
-
-#    assert isinstance(result, Table)
+    assert isinstance(responses, list)
+    assert output
 
 
-#def test_resolve_object(patch_post):
-#    m103_loc = mast.Mast.resolve_object("M103")
-#    assert m103_loc.separation(SkyCoord("23.34086 60.658", unit='deg')).value == 0
+def test_mast_service_request(patch_post):
+    service = 'Mast.Caom.Cone'
+    params = {'ra': 23.34086,
+              'dec': 60.658,
+              'radius': 0.2}
+    result = mast.Mast.service_request(service, params)
+
+    assert isinstance(result, Table)
+
+
+def test_resolve_object(patch_post):
+    m103_loc = mast.Mast.resolve_object("M103")
+    print(m103_loc)
+    assert m103_loc.separation(SkyCoord("23.34086 60.658", unit='deg')).value == 0
 
 
 def test_login_logout(patch_post):
