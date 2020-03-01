@@ -10,14 +10,11 @@ _url_list =['http://almascience.org',
             'https://almascience.eso.org',
             'https://almascience.nrao.edu',
             'https://almascience.nao.ac.jp',
-            # does not respond on Feb 25, 20202 'https://beta.cadc-ccda.hia-iha.nrc-cnrc.gc.ca'
            ]
 
-_test_url_list = ['https://asa.hq.eso.org:8443',
-                  # not a valid test server as of Feb 25, 2020 'https://2020feb.asa-test.alma.cl',
-                 ]
+_test_url_list = []
 
-auth_urls = ['asa.alma.cl', 'rh-cas.alma.cl', '2020feb.asa-test.hq.eso.org']
+auth_urls = ['asa.alma.cl', 'rh-cas.alma.cl',]
 
 class Conf(_config.ConfigNamespace):
     """
