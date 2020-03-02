@@ -144,10 +144,12 @@ matrix:
                SETUP_CMD='test -R -V -a "--durations=50"'
                CONDA_DEPENDENCIES=$CONDA_DEPENDENCIES_REMOTE
 
-
 install:
     - git clone git://github.com/astropy/ci-helpers.git
     - source ci-helpers/travis/setup_conda.sh
+
+    # https://github.com/travis-ci/travis-ci/issues/8982#issuecomment-354357640
+    - python -c "import fcntl; fcntl.fcntl(1, fcntl.F_SETFL, 0)"
 
 script:
    - $RUN_HTTPBIN
