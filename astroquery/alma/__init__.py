@@ -12,7 +12,7 @@ _url_list =['http://almascience.org',
             'https://almascience.nao.ac.jp',
            ]
 
-_test_url_list = []
+_test_url_list = ['https://almascience-dev.nrao.edu']
 
 auth_urls = ['asa.alma.cl', 'rh-cas.alma.cl',]
 
