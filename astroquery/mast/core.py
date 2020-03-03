@@ -42,7 +42,7 @@ from .auth import MastAuth
 from .cloud import CloudAccess
 
 
-__all__ = ['Catalogs', 'CatalogssClass']
+__all__ = ['Catalogs', 'CatalogsClass']
 
 
 def _prepare_service_request_string(json_obj):
