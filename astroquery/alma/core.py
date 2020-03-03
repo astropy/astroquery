@@ -8,6 +8,7 @@ import re
 import tarfile
 import string
 import requests
+from requests.auth import HTTPBasicAuth
 from pkg_resources import resource_filename
 from bs4 import BeautifulSoup
 
@@ -273,6 +274,7 @@ class AlmaClass(QueryWithLogin):
             req.raise_for_status()
             try:
                 jdata = req.json()
+            # Note this exception does not work in Python 2.7
             except json.JSONDecodeError:
                 if 'Central Authentication Service' in req.text:
                     # this indicates a wrong server is being used;
@@ -282,9 +284,9 @@ class AlmaClass(QueryWithLogin):
                 else:
                     raise
             if jdata['type'] != 'PROJECT':
-                log.error(f"Skipped uid {uu} because it is not a project and"
-                          "lacks the appropriate metadata; it is a "
-                          f"{jdata['type']}")
+                log.error("Skipped uid {} because it is not a project and".format(uu)
+                          + "lacks the appropriate metadata; it is a "
+                          + "{}".format(jdata['type']))
                 continue
             table = uid_json_to_table(jdata)
             table['sizeInBytes'].unit = u.B
@@ -485,6 +487,11 @@ class AlmaClass(QueryWithLogin):
         Note: Given a list with repeated URLs, each will only be downloaded
         once, so the return may have a different length than the input list
         """
+        # Use basic HTTP Auth in order to pass authentication for proprietary data
+        auth = None
+        if hasattr(self, '_PASSWORD'):
+            auth = HTTPBasicAuth(self.USERNAME, self._PASSWORD)
+        
         downloaded_files = []
         if savedir is None:
             savedir = self.cache_location
@@ -493,7 +500,8 @@ class AlmaClass(QueryWithLogin):
                 filename = self._request("GET", fileLink, save=True,
                                          savedir=savedir,
                                          timeout=self.TIMEOUT, cache=cache,
-                                         continuation=continuation)
+                                         continuation=continuation,
+                                         auth=auth)
                 downloaded_files.append(filename)
             except requests.HTTPError as ex:
                 if ex.response.status_code == 401:
@@ -673,6 +681,7 @@ class AlmaClass(QueryWithLogin):
         if authenticated:
             log.info("Authentication successful!")
             self.USERNAME = username
+            self._PASSWORD = password
         else:
             log.exception("Authentication failed!")
         # When authenticated, save password in keyring if needed
