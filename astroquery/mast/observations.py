@@ -201,12 +201,30 @@ class ObservationsClass(QueryWithLogin):
 
         return self._portal_api_connection._get_columnsconfig_metadata(colconf_name)
 
-    def _parse_caom_criteria(self, criteria):
+    def _parse_caom_criteria(self, **criteria):
         """
-        TODO: writ this!
+        Helper function that takes dictionary of criteria and parses them into
+        position (none if there are no coordinates/object name) and a filter set.
 
-        helper function that takes in a dictionarey of criteria and parses them out into 
-        coordinates, and filter set
+        Parameters
+        ----------
+        **criteria
+            Criteria to apply.
+            Valid criteria are coordinates, objectname, radius (as in `query_region` and `query_object`),
+            and all observation fields returned by the ``get_metadata("observations")``.
+            The Column Name is the keyword, with the argument being one or more acceptable values for that parameter,
+            except for fields with a float datatype where the argument should be in the form [minVal, maxVal].
+            For non-float type criteria wildcards maybe used (both * and % are considered wildcards), however
+            only one wildcarded value can be processed per criterion.
+            RA and Dec must be given in decimal degrees, and datetimes in MJD.
+            For example: filters=["FUV","NUV"],proposal_pi="Ost*",t_max=[52264.4586,54452.8914]
+
+        Returns
+        -------
+        response : tuple
+            Tuple of the form (position, filter_set), where position is either None (coordinates and objectname 
+            not given) or a string, and filter_set is list of filters dictionaries.
+        
         """
 
         # Seperating any position info from the rest of the filters
@@ -380,7 +398,10 @@ class ObservationsClass(QueryWithLogin):
         response : list of `~requests.Response`
         """
 
-        position, mashup_filters = self._parse_caom_criteria(criteria)
+        position, mashup_filters = self._parse_caom_criteria(**criteria)
+
+        if not mashup_filters:
+            raise InvalidQueryError("At least one non-positional criterion must be supplied.")
 
         if position:
             service = "Mast.Caom.Filtered.Position"
@@ -494,7 +515,7 @@ class ObservationsClass(QueryWithLogin):
         response : int
         """
 
-        position, mashup_filters = self._parse_caom_criteria(criteria)
+        position, mashup_filters = self._parse_caom_criteria(**criteria)
 
         # send query
         if position:
