@@ -42,7 +42,7 @@ from .auth import MastAuth
 from .cloud import CloudAccess
 
 
-__all__ = ['Observations', 'ObservationsClass']
+__all__ = ['Catalogs', 'CatalogssClass']
 
 
 def _prepare_service_request_string(json_obj):
@@ -988,7 +988,7 @@ class MastClass_old(QueryWithLogin):
 
 
 @async_to_sync
-class ObservationsClass(MastClass_old):
+class ObservationsClass_old(MastClass_old):
     """
     MAST Observations query class.
 
@@ -997,7 +997,7 @@ class ObservationsClass(MastClass_old):
 
     def __init__(self, *args, **kwargs):
 
-        super(ObservationsClass, self).__init__(*args, **kwargs)
+        super(ObservationsClass_old, self).__init__(*args, **kwargs)
         self._cloud_connection = None
 
     def list_missions(self):
@@ -2213,5 +2213,5 @@ class CatalogsClass(MastClass_old):
         return manifest
 
 
-Observations = ObservationsClass()
+#Observations = ObservationsClass()
 Catalogs = CatalogsClass()

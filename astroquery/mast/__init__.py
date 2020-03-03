@@ -34,9 +34,10 @@ class Conf(_config.ConfigNamespace):
 conf = Conf()
 
 
-from .core import Observations, ObservationsClass, Catalogs, CatalogsClass
+from .core import Catalogs, CatalogsClass
 from .tesscut import TesscutClass, Tesscut
 from .discovery_portal import MastClass, Mast
+from .observations import Observations, ObservationsClass
 from . import utils
 
 __all__ = ['Observations', 'ObservationsClass',
