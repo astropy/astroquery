@@ -8,7 +8,6 @@ import re
 import tarfile
 import string
 import requests
-from requests.auth import HTTPBasicAuth
 from pkg_resources import resource_filename
 from bs4 import BeautifulSoup
 
@@ -490,8 +489,8 @@ class AlmaClass(QueryWithLogin):
         # Use basic HTTP Auth in order to pass authentication for proprietary data
         auth = None
         if hasattr(self, '_PASSWORD'):
-            auth = HTTPBasicAuth(self.USERNAME, self._PASSWORD)
-        
+            auth = (self.USERNAME, self._PASSWORD)
+
         downloaded_files = []
         if savedir is None:
             savedir = self.cache_location
