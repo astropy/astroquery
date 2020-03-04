@@ -275,7 +275,7 @@ class AlmaClass(QueryWithLogin):
                 jdata = req.json()
             # Note this exception does not work in Python 2.7
             except json.JSONDecodeError:
-                if 'Central Authentication Service' in req.text:
+                if 'Central Authentication Service' in req.text or 'recentRequests' in req.url:
                     # this indicates a wrong server is being used;
                     # the "pre-feb2020" stager will be phased out
                     # when the new services are deployed
@@ -402,21 +402,24 @@ class AlmaClass(QueryWithLogin):
         # will be wrong
         # (the request ID can also be found from the javascript in the request
         # response)
-        assert response.url.split("/")[-3] == 'requests', 'Malformatted URL'
-        request_id = response.url.split("/")[-1]
-        self._staging_log['request_id'] = request_id
-        log.debug("Request ID: {0}".format(request_id))
+        if response.url.split("/")[-1] == 'submission':
+            request_id = response.url.split("/")[-2]
+            self._staging_log['request_id'] = request_id
+            log.debug("Request ID: {0}".format(request_id))
 
-        # Submit a request for the specific request ID identified above
-        submission_url = urljoin(self._get_dataarchive_url(),
-                                 url_helpers.join('rh/submission', request_id))
-        log.debug("Submission URL: {0}".format(submission_url))
-        self._staging_log['submission_url'] = submission_url
-        staging_submission = self._request('GET', submission_url, cache=True)
-        self._staging_log['staging_submission'] = staging_submission
-        staging_submission.raise_for_status()
+            # Submit a request for the specific request ID identified above
+            submission_url = urljoin(self._get_dataarchive_url(),
+                                     url_helpers.join('rh/submission', request_id))
+            log.debug("Submission URL: {0}".format(submission_url))
+            self._staging_log['submission_url'] = submission_url
+            staging_submission = self._request('GET', submission_url, cache=True)
+            self._staging_log['staging_submission'] = staging_submission
+            staging_submission.raise_for_status()
 
-        data_page_url = staging_submission.url
+            data_page_url = staging_submission.url
+        elif response.url.split("/")[-3] == 'requests':
+            data_page_url = response.url
+
         self._staging_log['data_page_url'] = data_page_url
         dpid = data_page_url.split("/")[-1]
         self._staging_log['staging_page_id'] = dpid
