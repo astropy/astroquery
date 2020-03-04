@@ -63,6 +63,7 @@ def test_observations_query_region(patch_get):
     """ test query against a region of the sky """
     result = gemini.Observations.query_region(coords, radius=0.3 * units.deg)
     assert isinstance(result, Table)
+    assert len(result) > 0
 
 
 def test_observations_query_criteria(patch_get):
@@ -70,12 +71,14 @@ def test_observations_query_criteria(patch_get):
     result = gemini.Observations.query_criteria(instrument='GMOS-N', program_id='GN-CAL20191122',
                                                 observation_type='BIAS')
     assert isinstance(result, Table)
+    assert len(result) > 0
 
 
 def test_observations_query_raw(patch_get):
     """ test querying raw """
     result = gemini.Observations.query_raw('GMOS-N', 'BIAS', progid='GN-CAL20191122')
     assert isinstance(result, Table)
+    assert len(result) > 0
 
 
 def test_url_helper_arg():

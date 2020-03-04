@@ -158,11 +158,14 @@ class ObservationsClass(BaseQuery):
     @class_or_instance
     def query_criteria(self, coordinates=None, radius=0.3*units.deg, pi_name=None, program_id=None, utc_date=None,
                        instrument=None, observation_class=None, observation_type=None, mode=None,
-                       adaptive_optics=None, program_text=None, objectname=None, raw_reduced=None):
+                       adaptive_optics=None, program_text=None, objectname=None, raw_reduced=None,
+                       *rawqueryargs, orderby=None, **rawquerykwargs):
         """
         search a variety of known parameters against the Gemini observations.
 
-        Given various criteria, search the Gemini archive for matching observations.
+        Given various criteria, search the Gemini archive for matching observations.  Note that
+        ``rawqueryargs`` and ``rawquerykwargs`` will pick up additional positional and key=value
+        arguments and pass then on to the raw query as is.
 
         Parameters
         ----------
@@ -252,18 +255,45 @@ class ObservationsClass(BaseQuery):
                 'PROCESSED_FLAT',
                 'PROCESSED_FRINGE',
                 'PROCESSED_ARC'
+        orderby : str, optional
+            Indicates how the results should be sorted.  Values should be like the ones used
+            in the archive website when sorting a column.  For example, ``data_label_desc`` would
+            sort by the data label in descending order.
+        rawqueryargs : list, optional
+            Additional arguments will be passed down to the raw query.  This covers any
+            additional parameters that would end up as '/parametervalue/' in the URL to the archive
+            webservice.
+        rawquerykwargs : dict, optional
+            Additional key/value arguments will also be passed down to the raw query.  This covers
+            any parameters that would end up as '/key=value/' in the URL to the archive webservice.
 
         Returns
         -------
         response : `~astropy.table.Table`
+
+        Raises
+        ------
+        ValueError: passed value is not recognized for the given field, see message for details
         """
 
         # Build parameters into raw query
         #
         # This consists of a set of unnamed arguments, args, and key/value pairs, kwargs
+
+        # These will hold the passed freeform parameters plus the explicit criteria
+        # for our eventual call to the raw query method
         args = list()
         kwargs = dict()
 
+        # Copy the incoming set of free-form arguments
+        if rawqueryargs:
+            for arg in rawqueryargs:
+                args.append(arg)
+        if rawquerykwargs:
+            for (k, v) in rawquerykwargs.items():
+                kwargs[k] = v
+
+        # Now consider the canned criteria
         if radius is not None:
             kwargs["radius"] = radius
         if coordinates is not None:
@@ -309,6 +339,8 @@ class ObservationsClass(BaseQuery):
             if raw_reduced not in __valid_raw_reduced__:
                 raise ValueError("Unrecognized raw/reduced setting: %s" % raw_reduced)
             args.append(raw_reduced)
+        if orderby is not None:
+            kwargs["orderby"] = orderby
 
         return self.query_raw(*args, **kwargs)
 
@@ -343,7 +375,9 @@ class ObservationsClass(BaseQuery):
             The list of parameters to be passed via the query path to the webserver
         kwargs :
             The dictionary of parameters to be passed by name=value within the query
-            path to the webserver
+            path to the webserver.  The ``orderby`` key value pair has a special
+            intepretation and is appended as a query parameter like the one used
+            in the archive website for sorting results.
 
         Returns
         -------
