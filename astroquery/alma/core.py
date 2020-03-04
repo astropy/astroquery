@@ -527,6 +527,15 @@ class AlmaClass(QueryWithLogin):
                     log.info("Access denied to {url}.  Skipping to"
                              " next file".format(url=fileLink))
                     continue
+                elif ex.response.status_code == 403:
+                    log.error("Access denied to {url}".format(url=fileLink))
+                    if 'dataPortal' in fileLink and 'sso' not in fileLink:
+                        log.error("The URL may be incorrect.  Try using "
+                                  "{0} instead of {1}"
+                                  .format(fileLink.replace('dataPortal/',
+                                                           'dataPortal/sso/'),
+                                          fileLink))
+                    raise ex
                 else:
                     raise ex
         return downloaded_files
