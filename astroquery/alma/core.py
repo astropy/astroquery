@@ -619,6 +619,10 @@ class AlmaClass(QueryWithLogin):
         password, password_from_keyring = self._get_password(
             "astroquery:{0}".format(auth_url), username, reenter=reenter_password)
 
+        # When authenticated, save password in keyring if needed
+        if password_from_keyring is None and store_password:
+            keyring.set_password("astroquery:{0}".format(auth_url), username, password)
+
         return username, password
 
     def _login(self, username=None, store_password=False,
@@ -701,9 +705,7 @@ class AlmaClass(QueryWithLogin):
             self.USERNAME = username
         else:
             log.exception("Authentication failed!")
-        # When authenticated, save password in keyring if needed
-        if authenticated and password_from_keyring is None and store_password:
-            keyring.set_password("astroquery:{0}".format(auth_url), username, password)
+
         return authenticated
 
     def get_cycle0_uid_contents(self, uid):
