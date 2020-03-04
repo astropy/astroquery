@@ -487,9 +487,7 @@ class AlmaClass(QueryWithLogin):
         once, so the return may have a different length than the input list
         """
         # Use basic HTTP Auth in order to pass authentication for proprietary data
-        auth = None
-        if hasattr(self, '_PASSWORD'):
-            auth = (self.USERNAME, self._PASSWORD)
+        auth = self._get_auth_info(username=self.USERNAME)
 
         downloaded_files = []
         if savedir is None:
@@ -598,6 +596,31 @@ class AlmaClass(QueryWithLogin):
 
         return b"\n".join(newlines)
 
+    def _get_auth_info(self, username, store_password=False,
+                       reenter_password=False):
+        """
+        Get the auth info (user, password) for use in another function
+        """
+
+        if username is None:
+            if not self.USERNAME:
+                raise LoginError("If you do not pass a username to login(), "
+                                 "you should configure a default one!")
+            else:
+                username = self.USERNAME
+
+        if hasattr(self, '_auth_url'):
+            auth_url = self._auth_url
+        else:
+            raise LoginError("Login with .login() to acquire the appropriate"
+                             " login URL")
+
+        # Get password from keyring or prompt
+        password, password_from_keyring = self._get_password(
+            "astroquery:{0}".format(auth_url), username, reenter=reenter_password)
+
+        return username, password
+
     def _login(self, username=None, store_password=False,
                reenter_password=False, auth_urls=auth_urls):
         """
@@ -615,13 +638,6 @@ class AlmaClass(QueryWithLogin):
             keyring. This is the way to overwrite an already stored passwork
             on the keyring. Default is False.
         """
-
-        if username is None:
-            if not self.USERNAME:
-                raise LoginError("If you do not pass a username to login(), "
-                                 "you should configure a default one!")
-            else:
-                username = self.USERNAME
 
         success = False
         for auth_url in auth_urls:
@@ -649,9 +665,12 @@ class AlmaClass(QueryWithLogin):
             log.info("Already logged in.")
             return True
 
-        # Get password from keyring or prompt
-        password, password_from_keyring = self._get_password(
-            "astroquery:{0}".format(auth_url), username, reenter=reenter_password)
+        self._auth_url = auth_url
+
+        username, password = self._get_auth_info(username=username,
+                                                 store_password=store_password,
+                                                 reenter_password=reenter_password,
+                                                )
 
         # Authenticate
         log.info("Authenticating {0} on {1} ...".format(username, auth_url))
@@ -680,7 +699,6 @@ class AlmaClass(QueryWithLogin):
         if authenticated:
             log.info("Authentication successful!")
             self.USERNAME = username
-            self._PASSWORD = password
         else:
             log.exception("Authentication failed!")
         # When authenticated, save password in keyring if needed
