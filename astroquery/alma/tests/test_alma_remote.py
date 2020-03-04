@@ -330,7 +330,7 @@ def test_staging_private(dataarchive_url):
     alma = Alma()
     alma.login('keflavich')
 
-    uid_tbl = alma.query({'project_code': '2019.1.00092.S'}, public=False)
+    uid_tbl = alma.query({'project_code': '2017.1.00114.S'}, public=False)
     uid = uid_tbl['Member ous id'][0]
 
     tbl = alma.stage_data(uid)

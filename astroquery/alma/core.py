@@ -265,6 +265,7 @@ class AlmaClass(QueryWithLogin):
 
         tables = []
         for uu in uids:
+            log.debug("Retrieving metadata for {0}".format(uu))
             uid = clean_uid(uu)
             req = self._request('GET', '{dataarchive_url}/rh/data/expand/{uid}'
                                 .format(dataarchive_url=dataarchive_url,
@@ -283,19 +284,34 @@ class AlmaClass(QueryWithLogin):
                 else:
                     raise
             if jdata['type'] != 'PROJECT':
-                log.error("Skipped uid {} because it is not a project and".format(uu)
-                          + "lacks the appropriate metadata; it is a "
-                          + "{}".format(jdata['type']))
+                log.error("Skipped uid {uu} because it is not a project and"
+                          "lacks the appropriate metadata; it is a "
+                          "{jdata}".format(uu=uu, jdata=jdata['type']))
                 continue
             table = uid_json_to_table(jdata)
             table['sizeInBytes'].unit = u.B
             table.rename_column('sizeInBytes', 'size')
-            table.add_column(Column(data=['{dataarchive_url}/dataPortal/{name}'
-                                          .format(dataarchive_url=dataarchive_url,
-                                                  name=name)
-                                          for name in table['name']],
-                                    name='URL'))
+
+            is_proprietary = self._request('GET',
+                                           '{dataarchive_url}/rh/access/{uid}'
+                                           .format(dataarchive_url=dataarchive_url,
+                                                   uid=uid), cache=False)
+            is_proprietary.raise_for_status()
+
+            if is_proprietary['is_proprietary']:
+                table.add_column(Column(data=['{dataarchive_url}/dataPortal/sso/{name}'
+                                              .format(dataarchive_url=dataarchive_url,
+                                                      name=name)
+                                              for name in table['name']],
+                                        name='URL'))
+            else:
+                table.add_column(Column(data=['{dataarchive_url}/dataPortal/{name}'
+                                              .format(dataarchive_url=dataarchive_url,
+                                                      name=name)
+                                              for name in table['name']],
+                                        name='URL'))
             tables.append(table)
+            log.debug("Completed metadata retrieval for {0}".format(uu))
 
         if len(tables) == 0:
             raise ValueError("No valid UIDs supplied.")
@@ -494,19 +510,17 @@ class AlmaClass(QueryWithLogin):
         Note: Given a list with repeated URLs, each will only be downloaded
         once, so the return may have a different length than the input list
         """
-        # Use basic HTTP Auth in order to pass authentication for proprietary data
-        auth = self._get_auth_info(username=self.USERNAME)
 
         downloaded_files = []
         if savedir is None:
             savedir = self.cache_location
         for fileLink in unique(files):
             try:
+                log.debug("Downloading {0} to {1}".format(fileLink, savedir))
                 filename = self._request("GET", fileLink, save=True,
                                          savedir=savedir,
                                          timeout=self.TIMEOUT, cache=cache,
-                                         continuation=continuation,
-                                         auth=auth)
+                                         continuation=continuation)
                 downloaded_files.append(filename)
             except requests.HTTPError as ex:
                 if ex.response.status_code == 401:
