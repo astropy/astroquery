@@ -398,7 +398,12 @@ class AlmaClass(QueryWithLogin):
                                      "you do not have access rights or are "
                                      "not logged in.")
 
-        request_id = response.url.split("/")[-2]
+        # make sure the URL is formatted as expected, otherwise the request ID
+        # will be wrong
+        # (the request ID can also be found from the javascript in the request
+        # response)
+        assert response.url.split("/")[-3] == 'requests', 'Malformatted URL'
+        request_id = response.url.split("/")[-1]
         self._staging_log['request_id'] = request_id
         log.debug("Request ID: {0}".format(request_id))
 

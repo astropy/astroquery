@@ -319,3 +319,23 @@ def test_staging_uptofeb2020(dataarchive_url):
     names = [x.split("/")[-1] for x in tbl[tbl['mous_uid'] == 'uid://A001/X147/X92']['URL']]
 
     assert '2013.1.00269.S_uid___A002_X9de499_X3d6c.asdm.sdm.tar' in names
+
+
+# always skip this: it's only for testing proprietary access
+@pytest.mark.skipif('True')
+@remote_data
+@pytest.mark.parametrize('dataarchive_url', _url_list)
+def test_staging_private(dataarchive_url):
+
+    alma = Alma()
+    alma.login('keflavich')
+
+    uid_tbl = alma.query({'project_code': '2019.1.00092.S'}, public=False)
+    uid = uid_tbl['Member ous id'][0]
+
+    tbl = alma.stage_data(uid)
+
+    assert 'mous_uid' in tbl.colnames
+
+    names = [x.split("/")[-1] for x in tbl[tbl['mous_uid'] == uid]['URL']]
+
