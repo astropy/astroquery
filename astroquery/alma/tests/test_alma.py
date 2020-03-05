@@ -1,6 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import numpy as np
 import os
+
 import pytest
 from ...utils.testing_tools import MockResponse
 from ...exceptions import (InvalidQueryError)
@@ -97,7 +98,7 @@ def test_SgrAstar(monkeypatch):
     result = alma.query_object('eta carinae')
 
     assert len(result) == 15
-    assert b'2011.0.00497.S' in result['Project code']
+    assert '2011.0.00497.S' in result['Project code']
 
 
 def test_validator(monkeypatch):
