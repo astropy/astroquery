@@ -1,15 +1,15 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 
-from astropy.tests.helper import remote_data
-from astropy.table import Table
+import pytest
 import astropy.coordinates as coord
+from astropy.table import Table
 from astropy import units as u
 
 from ... import nrao
 
 
-@remote_data
+@pytest.mark.remote_data
 class TestNrao:
 
     def test_query_region_async(self):

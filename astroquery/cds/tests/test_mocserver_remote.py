@@ -4,7 +4,6 @@
 import sys
 import pytest
 
-from astropy.tests.helper import remote_data
 from astropy import coordinates
 from astropy.table import Table
 
@@ -21,7 +20,7 @@ except ImportError:
 from ..core import cds
 
 
-@remote_data
+@pytest.mark.remote_data
 class TestMOCServerRemote(object):
     """
     Tests requiring regions

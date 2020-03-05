@@ -2,12 +2,11 @@
 import requests
 import pytest
 
-from astropy.tests.helper import remote_data
 from ...exceptions import InvalidQueryError
 from ... import mpc
 
 
-@remote_data
+@pytest.mark.remote_data
 class TestMPC(object):
 
     @pytest.mark.parametrize('type, name', [

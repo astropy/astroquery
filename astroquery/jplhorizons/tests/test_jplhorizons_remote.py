@@ -1,14 +1,14 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 
-from astropy.tests.helper import remote_data, assert_quantity_allclose
+import pytest
+from astropy.tests.helper import assert_quantity_allclose
 from numpy.ma import is_masked
-
 
 from ... import jplhorizons
 
 
-@remote_data
+@pytest.mark.remote_data
 class TestHorizonsClass:
 
     def test_ephemerides_query(self):

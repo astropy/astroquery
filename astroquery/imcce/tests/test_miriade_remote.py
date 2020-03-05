@@ -1,13 +1,13 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 
-from astropy.tests.helper import remote_data
 import numpy.testing as npt
+import pytest
 
 from .. import core
 
 
-@remote_data
+@pytest.mark.remote_data
 class TestMiriadeClass:
 
     def test_ephemerides(self):

@@ -1,7 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import pytest
 
-from astropy.tests.helper import remote_data
 import astropy.coordinates as coord
 import astropy.units as u
 from astropy.table import Table
@@ -15,7 +14,7 @@ ICRS_COORDS_SgrB2 = coord.SkyCoord(266.835*u.deg, -28.38528*u.deg, frame='icrs')
 multicoords = coord.SkyCoord([ICRS_COORDS_M42, ICRS_COORDS_SgrB2])
 
 
-@remote_data
+@pytest.mark.remote_data
 class TestSimbad(object):
 
     @classmethod

@@ -9,7 +9,6 @@ import os
 # remote_data decorator from astropy:
 import pytest
 
-from astropy.tests.helper import remote_data
 from astropy.table import Table
 from astropy.io import fits
 
@@ -18,7 +17,7 @@ from ..core import _HAVE_SOURCE_DETECTION
 from ...exceptions import TimeoutError
 
 try:
-    import scipy
+    import scipy  # noqa
 except ImportError:
     HAVE_SCIPY = False
 else:
@@ -35,7 +34,7 @@ api_key = conf.api_key or os.environ.get('ASTROMETRY_NET_API_KEY')
 
 
 @pytest.mark.skipif(not api_key, reason='API key not set.')
-@remote_data
+@pytest.mark.remote_data
 def test_solve_by_source_list():
     a = AstrometryNet()
     a.api_key = api_key
@@ -58,7 +57,7 @@ def test_solve_by_source_list():
 
 
 @pytest.mark.skipif(not api_key, reason='API key not set.')
-@remote_data
+@pytest.mark.remote_data
 def test_solve_image_upload():
     # Test that solving by uploading an image works
     a = AstrometryNet()
@@ -79,7 +78,7 @@ def test_solve_image_upload():
 
 
 @pytest.mark.skipif(not api_key, reason='API key not set.')
-@remote_data
+@pytest.mark.remote_data
 def test_solve_image_upload_expected_failure():
     # Test that a solve failure is returned as expected
     a = AstrometryNet()
@@ -98,7 +97,7 @@ def test_solve_image_upload_expected_failure():
                     reason='photutils not installed')
 @pytest.mark.skipif(not HAVE_SCIPY,
                     reason='no scipy, which photutils needs')
-@remote_data
+@pytest.mark.remote_data
 def test_solve_image_detect_source_local():
     # Test that solving by uploading an image works
     a = AstrometryNet()
@@ -124,7 +123,7 @@ def test_solve_image_detect_source_local():
 
 
 @pytest.mark.skipif(not api_key, reason='API key not set.')
-@remote_data
+@pytest.mark.remote_data
 def test_solve_timeout_behavior():
     a = AstrometryNet()
     a.api_key = api_key

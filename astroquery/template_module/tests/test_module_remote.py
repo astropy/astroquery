@@ -7,10 +7,9 @@ from __future__ import print_function
 # remote_data decorator from astropy:
 
 import pytest
-from astropy.tests.helper import remote_data
 
 
-@remote_data
+@pytest.mark.remote_data
 class TestTemplateClass:
     # now write tests for each method here
     def test_this(self):
