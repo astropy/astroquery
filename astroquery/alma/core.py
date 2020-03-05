@@ -291,25 +291,23 @@ class AlmaClass(QueryWithLogin):
             table = uid_json_to_table(jdata)
             table['sizeInBytes'].unit = u.B
             table.rename_column('sizeInBytes', 'size')
+            table.add_column(Column(data=['{dataarchive_url}/dataPortal/sso/{name}'
+                                          .format(dataarchive_url=dataarchive_url,
+                                                  name=name)
+                                          for name in table['name']],
+                                    name='URL'))
+
 
             is_proprietary = self._request('GET',
                                            '{dataarchive_url}/rh/access/{uid}'
                                            .format(dataarchive_url=dataarchive_url,
                                                    uid=uid), cache=False)
             is_proprietary.raise_for_status()
+            isp = is_proprietary.json()['isProprietary']
+            table.add_column(Column(data=[isp for row in table],
+                                    name='isProprietary'))
 
-            if is_proprietary['is_proprietary']:
-                table.add_column(Column(data=['{dataarchive_url}/dataPortal/sso/{name}'
-                                              .format(dataarchive_url=dataarchive_url,
-                                                      name=name)
-                                              for name in table['name']],
-                                        name='URL'))
-            else:
-                table.add_column(Column(data=['{dataarchive_url}/dataPortal/{name}'
-                                              .format(dataarchive_url=dataarchive_url,
-                                                      name=name)
-                                              for name in table['name']],
-                                        name='URL'))
+
             tables.append(table)
             log.debug("Completed metadata retrieval for {0}".format(uu))
 
