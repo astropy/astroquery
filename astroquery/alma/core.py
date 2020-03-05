@@ -297,7 +297,6 @@ class AlmaClass(QueryWithLogin):
                                           for name in table['name']],
                                     name='URL'))
 
-
             is_proprietary = self._request('GET',
                                            '{dataarchive_url}/rh/access/{uid}'
                                            .format(dataarchive_url=dataarchive_url,
@@ -306,7 +305,6 @@ class AlmaClass(QueryWithLogin):
             isp = is_proprietary.json()['isProprietary']
             table.add_column(Column(data=[isp for row in table],
                                     name='isProprietary'))
-
 
             tables.append(table)
             log.debug("Completed metadata retrieval for {0}".format(uu))
@@ -702,8 +700,7 @@ class AlmaClass(QueryWithLogin):
 
         username, password = self._get_auth_info(username=username,
                                                  store_password=store_password,
-                                                 reenter_password=reenter_password,
-                                                )
+                                                 reenter_password=reenter_password)
 
         # Authenticate
         log.info("Authenticating {0} on {1} ...".format(username, auth_url))
@@ -1100,7 +1097,6 @@ class AlmaClass(QueryWithLogin):
 
         tbl = Table([Column(name=k, data=v) for k, v in iteritems(columns)])
         return tbl
-
 
     def get_project_metadata(self, projectid, cache=True):
         """
