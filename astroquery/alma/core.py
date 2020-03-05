@@ -515,7 +515,9 @@ class AlmaClass(QueryWithLogin):
                 log.debug("Downloading {0} to {1}".format(fileLink, savedir))
                 filename = self._request("GET", fileLink, save=True,
                                          savedir=savedir,
-                                         timeout=self.TIMEOUT, cache=cache,
+                                         timeout=self.TIMEOUT,
+                                         allow_redirects=False,
+                                         cache=cache,
                                          continuation=continuation)
                 downloaded_files.append(filename)
             except requests.HTTPError as ex:
@@ -1174,5 +1176,8 @@ def uid_json_to_table(jdata,
 
     columns = [Column(data=[row[key] for row in rows], name=key)
                for key in keys if key not in ('children', 'allMousUids')]
+
+    columns = [col.astype(str) if col.dtype.name == 'object' else col for col
+               in columns]
 
     return Table(columns)
