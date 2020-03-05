@@ -5,6 +5,7 @@ import numpy as np
 
 from astropy.table import Table
 import astropy.units as u
+from six import PY2  # noqa
 
 import pytest
 
