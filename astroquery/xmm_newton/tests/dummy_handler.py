@@ -18,10 +18,10 @@ __all__ = ['DummyHandler']
 
 class DummyHandler(object):
 
-    def retrieve_file(self, filename, response=None, verbose=False):
+    def get_file(self, filename, response=None, verbose=False):
         return
 
-    def retrieve_table(self, filename=None, response=None,
+    def get_table(self, filename=None, response=None,
                        output_format='votable', verbose=False):
         return
 

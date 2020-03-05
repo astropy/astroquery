@@ -31,7 +31,7 @@ __all__ = ['XMMNewton', 'XMMNewtonClass']
 
 class XMMNewtonHandler(BaseQuery):
 
-    def retrieve_file(self, filename, response):
+    def get_file(self, filename, response):
         with open(filename, 'wb') as fh:
             fh.write(response.content)
 
@@ -41,7 +41,7 @@ class XMMNewtonHandler(BaseQuery):
         else:
             log.info("File {0} downloaded".format(filename))
 
-    def retrieve_table(self, filename, response, output_format='votable'):
+    def get_table(self, filename, response, output_format='votable'):
         with open(filename, 'wb') as fh:
             fh.write(response.content)
 
@@ -145,12 +145,12 @@ class XMMNewtonClass(BaseQuery):
                 else:
                     filename = observation_id + ".tar"
 
-            self._handler.retrieve_file(filename, response=response)
+            self._handler.get_file(filename, response=response)
 
             if verbose:
                 log.info("Wrote {0} to {1}".format(link, filename))
 
-                return filename
+            return filename
 
     def get_postcard(self, observation_id, image_type="OBS_EPIC",
                      filename=None, verbose=False):
@@ -201,7 +201,7 @@ class XMMNewtonClass(BaseQuery):
                 else:
                     filename = observation_id + ".PNG"
 
-            self._handler.retrieve_file(filename, response=result)
+            self._handler.get_file(filename, response=result)
 
             return filename
 
