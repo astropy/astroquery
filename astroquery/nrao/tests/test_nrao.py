@@ -2,8 +2,10 @@
 from __future__ import print_function
 import os
 import requests
+from distutils.version import LooseVersion
 
 import pytest
+import astropy
 import astropy.units as u
 from astropy.table import Table
 
@@ -81,10 +83,11 @@ def test_query_region(patch_post, patch_parse_coordinates):
     assert isinstance(result, Table)
     assert len(result) > 0
     if 'Start Time' in result.colnames:
-        assert result['Start Time'][0] == b'83-Sep-27 09:19:30'
-    else:
-        assert result['Start_Time'][0] == b'83-Sep-27 09:19:30'
-    assert result['RA'][0] == b'04h33m11.096s'
+        truth = '83-Sep-27 09:19:30' if LooseVersion(astropy.__version__) >= '4.1' else b'83-Sep-27 09:19:30'
+        assert result['Start Time'][0] == truth
+
+    truth = '04h33m11.096s' if LooseVersion(astropy.__version__) >= '4.1' else b'04h33m11.096s'
+    assert result['RA'][0] == truth
 
 
 def test_query_region_archive(patch_post, patch_parse_coordinates):
