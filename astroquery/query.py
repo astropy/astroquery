@@ -285,6 +285,8 @@ class BaseQuery(object):
         response.raise_for_status()
         if 'content-length' in response.headers:
             length = int(response.headers['content-length'])
+            if length == 0:
+                raise IOError("URL {0} has zero-length.".format(url))
         else:
             length = None
 
