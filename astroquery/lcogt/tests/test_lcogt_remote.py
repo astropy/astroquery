@@ -15,8 +15,8 @@ OBJ_LIST = ["m31", "00h42m44.330s +41d16m07.50s",
 
 
 @pytest.mark.remote_data
-@pytest.mark.xfail(reason="Changed remote API, xfailing until fixing"
-                   "https://github.com/astropy/astroquery/issues/725")
+@pytest.mark.skip(reason="Changed remote API, xfailing until fixing"
+                  "https://github.com/astropy/astroquery/issues/725")
 class TestLcogt:
 
     def test_query_object_meta(self):
