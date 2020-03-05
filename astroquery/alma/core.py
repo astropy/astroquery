@@ -291,7 +291,7 @@ class AlmaClass(QueryWithLogin):
             table = uid_json_to_table(jdata)
             table['sizeInBytes'].unit = u.B
             table.rename_column('sizeInBytes', 'size')
-            table.add_column(Column(data=['{dataarchive_url}/dataPortal/sso/{name}'
+            table.add_column(Column(data=['{dataarchive_url}/dataPortal/{name}'
                                           .format(dataarchive_url=dataarchive_url,
                                                   name=name)
                                           for name in table['name']],
