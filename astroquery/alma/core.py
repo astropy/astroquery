@@ -1,6 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
-import time
+import json
 import os.path
 import keyring
 import numpy as np
@@ -8,15 +8,12 @@ import re
 import tarfile
 import string
 import requests
-from requests import HTTPError
-import sys
 from pkg_resources import resource_filename
 from bs4 import BeautifulSoup
 
-from six.moves.urllib_parse import urljoin, urlparse
-from six import iteritems, StringIO
+from six.moves.urllib_parse import urljoin
 import six
-from astropy.table import Table, Column
+from astropy.table import Table, Column, vstack as table_vstack
 from astropy import log
 from astropy.utils.console import ProgressBar
 from astropy import units as u
@@ -25,10 +22,10 @@ import astropy.io.votable as votable
 
 from ..exceptions import (RemoteServiceError, TableParseError,
                           InvalidQueryError, LoginError)
-from ..utils import commons, url_helpers
+from ..utils import commons
 from ..utils.process_asyncs import async_to_sync
 from ..query import QueryWithLogin
-from . import conf
+from . import conf, auth_urls
 
 __doctest_skip__ = ['AlmaClass.*']
 
@@ -232,11 +229,101 @@ class AlmaClass(QueryWithLogin):
                 self.dataarchive_url = response.url.replace("/aq/", "").replace("http://", "https://")
             else:
                 self.dataarchive_url = self.archive_url
+        elif self.dataarchive_url in ('http://almascience.org',
+                                      'https://almascience.org'):
+            raise ValueError("'dataarchive_url' was set to a disambiguation "
+                             "page that is meant to redirect to a real "
+                             "archive.  You should only reach this message "
+                             "if you manually specified Alma.dataarchive_url. "
+                             "If you did so, instead consider setting "
+                             "Alma.archive_url.  Otherwise, report an error "
+                             "on github.")
         return self.dataarchive_url
 
     def stage_data(self, uids):
         """
-        Stage ALMA data
+        Obtain table of ALMA files
+
+        Parameters
+        ----------
+        uids : list or str
+            A list of valid UIDs or a single UID.
+            UIDs should have the form: 'uid://A002/X391d0b/X7b'
+
+        Returns
+        -------
+        data_file_table : Table
+            A table containing 3 columns: the UID, the file URL (for future
+            downloading), and the file size
+        """
+
+        dataarchive_url = self._get_dataarchive_url()
+
+        # allow for the uid to be specified as single entry
+        if isinstance(uids, str):
+            uids = [uids]
+
+        tables = []
+        for uu in uids:
+            log.debug("Retrieving metadata for {0}".format(uu))
+            uid = clean_uid(uu)
+            req = self._request('GET', '{dataarchive_url}/rh/data/expand/{uid}'
+                                .format(dataarchive_url=dataarchive_url,
+                                        uid=uid),
+                                cache=False)
+            req.raise_for_status()
+            try:
+                jdata = req.json()
+            # Note this exception does not work in Python 2.7
+            except json.JSONDecodeError:
+                if 'Central Authentication Service' in req.text or 'recentRequests' in req.url:
+                    # this indicates a wrong server is being used;
+                    # the "pre-feb2020" stager will be phased out
+                    # when the new services are deployed
+                    return self.stage_data_prefeb2020(uids)
+                else:
+                    raise
+            if jdata['type'] != 'PROJECT':
+                log.error("Skipped uid {uu} because it is not a project and"
+                          "lacks the appropriate metadata; it is a "
+                          "{jdata}".format(uu=uu, jdata=jdata['type']))
+                continue
+            table = uid_json_to_table(jdata)
+            table['sizeInBytes'].unit = u.B
+            table.rename_column('sizeInBytes', 'size')
+            table.add_column(Column(data=['{dataarchive_url}/dataPortal/sso/{name}'
+                                          .format(dataarchive_url=dataarchive_url,
+                                                  name=name)
+                                          for name in table['name']],
+                                    name='URL'))
+
+
+            is_proprietary = self._request('GET',
+                                           '{dataarchive_url}/rh/access/{uid}'
+                                           .format(dataarchive_url=dataarchive_url,
+                                                   uid=uid), cache=False)
+            is_proprietary.raise_for_status()
+            isp = is_proprietary.json()['isProprietary']
+            table.add_column(Column(data=[isp for row in table],
+                                    name='isProprietary'))
+
+
+            tables.append(table)
+            log.debug("Completed metadata retrieval for {0}".format(uu))
+
+        if len(tables) == 0:
+            raise ValueError("No valid UIDs supplied.")
+
+        table = table_vstack(tables)
+
+        return table
+
+    def stage_data_prefeb2020(self, uids):
+        """
+        Stage ALMA data - old server style
+
+        NOTE: this method will be removed when a new ALMA service is deployed
+        in March 2020
 
         Parameters
         ----------
@@ -261,6 +348,12 @@ class AlmaClass(QueryWithLogin):
         DEBUG: Submission URL: https://almascience.eso.org/rh/submission/3f98de33-197e-4692-9afa-496842032ea9 [astroquery.alma.core]
         .DEBUG: Data list URL: https://almascience.eso.org/rh/requests/anonymous/786823226 [astroquery.alma.core]
         """
+
+        import time
+        from requests import HTTPError
+        from ..utils import url_helpers
+        import sys
+        from six.moves.urllib_parse import urlparse
 
         if isinstance(uids, six.string_types + (np.bytes_,)):
             uids = [uids]
@@ -319,20 +412,28 @@ class AlmaClass(QueryWithLogin):
                                      "you do not have access rights or are "
                                      "not logged in.")
 
-        request_id = response.url.split("/")[-2]
-        self._staging_log['request_id'] = request_id
-        log.debug("Request ID: {0}".format(request_id))
+        # make sure the URL is formatted as expected, otherwise the request ID
+        # will be wrong
+        # (the request ID can also be found from the javascript in the request
+        # response)
+        if response.url.split("/")[-1] == 'submission':
+            request_id = response.url.split("/")[-2]
+            self._staging_log['request_id'] = request_id
+            log.debug("Request ID: {0}".format(request_id))
 
-        # Submit a request for the specific request ID identified above
-        submission_url = urljoin(self._get_dataarchive_url(),
-                                 url_helpers.join('rh/submission', request_id))
-        log.debug("Submission URL: {0}".format(submission_url))
-        self._staging_log['submission_url'] = submission_url
-        staging_submission = self._request('GET', submission_url, cache=True)
-        self._staging_log['staging_submission'] = staging_submission
-        staging_submission.raise_for_status()
+            # Submit a request for the specific request ID identified above
+            submission_url = urljoin(self._get_dataarchive_url(),
+                                     url_helpers.join('rh/submission', request_id))
+            log.debug("Submission URL: {0}".format(submission_url))
+            self._staging_log['submission_url'] = submission_url
+            staging_submission = self._request('GET', submission_url, cache=True)
+            self._staging_log['staging_submission'] = staging_submission
+            staging_submission.raise_for_status()
 
-        data_page_url = staging_submission.url
+            data_page_url = staging_submission.url
+        elif response.url.split("/")[-3] == 'requests':
+            data_page_url = response.url
+
         self._staging_log['data_page_url'] = data_page_url
         dpid = data_page_url.split("/")[-1]
         self._staging_log['staging_page_id'] = dpid
@@ -407,11 +508,13 @@ class AlmaClass(QueryWithLogin):
         Note: Given a list with repeated URLs, each will only be downloaded
         once, so the return may have a different length than the input list
         """
+
         downloaded_files = []
         if savedir is None:
             savedir = self.cache_location
         for fileLink in unique(files):
             try:
+                log.debug("Downloading {0} to {1}".format(fileLink, savedir))
                 filename = self._request("GET", fileLink, save=True,
                                          savedir=savedir,
                                          timeout=self.TIMEOUT, cache=cache,
@@ -422,6 +525,15 @@ class AlmaClass(QueryWithLogin):
                     log.info("Access denied to {url}.  Skipping to"
                              " next file".format(url=fileLink))
                     continue
+                elif ex.response.status_code == 403:
+                    log.error("Access denied to {url}".format(url=fileLink))
+                    if 'dataPortal' in fileLink and 'sso' not in fileLink:
+                        log.error("The URL may be incorrect.  Try using "
+                                  "{0} instead of {1}"
+                                  .format(fileLink.replace('dataPortal/',
+                                                           'dataPortal/sso/'),
+                                          fileLink))
+                    raise ex
                 else:
                     raise ex
         return downloaded_files
@@ -513,9 +625,37 @@ class AlmaClass(QueryWithLogin):
 
         return b"\n".join(newlines)
 
+    def _get_auth_info(self, username, store_password=False,
+                       reenter_password=False):
+        """
+        Get the auth info (user, password) for use in another function
+        """
+
+        if username is None:
+            if not self.USERNAME:
+                raise LoginError("If you do not pass a username to login(), "
+                                 "you should configure a default one!")
+            else:
+                username = self.USERNAME
+
+        if hasattr(self, '_auth_url'):
+            auth_url = self._auth_url
+        else:
+            raise LoginError("Login with .login() to acquire the appropriate"
+                             " login URL")
+
+        # Get password from keyring or prompt
+        password, password_from_keyring = self._get_password(
+            "astroquery:{0}".format(auth_url), username, reenter=reenter_password)
+
+        # When authenticated, save password in keyring if needed
+        if password_from_keyring is None and store_password:
+            keyring.set_password("astroquery:{0}".format(auth_url), username, password)
+
+        return username, password
+
     def _login(self, username=None, store_password=False,
-               reenter_password=False, auth_urls=['asa.alma.cl',
-                                                  'rh-cas.alma.cl']):
+               reenter_password=False, auth_urls=auth_urls):
         """
         Login to the ALMA Science Portal.
 
@@ -531,13 +671,6 @@ class AlmaClass(QueryWithLogin):
             keyring. This is the way to overwrite an already stored passwork
             on the keyring. Default is False.
         """
-
-        if username is None:
-            if not self.USERNAME:
-                raise LoginError("If you do not pass a username to login(), "
-                                 "you should configure a default one!")
-            else:
-                username = self.USERNAME
 
         success = False
         for auth_url in auth_urls:
@@ -565,9 +698,12 @@ class AlmaClass(QueryWithLogin):
             log.info("Already logged in.")
             return True
 
-        # Get password from keyring or prompt
-        password, password_from_keyring = self._get_password(
-            "astroquery:{0}".format(auth_url), username, reenter=reenter_password)
+        self._auth_url = auth_url
+
+        username, password = self._get_auth_info(username=username,
+                                                 store_password=store_password,
+                                                 reenter_password=reenter_password,
+                                                )
 
         # Authenticate
         log.info("Authenticating {0} on {1} ...".format(username, auth_url))
@@ -598,9 +734,7 @@ class AlmaClass(QueryWithLogin):
             self.USERNAME = username
         else:
             log.exception("Authentication failed!")
-        # When authenticated, save password in keyring if needed
-        if authenticated and password_from_keyring is None and store_password:
-            keyring.set_password("astroquery:{0}".format(auth_url), username, password)
+
         return authenticated
 
     def get_cycle0_uid_contents(self, uid):
@@ -920,102 +1054,14 @@ class AlmaClass(QueryWithLogin):
                                     " by the ALMA query service:"
                                     " {0}".format(invalid_params))
 
-    def _parse_staging_request_page(self, data_list_page):
-        """
-        Parse pages like this one:
-        https://almascience.eso.org/rh/requests/anonymous/786572566
-
-        that include links to data sets that have been requested and staged
-
-        Parameters
-        ----------
-        data_list_page : requests.Response object
-
-        """
-
-        root = BeautifulSoup(data_list_page.content, 'html5lib')
-
-        data_table = root.findAll('table', class_='list', id='report')[0]
-        columns = {'uid': [], 'URL': [], 'size': []}
-        for tr in data_table.findAll('tr'):
-            tds = tr.findAll('td')
-
-            # Cannot check class if it is not defined
-            cl = 'class' in tr.attrs
-
-            if (len(tds) > 1 and 'uid' in tds[0].text and
-                    (cl and 'Level' in tr['class'][0])):
-                # New Style
-                text = tds[0].text.strip().split()
-                if text[0] in ('Asdm', 'Member'):
-                    uid = text[-1]
-            elif len(tds) > 1 and 'uid' in tds[1].text:
-                # Old Style
-                uid = tds[1].text.strip()
-            elif cl and tr['class'] == 'Level_1':
-                raise ValueError("Heading was found when parsing the download "
-                                 "page but it was not parsed correctly")
-
-            if len(tds) > 3 and (cl and tr['class'][0] == 'fileRow'):
-                # New Style
-                size, unit = re.search(r'(-|[0-9\.]*)([A-Za-z]*)',
-                                       tds[2].text).groups()
-                href = tds[1].find('a')
-                if size == '':
-                    # this is a header row
-                    continue
-                authorized = ('access_authorized.png' in
-                              tds[3].findChild('img')['src'])
-                if authorized:
-                    columns['uid'].append(uid)
-                    if href and 'href' in href.attrs:
-                        columns['URL'].append(href.attrs['href'])
-                    else:
-                        columns['URL'].append('None_Found')
-                    unit = (u.Unit(unit) if unit in ('GB', 'MB')
-                            else u.Unit('kB') if 'kb' in unit.lower()
-                            else 1)
-                    try:
-                        columns['size'].append(float(size) * u.Unit(unit))
-                    except ValueError:
-                        # size is probably a string?
-                        columns['size'].append(-1 * u.byte)
-                    log.log(level=5, msg="Found a new-style entry.  "
-                            "size={0} uid={1} url={2}"
-                            .format(size, uid, columns['URL'][-1]))
-                else:
-                    log.warning("Access to {0} is not authorized.".format(uid))
-            elif len(tds) > 3 and tds[2].find('a'):
-                # Old Style
-                href = tds[2].find('a')
-                size, unit = re.search(r'([0-9\.]*)([A-Za-z]*)',
-                                       tds[3].text).groups()
-                columns['uid'].append(uid)
-                columns['URL'].append(href.attrs['href'])
-                unit = (u.Unit(unit) if unit in ('GB', 'MB')
-                        else u.Unit('kB') if 'kb' in unit.lower()
-                        else 1)
-                columns['size'].append(float(size) * u.Unit(unit))
-                log.log(level=5, msg="Found an old-style entry.  "
-                        "size={0} uid={1} url={2}".format(size, uid,
-                                                          columns['URL'][-1]))
-
-        columns['size'] = u.Quantity(columns['size'], u.Gbyte)
-
-        if len(columns['uid']) == 0:
-            raise RemoteServiceError(
-                "No valid UIDs were found in the staged data table. "
-                "Please include {0} in a bug report."
-                .format(self._staging_log['data_list_url']))
-
-        tbl = Table([Column(name=k, data=v) for k, v in iteritems(columns)])
-
-        return tbl
-
     def _json_summary_to_table(self, data, base_url):
         """
+        Special tool to convert some JSON metadata to a table Obsolete as of
+        March 2020 - should be removed along with stage_data_prefeb2020
         """
-        columns = {'uid': [], 'URL': [], 'size': []}
+        from ..utils import url_helpers
+        from six import iteritems
+        columns = {'mous_uid': [], 'URL': [], 'size': []}
         for entry in data['node_data']:
             # de_type can be useful (e.g., MOUS), but it is not necessarily
             # specified
@@ -1024,7 +1070,7 @@ class AlmaClass(QueryWithLogin):
                        entry['file_key'] != 'null')
             if is_file:
                 # "de_name": "ALMA+uid://A001/X122/X35e",
-                columns['uid'].append(entry['de_name'][5:])
+                columns['mous_uid'].append(entry['de_name'][5:])
                 if entry['file_size'] == 'null':
                     columns['size'].append(np.nan * u.Gbyte)
                 else:
@@ -1054,6 +1100,7 @@ class AlmaClass(QueryWithLogin):
 
         tbl = Table([Column(name=k, data=v) for k, v in iteritems(columns)])
         return tbl
+
 
     def get_project_metadata(self, projectid, cache=True):
         """
@@ -1105,3 +1152,31 @@ def unique(seq):
 def filter_printable(s):
     """ extract printable characters from a string """
     return filter(lambda x: x in string.printable, s)
+
+
+def uid_json_to_table(jdata,
+                      productlist=['ASDM', 'PIPELINE_PRODUCT',
+                                   'PIPELINE_PRODUCT_TARFILE',
+                                   'PIPELINE_AUXILIARY_TARFILE']):
+    rows = []
+
+    def flatten_jdata(this_jdata, mousID=None):
+        if isinstance(this_jdata, list):
+            for kk in this_jdata:
+                if kk['type'] in productlist:
+                    kk['mous_uid'] = mousID
+                    rows.append(kk)
+                elif len(kk['children']) > 0:
+                    if len(kk['allMousUids']) == 1:
+                        flatten_jdata(kk['children'], kk['allMousUids'][0])
+                    else:
+                        flatten_jdata(kk['children'])
+
+    flatten_jdata(jdata['children'])
+
+    keys = rows[-1].keys()
+
+    columns = [Column(data=[row[key] for row in rows], name=key)
+               for key in keys if key not in ('children', 'allMousUids')]
+
+    return Table(columns)
