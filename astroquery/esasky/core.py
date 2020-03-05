@@ -532,12 +532,17 @@ class ESASkyClass(BaseQuery):
             log.info("Starting download of {} data. ({} files)".format(
                 mission, len(maps_table[self.__PRODUCT_URL_STRING])))
             for index in range(len(maps_table)):
-                product_url = maps_table[self.__PRODUCT_URL_STRING][index].decode('utf-8')
+                product_url = maps_table[self.__PRODUCT_URL_STRING][index]
+                if commons.ASTROPY_LT_4_1:
+                    product_url = product_url.decode('utf-8')
                 if(mission.lower() == self.__HERSCHEL_STRING):
-                    observation_id = maps_table["observation_id"][index].decode('utf-8')
+                    observation_id = maps_table["observation_id"][index]
+                    if commons.ASTROPY_LT_4_1:
+                        observation_id = observation_id.decode('utf-8')
                 else:
-                    observation_id = (maps_table[self._get_tap_observation_id(mission)][index]
-                                      .decode('utf-8'))
+                    observation_id = maps_table[self._get_tap_observation_id(mission)][index]
+                    if commons.ASTROPY_LT_4_1:
+                        observation_id = observation_id.decode('utf-8')
                 log.info("Downloading Observation ID: {} from {}"
                          .format(observation_id, product_url))
                 sys.stdout.flush()

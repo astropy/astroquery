@@ -1,11 +1,9 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
 import re
-from distutils.version import LooseVersion
 
 import six
 import pytest
-import astropy
 import astropy.units as u
 from astropy.table import Table
 import numpy as np
@@ -435,6 +433,6 @@ def test_regression_issue388():
         response.content = f.read()
     parsed_table = simbad.Simbad._parse_result(response,
                                                simbad.core.SimbadVOTableResult)
-    truth = 'M   1' if LooseVersion(astropy.__version__) >= '4.1' else b'M   1'
+    truth = b'M   1' if commons.ASTROPY_LT_4_1 else 'M   1'
     assert parsed_table['MAIN_ID'][0] == truth
     assert len(parsed_table) == 1

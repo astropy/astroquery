@@ -6,6 +6,7 @@ import astropy.coordinates as coord
 from astropy.table import Table
 from astropy import units as u
 
+from astroquery.utils.commons import ASTROPY_LT_4_1
 from ... import nrao
 
 
@@ -24,8 +25,7 @@ class TestNrao:
             coord.SkyCoord("04h33m11.1s 05d21m15.5s"),
             retry=5)
         assert isinstance(result, Table)
-        # I don't know why this is byte-typed
-        assert b'0430+052' in result['Source']
+        assert (b'0430+052' if ASTROPY_LT_4_1 else '0430+052') in result['Source']
 
     def test_query_region_project_code(self):
         result = nrao.core.Nrao.query_region(
@@ -50,7 +50,7 @@ class TestNrao:
                                              telescope='jansky_vla',
                                              telescope_config=['A', 'AB', 'B'],
                                              obs_band=['K', 'Ka', 'Q'])
-        assert b'ORION-KL' in [x.strip() for x in result['Source']]
+        assert (b'ORION-KL' if ASTROPY_LT_4_1 else 'ORION-KL') in [x.strip() for x in result['Source']]
 
         # NOTE: This could change if future observations in AB config are ever
         # taken, or A- or B- config observations with fewer antennae.  Neither
