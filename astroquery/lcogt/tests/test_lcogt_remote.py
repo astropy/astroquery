@@ -3,7 +3,6 @@ from __future__ import print_function
 
 import pytest
 
-from astropy.tests.helper import remote_data
 from astropy.table import Table
 from astropy.coordinates import SkyCoord
 import astropy.units as u
@@ -11,11 +10,11 @@ import astropy.units as u
 from ... import lcogt
 
 OBJ_LIST = ["m31", "00h42m44.330s +41d16m07.50s",
-            SkyCoord(l=121.1743, b=-21.5733, unit=(u.deg, u.deg),
+            SkyCoord(l=121.1743, b=-21.5733, unit=(u.deg, u.deg),  # noqa
                      frame='galactic')]
 
 
-@remote_data
+@pytest.mark.remote_data
 @pytest.mark.skip(reason="Changed remote API, xfailing until fixing"
                   "https://github.com/astropy/astroquery/issues/725")
 class TestLcogt:

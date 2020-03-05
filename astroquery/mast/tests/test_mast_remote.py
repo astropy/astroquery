@@ -5,7 +5,6 @@ import numpy as np
 import os
 import pytest
 
-from astropy.tests.helper import remote_data
 from astropy.table import Table
 from astropy.coordinates import SkyCoord
 from astropy.io import fits
@@ -19,7 +18,7 @@ from ... import mast
 from ...exceptions import RemoteServiceError
 
 
-@remote_data
+@pytest.mark.remote_data
 class TestMast(object):
 
     ###################

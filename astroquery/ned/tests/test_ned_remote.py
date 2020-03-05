@@ -1,13 +1,13 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 
-from astropy.tests.helper import remote_data
+import pytest
 from astropy.table import Table
 
 from ... import ned
 
 
-@remote_data
+@pytest.mark.remote_data
 class TestNed:
 
     def test_get_references(self):

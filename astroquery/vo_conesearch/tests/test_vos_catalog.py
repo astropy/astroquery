@@ -15,7 +15,6 @@ import os
 import pytest
 
 # ASTROPY
-from astropy.tests.helper import remote_data
 from astropy.utils.data import get_pkg_data_filename
 
 # LOCAL
@@ -188,7 +187,7 @@ def test_write_json(tmpdir):
     assert db.list_catalogs_by_url() == db2.list_catalogs_by_url()
 
 
-@remote_data
+@pytest.mark.remote_data
 def test_db_from_registry():
     """Test database created from VO registry.
 

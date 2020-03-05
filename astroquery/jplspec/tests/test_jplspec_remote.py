@@ -1,11 +1,11 @@
+import pytest
 from astropy import units as u
 from astropy.table import Table
-from astropy.tests.helper import remote_data
 
 from ...jplspec import JPLSpec
 
 
-@remote_data
+@pytest.mark.remote_data
 def test_remote():
     tbl = JPLSpec.query_lines(min_frequency=500 * u.GHz,
                               max_frequency=1000 * u.GHz,
@@ -23,7 +23,7 @@ def test_remote():
     assert tbl['FREQ'][35] == 987926.7590
 
 
-@remote_data
+@pytest.mark.remote_data
 def test_remote_regex():
     tbl = JPLSpec.query_lines(min_frequency=500 * u.GHz,
                               max_frequency=1000 * u.GHz,

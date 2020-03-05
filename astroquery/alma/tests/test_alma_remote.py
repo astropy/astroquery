@@ -5,7 +5,6 @@ import numpy as np
 import os
 import pytest
 
-from astropy.tests.helper import remote_data
 from astropy import coordinates
 from astropy import units as u
 from six.moves.urllib_parse import urlparse
@@ -26,7 +25,7 @@ all_colnames = {'Project code', 'Source name', 'RA', 'Dec', 'Band',
                 'QA2 Status', 'Group ous id', 'Pub'}
 
 
-@remote_data
+@pytest.mark.remote_data
 class TestAlma:
 
     def setup_class(cls):
@@ -287,14 +286,14 @@ class TestAlma:
         assert 'Orion_Source_I' in result['Source name']
 
 
-@remote_data
+@pytest.mark.remote_data
 def test_project_metadata():
     alma = Alma()
     metadata = alma.get_project_metadata('2013.1.00269.S')
     assert metadata == ['Sgr B2, a high-mass molecular cloud in our Galaxy\'s Central Molecular Zone, is the most extreme site of ongoing star formation in the Local Group in terms of its gas content, temperature, and velocity dispersion. If any cloud in our galaxy is analogous to the typical cloud at the universal peak of star formation at z~2, this is it. We propose a 6\'x6\' mosaic in the 3mm window targeting gas thermometer lines, specifically CH3CN and its isotopologues. We will measure the velocity dispersion and temperature of the molecular gas on all scales (0.02 - 12 pc, 0.5" - 5\') within the cloud, which will yield resolved measurements of the Mach number and the sonic scale of the gas. We will assess the relative importance of stellar feedback and turbulence on the star-forming gas, determining how extensive the feedback effects are within an ultradense environment. The observations will provide constraints on the inputs to star formation theories and will determine their applicability in extremely dense, turbulent, and hot regions. Sgr B2 will be used as a testing ground for star formation theories in an environment analogous to high-z starburst clouds in which they must be applied.']
 
 
-@remote_data
+@pytest.mark.remote_data
 @pytest.mark.parametrize('dataarchive_url', _test_url_list)
 def test_staging_postfeb2020(dataarchive_url):
 
@@ -307,7 +306,7 @@ def test_staging_postfeb2020(dataarchive_url):
     assert '2013.1.00269.S_uid___A002_X9de499_X3d6c.asdm.sdm.tar' in tbl['name']
 
 
-@remote_data
+@pytest.mark.remote_data
 @pytest.mark.parametrize('dataarchive_url', _url_list)
 def test_staging_uptofeb2020(dataarchive_url):
 

@@ -1,12 +1,12 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-from astropy.tests.helper import remote_data
+import pytest
 import astropy.units as u
 
 from .. import SBDB
 
 
-@remote_data
+@pytest.mark.remote_data
 class TestSBDBClass:
 
     def test_id_types(self):

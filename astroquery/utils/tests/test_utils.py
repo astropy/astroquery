@@ -14,7 +14,6 @@ from astropy.io import fits
 import astropy.io.votable as votable
 import astropy.units as u
 from astropy.table import Table
-from astropy.tests.helper import remote_data
 import astropy.utils.data as aud
 
 from ...utils import chunk_read, chunk_report, class_or_instance, commons
@@ -35,7 +34,7 @@ class SimpleQueryClass(object):
             return "instance"
 
 
-@remote_data
+@pytest.mark.remote_data
 def test_chunk_read():
     datasize = 50000
     response = urllib.request.urlopen('http://httpbin.org/stream-bytes/{0}'.format(datasize))
@@ -59,7 +58,7 @@ def test_parse_coordinates_1(coordinates):
     assert c is not None
 
 
-@remote_data
+@pytest.mark.remote_data
 @pytest.mark.parametrize(('coordinates'),
                          ["00h42m44.3s +41d16m9s",
                           "m81"])

@@ -5,7 +5,6 @@ import pytest
 import requests
 
 from astropy import units as u
-from astropy.tests.helper import remote_data
 
 from ... import splatalogue
 from ...utils.testing_tools import MockResponse
@@ -42,7 +41,7 @@ def test_simple(patch_post):
                                         chemical_name=' CO ')
 
 
-@remote_data
+@pytest.mark.remote_data
 def test_init(patch_post):
     x = splatalogue.Splatalogue.query_lines(114 * u.GHz, 116 * u.GHz,
                                             chemical_name=' CO ')
@@ -118,7 +117,7 @@ def test_band_crashorno():
 # # regression test : version selection should work
 # # Unfortunately, it looks like version1 = version2 on the web page now, so this
 # # may no longer be a valid test
-# @remote_data
+# @pytest.mark.remote_data
 # def test_version_selection():
 #     results = splatalogue.Splatalogue.query_lines(
 # 			    min_frequency= 703*u.GHz,
@@ -154,7 +153,7 @@ def test_exclude(patch_post):
         assert k[:3] != 'no_'
 
 
-@remote_data
+@pytest.mark.remote_data
 def test_exclude_remote():
     # regression test for issue 616
     # only entry should be  "D213CO  Formaldehyde 351.96064  3.9e-06   ...."

@@ -5,7 +5,6 @@ import pytest
 
 from astropy import coordinates
 from astropy.table import Table
-from astropy.tests.helper import remote_data
 
 from six.moves.urllib_error import URLError
 
@@ -13,7 +12,7 @@ from ... import sdss
 from ...exceptions import TimeoutError
 
 
-@remote_data
+@pytest.mark.remote_data
 class TestSDSSRemote:
     # Test Case: A Seyfert 1 galaxy
     coords = coordinates.SkyCoord('0h8m05.63s +14d50m23.3s')

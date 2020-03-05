@@ -11,7 +11,6 @@ import requests
 from datetime import datetime
 from astropy.coordinates import SkyCoord
 from astropy.io import fits
-from astropy.tests.helper import remote_data
 from astropy import units as u
 
 from astroquery.cadc import Cadc
@@ -37,7 +36,7 @@ one_test = False
 skip_slow = True
 
 
-@remote_data
+@pytest.mark.remote_data
 class TestCadcClass:
     # now write tests for each method here
     @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')

@@ -7,11 +7,10 @@ documentation at:
 
 https://astroquery.readthedocs.io/en/latest/testing.html
 """
-
+import pytest
 from astropy import units
 from astropy.coordinates import SkyCoord
 from astropy.table import Table
-from astropy.tests.helper import remote_data
 
 from astroquery import gemini
 
@@ -20,7 +19,7 @@ from astroquery import gemini
 coords = SkyCoord(210.80242917, 54.34875, unit="deg")
 
 
-@remote_data
+@pytest.mark.remote_data
 class TestGemini(object):
     def test_observations_query_region(self):
         """ test query against a region of the sky against actual archive """

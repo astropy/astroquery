@@ -3,16 +3,16 @@ from __future__ import print_function
 
 import numpy as np
 
-from astropy.tests.helper import remote_data
 from astropy.table import Table
 import astropy.units as u
-from six import PY2
+from six import PY2  # noqa
+
 import pytest
 
 from ... import nist
 
 
-@remote_data
+@pytest.mark.remote_data
 class TestNist:
 
     def test_query_async(self):

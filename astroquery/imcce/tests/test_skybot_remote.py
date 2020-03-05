@@ -2,13 +2,12 @@
 
 import pytest
 
-from astropy.tests.helper import remote_data
 import astropy.units as u
 
 from .. import Skybot
 
 
-@remote_data
+@pytest.mark.remote_data
 class TestSBDBClass:
 
     def general_query(self):
@@ -17,7 +16,7 @@ class TestSBDBClass:
 
     def failed_query(self):
         with pytest.raises(RuntimeError):
-            a = Skybot.cone_search((0, 90), 0.00000001, 2451200)
+            Skybot.cone_search((0, 90), 0.00000001, 2451200)
 
     def planet_moons(self):
         a = Skybot.cone_search((221.48552, -14.82952), 0.1,

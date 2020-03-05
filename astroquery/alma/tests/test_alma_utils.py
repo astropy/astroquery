@@ -5,7 +5,6 @@ import warnings
 
 from astropy import wcs
 from astropy import units as u
-from astropy.tests.helper import remote_data
 try:
     from pyregion.parser_helper import Shape
     pyregion_OK = True
@@ -66,7 +65,7 @@ def approximate_primary_beam_sizes(frq_sup_str=frq_sup_str,
     assert np.all(utils.approximate_primary_beam_sizes(frq_sup_str) == beamsizes)
 
 
-@remote_data
+@pytest.mark.remote_data
 @pytest.mark.skipif('not pyregion_OK')
 def test_make_finder_chart():
     import matplotlib
