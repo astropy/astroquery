@@ -1,12 +1,11 @@
 import astropy.units as u
 import pytest
 from astropy.coordinates import SkyCoord
-from astropy.tests.helper import remote_data
 
 from .. import GaiaClass
 
 
-@remote_data
+@pytest.mark.remote_data
 def test_query_object_row_limit():
     Gaia = GaiaClass()
     coord = SkyCoord(ra=280, dec=-60, unit=(u.degree, u.degree), frame='icrs')
@@ -27,7 +26,7 @@ def test_query_object_row_limit():
     assert len(r) == 176
 
 
-@remote_data
+@pytest.mark.remote_data
 def test_cone_search_row_limit():
     Gaia = GaiaClass()
     coord = SkyCoord(ra=280, dec=-60, unit=(u.degree, u.degree), frame='icrs')

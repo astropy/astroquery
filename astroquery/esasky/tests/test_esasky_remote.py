@@ -5,14 +5,13 @@ import shutil
 import pytest
 
 from astroquery.utils.commons import TableList
-from astropy.tests.helper import remote_data
 
 from ... import esasky
 
 ESASkyClass = esasky.core.ESASkyClass()
 
 
-@remote_data
+@pytest.mark.remote_data
 class TestESASky:
 
     ESASkyClass._isTest = "Remote Test"

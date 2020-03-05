@@ -136,6 +136,6 @@ setup(name=PACKAGENAME,
       use_2to3=False,
       entry_points=entry_points,
       extras_require=extras_require,
-      tests_require=['pytest_astropy'],
+      tests_require=['pytest-astropy'],
       **package_info
 )

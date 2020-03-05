@@ -1,8 +1,9 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import os
+import pytest
 import astropy.units as u
-from astropy.tests.helper import assert_quantity_allclose, remote_data, pytest
+from astropy.tests.helper import assert_quantity_allclose
 from astropy.utils import minversion
 from astropy.coordinates import SkyCoord
 
@@ -13,7 +14,7 @@ LOCAL_TABLE_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)),
                                 'data', 'nasa_exoplanet_archive.csv')
 
 
-@remote_data
+@pytest.mark.remote_data
 @pytest.mark.skipif('APY_LT12')
 def test_hd209458b_exoplanets_archive_apy_lt12():
     # Testing intentionally un-stripped string:
@@ -22,7 +23,7 @@ def test_hd209458b_exoplanets_archive_apy_lt12():
                              atol=0.1 * u.Unit('R_jup'))
 
 
-@remote_data
+@pytest.mark.remote_data
 @pytest.mark.skipif('not APY_LT12')
 def test_hd209458b_exoplanets_archive_apy_gt12():
     # Testing intentionally un-stripped string:
@@ -32,7 +33,7 @@ def test_hd209458b_exoplanets_archive_apy_gt12():
                                  atol=0.1 * u.Unit('R_jup'))
 
 
-@remote_data
+@pytest.mark.remote_data
 def test_hd209458b_exoplanet_archive_coords():
     params = NasaExoplanetArchive.query_planet('HD 209458 b ')
     simbad_coords = SkyCoord(ra='22h03m10.77207s', dec='+18d53m03.5430s')
@@ -68,7 +69,7 @@ def test_hd209458b_exoplanet_archive_coords_local():
     assert abs(sep) < 5 * u.arcsec
 
 
-@remote_data
+@pytest.mark.remote_data
 def test_hd209458_stellar_exoplanet_archive():
     # Testing intentionally un-stripped string, no spaced:
     params = NasaExoplanetArchive.query_star('HD 209458')
@@ -82,7 +83,7 @@ def test_hd209458_stellar_exoplanet_archive():
     assert not params['pl_ttvflag']
 
 
-@remote_data
+@pytest.mark.remote_data
 def test_hd136352_stellar_exoplanet_archive():
     # Check for all planets around specific star
     params = NasaExoplanetArchive.query_star('HD 136352')
@@ -96,7 +97,7 @@ def test_hd136352_stellar_exoplanet_archive():
     assert 'pl_trandep' not in params.colnames
 
 
-@remote_data
+@pytest.mark.remote_data
 @pytest.mark.skipif('APY_LT12')
 def test_hd209458_stellar_exoplanets_archive_apy_lt12():
     # Testing intentionally un-stripped string:
@@ -105,7 +106,7 @@ def test_hd209458_stellar_exoplanets_archive_apy_lt12():
                              atol=0.1 * u.Unit('R_jup'))
 
 
-@remote_data
+@pytest.mark.remote_data
 @pytest.mark.skipif('not APY_LT12')
 def test_hd209458_stellar_exoplanets_archive_apy_gt12():
     # Testing intentionally un-stripped string:
@@ -115,7 +116,7 @@ def test_hd209458_stellar_exoplanets_archive_apy_gt12():
                                  atol=0.1 * u.Unit('R_jup'))
 
 
-@remote_data
+@pytest.mark.remote_data
 def test_hd209458_exoplanet_archive_coords():
     params = NasaExoplanetArchive.query_star('HD 209458')
     simbad_coords = SkyCoord(ra='22h03m10.77207s', dec='+18d53m03.5430s')
@@ -125,7 +126,7 @@ def test_hd209458_exoplanet_archive_coords():
     assert abs(sep) < 5 * u.arcsec
 
 
-@remote_data
+@pytest.mark.remote_data
 def test_exoplanet_archive_query_all_columns():
     # Get all the columns from planet query
     params = NasaExoplanetArchive.query_planet('HD 209458 b ', cache=False, all_columns=True)
@@ -134,7 +135,7 @@ def test_exoplanet_archive_query_all_columns():
     assert 'pl_tranflag' in params.columns
 
 
-@remote_data
+@pytest.mark.remote_data
 def test_stellar_exoplanet_archive_query_all_columns():
     # Get all the columns from star query
     params = NasaExoplanetArchive.query_star('HD 209458 b ', cache=False, all_columns=True)
@@ -143,7 +144,7 @@ def test_stellar_exoplanet_archive_query_all_columns():
     assert 'pl_tranflag' in params.columns
 
 
-@remote_data
+@pytest.mark.remote_data
 @pytest.mark.skipif('APY_LT12')
 def test_hd209458_stellar_exoplanets_archive_apy_lt12_local():
     # Testing intentionally un-stripped string:
@@ -152,7 +153,7 @@ def test_hd209458_stellar_exoplanets_archive_apy_lt12_local():
                              atol=0.1 * u.Unit('R_jup'))
 
 
-@remote_data
+@pytest.mark.remote_data
 @pytest.mark.skipif('not APY_LT12')
 def test_hd209458_stellar_exoplanets_archive_apy_gt12_local():
     # Testing intentionally un-stripped string:
@@ -162,7 +163,7 @@ def test_hd209458_stellar_exoplanets_archive_apy_gt12_local():
                                  atol=0.1 * u.Unit('R_jup'))
 
 
-@remote_data
+@pytest.mark.remote_data
 def test_hd209458_exoplanet_archive_coords_local():
     params = NasaExoplanetArchive.query_star('HD 209458', table_path=LOCAL_TABLE_PATH)
     simbad_coords = SkyCoord(ra='22h03m10.77207s', dec='+18d53m03.5430s')

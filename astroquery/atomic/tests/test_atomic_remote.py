@@ -1,13 +1,13 @@
 import numpy as np
+import pytest
 from bs4 import BeautifulSoup
 from astropy import units as u
 from astropy.table import Table
-from astropy.tests.helper import remote_data
 
 from ...atomic import AtomicLineList
 
 
-@remote_data
+@pytest.mark.remote_data
 def test_default_form_values():
     default_response = AtomicLineList._request(
         method="GET", url=AtomicLineList.FORM_URL,
@@ -28,7 +28,7 @@ def test_default_form_values():
         'wave': u'Angstrom'}
 
 
-@remote_data
+@pytest.mark.remote_data
 def test_query_with_default_params():
     table = AtomicLineList.query_object()
     assert isinstance(table, Table)
@@ -43,7 +43,7 @@ LAMBDA VAC ANG SPECTRUM  TT CONFIGURATION TERM  J J    A_ki   LEVEL ENERGY  CM 1
        1.02916   Zn XXX  E1         1*-6*  1-6 1/2-* 1.33E+12 0.00 - 97174700.00'''.strip()
 
 
-@remote_data
+@pytest.mark.remote_data
 def test_query_with_wavelength_params():
     result = AtomicLineList.query_object(
         wavelength_range=(15 * u.nm, 200 * u.Angstrom),
@@ -65,7 +65,7 @@ def test_query_with_wavelength_params():
                             '0.00 -   502481.80']))
 
 
-@remote_data
+@pytest.mark.remote_data
 def test_empty_result_set():
     result = AtomicLineList.query_object(wavelength_accuracy=0)
     assert isinstance(result, Table)
@@ -73,7 +73,7 @@ def test_empty_result_set():
     assert len(result) == 0
 
 
-@remote_data
+@pytest.mark.remote_data
 def test_lower_upper_ranges():
     result = AtomicLineList.query_object(
         lower_level_energy_range=u.Quantity((600 * u.cm**(-1), 1000 * u.cm**(-1))),

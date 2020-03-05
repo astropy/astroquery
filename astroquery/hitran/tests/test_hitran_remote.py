@@ -1,12 +1,12 @@
 import numpy as np
+import pytest
 from astropy import units as u
 from astropy.table import Table
-from astropy.tests.helper import remote_data
 
 from ...hitran import Hitran
 
 
-@remote_data
+@pytest.mark.remote_data
 def test_query_remote():
     tbl = Hitran.query_lines(molecule_number=1, isotopologue_number=1,
                              min_frequency=0. / u.cm, max_frequency=10. / u.cm)

@@ -14,7 +14,7 @@ except ImportError:
     pass
 
 try:
-    from regions import CircleSkyRegion, PolygonSkyRegion
+    from regions import CircleSkyRegion
 except ImportError:
     pass
 

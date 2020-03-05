@@ -1,12 +1,11 @@
-import unittest
-from astropy.tests.helper import remote_data
+import pytest
 from astroquery.dace import Dace
 
 HARPS_PUBLICATION = '2009A&A...493..639M'
 
 
-@remote_data
-class TestDaceClassRemote(unittest.TestCase):
+@pytest.mark.remote_data
+class TestDaceClassRemote(object):
 
     def test_should_get_radial_velocities(self):
         radial_velocities_table = Dace.query_radial_velocities('HD40307')
@@ -18,7 +17,3 @@ class TestDaceClassRemote(unittest.TestCase):
         public_harps_data = [row for row in radial_velocities_table['pub_bibcode'] if HARPS_PUBLICATION in row]
         assert len(public_harps_data) > 100
         assert len(radial_velocities_table['rv_err']) > 100
-
-
-if __name__ == "__main__":
-    unittest.main()

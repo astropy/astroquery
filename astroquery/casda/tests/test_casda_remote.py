@@ -5,14 +5,13 @@
 import math
 import pytest
 
-from astropy.tests.helper import remote_data
 import astropy.units as u
 from astropy.table import Table
 
 from astroquery.casda import Casda
 
 
-@remote_data
+@pytest.mark.remote_data
 class TestCasda:
 
     def test_query_region_text_radius(self):

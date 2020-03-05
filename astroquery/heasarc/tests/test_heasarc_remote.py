@@ -1,13 +1,14 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 
-from astropy.tests.helper import remote_data
-from ...heasarc import Heasarc
-from ...utils import commons
+import pytest
 import requests
 
+from ...heasarc import Heasarc
+from ...utils import commons
 
-@remote_data
+
+@pytest.mark.remote_data
 class TestHeasarc:
 
     def test_basic_example(self):

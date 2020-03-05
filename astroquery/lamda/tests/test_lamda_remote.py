@@ -1,9 +1,10 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from astropy.tests.helper import remote_data
+import pytest
+
 from ... import lamda
 
 
-@remote_data
+@pytest.mark.remote_data
 def test_query():
     result = lamda.Lamda.query(mol='co')
     assert [len(r) for r in result] == [2, 40, 41]

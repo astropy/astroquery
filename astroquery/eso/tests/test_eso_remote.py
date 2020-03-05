@@ -3,7 +3,6 @@ import numpy as np
 import pytest
 import tempfile
 import shutil
-from astropy.tests.helper import remote_data
 import six
 from ...exceptions import LoginError
 
@@ -20,7 +19,7 @@ instrument_list = [u'fors1', u'fors2', u'sphere', u'vimos', u'omegacam',
 SKIP_SLOW = True
 
 
-@remote_data
+@pytest.mark.remote_data
 class TestEso:
     @pytest.fixture()
     def temp_dir(self, request):
