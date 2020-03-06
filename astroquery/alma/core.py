@@ -297,12 +297,7 @@ class AlmaClass(QueryWithLogin):
                                           for name in table['name']],
                                     name='URL'))
 
-            is_proprietary = self._request('GET',
-                                           '{dataarchive_url}/rh/access/{uid}'
-                                           .format(dataarchive_url=dataarchive_url,
-                                                   uid=uid), cache=False)
-            is_proprietary.raise_for_status()
-            isp = is_proprietary.json()['isProprietary']
+            isp = self.is_proprietary(uid)
             table.add_column(Column(data=[isp for row in table],
                                     name='isProprietary'))
 
@@ -315,6 +310,25 @@ class AlmaClass(QueryWithLogin):
         table = table_vstack(tables)
 
         return table
+
+    def is_proprietary(self, uid):
+        """
+        Given an ALMA UID, query the servers to determine whether it is
+        proprietary or not.  This will never be cached, since proprietarity is
+        time-sensitive.
+        """
+        dataarchive_url = self._get_dataarchive_url()
+
+        is_proprietary = self._request('GET',
+                                       '{dataarchive_url}/rh/access/{uid}'
+                                       .format(dataarchive_url=dataarchive_url,
+                                               uid=clean_uid(uid)), cache=False)
+
+        is_proprietary.raise_for_status()
+
+        isp = is_proprietary.json()['isProprietary']
+
+        return isp
 
     def stage_data_prefeb2020(self, uids):
         """
@@ -516,7 +530,7 @@ class AlmaClass(QueryWithLogin):
                 filename = self._request("GET", fileLink, save=True,
                                          savedir=savedir,
                                          timeout=self.TIMEOUT,
-                                         allow_redirects=False,
+                                         #allow_redirects=False,
                                          cache=cache,
                                          continuation=continuation)
                 downloaded_files.append(filename)

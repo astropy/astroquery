@@ -286,7 +286,7 @@ class BaseQuery(object):
         if 'content-length' in response.headers:
             length = int(response.headers['content-length'])
             if length == 0:
-                raise IOError("URL {0} has zero-length.".format(url))
+                log.warn('URL {0} has length=0'.format(url))
         else:
             length = None
 
