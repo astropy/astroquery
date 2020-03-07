@@ -15,8 +15,6 @@ import astropy.units as u
 
 from ... import mast
 
-from ...exceptions import RemoteServiceError
-
 
 @pytest.mark.remote_data
 class TestMast(object):
@@ -485,12 +483,12 @@ class TestMast(object):
 
         result = mast.Catalogs.query_hsc_matchid(catalogData[0])
         assert isinstance(result, Table)
-        assert len(result) >= 8
+        assert len(result) >= 6
         assert (result['MatchID'] == matchid).all()
 
         result = mast.Catalogs.query_hsc_matchid(matchid)
         assert isinstance(result, Table)
-        assert len(result) >= 8
+        assert len(result) >= 6
         assert (result['MatchID'] == matchid).all()
 
     def test_catalogs_get_hsc_spectra_async(self):
@@ -537,11 +535,11 @@ class TestMast(object):
         assert sector_table['camera'][0] == 1
         assert sector_table['ccd'][0] == 3
 
-        # This should always return no results
+        # This now returns some results
         coord = SkyCoord(0, 90, unit="deg")
         sector_table = mast.Tesscut.get_sectors(coordinates=coord)
         assert isinstance(sector_table, Table)
-        assert len(sector_table) == 0
+        assert len(sector_table) == 2
 
         sector_table = mast.Tesscut.get_sectors(objectname="M104")
         assert isinstance(sector_table, Table)
