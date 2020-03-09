@@ -20,6 +20,7 @@ from astroquery.utils.tap.core import TapPlus
 from astroquery.utils.tap.model import modelutils
 from astroquery.query import BaseQuery
 from astropy.table import Table
+import shutil
 
 
 from . import conf
@@ -85,8 +86,7 @@ class XMMNewtonClass(BaseQuery):
             The identifier of the observation we want to retrieve, 10 digits
             example: 0144090201
         filename : string
-            file name to be used to store the file, optional, default
-            None
+            file name to be used to store the file
         verbose : bool
             optional, default 'False'
             flag to display information about the process
@@ -133,24 +133,31 @@ class XMMNewtonClass(BaseQuery):
         link = link + "".join("&{0}={1}".format(key, val)
                               for key, val in kwargs.items())
 
-        response = self._request('GET', link)
+        response = self._request('GET', link, save=True)
         if response is not None:
-            response.raise_for_status()
-
             if filename is None:
-                if "Content-Disposition" in response.headers.keys():
-                    filename = re.findall('filename="(.+)"',
-                                          response.headers[
-                                              "Content-Disposition"])[0]
-                else:
-                    filename = observation_id + ".tar"
+                filename = observation_id + ".tar"
 
-            self._handler.get_file(filename, response=response)
+            log.info("Copying file to {0}...".format(filename))
+            path = os.getcwd()
+            destfile = os.path.join(path, observation_id)
+            file = None
+            try:
+                os.makedirs(destfile, exist_ok=True)
+                file = open(os.path.join(destfile, filename), "w+")
+            except OSError:
+                log.error("Creation of the directory %s failed" % destfile)
+            else:
+                if verbose:
+                    log.info("Successfully created the directory %s " %
+                             destfile)
+                shutil.copy(response,
+                            os.path.join(path, observation_id, filename))
 
             if verbose:
                 log.info("Wrote {0} to {1}".format(link, filename))
 
-            return filename
+            return file
 
     def get_postcard(self, observation_id, image_type="OBS_EPIC",
                      filename=None, verbose=False):
@@ -185,25 +192,40 @@ class XMMNewtonClass(BaseQuery):
                   'OBS_IMAGE_TYPE': image_type,
                   'PROTOCOL': 'HTTP'}
 
-        result = self._request('GET', self.data_url, params)
+        response = self._request('GET', self.data_url, params, cache=True)
 
         if verbose:
             log.info(self.data_url)
 
-        if result is not None:
-            result.raise_for_status()
+        if response is not None:
 
             if filename is None:
-                if "Content-Disposition" in result.headers.keys():
+                if "Content-Disposition" in response.headers.keys():
                     filename = re.findall('filename="(.+)"',
-                                          result.headers[
+                                          response.headers[
                                               "Content-Disposition"])[0]
                 else:
                     filename = observation_id + ".PNG"
 
-            self._handler.get_file(filename, response=result)
+            log.info("Copying file to {0}...".format(filename))
+            path = os.getcwd()
+            destfile = os.path.join(path, observation_id)
+            file = None
+            try:
+                os.makedirs(destfile, exist_ok=True)
+                with open(os.path.join(destfile, filename), "wb") as file:
+                    file.write(response.content)
+            except OSError:
+                log.error("Creation of the directory %s failed" % destfile)
+            else:
+                if verbose:
+                    log.info("Successfully created the directory %s " %
+                             destfile)
 
-            return filename
+            if verbose:
+                log.info("Wrote {0} to {1}".format(self.data_url, filename))
+
+            return file
 
     def query_xsa_tap(self, query, output_file=None,
                       output_format="votable", verbose=False):

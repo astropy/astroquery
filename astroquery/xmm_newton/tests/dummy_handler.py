@@ -22,7 +22,7 @@ class DummyHandler(object):
         return
 
     def get_table(self, filename=None, response=None,
-                       output_format='votable', verbose=False):
+                  output_format='votable', verbose=False):
         return
 
     def __init__(self, method, parameters):
