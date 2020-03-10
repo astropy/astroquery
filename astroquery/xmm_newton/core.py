@@ -140,7 +140,7 @@ class XMMNewtonClass(BaseQuery):
 
             log.info("Copying file to {0}...".format(filename))
             path = os.getcwd()
-            destfile = os.path.join(path, observation_id)
+            destfile = os.path.join(path)
             file = None
             try:
                 os.makedirs(destfile, exist_ok=True)
@@ -152,7 +152,7 @@ class XMMNewtonClass(BaseQuery):
                     log.info("Successfully created the directory %s " %
                              destfile)
                 shutil.copy(response,
-                            os.path.join(path, observation_id, filename))
+                            os.path.join(path, filename))
 
             if verbose:
                 log.info("Wrote {0} to {1}".format(link, filename))
@@ -193,7 +193,7 @@ class XMMNewtonClass(BaseQuery):
                   'PROTOCOL': 'HTTP'}
 
         response = self._request('GET', self.data_url, params, cache=True)
-
+        response.raise_for_status()
         if verbose:
             log.info(self.data_url)
 
@@ -209,7 +209,7 @@ class XMMNewtonClass(BaseQuery):
 
             log.info("Copying file to {0}...".format(filename))
             path = os.getcwd()
-            destfile = os.path.join(path, observation_id)
+            destfile = os.path.join(path)
             file = None
             try:
                 os.makedirs(destfile, exist_ok=True)
