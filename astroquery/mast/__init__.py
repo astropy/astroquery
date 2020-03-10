@@ -36,8 +36,7 @@ conf = Conf()
 
 from .core import Catalogs, CatalogsClass
 from .tesscut import TesscutClass, Tesscut
-from .discovery_portal import MastClass, Mast
-from .observations import Observations, ObservationsClass
+from .observations import Observations, ObservationsClass, MastClass, Mast
 from . import utils
 
 __all__ = ['Observations', 'ObservationsClass',

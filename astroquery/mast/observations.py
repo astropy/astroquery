@@ -37,102 +37,22 @@ from ..exceptions import (TimeoutError, InvalidQueryError, RemoteServiceError,
                           NoResultsWarning, InputWarning, AuthenticationWarning)
 
 from . import conf, utils, fpl
-from .auth import MastAuth
-from .cloud import CloudAccess
-from .discovery_portal import PortalAPI
+from .core import MastQueryWithLogin
 
 
-__all__ = ['Observations', 'ObservationsClass']
+__all__ = ['Observations', 'ObservationsClass',
+           'MastClass', 'Mast']
 
 
 @async_to_sync
-class ObservationsClass(QueryWithLogin):
+class ObservationsClass(MastQueryWithLogin):
     """
     MAST Observations query class.
 
     Class for querying MAST observational data.
     """
 
-    def __init__(self, mast_token=None):
-
-        super(ObservationsClass, self).__init__()
-
-        self._portal_api_connection = PortalAPI(self._session)
-
-        if mast_token:
-            self._authenticated = self._auth_obj = MastAuth(self._session, mast_token)
-        else:
-            self._auth_obj = MastAuth(self._session)
-
-        self._cloud_connection = None
-
-
-    def _login(self, token=None, store_token=False, reenter_token=False):
-        """
-        Log into the MAST portal.
-
-        Parameters
-        ----------
-        token : string, optional
-            Default is None.
-            The token to authenticate the user.
-            This can be generated at
-            https://auth.mast.stsci.edu/token?suggested_name=Astroquery&suggested_scope=mast:exclusive_access.
-            If not supplied, it will be prompted for if not in the keyring or set via $MAST_API_TOKEN
-        store_token : bool, optional
-            Default False.
-            If true, MAST token will be stored securely in your keyring.
-        reenter_token :  bool, optional
-            Default False.
-            Asks for the token even if it is already stored in the keyring or $MAST_API_TOKEN environment variable.
-            This is the way to overwrite an already stored password on the keyring.
-        """
-
-        return self._auth_obj.login(token, store_token, reenter_token)
-
-    @deprecated(since="v0.3.9", message=("The get_token function is deprecated, "
-                                         "session token is now the token used for login."))
-    def get_token(self):
-        return None
-
-    def session_info(self, silent=None, verbose=None):
-        """
-        Displays information about current MAST user, and returns user info dictionary.
-
-        Parameters
-        ----------
-        silent :
-            Deprecated. Use verbose instead.
-        verbose : bool, optional
-            Default True. Set to False to suppress output to stdout.
-
-        Returns
-        -------
-        response : dict
-        """
-
-        # Dealing with deprecated argument
-        if (silent is not None) and (verbose is not None):
-            warnings.warn(("Argument 'silent' has been deprecated, "
-                           "will be ignored in favor of 'verbose'"), AstropyDeprecationWarning)
-        elif silent is not None:
-            warnings.warn(("Argument 'silent' has been deprecated, "
-                           "and will be removed in the future. "
-                           " Use 'verbose' instead."), AstropyDeprecationWarning)
-            verbose = not silent
-        elif (silent is None) and (verbose is None):
-            verbose = True
-
-        return self._auth_obj.session_info(verbose)
-
-    def logout(self):
-        """
-        Log out of current MAST session.
-        """
-        self._auth_obj.logout()
-        self._authenticated = False
-
-    def _parse_result(self, responses, verbose=False):
+    def _parse_result(self, responses, verbose=False):  # Used by the async_to_sync decorator functionality
         """
         Parse the results of a list of `~requests.Response` objects and returns an `~astropy.table.Table` of results.
 
@@ -797,40 +717,6 @@ class ObservationsClass(QueryWithLogin):
 
         return manifest
 
-    
-    @deprecated(since="v0.3.9", alternative="enable_cloud_dataset")
-    def enable_s3_hst_dataset(self):
-        return self.enable_cloud_dataset()
-
-    def enable_cloud_dataset(self, provider="AWS", profile=None, verbose=True):
-        """
-        Enable downloading public files from S3 instead of MAST.
-        Requires the boto3 library to function.
-
-        Parameters
-        ----------
-        provider : str
-            Which cloud data provider to use.  We may in the future support multiple providers,
-            though at the moment this argument is ignored.
-        profile : str
-            Profile to use to identify yourself to the cloud provider (usually in ~/.aws/config).
-        verbose : bool
-            Default True.
-            Logger to display extra info and warning.
-        """
-
-        self._cloud_connection = CloudAccess(provider, profile, verbose)
-
-    @deprecated(since="v0.3.9", alternative="disable_cloud_dataset")
-    def disable_s3_hst_dataset(self):
-        return self.disable_cloud_dataset()
-
-    def disable_cloud_dataset(self):
-        """
-        Disables downloading public files from S3 instead of MAST
-        """
-        self._cloud_connection = None
-
     @deprecated(since="v0.3.9", alternative="get_cloud_uris")
     def get_hst_s3_uris(self, data_products, include_bucket=True, full_url=False):
         return self.get_cloud_uris(data_products, include_bucket, full_url)
@@ -899,4 +785,68 @@ class ObservationsClass(QueryWithLogin):
         return self._cloud_connection.get_cloud_uri(data_product, include_bucket, full_url)
 
 
+@async_to_sync
+class MastClass(MastQueryWithLogin):
+    """
+    MAST query class.
+
+    Class that allows direct programatic access to the MAST Portal,
+    more flexible but less user friendly than `ObservationsClass`.
+    """
+
+    def _parse_result(self, responses, verbose=False):  # Used by the async_to_sync decorator functionality
+        """
+        Parse the results of a list of `~requests.Response` objects and returns an `~astropy.table.Table` of results.
+
+        Parameters
+        ----------
+        responses : list of `~requests.Response`
+            List of `~requests.Response` objects.
+        verbose : bool
+            (presently does nothing - there is no output with verbose set to
+            True or False)
+            Default False.  Setting to True provides more extensive output.
+
+        Returns
+        -------
+        response : `~astropy.table.Table`
+        """
+
+        return self._portal_api_connection._parse_result(responses, verbose)
+
+    @class_or_instance
+    def service_request_async(self, service, params, pagesize=None, page=None, **kwargs):
+        """
+        Given a Mashup service and parameters, builds and excecutes a Mashup query.
+        See documentation `here <https://mast.stsci.edu/api/v0/class_mashup_1_1_mashup_request.html>`__
+        for information about how to build a Mashup request.
+
+        Parameters
+        ----------
+        service : str
+            The Mashup service to query.
+        params : dict
+            JSON object containing service parameters.
+        pagesize : int, optional
+            Default None.
+            Can be used to override the default pagesize (set in configs) for this query only.
+            E.g. when using a slow internet connection.
+        page : int, optional
+            Default None.
+            Can be used to override the default behavior of all results being returned to obtain
+            a specific page of results.
+        **kwargs :
+            See MashupRequest properties
+            `here <https://mast.stsci.edu/api/v0/class_mashup_1_1_mashup_request.html>`__
+            for additional keyword arguments.
+
+        Returns
+        -------
+        response : list of `~requests.Response`
+        """
+
+        return self._portal_api_connection.service_request_async(service, params, pagesize, page, **kwargs)
+
+    
 Observations = ObservationsClass()
+Mast = MastClass()
