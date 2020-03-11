@@ -321,7 +321,7 @@ def test_staging_uptofeb2020(dataarchive_url):
     assert '2013.1.00269.S_uid___A002_X9de499_X3d6c.asdm.sdm.tar' in names
 
 
-@remote_data
+@pytest.mark.remote_data
 @pytest.mark.parametrize('dataarchive_url', _test_url_list)
 def test_staging_stacking(dataarchive_url):
     alma = Alma()
