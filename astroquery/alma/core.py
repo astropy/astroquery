@@ -521,6 +521,11 @@ class AlmaClass(QueryWithLogin):
         once, so the return may have a different length than the input list
         """
 
+        if self.USERNAME:
+            auth = self._get_auth_info()
+        else:
+            auth = None
+
         downloaded_files = []
         if savedir is None:
             savedir = self.cache_location
@@ -539,6 +544,7 @@ class AlmaClass(QueryWithLogin):
                                          timeout=self.TIMEOUT,
                                          #allow_redirects=False,
                                          cache=cache,
+                                         auth=auth,
                                          continuation=continuation)
                 downloaded_files.append(filename)
             except requests.HTTPError as ex:
