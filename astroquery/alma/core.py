@@ -522,7 +522,7 @@ class AlmaClass(QueryWithLogin):
         """
 
         if self.USERNAME:
-            auth = self._get_auth_info()
+            auth = self._get_auth_info(self.USERNAME)
         else:
             auth = None
 
