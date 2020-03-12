@@ -63,25 +63,19 @@ def patch_post(request):
         mp = request.getfuncargvalue("monkeypatch")
 
     mp.setattr(mast.utils, '_simple_request', resolver_mockreturn)
+    mp.setattr(mast.discovery_portal.PortalAPI, '_request', post_mockreturn)
+    mp.setattr(mast.services.ServiceAPI, '_request', service_mockreturn)
+    mp.setattr(mast.auth.MastAuth, 'session_info', session_info_mockreturn)
 
-    mp.setattr(mast.discovery_portal.PortalAPI, '_request', post_mockreturn_with_self)
-    mp.setattr(mast.Mast._auth_obj, 'session_info', session_info_mockreturn)
-
-    mp.setattr(mast.Observations, '_request', post_mockreturn)
     mp.setattr(mast.Observations, '_download_file', download_mockreturn)
-    mp.setattr(mast.Observations, 'session_info', session_info_mockreturn)
-
-    mp.setattr(mast.Catalogs, '_request', post_mockreturn)
-    mp.setattr(mast.Catalogs, '_fabric_request', post_mockreturn)
     mp.setattr(mast.Catalogs, '_download_file', download_mockreturn)
-
     mp.setattr(mast.Tesscut, "_request", tesscut_get_mockreturn)
     mp.setattr(mast.Tesscut, '_download_file', tess_download_mockreturn)
 
     return mp
 
 
-def post_mockreturn(method="POST", url=None, data=None, timeout=10, **kwargs):
+def post_mockreturn(self, method="POST", url=None, data=None, timeout=10, **kwargs):
     if "columnsconfig" in url:
         if "Mast.Catalogs.Tess.Cone" in data:
             service = "ticcolumns"
@@ -109,10 +103,11 @@ def post_mockreturn(method="POST", url=None, data=None, timeout=10, **kwargs):
     # returning as list because this is what the mast _request function does
     return [MockResponse(content)]
 
-
-def post_mockreturn_with_self(self, method="POST", url=None, data=None, timeout=10, **kwargs):
-    return post_mockreturn(method=method, url=url, data=data, timeout=timeout, **kwargs)
-
+def service_mockreturn(self, method="POST", url=None, data=None, timeout=10, **kwargs):
+    filename = data_path(DATA_FILES["panstarrs"])
+    content = open(filename, 'rb').read()
+    return MockResponse(content)
+    
 
 def resolver_mockreturn(*args, **kwargs):
     filename = data_path(DATA_FILES["Mast.Name.Lookup"])
@@ -124,7 +119,7 @@ def download_mockreturn(*args, **kwargs):
     return
 
 
-def session_info_mockreturn(silent=False):
+def session_info_mockreturn(self, silent=False):
     test_session = {'eppn': 'alice@stsci.edu',
                     'ezid': 'alice',
                     'attrib': {'uuid': '2913e6f7-e863-4f94-9416-a6af27258ba7',
@@ -382,7 +377,7 @@ def test_catalogs_query_region_async(patch_post):
 
 def test_catalogs_fabric_query_region_async(patch_post):
     responses = mast.Catalogs.query_region_async(regionCoords, radius=0.002, catalog="panstarrs", table="mean")
-    assert isinstance(responses, list)
+    assert isinstance(responses, MockResponse)
 
 
 def test_catalogs_query_region(patch_post):
@@ -425,7 +420,7 @@ def test_catalogs_query_object_async(patch_post):
 
 def test_catalogs_fabric_query_object_async(patch_post):
     responses = mast.Catalogs.query_object_async("M101", radius="0.002 deg", catalog="panstarrs", table="mean")
-    assert isinstance(responses, list)
+    assert isinstance(responses, MockResponse)
 
 
 def test_catalogs_query_object(patch_post):
@@ -458,7 +453,7 @@ def test_catalogs_query_criteria_async(patch_post):
 
     responses = mast.Catalogs.query_criteria_async(catalog="panstarrs", objectname="M10", radius=2,
                                                    table="mean", qualityFlag=48)
-    assert isinstance(responses, list)
+    assert isinstance(responses, MockResponse)
 
     with pytest.raises(InvalidQueryError) as invalid_query:
         mast.Catalogs.query_criteria_async(catalog="Tic")

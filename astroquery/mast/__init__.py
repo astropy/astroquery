@@ -30,13 +30,11 @@ class Conf(_config.ConfigNamespace):
         50000,
         'Number of results to request at once from the STScI server.')
 
-
 conf = Conf()
 
-
-from .core import Catalogs, CatalogsClass
 from .tesscut import TesscutClass, Tesscut
 from .observations import Observations, ObservationsClass, MastClass, Mast
+from .collections import Catalogs, CatalogsClass
 from . import utils
 
 __all__ = ['Observations', 'ObservationsClass',
