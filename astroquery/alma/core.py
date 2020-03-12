@@ -561,6 +561,16 @@ class AlmaClass(QueryWithLogin):
                                                            'dataPortal/sso/'),
                                           fileLink))
                     raise ex
+                elif ex.response.status_code == 500:
+                    # empirically, this works the second time most of the time...
+                    filename = self._request("GET", fileLink, save=True,
+                                             savedir=savedir,
+                                             timeout=self.TIMEOUT,
+                                             #allow_redirects=False,
+                                             cache=cache,
+                                             auth=auth,
+                                             continuation=continuation)
+                    downloaded_files.append(filename)
                 else:
                     raise ex
         return downloaded_files
