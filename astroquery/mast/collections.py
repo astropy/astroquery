@@ -92,7 +92,7 @@ class CatalogsClass(MastQueryWithLogin):
         -------
         response : list of `~requests.Response`
         """
-        
+
         # Put coordinates and radius into consistant format
         coordinates = commons.parse_coordinates(coordinates)
 
@@ -113,7 +113,7 @@ class CatalogsClass(MastQueryWithLogin):
         else:
             self._current_connection = self._portal_api_connection
 
-            # Sorting out the non-standard portal service names 
+            # Sorting out the non-standard portal service names
             if catalog.lower() == "hsc":
                 if version == 2:
                     service = "Mast.Hsc.Db.v2"
@@ -134,7 +134,7 @@ class CatalogsClass(MastQueryWithLogin):
                 self.catalog_limit = kwargs.get('maxrecords', 50000)
 
                 # galex specific parameters (can be overridden by user)
-                params['maxrecords'] = 50000               
+                params['maxrecords'] = 50000
 
             elif catalog.lower() == "gaia":
                 if version == 1:
@@ -148,15 +148,12 @@ class CatalogsClass(MastQueryWithLogin):
                 service = "Mast.Catalogs." + catalog + ".Cone"
                 self.catalog_limit = None
 
-
         # adding additional user specified parameters
         for prop, value in kwargs.items():
             params[prop] = value
-            
 
         return self._current_connection.service_request_async(service, params, pagesize, page)
 
-            
     @class_or_instance
     def query_object_async(self, objectname, radius=0.2*u.deg, catalog="Hsc",
                            pagesize=None, page=None, version=None, **kwargs):
@@ -239,8 +236,6 @@ class CatalogsClass(MastQueryWithLogin):
         response : list of `~requests.Response`
         """
 
-        #catalogs_service = False
-        
         # Seperating any position info from the rest of the filters
         coordinates = criteria.pop('coordinates', None)
         objectname = criteria.pop('objectname', None)
@@ -276,13 +271,13 @@ class CatalogsClass(MastQueryWithLogin):
 
             if not self._current_connection._check_catalogs_criteria_params(criteria):
                 raise InvalidQueryError("At least one non-positional criterion must be supplied.")
-            
+
             for prop, value in criteria.items():
                 params[prop] = value
-            
+
         else:
             self._current_connection = self._portal_api_connection
-            
+
             if catalog.lower() == "tic":
                 service = "Mast.Catalogs.Filtered.Tic"
                 if coordinates or objectname:
@@ -312,7 +307,6 @@ class CatalogsClass(MastQueryWithLogin):
                 raise InvalidQueryError("At least one non-positional criterion must be supplied.")
             params["filters"] =  filters
 
-
         return self._current_connection.service_request_async(service, params, pagesize=pagesize, page=page)
 
     @class_or_instance
@@ -339,7 +333,7 @@ class CatalogsClass(MastQueryWithLogin):
         """
 
         self._current_connection = self._portal_api_connection
-        
+
         if isinstance(match, Row):
             match = match["MatchID"]
         match = str(match)  # np.int64 gives json serializer problems, so stringify right here
@@ -375,7 +369,7 @@ class CatalogsClass(MastQueryWithLogin):
         """
 
         self._current_connection = self._portal_api_connection
-        
+
         service = "Mast.HscSpectra.Db.All"
         params = {}
 
@@ -404,7 +398,7 @@ class CatalogsClass(MastQueryWithLogin):
         --------
         response : list of `~requests.Response`
         """
-        
+
         # if spectra is not a Table, put it in a list
         if isinstance(spectra, Row):
             spectra = [spectra]

@@ -103,11 +103,12 @@ def post_mockreturn(self, method="POST", url=None, data=None, timeout=10, **kwar
     # returning as list because this is what the mast _request function does
     return [MockResponse(content)]
 
+
 def service_mockreturn(self, method="POST", url=None, data=None, timeout=10, **kwargs):
     filename = data_path(DATA_FILES["panstarrs"])
     content = open(filename, 'rb').read()
     return MockResponse(content)
-    
+
 
 def resolver_mockreturn(*args, **kwargs):
     filename = data_path(DATA_FILES["Mast.Name.Lookup"])

@@ -20,6 +20,7 @@ from ..exceptions import TimeoutError, NoResultsWarning
 
 from . import conf, utils
 
+
 def _fabric_json_to_table(json_obj):
     """
     Takes a JSON object as returned from a MAST microservice request and turns it into an `~astropy.table.Table`.
@@ -151,7 +152,7 @@ class ServiceAPI(BaseQuery):
 
         response = super()._request(method, url, params=params, data=data, headers=headers,
                                     files=files, cache=cache, stream=stream, auth=auth)
-        
+
         if (time.time() - start_time) >= self.TIMEOUT:
             raise TimeoutError("Timeout limit of {} exceeded.".format(self.TIMEOUT))
 
@@ -212,7 +213,6 @@ class ServiceAPI(BaseQuery):
         -------
         response : list of `~requests.Response`
         """
-        #self._current_service = service.lower()
         service_config = self._MAST_CATALOGS_SERVICES.get(service.lower())
         service_url = service_config.get('path')
         compiled_service_args = {}

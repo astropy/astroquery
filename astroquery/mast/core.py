@@ -31,7 +31,7 @@ class MastQueryWithLogin(QueryWithLogin):
 
         # Initializing API connections
         self._portal_api_connection = PortalAPI(self._session)
-        self._service_api_connection = ServiceAPI(self._session) 
+        self._service_api_connection = ServiceAPI(self._session)
 
         if mast_token:
             self._authenticated = self._auth_obj = MastAuth(self._session, mast_token)

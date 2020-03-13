@@ -142,9 +142,8 @@ class ObservationsClass(MastQueryWithLogin):
         Returns
         -------
         response : tuple
-            Tuple of the form (position, filter_set), where position is either None (coordinates and objectname 
+            Tuple of the form (position, filter_set), where position is either None (coordinates and objectname
             not given) or a string, and filter_set is list of filters dictionaries.
-        
         """
 
         # Seperating any position info from the rest of the filters
@@ -206,8 +205,6 @@ class ObservationsClass(MastQueryWithLogin):
             position = ', '.join([str(x) for x in (coordinates.ra.deg, coordinates.dec.deg, radius.deg)])
 
         return position, mashup_filters
-                
-        
 
     @class_or_instance
     def query_region_async(self, coordinates, radius=0.2*u.deg, pagesize=None, page=None):
@@ -847,6 +844,6 @@ class MastClass(MastQueryWithLogin):
 
         return self._portal_api_connection.service_request_async(service, params, pagesize, page, **kwargs)
 
-    
+
 Observations = ObservationsClass()
 Mast = MastClass()

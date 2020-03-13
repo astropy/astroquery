@@ -7,7 +7,6 @@ import pytest
 
 from requests.models import Response
 
-from astropy.tests.helper import remote_data
 from astropy.table import Table
 from astropy.coordinates import SkyCoord
 from astropy.io import fits
@@ -618,7 +617,7 @@ class TestMast(object):
         assert isinstance(cutout_hdus_list[0], fits.HDUList)
 
         coord = SkyCoord(349.62609, -47.12424, unit="deg")
-        
+
         cutout_hdus_list = mast.Tesscut.get_cutouts(coordinates=coord, size=[2, 4]*u.arcmin)
         assert isinstance(cutout_hdus_list, list)
         assert len(cutout_hdus_list) >= 1
