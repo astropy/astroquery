@@ -121,7 +121,7 @@ class CatalogsClass(MastQueryWithLogin):
                     if version not in (3, None):
                         warnings.warn("Invalid HSC version number, defaulting to v3.", InputWarning)
                     service = "Mast.Hsc.Db.v3"
-                
+
                 self.catalog_limit = kwargs.get('nr', 50000)
 
                 # Hsc specific parameters (can be overridden by user)

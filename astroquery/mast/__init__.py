@@ -30,6 +30,7 @@ class Conf(_config.ConfigNamespace):
         50000,
         'Number of results to request at once from the STScI server.')
 
+
 conf = Conf()
 
 from .tesscut import TesscutClass, Tesscut

@@ -529,4 +529,3 @@ class PortalAPI(BaseQuery):
                 meta_table.remove_column(colname)
 
         return meta_table
-
