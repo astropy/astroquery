@@ -565,7 +565,6 @@ class AlmaClass(QueryWithLogin):
                     filename = self._request("GET", fileLink, save=True,
                                              savedir=savedir,
                                              timeout=self.TIMEOUT,
-                                             #allow_redirects=False,
                                              cache=cache,
                                              auth=auth,
                                              continuation=continuation)
