@@ -36,11 +36,13 @@ conf = Conf()
 from .tesscut import TesscutClass, Tesscut
 from .observations import Observations, ObservationsClass, MastClass, Mast
 from .collections import Catalogs, CatalogsClass
+from .core import MastQueryWithLogin
 from . import utils
 
 __all__ = ['Observations', 'ObservationsClass',
            'Catalogs', 'CatalogsClass',
            'Mast', 'MastClass',
            'Tesscut', 'TesscutClass',
-           'Conf', 'conf', 'utils'
+           'Conf', 'conf', 'utils',
+           'MastQueryWithLogin'
            ]

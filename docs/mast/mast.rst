@@ -975,4 +975,8 @@ Reference/API
 
 .. automodapi:: astroquery.mast
     :no-inheritance-diagram:
+    :inherited-members:
+
+.. automodapi:: astroquery.mast.utils
+    :no-inheritance-diagram:
 

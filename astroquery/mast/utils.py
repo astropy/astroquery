@@ -3,14 +3,14 @@
 MAST Utils
 ==========
 
-Miscellaneous functions used through the MAST module.
+Miscellaneous functions used throughout the MAST module.
 """
 
 import numpy as np
 
 import requests
 import json
-from urllib.parse import quote as urlencode
+from urllib import parse 
 import astropy.coordinates as coord
 
 from ..version import version
@@ -97,7 +97,7 @@ def resolve_object(objectname):
 
     request_args = {"service": "Mast.Name.Lookup",
                     "params": {'input': objectname, 'format': 'json'}}
-    request_string =  'request={}'.format(urlencode(json.dumps(request_args)))
+    request_string =  'request={}'.format(parse.urlencode(json.dumps(request_args)))
 
     response = _simple_request("{}/api/v0/invoke".format(conf.server), request_string)
     result = response.json()

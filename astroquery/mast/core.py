@@ -22,7 +22,7 @@ from .services import ServiceAPI
 
 class MastQueryWithLogin(QueryWithLogin):
     """
-    Super class for MAST functionality.
+    Super class for MAST functionality (should not be called directly by users).
     """
 
     def __init__(self, mast_token=None):
