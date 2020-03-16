@@ -623,8 +623,9 @@ class JwstClass(object):
 
         Parameters
         ----------
-        artifact_id : str, mandatory
+        artifact_id : str, mandatory (if no file_name is provided)
             Artifact ID of the product.
+        file_name : str, mandatory (if no artifact_id is provided)
 
         Returns
         -------
