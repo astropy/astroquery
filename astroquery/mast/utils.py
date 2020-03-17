@@ -10,7 +10,7 @@ import numpy as np
 
 import requests
 import json
-from urllib import parse 
+from urllib import parse
 import astropy.coordinates as coord
 
 from ..version import version
@@ -97,7 +97,7 @@ def resolve_object(objectname):
 
     request_args = {"service": "Mast.Name.Lookup",
                     "params": {'input': objectname, 'format': 'json'}}
-    request_string =  'request={}'.format(parse.urlencode(json.dumps(request_args)))
+    request_string =  'request={}'.format(parse.quote(json.dumps(request_args)))
 
     response = _simple_request("{}/api/v0/invoke".format(conf.server), request_string)
     result = response.json()
