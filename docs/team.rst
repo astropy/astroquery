@@ -1,7 +1,7 @@
 Astroquery Team: List of Module Maintainers
 ===========================================
 
-Astroquery is primarily maintained by Adam Ginsburg and Brigitta Sipocz.
+Astroquery is primarily maintained by Adam Ginsburg and Brigitta Sipőcz.
 
 Individual modules are partially maintained by their primary contributors
 or others who have taken over the responsibility:
