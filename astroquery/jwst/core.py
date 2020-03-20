@@ -38,6 +38,14 @@ class JwstClass(object):
     JWST_OBSERVATION_TABLE_DEC = conf.JWST_OBSERVATION_TABLE_DEC
     JWST_PLANE_TABLE = conf.JWST_PLANE_TABLE
 
+    JWST_DEFAULT_COLUMNS = ['observationid', 'calibrationlevel', 'public',
+                            'dataproducttype', 'instrument_name', 'position_bounds_center',
+                            'position_bounds_spoly']
+    
+    PLANE_DATAPRODUCT_TYPES = ['image', 'cube', 'measurements', 'spectrum']
+    ARTIFACT_PRODUCT_TYPES = ['info', 'thumbnail', 'auxiliary', 'science', 'preview']
+    INSTRUMENT_NAMES = ['NIRISS', 'NIRSPEC', 'NIRCAM', 'MIRI', 'FGS']
+
     def __init__(self, tap_plus_handler=None, data_handler=None):
         if tap_plus_handler is None:
 
@@ -219,7 +227,13 @@ class JwstClass(object):
         return self.__jwsttap.list_async_jobs(verbose)
 
     def __query_region(self, coordinate, radius=None, width=None, height=None,
-                       only_public=False, cal_level="Top",
+                       cal_level="Top",
+                       prod_type=None,
+                       instrument_name=None,
+                       filter_name=None,
+                       proposal_id=None,
+                       only_public=False,
+                       show_all_columns=False,
                        async_job=False, verbose=False):
         """Launches a job
         TAP & TAP+
@@ -234,12 +248,25 @@ class JwstClass(object):
             box width
         height : astropy.units, required if no 'radius' is provided
             box height
-        only_public : bool, optional, default 'False'
-            flag to show only metadata corresponding to public observations
         cal_level : object, optional, default 'Top'
             get the planes with the given calibration level. Options are:
             'Top': str, only the planes with the highest calibration level
             1,2,3: int, the given calibration level 
+        prod_type : str, optional, default None
+            get the observations providing the given product type. Options are:
+            'image','cube','measurements','spectrum': str, only results of the given product type
+        instrument_name : str, optional, default None
+            get the observations corresponding to the given instrument name. Options are:
+            'NIRISS', 'NIRSPEC', 'NIRCAM', 'MIRI', 'FGS': str, only results of the given instrument
+        filter_name : str, optional, default None
+            get the observations made with the given filter.
+        proposal_id : int, optional, default None
+            get the observations from the given proposal ID.
+        show_all_columns : bool, optional, default 'False'
+            flag to show all available columns in the output. Default behaviour is to show the most
+            representative columns only
+        only_public : bool, optional, default 'False'
+            flag to show only metadata corresponding to public observations
         async_job : bool, optional, default 'False'
             executes the query (job) in asynchronous/synchronous mode (default
             synchronous)
@@ -256,6 +283,11 @@ class JwstClass(object):
             job = self.__cone_search(coord, radius, 
                                      only_public=only_public,
                                      cal_level=cal_level,
+                                     prod_type=prod_type,
+                                     instrument_name=instrument_name,
+                                     filter_name=filter_name,
+                                     proposal_id=proposal_id,
+                                     show_all_columns=show_all_columns,
                                      async_job=async_job, verbose=verbose)
         else:
             raHours, dec = commons.coord_to_radec(coord)
@@ -267,11 +299,19 @@ class JwstClass(object):
             
             cal_level_condition = self.__get_callevel_condition(cal_level) 
             public_condition = self.__get_public_condition(only_public)
-            
+            prod_type_condition = self.__get_plane_dataproducttype_condition(prod_type)
+            instrument_name_condition = self.__get_instrument_name_condition(instrument_name)
+            filter_name_condition = self.__get_filter_name_condition(filter_name)
+            proposal_id_condition = self.__get_proposal_id_condition(proposal_id)
+
+            columns = str(', '.join(self.JWST_DEFAULT_COLUMNS))
+            if show_all_columns:
+                columns = '*'
+
             query = "SELECT DISTANCE(POINT('ICRS'," +\
                 str(self.JWST_OBSERVATION_TABLE_RA) + "," +\
                 str(self.JWST_OBSERVATION_TABLE_DEC) +"), \
-                POINT('ICRS'," + str(ra) + "," + str(dec) +")) AS dist, * \
+                POINT('ICRS'," + str(ra) + "," + str(dec) +")) AS dist, "+columns+" \
                 FROM jwst.main \
                 WHERE CONTAINS(\
                 POINT('ICRS'," +\
@@ -282,7 +322,12 @@ class JwstClass(object):
                 str(heightDeg.value)+"))=1 " +\
                 cal_level_condition +\
                 public_condition +\
+                prod_type_condition +\
+                instrument_name_condition + \
+                filter_name_condition + \
+                proposal_id_condition + \
                 "ORDER BY dist ASC"
+            print(query)
             if async_job:
                 job = self.__jwsttap.launch_job_async(query, verbose=verbose)
             else:
@@ -290,7 +335,14 @@ class JwstClass(object):
         return job.get_results()
 
     def query_region(self, coordinate, radius=None, width=None, height=None,
-                     only_public=False, cal_level="Top", verbose=False):
+                     cal_level="Top",
+                     prod_type=None,
+                     instrument_name=None,
+                     filter_name=None,
+                     proposal_id=None,
+                     only_public=False,
+                     show_all_columns=False,
+                     verbose=False):
         """Launches a job
         TAP & TAP+
 
@@ -304,8 +356,25 @@ class JwstClass(object):
             box width
         height : astropy.units, required if no 'radius' is provided
             box height
+        cal_level : object, optional, default 'Top'
+            get the planes with the given calibration level. Options are:
+            'Top': str, only the planes with the highest calibration level
+            1,2,3: int, the given calibration level
+        prod_type : str, optional, default None
+            get the observations providing the given product type. Options are:
+            'image','cube','measurements','spectrum': str, only results of the given product type
+        instrument_name : str, optional, default None
+            get the observations corresponding to the given instrument name. Options are:
+            'NIRISS', 'NIRSPEC', 'NIRCAM', 'MIRI', 'FGS': str, only results of the given instrument
+        filter_name : str, optional, default None
+            get the observations made with the given filter.
+        proposal_id : int, optional, default None
+            get the observations from the given proposal ID.
         only_public : bool, optional, default 'False'
             flag to show only metadata corresponding to public observations
+        show_all_columns : bool, optional, default 'False'
+            flag to show all available columns in the output. Default behaviour is to show the most
+            representative columns only
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
@@ -316,12 +385,22 @@ class JwstClass(object):
         return self.__query_region(coordinate, radius, width, height,
                                    only_public=only_public,
                                    cal_level=cal_level,
+                                   prod_type=prod_type,
+                                   instrument_name=instrument_name,
+                                   filter_name=filter_name,
+                                   proposal_id=proposal_id,
+                                   show_all_columns=show_all_columns,
                                    async_job=False, verbose=verbose)
 
-    def query_region_async(self, coordinate, radius=None, 
-                           width=None, height=None, 
-                           only_public=False,
+    def query_region_async(self, coordinate, radius=None,
+                           width=None, height=None,
                            cal_level="Top",
+                           prod_type=None,
+                           instrument_name=None,
+                           filter_name=None,
+                           proposal_id=None,
+                           only_public=False,
+                           show_all_columns=False,
                            verbose=False):
         """Launches a job (async)
         TAP & TAP+
@@ -336,11 +415,25 @@ class JwstClass(object):
             box width
         height : astropy.units, required if no 'radius' is provided
             box height
+        cal_level : object, optional, default 'Top'
+            get the planes with the given calibration level. Options are:
+            'Top': str, only the planes with the highest calibration level
+            1,2,3: int, the given calibration level
+        prod_type : str, optional, default None
+            get the observations providing the given product type. Options are:
+            'image','cube','measurements','spectrum': str, only results of the given product type
+        instrument_name : str, optional, default None
+            get the observations corresponding to the given instrument name. Options are:
+            'NIRISS', 'NIRSPEC', 'NIRCAM', 'MIRI', 'FGS': str, only results of the given instrument
+        filter_name : str, optional, default None
+            get the observations made with the given filter.
+        proposal_id : int, optional, default None
+            get the observations from the given proposal ID.
         only_public : bool, optional, default 'False'
             flag to show only metadata corresponding to public observations
-        async_job : bool, optional, default 'False'
-            executes the query (job) in asynchronous/synchronous mode (default 
-            synchronous)
+        show_all_columns : bool, optional, default 'False'
+            flag to show all available columns in the output. Default behaviour is to show the most
+            representative columns only
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
@@ -349,14 +442,24 @@ class JwstClass(object):
         The job results (astropy.table).
         """
         return self.__query_region(coordinate, radius, width, height,
-                                   only_public=only_public,
                                    cal_level=cal_level,
                                    async_job=True,
+                                   prod_type=prod_type,
+                                   instrument_name=instrument_name,
+                                   filter_name=filter_name,
+                                   proposal_id=proposal_id,
+                                   only_public=only_public,
+                                   show_all_columns=show_all_columns,
                                    verbose=verbose)
 
     def __cone_search(self, coordinate, radius, 
-                      cal_level="Top", 
+                      cal_level="Top",
+                      prod_type=None,
+                      instrument_name=None,
+                      filter_name=None,
+                      proposal_id=None,
                       only_public=False,
+                      show_all_columns=False,
                       async_job=False,
                       background=False,
                       output_file=None,
@@ -372,10 +475,20 @@ class JwstClass(object):
             coordinates center point
         radius : astropy.units, mandatory
             radius
-        cal_level : str, optional, default 'Top'
-            get only the planes with the given calibration level. Options are:
-                Top: the planes with the highest calibration level
-                1,2,3: the given calibration level
+        cal_level : object, optional, default 'Top'
+            get the planes with the given calibration level. Options are:
+            'Top': str, only the planes with the highest calibration level
+            1,2,3: int, the given calibration level
+        prod_type : str, optional, default None
+            get the observations providing the given product type. Options are:
+            'image','cube','measurements','spectrum': str, only results of the given product type
+        instrument_name : str, optional, default None
+            get the observations corresponding to the given instrument name. Options are:
+            'NIRISS', 'NIRSPEC', 'NIRCAM', 'MIRI', 'FGS': str, only results of the given instrument
+        filter_name : str, optional, default None
+            get the observations made with the given filter.
+        proposal_id : int, optional, default None
+            get the observations from the given proposal ID.
         only_public : bool, optional, default 'False'
             flag to show only metadata corresponding to public observations
         async_job : bool, optional, default 'False'
@@ -399,26 +512,39 @@ class JwstClass(object):
         A Job object
         """
         coord = self.__get_coord_input(coordinate, "coordinate")
-        raHours, dec = commons.coord_to_radec(coord)
-        ra = raHours * 15.0  # Converts to degrees
+        ra_hours, dec = commons.coord_to_radec(coord)
+        ra = ra_hours * 15.0  # Converts to degrees
         
         cal_level_condition = self.__get_callevel_condition(cal_level) 
         public_condition = self.__get_public_condition(only_public)
-            
+        prod_type_condition = self.__get_plane_dataproducttype_condition(prod_type)
+        instrument_name_condition = self.__get_instrument_name_condition(instrument_name)
+        filter_name_condition = self.__get_filter_name_condition(filter_name)
+        proposal_id_condition = self.__get_proposal_id_condition(proposal_id)
+
+        columns = str(', '.join(self.JWST_DEFAULT_COLUMNS))
+        if show_all_columns:
+            columns = '*'
+
         if radius is not None:
-            radiusQuantity = self.__get_quantity_input(radius, "radius")
-            radiusDeg = commons.radius_to_unit(radiusQuantity, unit='deg')
+            radius_quantity = self.__get_quantity_input(radius, "radius")
+            radius_deg = commons.radius_to_unit(radius_quantity, unit='deg')
+
         query = "SELECT DISTANCE(POINT('ICRS'," +\
             str(self.JWST_OBSERVATION_TABLE_RA) + "," +\
             str(self.JWST_OBSERVATION_TABLE_DEC) + "), \
-            POINT('ICRS'," + str(ra)+"," + str(dec) + ")) AS dist, * \
+            POINT('ICRS'," + str(ra) + "," + str(dec) +")) AS dist, "+columns+" \
             FROM " + str(self.JWST_MAIN_TABLE) + " WHERE CONTAINS(\
             POINT('ICRS'," + str(self.JWST_OBSERVATION_TABLE_RA) + "," +\
             str(self.JWST_OBSERVATION_TABLE_DEC)+"),\
             CIRCLE('ICRS'," + str(ra)+"," + str(dec) + ", " +\
-            str(radiusDeg)+"))=1" +\
+            str(radius_deg)+"))=1" +\
             cal_level_condition +\
-            public_condition +\
+            public_condition + \
+            prod_type_condition + \
+            instrument_name_condition + \
+            filter_name_condition + \
+            proposal_id_condition + \
             "ORDER BY dist ASC"
         if async_job:
             return self.__jwsttap.launch_job_async(query=query,
@@ -434,11 +560,17 @@ class JwstClass(object):
                                              verbose=verbose,
                                              dump_to_file=dump_to_file)
 
-    def cone_search(self, coordinate, radius=None, 
-                    only_public=False,
+    def cone_search(self, coordinate, radius=None,
                     cal_level="Top",
+                    prod_type=None,
+                    instrument_name=None,
+                    filter_name=None,
+                    proposal_id=None,
+                    only_public=False,
+                    show_all_columns=False,
                     output_file=None,
-                    output_format="votable", verbose=False,
+                    output_format="votable",
+                    verbose=False,
                     dump_to_file=False):
         """Cone search sorted by distance (sync.)
         TAP & TAP+
@@ -449,6 +581,25 @@ class JwstClass(object):
             coordinates center point
         radius : astropy.units, mandatory
             radius
+        cal_level : object, optional, default 'Top'
+            get the planes with the given calibration level. Options are:
+            'Top': str, only the planes with the highest calibration level
+            1,2,3: int, the given calibration level
+        prod_type : str, optional, default None
+            get the observations providing the given product type. Options are:
+            'image','cube','measurements','spectrum': str, only results of the given product type
+        instrument_name : str, optional, default None
+            get the observations corresponding to the given instrument name. Options are:
+            'NIRISS', 'NIRSPEC', 'NIRCAM', 'MIRI', 'FGS': str, only results of the given instrument
+        filter_name : str, optional, default None
+            get the observations made with the given filter.
+        proposal_id : int, optional, default None
+            get the observations from the given proposal ID.
+        only_public : bool, optional, default 'False'
+            flag to show only metadata corresponding to public observations
+        show_all_columns : bool, optional, default 'False'
+            flag to show all available columns in the output. Default behaviour is to show the most
+            representative columns only
         output_file : str, optional, default None
             file name where the results are saved if dumpToFile is True.
             If this parameter is not provided, the jobid is used instead
@@ -467,6 +618,11 @@ class JwstClass(object):
                                   radius=radius,
                                   only_public=only_public,
                                   cal_level=cal_level,
+                                  prod_type=prod_type,
+                                  instrument_name=instrument_name,
+                                  filter_name=filter_name,
+                                  proposal_id=proposal_id,
+                                  show_all_columns=show_all_columns,
                                   async_job=False,
                                   background=False,
                                   output_file=output_file,
@@ -474,9 +630,14 @@ class JwstClass(object):
                                   verbose=verbose,
                                   dump_to_file=dump_to_file)
 
-    def cone_search_async(self, coordinate, radius=None, 
-                          only_public=False,
+    def cone_search_async(self, coordinate, radius=None,
                           cal_level="Top",
+                          prod_type=None,
+                          instrument_name=None,
+                          filter_name=None,
+                          proposal_id=None,
+                          only_public=False,
+                          show_all_columns=False,
                           background=False,
                           output_file=None, output_format="votable",
                           verbose=False, dump_to_file=False):
@@ -489,6 +650,25 @@ class JwstClass(object):
             coordinates center point
         radius : astropy.units, mandatory
             radius
+        cal_level : object, optional, default 'Top'
+            get the planes with the given calibration level. Options are:
+            'Top': str, only the planes with the highest calibration level
+            1,2,3: int, the given calibration level
+        prod_type : str, optional, default None
+            get the observations providing the given product type. Options are:
+            'image','cube','measurements','spectrum': str, only results of the given product type
+        instrument_name : str, optional, default None
+            get the observations corresponding to the given instrument name. Options are:
+            'NIRISS', 'NIRSPEC', 'NIRCAM', 'MIRI', 'FGS': str, only results of the given instrument
+        filter_name : str, optional, default None
+            get the observations made with the given filter.
+        proposal_id : int, optional, default None
+            get the observations from the given proposal ID.
+        only_public : bool, optional, default 'False'
+            flag to show only metadata corresponding to public observations
+        show_all_columns : bool, optional, default 'False'
+            flag to show all available columns in the output. Default behaviour is to show the most
+            representative columns only
         background : bool, optional, default 'False'
             when the job is executed in asynchronous mode, this flag specifies 
             whether the execution will wait until results are available
@@ -508,8 +688,13 @@ class JwstClass(object):
         """
         return self.__cone_search(coordinate,
                                   radius=radius,
-                                  only_public=only_public,
                                   cal_level=cal_level,
+                                  prod_type=prod_type,
+                                  instrument_name=instrument_name,
+                                  filter_name=filter_name,
+                                  proposal_id=proposal_id,
+                                  only_public=only_public,
+                                  show_all_columns=show_all_columns,
                                   async_job=True,
                                   background=background,
                                   output_file=output_file,
@@ -709,21 +894,61 @@ class JwstClass(object):
         elif(only_public is True):
             condition = " AND public='true' "
         return condition
-    
-    def __get_producttype_condition(self, product_type=None):
+
+    def __get_plane_dataproducttype_condition(self, dataproduct_type=None):
+        condition = ""
+        if(dataproduct_type is not None):
+            if(not isinstance(dataproduct_type, str)):
+                raise ValueError("dataproduct_type must be string")
+            elif(str(dataproduct_type).lower() not in self.PLANE_DATAPRODUCT_TYPES):
+                raise ValueError("dataproduct_type must be one of: " +\
+                                 str(', '.join(self.PLANE_DATAPRODUCT_TYPES)))
+            else:
+                condition = " AND dataproducttype LIKE '"+dataproduct_type.lower()+"' "
+        return condition
+
+    def __get_instrument_name_condition(self, value=None):
+        condition = ""
+        if(value is not None):
+            if(not isinstance(value, str)):
+                raise ValueError("instrument_name must be string")
+            elif(str(value).upper() not in self.INSTRUMENT_NAMES):
+                raise ValueError("instrument_name must be one of: " +\
+                                 str(', '.join(self.INSTRUMENT_NAMES)))
+            else:
+                condition = " AND instrument_name LIKE '"+value.upper()+"' "
+        return condition
+
+    def __get_filter_name_condition(self, value=None):
+        condition = ""
+        if(value is not None):
+            if(not isinstance(value, str)):
+                raise ValueError("filter_name must be string")
+
+            else:
+                condition = " AND instrument_keywords LIKE '%FILTER="+value.upper()+"%' "
+        return condition
+
+    def __get_proposal_id_condition(self, value=None):
+        condition = ""
+        if(value is not None):
+            if(not isinstance(value, int)):
+                raise ValueError("proposal_id must be an integer")
+
+            else:
+                condition = " AND proposal_id='"+str(value)+"' "
+        return condition
+
+    def __get_artifact_producttype_condition(self, product_type=None):
         condition = ""
         if(product_type is not None):
             if(not isinstance(product_type, str)):
                 raise ValueError("product_type must be string")
-            elif(product_type is not 'thumbnail' and 
-                 product_type is not 'preview' and
-                 product_type is not 'auxiliary' and
-                 product_type is not 'science'):
+            elif(product_type not in self.ARTIFACT_PRODUCT_TYPES):
                 raise ValueError("product_type must be one of: " +\
-                                 "'thumbnail', 'preview', 'auxiliary', " +\
-                                 "'science'")
+                                 str(', '.join(self.ARTIFACT_PRODUCT_TYPES)))
             else:
-                condition = " AND producttype='"+product_type+"' "
+                condition = " AND producttype ILIKE '"+product_type+"' "
         return condition
 
 
