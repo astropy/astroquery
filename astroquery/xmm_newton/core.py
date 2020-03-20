@@ -20,6 +20,7 @@ from astroquery.utils.tap.core import TapPlus
 from astroquery.utils.tap.model import modelutils
 from astroquery.query import BaseQuery
 from astropy.table import Table
+from requests.exceptions import HTTPError
 import shutil
 
 
@@ -133,8 +134,16 @@ class XMMNewtonClass(BaseQuery):
         link = link + "".join("&{0}={1}".format(key, val)
                               for key, val in kwargs.items())
 
-        response = self._request('GET', link, save=True)
-        if response is not None:
+        if verbose:
+            log.info(link)
+
+        response = None
+        try:
+            response = self._request('GET', link, save=True, cache=True)
+        except HTTPError:
+            log.error("Unable to access URL {0}".format(link))
+
+        if response:
             if filename is None:
                 filename = observation_id + ".tar"
 
@@ -192,13 +201,19 @@ class XMMNewtonClass(BaseQuery):
                   'OBS_IMAGE_TYPE': image_type,
                   'PROTOCOL': 'HTTP'}
 
-        response = self._request('GET', self.data_url, params, cache=True)
-        response.raise_for_status()
         if verbose:
             log.info(self.data_url)
 
-        if response is not None:
+        response = None
+        try:
+            response = self._request('GET', self.data_url, params, cache=True)
+            response.raise_for_status()
+        except HTTPError:
+            response = None
 
+        if response is None:
+            log.error("Unable to access URL {0}".format(self.data_url))
+        else:
             if filename is None:
                 if "Content-Disposition" in response.headers.keys():
                     filename = re.findall('filename="(.+)"',
