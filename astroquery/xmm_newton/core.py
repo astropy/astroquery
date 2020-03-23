@@ -141,7 +141,7 @@ class XMMNewtonClass(BaseQuery):
         try:
             response = self._request('GET', link, save=True, cache=True)
         except HTTPError:
-            log.error("Unable to access URL {0}".format(link))
+            log.error("No results found in URL {0}".format(link))
 
         if response:
             if filename is None:
@@ -201,8 +201,11 @@ class XMMNewtonClass(BaseQuery):
                   'OBS_IMAGE_TYPE': image_type,
                   'PROTOCOL': 'HTTP'}
 
+        link = self.data_url + "".join("&{0}={1}".format(key, val)
+                               for key, val in params.items())
+
         if verbose:
-            log.info(self.data_url)
+            log.info(link)
 
         response = None
         try:
@@ -212,7 +215,7 @@ class XMMNewtonClass(BaseQuery):
             response = None
 
         if response is None:
-            log.error("Unable to access URL {0}".format(self.data_url))
+            log.error("No results found in URL {0}".format(link))
         else:
             if filename is None:
                 if "Content-Disposition" in response.headers.keys():
@@ -238,7 +241,7 @@ class XMMNewtonClass(BaseQuery):
                              destfile)
 
             if verbose:
-                log.info("Wrote {0} to {1}".format(self.data_url, filename))
+                log.info("Wrote {0} to {1}".format(link, filename))
 
             return file
 
