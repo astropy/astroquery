@@ -156,10 +156,10 @@ class ObservationsClass(BaseQuery):
         return self.query_criteria(objectname=objectname, radius=radius)
 
     @class_or_instance
-    def query_criteria(self, coordinates=None, radius=0.3*units.deg, pi_name=None, program_id=None, utc_date=None,
+    def query_criteria(self, *rawqueryargs, coordinates=None, radius=0.3*units.deg, pi_name=None, program_id=None, utc_date=None,
                        instrument=None, observation_class=None, observation_type=None, mode=None,
                        adaptive_optics=None, program_text=None, objectname=None, raw_reduced=None,
-                       *rawqueryargs, orderby=None, **rawquerykwargs):
+                       orderby=None, **rawquerykwargs):
         """
         search a variety of known parameters against the Gemini observations.
 
