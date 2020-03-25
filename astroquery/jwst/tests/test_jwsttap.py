@@ -197,15 +197,54 @@ class TestTap(unittest.TestCase):
         sc = SkyCoord(ra=29.0, dec=15.0, unit=(u.degree, u.degree), frame='icrs')
         with pytest.raises(ValueError) as err:
             tap.query_region(sc)
+            print(err.value.args[0])
         assert "Missing required argument: 'width'" in err.value.args[0]
 
         width = Quantity(12, u.deg)
+        height = Quantity(10, u.deg)
 
         with pytest.raises(ValueError) as err:
             tap.query_region(sc, width=width)
         assert "Missing required argument: 'height'" in err.value.args[0]
 
-        height = Quantity(10, u.deg)
+        #Test cal_level argument
+        with pytest.raises(ValueError) as err:
+            tap.query_region(sc, width=width, height=height, cal_level='a')
+        assert "cal_level must be either 'Top' or an integer" in err.value.args[0]
+
+        #Test only_public
+        with pytest.raises(ValueError) as err:
+            tap.query_region(sc, width=width, height=height, only_public='a')
+        assert "only_public must be boolean" in err.value.args[0]
+
+        #Test dataproduct_type argument
+        with pytest.raises(ValueError) as err:
+            tap.query_region(sc, width=width, height=height, prod_type=1)
+        assert "prod_type must be string" in err.value.args[0]
+
+        with pytest.raises(ValueError) as err:
+            tap.query_region(sc, width=width, height=height, prod_type='a')
+        assert "prod_type must be one of: " in err.value.args[0]
+
+        #Test instrument_name argument
+        with pytest.raises(ValueError) as err:
+            tap.query_region(sc, width=width, height=height, instrument_name=1)
+        assert "instrument_name must be string" in err.value.args[0]
+
+        with pytest.raises(ValueError) as err:
+            tap.query_region(sc, width=width, height=height, instrument_name='a')
+        assert "instrument_name must be one of: " in err.value.args[0]
+
+        #Test filter_name argument
+        with pytest.raises(ValueError) as err:
+            tap.query_region(sc, width=width, height=height, filter_name=1)
+        assert "filter_name must be string" in err.value.args[0]
+
+        #Test proposal_id argument
+        with pytest.raises(ValueError) as err:
+            tap.query_region(sc, width=width, height=height, proposal_id='a')
+        assert "proposal_id must be an integer" in err.value.args[0]
+
         table = tap.query_region(sc, width=width, height=height)
         assert len(table) == 3, \
             "Wrong job results (num rows). Expected: %d, found %d" % \
@@ -402,6 +441,45 @@ class TestTap(unittest.TestCase):
                                     'table1_oid',
                                     None,
                                     np.int32)
+
+        #Test cal_level argument
+        with pytest.raises(ValueError) as err:
+            tap.cone_search(sc, radius, cal_level='a')
+        assert "cal_level must be either 'Top' or an integer" in err.value.args[0]
+
+        #Test only_public
+        with pytest.raises(ValueError) as err:
+            tap.cone_search(sc, radius, only_public='a')
+        assert "only_public must be boolean" in err.value.args[0]
+
+        #Test dataproduct_type argument
+        with pytest.raises(ValueError) as err:
+            tap.cone_search(sc, radius, prod_type=1)
+        assert "prod_type must be string" in err.value.args[0]
+
+        with pytest.raises(ValueError) as err:
+            tap.cone_search(sc, radius, prod_type='a')
+        assert "prod_type must be one of: " in err.value.args[0]
+
+        #Test instrument_name argument
+        with pytest.raises(ValueError) as err:
+            tap.cone_search(sc, radius, instrument_name=1)
+        assert "instrument_name must be string" in err.value.args[0]
+
+        with pytest.raises(ValueError) as err:
+            tap.cone_search(sc, radius, instrument_name='a')
+        assert "instrument_name must be one of: " in err.value.args[0]
+
+        #Test filter_name argument
+        with pytest.raises(ValueError) as err:
+            tap.cone_search(sc, radius, filter_name=1)
+        assert "filter_name must be string" in err.value.args[0]
+
+        #Test proposal_id argument
+        with pytest.raises(ValueError) as err:
+            tap.cone_search(sc, radius, proposal_id='a')
+        assert "proposal_id must be an integer" in err.value.args[0]
+
 
     def test_cone_search_async(self):
         connHandler = DummyConnHandler()

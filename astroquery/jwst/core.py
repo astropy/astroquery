@@ -883,8 +883,7 @@ class JwstClass(object):
                 condition = " AND calibrationlevel="+\
                                         str(cal_level)+" "
             else:
-                raise ValueError("cal_level must be either 'Top' or \
-                                an integer. ")
+                raise ValueError("cal_level must be either 'Top' or an integer")
         return condition
     
     def __get_public_condition(self, only_public):
@@ -895,16 +894,16 @@ class JwstClass(object):
             condition = " AND public='true' "
         return condition
 
-    def __get_plane_dataproducttype_condition(self, dataproduct_type=None):
+    def __get_plane_dataproducttype_condition(self, prod_type=None):
         condition = ""
-        if(dataproduct_type is not None):
-            if(not isinstance(dataproduct_type, str)):
-                raise ValueError("dataproduct_type must be string")
-            elif(str(dataproduct_type).lower() not in self.PLANE_DATAPRODUCT_TYPES):
-                raise ValueError("dataproduct_type must be one of: " +\
+        if(prod_type is not None):
+            if(not isinstance(prod_type, str)):
+                raise ValueError("prod_type must be string")
+            elif(str(prod_type).lower() not in self.PLANE_DATAPRODUCT_TYPES):
+                raise ValueError("prod_type must be one of: " +\
                                  str(', '.join(self.PLANE_DATAPRODUCT_TYPES)))
             else:
-                condition = " AND dataproducttype LIKE '"+dataproduct_type.lower()+"' "
+                condition = " AND dataproducttype LIKE '"+prod_type.lower()+"' "
         return condition
 
     def __get_instrument_name_condition(self, value=None):
