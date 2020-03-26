@@ -178,6 +178,7 @@ class ObservationsClass(MastQueryWithLogin):
             mashup_filters = self._portal_api_connection._build_filter_set("Mast.Caom.Cone",
                                                                            "Mast.Caom.Filtered.Position",
                                                                            **criteria)
+            coordinates = utils._parse_input_location(coordinates, objectname)
         else:
             mashup_filters = self._portal_api_connection._build_filter_set("Mast.Caom.Cone",
                                                                            "Mast.Caom.Filtered",
@@ -186,16 +187,7 @@ class ObservationsClass(MastQueryWithLogin):
         # handle position info (if any)
         position = None
 
-        if objectname and coordinates:
-            raise InvalidQueryError("Only one of objectname and coordinates may be specified.")
-
-        if objectname:
-            coordinates = utils.resolve_object(objectname)
-
         if coordinates:
-            # Put coordinates and radius into consitant format
-            coordinates = commons.parse_coordinates(coordinates)
-
             # if radius is just a number we assume degrees
             if isinstance(radius, (int, float)):
                 radius = radius * u.deg

@@ -245,20 +245,13 @@ class CatalogsClass(MastQueryWithLogin):
         objectname = criteria.pop('objectname', None)
         radius = criteria.pop('radius', 0.2*u.deg)
 
-        if objectname and coordinates:
-            raise InvalidQueryError("Only one of objectname and coordinates may be specified.")
+        if objectname or coordinates:
+            coordinates = utils._parse_input_location(coordinates, objectname)
 
-        if objectname:
-            coordinates = self.resolve_object(objectname)
-
-        if coordinates:
-            # Put coordinates and radius into consitant format
-            coordinates = commons.parse_coordinates(coordinates)
-
-            # if radius is just a number we assume degrees
-            if isinstance(radius, (int, float)):
-                radius = radius * u.deg
-            radius = coord.Angle(radius)
+        # if radius is just a number we assume degrees
+        if isinstance(radius, (int, float)):
+            radius = radius * u.deg
+        radius = coord.Angle(radius)
 
         # build query
         params = {}
