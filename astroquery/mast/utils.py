@@ -14,7 +14,8 @@ from urllib import parse
 import astropy.coordinates as coord
 
 from ..version import version
-from ..exceptions import ResolverError
+from ..exceptions import ResolverError, InvalidQueryError
+from ..utils import commons
 
 from . import conf
 
@@ -110,3 +111,39 @@ def resolve_object(objectname):
     coordinates = coord.SkyCoord(ra, dec, unit="deg")
 
     return coordinates
+
+def _parse_input_location(coordinates=None, objectname=None):
+    """
+    Convenience function to parse user input of coordinates and objectname.
+
+    Parameters
+    ----------
+    coordinates : str or `astropy.coordinates` object, optional
+        The target around which to search. It may be specified as a
+        string or as the appropriate `astropy.coordinates` object.
+        One and only one of coordinates and objectname must be supplied.
+    objectname : str, optional
+        The target around which to search, by name (objectname="M104")
+        or TIC ID (objectname="TIC 141914082").
+        One and only one of coordinates and objectname must be supplied.
+
+    Returns
+    -------
+    response : `~astropy.coordinates.SkyCoord`
+        The given coordinates, or object's location as an `~astropy.coordinates.SkyCoord` object.
+    """
+
+    # Checking for valid input
+    if objectname and coordinates:
+        raise InvalidQueryError("Only one of objectname and coordinates may be specified.")
+
+    if not (objectname or coordinates):
+        raise InvalidQueryError("One of objectname and coordinates must be specified.")
+
+    if objectname:
+        obj_coord = resolve_object(objectname)
+
+    if coordinates:
+        obj_coord = commons.parse_coordinates(coordinates)
+
+    return obj_coord

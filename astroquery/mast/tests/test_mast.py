@@ -69,7 +69,7 @@ def patch_post(request):
 
     mp.setattr(mast.Observations, '_download_file', download_mockreturn)
     mp.setattr(mast.Catalogs, '_download_file', download_mockreturn)
-    mp.setattr(mast.Tesscut, "_request", tesscut_get_mockreturn)
+    #mp.setattr(mast.Tesscut, "_request", tesscut_get_mockreturn)
     mp.setattr(mast.Tesscut, '_download_file', tess_download_mockreturn)
 
     return mp
@@ -105,7 +105,13 @@ def post_mockreturn(self, method="POST", url=None, data=None, timeout=10, **kwar
 
 
 def service_mockreturn(self, method="POST", url=None, data=None, timeout=10, **kwargs):
-    filename = data_path(DATA_FILES["panstarrs"])
+    if "panstarrs" in url:
+        filename = data_path(DATA_FILES["panstarrs"])
+    elif "tesscut" in url:
+        if "sector" in url:
+            filename = data_path(DATA_FILES['tess_sector'])
+        else:
+            filename = data_path(DATA_FILES['tess_cutout'])
     content = open(filename, 'rb').read()
     return MockResponse(content)
 

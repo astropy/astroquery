@@ -103,16 +103,35 @@ class ServiceAPI(BaseQuery):
         if session:
             self._session = session
 
-        # TODO: this is too specific needs to go into catalog class
-        self._MAST_CATALOGS_REQUEST_URL = conf.catalogsserver + "/api/v0.1/"
-        self._MAST_CATALOGS_SERVICES = {
-            "panstarrs": {
-                "path": "panstarrs/{data_release}/{table}.json",
-                "args": {"data_release": "dr2", "table": "mean"}
-            }
-        }
+        self._REQUEST_URL = conf.server + "/api/v0.1/"
+        self._SERVICES = {}
 
         self.TIMEOUT = conf.timeout
+
+    def _set_service_params(self, service_dict, service_name="", server_prefix=False):
+        """
+        Initialize the request url and available queries for a given service.
+
+        Parameters
+        ----------
+        service_dict : dict
+            Dictionary of available service queries in the form 
+            {service_name:{"path":service_path, "args":service_args}}
+        service_name : str
+            Name of the specific service, i.e. catalogs or tesscut
+        server_prefix : bool
+            Optional, default False. If true url is formed as service_name.mast.stsci.edu
+            vs. the default of mast.stsci.edu/service_name
+        """
+
+        service_url = conf.server
+        if server_prefix:
+            service_url = service_url.replace("mast",f"{service_name}.mast")
+        else:
+            service_url += f"/{service_name}"
+
+        self._REQUEST_URL = f"{service_url}/api/v0.1/"
+        self._SERVICES = service_dict
 
     def _request(self, method, url, params=None, data=None, headers=None,
                  files=None, stream=False, auth=None, cache=False):
@@ -195,7 +214,7 @@ class ServiceAPI(BaseQuery):
         Parameters
         ----------
         service : str
-           The MAST catalogs service to query. Should be present in self._MAST_CATALOGS_SERVICES
+           The MAST catalogs service to query. Should be present in self._SERVICES
         params : dict
            JSON object containing service parameters.
         page_size : int, optional
@@ -213,18 +232,18 @@ class ServiceAPI(BaseQuery):
         -------
         response : list of `~requests.Response`
         """
-        service_config = self._MAST_CATALOGS_SERVICES.get(service.lower())
+        service_config = self._SERVICES.get(service.lower())
         service_url = service_config.get('path')
         compiled_service_args = {}
 
         # Gather URL specific parameters
-        for service_argument, default_value in service_config.get('args').items():
+        for service_argument, default_value in service_config.get('args', {}).items():
             found_argument = params.pop(service_argument, None)
             if found_argument is None:
                 found_argument = kwargs.pop(service_argument, default_value)
             compiled_service_args[service_argument] = found_argument.lower()
 
-        request_url = self._MAST_CATALOGS_REQUEST_URL + service_url.format(**compiled_service_args)
+        request_url = self._REQUEST_URL + service_url.format(**compiled_service_args)
         headers = {
             'User-Agent': self._session.headers['User-Agent'],
             'Content-type': 'application/x-www-form-urlencoded',

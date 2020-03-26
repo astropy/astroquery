@@ -40,6 +40,10 @@ class CatalogsClass(MastQueryWithLogin):
 
         super().__init__()
 
+        services = {"panstarrs": {"path": "panstarrs/{data_release}/{table}.json",
+                                  "args": {"data_release": "dr2", "table": "mean"}}}
+        self._service_api_connection._set_service_params(services, "catalogs", True)
+
         self.catalog_limit = None
         self._current_connection = None
 
@@ -107,7 +111,7 @@ class CatalogsClass(MastQueryWithLogin):
                   'radius': radius.deg}
 
         # Determine API connection and service name
-        if catalog.lower() in self._service_api_connection._MAST_CATALOGS_SERVICES:
+        if catalog.lower() in self._service_api_connection._SERVICES:
             self._current_connection = self._service_api_connection
             service = catalog
         else:
@@ -265,7 +269,7 @@ class CatalogsClass(MastQueryWithLogin):
 
         # Determine API connection, service name, and build filter set
         filters = None
-        if catalog.lower() in self._service_api_connection._MAST_CATALOGS_SERVICES:
+        if catalog.lower() in self._service_api_connection._SERVICES:
             self._current_connection = self._service_api_connection
             service = catalog
 
