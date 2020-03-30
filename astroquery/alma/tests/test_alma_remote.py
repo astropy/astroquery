@@ -14,7 +14,7 @@ from .. import _url_list, _test_url_list
 
 # ALMA tests involving staging take too long, leading to travis timeouts
 # TODO: make this a configuration item
-SKIP_SLOW = False
+SKIP_SLOW = True
 
 all_colnames = {'Project code', 'Source name', 'RA', 'Dec', 'Band',
                 'Frequency resolution', 'Integration', 'Release date',
@@ -62,7 +62,7 @@ class TestAlma:
         assert b'2013.1.00857.S' in result_c['proposal_id']
         # "The Brick", g0.253, is in this one
         # assert b'2011.0.00217.S' in result_c['Project code'] # missing cycle 1 data
-        assert b'2012.1.00031.S' in result_c['proposal_id']
+        assert b'2012.1.00635.S' in result_c['proposal_id']
 
     @pytest.mark.skipif("SKIP_SLOW")
     def test_m83(self, temp_dir, recwarn):
