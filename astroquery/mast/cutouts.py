@@ -39,6 +39,26 @@ __all__ = ["TesscutClass", "Tesscut"]
 
 
 def _parse_cutout_size(size):
+    """
+    Take a user input cutout size and parse it into the regular format
+    [ny,nx] where nx/ny are quantities with units either pixels or degrees.
+
+    Parameters
+    ----------
+    size : int, array-like, `~astropy.units.Quantity`
+        The size of the cutout array. If ``size`` is a scalar number or
+        a scalar `~astropy.units.Quantity`, then a square cutout of ``size``
+        will be created.  If ``size`` has two elements, they should be in
+        ``(ny, nx)`` order.  Scalar numbers in ``size`` are assumed to be in
+        units of pixels. `~astropy.units.Quantity` objects must be in pixel or
+        angular units.
+
+    Returns
+    -------
+    response : array
+        Size array in the form [ny, nx] where nx/ny are quantities with units 
+        either pixels or degrees.
+    """
 
     # Making size into an array [ny, nx]
     if np.isscalar(size):
