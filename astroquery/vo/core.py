@@ -159,8 +159,8 @@ class VoImageQuery(BaseQuery):
         if coordinates:
             if not radius:
                 radius = 0.016666666666667*u.deg
-            circle = (coordinates.ra.to(u.deg),
-                      coordinates.dec.to(u.deg), radius.to(u.deg))
+            circle = (coordinates.icrs.ra.to(u.deg),
+                      coordinates.icrs.dec.to(u.deg), radius.to(u.deg))
             if pos:
                 pos.append(circle)
             else:

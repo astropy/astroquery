@@ -45,7 +45,6 @@ class Conf(_config.ConfigNamespace):
 conf = Conf()
 
 from .core import Alma, AlmaClass
-from .utils import make_finder_chart
 
 __all__ = ['Alma', 'AlmaClass',
            'Conf', 'conf',

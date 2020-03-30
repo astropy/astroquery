@@ -14,7 +14,7 @@ from .. import _url_list, _test_url_list
 
 # ALMA tests involving staging take too long, leading to travis timeouts
 # TODO: make this a configuration item
-SKIP_SLOW = True
+SKIP_SLOW = False
 
 all_colnames = {'Project code', 'Source name', 'RA', 'Dec', 'Band',
                 'Frequency resolution', 'Integration', 'Release date',
@@ -47,11 +47,7 @@ class TestAlma:
         return my_temp_dir
 
     def test_help(self):
-
-        help_list = Alma._get_help_page()
-        assert help_list[0][0] == u'Position'
-        assert help_list[1][0] == u'Energy'
-        assert help_list[1][1][0] == (u'Frequency', 'frequency')
+        Alma().help()
 
     def test_SgrAstar(self, temp_dir):
         alma = Alma()
@@ -59,14 +55,14 @@ class TestAlma:
 
         result_s = alma.query_object('Sgr A*')
         # cycle 1 data are missing from the archive assert b'2011.0.00887.S' in result_s['Project code']
-        assert b'2013.1.00857.S' in result_s['Project code']
+        assert b'2013.1.00857.S' in result_s['proposal_id']
         c = coordinates.SkyCoord(266.41681662 * u.deg, -29.00782497 * u.deg,
                                  frame='fk5')
         result_c = alma.query_region(c, 1 * u.deg)
-        assert b'2013.1.00857.S' in result_c['Project code']
+        assert b'2013.1.00857.S' in result_c['proposal_id']
         # "The Brick", g0.253, is in this one
         # assert b'2011.0.00217.S' in result_c['Project code'] # missing cycle 1 data
-        assert b'2012.1.00932.S' in result_c['Project code']
+        assert b'2012.1.00031.S' in result_c['proposal_id']
 
     @pytest.mark.skipif("SKIP_SLOW")
     def test_m83(self, temp_dir, recwarn):
@@ -74,7 +70,7 @@ class TestAlma:
         alma.cache_location = temp_dir
 
         m83_data = alma.query_object('M83')
-        uids = np.unique(m83_data['Member ous id'])
+        uids = np.unique(m83_data['obs_id'])
         link_list = alma.stage_data(uids)
 
         # On Feb 8, 2016 there were 83 hits.  This number should never go down.
@@ -103,16 +99,16 @@ class TestAlma:
 
         result_s = alma.query_object('Sgr A*')
         # assert b'2011.0.00887.S' in result_s['Project code']
-        assert b'2013.1.00857.S' in result_s['Project code']
+        assert b'2013.1.00857.S' in result_s['proposal_id']
         # assert b'uid://A002/X40d164/X1b3' in result_s['Asdm uid']
-        assert b'uid://A002/X651f57/Xade' in result_s['Asdm uid']
+        assert b'uid://A002/X651f57/Xade' in result_s['asdm_uid']
         # match = result_s['Asdm uid'] == b'uid://A002/X40d164/X1b3'
-        match = result_s['Asdm uid'] == b'uid://A002/X651f57/Xade'
-        uid = result_s['Asdm uid'][match]
+        match = result_s['asdm_uid'] == b'uid://A002/X651f57/Xade'
+        uid = result_s['obs_id'][match]
 
         result = alma.stage_data(uid)
 
-        assert ('uid___A002_X651f57_Xade' in
+        assert ('2012.1.00080.S_uid___A002_X6444ba_X10_001_of_001.tar' in
                 os.path.split(result['URL'][0])[1])
 
         # test re-staging
@@ -145,12 +141,12 @@ class TestAlma:
         # assert len(gc_data) >= 425 # Feb 8, 2016
         assert len(gc_data) >= 50  # Nov 16, 2016
 
-        uids = np.unique(m83_data['Asdm uid'])
+        uids = np.unique(m83_data['asdm_uid'])
         assert b'uid://A002/X3b3400/X90f' in uids
-        X90f = (m83_data['Asdm uid'] == b'uid://A002/X3b3400/X90f')
-        assert X90f.sum() == 2  # Jul 2, 2017: increased from 1
-        X31 = (m83_data['Member ous id'] == b'uid://A002/X3216af/X31')
-        assert X31.sum() == 2  # Jul 2, 2017: increased from 1
+        X90f = (m83_data['asdm_uid'] == b'uid://A002/X3b3400/X90f')
+        assert X90f.sum() == 4  # Jul 2, 2017: increased from 1
+        X31 = (m83_data['member_ous_uid'] == b'uid://A002/X3216af/X31')
+        assert X31.sum() == 4  # Jul 2, 2017: increased from 1
 
         asdm = alma.stage_data('uid://A002/X3b3400/X90f')
         totalsize_asdm = asdm['size'].sum() * u.Unit(asdm['size'].unit)
@@ -166,7 +162,7 @@ class TestAlma:
     def test_query(self, temp_dir):
         alma = Alma()
         alma.cache_location = temp_dir
-
+        #  TODO start date?
         result = alma.query(payload={'start_date': '<11-11-2011'},
                             public=False, science=True)
         # Nov 16, 2016: 159
@@ -176,7 +172,7 @@ class TestAlma:
         # March 18, 2019: 171 (seriously, how do they keep changing history?)
         assert len(result) == 171
 
-        result = alma.query(payload={'member_ous_id': 'uid://A001/X11a2/X11'},
+        result = alma.query(payload={'member_ous_uid': 'uid://A001/X11a2/X11'},
                             science=True)
         assert len(result) == 1
 
@@ -200,9 +196,9 @@ class TestAlma:
 
         # Need new Alma() instances each time
         a1 = alma()
-        uid_url_table_mous = a1.stage_data(result['Member ous id'])
+        uid_url_table_mous = a1.stage_data(result['member_ous_uid'])
         a2 = alma()
-        uid_url_table_asdm = a2.stage_data(result['Asdm uid'])
+        uid_url_table_asdm = a2.stage_data(result['asdm_uid'])
         # I believe the fixes as part of #495 have resulted in removal of a
         # redundancy in the table creation, so a 1-row table is OK here.
         # A 2-row table may not be OK any more, but that's what it used to
@@ -243,15 +239,15 @@ class TestAlma:
         target = 'NGC4945'
         project_code = '2011.0.00121.S'
 
-        payload = {'project_code': project_code,
-                   'source_name_alma': target, }
+        payload = {'project_id': project_code,
+                   'target_name': target}
         result = alma.query(payload=payload)
-        assert len(result) == 1
+        assert len(result) == 80
 
         alma1 = alma()
         alma2 = alma()
-        uid_url_table_mous = alma1.stage_data(result['Member ous id'])
-        uid_url_table_asdm = alma2.stage_data(result['Asdm uid'])
+        uid_url_table_mous = alma1.stage_data(result['member_ous_uid'])
+        uid_url_table_asdm = alma2.stage_data(result['asdm_uid'])
         assert len(uid_url_table_asdm) == 1
         assert len(uid_url_table_mous) == 32
 
@@ -276,14 +272,11 @@ class TestAlma:
         alma = Alma()
         alma.cache_location = temp_dir
 
-        result = alma.query(payload={'spatial_resolution': '<0.1',
-                                     'science_keyword':
-                                     ['High-mass star formation',
-                                      'Disks around high-mass stars']},
+        result = alma.query(payload={'spatres': ('-Inf', 0.1)},
                             public=False, cache=False)
 
         assert len(result) >= 72
-        assert 'Orion_Source_I' in result['Source name']
+        assert b'Ganymede' in result['target_name']
 
 
 @pytest.mark.remote_data
