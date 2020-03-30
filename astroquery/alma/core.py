@@ -230,18 +230,13 @@ class AlmaClass(QueryWithLogin):
             table = uid_json_to_table(jdata)
             table['sizeInBytes'].unit = u.B
             table.rename_column('sizeInBytes', 'size')
-            table.add_column(Column(data=['{dataarchive_url}/dataPortal/sso/{name}'
+            table.add_column(Column(data=['{dataarchive_url}/dataPortal/{name}'
                                           .format(dataarchive_url=dataarchive_url,
                                                   name=name)
                                           for name in table['name']],
                                     name='URL'))
 
-            is_proprietary = self._request('GET',
-                                           '{dataarchive_url}/rh/access/{uid}'
-                                           .format(dataarchive_url=dataarchive_url,
-                                                   uid=uid), cache=False)
-            is_proprietary.raise_for_status()
-            isp = is_proprietary.json()['isProprietary']
+            isp = self.is_proprietary(uid)
             table.add_column(Column(data=[isp for row in table],
                                     name='isProprietary'))
 
@@ -254,6 +249,25 @@ class AlmaClass(QueryWithLogin):
         table = table_vstack(tables)
 
         return table
+
+    def is_proprietary(self, uid):
+        """
+        Given an ALMA UID, query the servers to determine whether it is
+        proprietary or not.  This will never be cached, since proprietarity is
+        time-sensitive.
+        """
+        dataarchive_url = self._get_dataarchive_url()
+
+        is_proprietary = self._request('GET',
+                                       '{dataarchive_url}/rh/access/{uid}'
+                                       .format(dataarchive_url=dataarchive_url,
+                                               uid=clean_uid(uid)), cache=False)
+
+        is_proprietary.raise_for_status()
+
+        isp = is_proprietary.json()['isProprietary']
+
+        return isp
 
     def stage_data_prefeb2020(self, uids):
         """
@@ -446,15 +460,29 @@ class AlmaClass(QueryWithLogin):
         once, so the return may have a different length than the input list
         """
 
+        if self.USERNAME:
+            auth = self._get_auth_info(self.USERNAME)
+        else:
+            auth = None
+
         downloaded_files = []
         if savedir is None:
             savedir = self.cache_location
         for fileLink in unique(files):
             try:
                 log.debug("Downloading {0} to {1}".format(fileLink, savedir))
+                check_filename = self._request('HEAD', fileLink, stream=True)
+                check_filename.raise_for_status()
+                if 'text/html' in check_filename.headers['Content-Type']:
+                    raise ValueError("Bad query.  This can happen if you "
+                                     "attempt to download proprietary "
+                                     "data when not logged in")
+
                 filename = self._request("GET", fileLink, save=True,
                                          savedir=savedir,
-                                         timeout=self.TIMEOUT, cache=cache,
+                                         timeout=self.TIMEOUT,
+                                         cache=cache,
+                                         auth=auth,
                                          continuation=continuation)
                 downloaded_files.append(filename)
             except requests.HTTPError as ex:
@@ -471,6 +499,15 @@ class AlmaClass(QueryWithLogin):
                                                            'dataPortal/sso/'),
                                           fileLink))
                     raise ex
+                elif ex.response.status_code == 500:
+                    # empirically, this works the second time most of the time...
+                    filename = self._request("GET", fileLink, save=True,
+                                             savedir=savedir,
+                                             timeout=self.TIMEOUT,
+                                             cache=cache,
+                                             auth=auth,
+                                             continuation=continuation)
+                    downloaded_files.append(filename)
                 else:
                     raise ex
         return downloaded_files
@@ -981,5 +1018,8 @@ def uid_json_to_table(jdata,
 
     columns = [Column(data=[row[key] for row in rows], name=key)
                for key in keys if key not in ('children', 'allMousUids')]
+
+    columns = [col.astype(str) if col.dtype.name == 'object' else col for col
+               in columns]
 
     return Table(columns)

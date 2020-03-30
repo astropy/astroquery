@@ -33,7 +33,7 @@ alma
   refactor.  The user-facing API should remain mostly the same, but some
   service interruption may have occurred.  Note that the ``stage_data`` column
   ``uid`` has been renamed ``mous_uid``, which is a technical correction, and
-  several columns have been added [#1644]
+  several columns have been added [#1644,#1665]
 
 
 Infrastructure, Utility and Other Changes and Additions

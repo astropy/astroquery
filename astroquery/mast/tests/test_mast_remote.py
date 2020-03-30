@@ -485,13 +485,12 @@ class TestMast(object):
 
         result = mast.Catalogs.query_hsc_matchid(catalogData[0])
         assert isinstance(result, Table)
-        assert len(result) >= 8
         assert (result['MatchID'] == matchid).all()
 
-        result = mast.Catalogs.query_hsc_matchid(matchid)
-        assert isinstance(result, Table)
-        assert len(result) >= 8
-        assert (result['MatchID'] == matchid).all()
+        result2 = mast.Catalogs.query_hsc_matchid(matchid)
+        assert isinstance(result2, Table)
+        assert len(result2) == len(result)
+        assert (result2['MatchID'] == matchid).all()
 
     def test_catalogs_get_hsc_spectra_async(self):
         responses = mast.Catalogs.get_hsc_spectra_async()
@@ -538,8 +537,8 @@ class TestMast(object):
         assert sector_table['ccd'][0] == 3
 
         # This should always return no results
-        coord = SkyCoord(0, 90, unit="deg")
-        sector_table = mast.Tesscut.get_sectors(coordinates=coord)
+        coord = SkyCoord(90, -66.5, unit="deg")
+        sector_table = mast.Tesscut.get_sectors(coordinates=coord, radius=0)
         assert isinstance(sector_table, Table)
         assert len(sector_table) == 0
 
