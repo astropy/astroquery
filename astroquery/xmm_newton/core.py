@@ -176,7 +176,7 @@ class XMMNewtonClass(BaseQuery):
                                           "Content-Disposition"])[0]
             else:
                 filename = observation_id + ".PNG"
-    
+
         log.info("Copying file to {0}...".format(filename))
 
         with open(os.path.join('.', filename), 'wb') as f:
