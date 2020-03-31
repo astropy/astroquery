@@ -8,26 +8,179 @@ import re
 import tarfile
 import string
 import requests
+import warnings
 from pkg_resources import resource_filename
 from bs4 import BeautifulSoup
+import pyvo
 
 from six.moves.urllib_parse import urljoin
 import six
 from astropy.table import Table, Column, vstack as table_vstack
 from astropy import log
 from astropy.utils.console import ProgressBar
+from astropy.utils.exceptions import AstropyDeprecationWarning
 from astropy import units as u
-import astropy.coordinates as coord
-import astropy.io.votable as votable
+from astropy.time import Time
 
-from ..exceptions import (RemoteServiceError, TableParseError,
-                          InvalidQueryError, LoginError)
+from ..exceptions import (RemoteServiceError, LoginError)
 from ..utils import commons
 from ..utils.process_asyncs import async_to_sync
 from ..query import QueryWithLogin
+from .tapsql import _gen_pos_sql, _gen_str_sql, _gen_numeric_sql,\
+    _gen_band_list_sql, _gen_datetime_sql, _gen_pol_sql, _gen_pub_sql,\
+    _gen_science_sql, _gen_spec_res_sql, ALMA_DATE_FORMAT
 from . import conf, auth_urls
 
+__all__ = {'AlmaClass', 'ALMA_BANDS'}
+
 __doctest_skip__ = ['AlmaClass.*']
+
+
+ALMA_TAP_PATH = 'tap'
+ALMA_SIA_PATH = 'sia'
+
+# Map from ALMA ObsCore result to ALMA original query result
+# The map is provided in order to preserve the name of the columns in the
+# original ALMA query original results and make it backwards compatible
+# key - current column, value - original column name
+_OBSCORE_TO_ALMARESULT = {
+    'proposal_id': 'Project code',
+    'target_name': 'Source name',
+    's_ra': 'RA',
+    's_dec': 'Dec',
+    'gal_longitude': 'Galactic longitude',
+    'gal_latitude': 'Galactic latitude',
+    'band_list': 'Band',
+    's_region': 'Footprint',
+    'em_resolution': 'Frequency resolution',
+    'antenna_arrays': 'Array',
+    'is_mosaic': 'Mosaic',
+    't_exptime': 'Integration',
+    'obs_release_date': 'Release date',
+    'frequency_support': 'Frequency support',
+    'velocity_resolution': 'Velocity resolution',
+    'pol_states': 'Pol products',
+    't_min': 'Observation date',
+    'obs_creator_name': 'PI name',
+    'schedblock_name': 'SB name',
+    'proposal_authors': 'Proposal authors',
+    'sensitivity_10kms': 'Line sensitivity (10 km/s)',
+    'cont_sensitivity_bandwidth': 'Continuum sensitivity',
+    'pwv': 'PWV',
+    'group_ous_uid': 'Group ous id',
+    'member_ous_uid': 'Member ous id',
+    'asdm_uid': 'Asdm uid',
+    'obs_title': 'Project title',
+    'type': 'Project type',
+    'scan_intent': 'Scan intent',
+    's_fov': 'Field of view',
+    'spatial_scale_max': 'Largest angular scale',
+    'qa2_passed': 'QA2 Status',
+    #  TODO	COUNT
+    'science_keyword': 'Science keyword',
+    'scientific_category': 'Scientific category'
+}
+
+
+ALMA_BANDS = {
+    '3': (84*u.GHz, 116*u.GHz),
+    '4': (125*u.GHz, 163*u.GHz),
+    '5': (163*u.GHz, 211*u.GHz),
+    '6': (211*u.GHz, 275*u.GHz),
+    '7': (275*u.GHz, 373*u.GHz),
+    '8': (385*u.GHz, 500*u.GHz),
+    '9': (602*u.GHz, 720*u.GHz),
+    '10': (787*u.GHz, 950*u.GHz)
+}
+
+
+ALMA_FORM_KEYS = {
+    'Position': {
+        'Source name (astropy Resolver)': ['source_name_resolver',
+                                           'SkyCoord.from_name', _gen_pos_sql],
+        'Source name (ALMA)': ['source_name_alma', 'target_name', _gen_str_sql],
+        'RA Dec (Sexagesimal)': ['ra_dec', 's_ra, s_dec', _gen_pos_sql],
+        'Galactic (Degrees)': ['galactic', 'gal_longitude, gal_latitude',
+                               _gen_pos_sql],
+        'Angular resolution (arcsec)': ['spatial_resolution',
+                                        'spatial_resolution', _gen_numeric_sql],
+        'Largest angular scale (arcsec)': ['spatial_scale_max',
+                                           'spatial_scale_max', _gen_numeric_sql],
+        'Field of view (arcsec)': ['fov', 's_fov', _gen_numeric_sql]
+    },
+    'Energy': {
+        'Frequency (GHz)': ['frequency', 'frequency', _gen_numeric_sql],
+        'Bandwidth (GHz)': ['bandwidth', 'bandwidth', _gen_numeric_sql],
+        'Spectral resolution (KHz)': ['spectral_resolution',
+                                      'em_resolution', _gen_spec_res_sql],
+        'Band': ['band_list', 'band_list', _gen_band_list_sql]
+    },
+    'Time': {
+        'Observation date': ['start_date', 't_min', _gen_datetime_sql],
+        'Integration time (s)': ['integration_time', 't_exptime',
+                                 _gen_numeric_sql]
+    },
+    'Polarization': {
+        'Polarisation type (Single, Dual, Full)': ['polarisation_type',
+                                                   'pol_states', _gen_pol_sql]
+    },
+    'Observation': {
+        'Line sensitivity (10 km/s) (mJy/beam)': ['line_sensitivity',
+                                                  'sensitivity_10kms',
+                                                  _gen_numeric_sql],
+        'Continuum sensitivity (mJy/beam)': ['continuum_sensitivity',
+                                             'cont_sensitivity_bandwidth',
+                                             _gen_numeric_sql],
+        'Water vapour (mm)': ['water_vapour', 'pvw', _gen_numeric_sql]
+    },
+    'Project': {
+        'Project code': ['project_code', 'proposal_id', _gen_str_sql],
+        'Project title': ['project_title', 'obs_title', _gen_str_sql],
+        'PI name': ['pi_name', 'obs_creator_name', _gen_str_sql],
+        'Proposal authors': ['proposal_authors', 'proposal_authors', _gen_str_sql],
+        'Project abstract': ['project_abstract', 'proposal_abstract', _gen_str_sql],
+        'Publication count': ['publication_count', 'NA', _gen_str_sql],
+        'Science keyword': ['science_keyword', 'science_keyword', _gen_str_sql]
+    },
+    'Publication': {
+        'Bibcode': ['bibcode', 'bib_reference', _gen_str_sql],
+        'Title': ['pub_title', 'pub_title', _gen_str_sql],
+        'First author': ['first_author', 'first_author', _gen_str_sql],
+        'Authors': ['authors', 'authors', _gen_str_sql],
+        'Abstract': ['pub_abstract', 'pub_abstract', _gen_str_sql],
+        'Year': ['publication_year', 'pub_year', _gen_numeric_sql]
+    },
+    'Options': {
+        'Public data only': ['public_data', 'data_rights', _gen_pub_sql],
+        'Science observations only': ['science_observations', 'calib_level',
+                                      _gen_science_sql]
+    }
+}
+
+
+def _gen_sql(payload):
+    sql = 'select * from ivoa.obscore'
+    where = ''
+    if payload:
+        for constraint in payload:
+            for attrib_category in ALMA_FORM_KEYS.values():
+                for attrib in attrib_category.values():
+                    if constraint in attrib:
+                        # use the value and the second entry in attrib which
+                        # is the new name of the column
+                        val = payload[constraint]
+                        if constraint == 'em_resolution':
+                            # em_resolution does not require any transformation
+                            attrib_where = _gen_numeric_sql(constraint, val)
+                        else:
+                            attrib_where = attrib[2](attrib[1], val)
+                        if attrib_where:
+                            if where:
+                                where += ' AND '
+                            else:
+                                where = ' WHERE '
+                            where += attrib_where
+    return sql + where
 
 
 @async_to_sync
@@ -38,37 +191,60 @@ class AlmaClass(QueryWithLogin):
     USERNAME = conf.username
 
     def __init__(self):
+        # sia service does not need disambiguation but tap does
         super(AlmaClass, self).__init__()
+        self._sia = None
+        self._tap = None
+        self.sia_url = None
+        self.tap_url = None
 
-    def query_object_async(self, object_name, cache=True, public=True,
+    @property
+    def sia(self):
+        if not self._sia:
+            base_url = self._get_dataarchive_url()
+            if base_url.endswith('/'):
+                self.sia_url = base_url + ALMA_SIA_PATH
+            else:
+                self.sia_url = base_url + '/' + ALMA_SIA_PATH
+            self._sia = pyvo.dal.sia2.SIAService(baseurl=self.sia_url)
+        return self._sia
+
+    @property
+    def tap(self):
+        if not self._tap:
+            base_url = self._get_dataarchive_url()
+            if base_url.endswith('/'):
+                self.tap_url = base_url + ALMA_TAP_PATH
+            else:
+                self.tap_url = base_url + '/' + ALMA_TAP_PATH
+            self._tap = pyvo.dal.tap.TAPService(baseurl=self.tap_url)
+        return self._tap
+
+    def query_object_async(self, object_name, cache=None, public=True,
                            science=True, payload=None, **kwargs):
         """
-        Query the archive with a source name
+        Query the archive for a source name.
 
         Parameters
         ----------
         object_name : str
-            The object name.  Will be parsed by SESAME on the ALMA servers.
-        cache : bool
-            Cache the query?
+            The object name.  Will be resolved by astropy.coord.SkyCoord
+        cache : deprecated
         public : bool
             Return only publicly available datasets?
         science : bool
             Return only data marked as "science" in the archive?
         payload : dict
             Dictionary of additional keywords.  See `help`.
-        kwargs : dict
-            Passed to `query_async`
         """
+        if payload is not None:
+            payload['source_name_resolver'] = object_name
+        else:
+            payload = {'source_name_resolver': object_name}
+        return self.query_async(public=public, science=science,
+                                payload=payload, **kwargs)
 
-        if payload is None:
-            payload = {}
-        payload.update({'source_name_resolver': object_name, })
-
-        return self.query_async(payload, cache=cache, public=public,
-                                science=science, **kwargs)
-
-    def query_region_async(self, coordinate, radius, cache=True, public=True,
+    def query_region_async(self, coordinate, radius, cache=None, public=True,
                            science=True, payload=None, **kwargs):
         """
         Query the ALMA archive with a source name and radius
@@ -79,7 +255,7 @@ class AlmaClass(QueryWithLogin):
             the identifier or coordinates around which to query.
         radius : str / `~astropy.units.Quantity`, optional
             the radius of the region
-        cache : bool
+        cache : Deprecated
             Cache the query?
         public : bool
             Return only publicly available datasets?
@@ -87,132 +263,180 @@ class AlmaClass(QueryWithLogin):
             Return only data marked as "science" in the archive?
         payload : dict
             Dictionary of additional keywords.  See `help`.
-        kwargs : dict
-            Passed to `query_async`
         """
-        coordinate = commons.parse_coordinates(coordinate)
-        cstr = coordinate.fk5.to_string(style='hmsdms', sep=':')
-        rdc = "{cstr}, {rad}".format(cstr=cstr, rad=coord.Angle(radius).deg)
-
+        rad = radius
+        if not isinstance(radius, u.Quantity):
+            rad = radius*u.deg
+        obj_coord = commons.parse_coordinates(coordinate)
+        ra_dec = '{}, {}'.format(obj_coord.to_string(), rad.to(u.deg).value)
         if payload is None:
             payload = {}
-        payload.update({'ra_dec': rdc})
+        if 'ra_dec' in payload:
+            payload['ra_dec'] += ' | {}'.format(ra_dec)
+        else:
+            payload['ra_dec'] = ra_dec
 
-        return self.query_async(payload, cache=cache, public=public,
-                                science=science, **kwargs)
+        return self.query_async(public=public, science=science,
+                                payload=payload, **kwargs)
 
-    def query_async(self, payload, cache=True, public=True, science=True,
-                    max_retries=5,
-                    get_html_version=False, get_query_payload=False, **kwargs):
+    def query_async(self, payload, cache=None, public=True, science=True,
+                    legacy_columns=False, max_retries=None,
+                    get_html_version=None,
+                    get_query_payload=None, **kwargs):
         """
         Perform a generic query with user-specified payload
 
         Parameters
         ----------
-        payload : dict
-            A dictionary of payload keywords that are accepted by the ALMA
-            archive system.  You can look these up by examining the forms at
-            http://almascience.org/aq or using the `help` method
-        cache : bool
-            Cache the query?
-            (note: HTML queries *cannot* be cached using the standard caching
-            mechanism because the URLs are different each time
+        payload : dictionary
+            Please consult the `help` method
+        cache : deprecated
         public : bool
             Return only publicly available datasets?
         science : bool
             Return only data marked as "science" in the archive?
+        legacy_columns: bool
+            True to return the columns from the obsolete ALMA advanced query,
+            otherwise return the current columns based on ObsCore model.
 
+        Returns
+        -------
+
+        Table with results. Columns are those in the ALMA ObsCore model
+        (see `help_tap`) unless `legacy_columns` argument is set to True.
         """
+        local_args = dict(locals().items())
 
-        url = urljoin(self._get_dataarchive_url(), 'aq/')
+        for arg in local_args:
+            # check if the deprecated attributes have been used
+            for deprecated in ['cache', 'max_retries', 'get_html_version',
+                               'get_query_payload']:
+                if arg[0] == deprecated and arg[1] is not None:
+                    warnings.warn(
+                        ("Argument '{}' has been deprecated "
+                         "since version 4.0.1 and will be ignored".format(arg[0])),
+                        AstropyDeprecationWarning)
+                    del kwargs[arg[0]]
 
-        payload.update(kwargs)
-        if get_html_version:
-            payload.update({'result_view': 'observation', 'format': 'URL',
-                            'download': 'true'})
-        else:
-            payload.update({'result_view': 'raw', 'format': 'VOTABLE',
-                            'download': 'true'})
-        if public:
-            payload['public_data'] = 'public'
+        if payload is None:
+            payload = {}
+        for arg in kwargs:
+            value = kwargs[arg]
+            if 'band_list' == arg and isinstance(value, list):
+                value = ' '.join([str(_) for _ in value])
+            if arg in payload:
+                payload[arg] = '{} {}'.format(payload[arg], value)
+            else:
+                payload[arg] = value
+
         if science:
-            payload['science_observations'] = '=%TARGET%'
+            payload['science_observations'] = True
 
-        self.validate_query(payload)
-
-        if get_query_payload:
-            return payload
-
-        response = self._request('GET', url, params=payload,
-                                 timeout=self.TIMEOUT,
-                                 cache=cache and not get_html_version)
-        self._last_response = response
-        response.raise_for_status()
-
-        if get_html_version:
-            if 'run' not in response.text:
-                if max_retries > 0:
-                    log.info("Failed query.  Retrying up to {0} more times"
-                             .format(max_retries))
-                    return self.query_async(payload=payload, cache=False,
-                                            public=public, science=science,
-                                            max_retries=max_retries-1,
-                                            get_html_version=get_html_version,
-                                            get_query_payload=get_query_payload,
-                                            **kwargs)
-                raise RemoteServiceError("Incorrect return from HTML table query.")
-            response2 = self._request('GET',
-                                      "{0}/{1}/{2}".format(
-                                          self._get_dataarchive_url(), 'aq',
-                                          response.text),
-                                      params={'query_url':
-                                              response.url.split("?")[-1]},
-                                      timeout=self.TIMEOUT,
-                                      cache=False,
-                                      )
-            self._last_response = response2
-            response2.raise_for_status()
-            if len(response2.text) == 0:
-                if max_retries > 0:
-                    log.info("Failed (empty) query.  Retrying up to {0} more times"
-                             .format(max_retries))
-                    return self.query_async(payload=payload, cache=cache,
-                                            public=public, science=science,
-                                            max_retries=max_retries-1,
-                                            get_html_version=get_html_version,
-                                            get_query_payload=get_query_payload,
-                                            **kwargs)
-                raise RemoteServiceError("Empty return.")
-            return response2
-
+        if public is not None:
+            if public:
+                payload['public_data'] = True
+            else:
+                payload['public_data'] = False
+        query = _gen_sql(payload)
+        result = self.query_tap(query, **kwargs)
+        if result:
+            result = result.to_table()
         else:
-            return response
+            return result
+        if legacy_columns:
+            legacy_result = Table()
+            # add 'Observation date' column
 
-    def validate_query(self, payload, cache=True):
+            for ii in _OBSCORE_TO_ALMARESULT:
+                if ii in result.columns:
+                    if ii == 't_min':
+                        legacy_result['Observation date'] = \
+                            [Time(_['t_min'], format='mjd').strftime(
+                                ALMA_DATE_FORMAT) for _ in result]
+                    else:
+                        legacy_result[_OBSCORE_TO_ALMARESULT[ii]] = \
+                            result[ii]
+                else:
+                    log.error("Invalid column mapping in OBSCORE_TO_ALMARESULT: "
+                              "{}:{}.  Please "
+                              "report this as an Issue."
+                              .format(ii, _OBSCORE_TO_ALMARESULT[ii]))
+            return legacy_result
+        return result
+
+    def query_sia(self, pos=None, band=None, time=None, pol=None,
+                  field_of_view=None, spatial_resolution=None,
+                  spectral_resolving_power=None, exptime=None,
+                  timeres=None, publisher_did=None,
+                  facility=None, collection=None,
+                  instrument=None, data_type=None,
+                  calib_level=None, target_name=None,
+                  res_format=None, maxrec=None,
+                  **kwargs):
         """
-        Use the ALMA query validator service to check whether the keywords are
-        valid
+        Use standard SIA2 attributes to query the ALMA SIA service.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        Results in `pyvo.dal.sia2.SiaResult` format.
+        result.table in Astropy table format
         """
+        return self.sia.search(
+            pos=pos,
+            band=band,
+            time=time,
+            pol=pol,
+            field_of_view=field_of_view,
+            spatial_resolution=spatial_resolution,
+            spectral_resolving_power=spectral_resolving_power,
+            exptime=exptime,
+            timeres=timeres,
+            publisher_did=publisher_did,
+            facility=facility,
+            collection=collection,
+            instrument=instrument,
+            data_type=data_type,
+            calib_level=calib_level,
+            target_name=target_name,
+            res_format=res_format,
+            maxrec=maxrec,
+            **kwargs)
 
-        # Check that the keywords specified are allowed
-        self._validate_payload(payload)
+    def query_tap(self, query, **kwargs):
+        """
+        Send query to the ALMA TAP. Results in pyvo.dal.TapResult format.
+        result.table in Astropy table format
+        """
+        return self.tap.search(query, language='ADQL', **kwargs)
 
-        vurl = self._get_dataarchive_url() + '/aq/validate'
+    def help_tap(self):
+        print('Table to query is "voa.ObsCore".')
+        print('For example: "select top 1 * from ivoa.ObsCore"')
+        print('The scheme of the table is as follows.\n')
+        print('  {0:20s} {1:15s} {2:10} {3}'.
+              format('Name', 'Type', 'Unit', 'Description'))
+        print('-'*90)
+        for tb in self.tap.tables.items():
+            if tb[0] == 'ivoa.obscore':
+                for col in tb[1].columns:
+                    if col.datatype.content == 'char':
+                        type = 'char({})'.format(col.datatype.arraysize)
+                    else:
+                        type = str(col.datatype.content)
+                    unit = col.unit if col.unit else ''
+                    print('  {0:20s} {1:15s} {2:10} {3}'.
+                          format(col.name, type, unit, col.description))
 
-        bad_kws = {}
-
-        for kw in payload:
-            vpayload = {'field': kw,
-                        kw: payload[kw]}
-            response = self._request('GET', vurl, params=vpayload, cache=cache,
-                                     timeout=self.TIMEOUT)
-
-            if response.content:
-                bad_kws[kw] = response.content
-
-        if bad_kws:
-            raise InvalidQueryError("Invalid query parameters: "
-                                    "{0}".format(bad_kws))
+    # update method pydocs
+    query_region_async.__doc__ = query_region_async.__doc__.replace(
+        '_SIA2_PARAMETERS', pyvo.dal.sia2.SIA_PARAMETERS_DESC)
+    query_object_async.__doc__ = query_object_async.__doc__.replace(
+        '_SIA2_PARAMETERS', pyvo.dal.sia2.SIA_PARAMETERS_DESC)
+    query_async.__doc__ = query_async.__doc__.replace(
+        '_SIA2_PARAMETERS', pyvo.dal.sia2.SIA_PARAMETERS_DESC)
 
     def _get_dataarchive_url(self):
         """
@@ -221,12 +445,12 @@ class AlmaClass(QueryWithLogin):
         """
         if not hasattr(self, 'dataarchive_url'):
             if self.archive_url in ('http://almascience.org', 'https://almascience.org'):
-                response = self._request('GET', self.archive_url + "/aq",
+                response = self._request('GET', self.archive_url,
                                          cache=False)
                 response.raise_for_status()
                 # Jan 2017: we have to force https because the archive doesn't
                 # tell us it needs https.
-                self.dataarchive_url = response.url.replace("/aq/", "").replace("http://", "https://")
+                self.dataarchive_url = response.url.replace("http://", "https://")
             else:
                 self.dataarchive_url = self.archive_url
         elif self.dataarchive_url in ('http://almascience.org',
@@ -496,20 +720,7 @@ class AlmaClass(QueryWithLogin):
         if not verbose:
             commons.suppress_vo_warnings()
 
-        if 'run?' in response.url:
-            if response.text == "":
-                raise RemoteServiceError("Empty return.")
-            # this is a CSV-like table returned via a direct browser request
-            table = Table.read(response.text, format='ascii.csv', fast_reader=False)
-
-        else:
-            fixed_content = self._hack_bad_arraysize_vofix(response.content)
-            tf = six.BytesIO(fixed_content)
-            vo_tree = votable.parse(tf, pedantic=False, invalid='mask')
-            first_table = vo_tree.get_first_table()
-            table = first_table.to_table(use_names_over_ids=True)
-
-        return table
+        return response
 
     def _hack_bad_arraysize_vofix(self, text):
         """
@@ -849,127 +1060,76 @@ class AlmaClass(QueryWithLogin):
         Return the valid query parameters
         """
 
-        help_list = self._get_help_page(cache=cache)
-
-        print("Valid ALMA keywords.  Left column is the description, right "
-              "column is the name of the keyword to pass to astroquery.alma"
-              " queries:")
-
-        for title, section in help_list:
+        print("\nMost common ALMA query keywords are listed below. These "
+              "keywords are part of the ALMA ObsCore model, an IVOA standard "
+              "for metadata representation (3rd column). They were also "
+              "present in original ALMA Web form and, for backwards "
+              "compatibility can be accessed with their old names (2nd "
+              "column).\n"
+              "More elaborate queries on the ObsCore model "
+              "are possible with `query_sia` or `query_tap` methods")
+        print("  {0:33s} {1:35s} {2:35s}".format("Description",
+                                                 "Original ALMA keyword",
+                                                 "ObsCore keyword"))
+        print("-"*103)
+        for title, section in ALMA_FORM_KEYS.items():
             print()
             print(title)
-            for row in section:
-                if len(row) == 2:  # text value
-                    name, payload_keyword = row
-                    print("  {0:33s}: {1:35s}".format(name, payload_keyword))
-                # elif len(row) == 3: # radio button
-                #    name,payload_keyword,value = row
-                #    print("  {0:33s}: {1:20s} = {2:15s}".format(name,
-                #                                                    payload_keyword,
-                #                                                    value))
-                elif len(row) == 4:  # radio button or checkbox
-                    name, payload_keyword, checkbox, value = row
-                    if isinstance(checkbox, list):
-                        checkbox_str = ", ".join(["{0}={1}".format(x, y)
-                                                  for x, y in zip(checkbox, value)])
-                        print("  {0:33s}: {1:20s} -> {2}"
-                              .format(name, payload_keyword, checkbox_str))
-                    else:
-                        print("  {2} {0:29s}: {1:20s} = {3:15s}"
-                              .format(name, payload_keyword, checkbox, value))
+            for row in section.items():
+                print("  {0:33s} {1:35s} {2:35s}".format(row[0], row[1][0], row[1][1]))
+        print('\nExamples of queries:')
+        print("Alma.query('proposal_id':'2011.0.00131.S'}")
+        print("Alma.query({'band_list': ['5', '7']}")
+        print("Alma.query({'source_name_alma': 'GRB021004'})")
+        print("Alma.query(payload=dict(project_code='2017.1.01355.L', "
+              "source_name_alma='G008.67'))")
+
+    def _json_summary_to_table(self, data, base_url):
+        """
+        Special tool to convert some JSON metadata to a table Obsolete as of
+        March 2020 - should be removed along with stage_data_prefeb2020
+        """
+        from ..utils import url_helpers
+        from six import iteritems
+        columns = {'mous_uid': [], 'URL': [], 'size': []}
+        for entry in data['node_data']:
+            # de_type can be useful (e.g., MOUS), but it is not necessarily
+            # specified
+            # file_name and file_key *must* be specified.
+            is_file = \
+                (entry['file_name'] != 'null' and entry['file_key'] != 'null')
+            if is_file:
+                # "de_name": "ALMA+uid://A001/X122/X35e",
+                columns['mous_uid'].append(entry['de_name'][5:])
+                if entry['file_size'] == 'null':
+                    columns['size'].append(np.nan * u.Gbyte)
                 else:
-                    raise ValueError("Wrong number of rows - ALMA query page"
-                                     " did not parse properly.")
+                    columns['size'].append(
+                        (int(entry['file_size']) * u.B).to(u.Gbyte))
+                # example template for constructing url:
+                # https://almascience.eso.org/dataPortal/requests/keflavich/940238268/ALMA/
+                # uid___A002_X9d6f4c_X154/2013.1.00546.S_uid___A002_X9d6f4c_X154.asdm.sdm.tar
+                # above is WRONG... except for ASDMs, when it's right
+                # should be:
+                # 2013.1.00546.S_uid___A002_X9d6f4c_X154.asdm.sdm.tar/2013.1.00546.S_uid___A002_X9d6f4c_X154.asdm.sdm.tar
+                #
+                # apparently ASDMs are different from others:
+                # templates:
+                # https://almascience.eso.org/dataPortal/requests/keflavich/946895898/ALMA/
+                # 2013.1.00308.S_uid___A001_X196_X93_001_of_001.tar/2013.1.00308.S_uid___A001_X196_X93_001_of_001.tar
+                # uid___A002_X9ee74a_X26f0/2013.1.00308.S_uid___A002_X9ee74a_X26f0.asdm.sdm.tar
+                url = url_helpers.join(base_url,
+                                       entry['file_key'],
+                                       entry['file_name'])
+                if 'null' in url:
+                    raise ValueError("The URL {0} was created containing "
+                                     "'null', which is invalid.".format(url))
+                columns['URL'].append(url)
 
-    def _get_help_page(self, cache=True):
-        if not hasattr(self, '_help_list') or not self._help_list:
-            querypage = self._request(
-                'GET', self._get_dataarchive_url() + "/aq/",
-                cache=cache, timeout=self.TIMEOUT)
-            root = BeautifulSoup(querypage.content, "html5lib")
-            sections = root.findAll('td', class_='category')
+        columns['size'] = u.Quantity(columns['size'], u.Gbyte)
 
-            whitespace = re.compile(r"\s+")
-
-            help_list = []
-            for section in sections:
-                title = section.find(
-                    'div', class_='categorytitle').text.lstrip()
-                help_section = (title, [])
-                for inp in section.findAll('div', class_='inputdiv'):
-                    sp = inp.find('span')
-                    buttons = inp.findAll('input')
-                    for b in buttons:
-                        # old version:for=id=rawView; name=viewFormat
-                        # new version:for=id=rawView; name=result_view
-                        payload_keyword = b.attrs['name']
-                        bid = b.attrs['id']
-                        label = inp.find('label')
-                        if sp is not None:
-                            name = whitespace.sub(" ", sp.text)
-                        elif label.attrs['for'] == bid:
-                            name = whitespace.sub(" ", label.text)
-                        else:
-                            raise TableParseError("ALMA query page has"
-                                                  " an unrecognized entry")
-                        if b.attrs['type'] == 'text':
-                            help_section[1].append((name, payload_keyword))
-                        elif b.attrs['type'] == 'radio':
-                            value = b.attrs['value']
-                            if 'checked' in b.attrs:
-                                checked = b.attrs['checked'] == 'checked'
-                                checkbox = "(x)" if checked else "( )"
-                            else:
-                                checkbox = "( )"
-                            help_section[1].append((name, payload_keyword,
-                                                    checkbox, value))
-                        elif b.attrs['type'] == 'checkbox':
-                            if 'checked' in b.attrs:
-                                checked = b.attrs['checked'] == 'checked'
-                            else:
-                                checked = False
-                            value = b.attrs['value']
-                            checkbox = "[x]" if checked else "[ ]"
-                            help_section[1].append((name, payload_keyword,
-                                                    checkbox, value))
-                    select = inp.find('select')
-                    if select is not None:
-                        options = [("".join(filter_printable(option.text)),
-                                    option.attrs['value'])
-                                   for option in select.findAll('option')]
-                        if sp is not None:
-                            name = whitespace.sub(" ", sp.text)
-                        else:
-                            name = select.attrs['name']
-                        checkbox = [o[0] for o in options]
-                        value = [o[1] for o in options]
-                        option_str = select.attrs['name']
-                        help_section[1].append((name, option_str, checkbox, value))
-
-                help_list.append(help_section)
-            self._help_list = help_list
-
-        return self._help_list
-
-    def _validate_payload(self, payload):
-        if not hasattr(self, '_valid_params'):
-            help_list = self._get_help_page(cache=False)
-            self._valid_params = [row[1]
-                                  for title, section in help_list
-                                  for row in section]
-            if len(self._valid_params) == 0:
-                raise ValueError("The query validation failed for unknown "
-                                 "reasons.  Try again?")
-            # These parameters are entirely hidden, but Felix says they are
-            # allowed
-            self._valid_params.append('download')
-            self._valid_params.append('format')
-            self._valid_params.append('member_ous_id')
-        invalid_params = [k for k in payload if k not in self._valid_params]
-        if len(invalid_params) > 0:
-            raise InvalidQueryError("The following parameters are not accepted"
-                                    " by the ALMA query service:"
-                                    " {0}".format(invalid_params))
+        tbl = Table([Column(name=k, data=v) for k, v in iteritems(columns)])
+        return tbl
 
     def get_project_metadata(self, projectid, cache=True):
         """

@@ -34,8 +34,8 @@ env:
         - MAIN_CMD='python setup.py'
         - NUMPY_VERSION=stable
         - ASTROPY_VERSION=stable
-        - CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring matplotlib jinja2 flask'
-        - CONDA_DEPENDENCIES_REMOTE='requests beautifulsoup4 html5lib keyring matplotlib jinja2 flask'
+        - CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring matplotlib jinja2 flask pyvo'
+        - CONDA_DEPENDENCIES_REMOTE='requests beautifulsoup4 html5lib keyring matplotlib jinja2 flask pyvo'
         - PIP_DEPENDENCIES='https://github.com/keflavich/httpbin/archive/master.zip aplpy pyregion regions astropy_healpix mocpy>=0.5.2 pytest-dependency pytest-astropy pyvo'
         - HTTP_BIN_CMD="import httpbin; httpbin.app.run()"
         - RUN_HTTPBIN='python -c "$HTTP_BIN_CMD" & ACTIVE_HTTPBIN=True'
@@ -114,7 +114,7 @@ jobs:
           name: Python 3.8, mandatory dependencies only
           stage: Test docs, astropy dev, and without optional dependencies
           env: PYTHON_VERSION=3.8
-               CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring'
+               CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring pyvo'
                PIP_DEPENDENCIES='https://github.com/keflavich/httpbin/archive/master.zip pytest-astropy'
                NUMPY_VERSION=1.16
 
