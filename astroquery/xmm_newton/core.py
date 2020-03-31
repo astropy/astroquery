@@ -31,30 +31,6 @@ from astropy import log
 __all__ = ['XMMNewton', 'XMMNewtonClass']
 
 
-class XMMNewtonHandler(BaseQuery):
-
-    def get_file(self, filename, response):
-        with open(filename, 'wb') as fh:
-            fh.write(response.content)
-
-        if os.pathsep not in filename:
-            log.info("File {0} downloaded to current "
-                     "directory".format(filename))
-        else:
-            log.info("File {0} downloaded".format(filename))
-
-    def get_table(self, filename, response, output_format='votable'):
-        with open(filename, 'wb') as fh:
-            fh.write(response.content)
-
-        table = modelutils.read_results_table_from_file(filename,
-                                                        str(output_format))
-        return table
-
-
-Handler = XMMNewtonHandler()
-
-
 class XMMNewtonClass(BaseQuery):
 
     data_url = conf.DATA_ACTION
@@ -62,12 +38,8 @@ class XMMNewtonClass(BaseQuery):
     metadata_url = conf.METADATA_ACTION
     TIMEOUT = conf.TIMEOUT
 
-    def __init__(self, url_handler=None, tap_handler=None):
+    def __init__(self, tap_handler=None):
         super(XMMNewtonClass, self).__init__()
-        if url_handler is None:
-            self._handler = Handler
-        else:
-            self._handler = url_handler
 
         if tap_handler is None:
             self._tap = TapPlus(url="http://nxsa.esac.esa.int"
@@ -137,36 +109,18 @@ class XMMNewtonClass(BaseQuery):
         if verbose:
             log.info(link)
 
-        response = None
-        try:
-            response = self._request('GET', link, save=True, cache=True)
-        except HTTPError:
-            log.error("No results found in URL {0}".format(link))
+        response = self._request('GET', link, save=True, cache=True)
 
-        if response:
-            if filename is None:
-                filename = observation_id + ".tar"
+        if filename is None:
+            filename = observation_id + ".tar"
 
-            log.info("Copying file to {0}...".format(filename))
-            path = os.getcwd()
-            destfile = os.path.join(path)
-            file = None
-            try:
-                os.makedirs(destfile, exist_ok=True)
-                file = open(os.path.join(destfile, filename), "w+")
-            except OSError:
-                log.error("Creation of the directory %s failed" % destfile)
-            else:
-                if verbose:
-                    log.info("Successfully created the directory %s " %
-                             destfile)
-                shutil.copy(response,
-                            os.path.join(path, filename))
+        log.info("Copying file to {0}...".format(filename))
+        path = os.getcwd()
+        shutil.copy(response,
+                    os.path.join(path, filename))
 
-            if verbose:
-                log.info("Wrote {0} to {1}".format(link, filename))
-
-            return file
+        if verbose:
+            log.info("Wrote {0} to {1}".format(link, filename))
 
     def get_postcard(self, observation_id, image_type="OBS_EPIC",
                      filename=None, verbose=False):
@@ -212,38 +166,24 @@ class XMMNewtonClass(BaseQuery):
             response = self._request('GET', self.data_url, params, cache=True)
             response.raise_for_status()
         except HTTPError:
-            response = None
-
-        if response is None:
             log.error("No results found in URL {0}".format(link))
-        else:
-            if filename is None:
-                if "Content-Disposition" in response.headers.keys():
-                    filename = re.findall('filename="(.+)"',
-                                          response.headers[
-                                              "Content-Disposition"])[0]
-                else:
-                    filename = observation_id + ".PNG"
+            return
 
-            log.info("Copying file to {0}...".format(filename))
-            path = os.getcwd()
-            destfile = os.path.join(path)
-            file = None
-            try:
-                os.makedirs(destfile, exist_ok=True)
-                with open(os.path.join(destfile, filename), "wb") as file:
-                    file.write(response.content)
-            except OSError:
-                log.error("Creation of the directory %s failed" % destfile)
+        if filename is None:
+            if "Content-Disposition" in response.headers.keys():
+                filename = re.findall('filename="(.+)"',
+                                      response.headers[
+                                          "Content-Disposition"])[0]
             else:
-                if verbose:
-                    log.info("Successfully created the directory %s " %
-                             destfile)
+                filename = observation_id + ".PNG"
+    
+        log.info("Copying file to {0}...".format(filename))
 
-            if verbose:
-                log.info("Wrote {0} to {1}".format(link, filename))
+        with open(os.path.join('.', filename), 'wb') as f:
+            f.write(response.content)
 
-            return file
+        if verbose:
+            log.info("Wrote {0} to {1}".format(link, filename))
 
     def query_xsa_tap(self, query, output_file=None,
                       output_format="votable", verbose=False):
@@ -292,10 +232,7 @@ class XMMNewtonClass(BaseQuery):
                                        include_shared_tables=False,
                                        verbose=verbose)
         if only_names:
-            table_names = []
-            for t in tables:
-                table_names.append(t.name)
-            return table_names
+            return [t.name for t in tables]
         else:
             return tables
 
@@ -330,10 +267,7 @@ class XMMNewtonClass(BaseQuery):
                              "XSA TAP service")
 
         if only_names:
-            column_names = []
-            for c in columns:
-                column_names.append(c.name)
-            return column_names
+            return [c.name for c in columns]
         else:
             return columns
 

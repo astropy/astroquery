@@ -18,13 +18,6 @@ __all__ = ['DummyHandler']
 
 class DummyHandler(object):
 
-    def get_file(self, filename, response=None, verbose=False):
-        return
-
-    def get_table(self, filename=None, response=None,
-                  output_format='votable', verbose=False):
-        return
-
     def __init__(self, method, parameters):
         self._invokedMethod = method
         self._parameters = parameters
