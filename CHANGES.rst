@@ -4,8 +4,8 @@
 New Tools and Services
 ----------------------
 
-xmm-newton
-^^^^^^^^^^
+esa/xmm-newton
+^^^^^^^^^^^^^^
 
 - A new ESA archive service for XMM-Newton is now supported [#1557]
 
