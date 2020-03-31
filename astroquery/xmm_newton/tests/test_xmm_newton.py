@@ -26,6 +26,7 @@ class TestXMMNewton():
         dummyTapHandler = DummyXMMNewtonTapHandler("launch_job", parameterst)
         return dummyTapHandler
 
+    @pytest.mark.remote_data
     def test_download_data(self):
         parameters = {'observation_id': "0112880801",
                       'level': "ODF",
@@ -38,6 +39,7 @@ class TestXMMNewton():
                           level=parameters['level']
                           )
 
+    @pytest.mark.remote_data
     def test_get_postcard(self):
         parameters = {'observation_id': "0112880801",
                       'image_type': "OBS_EPIC",
