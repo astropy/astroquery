@@ -115,9 +115,7 @@ class XMMNewtonClass(BaseQuery):
             filename = observation_id + ".tar"
 
         log.info("Copying file to {0}...".format(filename))
-        path = os.getcwd()
-        shutil.copy(response,
-                    os.path.join(path, filename))
+        shutil.copy(response, filename)
 
         if verbose:
             log.info("Wrote {0} to {1}".format(link, filename))
