@@ -794,7 +794,7 @@ class JwstClass(object):
         if plane_id is None:
             raise ValueError("Missing required argument: 'plane_id'")
         
-        prodtype_condition=self.__get_producttype_condition(product_type)
+        prodtype_condition=self.__get_artifact_producttype_condition(product_type)
         query = "SELECT  * " +\
             "FROM " + str(self.JWST_ARTIFACT_TABLE) +\
             " WHERE planeid='"+plane_id+"' " +\
