@@ -11,18 +11,10 @@ Created on 3 Sept 2019
 
 
 """
-import os
 import re
-from ...utils import commons
-from astropy import units
-from astropy.units import Quantity
 from ...utils.tap.core import TapPlus
-from ...utils.tap.model import modelutils
 from ...query import BaseQuery
-from astropy.table import Table
-from requests.exceptions import HTTPError
 import shutil
-
 
 from . import conf
 from astropy import log
