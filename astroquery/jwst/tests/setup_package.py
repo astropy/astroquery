@@ -12,4 +12,4 @@ def get_package_data():
              ]  # etc, add other extensions
     # you can also enlist files individually by names
     # finally construct and return a dict for the sub module
-    return {'astroquery.gaia.tests': paths}
+    return {'astroquery.jwst.tests': paths}
