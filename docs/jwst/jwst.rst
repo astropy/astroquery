@@ -177,7 +177,7 @@ To download a data product
 .. code-block:: python
 
   >>> from astroquery.jwst import Jwst
-  >>> product_list = Jwst.get_product('00000000-0000-0000-af91-b0375f07283b')
+  >>> output_file = Jwst.get_product(artifact_id='00000000-0000-0000-af91-b0375f07283b')
 
 1.4 Getting public tables
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -234,7 +234,7 @@ To load only a table (TAP+ capability)
 
 .. code-block:: python
 
-  >>> from astroquery.gaia import Jwst
+  >>> from astroquery.jwst import Jwst
   >>> table = Jwst.load_table('jwst.main')
   >>> print(table)
 
@@ -457,9 +457,9 @@ Query saving results in a file:
 
 .. code-block:: python
 
-  >>> from astroquery.gaia import Gaia
+  >>> from astroquery.jwst import Jwst
   >>>
-  >>> job = Gaia.launch_job_async("select top 100 * from gaiadr1.gaia_source order by source_id", dump_to_file=True)
+  >>> job = Jwst.launch_job_async("select top 100 * from jwst.main", dump_to_file=True)
   >>>
   >>> print(job)
 
