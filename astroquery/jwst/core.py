@@ -111,7 +111,10 @@ class JwstClass(object):
             file name where the results are saved if dumpToFile is True.
             If this parameter is not provided, the jobid is used instead
         output_format : str, optional, default 'votable'
-            results format
+            results format. Options are:
+            'votable': str, binary VOTable format
+            'csv': str, comma-separated values format
+            'fits': str, FITS format
         verbose : bool, optional, default 'False'
             flag to display information about the process
         dump_to_file : bool, optional, default 'False'
@@ -148,7 +151,10 @@ class JwstClass(object):
             file name where the results are saved if dumpToFile is True.
             If this parameter is not provided, the jobid is used instead
         output_format : str, optional, default 'votable'
-            results format
+            results format. Options are:
+            'votable': str, binary VOTable format
+            'csv': str, comma-separated values format
+            'fits': str, FITS format
         verbose : bool, optional, default 'False'
             flag to display information about the process
         dump_to_file : bool, optional, default 'False'
@@ -227,6 +233,7 @@ class JwstClass(object):
         return self.__jwsttap.list_async_jobs(verbose)
 
     def __query_region(self, coordinate, radius=None, width=None, height=None,
+                       observation_id=None,
                        cal_level="Top",
                        prod_type=None,
                        instrument_name=None,
@@ -248,6 +255,8 @@ class JwstClass(object):
             box width
         height : astropy.units, required if no 'radius' is provided
             box height
+        observation_id : str, optional, default None
+            get the observation given by its ID.
         cal_level : object, optional, default 'Top'
             get the planes with the given calibration level. Options are:
             'Top': str, only the planes with the highest calibration level
@@ -260,7 +269,7 @@ class JwstClass(object):
             'NIRISS', 'NIRSPEC', 'NIRCAM', 'MIRI', 'FGS': str, only results of the given instrument
         filter_name : str, optional, default None
             get the observations made with the given filter.
-        proposal_id : int, optional, default None
+        proposal_id : str, optional, default None
             get the observations from the given proposal ID.
         show_all_columns : bool, optional, default 'False'
             flag to show all available columns in the output. Default behaviour is to show the most
@@ -282,6 +291,7 @@ class JwstClass(object):
         if radius is not None:
             job = self.__cone_search(coord, radius, 
                                      only_public=only_public,
+                                     observation_id=observation_id,
                                      cal_level=cal_level,
                                      prod_type=prod_type,
                                      instrument_name=instrument_name,
@@ -296,7 +306,8 @@ class JwstClass(object):
             heightQuantity = self.__get_quantity_input(height, "height")
             widthDeg = widthQuantity.to(units.deg)
             heightDeg = heightQuantity.to(units.deg)
-            
+
+            observationid_condition = self.__get_observationid_condition(observation_id)
             cal_level_condition = self.__get_callevel_condition(cal_level) 
             public_condition = self.__get_public_condition(only_public)
             prod_type_condition = self.__get_plane_dataproducttype_condition(prod_type)
@@ -320,6 +331,7 @@ class JwstClass(object):
                 BOX('ICRS'," + str(ra) + "," + str(dec)+", " +\
                 str(widthDeg.value)+", " +\
                 str(heightDeg.value)+"))=1 " +\
+                observationid_condition +\
                 cal_level_condition +\
                 public_condition +\
                 prod_type_condition +\
@@ -335,6 +347,7 @@ class JwstClass(object):
         return job.get_results()
 
     def query_region(self, coordinate, radius=None, width=None, height=None,
+                     observation_id=None,
                      cal_level="Top",
                      prod_type=None,
                      instrument_name=None,
@@ -356,6 +369,8 @@ class JwstClass(object):
             box width
         height : astropy.units, required if no 'radius' is provided
             box height
+        observation_id : str, optional, default None
+            get the observation given by its ID.
         cal_level : object, optional, default 'Top'
             get the planes with the given calibration level. Options are:
             'Top': str, only the planes with the highest calibration level
@@ -368,7 +383,7 @@ class JwstClass(object):
             'NIRISS', 'NIRSPEC', 'NIRCAM', 'MIRI', 'FGS': str, only results of the given instrument
         filter_name : str, optional, default None
             get the observations made with the given filter.
-        proposal_id : int, optional, default None
+        proposal_id : str, optional, default None
             get the observations from the given proposal ID.
         only_public : bool, optional, default 'False'
             flag to show only metadata corresponding to public observations
@@ -384,6 +399,7 @@ class JwstClass(object):
         """
         return self.__query_region(coordinate, radius, width, height,
                                    only_public=only_public,
+                                   observation_id=observation_id,
                                    cal_level=cal_level,
                                    prod_type=prod_type,
                                    instrument_name=instrument_name,
@@ -394,6 +410,7 @@ class JwstClass(object):
 
     def query_region_async(self, coordinate, radius=None,
                            width=None, height=None,
+                           observation_id=None,
                            cal_level="Top",
                            prod_type=None,
                            instrument_name=None,
@@ -415,6 +432,8 @@ class JwstClass(object):
             box width
         height : astropy.units, required if no 'radius' is provided
             box height
+        observation_id : str, optional, default None
+            get the observation given by its ID.
         cal_level : object, optional, default 'Top'
             get the planes with the given calibration level. Options are:
             'Top': str, only the planes with the highest calibration level
@@ -427,7 +446,7 @@ class JwstClass(object):
             'NIRISS', 'NIRSPEC', 'NIRCAM', 'MIRI', 'FGS': str, only results of the given instrument
         filter_name : str, optional, default None
             get the observations made with the given filter.
-        proposal_id : int, optional, default None
+        proposal_id : str, optional, default None
             get the observations from the given proposal ID.
         only_public : bool, optional, default 'False'
             flag to show only metadata corresponding to public observations
@@ -442,6 +461,7 @@ class JwstClass(object):
         The job results (astropy.table).
         """
         return self.__query_region(coordinate, radius, width, height,
+                                   observation_id=observation_id,
                                    cal_level=cal_level,
                                    async_job=True,
                                    prod_type=prod_type,
@@ -453,6 +473,7 @@ class JwstClass(object):
                                    verbose=verbose)
 
     def __cone_search(self, coordinate, radius, 
+                      observation_id=None,
                       cal_level="Top",
                       prod_type=None,
                       instrument_name=None,
@@ -475,6 +496,8 @@ class JwstClass(object):
             coordinates center point
         radius : astropy.units, mandatory
             radius
+        observation_id : str, optional, default None
+            get the observation given by its ID.
         cal_level : object, optional, default 'Top'
             get the planes with the given calibration level. Options are:
             'Top': str, only the planes with the highest calibration level
@@ -487,7 +510,7 @@ class JwstClass(object):
             'NIRISS', 'NIRSPEC', 'NIRCAM', 'MIRI', 'FGS': str, only results of the given instrument
         filter_name : str, optional, default None
             get the observations made with the given filter.
-        proposal_id : int, optional, default None
+        proposal_id : str, optional, default None
             get the observations from the given proposal ID.
         only_public : bool, optional, default 'False'
             flag to show only metadata corresponding to public observations
@@ -501,7 +524,10 @@ class JwstClass(object):
             file name where the results are saved if dumpToFile is True.
             If this parameter is not provided, the jobid is used instead
         output_format : str, optional, default 'votable'
-            results format
+            results format. Options are:
+            'votable': str, binary VOTable format
+            'csv': str, comma-separated values format
+            'fits': str, FITS format
         verbose : bool, optional, default 'False'
             flag to display information about the process
         dump_to_file : bool, optional, default 'False'
@@ -514,7 +540,8 @@ class JwstClass(object):
         coord = self.__get_coord_input(coordinate, "coordinate")
         ra_hours, dec = commons.coord_to_radec(coord)
         ra = ra_hours * 15.0  # Converts to degrees
-        
+
+        observationid_condition = self.__get_observationid_condition(observation_id)
         cal_level_condition = self.__get_callevel_condition(cal_level) 
         public_condition = self.__get_public_condition(only_public)
         prod_type_condition = self.__get_plane_dataproducttype_condition(prod_type)
@@ -539,6 +566,7 @@ class JwstClass(object):
             str(self.JWST_OBSERVATION_TABLE_DEC)+"),\
             CIRCLE('ICRS'," + str(ra)+"," + str(dec) + ", " +\
             str(radius_deg)+"))=1" +\
+            observationid_condition +\
             cal_level_condition +\
             public_condition + \
             prod_type_condition + \
@@ -561,6 +589,7 @@ class JwstClass(object):
                                              dump_to_file=dump_to_file)
 
     def cone_search(self, coordinate, radius=None,
+                    observation_id=None,
                     cal_level="Top",
                     prod_type=None,
                     instrument_name=None,
@@ -581,6 +610,8 @@ class JwstClass(object):
             coordinates center point
         radius : astropy.units, mandatory
             radius
+        observation_id : str, optional, default None
+            get the observation given by its ID.
         cal_level : object, optional, default 'Top'
             get the planes with the given calibration level. Options are:
             'Top': str, only the planes with the highest calibration level
@@ -593,7 +624,7 @@ class JwstClass(object):
             'NIRISS', 'NIRSPEC', 'NIRCAM', 'MIRI', 'FGS': str, only results of the given instrument
         filter_name : str, optional, default None
             get the observations made with the given filter.
-        proposal_id : int, optional, default None
+        proposal_id : str, optional, default None
             get the observations from the given proposal ID.
         only_public : bool, optional, default 'False'
             flag to show only metadata corresponding to public observations
@@ -604,7 +635,10 @@ class JwstClass(object):
             file name where the results are saved if dumpToFile is True.
             If this parameter is not provided, the jobid is used instead
         output_format : str, optional, default 'votable'
-            results format
+            results format. Options are:
+            'votable': str, binary VOTable format
+            'csv': str, comma-separated values format
+            'fits': str, FITS format
         verbose : bool, optional, default 'False'
             flag to display information about the process
         dump_to_file : bool, optional, default 'False'
@@ -617,6 +651,7 @@ class JwstClass(object):
         return self.__cone_search(coordinate,
                                   radius=radius,
                                   only_public=only_public,
+                                  observation_id=observation_id,
                                   cal_level=cal_level,
                                   prod_type=prod_type,
                                   instrument_name=instrument_name,
@@ -631,6 +666,7 @@ class JwstClass(object):
                                   dump_to_file=dump_to_file)
 
     def cone_search_async(self, coordinate, radius=None,
+                          observation_id=None,
                           cal_level="Top",
                           prod_type=None,
                           instrument_name=None,
@@ -650,6 +686,8 @@ class JwstClass(object):
             coordinates center point
         radius : astropy.units, mandatory
             radius
+        observation_id : str, optional, default None
+            get the observation given by its ID.
         cal_level : object, optional, default 'Top'
             get the planes with the given calibration level. Options are:
             'Top': str, only the planes with the highest calibration level
@@ -662,7 +700,7 @@ class JwstClass(object):
             'NIRISS', 'NIRSPEC', 'NIRCAM', 'MIRI', 'FGS': str, only results of the given instrument
         filter_name : str, optional, default None
             get the observations made with the given filter.
-        proposal_id : int, optional, default None
+        proposal_id : str, optional, default None
             get the observations from the given proposal ID.
         only_public : bool, optional, default 'False'
             flag to show only metadata corresponding to public observations
@@ -676,7 +714,10 @@ class JwstClass(object):
             file name where the results are saved if dumpToFile is True.
             If this parameter is not provided, the jobid is used instead
         output_format : str, optional, default 'votable'
-            results format
+            results format. Options are:
+            'votable': str, binary VOTable format
+            'csv': str, comma-separated values format
+            'fits': str, FITS format
         verbose : bool, optional, default 'False'
             flag to display information about the process
         dump_to_file : bool, optional, default 'False'
@@ -688,6 +729,7 @@ class JwstClass(object):
         """
         return self.__cone_search(coordinate,
                                   radius=radius,
+                                  observation_id=observation_id,
                                   cal_level=cal_level,
                                   prod_type=prod_type,
                                   instrument_name=instrument_name,
@@ -874,6 +916,15 @@ class JwstClass(object):
         else:
             return value
         
+    def __get_observationid_condition(self, value=None):
+        condition = ""
+        if(value is not None):
+            if(not isinstance(value, str)):
+                raise ValueError("observation_id must be string")
+            else:
+                condition = " AND observationid LIKE '"+value.lower()+"' "
+        return condition
+
     def __get_callevel_condition(self, cal_level):
         condition = ""
         if(cal_level is not None):
@@ -931,11 +982,11 @@ class JwstClass(object):
     def __get_proposal_id_condition(self, value=None):
         condition = ""
         if(value is not None):
-            if(not isinstance(value, int)):
-                raise ValueError("proposal_id must be an integer")
+            if(not isinstance(value, str)):
+                raise ValueError("proposal_id must be string")
 
             else:
-                condition = " AND proposal_id='"+str(value)+"' "
+                condition = " AND proposal_id LIKE '%FILTER="+value.upper()+"%' "
         return condition
 
     def __get_artifact_producttype_condition(self, product_type=None):

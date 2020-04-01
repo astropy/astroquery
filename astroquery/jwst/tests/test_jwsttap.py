@@ -207,6 +207,11 @@ class TestTap(unittest.TestCase):
             tap.query_region(sc, width=width)
         assert "Missing required argument: 'height'" in err.value.args[0]
 
+        #Test observation_id argument
+        with pytest.raises(ValueError) as err:
+            tap.query_region(sc, width=width, height=height, observation_id=1)
+        assert "observation_id must be string" in err.value.args[0]
+
         #Test cal_level argument
         with pytest.raises(ValueError) as err:
             tap.query_region(sc, width=width, height=height, cal_level='a')
@@ -242,8 +247,8 @@ class TestTap(unittest.TestCase):
 
         #Test proposal_id argument
         with pytest.raises(ValueError) as err:
-            tap.query_region(sc, width=width, height=height, proposal_id='a')
-        assert "proposal_id must be an integer" in err.value.args[0]
+            tap.query_region(sc, width=width, height=height, proposal_id=123)
+        assert "proposal_id must be string" in err.value.args[0]
 
         table = tap.query_region(sc, width=width, height=height)
         assert len(table) == 3, \
@@ -442,6 +447,11 @@ class TestTap(unittest.TestCase):
                                     None,
                                     np.int32)
 
+        #Test observation_id argument
+        with pytest.raises(ValueError) as err:
+            tap.cone_search(sc, radius, observation_id=1)
+        assert "observation_id must be string" in err.value.args[0]
+
         #Test cal_level argument
         with pytest.raises(ValueError) as err:
             tap.cone_search(sc, radius, cal_level='a')
@@ -477,8 +487,8 @@ class TestTap(unittest.TestCase):
 
         #Test proposal_id argument
         with pytest.raises(ValueError) as err:
-            tap.cone_search(sc, radius, proposal_id='a')
-        assert "proposal_id must be an integer" in err.value.args[0]
+            tap.cone_search(sc, radius, proposal_id=123)
+        assert "proposal_id must be string" in err.value.args[0]
 
 
     def test_cone_search_async(self):
