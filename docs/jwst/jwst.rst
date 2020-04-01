@@ -177,7 +177,24 @@ To download a data product
 .. code-block:: python
 
   >>> from astroquery.jwst import Jwst
-  >>> output_file = Jwst.get_product(artifact_id='00000000-0000-0000-af91-b0375f07283b')
+  >>> query="select a.artifactid, a.uri from jwst.artifact a, jwst.plane p where p.planeid=a.planeid and p.obsid='00000000-0000-0000-9c08-f5be8f3df805'"
+  >>> job = Jwst.launch_job(query)
+  >>> results = job.get_results()
+  >>> print(results)
+               artifactid                               filename
+  ------------------------------------ ------------------------------------------------
+  00000000-0000-0000-a4f7-23ab64230444        jw00601004001_02102_00001_nrcb1_rate.fits
+  00000000-0000-0000-b796-76a61aade312    jw00601004001_02102_00001_nrcb1_rateints.fits
+  00000000-0000-0000-ad5e-7d388b43ca4b jw00601004001_02102_00001_nrcb1_trapsfilled.fits
+  00000000-0000-0000-9335-09ff0e02f06b       jw00601004001_02102_00001_nrcb1_uncal.fits
+  00000000-0000-0000-864d-b03ced521884        jw00601004001_02102_00001_nrcb1_uncal.jpg
+  00000000-0000-0000-9392-45ebdada66be  jw00601004001_02102_00001_nrcb1_uncal_thumb.jpg
+
+
+  >>> output_file = Jwst.get_product(artifact_id='00000000-0000-0000-9335-09ff0e02f06b')
+  >>> output_file = Jwst.get_product(file_name='jw00601004001_02102_00001_nrcb1_uncal.fits')
+
+
 
 1.4 Getting public tables
 ~~~~~~~~~~~~~~~~~~~~~~~~~
