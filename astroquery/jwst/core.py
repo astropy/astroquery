@@ -823,7 +823,7 @@ class JwstClass(object):
         params_dict['DATA_RETRIEVAL_ORIGIN'] = 'ASTROQUERY'
 
         if artifact_id is None and file_name is None:
-            raise ValueError("Missing required argument: 'artifact_id' or file_name")
+            raise ValueError("Missing required argument: 'artifact_id' or 'file_name'")
         else:
             if file_name is None:
                 output_file_name = str(artifact_id)

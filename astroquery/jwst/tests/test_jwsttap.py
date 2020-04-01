@@ -557,25 +557,55 @@ class TestTap(unittest.TestCase):
                                     'table1_oid',
                                     None,
                                     np.int32)
-    def test_get_product(self):
+
+    def test_get_product_by_artifactid(self):
         dummyTapHandler = DummyTapHandler()
-        dummyDataHandler = DummyDataHandler()
-        jwst = JwstClass(dummyTapHandler, dummyDataHandler)
+        jwst = JwstClass(dummyTapHandler, dummyTapHandler)
         # default parameters
         with pytest.raises(ValueError) as err:
             jwst.get_product();
-        assert "Missing required argument: 'artifact_id'" in err.value.args[0]
-        
+        assert "Missing required argument: 'artifact_id' or 'file_name'" in err.value.args[0]
+
         # test with parameters
-        dummyDataHandler.reset()
+        dummyTapHandler.reset()
+
         parameters = {}
-        parameters['url'] = dummyDataHandler.base_url +\
-                    "RETRIEVAL_TYPE=PRODUCT" +\
-                    "&DATA_RETRIEVAL_ORIGIN=ASTROQUERY" +\
-                    "&ARTIFACTID=my_artifact_id"
-        jwst.get_product('my_artifact_id');
-        dummyDataHandler.check_call('download_file', parameters)
-        
+        parameters['output_file'] = 'my_artifact_id'
+        parameters['verbose'] = False
+
+        param_dict = {}
+        param_dict['RETRIEVAL_TYPE'] = 'PRODUCT'
+        param_dict['DATA_RETRIEVAL_ORIGIN'] = 'ASTROQUERY'
+        param_dict['ARTIFACTID'] = 'my_artifact_id'
+        parameters['params_dict'] = param_dict
+
+        jwst.get_product(artifact_id='my_artifact_id');
+        dummyTapHandler.check_call('load_data', parameters)
+
+    def test_get_product_by_filename(self):
+        dummyTapHandler = DummyTapHandler()
+        jwst = JwstClass(dummyTapHandler, dummyTapHandler)
+        # default parameters
+        with pytest.raises(ValueError) as err:
+            jwst.get_product();
+        assert "Missing required argument: 'artifact_id' or 'file_name'" in err.value.args[0]
+
+        # test with parameters
+        dummyTapHandler.reset()
+
+        parameters = {}
+        parameters['output_file'] = 'file_name_id'
+        parameters['verbose'] = False
+
+        param_dict = {}
+        param_dict['RETRIEVAL_TYPE'] = 'PRODUCT'
+        param_dict['DATA_RETRIEVAL_ORIGIN'] = 'ASTROQUERY'
+        param_dict['ARTIFACT_URI'] = 'mast:JWST/product/file_name_id'
+        parameters['params_dict'] = param_dict
+
+        jwst.get_product(file_name='file_name_id');
+        dummyTapHandler.check_call('load_data', parameters)
+
     def __check_results_column(self, results, columnName, description, unit,
                                dataType):
         c = results[columnName]
