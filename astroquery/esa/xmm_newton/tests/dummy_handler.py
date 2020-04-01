@@ -10,7 +10,7 @@ Created on 4 Sept. 2019
 """
 
 import os
-from ...utils.tap.model import modelutils, taptable
+from ....utils.tap.model import modelutils, taptable
 from requests.models import Response
 
 __all__ = ['DummyHandler']
