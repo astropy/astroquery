@@ -15,7 +15,7 @@ from astropy import config as _config
 
 class Conf(_config.ConfigNamespace):
     """
-    Configuration parameters for `astroquery.xmm_newton`.
+    Configuration parameters for `astroquery.esa.xmm_newton`.
     """
     DATA_ACTION = _config.ConfigItem("http://nxsa.esac.esa.int/"
                                      "nxsa-sl/servlet/data-action?",
