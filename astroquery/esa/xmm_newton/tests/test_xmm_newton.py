@@ -12,8 +12,8 @@ Created on 4 Sept. 2019
 
 import pytest
 
-from astroquery.xmm_newton.core import XMMNewtonClass
-from astroquery.xmm_newton.tests.dummy_tap_handler import DummyXMMNewtonTapHandler
+from ..core import XMMNewtonClass
+from ..tests.dummy_tap_handler import DummyXMMNewtonTapHandler
 
 
 class TestXMMNewton():

@@ -1,10 +1,10 @@
 .. doctest-skip-all
 
-.. _astroquery.xmm_newton:
+.. _astroquery.esa.xmm_newton:
 
-************************************
-xmm_newton (`astroquery.xmm_newton`)
-************************************
+****************************************
+xmm_newton (`astroquery.esa.xmm_newton`)
+****************************************
 
 
 The X-ray Multi-Mirror Mission, XMM-Newton, is an ESA X-ray observatory launched on 10 December 1999. 
@@ -25,10 +25,10 @@ Examples
 
 .. code-block:: python
 
-  >>> from astroquery.xmm_newton import XMMNewton
+  >>> from astroquery.esa.xmm_newton import XMMNewton
   >>>
   >>> XMMNewton.download_data('0505720401',level="PPS",extension="PDF",instname="M1",filename="result0505720401.tar")
-  INFO: File result0505720401.tar downloaded to current directory [astroquery.xmm_newton.core]
+  INFO: File result0505720401.tar downloaded to current directory [astroquery.esa.xmm_newton.core]
 
 This will download all PPS files for the observation '0505720401' and instrument MOS1, with 'PDF' extension and 
 it will store them in a tar called 'result0505720401.tar'. The parameters available are detailed in the API.       
@@ -42,10 +42,10 @@ For more details of the parameters check the section 3.4 at:
 
 .. code-block:: python
 
-  >>> from astroquery.xmm_newton import XMMNewton
+  >>> from astroquery.esa.xmm_newton import XMMNewton
   >>>
   >>> XMMNewton.get_postcard('0505720401')
-  INFO: File P0505720401EPX000OIMAGE8000.PNG downloaded to current directory [astroquery.xmm_newton.core]
+  INFO: File P0505720401EPX000OIMAGE8000.PNG downloaded to current directory [astroquery.esa.xmm_newton.core]
   'P0505720401EPX000OIMAGE8000.PNG'
 
 This will download the EPIC postcard for the observation '0505720401' and it will stored in a PNG called
@@ -60,7 +60,7 @@ Query Language (ADQL).
 
 .. code-block:: python
 
-  >>> from astroquery.xmm_newton import XMMNewton
+  >>> from astroquery.esa.xmm_newton import XMMNewton
   >>>
   >>> result = XMMNewton.query_xsa_tap("select top 10 * from v_public_observations", output_format='csv', output_file='results10.csv')
   >>> print(result)
@@ -86,7 +86,7 @@ stored in the file 'results10.csv'. The result of this query can be printed by d
 
 .. code-block:: python
 
-  >>> from astroquery.xmm_newton import XMMNewton
+  >>> from astroquery.esa.xmm_newton import XMMNewton
   >>>
   >>> XMMNewton.get_tables(True)
   INFO: Retrieving tables... [astroquery.utils.tap.core]
@@ -108,7 +108,7 @@ This will show the available tables in XSA TAP service in the XMM-Newton Science
 
 .. code-block:: python
 
-  >>> from astroquery.xmm_newton import XMMNewton
+  >>> from astroquery.esa.xmm_newton import XMMNewton
   >>>
   >>> XMMNewton.get_columns('public.v_all_observations')
   INFO: Retrieving tables... [astroquery.utils.tap.core]
@@ -125,5 +125,5 @@ This will show the column details of the table 'v_all_observations' in XSA TAP s
 Reference/API
 =============
 
-.. automodapi:: astroquery.xmm_newton
+.. automodapi:: astroquery.esa.xmm_newton
     :no-inheritance-diagram:

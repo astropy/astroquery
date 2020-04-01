@@ -10,8 +10,8 @@ European Space Agency (ESA)
 Created on 4 Sept. 2019
 """
 
-from astroquery.utils.tap.model.taptable import TapTableMeta
-from astroquery.utils.tap.model.job import Job
+from ....utils.tap.model.taptable import TapTableMeta
+from ....utils.tap.model.job import Job
 
 
 class DummyXMMNewtonTapHandler(object):
