@@ -329,7 +329,7 @@ class AlmaClass(QueryWithLogin):
             raise ValueError("No valid UIDs supplied.")
 
         if return_json:
-            return table
+            return tables
 
         table = table_vstack(tables)
 
