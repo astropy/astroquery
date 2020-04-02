@@ -250,7 +250,7 @@ class AlmaClass(QueryWithLogin):
             A list of valid UIDs or a single UID.
             UIDs should have the form: 'uid://A002/X391d0b/X7b'
         expand_tarfiles : bool
-            Expand the tarfiles to obtain lists of all contained files?  If
+            Expand the tarfiles to obtain lists of all contained files.  If
             this is specified, the parent tarfile will *not* be included
         return_json : bool
             Return a list of the JSON data sets returned from the query.  This
