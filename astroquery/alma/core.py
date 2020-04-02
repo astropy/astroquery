@@ -287,9 +287,9 @@ class AlmaClass(QueryWithLogin):
                     # this indicates a wrong server is being used;
                     # the "pre-feb2020" stager will be phased out
                     # when the new services are deployed
-                    raise ValueError("Failed query!  This shouldn't happen - please "
-                                     "report the issue as it may indicat a change in "
-                                     "the ALMA servers.")
+                    raise RemoteServiceError("Failed query!  This shouldn't happen - please "
+                                             "report the issue as it may indicate a change in "
+                                             "the ALMA servers.")
                 else:
                     raise
 
