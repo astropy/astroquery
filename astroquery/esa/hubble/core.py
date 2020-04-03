@@ -250,6 +250,9 @@ class ESAHubbleClass(BaseQuery):
 
         return table
 
+    def query_metadata(self, output_format='votable', verbose=False):
+        return
+
     def query_target(self, name, filename=None, output_format='votable',
                      verbose=False):
         """
