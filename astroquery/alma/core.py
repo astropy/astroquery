@@ -240,7 +240,7 @@ class AlmaClass(QueryWithLogin):
                              "on github.")
         return self.dataarchive_url
 
-    def stage_data(self, uids):
+    def stage_data(self, uids, expand_tarfiles=False, return_json=False):
         """
         Obtain table of ALMA files
 
@@ -249,6 +249,13 @@ class AlmaClass(QueryWithLogin):
         uids : list or str
             A list of valid UIDs or a single UID.
             UIDs should have the form: 'uid://A002/X391d0b/X7b'
+        expand_tarfiles : bool
+            Expand the tarfiles to obtain lists of all contained files.  If
+            this is specified, the parent tarfile will *not* be included
+        return_json : bool
+            Return a list of the JSON data sets returned from the query.  This
+            is primarily intended as a debug routine, but may be useful if there
+            are unusual scheduling block layouts.
 
         Returns
         -------
@@ -280,32 +287,49 @@ class AlmaClass(QueryWithLogin):
                     # this indicates a wrong server is being used;
                     # the "pre-feb2020" stager will be phased out
                     # when the new services are deployed
-                    return self.stage_data_prefeb2020(uids)
+                    raise RemoteServiceError("Failed query!  This shouldn't happen - please "
+                                             "report the issue as it may indicate a change in "
+                                             "the ALMA servers.")
                 else:
                     raise
-            if jdata['type'] != 'PROJECT':
-                log.error("Skipped uid {uu} because it is not a project and"
-                          "lacks the appropriate metadata; it is a "
-                          "{jdata}".format(uu=uu, jdata=jdata['type']))
-                continue
-            table = uid_json_to_table(jdata)
-            table['sizeInBytes'].unit = u.B
-            table.rename_column('sizeInBytes', 'size')
-            table.add_column(Column(data=['{dataarchive_url}/dataPortal/{name}'
-                                          .format(dataarchive_url=dataarchive_url,
-                                                  name=name)
-                                          for name in table['name']],
-                                    name='URL'))
 
-            isp = self.is_proprietary(uid)
-            table.add_column(Column(data=[isp for row in table],
-                                    name='isProprietary'))
+            if return_json:
+                tables.append(jdata)
+            else:
+                if jdata['type'] != 'PROJECT':
+                    log.error("Skipped uid {uu} because it is not a project and"
+                              "lacks the appropriate metadata; it is a "
+                              "{jdata}".format(uu=uu, jdata=jdata['type']))
+                    continue
+                if expand_tarfiles:
+                    table = uid_json_to_table(jdata, productlist=['ASDM',
+                                                                  'PIPELINE_PRODUCT'])
+                else:
+                    table = uid_json_to_table(jdata,
+                                              productlist=['ASDM',
+                                                           'PIPELINE_PRODUCT'
+                                                           'PIPELINE_PRODUCT_TARFILE',
+                                                           'PIPELINE_AUXILIARY_TARFILE'])
+                table['sizeInBytes'].unit = u.B
+                table.rename_column('sizeInBytes', 'size')
+                table.add_column(Column(data=['{dataarchive_url}/dataPortal/{name}'
+                                              .format(dataarchive_url=dataarchive_url,
+                                                      name=name)
+                                              for name in table['name']],
+                                        name='URL'))
 
-            tables.append(table)
-            log.debug("Completed metadata retrieval for {0}".format(uu))
+                isp = self.is_proprietary(uid)
+                table.add_column(Column(data=[isp for row in table],
+                                        name='isProprietary'))
+
+                tables.append(table)
+                log.debug("Completed metadata retrieval for {0}".format(uu))
 
         if len(tables) == 0:
             raise ValueError("No valid UIDs supplied.")
+
+        if return_json:
+            return tables
 
         table = table_vstack(tables)
 
@@ -329,167 +353,6 @@ class AlmaClass(QueryWithLogin):
         isp = is_proprietary.json()['isProprietary']
 
         return isp
-
-    def stage_data_prefeb2020(self, uids):
-        """
-        Stage ALMA data - old server style
-
-        NOTE: this method will be removed when a new ALMA service is deployed
-        in March 2020
-
-        Parameters
-        ----------
-        uids : list or str
-            A list of valid UIDs or a single UID.
-            UIDs should have the form: 'uid://A002/X391d0b/X7b'
-
-        Returns
-        -------
-        data_file_table : Table
-            A table containing 3 columns: the UID, the file URL (for future
-            downloading), and the file size
-        """
-
-        """
-        With log.set_level(10)
-        INFO: Staging files... [astroquery.alma.core]
-        DEBUG: First request URL: https://almascience.eso.org/rh/submission [astroquery.alma.core]
-        DEBUG: First request payload: {'dataset': [u'ALMA+uid___A002_X3b3400_X90f']} [astroquery.alma.core]
-        DEBUG: First response URL: https://almascience.eso.org/rh/checkAuthenticationStatus/3f98de33-197e-4692-9afa-496842032ea9/submission [astroquery.alma.core]
-        DEBUG: Request ID: 3f98de33-197e-4692-9afa-496842032ea9 [astroquery.alma.core]
-        DEBUG: Submission URL: https://almascience.eso.org/rh/submission/3f98de33-197e-4692-9afa-496842032ea9 [astroquery.alma.core]
-        .DEBUG: Data list URL: https://almascience.eso.org/rh/requests/anonymous/786823226 [astroquery.alma.core]
-        """
-
-        import time
-        from requests import HTTPError
-        from ..utils import url_helpers
-        import sys
-        from six.moves.urllib_parse import urlparse
-
-        if isinstance(uids, six.string_types + (np.bytes_,)):
-            uids = [uids]
-        if not isinstance(uids, (list, tuple, np.ndarray)):
-            raise TypeError("Datasets must be given as a list of strings.")
-
-        log.info("Staging files...")
-
-        self._get_dataarchive_url()
-
-        url = urljoin(self._get_dataarchive_url(), 'rh/submission')
-        log.debug("First request URL: {0}".format(url))
-        # 'ALMA+uid___A002_X391d0b_X7b'
-        payload = {'dataset': ['ALMA+' + clean_uid(uid) for uid in uids]}
-        log.debug("First request payload: {0}".format(payload))
-
-        self._staging_log = {'first_post_url': url}
-
-        # Request staging for the UIDs
-        # This component cannot be cached, since the returned data can change
-        # if new data are uploaded
-        response = self._request('POST', url, data=payload,
-                                 timeout=self.TIMEOUT, cache=False)
-        self._staging_log['initial_response'] = response
-        log.debug("First response URL: {0}".format(response.url))
-        if 'login' in response.url:
-            raise ValueError("You must login before downloading this data set.")
-
-        if response.status_code == 405:
-            if hasattr(self, '_last_successful_staging_log'):
-                log.warning("Error 405 received.  If you have previously staged "
-                            "the same UIDs, the result returned is probably "
-                            "correct, otherwise you may need to create a fresh "
-                            "astroquery.Alma instance.")
-                return self._last_successful_staging_log['result']
-            else:
-                raise HTTPError("Received an error 405: this may indicate you "
-                                "have already staged the data.  Try downloading "
-                                "the file URLs directly with download_files.")
-        response.raise_for_status()
-
-        if 'j_spring_cas_security_check' in response.url:
-            time.sleep(1)
-            # CANNOT cache this stage: it not a real data page!  results in
-            # infinite loops
-            response = self._request('POST', url, data=payload,
-                                     timeout=self.TIMEOUT, cache=False)
-            self._staging_log['initial_response'] = response
-            if 'j_spring_cas_security_check' in response.url:
-                log.warning("Staging request was not successful.  Try again?")
-            response.raise_for_status()
-
-        if 'j_spring_cas_security_check' in response.url:
-            raise RemoteServiceError("Could not access data.  This error "
-                                     "can arise if the data are private and "
-                                     "you do not have access rights or are "
-                                     "not logged in.")
-
-        # make sure the URL is formatted as expected, otherwise the request ID
-        # will be wrong
-        # (the request ID can also be found from the javascript in the request
-        # response)
-        if response.url.split("/")[-1] == 'submission':
-            request_id = response.url.split("/")[-2]
-            self._staging_log['request_id'] = request_id
-            log.debug("Request ID: {0}".format(request_id))
-
-            # Submit a request for the specific request ID identified above
-            submission_url = urljoin(self._get_dataarchive_url(),
-                                     url_helpers.join('rh/submission', request_id))
-            log.debug("Submission URL: {0}".format(submission_url))
-            self._staging_log['submission_url'] = submission_url
-            staging_submission = self._request('GET', submission_url, cache=True)
-            self._staging_log['staging_submission'] = staging_submission
-            staging_submission.raise_for_status()
-
-            data_page_url = staging_submission.url
-        elif response.url.split("/")[-3] == 'requests':
-            data_page_url = response.url
-
-        self._staging_log['data_page_url'] = data_page_url
-        dpid = data_page_url.split("/")[-1]
-        self._staging_log['staging_page_id'] = dpid
-
-        # CANNOT cache this step: please_wait will happen infinitely
-        data_page = self._request('GET', data_page_url, cache=False)
-        self._staging_log['data_page'] = data_page
-        data_page.raise_for_status()
-
-        has_completed = False
-        while not has_completed:
-            time.sleep(1)
-            summary = self._request('GET', url_helpers.join(data_page_url,
-                                                            'summary'),
-                                    cache=False)
-            summary.raise_for_status()
-            print(".", end='')
-            sys.stdout.flush()
-            has_completed = summary.json()['complete']
-
-        self._staging_log['summary'] = summary
-        summary.raise_for_status()
-        self._staging_log['json_data'] = json_data = summary.json()
-
-        username = self.USERNAME if self.USERNAME else 'anonymous'
-
-        # templates:
-        # https://almascience.eso.org/dataPortal/requests/keflavich/946895898/ALMA/
-        # 2013.1.00308.S_uid___A001_X196_X93_001_of_001.tar/2013.1.00308.S_uid___A001_X196_X93_001_of_001.tar
-        # uid___A002_X9ee74a_X26f0/2013.1.00308.S_uid___A002_X9ee74a_X26f0.asdm.sdm.tar
-
-        url_decomposed = urlparse(data_page_url)
-        base_url = ('{uri.scheme}://{uri.netloc}/'
-                    'dataPortal/requests/{username}/'
-                    '{staging_page_id}/ALMA'.format(uri=url_decomposed,
-                                                    staging_page_id=dpid,
-                                                    username=username,
-                                                    ))
-        tbl = self._json_summary_to_table(json_data, base_url=base_url)
-        self._staging_log['result'] = tbl
-        self._staging_log['file_urls'] = tbl['URL']
-        self._last_successful_staging_log = self._staging_log
-
-        return tbl
 
     def _HEADER_data_size(self, files):
         """
@@ -1087,53 +950,6 @@ class AlmaClass(QueryWithLogin):
             raise InvalidQueryError("The following parameters are not accepted"
                                     " by the ALMA query service:"
                                     " {0}".format(invalid_params))
-
-    def _json_summary_to_table(self, data, base_url):
-        """
-        Special tool to convert some JSON metadata to a table Obsolete as of
-        March 2020 - should be removed along with stage_data_prefeb2020
-        """
-        from ..utils import url_helpers
-        from six import iteritems
-        columns = {'mous_uid': [], 'URL': [], 'size': []}
-        for entry in data['node_data']:
-            # de_type can be useful (e.g., MOUS), but it is not necessarily
-            # specified
-            # file_name and file_key *must* be specified.
-            is_file = (entry['file_name'] != 'null' and
-                       entry['file_key'] != 'null')
-            if is_file:
-                # "de_name": "ALMA+uid://A001/X122/X35e",
-                columns['mous_uid'].append(entry['de_name'][5:])
-                if entry['file_size'] == 'null':
-                    columns['size'].append(np.nan * u.Gbyte)
-                else:
-                    columns['size'].append(
-                        (int(entry['file_size']) * u.B).to(u.Gbyte))
-                # example template for constructing url:
-                # https://almascience.eso.org/dataPortal/requests/keflavich/940238268/ALMA/
-                # uid___A002_X9d6f4c_X154/2013.1.00546.S_uid___A002_X9d6f4c_X154.asdm.sdm.tar
-                # above is WRONG... except for ASDMs, when it's right
-                # should be:
-                # 2013.1.00546.S_uid___A002_X9d6f4c_X154.asdm.sdm.tar/2013.1.00546.S_uid___A002_X9d6f4c_X154.asdm.sdm.tar
-                #
-                # apparently ASDMs are different from others:
-                # templates:
-                # https://almascience.eso.org/dataPortal/requests/keflavich/946895898/ALMA/
-                # 2013.1.00308.S_uid___A001_X196_X93_001_of_001.tar/2013.1.00308.S_uid___A001_X196_X93_001_of_001.tar
-                # uid___A002_X9ee74a_X26f0/2013.1.00308.S_uid___A002_X9ee74a_X26f0.asdm.sdm.tar
-                url = url_helpers.join(base_url,
-                                       entry['file_key'],
-                                       entry['file_name'])
-                if 'null' in url:
-                    raise ValueError("The URL {0} was created containing "
-                                     "'null', which is invalid.".format(url))
-                columns['URL'].append(url)
-
-        columns['size'] = u.Quantity(columns['size'], u.Gbyte)
-
-        tbl = Table([Column(name=k, data=v) for k, v in iteritems(columns)])
-        return tbl
 
     def get_project_metadata(self, projectid, cache=True):
         """

@@ -96,7 +96,6 @@ class TestAlma:
         #                           'same UIDs, the result returned is probably correct,'
         #                           ' otherwise you may need to create a fresh astroquery.Alma instance.'))
 
-    @pytest.mark.skipif("SKIP_SLOW")
     def test_stage_data(self, temp_dir, recwarn):
         alma = Alma()
         alma.cache_location = temp_dir
@@ -105,31 +104,53 @@ class TestAlma:
         # assert b'2011.0.00887.S' in result_s['Project code']
         assert b'2013.1.00857.S' in result_s['Project code']
         # assert b'uid://A002/X40d164/X1b3' in result_s['Asdm uid']
-        assert b'uid://A002/X651f57/Xade' in result_s['Asdm uid']
-        # match = result_s['Asdm uid'] == b'uid://A002/X40d164/X1b3'
-        match = result_s['Asdm uid'] == b'uid://A002/X651f57/Xade'
-        uid = result_s['Asdm uid'][match]
+        assert b'uid://A002/X40d164/X1b3' in result_s['Asdm uid']
+        assert b'uid://A002/X391d0b/X23d' in result_s['Member ous id']
+        match = result_s['Asdm uid'] == b'uid://A002/X40d164/X1b3'
+        uid = result_s['Member ous id'][match]
 
         result = alma.stage_data(uid)
 
-        assert ('uid___A002_X651f57_Xade' in
-                os.path.split(result['URL'][0])[1])
+        assert ('uid___A002_X40d164_X1b3' in result['URL'][0])
 
-        # test re-staging
-        # with pytest.raises(requests.HTTPError) as ex:
-        #    result = alma.stage_data([uid])
-        # assert ex.value.args[0] == ('Received an error 405: this may indicate you have '
-        #                            'already staged the data.  Try downloading the '
-        #                            'file URLs directly with download_files.')
+    def test_stage_data_listall(self, temp_dir, recwarn):
+        """
+        test for expanded capability created in #1683
+        """
+        alma = Alma()
+        alma.cache_location = temp_dir
 
-        # log.warning doesn't actually make a warning
-        # result = alma.stage_data([uid])
-        # w = recwarn.pop()
-        # assert (str(w.message) == ('Error 405 received.  If you have previously staged the '
-        #                           'same UIDs, the result returned is probably correct,'
-        #                           ' otherwise you may need to create a fresh astroquery.Alma instance.'))
+        result_s = alma.query_object('Sgr A*')
+        uid = 'uid://A001/X12a3/Xe9'
+        assert uid in result_s['Member ous id']
 
-    @pytest.mark.skipif("SKIP_SLOW")
+        result1 = alma.stage_data(uid, expand_tarfiles=False)
+        result2 = alma.stage_data(uid, expand_tarfiles=True)
+
+        assert len(result2) > len(result1)
+
+        assert 'PIPELINE_PRODUCT' in result2['type']
+        assert 'PIPELINE_AUXILIARY_TARFILE' in result1['type']
+
+    def test_stage_data_json(self, temp_dir, recwarn):
+        """
+        test for json returns
+        """
+        alma = Alma()
+        alma.cache_location = temp_dir
+
+        result_s = alma.query_object('Sgr A*')
+        uid = 'uid://A001/X12a3/Xe9'
+        assert uid in result_s['Member ous id']
+
+        result1 = alma.stage_data(uid, return_json=False)
+        result2 = alma.stage_data(uid, return_json=True)
+
+        assert len(result1) > 0
+        assert set(result2[0].keys()) == {'id', 'name', 'type', 'sizeInBytes',
+                                          'permission', 'children',
+                                          'allMousUids'}
+
     def test_doc_example(self, temp_dir):
         alma = Alma()
         alma.cache_location = temp_dir
@@ -145,23 +166,23 @@ class TestAlma:
         # assert len(gc_data) >= 425 # Feb 8, 2016
         assert len(gc_data) >= 50  # Nov 16, 2016
 
-        uids = np.unique(m83_data['Asdm uid'])
-        assert b'uid://A002/X3b3400/X90f' in uids
-        X90f = (m83_data['Asdm uid'] == b'uid://A002/X3b3400/X90f')
-        assert X90f.sum() == 2  # Jul 2, 2017: increased from 1
+        uids = np.unique(m83_data['Member ous id'])
+        assert b'uid://A001/X11f/X30' in uids
+        X30 = (m83_data['Member ous id'] == b'uid://A001/X11f/X30')
+        assert X30.sum() == 1  # Apr 2, 2020
         X31 = (m83_data['Member ous id'] == b'uid://A002/X3216af/X31')
         assert X31.sum() == 2  # Jul 2, 2017: increased from 1
 
-        asdm = alma.stage_data('uid://A002/X3b3400/X90f')
-        totalsize_asdm = asdm['size'].sum() * u.Unit(asdm['size'].unit)
-        assert (totalsize_asdm.to(u.B).value == 0.0)
+        mous1 = alma.stage_data('uid://A001/X11f/X30')
+        totalsize_mous1 = mous1['size'].sum() * u.Unit(mous1['size'].unit)
+        assert (totalsize_mous1.to(u.B) > 1.9*u.GB)
 
         mous = alma2.stage_data('uid://A002/X3216af/X31')
         totalsize_mous = mous['size'].sum() * u.Unit(mous['size'].unit)
         # More recent ALMA request responses do not include any information
         # about file size, so we have to allow for the possibility that all
         # file sizes are replaced with -1
-        assert (totalsize_mous.to(u.GB).value > 159)
+        assert (totalsize_mous.to(u.GB).value > 52)
 
     def test_query(self, temp_dir):
         alma = Alma()
@@ -179,97 +200,6 @@ class TestAlma:
         result = alma.query(payload={'member_ous_id': 'uid://A001/X11a2/X11'},
                             science=True)
         assert len(result) == 1
-
-    # As of April 2017, these data are *MISSING FROM THE ARCHIVE*.
-    # This has been reported, as it is definitely a bug.
-    @pytest.mark.xfail
-    @pytest.mark.bigdata
-    @pytest.mark.skipif("SKIP_SLOW")
-    def test_cycle1(self, temp_dir):
-        # About 500 MB
-        alma = Alma()
-        alma.cache_location = temp_dir
-
-        target = 'NGC4945'
-        project_code = '2012.1.00912.S'
-
-        payload = {'project_code': project_code,
-                   'source_name_alma': target, }
-        result = alma.query(payload=payload)
-        assert len(result) == 1
-
-        # Need new Alma() instances each time
-        a1 = alma()
-        uid_url_table_mous = a1.stage_data(result['Member ous id'])
-        a2 = alma()
-        uid_url_table_asdm = a2.stage_data(result['Asdm uid'])
-        # I believe the fixes as part of #495 have resulted in removal of a
-        # redundancy in the table creation, so a 1-row table is OK here.
-        # A 2-row table may not be OK any more, but that's what it used to
-        # be...
-        assert len(uid_url_table_asdm) == 1
-        assert len(uid_url_table_mous) >= 2  # now is len=3 (Nov 17, 2016)
-
-        # URL should look like:
-        # https://almascience.eso.org/dataPortal/requests/anonymous/944120962/ALMA/2012.1.00912.S_uid___A002_X5a9a13_X528_001_of_001.tar/2012.1.00912.S_uid___A002_X5a9a13_X528_001_of_001.tar
-        # https://almascience.eso.org/rh/requests/anonymous/944222597/2012.1.00912.S_uid___A002_X5a9a13_X528_001_of_001.tar/2012.1.00912.S_uid___A002_X5a9a13_X528_001_of_001.tar
-
-        small = uid_url_table_mous['size'] < 1
-
-        urls_to_download = uid_url_table_mous[small]['URL']
-
-        uri = urlparse(urls_to_download[0])
-        assert uri.path == ('/dataPortal/requests/anonymous/{0}/ALMA/2012.1.00912.S_uid___A002_X5a9a13_X528_001_of_001.tar/2012.1.00912.S_uid___A002_X5a9a13_X528_001_of_001.tar'  # noqa
-                            .format(a1._staging_log['staging_page_id']))
-
-        # THIS IS FAIL
-        # '2012.1.00912.S_uid___A002_X5a9a13_X528_001_of_001.tar'
-        left = uid_url_table_mous['URL'][0].split("/")[-1]
-        assert left == '2012.1.00912.S_uid___A002_X5a9a13_X528_001_of_001.tar'
-        right = uid_url_table_mous['uid'][0]
-        assert right == 'uid://A002/X5a9a13/X528'
-        assert left[15:-15] == right.replace(":", "_").replace("/", "_")
-        data = alma.download_and_extract_files(urls_to_download)
-
-        assert len(data) == 6
-
-    @pytest.mark.skipif("SKIP_SLOW")
-    def test_cycle0(self, temp_dir):
-        # About 20 MB
-
-        alma = Alma()
-        alma.cache_location = temp_dir
-
-        target = 'NGC4945'
-        project_code = '2011.0.00121.S'
-
-        payload = {'project_code': project_code,
-                   'source_name_alma': target, }
-        result = alma.query(payload=payload)
-        assert len(result) == 1
-
-        alma1 = alma()
-        alma2 = alma()
-        uid_url_table_mous = alma1.stage_data(result['Member ous id'])
-        uid_url_table_asdm = alma2.stage_data(result['Asdm uid'])
-        assert len(uid_url_table_asdm) == 1
-        assert len(uid_url_table_mous) == 32
-
-        assert uid_url_table_mous[0]['URL'].split("/")[-1] == '2011.0.00121.S_2012-08-16_001_of_002.tar'
-        assert uid_url_table_mous[0]['uid'] == 'uid://A002/X327408/X246'
-
-        small = uid_url_table_mous['size'] < 1
-
-        urls_to_download = uid_url_table_mous[small]['URL']
-        # Check that all URLs show up in the Cycle 0 table
-        for url in urls_to_download:
-            tarfile_name = os.path.split(url)[-1]
-            assert tarfile_name in alma._cycle0_tarfile_content['ID']
-
-        data = alma.download_and_extract_files(urls_to_download)
-
-        # There are 10 small files, but only 8 unique
-        assert len(data) == 8
 
     def test_keywords(self, temp_dir):
 
