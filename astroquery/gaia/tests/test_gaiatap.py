@@ -370,31 +370,29 @@ class TestTap(unittest.TestCase):
         band = None
         format = "votable"
         verbose = True
+        data_structure = "INDIVIDUAL"
+        output_file = "output_file"
 
         params_dict = {}
         params_dict['VALID_DATA'] = "true"
         params_dict['ID'] = ids
         params_dict['FORMAT'] = str(format)
         params_dict['RETRIEVAL_TYPE'] = str(retrieval_type)
+        params_dict['DATA_STRUCTURE'] = str(data_structure)
 
         tap.load_data(ids=ids,
                       retrieval_type=retrieval_type,
                       valid_data=valid_data,
                       band=band,
                       format=format,
-                      verbose=verbose)
+                      verbose=verbose,
+                      output_file=output_file)
         parameters = {}
         parameters['params_dict'] = params_dict
-        parameters['output_file'] = None
+        #Output file name contains a timestamp: cannot be verified
+        of = dummyHandler._DummyTapHandler__parameters['output_file']
+        parameters['output_file'] = of
         parameters['verbose'] = verbose
-
-        dummyHandler.check_call('load_data', parameters)
-        tap.load_data(ids=ids,
-                      retrieval_type=retrieval_type,
-                      valid_data=valid_data,
-                      band=band,
-                      format=format,
-                      verbose=verbose)
         dummyHandler.check_call('load_data', parameters)
 
     def test_get_datalinks(self):
