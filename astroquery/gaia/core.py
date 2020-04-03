@@ -20,9 +20,16 @@ from astroquery.utils import commons
 from astropy import units
 from astropy.units import Quantity
 import six
+import zipfile
 from astroquery.utils.tap import taputils
 from . import conf
-
+import os
+from datetime import datetime
+import shutil
+import astroquery.utils.tap.model.modelutils as modelutils
+from astropy.io.votable import parse
+from astropy.io.votable.tree import VOTableFile, Resource, Field
+from astropy.table import Table
 
 class GaiaClass(TapPlus):
 
@@ -34,8 +41,11 @@ class GaiaClass(TapPlus):
     MAIN_GAIA_TABLE_DEC = conf.MAIN_GAIA_TABLE_DEC
     ROW_LIMIT = conf.ROW_LIMIT
 
-    def __init__(self, tap_plus_conn_handler=None, datalink_handler=None):
-        super(GaiaClass, self).__init__(url="https://gea.esac.esa.int/",
+    def __init__(self, tap_plus_conn_handler=None,
+                 datalink_handler=None,
+                 gaia_tap_server='https://gea.esac.esa.int/',
+                 gaia_data_server='https://gea.esac.esa.int/'):
+        super(GaiaClass, self).__init__(url=gaia_tap_server,
                                         server_context="tap-server",
                                         tap_context="tap",
                                         upload_context="Upload",
@@ -45,7 +55,7 @@ class GaiaClass(TapPlus):
                                         connhandler=tap_plus_conn_handler)
         # Data uses a different TapPlus connection
         if datalink_handler is None:
-            self.__gaiadata = TapPlus(url="https://geadata.esac.esa.int/",
+            self.__gaiadata = TapPlus(url=gaia_data_server,
                                       server_context="data-server",
                                       tap_context="tap",
                                       upload_context="Upload",
@@ -55,9 +65,105 @@ class GaiaClass(TapPlus):
         else:
             self.__gaiadata = datalink_handler
 
-    def load_data(self, ids, retrieval_type="epoch_photometry",
-                  valid_data=True, band=None, format="VOTABLE",
-                  output_file=None, verbose=False):
+    def login(self, user=None, password=None, credentials_file=None,
+              verbose=False):
+        """Performs a login.
+        User and password arguments can be used or a file that contains
+        user name and password
+        (2 lines: one for user name and the following one for the password).
+        If no arguments are provided, a prompt asking for user name and
+        password will appear.
+
+        Parameters
+        ----------
+        user : str, default None
+            login name
+        password : str, default None
+            user password
+        credentials_file : str, default None
+            file containing user and password in two lines
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+        """
+        correct = True
+        try:
+            print("Login to gaia TAP")
+            TapPlus.login(self, user=user, password=password, credentials_file=credentials_file,
+                          verbose=verbose)
+        except:
+            print ("Error logging in tap")
+            correct = False
+        if correct == True:
+            u = self._TapPlus__user
+            p = self._TapPlus__pwd
+            try:
+                print("Login to gaia data")
+                TapPlus.login(self.__gaiadata, user=u, password=p, verbose=verbose)
+            except:
+                print ("Error logging in data")
+                print ("Logging out from tap")
+                TapPlus.logout(self, verbose=verbose)
+
+    def login_gui(self, verbose=False):
+        """Performs a login using a GUI dialog
+
+        Parameters
+        ----------
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+        """
+        correct = True
+        try:
+            print("Login to gaia TAP")
+            TapPlus.login_gui(self, verbose=verbose)
+        except:
+            print ("Error logging in tap")
+            correct = False
+        if correct == True:
+            u = self._TapPlus__user
+            p = self._TapPlus__pwd
+            try:
+                print("Login to gaia data")
+                TapPlus.login(self.__gaiadata, user=u, password=p, verbose=verbose)
+            except:
+                print ("Error logging in data")
+                print ("Logging out from tap")
+                TapPlus.logout(self, verbose=verbose)
+
+    def logout(self, verbose=False):
+        """Performs a logout
+
+        Parameters
+        ----------
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+        """
+        correct = True
+        try:
+            TapPlus.logout(self, verbose=verbose)
+        except:
+            print ("Error logging out tap")
+            correct = False
+        if correct == True:
+            print("Gaia TAP logout OK")
+            try:
+                TapPlus.logout(self.__gaiadata, verbose=verbose)
+            except:
+                correct = False
+                print ("Error logging out data")
+        if correct == True:
+            print("Gaia data logout OK")
+
+    def load_data(self,
+                  ids,
+                  data_release=None,
+                  data_structure='INDIVIDUAL',
+                  retrieval_type="ALL",
+                  valid_data=True,
+                  band=None,
+                  format="votable",
+                  output_file=None,
+                  verbose=False):
         """Loads the specified table
         TAP+ only
 
@@ -65,8 +171,17 @@ class GaiaClass(TapPlus):
         ----------
         ids : str list, mandatory
             list of identifiers
-        retrieval_type : str, optional, default 'epoch_photometry'
-            retrieval type identifier
+        data_release: integer, optional, default None
+            data release from which data should be taken
+        data_structure: str, optional, default 'INDIVIDUAL'
+            it can be 'INDIVIDUAL', 'COMBINED', 'RAW':
+            'INDIVIDUAL' means...
+            'COMBINED' means...
+            'RAW' means...
+        retrieval_type : str, optional, default 'ALL'
+            retrieval type identifier. It can be either 'epoch_photometry'
+            for compatibility reasons or 'ALL' to retrieve all data from
+            the list of sources.
         valid_data : bool, optional, default True
             By default, the epoch photometry service returns only valid data,
             that is, all data rows where flux is not null and
@@ -91,13 +206,30 @@ class GaiaClass(TapPlus):
         """
         if retrieval_type is None:
             raise ValueError("Missing mandatory argument 'retrieval_type'")
+        now = datetime.now()
+        output_file_specified = False;
+        if output_file is None:
+            output_file = os.getcwd() + os.sep + "temp_" + now.strftime("%Y%m%d%H%M%S") + os.sep + "download_" + now.strftime("%Y%m%d%H%M%S")
+        else:
+            output_file_specified = True
+            output_file = os.getcwd() + os.sep + "temp_" + now.strftime("%Y%m%d%H%M%S") + os.sep + output_file
+        path = os.path.dirname(output_file)
+        try:
+            os.mkdir(path)
+        except OSError:
+            print ("Creation of the directory %s failed" % path)
+
         if ids is None:
             raise ValueError("Missing mandatory argument 'ids'")
+        if str(retrieval_type) != 'ALL' and str(retrieval_type) != 'epoch_photometry':
+            raise ValueError("Invalid mandatory argument 'retrieval_type'")
+
         params_dict = {}
-        if valid_data:
-            params_dict['VALID_DATA'] = "true"
-        else:
+        if not valid_data or str(retrieval_type) == 'ALL':
             params_dict['VALID_DATA'] = "false"
+        elif valid_data:
+            params_dict['VALID_DATA'] = "true"
+
         if band is not None:
             if band != 'G' and band != 'BP' and band != 'RP':
                 raise ValueError("Invalid band value '%s' (Valid values: " +
@@ -112,11 +244,45 @@ class GaiaClass(TapPlus):
             else:
                 ids_arg = ','.join(str(item) for item in ids)
         params_dict['ID'] = ids_arg
+        if data_release is not None:
+            params_dict['DATA_RELEASE'] = data_release
+        params_dict['DATA_STRUCTURE'] = data_structure
         params_dict['FORMAT'] = str(format)
         params_dict['RETRIEVAL_TYPE'] = str(retrieval_type)
-        return self.__gaiadata.load_data(params_dict=params_dict,
+        self.__gaiadata.load_data(params_dict=params_dict,
                                          output_file=output_file,
                                          verbose=verbose)
+
+        files = {}
+        if zipfile.is_zipfile(output_file):
+            with zipfile.ZipFile(output_file, 'r') as zip_ref:
+                zip_ref.extractall(os.path.dirname(output_file))
+
+        #r=root, d=directories, f = files
+        for r, d, f in os.walk(path):
+            for file in f:
+                if '.fits' in file or '.xml' in file or '.csv' in file:
+                    files[file] = os.path.join(r, file)
+
+        for key,value in files.items():
+            if '.fits' in key or '.csv' in key:
+                files[key] = modelutils.read_results_table_from_file(value, format)
+            elif '.xml' in key:
+                tables = []
+                for table in parse(value).iter_tables():
+                    tables.append(table)
+                files[key] = tables
+
+        if not output_file_specified:
+            shutil.rmtree(path)
+        else:
+            print("output_file =", output_file)
+
+        print("List of products available:")
+        for key,value in files.items():
+            print("Product =", key)
+
+        return files
 
     def get_datalinks(self, ids, verbose=False):
         """Gets datalinks associated to the provided identifiers
