@@ -132,7 +132,6 @@ class TestAlma:
         assert 'PIPELINE_PRODUCT' in result2['type']
         assert 'PIPELINE_AUXILIARY_TARFILE' in result1['type']
 
-
     def test_doc_example(self, temp_dir):
         alma = Alma()
         alma.cache_location = temp_dir
@@ -166,7 +165,6 @@ class TestAlma:
         # file sizes are replaced with -1
         assert (totalsize_mous.to(u.GB).value > 52)
 
-
     def test_query(self, temp_dir):
         alma = Alma()
         alma.cache_location = temp_dir
@@ -183,8 +181,6 @@ class TestAlma:
         result = alma.query(payload={'member_ous_id': 'uid://A001/X11a2/X11'},
                             science=True)
         assert len(result) == 1
-
-
 
     def test_keywords(self, temp_dir):
 
