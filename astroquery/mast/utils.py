@@ -147,3 +147,25 @@ def _parse_input_location(coordinates=None, objectname=None):
         obj_coord = commons.parse_coordinates(coordinates)
 
     return obj_coord
+
+def mast_relative_path(mast_uri):
+    """
+    Given a MAST dataURI, return the associated relative path.
+
+    Parameters
+    ----------
+    mast_uri : str
+        The MAST uri.
+    
+    Returns
+    -------
+    response : str
+        The associated relative path.
+    """
+
+    response = _simple_request("https://mast.stsci.edu/api/v0.1/path_lookup/",
+                               {"uri":mast_uri})
+    result = response.json()
+    uri_result = result.get(mast_uri)
+    
+    return uri_result["path"]

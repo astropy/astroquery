@@ -9,13 +9,14 @@ This file contains functionality for accessing MAST holdings in the cloud.
 import os
 import warnings
 import threading
+import requests
 
 from astropy.logger import log
 from astropy.utils.console import ProgressBarOrSpinner
 
 from ..exceptions import NoResultsWarning
 
-from . import fpl
+from . import utils, fpl
 
 
 class CloudAccess(object):  # pragma:no-cover
@@ -86,21 +87,22 @@ class CloudAccess(object):  # pragma:no-cover
 
         s3_client = self.boto3.client('s3')
 
-        paths = fpl.paths(data_product)
-        if paths is None:
+        path = utils.mast_relative_path(data_product["dataURI"])
+        if path is None:
             raise Exception("Unsupported mission {}".format(data_product['obs_collection']))
 
-        for path in paths:
-            try:
-                s3_client.head_object(Bucket=self.pubdata_bucket, Key=path, RequestPayer='requester')
-                if include_bucket:
-                    path = "s3://{}/{}".format(self.pubdata_bucket, path)
-                elif full_url:
-                    path = "http://s3.amazonaws.com/{}/{}".format(self._pubdata_bucket, path)
-                return path
-            except self.botocore.exceptions.ClientError as e:
-                if e.response['Error']['Code'] != "404":
-                    raise
+        path = path.lstrip("/")
+
+        try:
+            s3_client.head_object(Bucket=self.pubdata_bucket, Key=path, RequestPayer='requester')
+            if include_bucket:
+                path = "s3://{}/{}".format(self.pubdata_bucket, path)
+            elif full_url:
+                path = "http://s3.amazonaws.com/{}/{}".format(self._pubdata_bucket, path)
+            return path
+        except self.botocore.exceptions.ClientError as e:
+            if e.response['Error']['Code'] != "404":
+                raise
 
         warnings.warn("Unable to locate file {}.".format(data_product['productFilename']), NoResultsWarning)
         return None
