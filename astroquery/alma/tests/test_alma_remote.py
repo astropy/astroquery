@@ -151,7 +151,6 @@ class TestAlma:
                                           'permission', 'children',
                                           'allMousUids'}
 
-
     def test_doc_example(self, temp_dir):
         alma = Alma()
         alma.cache_location = temp_dir
