@@ -28,8 +28,7 @@ from datetime import datetime
 import shutil
 import astroquery.utils.tap.model.modelutils as modelutils
 from astropy.io.votable import parse
-from astropy.io.votable.tree import VOTableFile, Resource, Field
-from astropy.table import Table
+
 
 class GaiaClass(TapPlus):
 
@@ -88,20 +87,22 @@ class GaiaClass(TapPlus):
         correct = True
         try:
             print("Login to gaia TAP")
-            TapPlus.login(self, user=user, password=password, credentials_file=credentials_file,
+            TapPlus.login(self, user=user, password=password,
+                          credentials_file=credentials_file,
                           verbose=verbose)
         except:
-            print ("Error logging in tap")
+            print("Error logging in tap")
             correct = False
-        if correct == True:
+        if correct:
             u = self._TapPlus__user
             p = self._TapPlus__pwd
             try:
                 print("Login to gaia data")
-                TapPlus.login(self.__gaiadata, user=u, password=p, verbose=verbose)
+                TapPlus.login(self.__gaiadata, user=u, password=p,
+                              verbose=verbose)
             except:
-                print ("Error logging in data")
-                print ("Logging out from tap")
+                print("Error logging in data")
+                print("Logging out from tap")
                 TapPlus.logout(self, verbose=verbose)
 
     def login_gui(self, verbose=False):
@@ -117,17 +118,18 @@ class GaiaClass(TapPlus):
             print("Login to gaia TAP")
             TapPlus.login_gui(self, verbose=verbose)
         except:
-            print ("Error logging in tap")
+            print("Error logging in tap")
             correct = False
-        if correct == True:
+        if correct:
             u = self._TapPlus__user
             p = self._TapPlus__pwd
             try:
                 print("Login to gaia data")
-                TapPlus.login(self.__gaiadata, user=u, password=p, verbose=verbose)
+                TapPlus.login(self.__gaiadata, user=u, password=p,
+                              verbose=verbose)
             except:
-                print ("Error logging in data")
-                print ("Logging out from tap")
+                print("Error logging in data")
+                print("Logging out from tap")
                 TapPlus.logout(self, verbose=verbose)
 
     def logout(self, verbose=False):
@@ -142,16 +144,16 @@ class GaiaClass(TapPlus):
         try:
             TapPlus.logout(self, verbose=verbose)
         except:
-            print ("Error logging out tap")
+            print("Error logging out tap")
             correct = False
-        if correct == True:
+        if correct:
             print("Gaia TAP logout OK")
             try:
                 TapPlus.logout(self.__gaiadata, verbose=verbose)
             except:
                 correct = False
-                print ("Error logging out data")
-        if correct == True:
+                print("Error logging out data")
+        if correct:
             print("Gaia data logout OK")
 
     def load_data(self,
@@ -208,17 +210,21 @@ class GaiaClass(TapPlus):
         if retrieval_type is None:
             raise ValueError("Missing mandatory argument 'retrieval_type'")
         now = datetime.now()
-        output_file_specified = False;
+        output_file_specified = False
         if output_file is None:
-            output_file = os.getcwd() + os.sep + "temp_" + now.strftime("%Y%m%d%H%M%S") + os.sep + "download_" + now.strftime("%Y%m%d%H%M%S")
+            output_file = os.getcwd() + os.sep + "temp_" + \
+                          now.strftime("%Y%m%d%H%M%S") + os.sep + \
+                          "download_" + now.strftime("%Y%m%d%H%M%S")
         else:
             output_file_specified = True
-            output_file = os.getcwd() + os.sep + "temp_" + now.strftime("%Y%m%d%H%M%S") + os.sep + output_file
+            output_file = os.getcwd() + os.sep + "temp_" + \
+                          now.strftime("%Y%m%d%H%M%S") + os.sep + \
+                          output_file
         path = os.path.dirname(output_file)
         try:
             os.mkdir(path)
         except OSError:
-            print ("Creation of the directory %s failed" % path)
+            print("Creation of the directory %s failed" % path)
 
         if ids is None:
             raise ValueError("Missing mandatory argument 'ids'")
@@ -251,23 +257,24 @@ class GaiaClass(TapPlus):
         params_dict['FORMAT'] = str(format)
         params_dict['RETRIEVAL_TYPE'] = str(retrieval_type)
         self.__gaiadata.load_data(params_dict=params_dict,
-                                         output_file=output_file,
-                                         verbose=verbose)
+                                  output_file=output_file,
+                                  verbose=verbose)
 
         files = {}
         if zipfile.is_zipfile(output_file):
             with zipfile.ZipFile(output_file, 'r') as zip_ref:
                 zip_ref.extractall(os.path.dirname(output_file))
 
-        #r=root, d=directories, f = files
+        # r=root, d=directories, f = files
         for r, d, f in os.walk(path):
             for file in f:
                 if '.fits' in file or '.xml' in file or '.csv' in file:
                     files[file] = os.path.join(r, file)
 
-        for key,value in files.items():
+        for key, value in files.items():
             if '.fits' in key or '.csv' in key:
-                files[key] = modelutils.read_results_table_from_file(value, format)
+                files[key] = modelutils.read_results_table_from_file(value,
+                                                                     format)
             elif '.xml' in key:
                 tables = []
                 for table in parse(value).iter_tables():
@@ -280,7 +287,7 @@ class GaiaClass(TapPlus):
             print("output_file =", output_file)
 
         print("List of products available:")
-        for key,value in files.items():
+        for key, value in files.items():
             print("Product =", key)
 
         return files
