@@ -113,7 +113,6 @@ class TestAlma:
 
         assert ('uid___A002_X40d164_X1b3' in result['URL'][0])
 
-
     def test_stage_data_listall(self, temp_dir, recwarn):
         """
         test for expanded capability created in #1683
