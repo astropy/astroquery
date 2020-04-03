@@ -132,6 +132,26 @@ class TestAlma:
         assert 'PIPELINE_PRODUCT' in result2['type']
         assert 'PIPELINE_AUXILIARY_TARFILE' in result1['type']
 
+    def test_stage_data_json(self, temp_dir, recwarn):
+        """
+        test for json returns
+        """
+        alma = Alma()
+        alma.cache_location = temp_dir
+
+        result_s = alma.query_object('Sgr A*')
+        uid = 'uid://A001/X12a3/Xe9'
+        assert uid in result_s['Member ous id']
+
+        result1 = alma.stage_data(uid, return_json=False)
+        result2 = alma.stage_data(uid, return_json=True)
+
+        assert len(result1) > 0
+        assert set(result2[0].keys()) == {'id', 'name', 'type', 'sizeInBytes',
+                                          'permission', 'children',
+                                          'allMousUids'}
+
+
     def test_doc_example(self, temp_dir):
         alma = Alma()
         alma.cache_location = temp_dir
