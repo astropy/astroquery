@@ -171,8 +171,9 @@ class GaiaClass(TapPlus):
         ----------
         ids : str list, mandatory
             list of identifiers
-        data_release: integer, optional, default None
-            data release from which data should be taken
+        data_release: str, optional, default None
+            data release from which data should be taken. E.g. 'Gaia DR2'
+            By default, it takes the current default one.
         data_structure: str, optional, default 'INDIVIDUAL'
             it can be 'INDIVIDUAL', 'COMBINED', 'RAW':
             'INDIVIDUAL' means...
@@ -245,7 +246,7 @@ class GaiaClass(TapPlus):
                 ids_arg = ','.join(str(item) for item in ids)
         params_dict['ID'] = ids_arg
         if data_release is not None:
-            params_dict['DATA_RELEASE'] = data_release
+            params_dict['RELEASE'] = data_release
         params_dict['DATA_STRUCTURE'] = data_structure
         params_dict['FORMAT'] = str(format)
         params_dict['RETRIEVAL_TYPE'] = str(retrieval_type)
