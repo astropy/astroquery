@@ -986,7 +986,7 @@ class JwstClass(object):
                 raise ValueError("proposal_id must be string")
 
             else:
-                condition = " AND proposal_id LIKE '%FILTER="+value.upper()+"%' "
+                condition = " AND proposal_id ILIKE '%"+value+"%' "
         return condition
 
     def __get_artifact_producttype_condition(self, product_type=None):
