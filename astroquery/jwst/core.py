@@ -32,14 +32,12 @@ class JwstClass(object):
     Proxy class to default TapPlus object (pointing to JWST Archive)
     """
     JWST_MAIN_TABLE = conf.JWST_MAIN_TABLE
-    JWST_ARTIFACT_TABLE = conf.JWST_ARTIFACT_TABLE
-    JWST_OBSERVATION_TABLE = conf.JWST_OBSERVATION_TABLE
-    JWST_OBSERVATION_TABLE_RA = conf.JWST_OBSERVATION_TABLE_RA
-    JWST_OBSERVATION_TABLE_DEC = conf.JWST_OBSERVATION_TABLE_DEC
-    JWST_PLANE_TABLE = conf.JWST_PLANE_TABLE
+    JWST_MAIN_TABLE_RA = conf.JWST_MAIN_TABLE_RA
+    JWST_MAIN_TABLE_DEC = conf.JWST_MAIN_TABLE_DEC
 
     JWST_DEFAULT_COLUMNS = ['observationid', 'calibrationlevel', 'public',
-                            'dataproducttype', 'instrument_name', 'position_bounds_center',
+                            'dataproducttype', 'instrument_name', 'energy_bandpassname',
+                            'target_name', 'target_ra', 'target_dec', 'position_bounds_center',
                             'position_bounds_spoly']
     
     PLANE_DATAPRODUCT_TYPES = ['image', 'cube', 'measurements', 'spectrum']
@@ -558,12 +556,12 @@ class JwstClass(object):
             radius_deg = commons.radius_to_unit(radius_quantity, unit='deg')
 
         query = "SELECT DISTANCE(POINT('ICRS'," +\
-            str(self.JWST_OBSERVATION_TABLE_RA) + "," +\
-            str(self.JWST_OBSERVATION_TABLE_DEC) + "), \
+            str(self.JWST_MAIN_TABLE_RA) + "," +\
+            str(self.JWST_MAIN_TABLE_DEC) + "), \
             POINT('ICRS'," + str(ra) + "," + str(dec) +")) AS dist, "+columns+" \
             FROM " + str(self.JWST_MAIN_TABLE) + " WHERE CONTAINS(\
-            POINT('ICRS'," + str(self.JWST_OBSERVATION_TABLE_RA) + "," +\
-            str(self.JWST_OBSERVATION_TABLE_DEC)+"),\
+            POINT('ICRS'," + str(self.JWST_MAIN_TABLE_RA) + "," +\
+            str(self.JWST_MAIN_TABLE_DEC)+"),\
             CIRCLE('ICRS'," + str(ra)+"," + str(dec) + ", " +\
             str(radius_deg)+"))=1" +\
             observationid_condition +\
