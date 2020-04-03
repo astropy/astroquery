@@ -976,7 +976,7 @@ class JwstClass(object):
                 raise ValueError("filter_name must be string")
 
             else:
-                condition = " AND instrument_keywords LIKE '%FILTER="+value.upper()+"%' "
+                condition = " AND energy_bandpassname ILIKE '%"+value+"%' "
         return condition
 
     def __get_proposal_id_condition(self, value=None):
