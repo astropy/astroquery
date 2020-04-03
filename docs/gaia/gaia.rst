@@ -848,12 +848,12 @@ The following example uploads a table and then, the table is used in a cross mat
 
 
 
-2.7. Epoch photometry access (datalink)
+2.7. Data products access (datalink)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Epoch photometry data are retrieved as a table from the Gaia archive.
+Different data products are retrieved as one or more tables from the Gaia archive.
 
-In order to download epoch photometry data, you need to know the identifiers of the sources you are interested in.
+In order to download data products, you need to know the identifiers of the sources you are interested in.
 
 So, the first step, is to execute a query to obtain the identifiers, and then you can retrieve the data.
 
@@ -872,16 +872,39 @@ So, the first step, is to execute a query to obtain the identifiers, and then yo
   >>> ids=results['source_id']
   >>> print(ids)
   >>>
-  >>> # Retrieve epoch photoemtry data
-  >>> epoch_photometry_data = Gaia.load_data(ids=ids, retrieval_type="epoch_photometry")
-  >>> print("source id \t\tBand \t\tMag \t\tTime \t\tFlux \t\tFluxError")
-  >>> for source, band, mag, time, flux, flux_error in zip(epoch_photometry_data['source_id'], \
-  >>>                          epoch_photometry_data['band'], \
-  >>>                          epoch_photometry_data['mag'],\
-  >>>                          epoch_photometry_data['time'],\
-  >>>                          epoch_photometry_data['flux'],\
-  >>>                          epoch_photometry_data['flux_error']):
-  >>>    print(str(source) + "\t"+  str(band, 'utf-8') + "\t\t" + str(mag) + "\t" + str(time) + "\t" + str(flux) + "\t" + str(flux_error))
+  >>> # Retrieve data products
+  >>> all = Gaia.load_data(ids=ids, format='fits', data_release=2)
+
+  Retrieving data.
+  Done.
+
+  List of products available:
+  Product = RVS_SPECTRA-Gaia DR2 4203426768245304192.fits
+  Product = RVS_SPECTRA-Gaia DR2 4257750098718805248.fits
+  Product = XP_BASIS-Gaia DR2 4203426768245304192.fits
+  Product = MCMC-Gaia DR2 4257750098718805248.fits
+  Product = XP_SPECTRA-Gaia DR2 4257750098718805248.fits
+  Product = EPOCH_PHOTOMETRY-Gaia DR2 4257750098718805248.fits
+  Product = XP_BASIS-Gaia DR2 4257750098718805248.fits
+  Product = MCMC-Gaia DR2 4203426768245304192.fits
+  Product = XP_SPECTRA-Gaia DR2 4203426768245304192.fits
+
+  >>> # Get one data product above listed
+  >>> all['RVS_SPECTRA-Gaia DR2 4203426768245304192.fits']
+
+  <Table length=2400>
+
+  wavelength    flux     flux_error
+  nm
+  float64    float32     float32
+  ---------- ---------- -----------
+  846.0   1.1543361  0.14655493
+  846.01  1.0716769  0.09160478
+
+  ...        ...         ...
+
+  869.77  1.0126361  0.03356205
+  869.78  1.0286258 0.035302058
 
 
 Reference/API
