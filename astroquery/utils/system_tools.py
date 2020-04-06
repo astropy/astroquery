@@ -31,6 +31,7 @@ def gunzip(filename):
     # system-wide 'gzip' was removed, Python gzip used instead.
     # See #1538 : https://github.com/astropy/astroquery/issues/1538
 
+    # ".fz" denotes RICE rather than gzip compression
     if not filename.endswith('.fz'):
         with gzip.open(filename, 'rb') as f_in:
             with open(filename.rsplit(".", 1)[0], 'wb') as f_out:
