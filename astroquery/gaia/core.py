@@ -14,6 +14,7 @@ Created on 30 jun. 2016
 
 
 """
+from requests import HTTPError
 
 from astroquery.utils.tap import TapPlus
 from astroquery.utils import commons
@@ -84,26 +85,24 @@ class GaiaClass(TapPlus):
         verbose : bool, optional, default 'False'
             flag to display information about the process
         """
-        correct = True
         try:
-            print("Login to gaia TAP")
+            print("Login to gaia TAP server")
             TapPlus.login(self, user=user, password=password,
                           credentials_file=credentials_file,
                           verbose=verbose)
-        except:
-            print("Error logging in tap")
-            correct = False
-        if correct:
-            u = self._TapPlus__user
-            p = self._TapPlus__pwd
-            try:
-                print("Login to gaia data")
-                TapPlus.login(self.__gaiadata, user=u, password=p,
-                              verbose=verbose)
-            except:
-                print("Error logging in data")
-                print("Logging out from tap")
-                TapPlus.logout(self, verbose=verbose)
+        except HTTPError as err:
+            print("Error logging in TAP server")
+            return
+        u = self._TapPlus__user
+        p = self._TapPlus__pwd
+        try:
+            print("Login to gaia data server")
+            TapPlus.login(self.__gaiadata, user=u, password=p,
+                          verbose=verbose)
+        except HTTPError as err:
+            print("Error logging in data server")
+            print("Logging out from TAP server")
+            TapPlus.logout(self, verbose=verbose)
 
     def login_gui(self, verbose=False):
         """Performs a login using a GUI dialog
@@ -113,24 +112,22 @@ class GaiaClass(TapPlus):
         verbose : bool, optional, default 'False'
             flag to display information about the process
         """
-        correct = True
         try:
-            print("Login to gaia TAP")
+            print("Login to gaia TAP server")
             TapPlus.login_gui(self, verbose=verbose)
-        except:
-            print("Error logging in tap")
-            correct = False
-        if correct:
-            u = self._TapPlus__user
-            p = self._TapPlus__pwd
-            try:
-                print("Login to gaia data")
-                TapPlus.login(self.__gaiadata, user=u, password=p,
-                              verbose=verbose)
-            except:
-                print("Error logging in data")
-                print("Logging out from tap")
-                TapPlus.logout(self, verbose=verbose)
+        except HTTPError as err:
+            print("Error logging in TAP server")
+            return
+        u = self._TapPlus__user
+        p = self._TapPlus__pwd
+        try:
+            print("Login to gaia data server")
+            TapPlus.login(self.__gaiadata, user=u, password=p,
+                          verbose=verbose)
+        except HTTPError as err:
+            print("Error logging in data server")
+            print("Logging out from TAP server")
+            TapPlus.logout(self, verbose=verbose)
 
     def logout(self, verbose=False):
         """Performs a logout
@@ -140,21 +137,17 @@ class GaiaClass(TapPlus):
         verbose : bool, optional, default 'False'
             flag to display information about the process
         """
-        correct = True
         try:
             TapPlus.logout(self, verbose=verbose)
-        except:
-            print("Error logging out tap")
-            correct = False
-        if correct:
-            print("Gaia TAP logout OK")
-            try:
-                TapPlus.logout(self.__gaiadata, verbose=verbose)
-            except:
-                correct = False
-                print("Error logging out data")
-        if correct:
-            print("Gaia data logout OK")
+        except HTTPError as err:
+            print("Error logging out TAP server")
+            return
+        print("Gaia TAP server logout OK")
+        try:
+            TapPlus.logout(self.__gaiadata, verbose=verbose)
+            print("Gaia data server logout OK")
+        except HTTPError as err:
+            print("Error logging out data server")
 
     def load_data(self,
                   ids,
