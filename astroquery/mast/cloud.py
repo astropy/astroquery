@@ -14,7 +14,7 @@ import requests
 from astropy.logger import log
 from astropy.utils.console import ProgressBarOrSpinner
 
-from ..exceptions import NoResultsWarning
+from ..exceptions import NoResultsWarning, InvalidQueryError
 
 from . import utils, fpl
 
@@ -89,7 +89,7 @@ class CloudAccess(object):  # pragma:no-cover
 
         path = utils.mast_relative_path(data_product["dataURI"])
         if path is None:
-            raise Exception("Unsupported mission {}".format(data_product['obs_collection']))
+            raise InvalidQueryError("Malformed data uri {}".format(data_product['dataURI']))
 
         path = path.lstrip("/")
 
