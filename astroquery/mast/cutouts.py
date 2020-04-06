@@ -56,7 +56,7 @@ def _parse_cutout_size(size):
     Returns
     -------
     response : array
-        Size array in the form [ny, nx] where nx/ny are quantities with units 
+        Size array in the form [ny, nx] where nx/ny are quantities with units
         either pixels or degrees.
     """
 
@@ -103,8 +103,8 @@ class TesscutClass(MastQueryWithLogin):
 
         super().__init__()
 
-        services = {"sector": {"path":"sector"},
-                    "astrocut": {"path":"astrocut"}}
+        services = {"sector": {"path": "sector"},
+                    "astrocut": {"path": "astrocut"}}
         self._service_api_connection._set_service_params(services, "tesscut")
 
     def get_sectors(self, coordinates=None, radius=0.2*u.deg, objectname=None):
@@ -283,19 +283,14 @@ class TesscutClass(MastQueryWithLogin):
 
         # Get Skycoord object for coordinates/object
         coordinates = _parse_input_location(coordinates, objectname)
-        
+
         param_dict = _parse_cutout_size(size)
         param_dict["ra"] = coordinates.ra.deg
         param_dict["dec"] = coordinates.dec.deg
 
-        #astrocut_request = "ra={}&dec={}&y={}&x={}&units={}".format(coordinates.ra.deg,
-        #                                                            coordinates.dec.deg,
-        #                                                            y, x, units)
         if sector:
-            #astrocut_request += "&sector={}".format(sector)
             param_dict["sector"] = sector
 
-        #response = self._request("GET", self._TESSCUT_URL+"astrocut", params=astrocut_request)
         response = self._service_api_connection.service_request_async("astrocut", param_dict)
         response.raise_for_status()  # Raise any errors
 

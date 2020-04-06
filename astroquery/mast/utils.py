@@ -112,6 +112,7 @@ def resolve_object(objectname):
 
     return coordinates
 
+
 def _parse_input_location(coordinates=None, objectname=None):
     """
     Convenience function to parse user input of coordinates and objectname.
@@ -148,6 +149,7 @@ def _parse_input_location(coordinates=None, objectname=None):
 
     return obj_coord
 
+
 def mast_relative_path(mast_uri):
     """
     Given a MAST dataURI, return the associated relative path.
@@ -156,7 +158,7 @@ def mast_relative_path(mast_uri):
     ----------
     mast_uri : str
         The MAST uri.
-    
+
     Returns
     -------
     response : str
@@ -164,8 +166,8 @@ def mast_relative_path(mast_uri):
     """
 
     response = _simple_request("https://mast.stsci.edu/api/v0.1/path_lookup/",
-                               {"uri":mast_uri})
+                               {"uri": mast_uri})
     result = response.json()
     uri_result = result.get(mast_uri)
-    
+
     return uri_result["path"]

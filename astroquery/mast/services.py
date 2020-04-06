@@ -115,7 +115,7 @@ class ServiceAPI(BaseQuery):
         Parameters
         ----------
         service_dict : dict
-            Dictionary of available service queries in the form 
+            Dictionary of available service queries in the form
             {service_name:{"path":service_path, "args":service_args}}
         service_name : str
             Name of the specific service, i.e. catalogs or tesscut
@@ -126,7 +126,7 @@ class ServiceAPI(BaseQuery):
 
         service_url = conf.server
         if server_prefix:
-            service_url = service_url.replace("mast",f"{service_name}.mast")
+            service_url = service_url.replace("mast", f"{service_name}.mast")
         else:
             service_url += f"/{service_name}"
 

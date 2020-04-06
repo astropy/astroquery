@@ -69,7 +69,6 @@ def patch_post(request):
 
     mp.setattr(mast.Observations, '_download_file', download_mockreturn)
     mp.setattr(mast.Catalogs, '_download_file', download_mockreturn)
-    #mp.setattr(mast.Tesscut, "_request", tesscut_get_mockreturn)
     mp.setattr(mast.Tesscut, '_download_file', tess_download_mockreturn)
 
     return mp
