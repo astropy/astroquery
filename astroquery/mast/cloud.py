@@ -80,7 +80,7 @@ class CloudAccess(object):  # pragma:no-cover
             if data_product['dataURI'].lower().startswith(mission):
                 return True
         return False
-            
+
     def get_cloud_uri(self, data_product, include_bucket=True, full_url=False):
         """
         For a given data product, returns the associated cloud URI.
