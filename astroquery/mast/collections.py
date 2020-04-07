@@ -42,7 +42,7 @@ class CatalogsClass(MastQueryWithLogin):
 
         services = {"panstarrs": {"path": "panstarrs/{data_release}/{table}.json",
                                   "args": {"data_release": "dr2", "table": "mean"}}}
-        self._service_api_connection._set_service_params(services, "catalogs", True)
+        self._service_api_connection.set_service_params(services, "catalogs", True)
 
         self.catalog_limit = None
         self._current_connection = None
@@ -111,7 +111,7 @@ class CatalogsClass(MastQueryWithLogin):
                   'radius': radius.deg}
 
         # Determine API connection and service name
-        if catalog.lower() in self._service_api_connection._SERVICES:
+        if catalog.lower() in self._service_api_connection.SERVICES:
             self._current_connection = self._service_api_connection
             service = catalog
         else:
@@ -246,7 +246,7 @@ class CatalogsClass(MastQueryWithLogin):
         radius = criteria.pop('radius', 0.2*u.deg)
 
         if objectname or coordinates:
-            coordinates = utils._parse_input_location(coordinates, objectname)
+            coordinates = utils.parse_input_location(coordinates, objectname)
 
         # if radius is just a number we assume degrees
         if isinstance(radius, (int, float)):
@@ -262,11 +262,11 @@ class CatalogsClass(MastQueryWithLogin):
 
         # Determine API connection, service name, and build filter set
         filters = None
-        if catalog.lower() in self._service_api_connection._SERVICES:
+        if catalog.lower() in self._service_api_connection.SERVICES:
             self._current_connection = self._service_api_connection
             service = catalog
 
-            if not self._current_connection._check_catalogs_criteria_params(criteria):
+            if not self._current_connection.check_catalogs_criteria_params(criteria):
                 raise InvalidQueryError("At least one non-positional criterion must be supplied.")
 
             for prop, value in criteria.items():
@@ -280,7 +280,7 @@ class CatalogsClass(MastQueryWithLogin):
                 if coordinates or objectname:
                     service += ".Position"
                 service += ".Rows"  # Using the rowstore version of the query for speed
-                filters = self._current_connection._build_filter_set("Mast.Catalogs.Tess.Cone",
+                filters = self._current_connection.build_filter_set("Mast.Catalogs.Tess.Cone",
                                                                      service, **criteria)
                 params["columns"] = "*"
             elif catalog.lower() == "ctl":
@@ -288,14 +288,14 @@ class CatalogsClass(MastQueryWithLogin):
                 if coordinates or objectname:
                     service += ".Position"
                 service += ".Rows"  # Using the rowstore version of the query for speed
-                filters = self._current_connection._build_filter_set("Mast.Catalogs.Tess.Cone",
+                filters = self._current_connection.build_filter_set("Mast.Catalogs.Tess.Cone",
                                                                      service, **criteria)
                 params["columns"] = "*"
             elif catalog.lower() == "diskdetective":
                 service = "Mast.Catalogs.Filtered.DiskDetective"
                 if coordinates or objectname:
                     service += ".Position"
-                filters = self._current_connection._build_filter_set("Mast.Catalogs.Dd.Cone",
+                filters = self._current_connection.build_filter_set("Mast.Catalogs.Dd.Cone",
                                                                      service, **criteria)
             else:
                 raise InvalidQueryError("Criteria query not available for {}".format(catalog))

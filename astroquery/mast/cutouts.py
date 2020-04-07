@@ -31,7 +31,7 @@ from ..utils import commons
 from ..exceptions import NoResultsWarning, InvalidQueryError, RemoteServiceError
 
 from . import conf
-from .utils import _parse_input_location
+from .utils import parse_input_location
 from .core import MastQueryWithLogin
 
 
@@ -105,7 +105,7 @@ class TesscutClass(MastQueryWithLogin):
 
         services = {"sector": {"path": "sector"},
                     "astrocut": {"path": "astrocut"}}
-        self._service_api_connection._set_service_params(services, "tesscut")
+        self._service_api_connection.set_service_params(services, "tesscut")
 
     def get_sectors(self, coordinates=None, radius=0.2*u.deg, objectname=None):
         """
@@ -136,7 +136,7 @@ class TesscutClass(MastQueryWithLogin):
         """
 
         # Get Skycoord object for coordinates/object
-        coordinates = _parse_input_location(coordinates, objectname)
+        coordinates = parse_input_location(coordinates, objectname)
 
         # If radius is just a number we assume degrees
         if isinstance(radius, (int, float)):
@@ -208,7 +208,7 @@ class TesscutClass(MastQueryWithLogin):
         """
 
         # Get Skycoord object for coordinates/object
-        coordinates = _parse_input_location(coordinates, objectname)
+        coordinates = parse_input_location(coordinates, objectname)
         size_dict = _parse_cutout_size(size)
 
         path = os.path.join(path, '')
@@ -220,7 +220,7 @@ class TesscutClass(MastQueryWithLogin):
         if sector:
             astrocut_request += "&sector={}".format(sector)
 
-        astrocut_url = self._service_api_connection._REQUEST_URL + "astrocut?" + astrocut_request
+        astrocut_url = self._service_api_connection.REQUEST_URL + "astrocut?" + astrocut_request
         zipfile_path = "{}tesscut_{}.zip".format(path, time.strftime("%Y%m%d%H%M%S"))
         self._download_file(astrocut_url, zipfile_path)
 
@@ -282,7 +282,7 @@ class TesscutClass(MastQueryWithLogin):
         """
 
         # Get Skycoord object for coordinates/object
-        coordinates = _parse_input_location(coordinates, objectname)
+        coordinates = parse_input_location(coordinates, objectname)
 
         param_dict = _parse_cutout_size(size)
         param_dict["ra"] = coordinates.ra.deg

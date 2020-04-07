@@ -36,7 +36,7 @@ from ..exceptions import (TimeoutError, InvalidQueryError, RemoteServiceError,
                           ResolverError, MaxResultsWarning,
                           NoResultsWarning, InputWarning, AuthenticationWarning)
 
-from . import conf, utils, fpl
+from . import conf, utils
 from .core import MastQueryWithLogin
 
 
@@ -175,12 +175,12 @@ class ObservationsClass(MastQueryWithLogin):
 
         # Build the mashup filter object and store it in the correct service_name entry
         if coordinates or objectname:
-            mashup_filters = self._portal_api_connection._build_filter_set("Mast.Caom.Cone",
+            mashup_filters = self._portal_api_connection.build_filter_set("Mast.Caom.Cone",
                                                                            "Mast.Caom.Filtered.Position",
                                                                            **criteria)
-            coordinates = utils._parse_input_location(coordinates, objectname)
+            coordinates = utils.parse_input_location(coordinates, objectname)
         else:
-            mashup_filters = self._portal_api_connection._build_filter_set("Mast.Caom.Cone",
+            mashup_filters = self._portal_api_connection.build_filter_set("Mast.Caom.Cone",
                                                                            "Mast.Caom.Filtered",
                                                                            **criteria)
 
@@ -551,7 +551,7 @@ class ObservationsClass(MastQueryWithLogin):
         for data_product in products:
 
             local_path = os.path.join(base_dir, data_product['obs_collection'], data_product['obs_id'])
-            data_url = self._portal_api_connection._MAST_DOWNLOAD_URL + "?uri=" + data_product["dataURI"]
+            data_url = self._portal_api_connection.MAST_DOWNLOAD_URL + "?uri=" + data_product["dataURI"]
 
             if not os.path.exists(local_path):
                 os.makedirs(local_path)
@@ -563,7 +563,7 @@ class ObservationsClass(MastQueryWithLogin):
             url = None
 
             try:
-                if self._cloud_connection is not None and fpl.has_path(data_product):
+                if self._cloud_connection is not None and self._cloud_connection.is_supported(data_product):
                     try:
                         self._cloud_connection.download_file(data_product, local_path, cache)
                     except Exception as ex:
@@ -618,7 +618,7 @@ class ObservationsClass(MastQueryWithLogin):
         download_file = "mastDownload_" + time.strftime("%Y%m%d%H%M%S")
         local_path = os.path.join(out_dir.rstrip('/'), download_file + ".sh")
 
-        response = self._download_file(self._portal_api_connection._MAST_BUNDLE_URL + ".sh",
+        response = self._download_file(self._portal_api_connection.MAST_BUNDLE_URL + ".sh",
                                        local_path, data=url_list, method="POST")
 
         status = "COMPLETE"

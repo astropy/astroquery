@@ -21,7 +21,7 @@ from ..exceptions import TimeoutError, NoResultsWarning
 from . import conf, utils
 
 
-def _fabric_json_to_table(json_obj):
+def _json_to_table(json_obj):
     """
     Takes a JSON object as returned from a MAST microservice request and turns it into an `~astropy.table.Table`.
 
@@ -103,12 +103,12 @@ class ServiceAPI(BaseQuery):
         if session:
             self._session = session
 
-        self._REQUEST_URL = conf.server + "/api/v0.1/"
-        self._SERVICES = {}
+        self.REQUEST_URL = conf.server + "/api/v0.1/"
+        self.SERVICES = {}
 
         self.TIMEOUT = conf.timeout
 
-    def _set_service_params(self, service_dict, service_name="", server_prefix=False):
+    def set_service_params(self, service_dict, service_name="", server_prefix=False):
         """
         Initialize the request url and available queries for a given service.
 
@@ -130,8 +130,8 @@ class ServiceAPI(BaseQuery):
         else:
             service_url += f"/{service_name}"
 
-        self._REQUEST_URL = f"{service_url}/api/v0.1/"
-        self._SERVICES = service_dict
+        self.REQUEST_URL = f"{service_url}/api/v0.1/"
+        self.SERVICES = service_dict
 
     def _request(self, method, url, params=None, data=None, headers=None,
                  files=None, stream=False, auth=None, cache=False):
@@ -197,7 +197,7 @@ class ServiceAPI(BaseQuery):
         """
 
         result = response.json()
-        result_table = _fabric_json_to_table(result)
+        result_table = _json_to_table(result)
 
         # Check for no results
         if not result_table:
@@ -214,7 +214,7 @@ class ServiceAPI(BaseQuery):
         Parameters
         ----------
         service : str
-           The MAST catalogs service to query. Should be present in self._SERVICES
+           The MAST catalogs service to query. Should be present in self.SERVICES
         params : dict
            JSON object containing service parameters.
         page_size : int, optional
@@ -232,7 +232,7 @@ class ServiceAPI(BaseQuery):
         -------
         response : list of `~requests.Response`
         """
-        service_config = self._SERVICES.get(service.lower())
+        service_config = self.SERVICES.get(service.lower())
         service_url = service_config.get('path')
         compiled_service_args = {}
 
@@ -243,7 +243,7 @@ class ServiceAPI(BaseQuery):
                 found_argument = kwargs.pop(service_argument, default_value)
             compiled_service_args[service_argument] = found_argument.lower()
 
-        request_url = self._REQUEST_URL + service_url.format(**compiled_service_args)
+        request_url = self.REQUEST_URL + service_url.format(**compiled_service_args)
         headers = {
             'User-Agent': self._session.headers['User-Agent'],
             'Content-type': 'application/x-www-form-urlencoded',
@@ -323,7 +323,7 @@ class ServiceAPI(BaseQuery):
 
         return catalog_params
 
-    def _check_catalogs_criteria_params(self, criteria):
+    def check_catalogs_criteria_params(self, criteria):
         """
         Tests a dict of passed criteria for Catalogs.MAST to ensure that at least one parameter is for a given criteria
 

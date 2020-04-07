@@ -16,7 +16,7 @@ from astropy.utils.console import ProgressBarOrSpinner
 
 from ..exceptions import NoResultsWarning, InvalidQueryError
 
-from . import utils, fpl
+from . import utils
 
 
 class CloudAccess(object):  # pragma:no-cover
@@ -44,6 +44,8 @@ class CloudAccess(object):  # pragma:no-cover
         import boto3
         import botocore
 
+        self.supported_missions = ["mast:hst/product", "mast:tess/product", "mast:kepler"]
+
         if profile is not None:
             self.boto3 = boto3.Session(profile_name=profile)
         else:
@@ -59,6 +61,26 @@ class CloudAccess(object):  # pragma:no-cover
             log.info("If you have not configured boto3, follow the instructions here: "
                      "https://boto3.readthedocs.io/en/latest/guide/configuration.html")
 
+    def is_supported(data_product):
+        """
+        Given a data product, determines if it is in a mission available in the cloud.
+
+        Parameters
+        ----------
+        data_product : `~astropy.table.Row`
+            Product to be validated.
+
+        Returns
+        -------
+        response : bool
+              Is the product from a supported mission.
+        """
+
+        for mission in self.supported_missions:
+            if data_product['dataURI'].lower().startswith(mission):
+                return True
+        return False
+            
     def get_cloud_uri(self, data_product, include_bucket=True, full_url=False):
         """
         For a given data product, returns the associated cloud URI.

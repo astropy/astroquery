@@ -20,7 +20,10 @@ from ..utils import commons
 from . import conf
 
 
-def _parse_type(dbtype):
+__all__ = ['resolve_object']
+
+
+def parse_type(dbtype):
     """
     Takes a data type as returned by a database call and regularizes it into a
     triplet of the form (human readable datatype, python datatype, default value).
@@ -113,7 +116,7 @@ def resolve_object(objectname):
     return coordinates
 
 
-def _parse_input_location(coordinates=None, objectname=None):
+def parse_input_location(coordinates=None, objectname=None):
     """
     Convenience function to parse user input of coordinates and objectname.
 

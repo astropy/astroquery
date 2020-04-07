@@ -48,7 +48,7 @@ def _prepare_service_request_string(json_obj):
     return 'request={}'.format(urlencode(request_string))
 
 
-def _mashup_json_to_table(json_obj, col_config=None):
+def _json_to_table(json_obj, col_config=None):
     """
     Takes a JSON object as returned from a Mashup request and turns it into an `~astropy.table.Table`.
 
@@ -82,7 +82,7 @@ def _mashup_json_to_table(json_obj, col_config=None):
             ignore_value = col_props.get("ignoreValue", None)
 
         # regularlizing the type
-        reg_type = utils._parse_type(atype)
+        reg_type = utils.parse_type(atype)
         atype = reg_type[1]
         ignore_value = reg_type[2] if (ignore_value is None) else ignore_value
 
@@ -119,10 +119,10 @@ class PortalAPI(BaseQuery):
         if session:
             self._session = session
 
-        self._MAST_REQUEST_URL = conf.server + "/api/v0/invoke"
-        self._COLUMNS_CONFIG_URL = conf.server + "/portal/Mashup/Mashup.asmx/columnsconfig"
-        self._MAST_DOWNLOAD_URL = conf.server + "/api/v0.1/Download/file"
-        self._MAST_BUNDLE_URL = conf.server + "/api/v0.1/Download/bundle"
+        self.MAST_REQUEST_URL = conf.server + "/api/v0/invoke"
+        self.COLUMNS_CONFIG_URL = conf.server + "/portal/Mashup/Mashup.asmx/columnsconfig"
+        self.MAST_DOWNLOAD_URL = conf.server + "/api/v0.1/Download/file"
+        self.MAST_BUNDLE_URL = conf.server + "/api/v0.1/Download/bundle"
 
         self.TIMEOUT = conf.timeout
         self.PAGESIZE = conf.pagesize
@@ -228,7 +228,7 @@ class PortalAPI(BaseQuery):
                    "Content-type": "application/x-www-form-urlencoded",
                    "Accept": "text/plain"}
 
-        response = self._request("POST", self._COLUMNS_CONFIG_URL,
+        response = self._request("POST", self.COLUMNS_CONFIG_URL,
                                  data=("colConfigId="+fetch_name), headers=headers)
 
         self._column_configs[service] = response[0].json()
@@ -244,7 +244,7 @@ class PortalAPI(BaseQuery):
         if more:
             mashup_request = {'service': all_name, 'params': {}, 'format': 'extjs'}
             req_string = _prepare_service_request_string(mashup_request)
-            response = self._request("POST", self._MAST_REQUEST_URL, data=req_string, headers=headers)
+            response = self._request("POST", self.MAST_REQUEST_URL, data=req_string, headers=headers)
             json_response = response[0].json()
 
             self._column_configs[service].update(json_response['data']['Tables'][0]
@@ -287,7 +287,7 @@ class PortalAPI(BaseQuery):
             if result['status'] == "ERROR":
                 raise RemoteServiceError(result.get('msg', "There was an error with your request."))
 
-            result_table = _mashup_json_to_table(result, col_config)
+            result_table = _json_to_table(result, col_config)
             result_list.append(result_table)
 
         all_results = vstack(result_list)
@@ -357,12 +357,12 @@ class PortalAPI(BaseQuery):
             mashup_request[prop] = value
 
         req_string = _prepare_service_request_string(mashup_request)
-        response = self._request("POST", self._MAST_REQUEST_URL, data=req_string, headers=headers,
+        response = self._request("POST", self.MAST_REQUEST_URL, data=req_string, headers=headers,
                                  retrieve_all=retrieve_all)
 
         return response
 
-    def _build_filter_set(self, column_config_name, service_name=None, **filters):
+    def build_filter_set(self, column_config_name, service_name=None, **filters):
         """
         Takes user input dictionary of filters and returns a filterlist that the Mashup can understand.
 
@@ -479,7 +479,7 @@ class PortalAPI(BaseQuery):
         headers = {"User-Agent": self._session.headers["User-Agent"],
                    "Content-type": "application/x-www-form-urlencoded",
                    "Accept": "text/plain"}
-        response = self._request("POST", self._COLUMNS_CONFIG_URL,
+        response = self._request("POST", self.COLUMNS_CONFIG_URL,
                                  data=("colConfigId={}".format(colconf_name)), headers=headers)
 
         column_dict = response[0].json()
@@ -507,9 +507,9 @@ class PortalAPI(BaseQuery):
             labels.append(field.get("text", colname))
 
             # datatype is a little more complicated
-            d_type = utils._parse_type(field.get("type", ""))[0]
+            d_type = utils.parse_type(field.get("type", ""))[0]
             if not d_type:
-                d_type = utils._parse_type(field.get("vot.datatype", ""))[0]
+                d_type = utils.parse_type(field.get("vot.datatype", ""))[0]
             data_types.append(d_type)
 
             # units
