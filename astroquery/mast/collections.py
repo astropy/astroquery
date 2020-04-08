@@ -101,9 +101,7 @@ class CatalogsClass(MastQueryWithLogin):
         coordinates = commons.parse_coordinates(coordinates)
 
         # if radius is just a number we assume degrees
-        if isinstance(radius, (int, float)):
-            radius = radius * u.deg
-        radius = coord.Angle(radius)
+        radius = coord.Angle(radius, u.deg)
 
         # basic params
         params = {'ra': coordinates.ra.deg,
@@ -249,9 +247,7 @@ class CatalogsClass(MastQueryWithLogin):
             coordinates = utils.parse_input_location(coordinates, objectname)
 
         # if radius is just a number we assume degrees
-        if isinstance(radius, (int, float)):
-            radius = radius * u.deg
-        radius = coord.Angle(radius)
+        radius = coord.Angle(radius, u.deg)
 
         # build query
         params = {}

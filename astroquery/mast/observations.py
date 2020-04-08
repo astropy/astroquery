@@ -163,7 +163,7 @@ class ObservationsClass(MastQueryWithLogin):
         # grabbing the observation type (science vs calibration)
         obstype = criteria.pop('obstype', None)
         if obstype:
-            warn_string = ("Criteria obstype argument will disappear in May 2019. "
+            warn_string = ("Criteria obstype argument disappeared in May 2019. "
                           "Criteria 'obstype' is now 'intentType', options are 'science' or 'calibration', "
                           "if intentType is not supplied all observations (science and calibration) are returned.")
             warnings.warn(warn_string, AstropyDeprecationWarning)
@@ -189,9 +189,7 @@ class ObservationsClass(MastQueryWithLogin):
 
         if coordinates:
             # if radius is just a number we assume degrees
-            if isinstance(radius, (int, float)):
-                radius = radius * u.deg
-            radius = coord.Angle(radius)
+            radius = coord.Angle(radius, u.deg)
 
             # build the coordinates string needed by Mast.Caom.Filtered.Position
             position = ', '.join([str(x) for x in (coordinates.ra.deg, coordinates.dec.deg, radius.deg)])
@@ -232,9 +230,7 @@ class ObservationsClass(MastQueryWithLogin):
         coordinates = commons.parse_coordinates(coordinates)
 
         # if radius is just a number we assume degrees
-        if isinstance(radius, (int, float)):
-            radius = radius * u.deg
-        radius = coord.Angle(radius)
+        radius = coord.Angle(radius, u.deg)
 
         service = 'Mast.Caom.Cone'
         params = {'ra': coordinates.ra.deg,
@@ -353,9 +349,7 @@ class ObservationsClass(MastQueryWithLogin):
         coordinates = commons.parse_coordinates(coordinates)
 
         # if radius is just a number we assume degrees
-        if isinstance(radius, (int, float)):
-            radius = radius * u.deg
-        radius = coord.Angle(radius)
+        radius = coord.Angle(radius, u.deg)
 
         # turn coordinates into the format
         position = ', '.join([str(x) for x in (coordinates.ra.deg, coordinates.dec.deg, radius.deg)])

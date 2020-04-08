@@ -139,9 +139,7 @@ class TesscutClass(MastQueryWithLogin):
         coordinates = parse_input_location(coordinates, objectname)
 
         # If radius is just a number we assume degrees
-        if isinstance(radius, (int, float)):
-            radius = radius * u.deg
-        radius = Angle(radius)
+        radius = Angle(radius, u.deg)
 
         params = {"ra": coordinates.ra.deg,
                   "dec": coordinates.dec.deg,
