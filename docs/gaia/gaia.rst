@@ -873,7 +873,7 @@ So, the first step, is to execute a query to obtain the identifiers, and then yo
   >>> print(ids)
   >>>
   >>> # Retrieve data products
-  >>> all = Gaia.load_data(ids=ids, format='fits', data_release=2)
+  >>> all = Gaia.load_data(ids=ids, format='fits', data_release='Gaia DR2')
 
   Retrieving data.
   Done.
