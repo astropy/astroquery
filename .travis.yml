@@ -58,27 +58,30 @@ jobs:
         # both short and long versions for remote-data to help test the
         # astropy test command.
         - os: linux
+          name: Remote data test with astropy dev, Python 3.7
           stage: Remote data tests
           env: EVENT_TYPE='push cron' DEBUG=True ASTROPY_VERSION=dev
                SETUP_CMD='test -R -V -a "--durations=50"'
                CONDA_DEPENDENCIES=$CONDA_DEPENDENCIES_REMOTE
 
         - stage: Initial tests
+          name: egg info
           env: PYTHON_VERSION=3.7 SETUP_CMD='egg_info'
 
-        # No need to run it from cron
-        # Try MacOS X
         - os: osx
+          name: OSX from cron
           stage: Cron tests
           env: EVENT_TYPE='cron'
 
         - os: linux
           stage: Initial tests
+          name: Python 3.7 and all dependencies
           env: SETUP_CMD='test --coverage'
 
         # Check for sphinx doc build warnings - we do this first because it
         # may run for a long time
         - os: linux
+          name: Docs build
           stage: Test docs, astropy dev, and without optional dependencies
           env: SETUP_CMD='build_docs -w'
 
@@ -90,20 +93,24 @@ jobs:
         # need to pin the version number to make this job work.
         # Test the oldest astropy version without optional dependencies.
         - os: linux
+          name: Oldest dependencies
           stage: Tests with other Python/Numpy versions
           env: PYTHON_VERSION=3.6 NUMPY_VERSION=1.14 KEYRING_VERSION='<12.0'
                ASTROPY_VERSION=3.0 APLPY_VERSION='<2.0' DEBUG=True
 
         - os: linux
+          name: Python 3.6, np 1.15, astropy 3.2
           stage: Tests with other Python/Numpy versions
           env: PYTHON_VERSION=3.6 NUMPY_VERSION=1.15 ASTROPY_VERSION=3.2
 
         - os: linux
+          name: Python 3.7, astropy dev
           stage: Test docs, astropy dev, and without optional dependencies
           env: ASTROPY_VERSION=development EVENT_TYPE='pull_request'
 
         # Try with optional dependencies disabled
         - os: linux
+          name: Python 3.8, mandatory dependencies only
           stage: Test docs, astropy dev, and without optional dependencies
           env: PYTHON_VERSION=3.8
                CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring'
@@ -112,12 +119,14 @@ jobs:
 
         # Do a PEP8 test with pycodestyle
         - os: linux
+          name: Code style
           stage: Initial tests
           env: MAIN_CMD='pycodestyle astroquery --count'
                SETUP_CMD='' EVENT_TYPE='push pull_request'
 
         # Do the windows test at the end as installing takes a long time
         - os: windows
+          name: Windows test
           stage: Windows test
           env: PYTHON_VERSION=3.7 SETUP_CMD='test'
 
@@ -137,6 +146,7 @@ jobs:
     allow_failures:
         # Allow remote-data tests to fail.
         - os: linux
+          name: Remote data test with astropy dev, Python 3.7
           stage: Remote data tests
           env: EVENT_TYPE='push cron' DEBUG=True ASTROPY_VERSION=dev
                SETUP_CMD='test -R -V -a "--durations=50"'
