@@ -411,7 +411,8 @@ class AlmaClass(QueryWithLogin):
         for fileLink in unique(files):
             try:
                 log.debug("Downloading {0} to {1}".format(fileLink, savedir))
-                check_filename = self._request('HEAD', fileLink, stream=True)
+                check_filename = self._request('HEAD', fileLink, auth=auth,
+                                               stream=True)
                 check_filename.raise_for_status()
                 if 'text/html' in check_filename.headers['Content-Type']:
                     raise ValueError("Bad query.  This can happen if you "
