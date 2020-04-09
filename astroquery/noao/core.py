@@ -22,13 +22,15 @@ class NoaoClass(BaseQuery):
     ADS_URL = f'{NAT_URL}/api/adv_search/fasearch'
     SIA_URL = f'{NAT_URL}/api/sia/voimg'
 
-    def __init__(self, which='voimg'):
-        """ set some parameters """
+    def __init__(self, which='file'):
+        """Return object used for searching the NOAO Archive.
+
+        Search either for Files (which=file) or HDUs (which=hdu)."""
         self._api_version = None
 
-        if which == 'vohdu':
+        if which == 'hdu':
             self.url = f'{self.NAT_URL}/api/sia/vohdu'
-        if which == 'voimg':
+        elif which == 'file':
             self.url = f'{self.NAT_URL}/api/sia/voimg'
         else:
             self.url = f'{self.NAT_URL}/api/sia/voimg'
@@ -56,18 +58,16 @@ class NoaoClass(BaseQuery):
             raise Exception(msg)
 
     @class_or_instance
-    def query_region(self, coordinate, radius='1', cache=True):
+    def query_region(self, coordinate, radius=1, cache=True):
         self.validate_version()
         ra, dec = coordinate.to_string('decimal').split()
         url = f'{self.url}?POS={ra},{dec}&SIZE={radius}&format=json'
         response = self._request('GET', url,
                                  timeout=self.TIMEOUT,
                                  cache=cache)
+        response.raise_for_status()
         return astropy.table.Table(data=response.json())
 
-    def _args_to_payload(self, *args):
-        # convert arguments to a valid requests payload
-        return dict
 
 
 Noao = NoaoClass()

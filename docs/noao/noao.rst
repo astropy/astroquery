@@ -1,5 +1,8 @@
 .. doctest-skip-all
-
+.. # To render rst files to HTML: python setup.py build_docs
+.. # When above stops working (astroquery removes helpers) do next:   
+.. # cd docs; make html
+   
 .. _astroquery.noao:
 
 ********************************
@@ -63,6 +66,7 @@ to query.  Specify the coordinates using the appropriate coordinate system from
 
 Reference/API
 =============
+
 
 .. automodapi:: astroquery.noao
     :no-inheritance-diagram:
