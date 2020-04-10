@@ -34,9 +34,9 @@ env:
         - MAIN_CMD='python setup.py'
         - NUMPY_VERSION=stable
         - ASTROPY_VERSION=stable
-        - CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring matplotlib pyregion jinja2 flask'
-        - CONDA_DEPENDENCIES_REMOTE='requests beautifulsoup4 html5lib keyring matplotlib pyregion jinja2 flask'
-        - PIP_DEPENDENCIES='https://github.com/keflavich/httpbin/archive/master.zip aplpy regions astropy_healpix mocpy>=0.5.2 pytest-dependency pytest-astropy pyvo'
+        - CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring matplotlib jinja2 flask'
+        - CONDA_DEPENDENCIES_REMOTE='requests beautifulsoup4 html5lib keyring matplotlib jinja2 flask'
+        - PIP_DEPENDENCIES='https://github.com/keflavich/httpbin/archive/master.zip aplpy pyregion regions astropy_healpix mocpy>=0.5.2 pytest-dependency pytest-astropy pyvo'
         - HTTP_BIN_CMD="import httpbin; httpbin.app.run()"
         - RUN_HTTPBIN='python -c "$HTTP_BIN_CMD" & ACTIVE_HTTPBIN=True'
         - SETUP_CMD='test'
@@ -92,12 +92,13 @@ jobs:
         # master for cron jobs.  secretstorage is a keyring dependency, we
         # need to pin the version number to make this job work.
         # Test the oldest astropy version without optional dependencies.
+        # Reproject is listed as dependency to avoid upgrading astropy
         - os: linux
           name: Oldest dependencies
           stage: Tests with other Python/Numpy versions
           env: PYTHON_VERSION=3.6 NUMPY_VERSION=1.14 KEYRING_VERSION='<12.0'
-               ASTROPY_VERSION=3.0 APLPY_VERSION='<2.0' DEBUG=True
-
+               ASTROPY_VERSION=3.0 DEBUG=True
+               PIP_DEPENDENCIES="`echo $PIP_DEPENDENCIES reproject==0.5 | sed 's/aplpy/aplpy<2.0/'`"
         - os: linux
           name: Python 3.6, np 1.15, astropy 3.2
           stage: Tests with other Python/Numpy versions
