@@ -11,11 +11,11 @@ from ..utils.class_or_instance import class_or_instance
 from . import conf
 
 
-__all__ = ['Noao', 'NoaoClass']  # specifies what to import
+__all__ = ['Noirlab', 'NoirlabClass']  # specifies what to import
 
 
 @async_to_sync
-class NoaoClass(BaseQuery):
+class NoirlabClass(BaseQuery):
 
     TIMEOUT = conf.timeout
     NAT_URL = conf.server
@@ -23,7 +23,7 @@ class NoaoClass(BaseQuery):
     SIA_URL = f'{NAT_URL}/api/sia/voimg'
 
     def __init__(self, which='file'):
-        """Return object used for searching the NOAO Archive.
+        """Return object used for searching the NOIRLab Archive.
 
         Search either for Files (which=file) or HDUs (which=hdu)."""
         self._api_version = None
@@ -50,8 +50,8 @@ class NoaoClass(BaseQuery):
     def validate_version(self):
         KNOWN_GOOD_API_VERSION = 2.0
         if (int(self.api_version) - int(KNOWN_GOOD_API_VERSION)) >= 1:
-            msg = (f'The astroquery.noao module is expecting an older version '
-                   f'of the {self.NAT_URL} API services.  '
+            msg = (f'The astroquery.noirlab module is expecting an older '
+                   f'version of the {self.NAT_URL} API services. '
                    f'Please upgrade to latest astroquery.  '
                    f'Expected version {KNOWN_GOOD_API_VERSION} but got '
                    f'{self.api_version} from the API.')
@@ -69,5 +69,4 @@ class NoaoClass(BaseQuery):
         return astropy.table.Table(data=response.json())
 
 
-
-Noao = NoaoClass()
+Noirlab = NoirlabClass()

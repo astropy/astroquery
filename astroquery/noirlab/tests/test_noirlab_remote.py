@@ -6,7 +6,7 @@ from astropy import units as u
 from astropy.coordinates import SkyCoord
 from astropy.tests.helper import remote_data
 # Local packages
-from .. import Noao
+from .. import Noirlab
 from . import expected as expsia
 # #!import pytest
 
@@ -17,11 +17,11 @@ from . import expected as expsia
 
 
 @remote_data
-class TestNoaoClass(object):
+class TestNoirlabClass(object):
 
     @classmethod
     def setup_class(cls):
-        cls.arch = Noao(which='voimg')
+        cls.arch = Noirlab(which='voimg')
 
     def test_query_region_1(self):
         """Ensure query gets at least the set of files we expect.

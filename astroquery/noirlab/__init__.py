@@ -1,3 +1,4 @@
+from astropy import config as _config
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """NSF's OIR Lab Astro Data Archive(Beta)
 -----------------------------------------
@@ -58,30 +59,29 @@ See also: gemini, nrao
 
 """
 
-from astropy import config as _config
-
 
 class Conf(_config.ConfigNamespace):
     """
-    Configuration parameters for `astroquery.noao`.
+    Configuration parameters for `astroquery.noirlab`.
     """
     server = _config.ConfigItem(
         ['https://astroarchive.noao.edu',
          ],
-        'Name of the NOAO server to use.'
+        'Name of the NOIRLAB server to use.'
         )
     timeout = _config.ConfigItem(
         30,
-        'Time limit for connecting to NOAO server.'
+        'Time limit for connecting to NOIRLAB server.'
         )
 
 
 conf = Conf()
 
-from .core import Noao, NoaoClass
+from .core import Noirlab, NoirlabClass  # noqa
 
 
-__all__ = ['Noao', 'NoaoClass',
+__all__ = ['Noirlab', 'NoirlabClass',
            'conf', 'Conf']
+
 
 # noqa

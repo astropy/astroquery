@@ -183,7 +183,7 @@ The following modules have been completed using a common API:
   nasa_ads/nasa_ads.rst
   ned/ned.rst
   nist/nist.rst
-  noao/noao.rst
+  noirlab/noirlab.rst
   nrao/nrao.rst
   nvas/nvas.rst
   simbad/simbad.rst
@@ -285,7 +285,7 @@ generally return a table listing the available data first.
   gemini/gemini.rst
   mast/mast.rst
   ned/ned.rst
-  noao/noao.rst
+  noirlab/noirlab.rst
   nrao/nrao.rst
   nvas/nvas.rst
   sdss/sdss.rst
