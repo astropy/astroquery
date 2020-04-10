@@ -59,8 +59,7 @@ class NoaoClass(BaseQuery):
     def query_region(self, coordinate, radius='1', cache=True):
         self.validate_version()
         ra, dec = coordinate.to_string('decimal').split()
-        size = radius
-        url = f'{self.url}?POS={ra},{dec}&SIZE={size}&format=json'
+        url = f'{self.url}?POS={ra},{dec}&SIZE={radius}&format=json'
         response = self._request('GET', url,
                                  timeout=self.TIMEOUT,
                                  cache=cache)
