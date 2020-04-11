@@ -19,17 +19,24 @@ from . import expected as expsia
 @remote_data
 class TestNoirlabClass(object):
 
-    @classmethod
-    def setup_class(cls):
-        cls.arch = Noirlab(which='voimg')
-
     def test_query_region_1(self):
-        """Ensure query gets at least the set of files we expect.
+        """Search FILES.
+        Ensure query gets at least the set of files we expect.
         Its ok if more files have been added to the remote Archive."""
 
         c = SkyCoord(ra=10.625*u.degree, dec=41.2*u.degree, frame='icrs')
-        r = self.arch.query_region(c, radius='0.1')
-        actual = set(list(r['md5sum'])[1:])
-        print(f'DBG: query_region_1; actual={actual}')
+        r = Noirlab(which='file').query_region(c, radius='0.1')
+        actual = set(list(r['md5sum']))
         expected = expsia.query_region_1
+        assert expected.issubset(actual)
+
+    def test_query_region_2(self):
+        """Search HDUs.
+        Ensure query gets at least the set of files we expect.
+        Its ok if more files have been added to the remote Archive."""
+
+        c = SkyCoord(ra=10.625*u.degree, dec=41.2*u.degree, frame='icrs')
+        r = Noirlab(which='hdu').query_region(c, radius='0.07')
+        actual = set(list(r['md5sum']))
+        expected = expsia.query_region_2
         assert expected.issubset(actual)
