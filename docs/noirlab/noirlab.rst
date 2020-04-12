@@ -3,38 +3,38 @@
 .. # When above stops working (astroquery removes helpers) do next:   
 .. # cd docs; make html
    
-.. _astroquery.noao:
+.. _astroquery.noirlab:
 
-********************************
-NOAO Queries (`astroquery.noao`)
-********************************
+**************************************
+NOIRLab Queries (`astroquery.noirlab`)
+**************************************
 
 Getting started
 ===============
 
 This module supports fetching the table of observation summaries from
-the `NOAO data archive <https://astroarchive.noao.edu/>`_. The `Rest API
+the `NOIRLab data archive <https://astroarchive.noao.edu/>`_. The `Rest API
 documentation <https://astroarchive.noao.edu/api/docs/>`_ is the most
 up-to-date info on the web-services used by this module.
 The archive is hosted at
 `NOIR-CSDC <https://nationalastro.org/programs/csdc/>`_.
 
 The results are returned in a `~astropy.table.Table`. The service
-can be queried using the :meth:`~astroquery.noao.NoaoClass.query_region`. The
+can be queried using the :meth:`~astroquery.noirlab.NoirlabClass.query_region`. The
 only required argument to this is the target coordinates around which
 to query.  Specify the coordinates using the appropriate coordinate system from
 `astropy.coordinates`. Here is a basic example:
 
 .. code-block:: python
                 
-    >>> from astroquery.noao import Noao
+    >>> from astroquery.noirlab import Noirlab
     >>> import astropy.coordinates as coord
     >>> from astropy import units as u
     >>> from astropy.coordinates import SkyCoord
     >>> coord = SkyCoord(ra=10.625*u.degree, dec=41.2*u.degree, frame='icrs')
 
-    >>> noao_file = Noao(which='file')
-    >>> results_file = noao_file.query_region(c, radius='0.1')
+    >>> noirlab_file = Noirlab(which='file')
+    >>> results_file = noirlab_file.query_region(c, radius='0.1')
     >>> print(results_file)
                                 archive_filename                             date_obs  ...             updated             
                                      str71                                    str10    ...              str32              
@@ -47,8 +47,8 @@ to query.  Specify the coordinates using the appropriate coordinate system from
     /net/archive/mtn/20151120/kp4m/2015B-2001/k4m_151121_031258_ori.fits.fz 2015-11-21 ... 2020-02-09T01:24:37.873559+00:00
     /net/archive/mtn/20151120/kp4m/2015B-2001/k4m_151121_041031_ori.fits.fz 2015-11-21 ... 2020-02-09T01:24:38.951230+00:00
     
-    >>> noao_hdu = Noao(which='hdu')
-    >>> results_hdu = noao_hdu.query_region(c, radius='0.1')
+    >>> noirlab_hdu = Noirlab(which='hdu')
+    >>> results_hdu = noirlab_hdu.query_region(c, radius='0.1')
     >>> print(results_hdu)
                                     archive_filename                                  caldat    date_obs  ...    ra    telescope
                                          str79                                        str10      str10    ...   str8      str6  
@@ -68,6 +68,6 @@ Reference/API
 =============
 
 
-.. automodapi:: astroquery.noao
+.. automodapi:: astroquery.noirlab
     :no-inheritance-diagram:
 
