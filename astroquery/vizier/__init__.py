@@ -3,8 +3,6 @@
 VizieR Query Tool
 -----------------
 
-:Author: Julien Woillez (jwoillez@gmail.com)
-
 This package is for querying the VizieR service, primarily hosted at:
 http://vizier.u-strasbg.fr
 
