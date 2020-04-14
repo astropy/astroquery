@@ -1,0 +1,61 @@
+\                                                                               
+\fixlen = T
+\RowsRetrieved =                 1
+\For detailed descriptions of the columns, go to http://exoplanetarchive.ipac.caltech.edu/docs/documentation.html and choose the appropriate table guide.
+\ 
+\ sourceid 
+\ ___ Mission specific source identification
+\ obsstart 
+\ ___ Time Series Minimum Calendar date time
+\ obsstop 
+\ ___ Time Series Maximum Calendar date time
+\ tstart (seconds) 
+\ ___ Time Series Minimum integer time
+\ tstop (seconds) 
+\ ___ Time Series Maximum integer time
+\ hjdstart (days) 
+\ ___ Time Series Minimum Julian Date
+\ hjdstop (days) 
+\ ___ Time Series Maximum Julian Date
+\ hjd_ref (days) 
+\ ___ Base Julian Date
+\ ra (degrees) 
+\ ___ Object Right Ascension
+\ dec (degrees) 
+\ ___ Object Declination
+\ wasp_mag (mag) 
+\ ___ WASP Magnitude
+\ npts 
+\ ___ Points in Light Curve
+\ tile 
+\ ___ tile directory
+\ tm_statnpts 
+\ ___ number of points used in TAMMAG2 statistics calculations
+\ tm_minvalue (mag) 
+\ ___ minimum value of TAMMAG2 column
+\ tm_maxvalue (mag) 
+\ ___ maximum value of TAMMAG2 column
+\ tm_mean (mag) 
+\ ___ mean value of TAMMAG2 column
+\ tm_stddevwrtmean (mag) 
+\ ___ Standard deviation with respect to mean of TAMMAG2 column
+\ tm_median (mag) 
+\ ___ median value of TAMMAG2 column
+\ tm_stddevwrtmed (mag) 
+\ ___ Standard deviation with respect to median of TAMMAG2 column
+\ tm_n5sigma 
+\ ___ Number of points beyond 5 stddev wrt TAMMAG2 median
+\ tm_f5sigma 
+\ ___ Fraction of points beyond 5 stddev wrt TAMMAG2 median
+\ tm_medabsdev (mag) 
+\ ___ Median absolute deviation of TAMMAG2 column
+\ tm_chisquared 
+\ ___ Reduced Chi Squared wrt TAMMAG2 median
+\ tm_range595 (mag) 
+\ ___ Range of TAMMAG2, excluding 5% of minimum and 5% of maximum
+\ 
+|                       sourceid|            obsstart|             obsstop|    tstart|     tstop|        hjdstart|         hjdstop|         hjd_ref|            ra|           dec|  wasp_mag|      npts|        tile| tm_statnpts|     tm_minvalue|     tm_maxvalue|         tm_mean| tm_stddevwrtmean|       tm_median| tm_stddevwrtmed| tm_n5sigma|      tm_f5sigma|    tm_medabsdev|   tm_chisquared|     tm_range595|
+|                           char|                char|                char|       int|       int|          double|          double|          double|        double|        double|    double|       int|        char|         int|          double|          double|          double|           double|          double|          double|        int|          double|          double|          double|          double|
+|                               |                    |                    |   seconds|   seconds|            days|            days|            days|       degrees|       degrees|       mag|          |            |            |             mag|             mag|             mag|              mag|             mag|             mag|           |                |             mag|                |             mag|
+|                           null|                null|                null|      null|      null|            null|            null|            null|          null|          null|      null|      null|        null|        null|            null|            null|            null|             null|            null|            null|       null|            null|            null|            null|            null|
+      1SWASP J191645.46+474912.3 2004-05-03 03:07:41. 2008-08-10 02:47:57.   10638492  145421472   2453128.630694   2454688.618889   2453005.500000     289.189422      47.820108   12.98015       9024   tile288132         9024     1.191550e+01     1.373334e+01     1.291358e+01      8.810864e-02     1.291308e+01     8.811005e-02          43         0.004765     3.188500e-02     1.207981e+01     2.710900e-01 

@@ -1,0 +1,329 @@
+\                                                                               
+\fixlen = T
+\RowsRetrieved =                 3
+\For detailed descriptions of the columns, go to http://exoplanetarchive.ipac.caltech.edu/docs/documentation.html and choose the appropriate table guide.
+\ 
+\ ra (degrees) 
+\ ___ RA Value [decimal degrees]
+\ dec (degrees) 
+\ ___ Dec Value [decimal degrees]
+\ tce_delivname 
+\ ___ Delivery Name
+\ tce_datalink_dvr 
+\ ___ Link to DVR file
+\ tce_datalink_dvs 
+\ ___ Link to DVS file
+\ tce_nkoi 
+\ ___ Number of Associated KOIs to the corresponding KepID
+\ kepid 
+\ ___ KIC Identification Number
+\ tce_plnt_num 
+\ ___ Planet Number
+\ tce_num_transits 
+\ ___ Number of transits detected in TCE
+\ tce_max_sngle_ev 
+\ ___ Single Event Statistics
+\ tce_max_mult_ev 
+\ ___ Multiple Event Statistics
+\ tce_fwm_sra_err 
+\ ___ Flux Weighted Centroid Motion of Source in RA Uncertainty
+\ tce_fwm_sra 
+\ ___ Flux Weighted Centroid Motion of Source in RA Value
+\ tce_fwm_sdec_err 
+\ ___ Flux Weighted Centroid Motion of Source in Dec Uncertainty
+\ tce_fwm_sdec 
+\ ___ Flux Weighted Centroid Motion of Source in Dec Value
+\ tce_fwm_srao_err 
+\ ___ Flux Weighted Centroid Motion Source offset in RA Uncertainty
+\ tce_fwm_srao 
+\ ___ Flux Weighted Centroid Motion Source offset in RA Value
+\ tce_fwm_sdeco_err 
+\ ___ Flux Weighted Centroid Motion Source offset in Dec Uncertainty
+\ tce_fwm_sdeco 
+\ ___ Flux Weighted Centroid Motion Source offset in Dec Value
+\ tce_fwm_prao_err 
+\ ___ Flux Weighted Centroid Motion Peak offset in RA Uncertainty
+\ tce_fwm_prao 
+\ ___ Flux Weighted Centroid Motion Peak offset in RA Value
+\ tce_fwm_pdeco_err 
+\ ___ Flux Weighted Centroid Motion Peak offset in Dec Uncertainty
+\ tce_fwm_pdeco 
+\ ___ Flux Weighted Centroid Motion Peak offset in Dec Value
+\ tce_fwm_stat 
+\ ___ Flux Weighted Centroid Motion Statistic Value
+\ tce_dicco_mdec_err 
+\ ___ Diff Image Control Centroid Single Fit Offset in Dec Uncertainty
+\ tce_dicco_mdec 
+\ ___ Diff Image Control Centroid Single Fit Offset in Dec Value
+\ tce_dicco_mra_err 
+\ ___ Diff Image Control Centroid Single Fit Offset in RA Uncertainty
+\ tce_dicco_mra 
+\ ___ Diff Image Control Centroid Single Fit Offset in RA Value
+\ tce_dicco_msky_err 
+\ ___ Diff Image Control Centroid Single Fit Offset in Sky Uncertainty
+\ tce_dicco_msky 
+\ ___ Diff Image Control Centroid Single Fit Offset in Sky Value
+\ tce_dikco_mdec_err 
+\ ___ Diff Image KIC Centroid Single Fit Offset in Dec Uncertainty
+\ tce_dikco_mdec 
+\ ___ Diff Image KIC Centroid Single Fit Offset in Dec Value
+\ tce_dikco_mra_err 
+\ ___ Diff Image KIC Centroid Single Fit Offset in RA Uncertainty
+\ tce_dikco_mra 
+\ ___ Diff Image KIC Centroid Single Fit Offset in RA Value
+\ tce_dikco_msky_err 
+\ ___ Diff Image KIC Centroid Single Fit Offset in Sky Uncertainty
+\ tce_dikco_msky 
+\ ___ Diff Image KIC Centroid Single Fit Offset in Sky Value
+\ tce_bin_oedp_stat 
+\ ___ Binary Discrimination Odd-even Depth Statistics
+\ tce_full_conv 
+\ ___ Full Convergence Flag
+\ tce_limbdark_mod 
+\ ___ Limb Darkening Model Name
+\ tce_ldm_coeff4 
+\ ___ Limb Darkening Coefficient 4
+\ tce_ldm_coeff3 
+\ ___ Limb Darkening Coefficient 3
+\ tce_ldm_coeff2 
+\ ___ Limb Darkening Coefficient 2
+\ tce_ldm_coeff1 
+\ ___ Limb Darkening Coefficient 1
+\ tce_trans_mod 
+\ ___ Transit Model Name
+\ tce_model_snr 
+\ ___ Model Signal to Noise Ratio
+\ tce_model_dof 
+\ ___ Model Degrees of Freedom
+\ tce_model_chisq 
+\ ___ Model Chi Square
+\ tce_time0bk_err (days) 
+\ ___ Time to First Transit Uncertainty [BKJD]
+\ tce_time0bk (days) 
+\ ___ Time to First Transit Value [BKJD]
+\ tce_eccen_err 
+\ ___ Eccentricity Uncertainty
+\ tce_eccen 
+\ ___ Eccentricity Value
+\ tce_longp_err (deg) 
+\ ___ Longitude of Periastron Uncertainty [deg]
+\ tce_longp (deg) 
+\ ___ Longitude of Periastron Value [deg]
+\ tce_prad_err (earth) 
+\ ___ Planet Radius Uncertainty [Earth radii]
+\ tce_prad (earth) 
+\ ___ Planet Radius Value [Earth radii]
+\ tce_sma_err (AU) 
+\ ___ Semi-Major Axis Uncertainty [AU]
+\ tce_sma (AU) 
+\ ___ Semi-Major Axis Value [AU]
+\ tce_impact_err 
+\ ___ Minimum Impact Parameter Uncertainty
+\ tce_impact 
+\ ___ Minimum Impact Parameter Value
+\ tce_duration_err (hours) 
+\ ___ Transit Duration Uncertainty [hrs]
+\ tce_duration (hours) 
+\ ___ Transit Duration Value [hrs]
+\ tce_ingress_err (hours) 
+\ ___ Transit Ingress Time Uncertainty [hrs]
+\ tce_ingress (hours) 
+\ ___ Transit Ingress Time Value [hrs]
+\ tce_depth_err (ppm) 
+\ ___ Transit Depth Uncertainty [ppm]
+\ tce_depth (ppm) 
+\ ___ Transit Depth Value [ppm]
+\ tce_period_err (days) 
+\ ___ Transit Period Uncertainty [days]
+\ tce_period (days) 
+\ ___ Transit Period Value [days]
+\ tce_ror_err 
+\ ___ Planet to Star Radius Uncertainty
+\ tce_ror 
+\ ___ Planet to Star Radius Value
+\ tce_dor_err 
+\ ___ SMA to Star Radius Uncertainty
+\ tce_dor 
+\ ___ SMA to Star Radius Value
+\ tce_incl_err (deg) 
+\ ___ Orbital Inclination Uncertainty [deg]
+\ tce_incl (deg) 
+\ ___ Orbital Inclination Value [deg]
+\ tce_eqt_err (K) 
+\ ___ Equilibrium Temperature Uncertainty [K]
+\ tce_eqt (K) 
+\ ___ Equilibrium Temperature Value [K]
+\ tce_steff_err (K) 
+\ ___ Effective Temperature Uncertainty [K]
+\ tce_steff (K) 
+\ ___ Effective Temperature Value [K]
+\ tce_slogg_err (cm/s**2) 
+\ ___ Stellar Surface Gravity Uncertainty [log10(cm/s**2)]
+\ tce_slogg (cm/s**2) 
+\ ___ Stellar Surface Gravity Value [log10(cm/s**2)]
+\ tce_smet_err (dex) 
+\ ___ Stellar Metallicity Uncertainty [dex]
+\ tce_smet (dex) 
+\ ___ Stellar Metallicity Value [dex]
+\ rowupdate 
+\ ___ Last Update Date
+\ tce_robstat 
+\ ___ Robust Statistics from planetCandidate
+\ tce_dof2 
+\ ___ Degrees of Freedom 2 from planetCandidate
+\ tce_dof1 
+\ ___ Degrees of Freedom 1 from planetCandidate
+\ tce_chisq2 
+\ ___ Chi Square 2 from planetCandidate
+\ tce_chisq1 
+\ ___ Chi Square 1 from planetCandidate
+\ tce_mesmad 
+\ ___ Weak Secondary MAD multi-event statistic
+\ tce_minmes 
+\ ___ Weak Secondary Minimum Multi-even Statistic
+\ tce_minmesd (days) 
+\ ___ Weak Secondary Minimum Multi-even Statistic phase [days]
+\ tce_maxmes 
+\ ___ Weak Secondary Maximun Multi-even Statistic
+\ tce_maxmesd (days) 
+\ ___ Weak Secondary Maximun Multi-even Statistic phase [days]
+\ tce_quarters 
+\ ___ Bit of Quarters Observed
+\ tce_steff_prov 
+\ ___ Stellar Effective Temperature Provenance
+\ tce_slogg_prov 
+\ ___ Stellar Surface Gravity Provenance
+\ tce_smet_prov 
+\ ___ Stellar Metallicity Provenance
+\ tce_sradius_prov 
+\ ___ Stellar Radius Provenance
+\ tce_sradius_err (solar) 
+\ ___ Stellar Radius Value [Solar radii]
+\ tce_sradius (solar) 
+\ ___ Stellar Radius Uncertainty [Solar radii]
+\ tce_rmesmad 
+\ ___ Calculated Ratio between MES and MAD MES
+\ tce_rsnrmes 
+\ ___ Calculated Ratio between SNR and MES
+\ tce_rminmes 
+\ ___ Calculated Ratio between minimum MES and MES
+\ tce_time0_err (days) 
+\ ___ Time to First Transit uncertainty [BJD]
+\ tce_time0 (days) 
+\ ___ Time to First Transit value [BJD]
+\ tce_ioflag 
+\ ___ Interesting Object Flag
+\ boot_fap 
+\ ___ Bootstrap False Alarm Probability
+\ boot_mesthresh 
+\ ___ Bootstrap MES Threshold
+\ boot_mesmean 
+\ ___ Bootstrap Mean of MES Distribution
+\ boot_messtd 
+\ ___ Bootstrap Standard Deviation of MES Distribution
+\ av_vf_pc (perc) 
+\ ___ Autovetter Planet Candidate Vote Fraction Value [percentage]
+\ av_vf_pc_err (perc) 
+\ ___ Autovetter Planet Candidate Vote Fraction Uncertainty [percentage
+\ av_vf_afp (perc) 
+\ ___ Autovetter Astrophysical False Positive Vote Fraction Value [perc
+\ av_vf_afp_err (perc) 
+\ ___ Autovetter Astrophysical False Positive Vote Fraction Uncertainty
+\ av_vf_ntp (perc) 
+\ ___ Autovetter Non Transiting Phenomena Vote Fraction Value [percenta
+\ av_vf_ntp_err (perc) 
+\ ___ Autovetter Non Transiting Phenomena Vote Fraction Uncertainty [pe
+\ av_pp_pc (perc) 
+\ ___ Autovetter Planet Candidate Posterior Probabilities [percentage]
+\ av_pp_afp (perc) 
+\ ___ Autovetter Astrophysical False Positive Posterior Probabilities [
+\ av_pp_ntp (perc) 
+\ ___ Autovetter Non Transiting Phenomena Posterior Probabilities [perc
+\ av_training_set 
+\ ___ Autovetter Training Set Label (PC=Planet Candidate, AFP=Astrophys
+\ av_pred_class 
+\ ___ Autovetter Predicted Classification (PC=Planet Candidate, AFP=Ast
+\ tce_chisqgofdof 
+\ ___ Chi Square Goodness of Fit
+\ tce_chisqgof 
+\ ___ Degrees of Freedom for the Chi Square Goodness of Fit
+\ tce_insol_err (Fearth) 
+\ ___ Insolation Flux Uncertainty [Earth Flux]
+\ tce_insol (Fearth) 
+\ ___ Insolation Flux Value [Earth Flux]
+\ tcet_period_err (days) 
+\ ___ Transit Period Uncertainty from Trapezoidal Fit
+\ tcet_period (days) 
+\ ___ Transit Period Value from Trapezoidal Fit
+\ tcet_time0bk_err (days) 
+\ ___ Time to First Transit Uncertainty from Trapezoidal Fit
+\ tcet_time0bk (days) 
+\ ___ Time to First Transit Value from Trapezoidal Fit
+\ tcet_time0_err (days) 
+\ ___ Time to First Transit Uncertainty from Trapezoidal Fit
+\ tcet_time0 (days) 
+\ ___ Time to First Transit Value from Trapezoidal Fit
+\ tcet_duration_err (hrs) 
+\ ___ Transit Duration Uncertainty from Trapezoidal Fit
+\ tcet_duration (hrs) 
+\ ___ Transit Duration Value from Trapezoidal Fit
+\ tcet_ingress_err (hrs) 
+\ ___ Transit Ingress Time Uncertainty from Trapezoidal Fit
+\ tcet_ingress (hrs) 
+\ ___ Transit Ingress Time Value from Trapezoidal Fit
+\ tcet_depth_err (ppm) 
+\ ___ Transit Depth Uncertainty from Trapezoidal Fit
+\ tcet_depth (ppm) 
+\ ___ Transit Depth Value from Trapezoidal Fit
+\ tcet_full_conv 
+\ ___ Full Convergence Flag for Trapezoidal Fit
+\ tcet_model_chisq 
+\ ___ Model Chi Square from Trapezoidal Fit
+\ tcet_model_dof 
+\ ___ Model Degrees of Freedom from Trapezoidal Fit
+\ wst_robstat 
+\ ___ Robust Statistics from Weak Secondary
+\ wst_depth (ppm) 
+\ ___ Transit Depth Value from Weak Secondary
+\ wst_depth_err (ppm) 
+\ ___ Transit Depth Uncertainty from Weak Secondary
+\ tce_mesmedian 
+\ ___ Weak Secondary Median Multi-event Statistic
+\ tce_albedo 
+\ ___ Geometric Planet Albedo Value
+\ tce_albedo_err 
+\ ___ Geometric Planet Albedo Uncertainty
+\ tce_ptemp (K) 
+\ ___ Planet Effective Temperature Value [K]
+\ tce_ptemp_err (K) 
+\ ___ Planet Effective Temperature Uncertainty [K]
+\ tce_albedo_stat 
+\ ___ Albedo Comparison Statistic
+\ tce_ptemp_stat 
+\ ___ Temperature Comparison Statistic
+\ tce_cap_stat 
+\ ___ Core Aperture Correlation Statistic
+\ tce_hap_stat 
+\ ___ Halo Aperture Correlation Statistic
+\ tce_rb_tpdur 
+\ ___ Test Pulse Duration
+\ tce_rb_tcount0 
+\ ___ Transit Counts for Severity Level = 0.0
+\ tce_rb_tcount1 
+\ ___ Transit Counts for Severity Level = 1.0
+\ tce_rb_tcount2 
+\ ___ Transit Counts for Severity Level = 2.0
+\ tce_rb_tcount3 
+\ ___ Transit Counts for Severity Level = 3.0
+\ tce_rb_tcount4 
+\ ___ Transit Counts for Severity Level = 4.0
+\ tce_rogue_flag 
+\ ___ Rogue TCE flag
+\ 
+|         ra|        dec|                    tce_delivname|                                                                                                                                                                                         tce_datalink_dvr|                                                                                                                                                                                         tce_datalink_dvs| tce_nkoi|     kepid| tce_plnt_num| tce_num_transits| tce_max_sngle_ev| tce_max_mult_ev| tce_fwm_sra_err| tce_fwm_sra| tce_fwm_sdec_err| tce_fwm_sdec| tce_fwm_srao_err| tce_fwm_srao| tce_fwm_sdeco_err| tce_fwm_sdeco| tce_fwm_prao_err| tce_fwm_prao| tce_fwm_pdeco_err| tce_fwm_pdeco| tce_fwm_stat| tce_dicco_mdec_err| tce_dicco_mdec| tce_dicco_mra_err| tce_dicco_mra| tce_dicco_msky_err| tce_dicco_msky| tce_dikco_mdec_err| tce_dikco_mdec| tce_dikco_mra_err| tce_dikco_mra| tce_dikco_msky_err| tce_dikco_msky| tce_bin_oedp_stat| tce_full_conv|                                                                                     tce_limbdark_mod| tce_ldm_coeff4| tce_ldm_coeff3| tce_ldm_coeff2| tce_ldm_coeff1|                                                                                        tce_trans_mod| tce_model_snr| tce_model_dof| tce_model_chisq|  tce_time0bk_err|      tce_time0bk| tce_eccen_err| tce_eccen| tce_longp_err| tce_longp| tce_prad_err|     tce_prad| tce_sma_err|    tce_sma| tce_impact_err| tce_impact| tce_duration_err| tce_duration| tce_ingress_err| tce_ingress| tce_depth_err|    tce_depth|   tce_period_err|       tce_period|      tce_ror_err|          tce_ror|      tce_dor_err|          tce_dor| tce_incl_err|  tce_incl| tce_eqt_err|   tce_eqt| tce_steff_err| tce_steff| tce_slogg_err| tce_slogg| tce_smet_err| tce_smet|               rowupdate| tce_robstat|  tce_dof2|  tce_dof1| tce_chisq2| tce_chisq1| tce_mesmad| tce_minmes| tce_minmesd| tce_maxmes| tce_maxmesd|                                       tce_quarters|                                                                                                           tce_steff_prov|                                                                                                           tce_slogg_prov|                                                                                                            tce_smet_prov|                                                                                                         tce_sradius_prov| tce_sradius_err|  tce_sradius| tce_rmesmad| tce_rsnrmes| tce_rminmes|        tce_time0_err|            tce_time0| tce_ioflag|     boot_fap| boot_mesthresh| boot_mesmean|  boot_messtd| av_vf_pc| av_vf_pc_err| av_vf_afp| av_vf_afp_err| av_vf_ntp| av_vf_ntp_err| av_pp_pc| av_pp_afp| av_pp_ntp| av_training_set| av_pred_class| tce_chisqgofdof| tce_chisqgof| tce_insol_err|    tce_insol|  tcet_period_err|      tcet_period| tcet_time0bk_err|     tcet_time0bk|       tcet_time0_err|           tcet_time0| tcet_duration_err| tcet_duration| tcet_ingress_err| tcet_ingress| tcet_depth_err|   tcet_depth| tcet_full_conv| tcet_model_chisq| tcet_model_dof| wst_robstat|    wst_depth| wst_depth_err| tce_mesmedian|   tce_albedo| tce_albedo_err|          tce_ptemp|      tce_ptemp_err| tce_albedo_stat| tce_ptemp_stat| tce_cap_stat| tce_hap_stat| tce_rb_tpdur| tce_rb_tcount0| tce_rb_tcount1| tce_rb_tcount2| tce_rb_tcount3| tce_rb_tcount4| tce_rogue_flag|
+|     double|     double|                             char|                                                                                                                                                                                                     char|                                                                                                                                                                                                     char|     long|      long|         long|             long|           double|          double|          double|      double|           double|       double|           double|       double|            double|        double|           double|       double|            double|        double|       double|             double|         double|            double|        double|             double|         double|             double|         double|            double|        double|             double|         double|            double|          char|                                                                                                 char|         double|         double|         double|         double|                                                                                                 char|        double|        double|          double|           double|           double|        double|    double|        double|    double|       double|       double|      double|     double|         double|     double|           double|       double|          double|      double|        double|       double|           double|           double|           double|           double|           double|           double|       double|    double|      double|    double|        double|    double|        double|    double|       double|   double|                    char|      double|    double|    double|     double|     double|     double|     double|      double|     double|      double|                                               char|                                                                                                                     char|                                                                                                                     char|                                                                                                                     char|                                                                                                                     char|          double|       double|      double|      double|      double|               double|               double|        int|       double|         double|       double|       double|   double|       double|    double|        double|    double|        double|   double|    double|    double|            char|          char|          double|       double|        double|       double|           double|           double|           double|           double|               double|               double|            double|        double|           double|       double|         double|       double|           char|           double|         double|      double|       double|        double|        double|       double|         double|             double|             double|          double|         double|       double|       double|          int|            int|            int|            int|            int|            int|            int|
+|    degrees|    degrees|                                 |                                                                                                                                                                                                         |                                                                                                                                                                                                         |         |          |             |                 |                 |                |                |            |                 |             |                 |             |                  |              |                 |             |                  |              |             |                   |               |                  |              |                   |               |                   |               |                  |              |                   |               |                  |              |                                                                                                     |               |               |               |               |                                                                                                     |              |              |                |             days|             days|              |          |           deg|       deg|        earth|        earth|          AU|         AU|               |           |            hours|        hours|           hours|       hours|           ppm|          ppm|             days|             days|                 |                 |                 |                 |          deg|       deg|           K|         K|             K|         K|       cm/s**2|   cm/s**2|          dex|      dex|                        |            |          |          |           |           |           |           |        days|           |        days|                                                   |                                                                                                                         |                                                                                                                         |                                                                                                                         |                                                                                                                         |           solar|        solar|            |            |            |                 days|                 days|           |             |               |             |             |     perc|         perc|      perc|          perc|      perc|          perc|     perc|      perc|      perc|                |              |                |             |        Fearth|       Fearth|             days|             days|             days|             days|                 days|                 days|               hrs|           hrs|              hrs|          hrs|            ppm|          ppm|               |                 |               |            |          ppm|           ppm|              |             |               |                  K|                  K|                |               |             |             |             |               |               |               |               |               |               |
+|       null|       null|                             null|                                                                                                                                                                                                     null|                                                                                                                                                                                                     null|     null|      null|         null|             null|             null|            null|            null|        null|             null|         null|             null|         null|              null|          null|             null|         null|              null|          null|         null|               null|           null|              null|          null|               null|           null|               null|           null|              null|          null|               null|           null|              null|          null|                                                                                                 null|           null|           null|           null|           null|                                                                                                 null|          null|          null|            null|             null|             null|          null|      null|          null|      null|         null|         null|        null|       null|           null|       null|             null|         null|            null|        null|          null|         null|             null|             null|             null|             null|             null|             null|         null|      null|        null|      null|          null|      null|          null|      null|         null|     null|                    null|        null|      null|      null|       null|       null|       null|       null|        null|       null|        null|                                               null|                                                                                                                     null|                                                                                                                     null|                                                                                                                     null|                                                                                                                     null|            null|         null|        null|        null|        null|                 null|                 null|       null|         null|           null|         null|         null|     null|         null|      null|          null|      null|          null|     null|      null|      null|            null|          null|            null|         null|          null|         null|             null|             null|             null|             null|                 null|                 null|              null|          null|             null|         null|           null|         null|           null|             null|           null|        null|         null|          null|          null|         null|           null|               null|               null|            null|           null|         null|         null|         null|           null|           null|           null|           null|           null|           null|
+  292.376130   47.880990                        q1_q16_tce                                                                                                                                              010/010601/010601284/dv/kplr010601284-20130815195353_dvr.pdf                                                                                                                                          010/010601/010601284/dv/kplr010601284-001-20130826182306_dvs.pdf         3   10601284             1               242             8.759            45.91         7.69e-06    19.491736          7.66e-05      47.88083             0.279        -0.208              0.276        -0.5758          0.000248     0.0001578           0.000249      0.0004988        15.752               0.129       -0.055505               0.12       0.027442               0.132        0.061918                0.13       -0.083805              0.124      -0.027848               0.137         0.08831             0.1173              1                                                            claret_nonlinear_limb_darkening_model_2011      -0.3064888       0.5308344       0.0348008       0.4946052                                                                   mandel-agol_geometric_transit_model           52.1           7535             6226        0.00116945           134.358              0          0              0          0        0.1267         2.841    6.144e-08     0.05747         0.04277      0.8951            0.1498         3.293           0.1943       0.4637          17.97         878.3       8.57802e-06           5.34957      0.0014407977       0.032299233         1.1705363          6.382976         1.875      81.94          237        918         182.00    5559.00           0.33       4.57         0.360    -0.180               2013-11-01        44.88        240       3374       273.2        2723       0.689      -3.675        3.034       1.521        2.125                                   11111111111111110                                                                                                                      PHO1                                                                                                                      KIC0                                                                                                                      KIC0                                                                                                                      DSEP            0.412         0.806        66.64        1.135      0.08005            0.00116945           2.45497e+06        null    0.0000e+00      7.3137e+00   -3.1077e-01    1.0832e+00      null          null       null           null       null           null      null       null       null             null           null             null          null           null          null              null              null              null              null                  null                  null               null           null              null          null            null          null            null              null            null         null          null           null           null          null            null                null                null             null            null          null          null          null            null            null            null            null            null            null 
+  292.376130   47.880990                        q1_q16_tce                                                                                                                                              010/010601/010601284/dv/kplr010601284-20130815195353_dvr.pdf                                                                                                                                          010/010601/010601284/dv/kplr010601284-003-20130826182306_dvs.pdf         3   10601284             3               140             4.259            9.734         3.73e-05    19.491815          0.000373     47.881681              1.35         2.655               1.34          2.487          0.000278    -0.0005516           0.000277     -0.0005129        23.444               0.922         0.36583              0.923      -0.060132               0.989         0.37074               0.896          0.3358              0.955      -0.084171               0.957         0.34619            0.01794              1                                                            claret_nonlinear_limb_darkening_model_2011      -0.3064888       0.5308344       0.0348008       0.4946052                                                                   mandel-agol_geometric_transit_model          10.26           4333             3492        0.00678325           132.813              0          0              0          0         1.548         1.192    4.542e-07     0.07584           6.661      0.5642            0.5594         3.561           0.8492      0.06942           20.5         205.5       7.28441e-05           8.10896       0.017604422       0.013551381          79.42903         14.647868         38.05      87.79          206        799         182.00    5559.00           0.33       4.57         0.360    -0.180               2013-11-01        9.215        129       1820         155        1618      0.6302      -2.945        5.231       2.242        5.871                                   11111111111111110                                                                                                                      PHO1                                                                                                                      KIC0                                                                                                                      KIC0                                                                                                                      DSEP            0.412         0.806        15.45        1.054       0.3025            0.00678325           2.45497e+06        null    1.4515e-20      7.3749e+00   -2.4535e-01    1.0820e+00      null          null       null           null       null           null      null       null       null             null           null             null          null           null          null              null              null              null              null                  null                  null               null           null              null          null            null          null            null              null            null         null          null           null           null          null            null                null                null             null            null          null          null          null            null            null            null            null            null            null 
+  292.376130   47.880990                        q1_q16_tce                                                                                                                                              010/010601/010601284/dv/kplr010601284-20130815195353_dvr.pdf                                                                                                                                          010/010601/010601284/dv/kplr010601284-002-20130826182306_dvs.pdf         3   10601284             2               318             4.303            22.24         1.56e-05    19.491761          0.000155     47.880904             0.565        0.6892              0.559        -0.3087          0.000218    -0.0002764           0.000216      0.0001157        6.3591               0.207         0.28157              0.219       -0.33409               0.214         0.43691               0.209         0.26764              0.213       -0.37881               0.212         0.46382             0.8804              1                                                            claret_nonlinear_limb_darkening_model_2011      -0.3064888       0.5308344       0.0348008       0.4946052                                                                   mandel-agol_geometric_transit_model           25.5           7861             6440        0.00177842           132.146              0          0              0          0        0.3623         1.871    8.295e-08     0.04688          0.2073      0.8898            0.3355         2.724           0.4853       0.2532          16.35         384.9       1.04602e-05           3.94105       0.004119551       0.021270624          4.644786         5.5410096         9.985      80.76          262   1.02e+03         182.00    5559.00           0.33       4.57         0.360    -0.180               2013-11-01        21.26        301       4228       355.4        4013      0.8351      -4.353      -0.7398       2.532      -0.6334                                   11111111111111110                                                                                                                      PHO1                                                                                                                      KIC0                                                                                                                      KIC0                                                                                                                      DSEP            0.412         0.806        26.64        1.146       0.1957            0.00177842           2.45497e+06        null    1.7171e-95      7.3499e+00   -3.2950e-01    1.0904e+00      null          null       null           null       null           null      null       null       null             null           null             null          null           null          null              null              null              null              null                  null                  null               null           null              null          null            null          null            null              null            null         null          null           null           null          null            null                null                null             null            null          null          null          null            null            null            null            null            null            null 

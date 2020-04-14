@@ -1,0 +1,62 @@
+\                                                                               
+\fixlen = T
+\RowsRetrieved =                 4
+\For detailed descriptions of the columns, go to http://exoplanetarchive.ipac.caltech.edu/docs/documentation.html and choose the appropriate table guide.
+\ 
+\ kelt_sourceid 
+\ ___ Mission specific source identification
+\ kelt_field 
+\ ___ Field Designation
+\ kelt_orientation 
+\ ___ Orientation
+\ proc_type 
+\ ___ Raw or TFA (processed)
+\ kelt_proc_version 
+\ ___ Pipeline Processing version
+\ ra (degrees) 
+\ ___ Right Ascension
+\ dec (degrees) 
+\ ___ Declination
+\ kelt_mag (mag) 
+\ ___ KELT Magnitude
+\ obsstart 
+\ ___ Time Series Minimum Calendar date time
+\ obsstop 
+\ ___ Time Series Maximum Calendar date time
+\ bjdstart (days) 
+\ ___ Time Series Minimum Barycentric Julian Date
+\ bjdstop (days) 
+\ ___ Time Series Maximum Barycentric Julian Date
+\ mean (mag) 
+\ ___ mean value of MAG column
+\ stddevwrtmean (mag) 
+\ ___ Standard deviation with respect to mean of MAG column
+\ median (mag) 
+\ ___ median value of MAG column
+\ stddevwrtmedian (mag) 
+\ ___ Standard deviation with respect to median of MAG column
+\ npts 
+\ ___ number of points used in MAG statistics calculations
+\ n5sigma 
+\ ___ Number of points beyond 5 stddev wrt MAG median
+\ f5sigma 
+\ ___ Fraction of points beyond 5 stddev wrt MAG median
+\ medabsdev (mag) 
+\ ___ Median absolute deviation of MAG column
+\ chisquared 
+\ ___ Reduced Chi Squared wrt MAG median
+\ range595 (mag) 
+\ ___ Range of MAG, excluding 5% of minimum and 5% of maximum
+\ minvalue (mag) 
+\ ___ minimum value of MAG column
+\ maxvalue (mag) 
+\ ___ maximum value of MAG column
+\ 
+|                  kelt_sourceid| kelt_field| kelt_orientation|  proc_type| kelt_proc_version|         ra|        dec| kelt_mag|             obsstart|              obsstop|        bjdstart|         bjdstop|            mean|   stddevwrtmean|          median| stddevwrtmedian|      npts|   n5sigma|         f5sigma|       medabsdev|      chisquared|        range595|        minvalue|        maxvalue|
+|                           char|       char|             char|       char|              char|     double|     double|   double|                 char|                 char|          double|          double|          double|          double|          double|          double|       int|       int|          double|          double|          double|          double|          double|          double|
+|                               |           |                 |           |                  |    degrees|    degrees|      mag|                     |                     |            days|            days|             mag|             mag|             mag|             mag|          |          |                |             mag|                |             mag|             mag|             mag|
+|                           null|       null|             null|       null|              null|       null|       null|     null|                 null|                 null|            null|            null|            null|            null|            null|            null|      null|      null|            null|            null|            null|            null|            null|            null|
+     KELT_N02_lc_012738_V01_east         N02              east         raw                V01    29.51427    31.13517     9.436 2006-10-26 04:44:09.0 2008-11-24 04:44:47.0   2454034.697330   2454794.697772         9.443621         0.008355         9.441470         0.008628       1792          5         0.002790         0.003515      1363.735600         0.024190         9.427310         9.545380 
+     KELT_N02_lc_012738_V01_east         N02              west         raw                V01    29.51427    31.13517     9.426 2006-10-27 07:06:26.0 2008-11-24 09:34:38.0   2454035.796138   2454794.899059         9.434596         0.014582         9.430600         0.015120        602          2         0.003322         0.007460      3195.136376         0.044900         9.400200         9.515560 
+     KELT_N02_lc_012738_V01_east         N02              east         tfa                V01    29.51427    31.13517     9.436 2006-10-26 04:44:09.0 2008-11-24 04:44:47.0   2454034.697330   2454794.697772         9.443536         0.003670         9.443130         0.003692       1787          2         0.001119         0.002230       207.649374         0.012010         9.431510         9.468870 
+     KELT_N02_lc_012738_V01_east         N02              west         tfa                V01    29.51427    31.13517     9.426 2006-10-27 07:06:26.0 2008-11-24 09:34:38.0   2454035.796138   2454794.899059         9.432847         0.008349         9.431880         0.008405        596          1         0.001678         0.005635       906.483858         0.024990         9.414320         9.478380 

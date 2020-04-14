@@ -1,0 +1,319 @@
+\                                                                               
+\fixlen = T
+\RowsRetrieved =                 3
+\For detailed descriptions of the columns, go to http://exoplanetarchive.ipac.caltech.edu/docs/documentation.html and choose the appropriate table guide.
+\ 
+\ kepid 
+\ ___ KIC Identification Number
+\ kepoi_name 
+\ ___ Kepler Object of Interest Name
+\ kepler_name 
+\ ___ Kepler Name (confirmed planet)
+\ ra (degrees) 
+\ ___ RA Value [decimal degrees]
+\ ra_err (degrees) 
+\ ___ RA Uncertainty [decimal degrees]
+\ ra_str 
+\ ___ RA Value [sexagesimal]
+\ dec (degrees) 
+\ ___ Dec Value [decimal degrees]
+\ dec_err (degrees) 
+\ ___ Dec Uncertainty [decimal degrees]
+\ dec_str 
+\ ___ Dec Value [sexagesiamal]
+\ koi_gmag (mags) 
+\ ___ Stellar g (Sloan) Magnitude Value
+\ koi_gmag_err (mags) 
+\ ___ Stellar g (Sloan) Magnitude Uncertainty
+\ koi_rmag (mags) 
+\ ___ Stellar r (Sloan) Magnitude Value
+\ koi_rmag_err (mags) 
+\ ___ Stellar r (Sloan) Magnitude Uncertainty
+\ koi_imag (mags) 
+\ ___ Stellar i (Sloan) Magnitude Value
+\ koi_imag_err (mags) 
+\ ___ Stellar i (Sloan) Magnitude Uncertainty
+\ koi_zmag (mags) 
+\ ___ Stellar z (Sloan) Magnitude Value
+\ koi_zmag_err (mags) 
+\ ___ Stellar z (Sloan) Magnitude Uncertainty
+\ koi_jmag (mags) 
+\ ___ Stellar J (2MASS) Magnitude Value
+\ koi_jmag_err (mags) 
+\ ___ Stellar J (2MASS) Magnitude Uncertainty
+\ koi_hmag (mags) 
+\ ___ Stellar H (2MASS) Magnitude Value
+\ koi_hmag_err (mags) 
+\ ___ Stellar H (2MASS) Magnitude Uncertainty
+\ koi_kmag (mags) 
+\ ___ Stellar K (2MASS) Magnitude Value
+\ koi_kmag_err (mags) 
+\ ___ Stellar K (2MASS) Magnitude Uncertainty
+\ koi_kepmag (mags) 
+\ ___ Stellar Kepler-band  Magnitude Value
+\ koi_kepmag_err (mags) 
+\ ___ Stellar Kepler-band  Magnitude Uncertainty
+\ koi_delivname 
+\ ___ Delivery Name
+\ koi_vet_stat 
+\ ___ Delivery Vetting Status
+\ koi_quarters 
+\ ___ Bit of Quarters
+\ koi_disposition 
+\ ___ Exoplanet Archive Disposition
+\ koi_pdisposition 
+\ ___ Disposition using Kepler Data
+\ koi_count 
+\ ___ Number of KOIs Identified in the System
+\ koi_num_transits 
+\ ___ Number of Transits Detected
+\ koi_max_sngle_ev 
+\ ___ Single Event Statistics
+\ koi_max_mult_ev 
+\ ___ Multiple Event Statistics
+\ koi_bin_oedp_sig 
+\ ___ Binary Discrimination odd-even Depth Significance
+\ koi_limbdark_mod 
+\ ___ Limb Darkening Model Name
+\ koi_ldm_coeff4 
+\ ___ Limb Darkening Coefficient 4
+\ koi_ldm_coeff3 
+\ ___ Limb Darkening Coefficient 3
+\ koi_ldm_coeff2 
+\ ___ Limb Darkening Coefficient 2
+\ koi_ldm_coeff1 
+\ ___ Limb Darkening Coefficient 1
+\ koi_trans_mod 
+\ ___ Transit Model Name
+\ koi_model_snr 
+\ ___ Model Signal to Noise Ratio
+\ koi_model_dof 
+\ ___ Model degrees of Freedom
+\ koi_model_chisq 
+\ ___ Model Chi Square
+\ koi_time0bk (BKJD) 
+\ ___ Time to First Transit Value [BKJD=BJD-2454833]
+\ koi_time0bk_err1 (BKJD) 
+\ ___ Time to First Transit Upper Uncertainty [BKJD]
+\ koi_time0bk_err2 (BKJD) 
+\ ___ Time to First Transit Lower Uncertainty [BKJD]
+\ koi_eccen 
+\ ___ Eccentricity Value
+\ koi_eccen_err1 
+\ ___ Eccentricity Upper Uncertainty
+\ koi_eccen_err2 
+\ ___ Eccentricity Lower Uncertainty
+\ koi_longp (deg) 
+\ ___ Longitude of Periastron Value [deg]
+\ koi_longp_err1 (deg) 
+\ ___ Longitude of Periastron Upper Uncertainty [deg]
+\ koi_longp_err2 (deg) 
+\ ___ Longitude of Periastron Lower Uncertainty [deg]
+\ koi_prad (Rearth) 
+\ ___ Planet Radius Value [Earth radii]
+\ koi_prad_err1 (Rearth) 
+\ ___ Planet Radius Upper Uncertainty [Earth radii]
+\ koi_prad_err2 (Rearth) 
+\ ___ Planet Radius Lower Uncertainty [Earth radii]
+\ koi_sma (AU) 
+\ ___ Semi-Major Axis Value [AU]
+\ koi_sma_err1 (AU) 
+\ ___ Semi-Major Axis Upper Uncertainty [AU]
+\ koi_sma_err2 (AU) 
+\ ___ Semi-Major Axis Lower Uncertainty [AU]
+\ koi_impact 
+\ ___ Minimun Impact Parameter Value
+\ koi_impact_err1 
+\ ___ Minimun Impact Parameter Upper Uncertainty
+\ koi_impact_err2 
+\ ___ Minimun Impact Parameter Lower Uncertainty
+\ koi_duration (hours) 
+\ ___ Transit Duration Value [hours]
+\ koi_duration_err1 (hours) 
+\ ___ Transit Duration Upper Uncertainty [hours]
+\ koi_duration_err2 (hours) 
+\ ___ Transit Duration Lower Uncertainty [hours]
+\ koi_ingress (hours) 
+\ ___ Transit Ingress Time Value [hours]
+\ koi_ingress_err1 (hours) 
+\ ___ Transit Ingress Time Upper Uncertainty [hours]
+\ koi_ingress_err2 (hours) 
+\ ___ Transit Ingress Time Lower Uncertainty [hours]
+\ koi_depth (ppm) 
+\ ___ Transit Depth Value [ppm]
+\ koi_depth_err1 (ppm) 
+\ ___ Transit Depth Upper Uncertainty [ppm]
+\ koi_depth_err2 (ppm) 
+\ ___ Transit Depth Lower Uncertainty [ppm]
+\ koi_period (days) 
+\ ___ Transit Period Value [days]
+\ koi_period_err1 (days) 
+\ ___ Transit Period Upper Uncertainty [days]
+\ koi_period_err2 (days) 
+\ ___ Transit Period Lower Uncertainty [days]
+\ koi_ror 
+\ ___ Planet-Star Radius Ratio Value
+\ koi_ror_err1 
+\ ___ Planet-Star Radius Ratio Upper Uncertainty
+\ koi_ror_err2 
+\ ___ Planet-Star Radius Ratio Lower Uncertainty
+\ koi_dor 
+\ ___ Planet-Star Distance over Star Radius Value
+\ koi_dor_err1 
+\ ___ Planet-Star Distance over Star Radius Upper Uncertainty
+\ koi_dor_err2 
+\ ___ Planet-Star Distance over Star Radius Lower Uncertainty
+\ koi_incl (deg) 
+\ ___ Orbital Inclination Value [deg]
+\ koi_incl_err1 (deg) 
+\ ___ Orbital Inclination Upper Uncertainty [deg]
+\ koi_incl_err2 (deg) 
+\ ___ Orbital inclination Lower Uncertainty [deg]
+\ koi_teq (K) 
+\ ___ Equilibrium Temperature Value [K]
+\ koi_teq_err1 (K) 
+\ ___ Equilibrium Temperature Upper Uncertainty [K]
+\ koi_teq_err2 (K) 
+\ ___ Equilibrium Temperature Lower Uncertainty [K]
+\ koi_steff (K) 
+\ ___ Stellar Effective Temperature Value [K]
+\ koi_steff_err1 (K) 
+\ ___ Stellar Effective Temperature Upper Uncertainty [K]
+\ koi_steff_err2 (K) 
+\ ___ Stellar Effective Temperature Lower Uncertainty [K]
+\ koi_slogg (cm/s**2) 
+\ ___ Stellar Surface Gravity Value [log10(cm/s**2)]
+\ koi_slogg_err1 (cm/s**2) 
+\ ___ Stellar Surface Gravity Upper Uncertainty [log10(cm/s**2)]
+\ koi_slogg_err2 (cm/s**2) 
+\ ___ Stellar Surface Gravity Lower Uncertainty [log10(cm/s**2)]
+\ koi_smet (dex) 
+\ ___ Stellar Metallicity Value [dex]
+\ koi_smet_err1 (dex) 
+\ ___ Stellar Metallicity Upper Uncertainty [dex]
+\ koi_smet_err2 (dex) 
+\ ___ Stellar Metallicity Lower Uncertainty [dex]
+\ koi_srad (Rsun) 
+\ ___ Stellar Radius Value [Solar radii]
+\ koi_srad_err1 (Rsun) 
+\ ___ Stellar Radius Upper Uncertainty [Solar radii]
+\ koi_srad_err2 (Rsun) 
+\ ___ Stellar Radius Lower Uncertainty [Solar radii]
+\ koi_smass (Msun) 
+\ ___ Stellar Mass Value [Solar mass]
+\ koi_smass_err1 (Msun) 
+\ ___ Stellar Mass Upper Uncertainty [Solar mass]
+\ koi_smass_err2 (Msun) 
+\ ___ Stellar Mass Lower Uncertainty [Solar mass]
+\ koi_sage (Gyr) 
+\ ___ Stellar Age Value [Gyr]
+\ koi_sage_err1 (Gyr) 
+\ ___ Stellar Age Upper Uncertainty [Gyr]
+\ koi_sage_err2 (Gyr) 
+\ ___ Stellar Age Lower Uncertainty [Gyr]
+\ koi_sparprov 
+\ ___ Stellar Parameters Provenance
+\ koi_fwm_stat_sig 
+\ ___ Flux Weighted Centroid Motion Statistic Significance
+\ koi_fwm_sra 
+\ ___ Flux Weighted Centroid Motion of Source in RA Value
+\ koi_fwm_sra_err 
+\ ___ Flux Weighted Centroid Motion of Source in RA Uncertainty
+\ koi_fwm_sdec 
+\ ___ Flux Weighted Centroid Motion of Source in Dec Value
+\ koi_fwm_sdec_err 
+\ ___ Flux Weighted Centroid Motion of Source in Dec Uncertainty
+\ koi_fwm_srao 
+\ ___ Flux Weighted Centroid Motion Source Offset in RA Value
+\ koi_fwm_srao_err 
+\ ___ Flux Weighted Centroid Motion Source Offset in RA Uncertainty
+\ koi_fwm_sdeco 
+\ ___ Flux Weighted Centroid Motion Source Offset in Dec Value
+\ koi_fwm_sdeco_err 
+\ ___ Flux Weighted Centroid Motion Source Offset in Dec Uncertainty
+\ koi_fwm_prao 
+\ ___ Flux Weighted Centroid Motion Peak Offset in RA Value
+\ koi_fwm_prao_err 
+\ ___ Flux Weighted Centroid Motion Peak Offset in RA Uncertainty
+\ koi_fwm_pdeco 
+\ ___ Flux Weighted Centroid Motion Peak Offset in Dec Value
+\ koi_fwm_pdeco_err 
+\ ___ Flux Weighted Centroid Motion Peak Offset in Dec Uncertainty
+\ koi_dicco_mra 
+\ ___ Diff Image Control Centroid Single Fit Offset in RA Value
+\ koi_dicco_mra_err 
+\ ___ Diff Image Control Centroid Single Fit Offset in RA Uncertainty
+\ koi_dicco_mdec 
+\ ___ Diff Image Control Centroid Single Fit Offset in Dec Value
+\ koi_dicco_mdec_err 
+\ ___ Diff Image Control Centroid Single Fit Offset in Dec Uncertainty
+\ koi_dicco_msky 
+\ ___ Diff Image Control Centroid Single Fit Offset in Sky Value
+\ koi_dicco_msky_err 
+\ ___ Diff Image Control Centroid Single Fit Offset in Sky Uncertainty
+\ koi_dikco_mra 
+\ ___ Diff Image KIC Centroid Single Fit Offset in RA Value
+\ koi_dikco_mra_err 
+\ ___ Diff Image KIC Centroid Single Fit Offset in RA Uncertainty
+\ koi_dikco_mdec 
+\ ___ Diff Image KIC Centroid Single Fit Offset in Dec Value
+\ koi_dikco_mdec_err 
+\ ___ Diff Image KIC Centroid Single Fit Offset in Dec Uncertainty
+\ koi_dikco_msky 
+\ ___ Diff Image KIC Centroid Single Fit Offset in Sky Value
+\ koi_dikco_msky_err 
+\ ___ Diff Image KIC Centroid Single Fit Offset in Sky Uncertainty
+\ koi_comment 
+\ ___ Comment
+\ koi_vet_date 
+\ ___ Vetting Status Date
+\ koi_tce_plnt_num 
+\ ___ TCE Planet Number
+\ koi_tce_delivname 
+\ ___ TCE Delivery Name
+\ koi_datalink_dvs 
+\ ___ Link to DVS file
+\ koi_disp_prov 
+\ ___ Disposition Provenance
+\ koi_parm_prov 
+\ ___ KOI Parameter Provenance
+\ koi_time0 (BJD) 
+\ ___ Time to First Transit Value [BJD]
+\ koi_time0_err1 (BJD) 
+\ ___ Time to First Transit Upper Uncertainty [BJD]
+\ koi_time0_err2 (BJD) 
+\ ___ Time to First Transit Lower Uncertainty [BJD]
+\ koi_datalink_dvr 
+\ ___ Link to DVR file
+\ koi_fpflag_nt 
+\ ___ Non-transit Like False Positive Flag
+\ koi_fpflag_ss 
+\ ___ Significant Secondary False Positive Flag
+\ koi_fpflag_co 
+\ ___ Centroid Offset False Positive Flag
+\ koi_fpflag_ec 
+\ ___ Ephemeris Match Indicates Contamination False Positive Flag
+\ koi_insol 
+\ ___ Insolation Flux Value [Earth flux]
+\ koi_insol_err1 
+\ ___ Insolation Flux Upper Uncertainty [Earth flux]
+\ koi_insol_err2 
+\ ___ Insolation Flux Lower Uncertainty [Earth flux]
+\ koi_srho 
+\ ___ Fitted Stellar Density Value [g/cm*3]
+\ koi_srho_err1 
+\ ___ Fitted Stellar Density Upper Uncertainty [g/cm*3]
+\ koi_srho_err2 
+\ ___ Fitted Stellar Density Lower Uncertainty [g/cm*3]
+\ koi_fittype 
+\ ___ Planetary Fit Type  (LS, MCMC, DV, none, etc.)
+\ koi_score 
+\ ___ Kepler Object of Interest Score
+\ 
+|    kepid|           kepoi_name|          kepler_name|              ra|          ra_err|                                                                                                                   ra_str|             dec|         dec_err|                                                                                                                  dec_str| koi_gmag| koi_gmag_err| koi_rmag| koi_rmag_err| koi_imag| koi_imag_err| koi_zmag| koi_zmag_err| koi_jmag| koi_jmag_err| koi_hmag| koi_hmag_err| koi_kmag| koi_kmag_err| koi_kepmag| koi_kepmag_err|                    koi_delivname|     koi_vet_stat|                                       koi_quarters|           koi_disposition|          koi_pdisposition| koi_count| koi_num_transits| koi_max_sngle_ev| koi_max_mult_ev| koi_bin_oedp_sig|                                                                                     koi_limbdark_mod| koi_ldm_coeff4| koi_ldm_coeff3| koi_ldm_coeff2| koi_ldm_coeff1|                                                                                        koi_trans_mod| koi_model_snr| koi_model_dof| koi_model_chisq|  koi_time0bk| koi_time0bk_err1| koi_time0bk_err2| koi_eccen| koi_eccen_err1| koi_eccen_err2| koi_longp| koi_longp_err1| koi_longp_err2|   koi_prad| koi_prad_err1| koi_prad_err2|    koi_sma| koi_sma_err1| koi_sma_err2| koi_impact| koi_impact_err1| koi_impact_err2| koi_duration| koi_duration_err1| koi_duration_err2| koi_ingress| koi_ingress_err1| koi_ingress_err2|    koi_depth| koi_depth_err1| koi_depth_err2|         koi_period|  koi_period_err1|  koi_period_err2|          koi_ror| koi_ror_err1| koi_ror_err2|      koi_dor| koi_dor_err1| koi_dor_err2|  koi_incl| koi_incl_err1| koi_incl_err2|   koi_teq| koi_teq_err1| koi_teq_err2| koi_steff| koi_steff_err1| koi_steff_err2| koi_slogg| koi_slogg_err1| koi_slogg_err2| koi_smet| koi_smet_err1| koi_smet_err2| koi_srad| koi_srad_err1| koi_srad_err2| koi_smass| koi_smass_err1| koi_smass_err2|     koi_sage| koi_sage_err1| koi_sage_err2|                                                                                                                                                                                             koi_sparprov| koi_fwm_stat_sig|  koi_fwm_sra| koi_fwm_sra_err| koi_fwm_sdec| koi_fwm_sdec_err| koi_fwm_srao| koi_fwm_srao_err| koi_fwm_sdeco| koi_fwm_sdeco_err| koi_fwm_prao| koi_fwm_prao_err| koi_fwm_pdeco| koi_fwm_pdeco_err| koi_dicco_mra| koi_dicco_mra_err| koi_dicco_mdec| koi_dicco_mdec_err| koi_dicco_msky| koi_dicco_msky_err| koi_dikco_mra| koi_dikco_mra_err| koi_dikco_mdec| koi_dikco_mdec_err| koi_dikco_msky| koi_dikco_msky_err|                                                                                                                                                                                                                                                                                                  koi_comment| koi_vet_date| koi_tce_plnt_num|                koi_tce_delivname|                                                                                                                                                                                         koi_datalink_dvs|                    koi_disp_prov|                    koi_parm_prov|        koi_time0|   koi_time0_err1|   koi_time0_err2|                                                                                                                                                                                         koi_datalink_dvr| koi_fpflag_nt| koi_fpflag_ss| koi_fpflag_co| koi_fpflag_ec|    koi_insol| koi_insol_err1| koi_insol_err2|    koi_srho| koi_srho_err1| koi_srho_err2|          koi_fittype| koi_score|
+|     long|                 char|                 char|          double|          double|                                                                                                                     char|          double|          double|                                                                                                                     char|   double|       double|   double|       double|   double|       double|   double|       double|   double|       double|   double|       double|   double|       double|     double|         double|                             char|             char|                                               char|                      char|                      char|       int|             long|           double|          double|           double|                                                                                                 char|         double|         double|         double|         double|                                                                                                 char|        double|        double|          double|       double|           double|           double|    double|         double|         double|    double|         double|         double|     double|        double|        double|     double|       double|       double|     double|          double|          double|       double|            double|            double|      double|           double|           double|       double|         double|         double|             double|           double|           double|           double|       double|       double|       double|       double|       double|    double|        double|        double|    double|       double|       double|    double|         double|         double|    double|         double|         double|   double|        double|        double|   double|        double|        double|    double|         double|         double|       double|        double|        double|                                                                                                                                                                                                     char|           double|       double|          double|       double|           double|       double|           double|        double|            double|       double|           double|        double|            double|        double|            double|         double|             double|         double|             double|        double|            double|         double|             double|         double|             double|                                                                                                                                                                                                                                                                                                         char|         char|             long|                             char|                                                                                                                                                                                                     char|                             char|                             char|           double|           double|           double|                                                                                                                                                                                                     char|           int|           int|           int|           int|       double|         double|         double|      double|        double|        double|                 char|    double|
+|         |                     |                     |         degrees|         degrees|                                                                                                                         |         degrees|         degrees|                                                                                                                         |     mags|         mags|     mags|         mags|     mags|         mags|     mags|         mags|     mags|         mags|     mags|         mags|     mags|         mags|       mags|           mags|                                 |                 |                                                   |                          |                          |          |                 |                 |                |                 |                                                                                                     |               |               |               |               |                                                                                                     |              |              |                |         BKJD|             BKJD|             BKJD|          |               |               |       deg|            deg|            deg|     Rearth|        Rearth|        Rearth|         AU|           AU|           AU|           |                |                |        hours|             hours|             hours|       hours|            hours|            hours|          ppm|            ppm|            ppm|               days|             days|             days|                 |             |             |             |             |             |       deg|           deg|           deg|         K|            K|            K|         K|              K|              K|   cm/s**2|        cm/s**2|        cm/s**2|      dex|           dex|           dex|     Rsun|          Rsun|          Rsun|      Msun|           Msun|           Msun|          Gyr|           Gyr|           Gyr|                                                                                                                                                                                                         |                 |             |                |             |                 |             |                 |              |                  |             |                 |              |                  |              |                  |               |                   |               |                   |              |                  |               |                   |               |                   |                                                                                                                                                                                                                                                                                                             |             |                 |                                 |                                                                                                                                                                                                         |                                 |                                 |              BJD|              BJD|              BJD|                                                                                                                                                                                                         |              |              |              |              |             |               |               |            |              |              |                     |          |
+|     null|                 null|                 null|            null|            null|                                                                                                                     null|            null|            null|                                                                                                                     null|     null|         null|     null|         null|     null|         null|     null|         null|     null|         null|     null|         null|     null|         null|       null|           null|                             null|             null|                                               null|                      null|                      null|      null|             null|             null|            null|             null|                                                                                                 null|           null|           null|           null|           null|                                                                                                 null|          null|          null|            null|         null|             null|             null|      null|           null|           null|      null|           null|           null|       null|          null|          null|       null|         null|         null|       null|            null|            null|         null|              null|              null|        null|             null|             null|         null|           null|           null|               null|             null|             null|             null|         null|         null|         null|         null|         null|      null|          null|          null|      null|         null|         null|      null|           null|           null|      null|           null|           null|     null|          null|          null|     null|          null|          null|      null|           null|           null|         null|          null|          null|                                                                                                                                                                                                     null|             null|         null|            null|         null|             null|         null|             null|          null|              null|         null|             null|          null|              null|          null|              null|           null|               null|           null|               null|          null|              null|           null|               null|           null|               null|                                                                                                                                                                                                                                                                                                         null|         null|             null|                             null|                                                                                                                                                                                                     null|                             null|                             null|             null|             null|             null|                                                                                                                                                                                                     null|          null|          null|          null|          null|         null|           null|           null|        null|          null|          null|                 null|      null|
+  10601284             K00749.01          Kepler-226 c       292.376130         0.000000                                                                                                              19h29m30.27s        47.880989         0.000000                                                                                                              +47d52m51.6s    15.988          null    15.363          null    15.172          null    15.093          null    14.114         0.029    13.724         0.035    13.633         0.052      15.416            null                         q1_q8_koi              Done                                                null                  CONFIRMED                  CANDIDATE          3              null              null             null              null                                                                     Claret (2011 A&A 529 75) ATLAS LS         -0.3359          0.6032         -0.0120          0.5021                                                                    Mandel and Agol (2002 ApJ 580 171)          64.50           null             1.26      171.8047            0.0019           -0.0019          0            null            null       null            null            null        2.37           0.66          -0.66       0.058          null          null        0.52             0.35            -0.35        3.1011               null               null         null              null              null           835            null            null            5.349569           3.1e-05          -3.1e-05             0.027        0.0018       -0.0018          11.7           4.2          -4.2      87.66           null           null      914.0          null          null    5559.00           88.00          -88.00      4.580           0.300          -0.300      null           null           null    0.8100         0.2200        -0.2200     0.9120          0.0370         -0.0370           0.5            3.9           -3.9                                                                                                                                                                                              Pinsonneault             0.071  19.491732000      0.000010000   47.88089000        0.00011000      -0.03400           0.03600       -0.02200            0.02600       2.9e-05           1.6e-05        1.9e-05            1.1e-05        -0.0500             0.1600         -0.1800              0.1600          0.1900              0.1600        -0.1000             0.1600         -0.1800              0.1500          0.2000              0.1600                                                                                                                                                                                                                                                                                                          null    2014-01-07              null                              null                                                                                                                                                                                                      null                         q1_q8_koi                         q1_q8_koi       2455004.805            0.0019           -0.0019                                                                                                                                                                                                      null           null           null           null           null          null            null            null         null           null           null                  null       null 
+  10601284             K00749.02          Kepler-226 b       292.376130         0.000000                                                                                                              19h29m30.27s        47.880989         0.000000                                                                                                              +47d52m51.6s    15.988          null    15.363          null    15.172          null    15.093          null    14.114         0.029    13.724         0.035    13.633         0.052      15.416            null                         q1_q8_koi              Done                                                null                  CONFIRMED                  CANDIDATE          3              null              null             null              null                                                                     Claret (2011 A&A 529 75) ATLAS LS         -0.3359          0.6032         -0.0120          0.5021                                                                    Mandel and Agol (2002 ApJ 580 171)          30.90           null             1.18      136.0879            0.0035           -0.0035          0            null            null       null            null            null        1.66           0.46          -0.46       0.047          null          null        0.65             0.28            -0.28        2.4849               null               null         null              null              null           385            null            null            3.941046           4.1e-05          -4.1e-05            0.0189        0.0013       -0.0013           9.5           3.4          -3.4      85.94           null           null     1015.0          null          null    5559.00           88.00          -88.00      4.580           0.300          -0.300      null           null           null    0.8100         0.2200        -0.2200     0.9120          0.0370         -0.0370           0.5            3.9           -3.9                                                                                                                                                                                              Pinsonneault             0.174  19.491763000      0.000021000   47.88103000        0.00023000       0.07700           0.07400        0.01000            0.05400      -2.9e-05           1.4e-05         -4e-06              1e-05        -0.5400             0.2500          0.2900              0.1500          0.6100              0.2400        -0.5700             0.2600          0.2900              0.2200          0.6400              0.2500                                                                                                                                                                                                                                                                                                          null    2014-01-07              null                              null                                                                                                                                                                                                      null                         q1_q8_koi                         q1_q8_koi       2454969.088            0.0035           -0.0035                                                                                                                                                                                                      null           null           null           null           null          null            null            null         null           null           null                  null       null 
+  10601284             K00749.03          Kepler-226 d       292.376130         0.000000                                                                                                              19h29m30.27s        47.880989         0.000000                                                                                                              +47d52m51.6s    15.988          null    15.363          null    15.172          null    15.093          null    14.114         0.029    13.724         0.035    13.633         0.052      15.416            null                         q1_q8_koi              Done                                                null                  CONFIRMED          NOT DISPOSITIONED          3              null              null             null              null                                                                     Claret (2011 A&A 529 75) ATLAS LS         -0.3359          0.6032         -0.0120          0.5021                                                                    Mandel and Agol (2002 ApJ 580 171)          15.00           null             1.24      132.7947            0.0073           -0.0073          0            null            null       null            null            null        1.42            0.4           -0.4       0.077          null          null        0.62             0.31            -0.31         3.244               null               null         null              null              null           286            null            null             8.10938           0.00016          -0.00016            0.0161        0.0013       -0.0013          15.4           5.5          -5.5      87.66           null           null      793.0          null          null    5559.00           88.00          -88.00      4.580           0.300          -0.300      null           null           null    0.8100         0.2200        -0.2200     0.9120          0.0370         -0.0370           0.5            3.9           -3.9                                                                                                                                                                                              Pinsonneault              null          null             null          null              null          null              null           null               null          null              null           null               null           null               null            null                null            null                null           null               null            null                null            null                null                                                                                                                                                                                                                                                                                                          null    2014-01-07              null                              null                                                                                                                                                                                                      null                         q1_q8_koi                         q1_q8_koi       2454965.795            0.0073           -0.0073                                                                                                                                                                                                      null           null           null           null           null          null            null            null         null           null           null                  null       null 

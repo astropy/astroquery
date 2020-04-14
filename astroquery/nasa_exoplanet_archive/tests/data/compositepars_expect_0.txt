@@ -1,0 +1,256 @@
+\                                                                               
+\fixlen = T
+\RowsRetrieved =                 1
+\
+\WARNING: Data in this composite table are automatically combined from multiple sources in order to be as complete as possible, and should be used with caution; self-consistency is not guaranteed across a given row. See http://exoplanetarchive.ipac.caltech.edu/docs/composite_about.html for more information.
+\
+\For detailed descriptions of the columns, go to http://exoplanetarchive.ipac.caltech.edu/docs/documentation.html and choose the appropriate table guide.
+\ 
+\ ra (degrees) 
+\ ___ RA Value [decimal degrees]
+\ ra_str 
+\ ___ RA Value [sexagesimal]
+\ dec (degrees) 
+\ ___ Dec Value [decimal degrees]
+\ dec_str 
+\ ___ Dec Value [sexagesimal]
+\ fst_posreflink 
+\ ___ RA/Dec Reference HTML Link
+\ fst_dist (pc) 
+\ ___ Distance Value [pc]
+\ fst_disterr1 (pc) 
+\ ___ Distance Upper Uncertainty [pc]
+\ fst_disterr2 (pc) 
+\ ___ Distance Lower Uncertainty [pc]
+\ fst_distlim 
+\ ___ Distance Limit Flag (0="=", +1=">", -1="<")
+\ fst_distreflink 
+\ ___ Distance Reference HTML Link
+\ fst_optmag (mags) 
+\ ___ Stellar Optical Magnitude Value [mags]
+\ fst_optmagerr (mags) 
+\ ___ Stellar Optical Magnitude Uncertainty
+\ fst_optmaglim 
+\ ___ Stellar Optical Magnitude Limit Flag (0="=", +1=">", -1="<")
+\ fst_optmagband 
+\ ___ Stellar Optical Magnitude Band Name
+\ fst_optmagreflink 
+\ ___ Stellar Optical Magnitude Reference HTML Link
+\ fst_nirmag (mags) 
+\ ___ Stellar Near-IR Magnitude Value [mags]
+\ fst_nirmagerr (mags) 
+\ ___ Stellar Near-IR Magnitude Uncertainty
+\ fst_nirmaglim 
+\ ___ Stellar Near-IR Magnitude Limit Flag (0="=", +1=">", -1="<")
+\ fst_nirmagband 
+\ ___ Stellar Near-IR Magnitude Band Name
+\ fst_nirmagreflink 
+\ ___ Stellar Near-IR Magnitude Reference HTML Link
+\ fst_spt 
+\ ___ Stellar Spectral Type Value
+\ fst_sptlim 
+\ ___ Stellar Spectral Type Limit Flag (0="=", +1=">", -1="<")
+\ fst_sptreflink 
+\ ___ Stellar Spectral Reference HTML Link
+\ fst_teff (K) 
+\ ___ Stellar Effective Temperature Value [K]
+\ fst_tefferr1 (K) 
+\ ___ Stellar Effective Temperature Upper Uncertainty [K]
+\ fst_tefferr2 (K) 
+\ ___ Stellar Effective Temperature Lower Uncertainty [K]
+\ fst_tefflim 
+\ ___ Stellar Effective Temperature Limit Flag (0="=", +1=">", -1="<")
+\ fst_teffreflink 
+\ ___ Stellar Effective Temperature Reference HTML Link
+\ fst_logg (cm/s**2) 
+\ ___ Stellar Surface Gravity Value [log10(cm/s**2)]
+\ fst_loggerr1 (cm/s**2) 
+\ ___ Stellar Surface Gravity Upper Uncertainty [log10(cm/s**2)]
+\ fst_loggerr2 (cm/s**2) 
+\ ___ Stellar Surface Gravity Lower Uncertainty [log10(cm/s**2)]
+\ fst_logglim 
+\ ___ Stellar Surface Gravity Limit Flag (0="=", +1=">", -1="<")
+\ fst_loggreflink 
+\ ___ Stellar Surface Gravity Reference HTML Link
+\ fst_lum (logLsun) 
+\ ___ Stellar Luminosity Value [log(Solar)]
+\ fst_lumerr1 (logLsun) 
+\ ___ Stellar Luminosity Upper Uncertainty [log(Solar)]
+\ fst_lumerr2 (logLsun) 
+\ ___ Stellar Luminosity Lower Uncertainty [log(Solar)]
+\ fst_lumlim 
+\ ___ Stellar Luminosity Limit Flag (0="=", +1=">", -1="<")
+\ fst_lumreflink 
+\ ___ Stellar Luminosity Reference HTML Link
+\ fst_met (dex) 
+\ ___ Stellar Metallicity Value [dex]
+\ fst_meterr1 (dex) 
+\ ___ Stellar Metallicity Upper Uncertainty [dex]
+\ fst_meterr2 (dex) 
+\ ___ Stellar Metallicity Lower Uncertainty [dex]
+\ fst_metlim 
+\ ___ Stellar Metallicity Limit Flag (0="=", +1=">", -1="<")
+\ fst_metratio 
+\ ___ Stellar Metallicity ([Fe/H], [Mg/Fe], [O/H])
+\ fst_metreflink 
+\ ___ Stellar Metallicity Reference HTML Link
+\ fst_rad (Rsun) 
+\ ___ Stellar Radius Value [Solar radii]
+\ fst_raderr1 (Rsun) 
+\ ___ Stellar Radius Upper Uncertainty [Solar radii]
+\ fst_raderr2 (Rsun) 
+\ ___ Stellar Radius Lower Uncertainty [Solar radii]
+\ fst_radlim 
+\ ___ Stellar Radius Limit Flag (0="=", +1=">", -1="<")
+\ fst_radreflink 
+\ ___ Stellar Radius Reference HTML Link
+\ fst_mass (Msun) 
+\ ___ Stellar Mass Value [Solar mass]
+\ fst_masserr1 (Msun) 
+\ ___ Stellar Mass Upper Uncertainty [Solar mass]
+\ fst_masserr2 (Msun) 
+\ ___ Stellar Mass Lower Uncertainty [Solar mass]
+\ fst_masslim 
+\ ___ Stellar Mass Limit Flag (0="=", +1=">", -1="<")
+\ fst_massreflink 
+\ ___ Stellar Mass Reference HTML Link
+\ fst_age (Gyr) 
+\ ___ Stellar Age Value [Gyr]
+\ fst_ageerr1 (Gyr) 
+\ ___ Stellar Age Upper Uncertainty [Gyr]
+\ fst_ageerr2 (Gyr) 
+\ ___ Stellar Age Lower Uncertainty [Gyr]
+\ fst_agelim 
+\ ___ Stellar Age Limit Flag (0="=", +1=">", -1="<")
+\ fst_agereflink 
+\ ___ Stellar Age Reference HTML Link
+\ fpl_name 
+\ ___ Planet Common Name
+\ fpl_hostname 
+\ ___ Planet Host Star Name
+\ fpl_letter 
+\ ___ Planet Letter
+\ fpl_snum 
+\ ___ Number of Stars in System
+\ fpl_discmethod 
+\ ___ Method of Discovery String for Display
+\ fpl_disc 
+\ ___ Year of Discovery
+\ fpl_tranflag 
+\ ___ Is the planet known to transit? (1 = yes, 0 = no)
+\ fpl_controvflag 
+\ ___ Planet Controversy Flag (0=no, 1=yes)
+\ fpl_cbflag 
+\ ___ Circumbinary Flag (1 = yes, 0 = no)
+\ fpl_orbper (days) 
+\ ___ Planet Orbital Period Value [days]
+\ fpl_orbpererr1 (days) 
+\ ___ Planet Orbital Period Upper Uncertainty [days]
+\ fpl_orbpererr2 (days) 
+\ ___ Planet Orbital Period Lower Uncertainty [days]
+\ fpl_orbperlim 
+\ ___ Planet Orbital Period Limit Flag (0="=", +1=">", -1="<")
+\ fpl_orbperreflink 
+\ ___ Planet Orbital Period Reference HTML Link
+\ fpl_smax (AU) 
+\ ___ Planet Orbital Semi-Major Axis Value [AU]
+\ fpl_smaxerr1 (AU) 
+\ ___ Planet Orbital Semi-Major Axis Upper Uncertainty [AU]
+\ fpl_smaxerr2 (AU) 
+\ ___ Planet Orbital Semi-Major Axis Lower Uncertainty [AU]
+\ fpl_smaxlim 
+\ ___ Planet Orbital Semi-Major Axis Limit Flag (0="=", +1=">", -1="<")
+\ fpl_smaxreflink 
+\ ___ Planet Orbital Semi-Major Axis Reference HTML Link
+\ fpl_eccen 
+\ ___ Planet Orbital Eccentricity Value
+\ fpl_eccenerr1 
+\ ___ Planet Orbital Eccentricity Upper Uncertainty
+\ fpl_eccenerr2 
+\ ___ Planet Orbital Eccentricity Lower Uncertainty
+\ fpl_eccenlim 
+\ ___ Planet Orbital Eccentricity Limit Flag (0="=", +1=">", -1="<")
+\ fpl_eccenreflink 
+\ ___ Planet Orbital Eccentricity Reference HTML Link
+\ fpl_bmassj (Mjup) 
+\ ___ Planet Mass or Msini Value [Jupiter mass]
+\ fpl_bmassjerr1 (Mjup) 
+\ ___ Planet Mass or Msini Upper Uncertainty [Jupiter mass]
+\ fpl_bmassjerr2 (Mjup) 
+\ ___ Planet Mass or Msini Lower Uncertainty [Jupiter mass]
+\ fpl_bmassjlim 
+\ ___ Planet Mass or Msini [Jupiter mass] Limit Flag (0="=", +1=">", -1
+\ fpl_bmasse (Mearth) 
+\ ___ Planet Mass or Msini Value [Earth mass]
+\ fpl_bmasseerr1 (Mearth) 
+\ ___ Planet Mass or Msini Upper Uncertainty [Earth mass]
+\ fpl_bmasseerr2 (Mearth) 
+\ ___ Planet Mass or Msini Lower Uncertainty [Earth mass]
+\ fpl_bmasselim 
+\ ___ Planet Mass or Msini [Earth mass] Limit Flag (0="=", +1=">", -1="
+\ fpl_bmassprov 
+\ ___ Planet Mass or Msini Provenance
+\ fpl_bmassreflink 
+\ ___ Planet Mass or Msini Reference HTML Link
+\ fpl_radj (Rjup) 
+\ ___ Planet Radius Value [Jupiter radii]
+\ fpl_radjerr1 (Rjup) 
+\ ___ Planet Radius Upper Uncertainty [Jupiter radii]
+\ fpl_radjerr2 (Rjup) 
+\ ___ Planet Radius Lower Uncertainty [Jupiter radii]
+\ fpl_radjlim 
+\ ___ Planet Radius [Jupiter radii] Limit Flag (0="=", +1=">", -1="<")
+\ fpl_rade (Rearth) 
+\ ___ Planet Radius Value [Earth radii]
+\ fpl_radeerr1 (Rearth) 
+\ ___ Planet Radius Upper Uncertainty [Earth radii]
+\ fpl_radeerr2 (Rearth) 
+\ ___ Planet Radius Lower Uncertainty [Earth radii]
+\ fpl_radelim 
+\ ___ Planet Radius [Earth radii] Limit Flag (0="=", +1=">", -1="<")
+\ fpl_rads (Rsun) 
+\ ___ Planet Radius Value [Jupiter radii]
+\ fpl_radserr1 (Rsun) 
+\ ___ Planet Radius Upper Uncertainty [Solar radii]
+\ fpl_radserr2 (Rsun) 
+\ ___ Planet Radius Lower Uncertainty [Solar radii]
+\ fpl_radslim 
+\ ___ Planet Radius [Solar radii] Limit Flag (0="=", +1=">", -1="<")
+\ fpl_radreflink 
+\ ___ Planet Radius Reference HTML Link
+\ fpl_dens (g/cm**3) 
+\ ___ Planet Density Value [g/cm**3]
+\ fpl_denserr1 (g/cm**3) 
+\ ___ Planet Density Upper Uncertainty [g/cm**3]
+\ fpl_denserr2 (g/cm**3) 
+\ ___ Planet Density Lower Uncertainty [g/cm**3]
+\ fpl_denslim 
+\ ___ Planet Density Limit Flag (0="=", +1=">", -1="<")
+\ fpl_densreflink 
+\ ___ Planet Density Reference HTML Link
+\ fpl_eqt (K) 
+\ ___ Planet Equilibrium Temperature Value [K]
+\ fpl_eqterr1 (K) 
+\ ___ Planet Equilibrium Temperature Upper Uncertainty [K]
+\ fpl_eqterr2 (K) 
+\ ___ Planet Equilibrium Temperature Lower Uncertainty [K]
+\ fpl_eqtlim 
+\ ___ Planet Equilibrium Temperature Limit Flag (0="=", +1=">", -1="<")
+\ fpl_eqtreflink 
+\ ___ Planet Equilibrium Temperature Reference HTML Link
+\ fpl_insol (Fearth) 
+\ ___ Insolation Flux Value [Earth Flux]
+\ fpl_insolerr1 (Fearth) 
+\ ___ Insolation Flux Upper Uncertainty [Earth Flux]
+\ fpl_insolerr2 (Fearth) 
+\ ___ Insolation Flux Lower Uncertainty [Earth Flux]
+\ fpl_insollim 
+\ ___ Insolation Flux Limit Flag (0="=", +1=">", -1="<")
+\ fpl_insolreflink 
+\ ___ Insolation Flux Reference HTML Link
+\ 
+|              ra|                                   ra_str|             dec|                                  dec_str|                                                                                                                                                                                           fst_posreflink|  fst_dist| fst_disterr1| fst_disterr2| fst_distlim|                                                                                                                                                                                          fst_distreflink| fst_optmag| fst_optmagerr| fst_optmaglim|                           fst_optmagband|                                                                                                                                                                                        fst_optmagreflink| fst_nirmag| fst_nirmagerr| fst_nirmaglim|                           fst_nirmagband|                                                                                                                                                                                        fst_nirmagreflink|                                  fst_spt| fst_sptlim|                                                                                                                                                                                           fst_sptreflink| fst_teff| fst_tefferr1| fst_tefferr2| fst_tefflim|                                                                                                                                                                                          fst_teffreflink| fst_logg| fst_loggerr1| fst_loggerr2| fst_logglim|                                                                                                                                                                                          fst_loggreflink|      fst_lum|  fst_lumerr1|  fst_lumerr2| fst_lumlim|                                                                                                                                                                                           fst_lumreflink| fst_met| fst_meterr1| fst_meterr2| fst_metlim|         fst_metratio|                                                                                                                                                                                           fst_metreflink| fst_rad| fst_raderr1| fst_raderr2| fst_radlim|                                                                                                                                                                                           fst_radreflink| fst_mass| fst_masserr1| fst_masserr2| fst_masslim|                                                                                                                                                                                          fst_massreflink| fst_age| fst_ageerr1| fst_ageerr2| fst_agelim|                                                                                                                                                                                           fst_agereflink|                                 fpl_name|                             fpl_hostname| fpl_letter| fpl_snum|                           fpl_discmethod| fpl_disc| fpl_tranflag| fpl_controvflag| fpl_cbflag|           fpl_orbper|       fpl_orbpererr1|       fpl_orbpererr2| fpl_orbperlim|                                                                                                                                                                                        fpl_orbperreflink|     fpl_smax| fpl_smaxerr1| fpl_smaxerr2| fpl_smaxlim|                                                                                                                                                                                          fpl_smaxreflink| fpl_eccen| fpl_eccenerr1| fpl_eccenerr2| fpl_eccenlim|                                                                                                                                                                                         fpl_eccenreflink| fpl_bmassj| fpl_bmassjerr1| fpl_bmassjerr2| fpl_bmassjlim|  fpl_bmasse| fpl_bmasseerr1| fpl_bmasseerr2| fpl_bmasselim|        fpl_bmassprov|                                                                                                                                                                                         fpl_bmassreflink| fpl_radj| fpl_radjerr1| fpl_radjerr2| fpl_radjlim| fpl_rade| fpl_radeerr1| fpl_radeerr2| fpl_radelim| fpl_rads| fpl_radserr1| fpl_radserr2| fpl_radslim|                                                                                                                                                                                           fpl_radreflink|   fpl_dens| fpl_denserr1| fpl_denserr2| fpl_denslim|                                                                                                                                                                                          fpl_densreflink| fpl_eqt| fpl_eqterr1| fpl_eqterr2| fpl_eqtlim|                                                                                                                                                                                           fpl_eqtreflink|    fpl_insol| fpl_insolerr1| fpl_insolerr2| fpl_insollim|                                                                                                                                                                                         fpl_insolreflink|
+|          double|                                     char|          double|                                     char|                                                                                                                                                                                                     char|    double|       double|       double|         int|                                                                                                                                                                                                     char|     double|        double|           int|                                     char|                                                                                                                                                                                                     char|     double|        double|           int|                                     char|                                                                                                                                                                                                     char|                                     char|        int|                                                                                                                                                                                                     char|   double|       double|       double|         int|                                                                                                                                                                                                     char|   double|       double|       double|         int|                                                                                                                                                                                                     char|       double|       double|       double|        int|                                                                                                                                                                                                     char|  double|      double|      double|        int|                 char|                                                                                                                                                                                                     char|  double|      double|      double|        int|                                                                                                                                                                                                     char|   double|       double|       double|         int|                                                                                                                                                                                                     char|  double|      double|      double|        int|                                                                                                                                                                                                     char|                                     char|                                     char|       char|      int|                                     char|      int|          int|             int|        int|               double|               double|               double|           int|                                                                                                                                                                                                     char|       double|       double|       double|         int|                                                                                                                                                                                                     char|    double|        double|        double|          int|                                                                                                                                                                                                     char|     double|         double|         double|           int|      double|         double|         double|           int|                 char|                                                                                                                                                                                                     char|   double|       double|       double|         int|   double|       double|       double|         int|   double|       double|       double|         int|                                                                                                                                                                                                     char|     double|       double|       double|         int|                                                                                                                                                                                                     char|    long|        long|        long|        int|                                                                                                                                                                                                     char|       double|        double|        double|          int|                                                                                                                                                                                                     char|
+|         degrees|                                         |         degrees|                                         |                                                                                                                                                                                                         |        pc|           pc|           pc|            |                                                                                                                                                                                                         |       mags|          mags|              |                                         |                                                                                                                                                                                                         |       mags|          mags|              |                                         |                                                                                                                                                                                                         |                                         |           |                                                                                                                                                                                                         |        K|            K|            K|            |                                                                                                                                                                                                         |  cm/s**2|      cm/s**2|      cm/s**2|            |                                                                                                                                                                                                         |      logLsun|      logLsun|      logLsun|           |                                                                                                                                                                                                         |     dex|         dex|         dex|           |                     |                                                                                                                                                                                                         |    Rsun|        Rsun|        Rsun|           |                                                                                                                                                                                                         |     Msun|         Msun|         Msun|            |                                                                                                                                                                                                         |     Gyr|         Gyr|         Gyr|           |                                                                                                                                                                                                         |                                         |                                         |           |         |                                         |         |             |                |           |                 days|                 days|                 days|              |                                                                                                                                                                                                         |           AU|           AU|           AU|            |                                                                                                                                                                                                         |          |              |              |             |                                                                                                                                                                                                         |       Mjup|           Mjup|           Mjup|              |      Mearth|         Mearth|         Mearth|              |                     |                                                                                                                                                                                                         |     Rjup|         Rjup|         Rjup|            |   Rearth|       Rearth|       Rearth|            |     Rsun|         Rsun|         Rsun|            |                                                                                                                                                                                                         |    g/cm**3|      g/cm**3|      g/cm**3|            |                                                                                                                                                                                                         |       K|           K|           K|           |                                                                                                                                                                                                         |       Fearth|        Fearth|        Fearth|             |                                                                                                                                                                                                         |
+|            null|                                     null|            null|                                     null|                                                                                                                                                                                                     null|      null|         null|         null|        null|                                                                                                                                                                                                     null|       null|          null|          null|                                     null|                                                                                                                                                                                                     null|       null|          null|          null|                                     null|                                                                                                                                                                                                     null|                                     null|       null|                                                                                                                                                                                                     null|     null|         null|         null|        null|                                                                                                                                                                                                     null|     null|         null|         null|        null|                                                                                                                                                                                                     null|         null|         null|         null|       null|                                                                                                                                                                                                     null|    null|        null|        null|       null|                 null|                                                                                                                                                                                                     null|    null|        null|        null|       null|                                                                                                                                                                                                     null|     null|         null|         null|        null|                                                                                                                                                                                                     null|    null|        null|        null|       null|                                                                                                                                                                                                     null|                                     null|                                     null|       null|     null|                                     null|     null|         null|            null|       null|                 null|                 null|                 null|          null|                                                                                                                                                                                                     null|         null|         null|         null|        null|                                                                                                                                                                                                     null|      null|          null|          null|         null|                                                                                                                                                                                                     null|       null|           null|           null|          null|        null|           null|           null|          null|                 null|                                                                                                                                                                                                     null|     null|         null|         null|        null|     null|         null|         null|        null|     null|         null|         null|        null|                                                                                                                                                                                                     null|       null|         null|         null|        null|                                                                                                                                                                                                     null|    null|        null|        null|       null|                                                                                                                                                                                                     null|         null|          null|          null|         null|                                                                                                                                                                                                     null|
+       144.875375                              09h39m30.09s       -20.982472                              -20d58m56.9s                                                                      <a refstr=HELLIER_ET_AL__2019 href=https://ui.adsabs.harvard.edu/abs/2019MNRAS.tmp.1834H/abstract target=ref>Hellier et al. 2019</a>     113.00          1.00         -1.00            0                                                                      <a refstr=HELLIER_ET_AL__2019 href=https://ui.adsabs.harvard.edu/abs/2019MNRAS.tmp.1834H/abstract target=ref>Hellier et al. 2019</a>       9.257           null              0                                  G (Gaia)                                                                      <a refstr=GAIA_COLLABORATION_ET_AL__2018 href=https://ui.adsabs.harvard.edu/abs/2018A&A...616A...1G/abstract target=ref>Gaia DR2</a>       8.032          0.017              0                                Ks (2MASS)                                                      <a refstr=2MASS_POINT_SOURCE_CATALOG href=https://ui.adsabs.harvard.edu/abs/2003tmc..book.....C/abstract target=ref> 2MASS Point Source Catalog </a>                                      F9 V           0                                                                      <a refstr=HELLIER_ET_AL__2019 href=https://ui.adsabs.harvard.edu/abs/2019MNRAS.tmp.1834H/abstract target=ref>Hellier et al. 2019</a>   6050.00         50.00        -50.00            0                                                                      <a refstr=HELLIER_ET_AL__2019 href=https://ui.adsabs.harvard.edu/abs/2019MNRAS.tmp.1834H/abstract target=ref>Hellier et al. 2019</a>      4.34          0.05         -0.05            0                                                                      <a refstr=HELLIER_ET_AL__2019 href=https://ui.adsabs.harvard.edu/abs/2019MNRAS.tmp.1834H/abstract target=ref>Hellier et al. 2019</a>         0.283         0.003        -0.003           0                                                                      <a refstr=GAIA_COLLABORATION_ET_AL__2018 href=https://ui.adsabs.harvard.edu/abs/2018A&A...616A...1G/abstract target=ref>Gaia DR2</a>    0.190        0.050       -0.050           0                [Fe/H]                                                                      <a refstr=HELLIER_ET_AL__2019 href=https://ui.adsabs.harvard.edu/abs/2019MNRAS.tmp.1834H/abstract target=ref>Hellier et al. 2019</a>     1.22         0.06        -0.06           0                                                                      <a refstr=HELLIER_ET_AL__2019 href=https://ui.adsabs.harvard.edu/abs/2019MNRAS.tmp.1834H/abstract target=ref>Hellier et al. 2019</a>      1.19          0.06         -0.06            0                                                                      <a refstr=HELLIER_ET_AL__2019 href=https://ui.adsabs.harvard.edu/abs/2019MNRAS.tmp.1834H/abstract target=ref>Hellier et al. 2019</a>    2.100        0.900       -0.900           0                                                                      <a refstr=HELLIER_ET_AL__2019 href=https://ui.adsabs.harvard.edu/abs/2019MNRAS.tmp.1834H/abstract target=ref>Hellier et al. 2019</a>                                WASP-166 b                                  WASP-166           b         1                                   Transit      2019             1                0           0            5.44354000            0.00000400           -0.00000400              0                                                                      <a refstr=HELLIER_ET_AL__2019 href=https://ui.adsabs.harvard.edu/abs/2019MNRAS.tmp.1834H/abstract target=ref>Hellier et al. 2019</a>      0.064100      0.001100     -0.001100            0                                                                      <a refstr=HELLIER_ET_AL__2019 href=https://ui.adsabs.harvard.edu/abs/2019MNRAS.tmp.1834H/abstract target=ref>Hellier et al. 2019</a>   0.000000           null           null             0                                                                      <a refstr=HELLIER_ET_AL__2019 href=https://ui.adsabs.harvard.edu/abs/2019MNRAS.tmp.1834H/abstract target=ref>Hellier et al. 2019</a>     0.10100         0.00500        -0.00500              0     32.10083         1.58915        -1.58915              0                  Mass                                                                      <a refstr=HELLIER_ET_AL__2019 href=https://ui.adsabs.harvard.edu/abs/2019MNRAS.tmp.1834H/abstract target=ref>Hellier et al. 2019</a>     0.630         0.030        -0.030            0     7.062         0.336        -0.336            0     0.065         0.003        -0.003            0                                                                      <a refstr=HELLIER_ET_AL__2019 href=https://ui.adsabs.harvard.edu/abs/2019MNRAS.tmp.1834H/abstract target=ref>Hellier et al. 2019</a>     0.54000       0.09000      -0.09000            0                                                                      <a refstr=HELLIER_ET_AL__2019 href=https://ui.adsabs.harvard.edu/abs/2019MNRAS.tmp.1834H/abstract target=ref>Hellier et al. 2019</a>     1270           30          -30           0                                                                      <a refstr=HELLIER_ET_AL__2019 href=https://ui.adsabs.harvard.edu/abs/2019MNRAS.tmp.1834H/abstract target=ref>Hellier et al. 2019</a>      440.0000        40.0000       -40.0000             0                                                                      <a refstr=HELLIER_ET_AL__2019 href=https://ui.adsabs.harvard.edu/abs/2019MNRAS.tmp.1834H/abstract target=ref>Hellier et al. 2019</a> 

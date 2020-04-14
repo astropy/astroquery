@@ -1,0 +1,183 @@
+\                                                                               
+\fixlen = T
+\RowsRetrieved =                 1
+\For detailed descriptions of the columns, go to http://exoplanetarchive.ipac.caltech.edu/docs/documentation.html and choose the appropriate table guide.
+\ 
+\ epic_number 
+\ ___ EPIC Number
+\ tm_name 
+\ ___ 2MASS Name
+\ k2_campaign_str 
+\ ___ Kepler2 Campaign Number String for Display
+\ k2_lcflag 
+\ ___ Kepler2 Long Cadence Flag
+\ k2_scflag 
+\ ___ Kepler2 Short Cadence Flag
+\ k2_type 
+\ ___ Object Type (STAR,EXTENDED)
+\ ra (degrees) 
+\ ___ RA Value [decimal degrees]
+\ raerr (degrees) 
+\ ___ RA Uncertainty [decimal degrees]
+\ rastr 
+\ ___ RA Value [sexagesimal]
+\ dec (degrees) 
+\ ___ Dec Value [decimal degrees]
+\ decerr (degrees) 
+\ ___ Dec Uncertainty [decimal degrees]
+\ decstr 
+\ ___ Dec Value [sexagesimal]
+\ k2_glon (degrees) 
+\ ___ Galactic Longitude Value [deg]
+\ k2_glonerr (degrees) 
+\ ___ Galactic Longitude Uncertainty [deg]
+\ k2_glat (degrees) 
+\ ___ Galactic Latitude Value [deg]
+\ k2_glaterr (degrees) 
+\ ___ Galactic Latitude Uncertainty [deg]
+\ k2_plx (mas) 
+\ ___ Parallax Value [mas]
+\ k2_plxerr1 (mas) 
+\ ___ Parallax Upper Uncertainty [mas]
+\ k2_plxerr2 (mas) 
+\ ___ Parallax Lower Uncertainty [mas]
+\ k2_dist (pc) 
+\ ___ Distance Value [pc]
+\ k2_disterr1 (pc) 
+\ ___ Distance Upper Uncertainty [pc]
+\ k2_disterr2 (pc) 
+\ ___ Distance Lower Uncertainty [pc]
+\ k2_pmra (mas/yr) 
+\ ___ Stellar RA Proper Motion Value [mas/yr]
+\ k2_pmraerr1 (mas/yr) 
+\ ___ Stellar RA Proper Motion Upper Uncertainty [mas/yr]
+\ k2_pmraerr2 (mas/yr) 
+\ ___ Stellar RA Proper Motion Lower Uncertainty [mas/yr]
+\ k2_pmdec (mas/yr) 
+\ ___ Stellar Dec Proper Motion Value [mas/yr]
+\ k2_pmdecerr1 (mas/yr) 
+\ ___ Stellar Dec Proper Motion Upper Uncertainty [mas/yr]
+\ k2_pmdecerr2 (mas/yr) 
+\ ___ Stellar Dec Proper Motion Lower Uncertainty [mas/yr]
+\ k2_kepmag (mags) 
+\ ___ Stellar Kepler Magnitude Value
+\ k2_kepmagerr (mags) 
+\ ___ Stellar Kepler Magnitude Uncertainty
+\ k2_kepmagflag 
+\ ___ Stellar Kepler Magnitude Flag (gri,BV,JHK,J)
+\ k2_bjmag (mags) 
+\ ___ Stellar B (Johnson) Magnitude Value
+\ k2_bjmagerr (mags) 
+\ ___ Stellar B (Johnson) Magnitude Uncertainty
+\ k2_vjmag (mags) 
+\ ___ Stellar V (Johnson) Magnitude Value
+\ k2_vjmagerr (mags) 
+\ ___ Stellar V (Johnson) Magnitude Uncertainty
+\ k2_umag (mags) 
+\ ___ Stellar u (Sloan) Magnitude Value
+\ k2_umagerr (mags) 
+\ ___ Stellar u (Sloan) Magnitude Uncertainty
+\ k2_gmag (mags) 
+\ ___ Stellar g (Sloan) Magnitude Value
+\ k2_gmagerr (mags) 
+\ ___ Stellar g (Sloan) Magnitude Uncertainty
+\ k2_rmag (mags) 
+\ ___ Stellar r (Sloan) Magnitude Value
+\ k2_rmagerr (mags) 
+\ ___ Stellar r (Sloan) Magnitude Uncertainty
+\ k2_imag (mags) 
+\ ___ Stellar i (Sloan) Magnitude Value
+\ k2_imagerr (mags) 
+\ ___ Stellar i (Sloan) Magnitude Uncertainty
+\ k2_zmag (mags) 
+\ ___ Stellar z (Sloan) Magnitude Value
+\ k2_zmagerr (mags) 
+\ ___ Stellar z (Sloan) Magnitude Uncertainty
+\ k2_jmag (mags) 
+\ ___ Stellar J (2MASS) Magnitude Value
+\ k2_jmagerr (mags) 
+\ ___ Stellar J (2MASS) Magnitude Uncertainty
+\ k2_hmag (mags) 
+\ ___ Stellar H (2MASS) Magnitude Value
+\ k2_hmagerr (mags) 
+\ ___ Stellar H (2MASS) Magnitude Uncertainty
+\ k2_kmag (mags) 
+\ ___ Stellar K (2MASS) Magnitude Value
+\ k2_kmagerr (mags) 
+\ ___ Stellar K (2MASS) Magnitude Uncertainty
+\ k2_w1mag (mags) 
+\ ___ Stellar WISE 3.4um Magnitude Value
+\ k2_w1magerr (mags) 
+\ ___ Stellar WISE 3.4um Magnitude Uncertainty
+\ k2_w2mag (mags) 
+\ ___ Stellar WISE 4.6um Magnitude Value
+\ k2_w2magerr (mags) 
+\ ___ Stellar WISE 4.6um Magnitude Uncertainty
+\ k2_w3mag (mags) 
+\ ___ Stellar WISE 12.um Magnitude Value
+\ k2_w3magerr (mags) 
+\ ___ Stellar WISE 12.um Magnitude Uncertainty
+\ k2_w4mag (mags) 
+\ ___ Stellar WISE 22.um Magnitude Value
+\ k2_w4magerr (mags) 
+\ ___ Stellar WISE 22.um Magnitude Uncertainty
+\ k2_ebmv (mags) 
+\ ___ Stellar E(B-V) Reddening Value [mags]
+\ k2_ebmverr1 (mags) 
+\ ___ Stellar E(B-V) Reddening Upper Uncertainty [mags]
+\ k2_ebmverr2 (mags) 
+\ ___ Stellar E(B-V) Reddening Lower Uncertainty [mags]
+\ k2_teff (K) 
+\ ___ Stellar Effective Temperature Value [K]
+\ k2_tefferr1 (K) 
+\ ___ Stellar Effective Temperature Upper Uncertainty [K]
+\ k2_tefferr2 (K) 
+\ ___ Stellar Effective Temperature Lower Uncertainty [K]
+\ k2_logg (cm/s**2) 
+\ ___ Stellar Surface Gravity Value [log10(cm/s**2)]
+\ k2_loggerr1 (cm/s**2) 
+\ ___ Stellar Surface Gravity Upper Uncertainty [log10(cm/s**2)]
+\ k2_loggerr2 (cm/s**2) 
+\ ___ Stellar Surface Gravity Lower Uncertainty [log10(cm/s**2)]
+\ k2_metfe (dex) 
+\ ___ Stellar Metallicity Value [dex]
+\ k2_metfeerr1 (dex) 
+\ ___ Stellar Metallicity Upper Uncertainty [dex]
+\ k2_metfeerr2 (dex) 
+\ ___ Stellar Metallicity Lower Uncertainty [dex]
+\ k2_rad (Rsun) 
+\ ___ Stellar Radius Value [Solar radii]
+\ k2_raderr1 (Rsun) 
+\ ___ Stellar Radius Upper Uncertainty [Solar radii]
+\ k2_raderr2 (Rsun) 
+\ ___ Stellar Radius Lower Uncertainty [Solar radii]
+\ k2_mass (Msun) 
+\ ___ Stellar Mass Value [Solar mass]
+\ k2_masserr1 (Msun) 
+\ ___ Stellar Mass Upper Uncertainty [Solar mass]
+\ k2_masserr2 (Msun) 
+\ ___ Stellar Mass Lower Uncertainty [Solar mass]
+\ k2_dens (g/cm**3) 
+\ ___ Stellar Density Value [g/cm**3]
+\ k2_denserr1 (g/cm**3) 
+\ ___ Stellar Density Upper Uncertainty [g/cm**3]
+\ k2_denserr2 (g/cm**3) 
+\ ___ Stellar Density Lower Uncertainty [g/cm**3]
+\ k2_spar_prov 
+\ ___ Stellar Parameters Provenance
+\ k2_spar_reflink 
+\ ___ Stellar Parameters Reference HTML Link
+\ k2_propid 
+\ ___ K2 Proposal Identifiers
+\ k2_npropid 
+\ ___ Number of K2 Proposal Identifiers
+\ k2_campaign_bin 
+\ ___ K2 Campaign Binary Number
+\ k2_nts 
+\ ___ Number of Associated Time Series
+\ 
+| epic_number|                        tm_name| k2_campaign_str| k2_lcflag| k2_scflag|              k2_type|              ra|           raerr|                rastr|             dec|          decerr|               decstr|         k2_glon|      k2_glonerr|         k2_glat|      k2_glaterr|    k2_plx| k2_plxerr1| k2_plxerr2|         k2_dist|     k2_disterr1|     k2_disterr2|    k2_pmra| k2_pmraerr1| k2_pmraerr2|   k2_pmdec| k2_pmdecerr1| k2_pmdecerr2| k2_kepmag| k2_kepmagerr| k2_kepmagflag| k2_bjmag| k2_bjmagerr| k2_vjmag| k2_vjmagerr|  k2_umag| k2_umagerr|  k2_gmag| k2_gmagerr|  k2_rmag| k2_rmagerr|  k2_imag| k2_imagerr|  k2_zmag| k2_zmagerr|  k2_jmag| k2_jmagerr|  k2_hmag| k2_hmagerr|  k2_kmag| k2_kmagerr| k2_w1mag| k2_w1magerr| k2_w2mag| k2_w2magerr| k2_w3mag| k2_w3magerr| k2_w4mag| k2_w4magerr|  k2_ebmv| k2_ebmverr1| k2_ebmverr2|  k2_teff| k2_tefferr1| k2_tefferr2|  k2_logg| k2_loggerr1| k2_loggerr2| k2_metfe| k2_metfeerr1| k2_metfeerr2| k2_rad| k2_raderr1| k2_raderr2| k2_mass| k2_masserr1| k2_masserr2|  k2_dens| k2_denserr1| k2_denserr2|                                                                                         k2_spar_prov|                                                                                                                                                                                          k2_spar_reflink|                                                                                                                                                                                                k2_propid| k2_npropid|                k2_campaign_bin| k2_nts|
+|        long|                           char|            char|       int|       int|                 char|          double|          double|                 char|          double|          double|                 char|          double|          double|          double|          double|    double|     double|     double|          double|          double|          double|     double|      double|      double|     double|       double|       double|    double|       double|          char|   double|      double|   double|      double|   double|     double|   double|     double|   double|     double|   double|     double|   double|     double|   double|     double|   double|     double|   double|     double|   double|      double|   double|      double|   double|      double|   double|      double|   double|      double|      double|   double|      double|      double|   double|      double|      double|   double|       double|       double| double|     double|     double|  double|      double|      double|   double|      double|      double|                                                                                                 char|                                                                                                                                                                                                     char|                                                                                                                                                                                                     char|       long|                           char|   char|
+|            |                               |                |          |          |                     |         degrees|         degrees|                     |         degrees|         degrees|                     |         degrees|         degrees|         degrees|         degrees|       mas|        mas|        mas|              pc|              pc|              pc|     mas/yr|      mas/yr|      mas/yr|     mas/yr|       mas/yr|       mas/yr|      mags|         mags|              |     mags|        mags|     mags|        mags|     mags|       mags|     mags|       mags|     mags|       mags|     mags|       mags|     mags|       mags|     mags|       mags|     mags|       mags|     mags|       mags|     mags|        mags|     mags|        mags|     mags|        mags|     mags|        mags|     mags|        mags|        mags|        K|           K|           K|  cm/s**2|     cm/s**2|     cm/s**2|      dex|          dex|          dex|   Rsun|       Rsun|       Rsun|    Msun|        Msun|        Msun|  g/cm**3|     g/cm**3|     g/cm**3|                                                                                                     |                                                                                                                                                                                                         |                                                                                                                                                                                                         |           |                               |       |
+|        null|                           null|            null|      null|      null|                 null|            null|            null|                 null|            null|            null|                 null|            null|            null|            null|            null|      null|       null|       null|            null|            null|            null|       null|        null|        null|       null|         null|         null|      null|         null|          null|     null|        null|     null|        null|     null|       null|     null|       null|     null|       null|     null|       null|     null|       null|     null|       null|     null|       null|     null|       null|     null|        null|     null|        null|     null|        null|     null|        null|     null|        null|        null|     null|        null|        null|     null|        null|        null|     null|         null|         null|   null|       null|       null|    null|        null|        null|     null|        null|        null|                                                                                                 null|                                                                                                                                                                                                     null|                                                                                                                                                                                                     null|       null|                           null|   null|
+    206027655         2MASS J22354616-1401398                3          1          0                  STAR       338.942343         0.000000          22h35m46.16s       -14.027745         0.000000          -14d01m39.9s        48.555141         0.000000       -55.797296         0.000000       null        null        null             null             null             null      44.900        2.200       -2.200       5.500         4.000        -4.000     13.869          null            gri    15.129        0.040    14.226        0.030      null        null    14.647       0.010    13.904       0.010    13.536       0.090      null        null    12.454       0.023    11.981       0.021    11.838       0.023    11.799        0.022    11.860        0.022    11.762        0.302     8.895         null     0.038        0.007       -0.008   5055.00       104.00       -83.00      4.59         0.04        -0.04    -0.227         0.200        -0.320    0.73        0.07       -0.07     0.77         0.06        -0.09    1.9470       0.5156      -0.3462                                                                                                   rpm                                                                                    <a refstr=EPIC_CATALOG href=https://ui.adsabs.harvard.edu/abs/2016ApJS..224....2H/abstract target=ref>EPIC Catalog</a>                                                                                                                                                                                      GO3054_LC; GO3051_LC           2            00001000000000000000       1 

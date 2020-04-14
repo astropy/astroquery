@@ -1,0 +1,39 @@
+\                                                                               
+\fixlen = T
+\RowsRetrieved =                 3
+\For detailed descriptions of the columns, go to http://exoplanetarchive.ipac.caltech.edu/docs/documentation.html and choose the appropriate table guide.
+\ 
+\ kepid 
+\ ___ KIC Identification Number
+\ kepoi_name 
+\ ___ Kepler Object of Interest Name
+\ kepler_name 
+\ ___ Kepler Name (confirmed planet)
+\ alt_name 
+\ ___ Alternative Name
+\ koi_list_flag 
+\ ___ KOI List Flag (YES=in KOI list, NO=not in KOI list)
+\ tm_designation 
+\ ___ 2MASS designation
+\ ra (degrees) 
+\ ___ RA Value [decimal degrees]
+\ ra_err (degrees) 
+\ ___ RA Uncertainty [decimal degrees]
+\ ra_str 
+\ ___ RA Value [sexagesimal]
+\ dec (degrees) 
+\ ___ Dec Value [decimal degrees]
+\ dec_err (degrees) 
+\ ___ Dec Uncertainty [decimal degrees]
+\ dec_str 
+\ ___ Dec Value [sexagesimal]
+\ last_update 
+\ ___ Last Update Date
+\ 
+|     kepid|                kepoi_name|               kepler_name|                       alt_name| koi_list_flag|                 tm_designation|         ra|     ra_err|                    ra_str|        dec|    dec_err|                   dec_str| last_update|
+|      long|                      char|                      char|                           char|          char|                           char|     double|     double|                      char|     double|     double|                      char|        char|
+|          |                          |                          |                               |              |                               |    degrees|    degrees|                          |    degrees|    degrees|                          |            |
+|      null|                      null|                      null|                           null|          null|                           null|       null|       null|                      null|       null|       null|                      null|        null|
+   10601284                  K00749.02               Kepler-226 b                    Kepler-226 b            YES         2MASS J19293027+4752515  292.376130    0.000000               19h29m30.27s   47.880989    0.000000               +47d52m51.6s   2014-02-26 
+   10601284                  K00749.01               Kepler-226 c                    Kepler-226 c            YES         2MASS J19293027+4752515  292.376130    0.000000               19h29m30.27s   47.880989    0.000000               +47d52m51.6s   2014-02-26 
+   10601284                  K00749.03               Kepler-226 d                    Kepler-226 d            YES         2MASS J19293027+4752515  292.376130    0.000000               19h29m30.27s   47.880989    0.000000               +47d52m51.6s   2014-02-26 

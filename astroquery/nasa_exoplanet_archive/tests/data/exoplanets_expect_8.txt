@@ -1,0 +1,20 @@
+\                                                                               
+\fixlen = T
+\RowsRetrieved =                 6
+\For detailed descriptions of the columns, go to http://exoplanetarchive.ipac.caltech.edu/docs/documentation.html and choose the appropriate table guide.
+\ 
+\ pl_hostname 
+\ ___ Planet Host Star Name
+\ pl_name 
+\ ___ Planet Common Name
+\ 
+|                                        pl_hostname|                                            pl_name|
+|                                               char|                                               char|
+|                                                   |                                                   |
+|                                               null|                                               null|
+                                           Kepler-11                                         Kepler-11 b 
+                                           Kepler-11                                         Kepler-11 c 
+                                           Kepler-11                                         Kepler-11 d 
+                                           Kepler-11                                         Kepler-11 e 
+                                           Kepler-11                                         Kepler-11 f 
+                                           Kepler-11                                         Kepler-11 g 
