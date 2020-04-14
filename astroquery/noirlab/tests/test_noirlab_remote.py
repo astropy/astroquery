@@ -5,6 +5,7 @@ from __future__ import print_function
 from astropy import units as u
 from astropy.coordinates import SkyCoord
 from astropy.tests.helper import remote_data
+import astropy.io.fits as pyfits
 # Local packages
 from .. import Noirlab
 from . import expected as exp
@@ -177,3 +178,25 @@ class TestNoirlabClass(object):
     # get_token
     # retrieve/<md5>
     # version
+
+    def test_retrieve(self):
+        hdul = Noirlab().retrieve('f92541fdc566dfebac9e7d75e12b5601')
+        actual = list(hdul[0].header.keys())
+        print(f'DBG: test_retrieve={actual}')
+        expected = exp.retrieve
+        assert actual == expected
+
+
+    def test_version(self):
+        r = Noirlab().version()
+        assert r < 3.0
+
+    def test_get_token(self):
+        actual = Noirlab().get_token('nobody@university.edu', '123456789')
+        expected = {'detail':
+                    'No active account found with the given credentials'}
+        print(f'DBG: test_get_token={actual}')
+        assert actual == expected
+
+
+        
