@@ -3,12 +3,13 @@ Provide astroquery API access to OIR Lab Astro Data Archive (natica).
 
 This does DB access through web-services.
 """
-
+import json
 import astropy.table
 from ..query import BaseQuery
 from ..utils import async_to_sync
 from ..utils.class_or_instance import class_or_instance
 from . import conf
+import requests
 
 
 __all__ = ['Noirlab', 'NoirlabClass']  # specifies what to import
@@ -19,8 +20,6 @@ class NoirlabClass(BaseQuery):
 
     TIMEOUT = conf.timeout
     NAT_URL = conf.server
-    ADS_URL = f'{NAT_URL}/api/adv_search/fasearch'
-    SIA_URL = f'{NAT_URL}/api/sia/voimg'
 
     def __init__(self, which='file'):
         """Return object used for searching the NOIRLab Archive.
@@ -32,12 +31,18 @@ class NoirlabClass(BaseQuery):
         """
         self._api_version = None
 
+        self.adsurl = f'{self.NAT_URL}/api/adv_search'
+        
         if which == 'hdu':
-            self.url = f'{self.NAT_URL}/api/sia/vohdu'
-        elif which == 'file':
-            self.url = f'{self.NAT_URL}/api/sia/voimg'
+            self.siaurl = f'{self.NAT_URL}/api/sia/vohdu'
+            self.adss_url = f'{self.adsurl}/hasearch'
+            self.adsc_url = f'{self.adsurl}/core_hdu_fields'
+            self.adsa_url = f'{self.adsurl}/aux_hdu_fields'
         else:
-            self.url = f'{self.NAT_URL}/api/sia/voimg'
+            self.siaurl = f'{self.NAT_URL}/api/sia/voimg'
+            self.adss_url = f'{self.adsurl}/fasearch'
+            self.adsc_url = f'{self.adsurl}/core_file_fields'
+            self.adsa_url = f'{self.adsurl}/aux_file_fields'
 
         super().__init__()
 
@@ -66,6 +71,15 @@ class NoirlabClass(BaseQuery):
                    f'{self.api_version} from the API.')
             raise Exception(msg)
 
+    def service_metadata(self, cache=True):
+        """Denotes a Metadata Query: no images are requested; only metadata
+    should be returned. This feature is described in more detail in:
+    http://www.ivoa.net/documents/PR/DAL/PR-SIA-1.0-20090521.html#mdquery
+        """
+        url = f'{self.siaurl}?FORMAT=METADATA&format=json'
+        response = self._request('GET', url, timeout=self.TIMEOUT, cache=cache)
+        return response.json()[0]
+        
     @class_or_instance
     def query_region(self, coordinate, radius=0.1, cache=True):
         """Query for NOIRLab observations by region of the sky.
@@ -90,12 +104,86 @@ class NoirlabClass(BaseQuery):
         """
         self._validate_version()
         ra, dec = coordinate.to_string('decimal').split()
-        url = f'{self.url}?POS={ra},{dec}&SIZE={radius}&format=json'
+        url = f'{self.siaurl}?POS={ra},{dec}&SIZE={radius}&format=json'
         response = self._request('GET', url,
                                  timeout=self.TIMEOUT,
                                  cache=cache)
         response.raise_for_status()
         return astropy.table.Table(data=response.json())
+
+
+    def core_fields(self, cache=True):
+        """List the available CORE fields. CORE fields are faster to search
+        than AUX fields.."""
+        response = self._request('GET', self.adsc_url,
+                                 timeout=self.TIMEOUT,
+                                 cache=cache)
+        response.raise_for_status()
+        return response.json()
+
+
+    def aux_fields(self, instrument, proctype, cache=True):
+        """List the available AUX fields. AUX fields are ANY fields in the
+        Archive FITS files that are not core DB fields.  These are generally
+        common to a single Instrument, Proctype combination. AUX fields are
+        slower to search than CORE fields. """
+        url = f'{self.adsa_url}/{instrument}/{proctype}/'
+        response = self._request('GET', url, timeout=self.TIMEOUT, cache=cache)
+        response.raise_for_status()
+        return response.json()
+
+    def categoricals(self, cache=True):
+        """List the currently acceptable values for each 'categorical field'
+        associated with Archive files.  A 'categorical field' is one in
+        which the values are restricted to a specific set.  The specific
+        set may grow over time, but not often. The categorical fields are:
+        collection, instrument, obs_mode, proc_type, prod_type, site, survey,
+        telescope.
+        """
+        url = f'{self.adsurl}/cat_lists/?format=json'
+        response = self._request('GET', url, timeout=self.TIMEOUT, cache=cache)
+        response.raise_for_status()
+        return response.json()
+
+    #! @class_or_instance
+    #! def _query_ads(self, jdata, limit=1000):
+    #!     print(f'DBG-0: ADS jdata={jdata}')
+    #!     adsurl = f'{self.adsurl}/?limit={limit}'
+    #!     print(f'DBG-0: adsurl = {adsurl}')
+    #!     # Following fails
+    #!     # #! response = self._request('POST',adsurl, data=json.dumps(jdata))
+    #!     response = requests.post(adsurl, json=jdata)
+    #!     print(f'DBG-0: ADS response={response}')
+    #!     print(f'DBG-0: ADS response.content={response.content}')
+    #!     print(f'DBG-0: ADS response.json()={response.json()}')
+    #!     return astropy.table.Table(data=response.json())
+
+    @class_or_instance
+    def query_metadata(self, qspec, limit=1000, cache=True):
+        self._validate_version()
+        url = f'{self.adss_url}/?limit={limit}'
+
+        if qspec is None:
+            jdata = {"outfields": ["md5sum", ], "search": []}
+        else:
+            jdata = qspec
+
+        print(f'DBG-0: query_metadata.url = {url}')
+        # headers = {'accept': 'application/json'}
+        # headers = {'Content-Type': 'application/json'}
+
+        # Following fails:
+        # #!response = self._request('POST', url, json=jdata)
+
+        response = requests.post(url,
+                                 timeout=self.TIMEOUT,
+                                 json=jdata)
+        response.raise_for_status()
+        # #!print(f'DBG-0: ADS response={response}')
+        # #!print(f'DBG-0: ADS response.content={response.content}')
+        # #!print(f'DBG-0: ADS response.json()={response.json()}')
+        return astropy.table.Table(rows=response.json())
+        #return response.json()  #@@@ Should return table
 
 
 Noirlab = NoirlabClass()
