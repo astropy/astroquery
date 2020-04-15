@@ -56,13 +56,11 @@ vizier
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
 
-utils
-^^^^^
-
 - Fixed a bug that would prevent the TOP statement from being properly added
-  to a TAP query containing valid '\n'. The bug was revealed by changes
-  to the gaia module, introduced in version 0.4. [#1680]
+  to a TAP query containing valid '\n'. The bug was revealed by changes to
+  the gaia module, introduced in version 0.4. [#1680]
 
+- Added new ``json`` keyword to BaseQuery requests. [#1657]
 
 
 0.4 (2020-01-24)
