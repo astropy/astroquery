@@ -17,6 +17,10 @@ class Conf(_config.ConfigNamespace):
         30,
         'Time limit for connecting to CASDA server.'
     )
+    soda_base_url = _config.ConfigItem(
+        ['https://casda.csiro.au/casda_data_access/'],
+        'Address of the CASDA SODA server'
+    )
 
 
 conf = Conf()
