@@ -188,6 +188,22 @@ class CasdaClass(BaseQuery):
 
         return fileurls
 
+    def download_files(self, urls, savedir=''):
+        """
+        Download a series of files
+        :param urls: The list of URLs of the files to be downloaded.
+        :param savedir: The directory in which to save the files.
+        :return: A list of the full filenames of the downloaded files.
+        """
+        # for each url in list, download file and checksum
+        filenames = []
+        for url in urls:
+            fn = self._request('GET', url, save=True, savedir=savedir, timeout=self.TIMEOUT, cache=False)
+            if fn:
+                filenames.append(fn)
+
+        return filenames
+
     def _parse_datalink_for_service_and_id(self, response, service_name):
         """ Parses a datalink file into a vo table, and returns the async service url and the authenticated id token """
         # Parse the datalink file into a vo table, and get the results

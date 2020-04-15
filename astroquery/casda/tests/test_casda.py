@@ -11,6 +11,7 @@ import os
 from astropy.coordinates import SkyCoord
 import astropy.units as u
 from astropy.table import Table
+from astropy.io.votable import parse
 
 from astroquery.casda import Casda
 
@@ -158,3 +159,14 @@ def test_query_region_async_box(patch_get):
 
     responses = Casda.query_region_async(centre, width=width * u.deg, height=height * u.deg, cache=False)
     assert isinstance(responses, MockResponse)
+
+
+def test_filter_out_unreleased():
+    all_records = parse(data_path('partial_unreleased.xml'), pedantic=False).get_first_table().to_table()
+    assert len(all_records) == 3
+
+    # This should filter out the rows with either a future obs_release_date or no obs_release_date
+    filtered = Casda.filter_out_unreleased(all_records)
+    assert filtered[0]['obs_release_date'] == '2017-08-02T03:51:19.728Z'
+    assert filtered[0]['obs_publisher_did'] == 'cube-502'
+    assert len(filtered) == 1
