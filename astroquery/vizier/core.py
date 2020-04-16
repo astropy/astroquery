@@ -536,6 +536,9 @@ class VizierClass(BaseQuery):
 
         if columns is not None:
             columns = self.columns + columns
+            # filter columns to _unique_ columns, preserving order in python >3.6
+            # note that "set" does not preserve order, but dict.keys does
+            columns = list(dict.fromkeys(columns, ).keys())
 
         # special keywords need to be treated separately
         # keyword names that can mean 'all'
