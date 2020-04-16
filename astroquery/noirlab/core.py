@@ -3,14 +3,12 @@ Provide astroquery API access to OIR Lab Astro Data Archive (natica).
 
 This does DB access through web-services.
 """
-import json
 import astropy.io.fits as pyfits
 import astropy.table
 from ..query import BaseQuery
 from ..utils import async_to_sync
 from ..utils.class_or_instance import class_or_instance
 from . import conf
-import requests
 
 
 __all__ = ['Noirlab', 'NoirlabClass']  # specifies what to import
@@ -32,7 +30,7 @@ class NoirlabClass(BaseQuery):
         """
         self._api_version = None
         self._adsurl = f'{self.NAT_URL}/api/adv_search'
-        
+
         if which == 'hdu':
             self.siaurl = f'{self.NAT_URL}/api/sia/vohdu'
             self._adss_url = f'{self._adsurl}/hasearch'
@@ -79,7 +77,7 @@ class NoirlabClass(BaseQuery):
         url = f'{self.siaurl}?FORMAT=METADATA&format=json'
         response = self._request('GET', url, timeout=self.TIMEOUT, cache=cache)
         return response.json()[0]
-        
+
     @class_or_instance
     def query_region(self, coordinate, radius=0.1, cache=True):
         """Query for NOIRLab observations by region of the sky.
@@ -111,7 +109,6 @@ class NoirlabClass(BaseQuery):
         response.raise_for_status()
         return astropy.table.Table(data=response.json())
 
-
     def core_fields(self, cache=True):
         """List the available CORE fields. CORE fields are faster to search
         than AUX fields.."""
@@ -120,7 +117,6 @@ class NoirlabClass(BaseQuery):
                                  cache=cache)
         response.raise_for_status()
         return response.json()
-
 
     def aux_fields(self, instrument, proctype, cache=True):
         """List the available AUX fields. AUX fields are ANY fields in the
@@ -145,19 +141,6 @@ class NoirlabClass(BaseQuery):
         response.raise_for_status()
         return response.json()
 
-    #! @class_or_instance
-    #! def _query_ads(self, jdata, limit=1000):
-    #!     print(f'DBG-0: ADS jdata={jdata}')
-    #!     adsurl = f'{self.adsurl}/?limit={limit}'
-    #!     print(f'DBG-0: adsurl = {adsurl}')
-    #!     # Following fails
-    #!     # #! response = self._request('POST',adsurl, data=json.dumps(jdata))
-    #!     response = requests.post(adsurl, json=jdata)
-    #!     print(f'DBG-0: ADS response={response}')
-    #!     print(f'DBG-0: ADS response.content={response.content}')
-    #!     print(f'DBG-0: ADS response.json()={response.json()}')
-    #!     return astropy.table.Table(data=response.json())
-
     @class_or_instance
     def query_metadata(self, qspec, limit=1000, cache=True):
         self._validate_version()
@@ -168,22 +151,9 @@ class NoirlabClass(BaseQuery):
         else:
             jdata = qspec
 
-        print(f'DBG-0: query_metadata.url = {url}')
-        # headers = {'accept': 'application/json'}
-        # headers = {'Content-Type': 'application/json'}
-
-        # Following fails:
-        # #!response = self._request('POST', url, json=jdata)
-
-        response = requests.post(url,
-                                 timeout=self.TIMEOUT,
-                                 json=jdata)
+        response = self._request('POST', url, json=jdata, timeout=self.TIMEOUT)
         response.raise_for_status()
-        # #!print(f'DBG-0: ADS response={response}')
-        # #!print(f'DBG-0: ADS response.content={response.content}')
-        # #!print(f'DBG-0: ADS response.json()={response.json()}')
         return astropy.table.Table(rows=response.json())
-        #return response.json()  #@@@ Should return table
 
     def retrieve(self, fileid, cache=True):
         url = f'{self.NAT_URL}/api/retrieve/{fileid}/'
@@ -198,10 +168,11 @@ class NoirlabClass(BaseQuery):
 
     def get_token(self, email, password, cache=True):
         url = f'{self.NAT_URL}/api/get_token/'
-        response = requests.post(url,
+        response = self._request('POST', url,
                                  json={"email": email, "password": password},
                                  timeout=self.TIMEOUT)
         response.raise_for_status()
         return response.json()
- 
+
+
 Noirlab = NoirlabClass()

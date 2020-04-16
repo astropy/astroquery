@@ -5,11 +5,9 @@ from __future__ import print_function
 from astropy import units as u
 from astropy.coordinates import SkyCoord
 from astropy.tests.helper import remote_data
-import astropy.io.fits as pyfits
 # Local packages
 from .. import Noirlab
 from . import expected as exp
-# #!import pytest
 
 # performs similar tests as test_module.py, but performs
 # the actual HTTP request rather than monkeypatching them.
@@ -20,9 +18,9 @@ from . import expected as exp
 @remote_data
 class TestNoirlabClass(object):
 
-    ###############################################################
-    ### (2) SIA; /api/sia/
-    ###
+    # ###############################################################
+    # ### (2) SIA; /api/sia/
+    # ###
     # voimg, vohdu
 
     def test_service_metadata(self):
@@ -32,7 +30,7 @@ class TestNoirlabClass(object):
         print(f'DBG: test_service_metadata={actual}')
         expected = exp.service_metadata
         assert actual == expected
-        
+
     def test_query_region_0(self):
         """Search FILES using default type (which) selector"""
 
@@ -64,9 +62,9 @@ class TestNoirlabClass(object):
         expected = exp.query_region_2
         assert expected.issubset(actual)
 
-    ###############################################################
-    ### (7) Advanced Search; /api/adv_search/
-    ###
+    # ###############################################################
+    # ### (7) Advanced Search; /api/adv_search/
+    # ###
     #
     # (2) aux_{file,hdu}_fields/<instrument>/<proctype>
     # (2) core_{file,hdu}_fields/
@@ -74,9 +72,9 @@ class TestNoirlabClass(object):
     # (2) {f,h}asearch
     # cat_list
 
-    ##
-    ## File (default type)
-    ##
+    # ##
+    # ## File (default type)
+    # ##
 
     def test_aux_file_fields(self):
         """List the available AUX FILE fields."""
@@ -89,7 +87,7 @@ class TestNoirlabClass(object):
     def test_core_file_fields(self):
         """List the available CORE FILE fields."""
         r = Noirlab().core_fields()
-        actual = r # set(list(r['md5sum']))
+        actual = r
         print(f'DBG: test_core_file_fields={actual}')
         expected = exp.core_file_fields
         assert actual == expected
@@ -97,28 +95,27 @@ class TestNoirlabClass(object):
     def test_query_file_metadata(self):
         """Search FILE metadata."""
         qspec = {
-            "outfields" : [
+            "outfields": [
                 "md5sum",
                 "archive_filename",
                 "original_filename",
                 "instrument",
                 "proc_type"
             ],
-            "search" : [
+            "search": [
                 ['original_filename', 'c4d_', 'contains']
             ]
         }
 
         r = Noirlab().query_metadata(qspec, limit=3)
-        actual = r # set(list(r['md5sum']))
+        actual = r
         print(f'DBG: test_query_file_metadata={actual.pformat_all()}')
         expected = exp.query_file_metadata
         assert actual.pformat_all() == expected
 
-
-    ##
-    ## HDU
-    ##
+    # ##
+    # ## HDU
+    # ##
 
     def test_aux_hdu_fields(self):
         """List the available AUX HDU fields."""
@@ -131,7 +128,7 @@ class TestNoirlabClass(object):
     def test_core_hdu_fields(self):
         """List the available CORE HDU fields."""
         r = Noirlab(which='hdu').core_fields()
-        actual = r # set(list(r['md5sum']))
+        actual = r
         print(f'DBG: test_core_hdu_fields={actual}')
         expected = exp.core_hdu_fields
         assert actual == expected
@@ -139,14 +136,14 @@ class TestNoirlabClass(object):
     def test_query_hdu_metadata(self):
         """Search HDU metadata."""
         qspec = {
-            "outfields" : [
+            "outfields": [
                 "fitsfile__archive_filename",
                 "fitsfile__caldat",
                 "fitsfile__instrument",
                 "fitsfile__proc_type",
                 "AIRMASS"  # AUX field. Slows search
             ],
-            "search" : [
+            "search": [
                 ["fitsfile__caldat", "2017-08-14", "2017-08-16"],
                 ["fitsfile__instrument", "decam"],
                 ["fitsfile__proc_type", "raw"]
@@ -154,27 +151,25 @@ class TestNoirlabClass(object):
         }
 
         r = Noirlab(which='hdu').query_metadata(qspec, limit=3)
-        actual = r # set(list(r['md5sum']))
+        actual = r
         print(f'DBG: test_query_hdu_metadata={actual.pformat_all()}')
         expected = exp.query_hdu_metadata
         assert actual.pformat_all() == expected
 
-    ##
-    ## Agnostic
-    ##
+    # ##
+    # ## Agnostic
+    # ##
 
     def test_categoricals(self):
         """List categories."""
         r = Noirlab().categoricals()
-        actual = r # set(list(r['md5sum']))
+        actual = r
         print(f'DBG: test_categoricals={actual}')
         expected = exp.categoricals
         assert actual == expected
 
-        
-    
-    ###############################################################
-    ### (3) Other 
+    # ##############################################################
+    # ### (3) Other
     # get_token
     # retrieve/<md5>
     # version
@@ -186,7 +181,6 @@ class TestNoirlabClass(object):
         expected = exp.retrieve
         assert actual == expected
 
-
     def test_version(self):
         r = Noirlab().version()
         assert r < 3.0
@@ -197,6 +191,3 @@ class TestNoirlabClass(object):
                     'No active account found with the given credentials'}
         print(f'DBG: test_get_token={actual}')
         assert actual == expected
-
-
-        
