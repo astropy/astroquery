@@ -12,7 +12,7 @@ esa/xmm-newton
 noirlab
 ^^^^^^^
 
-- Module added to access the NOIRLab (formally NOAO) archive. [#1638]
+- Module added to access the NOIRLab (formally NOAO) archive. [#1638, #1701]
 
 
 Service fixes and enhancements
