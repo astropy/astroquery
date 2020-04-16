@@ -1,13 +1,11 @@
 .. doctest-skip-all
-.. # To render rst files to HTML: python setup.py build_docs
-.. # When above stops working (astroquery removes helpers) do next:
-.. # cd docs; make html
 
 .. _astroquery.noirlab:
 
 **************************************
 NOIRLab Queries (`astroquery.noirlab`)
 **************************************
+
 
 Getting started
 ===============
@@ -46,6 +44,7 @@ to query.  Specify the coordinates using the appropriate coordinate system from
     /net/archive/mtn/20151120/kp4m/2015B-2001/k4m_151121_033641_ori.fits.fz 2015-11-21 ... 2020-02-09T01:24:35.525861+00:00
     /net/archive/mtn/20151120/kp4m/2015B-2001/k4m_151121_031258_ori.fits.fz 2015-11-21 ... 2020-02-09T01:24:37.873559+00:00
     /net/archive/mtn/20151120/kp4m/2015B-2001/k4m_151121_041031_ori.fits.fz 2015-11-21 ... 2020-02-09T01:24:38.951230+00:00
+
 
     >>> noirlab_hdu = Noirlab(which='hdu')
     >>> results_hdu = noirlab_hdu.query_region(coord, radius='0.1')

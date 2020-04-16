@@ -31,19 +31,18 @@ class NoirlabClass(BaseQuery):
         is only the case with some pipeline processed files.
         """
         self._api_version = None
-
-        self.adsurl = f'{self.NAT_URL}/api/adv_search'
+        self._adsurl = f'{self.NAT_URL}/api/adv_search'
         
         if which == 'hdu':
             self.siaurl = f'{self.NAT_URL}/api/sia/vohdu'
-            self.adss_url = f'{self.adsurl}/hasearch'
-            self.adsc_url = f'{self.adsurl}/core_hdu_fields'
-            self.adsa_url = f'{self.adsurl}/aux_hdu_fields'
+            self._adss_url = f'{self._adsurl}/hasearch'
+            self._adsc_url = f'{self._adsurl}/core_hdu_fields'
+            self._adsa_url = f'{self._adsurl}/aux_hdu_fields'
         else:
             self.siaurl = f'{self.NAT_URL}/api/sia/voimg'
-            self.adss_url = f'{self.adsurl}/fasearch'
-            self.adsc_url = f'{self.adsurl}/core_file_fields'
-            self.adsa_url = f'{self.adsurl}/aux_file_fields'
+            self._adss_url = f'{self._adsurl}/fasearch'
+            self._adsc_url = f'{self._adsurl}/core_file_fields'
+            self._adsa_url = f'{self._adsurl}/aux_file_fields'
 
         super().__init__()
 
@@ -116,7 +115,7 @@ class NoirlabClass(BaseQuery):
     def core_fields(self, cache=True):
         """List the available CORE fields. CORE fields are faster to search
         than AUX fields.."""
-        response = self._request('GET', self.adsc_url,
+        response = self._request('GET', self._adsc_url,
                                  timeout=self.TIMEOUT,
                                  cache=cache)
         response.raise_for_status()
@@ -128,7 +127,7 @@ class NoirlabClass(BaseQuery):
         Archive FITS files that are not core DB fields.  These are generally
         common to a single Instrument, Proctype combination. AUX fields are
         slower to search than CORE fields. """
-        url = f'{self.adsa_url}/{instrument}/{proctype}/'
+        url = f'{self._adsa_url}/{instrument}/{proctype}/'
         response = self._request('GET', url, timeout=self.TIMEOUT, cache=cache)
         response.raise_for_status()
         return response.json()
@@ -141,7 +140,7 @@ class NoirlabClass(BaseQuery):
         collection, instrument, obs_mode, proc_type, prod_type, site, survey,
         telescope.
         """
-        url = f'{self.adsurl}/cat_lists/?format=json'
+        url = f'{self._adsurl}/cat_lists/?format=json'
         response = self._request('GET', url, timeout=self.TIMEOUT, cache=cache)
         response.raise_for_status()
         return response.json()
@@ -162,7 +161,7 @@ class NoirlabClass(BaseQuery):
     @class_or_instance
     def query_metadata(self, qspec, limit=1000, cache=True):
         self._validate_version()
-        url = f'{self.adss_url}/?limit={limit}'
+        url = f'{self._adss_url}/?limit={limit}'
 
         if qspec is None:
             jdata = {"outfields": ["md5sum", ], "search": []}
