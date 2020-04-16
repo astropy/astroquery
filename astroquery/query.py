@@ -61,13 +61,14 @@ class AstroQuery(object):
             self._timeout = value
 
     def request(self, session, cache_location=None, stream=False,
-                auth=None, verify=True, allow_redirects=True):
+                auth=None, verify=True, allow_redirects=True,
+                json=None):
         return session.request(self.method, self.url, params=self.params,
                                data=self.data, headers=self.headers,
                                files=self.files, timeout=self.timeout,
                                stream=stream, auth=auth, verify=verify,
                                allow_redirects=allow_redirects,
-                               json=self.json)
+                               json=json)
 
     def hash(self):
         if self._hash is None:
@@ -248,7 +249,8 @@ class BaseQuery(object):
                 with suspend_cache(self):
                     response = query.request(self._session, stream=stream,
                                              auth=auth, verify=verify,
-                                             allow_redirects=allow_redirects)
+                                             allow_redirects=allow_redirects,
+                                             json=json)
             else:
                 response = query.from_cache(self.cache_location)
                 if not response:
@@ -257,7 +259,8 @@ class BaseQuery(object):
                                              stream=stream,
                                              auth=auth,
                                              allow_redirects=allow_redirects,
-                                             verify=verify)
+                                             verify=verify,
+                                             json=json)
                     to_cache(response, query.request_file(self.cache_location))
             self._last_query = query
             return response
