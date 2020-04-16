@@ -52,6 +52,8 @@ alma
   several columns have been added [#1644,#1665,#1683]
 - The contents of tarfiles can be shown with the ``expand_tarfiles`` keyword
   to ``stage_data`` [#1683]
+- Bugfix: when accessing private data, auth credentials were not being passed
+  to the HEAD request used to acquire header data [#1698]
 
 vizier
 ^^^^^^
