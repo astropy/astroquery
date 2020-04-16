@@ -1,7 +1,7 @@
 from astropy import config as _config
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-"""NSF's OIR Lab Astro Data Archive(Beta)
------------------------------------------
+"""NSF's OIR Lab Astro Data Archive (Beta)
+------------------------------------------
 
 The NSF's OIR Lab Astro Data Archive (formerly NOAO Science Archive)
 provides access to data taken with more than 40 telescope and
@@ -53,9 +53,6 @@ at NSF's National Optical-Infrared Astronomy Research
 Laboratory. NSF's OIR Lab is operated by the Association of
 Universities for Research in Astronomy (AURA), Inc. under a
 cooperative agreement with the National Science Foundation.
-
-
-See also: gemini, nrao
 
 """
 
