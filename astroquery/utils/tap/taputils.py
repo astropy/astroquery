@@ -99,7 +99,7 @@ def set_top_in_query(query, top):
             nq = query[0:endPos] + " TOP " + str(top) + " " + query[endPos:]
         else:
             # no all nor distinct: add top after select
-            p = q.find("SELECT ")
+            p = q.replace("\n", " ").find("SELECT ")
             nq = query[0:p+7] + " TOP " + str(top) + " " + query[p+7:]
         return nq
 
