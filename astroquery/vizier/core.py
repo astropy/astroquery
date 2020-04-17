@@ -316,7 +316,7 @@ class VizierClass(BaseQuery):
     def query_region_async(self, coordinates, radius=None, inner_radius=None,
                            width=None, height=None, catalog=None,
                            get_query_payload=False, cache=True,
-                           return_type='votable'):
+                           return_type='votable', column_filters={}):
         """
         Serves the same purpose as `query_region` but only
         returns the HTTP response rather than the parsed result.
@@ -344,6 +344,9 @@ class VizierClass(BaseQuery):
         catalog : str or list, optional
             The catalog(s) which must be searched for this identifier.
             If not specified, all matching catalogs will be searched.
+        column_filters: dict, optional
+            Constraints on columns of the result. The dictionary contains
+            the column name as keys, and the constraints as values.
 
         Returns
         -------
@@ -432,7 +435,7 @@ class VizierClass(BaseQuery):
                 "At least one of radius, width/height must be specified")
 
         data_payload = self._args_to_payload(center=center, columns=columns,
-                                             catalog=catalog)
+                                             catalog=catalog, column_filters=column_filters)
 
         if get_query_payload:
             return data_payload
