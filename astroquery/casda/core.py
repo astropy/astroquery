@@ -42,6 +42,7 @@ class CasdaClass(BaseQuery):
     # TIMEOUT, etc.
     URL = conf.server
     TIMEOUT = conf.timeout
+    POLL_INTERVAL = 20
     _soda_base_url = conf.soda_base_url
     _uws_ns = {'uws': 'http://www.ivoa.net/xml/UWS/v1.0'}
 
@@ -162,12 +163,16 @@ class CasdaClass(BaseQuery):
         if not self._authenticated:
             raise ValueError("Credentials must be supplied to download CASDA image data")
 
+        if table is None or len(table) == 0:
+            return []
+
         # Use datalink to get authenticated access for each file
         tokens = []
         for row in table:
             access_url = row['access_url']
             response = self._request('GET', access_url, auth=self._auth,
-                                     timeout=self.TIMEOUT)
+                                     timeout=self.TIMEOUT, cache=False)
+            response.raise_for_status()
             soda_url, id_token = self._parse_datalink_for_service_and_id(response, 'cutout_service')
             tokens.append(id_token)
 
@@ -176,11 +181,14 @@ class CasdaClass(BaseQuery):
         print("Created data staging job", job_url)
 
         # Wait for job to be complete
-        final_status = self._run_job(job_url)
-        print("Job ended with status", final_status)
+        final_status = self._run_job(job_url, poll_interval=self.POLL_INTERVAL)
+        if final_status != 'COMPLETED':
+            print("Job ended with status", final_status)
+            raise ValueError('Data staging job did not complete successfully. Status was ' + final_status)
 
-        # Build lost of result file urls
+        # Build list of result file urls
         job_details = self._get_job_details_xml(job_url)
+        # print (job_details)
         fileurls = []
         for result in job_details.find("uws:results", self._uws_ns).findall("uws:result", self._uws_ns):
             file_location = unquote(result.get("{http://www.w3.org/1999/xlink}href"))
@@ -205,11 +213,16 @@ class CasdaClass(BaseQuery):
         return filenames
 
     def _parse_datalink_for_service_and_id(self, response, service_name):
-        """ Parses a datalink file into a vo table, and returns the async service url and the authenticated id token """
-        # Parse the datalink file into a vo table, and get the results
+        """
+        Parses a datalink file into a vo table, and returns the async service url and the authenticated id token.
+
+        :param response: The requests.Response object containing the datalink query response.
+        :param service_name: The name of the service to be utilised
+        :return: The url of the async service and the authenticated id token of the file.
+        """
+
         data = BytesIO(response.content)
-        #votable = Table.read(data) #, pedantic=False)
-        #f = StringIO(response)
+
         votable = parse(data, pedantic=False)
         results = next(resource for resource in votable.resources if
                        resource.type == "results")
@@ -222,7 +235,7 @@ class CasdaClass(BaseQuery):
         # Find the authenticated id token for accessing the image cube
         for x in results_array:
             if x['service_def'].decode("utf8") == service_name:
-                authenticated_id_token = x['authenticated_id_token']
+                authenticated_id_token = x['authenticated_id_token'].decode()
 
         # Find the async url
         for x in votable.resources:
@@ -230,10 +243,7 @@ class CasdaClass(BaseQuery):
                 if x.ID == service_name:
                     for p in x.params:
                         if p.name == "accessURL":
-                            async_url = p.value
-
-        # print "Async url:", async_url
-        # print "Authenticated id token for async access:", authenticated_id_token
+                            async_url = p.value.decode()
 
         return async_url, authenticated_id_token
 
@@ -274,7 +284,7 @@ class CasdaClass(BaseQuery):
             time.sleep(poll_interval)
             job_details = self._get_job_details_xml(job_location)
             status = self._read_job_status(job_details)
-            print (status)
+            # print (status)
         return status
 
     def _get_soda_url(self):
@@ -283,12 +293,18 @@ class CasdaClass(BaseQuery):
     def _get_job_details_xml(self, async_job_url):
         """ Get job details as XML """
         response = self._request('GET', async_job_url, cache=False)
+        response.raise_for_status()
         job_response = response.text
         return ElementTree.fromstring(job_response)
 
-    def _read_job_status(self, job_details_xml, ns=_uws_ns):
+    def _read_job_status(self, job_details_xml):
         """ Read job status from the job details XML """
-        status = job_details_xml.find("uws:phase", ns).text
+        status_node = job_details_xml.find("{http://www.ivoa.net/xml/UWS/v1.0}phase")
+        if status_node is None:
+            print("Unable to find status in status xml:")
+            ElementTree.dump(job_details_xml)
+            raise ValueError('Invalid job status xml received.')
+        status = status_node.text
         return status
 
 
