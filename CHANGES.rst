@@ -41,6 +41,12 @@ alma
 - The contents of tarfiles can be shown with the ``expand_tarfiles`` keyword
   to ``stage_data`` [#1683]
 
+vizier
+^^^^^^
+
+- It is now possible to specify constraints to ``query_region()``
+  with the ``column_filters`` keyword. [#1702]
+
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
