@@ -36,10 +36,8 @@ Similarly, cone searches can be executed using the `~astroquery.nasa_exoplanet_a
     >>> from astropy.coordinates import SkyCoord
     >>> from astroquery.nasa_exoplanet_archive import NasaExoplanetArchive
     >>> NasaExoplanetArchive.query_region(
-    ...     "exoplanets",
-    ...     SkyCoord(ra=172.56 * u.deg, dec=7.59 * u.deg),
-    ...     1.0 * u.deg
-    ... )
+    ...     table="exoplanets", coordinates=SkyCoord(ra=172.56 * u.deg, dec=7.59 * u.deg),
+    ...     radius=1.0 * u.deg)
     <QTable masked=True length=2>
     pl_hostname pl_letter pl_name ...   dist     angle         sky_coord
                                   ...                           deg,deg
@@ -55,7 +53,7 @@ For example, a full table can be queried as follows:
 .. code-block:: python
 
     >>> from astroquery.nasa_exoplanet_archive import NasaExoplanetArchive
-    >>> NasaExoplanetArchive.query_criteria("cumulative", select="*")
+    >>> NasaExoplanetArchive.query_criteria(table="cumulative", select="*")
     <QTable masked=True length=9564>
      kepid   kepoi_name kepler_name  ... koi_fittype koi_score      sky_coord
                                      ...                             deg,deg
@@ -80,11 +78,8 @@ In this section, we demonstrate
 .. code-block:: python
 
     >>> from astroquery.nasa_exoplanet_archive import NasaExoplanetArchive
-    >>> NasaExoplanetArchive.query_criteria(
-    ...     "exoplanets",
-    ...     select="count(*)",
-    ...     where="pl_facility like '%TESS%'"
-    ... )
+    >>> NasaExoplanetArchive.query_criteria(table="exoplanets", select="count(*)",
+    ...                                     where="pl_facility like '%TESS%'")
     <QTable length=1>
     count(*)
      int64
@@ -97,11 +92,8 @@ In this section, we demonstrate
 .. code-block:: python
 
     >>> from astroquery.nasa_exoplanet_archive import NasaExoplanetArchive
-    >>> NasaExoplanetArchive.query_criteria(
-    ...     "exoplanets",
-    ...     select="pl_hostname,ra,dec",
-    ...     where="pl_facility like '%TESS%'"
-    ... )
+    >>> NasaExoplanetArchive.query_criteria(table="exoplanets", select="pl_hostname,ra,dec",
+    ...                                     where="pl_facility like '%TESS%'")
     <QTable length=45>
     pl_hostname     ra        dec           sky_coord
                    deg        deg            deg,deg
@@ -120,9 +112,7 @@ In this section, we demonstrate
 
     >>> from astroquery.nasa_exoplanet_archive import NasaExoplanetArchive
     >>> NasaExoplanetArchive.query_criteria(
-    ...     "exoplanets",
-    ...     where="pl_discmethod like 'Microlensing' and st_nts > 0"
-    ... )
+    ...     table="exoplanets", where="pl_discmethod like 'Microlensing' and st_nts > 0")
     <QTable masked=True length=32>
          pl_hostname      pl_letter ... pl_facility       sky_coord
                                     ...                    deg,deg
@@ -141,10 +131,7 @@ In this section, we demonstrate
 
     >>> from astroquery.nasa_exoplanet_archive import NasaExoplanetArchive
     >>> NasaExoplanetArchive.query_criteria(
-    ...     "exoplanets",
-    ...     where="pl_hostname like 'Kepler%'",
-    ...     order="pl_hostname",
-    ... )
+    ...     table="exoplanets", where="pl_hostname like 'Kepler%'", order="pl_hostname")
     <QTable masked=True length=2312>
     pl_hostname pl_letter    pl_name    ... rowupdate  pl_facility      sky_coord
                                         ...                              deg,deg
@@ -163,11 +150,8 @@ In this section, we demonstrate
 
     >>> from astroquery.nasa_exoplanet_archive import NasaExoplanetArchive
     >>> NasaExoplanetArchive.query_criteria(
-    ...     "koi",
-    ...     where="koi_vet_date>to_date('2015-01-24','yyyy-mm-dd')",
-    ...     select="kepoi_name,koi_vet_date",
-    ...     order="koi_vet_date",
-    ... )
+    ...     table="koi", where="koi_vet_date>to_date('2015-01-24','yyyy-mm-dd')",
+    ...     select="kepoi_name,koi_vet_date", order="koi_vet_date")
     <QTable length=34652>
     kepoi_name koi_vet_date
        str9       str10

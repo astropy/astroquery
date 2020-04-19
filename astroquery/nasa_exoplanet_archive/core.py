@@ -77,7 +77,6 @@ class NasaExoplanetArchiveClass(BaseQuery):
 
     A full discussion of the available tables and query syntax is available on `the documentation
     page <https://exoplanetarchive.ipac.caltech.edu/docs/program_interfaces.html>`_.
-
     """
 
     URL = conf.url
@@ -85,9 +84,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
     CACHE = conf.cache
 
     @class_or_instance
-    def query_criteria_async(
-        self, table, get_query_payload=False, cache=None, **criteria,
-    ):
+    def query_criteria_async(self, table, get_query_payload=False, cache=None, **criteria):
         """
         Search a table given a set of critera or return the full table
 
@@ -119,7 +116,6 @@ class NasaExoplanetArchiveClass(BaseQuery):
 
         .. [1] `NASA Exoplanet Archive API Documentation
            <https://exoplanetarchive.ipac.caltech.edu/docs/program_interfaces.html>`_
-
         """
         table = table.lower()
 
@@ -155,9 +151,8 @@ class NasaExoplanetArchiveClass(BaseQuery):
         return response
 
     @class_or_instance
-    def query_region_async(
-        self, table, coordinates, radius, get_query_payload=False, cache=None, **criteria,
-    ):
+    def query_region_async(self, table, coordinates, radius, get_query_payload=False, cache=None,
+                           **criteria):
         """
         Filter a table using a cone search around specified coordinates
 
@@ -191,7 +186,6 @@ class NasaExoplanetArchiveClass(BaseQuery):
 
         .. [1] `NASA Exoplanet Archive API Documentation
            <https://exoplanetarchive.ipac.caltech.edu/docs/program_interfaces.html>`_
-
         """
         coordinates = commons.parse_coordinates(coordinates)
 
@@ -209,15 +203,8 @@ class NasaExoplanetArchiveClass(BaseQuery):
         )
 
     @class_or_instance
-    def query_object_async(
-        self,
-        object_name,
-        table="exoplanets",
-        get_query_payload=False,
-        cache=None,
-        regularize=True,
-        **criteria,
-    ):
+    def query_object_async(self, object_name, table="exoplanets", get_query_payload=False,
+                           cache=None, regularize=True, **criteria):
         """
         Search the global tables for information about a confirmed planet or planet host
 
@@ -260,7 +247,6 @@ class NasaExoplanetArchiveClass(BaseQuery):
 
         .. [1] `NASA Exoplanet Archive API Documentation
            <https://exoplanetarchive.ipac.caltech.edu/docs/program_interfaces.html>`_
-
         """
         prefix = OBJECT_TABLES.get(table, None)
         if prefix is None:
@@ -301,7 +287,6 @@ class NasaExoplanetArchiveClass(BaseQuery):
         -------
         response : list
             A list of aliases found for the object name. The default name will be listed first.
-
         """
         return list(
             self.query_criteria(
@@ -338,7 +323,6 @@ class NasaExoplanetArchiveClass(BaseQuery):
             If the queried ``table`` does not exist.
         RemoteServiceError :
             If anything else went wrong.
-
         """
         # Error messages will always be formatted starting with the word "ERROR"
         if not text.startswith("ERROR"):
@@ -406,7 +390,6 @@ class NasaExoplanetArchiveClass(BaseQuery):
         -------
         new_data : `~astropy.table.QTable` or `~astropy.table.Table`
             The original ``data`` table with units applied where possible.
-
         """
 
         # To deal with masked data and quantities properly, we need to construct the QTable
@@ -473,7 +456,6 @@ class NasaExoplanetArchiveClass(BaseQuery):
         Returns
         -------
         data : `~astropy.table.Table` or `~astropy.table.QTable`
-
         """
 
         # Extract the decoded body of the response
@@ -516,7 +498,6 @@ class NasaExoplanetArchiveClass(BaseQuery):
 
         This method will warn users about these deprecated arguments and update the query syntax
         to use ``select='*'`` instead of ``all_columns``.
-
         """
         show_progress = kwargs.pop("show_progress", None)
         if show_progress is not None:
@@ -562,7 +543,6 @@ class NasaExoplanetArchiveClass(BaseQuery):
         **criteria
             Any other filtering criteria to apply. Values provided using the ``where`` keyword will
             be ignored.
-
         """
         if regularize:
             planet_name = self._regularize_object_name(planet_name)
@@ -588,7 +568,6 @@ class NasaExoplanetArchiveClass(BaseQuery):
         **criteria
             Any other filtering criteria to apply. Values provided using the ``where`` keyword will
             be ignored.
-
         """
         if regularize:
             host_name = self._regularize_object_name(host_name)
