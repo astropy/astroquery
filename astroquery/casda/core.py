@@ -56,7 +56,6 @@ class CasdaClass(BaseQuery):
             # self._password = password
             self._auth = (user, password)
 
-
     def query_region_async(self, coordinates, radius=None, height=None, width=None,
                            get_query_payload=False, cache=True):
         """
@@ -277,7 +276,7 @@ class CasdaClass(BaseQuery):
         status = self._read_job_status(job_details)
         while status == 'EXECUTING' or status == 'QUEUED' or status == 'PENDING':
             count += 1
-            if True: # status != prev_status:# or count > 10:
+            if status != prev_status or count > 10:
                 print("Job is %s, polling every %d seconds." % (status, poll_interval))
                 count = 0
                 prev_status = status
