@@ -15,7 +15,7 @@ Service fixes and enhancements
 casda
 ^^^^^
 
-- Add ability to stage and download ASKAP data. [#1705]
+- Add ability to stage and download ASKAP data. [#1706]
 
 gaia
 ^^^^
