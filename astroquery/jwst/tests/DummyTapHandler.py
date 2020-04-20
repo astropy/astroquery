@@ -15,16 +15,30 @@ Created on 24 oct. 2018
 
 """
 
+from astroquery.utils.tap.model.job import Job
+
 
 class DummyTapHandler(object):
 
     def __init__(self):
         self.__invokedMethod = None
         self.__parameters = {}
+        self.__dummy_results = "dummy_results"
+        self.__job = Job(async_job=False)
+        self.__job.set_results(self.__dummy_results)
 
     def reset(self):
         self.__parameters = {}
         self.__invokedMethod = None
+        self.__dummy_results = "dummy_results"
+        self.__job = Job(async_job=False)
+        self.__job.set_results(self.__dummy_results)
+
+    def set_job(self, job):
+        self.__job = job
+
+    def get_job(self):
+        return self.__job
 
     def check_call(self, method_name, parameters):
         self.check_method(method_name)
@@ -88,7 +102,7 @@ class DummyTapHandler(object):
         self.__parameters['dump_to_file'] = dump_to_file
         self.__parameters['upload_resource'] = upload_resource
         self.__parameters['upload_table_name'] = upload_table_name
-        return None
+        return self.__job
 
     def launch_job_async(self, query, name=None, output_file=None,
                          output_format="votable", verbose=False,
@@ -104,7 +118,7 @@ class DummyTapHandler(object):
         self.__parameters['background'] = background
         self.__parameters['upload_resource'] = upload_resource
         self.__parameters['upload_table_name'] = upload_table_name
-        return None
+        return self.__job
 
     def load_async_job(self, jobid=None, name=None, verbose=False):
         self.__invokedMethod = 'load_async_job'

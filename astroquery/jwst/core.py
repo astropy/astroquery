@@ -19,6 +19,14 @@ from astroquery.utils import commons
 from astropy import units
 from astropy.units import Quantity
 
+from datetime import datetime
+import os
+import zipfile
+import tarfile
+import binascii
+import shutil
+import gzip
+
 from . import conf
 from .data_access import JwstDataHandler
 
@@ -34,6 +42,8 @@ class JwstClass(object):
     JWST_MAIN_TABLE = conf.JWST_MAIN_TABLE
     JWST_MAIN_TABLE_RA = conf.JWST_MAIN_TABLE_RA
     JWST_MAIN_TABLE_DEC = conf.JWST_MAIN_TABLE_DEC
+    JWST_PLANE_TABLE = conf.JWST_PLANE_TABLE
+    JWST_ARTIFACT_TABLE = conf.JWST_ARTIFACT_TABLE
 
     JWST_DEFAULT_COLUMNS = ['observationid', 'calibrationlevel', 'public',
                             'dataproducttype', 'instrument_name', 'energy_bandpassname',
@@ -318,14 +328,14 @@ class JwstClass(object):
                 columns = '*'
 
             query = "SELECT DISTANCE(POINT('ICRS'," +\
-                str(self.JWST_OBSERVATION_TABLE_RA) + "," +\
-                str(self.JWST_OBSERVATION_TABLE_DEC) +"), \
+                str(self.JWST_MAIN_TABLE_RA) + "," +\
+                str(self.JWST_MAIN_TABLE_DEC) +"), \
                 POINT('ICRS'," + str(ra) + "," + str(dec) +")) AS dist, "+columns+" \
-                FROM jwst.main \
+                FROM " + str(self.JWST_MAIN_TABLE) + " \
                 WHERE CONTAINS(\
                 POINT('ICRS'," +\
-                str(self.JWST_OBSERVATION_TABLE_RA)+"," +\
-                str(self.JWST_OBSERVATION_TABLE_DEC)+"),\
+                str(self.JWST_MAIN_TABLE_RA)+"," +\
+                str(self.JWST_MAIN_TABLE_DEC)+"),\
                 BOX('ICRS'," + str(ra) + "," + str(dec)+", " +\
                 str(widthDeg.value)+", " +\
                 str(heightDeg.value)+"))=1 " +\
@@ -815,13 +825,15 @@ class JwstClass(object):
         """
         return self.__jwsttap.logout(verbose)
     
-    def get_product_list(self, plane_id, product_type=None):
+    def get_product_list(self, observation_id=None, cal_level=None, product_type=None):
         """Get the list of products of a given JWST plane.
 
         Parameters
         ----------
-        plane_id : str, mandatory
-            Plane ID of the products.
+        observation_id : str, mandatory
+            Observation identifier.
+        cal_level : str, optional
+            Calibration level.
         product_type : str, optional, default None
             List only products of the given type. If None, all products are \
             listed. Possible values: 'thumbnail', 'preview', 'auxiliary', \
@@ -831,15 +843,26 @@ class JwstClass(object):
         -------
         The list of products (astropy.table).
         """
-        if plane_id is None:
-            raise ValueError("Missing required argument: 'plane_id'")
+        if observation_id is None:
+            raise ValueError("Missing required argument: 'observation_id'")
         
         prodtype_condition=self.__get_artifact_producttype_condition(product_type)
-        query = "SELECT  * " +\
-            "FROM " + str(self.JWST_ARTIFACT_TABLE) +\
-            " WHERE planeid='"+plane_id+"' " +\
+        cal_level_condition=self.__get_calibration_level_condition(cal_level)
+        #query = "SELECT  * " +\
+        #    "FROM " + str(self.JWST_ARTIFACT_TABLE) +\
+        #    " WHERE planeid='"+plane_id+"' " +\
+        #    prodtype_condition +\
+        #    "ORDER BY producttype ASC"
+
+        query = "SELECT a.*, m.calibrationlevel FROM " +\
+            str(self.JWST_ARTIFACT_TABLE) + " AS a, " +\
+            str(self.JWST_MAIN_TABLE) + " AS m " +\
+            "WHERE a.obsid = m.obsid AND " +\
+            "a.obsid = '"+observation_id+"' " +\
+            cal_level_condition +\
             prodtype_condition +\
-            "ORDER BY producttype ASC"
+            " ORDER BY a.producttype ASC"
+
         job = self.__jwsttap.launch_job(query=query)
         return job.get_results()
     
@@ -887,10 +910,128 @@ class JwstClass(object):
         #return file
         try:
             self.__jwsttap.load_data(params_dict=params_dict, output_file=output_file_name)
-        except:
-            raise ValueError('Product ' + err_msg + ' not available')
+        except Exception as exx:
+            raise ValueError('Error retrieving product for ' +
+                             err_msg + ': %s' % str(exx))
         print("Product saved at: %s" % (output_file_name))
         return output_file_name
+
+    def get_obs_products(self, observation_id=None, cal_level=None, product_type=None, output_file=None):
+        """Get a JWST product given its Artifact ID.
+
+        Parameters
+        ----------
+        observation_id : str, mandatory
+            Observation identifier.
+        cal_level : str, optional
+            Calibration level.
+        product_type : str, optional, default None
+            List only products of the given type. If None, all products are \
+            listed. Possible values: 'thumbnail', 'preview', 'auxiliary', \
+            'science'.
+        output_file : str, optional
+            Output file. If no value is provided, a temporary one is created.
+
+        Returns
+        -------
+        local_path : str
+            Returns the local path where the product(s) are saved.
+        """
+
+        params_dict = {}
+        params_dict['RETRIEVAL_TYPE'] = 'OBSERVATION'
+        params_dict['DATA_RETRIEVAL_ORIGIN'] = 'ASTROQUERY'
+
+        if observation_id is None:
+            raise ValueError("Missing required argument: 'observation_id'")
+
+        params_dict['obsid'] = observation_id
+        if cal_level is not None:
+            params_dict['calibrationlevel'] = str(cal_level)
+
+        if product_type is not None:
+            params_dict['product_type'] = str(product_type)
+
+        if output_file is None:
+            now = datetime.now()
+            formatted_now = now.strftime("%Y%m%d_%H%M%S")
+            output_dir = os.getcwd() + os.sep + "temp_" + \
+                formatted_now
+            output_file_full_path =  output_dir + os.sep + observation_id +\
+                "_all_products"
+        else:
+            output_file_full_path = output_file
+            output_dir = os.path.dirname(output_file_full_path)
+
+        # Get file name only
+        output_file_name = os.path.basename(output_file_full_path)
+
+        try:
+            os.makedirs(output_dir, exist_ok=True)
+        except OSError as err:
+            print("Creation of the directory %s failed: %s" % (output_dir, err.strerror))
+            raise err
+
+        try:
+            self.__jwsttap.load_data(params_dict=params_dict, output_file=output_file_full_path)
+        except Exception as exx:
+            raise ValueError('Cannot retrieve products for observation ' +
+                             observation_id + ': %s' % str(exx))
+        print("Product(s) saved at: %s" % output_file_full_path)
+
+        files = []
+
+        if tarfile.is_tarfile(output_file_full_path):
+            with tarfile.open(output_file_full_path) as tar_ref:
+                tar_ref.extractall(path=output_dir)
+        elif zipfile.is_zipfile(output_file_full_path):
+            with zipfile.ZipFile(output_file_full_path, 'r') as zip_ref:
+                zip_ref.extractall(output_dir)
+        elif not JwstClass.is_gz_file(output_file_full_path):
+            # single file: return it
+            files.append(output_file_full_path)
+            print("Product = %s" % output_file_full_path)
+            return files
+
+        num_files_in_dir = len(os.listdir(output_dir))
+        if num_files_in_dir == 1:
+            if output_file_name.endswith("_all_products"):
+                p = output_file_name.rfind('_all_products')
+                output_f = output_file_name[0:p]
+            else:
+                output_f = output_file_name
+
+            output_full_path = output_dir + os.sep + output_f
+
+            os.rename(output_file_full_path, output_full_path)
+            files.append(output_full_path)
+            #if JwstClass.is_gz_file(output_file_full_path):
+            #    extracted_output_full_path = JwstClass.gzip_uncompress_and_rename_single_file(output_full_path)
+            #    files.append(extracted_output_full_path)
+            #else:
+            #    os.rename(output_file_full_path, output_full_path)
+            #    files.append(output_full_path)
+        else:
+            # r=root, d=directories, f = files
+            for r, d, f in os.walk(output_dir):
+                for file in f:
+                    if file != output_file_name:
+                        files.append(os.path.join(r, file))
+                        #compressed_file = os.path.join(r, file)
+                        #if JwstClass.is_gz_file(compressed_file):
+                        #    uncompressed_output = JwstClass.gzip_uncompress_and_rename_single_file(compressed_file)
+                        #    #output_decompressed_file = output_dir + os.sep + file + "_decompressed"
+                        #    #self.gzip_uncompress(input_file=compressed_file, output_file=output_decompressed_file)
+                        #    #os.remove(compressed_file)
+                        #    #os.rename(output_decompressed_file, compressed_file)
+                        #    files.append(uncompressed_output)
+                        #else:
+                        #    files.append(os.path.join(r, file))
+
+        for f in files:
+            print("Product = %s" % f)
+
+        return files
 
     def __get_quantity_input(self, value, msg):
         if value is None:
@@ -998,6 +1139,44 @@ class JwstClass(object):
             else:
                 condition = " AND producttype ILIKE '"+product_type+"' "
         return condition
+
+    def __get_calibration_level_condition(self, cal_level=None):
+        condition = ""
+        if(cal_level is not None):
+            if(not isinstance(cal_level, int)):
+                raise ValueError("product_type must be an integer")
+            else:
+                condition = " AND m.calibrationlevel = "+str(cal_level)+" "
+        else:
+            condition = " AND m.calibrationlevel = m.max_cal_level"
+        return condition
+
+    @staticmethod
+    def is_gz_file(filepath):
+        with open(filepath, 'rb') as test_f:
+            return binascii.hexlify(test_f.read(2)) == b'1f8b'
+
+    @staticmethod
+    def gzip_uncompress(input_file, output_file):
+        with open(output_file, 'wb') as f_out, gzip.open(input_file, 'rb') as f_in:
+            shutil.copyfileobj(f_in, f_out)
+
+    @staticmethod
+    def gzip_uncompress_and_rename_single_file(input_file):
+        output_dir = os.path.dirname(input_file)
+        file = os.path.basename(input_file)
+        output_decompressed_file = output_dir + os.sep + file + "_decompressed"
+        JwstClass.gzip_uncompress(input_file=input_file, output_file=output_decompressed_file)
+        # Remove uncompressed file and rename decompressed file to the original one
+        os.remove(input_file)
+        if file.lower().endswith(".gz"):
+            # remove .gz
+            new_file_name = file[:len(file)-3]
+            output = output_dir + os.sep + new_file_name
+        else:
+            output = input_file
+        os.rename(output_decompressed_file, output)
+        return output
 
 
 Jwst = JwstClass()

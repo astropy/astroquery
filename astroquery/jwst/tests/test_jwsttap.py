@@ -17,6 +17,7 @@ Created on 24 oct. 2018
 import unittest
 import os
 import pytest
+import shutil
 
 from astroquery.jwst import JwstClass
 from astroquery.jwst.tests.DummyTapHandler import DummyTapHandler
@@ -616,6 +617,250 @@ class TestTap(unittest.TestCase):
         jwst.get_product(file_name='file_name_id');
         dummyTapHandler.check_call('load_data', parameters)
 
+    def test_get_products_list(self):
+        dummyTapHandler = DummyTapHandler()
+        jwst = JwstClass(dummyTapHandler, dummyTapHandler)
+        # default parameters
+        with pytest.raises(ValueError) as err:
+            jwst.get_product_list()
+        assert "Missing required argument: 'observation_id'" in err.value.args[0]
+
+        # test with parameters
+        dummyTapHandler.reset()
+
+        observation_id = "obsid"
+        cal_level_condition = " AND m.calibrationlevel = m.max_cal_level"
+        prodtype_condition = ""
+
+        query = "SELECT a.*, m.calibrationlevel FROM " +\
+                "jwst.artifact AS a, " +\
+                "jwst.main AS m " + \
+                "WHERE a.obsid = m.obsid AND " + \
+                "a.obsid = '" + observation_id + "' " + \
+                cal_level_condition + \
+                prodtype_condition + \
+                " ORDER BY a.producttype ASC"
+
+        parameters = {}
+        parameters['query'] = query
+        parameters['name'] = None
+        parameters['output_file'] = None
+        parameters['output_format'] = 'votable'
+        parameters['verbose'] = False
+        parameters['dump_to_file'] = False
+        parameters['upload_resource'] = None
+        parameters['upload_table_name'] = None
+
+        jwst.get_product_list(observation_id=observation_id)
+        dummyTapHandler.check_call('launch_job', parameters)
+
+        dummyTapHandler.reset()
+        cal_level = 2
+        cal_level_condition = " AND m.calibrationlevel = "+str(cal_level)+" "
+        product_type = "science"
+        prodtype_condition = " AND producttype ILIKE '"+product_type+"' "
+
+        query = "SELECT a.*, m.calibrationlevel FROM " +\
+                "jwst.artifact AS a, " +\
+                "jwst.main AS m " + \
+                "WHERE a.obsid = m.obsid AND " + \
+                "a.obsid = '" + observation_id + "' " + \
+                cal_level_condition + \
+                prodtype_condition + \
+                " ORDER BY a.producttype ASC"
+
+        parameters = {}
+        parameters['query'] = query
+        parameters['name'] = None
+        parameters['output_file'] = None
+        parameters['output_format'] = 'votable'
+        parameters['verbose'] = False
+        parameters['dump_to_file'] = False
+        parameters['upload_resource'] = None
+        parameters['upload_table_name'] = None
+
+        jwst.get_product_list(observation_id=observation_id, cal_level=cal_level, product_type=product_type)
+        dummyTapHandler.check_call('launch_job', parameters)
+
+    def test_get_obs_products(self):
+        dummyTapHandler = DummyTapHandler()
+        jwst = JwstClass(dummyTapHandler, dummyTapHandler)
+        # default parameters
+        with pytest.raises(ValueError) as err:
+            jwst.get_obs_products()
+        assert "Missing required argument: 'observation_id'" in err.value.args[0]
+
+        # test with parameters
+        dummyTapHandler.reset()
+
+        output_file_full_path_dir = os.getcwd() + os.sep + "temp_test_jwsttap_get_obs_products_1"
+        try:
+            os.makedirs(output_file_full_path_dir, exist_ok=True)
+        except OSError as err:
+            print("Creation of the directory %s failed: %s" % (output_file_full_path_dir, err.strerror))
+            raise err
+
+        observation_id = 'obsid'
+
+        parameters = {}
+        parameters['verbose'] = False
+
+        param_dict = {}
+        param_dict['obsid'] = observation_id
+        param_dict['RETRIEVAL_TYPE'] = 'OBSERVATION'
+        param_dict['DATA_RETRIEVAL_ORIGIN'] = 'ASTROQUERY'
+        parameters['params_dict'] = param_dict
+
+        # Test single product tar
+        file = data_path('single_product_retrieval.tar')
+        output_file_full_path = output_file_full_path_dir + os.sep + os.path.basename(file)
+        shutil.copy(file, output_file_full_path)
+
+        parameters['output_file'] = output_file_full_path
+
+        expected_files=[]
+        extracted_file_1 = output_file_full_path_dir + os.sep + 'single_product_retrieval_1.fits'
+        expected_files.append(extracted_file_1)
+
+        try:
+            files_returned = jwst.get_obs_products(observation_id=observation_id, output_file=output_file_full_path)
+            dummyTapHandler.check_call('load_data', parameters)
+            self.__check_extracted_files(files_expected=expected_files, files_returned=files_returned)
+        finally:
+            # self.__remove_folder_contents(folder=output_file_full_path_dir)
+            shutil.rmtree(output_file_full_path_dir)
+
+        # Test single file
+        output_file_full_path_dir = os.getcwd() + os.sep + "temp_test_jwsttap_get_obs_products_2"
+        try:
+            os.makedirs(output_file_full_path_dir, exist_ok=True)
+        except OSError as err:
+            print("Creation of the directory %s failed: %s" % (output_file_full_path_dir, err.strerror))
+            raise err
+
+        file = data_path('single_product_retrieval_1.fits')
+        output_file_full_path = output_file_full_path_dir + os.sep + os.path.basename(file)
+        shutil.copy(file, output_file_full_path)
+
+        parameters['output_file'] = output_file_full_path
+
+        expected_files=[]
+        expected_files.append(output_file_full_path)
+
+        try:
+            files_returned = jwst.get_obs_products(observation_id=observation_id, output_file=output_file_full_path)
+            dummyTapHandler.check_call('load_data', parameters)
+            self.__check_extracted_files(files_expected=expected_files, files_returned=files_returned)
+        finally:
+            # self.__remove_folder_contents(folder=output_file_full_path_dir)
+            shutil.rmtree(output_file_full_path_dir)
+
+        # Test single file zip
+        output_file_full_path_dir = os.getcwd() + os.sep + "temp_test_jwsttap_get_obs_products_3"
+        try:
+            os.makedirs(output_file_full_path_dir, exist_ok=True)
+        except OSError as err:
+            print("Creation of the directory %s failed: %s" % (output_file_full_path_dir, err.strerror))
+            raise err
+
+        file = data_path('single_product_retrieval_3.fits.zip')
+        output_file_full_path = output_file_full_path_dir + os.sep + os.path.basename(file)
+        shutil.copy(file, output_file_full_path)
+
+        parameters['output_file'] = output_file_full_path
+
+        expected_files=[]
+        extracted_file_1 = output_file_full_path_dir + os.sep + 'single_product_retrieval.fits'
+        expected_files.append(extracted_file_1)
+
+        try:
+            files_returned = jwst.get_obs_products(observation_id=observation_id, output_file=output_file_full_path)
+            dummyTapHandler.check_call('load_data', parameters)
+            self.__check_extracted_files(files_expected=expected_files, files_returned=files_returned)
+        finally:
+            # self.__remove_folder_contents(folder=output_file_full_path_dir)
+            shutil.rmtree(output_file_full_path_dir)
+
+        # Test single file gzip
+        output_file_full_path_dir = os.getcwd() + os.sep + "temp_test_jwsttap_get_obs_products_4"
+        try:
+            os.makedirs(output_file_full_path_dir, exist_ok=True)
+        except OSError as err:
+            print("Creation of the directory %s failed: %s" % (output_file_full_path_dir, err.strerror))
+            raise err
+
+        file = data_path('single_product_retrieval_2.fits.gz')
+        output_file_full_path = output_file_full_path_dir + os.sep + os.path.basename(file)
+        shutil.copy(file, output_file_full_path)
+
+        parameters['output_file'] = output_file_full_path
+
+        expected_files=[]
+        extracted_file_1 = output_file_full_path_dir + os.sep + 'single_product_retrieval_2.fits.gz'
+        expected_files.append(extracted_file_1)
+
+        try:
+            files_returned = jwst.get_obs_products(observation_id=observation_id, output_file=output_file_full_path)
+            dummyTapHandler.check_call('load_data', parameters)
+            self.__check_extracted_files(files_expected=expected_files, files_returned=files_returned)
+        finally:
+            # self.__remove_folder_contents(folder=output_file_full_path_dir)
+            shutil.rmtree(output_file_full_path_dir)
+
+        # Test tar with 3 files, a normal one, a gzip one and a zip one
+        output_file_full_path_dir = os.getcwd() + os.sep + "temp_test_jwsttap_get_obs_products_5"
+        try:
+            os.makedirs(output_file_full_path_dir, exist_ok=True)
+        except OSError as err:
+            print("Creation of the directory %s failed: %s" % (output_file_full_path_dir, err.strerror))
+            raise err
+
+        file = data_path('three_products_retrieval.tar')
+        output_file_full_path = output_file_full_path_dir + os.sep + os.path.basename(file)
+        shutil.copy(file, output_file_full_path)
+
+        parameters['output_file'] = output_file_full_path
+
+        expected_files=[]
+        extracted_file_1 = output_file_full_path_dir + os.sep + 'single_product_retrieval_1.fits'
+        expected_files.append(extracted_file_1)
+        extracted_file_2 = output_file_full_path_dir + os.sep + 'single_product_retrieval_2.fits.gz'
+        expected_files.append(extracted_file_2)
+        extracted_file_3 = output_file_full_path_dir + os.sep + 'single_product_retrieval_3.fits.zip'
+        expected_files.append(extracted_file_3)
+
+        try:
+            files_returned = jwst.get_obs_products(observation_id=observation_id, output_file=output_file_full_path)
+            dummyTapHandler.check_call('load_data', parameters)
+            self.__check_extracted_files(files_expected=expected_files, files_returned=files_returned)
+        finally:
+            # self.__remove_folder_contents(folder=output_file_full_path_dir)
+            shutil.rmtree(output_file_full_path_dir)
+
+    def test_gunzip_file(self):
+        output_file_full_path_dir = os.getcwd() + os.sep + "temp_test_jwsttap_gunzip"
+        try:
+            os.makedirs(output_file_full_path_dir, exist_ok=True)
+        except OSError as err:
+            print("Creation of the directory %s failed: %s" % (output_file_full_path_dir, err.strerror))
+            raise err
+
+        file = data_path('single_product_retrieval_2.fits.gz')
+        output_file_full_path = output_file_full_path_dir + os.sep + os.path.basename(file)
+        shutil.copy(file, output_file_full_path)
+
+        expected_files=[]
+        extracted_file_1 = output_file_full_path_dir + os.sep + 'single_product_retrieval_2.fits'
+        expected_files.append(extracted_file_1)
+
+        try:
+            extracted_file = JwstClass.gzip_uncompress_and_rename_single_file(output_file_full_path)
+            if extracted_file != extracted_file_1:
+                raise ValueError("Extracted file not fond: %s" % extracted_file_1)
+        finally:
+            # self.__remove_folder_contents(folder=output_file_full_path_dir)
+            shutil.rmtree(output_file_full_path_dir)
+
     def __check_results_column(self, results, columnName, description, unit,
                                dataType):
         c = results[columnName]
@@ -628,6 +873,23 @@ class TestTap(unittest.TestCase):
         assert c.dtype == dataType, \
             "Wrong dataType for results column '%s'. Expected: '%s', found '%s'" % \
             (columnName, dataType, c.dtype)
+
+    def __remove_folder_contents(self, folder):
+        for root, dirs, files in os.walk(folder):
+            for f in files:
+                os.unlink(os.path.join(root, f))
+            for d in dirs:
+                shutil.rmtree(os.path.join(root, d))
+
+    def __check_extracted_files(self, files_expected, files_returned):
+        if len(files_expected) != len(files_returned):
+            raise ValueError("Expected files size error. Found %i, expected %i" %
+                             (len(files_returned), len(files_expected)))
+        for f in files_expected:
+            if not os.path.exists(f):
+                raise ValueError("Not found extracted file: %s" % f)
+            if not f in files_returned:
+                raise ValueError("Not found expected file: %s" % f)
 
 
 if __name__ == "__main__":
