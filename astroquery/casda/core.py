@@ -247,7 +247,9 @@ class CasdaClass(BaseQuery):
                 if x.ID == service_name:
                     for p in x.params:
                         if p.name == "accessURL":
-                            async_url = p.value.decode()
+                            async_url = p.value
+                            if isinstance(async_url, bytes):
+                                async_url = async_url.decode()
 
         return async_url, authenticated_id_token
 
