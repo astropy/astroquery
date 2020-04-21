@@ -42,7 +42,7 @@ class CasdaClass(BaseQuery):
     # TIMEOUT, etc.
     URL = conf.server
     TIMEOUT = conf.timeout
-    POLL_INTERVAL = 20
+    POLL_INTERVAL = conf.poll_interval
     _soda_base_url = conf.soda_base_url
     _uws_ns = {'uws': 'http://www.ivoa.net/xml/UWS/v1.0'}
 
