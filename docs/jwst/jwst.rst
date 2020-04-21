@@ -151,26 +151,30 @@ To query the data products associated with a certain plane ID
 .. code-block:: python
 
   >>> from astroquery.jwst import Jwst
-  >>> product_list = Jwst.get_product_list('00000000-0000-0000-aa9c-541cc6e5ff87')
-  >>> print(product_list.group_by(['artifactid', 'filename']).groups.keys)
+  >>> product_list = Jwst.get_product_list(observation_id='jw97012001001_02101_00001_guider1')
+  >>> for row in result:
+  >>>     print("artifactid: %s\tfilename: %s" % (row['artifactid'].decode('UTF-8'), row['filename'].decode('UTF-8')))
 
-               artifactid                               filename                
-  ------------------------------------ -----------------------------------------
-  00000000-0000-0000-81df-1e50349b9801                 jw10006010001_01_msa.fits
-  00000000-0000-0000-95e8-4d5c47e0d19f  jw10006010001_01101_00002_nrs2_uncal.jpg
-  00000000-0000-0000-af91-b0375f07283b jw10006010001_01101_00002_nrs2_uncal.fits
 
-To query the science data products associated with a certain plane ID
+  artifactid: 00000000-0000-0000-b774-8f78db4cb6cd	file: jw97012001001_02101_00001_guider1_rateints.fits
+  artifactid: 00000000-0000-0000-a09d-13769875a033	file: jw97012001001_02101_00001_guider1_rate.fits
+  artifactid: 00000000-0000-0000-8e72-d874267e0c68	file: jw97012001001_02101_00001_guider1_trapsfilled.fits
+  artifactid: 00000000-0000-0000-8ac0-62f0af170c96	file: jw97012001001_02101_00001_guider1_uncal.jpg
+  artifactid: 00000000-0000-0000-8d00-ec105bf49e9e	file: jw97012001001_02101_00001_guider1_cal.jpg
+  artifactid: 00000000-0000-0000-9c58-5d15fd353a73	file: jw97012001001_02101_00001_guider1_cal.fits
+  artifactid: 00000000-0000-0000-8424-8a9bc0f8301c	file: jw97012001001_02101_00001_guider1_uncal.fits
+
+You can filter by product type (calibration level is also available)
 
 .. code-block:: python
 
   >>> from astroquery.jwst import Jwst
-  >>> product_list = Jwst.get_product_list('00000000-0000-0000-aa9c-541cc6e5ff87', 'science')
-  >>> print(product_list.group_by(['artifactid', 'filename']).groups.keys)
+  >>> product_list = Jwst.get_product_list(observation_id='jw97012001001_02101_00001_guider1', product_type='science')
+  >>> for row in result:
+  >>>     print("artifactid: %s\tfilename: %s" % (row['artifactid'].decode('UTF-8'), row['filename'].decode('UTF-8')))
 
-               artifactid                               filename                
- ------------------------------------ -----------------------------------------
-  00000000-0000-0000-af91-b0375f07283b jw10006010001_01101_00002_nrs2_uncal.fits
+  artifactid: 00000000-0000-0000-9c58-5d15fd353a73	file: jw97012001001_02101_00001_guider1_cal.fits
+  artifactid: 00000000-0000-0000-8424-8a9bc0f8301c	file: jw97012001001_02101_00001_guider1_uncal.fits
 
 To download a data product
 
@@ -194,6 +198,9 @@ To download a data product
   >>> output_file = Jwst.get_product(artifact_id='00000000-0000-0000-9335-09ff0e02f06b')
   >>> output_file = Jwst.get_product(file_name='jw00601004001_02102_00001_nrcb1_uncal.fits')
 
+To download products by observation identifier
+
+TODO
 
 
 1.4 Getting public tables

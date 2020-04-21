@@ -636,7 +636,7 @@ class TestTap(unittest.TestCase):
                 "jwst.artifact AS a, " +\
                 "jwst.main AS m " + \
                 "WHERE a.obsid = m.obsid AND " + \
-                "a.obsid = '" + observation_id + "' " + \
+                "m.observationid = '" + observation_id + "' " + \
                 cal_level_condition + \
                 prodtype_condition + \
                 " ORDER BY a.producttype ASC"
@@ -664,7 +664,7 @@ class TestTap(unittest.TestCase):
                 "jwst.artifact AS a, " +\
                 "jwst.main AS m " + \
                 "WHERE a.obsid = m.obsid AND " + \
-                "a.obsid = '" + observation_id + "' " + \
+                "m.observationid = '" + observation_id + "' " + \
                 cal_level_condition + \
                 prodtype_condition + \
                 " ORDER BY a.producttype ASC"

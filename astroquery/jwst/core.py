@@ -858,7 +858,7 @@ class JwstClass(object):
             str(self.JWST_ARTIFACT_TABLE) + " AS a, " +\
             str(self.JWST_MAIN_TABLE) + " AS m " +\
             "WHERE a.obsid = m.obsid AND " +\
-            "a.obsid = '"+observation_id+"' " +\
+            "m.observationid = '"+observation_id+"' " +\
             cal_level_condition +\
             prodtype_condition +\
             " ORDER BY a.producttype ASC"
