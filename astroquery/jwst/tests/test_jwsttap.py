@@ -706,7 +706,7 @@ class TestTap(unittest.TestCase):
         parameters['verbose'] = False
 
         param_dict = {}
-        param_dict['obsid'] = observation_id
+        param_dict['observationid'] = observation_id
         param_dict['RETRIEVAL_TYPE'] = 'OBSERVATION'
         param_dict['DATA_RETRIEVAL_ORIGIN'] = 'ASTROQUERY'
         parameters['params_dict'] = param_dict

@@ -945,7 +945,7 @@ class JwstClass(object):
         if observation_id is None:
             raise ValueError("Missing required argument: 'observation_id'")
 
-        params_dict['obsid'] = observation_id
+        params_dict['observationid'] = observation_id
         if cal_level is not None:
             params_dict['calibrationlevel'] = str(cal_level)
 
