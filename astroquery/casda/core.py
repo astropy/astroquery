@@ -144,8 +144,16 @@ class CasdaClass(BaseQuery):
     def filter_out_unreleased(self, table):
         """
         Return a subset of the table which only includes released (public) data.
-        :param table: A table of results as returned by query_region. Must include an obs_release_date column.
-        :return The table with all unreleased (non public) data products filtered out.
+
+        Parameters
+        ----------
+        table: `astropy.table.Table`
+            A table of results as returned by query_region. Must include an obs_release_date column.
+
+        Returns
+        -------
+        table : `astropy.table.Table`
+            The table with all unreleased (non public) data products filtered out.
         """
         now = str(datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%S.%f'))
         return table[(table['obs_release_date'] != '') & (table['obs_release_date'] < now)]
@@ -155,9 +163,15 @@ class CasdaClass(BaseQuery):
         Request access to a set of data files. All requests for data must use authentication. If you have access to the
         data, the requested files will be brought online and a set of URLs to download the files will be returned.
 
-        :param table: A table describing the files to be staged, such as produced by query_region. It must include an
+        Parameters
+        ----------
+        table: `astropy.table.Table`
+            A table describing the files to be staged, such as produced by query_region. It must include an
                       access_url column.
-        :return: A list of urls of both the requested files and the checksums for the files
+
+        Returns
+        -------
+        A list of urls of both the requested files and the checksums for the files
         """
         if not self._authenticated:
             raise ValueError("Credentials must be supplied to download CASDA image data")
@@ -198,9 +212,17 @@ class CasdaClass(BaseQuery):
     def download_files(self, urls, savedir=''):
         """
         Download a series of files
-        :param urls: The list of URLs of the files to be downloaded.
-        :param savedir: The directory in which to save the files.
-        :return: A list of the full filenames of the downloaded files.
+
+        Parameters
+        ----------
+        urls: list of strings
+            The list of URLs of the files to be downloaded.
+        savedir: str, optional
+            The directory in which to save the files.
+
+        Returns
+        -------
+        A list of the full filenames of the downloaded files.
         """
         # for each url in list, download file and checksum
         filenames = []
@@ -215,11 +237,17 @@ class CasdaClass(BaseQuery):
         """
         Parses a datalink file into a vo table, and returns the async service url and the authenticated id token.
 
-        :param response: The requests.Response object containing the datalink query response.
-        :param service_name: The name of the service to be utilised
-        :return: The url of the async service and the authenticated id token of the file.
-        """
+        Parameters
+        ----------
+        response: `requests.Response`
+            The datalink query response.
+        service_name: str
+            The name of the service to be utilised.
 
+        Returns
+        -------
+        The url of the async service and the authenticated id token of the file.
+        """
         data = BytesIO(response.content)
 
         votable = parse(data, pedantic=False)
@@ -254,24 +282,44 @@ class CasdaClass(BaseQuery):
         return async_url, authenticated_id_token
 
     def _create_soda_job(self, authenticated_id_tokens, soda_url=None):
-        """ Creates the async job, returning the url to query the job status and details """
+        """
+        Creates the async job, returning the url to query the job status and details
+
+        Parameters
+        ----------
+        authenticated_id_tokens: list of str
+            A list of tokens identifying the data products to be accessed.
+        soda_url: str, optional
+            The URL to be used to access the soda service. If not provided, the default CASDA one will be used.
+
+        Returns
+        -------
+        The url of the SODA job.
+        """
         id_params = list(
             map((lambda authenticated_id_token: ('ID', authenticated_id_token)),
                 authenticated_id_tokens))
         async_url = soda_url if soda_url else self._get_soda_url()
 
         resp = self._request('POST', async_url, params=id_params, cache=False)
+        resp.raise_for_status()
         return resp.url
 
     def _run_job(self, job_location, poll_interval=20):
         """
         Start an async job (e.g. TAP or SODA) and wait for it to be completed.
 
-        :param job_location: The url to query the job status and details
-        :param poll_interval: The number of seconds to wait between checks on the status of the job.
-        :return: The single word status of the job. Normally COMPLETED or ERROR
-        """
+        Parameters
+        ----------
+        job_location: str
+            The url to query the job status and details
+        poll_interval: int, optional
+            The number of seconds to wait between checks on the status of the job.
 
+        Returns
+        -------
+        The single word final status of the job. Normally COMPLETED or ERROR
+        """
         # Start the async job
         print("Starting the retrieval job...")
         self._request('POST', job_location + "/phase", data={'phase': 'RUN'}, cache=False)
@@ -297,14 +345,36 @@ class CasdaClass(BaseQuery):
         return self._soda_base_url + "data/async"
 
     def _get_job_details_xml(self, async_job_url):
-        """ Get job details as XML """
+        """
+        Get job details as XML
+
+        Parameters
+        ----------
+        async_job_url: str
+            The url to query the job details
+
+        Returns
+        -------
+        `xml.etree.ElementTree` The job details object
+        """
         response = self._request('GET', async_job_url, cache=False)
         response.raise_for_status()
         job_response = response.text
         return ElementTree.fromstring(job_response)
 
     def _read_job_status(self, job_details_xml):
-        """ Read job status from the job details XML """
+        """
+        Read job status from the job details XML
+
+        Parameters
+        ----------
+        job_details_xml: `xml.etree.ElementTree`
+            The SODA job details
+
+        Returns
+        -------
+        The single word status of the job. e.g. COMPLETED, EXECUTING, ERROR
+        """
         status_node = job_details_xml.find("{http://www.ivoa.net/xml/UWS/v1.0}phase")
         if status_node is None:
             print("Unable to find status in status xml:")

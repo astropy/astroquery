@@ -272,6 +272,7 @@ generally return a table listing the available data first.
   alfalfa/alfalfa.rst
   alma/alma.rst
   cadc/cadc.rst
+  casda/casda.rst
   esa/hubble.rst
   eso/eso.rst
   fermi/fermi.rst
