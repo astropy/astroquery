@@ -158,7 +158,7 @@ class CasdaClass(BaseQuery):
         now = str(datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%S.%f'))
         return table[(table['obs_release_date'] != '') & (table['obs_release_date'] < now)]
 
-    def stage_data(self, table):
+    def stage_data(self, table, verbose=False):
         """
         Request access to a set of data files. All requests for data must use authentication. If you have access to the
         data, the requested files will be brought online and a set of URLs to download the files will be returned.
@@ -167,7 +167,9 @@ class CasdaClass(BaseQuery):
         ----------
         table: `astropy.table.Table`
             A table describing the files to be staged, such as produced by query_region. It must include an
-                      access_url column.
+            access_url column.
+        verbose: bool, optional
+            Should status message be logged periodically, defaults to False
 
         Returns
         -------
@@ -191,17 +193,18 @@ class CasdaClass(BaseQuery):
 
         # Create job to stage all files
         job_url = self._create_soda_job(tokens, soda_url=soda_url)
-        print("Created data staging job", job_url)
+        if verbose:
+            print("Created data staging job", job_url)
 
         # Wait for job to be complete
-        final_status = self._run_job(job_url, poll_interval=self.POLL_INTERVAL)
+        final_status = self._run_job(job_url, verbose, poll_interval=self.POLL_INTERVAL)
         if final_status != 'COMPLETED':
-            print("Job ended with status", final_status)
+            if verbose:
+                print("Job ended with status", final_status)
             raise ValueError('Data staging job did not complete successfully. Status was ' + final_status)
 
         # Build list of result file urls
         job_details = self._get_job_details_xml(job_url)
-        # print (job_details)
         fileurls = []
         for result in job_details.find("uws:results", self._uws_ns).findall("uws:result", self._uws_ns):
             file_location = unquote(result.get("{http://www.w3.org/1999/xlink}href"))
@@ -305,7 +308,7 @@ class CasdaClass(BaseQuery):
         resp.raise_for_status()
         return resp.url
 
-    def _run_job(self, job_location, poll_interval=20):
+    def _run_job(self, job_location, verbose, poll_interval=20):
         """
         Start an async job (e.g. TAP or SODA) and wait for it to be completed.
 
@@ -313,6 +316,8 @@ class CasdaClass(BaseQuery):
         ----------
         job_location: str
             The url to query the job status and details
+        verbose: bool
+            Should progress be logged periodically
         poll_interval: int, optional
             The number of seconds to wait between checks on the status of the job.
 
@@ -321,7 +326,8 @@ class CasdaClass(BaseQuery):
         The single word final status of the job. Normally COMPLETED or ERROR
         """
         # Start the async job
-        print("Starting the retrieval job...")
+        if verbose:
+            print("Starting the retrieval job...")
         self._request('POST', job_location + "/phase", data={'phase': 'RUN'}, cache=False)
 
         # Poll until the async job has finished
@@ -331,14 +337,13 @@ class CasdaClass(BaseQuery):
         status = self._read_job_status(job_details)
         while status == 'EXECUTING' or status == 'QUEUED' or status == 'PENDING':
             count += 1
-            if status != prev_status or count > 10:
+            if verbose and (status != prev_status or count > 10):
                 print("Job is %s, polling every %d seconds." % (status, poll_interval))
                 count = 0
                 prev_status = status
             time.sleep(poll_interval)
             job_details = self._get_job_details_xml(job_location)
             status = self._read_job_status(job_details)
-            # print (status)
         return status
 
     def _get_soda_url(self):

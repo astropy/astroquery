@@ -263,6 +263,6 @@ def test_stage_data(patch_get):
     table = Table([Column(data=access_urls, name='access_url')])
     casda = Casda('user', 'password')
     casda.POLL_INTERVAL = 1
-    urls = casda.stage_data(table)
+    urls = casda.stage_data(table, verbose=True)
     assert urls == ['http://casda.csiro.au/download/web/111-000-111-000/askap_img.fits.checksum',
                     'http://casda.csiro.au/download/web/111-000-111-000/askap_img.fits']
