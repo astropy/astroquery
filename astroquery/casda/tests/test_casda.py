@@ -3,7 +3,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 
-import math
 import pytest
 import requests
 import os
@@ -12,6 +11,7 @@ from astropy.coordinates import SkyCoord
 import astropy.units as u
 from astropy.table import Table, Column
 from astropy.io.votable import parse
+from astropy import log
 
 from astroquery.casda import Casda
 
@@ -39,11 +39,11 @@ first_job_pass = True
 
 def get_mockreturn(self, method, url, data=None, timeout=10,
                    files=None, params=None, headers=None, **kwargs):
-    # print("get_mockreturn", url, params, kwargs)
+    log.debug("get_mockreturn url:{} params:{} kwargs:{}".format(url, params, kwargs))
     if kwargs and 'auth' in kwargs:
         auth = kwargs['auth']
         if auth and (auth[0] != 'user' or auth[1] != 'password'):
-            # print("Rejecting credentials")
+            log.debug("Rejecting credentials")
             return create_auth_failure_response()
 
     if 'data/async' in str(url):
@@ -63,7 +63,7 @@ def get_mockreturn(self, method, url, data=None, timeout=10,
     else:
         key = params['POS'].split()[0] if params['POS'] else None
     filename = data_path(DATA_FILES[key])
-    # print('providing', filename)
+    log.debug('providing ' + filename)
     content = open(filename, 'rb').read()
     return MockResponse(content)
 

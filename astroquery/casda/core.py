@@ -1,8 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 # 1. standard library imports
-from io import BytesIO, StringIO
-from six.moves.urllib.parse import unquote
+from io import BytesIO
+from urllib.parse import unquote
 import time
 from xml.etree import ElementTree
 from datetime import datetime, timezone
@@ -12,6 +12,7 @@ import astropy.units as u
 import astropy.coordinates as coord
 from astropy.table import Table
 from astropy.io.votable import parse
+from astropy import log
 
 # 3. local imports - use relative imports
 # commonly required local imports shown below as example
@@ -138,7 +139,7 @@ class CasdaClass(BaseQuery):
         except ValueError as e:
             # catch common errors here, but never use bare excepts
             # return raw result/ handle in some way
-            print("Failed to convert query result to table", e)
+            log.info("Failed to convert query result to table", e)
             return response
 
     def filter_out_unreleased(self, table):
@@ -194,13 +195,13 @@ class CasdaClass(BaseQuery):
         # Create job to stage all files
         job_url = self._create_soda_job(tokens, soda_url=soda_url)
         if verbose:
-            print("Created data staging job", job_url)
+            log.info("Created data staging job "+ job_url)
 
         # Wait for job to be complete
         final_status = self._run_job(job_url, verbose, poll_interval=self.POLL_INTERVAL)
         if final_status != 'COMPLETED':
             if verbose:
-                print("Job ended with status", final_status)
+                log.info("Job ended with status " + final_status)
             raise ValueError('Data staging job did not complete successfully. Status was ' + final_status)
 
         # Build list of result file urls
@@ -327,23 +328,23 @@ class CasdaClass(BaseQuery):
         """
         # Start the async job
         if verbose:
-            print("Starting the retrieval job...")
+            log.info("Starting the retrieval job...")
         self._request('POST', job_location + "/phase", data={'phase': 'RUN'}, cache=False)
 
         # Poll until the async job has finished
         prev_status = None
         count = 0
         job_details = self._get_job_details_xml(job_location)
-        status = self._read_job_status(job_details)
+        status = self._read_job_status(job_details, verbose)
         while status == 'EXECUTING' or status == 'QUEUED' or status == 'PENDING':
             count += 1
             if verbose and (status != prev_status or count > 10):
-                print("Job is %s, polling every %d seconds." % (status, poll_interval))
+                log.info("Job is %s, polling every %d seconds." % (status, poll_interval))
                 count = 0
                 prev_status = status
             time.sleep(poll_interval)
             job_details = self._get_job_details_xml(job_location)
-            status = self._read_job_status(job_details)
+            status = self._read_job_status(job_details, verbose)
         return status
 
     def _get_soda_url(self):
@@ -367,7 +368,7 @@ class CasdaClass(BaseQuery):
         job_response = response.text
         return ElementTree.fromstring(job_response)
 
-    def _read_job_status(self, job_details_xml):
+    def _read_job_status(self, job_details_xml, verbose):
         """
         Read job status from the job details XML
 
@@ -375,6 +376,8 @@ class CasdaClass(BaseQuery):
         ----------
         job_details_xml: `xml.etree.ElementTree`
             The SODA job details
+        verbose: bool
+            Should additional information be logged for errors
 
         Returns
         -------
@@ -382,8 +385,9 @@ class CasdaClass(BaseQuery):
         """
         status_node = job_details_xml.find("{http://www.ivoa.net/xml/UWS/v1.0}phase")
         if status_node is None:
-            print("Unable to find status in status xml:")
-            ElementTree.dump(job_details_xml)
+            if verbose:
+                log.info("Unable to find status in status xml:")
+                ElementTree.dump(job_details_xml)
             raise ValueError('Invalid job status xml received.')
         status = status_node.text
         return status
