@@ -195,7 +195,7 @@ class CasdaClass(BaseQuery):
         # Create job to stage all files
         job_url = self._create_soda_job(tokens, soda_url=soda_url)
         if verbose:
-            log.info("Created data staging job "+ job_url)
+            log.info("Created data staging job " + job_url)
 
         # Wait for job to be complete
         final_status = self._run_job(job_url, verbose, poll_interval=self.POLL_INTERVAL)
