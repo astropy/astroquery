@@ -203,6 +203,21 @@ coordinate. Finally the ``catalog`` keyword argument may be passed in either
 :meth:`~astroquery.vizier.VizierClass.query_region` methods. This may be a string
 (if only a single catalog) or a list of strings otherwise.
 
+Last but not least, :meth:`~astroquery.vizier.VizierClass.query_region` also supports
+constraints on the columns of the returned tables by mean of the ``column_filters`` keyword.
+
+.. code-block:: python
+
+    >>> from astroquery.vizier import Vizier
+    >>> import astropy.units as u
+    >>> from astropy.coordinates import SkyCoord
+    >>> result = Vizier.query_region(SkyCoord.from_name('M81'),
+                                     radius=10*u.arcmin,
+                                     catalog='I/345/gaia2',
+                                     column_filters={'Gmag': '<19'})
+    >>> print(result[0]['Gmag'].max())
+    18.9508
+
 Specifying keywords, output columns and constraints on columns
 --------------------------------------------------------------
 
