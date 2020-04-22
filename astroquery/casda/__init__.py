@@ -17,6 +17,14 @@ class Conf(_config.ConfigNamespace):
         30,
         'Time limit for connecting to CASDA server.'
     )
+    poll_interval = _config.ConfigItem(
+        20,
+        'Number of seconds to wait between checks on the status of a submitted job.'
+    )
+    soda_base_url = _config.ConfigItem(
+        ['https://casda.csiro.au/casda_data_access/'],
+        'Address of the CASDA SODA server'
+    )
 
 
 conf = Conf()

@@ -227,7 +227,7 @@ class BaseQuery(object):
                 # Windows doesn't allow special characters in filenames like
                 # ":" so replace them with an underscore
                 local_filename = local_filename.replace(':', '_')
-            local_filepath = os.path.join(self.cache_location or savedir or '.', local_filename)
+            local_filepath = os.path.join(savedir or self.cache_location or '.', local_filename)
             self._download_file(url, local_filepath, cache=cache,
                                 continuation=continuation, method=method,
                                 allow_redirects=allow_redirects,

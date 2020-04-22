@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?><?xml-stylesheet href='https://daptst.csiro.au/casda_vo_proxy/vo/votable.xsl' type='text/xsl' ?>
+
+<VOTABLE xmlns="http://www.ivoa.net/xml/VOTable/v1.3" version="1.3">
+    <RESOURCE name="CASDA Datalink Result" type="results">
+        <TABLE>
+            <FIELD datatype="char" name="ID" ucd="meta.id;meta.main" arraysize="*"/>
+            <FIELD datatype="char" name="access_url" ucd="meta.ref.url" arraysize="*"/>
+            <FIELD datatype="char" name="service_def" ucd="meta.ref" arraysize="*"/>
+            <FIELD datatype="char" name="error_message" ucd="meta.code.error" arraysize="*"/>
+            <FIELD datatype="char" name="description" ucd="meta.note" arraysize="*"/>
+            <FIELD datatype="char" name="semantics" ucd="meta.code" arraysize="*"/>
+            <FIELD datatype="char" name="content_type" ucd="meta.code.mime" arraysize="*"/>
+            <FIELD unit="byte" datatype="long" name="content_length" ucd="phys.size;meta.file"/>
+            <FIELD ID="authenticatedIdToken" datatype="char" name="authenticated_id_token" ucd="meta.id" arraysize="*"/>
+            <DATA>
+                <TABLEDATA>
+                    <TR>
+                        <TD>cube-244</TD>
+                        <TD>https://casda.csiro.au/casda_data_access/data/sync?id=cube-244</TD>
+                        <TD/>
+                        <TD/>
+                        <TD>Download data product via web</TD>
+                        <TD>#this</TD>
+                        <TD>application/fits</TD>
+                        <TD>1056024576</TD>
+                        <TD/>
+                    </TR>
+                    <TR>
+                        <TD>cube-244</TD>
+                        <TD>https://casda.csiro.au/casda_data_access/data/sync/pawsey?id=cube-244</TD>
+                        <TD/>
+                        <TD/>
+                        <TD>Download data at Pawsey Centre. Note: Only users from within PSC network can access the data through this link. Only use if you currently have access to Pawsey facilities.</TD>
+                        <TD>#this</TD>
+                        <TD>application/fits</TD>
+                        <TD>1056024576</TD>
+                        <TD/>
+                    </TR>
+                    <TR>
+                        <TD>cube-244</TD>
+                        <TD/>
+                        <TD>async_service</TD>
+                        <TD/>
+                        <TD>Scripted file access via Web</TD>
+                        <TD>#this</TD>
+                        <TD>application/fits</TD>
+                        <TD>1056024576</TD>
+                        <TD>cube-244</TD>
+                    </TR>
+                    <TR>
+                        <TD>cube-244</TD>
+                        <TD/>
+                        <TD>async_service</TD>
+                        <TD/>
+                        <TD>Scripted file access via Pawsey Centre. Note: Only users from within PSC network can access the data through this link. Only use if you currently have access to Pawsey facilities.</TD>
+                        <TD>#this</TD>
+                        <TD>application/fits</TD>
+                        <TD>1056024576</TD>
+                        <TD>cube-244</TD>
+                    </TR>
+                    <TR>
+                        <TD>cube-244</TD>
+                        <TD/>
+                        <TD>cutout_service</TD>
+                        <TD/>
+                        <TD>Scripted cut-out service</TD>
+                        <TD>#cutout</TD>
+                        <TD>application/fits</TD>
+                        <TD/>
+                        <TD>cube-244</TD>
+                    </TR>
+                    <TR>
+                        <TD>cube-244</TD>
+                        <TD/>
+                        <TD>spectrum_generation_service</TD>
+                        <TD/>
+                        <TD>Scripted spectrum generation service</TD>
+                        <TD>#proc</TD>
+                        <TD>application/fits</TD>
+                        <TD/>
+                        <TD>cube-244</TD>
+                    </TR>
+                </TABLEDATA>
+            </DATA>
+        </TABLE>
+    </RESOURCE>
+    <RESOURCE ID="async_service" utype="adhoc:service" type="meta">
+        <PARAM value="ivo://ivoa.net/std/SODA#async-1.0" datatype="char" name="standardID" arraysize="*"/>
+        <PARAM value="https://casda.csiro.au/casda_data_access/data/async" datatype="char" name="accessURL" arraysize="*"/>
+        <GROUP name="inputParams">
+            <PARAM value="" datatype="char" ref="authenticatedIdToken" name="ID" arraysize="*"/>
+        </GROUP>
+    </RESOURCE>
+    <RESOURCE ID="cutout_service" utype="adhoc:service" type="meta">
+        <PARAM value="ivo://ivoa.net/std/SODA#async-1.0" datatype="char" name="standardID" arraysize="*"/>
+        <PARAM value="https://casda.csiro.au/casda_data_access/data/async" datatype="char" name="accessURL" arraysize="*"/>
+        <GROUP name="inputParams">
+            <PARAM value="" datatype="char" ref="authenticatedIdToken" name="ID" arraysize="*"/>
+            <PARAM datatype="char" xtype="circle" name="POS" arraysize="*"/>
+            <PARAM datatype="char" xtype="range" name="POS" arraysize="*"/>
+            <PARAM datatype="char" xtype="polygon" name="POS" arraysize="*"/>
+            <PARAM unit="m" datatype="double" xtype="interval" name="BAND" arraysize="*"/>
+            <PARAM unit="pixels" datatype="int" xtype="interval" name="CHANNEL" arraysize="*"/>
+            <PARAM datatype="char" name="POL" arraysize="*"/>
+            <PARAM datatype="char" name="COORD" arraysize="*"/>
+        </GROUP>
+    </RESOURCE>
+    <RESOURCE ID="spectrum_generation_service" utype="adhoc:service" type="meta">
+        <PARAM value="ivo://ivoa.net/std/SODA#async-1.0" datatype="char" name="standardID" arraysize="*"/>
+        <PARAM value="https://casda.csiro.au/casda_data_access/data/async" datatype="char" name="accessURL" arraysize="*"/>
+        <GROUP name="inputParams">
+            <PARAM value="" datatype="char" ref="authenticatedIdToken" name="ID" arraysize="*"/>
+            <PARAM datatype="char" xtype="circle" name="POS" arraysize="*"/>
+            <PARAM datatype="char" xtype="range" name="POS" arraysize="*"/>
+            <PARAM datatype="char" xtype="polygon" name="POS" arraysize="*"/>
+            <PARAM unit="m" datatype="double" xtype="interval" name="BAND" arraysize="*"/>
+            <PARAM unit="pixels" datatype="int" xtype="interval" name="CHANNEL" arraysize="*"/>
+            <PARAM datatype="char" name="POL" arraysize="*"/>
+            <PARAM datatype="char" name="COORD" arraysize="*"/>
+        </GROUP>
+    </RESOURCE>
+</VOTABLE>
