@@ -210,8 +210,8 @@ constraints on the columns of the returned tables by mean of the ``column_filter
 
     >>> from astroquery.vizier import Vizier
     >>> import astropy.units as u
-    >>> import astropy.coordinates as coord
-    >>> result = Vizier.query_region(coordinates.SkyCoord.from_name('M81'),
+    >>> from astropy.coordinates import SkyCoord
+    >>> result = Vizier.query_region(SkyCoord.from_name('M81'),
                                      radius=10*u.arcmin,
                                      catalog='I/345/gaia2',
                                      column_filters={'Gmag': '<19'})
