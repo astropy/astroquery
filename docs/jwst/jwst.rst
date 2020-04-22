@@ -200,8 +200,22 @@ To download a data product
 
 To download products by observation identifier
 
-TODO
+.. code-block:: python
 
+  >>> observation_id = 'jw97012001001_02101_00001_guider1'
+  >>> results = jwst.get_obs_products(observation_id=observation_id, product_type='science')
+
+
+  Retrieving data.
+  Done.
+  Product(s) saved at: /<local_path>/<temporary_directory>/jw97012001001_02101_00001_guider1_all_products
+  Product = /<local_path>/<temporary_directory>/jw97012001001_02101_00001_guider1
+
+You can use product_type and cal_level arguments to retrieve specific products.
+
+A temporary directory is created with the files and a list of the them is provided.
+
+When more than one product is found, a tar file is retrieved. This method extracts the products.
 
 1.4 Getting public tables
 ~~~~~~~~~~~~~~~~~~~~~~~~~
