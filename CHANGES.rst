@@ -41,6 +41,7 @@ jplhorizons
 - Fix for changes in HORIZONS return results after their 2020 Feb 12
   update. [#1650]
 
+
 alma
 ^^^^
 
@@ -57,6 +58,10 @@ vizier
 
 - It is now possible to specify constraints to ``query_region()``
   with the ``column_filters`` keyword. [#1702]
+
+
+mast
+^^^^
 
 
 Infrastructure, Utility and Other Changes and Additions

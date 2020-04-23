@@ -220,7 +220,7 @@ The product fields are documented `here <https://mast.stsci.edu/api/v0/_products
                 9500243833             K2 ... ktwo200071160-c92_lpd-targ.fits.gz 62213068
                 9500243833             K2 ...    k2-tpf-only-target_bw_thumb.png     1301
                 
-                >>> obsids = obsTable[0:2]['obsid']
+                >>> obsids = obs_table[0:2]['obsid']
                 >>> data_products_by_id = Observations.get_product_list(obsids)
                 >>> print(data_products_by_id)
                 
@@ -919,7 +919,7 @@ The basic MAST query function returns query results as an `~astropy.table.Table`
                 ...           'dec':54.5,
                 ...           'radius':0.2}
         
-                >>> observations = Mast.mashup_request(service, params)
+                >>> observations = Mast.service_request(service, params)
                 >>> print(observations)
 
                 dataproduct_type obs_collection instrument_name ...    distance   _selected_
@@ -944,7 +944,7 @@ In this case, the async method should be used to get the raw http response, whic
                 >>> params ={'input':"M8",
                 ...          'format':'json'}
         
-                >>> response = Mast.mashup_request_async(service,params)        
+                >>> response = Mast.service_request_async(service,params)        
                 >>> result = response[0].json()
                 >>> print(result)
 
@@ -975,4 +975,6 @@ Reference/API
 
 .. automodapi:: astroquery.mast
     :no-inheritance-diagram:
+    :inherited-members:
+
 

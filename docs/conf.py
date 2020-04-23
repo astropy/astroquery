@@ -202,4 +202,4 @@ if eval(setup_cfg.get('edit_on_github')):
     edit_on_github_doc_root = "docs"
 
 nitpicky = True
-nitpick_ignore = []
+nitpick_ignore = [('py:class', 'astroquery.mast.core.MastQueryWithLogin')]

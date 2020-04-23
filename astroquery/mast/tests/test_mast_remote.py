@@ -5,6 +5,8 @@ import numpy as np
 import os
 import pytest
 
+from requests.models import Response
+
 from astropy.table import Table
 from astropy.coordinates import SkyCoord
 from astropy.io import fits
@@ -20,6 +22,17 @@ from ...exceptions import RemoteServiceError
 
 @pytest.mark.remote_data
 class TestMast(object):
+
+    ###############
+    # utils tests #
+    ###############
+
+    def test_resolve_object(self):
+        m101_loc = mast.utils.resolve_object("M101")
+        assert round(m101_loc.separation(SkyCoord("210.80227 54.34895", unit='deg')).value, 4) == 0
+
+        ticobj_loc = mast.utils.resolve_object("TIC 141914082")
+        assert round(ticobj_loc.separation(SkyCoord("94.6175354 -72.04484622", unit='deg')).value, 4) == 0
 
     ###################
     # MastClass tests #
@@ -288,7 +301,7 @@ class TestMast(object):
 
         responses = mast.Catalogs.query_region_async("322.49324 12.16683", radius="0.02 deg",
                                                      catalog="panstarrs", table="mean")
-        assert isinstance(responses, list)
+        assert isinstance(responses, Response)
 
     def test_catalogs_query_region(self):
 
@@ -419,7 +432,7 @@ class TestMast(object):
                                                        objectname="M10",
                                                        radius=.02,
                                                        qualityFlag=48)
-        assert isinstance(responses, list)
+        assert isinstance(responses, Response)
 
     def test_catalogs_query_criteria(self):
 
@@ -552,7 +565,7 @@ class TestMast(object):
 
     def test_tesscut_download_cutouts(self, tmpdir):
 
-        coord = SkyCoord(107.18696, -70.50919, unit="deg")
+        coord = SkyCoord(349.62609, -47.12424, unit="deg")
 
         manifest = mast.Tesscut.download_cutouts(coordinates=coord, size=5, path=str(tmpdir))
         assert isinstance(manifest, Table)
@@ -560,6 +573,8 @@ class TestMast(object):
         assert manifest["Local Path"][0][-4:] == "fits"
         for row in manifest:
             assert os.path.isfile(row['Local Path'])
+
+        coord = SkyCoord(107.18696, -70.50919, unit="deg")
 
         manifest = mast.Tesscut.download_cutouts(coordinates=coord, size=5, sector=1, path=str(tmpdir))
         assert isinstance(manifest, Table)
@@ -600,6 +615,8 @@ class TestMast(object):
         assert isinstance(cutout_hdus_list, list)
         assert len(cutout_hdus_list) == 1
         assert isinstance(cutout_hdus_list[0], fits.HDUList)
+
+        coord = SkyCoord(349.62609, -47.12424, unit="deg")
 
         cutout_hdus_list = mast.Tesscut.get_cutouts(coordinates=coord, size=[2, 4]*u.arcmin)
         assert isinstance(cutout_hdus_list, list)
