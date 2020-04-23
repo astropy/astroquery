@@ -1,8 +1,8 @@
 .. doctest-skip-all
 .. # To render rst files to HTML: python setup.py build_docs
-.. # When above stops working (astroquery removes helpers) do next:   
+.. # When above stops working (astroquery removes helpers) do next:
 .. # cd docs; make html
-   
+
 .. _astroquery.noirlab:
 
 **************************************
@@ -26,7 +26,7 @@ to query.  Specify the coordinates using the appropriate coordinate system from
 `astropy.coordinates`. Here is a basic example:
 
 .. code-block:: python
-                
+
     >>> from astroquery.noirlab import Noirlab
     >>> import astropy.coordinates as coord
     >>> from astropy import units as u
@@ -34,10 +34,10 @@ to query.  Specify the coordinates using the appropriate coordinate system from
     >>> coord = SkyCoord(ra=10.625*u.degree, dec=41.2*u.degree, frame='icrs')
 
     >>> noirlab_file = Noirlab(which='file')
-    >>> results_file = noirlab_file.query_region(c, radius='0.1')
+    >>> results_file = noirlab_file.query_region(coord, radius='0.1')
     >>> print(results_file)
-                                archive_filename                             date_obs  ...             updated             
-                                     str71                                    str10    ...              str32              
+                                archive_filename                             date_obs  ...             updated
+                                     str71                                    str10    ...              str32
     ----------------------------------------------------------------------- ---------- ... --------------------------------
                                                                      string     string ...                           string
     /net/archive/mtn/20151027/kp4m/2015B-2001/k4m_151028_085849_ori.fits.fz 2015-10-28 ... 2020-02-09T01:17:17.842642+00:00
@@ -46,12 +46,12 @@ to query.  Specify the coordinates using the appropriate coordinate system from
     /net/archive/mtn/20151120/kp4m/2015B-2001/k4m_151121_033641_ori.fits.fz 2015-11-21 ... 2020-02-09T01:24:35.525861+00:00
     /net/archive/mtn/20151120/kp4m/2015B-2001/k4m_151121_031258_ori.fits.fz 2015-11-21 ... 2020-02-09T01:24:37.873559+00:00
     /net/archive/mtn/20151120/kp4m/2015B-2001/k4m_151121_041031_ori.fits.fz 2015-11-21 ... 2020-02-09T01:24:38.951230+00:00
-    
+
     >>> noirlab_hdu = Noirlab(which='hdu')
-    >>> results_hdu = noirlab_hdu.query_region(c, radius='0.1')
+    >>> results_hdu = noirlab_hdu.query_region(coord, radius='0.1')
     >>> print(results_hdu)
                                     archive_filename                                  caldat    date_obs  ...    ra    telescope
-                                         str79                                        str10      str10    ...   str8      str6  
+                                         str79                                        str10      str10    ...   str8      str6
     ------------------------------------------------------------------------------- ---------- ---------- ... -------- ---------
                                                                              string     string     string ...    float    string
     /net/archive/pipe/20180211/kp4m/2016A-0453/k4m_180212_021444_ooi_zd_ls9.fits.fz 2018-02-11 2018-02-12 ... 10.60048      kp4m
@@ -70,4 +70,3 @@ Reference/API
 
 .. automodapi:: astroquery.noirlab
     :no-inheritance-diagram:
-
