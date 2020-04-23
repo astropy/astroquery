@@ -379,6 +379,7 @@ class TestTap(unittest.TestCase):
         params_dict['FORMAT'] = str(format)
         params_dict['RETRIEVAL_TYPE'] = str(retrieval_type)
         params_dict['DATA_STRUCTURE'] = str(data_structure)
+        params_dict['USE_ZIP_ALWAYS'] = 'true'
 
         tap.load_data(ids=ids,
                       retrieval_type=retrieval_type,

@@ -28,7 +28,11 @@ import os
 from datetime import datetime
 import shutil
 import astroquery.utils.tap.model.modelutils as modelutils
-from astropy.io.votable import parse
+from astropy.io import votable
+from astropy.io import fits
+from astropy.table import Table
+from astropy import units as u
+
 
 
 class GaiaClass(TapPlus):
@@ -40,6 +44,7 @@ class GaiaClass(TapPlus):
     MAIN_GAIA_TABLE_RA = conf.MAIN_GAIA_TABLE_RA
     MAIN_GAIA_TABLE_DEC = conf.MAIN_GAIA_TABLE_DEC
     ROW_LIMIT = conf.ROW_LIMIT
+    VALID_DATALINK_RETRIEVAL_TYPES=conf.VALID_DATALINK_RETRIEVAL_TYPES
 
     def __init__(self, tap_plus_conn_handler=None,
                  datalink_handler=None,
@@ -158,6 +163,7 @@ class GaiaClass(TapPlus):
                   band=None,
                   format="votable",
                   output_file=None,
+                  overwrite_output_file=False,
                   verbose=False):
         """Loads the specified table
         TAP+ only
@@ -193,6 +199,8 @@ class GaiaClass(TapPlus):
         output_file : string, optional, default None
             file where the results are saved.
             If it is not provided, the http response contents are returned.
+        overwrite_output_file : boolean, optional, default False
+            To overwrite the output_file if it already exists.
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
@@ -202,29 +210,37 @@ class GaiaClass(TapPlus):
         """
         if retrieval_type is None:
             raise ValueError("Missing mandatory argument 'retrieval_type'")
+
         now = datetime.now()
+        now_formatted = now.strftime("%Y%m%d_%H%M%S")
+
         output_file_specified = False
         if output_file is None:
             output_file = os.getcwd() + os.sep + "temp_" + \
-                          now.strftime("%Y%m%d%H%M%S") + os.sep + \
-                          "download_" + now.strftime("%Y%m%d%H%M%S")
+                          now_formatted + os.sep + \
+                          "download_" + now_formatted
         else:
             output_file_specified = True
-            output_file = os.getcwd() + os.sep + "temp_" + \
-                          now.strftime("%Y%m%d%H%M%S") + os.sep + \
-                          output_file
+            output_file = os.path.abspath(output_file)
+            if not overwrite_output_file and os.path.exists(output_file):
+                raise ValueError("%s file already exists. "
+                                 "Please use overwrite_output_file='False' "
+                                 "to overwrite output file." % output_file)
+
         path = os.path.dirname(output_file)
-        try:
-            os.mkdir(path)
-        except OSError:
-            print("Creation of the directory %s failed" % path)
 
         if ids is None:
             raise ValueError("Missing mandatory argument 'ids'")
-        if str(retrieval_type) != 'ALL' and str(retrieval_type) != 'epoch_photometry':
-            raise ValueError("Invalid mandatory argument 'retrieval_type'")
+
+        rt = str(retrieval_type).upper()
+        if rt != 'ALL' and rt not in self.VALID_DATALINK_RETRIEVAL_TYPES:
+            raise ValueError("Invalid mandatory argument 'retrieval_type'."
+                             " Found '%s', expected: 'ALL' or any of %r" %
+                             (retrieval_type,
+                              self.VALID_DATALINK_RETRIEVAL_TYPES))
 
         params_dict = {}
+
         if not valid_data or str(retrieval_type) == 'ALL':
             params_dict['VALID_DATA'] = "false"
         elif valid_data:
@@ -249,10 +265,36 @@ class GaiaClass(TapPlus):
         params_dict['DATA_STRUCTURE'] = data_structure
         params_dict['FORMAT'] = str(format)
         params_dict['RETRIEVAL_TYPE'] = str(retrieval_type)
-        self.__gaiadata.load_data(params_dict=params_dict,
+        params_dict['USE_ZIP_ALWAYS'] = 'true'
+
+        if path != '':
+            try:
+                os.mkdir(path)
+            except OSError:
+                print("Creation of the directory %s failed" % path)
+
+        try:
+            self.__gaiadata.load_data(params_dict=params_dict,
                                   output_file=output_file,
                                   verbose=verbose)
+            files = Gaia.__get_data_files(output_file=output_file, path=path)
+        except Exception as err:
+            raise err
+        finally:
+            if not output_file_specified:
+                shutil.rmtree(path)
 
+        if output_file_specified:
+            print("output_file =", output_file)
+
+        print("List of products available:")
+        for key, value in files.items():
+            print("Product =", key)
+
+        return files
+
+    @staticmethod
+    def __get_data_files(output_file, path):
         files = {}
         if zipfile.is_zipfile(output_file):
             with zipfile.ZipFile(output_file, 'r') as zip_ref:
@@ -266,23 +308,20 @@ class GaiaClass(TapPlus):
 
         for key, value in files.items():
             if '.fits' in key or '.csv' in key:
-                files[key] = modelutils.read_results_table_from_file(value,
-                                                                     format)
+                tables = []
+                with fits.open(value) as hduList:
+                    print(hduList)
+                    num_hdus = len(hduList)
+                    for i in range(1, num_hdus):
+                        table = Table.read(hduList[i], format='fits')
+                        Gaia.correct_table_units(table)
+                        tables.append(table)
+                    files[key] = tables
             elif '.xml' in key:
                 tables = []
-                for table in parse(value).iter_tables():
+                for table in votable.parse(value).iter_tables():
                     tables.append(table)
                 files[key] = tables
-
-        if not output_file_specified:
-            shutil.rmtree(path)
-        else:
-            print("output_file =", output_file)
-
-        print("List of products available:")
-        for key, value in files.items():
-            print("Product =", key)
-
         return files
 
     def get_datalinks(self, ids, verbose=False):
@@ -673,6 +712,18 @@ class GaiaClass(TapPlus):
             return c
         else:
             return value
+
+    @staticmethod
+    def correct_table_units(table):
+        for cn in table.colnames:
+            col = table[cn]
+            if isinstance(col.unit, u.UnrecognizedUnit):
+                try:
+                    col.unit = u.Unit(col.unit.name.replace(".", " ").replace("'", ""))
+                except Exception as err:
+                    pass
+            elif isinstance(col.unit, str):
+                col.unit = col.unit.replace(".", " ").replace("'", "")
 
     def load_user(self, user_id, verbose=False):
         """Loads the specified user

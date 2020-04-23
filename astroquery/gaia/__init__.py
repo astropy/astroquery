@@ -33,6 +33,11 @@ class Conf(_config.ConfigNamespace):
     ROW_LIMIT = _config.ConfigItem(50,
                                    "Number of rows to return from database "
                                    "query (set to -1 for unlimited).")
+    VALID_DATALINK_RETRIEVAL_TYPES=['EPOCH_PHOTOMETRY',
+                                    'RVS_SPECTRA',
+                                    'XP_BASIS',
+                                    'XP_SPECTRA',
+                                    'MCMC']
 
 
 conf = Conf()
