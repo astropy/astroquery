@@ -3,7 +3,7 @@ Provide astroquery API access to OIR Lab Astro Data Archive (natica).
 
 This does DB access through web-services.
 """
-import astropy.io.fits as pyfits
+import astropy.io.fits as fits
 import astropy.table
 from ..query import BaseQuery
 from ..utils import async_to_sync
@@ -157,7 +157,7 @@ class NoirlabClass(BaseQuery):
 
     def retrieve(self, fileid, cache=True):
         url = f'{self.NAT_URL}/api/retrieve/{fileid}/'
-        hdul = pyfits.open(url)
+        hdul = fits.open(url)
         return hdul
 
     def version(self, cache=False):

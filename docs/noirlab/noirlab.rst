@@ -2,6 +2,31 @@
 
 .. _astroquery.noirlab:
 
+************************************
+About the NOIRLab Astro Data Archive
+************************************
+
+The NOIRLab Astro Data Archive (formerly NOAO Science Archive)
+provides access to data taken with more than 40 telescope and
+instrument combinations, including those operated in partnership with
+the WIYN, SOAR and SMARTS consortia, from semester 2004B to the
+present. In addition to raw data, pipeline-reduced data products from
+the DECam, Mosaic and NEWFIRM imagers are also available, as well as
+advanced data products delivered by teams carrying out surveys and
+other large observing programs with NSF OIR Lab facilities.
+
+For more info about our holdings see the 
+`NOIRLab Astro Data Archive <https://astroarchive.noao.edu/about/>`_
+
+Acknowledgment
+==============
+
+This research uses services or data provided by the Astro Data Archive
+at NSF's National Optical-Infrared Astronomy Research
+Laboratory. NSF's OIR Lab is operated by the Association of
+Universities for Research in Astronomy (AURA), Inc. under a
+cooperative agreement with the National Science Foundation.
+
 **************************************
 NOIRLab Queries (`astroquery.noirlab`)
 **************************************

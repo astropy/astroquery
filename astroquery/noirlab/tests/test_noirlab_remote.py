@@ -80,6 +80,7 @@ class TestNoirlabClass(object):
         """List the available AUX FILE fields."""
         r = Noirlab().aux_fields('decam', 'instcal')
         actual = r
+        # Returned results may increase over time.
         print(f'DBG: test_aux_file_fields={actual}')
         expected = exp.aux_file_fields
         assert actual == expected
@@ -121,6 +122,7 @@ class TestNoirlabClass(object):
         """List the available AUX HDU fields."""
         r = Noirlab(which='hdu').aux_fields('decam', 'instcal')
         actual = r
+        # Returned results may increase over time.
         print(f'DBG: test_aux_hdu_fields={actual}')
         expected = exp.aux_hdu_fields
         assert actual == expected
@@ -129,7 +131,7 @@ class TestNoirlabClass(object):
         """List the available CORE HDU fields."""
         r = Noirlab(which='hdu').core_fields()
         actual = r
-        print(f'DBG: test_core_hdu_fields={actual}')
+        print(f'DBG: test_core_file_fields={actual}')
         expected = exp.core_hdu_fields
         assert actual == expected
 
@@ -164,6 +166,7 @@ class TestNoirlabClass(object):
         """List categories."""
         r = Noirlab().categoricals()
         actual = r
+        # Returned results may increase over time.
         print(f'DBG: test_categoricals={actual}')
         expected = exp.categoricals
         assert actual == expected
@@ -177,7 +180,6 @@ class TestNoirlabClass(object):
     def test_retrieve(self):
         hdul = Noirlab().retrieve('f92541fdc566dfebac9e7d75e12b5601')
         actual = list(hdul[0].header.keys())
-        print(f'DBG: test_retrieve={actual}')
         expected = exp.retrieve
         assert actual == expected
 
@@ -189,5 +191,4 @@ class TestNoirlabClass(object):
         actual = Noirlab().get_token('nobody@university.edu', '123456789')
         expected = {'detail':
                     'No active account found with the given credentials'}
-        print(f'DBG: test_get_token={actual}')
         assert actual == expected
