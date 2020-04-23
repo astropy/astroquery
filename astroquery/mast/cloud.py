@@ -19,6 +19,9 @@ from ..exceptions import NoResultsWarning, InvalidQueryError
 from . import utils
 
 
+__all__ = []
+
+
 class CloudAccess(object):  # pragma:no-cover
     """
     Class encapsulating access to MAST data in the cloud.
@@ -61,7 +64,7 @@ class CloudAccess(object):  # pragma:no-cover
             log.info("If you have not configured boto3, follow the instructions here: "
                      "https://boto3.readthedocs.io/en/latest/guide/configuration.html")
 
-    def is_supported(data_product):
+    def is_supported(self, data_product):
         """
         Given a data product, determines if it is in a mission available in the cloud.
 

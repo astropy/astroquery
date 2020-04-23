@@ -20,7 +20,7 @@ from ..utils import commons
 from . import conf
 
 
-__all__ = ['resolve_object']
+__all__ = []
 
 
 def parse_type(dbtype):

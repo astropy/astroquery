@@ -21,6 +21,9 @@ from ..exceptions import TimeoutError, NoResultsWarning
 from . import conf, utils
 
 
+__all__ = []
+
+
 def _json_to_table(json_obj):
     """
     Takes a JSON object as returned from a MAST microservice request and turns it into an `~astropy.table.Table`.

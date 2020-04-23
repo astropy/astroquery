@@ -20,6 +20,9 @@ from .discovery_portal import PortalAPI
 from .services import ServiceAPI
 
 
+__all__ = []
+
+
 class MastQueryWithLogin(QueryWithLogin):
     """
     Super class for MAST functionality (should not be called directly by users).

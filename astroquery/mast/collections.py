@@ -464,13 +464,11 @@ class CatalogsClass(MastQueryWithLogin):
             for spec in spectra:
 
                 if spec['SpectrumType'] < 2:
-                    data_url = 'https://hla.stsci.edu/cgi-bin/getdata.cgi?config=ops&dataset=' \
-                              + spec['DatasetName']
+                    data_url = f'https://hla.stsci.edu/cgi-bin/getdata.cgi?config=ops&dataset={spec["DatasetName"]}'
                 else:
-                    data_url = 'https://hla.stsci.edu/cgi-bin/ecfproxy?file_id=' \
-                              + spec['DatasetName'] + '.fits'
+                    data_url = f'https://hla.stsci.edu/cgi-bin/ecfproxy?file_id=spec["DatasetName"].fits'
 
-                local_path = os.path.join(base_dir, "{}.fits".format(spec['DatasetName']))
+                local_path = os.path.join(base_dir, "{spec['DatasetName']}.fits")
 
                 status = "COMPLETE"
                 msg = None

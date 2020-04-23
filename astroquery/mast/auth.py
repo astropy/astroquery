@@ -20,6 +20,9 @@ from ..exceptions import AuthenticationWarning
 from . import conf
 
 
+__all__ = []
+
+
 class MastAuth(object):
     """
     MAST authentication class, handles MAST authentication token.

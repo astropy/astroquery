@@ -26,6 +26,9 @@ from ..exceptions import InputWarning, NoResultsWarning
 from . import conf, utils
 
 
+__all__ = []
+
+
 def _prepare_service_request_string(json_obj):
     """
     Takes a mashup JSON request object and turns it into a url-safe string.
