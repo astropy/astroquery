@@ -45,7 +45,6 @@ alma
 
 mast
 ^^^^
-- Module refactor [#1645]
 
 
 Infrastructure, Utility and Other Changes and Additions
