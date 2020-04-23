@@ -41,5 +41,4 @@ __all__ = ['Observations', 'ObservationsClass',
            'Mast', 'MastClass',
            'Tesscut', 'TesscutClass',
            'Conf', 'conf', 'utils',
-           'MastQueryWithLogin'
            ]
