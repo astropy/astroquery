@@ -114,9 +114,15 @@ stored in the FITS headers of the Archive.  Common fields ("core"
 fields) are optimized for search speed. Less common fields ("aux"
 fields) will be slower to search. You can search by File or HDU. The
 primary method for doing the search in ``query_metadata``. That query
-requires a ``JSON`` structure to define the query.  Many of the other
+requires a ``JSON`` structure to define the query.  We often call this
+the *JSON search spec*. Many of the other
 methods with this module are here to provide you with the information
 you need to construct the ``JSON`` structure.
+Summaries of the mechanisms available in the JSON search spec for
+`File search <https://astroarchive.noao.edu/api/adv_search/fadoc/>`_
+and for `HDU search
+<https://astroarchive.noao.edu/api/adv_search/hadoc/>`_
+are on the NOIRLab Data Archive website.
 
 There are three methods who's sole purpose if providing you with
 information to help you with the content of your ``JSON`` structure.
