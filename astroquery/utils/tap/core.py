@@ -37,7 +37,7 @@ import tempfile
 
 __all__ = ['Tap', 'TapPlus']
 
-VERSION = "1.2.1"
+VERSION = "20200428.1"
 TAP_CLIENT_ID = "aqtappy-" + VERSION
 
 
@@ -839,11 +839,12 @@ class TapPlus(Tap):
         connHandler.check_launch_response_status(response,
                                                  verbose,
                                                  200)
-        print("Done.")
+        print("Reading...")
         if output_file is not None:
             file = open(output_file, "wb")
             file.write(response.read())
             file.close()
+            print("Done.")
             return None
         else:
             if 'format' in params_dict:
@@ -854,6 +855,7 @@ class TapPlus(Tap):
                 else:
                     output_format = "votable"
             results = utils.read_http_response(response, output_format)
+            print("Done.")
             return results
 
     def load_groups(self, verbose=False):
@@ -1709,7 +1711,7 @@ class TapPlus(Tap):
         for change in list_of_changes:
             index = 0
             for value in change:
-                if (index == 0):
+                if index == 0:
                     found = False
                     for c in columns:
                         if c.name == value:
@@ -1721,30 +1723,33 @@ class TapPlus(Tap):
                                          " was not found in the table")
                 index = index + 1
 
-        currentColumnRa = self.__columnsContainFlag(columns, "Ra")
-        currentColumnDec = self.__columnsContainFlag(columns, "Dec")
+        new_ra_column = TapPlus.__changesContainFlag(list_of_changes, "Ra")
+        new_dec_column = TapPlus.__changesContainFlag(list_of_changes, "Dec")
 
-        newColumnRa = self.__changesContainFlag(list_of_changes, "Ra")
-        newColumnDec = self.__changesContainFlag(list_of_changes, "Dec")
+        # check whether both (Ra/Dec) are present
+        # or both are None
+        if ((new_ra_column is not None and new_dec_column is None) or
+                (new_ra_column is None and new_dec_column is not None)):
+            raise ValueError("Both Ra and Dec must be specified when " +
+                             "updating one of them.")
 
-        if currentColumnRa is None and currentColumnDec is None:
-            # None of them are in place
-            if ((newColumnRa is not None and newColumnDec is None) or
-                    (newColumnRa is None and newColumnDec is not None)):
-                raise ValueError("Both Ra and Dec must be specified when " +
-                                 "updating one of them.")
+        args = TapPlus.__get_table_update_arguments(table_name, columns,
+                                                    list_of_changes)
 
-        if ((currentColumnRa is None and currentColumnDec is not None) or
-                (currentColumnRa is not None and currentColumnDec is None)):
-            # Only one of them is present
-            raise ValueError("One of (Ra, Dec) is not present but the other " +
-                             "is. Wrong initial configuration of the table.")
+        connHandler = self.__getconnhandler()
+        data = connHandler.url_encode(args)
+        response = connHandler.execute_table_edit(data, verbose=verbose)
+        if verbose:
+            print(response.status, response.reason)
+            print(response.getheaders())
+        connHandler.check_launch_response_status(response,
+                                                 verbose,
+                                                 200)
+        msg = "Table '"+str(table_name)+"' updated."
+        print(msg)
 
-        if currentColumnRa is not None and currentColumnDec is not None:
-            # Both are initially present
-            if newColumnRa is not None or newColumnDec is not None:
-                raise ValueError("Both Ra and Dec are already present in " +
-                                 "this table. Only one of each is allowed.")
+    @staticmethod
+    def __get_table_update_arguments(table_name, columns, list_of_changes):
         num_cols = len(columns)
         args = {
                 "ACTION": "edit",
@@ -1759,73 +1764,114 @@ class TapPlus(Tap):
                 if (str(change[0]) == str(column.name)):
                     found_in_changes = True
                     break
-            column_name = column.name
-            flags = column.flags
-            if str(flags) == '1':
-                flags = 'Ra'
-            elif str(flags) == '2':
-                flags = 'Dec'
-            elif str(flags) == '4':
-                flags = 'Flux'
-            elif str(flags) == '8':
-                flags = 'Mag'
-            elif str(flags) == '16':
-                flags = 'PK'
-            elif str(flags) == '33':
-                flags = 'Ra'
-            elif str(flags) == '34':
-                flags = 'Dec'
-            elif str(flags) == '38':
-                flags = 'Flux'
-            elif str(flags) == '40':
-                flags = 'Mag'
-            elif str(flags) == '48':
-                flags = 'PK'
-            else:
-                flags = None
-            indexed = (str(column.flag) == 'indexed' or
-                       str(flags) == 'Ra' or
-                       str(flags) == 'Dec' or
-                       str(flags) == 'PK')
-            ucd = str(column.ucd)
-            utype = str(column.utype)
+
+            # set current values
+            column_name, flags, indexed, ucd, utype = \
+                TapPlus.__get_current_column_values_for_update(column)
+
+            # Update values if required
             if found_in_changes:
-                for change in list_of_changes:
-                    if (str(change[0]) == str(column.name) and
-                            str(change[1]) == 'flags'):
-                        flags = str(change[2])
-                        break
-                    if (str(change[0]) == str(column.name) and
-                            str(change[1]) == 'indexed'):
-                        indexed = str(change[2])
-                        break
-                    if (str(change[0]) == str(column.name) and
-                            str(change[1]) == 'ucd'):
-                        ucd = str(change[2])
-                        break
-                    if (str(change[0]) == str(column.name) and
-                            str(change[1]) == 'utype'):
-                        utype = str(change[2])
-                        break
-            if flags == 'Ra' or flags == 'Dec' or flags == 'PK':
-                indexed = str(True)
+                flags, indexed, ucd, utype = TapPlus.__get_new_column_values_for_update(list_of_changes, column_name, flags, indexed, ucd, utype)
+
+            # Prepare http request parameters for a column
             args["TABLE0_COL" + str(index)] = str(column_name)
-            args["TABLE0_COL" + str(index) + "_FLAGS"] = str(flags)
-            args["TABLE0_COL" + str(index) + "_INDEXED"] = str(indexed)
             args["TABLE0_COL" + str(index) + "_UCD"] = str(ucd)
             args["TABLE0_COL" + str(index) + "_UTYPE"] = str(utype)
+            args["TABLE0_COL" + str(index) + "_INDEXED"] = str(indexed)
+            args["TABLE0_COL" + str(index) + "_FLAGS"] = str(flags)
             index = index + 1
-        connHandler = self.__getconnhandler()
-        data = connHandler.url_encode(args)
-        response = connHandler.execute_table_edit(data, verbose=verbose)
-        if verbose:
-            print(response.status, response.reason)
-            print(response.getheaders())
-        connHandler.check_launch_response_status(response,
-                                                 verbose,
-                                                 200)
-        msg = "Table '"+str(table_name)+"' updated."
-        print(msg)
+        return args
+
+    @staticmethod
+    def __get_current_column_values_for_update(column):
+        column_name = column.name
+        flags = column.flags
+        if str(flags) == '1':
+            flags = 'Ra'
+        elif str(flags) == '2':
+            flags = 'Dec'
+        elif str(flags) == '4':
+            flags = 'Flux'
+        elif str(flags) == '8':
+            flags = 'Mag'
+        elif str(flags) == '16':
+            flags = 'PK'
+        elif str(flags) == '33':
+            flags = 'Ra'
+        elif str(flags) == '34':
+            flags = 'Dec'
+        elif str(flags) == '38':
+            flags = 'Flux'
+        elif str(flags) == '40':
+            flags = 'Mag'
+        elif str(flags) == '48':
+            flags = 'PK'
+        else:
+            flags = None
+        indexed = (str(column.flag) == 'indexed' or
+                   str(flags) == 'Ra' or
+                   str(flags) == 'Dec' or
+                   str(flags) == 'PK')
+        ucd = str(column.ucd)
+        utype = str(column.utype)
+        return column_name, flags, indexed, ucd, utype
+
+    @staticmethod
+    def __get_new_column_values_for_update(list_of_changes, column_name, c_flags, c_indexed, c_ucd, c_utype):
+        found_new_flags = False
+        found_new_indexed = False
+        found_new_ucd = False
+        found_new_utype = False
+        n_flags = None
+        n_indexed = None
+        n_utype = None
+        n_ucd = None
+        for change in list_of_changes:
+            if str(change[0]) == column_name:
+                if str(change[1]) == 'flags':
+                    n_flags = str(change[2])
+                    found_new_flags = True
+                if str(change[1]) == 'indexed':
+                    n_indexed = str(change[2])
+                    found_new_indexed = True
+                if str(change[1]) == 'ucd':
+                    n_ucd = str(change[2])
+                    found_new_ucd = True
+                if str(change[1]) == 'utype':
+                    n_utype = str(change[2])
+                    found_new_utype = True
+
+        if found_new_ucd:
+            ucd = n_ucd
+        else:
+            ucd = c_ucd
+
+        if found_new_utype:
+            utype = n_utype
+        else:
+            utype = c_utype
+
+        if found_new_indexed:
+            indexed = n_indexed
+        else:
+            indexed = c_indexed
+
+        # index could be updated
+        if found_new_flags:
+            if n_flags == None or n_flags == '':
+                if found_new_indexed:
+                    indexed = str(n_indexed)
+                else:
+                    indexed = str(False)
+            else:
+                # Index required for PK, Ra, Dec
+                if c_flags == 'Ra' or c_flags == 'Dec' or c_flags == 'PK':
+                    indexed = str(True)
+            flags = n_flags
+        else:
+            flags = c_flags
+
+        return flags, indexed, ucd, utype
 
     def set_ra_dec_columns(self, table_name=None,
                            ra_column_name=None, dec_column_name=None,
@@ -1965,9 +2011,10 @@ class TapPlus(Tap):
             print(response.getheaders())
         self.__isLoggedIn = False
 
-    def __columnsContainFlag(self, columns=None, flag=None, verbose=False):
+    @staticmethod
+    def __columnsContainFlag(columns=None, flag=None, verbose=False):
         c = None
-        if (columns is not None and len(columns) > 0):
+        if columns is not None and len(columns) > 0:
             for column in columns:
                 f = column.flags
                 if str(f) == '1' or str(f) == '33':
@@ -1987,9 +2034,10 @@ class TapPlus(Tap):
                     break
         return c
 
-    def __changesContainFlag(self, changes=None, flag=None, verbose=False):
+    @staticmethod
+    def __changesContainFlag(changes=None, flag=None, verbose=False):
         c = None
-        if (changes is not None and len(changes) > 0):
+        if changes is not None and len(changes) > 0:
             for change in changes:
                 if str(change[1]) == "flags":
                     value = str(change[2])
