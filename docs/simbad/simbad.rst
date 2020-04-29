@@ -677,7 +677,7 @@ be specified as follows (e.g. epoch of J2017.5 and equinox of 2000):
 
 .. code-block:: python
 
-    >>> customSimbad.add_votable_fields('ra(2;A;ICRS;J2017.5;2000)', 'dec(2;D;ICRS;2017.5;2000)')
+    >>> customSimbad.add_votable_fields('ra(2;A;ICRS;J2017.5;2000)', 'dec(2;D;ICRS;J2017.5;2000)')
     >>> customSimbad.remove_votable_fields('coordinates')
     >>> customSimbad.query_object("HD189733")
     <Table masked=True length=1>
