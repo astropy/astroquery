@@ -164,3 +164,10 @@ class DummyConnHandler(object):
 
     def find_header(self, headers, key):
         return taputils.taputil_find_header(headers, key)
+
+    def execute_table_edit(self, data,
+                           content_type="application/x-www-form-urlencoded",
+                           verbose=False):
+        return self.__execute_post(subcontext="tableEdit", data=data,
+                                   content_type=content_type, verbose=verbose)
+
