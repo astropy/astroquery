@@ -1680,8 +1680,6 @@ class TapPlus(Tap):
         """
         if table_name is None:
             raise ValueError("Table name cannot be null")
-        if list_of_changes is None:
-            raise ValueError("List of changes cannot be null")
         if len(list_of_changes) == 0:
             raise ValueError("List of changes cannot be empty")
         for change in list_of_changes:
@@ -1733,7 +1731,7 @@ class TapPlus(Tap):
             raise ValueError("Both Ra and Dec must be specified when " +
                              "updating one of them.")
 
-        args = TapPlus.__get_table_update_arguments(table_name, columns,
+        args = TapPlus.get_table_update_arguments(table_name, columns,
                                                     list_of_changes)
 
         connHandler = self.__getconnhandler()
@@ -1749,7 +1747,7 @@ class TapPlus(Tap):
         print(msg)
 
     @staticmethod
-    def __get_table_update_arguments(table_name, columns, list_of_changes):
+    def get_table_update_arguments(table_name, columns, list_of_changes):
         num_cols = len(columns)
         args = {
                 "ACTION": "edit",
@@ -1767,11 +1765,11 @@ class TapPlus(Tap):
 
             # set current values
             column_name, flags, indexed, ucd, utype = \
-                TapPlus.__get_current_column_values_for_update(column)
+                TapPlus.get_current_column_values_for_update(column)
 
             # Update values if required
             if found_in_changes:
-                flags, indexed, ucd, utype = TapPlus.__get_new_column_values_for_update(list_of_changes, column_name, flags, indexed, ucd, utype)
+                flags, indexed, ucd, utype = TapPlus.get_new_column_values_for_update(list_of_changes, column_name, flags, indexed, ucd, utype)
 
             # Prepare http request parameters for a column
             args["TABLE0_COL" + str(index)] = str(column_name)
@@ -1783,7 +1781,7 @@ class TapPlus(Tap):
         return args
 
     @staticmethod
-    def __get_current_column_values_for_update(column):
+    def get_current_column_values_for_update(column):
         column_name = column.name
         flags = column.flags
         if str(flags) == '1':
@@ -1817,7 +1815,7 @@ class TapPlus(Tap):
         return column_name, flags, indexed, ucd, utype
 
     @staticmethod
-    def __get_new_column_values_for_update(list_of_changes, column_name, c_flags, c_indexed, c_ucd, c_utype):
+    def get_new_column_values_for_update(list_of_changes, column_name, c_flags, c_indexed, c_ucd, c_utype):
         found_new_flags = False
         found_new_indexed = False
         found_new_ucd = False

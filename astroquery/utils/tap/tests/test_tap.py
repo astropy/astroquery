@@ -18,6 +18,7 @@ import unittest
 import os
 import numpy as np
 import pytest
+from astroquery.utils.tap.model.tapcolumn import TapColumn
 
 from astroquery.utils.tap.conn.tests.DummyConnHandler import DummyConnHandler
 from astroquery.utils.tap.conn.tests.DummyResponse import DummyResponse
@@ -794,6 +795,213 @@ class TestTap(unittest.TestCase):
         assert len(results) == 3, \
             "Wrong job results (num rows). Expected: %d, found %d" % \
             (3, len(results))
+
+    def test_get_new_column_values_for_update(self):
+        # Different column (no modifications)
+        list_of_changes = [['column2', 'flags', 'Dec'],
+                           ['column2', 'indexed', 'true'],
+                           ['column2', 'ucd', 'new_ucd_column2'],
+                           ['column2', 'utype', 'new_utype_column2']]
+        column_name = 'column'
+        c_flags = 'Ra'
+        c_indexed = 'false'
+        c_ucd = 'ucd'
+        c_utype = 'utype_'
+        flags, indexed, ucd, utype =  TapPlus.get_new_column_values_for_update(
+            list_of_changes, column_name, c_flags, c_indexed, c_ucd, c_utype)
+        assert flags == c_flags
+        assert indexed == c_indexed
+        assert ucd == c_ucd
+        assert utype == c_utype
+
+        # Modifciations
+        list_of_changes = [['column2', 'flags', 'Dec'],
+                           ['column2', 'indexed', 'true'],
+                           ['column2', 'ucd', 'new_ucd_column2'],
+                           ['column2', 'utype', 'new_utype_column2'],
+                           ['column', 'flags', 'Dec'],
+                           ['column', 'indexed', 'true'],
+                           ['column', 'ucd', 'new_ucd'],
+                           ['column', 'utype', 'new_utype']]
+        column_name = 'column'
+        c_flags = 'Ra'
+        c_indexed = 'false'
+        c_ucd = 'ucd'
+        c_utype = 'utype'
+        n_flags = 'Dec'
+        n_indexed = 'True'
+        n_ucd = 'new_ucd'
+        n_utype = 'new_utype'
+        flags, indexed, ucd, utype =  TapPlus.get_new_column_values_for_update(
+            list_of_changes, column_name, c_flags, c_indexed, c_ucd, c_utype)
+        assert flags == n_flags
+        assert indexed == n_indexed
+        assert ucd == n_ucd
+        assert utype == n_utype
+
+        # Previous value Ra/indexed, new value remove Ra/indexed
+        list_of_changes = [['column', 'flags', ''],
+                           ['column', 'indexed', 'false']]
+        column_name = 'column'
+        c_flags = 'Ra'
+        c_indexed = 'true'
+        n_flags = ''
+        n_indexed = 'false'
+        flags, indexed, ucd, utype =  TapPlus.get_new_column_values_for_update(
+            list_of_changes, column_name, c_flags, c_indexed, c_ucd, c_utype)
+        assert flags == n_flags
+        assert indexed == n_indexed
+
+        # Test if flag is Ra, indexed is True
+        list_of_changes = [['column', 'flags', 'Ra'],
+                           ['column', 'indexed', 'false']]
+        column_name = 'column'
+        c_flags = 'Ra'
+        c_indexed = 'true'
+        n_flags = 'Ra'
+        n_indexed = 'True'
+        flags, indexed, ucd, utype =  TapPlus.get_new_column_values_for_update(
+            list_of_changes, column_name, c_flags, c_indexed, c_ucd, c_utype)
+        assert flags == n_flags
+        assert indexed == n_indexed
+
+    def test_get_current_column_values_for_update(self):
+        column = TapColumn(None)
+        column.name = 'colname'
+        column.flags = 0
+        column.flag = None
+        column.ucd = 'ucd'
+        column.utype = 'utype'
+        column_name, flags, indexed, ucd, utype = \
+            TapPlus.get_current_column_values_for_update(column)
+        assert column_name == 'colname'
+        assert flags is None
+        assert indexed is False
+        assert ucd == 'ucd'
+        assert utype == 'utype'
+
+        column.flags = '1'
+        column_name, flags, indexed, ucd, utype = \
+            TapPlus.get_current_column_values_for_update(column)
+        assert flags == 'Ra'
+        assert indexed is True
+        column.flags = '2'
+        column_name, flags, indexed, ucd, utype = \
+            TapPlus.get_current_column_values_for_update(column)
+        assert flags == 'Dec'
+        assert indexed is True
+        column.flags = '4'
+        column_name, flags, indexed, ucd, utype = \
+            TapPlus.get_current_column_values_for_update(column)
+        assert flags == 'Flux'
+        assert indexed is False
+        column.flags = '8'
+        column_name, flags, indexed, ucd, utype = \
+            TapPlus.get_current_column_values_for_update(column)
+        assert flags == 'Mag'
+        assert indexed is False
+        column.flags = '16'
+        column_name, flags, indexed, ucd, utype = \
+            TapPlus.get_current_column_values_for_update(column)
+        assert flags == 'PK'
+        assert indexed is True
+        column.flags = '33'
+        column_name, flags, indexed, ucd, utype = \
+            TapPlus.get_current_column_values_for_update(column)
+        assert flags == 'Ra'
+        assert indexed is True
+        column.flags = '34'
+        column_name, flags, indexed, ucd, utype = \
+            TapPlus.get_current_column_values_for_update(column)
+        assert flags == 'Dec'
+        assert indexed is True
+        column.flags = '38'
+        column_name, flags, indexed, ucd, utype = \
+            TapPlus.get_current_column_values_for_update(column)
+        assert flags == 'Flux'
+        assert indexed is False
+        column.flags = '40'
+        column_name, flags, indexed, ucd, utype = \
+            TapPlus.get_current_column_values_for_update(column)
+        assert flags == 'Mag'
+        assert indexed is False
+        column.flags = '48'
+        column_name, flags, indexed, ucd, utype = \
+            TapPlus.get_current_column_values_for_update(column)
+        assert flags == 'PK'
+        assert indexed is True
+
+    def test_update_user_table(self):
+        tableName = 'table'
+        connHandler = DummyConnHandler()
+        tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
+        dummyResponse = DummyResponse()
+        dummyResponse.set_status_code(200)
+        dummyResponse.set_message("OK")
+        tableDataFile = data_path('test_table_update.xml')
+        tableData = utils.read_file_content(tableDataFile)
+        dummyResponse.set_data(method='GET',
+                                   context=None,
+                                   body=tableData,
+                                   headers=None)
+        tableRequest = "tables?tables=" + tableName
+        connHandler.set_response(tableRequest, dummyResponse)
+
+        with pytest.raises(Exception):
+            tap.update_user_table()
+        with pytest.raises(Exception):
+            tap.update_user_table(table_name=tableName)
+        with pytest.raises(Exception):
+            tap.update_user_table(table_name=tableName, list_of_changes=[])
+        with pytest.raises(Exception):
+            tap.update_user_table(table_name=tableName, list_of_changes=[[]])
+        with pytest.raises(Exception):
+            tap.update_user_table(table_name=tableName, list_of_changes=[['','','']])
+
+        # Test Ra & Dec are provided
+        list_of_changes = [['alpha', 'flags', 'Ra']]
+        with pytest.raises(Exception):
+            tap.update_user_table(table_name=tableName, list_of_changes=list_of_changes)
+        list_of_changes = [['delta', 'flags', 'Dec']]
+        with pytest.raises(Exception):
+            tap.update_user_table(table_name=tableName, list_of_changes=list_of_changes)
+
+        # OK
+        responseEditTable = DummyResponse()
+        responseEditTable.set_status_code(200)
+        responseEditTable.set_message("OK")
+        dictTmp = {
+            "ACTION": "edit",
+            "NUMTABLES": "1",
+            "TABLE0": tableName,
+            "TABLE0_COL0": "table6_oid",
+            "TABLE0_COL0_FLAGS": "PK",
+            "TABLE0_COL0_INDEXED": "True",
+            "TABLE0_COL0_UCD": "",
+            "TABLE0_COL0_UTYPE": "",
+            "TABLE0_COL1": "source_id",
+            "TABLE0_COL1_FLAGS": "None",
+            "TABLE0_COL1_INDEXED": "False",
+            "TABLE0_COL1_UCD": "None",
+            "TABLE0_COL1_UTYPE": "None",
+            "TABLE0_COL2": "alpha",
+            "TABLE0_COL2_FLAGS": "Ra",
+            "TABLE0_COL2_INDEXED": "False",
+            "TABLE0_COL2_UCD": "",
+            "TABLE0_COL2_UTYPE": "",
+            "TABLE0_COL3": "delta",
+            "TABLE0_COL3_FLAGS": "Dec",
+            "TABLE0_COL3_INDEXED": "False",
+            "TABLE0_COL3_UCD": "",
+            "TABLE0_COL3_UTYPE": "",
+            "TABLE0_NUMCOLS": "4"
+        }
+        sortedKey = taputils.taputil_create_sorted_dict_key(dictTmp)
+        req = "tableEdit?" + sortedKey
+        connHandler.set_response(req, responseEditTable)
+
+        list_of_changes = [['alpha', 'flags', 'Ra'], ['delta', 'flags', 'Dec']]
+        tap.update_user_table(table_name=tableName, list_of_changes=list_of_changes)
 
     def __find_table(self, schemaName, tableName, tables):
         qualifiedName = schemaName + "." + tableName
