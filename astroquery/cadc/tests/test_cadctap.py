@@ -22,7 +22,7 @@ import tempfile
 import requests
 try:
     pyvo_OK = True
-    from pyvo.dal import tap, adhoc
+    from pyvo.auth import authsession
     from astroquery.cadc import Cadc, conf
     import astroquery.cadc.core as cadc_core
 except ImportError:
@@ -55,9 +55,9 @@ def test_get_tables():
     table_set.values.return_value = ['tab1val', 'tab2val', 'tab3val']
     with patch('astroquery.cadc.core.pyvo.dal.TAPService', autospec=True) as m:
         m.return_value.tables = table_set
-        tap = Cadc()
-        assert len(tap.get_tables(only_names=True)) == 2
-        assert len(tap.get_tables()) == 3
+        cadc = Cadc()
+        assert len(cadc.get_tables(only_names=True)) == 2
+        assert len(cadc.get_tables()) == 3
 
 
 @patch('astroquery.cadc.core.get_access_url',
@@ -73,9 +73,9 @@ def test_get_table():
 
     with patch('astroquery.cadc.core.pyvo.dal.TAPService', autospec=True) as m:
         m.return_value.tables = table_set
-        tap = Cadc()
-        assert tap.get_table('tab2').name == 'tab2'
-        assert tap.get_table('foo') is None
+        cadc = Cadc()
+        assert cadc.get_table('tab2').name == 'tab2'
+        assert cadc.get_table('foo') is None
 
 
 @patch('astroquery.cadc.core.get_access_url',
@@ -87,7 +87,7 @@ def test_get_collections():
     def mock_run_query(query, output_format=None, maxrec=None,
                        output_file=None):
         assert query == \
-               'select distinct collection, energy_emBand from caom2.EnumField'
+            'select distinct collection, energy_emBand from caom2.EnumField'
         assert output_format is None
         assert maxrec is None
         assert output_file is None
@@ -115,9 +115,9 @@ def test_load_async_job():
             mock_job = Mock()
             mock_job.job_id = '123'
             j.return_value = mock_job
-            tap = Cadc()
+            cadc = Cadc()
             jobid = '123'
-            job = tap.load_async_job(jobid)
+            job = cadc.load_async_job(jobid)
             assert job.job_id == '123'
 
 
@@ -128,41 +128,44 @@ def test_load_async_job():
 def test_list_async_jobs():
     with patch('astroquery.cadc.core.pyvo.dal.TAPService', autospec=True) as t:
         t.return_value.baseurl.return_value = 'https://www.example.com/tap'
-        tap = Cadc()
-        tap.list_async_jobs()
+        cadc = Cadc()
+        cadc.list_async_jobs()
 
 
 @patch('astroquery.cadc.core.get_access_url',
        Mock(side_effect=lambda x, y=None: 'https://some.url'))
 @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
 def test_auth():
-    cadc = Cadc()
-    try:
-        user = 'user'
-        password = 'password'
-        cert = 'cert'
-        with pytest.raises(AttributeError):
-            cadc.login(None, None, None)
-        with pytest.raises(AttributeError):
-            cadc.login(user=user)
-        with pytest.raises(AttributeError):
-            cadc.login(password=password)
-        cadc.login(certificate_file=cert)
-        assert tap.s.cert == cert
-        cadc.logout()
-        assert tap.s.cert is None
-        with patch('astroquery.cadc.core.requests.Session') as ss:
-            cookie = 'ABC'
-            mock_resp = Mock()
-            mock_resp.text = cookie
-            ss.return_value.cookies = requests.cookies.RequestsCookieJar()
-            ss.return_value.post.return_value = mock_resp
-            cadc.login(user=user, password=password)
-        assert tap.s.cookies[cadc_core.CADC_COOKIE_PREFIX] == \
-            '"{}"'.format(cookie)
-    finally:
-        # for the sake of other following tests reset the session
-        cadc.logout()
+    # the Cadc() will cause a remote data call to TAP service capabilities
+    # To avoid this, use an anonymous session and replace it with an
+    # auth session later
+    cadc = Cadc(auth_session=requests.Session())
+    cadc.cadctap._session = authsession.AuthSession()
+    user = 'user'
+    password = 'password'
+    cert = 'cert'
+    with pytest.raises(AttributeError):
+        cadc.login(None, None, None)
+    with pytest.raises(AttributeError):
+        cadc.login(user=user)
+    with pytest.raises(AttributeError):
+        cadc.login(password=password)
+    cadc.login(certificate_file=cert)
+    assert cadc.cadctap._session.credentials.get(
+        'ivo://ivoa.net/sso#tls-with-certificate').cert == cert
+    # reset and try with user password/cookies
+    cadc.cadctap._session = authsession.AuthSession()
+    post_mock = Mock()
+    cookie = 'ABC'
+    mock_resp = Mock()
+    mock_resp.text = cookie
+    post_mock.return_value.cookies = requests.cookies.RequestsCookieJar()
+    post_mock.return_value = mock_resp
+    cadc._request = post_mock
+    cadc.login(user=user, password=password)
+    assert cadc.cadctap._session.credentials.get(
+        'ivo://ivoa.net/sso#cookie').cookies[cadc_core.CADC_COOKIE_PREFIX] == \
+        '"{}"'.format(cookie)
 
 
 # make sure that caps is reset at the end of the test
@@ -323,9 +326,8 @@ def test_get_image_list():
         m.return_value = result
         cadc = Cadc()
         cadc._request = get  # Mock the request
-        url_list = cadc.get_image_list({'publisherID': [
-            'ivo://cadc.nrc.ca/foo']},
-                                coords, radius)
+        url_list = cadc.get_image_list(
+            {'publisherID': ['ivo://cadc.nrc.ca/foo']}, coords, radius)
 
         assert len(url_list) == 1
 
@@ -363,7 +365,7 @@ def test_exec_sync():
     table.array[1] = ('test2.xml', [[0.5, 0.3], [0.2, 0.1]])
     buffer = BytesIO()
     votable.to_xml(buffer)
-    cadc = Cadc()
+    cadc = Cadc(auth_session=requests.Session())
     response = Mock()
     response.to_table.return_value = buffer.getvalue()
     cadc.cadctap.search = Mock(return_value=response)

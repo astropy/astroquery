@@ -65,6 +65,11 @@ vizier
 mast
 ^^^^
 
+cadc
+^^^^
+
+- Fixed authentication and enabled listing of async jobs. [#1712]
+
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------

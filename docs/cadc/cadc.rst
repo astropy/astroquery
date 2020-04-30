@@ -202,8 +202,9 @@ can be passed into the function, along with the cutout coordinates and radius.
 
 
 Note that the examples above are for accessing data anonymously. Users with
-access to proprietary data can call ```login``` on the ```cadc``` object
-before querying or accessing the data.
+access to proprietary data can use authenticated sessions to instantiate the
+```Cadc``` class or call ```login``` on it before querying or accessing the
+data.
 
 CADC metadata is available through a TAP service. While the above interfaces
 offer a quick and simple access to the data, the TAP interface presented in
@@ -234,7 +235,7 @@ TAP provides two operation modes: Synchronous and Asynchronous:
   Once the job is finished, the results can be retrieved.
 
 The functions can be run as an authenticated user, the ``list_async_jobs()``
-function will error if not logged in. For authentication you need an account
+function will error if not authenticated. For authentication you need an account
 with the CADC, go to http://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/, choose a
 language, click on Login in the top right area, click on the Request an Account
 link, enter your information and wait for confirmation of your account creation.
@@ -254,9 +255,8 @@ Obtain a Certificate and save the certificate. When adding authentication used
 the path to where you saved the certificate. Remember that certificates expire
 and you will need to get a new one.
 
-When logging in only one form of authentication is allowed, attempts to set both
-or when one is set attempting to set the other will not work. When logged in
-authentication will be applied to each call, when a job is created with authentication
+When logging in, both forms of authentication are allowed. Authentication will
+be applied to each subsequent call. When a job is created with authentication
 any further calls will require authentication.
 
 There is one way to logout which will cancel any kind of authentication that was used
@@ -541,9 +541,20 @@ Asynchronous jobs can be loaded. You need the jobid in order to load the job.
 2. Authenticated access
 ---------------------------
 
-Authenticated users are able to access to TAP+ capabilities (shared tables, persistent jobs, etc.)
-In order to authenticate a user, ``login`` methods must be called. After a successful
-authentication, the user will be authenticated until ``logout`` method is called.
+Some capabilities (shared tables, persistent jobs, etc.) are only available to
+authenticated users.
+
+One authentication option is to instantiate the ``Cadc`` class with a pre-existing,
+``pyvo.auth.authsession.AuthSession`` or ``requests.Session`` object that
+contains the necessary credentials. Note that the session will be used
+for all the service interaction. The former session attempts to pair the
+credentials with the auth methods in the service capabilities while the
+latter sends the credentials with all requests.
+
+The second option is to use the ``login`` methods must be called.
+
+After a successful authentication, user credentials will be used until
+the ``logout`` method is called.
 
 All previous methods (``get_tables``, ``get_table``, ``run_query``) explained for
 non authenticated users are applicable for authenticated ones.

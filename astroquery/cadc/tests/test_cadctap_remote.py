@@ -20,6 +20,7 @@ from astroquery.utils.commons import parse_coordinates, FileContainer
 try:
     pyvo_OK = True
     import pyvo   # noqa
+    from pyvo.auth import authsession
 except ImportError:
     pyvo_OK = False
 except AstropyDeprecationWarning as e:
@@ -39,6 +40,7 @@ skip_slow = True
 @pytest.mark.remote_data
 class TestCadcClass:
     # now write tests for each method here
+    @pytest.mark.skipif(one_test, reason='One test mode')
     @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
     def test_get_collections(self):
         cadc = Cadc()
@@ -122,21 +124,33 @@ class TestCadcClass:
         print(result)
 
     @pytest.mark.skipif(one_test, reason='One test mode')
-    @pytest.mark.skipif(('CADC_USER' not in os.environ or
-                        'CADC_PASSWD' not in os.environ),
+    @pytest.mark.skipif(('CADC_USER' not in os.environ
+                        or 'CADC_PASSWD' not in os.environ),
                         reason='Requires real CADC user/password (CADC_USER '
                                'and CADC_PASSWD environment variables)')
     @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
     def test_login_with_user_password(self):
-        cadc = Cadc()
-        cadc.logout()
-        now = datetime.utcnow()
-        cadc.login(os.environ['CADC_USER'], os.environ['CADC_PASSWD'])
-        query = "select top 1 * from caom2.Plane where " \
-                "metaRelease>'{}'".format(now.strftime('%Y-%m-%dT%H:%M:%S.%f'))
-        result = cadc.exec_sync(query)
-        cadc.logout()
-        assert len(result) == 1
+        for auth_session in [None, authsession.AuthSession(),
+                             requests.Session()]:
+            cadc = Cadc(auth_session=auth_session)
+            now = datetime.utcnow()
+            query = \
+                "select top 1 * from caom2.Plane where metaRelease>'{}'".\
+                format(now.strftime('%Y-%m-%dT%H:%M:%S.%f'))
+            result = cadc.exec_sync(query)
+            assert len(result) == 0
+            cadc.login(os.environ['CADC_USER'], os.environ['CADC_PASSWD'])
+            query = "select top 1 * from caom2.Plane where metaRelease>'{}'".\
+                format(now.strftime('%Y-%m-%dT%H:%M:%S.%f'))
+            result = cadc.exec_sync(query)
+            assert len(result) == 1
+            # repeat after logout
+            cadc.logout()
+            query = \
+                "select top 1 * from caom2.Plane where metaRelease>'{}'".\
+                format(now.strftime('%Y-%m-%dT%H:%M:%S.%f'))
+            result = cadc.exec_sync(query)
+            assert len(result) == 0
 
     @pytest.mark.skipif(one_test, reason='One test mode')
     @pytest.mark.skipif('CADC_CERT' not in os.environ,
@@ -144,19 +158,51 @@ class TestCadcClass:
                                'environment variable)')
     @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
     def test_login_with_cert(self):
+        for auth_session in [requests.Session()]:
+            cadc = Cadc(auth_session=auth_session)
+            now = datetime.utcnow()
+            query = \
+                "select top 1 * from caom2.Plane where metaRelease>'{}'".\
+                format(now.strftime('%Y-%m-%dT%H:%M:%S.%f'))
+            result = cadc.exec_sync(query)
+            assert len(result) == 0
+            # following query is to test login with certificates when an
+            # anonymous query is executed first.
+            cadc.login(certificate_file=os.environ['CADC_CERT'])
+            query = \
+                "select top 1 * from caom2.Plane where metaRelease>'{}'".\
+                format(now.strftime('%Y-%m-%dT%H:%M:%S.%f'))
+            result = cadc.exec_sync(query)
+            assert len(result) == 1
+            cadc.logout()
+            query = \
+                "select top 1 * from caom2.Plane where metaRelease>'{}'".\
+                format(now.strftime('%Y-%m-%dT%H:%M:%S.%f'))
+            result = cadc.exec_sync(query)
+            assert len(result) == 0
+
+    @pytest.mark.skipif(one_test, reason='One test mode')
+    @pytest.mark.skipif('CADC_CERT' not in os.environ,
+                        reason='Requires real CADC certificate (CADC_CERT '
+                               'environment variable)')
+    @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
+    def test_authsession(self):
         # repeat previous test
-        cadc = Cadc()
-        cadc.logout()
+        auth_session = requests.Session()
+        auth_session.cert = os.environ['CADC_CERT']
+        cadc = Cadc(auth_session=auth_session)
         now = datetime.utcnow()
-        # following query is to test login with certificates when an
-        # anonymous query is executed first.
-        cadc.exec_sync('select top 1 * from caom2.Observation')
-        cadc.login(certificate_file=os.environ['CADC_CERT'])
         query = "select top 1 * from caom2.Plane where " \
                 "metaRelease>'{}'".format(now.strftime('%Y-%m-%dT%H:%M:%S.%f'))
         result = cadc.exec_sync(query)
         assert len(result) == 1
-        cadc.logout()
+        annon_session = requests.Session()
+        cadc = Cadc(auth_session=annon_session)
+        now = datetime.utcnow()
+        query = "select top 1 * from caom2.Plane where " \
+                "metaRelease>'{}'".format(now.strftime('%Y-%m-%dT%H:%M:%S.%f'))
+        result = cadc.exec_sync(query)
+        assert len(result) == 0
 
     @pytest.mark.skipif(one_test, reason='One test mode')
     @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
@@ -197,8 +243,8 @@ class TestCadcClass:
 
         # Filter out the errors and empty strings
         filtered_resp_urls = list(filter(lambda url:
-                                         not url.startswith('ERROR') and
-                                         url != '', resp_urls))
+                                         not url.startswith('ERROR')
+                                         and url != '', resp_urls))
 
         # This function should return nearly the same urls
         image_urls = cadc.get_images(coords, radius, get_url_list=True)
@@ -262,8 +308,22 @@ class TestCadcClass:
         table = cadc.get_table('caom2.Observation')
         assert 'caom2.Observation' == table.name
 
-    @pytest.mark.skip('Waiting for implementation in pyvo')
     @pytest.mark.skipif(one_test, reason='One test mode')
+    @pytest.mark.skipif('CADC_CERT' not in os.environ,
+                        reason='Requires real CADC certificate (CADC_CERT '
+                               'environment variable)')
     @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
     def test_list_jobs(self):
-        raise NotImplementedError('Not implemented in pyvo')
+        cadc = Cadc()
+        cadc.login(certificate_file=os.environ['CADC_CERT'])
+        job = cadc.create_async(
+            "select top 3 observationID from caom2.Observation where "
+            "collection='IRIS' order by observationID")
+        job = job.run().wait()
+        job.raise_if_error()
+        job.fetch_result().to_table()
+        jobs = cadc.list_async_jobs()
+        assert len(jobs) > 0
+        if len(jobs) > 5:
+            jobs_subset = cadc.list_async_jobs(last=5)
+            assert len(jobs_subset) == 5
