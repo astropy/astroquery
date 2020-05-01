@@ -376,12 +376,28 @@ class AlmaClass(QueryWithLogin):
 
         return data_sizes, totalsize.to(u.GB)
 
-    def download_files(self, files, savedir=None, cache=True, continuation=True):
+    def download_files(self, files, savedir=None, cache=True,
+                       continuation=True, skip_unauthorized=True):
         """
         Given a list of file URLs, download them
 
         Note: Given a list with repeated URLs, each will only be downloaded
         once, so the return may have a different length than the input list
+
+        Parameters
+        ----------
+        files : list
+            List of URLs to download
+        savedir : None or str
+            The directory to save to.  Default is the cache location.
+        cache : bool
+            Cache the download?
+        continuation : bool
+            Attempt to continue where the download left off (if it was broken)
+        skip_unauthorized : bool
+            If you receive "unauthorized" responses for some of the download
+            requests, skip over them.  If this is False, an exception will be
+            raised.
         """
 
         if self.USERNAME:
@@ -395,7 +411,8 @@ class AlmaClass(QueryWithLogin):
         for fileLink in unique(files):
             try:
                 log.debug("Downloading {0} to {1}".format(fileLink, savedir))
-                check_filename = self._request('HEAD', fileLink, stream=True)
+                check_filename = self._request('HEAD', fileLink, auth=auth,
+                                               stream=True)
                 check_filename.raise_for_status()
                 if 'text/html' in check_filename.headers['Content-Type']:
                     raise ValueError("Bad query.  This can happen if you "
@@ -411,9 +428,12 @@ class AlmaClass(QueryWithLogin):
                 downloaded_files.append(filename)
             except requests.HTTPError as ex:
                 if ex.response.status_code == 401:
-                    log.info("Access denied to {url}.  Skipping to"
-                             " next file".format(url=fileLink))
-                    continue
+                    if skip_unauthorized:
+                        log.info("Access denied to {url}.  Skipping to"
+                                 " next file".format(url=fileLink))
+                        continue
+                    else:
+                        raise(ex)
                 elif ex.response.status_code == 403:
                     log.error("Access denied to {url}".format(url=fileLink))
                     if 'dataPortal' in fileLink and 'sso' not in fileLink:
