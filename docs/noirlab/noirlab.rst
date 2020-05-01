@@ -86,7 +86,9 @@ to query.  Specify the coordinates using the appropriate coordinate system from
     /net/archive/mtn/20151120/kp4m/2015B-2001/k4m_151121_041031_ori.fits.fz 2015-11-21 ... 2020-02-09T01:24:38.951230+00:00
 
 This is an example of searching by HDU.
-**NOTE: Only some instruments have pipeline processing that populates the RA, DEC fields used for this search.** 
+.. note::
+
+   Only some instruments have pipeline processing that populates the RA, DEC fields used for this search.
 
 .. code-block:: python
                 
