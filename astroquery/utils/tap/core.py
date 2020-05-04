@@ -1732,7 +1732,7 @@ class TapPlus(Tap):
                              "updating one of them.")
 
         args = TapPlus.get_table_update_arguments(table_name, columns,
-                                                    list_of_changes)
+                                                  list_of_changes)
 
         connHandler = self.__getconnhandler()
         data = connHandler.url_encode(args)
@@ -1769,7 +1769,12 @@ class TapPlus(Tap):
 
             # Update values if required
             if found_in_changes:
-                flags, indexed, ucd, utype = TapPlus.get_new_column_values_for_update(list_of_changes, column_name, flags, indexed, ucd, utype)
+                flags, indexed, ucd, utype = \
+                    TapPlus.get_new_column_values_for_update(list_of_changes,
+                                                             column_name,
+                                                             flags,
+                                                             indexed,
+                                                             ucd, utype)
 
             # Prepare http request parameters for a column
             args["TABLE0_COL" + str(index)] = str(column_name)
@@ -1815,7 +1820,8 @@ class TapPlus(Tap):
         return column_name, flags, indexed, ucd, utype
 
     @staticmethod
-    def get_new_column_values_for_update(list_of_changes, column_name, c_flags, c_indexed, c_ucd, c_utype):
+    def get_new_column_values_for_update(list_of_changes, column_name,
+                                         c_flags, c_indexed, c_ucd, c_utype):
         found_new_flags = False
         found_new_indexed = False
         found_new_ucd = False
@@ -1856,7 +1862,7 @@ class TapPlus(Tap):
 
         # index could be updated
         if found_new_flags:
-            if n_flags == None or n_flags == '':
+            if n_flags is None or n_flags == '':
                 if found_new_indexed:
                     indexed = str(n_indexed)
                 else:
@@ -1982,7 +1988,8 @@ class TapPlus(Tap):
                                                            200)
         if isError:
             log.info("Login error: " + str(response.reason))
-            raise requests.exceptions.HTTPError("Login error: " + str(response.reason))
+            raise requests.exceptions.HTTPError("Login error: " +
+                                                str(response.reason))
         else:
             # extract cookie
             cookie = self._Tap__findCookieInHeader(response.getheaders())
