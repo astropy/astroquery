@@ -91,7 +91,7 @@ class CadcClass(BaseQuery):
             a url to use instead of the default
         tap_plus_handler : deprecated
         verbose : deprecated
-        session: `requests.Session` type
+        auth_session: `requests.Session` or `pyvo.auth.authsession.AuthSession`
             A existing authenticated session containing the appropriate
             credentials to be used by the client to communicate with the
             server. This is an alternative to using login/logout methods that
