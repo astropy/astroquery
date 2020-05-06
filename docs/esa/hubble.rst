@@ -32,7 +32,7 @@ Examples
 .. code-block:: python
 
   >>> from astroquery.esa.hubble import ESAHubble
-  >>> esahubble = EsaHubble()
+  >>> esahubble = ESAHubble()
   >>> esahubble.download_product("J6FL25S4Q", "RAW", "raw_data_for_J6FL25S4Q.tar")
 
 This will download all files for the raw calibration level of the
@@ -46,7 +46,7 @@ observation 'J6FL25S4Q' and it will store them in a tar called
 .. code-block:: python
 
   >>> from astroquery.esa.hubble import ESAHubble
-  >>> esahubble = EsaHubble()
+  >>> esahubble = ESAHubble()
   >>> esahubble.get_postcard("J6FL25S4Q", "RAW", 256, "raw_postcard_for_J6FL25S4Q.jpg")
 
 This will download the postcard for the observation 'J8VP03010' with low
@@ -64,7 +64,7 @@ Note: Artifact is a single Hubble product file.
 .. code-block:: python
 
   >>> from astroquery.esa.hubble import ESAHubble
-  >>> esahubble = EsaHubble()
+  >>> esahubble = ESAHubble()
   >>> esahubble.get_artifact("w0ji0v01t_c2f.fits.gz")
 
 This will download the compressed artifact
@@ -80,7 +80,7 @@ The query_target function queries the name of the target as given by the propose
 .. code-block:: python
 
   >>> from astroquery.esa.hubble import ESAHubble
-  >>> esahubble = EsaHubble()
+  >>> esahubble = ESAHubble()
   >>> table = esahubble.query_target("m31", "m31_query.xml")
   >>> str(table)
 
@@ -89,8 +89,41 @@ It will also download a file storing all metadata for all observations
 associated with target name 'm31'. The result of the query will be stored in
 file 'm31_query.xml'.
 
+-----------------------------------------------------------------
+5. Querying observations by search criteria in the Hubble archive
+-----------------------------------------------------------------
+
+The query_by_criteria function uses a set of established parameters to create
+and execute an ADQL query, accessing the HST archive database usgin the Table
+Access Protocol. 
+
+.. code-block:: python
+
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = ESAHubble()
+  >>> result = esahubble.query_by_criteria(calibration_level = 'PRODUCT', data_product_type = 'image', intent='SCIENCE', obs_collection=['HLA'], instrument_name = ['WFC3'], filters = ['F555W', 'F606W'], async_job = False, output_file = 'output.vot.gz', get_query = False)
+  >>> str(result)
+
+This will make a synchronous search (it can also be asynchronous using
+**async_job = True**) to find the observations that matches these specific
+requirements. It will also download a votable file called **output.vot.gz** containing the result of the
+query.
+
+.. code-block:: python
+
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = ESAHubble()
+  >>> result = esahubble.query_by_criteria(calibration_level = 3, data_product_type = 'image', intent='SCIENCE', obs_collection=['HLA'], instrument_name = ['WFC3'], filters = ['F555W', 'F606W'], get_query = True)
+  >>> str(result)
+
+This second execution will provide the ADQL query based on the criteria defined by the user.
+
+The search can be filtered by calibration_level (string or integer, AUXILIARY/0, RAW/1, CALIBRATED/2 or PRODUCT/3),
+data_product_type (image, spectrum or timeseries), intent (SCIENCE or CALIBRATION), obs_collection (HLA and/or HST),
+instrument_name (list of instruments) and filters (list of filters). All these parameters are optional.
+
 --------------------------------------
-5. Cone searches in the Hubble archive
+6. Cone searches in the Hubble archive
 --------------------------------------
 
 .. code-block:: python
@@ -106,8 +139,9 @@ This will perform a cone search with radius 7 arcmins. The result of the
 query will be returned and stored in the votable file
 'cone_search_m31_5.vot'.
 
+
 -------------------------------
-6. Getting access to catalogues
+7. Getting access to catalogues
 -------------------------------
 
 This function provides access to the HST archive database using the Table

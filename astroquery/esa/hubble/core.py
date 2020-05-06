@@ -68,6 +68,7 @@ class ESAHubbleClass(BaseQuery):
     data_url = conf.DATA_ACTION
     metadata_url = conf.METADATA_ACTION
     TIMEOUT = conf.TIMEOUT
+    calibration_levels = {0: "AUXILIARY", 1: "RAW", 2: "CALIBRATED", 3: "PRODUCT"}
 
     def __init__(self, url_handler=None, tap_handler=None):
         super(ESAHubbleClass, self).__init__()
@@ -290,7 +291,7 @@ class ESAHubbleClass(BaseQuery):
                                        output_format=output_format,
                                        verbose=verbose)
 
-    def query_hst_tap(self, query, output_file=None,
+    def query_hst_tap(self, query, async_job=False, output_file=None,
                       output_format="votable", verbose=False):
         """Launches a synchronous job to query the HST tap
 
@@ -298,6 +299,9 @@ class ESAHubbleClass(BaseQuery):
         ----------
         query : str, mandatory
             query (adql) to be executed
+        async_job : bool, optional, default 'False'
+            executes the query (job) in asynchronous/synchronous mode (default
+            synchronous)
         output_file : str, optional, default None
             file name where the results are saved if dumpToFile is True.
             If this parameter is not provided, the jobid is used instead
@@ -310,13 +314,133 @@ class ESAHubbleClass(BaseQuery):
         -------
         A table object
         """
-
-        job = self._tap.launch_job(query=query, output_file=output_file,
-                                   output_format=output_format,
-                                   verbose=False,
-                                   dump_to_file=output_file is not None)
+        if async_job:
+            job = self._tap.launch_job_async(query=query,
+                                             output_file=output_file,
+                                             output_format=output_format,
+                                             verbose=False,
+                                             dump_to_file=output_file
+                                             is not None)
+        else:
+            job = self._tap.launch_job(query=query, output_file=output_file,
+                                       output_format=output_format,
+                                       verbose=False,
+                                       dump_to_file=output_file is not None)
         table = job.get_results()
         return table
+
+    def query_by_criteria(self, calibration_level=None,
+                          data_product_type=None, intent=None,
+                          obs_collection=None, instrument_name=None,
+                          filters=None, async_job=False, output_file=None,
+                          output_format="votable", verbose=False,
+                          get_query=False):
+        """
+        Launches a synchronous job to query the HST tap using calibration
+        level, data product type, intent, collection, instrument name,
+        and filters as criteria to create and execute the associated query
+
+        Parameters
+        ----------
+        calibration_level : str or int, optional
+            The identifier of the data reduction/processing applied to the
+            data. By default, the most scientifically relevant level will be
+            chosen. RAW (1), CALIBRATED (2), PRODUCT (3) or AUXILIARY (0)
+        data_product_type : str, optional
+            High level description of the product.
+            image, spectrum or timeseries.
+        intent : str, optional
+            The intent of the original obsever in acquiring this observation.
+            SCIENCE or CALIBRATION
+        collection : str, optional
+            List of collections that are available in eHST catalogue.
+            HLA, HST
+        instrument_name : str, optional
+            Names of the instrument/s used to generate the dataset
+        filters : str, optional
+            Names of the filter/s used to generate the dataset
+        async_job : bool, optional, default 'False'
+            executes the query (job) in asynchronous/synchronous mode (default
+            synchronous)
+        output_file : str, optional, default None
+            file name where the results are saved if dumpToFile is True.
+            If this parameter is not provided, the jobid is used instead
+        output_format : str, optional, default 'votable'
+            results format
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+        get_query : bool, optional, default 'False'
+            flag to return the query associated to the criteria
+
+        Returns
+        -------
+        A table object
+        """
+
+        parameters = []
+        if calibration_level is not None:
+            parameters.append("p.calibration_level LIKE '%{}%'".format(
+                self.__get_calibration_level(calibration_level)))
+        if data_product_type is not None:
+            if isinstance(data_product_type, str):
+                parameters.append("p.data_product_type LIKE '%{}%'".format(
+                    data_product_type))
+            else:
+                raise ValueError("data_product_type must be a string")
+        if intent is not None:
+            if isinstance(intent, str):
+                parameters.append("o.intent LIKE '%{}%'".format(intent))
+            else:
+                raise ValueError("intent must be a string")
+        if self.__check_list_strings(obs_collection):
+            parameters.append("(o.collection LIKE '%{}%')".format(
+                "%' OR o.collection LIKE '%".join(obs_collection)
+            ))
+        if self.__check_list_strings(instrument_name):
+            parameters.append("(o.instrument_name LIKE '%{}%')".format(
+                "%' OR o.instrument_name LIKE '%".join(instrument_name)
+            ))
+        if self.__check_list_strings(filters):
+            parameters.append("(o.instrument_configuration LIKE '%{}%')"
+                              .format("%' OR o.instrument_configuration "
+                                      "LIKE '%".join(filters)))
+        query = "select o.*, p.calibration_level, p.data_product_type "\
+                "from ehst.observation AS o LEFT JOIN ehst.plane as p "\
+                "on o.observation_uuid=p.observation_uuid where"\
+                "({})".format(" AND ".join(parameters))
+        table = self.query_hst_tap(query=query, async_job=async_job,
+                                   output_file=output_file,
+                                   output_format=output_format,
+                                   verbose=verbose)
+        if verbose:
+            log.info(query)
+        if get_query:
+            return query
+        return table
+
+    def __get_calibration_level(self, calibration_level):
+        condition = ""
+        if(calibration_level is not None):
+            if isinstance(calibration_level, str):
+                condition = calibration_level
+            elif isinstance(calibration_level, int):
+                if calibration_level < 4:
+                    condition = self.calibration_levels[calibration_level]
+                else:
+                    raise KeyError("Calibration level must be between 0 and 3")
+            else:
+                raise KeyError("Calibration level must be either "
+                               "a string or an integer")
+        return condition
+
+    def __check_list_strings(self, list):
+        if list is None:
+            return False
+        if list and all(isinstance(elem, str) for elem in list):
+            return True
+        else:
+            raise ValueError("One of the lists is empty or there are "
+                             "elements that are not strings")
 
     def get_tables(self, only_names=True, verbose=False):
         """Get the available table in EHST TAP service

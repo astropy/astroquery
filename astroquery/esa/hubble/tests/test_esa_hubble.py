@@ -84,15 +84,22 @@ class TestESAHubble():
 
     def test_query_hst_tap(self):
         parameters = {'query': "select top 10 * from hsc_v2.hubble_sc2",
+                      'async_job': False,
                       'output_file': "test2.vot",
                       'output_format': "votable",
                       'verbose': False}
+        parameters2 = {'query': "select top 10 * from hsc_v2.hubble_sc2",
+                       'output_file': "test2.vot",
+                       'output_format': "votable",
+                       'verbose': False}
+
         dummyHandler = DummyHandler("launch_job", parameters)
 
         ehst = ESAHubbleClass(dummyHandler, self.get_dummy_tap_handler())
-        ehst.query_hst_tap(parameters['query'], parameters['output_file'],
+        ehst.query_hst_tap(parameters['query'], parameters['async_job'],
+                           parameters['output_file'],
                            parameters['output_format'], parameters['verbose'])
-        self.get_dummy_tap_handler().check_call("launch_job", parameters)
+        self.get_dummy_tap_handler().check_call("launch_job", parameters2)
 
     def test_get_tables(self):
         parameters = {'query': "select top 10 * from hsc_v2.hubble_sc2",
@@ -124,6 +131,50 @@ class TestESAHubble():
         ehst = ESAHubbleClass(dummyHandler, self.get_dummy_tap_handler())
         ehst.get_columns("table", True, True)
         dummyTapHandler.check_call("get_columns", parameters2)
+
+    def test_query_by_criteria(self):
+        parameters1 = {'calibration_level': "PRODUCT",
+                       'data_product_type': "image",
+                       'intent': "SCIENCE",
+                       'obs_collection': ['HST'],
+                       'instrument_name': ['WFC3'],
+                       'filters': ['F555W'],
+                       'async_job': False,
+                       'output_file': "output_test_query_by_criteria.vot.gz",
+                       'output_format': "votable",
+                       'verbose': True,
+                       'get_query': True}
+        ehst = ESAHubbleClass(self.get_dummy_tap_handler())
+        test_query = ehst.query_by_criteria(parameters1['calibration_level'],
+                                            parameters1['data_product_type'],
+                                            parameters1['intent'],
+                                            parameters1['obs_collection'],
+                                            parameters1['instrument_name'],
+                                            parameters1['filters'],
+                                            parameters1['async_job'],
+                                            parameters1['output_file'],
+                                            parameters1['output_format'],
+                                            parameters1['verbose'],
+                                            parameters1['get_query'])
+        parameters2 = {'query': test_query,
+                       'output_file': "output_test_query_by_criteria.vot.gz",
+                       'output_format': "votable",
+                       'verbose': False}
+        parameters3 = {'query': "select o.*, p.calibration_level, "
+                                "p.data_product_type from ehst.observation "
+                                "AS o LEFT JOIN ehst.plane as p on "
+                                "o.observation_uuid=p.observation_uuid where("
+                                "p.calibration_level LIKE '%PRODUCT%' AND "
+                                "p.data_product_type LIKE '%image%' AND "
+                                "o.intent LIKE '%SCIENCE%' AND (o.collection "
+                                "LIKE '%HST%') AND (o.instrument_name LIKE "
+                                "'%WFC3%') AND (o.instrument_configuration "
+                                "LIKE '%F555W%'))",
+                       'output_file': "output_test_query_by_criteria.vot.gz",
+                       'output_format': "votable",
+                       'verbose': False}
+        dummy_tap_handler = DummyHubbleTapHandler("launch_job", parameters2)
+        dummy_tap_handler.check_call("launch_job", parameters3)
 
 
 if __name__ == "__main__":
