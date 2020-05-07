@@ -18,6 +18,7 @@ import unittest
 import os
 import pytest
 import shutil
+import mock
 
 from astroquery.jwst import JwstClass
 from astroquery.jwst.tests.DummyTapHandler import DummyTapHandler
@@ -30,6 +31,16 @@ from astropy.units import Quantity
 import numpy as np
 from astroquery.utils.tap.xmlparser import utils
 from astroquery.utils.tap.core import TapPlus
+from astropy.io.votable import parse
+from astropy.table.table import Table
+from astroquery.utils import TableList
+from astroquery.simbad import Simbad
+from astroquery.vizier import Vizier
+from astroquery.ned import Ned
+from astropy.table import Table
+from astropy import units
+
+from unittest.mock import MagicMock
 
 
 def data_path(filename):
@@ -888,8 +899,94 @@ class TestTap(unittest.TestCase):
         for f in files_expected:
             if not os.path.exists(f):
                 raise ValueError("Not found extracted file: %s" % f)
-            if not f in files_returned:
+            if f not in files_returned:
                 raise ValueError("Not found expected file: %s" % f)
+
+    def test_query_by_target_name(self):
+        jwst = JwstClass()
+        # Testing default parameters
+        with pytest.raises(ValueError) as err:
+            jwst.query_by_target_name("M1", "")
+        assert "This target resolver is not allowed" in err.value.args[0]
+        with pytest.raises(ValueError) as err:
+            jwst.query_by_target_name("TEST")
+        assert "This target name cannot be determined with this resolver:"\
+            " ALL" in err.value.args[0]
+        with pytest.raises(ValueError) as err:
+            jwst.query_by_target_name("M1", "ALL")
+        assert "Missing required argument: 'width'" in err.value.args[0]
+
+        # Testing no valid coordinates from resolvers
+        simbad_file = data_path('test_query_by_target_name_simbad_'
+                                'ned_error.vot')
+        simbad_table = Table.read(simbad_file)
+        Simbad.query_object = MagicMock(return_value=simbad_table)
+        ned_file = data_path('test_query_by_target_name_simbad_'
+                             'ned_error.vot')
+        ned_table = Table.read(ned_file)
+        Ned.query_object = MagicMock(return_value=ned_table)
+        vizier_file = data_path('test_query_by_target_name_vizier_error.vot')
+        vizier_table = Table.read(vizier_file)
+        Vizier.query_object = MagicMock(return_value=vizier_table)
+
+        coordinate_error = 'coordinate must be either a string or '\
+                           'astropy.coordinates'
+        with pytest.raises(ValueError) as err:
+            jwst.query_by_target_name("M1", "SIMBAD",
+                                      units.Quantity(5, units.deg))
+        assert coordinate_error in err.value.args[0]
+
+        with pytest.raises(ValueError) as err:
+            jwst.query_by_target_name("M1", "NED",
+                                      units.Quantity(5, units.deg))
+        assert coordinate_error in err.value.args[0]
+
+        with pytest.raises(ValueError) as err:
+            jwst.query_by_target_name("M1", "VIZIER",
+                                      units.Quantity(5, units.deg))
+        assert coordinate_error in err.value.args[0]
+
+        # Testing valid coordinates from resolvers
+        dummyTapHandler = DummyTapHandler()
+        jwst = JwstClass(dummyTapHandler)
+        # default parameters
+        parameters = {}
+        parameters['name'] = None
+        parameters['output_file'] = None
+        parameters['output_format'] = 'votable'
+        parameters['verbose'] = False
+        parameters['dump_to_file'] = False
+        parameters['upload_resource'] = None
+        parameters['upload_table_name'] = None
+        simbad_file = data_path('test_query_by_target_name_simbad.vot')
+        simbad_table = Table.read(simbad_file)
+        Simbad.query_object = MagicMock(return_value=simbad_table)
+        ned_file = data_path('test_query_by_target_name_ned.vot')
+        ned_table = Table.read(ned_file)
+        Ned.query_object = MagicMock(return_value=ned_table)
+        vizier_file = data_path('test_query_by_target_name_vizier.vot')
+        vizier_table = Table.read(vizier_file)
+        vizier_table_list = TableList({'1': vizier_table})
+        Vizier.query_object = MagicMock(return_value=vizier_table_list)
+
+        with open(data_path('test_query_by_target_name_simbad_query.txt'),
+                  'r') as file:
+            parameters['query'] = file.read()
+            jwst.query_by_target_name("M1", "SIMBAD",
+                                      units.Quantity(5, units.deg))
+            dummyTapHandler.check_call('launch_job', parameters)
+        with open(data_path('test_query_by_target_name_ned_query.txt'),
+                  'r') as file:
+            parameters['query'] = file.read()
+            jwst.query_by_target_name("M1", "NED",
+                                      units.Quantity(5, units.deg))
+            dummyTapHandler.check_call('launch_job', parameters)
+        with open(data_path('test_query_by_target_name_vizier_query.txt'),
+                  'r') as file:
+            parameters['query'] = file.read()
+            jwst.query_by_target_name("M1", "VIZIER",
+                                      units.Quantity(5, units.deg))
+            dummyTapHandler.check_call('launch_job', parameters)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Produced with astropy.io.votable version 4.0.1.post1
+     http://www.astropy.org/ -->
+<VOTABLE version="1.4" xmlns="http://www.ivoa.net/xml/VOTable/v1.4" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.ivoa.net/xml/VOTable/v1.4">
+ <RESOURCE type="results">
+  <TABLE ID="NED_MainTable" name="Main Information Table for MESSIER 001">
+   <DESCRIPTION>
+    Main information about object (Cone Search results)
+   </DESCRIPTION>
+   <FIELD ID="No." datatype="int" name="No." ucd="meta.number" width="4">
+    <DESCRIPTION>
+     A sequential object number applicable to this list only.
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="Object_Name" arraysize="30" datatype="char" name="Object Name" ucd="meta.id;meta.main" width="30">
+    <DESCRIPTION>
+     NED preferred name for the object
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="RA" datatype="double" name="RA" ucd="pos.eq.ra;meta.main" unit="degrees" width="10">
+    <DESCRIPTION>
+     Right Ascension in degrees (Equatorial J2000.0)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="DEC" datatype="double" name="DEC" ucd="pos.eq.dec;meta.main" unit="degrees" width="10">
+    <DESCRIPTION>
+     Declination in degrees (Equatorial J2000.0)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="Type" arraysize="*" datatype="char" name="Type" ucd="src.class" width="10">
+    <DESCRIPTION>
+     NED's Preferred Object Type: G,GPair,GTrpl,GGroup,GClstr,QSO,AbLS
+     ,RadioS,IrS,EmLS,UvES,XrayS,SN
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="Velocity" datatype="double" name="Velocity" ucd="src.veloc.hc" unit="km.s-1" width="10">
+    <DESCRIPTION>
+     Velocity in km/sec, based on known heliocentric redshift
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="Redshift" datatype="double" name="Redshift" ucd="src.redshift" width="10">
+    <DESCRIPTION>
+     Heliocentric redshift for the object, if it exists in NED
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="Redshift_Flag" arraysize="*" datatype="char" name="Redshift Flag" ucd="meta.code;src.redshift" width="5">
+    <DESCRIPTION>
+     Quality flag for known heliocentric redshift
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="Magnitude_and_Filter" arraysize="*" datatype="char" name="Magnitude and Filter" ucd="meta.code;src.magnitude" width="5">
+    <DESCRIPTION>
+     NED's Basic Data magnitude and filter, generally in an optical
+     band.
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="Separation" datatype="double" name="Separation" ucd="pos.distance" unit="arcmin" width="10">
+    <DESCRIPTION>
+     Angular separation of the object coordinates and the search
+     coordinate.
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="References" datatype="int" name="References" ucd="meta.bib;meta.number" width="5">
+    <DESCRIPTION>
+     Number of literature references in NED
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="Notes" datatype="int" name="Notes" ucd="meta.note;meta.number" width="5">
+    <DESCRIPTION>
+     Number of catalog notes in NED
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="Photometry_Points" datatype="int" name="Photometry Points" ucd="phot;meta.number" width="5">
+    <DESCRIPTION>
+     Number of photometric data points stored by NED for the object
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="Positions" datatype="int" name="Positions" ucd="pos;meta.number" width="5">
+    <DESCRIPTION>
+     Number of position data points stored by NED for the object
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="Redshift_Points" datatype="int" name="Redshift Points" ucd="src.redshift;meta.number" width="5">
+    <DESCRIPTION>
+     Number of redshift data points stored by NED for the object.
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="Diameter_Points" datatype="int" name="Diameter Points" ucd="phys.size.diameter;meta.number" width="5">
+    <DESCRIPTION>
+     Number of diameter data points stored by NED for the object.
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="Associations" datatype="int" name="Associations" ucd="meta.id.assoc;meta.number" width="5">
+    <DESCRIPTION>
+     Number of NED associations for the object.
+    </DESCRIPTION>
+   </FIELD>
+   <DATA>
+    <TABLEDATA>
+     <TR>
+      <TD>1</TD>
+      <TD>MESSIER 001</TD>
+      <TD>  83.63321</TD>
+      <TD>  22.01446</TD>
+      <TD>SNR</TD>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD>136</TD>
+      <TD>2</TD>
+      <TD>61</TD>
+      <TD>18</TD>
+      <TD>0</TD>
+      <TD>2</TD>
+      <TD>0</TD>
+     </TR>
+    </TABLEDATA>
+   </DATA>
+  </TABLE>
+ </RESOURCE>
+</VOTABLE>

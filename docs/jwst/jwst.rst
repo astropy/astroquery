@@ -144,7 +144,72 @@ Examples
   0.8042331552744052 00000000-0000-0000-babe-5c1ec63d3301 ... PRIME        S
   0.8042331552744052 00000000-0000-0000-babe-5c1ec63d3301 ... PRIME        S
 
-1.3 Getting data products
+1.3. Query by target name
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+To provide the target coordinates based on its name and execute the query region method.
+It uses three different catalogs to resolve the coordinates: SIMBAD, NED and VIZIER. An additional target
+resolver is provider, ALL (which is also the default value), using all the aforementioned
+catalogues in the defined order to obtain the required coordinates (using the following
+element in the list if the target name cannot be resolved).
+
+.. code-block:: python
+
+  >>> from astroquery.jwst import Jwst
+  >>> import astropy.units as u
+  >>> 
+  >>> target_name = 'M1'
+  >>> target_resolver = 'ALL'
+  >>> radius = u.Quantity(5, u.deg)
+  >>> r = Jwst.query_by_target_name(target_name = target_name, target_resolver = target_resolver, radius = radius)
+  >>> r.pprint()
+
+         dist                   observationid         ...
+  ------------------ -------------------------------- ...
+  3.4465676399769096 jw01179006001_xx100_00000_nircam ...
+  3.4465676399769096 jw01179005001_xx100_00000_nircam ...
+  3.4465676399769096 jw01179005001_xx103_00003_nircam ...
+  3.4465676399769096 jw01179006001_xx101_00001_nircam ...
+  3.4465676399769096 jw01179005001_xx102_00002_nircam ...
+  3.4465676399769096 jw01179006001_xx105_00002_nircam ...
+  3.4465676399769096 jw01179005001_xx106_00003_nircam ...
+  3.4465676399769096 jw01179006001_xx102_00002_nircam ...
+  3.4465676399769096 jw01179006001_xx103_00003_nircam ...
+  3.4465676399769096 jw01179005001_xx101_00001_nircam ...
+  3.4465676399769096 jw01179005001_xx104_00001_nircam ...
+  3.4465676399769096 jw01179006001_xx104_00001_nircam ...
+  3.4465676399769096 jw01179006001_xx106_00003_nircam ...
+  3.4465676399769096 jw01179005001_xx105_00002_nircam ...
+
+This method uses the same parameters as query region, but also includes the target name and the catalogue
+(target resolver) to retrieve the coordinates.
+
+.. code-block:: python
+
+  >>> from astroquery.jwst import Jwst
+  >>> import astropy.units as u
+  >>> 
+  >>> target_name = 'LMC'
+  >>> target_resolver = 'NED'
+  >>> width = u.Quantity(5, u.deg)
+  >>> height = u.Quantity(5, u.deg)
+  >>> r = Jwst.query_by_target_name(target_name = target_name, target_resolver = target_resolver, width = width, height = height)
+  >>> r.pprint()
+
+         dist                        observationid              ...
+  ---------------------- -------------------------------------- ...
+  0.00010777991644807922 jw00322001003_02101_00001_nrca1        ...
+  0.00010777991644807922 jw00322001003_02101_00001_nrcb2        ...
+  0.00010777991644807922 jw96854009004_xxxxx_00003-00003_nircam ...
+  0.00010777991644807922 jw00322001003_02101_00001_nrcblong     ...
+  0.00010777991644807922 jw00827011001_02101_00001_mirimage     ...
+  0.00010777991644807922 jw01039004001_xx101_00001_miri         ...
+  0.00010777991644807922 jw00322001003_02101_00001_nrcb1        ...
+  0.00010777991644807922 jw00322001002_02101_00001_nrcb2        ...
+  0.00010777991644807922 jw96854009001_xx102_00002_nircam       ...
+  ...                    ...                                    ...
+
+1.4 Getting data products
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 To query the data products associated with a certain plane ID
 
@@ -217,7 +282,7 @@ A temporary directory is created with the files and a list of the them is provid
 
 When more than one product is found, a tar file is retrieved. This method extracts the products.
 
-1.4 Getting public tables
+1.5 Getting public tables
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To load only table names (TAP+ capability)
@@ -306,7 +371,7 @@ Once a table is loaded, columns can be inspected
   type
   typecode
 
-1.5 Synchronous query
+1.6 Synchronous query
 ~~~~~~~~~~~~~~~~~~~~~
 
 A synchronous query will not store the results at server side. These queries 
@@ -419,7 +484,7 @@ Query saving results in a file:
   Length = 37 rows
 
 
-1.6 Synchronous query on an 'on-the-fly' uploaded table
+1.7 Synchronous query on an 'on-the-fly' uploaded table
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A table can be uploaded to the server in order to be used in a query.
@@ -441,7 +506,7 @@ A table can be uploaded to the server in order to be used in a query.
           c   5.0   6.0
 
 
-1.7 Asynchronous query
+1.8 Asynchronous query
 ~~~~~~~~~~~~~~~~~~~~~~
 
 Asynchronous queries save results at server side. These queries can be accessed at any time. For anonymous users, results are kept for three days.
@@ -537,7 +602,7 @@ Query saving results in a file:
   Length = 37 rows
 
 
-1.8 Asynchronous job removal
+1.9 Asynchronous job removal
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To remove asynchronous

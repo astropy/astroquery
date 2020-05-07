@@ -16,8 +16,13 @@ Created on 23 oct. 2018
 """
 from astroquery.utils.tap import TapPlus
 from astroquery.utils import commons
+from astroquery.simbad import Simbad
+from astroquery.vizier import Vizier
+from astroquery.ned import Ned
 from astropy import units
 from astropy.units import Quantity
+from astropy.coordinates import SkyCoord
+from astropy import log
 
 from datetime import datetime
 import os
@@ -26,6 +31,7 @@ import tarfile
 import binascii
 import shutil
 import gzip
+
 
 from . import conf
 from .data_access import JwstDataHandler
@@ -53,6 +59,7 @@ class JwstClass(object):
     PLANE_DATAPRODUCT_TYPES = ['image', 'cube', 'measurements', 'spectrum']
     ARTIFACT_PRODUCT_TYPES = ['info', 'thumbnail', 'auxiliary', 'science', 'preview']
     INSTRUMENT_NAMES = ['NIRISS', 'NIRSPEC', 'NIRCAM', 'MIRI', 'FGS']
+    TARGET_RESOLVERS = ['ALL', 'SIMBAD', 'NED', 'VIZIER']
 
     def __init__(self, tap_plus_handler=None, data_handler=None):
         if tap_plus_handler is None:
@@ -435,7 +442,7 @@ class JwstClass(object):
         coordinate : astropy.coordinates, mandatory
             coordinates center point
         radius : astropy.units, required if no 'width' nor 'height' are provided
-            radius
+            radius (deg)
         width : astropy.units, required if no 'radius' is provided
             box width
         height : astropy.units, required if no 'radius' is provided
@@ -716,7 +723,7 @@ class JwstClass(object):
             flag to show all available columns in the output. Default behaviour is to show the most
             representative columns only
         background : bool, optional, default 'False'
-            when the job is executed in asynchronous mode, this flag specifies 
+            when the job is executed in asynchronous mode, this flag specifies
             whether the execution will wait until results are available
         output_file : str, optional, default None
             file name where the results are saved if dumpToFile is True.
@@ -751,6 +758,135 @@ class JwstClass(object):
                                   output_format=output_format,
                                   verbose=verbose,
                                   dump_to_file=dump_to_file)
+
+    def query_by_target_name(self, target_name, target_resolver="ALL",
+                             radius=None,
+                             width=None,
+                             height=None,
+                             observation_id=None,
+                             cal_level="Top",
+                             prod_type=None,
+                             instrument_name=None,
+                             filter_name=None,
+                             proposal_id=None,
+                             only_public=False,
+                             show_all_columns=False,
+                             async_job=False,
+                             verbose=False):
+        """Launches a job
+        TAP & TAP+
+
+        Parameters
+        ----------
+        target_name : str, mandatory
+            name of the target that will be used as center point
+        target_resolver : str, optional, default ALL
+            resolver used to associate the target name with its coordinates.
+            The ALL option evaluates a "SIMBAD then NED then VIZIER"
+            approach. Options are: ALL, SIMBAD, NED, VIZIER.
+        radius : astropy.units, required if no 'width' nor 'height' are
+            provided.
+            radius (deg)
+        width : astropy.units, required if no 'radius' is provided
+            box width
+        height : astropy.units, required if no 'radius' is provided
+            box height
+        observation_id : str, optional, default None
+            get the observation given by its ID.
+        cal_level : object, optional, default 'Top'
+            get the planes with the given calibration level. Options are:
+            'Top': str, only the planes with the highest calibration level
+            1,2,3: int, the given calibration level
+        prod_type : str, optional, default None
+            get the observations providing the given product type. Options are:
+            'image','cube','measurements','spectrum': str, only results of the
+            given product type
+        instrument_name : str, optional, default None
+            get the observations corresponding to the given instrument name.
+            Options are:
+            'NIRISS', 'NIRSPEC', 'NIRCAM', 'MIRI', 'FGS': str, only results
+            of the given instrument
+        filter_name : str, optional, default None
+            get the observations made with the given filter.
+        proposal_id : str, optional, default None
+            get the observations from the given proposal ID.
+        only_public : bool, optional, default 'False'
+            flag to show only metadata corresponding to public observations
+        show_all_columns : bool, optional, default 'False'
+            flag to show all available columns in the output. Default behaviour
+            is to show the most
+            representative columns only
+        async_job : bool, optional, default 'False'
+            executes the query (job) in asynchronous/synchronous mode (default
+            synchronous)
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        The job results (astropy.table).
+        """
+        coordinates = self.resolve_target_coordinates(target_name,
+                                                      target_resolver)
+        if async_job:
+            return self.query_region_async(coordinates, radius, width, height,
+                                           observation_id=observation_id,
+                                           cal_level=cal_level,
+                                           prod_type=prod_type,
+                                           instrument_name=instrument_name,
+                                           filter_name=filter_name,
+                                           proposal_id=proposal_id,
+                                           only_public=only_public,
+                                           show_all_columns=show_all_columns,
+                                           verbose=verbose)
+        else:
+            return self.query_region(coordinates, radius, width, height,
+                                     observation_id=observation_id,
+                                     cal_level=cal_level,
+                                     prod_type=prod_type,
+                                     instrument_name=instrument_name,
+                                     filter_name=filter_name,
+                                     proposal_id=proposal_id,
+                                     only_public=only_public,
+                                     show_all_columns=show_all_columns,
+                                     verbose=verbose)
+
+    def resolve_target_coordinates(self, target_name, target_resolver):
+        if target_resolver not in self.TARGET_RESOLVERS:
+            raise ValueError('This target resolver is not allowed')
+
+        result_table = None
+        if target_resolver == 'ALL' or target_resolver == 'SIMBAD':
+            try:
+                result_table = Simbad.query_object(target_name)
+                return SkyCoord('{} {}'.format(result_table['RA'][0],
+                                               result_table['DEC'][0]),
+                                unit=(units.hourangle,
+                                      units.deg), frame='icrs')
+            except Exception:
+                log.info('SIMBAD could not resolve this target')
+        if target_resolver == 'ALL' or target_resolver == 'NED':
+            try:
+                result_table = Ned.query_object(target_name)
+                return SkyCoord(result_table['RA'][0],
+                                result_table['DEC'][0],
+                                unit='deg', frame='fk5')
+            except Exception:
+                log.info('NED could not resolve this target')
+        if target_resolver == 'ALL' or target_resolver == 'VIZIER':
+            try:
+                result_table = Vizier.query_object(target_name,
+                                                   catalog='II/336/apass9')[0]
+                # Sorted to use the record with the least uncertainty
+                result_table.sort(['e_RAJ2000', 'e_DEJ2000'])
+                return SkyCoord(result_table['RAJ2000'][0],
+                                result_table['DEJ2000'][0],
+                                unit='deg', frame='fk5')
+            except Exception:
+                log.info('VIZIER could not resolve this target')
+        if result_table is None:
+            raise ValueError('This target name cannot be determined with'
+                             ' this resolver: {}'.format(target_resolver))
 
     def remove_jobs(self, jobs_list, verbose=False):
         """Removes the specified jobs
