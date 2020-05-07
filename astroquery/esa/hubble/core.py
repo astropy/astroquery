@@ -68,7 +68,8 @@ class ESAHubbleClass(BaseQuery):
     data_url = conf.DATA_ACTION
     metadata_url = conf.METADATA_ACTION
     TIMEOUT = conf.TIMEOUT
-    calibration_levels = {0: "AUXILIARY", 1: "RAW", 2: "CALIBRATED", 3: "PRODUCT"}
+    calibration_levels = {0: "AUXILIARY", 1: "RAW", 2: "CALIBRATED",
+                          3: "PRODUCT"}
 
     def __init__(self, url_handler=None, tap_handler=None):
         super(ESAHubbleClass, self).__init__()
@@ -332,7 +333,7 @@ class ESAHubbleClass(BaseQuery):
     def query_by_criteria(self, calibration_level=None,
                           data_product_type=None, intent=None,
                           obs_collection=None, instrument_name=None,
-                          filters=None, async_job=False, output_file=None,
+                          filters=None, async_job=True, output_file=None,
                           output_format="votable", verbose=False,
                           get_query=False):
         """
@@ -406,8 +407,9 @@ class ESAHubbleClass(BaseQuery):
                                       "LIKE '%".join(filters)))
         query = "select o.*, p.calibration_level, p.data_product_type "\
                 "from ehst.observation AS o LEFT JOIN ehst.plane as p "\
-                "on o.observation_uuid=p.observation_uuid where"\
-                "({})".format(" AND ".join(parameters))
+                "on o.observation_uuid=p.observation_uuid"
+        if parameters:
+            query += " where({})".format(" AND ".join(parameters))
         table = self.query_hst_tap(query=query, async_job=async_job,
                                    output_file=output_file,
                                    output_format=output_format,
