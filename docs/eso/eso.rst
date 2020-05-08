@@ -256,7 +256,7 @@ In this section, we show how to obtain these processed survey data from the arch
 Identify available surveys
 --------------------------
 
-The list of available suveys can be obtained with :meth:`astroquery.eso.EsoClass.list_surveys` as follows:
+The list of available surveys can be obtained with :meth:`astroquery.eso.EsoClass.list_surveys` as follows:
 
 .. code-block:: python
 
