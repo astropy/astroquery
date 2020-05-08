@@ -294,7 +294,7 @@ class ESAHubbleClass(BaseQuery):
 
     def query_hst_tap(self, query, async_job=False, output_file=None,
                       output_format="votable", verbose=False):
-        """Launches a synchronous job to query the HST tap
+        """Launches a synchronous or asynchronous job to query the HST tap
 
         Parameters
         ----------
@@ -337,16 +337,16 @@ class ESAHubbleClass(BaseQuery):
                           output_format="votable", verbose=False,
                           get_query=False):
         """
-        Launches a synchronous job to query the HST tap using calibration
-        level, data product type, intent, collection, instrument name,
-        and filters as criteria to create and execute the associated query
+        Launches a synchronous or asynchronous job to query the HST tap
+        using calibration level, data product type, intent, collection,
+        instrument name, and filters as criteria to create and execute the
+        associated query.
 
         Parameters
         ----------
         calibration_level : str or int, optional
             The identifier of the data reduction/processing applied to the
-            data. By default, the most scientifically relevant level will be
-            chosen. RAW (1), CALIBRATED (2), PRODUCT (3) or AUXILIARY (0)
+            data. RAW (1), CALIBRATED (2), PRODUCT (3) or AUXILIARY (0)
         data_product_type : str, optional
             High level description of the product.
             image, spectrum or timeseries.
@@ -357,10 +357,10 @@ class ESAHubbleClass(BaseQuery):
             List of collections that are available in eHST catalogue.
             HLA, HST
         instrument_name : str, optional
-            Names of the instrument/s used to generate the dataset
+            Name/s of the instrument/s used to generate the dataset
         filters : str, optional
-            Names of the filter/s used to generate the dataset
-        async_job : bool, optional, default 'False'
+            Name/s of the filter/s used to generate the dataset
+        async_job : bool, optional, default 'True'
             executes the query (job) in asynchronous/synchronous mode (default
             synchronous)
         output_file : str, optional, default None
@@ -371,7 +371,8 @@ class ESAHubbleClass(BaseQuery):
         verbose : bool, optional, default 'False'
             flag to display information about the process
         get_query : bool, optional, default 'False'
-            flag to return the query associated to the criteria
+            flag to return the query associated to the criteria as the result
+            of this function.
 
         Returns
         -------

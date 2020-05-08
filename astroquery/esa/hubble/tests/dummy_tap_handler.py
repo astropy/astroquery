@@ -40,7 +40,7 @@ class DummyHubbleTapHandler(object):
             return len(self._parameters) == 0
         if len(parameters) != len(self._parameters):
             raise Exception("Wrong number of parameters for method '%s'. "
-            "Found: %d. Expected %d",
+                            "Found: %d. Expected %d",
                             (method_name,
                              len(self._parameters),
                              len(parameters)))
@@ -49,7 +49,7 @@ class DummyHubbleTapHandler(object):
                 # check value
                 if self._parameters[key] != parameters[key]:
                     raise Exception("Wrong '%s' parameter value for method '%s'. \
-                    Found: '%s'. Expected: '%s'", (
+                                    Found: '%s'. Expected: '%s'", (
                         method_name,
                         key,
                         self._parameters[key],

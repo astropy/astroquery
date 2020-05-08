@@ -25,6 +25,60 @@ data, all HST data in the EHST are identical to those in MAST.
 Examples
 ========
 
+A complete description of the following functions is also available using the python help function.
+
+.. code-block:: python
+
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = ESAHubble()
+  >>> help(esahubble)
+  Help on ESAHubbleClass in module astroquery.esa.hubble.core object:
+
+  class ESAHubbleClass(astroquery.query.BaseQuery)
+  |  ESAHubbleClass(url_handler=None, tap_handler=None)
+  |  
+  |  This is the base class for all the query classes in astroquery. It
+  |  is implemented as an abstract class and must not be directly instantiated.
+  |  
+  |  Method resolution order:
+  |      ESAHubbleClass
+  |      astroquery.query.BaseQuery
+  |      builtins.object
+  |  
+  |  Methods defined here:
+  |  
+  |  __init__(self, url_handler=None, tap_handler=None)
+  |      Initialize self.  See help(type(self)) for accurate signature.
+  |  
+  |  cone_search(self, coordinates, radius=0.0, filename=None, output_format='votable', cache=True)
+  ...
+
+Python also allows the user to show the description of a specific function.
+
+.. code-block:: python
+
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = ESAHubble()
+  >>> help(esahubble.query_by_criteria)
+  Help on method query_by_criteria in module astroquery.esa.hubble.core:
+
+  query_by_criteria(calibration_level=None, data_product_type=None, intent=None, obs_collection=None, instrument_name=None, filters=None, async_job=True, output_file=None, output_format='votable', verbose=False, get_query=False) method of astroquery.esa.hubble.core.ESAHubbleClass instance
+    Launches a synchronous or asynchronous job to query the HST tap
+    using calibration level, data product type, intent, collection,
+    instrument name, and filters as criteria to create and execute the
+    associated query
+    
+    Parameters
+    ----------
+    calibration_level : str or int, optional
+        The identifier of the data reduction/processing applied to the
+        data. By default, the most scientifically relevant level will be
+        chosen. RAW (1), CALIBRATED (2), PRODUCT (3) or AUXILIARY (0)
+    data_product_type : str, optional
+        High level description of the product.
+        image, spectrum or timeseries.
+    ...
+
 ---------------------------
 1. Getting Hubble products
 ---------------------------
@@ -95,32 +149,138 @@ file 'm31_query.xml'.
 
 The query_by_criteria function uses a set of established parameters to create
 and execute an ADQL query, accessing the HST archive database usgin the Table
-Access Protocol. 
+Access Protocol (TAP). 
+
+PARAMETERS
+"""""""""""""""""
+- **calibration_level** (*str or int, optional*): The identifier of the data reduction/processing applied to the data.
+
+ + RAW (1)
+ + CALIBRATED (2)
+ + PRODUCT (3)
+ + AUXILIARY (0)
+
+- **data_product_type** (*str, optional*): High level description of the product.
+
+ + image
+ + spectrum 
+ + timeseries
+
+- **intent** (*str, optional*): The intent of the original obsever in acquiring this observation.
+
+ + SCIENCE 
+ + CALIBRATION
+
+- **collection** (*str, optional*): List of collections that are available in eHST catalogue.
+
+ + HLA
+ + HST
+ 
+ Do not forget that this is a list of elements, so it must be defined as ['HST'], ['HST', 'HLA']...
+ 
+- **instrument_name** (*str, optional*): Name/s of the instrument/s used to generate the dataset. This is also a list of elements.
+- **filters** (*str, optional*): Name/s of the filter/s used to generate the dataset. This is also a list of elements.
+- **async_job** (*bool, optional, default 'True'*): executes the query (job) in asynchronous/synchronous mode (default synchronous)
+- **output_file** (*str, optional, default None*) file name where the results are saved if dumpToFile is True. If this parameter is not provided, the jobid is used instead
+- **output_format** (*str, optional, default 'votable'*) results format
+- **verbose** (*bool, optional, default 'False'*): flag to display information about the process
+- **get_query** (*bool, optional, default 'False'*): flag to return the query associated to the criteria as the result of this function.
+
+This is an example of a query with all the parameters and the verbose flag activated, so the query is shown as a log message.
 
 .. code-block:: python
 
   >>> from astroquery.esa.hubble import ESAHubble
   >>> esahubble = ESAHubble()
-  >>> result = esahubble.query_by_criteria(calibration_level = 'PRODUCT', data_product_type = 'image', intent='SCIENCE', obs_collection=['HLA'], instrument_name = ['WFC3'], filters = ['F555W', 'F606W'], async_job = False, output_file = 'output.vot.gz', get_query = False)
+  >>> result = esahubble.query_by_criteria(calibration_level = 3,
+                                           data_product_type = 'image',
+                                           intent='SCIENCE',
+                                           obs_collection=['HLA'],
+                                           instrument_name = ['WFC3'],
+                                           filters = ['F555W', 'F606W'],
+                                           async_job = False,
+                                           output_file = 'output1.vot.gz',
+                                           output_format="votable",
+                                           verbose = True,
+                                           get_query = False)
+  INFO: select o.*, p.calibration_level, p.data_product_type from ehst.observation 
+  AS o LEFT JOIN ehst.plane as p on o.observation_uuid=p.observation_uuid
+  where(p.calibration_level LIKE '%PRODUCT%' AND p.data_product_type LIKE '%image%'
+  AND o.intent LIKE '%SCIENCE%' AND (o.collection LIKE '%HLA%') AND (o.instrument_name
+  LIKE '%WFC3%') AND (o.instrument_configuration LIKE '%F555W%' OR
+  o.instrument_configuration LIKE '%F606W%')) [astroquery.esa.hubble.core]
   >>> str(result)
-
-This will make a synchronous search (it can also be asynchronous using
-**async_job = True**) to find the observations that matches these specific
+  Table length=2000
+  ...
+ 
+This will make a synchronous search, limited to 2000 results to find the observations that match these specific
 requirements. It will also download a votable file called **output.vot.gz** containing the result of the
 query.
 
+The following example uses the string definition of the calibration level ('PRODUCT') and executes an asynchronous job to get all the results that match the criteria.
+
 .. code-block:: python
 
   >>> from astroquery.esa.hubble import ESAHubble
   >>> esahubble = ESAHubble()
-  >>> result = esahubble.query_by_criteria(calibration_level = 3, data_product_type = 'image', intent='SCIENCE', obs_collection=['HLA'], instrument_name = ['WFC3'], filters = ['F555W', 'F606W'], get_query = True)
+  >>> result = esahubble.query_by_criteria(calibration_level = 'PRODUCT', 
+                                           data_product_type = 'image', 
+                                           intent='SCIENCE', 
+                                           obs_collection=['HLA'], 
+                                           instrument_name = ['WFC3'], 
+                                           filters = ['F555W', 'F606W'], 
+                                           async_job = True, 
+                                           output_file = 'output2.vot.gz', 
+                                           output_format="votable", 
+                                           verbose = True, 
+                                           get_query = False)
   >>> str(result)
+  Table length=12965
+  ...
 
-This second execution will provide the ADQL query based on the criteria defined by the user.
+As it has been mentioned, these parameters are optional and it is not necessary to define all of them to execute this function, as the search will be adapted to the ones that are available.
 
-The search can be filtered by calibration_level (string or integer, AUXILIARY/0, RAW/1, CALIBRATED/2 or PRODUCT/3),
-data_product_type (image, spectrum or timeseries), intent (SCIENCE or CALIBRATION), obs_collection (HLA and/or HST),
-instrument_name (list of instruments) and filters (list of filters). All these parameters are optional.
+.. code-block:: python
+
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = ESAHubble()
+  >>> result1 = esahubble.query_by_criteria(calibration_level = 'PRODUCT', 
+                                           async_job = False, 
+                                           output_file = 'output3.vot.gz')
+  >>> result2 = esahubble.query_by_criteria(data_product_type = 'image', 
+                                            intent='SCIENCE', 
+                                            async_job = False, 
+                                            output_file = 'output4.vot.gz')
+  >>> result3 = esahubble.query_by_criteria(data_product_type = 'timeseries',
+                                            async_job = False, 
+                                            output_file = 'output5.vot.gz')
+ 
+If none of them are defined, this function will retrieve all the observations.
+
+.. code-block:: python
+
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = ESAHubble()
+  >>> result = esahubble.query_by_criteria(async_job = False, 
+                                           verbose = True)
+  INFO: select o.*, p.calibration_level, p.data_product_type from ehst.observation
+  AS o LEFT JOIN ehst.plane as p on o.observation_uuid=p.observation_uuid
+  [astroquery.esa.hubble.core]
+
+This last example will provide the ADQL query based on the criteria defined by the user.
+
+.. code-block:: python
+
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = ESAHubble()
+  >>> result = esahubble.query_by_criteria(calibration_level = 'PRODUCT',
+                                           data_product_type = 'image',
+                                           intent='SCIENCE',
+                                           obs_collection=['HLA'],
+                                           instrument_name = ['WFC3'],
+                                           filters = ['F555W', 'F606W'],
+                                           get_query = True)
+  >>> str(result)
 
 --------------------------------------
 6. Cone searches in the Hubble archive
