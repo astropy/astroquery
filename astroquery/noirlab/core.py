@@ -109,6 +109,67 @@ class NoirlabClass(BaseQuery):
         response.raise_for_status()
         return astropy.table.Table(data=response.json())
 
+    # #!def query_region(self, coordinate, radius=0.1, cache=True):
+    # #!    """Query for NOIRLab observations by region of the sky.
+    # #!
+    # #!    Given a sky coordinate and radius, returns a `~astropy.table.Table`
+    # #!    of NOIRLab observations.
+    # #!
+    # #!    Parameters
+    # #!    ----------
+    # #!    coordinates : str or `~astropy.coordinates` object
+    # #!        The target region which to search. It may be specified as a
+    # #!        string or as the appropriate `~astropy.coordinates` object.
+    # #!    radius : str or `~astropy.units.Quantity` object, optional
+    # #!        Default 0.1 degrees.
+    # #!        The string must be parsable by `~astropy.coordinates.Angle`.The
+    # #!        appropriate `~astropy.units.Quantity` object from
+    # #!        `~astropy.units` may also be used.
+    # #!
+    # #!    Returns
+    # #!    -------
+    # #!    response : `~astropy.table.Table`
+    # #!    """
+    # #!    self._validate_version()
+    # #!    ra, dec = coordinate.to_string('decimal').split()
+    # #!    url = f'{self.siaurl}?POS={ra},{dec}&SIZE={radius}&format=json'
+    # #!    response = self._request('GET', url,
+    # #!                             timeout=self.TIMEOUT,
+    # #!                             cache=cache)
+    # #!    response.raise_for_status()
+    # #!    return astropy.table.Table(data=response.json())
+
+    def query_region_async(self, coordinate, radius=0.1, cache=True):
+        """Query for NOIRLab observations by region of the sky.
+
+        Given a sky coordinate and radius, returns a `~astropy.table.Table`
+        of NOIRLab observations.
+
+        Parameters
+        ----------
+        coordinates : str or `~astropy.coordinates` object
+            The target region which to search. It may be specified as a
+            string or as the appropriate `~astropy.coordinates` object.
+        radius : str or `~astropy.units.Quantity` object, optional
+            Default 0.1 degrees.
+            The string must be parsable by `~astropy.coordinates.Angle`. The
+            appropriate `~astropy.units.Quantity` object from
+            `~astropy.units` may also be used.
+
+        Returns
+        -------
+        response : `requests.Response`
+        """
+        self._validate_version()
+
+        ra, dec = coordinate.to_string('decimal').split()
+        url = f'{self.siaurl}?POS={ra},{dec}&SIZE={radius}&format=json'
+        response = self._request('GET', url,
+                                 timeout=self.TIMEOUT,
+                                 cache=cache)
+        response.raise_for_status()
+        return response
+
     def core_fields(self, cache=True):
         """List the available CORE fields. CORE fields are faster to search
         than AUX fields.."""
