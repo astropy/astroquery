@@ -70,6 +70,10 @@ cadc
 
 - Fixed authentication and enabled listing of async jobs. [#1712]
 
+nrao
+^^^^
+
+- Fixed passing ``project_code`` to the query [#1720]
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
