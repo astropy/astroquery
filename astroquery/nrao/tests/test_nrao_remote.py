@@ -27,6 +27,14 @@ class TestNrao:
         # I don't know why this is byte-typed
         assert b'0430+052' in result['Source']
 
+    def test_query_region_project_code(self):
+        result = nrao.core.Nrao.query_region(
+            coord.SkyCoord("04h33m11.1s 05d21m15.5s"),
+            project_code="AD0094", retry=5)
+        assert len(result) == 42
+        assert len(set(result['Project'])) == 1
+        assert "AD0094" in list(set(result['Project']))[0]
+
     def test_query_region_archive(self):
         result = nrao.core.Nrao.query_region(
             coord.SkyCoord("05h35.8m 35d43m"), querytype='ARCHIVE',
