@@ -65,6 +65,10 @@ vizier
 mast
 ^^^^
 
+nrao
+^^^^
+
+- Fixed passing ``project_code`` to the query [#1720]
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
