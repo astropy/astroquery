@@ -25,6 +25,7 @@ from . import conf
 
 try:
     import pyvo
+    from pyvo.auth import authsession
 except ImportError:
     print('Please install pyvo. astropy.cadc does not work without it.')
 except AstropyDeprecationWarning as e:
@@ -79,7 +80,8 @@ class CadcClass(BaseQuery):
     CADCLOGIN_SERVICE_URI = conf.CADCLOGIN_SERVICE_URI
     TIMEOUT = conf.TIMEOUT
 
-    def __init__(self, url=None, tap_plus_handler=None, verbose=None):
+    def __init__(self, url=None, tap_plus_handler=None, verbose=None,
+                 auth_session=None):
         """
         Initialize Cadc object
 
@@ -89,7 +91,11 @@ class CadcClass(BaseQuery):
             a url to use instead of the default
         tap_plus_handler : deprecated
         verbose : deprecated
-
+        auth_session: `requests.Session` or `pyvo.auth.authsession.AuthSession`
+            A existing authenticated session containing the appropriate
+            credentials to be used by the client to communicate with the
+            server. This is an alternative to using login/logout methods that
+            allows clients to reuse existing session with multiple services.
         Returns
         -------
         Cadc object
@@ -101,17 +107,25 @@ class CadcClass(BaseQuery):
 
         super(CadcClass, self).__init__()
         self.baseurl = url
+        if auth_session:
+            self._auth_session = auth_session
+        else:
+            self._auth_session = None
 
     @property
     def cadctap(self):
+        if not self._auth_session:
+            self._auth_session = authsession.AuthSession()
         if not hasattr(self, '_cadctap'):
             if self.baseurl is None:
                 self.baseurl = get_access_url(self.CADCTAP_SERVICE_URI)
                 # remove capabilities endpoint to get to the service url
                 self.baseurl = self.baseurl.rstrip('capabilities')
-                self._cadctap = pyvo.dal.TAPService(self.baseurl)
+                self._cadctap = pyvo.dal.TAPService(
+                    self.baseurl, session=self._auth_session)
             else:
-                self._cadctap = pyvo.dal.TAPService(self.baseurl)
+                self._cadctap = pyvo.dal.TAPService(
+                    self.baseurl, session=self._auth_session)
         return self._cadctap
 
     @property
@@ -124,7 +138,11 @@ class CadcClass(BaseQuery):
 
     def login(self, user=None, password=None, certificate_file=None):
         """
-        Login, set varibles to use for logging in
+        login allows user to authenticate to the service. Both user/password
+        and https client certificates are supported.
+
+         Alternatively, the Cadc class can be instantiated with an
+         authenticated session.
 
         Parameters
         ----------
@@ -135,19 +153,29 @@ class CadcClass(BaseQuery):
         certificate : str, required if user is None
             path to certificate to use with logging in
 
-        Notes
-        -----
-        This will soon be deprecated as it does not make sense to login with
-        certificates.
         """
         # start with a new session
-        pyvo.dal.tap.s = requests.Session()
-        if certificate_file:
-            pyvo.dal.tap.s.cert = certificate_file
-        elif not user or not password:
+        if not isinstance(self.cadctap._session, (requests.Session,
+                                                  authsession.AuthSession)):
+            raise TypeError('Cannot login with user provided session that is '
+                            'not an pyvo.authsession.AuthSession or '
+                            'requests.Session')
+        if not certificate_file and not (user and password):
             raise AttributeError('login credentials missing (user/password '
                                  'or certificate)')
-        else:
+        if certificate_file:
+            if isinstance(self.cadctap._session, authsession.AuthSession):
+                self.cadctap._session.credentials.\
+                    set_client_certificate(certificate_file)
+            else:
+                # if the session was already used to call CADC, requests caches
+                # it without using the cert. Therefore need to close all
+                # existing https sessions first.
+                https_adapter = self.cadctap._session.adapters['https://']
+                if https_adapter:
+                    https_adapter.close()
+                self.cadctap._session.cert = certificate_file
+        if user and password:
             login_url = get_access_url(self.CADCLOGIN_SERVICE_URI,
                                        'ivo://ivoa.net/std/UMS#login-0.1')
             if login_url is None:
@@ -160,8 +188,8 @@ class CadcClass(BaseQuery):
                 "Content-type": "application/x-www-form-urlencoded",
                 "Accept": "text/plain"
             }
-            response = pyvo.dal.tap.s.post(login_url, data=args,
-                                           headers=header)
+            response = self._request(method='POST', url=login_url, data=args,
+                                     headers=header, cache=False)
             try:
                 response.raise_for_status()
             except Exception as e:
@@ -170,20 +198,23 @@ class CadcClass(BaseQuery):
             # extract cookie
             cookie = '"{}"'.format(response.text)
             if cookie is not None:
-                pyvo.dal.tap.s.cookies.set(CADC_COOKIE_PREFIX, cookie)
+                if isinstance(self.cadctap._session, authsession.AuthSession):
+                    self.cadctap._session.credentials.set_cookie(
+                        CADC_COOKIE_PREFIX, cookie)
+                else:
+                    self.cadctap._session.cookies.set(
+                        CADC_COOKIE_PREFIX, cookie)
 
     def logout(self, verbose=None):
         """
-        Logout
+        Logout. Anonymous access with all the subsequent use of the
+        object. Note that the original session is not affected (in case
+        it was passed when the object was first intantiated)
 
         Parameters
         ----------
         verbose : deprecated
 
-        Notes
-        -----
-        This method will soon be deprecated as it doesn't make sense to
-        login and logout with certificates.
         """
         if verbose is not None:
             warnings.warn('verbose deprecated since 0.4.0')
@@ -192,7 +223,9 @@ class CadcClass(BaseQuery):
         # session. This is mainly because of certificates. Adding cert
         # argument to a session already in use does not force it to
         # re-do the HTTPS hand shake
-        pyvo.dal.tap.s = requests.Session()
+        self.cadctap._session = authsession.AuthSession()
+        self.cadctap._session.update_from_capabilities(
+            self.cadctap.capabilities)
 
     @class_or_instance
     def query_region_async(self, coordinates, radius=0.016666666666667*u.deg,
@@ -428,7 +461,10 @@ class CadcClass(BaseQuery):
                 '{}?{}'.format(self.data_link_url,
                                urlencode({'ID': pid_sublist}, True)))
             for service_def in datalink.bysemantics('#cutout'):
-                access_url = service_def.access_url.decode('ascii')
+                if isinstance(service_def.access_url, str):
+                    access_url = service_def.access_url
+                else:
+                    access_url = service_def.access_url.decode('ascii')
                 if '/sync' in access_url:
                     service_params = service_def.input_params
                     input_params = {param.name: param.value
@@ -680,12 +716,24 @@ class CadcClass(BaseQuery):
         return pyvo.dal.AsyncTAPJob('{}/async/{}'.format(
             self.cadctap.baseurl, jobid))
 
-    def list_async_jobs(self, verbose=None):
+    def list_async_jobs(self, phases=None, after=None, last=None,
+                        short_description=True, verbose=None):
         """
         Returns all the asynchronous jobs
 
         Parameters
         ----------
+        phases: list of str
+            Union of job phases to filter the results by.
+        after: datetime
+            Return only jobs created after this datetime
+        last: int
+            Return only the most recent number of jobs
+        short_description: flag - True or False
+            If True, the jobs in the list will contain only the information
+            corresponding to the TAP ShortJobDescription object (job ID, phase,
+            run ID, owner ID and creation ID) whereas if False, a separate GET
+            call to each job is performed for the complete job description
         verbose : deprecated
 
         Returns
@@ -695,8 +743,8 @@ class CadcClass(BaseQuery):
         if verbose is not None:
             warnings.warn('verbose deprecated since 0.4.0')
 
-        raise NotImplementedError(
-            'Broken since pyvo does not support this yet')
+        return self.cadctap.get_job_list(phases=phases, after=after, last=last,
+                                         short_description=short_description)
 
     def _parse_result(self, result, verbose=None):
         return result
