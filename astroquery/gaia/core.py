@@ -466,11 +466,10 @@ class GaiaClass(TapPlus):
             box width
         height : astropy.units, required if no 'radius' is provided
             box height
-        async_job : bool, optional, default 'False'
-            executes the query (job) in asynchronous/synchronous mode
-            (default synchronous)
         verbose : bool, optional, default 'False'
             flag to display information about the process
+        columns: list, optional, default []
+            if empty, all columns will be selected
 
         Returns
         -------
