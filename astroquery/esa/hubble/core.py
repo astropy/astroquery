@@ -19,48 +19,13 @@ from astroquery.utils.tap.model import modelutils
 from astroquery.query import BaseQuery
 from astropy.table import Table
 from six import BytesIO
+import shutil
 import os
 
 from . import conf
 from astropy import log
 
-
 __all__ = ['EsaHubble', 'EsaHubbleClass']
-
-
-class ESAHubbleHandler(BaseQuery):
-
-    def __init__(self):
-        super(ESAHubbleHandler, self).__init__()
-
-    def get_file(self, filename, response, verbose=False):
-        with open(filename, 'wb') as fh:
-            fh.write(response.content)
-
-        if os.pathsep not in filename:
-            log.info("File {0} downloaded to current "
-                     "directory".format(filename))
-        else:
-            log.info("File {0} downloaded".format(filename))
-
-    def get_table(self, filename, response, output_format='votable',
-                  verbose=False):
-        with open(filename, 'wb') as fh:
-            fh.write(response.content)
-
-        table = modelutils.read_results_table_from_file(filename,
-                                                        str(output_format))
-        return table
-
-    def request(self, t="GET", link=None, params=None,
-                cache=None,
-                timeout=None):
-        return self._request(method=t, url=link,
-                             params=params, cache=cache,
-                             timeout=timeout)
-
-
-Handler = ESAHubbleHandler()
 
 
 class ESAHubbleClass(BaseQuery):
@@ -71,12 +36,8 @@ class ESAHubbleClass(BaseQuery):
     calibration_levels = {0: "AUXILIARY", 1: "RAW", 2: "CALIBRATED",
                           3: "PRODUCT"}
 
-    def __init__(self, url_handler=None, tap_handler=None):
+    def __init__(self, tap_handler=None):
         super(ESAHubbleClass, self).__init__()
-        if url_handler is None:
-            self._handler = Handler
-        else:
-            self._handler = url_handler
 
         if tap_handler is None:
             self._tap = TapPlus(url="http://hst.esac.esa.int"
@@ -120,15 +81,10 @@ class ESAHubbleClass(BaseQuery):
         if filename is None:
             filename = observation_id + ".tar"
 
-        response = self._handler.request('GET', link)
-        if response is not None:
-            response.raise_for_status()
-            self._handler.get_file(filename, response=response,
-                                   verbose=verbose)
+        response = self._request('GET', link, save=True, cache=True)
 
-            if verbose:
-                log.info("Wrote {0} to {1}".format(link, filename))
-            return filename
+        log.info("Copying file to {0}...".format(filename))
+        shutil.copy(response, filename)
 
     def get_artifact(self, artifact_id, filename=None, verbose=False):
         """
@@ -153,12 +109,15 @@ class ESAHubbleClass(BaseQuery):
 
         art_id = "ARTIFACT_ID=" + artifact_id
         link = self.data_url + art_id
-        result = self._handler.request('GET', link, params=None)
+        response = self._request('GET', link, save=True, cache=True)
+
         if verbose:
             log.info(link)
         if filename is None:
             filename = artifact_id
-        self._handler.get_file(filename, response=result, verbose=verbose)
+
+        log.info("Copying file to {0}...".format(filename))
+        shutil.copy(response, filename)
 
     def get_postcard(self, observation_id, calibration_level="RAW",
                      resolution=256, filename=None, verbose=False):
@@ -197,12 +156,15 @@ class ESAHubbleClass(BaseQuery):
         res = "RESOLUTION=" + str(resolution)
         link = self.data_url + "&".join([retri_type, obs_id, cal_level, res])
 
-        result = self._handler.request('GET', link, params=None)
+        response = self._request('GET', link, save=True, cache=True)
+
         if verbose:
             log.info(link)
         if filename is None:
-            filename = observation_id + ".tar"
-        self._handler.get_file(filename, response=result, verbose=verbose)
+            filename = observation_id
+
+        log.info("Copying file to {0}...".format(filename))
+        shutil.copy(response, filename)
 
     def cone_search(self, coordinates, radius=0.0, filename=None,
                     output_format='votable', cache=True):
@@ -235,25 +197,21 @@ class ESAHubbleClass(BaseQuery):
                    "ORDER BY PROPOSAL.PROPOSAL_ID "
                    "DESC".format(str(ra), str(dec), str(radiusInGrades)),
                    "RETURN_TYPE": str(output_format)}
-        result = self._handler.request('GET',
-                                       self.metadata_url,
-                                       params=payload,
-                                       cache=cache,
-                                       timeout=self.TIMEOUT)
+        response = self._request('GET',
+                                 self.metadata_url,
+                                 params=payload)
+
         if filename is None:
             filename = "cone." + str(output_format)
 
-        if result is None:
+        if response is None:
             table = None
         else:
-            fileobj = BytesIO(result.content)
+            fileobj = BytesIO(response.content)
             table = Table.read(fileobj, format=output_format)
             # TODO: add "correct units" material here
 
         return table
-
-    def query_metadata(self, output_format='votable', verbose=False):
-        return
 
     def query_target(self, name, filename=None, output_format='votable',
                      verbose=False):
@@ -282,15 +240,18 @@ class ESAHubbleClass(BaseQuery):
                    "&QUERY=(TARGET.TARGET_NAME=='")
         final = "')&RETURN_TYPE=" + str(output_format)
         link = self.metadata_url + initial + name + final
-        result = self._handler.request('GET', link, params=None)
+        response = self._request('GET', link, save=True, cache=True)
+
         if verbose:
             log.info(link)
         if filename is None:
             filename = "target.xml"
-        return self._handler.get_table(filename,
-                                       response=result,
-                                       output_format=output_format,
-                                       verbose=verbose)
+
+        log.info("Copying file to {0}...".format(filename))
+        shutil.copy(response, filename)
+
+        return modelutils.read_results_table_from_file(filename,
+                                                       str(output_format))
 
     def query_hst_tap(self, query, async_job=False, output_file=None,
                       output_format="votable", verbose=False):
