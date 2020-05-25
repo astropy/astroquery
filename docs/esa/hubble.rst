@@ -313,7 +313,6 @@ Access Protocol (TAP) and via the Astronomical Data Query Language (ADQL).
   >>> esahubble = ESAHubble()
   >>> result = esahubble.query_hst_tap("select top 10 * from hsc_v2.hubble_sc2", "test.vot.gz")
   >>> print(result)
-  >>> result.get_results()
 
 This will execute an ADQL query to download the first 10 sources in the
 Hubble Source Catalog (HSC) version 2.1 (format default: compressed

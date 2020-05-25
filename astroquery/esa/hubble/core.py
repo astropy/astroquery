@@ -35,6 +35,7 @@ class ESAHubbleClass(BaseQuery):
     TIMEOUT = conf.TIMEOUT
     calibration_levels = {0: "AUXILIARY", 1: "RAW", 2: "CALIBRATED",
                           3: "PRODUCT"}
+    copying_string = "Copying file to {0}..."
 
     def __init__(self, tap_handler=None):
         super(ESAHubbleClass, self).__init__()
@@ -74,17 +75,21 @@ class ESAHubbleClass(BaseQuery):
         None. It downloads the observation indicated
         """
 
-        obs_id = "OBSERVATION_ID=" + observation_id
-        cal_level = "CALIBRATION_LEVEL=" + calibration_level
-        link = self.data_url + obs_id + "&" + cal_level
+        params = {"OBSERVATION_ID": observation_id,
+                  "CALIBRATION_LEVEL": calibration_level}
 
         if filename is None:
             filename = observation_id + ".tar"
 
-        response = self._request('GET', link, save=True, cache=True)
+        response = self._request('GET', self.data_url, save=True, cache=True,
+                                 params=params)
 
-        log.info("Copying file to {0}...".format(filename))
-        shutil.copy(response, filename)
+        if verbose:
+            log.info(self.data_url + "?OBSERVATION_ID=" + observation_id +
+                     "&CALIBRATION_LEVEL=" + calibration_level)
+
+        log.info(self.copying_string.format(filename))
+        shutil.move(response, filename)
 
     def get_artifact(self, artifact_id, filename=None, verbose=False):
         """
@@ -107,17 +112,16 @@ class ESAHubbleClass(BaseQuery):
         None. It downloads the artifact indicated
         """
 
-        art_id = "ARTIFACT_ID=" + artifact_id
-        link = self.data_url + art_id
-        response = self._request('GET', link, save=True, cache=True)
-
+        params = {"ARTIFACT_ID": artifact_id}
+        response = self._request('GET', self.data_url, save=True, cache=True,
+                                 params=params)
         if verbose:
-            log.info(link)
+            log.info(self.data_url + "?ARTIFACT_ID=" + artifact_id)
         if filename is None:
             filename = artifact_id
 
-        log.info("Copying file to {0}...".format(filename))
-        shutil.copy(response, filename)
+        log.info(self.copying_string.format(filename))
+        shutil.move(response, filename)
 
     def get_postcard(self, observation_id, calibration_level="RAW",
                      resolution=256, filename=None, verbose=False):
@@ -150,21 +154,25 @@ class ESAHubbleClass(BaseQuery):
         None. It downloads the observation postcard indicated
         """
 
-        retri_type = "RETRIEVAL_TYPE=POSTCARD"
-        obs_id = "OBSERVATION_ID=" + observation_id
-        cal_level = "CALIBRATION_LEVEL=" + calibration_level
-        res = "RESOLUTION=" + str(resolution)
-        link = self.data_url + "&".join([retri_type, obs_id, cal_level, res])
+        params = {"RETRIEVAL_TYPE": "POSTCARD",
+                  "OBSERVATION_ID": observation_id,
+                  "CALIBRATION_LEVEL": calibration_level,
+                  "RESOLUTION": resolution}
 
-        response = self._request('GET', link, save=True, cache=True)
+        response = self._request('GET', self.data_url, save=True, cache=True,
+                                 params=params)
 
         if verbose:
-            log.info(link)
+            log.info(self.data_url +
+                     "&".join(["?RETRIEVAL_TYPE=POSTCARD",
+                               "OBSERVATION_ID=" + observation_id,
+                               "CALIBRATION_LEVEL=" + calibration_level,
+                               "RESOLUTION=" + str(resolution)]))
         if filename is None:
             filename = observation_id
 
-        log.info("Copying file to {0}...".format(filename))
-        shutil.copy(response, filename)
+        log.info(self.copying_string.format(filename))
+        shutil.move(response, filename)
 
     def cone_search(self, coordinates, radius=0.0, filename=None,
                     output_format='votable', cache=True):
@@ -236,19 +244,23 @@ class ESAHubbleClass(BaseQuery):
         Table with the result of the query. It downloads metadata as a file.
         """
 
-        initial = ("RESOURCE_CLASS=OBSERVATION&SELECTED_FIELDS=OBSERVATION"
-                   "&QUERY=(TARGET.TARGET_NAME=='")
-        final = "')&RETURN_TYPE=" + str(output_format)
-        link = self.metadata_url + initial + name + final
-        response = self._request('GET', link, save=True, cache=True)
+        params = {"RESOURCE_CLASS": "OBSERVATION",
+                  "SELECTED_FIELDS": "OBSERVATION",
+                  "QUERY": "(TARGET.TARGET_NAME=='" + name + "')",
+                  "RETURN_TYPE": str(output_format)}
+        response = self._request('GET', self.metadata_url, save=True,
+                                 cache=True,
+                                 params=params)
 
         if verbose:
-            log.info(link)
+            log.info(self.metadata_url + "?RESOURCE_CLASS=OBSERVATION&"
+                     "SELECTED_FIELDS=OBSERVATION&QUERY=(TARGET.TARGET_NAME"
+                     "=='" + name + "')&RETURN_TYPE=" + str(output_format))
         if filename is None:
             filename = "target.xml"
 
-        log.info("Copying file to {0}...".format(filename))
-        shutil.copy(response, filename)
+        log.info(self.copying_string.format(filename))
+        shutil.move(response, filename)
 
         return modelutils.read_results_table_from_file(filename,
                                                        str(output_format))
