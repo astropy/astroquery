@@ -28,6 +28,7 @@ class TestESAHubble():
         dummyTapHandler = DummyHubbleTapHandler("launch_job", parameterst)
         return dummyTapHandler
 
+    @pytest.mark.remote_data
     def test_download_product(self):
         parameters = {'observation_id': "J6FL25S4Q",
                       'calibration_level': "RAW",
@@ -39,18 +40,21 @@ class TestESAHubble():
                               parameters['filename'],
                               parameters['verbose'])
 
+    @pytest.mark.remote_data
     def test_get_postcard(self):
         parameters = {'observation_id': "X0MC5101T",
                       'verbose': False}
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
         ehst.get_postcard("X0MC5101T")
 
+    @pytest.mark.remote_data
     def test_query_target(self):
         parameters = {'name': "m31",
                       'verbose': False}
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
         ehst.query_target(parameters['name'])
 
+    @pytest.mark.remote_data
     def test_cone_search(self):
         c = coordinates.SkyCoord("00h42m44.51s +41d16m08.45s", frame='icrs')
 
