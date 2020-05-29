@@ -17,7 +17,7 @@ class TestHorizonsClass:
         res = jplhorizons.Horizons(id='Ceres', location='500',
                                    epochs=2451544.5).ephemerides()[0]
 
-        assert res['targetname'] == "1 Ceres"
+        assert res['targetname'] == "1 Ceres (A801 AA)"
         assert res['datetime_str'] == "2000-Jan-01 00:00:00.000"
         assert res['solar_presence'] == ""
         assert res['flags'] == ""
@@ -179,7 +179,7 @@ class TestHorizonsClass:
                                    epochs=[2451544.5,
                                            2451545.5]).elements()[0]
 
-        assert res['targetname'] == "1 Ceres"
+        assert res['targetname'] == "1 Ceres (A801 AA)"
         assert res['datetime_str'] == "A.D. 2000-Jan-01 00:00:00.0000"
 
         assert_quantity_allclose(
@@ -230,7 +230,7 @@ class TestHorizonsClass:
         res = jplhorizons.Horizons(id='Ceres', location='500@10',
                                    epochs=2451544.5).vectors()[0]
 
-        assert res['targetname'] == "1 Ceres"
+        assert res['targetname'] == "1 Ceres (A801 AA)"
         assert res['datetime_str'] == "A.D. 2000-Jan-01 00:00:00.0000"
 
         assert_quantity_allclose(
