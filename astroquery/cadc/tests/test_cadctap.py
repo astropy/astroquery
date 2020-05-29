@@ -345,6 +345,7 @@ def test_get_image_list():
         cadc.get_image_list({'publisherID': [
             'ivo://cadc.nrc.ca/foo']}, coords, 0.1)
 
+
 @patch('astroquery.cadc.core.get_access_url',
        Mock(side_effect=lambda x, y=None: 'https://some.url'))
 @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
