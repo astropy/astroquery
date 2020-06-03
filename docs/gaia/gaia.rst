@@ -62,7 +62,7 @@ This python module provides an Astroquery API access. Nevertheless, only
 ``query_object`` and ``query_object_async`` are implemented.
 
 The Gaia Archive table used for the methods where no table is specified is
-``gaiadr1.gaia_source``
+the latest data release.
 
 ========
 Examples
@@ -77,7 +77,7 @@ Examples
 
 This query searches for all the objects contained in an arbitrary rectangular projection of the sky.
 
-The following example, searches around an specific Ra/Dec coordinates, creating a box of 0.1 degrees.
+The following example, searches around an specific RA/Dec coordinates, creating a box of 0.1 degrees.
 
 .. code-block:: python
 
@@ -105,7 +105,7 @@ The following example, searches around an specific Ra/Dec coordinates, creating 
 1.2. Cone search
 ~~~~~~~~~~~~~~~~
 
-This query performs a cone search centered at the specified Ra/Dec coordinates with the provided
+This query performs a cone search centered at the specified RA/Dec coordinates with the provided
 radius argument.
 
 .. code-block:: python
@@ -140,7 +140,7 @@ Table and columns metadata are specified by IVOA TAP_ recommendation
 
 .. _TAP: http://ivoa.info/documents/TAP/20100327/
 
-To load only table names metadata (TAP+ capability)
+To load only table names metadata (TAP+ capability):
 
 .. code-block:: python
 
@@ -156,7 +156,7 @@ To load only table names metadata (TAP+ capability)
   ...
   gaiadr2.gaia_source
 
-To load all tables metadata (TAP compatible)
+To load all tables metadata (TAP compatible):
 
 .. code-block:: python
 
@@ -172,7 +172,7 @@ To load all tables metadata (TAP compatible)
   ...
   gaiadr2.gaia_source
 
-To load only a table (TAP+ capability)
+To load only a table (TAP+ capability):
 
 .. code-block:: python
 
@@ -189,7 +189,7 @@ To load only a table (TAP+ capability)
   Num. columns: 96
 
 
-Once a table is loaded, columns can be inspected
+Once a table is loaded, columns can be inspected:
 
 .. code-block:: python
 
@@ -231,25 +231,6 @@ Query without saving results in a file:
   >>> solution_id,ref_epoch,ra_dec_corr,astrometric_n_obs_al,\
   >>> matched_observations,duplicated_source,phot_variable_flag \
   >>> from gaiadr2.gaia_source order by source_id")
-  >>>
-  >>> print(job)
-
-  <Table length=100>
-          name          dtype  unit                     description
-  -------------------- ------- ---- ---------------------------------------------------
-           solution_id   int64                                      Solution Identifier
-             ref_epoch float64   yr                                     Reference epoch
-           ra_dec_corr float32      Correlation between right ascension and declination
-  astrometric_n_obs_al   int32                          Total number of observations AL
-  matched_observations   int16            Amount of observations matched to this source
-     duplicated_source    bool                            Source with duplicate sources
-    phot_variable_flag  object                             Photometric variability flag
-  Jobid: None
-  Phase: COMPLETED
-  Owner: None
-  Output file: sync_20200525141041.xml.gz
-  Results: None
-
   >>> r = job.get_results()
   >>> print(r['solution_id'])
 
@@ -271,16 +252,8 @@ available formats are: 'votable', 'votable_plain', 'fits', 'csv' and 'json', def
   >>> job = Gaia.launch_job("select top 100 \
   >>> solution_id,ref_epoch,ra_dec_corr,astrometric_n_obs_al,\
   >>> matched_observations,duplicated_source,phot_variable_flag \
-  >>> from gaiadr2.gaia_source order by source_id", dump_to_file=True)
-  >>>
-  >>> print(job)
-
-  Jobid: None
-  Phase: COMPLETED
-  Owner: None
-  Output file: sync_20170223111452.xml.gz
-  Results: None
-
+  >>> from gaiadr2.gaia_source order by source_id", dump_to_file=True, \
+  >>> output_format='votable')
   >>> r = job.get_results()
   >>> print(r['solution_id'])
 
@@ -292,6 +265,28 @@ available formats are: 'votable', 'votable_plain', 'fits', 'csv' and 'json', def
   1635378410781933568
                 ...
   Length = 100 rows
+
+Note: you can inspect the status of the job by typing:
+
+.. code-block:: python
+
+  >>> print(job)
+
+  <Table length=100>
+          name          dtype  unit                     description
+  -------------------- ------- ---- ---------------------------------------------------
+           solution_id   int64                                      Solution Identifier
+             ref_epoch float64   yr                                     Reference epoch
+           ra_dec_corr float32      Correlation between right ascension and declination
+  astrometric_n_obs_al   int32                          Total number of observations AL
+  matched_observations   int16            Amount of observations matched to this source
+     duplicated_source    bool                            Source with duplicate sources
+    phot_variable_flag  object                             Photometric variability flag
+  Jobid: None
+  Phase: COMPLETED
+  Owner: None
+  Output file: sync_20200525141041.xml.gz
+  Results: None
 
 
 1.5. Synchronous query on an 'on-the-fly' uploaded table
@@ -362,7 +357,8 @@ available formats are: 'votable', 'votable_plain', 'fits', 'csv' and 'json', def
 
   >>> from astroquery.gaia import Gaia
   >>>
-  >>> job = Gaia.launch_job_async("select top 100 * from gaiadr1.gaia_source order by source_id", dump_to_file=True)
+  >>> job = Gaia.launch_job_async("select top 100 * from gaiadr2.gaia_source order by source_id", \
+  >>> dump_to_file=True, output_format='votable')
   >>>
   >>> print(job)
 
@@ -385,7 +381,7 @@ available formats are: 'votable', 'votable_plain', 'fits', 'csv' and 'json', def
   Length = 100 rows
 
 
-1.6. Asynchronous job removal
+1.7. Asynchronous job removal
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To remove asynchronous
@@ -416,10 +412,12 @@ The main differences are:
 2.1. Login/Logout
 ~~~~~~~~~~~~~~~~~
 
-Graphic interface
+There are several ways to login to Gaia archive.
+
+**Login through graphic interface**
 
 
-*Note: Tkinter module is required to use login_gui method.*
+*Note: Python Tkinter module is required to use login_gui method.*
 
 .. code-block:: python
 
@@ -427,7 +425,7 @@ Graphic interface
   >>> Gaia.login_gui()
 
 
-Command line
+**Login through command line**
 
 
 .. code-block:: python
@@ -436,7 +434,9 @@ Command line
   >>> Gaia.login(user='userName', password='userPassword')
 
 
-It is possible to use a file where the credentials are stored:
+**Login through a credentials file**
+
+A file where the credentials are stored can be used to login:
 
 *The file must containing user and password in two different lines.*
 
@@ -446,7 +446,7 @@ It is possible to use a file where the credentials are stored:
   >>> Gaia.login(credentials_file='my_credentials_file')
 
 
-If you do not provide any parameters at all, a prompt will ask for user name and password.
+If you do not provide any parameters at all, a prompt will ask for the user name and password.
 
 .. code-block:: python
 
@@ -456,7 +456,7 @@ If you do not provide any parameters at all, a prompt will ask for user name and
   >>> Password: pwd (not visible)
 
 
-To perform a logout
+To logout
 
 
 .. code-block:: python
@@ -468,6 +468,10 @@ To perform a logout
 
 2.2. Listing shared tables
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In Gaia archive user tables can be shared among user groups.
+
+To obtain a list of the tables shared to a user type the following:
 
 .. code-block:: python
 
@@ -492,89 +496,96 @@ To perform a logout
   user_schema_2.table1
   ...
 
-2.2. Uploading table to user space
+2.3. Uploading table to user space
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-It is now possible to persist a table in the private user space. The table to be uploaded can be in a url, a file, a job or a astropy Table.
+It is now possible to store a table in the private user space. The table to be uploaded can
+be in a VOTable_ located in a given URL, a table stored in a local file in the user machine,
+a pre-computed Astropy table file or a job executed in the Gaia archive.
 
-The table is stored into the user private area in the database. Each user has a database schema. The schema name is 'user_<user_login_name>'.
+.. _VOTable: http://www.ivoa.net/documents/VOTable/
+
+Each user has a database schema described as: 'user_<user_login_name>'.
 
 For instance, if a login name is 'joe', the database schema is 'user_joe'.
 
 Your uploaded table can be referenced as 'user_joe.table_name'
 
 
-2.2.1. Uploading table from url to user space
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2.3.1. Uploading table from URL
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+An already generated VOTable, accessible through a URL, can be uploaded to Gaia archive.
+
+The following example, launches a query to Vizier TAP ('url' parameter), the result is a
+VOTable that can be uploaded to the user private area.
+
+Gaia archive will add your schema name to the table name provided.
 
 .. code-block:: python
 
   >>> from astroquery.gaia import Gaia
   >>> Gaia.login()
   >>> # Provide a URL pointing to valid VOTable resource
-  >>> url = "http://tapvizier.u-strasbg.fr/TAPVizieR/tap/sync/?REQUEST=doQuery&lang=ADQL&FORMAT=votable&QUERY=select+*+from+TAP_SCHEMA.columns+where+table_name='II/336/apass9'"
-  >>> job = Gaia.upload_table(upload_resource=url, table_name="table_test_from_url", table_description="Some description")
+  >>> url = "http://tapvizier.u-strasbg.fr/TAPVizieR/tap/sync/?\
+  >>> REQUEST=doQuery&lang=ADQL&FORMAT=votable&\
+  >>> QUERY=select+*+from+TAP_SCHEMA.columns+where+table_name='II/336/apass9'"
+  >>>
+  >>> job = Gaia.upload_table(upload_resource=url, table_name="table_test_from_url", \
+  >>> table_description="Some description")
 
   Job '1539932326689O' created to upload table 'table_test_from_url'.
 
-Now, you can query your table as follows:
+Now, you can query your table as follows (a full qualified table name must be provided,
+i.e.: *user_<your_login_name>.<table_name>*):
 
 .. code-block:: python
 
   >>> full_qualified_table_name = 'user_<your_login_name>.table_test_from_url'
   >>> query = 'select * from ' + full_qualified_table_name
   >>> job = Gaia.launch_job(query=query)
-  >>> results = job.get_resultsjob)
+  >>> results = job.get_results()
   >>> print(results)
 
 
-2.2.2. Uploading table from file to user space
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2.3.2. Uploading table from file
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A file containing a table (votable, fits or csv) can be uploaded to the user private area.
+
+Parameter 'format' must be provided when the input file is not a votable file.
+
+Gaia archive will add your schema name to the table name provided.
 
 .. code-block:: python
 
   >>> from astroquery.gaia import Gaia
   >>> Gaia.login()
-  >>> job = Gaia.upload_table(upload_resource="1535553556177O-result.vot", table_name="table_test_from_file", format="VOTable")
+  >>> job = Gaia.upload_table(upload_resource="1535553556177O-result.vot", \
+  >>> table_name="table_test_from_file", format="VOTable")
 
   Sending file: 1535553556177O-result.vot
   Uploaded table 'table_test_from_file'.
 
-Now, you can query your table as follows:
+Now, you can query your table as follows (a full qualified table name must be provided,
+i.e.: *user_<your_login_name>.<table_name>*):
 
 .. code-block:: python
 
   >>> full_qualified_table_name = 'user_<your_login_name>.table_test_from_file'
   >>> query = 'select * from ' + full_qualified_table_name
   >>> job = Gaia.launch_job(query=query)
-  >>> results = job.get_resultsjob)
+  >>> results = job.get_results()
   >>> print(results)
 
 
-2.2.3. Uploading table from job to user space
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: python
-
-  >>> from astroquery.gaia import Gaia
-  >>> Gaia.login()
-  >>> j1 = Gaia.launch_job_async("select top 10 * from gaiadr2.gaia_source")
-  >>> job = Gaia.upload_table_from_job(j1)
-
-  Created table 't1539932994481O' from job: '1539932994481O'.
-
-Now, you can query your table as follows:
-
-.. code-block:: python
-
-  >>> full_qualified_table_name = 'user_<your_login_name>.t1539932994481O'
-  >>> query = 'select * from ' + full_qualified_table_name
-  >>> job = Gaia.launch_job(query=query)
-  >>> results = job.get_resultsjob)
-  >>> print(results)
-
-2.2.4. Uploading table from an astropy Table
+2.3.3. Uploading table from an astropy Table
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A in memory PyTable can be uploaded to the user private area.
+
+Gaia archive will add your schema name to the table name provided.
+
 
 .. code-block:: python
 
@@ -586,21 +597,55 @@ Now, you can query your table as follows:
   >>>
   >>> # Upload
   >>> Gaia.login()
-  >>> Gaia.upload_table(upload_resource=table, table_name='my_table')
+  >>> Gaia.upload_table(upload_resource=table, table_name='table_test_from_astropy')
 
-Now, you can query your table as follows:
+
+Now, you can query your table as follows (a full qualified table name must be provided,
+i.e.: *user_<your_login_name>.<table_name>*):
 
 .. code-block:: python
 
-  >>> full_qualified_table_name = 'user_<your_login_name>.my_table'
+  >>> full_qualified_table_name = 'user_<your_login_name>.table_test_from_astropy'
   >>> query = 'select * from ' + full_qualified_table_name
   >>> job = Gaia.launch_job(query=query)
-  >>> results = job.get_resultsjob)
+  >>> results = job.get_results()
   >>> print(results)
 
 
-2.3. Deleting table from user space
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+2.3.4. Uploading table from job
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Al already generated job results (from a query executed in Gaia archive) can be ingested in a
+table in the user private area.
+
+The following example generates a job in Gaia archive and then, the results are ingested in a
+table named: user_<your_login_name>.'t'<job_id>:
+
+.. code-block:: python
+
+  >>> from astroquery.gaia import Gaia
+  >>> Gaia.login()
+  >>> j1 = Gaia.launch_job_async("select top 10 * from gaiadr2.gaia_source")
+  >>> job = Gaia.upload_table_from_job(j1)
+
+  Created table 't1539932994481O' from job: '1539932994481O'.
+
+Now, you can query your table as follows (a full qualified table name must be provided,
+i.e.: *user_<your_login_name>.t<job_id>*):
+
+.. code-block:: python
+
+  >>> full_qualified_table_name = 'user_<your_login_name>.t1539932994481O'
+  >>> query = 'select * from ' + full_qualified_table_name
+  >>> job = Gaia.launch_job(query=query)
+  >>> results = job.get_results()
+  >>> print(results)
+
+2.4. Deleting table
+~~~~~~~~~~~~~~~~~~~
+
+A table from the user private area can be deleted as follows:
 
 .. code-block:: python
 
@@ -610,112 +655,91 @@ Now, you can query your table as follows:
 
   Table 'table_test_from_file' deleted.
 
-2.4. Updating metadata of table in user space
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Metadata of a user table can be updated by specifying the changes to be done.
+2.5. Updating table metadata
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+It can be useful for the user to modify the metadata of a given table. For example, a user
+might want to change the description (UCD) of a column, or the flags that give extra information
+about certain column. This is possible using:
 
 .. code-block:: python
 
   >>> Gaia.update_user_table(table_name, list_of_changes)
 
-The format defined to specify a change is the following:
+where the list of changes is a list of 3 items:
 
 ["column name to be changed", "metadata parameter to be changed", "new value"]
 
 metadata parameter to be changed can be 'utype', 'ucd', 'flags' or 'indexed'
 
-values for 'utype' and 'ucd' are free text
-value for 'flags' can be 'Ra', 'Dec', 'Mag', 'Flux' and 'PK'
-value for 'indexed' is a boolean indicating if the column is indexed
+* values for 'utype' and 'ucd' are free text. See VOTable_ specification (sections UType and UCD), UCD_ specification and UTypes_ usage.
+
+* value for 'flags' can be 'Ra', 'Dec', 'Mag', 'Flux' and 'PK'.
+
+* value for 'indexed' is a boolean indicating whether the column is indexed or not.
+
+.. _UCD: http://www.ivoa.net/documents/latest/UCD.html
+.. _UTypes: http://www.ivoa.net/documents/Notes/UTypesUsage/index.html
+
+For instance, Gaia 'ra' column is specified as:
+
+.. code-block:: python
+
+  Utype: Char.SpatialAxis.Coverage.Location.Coord.Position2D.Value2.C1
+  Ucd: pos.eq.ra;meta.main
+
+and Gaia 'dec' column as:
+
+.. code-block:: python
+
+  Utype: Char.SpatialAxis.Coverage.Location.Coord.Position2D.Value2.C2
+  Ucd: pos.eq.dec;meta.main
 
 It is possible to specify a list of those changes for them to be applied at once.
 This is done by putting each of the changes in a list. See example below.
+
+In this case, we have a table (user_joe.table), with several columns: 'recno', 'nobs',
+'raj2000' and 'dej2000'.
+
+We want to set:
+
+* 'ucd' of 'recno' column to 'ucd sample'
+* 'utype' of 'nobs' column to 'utype sample'
+* 'flags' of 'raj2000' column to 'Ra'
+* 'flags' of 'dej2000' column to 'Dec'
+
+We can type the following:
 
 .. code-block:: python
 
   >>> from astroquery.gaia import Gaia
   >>> Gaia.login_gui()
-  >>> Gaia.update_user_table(table_name="user_<user_login_name>.my_table", list_of_changes=[["recno", "ucd", "ucd sample"], ["nobs","utype","utype sample"], ["raj2000","flags","Ra"], ["dej2000","flags","Dec"]])
+  >>> Gaia.update_user_table(table_name="user_joe.table", \
+  >>> list_of_changes=[["recno", "ucd", "ucd sample"], \
+  >>> ["nobs","utype","utype sample"], \
+  >>> ["raj2000","flags","Ra"], \
+  >>> ["dej2000","flags","Dec"]])
 
-  Retrieving table 'user_<user_login_name>.my_table'
-  Parsing table 'user_<user_login_name>.my_table'...
+  Retrieving table 'user_joe.table'
+  Parsing table 'user_joe.table'...
   Done.
-  Table 'user_<user_login_name>.my_table' updated.
-
-
-2.5. Tables sharing
-~~~~~~~~~~~~~~~~~~~
-
-You can share your tables to other users. You have to create a group, populate that group with users, and share your table to that group.
-Then, any user belonging to that group will be able to user your shared table in a query.
-
-2.5.1. Creating a group
-~~~~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: python
-
-  >>> from astroquery.gaia import Gaia
-  >>> Gaia.login()
-  >>> Gaia.share_group_create(group_name="my_group", description="description")
-
-2.5.2. Removing a group
-~~~~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: python
-
-  >>> from astroquery.gaia import Gaia
-  >>> Gaia.login()
-  >>> Gaia.share_group_delete(group_name="my_group")
-
-2.5.3. Adding users to a group
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: python
-
-  >>> from astroquery.gaia import Gaia
-  >>> Gaia.login()
-  >>> Gaia.share_group_add_user(group_name="my_group",user_id="<user_login_name")
-
-2.5.4. Removing users from a group
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: python
-
-  >>> from astroquery.gaia import Gaia
-  >>> Gaia.login()
-  >>> Gaia.share_group_delete_user(group_name="my_group",user_id="<user_login_name>")
-
-
-2.5.5. Sharing a table to a group
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: python
-
-  >>> from astroquery.gaia import Gaia
-  >>> Gaia.login()
-  >>> Gaia.share_table(group_name="my_group",table_name="user_<user_loign_name>.my_table",description="description")
-
-
-2.5.6. Stop sharing a table
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: python
-
-  >>> from astroquery.gaia import Gaia
-  >>> Gaia.login()
-  >>> Gaia.share_table_stop(table_name="user_<user_login_name>.my_table", group_name="my_group")
-
-
+  Table 'user_joe.table' updated.
 
 2.6. Cross match
 ~~~~~~~~~~~~~~~~
 
-In gaia you can execute a cross match between tables based on distance.
+In gaia you can execute a cross match between tables.
 
 Usually, you will use an uploaded table or a shared table.
 
-You must be logged in in order to perform a cross match. This is required because the cross match operation will generate a join table in the user private area. That table contains the identifiers of both tables and the distance. Later, the table can be used to obtain the actual data from both tables.
+You must be logged in in order to perform a cross match. This is required because the
+cross match operation will generate a join table in the user private area.
+That table contains the identifiers of both tables and the distance. Later, the table
+can be used to obtain the actual data from both tables.
+
+In order to perform a cross match, both tables must have defined RA and Dec columns
+(Ra/Dec column flags must be set: see previous section to know how to assign those flags).
 
 The following example uploads a table and then, the table is used in a cross match:
 
@@ -736,20 +760,100 @@ The following example uploads a table and then, the table is used in a cross mat
   >>>               full_qualified_table_name_b='gaiadr2.gaia_source', \
   >>>               results_table_name=xmatch_table_name, radius=1.0)
   >>>
-  >>> # Once you have your cross match finished, you can obtain the results:
+
+Once you have your cross match finished, you can obtain the results:
+
+.. code-block:: python
+
   >>> xmatch_table = 'user_<your_login_name>.' + xmatch_table_name
-  >>> query = 'SELECT c."dist", a.*, b.* FROM gaiadr2.data_source AS a, '+\
+  >>> query = 'SELECT c."dist"*3600 as dist, a.*, b.* FROM gaiadr2.data_source AS a, '+\
   >>> full_qualified_table_name+' AS b, '+\
   >>> xmatch_table+' AS c '+\
   >>> 'WHERE (c.gaia_source_source_id = a.source_id AND c.my_sources_my_sources_oid = b.my_sources_oid)'
   >>> job = Gaia.launch_job(query=query)
-  >>> results = job.get_resultsjob)
+  >>> results = job.get_results()
   >>> print(results)
 
+Cross-matching catalogues is one of the most popular operations executed in the Gaia archive.
+For more details about how to run different cross-matches we direct the reader to: https://gea.esac.esa.int/archive-help/tutorials/crossmatch/index.html
+
+2.7. Tables sharing
+~~~~~~~~~~~~~~~~~~~
+
+It is possible to share tables with other users. You have to create a group, populate that
+group with users, and share your table to that group. Then, any user belonging to that group
+will be able to user your shared table in a query.
+
+2.7.1. Creating a group
+~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+  >>> from astroquery.gaia import Gaia
+  >>> Gaia.login()
+  >>> Gaia.share_group_create(group_name="my_group", description="description")
+
+2.7.2. Removing a group
+~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+  >>> from astroquery.gaia import Gaia
+  >>> Gaia.login()
+  >>> Gaia.share_group_delete(group_name="my_group")
+
+2.7.3. Listing groups
+~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+  >>> from astroquery.gaia import Gaia
+  >>> Gaia.login()
+  >>> groups = Gaia.load_groups()
+  >>> for group in groups:
+  >>>   print(group.title)
+
+2.7.4. Adding users to a group
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+  >>> from astroquery.gaia import Gaia
+  >>> Gaia.login()
+  >>> Gaia.share_group_add_user(group_name="my_group",user_id="<user_login_name")
+
+2.7.5. Removing users from a group
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+  >>> from astroquery.gaia import Gaia
+  >>> Gaia.login()
+  >>> Gaia.share_group_delete_user(group_name="my_group",user_id="<user_login_name>")
+
+
+2.7.6. Sharing a table to a group
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+  >>> from astroquery.gaia import Gaia
+  >>> Gaia.login()
+  >>> Gaia.share_table(group_name="my_group",table_name="user_<user_loign_name>.my_table",description="description")
+
+
+2.7.7. Stop sharing a table
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+  >>> from astroquery.gaia import Gaia
+  >>> Gaia.login()
+  >>> Gaia.share_table_stop(table_name="user_<user_login_name>.my_table", group_name="my_group")
 
 
 
-2.7. Data products access (datalink)
+2.8. Data products access (datalink)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Different data products are retrieved as one or more tables from the Gaia archive.
