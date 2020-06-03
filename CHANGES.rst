@@ -14,6 +14,11 @@ noirlab
 
 - Module added to access the NOIRLab (formally NOAO) archive. [#1638]
 
+first
+^^^^^
+
+- Module added to access FIRST survey radio images. [#1733]
+
 
 Service fixes and enhancements
 ------------------------------
