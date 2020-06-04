@@ -172,6 +172,7 @@ The following modules have been completed using a common API:
   gama/gama.rst
   gemini/gemini.rst
   heasarc/heasarc.rst
+  hips2fits/hips2fits.rst
   hitran/hitran.rst
   ibe/ibe.rst
   irsa/irsa.rst
