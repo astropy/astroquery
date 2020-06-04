@@ -34,9 +34,7 @@ from astropy.table import Table
 from astropy import units as u
 
 
-
 class GaiaClass(TapPlus):
-
     """
     Proxy class to default TapPlus object (pointing to Gaia Archive)
     """
@@ -44,7 +42,7 @@ class GaiaClass(TapPlus):
     MAIN_GAIA_TABLE_RA = conf.MAIN_GAIA_TABLE_RA
     MAIN_GAIA_TABLE_DEC = conf.MAIN_GAIA_TABLE_DEC
     ROW_LIMIT = conf.ROW_LIMIT
-    VALID_DATALINK_RETRIEVAL_TYPES=conf.VALID_DATALINK_RETRIEVAL_TYPES
+    VALID_DATALINK_RETRIEVAL_TYPES = conf.VALID_DATALINK_RETRIEVAL_TYPES
 
     def __init__(self, tap_plus_conn_handler=None,
                  datalink_handler=None,
@@ -270,13 +268,15 @@ class GaiaClass(TapPlus):
         if path != '':
             try:
                 os.mkdir(path)
+            except FileExistsError:
+                print("Path %s already exist" % path)
             except OSError:
                 print("Creation of the directory %s failed" % path)
 
         try:
             self.__gaiadata.load_data(params_dict=params_dict,
-                                  output_file=output_file,
-                                  verbose=verbose)
+                                      output_file=output_file,
+                                      verbose=verbose)
             files = Gaia.__get_data_files(output_file=output_file, path=path)
         except Exception as err:
             raise err
@@ -307,7 +307,7 @@ class GaiaClass(TapPlus):
                     files[file] = os.path.join(r, file)
 
         for key, value in files.items():
-            if '.fits' in key or '.csv' in key:
+            if '.fits' in key:
                 tables = []
                 with fits.open(value) as hduList:
                     print(hduList)
@@ -321,6 +321,12 @@ class GaiaClass(TapPlus):
                 tables = []
                 for table in votable.parse(value).iter_tables():
                     tables.append(table)
+                files[key] = tables
+
+            elif '.csv' in key:
+                tables = []
+                table = Table.read(value, format='ascii.csv', fast_reader=False)
+                tables.append(table)
                 files[key] = tables
         return files
 
@@ -411,12 +417,12 @@ class GaiaClass(TapPlus):
                     ORDER BY
                       dist ASC
                     """.format(**{
-                        'row_limit': "TOP {0}".format(self.ROW_LIMIT) if self.ROW_LIMIT > 0 else "",
-                        'ra_column': self.MAIN_GAIA_TABLE_RA,
-                        'dec_column': self.MAIN_GAIA_TABLE_DEC,
-                        'columns': columns, 'table_name': self.MAIN_GAIA_TABLE,
-                        'ra': ra, 'dec': dec, 'width': widthDeg.value, 'height': heightDeg.value,
-                    })
+                'row_limit': "TOP {0}".format(self.ROW_LIMIT) if self.ROW_LIMIT > 0 else "",
+                'ra_column': self.MAIN_GAIA_TABLE_RA,
+                'dec_column': self.MAIN_GAIA_TABLE_DEC,
+                'columns': columns, 'table_name': self.MAIN_GAIA_TABLE,
+                'ra': ra, 'dec': dec, 'width': widthDeg.value, 'height': heightDeg.value,
+            })
 
             if async_job:
                 job = self.launch_job_async(query, verbose=verbose)
@@ -553,13 +559,13 @@ class GaiaClass(TapPlus):
                 ORDER BY
                   dist ASC
                 """.format(**{
-                    'ra_column': ra_column_name,
-                    'row_limit': "TOP {0}".format(self.ROW_LIMIT) if self.ROW_LIMIT > 0 else "",
-                    'dec_column': dec_column_name,
-                    'columns': columns, 'ra': ra,
-                    'dec': dec, 'radius': radiusDeg,
-                    'table_name': table_name
-                })
+            'ra_column': ra_column_name,
+            'row_limit': "TOP {0}".format(self.ROW_LIMIT) if self.ROW_LIMIT > 0 else "",
+            'dec_column': dec_column_name,
+            'columns': columns, 'ra': ra,
+            'dec': dec, 'radius': radiusDeg,
+            'table_name': table_name
+        })
 
         if async_job:
             return self.launch_job_async(query=query,
@@ -685,7 +691,7 @@ class GaiaClass(TapPlus):
 
     def __getQuantityInput(self, value, msg):
         if value is None:
-            raise ValueError("Missing required argument: '"+str(msg)+"'")
+            raise ValueError("Missing required argument: '" + str(msg) + "'")
         if not (isinstance(value, str) or isinstance(value, units.Quantity)):
             raise ValueError(
                 str(msg) + " must be either a string or astropy.coordinates")
@@ -796,10 +802,10 @@ class GaiaClass(TapPlus):
             raise ValueError("Please, do not specify schema for " +
                              "'results_table_name'")
         query = "SELECT crossmatch_positional(\
-            '"+schemaA+"','"+tableA+"',\
-            '"+schemaB+"','"+tableB+"',\
-            "+str(radius)+",\
-            '"+str(results_table_name)+"')\
+            '" + schemaA + "','" + tableA + "',\
+            '" + schemaB + "','" + tableB + "',\
+            " + str(radius) + ",\
+            '" + str(results_table_name) + "')\
             FROM dual;"
         name = str(results_table_name)
         return self.launch_job_async(query=query,
