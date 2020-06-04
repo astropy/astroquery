@@ -614,8 +614,8 @@ i.e.: *user_<your_login_name>.<table_name>*):
 2.3.4. Uploading table from job
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Al already generated job results (from a query executed in Gaia archive) can be ingested in a
-table in the user private area.
+An already generated *asynchronous* job results (from a query executed in Gaia archive) can be
+ingested in a table in the user private area.
 
 The following example generates a job in Gaia archive and then, the results are ingested in a
 table named: user_<your_login_name>.'t'<job_id>:
@@ -781,7 +781,7 @@ group with users, and share your table to that group. Then, any user belonging t
 will be able to user your shared table in a query.
 
 2.7.1. Creating a group
-~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -790,7 +790,7 @@ will be able to user your shared table in a query.
   >>> Gaia.share_group_create(group_name="my_group", description="description")
 
 2.7.2. Removing a group
-~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -810,7 +810,7 @@ will be able to user your shared table in a query.
   >>>   print(group.title)
 
 2.7.4. Adding users to a group
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -829,7 +829,7 @@ will be able to user your shared table in a query.
 
 
 2.7.6. Sharing a table to a group
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -839,7 +839,7 @@ will be able to user your shared table in a query.
 
 
 2.7.7. Stop sharing a table
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -854,9 +854,11 @@ will be able to user your shared table in a query.
 
 Different data products are retrieved as one or more tables from the Gaia archive.
 
-In order to download data products, you need to know the identifiers of the sources you are interested in.
+In order to download data products, you need to know the identifiers of the sources you are
+interested in.
 
-So, the first step, is to execute a query to obtain the identifiers, and then you can retrieve the data.
+So, the first step, is to execute a query to obtain the identifiers, and then you can
+retrieve the data.
 
 .. code-block:: python
 
@@ -872,6 +874,11 @@ So, the first step, is to execute a query to obtain the identifiers, and then yo
   >>> results = job.get_results()
   >>> ids=results['source_id']
   >>> print(ids)
+
+Once you have the required identifiers ('ids'), you can retrieve the actual data by typing:
+
+.. code-block:: python
+
   >>>
   >>> # Retrieve data products
   >>> all = Gaia.load_data(ids=ids, format='fits', data_release='Gaia DR2')
