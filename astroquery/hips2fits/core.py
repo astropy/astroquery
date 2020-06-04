@@ -38,20 +38,20 @@ class hips2fitsClass(BaseQuery):
     Query the `CDS hips2fits service <http://alasky.u-strasbg.fr/hips-image-services/hips2fits>`_
 
     The `CDS hips2fits service <http://alasky.u-strasbg.fr/hips-image-services/hips2fits>`_ offers a way
-    to extract FITS images from HiPS sky maps. HiPS is an IVOA standard for combining survey individual images to
+    to extract FITS images from HiPS sky maps. HiPS is an IVOA standard that combines individual images in
     order to produce a progressive hierarchical sky map describing the whole survey. Please refer to the 
     `IVOA paper <http://www.ivoa.net/documents/HiPS/20170519/REC-HIPS-1.0-20170519.pdf>`_ for more info.
 
-    Given an astropy/user-defined WCS with an HiPS name 
+    Given an astropy user-defined WCS with an HiPS name 
     (see the list of valid HiPS names hosted in CDS `here <http://aladin.unistra.fr/hips/list>`_),
-    hips2fits will return you the corresponding FITS image.
+    hips2fits will return you the corresponding FITS image (JPG/PNG output formats are also implemented).
 
     This package implements two methods:
 
-    * :meth:`~astroquery.hips2fits.hips2fitsClass.query` extracting a FITS image from a HiPS and an astropy ``wcs.WCS``.
-      See `here <http://aladin.unistra.fr/hips/list>`_ all the valid HiPS names hosted in CDS.
-    * :meth:`~astroquery.hips2fits.hips2fitsClass.query_with_user_defined_wcs` extracting a FITS image from a HiPS and a user-defined WCS.
-      See `here <http://aladin.unistra.fr/hips/list>`_ all the valid HiPS names hosted in CDS.
+    * :meth:`~astroquery.hips2fits.hips2fitsClass.query_with_wcs` extracting a FITS image from a HiPS and an astropy ``wcs.WCS``.
+        See `here <http://aladin.unistra.fr/hips/list>`_ all the valid HiPS names hosted in CDS.
+    * :meth:`~astroquery.hips2fits.hips2fitsClass.query_without_wcs` extracting a FITS image from a HiPS given the output image pixel size, the center of projection, the type of projection and the field of view.
+        See `here <http://aladin.unistra.fr/hips/list>`_ all the valid HiPS names hosted in CDS.
 
     """
     server = conf.server
@@ -59,17 +59,6 @@ class hips2fitsClass(BaseQuery):
 
     def __init__(self, *args):
         super(hips2fitsClass, self).__init__()
-
-    def remove_not_useful_kw(key, desc, **kwargs):
-        try:
-            kwargs.pop(key)
-
-            # No KeyError exception raised
-            msg = key + ': ' + desc
-            warnings.warn(msg, AstropyUserWarning)
-        except KeyError:
-            # The key is not found
-            pass
 
     def query_with_wcs(self, hips, wcs, format="fits", min_cut=0.5, max_cut=99.5, stretch="linear", cmap="Greys_r", get_query_payload=False, verbose=False):
         """
@@ -121,7 +110,7 @@ class hips2fitsClass(BaseQuery):
 
         Examples
         --------
-        >>> from astroquery import hips2fits
+        >>> from astroquery.hips2fits import hips2fits
         >>> import matplotlib.pyplot as plt
         >>> from matplotlib.colors import Colormap
         >>> from astropy import wcs as astropy_wcs
@@ -247,7 +236,33 @@ class hips2fitsClass(BaseQuery):
         response : `~astropy.io.fits.HDUList` or `~numpy.ndarray`
             Returns an astropy HDUList for fits output format or a 3-dimensional numpy array
             for jpg/png output formats.
+        
+        Examples
+        --------
+        >>> from astroquery.hips2fits import hips2fits
+        >>> import matplotlib.pyplot as plt
+        >>> from matplotlib.colors import Colormap
+        >>> import astropy.units as u
+        >>> from astropy.coordinates import Longitude, Latitude, Angle
+        >>> hips = 'CDS/P/DSS2/red'
+        >>> result = hips2fits.query_without_wcs(
+        ...    hips=hips,
+        ...    width=1000,
+        ...    height=500,
+        ...    ra=Longitude(0 * u.deg),
+        ...    dec=Latitude(20 * u.deg),
+        ...    fov=Angle(80 * u.deg),
+        ...    projection="TAN",
+        ...    get_query_payload=False,
+        ...    format='jpg',
+        ...    min_cut=0.5,
+        ...    max_cut=99.5,
+        ...    cmap=Colormap('viridis'),
+        ... )
+        >>> im = plt.imshow(result)
+        >>> plt.show(im)
         """
+
         response = self.query_without_wcs_async(get_query_payload, hips=hips, width=width, height=height, projection=projection, ra=ra, dec=dec, fov=fov, coordsys=coordsys, rotation_angle=rotation_angle, format=format, min_cut=min_cut, max_cut=max_cut, stretch=stretch, cmap=cmap)
 
         if get_query_payload:
