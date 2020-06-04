@@ -505,11 +505,9 @@ a pre-computed Astropy table file or a job executed in the Gaia archive.
 
 .. _VOTable: http://www.ivoa.net/documents/VOTable/
 
-Each user has a database schema described as: 'user_<user_login_name>'.
-
-For instance, if a login name is 'joe', the database schema is 'user_joe'.
-
-Your uploaded table can be referenced as 'user_joe.table_name'
+Each user has a database schema described as: 'user_<user_login_name>'. For instance, if a
+login name is 'joe', the database schema is 'user_joe'. Your uploaded table can be
+referenced as 'user_joe.table_name'
 
 
 2.3.1. Uploading table from URL
@@ -517,10 +515,10 @@ Your uploaded table can be referenced as 'user_joe.table_name'
 
 An already generated VOTable, accessible through a URL, can be uploaded to Gaia archive.
 
-The following example, launches a query to Vizier TAP ('url' parameter), the result is a
+The following example launches a query to Vizier TAP ('url' parameter). The result is a
 VOTable that can be uploaded to the user private area.
 
-Gaia archive will add your schema name to the table name provided.
+Your schema name will be automatically added to the provided table name.
 
 .. code-block:: python
 
@@ -553,9 +551,9 @@ i.e.: *user_<your_login_name>.<table_name>*):
 
 A file containing a table (votable, fits or csv) can be uploaded to the user private area.
 
-Parameter 'format' must be provided when the input file is not a votable file.
+The parameter 'format' must be provided when the input file is not a votable file.
 
-Gaia archive will add your schema name to the table name provided.
+Your schema name will be automatically added to the provided table name.
 
 .. code-block:: python
 
@@ -584,7 +582,7 @@ i.e.: *user_<your_login_name>.<table_name>*):
 
 A in memory PyTable can be uploaded to the user private area.
 
-Gaia archive will add your schema name to the table name provided.
+Your schema name will be automatically added to the provided table name.
 
 
 .. code-block:: python
@@ -729,14 +727,12 @@ We can type the following:
 2.6. Cross match
 ~~~~~~~~~~~~~~~~
 
-In gaia you can execute a cross match between tables.
-
-Usually, you will use an uploaded table or a shared table.
-
-You must be logged in in order to perform a cross match. This is required because the
-cross match operation will generate a join table in the user private area.
-That table contains the identifiers of both tables and the distance. Later, the table
-can be used to obtain the actual data from both tables.
+It is possible to run a geometric cross-match between the RA/Dec coordinates of two tables
+using the crossmatch function provided by the archive. In order to do so the user must be
+logged in. This is required because the cross match operation will generate a join table
+in the user private area. That table contains the identifiers of both tables and the separation,
+in degrees, between RA/Dec coordinates of each source in the first table and its associated
+source in the second table. Later, the table can be used to obtain the actual data from both tables.
 
 In order to perform a cross match, both tables must have defined RA and Dec columns
 (Ra/Dec column flags must be set: see previous section to know how to assign those flags).
@@ -766,7 +762,7 @@ Once you have your cross match finished, you can obtain the results:
 .. code-block:: python
 
   >>> xmatch_table = 'user_<your_login_name>.' + xmatch_table_name
-  >>> query = 'SELECT c."dist"*3600 as dist, a.*, b.* FROM gaiadr2.data_source AS a, '+\
+  >>> query = 'SELECT c."dist"*3600 as dist, a.*, b.* FROM gaiadr2.gaia_source AS a, '+\
   >>> full_qualified_table_name+' AS b, '+\
   >>> xmatch_table+' AS c '+\
   >>> 'WHERE (c.gaia_source_source_id = a.source_id AND c.my_sources_my_sources_oid = b.my_sources_oid)'
