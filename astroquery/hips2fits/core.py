@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*
 
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-
-#from ..utils import commons
-
 from ..query import BaseQuery
 
 from ..utils.class_or_instance import class_or_instance
@@ -32,6 +29,7 @@ from PIL import Image
 from astropy.utils.exceptions import AstropyUserWarning
 import warnings
 
+
 @async_to_sync
 class hips2fitsClass(BaseQuery):
     """
@@ -39,10 +37,10 @@ class hips2fitsClass(BaseQuery):
 
     The `CDS hips2fits service <http://alasky.u-strasbg.fr/hips-image-services/hips2fits>`_ offers a way
     to extract FITS images from HiPS sky maps. HiPS is an IVOA standard that combines individual images in
-    order to produce a progressive hierarchical sky map describing the whole survey. Please refer to the 
+    order to produce a progressive hierarchical sky map describing the whole survey. Please refer to the
     `IVOA paper <http://www.ivoa.net/documents/HiPS/20170519/REC-HIPS-1.0-20170519.pdf>`_ for more info.
 
-    Given an astropy user-defined WCS with an HiPS name 
+    Given an astropy user-defined WCS with an HiPS name
     (see the list of valid HiPS names hosted in CDS `here <http://aladin.unistra.fr/hips/list>`_),
     hips2fits will return you the corresponding FITS image (JPG/PNG output formats are also implemented).
 
@@ -75,7 +73,7 @@ class hips2fitsClass(BaseQuery):
             See the list of valid HiPS ids hosted by the CDS `here <http://aladin.unistra.fr/hips/list>`_.
         wcs : `~astropy.wcs.WCS`
             An astropy WCS defining the astrometry you wish.
-            Alternatively, you can pass lon, lat, fov, coordsys keywords (if so, please use the 
+            Alternatively, you can pass lon, lat, fov, coordsys keywords (if so, please use the
             :meth:`~astroquery.hips2fits.hips2fitsClass.query_with_user_defined_wcs` method).
         format : str, optional
             Format of the output image.
@@ -151,7 +149,6 @@ class hips2fitsClass(BaseQuery):
         result = self._parse_result(response, verbose=verbose, format=format)
         return result
 
-
     @class_or_instance
     def query_with_wcs_async(self, get_query_payload=False, **kwargs):
         request_payload = self._args_to_payload(**kwargs)
@@ -196,11 +193,11 @@ class hips2fitsClass(BaseQuery):
             Size (FoV) of the cutout on the sky.
             This is the size of the largest dimension of the image.
         ra : `~astropy.coordinates.Longitude`
-        	Right ascension of the center of the output image.
+            Right ascension of the center of the output image.
         dec : `~astropy.coordinates.Latitude`
             Declination of the center of the output image.
         coordsys : str, optional
-        	Coordinate frame system to be used for the projection
+            Coordinate frame system to be used for the projection
             Possible values are icrs or galactic.
             Default value is icrs.
         rotation_angle : `~astropy.coordinates.Angle`, optional
@@ -236,7 +233,7 @@ class hips2fitsClass(BaseQuery):
         response : `~astropy.io.fits.HDUList` or `~numpy.ndarray`
             Returns an astropy HDUList for fits output format or a 3-dimensional numpy array
             for jpg/png output formats.
-        
+
         Examples
         --------
         >>> from astroquery.hips2fits import hips2fits
@@ -271,11 +268,10 @@ class hips2fitsClass(BaseQuery):
         result = self._parse_result(response, verbose=verbose, format=format)
         return result
 
-
     @class_or_instance
     def query_without_wcs_async(self, get_query_payload=False, **kwargs):
         request_payload = self._args_to_payload(**kwargs)
-        
+
         # primarily for debug purposes, but also useful if you want to send
         # someone a URL linking directly to the data
         if get_query_payload:
@@ -319,11 +315,8 @@ class hips2fitsClass(BaseQuery):
                 # jpg/png formats
                 bytes = io.BytesIO(bytes_str)
                 im = Image.open(bytes)
-                try:
-                    data = np.asarray(im)
-                    return data
-                except:
-                    ValueError('The image data cannot be extracted from the image itself \n')
+                data = np.asarray(im)
+                return data
 
     def _args_to_payload(self, **kwargs):
         # Convert arguments to a valid requests payload
