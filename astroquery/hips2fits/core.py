@@ -48,7 +48,7 @@ class hips2fitsClass(BaseQuery):
 
     * :meth:`~astroquery.hips2fits.hips2fitsClass.query_with_wcs` extracting a FITS image from a HiPS and an astropy ``wcs.WCS``.
         See `here <http://aladin.unistra.fr/hips/list>`_ all the valid HiPS names hosted in CDS.
-    * :meth:`~astroquery.hips2fits.hips2fitsClass.query_without_wcs` extracting a FITS image from a HiPS given the output image pixel size, the center of projection, the type of projection and the field of view.
+    * :meth:`~astroquery.hips2fits.hips2fitsClass.query` extracting a FITS image from a HiPS given the output image pixel size, the center of projection, the type of projection and the field of view.
         See `here <http://aladin.unistra.fr/hips/list>`_ all the valid HiPS names hosted in CDS.
 
     """
@@ -169,7 +169,7 @@ class hips2fitsClass(BaseQuery):
 
         return response
 
-    def query_without_wcs(self, hips, width, height, projection, ra, dec, fov, coordsys="icrs", rotation_angle=Angle(0 * u.deg), format="fits", min_cut=0.5, max_cut=99.5, stretch="linear", cmap="Greys_r", get_query_payload=False, verbose=False):
+    def query(self, hips, width, height, projection, ra, dec, fov, coordsys="icrs", rotation_angle=Angle(0 * u.deg), format="fits", min_cut=0.5, max_cut=99.5, stretch="linear", cmap="Greys_r", get_query_payload=False, verbose=False):
         """
         Query the `CDS MOCServer <http://alasky.unistra.fr/MocServer/query>`_ with a region.
 
@@ -242,7 +242,7 @@ class hips2fitsClass(BaseQuery):
         >>> import astropy.units as u
         >>> from astropy.coordinates import Longitude, Latitude, Angle
         >>> hips = 'CDS/P/DSS2/red'
-        >>> result = hips2fits.query_without_wcs(
+        >>> result = hips2fits.query(
         ...    hips=hips,
         ...    width=1000,
         ...    height=500,
@@ -260,7 +260,7 @@ class hips2fitsClass(BaseQuery):
         >>> plt.show(im)
         """
 
-        response = self.query_without_wcs_async(get_query_payload, hips=hips, width=width, height=height, projection=projection, ra=ra, dec=dec, fov=fov, coordsys=coordsys, rotation_angle=rotation_angle, format=format, min_cut=min_cut, max_cut=max_cut, stretch=stretch, cmap=cmap)
+        response = self.query_async(get_query_payload, hips=hips, width=width, height=height, projection=projection, ra=ra, dec=dec, fov=fov, coordsys=coordsys, rotation_angle=rotation_angle, format=format, min_cut=min_cut, max_cut=max_cut, stretch=stretch, cmap=cmap)
 
         if get_query_payload:
             return response
@@ -269,7 +269,7 @@ class hips2fitsClass(BaseQuery):
         return result
 
     @class_or_instance
-    def query_without_wcs_async(self, get_query_payload=False, **kwargs):
+    def query_async(self, get_query_payload=False, **kwargs):
         request_payload = self._args_to_payload(**kwargs)
 
         # primarily for debug purposes, but also useful if you want to send
@@ -337,7 +337,7 @@ class hips2fitsClass(BaseQuery):
             else:
                 # The wcs does not contain the size of the image
                 raise AttributeError("""The WCS passed does not contain the size of the pixel image.
-                Please add it to the WCS or refer to the query_without_wcs method.""")
+                Please add it to the WCS or refer to the query method.""")
 
             # Add the WCS to the payload
             header_json = dict(header.items())

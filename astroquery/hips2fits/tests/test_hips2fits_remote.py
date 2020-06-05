@@ -61,7 +61,7 @@ class TestHips2fitsRemote(object):
         from astropy.coordinates import Angle
         import astropy.units as u
 
-        result = hips2fits.query_without_wcs(
+        result = hips2fits.query(
             hips=self.hips,
             width=1000,
             height=500,

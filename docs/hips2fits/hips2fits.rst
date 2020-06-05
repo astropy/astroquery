@@ -27,7 +27,7 @@ This package implements two methods:
 
 * :meth:`~astroquery.hips2fits.hips2fitsClass.query_with_wcs` extracting a FITS image from a HiPS and an astropy ``wcs.WCS``.
     See `here <http://aladin.unistra.fr/hips/list>`_ all the valid HiPS names hosted in CDS.
-* :meth:`~astroquery.hips2fits.hips2fitsClass.query_without_wcs` extracting a FITS image from a HiPS given the output image pixel size, the center of projection, the type of projection and the field of view.
+* :meth:`~astroquery.hips2fits.hips2fitsClass.query` extracting a FITS image from a HiPS given the output image pixel size, the center of projection, the type of projection and the field of view.
     See `here <http://aladin.unistra.fr/hips/list>`_ all the valid HiPS names hosted in CDS.
 
 
@@ -83,7 +83,7 @@ Without WCS
     >>> import astropy.units as u
     >>> from astropy.coordinates import Longitude, Latitude, Angle
     >>> hips = 'CDS/P/DSS2/red'
-    >>> result = hips2fits.query_without_wcs(
+    >>> result = hips2fits.query(
     ...    hips=hips,
     ...    width=1000,
     ...    height=500,

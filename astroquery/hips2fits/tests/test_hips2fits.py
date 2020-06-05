@@ -50,7 +50,7 @@ class TestHips2fitsRemote(object):
         assert result["format"] == 'jpg' and result["hips"] == "CDS/P/DSS2/red"
 
     def test_query_no_wcs_fits(self):
-        result = hips2fits.query_without_wcs(
+        result = hips2fits.query(
             hips=self.hips,
             get_query_payload=True,
             width=1000,
