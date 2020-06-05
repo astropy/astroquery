@@ -16,9 +16,12 @@ to extract FITS images from HiPS sky maps. HiPS is an IVOA standard that combine
 order to produce a progressive hierarchical sky map describing the whole survey. Please refer to the 
 `IVOA paper <http://www.ivoa.net/documents/HiPS/20170519/REC-HIPS-1.0-20170519.pdf>`_ for more info.
 
-Given an astropy user-defined WCS with an HiPS name 
-(see the list of valid HiPS names hosted in CDS `here <http://aladin.unistra.fr/hips/list>`_),
+Given an astropy user-defined WCS with a HiPS name,
 hips2fits will return you the corresponding FITS image (JPG/PNG output formats are also implemented).
+
+See the list of valid HiPS names hosted in CDS `here <http://aladin.unistra.fr/hips/list>`_. It is also
+possible to use :meth:`astroquery.cds.CdsClass.find_datasets` to retrieve the list of HiPSes matching an expression
+(e.g. \*HST\* will return the names of the HST surveys HiPSes).
 
 This package implements two methods:
 
