@@ -329,12 +329,15 @@ class hips2fitsClass(BaseQuery):
             wcs = kwargs.pop('wcs')
             header = wcs.to_header()
 
-            # The WCS header does not contain the NAXISx keywords
-            # We can get them from the WCS directly and add them
-            # to the header
-            nx, ny = wcs.pixel_shape
-            header['NAXIS1'] = nx
-            header['NAXIS2'] = ny
+            # hips2fits needs the size of the output image
+            if wcs.pixel_shape is not None:
+                nx, ny = wcs.pixel_shape
+                header['NAXIS1'] = nx
+                header['NAXIS2'] = ny
+            else:
+                # The wcs does not contain the size of the image
+                raise AttributeError("""The WCS passed does not contain the size of the pixel image.
+                Please add it to the WCS or refer to the query_without_wcs method.""")
 
             # Add the WCS to the payload
             header_json = dict(header.items())

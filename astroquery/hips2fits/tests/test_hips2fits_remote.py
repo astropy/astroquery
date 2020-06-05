@@ -137,3 +137,29 @@ class TestHips2fitsRemote(object):
                 get_query_payload=False,
                 format='sdfsg'
             )
+
+    def test_wcs_having_no_naxis(self):
+        w2 = astropy_wcs.WCS(header={
+            'WCSAXES': 2,           # Number of coordinate axes
+            'CRPIX1': 1000.0,       # Pixel coordinate of reference point
+            'CRPIX2': 500.0,        # Pixel coordinate of reference point
+            'CDELT1': -0.18,        # [deg] Coordinate increment at reference point
+            'CDELT2': 0.18,         # [deg] Coordinate increment at reference point
+            'CUNIT1': 'deg',        # Units of coordinate increment and value
+            'CUNIT2': 'deg',        # Units of coordinate increment and value
+            'CTYPE1': 'GLON-MOL',   # galactic longitude, Mollweide's projection
+            'CTYPE2': 'GLAT-MOL',   # galactic latitude, Mollweide's projection
+            'CRVAL1': 0.0,          # [deg] Coordinate value at reference point
+            'CRVAL2': 0.0,          # [deg] Coordinate value at reference point
+        })
+
+        with pytest.raises(AttributeError):
+            result = hips2fits.query_with_wcs(
+                hips=self.hips,
+                wcs=w2,
+                get_query_payload=False,
+                format='jpg',
+                min_cut=0.5,
+                max_cut=99.5,
+                cmap=Colormap('viridis'),
+            )
