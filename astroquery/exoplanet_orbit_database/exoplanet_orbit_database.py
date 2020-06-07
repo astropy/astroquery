@@ -79,8 +79,10 @@ class ExoplanetOrbitDatabaseClass(object):
             for col in exoplanets_table.colnames:
                 if col in self.param_units:
                     # Check that unit is implemented in this version of astropy
-                    if hasattr(u, self.param_units[col]):
+                    try:
                         exoplanets_table[col].unit = u.Unit(self.param_units[col])
+                    except ValueError:
+                        print(f"WARNING: Unit {self.param_units[col]} not recognised")
 
             self._table = QTable(exoplanets_table)
 
