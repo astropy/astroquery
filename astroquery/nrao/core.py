@@ -396,11 +396,12 @@ class NraoClass(QueryWithLogin):
                                 freq_up=freq_up,
                                 telescope_config=telescope_config,
                                 obs_band=obs_band,
-                                sub_array=sub_array,
                                 querytype=querytype,
+                                sub_array=sub_array,
+                                project_code=project_code,
                                 protocol=protocol,
-                                get_query_payload=get_query_payload,
                                 retry=retry,
+                                get_query_payload=get_query_payload,
                                 cache=cache)
 
     def _parse_result(self, response, verbose=False):
