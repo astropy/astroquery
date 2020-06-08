@@ -60,10 +60,7 @@ class hips2fitsClass(BaseQuery):
 
     def query_with_wcs(self, hips, wcs, format="fits", min_cut=0.5, max_cut=99.5, stretch="linear", cmap="Greys_r", get_query_payload=False, verbose=False):
         """
-        Query the `CDS MOCServer <http://alasky.unistra.fr/MocServer/query>`_ with a region.
-
-        Can be a `regions.CircleSkyRegion`, `regions.PolygonSkyRegion` or `mocpy.MOC` object. Returns the data-sets
-        having at least one source in the region.
+        Query the `CDS hips2fits service <http://alasky.u-strasbg.fr/hips-image-services/hips2fits>`_ with a astropy WCS.
 
         Parameters
         ----------
@@ -171,10 +168,14 @@ class hips2fitsClass(BaseQuery):
 
     def query(self, hips, width, height, projection, ra, dec, fov, coordsys="icrs", rotation_angle=Angle(0 * u.deg), format="fits", min_cut=0.5, max_cut=99.5, stretch="linear", cmap="Greys_r", get_query_payload=False, verbose=False):
         """
-        Query the `CDS MOCServer <http://alasky.unistra.fr/MocServer/query>`_ with a region.
+        Query the `CDS hips2fits service <http://alasky.u-strasbg.fr/hips-image-services/hips2fits>`_.
 
-        Can be a `regions.CircleSkyRegion`, `regions.PolygonSkyRegion` or `mocpy.MOC` object. Returns the data-sets
-        having at least one source in the region.
+        If you have not any WCS, you can call this method by passing:
+        * The width/height size of the output pixel image
+        * The center of projection in world coordinates (ra, dec)
+        * The fov angle in world coordinates
+        * The rotation angle of the projection
+        * The name of the projection. All `astropy projections <https://docs.astropy.org/en/stable/wcs/#supported-projections>`_ are supported: 
 
         Parameters
         ----------
