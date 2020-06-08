@@ -175,7 +175,7 @@ class hips2fitsClass(BaseQuery):
         * The center of projection in world coordinates (ra, dec)
         * The fov angle in world coordinates
         * The rotation angle of the projection
-        * The name of the projection. All `astropy projections <https://docs.astropy.org/en/stable/wcs/#supported-projections>`_ are supported: 
+        * The name of the projection. All `astropy projections <https://docs.astropy.org/en/stable/wcs/#supported-projections>`_ are supported:
 
         Parameters
         ----------
