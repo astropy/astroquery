@@ -87,8 +87,8 @@ class ESAHubbleClass(BaseQuery):
         if verbose:
             log.info(self.data_url + "?OBSERVATION_ID=" + observation_id +
                      "&CALIBRATION_LEVEL=" + calibration_level)
+            log.info(self.copying_string.format(filename))
 
-        log.info(self.copying_string.format(filename))
         shutil.move(response, filename)
 
     def get_artifact(self, artifact_id, filename=None, verbose=False):
@@ -115,12 +115,13 @@ class ESAHubbleClass(BaseQuery):
         params = {"ARTIFACT_ID": artifact_id}
         response = self._request('GET', self.data_url, save=True, cache=True,
                                  params=params)
-        if verbose:
-            log.info(self.data_url + "?ARTIFACT_ID=" + artifact_id)
         if filename is None:
             filename = artifact_id
 
-        log.info(self.copying_string.format(filename))
+        if verbose:
+            log.info(self.data_url + "?ARTIFACT_ID=" + artifact_id)
+            log.info(self.copying_string.format(filename))
+
         shutil.move(response, filename)
 
     def get_postcard(self, observation_id, calibration_level="RAW",
@@ -162,16 +163,17 @@ class ESAHubbleClass(BaseQuery):
         response = self._request('GET', self.data_url, save=True, cache=True,
                                  params=params)
 
+        if filename is None:
+            filename = observation_id
+
         if verbose:
             log.info(self.data_url +
                      "&".join(["?RETRIEVAL_TYPE=POSTCARD",
                                "OBSERVATION_ID=" + observation_id,
                                "CALIBRATION_LEVEL=" + calibration_level,
                                "RESOLUTION=" + str(resolution)]))
-        if filename is None:
-            filename = observation_id
+            log.info(self.copying_string.format(filename))
 
-        log.info(self.copying_string.format(filename))
         shutil.move(response, filename)
 
     def cone_search(self, coordinates, radius=0.0, filename=None,
@@ -207,7 +209,9 @@ class ESAHubbleClass(BaseQuery):
                    "RETURN_TYPE": str(output_format)}
         response = self._request('GET',
                                  self.metadata_url,
-                                 params=payload)
+                                 params=payload,
+                                 cache=cache,
+                                 timeout=self.TIMEOUT)
 
         if filename is None:
             filename = "cone." + str(output_format)
@@ -324,15 +328,15 @@ class ESAHubbleClass(BaseQuery):
             High level description of the product.
             image, spectrum or timeseries.
         intent : str, optional
-            The intent of the original obsever in acquiring this observation.
+            The intent of the original observer in acquiring this observation.
             SCIENCE or CALIBRATION
-        collection : str, optional
+        collection : list of str, optional
             List of collections that are available in eHST catalogue.
             HLA, HST
-        instrument_name : str, optional
-            Name/s of the instrument/s used to generate the dataset
-        filters : str, optional
-            Name/s of the filter/s used to generate the dataset
+        instrument_name : list of str, optional
+            Name(s) of the instrument(s) used to generate the dataset
+        filters : list of str, optional
+            Name(s) of the filter(s) used to generate the dataset
         async_job : bool, optional, default 'True'
             executes the query (job) in asynchronous/synchronous mode (default
             synchronous)

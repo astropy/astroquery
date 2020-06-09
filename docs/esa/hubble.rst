@@ -171,15 +171,15 @@ PARAMETERS
  + SCIENCE 
  + CALIBRATION
 
-- **collection** (*str, optional*): List of collections that are available in eHST catalogue.
+- **collection** (*list of strings, optional*): List of collections that are available in eHST catalogue.
 
  + HLA
  + HST
  
  Do not forget that this is a list of elements, so it must be defined as ['HST'], ['HST', 'HLA']...
  
-- **instrument_name** (*str, optional*): Name/s of the instrument/s used to generate the dataset. This is also a list of elements.
-- **filters** (*str, optional*): Name/s of the filter/s used to generate the dataset. This is also a list of elements.
+- **instrument_name** (*list of strings, optional*): Name(s) of the instrument(s) used to generate the dataset. This is also a list of elements.
+- **filters** (*list of strings, optional*): Name(s) of the filter(s) used to generate the dataset. This is also a list of elements.
 - **async_job** (*bool, optional, default 'True'*): executes the query (job) in asynchronous/synchronous mode (default synchronous)
 - **output_file** (*str, optional, default None*) file name where the results are saved if dumpToFile is True. If this parameter is not provided, the jobid is used instead
 - **output_format** (*str, optional, default 'votable'*) results format
@@ -238,7 +238,7 @@ The following example uses the string definition of the calibration level ('PROD
   Table length=12965
   ...
 
-As it has been mentioned, these parameters are optional and it is not necessary to define all of them to execute this function, as the search will be adapted to the ones that are available.
+As has been mentioned, these parameters are optional and it is not necessary to define all of them to execute this function, as the search will be adapted to the ones that are available.
 
 .. code-block:: python
 
@@ -255,7 +255,7 @@ As it has been mentioned, these parameters are optional and it is not necessary 
                                             async_job = False, 
                                             output_file = 'output5.vot.gz')
  
-If none of them are defined, this function will retrieve all the observations.
+If no criteria are specified to limit the selection, this function will retrieve all the observations.
 
 .. code-block:: python
 
