@@ -35,19 +35,27 @@ class Conf(_config.ConfigNamespace):
                                              "Name of Dec parameter in table")
 
     JWST_ARTIFACT_TABLE = _config.ConfigItem("jwst.artifact",
-                                         "JWST artifacts (data files) table.")
+                                             "JWST artifacts "
+                                             "(data files) table.")
 
     JWST_OBSERVATION_TABLE = _config.ConfigItem("jwst.observation",
-                                         "JWST observation table")
+                                                "JWST observation table")
 
     JWST_PLANE_TABLE = _config.ConfigItem("jwst.plane",
-                                         "JWST plane table")
+                                          "JWST plane table")
 
-    JWST_OBSERVATION_TABLE_RA = _config.ConfigItem("targetposition_coordinates_cval1",
-                                            "Name of RA parameter in table")
+    JWST_OBS_MEMBER_TABLE = _config.ConfigItem("jwst.observationmember",
+                                               "JWST observation member table")
 
-    JWST_OBSERVATION_TABLE_DEC = _config.ConfigItem("targetposition_coordinates_cval2",
-                                             "Name of Dec parameter in table")
+    JWST_OBSERVATION_TABLE_RA = _config.ConfigItem("targetposition_"
+                                                   "coordinates_cval1",
+                                                   "Name of RA parameter "
+                                                   "in table")
+
+    JWST_OBSERVATION_TABLE_DEC = _config.ConfigItem("targetposition_"
+                                                    "coordinates_cval2",
+                                                    "Name of Dec parameter "
+                                                    "in table")
 
 
 conf = Conf()

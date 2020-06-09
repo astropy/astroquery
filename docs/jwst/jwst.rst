@@ -145,7 +145,7 @@ Examples
   0.8042331552744052 00000000-0000-0000-babe-5c1ec63d3301 ... PRIME        S
 
 1.3. Query by target name
-~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To provide the target coordinates based on its name and execute the query region method.
 It uses three different catalogs to resolve the coordinates: SIMBAD, NED and VIZIER. An additional target
@@ -161,7 +161,7 @@ element in the list if the target name cannot be resolved).
   >>> target_name = 'M1'
   >>> target_resolver = 'ALL'
   >>> radius = u.Quantity(5, u.deg)
-  >>> r = Jwst.query_by_target_name(target_name = target_name, target_resolver = target_resolver, radius = radius)
+  >>> r = Jwst.query_target_name(target_name = target_name, target_resolver = target_resolver, radius = radius)
   >>> r.pprint()
 
          dist                   observationid         ...
@@ -193,7 +193,7 @@ This method uses the same parameters as query region, but also includes the targ
   >>> target_resolver = 'NED'
   >>> width = u.Quantity(5, u.deg)
   >>> height = u.Quantity(5, u.deg)
-  >>> r = Jwst.query_by_target_name(target_name = target_name, target_resolver = target_resolver, width = width, height = height)
+  >>> r = Jwst.query_target_name(target_name = target_name, target_resolver = target_resolver, width = width, height = height)
   >>> r.pprint()
 
          dist                        observationid              ...

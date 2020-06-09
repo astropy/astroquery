@@ -902,18 +902,18 @@ class TestTap(unittest.TestCase):
             if f not in files_returned:
                 raise ValueError("Not found expected file: %s" % f)
 
-    def test_query_by_target_name(self):
+    def test_query_target_name(self):
         jwst = JwstClass()
         # Testing default parameters
         with pytest.raises(ValueError) as err:
-            jwst.query_by_target_name("M1", "")
+            jwst.query_target_name("M1", "")
         assert "This target resolver is not allowed" in err.value.args[0]
         with pytest.raises(ValueError) as err:
-            jwst.query_by_target_name("TEST")
+            jwst.query_target_name("TEST")
         assert "This target name cannot be determined with this resolver:"\
             " ALL" in err.value.args[0]
         with pytest.raises(ValueError) as err:
-            jwst.query_by_target_name("M1", "ALL")
+            jwst.query_target_name("M1", "ALL")
         assert "Missing required argument: 'width'" in err.value.args[0]
 
         # Testing no valid coordinates from resolvers
@@ -932,17 +932,17 @@ class TestTap(unittest.TestCase):
         coordinate_error = 'coordinate must be either a string or '\
                            'astropy.coordinates'
         with pytest.raises(ValueError) as err:
-            jwst.query_by_target_name("M1", "SIMBAD",
+            jwst.query_target_name("M1", "SIMBAD",
                                       units.Quantity(5, units.deg))
         assert coordinate_error in err.value.args[0]
 
         with pytest.raises(ValueError) as err:
-            jwst.query_by_target_name("M1", "NED",
+            jwst.query_target_name("M1", "NED",
                                       units.Quantity(5, units.deg))
         assert coordinate_error in err.value.args[0]
 
         with pytest.raises(ValueError) as err:
-            jwst.query_by_target_name("M1", "VIZIER",
+            jwst.query_target_name("M1", "VIZIER",
                                       units.Quantity(5, units.deg))
         assert coordinate_error in err.value.args[0]
 
@@ -972,19 +972,19 @@ class TestTap(unittest.TestCase):
         with open(data_path('test_query_by_target_name_simbad_query.txt'),
                   'r') as file:
             parameters['query'] = file.read()
-            jwst.query_by_target_name("M1", "SIMBAD",
+            jwst.query_target_name("M1", "SIMBAD",
                                       units.Quantity(5, units.deg))
             dummyTapHandler.check_call('launch_job', parameters)
         with open(data_path('test_query_by_target_name_ned_query.txt'),
                   'r') as file:
             parameters['query'] = file.read()
-            jwst.query_by_target_name("M1", "NED",
+            jwst.query_target_name("M1", "NED",
                                       units.Quantity(5, units.deg))
             dummyTapHandler.check_call('launch_job', parameters)
         with open(data_path('test_query_by_target_name_vizier_query.txt'),
                   'r') as file:
             parameters['query'] = file.read()
-            jwst.query_by_target_name("M1", "VIZIER",
+            jwst.query_target_name("M1", "VIZIER",
                                       units.Quantity(5, units.deg))
             dummyTapHandler.check_call('launch_job', parameters)
 
