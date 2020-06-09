@@ -320,6 +320,7 @@ votable). The result of the query will be stored in the file
 'test.vot.gz'. The result of this query can be viewed by doing
 result.get_results() or printing it by doing print(result).
 
+=============
 Reference/API
 =============
 
