@@ -86,10 +86,10 @@ class NasaExoplanetArchiveClass(BaseQuery):
     @class_or_instance
     def query_criteria_async(self, table, get_query_payload=False, cache=None, **criteria):
         """
-        Search a table given a set of critera or return the full table
+        Search a table given a set of criteria or return the full table
 
         The syntax for these queries is described on the Exoplanet Archive API documentation page
-        [1]_. In particular, the most commonly used critera will be ``select`` and ``where``.
+        [1]_. In particular, the most commonly used criteria will be ``select`` and ``where``.
 
         Parameters
         ----------
@@ -103,7 +103,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
             but since the data in the archive is updated regularly, this defaults to ``False``.
         **criteria
             The filtering criteria to apply. These are described in detail in the archive
-            doumentation [1]_, but some examples include ``select="*"`` to return all columns of
+            documentation [1]_, but some examples include ``select="*"`` to return all columns of
             the queried table or ``where=pl_name='K2-18 b'`` to filter a specific column.
 
         Returns
@@ -173,7 +173,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
             but since the data in the archive is updated regularly, this defaults to ``False``.
         **criteria
             Any other filtering criteria to apply. These are described in detail in the archive
-            doumentation [1]_, but some examples include ``select="*"`` to return all columns of
+            documentation [1]_, but some examples include ``select="*"`` to return all columns of
             the queried table or ``where=pl_name='K2-18 b'`` to filter a specific column.
 
         Returns
@@ -301,7 +301,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
             aliases = self.query_aliases(object_name, cache=False)
         except RemoteServiceError:
             aliases = []
-        if len(aliases):
+        if aliases:
             return aliases[0]
         warnings.warn("No aliases found for name: '{0}'".format(object_name), NoResultsWarning)
         return object_name
@@ -335,14 +335,14 @@ class NasaExoplanetArchiveClass(BaseQuery):
         error_type = None
         error_message = None
         for line in text.replace("<br>", "").splitlines():
-            matches = re.findall(r"Error Type:\s(.+)$", line)
-            if len(matches):
-                error_type = matches[0].strip()
+            match = re.search(r"Error Type:\s(.+)$", line)
+            if match:
+                error_type = match.group(1).strip()
                 continue
 
-            matches = re.findall(r"Message:\s(.+)$", line)
-            if len(matches):
-                error_message = matches[0].strip()
+            match = re.search(r"Message:\s(.+)$", line)
+            if match:
+                error_message = match.group(1).strip()
                 continue
 
         # If we hit this condition, that means that we weren't able to parse the error so we'll
@@ -354,22 +354,22 @@ class NasaExoplanetArchiveClass(BaseQuery):
         #   Error type: SystemError
         #   Message: ... "NAME_OF_COLUMN": invalid identifier ...
         if error_type.startswith("SystemError"):
-            matches = re.findall(r'"(.*)": invalid identifier', error_message)
-            if len(matches):
+            match = re.search(r'"(.*)": invalid identifier', error_message)
+            if match:
                 raise InvalidQueryError(
                     (
                         "'{0}' is an invalid identifier. This error can be caused by invalid "
                         "column names, missing quotes, or other syntax errors"
-                    ).format(matches[0].lower())
+                    ).format(match.group(1).lower())
                 )
 
         elif error_type.startswith("UserError"):
             # Another important one is when the table is not recognized. This has the format:
             #   Error type: UserError - "table" parameter
             #   Message: ... "NAME_OF_TABLE" is not a valid table.
-            matches = re.findall(r'"(.*)" is not a valid table', error_message)
-            if len(matches):
-                raise InvalidTableError("'{0}' is not a valid table".format(matches[0].lower()))
+            match = re.search(r'"(.*)" is not a valid table', error_message)
+            if match:
+                raise InvalidTableError("'{0}' is not a valid table".format(match.group(1).lower()))
 
             raise InvalidQueryError("{0}\n{1}".format(error_type, error_message))
 
