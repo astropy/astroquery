@@ -69,6 +69,7 @@ class TestESAHubble():
         ehst.query_target(name=parameters['name'],
                           verbose=parameters['verbose'])
 
+    @pytest.mark.remote_data
     def test_cone_search(self):
         c = coordinates.SkyCoord("00h42m44.51s +41d16m08.45s", frame='icrs')
 
