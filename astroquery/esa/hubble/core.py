@@ -260,10 +260,10 @@ class ESAHubbleClass(BaseQuery):
             log.info(self.metadata_url + "?RESOURCE_CLASS=OBSERVATION&"
                      "SELECTED_FIELDS=OBSERVATION&QUERY=(TARGET.TARGET_NAME"
                      "=='" + name + "')&RETURN_TYPE=" + str(output_format))
+            log.info(self.copying_string.format(filename))
         if filename is None:
             filename = "target.xml"
 
-        log.info(self.copying_string.format(filename))
         shutil.move(response, filename)
 
         return modelutils.read_results_table_from_file(filename,
@@ -485,29 +485,6 @@ class ESAHubbleClass(BaseQuery):
             return column_names
         else:
             return columns
-
-    def _checkQuantityInput(self, value, msg):
-        if not (isinstance(value, str) or isinstance(value, units.Quantity)):
-            raise ValueError(str(msg) + ""
-                             " must be either a string or astropy.coordinates")
-
-    def _getQuantityInput(self, value, msg):
-        if value is None:
-            raise ValueError("Missing required argument: '"+str(msg)+"'")
-        if not (isinstance(value, str) or isinstance(value, units.Quantity)):
-            raise ValueError(str(msg) + ""
-                             " must be either a string or astropy.coordinates")
-        if isinstance(value, str):
-            q = Quantity(value)
-            return q
-        else:
-            return value
-
-    def _checkCoordInput(self, value, msg):
-        if not (isinstance(value, str) or isinstance(value,
-                                                     commons.CoordClasses)):
-            raise ValueError(str(msg) + ""
-                             " must be either a string or astropy.coordinates")
 
     def _getCoordInput(self, value, msg):
         if not (isinstance(value, str) or isinstance(value,
