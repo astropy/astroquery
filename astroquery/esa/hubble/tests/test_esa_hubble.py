@@ -13,7 +13,6 @@ Created on 13 Aug. 2018
 """
 import pytest
 import os
-import mock
 
 from requests.models import Response
 from astroquery.esa.hubble import ESAHubbleClass
