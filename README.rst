@@ -108,6 +108,8 @@ The following modules have been completed using a common API:
   * `ESASky <http://astroquery.readthedocs.io/en/latest/esasky/esasky.html>`_: ESASky is a science driven discovery portal providing easy visualizations and full access to the entire sky as observed with ESA Space astronomy missions.
   * `ESO Archive <http://astroquery.readthedocs.io/en/latest/eso/eso.html>`_
   * `Gaia <http://astroquery.readthedocs.io/en/latest/gaia/gaia.html>`_: European Space Agency Gaia Archive.
+  * `ESA XMM <https://astroquery.readthedocs.io/en/latest/esa/xmm_newton.html>`_: European Space Agency XMM-Newton Science Archive.
+  * `ESA Hubble <https://astroquery.readthedocs.io/en/latest/esa/hubble.html>`_: European Space Agency Hubble Science Archive.
   * `GAMA database <http://astroquery.readthedocs.io/en/latest/gama/gama.html>`_
   * `Gemini <http://astroquery.readthedocs.io/en/latest/gemini/gemini.html>`_: Gemini Archive.
   * `HEASARC <http://astroquery.readthedocs.io/en/latest/heasarc/heasarc.html>`_: NASA's High Energy Astrophysics Science Archive Research Center.
