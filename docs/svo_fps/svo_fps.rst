@@ -15,7 +15,7 @@ It allows to fetch filter data (index, transmission data, filter list, etc.)
 from the service, as astropy tables.
 
 Get index (master list) of all Filters
----------------------------------------
+--------------------------------------
 
 The filter index (all available filters with their properties) can be listed as:
 
@@ -117,7 +117,7 @@ This is the data that you will require to plot the transmission curve for filter
 
 
 Get list of Filters under a specified Facilty and Instrument
--------------------------------------------------------------
+------------------------------------------------------------
 
 This can be used to get all Filters for an arbitrary combination of Facility &
 Instrument (Instrument is optional to specify).
