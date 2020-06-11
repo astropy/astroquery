@@ -1,5 +1,6 @@
 import pytest
-
+ from astropy import units as u
+ 
 from ...utils.testing_tools import MockResponse
 from ..core import SvoFps
 
@@ -45,7 +46,7 @@ def get_mockreturn(method, url, params=None, timeout=10, **kwargs):
 
 
 def test_get_filter_index():
-    table = SvoFps.get_filter_index(TEST_LAMBDA, TEST_LAMBDA+100)
+    table = SvoFps.get_filter_index(TEST_LAMBDA*u.angstrom, (TEST_LAMBDA+100)*u.angstrom)
     # Check if column for Filter ID (named 'filterID') exists in table
     assert 'filterID' in table.colnames
 

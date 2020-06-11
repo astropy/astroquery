@@ -45,26 +45,24 @@ class SvoFpsClass(BaseQuery):
             # If no table element found in VOTable
             raise ValueError(error_msg)
 
-    def get_filter_index(self, wavelength_eff_min=0, wavelength_eff_max=FLOAT_MAX):
+    def get_filter_index(self, wavelength_eff_min=0*u.angstrom, wavelength_eff_max=FLOAT_MAX*u.angstrom):
         """Get master list (index) of all filters at SVO
         Optional parameters can be given to get filters data for specified
         Wavelength Effective range from SVO
 
         Parameters
         ----------
-        wavelength_eff_min : float, optional
-            Minimum value of Wavelength Effective (default is 0)
-        wavelength_eff_max : float, optional
+        wavelength_eff_min : `~astropy.units.Quantity` having units of angstrom, optional
+            Minimum value of Wavelength Effective (default is 0 angstrom)
+        wavelength_eff_max : `~astropy.units.Quantity` having units of angstrom, optional
             Maximum value of Wavelength Effective (default is a very large
-            number FLOAT_MAX - maximum value of np.float64)
+            quantity FLOAT_MAX angstroms i.e. maximum value of np.float64)
 
         Returns
         -------
         astropy.table.table.Table object
             Table containing data fetched from SVO (in response to query)
         """
-        wavelength_eff_min = u.Quantity(wavelength_eff_min, u.angstrom)
-        wavelength_eff_max = u.Quantity(wavelength_eff_max, u.angstrom)
         query = {'WavelengthEff_min': wavelength_eff_min.value,
                  'WavelengthEff_max': wavelength_eff_max.value}
         error_msg = 'No filter found for requested Wavelength Effective range'
