@@ -114,7 +114,7 @@ for root, dirs, files in os.walk(PACKAGENAME):
                     os.path.relpath(root, PACKAGENAME), filename))
 package_info['package_data'][PACKAGENAME].extend(c_files)
 
-required_packages = ['astropy>=2.0', 'requests>=2.4.3', 'keyring>=4.0',
+required_packages = ['astropy>=3.1', 'requests>=2.4.3', 'keyring>=4.0',
                      'beautifulsoup4>=4.3.2', 'html5lib>=0.999', 'six']
 
 extras_require = {
