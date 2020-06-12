@@ -16,6 +16,7 @@ import six
 import astropy.units as u
 from astropy import coordinates as coord
 from collections import OrderedDict
+from astropy.utils import minversion
 import astropy.utils.data as aud
 from astropy.io import fits, votable
 
@@ -49,7 +50,10 @@ __all__ = ['send_request',
            'parse_coordinates',
            'TableList',
            'suppress_vo_warnings',
-           'validate_email']
+           'validate_email',
+           'ASTROPY_LT_4_1']
+
+ASTROPY_LT_4_1 = not minversion('astropy', '4.1')
 
 
 def send_request(url, data, timeout, request_type='POST', headers={},
@@ -405,7 +409,7 @@ class FileContainer(object):
         if link_cache == 'hard':
             try:
                 os.link(target, savepath)
-            except (IOError, OSError, AttributeError) as e:
+            except (IOError, OSError, AttributeError):
                 shutil.copy(target, savepath)
         elif link_cache == 'sym':
             try:

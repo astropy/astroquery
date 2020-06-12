@@ -461,10 +461,9 @@ class CadcClass(BaseQuery):
                 '{}?{}'.format(self.data_link_url,
                                urlencode({'ID': pid_sublist}, True)))
             for service_def in datalink.bysemantics('#cutout'):
-                if isinstance(service_def.access_url, str):
-                    access_url = service_def.access_url
-                else:
-                    access_url = service_def.access_url.decode('ascii')
+                access_url = service_def.access_url
+                if isinstance(access_url, bytes):  # ASTROPY_LT_4_1
+                    access_url = access_url.decode('ascii')
                 if '/sync' in access_url:
                     service_params = service_def.input_params
                     input_params = {param.name: param.value

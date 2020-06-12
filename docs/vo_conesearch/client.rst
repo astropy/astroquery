@@ -157,7 +157,7 @@ Extract a catalog titled ``'USNO-A2 Catalogue 1'`` from the registry:
 
 >>> usno_a2 = registry_db.get_catalog('USNO-A2 Catalogue 1')  # doctest: +REMOTE_DATA
 >>> print(usno_a2)  # doctest: +REMOTE_DATA
-title: b'USNO-A2 Catalogue'
+title: 'USNO-A2 Catalogue'
 url: http://www.nofs.navy.mil/cgi-bin/vo_cone.cgi?CAT=USNO-A2&
 
 Extract a catalog by known access URL from the registry (the iterator version
@@ -168,7 +168,7 @@ which is useful in the case of multiple entries with same access URL):
 >>> gsc_url = 'http://vizier.u-strasbg.fr/viz-bin/conesearch/I/305/out?'
 >>> gsc = registry_db.get_catalog_by_url(gsc_url)  # doctest: +REMOTE_DATA
 >>> print(gsc)  # doctest: +REMOTE_DATA
-title: b'The Guide Star Catalog, Version 2.3.2 (GSC2.3) (STScI, 2006)'
+title: 'The Guide Star Catalog, Version 2.3.2 (GSC2.3) (STScI, 2006)'
 url: http://vizier.u-strasbg.fr/viz-bin/conesearch/I/305/out?
 
 Add all ``'usno*a2'`` catalogs from registry to your database:

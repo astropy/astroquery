@@ -597,10 +597,10 @@ class VOSDatabase(VOSBase):
                     cur_title = arr['res_title']
                     title_counter[cur_title] += 1  # Starts with 1
 
-                    if isinstance(cur_title, bytes):  # pragma: py3
+                    if isinstance(cur_title, bytes):  # ASTROPY_LT_4_1
                         cur_key = title_fmt.format(cur_title.decode('utf-8'),
                                                    title_counter[cur_title])
-                    else:  # pragma: py2
+                    else:
                         cur_key = title_fmt.format(cur_title,
                                                    title_counter[cur_title])
 
@@ -608,7 +608,7 @@ class VOSDatabase(VOSBase):
                 # otherwise no change.
                 if field == 'access_url':
                     s = unescape_all(arr['access_url'])
-                    if isinstance(s, bytes):
+                    if isinstance(s, bytes):  # ASTROPY_LT_4_1
                         s = s.decode('utf-8')
                     cur_cat['url'] = s
                 elif field == 'res_title':
@@ -697,8 +697,8 @@ def _get_catalogs(service_type, catalog_db, **kwargs):
         catalogs = [(None, catalog_db)]
     elif isinstance(catalog_db, list):
         for x in catalog_db:
-            assert (isinstance(x, (VOSCatalog, str)) and
-                    not isinstance(x, VOSDatabase))
+            assert (isinstance(x, (VOSCatalog, str))
+                    and not isinstance(x, VOSDatabase))
         catalogs = [(None, x) for x in catalog_db]
     else:  # pragma: no cover
         raise VOSError('catalog_db must be a catalog database, '
@@ -780,8 +780,8 @@ def vo_tab_parse(tab, url, kwargs):
         vo_raise(E19)
 
     for info in tab.resources[0].infos:
-        if ((info.name == 'QUERY_STATUS' and info.value != 'OK') or
-                (info.name is not None and info.name.lower() == 'error')):
+        if ((info.name == 'QUERY_STATUS' and info.value != 'OK')
+                or (info.name is not None and info.name.lower() == 'error')):
             if info.content is not None:  # pragma: no cover
                 long_descr = ':\n{0}'.format(info.content)
             else:

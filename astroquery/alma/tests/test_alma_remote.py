@@ -9,6 +9,7 @@ from astropy import coordinates
 from astropy import units as u
 from six.moves.urllib_parse import urlparse
 
+from astroquery.utils.commons import ASTROPY_LT_4_1
 from .. import Alma
 from .. import _url_list, _test_url_list
 
@@ -58,15 +59,24 @@ class TestAlma:
         alma.cache_location = temp_dir
 
         result_s = alma.query_object('Sgr A*')
-        # cycle 1 data are missing from the archive assert b'2011.0.00887.S' in result_s['Project code']
-        assert b'2013.1.00857.S' in result_s['Project code']
+
         c = coordinates.SkyCoord(266.41681662 * u.deg, -29.00782497 * u.deg,
                                  frame='fk5')
         result_c = alma.query_region(c, 1 * u.deg)
-        assert b'2013.1.00857.S' in result_c['Project code']
-        # "The Brick", g0.253, is in this one
-        # assert b'2011.0.00217.S' in result_c['Project code'] # missing cycle 1 data
-        assert b'2012.1.00932.S' in result_c['Project code']
+
+        if ASTROPY_LT_4_1:
+            # cycle 1 data are missing from the archive
+            # assert b'2011.0.00887.S' in result_s['Project code']
+            # "The Brick", g0.253, is in this one
+            # assert b'2011.0.00217.S' in result_c['Project code']
+
+            assert b'2013.1.00857.S' in result_s['Project code']
+            assert b'2013.1.00857.S' in result_c['Project code']
+            assert b'2012.1.00932.S' in result_c['Project code']
+        else:
+            assert '2013.1.00857.S' in result_s['Project code']
+            assert '2013.1.00857.S' in result_c['Project code']
+            assert '2012.1.00932.S' in result_c['Project code']
 
     @pytest.mark.skipif("SKIP_SLOW")
     def test_m83(self, temp_dir, recwarn):
@@ -220,7 +230,7 @@ class TestAlma:
 def test_project_metadata():
     alma = Alma()
     metadata = alma.get_project_metadata('2013.1.00269.S')
-    assert metadata == ['Sgr B2, a high-mass molecular cloud in our Galaxy\'s Central Molecular Zone, is the most extreme site of ongoing star formation in the Local Group in terms of its gas content, temperature, and velocity dispersion. If any cloud in our galaxy is analogous to the typical cloud at the universal peak of star formation at z~2, this is it. We propose a 6\'x6\' mosaic in the 3mm window targeting gas thermometer lines, specifically CH3CN and its isotopologues. We will measure the velocity dispersion and temperature of the molecular gas on all scales (0.02 - 12 pc, 0.5" - 5\') within the cloud, which will yield resolved measurements of the Mach number and the sonic scale of the gas. We will assess the relative importance of stellar feedback and turbulence on the star-forming gas, determining how extensive the feedback effects are within an ultradense environment. The observations will provide constraints on the inputs to star formation theories and will determine their applicability in extremely dense, turbulent, and hot regions. Sgr B2 will be used as a testing ground for star formation theories in an environment analogous to high-z starburst clouds in which they must be applied.']
+    assert metadata == ['Sgr B2, a high-mass molecular cloud in our Galaxy\'s Central Molecular Zone, is the most extreme site of ongoing star formation in the Local Group in terms of its gas content, temperature, and velocity dispersion. If any cloud in our galaxy is analogous to the typical cloud at the universal peak of star formation at z~2, this is it. We propose a 6\'x6\' mosaic in the 3mm window targeting gas thermometer lines, specifically CH3CN and its isotopologues. We will measure the velocity dispersion and temperature of the molecular gas on all scales (0.02 - 12 pc, 0.5" - 5\') within the cloud, which will yield resolved measurements of the Mach number and the sonic scale of the gas. We will assess the relative importance of stellar feedback and turbulence on the star-forming gas, determining how extensive the feedback effects are within an ultradense environment. The observations will provide constraints on the inputs to star formation theories and will determine their applicability in extremely dense, turbulent, and hot regions. Sgr B2 will be used as a testing ground for star formation theories in an environment analogous to high-z starburst clouds in which they must be applied.']  # noqa
 
 
 @pytest.mark.remote_data
