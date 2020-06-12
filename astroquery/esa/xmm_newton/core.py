@@ -15,6 +15,8 @@ import re
 from ...utils.tap.core import TapPlus
 from ...query import BaseQuery
 import shutil
+import cgi
+from pathlib import Path
 
 from . import conf
 from astropy import log
@@ -101,13 +103,21 @@ class XMMNewtonClass(BaseQuery):
         if verbose:
             log.info(link)
 
-        response = self._request('GET', link, save=True, cache=True)
+        response = self._request('GET', link, save=False, cache=True)
+
+        # Get original extension
+        _, params = cgi.parse_header(response.headers['Content-Disposition'])
+        r_filename = params["filename"]
+        suffixes = Path(r_filename).suffixes
 
         if filename is None:
-            filename = observation_id + ".tar"
+            filename = observation_id
+
+        filename += "".join(suffixes)
 
         log.info("Copying file to {0}...".format(filename))
-        shutil.copy(response, filename)
+        with open(filename, 'wb') as f:
+            f.write(response.content)
 
         if verbose:
             log.info("Wrote {0} to {1}".format(link, filename))

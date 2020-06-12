@@ -34,9 +34,28 @@ class TestXMMNewton():
                       'verbose': False}
         xsa = XMMNewtonClass(self.get_dummy_tap_handler())
         xsa.download_data(parameters['observation_id'],
-                          parameters['filename'],
-                          parameters['verbose'],
+                          filename=parameters['filename'],
+                          verbose=parameters['verbose'],
                           level=parameters['level']
+                          )
+
+    @pytest.mark.remote_data
+    def test_download_data_single_file(self):
+        parameters = {'observation_id': "0762470101",
+                      'level': "PPS",
+                      'name': 'OBSMLI',
+                      'filename': 'single',
+                      'instname': 'OM',
+                      'extension': 'FTZ',
+                      'verbose': False}
+        xsa = XMMNewtonClass(self.get_dummy_tap_handler())
+        xsa.download_data(parameters['observation_id'],
+                          filename=parameters['filename'],
+                          verbose=parameters['verbose'],
+                          level=parameters['level'],
+                          extension=parameters['extension'],
+                          instname=parameters['instname'],
+                          name=parameters['name']
                           )
 
     @pytest.mark.remote_data
