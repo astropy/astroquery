@@ -307,7 +307,7 @@ class ESAHubbleClass(BaseQuery):
         table = job.get_results()
         return table
 
-    def query_by_criteria(self, calibration_level=None,
+    def query_criteria(self, calibration_level=None,
                           data_product_type=None, intent=None,
                           obs_collection=None, instrument_name=None,
                           filters=None, async_job=True, output_file=None,

@@ -25,60 +25,6 @@ data, all HST data in the EHST are identical to those in MAST.
 Examples
 ========
 
-A complete description of the following functions is also available using the python help function.
-
-.. code-block:: python
-
-  >>> from astroquery.esa.hubble import ESAHubble
-  >>> esahubble = ESAHubble()
-  >>> help(esahubble)
-  Help on ESAHubbleClass in module astroquery.esa.hubble.core object:
-
-  class ESAHubbleClass(astroquery.query.BaseQuery)
-  |  ESAHubbleClass(url_handler=None, tap_handler=None)
-  |  
-  |  This is the base class for all the query classes in astroquery. It
-  |  is implemented as an abstract class and must not be directly instantiated.
-  |  
-  |  Method resolution order:
-  |      ESAHubbleClass
-  |      astroquery.query.BaseQuery
-  |      builtins.object
-  |  
-  |  Methods defined here:
-  |  
-  |  __init__(self, url_handler=None, tap_handler=None)
-  |      Initialize self.  See help(type(self)) for accurate signature.
-  |  
-  |  cone_search(self, coordinates, radius=0.0, filename=None, output_format='votable', cache=True)
-  ...
-
-Python also allows the user to show the description of a specific function.
-
-.. code-block:: python
-
-  >>> from astroquery.esa.hubble import ESAHubble
-  >>> esahubble = ESAHubble()
-  >>> help(esahubble.query_by_criteria)
-  Help on method query_by_criteria in module astroquery.esa.hubble.core:
-
-  query_by_criteria(calibration_level=None, data_product_type=None, intent=None, obs_collection=None, instrument_name=None, filters=None, async_job=True, output_file=None, output_format='votable', verbose=False, get_query=False) method of astroquery.esa.hubble.core.ESAHubbleClass instance
-    Launches a synchronous or asynchronous job to query the HST tap
-    using calibration level, data product type, intent, collection,
-    instrument name, and filters as criteria to create and execute the
-    associated query
-    
-    Parameters
-    ----------
-    calibration_level : str or int, optional
-        The identifier of the data reduction/processing applied to the
-        data. By default, the most scientifically relevant level will be
-        chosen. RAW (1), CALIBRATED (2), PRODUCT (3) or AUXILIARY (0)
-    data_product_type : str, optional
-        High level description of the product.
-        image, spectrum or timeseries.
-    ...
-
 ---------------------------
 1. Getting Hubble products
 ---------------------------
@@ -147,12 +93,12 @@ file 'm31_query.xml'.
 5. Querying observations by search criteria in the Hubble archive
 -----------------------------------------------------------------
 
-The query_by_criteria function uses a set of established parameters to create
+The query_criteria function uses a set of established parameters to create
 and execute an ADQL query, accessing the HST archive database usgin the Table
 Access Protocol (TAP). 
 
 PARAMETERS
-"""""""""""""""""
+""""""""""
 - **calibration_level** (*str or int, optional*): The identifier of the data reduction/processing applied to the data.
 
  + RAW (1)
@@ -192,7 +138,7 @@ This is an example of a query with all the parameters and the verbose flag activ
 
   >>> from astroquery.esa.hubble import ESAHubble
   >>> esahubble = ESAHubble()
-  >>> result = esahubble.query_by_criteria(calibration_level = 3,
+  >>> result = esahubble.query_criteria(calibration_level = 3,
                                            data_product_type = 'image',
                                            intent='SCIENCE',
                                            obs_collection=['HLA'],
@@ -223,7 +169,7 @@ The following example uses the string definition of the calibration level ('PROD
 
   >>> from astroquery.esa.hubble import ESAHubble
   >>> esahubble = ESAHubble()
-  >>> result = esahubble.query_by_criteria(calibration_level = 'PRODUCT', 
+  >>> result = esahubble.query_criteria(calibration_level = 'PRODUCT', 
                                            data_product_type = 'image', 
                                            intent='SCIENCE', 
                                            obs_collection=['HLA'], 
@@ -244,14 +190,14 @@ As has been mentioned, these parameters are optional and it is not necessary to 
 
   >>> from astroquery.esa.hubble import ESAHubble
   >>> esahubble = ESAHubble()
-  >>> result1 = esahubble.query_by_criteria(calibration_level = 'PRODUCT', 
+  >>> result1 = esahubble.query_criteria(calibration_level = 'PRODUCT', 
                                            async_job = False, 
                                            output_file = 'output3.vot.gz')
-  >>> result2 = esahubble.query_by_criteria(data_product_type = 'image', 
+  >>> result2 = esahubble.query_criteria(data_product_type = 'image', 
                                             intent='SCIENCE', 
                                             async_job = False, 
                                             output_file = 'output4.vot.gz')
-  >>> result3 = esahubble.query_by_criteria(data_product_type = 'timeseries',
+  >>> result3 = esahubble.query_criteria(data_product_type = 'timeseries',
                                             async_job = False, 
                                             output_file = 'output5.vot.gz')
  
@@ -261,7 +207,7 @@ If no criteria are specified to limit the selection, this function will retrieve
 
   >>> from astroquery.esa.hubble import ESAHubble
   >>> esahubble = ESAHubble()
-  >>> result = esahubble.query_by_criteria(async_job = False, 
+  >>> result = esahubble.query_criteria(async_job = False, 
                                            verbose = True)
   INFO: select o.*, p.calibration_level, p.data_product_type from ehst.observation
   AS o LEFT JOIN ehst.plane as p on o.observation_uuid=p.observation_uuid
@@ -273,7 +219,7 @@ This last example will provide the ADQL query based on the criteria defined by t
 
   >>> from astroquery.esa.hubble import ESAHubble
   >>> esahubble = ESAHubble()
-  >>> result = esahubble.query_by_criteria(calibration_level = 'PRODUCT',
+  >>> result = esahubble.query_criteria(calibration_level = 'PRODUCT',
                                            data_product_type = 'image',
                                            intent='SCIENCE',
                                            obs_collection=['HLA'],

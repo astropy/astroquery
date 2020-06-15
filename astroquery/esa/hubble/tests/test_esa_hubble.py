@@ -175,7 +175,7 @@ class TestESAHubble():
         ehst.get_columns("table", True, True)
         dummyTapHandler.check_call("get_columns", parameters2)
 
-    def test_query_by_criteria(self):
+    def test_query_criteria(self):
         parameters1 = {'calibration_level': "PRODUCT",
                        'data_product_type': "image",
                        'intent': "SCIENCE",
@@ -188,7 +188,7 @@ class TestESAHubble():
                        'verbose': True,
                        'get_query': True}
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
-        test_query = ehst.query_by_criteria(parameters1['calibration_level'],
+        test_query = ehst.query_criteria(parameters1['calibration_level'],
                                             parameters1['data_product_type'],
                                             parameters1['intent'],
                                             parameters1['obs_collection'],
@@ -219,7 +219,7 @@ class TestESAHubble():
         dummy_tap_handler = DummyHubbleTapHandler("launch_job", parameters2)
         dummy_tap_handler.check_call("launch_job", parameters3)
 
-    def test_query_by_criteria_numeric_calibration(self):
+    def test_query_criteria_numeric_calibration(self):
         parameters1 = {'calibration_level': 1,
                        'data_product_type': "image",
                        'intent': "SCIENCE",
@@ -232,7 +232,7 @@ class TestESAHubble():
                        'verbose': True,
                        'get_query': True}
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
-        test_query = ehst.query_by_criteria(parameters1['calibration_level'],
+        test_query = ehst.query_criteria(parameters1['calibration_level'],
                                             parameters1['data_product_type'],
                                             parameters1['intent'],
                                             parameters1['obs_collection'],
@@ -264,7 +264,7 @@ class TestESAHubble():
         dummy_tap_handler.check_call("launch_job", parameters3)
         parameters1['calibration_level'] = 4
         with pytest.raises(KeyError) as err:
-            ehst.query_by_criteria(parameters1['calibration_level'],
+            ehst.query_criteria(parameters1['calibration_level'],
                                    parameters1['data_product_type'],
                                    parameters1['intent'],
                                    parameters1['obs_collection'],
@@ -277,9 +277,9 @@ class TestESAHubble():
                                    parameters1['get_query'])
         assert "Calibration level must be between 0 and 3" in err.value.args[0]
 
-    def test_query_by_criteria_no_params(self):
+    def test_query_criteria_no_params(self):
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
-        ehst.query_by_criteria(async_job=False,
+        ehst.query_criteria(async_job=False,
                                output_file="output_test_query_"
                                "by_criteria.vot.gz",
                                output_format="votable",
@@ -297,7 +297,7 @@ class TestESAHubble():
     def test_empty_list(self):
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
         with pytest.raises(ValueError) as err:
-            ehst.query_by_criteria(instrument_name=[1],
+            ehst.query_criteria(instrument_name=[1],
                                    async_job=False,
                                    output_file="output_test_query_"
                                    "by_criteria.vot.gz",

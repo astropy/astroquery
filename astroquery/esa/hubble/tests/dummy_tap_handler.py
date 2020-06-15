@@ -88,12 +88,12 @@ class DummyHubbleTapHandler(object):
         self._parameters['upload_table_name'] = upload_table_name
         return Job(True)
 
-    def query_by_criteria(self, calibration_level=None,
+    def query_criteria(self, calibration_level=None,
                           data_product_type=None, intent=None,
                           obs_collection=None, instrument_name=None,
                           filters=None, async_job=False, output_file=None,
                           output_format="votable", verbose=False):
-        self.__invokedMethod = 'query_by_criteria'
+        self.__invokedMethod = 'query_criteria'
         self._parameters['calibration_level'] = calibration_level
         self._parameters['data_product_type'] = data_product_type
         self._parameters['intent'] = intent
