@@ -5,8 +5,8 @@ import numpy.testing as npt
 import pytest
 import astropy.units as u
 
-from ...utils import commons
-from ...utils.testing_tools import MockResponse
+from ....utils import commons
+from ....utils.testing_tools import MockResponse
 from ... import first
 
 DATA_FILES = {'image': 'image.fits'}

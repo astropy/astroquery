@@ -3,10 +3,10 @@ from io import BytesIO
 import astropy.units as u
 import astropy.coordinates as coord
 from astropy.io import fits
-from ..query import BaseQuery
-from ..utils import commons, prepend_docstr_nosections
+from ...query import BaseQuery
+from ...utils import commons, prepend_docstr_nosections
 from . import conf
-from ..exceptions import InvalidQueryError
+from ...exceptions import InvalidQueryError
 
 __all__ = ['First', 'FirstClass']
 
