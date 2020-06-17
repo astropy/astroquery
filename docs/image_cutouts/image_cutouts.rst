@@ -2,9 +2,9 @@
 
 .. _astroquery.image_cutouts:
 
-************************************************
+**************************************************
 Image Cutout Services (`astroquery.image_cutouts`)
-************************************************
+**************************************************
 
 This submodule is a collection of image cutout services,
 sorted by the projects that provide these services.

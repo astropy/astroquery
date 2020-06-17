@@ -350,6 +350,7 @@ topical submodules:
   :maxdepth: 1
 
   solarsystem/solarsystem.rst
+  image_cutouts/image_cutouts.rst
 
 
 Developer documentation
