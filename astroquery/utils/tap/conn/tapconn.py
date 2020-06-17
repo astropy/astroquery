@@ -572,11 +572,18 @@ class TapConn(object):
         -------
         The value of 'filename' in Content-Disposition header
         """
-        content_dispostion = self.find_header(headers, 'Content-Disposition')
-        if content_dispostion is not  None:
-            p = content_dispostion.find('filename="')
+        content_disposition = self.find_header(headers, 'Content-Disposition')
+        if content_disposition is not None:
+            p = content_disposition.find('filename="')
             if p >= 0:
-                return content_dispostion[p+10:len(content_dispostion)-1]
+                filename = content_disposition[p+10:len(content_disposition)-1]
+                content_encoding = self.find_header(headers, 'Content-Encoding')
+                if content_encoding is not None:
+                    if "gzip" == content_encoding.lower():
+                        filename += ".gz"
+                    elif "zip" == content_encoding.lower():
+                        filename += ".zip"
+                return filename
         return None
 
     def set_cookie(self, cookie):
