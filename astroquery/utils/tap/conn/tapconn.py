@@ -558,6 +558,27 @@ class TapConn(object):
                 ext += ".gz"
         return ext
 
+    def get_file_from_header(self, headers):
+        """Returns the file name returned in header Content-Disposition
+        Usually, that header contains the following:
+        Content-Disposition: attachment;filename="1591707060129DEV-aandres1591707060227.tar.gz"
+        This method returns the value of 'filename'
+
+        Parameters
+        ----------
+        headers: HTTP response headers list
+
+        Returns
+        -------
+        The value of 'filename' in Content-Disposition header
+        """
+        content_dispostion = self.find_header(headers, 'Content-Disposition')
+        if content_dispostion is not  None:
+            p = content_dispostion.find('filename="')
+            if p >= 0:
+                return content_dispostion[p+10:len(content_dispostion)-1]
+        return None
+
     def set_cookie(self, cookie):
         """Sets the login cookie
         When a cookie is set, GET and POST requests are done using HTTPS
