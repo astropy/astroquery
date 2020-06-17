@@ -617,15 +617,17 @@ class Tap(object):
     def __getSuitableOutputFile(self, async_job, outputFile, headers, isError,
                                 output_format):
         dateTime = datetime.now().strftime("%Y%m%d%H%M%S")
-        ext = self.__connHandler.get_suitable_extension(headers)
         fileName = ""
         if outputFile is None:
-            if not async_job:
-                fileName = "sync_" + str(dateTime) + ext
-            else:
-                ext = self.__connHandler.get_suitable_extension_by_format(
-                    output_format)
-                fileName = "async_" + str(dateTime) + ext
+            fileName = self.__connHandler.get_file_from_header(headers)
+            if fileName is None:
+                ext = self.__connHandler.get_suitable_extension(headers)
+                if not async_job:
+                    fileName = "sync_" + str(dateTime) + ext
+                else:
+                    ext = self.__connHandler.get_suitable_extension_by_format(
+                        output_format)
+                    fileName = "async_" + str(dateTime) + ext
         else:
             fileName = outputFile
         if isError:
