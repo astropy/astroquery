@@ -254,6 +254,8 @@ class CdsClass(BaseQuery):
             region = kwargs['region']
             if isinstance(region, MOC):
                 self.path_moc_file = os.path.join(os.getcwd(), 'moc.fits')
+                if os.path.isfile(self.path_moc_file):  # Silent overwrite
+                    os.remove(self.path_moc_file)
                 region.write(self.path_moc_file, format="fits")
                 # add the moc region payload to the request payload
             elif isinstance(region, CircleSkyRegion):
