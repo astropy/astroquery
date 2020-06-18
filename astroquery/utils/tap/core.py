@@ -325,6 +325,7 @@ class Tap(object):
             responseBytes = response.read()
             responseStr = responseBytes.decode('utf-8')
             if dump_to_file:
+                print("Saving error to: %s" % suitableOutputFile)
                 self.__connHandler.dump_to_file(suitableOutputFile,
                                                 responseStr)
             raise requests.exceptions.HTTPError(
@@ -334,6 +335,7 @@ class Tap(object):
             if verbose:
                 print("Retrieving sync. results...")
             if dump_to_file:
+                print("Saving results to: %s" % suitableOutputFile)
                 self.__connHandler.dump_to_file(suitableOutputFile, response)
             else:
                 results = utils.read_http_response(response, output_format)
@@ -419,6 +421,7 @@ class Tap(object):
             job.failed = True
             job.set_phase('ERROR')
             if dump_to_file:
+                print("Saving error to: %s" % suitableOutputFile)
                 self.__connHandler.dump_to_file(suitableOutputFile,
                                                 response)
             raise requests.exceptions.HTTPError(response.reason)
@@ -438,6 +441,7 @@ class Tap(object):
                         print("Retrieving async. results...")
                     # saveResults or getResults will block (not background)
                     if dump_to_file:
+                        print("Saving results to: %s" % suitableOutputFile)
                         job.save_results(verbose)
                     else:
                         job.get_results()
