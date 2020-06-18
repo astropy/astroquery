@@ -80,6 +80,14 @@ nrao
 
 - Fixed passing ``project_code`` to the query [#1720]
 
+nasa_exoplanet_archive
+^^^^^^^^^^^^^^^^^^^^^^
+
+- Update the NASA Exoplanet Archive interface to support all tables available
+  through the API. The standard astroquery interface is now implemented via the
+  ``query_*[_async]`` methods. [#1700]
+
+
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
 

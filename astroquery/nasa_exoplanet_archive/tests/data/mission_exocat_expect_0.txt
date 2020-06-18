@@ -1,0 +1,235 @@
+\                                                                               
+\fixlen = T
+\RowsRetrieved =                 1
+\For detailed descriptions of the columns, go to http://exoplanetarchive.ipac.caltech.edu/docs/documentation.html and choose the appropriate table guide.
+\ 
+\ hip_name 
+\ ___ HIP Name
+\ hd_name 
+\ ___ HD Name
+\ gj_name 
+\ ___ GJ Name
+\ tm_name 
+\ ___ 2MASS Name
+\ st_exocatflag 
+\ ___ Is star in Exo-Cat List? (1 = yes, 0 = no)
+\ st_coronagflag 
+\ ___ Is star in Coronagraph (Exo-C) List? (1 = yes, 0 = no)
+\ st_starshadeflag 
+\ ___ Is star in Star Shade (Exo-C) List? (1 = yes, 0 = no)
+\ st_wfirstflag 
+\ ___ Is star in WFIRST List? (1 = yes, 0 = no)
+\ st_rvflag 
+\ ___ Is star in RV target list (1 = yes, 0 = no)
+\ st_lbtiflag 
+\ ___ Is star in LBTI List (1 = yes, 0 = no)
+\ st_probeflag 
+\ ___ Is star in any of probe lists (Exo-C, Exo-S, WFIRST, RV, LBTI) (1
+\ st_k2flag 
+\ ___ Is star in K2 List (1 = yes, 0 = no)
+\ st_k2campaign 
+\ ___ K2 Campaign Number
+\ st_ppnum 
+\ ___ Number of Planets in System
+\ wds_designation 
+\ ___ WDS Designation
+\ wds_sep (arcsec) 
+\ ___ WDS Angular Separation (arcsec)
+\ wds_deltamag (mags) 
+\ ___ WDS Magnitude Difference
+\ ra (degrees) 
+\ ___ RA Value [decimal degrees]
+\ raerr (degrees) 
+\ ___ RA Uncertainty [decimal degrees]
+\ rastr 
+\ ___ RA Value [sexagesimal]
+\ dec (degrees) 
+\ ___ Dec Value [decimal degrees]
+\ decerr (degrees) 
+\ ___ Dec Uncertainty [decimal degrees]
+\ decstr 
+\ ___ Dec Value [sexagesimal]
+\ st_glon (degrees) 
+\ ___ Galactic Longitude Value [deg]
+\ st_glonerr (degrees) 
+\ ___ Galactic Longitude Uncertainty [deg]
+\ st_glat (degrees) 
+\ ___ Galactic Latitude Value [deg]
+\ st_glaterr (degrees) 
+\ ___ Galactic Latitude Uncertainty [deg]
+\ st_fracplxunc 
+\ ___ Fractional Parallax Uncertainty
+\ st_dist (pc) 
+\ ___ Distance Value [pc]
+\ st_disterr1 (pc) 
+\ ___ Distance Upper Uncertainty [pc]
+\ st_disterr2 (pc) 
+\ ___ Distance Lower Uncertainty [pc]
+\ st_pmra (mas/yr) 
+\ ___ Stellar RA Proper Motion Value [mas/yr]
+\ st_pmraerr (mas/yr) 
+\ ___ Stellar RA Proper Motion Uncertainty [mas/yr]
+\ st_pmdec (mas/yr) 
+\ ___ Stellar Dec Proper Motion Value [mas/yr]
+\ st_pmdecerr (mas/yr) 
+\ ___ Stellar Dec Proper Motion Uncertainty [mas/yr]
+\ st_vmag (mags) 
+\ ___ Stellar V Magnitude Value
+\ st_vmagerr (mags) 
+\ ___ Stellar V Magnitude Uncertainty
+\ st_vmagsrc 
+\ ___ Stellar V Magnitude Source
+\ st_kmagsrc 
+\ ___ Stellar K Magnitude Source
+\ st_bmv (mags) 
+\ ___ Stellar B-V Value
+\ st_bmverr (mags) 
+\ ___ Stellar B-V Uncertainty
+\ st_bmvsrc 
+\ ___ Stellar B-V Source
+\ st_vmk (mags) 
+\ ___ Stellar V-K Value
+\ st_vmkerr (mags) 
+\ ___ Stellar V-K Uncertainty
+\ st_vmksrc 
+\ ___ Stellar V-K Source
+\ st_spttype 
+\ ___ Stellar Spectral Type Value
+\ st_lumclass 
+\ ___ Stellar Luminosity Class Value
+\ st_spttag 
+\ ___ Stellar Spectral Type Tag Value
+\ st_mbol (mags) 
+\ ___ Stellar Bolometric Magnitude Value
+\ st_mbolerr (mags) 
+\ ___ Stellar Bolometric Magnitude Uncertainty
+\ st_mbolsrc 
+\ ___ Stellar Bolometric Magnitude Source
+\ st_mbolflag 
+\ ___ Stellar Bolometric Magnitude Contamination Flag
+\ st_lbol (Lsun) 
+\ ___ Stellar Bolometric Luminosity Value [Solar]
+\ st_lbolerr (Lsun) 
+\ ___ Stellar Bolometric Luminosity Uncertainty [Solar]
+\ st_lbolsrc 
+\ ___ Stellar Bolometric Luminosity Source
+\ st_teff (K) 
+\ ___ Stellar Effective Temperature Value [K]
+\ st_tefferr (K) 
+\ ___ Stellar Effective Temperature Uncertainty [K]
+\ st_teffsrc 
+\ ___ Stellar Effective Temperature Source
+\ st_logg (cm/s**2) 
+\ ___ Stellar Surface Gravity Value [log10(cm/s**2)]
+\ st_loggerr (cm/s**2) 
+\ ___ Stellar Surface Gravity Uncertainty [log10(cm/s**2)]
+\ st_loggsrc 
+\ ___ Stellar Surface Gravity Source
+\ st_metfe (dex) 
+\ ___ Stellar Metallicity Value [dex]
+\ st_metfeerr (dex) 
+\ ___ Stellar Metallicity Uncertainty [dex]
+\ st_metfesrc 
+\ ___ Stellar Metallicity  Source
+\ st_metratio 
+\ ___ Stellar Metallicity ([Fe/H], [Mg/Fe], [O/H])
+\ st_rad (Rsun) 
+\ ___ Stellar Radius Value [Solar radii]
+\ st_raderr (Rsun) 
+\ ___ Stellar Radius Uncertainty [Solar radii]
+\ st_radsrc 
+\ ___ Stellar Radius Source
+\ st_mass (Msun) 
+\ ___ Stellar Mass Value [Solar mass]
+\ st_masserr (Msun) 
+\ ___ Stellar Mass Uncertainty [Solar mass]
+\ st_masssrc 
+\ ___ Stellar Mass Source
+\ st_age (Gyr) 
+\ ___ Stellar Age Value [Gyr]
+\ st_ageerr (Gyr) 
+\ ___ Stellar Age Uncertainty [Gyr]
+\ st_agesrc 
+\ ___ Stellar Age Source
+\ st_actclass 
+\ ___ Stellar Activity Class
+\ st_eeidau (AU) 
+\ ___ Earth-Equivalent Insolation Distance Value [AU]
+\ st_eeidauerr (AU) 
+\ ___ Earth-Equivalent Insolation Distance Uncertainty [AU]
+\ st_eeidmas (mas) 
+\ ___ Earth-Equivalent Insolation Distance Value [mas]
+\ st_eeidmaserr (mas) 
+\ ___ Earth-Equivalent Insolation Distance Uncertainty [mas]
+\ st_fpbearth 
+\ ___ Fractional Planet Brightness Value
+\ st_fpbeartherr 
+\ ___ Fractional Planet Brightness Uncertainty
+\ st_vmagearth (mag) 
+\ ___ Earth-Equivalent Magnitude Value
+\ st_vmageartherr (mag) 
+\ ___ Earth-Equivalent Magnitude Uncertainty
+\ st_nts 
+\ ___ Number of time series
+\ st_nplc 
+\ ___ Number of planet transit light curves
+\ st_nglc 
+\ ___ Number of general light curves
+\ st_nrvc 
+\ ___ Number of radial velocity curves
+\ st_naxa 
+\ ___ Number of Amateur light curves
+\ st_nimg 
+\ ___ Number of Images
+\ st_nspec 
+\ ___ Number of Spectra
+\ st_j2m (mags) 
+\ ___ Stellar J (2MASS) Magnitude Value
+\ st_j2merr (mags) 
+\ ___ Stellar J (2MASS) Magnitude Uncertainty
+\ st_j2mlim 
+\ ___ Stellar J (2MASS) Magnitude Limit Flag (0="=", +1=">", -1="<")
+\ st_h2m (mags) 
+\ ___ Stellar H (2MASS) Magnitude Value
+\ st_h2merr (mags) 
+\ ___ Stellar H (2MASS) Magnitude Uncertainty
+\ st_h2mlim 
+\ ___ Stellar H (2MASS) Magnitude Limit Flag (0="=", +1=">", -1="<")
+\ st_ks2m (mags) 
+\ ___ Stellar K (2MASS) Magnitude Value
+\ st_ks2merr (mags) 
+\ ___ Stellar K (2MASS) Magnitude Uncertainty
+\ st_ks2mlim 
+\ ___ Stellar K (2MASS) Magnitude Limit Flag (0="=", +1=">", -1="<")
+\ st_wise1 (mags) 
+\ ___ Stellar WISE 3.4um Magnitude Value
+\ st_wise1err (mags) 
+\ ___ Stellar WISE 3.4um Magnitude Uncertainty
+\ st_wise1lim 
+\ ___ Stellar WISE 3.4um Magnitude Limit Flag (0="=", +1=">", -1="<")
+\ st_wise2 (mags) 
+\ ___ Stellar WISE 4.6um Magnitude Value
+\ st_wise2err (mags) 
+\ ___ Stellar WISE 4.6um Magnitude Uncertainty
+\ st_wise2lim 
+\ ___ Stellar WISE 4.6um Magnitude Limit Flag (0="=", +1=">", -1="<")
+\ st_wise3 (mags) 
+\ ___ Stellar WISE 12.um Magnitude Value
+\ st_wise3err (mags) 
+\ ___ Stellar WISE 12.um Magnitude Uncertainty
+\ st_wise3lim 
+\ ___ Stellar WISE 12.um Magnitude Limit Flag (0="=", +1=">", -1="<")
+\ st_wise4 (mags) 
+\ ___ Stellar WISE 22.um Magnitude Value
+\ st_wise4err (mags) 
+\ ___ Stellar WISE 22.um Magnitude Uncertainty
+\ st_wise4lim 
+\ ___ Stellar WISE 22.um Magnitude Limit Flag (0="=", +1=">", -1="<")
+\ star_name 
+\ ___ Star Default Name
+\ 
+|        hip_name|            hd_name|         gj_name|                        tm_name| st_exocatflag| st_coronagflag| st_starshadeflag| st_wfirstflag| st_rvflag| st_lbtiflag| st_probeflag| st_k2flag| st_k2campaign| st_ppnum|                wds_designation|    wds_sep| wds_deltamag|              ra|           raerr|                rastr|             dec|          decerr|               decstr|         st_glon|      st_glonerr|         st_glat|      st_glaterr| st_fracplxunc|   st_dist| st_disterr1| st_disterr2|    st_pmra| st_pmraerr|   st_pmdec| st_pmdecerr|  st_vmag| st_vmagerr|           st_vmagsrc|           st_kmagsrc|   st_bmv| st_bmverr|            st_bmvsrc|   st_vmk| st_vmkerr|            st_vmksrc|                     st_spttype|                    st_lumclass|            st_spttag|  st_mbol| st_mbolerr|           st_mbolsrc| st_mbolflag|   st_lbol| st_lbolerr|           st_lbolsrc|  st_teff| st_tefferr|           st_teffsrc|  st_logg| st_loggerr|           st_loggsrc| st_metfe| st_metfeerr|          st_metfesrc|          st_metratio| st_rad| st_raderr|            st_radsrc| st_mass| st_masserr|           st_masssrc|  st_age| st_ageerr|            st_agesrc| st_actclass| st_eeidau| st_eeidauerr| st_eeidmas| st_eeidmaserr| st_fpbearth| st_fpbeartherr| st_vmagearth| st_vmageartherr|  st_nts| st_nplc| st_nglc| st_nrvc| st_naxa| st_nimg| st_nspec|   st_j2m| st_j2merr| st_j2mlim|   st_h2m| st_h2merr| st_h2mlim|  st_ks2m| st_ks2merr| st_ks2mlim| st_wise1| st_wise1err| st_wise1lim| st_wise2| st_wise2err| st_wise2lim| st_wise3| st_wise3err| st_wise3lim| st_wise4| st_wise4err| st_wise4lim|                 star_name|
+|            char|               char|            char|                           char|           int|            int|              int|           int|       int|         int|          int|       int|           int|      int|                           char|     double|       double|          double|          double|                 char|          double|          double|                 char|          double|          double|          double|          double|        double|    double|      double|      double|     double|     double|     double|      double|   double|     double|                 char|                 char|   double|    double|                 char|   double|    double|                 char|                           char|                           char|                 char|   double|     double|                 char|         int|    double|     double|                 char|   double|     double|                 char|   double|     double|                 char|   double|      double|                 char|                 char| double|    double|                 char|  double|     double|                 char|  double|    double|                 char|        char|    double|       double|     double|        double|      double|         double|       double|          double|    long|    long|    long|    long|    long|    long|     long|   double|    double|       int|   double|    double|       int|   double|     double|        int|   double|      double|         int|   double|      double|         int|   double|      double|         int|   double|      double|         int|                      char|
+|                |                   |                |                               |              |               |                 |              |          |            |             |          |              |         |                               |     arcsec|         mags|         degrees|         degrees|                     |         degrees|         degrees|                     |         degrees|         degrees|         degrees|         degrees|              |        pc|          pc|          pc|     mas/yr|     mas/yr|     mas/yr|      mas/yr|     mags|       mags|                     |                     |     mags|      mags|                     |     mags|      mags|                     |                               |                               |                     |     mags|       mags|                     |            |      Lsun|       Lsun|                     |        K|          K|                     |  cm/s**2|    cm/s**2|                     |      dex|         dex|                     |                     |   Rsun|      Rsun|                     |    Msun|       Msun|                     |     Gyr|       Gyr|                     |            |        AU|           AU|        mas|           mas|            |               |          mag|             mag|        |        |        |        |        |        |         |     mags|      mags|          |     mags|      mags|          |     mags|       mags|           |     mags|        mags|            |     mags|        mags|            |     mags|        mags|            |     mags|        mags|            |                          |
+|            null|               null|            null|                           null|          null|           null|             null|          null|      null|        null|         null|      null|          null|     null|                           null|       null|         null|            null|            null|                 null|            null|            null|                 null|            null|            null|            null|            null|          null|      null|        null|        null|       null|       null|       null|        null|     null|       null|                 null|                 null|     null|      null|                 null|     null|      null|                 null|                           null|                           null|                 null|     null|       null|                 null|        null|      null|       null|                 null|     null|       null|                 null|     null|       null|                 null|     null|        null|                 null|                 null|   null|      null|                 null|    null|       null|                 null|    null|      null|                 null|        null|      null|         null|       null|          null|        null|           null|         null|            null|    null|    null|    null|    null|    null|    null|     null|     null|      null|      null|     null|      null|      null|     null|       null|       null|     null|        null|        null|     null|        null|        null|     null|        null|        null|     null|        null|        null|                      null|
+       HIP 5110 A           HD 6440 A        GJ 9038 A         2MASS J01052991+1523247              1               0                 0              0          0            0             0          0           null         0                      01055+1523        null          null        16.374623             null          01h05m29.91s        15.390540             null          +15d23m25.9s       127.936854             null       -47.344501             null           0.04      26.43         1.10        -1.02       6.400        null    -196.800         null     9.120       0.060                    VT                 2MASS     1.100      0.060               BVT-Red     2.640      0.060                  null                             K2V                         MAINSEQ                     K     7.000       0.140                  null            1      0.210       0.150                   V-K   4626.00        null                   V-K      null        null                  null      null         null                  null                  null    0.71       null              Turnbull     0.67        null              Turnbull     null       null                  null            I       0.46          null       17.38           null         0.00            null         32.27             null        1        0        1        0        0        1         0     7.122      0.020          0     6.623      0.022          0     6.478       0.024           0     6.554        0.316            0     6.579        0.092            0     6.594        0.028            0     6.490        0.092            0                 HIP 5110 A 

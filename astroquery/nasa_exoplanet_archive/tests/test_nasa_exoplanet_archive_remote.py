@@ -1,173 +1,55 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-import os
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
+from __future__ import print_function
+
 import pytest
-import astropy.units as u
-from astropy.tests.helper import assert_quantity_allclose
-from astropy.utils import minversion
-from astropy.coordinates import SkyCoord
 
-from ...nasa_exoplanet_archive import NasaExoplanetArchive
-
-APY_LT12 = not minversion('astropy', '1.2')
-LOCAL_TABLE_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                                'data', 'nasa_exoplanet_archive.csv')
+from ...exceptions import InvalidQueryError
+from ..core import InvalidTableError, NasaExoplanetArchive
 
 
 @pytest.mark.remote_data
-@pytest.mark.skipif('APY_LT12')
-def test_hd209458b_exoplanets_archive_apy_lt12():
-    # Testing intentionally un-stripped string:
-    params = NasaExoplanetArchive.query_planet('HD 209458 b ')
-    assert_quantity_allclose(params['pl_radj'], 1.320 * u.Unit('R_jup'),
-                             atol=0.1 * u.Unit('R_jup'))
+def test_invalid_table():
+    with pytest.raises(InvalidTableError):
+        NasaExoplanetArchive.query_criteria("not_a_table")
 
 
 @pytest.mark.remote_data
-@pytest.mark.skipif('not APY_LT12')
-def test_hd209458b_exoplanets_archive_apy_gt12():
-    # Testing intentionally un-stripped string:
-    with pytest.raises(ValueError):
-        params = NasaExoplanetArchive.query_planet('HD 209458 b ')
-        assert_quantity_allclose(params['pl_radj'], 1.320 * u.Unit('R_jup'),
-                                 atol=0.1 * u.Unit('R_jup'))
+def test_invalid_column():
+    with pytest.raises(InvalidQueryError) as error:
+        NasaExoplanetArchive.query_criteria("exoplanets", select="not_a_column")
+    assert "not_a_column" in str(error)
 
 
 @pytest.mark.remote_data
-def test_hd209458b_exoplanet_archive_coords():
-    params = NasaExoplanetArchive.query_planet('HD 209458 b ')
-    simbad_coords = SkyCoord(ra='22h03m10.77207s', dec='+18d53m03.5430s')
-
-    sep = params['sky_coord'][0].separation(simbad_coords)
-
-    assert abs(sep) < 5 * u.arcsec
-
-
-@pytest.mark.skipif('APY_LT12')
-def test_hd209458b_exoplanets_archive_apy_lt12_local():
-    # Testing intentionally un-stripped string:
-    params = NasaExoplanetArchive.query_planet('HD 209458 b ', table_path=LOCAL_TABLE_PATH)
-    assert_quantity_allclose(params['pl_radj'], 1.320 * u.Unit('R_jup'),
-                             atol=0.1 * u.Unit('R_jup'))
-
-
-@pytest.mark.skipif('not APY_LT12')
-def test_hd209458b_exoplanets_archive_apy_gt12_local():
-    # Testing intentionally un-stripped string:
-    with pytest.raises(ValueError):
-        params = NasaExoplanetArchive.query_planet('HD 209458 b ', table_path=LOCAL_TABLE_PATH)
-        assert_quantity_allclose(params['pl_radj'], 1.320 * u.Unit('R_jup'),
-                                 atol=0.1 * u.Unit('R_jup'))
-
-
-def test_hd209458b_exoplanet_archive_coords_local():
-    params = NasaExoplanetArchive.query_planet('HD 209458 b ', table_path=LOCAL_TABLE_PATH)
-    simbad_coords = SkyCoord(ra='22h03m10.77207s', dec='+18d53m03.5430s')
-
-    sep = params['sky_coord'][0].separation(simbad_coords)
-
-    assert abs(sep) < 5 * u.arcsec
+def test_invalid_query_exoplanets():
+    with pytest.raises(InvalidQueryError) as error:
+        NasaExoplanetArchive.query_criteria("exoplanets", where="pl_hostname=Kepler-11")
+    assert "kepler" in str(error)
 
 
 @pytest.mark.remote_data
-def test_hd209458_stellar_exoplanet_archive():
-    # Testing intentionally un-stripped string, no spaced:
-    params = NasaExoplanetArchive.query_star('HD 209458')
-
-    assert len(params) == 1
-    assert str(params['pl_name'][0]) == 'HD 209458 b'
-    assert_quantity_allclose(params['pl_orbper'], 3.52474859 * u.day,
-                             atol=1e-5 * u.day)
-
-    assert not params['pl_kepflag']
-    assert not params['pl_ttvflag']
+def test_missing_criterion_kepler():
+    with pytest.raises(InvalidQueryError) as error:
+        NasaExoplanetArchive.query_criteria("keplertimeseries", where="kepid=8561063")
+    assert "Queries against the Kepler Time Series table require" in str(error)
+    NasaExoplanetArchive.query_criteria("keplertimeseries", kepid=8561063, quarter=14)
 
 
 @pytest.mark.remote_data
-def test_hd136352_stellar_exoplanet_archive():
-    # Check for all planets around specific star
-    params = NasaExoplanetArchive.query_star('HD 136352')
-
-    assert len(params) == 3
-    expected_planets = ['HD 136352 b', 'HD 136352 c', 'HD 136352 d']
-
-    for planet in expected_planets:
-        assert planet in params['pl_name']
-
-    assert 'pl_trandep' not in params.colnames
+def test_missing_criterion_kelt():
+    with pytest.raises(InvalidQueryError) as error:
+        NasaExoplanetArchive.query_criteria("kelttimeseries")
+    assert "Queries against the KELT Time Series table require" in str(error)
+    NasaExoplanetArchive.query_criteria(
+        "kelttimeseries", where="kelt_sourceid='KELT_N02_lc_012738_V01_east'", kelt_field="N02"
+    )
 
 
 @pytest.mark.remote_data
-@pytest.mark.skipif('APY_LT12')
-def test_hd209458_stellar_exoplanets_archive_apy_lt12():
-    # Testing intentionally un-stripped string:
-    params = NasaExoplanetArchive.query_star('HD 209458')
-    assert_quantity_allclose(params['pl_radj'], 1.320 * u.Unit('R_jup'),
-                             atol=0.1 * u.Unit('R_jup'))
-
-
-@pytest.mark.remote_data
-@pytest.mark.skipif('not APY_LT12')
-def test_hd209458_stellar_exoplanets_archive_apy_gt12():
-    # Testing intentionally un-stripped string:
-    with pytest.raises(ValueError):
-        params = NasaExoplanetArchive.query_star('HD 209458')
-        assert_quantity_allclose(params['pl_radj'], 1.320 * u.Unit('R_jup'),
-                                 atol=0.1 * u.Unit('R_jup'))
-
-
-@pytest.mark.remote_data
-def test_hd209458_exoplanet_archive_coords():
-    params = NasaExoplanetArchive.query_star('HD 209458')
-    simbad_coords = SkyCoord(ra='22h03m10.77207s', dec='+18d53m03.5430s')
-
-    sep = params['sky_coord'][0].separation(simbad_coords)
-
-    assert abs(sep) < 5 * u.arcsec
-
-
-@pytest.mark.remote_data
-def test_exoplanet_archive_query_all_columns():
-    # Get all the columns from planet query
-    params = NasaExoplanetArchive.query_planet('HD 209458 b ', cache=False, all_columns=True)
-
-    # Check non-default column in table
-    assert 'pl_tranflag' in params.columns
-
-
-@pytest.mark.remote_data
-def test_stellar_exoplanet_archive_query_all_columns():
-    # Get all the columns from star query
-    params = NasaExoplanetArchive.query_star('HD 209458 b ', cache=False, all_columns=True)
-
-    # Check non-default column in table
-    assert 'pl_tranflag' in params.columns
-
-
-@pytest.mark.remote_data
-@pytest.mark.skipif('APY_LT12')
-def test_hd209458_stellar_exoplanets_archive_apy_lt12_local():
-    # Testing intentionally un-stripped string:
-    params = NasaExoplanetArchive.query_star('HD 209458', table_path=LOCAL_TABLE_PATH)
-    assert_quantity_allclose(params['pl_radj'], 1.320 * u.Unit('R_jup'),
-                             atol=0.1 * u.Unit('R_jup'))
-
-
-@pytest.mark.remote_data
-@pytest.mark.skipif('not APY_LT12')
-def test_hd209458_stellar_exoplanets_archive_apy_gt12_local():
-    # Testing intentionally un-stripped string:
-    with pytest.raises(ValueError):
-        params = NasaExoplanetArchive.query_star('HD 209458', table_path=LOCAL_TABLE_PATH)
-        assert_quantity_allclose(params['pl_radj'], 1.320 * u.Unit('R_jup'),
-                                 atol=0.1 * u.Unit('R_jup'))
-
-
-@pytest.mark.remote_data
-def test_hd209458_exoplanet_archive_coords_local():
-    params = NasaExoplanetArchive.query_star('HD 209458', table_path=LOCAL_TABLE_PATH)
-    simbad_coords = SkyCoord(ra='22h03m10.77207s', dec='+18d53m03.5430s')
-
-    sep = params['sky_coord'][0].separation(simbad_coords)
-
-    assert abs(sep) < 5 * u.arcsec
+def test_missing_criterion_super_wasp():
+    with pytest.raises(InvalidQueryError) as error:
+        NasaExoplanetArchive.query_criteria("superwasptimeseries")
+    assert "Queries against the SuperWASP Time Series table require" in str(error)
+    NasaExoplanetArchive.query_criteria(
+        "superwasptimeseries", sourceid="1SWASP J191645.46+474912.3"
+    )

@@ -1,0 +1,314 @@
+\                                                                               
+\fixlen = T
+\RowsRetrieved =                 6
+\For detailed descriptions of the columns, go to http://exoplanetarchive.ipac.caltech.edu/docs/documentation.html and choose the appropriate table guide.
+\ 
+\ epic_name 
+\ ___ EPIC Name
+\ tm_name 
+\ ___ 2MASS Name
+\ epic_candname 
+\ ___ EPIC Candidate
+\ pl_name 
+\ ___ Confirmed Planet Name
+\ ra (degrees) 
+\ ___ RA Value [decimal degrees]
+\ ra_err (degrees) 
+\ ___ RA Uncertainty [decimal degrees]
+\ ra_str 
+\ ___ RA Value [sexagesimal]
+\ dec (degrees) 
+\ ___ Dec Value [decimal degrees]
+\ dec_err (degrees) 
+\ ___ Dec Uncertainty [decimal degrees]
+\ dec_str 
+\ ___ Dec Value [sexagesimal]
+\ k2c_disp 
+\ ___ Exoplanet Archive Disposition
+\ k2c_refdisp 
+\ ___ Reference Disposition
+\ k2c_reflink 
+\ ___ Reference HTML Link
+\ k2c_note 
+\ ___ Note
+\ k2c_recentflag 
+\ ___ Most Recent Flag
+\ k2_campaign_str 
+\ ___ Kepler2 Campaign Number String for Display
+\ st_plx (mas) 
+\ ___ Parallax Value [mas]
+\ st_plxerr1 (mas) 
+\ ___ Parallax Upper Uncertainty [mas]
+\ st_plxerr2 (mas) 
+\ ___ Parallax Lower Uncertainty [mas]
+\ st_plxlim 
+\ ___ Parallax Limit Flag (0="=", +1=">", -1="<")
+\ st_dist (pc) 
+\ ___ Distance Value [pc]
+\ st_disterr1 (pc) 
+\ ___ Distance Upper Uncertainty [pc]
+\ st_disterr2 (pc) 
+\ ___ Distance Lower Uncertainty [pc]
+\ st_distlim 
+\ ___ Distance Limit Flag (0="=", +1=">", -1="<")
+\ st_teff (K) 
+\ ___ Stellar Effective Temperature Value [K]
+\ st_tefferr1 (K) 
+\ ___ Stellar Effective Temperature Upper Uncertainty [K]
+\ st_tefferr2 (K) 
+\ ___ Stellar Effective Temperature Lower Uncertainty [K]
+\ st_tefflim 
+\ ___ Stellar Effective Temperature Limit Flag (0="=", +1=">", -1="<")
+\ st_logg (cm/s**2) 
+\ ___ Stellar Surface Gravity Value [log10(cm/s**2)]
+\ st_loggerr1 (cm/s**2) 
+\ ___ Stellar Surface Gravity Upper Uncertainty [log10(cm/s**2)]
+\ st_loggerr2 (cm/s**2) 
+\ ___ Stellar Surface Gravity Lower Uncertainty [log10(cm/s**2)]
+\ st_logglim 
+\ ___ Stellar Surface Gravity Limit Flag (0="=", +1=">", -1="<")
+\ st_metfe (dex) 
+\ ___ Stellar Metallicity Value [dex]
+\ st_metfeerr1 (dex) 
+\ ___ Stellar Metallicity Upper Uncertainty [dex]
+\ st_metfeerr2 (dex) 
+\ ___ Stellar Metallicity Lower Uncertainty [dex]
+\ st_metfelim 
+\ ___ Stellar Metallicity Limit Flag (0="=", +1=">", -1="<")
+\ st_metratio 
+\ ___ Stellar Metallicity ([Fe/H], [Mg/Fe], [O/H])
+\ st_rad (Rsun) 
+\ ___ Stellar Radius Value [Solar radii]
+\ st_raderr1 (Rsun) 
+\ ___ Stellar Radius Upper Uncertainty [Solar radii]
+\ st_raderr2 (Rsun) 
+\ ___ Stellar Radius Lower Uncertainty [Solar radii]
+\ st_radlim 
+\ ___ Stellar Radius Limit Flag (0="=", +1=">", -1="<")
+\ st_vsini (km/s) 
+\ ___ Stellar Vsin i Value [km/s]
+\ st_vsinierr1 (km/s) 
+\ ___ Stellar Vsin i Upper Uncertainty [km/s]
+\ st_vsinierr2 (km/s) 
+\ ___ Stellar Vsin i Lower Uncertainty [km/s]
+\ st_vsinilim 
+\ ___ Stellar Vsin i Limit Flag (0="=", +1=">", -1="<")
+\ st_kep (mags) 
+\ ___ Stellar Kepler Magnitude Value
+\ st_keperr (mags) 
+\ ___ Stellar Kepler Magnitude Uncertainty
+\ st_keplim 
+\ ___ Stellar Kepler Magnitude Limit Flag (0="=", +1=">", -1="<")
+\ st_bj (mags) 
+\ ___ Stellar B (Johnson) Magnitude Value
+\ st_bjerr (mags) 
+\ ___ Stellar B (Johnson) Magnitude Uncertainty
+\ st_bjlim 
+\ ___ Stellar B (Johnson) Magnitude Limit Flag (0="=", +1=">", -1="<")
+\ st_vj (mags) 
+\ ___ Stellar V (Johnson) Magnitude Value
+\ st_vjerr (mags) 
+\ ___ Stellar V (Johnson) Magnitude Uncertainty
+\ st_vjlim 
+\ ___ Stellar V (Johnson) Magnitude Limit Flag (0="=", +1=">", -1="<")
+\ st_us (mags) 
+\ ___ Stellar u (Sloan) Magnitude Value
+\ st_userr (mags) 
+\ ___ Stellar u (Sloan) Magnitude Uncertainty
+\ st_uslim 
+\ ___ Stellar u (Sloan) Magnitude Limit Flag (0="=", +1=">", -1="<")
+\ st_gs (mags) 
+\ ___ Stellar g (Sloan) Magnitude Value
+\ st_gserr (mags) 
+\ ___ Stellar g (Sloan) Magnitude Uncertainty
+\ st_gslim 
+\ ___ Stellar g (Sloan) Magnitude Limit Flag (0="=", +1=">", -1="<")
+\ st_rs (mags) 
+\ ___ Stellar r (Sloan) Magnitude Value
+\ st_rserr (mags) 
+\ ___ Stellar r (Sloan) Magnitude Uncertainty
+\ st_rslim 
+\ ___ Stellar r (Sloan) Magnitude Limit Flag (0="=", +1=">", -1="<")
+\ st_is (mags) 
+\ ___ Stellar i (Sloan) Magnitude Value
+\ st_iserr (mags) 
+\ ___ Stellar i (Sloan) Magnitude Uncertainty
+\ st_islim 
+\ ___ Stellar i (Sloan) Magnitude Limit Flag (0="=", +1=">", -1="<")
+\ st_zs (mags) 
+\ ___ Stellar z (Sloan) Magnitude Value
+\ st_zserr (mags) 
+\ ___ Stellar z (Sloan) Magnitude Uncertainty
+\ st_zslim 
+\ ___ Stellar z (Sloan) Magnitude Limit Flag (0="=", +1=">", -1="<")
+\ st_j2 (mags) 
+\ ___ Stellar J (2MASS) Magnitude Value
+\ st_j2err (mags) 
+\ ___ Stellar J (2MASS) Magnitude Uncertainty
+\ st_j2lim 
+\ ___ Stellar J (2MASS) Magnitude Limit Flag (0="=", +1=">", -1="<")
+\ st_h2 (mags) 
+\ ___ Stellar H (2MASS) Magnitude Value
+\ st_h2err (mags) 
+\ ___ Stellar H (2MASS) Magnitude Uncertainty
+\ st_h2lim 
+\ ___ Stellar H (2MASS) Magnitude Limit Flag (0="=", +1=">", -1="<")
+\ st_k2 (mags) 
+\ ___ Stellar K (2MASS) Magnitude Value
+\ st_k2err (mags) 
+\ ___ Stellar K (2MASS) Magnitude Uncertainty
+\ st_k2lim 
+\ ___ Stellar K (2MASS) Magnitude Limit Flag (0="=", +1=">", -1="<")
+\ st_wise1 (mags) 
+\ ___ Stellar WISE 3.4um Magnitude Value
+\ st_wise1err (mags) 
+\ ___ Stellar WISE 3.4um Magnitude Uncertainty
+\ st_wise1lim 
+\ ___ Stellar WISE 3.4um Magnitude Limit Flag (0="=", +1=">", -1="<")
+\ st_wise2 (mags) 
+\ ___ Stellar WISE 4.6um Magnitude Value
+\ st_wise2err (mags) 
+\ ___ Stellar WISE 4.6um Magnitude Uncertainty
+\ st_wise2lim 
+\ ___ Stellar WISE 4.6um Magnitude Limit Flag (0="=", +1=">", -1="<")
+\ st_wise3 (mags) 
+\ ___ Stellar WISE 12.um Magnitude Value
+\ st_wise3err (mags) 
+\ ___ Stellar WISE 12.um Magnitude Uncertainty
+\ st_wise3lim 
+\ ___ Stellar WISE 12.um Magnitude Limit Flag (0="=", +1=">", -1="<")
+\ st_wise4 (mags) 
+\ ___ Stellar WISE 22.um Magnitude Value
+\ st_wise4err (mags) 
+\ ___ Stellar WISE 22.um Magnitude Uncertainty
+\ st_wise4lim 
+\ ___ Stellar WISE 22.um Magnitude Limit Flag (0="=", +1=">", -1="<")
+\ st_bmvj (mags) 
+\ ___ Stellar B-V (Johnson) Value
+\ st_bmvjerr (mags) 
+\ ___ Stellar B-V (Johnson) Uncertainty
+\ st_bmvjlim 
+\ ___ Stellar B-V (Johnson) Limit Flag (0="=", +1=">", -1="<")
+\ st_jmh2 (mags) 
+\ ___ Stellar J-H (2MASS) Value
+\ st_jmh2err (mags) 
+\ ___ Stellar J-H (2MASS) Uncertainty
+\ st_jmh2lim 
+\ ___ Stellar J-H (2MASS) Limit Flag (0="=", +1=">", -1="<")
+\ st_hmk2 (mags) 
+\ ___ Stellar H-Ks (2MASS) Value
+\ st_hmk2err (mags) 
+\ ___ Stellar H-Ks (2MASS) Uncertainty
+\ st_hmk2lim 
+\ ___ Stellar H-Ks (2MASS) Limit Flag (0="=", +1=">", -1="<")
+\ st_jmk2 (mags) 
+\ ___ Stellar J-Ks (2MASS) Value
+\ st_jmk2err (mags) 
+\ ___ Stellar J-Ks (2MASS) Uncertainty
+\ st_jmk2lim 
+\ ___ Stellar J-Ks (2MASS) Limit Flag (0="=", +1=">", -1="<")
+\ pl_fppprob 
+\ ___ False Positive Probability Value
+\ pl_fppproblim 
+\ ___ False Positive Probability Limit Flag (0="=", +1=">", -1="<")
+\ pl_orbper (days) 
+\ ___ Planet Transit Period Value [days]
+\ pl_orbpererr1 (days) 
+\ ___ Planet Transit Period Upper Uncertainty [days]
+\ pl_orbpererr2 (days) 
+\ ___ Planet Transit Period Lower Uncertainty [days]
+\ pl_orbperlim 
+\ ___ Planet Transit Period Limit Flag (0="=", +1=">", -1="<")
+\ pl_tranmid (days) 
+\ ___ Planet Transit Mid-Point Value [days]
+\ pl_tranmiderr1 (days) 
+\ ___ Planet Transit Mid-Point Upper Uncertainty [days]
+\ pl_tranmiderr2 (days) 
+\ ___ Planet Transit Mid-Point Lower Uncertainty [days]
+\ pl_tranmidlim 
+\ ___ Planet Transit Mid-Point Limit Flag (0="=", +1=">", -1="<")
+\ pl_trandep (perc) 
+\ ___ Planet Transit Depth Value [percentage]
+\ pl_trandeperr1 (perc) 
+\ ___ Planet Transit Depth Upper Uncertainty [percentage]
+\ pl_trandeperr2 (perc) 
+\ ___ Planet Transit Depth Lower Uncertainty [percentage]
+\ pl_trandeplim 
+\ ___ Planet Transit Depth Limit Flag (0="=", +1=">", -1="<")
+\ pl_trandur (days) 
+\ ___ Planet Transit Duration Value [days]
+\ pl_trandurerr1 (days) 
+\ ___ Planet Transit Duration Upper Uncertainty [days]
+\ pl_trandurerr2 (days) 
+\ ___ Planet Transit Duration Lower Uncertainty [days]
+\ pl_trandurlim 
+\ ___ Planet Transit Duration Limit Flag (0="=", +1=">", -1="<")
+\ pl_orbincl (degrees) 
+\ ___ Planet Orbital Inclination Value [deg]
+\ pl_orbinclerr1 (degrees) 
+\ ___ Planet Orbital Inclination Upper Uncertainty [deg]
+\ pl_orbinclerr2 (degrees) 
+\ ___ Planet Orbital Inclination Lower Uncertainty [deg]
+\ pl_orbincllim 
+\ ___ Planet Orbital Inclination Limit Flag (0="=", +1=">", -1="<")
+\ pl_imppar 
+\ ___ Planet Impact Parameter Value
+\ pl_impparerr1 
+\ ___ Planet Impact Parameter Upper Uncertainty
+\ pl_impparerr2 
+\ ___ Planet Impact Parameter Lower Uncertainty
+\ pl_impparlim 
+\ ___ Planet Impact Parameter Limit Flag (0="=", +1=">", -1="<")
+\ pl_ratdor 
+\ ___ Ratio of Distance to Stellar Radius Value
+\ pl_ratdorerr1 
+\ ___ Ratio of Distance to Stellar Radius Upper Uncertainty
+\ pl_ratdorerr2 
+\ ___ Ratio of Distance to Stellar Radius Lower Uncertainty
+\ pl_ratdorlim 
+\ ___ Ratio of Distance to Stellar Radius Limit Flag (0="=", +1=">", -1
+\ pl_ratror 
+\ ___ Ratio of Planet to Stellar Radius Value
+\ pl_ratrorerr1 
+\ ___ Ratio of Planet to Stellar Radius Upper Uncertainty
+\ pl_ratrorerr2 
+\ ___ Ratio of Planet to Stellar Radius Lower Uncertainty
+\ pl_ratrorlim 
+\ ___ Ratio of Planet to Stellar Radius Limit Flag (0="=", +1=">", -1="
+\ pl_radj (Rjup) 
+\ ___ Planet Radius Value [Jupiter radii]
+\ pl_radjerr1 (Rjup) 
+\ ___ Planet Radius Upper Uncertainty [Jupiter radii]
+\ pl_radjerr2 (Rjup) 
+\ ___ Planet Radius Lower Uncertainty [Jupiter radii]
+\ pl_radjlim 
+\ ___ Planet Radius [Jupiter radii] Limit Flag (0="=", +1=">", -1="<")
+\ pl_rade (Rearth) 
+\ ___ Planet Radius Value [Earth radii]
+\ pl_radeerr1 (Rearth) 
+\ ___ Planet Radius Upper Uncertainty [Earth radii]
+\ pl_radeerr2 (Rearth) 
+\ ___ Planet Radius Lower Uncertainty [Earth radii]
+\ pl_radelim 
+\ ___ Planet Radius [Earth radii] Limit Flag (0="=", +1=">", -1="<")
+\ pl_eqt (K) 
+\ ___ Planet Equilibrium Temperature Value [K]
+\ pl_eqterr1 (K) 
+\ ___ Planet Equilibrium Temperature Upper Uncertainty [K]
+\ pl_eqterr2 (K) 
+\ ___ Planet Equilibrium Temperature Lower Uncertainty [K]
+\ pl_eqtlim 
+\ ___ Planet Equilibrium Temperature Limit Flag (0="=", +1=">", -1="<")
+\ pl_tranflag 
+\ ___ Is the planet candidate known to transit? (1 = yes, 0 = no)
+\ 
+|            epic_name|                        tm_name|        epic_candname|                                            pl_name|              ra|          ra_err|                    ra_str|             dec|         dec_err|                   dec_str|                  k2c_disp|               k2c_refdisp|                                                                                                                                                                                              k2c_reflink|                                                                                                                                                                                                 k2c_note| k2c_recentflag| k2_campaign_str|    st_plx| st_plxerr1| st_plxerr2| st_plxlim|   st_dist| st_disterr1| st_disterr2| st_distlim|  st_teff| st_tefferr1| st_tefferr2| st_tefflim|  st_logg| st_loggerr1| st_loggerr2| st_logglim| st_metfe| st_metfeerr1| st_metfeerr2| st_metfelim|          st_metratio| st_rad| st_raderr1| st_raderr2| st_radlim|   st_vsini| st_vsinierr1| st_vsinierr2| st_vsinilim| st_kep| st_keperr| st_keplim|    st_bj| st_bjerr| st_bjlim|    st_vj| st_vjerr| st_vjlim|    st_us| st_userr| st_uslim|    st_gs| st_gserr| st_gslim|    st_rs| st_rserr| st_rslim|    st_is| st_iserr| st_islim|    st_zs| st_zserr| st_zslim|    st_j2| st_j2err| st_j2lim|    st_h2| st_h2err| st_h2lim|    st_k2| st_k2err| st_k2lim| st_wise1| st_wise1err| st_wise1lim| st_wise2| st_wise2err| st_wise2lim| st_wise3| st_wise3err| st_wise3lim| st_wise4| st_wise4err| st_wise4lim|  st_bmvj| st_bmvjerr| st_bmvjlim|  st_jmh2| st_jmh2err| st_jmh2lim|  st_hmk2| st_hmk2err| st_hmk2lim|  st_jmk2| st_jmk2err| st_jmk2lim|           pl_fppprob| pl_fppproblim|        pl_orbper|    pl_orbpererr1|    pl_orbpererr2| pl_orbperlim|     pl_tranmid| pl_tranmiderr1| pl_tranmiderr2| pl_tranmidlim| pl_trandep| pl_trandeperr1| pl_trandeperr2| pl_trandeplim| pl_trandur| pl_trandurerr1| pl_trandurerr2| pl_trandurlim| pl_orbincl| pl_orbinclerr1| pl_orbinclerr2| pl_orbincllim|  pl_imppar| pl_impparerr1| pl_impparerr2| pl_impparlim|   pl_ratdor| pl_ratdorerr1| pl_ratdorerr2| pl_ratdorlim| pl_ratror| pl_ratrorerr1| pl_ratrorerr2| pl_ratrorlim| pl_radj| pl_radjerr1| pl_radjerr2| pl_radjlim|  pl_rade| pl_radeerr1| pl_radeerr2| pl_radelim| pl_eqt| pl_eqterr1| pl_eqterr2| pl_eqtlim| pl_tranflag|
+|                 char|                           char|                 char|                                               char|          double|          double|                      char|          double|          double|                      char|                      char|                      char|                                                                                                                                                                                                     char|                                                                                                                                                                                                     char|            int|            char|    double|     double|     double|       int|    double|      double|      double|        int|   double|      double|      double|        int|   double|      double|      double|        int|   double|       double|       double|         int|                 char| double|     double|     double|       int|     double|       double|       double|         int| double|    double|       int|   double|   double|      int|   double|   double|      int|   double|   double|      int|   double|   double|      int|   double|   double|      int|   double|   double|      int|   double|   double|      int|   double|   double|      int|   double|   double|      int|   double|   double|      int|   double|      double|         int|   double|      double|         int|   double|      double|         int|   double|      double|         int|   double|     double|        int|   double|     double|        int|   double|     double|        int|   double|     double|        int|               double|           int|           double|           double|           double|          int|         double|         double|         double|           int|     double|         double|         double|           int|     double|         double|         double|           int|     double|         double|         double|           int|     double|        double|        double|          int|      double|        double|        double|          int|    double|        double|        double|          int|  double|      double|      double|        int|   double|      double|      double|        int|   long|       long|       long|       int|         int|
+|                     |                               |                     |                                                   |         degrees|         degrees|                          |         degrees|         degrees|                          |                          |                          |                                                                                                                                                                                                         |                                                                                                                                                                                                         |               |                |       mas|        mas|        mas|          |        pc|          pc|          pc|           |        K|           K|           K|           |  cm/s**2|     cm/s**2|     cm/s**2|           |      dex|          dex|          dex|            |                     |   Rsun|       Rsun|       Rsun|          |       km/s|         km/s|         km/s|            |   mags|      mags|          |     mags|     mags|         |     mags|     mags|         |     mags|     mags|         |     mags|     mags|         |     mags|     mags|         |     mags|     mags|         |     mags|     mags|         |     mags|     mags|         |     mags|     mags|         |     mags|     mags|         |     mags|        mags|            |     mags|        mags|            |     mags|        mags|            |     mags|        mags|            |     mags|       mags|           |     mags|       mags|           |     mags|       mags|           |     mags|       mags|           |                     |              |             days|             days|             days|             |           days|           days|           days|              |       perc|           perc|           perc|              |       days|           days|           days|              |    degrees|        degrees|        degrees|              |           |              |              |             |            |              |              |             |          |              |              |             |    Rjup|        Rjup|        Rjup|           |   Rearth|      Rearth|      Rearth|           |      K|          K|          K|          |            |
+|                 null|                           null|                 null|                                               null|            null|            null|                      null|            null|            null|                      null|                      null|                      null|                                                                                                                                                                                                     null|                                                                                                                                                                                                     null|           null|            null|      null|       null|       null|      null|      null|        null|        null|       null|     null|        null|        null|       null|     null|        null|        null|       null|     null|         null|         null|        null|                 null|   null|       null|       null|      null|       null|         null|         null|        null|   null|      null|      null|     null|     null|     null|     null|     null|     null|     null|     null|     null|     null|     null|     null|     null|     null|     null|     null|     null|     null|     null|     null|     null|     null|     null|     null|     null|     null|     null|     null|     null|     null|     null|        null|        null|     null|        null|        null|     null|        null|        null|     null|        null|        null|     null|       null|       null|     null|       null|       null|     null|       null|       null|     null|       null|       null|                 null|          null|             null|             null|             null|         null|           null|           null|           null|          null|       null|           null|           null|          null|       null|           null|           null|          null|       null|           null|           null|          null|       null|          null|          null|         null|        null|          null|          null|         null|      null|          null|          null|         null|    null|        null|        null|       null|     null|        null|        null|       null|   null|       null|       null|      null|        null|
+        EPIC 206027655         2MASS J22354616-1401398     EPIC 206027655.01                                             K2-59 b       338.942352         0.000000               22h35m46.16s       -14.027745         0.000000               -14d01m39.9s                  CONFIRMED                  CANDIDATE                                                                <a refstr=VANDERBURG_ET_AL__2016 href=https://ui.adsabs.harvard.edu/abs/2016ApJS..222...14V/abstract target=ref>Vanderburg et al. 2016</a>                                                                                                                                                                                                      null               0                3       null        null        null       null       null         null         null        null   4775.00         null         null           0      null         null         null        null      null          null          null         null                  null    0.73        null        null          0        null          null          null         null  13.869       null          0    15.129     0.040         0    14.226     0.030         0      null      null      null    14.647     0.010         0    13.904     0.010         0    13.536     0.090         0      null      null      null    12.454     0.023         0    11.981     0.021         0    11.838     0.023         0    11.799        0.022            0    11.860        0.022            0    11.762        0.302            0     8.895         null           -1     0.903       0.050           0     0.473       0.031           0     0.143       0.031           0     0.616       0.033           0                  null           null       20.69845300              null              null             0  2456987.055000            null            null              0    0.115000            null            null              0   0.1220833            null            null              0        null            null            null           null      0.6800           null           null             0         null           null           null          null    0.03279           null           null             0    0.240         null         null           0     2.690         null         null           0    null        null        null       null            1 
+        EPIC 206027655         2MASS J22354616-1401398     EPIC 206027655.02                                             K2-59 c       338.942352         0.000000               22h35m46.16s       -14.027745         0.000000               -14d01m39.9s                  CONFIRMED                  CANDIDATE                                                                <a refstr=VANDERBURG_ET_AL__2016 href=https://ui.adsabs.harvard.edu/abs/2016ApJS..222...14V/abstract target=ref>Vanderburg et al. 2016</a>                                                                                                                                                                                                      null               0                3       null        null        null       null       null         null         null        null   4775.00         null         null           0      null         null         null        null      null          null          null         null                  null    0.73        null        null          0        null          null          null         null  13.869       null          0    15.129     0.040         0    14.226     0.030         0      null      null      null    14.647     0.010         0    13.904     0.010         0    13.536     0.090         0      null      null      null    12.454     0.023         0    11.981     0.021         0    11.838     0.023         0    11.799        0.022            0    11.860        0.022            0    11.762        0.302            0     8.895         null           -1     0.903       0.050           0     0.473       0.031           0     0.143       0.031           0     0.616       0.033           0                  null           null       11.29515800              null              null             0  2456986.710000            null            null              0    0.096700            null            null              0   0.0800000            null            null              0        null            null            null           null      0.8900           null           null             0         null           null           null          null    0.03468           null           null             0    0.220         null         null           0     2.470         null         null           0    null        null        null       null            1 
+        EPIC 206027655         2MASS J22354616-1401398     EPIC 206027655.01                                             K2-59 b       338.942352         0.000000               22h35m46.16s       -14.027745         0.000000               -14d01m39.9s                  CONFIRMED                  CONFIRMED                                                                <a refstr=CROSSFIELD_ET_AL__2016 href=https://ui.adsabs.harvard.edu/abs/2016ApJS..226....7C/abstract target=ref>Crossfield et al. 2016</a>                                                                                                                                                                                                      null               0                3       null        null        null       null       null         null         null        null   5055.00        93.00       -93.00           0      4.59         0.05        -0.05           0      null          null          null         null                  null    0.73        0.07       -0.07          0        null          null          null         null  13.869       null          0    15.129     0.040         0    14.226     0.030         0      null      null      null    14.647     0.010         0    13.904     0.010         0    13.536     0.090         0      null      null      null    12.454     0.023         0    11.981     0.021         0    11.838     0.023         0    11.799        0.022            0    11.860        0.022            0    11.762        0.302            0     8.895         null           -1     0.903       0.050           0     0.473       0.031           0     0.143       0.031           0     0.616       0.033           0                0.0005              0       20.69210000        0.00330000       -0.00330000             0  2456987.060300        0.004300       -0.004300              0        null            null            null           null   0.1150000       0.0075000      -0.0075000              0        null            null            null           null        null           null           null          null         null           null           null          null    0.02990        0.00250       -0.00250             0    0.215        0.028       -0.028           0     2.410        0.310       -0.310           0    null        null        null       null            1 
+        EPIC 206027655         2MASS J22354616-1401398     EPIC 206027655.02                                             K2-59 c       338.942352         0.000000               22h35m46.16s       -14.027745         0.000000               -14d01m39.9s                  CONFIRMED                  CONFIRMED                                                                <a refstr=CROSSFIELD_ET_AL__2016 href=https://ui.adsabs.harvard.edu/abs/2016ApJS..226....7C/abstract target=ref>Crossfield et al. 2016</a>                                                                                                                                                                                                      null               0                3       null        null        null       null       null         null         null        null   5055.00        93.00       -93.00           0      4.59         0.05        -0.05           0      null          null          null         null                  null    0.73        0.07       -0.07          0        null          null          null         null  13.869       null          0    15.129     0.040         0    14.226     0.030         0      null      null      null    14.647     0.010         0    13.904     0.010         0    13.536     0.090         0      null      null      null    12.454     0.023         0    11.981     0.021         0    11.838     0.023         0    11.799        0.022            0    11.860        0.022            0    11.762        0.302            0     8.895         null           -1     0.903       0.050           0     0.473       0.031           0     0.143       0.031           0     0.616       0.033           0               0.00063              0       11.29540000        0.00100000       -0.00100000             0  2456986.709500        0.002900       -0.002900              0        null            null            null           null   0.0729000       0.0050000      -0.0050000              0        null            null            null           null        null           null           null          null         null           null           null          null    0.02860        0.00230       -0.00230             0    0.205        0.026       -0.026           0     2.300        0.290       -0.290           0    null        null        null       null            1 
+        EPIC 206027655         2MASS J22354616-1401398     EPIC 206027655.02                                             K2-59 c       338.942352         0.000000               22h35m46.16s       -14.027745         0.000000               -14d01m39.9s                  CONFIRMED                  CANDIDATE                                                                          <a refstr=KRUSE_ET_AL__2019 href=https://ui.adsabs.harvard.edu/abs/2019arXiv190710806K/abstract target=ref>Kruse et al. 2019</a>                                                                                                                                               Candidate identifier changed to match previous publication.               1                3       null        null        null       null       null         null         null        null      null         null         null        null      null         null         null        null      null          null          null         null                  null    0.64        0.04       -0.01          0        null          null          null         null  13.869       null          0    15.129     0.040         0    14.226     0.030         0      null      null      null    14.647     0.010         0    13.904     0.010         0    13.536     0.090         0      null      null      null    12.454     0.023         0    11.981     0.021         0    11.838     0.023         0    11.799        0.022            0    11.860        0.022            0    11.762        0.302            0     8.895         null           -1     0.903       0.050           0     0.473       0.031           0     0.143       0.031           0     0.616       0.033           0                  null           null       11.29665000        0.00074000       -0.00074000             0  2456986.706100        0.002600       -0.002500              0    0.094000        0.005100       -0.005200              0   0.0750000       0.0040000      -0.0049000              0        null            null            null           null        null           null           null          null    44.000000      12.200000      -5.800000             0    0.02980        0.00160       -0.00270             0     null         null         null        null     2.080        0.170       -0.190           0    null        null        null       null            1 
+        EPIC 206027655         2MASS J22354616-1401398     EPIC 206027655.01                                             K2-59 b       338.942352         0.000000               22h35m46.16s       -14.027745         0.000000               -14d01m39.9s                  CONFIRMED                  CANDIDATE                                                                          <a refstr=KRUSE_ET_AL__2019 href=https://ui.adsabs.harvard.edu/abs/2019arXiv190710806K/abstract target=ref>Kruse et al. 2019</a>                                                                                                                                               Candidate identifier changed to match previous publication.               1                3       null        null        null       null       null         null         null        null      null         null         null        null      null         null         null        null      null          null          null         null                  null    0.64        0.04       -0.01          0        null          null          null         null  13.869       null          0    15.129     0.040         0    14.226     0.030         0      null      null      null    14.647     0.010         0    13.904     0.010         0    13.536     0.090         0      null      null      null    12.454     0.023         0    11.981     0.021         0    11.838     0.023         0    11.799        0.022            0    11.860        0.022            0    11.762        0.302            0     8.895         null           -1     0.903       0.050           0     0.473       0.031           0     0.143       0.031           0     0.616       0.033           0                  null           null       20.69150000        0.00440000       -0.00700000             0  2456987.054500        0.007100       -0.007100              0    0.098600        0.012200       -0.009200              0   0.0950000       0.0110000      -0.0120000              0        null            null            null           null        null           null           null          null    63.000000      19.000000     -13.000000             0    0.03010        0.00260       -0.00410             0     null         null         null        null     2.100        0.230       -0.290           0    null        null        null       null            1 

@@ -1,0 +1,231 @@
+\                                                                               
+\fixlen = T
+\RowsRetrieved =                 1
+\For detailed descriptions of the columns, go to http://exoplanetarchive.ipac.caltech.edu/docs/documentation.html and choose the appropriate table guide.
+\ 
+\ objectid 
+\ ___ NASA Exoplanet Archive Object ID
+\ tid 
+\ ___ TESS Input Catalog Identifier (TIC ID)
+\ tidstr 
+\ ___ TESS Input Catalog Identifier (TIC ID) for Display
+\ toi 
+\ ___ TESS Object of Interest Identifier (TOI nnn.xx)
+\ toipfx 
+\ ___ TESS Object of Interest Prefix (Stellar Portion of TOI Name)
+\ toipfxstr 
+\ ___ TESS Object of Interest Prefix (Stellar Portion of TOI Name) for Display
+\ ctoi_alias 
+\ ___ Community TESS Object of Interest Alias
+\ ctoi_aliasstr 
+\ ___ Community TESS Object of Interest Alias for Display
+\ pl_pnum 
+\ ___ Number of Planets
+\ tfopwg_disp 
+\ ___ TFOPWG Dispostion (CP=confirmed planet, FP=false positive, PC=planetary cand)
+\ st_tmag 
+\ ___ Stellar TESS Magnitude Value
+\ st_tmagerr1 
+\ ___ Stellar TESS Magnitude Upper Uncertainty
+\ st_tmagerr2 
+\ ___ Stellar TESS Magnitude Lower Uncertainty
+\ st_tmagsymerr 
+\ ___ Stellar TESS Magnitude Symmetric Error Flag
+\ st_tmaglim 
+\ ___ Stellar TESS Magnitude Limit Flag
+\ st_tmagstr 
+\ ___ Stellar TESS Magnitude String for Dipslay
+\ ra (deg) 
+\ ___ Right Ascension (J2000) Value
+\ raerr1 (deg) 
+\ ___ Right Ascension (J2000) Upper Uncertainty
+\ raerr2 (deg) 
+\ ___ Right Ascension (J2000) Lower Undertainty
+\ rasymerr 
+\ ___ Right Ascension (J2000) Symmetric Error Flag
+\ rastr 
+\ ___ Right Ascension (J2000) String for Display
+\ dec (deg) 
+\ ___ Declination (J2000) Value
+\ decerr1 (deg) 
+\ ___ Declination (J2000) Upper Uncertainty
+\ decerr2 (deg) 
+\ ___ Declination (J2000) Lower Uncertainty
+\ decsymerr 
+\ ___ Declination (J2000) Symmetric Error Flag
+\ decstr 
+\ ___ Declination (J2000) String for Display
+\ st_pmra (mas/yr) 
+\ ___ Stellar Proper Motion in Right Ascension Value
+\ st_pmraerr1 (mas/yr) 
+\ ___ Stellar Proper Motion in Right Ascension Upper Uncertainty
+\ st_pmraerr2 (mas/yr) 
+\ ___ Stellar Proper Motion in Right Ascension Lower Uncertainty
+\ st_pmrasymerr 
+\ ___ Stellar Proper Motion in Right Ascension Symmetric Error Flag
+\ st_pmralim 
+\ ___ stellar proper motion in right ascension limit flag
+\ st_pmrastr 
+\ ___ Stellar Proper Motion in Right Ascension String for Display
+\ st_pmdec (mas/yr) 
+\ ___ Stellar Proper Motion in Declination Value
+\ st_pmdecerr1 (mas/yr) 
+\ ___ Stellar Proper Motion in Declination Upper Uncertainty
+\ st_pmdecerr2 (mas/yr) 
+\ ___ Stellar Proper Motion in Declination Lower Uncertainty
+\ st_pmdecsymerr 
+\ ___ Stellar Proper Motion in Declination Symmetric Error Flag
+\ st_pmdeclim 
+\ ___ Stellar Proper Motion in Declination Limit Flag
+\ st_pmdecstr 
+\ ___ Stellar Proper Motion in Declination String for Display
+\ pl_tranmid (BJD) 
+\ ___ Planet Transit Midpoint Value
+\ pl_tranmiderr1 (BJD) 
+\ ___ Planet Transit Midpoint Upper Uncertainty
+\ pl_tranmiderr2 (BJD) 
+\ ___ Planit Transit Midpoint Lower Uncertainty
+\ pl_tranmidsymerr 
+\ ___ Planet Transit Midpoint Symmetric Error Flag
+\ pl_tranmidlim 
+\ ___ Planet Transit Midpoint Limit Flag
+\ pl_tranmidstr 
+\ ___ Planet Transit Midpoint String for Display
+\ pl_orbper (days) 
+\ ___ Planet Orbital Period Value
+\ pl_orbpererr1 (days) 
+\ ___ Planet Orbital Period Upper Uncertainty
+\ pl_orbpererr2 (days) 
+\ ___ Planet Orbital Period Lower Uncertainty
+\ pl_orbpersymerr 
+\ ___ Planet Orbital Period Symmetric Error Flag
+\ pl_orbperlim 
+\ ___ Planet Orbital Period Limit Flag
+\ pl_orbperstr 
+\ ___ Planet Orbital Period String for Display
+\ pl_trandurh (hours) 
+\ ___ Planet Transit Duration Value
+\ pl_trandurherr1 (hours) 
+\ ___ Planet Transit Duration Upper Uncertainty
+\ pl_trandurherr2 (hours) 
+\ ___ Planet Transit Duration Lower Uncertainty
+\ pl_trandurhsymerr 
+\ ___ Planet Transit Duration Symmetric Error Flag
+\ pl_trandurhlim 
+\ ___ Planet Transit Duration Limit Flag
+\ pl_trandurhstr 
+\ ___ Planet Transit Duration String for Display
+\ pl_trandep (ppm) 
+\ ___ Planet Transit Depth Value
+\ pl_trandeperr1 (ppm) 
+\ ___ Planet Transit Depth Upper Uncertainty
+\ pl_trandeperr2 (ppm) 
+\ ___ Planet Transit Depth Lower Uncertainty
+\ pl_trandepsymerr 
+\ ___ Planet Transit Depth Symmetric Error Flag
+\ pl_trandeplim 
+\ ___ Planet Transit Depth Limit Flag
+\ pl_trandepstr 
+\ ___ Planet Transit Depth String for Display
+\ pl_rade (R_Earth) 
+\ ___ Planet Radius Value
+\ pl_radeerr1 (R_Earth) 
+\ ___ Planet Radius Upper Uncertainty
+\ pl_radeerr2 (R_Earth) 
+\ ___ Planet Radius Lower Uncertainty
+\ pl_radesymerr 
+\ ___ Planet Radius Symmetric Error Flag
+\ pl_radelim 
+\ ___ Planet Radius Limit Flag
+\ pl_radestr 
+\ ___ Planet Radius String for Display
+\ pl_insol (Earth flux) 
+\ ___ Planet Insolation Value
+\ pl_insolerr1 (Earth flux) 
+\ ___ Planet Insolation Upper Uncertainty
+\ pl_insolerr2 (Earth flux) 
+\ ___ Planet Insolation Lower Uncertainty
+\ pl_insolsymerr 
+\ ___ Planet Insolation Symmetric Error Flag
+\ pl_insollim 
+\ ___ Planet Insolation Limit Flag
+\ pl_insolstr 
+\ ___ Planet Insolation String for Display
+\ pl_eqt (K) 
+\ ___ Planet Equilibrium Temperature Value
+\ pl_eqterr1 (K) 
+\ ___ Planet Equilibrium Temperature Upper Uncertainty
+\ pl_eqterr2 (K) 
+\ ___ Planet Equilibrium Temperature Lower Uncertainty
+\ pl_eqtsymerr 
+\ ___ Planet Equilibrium Temperature Symmetric Error Flag
+\ pl_eqtlim 
+\ ___ Planet Equilibrium Temperature Limit Flag
+\ pl_eqtstr 
+\ ___ Planet Equilibrium Temperature String for Display
+\ st_dist (pc) 
+\ ___ Stellar Distance Value
+\ st_disterr1 (pc) 
+\ ___ Stellar Distance Upper Uncertainty
+\ st_disterr2 (pc) 
+\ ___ Stellar Distance Lower Uncertainty
+\ st_distsymerr 
+\ ___ Stellar Distance Symmetric Error Flag
+\ st_distlim 
+\ ___ Stellar Distance Limit Flag
+\ st_diststr 
+\ ___ Stellar Distance String for Display
+\ st_teff (K) 
+\ ___ Stellar Effective Temperature Value
+\ st_tefferr1 (K) 
+\ ___ Stellar Effective Termperature Upper Uncertainty
+\ st_tefferr2 (K) 
+\ ___ Stellar Effecitve Temperature Lower Uncertainty
+\ st_teffsymerr 
+\ ___ Stellar Effective Temperature Symmetric Error Flag
+\ st_tefflim 
+\ ___ Stellar Effective Temperature Limit Flag
+\ st_teffstr 
+\ ___ Stellar Effective Temperature String for Display
+\ st_logg (cm/s**2) 
+\ ___ Stellar log(g) Value
+\ st_loggerr1 (cm/s**2) 
+\ ___ Stellar log(g) Upper Uncertanty
+\ st_loggerr2 (cm/s**2) 
+\ ___ Stellar log(g) Lower Uncertainty
+\ st_loggsymerr 
+\ ___ Stellar log(g) Symmetric Error Flag
+\ st_logglim 
+\ ___ Stellar log(g) Limit Flag
+\ st_loggstr 
+\ ___ Stellar log(g) String for Display
+\ st_rad (R_Sun) 
+\ ___ Stellar Radius Value
+\ st_raderr1 (R_Sun) 
+\ ___ Stellar Radius Upper Uncertainty
+\ st_raderr2 (R_Sun) 
+\ ___ Stellar Radius Lower Uncertainty
+\ st_radsymerr 
+\ ___ Stellar Radius Symmetric Error Flag
+\ st_radlim 
+\ ___ Stellar Radius Limit Flag
+\ st_radstr 
+\ ___ Stellar Radius String for Display
+\ sectors 
+\ ___ Sectors (TBD)
+\ toi_created 
+\ ___ TOI Created Date
+\ rowupdate 
+\ ___ Last Update Date
+\ release_date 
+\ ___ Release Date
+\ spt_ind 
+\ ___ spatial index
+\ htm20 
+\ ___ spatial index
+\ 
+|             objectid|                  tid|                         tidstr|                            toi|                         toipfx|                      toipfxstr|                     ctoi_alias|                  ctoi_aliasstr| pl_pnum| tfopwg_disp|         st_tmag| st_tmagerr1| st_tmagerr2| st_tmagsymerr| st_tmaglim|                                         st_tmagstr|              ra|          raerr1|          raerr2| rasymerr|                                              rastr|             dec|         decerr1|         decerr2| decsymerr|                                             decstr|         st_pmra| st_pmraerr1| st_pmraerr2| st_pmrasymerr| st_pmralim|                                         st_pmrastr|        st_pmdec| st_pmdecerr1| st_pmdecerr2| st_pmdecsymerr| st_pmdeclim|                                        st_pmdecstr|      pl_tranmid| pl_tranmiderr1| pl_tranmiderr2| pl_tranmidsymerr| pl_tranmidlim|                                      pl_tranmidstr|       pl_orbper|   pl_orbpererr1|   pl_orbpererr2| pl_orbpersymerr| pl_orbperlim|                                       pl_orbperstr|     pl_trandurh| pl_trandurherr1| pl_trandurherr2| pl_trandurhsymerr| pl_trandurhlim|                                     pl_trandurhstr|           pl_trandep|  pl_trandeperr1|  pl_trandeperr2| pl_trandepsymerr| pl_trandeplim|                                      pl_trandepstr|         pl_rade|     pl_radeerr1|     pl_radeerr2| pl_radesymerr| pl_radelim|                                         pl_radestr|        pl_insol|    pl_insolerr1|    pl_insolerr2| pl_insolsymerr| pl_insollim|                                        pl_insolstr|          pl_eqt|      pl_eqterr1|      pl_eqterr2| pl_eqtsymerr| pl_eqtlim|                                          pl_eqtstr|         st_dist|     st_disterr1|     st_disterr2| st_distsymerr| st_distlim|                                         st_diststr|         st_teff|     st_tefferr1|     st_tefferr2| st_teffsymerr| st_tefflim|                                         st_teffstr|         st_logg|     st_loggerr1|     st_loggerr2| st_loggsymerr| st_logglim|                                         st_loggstr|          st_rad|      st_raderr1|      st_raderr2| st_radsymerr| st_radlim|                                          st_radstr|                                                                          sectors|             toi_created|               rowupdate|            release_date|      spt_ind|               htm20|
+|                 long|                 long|                           char|                           char|                           char|                           char|                           char|                           char|     int|        char|          double|      double|      double|           int|        int|                                               char|          double|          double|          double|      int|                                               char|          double|          double|          double|       int|                                               char|          double|      double|      double|           int|        int|                                               char|          double|       double|       double|            int|         int|                                               char|          double|         double|         double|              int|           int|                                               char|          double|          double|          double|             int|          int|                                               char|          double|          double|          double|               int|            int|                                               char|               double|          double|          double|              int|           int|                                               char|          double|          double|          double|           int|        int|                                               char|          double|          double|          double|            int|         int|                                               char|          double|          double|          double|          int|       int|                                               char|          double|          double|          double|           int|        int|                                               char|          double|          double|          double|           int|        int|                                               char|          double|          double|          double|           int|        int|                                               char|          double|          double|          double|          int|       int|                                               char|                                                                             char|                    char|                    char|                    char|         long|                long|
+|                     |                     |                               |                               |                               |                               |                               |                               |        |            |                |            |            |              |           |                                                   |             deg|             deg|             deg|         |                                                   |             deg|             deg|             deg|          |                                                   |          mas/yr|      mas/yr|      mas/yr|              |           |                                                   |          mas/yr|       mas/yr|       mas/yr|               |            |                                                   |             BJD|            BJD|            BJD|                 |              |                                                   |            days|            days|            days|                |             |                                                   |           hours|           hours|           hours|                  |               |                                                   |                  ppm|             ppm|             ppm|                 |              |                                                   |         R_Earth|         R_Earth|         R_Earth|              |           |                                                   |      Earth flux|      Earth flux|      Earth flux|               |            |                                                   |               K|               K|               K|             |          |                                                   |              pc|              pc|              pc|              |           |                                                   |               K|               K|               K|              |           |                                                   |         cm/s**2|         cm/s**2|         cm/s**2|              |           |                                                   |           R_Sun|           R_Sun|           R_Sun|             |          |                                                   |                                                                                 |                        |                        |                        |             |                    |
+|                 null|                 null|                           null|                           null|                           null|                           null|                           null|                           null|    null|        null|            null|        null|        null|          null|       null|                                               null|            null|            null|            null|     null|                                               null|            null|            null|            null|      null|                                               null|            null|        null|        null|          null|       null|                                               null|            null|         null|         null|           null|        null|                                               null|            null|           null|           null|             null|          null|                                               null|            null|            null|            null|            null|         null|                                               null|            null|            null|            null|              null|           null|                                               null|                 null|            null|            null|             null|          null|                                               null|            null|            null|            null|          null|       null|                                               null|            null|            null|            null|           null|        null|                                               null|            null|            null|            null|         null|      null|                                               null|            null|            null|            null|          null|       null|                                               null|            null|            null|            null|          null|       null|                                               null|            null|            null|            null|          null|       null|                                               null|            null|            null|            null|         null|      null|                                               null|                                                                             null|                    null|                    null|                    null|         null|                null|
+                  null              92226327                    TIC 92226327                          256.01                             256                         TOI 256                     92226327.01                 TIC 92226327.01        1           KP       11.2991000        0.007        0.007              1           0                                11.2991&plusmn;0.007       11.2486320             null             null      null                                        00h44m59.67s      -15.2741090             null             null       null                                       -15d16m26.79s      317.5850000        0.121        0.121              1           0                                317.585&plusmn;0.121     -596.6170000         0.085         0.085               1            0                               -596.617&plusmn;0.085  2458389.2852780        0.002133        0.002133                 1              0                      2458389.285278&plusmn;0.002133       24.7371200        0.0002500        0.0002500                1             0                             24.73712&plusmn;0.00025        1.9582950        0.1903830        0.1903830                  1               0                            1.958295&plusmn;0.190383          4088.8254390      360.4477230      360.4477230                 1              0                       4088.825439&plusmn;360.447723        1.3693670        0.1004520        0.1004520              1           0                            1.369367&plusmn;0.100452        1.2260560             null             null            null         null                                            1.226056      268.3782650             null             null          null       null                                          268.378265       14.9861000        0.0152500        0.0152500              1           0                              14.9861&plusmn;0.01525     3131.0000000             null             null              1           0                                                3131        5.0570100             null             null              1           0                                             5.05701        0.1900000             null             null             1          0                                                0.19                                                                              null      2018-11-30 22:06:23      2019-12-17 10:00:02      2020-04-01 04:30:02     100322312        9048843364125 
