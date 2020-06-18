@@ -88,7 +88,7 @@ stored in the file 'results10.csv'. The result of this query can be printed by d
 
   >>> from astroquery.esa.xmm_newton import XMMNewton
   >>>
-  >>> XMMNewton.get_tables(True)
+  >>> XMMNewton.get_tables()
   INFO: Retrieving tables... [astroquery.utils.tap.core]
   INFO: Parsing tables... [astroquery.utils.tap.core]
   INFO: Done. [astroquery.utils.tap.core]

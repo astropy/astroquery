@@ -33,11 +33,7 @@ class TestXMMNewton():
                       'filename': 'file',
                       'verbose': False}
         xsa = XMMNewtonClass(self.get_dummy_tap_handler())
-        xsa.download_data(parameters['observation_id'],
-                          filename=parameters['filename'],
-                          verbose=parameters['verbose'],
-                          level=parameters['level']
-                          )
+        xsa.download_data(**parameters)
 
     @pytest.mark.remote_data
     def test_download_data_single_file(self):
@@ -49,14 +45,7 @@ class TestXMMNewton():
                       'extension': 'FTZ',
                       'verbose': False}
         xsa = XMMNewtonClass(self.get_dummy_tap_handler())
-        xsa.download_data(parameters['observation_id'],
-                          filename=parameters['filename'],
-                          verbose=parameters['verbose'],
-                          level=parameters['level'],
-                          extension=parameters['extension'],
-                          instname=parameters['instname'],
-                          name=parameters['name']
-                          )
+        xsa.download_data(**parameters)
 
     @pytest.mark.remote_data
     def test_get_postcard(self):
@@ -65,10 +54,7 @@ class TestXMMNewton():
                       'filename': None,
                       'verbose': False}
         xsa = XMMNewtonClass(self.get_dummy_tap_handler())
-        xsa.get_postcard(parameters['observation_id'],
-                         parameters['image_type'],
-                         parameters['filename'],
-                         parameters['verbose'])
+        xsa.get_postcard(**parameters)
 
     def test_query_xsa_tap(self):
         parameters = {'query': "select top 10 * from v_public_observations",
@@ -77,35 +63,24 @@ class TestXMMNewton():
                       'verbose': False}
 
         xsa = XMMNewtonClass(self.get_dummy_tap_handler())
-        xsa.query_xsa_tap(parameters['query'], parameters['output_file'],
-                          parameters['output_format'], parameters['verbose'])
+        xsa.query_xsa_tap(**parameters)
         self.get_dummy_tap_handler().check_call("launch_job", parameters)
 
     def test_get_tables(self):
-        parameters = {'query': "select top 10 * from v_public_observations",
-                      'output_file': "test2.vot",
-                      'output_format': "votable",
-                      'verbose': False}
-
         parameters2 = {'only_names': True,
                        'verbose': True}
 
         dummyTapHandler = DummyXMMNewtonTapHandler("get_tables", parameters2)
         xsa = XMMNewtonClass(self.get_dummy_tap_handler())
-        xsa.get_tables(True, True)
+        xsa.get_tables(only_names=True, verbose=True)
         dummyTapHandler.check_call("get_tables", parameters2)
 
     def test_get_columns(self):
-        parameters = {'query': "select top 10 * from v_public_observations",
-                      'output_file': "test2.vot",
-                      'output_format': "votable",
-                      'verbose': False}
-
         parameters2 = {'table_name': "table",
                        'only_names': True,
                        'verbose': True}
 
         dummyTapHandler = DummyXMMNewtonTapHandler("get_columns", parameters2)
         xsa = XMMNewtonClass(self.get_dummy_tap_handler())
-        xsa.get_columns("table", True, True)
+        xsa.get_columns("table", only_names=True, verbose=True)
         dummyTapHandler.check_call("get_columns", parameters2)
