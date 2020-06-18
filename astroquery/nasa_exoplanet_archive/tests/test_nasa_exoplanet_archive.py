@@ -1,9 +1,9 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 
-import sys
 import json
 import os
+import sys
 from urllib.parse import urlencode
 
 import astropy.units as u
@@ -13,16 +13,11 @@ import pytest
 import requests
 from astropy.coordinates import SkyCoord
 from astropy.tests.helper import assert_quantity_allclose
+from astropy.utils.exceptions import AstropyDeprecationWarning
 
+from ...exceptions import InputWarning, InvalidQueryError, NoResultsWarning
 from ...utils.testing_tools import MockResponse
-from ..core import (
-    AstropyDeprecationWarning,
-    InputWarning,
-    InvalidQueryError,
-    NasaExoplanetArchive,
-    NoResultsWarning,
-    conf,
-)
+from ..core import NasaExoplanetArchive, conf
 
 MAIN_DATA = pkg_resources.resource_filename("astroquery.nasa_exoplanet_archive", "data")
 TEST_DATA = pkg_resources.resource_filename(__name__, "data")

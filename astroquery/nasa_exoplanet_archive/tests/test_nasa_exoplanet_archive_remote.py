@@ -3,7 +3,8 @@ from __future__ import print_function
 
 import pytest
 
-from ..core import InvalidQueryError, InvalidTableError, NasaExoplanetArchive
+from ...exceptions import InvalidQueryError
+from ..core import InvalidTableError, NasaExoplanetArchive
 
 
 @pytest.mark.remote_data

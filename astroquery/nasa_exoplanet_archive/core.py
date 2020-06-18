@@ -1,8 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 
-import io
 import copy
+import io
 import re
 import warnings
 
@@ -12,12 +12,13 @@ import astropy.units.cds as cds
 import numpy as np
 from astropy.coordinates import SkyCoord
 from astropy.io import ascii
-from astropy.table import QTable
-from astropy.utils import deprecated
-from astropy.utils.exceptions import AstropyDeprecationWarning, AstropyWarning
 from astropy.io.votable import parse_single_table
+from astropy.table import QTable
+from astropy.utils import deprecated, deprecated_renamed_argument
+from astropy.utils.exceptions import AstropyWarning
 
-from ..exceptions import InputWarning, InvalidQueryError, NoResultsWarning, RemoteServiceError
+from ..exceptions import (InputWarning, InvalidQueryError, NoResultsWarning,
+                          RemoteServiceError)
 from ..query import BaseQuery
 from ..utils import async_to_sync, commons
 from ..utils.class_or_instance import class_or_instance
@@ -483,49 +484,34 @@ class NasaExoplanetArchiveClass(BaseQuery):
         # For backwards compatibility, add a `sky_coord` column with the coordinates of the object
         # if possible
         if "ra" in data.columns and "dec" in data.columns:
-            data["sky_coord"] = SkyCoord(
-                ra=u.Quantity(data["ra"], unit=u.deg), dec=u.Quantity(data["dec"], unit=u.deg)
-            )
+            data["sky_coord"] = SkyCoord(ra=data["ra"], dec=data["dec"], unit=u.deg)
 
         if not data:
             warnings.warn("Query returned no results.", NoResultsWarning)
 
         return data
 
-    def _handle_deprecated_arguments(self, **kwargs):
+    def _handle_all_columns_argument(self, **kwargs):
         """
-        Deal with arguments that were exposed by earlier versions of the interface
+        Deal with the ``all_columns`` argument that was exposed by earlier versions
 
-        This method will warn users about these deprecated arguments and update the query syntax
-        to use ``select='*'`` instead of ``all_columns``.
+        This method will warn users about this deprecated argument and update the query syntax
+        to use ``select='*'``.
         """
-        show_progress = kwargs.pop("show_progress", None)
-        if show_progress is not None:
-            warnings.warn(
-                "Argument 'show_progress' has been deprecated, and will have no effect",
-                AstropyDeprecationWarning,
-            )
+        # We also have to manually pop these arguments from the dict because
+        # `deprecated_renamed_argument` doesn't do that for some reason
+        kwargs.pop("show_progress", None)
+        kwargs.pop("table_path", None)
 
-        table_path = kwargs.pop("table_path", None)
-        if table_path is not None:
-            warnings.warn(
-                "Argument 'table_path' has been deprecated, and will have no effect",
-                AstropyDeprecationWarning,
-            )
-
-        all_columns = kwargs.pop("all_columns", None)
-        if all_columns is not None:
-            warnings.warn(
-                "Argument 'all_columns' has been deprecated in favor of 'select=\"*\"'",
-                AstropyDeprecationWarning,
-            )
-
-        if all_columns:
+        # Deal with `all_columns` properly
+        if kwargs.pop("all_columns", None):
             kwargs["select"] = kwargs.get("select", "*")
 
         return kwargs
 
     @deprecated(since="v0.4.1", alternative="query_object")
+    @deprecated_renamed_argument(["show_progress", "table_path", "all_columns"],
+                                 [None, None, None], "v0.4.1", arg_in_kwargs=True)
     def query_planet(self, planet_name, cache=None, regularize=True, **criteria):
         """
         Search the ``exoplanets`` table for a confirmed planet
@@ -546,11 +532,13 @@ class NasaExoplanetArchiveClass(BaseQuery):
         """
         if regularize:
             planet_name = self._regularize_object_name(planet_name)
-        criteria = self._handle_deprecated_arguments(**criteria)
+        criteria = self._handle_all_columns_argument(**criteria)
         criteria["where"] = "pl_name='{0}'".format(planet_name.strip())
         return self.query_criteria("exoplanets", cache=cache, **criteria)
 
     @deprecated(since="v0.4.1", alternative="query_object")
+    @deprecated_renamed_argument(["show_progress", "table_path", "all_columns"],
+                                 [None, None, None], "v0.4.1", arg_in_kwargs=True)
     def query_star(self, host_name, cache=None, regularize=True, **criteria):
         """
         Search the ``exoplanets`` table for a confirmed planet host
@@ -571,7 +559,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
         """
         if regularize:
             host_name = self._regularize_object_name(host_name)
-        criteria = self._handle_deprecated_arguments(**criteria)
+        criteria = self._handle_all_columns_argument(**criteria)
         criteria["where"] = "pl_hostname='{0}'".format(host_name.strip())
         return self.query_criteria("exoplanets", cache=cache, **criteria)
 
