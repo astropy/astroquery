@@ -67,7 +67,7 @@ class NoirlabClass(BaseQuery):
             raise Exception(msg)
 
     @class_or_instance
-    def query_region(self, coordinate, radius=0.1, cache=True):
+    def query_region(self, coordinate, radius=0.1, *, cache=True):
         """Query for NOIRLab observations by region of the sky.
 
         Given a sky coordinate and radius, returns a `~astropy.table.Table`
