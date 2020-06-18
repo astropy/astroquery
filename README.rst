@@ -107,6 +107,7 @@ The following modules have been completed using a common API:
   * `CADC <https://astroquery.readthedocs.io/en/latest/cadc/cadc.html>`_: Canadian Astronomy Data Centre.
   * `ESASky <http://astroquery.readthedocs.io/en/latest/esasky/esasky.html>`_: ESASky is a science driven discovery portal providing easy visualizations and full access to the entire sky as observed with ESA Space astronomy missions.
   * `ESO Archive <http://astroquery.readthedocs.io/en/latest/eso/eso.html>`_
+  * `FIRST <http://astroquery.readthedocs.io/en/latest/image_cutouts/first/first.html>`_: Faint Images of the Radio Sky at Twenty-cm. 20-cm radio images of the extragalactic sky from the VLA.
   * `Gaia <http://astroquery.readthedocs.io/en/latest/gaia/gaia.html>`_: European Space Agency Gaia Archive.
   * `ESA XMM <https://astroquery.readthedocs.io/en/latest/esa/xmm_newton.html>`_: European Space Agency XMM-Newton Science Archive.
   * `ESA Hubble <https://astroquery.readthedocs.io/en/latest/esa/hubble.html>`_: European Space Agency Hubble Science Archive.
