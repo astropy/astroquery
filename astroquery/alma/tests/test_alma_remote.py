@@ -2,12 +2,10 @@
 import tempfile
 import shutil
 import numpy as np
-import os
 import pytest
 
 from astropy import coordinates
 from astropy import units as u
-from six.moves.urllib_parse import urlparse
 
 from astroquery.utils.commons import ASTROPY_LT_4_1
 from .. import Alma
@@ -111,12 +109,19 @@ class TestAlma:
         alma.cache_location = temp_dir
 
         result_s = alma.query_object('Sgr A*')
-        # assert b'2011.0.00887.S' in result_s['Project code']
-        assert b'2013.1.00857.S' in result_s['Project code']
-        # assert b'uid://A002/X40d164/X1b3' in result_s['Asdm uid']
-        assert b'uid://A002/X40d164/X1b3' in result_s['Asdm uid']
-        assert b'uid://A002/X391d0b/X23d' in result_s['Member ous id']
-        match = result_s['Asdm uid'] == b'uid://A002/X40d164/X1b3'
+
+        if ASTROPY_LT_4_1:
+            assert b'2013.1.00857.S' in result_s['Project code']
+            assert b'uid://A002/X40d164/X1b3' in result_s['Asdm uid']
+            assert b'uid://A002/X391d0b/X23d' in result_s['Member ous id']
+            match_val = b'uid://A002/X40d164/X1b3'
+        else:
+            assert '2013.1.00857.S' in result_s['Project code']
+            assert 'uid://A002/X40d164/X1b3' in result_s['Asdm uid']
+            assert 'uid://A002/X391d0b/X23d' in result_s['Member ous id']
+            match_val = 'uid://A002/X40d164/X1b3'
+
+        match = result_s['Asdm uid'] == match_val
         uid = result_s['Member ous id'][match]
 
         result = alma.stage_data(uid)
@@ -177,10 +182,16 @@ class TestAlma:
         assert len(gc_data) >= 50  # Nov 16, 2016
 
         uids = np.unique(m83_data['Member ous id'])
-        assert b'uid://A001/X11f/X30' in uids
-        X30 = (m83_data['Member ous id'] == b'uid://A001/X11f/X30')
+        if ASTROPY_LT_4_1:
+            assert b'uid://A001/X11f/X30' in uids
+            X30 = (m83_data['Member ous id'] == b'uid://A001/X11f/X30')
+            X31 = (m83_data['Member ous id'] == b'uid://A002/X3216af/X31')
+        else:
+            assert 'uid://A001/X11f/X30' in uids
+            X30 = (m83_data['Member ous id'] == 'uid://A001/X11f/X30')
+            X31 = (m83_data['Member ous id'] == 'uid://A002/X3216af/X31')
+
         assert X30.sum() == 1  # Apr 2, 2020
-        X31 = (m83_data['Member ous id'] == b'uid://A002/X3216af/X31')
         assert X31.sum() == 2  # Jul 2, 2017: increased from 1
 
         mous1 = alma.stage_data('uid://A001/X11f/X30')
@@ -267,5 +278,5 @@ def test_staging_stacking(dataarchive_url):
     alma = Alma()
     alma.archive_url = dataarchive_url
 
-    tbl = alma.stage_data(['uid://A001/X13d5/X1d', 'uid://A002/X3216af/X31',
-                           'uid://A001/X12a3/X240'])
+    alma.stage_data(['uid://A001/X13d5/X1d', 'uid://A002/X3216af/X31',
+                     'uid://A001/X12a3/X240'])
