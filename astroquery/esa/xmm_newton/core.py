@@ -41,7 +41,7 @@ class XMMNewtonClass(BaseQuery):
         else:
             self._tap = tap_handler
 
-    def download_data(self, observation_id, filename=None, verbose=False,
+    def download_data(self, observation_id, *, filename=None, verbose=False,
                       **kwargs):
         """
         Download data from XMM-Newton
@@ -122,7 +122,7 @@ class XMMNewtonClass(BaseQuery):
         if verbose:
             log.info("Wrote {0} to {1}".format(link, filename))
 
-    def get_postcard(self, observation_id, image_type="OBS_EPIC",
+    def get_postcard(self, observation_id, *, image_type="OBS_EPIC",
                      filename=None, verbose=False):
         """
         Download postcards from XSA
@@ -180,7 +180,7 @@ class XMMNewtonClass(BaseQuery):
 
         return filename
 
-    def query_xsa_tap(self, query, output_file=None,
+    def query_xsa_tap(self, query, *, output_file=None,
                       output_format="votable", verbose=False):
         """Launches a synchronous job to query the XSA tap
 
@@ -203,17 +203,17 @@ class XMMNewtonClass(BaseQuery):
 
         job = self._tap.launch_job(query=query, output_file=output_file,
                                    output_format=output_format,
-                                   verbose=False,
+                                   verbose=verbose,
                                    dump_to_file=output_file is not None)
         table = job.get_results()
         return table
 
-    def get_tables(self, only_names=True, verbose=False):
+    def get_tables(self, *, only_names=True, verbose=False):
         """Get the available table in XSA TAP service
 
         Parameters
         ----------
-        only_names : bool, TAP+ only, optional, default 'False'
+        only_names : bool, TAP+ only, optional, default 'True'
             True to load table names only
         verbose : bool, optional, default 'False'
             flag to display information about the process
@@ -231,14 +231,14 @@ class XMMNewtonClass(BaseQuery):
         else:
             return tables
 
-    def get_columns(self, table_name, only_names=True, verbose=False):
+    def get_columns(self, table_name, *, only_names=True, verbose=False):
         """Get the available columns for a table in XSA TAP service
 
         Parameters
         ----------
         table_name : string, mandatory, default None
             table name of which, columns will be returned
-        only_names : bool, TAP+ only, optional, default 'False'
+        only_names : bool, TAP+ only, optional, default 'True'
             True to load table names only
         verbose : bool, optional, default 'False'
             flag to display information about the process
