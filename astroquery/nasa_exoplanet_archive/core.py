@@ -152,7 +152,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
         return response
 
     @class_or_instance
-    def query_region_async(self, table, coordinates, radius, get_query_payload=False, cache=None,
+    def query_region_async(self, table, coordinates, radius, *, get_query_payload=False, cache=None,
                            **criteria):
         """
         Filter a table using a cone search around specified coordinates
@@ -204,7 +204,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
         )
 
     @class_or_instance
-    def query_object_async(self, object_name, table="exoplanets", get_query_payload=False,
+    def query_object_async(self, object_name, *, table="exoplanets", get_query_payload=False,
                            cache=None, regularize=True, **criteria):
         """
         Search the global tables for information about a confirmed planet or planet host
@@ -272,7 +272,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
         )
 
     @class_or_instance
-    def query_aliases(self, object_name, cache=None):
+    def query_aliases(self, object_name, *, cache=None):
         """
         Search for aliases for a given confirmed planet or planet host
 
