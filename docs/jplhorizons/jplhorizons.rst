@@ -6,6 +6,12 @@
 JPL Horizons Queries (`astroquery.jplhorizons`/astroquery.solarsystem.jpl.horizons)
 ***********************************************************************************
 
+.. Note::
+
+   Due to serverside changes the ``jplhorizons`` module requires astroquery v0.4.1 or newer.
+   Previous versions are not expected to function, please upgrade the package if you observe any issues.
+
+
 Overview
 ========
 
