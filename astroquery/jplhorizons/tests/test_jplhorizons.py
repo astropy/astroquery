@@ -62,9 +62,9 @@ def test_ephemerides_query(patch_request):
     # check values of Ceres for a given epoch
     # orbital uncertainty of Ceres is basically zero
     res = jplhorizons.Horizons(id='Ceres', location='500',
-                               epochs=2451545.5).ephemerides()[0]
+                               epochs=2451544.5).ephemerides()[0]
 
-    assert res['targetname'] == "1 Ceres"
+    assert res['targetname'] == "1 Ceres (A801 AA)"
     assert res['datetime_str'] == "2000-Jan-01 00:00:00.000"
     assert res['solar_presence'] == ""
     assert res['flags'] == ""
@@ -98,9 +98,9 @@ def test_elements_query(patch_request):
     # check values of Ceres for a given epoch
     # orbital uncertainty of Ceres is basically zero
     res = jplhorizons.Horizons(id='Ceres', location='500@10',
-                               epochs=2451545.5).elements()[0]
+                               epochs=2451544.5).elements()[0]
 
-    assert res['targetname'] == "1 Ceres"
+    assert res['targetname'] == "1 Ceres (A801 AA)"
     assert res['datetime_str'] == "A.D. 2000-Jan-01 00:00:00.0000"
 
     assert_quantity_allclose(
@@ -128,9 +128,9 @@ def test_elements_vectors(patch_request):
     # check values of Ceres for a given epoch
     # orbital uncertainty of Ceres is basically zero
     res = jplhorizons.Horizons(id='Ceres', location='500@10',
-                               epochs=2451545.5).vectors()[0]
+                               epochs=2451544.5).vectors()[0]
 
-    assert res['targetname'] == "1 Ceres"
+    assert res['targetname'] == "1 Ceres (A801 AA)"
     assert res['datetime_str'] == "A.D. 2000-Jan-01 00:00:00.0000"
 
     assert_quantity_allclose(

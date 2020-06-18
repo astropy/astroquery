@@ -1,65 +1,65 @@
 *******************************************************************************
-JPL/HORIZONS                       1 Ceres                 2018-Jan-15 20:22:07
-Rec #:     1 (+COV)   Soln.date: 2017-Apr-04_16:23:28   # obs: 5993 (1950-2017)
- 
-IAU76/J2000 helio. ecliptic osc. elements (au, days, deg., period=Julian yrs): 
- 
-  EPOCH=  2449731.5 ! 1995-Jan-14.00 (TDB)         Residual RMS= .3289         
-   EC= .07610292126891821  QR= 2.556624726195814   TP= 2449823.0922807939      
-   OM= 80.65851514365535   W=  71.44921526124109   IN= 10.60069567603618       
-   A= 2.767218108003098    MA= 340.389084821267    ADIST= 2.977811489810382    
-   PER= 4.60334            N= .214110998           ANGMOM= .028532632          
-   DAN= 2.68615            DDN= 2.81946            L= 151.8082012              
-   B= 10.0440306           MOID= 1.59241998        TP= 1995-Apr-15.5922807939  
- 
-Asteroid physical parameters (km, seconds, rotational period in hours):        
-   GM= 62.6284             RAD= 469.7              ROTPER= 9.07417             
-   H= 3.34                 G= .120                 B-V= .713                   
-                           ALBEDO= .090            STYP= C                     
- 
-ASTEROID comments: 
-1: soln ref.= JPL#34, OCC=0           radar(405 delay, 0 Dop.
+JPL/HORIZONS                  1 Ceres (A801 AA)            2020-May-29 09:49:48
+Rec #:       1 (+COV) Soln.date: 2020-May-20_11:11:55   # obs: 1030 (1995-2020)
+
+IAU76/J2000 helio. ecliptic osc. elements (au, days, deg., period=Julian yrs):
+
+  EPOCH=  2454061.5 ! 2006-Nov-22.00 (TDB)         Residual RMS= .24184
+   EC= .07985681703215082  QR= 2.544823927206557   TP= 2454873.5774668744
+   OM= 80.40822338295483   W=  73.18422155550952   IN= 10.58670363476912
+   A= 2.765682531058295    MA= 185.9804488570544   ADIST= 2.986541134910033
+   PER= 4.59951            N= .214289342           ANGMOM= .028516315
+   DAN= 2.68599            DDN= 2.81303            L= 153.318086
+   B= 10.1291284           MOID= 1.57983994        TP= 2009-Feb-11.0774668744
+
+Asteroid physical parameters (km, seconds, rotational period in hours):
+   GM= 62.6284             RAD= 469.7              ROTPER= 9.07417
+   H= 3.4                  G= .120                 B-V= .713
+                           ALBEDO= .090            STYP= C
+
+ASTEROID comments:
+1: soln ref.= JPL#47, OCC=0           radar(60 delay, 0 Dop.)
 2: source=ORB
 *******************************************************************************
- 
- 
+
+
 *******************************************************************************
-Ephemeris / WWW_USER Mon Jan 15 20:22:07 2018 Pasadena, USA      / Horizons    
+Ephemeris / WWW_USER Fri May 29 09:49:48 2020 Pasadena, USA      / Horizons
 *******************************************************************************
-Target body name: 1 Ceres                         {source: JPL#34}
+Target body name: 1 Ceres (A801 AA)               {source: JPL#47}
 Center body name: Sun (10)                        {source: DE431}
 Center-site name: BODY CENTER
 *******************************************************************************
 Start time      : A.D. 2000-Jan-01 00:00:00.0000 TDB
-Stop  time      : A.D. 2000-Jan-02 00:00:00.0000 TDB
+Stop  time      : A.D. 2000-Jan-01 00:00:00.5000 TDB
 Step-size       : 0 steps
 *******************************************************************************
 Center geodetic : 0.00000000,0.00000000,0.0000000 {E-lon(deg),Lat(deg),Alt(km)}
 Center cylindric: 0.00000000,0.00000000,0.0000000 {E-lon(deg),Dxy(km),Dz(km)}
-Center radii    : 696000.0 x 696000.0 x 696000.0 k{Equator, meridian, pole}    
+Center radii    : 696000.0 x 696000.0 x 696000.0 k{Equator, meridian, pole}
 Small perturbers: Yes                             {source: SB431-N16}
-Output units    : AU-D                                                         
+Output units    : AU-D
 Output type     : GEOMETRIC cartesian states
 Output format   : 3 (position, velocity, LT, range, range-rate)
-Reference frame : ICRF/J2000.0                                                 
-Coordinate systm: Ecliptic and Mean Equinox of Reference Epoch                 
+Reference frame : ICRF/J2000.0
+Coordinate systm: Ecliptic and Mean Equinox of Reference Epoch
 *******************************************************************************
 Initial IAU76/J2000 heliocentric ecliptic osculating elements (au, days, deg.):
-  EPOCH=  2449731.5 ! 1995-Jan-14.00 (TDB)         Residual RMS= .3289         
-   EC= .07610292126891821  QR= 2.556624726195814   TP= 2449823.0922807939      
-   OM= 80.65851514365535   W=  71.44921526124109   IN= 10.60069567603618       
+  EPOCH=  2454061.5 ! 2006-Nov-22.00 (TDB)         Residual RMS= .24184
+   EC= .07985681703215082  QR= 2.544823927206557   TP= 2454873.5774668744
+   OM= 80.40822338295483   W=  73.18422155550952   IN= 10.58670363476912
   Equivalent ICRF heliocentric equatorial cartesian coordinates (au, au/d):
-   X=-1.595314070299652E+00  Y= 1.679592434318194E+00  Z= 1.115015709161572E+00
-  VX=-8.276811304306792E-03 VY=-7.202858709771250E-03 VZ=-1.698003095770422E-03
-Asteroid physical parameters (km, seconds, rotational period in hours):        
-   GM= 62.6284             RAD= 469.7              ROTPER= 9.07417             
-   H= 3.34                 G= .120                 B-V= .713                   
-                           ALBEDO= .090            STYP= C                     
+   X= 2.732617277025615E+00  Y=-7.734822664676754E-01  Z=-9.207592896905449E-01
+  VX= 3.368590810386608E-03 VY= 8.330863405401928E-03 VZ= 3.238410491551668E-03
+Asteroid physical parameters (km, seconds, rotational period in hours):
+   GM= 62.6284             RAD= 469.7              ROTPER= 9.07417
+   H= 3.4                  G= .120                 B-V= .713
+                           ALBEDO= .090            STYP= C
 *******************************************************************************
             JDTDB,            Calendar Date (TDB),                      X,                      Y,                      Z,                     VX,                     VY,                     VZ,                     LT,                     RG,                     RR,
 **************************************************************************************************************************************************************************************************************************************************************************
 $$SOE
-2451544.500000000, A.D. 2000-Jan-01 00:00:00.0000, -2.377530254715913E+00,  8.007773098011088E-01,  4.628376171505864E-01, -3.605422534068209E-03, -1.057883330464988E-02,  3.379791158988872E-04,  1.473392692285918E-02,  2.551100364907553E+00,  1.007960852643289E-04,
+2451544.500000000, A.D. 2000-Jan-01 00:00:00.0000, -2.377530287883653E+00,  8.007772315230148E-01,  4.628376149177687E-01, -3.605422208587878E-03, -1.057883339651264E-02,  3.379790513682926E-04,  1.473392695713637E-02,  2.551100370842464E+00,  1.007961123325000E-04,
 $$EOE
 **************************************************************************************************************************************************************************************************************************************************************************
 Coordinate system description:
@@ -77,15 +77,15 @@ Coordinate system description:
   Symbol meaning [1 au= 149597870.700 km, 1 day= 86400.0 s]:
 
     JDTDB    Julian Day Number, Barycentric Dynamical Time
-      X      X-component of position vector (au)                               
-      Y      Y-component of position vector (au)                               
-      Z      Z-component of position vector (au)                               
-      VX     X-component of velocity vector (au/day)                           
-      VY     Y-component of velocity vector (au/day)                           
-      VZ     Z-component of velocity vector (au/day)                           
-      LT     One-way down-leg Newtonian light-time (day)                       
-      RG     Range; distance from coordinate center (au)                       
-      RR     Range-rate; radial velocity wrt coord. center (au/day)            
+      X      X-component of position vector (au)
+      Y      Y-component of position vector (au)
+      Z      Z-component of position vector (au)
+      VX     X-component of velocity vector (au/day)
+      VY     Y-component of velocity vector (au/day)
+      VZ     Z-component of velocity vector (au/day)
+      LT     One-way down-leg Newtonian light-time (day)
+      RG     Range; distance from coordinate center (au)
+      RR     Range-rate; radial velocity wrt coord. center (au/day)
 
 Geometric states/elements have no aberrations applied.
 
