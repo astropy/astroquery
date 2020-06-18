@@ -257,6 +257,9 @@ available formats are: 'votable', 'votable_plain', 'fits', 'csv' and 'json', def
   >>> matched_observations,duplicated_source,phot_variable_flag \
   >>> from gaiadr2.gaia_source order by source_id", dump_to_file=True, \
   >>> output_format='votable')
+
+  Saving results to: 1592474300458O-result.vot.gz
+
   >>> r = job.get_results()
   >>> print(r['solution_id'])
 
@@ -362,6 +365,9 @@ available formats are: 'votable', 'votable_plain', 'fits', 'csv' and 'json', def
   >>>
   >>> job = Gaia.launch_job_async("select top 100 * from gaiadr2.gaia_source order by source_id", \
   >>> dump_to_file=True, output_format='votable')
+
+  Saving results to: 1592474453797O-result.vot.gz
+
   >>>
   >>> print(job)
 
