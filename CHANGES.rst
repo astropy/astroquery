@@ -1,32 +1,57 @@
-0.4.1 (unreleased)
-================
+0.4.1 (2020-06-19)
+==================
 
 New Tools and Services
 ----------------------
 
-esa/xmm-newton
+esa.xmm-newton
 ^^^^^^^^^^^^^^
 
-- A new ESA archive service for XMM-Newton is now supported [#1557]
+- A new ESA archive service for XMM-Newton access. [#1557]
+
+image_cutouts.first
+^^^^^^^^^^^^^^^^^^^
+
+- Module added to access FIRST survey radio images. [#1733]
 
 noirlab
 ^^^^^^^
 
 - Module added to access the NOIRLab (formally NOAO) archive. [#1638]
 
-first
-^^^^^
-
-- Module added to access FIRST survey radio images. [#1733]
-
 
 Service fixes and enhancements
 ------------------------------
+
+alma
+^^^^
+
+- A new API was deployed in late February / early March 2020, requiring a
+  refactor.  The user-facing API should remain mostly the same, but some
+  service interruption may have occurred.  Note that the ``stage_data`` column
+  ``uid`` has been renamed ``mous_uid``, which is a technical correction, and
+  several columns have been added. [#1644, #1665, #1683]
+
+- The contents of tarfiles can be shown with the ``expand_tarfiles`` keyword
+  to ``stage_data``. [#1683]
+
+- Bugfix: when accessing private data, auth credentials were not being passed
+  to the HEAD request used to acquire header data. [#1698]
 
 casda
 ^^^^^
 
 - Add ability to stage and download ASKAP data. [#1706]
+
+cadc
+^^^^
+
+- Fixed authentication and enabled listing of async jobs. [#1712]
+
+eso
+^^^
+
+- New ``unzip`` parameter to control uncompressing the retrieved data. [#1642]
 
 gaia
 ^^^^
@@ -38,7 +63,7 @@ gemini
 ^^^^^^
 
 - Allow for additional search terms to be sent to query_criteria and passed to
-  the raw web query against the Gemini Archive [#1659]
+  the raw web query against the Gemini Archive. [#1659]
 
 jplhorizons
 ^^^^^^^^^^^
@@ -46,46 +71,23 @@ jplhorizons
 - Fix for changes in HORIZONS return results after their 2020 Feb 12
   update. [#1650]
 
-
-alma
-^^^^
-
-- A new API was deployed in late February / early March 2020, requiring a
-  refactor.  The user-facing API should remain mostly the same, but some
-  service interruption may have occurred.  Note that the ``stage_data`` column
-  ``uid`` has been renamed ``mous_uid``, which is a technical correction, and
-  several columns have been added [#1644,#1665,#1683]
-- The contents of tarfiles can be shown with the ``expand_tarfiles`` keyword
-  to ``stage_data`` [#1683]
-- Bugfix: when accessing private data, auth credentials were not being passed
-  to the HEAD request used to acquire header data [#1698]
-
-vizier
-^^^^^^
-
-- It is now possible to specify constraints to ``query_region()``
-  with the ``column_filters`` keyword. [#1702]
-
-
-mast
-^^^^
-
-cadc
-^^^^
-
-- Fixed authentication and enabled listing of async jobs. [#1712]
-
-nrao
-^^^^
-
-- Fixed passing ``project_code`` to the query [#1720]
-
 nasa_exoplanet_archive
 ^^^^^^^^^^^^^^^^^^^^^^
 
 - Update the NASA Exoplanet Archive interface to support all tables available
   through the API. The standard astroquery interface is now implemented via the
   ``query_*[_async]`` methods. [#1700]
+
+nrao
+^^^^
+
+- Fixed passing ``project_code`` to the query [#1720]
+
+vizier
+^^^^^^
+
+- It is now possible to specify constraints to ``query_region()``
+  with the ``column_filters`` keyword. [#1702]
 
 
 Infrastructure, Utility and Other Changes and Additions
