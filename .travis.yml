@@ -97,7 +97,7 @@ jobs:
           name: Oldest dependencies
           stage: Tests with other Python/Numpy versions
           env: PYTHON_VERSION=3.6 NUMPY_VERSION=1.14 KEYRING_VERSION='<12.0'
-               ASTROPY_VERSION=3.0 DEBUG=True
+               ASTROPY_VERSION=3.1 DEBUG=True
                PIP_DEPENDENCIES="`echo $PIP_DEPENDENCIES reproject==0.5 | sed 's/aplpy/aplpy<2.0/'`"
         - os: linux
           name: Python 3.6, np 1.15, astropy 3.2
