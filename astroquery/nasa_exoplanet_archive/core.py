@@ -499,7 +499,8 @@ class NasaExoplanetArchiveClass(BaseQuery):
         to use ``select='*'``.
         """
         # We also have to manually pop these arguments from the dict because
-        # `deprecated_renamed_argument` doesn't do that for some reason
+        # `deprecated_renamed_argument` doesn't do that for some reason for all supported astropy
+        # versions (v3.1 was beheaving as expected)
         kwargs.pop("show_progress", None)
         kwargs.pop("table_path", None)
 
@@ -510,8 +511,8 @@ class NasaExoplanetArchiveClass(BaseQuery):
         return kwargs
 
     @deprecated(since="v0.4.1", alternative="query_object")
-    @deprecated_renamed_argument(["show_progress", "table_path", "all_columns"],
-                                 [None, None, None], "v0.4.1", arg_in_kwargs=True)
+    @deprecated_renamed_argument(["show_progress", "table_path"],
+                                 [None, None], "v0.4.1", arg_in_kwargs=True)
     def query_planet(self, planet_name, cache=None, regularize=True, **criteria):
         """
         Search the ``exoplanets`` table for a confirmed planet
@@ -537,8 +538,8 @@ class NasaExoplanetArchiveClass(BaseQuery):
         return self.query_criteria("exoplanets", cache=cache, **criteria)
 
     @deprecated(since="v0.4.1", alternative="query_object")
-    @deprecated_renamed_argument(["show_progress", "table_path", "all_columns"],
-                                 [None, None, None], "v0.4.1", arg_in_kwargs=True)
+    @deprecated_renamed_argument(["show_progress", "table_path"],
+                                 [None, None], "v0.4.1", arg_in_kwargs=True)
     def query_star(self, host_name, cache=None, regularize=True, **criteria):
         """
         Search the ``exoplanets`` table for a confirmed planet host

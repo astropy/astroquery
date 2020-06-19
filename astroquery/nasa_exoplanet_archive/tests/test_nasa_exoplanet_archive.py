@@ -222,7 +222,7 @@ def test_warnings(patch_get):
         NasaExoplanetArchive.query_planet(
             "HAT-P-11 b", all_columns=False, show_progress=True, table_path="nothing"
         )
-    assert len(warning) == 4
+    assert len(warning) == 3
 
     with pytest.raises(InvalidQueryError) as error:
         NasaExoplanetArchive.query_object("HAT-P-11 b", table="cumulative")
