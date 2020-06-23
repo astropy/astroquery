@@ -1283,6 +1283,9 @@ class TapPlus(Tap):
                                                  200)
         print("Done.")
         results = utils.read_http_response(response, "votable")
+
+
+
         return results
 
     def search_async_jobs(self, jobfilter=None, verbose=False):
