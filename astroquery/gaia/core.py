@@ -290,8 +290,14 @@ class GaiaClass(TapPlus):
             print("output_file =", output_file)
 
         print("List of products available:")
-        for key, value in files.items():
-            print("Product =", key)
+        # for key, value in files.items():
+        # print("Product =", key)
+
+        items = [key for key in files.keys()]
+        items.sort()
+        for item in items:
+            # print(f'* {item}')
+            print("Product = " + item)
 
         return files
 
@@ -312,7 +318,7 @@ class GaiaClass(TapPlus):
             if '.fits' in key:
                 tables = []
                 with fits.open(value) as hduList:
-                    print(hduList)
+                    #print(hduList)
                     num_hdus = len(hduList)
                     for i in range(1, num_hdus):
                         table = Table.read(hduList[i], format='fits')
