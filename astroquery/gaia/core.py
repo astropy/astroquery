@@ -826,5 +826,94 @@ class GaiaClass(TapPlus):
                                      upload_resource=None,
                                      upload_table_name=None)
 
+    def launch_job(self, query, name=None, output_file=None,
+                   output_format="votable", verbose=False,
+                   dump_to_file=False, upload_resource=None,
+                   upload_table_name=None):
+        """Launches a synchronous job
+
+        Parameters
+        ----------
+        query : str, mandatory
+            query to be executed
+        output_file : str, optional, default None
+            file name where the results are saved if dumpToFile is True.
+            If this parameter is not provided, the jobid is used instead
+        output_format : str, optional, default 'votable'
+            results format. Available formats are: 'votable', 'votable_plain',
+             'fits', 'csv' and 'json', default is 'votable'.
+             Returned results for 'votable' and 'fits' formats are compressed
+             gzip files.
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+        dump_to_file : bool, optional, default 'False'
+            if True, the results are saved in a file instead of using memory
+        upload_resource : str, optional, default None
+            resource to be uploaded to UPLOAD_SCHEMA
+        upload_table_name : str, optional, default None
+            resource temporary table name associated to the uploaded resource.
+            This argument is required if upload_resource is provided.
+
+        Returns
+        -------
+        A Job object
+        """
+        return TapPlus.launch_job_async(self, query=query, name=name,
+                                 output_file=output_file,
+                                 output_format=output_format,
+                                 verbose=verbose,
+                                 dump_to_file=dump_to_file,
+                                 upload_resource=upload_resource,
+                                 upload_table_name=upload_table_name)
+
+    def launch_job_async(self, query, name=None, output_file=None,
+                         output_format="votable", verbose=False,
+                         dump_to_file=False, background=False,
+                         upload_resource=None, upload_table_name=None,
+                         autorun=True):
+        """Launches an asynchronous job
+
+        Parameters
+        ----------
+        query : str, mandatory
+            query to be executed
+        output_file : str, optional, default None
+            file name where the results are saved if dumpToFile is True.
+            If this parameter is not provided, the jobid is used instead
+        output_format : str, optional, default 'votable'
+            results format. Available formats are: 'votable', 'votable_plain',
+             'fits', 'csv' and 'json', default is 'votable'.
+             Returned results for 'votable' and 'fits' formats are compressed
+             gzip files.
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+        dump_to_file : bool, optional, default 'False'
+            if True, the results are saved in a file instead of using memory
+        background : bool, optional, default 'False'
+            when the job is executed in asynchronous mode, this flag specifies
+            whether the execution will wait until results are available
+        upload_resource : str, optional, default None
+            resource to be uploaded to UPLOAD_SCHEMA
+        upload_table_name : str, optional, default None
+            resource temporary table name associated to the uploaded resource.
+            This argument is required if upload_resource is provided.
+        autorun : boolean, optional, default True
+            if 'True', sets 'phase' parameter to 'RUN',
+            so the framework can start the job.
+
+        Returns
+        -------
+        A Job object
+        """
+        return TapPlus.launch_job_async(self, query=query,
+                                        name=name,
+                                        output_file=output_file,
+                                        output_format=output_format,
+                                        verbose=verbose,
+                                        dump_to_file=dump_to_file,
+                                        background=background,
+                                        upload_resource=upload_resource,
+                                        upload_table_name=upload_table_name,
+                                        autorun=autorun)
 
 Gaia = GaiaClass()
