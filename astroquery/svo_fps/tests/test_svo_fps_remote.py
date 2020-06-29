@@ -27,7 +27,7 @@ class TestSvoFpsClass:
         assert 'filterID' in table.colnames
 
     # Test for failing case (a dummy invalid query)
-    def test_ValueError_in_data_from_svo(self):
+    def test_IndexError_in_data_from_svo(self):
         invalid_query = {'Invalid_param': 0}
-        pytest.raises(ValueError, gfd.data_from_svo, invalid_query,
+        pytest.raises(IndexError, gfd.data_from_svo, invalid_query,
             'Invalid search parameters')
