@@ -711,7 +711,7 @@ class TapConn(object):
         multiparItems.append(CRLF)
         body = utils.util_create_string_from_buffer(multiparItems)
         contentType = 'multipart/form-data; boundary=%s' % boundary
-        return contentType, body
+        return contentType, body.encode('utf-8')
 
     def __str__(self):
         return "\tHost: " + str(self.__connHost) + "\n\tUse HTTPS: " \
