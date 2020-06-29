@@ -43,7 +43,7 @@ class SvoFpsClass(BaseQuery):
             return parse_single_table(votable).to_table()
         except IndexError:
             # If no table element found in VOTable
-            raise ValueError(error_msg)
+            raise IndexError(error_msg)
 
     def get_filter_index(self, wavelength_eff_min=0*u.angstrom, wavelength_eff_max=FLOAT_MAX*u.angstrom):
         """Get master list (index) of all filters at SVO
