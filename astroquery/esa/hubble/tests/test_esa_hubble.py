@@ -17,6 +17,7 @@ import os
 from requests.models import Response
 from astroquery.esa.hubble import ESAHubbleClass
 from astroquery.esa.hubble.tests.dummy_tap_handler import DummyHubbleTapHandler
+from astroquery.utils.testing_tools import MockResponse
 from astropy import coordinates
 from unittest.mock import MagicMock
 from astropy.table.table import Table
@@ -26,6 +27,25 @@ import shutil
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     return os.path.join(data_dir, filename)
+
+
+def get_mockreturn(methor, request, url, params, *args, **kwargs):
+    file = 'm31'
+    if 'OBSERVATION_ID' in params:
+        file = params['OBSERVATION_ID']
+    with open(data_path(file), 'rb') as f:
+        response = MockResponse(content=f.read(), url=url)
+    return response
+
+
+@pytest.fixture(autouse=True)
+def ehst_request(request):
+    try:
+        mp = request.getfixturevalue("monkeypatch")
+    except AttributeError:  # pytest < 3
+        mp = request.getfuncargvalue("monkeypatch")
+    mp.setattr(ESAHubbleClass, '_request', get_mockreturn)
+    return mp
 
 
 class TestESAHubble():
@@ -43,19 +63,13 @@ class TestESAHubble():
                       'calibration_level': "RAW",
                       'verbose': True}
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
-        target_file = data_path('download_product')
-        ehst._request = MagicMock(return_value=target_file)
         shutil.move = MagicMock(return_value=True)
         ehst.download_product(parameters['observation_id'],
                               parameters['calibration_level'],
                               parameters['verbose'])
 
     def test_get_postcard(self):
-        parameters = {'observation_id': "X0MC5101T",
-                      'verbose': True}
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
-        target_file = data_path('postcard')
-        ehst._request = MagicMock(return_value=target_file)
         shutil.move = MagicMock(return_value=True)
         ehst.get_postcard(observation_id="X0MC5101T", verbose=True)
 
@@ -63,8 +77,6 @@ class TestESAHubble():
         parameters = {'name': "m31",
                       'verbose': True}
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
-        target_file = data_path('m31')
-        ehst._request = MagicMock(return_value=target_file)
         shutil.move = MagicMock(return_value=True)
         ehst.query_target(name=parameters['name'],
                           verbose=parameters['verbose'])
