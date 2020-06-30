@@ -34,10 +34,11 @@ class Conf(_config.ConfigNamespace):
                                    "Number of rows to return from database "
                                    "query (set to -1 for unlimited).")
     VALID_DATALINK_RETRIEVAL_TYPES=['EPOCH_PHOTOMETRY',
-                                    'RVS_SPECTRA',
-                                    'XP_BASIS',
-                                    'XP_SPECTRA',
-                                    'MCMC']
+                                    'XP_CONTINUOUS',
+                                    'XP_SAMPLED',
+                                    'RVS',
+                                    'MCMC_GSPPHOT',
+                                    'MCMC_MSC']
 
 
 conf = Conf()

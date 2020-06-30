@@ -161,6 +161,7 @@ class GaiaClass(TapPlus):
                   retrieval_type="ALL",
                   valid_data=True,
                   band=None,
+                  avoid_datatype_check=False,
                   format="votable",
                   output_file=None,
                   overwrite_output_file=False,
@@ -194,6 +195,9 @@ class GaiaClass(TapPlus):
             By default, the epoch photometry service returns all the
             available photometry bands for the requested source.
             This parameter allows to filter the output lightcurve by its band.
+        avoid_datatype_check: boolean, optional, default False.
+            By default, this value will be set to False. If it is set to 'true'
+            the Datalink items tags will not be checked.
         format : str, optional, default 'votable'
             loading format
         output_file : string, optional, default None
@@ -232,12 +236,14 @@ class GaiaClass(TapPlus):
         if ids is None:
             raise ValueError("Missing mandatory argument 'ids'")
 
-        rt = str(retrieval_type).upper()
-        if rt != 'ALL' and rt not in self.VALID_DATALINK_RETRIEVAL_TYPES:
-            raise ValueError("Invalid mandatory argument 'retrieval_type'."
-                             " Found '%s', expected: 'ALL' or any of %r" %
-                             (retrieval_type,
-                              self.VALID_DATALINK_RETRIEVAL_TYPES))
+        if avoid_datatype_check is False:
+            # we need to check params
+            rt = str(retrieval_type).upper()
+            if rt != 'ALL' and rt not in self.VALID_DATALINK_RETRIEVAL_TYPES:
+                raise ValueError("Invalid mandatory argument 'retrieval_type'."
+                                 " Found '%s', expected: 'ALL' or any of %r" %
+                                 (retrieval_type,
+                                  self.VALID_DATALINK_RETRIEVAL_TYPES))
 
         params_dict = {}
 
@@ -318,7 +324,7 @@ class GaiaClass(TapPlus):
             if '.fits' in key:
                 tables = []
                 with fits.open(value) as hduList:
-                    #print(hduList)
+                    # print(hduList)
                     num_hdus = len(hduList)
                     for i in range(1, num_hdus):
                         table = Table.read(hduList[i], format='fits')
@@ -859,12 +865,12 @@ class GaiaClass(TapPlus):
         A Job object
         """
         return TapPlus.launch_job_async(self, query=query, name=name,
-                                 output_file=output_file,
-                                 output_format=output_format,
-                                 verbose=verbose,
-                                 dump_to_file=dump_to_file,
-                                 upload_resource=upload_resource,
-                                 upload_table_name=upload_table_name)
+                                        output_file=output_file,
+                                        output_format=output_format,
+                                        verbose=verbose,
+                                        dump_to_file=dump_to_file,
+                                        upload_resource=upload_resource,
+                                        upload_table_name=upload_table_name)
 
     def launch_job_async(self, query, name=None, output_file=None,
                          output_format="votable", verbose=False,
@@ -915,5 +921,6 @@ class GaiaClass(TapPlus):
                                         upload_resource=upload_resource,
                                         upload_table_name=upload_table_name,
                                         autorun=autorun)
+
 
 Gaia = GaiaClass()
