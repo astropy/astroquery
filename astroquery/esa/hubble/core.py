@@ -1,6 +1,11 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
 
+======================
+eHST Astroquery Module
+======================
+
+
 @author: Javier Duran
 @contact: javier.duran@sciops.esa.int
 
@@ -29,7 +34,10 @@ __all__ = ['EsaHubble', 'EsaHubbleClass']
 
 
 class ESAHubbleClass(BaseQuery):
-
+    """
+    Class to init ESA Hubble Module and communicate with eHST TAP
+    """
+   
     data_url = conf.DATA_ACTION
     metadata_url = conf.METADATA_ACTION
     TIMEOUT = conf.TIMEOUT
@@ -224,6 +232,9 @@ class ESAHubbleClass(BaseQuery):
             # TODO: add "correct units" material here
 
         return table
+
+    def query_metadata(self, output_format='votable', verbose=False):
+        return
 
     def query_target(self, name, filename=None, output_format='votable',
                      verbose=False):

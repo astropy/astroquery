@@ -29,12 +29,12 @@ def data_path(filename):
     return os.path.join(data_dir, filename)
 
 
-def get_mockreturn(methor, request, url, params, *args, **kwargs):
-    file = 'm31'
+def get_mockreturn(method, request, url, params, *args, **kwargs):
+    file = 'm31.vot'
     if 'OBSERVATION_ID' in params:
-        file = params['OBSERVATION_ID']
-    with open(data_path(file), 'rb') as f:
-        response = MockResponse(content=f.read(), url=url)
+        file = params['OBSERVATION_ID'] + ".vot"
+    response = data_path(file)
+    shutil.copy(response + '.test', response)
     return response
 
 
@@ -61,23 +61,24 @@ class TestESAHubble():
     def test_download_product(self):
         parameters = {'observation_id': "J6FL25S4Q",
                       'calibration_level': "RAW",
+                      'filename': "J6FL25S4Q.vot",
                       'verbose': True}
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
-        shutil.move = MagicMock(return_value=True)
         ehst.download_product(parameters['observation_id'],
                               parameters['calibration_level'],
+                              parameters['filename'],
                               parameters['verbose'])
 
     def test_get_postcard(self):
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
-        shutil.move = MagicMock(return_value=True)
-        ehst.get_postcard(observation_id="X0MC5101T", verbose=True)
+        ehst.get_postcard(observation_id="X0MC5101T",
+                          filename="X0MC5101T.vot",
+                          verbose=True)
 
     def test_query_target(self):
         parameters = {'name': "m31",
                       'verbose': True}
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
-        shutil.move = MagicMock(return_value=True)
         ehst.query_target(name=parameters['name'],
                           verbose=parameters['verbose'])
 
@@ -98,7 +99,7 @@ class TestESAHubble():
                       'cache': True}
 
         ehst = ESAHubbleClass(dummyTapHandler)
-        target_file = data_path('cone_search')
+        target_file = data_path('cone_search.vot')
         with open(target_file, mode='rb') as file:
             target_obj = file.read()
             response = Response()
@@ -201,16 +202,16 @@ class TestESAHubble():
                        'get_query': True}
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
         test_query = ehst.query_criteria(parameters1['calibration_level'],
-                                            parameters1['data_product_type'],
-                                            parameters1['intent'],
-                                            parameters1['obs_collection'],
-                                            parameters1['instrument_name'],
-                                            parameters1['filters'],
-                                            parameters1['async_job'],
-                                            parameters1['output_file'],
-                                            parameters1['output_format'],
-                                            parameters1['verbose'],
-                                            parameters1['get_query'])
+                                         parameters1['data_product_type'],
+                                         parameters1['intent'],
+                                         parameters1['obs_collection'],
+                                         parameters1['instrument_name'],
+                                         parameters1['filters'],
+                                         parameters1['async_job'],
+                                         parameters1['output_file'],
+                                         parameters1['output_format'],
+                                         parameters1['verbose'],
+                                         parameters1['get_query'])
         parameters2 = {'query': test_query,
                        'output_file': "output_test_query_by_criteria.vot.gz",
                        'output_format': "votable",
@@ -245,16 +246,16 @@ class TestESAHubble():
                        'get_query': True}
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
         test_query = ehst.query_criteria(parameters1['calibration_level'],
-                                            parameters1['data_product_type'],
-                                            parameters1['intent'],
-                                            parameters1['obs_collection'],
-                                            parameters1['instrument_name'],
-                                            parameters1['filters'],
-                                            parameters1['async_job'],
-                                            parameters1['output_file'],
-                                            parameters1['output_format'],
-                                            parameters1['verbose'],
-                                            parameters1['get_query'])
+                                         parameters1['data_product_type'],
+                                         parameters1['intent'],
+                                         parameters1['obs_collection'],
+                                         parameters1['instrument_name'],
+                                         parameters1['filters'],
+                                         parameters1['async_job'],
+                                         parameters1['output_file'],
+                                         parameters1['output_format'],
+                                         parameters1['verbose'],
+                                         parameters1['get_query'])
         parameters2 = {'query': test_query,
                        'output_file': "output_test_query_by_criteria.vot.gz",
                        'output_format': "votable",
@@ -277,25 +278,25 @@ class TestESAHubble():
         parameters1['calibration_level'] = 4
         with pytest.raises(KeyError) as err:
             ehst.query_criteria(parameters1['calibration_level'],
-                                   parameters1['data_product_type'],
-                                   parameters1['intent'],
-                                   parameters1['obs_collection'],
-                                   parameters1['instrument_name'],
-                                   parameters1['filters'],
-                                   parameters1['async_job'],
-                                   parameters1['output_file'],
-                                   parameters1['output_format'],
-                                   parameters1['verbose'],
-                                   parameters1['get_query'])
+                                parameters1['data_product_type'],
+                                parameters1['intent'],
+                                parameters1['obs_collection'],
+                                parameters1['instrument_name'],
+                                parameters1['filters'],
+                                parameters1['async_job'],
+                                parameters1['output_file'],
+                                parameters1['output_format'],
+                                parameters1['verbose'],
+                                parameters1['get_query'])
         assert "Calibration level must be between 0 and 3" in err.value.args[0]
 
     def test_query_criteria_no_params(self):
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
         ehst.query_criteria(async_job=False,
-                               output_file="output_test_query_"
-                               "by_criteria.vot.gz",
-                               output_format="votable",
-                               verbose=True)
+                            output_file="output_test_query_"
+                            "by_criteria.vot.gz",
+                            output_format="votable",
+                            verbose=True)
         parameters = {'query': "select o.*, p.calibration_level, "
                                "p.data_product_type from ehst.observation "
                                "AS o LEFT JOIN ehst.plane as p on "
@@ -310,15 +311,16 @@ class TestESAHubble():
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
         with pytest.raises(ValueError) as err:
             ehst.query_criteria(instrument_name=[1],
-                                   async_job=False,
-                                   output_file="output_test_query_"
-                                   "by_criteria.vot.gz",
-                                   output_format="votable",
-                                   verbose=True)
+                                async_job=False,
+                                output_file="output_test_query_"
+                                "by_criteria.vot.gz",
+                                output_format="votable",
+                                verbose=True)
         assert "One of the lists is empty or there are "\
                "elements that are not strings" in err.value.args[0]
 
 
 if __name__ == "__main__":
     # import sys;sys.argv = ['', 'Test.testName']
+    unzip_test_files()
     pytest.main()

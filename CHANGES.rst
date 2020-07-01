@@ -1,8 +1,14 @@
 0.4.2 (unreleased)
 ==================
 
-- No changes yet.
+Service fixes and enhancements
+------------------------------
 
+esa/hubble
+^^^^^^^^^^
+
+- Module added to query eHST TAP based on a set of specific criteria and
+  asynchronous jobs are now supported. [#1723]
 
 
 0.4.1 (2020-06-19)
