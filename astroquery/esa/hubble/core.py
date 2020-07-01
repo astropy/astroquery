@@ -37,7 +37,7 @@ class ESAHubbleClass(BaseQuery):
     """
     Class to init ESA Hubble Module and communicate with eHST TAP
     """
-   
+
     data_url = conf.DATA_ACTION
     metadata_url = conf.METADATA_ACTION
     TIMEOUT = conf.TIMEOUT
