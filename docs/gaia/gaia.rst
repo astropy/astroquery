@@ -492,7 +492,7 @@ To remove asynchronous
 .. code-block:: python
 
   >>> from astroquery.gaia import Gaia
-  >>> job = Gaia.remove_jobs(["job_id_1","job_id_2",...])
+  >>> Gaia.remove_jobs(["job_id_1","job_id_2",...])
 
 
 ---------------------------
