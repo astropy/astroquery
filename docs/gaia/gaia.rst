@@ -246,8 +246,8 @@ Once a table is loaded, columns can be inspected
 
   >>> from astroquery.gaia import Gaia
   >>> gaiadr1_table = Gaia.load_table('gaiadr1.gaia_source')
-  >>> for column in (gaiadr1_table.get_columns()):
-  >>>   print(column.get_name())
+  >>> for column in (gaiadr1_table.columns):
+  >>>   print(column.name)
 
   solution_id
   source_id
