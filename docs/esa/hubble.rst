@@ -133,6 +133,7 @@ Access Protocol (TAP).
 This is an example of a query with all the parameters and the verbose flag activated, so the query is shown as a log message.
 
 .. code-block:: python
+
   >>> from astroquery.esa.hubble import ESAHubble
   >>> esahubble = ESAHubble()
   >>> result = esahubble.query_criteria(calibration_level = 3,
@@ -141,12 +142,12 @@ This is an example of a query with all the parameters and the verbose flag activ
                                         obs_collection=['HLA'],
                                         instrument_name = ['WFC3'],
                                         filters = ['F555W', 'F606W'],
-  >>                                      async_job = False,
+                                        async_job = False,
                                         output_file = 'output1.vot.gz',
                                         output_format="votable",
                                         verbose = True,
                                         get_query = False)
-  >>> INFO: select o.*, p.calibration_level, p.data_product_type from ehst.observation 
+  INFO: select o.*, p.calibration_level, p.data_product_type from ehst.observation 
   AS o LEFT JOIN ehst.plane as p on o.observation_uuid=p.observation_uuid
   where(p.calibration_level LIKE '%PRODUCT%' AND p.data_product_type LIKE '%image%'
   AND o.intent LIKE '%SCIENCE%' AND (o.collection LIKE '%HLA%') AND (o.instrument_name
@@ -162,6 +163,7 @@ query.
 The following example uses the string definition of the calibration level ('PRODUCT') and executes an asynchronous job to get all the results that match the criteria.
 
 .. code-block:: python
+
   >>> from astroquery.esa.hubble import ESAHubble
   >>> esahubble = ESAHubble()
   >>> result = esahubble.query_criteria(calibration_level = 'PRODUCT', 
@@ -181,6 +183,7 @@ The following example uses the string definition of the calibration level ('PROD
 As has been mentioned, these parameters are optional and it is not necessary to define all of them to execute this function, as the search will be adapted to the ones that are available.
 
 .. code-block:: python
+
   >>> from astroquery.esa.hubble import ESAHubble
   >>> esahubble = ESAHubble()
   >>> result1 = esahubble.query_criteria(calibration_level = 'PRODUCT', 
@@ -197,6 +200,7 @@ As has been mentioned, these parameters are optional and it is not necessary to 
 If no criteria are specified to limit the selection, this function will retrieve all the observations.
 
 .. code-block:: python
+
   >>> from astroquery.esa.hubble import ESAHubble
   >>> esahubble = ESAHubble()
   >>> result = esahubble.query_criteria(async_job = False, 
@@ -208,6 +212,7 @@ If no criteria are specified to limit the selection, this function will retrieve
  This last example will provide the ADQL query based on the criteria defined by the user.
 
 .. code-block:: python
+
   >>> from astroquery.esa.hubble import ESAHubble
   >>> esahubble = ESAHubble()
   >>> result = esahubble.query_criteria(calibration_level = 'PRODUCT',
