@@ -263,7 +263,6 @@ votable). The result of the query will be stored in the file
 result.get_results() or printing it by doing print(result).
 
 
-=============
 Reference/API
 =============
 
