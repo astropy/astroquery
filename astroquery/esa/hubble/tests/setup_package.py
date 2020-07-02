@@ -9,6 +9,9 @@ import os
 def get_package_data():
     paths = [os.path.join('data', '*.tar'),
              os.path.join('data', '*.xml'),
+             os.path.join('data', '*.vot'),
+             os.path.join('data', '*.FITS'),
+             os.path.join('data', '*.test'),
              ]  # etc, add other extensions
     # you can also enlist files individually by names
     # finally construct and return a dict for the sub module

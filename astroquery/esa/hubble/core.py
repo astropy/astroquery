@@ -1,6 +1,11 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
 
+======================
+eHST Astroquery Module
+======================
+
+
 @author: Javier Duran
 @contact: javier.duran@sciops.esa.int
 
@@ -19,62 +24,29 @@ from astroquery.utils.tap.model import modelutils
 from astroquery.query import BaseQuery
 from astropy.table import Table
 from six import BytesIO
+import shutil
 import os
 
 from . import conf
 from astropy import log
 
-
 __all__ = ['EsaHubble', 'EsaHubbleClass']
 
 
-class ESAHubbleHandler(BaseQuery):
-
-    def __init__(self):
-        super(ESAHubbleHandler, self).__init__()
-
-    def get_file(self, filename, response, verbose=False):
-        with open(filename, 'wb') as fh:
-            fh.write(response.content)
-
-        if os.pathsep not in filename:
-            log.info("File {0} downloaded to current "
-                     "directory".format(filename))
-        else:
-            log.info("File {0} downloaded".format(filename))
-
-    def get_table(self, filename, response, output_format='votable',
-                  verbose=False):
-        with open(filename, 'wb') as fh:
-            fh.write(response.content)
-
-        table = modelutils.read_results_table_from_file(filename,
-                                                        str(output_format))
-        return table
-
-    def request(self, t="GET", link=None, params=None,
-                cache=None,
-                timeout=None):
-        return self._request(method=t, url=link,
-                             params=params, cache=cache,
-                             timeout=timeout)
-
-
-Handler = ESAHubbleHandler()
-
-
 class ESAHubbleClass(BaseQuery):
+    """
+    Class to init ESA Hubble Module and communicate with eHST TAP
+    """
 
     data_url = conf.DATA_ACTION
     metadata_url = conf.METADATA_ACTION
     TIMEOUT = conf.TIMEOUT
+    calibration_levels = {0: "AUXILIARY", 1: "RAW", 2: "CALIBRATED",
+                          3: "PRODUCT"}
+    copying_string = "Copying file to {0}..."
 
-    def __init__(self, url_handler=None, tap_handler=None):
+    def __init__(self, tap_handler=None):
         super(ESAHubbleClass, self).__init__()
-        if url_handler is None:
-            self._handler = Handler
-        else:
-            self._handler = url_handler
 
         if tap_handler is None:
             self._tap = TapPlus(url="http://hst.esac.esa.int"
@@ -111,22 +83,21 @@ class ESAHubbleClass(BaseQuery):
         None. It downloads the observation indicated
         """
 
-        obs_id = "OBSERVATION_ID=" + observation_id
-        cal_level = "CALIBRATION_LEVEL=" + calibration_level
-        link = self.data_url + obs_id + "&" + cal_level
+        params = {"OBSERVATION_ID": observation_id,
+                  "CALIBRATION_LEVEL": calibration_level}
 
         if filename is None:
             filename = observation_id + ".tar"
 
-        response = self._handler.request('GET', link)
-        if response is not None:
-            response.raise_for_status()
-            self._handler.get_file(filename, response=response,
-                                   verbose=verbose)
+        response = self._request('GET', self.data_url, save=True, cache=True,
+                                 params=params)
 
-            if verbose:
-                log.info("Wrote {0} to {1}".format(link, filename))
-            return filename
+        if verbose:
+            log.info(self.data_url + "?OBSERVATION_ID=" + observation_id +
+                     "&CALIBRATION_LEVEL=" + calibration_level)
+            log.info(self.copying_string.format(filename))
+
+        shutil.move(response, filename)
 
     def get_artifact(self, artifact_id, filename=None, verbose=False):
         """
@@ -149,14 +120,17 @@ class ESAHubbleClass(BaseQuery):
         None. It downloads the artifact indicated
         """
 
-        art_id = "ARTIFACT_ID=" + artifact_id
-        link = self.data_url + art_id
-        result = self._handler.request('GET', link, params=None)
-        if verbose:
-            log.info(link)
+        params = {"ARTIFACT_ID": artifact_id}
+        response = self._request('GET', self.data_url, save=True, cache=True,
+                                 params=params)
         if filename is None:
             filename = artifact_id
-        self._handler.get_file(filename, response=result, verbose=verbose)
+
+        if verbose:
+            log.info(self.data_url + "?ARTIFACT_ID=" + artifact_id)
+            log.info(self.copying_string.format(filename))
+
+        shutil.move(response, filename)
 
     def get_postcard(self, observation_id, calibration_level="RAW",
                      resolution=256, filename=None, verbose=False):
@@ -189,18 +163,26 @@ class ESAHubbleClass(BaseQuery):
         None. It downloads the observation postcard indicated
         """
 
-        retri_type = "RETRIEVAL_TYPE=POSTCARD"
-        obs_id = "OBSERVATION_ID=" + observation_id
-        cal_level = "CALIBRATION_LEVEL=" + calibration_level
-        res = "RESOLUTION=" + str(resolution)
-        link = self.data_url + "&".join([retri_type, obs_id, cal_level, res])
+        params = {"RETRIEVAL_TYPE": "POSTCARD",
+                  "OBSERVATION_ID": observation_id,
+                  "CALIBRATION_LEVEL": calibration_level,
+                  "RESOLUTION": resolution}
 
-        result = self._handler.request('GET', link, params=None)
-        if verbose:
-            log.info(link)
+        response = self._request('GET', self.data_url, save=True, cache=True,
+                                 params=params)
+
         if filename is None:
-            filename = observation_id + ".tar"
-        self._handler.get_file(filename, response=result, verbose=verbose)
+            filename = observation_id
+
+        if verbose:
+            log.info(self.data_url +
+                     "&".join(["?RETRIEVAL_TYPE=POSTCARD",
+                               "OBSERVATION_ID=" + observation_id,
+                               "CALIBRATION_LEVEL=" + calibration_level,
+                               "RESOLUTION=" + str(resolution)]))
+            log.info(self.copying_string.format(filename))
+
+        shutil.move(response, filename)
 
     def cone_search(self, coordinates, radius=0.0, filename=None,
                     output_format='votable', cache=True):
@@ -233,22 +215,26 @@ class ESAHubbleClass(BaseQuery):
                    "ORDER BY PROPOSAL.PROPOSAL_ID "
                    "DESC".format(str(ra), str(dec), str(radiusInGrades)),
                    "RETURN_TYPE": str(output_format)}
-        result = self._handler.request('GET',
-                                       self.metadata_url,
-                                       params=payload,
-                                       cache=cache,
-                                       timeout=self.TIMEOUT)
+        response = self._request('GET',
+                                 self.metadata_url,
+                                 params=payload,
+                                 cache=cache,
+                                 timeout=self.TIMEOUT)
+
         if filename is None:
             filename = "cone." + str(output_format)
 
-        if result is None:
+        if response is None:
             table = None
         else:
-            fileobj = BytesIO(result.content)
+            fileobj = BytesIO(response.content)
             table = Table.read(fileobj, format=output_format)
             # TODO: add "correct units" material here
 
         return table
+
+    def query_metadata(self, output_format='votable', verbose=False):
+        return
 
     def query_target(self, name, filename=None, output_format='votable',
                      verbose=False):
@@ -273,28 +259,38 @@ class ESAHubbleClass(BaseQuery):
         Table with the result of the query. It downloads metadata as a file.
         """
 
-        initial = ("RESOURCE_CLASS=OBSERVATION&SELECTED_FIELDS=OBSERVATION"
-                   "&QUERY=(TARGET.TARGET_NAME=='")
-        final = "')&RETURN_TYPE=" + str(output_format)
-        link = self.metadata_url + initial + name + final
-        result = self._handler.request('GET', link, params=None)
+        params = {"RESOURCE_CLASS": "OBSERVATION",
+                  "SELECTED_FIELDS": "OBSERVATION",
+                  "QUERY": "(TARGET.TARGET_NAME=='" + name + "')",
+                  "RETURN_TYPE": str(output_format)}
+        response = self._request('GET', self.metadata_url, save=True,
+                                 cache=True,
+                                 params=params)
+
         if verbose:
-            log.info(link)
+            log.info(self.metadata_url + "?RESOURCE_CLASS=OBSERVATION&"
+                     "SELECTED_FIELDS=OBSERVATION&QUERY=(TARGET.TARGET_NAME"
+                     "=='" + name + "')&RETURN_TYPE=" + str(output_format))
+            log.info(self.copying_string.format(filename))
         if filename is None:
             filename = "target.xml"
-        return self._handler.get_table(filename,
-                                       response=result,
-                                       output_format=output_format,
-                                       verbose=verbose)
 
-    def query_hst_tap(self, query, output_file=None,
+        shutil.move(response, filename)
+
+        return modelutils.read_results_table_from_file(filename,
+                                                       str(output_format))
+
+    def query_hst_tap(self, query, async_job=False, output_file=None,
                       output_format="votable", verbose=False):
-        """Launches a synchronous job to query the HST tap
+        """Launches a synchronous or asynchronous job to query the HST tap
 
         Parameters
         ----------
         query : str, mandatory
             query (adql) to be executed
+        async_job : bool, optional, default 'False'
+            executes the query (job) in asynchronous/synchronous mode (default
+            synchronous)
         output_file : str, optional, default None
             file name where the results are saved if dumpToFile is True.
             If this parameter is not provided, the jobid is used instead
@@ -307,13 +303,135 @@ class ESAHubbleClass(BaseQuery):
         -------
         A table object
         """
-
-        job = self._tap.launch_job(query=query, output_file=output_file,
-                                   output_format=output_format,
-                                   verbose=False,
-                                   dump_to_file=output_file is not None)
+        if async_job:
+            job = self._tap.launch_job_async(query=query,
+                                             output_file=output_file,
+                                             output_format=output_format,
+                                             verbose=False,
+                                             dump_to_file=output_file
+                                             is not None)
+        else:
+            job = self._tap.launch_job(query=query, output_file=output_file,
+                                       output_format=output_format,
+                                       verbose=False,
+                                       dump_to_file=output_file is not None)
         table = job.get_results()
         return table
+
+    def query_criteria(self, calibration_level=None,
+                          data_product_type=None, intent=None,
+                          obs_collection=None, instrument_name=None,
+                          filters=None, async_job=True, output_file=None,
+                          output_format="votable", verbose=False,
+                          get_query=False):
+        """
+        Launches a synchronous or asynchronous job to query the HST tap
+        using calibration level, data product type, intent, collection,
+        instrument name, and filters as criteria to create and execute the
+        associated query.
+
+        Parameters
+        ----------
+        calibration_level : str or int, optional
+            The identifier of the data reduction/processing applied to the
+            data. RAW (1), CALIBRATED (2), PRODUCT (3) or AUXILIARY (0)
+        data_product_type : str, optional
+            High level description of the product.
+            image, spectrum or timeseries.
+        intent : str, optional
+            The intent of the original observer in acquiring this observation.
+            SCIENCE or CALIBRATION
+        collection : list of str, optional
+            List of collections that are available in eHST catalogue.
+            HLA, HST
+        instrument_name : list of str, optional
+            Name(s) of the instrument(s) used to generate the dataset
+        filters : list of str, optional
+            Name(s) of the filter(s) used to generate the dataset
+        async_job : bool, optional, default 'True'
+            executes the query (job) in asynchronous/synchronous mode (default
+            synchronous)
+        output_file : str, optional, default None
+            file name where the results are saved if dumpToFile is True.
+            If this parameter is not provided, the jobid is used instead
+        output_format : str, optional, default 'votable'
+            results format
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+        get_query : bool, optional, default 'False'
+            flag to return the query associated to the criteria as the result
+            of this function.
+
+        Returns
+        -------
+        A table object
+        """
+
+        parameters = []
+        if calibration_level is not None:
+            parameters.append("p.calibration_level LIKE '%{}%'".format(
+                self.__get_calibration_level(calibration_level)))
+        if data_product_type is not None:
+            if isinstance(data_product_type, str):
+                parameters.append("p.data_product_type LIKE '%{}%'".format(
+                    data_product_type))
+            else:
+                raise ValueError("data_product_type must be a string")
+        if intent is not None:
+            if isinstance(intent, str):
+                parameters.append("o.intent LIKE '%{}%'".format(intent))
+            else:
+                raise ValueError("intent must be a string")
+        if self.__check_list_strings(obs_collection):
+            parameters.append("(o.collection LIKE '%{}%')".format(
+                "%' OR o.collection LIKE '%".join(obs_collection)
+            ))
+        if self.__check_list_strings(instrument_name):
+            parameters.append("(o.instrument_name LIKE '%{}%')".format(
+                "%' OR o.instrument_name LIKE '%".join(instrument_name)
+            ))
+        if self.__check_list_strings(filters):
+            parameters.append("(o.instrument_configuration LIKE '%{}%')"
+                              .format("%' OR o.instrument_configuration "
+                                      "LIKE '%".join(filters)))
+        query = "select o.*, p.calibration_level, p.data_product_type "\
+                "from ehst.observation AS o LEFT JOIN ehst.plane as p "\
+                "on o.observation_uuid=p.observation_uuid"
+        if parameters:
+            query += " where({})".format(" AND ".join(parameters))
+        table = self.query_hst_tap(query=query, async_job=async_job,
+                                   output_file=output_file,
+                                   output_format=output_format,
+                                   verbose=verbose)
+        if verbose:
+            log.info(query)
+        if get_query:
+            return query
+        return table
+
+    def __get_calibration_level(self, calibration_level):
+        condition = ""
+        if(calibration_level is not None):
+            if isinstance(calibration_level, str):
+                condition = calibration_level
+            elif isinstance(calibration_level, int):
+                if calibration_level < 4:
+                    condition = self.calibration_levels[calibration_level]
+                else:
+                    raise KeyError("Calibration level must be between 0 and 3")
+            else:
+                raise KeyError("Calibration level must be either "
+                               "a string or an integer")
+        return condition
+
+    def __check_list_strings(self, list):
+        if list is None:
+            return False
+        if list and all(isinstance(elem, str) for elem in list):
+            return True
+        else:
+            raise ValueError("One of the lists is empty or there are "
+                             "elements that are not strings")
 
     def get_tables(self, only_names=True, verbose=False):
         """Get the available table in EHST TAP service
@@ -378,29 +496,6 @@ class ESAHubbleClass(BaseQuery):
             return column_names
         else:
             return columns
-
-    def _checkQuantityInput(self, value, msg):
-        if not (isinstance(value, str) or isinstance(value, units.Quantity)):
-            raise ValueError(str(msg) + ""
-                             " must be either a string or astropy.coordinates")
-
-    def _getQuantityInput(self, value, msg):
-        if value is None:
-            raise ValueError("Missing required argument: '"+str(msg)+"'")
-        if not (isinstance(value, str) or isinstance(value, units.Quantity)):
-            raise ValueError(str(msg) + ""
-                             " must be either a string or astropy.coordinates")
-        if isinstance(value, str):
-            q = Quantity(value)
-            return q
-        else:
-            return value
-
-    def _checkCoordInput(self, value, msg):
-        if not (isinstance(value, str) or isinstance(value,
-                                                     commons.CoordClasses)):
-            raise ValueError(str(msg) + ""
-                             " must be either a string or astropy.coordinates")
 
     def _getCoordInput(self, value, msg):
         if not (isinstance(value, str) or isinstance(value,
