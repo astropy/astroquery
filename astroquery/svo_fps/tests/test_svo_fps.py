@@ -1,6 +1,7 @@
 import pytest
- from astropy import units as u
- 
+import os
+from astropy import units as u
+
 from ...utils.testing_tools import MockResponse
 from ..core import SvoFps
 
@@ -30,13 +31,13 @@ def patch_get(request):
 
 
 def get_mockreturn(method, url, params=None, timeout=10, **kwargs):
-    if (params['WavelengthEff_min'] == TEST_LAMBDA and
-    params['WavelengthEff_max'] == TEST_LAMBDA+100):
+    if ((params['WavelengthEff_min'] == TEST_LAMBDA and
+         params['WavelengthEff_max'] == TEST_LAMBDA+100)):
         filename = data_path(DATA_FILES['filter_index'])
     elif params['ID'] == TEST_FILTER_ID:
         filename = data_path(DATA_FILES['filter_index'])
-    elif (params['Facility'] == TEST_FACILITY and
-    params['Instrument'] == TEST_INSTRUMENT):
+    elif (params['Facility'] == TEST_FACILITY and params['Instrument'] ==
+          TEST_INSTRUMENT):
         filename = data_path(DATA_FILES['filter_list'])
     else:
         raise NotImplementedError("Test type not implemented")
