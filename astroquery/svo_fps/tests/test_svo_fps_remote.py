@@ -1,11 +1,10 @@
 import pytest
-from astropy.tests.helper import remote_data
 import astropy.io.votable.exceptions
 
 from ..core import SvoFps
 
 
-@remote_data
+@pytest.mark.remote_data
 class TestSvoFpsClass:
 
     def test_get_filter_index(self):
