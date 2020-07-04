@@ -5,9 +5,9 @@ from astropy import units as u
 from ...utils.testing_tools import MockResponse
 from ..core import SvoFps
 
-DATA_FILES = {'filter_index': 'svo_fps?WavelengthEff_min=12000&WavelengthEff_max=12100.xml',
-              'transmission_data': 'svo_fps?ID=2MASS.2MASS.H.xml',
-              'filter_list': 'svo_fps?Facility=Keck&Instrument=NIRC2.xml'
+DATA_FILES = {'filter_index': 'svo_fps_WavelengthEff_min=12000_WavelengthEff_max=12100.xml',
+              'transmission_data': 'svo_fps_ID=2MASS.2MASS.H.xml',
+              'filter_list': 'svo_fps_Facility=Keck_Instrument=NIRC2.xml'
               }
 TEST_LAMBDA = 12000
 TEST_FILTER_ID = '2MASS/2MASS.H'
