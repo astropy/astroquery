@@ -1,5 +1,6 @@
 import pytest
 from astropy.tests.helper import remote_data
+import astropy.io.votable.exceptions
 
 from ..core import SvoFps
 
@@ -29,7 +30,7 @@ class TestSvoFpsClass:
     # Test for failing case (a dummy invalid query)
     def test_IndexError_in_data_from_svo(self):
         invalid_query = {'Invalid_param': 0}
-        with pytest.raises(IndexError) as exc:
+        with pytest.raises(astropy.io.votable.exceptions.E09) as exc:
             SvoFps.data_from_svo(invalid_query)
 
-        assert 'Invalid search parameters' in str(exc)
+        assert 'must have a value attribute' in str(exc)
