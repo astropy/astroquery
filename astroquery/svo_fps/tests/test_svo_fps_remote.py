@@ -29,5 +29,7 @@ class TestSvoFpsClass:
     # Test for failing case (a dummy invalid query)
     def test_IndexError_in_data_from_svo(self):
         invalid_query = {'Invalid_param': 0}
-        pytest.raises(IndexError, SvoFps.data_from_svo, invalid_query,
-                      'Invalid search parameters')
+        with pytest.raises(IndexError) as exc:
+            SvoFps.data_from_svo(invalid_query)
+
+        assert 'Invalid search parameters' in str(exc)
