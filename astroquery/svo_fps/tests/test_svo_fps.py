@@ -30,14 +30,15 @@ def patch_get(request):
     return mp
 
 
-def get_mockreturn(method, url, params=None, timeout=10, **kwargs):
-    if ((params['WavelengthEff_min'] == TEST_LAMBDA and
+def get_mockreturn(method, url, params=None, timeout=10, cache=None, **kwargs):
+    if ('WavelengthEff_min' in params and
+        (params['WavelengthEff_min'] == TEST_LAMBDA and
          params['WavelengthEff_max'] == TEST_LAMBDA+100)):
         filename = data_path(DATA_FILES['filter_index'])
-    elif params['ID'] == TEST_FILTER_ID:
+    elif 'ID' in params and params['ID'] == TEST_FILTER_ID:
         filename = data_path(DATA_FILES['filter_index'])
-    elif (params['Facility'] == TEST_FACILITY and params['Instrument'] ==
-          TEST_INSTRUMENT):
+    elif 'Facility' in params and (params['Facility'] == TEST_FACILITY and
+                                   params['Instrument'] == TEST_INSTRUMENT):
         filename = data_path(DATA_FILES['filter_list'])
     else:
         raise NotImplementedError("Test type not implemented")
@@ -46,19 +47,19 @@ def get_mockreturn(method, url, params=None, timeout=10, **kwargs):
     return MockResponse(content, **kwargs)
 
 
-def test_get_filter_index():
+def test_get_filter_index(patch_get):
     table = SvoFps.get_filter_index(TEST_LAMBDA*u.angstrom, (TEST_LAMBDA+100)*u.angstrom)
     # Check if column for Filter ID (named 'filterID') exists in table
     assert 'filterID' in table.colnames
 
 
-def test_get_transmission_data():
+def test_get_transmission_data(patch_get):
     table = SvoFps.get_transmission_data(TEST_FILTER_ID)
     # Check if data is fetched properly, with > 0 rows
     assert len(table) > 0
 
 
-def test_get_filter_list():
+def test_get_filter_list(patch_get):
     table = SvoFps.get_filter_list(TEST_FACILITY, TEST_INSTRUMENT)
     # Check if column for Filter ID (named 'filterID') exists in table
     assert 'filterID' in table.colnames
