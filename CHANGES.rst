@@ -32,6 +32,11 @@ noirlab
 
 - Module added to access the NOIRLab (formally NOAO) archive. [#1638]
 
+SVO FPS
+^^^^^^^
+
+- Module added to access the Spanish Virtual Observatory Filter Profile List [#1498]
+
 
 Service fixes and enhancements
 ------------------------------
