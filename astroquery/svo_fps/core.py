@@ -16,7 +16,8 @@ FLOAT_MAX = np.finfo(np.float64).max
 class SvoFpsClass(BaseQuery):
     SVO_MAIN_URL = 'http://svo2.cab.inta-csic.es/theory/fps/fps.php'
 
-    def data_from_svo(self, query, error_msg='No data found for requested query'):
+    def data_from_svo(self, query, cache=True,
+                      error_msg='No data found for requested query'):
         """Get data in response to the query send to SVO FPS
 
         Parameters
@@ -30,13 +31,16 @@ class SvoFpsClass(BaseQuery):
             Error message to be shown in case no table element found in the
             responded VOTable. Use this to make error message verbose in context
             of the query made (default is 'No data found for requested query')
+        cache : bool
+            Cache the results?  Defaults to True
 
         Returns
         -------
         astropy.table.table.Table object
             Table containing data fetched from SVO (in response to query)
         """
-        response = self._request("GET", self.SVO_MAIN_URL, params=query)
+        response = self._request("GET", self.SVO_MAIN_URL, params=query,
+                                 cache=cache)
         response.raise_for_status()
         votable = io.BytesIO(response.content)
         try:
@@ -45,7 +49,8 @@ class SvoFpsClass(BaseQuery):
             # If no table element found in VOTable
             raise IndexError(error_msg)
 
-    def get_filter_index(self, wavelength_eff_min=0*u.angstrom, wavelength_eff_max=FLOAT_MAX*u.angstrom):
+    def get_filter_index(self, wavelength_eff_min=0*u.angstrom,
+                         wavelength_eff_max=FLOAT_MAX*u.angstrom, **kwargs):
         """Get master list (index) of all filters at SVO
         Optional parameters can be given to get filters data for specified
         Wavelength Effective range from SVO
@@ -66,9 +71,9 @@ class SvoFpsClass(BaseQuery):
         query = {'WavelengthEff_min': wavelength_eff_min.value,
                  'WavelengthEff_max': wavelength_eff_max.value}
         error_msg = 'No filter found for requested Wavelength Effective range'
-        return self.data_from_svo(query, error_msg)
+        return self.data_from_svo(query, error_msg, **kwargs)
 
-    def get_transmission_data(self, filter_id):
+    def get_transmission_data(self, filter_id, **kwargs):
         """Get transmission data for the requested Filter ID from SVO
 
         Parameters
@@ -83,9 +88,9 @@ class SvoFpsClass(BaseQuery):
         """
         query = {'ID': filter_id}
         error_msg = 'No filter found for requested Filter ID'
-        return self.data_from_svo(query, error_msg)
+        return self.data_from_svo(query, error_msg, **kwargs)
 
-    def get_filter_list(self, facility, instrument=None):
+    def get_filter_list(self, facility, instrument=None, **kwargs):
         """Get filters data for requested facilty and instrument from SVO
 
         Parameters
@@ -104,7 +109,7 @@ class SvoFpsClass(BaseQuery):
         query = {'Facility': facility,
                  'Instrument': instrument}
         error_msg = 'No filter found for requested Facilty (and Instrument)'
-        return self.data_from_svo(query, error_msg)
+        return self.data_from_svo(query, error_msg, **kwargs)
 
 
 SvoFps = SvoFpsClass()
