@@ -90,16 +90,16 @@ class TestXMMNewton():
         dummyTapHandler.check_call("get_columns", parameters2)
 
     _files = {
-        "0405320501":{
-            "pps":[
-                "P0405320501M1S002EXPMAP1000.FTZ", 
-                "P0405320501M1S002IMAGE_4000.FTZ", 
-                "P0405320501M2S003EXPMAP2000.FTZ", 
-                "P0405320501M2S003IMAGE_5000.FTZ", 
-                "P0405320501PNS001EXPMAP3000.FTZ", 
+        "0405320501": {
+            "pps": [
+                "P0405320501M1S002EXPMAP1000.FTZ",
+                "P0405320501M1S002IMAGE_4000.FTZ",
+                "P0405320501M2S003EXPMAP2000.FTZ",
+                "P0405320501M2S003IMAGE_5000.FTZ",
+                "P0405320501PNS001EXPMAP3000.FTZ",
                 "P0405320501PNS001IMAGE_8000.FTZ",
-                "P0405320501M1S002EXPMAP2000.FTZ", 
-                "P0405320501M1S002IMAGE_5000.FTZ", 
+                "P0405320501M1S002EXPMAP2000.FTZ",
+                "P0405320501M1S002IMAGE_5000.FTZ",
                 "P0405320501M2S003EXPMAP3000.FTZ",
                 "P0405320501M2S003IMAGE_8000.FTZ",
                 "P0405320501PNS001EXPMAP4000.FTZ",
@@ -155,11 +155,12 @@ class TestXMMNewton():
                         try:
                             os.makedirs(os.path.join(ob_name, ftype))
                         except OSError as exc:
-                            if exc.errno == errno.EEXIST and os.path.isdir(os.path.join(ob_name, ftype)):
+                            if exc.errno == errno.EEXIST and \
+                              os.path.isdir(os.path.join(ob_name, ftype)):
                                 pass
                             else:
                                 raise
-                        _file = open(os.path.join(ob_name, ftype, f),"w")
+                        _file = open(os.path.join(ob_name, ftype, f), "w")
                         _file.close()
                         tar.add(os.path.join(ob_name, ftype, f))
                         os.remove(os.path.join(ob_name, ftype, f))
@@ -169,20 +170,25 @@ class TestXMMNewton():
     def test_get_epic_images_non_existing_file(self, capsys):
         _tarname = "nonexistingfile.tar"
         xsa = XMMNewtonClass(self.get_dummy_tap_handler())
-        res = xsa.get_epic_images(_tarname, [], [], get_detmask=True, get_exposure_map=True)
+        res = xsa.get_epic_images(_tarname, [], [],
+                                  get_detmask=True, get_exposure_map=True)
         assert res == {}
         out, err = capsys.readouterr()
-        assert err == "ERROR: File %s not found [astroquery.esa.xmm_newton.core]\n"%_tarname
+        assert err == ("ERROR: File %s not found "
+                       "[astroquery.esa.xmm_newton.core]\n" % _tarname)
 
     def test_get_epic_images_invalid_instrument(self, capsys):
         _tarname = "tarfile.tar"
         _invalid_instrument = "II"
         self._create_tar(_tarname, self._files)
         xsa = XMMNewtonClass(self.get_dummy_tap_handler())
-        res = xsa.get_epic_images(_tarname, [], [_invalid_instrument], get_detmask=True, get_exposure_map=True)
+        res = xsa.get_epic_images(_tarname, [], [_invalid_instrument],
+                                  get_detmask=True, get_exposure_map=True)
         assert res == {}
         out, err = capsys.readouterr()
-        assert err == "WARNING: Invalid instrument %s [astroquery.esa.xmm_newton.core]\n"%_invalid_instrument
+        assert err == ("WARNING: Invalid instrument %s "
+                       "[astroquery.esa.xmm_newton.core]\n"
+                       % _invalid_instrument)
         os.remove(_tarname)
 
     def test_get_epic_images_invalid_band(self, capsys):
@@ -190,10 +196,12 @@ class TestXMMNewton():
         _invalid_band = 10
         self._create_tar(_tarname, self._files)
         xsa = XMMNewtonClass(self.get_dummy_tap_handler())
-        res = xsa.get_epic_images(_tarname, [_invalid_band], [], get_detmask=True, get_exposure_map=True)
+        res = xsa.get_epic_images(_tarname, [_invalid_band], [],
+                                  get_detmask=True, get_exposure_map=True)
         assert res == {}
         out, err = capsys.readouterr()
-        assert err == "WARNING: Invalid band %u [astroquery.esa.xmm_newton.core]\n"%_invalid_band
+        assert err == ("WARNING: Invalid band %u "
+                       "[astroquery.esa.xmm_newton.core]\n" % _invalid_band)
         os.remove(_tarname)
 
     def test_get_epic_images(self):
@@ -204,15 +212,17 @@ class TestXMMNewton():
                         "EP", "EP_expo", "EP_det"]
         self._create_tar(_tarname, self._files)
         xsa = XMMNewtonClass(self.get_dummy_tap_handler())
-        res = xsa.get_epic_images(_tarname, [], [], get_detmask=True, get_exposure_map=True)
-        assert len(res) == 6 # Number of different bands
-        assert len(res[1]) == 9 # Number of different instruments within band 1
-        assert len(res[2]) == 9 # Number of different instruments within band 2
-        assert len(res[3]) == 9 # Number of different instruments within band 3
-        assert len(res[4]) == 9 # Number of different instruments within band 4
-        assert len(res[5]) == 9 # Number of different instruments within band 5
-        assert len(res[8]) == 6 # Number of different instruments within band 8
-        # Notice that we consider the exposure and the detector maps as an instrument
+        res = xsa.get_epic_images(_tarname, [], [],
+                                  get_detmask=True, get_exposure_map=True)
+        assert len(res) == 6     # Number of different bands
+        assert len(res[1]) == 9  # Number of different inst within band 1
+        assert len(res[2]) == 9  # Number of different inst within band 2
+        assert len(res[3]) == 9  # Number of different inst within band 3
+        assert len(res[4]) == 9  # Number of different inst within band 4
+        assert len(res[5]) == 9  # Number of different inst within band 5
+        assert len(res[8]) == 6  # Number of different inst within band 8
+        # Notice that we consider the exposure and the detector maps as
+        # an instrument
         for k, v in res[1].items():
             f = os.path.split(v)
             assert k in _instruments
@@ -245,10 +255,8 @@ class TestXMMNewton():
                 for b in res:
                     for i in res[b]:
                         assert os.path.isfile(res[b][i])
-        
+
         # Removing files created in this test
         for ob_name in self._files:
             shutil.rmtree(ob_name)
         os.remove(_tarname)
-        
-        
