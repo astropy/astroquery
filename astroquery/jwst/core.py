@@ -1177,7 +1177,6 @@ class JwstClass(object):
         params_dict['DATA_RETRIEVAL_ORIGIN'] = 'ASTROQUERY'
 
         if artifact_id is None and file_name is None:
-            log.info("ARTIFACT NONE")
             raise ValueError("Missing required argument: "
                              "'artifact_id' or 'file_name'")
         else:
@@ -1245,11 +1244,9 @@ class JwstClass(object):
 
         plane_ids = self._get_associated_planes(plane_ids, cal_level,
                                                 max_cal_level, True)
-        log.info(plane_ids)
         params_dict['planeid'] = plane_ids
         self.__set_additional_parameters(params_dict, cal_level, max_cal_level,
                                          product_type)
-        log.info(params_dict)
         output_file_full_path, output_dir = self.__set_dirs(output_file,
                                                             observation_id)
         # Get file name only

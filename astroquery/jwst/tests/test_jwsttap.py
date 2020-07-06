@@ -776,12 +776,10 @@ class TestTap(unittest.TestCase):
         extracted_file_1 = output_file_full_path_dir + os.sep +\
             'single_product_retrieval_1.fits'
         expected_files.append(extracted_file_1)
-        log.info(extracted_file_1)
-
         try:
             files_returned = (jwst.get_obs_products(
                               observation_id=observation_id, cal_level='ALL',
-                              output_file = output_file_full_path))
+                              output_file=output_file_full_path))
             dummyTapHandler.check_call('load_data', parameters)
             self.__check_extracted_files(files_expected=expected_files,
                                          files_returned=files_returned)
@@ -1001,8 +999,9 @@ class TestTap(unittest.TestCase):
             " ALL" in err.value.args[0]
         with pytest.raises(ValueError) as err:
             jwst.query_target("M1", "ALL")
-        assert err.value.args[0] in ["This target name cannot be determined "\
-            "with this resolver: ALL", "Missing required argument: 'width'"]
+        assert err.value.args[0] in ["This target name cannot be determined "
+                                     "with this resolver: ALL", "Missing "
+                                     "required argument: 'width'"]
 
         # Testing no valid coordinates from resolvers
         simbad_file = data_path('test_query_by_target_name_simbad_'
