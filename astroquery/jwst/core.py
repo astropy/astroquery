@@ -790,20 +790,20 @@ class JwstClass(object):
                                   verbose=verbose,
                                   dump_to_file=dump_to_file)
 
-    def query_target_name(self, target_name, target_resolver="ALL",
-                          radius=None,
-                          width=None,
-                          height=None,
-                          observation_id=None,
-                          cal_level="Top",
-                          prod_type=None,
-                          instrument_name=None,
-                          filter_name=None,
-                          proposal_id=None,
-                          only_public=False,
-                          show_all_columns=False,
-                          async_job=False,
-                          verbose=False):
+    def query_target(self, target_name, target_resolver="ALL",
+                     radius=None,
+                     width=None,
+                     height=None,
+                     observation_id=None,
+                     cal_level="Top",
+                     prod_type=None,
+                     instrument_name=None,
+                     filter_name=None,
+                     proposal_id=None,
+                     only_public=False,
+                     show_all_columns=False,
+                     async_job=False,
+                     verbose=False):
         """Launches a job
         TAP & TAP+
 
@@ -1023,15 +1023,15 @@ class JwstClass(object):
 
         if observation_id is None:
             raise ValueError(self.REQUESTED_OBSERVATION_ID)
-        plane_id, max_cal_level = self.__get_plane_id(observation_id)
+        plane_ids, max_cal_level = self._get_plane_id(observation_id)
         if (cal_level == 3 and cal_level > max_cal_level):
             raise ValueError("Requesting upper levels is not allowed")
-        list = self.__get_associated_planes(plane_id, cal_level,
-                                            max_cal_level, False)
+        list = self._get_associated_planes(plane_ids, cal_level,
+                                           max_cal_level, False)
 
         query = "select distinct a.uri, a.filename, a.contenttype, "\
             "a.producttype, p.calibrationlevel, p.public FROM {0} p JOIN {1} "\
-            "a ON (p.planeid=a.planeid) WHERE a.planeid IN {2} {3};"\
+            "a ON (p.planeid=a.planeid) WHERE a.planeid IN {2}{3};"\
             .format(self.JWST_PLANE_TABLE, self.JWST_ARTIFACT_TABLE, list,
                     self.__get_artifact_producttype_condition(product_type))
         job = self.__jwsttap.launch_job(query=query)
@@ -1041,37 +1041,45 @@ class JwstClass(object):
         if (cal_level not in self.CAL_LEVELS):
             raise ValueError("This calibration level is not valid")
 
-    def __get_associated_planes(self, plane_id, cal_level,
-                                max_cal_level, is_url):
+    def _get_associated_planes(self, plane_ids, cal_level,
+                               max_cal_level, is_url):
         if (cal_level == max_cal_level):
             if (not is_url):
-                list = "('{}')".format(plane_id)
+                list = "('{}')".format(plane_ids)
             else:
-                list = plane_id
+                list = "{}".format(",".join(plane_ids))
+            return list
         else:
-            siblings = self.__get_sibling_planes(plane_id, cal_level)
-            members = self.__get_member_planes(plane_id, cal_level)
-            pids_table = vstack([siblings, members])
+            plane_list = []
+            for plane_id in plane_ids:
+                siblings = self.__get_sibling_planes(plane_id, cal_level)
+                members = self.__get_member_planes(plane_id, cal_level)
+                plane_id_table = vstack([siblings, members])
+                plane_list.extend(plane_id_table['product_planeid'].pformat(
+                    show_name=False))
             if (not is_url):
-                list = "('{}')".format("', '".join(
-                    pids_table["product_planeid"].pformat(show_name=False)))
+                list = "('{}')".format("', '".join(plane_list))
             else:
-                list = "{}".format(",".join(
-                    pids_table["product_planeid"].pformat(show_name=False)))
+                list = "{}".format(",".join(plane_list))
         return list
 
-    def __get_plane_id(self, observation_id):
+    def _get_plane_id(self, observation_id):
         try:
-            query_plane = "select m.planeid, m.calibrationlevel from {} m "\
-                "where m.observationid = '{}'"\
+            planeids = []
+            query_plane = "select distinct m.planeid, m.calibrationlevel "\
+                "from {} m where m.observationid = '{}'"\
                 .format(self.JWST_MAIN_TABLE, observation_id)
             job = self.__jwsttap.launch_job(query=query_plane)
-            job.get_results().sort(["planeid"])
-            planeid = job.get_results()["planeid"][0].decode('utf-8')
+            job.get_results().sort(["calibrationlevel"])
+            job.get_results().reverse()
             max_cal_level = job.get_results()["calibrationlevel"][0]
-            return planeid, max_cal_level
+            for row in job.get_results():
+                if(row["calibrationlevel"] == max_cal_level):
+                    planeids.append(row["planeid"].decode('utf-8'))
+            return planeids, max_cal_level
         except Exception as e:
-            raise ValueError(e)
+            raise ValueError("This observation_id does not exist in "
+                             "JWST database")
 
     def __get_sibling_planes(self, planeid, cal_level='ALL'):
         where_clause = ""
@@ -1169,6 +1177,7 @@ class JwstClass(object):
         params_dict['DATA_RETRIEVAL_ORIGIN'] = 'ASTROQUERY'
 
         if artifact_id is None and file_name is None:
+            log.info("ARTIFACT NONE")
             raise ValueError("Missing required argument: "
                              "'artifact_id' or 'file_name'")
         else:
@@ -1188,14 +1197,15 @@ class JwstClass(object):
             self.__jwsttap.load_data(params_dict=params_dict,
                                      output_file=output_file_name)
         except Exception as exx:
+            log.info("error")
             raise ValueError('Error retrieving product for ' +
                              err_msg + ': %s' % str(exx))
         print("Product saved at: %s" % (output_file_name))
         return output_file_name
 
-    def get_obs_products(self, observation_id=None, cal_level=None,
+    def get_obs_products(self, observation_id=None, cal_level="ALL",
                          product_type=None, output_file=None):
-        """Get a JWST product given its Artifact ID.
+        """Get a JWST product given its observation ID.
 
         Parameters
         ----------
@@ -1224,7 +1234,7 @@ class JwstClass(object):
 
         if observation_id is None:
             raise ValueError(self.REQUESTED_OBSERVATION_ID)
-        plane_id, max_cal_level = self.__get_plane_id(observation_id)
+        plane_ids, max_cal_level = self._get_plane_id(observation_id)
 
         if (cal_level == 3 and cal_level > max_cal_level):
             raise ValueError("Requesting upper levels is not allowed")
@@ -1233,13 +1243,13 @@ class JwstClass(object):
         params_dict['RETRIEVAL_TYPE'] = 'OBSERVATION'
         params_dict['DATA_RETRIEVAL_ORIGIN'] = 'ASTROQUERY'
 
-        if (cal_level == 2 and max_cal_level != 2):
-            plane_id = self.__get_associated_planes(plane_id, 2,
-                                                    max_cal_level, True)
-        params_dict['planeid'] = plane_id
+        plane_ids = self._get_associated_planes(plane_ids, cal_level,
+                                                max_cal_level, True)
+        log.info(plane_ids)
+        params_dict['planeid'] = plane_ids
         self.__set_additional_parameters(params_dict, cal_level, max_cal_level,
                                          product_type)
-
+        log.info(params_dict)
         output_file_full_path, output_dir = self.__set_dirs(output_file,
                                                             observation_id)
         # Get file name only
@@ -1440,7 +1450,7 @@ class JwstClass(object):
                 raise ValueError("product_type must be one of: " +
                                  str(', '.join(self.ARTIFACT_PRODUCT_TYPES)))
             else:
-                condition = " AND producttype LIKE '"+product_type+"' "
+                condition = " AND producttype LIKE '"+product_type+"'"
         return condition
 
     def __get_calibration_level_condition(self, cal_level=None):

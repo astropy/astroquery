@@ -161,7 +161,7 @@ element in the list if the target name cannot be resolved).
   >>> target_name = 'M1'
   >>> target_resolver = 'ALL'
   >>> radius = u.Quantity(5, u.deg)
-  >>> r = Jwst.query_target_name(target_name = target_name, target_resolver = target_resolver, radius = radius)
+  >>> r = Jwst.query_target(target_name = target_name, target_resolver = target_resolver, radius = radius)
   >>> r.pprint()
 
          dist                   observationid         ...
@@ -193,7 +193,7 @@ This method uses the same parameters as query region, but also includes the targ
   >>> target_resolver = 'NED'
   >>> width = u.Quantity(5, u.deg)
   >>> height = u.Quantity(5, u.deg)
-  >>> r = Jwst.query_target_name(target_name = target_name, target_resolver = target_resolver, width = width, height = height)
+  >>> r = Jwst.query_target(target_name = target_name, target_resolver = target_resolver, width = width, height = height)
   >>> r.pprint()
 
          dist                        observationid              ...
@@ -211,35 +211,34 @@ This method uses the same parameters as query region, but also includes the targ
 
 1.4 Getting data products
 ~~~~~~~~~~~~~~~~~~~~~~~~~
-To query the data products associated with a certain plane ID
+To query the data products associated with a certain Observation ID
 
 .. code-block:: python
 
   >>> from astroquery.jwst import Jwst
-  >>> product_list = Jwst.get_product_list(observation_id='jw97012001001_02101_00001_guider1')
-  >>> for row in result:
-  >>>     print("artifactid: %s\tfilename: %s" % (row['artifactid'].decode('UTF-8'), row['filename'].decode('UTF-8')))
+  >>> product_list = Jwst.get_product_list(observation_id='jw00777011001_02104_00001_nrcblong')
+  >>> for row in product_list:
+  >>>     print("filename: %s" % (row['filename'].decode('UTF-8')))
 
+  filename: jw00777011001_02104_00001_nrcblong_c1005_crf.fits
+  filename: jw00777011001_02104_00001_nrcblong_cal.fits
+  filename: jw00777011001_02104_00001_nrcblong_cal.jpg
+  filename: jw00777011001_02104_00001_nrcblong_cal_thumb.jpg
+  filename: jw00777011001_02104_00001_nrcblong_i2d.fits
+  filename: jw00777011001_02104_00001_nrcblong_o011_crf.fits
 
-  artifactid: 00000000-0000-0000-b774-8f78db4cb6cd	file: jw97012001001_02101_00001_guider1_rateints.fits
-  artifactid: 00000000-0000-0000-a09d-13769875a033	file: jw97012001001_02101_00001_guider1_rate.fits
-  artifactid: 00000000-0000-0000-8e72-d874267e0c68	file: jw97012001001_02101_00001_guider1_trapsfilled.fits
-  artifactid: 00000000-0000-0000-8ac0-62f0af170c96	file: jw97012001001_02101_00001_guider1_uncal.jpg
-  artifactid: 00000000-0000-0000-8d00-ec105bf49e9e	file: jw97012001001_02101_00001_guider1_cal.jpg
-  artifactid: 00000000-0000-0000-9c58-5d15fd353a73	file: jw97012001001_02101_00001_guider1_cal.fits
-  artifactid: 00000000-0000-0000-8424-8a9bc0f8301c	file: jw97012001001_02101_00001_guider1_uncal.fits
-
-You can filter by product type (calibration level is also available)
+You can filter by product type and calibration level (using a numerical value or the option 'ALL' -set by default- that will download
+all the products associated to this observation_id with the same and lower levels).
 
 .. code-block:: python
 
   >>> from astroquery.jwst import Jwst
   >>> product_list = Jwst.get_product_list(observation_id='jw97012001001_02101_00001_guider1', product_type='science')
-  >>> for row in result:
-  >>>     print("artifactid: %s\tfilename: %s" % (row['artifactid'].decode('UTF-8'), row['filename'].decode('UTF-8')))
+  >>> for row in product_list:
+  >>>     print("filename: %s" % (row['filename'].decode('UTF-8')))
 
-  artifactid: 00000000-0000-0000-9c58-5d15fd353a73	file: jw97012001001_02101_00001_guider1_cal.fits
-  artifactid: 00000000-0000-0000-8424-8a9bc0f8301c	file: jw97012001001_02101_00001_guider1_uncal.fits
+  filename: jw97012001001_02101_00001_guider1_cal.fits
+  filename: jw97012001001_02101_00001_guider1_uncal.fits
 
 To download a data product
 
@@ -263,24 +262,37 @@ To download a data product
   >>> output_file = Jwst.get_product(artifact_id='00000000-0000-0000-9335-09ff0e02f06b')
   >>> output_file = Jwst.get_product(file_name='jw00601004001_02102_00001_nrcb1_uncal.fits')
 
-To download products by observation identifier
+To download products by observation identifier, it is possible to use the get_obs_products function, with the same parameters
+than get_product_list.
 
 .. code-block:: python
 
-  >>> observation_id = 'jw97012001001_02101_00001_guider1'
-  >>> results = jwst.get_obs_products(observation_id=observation_id, product_type='science')
+  >>> observation_id = 'jw00777011001_02104_00001_nrcblong'
+  >>> results = Jwst.get_obs_products(observation_id=observation_id, cal_level=3, product_type='science')
 
-
+  INFO: {'RETRIEVAL_TYPE': 'OBSERVATION', 'DATA_RETRIEVAL_ORIGIN': 'ASTROQUERY', 'planeid': '00000000-0000-0000-879d-ae91fa2f43e2', 'calibrationlevel': 'SELECTED', 'product_type': 'science'} [astroquery.jwst.core]
   Retrieving data.
   Done.
-  Product(s) saved at: /<local_path>/<temporary_directory>/jw97012001001_02101_00001_guider1_all_products
-  Product = /<local_path>/<temporary_directory>/jw97012001001_02101_00001_guider1
+  Product(s) saved at: /<local_path>/<temporary_directory>/\temp_20200706_131015\jw00777011001_02104_00001_nrcblong_all_products
+  Product = /<local_path>/<temporary_directory>/\temp_20200706_131015\jw00777\level_1\jw00777011001_02104_00001_nrcblong_uncal.fits
+  Product = /<local_path>/<temporary_directory>/\temp_20200706_131015\jw00777\level_2\jw00777011001_02104_00001_nrcblong_cal.fits
+  Product =/<local_path>/<temporary_directory>/\temp_20200706_131015\jw00777\level_2\jw00777011001_02104_00001_nrcblong_i2d.fits
 
-You can use product_type and cal_level arguments to retrieve specific products.
 
 A temporary directory is created with the files and a list of the them is provided.
 
 When more than one product is found, a tar file is retrieved. This method extracts the products.
+
+It is also possible to extract the products associated to an observation with upper calibration levels with get_related_observations.
+Using the observation ID as input parameter, this function will retrieve the observations (IDs) that use it to create a composite observation.
+
+.. code-block:: python
+
+  >>> observation_id = 'jw00777011001_02104_00001_nrcblong'
+  >>> results = Jwst.get_related_observations(observation_id=observation_id)
+
+  [' jw00777-o011_t005_nircam_f277w-sub160', 'jw00777-c1005_t005_nircam_f277w-sub160']
+
 
 1.5 Getting public tables
 ~~~~~~~~~~~~~~~~~~~~~~~~~

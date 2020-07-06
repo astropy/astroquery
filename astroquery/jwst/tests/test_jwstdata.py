@@ -18,11 +18,10 @@ import unittest
 import os
 import pytest
 
-from astroquery.jwst.tests import DummyTapHandler
-from astroquery.jwst.tests import DummyDataHandler
+from astroquery.jwst.tests.DummyTapHandler import DummyTapHandler
+from astroquery.jwst.tests.DummyDataHandler import DummyDataHandler
 
 from astroquery.jwst.core import JwstClass
-
 
 
 def data_path(filename):
@@ -31,24 +30,30 @@ def data_path(filename):
 
 
 class TestData(unittest.TestCase):
-    
+
     def test_get_product(self):
         dummyTapHandler = DummyTapHandler()
-        dummyDataHandler = DummyDataHandler()
-        jwst = JwstClass(dummyTapHandler, dummyDataHandler)
+        jwst = JwstClass(dummyTapHandler)
         # default parameters
         parameters = {}
         parameters['artifact_id'] = None
         with pytest.raises(ValueError) as err:
-            jwst.get_product();
+            jwst.get_product()
         assert "Missing required argument: 'artifact_id'" in err.value.args[0]
-        dummyDataHandler.check_call('get_product', parameters)
+        # dummyDataHandler.check_call('get_product', parameters)
         # test with parameters
         dummyTapHandler.reset()
         parameters = {}
-        parameters['artifact_id'] = 'my_artifact_id'
-        jwst.get_product('my_artifact_id');
-        dummyDataHandler.check_call('get_product', parameters)
+        params_dict = {}
+        params_dict['RETRIEVAL_TYPE'] = 'PRODUCT'
+        params_dict['DATA_RETRIEVAL_ORIGIN'] = 'ASTROQUERY'
+        params_dict['ARTIFACTID'] = 'my_artifact_id'
+        parameters['params_dict'] = params_dict
+        parameters['output_file'] = 'my_artifact_id'
+        parameters['verbose'] = False
+        jwst.get_product(artifact_id='my_artifact_id')
+        dummyTapHandler.check_call('load_data', parameters)
+
 
 if __name__ == "__main__":
     # import sys;sys.argv = ['', 'Test.testName']

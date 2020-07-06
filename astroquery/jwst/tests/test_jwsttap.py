@@ -39,6 +39,7 @@ from astroquery.vizier import Vizier
 from astroquery.ned import Ned
 from astropy.table import Table
 from astropy import units
+from astropy.logger import log
 
 from unittest.mock import MagicMock
 
@@ -46,6 +47,38 @@ from unittest.mock import MagicMock
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     return os.path.join(data_dir, filename)
+
+
+def get_plane_id_mock(url, params, *args, **kwargs):
+    return ['00000000-0000-0000-879d-ae91fa2f43e2'], 2
+
+
+@pytest.fixture(autouse=True)
+def plane_id_request(request):
+    try:
+        mp = request.getfixturevalue("monkeypatch")
+    except AttributeError:  # pytest < 3
+        mp = request.getfuncargvalue("monkeypatch")
+    mp.setattr(JwstClass, '_get_plane_id', get_plane_id_mock)
+    return mp
+
+
+def get_associated_planes_mock(url, params, *args, **kwargs):
+    if(args[0] == 2):
+        return "('00000000-0000-0000-879d-ae91fa2f43e2')"
+    else:
+        return "('00000000-0000-0000-879d-ae91fa2f43e2', "\
+            "'00000000-0000-0000-9852-a9fa8c63f7ef')"
+
+
+@pytest.fixture(autouse=True)
+def associated_planes_request(request):
+    try:
+        mp = request.getfixturevalue("monkeypatch")
+    except AttributeError:  # pytest < 3
+        mp = request.getfuncargvalue("monkeypatch")
+    mp.setattr(JwstClass, '_get_associated_planes', get_associated_planes_mock)
+    return mp
 
 
 class TestTap(unittest.TestCase):
@@ -194,7 +227,8 @@ class TestTap(unittest.TestCase):
         connHandler = DummyConnHandler()
         tapplus = TapPlus("http://test:1111/tap", connhandler=connHandler)
         tap = JwstClass(tapplus)
-        # Launch response: we use default response because the query contains decimals
+        # Launch response: we use default response because the
+        # query contains decimals
         responseLaunchJob = DummyResponse()
         responseLaunchJob.set_status_code(200)
         responseLaunchJob.set_message("OK")
@@ -206,7 +240,8 @@ class TestTap(unittest.TestCase):
                                    headers=None)
         # The query contains decimals: force default response
         connHandler.set_default_response(responseLaunchJob)
-        sc = SkyCoord(ra=29.0, dec=15.0, unit=(u.degree, u.degree), frame='icrs')
+        sc = SkyCoord(ra=29.0, dec=15.0, unit=(u.degree, u.degree),
+                      frame='icrs')
         with pytest.raises(ValueError) as err:
             tap.query_region(sc)
             print(err.value.args[0])
@@ -219,22 +254,23 @@ class TestTap(unittest.TestCase):
             tap.query_region(sc, width=width)
         assert "Missing required argument: 'height'" in err.value.args[0]
 
-        #Test observation_id argument
+        # Test observation_id argument
         with pytest.raises(ValueError) as err:
             tap.query_region(sc, width=width, height=height, observation_id=1)
         assert "observation_id must be string" in err.value.args[0]
 
-        #Test cal_level argument
+        # Test cal_level argument
         with pytest.raises(ValueError) as err:
             tap.query_region(sc, width=width, height=height, cal_level='a')
-        assert "cal_level must be either 'Top' or an integer" in err.value.args[0]
+        assert "cal_level must be either 'Top' or an "\
+               "integer" in err.value.args[0]
 
-        #Test only_public
+        # Test only_public
         with pytest.raises(ValueError) as err:
             tap.query_region(sc, width=width, height=height, only_public='a')
         assert "only_public must be boolean" in err.value.args[0]
 
-        #Test dataproduct_type argument
+        # Test dataproduct_type argument
         with pytest.raises(ValueError) as err:
             tap.query_region(sc, width=width, height=height, prod_type=1)
         assert "prod_type must be string" in err.value.args[0]
@@ -243,21 +279,22 @@ class TestTap(unittest.TestCase):
             tap.query_region(sc, width=width, height=height, prod_type='a')
         assert "prod_type must be one of: " in err.value.args[0]
 
-        #Test instrument_name argument
+        # Test instrument_name argument
         with pytest.raises(ValueError) as err:
             tap.query_region(sc, width=width, height=height, instrument_name=1)
         assert "instrument_name must be string" in err.value.args[0]
 
         with pytest.raises(ValueError) as err:
-            tap.query_region(sc, width=width, height=height, instrument_name='a')
+            tap.query_region(sc, width=width, height=height,
+                             instrument_name='a')
         assert "instrument_name must be one of: " in err.value.args[0]
 
-        #Test filter_name argument
+        # Test filter_name argument
         with pytest.raises(ValueError) as err:
             tap.query_region(sc, width=width, height=height, filter_name=1)
         assert "filter_name must be string" in err.value.args[0]
 
-        #Test proposal_id argument
+        # Test proposal_id argument
         with pytest.raises(ValueError) as err:
             tap.query_region(sc, width=width, height=height, proposal_id=123)
         assert "proposal_id must be string" in err.value.args[0]
@@ -353,7 +390,8 @@ class TestTap(unittest.TestCase):
                                     headers=None)
         req = "async/" + jobid + "/results/result"
         connHandler.set_response(req, responseResultsJob)
-        sc = SkyCoord(ra=29.0, dec=15.0, unit=(u.degree, u.degree), frame='icrs')
+        sc = SkyCoord(ra=29.0, dec=15.0, unit=(u.degree, u.degree),
+                      frame='icrs')
         width = Quantity(12, u.deg)
         height = Quantity(10, u.deg)
         table = tap.query_region_async(sc, width=width, height=height)
@@ -411,7 +449,8 @@ class TestTap(unittest.TestCase):
         connHandler = DummyConnHandler()
         tapplus = TapPlus("http://test:1111/tap", connhandler=connHandler)
         tap = JwstClass(tapplus)
-        # Launch response: we use default response because the query contains decimals
+        # Launch response: we use default response because the
+        # query contains decimals
         responseLaunchJob = DummyResponse()
         responseLaunchJob.set_status_code(200)
         responseLaunchJob.set_message("OK")
@@ -459,22 +498,23 @@ class TestTap(unittest.TestCase):
                                     None,
                                     np.int32)
 
-        #Test observation_id argument
+        # Test observation_id argument
         with pytest.raises(ValueError) as err:
             tap.cone_search(sc, radius, observation_id=1)
         assert "observation_id must be string" in err.value.args[0]
 
-        #Test cal_level argument
+        # Test cal_level argument
         with pytest.raises(ValueError) as err:
             tap.cone_search(sc, radius, cal_level='a')
-        assert "cal_level must be either 'Top' or an integer" in err.value.args[0]
+        assert "cal_level must be either 'Top' or an "\
+               "integer" in err.value.args[0]
 
-        #Test only_public
+        # Test only_public
         with pytest.raises(ValueError) as err:
             tap.cone_search(sc, radius, only_public='a')
         assert "only_public must be boolean" in err.value.args[0]
 
-        #Test dataproduct_type argument
+        # Test dataproduct_type argument
         with pytest.raises(ValueError) as err:
             tap.cone_search(sc, radius, prod_type=1)
         assert "prod_type must be string" in err.value.args[0]
@@ -483,7 +523,7 @@ class TestTap(unittest.TestCase):
             tap.cone_search(sc, radius, prod_type='a')
         assert "prod_type must be one of: " in err.value.args[0]
 
-        #Test instrument_name argument
+        # Test instrument_name argument
         with pytest.raises(ValueError) as err:
             tap.cone_search(sc, radius, instrument_name=1)
         assert "instrument_name must be string" in err.value.args[0]
@@ -492,16 +532,15 @@ class TestTap(unittest.TestCase):
             tap.cone_search(sc, radius, instrument_name='a')
         assert "instrument_name must be one of: " in err.value.args[0]
 
-        #Test filter_name argument
+        # Test filter_name argument
         with pytest.raises(ValueError) as err:
             tap.cone_search(sc, radius, filter_name=1)
         assert "filter_name must be string" in err.value.args[0]
 
-        #Test proposal_id argument
+        # Test proposal_id argument
         with pytest.raises(ValueError) as err:
             tap.cone_search(sc, radius, proposal_id=123)
         assert "proposal_id must be string" in err.value.args[0]
-
 
     def test_cone_search_async(self):
         connHandler = DummyConnHandler()
@@ -585,8 +624,9 @@ class TestTap(unittest.TestCase):
         jwst = JwstClass(dummyTapHandler, dummyTapHandler)
         # default parameters
         with pytest.raises(ValueError) as err:
-            jwst.get_product();
-        assert "Missing required argument: 'artifact_id' or 'file_name'" in err.value.args[0]
+            jwst.get_product()
+        assert "Missing required argument: 'artifact_id' or "\
+               "'file_name'" in err.value.args[0]
 
         # test with parameters
         dummyTapHandler.reset()
@@ -601,7 +641,7 @@ class TestTap(unittest.TestCase):
         param_dict['ARTIFACTID'] = 'my_artifact_id'
         parameters['params_dict'] = param_dict
 
-        jwst.get_product(artifact_id='my_artifact_id');
+        jwst.get_product(artifact_id='my_artifact_id')
         dummyTapHandler.check_call('load_data', parameters)
 
     def test_get_product_by_filename(self):
@@ -609,8 +649,9 @@ class TestTap(unittest.TestCase):
         jwst = JwstClass(dummyTapHandler, dummyTapHandler)
         # default parameters
         with pytest.raises(ValueError) as err:
-            jwst.get_product();
-        assert "Missing required argument: 'artifact_id' or 'file_name'" in err.value.args[0]
+            jwst.get_product()
+        assert "Missing required argument: 'artifact_id' or "\
+               "'file_name'" in err.value.args[0]
 
         # test with parameters
         dummyTapHandler.reset()
@@ -625,7 +666,7 @@ class TestTap(unittest.TestCase):
         param_dict['ARTIFACT_URI'] = 'mast:JWST/product/file_name_id'
         parameters['params_dict'] = param_dict
 
-        jwst.get_product(file_name='file_name_id');
+        jwst.get_product(file_name='file_name_id')
         dummyTapHandler.check_call('load_data', parameters)
 
     def test_get_products_list(self):
@@ -634,23 +675,22 @@ class TestTap(unittest.TestCase):
         # default parameters
         with pytest.raises(ValueError) as err:
             jwst.get_product_list()
-        assert "Missing required argument: 'observation_id'" in err.value.args[0]
+        assert "Missing required argument: "\
+            "'observation_id'" in err.value.args[0]
 
         # test with parameters
         dummyTapHandler.reset()
 
-        observation_id = "obsid"
+        observation_id = "jw00777011001_02104_00001_nrcblong"
         cal_level_condition = " AND m.calibrationlevel = m.max_cal_level"
         prodtype_condition = ""
 
-        query = "SELECT a.*, m.calibrationlevel FROM " +\
-                "jwst.artifact AS a, " +\
-                "jwst.main AS m " + \
-                "WHERE a.obsid = m.obsid AND " + \
-                "m.observationid = '" + observation_id + "' " + \
-                cal_level_condition + \
-                prodtype_condition + \
-                " ORDER BY a.producttype ASC"
+        query = "select distinct a.uri, a.filename, a.contenttype, "\
+            "a.producttype, p.calibrationlevel, p.public FROM {0} p JOIN {1} "\
+            "a ON (p.planeid=a.planeid) WHERE a.planeid IN {2};"\
+            .format(jwst.JWST_PLANE_TABLE, jwst.JWST_ARTIFACT_TABLE,
+                    "('00000000-0000-0000-879d-ae91fa2f43e2', "
+                    "'00000000-0000-0000-9852-a9fa8c63f7ef')")
 
         parameters = {}
         parameters['query'] = query
@@ -667,18 +707,14 @@ class TestTap(unittest.TestCase):
 
         dummyTapHandler.reset()
         cal_level = 2
-        cal_level_condition = " AND m.calibrationlevel = "+str(cal_level)+" "
         product_type = "science"
-        prodtype_condition = " AND producttype ILIKE '"+product_type+"' "
 
-        query = "SELECT a.*, m.calibrationlevel FROM " +\
-                "jwst.artifact AS a, " +\
-                "jwst.main AS m " + \
-                "WHERE a.obsid = m.obsid AND " + \
-                "m.observationid = '" + observation_id + "' " + \
-                cal_level_condition + \
-                prodtype_condition + \
-                " ORDER BY a.producttype ASC"
+        query = "select distinct a.uri, a.filename, a.contenttype, "\
+                "a.producttype, p.calibrationlevel, p.public FROM {}"\
+                " p JOIN {} a ON (p.planeid=a.planeid) WHERE a.planeid IN "\
+                "('00000000-0000-0000-879d-ae91fa2f43e2') AND producttype "\
+                "LIKE 'science';".format(jwst.JWST_PLANE_TABLE,
+                                         jwst.JWST_ARTIFACT_TABLE)
 
         parameters = {}
         parameters['query'] = query
@@ -690,7 +726,9 @@ class TestTap(unittest.TestCase):
         parameters['upload_resource'] = None
         parameters['upload_table_name'] = None
 
-        jwst.get_product_list(observation_id=observation_id, cal_level=cal_level, product_type=product_type)
+        jwst.get_product_list(observation_id=observation_id,
+                              cal_level=cal_level,
+                              product_type=product_type)
         dummyTapHandler.check_call('launch_job', parameters)
 
     def test_get_obs_products(self):
@@ -699,175 +737,220 @@ class TestTap(unittest.TestCase):
         # default parameters
         with pytest.raises(ValueError) as err:
             jwst.get_obs_products()
-        assert "Missing required argument: 'observation_id'" in err.value.args[0]
+        assert "Missing required argument: "\
+               "'observation_id'" in err.value.args[0]
 
         # test with parameters
         dummyTapHandler.reset()
 
-        output_file_full_path_dir = os.getcwd() + os.sep + "temp_test_jwsttap_get_obs_products_1"
+        output_file_full_path_dir = os.getcwd() + os.sep +\
+            "temp_test_jwsttap_get_obs_products_1"
         try:
             os.makedirs(output_file_full_path_dir, exist_ok=True)
         except OSError as err:
-            print("Creation of the directory %s failed: %s" % (output_file_full_path_dir, err.strerror))
+            print("Creation of the directory %s failed: "
+                  "%s" % (output_file_full_path_dir, err.strerror))
             raise err
 
-        observation_id = 'obsid'
+        observation_id = 'jw00777011001_02104_00001_nrcblong'
 
         parameters = {}
         parameters['verbose'] = False
 
         param_dict = {}
-        param_dict['observationid'] = observation_id
         param_dict['RETRIEVAL_TYPE'] = 'OBSERVATION'
         param_dict['DATA_RETRIEVAL_ORIGIN'] = 'ASTROQUERY'
+        param_dict['planeid'] = "('00000000-0000-0000-879d-ae91fa2f43e2', "\
+                                "'00000000-0000-0000-9852-a9fa8c63f7ef')"
+        param_dict['calibrationlevel'] = 'ALL'
         parameters['params_dict'] = param_dict
 
         # Test single product tar
         file = data_path('single_product_retrieval.tar')
-        output_file_full_path = output_file_full_path_dir + os.sep + os.path.basename(file)
+        output_file_full_path = output_file_full_path_dir + os.sep +\
+            os.path.basename(file)
         shutil.copy(file, output_file_full_path)
-
         parameters['output_file'] = output_file_full_path
 
-        expected_files=[]
-        extracted_file_1 = output_file_full_path_dir + os.sep + 'single_product_retrieval_1.fits'
+        expected_files = []
+        extracted_file_1 = output_file_full_path_dir + os.sep +\
+            'single_product_retrieval_1.fits'
         expected_files.append(extracted_file_1)
+        log.info(extracted_file_1)
 
         try:
-            files_returned = jwst.get_obs_products(observation_id=observation_id, output_file=output_file_full_path)
+            files_returned = (jwst.get_obs_products(
+                              observation_id=observation_id, cal_level='ALL',
+                              output_file = output_file_full_path))
             dummyTapHandler.check_call('load_data', parameters)
-            self.__check_extracted_files(files_expected=expected_files, files_returned=files_returned)
+            self.__check_extracted_files(files_expected=expected_files,
+                                         files_returned=files_returned)
         finally:
             # self.__remove_folder_contents(folder=output_file_full_path_dir)
             shutil.rmtree(output_file_full_path_dir)
 
         # Test single file
-        output_file_full_path_dir = os.getcwd() + os.sep + "temp_test_jwsttap_get_obs_products_2"
+        output_file_full_path_dir = os.getcwd() + os.sep +\
+            "temp_test_jwsttap_get_obs_products_2"
         try:
             os.makedirs(output_file_full_path_dir, exist_ok=True)
         except OSError as err:
-            print("Creation of the directory %s failed: %s" % (output_file_full_path_dir, err.strerror))
+            print("Creation of the directory %s failed: "
+                  "%s" % (output_file_full_path_dir, err.strerror))
             raise err
 
         file = data_path('single_product_retrieval_1.fits')
-        output_file_full_path = output_file_full_path_dir + os.sep + os.path.basename(file)
+        output_file_full_path = output_file_full_path_dir + os.sep +\
+            os.path.basename(file)
         shutil.copy(file, output_file_full_path)
 
         parameters['output_file'] = output_file_full_path
 
-        expected_files=[]
+        expected_files = []
         expected_files.append(output_file_full_path)
 
         try:
-            files_returned = jwst.get_obs_products(observation_id=observation_id, output_file=output_file_full_path)
+            files_returned = (jwst.get_obs_products(
+                              observation_id=observation_id,
+                              output_file=output_file_full_path))
             dummyTapHandler.check_call('load_data', parameters)
-            self.__check_extracted_files(files_expected=expected_files, files_returned=files_returned)
+            self.__check_extracted_files(files_expected=expected_files,
+                                         files_returned=files_returned)
         finally:
             # self.__remove_folder_contents(folder=output_file_full_path_dir)
             shutil.rmtree(output_file_full_path_dir)
 
         # Test single file zip
-        output_file_full_path_dir = os.getcwd() + os.sep + "temp_test_jwsttap_get_obs_products_3"
+        output_file_full_path_dir = os.getcwd() + os.sep +\
+            "temp_test_jwsttap_get_obs_products_3"
         try:
             os.makedirs(output_file_full_path_dir, exist_ok=True)
         except OSError as err:
-            print("Creation of the directory %s failed: %s" % (output_file_full_path_dir, err.strerror))
+            print("Creation of the directory %s failed: "
+                  "%s" % (output_file_full_path_dir, err.strerror))
             raise err
 
         file = data_path('single_product_retrieval_3.fits.zip')
-        output_file_full_path = output_file_full_path_dir + os.sep + os.path.basename(file)
+        output_file_full_path = output_file_full_path_dir + os.sep +\
+            os.path.basename(file)
         shutil.copy(file, output_file_full_path)
 
         parameters['output_file'] = output_file_full_path
 
-        expected_files=[]
-        extracted_file_1 = output_file_full_path_dir + os.sep + 'single_product_retrieval.fits'
+        expected_files = []
+        extracted_file_1 = output_file_full_path_dir + os.sep +\
+            'single_product_retrieval.fits'
         expected_files.append(extracted_file_1)
 
         try:
-            files_returned = jwst.get_obs_products(observation_id=observation_id, output_file=output_file_full_path)
+            files_returned = (jwst.get_obs_products(
+                              observation_id=observation_id,
+                              output_file=output_file_full_path))
             dummyTapHandler.check_call('load_data', parameters)
-            self.__check_extracted_files(files_expected=expected_files, files_returned=files_returned)
+            self.__check_extracted_files(files_expected=expected_files,
+                                         files_returned=files_returned)
         finally:
             # self.__remove_folder_contents(folder=output_file_full_path_dir)
             shutil.rmtree(output_file_full_path_dir)
 
         # Test single file gzip
-        output_file_full_path_dir = os.getcwd() + os.sep + "temp_test_jwsttap_get_obs_products_4"
+        output_file_full_path_dir = (os.getcwd() + os.sep +
+                                     "temp_test_jwsttap_get_obs_products_4")
         try:
             os.makedirs(output_file_full_path_dir, exist_ok=True)
         except OSError as err:
-            print("Creation of the directory %s failed: %s" % (output_file_full_path_dir, err.strerror))
+            print("Creation of the directory %s failed: "
+                  "%s" % (output_file_full_path_dir, err.strerror))
             raise err
 
         file = data_path('single_product_retrieval_2.fits.gz')
-        output_file_full_path = output_file_full_path_dir + os.sep + os.path.basename(file)
+        output_file_full_path = output_file_full_path_dir + os.sep +\
+            os.path.basename(file)
         shutil.copy(file, output_file_full_path)
 
         parameters['output_file'] = output_file_full_path
 
-        expected_files=[]
-        extracted_file_1 = output_file_full_path_dir + os.sep + 'single_product_retrieval_2.fits.gz'
+        expected_files = []
+        extracted_file_1 = output_file_full_path_dir + os.sep +\
+            'single_product_retrieval_2.fits.gz'
         expected_files.append(extracted_file_1)
 
         try:
-            files_returned = jwst.get_obs_products(observation_id=observation_id, output_file=output_file_full_path)
+            files_returned = (jwst.get_obs_products(
+                              observation_id=observation_id,
+                              output_file=output_file_full_path))
             dummyTapHandler.check_call('load_data', parameters)
-            self.__check_extracted_files(files_expected=expected_files, files_returned=files_returned)
+            self.__check_extracted_files(files_expected=expected_files,
+                                         files_returned=files_returned)
         finally:
             # self.__remove_folder_contents(folder=output_file_full_path_dir)
             shutil.rmtree(output_file_full_path_dir)
 
         # Test tar with 3 files, a normal one, a gzip one and a zip one
-        output_file_full_path_dir = os.getcwd() + os.sep + "temp_test_jwsttap_get_obs_products_5"
+        output_file_full_path_dir = (os.getcwd() + os.sep +
+                                     "temp_test_jwsttap_get_obs_products_5")
         try:
             os.makedirs(output_file_full_path_dir, exist_ok=True)
         except OSError as err:
-            print("Creation of the directory %s failed: %s" % (output_file_full_path_dir, err.strerror))
+            print("Creation of the directory %s failed: "
+                  "%s" % (output_file_full_path_dir, err.strerror))
             raise err
 
         file = data_path('three_products_retrieval.tar')
-        output_file_full_path = output_file_full_path_dir + os.sep + os.path.basename(file)
+        output_file_full_path = output_file_full_path_dir + os.sep +\
+            os.path.basename(file)
         shutil.copy(file, output_file_full_path)
 
         parameters['output_file'] = output_file_full_path
 
-        expected_files=[]
-        extracted_file_1 = output_file_full_path_dir + os.sep + 'single_product_retrieval_1.fits'
+        expected_files = []
+        extracted_file_1 = output_file_full_path_dir + os.sep +\
+            'single_product_retrieval_1.fits'
         expected_files.append(extracted_file_1)
-        extracted_file_2 = output_file_full_path_dir + os.sep + 'single_product_retrieval_2.fits.gz'
+        extracted_file_2 = output_file_full_path_dir + os.sep +\
+            'single_product_retrieval_2.fits.gz'
         expected_files.append(extracted_file_2)
-        extracted_file_3 = output_file_full_path_dir + os.sep + 'single_product_retrieval_3.fits.zip'
+        extracted_file_3 = output_file_full_path_dir + os.sep +\
+            'single_product_retrieval_3.fits.zip'
         expected_files.append(extracted_file_3)
 
         try:
-            files_returned = jwst.get_obs_products(observation_id=observation_id, output_file=output_file_full_path)
+            files_returned = (jwst.get_obs_products(
+                              observation_id=observation_id,
+                              output_file=output_file_full_path))
             dummyTapHandler.check_call('load_data', parameters)
-            self.__check_extracted_files(files_expected=expected_files, files_returned=files_returned)
+            self.__check_extracted_files(files_expected=expected_files,
+                                         files_returned=files_returned)
         finally:
             # self.__remove_folder_contents(folder=output_file_full_path_dir)
             shutil.rmtree(output_file_full_path_dir)
 
     def test_gunzip_file(self):
-        output_file_full_path_dir = os.getcwd() + os.sep + "temp_test_jwsttap_gunzip"
+        output_file_full_path_dir = (os.getcwd() + os.sep +
+                                     "temp_test_jwsttap_gunzip")
         try:
             os.makedirs(output_file_full_path_dir, exist_ok=True)
         except OSError as err:
-            print("Creation of the directory %s failed: %s" % (output_file_full_path_dir, err.strerror))
+            print("Creation of the directory %s failed: %s" %
+                  (output_file_full_path_dir, err.strerror))
             raise err
 
         file = data_path('single_product_retrieval_2.fits.gz')
-        output_file_full_path = output_file_full_path_dir + os.sep + os.path.basename(file)
+        output_file_full_path = output_file_full_path_dir + os.sep +\
+            os.path.basename(file)
         shutil.copy(file, output_file_full_path)
 
-        expected_files=[]
-        extracted_file_1 = output_file_full_path_dir + os.sep + 'single_product_retrieval_2.fits'
+        expected_files = []
+        extracted_file_1 = output_file_full_path_dir + os.sep + "single_"\
+            "product_retrieval_2.fits"
         expected_files.append(extracted_file_1)
 
         try:
-            extracted_file = JwstClass.gzip_uncompress_and_rename_single_file(output_file_full_path)
+            extracted_file = (JwstClass.gzip_uncompress_and_rename_single_file(
+                              output_file_full_path))
             if extracted_file != extracted_file_1:
-                raise ValueError("Extracted file not fond: %s" % extracted_file_1)
+                raise ValueError("Extracted file not found: "
+                                 "%s" % extracted_file_1)
         finally:
             # self.__remove_folder_contents(folder=output_file_full_path_dir)
             shutil.rmtree(output_file_full_path_dir)
@@ -876,13 +959,16 @@ class TestTap(unittest.TestCase):
                                dataType):
         c = results[columnName]
         assert c.description == description, \
-            "Wrong description for results column '%s'. Expected: '%s', found '%s'" % \
+            "Wrong description for results column '%s'. Expected: '%s', "\
+            "found '%s'" % \
             (columnName, description, c.description)
         assert c.unit == unit, \
-            "Wrong unit for results column '%s'. Expected: '%s', found '%s'" % \
+            "Wrong unit for results column '%s'. Expected: '%s', found "\
+            "'%s'" % \
             (columnName, unit, c.unit)
         assert c.dtype == dataType, \
-            "Wrong dataType for results column '%s'. Expected: '%s', found '%s'" % \
+            "Wrong dataType for results column '%s'. Expected: '%s', "\
+            "found '%s'" % \
             (columnName, dataType, c.dtype)
 
     def __remove_folder_contents(self, folder):
@@ -894,7 +980,8 @@ class TestTap(unittest.TestCase):
 
     def __check_extracted_files(self, files_expected, files_returned):
         if len(files_expected) != len(files_returned):
-            raise ValueError("Expected files size error. Found %i, expected %i" %
+            raise ValueError("Expected files size error. Found %i, "
+                             "expected %i" %
                              (len(files_returned), len(files_expected)))
         for f in files_expected:
             if not os.path.exists(f):
@@ -902,19 +989,20 @@ class TestTap(unittest.TestCase):
             if f not in files_returned:
                 raise ValueError("Not found expected file: %s" % f)
 
-    def test_query_target_name(self):
+    def test_query_target(self):
         jwst = JwstClass()
         # Testing default parameters
         with pytest.raises(ValueError) as err:
-            jwst.query_target_name("M1", "")
+            jwst.query_target("M1", "")
         assert "This target resolver is not allowed" in err.value.args[0]
         with pytest.raises(ValueError) as err:
-            jwst.query_target_name("TEST")
+            jwst.query_target("TEST")
         assert "This target name cannot be determined with this resolver:"\
             " ALL" in err.value.args[0]
         with pytest.raises(ValueError) as err:
-            jwst.query_target_name("M1", "ALL")
-        assert "Missing required argument: 'width'" in err.value.args[0]
+            jwst.query_target("M1", "ALL")
+        assert err.value.args[0] in ["This target name cannot be determined "\
+            "with this resolver: ALL", "Missing required argument: 'width'"]
 
         # Testing no valid coordinates from resolvers
         simbad_file = data_path('test_query_by_target_name_simbad_'
@@ -932,18 +1020,18 @@ class TestTap(unittest.TestCase):
         coordinate_error = 'coordinate must be either a string or '\
                            'astropy.coordinates'
         with pytest.raises(ValueError) as err:
-            jwst.query_target_name("M1", "SIMBAD",
-                                      units.Quantity(5, units.deg))
+            jwst.query_target("M1", "SIMBAD",
+                              units.Quantity(5, units.deg))
         assert coordinate_error in err.value.args[0]
 
         with pytest.raises(ValueError) as err:
-            jwst.query_target_name("M1", "NED",
-                                      units.Quantity(5, units.deg))
+            jwst.query_target("M1", "NED",
+                              units.Quantity(5, units.deg))
         assert coordinate_error in err.value.args[0]
 
         with pytest.raises(ValueError) as err:
-            jwst.query_target_name("M1", "VIZIER",
-                                      units.Quantity(5, units.deg))
+            jwst.query_target("M1", "VIZIER",
+                              units.Quantity(5, units.deg))
         assert coordinate_error in err.value.args[0]
 
         # Testing valid coordinates from resolvers
@@ -972,20 +1060,20 @@ class TestTap(unittest.TestCase):
         with open(data_path('test_query_by_target_name_simbad_query.txt'),
                   'r') as file:
             parameters['query'] = file.read()
-            jwst.query_target_name("M1", "SIMBAD",
-                                      units.Quantity(5, units.deg))
+            jwst.query_target("M1", "SIMBAD",
+                              units.Quantity(5, units.deg))
             dummyTapHandler.check_call('launch_job', parameters)
         with open(data_path('test_query_by_target_name_ned_query.txt'),
                   'r') as file:
             parameters['query'] = file.read()
-            jwst.query_target_name("M1", "NED",
-                                      units.Quantity(5, units.deg))
+            jwst.query_target("M1", "NED",
+                              units.Quantity(5, units.deg))
             dummyTapHandler.check_call('launch_job', parameters)
         with open(data_path('test_query_by_target_name_vizier_query.txt'),
                   'r') as file:
             parameters['query'] = file.read()
-            jwst.query_target_name("M1", "VIZIER",
-                                      units.Quantity(5, units.deg))
+            jwst.query_target("M1", "VIZIER",
+                              units.Quantity(5, units.deg))
             dummyTapHandler.check_call('launch_job', parameters)
 
 
