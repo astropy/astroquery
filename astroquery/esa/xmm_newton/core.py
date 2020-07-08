@@ -300,7 +300,8 @@ class XMMNewtonClass(BaseQuery):
         """Extracts the EPIC images from a given TAR file
 
         For a given TAR file obtained with:
-            `XMM.download_data(OBS_ID,level="PPS",extension="FTZ",filename=tarfile)`
+            XMM.download_data(OBS_ID,level="PPS",extension="FTZ",filename=tarfile)
+
         This function extracts the EPIC images in a given band (or bands) and
         instrument (or instruments) from it
 
@@ -317,21 +318,25 @@ class XMMNewtonClass(BaseQuery):
         Examples:
 
         Extracting all bands and instruments:
-            `result = XMM.get_epic_images(tarfile,band=[1,2,3,4,5,8],
-                                          instrument=['M1','M2','PN'],**kwargs)`
+            result = XMM.get_epic_images(tarfile,band=[1,2,3,4,5,8],
+                                         instrument=['M1','M2','PN'],**kwargs)
+
         If we want to retrieve the band 3 for the instrument PN
-            `fits_image = result[3]['PN']`
+            fits_image = result[3]['PN']
+
         fits_image will be the full path to the extracted FTZ file
 
         Extracting the exposure and detector maps:
-            `result = XMM.get_epic_images(tarfile,band=[1,2,3,4,5,8],
-                                          instrument=['M1','M2','PN'],
-                                          get_detmask=True,
-                                          get_exposure_map=True)'
+            result = XMM.get_epic_images(tarfile,band=[1,2,3,4,5,8],
+                                         instrument=['M1','M2','PN'],
+                                         get_detmask=True,
+                                         get_exposure_map=True)
+
         If we want to retrieve exposure map in the band 3 for the instrument PN
-            `fits_image = result[3]['PN_expo']`
+            fits_image = result[3]['PN_expo']
+
         For retrieving the detector mask in the band 3 for the instrument PN
-            `fits_image = result[3]['PN_det']`
+            fits_image = result[3]['PN_det']
 
         Parameters
         ----------
