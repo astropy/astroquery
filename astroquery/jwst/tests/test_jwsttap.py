@@ -67,8 +67,7 @@ def get_associated_planes_mock(url, params, *args, **kwargs):
     if(args[0] == 2):
         return "('00000000-0000-0000-879d-ae91fa2f43e2')"
     else:
-        return "('00000000-0000-0000-879d-ae91fa2f43e2', "\
-            "'00000000-0000-0000-9852-a9fa8c63f7ef')"
+        return planeids
 
 
 @pytest.fixture(autouse=True)
@@ -79,6 +78,27 @@ def associated_planes_request(request):
         mp = request.getfuncargvalue("monkeypatch")
     mp.setattr(JwstClass, '_get_associated_planes', get_associated_planes_mock)
     return mp
+
+
+def get_product_mock(params, *args, **kwargs):
+    if(args[0] == 'file_name_id'):
+        return "00000000-0000-0000-8740-65e2827c9895"
+    else:
+        return "jw00617023001_02102_00001_nrcb4_uncal.fits"
+
+
+@pytest.fixture(autouse=True)
+def get_product_request(request):
+    try:
+        mp = request.getfixturevalue("monkeypatch")
+    except AttributeError:  # pytest < 3
+        mp = request.getfuncargvalue("monkeypatch")
+    mp.setattr(JwstClass, '_query_get_product', get_product_mock)
+    return mp
+
+
+planeids = "('00000000-0000-0000-879d-ae91fa2f43e2', "\
+            "'00000000-0000-0000-9852-a9fa8c63f7ef')"
 
 
 class TestTap(unittest.TestCase):
@@ -632,16 +652,17 @@ class TestTap(unittest.TestCase):
         dummyTapHandler.reset()
 
         parameters = {}
-        parameters['output_file'] = 'my_artifact_id'
+        parameters['output_file'] = 'jw00617023001_02102_00001_nrcb4_'\
+                                    'uncal.fits'
         parameters['verbose'] = False
 
         param_dict = {}
         param_dict['RETRIEVAL_TYPE'] = 'PRODUCT'
         param_dict['DATA_RETRIEVAL_ORIGIN'] = 'ASTROQUERY'
-        param_dict['ARTIFACTID'] = 'my_artifact_id'
+        param_dict['ARTIFACTID'] = '00000000-0000-0000-8740-65e2827c9895'
         parameters['params_dict'] = param_dict
 
-        jwst.get_product(artifact_id='my_artifact_id')
+        jwst.get_product(artifact_id='00000000-0000-0000-8740-65e2827c9895')
         dummyTapHandler.check_call('load_data', parameters)
 
     def test_get_product_by_filename(self):
@@ -663,7 +684,7 @@ class TestTap(unittest.TestCase):
         param_dict = {}
         param_dict['RETRIEVAL_TYPE'] = 'PRODUCT'
         param_dict['DATA_RETRIEVAL_ORIGIN'] = 'ASTROQUERY'
-        param_dict['ARTIFACT_URI'] = 'mast:JWST/product/file_name_id'
+        param_dict['ARTIFACTID'] = '00000000-0000-0000-8740-65e2827c9895'
         parameters['params_dict'] = param_dict
 
         jwst.get_product(file_name='file_name_id')
@@ -685,12 +706,11 @@ class TestTap(unittest.TestCase):
         cal_level_condition = " AND m.calibrationlevel = m.max_cal_level"
         prodtype_condition = ""
 
-        query = "select distinct a.uri, a.filename, a.contenttype, "\
-            "a.producttype, p.calibrationlevel, p.public FROM {0} p JOIN {1} "\
-            "a ON (p.planeid=a.planeid) WHERE a.planeid IN {2};"\
-            .format(jwst.JWST_PLANE_TABLE, jwst.JWST_ARTIFACT_TABLE,
-                    "('00000000-0000-0000-879d-ae91fa2f43e2', "
-                    "'00000000-0000-0000-9852-a9fa8c63f7ef')")
+        query = "select distinct a.uri, a.artifactid, a.filename, "\
+            "a.contenttype, a.producttype, p.calibrationlevel, p.public "\
+            "FROM {0} p JOIN {1} a ON (p.planeid=a.planeid) WHERE a.planeid "\
+            "IN {2};".format(jwst.JWST_PLANE_TABLE, jwst.JWST_ARTIFACT_TABLE,
+                             planeids)
 
         parameters = {}
         parameters['query'] = query
@@ -709,12 +729,13 @@ class TestTap(unittest.TestCase):
         cal_level = 2
         product_type = "science"
 
-        query = "select distinct a.uri, a.filename, a.contenttype, "\
-                "a.producttype, p.calibrationlevel, p.public FROM {}"\
-                " p JOIN {} a ON (p.planeid=a.planeid) WHERE a.planeid IN "\
-                "('00000000-0000-0000-879d-ae91fa2f43e2') AND producttype "\
-                "LIKE 'science';".format(jwst.JWST_PLANE_TABLE,
-                                         jwst.JWST_ARTIFACT_TABLE)
+        query = "select distinct a.uri, a.artifactid, a.filename, "\
+                "a.contenttype, a.producttype, p.calibrationlevel, "\
+                "p.public FROM {} p JOIN {} a ON (p.planeid=a.planeid) "\
+                "WHERE a.planeid IN ('00000000-0000-0000-879d-ae91fa2f43e2') "\
+                "AND producttype LIKE "\
+                "'science';".format(jwst.JWST_PLANE_TABLE,
+                                    jwst.JWST_ARTIFACT_TABLE)
 
         parameters = {}
         parameters['query'] = query
@@ -760,8 +781,7 @@ class TestTap(unittest.TestCase):
         param_dict = {}
         param_dict['RETRIEVAL_TYPE'] = 'OBSERVATION'
         param_dict['DATA_RETRIEVAL_ORIGIN'] = 'ASTROQUERY'
-        param_dict['planeid'] = "('00000000-0000-0000-879d-ae91fa2f43e2', "\
-                                "'00000000-0000-0000-9852-a9fa8c63f7ef')"
+        param_dict['planeid'] = planeids
         param_dict['calibrationlevel'] = 'ALL'
         parameters['params_dict'] = param_dict
 

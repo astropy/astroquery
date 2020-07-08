@@ -66,7 +66,7 @@ class JwstClass(object):
                               'preview']
     INSTRUMENT_NAMES = ['NIRISS', 'NIRSPEC', 'NIRCAM', 'MIRI', 'FGS']
     TARGET_RESOLVERS = ['ALL', 'SIMBAD', 'NED', 'VIZIER']
-    CAL_LEVELS = ['ALL', 1, 2, 3]
+    CAL_LEVELS = ['ALL', 1, 2, 3, -1]
     REQUESTED_OBSERVATION_ID = "Missing required argument: 'observation_id'"
 
     def __init__(self, tap_plus_handler=None, data_handler=None):
@@ -1002,17 +1002,17 @@ class JwstClass(object):
         ----------
         observation_id : str, mandatory
             Observation identifier.
-        cal_level : str, optional
-            Calibration level. Default value ia 'ALL', to download all the
-            products associated to this observation_id and lower levels.
-            Requesting more accurate levels than the one associated to the
-            observation_id is not allowed (as level 3 observations are
+        cal_level : str or int, optional
+            Calibration level. Default value is 'ALL', to download all the
+            products associated to this observation_id and lower processing
+            levels. Requesting more accurate levels than the one associated
+            to the observation_id is not allowed (as level 3 observations are
             composite products based on level 2 products). To request upper
             levels, please use get_related_observations functions first.
-            Possible values: 'ALL', '3', '2', '1'
+            Possible values: 'ALL', 3, 2, 1, -1
         product_type : str, optional, default None
-            List only products of the given type. If None, all products are \
-            listed. Possible values: 'thumbnail', 'preview', 'info', \
+            List only products of the given type. If None, all products are
+            listed. Possible values: 'thumbnail', 'preview', 'info',
             'auxiliary', 'science'.
 
         Returns
@@ -1029,9 +1029,10 @@ class JwstClass(object):
         list = self._get_associated_planes(plane_ids, cal_level,
                                            max_cal_level, False)
 
-        query = "select distinct a.uri, a.filename, a.contenttype, "\
-            "a.producttype, p.calibrationlevel, p.public FROM {0} p JOIN {1} "\
-            "a ON (p.planeid=a.planeid) WHERE a.planeid IN {2}{3};"\
+        query = "select distinct a.uri, a.artifactid, a.filename, "\
+            "a.contenttype, a.producttype, p.calibrationlevel, "\
+            "p.public FROM {0} p JOIN {1} a ON (p.planeid=a.planeid) "\
+            "WHERE a.planeid IN {2}{3};"\
             .format(self.JWST_PLANE_TABLE, self.JWST_ARTIFACT_TABLE, list,
                     self.__get_artifact_producttype_condition(product_type))
         job = self.__jwsttap.launch_job(query=query)
@@ -1045,7 +1046,7 @@ class JwstClass(object):
                                max_cal_level, is_url):
         if (cal_level == max_cal_level):
             if (not is_url):
-                list = "('{}')".format(plane_ids)
+                list = "('{}')".format("', '".join(plane_ids))
             else:
                 list = "{}".format(",".join(plane_ids))
             return list
@@ -1132,8 +1133,10 @@ class JwstClass(object):
             raise ValueError(e)
 
     def get_related_observations(self, observation_id):
-        """Get the list of level 3 products that make use of a given JWST
-        observation_id.
+        """In case of processing levels < 3, get the list of level 3
+        products that make use of a given JWST observation_id. In case of
+        processing level 3, retrieves the list of products used to create
+        this composite observation
 
         Parameters
         ----------
@@ -1154,7 +1157,11 @@ class JwstClass(object):
         if any(job.get_results()["observationid"]):
             oids = job.get_results()["observationid"].pformat(show_name=False)
         else:
-            oids = [observation_id]
+            query_members = "select m.members from {} m where m.observationid"\
+                      "='{}'".format(self.JWST_MAIN_TABLE, observation_id)
+            job = self.__jwsttap.launch_job(query=query_members)
+            oids = job.get_results()["members"][0].decode("utf-8").\
+                replace("caom:JWST/", "").split(" ")
         return oids
 
     def get_product(self, artifact_id=None, file_name=None):
@@ -1176,22 +1183,29 @@ class JwstClass(object):
         params_dict['RETRIEVAL_TYPE'] = 'PRODUCT'
         params_dict['DATA_RETRIEVAL_ORIGIN'] = 'ASTROQUERY'
 
-        if artifact_id is None and file_name is None:
-            raise ValueError("Missing required argument: "
-                             "'artifact_id' or 'file_name'")
-        else:
-            if file_name is None:
-                output_file_name = str(artifact_id)
-                err_msg = str(artifact_id)
-            else:
-                output_file_name = str(file_name)
-                err_msg = str(file_name)
+        self.__check_product_input(artifact_id, file_name)
 
-            if artifact_id is not None:
-                params_dict['ARTIFACTID'] = str(artifact_id)
-            else:
-                params_dict['ARTIFACT_URI'] = 'mast:JWST/product/' +\
-                                            str(file_name)
+        if file_name is None:
+            try:
+                output_file_name = self._query_get_product(artifact_id)
+                err_msg = str(artifact_id)
+            except Exception as exx:
+                raise ValueError('Cannot retrieve product for artifact_id ' +
+                                 artifact_id + ': %s' % str(exx))
+        else:
+            output_file_name = str(file_name)
+            err_msg = str(file_name)
+
+        if artifact_id is not None:
+            params_dict['ARTIFACTID'] = str(artifact_id)
+        else:
+            try:
+                params_dict['ARTIFACTID'] = (self._query_get_product(
+                                             file_name=file_name))
+            except Exception as exx:
+                raise ValueError('Cannot retrieve product for file_name ' +
+                                 file_name + ': %s' % str(exx))
+
         try:
             self.__jwsttap.load_data(params_dict=params_dict,
                                      output_file=output_file_name)
@@ -1202,6 +1216,23 @@ class JwstClass(object):
         print("Product saved at: %s" % (output_file_name))
         return output_file_name
 
+    def _query_get_product(self, artifact_id=None, file_name=None):
+        if(file_name):
+            query_artifactid = "select * from {} a where a.filename = "\
+                "'{}'".format(self.JWST_ARTIFACT_TABLE, file_name)
+            job = self.__jwsttap.launch_job(query=query_artifactid)
+            return job.get_results()['artifactid'][0].decode("utf-8")
+        else:
+            query_filename = "select * from {} a where a.artifactid = "\
+                "'{}'".format(self.JWST_ARTIFACT_TABLE, artifact_id)
+            job = self.__jwsttap.launch_job(query=query_filename)
+            return job.get_results()['filename'][0].decode("utf-8")
+
+    def __check_product_input(self, artifact_id, file_name):
+        if artifact_id is None and file_name is None:
+            raise ValueError("Missing required argument: "
+                             "'artifact_id' or 'file_name'")
+
     def get_obs_products(self, observation_id=None, cal_level="ALL",
                          product_type=None, output_file=None):
         """Get a JWST product given its observation ID.
@@ -1210,14 +1241,14 @@ class JwstClass(object):
         ----------
         observation_id : str, mandatory
             Observation identifier.
-        cal_level : str, optional
+        cal_level : str or int, optional
             Calibration level. Default value ia 'ALL', to download all the
             products associated to this observation_id and lower levels.
             Requesting more accurate levels than the one associated to the
             observation_id is not allowed (as level 3 observations are
             composite products based on level 2 products). To request upper
             levels, please use get_related_observations functions first.
-            Possible values: 'ALL', '3', '2', '1'
+            Possible values: 'ALL', 3, 2, 1, -1
         product_type : str, optional, default None
             List only products of the given type. If None, all products are \
             listed. Possible values: 'thumbnail', 'preview', 'auxiliary', \

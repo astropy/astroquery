@@ -29,6 +29,23 @@ def data_path(filename):
     return os.path.join(data_dir, filename)
 
 
+def get_product_mock(params, *args, **kwargs):
+    if(args[0] == 'file_name_id'):
+        return "00000000-0000-0000-8740-65e2827c9895"
+    else:
+        return "jw00617023001_02102_00001_nrcb4_uncal.fits"
+
+
+@pytest.fixture(autouse=True)
+def get_product_request(request):
+    try:
+        mp = request.getfixturevalue("monkeypatch")
+    except AttributeError:  # pytest < 3
+        mp = request.getfuncargvalue("monkeypatch")
+    mp.setattr(JwstClass, '_query_get_product', get_product_mock)
+    return mp
+
+
 class TestData(unittest.TestCase):
 
     def test_get_product(self):
@@ -47,11 +64,12 @@ class TestData(unittest.TestCase):
         params_dict = {}
         params_dict['RETRIEVAL_TYPE'] = 'PRODUCT'
         params_dict['DATA_RETRIEVAL_ORIGIN'] = 'ASTROQUERY'
-        params_dict['ARTIFACTID'] = 'my_artifact_id'
+        params_dict['ARTIFACTID'] = '00000000-0000-0000-8740-65e2827c9895'
         parameters['params_dict'] = params_dict
-        parameters['output_file'] = 'my_artifact_id'
+        parameters['output_file'] = 'jw00617023001_02102_00001_nrcb4_'\
+                                    'uncal.fits'
         parameters['verbose'] = False
-        jwst.get_product(artifact_id='my_artifact_id')
+        jwst.get_product(artifact_id='00000000-0000-0000-8740-65e2827c9895')
         dummyTapHandler.check_call('load_data', parameters)
 
 
