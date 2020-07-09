@@ -673,7 +673,7 @@ class BaseWFAUClass(QueryWithLogin):
         """
         List the databases available from the WFAU archive.
         """
-        self.databases = set(self.all_databases + self._get_databases())
+        self.databases = set(self.all_databases + tuple(self._get_databases()))
         return self.databases
 
     def _wfau_send_request(self, url, request_payload):
