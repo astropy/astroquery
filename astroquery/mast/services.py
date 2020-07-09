@@ -8,6 +8,7 @@ This module contains various methods for querying MAST microservice APIs.
 
 import json
 import time
+import warnings
 
 import numpy as np
 
