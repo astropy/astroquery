@@ -864,7 +864,7 @@ class GaiaClass(TapPlus):
         -------
         A Job object
         """
-        return TapPlus.launch_job_async(self, query=query, name=name,
+        return TapPlus.launch_job(self, query=query, name=name,
                                         output_file=output_file,
                                         output_format=output_format,
                                         verbose=verbose,
