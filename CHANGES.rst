@@ -10,6 +10,11 @@ esa/hubble
 - Module added to query eHST TAP based on a set of specific criteria and
   asynchronous jobs are now supported. [#1723]
 
+mast
+^^^^
+
+- import warnings added to services.py [#1764]
+
 
 0.4.1 (2020-06-19)
 ==================
