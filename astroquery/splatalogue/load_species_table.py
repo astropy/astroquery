@@ -36,7 +36,7 @@ class SpeciesLookuptable(dict):
             return out.values()
 
 
-def species_lookuptable(filename='species.json'):
+def species_lookuptable(filename='splat-species.json'):
     with open(data_path(filename), 'r') as f:
         J = json.load(f)
 
