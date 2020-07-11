@@ -15,7 +15,7 @@ from astropy.config import paths
 def data_path(filename: str):
     """
     Build the path to save a file, using the ``astropy`` cache
-    directory. 
+    directory.
 
     Parameters
     ----------
@@ -24,8 +24,8 @@ def data_path(filename: str):
 
     Returns
     -------
-    [type]
-        [description]
+    str
+        Full path to the cache directory
     """
     data_dir = os.path.join(paths.get_cache_dir(), 'astroquery/Splatalogue')
     return os.path.join(data_dir, filename)
