@@ -42,7 +42,7 @@ def species_lookuptable(filename='splat-species.json', recache=False):
     """
     Function to format the species ID results from scraping Splatalogue
     into a ``SpeciesLookuptable`` object.
-    
+
     The first step is to check whether or not a cached result exists;
     if not, we run the scraping routine and use this result. Otherwise,
     load and use the cached result.
