@@ -27,7 +27,7 @@ def data_path(filename: str):
     [type]
         [description]
     """
-    data_dir = os.path.join(paths.get_cache_dir(), 'data')
+    data_dir = os.path.join(paths.get_cache_dir(), 'astroquery/Splatalogue')
     return os.path.join(data_dir, filename)
 
 
