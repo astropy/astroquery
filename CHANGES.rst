@@ -19,7 +19,7 @@ Splatalogue
 ^^^^^^^^^^^
 
 - The Splatalogue ID querying is now properly cached in the `astropy` cache
-  directory. [#423] The scraping function has also been updated to reflect
+  directory (Issue [#423]) The scraping function has also been updated to reflect
   the Splatalogue webpage. [#1772]
 
 
