@@ -81,7 +81,7 @@ class SplatalogueClass(BaseQuery):
         """
         self.data.update(self._parse_kwargs(**kwargs))
 
-    def get_species_ids(self, restr=None, reflags=0):
+    def get_species_ids(self, restr=None, reflags=0, recache=False):
         """
         Get a dictionary of "species" IDs, where species refers to the molecule
         name, mass, and chemical composition.
@@ -93,6 +93,8 @@ class SplatalogueClass(BaseQuery):
             species whose names match
         reflags : int
             Flags to pass to `re`.
+        recache : bool
+            Flag whether to refresh the local cache of species IDs
 
         Examples
         --------
@@ -137,7 +139,7 @@ class SplatalogueClass(BaseQuery):
         # loading can be an expensive operation and should not change at
         # runtime: do it lazily
         if not hasattr(self, '_species_ids'):
-            self._species_ids = load_species_table.species_lookuptable()
+            self._species_ids = load_species_table.species_lookuptable(recache=recache)
 
         if restr is not None:
             return self._species_ids.find(restr, reflags)
