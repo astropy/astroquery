@@ -14,20 +14,21 @@ from astropy.config import paths
 
 def data_path(filename: str):
     """
-    Build the path to save a file, using the ``astropy`` cache
-    directory.
+    Build the path to save a file.  Note that this path is part of the
+    astroquery source code, not the astropy cache directory, as the existence
+    of the file is a prerequisite for performing queries.
 
     Parameters
     ----------
     filename : str
-        [description]
+        Name of the file (generally should be splat-species.json)
 
     Returns
     -------
     str
         Full path to the cache directory
     """
-    data_dir = os.path.join(paths.get_cache_dir(), 'astroquery/Splatalogue')
+    data_dir = os.path.join(os.path.dirname(__file__), 'data')
     return os.path.join(data_dir, filename)
 
 
