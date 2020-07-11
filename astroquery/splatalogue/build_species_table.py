@@ -9,15 +9,43 @@ import json
 import os
 import requests
 
+from astropy.config import paths
 
-def data_path(filename):
-    data_dir = os.path.join(os.path.dirname(__file__), 'data')
+
+def data_path(filename: str):
+    """
+    Build the path to save a file, using the ``astropy`` cache
+    directory. 
+
+    Parameters
+    ----------
+    filename : str
+        [description]
+
+    Returns
+    -------
+    [type]
+        [description]
+    """
+    data_dir = os.path.join(paths.get_cache_dir(), 'data')
     return os.path.join(data_dir, filename)
 
 
-def get_json_species_ids(outfile='species.json'):
+def get_json_species_ids(outfile='splat-species.json'):
     """
-    Load the NRAO Splatalogue form and parse the inputs into a JSON object
+    Uses BeautifulSoup to scrape the NRAO Splatalogue species
+    selector form, and caches the result as JSON. The file
+    is saved to the ``astropy`` cache.
+
+    Parameters
+    ----------
+    outfile : str, optional
+        Name of the output JSON, by default 'splat-species.json'
+
+    Returns
+    -------
+    str
+        Formatted string representation of the JSON object
     """
     import bs4
 
