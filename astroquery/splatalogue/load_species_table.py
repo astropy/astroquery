@@ -46,7 +46,7 @@ def species_lookuptable(filename='splat-species.json', recache=False):
     The first step is to check whether or not a cached result exists;
     if not, we run the scraping routine and use this result. Otherwise,
     load and use the cached result.
-    
+
     The ``recache`` flag can be used to force a refresh of the local
     cache.
 
@@ -63,7 +63,7 @@ def species_lookuptable(filename='splat-species.json', recache=False):
         ``SpeciesLookuptable`` object
     """
     file_cache = data_path(filename)
-    # check to see if the file exists; if not, we run the 
+    # check to see if the file exists; if not, we run the
     # scraping routine
     if os.path.isfile(file_cache) is False:
         J = get_json_species_ids(filename)
