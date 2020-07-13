@@ -51,6 +51,7 @@ class Job(object):
         # phase is actually indended to be private as get_phase is non-trivial
         self._phase = None
         self.outputFile = None
+        self.outputFileUser = None
         self.responseStatus = 0
         self.responseMsg = None
         self.results = None
@@ -268,9 +269,9 @@ class Job(object):
         verbose : bool, optional, default 'False'
             flag to display information about the process
         """
-        output = self.outputFile
         if self.__resultInMemory:
-            self.results.to_xml(output)
+            print("Saving results to: %s" % self.outputFile)
+            self.results.to_xml(self.outputFile)
         else:
             if not self.async_:
                 # sync: cannot access server again
@@ -290,6 +291,17 @@ class Job(object):
                 if isError:
                     print(response.reason)
                     raise Exception(response.reason)
+                #self.connHandler.dump_to_file(output, response)
+                if self.outputFileUser is None:
+                    # User did not provide an output
+                    # The output is a temporary one, analyse header
+                    self.outputFile = taputils.get_suitable_output_file(
+                        self.connHandler, True, None, response.getheaders(),
+                        False, self.parameters['format'])
+                    output = self.outputFile
+                else:
+                    output = self.outputFileUser
+                print("Saving results to: %s" % output)
                 self.connHandler.dump_to_file(output, response)
 
     def wait_for_job_end(self, verbose=False):
