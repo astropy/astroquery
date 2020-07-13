@@ -18,7 +18,6 @@ from astroquery.utils.tap import taputils
 from astroquery.utils.tap.conn.tapconn import TapConn
 from astroquery.utils.tap.xmlparser.tableSaxParser import TableSaxParser
 from astroquery.utils.tap.model.job import Job
-from datetime import datetime
 from astroquery.utils.tap.gui.login import LoginDialog
 from astroquery.utils.tap.xmlparser.jobSaxParser import JobSaxParser
 from astroquery.utils.tap.xmlparser.jobListSaxParser import JobListSaxParser
@@ -310,12 +309,14 @@ class Tap(object):
                                                                   200,
                                                                   False)
         headers = response.getheaders()
-        suitableOutputFile = self.__getSuitableOutputFile(False,
-                                                          output_file,
-                                                          headers,
-                                                          isError,
-                                                          output_format)
+        suitableOutputFile = taputils.get_suitable_output_file(self.__connHandler,
+                                                               False,
+                                                               output_file,
+                                                               headers,
+                                                               isError,
+                                                               output_format)
         job.outputFile = suitableOutputFile
+        job.outputFileUser = output_file
         job.parameters['format'] = output_format
         job.set_response_status(response.status, response.reason)
         job.set_phase('PENDING')
@@ -408,12 +409,14 @@ class Tap(object):
                                                                   False)
         job = Job(async_job=True, query=query, connhandler=self.__connHandler)
         headers = response.getheaders()
-        suitableOutputFile = self.__getSuitableOutputFile(True,
-                                                          output_file,
-                                                          headers,
-                                                          isError,
-                                                          output_format)
+        suitableOutputFile = taputils.get_suitable_output_file(self.__connHandler,
+                                                               True,
+                                                               output_file,
+                                                               headers,
+                                                               isError,
+                                                               output_format)
         job.outputFile = suitableOutputFile
+        job.outputFileUser = output_file
         job.set_response_status(response.status, response.reason)
         job.parameters['format'] = output_format
         job.set_phase('PENDING')
@@ -441,7 +444,7 @@ class Tap(object):
                         print("Retrieving async. results...")
                     # saveResults or getResults will block (not background)
                     if dump_to_file:
-                        print("Saving results to: %s" % suitableOutputFile)
+                        #print("Saving results to: %s" % suitableOutputFile)
                         job.save_results(verbose)
                     else:
                         job.get_results()
@@ -617,26 +620,6 @@ class Tap(object):
             print(response.status, response.reason)
             print(response.getheaders())
         return response
-
-    def __getSuitableOutputFile(self, async_job, outputFile, headers, isError,
-                                output_format):
-        dateTime = datetime.now().strftime("%Y%m%d%H%M%S")
-        fileName = ""
-        if outputFile is None:
-            fileName = self.__connHandler.get_file_from_header(headers)
-            if fileName is None:
-                ext = self.__connHandler.get_suitable_extension(headers)
-                if not async_job:
-                    fileName = "sync_" + str(dateTime) + ext
-                else:
-                    ext = self.__connHandler.get_suitable_extension_by_format(
-                        output_format)
-                    fileName = "async_" + str(dateTime) + ext
-        else:
-            fileName = outputFile
-        if isError:
-            fileName += ".error"
-        return fileName
 
     def __extract_sync_subcontext(self, location):
         pos = location.find('sync')
