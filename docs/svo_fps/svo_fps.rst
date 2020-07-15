@@ -17,7 +17,8 @@ from the service, as astropy tables.
 Get index (master list) of all Filters
 --------------------------------------
 
-The filter index (all available filters with their properties) can be listed as:
+The filter index (all available filters with their properties) can be listed
+with `~astroquery.svo_fps.SvoFps.get_filter_index`:
 
 .. code-block:: python
 
@@ -59,12 +60,19 @@ The filter index (all available filters with their properties) can be listed as:
                AsinhSoft float32     
         TrasmissionCurve  object     
 
+There are options to downselect based on the minimum
+and maximum effective wavelength (``wavelength_eff_min``
+and ``wavelength_eff_max``, respectively).
+
 
 Get transmission data for a specific Filter
 -------------------------------------------
 
-If you know the filterID of the filter, for which you wish to retrieve
-transmission data, use this:
+If you know the ``filterID`` of the filter (which you can determine with
+`~astroquery.svo_fps.SvoFps.get_filter_list` or
+`~astroquery.svo_fps.SvoFps.get_filter_index`), you can retrieve the
+transmission curve data using
+`~astroquery.svo_fps.SvoFps.get_transmission_data`:
 
 .. code-block:: python
 
@@ -97,15 +105,14 @@ transmission data, use this:
     Length = 58 rows
 
 
-This is the data that you will require to plot the transmission curve for filter
-(or simply, filter curve):
+These are the data needed to plot the transmission curve for filter:
 
 .. code-block:: python
 
     >>> import matplotlib.pyplot as plt
     >>> plt.plot(data['Wavelength'], data['Transmission'])
-    >>> plt.xlabel('Wavelength (Angstrong)')
-    >>> plt.ylabel('Transmission [1]')
+    >>> plt.xlabel('Wavelength (Angstrom)')
+    >>> plt.ylabel('Transmission')
     >>> plt.title('Filter Curve for 2MASS/2MASS.H')
     >>> plt.show()
 
@@ -119,12 +126,13 @@ This is the data that you will require to plot the transmission curve for filter
 Get list of Filters under a specified Facilty and Instrument
 ------------------------------------------------------------
 
-This can be used to get all Filters for an arbitrary combination of Facility &
-Instrument (Instrument is optional to specify).
+`~astroquery.svo_fps.SvoFps.get_filter_list` retrieves a list of all Filters
+for an arbitrary combination of Facility & Instrument (the Facility must be
+specified, but the Instrument is optional):
 
 .. code-block:: python
 
-    >>> filter_list = SvoFps.get_filter_list('Keck', 'NIRC2')
+    >>> filter_list = SvoFps.get_filter_list(facility='Keck', instrument='NIRC2')
     >>> filter_list.info
 
     <Table masked=True length=11>
