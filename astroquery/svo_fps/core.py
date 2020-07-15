@@ -14,6 +14,9 @@ FLOAT_MAX = np.finfo(np.float64).max
 
 
 class SvoFpsClass(BaseQuery):
+    """
+    Class for querying the Spanish Virtual Observatory filter profile service
+    """
     SVO_MAIN_URL = 'http://svo2.cab.inta-csic.es/theory/fps/fps.php'
 
     def data_from_svo(self, query, cache=True,
