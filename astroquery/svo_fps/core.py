@@ -86,7 +86,9 @@ class SvoFpsClass(BaseQuery):
         Parameters
         ----------
         filter_id : str
-            Filter ID in the format SVO specifies it: 'facilty/instrument.filter'
+            Filter ID in the format SVO specifies it: 'facilty/instrument.filter'.
+            This is returned by `get_filter_list` and `get_filter_index` as the
+            ``filterID`` column.
 
         Returns
         -------
