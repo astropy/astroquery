@@ -43,7 +43,7 @@ def get_mockreturn(method, url, params=None, timeout=10, cache=None, **kwargs):
     else:
         raise NotImplementedError("Test type not implemented")
 
-    content = open(filename, 'rb').read()
+    content = open(filename, 'r').read()
     return MockResponse(content, **kwargs)
 
 
