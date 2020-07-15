@@ -21,7 +21,11 @@ class SvoFpsClass(BaseQuery):
 
     def data_from_svo(self, query, cache=True,
                       error_msg='No data found for requested query'):
-        """Get data in response to the query send to SVO FPS
+        """Get data in response to the query send to SVO FPS.
+        This method is not generally intended for users, but it can be helpful
+        if you want something very specific from the SVO FPS service.
+        If you don't know what you're doing, try `get_filter_index`,
+        `get_filter_list`, and `get_transmission_data` instead.
 
         Parameters
         ----------
@@ -45,7 +49,7 @@ class SvoFpsClass(BaseQuery):
         response = self._request("GET", self.SVO_MAIN_URL, params=query,
                                  cache=cache)
         response.raise_for_status()
-        votable = io.StringIO(response.text)
+        votable = io.BytesIO(response.content)
         try:
             return parse_single_table(votable).to_table()
         except IndexError:
