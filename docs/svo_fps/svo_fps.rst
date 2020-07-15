@@ -11,8 +11,8 @@ Getting started
 
 This is a python interface for querying the Spanish Virtual Observatory's
 Filter Profile Service (`SVO FPS <http://svo2.cab.inta-csic.es/theory/fps/>`_).
-It allows to fetch filter data (index, transmission data, filter list, etc.)
-from the service, as astropy tables.
+It allows retrieval of filter data (index, transmission data, filter list, etc.)
+from the service as astropy tables.
 
 Get index (master list) of all Filters
 --------------------------------------
@@ -63,6 +63,54 @@ with `~astroquery.svo_fps.SvoFps.get_filter_index`:
 There are options to downselect based on the minimum
 and maximum effective wavelength (``wavelength_eff_min``
 and ``wavelength_eff_max``, respectively).
+
+Get list of Filters under a specified Facilty and Instrument
+------------------------------------------------------------
+
+Similarly, `~astroquery.svo_fps.SvoFps.get_filter_list` retrieves a list of all
+Filters for an arbitrary combination of Facility & Instrument (the Facility
+must be specified, but the Instrument is optional).  The data table returned
+is of the same form as that from `~astroquery.svo_fps.SvoFps.get_filter_index`:
+
+.. code-block:: python
+
+    >>> filter_list = SvoFps.get_filter_list(facility='Keck', instrument='NIRC2')
+    >>> filter_list.info
+
+    <Table masked=True length=11>
+            name          dtype  unit
+    -------------------- ------- ----
+    FilterProfileService  object     
+                filterID  object     
+          WavelengthUnit  object     
+           WavelengthUCD  object     
+              PhotSystem  object     
+            DetectorType  object     
+                    Band  object     
+              Instrument  object     
+                Facility  object     
+        ProfileReference  object     
+    CalibrationReference  object     
+             Description  object     
+                Comments  object     
+          WavelengthMean float32   AA
+           WavelengthEff float32   AA
+           WavelengthMin float32   AA
+           WavelengthMax float32   AA
+                WidthEff float32   AA
+           WavelengthCen float32   AA
+         WavelengthPivot float32   AA
+          WavelengthPeak float32   AA
+          WavelengthPhot float32   AA
+                    FWHM float32   AA
+               PhotCalID  object     
+                  MagSys  object     
+               ZeroPoint float32   Jy
+           ZeroPointUnit  object     
+                    Mag0 float32     
+           ZeroPointType  object     
+               AsinhSoft float32     
+        TrasmissionCurve  object 
 
 
 Get transmission data for a specific Filter
@@ -122,53 +170,6 @@ These are the data needed to plot the transmission curve for filter:
 
    The resulting plot from the example above
 
-
-Get list of Filters under a specified Facilty and Instrument
-------------------------------------------------------------
-
-`~astroquery.svo_fps.SvoFps.get_filter_list` retrieves a list of all Filters
-for an arbitrary combination of Facility & Instrument (the Facility must be
-specified, but the Instrument is optional):
-
-.. code-block:: python
-
-    >>> filter_list = SvoFps.get_filter_list(facility='Keck', instrument='NIRC2')
-    >>> filter_list.info
-
-    <Table masked=True length=11>
-            name          dtype  unit
-    -------------------- ------- ----
-    FilterProfileService  object     
-                filterID  object     
-          WavelengthUnit  object     
-           WavelengthUCD  object     
-              PhotSystem  object     
-            DetectorType  object     
-                    Band  object     
-              Instrument  object     
-                Facility  object     
-        ProfileReference  object     
-    CalibrationReference  object     
-             Description  object     
-                Comments  object     
-          WavelengthMean float32   AA
-           WavelengthEff float32   AA
-           WavelengthMin float32   AA
-           WavelengthMax float32   AA
-                WidthEff float32   AA
-           WavelengthCen float32   AA
-         WavelengthPivot float32   AA
-          WavelengthPeak float32   AA
-          WavelengthPhot float32   AA
-                    FWHM float32   AA
-               PhotCalID  object     
-                  MagSys  object     
-               ZeroPoint float32   Jy
-           ZeroPointUnit  object     
-                    Mag0 float32     
-           ZeroPointType  object     
-               AsinhSoft float32     
-        TrasmissionCurve  object 
 
 
 Reference/API
