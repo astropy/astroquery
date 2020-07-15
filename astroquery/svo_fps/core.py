@@ -45,7 +45,7 @@ class SvoFpsClass(BaseQuery):
         response = self._request("GET", self.SVO_MAIN_URL, params=query,
                                  cache=cache)
         response.raise_for_status()
-        votable = io.BytesIO(response.content)
+        votable = io.StringIO(response.text)
         try:
             return parse_single_table(votable).to_table()
         except IndexError:
