@@ -6,6 +6,8 @@ from astropy import units as u
 from astropy.io.votable import parse_single_table
 # The VOTables fetched from SVO contain only single table element, thus parse_single_table
 
+from . import conf
+
 from ..query import BaseQuery
 
 __all__ = ['SvoFpsClass', 'SvoFps']
@@ -17,9 +19,10 @@ class SvoFpsClass(BaseQuery):
     """
     Class for querying the Spanish Virtual Observatory filter profile service
     """
-    SVO_MAIN_URL = 'http://svo2.cab.inta-csic.es/theory/fps/fps.php'
+    SVO_MAIN_URL = conf.base_url
+    TIMEOUT = conf.timeout
 
-    def data_from_svo(self, query, cache=True,
+    def data_from_svo(self, query, cache=True, timeout=None,
                       error_msg='No data found for requested query'):
         """Get data in response to the query send to SVO FPS.
         This method is not generally intended for users, but it can be helpful
@@ -47,6 +50,7 @@ class SvoFpsClass(BaseQuery):
             Table containing data fetched from SVO (in response to query)
         """
         response = self._request("GET", self.SVO_MAIN_URL, params=query,
+                                 timeout=timeout or self.TIMEOUT,
                                  cache=cache)
         response.raise_for_status()
         votable = io.BytesIO(response.content)
