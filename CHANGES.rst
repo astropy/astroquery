@@ -22,6 +22,12 @@ Splatalogue
   directory (Issue [#423]) The scraping function has also been updated to reflect
   the Splatalogue webpage. [#1772]
 
+UKIDSS
+^^^^^^
+
+- Updated to ``UKIDSSDR11PLUS`` as the default version [#1767]
+
+
 
 0.4.1 (2020-06-19)
 ==================
