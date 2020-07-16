@@ -15,6 +15,13 @@ SVO FPS
 
 - Module added to access the Spanish Virtual Observatory Filter Profile List [#1498]
 
+Splatalogue
+^^^^^^^^^^^
+
+- The Splatalogue ID querying is now properly cached in the `astropy` cache
+  directory (Issue [#423]) The scraping function has also been updated to reflect
+  the Splatalogue webpage. [#1772]
+
 
 0.4.1 (2020-06-19)
 ==================
