@@ -1,0 +1,406 @@
+<?xml version="1.0"?>
+<VOTABLE version="1.1" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <INFO name="QUERY_STATUS" value="OK"/>
+  <RESOURCE type="results">
+    <TABLE>
+    <FIELD name="FilterProfileService" ucd="meta.ref.ivorn" utype="PhotometryFilter.fpsIdentifier" unit="" datatype="char" arraysize="*"/>
+    <FIELD name="filterID" ucd="meta.id" utype="photdm:PhotometryFilter.identifier" unit="" datatype="char" arraysize="*"/>
+    <FIELD name="WavelengthUnit" ucd="meta.unit" utype="PhotometryFilter.SpectralAxis.unit" unit="" datatype="char" arraysize="*"/>
+    <FIELD name="WavelengthUCD" ucd="meta.ucd" utype="PhotometryFilter.SpectralAxis.UCD" unit="" datatype="char" arraysize="*"/>
+    <FIELD name="PhotSystem" ucd="" utype="photdm:PhotometricSystem.description" unit="" datatype="char" arraysize="*"/>
+    <FIELD name="DetectorType" ucd="" utype="photdm:PhotometricSystem.detectorType" unit="" datatype="char" arraysize="*"/>
+    <FIELD name="Band" ucd="" utype="photdm:PhotometryFilter.bandName" unit="" datatype="char" arraysize="*"/>
+    <FIELD name="Instrument" ucd="instr" utype="" unit="" datatype="char" arraysize="*"/>
+    <FIELD name="Facility" ucd="instr.obsty" utype="" unit="" datatype="char" arraysize="*"/>
+    <FIELD name="ProfileReference" ucd="" utype="" unit="" datatype="char" arraysize="*"/>
+    <FIELD name="CalibrationReference" ucd="" utype="" unit="" datatype="char" arraysize="*"/>
+    <FIELD name="Description" ucd="meta.note" utype="photdm:PhotometryFilter.description" unit="" datatype="char" arraysize="*"/>
+    <FIELD name="Comments" ucd="meta.note" utype="" unit="" datatype="char" arraysize="*"/>
+    <FIELD name="WavelengthMean" ucd="em.wl" utype="photdm:PhotometryFilter.SpectralAxis.Coverage.Location.Value" unit="Angstrom" datatype="float" />
+    <FIELD name="WavelengthEff" ucd="em.wl.effective" utype="" unit="Angstrom" datatype="float" />
+    <FIELD name="WavelengthMin" ucd="em.wl;stat.min" utype="photdm:PhotometryFilter.SpectralAxis.Coverage.Bounds.Start" unit="Angstrom" datatype="float" />
+    <FIELD name="WavelengthMax" ucd="em.wl;stat.max" utype="photdm:PhotometryFilter.SpectralAxis.Coverage.Bounds.Stop" unit="Angstrom" datatype="float" />
+    <FIELD name="WidthEff" ucd="instr.bandwidth" utype="photdm:PhotometryFilter.SpectralAxis.Coverage.Bounds.Extent" unit="Angstrom" datatype="float" />
+    <FIELD name="WavelengthCen" ucd="em.wl" utype="" unit="Angstrom" datatype="float" />
+    <FIELD name="WavelengthPivot" ucd="em.wl" utype="" unit="Angstrom" datatype="float" />
+    <FIELD name="WavelengthPeak" ucd="em.wl" utype="" unit="Angstrom" datatype="float" />
+    <FIELD name="WavelengthPhot" ucd="em.wl" utype="" unit="Angstrom" datatype="float" />
+    <FIELD name="FWHM" ucd="instr.bandwidth" utype="" unit="Angstrom" datatype="float" />
+    <FIELD name="PhotCalID" ucd="meta.id" utype="photdm:PhotCal.identifier" unit="" datatype="char" arraysize="*"/>
+    <FIELD name="MagSys" ucd="meta.code" utype="photdm:PhotCal.MagnitudeSystem.type" unit="" datatype="char" arraysize="*"/>
+    <FIELD name="ZeroPoint" ucd="phot.flux.density" utype="photdm:PhotCal.ZeroPoint.Flux.value" unit="Jy" datatype="float" />
+    <FIELD name="ZeroPointUnit" ucd="meta.unit" utype="photdm:PhotCal.ZeroPoint.Flux.unit" unit="" datatype="char" arraysize="*"/>
+    <FIELD name="Mag0" ucd="phot.mag" utype="photdm:PhotCal.ZeroPoint.referenceMagnitude.value" unit="" datatype="float" />
+    <FIELD name="ZeroPointType" ucd="meta.code" utype="photdm:PhotCal.ZeroPoint.type" unit="" datatype="char" arraysize="*"/>
+    <FIELD name="AsinhSoft" ucd="obs.param" utype="photdm:PhotCal.AsinhZeroPoint.softeningParameter" unit="" datatype="float" />
+      <FIELD name="TrasmissionCurve" ucd="DATA_LINK" utype="phfdm:PhotometryFilter.filterTransmissionCurve" datatype="char" arraysize="*"/>
+      <DATA>
+        <TABLEDATA>
+          <TR>
+            <TD>ivo://svo/fps</TD>
+            <TD>Keck/NIRC2.J</TD>
+            <TD>Angstrom</TD>
+            <TD>em.wl</TD>
+            <TD>NIRC2</TD>
+            <TD>0</TD>
+            <TD>J</TD>
+            <TD>NIRC2</TD>
+            <TD>Keck</TD>
+            <TD>http://www2.keck.hawaii.edu/inst/nirc2/filters.html</TD>
+            <TD></TD>
+            <TD>NIRC2 J</TD>
+            <TD></TD>
+            <TD>12483.2546247</TD>
+            <TD>12416.0832125</TD>
+            <TD>11489.9457678</TD>
+            <TD>13483.3230105</TD>
+            <TD>1537.20043288</TD>
+            <TD>12477.904461</TD>
+            <TD>12455.827171776</TD>
+            <TD>12634.06</TD>
+            <TD>12434.3657675</TD>
+            <TD>1633.24860991</TD>
+            <TD>Keck/NIRC2.J/Vega</TD>
+            <TD>Vega</TD>
+            <TD>1562.67799358</TD>
+            <TD>Jy</TD>
+            <TD>0</TD>
+            <TD>Pogson</TD>
+            <TD>0</TD>
+            <TD><![CDATA[http://svo2.cab.inta-csic.es//theory/fps/fps.php?ID=Keck/NIRC2.J]]></TD>
+          </TR>
+          <TR>
+            <TD>ivo://svo/fps</TD>
+            <TD>Keck/NIRC2.Hcont</TD>
+            <TD>Angstrom</TD>
+            <TD>em.wl</TD>
+            <TD>NIRC2</TD>
+            <TD>0</TD>
+            <TD></TD>
+            <TD>NIRC2</TD>
+            <TD>Keck</TD>
+            <TD>http://www2.keck.hawaii.edu/inst/nirc2/filters.html</TD>
+            <TD></TD>
+            <TD>NIRC2 Hcont</TD>
+            <TD></TD>
+            <TD>15852.8129869</TD>
+            <TD>15851.2969687</TD>
+            <TD>15623.462377</TD>
+            <TD>16067.0012567</TD>
+            <TD>223.961059536</TD>
+            <TD>15853.9977881</TD>
+            <TD>15852.295372315</TD>
+            <TD>15826.75</TD>
+            <TD>15851.6454964</TD>
+            <TD>219.882472006</TD>
+            <TD>Keck/NIRC2.Hcont/Vega</TD>
+            <TD>Vega</TD>
+            <TD>1075.53179259</TD>
+            <TD>Jy</TD>
+            <TD>0</TD>
+            <TD>Pogson</TD>
+            <TD>0</TD>
+            <TD><![CDATA[http://svo2.cab.inta-csic.es//theory/fps/fps.php?ID=Keck/NIRC2.Hcont]]></TD>
+          </TR>
+          <TR>
+            <TD>ivo://svo/fps</TD>
+            <TD>Keck/NIRC2.H</TD>
+            <TD>Angstrom</TD>
+            <TD>em.wl</TD>
+            <TD>NIRC2</TD>
+            <TD>0</TD>
+            <TD>H</TD>
+            <TD>NIRC2</TD>
+            <TD>Keck</TD>
+            <TD>http://www2.keck.hawaii.edu/inst/nirc2/filters.html</TD>
+            <TD></TD>
+            <TD>NIRC2 H</TD>
+            <TD></TD>
+            <TD>16311.4849254</TD>
+            <TD>16151.1830962</TD>
+            <TD>14503.1838983</TD>
+            <TD>18088.5546806</TD>
+            <TD>2850.01448914</TD>
+            <TD>16329.0317189</TD>
+            <TD>16241.328428157</TD>
+            <TD>15198.75</TD>
+            <TD>16197.7869234</TD>
+            <TD>2956.25755018</TD>
+            <TD>Keck/NIRC2.H/Vega</TD>
+            <TD>Vega</TD>
+            <TD>1044.52392152</TD>
+            <TD>Jy</TD>
+            <TD>0</TD>
+            <TD>Pogson</TD>
+            <TD>0</TD>
+            <TD><![CDATA[http://svo2.cab.inta-csic.es//theory/fps/fps.php?ID=Keck/NIRC2.H]]></TD>
+          </TR>
+          <TR>
+            <TD>ivo://svo/fps</TD>
+            <TD>Keck/NIRC2.Fell</TD>
+            <TD>Angstrom</TD>
+            <TD>em.wl</TD>
+            <TD>NIRC2</TD>
+            <TD>0</TD>
+            <TD></TD>
+            <TD>NIRC2</TD>
+            <TD>Keck</TD>
+            <TD>http://www2.keck.hawaii.edu/inst/nirc2/filters.html</TD>
+            <TD></TD>
+            <TD>NIRC2 Fell</TD>
+            <TD></TD>
+            <TD>16499.7889468</TD>
+            <TD>16501.4104906</TD>
+            <TD>16260.08</TD>
+            <TD>16739.5264031</TD>
+            <TD>247.23232977</TD>
+            <TD>16500.6372483</TD>
+            <TD>16499.187786018</TD>
+            <TD>16475.7</TD>
+            <TD>16501.8102627</TD>
+            <TD>245.154496644</TD>
+            <TD>Keck/NIRC2.Fell/Vega</TD>
+            <TD>Vega</TD>
+            <TD>1019.67888415</TD>
+            <TD>Jy</TD>
+            <TD>0</TD>
+            <TD>Pogson</TD>
+            <TD>0</TD>
+            <TD><![CDATA[http://svo2.cab.inta-csic.es//theory/fps/fps.php?ID=Keck/NIRC2.Fell]]></TD>
+          </TR>
+          <TR>
+            <TD>ivo://svo/fps</TD>
+            <TD>Keck/NIRC2.Kp</TD>
+            <TD>Angstrom</TD>
+            <TD>em.wl</TD>
+            <TD>NIRC2</TD>
+            <TD>0</TD>
+            <TD></TD>
+            <TD>NIRC2</TD>
+            <TD>Keck</TD>
+            <TD>http://www2.keck.hawaii.edu/inst/nirc2/filters.html</TD>
+            <TD></TD>
+            <TD>NIRC2 Kp</TD>
+            <TD></TD>
+            <TD>21221.6331637</TD>
+            <TD>21035.1170446</TD>
+            <TD>19133.8913778</TD>
+            <TD>23328.7168878</TD>
+            <TD>3423.25883165</TD>
+            <TD>21230.3289824</TD>
+            <TD>21146.068874857</TD>
+            <TD>19837.62</TD>
+            <TD>21084.8472039</TD>
+            <TD>3524.08855722</TD>
+            <TD>Keck/NIRC2.Kp/Vega</TD>
+            <TD>Vega</TD>
+            <TD>689.307665288</TD>
+            <TD>Jy</TD>
+            <TD>0</TD>
+            <TD>Pogson</TD>
+            <TD>0</TD>
+            <TD><![CDATA[http://svo2.cab.inta-csic.es//theory/fps/fps.php?ID=Keck/NIRC2.Kp]]></TD>
+          </TR>
+          <TR>
+            <TD>ivo://svo/fps</TD>
+            <TD>Keck/NIRC2.Ks</TD>
+            <TD>Angstrom</TD>
+            <TD>em.wl</TD>
+            <TD>NIRC2</TD>
+            <TD>0</TD>
+            <TD>Ks</TD>
+            <TD>NIRC2</TD>
+            <TD>Keck</TD>
+            <TD>http://www2.keck.hawaii.edu/inst/nirc2/filters.html</TD>
+            <TD></TD>
+            <TD>NIRC2 Ks</TD>
+            <TD></TD>
+            <TD>21461.7490994</TD>
+            <TD>21316.5953596</TD>
+            <TD>19544.0572424</TD>
+            <TD>23365.407705</TD>
+            <TD>3042.73030777</TD>
+            <TD>21459.9856153</TD>
+            <TD>21404.208598599</TD>
+            <TD>20584.4</TD>
+            <TD>21354.8513529</TD>
+            <TD>3093.44014142</TD>
+            <TD>Keck/NIRC2.Ks/Vega</TD>
+            <TD>Vega</TD>
+            <TD>676.179032722</TD>
+            <TD>Jy</TD>
+            <TD>0</TD>
+            <TD>Pogson</TD>
+            <TD>0</TD>
+            <TD><![CDATA[http://svo2.cab.inta-csic.es//theory/fps/fps.php?ID=Keck/NIRC2.Ks]]></TD>
+          </TR>
+          <TR>
+            <TD>ivo://svo/fps</TD>
+            <TD>Keck/NIRC2.Brgamma</TD>
+            <TD>Angstrom</TD>
+            <TD>em.wl</TD>
+            <TD>NIRC2</TD>
+            <TD>0</TD>
+            <TD></TD>
+            <TD>NIRC2</TD>
+            <TD>Keck</TD>
+            <TD>http://www2.keck.hawaii.edu/inst/nirc2/filters.html</TD>
+            <TD></TD>
+            <TD>NIRC2 Brgamma</TD>
+            <TD></TD>
+            <TD>21572.055115</TD>
+            <TD>21568.6257943</TD>
+            <TD>21348.7835587</TD>
+            <TD>21781.2888719</TD>
+            <TD>201.071070335</TD>
+            <TD>21575.705938</TD>
+            <TD>21571.706801947</TD>
+            <TD>21533.51</TD>
+            <TD>21568.8564212</TD>
+            <TD>200.860829122</TD>
+            <TD>Keck/NIRC2.Brgamma/Vega</TD>
+            <TD>Vega</TD>
+            <TD>644.602976018</TD>
+            <TD>Jy</TD>
+            <TD>0</TD>
+            <TD>Pogson</TD>
+            <TD>0</TD>
+            <TD><![CDATA[http://svo2.cab.inta-csic.es//theory/fps/fps.php?ID=Keck/NIRC2.Brgamma]]></TD>
+          </TR>
+          <TR>
+            <TD>ivo://svo/fps</TD>
+            <TD>Keck/NIRC2.K</TD>
+            <TD>Angstrom</TD>
+            <TD>em.wl</TD>
+            <TD>NIRC2</TD>
+            <TD>0</TD>
+            <TD>K</TD>
+            <TD>NIRC2</TD>
+            <TD>Keck</TD>
+            <TD>http://www2.keck.hawaii.edu/inst/nirc2/filters.html</TD>
+            <TD></TD>
+            <TD>NIRC2 K</TD>
+            <TD></TD>
+            <TD>21981.9114386</TD>
+            <TD>21818.5821892</TD>
+            <TD>19863.9327759</TD>
+            <TD>23970.9686874</TD>
+            <TD>3249.96820178</TD>
+            <TD>21956.3992919</TD>
+            <TD>21916.260405319</TD>
+            <TD>22896.06</TD>
+            <TD>21862.40385</TD>
+            <TD>3349.21782419</TD>
+            <TD>Keck/NIRC2.K/Vega</TD>
+            <TD>Vega</TD>
+            <TD>648.934383113</TD>
+            <TD>Jy</TD>
+            <TD>0</TD>
+            <TD>Pogson</TD>
+            <TD>0</TD>
+            <TD><![CDATA[http://svo2.cab.inta-csic.es//theory/fps/fps.php?ID=Keck/NIRC2.K]]></TD>
+          </TR>
+          <TR>
+            <TD>ivo://svo/fps</TD>
+            <TD>Keck/NIRC2.Kcont</TD>
+            <TD>Angstrom</TD>
+            <TD>em.wl</TD>
+            <TD>NIRC2</TD>
+            <TD>0</TD>
+            <TD></TD>
+            <TD>NIRC2</TD>
+            <TD>Keck</TD>
+            <TD>http://www2.keck.hawaii.edu/inst/nirc2/filters.html</TD>
+            <TD></TD>
+            <TD>NIRC2 Kcont</TD>
+            <TD></TD>
+            <TD>22875.6137679</TD>
+            <TD>22873.5589567</TD>
+            <TD>22524.29</TD>
+            <TD>23201.5323202</TD>
+            <TD>317.56888255</TD>
+            <TD>22880.2103926</TD>
+            <TD>22874.788273146</TD>
+            <TD>22845.4</TD>
+            <TD>22874.1104369</TD>
+            <TD>316.847789935</TD>
+            <TD>Keck/NIRC2.Kcont/Vega</TD>
+            <TD>Vega</TD>
+            <TD>605.909167061</TD>
+            <TD>Jy</TD>
+            <TD>0</TD>
+            <TD>Pogson</TD>
+            <TD>0</TD>
+            <TD><![CDATA[http://svo2.cab.inta-csic.es//theory/fps/fps.php?ID=Keck/NIRC2.Kcont]]></TD>
+          </TR>
+          <TR>
+            <TD>ivo://svo/fps</TD>
+            <TD>Keck/NIRC2.Lp</TD>
+            <TD>Angstrom</TD>
+            <TD>em.wl</TD>
+            <TD>NIRC2</TD>
+            <TD>0</TD>
+            <TD>Lp</TD>
+            <TD>NIRC2</TD>
+            <TD>Keck</TD>
+            <TD>http://www2.keck.hawaii.edu/inst/nirc2/filters.html</TD>
+            <TD></TD>
+            <TD>NIRC2 Lp</TD>
+            <TD></TD>
+            <TD>37756.5288819</TD>
+            <TD>37322.0576687</TD>
+            <TD>33266.2203269</TD>
+            <TD>42077.6449205</TD>
+            <TD>6831.55321923</TD>
+            <TD>37745.9147325</TD>
+            <TD>37588.505737283</TD>
+            <TD>40731.01</TD>
+            <TD>37432.8845583</TD>
+            <TD>6982.25213861</TD>
+            <TD>Keck/NIRC2.Lp/Vega</TD>
+            <TD>Vega</TD>
+            <TD>248.043243126</TD>
+            <TD>Jy</TD>
+            <TD>0</TD>
+            <TD>Pogson</TD>
+            <TD>0</TD>
+            <TD><![CDATA[http://svo2.cab.inta-csic.es//theory/fps/fps.php?ID=Keck/NIRC2.Lp]]></TD>
+          </TR>
+          <TR>
+            <TD>ivo://svo/fps</TD>
+            <TD>Keck/NIRC2.Ms</TD>
+            <TD>Angstrom</TD>
+            <TD>em.wl</TD>
+            <TD>NIRC2</TD>
+            <TD>0</TD>
+            <TD></TD>
+            <TD>NIRC2</TD>
+            <TD>Keck</TD>
+            <TD>http://www2.keck.hawaii.edu/inst/nirc2/filters.html</TD>
+            <TD></TD>
+            <TD>NIRC2 Ms</TD>
+            <TD></TD>
+            <TD>46690.6874026</TD>
+            <TD>46644.2612421</TD>
+            <TD>44965.0201492</TD>
+            <TD>48650.4440142</TD>
+            <TD>2394.29894677</TD>
+            <TD>46684.0302117</TD>
+            <TD>46672.634660118</TD>
+            <TD>46238.71</TD>
+            <TD>46656.4363936</TD>
+            <TD>2399.8665777</TD>
+            <TD>Keck/NIRC2.Ms/Vega</TD>
+            <TD>Vega</TD>
+            <TD>165.807609663</TD>
+            <TD>Jy</TD>
+            <TD>0</TD>
+            <TD>Pogson</TD>
+            <TD>0</TD>
+            <TD><![CDATA[http://svo2.cab.inta-csic.es//theory/fps/fps.php?ID=Keck/NIRC2.Ms]]></TD>
+          </TR>
+        </TABLEDATA>
+      </DATA>
+    </TABLE>
+  </RESOURCE>
+</VOTABLE>

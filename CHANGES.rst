@@ -10,6 +10,11 @@ esa/hubble
 - Module added to query eHST TAP based on a set of specific criteria and
   asynchronous jobs are now supported. [#1723]
 
+SVO FPS
+^^^^^^^
+
+- Module added to access the Spanish Virtual Observatory Filter Profile List [#1498]
+
 
 0.4.1 (2020-06-19)
 ==================

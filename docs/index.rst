@@ -189,6 +189,7 @@ The following modules have been completed using a common API:
   simbad/simbad.rst
   skyview/skyview.rst
   splatalogue/splatalogue.rst
+  svo_fps/svo_fps.rst
   ukidss/ukidss.rst
   vamdc/vamdc.rst
   vizier/vizier.rst
