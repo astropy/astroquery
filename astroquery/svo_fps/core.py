@@ -69,6 +69,8 @@ class SvoFpsClass(BaseQuery):
         wavelength_eff_max : `~astropy.units.Quantity` having units of angstrom, optional
             Maximum value of Wavelength Effective (default is a very large
             quantity FLOAT_MAX angstroms i.e. maximum value of np.float64)
+        kwargs : dict
+            Passed to `data_from_svo`.  Relevant arguments include ``cache``
 
         Returns
         -------
@@ -78,7 +80,7 @@ class SvoFpsClass(BaseQuery):
         query = {'WavelengthEff_min': wavelength_eff_min.value,
                  'WavelengthEff_max': wavelength_eff_max.value}
         error_msg = 'No filter found for requested Wavelength Effective range'
-        return self.data_from_svo(query, error_msg, **kwargs)
+        return self.data_from_svo(query=query, error_msg=error_msg, **kwargs)
 
     def get_transmission_data(self, filter_id, **kwargs):
         """Get transmission data for the requested Filter ID from SVO
@@ -89,6 +91,8 @@ class SvoFpsClass(BaseQuery):
             Filter ID in the format SVO specifies it: 'facilty/instrument.filter'.
             This is returned by `get_filter_list` and `get_filter_index` as the
             ``filterID`` column.
+        kwargs : dict
+            Passed to `data_from_svo`.  Relevant arguments include ``cache``
 
         Returns
         -------
@@ -97,7 +101,7 @@ class SvoFpsClass(BaseQuery):
         """
         query = {'ID': filter_id}
         error_msg = 'No filter found for requested Filter ID'
-        return self.data_from_svo(query, error_msg, **kwargs)
+        return self.data_from_svo(query=query, error_msg=error_msg, **kwargs)
 
     def get_filter_list(self, facility, instrument=None, **kwargs):
         """Get filters data for requested facilty and instrument from SVO
@@ -109,6 +113,8 @@ class SvoFpsClass(BaseQuery):
         instrument : str, optional
             Instrument for filters (default is None).
             Leave empty if there are no instruments for specified facilty
+        kwargs : dict
+            Passed to `data_from_svo`.  Relevant arguments include ``cache``
 
         Returns
         -------
@@ -118,7 +124,7 @@ class SvoFpsClass(BaseQuery):
         query = {'Facility': facility,
                  'Instrument': instrument}
         error_msg = 'No filter found for requested Facilty (and Instrument)'
-        return self.data_from_svo(query, error_msg, **kwargs)
+        return self.data_from_svo(query=query, error_msg=error_msg, **kwargs)
 
 
 SvoFps = SvoFpsClass()
