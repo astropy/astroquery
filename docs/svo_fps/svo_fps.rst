@@ -18,7 +18,7 @@ Get index (master list) of all Filters
 --------------------------------------
 
 The filter index (all available filters with their properties) can be listed
-with `~astroquery.svo_fps.SvoFps.get_filter_index`:
+with `~astroquery.svo_fps.SvoFpsClass.get_filter_index`:
 
 .. code-block:: python
 
@@ -67,10 +67,10 @@ and ``wavelength_eff_max``, respectively).
 Get list of Filters under a specified Facilty and Instrument
 ------------------------------------------------------------
 
-Similarly, `~astroquery.svo_fps.SvoFps.get_filter_list` retrieves a list of all
+Similarly, `~astroquery.svo_fps.SvoFpsClass.get_filter_list` retrieves a list of all
 Filters for an arbitrary combination of Facility & Instrument (the Facility
 must be specified, but the Instrument is optional).  The data table returned
-is of the same form as that from `~astroquery.svo_fps.SvoFps.get_filter_index`:
+is of the same form as that from `~astroquery.svo_fps.SvoFpsClass.get_filter_index`:
 
 .. code-block:: python
 
@@ -117,10 +117,10 @@ Get transmission data for a specific Filter
 -------------------------------------------
 
 If you know the ``filterID`` of the filter (which you can determine with
-`~astroquery.svo_fps.SvoFps.get_filter_list` or
-`~astroquery.svo_fps.SvoFps.get_filter_index`), you can retrieve the
+`~astroquery.svo_fps.SvoFpsClass.get_filter_list` or
+`~astroquery.svo_fps.SvoFpsClass.get_filter_index`), you can retrieve the
 transmission curve data using
-`~astroquery.svo_fps.SvoFps.get_transmission_data`:
+`~astroquery.svo_fps.SvoFpsClass.get_transmission_data`:
 
 .. code-block:: python
 
@@ -159,16 +159,16 @@ These are the data needed to plot the transmission curve for filter:
 
     >>> import matplotlib.pyplot as plt
     >>> plt.plot(data['Wavelength'], data['Transmission'])
-    >>> plt.xlabel('Wavelength (Angstrom)')
-    >>> plt.ylabel('Transmission')
+    >>> plt.xlabel('Wavelength (Angstroms)')
+    >>> plt.ylabel('Transmission Fraction')
     >>> plt.title('Filter Curve for 2MASS/2MASS.H')
     >>> plt.show()
 
 .. figure:: images/filter_curve.png
    :scale: 100%
-   :alt: Filter Curve for 2MASS/2MASS.H
+   :alt: Transmission Curve for 2MASS/2MASS.H
 
-   The resulting plot from the example above
+   The 2MASS H-band transmission curve
 
 
 
