@@ -29,15 +29,36 @@ Examples
 1. Getting Hubble products
 --------------------------
 
+This function allows the user to download products based on their observation ID (mandatory) and
+a required calibration_level (RAW, CALIBRATED, PRODUCT or AUXILIARY) and/or product type (PRODUCT,
+SCIENCE_PRODUCT or POSTCARD).
+
+This will download all files for the raw calibration level of the observation 'J6FL25S4Q' and it will store them in a tar called
+'raw_data_for_J6FL25S4Q.tar'.
+
 .. code-block:: python
 
   >>> from astroquery.esa.hubble import ESAHubble
   >>> esahubble = ESAHubble()
-  >>> esahubble.download_product("J6FL25S4Q", "RAW", "raw_data_for_J6FL25S4Q.tar")
+  >>> esahubble.download_product(observation_id="J6FL25S4Q", calibration_level="RAW", filename="raw_data_for_J6FL25S4Q.tar")
 
-This will download all files for the raw calibration level of the
-observation 'J6FL25S4Q' and it will store them in a tar called
-'raw_data_for_J6FL25S4Q.tar'.
+This will download the science files associated to the observation 'J6FL25S4Q' and it will store them in a file called
+'science_data_for_J6FL25S4Q.tar.fits.gz', modifying the filename provided to ensure that the extension of the file is correct.
+
+.. code-block:: python
+
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = ESAHubble()
+  >>> esahubble.download_product(observation_id="J6FL25S4Q", product_type="SCIENCE_PRODUCT", filename="science_data_for_J6FL25S4Q.tar")
+
+This third case will download the science files associated to the observation 'J6FL25S4Q' in raw calibration level and it will store them in a file called
+'science_raw_data_for_J6FL25S4Q.fits.gz', modifying the filename provided to ensure that the extension of the file is correct.
+
+.. code-block:: python
+
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = ESAHubble()
+  >>> esahubble.download_product(observation_id="J6FL25S4Q", calibration_level="RAW", product_type="SCIENCE_PRODUCT", filename="science_raw_data_for_J6FL25S4Q")
 
 ---------------------------
 2. Getting Hubble postcards

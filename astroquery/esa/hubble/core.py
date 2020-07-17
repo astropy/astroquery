@@ -544,7 +544,7 @@ class ESAHubbleClass(BaseQuery):
         try:
             table = job.get_results()
         except Exception:
-            raise ValueError('There are not HAP observations in this DB')
+            raise ValueError('There are not HAP proposals in this DB')
         return table
 
     def get_hap_publications(self, async_job=False, output_file=None,
@@ -586,7 +586,7 @@ class ESAHubbleClass(BaseQuery):
         try:
             table = job.get_results()
         except Exception:
-            raise ValueError('There are not HAP observations in this DB')
+            raise ValueError('There are not HAP publications in this DB')
         return table
 
     def get_tables(self, only_names=True, verbose=False):
