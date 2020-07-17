@@ -58,16 +58,35 @@ class TestESAHubble():
         dummyTapHandler = DummyHubbleTapHandler("launch_job", parameterst)
         return dummyTapHandler
 
-    def test_download_product(self):
+    def test_download_product_errors(self):
+        ehst = ESAHubbleClass(self.get_dummy_tap_handler())
+
+        with pytest.raises(ValueError) as err:
+            ehst.download_product(observation_id="J6FL25S4Q",
+                                  product_type="SCIENCE")
+        assert "This product_type is not allowed" in err.value.args[0]
+
+    def test_download_product_by_calibration(self):
         parameters = {'observation_id': "J6FL25S4Q",
-                      'calibration_level': "RAW",
+                      'cal_level': "RAW",
                       'filename': "J6FL25S4Q.vot",
                       'verbose': True}
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
-        ehst.download_product(parameters['observation_id'],
-                              parameters['calibration_level'],
-                              parameters['filename'],
-                              parameters['verbose'])
+        ehst.download_product(observation_id=parameters['observation_id'],
+                              calibration_level=parameters['cal_level'],
+                              filename=parameters['filename'],
+                              verbose=parameters['verbose'])
+
+    def test_download_product_by_product_type(self):
+        parameters = {'observation_id': "J6FL25S4Q",
+                      'product_type': "SCIENCE_PRODUCT",
+                      'filename': "J6FL25S4Q.vot",
+                      'verbose': True}
+        ehst = ESAHubbleClass(self.get_dummy_tap_handler())
+        ehst.download_product(observation_id=parameters['observation_id'],
+                              product_type=parameters['product_type'],
+                              filename=parameters['filename'],
+                              verbose=parameters['verbose'])
 
     def test_get_postcard(self):
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())

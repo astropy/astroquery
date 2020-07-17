@@ -43,6 +43,7 @@ class ESAHubbleClass(BaseQuery):
     TIMEOUT = conf.TIMEOUT
     calibration_levels = {0: "AUXILIARY", 1: "RAW", 2: "CALIBRATED",
                           3: "PRODUCT"}
+    product_types = ["PRODUCT", "SCIENCE_PRODUCT", "POSTCARD"]
     copying_string = "Copying file to {0}..."
 
     def __init__(self, tap_handler=None):
@@ -54,10 +55,11 @@ class ESAHubbleClass(BaseQuery):
         else:
             self._tap = tap_handler
 
-    def download_product(self, observation_id, calibration_level="RAW",
-                         filename=None, verbose=False):
+    def download_product(self, observation_id, calibration_level=None,
+                         product_type=None, filename=None, verbose=False):
         """
-        Download products from EHST
+        Download products from EHST based on their observation ID and the
+        calibration level or the product type.
 
         Parameters
         ----------
@@ -66,10 +68,13 @@ class ESAHubbleClass(BaseQuery):
             The identifier of the observation we want to retrieve, regardless
             of whether it is simple or composite.
         calibration_level : string
-            calibration level, optional, default 'RAW'
+            calibration level, optional
             The identifier of the data reduction/processing applied to the
             data. By default, the most scientifically relevant level will be
             chosen. RAW, CALIBRATED, PRODUCT or AUXILIARY
+        product_type : string
+            type of product retrieval, optional
+            PRODUCT, SCIENCE_PRODUCT or POSTCARD
         filename : string
             file name to be used to store the artifact, optional, default
             None
@@ -83,21 +88,46 @@ class ESAHubbleClass(BaseQuery):
         None. It downloads the observation indicated
         """
 
-        params = {"OBSERVATION_ID": observation_id,
-                  "CALIBRATION_LEVEL": calibration_level}
+        params = {"OBSERVATION_ID": observation_id}
+        url = self.data_url + "?OBSERVATION_ID=" + observation_id
 
         if filename is None:
             filename = observation_id + ".tar"
+
+        if calibration_level:
+            params["CALIBRATION_LEVEL"] = calibration_level
+            url += "&CALIBRATION_LEVEL=" + calibration_level
+
+        if product_type:
+            self.__validate_product_type(product_type)
+            params["RETRIEVAL_TYPE"] = product_type
+            filename = self._get_product_filename(product_type, filename)
+            url += "&RETRIEVAL_TYPE=" + params["RETRIEVAL_TYPE"]
 
         response = self._request('GET', self.data_url, save=True, cache=True,
                                  params=params)
 
         if verbose:
-            log.info(self.data_url + "?OBSERVATION_ID=" + observation_id +
-                     "&CALIBRATION_LEVEL=" + calibration_level)
+            log.info(url)
             log.info(self.copying_string.format(filename))
 
         shutil.move(response, filename)
+
+    def __validate_product_type(self, product_type):
+        if(product_type not in self.product_types):
+            raise ValueError("This product_type is not allowed")
+
+    def _get_product_filename(self, product_type, filename):
+        if(product_type == "PRODUCT"):
+            return filename
+        elif(product_type == "SCIENCE_PRODUCT"):
+            log.info("This is a SCIENCE_PRODUCT, the filename will be "
+                     "renamed to " + filename + ".fits.gz")
+            return filename + ".fits.gz"
+        else:
+            log.info("This is a POSTCARD, the filename will be "
+                     "renamed to " + filename + ".jpg")
+            return filename + ".jpg"
 
     def get_artifact(self, artifact_id, filename=None, verbose=False):
         """
@@ -319,11 +349,11 @@ class ESAHubbleClass(BaseQuery):
         return table
 
     def query_criteria(self, calibration_level=None,
-                          data_product_type=None, intent=None,
-                          obs_collection=None, instrument_name=None,
-                          filters=None, async_job=True, output_file=None,
-                          output_format="votable", verbose=False,
-                          get_query=False):
+                       data_product_type=None, intent=None,
+                       obs_collection=None, instrument_name=None,
+                       filters=None, async_job=True, output_file=None,
+                       output_format="votable", verbose=False,
+                       get_query=False):
         """
         Launches a synchronous or asynchronous job to query the HST tap
         using calibration level, data product type, intent, collection,
@@ -432,6 +462,132 @@ class ESAHubbleClass(BaseQuery):
         else:
             raise ValueError("One of the lists is empty or there are "
                              "elements that are not strings")
+
+    def get_hap_observations(self, async_job=True, output_file=None,
+                             output_format="votable",
+                             verbose=False):
+        """Launches a synchronous or asynchronous job to extract ALL HAP
+        observations
+
+        Parameters
+        ----------
+        async_job : bool, optional, default 'False'
+            executes the query (job) in asynchronous/synchronous mode (default
+            synchronous)
+        output_file : str, optional, default None
+            file name where the results are saved if dumpToFile is True.
+            If this parameter is not provided, the jobid is used instead
+        output_format : str, optional, default 'votable'
+            results format
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        A table object
+        """
+        query = "select o.*, p.proposal_type from ehst.observation as o LEFT "\
+                "JOIN ehst.proposal as p on o.proposal_id = p.proposal_id "\
+                "LEFT JOIN ehst.plane as pl on pl.observation_uuid = "\
+                "o.observation_uuid where (o.observation_id like '%hst%' AND "\
+                "p.proposal_type like '%HAP%' AND (o.obs_type like '%HST "\
+                "Simple%' OR o.obs_type like '%HST Composite%' OR o.obs_type "\
+                "like '%HST Singleton%') AND o.collection LIKE '%HST%' AND "\
+                "pl.main_science_plane = 'true') ORDER BY o.observation_id"
+        if verbose:
+            print(query)
+        job = self.query_hst_tap(query=query, async_job=async_job,
+                                 output_file=output_file,
+                                 output_format=output_format,
+                                 verbose=verbose)
+        try:
+            table = job.get_results()
+        except Exception:
+            raise ValueError('There are not HAP observations in this DB')
+        
+        return table
+
+    def get_hap_proposals(self, async_job=True, output_file=None,
+                          output_format="votable",
+                          verbose=False):
+        """Launches a synchronous or asynchronous job to extract ALL HAP
+        proposals
+
+        Parameters
+        ----------
+        async_job : bool, optional, default 'False'
+            executes the query (job) in asynchronous/synchronous mode (default
+            synchronous)
+        output_file : str, optional, default None
+            file name where the results are saved if dumpToFile is True.
+            If this parameter is not provided, the jobid is used instead
+        output_format : str, optional, default 'votable'
+            results format
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        A table object
+        """
+        query = "select distinct p.* from ehst.proposal as p LEFT JOIN "\
+                "ehst.observation as o on o.proposal_id = p.proposal_id "\
+                "where (p.proposal_type LIKE '%HAP%' AND o.observation_id "\
+                "like '%hst%' AND o.collection LIKE '%HST%') ORDER BY "\
+                "p.proposal_id DESC"
+        if verbose:
+            print(query)
+        job = self.query_hst_tap(query=query, async_job=async_job,
+                                 output_file=output_file,
+                                 output_format=output_format,
+                                 verbose=verbose)
+        try:
+            table = job.get_results()
+        except Exception:
+            raise ValueError('There are not HAP observations in this DB')
+        return table
+
+    def get_hap_publications(self, async_job=False, output_file=None,
+                             output_format="votable",
+                             verbose=False):
+        """Launches a synchronous or asynchronous job to extract ALL HAP
+        publications
+
+        Parameters
+        ----------
+        async_job : bool, optional, default 'False'
+            executes the query (job) in asynchronous/synchronous mode (default
+            synchronous)
+        output_file : str, optional, default None
+            file name where the results are saved if dumpToFile is True.
+            If this parameter is not provided, the jobid is used instead
+        output_format : str, optional, default 'votable'
+            results format
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        A table object
+        """
+        query = "select distinct pb.* from ehst.publication as pb LEFT JOIN "\
+                "ehst.publication_proposal as pp on pp.bib_code = "\
+                "pb.bib_code LEFT JOIN ehst.proposal as p on pp.proposal_id="\
+                "p.proposal_id LEFT JOIN ehst.observation as o on "\
+                "o.proposal_id = p.proposal_id WHERE (p.proposal_type "\
+                "LIKE '%HAP%' AND o.observation_id like '%hst%' AND "\
+                "o.collection LIKE '%HST%') ORDER BY pb.bib_code DESC"
+        if verbose:
+            print(query)
+        job = self.query_hst_tap(query=query, async_job=async_job,
+                                 output_file=output_file,
+                                 output_format=output_format,
+                                 verbose=verbose)
+        try:
+            table = job.get_results()
+        except Exception:
+            raise ValueError('There are not HAP observations in this DB')
+        return table
 
     def get_tables(self, only_names=True, verbose=False):
         """Get the available table in EHST TAP service

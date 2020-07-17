@@ -89,10 +89,10 @@ class DummyHubbleTapHandler:
         return Job(True)
 
     def query_criteria(self, calibration_level=None,
-                          data_product_type=None, intent=None,
-                          obs_collection=None, instrument_name=None,
-                          filters=None, async_job=False, output_file=None,
-                          output_format="votable", verbose=False):
+                       data_product_type=None, intent=None,
+                       obs_collection=None, instrument_name=None,
+                       filters=None, async_job=False, output_file=None,
+                       output_format="votable", verbose=False):
         self.__invokedMethod = 'query_criteria'
         self._parameters['calibration_level'] = calibration_level
         self._parameters['data_product_type'] = data_product_type
