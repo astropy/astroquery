@@ -142,7 +142,9 @@ class TestXMMNewton():
                 "P0405320501M2S003EXPMAP1000.FTZ",
                 "P0405320501M2S003IMAGE_4000.FTZ",
                 "P0405320501PNS001EXPMAP2000.FTZ",
-                "P0405320501PNS001IMAGE_5000.FTZ"
+                "P0405320501PNS001IMAGE_5000.FTZ",
+                "P0405320501PNU001IMAGE_5000.FTZ",
+                "P0405320501PNX001IMAGE_5000.FTZ"
             ]
         }
     }
@@ -224,29 +226,59 @@ class TestXMMNewton():
         # Notice that we consider the exposure and the detector maps as
         # an instrument
         for k, v in res[1].items():
-            f = os.path.split(v)
             assert k in _instruments
-            assert f[1] in self._files["0405320501"]["pps"]
+            if type(v) == str:
+                f = os.path.split(v)
+                assert f[1] in self._files["0405320501"]["pps"]
+            if type(v) == list:
+                for i in v:
+                    f = os.path.split(i)
+                    assert f[1] in self._files["0405320501"]["pps"]
         for k, v in res[2].items():
-            f = os.path.split(v)
             assert k in _instruments
-            assert f[1] in self._files["0405320501"]["pps"]
+            if type(v) == str:
+                f = os.path.split(v)
+                assert f[1] in self._files["0405320501"]["pps"]
+            if type(v) == list:
+                for i in v:
+                    f = os.path.split(i)
+                    assert f[1] in self._files["0405320501"]["pps"]
         for k, v in res[3].items():
-            f = os.path.split(v)
             assert k in _instruments
-            assert f[1] in self._files["0405320501"]["pps"]
+            if type(v) == str:
+                f = os.path.split(v)
+                assert f[1] in self._files["0405320501"]["pps"]
+            if type(v) == list:
+                for i in v:
+                    f = os.path.split(i)
+                    assert f[1] in self._files["0405320501"]["pps"]
         for k, v in res[4].items():
-            f = os.path.split(v)
             assert k in _instruments
-            assert f[1] in self._files["0405320501"]["pps"]
+            if type(v) == str:
+                f = os.path.split(v)
+                assert f[1] in self._files["0405320501"]["pps"]
+            if type(v) == list:
+                for i in v:
+                    f = os.path.split(i)
+                    assert f[1] in self._files["0405320501"]["pps"]
         for k, v in res[5].items():
-            f = os.path.split(v)
             assert k in _instruments
-            assert f[1] in self._files["0405320501"]["pps"]
+            if type(v) == str:
+                f = os.path.split(v)
+                assert f[1] in self._files["0405320501"]["pps"]
+            if type(v) == list:
+                for i in v:
+                    f = os.path.split(i)
+                    assert f[1] in self._files["0405320501"]["pps"]
         for k, v in res[8].items():
-            f = os.path.split(v)
             assert k in _instruments
-            assert f[1] in self._files["0405320501"]["pps"]
+            if type(v) == str:
+                f = os.path.split(v)
+                assert f[1] in self._files["0405320501"]["pps"]
+            if type(v) == list:
+                for i in v:
+                    f = os.path.split(i)
+                    assert f[1] in self._files["0405320501"]["pps"]
 
         for ob in self._files:
             assert os.path.isdir(ob)
@@ -254,7 +286,11 @@ class TestXMMNewton():
                 assert os.path.isdir(os.path.join(ob, t))
                 for b in res:
                     for i in res[b]:
-                        assert os.path.isfile(res[b][i])
+                        if type(res[b][i]) == str:
+                            assert os.path.isfile(res[b][i])
+                        if type(res[b][i]) == list:
+                            for f in res[b][i]:
+                                assert os.path.isfile(f)
 
         # Removing files created in this test
         for ob_name in self._files:

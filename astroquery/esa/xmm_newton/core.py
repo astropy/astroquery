@@ -358,6 +358,12 @@ class XMMNewtonClass(BaseQuery):
         A dictionary of dictionaries with the full paths of the extracted
         EPIC images. The keys of each dictionary are the band for the first
         level dictionary and the instrument for the second level dictionaries
+
+        Notes
+        -----
+        The structure and the content of the extracted compressed FITS files
+        are described in details in the Pipeline Products Description
+        [XMM-SOC-GEN-ICD-0024](https://xmm-tools.cosmos.esa.int/external/xmm_obs_info/odf/data/docs/XMM-SOC-GEN-ICD-0024.pdf).
         """
         _product_type = ["IMAGE_"]
         _instrument = ["M1", "M2", "PN", "EP"]
@@ -407,15 +413,22 @@ class XMMNewtonClass(BaseQuery):
                     tar.extract(i, _path)
                     if not ret.get(int(fname_info["S"])):
                         ret[int(fname_info["S"])] = {}
+                    b = int(fname_info["S"])
+                    ins = fname_info["I"]
+                    value = os.path.abspath(os.path.join(_path, i.name))
                     if fname_info["T"] == "DETMSK":
-                        ret[int(fname_info["S"])][fname_info["I"] + "_det"] =\
-                            os.path.abspath(os.path.join(_path, i.name))
+                        ins = fname_info["I"] + "_det"
                     elif fname_info["T"] == "EXPMAP":
-                        ret[int(fname_info["S"])][fname_info["I"] + "_expo"] =\
-                            os.path.abspath(os.path.join(_path, i.name))
+                        ins = fname_info["I"] + "_expo"
+                    if ret[b].get(ins) and type(ret[b].get(ins)) == str:
+                        log.warning("More than one file found with the "
+                                    "band %u and "
+                                    "the instrument: %s" % (b, ins))
+                        ret[b][ins] = [ret[b][ins], value]
+                    elif ret[b].get(ins) and type(ret[b].get(ins)) == list:
+                        ret[b][ins].append(value)
                     else:
-                        ret[int(fname_info["S"])][fname_info["I"]] =\
-                            os.path.abspath(os.path.join(_path, i.name))
+                        ret[b][ins] = value
         except FileNotFoundError:
             log.error("File %s not found" % (filename))
             return {}
