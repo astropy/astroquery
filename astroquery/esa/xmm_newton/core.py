@@ -296,8 +296,10 @@ class XMMNewtonClass(BaseQuery):
         ret["Z"] = filename[28:]
         return ret
 
-    def get_epic_images(self, filename, band=[], instrument=[], **kwargs):
-        """Extracts the EPIC images from a given TAR file
+    def get_epic_images(self, filename, *, band=[], instrument=[],
+                        get_detmask=False, get_exposure_map=False, path=""):
+        """Extracts the European Photon Imaging Camera (EPIC) images from a
+        given TAR file
 
         For a given TAR file obtained with:
             XMM.download_data(OBS_ID,level="PPS",extension="FTZ",filename=tarfile)
@@ -322,7 +324,8 @@ class XMMNewtonClass(BaseQuery):
             result = XMM.get_epic_images(tarfile,band=[1,2,3,4,5,8],
                                          instrument=['M1','M2','PN'],**kwargs)
 
-        If we want to retrieve the band 3 for the instrument PN::
+        If we want to retrieve the band 3 for the instrument
+        PN (p-n junction)::
             fits_image = result[3]['PN']
 
         ``fits_image`` will be the full path to the extracted FTZ file
@@ -370,13 +373,12 @@ class XMMNewtonClass(BaseQuery):
         _instrument = ["M1", "M2", "PN", "EP"]
         _band = [1, 2, 3, 4, 5, 8]
         _path = ""
-        for arg in kwargs:
-            if arg == "get_detmask" and kwargs[arg] is True:
-                _product_type.append("DETMSK")
-            if arg == "get_exposure_map" and kwargs[arg] is True:
-                _product_type.append("EXPMAP")
-            if arg == "path" and os.path.exists(kwargs[arg]):
-                _path = kwargs[arg]
+        if get_detmask:
+            _product_type.append("DETMSK")
+        if get_exposure_map:
+            _product_type.append("EXPMAP")
+        if path != "" and os.path.exists(path):
+            _path = path
 
         ret = {}
         if band == []:
@@ -430,9 +432,8 @@ class XMMNewtonClass(BaseQuery):
                         ret[b][ins].append(value)
                     else:
                         ret[b][ins] = value
-        except FileNotFoundError:
-            log.error("File %s not found" % (filename))
-            return {}
+        except FileNotFoundError as err:
+            raise err
 
         return ret
 

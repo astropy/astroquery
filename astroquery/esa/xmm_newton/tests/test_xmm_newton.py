@@ -169,22 +169,20 @@ class TestXMMNewton():
                     shutil.rmtree(os.path.join(ob_name, ftype))
                 shutil.rmtree(ob_name)
 
-    def test_get_epic_images_non_existing_file(self, capsys):
+    def test_get_epic_images_non_existing_file(self):
         _tarname = "nonexistingfile.tar"
         xsa = XMMNewtonClass(self.get_dummy_tap_handler())
-        res = xsa.get_epic_images(_tarname, [], [],
-                                  get_detmask=True, get_exposure_map=True)
-        assert res == {}
-        out, err = capsys.readouterr()
-        assert err == ("ERROR: File %s not found "
-                       "[astroquery.esa.xmm_newton.core]\n" % _tarname)
+        pytest.raises(FileNotFoundError, xsa.get_epic_images, _tarname,
+                      band=[], instrument=[],
+                      get_detmask=True, get_exposure_map=True)
 
     def test_get_epic_images_invalid_instrument(self, capsys):
         _tarname = "tarfile.tar"
         _invalid_instrument = "II"
         self._create_tar(_tarname, self._files)
         xsa = XMMNewtonClass(self.get_dummy_tap_handler())
-        res = xsa.get_epic_images(_tarname, [], [_invalid_instrument],
+        res = xsa.get_epic_images(_tarname,
+                                  band=[], instrument=[_invalid_instrument],
                                   get_detmask=True, get_exposure_map=True)
         assert res == {}
         out, err = capsys.readouterr()
@@ -198,7 +196,8 @@ class TestXMMNewton():
         _invalid_band = 10
         self._create_tar(_tarname, self._files)
         xsa = XMMNewtonClass(self.get_dummy_tap_handler())
-        res = xsa.get_epic_images(_tarname, [_invalid_band], [],
+        res = xsa.get_epic_images(_tarname,
+                                  band=[_invalid_band], instrument=[],
                                   get_detmask=True, get_exposure_map=True)
         assert res == {}
         out, err = capsys.readouterr()
@@ -214,7 +213,7 @@ class TestXMMNewton():
                         "EP", "EP_expo", "EP_det"]
         self._create_tar(_tarname, self._files)
         xsa = XMMNewtonClass(self.get_dummy_tap_handler())
-        res = xsa.get_epic_images(_tarname, [], [],
+        res = xsa.get_epic_images(_tarname, band=[], instrument=[],
                                   get_detmask=True, get_exposure_map=True)
         assert len(res) == 6     # Number of different bands
         assert len(res[1]) == 9  # Number of different inst within band 1
