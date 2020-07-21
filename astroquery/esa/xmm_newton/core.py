@@ -298,8 +298,7 @@ class XMMNewtonClass(BaseQuery):
 
     def get_epic_images(self, filename, *, band=[], instrument=[],
                         get_detmask=False, get_exposure_map=False, path=""):
-        """Extracts the European Photon Imaging Camera (EPIC) images from a
-        given TAR file
+        """Extracts the European Photon Imaging Camera (EPIC) images from a given TAR file
 
         For a given TAR file obtained with:
             XMM.download_data(OBS_ID,level="PPS",extension="FTZ",filename=tarfile)
@@ -324,8 +323,7 @@ class XMMNewtonClass(BaseQuery):
             result = XMM.get_epic_images(tarfile,band=[1,2,3,4,5,8],
                                          instrument=['M1','M2','PN'],**kwargs)
 
-        If we want to retrieve the band 3 for the instrument
-        PN (p-n junction)::
+        If we want to retrieve the band 3 for the instrument PN (p-n junction)::
             fits_image = result[3]['PN']
 
         ``fits_image`` will be the full path to the extracted FTZ file
@@ -369,6 +367,7 @@ class XMMNewtonClass(BaseQuery):
         are described in details in the Pipeline Products Description
         [XMM-SOC-GEN-ICD-0024](https://xmm-tools.cosmos.esa.int/external/xmm_obs_info/odf/data/docs/XMM-SOC-GEN-ICD-0024.pdf).
         """
+
         _product_type = ["IMAGE_"]
         _instrument = ["M1", "M2", "PN", "EP"]
         _band = [1, 2, 3, 4, 5, 8]
