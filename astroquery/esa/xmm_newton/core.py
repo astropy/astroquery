@@ -315,27 +315,28 @@ class XMMNewtonClass(BaseQuery):
         If so, this function will also extract the exposure maps and detector
         masks within the specified bands and instruments
 
-        Examples:
+        Examples
+        --------
 
-        Extracting all bands and instruments:
+        Extract all bands and instruments::
             result = XMM.get_epic_images(tarfile,band=[1,2,3,4,5,8],
                                          instrument=['M1','M2','PN'],**kwargs)
 
-        If we want to retrieve the band 3 for the instrument PN
+        If we want to retrieve the band 3 for the instrument PN::
             fits_image = result[3]['PN']
 
-        fits_image will be the full path to the extracted FTZ file
+        ``fits_image`` will be the full path to the extracted FTZ file
 
-        Extracting the exposure and detector maps:
+        Extract the exposure and detector maps::
             result = XMM.get_epic_images(tarfile,band=[1,2,3,4,5,8],
                                          instrument=['M1','M2','PN'],
                                          get_detmask=True,
                                          get_exposure_map=True)
 
-        If we want to retrieve exposure map in the band 3 for the instrument PN
+        If we want to retrieve exposure map in the band 3 for the instrument PN::
             fits_image = result[3]['PN_expo']
 
-        For retrieving the detector mask in the band 3 for the instrument PN
+        For retrieving the detector mask in the band 3 for the instrument PN::
             fits_image = result[3]['PN_det']
 
         Parameters
