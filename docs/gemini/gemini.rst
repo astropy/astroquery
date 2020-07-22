@@ -132,6 +132,34 @@ terms need be passed into the method.
                           0.0           Full Frame                         -- Gemini-North    True ...
 
 
+Authenticated Sessions
+----------------------
+
+The Gemini module allows for authenticated sessions using your GOA account.  This is the same account you login
+with on the GOA homepage at `https://archive.gemini.edu/`_.  The `login()` method returns `True` if successful.
+
+.. code-block:: python
+
+                >>> from astroquery.gemini import Observations
+
+                >>> Observations.login(username, password)
+                >>> # do something with your elevated access
+
+
+File Downloading
+----------------
+
+As a convenience, you can request file downloads directly from the Gemini module.  This constructs the appropriate
+URL and fetches the file.  It will use any authenticated session you may have, so it will retrieve any
+proprietary data you may be permissioned for.
+
+.. code-block:: python
+
+                >>> from astroquery.gemini import Observations
+
+                >>> Observations.get_file("GS2020AQ319-10.fits")
+
+
 Reference/API
 =============
 

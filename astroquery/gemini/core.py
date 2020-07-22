@@ -6,15 +6,20 @@ For questions, contact ooberdorf@gemini.edu
 
 from datetime import date
 
+from astropy import log
 from astropy import units
 from astropy.table import Table, MaskedColumn
 
 from astroquery.gemini.urlhelper import URLHelper
 import numpy as np
 
-from ..query import BaseQuery
+import warnings
+
+from ..query import BaseQuery, QueryWithLogin
 from ..utils.class_or_instance import class_or_instance
 from . import conf
+from ..exceptions import AuthenticationWarning
+
 
 __all__ = ['Observations', 'ObservationsClass']  # specifies what to import
 
@@ -92,7 +97,7 @@ __valid_raw_reduced__ = [
 ]
 
 
-class ObservationsClass(BaseQuery):
+class ObservationsClass(QueryWithLogin):
 
     server = conf.server
     url_helper = URLHelper(server)
@@ -105,6 +110,28 @@ class ObservationsClass(BaseQuery):
         can be done by cone search, by name, or by a set of criteria.
         """
         super().__init__()
+
+    def _login(self, username, password):
+        """
+        Login to the Gemini Archive website.
+
+        This method will authenticate the session as a particular user.  This may give you access
+        to additional information or access based on your credentials
+
+        Parameters
+        ----------
+        username : str
+            The username to login as
+        password : str
+            The password for the given account
+        """
+        params = dict(username=username, password=password)
+        r = self._session.request('POST', 'https://archive.gemini.edu/login/', params=params)
+        if b'<P>Welcome, you are sucessfully logged in' not in r.content:
+            warnings.warn("Unable to log in with supplied credentials.  "
+                          "Please double-check your username and password", AuthenticationWarning)
+            return False
+        return True
 
     @class_or_instance
     def query_region(self, coordinates, radius=0.3*units.deg):
@@ -389,6 +416,18 @@ class ObservationsClass(BaseQuery):
 
         js = response.json()
         return _gemini_json_to_table(js)
+
+    def get_file(self, filename, *, timeout=None):
+        """
+        Download the requested file to the current directory
+
+        filename : str
+            Name of the file to download
+        timeout : int, optional
+            Timeout of the request in milliseconds
+        """
+        url = "https://archive.gemini.edu/file/%s" % filename
+        self._download_file(url=url, local_filepath=filename, timeout=timeout)
 
 
 def _gemini_json_to_table(json):
