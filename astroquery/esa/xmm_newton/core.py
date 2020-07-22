@@ -312,7 +312,7 @@ class XMMNewtonClass(BaseQuery):
         If the band or the instrument are not specified this function will
         return all the available bands and instruments
 
-        Additionaly, the get_detmask and get_exposure_map can be set to True.
+        Additionally, ``get_detmask`` and ``get_exposure_map`` can be set to True.
         If so, this function will also extract the exposure maps and detector
         masks within the specified bands and instruments
 
@@ -395,44 +395,41 @@ class XMMNewtonClass(BaseQuery):
                 if i not in _instrument:
                     log.warning("Invalid instrument %s" % i)
                     instrument.remove(i)
-        try:
-            with tarfile.open(filename, "r") as tar:
-                for i in tar.getmembers():
-                    paths = os.path.split(i.name)
-                    fname = paths[1]
-                    paths = os.path.split(paths[0])
-                    if paths[1] != "pps":
-                        continue
-                    fname_info = self._parse_filename(fname)
-                    if fname_info["X"] != "P":
-                        continue
-                    if not fname_info["I"] in instrument:
-                        continue
-                    if not int(fname_info["S"]) in band:
-                        continue
-                    if not fname_info["T"] in _product_type:
-                        continue
-                    tar.extract(i, _path)
-                    if not ret.get(int(fname_info["S"])):
-                        ret[int(fname_info["S"])] = {}
-                    b = int(fname_info["S"])
-                    ins = fname_info["I"]
-                    value = os.path.abspath(os.path.join(_path, i.name))
-                    if fname_info["T"] == "DETMSK":
-                        ins = fname_info["I"] + "_det"
-                    elif fname_info["T"] == "EXPMAP":
-                        ins = fname_info["I"] + "_expo"
-                    if ret[b].get(ins) and type(ret[b].get(ins)) == str:
-                        log.warning("More than one file found with the "
-                                    "band %u and "
-                                    "the instrument: %s" % (b, ins))
-                        ret[b][ins] = [ret[b][ins], value]
-                    elif ret[b].get(ins) and type(ret[b].get(ins)) == list:
-                        ret[b][ins].append(value)
-                    else:
-                        ret[b][ins] = value
-        except FileNotFoundError as err:
-            raise err
+        with tarfile.open(filename, "r") as tar:
+            for i in tar.getmembers():
+                paths = os.path.split(i.name)
+                fname = paths[1]
+                paths = os.path.split(paths[0])
+                if paths[1] != "pps":
+                    continue
+                fname_info = self._parse_filename(fname)
+                if fname_info["X"] != "P":
+                    continue
+                if not fname_info["I"] in instrument:
+                    continue
+                if not int(fname_info["S"]) in band:
+                    continue
+                if not fname_info["T"] in _product_type:
+                    continue
+                tar.extract(i, _path)
+                if not ret.get(int(fname_info["S"])):
+                    ret[int(fname_info["S"])] = {}
+                b = int(fname_info["S"])
+                ins = fname_info["I"]
+                value = os.path.abspath(os.path.join(_path, i.name))
+                if fname_info["T"] == "DETMSK":
+                    ins = fname_info["I"] + "_det"
+                elif fname_info["T"] == "EXPMAP":
+                    ins = fname_info["I"] + "_expo"
+                if ret[b].get(ins) and type(ret[b].get(ins)) == str:
+                    log.warning("More than one file found with the "
+                                "band %u and "
+                                "the instrument: %s" % (b, ins))
+                    ret[b][ins] = [ret[b][ins], value]
+                elif ret[b].get(ins) and type(ret[b].get(ins)) == list:
+                    ret[b][ins].append(value)
+                else:
+                    ret[b][ins] = value
 
         return ret
 
