@@ -102,8 +102,10 @@ eso
 gaia
 ^^^^
 
-- Allow for setting row limits in query submissions through class
-  attribute. [#1641]
+- Fixed RA/dec table edit capability.
+- Changed file names handling when downloading data.
+- Improved code to handle bit data type.
+- Prepared code to handle new datalink products.
 
 gemini
 ^^^^^^
