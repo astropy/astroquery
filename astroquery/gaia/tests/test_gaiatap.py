@@ -371,7 +371,9 @@ class TestTap(unittest.TestCase):
         format = "votable"
         verbose = True
         data_structure = "INDIVIDUAL"
-        output_file = "output_file"
+        output_file = os.path.abspath("output_file")
+        if not output_file.endswith("gaia/test/output_file"):
+            output_file = os.path.abspath("gaia/test/output_file")
 
         params_dict = {}
         params_dict['VALID_DATA'] = "true"
