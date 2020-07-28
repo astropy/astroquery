@@ -444,7 +444,6 @@ class Tap(object):
                         print("Retrieving async. results...")
                     # saveResults or getResults will block (not background)
                     if dump_to_file:
-                        #print("Saving results to: %s" % suitableOutputFile)
                         job.save_results(verbose)
                     else:
                         job.get_results()
@@ -1266,8 +1265,6 @@ class TapPlus(Tap):
                                                  200)
         print("Done.")
         results = utils.read_http_response(response, "votable")
-
-
 
         return results
 

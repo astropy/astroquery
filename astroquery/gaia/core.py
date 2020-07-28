@@ -339,7 +339,8 @@ class GaiaClass(TapPlus):
 
             elif '.csv' in key:
                 tables = []
-                table = Table.read(value, format='ascii.csv', fast_reader=False)
+                table = Table.read(value, format='ascii.csv',
+                                   fast_reader=False)
                 tables.append(table)
                 files[key] = tables
         return files
@@ -469,7 +470,8 @@ class GaiaClass(TapPlus):
         The job results (astropy.table).
         """
         return self.__query_object(coordinate, radius, width, height,
-                                   async_job=False, verbose=verbose, columns=columns)
+                                   async_job=False, verbose=verbose,
+                                   columns=columns)
 
     def query_object_async(self, coordinate, radius=None, width=None,
                            height=None, verbose=False, columns=[]):
@@ -496,7 +498,8 @@ class GaiaClass(TapPlus):
         The job results (astropy.table).
         """
         return self.__query_object(coordinate, radius, width, height,
-                                   async_job=True, verbose=verbose, columns=columns)
+                                   async_job=True, verbose=verbose,
+                                   columns=columns)
 
     def __cone_search(self, coordinate, radius, table_name=MAIN_GAIA_TABLE,
                       ra_column_name=MAIN_GAIA_TABLE_RA,
@@ -865,12 +868,12 @@ class GaiaClass(TapPlus):
         A Job object
         """
         return TapPlus.launch_job(self, query=query, name=name,
-                                        output_file=output_file,
-                                        output_format=output_format,
-                                        verbose=verbose,
-                                        dump_to_file=dump_to_file,
-                                        upload_resource=upload_resource,
-                                        upload_table_name=upload_table_name)
+                                  output_file=output_file,
+                                  output_format=output_format,
+                                  verbose=verbose,
+                                  dump_to_file=dump_to_file,
+                                  upload_resource=upload_resource,
+                                  upload_table_name=upload_table_name)
 
     def launch_job_async(self, query, name=None, output_file=None,
                          output_format="votable", verbose=False,
