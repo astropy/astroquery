@@ -174,4 +174,3 @@ class DummyConnHandler(object):
                            verbose=False):
         return self.__execute_post(subcontext="tableEdit", data=data,
                                    content_type=content_type, verbose=verbose)
-

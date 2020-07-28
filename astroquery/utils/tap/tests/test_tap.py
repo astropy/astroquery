@@ -807,7 +807,7 @@ class TestTap(unittest.TestCase):
         c_indexed = 'false'
         c_ucd = 'ucd'
         c_utype = 'utype_'
-        flags, indexed, ucd, utype =  TapPlus.get_new_column_values_for_update(
+        flags, indexed, ucd, utype = TapPlus.get_new_column_values_for_update(
             list_of_changes, column_name, c_flags, c_indexed, c_ucd, c_utype)
         assert flags == c_flags
         assert indexed == c_indexed
@@ -832,7 +832,7 @@ class TestTap(unittest.TestCase):
         n_indexed = 'True'
         n_ucd = 'new_ucd'
         n_utype = 'new_utype'
-        flags, indexed, ucd, utype =  TapPlus.get_new_column_values_for_update(
+        flags, indexed, ucd, utype = TapPlus.get_new_column_values_for_update(
             list_of_changes, column_name, c_flags, c_indexed, c_ucd, c_utype)
         assert flags == n_flags
         assert indexed == n_indexed
@@ -847,7 +847,7 @@ class TestTap(unittest.TestCase):
         c_indexed = 'true'
         n_flags = ''
         n_indexed = 'false'
-        flags, indexed, ucd, utype =  TapPlus.get_new_column_values_for_update(
+        flags, indexed, ucd, utype = TapPlus.get_new_column_values_for_update(
             list_of_changes, column_name, c_flags, c_indexed, c_ucd, c_utype)
         assert flags == n_flags
         assert indexed == n_indexed
@@ -860,7 +860,7 @@ class TestTap(unittest.TestCase):
         c_indexed = 'true'
         n_flags = 'Ra'
         n_indexed = 'True'
-        flags, indexed, ucd, utype =  TapPlus.get_new_column_values_for_update(
+        flags, indexed, ucd, utype = TapPlus.get_new_column_values_for_update(
             list_of_changes, column_name, c_flags, c_indexed, c_ucd, c_utype)
         assert flags == n_flags
         assert indexed == n_indexed
@@ -941,9 +941,9 @@ class TestTap(unittest.TestCase):
         tableDataFile = data_path('test_table_update.xml')
         tableData = utils.read_file_content(tableDataFile)
         dummyResponse.set_data(method='GET',
-                                   context=None,
-                                   body=tableData,
-                                   headers=None)
+                               context=None,
+                               body=tableData,
+                               headers=None)
         tableRequest = "tables?tables=" + tableName
         connHandler.set_response(tableRequest, dummyResponse)
 
@@ -956,7 +956,7 @@ class TestTap(unittest.TestCase):
         with pytest.raises(Exception):
             tap.update_user_table(table_name=tableName, list_of_changes=[[]])
         with pytest.raises(Exception):
-            tap.update_user_table(table_name=tableName, list_of_changes=[['','','']])
+            tap.update_user_table(table_name=tableName, list_of_changes=[['', '', '']])
 
         # Test Ra & Dec are provided
         list_of_changes = [['alpha', 'flags', 'Ra']]

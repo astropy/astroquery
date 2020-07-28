@@ -390,7 +390,7 @@ class TestTap(unittest.TestCase):
                       output_file=output_file)
         parameters = {}
         parameters['params_dict'] = params_dict
-        #Output file name contains a timestamp: cannot be verified
+        # Output file name contains a timestamp: cannot be verified
         of = dummyHandler._DummyTapHandler__parameters['output_file']
         parameters['output_file'] = of
         parameters['verbose'] = verbose
@@ -450,8 +450,8 @@ class TestTap(unittest.TestCase):
         req = "async/" + jobid + "/results/result"
         connHandler.set_response(req, responseResultsJob)
         query = ("SELECT crossmatch_positional(",
-                "'schemaA','tableA','schemaB','tableB',1.0,'results')",
-                "FROM dual;")
+                 "'schemaA','tableA','schemaB','tableB',1.0,'results')",
+                 "FROM dual;")
         dTmp = {"q": query}
         dTmpEncoded = connHandler.url_encode(dTmp)
         p = dTmpEncoded.find("=")
@@ -538,8 +538,8 @@ class TestTap(unittest.TestCase):
         parameters['upload_resource'] = None
         parameters['upload_table_name'] = None
         job = tap.cross_match(full_qualified_table_name_a='schemaA.tableA',
-                        full_qualified_table_name_b='schemaB.tableB',
-                        results_table_name='results')
+                              full_qualified_table_name_b='schemaB.tableB',
+                              results_table_name='results')
         assert job.async_ is True, "Expected an asynchronous job"
         assert job.get_phase() == 'COMPLETED', \
             "Wrong job phase. Expected: %s, found %s" % \
