@@ -291,7 +291,6 @@ class Job(object):
                 if isError:
                     print(response.reason)
                     raise Exception(response.reason)
-                #self.connHandler.dump_to_file(output, response)
                 if self.outputFileUser is None:
                     # User did not provide an output
                     # The output is a temporary one, analyse header
