@@ -2,9 +2,9 @@
 
 .. _astroquery.esa.hubble:
 
-************************************
-esa.hubble (`astroquery.esa.hubble`)
-************************************
+**********************************************
+ESA Hubble Archive (`astroquery.esa.hubble`)
+**********************************************
 
 The Hubble Space Telescope (HST) is a joint ESA/NASA orbiting astronomical
 observatory operating from the near-infrared into the ultraviolet.  Launched
@@ -95,7 +95,7 @@ file 'm31_query.xml'.
 
 The query_criteria function uses a set of established parameters to create
 and execute an ADQL query, accessing the HST archive database usgin the Table
-Access Protocol (TAP). 
+Access Protocol (TAP).
 
 - **calibration_level** (*str or int, optional*): The identifier of the data reduction/processing applied to the data.
 
@@ -107,21 +107,21 @@ Access Protocol (TAP).
 - **data_product_type** (*str, optional*): High level description of the product.
 
  + image
- + spectrum 
+ + spectrum
  + timeseries
 
 - **intent** (*str, optional*): The intent of the original obsever in acquiring this observation.
 
- + SCIENCE 
+ + SCIENCE
  + CALIBRATION
 
 - **collection** (*list of strings, optional*): List of collections that are available in eHST catalogue.
 
  + HLA
  + HST
- 
+
  Do not forget that this is a list of elements, so it must be defined as ['HST'], ['HST', 'HLA']...
- 
+
 - **instrument_name** (*list of strings, optional*): Name(s) of the instrument(s) used to generate the dataset. This is also a list of elements.
 - **filters** (*list of strings, optional*): Name(s) of the filter(s) used to generate the dataset. This is also a list of elements.
 - **async_job** (*bool, optional, default 'True'*): executes the query (job) in asynchronous/synchronous mode (default synchronous)
@@ -147,7 +147,7 @@ This is an example of a query with all the parameters and the verbose flag activ
                                         output_format="votable",
                                         verbose = True,
                                         get_query = False)
-  INFO: select o.*, p.calibration_level, p.data_product_type from ehst.observation 
+  INFO: select o.*, p.calibration_level, p.data_product_type from ehst.observation
   AS o LEFT JOIN ehst.plane as p on o.observation_uuid=p.observation_uuid
   where(p.calibration_level LIKE '%PRODUCT%' AND p.data_product_type LIKE '%image%'
   AND o.intent LIKE '%SCIENCE%' AND (o.collection LIKE '%HLA%') AND (o.instrument_name
@@ -155,7 +155,7 @@ This is an example of a query with all the parameters and the verbose flag activ
   o.instrument_configuration LIKE '%F606W%')) [astroquery.esa.hubble.core]
   >>> str(result)
   Table length=2000 ...
-  
+
 This will make a synchronous search, limited to 2000 results to find the observations that match these specific
 requirements. It will also download a votable file called **output.vot.gz** containing the result of the
 query.
@@ -166,44 +166,44 @@ The following example uses the string definition of the calibration level ('PROD
 
   >>> from astroquery.esa.hubble import ESAHubble
   >>> esahubble = ESAHubble()
-  >>> result = esahubble.query_criteria(calibration_level = 'PRODUCT', 
-                                        data_product_type = 'image', 
-                                        intent='SCIENCE', 
-                                        obs_collection=['HLA'], 
-                                        instrument_name = ['WFC3'], 
-                                        filters = ['F555W', 'F606W'], 
-                                        async_job = True, 
-                                        output_file = 'output2.vot.gz', 
-                                        output_format="votable", 
-                                        verbose = True, 
+  >>> result = esahubble.query_criteria(calibration_level = 'PRODUCT',
+                                        data_product_type = 'image',
+                                        intent='SCIENCE',
+                                        obs_collection=['HLA'],
+                                        instrument_name = ['WFC3'],
+                                        filters = ['F555W', 'F606W'],
+                                        async_job = True,
+                                        output_file = 'output2.vot.gz',
+                                        output_format="votable",
+                                        verbose = True,
                                         get_query = False)
   >>> str(result)
   Table length=12965 ...
-  
+
 As has been mentioned, these parameters are optional and it is not necessary to define all of them to execute this function, as the search will be adapted to the ones that are available.
 
 .. code-block:: python
 
   >>> from astroquery.esa.hubble import ESAHubble
   >>> esahubble = ESAHubble()
-  >>> result1 = esahubble.query_criteria(calibration_level = 'PRODUCT', 
-                                         async_job = False, 
+  >>> result1 = esahubble.query_criteria(calibration_level = 'PRODUCT',
+                                         async_job = False,
                                          output_file = 'output3.vot.gz')
-  >>> result2 = esahubble.query_criteria(data_product_type = 'image', 
-                                         intent='SCIENCE', 
-                                         async_job = False, 
+  >>> result2 = esahubble.query_criteria(data_product_type = 'image',
+                                         intent='SCIENCE',
+                                         async_job = False,
                                          output_file = 'output4.vot.gz')
   >>> result3 = esahubble.query_criteria(data_product_type = 'timeseries',
-                                         async_job = False, 
+                                         async_job = False,
                                          output_file = 'output5.vot.gz')
- 
+
 If no criteria are specified to limit the selection, this function will retrieve all the observations.
 
 .. code-block:: python
 
   >>> from astroquery.esa.hubble import ESAHubble
   >>> esahubble = ESAHubble()
-  >>> result = esahubble.query_criteria(async_job = False, 
+  >>> result = esahubble.query_criteria(async_job = False,
                                         verbose = True)
   INFO: select o.*, p.calibration_level, p.data_product_type from ehst.observation
   AS o LEFT JOIN ehst.plane as p on o.observation_uuid=p.observation_uuid

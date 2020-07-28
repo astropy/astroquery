@@ -276,6 +276,8 @@ generally return a table listing the available data first.
   cadc/cadc.rst
   casda/casda.rst
   esa/hubble.rst
+  esa/iso.rst
+  esa/xmm_newton.rst
   eso/eso.rst
   fermi/fermi.rst
   gaia/gaia.rst
@@ -294,7 +296,6 @@ generally return a table listing the available data first.
   ukidss/ukidss.rst
   vsa/vsa.rst
   skyview/skyview.rst
-  esa/xmm_newton.rst
 
 Simulations
 -----------
