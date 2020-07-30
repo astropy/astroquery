@@ -101,11 +101,12 @@ eso
 
 gaia
 ^^^^
-
-- Fixed RA/dec table edit capability.
-- Changed file names handling when downloading data.
-- Improved code to handle bit data type.
-- Prepared code to handle new datalink products.
+- Fixed RA/dec table edit capability. [#1784]
+- Changed file names handling when downloading data. [#1784]
+- Improved code to handle bit data type. [#1784]
+- Prepared code to handle new datalink products. [#1784]
+- Allow for setting row limits in query submissions through class
+  attribute. [#1641]
 
 gemini
 ^^^^^^
