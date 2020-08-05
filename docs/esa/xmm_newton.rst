@@ -92,13 +92,14 @@ stored in the file 'results10.csv'. The result of this query can be printed by d
   INFO: Retrieving tables... [astroquery.utils.tap.core]
   INFO: Parsing tables... [astroquery.utils.tap.core]
   INFO: Done. [astroquery.utils.tap.core]
-  ['public.dual', 'public.v_all_observations', 'public.v_epic_source', 'public.v_epic_source_cat', 'public.v_epic_xmm_stack_cat', 
-  'public.v_exposure', 'public.v_instrument_mode', 'public.v_om_source', 'public.v_om_source_cat', 'public.v_proposal', 
-  'public.v_proposal_observation_info', 'public.v_publication', 'public.v_publication_observation', 
-  'public.v_publication_slew_observation', 'public.v_public_observations', 'public.v_rgs_source', 'public.v_slew_exposure', 
-  'public.v_slew_observation', 'public.v_slew_source', 'public.v_slew_source_cat', 'public.v_target_type', 
-  'public.v_uls_exposure_image', 'public.v_uls_slew_exposure_image', 'tap_schema.columns', 'tap_schema.key_columns', 
-  'tap_schema.keys', 'tap_schema.schemas', 'tap_schema.tables']
+  ['tap_schema.columns', 'tap_schema.key_columns', 'tap_schema.keys', 'tap_schema.schemas', 
+  'tap_schema.tables', 'xsa.dual', 'xsa.v_all_observations', 'xsa.v_epic_source', 
+  'xsa.v_epic_source_cat', 'xsa.v_epic_xmm_stack_cat', 'xsa.v_exposure', 'xsa.v_instrument_mode', 
+  'xsa.v_om_source', 'xsa.v_om_source_cat', 'xsa.v_proposal', 'xsa.v_proposal_observation_info', 
+  'xsa.v_publication', 'xsa.v_publication_observation', 'xsa.v_publication_slew_observation', 
+  'xsa.v_public_observations', 'xsa.v_rgs_source', 'xsa.v_slew_exposure', 'xsa.v_slew_observation', 
+  'xsa.v_slew_source', 'xsa.v_slew_source_cat', 'xsa.v_target_type', 'xsa.v_uls_exposure_image', 
+  'xsa.v_uls_slew_exposure_image']
 
 This will show the available tables in XSA TAP service in the XMM-Newton Science Archive.
             
