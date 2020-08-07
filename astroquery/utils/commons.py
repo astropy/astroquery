@@ -51,8 +51,10 @@ __all__ = ['send_request',
            'TableList',
            'suppress_vo_warnings',
            'validate_email',
+           'ASTROPY_LT_4_0',
            'ASTROPY_LT_4_1']
 
+ASTROPY_LT_4_0 = not minversion('astropy', '4.0')
 ASTROPY_LT_4_1 = not minversion('astropy', '4.1')
 
 
@@ -390,22 +392,16 @@ class FileContainer(object):
             copied to the target location.
         """
         self.get_fits()
-
         target_key = str(self._target)
-        if not aud.is_url_in_cache(target_key):
-            raise IOError("Cached file not found / does not exist.")
 
         # There has been some internal refactoring in astropy.utils.data
-        # so we do this check. Remove when minimum required astropy is 4.1.
-        # See https://github.com/astropy/astropy/pull/10437
-        if hasattr(aud, '_get_download_cache_locs'):
-            import shelve
-            dldir, urlmapfn = aud._get_download_cache_locs()
-            with shelve.open(urlmapfn) as url2hash:
-                target = url2hash[target_key]
+        # so we do this check. Update when minimum required astropy changes.
+        if ASTROPY_LT_4_0:
+            if not aud.is_url_in_cache(target_key):
+                raise IOError("Cached file not found / does not exist.")
+            target = aud.download_file(target_key, cache=True)
         else:
-            dldir = aud._get_download_cache_loc()
-            target = os.path.join(dldir, aud._url_to_dirname(target_key), "contents")
+            target = aud.download_file(target_key, cache=True, sources=[])
 
         if link_cache == 'hard':
             try:
