@@ -396,7 +396,8 @@ class FileContainer(object):
             raise IOError("Cached file not found / does not exist.")
 
         # There has been some internal refactoring in astropy.utils.data
-        # so we do this check. See https://github.com/astropy/astropy/pull/10437
+        # so we do this check. Remove when minimum required astropy is 4.1.
+        # See https://github.com/astropy/astropy/pull/10437
         if hasattr(aud, '_get_download_cache_locs'):
             import shelve
             dldir, urlmapfn = aud._get_download_cache_locs()
