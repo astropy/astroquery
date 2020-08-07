@@ -389,22 +389,22 @@ class FileContainer(object):
             If the system is unable to create a hardlink, the file will be
             copied to the target location.
         """
-        from warnings import warn
-
         self.get_fits()
 
-        try:
-            dldir, urlmapfn = aud._get_download_cache_locs()
-        except (IOError, OSError) as e:
-            msg = 'Remote data cache could not be accessed due to '
-            estr = '' if len(e.args) < 1 else (': ' + str(e))
-            warn(aud.CacheMissingWarning(msg + e.__class__.__name__ + estr))
+        target_key = str(self._target)
+        if not aud.is_url_in_cache(target_key):
+            raise IOError("Cached file not found / does not exist.")
 
-        with _open_shelve(urlmapfn, True) as url2hash:
-            if str(self._target) in url2hash:
-                target = url2hash[str(self._target)]
-            else:
-                raise IOError("Cached file not found / does not exist.")
+        # There has been some internal refactoring in astropy.utils.data
+        # so we do this check. See https://github.com/astropy/astropy/pull/10437
+        if hasattr(aud, '_get_download_cache_locs'):
+            import shelve
+            dldir, urlmapfn = aud._get_download_cache_locs()
+            with shelve.open(urlmapfn) as url2hash:
+                target = url2hash[target_key]
+        else:
+            dldir = aud._get_download_cache_loc()
+            target = os.path.join(dldir, aud._url_to_dirname(target_key), "contents")
 
         if link_cache == 'hard':
             try:
@@ -470,22 +470,3 @@ def parse_votable(content):
     """
     tables = votable.parse(six.BytesIO(content), pedantic=False)
     return tables
-
-
-def _open_shelve(shelffn, withclosing=False):
-    """
-    Opens a shelf file.  If ``withclosing`` is True, it will be opened with
-    closing, allowing use like:
-
-        with _open_shelve('somefile',True) as s:
-            ...
-    """
-    import shelve
-    import contextlib
-
-    shelf = shelve.open(shelffn, protocol=2)
-
-    if withclosing:
-        return contextlib.closing(shelf)
-    else:
-        return shelf
