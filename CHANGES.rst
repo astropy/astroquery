@@ -33,6 +33,12 @@ UKIDSS
 
 - Updated to ``UKIDSSDR11PLUS`` as the default version [#1767]
 
+alma
+^^^^
+
+- The archive query interface has been deprecated in favour of
+  VirtualObservatory (VO) services such as TAP, ObsCore etc. The alma
+  library has been updated accordingly. [#1689]
 
 
 0.4.1 (2020-06-19)
