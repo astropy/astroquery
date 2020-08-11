@@ -136,7 +136,8 @@ Authenticated Sessions
 ----------------------
 
 The Gemini module allows for authenticated sessions using your GOA account.  This is the same account you login
-with on the GOA homepage at `https://archive.gemini.edu/`_.  The `login()` method returns `True` if successful.
+with on the GOA homepage at `<https://archive.gemini.edu/>`__.  The `astroquery.gemini.ObservationsClass.login()` 
+method returns `True` if successful.
 
 .. code-block:: python
 

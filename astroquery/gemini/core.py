@@ -4,6 +4,8 @@ Search functionality for the Gemini archive of observations.
 For questions, contact ooberdorf@gemini.edu
 """
 
+import os
+
 from datetime import date
 
 from astropy import log
@@ -13,12 +15,15 @@ from astropy.table import Table, MaskedColumn
 from astroquery.gemini.urlhelper import URLHelper
 import numpy as np
 
-import warnings
+import logging
 
 from ..query import BaseQuery, QueryWithLogin
 from ..utils.class_or_instance import class_or_instance
 from . import conf
 from ..exceptions import AuthenticationWarning
+
+
+logger = logging.getLogger(__name__)
 
 
 __all__ = ['Observations', 'ObservationsClass']  # specifies what to import
@@ -128,8 +133,7 @@ class ObservationsClass(QueryWithLogin):
         params = dict(username=username, password=password)
         r = self._session.request('POST', 'https://archive.gemini.edu/login/', params=params)
         if b'<P>Welcome, you are sucessfully logged in' not in r.content:
-            warnings.warn("Unable to log in with supplied credentials.  "
-                          "Please double-check your username and password", AuthenticationWarning)
+            logger.error('Unable to login, please check your credentials')
             return False
         return True
 
@@ -417,7 +421,7 @@ class ObservationsClass(QueryWithLogin):
         js = response.json()
         return _gemini_json_to_table(js)
 
-    def get_file(self, filename, *, timeout=None):
+    def get_file(self, filename, *, download_dir='.', timeout=None):
         """
         Download the requested file to the current directory
 
@@ -427,7 +431,8 @@ class ObservationsClass(QueryWithLogin):
             Timeout of the request in milliseconds
         """
         url = "https://archive.gemini.edu/file/%s" % filename
-        self._download_file(url=url, local_filepath=filename, timeout=timeout)
+        local_filepath=os.path.join(download_dir, filename)
+        self._download_file(url=url, local_filepath=local_filepath, timeout=timeout)
 
 
 def _gemini_json_to_table(json):
