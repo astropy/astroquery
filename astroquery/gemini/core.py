@@ -427,11 +427,13 @@ class ObservationsClass(QueryWithLogin):
 
         filename : str
             Name of the file to download
+        download_dir : str, optional
+            Name of the directory to download to
         timeout : int, optional
             Timeout of the request in milliseconds
         """
         url = "https://archive.gemini.edu/file/%s" % filename
-        local_filepath=os.path.join(download_dir, filename)
+        local_filepath = os.path.join(download_dir, filename)
         self._download_file(url=url, local_filepath=local_filepath, timeout=timeout)
 
 
