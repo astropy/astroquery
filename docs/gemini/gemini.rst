@@ -158,7 +158,7 @@ proprietary data you may be permissioned for.
 
                 >>> from astroquery.gemini import Observations
 
-                >>> Observations.get_file("GS2020AQ319-10.fits")
+                >>> Observations.get_file("GS2020AQ319-10.fits", download_dir="/tmp")
 
 
 Reference/API
