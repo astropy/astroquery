@@ -16,6 +16,8 @@ import tarfile
 import os
 import errno
 import shutil
+from astropy.coordinates import SkyCoord
+
 from ..core import XMMNewtonClass
 from ..tests.dummy_tap_handler import DummyXMMNewtonTapHandler
 
@@ -295,3 +297,13 @@ class TestXMMNewton():
         for ob_name in self._files:
             shutil.rmtree(ob_name)
         os.remove(_tarname)
+
+    @pytest.mark.remote_data
+    def test_get_epic_metadata(self):
+        xsa = XMMNewtonClass()
+        t1, t2, t3, t4 = xsa.get_epic_metadata(target_name="4XMM J122934.7+015657")
+        print(t1)
+        print(t2)
+        print(t3)
+        print(t4)
+        xsa.get_epic_metadata(coordinates=SkyCoord.from_name("4XMM J122934.7+015657", parse=True))
