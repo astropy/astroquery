@@ -8,7 +8,7 @@ This is the documentation for the Astroquery affiliated package of `astropy
 
 Code and issue tracker are on `GitHub <https://github.com/astropy/astroquery>`_.
 
-If you use astroquery, please [cite](https://github.com/astropy/astroquery/blob/master/astroquery/CITATION) the [paper](https://ui.adsabs.harvard.edu/abs/2019AJ....157...98G/abstract).
+If you use astroquery, please [cite](https://github.com/astropy/astroquery/blob/master/astroquery/CITATION) the [paper (Ginsburg et al 2019; 2019AJ....157...98G)](https://ui.adsabs.harvard.edu/abs/2019AJ....157...98G/abstract).
 
 Introduction
 ------------
