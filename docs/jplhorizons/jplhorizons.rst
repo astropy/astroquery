@@ -189,7 +189,9 @@ limits fragment matching (73P-B would only match 73P-B), respectively.  Note
 that these options should only be used for comets and will crash the query for
 other object types. Extra precision in the queried properties can be requested
 using the ``extra_precision`` option.  Furthermore, ``get_query_payload=True``
-skips the query and only returns the query payload.
+skips the query and only returns the query payload. To pass additional settings
+to the request use the ``optional_settings`` passing a key-value
+dictionary.
 
 :meth:`~astroquery.jplhorizons.HorizonsClass.ephemerides` queries by default all
 available quantities from the JPL Horizons servers. This might take a while. If
