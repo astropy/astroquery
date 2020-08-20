@@ -149,6 +149,7 @@ class HorizonsClass(BaseQuery):
                           refsystem='J2000',
                           closest_apparition=False, no_fragments=False,
                           quantities=conf.eph_quantities,
+                          rts_flag=None,
                           get_query_payload=False,
                           get_raw_response=False, cache=True,
                           extra_precision=False):
@@ -445,6 +446,11 @@ class HorizonsClass(BaseQuery):
             Observer Table Quantities
             <https://ssd.jpl.nasa.gov/?horizons_doc#table_quantities>`_;
             default: all quantities
+        rts_flag: string, optional
+            Output data only at target rise/transit/set (RTS)
+            `RTS only print mode
+            <https://ssd.jpl.nasa.gov/?horizons_doc#rts>`_;
+            default: disabled
         get_query_payload : boolean, optional
             When set to `True` the method returns the HTTP request
             parameters as a dict, default: False
@@ -583,6 +589,9 @@ class HorizonsClass(BaseQuery):
             request_payload['SKIP_DAYLT'] = 'YES'
         else:
             request_payload['SKIP_DAYLT'] = 'NO'
+
+        if rts_flag:
+            request_payload['R_T_S_ONLY'] = rts_flag
 
         self.query_type = 'ephemerides'
 

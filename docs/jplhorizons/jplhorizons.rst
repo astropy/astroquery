@@ -170,7 +170,8 @@ allows to reject targets with sky motion rates higher than provided
 (in units of arcsec/h), ``refraction`` accounts for refraction in the
 computation of the ephemerides (disabled by default), and
 ``refsystem`` defines the coordinate reference system used (J2000 by
-default).. For comets, the options ``closest_apparation`` and
+default). To output data only at target RTS (rise-transit-set) use the 
+optional ``rts_flag``. For comets, the options ``closest_apparation`` and
 ``no_fragments`` are available, which select the closest apparition in
 time and reject fragments, respectively. Note that these options
 should only be used for comets and will crash the query for other
