@@ -81,7 +81,7 @@ def associated_planes_request(request):
 
 
 def get_product_mock(params, *args, **kwargs):
-    if(args[0] == 'file_name_id'):
+    if('file_name' in kwargs and kwargs.get('file_name') == 'file_name_id'):
         return "00000000-0000-0000-8740-65e2827c9895"
     else:
         return "jw00617023001_02102_00001_nrcb4_uncal.fits"
