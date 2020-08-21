@@ -10,6 +10,12 @@ esa/hubble
 - Module added to query eHST TAP based on a set of specific criteria and
   asynchronous jobs are now supported. [#1723]
 
+Gemini
+^^^^^^
+
+- login() support for authenticated sessions to the GOA [#1778]
+- get_file() support for downloading files [#1778]
+
 SVO FPS
 ^^^^^^^
 
