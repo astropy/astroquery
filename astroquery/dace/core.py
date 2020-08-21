@@ -35,8 +35,8 @@ class DaceClass(BaseQuery):
         object_name : str
             The target you want radial velocities data
 
-        Return
-        ------
+        Returns
+        -------
         response : a ``requests.Response`` from DACE
         """
         return self._request("GET", ''.join([self.__DACE_URL, self.__RADIAL_VELOCITIES_ENDPOINT, object_name]),

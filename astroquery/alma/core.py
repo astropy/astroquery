@@ -295,7 +295,7 @@ class AlmaClass(QueryWithLogin):
             Return only publicly available datasets?
         science : bool
             Return only data marked as "science" in the archive?
-        legacy_columns: bool
+        legacy_columns : bool
             True to return the columns from the obsolete ALMA advanced query,
             otherwise return the current columns based on ObsCore model.
 
@@ -303,7 +303,7 @@ class AlmaClass(QueryWithLogin):
         -------
 
         Table with results. Columns are those in the ALMA ObsCore model
-        (see `help_tap`) unless `legacy_columns` argument is set to True.
+        (see ``help_tap``) unless ``legacy_columns`` argument is set to True.
         """
         local_args = dict(locals().items())
 
@@ -381,7 +381,7 @@ class AlmaClass(QueryWithLogin):
 
         Returns
         -------
-        Results in `pyvo.dal.sia2.SiaResult` format.
+        Results in `pyvo.dal.SIAResults` format.
         result.table in Astropy table format
         """
         return self.sia.search(

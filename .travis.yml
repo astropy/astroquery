@@ -83,7 +83,7 @@ jobs:
         - os: linux
           name: Docs build
           stage: Test docs, astropy dev, and without optional dependencies
-          env: SETUP_CMD='build_docs -w'
+          env: SETUP_CMD='build_docs -w' PIP_DEPENDENCIES="$PIP_DEPENDENCIES sphinx-astropy"
 
         # Try all python versions and Numpy versions. Since we can assume
         # that the Numpy developers have taken care of testing Numpy with
