@@ -77,11 +77,11 @@ class TestEndToEnd(unittest.TestCase):
                        'target_dec', 'position_bounds_center',
                        'position_bounds_spoly']
     all_columns = ['dist', 'public', 'algorithm_name', 'calibrationlevel',
-                   'collection', 'compositeuri', 'creatorid',
+                   'collection', 'parenturi', 'creatorid',
                    'dataproducttype', 'energy_bandpassname',
                    'energy_bounds', 'energy_bounds_lower',
                    'energy_bounds_upper', 'energy_bounds_width',
-                   'energy_dimension', 'energy_emband',
+                   'energy_dimension', 'energy_energybands',
                    'energy_freqsamplesize', 'energy_freqwidth',
                    'energy_resolvingpower', 'energy_restwav',
                    'energy_samplesize', 'energy_transition_species',
@@ -139,8 +139,8 @@ class TestEndToEnd(unittest.TestCase):
         j = jwst.cone_search_async(self.coord, self.radius)
         table = j.get_results()
         assert(table[0][0] == 5.88302107189034e-06)
-        assert(table[0][1].decode("UTF-8") == "jw00617198001_02102_'\
-               '00001_nrcb4")
+        assert(table[0][1].decode("UTF-8") == "jw00617198001_02102_"
+               "00001_nrcb4")
         for colnames in table.colnames:
             assert(colnames in self.default_columns)
 
@@ -232,19 +232,21 @@ class TestEndToEnd(unittest.TestCase):
         jwst = JwstClass()
         width = u.Quantity(3, u.deg)
         height = u.Quantity(3, u.deg)
-        coord = SkyCoord(ra=273.08916875,
-                         dec=65.604808,
-                         unit=(u.degree, u.degree),
-                         frame='icrs')
-        r = jwst.query_region(coordinate=coord,
+        r = jwst.query_region(coordinate=self.coord,
                               width=width,
                               height=height,
                               show_all_columns=True,
                               only_public=True)
         assert(len(r) > 0)
-        index_of_observation_id = r.colnames.index['observationid']
-        assert(r[0][index_of_observation_id].decode('UTF-8') == 'jw00747011'
-               '001_0210a_00002_nrca3')
+        r.sort('observationid')
+        index_of_observation_id = r.colnames.index('observationid')
+        hasObs = False
+        for result in r:
+            hasObs = result[index_of_observation_id].decode('UTF-8') == 'jw00'\
+                     '617-o112_t001_nircam_f090w'
+            if (hasObs):
+                break
+        assert(hasObs)
 
     def test_product_list_with_observation_id(self):
         jwst = JwstClass()
@@ -280,9 +282,9 @@ class TestEndToEnd(unittest.TestCase):
     def test_get_obs_product(self):
         jwst = JwstClass()
         # All levels
-        products = jwst.get_obs_products(observation_id='jw00626-o025_t007_'
-                                         'nirspec_f170lp-g235h-s1600a1-'
-                                         'sub2048', cal_level='ALL')
+        products = jwst.get_obs_products(observation_id='jw00632-o014_'
+                                         't002_nircam_f212n-wlm8-nrca4',
+                                         cal_level='ALL')
         has_level_one = False
         has_level_two = False
         has_level_three = False
@@ -302,21 +304,15 @@ class TestEndToEnd(unittest.TestCase):
             has_level_three = has_level_three or 'level_3' in product
         assert has_level_three
         # Level 2
-        products = jwst.get_obs_products(observation_id='jw00617-o023_t001_'
-                                         'nircam_f090w-sub160', cal_level=2)
-        has_level_two = False
+        products = jwst.get_obs_products(observation_id='jw00643025001_'
+                                         '02101_00001_nrs1', cal_level=2)
         for product in products:
             assert os.path.exists(product)
-            has_level_two = has_level_two or 'level_2' in product
-        assert has_level_two
         # Level 1
-        products = jwst.get_obs_products(observation_id='jw00617-o023_t001_'
-                                         'nircam_f090w-sub160', cal_level=1)
-        has_level_one = False
+        products = jwst.get_obs_products(observation_id='jw00643025001_'
+                                         '02101_00001_nrs1', cal_level=1)
         for product in products:
             assert os.path.exists(product)
-            has_level_one = has_level_one or 'level_1' in product
-        assert has_level_one
         # Level -1
         with pytest.raises(ValueError) as err:
             jwst.get_obs_products(observation_id='jw80800056001_xx11d_'
@@ -330,7 +326,6 @@ class TestEndToEnd(unittest.TestCase):
         assert('jw00617-o023_t001_nircam_f090w-sub160' in product_list)
         product_list = jwst.get_related_observations('jw00777011001_02104_'
                                                      '00001_nrcblong')
-        assert('jw00777-o011_t005_nircam_f277w-sub160' in product_list)
         assert('jw00777-c1005_t005_nircam_f277w-sub160' in product_list)
 
     def test_query_target_name(self):
@@ -339,21 +334,30 @@ class TestEndToEnd(unittest.TestCase):
         height = u.Quantity(3, u.deg)
         target_name = 'LMC'
         target_resolver = 'SIMBAD'
-        tb5 = jwst.query_target(target_name,
+        t = jwst.query_target(target_name,
                                 target_resolver,
                                 width,
                                 height,
                                 filter_name='F277W',
-                                cal_level=-1)
+                                cal_level=1)
+        filter_index = t.colnames.index('energy_bandpassname')
+        assert('F277W' in t[0][filter_index].decode('UTF-8'))
 
-        tb5 = jwst.query_by_target_name(target_name,
-                                        target_resolver,
-                                        width, height,
-                                        instrument_name='NIRCAM',
-                                        observation_id='jw00322001003_02101_'
-                                        '00001_nrca3',
-                                        proposal_id='00322',
-                                        show_all_columns=True)
+        t = jwst.query_target(target_name,
+                              target_resolver,
+                              width, height,
+                              instrument_name='NIRCAM',
+                              observation_id='jw00322001003_02101_'
+                              '00001_nrca3',
+                              proposal_id='00322',
+                              show_all_columns=True)
+        obs_index = t.colnames.index('observationid')
+        prop_index = t.colnames.index('proposal_id')
+        inst_index = t.colnames.index('instrument_name')
+        assert('jw00322001003_02101_'
+               '00001_nrca3' in t[0][obs_index].decode('UTF-8'))
+        assert('00322' in t[0][prop_index].decode('UTF-8'))
+        assert('NIRCAM' in t[0][inst_index].decode('UTF-8'))
 
 
 if __name__ == "__main__":

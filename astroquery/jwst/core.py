@@ -1119,8 +1119,8 @@ class JwstClass(object):
                             "product_planeid, mp.calibrationlevel as "\
                             "product_level FROM {0} o JOIN {1} p on "\
                             "o.obsid=p.obsid JOIN {2} m on "\
-                            "o.obsid=m.compositeid JOIN {0} "\
-                            "mo on m.simpleid=mo.observationuri JOIN "\
+                            "o.obsid=m.parentid JOIN {0} "\
+                            "mo on m.memberid=mo.observationuri JOIN "\
                             "{1} mp on mo.obsid=mp.obsid {3}'{4}'"\
                             .format(self.JWST_OBSERVATION_TABLE,
                                     self.JWST_PLANE_TABLE,
