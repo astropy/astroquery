@@ -270,7 +270,8 @@ class Job(object):
             flag to display information about the process
         """
         if self.__resultInMemory:
-            print("Saving results to: %s" % self.outputFile)
+            if verbose:
+                print("Saving results to: %s" % self.outputFile)
             self.results.to_xml(self.outputFile)
         else:
             if not self.async_:

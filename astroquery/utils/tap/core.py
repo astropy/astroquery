@@ -181,10 +181,12 @@ class Tap(object):
         self.__connHandler.check_launch_response_status(response,
                                                         verbose,
                                                         200)
-        print("Parsing table '{}'...".format(table))
+        if verbose:
+            print("Parsing table '{}'...".format(table))
         tsp = TableSaxParser()
         tsp.parseData(response)
-        print("Done.")
+        if verbose:
+            print("Done.")
         return tsp.get_table()
 
     def __load_tables(self, only_names=False, include_shared_tables=False,
@@ -326,7 +328,8 @@ class Tap(object):
             responseBytes = response.read()
             responseStr = responseBytes.decode('utf-8')
             if dump_to_file:
-                print("Saving error to: %s" % suitableOutputFile)
+                if verbose:
+                    print("Saving error to: %s" % suitableOutputFile)
                 self.__connHandler.dump_to_file(suitableOutputFile,
                                                 responseStr)
             raise requests.exceptions.HTTPError(
@@ -336,7 +339,8 @@ class Tap(object):
             if verbose:
                 print("Retrieving sync. results...")
             if dump_to_file:
-                print("Saving results to: %s" % suitableOutputFile)
+                if verbose:
+                    print("Saving results to: %s" % suitableOutputFile)
                 self.__connHandler.dump_to_file(suitableOutputFile, response)
             else:
                 results = utils.read_http_response(response, output_format)
@@ -424,7 +428,8 @@ class Tap(object):
             job.failed = True
             job.set_phase('ERROR')
             if dump_to_file:
-                print("Saving error to: %s" % suitableOutputFile)
+                if verbose:
+                    print("Saving error to: %s" % suitableOutputFile)
                 self.__connHandler.dump_to_file(suitableOutputFile,
                                                 response)
             raise requests.exceptions.HTTPError(response.reason)
@@ -814,7 +819,8 @@ class TapPlus(Tap):
         A table object if output_file is None.
         None if output_file is not None.
         """
-        print("Retrieving data.")
+        if verbose:
+            print("Retrieving data.")
         connHandler = self.__getconnhandler()
         if not isinstance(params_dict, dict):
             raise ValueError("Parameters dictionary expected")
@@ -827,12 +833,14 @@ class TapPlus(Tap):
         connHandler.check_launch_response_status(response,
                                                  verbose,
                                                  200)
-        print("Reading...")
+        if verbose:
+            print("Reading...")
         if output_file is not None:
             file = open(output_file, "wb")
             file.write(response.read())
             file.close()
-            print("Done.")
+            if verbose:
+                print("Done.")
             return None
         else:
             if 'format' in params_dict:
@@ -843,7 +851,8 @@ class TapPlus(Tap):
                 else:
                     output_format = "votable"
             results = utils.read_http_response(response, output_format)
-            print("Done.")
+            if verbose:
+                print("Done.")
             return results
 
     def load_groups(self, verbose=False):
@@ -867,7 +876,8 @@ class TapPlus(Tap):
         connHandler.check_launch_response_status(response,
                                                  verbose,
                                                  200)
-        print("Parsing groups...")
+        if verbose:
+            print("Parsing groups...")
         gsp = GroupSaxParser()
         gsp.parseData(response)
         print("Done. " + str(gsp.get_groups().__len__()) + " groups found")
@@ -921,7 +931,8 @@ class TapPlus(Tap):
         connHandler.check_launch_response_status(response,
                                                  verbose,
                                                  200)
-        print("Parsing shared items...")
+        if verbose:
+            print("Parsing shared items...")
         ssp = SharedItemsSaxParser()
         ssp.parseData(response)
         print("Done. " + str(ssp.get_shared_items().__len__()) +
@@ -1022,6 +1033,7 @@ class TapPlus(Tap):
         connHandler.check_launch_response_status(response,
                                                  verbose,
                                                  200)
+
         msg = "Stop sharing table '" + str(table_name) + "' to group '" + \
             str(group_name) + "'."
         print(msg)
@@ -1242,7 +1254,8 @@ class TapPlus(Tap):
         -------
         A table object
         """
-        print("Retrieving datalink.")
+        if verbose:
+            print("Retrieving datalink.")
         if ids is None:
             raise ValueError("Missing mandatory argument 'ids'")
         if isinstance(ids, six.string_types):
@@ -1263,7 +1276,8 @@ class TapPlus(Tap):
         connHandler.check_launch_response_status(response,
                                                  verbose,
                                                  200)
-        print("Done.")
+        if verbose:
+            print("Done.")
         results = utils.read_http_response(response, "votable")
 
         return results

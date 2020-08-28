@@ -33,6 +33,8 @@ from astropy.io import fits
 from astropy.table import Table
 from astropy import units as u
 
+from ..cadc.core import logger
+
 
 class GaiaClass(TapPlus):
     """
@@ -91,22 +93,22 @@ class GaiaClass(TapPlus):
             flag to display information about the process
         """
         try:
-            print("Login to gaia TAP server")
+            logger.info("Login to gaia TAP server")
             TapPlus.login(self, user=user, password=password,
                           credentials_file=credentials_file,
                           verbose=verbose)
         except HTTPError as err:
-            print("Error logging in TAP server")
+            logger.error("Error logging in TAP server")
             return
         u = self._TapPlus__user
         p = self._TapPlus__pwd
         try:
-            print("Login to gaia data server")
+            logger.info("Login to gaia data server")
             TapPlus.login(self.__gaiadata, user=u, password=p,
                           verbose=verbose)
         except HTTPError as err:
-            print("Error logging in data server")
-            print("Logging out from TAP server")
+            logger.error("Error logging in data server")
+            logger.error("Logging out from TAP server")
             TapPlus.logout(self, verbose=verbose)
 
     def login_gui(self, verbose=False):
@@ -118,20 +120,20 @@ class GaiaClass(TapPlus):
             flag to display information about the process
         """
         try:
-            print("Login to gaia TAP server")
+            logger.info("Login to gaia TAP server")
             TapPlus.login_gui(self, verbose=verbose)
         except HTTPError as err:
-            print("Error logging in TAP server")
+            logger.error("Error logging in TAP server")
             return
         u = self._TapPlus__user
         p = self._TapPlus__pwd
         try:
-            print("Login to gaia data server")
+            logger.info("Login to gaia data server")
             TapPlus.login(self.__gaiadata, user=u, password=p,
                           verbose=verbose)
         except HTTPError as err:
-            print("Error logging in data server")
-            print("Logging out from TAP server")
+            logger.error("Error logging in data server")
+            logger.error("Logging out from TAP server")
             TapPlus.logout(self, verbose=verbose)
 
     def logout(self, verbose=False):
@@ -145,27 +147,18 @@ class GaiaClass(TapPlus):
         try:
             TapPlus.logout(self, verbose=verbose)
         except HTTPError as err:
-            print("Error logging out TAP server")
+            logger.error("Error logging out TAP server")
             return
-        print("Gaia TAP server logout OK")
+        logger.info("Gaia TAP server logout OK")
         try:
             TapPlus.logout(self.__gaiadata, verbose=verbose)
-            print("Gaia data server logout OK")
+            logger.info("Gaia data server logout OK")
         except HTTPError as err:
-            print("Error logging out data server")
+            logger.error("Error logging out data server")
 
-    def load_data(self,
-                  ids,
-                  data_release=None,
-                  data_structure='INDIVIDUAL',
-                  retrieval_type="ALL",
-                  valid_data=True,
-                  band=None,
-                  avoid_datatype_check=False,
-                  format="votable",
-                  output_file=None,
-                  overwrite_output_file=False,
-                  verbose=False):
+    def load_data(self, ids, data_release=None, data_structure='INDIVIDUAL', retrieval_type="ALL", valid_data=True,
+                  band=None, avoid_datatype_check=False, format="votable", output_file=None,
+                  overwrite_output_file=False, verbose=False):
         """Loads the specified table
         TAP+ only
 
@@ -217,19 +210,18 @@ class GaiaClass(TapPlus):
 
         now = datetime.now()
         now_formatted = now.strftime("%Y%m%d_%H%M%S")
+        temp_dirname = "temp_" + now_formatted
+        downloadname_formated = "download_" + now_formatted
 
         output_file_specified = False
         if output_file is None:
-            output_file = os.getcwd() + os.sep + "temp_" + \
-                          now_formatted + os.sep + \
-                          "download_" + now_formatted
+            output_file = os.path.join(os.getcwd(), temp_dirname, downloadname_formated)
         else:
             output_file_specified = True
             output_file = os.path.abspath(output_file)
             if not overwrite_output_file and os.path.exists(output_file):
-                raise ValueError("%s file already exists. "
-                                 "Please use overwrite_output_file='False' "
-                                 "to overwrite output file." % output_file)
+                raise ValueError(f"{output_file} file already exists. Please use overwrite_output_file='False' to "
+                                 f"overwrite output file.")
 
         path = os.path.dirname(output_file)
 
@@ -240,10 +232,8 @@ class GaiaClass(TapPlus):
             # we need to check params
             rt = str(retrieval_type).upper()
             if rt != 'ALL' and rt not in self.VALID_DATALINK_RETRIEVAL_TYPES:
-                raise ValueError("Invalid mandatory argument 'retrieval_type'."
-                                 " Found '%s', expected: 'ALL' or any of %r" %
-                                 (retrieval_type,
-                                  self.VALID_DATALINK_RETRIEVAL_TYPES))
+                raise ValueError(f"Invalid mandatory argument 'retrieval_type'. Found {retrieval_type}, "
+                                 f"expected: 'ALL' or any of {self.VALID_DATALINK_RETRIEVAL_TYPES}")
 
         params_dict = {}
 
@@ -277,9 +267,9 @@ class GaiaClass(TapPlus):
             try:
                 os.mkdir(path)
             except FileExistsError:
-                print("Path %s already exist" % path)
+                logger.error("Path %s already exist" % path)
             except OSError:
-                print("Creation of the directory %s failed" % path)
+                logger.error("Creation of the directory %s failed" % path)
 
         try:
             self.__gaiadata.load_data(params_dict=params_dict,
@@ -290,12 +280,13 @@ class GaiaClass(TapPlus):
             raise err
         finally:
             if not output_file_specified:
-                shutil.rmtree(path)
+             shutil.rmtree(path)
 
-        if output_file_specified:
-            print("output_file =", output_file)
+        if verbose:
+            if output_file_specified:
+                logger.info("output_file =", output_file)
 
-        print("List of products available:")
+        logger.debug("List of products available:")
         # for key, value in files.items():
         # print("Product =", key)
 
@@ -303,7 +294,8 @@ class GaiaClass(TapPlus):
         items.sort()
         for item in items:
             # print(f'* {item}')
-            print("Product = " + item)
+            if verbose:
+                logger.debug("Product = " + item)
 
         return files
 
@@ -431,14 +423,10 @@ class GaiaClass(TapPlus):
                       )
                     ORDER BY
                       dist ASC
-                    """.format(**{
-                'row_limit': "TOP {0}".format(self.ROW_LIMIT) if self.ROW_LIMIT > 0 else "",
-                'ra_column': self.MAIN_GAIA_TABLE_RA,
-                'dec_column': self.MAIN_GAIA_TABLE_DEC,
-                'columns': columns, 'table_name': self.MAIN_GAIA_TABLE,
-                'ra': ra, 'dec': dec, 'width': widthDeg.value, 'height': heightDeg.value,
-            })
-
+                    """.format(**{'row_limit': "TOP {0}".format(self.ROW_LIMIT) if self.ROW_LIMIT > 0 else "",
+                                  'ra_column': self.MAIN_GAIA_TABLE_RA, 'dec_column': self.MAIN_GAIA_TABLE_DEC,
+                                  'columns': columns, 'table_name': self.MAIN_GAIA_TABLE, 'ra': ra, 'dec': dec,
+                                  'width': widthDeg.value, 'height': heightDeg.value})
             if async_job:
                 job = self.launch_job_async(query, verbose=verbose)
             else:
@@ -469,9 +457,7 @@ class GaiaClass(TapPlus):
         -------
         The job results (astropy.table).
         """
-        return self.__query_object(coordinate, radius, width, height,
-                                   async_job=False, verbose=verbose,
-                                   columns=columns)
+        return self.__query_object(coordinate, radius, width, height, async_job=False, verbose=verbose, columns=columns)
 
     def query_object_async(self, coordinate, radius=None, width=None,
                            height=None, verbose=False, columns=[]):
@@ -497,9 +483,7 @@ class GaiaClass(TapPlus):
         -------
         The job results (astropy.table).
         """
-        return self.__query_object(coordinate, radius, width, height,
-                                   async_job=True, verbose=verbose,
-                                   columns=columns)
+        return self.__query_object(coordinate, radius, width, height, sync_job=True, verbose=verbose, columns=columns)
 
     def __cone_search(self, coordinate, radius, table_name=MAIN_GAIA_TABLE,
                       ra_column_name=MAIN_GAIA_TABLE_RA,
@@ -575,14 +559,10 @@ class GaiaClass(TapPlus):
                   )
                 ORDER BY
                   dist ASC
-                """.format(**{
-            'ra_column': ra_column_name,
-            'row_limit': "TOP {0}".format(self.ROW_LIMIT) if self.ROW_LIMIT > 0 else "",
-            'dec_column': dec_column_name,
-            'columns': columns, 'ra': ra,
-            'dec': dec, 'radius': radiusDeg,
-            'table_name': table_name
-        })
+                """.format(**{'ra_column': ra_column_name,
+                              'row_limit': "TOP {0}".format(self.ROW_LIMIT) if self.ROW_LIMIT > 0 else "",
+                              'dec_column': dec_column_name, 'columns': columns, 'ra': ra, 'dec': dec,
+                              'radius': radiusDeg, 'table_name': table_name})
 
         if async_job:
             return self.launch_job_async(query=query,
@@ -703,15 +683,14 @@ class GaiaClass(TapPlus):
 
     def __checkQuantityInput(self, value, msg):
         if not (isinstance(value, str) or isinstance(value, units.Quantity)):
-            raise ValueError(
-                str(msg) + " must be either a string or astropy.coordinates")
+            raise ValueError(f"{msg} must be either a string or astropy coordinates")
 
     def __getQuantityInput(self, value, msg):
         if value is None:
-            raise ValueError("Missing required argument: '" + str(msg) + "'")
+            raise ValueError(f"Missing required argument: {msg}")
         if not (isinstance(value, str) or isinstance(value, units.Quantity)):
-            raise ValueError(
-                str(msg) + " must be either a string or astropy.coordinates")
+            raise ValueError(f"{msg} must be either a string or astropy.coordinates")
+
         if isinstance(value, str):
             q = Quantity(value)
             return q
@@ -721,14 +700,12 @@ class GaiaClass(TapPlus):
     def __checkCoordInput(self, value, msg):
         if not (isinstance(value, str) or isinstance(value,
                                                      commons.CoordClasses)):
-            raise ValueError(
-                str(msg) + " must be either a string or astropy.coordinates")
+            raise ValueError(f"{msg} must be either a string or astropy.coordinates")
 
     def __getCoordInput(self, value, msg):
         if not (isinstance(value, str) or isinstance(value,
                                                      commons.CoordClasses)):
-            raise ValueError(
-                str(msg) + " must be either a string or astropy.coordinates")
+            raise ValueError(f"{msg} must be either a string or astropy.coordinates")
         if isinstance(value, str):
             c = commons.parse_coordinates(value)
             return c
@@ -801,30 +778,27 @@ class GaiaClass(TapPlus):
         if results_table_name is None:
             raise ValueError("Results table name argument is mandatory")
         if radius < 0.1 or radius > 10.0:
-            raise ValueError("Invalid radius value. Found " + str(radius) +
-                             ", valid range is: 0.1 to 10.0")
+            raise ValueError(f"Invalid radius value. Found {radius}, valid range is: 0.1 to 10.0")
+
         schemaA = taputils.get_schema_name(full_qualified_table_name_a)
         if schemaA is None:
-            raise ValueError("Not found schema name in " +
-                             "full qualified table A: '" +
-                             full_qualified_table_name_a + "'")
+            raise ValueError(f"Not found schema name in full qualified table A: '{full_qualified_table_name_a}'")
         tableA = taputils.get_table_name(full_qualified_table_name_a)
         schemaB = taputils.get_schema_name(full_qualified_table_name_b)
+
         if schemaB is None:
-            raise ValueError("Not found schema name in " +
-                             "full qualified table B: '" +
-                             full_qualified_table_name_b + "'")
+            raise ValueError(f"Not found schema name in full qualified table B: '{full_qualified_table_name_b}'")
+
         tableB = taputils.get_table_name(full_qualified_table_name_b)
+
         if taputils.get_schema_name(results_table_name) is not None:
-            raise ValueError("Please, do not specify schema for " +
-                             "'results_table_name'")
-        query = "SELECT crossmatch_positional(\
-            '" + schemaA + "','" + tableA + "',\
-            '" + schemaB + "','" + tableB + "',\
-            " + str(radius) + ",\
-            '" + str(results_table_name) + "')\
-            FROM dual;"
+            raise ValueError("Please, do not specify schema for 'results_table_name'")
+
+        query = f"SELECT crossmatch_positional('{schemaA}','{tableA}','{schemaB}','{tableB}',{radius}, " \
+                f"'{results_table_name}') FROM dual;"
+
         name = str(results_table_name)
+
         return self.launch_job_async(query=query,
                                      name=name,
                                      output_file=None,
