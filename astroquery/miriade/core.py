@@ -97,7 +97,7 @@ class MiriadeClass(BaseQuery):
         --------
             >>> from astroquery.miriade import Miriade
             >>> ceres = Miriade.ephemerides(name='a:Ceres', observer='568',
-            ...                            ep='2017-01-01', nbd=31)
+            ...                            ep='2017-01-01', nbd=31) # doctest: +REMOTE_DATA
             >>> print(ceres)  # doctest: +SKIP
             Date UTC (Y-M-D h:m:s)   RA (h m s)  ... muDE (arcsec/min) Dist_dot (km/s)
             ---------------------- ------------- ... ----------------- ---------------

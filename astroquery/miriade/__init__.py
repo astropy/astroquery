@@ -37,6 +37,7 @@ class Conf(_config.ConfigNamespace):
                    'Dist_dot (km/s)': ('r_dot', 'km/second')
                    }
 
+
 conf = Conf()
 
 from .core import Miriade, MiriadeClass

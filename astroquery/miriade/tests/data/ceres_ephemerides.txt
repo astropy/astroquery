@@ -1,0 +1,2 @@
+# Date UTC (Y-M-D h:m:s), RA (h m s), DE (deg arcmin arcs, Distance (au), V Mag, Phase (o), Sun elong (o), muRAcosDE (arcsec/min), muDE (arcsec/min), Dist_dot (km/s)
+  2000-01-01T00:00:00.00,12 34 48.65777,+09  5 53.9313,  2.263149914,  8.2919, 22.5623, 95.4059, 0.5735E+00,-0.4472E-01, -21.93905
