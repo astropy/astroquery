@@ -59,13 +59,13 @@ class TestTap(unittest.TestCase):
                       frame='icrs')
         with pytest.raises(ValueError) as err:
             tap.query_object(sc)
-        assert "Missing required argument: 'width'" in err.value.args[0]
+        assert "Missing required argument: width" in err.value.args[0]
 
         width = Quantity(12, u.deg)
 
         with pytest.raises(ValueError) as err:
             tap.query_object(sc, width=width)
-        assert "Missing required argument: 'height'" in err.value.args[0]
+        assert "Missing required argument: height" in err.value.args[0]
 
         height = Quantity(10, u.deg)
         table = tap.query_object(sc, width=width, height=height)
@@ -372,8 +372,9 @@ class TestTap(unittest.TestCase):
         verbose = True
         data_structure = "INDIVIDUAL"
         output_file = os.path.abspath("output_file")
-        if not output_file.endswith("gaia/test/output_file"):
-            output_file = os.path.abspath("gaia/test/output_file")
+        path_to_end_with = os.path.join("gaia", "test", "output_file")
+        if not output_file.endswith(path_to_end_with):
+            output_file = os.path.abspath(path_to_end_with)
 
         params_dict = {}
         params_dict['VALID_DATA'] = "true"
