@@ -1,7 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 
-from collections import OrderedDict
 import warnings
 from io import BytesIO
 
@@ -29,6 +28,12 @@ class MiriadeClass(BaseQuery):
     _query_uri = None  # uri used in query
     _get_raw_response = False
 
+    TYPES = ('Asteroid', 'Comet', 'Dwarf Planet', 'Planet', 'Satellite')
+    TSCALE = ('UTC', 'TT')
+    THEORY = ('INPOP', 'DE405', 'DE406')
+    RPLANE = {'equator': 1, 'ecliptic': 2}
+    OSCELEM = ('astorb', 'mpcorb', 'mpcorb/nea')
+
     @property
     def uri(self):
         """
@@ -38,7 +43,7 @@ class MiriadeClass(BaseQuery):
 
     def get_ephemerides_async(self, targetname, objtype='asteroid',
                               epoch=None, epoch_step='1d', epoch_nsteps=1,
-                              location=500, coordtype=1,
+                              location='500', coordtype=1,
                               timescale='UTC',
                               planetary_theory='INPOP',
                               ephtype=1,
@@ -238,6 +243,61 @@ class MiriadeClass(BaseQuery):
         URL = conf.ephemcc_server
         TIMEOUT = conf.timeout
 
+        request_payload = dict()
+
+        # check for required information
+        if targetname is None:
+            raise ValueError("'targetname' parameter not set. Query aborted.")
+        else:
+            request_payload['-name'] = targetname
+
+        if objtype.title() in self.TYPES:
+            request_payload['-type'] = objtype
+        elif objtype is not None:
+            raise ValueError("Invalid objtype specified.  Allowed types "
+                             "are {0}".format(str(self.TYPES)))
+
+        if epoch_nsteps >= 1 and epoch_nsteps <= 5000:
+            request_payload['-nbd'] = epoch_nsteps
+        else:
+            raise ValueError("Invalid nbd specified. 1 <= epoch_nsteps <= 5000")
+
+        if (epoch_step[-1] in ('d', 'h', 'm', 's') and
+            epoch_step[:-1].replace('.', '', 1).isdigit()):
+            request_payload['-step'] = epoch_step
+        else:
+            raise ValueError("Invalid epoch_step specified. Step (float) "
+                             "followed by one of (d)ays or (h)ours or "
+                             "(m)inutes or (s)econds")
+
+        if timescale in self.TSCALE:
+            request_payload['-tscale'] = timescale
+        else:
+            raise ValueError("Invalid timescale specified.  Allowed types "
+                             "are {0}".format(str(self.TSCALE)))
+
+        if planetary_theory in self.THEORY:
+            request_payload['-theory'] = planetary_theory
+        else:
+            raise ValueError("Invalid planetary_theory specified.  Allowed "
+                             "types are {0}".format(str(self.THEORY)))
+
+        if ephtype in range(1, 5):
+            request_payload['-teph'] = ephtype
+        else:
+            raise ValueError("Invalid ephtype specified. 1 <= teph <= 4")
+
+        if coordtype in range(1, 7):
+            request_payload['-tcoor'] = coordtype
+        else:
+            raise ValueError("Invalid coordtype specified. 1 <= tcoor <= 6")
+
+        if refplane in self.RPLANE:
+            request_payload['-rplane'] = self.RPLANE[refplane]
+        else:
+            raise ValueError("Invalid refplane specified. Allowed "
+                             "values are equator and ecliptic.")
+
         if isinstance(epoch, (int, float)):
             epoch = Time(epoch, format='jd')
         elif isinstance(epoch, str):
@@ -245,21 +305,10 @@ class MiriadeClass(BaseQuery):
         elif epoch is None:
             epoch = Time.now()
 
-        request_payload = OrderedDict([
-            ('-name', targetname),
-            ('-type', objtype[0].upper()+objtype[1:]),
-            ('-ep', str(epoch.jd)),
-            ('-step', epoch_step),
-            ('-nbd', epoch_nsteps),
-            ('-observer', location),
-            ('-output', '--jul'),
-            ('-tscale', timescale),
-            ('-theory', planetary_theory),
-            ('-teph', ephtype),
-            ('-tcoor', coordtype),
-            ('-rplane', {'equator': 1, 'ecliptic': 2}[refplane]),
-            ('-oscelem', elements),
-            ('-mime', 'votable')])
+        request_payload['-ep'] = str(epoch.jd)
+        request_payload['-observer'] = location
+        request_payload['-output'] = "--jul"
+        request_payload['-mime'] = "votable"
 
         if radial_velocity:
             request_payload['-output'] += ',--rv'

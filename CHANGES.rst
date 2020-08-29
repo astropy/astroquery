@@ -97,6 +97,11 @@ gaia
 - Improved code to handle bit data type. [#1784]
 - Prepared code to handle new datalink products. [#1784]
 
+imcce
+^^^^^
+ 
+- Validating parameters provided to `get_ephemerides` method [#1810]
+
 
 0.4.1 (2020-06-19)
 ==================

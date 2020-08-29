@@ -3,6 +3,7 @@
 
 import numpy.testing as npt
 import pytest
+import astropy.units as u
 
 from .. import core
 
@@ -16,9 +17,26 @@ class TestMiriadeClass:
         res = core.Miriade.get_ephemerides('Ceres', location='500',
                                            epoch=2451544.5)
 
+        # check table columns
+        cols = (('target', None),
+                ('epoch', u.d),
+                ('RA', u.deg),
+                ('DEC', u.deg),
+                ('delta', u.au),
+                ('V', u.mag),
+                ('alpha', u.deg),
+                ('elong', u.deg),
+                ('RAcosD_rate', u.arcsec/u.minute),
+                ('DEC_rate', u.arcsec/u.minute),
+                ('delta_rate', u.km/u.s))
+
+        for i in cols:
+            assert i[0] in res.columns
+            assert res[i[0]].unit == i[1]
+
         assert res['target'] == "Ceres"
 
         npt.assert_allclose(
             [2451544.5, 188.70280, 9.09829],
-            [res['epoch'][0], res['RA'][0], res['DEC'][0]],
+            list(res['epoch', 'RA', 'DEC'][0]),
             rtol=1e-5)
