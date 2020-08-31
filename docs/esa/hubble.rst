@@ -260,7 +260,9 @@ If no criteria are specified to limit the selection, this function will retrieve
 
 This will perform a cone search with radius 7 arcmins. The result of the
 query will be returned and stored in the votable file
-'cone_search_m31_5.vot'.
+'cone_search_m31_5.vot'. If no filename is defined and the "save" tag is True,
+the module will provide a default name. It is also possible to store only the results
+in memory, without defining neither a filename nor the "save" tag.
 
 
 -------------------------------

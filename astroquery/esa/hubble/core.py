@@ -215,14 +215,42 @@ class ESAHubbleClass(BaseQuery):
         shutil.move(response, filename)
 
     def cone_search(self, coordinates, radius=0.0, filename=None,
-                    output_format='votable', cache=True):
+                    output_format='votable', save=False, cache=True):
         """
+        To execute a cone search defined by a coordinate and a radius
+
+        Parameters
+        ----------
+        coordinates : astropy.coordinate, mandatory
+            coordinates of the center in the cone search
+        radius : float, default 0
+            radius in arcmin of the cone_search
+        filename : str, default None
+            Path and name of the file to store the results.
+            If the filename is defined, the file will be
+            automatically saved
+        output_format : string
+            results format. Options are:
+            'votable': str, binary VOTable format
+            'csv': str, comma-separated values format
+        save : bool
+            optional, default 'False'
+            Flag to save the result in a file. If the filename
+            is not defined, it will use a formatted name to save
+            the file
+        cache : bool
+            optional, default 'True'
+            Flag to save the results in the local cache
+
+        Returns
+        -------
+        astropy.table.Table with the result of the cone_search
         """
         coord = self._getCoordInput(coordinates, "coordinate")
-        radiusInGrades = float(radius/60)  # Converts to degrees
+        radius_in_grades = float(radius/60)  # Converts to degrees
 
-        raHours, dec = commons.coord_to_radec(coord)
-        ra = raHours * 15.0  # Converts to degrees
+        ra_hours, dec = commons.coord_to_radec(coord)
+        ra = ra_hours * 15.0  # Converts to degrees
         payload = {"RESOURCE_CLASS": "OBSERVATION",
                    "ADQLQUERY": "SELECT DISTINCT OBSERVATION,OBSERVATION.TYPE,"
                    "TARGET.MOVING_TARGET"
@@ -243,22 +271,26 @@ class ESAHubbleClass(BaseQuery):
                    "  AND  INTERSECTS(CIRCLE('ICRS', {0}, {1}, {2}"
                    "),POSITION)=1  AND  PLANE.MAIN_SCIENCE_PLANE='true' "
                    "ORDER BY PROPOSAL.PROPOSAL_ID "
-                   "DESC".format(str(ra), str(dec), str(radiusInGrades)),
+                   "DESC".format(str(ra), str(dec), str(radius_in_grades)),
                    "RETURN_TYPE": str(output_format)}
         response = self._request('GET',
                                  self.metadata_url,
                                  params=payload,
+                                 save=save or filename is not None,
                                  cache=cache,
                                  timeout=self.TIMEOUT)
-
-        if filename is None:
-            filename = "cone." + str(output_format)
-
         if response is None:
             table = None
         else:
-            fileobj = BytesIO(response.content)
-            table = Table.read(fileobj, format=output_format)
+            if save or filename is not None:
+                if filename is None:
+                    filename = "cone." + str(output_format)
+                shutil.move(response, filename)
+                table = Table.read(filename, format=output_format)
+                log.info("File has been saved in " + os.path.abspath(filename))
+            else:
+                fileobj = BytesIO(response.content)
+                table = Table.read(fileobj, format=output_format)
             # TODO: add "correct units" material here
 
         return table
@@ -504,7 +536,7 @@ class ESAHubbleClass(BaseQuery):
             table = job.get_results()
         except Exception:
             raise ValueError('There are not HAP observations in this DB')
-        
+
         return table
 
     def get_hap_proposals(self, async_job=True, output_file=None,
