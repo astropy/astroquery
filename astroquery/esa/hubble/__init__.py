@@ -24,6 +24,10 @@ class Conf(_config.ConfigNamespace):
                                          "ehst-sl-server/servlet/"
                                          "metadata-action",
                                          "Main url for retriving hst metadata")
+    TARGET_ACTION = _config.ConfigItem("http://archives.esac.esa.int/"
+                                        "ehst-sl-server/servlet/"
+                                        "targetresolver-action",
+                                        "Main url for solving targets")
     TIMEOUT = 60
 
 

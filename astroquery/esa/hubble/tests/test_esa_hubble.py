@@ -236,9 +236,12 @@ class TestESAHubble():
                        'output_format': "votable",
                        'verbose': False}
         parameters3 = {'query': "select o.*, p.calibration_level, "
-                                "p.data_product_type from ehst.observation "
-                                "AS o LEFT JOIN ehst.plane as p on "
-                                "o.observation_uuid=p.observation_uuid where("
+                                "p.data_product_type, pos.ra, pos.dec "
+                                "from ehst.observation "
+                                "AS o JOIN ehst.plane as p on "
+                                "o.observation_uuid=p.observation_uuid "
+                                "JOIN ehst.position as pos on "
+                                "p.plane_id = pos.plane_id where("
                                 "p.calibration_level LIKE '%PRODUCT%' AND "
                                 "p.data_product_type LIKE '%image%' AND "
                                 "o.intent LIKE '%SCIENCE%' AND (o.collection "
@@ -280,9 +283,12 @@ class TestESAHubble():
                        'output_format': "votable",
                        'verbose': False}
         parameters3 = {'query': "select o.*, p.calibration_level, "
-                                "p.data_product_type from ehst.observation "
-                                "AS o LEFT JOIN ehst.plane as p on "
-                                "o.observation_uuid=p.observation_uuid where("
+                                "p.data_product_type, pos.ra, pos.dec"
+                                " from ehst.observation "
+                                "AS o JOIN ehst.plane as p on "
+                                "o.observation_uuid=p.observation_uuid "
+                                "JOIN ehst.position as pos on p.plane_id "
+                                "= pos.plane_id where("
                                 "p.calibration_level LIKE '%RAW%' AND "
                                 "p.data_product_type LIKE '%image%' AND "
                                 "o.intent LIKE '%SCIENCE%' AND (o.collection "
@@ -308,6 +314,59 @@ class TestESAHubble():
                                 parameters1['verbose'],
                                 parameters1['get_query'])
         assert "Calibration level must be between 0 and 3" in err.value.args[0]
+
+    def test_cone_search_criteria(self):
+        parameters1 = {'target': "m31",
+                       'radius': 7,
+                       'data_product_type': "image",
+                       'obs_collection': ['HST'],
+                       'instrument_name': ['ACS/WFC'],
+                       'filters': ['F435W'],
+                       'async_job': False,
+                       'filename': "output_test_query_by_criteria.vot.gz",
+                       'output_format': "votable",
+                       'verbose': True}
+        test_query = "select o.*, p.calibration_level, p.data_product_type, "\
+                     "pos.ra, pos.dec from ehst.observation AS o JOIN "\
+                     "ehst.plane as p on o.observation_uuid=p.observation_"\
+                     "uuid JOIN ehst.position as pos on p.plane_id = "\
+                     "pos.plane_id where((o.collection LIKE '%HST%') AND "\
+                     "(o.instrument_name LIKE '%WFPC2%') AND "\
+                     "(o.instrument_configuration LIKE '%F606W%') AND "\
+                     "1=CONTAINS(POINT('ICRS', pos.ra, pos.dec),"\
+                     "CIRCLE('ICRS', 10.6847083, 41.26875, "\
+                     "0.11666666666666667)))"
+        parameters3 = {'query': test_query,
+                       'output_file': "output_test_query_by_criteria.vot.gz",
+                       'output_format': "votable",
+                       'verbose': False}
+        ehst = ESAHubbleClass(self.get_dummy_tap_handler())
+        query_criteria_query = "select o.*, p.calibration_level, "\
+                               "p.data_product_type, pos.ra, pos.dec from "\
+                               "ehst.observation AS o JOIN ehst.plane as p "\
+                               "on o.observation_uuid=p.observation_uuid "\
+                               "JOIN ehst.position as pos on p.plane_id = "\
+                               "pos.plane_id where((o.collection LIKE "\
+                               "'%HST%') AND (o.instrument_name LIKE "\
+                               "'%WFPC2%') AND (o.instrument_configuration "\
+                               "LIKE '%F606W%'))"
+        ehst.query_criteria = MagicMock(return_value=query_criteria_query)
+        target = {'RA_DEGREES': '10.6847083', 'DEC_DEGREES': '41.26875'}
+        ehst._query_tap_target = MagicMock(return_value=target)
+        ehst.cone_search_criteria(target=parameters1['target'],
+                                  radius=parameters1['radius'],
+                                  data_product_type=parameters1
+                                  ['data_product_type'],
+                                  obs_collection=parameters1['obs_collection'],
+                                  instrument_name=parameters1
+                                  ['instrument_name'],
+                                  filters=parameters1['filters'],
+                                  async_job=parameters1['async_job'],
+                                  filename=parameters1['filename'],
+                                  output_format=parameters1['output_format'],
+                                  verbose=parameters1['verbose'])
+        dummy_tap_handler = DummyHubbleTapHandler("launch_job", parameters3)
+        dummy_tap_handler.check_call("launch_job", parameters3)
 
     def test_query_criteria_no_params(self):
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())

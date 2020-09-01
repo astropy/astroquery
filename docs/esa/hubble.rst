@@ -264,9 +264,51 @@ query will be returned and stored in the votable file
 the module will provide a default name. It is also possible to store only the results
 in memory, without defining neither a filename nor the "save" tag.
 
+--------------------------------------
+7. Cone searches with criteria in the Hubble archive
+--------------------------------------
+
+It is also possible to perform a cone search defined by a target name or coordinates, a radius
+and a set of criteria to filter the results.
+
+.. code-block:: python
+
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = ESAHubble()
+  >>> result = esahubble.cone_search_criteria(target= 'm31',radius=7,
+                                              obs_collection=['HST'],
+                                              data_product_type = 'image',
+                                              instrument_name = ['ACS/WFC'],
+                                              filters = ['F435W'],
+                                              async_job = True,
+                                              filename = 'output1.vot.gz',
+                                              output_format="votable")
+  >>> str(table)
+
+.. code-block:: python
+
+  >>> from astropy import coordinates
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = ESAHubble()
+  >>> c = coordinates.SkyCoord("00h42m44.51s +41d16m08.45s", frame='icrs')
+  >>> result = esahubble.cone_search_criteria(coordinates=c,radius=7,
+                                              obs_collection=['HST'],
+                                              instrument_name = ['WFPC2'],
+                                              filters = ['F606W'],
+                                              async_job = True,
+                                              filename = 'output1.vot.gz',
+                                              output_format="votable",
+                                              verbose=True)
+  >>> str(table)
+
+This will perform a cone search with radius 7 arcmins around the target (defined by
+its coordinates or its name) using the filters defined when executing the function.
+
+This function allows the same parameters than the search criteria (see Section 5).
+
 
 -------------------------------
-7. Getting access to catalogues
+8. Getting access to catalogues
 -------------------------------
 
 This function provides access to the HST archive database using the Table
