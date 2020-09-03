@@ -436,7 +436,8 @@ class XMMNewtonClass(BaseQuery):
 
     def get_epic_metadata(self, *, target_name=None,
                           coordinates=None, radius=None):
-        """Downloads the EPIC metadata from a given target
+        """Downloads the European Photon Imaging Camera (EPIC)
+        metadata from a given target
 
         Parameters
         ----------
@@ -503,7 +504,10 @@ class XMMNewtonClass(BaseQuery):
                                                c.ra.degree,
                                                c.dec.degree,
                                                radius))
-        return epic_source_table, cat_4xmm_table, stack_4xmm_table, slew_source_table
+        return epic_source_table, \
+            cat_4xmm_table, \
+            stack_4xmm_table, \
+            slew_source_table
 
 
 XMMNewton = XMMNewtonClass()
