@@ -507,4 +507,5 @@ class XMMNewtonClass(BaseQuery):
         return epic_source_table, cat_4xmm_table, stack_4xmm_table, slew_source_table
 
 
+
 XMMNewton = XMMNewtonClass()
