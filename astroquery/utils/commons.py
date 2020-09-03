@@ -3,14 +3,16 @@
 Common functions and classes that are required by all query classes.
 """
 
+import collections.abc as cabc
 import re
 import warnings
 import os
+import pathlib
 import shutil
 import socket
+import typing as T
 
 import requests
-
 from six.moves.urllib_error import URLError
 import six
 import astropy.units as u
@@ -18,7 +20,9 @@ from astropy import coordinates as coord
 from collections import OrderedDict
 from astropy.utils import minversion
 import astropy.utils.data as aud
+from astropy.utils.metadata import MetaData
 from astropy.io import fits, votable
+from astropy.utils.introspection import resolve_name
 
 from astropy.coordinates import BaseCoordinateFrame
 
@@ -215,7 +219,6 @@ def coord_to_radec(coordinate):
 
 
 class TableList(list):
-
     """
     A class that inherits from `list` but included some pretty printing methods
     for an OrderedDict of `astropy.table.Table` objects.
@@ -226,9 +229,16 @@ class TableList(list):
     2
     >>> t['b']
     2
+
     """
 
-    def __init__(self, inp):
+    meta = MetaData(copy=False)
+
+    def __init__(
+        self,
+        inp,
+        **metadata
+    ):
         if not isinstance(inp, OrderedDict):
             try:
                 inp = OrderedDict(inp)
@@ -238,6 +248,9 @@ class TableList(list):
 
         self._dict = inp
         super(TableList, self).__init__(inp.values())
+
+        # meta-data
+        self.meta.update(metadata)
 
     def __getitem__(self, key):
         if isinstance(key, int):
@@ -296,6 +309,220 @@ class TableList(list):
         if kwargs != {}:
             warnings.warn("TableList is a container of astropy.Tables.", InputWarning)
         self.print_table_list()
+
+    # -----------------
+    # I/O
+
+    def _save_table_iter(self, format, **table_kw):
+        for i, name in enumerate(self.keys()):  # order-preserving
+
+            # get kwargs for table writer
+            # first get all general keys (by filtering)
+            # then update with table-specific dictionary (if present)
+            kw = {
+                k: v for k, v in table_kw.items() if not k.startswith("table_")
+            }
+            kw.update(table_kw.get("table_" + name, {}))
+
+            if isinstance(format, str):
+                fmt = format
+            else:
+                fmt = format[i]
+
+            yield name, fmt, kw
+
+    def write(
+        self,
+        drct: str,
+        format: T.Union[str, T.Sequence[str]] = "asdf",
+        split: bool = False,
+        serialize_method: T.Union[None, str, T.Mapping] = None,
+        **table_kw,
+    ):
+        """Write to ASDF.
+
+        Parameters
+        ----------
+        drct : str
+            The drct path.
+        format : str or list, optional
+            save format. default "asdf"
+            can be list of same length as TableList
+        split : bool
+            Whether to save the tables as individual drct
+            with `drct` coordinating by reference.
+            Only applies if format is "asdf"
+
+        serialize_method : str, dict, optional
+            Serialization method specifier for columns.
+
+        **table_kw
+            kwargs into each table.
+            1. dictionary with table name as key
+            2. General keys
+
+        """
+        import asdf
+
+        # -----------
+        # Path checks
+
+        path = pathlib.Path(drct)
+
+        if path.suffix == "":  # no suffix
+            path = path.with_suffix(".asdf")
+        if path.suffix != ".asdf":  # ensure only asdf
+            raise ValueError("file type must be `.asdf`")
+
+        drct = path.parent  # directory in which to save
+
+        # -----------
+        # Saving
+
+        tl = asdf.AsdfFile()
+        tl.tree["meta"] = tuple(self.meta.items())
+        tl.tree["table_names"] = tuple(self.keys())  # in order
+        tl.tree["save_format"] = "asdf"
+        tl.tree["table_type"] = tuple(
+            [
+                tp.__class__.__module__ + "." + tp.__class__.__name__
+                for tp in self.values()
+            ]
+        )
+
+        if format == "asdf" and not split:  # save as single file
+            for name in self.keys():  # add to tree
+                tl.tree[name] = self[name]
+
+        else:  # save as individual files
+            for name, fmt, kw in self._save_table_iter(format, **table_kw):
+
+                # name of table
+                table_path = drct.joinpath(name).with_suffix(".asdf")
+                if table_path.suffix == "":  # FIXME currently always
+                    table_path = table_path.with_suffix(
+                        "." + fmt.split(".")[-1]
+                    )
+
+                # internal save
+                if format == "asdf":
+                    kw["data_key"] = kw.get("data_key", name)
+                self[name].write(
+                    table_path,
+                    format=fmt,
+                    serialize_method=serialize_method,
+                    **kw,
+                )
+
+                # save by relative reference
+                if format == "asdf":
+                    with asdf.open(table_path) as f:
+                        tl.tree[name] = f.make_reference(path=[name])
+                else:
+                    tl.tree[name] = str(table_path.relative_to(drct))
+
+        tl.write_to(str(path))  # actually save
+
+    @classmethod
+    def _read_table_iter(cls, f, format, **table_kw):
+        names = f.tree["table_names"]
+        # table type, for casting
+        # so that QTableList can open a saved TableList correctly
+        # TablesList specifies no type, so must rely on saved info
+        table_type = f.tree["table_type"]
+        if not isinstance(table_type, cabc.Sequence):
+            table_type = [table_type] * len(names)
+        ttypes = [resolve_name(t) for t in table_type]
+
+        for i, name in enumerate(names):  # order-preserving
+            fmt = format if isinstance(format, str) else format[i]
+            # get kwargs for table writer
+            # first get all general keys (by filtering)
+            # then update with table-specific dictionary (if present)
+            kw = {
+                k: v for k, v in table_kw.items() if not k.startswith("table_")
+            }
+            kw.update(table_kw.get("table_" + name, {}))
+
+            yield name, ttypes[i], fmt, kw
+
+    @classmethod
+    def read(
+        cls,
+        drct: str,
+        format: T.Union[str, T.Sequence] = None,
+        suffix: T.Optional[str] = None,
+        **table_kw,
+    ):
+        """Write to ASDF.
+
+        Parameters
+        ----------
+        drct : str
+            The main directory path.
+        format : str or list, optional
+            read format. default "asdf"
+            can be list of same length as TableList
+        suffix : str, optional
+            suffix to apply to table names.
+            will be superceded by an "fnames" argument, when added
+
+        **table_kw
+            kwargs into each table.
+            1. dictionary with table name as key
+            2. General keys
+
+        """
+        import asdf
+
+        # -----------
+        # Path checks
+
+        path = pathlib.Path(drct)
+
+        if path.suffix == "":  # no suffix
+            path = path.with_suffix(".asdf")
+
+        if path.suffix != ".asdf":  # ensure only asdf
+            raise ValueError("file type must be `.asdf`.")
+
+        drct = path.parent  # directory
+
+        # -----------
+        # Read
+
+        inp = OrderedDict()
+        with asdf.open(path) as f:
+
+            # load in the metadata
+            meta = OrderedDict(f.tree["meta"])
+
+            if format is None:
+                format = f.tree["save_format"]
+
+            if format == "asdf":  # special case
+                f.resolve_references()  # for split=True
+                # iterate through tables
+                for name, ttype, fmt, kw in cls._read_table_iter(
+                    f, "asdf", **table_kw
+                ):
+                    inp[name] = ttype(f.tree[name], **kw)
+            else:
+                # iterate through tables
+                for name, reader, fmt, kw in cls._read_table_iter(
+                    f, format, **table_kw
+                ):
+                    # name of table
+                    if suffix is None:
+                        suffix = fmt.split(".")[-1]
+                    if not suffix.startswith("."):
+                        suffix = "." + suffix
+                    table_path = drct.joinpath(name).with_suffix(suffix)
+
+                    inp[name] = reader.read(str(table_path), format=fmt, **kw)
+
+        return cls(inp, **meta)
+
 
 
 def _is_coordinate(coordinates):
