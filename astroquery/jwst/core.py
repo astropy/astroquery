@@ -38,6 +38,7 @@ from . import conf
 from .data_access import JwstDataHandler
 
 from builtins import isinstance
+from astroquery.jwst.token import TokenDialog
 
 __all__ = ['Jwst', 'JwstClass']
 
@@ -947,7 +948,7 @@ class JwstClass(object):
         return self.__jwsttap.save_results(job, verbose)
 
     def login(self, user=None, password=None, credentials_file=None,
-              verbose=False):
+              token=None, verbose=False):
         """Performs a login.
         TAP+ only
         User and password can be used or a file that contains user name and
@@ -963,13 +964,17 @@ class JwstClass(object):
         credentials_file : str, mandatory if no 'user' & 'password' are
             provided
             file containing user and password in two lines
+        token: str, optional
+            MAST token to have access to propietary data
         verbose : bool, optional, default 'False'
             flag to display information about the process
         """
-        return self.__jwsttap.login(user=user,
-                                    password=password,
-                                    credentials_file=credentials_file,
-                                    verbose=verbose)
+        self.__jwsttap.login(user=user,
+                             password=password,
+                             credentials_file=credentials_file,
+                             verbose=verbose)
+        if token:
+            self.set_token(token)
 
     def login_gui(self, verbose=False):
         """Performs a login using a GUI dialog
@@ -982,6 +987,31 @@ class JwstClass(object):
         """
         return self.__jwsttap.login_gui(verbose)
 
+    def login_token_gui(self, verbose=False):
+        """Performs a login using a GUI dialog
+        TAP+ only, with an additiona field to
+        specify a token
+
+        Parameters
+        ----------
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+        """
+        connHandler = self.__jwsttap._TapPlus__getconnhandler()
+        url = connHandler.get_host_url()
+        loginDialog = TokenDialog(url)
+        loginDialog.show_login()
+        if loginDialog.is_accepted():
+            user = loginDialog.get_user()
+            pwd = loginDialog.get_password()
+            if loginDialog.get_token():
+                token = loginDialog.get_token()
+                self.login(user=user, password=pwd, token=token,
+                           verbose=verbose)
+            else:
+                self.login(user=user, password=pwd, verbose=verbose)
+            # execute login
+
     def logout(self, verbose=False):
         """Performs a logout
         TAP+ only
@@ -992,6 +1022,19 @@ class JwstClass(object):
             flag to display information about the process
         """
         return self.__jwsttap.logout(verbose)
+
+    def set_token(self, token):
+        """Links a MAST token to the logged user
+
+        Parameters
+        ----------
+        token: str, mandatory
+            MAST token to have access to propietary data
+        """
+        subcontext = 'session'
+        data = 'action=set&key=mast_token&value=' + token
+        self.__jwsttap._TapPlus__getconnhandler().execute_tappost(subcontext,
+                                                              data)
 
     def get_product_list(self, observation_id=None,
                          cal_level="ALL",

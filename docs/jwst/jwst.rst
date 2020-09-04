@@ -630,7 +630,7 @@ To remove asynchronous
 ---------------------------
 
 Authenticated users are able to access to TAP+ capabilities (shared tables, persistent jobs, etc.)
-In order to authenticate a user, ``login`` or ``login_gui`` methods must be called. After a successful
+In order to authenticate a user, ``login``, ``login_gui`` or ``login_token_gui`` methods must be called. After a successful
 authentication, the user will be authenticated until ``logout`` method is called.
 
 All previous methods (``query_object``, ``cone_search``, ``load_table``, ``load_tables``, ``launch_job``) explained for
@@ -640,12 +640,13 @@ The main differences are:
 
 * Asynchronous results are kept at server side for ever (until the user decides to remove one of them).
 * Users can access to shared tables.
+* ``login_token_gui`` allows the user to include a MAST token to download propietary data. It is also possible to set a token after logging using ``set_token`` function.
 
 
 2.1. Login/Logout
 ~~~~~~~~~~~~~~~~~
 
-Graphic interface
+Using the graphic interface:
 
 
 *Note: Tkinter module is required to use login_gui method.*
@@ -655,9 +656,14 @@ Graphic interface
   >>> from astroquery.jwst import Jwst
   >>> Jwst.login_gui()
 
+If the user wants to specify a MAST token to download propietary data:
 
-Command line
+.. code-block:: python
 
+  >>> from astroquery.jwst import Jwst
+  >>> Jwst.login_token_gui()
+
+Using the command line:
 
 .. code-block:: python
 
@@ -674,7 +680,21 @@ It is possible to use a file where the credentials are stored:
   >>> from astroquery.jwst import Jwst
   >>> Jwst.login(credentials_file='my_credentials_file')
 
+MAST tokens can also be implemented in command line functions:
 
+.. code-block:: python
+
+  >>> from astroquery.jwst import Jwst
+  >>> Jwst.login(user='userName', password='userPassword', token='mastToken')
+
+If the user is logged in and a MAST token has not been included or must be changed, it can be
+specified using the ``set_token`` function. 
+
+.. code-block:: python
+
+  >>> from astroquery.jwst import Jwst
+  >>> Jwst.login(user='userName', password='userPassword')
+  >>> Jwst.set_token(token='mastToken')
 
 To perform a logout
 
