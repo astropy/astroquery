@@ -3,8 +3,9 @@
 
 import warnings
 from io import BytesIO
+import re
 
-from astropy.table import QTable, MaskedColumn
+from astropy.table import QTable, MaskedColumn, vstack
 from astropy.io import ascii
 from astropy.time import Time
 from astropy.io.votable import parse
@@ -40,6 +41,51 @@ class MiriadeClass(BaseQuery):
         URI used in query to service.
         """
         return self._query_uri
+
+    def get_observatory_codes(self, restr=None):
+        """
+        Get a dictionary of IAU observatory codes
+
+        Parameters
+        ----------
+        restr : str
+            String to compile into an re, if specified.   Searches
+            table for observatories whose names match
+
+        Examples
+        --------
+        >>> from astroquery.imcce import Miriade
+        >>> obs = Miriade.get_observatory_codes('Green') # doctest: +REMOTE_DATA
+        >>> print(obs) # doctest: +REMOTE_DATA
+        <Table length=8>
+        Code   Long.     cos       sin                        Name
+        str3  float64  float64   float64                     str48
+        ---- --------- -------- --------- -------------------------------------------
+         000       0.0  0.62411   0.77873                                   Greenwich
+         256 280.16017 0.784451   0.61832                                  Green Bank
+         912  288.2342  0.74769   0.66186          Carbuncle Hill Observatory, Greene
+         967  358.9778  0.61508   0.78585                               Greens Norton
+         B34   33.7258  0.81748   0.57405         Green Island Observatory, Gecitkale
+         H48  265.0139  0.79424   0.60565        PSU Greenbush Observatory, Pittsburg
+         Q54 147.28772  0.73929 -0.671278 Harlingten Telescope, Greenhill Observatory
+         Z54 358.92214 0.623422  0.779306             Greenmoor Observatory, Woodcote
+        """
+        obs_codes_url = 'http://www.minorplanetcenter.net/iau/lists/ObsCodes.html'
+        if not hasattr(self, '_observatory_codes'):
+            self._observatory_codes = ascii.read(obs_codes_url,
+                                                 format='fixed_width',
+                                                 header_start=1,
+                                                 data_start=2,
+                                                 data_end=-1,
+                                                 col_starts=[0, 4, 13, 21, 30],
+                                                 col_ends=[3, 12, 20, 29, 100])
+
+        if restr is not None:
+            R = re.compile(restr)
+            return vstack([t for t in self._observatory_codes
+                           if R.search(t["Name"])])
+        else:
+            return self._observatory_codes
 
     def get_ephemerides_async(self, targetname, objtype='asteroid',
                               epoch=None, epoch_step='1d', epoch_nsteps=1,
