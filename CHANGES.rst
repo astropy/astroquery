@@ -99,8 +99,9 @@ gaia
 
 imcce
 ^^^^^
- 
-- Validating parameters provided to `get_ephemerides` method [#1810]
+
+- Validate parameters provided to `get_ephemerides` method and
+  add a helper function to retrieve IAU observatory codes. [#1810]
 
 
 0.4.1 (2020-06-19)
