@@ -40,3 +40,23 @@ class TestMiriadeClass:
             [2451544.5, 188.70280, 9.09829],
             list(res['epoch', 'RA', 'DEC'][0]),
             rtol=1e-5)
+
+    def test_observatories(self):
+        # check values of IAU observatory codes
+
+        obs = core.Miriade.get_observatory_codes()
+        obs["sum"] = obs["sin"]**2 + obs["cos"]**2
+
+        assert len(obs) == 2238
+        assert obs["Code"][-1] == 'Z99'
+        npt.assert_allclose(obs["sum"][obs["sum"] > 0], .995, rtol=1e-2)
+
+    def test_observatories_restr(self):
+        # check values of IAU observatory codes
+
+        obs = core.Miriade.get_observatory_codes(restr='Greenwich')
+
+        assert len(obs) == 1
+        assert obs["Code"][0] == '000'
+        assert obs["Name"][0] == 'Greenwich'
+        npt.assert_allclose(obs["Long."], [0.])

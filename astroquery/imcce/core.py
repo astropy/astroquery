@@ -55,7 +55,7 @@ class MiriadeClass(BaseQuery):
         Examples
         --------
         >>> from astroquery.imcce import Miriade
-        >>> obs = Miriade.get_observatory_codes('Green') # doctest: +REMOTE_DATA
+        >>> obs = Miriade.get_observatory_codes(restr='Green') # doctest: +REMOTE_DATA
         >>> print(obs) # doctest: +REMOTE_DATA
         <Table length=8>
         Code   Long.     cos       sin                        Name
@@ -70,9 +70,12 @@ class MiriadeClass(BaseQuery):
          Q54 147.28772  0.73929 -0.671278 Harlingten Telescope, Greenhill Observatory
          Z54 358.92214 0.623422  0.779306             Greenmoor Observatory, Woodcote
         """
-        obs_codes_url = 'http://www.minorplanetcenter.net/iau/lists/ObsCodes.html'
+        URL = conf.obs_codes_url
+        TIMEOUT = conf.timeout
+
+        response = self._request('GET', URL, timeout=TIMEOUT)
         if not hasattr(self, '_observatory_codes'):
-            self._observatory_codes = ascii.read(obs_codes_url,
+            self._observatory_codes = ascii.read(response.text,
                                                  format='fixed_width',
                                                  header_start=1,
                                                  data_start=2,
