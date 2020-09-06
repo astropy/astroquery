@@ -204,13 +204,74 @@ Pallas over an entire year with a time step of 1 day:
     Pallas            2458847.5  262.6371470833333 ...   0.043144   -3.1635784
     Pallas            2458848.5         263.011955 ...   0.047672   -3.3795565
 
-    
-The observer location is defined through the ``location`` keyword,
-expecting a string containing the official IAU observatory code, a
-spacecraft name, or a set of coordinates (see the `Miriade manual
-<http://vo.imcce.fr/webservices/miriade/?documentation#field_7>`_ for
-details).
 
+The observer location is defined through the ``location`` keyword,
+expecting a string containing the official IAU observatory code,
+a spacecraft name, or a set of coordinates (see the `Miriade manual
+<http://vo.imcce.fr/webservices/miriade/?documentation#field_7>`_ for
+details). You can access the list of IAU observatory codes with the
+`~astroquery.imcce.MiriadeClass.get_observatory_codes` helper function:
+
+.. code-block:: python
+
+    >>> from astroquery.miriade import Miriade
+    >>> obs_codes = Miriade.get_observatory_codes() # doctest: +SKIP
+    <Table length=2238>
+    Code   Long.     cos      sin                       Name                            c
+    str3  float64  float64  float64                    str48                         float64
+    ---- --------- -------- -------- ------------------------------------------ ------------------
+     000       0.0  0.62411  0.77873                                  Greenwich 0.9959337050000001
+     001    0.1542  0.62992  0.77411                                Crowborough       0.9960454985
+     002      0.62    0.622    0.781                                   Rayleigh 0.9968450000000001
+     003       3.9    0.725    0.687                                Montpellier 0.9975940000000001
+     004    1.4625   0.7252  0.68627                                   Toulouse 0.9968815528999999
+     005     2.231 0.659891 0.748875                                     Meudon     0.996269897506
+     006   2.12417 0.751042 0.658129               Fabra Observatory, Barcelona     0.997197866405
+     007   2.33675  0.65947 0.749223                                      Paris     0.996235784629
+     008    3.0355  0.80172  0.59578                          Algiers-Bouzareah       0.9977087668
+     009    7.4417   0.6838   0.7272                                Berne-Uecht 0.9964022799999999
+     010   6.92124 0.723655 0.688135                                   Caussols 0.9972063372500002
+     011    8.7975   0.6792  0.73161                                   Wetzikon       0.9965658321
+     012   4.35821 0.633333 0.771306                                      Uccle 0.9960236345250001
+     013   4.48397 0.614813 0.786029                                     Leiden      0.99583661381
+     014   5.39509 0.728859 0.682384                                 Marseilles     0.996883365337
+     ...       ...      ...      ...                                        ...                ...
+     Z84 357.45179 0.797523 0.601826                         Calar Alto-Schmidt 0.9982374698049998
+     Z85 356.75028 0.801058 0.596932            Observatorio Sierra Contraviesa 0.9980217319880001
+     Z86    356.89  0.62347  0.77923                                St. Mellons 0.9959142337999999
+     Z87  357.1021 0.608005 0.791293      Stanley Laver Observatory, Pontesbury 0.9958146918740001
+     Z88  357.5101  0.62716  0.77632 Fosseway Observatoy, Stratton-on-the-Fosse 0.9960024080000001
+     Z89  357.8281  0.59942  0.79777                               Macclesfield 0.9957413092999999
+     Z90  357.8482   0.7954  0.60418                                      Albox       0.9976946324
+     Z91 358.74999 0.631731 0.772595                                  Curdridge     0.995987090386
+     Z92 358.39222 0.591378 0.803713                 Almalex Observatory, Leeds 0.9956825252529999
+     Z93 359.85589  0.78238 0.620769               Observatorio Polop, Alicante     0.997472615761
+     Z94  358.8565  0.62725  0.77623                                  Kempshott 0.9959755753999999
+     Z95  358.8909  0.76782  0.63883   Astronomia Para Todos Remote Observatory 0.9976513212999999
+     Z96 359.19369 0.747818 0.661731                  Observatorio Cesaraugusto     0.997119677485
+     Z97 359.41647 0.704568  0.70727            OPERA Observatory, Saint Palais 0.9966469195239999
+     Z98  359.5216  0.77156  0.63405                   Observatorio TRZ, Betera 0.9973242361000001
+     Z99 359.97874 0.595468 0.800687            Clixby Observatory, Cleethorpes 0.9956818109930001
+
+This will return the complete list of IAU observatory codes.  To search
+for a particular observatory, you can provide a regular expression string
+using the ``restr`` parameter:
+
+.. code-block:: python
+
+    >>> obs_codes = Miriade.get_observatory_codes(restr='Green') # doctest: +SKIP
+    <Table length=8>
+    Code   Long.     cos       sin                        Name
+    str3  float64  float64   float64                     str48
+    ---- --------- -------- --------- -------------------------------------------
+     000       0.0  0.62411   0.77873                                   Greenwich
+     256 280.16017 0.784451   0.61832                                  Green Bank
+     912  288.2342  0.74769   0.66186          Carbuncle Hill Observatory, Greene
+     967  358.9778  0.61508   0.78585                               Greens Norton
+     B34   33.7258  0.81748   0.57405         Green Island Observatory, Gecitkale
+     H48  265.0139  0.79424   0.60565        PSU Greenbush Observatory, Pittsburg
+     Q54 147.28772  0.73929 -0.671278 Harlingten Telescope, Greenhill Observatory
+     Z54 358.92214 0.623422  0.779306             Greenmoor Observatory, Woodcote
 
 Coordinate Types
 ^^^^^^^^^^^^^^^^
