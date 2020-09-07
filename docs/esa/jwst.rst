@@ -1,27 +1,27 @@
 .. doctest-skip-all
 
-.. _astroquery.jwst:
+.. _astroquery.esa.jwst:
 
-*****************************
-JWST TAP+ (`astroquery.jwst`)
-*****************************
+*********************************
+JWST TAP+ (`astroquery.esa.jwst`)
+*********************************
 
-The James Webb Space Telescope (JWST) is a collaborative project between NASA, 
-ESA, and the Canadian Space Agency (CSA). Although radically different in 
-design, and emphasizing the infrared part of the electromagnetic spectrum, 
-JWST is widely seen as the successor to the Hubble Space Telescope (HST). 
-The JWST observatory will consist of a deployable 6.6 meter passively cooled 
-telescope optimized for infrared wavelengths, and will be operated in deep 
-space at the anti-Sun Earth-Sun Lagrangian point (L2). It will carry four 
-scientific instruments: a near-infrared camera (NIRCam), a 
-near-infrared multi-object spectrograph (NIRSpec) covering the 0.6 - 5 μm 
-spectral region, a near-infrared slit-less spectrograph (NIRISS), and a 
-combined mid-infrared camera/spectrograph (MIRI) covering 5 - 28 μm. The JWST 
-focal plane (see image to the right) contains apertures for the science 
-instruments and the Fine Guidance Sensor (FGS). 
+The James Webb Space Telescope (JWST) is a collaborative project between NASA,
+ESA, and the Canadian Space Agency (CSA). Although radically different in
+design, and emphasizing the infrared part of the electromagnetic spectrum,
+JWST is widely seen as the successor to the Hubble Space Telescope (HST).
+The JWST observatory will consist of a deployable 6.6 meter passively cooled
+telescope optimized for infrared wavelengths, and will be operated in deep
+space at the anti-Sun Earth-Sun Lagrangian point (L2). It will carry four
+scientific instruments: a near-infrared camera (NIRCam), a
+near-infrared multi-object spectrograph (NIRSpec) covering the 0.6 - 5 μm
+spectral region, a near-infrared slit-less spectrograph (NIRISS), and a
+combined mid-infrared camera/spectrograph (MIRI) covering 5 - 28 μm. The JWST
+focal plane (see image to the right) contains apertures for the science
+instruments and the Fine Guidance Sensor (FGS).
 
-The scientific goals of the JWST mission can be sorted into four broad themes: 
-The birth of stars and proto-planetary systems Planetary systems and the 
+The scientific goals of the JWST mission can be sorted into four broad themes:
+The birth of stars and proto-planetary systems Planetary systems and the
 origins of life
 
 * The end of the dark ages: first light and re-ionization.
@@ -58,7 +58,7 @@ ESA JWST TAP+ server provides two access mode: public and authenticated:
   they will remain in the server for a limited space of time.
 
 * Authenticated: some functionalities are restricted to authenticated users only.
-  The results are saved in a private user space and they will remain in the 
+  The results are saved in a private user space and they will remain in the
   server for ever (they can be removed by the user).
 
   * ADQL queries and results are saved in a user private area.
@@ -89,7 +89,7 @@ Examples
 
   >>> import astropy.units as u
   >>> from astropy.coordinates import SkyCoord
-  >>> from astroquery.jwst import Jwst
+  >>> from astroquery.esa.jwst import Jwst
   >>>
   >>> coord = SkyCoord(ra=53, dec=-27, unit=(u.degree, u.degree), frame='icrs')
   >>> width = u.Quantity(5, u.deg)
@@ -121,7 +121,7 @@ Examples
 
   >>> import astropy.units as u
   >>> from astropy.coordinates import SkyCoord
-  >>> from astroquery.Jwst import Jwst
+  >>> from astroquery.esa.jwst import Jwst
   >>>
   >>> coord = SkyCoord(ra=53, dec=-27, unit=(u.degree, u.degree), frame='icrs')
   >>> radius = u.Quantity(5.0, u.deg)
@@ -155,9 +155,9 @@ element in the list if the target name cannot be resolved).
 
 .. code-block:: python
 
-  >>> from astroquery.jwst import Jwst
+  >>> from astroquery.esa.jwst import Jwst
   >>> import astropy.units as u
-  >>> 
+  >>>
   >>> target_name = 'M1'
   >>> target_resolver = 'ALL'
   >>> radius = u.Quantity(5, u.deg)
@@ -186,9 +186,9 @@ This method uses the same parameters as query region, but also includes the targ
 
 .. code-block:: python
 
-  >>> from astroquery.jwst import Jwst
+  >>> from astroquery.esa.jwst import Jwst
   >>> import astropy.units as u
-  >>> 
+  >>>
   >>> target_name = 'LMC'
   >>> target_resolver = 'NED'
   >>> width = u.Quantity(5, u.deg)
@@ -215,7 +215,7 @@ To query the data products associated with a certain Observation ID
 
 .. code-block:: python
 
-  >>> from astroquery.jwst import Jwst
+  >>> from astroquery.esa.jwst import Jwst
   >>> product_list = Jwst.get_product_list(observation_id='jw00777011001_02104_00001_nrcblong')
   >>> for row in product_list:
   >>>     print("filename: %s" % (row['filename'].decode('UTF-8')))
@@ -232,7 +232,7 @@ all the products associated to this observation_id with the same and lower level
 
 .. code-block:: python
 
-  >>> from astroquery.jwst import Jwst
+  >>> from astroquery.esa.jwst import Jwst
   >>> product_list = Jwst.get_product_list(observation_id='jw97012001001_02101_00001_guider1', product_type='science')
   >>> for row in product_list:
   >>>     print("filename: %s" % (row['filename'].decode('UTF-8')))
@@ -244,7 +244,7 @@ To download a data product
 
 .. code-block:: python
 
-  >>> from astroquery.jwst import Jwst
+  >>> from astroquery.esa.jwst import Jwst
   >>> query="select a.artifactid, a.uri from jwst.artifact a, jwst.plane p where p.planeid=a.planeid and p.obsid='00000000-0000-0000-9c08-f5be8f3df805'"
   >>> job = Jwst.launch_job(query)
   >>> results = job.get_results()
@@ -270,7 +270,7 @@ than get_product_list.
   >>> observation_id = 'jw00777011001_02104_00001_nrcblong'
   >>> results = Jwst.get_obs_products(observation_id=observation_id, cal_level=3, product_type='science')
 
-  INFO: {'RETRIEVAL_TYPE': 'OBSERVATION', 'DATA_RETRIEVAL_ORIGIN': 'ASTROQUERY', 'planeid': '00000000-0000-0000-879d-ae91fa2f43e2', 'calibrationlevel': 'SELECTED', 'product_type': 'science'} [astroquery.jwst.core]
+  INFO: {'RETRIEVAL_TYPE': 'OBSERVATION', 'DATA_RETRIEVAL_ORIGIN': 'ASTROQUERY', 'planeid': '00000000-0000-0000-879d-ae91fa2f43e2', 'calibrationlevel': 'SELECTED', 'product_type': 'science'} [astroquery.esa.jwst.core]
   Retrieving data.
   Done.
   Product(s) saved at: /<local_path>/<temporary_directory>/\temp_20200706_131015\jw00777011001_02104_00001_nrcblong_all_products
@@ -301,7 +301,7 @@ To load only table names (TAP+ capability)
 
 .. code-block:: python
 
-  >>> from astroquery.jwst import Jwst
+  >>> from astroquery.esa.jwst import Jwst
   >>> tables = Jwst.load_tables(only_names=True)
   >>> for table in (tables):
   >>>   print(table.name)
@@ -325,7 +325,7 @@ To load table names (TAP compatible)
 
 .. code-block:: python
 
-  >>> from astroquery.jwst import Jwst
+  >>> from astroquery.esa.jwst import Jwst
   >>> tables = Jwst.load_tables()
   >>> for table in (tables):
   >>>   print(table.name)
@@ -349,12 +349,12 @@ To load only a table (TAP+ capability)
 
 .. code-block:: python
 
-  >>> from astroquery.jwst import Jwst
+  >>> from astroquery.esa.jwst import Jwst
   >>> table = Jwst.load_table('jwst.main')
   >>> print(table)
 
   TAP Table name: jwst.main
-  Description: 
+  Description:
   Num. columns: 112
 
 
@@ -362,7 +362,7 @@ Once a table is loaded, columns can be inspected
 
 .. code-block:: python
 
-  >>> from astroquery.jwst import Jwst
+  >>> from astroquery.esa.jwst import Jwst
   >>> table = Jwst.load_table('jwst.main')
   >>> for column in (table.columns):
   >>>   print(column.name)
@@ -386,10 +386,10 @@ Once a table is loaded, columns can be inspected
 1.6 Synchronous query
 ~~~~~~~~~~~~~~~~~~~~~
 
-A synchronous query will not store the results at server side. These queries 
+A synchronous query will not store the results at server side. These queries
 must be used when the amount of data to be retrieve is 'small'.
 
-There is a limit of 2000 rows. If you need more than that, you must use 
+There is a limit of 2000 rows. If you need more than that, you must use
 asynchronous queries.
 
 The results can be saved in memory (default) or in a file.
@@ -398,7 +398,7 @@ Query without saving results in a file:
 
 .. code-block:: python
 
-  >>> from astroquery.jwst import Jwst
+  >>> from astroquery.esa.jwst import Jwst
   >>>
   >>> job = Jwst.launch_job("SELECT TOP 100 \
   >>> instrument_name, observationuri, planeid, calibrationlevel, \
@@ -417,7 +417,7 @@ Query without saving results in a file:
   >>> r = job.get_results()
   >>> print(r['planeid'])
 
-                planeid               
+                planeid
   ------------------------------------
   00000000-0000-0000-9d6d-f192fde74ce4
   00000000-0000-0000-8a85-d34d6a411611
@@ -447,7 +447,7 @@ Query saving results in a file:
 
 .. code-block:: python
 
-  >>> from astroquery.jwst import JWST
+  >>> from astroquery.esa.jwst import JWST
   >>> job = Jwst.launch_job("SELECT TOP 100 \
   >>> instrument_name, observationuri, planeid, calibrationlevel, \
   >>> dataproducttype, targetposition_coordinates_cval1 as target_ra, \
@@ -469,7 +469,7 @@ Query saving results in a file:
   >>> r = job.get_results()
   >>> print(r['planeid'])
 
-                planeid               
+                planeid
   ------------------------------------
   00000000-0000-0000-9d6d-f192fde74ce4
   00000000-0000-0000-8a85-d34d6a411611
@@ -503,7 +503,7 @@ A table can be uploaded to the server in order to be used in a query.
 
 .. code-block:: python
 
-  >>> from astroquery.jwst import Jwst
+  >>> from astroquery.esa.jwst import Jwst
   >>> upload_resource = 'mytable.xml.gz'
   >>> j = Jwst.launch_job(query="SELECT * from tap_upload.table_test", \
   >>>   upload_resource=upload_resource, \
@@ -529,7 +529,7 @@ Query without saving results in a file:
 
 .. code-block:: python
 
-  >>> from astroquery.jwst import Jwst
+  >>> from astroquery.esa.jwst import Jwst
   >>> job = Jwst.launch_job_async("select top 100 * from jwst.main")
   >>> print(job)
 
@@ -572,7 +572,7 @@ Query saving results in a file:
 
 .. code-block:: python
 
-  >>> from astroquery.jwst import Jwst
+  >>> from astroquery.esa.jwst import Jwst
   >>>
   >>> job = Jwst.launch_job_async("select top 100 * from jwst.main", dump_to_file=True)
   >>>
@@ -587,7 +587,7 @@ Query saving results in a file:
   >>> r = job.get_results()
   >>> print(r['solution_id'])
 
-               planeid               
+               planeid
   ------------------------------------
   00000000-0000-0000-9d6d-f192fde74ce4
   00000000-0000-0000-8a85-d34d6a411611
@@ -621,7 +621,7 @@ To remove asynchronous
 
 .. code-block:: python
 
-  >>> from astroquery.jwst import Jwst
+  >>> from astroquery.esa.jwst import Jwst
   >>> job = Jwst.remove_jobs(["job_id_1","job_id_2",...])
 
 
@@ -653,21 +653,21 @@ Using the graphic interface:
 
 .. code-block:: python
 
-  >>> from astroquery.jwst import Jwst
+  >>> from astroquery.esa.jwst import Jwst
   >>> Jwst.login_gui()
 
 If the user wants to specify a MAST token to download propietary data:
 
 .. code-block:: python
 
-  >>> from astroquery.jwst import Jwst
+  >>> from astroquery.esa.jwst import Jwst
   >>> Jwst.login_token_gui()
 
 Using the command line:
 
 .. code-block:: python
 
-  >>> from astroquery.jwst import Jwst
+  >>> from astroquery.esa.jwst import Jwst
   >>> Jwst.login(user='userName', password='userPassword')
 
 
@@ -677,22 +677,22 @@ It is possible to use a file where the credentials are stored:
 
 .. code-block:: python
 
-  >>> from astroquery.jwst import Jwst
+  >>> from astroquery.esa.jwst import Jwst
   >>> Jwst.login(credentials_file='my_credentials_file')
 
-MAST tokens can also be implemented in command line functions:
+MAST tokens can also be used in command line functions:
 
 .. code-block:: python
 
-  >>> from astroquery.jwst import Jwst
+  >>> from astroquery.esa.jwst import Jwst
   >>> Jwst.login(user='userName', password='userPassword', token='mastToken')
 
 If the user is logged in and a MAST token has not been included or must be changed, it can be
-specified using the ``set_token`` function. 
+specified using the ``set_token`` function.
 
 .. code-block:: python
 
-  >>> from astroquery.jwst import Jwst
+  >>> from astroquery.esa.jwst import Jwst
   >>> Jwst.login(user='userName', password='userPassword')
   >>> Jwst.set_token(token='mastToken')
 
@@ -701,7 +701,7 @@ To perform a logout
 
 .. code-block:: python
 
-  >>> from astroquery.jwst import Jwst
+  >>> from astroquery.esa.jwst import Jwst
   >>> Jwst.logout()
 
 
@@ -711,7 +711,7 @@ To perform a logout
 
 .. code-block:: python
 
-  >>> from astroquery.jwst import Jwst
+  >>> from astroquery.esa.jwst import Jwst
   >>> tables = Jwst.load_tables(only_names=True, include_shared_tables=True)
   >>> for table in (tables):
   >>>   print(table.name)
@@ -739,5 +739,5 @@ To perform a logout
 Reference/API
 =============
 
-.. automodapi:: astroquery.jwst
+.. automodapi:: astroquery.esa.jwst
     :no-inheritance-diagram:

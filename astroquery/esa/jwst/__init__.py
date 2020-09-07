@@ -21,7 +21,7 @@ from astropy import config as _config
 
 class Conf(_config.ConfigNamespace):
     """
-    Configuration parameters for `astroquery.jwst`.
+    Configuration parameters for `astroquery.esa.jwst`.
     """
 
     JWST_MAIN_TABLE = _config.ConfigItem("jwst.main",

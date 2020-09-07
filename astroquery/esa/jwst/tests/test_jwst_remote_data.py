@@ -34,7 +34,7 @@ from astropy.table import Table
 from astropy.table.table import Table
 from astropy.tests.helper import remote_data
 from astropy.units import Quantity
-from astroquery.jwst import JwstClass
+from astroquery.esa.jwst import JwstClass
 from astroquery.ned import Ned
 from astroquery.simbad import Simbad
 from astroquery.utils import TableList

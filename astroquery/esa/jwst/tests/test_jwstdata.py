@@ -18,10 +18,10 @@ import unittest
 import os
 import pytest
 
-from astroquery.jwst.tests.DummyTapHandler import DummyTapHandler
-from astroquery.jwst.tests.DummyDataHandler import DummyDataHandler
+from astroquery.esa.jwst.tests.DummyTapHandler import DummyTapHandler
+from astroquery.esa.jwst.tests.DummyDataHandler import DummyDataHandler
 
-from astroquery.jwst.core import JwstClass
+from astroquery.esa.jwst.core import JwstClass
 
 
 def data_path(filename):

@@ -20,9 +20,9 @@ import pytest
 import shutil
 import mock
 
-from astroquery.jwst import JwstClass
-from astroquery.jwst.tests.DummyTapHandler import DummyTapHandler
-from astroquery.jwst.tests.DummyDataHandler import DummyDataHandler
+from astroquery.esa.jwst import JwstClass
+from astroquery.esa.jwst.tests.DummyTapHandler import DummyTapHandler
+from astroquery.esa.jwst.tests.DummyDataHandler import DummyDataHandler
 from astroquery.utils.tap.conn.tests.DummyConnHandler import DummyConnHandler
 from astroquery.utils.tap.conn.tests.DummyResponse import DummyResponse
 import astropy.units as u

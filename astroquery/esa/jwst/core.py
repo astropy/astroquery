@@ -38,7 +38,7 @@ from . import conf
 from .data_access import JwstDataHandler
 
 from builtins import isinstance
-from astroquery.jwst.token import TokenDialog
+from astroquery.esa.jwst.token import TokenDialog
 
 __all__ = ['Jwst', 'JwstClass']
 
@@ -72,12 +72,14 @@ class JwstClass(object):
 
     def __init__(self, tap_plus_handler=None, data_handler=None):
         if tap_plus_handler is None:
-            self.__jwsttap = TapPlus(url="http://jwstdummytap.com", data_context='data')
+            self.__jwsttap = TapPlus(url="http://jwstdummytap.com",
+                                     data_context='data')
         else:
             self.__jwsttap = tap_plus_handler
 
         if data_handler is None:
-            self.__jwstdata = JwstDataHandler(base_url="http://jwstdummydata.com");
+            self.__jwstdata = JwstDataHandler(base_url="http://jwstdummydata.com")
+            # self.__jwstdata = self.__jwsttap;
         else:
             self.__jwstdata = data_handler
 
