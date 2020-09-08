@@ -61,12 +61,6 @@ def test_load_species_table():
     assert len(CO) == 4
 
 
-# regression test: ConfigItems were in wrong order at one point
-def test_url():
-    assert 'https://' in splatalogue.core.Splatalogue.QUERY_URL
-    assert 'cv.nrao.edu' in splatalogue.core.Splatalogue.QUERY_URL
-
-
 # regression test: get_query_payload should work (#308)
 def test_get_payload():
     q = splatalogue.core.Splatalogue.query_lines_async(1 * u.GHz, 10 * u.GHz,
