@@ -28,6 +28,9 @@ Splatalogue
   directory (Issue [#423]) The scraping function has also been updated to reflect
   the Splatalogue webpage. [#1772]
 
+- The splatalogue URL has changed to https://splatalogue.online, as the old site
+  stopped functioning in September 2020 [#1817]
+
 UKIDSS
 ^^^^^^
 
