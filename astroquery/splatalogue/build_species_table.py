@@ -11,6 +11,8 @@ import requests
 
 from astropy.config import paths
 
+from . import conf
+
 
 def data_path(filename: str):
     """
@@ -32,7 +34,7 @@ def data_path(filename: str):
     return os.path.join(data_dir, filename)
 
 
-def get_json_species_ids(outfile='splat-species.json'):
+def get_json_species_ids(outfile='splat-species.json', base_url=conf.base_url):
     """
     Uses BeautifulSoup to scrape the NRAO Splatalogue species
     selector form, and caches the result as JSON. The file
@@ -50,7 +52,7 @@ def get_json_species_ids(outfile='splat-species.json'):
     """
     import bs4
 
-    result = requests.get('https://www.cv.nrao.edu/php/splat/b.php')
+    result = requests.get(f'{base_url}/b.php')
     page = bs4.BeautifulSoup(result.content, 'html5lib')
     # The ID needs to be checked periodically if Splatalogue is updated
     sid = page.findAll('select', attrs={'id': 'speciesselectbox'})[0]
