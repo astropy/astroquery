@@ -280,7 +280,7 @@ class GaiaClass(TapPlus):
             raise err
         finally:
             if not output_file_specified:
-             shutil.rmtree(path)
+                shutil.rmtree(path)
 
         if verbose:
             if output_file_specified:
