@@ -483,7 +483,7 @@ class GaiaClass(TapPlus):
         -------
         The job results (astropy.table).
         """
-        return self.__query_object(coordinate, radius, width, height, sync_job=True, verbose=verbose, columns=columns)
+        return self.__query_object(coordinate, radius, width, height, async_job=True, verbose=verbose, columns=columns)
 
     def __cone_search(self, coordinate, radius, table_name=MAIN_GAIA_TABLE,
                       ra_column_name=MAIN_GAIA_TABLE_RA,
