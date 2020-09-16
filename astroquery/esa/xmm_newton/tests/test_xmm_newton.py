@@ -312,7 +312,7 @@ class TestXMMNewton():
         slew_source_table = "xsa.v_slew_source_cat"
         slew_source_column = "slew_source_cat_equatorial_spoint"
         xsa = XMMNewtonClass()
-        epic_source,  cat_4xmm, stack_4xmm, slew_source = xsa.get_epic_metadata(target_name=target_name,
+        epic_source, cat_4xmm, stack_4xmm, slew_source = xsa.get_epic_metadata(target_name=target_name,
                                                                                 radius=radius)
         c = SkyCoord.from_name(target_name, parse=True)
         query = ("select * from {} "
