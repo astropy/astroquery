@@ -17,6 +17,7 @@ import os
 import errno
 import shutil
 from astropy.coordinates import SkyCoord
+from astropy.utils.diff import report_diff_values
 
 from ..core import XMMNewtonClass
 from ..tests.dummy_tap_handler import DummyXMMNewtonTapHandler
@@ -300,10 +301,43 @@ class TestXMMNewton():
 
     @pytest.mark.remote_data
     def test_get_epic_metadata(self):
+        target_name = "4XMM J122934.7+015657"
+        radius = 0.01
+        epic_source_table = "xsa.v_epic_source"
+        epic_source_column = "epic_source_equatorial_spoint"
+        cat_4xmm_table = "xsa.v_epic_source_cat"
+        cat_4xmm_column = "epic_source_cat_equatorial_spoint"
+        stack_4xmm_table = "xsa.v_epic_xmm_stack_cat"
+        stack_4xmm_column = "epic_stack_cat_equatorial_spoint"
+        slew_source_table = "xsa.v_slew_source_cat"
+        slew_source_column = "slew_source_cat_equatorial_spoint"
         xsa = XMMNewtonClass()
-        t1, t2, t3, t4 = xsa.get_epic_metadata(target_name="4XMM J122934.7+015657")
-        print(t1)
-        print(t2)
-        print(t3)
-        print(t4)
-        xsa.get_epic_metadata(coordinates=SkyCoord.from_name("4XMM J122934.7+015657", parse=True))
+        epic_source,  cat_4xmm, stack_4xmm, slew_source = xsa.get_epic_metadata(target_name=target_name,
+                                                                                radius=radius)
+        c = SkyCoord.from_name(target_name, parse=True)
+        query = ("select * from {} "
+                 "where 1=contains({}, circle('ICRS', {}, {}, {}));")
+        table = xsa.query_xsa_tap(query.format(epic_source_table,
+                                               epic_source_column,
+                                               c.ra.degree,
+                                               c.dec.degree,
+                                               radius))
+        assert report_diff_values(epic_source, table)
+        table = xsa.query_xsa_tap(query.format(cat_4xmm_table,
+                                               cat_4xmm_column,
+                                               c.ra.degree,
+                                               c.dec.degree,
+                                               radius))
+        assert report_diff_values(cat_4xmm, table)
+        table = xsa.query_xsa_tap(query.format(stack_4xmm_table,
+                                               stack_4xmm_column,
+                                               c.ra.degree,
+                                               c.dec.degree,
+                                               radius))
+        assert report_diff_values(stack_4xmm, table)
+        table = xsa.query_xsa_tap(query.format(slew_source_table,
+                                               slew_source_column,
+                                               c.ra.degree,
+                                               c.dec.degree,
+                                               radius))
+        assert report_diff_values(slew_source, table)
