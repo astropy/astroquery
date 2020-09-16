@@ -10,6 +10,13 @@ esa/hubble
 - Module added to query eHST TAP based on a set of specific criteria and
   asynchronous jobs are now supported. [#1723]
 
+esa/xmm_newton
+^^^^^^^^^^^^^^
+
+- new method ``get_epic_images`` is added to extract EPIC images from
+  tarballs. [#1759]
+
+
 Gemini
 ^^^^^^
 
@@ -50,7 +57,7 @@ alma
 New Tools and Services
 ----------------------
 
-esa.xmm-newton
+esa.xmm_newton
 ^^^^^^^^^^^^^^
 
 - A new ESA archive service for XMM-Newton access. [#1557]

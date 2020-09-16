@@ -121,7 +121,19 @@ This will show the available tables in XSA TAP service in the XMM-Newton Science
   'proposal_oid', 'proprietary_end_date', 'ra', 'ra_nom', 'revolution', 'sas_version', 'start_utc', 'stc_s', 'with_science']
 
 This will show the column details of the table 'v_all_observations' in XSA TAP service in the XMM-Newton Science Archive.
-            
+
+--------------------------------------------
+6. Getting EPIC images from a given TAR file 
+--------------------------------------------
+
+.. code-block:: python
+
+  >>> from astroquery.esa.xmm_newton import XMMNewton
+  >>>
+  >>> XMMNewton.get_epic_images('tarfile.tar', band=[1,2], instrument=['M1'])
+  {1: {'M1': '/home/dev/esa/0405320501/pps/P0405320501M1S002IMAGE_1000.FTZ'}, 2: {'M1': '/home/dev/esa/0405320501/pps/P0405320501M1S002IMAGE_2000.FTZ'}}
+
+This will extract the European Photon Imaging Camera (EPIC) images within the specified TAR file, bands, and instruments. It will also return a dictionary containing the paths to the extracted files.        
 
 Reference/API
 =============
