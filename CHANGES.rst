@@ -119,6 +119,10 @@ gaia
 - Improved code to handle bit data type. [#1784]
 - Prepared code to handle new datalink products. [#1784]
 
+esa.xmm_newton
+^^^^^^^^^^^^^^
+
+- Added new function to download EPIC sources metadate. [#1814]
 
 0.4.1 (2020-06-19)
 ==================
