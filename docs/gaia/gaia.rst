@@ -230,10 +230,10 @@ Query without saving results in a file:
 
   >>> from astroquery.gaia import Gaia
   >>>
-  >>> job = Gaia.launch_job("select top 100
-  ... solution_id,ref_epoch,ra_dec_corr,astrometric_n_obs_al,
-  ... matched_observations,duplicated_source,phot_variable_flag
-  ... from gaiadr2.gaia_source order by source_id")
+  >>> job = Gaia.launch_job("select top 100 "
+  ...                       "solution_id,ref_epoch,ra_dec_corr,astrometric_n_obs_al, "
+  ...                       "matched_observations,duplicated_source,phot_variable_flag "
+  ...                       "from gaiadr2.gaia_source order by source_id")
   >>> r = job.get_results()
   >>> print(r['solution_id'])
 
@@ -252,13 +252,14 @@ available formats are: 'votable', 'votable_plain', 'fits', 'csv' and 'json', def
 .. code-block:: python
 
   >>> from astroquery.gaia import Gaia
-  >>> job = Gaia.launch_job("select top 100
-  ... solution_id,ref_epoch,ra_dec_corr,astrometric_n_obs_al,
-  ... matched_observations,duplicated_source,phot_variable_flag
-  ... from gaiadr2.gaia_source order by source_id", dump_to_file=True,
-  ... output_format='votable')
+  >>> job = Gaia.launch_job("select top 100 "
+  ...                       "solution_id,ref_epoch,ra_dec_corr,astrometric_n_obs_al, "
+  ...                       "matched_observations,duplicated_source,phot_variable_flag "
+  ...                       "from gaiadr2.gaia_source order by source_id",
+  ...                       dump_to_file=True, output_format='votable')
+  >>> print(job.outputFile) 
 
-  Saving results to: 1592474300458O-result.vot.gz
+  1592474300458O-result.vot.gz
 
   >>> r = job.get_results()
   >>> print(r['solution_id'])
@@ -306,7 +307,7 @@ running. See note below.
 
 .. code-block:: python
 
-  from astroquery.gaia import Gaia
+  >>> from astroquery.gaia import Gaia
 
   >>> upload_resource = 'my_table.xml'
   >>> j = Gaia.launch_job(query="select * from tap_upload.table_test",
@@ -324,8 +325,10 @@ Note: to obtain the current location, type:
 
 .. code-block:: python
 
-  import os
-  print(os.getcwd())
+  >>> import os
+  >>> print(os.getcwd())
+
+  /Current/directory/path
 
 1.6. Asynchronous query
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -340,8 +343,9 @@ Query without saving results in a file:
 .. code-block:: python
 
   >>> from astroquery.gaia import Gaia
-  >>>
-  >>> job = Gaia.launch_job_async("select top 100 designation,ra,dec from gaiadr2.gaia_source order by source_id")
+
+  >>> job = Gaia.launch_job_async("select top 100 designation,ra,dec "
+  ...                             "from gaiadr2.gaia_source order by source_id")
   >>> r = job.get_results()
   >>> print(r)
 
@@ -362,13 +366,13 @@ available formats are: 'votable', 'votable_plain', 'fits', 'csv' and 'json', def
 .. code-block:: python
 
   >>> from astroquery.gaia import Gaia
-  >>>
-  >>> job = Gaia.launch_job_async("select top 100 * from gaiadr2.gaia_source order by source_id",
-  ... dump_to_file=True, output_format='votable')
+
+  >>> job = Gaia.launch_job_async("select top 100 * "
+  ...                             "from gaiadr2.gaia_source order by source_id",
+  ...                             dump_to_file=True, output_format='votable')
 
   Saving results to: 1592474453797O-result.vot.gz
 
-  >>>
   >>> print(job)
 
   Jobid: 1487845273526O
@@ -534,10 +538,10 @@ Your schema name will be automatically added to the provided table name.
   >>> from astroquery.gaia import Gaia
   >>> Gaia.login()
   >>> # Provide a URL pointing to valid VOTable resource
-  >>> url = "http://tapvizier.u-strasbg.fr/TAPVizieR/tap/sync/?
-  ... REQUEST=doQuery&lang=ADQL&FORMAT=votable&
-  ... QUERY=select+*+from+TAP_SCHEMA.columns+where+table_name='II/336/apass9'"
-  >>>
+  >>> url = ("http://tapvizier.u-strasbg.fr/TAPVizieR/tap/sync/?"
+  ...        "REQUEST=doQuery&lang=ADQL&FORMAT=votable&"
+  ...        "QUERY=select+*+from+TAP_SCHEMA.columns+where+table_name='II/336/apass9'")
+ 
   >>> job = Gaia.upload_table(upload_resource=url, table_name="table_test_from_url",
   ... table_description="Some description")
 
@@ -569,7 +573,7 @@ Your schema name will be automatically added to the provided table name.
   >>> from astroquery.gaia import Gaia
   >>> Gaia.login()
   >>> job = Gaia.upload_table(upload_resource="1535553556177O-result.vot",
-  ... table_name="table_test_from_file", format="VOTable")
+  ...                         table_name="table_test_from_file", format="VOTable")
 
   Sending file: 1535553556177O-result.vot
   Uploaded table 'table_test_from_file'.
@@ -601,7 +605,7 @@ Your schema name will be automatically added to the provided table name.
   >>> a=[1,2,3]
   >>> b=['a','b','c']
   >>> table = Table([a,b], names=['col1','col2'], meta={'meta':'first table'})
-  >>>
+
   >>> # Upload
   >>> Gaia.login()
   >>> Gaia.upload_table(upload_resource=table, table_name='table_test_from_astropy')
@@ -723,10 +727,10 @@ We can type the following:
   >>> from astroquery.gaia import Gaia
   >>> Gaia.login_gui()
   >>> Gaia.update_user_table(table_name="user_joe.table",
-  ... list_of_changes=[["recno", "ucd", "ucd sample"],
-  ... ["nobs","utype","utype sample"],
-  ... ["raj2000","flags","Ra"],
-  ... ["dej2000","flags","Dec"]])
+  ...                        list_of_changes=[["recno", "ucd", "ucd sample"],
+  ...                                         ["nobs","utype","utype sample"],
+  ...                                         ["raj2000","flags","Ra"],
+  ...                                         ["dej2000","flags","Dec"]])
 
   Retrieving table 'user_joe.table'
   Parsing table 'user_joe.table'...
@@ -752,29 +756,30 @@ The following example uploads a table and then, the table is used in a cross mat
 
   >>> from astroquery.gaia import Gaia
   >>> Gaia.login()
-  >>>
+
   >>> table = file or astropy.table
   >>> Gaia.upload_table(upload_resource=table, table_name='my_sources')
-  >>>
+
   >>> # the table will be uploaded into the user private space into the database
   >>> # the table can be referenced as <database user schema>.<table_name>
-  >>>
+
   >>> full_qualified_table_name = 'user_<your_login_name>.my_sources'
   >>> xmatch_table_name = 'xmatch_table'
   >>> Gaia.cross_match(full_qualified_table_name_a=full_qualified_table_name,
-  ...               full_qualified_table_name_b='gaiadr2.gaia_source',
-  ...               results_table_name=xmatch_table_name, radius=1.0)
-  >>>
+  ...                  full_qualified_table_name_b='gaiadr2.gaia_source',
+  ...                  results_table_name=xmatch_table_name, radius=1.0)
+
 
 Once you have your cross match finished, you can obtain the results:
 
 .. code-block:: python
 
   >>> xmatch_table = 'user_<your_login_name>.' + xmatch_table_name
-  >>> query = 'SELECT c."dist"*3600 as dist, a.*, b.* FROM gaiadr2.gaia_source AS a, '+
-  ... full_qualified_table_name+' AS b, '+
-  ... xmatch_table+' AS c '+
-  ... 'WHERE (c.gaia_source_source_id = a.source_id AND c.my_sources_my_sources_oid = b.my_sources_oid)'
+  >>> query = ('SELECT c."dist"*3600 as dist, a.*, b.* FROM gaiadr2.gaia_source AS a, '
+  ...          'full_qualified_table_name+' AS b, '
+  ...          'xmatch_table+' AS c '
+  ...          'WHERE (c.gaia_source_source_id = a.source_id AND '
+  ...          'c.my_sources_my_sources_oid = b.my_sources_oid)'
   >>> job = Gaia.launch_job(query=query)
   >>> results = job.get_results()
   >>> print(f"results = {results}")
@@ -844,7 +849,9 @@ will be able to access to your shared table in a query.
 
   >>> from astroquery.gaia import Gaia
   >>> Gaia.login()
-  >>> Gaia.share_table(group_name="my_group",table_name="user_<user_loign_name>.my_table",description="description")
+  >>> Gaia.share_table(group_name="my_group",
+  ...                  table_name="user_<user_loign_name>.my_table",
+  ...                  description="description")
 
 
 2.7.7. Stop sharing a table
@@ -872,24 +879,26 @@ retrieve the data.
 .. code-block:: python
 
   >>> from astroquery.gaia import Gaia
-  >>> query = "SELECT TOP 500 * FROM gaiadr2.gaia_source
-  ... WHERE CONTAINS(POINT('ICRS',gaiadr2.gaia_source.ra,gaiadr2.gaia_source.dec),
-  ... CIRCLE('ICRS',COORD1(
-  ... EPOCH_PROP_POS(339.8049024487712,64.8585025696523,2.3585,92.7710,190.7920,.3000,2000,2015.5)),
-  ... COORD2(EPOCH_PROP_POS(339.8049024487712,64.8585025696523,2.3585,92.7710,190.7920,.3000,2000,2015.5)),0.001388888888888889))=1"
-  >>>
+  >>> query = ("SELECT TOP 500 * FROM gaiadr2.gaia_source "
+  ...          "WHERE CONTAINS(POINT('ICRS',gaiadr2.gaia_source.ra,gaiadr2.gaia_source.dec), "
+  ...          "CIRCLE('ICRS',COORD1(EPOCH_PROP_POS(339.8049024487712,64.8585025696523,"
+  ...          "2.3585,92.7710,190.7920,.3000,2000,2015.5)),COORD2(EPOCH_PROP_POS(339.8049024487712,"
+  ...          "64.8585025696523,2.3585,92.7710,190.7920,.3000,2000,2015.5)),0.001388888888888889))=1"
   >>> job = Gaia.launch_job(query)
-  >>>
+
   >>> results = job.get_results()
   >>> ids=results['source_id']
   >>> print(f"ids = {ids}")
+
+  ids =      source_id     
+  -------------------
+  2211629018927324288
 
 
 Once you have the required identifiers ('ids'), you can retrieve the actual data by typing:
 
 .. code-block:: python
 
-  >>>
   >>> # Retrieve data products
   >>> all = Gaia.load_data(ids=ids, format='fits', data_release='Gaia DR2')
 
