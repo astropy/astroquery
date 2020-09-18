@@ -22,6 +22,7 @@ Gemini
 
 - login() support for authenticated sessions to the GOA [#1778]
 - get_file() support for downloading files [#1778]
+- fix syntax error in query_criteria() [#1823]
 
 SVO FPS
 ^^^^^^^

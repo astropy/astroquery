@@ -341,7 +341,7 @@ class ObservationsClass(QueryWithLogin):
                     raise ValueError("utc_date tuple should have two values")
                 if not isinstance(utc_date[0], date) or not isinstance(utc_date[1], date):
                     raise ValueError("utc_date tuple should have date values in it")
-                args.append("%s-%s" % utc_date[0].strftime("YYYYMMdd"), utc_date[1].strftime("YYYYMMdd"))
+                args.append("{:%Y%m%d}-{:%Y%m%d}".format(*utc_date))
         if instrument is not None:
             if instrument.upper() not in __valid_instruments__:
                 raise ValueError("Unrecognized instrument: %s" % instrument)
