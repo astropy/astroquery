@@ -372,6 +372,16 @@ def test_observations_download_products(patch_post, tmpdir):
     assert isinstance(result, Table)
 
 
+def test_observations_download_file(patch_post, tmpdir):
+    # pull a single data product
+    products = mast.Observations.get_product_list('2003738726')
+    uri = products['dataURI'][0]
+
+    # download it
+    result = mast.Observations.download_file(uri)
+    assert result == ('COMPLETE', None, None)
+
+
 ######################
 # CatalogClass tests #
 ######################
