@@ -519,6 +519,83 @@ class ObservationsClass(MastQueryWithLogin):
 
         return products[np.where(filter_mask)]
 
+    def download_file(self, uri, local_path=None, base_url=None, cache=True, cloud_only=False):
+        """
+        Downloads a single file based on the data URI
+
+        Parameters
+        ----------
+        uri : str
+            The product dataURI, e.g. `mast:JWST/product/jw00736-o039_t001_miri_ch1-long_x1d.fits`
+        local_path : str
+            Directory in which the files will be downloaded.  Defaults to current working directory.
+        base_url: str
+            A base url to use when downloading.  Default is the MAST Portal API
+        cache : bool
+            Default is True. If file is found on disk it will not be downloaded again.
+        cloud_only : bool, optional
+            Default False. If set to True and cloud data access is enabled (see `enable_cloud_dataset`)
+            files that are not found in the cloud will be skipped rather than downloaded from MAST
+            as is the default behavior. If cloud access is not enables this argument as no affect.
+
+        Returns
+        -------
+        status: str
+            download status message.  Either COMPLETE, SKIPPED, or ERROR.
+        msg : str
+            An error status message, if any.
+        url : str
+            The full url download path
+        """
+
+        # create the full data URL
+        base_url = base_url if base_url else self._portal_api_connection.MAST_DOWNLOAD_URL
+        data_url = base_url + "?uri=" + uri
+
+        # create a local file path if none is input.  Use current directory as default.
+        if not local_path:
+            filename = uri.rsplit('/', 1)[-1]
+            local_path = os.path.join(os.path.abspath('.'), filename)
+
+        # recreate the data_product key for cloud connection check
+        data_product = {'dataURI': data_url}
+
+        status = "COMPLETE"
+        msg = None
+        url = None
+
+        try:
+            if self._cloud_connection is not None and self._cloud_connection.is_supported(data_product):
+                try:
+                    self._cloud_connection.download_file(data_product, local_path, cache)
+                except Exception as ex:
+                    log.exception("Error pulling from S3 bucket: {}".format(ex))
+                    if cloud_only:
+                        log.warn("Skipping file...")
+                        local_path = ""
+                        status = "SKIPPED"
+                    else:
+                        log.warn("Falling back to mast download...")
+                        self._download_file(data_url, local_path,
+                                            cache=cache, head_safe=True, continuation=False)
+            else:
+                self._download_file(data_url, local_path,
+                                    cache=cache, head_safe=True, continuation=False)
+
+            # check if file exists also this is where would perform md5,
+            # and also check the filesize if the database reliably reported file sizes
+            if (not os.path.isfile(local_path)) and (status != "SKIPPED"):
+                status = "ERROR"
+                msg = "File was not downloaded"
+                url = data_url
+
+        except HTTPError as err:
+            status = "ERROR"
+            msg = "HTTPError: {0}".format(err)
+            url = data_url
+
+        return status, msg, url
+
     def _download_files(self, products, base_dir, cache=True, cloud_only=False,):
         """
         Takes an `~astropy.table.Table` of data products and downloads them into the directory given by base_dir.
@@ -544,47 +621,15 @@ class ObservationsClass(MastQueryWithLogin):
         manifest_array = []
         for data_product in products:
 
+            # create the local file download path
             local_path = os.path.join(base_dir, data_product['obs_collection'], data_product['obs_id'])
-            data_url = self._portal_api_connection.MAST_DOWNLOAD_URL + "?uri=" + data_product["dataURI"]
-
             if not os.path.exists(local_path):
                 os.makedirs(local_path)
-
             local_path = os.path.join(local_path, data_product['productFilename'])
 
-            status = "COMPLETE"
-            msg = None
-            url = None
-
-            try:
-                if self._cloud_connection is not None and self._cloud_connection.is_supported(data_product):
-                    try:
-                        self._cloud_connection.download_file(data_product, local_path, cache)
-                    except Exception as ex:
-                        log.exception("Error pulling from S3 bucket: {}".format(ex))
-                        if cloud_only:
-                            log.warn("Skipping file...")
-                            local_path = ""
-                            status = "SKIPPED"
-                        else:
-                            log.warn("Falling back to mast download...")
-                            self._download_file(data_url, local_path,
-                                                cache=cache, head_safe=True, continuation=False)
-                else:
-                    self._download_file(data_url, local_path,
-                                        cache=cache, head_safe=True, continuation=False)
-
-                # check if file exists also this is where would perform md5,
-                # and also check the filesize if the database reliably reported file sizes
-                if (not os.path.isfile(local_path)) and (status != "SKIPPED"):
-                    status = "ERROR"
-                    msg = "File was not downloaded"
-                    url = data_url
-
-            except HTTPError as err:
-                status = "ERROR"
-                msg = "HTTPError: {0}".format(err)
-                url = data_url
+            # download the files
+            status, msg, url = self.download_file(data_product["dataURI"], local_path=local_path,
+                                                  cache=cache, cloud_only=cloud_only)
 
             manifest_array.append([local_path, status, msg, url])
 
