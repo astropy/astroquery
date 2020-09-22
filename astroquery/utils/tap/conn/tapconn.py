@@ -558,6 +558,34 @@ class TapConn(object):
                 ext += ".gz"
         return ext
 
+    def get_file_from_header(self, headers):
+        """Returns the file name returned in header Content-Disposition
+        Usually, that header contains the following:
+        Content-Disposition: attachment;filename="1591707060129DEV-aandres1591707060227.tar.gz"
+        This method returns the value of 'filename'
+
+        Parameters
+        ----------
+        headers: HTTP response headers list
+
+        Returns
+        -------
+        The value of 'filename' in Content-Disposition header
+        """
+        content_disposition = self.find_header(headers, 'Content-Disposition')
+        if content_disposition is not None:
+            p = content_disposition.find('filename="')
+            if p >= 0:
+                filename = content_disposition[p+10:len(content_disposition)-1]
+                content_encoding = self.find_header(headers, 'Content-Encoding')
+                if content_encoding is not None:
+                    if "gzip" == content_encoding.lower():
+                        filename += ".gz"
+                    elif "zip" == content_encoding.lower():
+                        filename += ".zip"
+                return filename
+        return None
+
     def set_cookie(self, cookie):
         """Sets the login cookie
         When a cookie is set, GET and POST requests are done using HTTPS
@@ -683,7 +711,7 @@ class TapConn(object):
         multiparItems.append(CRLF)
         body = utils.util_create_string_from_buffer(multiparItems)
         contentType = 'multipart/form-data; boundary=%s' % boundary
-        return contentType, body
+        return contentType, body.encode('utf-8')
 
     def __str__(self):
         return "\tHost: " + str(self.__connHost) + "\n\tUse HTTPS: " \

@@ -14,18 +14,29 @@ Created on 30 jun. 2016
 
 
 """
+from requests import HTTPError
 
 from astroquery.utils.tap import TapPlus
 from astroquery.utils import commons
 from astropy import units
 from astropy.units import Quantity
 import six
+import zipfile
 from astroquery.utils.tap import taputils
 from . import conf
+import os
+from datetime import datetime
+import shutil
+import astroquery.utils.tap.model.modelutils as modelutils
+from astropy.io import votable
+from astropy.io import fits
+from astropy.table import Table
+from astropy import units as u
+
+from ..cadc.core import logger
 
 
 class GaiaClass(TapPlus):
-
     """
     Proxy class to default TapPlus object (pointing to Gaia Archive)
     """
@@ -33,10 +44,16 @@ class GaiaClass(TapPlus):
     MAIN_GAIA_TABLE_RA = conf.MAIN_GAIA_TABLE_RA
     MAIN_GAIA_TABLE_DEC = conf.MAIN_GAIA_TABLE_DEC
     ROW_LIMIT = conf.ROW_LIMIT
+    VALID_DATALINK_RETRIEVAL_TYPES = conf.VALID_DATALINK_RETRIEVAL_TYPES
 
-    def __init__(self, tap_plus_conn_handler=None, datalink_handler=None):
-        super(GaiaClass, self).__init__(url="https://gea.esac.esa.int/",
-                                        server_context="tap-server",
+    def __init__(self, tap_plus_conn_handler=None,
+                 datalink_handler=None,
+                 gaia_tap_server='https://gea.esac.esa.int/',
+                 gaia_data_server='https://gea.esac.esa.int/',
+                 tap_server_context="tap-server",
+                 data_server_context="data-server"):
+        super(GaiaClass, self).__init__(url=gaia_tap_server,
+                                        server_context=tap_server_context,
                                         tap_context="tap",
                                         upload_context="Upload",
                                         table_edit_context="TableTool",
@@ -45,8 +62,8 @@ class GaiaClass(TapPlus):
                                         connhandler=tap_plus_conn_handler)
         # Data uses a different TapPlus connection
         if datalink_handler is None:
-            self.__gaiadata = TapPlus(url="https://geadata.esac.esa.int/",
-                                      server_context="data-server",
+            self.__gaiadata = TapPlus(url=gaia_data_server,
+                                      server_context=data_server_context,
                                       tap_context="tap",
                                       upload_context="Upload",
                                       table_edit_context="TableTool",
@@ -55,9 +72,93 @@ class GaiaClass(TapPlus):
         else:
             self.__gaiadata = datalink_handler
 
-    def load_data(self, ids, retrieval_type="epoch_photometry",
-                  valid_data=True, band=None, format="VOTABLE",
-                  output_file=None, verbose=False):
+    def login(self, user=None, password=None, credentials_file=None,
+              verbose=False):
+        """Performs a login.
+        User and password arguments can be used or a file that contains
+        user name and password
+        (2 lines: one for user name and the following one for the password).
+        If no arguments are provided, a prompt asking for user name and
+        password will appear.
+
+        Parameters
+        ----------
+        user : str, default None
+            login name
+        password : str, default None
+            user password
+        credentials_file : str, default None
+            file containing user and password in two lines
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+        """
+        try:
+            logger.info("Login to gaia TAP server")
+            TapPlus.login(self, user=user, password=password,
+                          credentials_file=credentials_file,
+                          verbose=verbose)
+        except HTTPError as err:
+            logger.error("Error logging in TAP server")
+            return
+        u = self._TapPlus__user
+        p = self._TapPlus__pwd
+        try:
+            logger.info("Login to gaia data server")
+            TapPlus.login(self.__gaiadata, user=u, password=p,
+                          verbose=verbose)
+        except HTTPError as err:
+            logger.error("Error logging in data server")
+            logger.error("Logging out from TAP server")
+            TapPlus.logout(self, verbose=verbose)
+
+    def login_gui(self, verbose=False):
+        """Performs a login using a GUI dialog
+
+        Parameters
+        ----------
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+        """
+        try:
+            logger.info("Login to gaia TAP server")
+            TapPlus.login_gui(self, verbose=verbose)
+        except HTTPError as err:
+            logger.error("Error logging in TAP server")
+            return
+        u = self._TapPlus__user
+        p = self._TapPlus__pwd
+        try:
+            logger.info("Login to gaia data server")
+            TapPlus.login(self.__gaiadata, user=u, password=p,
+                          verbose=verbose)
+        except HTTPError as err:
+            logger.error("Error logging in data server")
+            logger.error("Logging out from TAP server")
+            TapPlus.logout(self, verbose=verbose)
+
+    def logout(self, verbose=False):
+        """Performs a logout
+
+        Parameters
+        ----------
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+        """
+        try:
+            TapPlus.logout(self, verbose=verbose)
+        except HTTPError as err:
+            logger.error("Error logging out TAP server")
+            return
+        logger.info("Gaia TAP server logout OK")
+        try:
+            TapPlus.logout(self.__gaiadata, verbose=verbose)
+            logger.info("Gaia data server logout OK")
+        except HTTPError as err:
+            logger.error("Error logging out data server")
+
+    def load_data(self, ids, data_release=None, data_structure='INDIVIDUAL', retrieval_type="ALL", valid_data=True,
+                  band=None, avoid_datatype_check=False, format="votable", output_file=None,
+                  overwrite_output_file=False, verbose=False):
         """Loads the specified table
         TAP+ only
 
@@ -65,8 +166,18 @@ class GaiaClass(TapPlus):
         ----------
         ids : str list, mandatory
             list of identifiers
-        retrieval_type : str, optional, default 'epoch_photometry'
-            retrieval type identifier
+        data_release: str, optional, default None
+            data release from which data should be taken. E.g. 'Gaia DR2'
+            By default, it takes the current default one.
+        data_structure: str, optional, default 'INDIVIDUAL'
+            it can be 'INDIVIDUAL', 'COMBINED', 'RAW':
+            'INDIVIDUAL' means...
+            'COMBINED' means...
+            'RAW' means...
+        retrieval_type : str, optional, default 'ALL'
+            retrieval type identifier. It can be either 'epoch_photometry'
+            for compatibility reasons or 'ALL' to retrieve all data from
+            the list of sources.
         valid_data : bool, optional, default True
             By default, the epoch photometry service returns only valid data,
             that is, all data rows where flux is not null and
@@ -77,11 +188,16 @@ class GaiaClass(TapPlus):
             By default, the epoch photometry service returns all the
             available photometry bands for the requested source.
             This parameter allows to filter the output lightcurve by its band.
+        avoid_datatype_check: boolean, optional, default False.
+            By default, this value will be set to False. If it is set to 'true'
+            the Datalink items tags will not be checked.
         format : str, optional, default 'votable'
             loading format
         output_file : string, optional, default None
             file where the results are saved.
             If it is not provided, the http response contents are returned.
+        overwrite_output_file : boolean, optional, default False
+            To overwrite the output_file if it already exists.
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
@@ -91,13 +207,41 @@ class GaiaClass(TapPlus):
         """
         if retrieval_type is None:
             raise ValueError("Missing mandatory argument 'retrieval_type'")
+
+        now = datetime.now()
+        now_formatted = now.strftime("%Y%m%d_%H%M%S")
+        temp_dirname = "temp_" + now_formatted
+        downloadname_formated = "download_" + now_formatted
+
+        output_file_specified = False
+        if output_file is None:
+            output_file = os.path.join(os.getcwd(), temp_dirname, downloadname_formated)
+        else:
+            output_file_specified = True
+            output_file = os.path.abspath(output_file)
+            if not overwrite_output_file and os.path.exists(output_file):
+                raise ValueError(f"{output_file} file already exists. Please use overwrite_output_file='False' to "
+                                 f"overwrite output file.")
+
+        path = os.path.dirname(output_file)
+
         if ids is None:
             raise ValueError("Missing mandatory argument 'ids'")
+
+        if avoid_datatype_check is False:
+            # we need to check params
+            rt = str(retrieval_type).upper()
+            if rt != 'ALL' and rt not in self.VALID_DATALINK_RETRIEVAL_TYPES:
+                raise ValueError(f"Invalid mandatory argument 'retrieval_type'. Found {retrieval_type}, "
+                                 f"expected: 'ALL' or any of {self.VALID_DATALINK_RETRIEVAL_TYPES}")
+
         params_dict = {}
-        if valid_data:
-            params_dict['VALID_DATA'] = "true"
-        else:
+
+        if not valid_data or str(retrieval_type) == 'ALL':
             params_dict['VALID_DATA'] = "false"
+        elif valid_data:
+            params_dict['VALID_DATA'] = "true"
+
         if band is not None:
             if band != 'G' and band != 'BP' and band != 'RP':
                 raise ValueError("Invalid band value '%s' (Valid values: " +
@@ -112,11 +256,86 @@ class GaiaClass(TapPlus):
             else:
                 ids_arg = ','.join(str(item) for item in ids)
         params_dict['ID'] = ids_arg
+        if data_release is not None:
+            params_dict['RELEASE'] = data_release
+        params_dict['DATA_STRUCTURE'] = data_structure
         params_dict['FORMAT'] = str(format)
         params_dict['RETRIEVAL_TYPE'] = str(retrieval_type)
-        return self.__gaiadata.load_data(params_dict=params_dict,
-                                         output_file=output_file,
-                                         verbose=verbose)
+        params_dict['USE_ZIP_ALWAYS'] = 'true'
+
+        if path != '':
+            try:
+                os.mkdir(path)
+            except FileExistsError:
+                logger.error("Path %s already exist" % path)
+            except OSError:
+                logger.error("Creation of the directory %s failed" % path)
+
+        try:
+            self.__gaiadata.load_data(params_dict=params_dict,
+                                      output_file=output_file,
+                                      verbose=verbose)
+            files = Gaia.__get_data_files(output_file=output_file, path=path)
+        except Exception as err:
+            raise err
+        finally:
+            if not output_file_specified:
+                shutil.rmtree(path)
+
+        if verbose:
+            if output_file_specified:
+                logger.info("output_file =", output_file)
+
+        logger.debug("List of products available:")
+        # for key, value in files.items():
+        # print("Product =", key)
+
+        items = [key for key in files.keys()]
+        items.sort()
+        for item in items:
+            # print(f'* {item}')
+            if verbose:
+                logger.debug("Product = " + item)
+
+        return files
+
+    @staticmethod
+    def __get_data_files(output_file, path):
+        files = {}
+        if zipfile.is_zipfile(output_file):
+            with zipfile.ZipFile(output_file, 'r') as zip_ref:
+                zip_ref.extractall(os.path.dirname(output_file))
+
+        # r=root, d=directories, f = files
+        for r, d, f in os.walk(path):
+            for file in f:
+                if '.fits' in file or '.xml' in file or '.csv' in file:
+                    files[file] = os.path.join(r, file)
+
+        for key, value in files.items():
+            if '.fits' in key:
+                tables = []
+                with fits.open(value) as hduList:
+                    # print(hduList)
+                    num_hdus = len(hduList)
+                    for i in range(1, num_hdus):
+                        table = Table.read(hduList[i], format='fits')
+                        Gaia.correct_table_units(table)
+                        tables.append(table)
+                    files[key] = tables
+            elif '.xml' in key:
+                tables = []
+                for table in votable.parse(value).iter_tables():
+                    tables.append(table)
+                files[key] = tables
+
+            elif '.csv' in key:
+                tables = []
+                table = Table.read(value, format='ascii.csv',
+                                   fast_reader=False)
+                tables.append(table)
+                files[key] = tables
+        return files
 
     def get_datalinks(self, ids, verbose=False):
         """Gets datalinks associated to the provided identifiers
@@ -204,14 +423,10 @@ class GaiaClass(TapPlus):
                       )
                     ORDER BY
                       dist ASC
-                    """.format(**{
-                        'row_limit': "TOP {0}".format(self.ROW_LIMIT) if self.ROW_LIMIT > 0 else "",
-                        'ra_column': self.MAIN_GAIA_TABLE_RA,
-                        'dec_column': self.MAIN_GAIA_TABLE_DEC,
-                        'columns': columns, 'table_name': self.MAIN_GAIA_TABLE,
-                        'ra': ra, 'dec': dec, 'width': widthDeg.value, 'height': heightDeg.value,
-                    })
-
+                    """.format(**{'row_limit': "TOP {0}".format(self.ROW_LIMIT) if self.ROW_LIMIT > 0 else "",
+                                  'ra_column': self.MAIN_GAIA_TABLE_RA, 'dec_column': self.MAIN_GAIA_TABLE_DEC,
+                                  'columns': columns, 'table_name': self.MAIN_GAIA_TABLE, 'ra': ra, 'dec': dec,
+                                  'width': widthDeg.value, 'height': heightDeg.value})
             if async_job:
                 job = self.launch_job_async(query, verbose=verbose)
             else:
@@ -242,8 +457,7 @@ class GaiaClass(TapPlus):
         -------
         The job results (astropy.table).
         """
-        return self.__query_object(coordinate, radius, width, height,
-                                   async_job=False, verbose=verbose, columns=columns)
+        return self.__query_object(coordinate, radius, width, height, async_job=False, verbose=verbose, columns=columns)
 
     def query_object_async(self, coordinate, radius=None, width=None,
                            height=None, verbose=False, columns=[]):
@@ -260,18 +474,16 @@ class GaiaClass(TapPlus):
             box width
         height : astropy.units, required if no 'radius' is provided
             box height
-        async_job : bool, optional, default 'False'
-            executes the query (job) in asynchronous/synchronous mode
-            (default synchronous)
         verbose : bool, optional, default 'False'
             flag to display information about the process
+        columns: list, optional, default []
+            if empty, all columns will be selected
 
         Returns
         -------
         The job results (astropy.table).
         """
-        return self.__query_object(coordinate, radius, width, height,
-                                   async_job=True, verbose=verbose, columns=columns)
+        return self.__query_object(coordinate, radius, width, height, async_job=True, verbose=verbose, columns=columns)
 
     def __cone_search(self, coordinate, radius, table_name=MAIN_GAIA_TABLE,
                       ra_column_name=MAIN_GAIA_TABLE_RA,
@@ -347,14 +559,10 @@ class GaiaClass(TapPlus):
                   )
                 ORDER BY
                   dist ASC
-                """.format(**{
-                    'ra_column': ra_column_name,
-                    'row_limit': "TOP {0}".format(self.ROW_LIMIT) if self.ROW_LIMIT > 0 else "",
-                    'dec_column': dec_column_name,
-                    'columns': columns, 'ra': ra,
-                    'dec': dec, 'radius': radiusDeg,
-                    'table_name': table_name
-                })
+                """.format(**{'ra_column': ra_column_name,
+                              'row_limit': "TOP {0}".format(self.ROW_LIMIT) if self.ROW_LIMIT > 0 else "",
+                              'dec_column': dec_column_name, 'columns': columns, 'ra': ra, 'dec': dec,
+                              'radius': radiusDeg, 'table_name': table_name})
 
         if async_job:
             return self.launch_job_async(query=query,
@@ -475,15 +683,14 @@ class GaiaClass(TapPlus):
 
     def __checkQuantityInput(self, value, msg):
         if not (isinstance(value, str) or isinstance(value, units.Quantity)):
-            raise ValueError(
-                str(msg) + " must be either a string or astropy.coordinates")
+            raise ValueError(f"{msg} must be either a string or astropy coordinates")
 
     def __getQuantityInput(self, value, msg):
         if value is None:
-            raise ValueError("Missing required argument: '"+str(msg)+"'")
+            raise ValueError(f"Missing required argument: {msg}")
         if not (isinstance(value, str) or isinstance(value, units.Quantity)):
-            raise ValueError(
-                str(msg) + " must be either a string or astropy.coordinates")
+            raise ValueError(f"{msg} must be either a string or astropy.coordinates")
+
         if isinstance(value, str):
             q = Quantity(value)
             return q
@@ -493,19 +700,29 @@ class GaiaClass(TapPlus):
     def __checkCoordInput(self, value, msg):
         if not (isinstance(value, str) or isinstance(value,
                                                      commons.CoordClasses)):
-            raise ValueError(
-                str(msg) + " must be either a string or astropy.coordinates")
+            raise ValueError(f"{msg} must be either a string or astropy.coordinates")
 
     def __getCoordInput(self, value, msg):
         if not (isinstance(value, str) or isinstance(value,
                                                      commons.CoordClasses)):
-            raise ValueError(
-                str(msg) + " must be either a string or astropy.coordinates")
+            raise ValueError(f"{msg} must be either a string or astropy.coordinates")
         if isinstance(value, str):
             c = commons.parse_coordinates(value)
             return c
         else:
             return value
+
+    @staticmethod
+    def correct_table_units(table):
+        for cn in table.colnames:
+            col = table[cn]
+            if isinstance(col.unit, u.UnrecognizedUnit):
+                try:
+                    col.unit = u.Unit(col.unit.name.replace(".", " ").replace("'", ""))
+                except Exception as err:
+                    pass
+            elif isinstance(col.unit, str):
+                col.unit = col.unit.replace(".", " ").replace("'", "")
 
     def load_user(self, user_id, verbose=False):
         """Loads the specified user
@@ -561,30 +778,27 @@ class GaiaClass(TapPlus):
         if results_table_name is None:
             raise ValueError("Results table name argument is mandatory")
         if radius < 0.1 or radius > 10.0:
-            raise ValueError("Invalid radius value. Found " + str(radius) +
-                             ", valid range is: 0.1 to 10.0")
+            raise ValueError(f"Invalid radius value. Found {radius}, valid range is: 0.1 to 10.0")
+
         schemaA = taputils.get_schema_name(full_qualified_table_name_a)
         if schemaA is None:
-            raise ValueError("Not found schema name in " +
-                             "full qualified table A: '" +
-                             full_qualified_table_name_a + "'")
+            raise ValueError(f"Not found schema name in full qualified table A: '{full_qualified_table_name_a}'")
         tableA = taputils.get_table_name(full_qualified_table_name_a)
         schemaB = taputils.get_schema_name(full_qualified_table_name_b)
+
         if schemaB is None:
-            raise ValueError("Not found schema name in " +
-                             "full qualified table B: '" +
-                             full_qualified_table_name_b + "'")
+            raise ValueError(f"Not found schema name in full qualified table B: '{full_qualified_table_name_b}'")
+
         tableB = taputils.get_table_name(full_qualified_table_name_b)
+
         if taputils.get_schema_name(results_table_name) is not None:
-            raise ValueError("Please, do not specify schema for " +
-                             "'results_table_name'")
-        query = "SELECT crossmatch_positional(\
-            '"+schemaA+"','"+tableA+"',\
-            '"+schemaB+"','"+tableB+"',\
-            "+str(radius)+",\
-            '"+str(results_table_name)+"')\
-            FROM dual;"
+            raise ValueError("Please, do not specify schema for 'results_table_name'")
+
+        query = f"SELECT crossmatch_positional('{schemaA}','{tableA}','{schemaB}','{tableB}',{radius}, " \
+                f"'{results_table_name}') FROM dual;"
+
         name = str(results_table_name)
+
         return self.launch_job_async(query=query,
                                      name=name,
                                      output_file=None,
@@ -594,6 +808,96 @@ class GaiaClass(TapPlus):
                                      background=background,
                                      upload_resource=None,
                                      upload_table_name=None)
+
+    def launch_job(self, query, name=None, output_file=None,
+                   output_format="votable", verbose=False,
+                   dump_to_file=False, upload_resource=None,
+                   upload_table_name=None):
+        """Launches a synchronous job
+
+        Parameters
+        ----------
+        query : str, mandatory
+            query to be executed
+        output_file : str, optional, default None
+            file name where the results are saved if dumpToFile is True.
+            If this parameter is not provided, the jobid is used instead
+        output_format : str, optional, default 'votable'
+            results format. Available formats are: 'votable', 'votable_plain',
+             'fits', 'csv' and 'json', default is 'votable'.
+             Returned results for 'votable' and 'fits' formats are compressed
+             gzip files.
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+        dump_to_file : bool, optional, default 'False'
+            if True, the results are saved in a file instead of using memory
+        upload_resource : str, optional, default None
+            resource to be uploaded to UPLOAD_SCHEMA
+        upload_table_name : str, optional, default None
+            resource temporary table name associated to the uploaded resource.
+            This argument is required if upload_resource is provided.
+
+        Returns
+        -------
+        A Job object
+        """
+        return TapPlus.launch_job(self, query=query, name=name,
+                                  output_file=output_file,
+                                  output_format=output_format,
+                                  verbose=verbose,
+                                  dump_to_file=dump_to_file,
+                                  upload_resource=upload_resource,
+                                  upload_table_name=upload_table_name)
+
+    def launch_job_async(self, query, name=None, output_file=None,
+                         output_format="votable", verbose=False,
+                         dump_to_file=False, background=False,
+                         upload_resource=None, upload_table_name=None,
+                         autorun=True):
+        """Launches an asynchronous job
+
+        Parameters
+        ----------
+        query : str, mandatory
+            query to be executed
+        output_file : str, optional, default None
+            file name where the results are saved if dumpToFile is True.
+            If this parameter is not provided, the jobid is used instead
+        output_format : str, optional, default 'votable'
+            results format. Available formats are: 'votable', 'votable_plain',
+             'fits', 'csv' and 'json', default is 'votable'.
+             Returned results for 'votable' and 'fits' formats are compressed
+             gzip files.
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+        dump_to_file : bool, optional, default 'False'
+            if True, the results are saved in a file instead of using memory
+        background : bool, optional, default 'False'
+            when the job is executed in asynchronous mode, this flag specifies
+            whether the execution will wait until results are available
+        upload_resource : str, optional, default None
+            resource to be uploaded to UPLOAD_SCHEMA
+        upload_table_name : str, optional, default None
+            resource temporary table name associated to the uploaded resource.
+            This argument is required if upload_resource is provided.
+        autorun : boolean, optional, default True
+            if 'True', sets 'phase' parameter to 'RUN',
+            so the framework can start the job.
+
+        Returns
+        -------
+        A Job object
+        """
+        return TapPlus.launch_job_async(self, query=query,
+                                        name=name,
+                                        output_file=output_file,
+                                        output_format=output_format,
+                                        verbose=verbose,
+                                        dump_to_file=dump_to_file,
+                                        background=background,
+                                        upload_resource=upload_resource,
+                                        upload_table_name=upload_table_name,
+                                        autorun=autorun)
 
 
 Gaia = GaiaClass()
