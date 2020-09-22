@@ -50,6 +50,13 @@ alma
   VirtualObservatory (VO) services such as TAP, ObsCore etc. The alma
   library has been updated accordingly. [#1689]
 
+gaia
+^^^^
+- Fixed RA/dec table edit capability. [#1784]
+- Changed file names handling when downloading data. [#1784]
+- Improved code to handle bit data type. [#1784]
+- Prepared code to handle new datalink products. [#1784]
+
 
 0.4.1 (2020-06-19)
 ==================
@@ -108,10 +115,6 @@ eso
 
 gaia
 ^^^^
-- Fixed RA/dec table edit capability. [#1784]
-- Changed file names handling when downloading data. [#1784]
-- Improved code to handle bit data type. [#1784]
-- Prepared code to handle new datalink products. [#1784]
 - Allow for setting row limits in query submissions through class
   attribute. [#1641]
 
