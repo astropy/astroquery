@@ -407,6 +407,7 @@ class AstrometryNetClass(BaseQuery):
                                                sources['ycentroid'],
                                                ccd.header['naxis1'],
                                                ccd.header['naxis2'],
+                                               solve_timeout=solve_timeout,
                                                **settings)
         if response.status_code != 200:
             raise RuntimeError('Post of job failed')
