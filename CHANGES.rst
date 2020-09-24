@@ -4,6 +4,12 @@
 Service fixes and enhancements
 ------------------------------
 
+mast
+^^^^
+
+- Added ``Observations.download_file`` method to download a single file from MAST given an input
+  data URI. [#1825]
+
 esa/hubble
 ^^^^^^^^^^
 
