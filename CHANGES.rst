@@ -57,6 +57,9 @@ gaia
 - Improved code to handle bit data type. [#1784]
 - Prepared code to handle new datalink products. [#1784]
 
+sdss
+^^^^
+- Add SDSS image cutout query tool. [#1383]
 
 0.4.1 (2020-06-19)
 ==================
