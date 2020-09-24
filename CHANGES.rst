@@ -1,6 +1,3 @@
-<<<<<<< HEAD:CHANGES.rst
-0.4.2 (unreleased)
-==================
 
 Service fixes and enhancements
 ------------------------------
@@ -425,7 +422,6 @@ Infrastructure, Utility and Other Changes and Additions
   different available reference planes [#1335]
 - ALMA: Fix some broken VOtable returns and a broken login URL [#1369]
 - SDSS: Add image cutout query tools to SDSS() class. [#1383]
->>>>>>> Move changelog entry to end of list to reflect order of addition:CHANGES
 
 
 0.3.9 (2018-12-06)
