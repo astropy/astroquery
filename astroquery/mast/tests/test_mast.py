@@ -68,6 +68,7 @@ def patch_post(request):
     mp.setattr(mast.auth.MastAuth, 'session_info', session_info_mockreturn)
 
     mp.setattr(mast.Observations, '_download_file', download_mockreturn)
+    mp.setattr(mast.Observations, 'download_file', download_mockreturn)
     mp.setattr(mast.Catalogs, '_download_file', download_mockreturn)
     mp.setattr(mast.Tesscut, '_download_file', tess_download_mockreturn)
 
@@ -122,7 +123,7 @@ def resolver_mockreturn(*args, **kwargs):
 
 
 def download_mockreturn(*args, **kwargs):
-    return
+    return ('COMPLETE', None, None)
 
 
 def session_info_mockreturn(self, silent=False):
