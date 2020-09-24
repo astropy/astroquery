@@ -327,18 +327,19 @@ Product filtering can also be applied directly to a table of products without pr
 Downloading a Single File
 -------------------------
 
-You can download a single data product file using the ``Observation.download_file`` method, and passing in
+You can download a single data product file using the `~astroquery.mast.ObservationsClass.download_file` method, and passing in
 a MAST dataURL.  The default is to download the file the current working directory, which can be changed with
-the `local_path` keyword argument.
+the *local_path* keyword argument.
 
-.. code-block: python
+.. code-block:: python
 
                 >>> from astroquery.mast import Observations
 
                 >>> product = 'mast:IUE/url/pub/iue/data/lwp/13000/lwp13058.elbll.gz'
-                >>> Observations.download_file(product)
-
+                >>> result = Observations.download_file(product)
                 Downloading URL https://mast.stsci.edu/api/v0.1/Download/file?uri=mast:IUE/url/pub/iue/data/lwp/13000/lwp13058.elbll.gz to ./lwp13058.elbll.gz ... [Done]
+                >>> print(result)
+                ('COMPLETE', None, None)
 
 Cloud Data Access
 ------------------
