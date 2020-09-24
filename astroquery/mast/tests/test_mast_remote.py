@@ -286,6 +286,17 @@ class TestMast(object):
         assert isinstance(result, Table)
         assert os.path.isfile(result['Local Path'][0])
 
+    def test_observations_download_file(self, tmpdir):
+        test_obs_id = '2003600312'
+
+        # pull a single data product
+        products = mast.Observations.get_product_list(test_obs_id)
+        uri = products['dataURI'][0]
+
+        # download it
+        result = mast.Observations.download_file(uri)
+        assert result == ('COMPLETE', None, None)
+
     ######################
     # CatalogClass tests #
     ######################
