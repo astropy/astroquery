@@ -526,7 +526,7 @@ class ObservationsClass(MastQueryWithLogin):
         Parameters
         ----------
         uri : str
-            The product dataURI, e.g. `mast:JWST/product/jw00736-o039_t001_miri_ch1-long_x1d.fits`
+            The product dataURI, e.g. mast:JWST/product/jw00736-o039_t001_miri_ch1-long_x1d.fits
         local_path : str
             Directory in which the files will be downloaded.  Defaults to current working directory.
         base_url: str
