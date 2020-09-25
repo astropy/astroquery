@@ -35,7 +35,7 @@ class TestISO():
                       'verbose': False}
         ida = ISOClass(self.get_dummy_tap_handler())
         res = ida.download_data(**parameters)
-        self.assertEqual(res,"file.tar")
+        self.assertEqual(res, "file.tar")
 
     @pytest.mark.remote_data
     def test_download_postcard(self):
@@ -44,7 +44,7 @@ class TestISO():
                       'verbose': False}
         ida = ISOClass(self.get_dummy_tap_handler())
         res = ida.get_postcard(**parameters)
-        self.assertEqual(res,"file.png")
+        self.assertEqual(res, "file.png")
 
     def test_query_ida_tap(self):
         parameters = {'query': "select top 10 * from ida.observations",
