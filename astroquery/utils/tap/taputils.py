@@ -16,6 +16,7 @@ Created on 30 jun. 2016
 """
 
 import re
+from datetime import datetime
 
 TAP_UTILS_QUERY_TOP_PATTERN = re.compile(
     r"\s*SELECT\s+(ALL\s+|DISTINCT\s+)?TOP\s+\d+\s+", re.IGNORECASE)
@@ -218,3 +219,24 @@ def get_table_name(full_qualified_table_name):
         return full_qualified_table_name
     name = full_qualified_table_name[pos+1:]
     return name
+
+
+def get_suitable_output_file(conn_handler, async_job, outputFile, headers,
+                             isError, output_format):
+    dateTime = datetime.now().strftime("%Y%m%d%H%M%S")
+    fileName = ""
+    if outputFile is None:
+        fileName = conn_handler.get_file_from_header(headers)
+        if fileName is None:
+            ext = conn_handler.get_suitable_extension(headers)
+            if not async_job:
+                fileName = "sync_" + str(dateTime) + ext
+            else:
+                ext = conn_handler.get_suitable_extension_by_format(
+                    output_format)
+                fileName = "async_" + str(dateTime) + ext
+    else:
+        fileName = outputFile
+    if isError:
+        fileName += ".error"
+    return fileName

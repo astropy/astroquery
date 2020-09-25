@@ -10,6 +10,7 @@ from astropy import wcs
 from astropy import log
 from astropy import units as u
 from astropy.io import fits
+from astroquery.utils.commons import ASTROPY_LT_4_1
 
 from astroquery.skyview import SkyView
 from astroquery.alma import Alma
@@ -114,6 +115,8 @@ def footprint_to_reg(footprint):
     -28.694332 266.521332 -28.699778'
     Some of them have *additional* polygons
     """
+    if ASTROPY_LT_4_1:
+        footprint = footprint.decode('utf-8')
     if footprint[:7] != 'Polygon' and footprint[:6] != 'Circle':
         raise ValueError("Unrecognized footprint type")
 
@@ -123,7 +126,7 @@ def footprint_to_reg(footprint):
 
     entries = footprint.split()
     if entries[0] == 'Circle':
-        reg = Shape('circle', [float(x) for x in entries[1:]])
+        reg = Shape('circle', [float(x) for x in entries[1:] if x != 'ICRS'])
         reg.coord_format = 'icrs'
         reg.coord_list = reg.params  # the coord_list attribute is needed somewhere
         reg.attr = ([], {'color': 'green', 'dash': '0 ', 'dashlist': '8 3',
@@ -137,7 +140,7 @@ def footprint_to_reg(footprint):
         polygons = [ii for ii, xx in enumerate(entries) if xx == 'Polygon']
 
         for start, stop in zip(polygons, polygons[1:]+[None]):
-            reg = Shape('polygon', [float(x) for x in entries[start+1:stop]])
+            reg = Shape('polygon', [float(x) for x in entries[start+1:stop] if x != 'ICRS'])
             reg.coord_format = 'icrs'
             reg.coord_list = reg.params  # the coord_list attribute is needed somewhere
             reg.attr = ([], {'color': 'green', 'dash': '0 ', 'dashlist': '8 3',
@@ -331,9 +334,9 @@ def make_finder_chart_from_image_and_catalog(image, catalog, save_prefix,
     import pyregion
 
     all_bands = bands
-    bands = used_bands = [int(band)
+    bands = used_bands = [band
                           for band in
-                          np.unique(catalog['Band'])]
+                          np.unique(catalog['band_list'])]
     log.info("The bands used include: {0}".format(used_bands))
     band_colors_priv = dict(zip(all_bands, private_band_colors))
     band_colors_pub = dict(zip(all_bands, public_band_colors))
@@ -377,13 +380,13 @@ def make_finder_chart_from_image_and_catalog(image, catalog, save_prefix,
         #     band: np.array(list(set(public_circle_parameters[band])))
         #     for band in bands}
 
-        release_dates = np.array(catalog['Release date'], dtype=np.datetime64)
+        release_dates = np.array(catalog['obs_release_date'], dtype=np.datetime64)
 
         for band in bands:
             log.info("BAND {0}".format(band))
-            privrows = sum((catalog['Band'] == band) &
+            privrows = sum((catalog['band_list'] == band) &
                            (release_dates > today))
-            pubrows = sum((catalog['Band'] == band) &
+            pubrows = sum((catalog['band_list'] == band) &
                           (release_dates <= today))
             log.info("PUBLIC:  Number of rows: {0}".format(pubrows,))
             log.info("PRIVATE: Number of rows: {0}.".format(privrows))
@@ -392,22 +395,22 @@ def make_finder_chart_from_image_and_catalog(image, catalog, save_prefix,
         prv_regions = {
             band: pyregion.ShapeList([add_meta_to_reg(fp,
                                                       {'integration':
-                                                       row['Integration']})
+                                                       row['t_exptime']})
                                       for row in catalog
-                                      for fp in footprint_to_reg(row['Footprint'])
-                                      if (not row['Release date']) or
-                                      (np.datetime64(row['Release date']) >
-                                       today and row['Band'] == band)])
+                                      for fp in footprint_to_reg(row['s_region'])
+                                      if (not row['obs_release_date']) or
+                                      (np.datetime64(row['obs_release_date']) >
+                                       today and row['band_list'] == band)])
             for band in bands}
         pub_regions = {
             band: pyregion.ShapeList([add_meta_to_reg(fp,
                                                       {'integration':
-                                                       row['Integration']})
+                                                       row['t_exptime']})
                                       for row in catalog
-                                      for fp in footprint_to_reg(row['Footprint'])
-                                      if row['Release date'] and
-                                      (np.datetime64(row['Release date']) <=
-                                       today and row['Band'] == band)])
+                                      for fp in footprint_to_reg(row['s_region'])
+                                      if row['obs_release_date'] and
+                                      (np.datetime64(row['obs_release_date']) <=
+                                       today and row['band_list'] == band)])
             for band in bands}
 
         log.debug('Creating masks')

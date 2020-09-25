@@ -45,7 +45,7 @@ class UkidssClass(BaseWFAUClass):
                        'Deep Extragalactic Survey': 104,
                        'Ultra Deep Survey': 105}
 
-    all_databases = ("UKIDSSDR10PLUS", "UKIDSSDR9PLUS",
+    all_databases = ("UKIDSSDR11PLUS", "UKIDSSDR10PLUS", "UKIDSSDR9PLUS",
                      "UKIDSSDR8PLUS", "UKIDSSDR7PLUS",
                      "UKIDSSDR6PLUS", "UKIDSSDR5PLUS", "UKIDSSDR4PLUS",
                      "UKIDSSDR3PLUS", "UKIDSSDR2PLUS", "UKIDSSDR1PLUS",
@@ -56,7 +56,7 @@ class UkidssClass(BaseWFAUClass):
     archive = None
 
     def __init__(self, username=None, password=None, community=None,
-                 database='UKIDSSDR10PLUS', programme_id='all'):
+                 database='UKIDSSDR11PLUS', programme_id='all'):
         super(UkidssClass, self).__init__(database=database,
                                           programme_id=programme_id,
                                           username=username,
