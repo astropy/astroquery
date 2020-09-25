@@ -107,7 +107,7 @@ class ISOClass(BaseQuery):
         if verbose:
             log.info("Wrote {0} to {1}".format(link, filename))
 
-        return filename                     
+        return filename
 
     def get_postcard(self, tdt, *, filename=None, verbose=False):
         """
