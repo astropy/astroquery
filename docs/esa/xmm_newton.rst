@@ -122,10 +122,15 @@ This will show the available tables in XSA TAP service in the XMM-Newton Science
 
 This will show the column details of the table 'v_all_observations' in XSA TAP service in the XMM-Newton Science Archive.
 
+<<<<<<< 3e30451bdddafb420904836f35e9c8aafe2a7725
 <<<<<<< 1e1b145889f61ca212f882121e8a0b6ffbbd742c
 =======
 --------------------------------------------
 6. Getting EPIC images from a given TAR file 
+=======
+--------------------------------------------
+6. Getting EPIC images from a given TAR file
+>>>>>>>  Changes to be committed:
 --------------------------------------------
 
 .. code-block:: python
@@ -135,8 +140,12 @@ This will show the column details of the table 'v_all_observations' in XSA TAP s
   >>> XMMNewton.get_epic_images('tarfile.tar', band=[1,2], instrument=['M1'])
   {1: {'M1': '/home/dev/esa/0405320501/pps/P0405320501M1S002IMAGE_1000.FTZ'}, 2: {'M1': '/home/dev/esa/0405320501/pps/P0405320501M1S002IMAGE_2000.FTZ'}}
 
+<<<<<<< 3e30451bdddafb420904836f35e9c8aafe2a7725
 This will extract the European Photon Imaging Camera (EPIC) images within the specified TAR file, bands, and instruments. It will also return a dictionary containing the paths to the extracted files.        
 >>>>>>> XMM: Fixing documentation issues, positional parameters and exception raising. Issue: NXSAPCR-922
+=======
+This will extract the European Photon Imaging Camera (EPIC) images within the specified TAR file, bands, and instruments. It will also return a dictionary containing the paths to the extracted files.
+>>>>>>>  Changes to be committed:
 
 Reference/API
 =============
