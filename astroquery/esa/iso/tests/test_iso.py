@@ -37,7 +37,7 @@ class TestISO():
 
     def test_get_download_link_verbose(self):
         parameters = {'tdt': "40001501",
-                      'level': "DEFAULT_DATA_SET",                     
+                      'level': "DEFAULT_DATA_SET", 
                       'retrieval_type': "OBSERVATION",
                       'filename': "file",
                       'verbose': True}
