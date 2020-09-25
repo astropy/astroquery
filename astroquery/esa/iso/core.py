@@ -78,6 +78,7 @@ class ISOClass(BaseQuery):
 
         link = self.data_url
         link = link + "retrieval_type=" + retrieval_type
+        link = link + "&DATA_RETRIEVAL_ORIGIN=astroquery"
         link = link + "&tdt=" + tdt
 
         link = link + "".join("&{0}={1}".format(key, val)
@@ -128,6 +129,7 @@ class ISOClass(BaseQuery):
         """
 
         params = {'retrieval_type': 'POSTCARD',
+                  'DATA_RETRIEVAL_ORIGIN': 'astroquery',
                   'tdt': tdt}
 
         link = self.data_url + "".join("&{0}={1}".format(key, val)
