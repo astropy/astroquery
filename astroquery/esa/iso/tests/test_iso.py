@@ -106,3 +106,20 @@ class TestISO():
         ida = ISOClass(self.get_dummy_tap_handler())
         ida.get_columns("table", only_names=True, verbose=True)
         dummyTapHandler.check_call("get_columns", parameters)
+
+    def test_get_tables_onlynames_false(self):
+        parameters = {'only_names': False,
+                       'verbose': True}
+
+        dummyTapHandler = DummyISOTapHandler("get_tables", parameters)
+        ida = ISOClass(self.get_dummy_tap_handler())
+        ida.get_tables(only_names=False, verbose=True)
+
+    def test_get_columns_onlynames_false(self):
+        parameters = {'table_name': "table",
+                       'only_names': False,
+                       'verbose': True}
+
+        dummyTapHandler = DummyISOTapHandler("get_columns", parameters)
+        ida = ISOClass(self.get_dummy_tap_handler())
+        ida.get_columns("table", only_names=False, verbose=True)
