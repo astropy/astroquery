@@ -12,8 +12,8 @@ Created on 15 July 2020
 
 import pytest
 
-from ..core import ISOClass
-from ..tests.dummy_tap_handler import DummyISOTapHandler
+from astroquery.esa.iso import ISOClass
+from astroquery.esa.iso.tests.dummy_tap_handler import DummyISOTapHandler
 
 
 class TestISO():
@@ -31,18 +31,20 @@ class TestISO():
         parameters = {'tdt': "40001501",
                       'level': "DEFAULT_DATA_SET",
                       'retrieval_type': "OBSERVATION",
-                      'filename': 'file.tar',
+                      'filename': "file.tar",
                       'verbose': False}
-        xsa = ISOClass(self.get_dummy_tap_handler())
-        xsa.download_data(**parameters)
+        ida = ISOClass(self.get_dummy_tap_handler())
+        res = ida.download_data(**parameters)
+        self.assertEqual(res,"file.tar")
 
     @pytest.mark.remote_data
     def test_download_postcard(self):
         parameters = {'tdt': "40001501",
-                      'filename': 'file.png',
+                      'filename': "file.png",
                       'verbose': False}
-        xsa = ISOClass(self.get_dummy_tap_handler())
-        xsa.get_postcard(**parameters)
+        ida = ISOClass(self.get_dummy_tap_handler())
+        res = ida.get_postcard(**parameters)
+        self.assertEqual(res,"file.png")
 
     def test_query_ida_tap(self):
         parameters = {'query': "select top 10 * from ida.observations",
