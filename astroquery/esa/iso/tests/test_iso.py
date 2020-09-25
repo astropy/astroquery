@@ -28,12 +28,21 @@ class TestISO():
 
     @pytest.mark.remote_data
     def test_download_data(self):
-        parameters = {'observation_id': "0112880801",
-                      'level': "BASIC_SCIENCE",
+        parameters = {'tdt': "40001501",
+                      'level': "DEFAULT_DATA_SET",
+                      'retrieval_type': "OBSERVATION",
                       'filename': 'file.tar',
                       'verbose': False}
         xsa = ISOClass(self.get_dummy_tap_handler())
         xsa.download_data(**parameters)
+
+    @pytest.mark.remote_data
+    def test_download_postcard(self):
+        parameters = {'tdt': "40001501",
+                      'filename': 'file.png',
+                      'verbose': False}
+        xsa = ISOClass(self.get_dummy_tap_handler())
+        xsa.get_postcard(**parameters)
 
     def test_query_ida_tap(self):
         parameters = {'query': "select top 10 * from ida.observations",
