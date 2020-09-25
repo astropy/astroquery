@@ -10,6 +10,12 @@ mast
 - Added ``Observations.download_file`` method to download a single file from MAST given an input
   data URI. [#1825]
 
+esa/iso
+  ^^^^^^^^^^
+
+  - New submodule esa.iso created to acess ESA ISO mission data [#1828]
+
+
 esa/hubble
 ^^^^^^^^^^
 
