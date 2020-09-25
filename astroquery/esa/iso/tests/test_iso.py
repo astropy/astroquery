@@ -26,7 +26,6 @@ class TestISO():
         dummyTapHandler = DummyISOTapHandler("launch_job", parameters)
         return dummyTapHandler
 
-    @pytest.mark.remote_data
     def test_download_data(self):
         parameters = {'tdt': "40001501",
                       'level': "DEFAULT_DATA_SET",
@@ -37,7 +36,6 @@ class TestISO():
         res = ida.download_data(**parameters)
         self.assertEqual(res, "file.tar")
 
-    @pytest.mark.remote_data
     def test_download_postcard(self):
         parameters = {'tdt': "40001501",
                       'filename': "file.png",
