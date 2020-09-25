@@ -26,6 +26,7 @@ class TestISO():
         dummyTapHandler = DummyISOTapHandler("launch_job", parameters)
         return dummyTapHandler
 
+    @pytest.mark.remote_data
     def test_download_data(self):
         parameters = {'tdt': "40001501",
                       'level': "DEFAULT_DATA_SET",
@@ -34,15 +35,16 @@ class TestISO():
                       'verbose': False}
         ida = ISOClass(self.get_dummy_tap_handler())
         res = ida.download_data(**parameters)
-        self.assertEqual(res, "file.tar")
+        assert res == "file.tar", "File name is " + res + " and not file.tar"
 
+    @pytest.mark.remote_data
     def test_download_postcard(self):
         parameters = {'tdt': "40001501",
                       'filename': "file.png",
                       'verbose': False}
         ida = ISOClass(self.get_dummy_tap_handler())
         res = ida.get_postcard(**parameters)
-        self.assertEqual(res, "file.png")
+        assert res == "file.png", "File name is " + res + " and not file.png"
 
     def test_query_ida_tap(self):
         parameters = {'query': "select top 10 * from ida.observations",
