@@ -25,8 +25,8 @@ class Conf(_config.ConfigNamespace):
 
     TIMEOUT = 60
 
-conf = Conf()
 
+conf = Conf()
 
 from .core import ISO, ISOClass
 
