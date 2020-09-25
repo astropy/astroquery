@@ -98,7 +98,7 @@ stored in the file 'results10.csv'. The result of this query can be printed by d
   'xsa.v_om_source', 'xsa.v_om_source_cat', 'xsa.v_proposal', 'xsa.v_proposal_observation_info',
   'xsa.v_publication', 'xsa.v_publication_observation', 'xsa.v_publication_slew_observation',
   'xsa.v_public_observations', 'xsa.v_rgs_source', 'xsa.v_slew_exposure', 'xsa.v_slew_observation',
-  'xsa.v_slew_source', 'xsa.v_slew_source_cat', 'xsa.v_target_type', 'xsa.v_uls_exposure_image',
+  'xsa.v_slew_source', 'xsa.v_slew_source_cat', 'xsa.v_target_type', 'xsa.v_uls_exposure_image', 
   'xsa.v_uls_slew_exposure_image']
 
 This will show the available tables in XSA TAP service in the XMM-Newton Science Archive.
@@ -133,7 +133,7 @@ This will show the column details of the table 'v_all_observations' in XSA TAP s
   >>> XMMNewton.get_epic_images('tarfile.tar', band=[1,2], instrument=['M1'])
   {1: {'M1': '/home/dev/esa/0405320501/pps/P0405320501M1S002IMAGE_1000.FTZ'}, 2: {'M1': '/home/dev/esa/0405320501/pps/P0405320501M1S002IMAGE_2000.FTZ'}}
 
-  This will extract the European Photon Imaging Camera (EPIC) images within the specified TAR file, bands, and instruments. It will also return a dictionary containing the paths to the extracted files.
+This will extract the European Photon Imaging Camera (EPIC) images within the specified TAR file, bands, and instruments. It will also return a dictionary containing the paths to the extracted files.
 
 Reference/API
 =============
