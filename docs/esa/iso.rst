@@ -413,7 +413,7 @@ And spectra can be displayed by using the following code:
     8                1 TableHDU        39   959R x 8C   [F8.4, E11.3, E11.3, I2, I2, I2, I2, A42]   
     9                1 TableHDU        39   959R x 8C   [F8.4, E11.3, E11.3, I2, I2, I2, I2, A42]   
    10                1 TableHDU        39   962R x 8C   [F8.4, E11.3, E11.3, I2, I2, I2, I2, A42]   
-   11                1 TableHDU        39   963R x 8C   [F8.4, E11.3, E11.3, I2, I2, I2, I2, A42]   
+   11                1 TableHDU        39   963R x 8C   [F8.4, E11.3, E11.3, I2, I2, I2, I2, A42]
 ​
   >>> # The spectrum is in the first HDU of this file.
   >>> specdata = f[1].data
