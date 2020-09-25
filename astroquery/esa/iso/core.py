@@ -41,11 +41,10 @@ class ISOClass(BaseQuery):
         else:
             self._tap = tap_handler
 
-    def download_data(self, tdt, *, retrieval_type=None, filename=None,
-                      verbose=False, **kwargs):
-
+    def get_download_link(self, tdt, retrieval_type, filename,
+                      verbose, **kwargs):    
         """
-        Download data from ISO
+        Get download link for ISO
 
         Parameters
         ----------
@@ -87,6 +86,43 @@ class ISOClass(BaseQuery):
         if verbose:
             log.info(link)
 
+        return link
+
+    def download_data(self, tdt, *, retrieval_type=None, filename=None,
+                      verbose=False, **kwargs):
+
+        """
+        Download data from ISO
+
+        Parameters
+        ----------
+        tdt : string
+          id of the Target Dedicated Time (observation identifier) to be
+          downloaded, mandatory
+          The identifier of the observation we want to retrieve, 8 digits
+          example: 40001501
+        product_level : string
+            level to download, optional, by default everything is selected
+            values: DEFAULT_DATA_SET, FULLY_PROC, RAW_DATA, BASIC_SCIENCE,
+            QUICK_LOOK, DEFAULT_DATA_SET, HPDP, ALL
+        retrieval_type : string
+            type of retrieval: OBSERVATION for full observation or STANDALONE
+            for single files
+        filename : string
+            file name to be used to store the file
+        verbose : bool
+            optional, default 'False'
+            flag to display information about the process
+
+         Returns
+        -------
+        None if not verbose. It downloads the observation indicated
+        If verbose returns the filename
+        """
+
+        link = self.get_download_link(tdt, retrieval_type, filename,
+                      verbose, **kwargs)
+
         response = self._request('GET', link, save=False, cache=True)
         response.raise_for_status()
 
@@ -109,6 +145,48 @@ class ISOClass(BaseQuery):
 
         return filename
 
+    def get_postcard_link(self, tdt, filename=None, verbose=False):    
+        """
+        Get postcard link for ISO
+
+        Parameters
+        ----------
+        tdt : string
+          id of the Target Dedicated Time (observation identifier) to be
+          downloaded, mandatory
+          The identifier of the observation we want to retrieve, 8 digits
+          example: 40001501
+        product_level : string
+            level to download, optional, by default everything is selected
+            values: DEFAULT_DATA_SET, FULLY_PROC, RAW_DATA, BASIC_SCIENCE,
+            QUICK_LOOK, DEFAULT_DATA_SET, HPDP, ALL
+        retrieval_type : string
+            type of retrieval: OBSERVATION for full observation or STANDALONE
+            for single files
+        filename : string
+            file name to be used to store the file
+        verbose : bool
+            optional, default 'False'
+            flag to display information about the process
+
+         Returns
+        -------
+        None if not verbose. It downloads the observation indicated
+        If verbose returns the filename
+        """
+ 
+        link = self.data_url
+        link = link + "retrieval_type=POSTCARD"
+        link = link + "&DATA_RETRIEVAL_ORIGIN=astroquery"
+        link = link + "&tdt=" + tdt
+
+        if verbose:
+            log.info(link)
+
+        return link
+
+
+
     def get_postcard(self, tdt, *, filename=None, verbose=False):
         """
         Download postcards from ISO Data Archive
@@ -130,18 +208,9 @@ class ISOClass(BaseQuery):
         None. It downloads the observation postcard indicated
         """
 
-        params = {'retrieval_type': 'POSTCARD',
-                  'DATA_RETRIEVAL_ORIGIN': 'astroquery',
-                  'tdt': tdt}
+        link = self.get_postcard_link(tdt, filename, verbose)
 
-        link = self.data_url + "".join("&{0}={1}".format(key, val)
-                                       for key, val in params.items())
-
-        if verbose:
-            log.info(link)
-
-        local_filepath = self._request('GET', link, params,
-                                       cache=True, save=True)
+        local_filepath = self._request('GET', link, cache=True, save=True)
 
         if filename is None:
             try:
@@ -167,7 +236,8 @@ class ISOClass(BaseQuery):
 
     def query_ida_tap(self, query, *, output_file=None,
                       output_format="votable", verbose=False):
-        """Launches a synchronous job to query the ISO Tabular Access Protocol Service
+        """
+        Launches a synchronous job to query the ISO Tabular Access Protocol Service
 
         Parameters
         ----------
@@ -197,7 +267,8 @@ class ISOClass(BaseQuery):
             print(table)
 
     def get_tables(self, *, only_names=True, verbose=False):
-        """Get the available table in XSA TAP service
+        """
+        Get the available table in XSA TAP service
 
         Parameters
         ----------
@@ -220,7 +291,8 @@ class ISOClass(BaseQuery):
             return tables
 
     def get_columns(self, table_name, *, only_names=True, verbose=False):
-        """Get the available columns for a table in XSA TAP service
+        """
+        Get the available columns for a table in XSA TAP service
 
         Parameters
         ----------
