@@ -35,9 +35,10 @@ class TestISO():
         ida = ISOClass(self.get_dummy_tap_handler())
         link = ida.get_download_link(**parameters)
 
-    def test_get_download_link(self):
+    def test_get_download_link_verbose(self):
         parameters = {'tdt': "40001501",
-                      'level': "DEFAULT_DATA_SET",
+                      'level': "DEFAULT_DATA_SET",                      
+                      'retrieval_type': "OBSERVATION",
                       'filename': "file",
                       'verbose': True}
         ida = ISOClass(self.get_dummy_tap_handler())
@@ -50,7 +51,7 @@ class TestISO():
         ida = ISOClass(self.get_dummy_tap_handler())
         link = ida.get_postcard_link(**parameters)
 
-    def test_get_postcard_link(self):
+    def test_get_postcard_link_verbose(self):
         parameters = {'tdt': "40001501",
                       'filename': "file",
                       'verbose': True}

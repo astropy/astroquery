@@ -72,9 +72,6 @@ class ISOClass(BaseQuery):
         If verbose returns the filename
         """
 
-        if retrieval_type is None:
-            retrieval_type = "OBSERVATION"
-
         link = self.data_url
         link = link + "retrieval_type=" + retrieval_type
         link = link + "&DATA_RETRIEVAL_ORIGIN=astroquery"
@@ -119,6 +116,9 @@ class ISOClass(BaseQuery):
         None if not verbose. It downloads the observation indicated
         If verbose returns the filename
         """
+
+        if retrieval_type is None:
+            retrieval_type = "OBSERVATION"
 
         link = self.get_download_link(tdt, retrieval_type, filename,
                       verbose, **kwargs)
