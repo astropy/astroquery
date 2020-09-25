@@ -69,8 +69,8 @@ The result of a query can be stored in a file by defining the output format and 
 .. code-block:: python
 
   >>> from astroquery.esa.iso import ISO
-  >>> table = ISO.query_ida_tap(query=("select top 10 * from ida.observations", 
-  >>>                       output_format='csv', output_file='results10.csv'))
+  >>> table = ISO.query_ida_tap(query="select top 10 * from ida.observations", 
+  >>>                       output_format='csv', output_file='results10.csv')
 
 This will execute an ADQL query to query the first 10 observations in the ISO Data Archive. The result of
 the query will be stored in the file 'results10.csv'. The result of this query can be printed by doing 
@@ -100,12 +100,12 @@ provided by this service, see section 'Getting Tables Details'.
   >>> import tarfile
   >>> tar = tarfile.open("80000203.tar")
   >>> tar.list()
-  ?rw-r--r-- userdata/userdata     266240 2005-12-23 12:02:54 C10180000203.tar 
-  ?rw-r--r-- userdata/userdata     266240 2005-12-23 12:02:54 C10480000203.tar 
-  ?rw-r--r-- userdata/userdata       1094 2005-12-23 12:02:55 pich80000203.gif 
-  ?rw-r--r-- userdata/userdata       5599 2005-12-23 12:02:55 ppch80000203.gif 
-  ?rw-r--r-- userdata/userdata      14400 2005-12-23 12:02:55 psph80000203.fits 
-  >>> tar.extract("psph80000203.fits")
+  -rw-r--r-- idaops/0       1094 2005-12-23 12:02:55 ././ISO1601052542/EXTRAKON//pich80000203.gif 
+  -rw-r--r-- idaops/0     266240 2005-12-23 12:02:54 ././ISO1601052542/EXTRAKON//C10480000203.tar 
+  -rw-r--r-- idaops/0      14400 2005-12-23 12:02:55 ././ISO1601052542/EXTRAKON//psph80000203.fits 
+  -rw-r--r-- idaops/0       5599 2005-12-23 12:02:55 ././ISO1601052542/EXTRAKON//ppch80000203.gif 
+  -rw-r--r-- idaops/0     266240 2005-12-23 12:02:54 ././ISO1601052542/EXTRAKON//C10180000203.tar 
+  >>> tar.extract("././ISO1601052542/EXTRAKON//psph80000203.fits")
   >>> tar.extractall()
 
 'download_data' method invokes the data download of files from the ISO Data Archive, using the 
@@ -301,7 +301,7 @@ Same can be done to discover images M31 images:
 .. code-block:: python
 
   >>> # We use again the coordinates to discover image data
-  >>> table=ISO.query_ida_tap(query="SELECT image_title, ra, dec, access_reference " +
+  >>> table=ISO.query_ida_tap(query="SELECT image_title, ra, dec, access_url " +
   ...                               "FROM ivoa.siap WHERE " + 
   ...                               "INTERSECTS(CIRCLE('ICRS'," + ra + "," + dec + 
   ...                               ",0.08333333333333333)," + 
@@ -352,7 +352,7 @@ Images can be displayed by using the following code:
   >>> #We configure the plot to be interactive
   >>> %matplotlib widget
   >>> plt.ion()
-  >>> plt.imshow(image_data, cmap='Reds', norm=LogNorm())
+  >>> plt.imshow(image_data, cmap='Reds')
   >>> plt.colorbar()
 
 .. figure:: images/camdynamicDisplay.png
@@ -402,13 +402,19 @@ And spectra can be displayed by using the following code:
   >>> f.info()
   Filename: 58002102.fits
   No.    Name      Ver    Type      Cards   Dimensions   Format
-    0  PRIMARY       1 PrimaryHDU      35   ()      
-    1                1 TableHDU        39   1035R x 8C   [F8.4, E11.3, E11.3, I2, I2, I2, I2, A42]   
-    2                1 TableHDU        39   1035R x 8C   [F8.4, E11.3, E11.3, I2, I2, I2, I2, A42]   
-    3                1 TableHDU        39   1035R x 8C   [F8.4, E11.3, E11.3, I2, I2, I2, I2, A42]   
-    4                1 TableHDU        39   1035R x 8C   [F8.4, E11.3, E11.3, I2, I2, I2, I2, A42]   
-    5                1 TableHDU        39   1035R x 8C   [F8.4, E11.3, E11.3, I2, I2, I2, I2, A42]   
-
+    0  PRIMARY       1 PrimaryHDU      37   ()      
+    1                1 TableHDU        39   958R x 8C   [F8.4, E11.3, E11.3, I2, I2, I2, I2, A42]   
+    2                1 TableHDU        39   962R x 8C   [F8.4, E11.3, E11.3, I2, I2, I2, I2, A42]   
+    3                1 TableHDU        39   962R x 8C   [F8.4, E11.3, E11.3, I2, I2, I2, I2, A42]   
+    4                1 TableHDU        39   961R x 8C   [F8.4, E11.3, E11.3, I2, I2, I2, I2, A42]   
+    5                1 TableHDU        39   958R x 8C   [F8.4, E11.3, E11.3, I2, I2, I2, I2, A42]   
+    6                1 TableHDU        39   961R x 8C   [F8.4, E11.3, E11.3, I2, I2, I2, I2, A42]   
+    7                1 TableHDU        39   959R x 8C   [F8.4, E11.3, E11.3, I2, I2, I2, I2, A42]   
+    8                1 TableHDU        39   959R x 8C   [F8.4, E11.3, E11.3, I2, I2, I2, I2, A42]   
+    9                1 TableHDU        39   959R x 8C   [F8.4, E11.3, E11.3, I2, I2, I2, I2, A42]   
+   10                1 TableHDU        39   962R x 8C   [F8.4, E11.3, E11.3, I2, I2, I2, I2, A42]   
+   11                1 TableHDU        39   963R x 8C   [F8.4, E11.3, E11.3, I2, I2, I2, I2, A42]   
+​
   >>> # The spectrum is in the first HDU of this file.
   >>> specdata = f[1].data
   >>> f.close()
