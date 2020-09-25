@@ -35,10 +35,25 @@ class TestISO():
         ida = ISOClass(self.get_dummy_tap_handler())
         link = ida.get_download_link(**parameters)
 
+    def test_get_download_link(self):
+        parameters = {'tdt': "40001501",
+                      'level': "DEFAULT_DATA_SET",
+                      'filename': "file",
+                      'verbose': True}
+        ida = ISOClass(self.get_dummy_tap_handler())
+        link = ida.get_download_link(**parameters)
+
     def test_get_postcard_link(self):
         parameters = {'tdt': "40001501",
                       'filename': "file",
                       'verbose': False}
+        ida = ISOClass(self.get_dummy_tap_handler())
+        link = ida.get_postcard_link(**parameters)
+
+    def test_get_postcard_link(self):
+        parameters = {'tdt': "40001501",
+                      'filename': "file",
+                      'verbose': True}
         ida = ISOClass(self.get_dummy_tap_handler())
         link = ida.get_postcard_link(**parameters)
 
