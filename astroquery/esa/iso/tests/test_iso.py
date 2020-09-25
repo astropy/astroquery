@@ -26,12 +26,28 @@ class TestISO():
         dummyTapHandler = DummyISOTapHandler("launch_job", parameters)
         return dummyTapHandler
 
+    def test_get_download_link(self):
+        parameters = {'tdt': "40001501",
+                      'level': "DEFAULT_DATA_SET",
+                      'retrieval_type': "OBSERVATION",
+                      'filename': "file",
+                      'verbose': False}
+        ida = ISOClass(self.get_dummy_tap_handler())
+        link = ida.get_download_link(**parameters)
+
+    def test_get_postcard_link(self):
+        parameters = {'tdt': "40001501",
+                      'filename': "file",
+                      'verbose': False}
+        ida = ISOClass(self.get_dummy_tap_handler())
+        link = ida.get_postcard_link(**parameters)
+
     @pytest.mark.remote_data
     def test_download_data(self):
         parameters = {'tdt': "40001501",
                       'level': "DEFAULT_DATA_SET",
                       'retrieval_type': "OBSERVATION",
-                      'filename': "file.tar",
+                      'filename': "file",
                       'verbose': False}
         ida = ISOClass(self.get_dummy_tap_handler())
         res = ida.download_data(**parameters)
@@ -40,7 +56,7 @@ class TestISO():
     @pytest.mark.remote_data
     def test_download_postcard(self):
         parameters = {'tdt': "40001501",
-                      'filename': "file.png",
+                      'filename': "file",
                       'verbose': False}
         ida = ISOClass(self.get_dummy_tap_handler())
         res = ida.get_postcard(**parameters)
