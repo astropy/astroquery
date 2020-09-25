@@ -4,11 +4,64 @@
 Service fixes and enhancements
 ------------------------------
 
+mast
+^^^^
+
+- Added ``Observations.download_file`` method to download a single file from MAST given an input
+  data URI. [#1825]
+
 esa/hubble
 ^^^^^^^^^^
 
 - Module added to query eHST TAP based on a set of specific criteria and
   asynchronous jobs are now supported. [#1723]
+
+esa/xmm_newton
+^^^^^^^^^^^^^^
+
+- new method ``get_epic_images`` is added to extract EPIC images from
+  tarballs. [#1759]
+
+
+Gemini
+^^^^^^
+
+- login() support for authenticated sessions to the GOA [#1778]
+- get_file() support for downloading files [#1778]
+
+SVO FPS
+^^^^^^^
+
+- Module added to access the Spanish Virtual Observatory Filter Profile List [#1498]
+
+Splatalogue
+^^^^^^^^^^^
+
+- The Splatalogue ID querying is now properly cached in the `astropy` cache
+  directory (Issue [#423]) The scraping function has also been updated to reflect
+  the Splatalogue webpage. [#1772]
+
+- The splatalogue URL has changed to https://splatalogue.online, as the old site
+  stopped functioning in September 2020 [#1817]
+
+UKIDSS
+^^^^^^
+
+- Updated to ``UKIDSSDR11PLUS`` as the default version [#1767]
+
+alma
+^^^^
+
+- The archive query interface has been deprecated in favour of
+  VirtualObservatory (VO) services such as TAP, ObsCore etc. The alma
+  library has been updated accordingly. [#1689]
+
+gaia
+^^^^
+- Fixed RA/dec table edit capability. [#1784]
+- Changed file names handling when downloading data. [#1784]
+- Improved code to handle bit data type. [#1784]
+- Prepared code to handle new datalink products. [#1784]
 
 
 0.4.1 (2020-06-19)
@@ -17,7 +70,7 @@ esa/hubble
 New Tools and Services
 ----------------------
 
-esa.xmm-newton
+esa.xmm_newton
 ^^^^^^^^^^^^^^
 
 - A new ESA archive service for XMM-Newton access. [#1557]
@@ -68,7 +121,6 @@ eso
 
 gaia
 ^^^^
-
 - Allow for setting row limits in query submissions through class
   attribute. [#1641]
 

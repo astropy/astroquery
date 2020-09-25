@@ -18,7 +18,6 @@ from astroquery.utils.tap import taputils
 from astroquery.utils.tap.conn.tapconn import TapConn
 from astroquery.utils.tap.xmlparser.tableSaxParser import TableSaxParser
 from astroquery.utils.tap.model.job import Job
-from datetime import datetime
 from astroquery.utils.tap.gui.login import LoginDialog
 from astroquery.utils.tap.xmlparser.jobSaxParser import JobSaxParser
 from astroquery.utils.tap.xmlparser.jobListSaxParser import JobListSaxParser
@@ -37,7 +36,7 @@ import tempfile
 
 __all__ = ['Tap', 'TapPlus']
 
-VERSION = "1.2.1"
+VERSION = "20200428.1"
 TAP_CLIENT_ID = "aqtappy-" + VERSION
 
 
@@ -182,10 +181,12 @@ class Tap(object):
         self.__connHandler.check_launch_response_status(response,
                                                         verbose,
                                                         200)
-        print("Parsing table '{}'...".format(table))
+        if verbose:
+            print("Parsing table '{}'...".format(table))
         tsp = TableSaxParser()
         tsp.parseData(response)
-        print("Done.")
+        if verbose:
+            print("Done.")
         return tsp.get_table()
 
     def __load_tables(self, only_names=False, include_shared_tables=False,
@@ -310,12 +311,14 @@ class Tap(object):
                                                                   200,
                                                                   False)
         headers = response.getheaders()
-        suitableOutputFile = self.__getSuitableOutputFile(False,
-                                                          output_file,
-                                                          headers,
-                                                          isError,
-                                                          output_format)
+        suitableOutputFile = taputils.get_suitable_output_file(self.__connHandler,
+                                                               False,
+                                                               output_file,
+                                                               headers,
+                                                               isError,
+                                                               output_format)
         job.outputFile = suitableOutputFile
+        job.outputFileUser = output_file
         job.parameters['format'] = output_format
         job.set_response_status(response.status, response.reason)
         job.set_phase('PENDING')
@@ -325,6 +328,8 @@ class Tap(object):
             responseBytes = response.read()
             responseStr = responseBytes.decode('utf-8')
             if dump_to_file:
+                if verbose:
+                    print("Saving error to: %s" % suitableOutputFile)
                 self.__connHandler.dump_to_file(suitableOutputFile,
                                                 responseStr)
             raise requests.exceptions.HTTPError(
@@ -334,6 +339,8 @@ class Tap(object):
             if verbose:
                 print("Retrieving sync. results...")
             if dump_to_file:
+                if verbose:
+                    print("Saving results to: %s" % suitableOutputFile)
                 self.__connHandler.dump_to_file(suitableOutputFile, response)
             else:
                 results = utils.read_http_response(response, output_format)
@@ -406,12 +413,14 @@ class Tap(object):
                                                                   False)
         job = Job(async_job=True, query=query, connhandler=self.__connHandler)
         headers = response.getheaders()
-        suitableOutputFile = self.__getSuitableOutputFile(True,
-                                                          output_file,
-                                                          headers,
-                                                          isError,
-                                                          output_format)
+        suitableOutputFile = taputils.get_suitable_output_file(self.__connHandler,
+                                                               True,
+                                                               output_file,
+                                                               headers,
+                                                               isError,
+                                                               output_format)
         job.outputFile = suitableOutputFile
+        job.outputFileUser = output_file
         job.set_response_status(response.status, response.reason)
         job.parameters['format'] = output_format
         job.set_phase('PENDING')
@@ -419,6 +428,8 @@ class Tap(object):
             job.failed = True
             job.set_phase('ERROR')
             if dump_to_file:
+                if verbose:
+                    print("Saving error to: %s" % suitableOutputFile)
                 self.__connHandler.dump_to_file(suitableOutputFile,
                                                 response)
             raise requests.exceptions.HTTPError(response.reason)
@@ -614,24 +625,6 @@ class Tap(object):
             print(response.getheaders())
         return response
 
-    def __getSuitableOutputFile(self, async_job, outputFile, headers, isError,
-                                output_format):
-        dateTime = datetime.now().strftime("%Y%m%d%H%M%S")
-        ext = self.__connHandler.get_suitable_extension(headers)
-        fileName = ""
-        if outputFile is None:
-            if not async_job:
-                fileName = "sync_" + str(dateTime) + ext
-            else:
-                ext = self.__connHandler.get_suitable_extension_by_format(
-                    output_format)
-                fileName = "async_" + str(dateTime) + ext
-        else:
-            fileName = outputFile
-        if isError:
-            fileName += ".error"
-        return fileName
-
     def __extract_sync_subcontext(self, location):
         pos = location.find('sync')
         if pos < 0:
@@ -826,7 +819,8 @@ class TapPlus(Tap):
         A table object if output_file is None.
         None if output_file is not None.
         """
-        print("Retrieving data.")
+        if verbose:
+            print("Retrieving data.")
         connHandler = self.__getconnhandler()
         if not isinstance(params_dict, dict):
             raise ValueError("Parameters dictionary expected")
@@ -839,11 +833,14 @@ class TapPlus(Tap):
         connHandler.check_launch_response_status(response,
                                                  verbose,
                                                  200)
-        print("Done.")
+        if verbose:
+            print("Reading...")
         if output_file is not None:
             file = open(output_file, "wb")
             file.write(response.read())
             file.close()
+            if verbose:
+                print("Done.")
             return None
         else:
             if 'format' in params_dict:
@@ -854,6 +851,8 @@ class TapPlus(Tap):
                 else:
                     output_format = "votable"
             results = utils.read_http_response(response, output_format)
+            if verbose:
+                print("Done.")
             return results
 
     def load_groups(self, verbose=False):
@@ -877,7 +876,8 @@ class TapPlus(Tap):
         connHandler.check_launch_response_status(response,
                                                  verbose,
                                                  200)
-        print("Parsing groups...")
+        if verbose:
+            print("Parsing groups...")
         gsp = GroupSaxParser()
         gsp.parseData(response)
         print("Done. " + str(gsp.get_groups().__len__()) + " groups found")
@@ -931,7 +931,8 @@ class TapPlus(Tap):
         connHandler.check_launch_response_status(response,
                                                  verbose,
                                                  200)
-        print("Parsing shared items...")
+        if verbose:
+            print("Parsing shared items...")
         ssp = SharedItemsSaxParser()
         ssp.parseData(response)
         print("Done. " + str(ssp.get_shared_items().__len__()) +
@@ -1032,6 +1033,7 @@ class TapPlus(Tap):
         connHandler.check_launch_response_status(response,
                                                  verbose,
                                                  200)
+
         msg = "Stop sharing table '" + str(table_name) + "' to group '" + \
             str(group_name) + "'."
         print(msg)
@@ -1252,7 +1254,8 @@ class TapPlus(Tap):
         -------
         A table object
         """
-        print("Retrieving datalink.")
+        if verbose:
+            print("Retrieving datalink.")
         if ids is None:
             raise ValueError("Missing mandatory argument 'ids'")
         if isinstance(ids, six.string_types):
@@ -1273,8 +1276,10 @@ class TapPlus(Tap):
         connHandler.check_launch_response_status(response,
                                                  verbose,
                                                  200)
-        print("Done.")
+        if verbose:
+            print("Done.")
         results = utils.read_http_response(response, "votable")
+
         return results
 
     def search_async_jobs(self, jobfilter=None, verbose=False):
@@ -1678,8 +1683,6 @@ class TapPlus(Tap):
         """
         if table_name is None:
             raise ValueError("Table name cannot be null")
-        if list_of_changes is None:
-            raise ValueError("List of changes cannot be null")
         if len(list_of_changes) == 0:
             raise ValueError("List of changes cannot be empty")
         for change in list_of_changes:
@@ -1709,7 +1712,7 @@ class TapPlus(Tap):
         for change in list_of_changes:
             index = 0
             for value in change:
-                if (index == 0):
+                if index == 0:
                     found = False
                     for c in columns:
                         if c.name == value:
@@ -1721,30 +1724,33 @@ class TapPlus(Tap):
                                          " was not found in the table")
                 index = index + 1
 
-        currentColumnRa = self.__columnsContainFlag(columns, "Ra")
-        currentColumnDec = self.__columnsContainFlag(columns, "Dec")
+        new_ra_column = TapPlus.__changesContainFlag(list_of_changes, "Ra")
+        new_dec_column = TapPlus.__changesContainFlag(list_of_changes, "Dec")
 
-        newColumnRa = self.__changesContainFlag(list_of_changes, "Ra")
-        newColumnDec = self.__changesContainFlag(list_of_changes, "Dec")
+        # check whether both (Ra/Dec) are present
+        # or both are None
+        if ((new_ra_column is not None and new_dec_column is None) or
+                (new_ra_column is None and new_dec_column is not None)):
+            raise ValueError("Both Ra and Dec must be specified when " +
+                             "updating one of them.")
 
-        if currentColumnRa is None and currentColumnDec is None:
-            # None of them are in place
-            if ((newColumnRa is not None and newColumnDec is None) or
-                    (newColumnRa is None and newColumnDec is not None)):
-                raise ValueError("Both Ra and Dec must be specified when " +
-                                 "updating one of them.")
+        args = TapPlus.get_table_update_arguments(table_name, columns,
+                                                  list_of_changes)
 
-        if ((currentColumnRa is None and currentColumnDec is not None) or
-                (currentColumnRa is not None and currentColumnDec is None)):
-            # Only one of them is present
-            raise ValueError("One of (Ra, Dec) is not present but the other " +
-                             "is. Wrong initial configuration of the table.")
+        connHandler = self.__getconnhandler()
+        data = connHandler.url_encode(args)
+        response = connHandler.execute_table_edit(data, verbose=verbose)
+        if verbose:
+            print(response.status, response.reason)
+            print(response.getheaders())
+        connHandler.check_launch_response_status(response,
+                                                 verbose,
+                                                 200)
+        msg = "Table '"+str(table_name)+"' updated."
+        print(msg)
 
-        if currentColumnRa is not None and currentColumnDec is not None:
-            # Both are initially present
-            if newColumnRa is not None or newColumnDec is not None:
-                raise ValueError("Both Ra and Dec are already present in " +
-                                 "this table. Only one of each is allowed.")
+    @staticmethod
+    def get_table_update_arguments(table_name, columns, list_of_changes):
         num_cols = len(columns)
         args = {
                 "ACTION": "edit",
@@ -1759,73 +1765,120 @@ class TapPlus(Tap):
                 if (str(change[0]) == str(column.name)):
                     found_in_changes = True
                     break
-            column_name = column.name
-            flags = column.flags
-            if str(flags) == '1':
-                flags = 'Ra'
-            elif str(flags) == '2':
-                flags = 'Dec'
-            elif str(flags) == '4':
-                flags = 'Flux'
-            elif str(flags) == '8':
-                flags = 'Mag'
-            elif str(flags) == '16':
-                flags = 'PK'
-            elif str(flags) == '33':
-                flags = 'Ra'
-            elif str(flags) == '34':
-                flags = 'Dec'
-            elif str(flags) == '38':
-                flags = 'Flux'
-            elif str(flags) == '40':
-                flags = 'Mag'
-            elif str(flags) == '48':
-                flags = 'PK'
-            else:
-                flags = None
-            indexed = (str(column.flag) == 'indexed' or
-                       str(flags) == 'Ra' or
-                       str(flags) == 'Dec' or
-                       str(flags) == 'PK')
-            ucd = str(column.ucd)
-            utype = str(column.utype)
+
+            # set current values
+            column_name, flags, indexed, ucd, utype = \
+                TapPlus.get_current_column_values_for_update(column)
+
+            # Update values if required
             if found_in_changes:
-                for change in list_of_changes:
-                    if (str(change[0]) == str(column.name) and
-                            str(change[1]) == 'flags'):
-                        flags = str(change[2])
-                        break
-                    if (str(change[0]) == str(column.name) and
-                            str(change[1]) == 'indexed'):
-                        indexed = str(change[2])
-                        break
-                    if (str(change[0]) == str(column.name) and
-                            str(change[1]) == 'ucd'):
-                        ucd = str(change[2])
-                        break
-                    if (str(change[0]) == str(column.name) and
-                            str(change[1]) == 'utype'):
-                        utype = str(change[2])
-                        break
-            if flags == 'Ra' or flags == 'Dec' or flags == 'PK':
-                indexed = str(True)
+                flags, indexed, ucd, utype = \
+                    TapPlus.get_new_column_values_for_update(list_of_changes,
+                                                             column_name,
+                                                             flags,
+                                                             indexed,
+                                                             ucd, utype)
+
+            # Prepare http request parameters for a column
             args["TABLE0_COL" + str(index)] = str(column_name)
-            args["TABLE0_COL" + str(index) + "_FLAGS"] = str(flags)
-            args["TABLE0_COL" + str(index) + "_INDEXED"] = str(indexed)
             args["TABLE0_COL" + str(index) + "_UCD"] = str(ucd)
             args["TABLE0_COL" + str(index) + "_UTYPE"] = str(utype)
+            args["TABLE0_COL" + str(index) + "_INDEXED"] = str(indexed)
+            args["TABLE0_COL" + str(index) + "_FLAGS"] = str(flags)
             index = index + 1
-        connHandler = self.__getconnhandler()
-        data = connHandler.url_encode(args)
-        response = connHandler.execute_table_edit(data, verbose=verbose)
-        if verbose:
-            print(response.status, response.reason)
-            print(response.getheaders())
-        connHandler.check_launch_response_status(response,
-                                                 verbose,
-                                                 200)
-        msg = "Table '"+str(table_name)+"' updated."
-        print(msg)
+        return args
+
+    @staticmethod
+    def get_current_column_values_for_update(column):
+        column_name = column.name
+        flags = column.flags
+        if str(flags) == '1':
+            flags = 'Ra'
+        elif str(flags) == '2':
+            flags = 'Dec'
+        elif str(flags) == '4':
+            flags = 'Flux'
+        elif str(flags) == '8':
+            flags = 'Mag'
+        elif str(flags) == '16':
+            flags = 'PK'
+        elif str(flags) == '33':
+            flags = 'Ra'
+        elif str(flags) == '34':
+            flags = 'Dec'
+        elif str(flags) == '38':
+            flags = 'Flux'
+        elif str(flags) == '40':
+            flags = 'Mag'
+        elif str(flags) == '48':
+            flags = 'PK'
+        else:
+            flags = None
+        indexed = (str(column.flag) == 'indexed' or
+                   str(flags) == 'Ra' or
+                   str(flags) == 'Dec' or
+                   str(flags) == 'PK')
+        ucd = str(column.ucd)
+        utype = str(column.utype)
+        return column_name, flags, indexed, ucd, utype
+
+    @staticmethod
+    def get_new_column_values_for_update(list_of_changes, column_name,
+                                         c_flags, c_indexed, c_ucd, c_utype):
+        found_new_flags = False
+        found_new_indexed = False
+        found_new_ucd = False
+        found_new_utype = False
+        n_flags = None
+        n_indexed = None
+        n_utype = None
+        n_ucd = None
+        for change in list_of_changes:
+            if str(change[0]) == column_name:
+                if str(change[1]) == 'flags':
+                    n_flags = str(change[2])
+                    found_new_flags = True
+                if str(change[1]) == 'indexed':
+                    n_indexed = str(change[2])
+                    found_new_indexed = True
+                if str(change[1]) == 'ucd':
+                    n_ucd = str(change[2])
+                    found_new_ucd = True
+                if str(change[1]) == 'utype':
+                    n_utype = str(change[2])
+                    found_new_utype = True
+
+        if found_new_ucd:
+            ucd = n_ucd
+        else:
+            ucd = c_ucd
+
+        if found_new_utype:
+            utype = n_utype
+        else:
+            utype = c_utype
+
+        if found_new_indexed:
+            indexed = n_indexed
+        else:
+            indexed = c_indexed
+
+        # index could be updated
+        if found_new_flags:
+            if n_flags is None or n_flags == '':
+                if found_new_indexed:
+                    indexed = str(n_indexed)
+                else:
+                    indexed = str(False)
+            else:
+                # Index required for PK, Ra, Dec
+                if c_flags == 'Ra' or c_flags == 'Dec' or c_flags == 'PK':
+                    indexed = str(True)
+            flags = n_flags
+        else:
+            flags = c_flags
+
+        return flags, indexed, ucd, utype
 
     def set_ra_dec_columns(self, table_name=None,
                            ra_column_name=None, dec_column_name=None,
@@ -1900,7 +1953,7 @@ class TapPlus(Tap):
                 log.info("Invalid user name")
                 return
         if password is None:
-            password = getpass.getpass()
+            password = getpass.getpass("Password: ")
             if password is None:
                 log.info("Invalid password")
                 return
@@ -1938,7 +1991,8 @@ class TapPlus(Tap):
                                                            200)
         if isError:
             log.info("Login error: " + str(response.reason))
-            raise requests.exceptions.HTTPError("Login error: " + str(response.reason))
+            raise requests.exceptions.HTTPError("Login error: " +
+                                                str(response.reason))
         else:
             # extract cookie
             cookie = self._Tap__findCookieInHeader(response.getheaders())
@@ -1965,9 +2019,10 @@ class TapPlus(Tap):
             print(response.getheaders())
         self.__isLoggedIn = False
 
-    def __columnsContainFlag(self, columns=None, flag=None, verbose=False):
+    @staticmethod
+    def __columnsContainFlag(columns=None, flag=None, verbose=False):
         c = None
-        if (columns is not None and len(columns) > 0):
+        if columns is not None and len(columns) > 0:
             for column in columns:
                 f = column.flags
                 if str(f) == '1' or str(f) == '33':
@@ -1987,9 +2042,10 @@ class TapPlus(Tap):
                     break
         return c
 
-    def __changesContainFlag(self, changes=None, flag=None, verbose=False):
+    @staticmethod
+    def __changesContainFlag(changes=None, flag=None, verbose=False):
         c = None
-        if (changes is not None and len(changes) > 0):
+        if changes is not None and len(changes) > 0:
             for change in changes:
                 if str(change[1]) == "flags":
                     value = str(change[2])

@@ -5,5 +5,5 @@ import os
 
 
 def get_package_data():
-    paths = [os.path.join('data', '*.txt')]
-    return {'astroquery.alma.tests': paths}
+    paths_test = [os.path.join('data', '*.xml')]
+    return {'astroquery.svo_fps.tests': paths_test}

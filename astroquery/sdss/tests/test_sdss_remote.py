@@ -148,13 +148,13 @@ class TestSDSSRemote:
 
     def test_query_non_default_field(self):
         # A regression test for #469
-        query1 = sdss.SDSS.query_region(self.coords, fields=['r'])
+        query1 = sdss.SDSS.query_region(self.coords, fields=['r', 'psfMag_r'])
 
         query2 = sdss.SDSS.query_region(self.coords, fields=['ra', 'dec', 'r'])
         assert isinstance(query1, Table)
         assert isinstance(query2, Table)
 
-        assert query1.colnames == ['r']
+        assert query1.colnames == ['r', 'psfMag_r']
         assert query2.colnames == ['ra', 'dec', 'r']
 
     def test_query_crossid(self):

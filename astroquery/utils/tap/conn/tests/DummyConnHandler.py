@@ -34,6 +34,7 @@ class DummyConnHandler(object):
         self.contentType = None
         self.verbose = None
         self.query = None
+        self.fileOutput = None
 
     def set_default_response(self, defaultResponse):
         self.defaultResponse = defaultResponse
@@ -162,5 +163,14 @@ class DummyConnHandler(object):
     def get_suitable_extension_by_format(self, output_format):
         return self.fileExt
 
+    def get_file_from_header(self, headers):
+        return self.fileOutput
+
     def find_header(self, headers, key):
         return taputils.taputil_find_header(headers, key)
+
+    def execute_table_edit(self, data,
+                           content_type="application/x-www-form-urlencoded",
+                           verbose=False):
+        return self.__execute_post(subcontext="tableEdit", data=data,
+                                   content_type=content_type, verbose=verbose)

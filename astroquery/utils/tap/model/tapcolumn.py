@@ -32,6 +32,7 @@ class TapColumn(object):
         self.datatype = None
         self.arraysize = None
         self.flag = None
+        self.flags = flags
 
     def __str__(self):
         return "TAP Column name: " + str(self.name) + \
@@ -41,4 +42,5 @@ class TapColumn(object):
             "\nUtype: " + str(self.utype) + \
             "\nDataType: " + str(self.datatype) + \
             "\nArraySize: " + str(self.arraysize) + \
-            "\nFlag: " + str(self.flag)
+            "\nFlag: " + str(self.flag) + \
+            "\nFlags: " + str(self.flags)
