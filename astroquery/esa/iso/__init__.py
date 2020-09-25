@@ -27,6 +27,7 @@ class Conf(_config.ConfigNamespace):
 
 conf = Conf()
 
+
 from .core import ISO, ISOClass
 
 __all__ = ['ISO', 'ISOClass', 'Conf', 'conf']
