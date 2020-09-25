@@ -42,7 +42,7 @@ class ISOClass(BaseQuery):
             self._tap = tap_handler
 
     def get_download_link(self, tdt, retrieval_type, filename,
-                      verbose, **kwargs):    
+                      verbose, **kwargs):
         """
         Get download link for ISO
 
@@ -145,7 +145,7 @@ class ISOClass(BaseQuery):
 
         return filename
 
-    def get_postcard_link(self, tdt, filename=None, verbose=False):    
+    def get_postcard_link(self, tdt, filename=None, verbose=False):
         """
         Get postcard link for ISO
 
@@ -174,7 +174,7 @@ class ISOClass(BaseQuery):
         None if not verbose. It downloads the observation indicated
         If verbose returns the filename
         """
- 
+
         link = self.data_url
         link = link + "retrieval_type=POSTCARD"
         link = link + "&DATA_RETRIEVAL_ORIGIN=astroquery"
@@ -184,8 +184,6 @@ class ISOClass(BaseQuery):
             log.info(link)
 
         return link
-
-
 
     def get_postcard(self, tdt, *, filename=None, verbose=False):
         """
