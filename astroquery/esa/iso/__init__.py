@@ -19,13 +19,11 @@ class Conf(_config.ConfigNamespace):
     """
     DATA_ACTION = _config.ConfigItem("http://nida.esac.esa.int/nida-sl-tap/data?",
                                      "Main url for retrieving ISO Data Archive files")
-                                     
+
     METADATA_ACTION = _config.ConfigItem("http://nida.esac.esa.int/nida-sl-tap/tap/",
                                          "Main url for retrieving ISO Data Archive metadata")
- 
- 
-    TIMEOUT = 60
 
+    TIMEOUT = 60
 
 conf = Conf()
 

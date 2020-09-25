@@ -35,7 +35,6 @@ class TestISO():
         xsa = ISOClass(self.get_dummy_tap_handler())
         xsa.download_data(**parameters)
 
-  
     def test_query_ida_tap(self):
         parameters = {'query': "select top 10 * from ida.observations",
                       'output_file': "test2.vot",
