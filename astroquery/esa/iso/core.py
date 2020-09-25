@@ -12,8 +12,8 @@ Created on 14 July 2020
 
 """
 import re
-from ...utils.tap.core import TapPlus
-from ...query import BaseQuery
+from astroquery.utils.tap.core import TapPlus
+from astroquery.query import BaseQuery
 import shutil
 import cgi
 import sys
@@ -106,6 +106,8 @@ class ISOClass(BaseQuery):
 
         if verbose:
             log.info("Wrote {0} to {1}".format(link, filename))
+
+        return filename                     
 
     def get_postcard(self, tdt, *, filename=None, verbose=False):
         """
