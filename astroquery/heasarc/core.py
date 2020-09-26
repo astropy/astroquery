@@ -218,6 +218,8 @@ class HeasarcClass(BaseQuery):
         elif "Software error:" in response.text:
             raise InvalidQueryError("Unspecified error from HEASARC database. "
                                     "\nCheck error message: \n{!s}".format(response.text))
+        elif "NO MATCHING ROWS" in response.text:
+            raise InvalidQueryError("No matching rows were found in the query.")
 
         try:
             data = BytesIO(response.content)
