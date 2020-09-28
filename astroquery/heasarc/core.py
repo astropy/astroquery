@@ -1,5 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
+import warnings
 from six import BytesIO
 from astropy.table import Table
 from astropy.io import fits
@@ -8,7 +9,7 @@ from astropy import units as u
 from ..query import BaseQuery
 from ..utils import commons
 from ..utils import async_to_sync
-from ..exceptions import InvalidQueryError
+from ..exceptions import InvalidQueryError, NoResultsWarning
 from . import conf
 
 __all__ = ['Heasarc', 'HeasarcClass']
@@ -219,7 +220,8 @@ class HeasarcClass(BaseQuery):
             raise InvalidQueryError("Unspecified error from HEASARC database. "
                                     "\nCheck error message: \n{!s}".format(response.text))
         elif "NO MATCHING ROWS" in response.text:
-            raise InvalidQueryError("No matching rows were found in the query.")
+            warnings.warn(NoResultsWarning("No matching rows were found in the query."))
+            return
 
         try:
             data = BytesIO(response.content)
