@@ -29,6 +29,14 @@ Gemini
 - login() support for authenticated sessions to the GOA [#1778]
 - get_file() support for downloading files [#1778]
 
+
+heasarc
+^^^^^^^
+
+- A ``NoResultsWarning`` is now returned when there is no matching rows were
+  found in query. [#1829]
+
+
 SVO FPS
 ^^^^^^^
 
