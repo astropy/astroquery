@@ -221,7 +221,7 @@ class HeasarcClass(BaseQuery):
                                     "\nCheck error message: \n{!s}".format(response.text))
         elif "NO MATCHING ROWS" in response.text:
             warnings.warn(NoResultsWarning("No matching rows were found in the query."))
-            return
+            return Table()
 
         try:
             data = BytesIO(response.content)
