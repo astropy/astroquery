@@ -10,6 +10,9 @@ import keyring
 import io
 import os
 import requests
+import email.utils as eut
+from datetime import datetime
+from time import mktime
 
 import six
 from astropy.config import paths
@@ -17,11 +20,22 @@ from astropy.logger import log
 import astropy.units as u
 from astropy.utils.console import ProgressBarOrSpinner
 import astropy.utils.data
+from requests import Session
+import logging
+import time
 
 from . import version
 from .utils import system_tools
 
 __all__ = ['BaseQuery', 'QueryWithLogin']
+
+
+# Session retries constants
+MAX_RETRY_DELAY = 128  # maximum delay between retries
+# start delay between retries when Try_After not sent by server.
+DEFAULT_RETRY_DELAY = 30
+MAX_NUM_RETRIES = 6
+SERVICE_RETRY = 'Retry-After'
 
 
 def to_cache(response, cache_file):
@@ -152,7 +166,7 @@ class BaseQuery(object):
     """
 
     def __init__(self):
-        S = self._session = requests.session()
+        S = self._session = RetrySession()
         S.headers['User-Agent'] = (
             'astroquery/{vers} {olduseragent}'
             .format(vers=version.version,
@@ -304,13 +318,21 @@ class BaseQuery(object):
         else:
             length = None
 
+        stale = True  # by default consider the local copy outdated
+        if 'Date' in response.headers:
+            date = eut.parsedate(response.headers['Date'])
+            now = datetime.utcnow()
+            if (now - datetime.fromtimestamp(mktime(date))).seconds > 600:
+                #  10min is used to take into account local clock inconsistency
+                stale = False
+
         if ((os.path.exists(local_filepath)
              and ('Accept-Ranges' in response.headers)
              and continuation)):
             open_mode = 'ab'
 
             existing_file_length = os.stat(local_filepath).st_size
-            if length is not None and existing_file_length >= length:
+            if length is not None and existing_file_length >= length:  # TODO how can it be greater?
                 # all done!
                 log.info("Found cached file {0} with expected size {1}."
                          .format(local_filepath, existing_file_length))
@@ -337,19 +359,22 @@ class BaseQuery(object):
         elif cache and os.path.exists(local_filepath):
             if length is not None:
                 statinfo = os.stat(local_filepath)
-                if statinfo.st_size != length:
-                    log.warning("Found cached file {0} with size {1} that is "
-                                "different from expected size {2}"
+                if statinfo.st_size != length or stale:
+                    log.warning("Found outdated cache (file {0}, size {1}, "
+                                "expected size {2}, stale {3})"
                                 .format(local_filepath,
                                         statinfo.st_size,
-                                        length))
+                                        length, stale))
                     open_mode = 'wb'
                 else:
                     log.info("Found cached file {0} with expected size {1}."
                              .format(local_filepath, statinfo.st_size))
                     response.close()
                     return
+            elif stale:
+                open_mode = 'wb'
             else:
+                # TODO shouldn't it err on the safe side?
                 log.info("Found cached file {0}.".format(local_filepath))
                 response.close()
                 return
@@ -378,13 +403,21 @@ class BaseQuery(object):
             with open(local_filepath, open_mode) as f:
                 for block in response.iter_content(blocksize):
                     f.write(block)
-                    bytes_read += blocksize
+                    bytes_read += len(block)
                     if length is not None:
                         pb.update(bytes_read if bytes_read <= length else
                                   length)
                     else:
                         pb.update(bytes_read)
-
+        if length:
+            if length > bytes_read:
+                raise RuntimeError('Received incomplete data from {}: '
+                                   '{} vs expended {}'.format(url, bytes_read,
+                                                              length))
+            elif length < bytes_read:
+                raise RuntimeError('Received extra data from {}: '
+                                   '{} vs expended {}'.format(url, bytes_read,
+                                                              length))
         response.close()
         return response
 
@@ -463,3 +496,101 @@ class QueryWithLogin(BaseQuery):
 
     def authenticated(self):
         return self._authenticated
+
+
+class RetrySession(Session):
+    """ Session that automatically does a number of retries for failed
+        transient errors. The time between retries double every time until a
+        maximum of 30sec is reached
+
+        The following network errors are considered transient:
+            requests.codes.unavailable,
+            requests.codes.service_unavailable,
+            requests.codes.gateway_timeout,
+            requests.codes.request_timeout,
+            requests.codes.timeout,
+            requests.codes.precondition_failed,
+            requests.codes.precondition,
+            requests.codes.payment_required,
+            requests.codes.payment
+        """
+
+    retry_errors = [requests.codes.unavailable,
+                    requests.codes.service_unavailable,
+                    requests.codes.gateway_timeout,
+                    requests.codes.request_timeout,
+                    requests.codes.timeout,
+                    requests.codes.precondition_failed,
+                    requests.codes.precondition,
+                    requests.codes.payment_required,
+                    requests.codes.payment]
+
+    def __init__(self, retry=True, start_delay=1, *args, **kwargs):
+        """
+        ::param retry: set to False if retries not required
+        ::param start_delay: start delay interval between retries (default=1s).
+                Note that for HTTP 503, this code follows the retry timeout
+                set by the server in Retry-After
+        """
+        self.retry = retry
+        self.start_delay = start_delay
+        super(RetrySession, self).__init__(*args, **kwargs)
+
+    def send(self, request, **kwargs):
+        """
+        Send a given PreparedRequest, wrapping the connection to service in
+        try/except that retries on
+        Connection reset by peer.
+        :param request: The prepared request to send._session
+        :param kwargs: Any keywords the adaptor for the request accepts.
+        :return: the response
+        :rtype: requests.Response
+        """
+        # merge kwargs with env
+        proxies = kwargs.get('proxies') or {}
+        settings = self.merge_environment_settings(
+            request.url, proxies, kwargs.get('stream'), kwargs.get('verify'),
+            kwargs.get('cert'))
+        kwargs.update(settings)
+
+        # requests does not provide a default timeout, hence we might need
+        # to add it
+        if 'timeout' not in kwargs or kwargs['timeout'] is None:
+            kwargs['timeout'] = 120  # default time (sec) to wait for response
+
+        if self.retry:
+            current_delay = max(self.start_delay, DEFAULT_RETRY_DELAY)
+            current_delay = min(current_delay, MAX_RETRY_DELAY)
+            num_retries = 0
+            log.debug(
+                "Sending request {0} to server.".format(request))
+            current_error = None
+            while num_retries < MAX_NUM_RETRIES:
+                try:
+                    response = super(RetrySession, self).send(request,
+                                                              **kwargs)
+                    response.raise_for_status()
+                    return response
+                except requests.HTTPError as e:
+                    if e.response.status_code not in self.retry_errors:
+                        raise e
+                    current_error = e
+                    if e.response.status_code == requests.codes.unavailable:
+                        # is there a delay from the server (Retry-After)?
+                        try:
+                            current_delay = int(
+                                e.response.headers.get(SERVICE_RETRY,
+                                                       current_delay))
+                            current_delay = min(current_delay, MAX_RETRY_DELAY)
+                        except Exception:
+                            pass
+                log.debug(
+                    "Resending request in {}s ...".format(current_delay))
+                time.sleep(current_delay)
+                num_retries += 1
+                current_delay = min(current_delay * 2, MAX_RETRY_DELAY)
+            raise current_error
+        else:
+            response = super(RetrySession, self).send(request, **kwargs)
+            response.raise_for_status()  # TODO should we do this?
+            return response

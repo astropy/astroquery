@@ -35,7 +35,7 @@ def get_client():
     # mechanism is supposed to be used
     from .. import core
     core.ALMA_TAP_PATH = 'obscore'
-    alma.archive_url = 'https://beta.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/'
+    alma.archive_url = 'https://alma.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/'
     return alma
 
 
