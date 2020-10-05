@@ -324,7 +324,7 @@ class HeasarcClass(BaseQuery):
         # Set search radius (arcmin)
         radius = kwargs.get('radius', None)
         if radius is not None:
-            request_payload['Radius'] = "{}".format(radius.to(u.arcmin))
+            request_payload['Radius'] = "{}".format(u.Quantity(radius).to(u.arcmin))
 
         # Maximum number of results to be returned
         resultmax = kwargs.get('resultmax', None)
