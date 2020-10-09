@@ -78,6 +78,9 @@ sha
 
 - Change URL to https. [#2108]
 
+- A ``NoResultsWarning`` is now returned when there is return of any empty
+  table. [#1837]
+
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
