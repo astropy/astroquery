@@ -150,7 +150,7 @@ def pyregion_subset(region, data, mywcs):
         pixel_regions = shapelist.as_imagecoord(celhdr)
     else:
         # For this to work, we'd need to change the reference pixel after cropping.
-        # Alternatively, we can just make the full-sized mask... todo....
+        # Alternatively, we can just make the full-sized mask... # todo....
         raise NotImplementedError("Can't use non-celestial coordinates with regions.")
         pixel_regions = shapelist
 

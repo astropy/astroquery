@@ -17,7 +17,7 @@ __all__ = ['FermiLAT', 'FermiLATClass',
 @async_to_sync
 class FermiLATClass(BaseQuery):
     """
-    TODO: document
+    # TODO: document
     """
 
     request_url = conf.url
@@ -118,8 +118,8 @@ def _fermi_format_coords(c):
 
 class GetFermilatDatafile(object):
     """
-    TODO: document
-    TODO: Fail with useful failure messages on genuine failures
+    # TODO: document
+    # TODO: Fail with useful failure messages on genuine failures
     (this doesn't need to be implemented as a class)
     """
 

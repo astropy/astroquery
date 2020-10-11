@@ -18,7 +18,7 @@ To use `astroquery.astrometry_net` you will need to set up an account at
 `astrometry.net`_ and get your API key. The API key is available under your
 profile at `astrometry.net`_ when you are logged in.
 
-TODO: explain how to set config item for api key or how to get it into keyring.
+# TODO: explain how to set config item for api key or how to get it into keyring.
 
 .. note::
 
@@ -51,7 +51,7 @@ to be a longer time than the timeout set in
 `astroquery.astrometry_net.AstrometryNetClass.TIMEOUT`, which is intended to
 act primarily as a timeout for network transactions.
 
-TODO: Insert link to an actual catalog
+# TODO: Insert link to an actual catalog
 
 .. code-block:: python
 

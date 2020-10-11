@@ -12,7 +12,7 @@ __all__ = ['GAMA', 'GAMAClass']
 @async_to_sync
 class GAMAClass(BaseQuery):
     """
-    TODO: document
+    # TODO: document
     """
 
     request_url = 'http://www.gama-survey.org/dr3/query/'
