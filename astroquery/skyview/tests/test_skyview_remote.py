@@ -3,6 +3,7 @@ import pytest
 import json
 
 from astropy.io.fits import HDUList
+from astropy.logger import log
 
 from ...skyview import SkyView
 from .test_skyview import data_path
@@ -39,7 +40,7 @@ class TestSkyviewRemote:
                              zip(survey_dict.keys(), survey_dict.values()))
     def test_survey(self, survey, survey_data):
         # The print should help discover changes
-        print("Survey: {0} \n Canned reference return: {1} \n"
+        log.info("Survey: {0} \n Canned reference return: {1} \n"
               "Online service return: {2}".format(
                   survey, survey_data,
                   self.SkyView.survey_dict.get(

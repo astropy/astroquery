@@ -6,6 +6,7 @@ import gzip
 
 from six import StringIO
 import astropy.io.fits as fits
+from astropy.logger import log
 from .commons import get_readable_fileobj
 
 __all__ = ['download_list_of_fitsfiles']
@@ -116,7 +117,7 @@ def download_list_of_fitsfiles(linklist, output_directory=None,
             try:
                 fitsfile.writeto(final_file, clobber=overwrite)
             except IOError:
-                print("Skipped writing file {0} because it exists "
+                log.info("Skipped writing file {0} because it exists "
                       "and overwrite=False".format(final_file))
 
     return images

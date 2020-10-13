@@ -15,6 +15,7 @@ import astropy.io.votable as votable
 import astropy.units as u
 from astropy.table import Table
 import astropy.utils.data as aud
+from astropy.logger import log
 
 from ...utils import chunk_read, chunk_report, class_or_instance, commons
 from ...utils.process_asyncs import async_to_sync_docstr, async_to_sync
@@ -27,10 +28,10 @@ class SimpleQueryClass:
     def query(self):
         """ docstring """
         if self is SimpleQueryClass:
-            print("Calling query as class method")
+            log.info("Calling query as class method")
             return "class"
         else:
-            print("Calling query as instance method")
+            log.info("Calling query as instance method")
             return "instance"
 
 
@@ -435,7 +436,7 @@ def patch_getreadablefileobj(request):
             self.file.close()
 
     def monkey_urlopen(x, *args, **kwargs):
-        print("Monkeyed URLopen")
+        log.info("Monkeyed URLopen")
         return MockRemote(fitsfilepath, *args, **kwargs)
 
     def monkey_builder(tlscontext=None):
@@ -446,7 +447,7 @@ def patch_getreadablefileobj(request):
     def monkey_urlrequest(x, *args, **kwargs):
         # urlrequest allows passing headers; this will just return the URL
         # because we're ignoring headers during mocked actions
-        print("Monkeyed URLrequest")
+        log.info("Monkeyed URLrequest")
         return x
 
     aud.urllib.request.Request = monkey_urlrequest

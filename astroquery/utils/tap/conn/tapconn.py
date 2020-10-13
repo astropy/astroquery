@@ -28,6 +28,7 @@ from six.moves.urllib.parse import urlencode
 
 from astroquery.utils.tap.xmlparser import utils
 from astroquery.utils.tap import taputils
+from astropy.logger import log
 
 import requests
 
@@ -652,11 +653,16 @@ class TapConn:
         isError = False
         if response.status != expected_response_status:
             if debug:
+<<<<<<< HEAD
                 print(f"ERROR: {response.status}: {response.reason}")
+=======
+                log.debug("ERROR: " + str(response.status) + ": " +
+                      str(response.reason))
+>>>>>>> Replace print with log where necessary
             isError = True
         if isError and raise_exception:
             errMsg = taputils.get_http_response_error(response)
-            print(response.status, errMsg)
+            log.error(response.status, errMsg)
             raise requests.exceptions.HTTPError(errMsg)
         else:
             return isError

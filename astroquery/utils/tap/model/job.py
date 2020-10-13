@@ -20,6 +20,7 @@ import time
 from astroquery.utils.tap.model import modelutils
 from astroquery.utils.tap.xmlparser import utils
 from astroquery.utils.tap import taputils
+from astropy.logger import log
 import requests
 import sys
 
@@ -124,12 +125,12 @@ class Job:
                 phase = 'QUEUED'
                 if response.status != 200 and response.status != 303:
                     errMsg = taputils.get_http_response_error(response)
-                    print(response.status, errMsg)
+                    log.error(response.status, errMsg)
                     raise requests.exceptions.HTTPError(errMsg)
             else:
                 if response.status != 200:
                     errMsg = taputils.get_http_response_error(response)
-                    print(response.status, errMsg)
+                    log.error(response.status, errMsg)
                     raise requests.exceptions.HTTPError(errMsg)
             self._phase = phase
             return response
@@ -161,7 +162,7 @@ class Job:
             self.__last_phase_response_status = response.status
             if response.status != 200:
                 errMsg = taputils.get_http_response_error(response)
-                print(response.status, errMsg)
+                log.error(response.status, errMsg)
                 raise requests.exceptions.HTTPError(errMsg)
             return response
         else:
@@ -187,7 +188,7 @@ class Job:
             self.__last_phase_response_status = response.status
             if response.status != 200:
                 errMsg = taputils.get_http_response_error(response)
-                print(response.status, errMsg)
+                log.error(response.status, errMsg)
                 raise requests.exceptions.HTTPError(errMsg)
 
             self._phase = str(response.read().decode('utf-8'))
@@ -274,7 +275,7 @@ class Job:
         else:
             if not self.async_:
                 # sync: cannot access server again
-                print("No results to save")
+                log.info("No results to save")
             else:
                 # Async
                 self.wait_for_job_end(verbose)
@@ -288,7 +289,7 @@ class Job:
                                                  verbose,
                                                  200)
                 if isError:
-                    print(response.reason)
+                    log.error(response.reason)
                     raise Exception(response.reason)
                 if self.outputFileUser is None:
                     # User did not provide an output
@@ -299,7 +300,7 @@ class Job:
                     output = self.outputFile
                 else:
                     output = self.outputFileUser
-                print(f"Saving results to: {output}")
+                log.info(f"Saving results to: {output}")
                 self.connHandler.dump_to_file(output, response)
 
     def wait_for_job_end(self, verbose=False):
@@ -315,7 +316,7 @@ class Job:
         lphase = None
         # execute job if not running
         if self._phase == 'PENDING':
-            print("Job in PENDING phase, sending phase=RUN request.")
+            log.info("Job in PENDING phase, sending phase=RUN request.")
             try:
                 self.start(verbose)
             except Exception as ex:
@@ -343,8 +344,8 @@ class Job:
         resultsResponse = self.connHandler.execute_tapget(subContext)
         # resultsResponse = self.__readAsyncResults(self.__jobid, debug)
         if debug:
-            print(resultsResponse.status, resultsResponse.reason)
-            print(resultsResponse.getheaders())
+            log.debug(resultsResponse.status, resultsResponse.reason)
+            log.debug(resultsResponse.getheaders())
 
         resultsResponse = self.__handle_redirect_if_required(resultsResponse,
                                                              debug)
@@ -406,7 +407,7 @@ class Job:
                 resultsResponse.status != 303 and
                 resultsResponse.status != 302):
             errMsg = taputils.get_http_response_error(resultsResponse)
-            print(resultsResponse.status, errMsg)
+            log.error(resultsResponse.status, errMsg)
             raise requests.exceptions.HTTPError(errMsg)
         else:
             if resultsResponse.status == 303 or resultsResponse.status == 302:
@@ -431,7 +432,7 @@ class Job:
                     check_launch_response_status(response, verbose, 200)
                 if isError:
                     errMsg = taputils.get_http_response_error(resultsResponse)
-                    print(resultsResponse.status, errMsg)
+                    log.error(resultsResponse.status, errMsg)
                     raise requests.exceptions.HTTPError(errMsg)
             else:
                 response = resultsResponse

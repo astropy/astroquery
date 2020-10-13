@@ -12,19 +12,20 @@ import os
 from astropy import units as u
 from astropy.table import Table
 from astropy.table import MaskedColumn
+from astropy.logger import log
 from copy import copy
 
 try:
     from mocpy import MOC
 except ImportError:
-    print("Could not import mocpy, which is a requirement for the CDS service."
+    log.error("Could not import mocpy, which is a requirement for the CDS service."
           "Please refer to https://cds-astro.github.io/mocpy/install.html for how to install it.")
     pass
 
 try:
     from regions import CircleSkyRegion, PolygonSkyRegion
 except ImportError:
-    print("Could not import astropy-regions, which is a requirement for the CDS service."
+    log.error("Could not import astropy-regions, which is a requirement for the CDS service."
           "Please refer to http://astropy-regions.readthedocs.io/en/latest/installation.html for how to install it.")
     pass
 

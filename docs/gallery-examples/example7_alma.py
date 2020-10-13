@@ -10,6 +10,7 @@ from astropy import units as u
 from astropy.io import fits
 from astropy import wcs
 from astropy import log
+from astropy.logger import log
 import pylab as pl
 import aplpy
 import pyregion
@@ -54,7 +55,7 @@ primary_beam_radii = [approximate_primary_beam_sizes(row['Frequency support']) f
 
 
 # Compute primary beam parameters for the public and private components of the data for plotting below.
-print("The bands used include: ", np.unique(m83['Band']))
+log.info("The bands used include: ", np.unique(m83['Band']))
 
 private_circle_parameters = [(row['RA'], row['Dec'], np.mean(rad).to(u.deg).value)
                              for row, rad in zip(m83, primary_beam_radii)
@@ -65,9 +66,9 @@ public_circle_parameters = [(row['RA'], row['Dec'], np.mean(rad).to(u.deg).value
 unique_private_circle_parameters = np.array(list(set(private_circle_parameters)))
 unique_public_circle_parameters = np.array(list(set(public_circle_parameters)))
 
-print("BAND 3")
-print("PUBLIC:  Number of rows: {0}.  Unique pointings: {1}".format(len(m83), len(unique_public_circle_parameters)))
-print("PRIVATE: Number of rows: {0}.  Unique pointings: {1}".format(len(m83), len(unique_private_circle_parameters)))
+log.info("BAND 3")
+log.info("PUBLIC:  Number of rows: {0}.  Unique pointings: {1}".format(len(m83), len(unique_public_circle_parameters)))
+log.info("PRIVATE: Number of rows: {0}.  Unique pointings: {1}".format(len(m83), len(unique_private_circle_parameters)))
 
 private_circle_parameters_band6 = [(row['RA'], row['Dec'], np.mean(rad).to(u.deg).value)
                              for row, rad in zip(m83, primary_beam_radii)

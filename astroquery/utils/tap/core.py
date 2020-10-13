@@ -172,7 +172,7 @@ class Tap:
         """
         if table is None:
             raise ValueError("Table name is required")
-        print(f"Retrieving table '{table}'")
+        log.info(f"Retrieving table '{table}'")
         response = self.__connHandler.execute_tapget(f"tables?tables={table}",
                                                      verbose=verbose)
         if verbose:
@@ -877,7 +877,7 @@ class TapPlus(Tap):
             print("Parsing groups...")
         gsp = GroupSaxParser()
         gsp.parseData(response)
-        print(f"Done. {len(gsp.get_groups())} groups found")
+        log.info(f"Done. {len(gsp.get_groups())} groups found")
         if verbose:
             for g in gsp.get_groups():
                 print(g.title)
@@ -932,7 +932,7 @@ class TapPlus(Tap):
             print("Parsing shared items...")
         ssp = SharedItemsSaxParser()
         ssp.parseData(response)
-        print(f"Done. {len(ssp.get_shared_items())} shared items found")
+        log.info(f"Done. {len(ssp.get_shared_items())} shared items found")
         if verbose:
             for g in ssp.get_shared_items():
                 print(g.title)
@@ -981,7 +981,7 @@ class TapPlus(Tap):
                                                  verbose,
                                                  200)
         msg = f"Shared table '{table_name}' to group '{group_name}'."
-        print(msg)
+        log.info(msg)
 
     def share_table_stop(self, group_name=None, table_name=None,
                          verbose=False):
@@ -1029,7 +1029,7 @@ class TapPlus(Tap):
                                                  200)
 
         msg = f"Stop sharing table '{table_name}' to group '{group_name}'."
-        print(msg)
+        log.info(msg)
 
     def share_group_create(self, group_name=None, description=None,
                            verbose=False):
@@ -1064,7 +1064,7 @@ class TapPlus(Tap):
                                                  verbose,
                                                  200)
         msg = f"Created group '{group_name}'."
-        print(msg)
+        log.info(msg)
 
     def share_group_delete(self,
                            group_name=None,
@@ -1093,7 +1093,7 @@ class TapPlus(Tap):
                                                  verbose,
                                                  200)
         msg = f"Deleted group '{group_name}'."
-        print(msg)
+        log.info(msg)
 
     def share_group_add_user(self,
                              group_name=None,
@@ -1143,7 +1143,7 @@ class TapPlus(Tap):
                                                  verbose,
                                                  200)
         msg = f"Added user '{user_id}' from group '{group_name}'."
-        print(msg)
+        log.info(msg)
 
     def share_group_delete_user(self,
                                 group_name=None,
@@ -1194,7 +1194,7 @@ class TapPlus(Tap):
                                                  verbose,
                                                  200)
         msg = f"Deleted user '{user_id}' from group '{group_name}'."
-        print(msg)
+        log.info(msg)
 
     def is_valid_user(self, user_id=None, verbose=False):
         """Determines if the specified user exists in the system
@@ -1341,7 +1341,7 @@ class TapPlus(Tap):
                                                  verbose,
                                                  200)
         msg = f"Removed jobs: '{jobs_list}'."
-        print(msg)
+        log.info(msg)
 
     def login(self, user=None, password=None, credentials_file=None,
               verbose=False):
@@ -1371,12 +1371,12 @@ class TapPlus(Tap):
         if user is None:
             user = six.moves.input("User: ")
             if user is None:
-                print("Invalid user name")
+                log.debug("Invalid user name")
                 return
         if password is None:
             password = getpass.getpass("Password: ")
             if password is None:
-                print("Invalid password")
+                log.debug("Invalid password")
                 return
         self.__user = str(user)
         self.__pwd = str(password)
@@ -1415,7 +1415,7 @@ class TapPlus(Tap):
         if cookie is not None:
             self.__isLoggedIn = True
             connHandler.set_cookie(cookie)
-        print("OK: user logged in.")
+        log.info("OK: user logged in.")
 
     def logout(self, verbose=False):
         """Performs a logout
@@ -1494,10 +1494,10 @@ class TapPlus(Tap):
             job.jobid = jobid
             job.name = 'Table upload'
             job.set_phase('EXECUTING')
-            print(f"Job '{jobid}' created to upload table '{table_name}'.")
+            log.info(f"Job '{jobid}' created to upload table '{table_name}'.")
             return job
         else:
-            print(f"Uploaded table '{table_name}'.")
+            log.info(f"Uploaded table '{table_name}'.")
             return None
 
     def __uploadTableMultipart(self, resource, table_name=None,
@@ -1511,7 +1511,7 @@ class TapPlus(Tap):
                 "TABLE_NAME": str(table_name),
                 "TABLE_DESC": str(table_description),
                 "FORMAT": 'votable'}
-            print("Sending pytable.")
+            log.info("Sending pytable.")
             fh = tempfile.NamedTemporaryFile(delete=False)
             resource.write(fh, format='votable')
             fh.close()
@@ -1528,7 +1528,7 @@ class TapPlus(Tap):
                     "TABLE_NAME": str(table_name),
                     "TABLE_DESC": str(table_description),
                     "FORMAT": str(resource_format)}
-                print(f"Sending file: {resource}")
+                log.info(f"Sending file: {resource}")
                 with open(resource, "r") as f:
                     chunk = f.read()
                 files = [['FILE', os.path.basename(resource), chunk]]
@@ -1590,7 +1590,7 @@ class TapPlus(Tap):
                                            table_description=table_description,
                                            verbose=verbose)
         msg = f"Created table '{table_name}' from job: '{j.jobid}'."
-        print(msg)
+        log.info(msg)
 
     def __uploadTableMultipartFromJob(self, resource, table_name=None,
                                       table_description=None, verbose=False):
@@ -1647,7 +1647,7 @@ class TapPlus(Tap):
                                                  verbose,
                                                  200)
         msg = f"Table '{table_name}' deleted."
-        print(msg)
+        log.info(msg)
 
     def update_user_table(self, table_name=None, list_of_changes=[],
                           verbose=False):
@@ -1733,7 +1733,7 @@ class TapPlus(Tap):
                                                  verbose,
                                                  200)
         msg = f"Table '{table_name}' updated."
-        print(msg)
+        log.info(msg)
 
     @staticmethod
     def get_table_update_arguments(table_name, columns, list_of_changes):
@@ -1984,7 +1984,7 @@ class TapPlus(Tap):
             if cookie is not None:
                 self.__isLoggedIn = True
                 connHandler.set_cookie(cookie)
-        print("OK")
+        log.info("OK")
 
     def logout(self, verbose=False):
         """Performs a logout

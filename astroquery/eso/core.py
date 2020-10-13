@@ -751,7 +751,7 @@ class EsoClass(QueryWithLogin):
                     root = BeautifulSoup(data_download_form.content,
                                          'html5lib')
                     state = root.select('span[id=requestState]')[0].text
-                    print("{0:20.0f}s elapsed"
+                    log.info("{0:20.0f}s elapsed"
                           .format(time.time() - t0), end='\r')
                     sys.stdout.flush()
                 if state == 'ERROR':
@@ -966,7 +966,7 @@ class EsoClass(QueryWithLogin):
                     result_string.append("{0} {1}: {2}"
                                          .format(checkbox, name, value))
 
-        print("\n".join(result_string))
+        log.info("\n".join(result_string))
         return result_string
 
     def _print_surveys_help(self, url, cache=True):
@@ -1043,7 +1043,7 @@ class EsoClass(QueryWithLogin):
                         if name.strip() in helptext_dict:
                             result_string.append(helptext_dict[name.strip()])
 
-        print("\n".join(result_string))
+        log.info("\n".join(result_string))
         return result_string
 
 

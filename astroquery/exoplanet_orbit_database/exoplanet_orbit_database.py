@@ -9,6 +9,7 @@ from astropy.io import ascii
 from astropy.table import QTable
 import astropy.units as u
 from astropy.coordinates import SkyCoord
+from astropy.logger import log
 
 __all__ = ['ExoplanetOrbitDatabase']
 
@@ -82,7 +83,7 @@ class ExoplanetOrbitDatabaseClass:
                     try:
                         exoplanets_table[col].unit = u.Unit(self.param_units[col])
                     except ValueError:
-                        print(f"WARNING: Unit {self.param_units[col]} not recognised")
+                        log.warning(f"WARNING: Unit {self.param_units[col]} not recognised")
 
             self._table = QTable(exoplanets_table)
 

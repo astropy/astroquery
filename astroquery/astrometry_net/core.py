@@ -9,6 +9,7 @@ from astropy.io import fits
 from astropy import log
 from astropy.stats import sigma_clipped_stats
 from astropy.coordinates import SkyCoord
+from astropy.logger import log
 
 try:
     from astropy.nddata import CCDData
@@ -225,7 +226,7 @@ class AstrometryNetClass(BaseQuery):
         """
         has_completed = False
         job_id = None
-        print('Solving', end='', flush=True)
+        log.info('Solving', end='', flush=True)
         start_time = time.time()
         status = ''
         while not has_completed:
@@ -389,20 +390,20 @@ class AstrometryNetClass(BaseQuery):
                 with fits.open(image_file_path) as f:
                     data = f[0].data
 
-            print("Determining background stats", flush=True)
+            log.info("Determining background stats", flush=True)
             mean, median, std = sigma_clipped_stats(data, sigma=3.0,
                                                     maxiters=5)
             daofind = DAOStarFinder(fwhm=fwhm,
                                     threshold=detect_threshold * std)
-            print("Finding sources", flush=True)
+            log.info("Finding sources", flush=True)
             sources = daofind(data - median)
-            print('Found {} sources'.format(len(sources)), flush=True)
+            log.info('Found {} sources'.format(len(sources)), flush=True)
             # astrometry.net wants a sorted list of sources
             # Sort first (which puts things in ascending order)
             sources.sort('flux')
             # Reverse to get descending order
             sources.reverse()
-            print(sources)
+            log.info(sources)
             return self.solve_from_source_list(sources['xcentroid'],
                                                sources['ycentroid'],
                                                ccd.header['naxis1'],
