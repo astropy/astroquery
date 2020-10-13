@@ -11,8 +11,7 @@ import logging
 import warnings
 import requests
 from numpy import ma
-from six.moves.urllib.parse import urlencode
-from six.moves.urllib_error import HTTPError
+from urllib.parse import urlencode
 
 from ..utils.class_or_instance import class_or_instance
 from ..utils import async_to_sync, commons
@@ -41,7 +40,7 @@ CADC_COOKIE_PREFIX = 'CADC_SSO'
 
 logger = logging.getLogger(__name__)
 
-# TODO figure out what do to if anything about them. Some might require
+# TODO figure out what to do if anything about them. Some might require
 # fixes on the CADC servers
 warnings.filterwarnings('ignore', module='astropy.io.votable')
 
@@ -209,7 +208,7 @@ class CadcClass(BaseQuery):
         """
         Logout. Anonymous access with all the subsequent use of the
         object. Note that the original session is not affected (in case
-        it was passed when the object was first intantiated)
+        it was passed when the object was first instantiated)
 
         Parameters
         ----------
@@ -356,7 +355,7 @@ class CadcClass(BaseQuery):
         for fn in filenames:
             try:
                 images.append(fn.get_fits())
-            except HTTPError as err:
+            except requests.exceptions.HTTPError as err:
                 # Catch HTTPError if user is unauthorized to access file
                 logger.debug(
                     "{} - Problem retrieving the file: {}".
@@ -585,7 +584,7 @@ class CadcClass(BaseQuery):
 
     def exec_sync(self, query, maxrec=None, uploads=None, output_file=None):
         """
-        Run a query and return the results or save them in a output_file
+        Run a query and return the results or save them in an output_file
 
         Parameters
         ----------
@@ -851,7 +850,7 @@ def get_access_url(service, capability=None):
                     if not sm or sm.get("standardid", None) is None or\
                        sm['standardid'] == "ivo://ivoa.net/sso#cookie":
                         return i.accessurl.text
-    raise RuntimeError("ERROR - capabilitiy {} not found or not working with "
+    raise RuntimeError("ERROR - capability {} not found or not working with "
                        "anonymous or cookie access".format(capability))
 
 
