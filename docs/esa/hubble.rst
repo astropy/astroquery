@@ -264,9 +264,9 @@ query will be returned and stored in the votable file
 the module will provide a default name. It is also possible to store only the results
 in memory, without defining neither a filename nor the "save" tag.
 
---------------------------------------
+----------------------------------------------------
 7. Cone searches with criteria in the Hubble archive
---------------------------------------
+----------------------------------------------------
 
 It is also possible to perform a cone search defined by a target name or coordinates, a radius
 and a set of criteria to filter the results.
