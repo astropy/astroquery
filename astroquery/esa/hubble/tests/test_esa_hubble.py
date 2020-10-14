@@ -48,6 +48,25 @@ def ehst_request(request):
     return mp
 
 
+def get_cone_mockreturn(method, request, url, params, *args, **kwargs):
+    file = data_path('cone_search_m31_5.vot')
+    if 'OBSERVATION_ID' in params:
+        file = params['OBSERVATION_ID'] + ".vot"
+    response = data_path(file)
+    shutil.copy(response + '.test', response)
+    return response
+
+
+@pytest.fixture(autouse=True)
+def ehst_cone_search(request):
+    try:
+        mp = request.getfixturevalue("monkeypatch")
+    except AttributeError:  # pytest < 3
+        mp = request.getfuncargvalue("monkeypatch")
+    mp.setattr(ESAHubbleClass, 'cone_search', get_cone_mockreturn)
+    return mp
+
+
 class TestESAHubble():
 
     def get_dummy_tap_handler(self):
@@ -101,7 +120,6 @@ class TestESAHubble():
         ehst.query_target(name=parameters['name'],
                           verbose=parameters['verbose'])
 
-    @pytest.mark.remote_data
     def test_cone_search(self):
         coords = coordinates.SkyCoord("00h42m44.51s +41d16m08.45s", frame='icrs')
 
@@ -113,7 +131,7 @@ class TestESAHubble():
 
         parameters = {'coordinates': coords,
                       'radius': 0.0,
-                      'file_name': 'file_cone',
+                      'filename': 'file_cone',
                       'output_format': 'votable',
                       'cache': True}
 
@@ -126,39 +144,35 @@ class TestESAHubble():
             ehst._request = MagicMock(return_value=response)
             ehst.cone_search(parameters['coordinates'],
                              parameters['radius'],
-                             parameters['file_name'],
+                             parameters['filename'],
                              parameters['output_format'],
                              parameters['cache'])
 
-    @pytest.mark.remote_data
     def test_cone_search_coords(self):
         coords = "00h42m44.51s +41d16m08.45s"
 
         parameterst = {'query': "select top 10 * from hsc_v2.hubble_sc2",
                        'output_file': "test2.vot",
                        'output_format': "votable",
-                       'verbose': False}
+                       'verbose': True}
         dummyTapHandler = DummyHubbleTapHandler("launch_job", parameterst)
 
         parameters = {'coordinates': coords,
                       'radius': 0.0,
-                      'file_name': 'file_cone',
+                      'filename': 'file_cone',
+                      'async_job': False,
                       'output_format': 'votable',
                       'cache': True}
 
         ehst = ESAHubbleClass(dummyTapHandler)
         ehst.cone_search(parameters['coordinates'],
                          parameters['radius'],
-                         parameters['file_name'],
+                         parameters['filename'],
                          parameters['output_format'],
+                         parameters['async_job'],
                          parameters['cache'])
-        parameters[coordinates] = 1234
         with pytest.raises(ValueError) as err:
-            ehst.cone_search(parameters['coordinates'],
-                             parameters['radius'],
-                             parameters['file_name'],
-                             parameters['output_format'],
-                             parameters['cache'])
+            ehst._getCoordInput(1234, 'coordinate')
         assert "coordinate must be either a string or "\
                "astropy.coordinates" in err.value.args[0]
 
@@ -191,6 +205,10 @@ class TestESAHubble():
         dummyTapHandler = DummyHubbleTapHandler("get_tables", parameters2)
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
         ehst.get_tables(True, True)
+
+    def test_get_artifact(self):
+        ehst = ESAHubbleClass(self.get_dummy_tap_handler())
+        ehst.get_artifact("w0ji0v01t_c2f.fits.gz")
 
     def test_get_columns(self):
         parameters = {'query': "select top 10 * from hsc_v2.hubble_sc2",
@@ -367,6 +385,37 @@ class TestESAHubble():
                                   verbose=parameters1['verbose'])
         dummy_tap_handler = DummyHubbleTapHandler("launch_job", parameters3)
         dummy_tap_handler.check_call("launch_job", parameters3)
+        c = coordinates.SkyCoord("00h42m44.51s +41d16m08.45s", frame='icrs')
+        ehst.cone_search_criteria(coordinates=c,
+                                  radius=parameters1['radius'],
+                                  data_product_type=parameters1
+                                  ['data_product_type'],
+                                  obs_collection=parameters1['obs_collection'],
+                                  instrument_name=parameters1
+                                  ['instrument_name'],
+                                  filters=parameters1['filters'],
+                                  async_job=parameters1['async_job'],
+                                  filename=parameters1['filename'],
+                                  output_format=parameters1['output_format'],
+                                  verbose=parameters1['verbose'])
+        with pytest.raises(TypeError) as err:
+            ehst.cone_search_criteria(target=parameters1['target'],
+                                      coordinates=123,
+                                      radius=parameters1['radius'],
+                                      data_product_type=parameters1
+                                      ['data_product_type'],
+                                      obs_collection=parameters1
+                                      ['obs_collection'],
+                                      instrument_name=parameters1
+                                      ['instrument_name'],
+                                      filters=parameters1['filters'],
+                                      async_job=parameters1['async_job'],
+                                      filename=parameters1['filename'],
+                                      output_format=parameters1
+                                      ['output_format'],
+                                      verbose=parameters1['verbose'])
+        assert "Please use only target or coordinates as"\
+            "parameter." in err.value.args[0]
 
     def test_query_criteria_no_params(self):
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
