@@ -112,7 +112,7 @@ from ..query import BaseQuery
 from ..utils import commons
 from . import conf
 from ..exceptions import (
-    TableParseError, 
+    TableParseError,
     NoResultsWarning,
     InvalidQueryError
 )
@@ -381,7 +381,7 @@ class IrsaClass(BaseQuery):
         # Check to see that output table size limit hasn't been exceeded
         if 'Exceeding output table size limit' in content:
             raise TableParseError("Exceeded output table size - reduce number "
-                            "of output columns and/or limit search area")
+                                  "of output columns and/or limit search area")
 
         # Check to see that the query engine is working
         if 'SQLConnect failed' in content:
@@ -390,7 +390,7 @@ class IrsaClass(BaseQuery):
         # Check that the results are not of length zero
         if len(content) == 0:
             warnings.warn("The IRSA server sent back an empty reply",
-            NoResultsWarning)
+                          NoResultsWarning)
 
         # Read it in using the astropy VO table reader
         try:
