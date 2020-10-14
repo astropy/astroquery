@@ -307,7 +307,9 @@ class ESAHubbleClass(BaseQuery):
 
         Parameters
         ----------
-        coordinates : astropy.coordinate, mandatory
+        target : str, mandatory if no coordinates is provided
+            name of the target, that will act as center in the cone search
+        coordinates : astropy.coordinate, mandatory if no target is provided
             coordinates of the center in the cone search
         radius : float, default 0
             radius in arcmin of the cone_search
@@ -606,50 +608,6 @@ class ESAHubbleClass(BaseQuery):
         else:
             raise ValueError("One of the lists is empty or there are "
                              "elements that are not strings")
-
-    def get_hap_observations(self, async_job=True, output_file=None,
-                             output_format="votable",
-                             verbose=False):
-        """Launches a synchronous or asynchronous job to extract ALL HAP
-        observations
-
-        Parameters
-        ----------
-        async_job : bool, optional, default 'False'
-            executes the query (job) in asynchronous/synchronous mode (default
-            synchronous)
-        output_file : str, optional, default None
-            file name where the results are saved if dumpToFile is True.
-            If this parameter is not provided, the jobid is used instead
-        output_format : str, optional, default 'votable'
-            results format
-        verbose : bool, optional, default 'False'
-            flag to display information about the process
-
-        Returns
-        -------
-        A table object
-        """
-        query = "select o.*, p.proposal_type from ehst.observation as o LEFT "\
-                "JOIN ehst.proposal as p on o.proposal_id = p.proposal_id "\
-                "LEFT JOIN ehst.plane as pl on pl.observation_uuid = "\
-                "o.observation_uuid where (o.observation_id like '%hst%' AND "\
-                "p.proposal_type like '%HAP%' AND (o.obs_type like '%HST "\
-                "Simple%' OR o.obs_type like '%HST Composite%' OR o.obs_type "\
-                "like '%HST Singleton%') AND o.collection LIKE '%HST%' AND "\
-                "pl.main_science_plane = 'true') ORDER BY o.observation_id"
-        if verbose:
-            print(query)
-        job = self.query_hst_tap(query=query, async_job=async_job,
-                                 output_file=output_file,
-                                 output_format=output_format,
-                                 verbose=verbose)
-        try:
-            table = job.get_results()
-        except Exception:
-            raise ValueError('There are not HAP observations in this DB')
-
-        return table
 
     def get_hap_proposals(self, async_job=True, output_file=None,
                           output_format="votable",
