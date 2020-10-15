@@ -790,7 +790,7 @@ class ESASkyClass(BaseQuery):
                 return json[index]
 
     def _get_tap_observation_id(self, mission):
-        return self._get_json_data_for_mission(self._get_observation_json(), mission)["tapObservationId"]
+        return self._get_json_data_for_mission(self._get_observation_json(), mission)["uniqueIdentifierField"]
 
     def _create_request_payload(self, query):
         return {'REQUEST': 'doQuery', 'LANG': 'ADQL', 'FORMAT': 'VOTABLE',
