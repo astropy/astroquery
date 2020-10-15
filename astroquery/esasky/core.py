@@ -238,8 +238,8 @@ class ESASkyClass(BaseQuery):
         sesame_database.set('simbad')
         coordinates = commons.parse_coordinates(sanitized_position)
 
-        self._store_query_result(query_result, sanitized_missions, 
-                                    coordinates, sanitized_radius, sanitized_row_limit, 
+        self._store_query_result(query_result, sanitized_missions,
+                                    coordinates, sanitized_radius, sanitized_row_limit,
                                     get_query_payload, cache, self._get_observation_json())
 
         if (get_query_payload):
@@ -717,7 +717,7 @@ class ESASkyClass(BaseQuery):
                                       unit='deg')))
             else:
                 where_query = (" WHERE 1=CONTAINS(POINT('ICRS', {}, {}), CIRCLE('ICRS', {}, {}, {}))".
-                           format(tapRaColumn, tapDecColumn, 
+                           format(tapRaColumn, tapDecColumn,
                                   ra,
                                   dec,
                                   commons.radius_to_unit(
