@@ -9,7 +9,7 @@ from __future__ import print_function
 import requests
 import numpy as np
 import numpy.ma as ma
-from astropy import units
+from astropy import units as u
 from astropy import coordinates as coord
 from ..utils import commons, prepend_docstr_nosections
 from ..query import BaseQuery
@@ -89,7 +89,7 @@ class AlfalfaClass(BaseQuery):
 
         return catalog
 
-    def query_region(self, coordinates, radius=3. * units.arcmin,
+    def query_region(self, coordinates, radius=3. * u.arcmin,
                      optical_counterpart=False):
         """
         Perform object cross-ID in ALFALFA.
