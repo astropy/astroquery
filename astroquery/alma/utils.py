@@ -137,7 +137,7 @@ def footprint_to_reg(footprint):
         reglist.append(reg)
 
     else:
-        polygons = [ii for ii, xx in enumerate(entries) if xx == 'Polygon']
+        polygons = [index for index, entry in enumerate(entries) if entry == 'Polygon']
 
         for start, stop in zip(polygons, polygons[1:]+[None]):
             reg = Shape('polygon', [float(x) for x in entries[start+1:stop] if x != 'ICRS'])
