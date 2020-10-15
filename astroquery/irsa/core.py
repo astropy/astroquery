@@ -111,11 +111,8 @@ import astropy.io.votable as votable
 from ..query import BaseQuery
 from ..utils import commons
 from . import conf
-from ..exceptions import (
-    TableParseError,
-    NoResultsWarning,
-    InvalidQueryError
-)
+from ..exceptions import TableParseError, NoResultsWarning, InvalidQueryError
+
 
 __all__ = ['Irsa', 'IrsaClass']
 
