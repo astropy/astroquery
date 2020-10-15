@@ -50,6 +50,7 @@ class ESASkyClass(BaseQuery):
     __HST_STRING = 'hst'
     __INTEGRAL_STRING = 'integral'
     __AKARI_STRING = 'akari'
+    __ALMA_STRING = 'alma'
 
     __HERSCHEL_FILTERS = {
         'psw': '250',
@@ -371,7 +372,8 @@ class ESASkyClass(BaseQuery):
             if (query_mission.lower() in sanitized_missions):
                 # INTEGRAL & AKARI does not have a product url yet.
                 if (query_mission.lower() == self.__INTEGRAL_STRING
-                    or query_mission.lower() == self.__AKARI_STRING):
+                    or query_mission.lower() == self.__AKARI_STRING
+                    or query_mission.lower() == self.__ALMA_STRING):
                     log.info(query_mission + " does not yet support downloading of "
                             "fits files")
                     continue
