@@ -146,7 +146,7 @@ def query(coord=None, ra=None, dec=None, size=None, naifid=None, pid=None,
     # transpose data for appropriate table instance handling
     t = Table(list(zip(*data)), names=col_names, dtype=dtypes)
     if len(data) < 0:
-        warnings.warn(NoResultsWarning("No matching rows were found")
+        warnings.warn(NoResultsWarning("No matching rows were found"))
         return Table()
     return t
 
