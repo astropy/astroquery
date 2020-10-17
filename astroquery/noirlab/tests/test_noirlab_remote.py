@@ -1,6 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 # Python library
-from __future__ import print_function
+
 # External packages
 from astropy import units as u
 from astropy.coordinates import SkyCoord

@@ -8,7 +8,7 @@ Cutout queries on TESS FFIs.
 
 """
 
-from __future__ import print_function, division
+
 
 import warnings
 import time

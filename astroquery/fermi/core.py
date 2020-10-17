@@ -1,6 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """Download of Fermi LAT (Large Area Telescope) data"""
-from __future__ import print_function
+
 import re
 import requests
 import time

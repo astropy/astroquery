@@ -2,7 +2,7 @@
 """
 Simbad query class for accessing the Simbad Service
 """
-from __future__ import print_function
+
 import copy
 import re
 import requests

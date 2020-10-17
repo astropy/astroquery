@@ -70,7 +70,7 @@ constraint  Optional    User defined query constraint(s)
                         Note: The constraint should follow SQL syntax.
 
 """
-from __future__ import print_function, division
+
 
 import warnings
 from astropy.logger import log
