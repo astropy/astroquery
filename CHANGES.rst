@@ -22,6 +22,11 @@ esa/xmm_newton
 - new method ``get_epic_images`` is added to extract EPIC images from
   tarballs. [#1759]
 
+esasky
+^^^^^^
+
+- Converted unittest styled tests to pytest. [#1862]
+
 
 Gemini
 ^^^^^^
@@ -57,6 +62,11 @@ UKIDSS
 ^^^^^^
 
 - Updated to ``UKIDSSDR11PLUS`` as the default version [#1767]
+
+utils/tap
+^^^^^^
+
+- Converted unittest styled tests to pytest. [#1862]
 
 alma
 ^^^^
