@@ -10,7 +10,6 @@ European Space Agency (ESA)
 Created on 4 Sept. 2019
 """
 
-from __future__ import absolute_import
 
 import os
 

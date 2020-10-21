@@ -98,7 +98,7 @@ If onlist=0, the following parameters are required:
                         equal to available to be retrieved rows under the same
                         constraints.
 """
-from __future__ import print_function, division
+
 
 import warnings
 import xml.etree.ElementTree as tree

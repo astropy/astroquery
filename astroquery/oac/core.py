@@ -8,7 +8,7 @@ see: https://api.astrocats.space.
 :authors: Philip S. Cowperthwaite (pcowpert@cfa.harvard.edu)
 and James Guillochon (jguillochon@cfa.harvard.edu)
 """
-from __future__ import print_function
+
 
 import json
 import csv
