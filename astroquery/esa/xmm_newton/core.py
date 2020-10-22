@@ -396,8 +396,8 @@ class XMMNewtonClass(BaseQuery):
                     log.warning("Invalid instrument %s" % i)
                     instrument.remove(i)
         with tarfile.open(filename, "r") as tar:
-            for i in tar.getmembers():
-                paths = os.path.split(i.name)
+            for member in tar.getmembers():
+                paths = os.path.split(member.name)
                 fname = paths[1]
                 paths = os.path.split(paths[0])
                 if paths[1] != "pps":
@@ -411,12 +411,12 @@ class XMMNewtonClass(BaseQuery):
                     continue
                 if not fname_info["T"] in _product_type:
                     continue
-                tar.extract(i, _path)
+                tar.extract(member, _path)
                 if not ret.get(int(fname_info["S"])):
                     ret[int(fname_info["S"])] = {}
                 b = int(fname_info["S"])
                 ins = fname_info["I"]
-                value = os.path.abspath(os.path.join(_path, i.name))
+                value = os.path.abspath(os.path.join(_path, member.name))
                 if fname_info["T"] == "DETMSK":
                     ins = fname_info["I"] + "_det"
                 elif fname_info["T"] == "EXPMAP":
