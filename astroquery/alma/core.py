@@ -267,7 +267,7 @@ class AlmaClass(QueryWithLogin):
         rad = radius
         if not isinstance(radius, u.Quantity):
             rad = radius*u.deg
-        obj_coord = commons.parse_coordinates(coordinate)
+        obj_coord = commons.parse_coordinates(coordinate).fk5
         ra_dec = '{}, {}'.format(obj_coord.to_string(), rad.to(u.deg).value)
         if payload is None:
             payload = {}
