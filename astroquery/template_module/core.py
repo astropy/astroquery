@@ -298,7 +298,7 @@ class TemplateClass(BaseQuery):
                                  data=request_payload,
                                  timeout=self.TIMEOUT, cache=cache)
 
-        return self.extract_image_urls(response.text)
+        return self.extract_image_urls(response.content.decode('utf-8'))
 
     # the extract_image_urls method takes in the HTML page as a string
     # and uses regexps, etc to scrape the image urls:
