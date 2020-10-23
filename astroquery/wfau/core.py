@@ -71,7 +71,7 @@ class BaseWFAUClass(QueryWithLogin):
         if not response.ok:
             self.session = None
             response.raise_for_status()
-        if 'FAILED to log in' in response.text:
+        if 'FAILED to log in' in response.content.decode('utf-8'):
             self.session = None
             raise Exception("Unable to log in with your given credentials.\n"
                             "Please try again.\n Note that you can continue "
@@ -402,7 +402,7 @@ class BaseWFAUClass(QueryWithLogin):
         response = self._wfau_send_request(query_url, request_payload)
         response = self._check_page(response.url, "row")
 
-        image_urls = self.extract_urls(response.text)
+        image_urls = self.extract_urls(response.content.decode('utf-8'))
         # different links for radius queries and simple ones
         if radius is not None:
             image_urls = [link for link in image_urls if
@@ -602,7 +602,7 @@ class BaseWFAUClass(QueryWithLogin):
         -------
         table : `~astropy.table.Table`
         """
-        table_links = self.extract_urls(response.text)
+        table_links = self.extract_urls(response.content.decode('utf-8'))
         # keep only one link that is not a webstart
         if len(table_links) == 0:
             raise Exception("No VOTable found on returned webpage!")
@@ -709,7 +709,7 @@ class BaseWFAUClass(QueryWithLogin):
             else:
                 response = requests.get(url=url)
             self.response = response
-            content = response.text
+            content = response.content.decode('utf-8')
             if re.search("error", content, re.IGNORECASE):
                 raise InvalidQueryError(
                     "Service returned with an error!  "
