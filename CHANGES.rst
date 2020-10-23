@@ -4,10 +4,19 @@
 Service fixes and enhancements
 ------------------------------
 
+ESASky
+^^^^
+
+- Updated ESASky module for version 3.5 of ESASky backend. [#1858]
+
+- Added row limit parameter for map queries. [#1858]
+
+
 irsa
 ^^^^
 
 - Used more specific exceptions in IRSA. [#1854]
+
 
 mast
 ^^^^
