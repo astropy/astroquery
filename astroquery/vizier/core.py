@@ -228,7 +228,7 @@ class VizierClass(BaseQuery):
             method='POST', url=self._server_to_url(return_type=return_type),
             data=data_payload, timeout=self.TIMEOUT)
 
-        if 'STOP, Max. number of RESOURCE reached' in response.text:
+        if 'STOP, Max. number of RESOURCE reached' in response.content.decode('utf-8'):
             raise ValueError("Maximum number of catalogs exceeded.  Try "
                              "setting max_catalogs to a large number and"
                              " try again")
