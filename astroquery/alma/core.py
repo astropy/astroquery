@@ -896,9 +896,9 @@ class AlmaClass(QueryWithLogin):
         del data['password']
         # but save the parameters for debug purposes
         self._login_parameters = data
-
+        login_response = login_response.content.decode('utf-8')
         authenticated = ('You have successfully logged in' in
-                         login_response.text)
+                         login_response)
 
         if authenticated:
             log.info("Authentication successful!")
