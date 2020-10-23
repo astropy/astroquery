@@ -19,6 +19,11 @@ class MockResponseAtomicLineList:
         with open(self.filename) as f:
             return f.read()
 
+    @property
+    def content(self):
+        with open(self.filename, 'rb') as f:
+            return f.read()
+
 
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')

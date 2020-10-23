@@ -255,7 +255,8 @@ class AtomicLineListClass(BaseQuery):
         return response
 
     def _parse_result(self, response):
-        data = StringIO(BeautifulSoup(response.text).find('pre').text.strip())
+        response = response.content.decode('utf-8')
+        data = StringIO(BeautifulSoup(response).find('pre').text.strip())
         # `header` is e.g.:
         # "u'-LAMBDA-VAC-ANG-|-SPECTRUM--|TT|--------TERM---------|---J-J---|----LEVEL-ENERGY--CM-1----'"
         # `colnames` is then
