@@ -30,7 +30,7 @@ class TestNist:
     @pytest.mark.skipif('PY2')
     def test_unescape_html(self):
         response = nist.core.Nist.query_async(4333 * u.AA, 4334 * u.AA, "V I")
-        assert '&dagger;' in response.text
+        assert '&dagger;' in response.content.decode('utf-8')
         # check that Unicode characters have been properly unescaped from their
         # raw HTML code equivalents during parsing
         response = nist.core.Nist._parse_result(response)

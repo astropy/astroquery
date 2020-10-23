@@ -317,7 +317,7 @@ class NraoClass(QueryWithLogin):
                                        data=data, cache=False)
 
         authenticated = ('You have successfully logged in' in
-                         login_response.text)
+                         login_response.content.decode('utf-8'))
 
         if authenticated:
             log.info("Authentication successful!")
@@ -405,9 +405,10 @@ class NraoClass(QueryWithLogin):
                                 cache=cache)
 
     def _parse_result(self, response, verbose=False):
-        if '<?xml' in response.text[:5]:
+        response = response.content.decode('utf-8')
+        if '<?xml' in response[:5]:
             return self._parse_votable_result(response, verbose=verbose)
-        elif '<html>' in response.text[:6]:
+        elif '<html>' in response[:6]:
             return self._parse_html_result(response, verbose=verbose)
         else:
             raise ValueError("Unrecognized response type; it does not appear "
@@ -417,7 +418,7 @@ class NraoClass(QueryWithLogin):
         if not verbose:
             commons.suppress_vo_warnings()
 
-        new_content = response.text
+        new_content = response
 
         # these are pretty bad hacks, but also needed...
         days_re = re.compile(r'unit="days"  datatype="double"')
@@ -455,7 +456,7 @@ class NraoClass(QueryWithLogin):
 
     def _parse_html_result(self, response, verbose=False):
         # parse the HTML return...
-        root = BeautifulSoup(response.content, 'html5lib')
+        root = BeautifulSoup(response, 'html5lib')
 
         htmltable = root.findAll('table')
         # if len(htmltable) != 1:
