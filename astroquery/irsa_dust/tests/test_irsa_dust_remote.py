@@ -47,7 +47,7 @@ class TestDust(DustTestCase):
         response = requests.get(
             irsa_dust.core.IrsaDust.DUST_SERVICE_URL +
             "?locstr=m31")
-        data = response.text
+        data = response.content.decode('utf-8')
         xml_tree = irsa_dust.utils.xml(data)
         assert xml_tree is not None
 
@@ -55,7 +55,7 @@ class TestDust(DustTestCase):
         response = requests.get(
             irsa_dust.core.IrsaDust.DUST_SERVICE_URL +
             "?locstr=100")
-        data = response.text
+        data = response.content.decode('utf-8')
         with pytest.raises(Exception):
             irsa_dust.utils.xml(data)
 
@@ -69,7 +69,7 @@ class TestDust(DustTestCase):
         response = requests.get(
             irsa_dust.core.IrsaDust.DUST_SERVICE_URL +
             "?locstr=m31")
-        data = response.text
+        data = response.content.decode('utf-8')
         url_list = irsa_dust.core.IrsaDust().extract_image_urls(
             data, image_type=image_type)
         for url, tail in zip(url_list, expected_tails):
@@ -85,7 +85,7 @@ class TestDust(DustTestCase):
         response = requests.get(
             irsa_dust.core.IrsaDust.DUST_SERVICE_URL +
             "?locstr=m31")
-        data = response.text
+        data = response.content.decode('utf-8')
         url_list = irsa_dust.core.IrsaDust.extract_image_urls(
             data, image_type=image_type)
         for url, tail in zip(url_list, expected_tails):

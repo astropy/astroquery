@@ -178,7 +178,7 @@ class IrsaDustClass(BaseQuery):
         request_payload = self._args_to_payload(coordinate, radius=radius)
         response = self._request("POST", url, data=request_payload,
                                  timeout=timeout)
-        return self.extract_image_urls(response.text, image_type=image_type)
+        return self.extract_image_urls(response.content.decode('utf-8'), image_type=image_type)
 
     def get_extinction_table(self, coordinate, radius=None, timeout=TIMEOUT,
                              show_progress=True):
@@ -250,7 +250,7 @@ class IrsaDustClass(BaseQuery):
         request_payload = self._args_to_payload(coordinate, radius=radius)
         response = self._request("POST", url, data=request_payload,
                                  timeout=timeout)
-        xml_tree = utils.xml(response.text)
+        xml_tree = utils.xml(response.content.decode('utf-8'))
         result = SingleDustResult(xml_tree, coordinate)
         return commons.FileContainer(result.ext_detail_table(),
                                      show_progress=show_progress)
@@ -296,7 +296,7 @@ class IrsaDustClass(BaseQuery):
         request_payload = self._args_to_payload(coordinate, radius=radius)
         response = self._request("POST", url, data=request_payload,
                                  timeout=timeout)
-        xml_tree = utils.xml(response.text)
+        xml_tree = utils.xml(response.content.decode('utf-8'))
         result = SingleDustResult(xml_tree, coordinate)
         if section is None or section in ["location", "loc", "l"]:
             return result.table(section=section)

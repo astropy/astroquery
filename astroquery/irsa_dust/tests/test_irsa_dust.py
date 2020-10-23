@@ -84,6 +84,10 @@ class DustTestCase:
         with open(self.data(filename), "r") as f:
             return f.read()
 
+    def read_byte(self, filename):
+        with open(self.data(filename), "rb") as f:
+            return f.read()
+
 
 class TestDust(DustTestCase):
 
@@ -335,6 +339,7 @@ class TestDust(DustTestCase):
     def send_request_mockreturn(self, method, url, data, timeout):
         class MockResponse:
             text = self.read_data(M31_XML)
+            content = self.read_byte(M31_XML)
         return MockResponse
 
     def get_ext_table_async_mockreturn(self, coordinate, radius=None,
