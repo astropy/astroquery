@@ -189,12 +189,12 @@ class SBDBClass(BaseQuery):
         """
 
         if self._return_raw:
-            return response.text
+            return response.content.decode('utf-8')
 
         # decode json response from JPL SBDB server into ascii
         # SBDB API: does not provide proper unicode representation
         try:
-            src = OrderedDict(json.loads(response.text))
+            src = OrderedDict(json.loads(response.content.decode('utf-8')))
 
         except ValueError:
             raise ValueError('Server response not readable.')
