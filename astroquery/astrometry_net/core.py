@@ -248,7 +248,8 @@ class AstrometryNetClass(BaseQuery):
         if status == 'success':
             wcs_url = url_helpers.join(self.URL, 'wcs_file', str(job_id))
             wcs_response = self._request('GET', wcs_url)
-            wcs = fits.Header.fromstring(wcs_response.text)
+            wcs_response = wcs_response.content.decode('utf-8')
+            wcs = fits.Header.fromstring(wcs_response)
         elif status == 'failure':
             wcs = {}
         elif timed_out:
