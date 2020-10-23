@@ -460,7 +460,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
         """
 
         # Extract the decoded body of the response
-        text = response.text
+        text = response.content.decode('utf-8')
 
         # Raise an exception if anything went wrong
         self._handle_error(text)
