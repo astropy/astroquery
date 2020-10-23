@@ -106,8 +106,8 @@ class IbeClass(BaseQuery):
 
         # Raise exception, if request failed
         response.raise_for_status()
-
-        return Table.read(response.text, format='ipac', guess=False)
+        data = six.BytesIO(response.content)
+        return Table.read(data, format='ipac', guess=False)
 
     def query_region_sia(self, coordinate=None, mission=None,
                          dataset=None, table=None, width=None,
@@ -127,7 +127,7 @@ class IbeClass(BaseQuery):
         response.raise_for_status()
 
         return commons.parse_votable(
-            response.text).get_first_table().to_table()
+            response.content).get_first_table().to_table()
 
     def query_region_async(
             self, coordinate=None, where=None, mission=None, dataset=None,
@@ -274,7 +274,7 @@ class IbeClass(BaseQuery):
             response = self._request('GET', url, timeout=self.TIMEOUT,
                                      cache=cache)
 
-            root = BeautifulSoup(response.text)
+            root = BeautifulSoup(response.content)
             links = root.findAll('a')
 
             missions = [os.path.basename(a.attrs['href'].rstrip('/'))
@@ -312,7 +312,7 @@ class IbeClass(BaseQuery):
         response = self._request('GET', url, timeout=self.TIMEOUT,
                                  cache=cache)
 
-        root = BeautifulSoup(response.text)
+        root = BeautifulSoup(response.content)
         links = root.findAll('a')
         datasets = [a.text for a in links
                     if a.attrs['href'].count('/') >= 4  # shown as '..'; ignore
@@ -366,7 +366,7 @@ class IbeClass(BaseQuery):
         response = self._request('GET', url, timeout=self.TIMEOUT,
                                  cache=cache)
 
-        root = BeautifulSoup(response.text)
+        root = BeautifulSoup(response.content)
         return [tr.find('td').string for tr in root.findAll('tr')[1:]]
 
     # Unfortunately, the URL construction for each data set is different, and
@@ -426,8 +426,8 @@ class IbeClass(BaseQuery):
 
         # Raise exception, if request failed
         response.raise_for_status()
-
-        return Table.read(response.text, format='ipac', guess=False)
+        data = six.BytesIO(response.content)
+        return Table.read(data, format='ipac', guess=False)
 
 
 Ibe = IbeClass()
