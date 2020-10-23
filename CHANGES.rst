@@ -4,6 +4,11 @@
 Service fixes and enhancements
 ------------------------------
 
+irsa
+^^^^
+
+- Used more specific exceptions in IRSA. [#1854]
+
 mast
 ^^^^
 
