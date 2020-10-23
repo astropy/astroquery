@@ -78,7 +78,7 @@ class ESASkyClass(BaseQuery):
             self._get_catalogs_json(), self.__MISSION_STRING)
 
     def query_object_maps(self, position, missions=__ALL_STRING,
-                          row_limit=DEFAULT_ROW_LIMIT, get_query_payload=False, cache=True):
+                          get_query_payload=False, cache=True, row_limit=DEFAULT_ROW_LIMIT):
         """
         This method queries a chosen object or coordinate for all available maps
         which have observation data on the chosen position. It returns a
@@ -94,16 +94,16 @@ class ESASkyClass(BaseQuery):
             Can be either a specific mission or a list of missions (all mission
             names are found in list_missions()) or 'all' to search in all
             missions. Defaults to 'all'.
-        row_limit : int, optional
-            Determines how many rows that will be fetched from the database
-            for each mission. Can be -1 to select maximum (currently 100 000).
-            Defaults to 10000.
         get_query_payload : bool, optional
             When set to True the method returns the HTTP request parameters.
             Defaults to False.
         cache : bool, optional
             When set to True the method will use a cache located at
             .astropy/astroquery/cache. Defaults to True.
+        row_limit : int, optional
+            Determines how many rows that will be fetched from the database
+            for each mission. Can be -1 to select maximum (currently 100 000).
+            Defaults to 10000.
 
         Returns
         -------
@@ -125,9 +125,9 @@ class ESASkyClass(BaseQuery):
         return self.query_region_maps(position=position,
                                       radius=self.__ZERO_ARCMIN_STRING,
                                       missions=missions,
-                                      row_limit=row_limit,
                                       get_query_payload=get_query_payload,
-                                      cache=cache)
+                                      cache=cache,
+                                      row_limit=row_limit)
 
     def query_object_catalogs(self, position, catalogs=__ALL_STRING,
                               row_limit=DEFAULT_ROW_LIMIT,
@@ -183,7 +183,7 @@ class ESASkyClass(BaseQuery):
                                           cache=cache)
 
     def query_region_maps(self, position, radius, missions=__ALL_STRING,
-                          row_limit=DEFAULT_ROW_LIMIT, get_query_payload=False, cache=True):
+                          get_query_payload=False, cache=True, row_limit=DEFAULT_ROW_LIMIT):
         """
         This method queries a chosen region for all available maps and returns a
         TableList with all the found maps metadata for the chosen missions and
@@ -200,16 +200,16 @@ class ESASkyClass(BaseQuery):
             Can be either a specific mission or a list of missions (all mission
             names are found in list_missions()) or 'all' to search in all
             missions. Defaults to 'all'.
-        row_limit : int, optional
-            Determines how many rows that will be fetched from the database
-            for each mission. Can be -1 to select maximum (currently 100 000).
-            Defaults to 10000.
         get_query_payload : bool, optional
             When set to True the method returns the HTTP request parameters.
             Defaults to False.
         cache : bool, optional
             When set to True the method will use a cache located at
             .astropy/astroquery/cache. Defaults to True.
+        row_limit : int, optional
+            Determines how many rows that will be fetched from the database
+            for each mission. Can be -1 to select maximum (currently 100 000).
+            Defaults to 10000.
 
         Returns
         -------
