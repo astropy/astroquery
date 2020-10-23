@@ -188,7 +188,7 @@ class AtomicLineListClass(BaseQuery):
         if self._default_form_values is None:
             response = self._request("GET", url=self.FORM_URL, data={},
                                      timeout=self.TIMEOUT)
-            bs = BeautifulSoup(response.text)
+            bs = BeautifulSoup(response.content, "html5lib")
             form = bs.find('form')
             self._default_form_values = self._get_default_form_values(form)
         default_values = self._default_form_values
@@ -256,7 +256,7 @@ class AtomicLineListClass(BaseQuery):
 
     def _parse_result(self, response):
         response = response.content.decode('utf-8')
-        data = StringIO(BeautifulSoup(response).find('pre').text.strip())
+        data = StringIO(BeautifulSoup(response, "html5lib").find('pre').text.strip())
         # `header` is e.g.:
         # "u'-LAMBDA-VAC-ANG-|-SPECTRUM--|TT|--------TERM---------|---J-J---|----LEVEL-ENERGY--CM-1----'"
         # `colnames` is then
@@ -299,7 +299,7 @@ class AtomicLineListClass(BaseQuery):
             input = {}
         response = self._request("GET", url=self.FORM_URL, data={},
                                  timeout=self.TIMEOUT)
-        bs = BeautifulSoup(response.text)
+        bs = BeautifulSoup(response.content, "html5lib")
         form = bs.find('form')
         # cache the default values to save HTTP traffic
         if self._default_form_values is None:
