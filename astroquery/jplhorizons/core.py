@@ -1293,7 +1293,8 @@ class HorizonsClass(BaseQuery):
         if self.query_type not in ['ephemerides', 'elements', 'vectors']:
             return None
         else:
-            data = self._parse_horizons(response.text)
+            data = response.content.decode('utf-8')
+            data = self._parse_horizons(data)
 
         return data
 
