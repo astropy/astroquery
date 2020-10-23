@@ -6,6 +6,11 @@
 MAST Queries (`astroquery.mast`)
 ********************************
 
+.. raw:: html
+
+         <div class="service-status mast-survey" id="survey-banner" style="background-color: #C75109; border-color: #C75109; color: white; padding-top: 1rem; padding-bottom: 1rem; line-height: 30px; font-size: x-large; display: flex; margin-left: 0rem; margin-right: 0rem; margin-bottom: 1rem; margin-top: 1rem;"><span class="status-message" style="margin-left: 2rem; margin-right: 2rem;">The MAST team wants your feedback on the <a href="https://www.surveymonkey.com/r/mastportal" target="_blank" style="color: white; text-decoration: underline;">MAST Portal</a> and <a href="https://www.surveymonkey.com/r/mastcatalogs" target="_blank" style="color: white; text-decoration: underline;">MAST catalogs</a>. If you use either of these, please take five to ten minutes to fill out the linked survey(s). Thank you!</span></div>
+
+
 Getting Started
 ===============
 
