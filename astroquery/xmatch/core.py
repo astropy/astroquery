@@ -73,7 +73,7 @@ class XMatchClass(BaseQuery):
                                     **kwargs)
         if get_query_payload:
             return response
-        return self._parse_text(response.text)
+        return self._parse_text(response.content.decode('utf-8'))
 
     @prepend_docstr_nosections("\n" + query.__doc__)
     def query_async(self, cat1, cat2, max_distance, colRA1=None, colDec1=None,
@@ -178,7 +178,7 @@ class XMatchClass(BaseQuery):
             cache=cache,
         )
 
-        content = response.text
+        content = response.content.decode('utf-8')
         return content.splitlines()
 
     def _parse_text(self, text):
