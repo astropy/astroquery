@@ -850,7 +850,7 @@ class EsoClass(QueryWithLogin):
         # Never cache this as it is verifying the existence of remote content
         response = self._request("POST", url, params=payload, cache=False)
 
-        content = response.text
+        content = response.content.decode('utf-8')
 
         return 'No data returned' not in content
 
