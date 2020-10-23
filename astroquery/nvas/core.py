@@ -187,7 +187,7 @@ class NvasClass(BaseQuery):
             return request_payload
         response = self._request("POST", url=Nvas.URL, data=request_payload,
                                  timeout=Nvas.TIMEOUT)
-        image_urls = self.extract_image_urls(response.text,
+        image_urls = self.extract_image_urls(response.content.decode('utf-8'),
                                              get_uvfits=get_uvfits)
         return image_urls
 
