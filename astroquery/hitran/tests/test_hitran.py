@@ -24,6 +24,11 @@ class MockResponseHitran:
         with open(self.filename) as f:
             return f.read()
 
+    @property
+    def content(self):
+        with open(self.filename, 'rb') as f:
+            return f.read()
+
 
 def test_query_async():
     response = Hitran.query_lines_async(molecule_number=1,

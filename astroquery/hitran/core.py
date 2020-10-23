@@ -232,7 +232,7 @@ class HitranClass(BaseQuery):
         dtypes = [entry['dtype'] for entry in formats.values()]
 
         rows = []
-        for line in response.text.split('\n'):
+        for line in response.content.split(b'\n'):
             if line.strip():
                 row = []
                 start = 0
