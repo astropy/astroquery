@@ -59,9 +59,9 @@ class AlfalfaClass(BaseQuery):
             # skip blank lines or trailing newlines
             if line == "":
                 continue
-            l = line.rstrip('\n').split(',')
+            col_values = line.rstrip('\n').split(',')
             for i, col in enumerate(cols):
-                item = l[i].strip()
+                item = col_values[i].strip()
                 if item == '\"\"':
                     catalog[col].append(self.PLACEHOLDER)
                 elif item.isdigit():

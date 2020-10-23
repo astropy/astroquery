@@ -101,18 +101,18 @@ class CasdaClass(BaseQuery):
 
         # Convert the coordinates to FK5
         coordinates = kwargs.get('coordinates')
-        c = commons.parse_coordinates(coordinates).transform_to(coord.FK5)
+        fk5_coords = commons.parse_coordinates(coordinates).transform_to(coord.FK5)
 
         if kwargs['radius'] is not None:
             radius = u.Quantity(kwargs['radius']).to(u.deg)
-            pos = 'CIRCLE {} {} {}'.format(c.ra.degree, c.dec.degree, radius.value)
+            pos = 'CIRCLE {} {} {}'.format(fk5_coords.ra.degree, fk5_coords.dec.degree, radius.value)
         elif kwargs['width'] is not None and kwargs['height'] is not None:
             width = u.Quantity(kwargs['width']).to(u.deg).value
             height = u.Quantity(kwargs['height']).to(u.deg).value
-            top = c.dec.degree - (height/2)
-            bottom = c.dec.degree + (height/2)
-            left = c.ra.degree - (width/2)
-            right = c.ra.degree + (width/2)
+            top = fk5_coords.dec.degree - (height/2)
+            bottom = fk5_coords.dec.degree + (height/2)
+            left = fk5_coords.ra.degree - (width/2)
+            right = fk5_coords.ra.degree + (width/2)
             pos = 'RANGE {} {} {} {}'.format(left, right, top, bottom)
         else:
             raise ValueError("Either 'radius' or both 'height' and 'width' must be supplied.")
@@ -264,22 +264,22 @@ class CasdaClass(BaseQuery):
         authenticated_id_token = None
 
         # Find the authenticated id token for accessing the image cube
-        for x in results_array:
-            service_def = x['service_def']
+        for result in results_array:
+            service_def = result['service_def']
             if isinstance(service_def, bytes):
                 service_def = service_def.decode("utf8")
             if service_def == service_name:
-                authenticated_id_token = x['authenticated_id_token']
+                authenticated_id_token = result['authenticated_id_token']
                 if isinstance(service_def, bytes):
                     authenticated_id_token = authenticated_id_token.decode("utf8")
 
         # Find the async url
-        for x in votable.resources:
-            if x.type == "meta":
-                if x.ID == service_name:
-                    for p in x.params:
-                        if p.name == "accessURL":
-                            async_url = p.value
+        for resource in votable.resources:
+            if resource.type == "meta":
+                if resource.ID == service_name:
+                    for param in resource.params:
+                        if param.name == "accessURL":
+                            async_url = param.value
                             if isinstance(async_url, bytes):
                                 async_url = async_url.decode()
 

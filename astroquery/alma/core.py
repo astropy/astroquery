@@ -347,20 +347,20 @@ class AlmaClass(QueryWithLogin):
             legacy_result = Table()
             # add 'Observation date' column
 
-            for ii in _OBSCORE_TO_ALMARESULT:
-                if ii in result.columns:
-                    if ii == 't_min':
+            for col_name in _OBSCORE_TO_ALMARESULT:
+                if col_name in result.columns:
+                    if col_name == 't_min':
                         legacy_result['Observation date'] = \
                             [Time(_['t_min'], format='mjd').strftime(
                                 ALMA_DATE_FORMAT) for _ in result]
                     else:
-                        legacy_result[_OBSCORE_TO_ALMARESULT[ii]] = \
-                            result[ii]
+                        legacy_result[_OBSCORE_TO_ALMARESULT[col_name]] = \
+                            result[col_name]
                 else:
                     log.error("Invalid column mapping in OBSCORE_TO_ALMARESULT: "
                               "{}:{}.  Please "
                               "report this as an Issue."
-                              .format(ii, _OBSCORE_TO_ALMARESULT[ii]))
+                              .format(col_name, _OBSCORE_TO_ALMARESULT[col_name]))
             return legacy_result
         return result
 
@@ -588,14 +588,14 @@ class AlmaClass(QueryWithLogin):
         totalsize = 0 * u.B
         data_sizes = {}
         pb = ProgressBar(len(files))
-        for ii, fileLink in enumerate(files):
+        for index, fileLink in enumerate(files):
             response = self._request('HEAD', fileLink, stream=False,
                                      cache=False, timeout=self.TIMEOUT)
             filesize = (int(response.headers['content-length']) * u.B).to(u.GB)
             totalsize += filesize
             data_sizes[fileLink] = filesize
             log.debug("File {0}: size {1}".format(fileLink, filesize))
-            pb.update(ii + 1)
+            pb.update(index + 1)
             response.raise_for_status()
 
         return data_sizes, totalsize.to(u.GB)
@@ -1191,15 +1191,15 @@ def uid_json_to_table(jdata,
 
     def flatten_jdata(this_jdata, mousID=None):
         if isinstance(this_jdata, list):
-            for kk in this_jdata:
-                if kk['type'] in productlist:
-                    kk['mous_uid'] = mousID
-                    rows.append(kk)
-                elif len(kk['children']) > 0:
-                    if len(kk['allMousUids']) == 1:
-                        flatten_jdata(kk['children'], kk['allMousUids'][0])
+            for item in this_jdata:
+                if item['type'] in productlist:
+                    item['mous_uid'] = mousID
+                    rows.append(item)
+                elif len(item['children']) > 0:
+                    if len(item['allMousUids']) == 1:
+                        flatten_jdata(item['children'], item['allMousUids'][0])
                     else:
-                        flatten_jdata(kk['children'])
+                        flatten_jdata(item['children'])
 
     flatten_jdata(jdata['children'])
 
