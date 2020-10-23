@@ -477,8 +477,8 @@ class SplatalogueClass(BaseQuery):
             Attempt to simplify / clean up the column headers returned by
             splatalogue to make them more terminal-friendly
         """
-
-        result = ascii.read(response.text.split('\n'), delimiter=':',
+        response = response.content.decode('utf-8')
+        result = ascii.read(response.split('\n'), delimiter=':',
                             format='basic', fast_reader=False)
 
         return result
