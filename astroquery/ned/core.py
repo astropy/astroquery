@@ -483,7 +483,7 @@ class NedClass(BaseQuery):
         url = Ned.SPECTRA_URL if item == 'spectra' else Ned.IMG_DATA_URL
         response = self._request("GET", url=url, params=request_payload,
                                  timeout=Ned.TIMEOUT)
-        return self.extract_image_urls(response.text)
+        return self.extract_image_urls(response.content.decode('utf-8'))
 
     def extract_image_urls(self, html_in):
         """
