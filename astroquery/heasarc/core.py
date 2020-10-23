@@ -210,16 +210,16 @@ class HeasarcClass(BaseQuery):
         # if verbose is False then suppress any VOTable related warnings
         if not verbose:
             commons.suppress_vo_warnings()
-
-        if "BATCH_RETRIEVAL_MSG ERROR:" in response.text:
+        response = response.content.decode('utf-8')
+        if "BATCH_RETRIEVAL_MSG ERROR:" in response:
             raise InvalidQueryError("One or more inputs is not recognized by HEASARC. "
                              "Check that the object name is in GRB, SIMBAD+Sesame, or "
                              "NED format and that the mission name is as listed in "
                              "query_mission_list().")
-        elif "Software error:" in response.text:
+        elif "Software error:" in response:
             raise InvalidQueryError("Unspecified error from HEASARC database. "
-                                    "\nCheck error message: \n{!s}".format(response.text))
-        elif "NO MATCHING ROWS" in response.text:
+                                    "\nCheck error message: \n{!s}".format(response))
+        elif "NO MATCHING ROWS" in response:
             warnings.warn(NoResultsWarning("No matching rows were found in the query."))
             return Table()
 
