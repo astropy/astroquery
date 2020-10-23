@@ -315,7 +315,7 @@ class LcogtClass(BaseQuery):
         if not verbose:
             commons.suppress_vo_warnings()
 
-        content = response.text
+        content = response.content.decode('utf-8')
         log.debug(content)
 
         # Check if results were returned
