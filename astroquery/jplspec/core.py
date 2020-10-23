@@ -159,7 +159,7 @@ class JPLSpecClass(BaseQuery):
         # data starts at 0 since regex was applied
         # Warning for a result with more than 1000 lines:
         # THIS form is currently limited to 1000 lines.
-        result = ascii.read(response.text, header_start=None, data_start=0,
+        result = ascii.read(response.content.decode('utf-8'), header_start=None, data_start=0,
                             comment=r'THIS|^\s{12,14}\d{4,6}.*',
                             names=('FREQ', 'ERR', 'LGINT', 'DR', 'ELO', 'GUP',
                                    'TAG', 'QNFMT', 'QN\'', 'QN"'),

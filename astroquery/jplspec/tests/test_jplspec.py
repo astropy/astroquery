@@ -27,6 +27,11 @@ class MockResponseSpec:
         with open(self.filename) as f:
             return f.read()
 
+    @property
+    def content(self):
+        with open(self.filename, 'rb') as f:
+            return f.read()
+
 
 def test_input_async():
 
