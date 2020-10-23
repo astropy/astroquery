@@ -193,7 +193,8 @@ class CadcClass(BaseQuery):
                 log.error('Logging error: {}'.format(e))
                 raise e
             # extract cookie
-            cookie = '"{}"'.format(response.text)
+            response = response.content.decode('utf-8')
+            cookie = '"{}"'.format(response)
             if cookie is not None:
                 if isinstance(self.cadctap._session, authsession.AuthSession):
                     self.cadctap._session.credentials.set_cookie(
@@ -812,7 +813,8 @@ def get_access_url(service, capability=None):
                 log.debug(
                     "ERROR getting the CADC registry: {}".format(str(err)))
                 raise err
-            for line in response.text.splitlines():
+            response = response.content.decode('utf-8')
+            for line in response.splitlines():
                 if len(line) > 0 and not line.startswith('#'):
                     service_id, capabilies_url = line.split('=')
                     get_access_url.caps[service_id.strip()] = \
@@ -837,7 +839,7 @@ def get_access_url(service, capability=None):
             "ERROR getting the service capabilities: {}".format(str(e)))
         raise e
 
-    soup = BeautifulSoup(response2.text, features="html5lib")
+    soup = BeautifulSoup(response2.content, features="html5lib")
     for cap in soup.find_all('capability'):
         if cap.get("standardid", None) == capability:
             if len(cap.find_all('interface')) == 1:

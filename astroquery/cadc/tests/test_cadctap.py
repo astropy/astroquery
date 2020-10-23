@@ -157,8 +157,9 @@ def test_auth():
     cadc.cadctap._session = authsession.AuthSession()
     post_mock = Mock()
     cookie = 'ABC'
+    byte_cookie = b'ABC'
     mock_resp = Mock()
-    mock_resp.text = cookie
+    mock_resp.content = byte_cookie
     post_mock.return_value.cookies = requests.cookies.RequestsCookieJar()
     post_mock.return_value = mock_resp
     cadc._request = post_mock
@@ -177,6 +178,7 @@ def test_get_access_url():
         class ServiceResponse:
             def __init__(self):
                 self.text = 'ivo://cadc.nrc.ca/mytap = http://my.org/mytap'
+                self.content = b'ivo://cadc.nrc.ca/mytap = http://my.org/mytap'
 
             def raise_for_status(self):
                 pass
@@ -185,6 +187,7 @@ def test_get_access_url():
             def __init__(self):
                 caps_file = data_path('tap_caps.xml')
                 self.text = open(caps_file, 'r').read()
+                self.content = open(caps_file, 'rb').read()
 
             def raise_for_status(self):
                 pass

@@ -365,7 +365,7 @@ class CasdaClass(BaseQuery):
         """
         response = self._request('GET', async_job_url, cache=False)
         response.raise_for_status()
-        job_response = response.text
+        job_response = response.content.decode('utf-8')
         return ElementTree.fromstring(job_response)
 
     def _read_job_status(self, job_details_xml, verbose):
