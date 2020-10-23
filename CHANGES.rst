@@ -3,6 +3,11 @@
 
 Service fixes and enhancements
 ------------------------------
+requests.response
+^^^^^^^^^^^^^^^^^
+
+- Changed all the usage of response.text in astoquery to response.content. [#1869]
+
 
 cds.hips2fits
 ^^^^^^^^^^^^^
