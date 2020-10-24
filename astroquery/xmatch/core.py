@@ -2,7 +2,7 @@
 
 import six
 from astropy.io import ascii
-import astropy.units as u
+import astropy.units as units
 from astropy.table import Table
 
 from . import conf
@@ -85,12 +85,12 @@ class XMatchClass(BaseQuery):
         response : `~requests.Response`
             The HTTP response returned from the service.
         """
-        if max_distance > 180 * u.arcsec:
+        if max_distance > 180 * units.arcsec:
             raise ValueError(
                 'max_distance argument must not be greater than 180')
         payload = {
             'request': 'xmatch',
-            'distMaxArcsec': max_distance.to(u.arcsec).value,
+            'distMaxArcsec': max_distance.to(units.arcsec).value,
             'RESPONSEFORMAT': 'csv',
             **kwargs
         }
@@ -109,11 +109,11 @@ class XMatchClass(BaseQuery):
 
         return response
 
-    def _prepare_sending_table(self, i, payload, kwargs, cat, colRA, colDec):
+    def _prepare_sending_table(self, it, payload, kwargs, cat, colRA, colDec):
         '''Check if table is a string, a `astropy.table.Table`, etc. and set
         query parameters accordingly.
         '''
-        catstr = 'cat{0}'.format(i)
+        catstr = 'cat{0}'.format(it)
         if isinstance(cat, six.string_types):
             payload[catstr] = cat
         elif isinstance(cat, Table):
@@ -134,8 +134,8 @@ class XMatchClass(BaseQuery):
                                  ' the input table.')
             # if `cat1` is not a VizieR table,
             # it is assumed it's either a URL or an uploaded table
-            payload['colRA{0}'.format(i)] = colRA
-            payload['colDec{0}'.format(i)] = colDec
+            payload['colRA{0}'.format(it)] = colRA
+            payload['colDec{0}'.format(it)] = colDec
 
     def _prepare_area(self, payload, area):
         '''Set the area parameter in the payload'''
@@ -146,7 +146,7 @@ class XMatchClass(BaseQuery):
             cone_center = area.center
             payload['coneRA'] = cone_center.icrs.ra.deg
             payload['coneDec'] = cone_center.icrs.dec.deg
-            payload['coneRadiusDeg'] = area.radius.to_value(u.deg)
+            payload['coneRadiusDeg'] = area.radius.to_value(units.deg)
         else:
             raise ValueError('Unsupported area {}'.format(str(area)))
 
@@ -187,12 +187,12 @@ class XMatchClass(BaseQuery):
         """
         header = text.split("\n")[0]
         colnames = header.split(",")
-        for cn in colnames:
-            if colnames.count(cn) > 1:
-                ii = 1
-                while colnames.count(cn) > 0:
-                    colnames[colnames.index(cn)] = cn + "_{ii}".format(ii=ii)
-                    ii += 1
+        for item in colnames:
+            if colnames.count(item) > 1:
+                it = 1
+                while colnames.count(item) > 0:
+                    colnames[colnames.index(item)] = item + "_{it}".format(it=it)
+                    it += 1
         new_text = ",".join(colnames) + "\n" + "\n".join(text.split("\n")[1:])
         result = ascii.read(new_text, format='csv', fast_reader=False)
 

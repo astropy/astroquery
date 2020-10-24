@@ -25,8 +25,8 @@ class MockResponseXmatch(MockResponse):
 
         self.data = data
         fn = data_path(DATA_FILES[method.lower()])
-        with open(fn, 'rb') as f:
-            self.content = f.read()
+        with open(fn, 'rb') as file:
+            self.content = file.read()
 
     def get_content(self):
         return self.content
