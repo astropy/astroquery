@@ -41,15 +41,13 @@ def test_get():
                   port=connPort,
                   sslport=connPortSsl,
                   connhandler=conn)
-    hostUrl = host + ":" + str(connPort) + "/" + serverContext + "/" \
-        + tapContext + "/"
+    hostUrl = f"{host}:{connPort}/{serverContext}/{tapContext}/"
     assert tap.get_host_url() == hostUrl
-    hostUrlSecure = host + ":" + str(connPortSsl) + "/" + serverContext \
-        + "/" + tapContext + "/"
+    hostUrlSecure = f"{host}:{connPortSsl}/{serverContext}/{tapContext}/"
     assert tap.get_host_url_secure() == hostUrlSecure
     # GET
     subContext = "testSubContextGet"
-    context = "/" + serverContext + "/" + tapContext + "/" + subContext
+    context = f"/{serverContext}/{tapContext}/{subContext}"
     r = tap.execute_tapget(subcontext=subContext)
     assert r.status == 222
     assert r.get_method() == 'GET'
@@ -73,15 +71,13 @@ def test_post():
                   port=connPort,
                   sslport=connPortSsl,
                   connhandler=conn)
-    hostUrl = host + ":" + str(connPort) + "/" + serverContext + "/" \
-        + tapContext + "/"
+    hostUrl = f"{host}:{connPort}/{serverContext}/{tapContext}/"
     assert tap.get_host_url() == hostUrl
-    hostUrlSecure = host + ":" + str(connPortSsl) + "/" + serverContext \
-        + "/" + tapContext + "/"
+    hostUrlSecure = f"{host}:{connPortSsl}/{serverContext}/{tapContext}/"
     assert tap.get_host_url_secure() == hostUrlSecure
     # GET
     subContext = "testSubContextGet"
-    context = "/" + serverContext + "/" + tapContext + "/" + subContext
+    context = f"/{serverContext}/{tapContext}/{subContext}"
     data = "postData"
     r = tap.execute_tappost(subcontext=subContext, data=data)
     assert r.status == 111
@@ -106,15 +102,13 @@ def test_login():
                   port=connPort,
                   sslport=connPortSsl,
                   connhandler=connSecure)
-    hostUrl = host + ":" + str(connPort) + "/" + serverContext + "/" \
-        + tapContext + "/"
+    hostUrl = f"{host}:{connPort}/{serverContext}/{tapContext}/"
     assert tap.get_host_url() == hostUrl
-    hostUrlSecure = host + ":" + str(connPortSsl) + "/" + serverContext \
-        + "/" + tapContext + "/"
+    hostUrlSecure = f"{host}:{connPortSsl}/{serverContext}/{tapContext}/"
     assert tap.get_host_url_secure() == hostUrlSecure
     # POST SECURE
     subContext = "testSubContextPost"
-    context = "/" + serverContext + "/" + subContext
+    context = f"/{serverContext}/{subContext}"
     data = "testData"
     r = tap.execute_secure(subcontext=subContext, data=data)
     assert r.status == 333

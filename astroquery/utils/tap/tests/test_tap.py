@@ -143,8 +143,8 @@ def test_load_table():
                                headers=None)
     tableSchema = "public"
     tableName = "table1"
-    fullQualifiedTableName = tableSchema + "." + tableName
-    tableRequest = "tables?tables=" + fullQualifiedTableName
+    fullQualifiedTableName = f"{tableSchema}.{tableName}"
+    tableRequest = f"tables?tables={fullQualifiedTableName}"
     connHandler.set_response(tableRequest, responseLoadTable)
 
     with pytest.raises(Exception):
@@ -188,7 +188,7 @@ def test_launch_sync_job():
         "PHASE": "RUN",
         "QUERY": str(q)}
     sortedKey = taputils.taputil_create_sorted_dict_key(dictTmp)
-    jobRequest = "sync?" + sortedKey
+    jobRequest = f"sync?{sortedKey}"
     connHandler.set_response(jobRequest, responseLaunchJob)
 
     with pytest.raises(Exception):
@@ -235,8 +235,8 @@ def test_launch_sync_job_redirect():
     responseLaunchJob.set_status_code(500)
     responseLaunchJob.set_message("ERROR")
     jobid = '12345'
-    resultsReq = 'sync/' + jobid
-    resultsLocation = 'http://test:1111/tap/' + resultsReq
+    resultsReq = f'sync/{jobid}'
+    resultsLocation = f'http://test:1111/tap/{resultsReq}'
     launchResponseHeaders = [
             ['location', resultsLocation]
         ]
@@ -257,7 +257,7 @@ def test_launch_sync_job_redirect():
         "PHASE": "RUN",
         "QUERY": str(q)}
     sortedKey = taputils.taputil_create_sorted_dict_key(dictTmp)
-    jobRequest = "sync?" + sortedKey
+    jobRequest = f"sync?{sortedKey}"
     connHandler.set_response(jobRequest, responseLaunchJob)
     # Results response
     responseResultsJob = DummyResponse()
@@ -341,7 +341,7 @@ def test_launch_async_job():
     responseLaunchJob.set_message("ERROR")
     # list of list (httplib implementation for headers in response)
     launchResponseHeaders = [
-            ['location', 'http://test:1111/tap/async/' + jobid]
+            ['location', f'http://test:1111/tap/async/{jobid}']
         ]
     responseLaunchJob.set_data(method='POST',
                                context=None,
@@ -356,7 +356,7 @@ def test_launch_async_job():
         "PHASE": "RUN",
         "QUERY": str(query)}
     sortedKey = taputils.taputil_create_sorted_dict_key(dictTmp)
-    req = "async?" + sortedKey
+    req = f"async?{sortedKey}"
     connHandler.set_response(req, responseLaunchJob)
     # Phase response
     responsePhase = DummyResponse()
@@ -366,7 +366,7 @@ def test_launch_async_job():
                            context=None,
                            body="COMPLETED",
                            headers=None)
-    req = "async/" + jobid + "/phase"
+    req = f"async/{jobid}/phase"
     connHandler.set_response(req, responsePhase)
     # Results response
     responseResultsJob = DummyResponse()
@@ -378,7 +378,7 @@ def test_launch_async_job():
                                 context=None,
                                 body=jobData,
                                 headers=None)
-    req = "async/" + jobid + "/results/result"
+    req = f"async/{jobid}/results/result"
     connHandler.set_response(req, responseResultsJob)
 
     with pytest.raises(Exception):
@@ -439,7 +439,7 @@ def test_start_job():
                            context=None,
                            body=None,
                            headers=None)
-    req = "async/" + jobid + "/phase?PHASE=RUN"
+    req = f"async/{jobid}/phase?PHASE=RUN"
     connHandler.set_response(req, responsePhase)
     # Launch response
     responseLaunchJob = DummyResponse()
@@ -447,7 +447,7 @@ def test_start_job():
     responseLaunchJob.set_message("OK")
     # list of list (httplib implementation for headers in response)
     launchResponseHeaders = [
-            ['location', 'http://test:1111/tap/async/' + jobid]
+            ['location', f'http://test:1111/tap/async/{jobid}']
         ]
     responseLaunchJob.set_data(method='POST',
                                context=None,
@@ -461,7 +461,7 @@ def test_start_job():
         "tapclient": str(TAP_CLIENT_ID),
         "QUERY": str(query)}
     sortedKey = taputils.taputil_create_sorted_dict_key(dictTmp)
-    req = "async?" + sortedKey
+    req = f"async?{sortedKey}"
     connHandler.set_response(req, responseLaunchJob)
     # Phase response
     responsePhase = DummyResponse()
@@ -471,7 +471,7 @@ def test_start_job():
                            context=None,
                            body="COMPLETED",
                            headers=None)
-    req = "async/" + jobid + "/phase"
+    req = f"async/{jobid}/phase"
     connHandler.set_response(req, responsePhase)
     # Results response
     responseResultsJob = DummyResponse()
@@ -483,7 +483,7 @@ def test_start_job():
                                 context=None,
                                 body=jobData,
                                 headers=None)
-    req = "async/" + jobid + "/results/result"
+    req = f"async/{jobid}/results/result"
     connHandler.set_response(req, responseResultsJob)
 
     responseResultsJob.set_status_code(200)
@@ -517,7 +517,7 @@ def test_abort_job():
                            context=None,
                            body=None,
                            headers=None)
-    req = "async/" + jobid + "/phase?PHASE=ABORT"
+    req = f"async/{jobid}/phase?PHASE=ABORT"
     connHandler.set_response(req, responsePhase)
     # Launch response
     responseLaunchJob = DummyResponse()
@@ -525,7 +525,7 @@ def test_abort_job():
     responseLaunchJob.set_message("OK")
     # list of list (httplib implementation for headers in response)
     launchResponseHeaders = [
-            ['location', 'http://test:1111/tap/async/' + jobid]
+            ['location', f'http://test:1111/tap/async/{jobid}']
         ]
     responseLaunchJob.set_data(method='POST',
                                context=None,
@@ -539,7 +539,7 @@ def test_abort_job():
         "tapclient": str(TAP_CLIENT_ID),
         "QUERY": str(query)}
     sortedKey = taputils.taputil_create_sorted_dict_key(dictTmp)
-    req = "async?" + sortedKey
+    req = f"async?{sortedKey}"
     connHandler.set_response(req, responseLaunchJob)
 
     job = tap.launch_job_async(query, autorun=False)
@@ -563,7 +563,7 @@ def test_job_parameters():
     responseLaunchJob.set_message("OK")
     # list of list (httplib implementation for headers in response)
     launchResponseHeaders = [
-            ['location', 'http://test:1111/tap/async/' + jobid]
+            ['location', f'http://test:1111/tap/async/{jobid}']
         ]
     responseLaunchJob.set_data(method='POST',
                                context=None,
@@ -577,7 +577,7 @@ def test_job_parameters():
         "tapclient": str(TAP_CLIENT_ID),
         "QUERY": str(query)}
     sortedKey = taputils.taputil_create_sorted_dict_key(dictTmp)
-    req = "async?" + sortedKey
+    req = f"async?{sortedKey}"
     connHandler.set_response(req, responseLaunchJob)
     # Phase response
     responsePhase = DummyResponse()
@@ -587,7 +587,7 @@ def test_job_parameters():
                            context=None,
                            body="COMPLETED",
                            headers=None)
-    req = "async/" + jobid + "/phase"
+    req = f"async/{jobid}/phase"
     connHandler.set_response(req, responsePhase)
     # Results response
     responseResultsJob = DummyResponse()
@@ -599,7 +599,7 @@ def test_job_parameters():
                                 context=None,
                                 body=jobData,
                                 headers=None)
-    req = "async/" + jobid + "/results/result"
+    req = f"async/{jobid}/results/result"
     connHandler.set_response(req, responseResultsJob)
 
     responseResultsJob.set_status_code(200)
@@ -616,7 +616,7 @@ def test_job_parameters():
                                 context=None,
                                 body=None,
                                 headers=None)
-    req = "async/" + jobid + "?param1=value1"
+    req = f"async/{jobid}?param1=value1"
     connHandler.set_response(req, responseParameters)
     # Phase POST response
     responsePhase = DummyResponse()
@@ -626,7 +626,7 @@ def test_job_parameters():
                            context=None,
                            body=None,
                            headers=None)
-    req = "async/" + jobid + "/phase?PHASE=RUN"
+    req = f"async/{jobid}/phase?PHASE=RUN"
     connHandler.set_response(req, responsePhase)
 
     # send parameter OK
@@ -895,7 +895,7 @@ def test_update_user_table():
                            context=None,
                            body=tableData,
                            headers=None)
-    tableRequest = "tables?tables=" + tableName
+    tableRequest = f"tables?tables={tableName}"
     connHandler.set_response(tableRequest, dummyResponse)
 
     with pytest.raises(Exception):
@@ -948,7 +948,7 @@ def test_update_user_table():
         "TABLE0_NUMCOLS": "4"
     }
     sortedKey = taputils.taputil_create_sorted_dict_key(dictTmp)
-    req = "tableEdit?" + sortedKey
+    req = f"tableEdit?{sortedKey}"
     connHandler.set_response(req, responseEditTable)
 
     list_of_changes = [['alpha', 'flags', 'Ra'], ['delta', 'flags', 'Dec']]
@@ -956,12 +956,12 @@ def test_update_user_table():
 
 
 def __find_table(schemaName, tableName, tables):
-    qualifiedName = schemaName + "." + tableName
+    qualifiedName = f"{schemaName}.{tableName}"
     for table in (tables):
         if table.get_qualified_name() == qualifiedName:
             return table
     # not found: raise exception
-    pytest.fail("Table '"+qualifiedName+"' not found")
+    pytest.fail(f"Table '{qualifiedName}' not found")
 
 
 def __find_column(columnName, columns):
@@ -969,7 +969,7 @@ def __find_column(columnName, columns):
         if c.name == columnName:
             return c
     # not found: raise exception
-    pytest.fail("Column '"+columnName+"' not found")
+    pytest.fail(f"Column '{columnName}' not found")
 
 
 def __check_column(column, description, unit, dataType, flag):

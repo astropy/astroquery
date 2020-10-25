@@ -48,7 +48,7 @@ def test_job_get_results():
                                 context=None,
                                 body='FINISHED',
                                 headers=None)
-    waitRequest = "async/"+str(jobid)+"/phase"
+    waitRequest = f"async/{jobid}/phase"
     connHandler = DummyConnHandler()
     connHandler.set_response(waitRequest, responseCheckPhase)
     job.connHandler = connHandler
@@ -67,7 +67,7 @@ def test_job_get_results():
                              context=None,
                              body=jobContent,
                              headers=None)
-    dataRequest = "async/" + str(jobid) + "/results/result"
+    dataRequest = f"async/{jobid}/results/result"
     connHandler.set_response(dataRequest, responseGetData)
 
     with pytest.raises(Exception):
@@ -80,7 +80,7 @@ def test_job_get_results():
     assert len(res.columns) == 4
     for cn in ['alpha', 'delta', 'source_id', 'table1_oid']:
         if cn not in res.colnames:
-            pytest.fail(cn + " column name not found" + str(res.colnames))
+            pytest.fail(f"{cn} column name not found: {res.colnames}")
 
 
 def test_job_phase():

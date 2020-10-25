@@ -93,22 +93,19 @@ class DummyConnHandler(object):
         self.verbose = verbose
         sortedKey = self.__create_sorted_dict_key(data)
         if subcontext.find('?') == -1:
-            self.request = subcontext + "?" + sortedKey
+            self.request = f"{subcontext}?{sortedKey}"
         else:
             if subcontext.endswith('?'):
-                self.request = subcontext + sortedKey
+                self.request = f"{subcontext}{sortedKey}"
             else:
-                self.request = subcontext + "&" + sortedKey
+                self.request = f"{subcontext}&{sortedKey}"
         return self.__get_response(self.request)
 
     def dump_to_file(self, fileOutput, response):
         self.errorFileOutput = fileOutput
         self.errorReceivedResponse = response
-        print("DummyConnHandler - dump to file: file: '%s', \
-        response status: %s, response msg: %s", (
-            str(fileOutput),
-            str(response.status),
-            str(response.reason)))
+        print(f"DummyConnHandler - dump to file: file: '{fileOutput}', \
+        response status: {response.status}, response msg: {response.reason}")
 
     def __get_response(self, responseid):
         try:
@@ -117,13 +114,13 @@ class DummyConnHandler(object):
             if self.defaultResponse is not None:
                 return self.defaultResponse
             else:
-                print("\nNot found response for key\n\t'"+str(responseid)+"'")
+                print(f"\nNot found response for key\n\t'{responseid}'")
                 print("Available keys: ")
                 if self.responses is None:
                     print("\tNone available")
                 else:
                     for k in self.responses.keys():
-                        print("\t'"+str(k)+"'")
+                        print(f"\t'{k}'")
                 raise (e)
 
     def __create_sorted_dict_key(self, data):
@@ -141,8 +138,7 @@ class DummyConnHandler(object):
         isError = False
         if response.status != expected_response_status:
             if debug:
-                print("ERROR: " + str(response.status) + ": " +
-                      str(response.reason))
+                print(f"ERROR: {response.status}: {response.reason}")
             isError = True
         if isError and raise_exception:
             errMsg = taputils.get_http_response_error(response)

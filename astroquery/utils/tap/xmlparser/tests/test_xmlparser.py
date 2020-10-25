@@ -75,7 +75,7 @@ def test_job_results_parser():
 
 
 def __check_table(table, baseName, numColumns, columnsData):
-    qualifiedName = "public.%s" % baseName
+    qualifiedName = f"public.{baseName}"
     assert str(table.get_qualified_name()) == str(qualifiedName)
     c = table.columns
     assert len(c) == numColumns
