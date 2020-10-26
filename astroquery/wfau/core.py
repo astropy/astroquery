@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 from io import StringIO
 
 from six import BytesIO
-import astropy.units as u
+import astropy.units as units
 import astropy.coordinates as coord
 import astropy.io.votable as votable
 
@@ -154,7 +154,7 @@ class BaseWFAUClass(QueryWithLogin):
             return 'J'
 
     def get_images(self, coordinates, waveband='all', frame_type='stack',
-                   image_width=1 * u.arcmin, image_height=None, radius=None,
+                   image_width=1 * units.arcmin, image_height=None, radius=None,
                    database=None, programme_id=None,
                    verbose=True, get_query_payload=False,
                    show_progress=True):
@@ -214,7 +214,7 @@ class BaseWFAUClass(QueryWithLogin):
         return [obj.get_fits() for obj in readable_objs]
 
     def get_images_async(self, coordinates, waveband='all', frame_type='stack',
-                         image_width=1 * u.arcmin, image_height=None,
+                         image_width=1 * units.arcmin, image_height=None,
                          radius=None, database=None,
                          programme_id=None, verbose=True,
                          get_query_payload=False,
@@ -286,13 +286,13 @@ class BaseWFAUClass(QueryWithLogin):
         if verbose:
             print("Found {num} targets".format(num=len(image_urls)))
 
-        return [commons.FileContainer(U, encoding='binary',
+        return [commons.FileContainer(Uobj, encoding='binary',
                                       remote_timeout=self.TIMEOUT,
                                       show_progress=show_progress)
-                for U in image_urls]
+                for Uobj in image_urls]
 
     def get_image_list(self, coordinates, waveband='all', frame_type='stack',
-                       image_width=1 * u.arcmin, image_height=None,
+                       image_width=1 * units.arcmin, image_height=None,
                        radius=None, database=None,
                        programme_id=None, get_query_payload=False):
         """
@@ -434,7 +434,7 @@ class BaseWFAUClass(QueryWithLogin):
         links = ahref.findall(html_in)
         return links
 
-    def query_region(self, coordinates, radius=1 * u.arcmin,
+    def query_region(self, coordinates, radius=1 * units.arcmin,
                      programme_id=None, database=None,
                      verbose=False, get_query_payload=False, system='J2000',
                      attributes=['default'], constraints=''):
@@ -503,7 +503,7 @@ class BaseWFAUClass(QueryWithLogin):
         result = self._parse_result(response, verbose=verbose)
         return result
 
-    def query_region_async(self, coordinates, radius=1 * u.arcmin,
+    def query_region_async(self, coordinates, radius=1 * units.arcmin,
                            programme_id=None,
                            database=None, get_query_payload=False,
                            system='J2000', attributes=['default'],
@@ -607,8 +607,8 @@ class BaseWFAUClass(QueryWithLogin):
         if len(table_links) == 0:
             raise Exception("No VOTable found on returned webpage!")
         table_link = [link for link in table_links if "8080" not in link][0]
-        with commons.get_readable_fileobj(table_link) as f:
-            content = f.read()
+        with commons.get_readable_fileobj(table_link) as flo:
+            content = flo.read()
 
         if not verbose:
             commons.suppress_vo_warnings()
@@ -665,7 +665,7 @@ class BaseWFAUClass(QueryWithLogin):
                                                   self.IMAGE_FORM]))
 
         root = BeautifulSoup(response.content, features='html5lib')
-        databases = [x.attrs['value'] for x in
+        databases = [xrf.attrs['value'] for xrf in
                      root.find('select').findAll('option')]
         return databases
 
@@ -723,7 +723,7 @@ class BaseWFAUClass(QueryWithLogin):
             raise TimeoutError("Page did not load.")
         return response
 
-    def query_cross_id_async(self, coordinates, radius=1*u.arcsec,
+    def query_cross_id_async(self, coordinates, radius=1*units.arcsec,
                              programme_id=None, database=None, table="source",
                              constraints="", attributes='default',
                              pairing='all', system='J2000',
@@ -899,15 +899,15 @@ def _parse_dimension(dim):
     dim_in_min : float
         The value of the radius in arcminutes.
     """
-    if (isinstance(dim, u.Quantity) and
-            dim.unit in u.deg.find_equivalent_units()):
-        dim_in_min = dim.to(u.arcmin).value
+    if (isinstance(dim, units.Quantity) and
+            dim.unit in units.deg.find_equivalent_units()):
+        dim_in_min = dim.to(units.arcmin).value
     # otherwise must be an Angle or be specified in hours...
     else:
         try:
             new_dim = coord.Angle(dim).degree
-            dim_in_min = u.Quantity(
-                value=new_dim, unit=u.deg).to(u.arcmin).value
-        except (u.UnitsError, coord.errors.UnitsError, AttributeError):
-            raise u.UnitsError("Dimension not in proper units")
+            dim_in_min = units.Quantity(
+                value=new_dim, unit=units.deg).to(units.arcmin).value
+        except (units.UnitsError, coord.errors.UnitsError, AttributeError):
+            raise units.UnitsError("Dimension not in proper units")
     return dim_in_min
