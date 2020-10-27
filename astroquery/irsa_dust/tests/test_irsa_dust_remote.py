@@ -33,7 +33,7 @@ M31_URL_T = [
 ]
 
 
-class DustTestCase(object):
+class DustTestCase:
 
     def data(self, filename):
         data_dir = os.path.join(os.path.dirname(__file__), 'data')
