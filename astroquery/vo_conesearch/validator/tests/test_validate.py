@@ -29,7 +29,7 @@ __doctest_skip__ = ['*']
 
 
 @pytest.mark.remote_data
-class TestConeSearchValidation(object):
+class TestConeSearchValidation:
     """Validation on a small subset of Cone Search sites."""
 
     @pytest.fixture(autouse=True)

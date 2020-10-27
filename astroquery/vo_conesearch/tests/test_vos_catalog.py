@@ -28,7 +28,7 @@ __doctest_skip__ = ['*']
 DB_FILE = get_pkg_data_filename(os.path.join('data', 'basic.json'))
 
 
-class TestCatalog(object):
+class TestCatalog:
     """Test VOSCatalog class."""
     def setup_class(self):
         self.cat = VOSCatalog.create(
@@ -71,7 +71,7 @@ def test_db_illegal_catalog():
         VOSDatabase(db._tree)
 
 
-class TestDatabase(object):
+class TestDatabase:
     """Test VOSDatabase class."""
     def setup_class(self):
         """Use ``from_json()`` method to init."""
