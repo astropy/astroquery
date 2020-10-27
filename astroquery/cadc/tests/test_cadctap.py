@@ -174,14 +174,14 @@ def test_auth():
 def test_get_access_url():
     # testing implementation of requests.get method:
     def get(url, **kwargs):
-        class ServiceResponse(object):
+        class ServiceResponse:
             def __init__(self):
                 self.text = 'ivo://cadc.nrc.ca/mytap = http://my.org/mytap'
 
             def raise_for_status(self):
                 pass
 
-        class CapabilitiesResponse(object):
+        class CapabilitiesResponse:
             def __init__(self):
                 caps_file = data_path('tap_caps.xml')
                 self.text = open(caps_file, 'r').read()
@@ -208,7 +208,7 @@ def test_get_access_url():
 def test_get_data_urls():
 
     def get(*args, **kwargs):
-        class CapsResponse(object):
+        class CapsResponse:
             def __init__(self):
                 self.status_code = 200
                 self.content = b''
@@ -217,7 +217,7 @@ def test_get_data_urls():
                 pass
         return CapsResponse()
 
-    class Result(object):
+    class Result:
         pass
 
     file1 = Mock()
@@ -283,7 +283,7 @@ def test_misc():
 @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
 def test_get_image_list():
     def get(*args, **kwargs):
-        class CapsResponse(object):
+        class CapsResponse:
             def __init__(self):
                 self.status_code = 200
                 self.content = b''
@@ -293,7 +293,7 @@ def test_get_image_list():
 
         return CapsResponse()
 
-    class Params(object):
+    class Params:
         def __init__(self, **param_dict):
             self.__dict__.update(param_dict)
 
