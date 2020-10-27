@@ -318,8 +318,3 @@ class TestESAHubble():
                                 verbose=True)
         assert "One of the lists is empty or there are "\
                "elements that are not strings" in err.value.args[0]
-
-
-if __name__ == "__main__":
-    # import sys;sys.argv = ['', 'Test.testName']
-    pytest.main()
