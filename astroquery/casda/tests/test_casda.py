@@ -24,7 +24,7 @@ DATA_FILES = {'CIRCLE': 'cone.xml', 'RANGE': 'box.xml', 'DATALINK': 'datalink.xm
               'COMPLETED_JOB': 'completed_job.xml'}
 
 
-class MockResponse(object):
+class MockResponse:
 
     def __init__(self, content):
         self.content = content
