@@ -1,7 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 
-class Number(object):
+class Number:
     """ Number class for values containing errors. Math operations use
     the value given. Checking for no 'value' must use "==". Numbers with
     upper or lower limits as assumed to have no value.
