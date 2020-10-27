@@ -38,6 +38,13 @@ linelists.cdms
 - Fix issues with the line name parser and the line data parser; the original
   implementation was incomplete. [#2385]
 
+mast
+^^^^
+
+- Changed warning to error for authentication failure. [#1874]
+
+
+
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
 
