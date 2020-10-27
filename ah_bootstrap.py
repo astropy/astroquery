@@ -206,7 +206,7 @@ except:
 # End compatibility imports...
 
 
-class _Bootstrapper(object):
+class _Bootstrapper:
     """
     Bootstrapper implementation.  See ``use_astropy_helpers`` for parameter
     documentation.
@@ -892,7 +892,7 @@ def _next_version(version):
     return '{0}.{1}.{2}'.format(major, minor + 1, 0)
 
 
-class _DummyFile(object):
+class _DummyFile:
     """A noop writeable object."""
 
     errors = ''  # Required for Python 3.x
