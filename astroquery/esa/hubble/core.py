@@ -30,7 +30,7 @@ import os
 from . import conf
 from astropy import log
 
-__all__ = ['EsaHubble', 'EsaHubbleClass']
+__all__ = ['ESAHubble', 'ESAHubbleClass']
 
 
 class ESAHubbleClass(BaseQuery):
