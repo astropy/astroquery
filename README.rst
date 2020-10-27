@@ -4,8 +4,8 @@
    :target: https://img.shields.io/pypi/v/astroquery.svg
    :alt: Latest PyPI version
 
-.. image:: https://travis-ci.org/astropy/astroquery.svg?branch=master
-   :target: https://travis-ci.org/astropy/astroquery
+.. image:: https://travis-ci.com/astropy/astroquery.svg?branch=master
+   :target: https://travis-ci.com/astropy/astroquery
    :alt: Travis CI Status
 
 .. image:: https://coveralls.io/repos/astropy/astroquery/badge.png
