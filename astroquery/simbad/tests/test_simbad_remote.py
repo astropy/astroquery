@@ -15,7 +15,7 @@ multicoords = coord.SkyCoord([ICRS_COORDS_M42, ICRS_COORDS_SgrB2])
 
 
 @pytest.mark.remote_data
-class TestSimbad(object):
+class TestSimbad:
 
     @classmethod
     def setup_class(cls):
