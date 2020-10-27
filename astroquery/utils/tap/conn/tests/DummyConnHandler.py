@@ -21,7 +21,7 @@ from six.moves.urllib.parse import urlencode
 import requests
 
 
-class DummyConnHandler(object):
+class DummyConnHandler:
 
     def __init__(self):
         self.request = None

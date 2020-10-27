@@ -40,7 +40,7 @@ VERSION = "20200428.1"
 TAP_CLIENT_ID = "aqtappy-" + VERSION
 
 
-class Tap(object):
+class Tap:
     """TAP class
     Provides TAP capabilities
     """
