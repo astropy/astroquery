@@ -322,5 +322,4 @@ class TestESAHubble():
 
 if __name__ == "__main__":
     # import sys;sys.argv = ['', 'Test.testName']
-    unzip_test_files()
     pytest.main()
