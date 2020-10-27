@@ -21,7 +21,7 @@ from ...exceptions import RemoteServiceError
 
 
 @pytest.mark.remote_data
-class TestMast(object):
+class TestMast:
 
     ###############
     # utils tests #
