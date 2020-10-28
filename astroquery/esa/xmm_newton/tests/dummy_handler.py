@@ -13,7 +13,7 @@ Created on 4 Sept. 2019
 __all__ = ['DummyHandler']
 
 
-class DummyHandler(object):
+class DummyHandler:
 
     def __init__(self, method, parameters):
         self._invokedMethod = method

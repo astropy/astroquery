@@ -16,7 +16,7 @@ Created on 30 jun. 2016
 """
 
 
-class TapTableMeta(object):
+class TapTableMeta:
     """TAP table metadata object
     """
 

@@ -43,7 +43,7 @@ except ImportError:
     TKEntry = None
 
 
-class LoginDialog(object):
+class LoginDialog:
 
     def __init__(self, host):
         self.__interna_init()

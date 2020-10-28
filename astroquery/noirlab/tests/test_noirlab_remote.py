@@ -17,7 +17,7 @@ from . import expected as expsia
 
 
 @remote_data
-class TestNoirlabClass(object):
+class TestNoirlabClass:
 
     def test_query_region_1(self):
         """Search FILES.

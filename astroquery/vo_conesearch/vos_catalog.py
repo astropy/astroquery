@@ -40,7 +40,7 @@ __all__ = ['VOSBase', 'VOSCatalog', 'VOSDatabase', 'get_remote_catalog_db',
 __dbversion__ = 1
 
 
-class VOSBase(object):
+class VOSBase:
     """
     Base class for VO catalog and database.
 

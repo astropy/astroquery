@@ -5,7 +5,7 @@ HARPS_PUBLICATION = '2009A&A...493..639M'
 
 
 @pytest.mark.remote_data
-class TestDaceClassRemote(object):
+class TestDaceClassRemote:
 
     def test_should_get_radial_velocities(self):
         radial_velocities_table = Dace.query_radial_velocities('HD40307')

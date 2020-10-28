@@ -24,7 +24,7 @@ class SchemaError(Exception):
         return '\n'.join(a)
 
 
-class And(object):
+class And:
 
     def __init__(self, *args, **kw):
         self._args = args
@@ -54,7 +54,7 @@ class Or(And):
                           [self._error] + x.errors)
 
 
-class Use(object):
+class Use:
 
     def __init__(self, callable_, error=None):
         assert callable(callable_)
@@ -96,7 +96,7 @@ def priority(s):
         return 1
 
 
-class Schema(object):
+class Schema:
 
     def __init__(self, schema, error=None):
         self._schema = schema

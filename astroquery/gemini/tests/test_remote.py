@@ -25,7 +25,7 @@ coords = SkyCoord(210.80242917, 54.34875, unit="deg")
 
 
 @pytest.mark.remote_data
-class TestGemini(object):
+class TestGemini:
     def test_observations_query_region(self):
         """ test query against a region of the sky against actual archive """
         result = gemini.Observations.query_region(coords, radius=0.3 * units.deg)

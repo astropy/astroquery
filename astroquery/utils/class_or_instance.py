@@ -9,7 +9,7 @@ import functools
 __all__ = ["class_or_instance"]
 
 
-class class_or_instance(object):
+class class_or_instance:
 
     def __init__(self, fn):
         self.fn = fn

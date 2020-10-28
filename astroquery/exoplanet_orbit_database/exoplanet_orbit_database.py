@@ -18,7 +18,7 @@ BOOL_ATTRS = ('ASTROMETRY', 'BINARY', 'EOD', 'KDE', 'MICROLENSING', 'MULT',
               'SE', 'TIMING', 'TRANSIT', 'TREND')
 
 
-class ExoplanetOrbitDatabaseClass(object):
+class ExoplanetOrbitDatabaseClass:
     """
     Exoplanet Orbit Database querying object. Use the ``get_table`` or
     ``query_planet`` methods to get information about exoplanets via the

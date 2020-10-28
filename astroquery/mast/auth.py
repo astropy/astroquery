@@ -23,7 +23,7 @@ from . import conf
 __all__ = []
 
 
-class MastAuth(object):
+class MastAuth:
     """
     MAST authentication class, handles MAST authentication token.
     """

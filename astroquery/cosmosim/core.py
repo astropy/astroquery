@@ -1312,7 +1312,7 @@ class CosmoSimClass(QueryWithLogin):
             self.alert_completed = False
 
 
-class AlertThread(object):
+class AlertThread:
     """ Alert threading class
 
     The _alert() method will be started and it will run in the background

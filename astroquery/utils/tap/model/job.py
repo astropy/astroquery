@@ -26,7 +26,7 @@ import sys
 __all__ = ['Job']
 
 
-class Job(object):
+class Job:
     """Job class
     """
 

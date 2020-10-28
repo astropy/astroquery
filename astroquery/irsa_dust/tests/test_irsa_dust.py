@@ -74,7 +74,7 @@ def patch_fromname(request):
                types.MethodType(fromname, commons.ICRSCoord))
 
 
-class DustTestCase(object):
+class DustTestCase:
 
     def data(self, filename):
         data_dir = os.path.join(os.path.dirname(__file__), 'data')

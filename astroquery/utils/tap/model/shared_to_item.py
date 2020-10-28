@@ -16,7 +16,7 @@ Created on 28 sep. 2018
 """
 
 
-class TapSharedToItem(object):
+class TapSharedToItem:
     """TAP shared to item object
     """
 

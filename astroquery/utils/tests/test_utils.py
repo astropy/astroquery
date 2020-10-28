@@ -21,7 +21,7 @@ from ...utils.process_asyncs import async_to_sync_docstr, async_to_sync
 from ...utils.docstr_chompers import remove_sections, prepend_docstr_nosections
 
 
-class SimpleQueryClass(object):
+class SimpleQueryClass:
 
     @class_or_instance
     def query(self):
@@ -81,7 +81,7 @@ def test_parse_coordinates_4():
 
 def test_send_request_post(monkeypatch):
     def mock_post(url, data, timeout, headers={}, status_code=200):
-        class SpecialMockResponse(object):
+        class SpecialMockResponse:
 
             def __init__(self, url, data, headers, status_code):
                 self.url = url
@@ -380,7 +380,7 @@ def test_prepend_docstr(func, out, doc=docstr4):
 
 
 @async_to_sync
-class DummyQuery(object):
+class DummyQuery:
 
     @class_or_instance
     def query_async(self, *args, **kwargs):
@@ -415,7 +415,7 @@ def patch_getreadablefileobj(request):
     _urlrequest = urllib.request.Request
     filesize = os.path.getsize(fitsfilepath)
 
-    class MockRemote(object):
+    class MockRemote:
         def __init__(self, fn, *args, **kwargs):
             self.file = open(fn, 'rb')
 
