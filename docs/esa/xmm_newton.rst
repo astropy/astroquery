@@ -2,17 +2,17 @@
 
 .. _astroquery.esa.xmm_newton:
 
-******************************************************
-ESA XMM-Newton Archive (`astroquery.esa.xmm_newton`)
-******************************************************
+****************************************
+xmm_newton (`astroquery.esa.xmm_newton`)
+****************************************
 
 
-The X-ray Multi-Mirror Mission, XMM-Newton, is an ESA X-ray observatory launched on 10 December 1999.
-It carries 3 high-throughput X-ray telescopes with unprecedented effective area and an Optical Monitor,
+The X-ray Multi-Mirror Mission, XMM-Newton, is an ESA X-ray observatory launched on 10 December 1999. 
+It carries 3 high-throughput X-ray telescopes with unprecedented effective area and an Optical Monitor, 
 the first flown on an X-ray observatory.
 
-This package allows the access to the `XMM-Newton Science Archive <http://nxsa.esac.esa.int/nxsa-web/>`__.
-It has been developed by the ESAC Science Data Centre (ESDC) with requirements provided by the
+This package allows the access to the `XMM-Newton Science Archive <http://nxsa.esac.esa.int/nxsa-web/>`__. 
+It has been developed by the ESAC Science Data Centre (ESDC) with requirements provided by the 
 XMM-Newton Science Operations Centre.
 
 ========
@@ -30,8 +30,8 @@ Examples
   >>> XMMNewton.download_data('0505720401',level="PPS",extension="PDF",instname="M1",filename="result0505720401.tar")
   INFO: File result0505720401.tar downloaded to current directory [astroquery.esa.xmm_newton.core]
 
-This will download all PPS files for the observation '0505720401' and instrument MOS1, with 'PDF' extension and
-it will store them in a tar called 'result0505720401.tar'. The parameters available are detailed in the API.
+This will download all PPS files for the observation '0505720401' and instrument MOS1, with 'PDF' extension and 
+it will store them in a tar called 'result0505720401.tar'. The parameters available are detailed in the API.       
 
 For more details of the parameters check the section 3.4 at:
 		'http://nxsa.esac.esa.int/nxsa-web/#aio'
@@ -52,7 +52,7 @@ This will download the EPIC postcard for the observation '0505720401' and it wil
 'P0505720401EPX000OIMAGE8000.PNG'.
 
 ------------------------------------------
-3. Getting XMM-Newton metadata through TAP
+3. Getting XMM-Newton metadata through TAP 
 ------------------------------------------
 
 This function provides access to the XMM-Newton Science Archive database using the Table Access Protocol (TAP) and via the Astronomical Data
@@ -77,11 +77,11 @@ Query Language (ADQL).
   46.71747372703565 -15.78639    12101 ...      Denis-J1228         true
   -15.881772371450268 -77.61555    33986 ...         Cha-Ha-3         true
 
-This will execute an ADQL query to download the first 10 observations in the XMM-Newton Science Archive. The result of the query will be
+This will execute an ADQL query to download the first 10 observations in the XMM-Newton Science Archive. The result of the query will be 
 stored in the file 'results10.csv'. The result of this query can be printed by doing print(result).
-
+            
 -----------------------------------
-4. Getting table details of XSA TAP
+4. Getting table details of XSA TAP 
 -----------------------------------
 
 .. code-block:: python
@@ -92,19 +92,18 @@ stored in the file 'results10.csv'. The result of this query can be printed by d
   INFO: Retrieving tables... [astroquery.utils.tap.core]
   INFO: Parsing tables... [astroquery.utils.tap.core]
   INFO: Done. [astroquery.utils.tap.core]
-  ['tap_schema.columns', 'tap_schema.key_columns', 'tap_schema.keys', 'tap_schema.schemas', 
-  'tap_schema.tables', 'xsa.dual', 'xsa.v_all_observations', 'xsa.v_epic_source', 
-  'xsa.v_epic_source_cat', 'xsa.v_epic_xmm_stack_cat', 'xsa.v_exposure', 'xsa.v_instrument_mode', 
-  'xsa.v_om_source', 'xsa.v_om_source_cat', 'xsa.v_proposal', 'xsa.v_proposal_observation_info', 
-  'xsa.v_publication', 'xsa.v_publication_observation', 'xsa.v_publication_slew_observation', 
-  'xsa.v_public_observations', 'xsa.v_rgs_source', 'xsa.v_slew_exposure', 'xsa.v_slew_observation', 
-  'xsa.v_slew_source', 'xsa.v_slew_source_cat', 'xsa.v_target_type', 'xsa.v_uls_exposure_image', 
-  'xsa.v_uls_slew_exposure_image']
+  ['public.dual', 'public.v_all_observations', 'public.v_epic_source', 'public.v_epic_source_cat', 'public.v_epic_xmm_stack_cat', 
+  'public.v_exposure', 'public.v_instrument_mode', 'public.v_om_source', 'public.v_om_source_cat', 'public.v_proposal', 
+  'public.v_proposal_observation_info', 'public.v_publication', 'public.v_publication_observation', 
+  'public.v_publication_slew_observation', 'public.v_public_observations', 'public.v_rgs_source', 'public.v_slew_exposure', 
+  'public.v_slew_observation', 'public.v_slew_source', 'public.v_slew_source_cat', 'public.v_target_type', 
+  'public.v_uls_exposure_image', 'public.v_uls_slew_exposure_image', 'tap_schema.columns', 'tap_schema.key_columns', 
+  'tap_schema.keys', 'tap_schema.schemas', 'tap_schema.tables']
 
 This will show the available tables in XSA TAP service in the XMM-Newton Science Archive.
-
+            
 -------------------------------------
-5. Getting columns details of XSA TAP
+5. Getting columns details of XSA TAP 
 -------------------------------------
 
 .. code-block:: python
@@ -115,25 +114,13 @@ This will show the available tables in XSA TAP service in the XMM-Newton Science
   INFO: Retrieving tables... [astroquery.utils.tap.core]
   INFO: Parsing tables... [astroquery.utils.tap.core]
   INFO: Done. [astroquery.utils.tap.core]
-  ['bii', 'citext', 'dec', 'duration', 'end_utc', 'footprint_fov', 'heasarc_code', 'lii', 'moving_target',
-  'observation_equatorial_spoint', 'observation_fov_scircle', 'observation_galactic_spoint', 'observation_id',
-  'observation_oid', 'odf_proc_date', 'odf_version', 'position_angle', 'pps_proc_date', 'pps_version', 'proposal_id',
+  ['bii', 'citext', 'dec', 'duration', 'end_utc', 'footprint_fov', 'heasarc_code', 'lii', 'moving_target', 
+  'observation_equatorial_spoint', 'observation_fov_scircle', 'observation_galactic_spoint', 'observation_id', 
+  'observation_oid', 'odf_proc_date', 'odf_version', 'position_angle', 'pps_proc_date', 'pps_version', 'proposal_id', 
   'proposal_oid', 'proprietary_end_date', 'ra', 'ra_nom', 'revolution', 'sas_version', 'start_utc', 'stc_s', 'with_science']
 
 This will show the column details of the table 'v_all_observations' in XSA TAP service in the XMM-Newton Science Archive.
-
---------------------------------------------
-6. Getting EPIC images from a given TAR file 
---------------------------------------------
-
-.. code-block:: python
-
-  >>> from astroquery.esa.xmm_newton import XMMNewton
-  >>>
-  >>> XMMNewton.get_epic_images('tarfile.tar', band=[1,2], instrument=['M1'])
-  {1: {'M1': '/home/dev/esa/0405320501/pps/P0405320501M1S002IMAGE_1000.FTZ'}, 2: {'M1': '/home/dev/esa/0405320501/pps/P0405320501M1S002IMAGE_2000.FTZ'}}
-
-This will extract the European Photon Imaging Camera (EPIC) images within the specified TAR file, bands, and instruments. It will also return a dictionary containing the paths to the extracted files.        
+            
 
 Reference/API
 =============
