@@ -42,7 +42,7 @@ class ISOClass(BaseQuery):
             self._tap = tap_handler
 
     def get_download_link(self, tdt, retrieval_type, filename,
-                      verbose, **kwargs):
+                          verbose, **kwargs):
         """
         Get download link for ISO
 
@@ -66,7 +66,7 @@ class ISOClass(BaseQuery):
             optional, default 'False'
             flag to display information about the process
 
-         Returns
+        Returns
         -------
         None if not verbose. It downloads the observation indicated
         If verbose returns the filename
@@ -111,17 +111,16 @@ class ISOClass(BaseQuery):
             optional, default 'False'
             flag to display information about the process
 
-         Returns
+        Returns
         -------
-        None if not verbose. It downloads the observation indicated
-        If verbose returns the filename
+        File name of downloaded data
         """
 
         if retrieval_type is None:
             retrieval_type = "OBSERVATION"
 
         link = self.get_download_link(tdt, retrieval_type, filename,
-                      verbose, **kwargs)
+                                      verbose, **kwargs)
 
         response = self._request('GET', link, save=False, cache=True)
         response.raise_for_status()
@@ -136,7 +135,9 @@ class ISOClass(BaseQuery):
 
         filename += "".join(suffixes)
 
-        log.info("Copying file to {0}...".format(filename))
+        if verbose:
+            log.info("Copying file to {0}...".format(filename))
+
         with open(filename, 'wb') as f:
             f.write(response.content)
 
@@ -169,10 +170,9 @@ class ISOClass(BaseQuery):
             optional, default 'False'
             flag to display information about the process
 
-         Returns
+        Returns
         -------
-        None if not verbose. It downloads the observation indicated
-        If verbose returns the filename
+        The postcard filename
         """
 
         link = self.data_url
@@ -203,7 +203,7 @@ class ISOClass(BaseQuery):
 
         Returns
         -------
-        None. It downloads the observation postcard indicated
+        File name to be used to store the postcard
         """
 
         link = self.get_postcard_link(tdt, filename, verbose)
@@ -211,15 +211,18 @@ class ISOClass(BaseQuery):
         local_filepath = self._request('GET', link, cache=True, save=True)
 
         if filename is None:
+
             response = self._request('HEAD', link)
             response.raise_for_status()
 
             filename = re.findall('filename="(.+)"', response.headers[
                 "Content-Disposition"])[0]
         else:
+
             filename = filename + ".png"
 
-        log.info("Copying file to {0}...".format(filename))
+        if verbose:
+            log.info("Copying file to {0}...".format(filename))
 
         shutil.move(local_filepath, filename)
 
@@ -231,7 +234,7 @@ class ISOClass(BaseQuery):
     def query_ida_tap(self, query, *, output_file=None,
                       output_format="votable", verbose=False):
         """
-        Launches a synchronous job to query the ISO Tabular Access Protocol Service
+        Launches a synchronous job to query ISO Tabular Access Protocol Service
 
         Parameters
         ----------
@@ -257,8 +260,8 @@ class ISOClass(BaseQuery):
         try:
             table = job.get_results()
             return table
-        except HTTPError:
-            print(table)
+        except HTTPError as e:
+            print(str(e))
 
     def get_tables(self, *, only_names=True, verbose=False):
         """
