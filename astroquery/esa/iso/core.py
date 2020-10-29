@@ -211,12 +211,8 @@ class ISOClass(BaseQuery):
         local_filepath = self._request('GET', link, cache=True, save=True)
 
         if filename is None:
-            try:
-                response = self._request('HEAD', link)
-                response.raise_for_status()
-            except requests.exceptions.RequestException as e:
-                print(str(e))
-                raise SystemExit(e)
+            response = self._request('HEAD', link)
+            response.raise_for_status()
 
             filename = re.findall('filename="(.+)"', response.headers[
                 "Content-Disposition"])[0]
