@@ -293,7 +293,6 @@ class TestMast(object):
         assert os.path.isfile(result2['Local Path'][0])
         assert len(result2) == 1
 
-
     def test_observations_download_file(self, tmpdir):
         test_obs_id = '2003600312'
 
