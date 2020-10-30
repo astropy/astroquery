@@ -714,7 +714,7 @@ class ObservationsClass(MastQueryWithLogin):
 
         # If the products list is not already a table of products we need to
         # get the products and filter them appropriately
-        if type(products) != Table: 
+        if type(products) != Table:
 
             if type(products) == str:
                 products = [products]
