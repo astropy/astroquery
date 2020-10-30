@@ -438,14 +438,12 @@ class ObservationsClass(MastQueryWithLogin):
         """
         Given a "Product Group Id" (column name obsid) returns a list of associated data products.
         See column documentation `here <https://masttest.stsci.edu/api/v0/_productsfields.html>`__.
-
         Parameters
         ----------
         observations : str or `~astropy.table.Row` or list/Table of same
             Row/Table of MAST query results (e.g. output from `query_object`)
             or single/list of MAST Product Group Id(s) (obsid).
             See description `here <https://masttest.stsci.edu/api/v0/_c_a_o_mfields.html>`__.
-
         Returns
         -------
             response : list of `~requests.Response`
@@ -710,17 +708,21 @@ class ObservationsClass(MastQueryWithLogin):
         response : `~astropy.table.Table`
             The manifest of files downloaded, or status of files on disk if curl option chosen.
         """
+        # If the products list is a row we need to cast it as a table
+        if type(products) == Row:
+            products = Table(products, masked=True)
 
         # If the products list is not already a table of products we need to
         # get the products and filter them appropriately
-        if type(products) != Table:
+        if type(products) != Table: 
 
             if type(products) == str:
                 products = [products]
-
+                
             # collect list of products
             product_lists = []
             for oid in products:
+                print(oid)
                 product_lists.append(self.get_product_list(oid))
 
             products = vstack(product_lists)
