@@ -718,7 +718,7 @@ class ObservationsClass(MastQueryWithLogin):
 
             if type(products) == str:
                 products = [products]
-                
+
             # collect list of products
             product_lists = []
             for oid in products:
