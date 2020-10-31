@@ -74,6 +74,7 @@ The following packages are required for astroquery installation & use:
 
 * `numpy <http://www.numpy.org>`_ >= 1.14
 * `astropy <http://www.astropy.org>`__ (>=3.1)
+* `pyVO`_ (>=1.1)
 * `requests <http://docs.python-requests.org/en/latest/>`_
 * `keyring <https://pypi.python.org/pypi/keyring>`_
 * `Beautiful Soup <https://www.crummy.com/software/BeautifulSoup/>`_
@@ -90,12 +91,6 @@ full functionality of the `~astroquery.alma` module:
 
 * `APLpy <http://aplpy.readthedocs.io/>`_
 * `pyregion <http://pyregion.readthedocs.io/>`_
-
-
-The following packages are optional dependencies and are required for the
-functionality of the `~astroquery.cadc` module:
-
-* `pyVO`_ (>=1.0)
 
 The following packages are optional dependencies and are required for the
 full functionality of the `~astroquery.cds` module:
