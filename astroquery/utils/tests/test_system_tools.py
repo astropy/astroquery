@@ -21,7 +21,7 @@ from ..system_tools import gunzip
 def test_gunzip():
 
     temp_dir = tempfile.mkdtemp()
-    filename = temp_dir + os.sep + "test_gunzip.txt.gz"
+    filename = f"{temp_dir}{os.sep}test_gunzip.txt.gz"
     unziped_filename = filename.rsplit(".", 1)[0]
 
     # First create a gzip file

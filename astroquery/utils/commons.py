@@ -131,8 +131,8 @@ def radius_to_unit(radius, unit='degree'):
     if isinstance(unit, six.string_types):
         if hasattr(rad, unit):
             return getattr(rad, unit)
-        elif hasattr(rad, unit + 's'):
-            return getattr(rad, unit + 's')
+        elif hasattr(rad, f"{unit}s"):
+            return getattr(rad, f"{unit}s")
 
     return rad.to(unit).value
 
@@ -447,10 +447,9 @@ class FileContainer(object):
 
     def __repr__(self):
         if hasattr(self, '_fits'):
-            return "Downloaded FITS file: " + self._fits.__repr__()
+            return f"Downloaded FITS file: {self._fits!r}"
         else:
-            return ("Downloaded object from URL {} with ID {}"
-                    .format(self._target, id(self._readable_object)))
+            return f"Downloaded object from URL {self._target} with ID {id(self._readable_object)}"
 
 
 def get_readable_fileobj(*args, **kwargs):

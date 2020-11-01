@@ -37,7 +37,7 @@ class SimpleQueryClass(object):
 @pytest.mark.remote_data
 def test_chunk_read():
     datasize = 50000
-    response = urllib.request.urlopen('http://httpbin.org/stream-bytes/{0}'.format(datasize))
+    response = urllib.request.urlopen(f'http://httpbin.org/stream-bytes/{datasize}')
     C = chunk_read(response, report_hook=chunk_report)
     assert len(C) == datasize
 
@@ -469,7 +469,7 @@ def patch_getreadablefileobj(request):
 def test_filecontainer_save(patch_getreadablefileobj):
     ffile = commons.FileContainer(fitsfilepath, encoding='binary')
     temp_dir = tempfile.mkdtemp()
-    empty_temp_file = temp_dir + os.sep + 'test_emptyfile.fits'
+    empty_temp_file = f"{temp_dir}{os.sep}test_emptyfile.fits"
     ffile.save_fits(empty_temp_file)
     assert os.path.exists(empty_temp_file)
 
