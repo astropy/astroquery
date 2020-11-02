@@ -23,6 +23,7 @@ mast
 
 - Added ``Observations.download_file`` method to download a single file from MAST given an input
   data URI. [#1825]
+- Added case for passing a row to ``Observations.download_file` [#1881]
 
 esa/hubble
 ^^^^^^^^^^
