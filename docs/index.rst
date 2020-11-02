@@ -30,7 +30,7 @@ Installation
 ------------
 
 Uniquely in the Astropy ecosystem, Astroquery is operating with a **continuous deployment model**.
-It means that a release is be instantaneously available after a pull request has been merged. These
+It means that a release is instantaneously available after a pull request has been merged. These
 releases are automatically uploaded to `PyPI <https://pypi.org/project/astroquery/#history>`__,
 and therefore the latest version of astroquery can be pip installed.
 The version number of these automated releases contain the ``'dev'`` tag, thus pip needs to be told
@@ -42,7 +42,7 @@ already installed, please make sure you use the ``--upgrade`` install option as 
     $ pip install --pre astroquery
 
 In addition to the automated releases, we also keep doing regular, tagged version for maintenance
-and packaging purposes. These can be ``pip`` installed without the ``--pre`` option, as well as,
+and packaging purposes. These can be ``pip`` installed without the ``--pre`` option and
 are available from the ``astropy`` conda channel.
 
 .. code-block:: bash
