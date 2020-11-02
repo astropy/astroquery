@@ -25,7 +25,6 @@ from astropy.logger import log
 
 from astropy.utils import deprecated
 from astropy.utils.console import ProgressBarOrSpinner
-from astropy.utils.exceptions import AstropyDeprecationWarning
 
 from six.moves.urllib.parse import quote as urlencode
 
@@ -150,28 +149,6 @@ class ObservationsClass(MastQueryWithLogin):
         coordinates = criteria.pop('coordinates', None)
         objectname = criteria.pop('objectname', None)
         radius = criteria.pop('radius', 0.2*u.deg)
-
-        # Dealing with observation type (science vs calibration)
-        if ('obstype' in criteria) and ('intentType' in criteria):
-            warn_string = ("Cannot specify both obstype and intentType, "
-                           "obstype is the deprecated version of intentType and will be ignored.")
-            warnings.warn(warn_string, InputWarning)
-            criteria.pop('obstype', None)
-
-        # Temporarily issuing warning about change in behavior
-        # continuing old behavior
-        # grabbing the observation type (science vs calibration)
-        obstype = criteria.pop('obstype', None)
-        if obstype:
-            warn_string = ("Criteria obstype argument disappeared in May 2019. "
-                          "Criteria 'obstype' is now 'intentType', options are 'science' or 'calibration', "
-                          "if intentType is not supplied all observations (science and calibration) are returned.")
-            warnings.warn(warn_string, AstropyDeprecationWarning)
-
-            if obstype == "science":
-                criteria["intentType"] = "science"
-            elif obstype == "cal":
-                criteria["intentType"] = "calibration"
 
         # Build the mashup filter object and store it in the correct service_name entry
         if coordinates or objectname:
@@ -748,10 +725,6 @@ class ObservationsClass(MastQueryWithLogin):
 
         return manifest
 
-    @deprecated(since="v0.3.9", alternative="get_cloud_uris")
-    def get_hst_s3_uris(self, data_products, include_bucket=True, full_url=False):
-        return self.get_cloud_uris(data_products, include_bucket, full_url)
-
     def get_cloud_uris(self, data_products, include_bucket=True, full_url=False):
         """
         Takes an `~astropy.table.Table` of data products and returns the associated cloud data uris.
@@ -779,10 +752,6 @@ class ObservationsClass(MastQueryWithLogin):
             raise AttributeError("Must enable s3 dataset before attempting to query the s3 information")
 
         return self._cloud_connection.get_cloud_uri_list(data_products, include_bucket, full_url)
-
-    @deprecated(since="v0.3.9", alternative="get_cloud_uri")
-    def get_hst_s3_uri(self, data_product, include_bucket=True, full_url=False):
-        return self.get_cloud_uri(data_product, include_bucket, full_url)
 
     def get_cloud_uri(self, data_product, include_bucket=True, full_url=False):
         """
