@@ -16,7 +16,7 @@ Created on 28 sep. 2018
 """
 
 
-class TapUser(object):
+class TapUser:
     """TAP user object
     """
 

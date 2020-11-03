@@ -347,7 +347,7 @@ def validate_email(email):
         return bool(re.compile(r'^\S+@\S+\.\S+$').match(email))
 
 
-class FileContainer(object):
+class FileContainer:
     """
     A File Object container, meant to offer lazy access to downloaded FITS
     files.

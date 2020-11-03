@@ -7,7 +7,7 @@ from ... import mpc
 
 
 @pytest.mark.remote_data
-class TestMPC(object):
+class TestMPC:
 
     @pytest.mark.parametrize('type, name', [
         ('asteroid', 'ceres'),

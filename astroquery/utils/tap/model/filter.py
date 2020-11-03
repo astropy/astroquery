@@ -26,7 +26,7 @@ PARAMETER_START_TIME_LIMIT = 'start_time_limit'
 PARAMETER_END_TIME_LIMIT = 'end_time_limit'
 
 
-class Filter(object):
+class Filter:
 
     def __init__(self):
         self.filters = {}

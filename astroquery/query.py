@@ -34,7 +34,7 @@ def _replace_none_iterable(iterable):
     return tuple('' if i is None else i for i in iterable)
 
 
-class AstroQuery(object):
+class AstroQuery:
 
     def __init__(self, method, url,
                  params=None, data=None, headers=None,
@@ -145,7 +145,7 @@ class LoginABCMeta(abc.ABCMeta):
 
 
 @six.add_metaclass(LoginABCMeta)
-class BaseQuery(object):
+class BaseQuery:
     """
     This is the base class for all the query classes in astroquery. It
     is implemented as an abstract class and must not be directly instantiated.

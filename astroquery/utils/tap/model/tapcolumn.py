@@ -16,7 +16,7 @@ Created on 30 jun. 2016
 """
 
 
-class TapColumn(object):
+class TapColumn:
     """TAP column object
     """
 

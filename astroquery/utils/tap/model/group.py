@@ -16,7 +16,7 @@ Created on 28 sep. 2018
 """
 
 
-class TapGroup(object):
+class TapGroup:
     """TAP group object
     """
 

@@ -7,7 +7,7 @@ import json
 # mandatory dependency
 
 
-class MockResponse(object):
+class MockResponse:
     """
     A mocked/non-remote version of `astroquery.query.AstroResponse`
     """

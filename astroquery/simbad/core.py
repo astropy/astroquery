@@ -95,7 +95,7 @@ SimbadError = namedtuple('SimbadError', ('line', 'msg'))
 VersionInfo = namedtuple('VersionInfo', ('major', 'minor', 'micro', 'patch'))
 
 
-class SimbadResult(object):
+class SimbadResult:
     __sections = ('script', 'console', 'error', 'data')
 
     def __init__(self, txt, verbose=False):

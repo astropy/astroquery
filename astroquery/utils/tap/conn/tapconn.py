@@ -36,7 +36,7 @@ __all__ = ['TapConn']
 CONTENT_TYPE_POST_DEFAULT = "application/x-www-form-urlencoded"
 
 
-class TapConn(object):
+class TapConn:
     """TAP plus connection class
     Provides low level HTTP connection capabilities
     """
@@ -713,7 +713,7 @@ class TapConn(object):
             f"\n\tPort: {self.__connPort}\n\tSSL Port: {self.__connPortSsl}"
 
 
-class ConnectionHandler(object):
+class ConnectionHandler:
     def __init__(self, host, port, sslport):
         self.__connHost = host
         self.__connPort = port

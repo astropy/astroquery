@@ -6,7 +6,7 @@ from concurrent.futures import ThreadPoolExecutor
 __all__ = ['AsyncBase']
 
 
-class AsyncBase(object):
+class AsyncBase:
     """Base class for asynchronous VO service requests
     using :py:class:`concurrent.futures.ThreadPoolExecutor`.
 

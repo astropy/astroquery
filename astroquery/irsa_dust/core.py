@@ -401,7 +401,7 @@ class IrsaDustClass(BaseQuery):
         return [key for key in self.image_type_to_section]
 
 
-class SingleDustResult(object):
+class SingleDustResult:
 
     """
     Represents the response to a dust query for a single object or location.
@@ -647,7 +647,7 @@ class SingleDustResult(object):
         return string
 
 
-class BaseDustNode(object):
+class BaseDustNode:
 
     """
     A node in the result xml that has been enhanced to return values and
@@ -788,7 +788,7 @@ class CoordNode(BaseDustNode):
         return string
 
 
-class BaseResultSection(object):
+class BaseResultSection:
 
     """
     Represents a group of related nodes/columns in a DustResults object.

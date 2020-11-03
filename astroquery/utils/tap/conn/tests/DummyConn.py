@@ -17,7 +17,7 @@ Created on 30 jun. 2016
 from astroquery.utils.tap.conn.tests.DummyResponse import DummyResponse
 
 
-class DummyConn(object):
+class DummyConn:
     '''
     classdocs
     '''
@@ -47,7 +47,7 @@ class DummyConn(object):
         return self.name
 
 
-class DummyHttpConn(object):
+class DummyHttpConn:
 
     def __init__(self, response):
         self.response = response

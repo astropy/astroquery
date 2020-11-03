@@ -20,7 +20,7 @@ from astroquery.gemini.urlhelper import URLHelper
 DATA_FILES = {"m101": "m101.json"}
 
 
-class MockResponse(object):
+class MockResponse:
 
     def __init__(self, text):
         self.text = text
