@@ -18,6 +18,6 @@ class Conf(_config.ConfigNamespace):
 
 conf = Conf()
 
-from .core import ObservationsClass, Observations
+from .core import GeminiObservationsClass, GeminiObservations
 
-__all__ = ['Observations', 'ObservationsClass', 'conf']
+__all__ = ['GeminiObservations', 'GeminiObservationsClass', 'conf']
