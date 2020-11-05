@@ -69,6 +69,7 @@ class ESASkyClass(BaseQuery):
         }
 
     _MAPS_DOWNLOAD_DIR = "Maps"
+    _SPECTRA_DOWNLOAD_DIR = "Spectra"
     _isTest = ""
 
     def list_maps(self):
@@ -547,7 +548,7 @@ class ESASkyClass(BaseQuery):
         return maps
 
     def get_spectra(self, position, radius=__ZERO_ARCMIN_STRING, missions=__ALL_STRING,
-                   download_dir=_MAPS_DOWNLOAD_DIR, cache=True):
+                   download_dir=_SPECTRA_DOWNLOAD_DIR, cache=True):
         """
         This method gets the fits files available for the selected position and
         mission and downloads all spectra to the the selected folder.
@@ -568,15 +569,15 @@ class ESASkyClass(BaseQuery):
             names are found in list_spectra()) or 'all' to search in all
             missions. Defaults to 'all'.
         download_dir : string, optional
-            The folder where all downloaded maps should be stored.
-            Defaults to a folder called 'Maps' in the current working directory.
+            The folder where all downloaded spectra should be stored.
+            Defaults to a folder called 'Spectra' in the current working directory.
         cache : bool, optional
             When set to True the method will use a cache located at
             .astropy/astroquery/cache. Defaults to True.
 
         Returns
         -------
-        maps : `dict`
+        spectra : `dict`
             All mission except Herschel returns a list of HDULists.
             For Herschel each item in the list is a dictionary where the used
             filter is the key and the HDUList is the value.
@@ -814,11 +815,7 @@ class ESASkyClass(BaseQuery):
         return file_name
 
     def _create_mission_directory(self, mission, download_dir):
-        if (download_dir == self._MAPS_DOWNLOAD_DIR):
-            mission_directory = self._MAPS_DOWNLOAD_DIR + "/" + mission
-        else:
-            mission_directory = (download_dir + "/" + self._MAPS_DOWNLOAD_DIR +
-                                 "/" + mission)
+        mission_directory = download_dir + "/" + mission
         if not os.path.exists(mission_directory):
             os.makedirs(mission_directory)
         return mission_directory
