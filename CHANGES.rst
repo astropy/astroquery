@@ -24,6 +24,9 @@ mast
 - Added ``Observations.download_file`` method to download a single file from MAST given an input
   data URI. [#1825]
 - Added case for passing a row to ``Observations.download_file` [#1881]
+- Removed deprecated ``Observations.get_hst_s3_uris()``, ``Observations.get_hst_s3_uri()``, 
+  ``Core.get_token()``, ``Core.enable_s3_hst_dataset()``, ``Core.disable_s3_hst_dataset()`` and 
+  variables obstype and silent [#1884]
 
 esa/hubble
 ^^^^^^^^^^
