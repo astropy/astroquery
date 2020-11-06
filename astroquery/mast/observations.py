@@ -429,11 +429,11 @@ class ObservationsClass(MastQueryWithLogin):
         """
 
         # getting the obsid list
-        if type(observations) == Row:
+        if isinstance(observations, Row):
             observations = observations["obsid"]
         if np.isscalar(observations):
             observations = [observations]
-        if type(observations) == Table:
+        if isinstance(observations, Table):
             observations = observations['obsid']
 
         service = 'Mast.Caom.Products'
@@ -473,7 +473,7 @@ class ObservationsClass(MastQueryWithLogin):
             filter_mask &= (products['productGroupDescription'] == "Minimum Recommended Products")
 
         if extension:
-            if type(extension) == str:
+            if isinstance(extension, str):
                 extension = [extension]
 
             mask = np.full(len(products), False, dtype=bool)
@@ -485,7 +485,7 @@ class ObservationsClass(MastQueryWithLogin):
         # Applying the rest of the filters
         for colname, vals in filters.items():
 
-            if type(vals) == str:
+            if isinstance(vals, str):
                 vals = [vals]
 
             mask = np.full(len(products), False, dtype=bool)
@@ -688,14 +688,14 @@ class ObservationsClass(MastQueryWithLogin):
             The manifest of files downloaded, or status of files on disk if curl option chosen.
         """
         # If the products list is a row we need to cast it as a table
-        if type(products) == Row:
+        if isinstance(products, Row):
             products = Table(products, masked=True)
 
         # If the products list is not already a table of products we need to
         # get the products and filter them appropriately
-        if type(products) != Table:
+        if not isinstance(products, Table):
 
-            if type(products) == str:
+            if isinstance(products, str):
                 products = [products]
 
             # collect list of products
