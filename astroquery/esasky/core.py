@@ -623,6 +623,78 @@ class ESASkyClass(BaseQuery):
             log.info("No spectra found.")
         return spectra
 
+    def get_spectra_from_table(self, query_table_list, missions=__ALL_STRING,
+                 download_dir=_SPECTRA_DOWNLOAD_DIR, cache=True):
+        """
+        This method takes the dictionary of missions and metadata as returned by
+        query_region_spectra and downloads all spectra to the selected folder.
+        The method returns a dictionary which is divided by mission.
+        All mission except Herschel returns a list of HDULists.
+        For Herschel each item in the list is a dictionary where the used
+        filter is the key and the HDUList is the value.
+
+        Parameters
+        ----------
+        query_table_list : `~astroquery.utils.TableList` or dict or list of (name, `~astropy.table.Table`) pairs
+            A TableList or dict or list of name and Table pairs with all the
+            missions wanted and their respective metadata. Usually the
+            return value of query_region_spectra.
+        missions : string or list, optional
+            Can be either a specific mission or a list of missions (all mission
+            names are found in list_spectra()) or 'all' to search in all
+            missions. Defaults to 'all'.
+        download_dir : string, optional
+            The folder where all downloaded spectra should be stored.
+            Defaults to a folder called 'Spectra' in the current working directory.
+        cache : bool, optional
+            When set to True the method will use a cache located at
+            .astropy/astroquery/cache. Defaults to True.
+
+        Returns
+        -------
+        spectra : `dict`
+            All mission except Herschel returns a list of HDULists.
+            For Herschel each item in the list is a dictionary where the used
+            filter is the key and the HDUList is the value.
+            It is structured in a dictionary like this:
+            dict: {
+            'HERSCHEL': [{'70': [HDUList], '160': [HDUList]}, {'70': [HDUList], '160': [HDUList]}, ...],
+            'HST':[[HDUList], [HDUList], [HDUList], [HDUList], [HDUList], ...],
+            'XMM-EPIC' : [[HDUList], [HDUList], [HDUList], [HDUList], ...]
+            ...
+            }
+
+        Examples
+        --------
+        get_spectra_from_table(query_region_spectra("m101", "14'", "all"))
+
+        """
+        sanitized_query_table_list = self._sanitize_input_table_list(query_table_list)
+        sanitized_missions = [m.lower() for m in self._sanitize_input_spectra(missions)]
+
+        spectra = dict()
+        json = self._get_spectra_json()
+
+        for query_mission in sanitized_query_table_list.keys():
+
+            if (query_mission.lower() in sanitized_missions):
+                spectra[query_mission] = (
+                    self._get_maps_for_mission(
+                        sanitized_query_table_list[query_mission],
+                        query_mission,
+                        download_dir,
+                        cache, json))
+
+        if all([spectra[mission].count(None) == len(spectra[mission])
+                for mission in spectra]):
+            log.info("No spectra got downloaded, check errors above.")
+
+        elif (len(sanitized_query_table_list) > 0):
+            log.info("Spectra available at {}.".format(os.path.abspath(download_dir)))
+        else:
+            log.info("No spectra found.")
+        return spectra
+
     def _sanitize_input_position(self, position):
         if (isinstance(position, str) or isinstance(position,
                                                     commons.CoordClasses)):
