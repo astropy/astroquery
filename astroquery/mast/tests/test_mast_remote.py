@@ -249,12 +249,12 @@ class TestMast:
         obsLoc = np.where(observations["obs_id"] == 'ktwo200071160-c92_lc')
         result = mast.Observations.get_product_list(observations[obsLoc])
         assert isinstance(result, Table)
-        assert len(result) == 3
+        assert len(result) == 1
 
         obsLocs = np.where((observations['target_name'] == 'NGC6523') & (observations['obs_collection'] == "IUE"))
         result = mast.Observations.get_product_list(observations[obsLocs])
         assert isinstance(result, Table)
-        assert len(result) == 27
+        assert len(result) == 30
 
     def test_observations_filter_products(self):
         observations = mast.Observations.query_object("M8", radius=".04 deg")
@@ -285,6 +285,13 @@ class TestMast:
                                                      mrp_only=False)
         assert isinstance(result, Table)
         assert os.path.isfile(result['Local Path'][0])
+
+        # check for row input
+        result1 = mast.Observations.get_product_list(test_obs_id)
+        result2 = mast.Observations.download_products(result1[0])
+        assert isinstance(result2, Table)
+        assert os.path.isfile(result2['Local Path'][0])
+        assert len(result2) == 1
 
     def test_observations_download_file(self, tmpdir):
         test_obs_id = '2003600312'

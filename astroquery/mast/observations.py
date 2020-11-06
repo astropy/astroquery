@@ -710,6 +710,9 @@ class ObservationsClass(MastQueryWithLogin):
         response : `~astropy.table.Table`
             The manifest of files downloaded, or status of files on disk if curl option chosen.
         """
+        # If the products list is a row we need to cast it as a table
+        if type(products) == Row:
+            products = Table(products, masked=True)
 
         # If the products list is not already a table of products we need to
         # get the products and filter them appropriately

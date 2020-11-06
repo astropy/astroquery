@@ -372,6 +372,11 @@ def test_observations_download_products(patch_post, tmpdir):
                                                  mrp_only=False)
     assert isinstance(result, Table)
 
+    # passing row product
+    products = mast.Observations.get_product_list('2003738726')
+    result1 = mast.Observations.download_products(products[0])
+    assert isinstance(result1, Table)
+
 
 def test_observations_download_file(patch_post, tmpdir):
     # pull a single data product
