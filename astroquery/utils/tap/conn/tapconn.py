@@ -653,12 +653,7 @@ class TapConn:
         isError = False
         if response.status != expected_response_status:
             if debug:
-<<<<<<< HEAD
                 print(f"ERROR: {response.status}: {response.reason}")
-=======
-                log.debug("ERROR: " + str(response.status) + ": " +
-                      str(response.reason))
->>>>>>> Replace print with log where necessary
             isError = True
         if isError and raise_exception:
             errMsg = taputils.get_http_response_error(response)

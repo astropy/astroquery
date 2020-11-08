@@ -125,12 +125,12 @@ class Job:
                 phase = 'QUEUED'
                 if response.status != 200 and response.status != 303:
                     errMsg = taputils.get_http_response_error(response)
-                    log.error(response.status, errMsg)
+                    print(response.status, errMsg)
                     raise requests.exceptions.HTTPError(errMsg)
             else:
                 if response.status != 200:
                     errMsg = taputils.get_http_response_error(response)
-                    log.error(response.status, errMsg)
+                    print(response.status, errMsg)
                     raise requests.exceptions.HTTPError(errMsg)
             self._phase = phase
             return response
@@ -344,8 +344,8 @@ class Job:
         resultsResponse = self.connHandler.execute_tapget(subContext)
         # resultsResponse = self.__readAsyncResults(self.__jobid, debug)
         if debug:
-            log.debug(resultsResponse.status, resultsResponse.reason)
-            log.debug(resultsResponse.getheaders())
+            print(resultsResponse.status, resultsResponse.reason)
+            print(resultsResponse.getheaders())
 
         resultsResponse = self.__handle_redirect_if_required(resultsResponse,
                                                              debug)

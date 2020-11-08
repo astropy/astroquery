@@ -172,7 +172,8 @@ class Tap:
         """
         if table is None:
             raise ValueError("Table name is required")
-        log.info(f"Retrieving table '{table}'")
+        if verbose:
+            print(f"Retrieving table '{table}'")
         response = self.__connHandler.execute_tapget(f"tables?tables={table}",
                                                      verbose=verbose)
         if verbose:

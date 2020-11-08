@@ -13,7 +13,7 @@ from ..utils import url_helpers, prepend_docstr_nosections, async_to_sync
 try:
     from regions import CircleSkyRegion
 except ImportError:
-    log.error('Could not import regions, which is required for some of the '
+    log.warning('Could not import regions, which is required for some of the '
           'functionalities of this module.')
 
 

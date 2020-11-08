@@ -413,12 +413,12 @@ class AlmaClass(QueryWithLogin):
         return self.tap.search(query, language='ADQL', **kwargs)
 
     def help_tap(self):
-        log.info('Table to query is "voa.ObsCore".')
-        log.info('For example: "select top 1 * from ivoa.ObsCore"')
-        log.info('The scheme of the table is as follows.\n')
-        log.info('  {0:20s} {1:15s} {2:10} {3}'.
+        print('Table to query is "voa.ObsCore".')
+        print('For example: "select top 1 * from ivoa.ObsCore"')
+        print('The scheme of the table is as follows.\n')
+        print('  {0:20s} {1:15s} {2:10} {3}'.
               format('Name', 'Type', 'Unit', 'Description'))
-        log.info('-'*90)
+        print('-'*90)
         for tb in self.tap.tables.items():
             if tb[0] == 'ivoa.obscore':
                 for col in tb[1].columns:
@@ -427,7 +427,7 @@ class AlmaClass(QueryWithLogin):
                     else:
                         type = str(col.datatype.content)
                     unit = col.unit if col.unit else ''
-                    log.info('  {0:20s} {1:15s} {2:10} {3}'.
+                    print('  {0:20s} {1:15s} {2:10} {3}'.
                           format(col.name, type, unit, col.description))
 
     # update method pydocs
@@ -1060,7 +1060,7 @@ class AlmaClass(QueryWithLogin):
         Return the valid query parameters
         """
 
-        log.info("\nMost common ALMA query keywords are listed below. These "
+        print("\nMost common ALMA query keywords are listed below. These "
               "keywords are part of the ALMA ObsCore model, an IVOA standard "
               "for metadata representation (3rd column). They were also "
               "present in original ALMA Web form and, for backwards "
@@ -1068,20 +1068,20 @@ class AlmaClass(QueryWithLogin):
               "column).\n"
               "More elaborate queries on the ObsCore model "
               "are possible with `query_sia` or `query_tap` methods")
-        log.info("  {0:33s} {1:35s} {2:35s}".format("Description",
+        print("  {0:33s} {1:35s} {2:35s}".format("Description",
                                                  "Original ALMA keyword",
                                                  "ObsCore keyword"))
-        log.info("-"*103)
+        print("-"*103)
         for title, section in ALMA_FORM_KEYS.items():
             print()
             print(title)
             for row in section.items():
                 print("  {0:33s} {1:35s} {2:35s}".format(row[0], row[1][0], row[1][1]))
-        log.info('\nExamples of queries:')
-        log.info("Alma.query('proposal_id':'2011.0.00131.S'}")
-        log.info("Alma.query({'band_list': ['5', '7']}")
-        log.info("Alma.query({'source_name_alma': 'GRB021004'})")
-        log.info("Alma.query(payload=dict(project_code='2017.1.01355.L', "
+        print('\nExamples of queries:')
+        print("Alma.query('proposal_id':'2011.0.00131.S'}")
+        print("Alma.query({'band_list': ['5', '7']}")
+        print("Alma.query({'source_name_alma': 'GRB021004'})")
+        print("Alma.query(payload=dict(project_code='2017.1.01355.L', "
               "source_name_alma='G008.67'))")
 
     def _json_summary_to_table(self, data, base_url):
