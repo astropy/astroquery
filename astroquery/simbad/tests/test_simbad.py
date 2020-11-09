@@ -113,9 +113,9 @@ def test_get_frame_coordinates(coordinates, expected_frame):
     actual_frame = simbad.core._get_frame_coords(coordinates)[2]
     assert actual_frame == expected_frame
     if actual_frame == 'GAL':
-        l, b = simbad.core._get_frame_coords(coordinates)[:2]
-        np.testing.assert_almost_equal(float(l) % 360, -67.02084 % 360)
-        np.testing.assert_almost_equal(float(b), -29.75447)
+        length, breadth = simbad.core._get_frame_coords(coordinates)[:2]
+        np.testing.assert_almost_equal(float(length) % 360, -67.02084 % 360)
+        np.testing.assert_almost_equal(float(breadth), -29.75447)
 
 
 def test_parse_result():
