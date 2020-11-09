@@ -564,10 +564,10 @@ class SDSSClass(BaseQuery):
                 return request_payload
 
             url = self._get_query_url(data_release)
-            r = self._request("GET", url, params=request_payload,
+            result = self._request("GET", url, params=request_payload,
                               timeout=timeout, cache=cache)
 
-            matches = self._parse_result(r)
+            matches = self._parse_result(result)
             if matches is None:
                 warnings.warn("Query returned no results.", NoResultsWarning)
                 return
@@ -720,9 +720,9 @@ class SDSSClass(BaseQuery):
                 return request_payload
 
             url = self._get_query_url(data_release)
-            r = self._request("GET", url, params=request_payload,
+            result = self._request("GET", url, params=request_payload,
                               timeout=timeout, cache=cache)
-            matches = self._parse_result(r)
+            matches = self._parse_result(result)
             if matches is None:
                 warnings.warn("Query returned no results.", NoResultsWarning)
                 return

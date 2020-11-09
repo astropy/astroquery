@@ -78,9 +78,9 @@ def patch_get_readable_fileobj(request):
 def patch_get_readable_fileobj_slow(request):
     @contextmanager
     def get_readable_fileobj_mockreturn(filename, **kwargs):
-        e = six.moves.urllib_error.URLError('timeout')
-        e.reason = socket.timeout()
-        raise e
+        error = six.moves.urllib_error.URLError('timeout')
+        error.reason = socket.timeout()
+        raise error
         yield True
     try:
         mp = request.getfixturevalue("monkeypatch")
