@@ -270,16 +270,6 @@ def test_observations_query_criteria(patch_post):
                                               objectname="M101")
     assert isinstance(result, Table)
 
-    # TEMPORARY test the obstype deprecation
-    with catch_warnings(AstropyDeprecationWarning) as warning_lines:
-        result = mast.Observations.query_criteria(objectname="M101",
-                                                  dataproduct_type="IMAGE", obstype="science")
-        assert isinstance(result, Table)
-
-    with pytest.warns(InputWarning) as i_w:
-        mast.Observations.query_criteria(obstype="science", intentType="science")
-    assert "obstype and intentType" in str(i_w[0].message)
-
     with pytest.raises(InvalidQueryError) as invalid_query:
         mast.Observations.query_criteria(objectname="M101")
     assert "least one non-positional criterion" in str(invalid_query.value)

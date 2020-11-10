@@ -9,7 +9,6 @@ This the base class for MAST queries.
 import warnings
 
 from astropy.utils import deprecated
-from astropy.utils.exceptions import AstropyDeprecationWarning
 
 from ..query import QueryWithLogin
 
@@ -66,19 +65,12 @@ class MastQueryWithLogin(QueryWithLogin):
 
         return self._auth_obj.login(token, store_token, reenter_token)
 
-    @deprecated(since="v0.3.9", message=("The get_token function is deprecated, "
-                                         "session token is now the token used for login."))
-    def get_token(self):
-        return None
-
-    def session_info(self, silent=None, verbose=None):
+    def session_info(self, verbose=True):
         """
         Displays information about current MAST user, and returns user info dictionary.
 
         Parameters
         ----------
-        silent :
-            Deprecated. Use verbose instead.
         verbose : bool, optional
             Default True. Set to False to suppress output to stdout.
 
@@ -86,18 +78,6 @@ class MastQueryWithLogin(QueryWithLogin):
         -------
         response : dict
         """
-
-        # Dealing with deprecated argument
-        if (silent is not None) and (verbose is not None):
-            warnings.warn(("Argument 'silent' has been deprecated, "
-                           "will be ignored in favor of 'verbose'"), AstropyDeprecationWarning)
-        elif silent is not None:
-            warnings.warn(("Argument 'silent' has been deprecated, "
-                           "and will be removed in the future. "
-                           " Use 'verbose' instead."), AstropyDeprecationWarning)
-            verbose = not silent
-        elif (silent is None) and (verbose is None):
-            verbose = True
 
         return self._auth_obj.session_info(verbose)
 
@@ -107,10 +87,6 @@ class MastQueryWithLogin(QueryWithLogin):
         """
         self._auth_obj.logout()
         self._authenticated = False
-
-    @deprecated(since="v0.3.9", alternative="enable_cloud_dataset")
-    def enable_s3_hst_dataset(self):
-        return self.enable_cloud_dataset()
 
     def enable_cloud_dataset(self, provider="AWS", profile=None, verbose=True):
         """
@@ -130,10 +106,6 @@ class MastQueryWithLogin(QueryWithLogin):
         """
 
         self._cloud_connection = CloudAccess(provider, profile, verbose)
-
-    @deprecated(since="v0.3.9", alternative="disable_cloud_dataset")
-    def disable_s3_hst_dataset(self):
-        return self.disable_cloud_dataset()
 
     def disable_cloud_dataset(self):
         """

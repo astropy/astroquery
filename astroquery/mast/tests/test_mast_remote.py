@@ -175,16 +175,6 @@ class TestMast:
         assert (result['obs_collection'] == 'GALEX').all()
         assert sum(result['filters'] == 'NUV') == 6
 
-        # TEMPORARY test the obstype deprecation
-        with catch_warnings(AstropyDeprecationWarning) as warning_lines:
-            result = mast.Observations.query_criteria(objectname="M101",
-                                                      dataproduct_type="IMAGE", obstype="science")
-            assert (result["intentType"] == "science").all()
-
-            result = mast.Observations.query_criteria(objectname="M101",
-                                                      dataproduct_type="IMAGE", obstype="cal")
-            assert (result["intentType"] == "calibration").all()
-
         result = mast.Observations.query_criteria(objectname="M101",
                                                   dataproduct_type="IMAGE", intentType="calibration")
         assert (result["intentType"] == "calibration").all()
