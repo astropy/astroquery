@@ -3,7 +3,7 @@
 Astroquery
 ==========
 
-This is the documentation for the Astroquery affiliated package of `astropy
+This is the documentation for the Astroquery coordinated package of `astropy
 <http://www.astropy.org>`__.
 
 Code and issue tracker are on `GitHub <https://github.com/astropy/astroquery>`_.
