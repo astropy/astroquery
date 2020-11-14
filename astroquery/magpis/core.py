@@ -61,8 +61,8 @@ class MagpisClass(BaseQuery):
         """
         request_payload = {}
         request_payload["Survey"] = survey
-        c = commons.parse_coordinates(coordinates).transform_to('galactic')
-        ra_dec_str = str(c.l.degree) + ' ' + str(c.b.degree)
+        galactic_coords = commons.parse_coordinates(coordinates).transform_to('galactic')
+        ra_dec_str = str(galactic_coords.l.degree) + ' ' + str(galactic_coords.b.degree)
         request_payload["RA"] = ra_dec_str
         request_payload["Equinox"] = "Galactic"
         request_payload["ImageSize"] = coord.Angle(image_size).arcmin
@@ -87,9 +87,9 @@ class MagpisClass(BaseQuery):
                                          get_query_payload=get_query_payload)
         if get_query_payload:
             return response
-        S = BytesIO(response.content)
+        content_buffer = BytesIO(response.content)
         try:
-            return fits.open(S, ignore_missing_end=True)
+            return fits.open(content_buffer, ignore_missing_end=True)
         except IOError:
             raise InvalidQueryError(response.content)
 
