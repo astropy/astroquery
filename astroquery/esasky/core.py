@@ -554,8 +554,8 @@ class ESASkyClass(BaseQuery):
         mission and downloads all spectra to the the selected folder.
         The method returns a dictionary which is divided by mission.
         All mission except Herschel returns a list of HDULists.
-        For Herschel each item in the list is a dictionary where the used
-        filter is the key and the HDUList is the value.
+        Herschel returns a dictionary of dictionaries, which you can access like this
+        spectra['HERSCHEL']['<observation id>']['<__>']['__']
 
         Parameters
         ----------
@@ -579,11 +579,17 @@ class ESASkyClass(BaseQuery):
         -------
         spectra : `dict`
             All mission except Herschel returns a list of HDULists.
-            For Herschel each item in the list is a dictionary where the used
-            filter is the key and the HDUList is the value.
-            It is structured in a dictionary like this:
+            Herschel returns a dictionary of dictionaries, where you can
+            access a specific HDUList by burrowing down the dictionary tree
+            by using observation id, __, and __. Like this:
+            spectra['HERSCHEL']['<observation id>']['<__>']['__']
+            Read more about Herschel here: _______
+
+            The response is structured in a dictionary like this:
             dict: {
-            'HERSCHEL': [{'70': [HDUList], '160': [HDUList]}, {'70': [HDUList], '160': [HDUList]}, ...],
+            'HERSCHEL': {'1342211195': {'red' : {'HPSTBRRS' : [HDUList]}, 'blue' : {'HPSTBRBS': [HDUList]},
+                '1342180796': {'WBS' : {'WBS-H_LSB_5a' : [HDUList]}, 'HRS' : {'HRS-H_LSB_5a': [HDUList]},
+                ...},
             'HST':[[HDUList], [HDUList], [HDUList], [HDUList], [HDUList], ...],
             'XMM-EPIC' : [[HDUList], [HDUList], [HDUList], [HDUList], ...]
             ...
@@ -612,12 +618,9 @@ class ESASkyClass(BaseQuery):
                     spectra_query_result[query_mission],
                     query_mission,
                     download_dir,
-                    cache, json))
+                    cache, json, True))
 
-        if all([spectra[mission].count(None) == len(spectra[mission])
-                for mission in spectra]):
-            log.info("No spectra got downloaded, check errors above.")
-        elif (len(spectra_query_result) > 0):
+        if (len(spectra_query_result) > 0):
             log.info("Spectra available at {}".format(os.path.abspath(download_dir)))
         else:
             log.info("No spectra found.")
@@ -630,8 +633,8 @@ class ESASkyClass(BaseQuery):
         query_region_spectra and downloads all spectra to the selected folder.
         The method returns a dictionary which is divided by mission.
         All mission except Herschel returns a list of HDULists.
-        For Herschel each item in the list is a dictionary where the used
-        filter is the key and the HDUList is the value.
+        Herschel returns a dictionary of dictionaries, which you can access like this
+        spectra['HERSCHEL']['<observation id>']['<__>']['__']
 
         Parameters
         ----------
@@ -654,11 +657,17 @@ class ESASkyClass(BaseQuery):
         -------
         spectra : `dict`
             All mission except Herschel returns a list of HDULists.
-            For Herschel each item in the list is a dictionary where the used
-            filter is the key and the HDUList is the value.
-            It is structured in a dictionary like this:
+            Herschel returns a dictionary of dictionaries, where you can
+            access a specific HDUList by burrowing down the dictionary tree
+            by using observation id, __, and __. Like this:
+            spectra['HERSCHEL']['<observation id>']['<__>']['__']
+            Read more about Herschel here: _______
+
+            The response is structured in a dictionary like this:
             dict: {
-            'HERSCHEL': [{'70': [HDUList], '160': [HDUList]}, {'70': [HDUList], '160': [HDUList]}, ...],
+            'HERSCHEL': {'1342211195': {'red' : {'HPSTBRRS' : [HDUList]}, 'blue' : {'HPSTBRBS': [HDUList]},
+                '1342180796': {'WBS' : {'WBS-H_LSB_5a' : [HDUList]}, 'HRS' : {'HRS-H_LSB_5a': [HDUList]},
+                ...},
             'HST':[[HDUList], [HDUList], [HDUList], [HDUList], [HDUList], ...],
             'XMM-EPIC' : [[HDUList], [HDUList], [HDUList], [HDUList], ...]
             ...
@@ -683,13 +692,9 @@ class ESASkyClass(BaseQuery):
                         sanitized_query_table_list[query_mission],
                         query_mission,
                         download_dir,
-                        cache, json))
+                        cache, json, True))
 
-        if all([spectra[mission].count(None) == len(spectra[mission])
-                for mission in spectra]):
-            log.info("No spectra got downloaded, check errors above.")
-
-        elif (len(sanitized_query_table_list) > 0):
+        if (len(sanitized_query_table_list) > 0):
             log.info("Spectra available at {}.".format(os.path.abspath(download_dir)))
         else:
             log.info("No spectra found.")
@@ -760,9 +765,11 @@ class ESASkyClass(BaseQuery):
             return row_limit
         raise ValueError("Row_limit must be an integer")
 
-    def _get_maps_for_mission(self, maps_table, mission, download_dir, cache, json):
-        maps = []
-
+    def _get_maps_for_mission(self, maps_table, mission, download_dir, cache, json, is_spectra=False):
+        if is_spectra:
+            maps = dict()
+        else:
+            maps = []
         if(self.__PRODUCT_URL_STRING not in maps_table.keys()):
             log.info(mission + " does not yet support downloading of "
             "fits files")
@@ -782,7 +789,6 @@ class ESASkyClass(BaseQuery):
                     if commons.ASTROPY_LT_4_1:
                         observation_id = observation_id.decode('utf-8')
                 else:
-                    # observation_id = maps_table[self._get_tap_observation_id(mission)][index]
                     observation_id = maps_table[self._get_json_data_for_mission(json, mission)["uniqueIdentifierField"]][index]
                     if commons.ASTROPY_LT_4_1:
                         observation_id = observation_id.decode('utf-8')
@@ -790,15 +796,24 @@ class ESASkyClass(BaseQuery):
                          .format(observation_id, product_url))
                 sys.stdout.flush()
                 directory_path = mission_directory + "/"
-                if (mission.lower() == self.__HERSCHEL_STRING):
+                if mission.lower() == self.__HERSCHEL_STRING:
                     try:
-                        maps.append(self._get_herschel_map(
-                            product_url,
-                            directory_path,
-                            cache))
+                        if is_spectra:
+                            maps[maps_table['observation_id'][index].decode('utf-8')] = self._get_herschel_spectra(
+                                product_url, 
+                                directory_path, 
+                                cache)
+                        else:
+                            maps.append(self._get_herschel_map(
+                                product_url,
+                                directory_path,
+                                cache))
                     except HTTPError as err:
                         log.error("Download failed with {}.".format(err))
-                        maps.append(None)
+                        if is_spectra:
+                            maps[maps_table['observation_id'][index].decode('utf-8')] = None
+                        else:
+                            maps.append(None)
 
                 else:
                     response = self._request(
@@ -850,27 +865,64 @@ class ESASkyClass(BaseQuery):
             i = 0
             for member in tar.getmembers():
                 member_name = member.name.lower()
-                if ('hspire' in member_name or 'hpacs' in member_name
-                    or 'hifi' in member_name):
+                if ('hspire' in member_name or 'hpacs' in member_name):
                     herschel_filter = self._get_herschel_filter_name(member_name)
                     tar.extract(member, directory_path)
-                    if (herschel_filter in observation):
-                        if(isinstance(observation[herschel_filter][0], list)):
-                            observation[herschel_filter].append(
-                                fits.open(directory_path + member.name)
-                            )
-                        else:
-                            observation[herschel_filter] = [
-                                observation[herschel_filter],
-                                fits.open(directory_path + member.name)
-                            ]
-                    else: 
-                        observation[herschel_filter] = fits.open(
-                            directory_path +
-                            member.name)
-                    i += 1
+                    observation[herschel_filter] = fits.open(
+                        directory_path + member.name
+                    )
+                i += 1
         os.remove(tar_file.name)
         return observation
+
+    def _get_herschel_spectra(self, product_url, directory_path, cache):
+        spectra = dict()
+        tar_file = tempfile.NamedTemporaryFile(delete=False)
+        response = self._request('GET', product_url, cache=cache,
+                                headers=self._get_header())
+
+        response.raise_for_status()
+
+        tar_file.write(response.content)
+        tar_file.close()
+        with tarfile.open(tar_file.name, 'r') as tar:
+            i = 0
+            for member in tar.getmembers():
+                member_name = member.name.lower()
+                if ('hspire' in member_name or 'hpacs' in member_name
+                    or 'hhifi' in member_name):
+                    herschel_filter = self._get_herschel_filter_name(member_name)
+                    tar.extract(member, directory_path)
+                    herschel_fits = []
+                    if (herschel_filter in spectra):
+                        hdul = fits.open(directory_path + member.name)
+                        herschel_fits.append(hdul)
+                    else:
+                        herschel_fits = fits.open(directory_path + member.name)
+                        if (isinstance(herschel_fits, list)):
+                            herschel_fits = [herschel_fits]
+
+                    hduListType = {}
+                    for hduList in herschel_fits:
+                        if(hduList[0].header['INSTRUME'] == 'HIFI'):
+                            if ('BACKEND' in hduList[0].header):
+                                headerKey = 'BACKEND'
+                                label = hduList[0].header[headerKey].upper()
+                            if('SIDEBAND' in hduList[0].header):
+                                headerKey = 'SIDEBAND'
+                                label = label + '_{}'.format(hduList[0].header[headerKey].upper())
+                            if('BAND' in hduList[0].header):
+                                headerKey = 'BAND'
+                                label = label + '_{}'.format(hduList[0].header[headerKey].lower())
+                            hduListType[label] = hduList
+                        else:
+                            headerKey = 'TYPE'
+                            hduListType[hduList[0].header[headerKey]] = hduList
+
+                    spectra[herschel_filter] = hduListType
+                i += 1
+        os.remove(tar_file.name)
+        return spectra
 
     def _get_herschel_filter_name(self, member_name):
         for herschel_filter in self.__HERSCHEL_FILTERS.keys():
