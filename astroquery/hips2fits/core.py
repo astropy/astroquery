@@ -10,6 +10,7 @@ from . import conf
 from astropy import wcs
 
 __all__ = ['hips2fits', 'hips2fitsClass']
+__doctest_skip__ = ['hips2fitsClass.*']
 
 import json
 
