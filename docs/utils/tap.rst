@@ -49,7 +49,7 @@ To load only table names (TAP+ capability)
 
   >>> from astroquery.utils.tap.core import TapPlus
   >>>
-  >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
+  >>> gaia = TapPlus(url="https://gea.esac.esa.int/tap-server/tap")
   >>> tables = gaia.load_tables(only_names=True)
   >>> for table in (tables):
   >>>   print(table.get_qualified_name())
@@ -165,7 +165,7 @@ Query without saving results in a file:
 
   >>> from astroquery.utils.tap.core import TapPlus
   >>>
-  >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
+  >>> gaia = TapPlus(url="https://gea.esac.esa.int/tap-server/tap")
   >>>
   >>> job = gaia.launch_job("select top 100 \
   >>> solution_id,ref_epoch,ra_dec_corr,astrometric_n_obs_al,matched_observations,duplicated_source,phot_variable_flag \

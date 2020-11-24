@@ -25,7 +25,7 @@ def test_get_images():
 
 
 @pytest.mark.remote_data
-class TestSkyviewRemote(object):
+class TestSkyviewRemote:
 
     @classmethod
     def setup_class(cls):

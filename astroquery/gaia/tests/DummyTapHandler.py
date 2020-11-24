@@ -19,7 +19,7 @@ from six.moves.urllib.parse import urlencode
 CONTENT_TYPE_POST_DEFAULT = "application/x-www-form-urlencoded"
 
 
-class DummyTapHandler(object):
+class DummyTapHandler:
 
     def __init__(self):
         self.__invokedMethod = None
@@ -49,7 +49,11 @@ class DummyTapHandler(object):
     def check_parameters(self, parameters, method_name):
         if parameters is None:
             return len(self.__parameters) == 0
-        if len(parameters) != len(self.__parameters):
+        num_params_in_call = len(self.__parameters)
+        num_params_expected = len(parameters)
+        print("Num parameters found in call: {}, expected: {}".
+              format(num_params_in_call, num_params_expected))
+        if num_params_expected != num_params_in_call:
             raise Exception("Wrong number of parameters for method '%s'. \
             Found: %d. Expected %d",
                             (method_name,
@@ -59,15 +63,17 @@ class DummyTapHandler(object):
             if key in self.__parameters:
                 # check value
                 if self.__parameters[key] != parameters[key]:
-                    raise Exception("Wrong '%s' parameter value for method '%s'. \
-                    Found: '%s'. Expected: '%s'", (
-                        method_name,
-                        key,
-                        self.__parameters[key],
-                        parameters[key]))
+                    k = self.__parameters[key]
+                    raise Exception("Wrong '{}' parameter value for "
+                                    "method '{}'. Found: '{}'. "
+                                    "Expected: '{}'".format(
+                                                            method_name,
+                                                            key,
+                                                            k,
+                                                            parameters[key]))
             else:
-                raise Exception("Parameter '%s' not found for method '%s'",
-                                (str(key), method_name))
+                raise Exception("Parameter '{}' not found for method '{}'".
+                                format(str(key), method_name))
         return False
 
     def load_tables(self, only_names=False, include_shared_tables=False,

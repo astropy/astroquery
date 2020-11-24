@@ -96,8 +96,8 @@ NB: If an automatic login is configured, other Eso methods can log you in
 automatically when needed.
 
 
-Query the ESO archive
-=====================
+Query the ESO archive for raw data
+==================================
 
 Identifying available instrument-specific queries
 -------------------------------------------------
@@ -247,6 +247,36 @@ query all-sky images from APICAM with ``luminance`` filter.
     Length = 50 rows
 
 
+Query the ESO archive for reduced data
+======================================
+
+In addition to raw data, ESO makes available processed data.
+In this section, we show how to obtain these processed survey data from the archive.
+
+Identify available surveys
+--------------------------
+
+The list of available surveys can be obtained with :meth:`astroquery.eso.EsoClass.list_surveys` as follows:
+
+.. code-block:: python
+
+    >>> surveys = eso.list_surveys()
+
+Query a specific survey with constraints
+----------------------------------------
+
+Let's assume that we work with the ``HARPS`` survey, and that we are interested in
+target ``HD203608``.
+The archive can be queried as follows:
+
+.. code-block:: python
+
+    >>> table = eso.query_surveys('HARPS', cache=False, target="HD203608")
+
+The returned table has an ``ARCFILE`` column. It can be used to retrieve the datasets with
+:meth:`astroquery.eso.EsoClass.retrieve_data` (see next section).
+
+
 Obtaining extended information on data products
 ===============================================
 
@@ -297,7 +327,7 @@ Downloading datasets from the archive
 =====================================
 
 Continuing from the query with constraints example, the first two datasets are selected,
-using their data product IDs ``DP.ID``, and retrieved from the ESO archive.
+using their data product IDs ``DP.ID`` (or ``ARCFILE`` for surveys), and retrieved from the ESO archive.
 
 .. code-block:: python
 

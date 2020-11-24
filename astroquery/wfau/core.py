@@ -1,5 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from __future__ import print_function
+
 
 import warnings
 import re
@@ -286,10 +286,10 @@ class BaseWFAUClass(QueryWithLogin):
         if verbose:
             print("Found {num} targets".format(num=len(image_urls)))
 
-        return [commons.FileContainer(U, encoding='binary',
+        return [commons.FileContainer(url, encoding='binary',
                                       remote_timeout=self.TIMEOUT,
                                       show_progress=show_progress)
-                for U in image_urls]
+                for url in image_urls]
 
     def get_image_list(self, coordinates, waveband='all', frame_type='stack',
                        image_width=1 * u.arcmin, image_height=None,
@@ -607,8 +607,8 @@ class BaseWFAUClass(QueryWithLogin):
         if len(table_links) == 0:
             raise Exception("No VOTable found on returned webpage!")
         table_link = [link for link in table_links if "8080" not in link][0]
-        with commons.get_readable_fileobj(table_link) as f:
-            content = f.read()
+        with commons.get_readable_fileobj(table_link) as flo:
+            content = flo.read()
 
         if not verbose:
             commons.suppress_vo_warnings()
@@ -665,7 +665,7 @@ class BaseWFAUClass(QueryWithLogin):
                                                   self.IMAGE_FORM]))
 
         root = BeautifulSoup(response.content, features='html5lib')
-        databases = [x.attrs['value'] for x in
+        databases = [xrf.attrs['value'] for xrf in
                      root.find('select').findAll('option')]
         return databases
 
@@ -673,7 +673,7 @@ class BaseWFAUClass(QueryWithLogin):
         """
         List the databases available from the WFAU archive.
         """
-        self.databases = set(self.all_databases + self._get_databases())
+        self.databases = set(self.all_databases + tuple(self._get_databases()))
         return self.databases
 
     def _wfau_send_request(self, url, request_payload):

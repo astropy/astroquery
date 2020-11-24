@@ -1,39 +1,135 @@
-0.4.1 (unreleased)
-================
-
-New Tools and Services
-----------------------
-
-cds/hips2fits
-^^^^^^^^^^^^^
-
-- HIPS2fits is a service providing nice fits/jpg/png image cutouts from a HiPS + a WCS. It can now be queried from python [#1734]
-
-esa/xmm-newton
-^^^^^^^^^^^^^^
-
-- A new ESA archive service for XMM-Newton is now supported [#1557]
+0.4.2 (unreleased)
+==================
 
 Service fixes and enhancements
 ------------------------------
 
-gaia
+ESASky
 ^^^^
 
-- Allow for setting row limits in query submissions through class
-  attribute. [#1641]
+- Updated ESASky module for version 3.5 of ESASky backend. [#1858]
 
-gemini
+- Added row limit parameter for map queries. [#1858]
+
+
+irsa
+^^^^
+
+- Used more specific exceptions in IRSA. [#1854]
+
+
+mast
+^^^^
+
+- Added ``Observations.download_file`` method to download a single file from MAST given an input
+  data URI. [#1825]
+- Added case for passing a row to ``Observations.download_file` [#1881]
+- Removed deprecated ``Observations.get_hst_s3_uris()``, ``Observations.get_hst_s3_uri()``, 
+  ``Core.get_token()``, ``Core.enable_s3_hst_dataset()``, ``Core.disable_s3_hst_dataset()`` and 
+  variables obstype and silent [#1884]
+
+esa/hubble
+^^^^^^^^^^
+
+- Module added to query eHST TAP based on a set of specific criteria and
+  asynchronous jobs are now supported. [#1723]
+
+esa/xmm_newton
+^^^^^^^^^^^^^^
+
+- new method ``get_epic_images`` is added to extract EPIC images from
+  tarballs. [#1759]
+
+esasky
 ^^^^^^
 
-- Allow for additional search terms to be sent to query_criteria and passed to
-  the raw web query against the Gemini Archive [#1659]
+- Converted unittest styled tests to pytest. [#1862]
 
-jplhorizons
+
+Gemini
+^^^^^^
+
+- login() support for authenticated sessions to the GOA [#1778]
+- get_file() support for downloading files [#1778]
+- fix syntax error in query_criteria() [#1823]
+
+
+heasarc
+^^^^^^^
+
+- A ``NoResultsWarning`` is now returned when there is no matching rows were
+  found in query. [#1829]
+
+
+SVO FPS
+^^^^^^^
+
+- Module added to access the Spanish Virtual Observatory Filter Profile List [#1498]
+
+Splatalogue
 ^^^^^^^^^^^
 
-- Fix for changes in HORIZONS return results after their 2020 Feb 12
-  update. [#1650]
+- The Splatalogue ID querying is now properly cached in the `astropy` cache
+  directory (Issue [#423]) The scraping function has also been updated to reflect
+  the Splatalogue webpage. [#1772]
+
+- The splatalogue URL has changed to https://splatalogue.online, as the old site
+  stopped functioning in September 2020 [#1817]
+
+UKIDSS
+^^^^^^
+
+- Updated to ``UKIDSSDR11PLUS`` as the default version [#1767]
+
+utils/tap
+^^^^^^
+
+- Converted unittest styled tests to pytest. [#1862]
+
+alma
+^^^^
+
+- The archive query interface has been deprecated in favour of
+  VirtualObservatory (VO) services such as TAP, ObsCore etc. The alma
+  library has been updated accordingly. [#1689]
+
+gaia
+^^^^
+- Fixed RA/dec table edit capability. [#1784]
+- Changed file names handling when downloading data. [#1784]
+- Improved code to handle bit data type. [#1784]
+- Prepared code to handle new datalink products. [#1784]
+
+
+0.4.1 (2020-06-19)
+==================
+
+New Tools and Services
+----------------------
+
+cds.hips2fits
+^^^^^^^^^^^^^
+
+- HIPS2fits is a service providing nice fits/jpg/png image cutouts from a HiPS + a WCS. It can now be queried from python [#1734]
+
+esa.xmm_newton
+^^^^^^^^^^^^^^
+
+- A new ESA archive service for XMM-Newton access. [#1557]
+
+image_cutouts.first
+^^^^^^^^^^^^^^^^^^^
+
+- Module added to access FIRST survey radio images. [#1733]
+
+noirlab
+^^^^^^^
+
+- Module added to access the NOIRLab (formally NOAO) archive. [#1638]
+
+
+Service fixes and enhancements
+------------------------------
 
 alma
 ^^^^
@@ -42,21 +138,75 @@ alma
   refactor.  The user-facing API should remain mostly the same, but some
   service interruption may have occurred.  Note that the ``stage_data`` column
   ``uid`` has been renamed ``mous_uid``, which is a technical correction, and
-  several columns have been added [#1644,#1665,#1683]
+  several columns have been added. [#1644, #1665, #1683]
+
 - The contents of tarfiles can be shown with the ``expand_tarfiles`` keyword
-  to ``stage_data`` [#1683]
+  to ``stage_data``. [#1683]
+
+- Bugfix: when accessing private data, auth credentials were not being passed
+  to the HEAD request used to acquire header data. [#1698]
+
+casda
+^^^^^
+
+- Add ability to stage and download ASKAP data. [#1706]
+
+cadc
+^^^^
+
+- Fixed authentication and enabled listing of async jobs. [#1712]
+
+eso
+^^^
+
+- New ``unzip`` parameter to control uncompressing the retrieved data. [#1642]
+
+gaia
+^^^^
+- Allow for setting row limits in query submissions through class
+  attribute. [#1641]
+
+gemini
+^^^^^^
+
+- Allow for additional search terms to be sent to query_criteria and passed to
+  the raw web query against the Gemini Archive. [#1659]
+
+jplhorizons
+^^^^^^^^^^^
+
+- Fix for changes in HORIZONS return results after their 2020 Feb 12
+  update. [#1650]
+
+nasa_exoplanet_archive
+^^^^^^^^^^^^^^^^^^^^^^
+
+- Update the NASA Exoplanet Archive interface to support all tables available
+  through the API. The standard astroquery interface is now implemented via the
+  ``query_*[_async]`` methods. [#1700]
+
+nrao
+^^^^
+
+- Fixed passing ``project_code`` to the query [#1720]
+
+vizier
+^^^^^^
+
+- It is now possible to specify constraints to ``query_region()``
+  with the ``column_filters`` keyword. [#1702]
 
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
 
-utils
-^^^^^
+- Versions of astropy <3.1 are no longer supported. [#1649]
 
 - Fixed a bug that would prevent the TOP statement from being properly added
-  to a TAP query containing valid '\n'. The bug was revealed by changes
-  to the gaia module, introduced in version 0.4. [#1680]
+  to a TAP query containing valid '\n'. The bug was revealed by changes to
+  the gaia module, introduced in version 0.4. [#1680]
 
+- Added new ``json`` keyword to BaseQuery requests. [#1657]
 
 
 0.4 (2020-01-24)
@@ -110,6 +260,8 @@ nasa_exoplanet_archive
 - Redefined the query API so as to prevent downloading of the whole database.
   Added two functions ``query_planet`` (to query for a specific exoplanet), and
   ``query_star`` (to query for all exoplanets under a specific stellar system) [#1606]
+
+
 
 splatalogue
 ^^^^^^^^^^^

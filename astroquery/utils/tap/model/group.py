@@ -16,7 +16,7 @@ Created on 28 sep. 2018
 """
 
 
-class TapGroup(object):
+class TapGroup:
     """TAP group object
     """
 
@@ -33,8 +33,8 @@ class TapGroup(object):
     def __str__(self):
         users = ""
         for u in self.users:
-            users = users + "\n\t\t" + u.name + "(" + u.id + ")"
-        return "Group: " + str(self.title) + \
-            "\n\tDescription: " + str(self.description) + \
-            "\n\tOwner: " + str(self.owner) + \
-            "\n\tUsers: " + users
+            users = f"{users}\n\t\t{u.name}({u.id})"
+        return f"Group: {self.title}" \
+            f"\n\tDescription: {self.description}" \
+            f"\n\tOwner: {self.owner}" \
+            f"\n\tUsers: {users}"

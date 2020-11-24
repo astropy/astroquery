@@ -15,7 +15,7 @@ def data_path(filename):
     return os.path.join(data_dir, filename)
 
 
-class MockResponseHitran(object):
+class MockResponseHitran:
     def __init__(self):
         self.filename = data_path(HITRAN_DATA)
 

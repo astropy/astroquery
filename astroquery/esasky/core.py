@@ -1,5 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from __future__ import print_function
+
 import json
 import os
 import tempfile
@@ -38,16 +38,11 @@ class ESASkyClass(BaseQuery):
     __MISSION_STRING = "mission"
     __TAP_TABLE_STRING = "tapTable"
     __TAP_NAME_STRING = "tapName"
-    __LABEL_STRING = "label"
+    __TAP_RA_COLUMN_STRING = "tapRaColumn"
+    __TAP_DEC_COLUMN_STRING = "tapDecColumn"
     __METADATA_STRING = "metadata"
     __PRODUCT_URL_STRING = "product_url"
-    __SOURCE_LIMIT_STRING = "sourceLimit"
-    __POLYGON_NAME_STRING = "polygonNameTapColumn"
-    __POLYGON_RA_STRING = "polygonRaTapColumn"
-    __POLYGON_DEC_STRING = "polygonDecTapColumn"
-    __POS_TAP_STRING = "posTapColumn"
-    __ORDER_BY_STRING = "orderBy"
-    __IS_SURVEY_MISSION_STRING = "isSurveyMission"
+    __USE_INTERSECT_STRING = "useIntersectPolygonInsteadOfContainsPoint"
     __ZERO_ARCMIN_STRING = "0 arcmin"
     __MIN_RADIUS_CATALOG_STRING = "5 arcsec"
 
@@ -55,6 +50,7 @@ class ESASkyClass(BaseQuery):
     __HST_STRING = 'hst'
     __INTEGRAL_STRING = 'integral'
     __AKARI_STRING = 'akari'
+    __ALMA_STRING = 'alma'
 
     __HERSCHEL_FILTERS = {
         'psw': '250',
@@ -82,7 +78,7 @@ class ESASkyClass(BaseQuery):
             self._get_catalogs_json(), self.__MISSION_STRING)
 
     def query_object_maps(self, position, missions=__ALL_STRING,
-                          get_query_payload=False, cache=True):
+                          get_query_payload=False, cache=True, row_limit=DEFAULT_ROW_LIMIT):
         """
         This method queries a chosen object or coordinate for all available maps
         which have observation data on the chosen position. It returns a
@@ -104,6 +100,10 @@ class ESASkyClass(BaseQuery):
         cache : bool, optional
             When set to True the method will use a cache located at
             .astropy/astroquery/cache. Defaults to True.
+        row_limit : int, optional
+            Determines how many rows that will be fetched from the database
+            for each mission. Can be -1 to select maximum (currently 100 000).
+            Defaults to 10000.
 
         Returns
         -------
@@ -126,7 +126,8 @@ class ESASkyClass(BaseQuery):
                                       radius=self.__ZERO_ARCMIN_STRING,
                                       missions=missions,
                                       get_query_payload=get_query_payload,
-                                      cache=cache)
+                                      cache=cache,
+                                      row_limit=row_limit)
 
     def query_object_catalogs(self, position, catalogs=__ALL_STRING,
                               row_limit=DEFAULT_ROW_LIMIT,
@@ -182,7 +183,7 @@ class ESASkyClass(BaseQuery):
                                           cache=cache)
 
     def query_region_maps(self, position, radius, missions=__ALL_STRING,
-                          get_query_payload=False, cache=True):
+                          get_query_payload=False, cache=True, row_limit=DEFAULT_ROW_LIMIT):
         """
         This method queries a chosen region for all available maps and returns a
         TableList with all the found maps metadata for the chosen missions and
@@ -205,6 +206,10 @@ class ESASkyClass(BaseQuery):
         cache : bool, optional
             When set to True the method will use a cache located at
             .astropy/astroquery/cache. Defaults to True.
+        row_limit : int, optional
+            Determines how many rows that will be fetched from the database
+            for each mission. Can be -1 to select maximum (currently 100 000).
+            Defaults to 10000.
 
         Returns
         -------
@@ -227,15 +232,16 @@ class ESASkyClass(BaseQuery):
         sanitized_position = self._sanitize_input_position(position)
         sanitized_radius = self._sanitize_input_radius(radius)
         sanitized_missions = self._sanitize_input_mission(missions)
+        sanitized_row_limit = self._sanitize_input_row_limit(row_limit)
 
         query_result = {}
 
         sesame_database.set('simbad')
         coordinates = commons.parse_coordinates(sanitized_position)
 
-        self._store_query_result_maps(query_result, sanitized_missions,
-                                      coordinates, sanitized_radius,
-                                      get_query_payload, cache)
+        self._store_query_result(query_result, sanitized_missions,
+                                    coordinates, sanitized_radius, sanitized_row_limit,
+                                    get_query_payload, cache, self._get_observation_json())
 
         if (get_query_payload):
             return query_result
@@ -300,10 +306,10 @@ class ESASkyClass(BaseQuery):
 
         query_result = {}
 
-        self._store_query_result_catalogs(query_result, sanitized_catalogs,
+        self._store_query_result(query_result, sanitized_catalogs,
                                           coordinates, sanitized_radius,
                                           sanitized_row_limit,
-                                          get_query_payload, cache)
+                                          get_query_payload, cache, self._get_catalogs_json())
 
         if (get_query_payload):
             return query_result
@@ -366,7 +372,8 @@ class ESASkyClass(BaseQuery):
             if (query_mission.lower() in sanitized_missions):
                 # INTEGRAL & AKARI does not have a product url yet.
                 if (query_mission.lower() == self.__INTEGRAL_STRING
-                    or query_mission.lower() == self.__AKARI_STRING):
+                    or query_mission.lower() == self.__AKARI_STRING
+                    or query_mission.lower() == self.__ALMA_STRING):
                     log.info(query_mission + " does not yet support downloading of "
                             "fits files")
                     continue
@@ -532,12 +539,17 @@ class ESASkyClass(BaseQuery):
             log.info("Starting download of {} data. ({} files)".format(
                 mission, len(maps_table[self.__PRODUCT_URL_STRING])))
             for index in range(len(maps_table)):
-                product_url = maps_table[self.__PRODUCT_URL_STRING][index].decode('utf-8')
+                product_url = maps_table[self.__PRODUCT_URL_STRING][index]
+                if commons.ASTROPY_LT_4_1:
+                    product_url = product_url.decode('utf-8')
                 if(mission.lower() == self.__HERSCHEL_STRING):
-                    observation_id = maps_table["observation_id"][index].decode('utf-8')
+                    observation_id = maps_table["observation_id"][index]
+                    if commons.ASTROPY_LT_4_1:
+                        observation_id = observation_id.decode('utf-8')
                 else:
-                    observation_id = (maps_table[self._get_tap_observation_id(mission)][index]
-                                      .decode('utf-8'))
+                    observation_id = maps_table[self._get_tap_observation_id(mission)][index]
+                    if commons.ASTROPY_LT_4_1:
+                        observation_id = observation_id.decode('utf-8')
                 log.info("Downloading Observation ID: {} from {}"
                          .format(observation_id, product_url))
                 sys.stdout.flush()
@@ -670,59 +682,18 @@ class ESASkyClass(BaseQuery):
         start_index = product_url.rindex("/") + 1
         return product_url[start_index:]
 
-    def _query_region_maps(self, coordinates, radius, observation_name,
-                           get_query_payload, cache):
-        observation_tap_name = (
-            self._find_observation_tap_table_name(observation_name))
-        query = (
-            self._build_observation_query(coordinates, radius,
-                                          self._find_observation_parameters(observation_tap_name)))
+    def _query_region(self, coordinates, radius, name, row_limit,
+                              get_query_payload, cache, json):
+        table_tap_name = self._find_mission_tap_table_name(json, name)
+        query = self._build_query(coordinates, radius, row_limit,
+                                          self._find_mission_parameters_in_json(table_tap_name,
+                                            json))
         request_payload = self._create_request_payload(query)
         if (get_query_payload):
             return request_payload
         return self._get_and_parse_from_tap(request_payload, cache)
 
-    def _query_region_catalog(self, coordinates, radius, catalog_name, row_limit,
-                              get_query_payload, cache):
-        catalog_tap_name = self._find_catalog_tap_table_name(catalog_name)
-        query = self._build_catalog_query(coordinates, radius, row_limit,
-                                          self._find_catalog_parameters(catalog_tap_name))
-        request_payload = self._create_request_payload(query)
-        if (get_query_payload):
-            return request_payload
-        return self._get_and_parse_from_tap(request_payload, cache)
-
-    def _build_observation_query(self, coordinates, radius, json):
-        raHours, dec = commons.coord_to_radec(coordinates)
-        ra = raHours * 15.0  # Converts to degrees
-        radiusDeg = commons.radius_to_unit(radius, unit='deg')
-
-        select_query = "SELECT DISTINCT "
-
-        metadata = json[self.__METADATA_STRING]
-        metadata_tap_names = ", ".join(["{}".format(entry[self.__TAP_NAME_STRING])
-                                        for entry in metadata])
-
-        from_query = " FROM {}".format(json[self.__TAP_TABLE_STRING])
-        if (radiusDeg != 0 or json[self.__IS_SURVEY_MISSION_STRING]):
-            if (json[self.__IS_SURVEY_MISSION_STRING]):
-                where_query = (" WHERE 1=CONTAINS(pos, CIRCLE('ICRS', {}, {}, {}));".
-                               format(ra, dec, radiusDeg))
-            else:
-                where_query = (" WHERE 1=INTERSECTS(CIRCLE('ICRS', {}, {}, {}), fov);".
-                               format(ra, dec, radiusDeg))
-        else:
-            where_query = (" WHERE 1=CONTAINS(POINT('ICRS', {}, {}), fov);".
-                           format(ra, dec))
-
-        query = "".join([
-            select_query,
-            metadata_tap_names,
-            from_query,
-            where_query])
-        return query
-
-    def _build_catalog_query(self, coordinates, radius, row_limit, json):
+    def _build_query(self, coordinates, radius, row_limit, json):
         raHours, dec = commons.coord_to_radec(coordinates)
         ra = raHours * 15.0  # Converts to degrees
         radiusDeg = commons.radius_to_unit(radius, unit='deg')
@@ -736,52 +707,45 @@ class ESASkyClass(BaseQuery):
         metadata = json[self.__METADATA_STRING]
         metadata_tap_names = ", ".join(["{}".format(entry[self.__TAP_NAME_STRING])
                                         for entry in metadata])
+        tapRaColumn = json[self.__TAP_RA_COLUMN_STRING]
+        tapDecColumn = json[self.__TAP_DEC_COLUMN_STRING]
 
         from_query = " FROM {}".format(json[self.__TAP_TABLE_STRING])
         if (radiusDeg == 0):
-            where_query = (" WHERE 1=CONTAINS(POINT('ICRS', ra, dec), CIRCLE('ICRS', {}, {}, {}))".
-                           format(ra,
+            if(json[self.__USE_INTERSECT_STRING]):
+                where_query = (" WHERE 1=INTERSECTS(CIRCLE('ICRS', {}, {}, {}), fov)".
+                            format(ra, dec, commons.radius_to_unit(
+                                      self.__MIN_RADIUS_CATALOG_STRING,
+                                      unit='deg')))
+            else:
+                where_query = (" WHERE 1=CONTAINS(POINT('ICRS', {}, {}), CIRCLE('ICRS', {}, {}, {}))".
+                           format(tapRaColumn, tapDecColumn,
+                                  ra,
                                   dec,
                                   commons.radius_to_unit(
                                       self.__MIN_RADIUS_CATALOG_STRING,
                                       unit='deg')))
         else:
-            where_query = (" WHERE 1=CONTAINS(POINT('ICRS', ra, dec), CIRCLE('ICRS', {}, {}, {}))".
-                           format(ra, dec, radiusDeg))
-        order_by_query = ""
-        if(json[self.__ORDER_BY_STRING] != ""):
-            order_by_query = " ORDER BY {};".format(json[self.__ORDER_BY_STRING])
+            if(json[self.__USE_INTERSECT_STRING]):
+                where_query = (" WHERE 1=INTERSECTS(CIRCLE('ICRS', {}, {}, {}), fov)".
+                            format(ra, dec, radiusDeg))
+            else:
+                where_query = (" WHERE 1=CONTAINS(POINT('ICRS', {}, {}), CIRCLE('ICRS', {}, {}, {}))".
+                           format(tapRaColumn, tapDecColumn, ra, dec, radiusDeg))
 
         query = "".join([select_query, metadata_tap_names, from_query,
-                        where_query, order_by_query])
+                        where_query])
 
         return query
 
-    def _store_query_result_maps(self, query_result, missions, coordinates,
-                                 radius, get_query_payload, cache):
-        for mission in missions:
-            mission_table = self._query_region_maps(coordinates, radius,
-                                                    mission, get_query_payload,
-                                                    cache)
-            if (len(mission_table) > 0):
-                query_result[mission.upper()] = mission_table
-
-    def _store_query_result_catalogs(self, query_result, catalogs, coordinates,
-                                     radius, row_limit, get_query_payload, cache):
-        for catalog in catalogs:
-            catalog_table = self._query_region_catalog(coordinates, radius,
-                                                       catalog, row_limit,
-                                                       get_query_payload, cache)
-            if (len(catalog_table) > 0):
-                query_result[catalog.upper()] = catalog_table
-
-    def _find_observation_parameters(self, mission_name):
-        return self._find_mission_parameters_in_json(mission_name,
-                                                     self._get_observation_json())
-
-    def _find_catalog_parameters(self, catalog_name):
-        return self._find_mission_parameters_in_json(catalog_name,
-                                                     self._get_catalogs_json())
+    def _store_query_result(self, query_result, names, coordinates,
+                                     radius, row_limit, get_query_payload, cache, json):
+        for name in names:
+            table = self._query_region(coordinates, radius,
+                                                       name, row_limit,
+                                                       get_query_payload, cache, json)
+            if (len(table) > 0):
+                query_result[name.upper()] = table
 
     def _find_mission_parameters_in_json(self, mission_tap_name, json):
         for mission in json:
@@ -789,23 +753,12 @@ class ESASkyClass(BaseQuery):
                 return mission
         raise ValueError("Input tap name {} not available.".format(mission_tap_name))
 
-    def _find_observation_tap_table_name(self, mission_name):
-        return self._find_mission_tap_table_name(
-            self._fetch_and_parse_json(self.__OBSERVATIONS_STRING),
-            mission_name)
-
-    def _find_catalog_tap_table_name(self, mission_name):
-        return self._find_mission_tap_table_name(
-            self._fetch_and_parse_json(self.__CATALOGS_STRING),
-            mission_name)
-
     def _find_mission_tap_table_name(self, json, mission_name):
         for index in range(len(json)):
             if (json[index][self.__MISSION_STRING].lower() == mission_name.lower()):
                 return json[index][self.__TAP_TABLE_STRING]
 
         raise ValueError("Input {} not available.".format(mission_name))
-        return None
 
     def _get_observation_json(self):
         return self._fetch_and_parse_json(self.__OBSERVATIONS_STRING)
@@ -839,7 +792,7 @@ class ESASkyClass(BaseQuery):
                 return json[index]
 
     def _get_tap_observation_id(self, mission):
-        return self._get_json_data_for_mission(self._get_observation_json(), mission)["tapObservationId"]
+        return self._get_json_data_for_mission(self._get_observation_json(), mission)["uniqueIdentifierField"]
 
     def _create_request_payload(self, query):
         return {'REQUEST': 'doQuery', 'LANG': 'ADQL', 'FORMAT': 'VOTABLE',

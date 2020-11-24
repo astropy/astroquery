@@ -22,10 +22,8 @@ class XMatchClass(BaseQuery):
     TIMEOUT = conf.timeout
 
     def query(self, cat1, cat2, max_distance,
-              colRA1=None, colDec1=None,
-              colRA2=None, colDec2=None,
-              area='allsky',
-              cache=True, get_query_payload=False):
+              colRA1=None, colDec1=None, colRA2=None, colDec2=None,
+              area='allsky', cache=True, get_query_payload=False, **kwargs):
         """
         Query the `CDS cross-match service
         <http://cdsxmatch.u-strasbg.fr/xmatch>`_ by finding matches between
@@ -71,7 +69,8 @@ class XMatchClass(BaseQuery):
         """
         response = self.query_async(cat1, cat2, max_distance, colRA1, colDec1,
                                     colRA2, colDec2, area=area, cache=cache,
-                                    get_query_payload=get_query_payload)
+                                    get_query_payload=get_query_payload,
+                                    **kwargs)
         if get_query_payload:
             return response
         return self._parse_text(response.text)
@@ -79,7 +78,7 @@ class XMatchClass(BaseQuery):
     @prepend_docstr_nosections("\n" + query.__doc__)
     def query_async(self, cat1, cat2, max_distance, colRA1=None, colDec1=None,
                     colRA2=None, colDec2=None, area='allsky', cache=True,
-                    get_query_payload=False):
+                    get_query_payload=False, **kwargs):
         """
         Returns
         -------
@@ -93,6 +92,7 @@ class XMatchClass(BaseQuery):
             'request': 'xmatch',
             'distMaxArcsec': max_distance.to(u.arcsec).value,
             'RESPONSEFORMAT': 'csv',
+            **kwargs
         }
         kwargs = {}
 
@@ -109,11 +109,11 @@ class XMatchClass(BaseQuery):
 
         return response
 
-    def _prepare_sending_table(self, i, payload, kwargs, cat, colRA, colDec):
+    def _prepare_sending_table(self, cat_index, payload, kwargs, cat, colRA, colDec):
         '''Check if table is a string, a `astropy.table.Table`, etc. and set
         query parameters accordingly.
         '''
-        catstr = 'cat{0}'.format(i)
+        catstr = 'cat{0}'.format(cat_index)
         if isinstance(cat, six.string_types):
             payload[catstr] = cat
         elif isinstance(cat, Table):
@@ -134,8 +134,8 @@ class XMatchClass(BaseQuery):
                                  ' the input table.')
             # if `cat1` is not a VizieR table,
             # it is assumed it's either a URL or an uploaded table
-            payload['colRA{0}'.format(i)] = colRA
-            payload['colDec{0}'.format(i)] = colDec
+            payload['colRA{0}'.format(cat_index)] = colRA
+            payload['colDec{0}'.format(cat_index)] = colDec
 
     def _prepare_area(self, payload, area):
         '''Set the area parameter in the payload'''
@@ -187,12 +187,12 @@ class XMatchClass(BaseQuery):
         """
         header = text.split("\n")[0]
         colnames = header.split(",")
-        for cn in colnames:
-            if colnames.count(cn) > 1:
-                ii = 1
-                while colnames.count(cn) > 0:
-                    colnames[colnames.index(cn)] = cn + "_{ii}".format(ii=ii)
-                    ii += 1
+        for column in colnames:
+            if colnames.count(column) > 1:
+                counter = 1
+                while colnames.count(column) > 0:
+                    colnames[colnames.index(column)] = column + "_{counter}".format(counter=counter)
+                    counter += 1
         new_text = ",".join(colnames) + "\n" + "\n".join(text.split("\n")[1:])
         result = ascii.read(new_text, format='csv', fast_reader=False)
 

@@ -98,7 +98,7 @@ If onlist=0, the following parameters are required:
                         equal to available to be retrieved rows under the same
                         constraints.
 """
-from __future__ import print_function, division
+
 
 import warnings
 import xml.etree.ElementTree as tree
@@ -111,7 +111,8 @@ import astropy.io.votable as votable
 from ..query import BaseQuery
 from ..utils import commons
 from . import conf
-from ..exceptions import TableParseError, NoResultsWarning
+from ..exceptions import TableParseError, NoResultsWarning, InvalidQueryError
+
 
 __all__ = ['Irsa', 'IrsaClass']
 
@@ -234,7 +235,7 @@ class IrsaClass(BaseQuery):
             The HTTP response returned from the service
         """
         if catalog is None:
-            raise Exception("Catalog name is required!")
+            raise InvalidQueryError("Catalog name is required!")
 
         request_payload = self._args_to_payload(catalog, selcols=selcols)
         request_payload.update(self._parse_spatial(spatial=spatial,
@@ -368,24 +369,25 @@ class IrsaClass(BaseQuery):
 
         # Check if results were returned
         if 'The catalog is not on the list' in content:
-            raise Exception("Catalog not found")
+            raise ValueError("Invalid Catalog specified")
 
         # Check that object name was not malformed
         if 'Either wrong or missing coordinate/object name' in content:
-            raise Exception("Malformed coordinate/object name")
+            raise ValueError("Malformed coordinate/object name")
 
         # Check to see that output table size limit hasn't been exceeded
         if 'Exceeding output table size limit' in content:
-            raise Exception("Exceeded output table size - reduce number "
-                            "of output columns and/or limit search area")
+            raise TableParseError("Exceeded output table size - reduce number "
+                                  "of output columns and/or limit search area")
 
         # Check to see that the query engine is working
         if 'SQLConnect failed' in content:
-            raise Exception("The IRSA server is currently down")
+            raise TimeoutError("The IRSA server is currently down")
 
         # Check that the results are not of length zero
         if len(content) == 0:
-            raise Exception("The IRSA server sent back an empty reply")
+            warnings.warn("The IRSA server sent back an empty reply",
+                          NoResultsWarning)
 
         # Read it in using the astropy VO table reader
         try:

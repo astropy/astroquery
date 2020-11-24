@@ -1,0 +1,133 @@
+{
+  "aliastable": [
+    "format=csv&objname=kepler+2&table=aliastable",
+    "format=csv&objname=kepler+1+b&table=aliastable",
+    "format=csv&objname=not+a+planet&table=aliastable",
+    "format=csv&objname=HD+209458+b&table=aliastable",
+    "format=csv&objname=HD+209458&table=aliastable",
+    "format=csv&objname=HD+136352&table=aliastable",
+    "format=csv&objname=Kepler+2&table=aliastable",
+    "format=csv&objname=HAT-P-7&table=aliastable",
+    "format=csv&objname=HAT-P-11+b&table=aliastable"
+  ],
+  "compositepars": [
+    "format=ipac&select=%2A&table=compositepars&where=fpl_hostname%3D%27WASP-166%27"
+  ],
+  "cumulative": [
+    "format=ipac&select=%2A&table=cumulative&where=kepid%3D10601284"
+  ],
+  "exomultpars": [
+    "format=ipac&select=%2A&table=exomultpars&where=mpl_hostname%3D%27TrES-2%27"
+  ],
+  "exoplanets": [
+    "format=ipac&table=exoplanets&where=pl_name%3D%27HD+209458+b%27",
+    "format=ipac&table=exoplanets&where=pl_hostname%3D%27HD+209458%27",
+    "format=ipac&table=exoplanets&where=pl_hostname%3D%27HD+136352%27",
+    "format=ipac&select=%2A&table=exoplanets&where=pl_name%3D%27HD+209458+b%27",
+    "format=ipac&table=exoplanets&where=pl_hostname%3D%27HD+209458+b%27+OR+pl_name%3D%27HD+209458+b%27",
+    "format=ipac&table=exoplanets&where=pl_hostname%3D%27HAT-P-7%27",
+    "format=ipac&table=exoplanets&where=pl_hostname%3D%27HAT-P-7%27+OR+pl_name%3D%27HAT-P-7%27",
+    "format=ipac&select=%2A&table=exoplanets&where=pl_hostname%3D%27Kepler-11%27",
+    "format=ipac&select=pl_hostname%2Cpl_name&table=exoplanets&where=pl_hostname%3D%27Kepler-11%27",
+    "format=ipac&table=exoplanets&where=pl_hostname%3D%27not+a+host%27",
+    "format=ipac&table=exoplanets&where=pl_hostname%3D%27HAT-P-11+b%27+OR+pl_name%3D%27HAT-P-11+b%27",
+    "format=ipac&table=exoplanets&where=pl_name%3D%27HAT-P-11+b%27",
+    "dec=18.8843&format=ipac&ra=330.79488&radius=0.001+degree&table=exoplanets",
+    "format=votable&table=exoplanets&where=pl_hostname%3D%27HAT-P-11+b%27+OR+pl_name%3D%27HAT-P-11+b%27",
+    "format=csv&table=exoplanets&where=pl_hostname%3D%27HAT-P-11+b%27+OR+pl_name%3D%27HAT-P-11+b%27",
+    "format=bar&table=exoplanets&where=pl_hostname%3D%27HAT-P-11+b%27+OR+pl_name%3D%27HAT-P-11+b%27"
+  ],
+  "k2candidates": [
+    "format=ipac&select=%2A&table=k2candidates&where=epic_name%3D%27EPIC+206027655%27"
+  ],
+  "k2names": [
+    "format=ipac&select=%2A&table=k2names&where=epic_host%3D%27EPIC+206027655%27"
+  ],
+  "k2targets": [
+    "format=ipac&select=%2A&table=k2targets&where=epic_number%3D206027655"
+  ],
+  "kelt": [
+    "format=ipac&kelt_field=N02&select=%2A&table=kelt&where=kelt_sourceid%3D%27KELT_N02_lc_012738_V01_east%27"
+  ],
+  "kelttimeseries": [
+    "format=ipac&kelt_field=N02&select=%2A&table=kelttimeseries&where=kelt_sourceid%3D%27KELT_N02_lc_012738_V01_east%27"
+  ],
+  "keplernames": [
+    "format=ipac&select=%2A&table=keplernames&where=kepid%3D10601284"
+  ],
+  "keplerstellar": [
+    "format=ipac&select=%2A&table=keplerstellar&where=kepid%3D10601284"
+  ],
+  "keplertimeseries": [
+    "format=ipac&kepid=8561063&quarter=14&select=%2A&table=keplertimeseries"
+  ],
+  "koi": [
+    "format=ipac&select=%2A&table=koi&where=kepid%3D10601284"
+  ],
+  "microlensing": [
+    "format=ipac&select=%2A&table=microlensing&where=plntname%3D%27MOA-2010-BLG-353L+b%27"
+  ],
+  "mission_exocat": [
+    "format=ipac&select=%2A&table=mission_exocat&where=star_name%3D%27HIP+5110+A%27"
+  ],
+  "missionstars": [
+    "format=ipac&select=%2A&table=missionstars&where=star_name%3D%27tau+Cet%27"
+  ],
+  "q1_q12_koi": [
+    "format=ipac&select=%2A&table=q1_q12_koi&where=kepid%3D10601284"
+  ],
+  "q1_q12_stellar": [
+    "format=ipac&select=%2A&table=q1_q12_stellar&where=kepid%3D10601284"
+  ],
+  "q1_q12_tce": [
+    "format=ipac&select=%2A&table=q1_q12_tce&where=kepid%3D10601284"
+  ],
+  "q1_q16_koi": [
+    "format=ipac&select=%2A&table=q1_q16_koi&where=kepid%3D10601284"
+  ],
+  "q1_q16_stellar": [
+    "format=ipac&select=%2A&table=q1_q16_stellar&where=kepid%3D10601284"
+  ],
+  "q1_q16_tce": [
+    "format=ipac&select=%2A&table=q1_q16_tce&where=kepid%3D10601284"
+  ],
+  "q1_q17_dr24_koi": [
+    "format=ipac&select=%2A&table=q1_q17_dr24_koi&where=kepid%3D10601284"
+  ],
+  "q1_q17_dr24_stellar": [
+    "format=ipac&select=%2A&table=q1_q17_dr24_stellar&where=kepid%3D10601284"
+  ],
+  "q1_q17_dr24_tce": [
+    "format=ipac&select=%2A&table=q1_q17_dr24_tce&where=kepid%3D10601284"
+  ],
+  "q1_q17_dr25_koi": [
+    "format=ipac&select=%2A&table=q1_q17_dr25_koi&where=kepid%3D10601284"
+  ],
+  "q1_q17_dr25_stellar": [
+    "format=ipac&select=%2A&table=q1_q17_dr25_stellar&where=kepid%3D10601284"
+  ],
+  "q1_q17_dr25_sup_koi": [
+    "format=ipac&select=%2A&table=q1_q17_dr25_sup_koi&where=kepid%3D10601284"
+  ],
+  "q1_q17_dr25_supp_stellar": [
+    "format=ipac&select=%2A&table=q1_q17_dr25_supp_stellar&where=kepid%3D10601284"
+  ],
+  "q1_q17_dr25_tce": [
+    "format=ipac&select=%2A&table=q1_q17_dr25_tce&where=kepid%3D10601284"
+  ],
+  "q1_q6_koi": [
+    "format=ipac&select=%2A&table=q1_q6_koi&where=kepid%3D10601284"
+  ],
+  "q1_q8_koi": [
+    "format=ipac&select=%2A&table=q1_q8_koi&where=kepid%3D10601284"
+  ],
+  "superwasptimeseries": [
+    "format=ipac&select=%2A&sourceid=1SWASP+J191645.46%2B474912.3&table=superwasptimeseries"
+  ],
+  "tce": [
+    "format=ipac&select=%2A&table=tce&where=kepid%3D10601284"
+  ],
+  "toi": [
+    "format=ipac&select=%2A&table=toi&where=toi%3D256.01"
+  ]
+}

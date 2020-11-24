@@ -1,9 +1,11 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from __future__ import print_function
+
 
 import numpy as np
 import os
 import pytest
+
+from requests.models import Response
 
 from astropy.table import Table
 from astropy.coordinates import SkyCoord
@@ -19,7 +21,18 @@ from ...exceptions import RemoteServiceError
 
 
 @pytest.mark.remote_data
-class TestMast(object):
+class TestMast:
+
+    ###############
+    # utils tests #
+    ###############
+
+    def test_resolve_object(self):
+        m101_loc = mast.utils.resolve_object("M101")
+        assert round(m101_loc.separation(SkyCoord("210.80227 54.34895", unit='deg')).value, 4) == 0
+
+        ticobj_loc = mast.utils.resolve_object("TIC 141914082")
+        assert round(ticobj_loc.separation(SkyCoord("94.6175354 -72.04484622", unit='deg')).value, 4) == 0
 
     ###################
     # MastClass tests #
@@ -162,16 +175,6 @@ class TestMast(object):
         assert (result['obs_collection'] == 'GALEX').all()
         assert sum(result['filters'] == 'NUV') == 6
 
-        # TEMPORARY test the obstype deprecation
-        with catch_warnings(AstropyDeprecationWarning) as warning_lines:
-            result = mast.Observations.query_criteria(objectname="M101",
-                                                      dataproduct_type="IMAGE", obstype="science")
-            assert (result["intentType"] == "science").all()
-
-            result = mast.Observations.query_criteria(objectname="M101",
-                                                      dataproduct_type="IMAGE", obstype="cal")
-            assert (result["intentType"] == "calibration").all()
-
         result = mast.Observations.query_criteria(objectname="M101",
                                                   dataproduct_type="IMAGE", intentType="calibration")
         assert (result["intentType"] == "calibration").all()
@@ -236,12 +239,12 @@ class TestMast(object):
         obsLoc = np.where(observations["obs_id"] == 'ktwo200071160-c92_lc')
         result = mast.Observations.get_product_list(observations[obsLoc])
         assert isinstance(result, Table)
-        assert len(result) == 3
+        assert len(result) == 1
 
         obsLocs = np.where((observations['target_name'] == 'NGC6523') & (observations['obs_collection'] == "IUE"))
         result = mast.Observations.get_product_list(observations[obsLocs])
         assert isinstance(result, Table)
-        assert len(result) == 27
+        assert len(result) == 30
 
     def test_observations_filter_products(self):
         observations = mast.Observations.query_object("M8", radius=".04 deg")
@@ -273,6 +276,24 @@ class TestMast(object):
         assert isinstance(result, Table)
         assert os.path.isfile(result['Local Path'][0])
 
+        # check for row input
+        result1 = mast.Observations.get_product_list(test_obs_id)
+        result2 = mast.Observations.download_products(result1[0])
+        assert isinstance(result2, Table)
+        assert os.path.isfile(result2['Local Path'][0])
+        assert len(result2) == 1
+
+    def test_observations_download_file(self, tmpdir):
+        test_obs_id = '2003600312'
+
+        # pull a single data product
+        products = mast.Observations.get_product_list(test_obs_id)
+        uri = products['dataURI'][0]
+
+        # download it
+        result = mast.Observations.download_file(uri)
+        assert result == ('COMPLETE', None, None)
+
     ######################
     # CatalogClass tests #
     ######################
@@ -288,7 +309,7 @@ class TestMast(object):
 
         responses = mast.Catalogs.query_region_async("322.49324 12.16683", radius="0.02 deg",
                                                      catalog="panstarrs", table="mean")
-        assert isinstance(responses, list)
+        assert isinstance(responses, Response)
 
     def test_catalogs_query_region(self):
 
@@ -419,7 +440,7 @@ class TestMast(object):
                                                        objectname="M10",
                                                        radius=.02,
                                                        qualityFlag=48)
-        assert isinstance(responses, list)
+        assert isinstance(responses, Response)
 
     def test_catalogs_query_criteria(self):
 
@@ -552,7 +573,7 @@ class TestMast(object):
 
     def test_tesscut_download_cutouts(self, tmpdir):
 
-        coord = SkyCoord(107.18696, -70.50919, unit="deg")
+        coord = SkyCoord(349.62609, -47.12424, unit="deg")
 
         manifest = mast.Tesscut.download_cutouts(coordinates=coord, size=5, path=str(tmpdir))
         assert isinstance(manifest, Table)
@@ -560,6 +581,8 @@ class TestMast(object):
         assert manifest["Local Path"][0][-4:] == "fits"
         for row in manifest:
             assert os.path.isfile(row['Local Path'])
+
+        coord = SkyCoord(107.18696, -70.50919, unit="deg")
 
         manifest = mast.Tesscut.download_cutouts(coordinates=coord, size=5, sector=1, path=str(tmpdir))
         assert isinstance(manifest, Table)
@@ -600,6 +623,8 @@ class TestMast(object):
         assert isinstance(cutout_hdus_list, list)
         assert len(cutout_hdus_list) == 1
         assert isinstance(cutout_hdus_list[0], fits.HDUList)
+
+        coord = SkyCoord(349.62609, -47.12424, unit="deg")
 
         cutout_hdus_list = mast.Tesscut.get_cutouts(coordinates=coord, size=[2, 4]*u.arcmin)
         assert isinstance(cutout_hdus_list, list)

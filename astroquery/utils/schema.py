@@ -24,7 +24,7 @@ class SchemaError(Exception):
         return '\n'.join(a)
 
 
-class And(object):
+class And:
 
     def __init__(self, *args, **kw):
         self._args = args
@@ -32,8 +32,7 @@ class And(object):
         self._error = kw.get('error')
 
     def __repr__(self):
-        return '%s(%s)' % (self.__class__.__name__,
-                           ', '.join(repr(a) for a in self._args))
+        return f"{self.__class__.__name__}({', '.join(repr(a) for a in self._args)})"
 
     def validate(self, data):
         for s in [Schema(s, error=self._error) for s in self._args]:
@@ -50,11 +49,11 @@ class Or(And):
                 return s.validate(data)
             except SchemaError as _x:
                 x = _x
-        raise SchemaError(['%r did not validate %r' % (self, data)] + x.autos,
+        raise SchemaError([f'{self!r} did not validate {data!r}'] + x.autos,
                           [self._error] + x.errors)
 
 
-class Use(object):
+class Use:
 
     def __init__(self, callable_, error=None):
         assert callable(callable_)
@@ -62,7 +61,7 @@ class Use(object):
         self._error = error
 
     def __repr__(self):
-        return '%s(%r)' % (self.__class__.__name__, self._callable)
+        return f'{self.__class__.__name__}({self._callable!r})'
 
     def validate(self, data):
         try:
@@ -71,7 +70,7 @@ class Use(object):
             raise SchemaError([None] + x.autos, [self._error] + x.errors)
         except BaseException as x:
             f = self._callable.__name__
-            raise SchemaError('%s(%r) raised %r' % (f, data, x), self._error)
+            raise SchemaError(f'{f}({data!r}) raised {x!r}', self._error)
 
 
 def priority(s):
@@ -96,14 +95,14 @@ def priority(s):
         return 1
 
 
-class Schema(object):
+class Schema:
 
     def __init__(self, schema, error=None):
         self._schema = schema
         self._error = error
 
     def __repr__(self):
-        return '%s(%r)' % (self.__class__.__name__, self._schema)
+        return f'{self.__class__.__name__}({self._schema!r})'
 
     def validate(self, data):
         s = self._schema
@@ -141,16 +140,16 @@ class Schema(object):
                     new[nkey] = nvalue
                 elif skey is not None:
                     if x is not None:
-                        raise SchemaError(['key %r is required' % key] +
+                        raise SchemaError([f'key {key!r} is required'] +
                                           x.autos, [e] + x.errors)
                     else:
-                        raise SchemaError('key %r is required' % skey, e)
+                        raise SchemaError(f'key {skey!r} is required', e)
             coverage = set(k for k in coverage if type(k) is not Optional)
             required = set(k for k in s if type(k) is not Optional)
             if coverage != required:
-                raise SchemaError('missed keys %r' % (required - coverage), e)
+                raise SchemaError(f'missed keys {(required - coverage)!r}', e)
             if len(new) != len(data):
-                raise SchemaError('wrong keys %r in %r' % (new, data), e)
+                raise SchemaError(f'wrong keys {new!r} in {data!r}', e)
             return new
         if hasattr(s, 'validate'):
             try:
@@ -158,13 +157,12 @@ class Schema(object):
             except SchemaError as x:
                 raise SchemaError([None] + x.autos, [e] + x.errors)
             except BaseException as x:
-                raise SchemaError('%r.validate(%r) raised %r' % (s, data, x),
-                                  self._error)
+                raise SchemaError(f'{s!r}.validate({data!r}) raised {x!r}', self._error)
         if type(s) is type:
             if isinstance(data, s):
                 return data
             else:
-                raise SchemaError('%r should be instance of %r' % (data, s), e)
+                raise SchemaError(f'{data!r} should be instance of {s!r}', e)
         if callable(s):
             f = s.__name__
             try:
@@ -173,13 +171,12 @@ class Schema(object):
             except SchemaError as x:
                 raise SchemaError([None] + x.autos, [e] + x.errors)
             except BaseException as x:
-                raise SchemaError('%s(%r) raised %r' % (f, data, x),
-                                  self._error)
-            raise SchemaError('%s(%r) should evaluate to True' % (f, data), e)
+                raise SchemaError(f'{f}({data!r}) raised {x!r}', self._error)
+            raise SchemaError(f'{f}({data!r}) should evaluate to True', e)
         if s == data:
             return data
         else:
-            raise SchemaError('%r does not match %r' % (s, data), e)
+            raise SchemaError(f'{s!r} does not match {data!r}', e)
 
 
 class Optional(Schema):

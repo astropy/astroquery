@@ -118,7 +118,7 @@
 <FIELD name="s_unit" ID="s_unit" datatype="char" arraysize="255" ucd="meta.unit" utype="obscore:Char.SpatialAxis.unit" >
  <DESCRIPTION>Unit used for spatial axis</DESCRIPTION>
 </FIELD>
-<FIELD name="released_date" ID="released_date" datatype="char" arraysize="24" >
+<FIELD name="obs_release_date" ID="obs_release_date" datatype="char" arraysize="24" >
  <DESCRIPTION>The date that this data product was released</DESCRIPTION>
 </FIELD>
 <FIELD name="quality_level" ID="quality_level" datatype="char" arraysize="15" ucd="meta.code.qual" >

@@ -13,7 +13,7 @@ from . import conf
 __all__ = ['ConeSearchResults']
 
 
-class ConeSearchResults(object):
+class ConeSearchResults:
     """
     A class to store Cone Search validation results.
 

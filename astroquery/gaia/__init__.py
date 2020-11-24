@@ -14,7 +14,6 @@ Created on 30 jun. 2016
 
 
 """
-
 from astroquery.utils.tap.core import TapPlus
 from astropy import config as _config
 
@@ -33,6 +32,12 @@ class Conf(_config.ConfigNamespace):
     ROW_LIMIT = _config.ConfigItem(50,
                                    "Number of rows to return from database "
                                    "query (set to -1 for unlimited).")
+    VALID_DATALINK_RETRIEVAL_TYPES = ['EPOCH_PHOTOMETRY',
+                                      'XP_CONTINUOUS',
+                                      'XP_SAMPLED',
+                                      'RVS',
+                                      'MCMC_GSPPHOT',
+                                      'MCMC_MSC']
 
 
 conf = Conf()

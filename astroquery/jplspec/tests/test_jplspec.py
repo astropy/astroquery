@@ -17,7 +17,7 @@ def data_path(filename):
     return os.path.join(data_dir, filename)
 
 
-class MockResponseSpec(object):
+class MockResponseSpec:
 
     def __init__(self, filename):
         self.filename = data_path(filename)

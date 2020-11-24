@@ -3,10 +3,13 @@
 Astroquery
 ==========
 
-This is the documentation for the Astroquery affiliated package of `astropy
+This is the documentation for the Astroquery coordinated package of `astropy
 <http://www.astropy.org>`__.
 
 Code and issue tracker are on `GitHub <https://github.com/astropy/astroquery>`_.
+
+If you use astroquery, please `cite <https://github.com/astropy/astroquery/blob/master/astroquery/CITATION>`__ the
+paper `Ginsburg, Sipőcz, Brasseur et al 2019 <https://ui.adsabs.harvard.edu/abs/2019AJ....157...98G/abstract>`_.
 
 Introduction
 ------------
@@ -26,20 +29,21 @@ Check out the :doc:`gallery` for some nice examples.
 Installation
 ------------
 
-Astroquery has recently switched to a continuous deployment model, meaning
-that a release will be instantaniously available after each set of changes
-made to the code.
-The latest version of astroquery can be pip installed.
-
-\*Note: If an environment already has an older version of astroquery installed
-add ``--upgrade`` to make sure the latest version is installed.
+Uniquely in the Astropy ecosystem, Astroquery is operating with a **continuous deployment model**.
+It means that a release is instantaneously available after a pull request has been merged. These
+releases are automatically uploaded to `PyPI <https://pypi.org/project/astroquery/#history>`__,
+and therefore the latest version of astroquery can be pip installed.
+The version number of these automated releases contain the ``'dev'`` tag, thus pip needs to be told
+to look for these releases during an upgrade, using the ``--pre`` install option. If astroquery is
+already installed, please make sure you use the ``--upgrade`` install option as well.
 
 .. code-block:: bash
 
     $ pip install --pre astroquery
 
-We also keep doing regular, tagged version for maintanence purposes. These
-can be then conda installed from the ``astropy`` conda channel.
+In addition to the automated releases, we also keep doing regular, tagged version for maintenance
+and packaging purposes. These can be ``pip`` installed without the ``--pre`` option and
+are available from the ``astropy`` conda channel.
 
 .. code-block:: bash
 
@@ -69,7 +73,8 @@ Astroquery works with Python 3.6 or later.
 The following packages are required for astroquery installation & use:
 
 * `numpy <http://www.numpy.org>`_ >= 1.14
-* `astropy <http://www.astropy.org>`__ (>=2.0)
+* `astropy <http://www.astropy.org>`__ (>=3.1)
+* `pyVO`_ (>=1.1)
 * `requests <http://docs.python-requests.org/en/latest/>`_
 * `keyring <https://pypi.python.org/pypi/keyring>`_
 * `Beautiful Soup <https://www.crummy.com/software/BeautifulSoup/>`_
@@ -86,12 +91,6 @@ full functionality of the `~astroquery.alma` module:
 
 * `APLpy <http://aplpy.readthedocs.io/>`_
 * `pyregion <http://pyregion.readthedocs.io/>`_
-
-
-The following packages are optional dependencies and are required for the
-functionality of the `~astroquery.cadc` module:
-
-* `pyVO`_ (>=1.0)
 
 The following packages are optional dependencies and are required for the
 full functionality of the `~astroquery.cds` module:
@@ -184,11 +183,13 @@ The following modules have been completed using a common API:
   nasa_ads/nasa_ads.rst
   ned/ned.rst
   nist/nist.rst
+  noirlab/noirlab.rst
   nrao/nrao.rst
   nvas/nvas.rst
   simbad/simbad.rst
   skyview/skyview.rst
   splatalogue/splatalogue.rst
+  svo_fps/svo_fps.rst
   ukidss/ukidss.rst
   vamdc/vamdc.rst
   vizier/vizier.rst
@@ -273,6 +274,7 @@ generally return a table listing the available data first.
   alfalfa/alfalfa.rst
   alma/alma.rst
   cadc/cadc.rst
+  casda/casda.rst
   esa/hubble.rst
   eso/eso.rst
   fermi/fermi.rst
@@ -284,6 +286,7 @@ generally return a table listing the available data first.
   gemini/gemini.rst
   mast/mast.rst
   ned/ned.rst
+  noirlab/noirlab.rst
   nrao/nrao.rst
   nvas/nvas.rst
   sdss/sdss.rst
@@ -348,6 +351,7 @@ topical submodules:
   :maxdepth: 1
 
   solarsystem/solarsystem.rst
+  image_cutouts/image_cutouts.rst
 
 
 Developer documentation

@@ -1,0 +1,3 @@
+ERROR<br>
+Error Type: exoLookup call failure<br>
+Message:    String not coordinate or object name in Exoplanet Archive, CDS, or NED

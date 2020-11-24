@@ -1,5 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from __future__ import print_function
+
 
 import os
 import re
@@ -19,7 +19,6 @@ from ...utils.testing_tools import MockResponse
 from ...exceptions import (InvalidQueryError, InputWarning)
 
 from ... import mast
-
 
 DATA_FILES = {'Mast.Caom.Cone': 'caom.json',
               'Mast.Name.Lookup': 'resolver.json',
@@ -62,22 +61,21 @@ def patch_post(request):
         mp = request.getfixturevalue("monkeypatch")
     except AttributeError:  # pytest < 3
         mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(mast.Mast, '_request', post_mockreturn)
-    mp.setattr(mast.Mast, '_fabric_request', post_mockreturn)
-    mp.setattr(mast.Observations, '_request', post_mockreturn)
-    mp.setattr(mast.Catalogs, '_request', post_mockreturn)
-    mp.setattr(mast.Catalogs, '_fabric_request', post_mockreturn)
-    mp.setattr(mast.Mast, '_download_file', download_mockreturn)
+
+    mp.setattr(mast.utils, '_simple_request', resolver_mockreturn)
+    mp.setattr(mast.discovery_portal.PortalAPI, '_request', post_mockreturn)
+    mp.setattr(mast.services.ServiceAPI, '_request', service_mockreturn)
+    mp.setattr(mast.auth.MastAuth, 'session_info', session_info_mockreturn)
+
     mp.setattr(mast.Observations, '_download_file', download_mockreturn)
+    mp.setattr(mast.Observations, 'download_file', download_mockreturn)
     mp.setattr(mast.Catalogs, '_download_file', download_mockreturn)
-    mp.setattr(mast.Mast, 'session_info', session_info_mockreturn)
-    mp.setattr(mast.Observations, 'session_info', session_info_mockreturn)
-    mp.setattr(mast.Tesscut, "_request", tesscut_get_mockreturn)
     mp.setattr(mast.Tesscut, '_download_file', tess_download_mockreturn)
+
     return mp
 
 
-def post_mockreturn(method="POST", url=None, data=None, timeout=10, **kwargs):
+def post_mockreturn(self, method="POST", url=None, data=None, timeout=10, **kwargs):
     if "columnsconfig" in url:
         if "Mast.Catalogs.Tess.Cone" in data:
             service = "ticcolumns"
@@ -106,19 +104,43 @@ def post_mockreturn(method="POST", url=None, data=None, timeout=10, **kwargs):
     return [MockResponse(content)]
 
 
+def service_mockreturn(self, method="POST", url=None, data=None, timeout=10, **kwargs):
+    if "panstarrs" in url:
+        filename = data_path(DATA_FILES["panstarrs"])
+    elif "tesscut" in url:
+        if "sector" in url:
+            filename = data_path(DATA_FILES['tess_sector'])
+        else:
+            filename = data_path(DATA_FILES['tess_cutout'])
+    content = open(filename, 'rb').read()
+    return MockResponse(content)
+
+
+def resolver_mockreturn(*args, **kwargs):
+    filename = data_path(DATA_FILES["Mast.Name.Lookup"])
+    content = open(filename, 'rb').read()
+    return MockResponse(content)
+
+
 def download_mockreturn(*args, **kwargs):
-    return
+    return ('COMPLETE', None, None)
 
 
-def session_info_mockreturn(silent=False):
-    anon_session = {'eppn': '',
-                   'ezid': 'anonymous',
-                   'attrib': {},
-                   'anon': True,
-                   'scopes': [],
-                   'session': None,
-                   'token': None}
-    return anon_session
+def session_info_mockreturn(self, silent=False):
+    test_session = {'eppn': 'alice@stsci.edu',
+                    'ezid': 'alice',
+                    'attrib': {'uuid': '2913e6f7-e863-4f94-9416-a6af27258ba7',
+                               'first_name': 'A.',
+                               'last_name': 'User',
+                               'display_name': 'A. User',
+                               'internal': '0',
+                               'email': 'alice@gmail.com',
+                               'Jwstcalengdataaccess': 'false'},
+                    'anon': False,
+                    'scopes': ['mast:user:info', 'mast:exclusive_access'],
+                    'session': None,
+                    'token': '56a9cf3d...'}
+    return test_session
 
 
 def tesscut_get_mockreturn(method="GET", url=None, data=None, timeout=10, **kwargs):
@@ -172,7 +194,26 @@ def test_mast_service_request(patch_post):
 
 def test_resolve_object(patch_post):
     m103_loc = mast.Mast.resolve_object("M103")
+    print(m103_loc)
     assert m103_loc.separation(SkyCoord("23.34086 60.658", unit='deg')).value == 0
+
+
+def test_login_logout(patch_post):
+    test_token = "56a9cf3df4c04052atest43feb87f282"
+
+    mast.Mast.login(token=test_token)
+    assert mast.Mast._authenticated is True
+    assert mast.Mast._session.cookies.get("mast_token") == test_token
+
+    mast.Mast.logout()
+    assert mast.Mast._authenticated is False
+    assert not mast.Mast._session.cookies.get("mast_token")
+
+
+def test_session_info(patch_post):
+    info = mast.Mast.session_info(verbose=False)
+    assert isinstance(info, dict)
+    assert info['ezid'] == 'alice'
 
 
 ###########################
@@ -182,9 +223,8 @@ def test_resolve_object(patch_post):
 
 regionCoords = SkyCoord(23.34086, 60.658, unit=('deg', 'deg'))
 
+
 # query functions
-
-
 def test_observations_query_region_async(patch_post):
     responses = mast.Observations.query_region_async(regionCoords, radius=0.2)
     assert isinstance(responses, list)
@@ -229,16 +269,6 @@ def test_observations_query_criteria(patch_post):
     result = mast.Observations.query_criteria(filters=["NUV", "FUV"],
                                               objectname="M101")
     assert isinstance(result, Table)
-
-    # TEMPORARY test the obstype deprecation
-    with catch_warnings(AstropyDeprecationWarning) as warning_lines:
-        result = mast.Observations.query_criteria(objectname="M101",
-                                                  dataproduct_type="IMAGE", obstype="science")
-        assert isinstance(result, Table)
-
-    with pytest.warns(InputWarning) as i_w:
-        mast.Observations.query_criteria(obstype="science", intentType="science")
-    assert "obstype and intentType" in str(i_w[0].message)
 
     with pytest.raises(InvalidQueryError) as invalid_query:
         mast.Observations.query_criteria(objectname="M101")
@@ -332,6 +362,21 @@ def test_observations_download_products(patch_post, tmpdir):
                                                  mrp_only=False)
     assert isinstance(result, Table)
 
+    # passing row product
+    products = mast.Observations.get_product_list('2003738726')
+    result1 = mast.Observations.download_products(products[0])
+    assert isinstance(result1, Table)
+
+
+def test_observations_download_file(patch_post, tmpdir):
+    # pull a single data product
+    products = mast.Observations.get_product_list('2003738726')
+    uri = products['dataURI'][0]
+
+    # download it
+    result = mast.Observations.download_file(uri)
+    assert result == ('COMPLETE', None, None)
+
 
 ######################
 # CatalogClass tests #
@@ -345,7 +390,7 @@ def test_catalogs_query_region_async(patch_post):
 
 def test_catalogs_fabric_query_region_async(patch_post):
     responses = mast.Catalogs.query_region_async(regionCoords, radius=0.002, catalog="panstarrs", table="mean")
-    assert isinstance(responses, list)
+    assert isinstance(responses, MockResponse)
 
 
 def test_catalogs_query_region(patch_post):
@@ -388,7 +433,7 @@ def test_catalogs_query_object_async(patch_post):
 
 def test_catalogs_fabric_query_object_async(patch_post):
     responses = mast.Catalogs.query_object_async("M101", radius="0.002 deg", catalog="panstarrs", table="mean")
-    assert isinstance(responses, list)
+    assert isinstance(responses, MockResponse)
 
 
 def test_catalogs_query_object(patch_post):
@@ -421,7 +466,7 @@ def test_catalogs_query_criteria_async(patch_post):
 
     responses = mast.Catalogs.query_criteria_async(catalog="panstarrs", objectname="M10", radius=2,
                                                    table="mean", qualityFlag=48)
-    assert isinstance(responses, list)
+    assert isinstance(responses, MockResponse)
 
     with pytest.raises(InvalidQueryError) as invalid_query:
         mast.Catalogs.query_criteria_async(catalog="Tic")

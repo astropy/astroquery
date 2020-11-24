@@ -16,6 +16,7 @@ Created on 30 jun. 2016
 """
 
 import re
+from datetime import datetime
 
 TAP_UTILS_QUERY_TOP_PATTERN = re.compile(
     r"\s*SELECT\s+(ALL\s+|DISTINCT\s+)?TOP\s+\d+\s+", re.IGNORECASE)
@@ -63,7 +64,7 @@ def taputil_create_sorted_dict_key(dictionaryObject):
         return None
     listTmp = []
     for k in sorted(dictionaryObject):
-        listTmp.append(str(k) + '=' + str(dictionaryObject[k]))
+        listTmp.append(f'{k}={dictionaryObject[k]}')
     return '&'.join(listTmp)
 
 
@@ -96,11 +97,11 @@ def set_top_in_query(query, top):
         if m:
             # all | distinct is present: add top after all|distinct
             endPos = m.end()
-            nq = query[0:endPos] + " TOP " + str(top) + " " + query[endPos:]
+            nq = f"{query[0:endPos]} TOP {top} {query[endPos:]}"
         else:
             # no all nor distinct: add top after select
             p = q.replace("\n", " ").find("SELECT ")
-            nq = query[0:p+7] + " TOP " + str(top) + " " + query[p+7:]
+            nq = f"{query[0:p+7]} TOP {top} {query[p+7:]}"
         return nq
 
 
@@ -140,7 +141,7 @@ def parse_http_response_error(responseStr, status):
     if pos2 == -1:
         return parse_http_votable_response_error(responseStr, status)
     msg = responseStr[(pos1+len(TAP_UTILS_HTTP_ERROR_MSG_START)):pos2]
-    return str("Error " + str(status) + ":\n" + msg)
+    return f"Error {status}:\n{msg}"
 
 
 def parse_http_votable_response_error(responseStr, status):
@@ -157,12 +158,12 @@ def parse_http_votable_response_error(responseStr, status):
     """
     pos1 = responseStr.find(TAP_UTILS_HTTP_VOTABLE_ERROR)
     if pos1 == -1:
-        return str("Error " + str(status) + ":\n" + responseStr)
+        return f"Error {status}:\n{responseStr}"
     pos2 = responseStr.find(TAP_UTILS_VOTABLE_INFO, pos1)
     if pos2 == -1:
-        return str("Error " + str(status) + ":\n" + responseStr)
+        return f"Error {status}:\n{responseStr}"
     msg = responseStr[(pos1+len(TAP_UTILS_HTTP_VOTABLE_ERROR)):pos2]
-    return str("Error " + str(status) + ": " + msg)
+    return f"Error {status}: {msg}"
 
 
 def get_jobid_from_location(location):
@@ -218,3 +219,24 @@ def get_table_name(full_qualified_table_name):
         return full_qualified_table_name
     name = full_qualified_table_name[pos+1:]
     return name
+
+
+def get_suitable_output_file(conn_handler, async_job, outputFile, headers,
+                             isError, output_format):
+    dateTime = datetime.now().strftime("%Y%m%d%H%M%S")
+    fileName = ""
+    if outputFile is None:
+        fileName = conn_handler.get_file_from_header(headers)
+        if fileName is None:
+            ext = conn_handler.get_suitable_extension(headers)
+            if not async_job:
+                fileName = f"sync_{dateTime}{ext}"
+            else:
+                ext = conn_handler.get_suitable_extension_by_format(
+                    output_format)
+                fileName = f"async_{dateTime}{ext}"
+    else:
+        fileName = outputFile
+    if isError:
+        fileName += ".error"
+    return fileName

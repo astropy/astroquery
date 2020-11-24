@@ -34,8 +34,8 @@ env:
         - MAIN_CMD='python setup.py'
         - NUMPY_VERSION=stable
         - ASTROPY_VERSION=stable
-        - CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring matplotlib jinja2 flask'
-        - CONDA_DEPENDENCIES_REMOTE='requests beautifulsoup4 html5lib keyring matplotlib jinja2 flask'
+        - CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring matplotlib jinja2 flask pyvo'
+        - CONDA_DEPENDENCIES_REMOTE='requests beautifulsoup4 html5lib keyring matplotlib jinja2 flask pyvo'
         - PIP_DEPENDENCIES='https://github.com/keflavich/httpbin/archive/master.zip aplpy pyregion regions astropy_healpix mocpy>=0.5.2 pytest-dependency pytest-astropy pyvo'
         - HTTP_BIN_CMD="import httpbin; httpbin.app.run()"
         - RUN_HTTPBIN='python -c "$HTTP_BIN_CMD" & ACTIVE_HTTPBIN=True'
@@ -83,7 +83,7 @@ jobs:
         - os: linux
           name: Docs build
           stage: Test docs, astropy dev, and without optional dependencies
-          env: SETUP_CMD='build_docs -w'
+          env: SETUP_CMD='build_docs -w' PIP_DEPENDENCIES="$PIP_DEPENDENCIES sphinx-astropy"
 
         # Try all python versions and Numpy versions. Since we can assume
         # that the Numpy developers have taken care of testing Numpy with
@@ -97,7 +97,7 @@ jobs:
           name: Oldest dependencies
           stage: Tests with other Python/Numpy versions
           env: PYTHON_VERSION=3.6 NUMPY_VERSION=1.14 KEYRING_VERSION='<12.0'
-               ASTROPY_VERSION=3.0 DEBUG=True
+               ASTROPY_VERSION=3.1 DEBUG=True
                PIP_DEPENDENCIES="`echo $PIP_DEPENDENCIES reproject==0.5 | sed 's/aplpy/aplpy<2.0/'`"
         - os: linux
           name: Python 3.6, np 1.15, astropy 3.2
@@ -114,7 +114,7 @@ jobs:
           name: Python 3.8, mandatory dependencies only
           stage: Test docs, astropy dev, and without optional dependencies
           env: PYTHON_VERSION=3.8
-               CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring'
+               CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring pyvo'
                PIP_DEPENDENCIES='https://github.com/keflavich/httpbin/archive/master.zip pytest-astropy'
                NUMPY_VERSION=1.16
 

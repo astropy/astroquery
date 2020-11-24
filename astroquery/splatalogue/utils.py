@@ -55,13 +55,13 @@ def merge_frequencies(table, prefer='measured',
     """
 
     if prefer == 'measured':
-        Freq = np.copy(table[theor_kwd])
+        Freq = np.copy(table[theor_kwd]).astype('float')
         measmask = np.logical_not(table[meas_kwd].mask)
-        Freq[measmask] = table[meas_kwd][measmask]
+        Freq[measmask] = table[meas_kwd][measmask].astype('float')
     elif prefer == 'theoretical':
-        Freq = np.copy(table[meas_kwd])
+        Freq = np.copy(table[meas_kwd]).astype('float')
         theomask = np.logical_not(table[theor_kwd].mask)
-        Freq[measmask] = table[theor_kwd][theomask]
+        Freq[theomask] = table[theor_kwd][theomask].astype('float')
     else:
         raise ValueError('prefer must be one of "measured" or "theoretical"')
 

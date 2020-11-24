@@ -59,13 +59,13 @@ class TestTap(unittest.TestCase):
                       frame='icrs')
         with pytest.raises(ValueError) as err:
             tap.query_object(sc)
-        assert "Missing required argument: 'width'" in err.value.args[0]
+        assert "Missing required argument: width" in err.value.args[0]
 
         width = Quantity(12, u.deg)
 
         with pytest.raises(ValueError) as err:
             tap.query_object(sc, width=width)
-        assert "Missing required argument: 'height'" in err.value.args[0]
+        assert "Missing required argument: height" in err.value.args[0]
 
         height = Quantity(10, u.deg)
         table = tap.query_object(sc, width=width, height=height)
@@ -370,31 +370,33 @@ class TestTap(unittest.TestCase):
         band = None
         format = "votable"
         verbose = True
+        data_structure = "INDIVIDUAL"
+        output_file = os.path.abspath("output_file")
+        path_to_end_with = os.path.join("gaia", "test", "output_file")
+        if not output_file.endswith(path_to_end_with):
+            output_file = os.path.abspath(path_to_end_with)
 
         params_dict = {}
         params_dict['VALID_DATA'] = "true"
         params_dict['ID'] = ids
         params_dict['FORMAT'] = str(format)
         params_dict['RETRIEVAL_TYPE'] = str(retrieval_type)
+        params_dict['DATA_STRUCTURE'] = str(data_structure)
+        params_dict['USE_ZIP_ALWAYS'] = 'true'
 
         tap.load_data(ids=ids,
                       retrieval_type=retrieval_type,
                       valid_data=valid_data,
                       band=band,
                       format=format,
-                      verbose=verbose)
+                      verbose=verbose,
+                      output_file=output_file)
         parameters = {}
         parameters['params_dict'] = params_dict
-        parameters['output_file'] = None
+        # Output file name contains a timestamp: cannot be verified
+        of = dummyHandler._DummyTapHandler__parameters['output_file']
+        parameters['output_file'] = of
         parameters['verbose'] = verbose
-
-        dummyHandler.check_call('load_data', parameters)
-        tap.load_data(ids=ids,
-                      retrieval_type=retrieval_type,
-                      valid_data=valid_data,
-                      band=band,
-                      format=format,
-                      verbose=verbose)
         dummyHandler.check_call('load_data', parameters)
 
     def test_get_datalinks(self):
@@ -451,8 +453,8 @@ class TestTap(unittest.TestCase):
         req = "async/" + jobid + "/results/result"
         connHandler.set_response(req, responseResultsJob)
         query = ("SELECT crossmatch_positional(",
-                "'schemaA','tableA','schemaB','tableB',1.0,'results')",
-                "FROM dual;")
+                 "'schemaA','tableA','schemaB','tableB',1.0,'results')",
+                 "FROM dual;")
         dTmp = {"q": query}
         dTmpEncoded = connHandler.url_encode(dTmp)
         p = dTmpEncoded.find("=")
@@ -539,8 +541,8 @@ class TestTap(unittest.TestCase):
         parameters['upload_resource'] = None
         parameters['upload_table_name'] = None
         job = tap.cross_match(full_qualified_table_name_a='schemaA.tableA',
-                        full_qualified_table_name_b='schemaB.tableB',
-                        results_table_name='results')
+                              full_qualified_table_name_b='schemaB.tableB',
+                              results_table_name='results')
         assert job.async_ is True, "Expected an asynchronous job"
         assert job.get_phase() == 'COMPLETED', \
             "Wrong job phase. Expected: %s, found %s" % \

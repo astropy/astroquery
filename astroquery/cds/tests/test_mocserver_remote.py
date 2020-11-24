@@ -21,7 +21,7 @@ from ..core import cds
 
 
 @pytest.mark.remote_data
-class TestMOCServerRemote(object):
+class TestMOCServerRemote:
     """
     Tests requiring regions
     """

@@ -25,7 +25,7 @@ an object by name:
 
     >>> from astroquery.heasarc import Heasarc
     >>> heasarc = Heasarc()
-    >>> mission = 'rospublic'
+    >>> mission = 'rosmaster'
     >>> object_name = '3c273'
     >>> table = heasarc.query_object(object_name, mission=mission)
     >>> table[:3].pprint()
@@ -44,7 +44,7 @@ coordinates:
     >>> from astroquery.heasarc import Heasarc
     >>> from astropy.coordinates import SkyCoord
     >>> heasarc = Heasarc()
-    >>> mission = 'rospublic'
+    >>> mission = 'rosmaster'
     >>> coords = SkyCoord('12h29m06.70s +02d03m08.7s', frame='icrs')
     >>> table = heasarc.query_region(coords, mission=mission, radius='1 degree')
     >>> table[:3].pprint()
@@ -67,15 +67,15 @@ the ``fields`` parameter in either of the above queries. For exampe:
 
 .. code-block:: python
 
-    >>> table = heasarc.query_object(object_name='3c273', mission='rospublic', fields='All')
+    >>> table = heasarc.query_object(object_name='3c273', mission='rosmaster', fields='All')
 
-will return all available columns from the ``rospublic`` mission table.
+will return all available columns from the ``rosmaster`` mission table.
 Alternatively, a comma-separated list of column names can also be provided to
 specify which columns will be returned:
 
 .. code-block:: python
 
-    >>> table = heasarc.query_object(object_name='3c273', mission='rospublic', fields='EXPOSURE,RA,DEC')
+    >>> table = heasarc.query_object(object_name='3c273', mission='rosmaster', fields='EXPOSURE,RA,DEC')
     >>> table[:3].pprint()
     EXPOSURE   RA    DEC    SEARCH_OFFSET_
        S     DEGREE DEGREE
@@ -91,7 +91,7 @@ columns for a given mission table, do the following:
 
 .. code-block:: python
 
-    >>> cols = heasarc.query_mission_cols(mission='rospublic')
+    >>> cols = heasarc.query_mission_cols(mission='rosmaster')
     >>> print(cols)
     ['SEQ_ID', 'INSTRUMENT', 'EXPOSURE', 'RA', 'DEC', 'NAME', 'PUBLIC_DATE', 
     'BII', 'CLASS', 'DEC_1950', 'DIST_DATE', 'END_DATE','FILTER', 'FITS_TYPE', 
@@ -112,7 +112,7 @@ to 120 arcmin:
 
     >>> from astroquery.heasarc import Heasarc
     >>> heasarc = Heasarc()
-    >>> table = heasarc.query_object(object_name, mission='rospublic', radius='120 arcmin')
+    >>> table = heasarc.query_object(object_name, mission='rosmaster', radius='120 arcmin')
 
 ``radius`` takes an angular distance specified as an astropy Quantity object, 
 or a string that can be parsed into one (e.g., '1 degree' or 1*u.degree). The
@@ -120,11 +120,11 @@ following are equivalent:
 
 .. code-block:: python
 
-    >>> table = heasarc.query_object(object_name, mission='rospublic', radius='120 arcmin')
-    >>> table = heasarc.query_object(object_name, mission='rospublic', radius='2 degree')
+    >>> table = heasarc.query_object(object_name, mission='rosmaster', radius='120 arcmin')
+    >>> table = heasarc.query_object(object_name, mission='rosmaster', radius='2 degree')
     >>> from astropy import units as u
-    >>> table = heasarc.query_object(object_name, mission='rospublic', radius=120*u.arcmin)
-    >>> table = heasarc.query_object(object_name, mission='rospublic', radius=2*u.degree)
+    >>> table = heasarc.query_object(object_name, mission='rosmaster', radius=120*u.arcmin)
+    >>> table = heasarc.query_object(object_name, mission='rosmaster', radius=2*u.degree)
 
 As per the astroquery specifications, the :meth:`~astroquery.heasarc.HeasarcClass.query_region`
 method requires the user to supply the radius parameter.
@@ -134,7 +134,7 @@ parameter. The following sorts the results by the value in the 'EXPOSURE' column
 
 .. code-block:: python
 
-    >>> table = heasarc.query_object(object_name, mission='rospublic', sortvar='EXPOSURE')
+    >>> table = heasarc.query_object(object_name, mission='rosmaster', sortvar='EXPOSURE')
     >>> table[:3].pprint()
        SEQ_ID   INSTRUMENT EXPOSURE   RA    DEC           NAME         PUBLIC_DATE  SEARCH_OFFSET_
                               S     DEGREE DEGREE                          MJD
@@ -148,7 +148,7 @@ returned. The following will store only the first 10 results:
 
 .. code-block:: python
 
-    >>> table = heasarc.query_object(object_name, mission='rospublic', resultmax=10)
+    >>> table = heasarc.query_object(object_name, mission='rosmaster', resultmax=10)
 
 All of the above parameters can be mixed and matched to refine the query results.
 

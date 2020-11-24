@@ -6,6 +6,12 @@
 JPL Horizons Queries (`astroquery.jplhorizons`/astroquery.solarsystem.jpl.horizons)
 ***********************************************************************************
 
+.. Note::
+
+   Due to serverside changes the ``jplhorizons`` module requires astroquery v0.4.1 or newer.
+   Previous versions are not expected to function, please upgrade the package if you observe any issues.
+
+
 Overview
 ========
 
@@ -28,7 +34,7 @@ In order to query information for a specific Solar System body, a
    >>> obj = Horizons(id='Ceres', location='568', epochs=2458133.33546)
    >>> print(obj)
    JPLHorizons instance "Ceres"; location=568, epochs=[2458133.33546], id_type=smallbody
-   
+
 ``id`` refers to the target identifier and is mandatory; the exact
 string will be used in the query to the Horizons system.
 
@@ -61,7 +67,7 @@ as the observer's location:
     JPLHorizons instance "Ceres"; location={'lon': -74.0466891, 'lat': 40.6892534, 'elevation': 0.093}, epochs=[2458133.33546], id_type=smallbody
 
 
-    
+
 ``epochs`` is either a scalar or list of Julian Dates (floats or
 strings) in the case of discrete epochs, or, in
 the case of a range of
@@ -94,14 +100,14 @@ respective id number or record number as ``id`` and use ``id_type=id``:
    ValueError: Ambiguous target name; provide unique id:
        Record #  Epoch-yr  Primary Desig  >MATCH NAME<
        --------  --------  -------------  -------------------------
-           9134             4822 P-L        Encke
-         900034     1786    2P              Encke
-         900035     1796    2P              Encke
-         900036     1805    2P              Encke
-	    ...      ...    ...               ...
-   >>> print(Horizons(id='900034', id_type='id').ephemerides())
+           9134            4822 P-L        Encke
+       90000034    1786    2P              Encke
+       90000035    1796    2P              Encke
+       90000036    1805    2P              Encke
+	    ...     ...    ...               ...
+   >>> print(Horizons(id='90000034', id_type='id').ephemerides())
    targetname       datetime_str          datetime_jd    ... RA_3sigma DEC_3sigma
-      ---               ---                    d         ...   arcsec    arcsec  
+      ---               ---                    d         ...   arcsec    arcsec
    ---------- ------------------------ ----------------- ... --------- ----------
      2P/Encke 2018-Jan-17 05:06:07.709 2458135.712589224 ...        --         --
 
@@ -128,7 +134,7 @@ a range of dates as seen from Maunakea:
    >>> eph = obj.ephemerides()
    >>> print(eph)
    targetname    datetime_str   datetime_jd ...   GlxLat  RA_3sigma DEC_3sigma
-      ---            ---             d      ...    deg      arcsec    arcsec  
+      ---            ---             d      ...    deg      arcsec    arcsec
    ---------- ----------------- ----------- ... --------- --------- ----------
       1 Ceres 2010-Jan-01 00:00   2455197.5 ... 24.120057       0.0        0.0
       1 Ceres 2010-Jan-11 00:00   2455207.5 ... 20.621496       0.0        0.0
@@ -137,14 +143,14 @@ a range of dates as seen from Maunakea:
       1 Ceres 2010-Feb-10 00:00   2455237.5 ... 10.877201       0.0        0.0
       1 Ceres 2010-Feb-20 00:00   2455247.5 ...  7.976737       0.0        0.0
 
-      
+
 The following fields are available for each ephemerides query:
 
 .. code-block:: python
 
    >>> print(eph.columns)
    <TableColumns names=('targetname','datetime_str','datetime_jd','H','G','solar_presence','flags','RA','DEC','RA_rate','DEC_rate','AZ','EL','airmass','magextinct','V','surfbright','illumination','EclLon','EclLat','r','r_rate','delta','delta_rate','lighttime','elong','elongFlag','alpha','sunTargetPA','velocityPA','ObsEclLon','ObsEclLat','GlxLon','GlxLat','RA_3sigma','DEC_3sigma')>
-		
+
 The values in these columns are the same as those defined in the
 Horizons `Definition of Observer Table Quantities`_; names have been
 simplified in a few cases. Quantities ``H`` and ``G`` are the target's
@@ -190,7 +196,7 @@ a string with comma-separated codes has to be provided).
 
 
 :meth:`~astroquery.jplhorizons.HorizonsClass.elements` returns orbital
-elements relative to some Solar System body (``location``, referred to as 
+elements relative to some Solar System body (``location``, referred to as
 "CENTER" in Horizons) and for a given epoch or a range of epochs
 (``epochs``) in the form of an astropy table. The following example
 queries the osculating elements of asteroid (433) Eros for a given
@@ -203,8 +209,8 @@ data relative to the Sun:
    ...		      epochs=2458133.33546)
    >>> el = obj.elements()
    >>> print(el)
-       targetname      datetime_jd  ...       Q            P      
-          ---               d       ...       AU           d      
+       targetname      datetime_jd  ...       Q            P
+          ---               d       ...       AU           d
    ------------------ ------------- ... ------------- ------------
    433 Eros (1898 DQ) 2458133.33546 ... 1.78244263804 642.93873484
 
@@ -229,7 +235,7 @@ should only be used for comets and will crash the query for other
 object types. Furthermore,``get_query_payload=True``, which skips the
 query and only returns the query payload, and
 ``get_raw_response=True``, which returns the raw query response
-instead of the astropy table, are available. 
+instead of the astropy table, are available.
 
 :meth:`~astroquery.jplhorizons.HorizonsClass.vectors` returns the
 state vector of the target body in cartesian coordinates relative to
@@ -247,8 +253,8 @@ epochs:
    ...                        'step':'10m'})
    >>> vec = obj.vectors()
    >>> print(vec)
-   targetname  datetime_jd  ...      range          range_rate   
-       ---           d       ...        AU             AU / d     
+   targetname  datetime_jd  ...      range          range_rate
+       ---           d       ...        AU             AU / d
    ---------- ------------- ... --------------- -----------------
    (2012 TC4)     2458027.5 ... 0.0429332099306 -0.00408018711862
    (2012 TC4) 2458027.50694 ... 0.0429048742906 -0.00408040726527
@@ -313,7 +319,7 @@ As we have seen before, we can display a truncated version of table
 
    >>> print(eph)
            targetname            datetime_str   ... RA_3sigma DEC_3sigma
-              ---                    ---        ...   arcsec    arcsec  
+              ---                    ---        ...   arcsec    arcsec
    -------------------------- ----------------- ... --------- ----------
    3552 Don Quixote (1983 SA) 1983-Jan-01 00:00 ...     0.159      0.141
    3552 Don Quixote (1983 SA) 1984-Jan-01 00:00 ...     0.187      0.231
@@ -348,7 +354,7 @@ We can get at list of all the columns in this table with
    >>> print(eph.columns)
    <TableColumns names=('targetname','datetime_str','datetime_jd','H','G','solar_presence','flags','RA','DEC','RA_rate','DEC_rate','AZ','EL','airmass','magextinct','V','surfbright','illumination','EclLon','EclLat','r','r_rate','delta','delta_rate','lighttime','elong','elongFlag','alpha','sunTargetPA','velocityPA','ObsEclLon','ObsEclLat','GlxLon','GlxLat','RA_3sigma','DEC_3sigma')>
 
-   
+
 We can address each column individually by indexing it using its name
 as provided in this list. For instance, we can get all RAs for Don
 Quixote by using
@@ -358,8 +364,8 @@ Quixote by using
 
    >>> print(eph['RA'])
 
-      RA   
-      deg   
+      RA
+      deg
    ---------
    209.43762
    357.85696
@@ -385,8 +391,8 @@ and DEC for each epoch
 .. code-block:: python
 
    >>> print(eph['datetime_str', 'RA', 'DEC'])
-      datetime_str       RA       DEC   
-          ---           deg       deg   
+      datetime_str       RA       DEC
+          ---           deg       deg
    ----------------- --------- ---------
    1983-Jan-01 00:00 209.43762 -25.92118
    1984-Jan-01 00:00 357.85696  28.74791
@@ -413,7 +419,7 @@ the geometric mean of 'RA_rate' and 'DEC_rate':
 
    >>> import numpy as np
    >>> print(np.sqrt(eph['RA_rate']**2 + eph['DEC_rate']**2))
-      dRA*cosD     
+      dRA*cosD
    ------------------
    58.69696313151559
    51.59679292260421
@@ -446,7 +452,7 @@ h`` - arcseconds per hour:
 .. code-block:: python
 
    >>> print(eph['RA_rate'])
-    RA_rate  
+    RA_rate
    arcsec / h
    ----------
      44.35495
@@ -474,8 +480,8 @@ into ``arcsec / s``:
 
    >>> eph['RA_rate'].convert_unit_to('arcsec/s')
    >>> print(eph['RA_rate'])
-          RA_rate        
-         arcsec / s      
+          RA_rate
+         arcsec / s
    ----------------------
      0.012320819444444445
      0.013666708333333333
@@ -562,12 +568,12 @@ try using a range of dates instead of a list of individual dates.
 Acknowledgements
 ================
 
-This submodule makes use of the `JPL Horizons <https://ssd.jpl.nasa.gov/horizons.cgi>`_ system. 
+This submodule makes use of the `JPL Horizons <https://ssd.jpl.nasa.gov/horizons.cgi>`_ system.
 
 The development of this submodule is in part funded through NASA PDART
 Grant No. 80NSSC18K0987 to the `sbpy project <http://sbpy.org>`_.
 
-     
+
 Reference/API
 =============
 

@@ -1,5 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from __future__ import print_function
+
 
 import json
 
@@ -391,7 +391,7 @@ class AstrometryNetClass(BaseQuery):
 
             print("Determining background stats", flush=True)
             mean, median, std = sigma_clipped_stats(data, sigma=3.0,
-                                                    iters=5)
+                                                    maxiters=5)
             daofind = DAOStarFinder(fwhm=fwhm,
                                     threshold=detect_threshold * std)
             print("Finding sources", flush=True)

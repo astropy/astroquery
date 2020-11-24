@@ -1,0 +1,884 @@
+\                                                                               
+\fixlen = T
+\RowsRetrieved =                 2
+\For detailed descriptions of the columns, go to http://exoplanetarchive.ipac.caltech.edu/docs/documentation.html and choose the appropriate table guide.
+\ 
+\ objectid (--) 
+\ ___ Object Identification Number
+\ ra (degrees) 
+\ ___ RA Value [decimal degrees]
+\ ra_str (--) 
+\ ___ RA Value [sexagesimal]
+\ dec (degrees) 
+\ ___ Dec Value [decimal degrees]
+\ dec_str (--) 
+\ ___ Dec Value [sexagesimal]
+\ glon (degrees) 
+\ ___ Galactic Longitude [deg]
+\ glat (degrees) 
+\ ___ Galactic Latitude [deg]
+\ mlmassplnj (M_J) 
+\ ___ Planet Mass [Jupiter Mass]
+\ mlmassplnjerr1 (M_J) 
+\ ___ Planet Mass Upper Uncertainty [Jupiter Mass]
+\ mlmassplnjerr2 (M_J) 
+\ ___ Planet Mass Lower Uncertainty [Jupiter Mass]
+\ mlmassplnjlim (--) 
+\ ___ Planet Mass Limit Flag (0="=", +1=">", -1="<")
+\ mlmassplnjformat (--) 
+\ ___ Planet Mass Format
+\ mlmassplnjstr (--) 
+\ ___ Planet Mass String for Display
+\ mlmassplnjdef (--) 
+\ ___ Planet Mass Default Flag (0=no, 1=yes)
+\ mlmassplne (M_E) 
+\ ___ Planet Mass [Earth mass]
+\ mlmassplneerr1 (M_E) 
+\ ___ Planet Mass Upper Uncertainty [Earth Mass]
+\ mlmassplneerr2 (M_E) 
+\ ___ Planet Mass Lower Uncertainty [Earth Mass]
+\ mlmassplnelim (--) 
+\ ___ Planet Mass Limit Flag (0="=", +1=">", -1="<")
+\ mlmassplneformat (--) 
+\ ___ Planet Mass Format
+\ mlmassplnestr (--) 
+\ ___ Planet Mass String for Display
+\ mlmassplnedef (--) 
+\ ___ Planet Mass Default Flag (0=no, 1=yes)
+\ mlsmaproj (a_perp) 
+\ ___ Planet-Star Projected Semi-Major Axis [AU]
+\ mlsmaprojerr1 (a_perp) 
+\ ___ Planet-Star Projected Semi-Major Axis Upper Uncertainty [AU]
+\ mlsmaprojerr2 (a_perp) 
+\ ___ Planet-Star Projected Semi-Major Axis Lower Uncertainty [AU]
+\ mlsmaprojlim (--) 
+\ ___ Planet-Star Projected Semi-Major Axis Limit Flag (0="=", +1=">",
+\ mlsmaprojformat (--) 
+\ ___ Planet-Star Projected Semi-Major Axis Format
+\ mlsmaprojstr (--) 
+\ ___ Planet-Star Projected Semi-Major Axis String for Display
+\ mlsmaprojdef (--) 
+\ ___ Planet-Star Projected Semi-Major Axis Default Flag (0=no, 1=yes)
+\ mlmasslens (Msun) 
+\ ___ Lens Mass [Solar Mass]
+\ mlmasslenserr1 (Msun) 
+\ ___ Lens Mass Upper Uncertainty [Solar Mass]
+\ mlmasslenserr2 (Msun) 
+\ ___ Lens Mass Lower Uncertainty [Solar Mass]
+\ mlmasslenslim (--) 
+\ ___ Lens Mass Limit Flag (0="=", +1=">", -1="<")
+\ mlmasslensformat (--) 
+\ ___ Lens Mass Format
+\ mlmasslensstr (--) 
+\ ___ Lens Mass String for Display
+\ mlmasslensdef (--) 
+\ ___ Lens Mass Default Flag (0=no, 1=yes)
+\ mldistl (D_L) 
+\ ___ Lens Distance [kpc]
+\ mldistlerr1 (D_L) 
+\ ___ Lens Distance Upper Uncertainty [kpc]
+\ mldistlerr2 (D_L) 
+\ ___ Lens Distance Lower Uncertainty [kpc]
+\ mldistllim (--) 
+\ ___ Lens Distance Limit Flag (0="=", +1=">", -1="<")
+\ mldistlformat (--) 
+\ ___ Lens Distance Format
+\ mldistlstr (--) 
+\ ___ Lens Distance String for Display
+\ mldistldef (--) 
+\ ___ Lens Distance Default Flag (0=no, 1=yes)
+\ mldists (D_S) 
+\ ___ Source Distance [kpc]
+\ mldistserr1 (D_S) 
+\ ___ Source Distance Upper Uncertainty [kpc]
+\ mldistserr2 (D_S) 
+\ ___ Source Distance Lower Uncertainty [kpc]
+\ mldistslim (--) 
+\ ___ Source Distance Limit Flag (0="=", +1=">", -1="<")
+\ mldistsformat (--) 
+\ ___ Source Distance Format
+\ mldistsstr (--) 
+\ ___ Source Distance String for Display
+\ mldistsdef (--) 
+\ ___ Source Distance Default Flag (0=no, 1=yes)
+\ mltsepmin (day) 
+\ ___ Time of Lens-Source Minimum Separation [day]
+\ mltsepminerr1 (day) 
+\ ___ Time of Lens-Source Minimum Separation Upper Uncertainty [day]
+\ mltsepminerr2 (day) 
+\ ___ Time of Lens-Source Minimum Separation Lower Uncertainty [day]
+\ mltsepminlim (--) 
+\ ___ Time of Lens-Source Minimum Separation Limit Flag (0="=", +1=">",
+\ mltsepminformat (--) 
+\ ___ Time of Lens-Source Minimum Separation Format
+\ mltsepminstr (--) 
+\ ___ Time of Lens-Source Minimum Separation String for Display
+\ mltsepmindef (--) 
+\ ___ Time of Lens-Source Minimum Separation Default Flag (0=no, 1=yes)
+\ mlsepminnorm (--) 
+\ ___ Normalized Lens-Source Minimum Separation
+\ mlsepminnormerr1 (--) 
+\ ___ Normalized Lens-Source Minimum Separation Upper Uncertainty
+\ mlsepminnormerr2 (--) 
+\ ___ Normalized Lens-Source Minimum Separation Lower Uncertainty
+\ mlsepminnormlim (--) 
+\ ___ Normalized Lens-Source Minimum Separation Limit Flag (0="=", +1="
+\ mlsepminnormformat (--) 
+\ ___ Normalized Lens-Source Minimum Separation Format
+\ mlsepminnormstr (--) 
+\ ___ Normalized Lens-Source Minimum Separation String for Display
+\ mlsepminnormdef (--) 
+\ ___ Normalized Lens-Source Minimum Separation Default Flag (0=no, 1=y
+\ mlxtimeein (day) 
+\ ___ Einstein Crossing time [day]
+\ mlxtimeeinerr1 (day) 
+\ ___ Einstein Crossing Time Upper Uncertainty [day]
+\ mlxtimeeinerr2 (day) 
+\ ___ Einstein Crossing Time Lower Uncertainty [day]
+\ mlxtimeeinlim (--) 
+\ ___ Einstein Crossing Time Limit Flag (0="=", +1=">", -1="<")
+\ mlxtimeeinformat (--) 
+\ ___ Einstein Crossing Time Format
+\ mlxtimeeinstr (--) 
+\ ___ Einstein Crossing Time String for Display
+\ mlxtimeeindef (--) 
+\ ___ Einstein Crossing Time Default Flag (0=no, 1=yes)
+\ mlradsnorm (--) 
+\ ___ Normalized Source Angular Radius (10**-3)
+\ mlradsnormerr1 (--) 
+\ ___ Normalized Source Angular Radius Upper Uncertainty
+\ mlradsnormerr2 (--) 
+\ ___ Normalized Source Angular Radius Lower Uncertainty
+\ mlradsnormlim (--) 
+\ ___ Normalized Source Angular Radius Limit Flag (0="=", +1=">", -1="<
+\ mlradsnormformat (--) 
+\ ___ Normalized Source Angular Radius Format
+\ mlradsnormstr (--) 
+\ ___ Normalized Source Angular Radius String for Display
+\ mlradsnormdef (--) 
+\ ___ Normalized Source Angular Radius Default Flag (0=no, 1=yes)
+\ mlsepinsnorp (--) 
+\ ___ Planet-Star Projected, Normalized Semi-Major Axis
+\ mlsepinsnorperr1 (--) 
+\ ___ Planet-Star Projected, Normalized Semi-Major Axis Upper Uncertain
+\ mlsepinsnorperr2 (--) 
+\ ___ Planet-Star Projected, Normalized Semi-Major Axis Lower Uncertain
+\ mlsepinsnorplim (--) 
+\ ___ Planet-Star Projected, Normalized Semi-Major Axis Limit Flag (0="
+\ mlsepinsnorpformat (--) 
+\ ___ Planet-Star Projected, Normalized Semi-Major Axis Format
+\ mlsepinsnorpstr (--) 
+\ ___ Planet-Star Projected, Normalized Semi-Major Axis String for Disp
+\ mlsepinsnorpdef (--) 
+\ ___ Planet-Star Projected, Normalized Semi-Major Axis Default Flag (0
+\ mlmassratio (--) 
+\ ___ Planet-Star Mass Ratio (10**-4)
+\ mlmassratioerr1 (--) 
+\ ___ Planet-Star Mass Ratio Upper Uncertainty
+\ mlmassratioerr2 (--) 
+\ ___ Planet-Star Mass Ratio Lower Uncertainty
+\ mlmassratiolim (--) 
+\ ___ Planet-Star Mass Ratio Limit Flag (0="=", +1=">", -1="<")
+\ mlmassratioformat (--) 
+\ ___ Planet-Star Mass Ratio Format
+\ mlmassratiostr (--) 
+\ ___ Planet-Star Mass Ratio String for Display
+\ mlmassratiodef (--) 
+\ ___ Planet-Star Mass Ratio Default Flag (0=no, 1=yes)
+\ mlangstlax (rad) 
+\ ___ Source Trajectory-Lens Axis Angle [rad]
+\ mlangstlaxerr1 (rad) 
+\ ___ Source Trajectory-Lens Axis Angle Upper Uncertainty [rad]
+\ mlangstlaxerr2 (rad) 
+\ ___ Source Trajectory-Lens Axis Angle Lower Uncertainty [rad]
+\ mlangstlaxlim (--) 
+\ ___ Source Trajectory-Lens Axis Angle Limit Flag (0="=", +1=">", -1="
+\ mlangstlaxformat (--) 
+\ ___ Source Trajectory-Lens Axis Angle Format
+\ mlangstlaxstr (--) 
+\ ___ Source Trajectory-Lens Axis Angle String for Display
+\ mlangstlaxdef (--) 
+\ ___ Source Trajectory-Lens Axis Angle Default Flag (0=no, 1=yes)
+\ mlmagis (I_S) 
+\ ___ Source I-band [mag]
+\ mlmagiserr1 (I_S) 
+\ ___ Source I-band Upper Uncertainty [mag]
+\ mlmagiserr2 (I_S) 
+\ ___ Source I-band Lower Uncertainty [mag]
+\ mlmagislim (--) 
+\ ___ Source I-band Limit Flag (0="=", +1=">", -1="<")
+\ mlmagisformat (--) 
+\ ___ Source I-band Format
+\ mlmagisstr (--) 
+\ ___ Source I-band String for Display
+\ mlmagisdef (--) 
+\ ___ Source I-band Default Flag (0=no, 1=yes)
+\ mlmagibl (I_B) 
+\ ___ Blend I-band [mag]
+\ mlmagiblerr1 (I_B) 
+\ ___ Blend I-band Upper Uncertainty [mag]
+\ mlmagiblerr2 (I_B) 
+\ ___ Blend I-band Lower Uncertainty [mag]
+\ mlmagibllim (--) 
+\ ___ Blend I-band Limit Flag (0="=", +1=">", -1="<")
+\ mlmagiblformat (--) 
+\ ___ Blend I-band Format
+\ mlmagiblstr (--) 
+\ ___ Blend I-band String for Display
+\ mlmagibldef (--) 
+\ ___ Blend I-band Default Flag (0=no, 1=yes)
+\ mlradeinang (mas) 
+\ ___ Angular Einstein radius [mas]
+\ mlradeinangerr1 (mas) 
+\ ___ Angular Einstein radius Upper Uncertainty [mas]
+\ mlradeinangerr2 (mas) 
+\ ___ Angular Einstein radius Lower Uncertainty [mas]
+\ mlradeinanglim (--) 
+\ ___ Angular Einstein radius Limit Flag (0="=", +1=">", -1="<")
+\ mlradeinangformat (--) 
+\ ___ Angular Einstein radius Format
+\ mlradeinangstr (--) 
+\ ___ Angular Einstein radius String for Display
+\ mlradeinangdef (--) 
+\ ___ Angular Einstein radius Default Flag (0=no, 1=yes)
+\ mlpmrells (mas/yr) 
+\ ___ Lens-source Relative Proper Motion [mas/yr]
+\ mlpmrellserr1 (mas/yr) 
+\ ___ Lens-source Relative Proper Motion Upper Uncertainty [mas/yr]
+\ mlpmrellserr2 (mas/yr) 
+\ ___ Lens-source Relative Proper Motion Lower Uncertainty [mas/yr]
+\ mlpmrellslim (--) 
+\ ___ Lens-source Relative Proper Motion Limit Flag (0="=", +1=">", -1=
+\ mlpmrellsformat (--) 
+\ ___ Lens-source Relative Proper Motion Format
+\ mlpmrellsstr (--) 
+\ ___ Lens-source Relative Proper Motion String for Display
+\ mlpmrellsdef (--) 
+\ ___ Lens-source Relative Proper Motion Default Flag (0=no, 1=yes)
+\ mlplxrel (pi_rel) 
+\ ___ Lens-Source Relative Parallax
+\ mlplxrelerr1 (pi_rel) 
+\ ___ Lens-Source Relative Parallax Upper Uncertainty
+\ mlplxrelerr2 (pi_rel) 
+\ ___ Lens-Source Relative Parallax Lower Uncertainty
+\ mlplxrellim (--) 
+\ ___ Lens-Source Relative Parallax Limit Flag (0="=", +1=">", -1="<")
+\ mlplxrelformat (--) 
+\ ___ Lens-Source Relative Parallax Format
+\ mlplxrelstr (--) 
+\ ___ Lens-Source Relative Parallax String for Display
+\ mlplxreldef (--) 
+\ ___ Lens-Source Relative Parallax Default Flag (0=no, 1=yes)
+\ mlplxmicro (pi_E) 
+\ ___ Microlens Parallax
+\ mlplxmicroerr1 (pi_E) 
+\ ___ Microlens Parallax Upper Uncertainty
+\ mlplxmicroerr2 (pi_E) 
+\ ___ Microlens Parallax Lower Uncertainty
+\ mlplxmicrolim (--) 
+\ ___ Microlens Parallax Limit Flag (0="=", +1=">", -1="<")
+\ mlplxmicroformat (--) 
+\ ___ Microlens Parallax Format
+\ mlplxmicrostr (--) 
+\ ___ Microlens Parallax String for Display
+\ mlplxmicrodef (--) 
+\ ___ Microlens Parallax Default Flag (0=no, 1=yes)
+\ mlplxmicroe (pi_EE) 
+\ ___ Microlens Parallax (East component)
+\ mlplxmicroeerr1 (pi_EE) 
+\ ___ Microlens Parallax (East component) Upper Uncertainty
+\ mlplxmicroeerr2 (pi_EE) 
+\ ___ Microlens Parallax (East component) Lower Uncertainty
+\ mlplxmicroelim (--) 
+\ ___ Microlens Parallax (East component) Limit Flag (0="=", +1=">", -1
+\ mlplxmicroeformat (--) 
+\ ___ Microlens Parallax (East component) Format
+\ mlplxmicroestr (--) 
+\ ___ Microlens Parallax (East component) String for Display
+\ mlplxmicroedef (--) 
+\ ___ Microlens Parallax (East component) Default Flag (0=no, 1=yes)
+\ mlplxmicron (pi_EN) 
+\ ___ Microlens Parallax (North component)
+\ mlplxmicronerr1 (pi_EN) 
+\ ___ Microlens Parallax (North component) Upper Uncertainty
+\ mlplxmicronerr2 (pi_EN) 
+\ ___ Microlens Parallax (North component) Lower Uncertainty
+\ mlplxmicronlim (--) 
+\ ___ Microlens Parallax (North component) Limit Flag (0="=", +1=">", -
+\ mlplxmicronformat (--) 
+\ ___ Microlens Parallax (North component) Format
+\ mlplxmicronstr (--) 
+\ ___ Microlens Parallax (North component) String for Display
+\ mlplxmicrondef (--) 
+\ ___ Microlens Parallax (North component) Default Flag (0=no, 1=yes)
+\ mldsdt (1/yr) 
+\ ___ Planet-Star Separation Rate of Change [yr**-1]
+\ mldsdterr1 (1/yr) 
+\ ___ Planet-Star Separation Rate of Change Upper Uncertainty [yr**-1]
+\ mldsdterr2 (1/yr) 
+\ ___ Planet-Star Separation Rate of Change Lower Uncertainty [yr**-1]
+\ mldsdtlim (--) 
+\ ___ Planet-Star Separation Rate of Change Limit Flag (0="=", +1=">",
+\ mldsdtformat (--) 
+\ ___ Planet-Star Separation Rate of Change Format
+\ mldsdtstr (--) 
+\ ___ Planet-Star Separation Rate of Change String for Display
+\ mldsdtdef (--) 
+\ ___ Planet-Star Separation Rate of Change Default Flag (0=no, 1=yes)
+\ mldalphadt (deg/yr) 
+\ ___ Source Trajectory Angle Rate of Change [deg/yr]
+\ mldalphadterr1 (deg/yr) 
+\ ___ Source Trajectory Angle Rate of Change Upper Uncertainty [deg/yr]
+\ mldalphadterr2 (deg/yr) 
+\ ___ Source Trajectory Angle Rate of Change Lower Uncertainty [deg/yr]
+\ mldalphadtlim (--) 
+\ ___ Source Trajectory Angle Rate of Change Limit Flag (0="=", +1=">",
+\ mldalphadtformat (--) 
+\ ___ Source Trajectory Angle Rate of Change Format
+\ mldalphadtstr (--) 
+\ ___ Source Trajectory Angle Rate of Change String for Display
+\ mldalphadtdef (--) 
+\ ___ Source Trajectory Angle Rate of Change Default Flag (0=no, 1=yes)
+\ mlradsang (microas) 
+\ ___ Source Angular Radius [microas]
+\ mlradsangerr1 (microas) 
+\ ___ Source Angular Radius Upper Uncertainty [microas]
+\ mlradsangerr2 (microas) 
+\ ___ Source Angular Radius Lower Uncertainty [microas]
+\ mlradsanglim (--) 
+\ ___ Source Angular Radius Limit Flag (0="=", +1=">", -1="<")
+\ mlradsangformat (--) 
+\ ___ Source Angular Radius Format
+\ mlradsangstr (--) 
+\ ___ Source Angular Radius String for Display
+\ mlradsangdef (--) 
+\ ___ Source Angular Radius Default Flag (0=no, 1=yes)
+\ mlradsphy (Rstar) 
+\ ___ Source Physical Radius [Solar Radii]
+\ mlradsphyerr1 (Rstar) 
+\ ___ Source Physical Radius Upper Uncertainty [Solar Radii]
+\ mlradsphyerr2 (Rstar) 
+\ ___ Source Physical Radius Lower Uncertainty [Solar Radii]
+\ mlradsphylim (--) 
+\ ___ Source Physical Radius Limit Flag (0="=", +1=">", -1="<")
+\ mlradsphyformat (--) 
+\ ___ Source Physical Radius Format
+\ mlradsphystr (--) 
+\ ___ Source Physical Radius String for Display
+\ mlradsphydef (--) 
+\ ___ Source Physical Radius Default Flag (0=no, 1=yes)
+\ mlxtimesrc (day) 
+\ ___ Source crossing time [day]
+\ mlxtimesrcerr1 (day) 
+\ ___ Source crossing time Upper Uncertainty [day]
+\ mlxtimesrcerr2 (day) 
+\ ___ Source crossing time Lower Uncertainty [day]
+\ mlxtimesrclim (--) 
+\ ___ Source crossing time Limit Flag (0="=", +1=">", -1="<")
+\ mlxtimesrcformat (--) 
+\ ___ Source crossing time Format
+\ mlxtimesrcstr (--) 
+\ ___ Source crossing time String for Display
+\ mlxtimesrcdef (--) 
+\ ___ Source crossing time Default Flag (0=no, 1=yes)
+\ mlefftime (day) 
+\ ___ Effective Timescale [day]
+\ mlefftimeerr1 (day) 
+\ ___ Effective Timescale Upper Uncertainty [day]
+\ mlefftimeerr2 (day) 
+\ ___ Effective Timescale Lower Uncertainty [day]
+\ mlefftimelim (--) 
+\ ___ Effective Timescale Limit Flag (0="=", +1=">", -1="<") [day]
+\ mlefftimeformat (--) 
+\ ___ Effective Timescale Format
+\ mlefftimestr (--) 
+\ ___ Effective Timescale String for Display
+\ mlefftimedef (--) 
+\ ___ Effective Timescale Default Flag (0=no, 1=yes)
+\ mlpms (mas/yr) 
+\ ___ Source Proper Motion [mas/yr]
+\ mlpmserr1 (mas/yr) 
+\ ___ Source Proper Motion Upper Uncertainty [mas/yr]
+\ mlpmserr2 (mas/yr) 
+\ ___ Source Proper Motion Lower Uncertainty [mas/yr]
+\ mlpmslim (--) 
+\ ___ Source Proper Motion Limit Flag (0="=", +1=">", -1="<")
+\ mlpmsformat (--) 
+\ ___ Source Proper Motion Format
+\ mlpmsstr (--) 
+\ ___ Source Proper Motion String for Display
+\ mlpmsdef (--) 
+\ ___ Source Proper Motion Default Flag (0=no, 1=yes)
+\ mlmagiso (I_S,0) 
+\ ___ Source De-Reddened I-band [mag]
+\ mlmagisoerr1 (I_S,0) 
+\ ___ Source De-Reddened I-band Upper Uncertainty [mag]
+\ mlmagisoerr2 (I_S,0) 
+\ ___ Source De-Reddened I-band Lower Uncertainty [mag]
+\ mlmagisolim (--) 
+\ ___ Source De-Reddened I-band Limit Flag (0="=", +1=">", -1="<")
+\ mlmagisoformat (--) 
+\ ___ Source De-Reddened I-band Format
+\ mlmagisostr (--) 
+\ ___ Source De-Reddened I-band String for Display
+\ mlmagisodef (--) 
+\ ___ Source De-Reddened I-band Default Flag (0=no, 1=yes)
+\ mlmagjs (J_S) 
+\ ___ Source J-band [mag]
+\ mlmagjserr1 (J_S) 
+\ ___ Source J-band Upper Uncertainty [mag]
+\ mlmagjserr2 (J_S) 
+\ ___ Source J-band Upper Uncertainty [mag]
+\ mlmagjslim (--) 
+\ ___ Source J-band Limit Flag (0="=", +1=">", -1="<")
+\ mlmagjsformat (--) 
+\ ___ Source J-band Format
+\ mlmagjsstr (--) 
+\ ___ Source J-band String for Display
+\ mlmagjsdef (--) 
+\ ___ Source J-band Default Flag (0=no, 1=yes)
+\ mlmagvs (V_S) 
+\ ___ Source V-band [mag]
+\ mlmagvserr1 (V_S) 
+\ ___ Source V-band Upper Uncertainty [mag]
+\ mlmagvserr2 (V_S) 
+\ ___ Source V-band Lower Uncertainty [mag]
+\ mlmagvslim (--) 
+\ ___ Source V-band Limit Flag (0="=", +1=">", -1="<")
+\ mlmagvsformat (--) 
+\ ___ Source V-band Format
+\ mlmagvsstr (--) 
+\ ___ Source V-band String for Display
+\ mlmagvsdef (--) 
+\ ___ Source V-band Default Flag (0=no, 1=yes)
+\ mlmagjso (J_S,0) 
+\ ___ Source De-reddened J-band [mag]
+\ mlmagjsoerr1 (J_S,0) 
+\ ___ Source De-reddened J-band Upper Uncertainty [mag]
+\ mlmagjsoerr2 (J_S,0) 
+\ ___ Source De-reddened J-band Lower Uncertainty [mag]
+\ mlmagjsolim (--) 
+\ ___ Source De-reddened J-band Limit Flag (0="=", +1=">", -1="<")
+\ mlmagjsoformat (--) 
+\ ___ Source De-Reddened J-band Format
+\ mlmagjsostr (--) 
+\ ___ Source De-Reddened J-band String for Display
+\ mlmagjsodef (--) 
+\ ___ Source De-Reddened J-band Default Flag (0=no, 1=yes)
+\ mlmagvso (V_S,0) 
+\ ___ Source De-Reddened V-band [mag]
+\ mlmagvsoerr1 (V_S,0) 
+\ ___ Source De-Reddened V-band Upper Uncertainty [mag]
+\ mlmagvsoerr2 (V_S,0) 
+\ ___ Source De-Reddened V-band Lower Uncertainty [mag]
+\ mlmagvsolim (--) 
+\ ___ Source De-Reddened V-band Limit Flag (0="=", +1=">", -1="<")
+\ mlmagvsoformat (--) 
+\ ___ Source De-Reddened V-band Format
+\ mlmagvsostr (--) 
+\ ___ Source De-Reddened V-band String for Display
+\ mlmagvsodef (--) 
+\ ___ Source De-Reddened V-band Default Flag (0=no, 1=yes)
+\ mlmaghs (H_S) 
+\ ___ Source H-band [mag]
+\ mlmaghserr1 (H_S) 
+\ ___ Source H-band Upper Uncertainty [mag]
+\ mlmaghserr2 (H_S) 
+\ ___ Source H-band Lower Uncertainty [mag]
+\ mlmaghslim (--) 
+\ ___ Source H-band Limit Flag (0="=", +1=">", -1="<")
+\ mlmaghsformat (--) 
+\ ___ Source H-band Format
+\ mlmaghsstr (--) 
+\ ___ Source H-band String for Display
+\ mlmaghsdef (--) 
+\ ___ Source H-band Default Flag (0=no, 1=yes)
+\ mlmaghso (H_S,0) 
+\ ___ Source De-Reddened H-band [mag]
+\ mlmaghsoerr1 (H_S,0) 
+\ ___ Source De-Reddened H-band Upper Uncertainty [mag]
+\ mlmaghsoerr2 (H_S,0) 
+\ ___ Source De-Reddened H-band Lower Uncertainty [mag]
+\ mlmaghsolim (--) 
+\ ___ Source De-Reddened H-band Limit Flag (0="=", +1=">", -1="<")
+\ mlmaghsoformat (--) 
+\ ___ Source De-Reddened H-band Format
+\ mlmaghsostr (--) 
+\ ___ Source De-Reddened H-band String for Display
+\ mlmaghsodef (--) 
+\ ___ Source De-Reddened H-band Default Flag (0=no, 1=yes)
+\ mlmagks (K_S) 
+\ ___ Source K-band [mag]
+\ mlmagkserr1 (K_S) 
+\ ___ Source K-band Upper Uncertainty [mag]
+\ mlmagkserr2 (K_S) 
+\ ___ Source K-band Lower Uncertainty [mag]
+\ mlmagkslim (--) 
+\ ___ Source K-band Limit Flag (0="=", +1=">", -1="<")
+\ mlmagksformat (--) 
+\ ___ Source K-band Format
+\ mlmagksstr (--) 
+\ ___ Source K-band String for Display
+\ mlmagksdef (--) 
+\ ___ Source K-band Default Flag (0=no, 1=yes)
+\ mlmagkso (K_S,0) 
+\ ___ Source De-Reddened K-band [mag]
+\ mlmagksoerr1 (K_S,0) 
+\ ___ Source De-Reddened K-band Upper Uncertainty [mag]
+\ mlmagksoerr2 (K_S,0) 
+\ ___ Source De-Reddened K-band Lower Uncertainty [mag]
+\ mlmagksolim (--) 
+\ ___ Source De-Reddened K-band Limit Flag (0="=", +1=">", -1="<")
+\ mlmagksoformat (--) 
+\ ___ Source De-Reddened K-band Format
+\ mlmagksostr (--) 
+\ ___ Source De-Reddened K-band String for Display
+\ mlmagksodef (--) 
+\ ___ Source De-Reddened K-band Default Flag (0=no, 1=yes)
+\ mlmagibase (I_base) 
+\ ___ Event Baseline I-band [mag]
+\ mlmagibaseerr1 (I_base) 
+\ ___ Event Baseline I-band Upper Uncertainty
+\ mlmagibaseerr2 (I_base) 
+\ ___ Event Baseline I-band Lower Uncertainty
+\ mlmagibaselim (--) 
+\ ___ Event Baseline I-band Limit Flag (0="=", +1=">", -1="<")
+\ mlmagibaseformat (--) 
+\ ___ Event Baseline I-band Format
+\ mlmagibasestr (--) 
+\ ___ Event Baseline I-band String for Display
+\ mlmagibasedef (--) 
+\ ___ Event Baseline I-band Default Flag (0=no, 1=yes)
+\ mlmagvl (V_L) 
+\ ___ Lens V-band [mag]
+\ mlmagvlerr1 (V_L) 
+\ ___ Lens V-band Upper Uncertainty [mag]
+\ mlmagvlerr2 (V_L) 
+\ ___ Lens V-band Lower Uncertainty [mag]
+\ mlmagvllim (--) 
+\ ___ Lens V-band Limit Flag (0="=", +1=">", -1="<")
+\ mlmagvlformat (--) 
+\ ___ Lens V-band Format
+\ mlmagvlstr (--) 
+\ ___ Lens V-band String for Display
+\ mlmagvldef (--) 
+\ ___ Lens V-band Default Flag (0=no, 1=yes)
+\ mlmagil (I_L) 
+\ ___ Lens I-band [mag]
+\ mlmagilerr1 (I_L) 
+\ ___ Lens I-band Upper Uncertainty [mag]
+\ mlmagilerr2 (I_L) 
+\ ___ Lens I-band Lower Uncertainty [mag]
+\ mlmagillim (--) 
+\ ___ Lens I-band Limit Flag (0="=", +1=">", -1="<")
+\ mlmagilformat (--) 
+\ ___ Lens I-band Format
+\ mlmagilstr (--) 
+\ ___ Lens I-band String for Display
+\ mlmagildef (--) 
+\ ___ Lens I-band Default Flag (0=no, 1=yes)
+\ mlmagjl (J_L) 
+\ ___ Lens J-band [mag]
+\ mlmagjlerr1 (J_L) 
+\ ___ Lens J-band Upper Uncertainty [mag]
+\ mlmagjlerr2 (J_L) 
+\ ___ Lens J-band Lower Uncertainty [mag]
+\ mlmagjllim (--) 
+\ ___ Lens J-band Limit Flag (0="=", +1=">", -1="<")
+\ mlmagjlformat (--) 
+\ ___ Lens J-band Format
+\ mlmagjlstr (--) 
+\ ___ Lens J-band String for Display
+\ mlmagjldef (--) 
+\ ___ Lens J-band Default Flag (0=no, 1=yes)
+\ mlmaghl (H_L) 
+\ ___ Lens H-band [mag]
+\ mlmaghlerr1 (H_L) 
+\ ___ Lens H-band Upper Uncertainty [mag]
+\ mlmaghlerr2 (H_L) 
+\ ___ Lens H-band Lower Uncertainty [mag]
+\ mlmaghllim (--) 
+\ ___ Lens H-band Limit Flag (0="=", +1=">", -1="<")
+\ mlmaghlformat (--) 
+\ ___ Lens H-band Format
+\ mlmaghlstr (--) 
+\ ___ Lens H-band String for Display
+\ mlmaghldef (--) 
+\ ___ Lens H-band Default Flag (0=no, 1=yes)
+\ mlmagkl (K_L) 
+\ ___ Lens K-band [mag]
+\ mlmagklerr1 (K_L) 
+\ ___ Lens K-band Upper Uncertainty [mag]
+\ mlmagklerr2 (K_L) 
+\ ___ Lens K-band Lower Uncertainty [mag]
+\ mlmagkllim (--) 
+\ ___ Lens K-band Limit Flag (0="=", +1=">", -1="<")
+\ mlmagklformat (--) 
+\ ___ Lens K-band Format
+\ mlmagklstr (--) 
+\ ___ Lens K-band String for Display
+\ mlmagkldef (--) 
+\ ___ Lens K-band Default Flag (0=no, 1=yes)
+\ mlextifld (A_I) 
+\ ___ Line-of-Sight I-band Extinction [mag]
+\ mlextiflderr1 (A_I) 
+\ ___ Line-of-Sight I-band Extinction Upper Uncertainty [mag]
+\ mlextiflderr2 (A_I) 
+\ ___ Line-of-Sight I-band Extinction Lower Uncertainty [mag]
+\ mlextifldlim (--) 
+\ ___ Line-of-Sight I-band Extinction Limit Flag (0="=", +1=">", -1="<"
+\ mlextifldformat (--) 
+\ ___ Line-of-Sight I-band Extinction Format
+\ mlextifldstr (--) 
+\ ___ Line-of-Sight I-band Extinction String for Display
+\ mlextiflddef (--) 
+\ ___ Line-of-Sight I-band Extinction Default Flag (0=no, 1=yes)
+\ mlextvfld (A_I) 
+\ ___ Line-of-Sight V-band Extinction [mag]
+\ mlextvflderr1 (A_I) 
+\ ___ Line-of-Sight V-band Extinction Upper Uncertainty [mag]
+\ mlextvflderr2 (A_I) 
+\ ___ Line-of-Sight V-band Extinction Lower Uncertainty [mag]
+\ mlextvfldlim (--) 
+\ ___ Line-of-Sight V-band Extinction Limit Flag (0="=", +1=">", -1="<"
+\ mlextvfldformat (--) 
+\ ___ Line-of-Sight V-band Extinction Format
+\ mlextvfldstr (--) 
+\ ___ Line-of-Sight V-band Extinction String for Display
+\ mlextvflddef (--) 
+\ ___ Line-of-Sight V-band Extinction Default Flag (0=no, 1=yes)
+\ mlextjfld (A_I) 
+\ ___ Line-of-Sight J-band Extinction [mag]
+\ mlextjflderr1 (A_I) 
+\ ___ Line-of-Sight J-band Extinction Upper Uncertainty [mag]
+\ mlextjflderr2 (A_I) 
+\ ___ Line-of-Sight J-band Extinction Lower Uncertainty [mag]
+\ mlextjfldlim (--) 
+\ ___ Line-of-Sight J-band Extinction Limit Flag (0="=", +1=">", -1="<"
+\ mlextjfldformat (--) 
+\ ___ Line-of-Sight J-band Extinction Format
+\ mlextjfldstr (--) 
+\ ___ Line-of-Sight J-band Extinction String for Display
+\ mlextjflddef (--) 
+\ ___ Line-of-Sight J-band Extinction Default Flag (0=no, 1=yes)
+\ mlexthfld (A_I) 
+\ ___ Line-of-Sight H-band Extinction [mag]
+\ mlexthflderr1 (A_I) 
+\ ___ Line-of-Sight H-band Extinction Upper Uncertainty [mag]
+\ mlexthflderr2 (A_I) 
+\ ___ Line-of-Sight H-band Extinction Lower Uncertainty [mag]
+\ mlexthfldlim (--) 
+\ ___ Line-of-Sight H-band Extinction Limit Flag (0="=", +1=">", -1="<"
+\ mlexthfldformat (--) 
+\ ___ Line-of-Sight H-band Extinction Format
+\ mlexthfldstr (--) 
+\ ___ Line-of-Sight H-band Extinction String for Display
+\ mlexthflddef (--) 
+\ ___ Line-of-Sight H-band Extinction Default Flag (0=no, 1=yes)
+\ mlextkfld (A_I) 
+\ ___ Line-of-Sight K-band Extinction [mag]
+\ mlextkflderr1 (A_I) 
+\ ___ Line-of-Sight K-band Extinction Upper Uncertainty [mag]
+\ mlextkflderr2 (A_I) 
+\ ___ Line-of-Sight K-band Extinction Lower Uncertainty [mag]
+\ mlextkfldlim (--) 
+\ ___ Line-of-Sight K-band Extinction Limit Flag (0="=", +1=">", -1="<"
+\ mlextkfldformat (--) 
+\ ___ Line-of-Sight K-band Extinction Format
+\ mlextkfldstr (--) 
+\ ___ Line-of-Sight K-band Extinction String for Display
+\ mlextkflddef (--) 
+\ ___ Line-of-Sight K-band Extinction Default Flag (0=no, 1=yes)
+\ mlcolvis ((V-I)_S) 
+\ ___ Source (V-I) [mag]
+\ mlcolviserr1 ((V-I)_S) 
+\ ___ Source (V-I) Upper Uncertainty [mag]
+\ mlcolviserr2 ((V-I)_S) 
+\ ___ Source (V-I) Lower Uncertainty [mag]
+\ mlcolvislim (--) 
+\ ___ Source (V-I) Limit Flag (0="=", +1=">", -1="<")
+\ mlcolvisformat (--) 
+\ ___ Source (V-I) Format
+\ mlcolvisstr (--) 
+\ ___ Source (V-I) String for Display
+\ mlcolvisdef (--) 
+\ ___ Source (V-I) Default Flag (0=no, 1=yes)
+\ mlcolviso ((V-I)_S,0) 
+\ ___ Source De-Reddened (V-I) [mag]
+\ mlcolvisoerr1 ((V-I)_S,0) 
+\ ___ Source De-Reddened (V-I) Upper Uncertainty [mag]
+\ mlcolvisoerr2 ((V-I)_S,0) 
+\ ___ Source De-Reddened (V-I) Lower Uncertainty [mag]
+\ mlcolvisolim (--) 
+\ ___ Source De-Reddened (V-I) Limit Flag (0="=", +1=">", -1="<")
+\ mlcolvisoformat (--) 
+\ ___ Source De-Reddened (V-I) Format
+\ mlcolvisostr (--) 
+\ ___ Source De-Reddened (V-I) String for Display
+\ mlcolvisodef (--) 
+\ ___ Source De-Reddened (V-I) Default Flag (0=no, 1=yes)
+\ mlcolvks ((V-K)_S) 
+\ ___ Source (V-K) [mag]
+\ mlcolvkserr1 ((V-K)_S) 
+\ ___ Source (V-K) Upper Uncertainty [mag]
+\ mlcolvkserr2 ((V-K)_S) 
+\ ___ Source (V-K) Lower Uncertainty [mag]
+\ mlcolvkslim (--) 
+\ ___ Source (V-K) Limit Flag (0="=", +1=">", -1="<")
+\ mlcolvksformat (--) 
+\ ___ Source (V-K) Format
+\ mlcolvksstr (--) 
+\ ___ Source (V-K) String for Display
+\ mlcolvksdef (--) 
+\ ___ Source (V-K) Default Flag (0=no, 1=yes)
+\ mlcolvkso ((V-K)_S,0) 
+\ ___ Source De-Reddened (V-K) [mag]
+\ mlcolvksoerr1 ((V-K)_S,0) 
+\ ___ Source De-Reddened (V-K) Upper Uncertainty [mag]
+\ mlcolvksoerr2 ((V-K)_S,0) 
+\ ___ Source De-Reddened (V-K) Lower Uncertainty [mag]
+\ mlcolvksolim (--) 
+\ ___ Source De-Reddened (V-K) Limit Flag (0="=", +1=">", -1="<")
+\ mlcolvksoformat (--) 
+\ ___ Source De-Reddened (V-K) Format
+\ mlcolvksostr (--) 
+\ ___ Source De-Reddened (V-K) String for Display
+\ mlcolvksodef (--) 
+\ ___ Source De-Reddened (V-K) Default Flag (0=no, 1=yes)
+\ mlcolihs ((I-H)_S) 
+\ ___ Source (I-H) [mag]
+\ mlcolihserr1 ((I-H)_S) 
+\ ___ Source (I-H) Upper Uncertainty [mag]
+\ mlcolihserr2 ((I-H)_S) 
+\ ___ Source (I-H) Lower Uncertainty [mag]
+\ mlcolihslim (--) 
+\ ___ Source (I-H) Limit Flag (0="=", +1=">", -1="<")
+\ mlcolihsformat (--) 
+\ ___ Source (I-H) Format
+\ mlcolihsstr (--) 
+\ ___ Source (I-H) String for Display
+\ mlcolihsdef (--) 
+\ ___ Source (I-H) Default Flag (0=no, 1=yes)
+\ mlcolihso ((I-H)_S,0) 
+\ ___ Source De-Reddened (I-H) [mag]
+\ mlcolihsoerr1 ((I-H)_S,0) 
+\ ___ Source De-Reddened (I-H) Upper Uncertainty [mag]
+\ mlcolihsoerr2 ((I-H)_S,0) 
+\ ___ Source De-Reddened (I-H) Lower Uncertainty [mag]
+\ mlcolihsolim (--) 
+\ ___ Source De-Reddened (I-H) Limit Flag (0="=", +1=">", -1="<")
+\ mlcolihsoformat (--) 
+\ ___ Source De-Reddened (I-H) Format
+\ mlcolihsostr (--) 
+\ ___ Source De-Reddened (I-H) String for Display
+\ mlcolihsodef (--) 
+\ ___ Source De-Reddened (I-H) Default Flag (0=no, 1=yes)
+\ mlcolhks ((H-K)_S) 
+\ ___ Source (H-K) [mag]
+\ mlcolhkserr1 ((H-K)_S) 
+\ ___ Source (H-K) Upper Uncertainty [mag]
+\ mlcolhkserr2 ((H-K)_S) 
+\ ___ Source (H-K) Lower Uncertainty [mag]
+\ mlcolhkslim (--) 
+\ ___ Source (H-K) Limit Flag (0="=", +1=">", -1="<")
+\ mlcolhksformat (--) 
+\ ___ Source (H-K) Format
+\ mlcolhksstr (--) 
+\ ___ Source (H-K) String for Display
+\ mlcolhksdef (--) 
+\ ___ Source (H-K) Default Flag (0=no, 1=yes)
+\ mlcolhkso ((H-K)_S,0) 
+\ ___ Source De-Reddened (H-K) [mag]
+\ mlcolhksoerr1 ((H-K)_S,0) 
+\ ___ Source De-Reddened (H-K) Upper Uncertainty [mag]
+\ mlcolhksoerr2 ((H-K)_S,0) 
+\ ___ Source De-Reddened (H-K) Lower Uncertainty [mag]
+\ mlcolhksolim (--) 
+\ ___ Source De-Reddened (H-K) Limit Flag (0="=", +1=">", -1="<")
+\ mlcolhksoformat (--) 
+\ ___ Source De-Reddened (H-K) Format
+\ mlcolhksostr (--) 
+\ ___ Source De-Reddened (H-K) String for Display
+\ mlcolhksodef (--) 
+\ ___ Source De-Reddened (H-K) Default Flag (0=no, 1=yes)
+\ mlcolvibl ((V-I)_B) 
+\ ___ Blend (V-I) [mag]
+\ mlcolviblerr1 ((V-I)_B) 
+\ ___ Blend (V-I) Upper Uncertainty [mag]
+\ mlcolviblerr2 ((V-I)_B) 
+\ ___ Blend (V-I) Lower Uncertainty [mag]
+\ mlcolvibllim (--) 
+\ ___ Blend (V-I) Limit Flag (0="=", +1=">", -1="<")
+\ mlcolviblformat (--) 
+\ ___ Blend (V-I) Format
+\ mlcolviblstr (--) 
+\ ___ Blend (V-I) String for Display
+\ mlcolvibldef (--) 
+\ ___ Blend (V-I) Default Flag (0=no, 1=yes)
+\ mlredvi (E(V-I)) 
+\ ___ Line-of-sight Reddening E(V-I) [mag]
+\ mlredvierr1 (E(V-I)) 
+\ ___ Line-of-Sight Reddening E(V-I) Upper Uncertainty [mag]
+\ mlredvierr2 (E(V-I)) 
+\ ___ Line-of-Sight Reddening E(V-I) Lower Uncertainty [mag]
+\ mlredvilim (--) 
+\ ___ Line-of-Sight Reddening E(V-I) Limit Flag (0="=", +1=">", -1="<")
+\ mlredviformat (--) 
+\ ___ Line-of-Sight Reddening E(V-I) Format
+\ mlredvistr (--) 
+\ ___ Line-of-Sight Reddening E(V-I) String for Display
+\ mlredvidef (--) 
+\ ___ Line-of-Sight Reddening E(V-I) Default Flag (0=no, 1=yes)
+\ mlredvk (E(V-K)) 
+\ ___ Line-of-sight Reddening E(V-K) [mag]
+\ mlredvkerr1 (E(V-K)) 
+\ ___ Line-of-sight Reddening E(V-K) Upper Uncertainty [mag]
+\ mlredvkerr2 (E(V-K)) 
+\ ___ Line-of-sight Reddening E(V-K) Lower Uncertainty [mag]
+\ mlredvklim (--) 
+\ ___ Line-of-sight Reddening E(V-K) Limit Flag (0="=", +1=">", -1="<")
+\ mlredvkformat (--) 
+\ ___ Line-of-sight Reddening E(V-K) Format
+\ mlredvkstr (--) 
+\ ___ Line-of-sight Reddening E(V-K) String for Display
+\ mlredvkdef (--) 
+\ ___ Line-of-sight Reddening E(V-K) Default Flag (0=no, 1=yes)
+\ mlredhk (E(H-K)) 
+\ ___ Line-of-sight Reddening E(H-K) [mag]
+\ mlredhkerr1 (E(H-K)) 
+\ ___ Line-of-sight Reddening E(H-K) Upper Uncertainty [mag]
+\ mlredhkerr2 (E(H-K)) 
+\ ___ Line-of-sight Reddening E(H-K) Lower Uncertainty [mag]
+\ mlredhklim (--) 
+\ ___ Line-of-sight Reddening E(H-K) Limit Flag (0="=", +1=">", -1="<")
+\ mlredhkformat (--) 
+\ ___ Line-of-sight Reddening E(H-K) Format
+\ mlredhkstr (--) 
+\ ___ Line-of-sight Reddening E(H-K) String for Display
+\ mlredhkdef (--) 
+\ ___ Line-of-sight Reddening E(H-K) Default Flag (0=no, 1=yes)
+\ mlmodeldef (--) 
+\ ___ Default Model (1 = default, 0 = non-default)
+\ mlmodelchisq (--) 
+\ ___ Model Chi-Squared
+\ mlsepminflag (--) 
+\ ___ Impact Parameter Orientation (1 = positive, -1 = negative)
+\ mlcbflag (--) 
+\ ___ Circumbinary Flag (1 = yes, 0 = no)
+\ mldescription (--) 
+\ ___ Microlensing model description
+\ mlrefid (--) 
+\ ___ Reference ID
+\ plntname (--) 
+\ ___ Planet name
+\ plntreflink (--) 
+\ ___ ADS Reference link
+\ rowupdate (--) 
+\ ___ Rowupdate
+\ 
+|  objectid|              ra|               ra_str|             dec|              dec_str|            glon|            glat|       mlmassplnj|   mlmassplnjerr1|   mlmassplnjerr2| mlmassplnjlim| mlmassplnjformat|                                                                                                                                                                                            mlmassplnjstr| mlmassplnjdef|       mlmassplne|   mlmassplneerr1|   mlmassplneerr2| mlmassplnelim| mlmassplneformat|                                                                                                                                                                                            mlmassplnestr| mlmassplnedef|        mlsmaproj|    mlsmaprojerr1|    mlsmaprojerr2| mlsmaprojlim| mlsmaprojformat|                                                                                                                                                                                             mlsmaprojstr| mlsmaprojdef|       mlmasslens|   mlmasslenserr1|   mlmasslenserr2| mlmasslenslim| mlmasslensformat|                                                                                                                                                                                            mlmasslensstr| mlmasslensdef|          mldistl|      mldistlerr1|      mldistlerr2| mldistllim| mldistlformat|                                                                                                                                                                                               mldistlstr| mldistldef|          mldists|      mldistserr1|      mldistserr2| mldistslim| mldistsformat|                                                                                                                                                                                               mldistsstr| mldistsdef|        mltsepmin|    mltsepminerr1|    mltsepminerr2| mltsepminlim| mltsepminformat|                                                                                                                                                                                             mltsepminstr| mltsepmindef|     mlsepminnorm| mlsepminnormerr1| mlsepminnormerr2| mlsepminnormlim| mlsepminnormformat|                                                                                                                                                                                          mlsepminnormstr| mlsepminnormdef|       mlxtimeein|   mlxtimeeinerr1|   mlxtimeeinerr2| mlxtimeeinlim| mlxtimeeinformat|                                                                                                                                                                                            mlxtimeeinstr| mlxtimeeindef|       mlradsnorm|   mlradsnormerr1|   mlradsnormerr2| mlradsnormlim| mlradsnormformat|                                                                                                                                                                                            mlradsnormstr| mlradsnormdef|     mlsepinsnorp| mlsepinsnorperr1| mlsepinsnorperr2| mlsepinsnorplim| mlsepinsnorpformat|                                                                                                                                                                                          mlsepinsnorpstr| mlsepinsnorpdef|      mlmassratio|  mlmassratioerr1|  mlmassratioerr2| mlmassratiolim| mlmassratioformat|                                                                                                                                                                                           mlmassratiostr| mlmassratiodef|       mlangstlax|   mlangstlaxerr1|   mlangstlaxerr2| mlangstlaxlim| mlangstlaxformat|                                                                                                                                                                                            mlangstlaxstr| mlangstlaxdef|          mlmagis|      mlmagiserr1|      mlmagiserr2| mlmagislim| mlmagisformat|                                                                                                                                                                                               mlmagisstr| mlmagisdef|         mlmagibl|     mlmagiblerr1|     mlmagiblerr2| mlmagibllim| mlmagiblformat|                                                                                                                                                                                              mlmagiblstr| mlmagibldef|      mlradeinang|  mlradeinangerr1|  mlradeinangerr2| mlradeinanglim| mlradeinangformat|                                                                                                                                                                                           mlradeinangstr| mlradeinangdef|        mlpmrells|    mlpmrellserr1|    mlpmrellserr2| mlpmrellslim| mlpmrellsformat|                                                                                                                                                                                             mlpmrellsstr| mlpmrellsdef|         mlplxrel|     mlplxrelerr1|     mlplxrelerr2| mlplxrellim| mlplxrelformat|                                                                                                                                                                                              mlplxrelstr| mlplxreldef|       mlplxmicro|   mlplxmicroerr1|   mlplxmicroerr2| mlplxmicrolim| mlplxmicroformat|                                                                                                                                                                                            mlplxmicrostr| mlplxmicrodef|      mlplxmicroe|  mlplxmicroeerr1|  mlplxmicroeerr2| mlplxmicroelim| mlplxmicroeformat|                                                                                                                                                                                           mlplxmicroestr| mlplxmicroedef|      mlplxmicron|  mlplxmicronerr1|  mlplxmicronerr2| mlplxmicronlim| mlplxmicronformat|                                                                                                                                                                                           mlplxmicronstr| mlplxmicrondef|           mldsdt|       mldsdterr1|       mldsdterr2| mldsdtlim| mldsdtformat|                                                                                                                                                                                                mldsdtstr| mldsdtdef|       mldalphadt|   mldalphadterr1|   mldalphadterr2| mldalphadtlim| mldalphadtformat|                                                                                                                                                                                            mldalphadtstr| mldalphadtdef|        mlradsang|    mlradsangerr1|    mlradsangerr2| mlradsanglim| mlradsangformat|                                                                                                                                                                                             mlradsangstr| mlradsangdef|        mlradsphy|    mlradsphyerr1|    mlradsphyerr2| mlradsphylim| mlradsphyformat|                                                                                                                                                                                             mlradsphystr| mlradsphydef|       mlxtimesrc|   mlxtimesrcerr1|   mlxtimesrcerr2| mlxtimesrclim| mlxtimesrcformat|                                                                                                                                                                                            mlxtimesrcstr| mlxtimesrcdef|        mlefftime|    mlefftimeerr1|    mlefftimeerr2| mlefftimelim| mlefftimeformat|                                                                                                                                                                                             mlefftimestr| mlefftimedef|            mlpms|        mlpmserr1|        mlpmserr2| mlpmslim| mlpmsformat|                                                                                                                                                                                                 mlpmsstr| mlpmsdef|         mlmagiso|     mlmagisoerr1|     mlmagisoerr2| mlmagisolim| mlmagisoformat|                                                                                                                                                                                              mlmagisostr| mlmagisodef|          mlmagjs|      mlmagjserr1|      mlmagjserr2| mlmagjslim| mlmagjsformat|                                                                                                                                                                                               mlmagjsstr| mlmagjsdef|          mlmagvs|      mlmagvserr1|      mlmagvserr2| mlmagvslim| mlmagvsformat|                                                                                                                                                                                               mlmagvsstr| mlmagvsdef|         mlmagjso|     mlmagjsoerr1|     mlmagjsoerr2| mlmagjsolim| mlmagjsoformat|                                                                                                                                                                                              mlmagjsostr| mlmagjsodef|         mlmagvso|     mlmagvsoerr1|     mlmagvsoerr2| mlmagvsolim| mlmagvsoformat|                                                                                                                                                                                              mlmagvsostr| mlmagvsodef|          mlmaghs|      mlmaghserr1|      mlmaghserr2| mlmaghslim| mlmaghsformat|                                                                                                                                                                                               mlmaghsstr| mlmaghsdef|         mlmaghso|     mlmaghsoerr1|     mlmaghsoerr2| mlmaghsolim| mlmaghsoformat|                                                                                                                                                                                              mlmaghsostr| mlmaghsodef|          mlmagks|      mlmagkserr1|      mlmagkserr2| mlmagkslim| mlmagksformat|                                                                                                                                                                                               mlmagksstr| mlmagksdef|         mlmagkso|     mlmagksoerr1|     mlmagksoerr2| mlmagksolim| mlmagksoformat|                                                                                                                                                                                              mlmagksostr| mlmagksodef|       mlmagibase|   mlmagibaseerr1|   mlmagibaseerr2| mlmagibaselim| mlmagibaseformat|                                                                                                                                                                                            mlmagibasestr| mlmagibasedef|          mlmagvl|      mlmagvlerr1|      mlmagvlerr2| mlmagvllim| mlmagvlformat|                                                                                                                                                                                               mlmagvlstr| mlmagvldef|          mlmagil|      mlmagilerr1|      mlmagilerr2| mlmagillim| mlmagilformat|                                                                                                                                                                                               mlmagilstr| mlmagildef|          mlmagjl|      mlmagjlerr1|      mlmagjlerr2| mlmagjllim| mlmagjlformat|                                                                                                                                                                                               mlmagjlstr| mlmagjldef|          mlmaghl|      mlmaghlerr1|      mlmaghlerr2| mlmaghllim| mlmaghlformat|                                                                                                                                                                                               mlmaghlstr| mlmaghldef|          mlmagkl|      mlmagklerr1|      mlmagklerr2| mlmagkllim| mlmagklformat|                                                                                                                                                                                               mlmagklstr| mlmagkldef|        mlextifld|    mlextiflderr1|    mlextiflderr2| mlextifldlim| mlextifldformat|                                                                                                                                                                                             mlextifldstr| mlextiflddef|        mlextvfld|    mlextvflderr1|    mlextvflderr2| mlextvfldlim| mlextvfldformat|                                                                                                                                                                                             mlextvfldstr| mlextvflddef|        mlextjfld|    mlextjflderr1|    mlextjflderr2| mlextjfldlim| mlextjfldformat|                                                                                                                                                                                             mlextjfldstr| mlextjflddef|        mlexthfld|    mlexthflderr1|    mlexthflderr2| mlexthfldlim| mlexthfldformat|                                                                                                                                                                                             mlexthfldstr| mlexthflddef|        mlextkfld|    mlextkflderr1|    mlextkflderr2| mlextkfldlim| mlextkfldformat|                                                                                                                                                                                             mlextkfldstr| mlextkflddef|         mlcolvis|     mlcolviserr1|     mlcolviserr2| mlcolvislim| mlcolvisformat|                                                                                                                                                                                              mlcolvisstr| mlcolvisdef|        mlcolviso|    mlcolvisoerr1|    mlcolvisoerr2| mlcolvisolim| mlcolvisoformat|                                                                                                                                                                                             mlcolvisostr| mlcolvisodef|         mlcolvks|     mlcolvkserr1|     mlcolvkserr2| mlcolvkslim| mlcolvksformat|                                                                                                                                                                                              mlcolvksstr| mlcolvksdef|        mlcolvkso|    mlcolvksoerr1|    mlcolvksoerr2| mlcolvksolim| mlcolvksoformat|                                                                                                                                                                                             mlcolvksostr| mlcolvksodef|         mlcolihs|     mlcolihserr1|     mlcolihserr2| mlcolihslim| mlcolihsformat|                                                                                                                                                                                              mlcolihsstr| mlcolihsdef|        mlcolihso|    mlcolihsoerr1|    mlcolihsoerr2| mlcolihsolim| mlcolihsoformat|                                                                                                                                                                                             mlcolihsostr| mlcolihsodef|         mlcolhks|     mlcolhkserr1|     mlcolhkserr2| mlcolhkslim| mlcolhksformat|                                                                                                                                                                                              mlcolhksstr| mlcolhksdef|        mlcolhkso|    mlcolhksoerr1|    mlcolhksoerr2| mlcolhksolim| mlcolhksoformat|                                                                                                                                                                                             mlcolhksostr| mlcolhksodef|        mlcolvibl|    mlcolviblerr1|    mlcolviblerr2| mlcolvibllim| mlcolviblformat|                                                                                                                                                                                             mlcolviblstr| mlcolvibldef|          mlredvi|      mlredvierr1|      mlredvierr2| mlredvilim| mlredviformat|                                                                                                                                                                                               mlredvistr| mlredvidef|          mlredvk|      mlredvkerr1|      mlredvkerr2| mlredvklim| mlredvkformat|                                                                                                                                                                                               mlredvkstr| mlredvkdef|          mlredhk|      mlredhkerr1|      mlredhkerr2| mlredhklim| mlredhkformat|                                                                                                                                                                                               mlredhkstr| mlredhkdef| mlmodeldef| mlmodelchisq| mlsepminflag| mlcbflag|                                                                                                                                                                                            mldescription|  mlrefid|                                           plntname|                                                                                                                          plntreflink|    rowupdate|
+|      long|          double|                 char|          double|                 char|          double|          double|           double|           double|           double|           int|             char|                                                                                                                                                                                                     char|           int|           double|           double|           double|           int|             char|                                                                                                                                                                                                     char|           int|           double|           double|           double|          int|            char|                                                                                                                                                                                                     char|          int|           double|           double|           double|           int|             char|                                                                                                                                                                                                     char|           int|           double|           double|           double|        int|          char|                                                                                                                                                                                                     char|        int|           double|           double|           double|        int|          char|                                                                                                                                                                                                     char|        int|           double|           double|           double|          int|            char|                                                                                                                                                                                                     char|          int|           double|           double|           double|             int|               char|                                                                                                                                                                                                     char|             int|           double|           double|           double|           int|             char|                                                                                                                                                                                                     char|           int|           double|           double|           double|           int|             char|                                                                                                                                                                                                     char|           int|           double|           double|           double|             int|               char|                                                                                                                                                                                                     char|             int|           double|           double|           double|            int|              char|                                                                                                                                                                                                     char|            int|           double|           double|           double|           int|             char|                                                                                                                                                                                                     char|           int|           double|           double|           double|        int|          char|                                                                                                                                                                                                     char|        int|           double|           double|           double|         int|           char|                                                                                                                                                                                                     char|         int|           double|           double|           double|            int|              char|                                                                                                                                                                                                     char|            int|           double|           double|           double|          int|            char|                                                                                                                                                                                                     char|          int|           double|           double|           double|         int|           char|                                                                                                                                                                                                     char|         int|           double|           double|           double|           int|             char|                                                                                                                                                                                                     char|           int|           double|           double|           double|            int|              char|                                                                                                                                                                                                     char|            int|           double|           double|           double|            int|              char|                                                                                                                                                                                                     char|            int|           double|           double|           double|       int|         char|                                                                                                                                                                                                     char|       int|           double|           double|           double|           int|             char|                                                                                                                                                                                                     char|           int|           double|           double|           double|          int|            char|                                                                                                                                                                                                     char|          int|           double|           double|           double|          int|            char|                                                                                                                                                                                                     char|          int|           double|           double|           double|           int|             char|                                                                                                                                                                                                     char|           int|           double|           double|           double|          int|            char|                                                                                                                                                                                                     char|          int|           double|           double|           double|      int|        char|                                                                                                                                                                                                     char|      int|           double|           double|           double|         int|           char|                                                                                                                                                                                                     char|         int|           double|           double|           double|        int|          char|                                                                                                                                                                                                     char|        int|           double|           double|           double|        int|          char|                                                                                                                                                                                                     char|        int|           double|           double|           double|         int|           char|                                                                                                                                                                                                     char|         int|           double|           double|           double|         int|           char|                                                                                                                                                                                                     char|         int|           double|           double|           double|        int|          char|                                                                                                                                                                                                     char|        int|           double|           double|           double|         int|           char|                                                                                                                                                                                                     char|         int|           double|           double|           double|        int|          char|                                                                                                                                                                                                     char|        int|           double|           double|           double|         int|           char|                                                                                                                                                                                                     char|         int|           double|           double|           double|           int|             char|                                                                                                                                                                                                     char|           int|           double|           double|           double|        int|          char|                                                                                                                                                                                                     char|        int|           double|           double|           double|        int|          char|                                                                                                                                                                                                     char|        int|           double|           double|           double|        int|          char|                                                                                                                                                                                                     char|        int|           double|           double|           double|        int|          char|                                                                                                                                                                                                     char|        int|           double|           double|           double|        int|          char|                                                                                                                                                                                                     char|        int|           double|           double|           double|          int|            char|                                                                                                                                                                                                     char|          int|           double|           double|           double|          int|            char|                                                                                                                                                                                                     char|          int|           double|           double|           double|          int|            char|                                                                                                                                                                                                     char|          int|           double|           double|           double|          int|            char|                                                                                                                                                                                                     char|          int|           double|           double|           double|          int|            char|                                                                                                                                                                                                     char|          int|           double|           double|           double|         int|           char|                                                                                                                                                                                                     char|         int|           double|           double|           double|          int|            char|                                                                                                                                                                                                     char|          int|           double|           double|           double|         int|           char|                                                                                                                                                                                                     char|         int|           double|           double|           double|          int|            char|                                                                                                                                                                                                     char|          int|           double|           double|           double|         int|           char|                                                                                                                                                                                                     char|         int|           double|           double|           double|          int|            char|                                                                                                                                                                                                     char|          int|           double|           double|           double|         int|           char|                                                                                                                                                                                                     char|         int|           double|           double|           double|          int|            char|                                                                                                                                                                                                     char|          int|           double|           double|           double|          int|            char|                                                                                                                                                                                                     char|          int|           double|           double|           double|        int|          char|                                                                                                                                                                                                     char|        int|           double|           double|           double|        int|          char|                                                                                                                                                                                                     char|        int|           double|           double|           double|        int|          char|                                                                                                                                                                                                     char|        int|        int|       double|          int|      int|                                                                                                                                                                                                     char|     long|                                               char|                                                                                                                                 char|         char|
+|        --|         degrees|                   --|         degrees|                   --|         degrees|         degrees|              M_J|              M_J|              M_J|            --|               --|                                                                                                                                                                                                       --|            --|              M_E|              M_E|              M_E|            --|               --|                                                                                                                                                                                                       --|            --|           a_perp|           a_perp|           a_perp|           --|              --|                                                                                                                                                                                                       --|           --|             Msun|             Msun|             Msun|            --|               --|                                                                                                                                                                                                       --|            --|              D_L|              D_L|              D_L|         --|            --|                                                                                                                                                                                                       --|         --|              D_S|              D_S|              D_S|         --|            --|                                                                                                                                                                                                       --|         --|              day|              day|              day|           --|              --|                                                                                                                                                                                                       --|           --|               --|               --|               --|              --|                 --|                                                                                                                                                                                                       --|              --|              day|              day|              day|            --|               --|                                                                                                                                                                                                       --|            --|               --|               --|               --|            --|               --|                                                                                                                                                                                                       --|            --|               --|               --|               --|              --|                 --|                                                                                                                                                                                                       --|              --|               --|               --|               --|             --|                --|                                                                                                                                                                                                       --|             --|              rad|              rad|              rad|            --|               --|                                                                                                                                                                                                       --|            --|              I_S|              I_S|              I_S|         --|            --|                                                                                                                                                                                                       --|         --|              I_B|              I_B|              I_B|          --|             --|                                                                                                                                                                                                       --|          --|              mas|              mas|              mas|             --|                --|                                                                                                                                                                                                       --|             --|           mas/yr|           mas/yr|           mas/yr|           --|              --|                                                                                                                                                                                                       --|           --|           pi_rel|           pi_rel|           pi_rel|          --|             --|                                                                                                                                                                                                       --|          --|             pi_E|             pi_E|             pi_E|            --|               --|                                                                                                                                                                                                       --|            --|            pi_EE|            pi_EE|            pi_EE|             --|                --|                                                                                                                                                                                                       --|             --|            pi_EN|            pi_EN|            pi_EN|             --|                --|                                                                                                                                                                                                       --|             --|             1/yr|             1/yr|             1/yr|        --|           --|                                                                                                                                                                                                       --|        --|           deg/yr|           deg/yr|           deg/yr|            --|               --|                                                                                                                                                                                                       --|            --|          microas|          microas|          microas|           --|              --|                                                                                                                                                                                                       --|           --|            Rstar|            Rstar|            Rstar|           --|              --|                                                                                                                                                                                                       --|           --|              day|              day|              day|            --|               --|                                                                                                                                                                                                       --|            --|              day|              day|              day|           --|              --|                                                                                                                                                                                                       --|           --|           mas/yr|           mas/yr|           mas/yr|       --|          --|                                                                                                                                                                                                       --|       --|            I_S,0|            I_S,0|            I_S,0|          --|             --|                                                                                                                                                                                                       --|          --|              J_S|              J_S|              J_S|         --|            --|                                                                                                                                                                                                       --|         --|              V_S|              V_S|              V_S|         --|            --|                                                                                                                                                                                                       --|         --|            J_S,0|            J_S,0|            J_S,0|          --|             --|                                                                                                                                                                                                       --|          --|            V_S,0|            V_S,0|            V_S,0|          --|             --|                                                                                                                                                                                                       --|          --|              H_S|              H_S|              H_S|         --|            --|                                                                                                                                                                                                       --|         --|            H_S,0|            H_S,0|            H_S,0|          --|             --|                                                                                                                                                                                                       --|          --|              K_S|              K_S|              K_S|         --|            --|                                                                                                                                                                                                       --|         --|            K_S,0|            K_S,0|            K_S,0|          --|             --|                                                                                                                                                                                                       --|          --|           I_base|           I_base|           I_base|            --|               --|                                                                                                                                                                                                       --|            --|              V_L|              V_L|              V_L|         --|            --|                                                                                                                                                                                                       --|         --|              I_L|              I_L|              I_L|         --|            --|                                                                                                                                                                                                       --|         --|              J_L|              J_L|              J_L|         --|            --|                                                                                                                                                                                                       --|         --|              H_L|              H_L|              H_L|         --|            --|                                                                                                                                                                                                       --|         --|              K_L|              K_L|              K_L|         --|            --|                                                                                                                                                                                                       --|         --|              A_I|              A_I|              A_I|           --|              --|                                                                                                                                                                                                       --|           --|              A_I|              A_I|              A_I|           --|              --|                                                                                                                                                                                                       --|           --|              A_I|              A_I|              A_I|           --|              --|                                                                                                                                                                                                       --|           --|              A_I|              A_I|              A_I|           --|              --|                                                                                                                                                                                                       --|           --|              A_I|              A_I|              A_I|           --|              --|                                                                                                                                                                                                       --|           --|          (V-I)_S|          (V-I)_S|          (V-I)_S|          --|             --|                                                                                                                                                                                                       --|          --|        (V-I)_S,0|        (V-I)_S,0|        (V-I)_S,0|           --|              --|                                                                                                                                                                                                       --|           --|          (V-K)_S|          (V-K)_S|          (V-K)_S|          --|             --|                                                                                                                                                                                                       --|          --|        (V-K)_S,0|        (V-K)_S,0|        (V-K)_S,0|           --|              --|                                                                                                                                                                                                       --|           --|          (I-H)_S|          (I-H)_S|          (I-H)_S|          --|             --|                                                                                                                                                                                                       --|          --|        (I-H)_S,0|        (I-H)_S,0|        (I-H)_S,0|           --|              --|                                                                                                                                                                                                       --|           --|          (H-K)_S|          (H-K)_S|          (H-K)_S|          --|             --|                                                                                                                                                                                                       --|          --|        (H-K)_S,0|        (H-K)_S,0|        (H-K)_S,0|           --|              --|                                                                                                                                                                                                       --|           --|          (V-I)_B|          (V-I)_B|          (V-I)_B|           --|              --|                                                                                                                                                                                                       --|           --|           E(V-I)|           E(V-I)|           E(V-I)|         --|            --|                                                                                                                                                                                                       --|         --|           E(V-K)|           E(V-K)|           E(V-K)|         --|            --|                                                                                                                                                                                                       --|         --|           E(H-K)|           E(H-K)|           E(H-K)|         --|            --|                                                                                                                                                                                                       --|         --|         --|           --|           --|       --|                                                                                                                                                                                                       --|       --|                                                 --|                                                                                                                                   --|           --|
+|      null|            null|                 null|            null|                 null|            null|            null|             null|             null|             null|          null|             null|                                                                                                                                                                                                     null|          null|             null|             null|             null|          null|             null|                                                                                                                                                                                                     null|          null|             null|             null|             null|         null|            null|                                                                                                                                                                                                     null|         null|             null|             null|             null|          null|             null|                                                                                                                                                                                                     null|          null|             null|             null|             null|       null|          null|                                                                                                                                                                                                     null|       null|             null|             null|             null|       null|          null|                                                                                                                                                                                                     null|       null|             null|             null|             null|         null|            null|                                                                                                                                                                                                     null|         null|             null|             null|             null|            null|               null|                                                                                                                                                                                                     null|            null|             null|             null|             null|          null|             null|                                                                                                                                                                                                     null|          null|             null|             null|             null|          null|             null|                                                                                                                                                                                                     null|          null|             null|             null|             null|            null|               null|                                                                                                                                                                                                     null|            null|             null|             null|             null|           null|              null|                                                                                                                                                                                                     null|           null|             null|             null|             null|          null|             null|                                                                                                                                                                                                     null|          null|             null|             null|             null|       null|          null|                                                                                                                                                                                                     null|       null|             null|             null|             null|        null|           null|                                                                                                                                                                                                     null|        null|             null|             null|             null|           null|              null|                                                                                                                                                                                                     null|           null|             null|             null|             null|         null|            null|                                                                                                                                                                                                     null|         null|             null|             null|             null|        null|           null|                                                                                                                                                                                                     null|        null|             null|             null|             null|          null|             null|                                                                                                                                                                                                     null|          null|             null|             null|             null|           null|              null|                                                                                                                                                                                                     null|           null|             null|             null|             null|           null|              null|                                                                                                                                                                                                     null|           null|             null|             null|             null|      null|         null|                                                                                                                                                                                                     null|      null|             null|             null|             null|          null|             null|                                                                                                                                                                                                     null|          null|             null|             null|             null|         null|            null|                                                                                                                                                                                                     null|         null|             null|             null|             null|         null|            null|                                                                                                                                                                                                     null|         null|             null|             null|             null|          null|             null|                                                                                                                                                                                                     null|          null|             null|             null|             null|         null|            null|                                                                                                                                                                                                     null|         null|             null|             null|             null|     null|        null|                                                                                                                                                                                                     null|     null|             null|             null|             null|        null|           null|                                                                                                                                                                                                     null|        null|             null|             null|             null|       null|          null|                                                                                                                                                                                                     null|       null|             null|             null|             null|       null|          null|                                                                                                                                                                                                     null|       null|             null|             null|             null|        null|           null|                                                                                                                                                                                                     null|        null|             null|             null|             null|        null|           null|                                                                                                                                                                                                     null|        null|             null|             null|             null|       null|          null|                                                                                                                                                                                                     null|       null|             null|             null|             null|        null|           null|                                                                                                                                                                                                     null|        null|             null|             null|             null|       null|          null|                                                                                                                                                                                                     null|       null|             null|             null|             null|        null|           null|                                                                                                                                                                                                     null|        null|             null|             null|             null|          null|             null|                                                                                                                                                                                                     null|          null|             null|             null|             null|       null|          null|                                                                                                                                                                                                     null|       null|             null|             null|             null|       null|          null|                                                                                                                                                                                                     null|       null|             null|             null|             null|       null|          null|                                                                                                                                                                                                     null|       null|             null|             null|             null|       null|          null|                                                                                                                                                                                                     null|       null|             null|             null|             null|       null|          null|                                                                                                                                                                                                     null|       null|             null|             null|             null|         null|            null|                                                                                                                                                                                                     null|         null|             null|             null|             null|         null|            null|                                                                                                                                                                                                     null|         null|             null|             null|             null|         null|            null|                                                                                                                                                                                                     null|         null|             null|             null|             null|         null|            null|                                                                                                                                                                                                     null|         null|             null|             null|             null|         null|            null|                                                                                                                                                                                                     null|         null|             null|             null|             null|        null|           null|                                                                                                                                                                                                     null|        null|             null|             null|             null|         null|            null|                                                                                                                                                                                                     null|         null|             null|             null|             null|        null|           null|                                                                                                                                                                                                     null|        null|             null|             null|             null|         null|            null|                                                                                                                                                                                                     null|         null|             null|             null|             null|        null|           null|                                                                                                                                                                                                     null|        null|             null|             null|             null|         null|            null|                                                                                                                                                                                                     null|         null|             null|             null|             null|        null|           null|                                                                                                                                                                                                     null|        null|             null|             null|             null|         null|            null|                                                                                                                                                                                                     null|         null|             null|             null|             null|         null|            null|                                                                                                                                                                                                     null|         null|             null|             null|             null|       null|          null|                                                                                                                                                                                                     null|       null|             null|             null|             null|       null|          null|                                                                                                                                                                                                     null|       null|             null|             null|             null|       null|          null|                                                                                                                                                                                                     null|       null|       null|         null|         null|     null|                                                                                                                                                                                                     null|     null|                                               null|                                                                                                                                 null|         null|
+   51001067       271.303917          18h05m12.94s       -27.293233         -27d17m35.64s         3.597801        -2.903537        0.27000000        0.48000000       -0.16000000              0             %4.2f                                                                           <div><span class="supersubNumber">0.27</span> <span class="superscript">+0.48</span><span class="subscript">-0.16</span> </div>              0       86.00000000      150.00000000      -51.00000000              0               %2d                                                                                <div><span class="supersubNumber">86</span> <span class="superscript">+150</span><span class="subscript">-51</span> </div>              0        1.72000000        0.56000000       -0.48000000             0            %4.2f                                                                           <div><span class="supersubNumber">1.72</span> <span class="superscript">+0.56</span><span class="subscript">-0.48</span> </div>             0        0.18000000        0.32000000       -0.11000000              0             %4.2f                                                                           <div><span class="supersubNumber">0.18</span> <span class="superscript">+0.32</span><span class="subscript">-0.11</span> </div>              0     6430.00000000     1090.00000000    -1150.00000000           0            %4d                                                                           <div><span class="supersubNumber">6430</span> <span class="superscript">+1090</span><span class="subscript">-1150</span> </div>           0     8000.00000000              null              null           0            %4d                                                                                                                                                                                                      8000           0  2455381.24000000        0.06000000       -0.06000000             0           %10.2f                                                                                                                                                                                    2455381.24&plusmn;0.06             0       -0.79000000        0.08000000       -0.08000000                0               %5.2f                                                                                                                                                                                         -0.79&plusmn;0.08                0       11.30000000        0.70000000       -0.70000000              0             %4.1f                                                                                                                                                                                           11.3&plusmn;0.7              0       21.00000000        9.00000000       -9.00000000              0             %4.1f                                                                                                                                                                                           21.0&plusmn;9.0              0        1.45000000        0.06000000       -0.06000000                0               %4.2f                                                                                                                                                                                          1.45&plusmn;0.06                0       14.00000000        4.00000000       -4.00000000               0              %4.1f                                                                                                                                                                                           14.0&plusmn;4.0               0        4.17000000        0.02000000       -0.02000000              0             %4.2f                                                                                                                                                                                          4.17&plusmn;0.02              0       17.73000000        0.30000000       -0.30000000           0          %5.2f                                                                                                                                                                                          17.73&plusmn;0.3           0              null              null              null         null            null                                                                                                                                                                                                      null         null        0.18700000        0.08900000       -0.08900000               0              %5.3f                                                                                                                                                                                        0.187&plusmn;0.089               0              null              null              null          null             null                                                                                                                                                                                                      null          null              null              null              null         null            null                                                                                                                                                                                                      null         null              null              null              null           null              null                                                                                                                                                                                                      null           null              null              null              null            null               null                                                                                                                                                                                                      null            null              null              null              null            null               null                                                                                                                                                                                                      null            null              null              null              null       null          null                                                                                                                                                                                                      null       null              null              null              null           null              null                                                                                                                                                                                                      null           null        3.97000000        0.89000000       -0.89000000             0            %4.2f                                                                                                                                                                                          3.97&plusmn;0.89             0              null              null              null          null             null                                                                                                                                                                                                      null          null              null              null              null           null              null                                                                                                                                                                                                      null           null              null              null              null          null             null                                                                                                                                                                                                      null          null              null              null              null      null         null                                                                                                                                                                                                      null      null       16.55000000        0.31000000       -0.31000000            0           %5.2f                                                                                                                                                                                         16.55&plusmn;0.31            0              null              null              null        null           null                                                                                                                                                                                                      null        null              null              null              null        null           null                                                                                                                                                                                                      null        null              null              null              null         null            null                                                                                                                                                                                                      null         null              null              null              null         null            null                                                                                                                                                                                                      null         null              null              null              null        null           null                                                                                                                                                                                                      null        null              null              null              null         null            null                                                                                                                                                                                                      null         null              null              null              null        null           null                                                                                                                                                                                                      null        null              null              null              null         null            null                                                                                                                                                                                                      null         null              null              null              null           null              null                                                                                                                                                                                                      null           null              null              null              null        null           null                                                                                                                                                                                                      null        null              null              null              null        null           null                                                                                                                                                                                                      null        null              null              null              null        null           null                                                                                                                                                                                                      null        null              null              null              null        null           null                                                                                                                                                                                                      null        null              null              null              null        null           null                                                                                                                                                                                                      null        null        1.18000000        0.07000000       -0.07000000             0            %4.2f                                                                                                                                                                                          1.18&plusmn;0.07             0              null              null              null          null             null                                                                                                                                                                                                      null          null              null              null              null          null             null                                                                                                                                                                                                      null          null              null              null              null          null             null                                                                                                                                                                                                      null          null              null              null              null          null             null                                                                                                                                                                                                      null          null        2.81000000        0.10000000       -0.10000000            0           %4.2f                                                                                                                                                                                           2.81&plusmn;0.1            0        1.98000000        0.16000000       -0.16000000             0            %4.2f                                                                                                                                                                                          1.98&plusmn;0.16             0              null              null              null         null            null                                                                                                                                                                                                      null         null              null              null              null          null             null                                                                                                                                                                                                      null          null              null              null              null         null            null                                                                                                                                                                                                      null         null              null              null              null          null             null                                                                                                                                                                                                      null          null              null              null              null         null            null                                                                                                                                                                                                      null         null              null              null              null          null             null                                                                                                                                                                                                      null          null              null              null              null          null             null                                                                                                                                                                                                      null          null        0.83000000        0.12000000       -0.12000000           0          %4.2f                                                                                                                                                                                          0.83&plusmn;0.12           0              null              null              null        null           null                                                                                                                                                                                                      null        null              null              null              null        null           null                                                                                                                                                                                                      null        null           1          null          null         0                                                                                                                                                             Galactic bulge source model chosen as default      3816                                 MOA-2010-BLG-353L b                          <a href=https://ui.adsabs.harvard.edu/abs/2015MNRAS.454..946R/abstract target=ref>Rattenbury et al. 2015</a>    2019-12-05 
+   51001067       271.303917          18h05m12.94s       -27.293233         -27d17m35.64s         3.597801        -2.903537        0.23000000        0.42000000       -0.13000000              0             %4.2f                                                                           <div><span class="supersubNumber">0.23</span> <span class="superscript">+0.42</span><span class="subscript">-0.13</span> </div>              0       73.00000000      130.00000000      -41.00000000              0               %2d                                                                                <div><span class="supersubNumber">73</span> <span class="superscript">+130</span><span class="subscript">-41</span> </div>              0        1.85000000        0.63000000       -0.51000000             0            %4.2f                                                                           <div><span class="supersubNumber">1.85</span> <span class="superscript">+0.63</span><span class="subscript">-0.51</span> </div>             0        0.16000000        0.28000000       -0.09000000              0             %4.2f                                                                           <div><span class="supersubNumber">0.16</span> <span class="superscript">+0.28</span><span class="subscript">-0.09</span> </div>              0     7170.00000000      870.00000000    -1120.00000000           0            %4d                                                                            <div><span class="supersubNumber">7170</span> <span class="superscript">+870</span><span class="subscript">-1120</span> </div>           0     9000.00000000      750.00000000     -750.00000000           0            %4d                                                                                                                                                                                           9000&plusmn;750           0  2455381.24000000        0.06000000       -0.06000000             0           %10.2f                                                                                                                                                                                    2455381.24&plusmn;0.06             0       -0.79000000        0.08000000       -0.08000000                0               %5.2f                                                                                                                                                                                         -0.79&plusmn;0.08                0       11.30000000        0.70000000       -0.70000000              0             %4.1f                                                                                                                                                                                           11.3&plusmn;0.7              0       21.00000000        9.00000000       -9.00000000              0             %4.1f                                                                                                                                                                                           21.0&plusmn;9.0              0        1.45000000        0.06000000       -0.06000000                0               %4.2f                                                                                                                                                                                          1.45&plusmn;0.06                0       14.00000000        4.00000000       -4.00000000               0              %4.1f                                                                                                                                                                                           14.0&plusmn;4.0               0        4.17000000        0.02000000       -0.02000000              0             %4.2f                                                                                                                                                                                          4.17&plusmn;0.02              0       17.73000000        0.30000000       -0.30000000           0          %5.2f                                                                                                                                                                                          17.73&plusmn;0.3           0              null              null              null         null            null                                                                                                                                                                                                      null         null        0.18700000        0.08900000       -0.08900000               0              %5.3f                                                                                                                                                                                        0.187&plusmn;0.089               0              null              null              null          null             null                                                                                                                                                                                                      null          null              null              null              null         null            null                                                                                                                                                                                                      null         null              null              null              null           null              null                                                                                                                                                                                                      null           null              null              null              null            null               null                                                                                                                                                                                                      null            null              null              null              null            null               null                                                                                                                                                                                                      null            null              null              null              null       null          null                                                                                                                                                                                                      null       null              null              null              null           null              null                                                                                                                                                                                                      null           null        3.97000000        0.89000000       -0.89000000             0            %4.2f                                                                                                                                                                                          3.97&plusmn;0.89             0              null              null              null          null             null                                                                                                                                                                                                      null          null              null              null              null           null              null                                                                                                                                                                                                      null           null              null              null              null          null             null                                                                                                                                                                                                      null          null              null              null              null      null         null                                                                                                                                                                                                      null      null       16.55000000        0.31000000       -0.31000000            0           %5.2f                                                                                                                                                                                         16.55&plusmn;0.31            0              null              null              null        null           null                                                                                                                                                                                                      null        null              null              null              null        null           null                                                                                                                                                                                                      null        null              null              null              null         null            null                                                                                                                                                                                                      null         null              null              null              null         null            null                                                                                                                                                                                                      null         null              null              null              null        null           null                                                                                                                                                                                                      null        null              null              null              null         null            null                                                                                                                                                                                                      null         null              null              null              null        null           null                                                                                                                                                                                                      null        null              null              null              null         null            null                                                                                                                                                                                                      null         null              null              null              null           null              null                                                                                                                                                                                                      null           null              null              null              null        null           null                                                                                                                                                                                                      null        null              null              null              null        null           null                                                                                                                                                                                                      null        null              null              null              null        null           null                                                                                                                                                                                                      null        null              null              null              null        null           null                                                                                                                                                                                                      null        null              null              null              null        null           null                                                                                                                                                                                                      null        null        1.18000000        0.07000000       -0.07000000             0            %4.2f                                                                                                                                                                                          1.18&plusmn;0.07             0              null              null              null          null             null                                                                                                                                                                                                      null          null              null              null              null          null             null                                                                                                                                                                                                      null          null              null              null              null          null             null                                                                                                                                                                                                      null          null              null              null              null          null             null                                                                                                                                                                                                      null          null        2.81000000        0.10000000       -0.10000000            0           %4.2f                                                                                                                                                                                           2.81&plusmn;0.1            0        1.98000000        0.16000000       -0.16000000             0            %4.2f                                                                                                                                                                                          1.98&plusmn;0.16             0              null              null              null         null            null                                                                                                                                                                                                      null         null              null              null              null          null             null                                                                                                                                                                                                      null          null              null              null              null         null            null                                                                                                                                                                                                      null         null              null              null              null          null             null                                                                                                                                                                                                      null          null              null              null              null         null            null                                                                                                                                                                                                      null         null              null              null              null          null             null                                                                                                                                                                                                      null          null              null              null              null          null             null                                                                                                                                                                                                      null          null        0.83000000        0.12000000       -0.12000000           0          %4.2f                                                                                                                                                                                          0.83&plusmn;0.12           0              null              null              null        null           null                                                                                                                                                                                                      null        null              null              null              null        null           null                                                                                                                                                                                                      null        null           0          null          null         0                                                                                                                                                                         source star behind Galactic bulge      3816                                 MOA-2010-BLG-353L b                          <a href=https://ui.adsabs.harvard.edu/abs/2015MNRAS.454..946R/abstract target=ref>Rattenbury et al. 2015</a>    2019-12-05 

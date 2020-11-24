@@ -1,6 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """Download of Fermi LAT (Large Area Telescope) data"""
-from __future__ import print_function
+
 import re
 import requests
 import time
@@ -116,7 +116,7 @@ def _fermi_format_coords(c):
     return "{0:0.5f},{1:0.5f}".format(c.ra.degree, c.dec.degree)
 
 
-class GetFermilatDatafile(object):
+class GetFermilatDatafile:
     """
     TODO: document
     TODO: Fail with useful failure messages on genuine failures

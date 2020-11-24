@@ -13,7 +13,7 @@ __all__ = ['download_list_of_fitsfiles']
 __doctest_skip__ = ["download_list_of_fitsfiles"]
 
 whitespace_re = re.compile(r"\s")
-valid_chars = "-_.()%s%s" % (string.ascii_letters, string.digits)
+valid_chars = f"-_.(){string.ascii_letters}{string.digits}"
 
 
 def validify_filename(filestr):
@@ -96,7 +96,7 @@ def download_list_of_fitsfiles(linklist, output_directory=None,
                     coordstr = output_coord_format.format(lon, lat)
                 except TypeError:
                     coordstr = output_coord_format % (lon, lat)
-                nametxt += "_" + coordstr
+                nametxt += f"_{coordstr}"
 
             if include_input_filename:
                 filename_root = os.path.split(link)[1]
@@ -105,13 +105,13 @@ def download_list_of_fitsfiles(linklist, output_directory=None,
 
             savename = output_prefix if output_prefix else ""
             savename += nametxt
-            savename += "_" + filename_root
+            savename += f"_{filename_root}"
 
             # Set final directory and file names
-            final_file = output_directory + savename
+            final_file = f"{output_directory}{savename}"
 
             if verbose:
-                print("Saving file %s" % final_file)
+                print(f"Saving file {final_file}")
 
             try:
                 fitsfile.writeto(final_file, clobber=overwrite)

@@ -18,8 +18,8 @@ class MockResponseAlfalfa(MockResponse):
         super(MockResponseAlfalfa, self).__init__(content, **kwargs)
 
     def iter_lines(self):
-        for l in self.text.split("\n"):
-            yield l
+        for line in self.text.split("\n"):
+            yield line
 
     def close(self):
         pass

@@ -5,7 +5,7 @@ Affiliation: University of Colorado at Boulder
 Created on: Fri May  3 09:45:13 2013
 """
 
-from __future__ import print_function
+
 import requests
 import numpy as np
 import numpy.ma as ma
@@ -59,9 +59,9 @@ class AlfalfaClass(BaseQuery):
             # skip blank lines or trailing newlines
             if line == "":
                 continue
-            l = line.rstrip('\n').split(',')
+            col_values = line.rstrip('\n').split(',')
             for i, col in enumerate(cols):
-                item = l[i].strip()
+                item = col_values[i].strip()
                 if item == '\"\"':
                     catalog[col].append(self.PLACEHOLDER)
                 elif item.isdigit():

@@ -1,0 +1,34 @@
+\                                                                               
+\fixlen = T
+\RowsRetrieved =                 2
+\For detailed descriptions of the columns, go to http://exoplanetarchive.ipac.caltech.edu/docs/documentation.html and choose the appropriate table guide.
+\ 
+\ epic_host 
+\ ___ EPIC Host Name
+\ k2_name 
+\ ___ K2 Name (confirmed planet)
+\ alt_name 
+\ ___ Alternative Name
+\ tm_designation 
+\ ___ 2MASS designation
+\ ra (degrees) 
+\ ___ RA Value [decimal degrees]
+\ ra_str 
+\ ___ RA Value [sexagesimal]
+\ dec (degrees) 
+\ ___ Dec Value [decimal degrees]
+\ dec_str 
+\ ___ Dec Value [sexagesimal]
+\ last_update 
+\ ___ Last Update Date
+\ k2_kepmag (mags) 
+\ ___ Stellar Kepler Magnitude Value
+\ k2_campaign_str 
+\ ___ Kepler2 Campaign Number String for Display
+\ 
+|                 epic_host|                   k2_name|                       alt_name|                 tm_designation|              ra|                    ra_str|             dec|                   dec_str| last_update| k2_kepmag| k2_campaign_str|
+|                      char|                      char|                           char|                           char|          double|                      char|          double|                      char|        char|    double|            char|
+|                          |                          |                               |                               |         degrees|                          |         degrees|                          |            |      mags|                |
+|                      null|                      null|                           null|                           null|            null|                      null|            null|                      null|        null|      null|            null|
+             EPIC 206027655                    K2-59 b                         K2-59 b         2MASS J22354616-1401398       338.942352               22h35m46.16s       -14.027745               -14d01m39.9s   2016-07-18     13.869                3 
+             EPIC 206027655                    K2-59 c                         K2-59 c         2MASS J22354616-1401398       338.942352               22h35m46.16s       -14.027745               -14d01m39.9s   2016-07-18     13.869                3 

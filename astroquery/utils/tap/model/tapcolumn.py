@@ -16,7 +16,7 @@ Created on 30 jun. 2016
 """
 
 
-class TapColumn(object):
+class TapColumn:
     """TAP column object
     """
 
@@ -32,13 +32,15 @@ class TapColumn(object):
         self.datatype = None
         self.arraysize = None
         self.flag = None
+        self.flags = flags
 
     def __str__(self):
-        return "TAP Column name: " + str(self.name) + \
-            "\nDescription: " + str(self.description) + \
-            "\nUnit: " + str(self.unit) + \
-            "\nUcd: " + str(self.ucd) + \
-            "\nUtype: " + str(self.utype) + \
-            "\nDataType: " + str(self.datatype) + \
-            "\nArraySize: " + str(self.arraysize) + \
-            "\nFlag: " + str(self.flag)
+        return f"TAP Column name: {self.name}" \
+            f"\nDescription: {self.description}" \
+            f"\nUnit: {self.unit}" \
+            f"\nUcd: {self.ucd}" \
+            f"\nUtype: {self.utype}" \
+            f"\nDataType: {self.datatype}" \
+            f"\nArraySize: {self.arraysize}" \
+            f"\nFlag: {self.flag}" \
+            f"\nFlags: {self.flags}"

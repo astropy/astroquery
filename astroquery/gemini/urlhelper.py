@@ -48,7 +48,7 @@ handlers = {
 }
 
 
-class URLHelper(object):
+class URLHelper:
     def __init__(self, server="https://archive.gemini.edu"):
         """ Make a URL Helper for building URLs to the Gemini Archive REST service. """
         if server is None:

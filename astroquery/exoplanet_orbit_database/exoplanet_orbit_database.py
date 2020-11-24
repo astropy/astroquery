@@ -18,7 +18,7 @@ BOOL_ATTRS = ('ASTROMETRY', 'BINARY', 'EOD', 'KDE', 'MICROLENSING', 'MULT',
               'SE', 'TIMING', 'TRANSIT', 'TREND')
 
 
-class ExoplanetOrbitDatabaseClass(object):
+class ExoplanetOrbitDatabaseClass:
     """
     Exoplanet Orbit Database querying object. Use the ``get_table`` or
     ``query_planet`` methods to get information about exoplanets via the
@@ -79,8 +79,10 @@ class ExoplanetOrbitDatabaseClass(object):
             for col in exoplanets_table.colnames:
                 if col in self.param_units:
                     # Check that unit is implemented in this version of astropy
-                    if hasattr(u, self.param_units[col]):
+                    try:
                         exoplanets_table[col].unit = u.Unit(self.param_units[col])
+                    except ValueError:
+                        print(f"WARNING: Unit {self.param_units[col]} not recognised")
 
             self._table = QTable(exoplanets_table)
 

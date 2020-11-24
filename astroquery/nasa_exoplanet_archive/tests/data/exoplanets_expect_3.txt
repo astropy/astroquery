@@ -1,0 +1,839 @@
+\                                                                               
+\fixlen = T
+\RowsRetrieved =                 1
+\For detailed descriptions of the columns, go to http://exoplanetarchive.ipac.caltech.edu/docs/documentation.html and choose the appropriate table guide.
+\ 
+\ ra (degrees) 
+\ ___ RA Value [decimal degrees]
+\ st_raerr (degrees) 
+\ ___ RA Uncertainty [decimal degrees]
+\ st_rah (hours) 
+\ ___ RA Value [decimal hrs]
+\ st_raherr (hours) 
+\ ___ RA Uncertainty [decimal hrs]
+\ ra_str 
+\ ___ RA Value [sexagesimal]
+\ dec (degrees) 
+\ ___ Dec Value [decimal degrees]
+\ st_decerr (degrees) 
+\ ___ Dec Uncertainty [decimal degrees]
+\ dec_str 
+\ ___ Dec Value [sexagesimal]
+\ st_glon (degrees) 
+\ ___ Galactic Longitude Value [deg]
+\ st_glonerr (degrees) 
+\ ___ Galactic Longitude Uncertainty [deg]
+\ st_glat (degrees) 
+\ ___ Galactic Latitude Value [deg]
+\ st_glaterr (degrees) 
+\ ___ Galactic Latitude Uncertainty [deg]
+\ st_elon (degrees) 
+\ ___ Ecliptic Longitude Value [deg]
+\ st_elonerr (degrees) 
+\ ___ Ecliptic Longitude Uncertainty [deg]
+\ st_elat (degrees) 
+\ ___ Ecliptic Latitude Value [deg]
+\ st_elaterr (degrees) 
+\ ___ Ecliptic Latitude Uncertainty [deg]
+\ st_posn 
+\ ___ Number of Position Measurements
+\ st_plx (mas) 
+\ ___ Parallax Value [mas]
+\ st_plxerr1 (mas) 
+\ ___ Parallax Upper Uncertainty [mas]
+\ st_plxerr2 (mas) 
+\ ___ Parallax Lower Uncertainty [mas]
+\ st_plxlim 
+\ ___ Parallax Limit Flag (0="=", +1=">", -1="<")
+\ st_plxn 
+\ ___ Number of Parallax Measurements
+\ st_dist (pc) 
+\ ___ Distance Value [pc]
+\ st_disterr1 (pc) 
+\ ___ Distance Upper Uncertainty [pc]
+\ st_disterr2 (pc) 
+\ ___ Distance Lower Uncertainty [pc]
+\ st_distlim 
+\ ___ Distance Limit Flag (0="=", +1=">", -1="<")
+\ st_distn 
+\ ___ Number of Distance Measurements
+\ st_pmra (mas/yr) 
+\ ___ Stellar RA Proper Motion Value [mas/yr]
+\ st_pmraerr (mas/yr) 
+\ ___ Stellar RA Proper Motion Uncertainty [mas/yr]
+\ st_pmralim 
+\ ___ Stellar RA Proper Motion Limit Flag (0="=", +1=">", -1="<")
+\ st_pmdec (mas/yr) 
+\ ___ Stellar Dec Proper Motion Value [mas/yr]
+\ st_pmdecerr (mas/yr) 
+\ ___ Stellar Dec Proper Motion Uncertainty [mas/yr]
+\ st_pmdeclim 
+\ ___ Stellar Dec Proper Motion Limit Flag (0="=", +1=">", -1="<")
+\ st_pm (mas/yr) 
+\ ___ Stellar Total Proper Motion Value [mas/yr]
+\ st_pmerr (mas/yr) 
+\ ___ Stellar Total Proper Motion Uncertainty [mas/yr]
+\ st_pmlim 
+\ ___ Stellar Total Proper Motion Limit Flag (0="=", +1=">", -1="<")
+\ st_pmn 
+\ ___ Stellar Total Proper Motion Number of Measurements
+\ st_radv (km/s) 
+\ ___ Stellar Radial Velocity Value [km/s]
+\ st_radverr1 (km/s) 
+\ ___ Stellar Radial Velocity Upper Uncertainty [km/s]
+\ st_radverr2 (km/s) 
+\ ___ Stellar Radial Velocity Lower Uncertainty [km/s]
+\ st_radvlim 
+\ ___ Stellar Radial Velocity Limit Flag (0="=", +1=">", -1="<")
+\ st_radvn 
+\ ___ Stellar Radial Velocity Number of Measurements
+\ st_uj (mags) 
+\ ___ Stellar U (Johnson) Magnitude Value
+\ st_ujerr (mags) 
+\ ___ Stellar U (Johnson) Magnitude Uncertainty
+\ st_ujlim 
+\ ___ Stellar U (Johnson) Magnitude Limit Flag (0="=", +1=">", -1="<")
+\ st_bj (mags) 
+\ ___ Stellar B (Johnson) Magnitude Value
+\ st_bjerr (mags) 
+\ ___ Stellar B (Johnson) Magnitude Uncertainty
+\ st_bjlim 
+\ ___ Stellar B (Johnson) Magnitude Limit Flag (0="=", +1=">", -1="<")
+\ st_vj (mags) 
+\ ___ Stellar V (Johnson) Magnitude Value
+\ st_vjerr (mags) 
+\ ___ Stellar V (Johnson) Magnitude Uncertainty
+\ st_vjlim 
+\ ___ Stellar V (Johnson) Magnitude Limit Flag (0="=", +1=">", -1="<")
+\ st_rc (mags) 
+\ ___ Stellar R (Cousins) Magnitude Value
+\ st_rcerr (mags) 
+\ ___ Stellar R (Cousins) Magnitude Uncertainty
+\ st_rclim 
+\ ___ Stellar R (Cousins) Magnitude Limit Flag (0="=", +1=">", -1="<")
+\ st_ic (mags) 
+\ ___ Stellar I (Cousins) Magnitude Value
+\ st_icerr (mags) 
+\ ___ Stellar I (Cousins) Magnitude Uncertainty
+\ st_iclim 
+\ ___ Stellar I (Cousins) Magnitude Limit Flag (0="=", +1=">", -1="<")
+\ st_j (mags) 
+\ ___ Stellar J (2MASS) Magnitude Value
+\ st_jerr (mags) 
+\ ___ Stellar J (2MASS) Magnitude Uncertainty
+\ st_jlim 
+\ ___ Stellar J (2MASS) Magnitude Limit Flag (0="=", +1=">", -1="<")
+\ st_h (mags) 
+\ ___ Stellar H (2MASS) Magnitude Value
+\ st_herr (mags) 
+\ ___ Stellar H (2MASS) Magnitude Uncertainty
+\ st_hlim 
+\ ___ Stellar H (2MASS) Magnitude Limit Flag (0="=", +1=">", -1="<")
+\ st_k (mags) 
+\ ___ Stellar K (2MASS) Magnitude Value
+\ st_kerr (mags) 
+\ ___ Stellar K (2MASS) Magnitude Uncertainty
+\ st_klim 
+\ ___ Stellar K (2MASS) Magnitude Limit Flag (0="=", +1=">", -1="<")
+\ st_wise1 (mags) 
+\ ___ Stellar WISE 3.4um Magnitude Value
+\ st_wise1err (mags) 
+\ ___ Stellar WISE 3.4um Magnitude Uncertainty
+\ st_wise1lim 
+\ ___ Stellar WISE 3.4um Magnitude Limit Flag (0="=", +1=">", -1="<")
+\ st_wise2 (mags) 
+\ ___ Stellar WISE 4.6um Magnitude Value
+\ st_wise2err (mags) 
+\ ___ Stellar WISE 4.6um Magnitude Uncertainty
+\ st_wise2lim 
+\ ___ Stellar WISE 4.6um Magnitude Limit Flag (0="=", +1=">", -1="<")
+\ st_wise3 (mags) 
+\ ___ Stellar WISE 12.um Magnitude Value
+\ st_wise3err (mags) 
+\ ___ Stellar WISE 12.um Magnitude Uncertainty
+\ st_wise3lim 
+\ ___ Stellar WISE 12.um Magnitude Limit Flag (0="=", +1=">", -1="<")
+\ st_wise4 (mags) 
+\ ___ Stellar WISE 22.um Magnitude Value
+\ st_wise4err (mags) 
+\ ___ Stellar WISE 22.um Magnitude Uncertainty
+\ st_wise4lim 
+\ ___ Stellar WISE 22.um Magnitude Limit Flag (0="=", +1=">", -1="<")
+\ st_irac1 (mags) 
+\ ___ Stellar IRAC 3.6um Magnitude Value
+\ st_irac1err (mags) 
+\ ___ Stellar IRAC 3.6um Magnitude Uncertainty
+\ st_irac1lim 
+\ ___ Stellar IRAC 3.6um Magnitude Limit Flag (0="=", +1=">", -1="<")
+\ st_irac2 (mags) 
+\ ___ Stellar IRAC 4.5um Magnitude Value
+\ st_irac2err (mags) 
+\ ___ Stellar IRAC 4.5um Magnitude Uncertainty
+\ st_irac2lim 
+\ ___ Stellar IRAC 4.5um Magnitude Limit Flag (0="=", +1=">", -1="<")
+\ st_irac3 (mags) 
+\ ___ Stellar IRAC 5.8um Magnitude Value
+\ st_irac3err (mags) 
+\ ___ Stellar IRAC 5.8um Magnitude Uncertainty
+\ st_irac3lim 
+\ ___ Stellar IRAC 5.8um Magnitude Limit Flag (0="=", +1=">", -1="<")
+\ st_irac4 (mags) 
+\ ___ Stellar IRAC 8.0um Magnitude Value
+\ st_irac4err (mags) 
+\ ___ Stellar IRAC 8.0um Magnitude Uncertainty
+\ st_irac4lim 
+\ ___ Stellar IRAC 8.0um Magnitude Limit Flag (0="=", +1=">", -1="<")
+\ st_mips1 (Jy) 
+\ ___ Stellar MIPS 24um Flux Density Value [Jy]
+\ st_mips1err (Jy) 
+\ ___ Stellar MIPS 24um Flux Density Uncertainty [Jy]
+\ st_mips1lim 
+\ ___ Stellar MIPS 24um Flux Density Limit Flag (0="=", +1=">", -1="<")
+\ st_mips2 (Jy) 
+\ ___ Stellar MIPS 70um Flux Density Value [Jy]
+\ st_mips2err (Jy) 
+\ ___ Stellar MIPS 70um Flux Density Uncertainty [Jy]
+\ st_mips2lim 
+\ ___ Stellar MIPS 70um Flux Density Limit Flag (0="=", +1=">", -1="<")
+\ st_mips3 (Jy) 
+\ ___ Stellar MIPS 160um Flux Density Value [Jy]
+\ st_mips3err (Jy) 
+\ ___ Stellar MIPS 160um Flux Density Uncertainty [Jy]
+\ st_mips3lim 
+\ ___ Stellar MIPS 160um Flux Density Limit Flag (0="=", +1=">", -1="<"
+\ st_iras1 (Jy) 
+\ ___ Stellar IRAS 12um Flux Density Value [Jy]
+\ st_iras1err (Jy) 
+\ ___ Stellar IRAS 12um Flux Density Uncertainty [Jy]
+\ st_iras1lim 
+\ ___ Stellar IRAS 12um Flux Density Limit Flag (0="=", +1=">", -1="<")
+\ st_iras2 (Jy) 
+\ ___ Stellar IRAS 25um Flux Density Value [Jy]
+\ st_iras2err (Jy) 
+\ ___ Stellar IRAS 25um Flux Density Uncertainty [Jy]
+\ st_iras2lim 
+\ ___ Stellar IRAS 25um Flux Density Limit Flag (0="=", +1=">", -1="<")
+\ st_iras3 (Jy) 
+\ ___ Stellar IRAS 60um Flux Density Value [Jy]
+\ st_iras3err (Jy) 
+\ ___ Stellar IRAS 60um Flux Density Uncertainty [Jy]
+\ st_iras3lim 
+\ ___ Stellar IRAS 60um Flux Density Limit Flag (0="=", +1=">", -1="<")
+\ st_iras4 (Jy) 
+\ ___ Stellar IRAS 100um Flux Density Value [Jy]
+\ st_iras4err (Jy) 
+\ ___ Stellar IRAS 100um Flux Density Uncertainty [Jy]
+\ st_iras4lim 
+\ ___ Stellar IRAS 100um Flux Density Limit Flag (0="=", +1=">", -1="<"
+\ st_optmag (mags) 
+\ ___ Stellar Optical Magnitude Value [mags]
+\ st_optmagerr (mags) 
+\ ___ Stellar Optical Magnitude Uncertainty
+\ st_optmaglim 
+\ ___ Stellar Optical Magnitude Limit Flag (0="=", +1=">", -1="<")
+\ st_optband 
+\ ___ Stellar Optical Magnitude Band Name
+\ st_photn 
+\ ___ Stellar Photometry Number of Measurements
+\ st_umbj (mags) 
+\ ___ Stellar U-B (Johnson) Value
+\ st_umbjerr (mags) 
+\ ___ Stellar U-B (Johnson) Uncertainty
+\ st_umbjlim 
+\ ___ Stellar U-B (Johnson) Limit Flag (0="=", +1=">", -1="<")
+\ st_bmvj (mags) 
+\ ___ Stellar B-V (Johnson) Value
+\ st_bmvjerr (mags) 
+\ ___ Stellar B-V (Johnson) Uncertainty
+\ st_bmvjlim 
+\ ___ Stellar B-V (Johnson) Limit Flag (0="=", +1=">", -1="<")
+\ st_vjmic (mags) 
+\ ___ Stellar V-I (Johnson-Cousins) Value
+\ st_vjmicerr (mags) 
+\ ___ Stellar V-I (Johnson-Cousins) Uncertainty
+\ st_vjmiclim 
+\ ___ Stellar V-I (Johnson-Cousins) Limit Flag (0="=", +1=">", -1="<")
+\ st_vjmrc (mags) 
+\ ___ Stellar V-R (Johnson-Cousins) Value
+\ st_vjmrcerr (mags) 
+\ ___ Stellar V-R (Johnson-Cousins) Uncertainty
+\ st_vjmrclim 
+\ ___ Stellar V-R (Johnson-Cousins) Limit Flag (0="=", +1=">", -1="<")
+\ st_jmh2 (mags) 
+\ ___ Stellar J-H (2MASS) Value
+\ st_jmh2err (mags) 
+\ ___ Stellar J-H (2MASS) Uncertainty
+\ st_jmh2lim 
+\ ___ Stellar J-H (2MASS) Limit Flag (0="=", +1=">", -1="<")
+\ st_hmk2 (mags) 
+\ ___ Stellar H-Ks (2MASS) Value
+\ st_hmk2err (mags) 
+\ ___ Stellar H-Ks (2MASS) Uncertainty
+\ st_hmk2lim 
+\ ___ Stellar H-Ks (2MASS) Limit Flag (0="=", +1=">", -1="<")
+\ st_jmk2 (mags) 
+\ ___ Stellar J-Ks (2MASS) Value
+\ st_jmk2err (mags) 
+\ ___ Stellar J-Ks (2MASS) Uncertainty
+\ st_jmk2lim 
+\ ___ Stellar J-Ks (2MASS) Limit Flag (0="=", +1=">", -1="<")
+\ st_bmy (mags) 
+\ ___ Stellar b-y (Stromgren) Value
+\ st_bmyerr (mags) 
+\ ___ Stellar b-y (Stromgren) Uncertainty
+\ st_bmylim 
+\ ___ Stellar b-y (Stromgren) Limit Flag (0="=", +1=">", -1="<")
+\ st_m1 (mags) 
+\ ___ Stellar m1 (Stromgren) Value
+\ st_m1err (mags) 
+\ ___ Stellar m1 (Stromgren) Uncertainty
+\ st_m1lim 
+\ ___ Stellar m1 (Stromgren) Limit Flag (0="=", +1=">", -1="<")
+\ st_c1 (mags) 
+\ ___ Stellar c1 (Stromgren) Value
+\ st_c1err (mags) 
+\ ___ Stellar c1 (Stromgren) Uncertainty
+\ st_c1lim 
+\ ___ Stellar c1 (Stromgren) Limit Flag (0="=", +1=">", -1="<")
+\ st_colorn 
+\ ___ Stellar Color Number of Measurements
+\ st_spstr 
+\ ___ Stellar Spectral Type Value
+\ st_ssperr 
+\ ___ Stellar Spectral Type Uncertainty
+\ st_splim 
+\ ___ Stellar Spectral Type Limit Flag (0="=", +1=">", -1="<")
+\ st_spn 
+\ ___ Stellar Spectral Type Number of Measurements
+\ st_teff (K) 
+\ ___ Stellar Effective Temperature Value [K]
+\ st_tefferr1 (K) 
+\ ___ Stellar Effective Temperature Upper Uncertainty [K]
+\ st_tefferr2 (K) 
+\ ___ Stellar Effective Temperature Lower Uncertainty [K]
+\ st_tefflim 
+\ ___ Stellar Effective Temperature Limit Flag (0="=", +1=">", -1="<")
+\ st_teffn 
+\ ___ Stellar Effective Temperature Number of Measurements
+\ st_logg (cm/s**2) 
+\ ___ Stellar Surface Gravity Value [log10(cm/s**2)]
+\ st_loggerr1 (cm/s**2) 
+\ ___ Stellar Surface Gravity Upper Uncertainty [log10(cm/s**2)]
+\ st_loggerr2 (cm/s**2) 
+\ ___ Stellar Surface Gravity Lower Uncertainty [log10(cm/s**2)]
+\ st_logglim 
+\ ___ Stellar Surface Gravity Limit Flag (0="=", +1=">", -1="<")
+\ st_loggn 
+\ ___ Stellar Surface Gravity Number of Measurements
+\ st_metfe (dex) 
+\ ___ Stellar Metallicity Value [dex]
+\ st_metfeerr1 (dex) 
+\ ___ Stellar Metallicity Upper Uncertainty [dex]
+\ st_metfeerr2 (dex) 
+\ ___ Stellar Metallicity Lower Uncertainty [dex]
+\ st_metfelim 
+\ ___ Stellar Metallicity Limit Flag (0="=", +1=">", -1="<")
+\ st_metfen 
+\ ___ Stellar Metallicity Number of Measurements
+\ st_metratio 
+\ ___ Stellar Metallicity ([Fe/H], [Mg/Fe], [O/H])
+\ st_lum (logLsun) 
+\ ___ Stellar Luminosity Value [log(Solar)]
+\ st_lumerr1 (logLsun) 
+\ ___ Stellar Luminosity Upper Uncertainty [log(Solar)]
+\ st_lumerr2 (logLsun) 
+\ ___ Stellar Luminosity Lower Uncertainty [log(Solar)]
+\ st_lumlim 
+\ ___ Stellar Luminosity Limit Flag (0="=", +1=">", -1="<")
+\ st_lumn 
+\ ___ Stellar Luminosity Number of Measurements
+\ st_rad (Rsun) 
+\ ___ Stellar Radius Value [Solar radii]
+\ st_raderr1 (Rsun) 
+\ ___ Stellar Radius Upper Uncertainty [Solar radii]
+\ st_raderr2 (Rsun) 
+\ ___ Stellar Radius Lower Uncertainty [Solar radii]
+\ st_radlim 
+\ ___ Stellar Radius Limit Flag (0="=", +1=">", -1="<")
+\ st_radn 
+\ ___ Stellar Radius Number of Measurements
+\ st_mass (Msun) 
+\ ___ Stellar Mass Value [Solar mass]
+\ st_masserr1 (Msun) 
+\ ___ Stellar Mass Upper Uncertainty [Solar mass]
+\ st_masserr2 (Msun) 
+\ ___ Stellar Mass Lower Uncertainty [Solar mass]
+\ st_masslim 
+\ ___ Stellar Mass Limit Flag (0="=", +1=">", -1="<")
+\ st_massn 
+\ ___ Stellar Mass Number of Measurements
+\ st_dens (g/cm**3) 
+\ ___ Stellar Density Value [g/cm**3]
+\ st_denserr1 (g/cm**3) 
+\ ___ Stellar Density Upper Uncertainty [g/cm**3]
+\ st_denserr2 (g/cm**3) 
+\ ___ Stellar Density Lower Uncertainty [g/cm**3]
+\ st_denslim 
+\ ___ Stellar Density Limit Flag (0="=", +1=">", -1="<")
+\ st_densn 
+\ ___ Stellar Density Number of Measurements
+\ st_age (Gyr) 
+\ ___ Stellar Age Value [Gyr]
+\ st_ageerr1 (Gyr) 
+\ ___ Stellar Age Upper Uncertainty [Gyr]
+\ st_ageerr2 (Gyr) 
+\ ___ Stellar Age Lower Uncertainty [Gyr]
+\ st_agelim 
+\ ___ Stellar Age Limit Flag (0="=", +1=">", -1="<")
+\ st_agen 
+\ ___ Stellar Age Number of Measurements
+\ st_vsini (km/s) 
+\ ___ Stellar Vsin i Value [km/s]
+\ st_vsinierr1 (km/s) 
+\ ___ Stellar Vsin i Upper Uncertainty [km/s]
+\ st_vsinierr2 (km/s) 
+\ ___ Stellar Vsin i Lower Uncertainty [km/s]
+\ st_vsinilim 
+\ ___ Stellar Vsin i Limit Flag (0="=", +1=">", -1="<")
+\ st_vsinin 
+\ ___ Stellar Vsin i Number of Measurements
+\ st_acts 
+\ ___ Stellar Activity S-index Value
+\ st_actserr 
+\ ___ Stellar Activity S-index Uncertainty
+\ st_actslim 
+\ ___ Stellar Activity S-index Limit Flag (0="=", +1=">", -1="<")
+\ st_actsn 
+\ ___ Stellar Activity S-index Number of Measurements
+\ st_actr 
+\ ___ Stellar Activity Log(R"HK) Value
+\ st_actrerr 
+\ ___ Stellar Activity Log(R"HK) Uncertainty
+\ st_actrlim 
+\ ___ Stellar Activity Log(R"HK) Limit Flag (0="=", +1=">", -1="<")
+\ st_actrn 
+\ ___ Stellar Activity Log(R"HK) Number of Measurements
+\ st_actlx 
+\ ___ X-ray Activity log(Lx) Value
+\ st_actlxerr 
+\ ___ X-ray Activity log(Lx) Uncertainty
+\ st_actlxlim 
+\ ___ X-ray Activity log(Lx) Limit Flag (0="=", +1=">", -1="<")
+\ st_actlxn 
+\ ___ X-ray Activity log(Lx) Number of Measurements
+\ st_nts 
+\ ___ Number of time series
+\ st_nplc 
+\ ___ Number of planet transit light curves
+\ st_nglc 
+\ ___ Number of general light curves
+\ st_nrvc 
+\ ___ Number of radial velocity curves
+\ st_naxa 
+\ ___ Number of Amateur light curves
+\ st_nimg 
+\ ___ Number of Images
+\ st_nspec 
+\ ___ Number of Spectra
+\ hd_name 
+\ ___ HD name
+\ hip_name 
+\ ___ HIP name
+\ swasp_id 
+\ ___ SWASP identifier
+\ pl_name 
+\ ___ Planet Common Name
+\ pl_hostname 
+\ ___ Planet Host Star Name
+\ pl_letter 
+\ ___ Planet Letter
+\ pl_pnum 
+\ ___ Number of Planets in System
+\ pl_snum 
+\ ___ Number of Stars in System
+\ pl_mnum 
+\ ___ Number of Moon around Planet
+\ pl_status 
+\ ___ Status (1 = announced, 2 = submitted, 3 = accepted, 0 = retracted
+\ pl_discmethod 
+\ ___ Method of Discovery String for Display
+\ pl_disc 
+\ ___ Year of Discovery
+\ pl_disc_refname 
+\ ___ Discovery Publication Name (Author et al. Year)
+\ pl_publ_date 
+\ ___ Discovery Publication Date
+\ pl_facility 
+\ ___ Discovery Facility
+\ pl_telescope 
+\ ___ Discovery Telescope
+\ pl_instrument 
+\ ___ Discovery Instrument
+\ pl_locale 
+\ ___ Discovery Locale
+\ pl_def_refname 
+\ ___ Default Publication Name (Author et al. Year)
+\ pl_rvflag 
+\ ___ Does the planet have RV measurements? (1 = yes, 0 = no)
+\ pl_imgflag 
+\ ___ Does the planet have been imaged? (1 = yes, 0 = no)
+\ pl_astflag 
+\ ___ Does the planet have astrometric measurements? (1 = yes, 0 = no)
+\ pl_tranflag 
+\ ___ Is the planet known to transit? (1 = yes, 0 = no)
+\ pl_ttvflag 
+\ ___ Is the planet known to have TTV? (1 = yes, 0 = no)
+\ pl_kepflag 
+\ ___ Is the planet in the Kepler Field? (1 = yes, 0 = no)
+\ pl_k2flag 
+\ ___ Is the planet in the K2 Mission? (1 = yes, 0 = no)
+\ pl_nnotes 
+\ ___ Number of Planet Notes
+\ pl_cbflag 
+\ ___ Circumbinary Flag (1 = yes, 0 = no)
+\ pl_omflag 
+\ ___ Orbital Modulation Flag (1 = yes, 0 = no)
+\ pl_pelink 
+\ ___ Link to Extrasolar Planets Encyclopaedia Web Site
+\ pl_edelink 
+\ ___ Link to Exoplanet Data Explorer Web Site
+\ pl_orbper (days) 
+\ ___ Planet Orbital Period Value [days]
+\ pl_orbpererr1 (days) 
+\ ___ Planet Orbital Period Upper Uncertainty [days]
+\ pl_orbpererr2 (days) 
+\ ___ Planet Orbital Period Lower Uncertainty [days]
+\ pl_orbperlim 
+\ ___ Planet Orbital Period Limit Flag (0="=", +1=">", -1="<")
+\ pl_orbpern 
+\ ___ Planet Orbital Period Number of Measurements
+\ pl_orbsmax (AU) 
+\ ___ Planet Orbital Semi-Major Axis Value [AU]
+\ pl_orbsmaxerr1 (AU) 
+\ ___ Planet Orbital Semi-Major Axis Upper Uncertainty [AU]
+\ pl_orbsmaxerr2 (AU) 
+\ ___ Planet Orbital Semi-Major Axis Lower Uncertainty [AU]
+\ pl_orbsmaxlim 
+\ ___ Planet Orbital Semi-Major Axis Limit Flag (0="=", +1=">", -1="<")
+\ pl_orbsmaxn 
+\ ___ Planet Orbital Semi-Major Axis Number of Measurements
+\ pl_orbincl (degrees) 
+\ ___ Planet Orbital Inclination Value [deg]
+\ pl_orbinclerr1 (degrees) 
+\ ___ Planet Orbital Inclination Upper Uncertainty [deg]
+\ pl_orbinclerr2 (degrees) 
+\ ___ Planet Orbital Inclination Lower Uncertainty [deg]
+\ pl_orbincllim 
+\ ___ Planet Orbital Inclination Limit Flag (0="=", +1=">", -1="<")
+\ pl_orbincln 
+\ ___ Planet Orbital Inclination Number of Measurements
+\ pl_orbtper (days) 
+\ ___ Planet Orbital Time of Periastron Passage Value [days]
+\ pl_orbtpererr1 (days) 
+\ ___ Planet Orbital Time of Periastron Passage Upper Uncertainty [days
+\ pl_orbtpererr2 (days) 
+\ ___ Planet Orbital Time of Periastron Passage Lower Uncertainty [days
+\ pl_orbtperlim 
+\ ___ Planet Orbital Time of Periastron Passage Limit Flag (0="=", +1="
+\ pl_orbtpern 
+\ ___ Planet Orbital Time of Periastron Passage Number of Measurements
+\ pl_orbeccen 
+\ ___ Planet Orbital Eccentricity Value
+\ pl_orbeccenerr1 
+\ ___ Planet Orbital Eccentricity Upper Uncertainty
+\ pl_orbeccenerr2 
+\ ___ Planet Orbital Eccentricity Lower Uncertainty
+\ pl_orbeccenlim 
+\ ___ Planet Orbital Eccentricity Limit Flag (0="=", +1=">", -1="<")
+\ pl_orbeccenn 
+\ ___ Planet Orbital Eccentricity Number of Measurements
+\ pl_orblper (degrees) 
+\ ___ Planet Orbital Longitude of Periastron Value [deg]
+\ pl_orblpererr1 (degrees) 
+\ ___ Planet Orbital Longitude of Periastron Upper Uncertainty [deg]
+\ pl_orblpererr2 (degrees) 
+\ ___ Planet Orbital Longitude of Periastron Lower Uncertainty [deg]
+\ pl_orblperlim 
+\ ___ Planet Orbital Longitude of Periastron Limit Flag (0="=", +1=">",
+\ pl_orblpern 
+\ ___ Planet Orbital Longitude of Periastron Number of Measurements
+\ pl_rvamp (m/s) 
+\ ___ Planet RV Amplitude Value [m/s]
+\ pl_rvamperr1 (m/s) 
+\ ___ Planet RV Amplitude Upper Uncertainty [m/s]
+\ pl_rvamperr2 (m/s) 
+\ ___ Planet RV Amplitude Lower Uncertainty [m/s]
+\ pl_rvamplim 
+\ ___ Planet RV Amplitude Limit Flag (0="=", +1=">", -1="<")
+\ pl_rvampn 
+\ ___ Planet RV Amplitude Number of Measurements
+\ pl_conrat 
+\ ___ Planet Contrast Ratio Value
+\ pl_conraterr1 
+\ ___ Planet Contrast Ratio Upper Uncertainty
+\ pl_conraterr2 
+\ ___ Planet Contrast Ratio Lower Uncertainty
+\ pl_conratlim 
+\ ___ Planet Contrast Ratio Limit Flag (0="=", +1=">", -1="<")
+\ pl_conratband 
+\ ___ Planet Contrast Ratio Measurement Band
+\ pl_conratn 
+\ ___ Planet Contrast Ratio Number of Measurements
+\ pl_msinij (Mjup) 
+\ ___ Planet Mass*sin(i) Value [Jupiter mass]
+\ pl_msinijerr1 (Mjup) 
+\ ___ Planet Mass*sin(i) Upper Uncertainty [Jupiter mass]
+\ pl_msinijerr2 (Mjup) 
+\ ___ Planet Mass*sin(i) Lower Uncertainty [Jupiter mass]
+\ pl_msinijlim 
+\ ___ Planet Mass*sin(i) [Jupiter mass] Limit Flag (0="=", +1=">", -1="
+\ pl_msinie (Mearth) 
+\ ___ Planet Mass*sin(i) Value [Earth mass]
+\ pl_msinieerr1 (Mearth) 
+\ ___ Planet Mass*sin(i) Upper Uncertainty [Earth mass]
+\ pl_msinieerr2 (Mearth) 
+\ ___ Planet Mass*sin(i) Lower Uncertainty [Earth mass]
+\ pl_msinielim 
+\ ___ Planet Mass*sin(i) [Earth mass] Limit Flag (0="=", +1=">", -1="<"
+\ pl_msinin 
+\ ___ Planet Mass*sin(i) Number of Measurements
+\ pl_massj (Mjup) 
+\ ___ Planet Mass Value [Jupiter mass]
+\ pl_massjerr1 (Mjup) 
+\ ___ Planet Mass Upper Uncertainty [Jupiter mass]
+\ pl_massjerr2 (Mjup) 
+\ ___ Planet Mass Lower Uncertainty [Jupiter mass]
+\ pl_massjlim 
+\ ___ Planet Mass [Jupiter mass] Limit Flag (0="=", +1=">", -1="<")
+\ pl_masse (Mearth) 
+\ ___ Planet Mass Value [Earth mass]
+\ pl_masseerr1 (Mearth) 
+\ ___ Planet Mass Upper Uncertainty [Earth mass]
+\ pl_masseerr2 (Mearth) 
+\ ___ Planet Mass Lower Uncertainty [Earth mass]
+\ pl_masselim 
+\ ___ Planet Mass [Earth mass] Limit Flag (0="=", +1=">", -1="<")
+\ pl_massn 
+\ ___ Planet Mass Number of Measurements
+\ pl_bmassj (Mjup) 
+\ ___ Planet Mass or Msini Value [Jupiter mass]
+\ pl_bmassjerr1 (Mjup) 
+\ ___ Planet Mass or Msini Upper Uncertainty [Jupiter mass]
+\ pl_bmassjerr2 (Mjup) 
+\ ___ Planet Mass or Msini Lower Uncertainty [Jupiter mass]
+\ pl_bmassjlim 
+\ ___ Planet Mass or Msini [Jupiter mass] Limit Flag (0="=", +1=">", -1
+\ pl_bmasse (Mearth) 
+\ ___ Planet Mass or Msini Value [Earth mass]
+\ pl_bmasseerr1 (Mearth) 
+\ ___ Planet Mass or Msini Upper Uncertainty [Earth mass]
+\ pl_bmasseerr2 (Mearth) 
+\ ___ Planet Mass or Msini Lower Uncertainty [Earth mass]
+\ pl_bmasselim 
+\ ___ Planet Mass or Msini [Earth mass] Limit Flag (0="=", +1=">", -1="
+\ pl_bmassn 
+\ ___ Planet Mass or Msini Number of Measurements
+\ pl_bmassprov 
+\ ___ Planet Mass or Msini Provenance
+\ pl_radj (Rjup) 
+\ ___ Planet Radius Value [Jupiter radii]
+\ pl_radjerr1 (Rjup) 
+\ ___ Planet Radius Upper Uncertainty [Jupiter radii]
+\ pl_radjerr2 (Rjup) 
+\ ___ Planet Radius Lower Uncertainty [Jupiter radii]
+\ pl_radjlim 
+\ ___ Planet Radius [Jupiter radii] Limit Flag (0="=", +1=">", -1="<")
+\ pl_rade (Rearth) 
+\ ___ Planet Radius Value [Earth radii]
+\ pl_radeerr1 (Rearth) 
+\ ___ Planet Radius Upper Uncertainty [Earth radii]
+\ pl_radeerr2 (Rearth) 
+\ ___ Planet Radius Lower Uncertainty [Earth radii]
+\ pl_radelim 
+\ ___ Planet Radius [Earth radii] Limit Flag (0="=", +1=">", -1="<")
+\ pl_rads (Rsun) 
+\ ___ Planet Radius Value [Jupiter radii]
+\ pl_radserr1 (Rsun) 
+\ ___ Planet Radius Upper Uncertainty [Solar radii]
+\ pl_radserr2 (Rsun) 
+\ ___ Planet Radius Lower Uncertainty [Solar radii]
+\ pl_radslim 
+\ ___ Planet Radius [Solar radii] Limit Flag (0="=", +1=">", -1="<")
+\ pl_radn 
+\ ___ Planet Radius Number of Measurements
+\ pl_dens (g/cm**3) 
+\ ___ Planet Density Value [g/cm**3]
+\ pl_denserr1 (g/cm**3) 
+\ ___ Planet Density Upper Uncertainty [g/cm**3]
+\ pl_denserr2 (g/cm**3) 
+\ ___ Planet Density Lower Uncertainty [g/cm**3]
+\ pl_denslim 
+\ ___ Planet Density Limit Flag (0="=", +1=">", -1="<")
+\ pl_densn 
+\ ___ Planet Density Number of Measurements
+\ pl_eqt (K) 
+\ ___ Planet Equilibrium Temperature Value [K]
+\ pl_eqterr1 (K) 
+\ ___ Planet Equilibrium Temperature Upper Uncertainty [K]
+\ pl_eqterr2 (K) 
+\ ___ Planet Equilibrium Temperature Lower Uncertainty [K]
+\ pl_eqtlim 
+\ ___ Planet Equilibrium Temperature Limit Flag (0="=", +1=">", -1="<")
+\ pl_eqtn 
+\ ___ Planet Equilibrium Temperature Number of Measurements
+\ pl_insol (Fearth) 
+\ ___ Insolation Flux Value [Earth Flux]
+\ pl_insolerr1 (Fearth) 
+\ ___ Insolation Flux Upper Uncertainty [Earth Flux]
+\ pl_insolerr2 (Fearth) 
+\ ___ Insolation Flux Lower Uncertainty [Earth Flux]
+\ pl_insollim 
+\ ___ Insolation Flux Limit Flag (0="=", +1=">", -1="<")
+\ pl_insoln 
+\ ___ Insolation Flux Number of Measurements
+\ pl_trandep (perc) 
+\ ___ Planet Transit Depth Value [percentage]
+\ pl_trandeperr1 (perc) 
+\ ___ Planet Transit Depth Upper Uncertainty [percentage]
+\ pl_trandeperr2 (perc) 
+\ ___ Planet Transit Depth Lower Uncertainty [percentage]
+\ pl_trandeplim 
+\ ___ Planet Transit Depth Limit Flag (0="=", +1=">", -1="<")
+\ pl_trandepn 
+\ ___ Planet Transit Depth Number of Measurements
+\ pl_trandur (days) 
+\ ___ Planet Transit Duration Value [days]
+\ pl_trandurerr1 (days) 
+\ ___ Planet Transit Duration Upper Uncertainty [days]
+\ pl_trandurerr2 (days) 
+\ ___ Planet Transit Duration Lower Uncertainty [days]
+\ pl_trandurlim 
+\ ___ Planet Transit Duration Limit Flag (0="=", +1=">", -1="<")
+\ pl_trandurn 
+\ ___ Planet Transit Duration Number of Measurements
+\ pl_tranmid (days) 
+\ ___ Planet Transit Mid-Point Value [days]
+\ pl_tranmiderr1 (days) 
+\ ___ Planet Transit Mid-Point Upper Uncertainty [days]
+\ pl_tranmiderr2 (days) 
+\ ___ Planet Transit Mid-Point Lower Uncertainty [days]
+\ pl_tranmidlim 
+\ ___ Planet Transit Mid-Point Limit Flag (0="=", +1=">", -1="<")
+\ pl_tranmidn 
+\ ___ Planet Transit Mid-Point Number of Measurements
+\ pl_tsystemref 
+\ ___ Planet Transit Time System Reference Frame
+\ pl_imppar 
+\ ___ Planet Impact Parameter Value
+\ pl_impparerr1 
+\ ___ Planet Impact Parameter Upper Uncertainty
+\ pl_impparerr2 
+\ ___ Planet Impact Parameter Lower Uncertainty
+\ pl_impparlim 
+\ ___ Planet Impact Parameter Limit Flag (0="=", +1=">", -1="<")
+\ pl_impparn 
+\ ___ Planet Impact Parameter Number of Measurements
+\ pl_occdep (perc) 
+\ ___ Planet Occultation Depth Value [percentage]
+\ pl_occdeperr1 (perc) 
+\ ___ Planet Occultation Depth Upper Uncertainty [percentage]
+\ pl_occdeperr2 (perc) 
+\ ___ Planet Occultation Depth Lower Uncertainty [percentage]
+\ pl_occdeplim 
+\ ___ Planet Occultation Depth Limit Flag (0="=", +1=">", -1="<")
+\ pl_occdepn 
+\ ___ Planet Occultation Depth Number of Measurements
+\ pl_ratdor 
+\ ___ Ratio of Distance to Stellar Radius Value
+\ pl_ratdorerr1 
+\ ___ Ratio of Distance to Stellar Radius Upper Uncertainty
+\ pl_ratdorerr2 
+\ ___ Ratio of Distance to Stellar Radius Lower Uncertainty
+\ pl_ratdorlim 
+\ ___ Ratio of Distance to Stellar Radius Limit Flag (0="=", +1=">", -1
+\ pl_ratdorn 
+\ ___ Ratio of Distance to Stellar Radius Number of Measurements
+\ pl_ratror 
+\ ___ Ratio of Planet to Stellar Radius Value
+\ pl_ratrorerr1 
+\ ___ Ratio of Planet to Stellar Radius Upper Uncertainty
+\ pl_ratrorerr2 
+\ ___ Ratio of Planet to Stellar Radius Lower Uncertainty
+\ pl_ratrorlim 
+\ ___ Ratio of Planet to Stellar Radius Limit Flag (0="=", +1=">", -1="
+\ pl_ratrorn 
+\ ___ Ratio of Planet to Stellar Radius Number of Measurements
+\ pl_mrtranmid (days) 
+\ ___ Most Recent Planet Transit Mid-Point Value [days]
+\ pl_mrtranmiderr1 (days) 
+\ ___ Most Recent Planet Transit Mid-Point Upper Uncertainty [days]
+\ pl_mrtranmiderr2 (days) 
+\ ___ Most Recent Planet Transit Mid-Point Lower Uncertainty [days]
+\ pl_mrtranmidlim 
+\ ___ Most Recent Planet Transit Mid-Point Limit Flag (0="=", +1=">", -
+\ pl_mrtmrefid 
+\ ___ Most Recent Planet Transit Mid-Point Publication Identification N
+\ pl_mrtmreflink 
+\ ___ Most Recent Planet Transit Mid-Point Publication HTML Link
+\ pl_mrtsystemref 
+\ ___ Most Recent Planet Transit Mid-Point Time System Reference Frame
+\ pl_st_npar 
+\ ___ Number of Stellar and Planet Parameters
+\ pl_st_nref 
+\ ___ Number of Stellar and Planet References
+\ rowupdate 
+\ ___ Row last update
+\ gaia_plx (mas) 
+\ ___ Gaia Parallax Value [mas]
+\ gaia_plxerr1 (mas) 
+\ ___ Gaia Parallax Upper Uncertainty [mas]
+\ gaia_plxerr2 (mas) 
+\ ___ Gaia Parallax Lower Uncertainty [mas]
+\ gaia_plxlim 
+\ ___ Gaia Parallax Limit Flag (0="=", +1=">", -1="<")
+\ gaia_dist (pc) 
+\ ___ Gaia Distance Value [pc]
+\ gaia_disterr1 (pc) 
+\ ___ Gaia Distance Upper Uncertainty [pc]
+\ gaia_disterr2 (pc) 
+\ ___ Gaia Distance Lower Uncertainty [pc]
+\ gaia_distlim 
+\ ___ Gaia Distance Limit Flag (0="=", +1=">", -1="<")
+\ gaia_pmra (mas/yr) 
+\ ___ Gaia RA Proper Motion Value [mas/yr]
+\ gaia_pmraerr (mas/yr) 
+\ ___ Gaia RA Proper Motion Uncertainty [mas/yr]
+\ gaia_pmralim 
+\ ___ Gaia RA Proper Motion Limit Flag (0="=", +1=">", -1="<")
+\ gaia_pmdec (mas/yr) 
+\ ___ Gaia Dec Proper Motion Value [mas/yr]
+\ gaia_pmdecerr (mas/yr) 
+\ ___ Gaia Dec Proper Motion Uncertainty [mas/yr]
+\ gaia_pmdeclim 
+\ ___ Gaia Dec Proper Motion Limit Flag (0="=", +1=">", -1="<")
+\ gaia_pm (mas/yr) 
+\ ___ Gaia Total Proper Motion Value [mas/yr]
+\ gaia_pmerr (mas/yr) 
+\ ___ Gaia Total Proper Motion Uncertainty [mas/yr]
+\ gaia_pmlim 
+\ ___ Gaia Total Proper Motion Limit Flag (0="=", +1=">", -1="<")
+\ gaia_gmag (mags) 
+\ ___ Gaia G-band Magnitude Value
+\ gaia_gmagerr (mags) 
+\ ___ Gaia G-band Magnitude Uncertainty
+\ gaia_gmaglim 
+\ ___ Gaia G-band Magnitude Limit Flag (0="=", +1=">", -1="<")
+\ pl_angsep (mas) 
+\ ___ Calculated Angular Separation Value [mas]
+\ pl_angseperr1 (mas) 
+\ ___ Calculated Angular Separation Upper Uncertainty [mas]
+\ pl_angseperr2 (mas) 
+\ ___ Calculated Angular Separation Lower Uncertainty [mas]
+\ pl_controvflag 
+\ ___ Planet Controversy Flag (0=no, 1=yes)
+\ 
+|              ra|        st_raerr|          st_rah|       st_raherr|                    ra_str|             dec|       st_decerr|                   dec_str|         st_glon|      st_glonerr|         st_glat|      st_glaterr|         st_elon|      st_elonerr|         st_elat|      st_elaterr| st_posn|    st_plx| st_plxerr1| st_plxerr2| st_plxlim| st_plxn|   st_dist| st_disterr1| st_disterr2| st_distlim| st_distn|    st_pmra| st_pmraerr| st_pmralim|   st_pmdec| st_pmdecerr| st_pmdeclim|      st_pm|   st_pmerr| st_pmlim| st_pmn|   st_radv| st_radverr1| st_radverr2| st_radvlim| st_radvn|    st_uj| st_ujerr| st_ujlim|    st_bj| st_bjerr| st_bjlim|    st_vj| st_vjerr| st_vjlim|    st_rc| st_rcerr| st_rclim|    st_ic| st_icerr| st_iclim|     st_j|  st_jerr| st_jlim|     st_h|  st_herr| st_hlim|     st_k|  st_kerr| st_klim| st_wise1| st_wise1err| st_wise1lim| st_wise2| st_wise2err| st_wise2lim| st_wise3| st_wise3err| st_wise3lim| st_wise4| st_wise4err| st_wise4lim| st_irac1| st_irac1err| st_irac1lim| st_irac2| st_irac2err| st_irac2lim| st_irac3| st_irac3err| st_irac3lim| st_irac4| st_irac4err| st_irac4lim|     st_mips1|  st_mips1err| st_mips1lim|     st_mips2|  st_mips2err| st_mips2lim|     st_mips3|  st_mips3err| st_mips3lim|     st_iras1|  st_iras1err| st_iras1lim|     st_iras2|  st_iras2err| st_iras2lim|     st_iras3|  st_iras3err| st_iras3lim|     st_iras4|  st_iras4err| st_iras4lim| st_optmag| st_optmagerr| st_optmaglim|                                    st_optband| st_photn|  st_umbj| st_umbjerr| st_umbjlim|  st_bmvj| st_bmvjerr| st_bmvjlim| st_vjmic| st_vjmicerr| st_vjmiclim| st_vjmrc| st_vjmrcerr| st_vjmrclim|  st_jmh2| st_jmh2err| st_jmh2lim|  st_hmk2| st_hmk2err| st_hmk2lim|  st_jmk2| st_jmk2err| st_jmk2lim|   st_bmy| st_bmyerr| st_bmylim|    st_m1| st_m1err| st_m1lim|    st_c1| st_c1err| st_c1lim| st_colorn|                                                                                                                                                                                                 st_spstr|                                                                                                                                                                                                st_ssperr| st_splim| st_spn|  st_teff| st_tefferr1| st_tefferr2| st_tefflim| st_teffn|  st_logg| st_loggerr1| st_loggerr2| st_logglim| st_loggn| st_metfe| st_metfeerr1| st_metfeerr2| st_metfelim| st_metfen|          st_metratio|       st_lum|   st_lumerr1|   st_lumerr2| st_lumlim| st_lumn| st_rad| st_raderr1| st_raderr2| st_radlim| st_radn| st_mass| st_masserr1| st_masserr2| st_masslim| st_massn|  st_dens| st_denserr1| st_denserr2| st_denslim| st_densn|  st_age| st_ageerr1| st_ageerr2| st_agelim| st_agen|   st_vsini| st_vsinierr1| st_vsinierr2| st_vsinilim| st_vsinin| st_acts| st_actserr| st_actslim| st_actsn| st_actr| st_actrerr| st_actrlim| st_actrn| st_actlx| st_actlxerr| st_actlxlim| st_actlxn|  st_nts| st_nplc| st_nglc| st_nrvc| st_naxa| st_nimg| st_nspec|                   hd_name|                  hip_name|                                           swasp_id|                                            pl_name|                                        pl_hostname| pl_letter| pl_pnum| pl_snum| pl_mnum| pl_status|                                                                                                                                                                                            pl_discmethod| pl_disc|                                    pl_disc_refname|            pl_publ_date|                                                                                                                                                                                              pl_facility|                                                                                                                                                                                             pl_telescope|                                                                                                                                                                                            pl_instrument|                                                                                                                                                                                                pl_locale|                                     pl_def_refname| pl_rvflag| pl_imgflag| pl_astflag| pl_tranflag| pl_ttvflag| pl_kepflag| pl_k2flag| pl_nnotes| pl_cbflag| pl_omflag|                                                                                                                                                                                                pl_pelink|                                                                                                                                                                                               pl_edelink|            pl_orbper|        pl_orbpererr1|        pl_orbpererr2| pl_orbperlim| pl_orbpern|   pl_orbsmax| pl_orbsmaxerr1| pl_orbsmaxerr2| pl_orbsmaxlim| pl_orbsmaxn| pl_orbincl| pl_orbinclerr1| pl_orbinclerr2| pl_orbincllim| pl_orbincln|     pl_orbtper| pl_orbtpererr1| pl_orbtpererr2| pl_orbtperlim| pl_orbtpern| pl_orbeccen| pl_orbeccenerr1| pl_orbeccenerr2| pl_orbeccenlim| pl_orbeccenn| pl_orblper| pl_orblpererr1| pl_orblpererr2| pl_orblperlim| pl_orblpern|  pl_rvamp| pl_rvamperr1| pl_rvamperr2| pl_rvamplim| pl_rvampn|    pl_conrat| pl_conraterr1| pl_conraterr2| pl_conratlim|                                 pl_conratband| pl_conratn| pl_msinij| pl_msinijerr1| pl_msinijerr2| pl_msinijlim|   pl_msinie| pl_msinieerr1| pl_msinieerr2| pl_msinielim| pl_msinin| pl_massj| pl_massjerr1| pl_massjerr2| pl_massjlim|    pl_masse| pl_masseerr1| pl_masseerr2| pl_masselim| pl_massn| pl_bmassj| pl_bmassjerr1| pl_bmassjerr2| pl_bmassjlim|   pl_bmasse| pl_bmasseerr1| pl_bmasseerr2| pl_bmasselim| pl_bmassn|         pl_bmassprov| pl_radj| pl_radjerr1| pl_radjerr2| pl_radjlim|  pl_rade| pl_radeerr1| pl_radeerr2| pl_radelim| pl_rads| pl_radserr1| pl_radserr2| pl_radslim| pl_radn|  pl_dens| pl_denserr1| pl_denserr2| pl_denslim| pl_densn| pl_eqt| pl_eqterr1| pl_eqterr2| pl_eqtlim| pl_eqtn|     pl_insol| pl_insolerr1| pl_insolerr2| pl_insollim| pl_insoln| pl_trandep| pl_trandeperr1| pl_trandeperr2| pl_trandeplim| pl_trandepn| pl_trandur| pl_trandurerr1| pl_trandurerr2| pl_trandurlim| pl_trandurn|     pl_tranmid| pl_tranmiderr1| pl_tranmiderr2| pl_tranmidlim| pl_tranmidn|                            pl_tsystemref|  pl_imppar| pl_impparerr1| pl_impparerr2| pl_impparlim| pl_impparn|  pl_occdep| pl_occdeperr1| pl_occdeperr2| pl_occdeplim| pl_occdepn|   pl_ratdor| pl_ratdorerr1| pl_ratdorerr2| pl_ratdorlim| pl_ratdorn| pl_ratror| pl_ratrorerr1| pl_ratrorerr2| pl_ratrorlim| pl_ratrorn|   pl_mrtranmid| pl_mrtranmiderr1| pl_mrtranmiderr2| pl_mrtranmidlim| pl_mrtmrefid|                                                                                                                                                                                           pl_mrtmreflink|                          pl_mrtsystemref| pl_st_npar| pl_st_nref|               rowupdate|  gaia_plx| gaia_plxerr1| gaia_plxerr2| gaia_plxlim| gaia_dist| gaia_disterr1| gaia_disterr2| gaia_distlim|  gaia_pmra| gaia_pmraerr| gaia_pmralim| gaia_pmdec| gaia_pmdecerr| gaia_pmdeclim|    gaia_pm| gaia_pmerr| gaia_pmlim| gaia_gmag| gaia_gmagerr| gaia_gmaglim|    pl_angsep| pl_angseperr1| pl_angseperr2| pl_controvflag|
+|          double|          double|          double|          double|                      char|          double|          double|                      char|          double|          double|          double|          double|          double|          double|          double|          double|     int|    double|     double|     double|       int|     int|    double|      double|      double|        int|      int|     double|     double|        int|     double|      double|         int|     double|     double|      int|    int|    double|      double|      double|        int|      int|   double|   double|      int|   double|   double|      int|   double|   double|      int|   double|   double|      int|   double|   double|      int|   double|   double|     int|   double|   double|     int|   double|   double|     int|   double|      double|         int|   double|      double|         int|   double|      double|         int|   double|      double|         int|   double|      double|         int|   double|      double|         int|   double|      double|         int|   double|      double|         int|       double|       double|         int|       double|       double|         int|       double|       double|         int|       double|       double|         int|       double|       double|         int|       double|       double|         int|       double|       double|         int|    double|       double|          int|                                          char|      int|   double|     double|        int|   double|     double|        int|   double|      double|         int|   double|      double|         int|   double|     double|        int|   double|     double|        int|   double|     double|        int|   double|    double|       int|   double|   double|      int|   double|   double|      int|       int|                                                                                                                                                                                                     char|                                                                                                                                                                                                     char|      int|    int|   double|      double|      double|        int|      int|   double|      double|      double|        int|      int|   double|       double|       double|         int|       int|                 char|       double|       double|       double|       int|     int| double|     double|     double|       int|     int|  double|      double|      double|        int|      int|   double|      double|      double|        int|      int|  double|     double|     double|       int|     int|     double|       double|       double|         int|       int|  double|     double|        int|      int|  double|     double|        int|      int|   double|      double|         int|       int|    long|    long|    long|    long|    long|    long|     long|                      char|                      char|                                               char|                                               char|                                               char|      char|     int|     int|     int|       int|                                                                                                                                                                                                     char|     int|                                               char|                    char|                                                                                                                                                                                                     char|                                                                                                                                                                                                     char|                                                                                                                                                                                                     char|                                                                                                                                                                                                     char|                                               char|       int|        int|        int|         int|        int|        int|       int|       int|       int|       int|                                                                                                                                                                                                     char|                                                                                                                                                                                                     char|               double|               double|               double|          int|        int|       double|         double|         double|           int|         int|     double|         double|         double|           int|         int|         double|         double|         double|           int|         int|      double|          double|          double|            int|          int|     double|         double|         double|           int|         int|    double|       double|       double|         int|       int|       double|        double|        double|          int|                                          char|        int|    double|        double|        double|          int|      double|        double|        double|          int|       int|   double|       double|       double|         int|      double|       double|       double|         int|      int|    double|        double|        double|          int|      double|        double|        double|          int|       int|                 char|  double|      double|      double|        int|   double|      double|      double|        int|  double|      double|      double|        int|     int|   double|      double|      double|        int|      int|   long|       long|       long|       int|     int|       double|       double|       double|         int|       int|     double|         double|         double|           int|         int|     double|         double|         double|           int|         int|         double|         double|         double|           int|         int|                                     char|     double|        double|        double|          int|        int|     double|        double|        double|          int|        int|      double|        double|        double|          int|        int|    double|        double|        double|          int|        int|         double|           double|           double|             int|         long|                                                                                                                                                                                                     char|                                     char|        int|        int|                    char|    double|       double|       double|         int|    double|        double|        double|          int|     double|       double|          int|     double|        double|           int|     double|     double|        int|    double|       double|          int|       double|        double|        double|            int|
+|         degrees|         degrees|           hours|           hours|                          |         degrees|         degrees|                          |         degrees|         degrees|         degrees|         degrees|         degrees|         degrees|         degrees|         degrees|        |       mas|        mas|        mas|          |        |        pc|          pc|          pc|           |         |     mas/yr|     mas/yr|           |     mas/yr|      mas/yr|            |     mas/yr|     mas/yr|         |       |      km/s|        km/s|        km/s|           |         |     mags|     mags|         |     mags|     mags|         |     mags|     mags|         |     mags|     mags|         |     mags|     mags|         |     mags|     mags|        |     mags|     mags|        |     mags|     mags|        |     mags|        mags|            |     mags|        mags|            |     mags|        mags|            |     mags|        mags|            |     mags|        mags|            |     mags|        mags|            |     mags|        mags|            |     mags|        mags|            |           Jy|           Jy|            |           Jy|           Jy|            |           Jy|           Jy|            |           Jy|           Jy|            |           Jy|           Jy|            |           Jy|           Jy|            |           Jy|           Jy|            |      mags|         mags|             |                                              |         |     mags|       mags|           |     mags|       mags|           |     mags|        mags|            |     mags|        mags|            |     mags|       mags|           |     mags|       mags|           |     mags|       mags|           |     mags|      mags|          |     mags|     mags|         |     mags|     mags|         |          |                                                                                                                                                                                                         |                                                                                                                                                                                                         |         |       |        K|           K|           K|           |         |  cm/s**2|     cm/s**2|     cm/s**2|           |         |      dex|          dex|          dex|            |          |                     |      logLsun|      logLsun|      logLsun|          |        |   Rsun|       Rsun|       Rsun|          |        |    Msun|        Msun|        Msun|           |         |  g/cm**3|     g/cm**3|     g/cm**3|           |         |     Gyr|        Gyr|        Gyr|          |        |       km/s|         km/s|         km/s|            |          |        |           |           |         |        |           |           |         |         |            |            |          |        |        |        |        |        |        |         |                          |                          |                                                   |                                                   |                                                   |          |        |        |        |          |                                                                                                                                                                                                         |        |                                                   |                        |                                                                                                                                                                                                         |                                                                                                                                                                                                         |                                                                                                                                                                                                         |                                                                                                                                                                                                         |                                                   |          |           |           |            |           |           |          |          |          |          |                                                                                                                                                                                                         |                                                                                                                                                                                                         |                 days|                 days|                 days|             |           |           AU|             AU|             AU|              |            |    degrees|        degrees|        degrees|              |            |           days|           days|           days|              |            |            |                |                |               |             |    degrees|        degrees|        degrees|              |            |       m/s|          m/s|          m/s|            |          |             |              |              |             |                                              |           |      Mjup|          Mjup|          Mjup|             |      Mearth|        Mearth|        Mearth|             |          |     Mjup|         Mjup|         Mjup|            |      Mearth|       Mearth|       Mearth|            |         |      Mjup|          Mjup|          Mjup|             |      Mearth|        Mearth|        Mearth|             |          |                     |    Rjup|        Rjup|        Rjup|           |   Rearth|      Rearth|      Rearth|           |    Rsun|        Rsun|        Rsun|           |        |  g/cm**3|     g/cm**3|     g/cm**3|           |         |      K|          K|          K|          |        |       Fearth|       Fearth|       Fearth|            |          |       perc|           perc|           perc|              |            |       days|           days|           days|              |            |           days|           days|           days|              |            |                                         |           |              |              |             |           |       perc|          perc|          perc|             |           |            |              |              |             |           |          |              |              |             |           |           days|             days|             days|                |             |                                                                                                                                                                                                         |                                         |           |           |                        |       mas|          mas|          mas|            |        pc|            pc|            pc|             |     mas/yr|       mas/yr|             |     mas/yr|        mas/yr|              |     mas/yr|     mas/yr|           |      mags|         mags|             |          mas|           mas|           mas|               |
+|            null|            null|            null|            null|                      null|            null|            null|                      null|            null|            null|            null|            null|            null|            null|            null|            null|    null|      null|       null|       null|      null|    null|      null|        null|        null|       null|     null|       null|       null|       null|       null|        null|        null|       null|       null|     null|   null|      null|        null|        null|       null|     null|     null|     null|     null|     null|     null|     null|     null|     null|     null|     null|     null|     null|     null|     null|     null|     null|     null|    null|     null|     null|    null|     null|     null|    null|     null|        null|        null|     null|        null|        null|     null|        null|        null|     null|        null|        null|     null|        null|        null|     null|        null|        null|     null|        null|        null|     null|        null|        null|         null|         null|        null|         null|         null|        null|         null|         null|        null|         null|         null|        null|         null|         null|        null|         null|         null|        null|         null|         null|        null|      null|         null|         null|                                          null|     null|     null|       null|       null|     null|       null|       null|     null|        null|        null|     null|        null|        null|     null|       null|       null|     null|       null|       null|     null|       null|       null|     null|      null|      null|     null|     null|     null|     null|     null|     null|      null|                                                                                                                                                                                                     null|                                                                                                                                                                                                     null|     null|   null|     null|        null|        null|       null|     null|     null|        null|        null|       null|     null|     null|         null|         null|        null|      null|                 null|         null|         null|         null|      null|    null|   null|       null|       null|      null|    null|    null|        null|        null|       null|     null|     null|        null|        null|       null|     null|    null|       null|       null|      null|    null|       null|         null|         null|        null|      null|    null|       null|       null|     null|    null|       null|       null|     null|     null|        null|        null|      null|    null|    null|    null|    null|    null|    null|     null|                      null|                      null|                                               null|                                               null|                                               null|      null|    null|    null|    null|      null|                                                                                                                                                                                                     null|    null|                                               null|                    null|                                                                                                                                                                                                     null|                                                                                                                                                                                                     null|                                                                                                                                                                                                     null|                                                                                                                                                                                                     null|                                               null|      null|       null|       null|        null|       null|       null|      null|      null|      null|      null|                                                                                                                                                                                                     null|                                                                                                                                                                                                     null|                 null|                 null|                 null|         null|       null|         null|           null|           null|          null|        null|       null|           null|           null|          null|        null|           null|           null|           null|          null|        null|        null|            null|            null|           null|         null|       null|           null|           null|          null|        null|      null|         null|         null|        null|      null|         null|          null|          null|         null|                                          null|       null|      null|          null|          null|         null|        null|          null|          null|         null|      null|     null|         null|         null|        null|        null|         null|         null|        null|     null|      null|          null|          null|         null|        null|          null|          null|         null|      null|                 null|    null|        null|        null|       null|     null|        null|        null|       null|    null|        null|        null|       null|    null|     null|        null|        null|       null|     null|   null|       null|       null|      null|    null|         null|         null|         null|        null|      null|       null|           null|           null|          null|        null|       null|           null|           null|          null|        null|           null|           null|           null|          null|        null|                                     null|       null|          null|          null|         null|       null|       null|          null|          null|         null|       null|        null|          null|          null|         null|       null|      null|          null|          null|         null|       null|           null|             null|             null|            null|         null|                                                                                                                                                                                                     null|                                     null|       null|       null|                    null|      null|         null|         null|        null|      null|          null|          null|         null|       null|         null|         null|       null|          null|          null|       null|       null|       null|      null|         null|         null|         null|          null|          null|           null|
+       330.794891         0.000002      22.05299276       0.00000016               22h03m10.77s        18.884319         0.000002               +18d53m03.5s        76.753292         0.000004       -28.526856         0.000003       340.354117         0.000004        28.724212         0.000003        2      20.67        0.05       -0.05          0        4      48.37         0.12        -0.12           0         6      29.600       0.100           0     -17.900        0.100            0      34.600       0.100         0       3     -14.90         0.20        -0.20           0         5      null      null      null     8.211     0.017         0     7.632     0.012         0      null      null      null      null      null      null     6.591     0.020        0     6.366     0.038        0     6.308     0.026        0     6.308        0.091            0     6.191        0.027            0     6.320        0.016            0     6.265        0.053            0      null         null         null      null         null         null      null         null         null      null         null         null          null          null         null          null          null         null          null          null         null          null          null         null          null          null         null          null          null         null          null          null         null      7.632         0.012             0                                    V (Johnson)        22      null        null        null     0.579       0.021           0      null         null         null      null         null         null     0.225       0.043           0     0.058       0.046           0     0.283       0.033           0     0.352      0.003          0     0.181     0.004         0     0.358     0.006         0          9                                                                                                                                                                                                        F8                                                                                                                                                                                                      null         0       3   6091.00        10.00       -10.00           0        15      4.45         0.02        -0.02           0        11     0.010          null          null            0         11                [Fe/H]          null          null          null          0        7    1.19        0.02       -0.02          0       15     1.23         0.09        -0.09           0        17    1.0400       0.0700      -0.0700           0         6     null        null        null          0        9      4.5000        0.3000          null            0          6    0.154       0.020           0         1   -5.000        null           0         1      null         null         null          0       32       16        1        5       10        3         2                  HD 209458                 HIP 108859                                                null                                         HD 209458 b                                           HD 209458          b        1        1        0          3                                                                                                                                                                                           Radial Velocity     1999                                   Henry et al. 2000                  2000-01                                                                                                                                                                                    W. M. Keck Observatory                                                                                                                                                                                     10 m Keck I Telescope                                                                                                                                                                                        HIRES Spectrometer                                                                                                                                                                                                    Ground                                 Stassun et al. 2017          1           0           0            1           0           0          0          3          0          0                                                                                                                                                                  http://exoplanet.eu/catalog/hd_209458_b/                                                                                                                                                                  http://exoplanets.org/detail/HD_209458_b            3.52474859            0.00000038           -0.00000038             0          11          null            null            null              0            8      86.710           0.050          -0.050              0            9            null            null            null              0            3     0.000000             null             null               0             5        null            null            null              0            1     84.700         0.700        -0.700            0          7          null           null           null          null                                           null        null       null           null           null             0         null           null           null             0          1   0.73000       0.04000      -0.04000            0    232.01590      12.71320     -12.71320            0        11    0.73000        0.04000       -0.04000             0    232.01590       12.71320      -12.71320             0         12                  Mass    1.390        0.020       -0.020           0    15.581        0.224       -0.224           0    0.143        0.002       -0.002           0       13      null         null         null           0         8    null        null        null          0        6          null          null          null            0          0    1.500000        0.002400       -0.002400              0            3        null            null            null              0            1            null            null            null              0            6                                      null        null           null           null             0           2        null           null           null             0           0     8.810000       0.190000      -0.190000             0           5       null           null           null             0           5            null              null              null             null          null                                                                                                                                                                                                      null                                      null         196          57               2018-12-06      20.67          0.05         -0.05            0      48.37           0.12          -0.12             0      29.600         0.100             0     -17.900          0.100              0      34.600       0.100           0      7.509          null             0          null           null           null               0 
