@@ -799,7 +799,10 @@ class ESASkyClass(BaseQuery):
                 if mission.lower() == self.__HERSCHEL_STRING:
                     try:
                         if is_spectra:
-                            maps[maps_table['observation_id'][index].decode('utf-8')] = self._get_herschel_spectra(
+                            key = maps_table['observation_id'][index]
+                            if commons.ASTROPY_LT_4_1:
+                                key = key.decode('utf-8')
+                            maps[key] = self._get_herschel_spectra(
                                 product_url, 
                                 directory_path, 
                                 cache)
@@ -811,7 +814,10 @@ class ESASkyClass(BaseQuery):
                     except HTTPError as err:
                         log.error("Download failed with {}.".format(err))
                         if is_spectra:
-                            maps[maps_table['observation_id'][index].decode('utf-8')] = None
+                            key = maps_table['observation_id'][index]
+                            if commons.ASTROPY_LT_4_1:
+                                key = key.decode('utf-8')
+                            maps[key] = None
                         else:
                             maps.append(None)
 
