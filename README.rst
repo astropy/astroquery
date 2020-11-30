@@ -55,7 +55,7 @@ The latest version of astroquery can be conda installed:
 
 .. code-block:: bash
 
-    $ conda install -c astropy astroquery
+    $ conda install -c conda-forge astroquery
 
 or pip installed:
 
