@@ -335,9 +335,9 @@ or
     ...
     }
 
-    Here is another example for Herschel, since it is a bit special:
+Here is another example for Herschel, since it is a bit special:
 
-    .. code-block:: python
+.. code-block:: python
     from astroquery.esasky import ESASky
     result = ESASky.query_region_spectra(position='M51', radius='1arcmin', missions=['HERSCHEL'])
     herschel_result = result['HERSCHEL']
