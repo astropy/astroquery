@@ -127,16 +127,16 @@ class ESASkyClass(BaseQuery):
             Each mission returns a `~astropy.table.Table` with the metadata
             and observations available for the chosen missions and object.
             It is structured in a TableList like this:
-            TableList with 8 tables:
-            '0:HERSCHEL' with 8 column(s) and 25 row(s)
-            '1:HST' with 8 column(s) and 735 row(s)
+            TableList with 2 tables:
+                    '0:HERSCHEL' with 12 column(s) and 152 row(s)
+                    '1:HST-OPTICAL' with 12 column(s) and 6 row(s)
 
         Examples
         --------
         query_object_maps("m101", "all")
 
         query_object_maps("265.05, 69.0", "Herschel")
-        query_object_maps("265.05, 69.0", ["Herschel", "HST"])
+        query_object_maps("265.05, 69.0", ["Herschel", "HST-OPTICAL"])
         """
         return self.query_region_maps(position=position,
                                       radius=self.__ZERO_ARCMIN_STRING,
@@ -180,16 +180,16 @@ class ESASkyClass(BaseQuery):
             Each mission returns a `~astropy.table.Table` with the metadata
             of the catalogs available for the chosen mission and object.
             It is structured in a TableList like this:
-            TableList with 8 tables:
-            '0:Gaia DR1 TGA' with 8 column(s) and 25 row(s)
-            '1:HSC' with 8 column(s) and 75 row(s)
+            TableList with 2 tables:
+                '0:HSC' with 9 column(s) and 232 row(s)
+                '1:XMM-OM' with 11 column(s) and 2 row(s)
 
         Examples
         --------
         query_object_catalogs("m101", "all")
 
-        query_object_catalogs("265.05, 69.0", "Gaia DR1 TGA")
-        query_object_catalogs("265.05, 69.0", ["Gaia DR1 TGA", "HSC"])
+        query_object_catalogs("202.469, 47.195", "HSC")
+        query_object_catalogs("202.469, 47.195", ["HSC", "XMM-OM"])
         """
         return self.query_region_catalogs(position=position,
                                           radius=self.__ZERO_ARCMIN_STRING,
@@ -197,6 +197,58 @@ class ESASkyClass(BaseQuery):
                                           row_limit=row_limit,
                                           get_query_payload=get_query_payload,
                                           cache=cache)
+
+    def query_object_spectra(self, position, missions=__ALL_STRING,
+                          get_query_payload=False, cache=True, row_limit=DEFAULT_ROW_LIMIT):
+        """
+        This method queries a chosen object or coordinate for all available missions
+        which have spectral data on the chosen position. It returns a
+        TableList with all the found spectra metadata for the chosen missions
+        and object.
+
+        Parameters
+        ----------
+        position : str or `astropy.coordinates` object
+            Can either be a string of the location, eg 'M51', or the coordinates
+            of the object.
+        missions : string or list, optional
+            Can be either a specific mission or a list of missions (all mission
+            names are found in list_spectra()) or 'all' to search in all
+            missions. Defaults to 'all'.
+        get_query_payload : bool, optional
+            When set to True the method returns the HTTP request parameters.
+            Defaults to False.
+        cache : bool, optional
+            When set to True the method will use a cache located at
+            .astropy/astroquery/cache. Defaults to True.
+        row_limit : int, optional
+            Determines how many rows that will be fetched from the database
+            for each mission. Can be -1 to select maximum (currently 100 000).
+            Defaults to 10000.
+
+        Returns
+        -------
+        table_list : `~astroquery.utils.TableList`
+            Each mission returns a `~astropy.table.Table` with the metadata
+            and spectra available for the chosen missions and object.
+            It is structured in a TableList like this:
+            TableList with 2 tables:
+                    '0:HERSCHEL' with 12 column(s) and 12 row(s)
+                    '1:HST-OPTICAL' with 12 column(s) and 19 row(s)
+
+        Examples
+        --------
+        query_object_spectra("m101", "all")
+
+        query_object_spectra("202.469, 47.195", "Herschel")
+        query_object_spectra("202.469, 47.195", ["Herschel", "HST-OPTICAL"])
+        """
+        return self.query_region_spectra(position=position,
+                                      radius=self.__ZERO_ARCMIN_STRING,
+                                      missions=missions,
+                                      get_query_payload=get_query_payload,
+                                      cache=cache,
+                                      row_limit=row_limit)
 
     def query_region_maps(self, position, radius, missions=__ALL_STRING,
                           get_query_payload=False, cache=True, row_limit=DEFAULT_ROW_LIMIT):
@@ -233,9 +285,9 @@ class ESASkyClass(BaseQuery):
             Each mission returns a `~astropy.table.Table` with the metadata
             and observations available for the chosen missions and region.
             It is structured in a TableList like this:
-            TableList with 8 tables:
-            '0:HERSCHEL' with 8 column(s) and 25 row(s)
-            '1:HST' with 8 column(s) and 735 row(s)
+            TableList with 2 tables:
+                '0:HERSCHEL' with 12 column(s) and 152 row(s)
+                '1:HST-OPTICAL' with 12 column(s) and 71 row(s)
 
         Examples
         --------
@@ -243,7 +295,7 @@ class ESASkyClass(BaseQuery):
 
         import astropy.units as u
         query_region_maps("265.05, 69.0", 14*u.arcmin, "Herschel")
-        query_region_maps("265.05, 69.0", ["Herschel", "HST"])
+        query_region_maps("265.05, 69.0", 14*u.arcmin, ["Herschel", "HST-OPTICAL"])
         """
         sanitized_position = self._sanitize_input_position(position)
         sanitized_radius = self._sanitize_input_radius(radius)
@@ -300,17 +352,17 @@ class ESASkyClass(BaseQuery):
             Each mission returns a `~astropy.table.Table` with the metadata of
             the catalogs available for the chosen mission and region.
             It is structured in a TableList like this:
-            TableList with 8 tables:
-            '0:Gaia DR1 TGA' with 8 column(s) and 25 row(s)
-            '1:HSC' with 8 column(s) and 75 row(s)
+            TableList with 2 tables:
+                '0:HIPPARCOS-2' with 7 column(s) and 2 row(s)
+                '1:HSC' with 9 column(s) and 10000 row(s)
 
         Examples
         --------
         query_region_catalogs("m101", "14'", "all")
 
         import astropy.units as u
-        query_region_catalogs("265.05, 69.0", 14*u.arcmin, "Gaia DR1 TGA")
-        query_region_catalogs("265.05, 69.0", 14*u.arcmin, ["Gaia DR1 TGA", "HSC"])
+        query_region_catalogs("265.05, 69.0", 14*u.arcmin, "Hipparcos-2")
+        query_region_catalogs("265.05, 69.0", 14*u.arcmin, ["Hipparcos-2", "HSC"])
         """
         sanitized_position = self._sanitize_input_position(position)
         sanitized_radius = self._sanitize_input_radius(radius)
@@ -367,17 +419,17 @@ class ESASkyClass(BaseQuery):
             Each mission returns a `~astropy.table.Table` with the metadata
             and observations available for the chosen missions and region.
             It is structured in a TableList like this:
-            TableList with 8 tables:
-            '0:HERSCHEL' with 8 column(s) and 25 row(s)
-            '1:HST' with 8 column(s) and 735 row(s)
+            TableList with 2 tables:
+                '0:HERSCHEL' with 12 column(s) and 264 row(s)
+                '1:IUE' with 12 column(s) and 14 row(s)
 
         Examples
         --------
         query_region_spectra("m101", "14'", "all")
 
         import astropy.units as u
-        query_region_spectra("265.05, 69.0", 14*u.arcmin, "Herschel")
-        query_region_spectra("265.05, 69.0", ["Herschel", "HST"])
+        query_region_spectra("265.05, 69.0", 30*u.arcmin, "Herschel")
+        query_region_spectra("265.05, 69.0", 30*u.arcmin, ["Herschel", "IUE"])
         """
         sanitized_position = self._sanitize_input_position(position)
         sanitized_radius = self._sanitize_input_radius(radius)
@@ -433,9 +485,9 @@ class ESASkyClass(BaseQuery):
             filter is the key and the HDUList is the value.
             It is structured in a dictionary like this:
             dict: {
-            'HERSCHEL': [{'70': [HDUList], '160': [HDUList]}, {'70': [HDUList], '160': [HDUList]}, ...],
-            'HST':[[HDUList], [HDUList], [HDUList], [HDUList], [HDUList], ...],
-            'XMM-EPIC' : [[HDUList], [HDUList], [HDUList], [HDUList], ...]
+            'HERSCHEL': [{'70': HDUList, '160': HDUList}, {'70': HDUList, '160': HDUList}, ...],
+            'HST':[HDUList, HDUList, HDUList, HDUList, HDUList, ...],
+            'XMM-EPIC' : [HDUList, HDUList, HDUList, HDUList, ...]
             ...
             }
 
@@ -506,9 +558,9 @@ class ESASkyClass(BaseQuery):
             filter is the key and the HDUList is the value.
             It is structured in a dictionary like this:
             dict: {
-            'HERSCHEL': [{'70': [HDUList], '160': [HDUList]}, {'70': [HDUList], '160': [HDUList]}, ...],
-            'HST':[[HDUList], [HDUList], [HDUList], [HDUList], [HDUList], ...],
-            'XMM-EPIC' : [[HDUList], [HDUList], [HDUList], [HDUList], ...]
+            'HERSCHEL': [{'70': HDUList, '160': HDUList}, {'70': HDUList, '160': HDUList}, ...],
+            'HST':[HDUList, HDUList, HDUList, HDUList, HDUList, ...],
+            'XMM-EPIC' : [HDUList, HDUList, HDUList, HDUList, ...]
             ...
             }
 
@@ -554,8 +606,7 @@ class ESASkyClass(BaseQuery):
         mission and downloads all spectra to the the selected folder.
         The method returns a dictionary which is divided by mission.
         All mission except Herschel returns a list of HDULists.
-        Herschel returns a dictionary of dictionaries, which you can access like this
-        spectra['HERSCHEL']['<observation id>']['<__>']['__']
+        Herschel returns a three-level dictionary.
 
         Parameters
         ----------
@@ -579,25 +630,22 @@ class ESASkyClass(BaseQuery):
         -------
         spectra : `dict`
             All mission except Herschel returns a list of HDULists.
-            Herschel returns a dictionary of dictionaries, where you can
-            access a specific HDUList by burrowing down the dictionary tree
-            by using observation id, __, and __. Like this:
-            spectra['HERSCHEL']['<observation id>']['<__>']['__']
-            Read more about Herschel here: _______
+            Herschel returns a three-level dictionary.
+            Read more about Herschel here: https://www.cosmos.esa.int/web/esdc/esasky-observations#HERSCHEL-OBS
 
             The response is structured in a dictionary like this:
             dict: {
-            'HERSCHEL': {'1342211195': {'red' : {'HPSTBRRS' : [HDUList]}, 'blue' : {'HPSTBRBS': [HDUList]},
-                '1342180796': {'WBS' : {'WBS-H_LSB_5a' : [HDUList]}, 'HRS' : {'HRS-H_LSB_5a': [HDUList]},
+            'HERSCHEL': {'1342211195': {'red' : {'HPSTBRRS' : HDUList}, 'blue' : {'HPSTBRBS': HDUList},
+                '1342180796': {'WBS' : {'WBS-H_LSB_5a' : HDUList}, 'HRS' : {'HRS-H_LSB_5a': HDUList},
                 ...},
-            'HST':[[HDUList], [HDUList], [HDUList], [HDUList], [HDUList], ...],
-            'XMM-EPIC' : [[HDUList], [HDUList], [HDUList], [HDUList], ...]
+            'HST-IR':[HDUList, HDUList, HDUList, HDUList, HDUList, ...],
+            'XMM-NEWTON' : [HDUList, HDUList, HDUList, HDUList, ...]
             ...
             }
 
         Examples
         --------
-        get_spectra("m101", "14'", "all")
+        get_spectra("m101", "14'", ["HST-IR", "XMM-NEWTON", "HERSCHEL"])
 
         """
         sanitized_position = self._sanitize_input_position(position)
@@ -633,8 +681,7 @@ class ESASkyClass(BaseQuery):
         query_region_spectra and downloads all spectra to the selected folder.
         The method returns a dictionary which is divided by mission.
         All mission except Herschel returns a list of HDULists.
-        Herschel returns a dictionary of dictionaries, which you can access like this
-        spectra['HERSCHEL']['<observation id>']['<__>']['__']
+        Herschel returns a three-level dictionary.
 
         Parameters
         ----------
@@ -657,25 +704,23 @@ class ESASkyClass(BaseQuery):
         -------
         spectra : `dict`
             All mission except Herschel returns a list of HDULists.
-            Herschel returns a dictionary of dictionaries, where you can
-            access a specific HDUList by burrowing down the dictionary tree
-            by using observation id, __, and __. Like this:
-            spectra['HERSCHEL']['<observation id>']['<__>']['__']
-            Read more about Herschel here: _______
+            Herschel returns a three-level dictionary.
+            Read more about Herschel here: https://www.cosmos.esa.int/web/esdc/esasky-observations#HERSCHEL-OBS
 
             The response is structured in a dictionary like this:
             dict: {
-            'HERSCHEL': {'1342211195': {'red' : {'HPSTBRRS' : [HDUList]}, 'blue' : {'HPSTBRBS': [HDUList]},
-                '1342180796': {'WBS' : {'WBS-H_LSB_5a' : [HDUList]}, 'HRS' : {'HRS-H_LSB_5a': [HDUList]},
+            'HERSCHEL': {'1342211195': {'red' : {'HPSTBRRS' : HDUList}, 'blue' : {'HPSTBRBS': HDUList},
+                '1342180796': {'WBS' : {'WBS-H_LSB_5a' : HDUList}, 'HRS' : {'HRS-H_LSB_5a': HDUList},
                 ...},
-            'HST':[[HDUList], [HDUList], [HDUList], [HDUList], [HDUList], ...],
-            'XMM-EPIC' : [[HDUList], [HDUList], [HDUList], [HDUList], ...]
+            'HST-IR':[HDUList, HDUList, HDUList, HDUList, HDUList, ...],
+            'XMM-NEWTON' : [HDUList, HDUList, HDUList, HDUList, ...]
             ...
             }
 
         Examples
         --------
-        get_spectra_from_table(query_region_spectra("m101", "14'", "all"))
+        table = query_region_spectra("m101", "14'", ["HST-IR", "XMM-NEWTON", "HERSCHEL"])
+        get_spectra_from_table(table)
 
         """
         sanitized_query_table_list = self._sanitize_input_table_list(query_table_list)
@@ -766,7 +811,7 @@ class ESASkyClass(BaseQuery):
         raise ValueError("Row_limit must be an integer")
 
     def _get_maps_for_mission(self, maps_table, mission, download_dir, cache, json, is_spectra=False):
-        if is_spectra:
+        if is_spectra and mission.lower() == self.__HERSCHEL_STRING:
             maps = dict()
         else:
             maps = []
@@ -831,17 +876,15 @@ class ESASkyClass(BaseQuery):
                     try:
                         response.raise_for_status()
 
-                        file_name = (directory_path +
-                                        self._extract_file_name_from_response_header(response.headers))
+                        file_name = self._extract_file_name_from_response_header(response.headers)
                         if (file_name == ""):
-                            file_name = (directory_path +
-                                         self._extract_file_name_from_url(product_url))
+                            file_name = self._extract_file_name_from_url(product_url)
 
                         fits_data = response.content
-                        with open(file_name, 'wb') as fits_file:
+                        with open(directory_path + file_name, 'wb') as fits_file:
                             fits_file.write(fits_data)
                             fits_file.close()
-                            maps.append(fits.open(file_name))
+                            maps.append(fits.open(directory_path + file_name))
                     except HTTPError as err:
                         log.error("Download failed with {}.".format(err))
                         maps.append(None)
@@ -952,6 +995,8 @@ class ESASkyClass(BaseQuery):
 
     def _extract_file_name_from_response_header(self, headers):
         content_disposition = headers.get('Content-Disposition')
+        if content_disposition is None:
+            return ""
         filename_string = "filename="
         start_index = (content_disposition.index(filename_string) +
                        len(filename_string))
