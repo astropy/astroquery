@@ -819,7 +819,7 @@ class ESASkyClass(BaseQuery):
             log.info(mission + " does not yet support downloading of "
             "fits files")
             return maps
-    
+
         if (len(maps_table[self.__PRODUCT_URL_STRING]) > 0):
             mission_directory = self._create_mission_directory(mission,
                                                                download_dir)
@@ -848,8 +848,8 @@ class ESASkyClass(BaseQuery):
                             if commons.ASTROPY_LT_4_1:
                                 key = key.decode('utf-8')
                             maps[key] = self._get_herschel_spectra(
-                                product_url, 
-                                directory_path, 
+                                product_url,
+                                directory_path,
                                 cache)
                         else:
                             maps.append(self._get_herschel_map(
