@@ -313,8 +313,8 @@ three-level dictionary.
 
 .. code-block:: python
 
->>> from astroquery.esasky import ESASky
-    >>> images = ESASky.get_spectra("m51", radius="20 arcmin",
+    >>> from astroquery.esasky import ESASky
+    >>> spectra = ESASky.get_spectra("m51", radius="20 arcmin",
     ...                            missions=['Herschel', 'XMM-NEWTON'])
 
 or
@@ -323,9 +323,12 @@ or
 
     >>> table_list = ESASky.query_region_spectra("m51", radius="20 arcmin",
     ...                                       missions=['Herschel', 'XMM-NEWTON'])
-    >>> images = ESASky.get_spectra_from_table(table_list, download_dir="/home/user/esasky")
+    >>> spectra = ESASky.get_spectra_from_table(table_list, download_dir="/home/user/esasky")
 
-    The response is structured in a dictionary like this:
+The response is structured in a dictionary like this:
+
+.. code-block:: python
+
     dict: {
     'HERSCHEL': {'1342211195': {'red' : {'HPSTBRRS' : HDUList}, 'blue' : {'HPSTBRBS': HDUList},
         '1342180796': {'WBS' : {'WBS-H_LSB_5a' : HDUList}, 'HRS' : {'HRS-H_LSB_5a': HDUList},
@@ -338,13 +341,14 @@ or
 Here is another example for Herschel, since it is a bit special:
 
 .. code-block:: python
-    from astroquery.esasky import ESASky
-    result = ESASky.query_region_spectra(position='M51', radius='1arcmin', missions=['HERSCHEL'])
-    herschel_result = result['HERSCHEL']
-    herschel_result['observation_id', 'target_name', 'instrument', 'observing_mode_name', 'band', 'duration'].pprint()#a TableList like result does not have pprint method
-    spectra = ESASky.get_spectra_from_table([('HERSCHEL', herschel_result)], download_dir='Spectra_new')
-    spectra['HERSCHEL']['1342211195']['red'].keys()
-    spectra['HERSCHEL']['1342211195']['red']['HPSTBRRS'].info()
+
+    >>> from astroquery.esasky import ESASky
+    >>> result = ESASky.query_region_spectra(position='M51', radius='1arcmin', missions=['HERSCHEL'])
+    >>> herschel_result = result['HERSCHEL']
+    >>> herschel_result['observation_id', 'target_name', 'instrument', 'observing_mode_name', 'band', 'duration'].pprint()
+    >>> spectra = ESASky.get_spectra_from_table([('HERSCHEL', herschel_result)], download_dir='Spectra_new')
+    >>> spectra['HERSCHEL']['1342211195']['red'].keys()
+    >>> spectra['HERSCHEL']['1342211195']['red']['HPSTBRRS'].info()
 
 Reference/API
 =============
