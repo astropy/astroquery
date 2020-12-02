@@ -14,6 +14,7 @@ import time
 import json
 import zipfile
 import os
+import requests
 
 from io import BytesIO
 
@@ -34,7 +35,7 @@ from .utils import parse_input_location
 from .core import MastQueryWithLogin
 
 
-__all__ = ["TesscutClass", "Tesscut"]
+__all__ = ["TesscutClass", "Tesscut", "ZcutClass", "Zcut"]
 
 
 def _parse_cutout_size(size):
@@ -89,7 +90,6 @@ def _parse_cutout_size(size):
         raise InvalidQueryError("Cutout size must be in pixels or angular quantity.")
 
     return {"x": x, "y": y, "units": units}
-
 
 class TesscutClass(MastQueryWithLogin):
     """
@@ -314,3 +314,226 @@ class TesscutClass(MastQueryWithLogin):
 
 
 Tesscut = TesscutClass()
+
+class ZcutClass(MastQueryWithLogin):
+    """
+    MAST ZCUT cutout query class.
+
+    Class for accessing Z full-frame image cutouts.
+    """
+
+    def __init__(self):
+
+        super().__init__()
+
+        services = {"survey": {"path": "survey"},
+                    "astrocut": {"path": "astrocut"}}
+        self._service_api_connection.set_service_params(services, "zcut")
+    
+    def get_surveys(self, coordinates, radius="0.2d"):
+        """
+        Gives a list of Zcut surveys available for a position in the sky
+
+        Parameters
+        ----------
+        coordinates : str or `astropy.coordinates` object
+            The target around which to search. It may be specified as a
+            string or as the appropriate `astropy.coordinates` object.
+            One and only one of coordinates and objectname must be supplied.
+        radius : str, float, or `~astropy.units.Quantity` object, optional
+            Default 0.2 degrees.
+            Accepted units are: d (degrees), s (arcseconds), m (arcminutes), px (pixels)
+            If supplied as a float, degrees is the assumed unit.
+            The string must be parsable by `~astropy.coordinates.Angle`. The
+            appropriate `~astropy.units.Quantity` object from
+            `astropy.units` may also be used.
+
+        Returns
+        -------
+        response : 
+        Surveys for given coordinates
+        """
+
+        # Get Skycoord object for coordinates/object
+        coordinates = parse_input_location(coordinates)
+
+        params = {"ra": coordinates.ra.deg,
+                  "dec": coordinates.dec.deg,
+                  "radius": radius}
+        
+        # If radius is just a number we assume degrees
+        if isinstance(radius, float):
+            radius = Angle(radius, u.deg)
+            params["radius"] = radius.deg
+        
+        response = self._service_api_connection.service_request_async("survey", params)
+        response.raise_for_status()  # Raise any errors
+
+        survey_json = response.json()['surveys']
+
+        if not len(survey_json):
+            warnings.warn("Coordinates are not in any Z survey.", NoResultsWarning)
+        return survey_json
+        
+    def download_cutouts(self, coordinates, size=5, units="px", survey=None, form="fits", path = ".", **img_params):
+        """
+        Download cutout target pixel file(s) around the given coordinates with indicated size.
+
+        Parameters
+        ----------
+        coordinates : str or `astropy.coordinates` object
+            The target around which to search. It may be specified as a
+            string or as the appropriate `astropy.coordinates` object.
+            One and only one of coordinates and objectname must be supplied.
+        size : int, array-like, `~astropy.units.Quantity`
+            Optional, default 5 pixels.
+            The size of the cutout array. If ``size`` is a scalar number or
+            a scalar `~astropy.units.Quantity`, then a square cutout of ``size``
+            will be created.  If ``size`` has two elements, they should be in
+            ``(ny, nx)`` order.  Scalar numbers in ``size`` are assumed to be in
+            units of pixels. `~astropy.units.Quantity` objects must be in pixel or
+            angular units.
+        units : str
+            Optional, default is px.
+            The `units` parameter accepts the following units: d (degrees),
+            s (arcseconds), m (arcminutes), and px (pixels).
+        survey : str
+            Optional
+            The survey to restrict the cutout. The survey parameter will restrict to 
+            only the matching survey. Default behavior is to return all matched surveys.
+        form : str
+            Optional
+            The cutout file format. Default is fits, valid options are fits, jpg, png.
+        path : str
+            Optional.
+            The directory in which the cutouts will be saved.
+            Defaults to current directory.
+        **img_params : dict
+            Optional, only used if format is jpg or png
+            Dictionary of image parameters. 
+            Valid entries are:
+                stretch : The stretch to apply to the image array, default asinh. Valid values are: 
+                    asinh, sinh, sqrt, log, linear.
+                minmax_percent : Percent interval of pixels to keep when scaling,
+                    default is [0.5,99.5]
+                minmax_value : Pixel value interval of pixels to keep when scaling, default is 
+                    to use minmax_percent instead
+                invert : True/false, if True the image will be inverted
+
+        Returns
+        -------
+        response : `~astropy.table.Table`
+        Cutoutfiles for given coordinates
+        """
+        # Get Skycoord object for coordinates/object
+        coordinates = parse_input_location(coordinates)
+        size_dict = _parse_cutout_size(size)
+
+        path = os.path.join(path, '')
+        astrocut_request = "ra={}&dec={}&y={}&x={}&units={}".format(coordinates.ra.deg,
+                                                                        coordinates.dec.deg,
+                                                                        size_dict["y"],
+                                                                        size_dict["x"],
+                                                                        size_dict["units"])
+        
+        if survey:
+            astrocut_request += "&survey={}".format(survey)
+        
+        astrocut_request += "&format={}".format(form)
+
+        accepted_img_params = {'stretch', 'minmax_percent', 'minmax_value', 'invert'}
+
+        for key in img_params:
+            if key in accepted_img_params:
+                astrocut_request += "&{}={}".format(key, img_params[key])
+        
+        astrocut_url = self._service_api_connection.REQUEST_URL + "astrocut?" + astrocut_request
+        zipfile_path = "{}zcut_{}.zip".format(path, time.strftime("%Y%m%d%H%M%S"))
+        self._download_file(astrocut_url, zipfile_path)
+
+        localpath_table = Table(names=["Local Path"], dtype=[str])
+
+        if not zipfile.is_zipfile(zipfile_path):
+            with open(zipfile_path, 'r') as FLE:
+                response = json.load(FLE)
+            warnings.warn(response['msg'], NoResultsWarning)
+            return localpath_table
+
+        zip_ref = zipfile.ZipFile(zipfile_path, 'r')
+        cutout_files = zip_ref.namelist()
+        zip_ref.extractall(path, members=cutout_files)
+        zip_ref.close()
+        os.remove(zipfile_path)
+
+        localpath_table['Local Path'] = [path+x for x in cutout_files]
+        return localpath_table
+
+    def get_cutouts(self, coordinates, size=5, units="px", survey=None):
+        """
+        Get cutout target pixel file(s) around the given coordinates with indicated size,
+        and return them as a list of  `~astropy.io.fits.HDUList` objects.
+
+        Parameters
+        ----------
+        coordinates : str or `astropy.coordinates` object
+            The target around which to search. It may be specified as a
+            string or as the appropriate `astropy.coordinates` object.
+            One and only one of coordinates and objectname must be supplied.
+        size : int, array-like, `~astropy.units.Quantity`
+            Optional, default 5 pixels.
+            The size of the cutout array. If ``size`` is a scalar number or
+            a scalar `~astropy.units.Quantity`, then a square cutout of ``size``
+            will be created.  If ``size`` has two elements, they should be in
+            ``(ny, nx)`` order.  Scalar numbers in ``size`` are assumed to be in
+            units of pixels. `~astropy.units.Quantity` objects must be in pixel or
+            angular units.
+        units : str
+            Optional, default is px.
+            The `units` parameter accepts the following units: d (degrees),
+            s (arcseconds), m (arcminutes), and px (pixels).
+        survey : str
+            Optional
+            The survey to restrict the cutout. The survey parameter will restrict to 
+            only the matching survey. Default behavior is to return all matched surveys.
+
+        Returns
+        -------
+        response : A list of `~astropy.io.fits.HDUList` objects.
+        Cutoutfiles for given coordinates
+        """
+
+        # Get Skycoord object for coordinates/object
+        coordinates = parse_input_location(coordinates)
+
+        param_dict = _parse_cutout_size(size)
+        param_dict["ra"] = coordinates.ra.deg
+        param_dict["dec"] = coordinates.dec.deg
+
+        if survey:
+            param_dict["survey"] = survey
+
+        response = self._service_api_connection.service_request_async("astrocut", param_dict)
+        response.raise_for_status()  # Raise any errors
+
+        try:
+            ZIPFILE = zipfile.ZipFile(BytesIO(response.content), 'r')
+        except zipfile.BadZipFile:
+            message = response.json()
+            warnings.warn(message['msg'], NoResultsWarning)
+            return []
+
+        # Open all the contained fits files:
+        # Since we cannot seek on a compressed zip file,
+        # we have to read the data, wrap it in another BytesIO object,
+        # and then open that using fits.open
+        cutout_list = []
+        for name in ZIPFILE.namelist():
+            CUTOUT = BytesIO(ZIPFILE.open(name).read())
+            cutout_list.append(fits.open(CUTOUT))
+
+            # preserve the original filename in the fits object
+            cutout_list[-1].filename = name
+
+        return cutout_list
+
+Zcut = ZcutClass()
