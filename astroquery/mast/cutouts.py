@@ -315,6 +315,7 @@ class TesscutClass(MastQueryWithLogin):
 
 Tesscut = TesscutClass()
 
+
 class ZcutClass(MastQueryWithLogin):
     """
     MAST ZCUT cutout query class.
@@ -329,7 +330,7 @@ class ZcutClass(MastQueryWithLogin):
         services = {"survey": {"path": "survey"},
                     "astrocut": {"path": "astrocut"}}
         self._service_api_connection.set_service_params(services, "zcut")
-    
+
     def get_surveys(self, coordinates, radius="0.2d"):
         """
         Gives a list of Zcut surveys available for a position in the sky
@@ -350,7 +351,7 @@ class ZcutClass(MastQueryWithLogin):
 
         Returns
         -------
-        response : 
+        response :
         Surveys for given coordinates
         """
 
@@ -360,12 +361,12 @@ class ZcutClass(MastQueryWithLogin):
         params = {"ra": coordinates.ra.deg,
                   "dec": coordinates.dec.deg,
                   "radius": radius}
-        
+
         # If radius is just a number we assume degrees
         if isinstance(radius, float):
             radius = Angle(radius, u.deg)
             params["radius"] = radius.deg
-        
+
         response = self._service_api_connection.service_request_async("survey", params)
         response.raise_for_status()  # Raise any errors
 
@@ -374,8 +375,8 @@ class ZcutClass(MastQueryWithLogin):
         if not len(survey_json):
             warnings.warn("Coordinates are not in any Z survey.", NoResultsWarning)
         return survey_json
-        
-    def download_cutouts(self, coordinates, size=5, units="px", survey=None, form="fits", path = ".", **img_params):
+
+    def download_cutouts(self, coordinates, size=5, units="px", survey=None, form="fits", path=".", **img_params):
         """
         Download cutout target pixel file(s) around the given coordinates with indicated size.
 
@@ -399,7 +400,7 @@ class ZcutClass(MastQueryWithLogin):
             s (arcseconds), m (arcminutes), and px (pixels).
         survey : str
             Optional
-            The survey to restrict the cutout. The survey parameter will restrict to 
+            The survey to restrict the cutout. The survey parameter will restrict to
             only the matching survey. Default behavior is to return all matched surveys.
         form : str
             Optional
@@ -410,13 +411,13 @@ class ZcutClass(MastQueryWithLogin):
             Defaults to current directory.
         **img_params : dict
             Optional, only used if format is jpg or png
-            Dictionary of image parameters. 
+            Dictionary of image parameters.
             Valid entries are:
-                stretch : The stretch to apply to the image array, default asinh. Valid values are: 
+                stretch : The stretch to apply to the image array, default asinh. Valid values are:
                     asinh, sinh, sqrt, log, linear.
                 minmax_percent : Percent interval of pixels to keep when scaling,
                     default is [0.5,99.5]
-                minmax_value : Pixel value interval of pixels to keep when scaling, default is 
+                minmax_value : Pixel value interval of pixels to keep when scaling, default is
                     to use minmax_percent instead
                 invert : True/false, if True the image will be inverted
 
@@ -435,10 +436,10 @@ class ZcutClass(MastQueryWithLogin):
                                                                         size_dict["y"],
                                                                         size_dict["x"],
                                                                         size_dict["units"])
-        
+ 
         if survey:
             astrocut_request += "&survey={}".format(survey)
-        
+
         astrocut_request += "&format={}".format(form)
 
         accepted_img_params = {'stretch', 'minmax_percent', 'minmax_value', 'invert'}
@@ -446,7 +447,7 @@ class ZcutClass(MastQueryWithLogin):
         for key in img_params:
             if key in accepted_img_params:
                 astrocut_request += "&{}={}".format(key, img_params[key])
-        
+
         astrocut_url = self._service_api_connection.REQUEST_URL + "astrocut?" + astrocut_request
         zipfile_path = "{}zcut_{}.zip".format(path, time.strftime("%Y%m%d%H%M%S"))
         self._download_file(astrocut_url, zipfile_path)
@@ -493,7 +494,7 @@ class ZcutClass(MastQueryWithLogin):
             s (arcseconds), m (arcminutes), and px (pixels).
         survey : str
             Optional
-            The survey to restrict the cutout. The survey parameter will restrict to 
+            The survey to restrict the cutout. The survey parameter will restrict to
             only the matching survey. Default behavior is to return all matched surveys.
 
         Returns
@@ -535,5 +536,6 @@ class ZcutClass(MastQueryWithLogin):
             cutout_list[-1].filename = name
 
         return cutout_list
+
 
 Zcut = ZcutClass()

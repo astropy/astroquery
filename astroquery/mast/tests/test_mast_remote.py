@@ -641,7 +641,7 @@ class TestMast:
     ######################
     def test_zcut_get_surveys(self):
 
-        coord = SkyCoord(189.49206, 62.20615, unit = "deg")
+        coord = SkyCoord(189.49206, 62.20615, unit="deg")
         survey_list = mast.Zcut.get_surveys(coordinates=coord)
         assert isinstance(survey_list, list)
         assert len(survey_list) >= 1
@@ -649,7 +649,7 @@ class TestMast:
         assert survey_list[1] == 'candels_gn_30mas'
         assert survey_list[2] == 'goods_north'
 
-        # This should always return no results 
+        # This should always return no results
         coord = SkyCoord(57.10523, -30.08085, unit="deg")
         survey_list = mast.Zcut.get_surveys(coordinates=coord, radius=0)
         assert isinstance(survey_list, list)
@@ -657,16 +657,16 @@ class TestMast:
 
     def test_zcut_download_cutouts(self, tmpdir):
 
-        coord = SkyCoord(34.47320, -5.24271, unit = "deg")
-        
+        coord = SkyCoord(34.47320, -5.24271, unit="deg")
+
         cutout_table = mast.Zcut.download_cutouts(coordinates=coord, size=5, path=str(tmpdir))
         assert isinstance(cutout_table, Table)
         assert len(cutout_table) >= 1
         assert cutout_table["Local Path"][0][-4:] == "fits"
         for row in cutout_table:
             assert os.path.isfile(cutout_table[0]['Local Path'])
-        
-        coord = SkyCoord(189.49206, 62.20615, unit = "deg")
+
+        coord = SkyCoord(189.49206, 62.20615, unit="deg")
 
         cutout_table = mast.Zcut.download_cutouts(coordinates=coord, size=[200, 300], path=str(tmpdir))
         assert isinstance(cutout_table, Table)
@@ -695,17 +695,17 @@ class TestMast:
         assert cutout_table["Local Path"][0][-4:] == ".jpg"
         for row in cutout_table:
             assert os.path.isfile(cutout_table[0]['Local Path'])
-       
-        cutout_table = mast.Zcut.download_cutouts(coordinates=coord, form="jpg", img_params={'stretch':'asinh', 'invert': 'True'}, path=str(tmpdir))
+
+        cutout_table = mast.Zcut.download_cutouts(coordinates=coord, form="jpg", img_params={'stretch': 'asinh', 'invert': 'True'}, path=str(tmpdir))
         assert isinstance(cutout_table, Table)
         assert len(cutout_table) >= 1
         assert cutout_table["Local Path"][0][-4:] == ".jpg"
         for row in cutout_table:
             assert os.path.isfile(cutout_table[0]['Local Path'])
-       
+
     def test_zcut_get_cutouts(self):
 
-        coord = SkyCoord(189.49206, 62.20615, unit = "deg")
+        coord = SkyCoord(189.49206, 62.20615, unit="deg")
 
         cutout_list = mast.Zcut.get_cutouts(coordinates=coord)
         assert isinstance(cutout_list, list)

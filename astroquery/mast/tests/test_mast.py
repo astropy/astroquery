@@ -641,9 +641,10 @@ def test_tesscut_get_cutouts(patch_post, tmpdir):
 # ZcutClass tests #
 ######################
 
+
 def test_zcut_get_survey(patch_post):
 
-    coord = SkyCoord(189.49206, 62.20615, unit = "deg")
+    coord = SkyCoord(189.49206, 62.20615, unit="deg")
     survey_list = mast.Zcut.get_surveys(coordinates=coord)
     assert isinstance(survey_list, list)
     assert len(survey_list) == 3
@@ -661,7 +662,7 @@ def test_zcut_get_survey(patch_post):
 
 def test_zcut_download_cutouts(patch_post, tmpdir):
 
-    coord = SkyCoord(189.49206, 62.20615, unit = "deg")
+    coord = SkyCoord(189.49206, 62.20615, unit="deg")
 
     # Testing with fits
     cutout_table = mast.Zcut.download_cutouts(coordinates=coord, size=5, path=str(tmpdir))
@@ -678,7 +679,7 @@ def test_zcut_download_cutouts(patch_post, tmpdir):
     assert cutout_table["Local Path"][0][-4:] == ".jpg"
     assert os.path.isfile(cutout_table[0]['Local Path'])
 
-    # Testing with img_param 
+    # Testing with img_param
     cutout_table = mast.Zcut.download_cutouts(coordinates=coord, size=5,
                                              form="jpg", path=str(tmpdir), invert=True)
     assert isinstance(cutout_table, Table)
@@ -689,7 +690,7 @@ def test_zcut_download_cutouts(patch_post, tmpdir):
 
 def test_zcut_get_cutouts(patch_post, tmpdir):
 
-    coord = SkyCoord(189.49206, 62.20615, unit = "deg")
+    coord = SkyCoord(189.49206, 62.20615, unit="deg")
     cutout_list = mast.Zcut.get_cutouts(coordinates=coord, size=5)
     assert isinstance(cutout_list, list)
     assert len(cutout_list) == 1
