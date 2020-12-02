@@ -436,7 +436,7 @@ class ZcutClass(MastQueryWithLogin):
                                                                         size_dict["y"],
                                                                         size_dict["x"],
                                                                         size_dict["units"])
- 
+
         if survey:
             astrocut_request += "&survey={}".format(survey)
 
