@@ -243,7 +243,7 @@ def test_query():
     alma = Alma()
     alma._get_dataarchive_url = Mock()
     alma._tap = tap_mock
-    result = alma.query_region(SkyCoord(1*u.deg, 2*u.deg, frame='fk5'),
+    result = alma.query_region(SkyCoord(1*u.deg, 2*u.deg, frame='icrs'),
                                radius=1*u.deg)
     assert len(result) == 0
     assert 'proposal_id' in result.columns
