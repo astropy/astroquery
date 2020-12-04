@@ -374,6 +374,7 @@ def test_tap():
     tap_mock.search.assert_called_once_with('select * from ivoa.ObsCore',
                                             language='ADQL')
 
+
 def test_galactic_query():
     """
     regression test for 1867
