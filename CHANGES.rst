@@ -10,10 +10,6 @@ esa/hubble
 - Module added to query eHST TAP based on a set of specific criteria and
   asynchronous jobs are now supported. [#1723]
 
-esa/iso
-
-- Support added to download ESA ISO mission. [#1914]
-
 
 0.4.1 (2020-06-19)
 ==================
