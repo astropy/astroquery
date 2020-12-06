@@ -166,6 +166,8 @@ The following modules have been completed using a common API:
   casda/casda.rst
   cds/cds.rst
   esa/hubble.rst
+  esa/iso.rst
+  esa/xmm_newton.rst
   esasky/esasky.rst
   eso/eso.rst
   gaia/gaia.rst
@@ -196,7 +198,6 @@ The following modules have been completed using a common API:
   vsa/vsa.rst
   xmatch/xmatch.rst
   dace/dace.rst
-  esa/xmm_newton.rst
 
 
 These others are functional, but do not follow a common & consistent API:
