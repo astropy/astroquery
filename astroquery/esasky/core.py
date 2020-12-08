@@ -45,6 +45,7 @@ class ESASkyClass(BaseQuery):
     __TAP_DEC_COLUMN_STRING = "tapDecColumn"
     __METADATA_STRING = "metadata"
     __PRODUCT_URL_STRING = "product_url"
+    __ACCESS_URL_STRING = "access_url"
     __USE_INTERSECT_STRING = "useIntersectPolygonInsteadOfContainsPoint"
     __ZERO_ARCMIN_STRING = "0 arcmin"
     __MIN_RADIUS_CATALOG_STRING = "5 arcsec"
@@ -816,18 +817,23 @@ class ESASkyClass(BaseQuery):
             maps = dict()
         else:
             maps = []
-        if(self.__PRODUCT_URL_STRING not in maps_table.keys()):
+        url_key = ""
+        if self.__PRODUCT_URL_STRING in maps_table.keys():
+            url_key = self.__PRODUCT_URL_STRING
+        if url_key == "" and self.__ACCESS_URL_STRING in maps_table.keys():
+            url_key = self.__ACCESS_URL_STRING
+        if url_key == "" or mission == "ALMA" or mission == "INTEGRAL":
             log.info(mission + " does not yet support downloading of fits files")
             return maps
 
-        if (len(maps_table[self.__PRODUCT_URL_STRING]) > 0):
+        if (len(maps_table[url_key]) > 0):
             mission_directory = self._create_mission_directory(mission,
                                                                download_dir)
             log.info("Starting download of {} data. ({} files)".format(
-                mission, len(maps_table[self.__PRODUCT_URL_STRING])))
+                mission, len(maps_table[url_key])))
             for index in range(len(maps_table)):
-                product_url = maps_table[self.__PRODUCT_URL_STRING][index]
-                if commons.ASTROPY_LT_4_1:
+                product_url = maps_table[url_key][index]
+                if isinstance(product_url, bytes):
                     product_url = product_url.decode('utf-8')
                 if(mission.lower() == self.__HERSCHEL_STRING):
                     observation_id = maps_table["observation_id"][index]
@@ -835,7 +841,7 @@ class ESASkyClass(BaseQuery):
                         observation_id = observation_id.decode('utf-8')
                 else:
                     observation_id = maps_table[self._get_json_data_for_mission(json, mission)["uniqueIdentifierField"]][index]
-                    if commons.ASTROPY_LT_4_1:
+                    if isinstance(observation_id, bytes):
                         observation_id = observation_id.decode('utf-8')
                 log.info("Downloading Observation ID: {} from {}"
                          .format(observation_id, product_url))
@@ -860,7 +866,7 @@ class ESASkyClass(BaseQuery):
                         log.error("Download failed with {}.".format(err))
                         if is_spectra:
                             key = maps_table['observation_id'][index]
-                            if commons.ASTROPY_LT_4_1:
+                            if isinstance(key, bytes):
                                 key = key.decode('utf-8')
                             maps[key] = None
                         else:
