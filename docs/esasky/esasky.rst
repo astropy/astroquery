@@ -298,7 +298,7 @@ This example is equivalent to:
 
 
 Get spectra
---------
+-----------
 There are also two methods to download spectra:
 :meth:`astroquery.esasky.ESASkyClass.get_spectra` and
 :meth:`astroquery.esasky.ESASkyClass.get_spectra_from_table`.

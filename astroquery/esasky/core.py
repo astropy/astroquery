@@ -6,6 +6,7 @@ import tempfile
 import tarfile
 import sys
 import re
+from io import BytesIO
 
 import six
 from astropy.io import fits
@@ -816,8 +817,7 @@ class ESASkyClass(BaseQuery):
         else:
             maps = []
         if(self.__PRODUCT_URL_STRING not in maps_table.keys()):
-            log.info(mission + " does not yet support downloading of "
-            "fits files")
+            log.info(mission + " does not yet support downloading of fits files")
             return maps
 
         if (len(maps_table[self.__PRODUCT_URL_STRING]) > 0):
@@ -831,7 +831,7 @@ class ESASkyClass(BaseQuery):
                     product_url = product_url.decode('utf-8')
                 if(mission.lower() == self.__HERSCHEL_STRING):
                     observation_id = maps_table["observation_id"][index]
-                    if commons.ASTROPY_LT_4_1:
+                    if isinstance(observation_id, bytes):
                         observation_id = observation_id.decode('utf-8')
                 else:
                     observation_id = maps_table[self._get_json_data_for_mission(json, mission)["uniqueIdentifierField"]][index]
@@ -845,7 +845,7 @@ class ESASkyClass(BaseQuery):
                     try:
                         if is_spectra:
                             key = maps_table['observation_id'][index]
-                            if commons.ASTROPY_LT_4_1:
+                            if isinstance(key, bytes):
                                 key = key.decode('utf-8')
                             maps[key] = self._get_herschel_spectra(
                                 product_url,
@@ -883,7 +883,6 @@ class ESASkyClass(BaseQuery):
                         fits_data = response.content
                         with open(directory_path + file_name, 'wb') as fits_file:
                             fits_file.write(fits_data)
-                            fits_file.close()
                             maps.append(fits.open(directory_path + file_name))
                     except HTTPError as err:
                         log.error("Download failed with {}.".format(err))
@@ -902,16 +901,11 @@ class ESASkyClass(BaseQuery):
 
     def _get_herschel_map(self, product_url, directory_path, cache):
         observation = dict()
-        tar_file = tempfile.NamedTemporaryFile(delete=False)
         response = self._request('GET', product_url, cache=cache,
                                  headers=self._get_header())
-
         response.raise_for_status()
 
-        tar_file.write(response.content)
-        tar_file.close()
-        with tarfile.open(tar_file.name, 'r') as tar:
-            i = 0
+        with tarfile.open(fileobj=BytesIO(response.content)) as tar:
             for member in tar.getmembers():
                 member_name = member.name.lower()
                 if ('hspire' in member_name or 'hpacs' in member_name):
@@ -920,22 +914,16 @@ class ESASkyClass(BaseQuery):
                     observation[herschel_filter] = fits.open(
                         directory_path + member.name
                     )
-                i += 1
-        os.remove(tar_file.name)
         return observation
 
     def _get_herschel_spectra(self, product_url, directory_path, cache):
         spectra = dict()
-        tar_file = tempfile.NamedTemporaryFile(delete=False)
         response = self._request('GET', product_url, cache=cache,
                                 headers=self._get_header())
 
         response.raise_for_status()
 
-        tar_file.write(response.content)
-        tar_file.close()
-        with tarfile.open(tar_file.name, 'r') as tar:
-            i = 0
+        with tarfile.open(fileobj=BytesIO(response.content)) as tar:
             for member in tar.getmembers():
                 member_name = member.name.lower()
                 if ('hspire' in member_name or 'hpacs' in member_name
@@ -969,8 +957,6 @@ class ESASkyClass(BaseQuery):
                             hduListType[hduList[0].header[headerKey]] = hduList
 
                     spectra[herschel_filter] = hduListType
-                i += 1
-        os.remove(tar_file.name)
         return spectra
 
     def _get_herschel_filter_name(self, member_name):
