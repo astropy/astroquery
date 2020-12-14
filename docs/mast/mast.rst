@@ -871,21 +871,19 @@ To access sector information at a particular location there is  `~astroquery.mas
 Zcut
 ====
 
-Zcut for MAST allows users to request cutouts from various Hubble deep field surveys. The cutouts are
-returned as full-frame image (FFI) cutouts. This tool can be accessed in Astroquery by using the Zcut
-class.
+Zcut for MAST allows users to request cutouts from various Hubble deep field surveys. The cutouts can 
+be returned as either fits or image files (jpg and png are supported). This tool can be accessed in 
+Astroquery by using the Zcut class. The list of supported deep feel surveys can be found here: 
+https://mast.stsci.edu/zcut/
 
 
 Cutouts
 -------
 
-The ~astroquery.mast.ZcutClass.get_cutouts function takes a coordinate and cutout size (in pixels or
-an angular quantity) and returns the cutout target pixel file(s) as a list of ~astropy.io.fits.HDUList
-objects.
+The `~astroquery.mast.ZcutClass.get_cutouts` function takes a coordinate and cutout size (in pixels or
+an angular quantity) and returns the cutout FITS file(s) as a list of ~astropy.io.fits.HDUList objects.
 
-If the given coordinate appears in more than one Zcut survey, a target pixel file will be produced for
-each survey. If the cutout area overlaps more than one camera or ccd a target pixel file will be produced
-for each one.
+If the given coordinate appears in more than one Zcut survey, a FITS file will be produced for each survey. 
 
 .. code-block:: python
 
@@ -903,13 +901,11 @@ for each one.
                   3  CUTOUT        1 ImageHDU       177   (5, 5)   float32
 
 
-The ~astroquery.mast.ZcutClass.download_cutouts function takes a coordinate and cutout size (in pixels or
-an angular quantity) and downloads the cutout target pixel file(s) as either fits files or image (png/jpg)
+The `~astroquery.mast.ZcutClass.download_cutouts` function takes a coordinate and cutout size (in pixels or
+an angular quantity) and downloads the cutout fits file(s) as either fits files or image (png/jpg)
 files.
 
-If a given coordinate appears in more than one Zcut survey, a target pixel file will be produced for each
-survey. If the cutout area overlaps more than one camera or ccd a target pixel file will be produced for each
-one.
+If a given coordinate appears in more than one Zcut survey, a cutout will be produced for each survey.
 
 .. code-block:: python
 
@@ -946,7 +942,7 @@ one.
 Survey information
 ------------------
 
-To access survey information at a particular location there is ~astroquery.mast.ZcutClass.get_surveys.
+To list the available deep field surveys at a particular location there is `~astroquery.mast.ZcutClass.get_surveys`.
 
 .. code-block:: python
 

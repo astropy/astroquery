@@ -675,28 +675,28 @@ class TestMast:
         for row in cutout_table:
             assert os.path.isfile(cutout_table[0]['Local Path'])
 
-        cutout_table = mast.Zcut.download_cutouts(coordinates=coord, size=5, form="jpg", path=str(tmpdir))
+        cutout_table = mast.Zcut.download_cutouts(coordinates=coord, size=5, cutout_format="jpg", path=str(tmpdir))
         assert isinstance(cutout_table, Table)
         assert len(cutout_table) >= 1
         assert cutout_table["Local Path"][0][-4:] == ".jpg"
         for row in cutout_table:
             assert os.path.isfile(cutout_table[0]['Local Path'])
 
-        cutout_table = mast.Zcut.download_cutouts(coordinates=coord, size=5, units='5*u.arcsec', form="png", path=str(tmpdir))
+        cutout_table = mast.Zcut.download_cutouts(coordinates=coord, size=5, units='5*u.arcsec', cutout_format="png", path=str(tmpdir))
         assert isinstance(cutout_table, Table)
         assert len(cutout_table) >= 1
         assert cutout_table["Local Path"][0][-4:] == ".png"
         for row in cutout_table:
             assert os.path.isfile(cutout_table[0]['Local Path'])
 
-        cutout_table = mast.Zcut.download_cutouts(coordinates=coord, survey='candels_gn_30mas', form="jpg", path=str(tmpdir))
+        cutout_table = mast.Zcut.download_cutouts(coordinates=coord, survey='candels_gn_30mas', cutout_format="jpg", path=str(tmpdir))
         assert isinstance(cutout_table, Table)
         assert len(cutout_table) == 3
         assert cutout_table["Local Path"][0][-4:] == ".jpg"
         for row in cutout_table:
             assert os.path.isfile(cutout_table[0]['Local Path'])
 
-        cutout_table = mast.Zcut.download_cutouts(coordinates=coord, form="jpg", img_params={'stretch': 'asinh', 'invert': 'True'}, path=str(tmpdir))
+        cutout_table = mast.Zcut.download_cutouts(coordinates=coord, cutout_format="jpg", path=str(tmpdir), stretch='asinh', invert=True)
         assert isinstance(cutout_table, Table)
         assert len(cutout_table) >= 1
         assert cutout_table["Local Path"][0][-4:] == ".jpg"
