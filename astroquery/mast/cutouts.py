@@ -407,11 +407,11 @@ class ZcutClass(MastQueryWithLogin):
             Set inflate to false to stop before the inflate step.
         **img_params : dict
             Optional, only used if format is jpg or png
-            Valid parameters are stretch, minmax_percent, minmax_value, and invert. 
-            These arguments are documented here: 
+            Valid parameters are stretch, minmax_percent, minmax_value, and invert.
+            These arguments are documented here:
             https://astrocut.readthedocs.io/en/latest/api/astrocut.img_cut.html
-            The Column Name is the keyword, with the argument being one or more acceptable 
-            values for that parameter, except for fields with a float datatype where the 
+            The Column Name is the keyword, with the argument being one or more acceptable
+            values for that parameter, except for fields with a float datatype where the
             argument should be in the form [minVal, maxVal].
 
         Returns
@@ -450,7 +450,7 @@ class ZcutClass(MastQueryWithLogin):
                 response = json.load(FLE)
             warnings.warn(response['msg'], NoResultsWarning)
             return localpath_table
-        
+
         if not inflate:  # not unzipping
             localpath_table['Local Path'] = [zipfile_path]
             return localpath_table
