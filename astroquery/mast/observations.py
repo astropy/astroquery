@@ -427,6 +427,8 @@ class ObservationsClass(MastQueryWithLogin):
         -------
             response : list of `~requests.Response`
         """
+        if len(observations) == 0 or not observations["obsid"]:
+            raise InvalidQueryError("Observation list is empty.")
 
         # getting the obsid list
         if isinstance(observations, Row):
