@@ -1,6 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 # Python library
-from __future__ import print_function
+
 # External packages
 from astropy import units as u
 from astropy.coordinates import SkyCoord
@@ -17,7 +17,7 @@ from . import expected as expsia
 
 
 @remote_data
-class TestNoirlabClass(object):
+class TestNoirlabClass:
 
     def test_query_region_1(self):
         """Search FILES.

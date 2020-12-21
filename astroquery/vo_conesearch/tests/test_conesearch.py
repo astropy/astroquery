@@ -35,7 +35,7 @@ SCS_RADIUS = SCS_SR * u.degree
 
 
 @pytest.mark.remote_data
-class TestConeSearch(object):
+class TestConeSearch:
     """
     Test Cone Search on a pre-defined access URL.
 
@@ -218,7 +218,7 @@ class TestConeSearch(object):
         data.conf.reset('remote_timeout')
 
 
-class TestErrorResponse(object):
+class TestErrorResponse:
     """
     Test Cone Search error response handling.
 

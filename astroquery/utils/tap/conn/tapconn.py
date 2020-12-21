@@ -36,7 +36,7 @@ __all__ = ['TapConn']
 CONTENT_TYPE_POST_DEFAULT = "application/x-www-form-urlencoded"
 
 
-class TapConn(object):
+class TapConn:
     """TAP plus connection class
     Provides low level HTTP connection capabilities
     """
@@ -90,7 +90,7 @@ class TapConn(object):
             if(server_context.startswith("/")):
                 self.__serverContext = server_context
             else:
-                self.__serverContext = "/" + server_context
+                self.__serverContext = f"/{server_context}"
         else:
             self.__serverContext = ""
         self.__tapContext = self.__create_context(tap_context)
@@ -108,9 +108,9 @@ class TapConn(object):
     def __create_context(self, context):
         if (context is not None and context != ""):
             if(str(context).startswith("/")):
-                return self.__serverContext + str(context)
+                return f"{self.__serverContext}{context}"
             else:
-                return self.__serverContext + "/" + str(context)
+                return f"{self.__serverContext}/{context}"
         else:
             return self.__serverContext
 
@@ -132,14 +132,14 @@ class TapConn(object):
         self.__currentReason = ""
 
     def __get_tap_context(self, subContext):
-        return self.__tapContext + "/" + subContext
+        return f"{self.__tapContext}/{subContext}"
 
     def __get_data_context(self, encodedData=None):
         if self.__dataContext is None:
             raise ValueError("data_context must be specified at TAP object " +
                              "creation for this action to be performed")
         if encodedData is not None:
-            return self.__dataContext + "?" + str(encodedData)
+            return f"{self.__dataContext}?{encodedData}"
         else:
             return self.__dataContext
 
@@ -149,10 +149,10 @@ class TapConn(object):
                              "object creation for this action to be " +
                              "performed")
         if encodedData is not None:
-            return self.__datalinkContext + "/" + subContext + "?" +\
-                encodedData
+            return f"{self.__datalinkContext}/{subContext}?{encodedData}"
+
         else:
-            return self.__datalinkContext + "/" + subContext
+            return f"{self.__datalinkContext}/{subContext}"
 
     def __get_upload_context(self):
         if self.__uploadContext is None:
@@ -169,7 +169,7 @@ class TapConn(object):
         return self.__tableEditContext
 
     def __get_server_context(self, subContext):
-        return self.__serverContext + "/" + subContext
+        return f"{self.__serverContext}/{subContext}"
 
     def execute_tapget(self, subcontext, verbose=False):
         """Executes a TAP GET request
@@ -238,8 +238,8 @@ class TapConn(object):
     def __execute_get(self, context, verbose=False):
         conn = self.__get_connection(verbose)
         if verbose:
-            print("host = " + str(conn.host) + ":" + str(conn.port))
-            print("context = " + context)
+            print(f"host = {conn.host}:{conn.port}")
+            print(f"context = {context}")
         conn.request("GET", context, None, self.__getHeaders)
         response = conn.getresponse()
         self.__currentReason = response.reason
@@ -396,9 +396,9 @@ class TapConn(object):
                        verbose=False):
         conn = self.__get_connection(verbose)
         if verbose:
-            print("host = " + str(conn.host) + ":" + str(conn.port))
-            print("context = " + context)
-            print("Content-type = " + str(content_type))
+            print(f"host = {conn.host}:{conn.port}")
+            print(f"context = {context}")
+            print(f"Content-type = {content_type}")
         self.__postHeaders["Content-type"] = content_type
         conn.request("POST", context, data, self.__postHeaders)
         response = conn.getresponse()
@@ -558,6 +558,34 @@ class TapConn(object):
                 ext += ".gz"
         return ext
 
+    def get_file_from_header(self, headers):
+        """Returns the file name returned in header Content-Disposition
+        Usually, that header contains the following:
+        Content-Disposition: attachment;filename="1591707060129DEV-aandres1591707060227.tar.gz"
+        This method returns the value of 'filename'
+
+        Parameters
+        ----------
+        headers: HTTP response headers list
+
+        Returns
+        -------
+        The value of 'filename' in Content-Disposition header
+        """
+        content_disposition = self.find_header(headers, 'Content-Disposition')
+        if content_disposition is not None:
+            p = content_disposition.find('filename="')
+            if p >= 0:
+                filename = content_disposition[p+10:len(content_disposition)-1]
+                content_encoding = self.find_header(headers, 'Content-Encoding')
+                if content_encoding is not None:
+                    if "gzip" == content_encoding.lower():
+                        filename += ".gz"
+                    elif "zip" == content_encoding.lower():
+                        filename += ".zip"
+                return filename
+        return None
+
     def set_cookie(self, cookie):
         """Sets the login cookie
         When a cookie is set, GET and POST requests are done using HTTPS
@@ -586,8 +614,7 @@ class TapConn(object):
         -------
         A string composed of: 'host:port/server_context'
         """
-        return str(self.__connHost) + ":" + str(self.__connPort) \
-            + str(self.__get_tap_context(""))
+        return f'{self.__connHost}:{self.__connPort}{self.__get_tap_context("")}'
 
     def get_host_url_secure(self):
         """Returns the host+portSsl+serverContext
@@ -596,8 +623,7 @@ class TapConn(object):
         -------
         A string composed of: 'host:portSsl/server_context'
         """
-        return str(self.__connHost) + ":" + str(self.__connPortSsl) \
-            + str(self.__get_tap_context(""))
+        return f'{self.__connHost}:{self.__connPortSsl}{self.__get_tap_context("")}'
 
     def check_launch_response_status(self, response, debug,
                                      expected_response_status,
@@ -626,8 +652,7 @@ class TapConn(object):
         isError = False
         if response.status != expected_response_status:
             if debug:
-                print("ERROR: " + str(response.status) + ": " +
-                      str(response.reason))
+                print(f"ERROR: {response.status}: {response.reason}")
             isError = True
         if isError and raise_exception:
             errMsg = taputils.get_http_response_error(response)
@@ -659,40 +684,36 @@ class TapConn(object):
         The suitable content-type and the body for the request
         """
         timeMillis = int(round(time.time() * 1000))
-        boundary = '===%s===' % str(timeMillis)
+        boundary = f'==={timeMillis}==='
         CRLF = '\r\n'
         multiparItems = []
         for key in fields:
-            multiparItems.append('--' + boundary + CRLF)
+            multiparItems.append(f'--{boundary}{CRLF}')
             multiparItems.append(
-                'Content-Disposition: form-data; name="%s"%s' % (key, CRLF))
+                f'Content-Disposition: form-data; name="{key}"{CRLF}')
             multiparItems.append(CRLF)
-            multiparItems.append(fields[key]+CRLF)
+            multiparItems.append(f'{fields[key]}{CRLF}')
         for (key, filename, value) in files:
-            multiparItems.append('--' + boundary + CRLF)
+            multiparItems.append(f'--{boundary}{CRLF}')
             multiparItems.append(
-                'Content-Disposition: form-data; name="%s"; filename="%s"%s' %
-                (key, filename, CRLF))
+                f'Content-Disposition: form-data; name="{key}"; filename="{filename}"{CRLF}')
             multiparItems.append(
-                'Content-Type: %s%s' %
-                (mimetypes.guess_extension(filename), CRLF))
+                f'Content-Type: {mimetypes.guess_extension(filename)}{CRLF}')
             multiparItems.append(CRLF)
             multiparItems.append(value)
             multiparItems.append(CRLF)
-        multiparItems.append('--' + boundary + '--' + CRLF)
+        multiparItems.append(f'--{boundary}--{CRLF}')
         multiparItems.append(CRLF)
         body = utils.util_create_string_from_buffer(multiparItems)
-        contentType = 'multipart/form-data; boundary=%s' % boundary
-        return contentType, body
+        contentType = f'multipart/form-data; boundary={boundary}'
+        return contentType, body.encode('utf-8')
 
     def __str__(self):
-        return "\tHost: " + str(self.__connHost) + "\n\tUse HTTPS: " \
-            + str(self.__isHttps) \
-            + "\n\tPort: " + str(self.__connPort) + "\n\tSSL Port: " \
-            + str(self.__connPortSsl)
+        return f"\tHost: {self.__connHost}\n\tUse HTTPS: {self.__isHttps}" \
+            f"\n\tPort: {self.__connPort}\n\tSSL Port: {self.__connPortSsl}"
 
 
-class ConnectionHandler(object):
+class ConnectionHandler:
     def __init__(self, host, port, sslport):
         self.__connHost = host
         self.__connPort = port

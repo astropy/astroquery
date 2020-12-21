@@ -19,8 +19,11 @@ class Conf(_config.ConfigNamespace):
     slap_url = _config.ConfigItem(
         'https://find.nrao.edu/splata-slap/slap',
         'Splatalogue SLAP interface URL (not used).')
+    base_url = 'https://splatalogue.online'
     query_url = _config.ConfigItem(
-        'https://www.cv.nrao.edu/php/splat/c_export.php',
+        f'{base_url}/c_export.php',
+        # defunct as of Sep 4, 2020?  (keeping because this is likely the true host)
+        # 'https://www.cv.nrao.edu/php/splat/c_export.php',
         'Splatalogue web interface URL.')
     timeout = _config.ConfigItem(
         60,

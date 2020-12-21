@@ -8,7 +8,6 @@ Cutout queries on TESS FFIs.
 
 """
 
-from __future__ import print_function, division
 
 import warnings
 import time
@@ -28,7 +27,7 @@ from astropy.io import fits
 
 from ..query import BaseQuery
 from ..utils import commons
-from ..exceptions import NoResultsWarning, InvalidQueryError, RemoteServiceError
+from ..exceptions import InputWarning, NoResultsWarning, InvalidQueryError, RemoteServiceError
 
 from . import conf
 from .utils import parse_input_location

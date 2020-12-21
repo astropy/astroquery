@@ -115,7 +115,7 @@ for root, dirs, files in os.walk(PACKAGENAME):
 package_info['package_data'][PACKAGENAME].extend(c_files)
 
 required_packages = ['numpy', 'astropy>=3.1', 'requests>=2.4.3', 'keyring>=4.0',
-                     'beautifulsoup4>=4.3.2', 'html5lib>=0.999', 'six']
+                     'beautifulsoup4>=4.3.2', 'html5lib>=0.999', 'six', 'pyvo>=1.1']
 
 extras_require = {
     'test': ['pytest-astropy', 'photutils', 'scipy']
@@ -126,7 +126,7 @@ setup(name=PACKAGENAME,
       description=DESCRIPTION,
       scripts=scripts,
       requires=['numpy', 'astropy', 'requests', 'keyring', 'beautifulsoup4',
-                'html5lib', 'six'],
+                'html5lib', 'six', 'pyvo'],
       install_requires=required_packages,
       include_package_data=True,
       provides=[PACKAGENAME],

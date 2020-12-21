@@ -109,11 +109,11 @@ class XMatchClass(BaseQuery):
 
         return response
 
-    def _prepare_sending_table(self, i, payload, kwargs, cat, colRA, colDec):
+    def _prepare_sending_table(self, cat_index, payload, kwargs, cat, colRA, colDec):
         '''Check if table is a string, a `astropy.table.Table`, etc. and set
         query parameters accordingly.
         '''
-        catstr = 'cat{0}'.format(i)
+        catstr = 'cat{0}'.format(cat_index)
         if isinstance(cat, six.string_types):
             payload[catstr] = cat
         elif isinstance(cat, Table):
@@ -134,8 +134,8 @@ class XMatchClass(BaseQuery):
                                  ' the input table.')
             # if `cat1` is not a VizieR table,
             # it is assumed it's either a URL or an uploaded table
-            payload['colRA{0}'.format(i)] = colRA
-            payload['colDec{0}'.format(i)] = colDec
+            payload['colRA{0}'.format(cat_index)] = colRA
+            payload['colDec{0}'.format(cat_index)] = colDec
 
     def _prepare_area(self, payload, area):
         '''Set the area parameter in the payload'''
@@ -187,12 +187,12 @@ class XMatchClass(BaseQuery):
         """
         header = text.split("\n")[0]
         colnames = header.split(",")
-        for cn in colnames:
-            if colnames.count(cn) > 1:
-                ii = 1
-                while colnames.count(cn) > 0:
-                    colnames[colnames.index(cn)] = cn + "_{ii}".format(ii=ii)
-                    ii += 1
+        for column in colnames:
+            if colnames.count(column) > 1:
+                counter = 1
+                while colnames.count(column) > 0:
+                    colnames[colnames.index(column)] = column + "_{counter}".format(counter=counter)
+                    counter += 1
         new_text = ",".join(colnames) + "\n" + "\n".join(text.split("\n")[1:])
         result = ascii.read(new_text, format='csv', fast_reader=False)
 

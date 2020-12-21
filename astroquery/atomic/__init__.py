@@ -1,7 +1,7 @@
 from astropy import config as _config
 
 
-class AtomicTransition(object):
+class AtomicTransition:
     def __init__(self, name):
         self.name = name
 
@@ -23,7 +23,7 @@ class AtomicTransition(object):
         return hash(self.name)
 
 
-class MultiTransition(object):
+class MultiTransition:
     def __init__(self, transitions):
         self.transitions = transitions
 
@@ -63,7 +63,7 @@ class MultiTransition(object):
         return item in self.transitions
 
 
-class Transition(object):
+class Transition:
     E1 = MultiTransition([AtomicTransition('E1')])
     IC = MultiTransition([AtomicTransition('IC')])
     M1 = MultiTransition([AtomicTransition('M1')])

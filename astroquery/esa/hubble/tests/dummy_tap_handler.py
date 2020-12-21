@@ -15,7 +15,7 @@ from astroquery.utils.tap.model.taptable import TapTableMeta
 from astroquery.utils.tap.model.job import Job
 
 
-class DummyHubbleTapHandler(object):
+class DummyHubbleTapHandler:
 
     def __init__(self, method, parameters):
         self.__invokedMethod = method

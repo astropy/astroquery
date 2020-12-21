@@ -1,5 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from __future__ import print_function
+
 
 import numpy as np
 import os
@@ -21,7 +21,7 @@ from ...exceptions import RemoteServiceError
 
 
 @pytest.mark.remote_data
-class TestMast(object):
+class TestMast:
 
     ###############
     # utils tests #
@@ -175,16 +175,6 @@ class TestMast(object):
         assert (result['obs_collection'] == 'GALEX').all()
         assert sum(result['filters'] == 'NUV') == 6
 
-        # TEMPORARY test the obstype deprecation
-        with catch_warnings(AstropyDeprecationWarning) as warning_lines:
-            result = mast.Observations.query_criteria(objectname="M101",
-                                                      dataproduct_type="IMAGE", obstype="science")
-            assert (result["intentType"] == "science").all()
-
-            result = mast.Observations.query_criteria(objectname="M101",
-                                                      dataproduct_type="IMAGE", obstype="cal")
-            assert (result["intentType"] == "calibration").all()
-
         result = mast.Observations.query_criteria(objectname="M101",
                                                   dataproduct_type="IMAGE", intentType="calibration")
         assert (result["intentType"] == "calibration").all()
@@ -249,12 +239,12 @@ class TestMast(object):
         obsLoc = np.where(observations["obs_id"] == 'ktwo200071160-c92_lc')
         result = mast.Observations.get_product_list(observations[obsLoc])
         assert isinstance(result, Table)
-        assert len(result) == 3
+        assert len(result) == 1
 
         obsLocs = np.where((observations['target_name'] == 'NGC6523') & (observations['obs_collection'] == "IUE"))
         result = mast.Observations.get_product_list(observations[obsLocs])
         assert isinstance(result, Table)
-        assert len(result) == 27
+        assert len(result) == 30
 
     def test_observations_filter_products(self):
         observations = mast.Observations.query_object("M8", radius=".04 deg")
@@ -285,6 +275,24 @@ class TestMast(object):
                                                      mrp_only=False)
         assert isinstance(result, Table)
         assert os.path.isfile(result['Local Path'][0])
+
+        # check for row input
+        result1 = mast.Observations.get_product_list(test_obs_id)
+        result2 = mast.Observations.download_products(result1[0])
+        assert isinstance(result2, Table)
+        assert os.path.isfile(result2['Local Path'][0])
+        assert len(result2) == 1
+
+    def test_observations_download_file(self, tmpdir):
+        test_obs_id = '2003600312'
+
+        # pull a single data product
+        products = mast.Observations.get_product_list(test_obs_id)
+        uri = products['dataURI'][0]
+
+        # download it
+        result = mast.Observations.download_file(uri)
+        assert result == ('COMPLETE', None, None)
 
     ######################
     # CatalogClass tests #

@@ -7,7 +7,7 @@ from ...atomic import AtomicLineList, Transition, AtomicTransition,\
 from ...atomic.utils import is_valid_transitions_param
 
 
-class MockResponseAtomicLineList(object):
+class MockResponseAtomicLineList:
     def __init__(self, is_empty):
         if is_empty:
             self.filename = data_path('empty_results.html')

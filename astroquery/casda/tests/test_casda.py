@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*
 
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from __future__ import print_function
+
 
 import pytest
 import requests
@@ -24,7 +24,7 @@ DATA_FILES = {'CIRCLE': 'cone.xml', 'RANGE': 'box.xml', 'DATALINK': 'datalink.xm
               'COMPLETED_JOB': 'completed_job.xml'}
 
 
-class MockResponse(object):
+class MockResponse:
 
     def __init__(self, content):
         self.content = content

@@ -30,7 +30,7 @@ import os
 from . import conf
 from astropy import log
 
-__all__ = ['EsaHubble', 'EsaHubbleClass']
+__all__ = ['ESAHubble', 'ESAHubbleClass']
 
 
 class ESAHubbleClass(BaseQuery):
@@ -503,8 +503,8 @@ class ESAHubbleClass(BaseQuery):
             raise ValueError(str(msg) + ""
                              " must be either a string or astropy.coordinates")
         if isinstance(value, str):
-            c = commons.parse_coordinates(value)
-            return c
+            coords = commons.parse_coordinates(value)
+            return coords
         else:
             return value
 

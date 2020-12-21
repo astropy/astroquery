@@ -4,17 +4,27 @@ Search functionality for the Gemini archive of observations.
 For questions, contact ooberdorf@gemini.edu
 """
 
+import os
+
 from datetime import date
 
+from astropy import log
 from astropy import units
 from astropy.table import Table, MaskedColumn
 
 from astroquery.gemini.urlhelper import URLHelper
 import numpy as np
 
-from ..query import BaseQuery
+import logging
+
+from ..query import BaseQuery, QueryWithLogin
 from ..utils.class_or_instance import class_or_instance
 from . import conf
+from ..exceptions import AuthenticationWarning
+
+
+logger = logging.getLogger(__name__)
+
 
 __all__ = ['Observations', 'ObservationsClass']  # specifies what to import
 
@@ -92,7 +102,7 @@ __valid_raw_reduced__ = [
 ]
 
 
-class ObservationsClass(BaseQuery):
+class ObservationsClass(QueryWithLogin):
 
     server = conf.server
     url_helper = URLHelper(server)
@@ -105,6 +115,27 @@ class ObservationsClass(BaseQuery):
         can be done by cone search, by name, or by a set of criteria.
         """
         super().__init__()
+
+    def _login(self, username, password):
+        """
+        Login to the Gemini Archive website.
+
+        This method will authenticate the session as a particular user.  This may give you access
+        to additional information or access based on your credentials
+
+        Parameters
+        ----------
+        username : str
+            The username to login as
+        password : str
+            The password for the given account
+        """
+        params = dict(username=username, password=password)
+        r = self._session.request('POST', 'https://archive.gemini.edu/login/', params=params)
+        if b'<P>Welcome, you are sucessfully logged in' not in r.content:
+            logger.error('Unable to login, please check your credentials')
+            return False
+        return True
 
     @class_or_instance
     def query_region(self, coordinates, radius=0.3*units.deg):
@@ -310,7 +341,7 @@ class ObservationsClass(BaseQuery):
                     raise ValueError("utc_date tuple should have two values")
                 if not isinstance(utc_date[0], date) or not isinstance(utc_date[1], date):
                     raise ValueError("utc_date tuple should have date values in it")
-                args.append("%s-%s" % utc_date[0].strftime("YYYYMMdd"), utc_date[1].strftime("YYYYMMdd"))
+                args.append("{:%Y%m%d}-{:%Y%m%d}".format(*utc_date))
         if instrument is not None:
             if instrument.upper() not in __valid_instruments__:
                 raise ValueError("Unrecognized instrument: %s" % instrument)
@@ -389,6 +420,21 @@ class ObservationsClass(BaseQuery):
 
         js = response.json()
         return _gemini_json_to_table(js)
+
+    def get_file(self, filename, *, download_dir='.', timeout=None):
+        """
+        Download the requested file to the current directory
+
+        filename : str
+            Name of the file to download
+        download_dir : str, optional
+            Name of the directory to download to
+        timeout : int, optional
+            Timeout of the request in milliseconds
+        """
+        url = "https://archive.gemini.edu/file/%s" % filename
+        local_filepath = os.path.join(download_dir, filename)
+        self._download_file(url=url, local_filepath=local_filepath, timeout=timeout)
 
 
 def _gemini_json_to_table(json):

@@ -16,7 +16,7 @@ Created on 28 sep. 2018
 """
 
 
-class TapSharedToItem(object):
+class TapSharedToItem:
     """TAP shared to item object
     """
 
@@ -29,6 +29,6 @@ class TapSharedToItem(object):
         self.mode = attrs.getValue("shareMode")
 
     def __str__(self):
-        return ("Shared to item: " + str(self.id) +
-                "\n\tType: " + str(self.type) +
-                "\n\tMode: " + str(self.mode))
+        return f"Shared to item: {self.id}" \
+            f"\n\tType: {self.type}" \
+            f"\n\tMode: {self.mode}"

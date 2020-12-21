@@ -1,4 +1,4 @@
-from __future__ import print_function
+
 
 import warnings
 import functools
@@ -27,7 +27,7 @@ else:
                 message = ('Function {} has been deprecated since {}.'
                            .format(func.__name__, since))
                 if alternative is not None:
-                    message += '\n Use {} instead.'.format(alternative)
+                    message += f'\n Use {alternative} instead.'
 
             @functools.wraps(func)
             def deprecated_func(*args, **kwargs):
@@ -41,7 +41,7 @@ else:
                 message = ('Class {} has been deprecated since {}.'
                            .format(cls.__name__, since))
                 if alternative is not None:
-                    message += '\n Use {} instead.'.format(alternative)
+                    message += f'\n Use {alternative} instead.'
 
             cls.__init__ = deprecate_function(cls.__init__, message=message)
 
@@ -144,11 +144,9 @@ else:
                                        'and will be removed in a future version. '
                                        .format(old_name[i], since[i]))
                             if new_name[i] is not None:
-                                message += ('Use argument "{}" instead.'
-                                            .format(new_name[i]))
+                                message += f'Use argument "{new_name[i]}" instead.'
                             elif alternative:
-                                message += ('\n        Use {} instead.'
-                                            .format(alternative))
+                                message += f'\n        Use {alternative} instead.'
                             warnings.warn(message, warning_type, stacklevel=2)
 
                         # Check if the newkeyword was given as well.

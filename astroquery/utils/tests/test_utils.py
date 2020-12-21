@@ -21,7 +21,7 @@ from ...utils.process_asyncs import async_to_sync_docstr, async_to_sync
 from ...utils.docstr_chompers import remove_sections, prepend_docstr_nosections
 
 
-class SimpleQueryClass(object):
+class SimpleQueryClass:
 
     @class_or_instance
     def query(self):
@@ -37,7 +37,7 @@ class SimpleQueryClass(object):
 @pytest.mark.remote_data
 def test_chunk_read():
     datasize = 50000
-    response = urllib.request.urlopen('http://httpbin.org/stream-bytes/{0}'.format(datasize))
+    response = urllib.request.urlopen(f'http://httpbin.org/stream-bytes/{datasize}')
     C = chunk_read(response, report_hook=chunk_report)
     assert len(C) == datasize
 
@@ -81,7 +81,7 @@ def test_parse_coordinates_4():
 
 def test_send_request_post(monkeypatch):
     def mock_post(url, data, timeout, headers={}, status_code=200):
-        class SpecialMockResponse(object):
+        class SpecialMockResponse:
 
             def __init__(self, url, data, headers, status_code):
                 self.url = url
@@ -380,7 +380,7 @@ def test_prepend_docstr(func, out, doc=docstr4):
 
 
 @async_to_sync
-class DummyQuery(object):
+class DummyQuery:
 
     @class_or_instance
     def query_async(self, *args, **kwargs):
@@ -415,7 +415,7 @@ def patch_getreadablefileobj(request):
     _urlrequest = urllib.request.Request
     filesize = os.path.getsize(fitsfilepath)
 
-    class MockRemote(object):
+    class MockRemote:
         def __init__(self, fn, *args, **kwargs):
             self.file = open(fn, 'rb')
 
@@ -469,7 +469,7 @@ def patch_getreadablefileobj(request):
 def test_filecontainer_save(patch_getreadablefileobj):
     ffile = commons.FileContainer(fitsfilepath, encoding='binary')
     temp_dir = tempfile.mkdtemp()
-    empty_temp_file = temp_dir + os.sep + 'test_emptyfile.fits'
+    empty_temp_file = f"{temp_dir}{os.sep}test_emptyfile.fits"
     ffile.save_fits(empty_temp_file)
     assert os.path.exists(empty_temp_file)
 

@@ -14,7 +14,7 @@ from ... import conf as cs_conf
 __doctest_skip__ = ['*']
 
 
-class TestConeSearchResults(object):
+class TestConeSearchResults:
     """Inspection of ``TestConeSearchValidation`` results."""
     def setup_class(self):
         self.datadir = 'data'

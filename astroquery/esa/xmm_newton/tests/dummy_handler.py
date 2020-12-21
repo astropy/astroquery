@@ -13,7 +13,7 @@ Created on 4 Sept. 2019
 __all__ = ['DummyHandler']
 
 
-class DummyHandler(object):
+class DummyHandler:
 
     def __init__(self, method, parameters):
         self._invokedMethod = method
@@ -32,7 +32,7 @@ class DummyHandler(object):
             return
         else:
             raise ValueError("Method '{}' is not invoked. (Invoked method \
-                             is '{}'.)").format(method, self_invokedMethod)
+                             is '{}'.)").format(method, self._invokedMethod)
 
     def check_parameters(self, parameters, method_name):
         if parameters is None:

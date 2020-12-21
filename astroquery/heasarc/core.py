@@ -1,5 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from __future__ import print_function
+
+import warnings
 from six import BytesIO
 from astropy.table import Table
 from astropy.io import fits
@@ -8,7 +9,7 @@ from astropy import units as u
 from ..query import BaseQuery
 from ..utils import commons
 from ..utils import async_to_sync
-from ..exceptions import InvalidQueryError
+from ..exceptions import InvalidQueryError, NoResultsWarning
 from . import conf
 
 __all__ = ['Heasarc', 'HeasarcClass']
@@ -218,6 +219,9 @@ class HeasarcClass(BaseQuery):
         elif "Software error:" in response.text:
             raise InvalidQueryError("Unspecified error from HEASARC database. "
                                     "\nCheck error message: \n{!s}".format(response.text))
+        elif "NO MATCHING ROWS" in response.text:
+            warnings.warn(NoResultsWarning("No matching rows were found in the query."))
+            return Table()
 
         try:
             data = BytesIO(response.content)
@@ -320,7 +324,7 @@ class HeasarcClass(BaseQuery):
         # Set search radius (arcmin)
         radius = kwargs.get('radius', None)
         if radius is not None:
-            request_payload['Radius'] = "{}".format(radius.to(u.arcmin))
+            request_payload['Radius'] = "{}".format(u.Quantity(radius).to(u.arcmin))
 
         # Maximum number of results to be returned
         resultmax = kwargs.get('resultmax', None)

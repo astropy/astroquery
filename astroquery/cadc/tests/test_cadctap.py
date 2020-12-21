@@ -53,8 +53,8 @@ def test_get_tables():
     table_set = PropertyMock()
     table_set.keys.return_value = ['table1', 'table2']
     table_set.values.return_value = ['tab1val', 'tab2val', 'tab3val']
-    with patch('astroquery.cadc.core.pyvo.dal.TAPService', autospec=True) as m:
-        m.return_value.tables = table_set
+    with patch('astroquery.cadc.core.pyvo.dal.TAPService', autospec=True) as tapservice_mock:
+        tapservice_mock.return_value.tables = table_set
         cadc = Cadc()
         assert len(cadc.get_tables(only_names=True)) == 2
         assert len(cadc.get_tables()) == 3
@@ -71,8 +71,8 @@ def test_get_table():
     tables_result[2].name = 'tab3'
     table_set.values.return_value = tables_result
 
-    with patch('astroquery.cadc.core.pyvo.dal.TAPService', autospec=True) as m:
-        m.return_value.tables = table_set
+    with patch('astroquery.cadc.core.pyvo.dal.TAPService', autospec=True) as tapservice_mock:
+        tapservice_mock.return_value.tables = table_set
         cadc = Cadc()
         assert cadc.get_table('tab2').name == 'tab2'
         assert cadc.get_table('foo') is None
@@ -108,13 +108,13 @@ def test_get_collections():
        Mock(side_effect=lambda x: 'https://some.url'))
 @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
 def test_load_async_job():
-    with patch('astroquery.cadc.core.pyvo.dal.TAPService', autospec=True) as t:
+    with patch('astroquery.cadc.core.pyvo.dal.TAPService', autospec=True) as tapservice_mock:
         with patch('astroquery.cadc.core.pyvo.dal.AsyncTAPJob',
-                   autospec=True) as j:
-            t.return_value.baseurl.return_value = 'https://www.example.com/tap'
+                   autospec=True) as tapjob_mock:
+            tapservice_mock.return_value.baseurl.return_value = 'https://www.example.com/tap'
             mock_job = Mock()
             mock_job.job_id = '123'
-            j.return_value = mock_job
+            tapjob_mock.return_value = mock_job
             cadc = Cadc()
             jobid = '123'
             job = cadc.load_async_job(jobid)
@@ -126,8 +126,8 @@ def test_load_async_job():
        Mock(side_effect=lambda x: 'https://some.url'))
 @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
 def test_list_async_jobs():
-    with patch('astroquery.cadc.core.pyvo.dal.TAPService', autospec=True) as t:
-        t.return_value.baseurl.return_value = 'https://www.example.com/tap'
+    with patch('astroquery.cadc.core.pyvo.dal.TAPService', autospec=True) as tapservice_mock:
+        tapservice_mock.return_value.baseurl.return_value = 'https://www.example.com/tap'
         cadc = Cadc()
         cadc.list_async_jobs()
 
@@ -174,14 +174,14 @@ def test_auth():
 def test_get_access_url():
     # testing implementation of requests.get method:
     def get(url, **kwargs):
-        class ServiceResponse(object):
+        class ServiceResponse:
             def __init__(self):
                 self.text = 'ivo://cadc.nrc.ca/mytap = http://my.org/mytap'
 
             def raise_for_status(self):
                 pass
 
-        class CapabilitiesResponse(object):
+        class CapabilitiesResponse:
             def __init__(self):
                 caps_file = data_path('tap_caps.xml')
                 self.text = open(caps_file, 'r').read()
@@ -208,7 +208,7 @@ def test_get_access_url():
 def test_get_data_urls():
 
     def get(*args, **kwargs):
-        class CapsResponse(object):
+        class CapsResponse:
             def __init__(self):
                 self.status_code = 200
                 self.content = b''
@@ -217,7 +217,7 @@ def test_get_data_urls():
                 pass
         return CapsResponse()
 
-    class Result(object):
+    class Result:
         pass
 
     file1 = Mock()
@@ -233,8 +233,8 @@ def test_get_data_urls():
     package_file = Mock()
     package_file.semantics = 'http://www.openadc.org/caom2#pkg'
     result = [file1, file2, file3, package_file]
-    with patch('pyvo.dal.adhoc.DatalinkResults.from_result_url') as m:
-        m.return_value = result
+    with patch('pyvo.dal.adhoc.DatalinkResults.from_result_url') as dl_results_mock:
+        dl_results_mock.return_value = result
         cadc = Cadc()
         cadc._request = get  # mock the request
         assert [file1.access_url] == \
@@ -283,7 +283,7 @@ def test_misc():
 @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
 def test_get_image_list():
     def get(*args, **kwargs):
-        class CapsResponse(object):
+        class CapsResponse:
             def __init__(self):
                 self.status_code = 200
                 self.content = b''
@@ -293,7 +293,7 @@ def test_get_image_list():
 
         return CapsResponse()
 
-    class Params(object):
+    class Params:
         def __init__(self, **param_dict):
             self.__dict__.update(param_dict)
 
@@ -322,8 +322,8 @@ def test_get_image_list():
     service_def_list = [service_def1, service_def2]
     result.bysemantics.return_value = service_def_list
 
-    with patch('pyvo.dal.adhoc.DatalinkResults.from_result_url') as m:
-        m.return_value = result
+    with patch('pyvo.dal.adhoc.DatalinkResults.from_result_url') as dl_results_mock:
+        dl_results_mock.return_value = result
         cadc = Cadc()
         cadc._request = get  # Mock the request
         url_list = cadc.get_image_list(
@@ -391,8 +391,8 @@ def test_exec_sync():
        Mock(side_effect=lambda x, y, z: ['https://some.url']))
 @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
 def test_get_images():
-    with patch('astroquery.utils.commons.get_readable_fileobj', autospec=True) as t:
-        t.return_value = open(data_path('query_images.fits'), 'rb')
+    with patch('astroquery.utils.commons.get_readable_fileobj', autospec=True) as readable_fobj_mock:
+        readable_fobj_mock.return_value = open(data_path('query_images.fits'), 'rb')
 
         cadc = Cadc()
         fits_images = cadc.get_images('08h45m07.5s +54d18m00s', 0.01*u.deg,
@@ -409,8 +409,8 @@ def test_get_images():
        Mock(side_effect=lambda x, y, z: ['https://some.url']))
 @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
 def test_get_images_async():
-    with patch('astroquery.utils.commons.get_readable_fileobj', autospec=True) as t:
-        t.return_value = open(data_path('query_images.fits'), 'rb')
+    with patch('astroquery.utils.commons.get_readable_fileobj', autospec=True) as readable_fobj_mock:
+        readable_fobj_mock.return_value = open(data_path('query_images.fits'), 'rb')
 
     cadc = Cadc()
     readable_objs = cadc.get_images_async('08h45m07.5s +54d18m00s',

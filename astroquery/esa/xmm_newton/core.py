@@ -17,6 +17,8 @@ from ...query import BaseQuery
 import shutil
 import cgi
 from pathlib import Path
+import tarfile
+import os
 
 from . import conf
 from astropy import log
@@ -265,6 +267,171 @@ class XMMNewtonClass(BaseQuery):
             return [c.name for c in columns]
         else:
             return columns
+
+    def _parse_filename(self, filename):
+        """Parses the file's name of a product
+
+        Parses the file's name of a product following
+        http://xmm-tools.cosmos.esa.int/external/xmm_user_support/documentation/dfhb/pps.html
+
+        Parameters
+        ----------
+        filename : string, mandatory
+            The name of the file to be parsed
+
+        Returns
+        -------
+        A dictionary with field (as specified in the link above)
+        as key and the value of each field
+        """
+        ret = {}
+        ret["X"] = filename[0]
+        ret["obsidentif"] = filename[1:11]
+        ret["I"] = filename[11:13]
+        ret["U"] = filename[13]
+        ret["E"] = filename[14:17]
+        ret["T"] = filename[17:23]
+        ret["S"] = filename[23]
+        ret["X-"] = filename[24:27]
+        ret["Z"] = filename[28:]
+        return ret
+
+    def get_epic_images(self, filename, *, band=[], instrument=[],
+                        get_detmask=False, get_exposure_map=False, path=""):
+        """Extracts the European Photon Imaging Camera (EPIC) images from a given TAR file
+
+        For a given TAR file obtained with:
+            XMM.download_data(OBS_ID,level="PPS",extension="FTZ",filename=tarfile)
+
+        This function extracts the EPIC images in a given band (or bands) and
+        instrument (or instruments) from it
+
+        The result is a dictionary containing the paths to the extracted EPIC
+        images with keys being the band and the instrument
+
+        If the band or the instrument are not specified this function will
+        return all the available bands and instruments
+
+        Additionally, ``get_detmask`` and ``get_exposure_map`` can be set to True.
+        If so, this function will also extract the exposure maps and detector
+        masks within the specified bands and instruments
+
+        Examples
+        --------
+
+        Extract all bands and instruments::
+            result = XMM.get_epic_images(tarfile,band=[1,2,3,4,5,8],
+                                         instrument=['M1','M2','PN'],**kwargs)
+
+        If we want to retrieve the band 3 for the instrument PN (p-n junction)::
+            fits_image = result[3]['PN']
+
+        ``fits_image`` will be the full path to the extracted FTZ file
+
+        Extract the exposure and detector maps::
+            result = XMM.get_epic_images(tarfile,band=[1,2,3,4,5,8],
+                                         instrument=['M1','M2','PN'],
+                                         get_detmask=True,
+                                         get_exposure_map=True)
+
+        If we want to retrieve exposure map in the band 3 for the instrument PN::
+            fits_image = result[3]['PN_expo']
+
+        For retrieving the detector mask in the band 3 for the instrument PN::
+            fits_image = result[3]['PN_det']
+
+        Parameters
+        ----------
+        filename : string, mandatory
+            The name of the tarfile to be proccessed
+        band : array of integers, optional, default []
+            An array of intergers indicating the desired bands
+        instruments : array of strings, optional, default []
+            An array of strings indicating the desired instruments
+        get_detmask : bool, optional
+            If True, also extracts the detector masks
+        get_exposure_map : bool, optional
+            If True, also extracts the exposure maps
+        path: string, optional
+            If set, extracts the EPIC images in the indicated path
+
+        Returns
+        -------
+        A dictionary of dictionaries with the full paths of the extracted
+        EPIC images. The keys of each dictionary are the band for the first
+        level dictionary and the instrument for the second level dictionaries
+
+        Notes
+        -----
+        The structure and the content of the extracted compressed FITS files
+        are described in details in the Pipeline Products Description
+        [XMM-SOC-GEN-ICD-0024](https://xmm-tools.cosmos.esa.int/external/xmm_obs_info/odf/data/docs/XMM-SOC-GEN-ICD-0024.pdf).
+        """
+
+        _product_type = ["IMAGE_"]
+        _instrument = ["M1", "M2", "PN", "EP"]
+        _band = [1, 2, 3, 4, 5, 8]
+        _path = ""
+        if get_detmask:
+            _product_type.append("DETMSK")
+        if get_exposure_map:
+            _product_type.append("EXPMAP")
+        if path != "" and os.path.exists(path):
+            _path = path
+
+        ret = {}
+        if band == []:
+            band = _band
+        else:
+            for i in band:
+                if i not in _band:
+                    log.warning("Invalid band %u" % i)
+                    band.remove(i)
+
+        if instrument == []:
+            instrument = _instrument
+        else:
+            for i in instrument:
+                if i not in _instrument:
+                    log.warning("Invalid instrument %s" % i)
+                    instrument.remove(i)
+        with tarfile.open(filename, "r") as tar:
+            for member in tar.getmembers():
+                paths = os.path.split(member.name)
+                fname = paths[1]
+                paths = os.path.split(paths[0])
+                if paths[1] != "pps":
+                    continue
+                fname_info = self._parse_filename(fname)
+                if fname_info["X"] != "P":
+                    continue
+                if not fname_info["I"] in instrument:
+                    continue
+                if not int(fname_info["S"]) in band:
+                    continue
+                if not fname_info["T"] in _product_type:
+                    continue
+                tar.extract(member, _path)
+                if not ret.get(int(fname_info["S"])):
+                    ret[int(fname_info["S"])] = {}
+                b = int(fname_info["S"])
+                ins = fname_info["I"]
+                value = os.path.abspath(os.path.join(_path, member.name))
+                if fname_info["T"] == "DETMSK":
+                    ins = fname_info["I"] + "_det"
+                elif fname_info["T"] == "EXPMAP":
+                    ins = fname_info["I"] + "_expo"
+                if ret[b].get(ins) and type(ret[b].get(ins)) == str:
+                    log.warning("More than one file found with the "
+                                "band %u and "
+                                "the instrument: %s" % (b, ins))
+                    ret[b][ins] = [ret[b][ins], value]
+                elif ret[b].get(ins) and type(ret[b].get(ins)) == list:
+                    ret[b][ins].append(value)
+                else:
+                    ret[b][ins] = value
+
+        return ret
 
 
 XMMNewton = XMMNewtonClass()

@@ -84,7 +84,7 @@ class TestESAHubble():
 
     @pytest.mark.remote_data
     def test_cone_search(self):
-        c = coordinates.SkyCoord("00h42m44.51s +41d16m08.45s", frame='icrs')
+        coords = coordinates.SkyCoord("00h42m44.51s +41d16m08.45s", frame='icrs')
 
         parameterst = {'query': "select top 10 * from hsc_v2.hubble_sc2",
                        'output_file': "test2.vot",
@@ -92,7 +92,7 @@ class TestESAHubble():
                        'verbose': False}
         dummyTapHandler = DummyHubbleTapHandler("launch_job", parameterst)
 
-        parameters = {'coordinates': c,
+        parameters = {'coordinates': coords,
                       'radius': 0.0,
                       'file_name': 'file_cone',
                       'output_format': 'votable',
@@ -113,7 +113,7 @@ class TestESAHubble():
 
     @pytest.mark.remote_data
     def test_cone_search_coords(self):
-        c = "00h42m44.51s +41d16m08.45s"
+        coords = "00h42m44.51s +41d16m08.45s"
 
         parameterst = {'query': "select top 10 * from hsc_v2.hubble_sc2",
                        'output_file': "test2.vot",
@@ -121,7 +121,7 @@ class TestESAHubble():
                        'verbose': False}
         dummyTapHandler = DummyHubbleTapHandler("launch_job", parameterst)
 
-        parameters = {'coordinates': c,
+        parameters = {'coordinates': coords,
                       'radius': 0.0,
                       'file_name': 'file_cone',
                       'output_format': 'votable',
@@ -318,9 +318,3 @@ class TestESAHubble():
                                 verbose=True)
         assert "One of the lists is empty or there are "\
                "elements that are not strings" in err.value.args[0]
-
-
-if __name__ == "__main__":
-    # import sys;sys.argv = ['', 'Test.testName']
-    unzip_test_files()
-    pytest.main()

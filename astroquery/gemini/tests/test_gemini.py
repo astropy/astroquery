@@ -5,6 +5,7 @@ documentation at:
 
 https://astroquery.readthedocs.io/en/latest/testing.html
 """
+from datetime import date
 import json
 import os
 import pytest
@@ -19,7 +20,7 @@ from astroquery.gemini.urlhelper import URLHelper
 DATA_FILES = {"m101": "m101.json"}
 
 
-class MockResponse(object):
+class MockResponse:
 
     def __init__(self, text):
         self.text = text
@@ -69,7 +70,8 @@ def test_observations_query_region(patch_get):
 def test_observations_query_criteria(patch_get):
     """ test query against an instrument/program via criteria """
     result = gemini.Observations.query_criteria(instrument='GMOS-N', program_id='GN-CAL20191122',
-                                                observation_type='BIAS')
+                                                observation_type='BIAS',
+                                                utc_date=(date(2019, 10, 1), date(2019, 11, 25)))
     assert isinstance(result, Table)
     assert len(result) > 0
 

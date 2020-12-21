@@ -79,6 +79,7 @@ intersphinx_mapping.update({
     'pyregion': ('http://pyregion.readthedocs.io/en/stable/', None),
     'regions': ('http://astropy-regions.readthedocs.io/en/stable/', None),
     'mocpy': ('https://cds-astro.github.io/mocpy/', None),
+    'pyvo': ('https://pyvo.readthedocs.io/en/stable/', None),
 })
 
 # -- Project information ------------------------------------------------------

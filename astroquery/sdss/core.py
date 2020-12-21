@@ -564,10 +564,10 @@ class SDSSClass(BaseQuery):
                 return request_payload
 
             url = self._get_query_url(data_release)
-            r = self._request("GET", url, params=request_payload,
+            result = self._request("GET", url, params=request_payload,
                               timeout=timeout, cache=cache)
 
-            matches = self._parse_result(r)
+            matches = self._parse_result(result)
             if matches is None:
                 warnings.warn("Query returned no results.", NoResultsWarning)
                 return
@@ -720,9 +720,9 @@ class SDSSClass(BaseQuery):
                 return request_payload
 
             url = self._get_query_url(data_release)
-            r = self._request("GET", url, params=request_payload,
+            result = self._request("GET", url, params=request_payload,
                               timeout=timeout, cache=cache)
-            matches = self._parse_result(r)
+            matches = self._parse_result(result)
             if matches is None:
                 warnings.warn("Query returned no results.", NoResultsWarning)
                 return
@@ -981,9 +981,11 @@ class SDSSClass(BaseQuery):
                     specobj_fields = specobj_defs
             else:
                 for sql_field in fields:
-                    if sql_field.lower() in photoobj_all:
+                    if (sql_field in photoobj_all
+                            or sql_field.lower() in photoobj_all):
                         q_select_field.append('p.{0}'.format(sql_field))
-                    elif sql_field.lower() in specobj_all:
+                    elif (sql_field in specobj_all
+                            or sql_field.lower() in specobj_all):
                         q_select_field.append('s.{0}'.format(sql_field))
 
         if photoobj_fields is not None:

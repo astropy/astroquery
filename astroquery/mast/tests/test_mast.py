@@ -1,5 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from __future__ import print_function
+
 
 import os
 import re
@@ -68,6 +68,7 @@ def patch_post(request):
     mp.setattr(mast.auth.MastAuth, 'session_info', session_info_mockreturn)
 
     mp.setattr(mast.Observations, '_download_file', download_mockreturn)
+    mp.setattr(mast.Observations, 'download_file', download_mockreturn)
     mp.setattr(mast.Catalogs, '_download_file', download_mockreturn)
     mp.setattr(mast.Tesscut, '_download_file', tess_download_mockreturn)
 
@@ -122,7 +123,7 @@ def resolver_mockreturn(*args, **kwargs):
 
 
 def download_mockreturn(*args, **kwargs):
-    return
+    return ('COMPLETE', None, None)
 
 
 def session_info_mockreturn(self, silent=False):
@@ -269,16 +270,6 @@ def test_observations_query_criteria(patch_post):
                                               objectname="M101")
     assert isinstance(result, Table)
 
-    # TEMPORARY test the obstype deprecation
-    with catch_warnings(AstropyDeprecationWarning) as warning_lines:
-        result = mast.Observations.query_criteria(objectname="M101",
-                                                  dataproduct_type="IMAGE", obstype="science")
-        assert isinstance(result, Table)
-
-    with pytest.warns(InputWarning) as i_w:
-        mast.Observations.query_criteria(obstype="science", intentType="science")
-    assert "obstype and intentType" in str(i_w[0].message)
-
     with pytest.raises(InvalidQueryError) as invalid_query:
         mast.Observations.query_criteria(objectname="M101")
     assert "least one non-positional criterion" in str(invalid_query.value)
@@ -370,6 +361,21 @@ def test_observations_download_products(patch_post, tmpdir):
                                                  productType=["SCIENCE"],
                                                  mrp_only=False)
     assert isinstance(result, Table)
+
+    # passing row product
+    products = mast.Observations.get_product_list('2003738726')
+    result1 = mast.Observations.download_products(products[0])
+    assert isinstance(result1, Table)
+
+
+def test_observations_download_file(patch_post, tmpdir):
+    # pull a single data product
+    products = mast.Observations.get_product_list('2003738726')
+    uri = products['dataURI'][0]
+
+    # download it
+    result = mast.Observations.download_file(uri)
+    assert result == ('COMPLETE', None, None)
 
 
 ######################

@@ -26,7 +26,7 @@ import sys
 __all__ = ['Job']
 
 
-class Job(object):
+class Job:
     """Job class
     """
 
@@ -51,6 +51,7 @@ class Job(object):
         # phase is actually indended to be private as get_phase is non-trivial
         self._phase = None
         self.outputFile = None
+        self.outputFileUser = None
         self.responseStatus = 0
         self.responseMsg = None
         self.results = None
@@ -107,7 +108,7 @@ class Job(object):
 
     def __change_phase(self, phase, verbose=False):
         if self._phase == 'PENDING':
-            context = "async/"+str(self.jobid)+"/phase"
+            context = f"async/{self.jobid}/phase"
             args = {
                 "PHASE": str(phase)}
             data = self.connHandler.url_encode(args)
@@ -133,8 +134,7 @@ class Job(object):
             self._phase = phase
             return response
         else:
-            raise ValueError("Cannot start a job in phase: " +
-                             str(self._phase))
+            raise ValueError(f"Cannot start a job in phase: {self._phase}")
 
     def send_parameter(self, name=None, value=None, verbose=False):
         """Sends a job parameter (allowed in PENDING phase only).
@@ -148,7 +148,7 @@ class Job(object):
         """
         if self._phase == 'PENDING':
             # send post parameter/value
-            context = "async/"+str(self.jobid)
+            context = f"async/{self.jobid}"
             args = {
                 name: str(value)}
             data = self.connHandler.url_encode(args)
@@ -165,8 +165,7 @@ class Job(object):
                 raise requests.exceptions.HTTPError(errMsg)
             return response
         else:
-            raise ValueError("Cannot start a job in phase: " +
-                             str(self._phase))
+            raise ValueError(f"Cannot start a job in phase: {self._phase}")
 
     def get_phase(self, update=False):
         """Returns the job phase. May optionally update the job's phase.
@@ -182,7 +181,7 @@ class Job(object):
         The job phase
         """
         if update:
-            phase_request = "async/"+str(self.jobid)+"/phase"
+            phase_request = f"async/{self.jobid}/phase"
             response = self.connHandler.execute_tapget(phase_request)
 
             self.__last_phase_response_status = response.status
@@ -268,9 +267,10 @@ class Job(object):
         verbose : bool, optional, default 'False'
             flag to display information about the process
         """
-        output = self.outputFile
         if self.__resultInMemory:
-            self.results.to_xml(output)
+            if verbose:
+                print(f"Saving results to: {self.outputFile}")
+            self.results.to_xml(self.outputFile)
         else:
             if not self.async_:
                 # sync: cannot access server again
@@ -279,7 +279,7 @@ class Job(object):
                 # Async
                 self.wait_for_job_end(verbose)
                 response = self.connHandler.execute_tapget(
-                    "async/"+str(self.jobid)+"/results/result")
+                    f"async/{self.jobid}/results/result")
                 if verbose:
                     print(response.status, response.reason)
                     print(response.getheaders())
@@ -290,6 +290,16 @@ class Job(object):
                 if isError:
                     print(response.reason)
                     raise Exception(response.reason)
+                if self.outputFileUser is None:
+                    # User did not provide an output
+                    # The output is a temporary one, analyse header
+                    self.outputFile = taputils.get_suitable_output_file(
+                        self.connHandler, True, None, response.getheaders(),
+                        False, self.parameters['format'])
+                    output = self.outputFile
+                else:
+                    output = self.outputFileUser
+                print(f"Saving results to: {output}")
                 self.connHandler.dump_to_file(output, response)
 
     def wait_for_job_end(self, verbose=False):
@@ -318,7 +328,7 @@ class Job(object):
 
             lphase = responseData.upper().strip()
             if verbose:
-                print("Job " + self.jobid + " status: " + lphase)
+                print(f"Job {self.jobid} status: {lphase}")
             if ("PENDING" != lphase and "QUEUED" != lphase and
                     "EXECUTING" != lphase):
                 break
@@ -329,7 +339,7 @@ class Job(object):
 
     def __load_async_job_results(self, debug=False):
         wjResponse, phase = self.wait_for_job_end()
-        subContext = "async/" + str(self.jobid) + "/results/result"
+        subContext = f"async/{self.jobid}/results/result"
         resultsResponse = self.connHandler.execute_tapget(subContext)
         # resultsResponse = self.__readAsyncResults(self.__jobid, debug)
         if debug:
@@ -366,7 +376,7 @@ class Job(object):
             joblocation = self.connHandler.\
                 find_header(resultsResponse.getheaders(), "location")
             if verbose:
-                print("Redirecting to: " + str(joblocation))
+                print(f"Redirecting to: {joblocation}")
             resultsResponse = self.connHandler.execute_tapget(joblocation)
             numberOfRedirects += 1
             if verbose:
@@ -386,7 +396,7 @@ class Job(object):
         -------
         The job error.
         """
-        subContext = "async/" + str(self.jobid) + "/error"
+        subContext = f"async/{self.jobid}/error"
         resultsResponse = self.connHandler.execute_tapget(subContext)
         # resultsResponse = self.__readAsyncResults(self.__jobid, debug)
         if verbose:
@@ -408,12 +418,11 @@ class Job(object):
                                                         "after redirection " +
                                                         "was received (303)")
                 if verbose:
-                    print("Redirect to %s", location)
+                    print(f"Redirect to {location}")
                 # load
                 relativeLocation = self.__extract_relative_location(location,
                                                                     self.jobid)
-                relativeLocationSubContext = "async/" + str(self.jobid) +\
-                    "/" + str(relativeLocation)
+                relativeLocationSubContext = f"async/{self.jobid}/{relativeLocation}"
                 response = self.connHandler.\
                     execute_tapget(relativeLocationSubContext)
                 response = self.__handle_redirect_if_required(response,
@@ -465,8 +474,8 @@ class Job(object):
             result = "None"
         else:
             result = self.results.info()
-        return "Jobid: " + str(self.jobid) + \
-            "\nPhase: " + str(self._phase) + \
-            "\nOwner: " + str(self.ownerid) + \
-            "\nOutput file: " + str(self.outputFile) + \
-            "\nResults: " + str(result)
+        return f"Jobid: {self.jobid}" \
+            f"\nPhase: {self._phase}" \
+            f"\nOwner: {self.ownerid}" \
+            f"\nOutput file: {self.outputFile}" \
+            f"\nResults: {result}"

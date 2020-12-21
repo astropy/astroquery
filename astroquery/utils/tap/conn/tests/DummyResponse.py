@@ -16,7 +16,7 @@ Created on 30 jun. 2016
 """
 
 
-class DummyResponse(object):
+class DummyResponse:
     '''
     classdocs
     '''

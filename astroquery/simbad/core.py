@@ -2,7 +2,7 @@
 """
 Simbad query class for accessing the Simbad Service
 """
-from __future__ import print_function
+
 import copy
 import re
 import requests
@@ -27,8 +27,8 @@ __all__ = ['Simbad', 'SimbadClass', 'SimbadBaseQuery']
 
 
 def validate_epoch(value):
-    p = re.compile(r'^[JB]\d+[.]?\d+$', re.IGNORECASE)
-    if p.match(value) is None:
+    pattern = re.compile(r'^[JB]\d+[.]?\d+$', re.IGNORECASE)
+    if pattern.match(value) is None:
         raise ValueError("Epoch must be specified as [J|B]<epoch>.\n"
                          "Example: epoch='J2000'")
     return value
@@ -67,7 +67,7 @@ def validate_equinox_decorator(func):
     return wrapper
 
 
-def strip_field(f, keep_filters=False):
+def strip_field(field, keep_filters=False):
     """Helper tool: remove parameters from VOTABLE fields
     However, this should only be applied to a subset of VOTABLE fields:
 
@@ -80,14 +80,14 @@ def strip_field(f, keep_filters=False):
 
     *if* keep_filters is specified
     """
-    if '(' in f:
-        root = f[:f.find('(')]
+    if '(' in field:
+        root = field[:field.find('(')]
         if (root in ('ra', 'dec', 'otype', 'id', 'coo', 'bibcodelist') or
                 not keep_filters):
             return root
 
     # the overall else (default option)
-    return f
+    return field
 
 
 error_regex = re.compile(r'(?ms)\[(?P<line>\d+)\]\s?(?P<msg>.+?)(\[|\Z)')
@@ -95,7 +95,7 @@ SimbadError = namedtuple('SimbadError', ('line', 'msg'))
 VersionInfo = namedtuple('VersionInfo', ('major', 'minor', 'micro', 'patch'))
 
 
-class SimbadResult(object):
+class SimbadResult:
     __sections = ('script', 'console', 'error', 'data')
 
     def __init__(self, txt, verbose=False):
@@ -1068,10 +1068,10 @@ class SimbadClass(SimbadBaseQuery):
 
 def _parse_coordinates(coordinates):
     try:
-        c = commons.parse_coordinates(coordinates)
+        coordinates = commons.parse_coordinates(coordinates)
         # now c has some subclass of astropy.coordinate
         # get ra, dec and frame
-        return _get_frame_coords(c)
+        return _get_frame_coords(coordinates)
     except (u.UnitsError, TypeError):
         raise ValueError("Coordinates not specified correctly")
 
@@ -1085,29 +1085,29 @@ def _has_length(x):
         return False
 
 
-def _get_frame_coords(c):
-    if _has_length(c):
+def _get_frame_coords(coordinates):
+    if _has_length(coordinates):
         # deal with vectors differently
-        parsed = [_get_frame_coords(cc) for cc in c]
+        parsed = [_get_frame_coords(cc) for cc in coordinates]
         return ([ra for ra, dec, frame in parsed],
                 [dec for ra, dec, frame in parsed],
                 [frame for ra, dec, frame in parsed])
-    if c.frame.name == 'icrs':
-        ra, dec = _to_simbad_format(c.ra, c.dec)
+    if coordinates.frame.name == 'icrs':
+        ra, dec = _to_simbad_format(coordinates.ra, coordinates.dec)
         return (ra, dec, 'ICRS')
-    elif c.frame.name == 'galactic':
-        lon, lat = (str(c.l.degree), str(c.b.degree))
+    elif coordinates.frame.name == 'galactic':
+        lon, lat = (str(coordinates.l.degree), str(coordinates.b.degree))
         if lat[0] not in ['+', '-']:
             lat = '+' + lat
         return (lon, lat, 'GAL')
-    elif c.frame.name == 'fk4':
-        ra, dec = _to_simbad_format(c.ra, c.dec)
+    elif coordinates.frame.name == 'fk4':
+        ra, dec = _to_simbad_format(coordinates.ra, coordinates.dec)
         return (ra, dec, 'FK4')
-    elif c.frame.name == 'fk5':
-        ra, dec = _to_simbad_format(c.ra, c.dec)
+    elif coordinates.frame.name == 'fk5':
+        ra, dec = _to_simbad_format(coordinates.ra, coordinates.dec)
         return (ra, dec, 'FK5')
     else:
-        raise ValueError("%s is not a valid coordinate" % c)
+        raise ValueError("%s is not a valid coordinate" % coordinates)
 
 
 def _to_simbad_format(ra, dec):

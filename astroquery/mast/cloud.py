@@ -22,7 +22,7 @@ from . import utils
 __all__ = []
 
 
-class CloudAccess(object):  # pragma:no-cover
+class CloudAccess:  # pragma:no-cover
     """
     Class encapsulating access to MAST data in the cloud.
     """

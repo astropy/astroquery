@@ -5,8 +5,11 @@ channels:
 
 dependencies:
     - python=>3
+    - pip
     - astropy
     - Cython
     - matplotlib
     - numpy
     - requests
+    - pip:
+      - sphinx-astropy
