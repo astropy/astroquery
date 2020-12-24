@@ -4,6 +4,11 @@
 Service fixes and enhancements
 ------------------------------
 
+esa/iso
+^^^^^^^
+
+- New module to access ESA ISO mission [#1914]
+
 ESASky
 ^^^^
 
