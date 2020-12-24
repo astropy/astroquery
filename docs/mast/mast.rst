@@ -873,7 +873,7 @@ Zcut
 
 Zcut for MAST allows users to request cutouts from various Hubble deep field surveys. The cutouts can 
 be returned as either fits or image files (jpg and png are supported). This tool can be accessed in 
-Astroquery by using the Zcut class. The list of supported deep feel surveys can be found here: 
+Astroquery by using the Zcut class. The list of supported deep field surveys can be found here: 
 https://mast.stsci.edu/zcut/
 
 
@@ -1085,5 +1085,4 @@ Reference/API
 .. automodapi:: astroquery.mast
     :no-inheritance-diagram:
     :inherited-members:
-
 
