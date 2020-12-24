@@ -47,7 +47,10 @@ DATA_FILES = {'Mast.Caom.Cone': 'caom.json',
               'Mast.HscSpectra.Db.All': 'spectra.json',
               'panstarrs': 'panstarrs.json',
               'tess_cutout': 'astrocut_107.27_-70.0_5x5.zip',
-              'tess_sector': 'tess_sector.json'}
+              'tess_sector': 'tess_sector.json',
+              'z_cutout_fit': 'astrocut_189.49206_62.20615_100x100px_f.zip',
+              'z_cutout_jpg': 'astrocut_189.49206_62.20615_100x100px.zip',
+              'z_survey': 'zcut_survey.json'}
 
 
 def data_path(filename):
@@ -70,7 +73,8 @@ def patch_post(request):
     mp.setattr(mast.Observations, '_download_file', download_mockreturn)
     mp.setattr(mast.Observations, 'download_file', download_mockreturn)
     mp.setattr(mast.Catalogs, '_download_file', download_mockreturn)
-    mp.setattr(mast.Tesscut, '_download_file', tess_download_mockreturn)
+    mp.setattr(mast.Tesscut, '_download_file', tesscut_download_mockreturn)
+    mp.setattr(mast.Zcut, '_download_file', zcut_download_mockreturn)
 
     return mp
 
@@ -112,6 +116,11 @@ def service_mockreturn(self, method="POST", url=None, data=None, timeout=10, **k
             filename = data_path(DATA_FILES['tess_sector'])
         else:
             filename = data_path(DATA_FILES['tess_cutout'])
+    elif "zcut" in url:
+        if "survey" in url:
+            filename = data_path(DATA_FILES['z_survey'])
+        else:
+            filename = data_path(DATA_FILES['z_cutout_fit'])
     content = open(filename, 'rb').read()
     return MockResponse(content)
 
@@ -153,10 +162,20 @@ def tesscut_get_mockreturn(method="GET", url=None, data=None, timeout=10, **kwar
     return MockResponse(content)
 
 
-def tess_download_mockreturn(url, file_path):
+def tesscut_download_mockreturn(url, file_path):
     filename = data_path(DATA_FILES['tess_cutout'])
     copyfile(filename, file_path)
     return
+
+
+def zcut_download_mockreturn(url, file_path):
+    if "jpg" in url:
+        filename = data_path(DATA_FILES['z_cutout_jpg'])
+    else:
+        filename = data_path(DATA_FILES['z_cutout_fit'])
+    copyfile(filename, file_path)
+    return
+
 
 ###################
 # MastClass tests #
@@ -617,3 +636,62 @@ def test_tesscut_get_cutouts(patch_post, tmpdir):
     assert isinstance(cutout_hdus_list, list)
     assert len(cutout_hdus_list) == 1
     assert isinstance(cutout_hdus_list[0], fits.HDUList)
+
+######################
+# ZcutClass tests #
+######################
+
+
+def test_zcut_get_survey(patch_post):
+
+    coord = SkyCoord(189.49206, 62.20615, unit="deg")
+    survey_list = mast.Zcut.get_surveys(coordinates=coord)
+    assert isinstance(survey_list, list)
+    assert len(survey_list) == 3
+    assert survey_list[0] == 'candels_gn_60mas'
+    assert survey_list[1] == 'candels_gn_30mas'
+    assert survey_list[2] == 'goods_north'
+
+    survey_list = mast.Zcut.get_surveys(coordinates=coord, radius=0.2)
+    assert isinstance(survey_list, list)
+    assert len(survey_list) == 3
+    assert survey_list[0] == 'candels_gn_60mas'
+    assert survey_list[1] == 'candels_gn_30mas'
+    assert survey_list[2] == 'goods_north'
+
+
+def test_zcut_download_cutouts(patch_post, tmpdir):
+
+    coord = SkyCoord(189.49206, 62.20615, unit="deg")
+
+    # Testing with fits
+    cutout_table = mast.Zcut.download_cutouts(coordinates=coord, size=5, path=str(tmpdir))
+    assert isinstance(cutout_table, Table)
+    assert len(cutout_table) == 1
+    assert cutout_table["Local Path"][0][-4:] == "fits"
+    assert os.path.isfile(cutout_table[0]['Local Path'])
+
+    # Testing with png
+    cutout_table = mast.Zcut.download_cutouts(coordinates=coord, size=5,
+                                             cutout_format="jpg", path=str(tmpdir))
+    assert isinstance(cutout_table, Table)
+    assert len(cutout_table) == 3
+    assert cutout_table["Local Path"][0][-4:] == ".jpg"
+    assert os.path.isfile(cutout_table[0]['Local Path'])
+
+    # Testing with img_param
+    cutout_table = mast.Zcut.download_cutouts(coordinates=coord, size=5,
+                                             cutout_format="jpg", path=str(tmpdir), invert=True)
+    assert isinstance(cutout_table, Table)
+    assert len(cutout_table) == 3
+    assert cutout_table["Local Path"][0][-4:] == ".jpg"
+    assert os.path.isfile(cutout_table[0]['Local Path'])
+
+
+def test_zcut_get_cutouts(patch_post, tmpdir):
+
+    coord = SkyCoord(189.49206, 62.20615, unit="deg")
+    cutout_list = mast.Zcut.get_cutouts(coordinates=coord, size=5)
+    assert isinstance(cutout_list, list)
+    assert len(cutout_list) == 1
+    assert isinstance(cutout_list[0], fits.HDUList)

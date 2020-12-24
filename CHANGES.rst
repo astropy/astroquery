@@ -4,8 +4,15 @@
 Service fixes and enhancements
 ------------------------------
 
+esa/iso
+^^^^^^^
+
+- New module to access ESA ISO mission [#1914]
+
 ESASky
 ^^^^
+
+- All ESASky spectra now accessible. [#1909]
 
 - Updated ESASky module for version 3.5 of ESASky backend. [#1858]
 
@@ -27,6 +34,7 @@ mast
 - Removed deprecated ``Observations.get_hst_s3_uris()``, ``Observations.get_hst_s3_uri()``, 
   ``Core.get_token()``, ``Core.enable_s3_hst_dataset()``, ``Core.disable_s3_hst_dataset()`` and 
   variables obstype and silent [#1884]
+- Added Zcut functionality to astroquery [#1911]
 
 esa/hubble
 ^^^^^^^^^^
@@ -92,6 +100,9 @@ alma
 - The archive query interface has been deprecated in favour of
   VirtualObservatory (VO) services such as TAP, ObsCore etc. The alma
   library has been updated accordingly. [#1689]
+- ALMA queries using string representations will now convert to appropriate
+  coordinates before being sent to the server; previously they were treated as
+  whatever unit they were presented in.  [#1867]
 
 gaia
 ^^^^

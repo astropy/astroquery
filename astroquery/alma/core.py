@@ -267,7 +267,7 @@ class AlmaClass(QueryWithLogin):
         rad = radius
         if not isinstance(radius, u.Quantity):
             rad = radius*u.deg
-        obj_coord = commons.parse_coordinates(coordinate)
+        obj_coord = commons.parse_coordinates(coordinate).icrs
         ra_dec = '{}, {}'.format(obj_coord.to_string(), rad.to(u.deg).value)
         if payload is None:
             payload = {}
@@ -309,8 +309,7 @@ class AlmaClass(QueryWithLogin):
 
         for arg in local_args:
             # check if the deprecated attributes have been used
-            for deprecated in ['cache', 'max_retries', 'get_html_version',
-                               'get_query_payload']:
+            for deprecated in ['cache', 'max_retries', 'get_html_version']:
                 if arg[0] == deprecated and arg[1] is not None:
                     warnings.warn(
                         ("Argument '{}' has been deprecated "
@@ -337,6 +336,10 @@ class AlmaClass(QueryWithLogin):
                 payload['public_data'] = True
             else:
                 payload['public_data'] = False
+
+        if get_query_payload:
+            return payload
+
         query = _gen_sql(payload)
         result = self.query_tap(query, **kwargs)
         if result:

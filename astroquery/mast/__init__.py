@@ -30,7 +30,7 @@ class Conf(_config.ConfigNamespace):
 
 conf = Conf()
 
-from .cutouts import TesscutClass, Tesscut
+from .cutouts import TesscutClass, Tesscut, ZcutClass, Zcut
 from .observations import Observations, ObservationsClass, MastClass, Mast
 from .collections import Catalogs, CatalogsClass
 from .core import MastQueryWithLogin

@@ -43,11 +43,11 @@ already installed, please make sure you use the ``--upgrade`` install option as 
 
 In addition to the automated releases, we also keep doing regular, tagged version for maintenance
 and packaging purposes. These can be ``pip`` installed without the ``--pre`` option and
-are available from the ``astropy`` conda channel.
+are available from the ``conda-forge`` conda channel.
 
 .. code-block:: bash
 
-    $ conda install -c astropy astroquery
+    $ conda install -c conda-forge astroquery
 
 
 Building from source
@@ -165,6 +165,8 @@ The following modules have been completed using a common API:
   casda/casda.rst
   cds/cds.rst
   esa/hubble.rst
+  esa/iso.rst
+  esa/xmm_newton.rst
   esasky/esasky.rst
   eso/eso.rst
   gaia/gaia.rst
@@ -196,7 +198,6 @@ The following modules have been completed using a common API:
   vsa/vsa.rst
   xmatch/xmatch.rst
   dace/dace.rst
-  esa/xmm_newton.rst
 
 
 These others are functional, but do not follow a common & consistent API:

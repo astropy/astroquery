@@ -253,7 +253,7 @@ class SBDBClass(BaseQuery):
                                 val = val.decode('utf-8')
                             try:
                                 res[key] = float(val)
-                            except ValueErro:
+                            except ValueError:
                                 res[key] = val
                         continue
 

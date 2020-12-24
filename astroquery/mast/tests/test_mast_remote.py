@@ -590,14 +590,14 @@ class TestMast:
         assert manifest["Local Path"][0][-4:] == "fits"
         assert os.path.isfile(manifest[0]['Local Path'])
 
-        manifest = mast.Tesscut.download_cutouts(coordinates=coord, size=[5, 7]*u.pix, path=str(tmpdir))
+        manifest = mast.Tesscut.download_cutouts(coordinates=coord, size=[5, 7]*u.pix, sector=8, path=str(tmpdir))
         assert isinstance(manifest, Table)
         assert len(manifest) >= 1
         assert manifest["Local Path"][0][-4:] == "fits"
         for row in manifest:
             assert os.path.isfile(row['Local Path'])
 
-        manifest = mast.Tesscut.download_cutouts(coordinates=coord, size=5, path=str(tmpdir), inflate=False)
+        manifest = mast.Tesscut.download_cutouts(coordinates=coord, size=5, sector=8, path=str(tmpdir), inflate=False)
         assert isinstance(manifest, Table)
         assert len(manifest) == 1
         assert manifest["Local Path"][0][-3:] == "zip"
@@ -614,7 +614,7 @@ class TestMast:
 
         coord = SkyCoord(107.18696, -70.50919, unit="deg")
 
-        cutout_hdus_list = mast.Tesscut.get_cutouts(coordinates=coord, size=5)
+        cutout_hdus_list = mast.Tesscut.get_cutouts(coordinates=coord, size=5, sector=8,)
         assert isinstance(cutout_hdus_list, list)
         assert len(cutout_hdus_list) >= 1
         assert isinstance(cutout_hdus_list[0], fits.HDUList)
@@ -635,3 +635,89 @@ class TestMast:
         assert isinstance(cutout_hdus_list, list)
         assert len(cutout_hdus_list) >= 1
         assert isinstance(cutout_hdus_list[0], fits.HDUList)
+
+    ######################
+    # ZcutClass tests #
+    ######################
+    def test_zcut_get_surveys(self):
+
+        coord = SkyCoord(189.49206, 62.20615, unit="deg")
+        survey_list = mast.Zcut.get_surveys(coordinates=coord)
+        assert isinstance(survey_list, list)
+        assert len(survey_list) >= 1
+        assert survey_list[0] == 'candels_gn_60mas'
+        assert survey_list[1] == 'candels_gn_30mas'
+        assert survey_list[2] == 'goods_north'
+
+        # This should always return no results
+        coord = SkyCoord(57.10523, -30.08085, unit="deg")
+        survey_list = mast.Zcut.get_surveys(coordinates=coord, radius=0)
+        assert isinstance(survey_list, list)
+        assert len(survey_list) == 0
+
+    def test_zcut_download_cutouts(self, tmpdir):
+
+        coord = SkyCoord(34.47320, -5.24271, unit="deg")
+
+        cutout_table = mast.Zcut.download_cutouts(coordinates=coord, size=5, path=str(tmpdir))
+        assert isinstance(cutout_table, Table)
+        assert len(cutout_table) >= 1
+        assert cutout_table["Local Path"][0][-4:] == "fits"
+        for row in cutout_table:
+            assert os.path.isfile(cutout_table[0]['Local Path'])
+
+        coord = SkyCoord(189.49206, 62.20615, unit="deg")
+
+        cutout_table = mast.Zcut.download_cutouts(coordinates=coord, size=[200, 300], path=str(tmpdir))
+        assert isinstance(cutout_table, Table)
+        assert len(cutout_table) >= 1
+        assert cutout_table["Local Path"][0][-4:] == "fits"
+        for row in cutout_table:
+            assert os.path.isfile(cutout_table[0]['Local Path'])
+
+        cutout_table = mast.Zcut.download_cutouts(coordinates=coord, size=5, cutout_format="jpg", path=str(tmpdir))
+        assert isinstance(cutout_table, Table)
+        assert len(cutout_table) >= 1
+        assert cutout_table["Local Path"][0][-4:] == ".jpg"
+        for row in cutout_table:
+            assert os.path.isfile(cutout_table[0]['Local Path'])
+
+        cutout_table = mast.Zcut.download_cutouts(coordinates=coord, size=5, units='5*u.arcsec', cutout_format="png", path=str(tmpdir))
+        assert isinstance(cutout_table, Table)
+        assert len(cutout_table) >= 1
+        assert cutout_table["Local Path"][0][-4:] == ".png"
+        for row in cutout_table:
+            assert os.path.isfile(cutout_table[0]['Local Path'])
+
+        cutout_table = mast.Zcut.download_cutouts(coordinates=coord, survey='candels_gn_30mas', cutout_format="jpg", path=str(tmpdir))
+        assert isinstance(cutout_table, Table)
+        assert len(cutout_table) == 3
+        assert cutout_table["Local Path"][0][-4:] == ".jpg"
+        for row in cutout_table:
+            assert os.path.isfile(cutout_table[0]['Local Path'])
+
+        cutout_table = mast.Zcut.download_cutouts(coordinates=coord, cutout_format="jpg", path=str(tmpdir), stretch='asinh', invert=True)
+        assert isinstance(cutout_table, Table)
+        assert len(cutout_table) >= 1
+        assert cutout_table["Local Path"][0][-4:] == ".jpg"
+        for row in cutout_table:
+            assert os.path.isfile(cutout_table[0]['Local Path'])
+
+    def test_zcut_get_cutouts(self):
+
+        coord = SkyCoord(189.49206, 62.20615, unit="deg")
+
+        cutout_list = mast.Zcut.get_cutouts(coordinates=coord)
+        assert isinstance(cutout_list, list)
+        assert len(cutout_list) >= 1
+        assert isinstance(cutout_list[0], fits.HDUList)
+
+        cutout_list = mast.Zcut.get_cutouts(coordinates=coord, size=[200, 300])
+        assert isinstance(cutout_list, list)
+        assert len(cutout_list) >= 1
+        assert isinstance(cutout_list[0], fits.HDUList)
+
+        cutout_list = mast.Zcut.get_cutouts(coordinates=coord, survey='candels_gn_30mas')
+        assert isinstance(cutout_list, list)
+        assert len(cutout_list) == 1
+        assert isinstance(cutout_list[0], fits.HDUList)

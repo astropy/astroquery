@@ -55,7 +55,7 @@ The latest version of astroquery can be conda installed:
 
 .. code-block:: bash
 
-    $ conda install -c astropy astroquery
+    $ conda install -c conda-forge astroquery
 
 or pip installed:
 
@@ -111,6 +111,7 @@ The following modules have been completed using a common API:
   * `Gaia <http://astroquery.readthedocs.io/en/latest/gaia/gaia.html>`_: European Space Agency Gaia Archive.
   * `ESA XMM <https://astroquery.readthedocs.io/en/latest/esa/xmm_newton.html>`_: European Space Agency XMM-Newton Science Archive.
   * `ESA Hubble <https://astroquery.readthedocs.io/en/latest/esa/hubble.html>`_: European Space Agency Hubble Science Archive.
+  * `ESA ISO <https://astroquery.readthedocs.io/en/latest/esa/iso.html>`_: European Space Agency ISO Data Archive.
   * `GAMA database <http://astroquery.readthedocs.io/en/latest/gama/gama.html>`_
   * `Gemini <http://astroquery.readthedocs.io/en/latest/gemini/gemini.html>`_: Gemini Archive.
   * `HEASARC <http://astroquery.readthedocs.io/en/latest/heasarc/heasarc.html>`_: NASA's High Energy Astrophysics Science Archive Research Center.
