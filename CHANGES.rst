@@ -12,6 +12,8 @@ esa/iso
 ESASky
 ^^^^
 
+- All ESASky spectra now accessible. [#1909]
+
 - Updated ESASky module for version 3.5 of ESASky backend. [#1858]
 
 - Added row limit parameter for map queries. [#1858]
