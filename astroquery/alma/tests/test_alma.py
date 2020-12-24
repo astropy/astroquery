@@ -243,7 +243,8 @@ def test_query():
     alma = Alma()
     alma._get_dataarchive_url = Mock()
     alma._tap = tap_mock
-    result = alma.query_region('1 2', radius=1*u.deg)
+    result = alma.query_region(SkyCoord(1*u.deg, 2*u.deg, frame='icrs'),
+                               radius=1*u.deg)
     assert len(result) == 0
     assert 'proposal_id' in result.columns
     tap_mock.search.assert_called_once_with(
@@ -372,3 +373,22 @@ def test_tap():
 
     tap_mock.search.assert_called_once_with('select * from ivoa.ObsCore',
                                             language='ADQL')
+
+
+def test_galactic_query():
+    """
+    regression test for 1867
+    """
+    tap_mock = Mock()
+    empty_result = Table.read(os.path.join(DATA_DIR, 'alma-empty.txt'),
+                              format='ascii')
+    mock_result = Mock()
+    mock_result.to_table.return_value = empty_result
+    tap_mock.search.return_value = mock_result
+    alma = Alma()
+    alma._get_dataarchive_url = Mock()
+    alma._tap = tap_mock
+    result = alma.query_region(SkyCoord(0*u.deg, 0*u.deg, frame='galactic'),
+                               radius=1*u.deg, get_query_payload=True)
+
+    assert result['ra_dec'] == SkyCoord(0*u.deg, 0*u.deg, frame='galactic').icrs.to_string() + ", 1.0"

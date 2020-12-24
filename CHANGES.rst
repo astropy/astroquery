@@ -100,6 +100,9 @@ alma
 - The archive query interface has been deprecated in favour of
   VirtualObservatory (VO) services such as TAP, ObsCore etc. The alma
   library has been updated accordingly. [#1689]
+- ALMA queries using string representations will now convert to appropriate
+  coordinates before being sent to the server; previously they were treated as
+  whatever unit they were presented in.  [#1867]
 
 gaia
 ^^^^
