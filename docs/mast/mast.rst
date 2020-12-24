@@ -868,6 +868,93 @@ To access sector information at a particular location there is  `~astroquery.mas
                 tess-s0010-1-4     10      1   4
 
 
+Zcut
+====
+
+Zcut for MAST allows users to request cutouts from various Hubble deep field surveys. The cutouts can 
+be returned as either fits or image files (jpg and png are supported). This tool can be accessed in 
+Astroquery by using the Zcut class. The list of supported deep field surveys can be found here: 
+https://mast.stsci.edu/zcut/
+
+
+Cutouts
+-------
+
+The `~astroquery.mast.ZcutClass.get_cutouts` function takes a coordinate and cutout size (in pixels or
+an angular quantity) and returns the cutout FITS file(s) as a list of ~astropy.io.fits.HDUList objects.
+
+If the given coordinate appears in more than one Zcut survey, a FITS file will be produced for each survey. 
+
+.. code-block:: python
+
+                >>> from astroquery.mast import Zcut
+                >>> from astropy.coordinates import SkyCoord
+
+                >>> cutout_coord = SkyCoord(189.49206, 62.20615, unit="deg")
+                >>> hdulist = Zcut.get_cutouts(coordinates=cutout_coord, size=5)
+                >>> hdulist[0].info()
+                Filename: <class '_io.BytesIO'>
+                No.    Name      Ver    Type      Cards   Dimensions   Format
+                  0  PRIMARY       1 PrimaryHDU      11   ()
+                  1  CUTOUT        1 ImageHDU       177   (5, 5)   float32
+                  2  CUTOUT        1 ImageHDU       177   (5, 5)   float32
+                  3  CUTOUT        1 ImageHDU       177   (5, 5)   float32
+
+
+The `~astroquery.mast.ZcutClass.download_cutouts` function takes a coordinate and cutout size (in pixels or
+an angular quantity) and downloads the cutout fits file(s) as either fits files or image (png/jpg)
+files.
+
+If a given coordinate appears in more than one Zcut survey, a cutout will be produced for each survey.
+
+.. code-block:: python
+
+                >>> from astroquery.mast import Zcut
+                >>> from astropy.coordinates import SkyCoord
+
+                >>> cutout_coord = SkyCoord(189.49206, 62.20615, unit="deg")
+                >>> manifest = Zcut.download_cutouts(coordinates=cutout_coord, size=[200, 300], units="px")
+                Downloading URL https://mast.stsci.edu/zcut/api/v0.1/astrocut?ra=189.49206&dec=62.20615&y=200&x=300&units=px&format=fits to ./zcut_20201202132247.zip ... [Done]
+
+                >>> print(manifest)
+                                                Local Path
+                -------------------------------------------------------------------------
+                ./candels_gn_30mas_189.492060_62.206150_300.0pix-x-200.0pix_astrocut.fits
+
+
+.. code-block:: python
+
+                >>> from astroquery.mast import Zcut
+                >>> from astropy.coordinates import SkyCoord
+
+                >>> cutout_coord = SkyCoord(189.49206, 62.20615, unit="deg")
+                >>> manifest = Zcut.download_cutouts(coordinates=cutout_coord, size=[200, 300], units="px", form="jpg")
+                Downloading URL https://mast.stsci.edu/zcut/api/v0.1/astrocut?ra=189.49206&dec=62.20615&y=200&x=300&units=px&format=jpg to ./zcut_20201202132453.zip ... [Done]
+
+                >>> print(manifest)
+                                                                Local Path
+                ---------------------------------------------------------------------------------------------------------
+                 ./hlsp_candels_hst_acs_gn-tot-30mas_f606w_v1.0_drz_189.492060_62.206150_300.0pix-x-200.0pix_astrocut.jpg
+                 ./hlsp_candels_hst_acs_gn-tot-30mas_f814w_v1.0_drz_189.492060_62.206150_300.0pix-x-200.0pix_astrocut.jpg
+                ./hlsp_candels_hst_acs_gn-tot-30mas_f850lp_v1.0_drz_189.492060_62.206150_300.0pix-x-200.0pix_astrocut.jpg
+
+
+Survey information
+------------------
+
+To list the available deep field surveys at a particular location there is `~astroquery.mast.ZcutClass.get_surveys`.
+
+.. code-block:: python
+
+                >>> from astroquery.mast import Zcut
+                >>> from astropy.coordinates import SkyCoord
+
+                >>> coord = SkyCoord(189.49206, 62.20615, unit="deg")
+                >>> survey_list = Zcut.get_surveys(coordinates=coord)
+                >>> print(survey_list)
+                ['candels_gn_60mas', 'candels_gn_30mas', 'goods_north']
+
+
 Accessing Proprietary Data
 ==========================
 
@@ -998,5 +1085,4 @@ Reference/API
 .. automodapi:: astroquery.mast
     :no-inheritance-diagram:
     :inherited-members:
-
 
