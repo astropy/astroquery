@@ -4,6 +4,12 @@
 Service fixes and enhancements
 ------------------------------
 
+cds.hips2fits
+^^^^^^^^^^^^^
+
+- HIPS2fits is a service providing nice fits/jpg/png image cutouts from a HiPS + a WCS. It can now be queried from python [#1734]
+
+
 esa/iso
 ^^^^^^^
 
@@ -117,11 +123,6 @@ gaia
 
 New Tools and Services
 ----------------------
-
-cds.hips2fits
-^^^^^^^^^^^^^
-
-- HIPS2fits is a service providing nice fits/jpg/png image cutouts from a HiPS + a WCS. It can now be queried from python [#1734]
 
 esa.xmm_newton
 ^^^^^^^^^^^^^^
