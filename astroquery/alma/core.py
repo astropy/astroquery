@@ -453,7 +453,7 @@ class AlmaClass(QueryWithLogin):
                 response.raise_for_status()
                 # Jan 2017: we have to force https because the archive doesn't
                 # tell us it needs https.
-                self.dataarchive_url = response.url.replace("http://", "https://")
+                self.dataarchive_url = response.url.replace("/asax/","").replace("/aq/","").replace("http://", "https://")
             else:
                 self.dataarchive_url = self.archive_url
         elif self.dataarchive_url in ('http://almascience.org',
@@ -534,7 +534,7 @@ class AlmaClass(QueryWithLogin):
                 else:
                     table = uid_json_to_table(jdata,
                                               productlist=['ASDM',
-                                                           'PIPELINE_PRODUCT'
+                                                           'PIPELINE_PRODUCT',
                                                            'PIPELINE_PRODUCT_TARFILE',
                                                            'PIPELINE_AUXILIARY_TARFILE'])
                 table['sizeInBytes'].unit = u.B
