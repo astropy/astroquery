@@ -27,3 +27,15 @@ def _get_bibtex():
 
 
 __citation__ = __bibtex__ = _get_bibtex()
+
+
+try:
+    from .version import version as __version__
+except ImportError:
+    # TODO: Issue a warning using the logging framework
+    __version__ = ''
+try:
+    from .version import githash as __githash__
+except ImportError:
+    # TODO: Issue a warning using the logging framework
+    __githash__ = ''

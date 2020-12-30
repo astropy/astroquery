@@ -40,13 +40,9 @@ except ImportError:
 
 # Load all of the global Astropy configuration
 from astropy_helpers.sphinx.conf import *
-from six.moves import urllib
+import urllib
 
-# Get configuration information from setup.cfg
-try:
-    from ConfigParser import ConfigParser
-except ImportError:
-    from configparser import ConfigParser
+from configparser import ConfigParser
 conf = ConfigParser()
 
 conf.read([os.path.join(os.path.dirname(__file__), '..', 'setup.cfg')])
@@ -85,7 +81,7 @@ intersphinx_mapping.update({
 # -- Project information ------------------------------------------------------
 
 # This does not *have* to match the package name, but typically does
-project = setup_cfg['package_name']
+project = setup_cfg['name']
 author = setup_cfg['author']
 copyright = '{0}, {1}'.format(
     datetime.datetime.now().year, setup_cfg['author'])
@@ -94,8 +90,8 @@ copyright = '{0}, {1}'.format(
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 
-__import__(setup_cfg['package_name'])
-package = sys.modules[setup_cfg['package_name']]
+__import__(project)
+package = sys.modules[project]
 
 # The short X.Y version.
 version = package.__version__.split('-', 1)[0]
