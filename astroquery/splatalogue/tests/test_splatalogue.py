@@ -5,7 +5,6 @@ import pytest
 import requests
 
 from astropy import units as u
-from astropy.tests.helper import remote_data
 
 from ... import splatalogue
 from ...utils.testing_tools import MockResponse
@@ -42,7 +41,7 @@ def test_simple(patch_post):
                                         chemical_name=' CO ')
 
 
-@remote_data
+@pytest.mark.remote_data
 def test_init(patch_post):
     x = splatalogue.Splatalogue.query_lines(114 * u.GHz, 116 * u.GHz,
                                             chemical_name=' CO ')
@@ -60,12 +59,6 @@ def test_load_species_table():
     tbl = splatalogue.load_species_table.species_lookuptable()
     CO = tbl.find(' CO ')
     assert len(CO) == 4
-
-
-# regression test: ConfigItems were in wrong order at one point
-def test_url():
-    assert 'https://' in splatalogue.core.Splatalogue.QUERY_URL
-    assert 'cv.nrao.edu' in splatalogue.core.Splatalogue.QUERY_URL
 
 
 # regression test: get_query_payload should work (#308)
@@ -118,7 +111,7 @@ def test_band_crashorno():
 # # regression test : version selection should work
 # # Unfortunately, it looks like version1 = version2 on the web page now, so this
 # # may no longer be a valid test
-# @remote_data
+# @pytest.mark.remote_data
 # def test_version_selection():
 #     results = splatalogue.Splatalogue.query_lines(
 # 			    min_frequency= 703*u.GHz,
@@ -154,7 +147,7 @@ def test_exclude(patch_post):
         assert k[:3] != 'no_'
 
 
-@remote_data
+@pytest.mark.remote_data
 def test_exclude_remote():
     # regression test for issue 616
     # only entry should be  "D213CO  Formaldehyde 351.96064  3.9e-06   ...."

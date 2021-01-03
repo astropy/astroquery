@@ -3,7 +3,7 @@
 MAST Query Tool
 ===============
 
-This module contains various methods for querying the MAST Portal.
+Module to query the Barbara A. Mikulski Archive for Space Telescopes (MAST).
 """
 
 from astropy import config as _config
@@ -30,13 +30,15 @@ class Conf(_config.ConfigNamespace):
 
 conf = Conf()
 
-
-from .core import Observations, ObservationsClass, Catalogs, CatalogsClass, Mast, MastClass
-from .tesscut import TesscutClass, Tesscut
+from .cutouts import TesscutClass, Tesscut, ZcutClass, Zcut
+from .observations import Observations, ObservationsClass, MastClass, Mast
+from .collections import Catalogs, CatalogsClass
+from .core import MastQueryWithLogin
+from . import utils
 
 __all__ = ['Observations', 'ObservationsClass',
            'Catalogs', 'CatalogsClass',
            'Mast', 'MastClass',
            'Tesscut', 'TesscutClass',
-           'Conf', 'conf',
+           'Conf', 'conf', 'utils',
            ]

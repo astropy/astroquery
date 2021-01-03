@@ -1,12 +1,10 @@
-# We set the language to minimal because the language ends up being
-# irrelevant anyway, since we install Python ourselves using conda.
-language: minimal
+# We set the language to c because the language ends up being
+# irrelevant anyway and windows has a very limited support.
+# Anyhow, we install Python ourselves using conda.
+language: c
 
 os:
     - linux
-
-# Setting sudo to false opts in to Travis-CI container-based builds.
-sudo: false
 
 # The apt packages below are needed for sphinx builds, which can no longer
 # be installed with sudo apt-get.
@@ -15,14 +13,13 @@ addons:
         packages:
             - graphviz
 
-stage: Initial tests
-
 stages:
    - name: Initial tests
    - name: Test docs, astropy dev, and without optional dependencies
    - name: Cron tests
      if: type = cron
    - name: Tests with other Python/Numpy versions
+   - name: Windows test
    - name: Deploy
      if: ((branch = master) AND type != pull_request AND type != cron)
    - name: Remote data tests
@@ -37,22 +34,20 @@ env:
         - MAIN_CMD='python setup.py'
         - NUMPY_VERSION=stable
         - ASTROPY_VERSION=stable
-        - CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring aplpy matplotlib pyregion jinja2 flask regions'
-        # pandas is used as a workaround of an astropy issue, sometimes it's required for the remote tests
-        - CONDA_DEPENDENCIES_REMOTE='requests beautifulsoup4 html5lib keyring aplpy matplotlib pyregion jinja2 flask pandas regions'
-        - PIP_DEPENDENCIES='https://github.com/keflavich/httpbin/archive/master.zip astropy_healpix mocpy>=0.5.2 pytest-dependency pytest-astropy'
+        - CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring matplotlib jinja2 flask pyvo'
+        - CONDA_DEPENDENCIES_REMOTE='requests beautifulsoup4 html5lib keyring matplotlib jinja2 flask pyvo'
+        - PIP_DEPENDENCIES='https://github.com/keflavich/httpbin/archive/master.zip aplpy pyregion regions astropy_healpix mocpy>=0.5.2 pytest-dependency pytest-astropy pyvo'
         - HTTP_BIN_CMD="import httpbin; httpbin.app.run()"
         - RUN_HTTPBIN='python -c "$HTTP_BIN_CMD" & ACTIVE_HTTPBIN=True'
         - SETUP_CMD='test'
         - CONDA_CHANNELS='astropy'
         - EVENT_TYPE='pull_request push'
         - DEBUG=True
+        # astrometry.net API key
+        - secure: "al9u/QSQfrwNljdu8gYUaT9z4BxEL1FlE4ntsn6eqtN2Y0rurqll+gq46quYjtE6zgcpb0uYtGIubusJkp7ceE6IBGhQdsel4UY16VIqeEuQ3GpVDb4RiJgU51SAjbmXYV1dMAJnOm4Ra41WzxokStKRDdoRraAsae9zK3H6AnI="
 
-    matrix:
-        - PYTHON_VERSION=2.7 SETUP_CMD='egg_info'
-        - PYTHON_VERSION=3.7 SETUP_CMD='egg_info'
 
-matrix:
+jobs:
 
     # Don't wait for allowed failures
     fast_finish: true
@@ -63,31 +58,32 @@ matrix:
         # both short and long versions for remote-data to help test the
         # astropy test command.
         - os: linux
+          name: Remote data test with astropy dev, Python 3.7
           stage: Remote data tests
           env: EVENT_TYPE='push cron' DEBUG=True ASTROPY_VERSION=dev
                SETUP_CMD='test -R -V -a "--durations=50"'
                CONDA_DEPENDENCIES=$CONDA_DEPENDENCIES_REMOTE
-        - os: linux
-          stage: Remote data tests
-          env: EVENT_TYPE='push cron' PYTHON_VERSION=2.7
-               SETUP_CMD='test --remote-data -V -a "--durations=50"'
-               CONDA_DEPENDENCIES=$CONDA_DEPENDENCIES_REMOTE
-               KEYRING_VERSION='<12.0' PYTEST_VERSION='<3.7'
 
-        # No need to run it from cron
-        # Try MacOS X
+        - stage: Initial tests
+          name: egg info
+          env: PYTHON_VERSION=3.7 SETUP_CMD='egg_info'
+
         - os: osx
+          name: OSX from cron
           stage: Cron tests
           env: EVENT_TYPE='cron'
 
         - os: linux
+          stage: Initial tests
+          name: Python 3.7 and all dependencies
           env: SETUP_CMD='test --coverage'
 
         # Check for sphinx doc build warnings - we do this first because it
         # may run for a long time
         - os: linux
+          name: Docs build
           stage: Test docs, astropy dev, and without optional dependencies
-          env: SETUP_CMD='build_docs -w'
+          env: SETUP_CMD='build_docs -w' PIP_DEPENDENCIES="$PIP_DEPENDENCIES sphinx-astropy"
 
         # Try all python versions and Numpy versions. Since we can assume
         # that the Numpy developers have taken care of testing Numpy with
@@ -96,40 +92,44 @@ matrix:
         # master for cron jobs.  secretstorage is a keyring dependency, we
         # need to pin the version number to make this job work.
         # Test the oldest astropy version without optional dependencies.
+        # Reproject is listed as dependency to avoid upgrading astropy
         - os: linux
+          name: Oldest dependencies
           stage: Tests with other Python/Numpy versions
-          env: PYTHON_VERSION=3.5 NUMPY_VERSION=1.12  KEYRING_VERSION='<12.0'
-               CONDA_DEPENDENCIES="keyring requests beautifulsoup4 html5lib secretstorage"
-               SECRETSTORAGE_VERSION='<3.0.1'
-               ASTROPY_VERSION=2 PYTEST_VERSION='<3.7'
+          env: PYTHON_VERSION=3.6 NUMPY_VERSION=1.14 KEYRING_VERSION='<12.0'
+               ASTROPY_VERSION=3.1 DEBUG=True
+               PIP_DEPENDENCIES="`echo $PIP_DEPENDENCIES reproject==0.5 | sed 's/aplpy/aplpy<2.0/'`"
         - os: linux
+          name: Python 3.6, np 1.15, astropy 3.2
           stage: Tests with other Python/Numpy versions
-          env: PYTHON_VERSION=3.5.5 NUMPY_VERSION=1.12 KEYRING_VERSION='<12.0'
-               ASTROPY_VERSION=3.0 APLPY_VERSION='<2.0'
+          env: PYTHON_VERSION=3.6 NUMPY_VERSION=1.15 ASTROPY_VERSION=3.2
 
         - os: linux
-          stage: Tests with other Python/Numpy versions
-          env: PYTHON_VERSION=3.6 NUMPY_VERSION=1.12
-
-        - os: linux
+          name: Python 3.7, astropy dev
           stage: Test docs, astropy dev, and without optional dependencies
           env: ASTROPY_VERSION=development EVENT_TYPE='pull_request'
 
         # Try with optional dependencies disabled
         - os: linux
+          name: Python 3.8, mandatory dependencies only
           stage: Test docs, astropy dev, and without optional dependencies
-          env: PYTHON_VERSION=2.7  KEYRING_VERSION='<12.0' PYTEST_VERSION='<3.7'
-               CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring'
-               ASTROPY_VERSION=lts NUMPY_VERSION=1.13
-        - os: linux
-          stage: Test docs, astropy dev, and without optional dependencies
-          env: CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring'
-               NUMPY_VERSION=1.14
+          env: PYTHON_VERSION=3.8
+               CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring pyvo'
+               PIP_DEPENDENCIES='https://github.com/keflavich/httpbin/archive/master.zip pytest-astropy'
+               NUMPY_VERSION=1.16
 
         # Do a PEP8 test with pycodestyle
         - os: linux
+          name: Code style
+          stage: Initial tests
           env: MAIN_CMD='pycodestyle astroquery --count'
                SETUP_CMD='' EVENT_TYPE='push pull_request'
+
+        # Do the windows test at the end as installing takes a long time
+        - os: windows
+          name: Windows test
+          stage: Windows test
+          env: PYTHON_VERSION=3.7 SETUP_CMD='test'
 
         - stage: Deploy
           git:
@@ -137,7 +137,7 @@ matrix:
           env: SETUP_CMD='sdist' EVENT_TYPE='push'
           deploy:
             provider: pypi
-            user: astroquery
+            username: astroquery
             password:
               secure: DtqyQkllGcWuKOVMsu9RWRiobeL8bdpMxwdSYpob4Cqj0D2hLLx3w50qr0qpDCFzioB3rXnhbtPKEzHB+4fTFT/Rjito32fFPUtee2Rw4SCe4YIlS0ksPOTmxkeoh2TQLIYcNPPoI7UpUX6uC65nzgCUTmZVoiCweQE+i5GhEBI=
             on:
@@ -147,20 +147,18 @@ matrix:
     allow_failures:
         # Allow remote-data tests to fail.
         - os: linux
+          name: Remote data test with astropy dev, Python 3.7
           stage: Remote data tests
           env: EVENT_TYPE='push cron' DEBUG=True ASTROPY_VERSION=dev
                SETUP_CMD='test -R -V -a "--durations=50"'
                CONDA_DEPENDENCIES=$CONDA_DEPENDENCIES_REMOTE
-        - os: linux
-          stage: Remote data tests
-          env: EVENT_TYPE='push cron' PYTHON_VERSION=2.7
-               SETUP_CMD='test --remote-data -V -a "--durations=50"'
-               CONDA_DEPENDENCIES=$CONDA_DEPENDENCIES_REMOTE
-               KEYRING_VERSION='<12.0' PYTEST_VERSION='<3.7'
 
 install:
     - git clone git://github.com/astropy/ci-helpers.git
     - source ci-helpers/travis/setup_conda.sh
+
+    # https://github.com/travis-ci/travis-ci/issues/8982#issuecomment-354357640
+    - if [ $TRAVIS_OS_NAME != windows ]; then python -c "import fcntl; fcntl.fcntl(1, fcntl.F_SETFL, 0)"; fi
 
 script:
    - $RUN_HTTPBIN

@@ -1,0 +1,209 @@
+\                                                                               
+\fixlen = T
+\RowsRetrieved =                 1
+\For detailed descriptions of the columns, go to http://exoplanetarchive.ipac.caltech.edu/docs/documentation.html and choose the appropriate table guide.
+\ 
+\ kepid 
+\ ___ KIC Identification Number
+\ tm_designation 
+\ ___ 2MASS Designation
+\ teff (K) 
+\ ___ Stellar Effective Temperature Value [K]
+\ teff_err1 (K) 
+\ ___ Stellar Effective Temperature Upper Uncertainty [K]
+\ teff_err2 (K) 
+\ ___ Stellar Effective Temperature Lower Uncertainty [K]
+\ logg (cm/s**2) 
+\ ___ Stellar Surface Gravity Value [log10(cm/s**2)]
+\ logg_err1 (cm/s**2) 
+\ ___ Stellar Surface Gravity Upper Uncertainty [log10(cm/s**2)]
+\ logg_err2 (cm/s**2) 
+\ ___ Stellar Surface Gravity Lower Uncertainty [log10(cm/s**2)]
+\ feh (dex) 
+\ ___ Stellar Metallicity Value [dex]
+\ feh_err1 (dex) 
+\ ___ Stellar Metallicity Upper Uncertainty [dex]
+\ feh_err2 (dex) 
+\ ___ Stellar Metallicity Lower Uncertainty [dex]
+\ mass (solar) 
+\ ___ Stellar Mass Value [Solar mass]
+\ mass_err1 (solar) 
+\ ___ Stellar Mass Upper Uncertainty [Solar mass]
+\ mass_err2 (solar) 
+\ ___ Stellar Mass Lower Uncertainty [Solar mass]
+\ radius (solar) 
+\ ___ Stellar Radius Value [Solar radii]
+\ radius_err1 (solar) 
+\ ___ Stellar Radius Upper Uncertainty [Solar radii]
+\ radius_err2 (solar) 
+\ ___ Stellar Radius Lower Uncertainty [Solar radii]
+\ dens (g/cm**3) 
+\ ___ Stellar Density Value [g/cm**3]
+\ dens_err1 (g/cm**3) 
+\ ___ Stellar Density Upper Uncertainty [g/cm**3]
+\ dens_err2 (g/cm**3) 
+\ ___ Stellar Density Lower Uncertainty [g/cm**3]
+\ prov_sec 
+\ ___ Provenance of Secondary (model dependent) Parameters
+\ kepmag (mag) 
+\ ___ Kepler-band Magnitude Value [mag]
+\ limbdark_coeff1 
+\ ___ Limb Darkening Coefficient 1
+\ limbdark_coeff2 
+\ ___ Limb Darkening Coefficient 2
+\ limbdark_coeff3 
+\ ___ Limb Darkening Coefficient 3
+\ limbdark_coeff4 
+\ ___ Limb Darkening Coefficient 4
+\ dist (pc) 
+\ ___ Distance Value [pc]
+\ dist_err1 (pc) 
+\ ___ Distance Upper Uncertainty [pc]
+\ dist_err2 (pc) 
+\ ___ Distance Lower Uncertainty [pc]
+\ nconfp 
+\ ___ Number of Associated Confirmed Planets
+\ nkoi 
+\ ___ Number of Associated KOIs
+\ ntce 
+\ ___ Number of Associated TCEs
+\ datalink_dvr 
+\ ___ Link to DVR file
+\ st_delivname 
+\ ___ Name of Delivery
+\ st_vet_date_str 
+\ ___ Vetting Status Date String for Display
+\ ra (degrees) 
+\ ___ RA Value [decimal degrees]
+\ dec (degrees) 
+\ ___ Dec Value [decimal degrees]
+\ st_quarters 
+\ ___ Bits of Observed Quarters
+\ teff_prov 
+\ ___ Stellar Effective Temperature Provenance
+\ logg_prov 
+\ ___ Stellar Surface Gracity Provenance
+\ feh_prov 
+\ ___ Stellar Metallicity Provenance
+\ jmag (mag) 
+\ ___ Stellar J (2MASS) Magnitude Value
+\ jmag_err (mag) 
+\ ___ Stellar J (2MASS) Magnitude Uncertainty
+\ hmag (mag) 
+\ ___ Stellar H (2MASS) Magnitude Value
+\ hmag_err (mag) 
+\ ___ Stellar H (2MASS) Magnitude Uncertainty
+\ kmag (mag) 
+\ ___ Stellar K (2MASS) Magnitude Value
+\ kmag_err (mag) 
+\ ___ Stellar K (2MASS) Magnitude Uncertainty
+\ dutycycle 
+\ ___ Duty Cycle
+\ dataspan (days) 
+\ ___ Data Span
+\ mesthres01p5 
+\ ___ MES Threshold for a Searched Transit of 1.5 hrs of Duration
+\ mesthres02p0 
+\ ___ MES Threshold for a Searched Transit of 2.0 hrs of Duration
+\ mesthres02p5 
+\ ___ MES Threshold for a Searched Transit of 2.5 hrs of Duration
+\ mesthres03p0 
+\ ___ MES Threshold for a Searched Transit of 3.0 hrs of Duration
+\ mesthres03p5 
+\ ___ MES Threshold for a Searched Transit of 3.5 hrs of Duration
+\ mesthres04p5 
+\ ___ MES Threshold for a Searched Transit of 4.5 hrs of Duration
+\ mesthres05p0 
+\ ___ MES Threshold for a Searched Transit of 5.0 hrs of Duration
+\ mesthres06p0 
+\ ___ MES Threshold for a Searched Transit of 6.0 hrs of Duration
+\ mesthres07p5 
+\ ___ MES Threshold for a Searched Transit of 7.5 hrs of Duration
+\ mesthres09p0 
+\ ___ MES Threshold for a Searched Transit of 9.0 hrs of Duration
+\ mesthres10p5 
+\ ___ MES Threshold for a Searched Transit of 10.5 hrs of Duration
+\ mesthres12p0 
+\ ___ MES Threshold for a Searched Transit of 12.0 hrs of Duration
+\ mesthres12p5 
+\ ___ MES Threshold for a Searched Transit of 12.5 hrs of Duration
+\ mesthres15p0 
+\ ___ MES Threshold for a Searched Transit of 15.0 hrs of Duration
+\ rrmscdpp01p5 (ppm) 
+\ ___ Robust RMS CDPP for a Searched Transit of 1.5 hrs of Duration
+\ rrmscdpp02p0 (ppm) 
+\ ___ Robust RMS CDPP for a Searched Transit of 2.0 hrs of Duration
+\ rrmscdpp02p5 (ppm) 
+\ ___ Robust RMS CDPP for a Searched Transit of 2.5 hrs of Duration
+\ rrmscdpp03p0 (ppm) 
+\ ___ Robust RMS CDPP for a Searched Transit of 3.0 hrs of Duration
+\ rrmscdpp03p5 (ppm) 
+\ ___ Robust RMS CDPP for a Searched Transit of 3.5 hrs of Duration
+\ rrmscdpp04p5 (ppm) 
+\ ___ Robust RMS CDPP for a Searched Transit of 4.5 hrs of Duration
+\ rrmscdpp05p0 (ppm) 
+\ ___ Robust RMS CDPP for a Searched Transit of 5.0 hrs of Duration
+\ rrmscdpp06p0 (ppm) 
+\ ___ Robust RMS CDPP for a Searched Transit of 6.0 hrs of Duration
+\ rrmscdpp07p5 (ppm) 
+\ ___ Robust RMS CDPP for a Searched Transit of 7.5 hrs of Duration
+\ rrmscdpp09p0 (ppm) 
+\ ___ Robust RMS CDPP for a Searched Transit of 9.0 hrs of Duration
+\ rrmscdpp10p5 (ppm) 
+\ ___ Robust RMS CDPP for a Searched Transit of 10.5 hrs of Duration
+\ rrmscdpp12p0 (ppm) 
+\ ___ Robust RMS CDPP for a Searched Transit of 12.0 hrs of Duration
+\ rrmscdpp12p5 (ppm) 
+\ ___ Robust RMS CDPP for a Searched Transit of 12.5 hrs of Duration
+\ rrmscdpp15p0 (ppm) 
+\ ___ Robust RMS CDPP for a Searched Transit of 15.0 hrs of Duration
+\ av (mag) 
+\ ___ Av Extinction Value [mags]
+\ av_err1 (mag) 
+\ ___ Av Extinction Upper Uncertainty [mags]
+\ av_err2 (mag) 
+\ ___ Av Extinction Lower Uncertainty [mags]
+\ dutycycle_post 
+\ ___ Duty Cycle Post Planet Removal
+\ dataspan_post (days) 
+\ ___ Data Span Post Planet Removal
+\ timeout01p5 
+\ ___ Timeout Indicator for a Searched Transit of 1.5 hrs of Duration
+\ timeout02p0 
+\ ___ Timeout Indicator for a Searched Transit of 2.0 hrs of Duration
+\ timeout02p5 
+\ ___ Timeout Indicator for a Searched Transit of 2.5 hrs of Duration
+\ timeout03p0 
+\ ___ Timeout Indicator for a Searched Transit of 3.0 hrs of Duration
+\ timeout03p5 
+\ ___ Timeout Indicator for a Searched Transit of 3.5 hrs of Duration
+\ timeout04p5 
+\ ___ Timeout Indicator for a Searched Transit of 4.5 hrs of Duration
+\ timeout05p0 
+\ ___ Timeout Indicator for a Searched Transit of 5.0 hrs of Duration
+\ timeout06p0 
+\ ___ Timeout Indicator for a Searched Transit of 6.0 hrs of Duration
+\ timeout07p5 
+\ ___ Timeout Indicator for a Searched Transit of 7.5 hrs of Duration
+\ timeout09p0 
+\ ___ Timeout Indicator for a Searched Transit of 9.0 hrs of Duration
+\ timeout10p5 
+\ ___ Timeout Indicator for a Searched Transit of 10.5 hrs of Duration
+\ timeout12p0 
+\ ___ Timeout Indicator for a Searched Transit of 12.0 hrs of Duration
+\ timeout12p5 
+\ ___ Timeout Indicator for a Searched Transit of 12.5 hrs of Duration
+\ timeout15p0 
+\ ___ Timeout Indicator for a Searched Transit of 15.0 hrs of Duration
+\ timeoutsumry 
+\ ___ Timeout Indicator Summary
+\ cdppslplong 
+\ ___ RMS CDPP Slope for Long Transit Durations
+\ cdppslpshrt 
+\ ___ RMS CDPP Slope for Short Transit Durations
+\ 
+|     kepid|            tm_designation|  teff| teff_err1| teff_err2|    logg| logg_err1| logg_err2|    feh| feh_err1| feh_err2|     mass| mass_err1| mass_err2|  radius| radius_err1| radius_err2|       dens|  dens_err1|  dens_err2|             prov_sec| kepmag| limbdark_coeff1| limbdark_coeff2| limbdark_coeff3| limbdark_coeff4|      dist| dist_err1| dist_err2| nconfp| nkoi| ntce|                                                           datalink_dvr|              st_delivname| st_vet_date_str|         ra|        dec|          st_quarters|            teff_prov|            logg_prov|             feh_prov|     jmag| jmag_err|     hmag| hmag_err|     kmag| kmag_err| dutycycle|   dataspan|     mesthres01p5|     mesthres02p0|     mesthres02p5|     mesthres03p0|     mesthres03p5|     mesthres04p5|     mesthres05p0|     mesthres06p0|     mesthres07p5|     mesthres09p0|     mesthres10p5|     mesthres12p0|     mesthres12p5|     mesthres15p0|     rrmscdpp01p5|     rrmscdpp02p0|     rrmscdpp02p5|     rrmscdpp03p0|     rrmscdpp03p5|     rrmscdpp04p5|     rrmscdpp05p0|     rrmscdpp06p0|     rrmscdpp07p5|     rrmscdpp09p0|     rrmscdpp10p5|     rrmscdpp12p0|     rrmscdpp12p5|     rrmscdpp15p0|     av| av_err1| av_err2| dutycycle_post| dataspan_post| timeout01p5| timeout02p0| timeout02p5| timeout03p0| timeout03p5| timeout04p5| timeout05p0| timeout06p0| timeout07p5| timeout09p0| timeout10p5| timeout12p0| timeout12p5| timeout15p0| timeoutsumry| cdppslplong| cdppslpshrt|
+|      long|                      char|  long|      long|      long|  double|    double|    double| double|   double|   double|   double|    double|    double|  double|      double|      double|     double|     double|     double|                 char| double|          double|          double|          double|          double|    double|    double|    double|    int|  int|  int|                                                                   char|                      char|            char|     double|     double|                 char|                 char|                 char|                 char|   double|   double|   double|   double|   double|   double|    double|     double|           double|           double|           double|           double|           double|           double|           double|           double|           double|           double|           double|           double|           double|           double|           double|           double|           double|           double|           double|           double|           double|           double|           double|           double|           double|           double|           double|           double| double|  double|  double|         double|        double|         int|         int|         int|         int|         int|         int|         int|         int|         int|         int|         int|         int|         int|         int|          int|      double|      double|
+|          |                          |     K|         K|         K| cm/s**2|   cm/s**2|   cm/s**2|    dex|      dex|      dex|    solar|     solar|     solar|   solar|       solar|       solar|    g/cm**3|    g/cm**3|    g/cm**3|                     |    mag|                |                |                |                |        pc|        pc|        pc|       |     |     |                                                                       |                          |                |    degrees|    degrees|                     |                     |                     |                     |      mag|      mag|      mag|      mag|      mag|      mag|          |       days|                 |                 |                 |                 |                 |                 |                 |                 |                 |                 |                 |                 |                 |                 |              ppm|              ppm|              ppm|              ppm|              ppm|              ppm|              ppm|              ppm|              ppm|              ppm|              ppm|              ppm|              ppm|              ppm|    mag|     mag|     mag|               |          days|            |            |            |            |            |            |            |            |            |            |            |            |            |            |             |            |            |
+|      null|                      null|  null|      null|      null|    null|      null|      null|   null|     null|     null|     null|      null|      null|    null|        null|        null|       null|       null|       null|                 null|   null|            null|            null|            null|            null|      null|      null|      null|   null| null| null|                                                                   null|                      null|            null|       null|       null|                 null|                 null|                 null|                 null|     null|     null|     null|     null|     null|     null|      null|       null|             null|             null|             null|             null|             null|             null|             null|             null|             null|             null|             null|             null|             null|             null|             null|             null|             null|             null|             null|             null|             null|             null|             null|             null|             null|             null|             null|             null|   null|    null|    null|           null|          null|        null|        null|        null|        null|        null|        null|        null|        null|        null|        null|        null|        null|        null|        null|         null|        null|        null|
+   10601284    2MASS J19293027+4752515   5185         85        -77    4.440      0.098     -0.045   0.160     0.150    -0.150    0.8310     0.0580    -0.0320    0.910        0.057       -0.086       1.553      0.6131     -0.2554                  DSEP  15.416           0.6559          -0.5301           1.2075          -0.5245     949.93      74.84      99.79       3     3     3            010/010601/010601284/dv/kplr010601284-20160209194854_dvr.pdf        q1_q17_dr25_stellar       2017-03-23  292.376130   47.880989     11111111111111111                 SPE90                 SPE90                 SPE90    14.114     0.029    13.724     0.035    13.633     0.052     0.8736   1458.9310             7.100             7.100             7.100             7.100             7.100             7.100             7.100             7.100             7.100             7.100             7.100             7.100             7.100             7.100           276.679           242.816           226.216           208.510           197.023           177.676           169.442           158.142           145.082           136.836           130.628           125.959           124.198           118.141   0.378    0.006   -0.011          0.6869      1458.9310            0            0            0            0            0            0            0            0            0            0            0            0            0            0             1     -0.29580     -0.67666 

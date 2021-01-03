@@ -74,11 +74,12 @@ rst_epilog += """
 del intersphinx_mapping['scipy']
 del intersphinx_mapping['h5py']
 intersphinx_mapping.update({
-    'astropy': ('http://docs.astropy.org/en/latest/', None),
-    'requests': ('http://docs.python-requests.org/en/latest/', None),
-    'pyregion': ('http://pyregion.readthedocs.io/en/latest/', None),
-    'regions': ('http://astropy-regions.readthedocs.io/en/latest/', None),
-    'mocpy': ('https://mocpy.readthedocs.io/en/latest/', None),
+    'astropy': ('http://docs.astropy.org/en/stable/', None),
+    'requests': ('https://requests.kennethreitz.org/en/stable/', None),
+    'pyregion': ('http://pyregion.readthedocs.io/en/stable/', None),
+    'regions': ('http://astropy-regions.readthedocs.io/en/stable/', None),
+    'mocpy': ('https://cds-astro.github.io/mocpy/', None),
+    'pyvo': ('https://pyvo.readthedocs.io/en/stable/', None),
 })
 
 # -- Project information ------------------------------------------------------
@@ -202,4 +203,4 @@ if eval(setup_cfg.get('edit_on_github')):
     edit_on_github_doc_root = "docs"
 
 nitpicky = True
-nitpick_ignore = []
+nitpick_ignore = [('py:class', 'astroquery.mast.core.MastQueryWithLogin')]

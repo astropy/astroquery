@@ -1,11 +1,11 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from astropy.tests.helper import remote_data
+import pytest
 import requests
 
 from .. import version
 
 
-@remote_data
+@pytest.mark.remote_data
 def test_net_connection():
     R = requests.post('http://httpbin.org/post',
                       headers={'User-Agent':

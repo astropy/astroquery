@@ -24,10 +24,22 @@ _build
 docs/api
 docs/_build
 
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
 # Eclipse editor project files
 .project
 .pydevproject
 .settings
+
+# VScode editor project files
+.vscode/*
 
 # Pycharm editor project files
 .idea

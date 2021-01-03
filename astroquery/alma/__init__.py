@@ -5,6 +5,17 @@ ALMA Archive service.
 from astropy import config as _config
 
 
+# list the URLs here separately so they can be used in tests.
+_url_list = ['http://almascience.org',
+             'https://almascience.eso.org',
+             'https://almascience.nrao.edu',
+             'https://almascience.nao.ac.jp']
+
+_test_url_list = ['https://almascience-dev.nrao.edu']
+
+auth_urls = ['asa.alma.cl', 'rh-cas.alma.cl']
+
+
 class Conf(_config.ConfigNamespace):
     """
     Configuration parameters for `astroquery.alma`.
@@ -13,12 +24,18 @@ class Conf(_config.ConfigNamespace):
     timeout = _config.ConfigItem(60, "Timeout in seconds.")
 
     archive_url = _config.ConfigItem(
-        ['http://almascience.org',
-         'https://almascience.eso.org',
-         'https://almascience.nrao.edu',
-         'https://almascience.nao.ac.jp',
-         'https://beta.cadc-ccda.hia-iha.nrc-cnrc.gc.ca'],
+        _url_list,
         'The ALMA Archive mirror to use.')
+
+    test_archive_url = _config.ConfigItem(
+        _test_url_list,
+        'ALMA Archive Test Mirrors (temporary)'
+    )
+
+    auth_url = _config.ConfigItem(
+        auth_urls,
+        'ALMA Central Authentication Service URLs'
+    )
 
     username = _config.ConfigItem(
         "",
@@ -27,9 +44,8 @@ class Conf(_config.ConfigNamespace):
 
 conf = Conf()
 
-from .core import Alma, AlmaClass
-from .utils import make_finder_chart
+from .core import Alma, AlmaClass, ALMA_BANDS
 
 __all__ = ['Alma', 'AlmaClass',
-           'Conf', 'conf',
+           'Conf', 'conf', 'ALMA_BANDS'
            ]

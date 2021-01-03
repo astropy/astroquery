@@ -283,7 +283,7 @@ class AtomicLineListClass(BaseQuery):
                 input.append('\t'.join(row))
         if input:
             return ascii.read(input, data_start=0, delimiter='\t',
-                              names=colnames)
+                              names=colnames, fast_reader=False)
         else:
             # return an empty table if the query yielded no results
             return Table()

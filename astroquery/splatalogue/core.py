@@ -81,7 +81,7 @@ class SplatalogueClass(BaseQuery):
         """
         self.data.update(self._parse_kwargs(**kwargs))
 
-    def get_species_ids(self, restr=None, reflags=0):
+    def get_species_ids(self, restr=None, reflags=0, recache=False):
         """
         Get a dictionary of "species" IDs, where species refers to the molecule
         name, mass, and chemical composition.
@@ -93,6 +93,8 @@ class SplatalogueClass(BaseQuery):
             species whose names match
         reflags : int
             Flags to pass to `re`.
+        recache : bool
+            Flag whether to refresh the local cache of species IDs
 
         Examples
         --------
@@ -137,7 +139,7 @@ class SplatalogueClass(BaseQuery):
         # loading can be an expensive operation and should not change at
         # runtime: do it lazily
         if not hasattr(self, '_species_ids'):
-            self._species_ids = load_species_table.species_lookuptable()
+            self._species_ids = load_species_table.species_lookuptable(recache=recache)
 
         if restr is not None:
             return self._species_ids.find(restr, reflags)
@@ -168,7 +170,9 @@ class SplatalogueClass(BaseQuery):
                       chem_re_flags=0, energy_min=None, energy_max=None,
                       energy_type=None, intensity_lower_limit=None,
                       intensity_type=None, transition=None, version=None,
-                      exclude=None, only_NRAO_recommended=None,
+                      exclude=None,
+                      only_astronomically_observed=None,
+                      only_NRAO_recommended=None,
                       line_lists=None, line_strengths=None, energy_levels=None,
                       export=None, export_limit=None, noHFS=None,
                       displayHFS=None, show_unres_qn=None,
@@ -239,6 +243,8 @@ class SplatalogueClass(BaseQuery):
             Can also exclude ``'known'``.
             To exclude nothing, use 'none', not the python object None, since
             the latter is meant to indicate 'leave as default'
+        only_astronomically_observed : bool
+            Show only astronomically observed species?
         only_NRAO_recommended : bool
             Show only NRAO recommended species?
         line_lists : list
@@ -356,6 +362,8 @@ class SplatalogueClass(BaseQuery):
             for e in exclude:
                 payload['no_' + e] = 'no_' + e
 
+        if only_astronomically_observed:
+            payload['include_only_observed'] = 'include_only_observed'
         if only_NRAO_recommended:
             payload['include_only_nrao'] = 'include_only_nrao'
 
@@ -470,15 +478,8 @@ class SplatalogueClass(BaseQuery):
             splatalogue to make them more terminal-friendly
         """
 
-        try:
-            result = ascii.read(response.text.split('\n'),
-                                delimiter=':',
-                                format='basic')
-        except TypeError:
-            # deprecated
-            result = ascii.read(response.text.split('\n'),
-                                delimiter=':',
-                                Reader=ascii.Basic)
+        result = ascii.read(response.text.split('\n'), delimiter=':',
+                            format='basic', fast_reader=False)
 
         return result
 

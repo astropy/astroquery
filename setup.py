@@ -51,7 +51,7 @@ LONG_DESCRIPTION = package.__doc__
 builtins._ASTROPY_PACKAGE_NAME_ = PACKAGENAME
 
 # VERSION should be PEP386 compatible (http://www.python.org/dev/peps/pep-0386)
-VERSION = '0.3.10.dev'
+VERSION = '0.4.2.dev'
 
 # Indicates if this version is a release version
 RELEASE = 'dev' not in VERSION
@@ -114,19 +114,19 @@ for root, dirs, files in os.walk(PACKAGENAME):
                     os.path.relpath(root, PACKAGENAME), filename))
 package_info['package_data'][PACKAGENAME].extend(c_files)
 
-required_packages = ['astropy>=2.0', 'requests>=2.4.3', 'keyring>=4.0',
-                     'beautifulsoup4>=4.3.2', 'html5lib>=0.999', 'six']
+required_packages = ['numpy', 'astropy>=3.1', 'requests>=2.4.3', 'keyring>=4.0',
+                     'beautifulsoup4>=4.3.2', 'html5lib>=0.999', 'six', 'pyvo>=1.1']
 
 extras_require = {
-    'test': ['pytest-astropy']
+    'test': ['pytest-astropy', 'photutils', 'scipy']
 }
 
 setup(name=PACKAGENAME,
       version=VERSION,
       description=DESCRIPTION,
       scripts=scripts,
-      requires=['astropy', 'requests', 'keyring', 'beautifulsoup4',
-                'html5lib', 'six'],
+      requires=['numpy', 'astropy', 'requests', 'keyring', 'beautifulsoup4',
+                'html5lib', 'six', 'pyvo'],
       install_requires=required_packages,
       include_package_data=True,
       provides=[PACKAGENAME],
@@ -136,6 +136,6 @@ setup(name=PACKAGENAME,
       use_2to3=False,
       entry_points=entry_points,
       extras_require=extras_require,
-      tests_require=['pytest_astropy'],
+      tests_require=['pytest-astropy'],
       **package_info
 )

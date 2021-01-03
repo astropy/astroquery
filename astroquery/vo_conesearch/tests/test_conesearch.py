@@ -1,7 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """Tests for VO Cone Search."""
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 
 # STDLIB
 import os
@@ -14,14 +12,16 @@ import pytest
 # ASTROPY
 from astropy import units as u
 from astropy.coordinates import ICRS, SkyCoord
-from astropy.tests.helper import remote_data
+from astropy.io.votable.tree import Table as VOTable
+from astropy.table import Table
 from astropy.utils.data import get_pkg_data_filename
 from astropy.utils import data
 
 # LOCAL
 from .. import conf, conesearch, vos_catalog
-from ..core import _validate_coord
+from ..core import _validate_coord, ConeSearch
 from ..exceptions import VOSError, ConeSearchError
+from ...exceptions import NoResultsWarning
 
 __doctest_skip__ = ['*']
 
@@ -34,8 +34,8 @@ SCS_CENTER = ICRS(SCS_RA * u.degree, SCS_DEC * u.degree)
 SCS_RADIUS = SCS_SR * u.degree
 
 
-@remote_data
-class TestConeSearch(object):
+@pytest.mark.remote_data
+class TestConeSearch:
     """
     Test Cone Search on a pre-defined access URL.
 
@@ -61,7 +61,6 @@ class TestConeSearch(object):
         data.conf.remote_timeout = 10
 
         self.verbose = False
-        self.pedantic = False
 
     def test_cat_listing(self):
         assert (conesearch.list_catalogs() ==
@@ -69,68 +68,79 @@ class TestConeSearch(object):
         assert (conesearch.list_catalogs(pattern='usno*a') ==
                 ['USNO ACT', 'USNO NOMAD', 'USNO-A2'])
 
-    def test_no_result(self):
-        with pytest.raises(VOSError):
-            conesearch.conesearch(
-                SCS_CENTER, 0.001, catalog_db=self.url,
-                pedantic=self.pedantic, verbose=self.verbose)
+    def test_no_result_classic(self):
+        with pytest.warns(NoResultsWarning, match='returned 0 result'):
+            result = conesearch.conesearch(
+                SCS_CENTER, 0.001, catalog_db=self.url, verbose=self.verbose)
+        assert result is None
+
+    def test_no_result_astroquery(self):
+        with pytest.warns(NoResultsWarning, match='returned 0 result'):
+            result = ConeSearch.query_region(
+                SCS_CENTER, '0.001 deg', verbose=self.verbose,
+                service_url=self.url)
+        assert result is None
 
     @pytest.mark.parametrize(('center', 'radius'),
                              [((SCS_RA, SCS_DEC), SCS_SR),
                               (SCS_CENTER, SCS_RADIUS)])
-    def test_one_search(self, center, radius):
+    def test_one_search_classic(self, center, radius):
         """
         This does not necessarily uses ``self.url`` because of
         unordered dict in JSON tree.
         """
         tab_1 = conesearch.conesearch(
-            center, radius, pedantic=None, verbose=self.verbose)
-
+            center, radius, verbose=self.verbose, return_astropy_table=False)
+        assert isinstance(tab_1, VOTable)
+        assert hasattr(tab_1, 'url')
         assert tab_1.array.size > 0
 
-    def test_sky_coord(self):
+    def test_one_search_astroquery(self):
+        tab_1 = ConeSearch.query_region(
+            SCS_CENTER, SCS_RADIUS, verbose=self.verbose, service_url=self.url)
+        assert isinstance(tab_1, Table)
+        assert hasattr(tab_1, 'url')
+        assert len(tab_1) > 0
+
+    def test_sky_coord_classic(self):
         """
         Check that searching with a SkyCoord works too.
         """
         sc_cen = SkyCoord(SCS_CENTER)
         tab = conesearch.conesearch(
-            sc_cen, SCS_RADIUS, catalog_db=self.url,
-            pedantic=self.pedantic, verbose=self.verbose)
+            sc_cen, SCS_RADIUS, catalog_db=self.url, verbose=self.verbose)
+        assert len(tab) > 0
 
-        assert tab.array.size > 0
+    def test_timeout_classic(self):
+        """Test timed out query."""
+        with pytest.warns(NoResultsWarning, match='timed out'):
+            with conf.set_temp('timeout', 1e-6):
+                result = conesearch.conesearch(
+                    SCS_CENTER, SCS_RADIUS, cache=False,
+                    verbose=self.verbose, catalog_db=self.url)
+        assert result is None
 
-    def test_timeout(self):
-        """Test time out error."""
-        with pytest.raises(VOSError) as e:
-            conesearch.conesearch(
-                SCS_CENTER, SCS_RADIUS, pedantic=self.pedantic, cache=False,
-                verbose=self.verbose, catalog_db=self.url, timeout=0.0001)
-        assert 'timed out' in str(e), 'test_timeout failed'
-
-    def test_searches(self):
+    def test_searches_classic(self):
         tab_2 = conesearch.conesearch(
-            SCS_CENTER, SCS_RADIUS, catalog_db=self.url,
-            pedantic=self.pedantic, verbose=self.verbose)
+            SCS_CENTER, SCS_RADIUS, catalog_db=self.url, verbose=self.verbose,
+            return_astropy_table=False)
 
         tab_3 = conesearch.conesearch(
             SCS_CENTER, SCS_RADIUS,
-            catalog_db=[self.catname, self.url],
-            pedantic=self.pedantic, verbose=self.verbose)
+            catalog_db=[self.catname, self.url], verbose=self.verbose,
+            return_astropy_table=False)
 
         tab_4 = conesearch.conesearch(
             SCS_CENTER, SCS_RADIUS,
             catalog_db=vos_catalog.get_remote_catalog_db(
-                conf.conesearch_dbname),
-            pedantic=self.pedantic, verbose=self.verbose)
+                conf.conesearch_dbname), verbose=self.verbose,
+            return_astropy_table=False)
 
         assert tab_2.url == tab_3.url
         np.testing.assert_array_equal(tab_2.array, tab_3.array)
 
-        # If this fails, it is because of dict hashing, no big deal.
-        if tab_2.url == tab_4.url:
-            np.testing.assert_array_equal(tab_2.array, tab_4.array)
-        else:
-            pytest.xfail('conesearch_simple.json used a different URL')
+        assert tab_2.url == tab_4.url
+        np.testing.assert_array_equal(tab_2.array, tab_4.array)
 
     @pytest.mark.parametrize(('center', 'radius'),
                              [((SCS_RA, SCS_DEC), SCS_SR),
@@ -138,17 +148,17 @@ class TestConeSearch(object):
     def test_search_all(self, center, radius):
         all_results = conesearch.search_all(
             center, radius, catalog_db=['BROKEN', self.url],
-            pedantic=self.pedantic, verbose=self.verbose)
+            verbose=self.verbose, return_astropy_table=False)
 
         assert len(all_results) == 1
 
-        tab_1 = all_results[self.url]
+        tab_1 = all_results[self.url[:-1]]
 
         assert tab_1.array.size > 0
 
     def test_async(self):
         async_search = conesearch.AsyncConeSearch(
-            SCS_CENTER, SCS_RADIUS, pedantic=self.pedantic)
+            SCS_CENTER, SCS_RADIUS, return_astropy_table=False)
 
         # Wait a little for the instance to set up properly
         time.sleep(1)
@@ -164,7 +174,7 @@ class TestConeSearch(object):
 
     def test_async_all(self):
         async_search_all = conesearch.AsyncSearchAll(
-            SCS_CENTER, SCS_RADIUS, pedantic=self.pedantic)
+            SCS_CENTER, SCS_RADIUS, return_astropy_table=False)
 
         # Wait a little for the instance to set up properly
         time.sleep(1)
@@ -186,13 +196,12 @@ class TestConeSearch(object):
     def test_prediction(self, center, radius):
         """Prediction tests are not very accurate but will have to do."""
         t_1, tab_1 = conesearch.conesearch_timer(
-            center, radius, catalog_db=self.url,
-            pedantic=self.pedantic, verbose=self.verbose)
+            center, radius, catalog_db=self.url, verbose=self.verbose,
+            return_astropy_table=False)
         n_1 = tab_1.array.size
 
         t_2, n_2 = conesearch.predict_search(
-            self.url, center, radius,
-            pedantic=self.pedantic, verbose=self.verbose)
+            self.url, center, radius, verbose=self.verbose)
 
         assert n_2 > 0 and n_2 <= n_1 * 1.5
 
@@ -202,15 +211,14 @@ class TestConeSearch(object):
     def test_prediction_neg_radius(self):
         with pytest.raises(ConeSearchError):
             t, n = conesearch.predict_search(
-                self.url, SCS_CENTER, -1, pedantic=self.pedantic,
-                verbose=self.verbose)
+                self.url, SCS_CENTER, -1, verbose=self.verbose)
 
     def teardown_class(self):
         conf.reset('conesearch_dbname')
         data.conf.reset('remote_timeout')
 
 
-class TestErrorResponse(object):
+class TestErrorResponse:
     """
     Test Cone Search error response handling.
 
@@ -239,10 +247,9 @@ class TestErrorResponse(object):
                          'see astropy.io.votable.exceptions.W22')
 
         url = get_pkg_data_filename(os.path.join(self.datadir, xmlfile))
-        try:
+        with pytest.raises(VOSError) as excinfo:
             vos_catalog._vo_service_request(url, self.pedantic, {})
-        except VOSError as e:
-            assert msg in str(e)
+        assert msg in str(excinfo.value)
 
     @pytest.mark.parametrize(('id'), [1, 2, 3, 4])
     def test_conesearch_response(self, id):

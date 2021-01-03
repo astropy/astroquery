@@ -1,19 +1,16 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from __future__ import print_function
 
-from astropy.tests.helper import remote_data
-from astropy.table import Table
+
+import pytest
 import astropy.coordinates as coord
+from astropy.table import Table
 from astropy import units as u
-import requests
-import imp
 
+from astroquery.utils.commons import ASTROPY_LT_4_1
 from ... import nrao
 
-imp.reload(requests)
 
-
-@remote_data
+@pytest.mark.remote_data
 class TestNrao:
 
     def test_query_region_async(self):
@@ -28,8 +25,15 @@ class TestNrao:
             coord.SkyCoord("04h33m11.1s 05d21m15.5s"),
             retry=5)
         assert isinstance(result, Table)
-        # I don't know why this is byte-typed
-        assert b'0430+052' in result['Source']
+        assert (b'0430+052' if ASTROPY_LT_4_1 else '0430+052') in result['Source']
+
+    def test_query_region_project_code(self):
+        result = nrao.core.Nrao.query_region(
+            coord.SkyCoord("04h33m11.1s 05d21m15.5s"),
+            project_code="AD0094", retry=5)
+        assert len(result) == 42
+        assert len(set(result['Project'])) == 1
+        assert "AD0094" in list(set(result['Project']))[0]
 
     def test_query_region_archive(self):
         result = nrao.core.Nrao.query_region(
@@ -46,7 +50,7 @@ class TestNrao:
                                              telescope='jansky_vla',
                                              telescope_config=['A', 'AB', 'B'],
                                              obs_band=['K', 'Ka', 'Q'])
-        assert b'ORION-KL' in [x.strip() for x in result['Source']]
+        assert (b'ORION-KL' if ASTROPY_LT_4_1 else 'ORION-KL') in [x.strip() for x in result['Source']]
 
         # NOTE: This could change if future observations in AB config are ever
         # taken, or A- or B- config observations with fewer antennae.  Neither

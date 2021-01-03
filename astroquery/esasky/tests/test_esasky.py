@@ -1,10 +1,9 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from __future__ import print_function
+
 
 import pytest
 
 import os
-import unittest
 
 from ...utils.testing_tools import MockResponse
 from ...esasky import ESASky
@@ -40,19 +39,21 @@ def esasky_request(request):
     return mp
 
 
-class TestEsaSkyLocal(unittest.TestCase):
-    def test_esasky_query_region_maps_invalid_position(self):
-        with self.assertRaises(ValueError):
-            ESASky.query_region_maps(51, "5 arcmin")
+def test_esasky_query_region_maps_invalid_position():
+    with pytest.raises(ValueError):
+        ESASky.query_region_maps(51, "5 arcmin")
 
-    def test_esasky_query_region_maps_invalid_radius(self):
-        with self.assertRaises(ValueError):
-            ESASky.query_region_maps("M51", 5)
 
-    def test_esasky_query_region_maps_invalid_mission(self):
-        with self.assertRaises(ValueError):
-            ESASky.query_region_maps("M51", "5 arcmin", missions=True)
+def test_esasky_query_region_maps_invalid_radius():
+    with pytest.raises(ValueError):
+        ESASky.query_region_maps("M51", 5)
 
-    def test_list_catalogs(self):
-        result = ESASky.list_catalogs()
-        assert (len(result) == 13)
+
+def test_esasky_query_region_maps_invalid_mission():
+    with pytest.raises(ValueError):
+        ESASky.query_region_maps("M51", "5 arcmin", missions=True)
+
+
+def test_list_catalogs():
+    result = ESASky.list_catalogs()
+    assert len(result) == 13

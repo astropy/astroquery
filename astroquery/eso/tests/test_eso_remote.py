@@ -3,7 +3,6 @@ import numpy as np
 import pytest
 import tempfile
 import shutil
-from astropy.tests.helper import remote_data
 import six
 from ...exceptions import LoginError
 
@@ -13,14 +12,14 @@ instrument_list = [u'fors1', u'fors2', u'sphere', u'vimos', u'omegacam',
                    u'hawki', u'isaac', u'naco', u'visir', u'vircam', u'apex',
                    u'giraffe', u'uves', u'xshooter', u'muse', u'crires',
                    u'kmos', u'sinfoni', u'amber', u'midi', u'pionier',
-                   u'gravity']
+                   u'gravity', u'espresso', u'wlgsu', u'matisse']
 
 # Some tests take too long, leading to travis timeouts
 # TODO: make this a configuration item
 SKIP_SLOW = True
 
 
-@remote_data
+@pytest.mark.remote_data
 class TestEso:
     @pytest.fixture()
     def temp_dir(self, request):

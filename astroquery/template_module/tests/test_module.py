@@ -1,5 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from __future__ import print_function
+
 
 # astroquery uses the pytest framework for testing
 # this is already available in astropy and does

@@ -1,8 +1,10 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import os
+
+import pytest
 import astropy.units as u
-from astropy.tests.helper import assert_quantity_allclose, remote_data, pytest
+from astropy.tests.helper import assert_quantity_allclose
 from astropy.utils import minversion
 from astropy.coordinates import SkyCoord
 
@@ -13,7 +15,7 @@ LOCAL_TABLE_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)),
                                 'data', 'exoplanet_orbit_database.csv')
 
 
-@remote_data
+@pytest.mark.remote_data
 def test_exoplanet_orbit_database_table():
     table = ExoplanetOrbitDatabase.get_table()
 
@@ -38,7 +40,7 @@ def test_parameter_units():
     assert param_units['DEC'] == u.Unit('degree')
 
 
-@remote_data
+@pytest.mark.remote_data
 def test_hd209458b_exoplanet_orbit_database():
     # Testing intentionally un-stripped string:
     params = ExoplanetOrbitDatabase.query_planet('HD 209458 b ')
@@ -54,7 +56,7 @@ def test_hd209458b_exoplanet_orbit_database():
     assert params['TRANSIT']
 
 
-@remote_data
+@pytest.mark.remote_data
 @pytest.mark.skipif('APY_LT12')
 def test_hd209458b_exoplanet_orbit_database_apy_lt12():
     # Testing intentionally un-stripped string:
@@ -63,7 +65,7 @@ def test_hd209458b_exoplanet_orbit_database_apy_lt12():
                              atol=0.1 * u.Unit('R_jup'))
 
 
-@remote_data
+@pytest.mark.remote_data
 @pytest.mark.skipif('not APY_LT12')
 def test_hd209458b_exoplanet_orbit_database_apy_gt12():
     # Testing intentionally un-stripped string:
@@ -73,7 +75,7 @@ def test_hd209458b_exoplanet_orbit_database_apy_gt12():
                                  atol=0.1 * u.Unit('R_jup'))
 
 
-@remote_data
+@pytest.mark.remote_data
 def test_hd209458b_exoplanet_orbit_database_coords():
     params = ExoplanetOrbitDatabase.query_planet('HD 209458 b ')
     simbad_coords = SkyCoord(ra='22h03m10.77207s', dec='+18d53m03.5430s')
@@ -84,7 +86,7 @@ def test_hd209458b_exoplanet_orbit_database_coords():
     assert abs(sep) < 5 * u.arcsec
 
 
-def test_hd209458b_exoplanet_orbit_database():
+def test_hd209458b_exoplanet_orbit_database_local():
     # Testing intentionally un-stripped string:
     params = ExoplanetOrbitDatabase.query_planet('HD 209458 b ',
                                                  table_path=LOCAL_TABLE_PATH)
@@ -101,7 +103,7 @@ def test_hd209458b_exoplanet_orbit_database():
 
 
 @pytest.mark.skipif('APY_LT12')
-def test_hd209458b_exoplanet_orbit_database_apy_lt12():
+def test_hd209458b_exoplanet_orbit_database_apy_lt12_local():
     # Testing intentionally un-stripped string:
     params = ExoplanetOrbitDatabase.query_planet('HD 209458 b ',
                                                  table_path=LOCAL_TABLE_PATH)
@@ -110,7 +112,7 @@ def test_hd209458b_exoplanet_orbit_database_apy_lt12():
 
 
 @pytest.mark.skipif('not APY_LT12')
-def test_hd209458b_exoplanet_orbit_database_apy_gt12():
+def test_hd209458b_exoplanet_orbit_database_apy_gt12_local():
     # Testing intentionally un-stripped string:
     with pytest.raises(ValueError):
         params = ExoplanetOrbitDatabase.query_planet('HD 209458 b ',
@@ -119,7 +121,7 @@ def test_hd209458b_exoplanet_orbit_database_apy_gt12():
                                  atol=0.1 * u.Unit('R_jup'))
 
 
-def test_hd209458b_exoplanet_orbit_database_coords():
+def test_hd209458b_exoplanet_orbit_database_coords_local():
     params = ExoplanetOrbitDatabase.query_planet('HD 209458 b ',
                                                  table_path=LOCAL_TABLE_PATH)
     simbad_coords = SkyCoord(ra='22h03m10.77207s', dec='+18d53m03.5430s')

@@ -1,5 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from __future__ import print_function
+
 
 # performs similar tests as test_module.py, but performs
 # the actual HTTP request rather than monkeypatching them.
@@ -8,18 +8,16 @@ from __future__ import print_function
 
 import pytest
 
-from astropy.tests.helper import remote_data
-
 try:
     from ... import vamdc
-    import vamdclib
+    import vamdclib  # noqa
     HAS_VAMDCLIB = True
 except ImportError:
     HAS_VAMDCLIB = False
 
 
 @pytest.mark.skipif('not HAS_VAMDCLIB')
-@remote_data
+@pytest.mark.remote_data
 class TestVamdcClass:
     # now write tests for each method here
     def test_query_molecule(self):

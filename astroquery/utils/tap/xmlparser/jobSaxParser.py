@@ -139,4 +139,4 @@ class JobSaxParser(xml.sax.ContentHandler):
         elif UWS_DESTRUCTION == nameLower:
             self.__job.destruction = value
         elif UWS_PARAMETER == nameLower:
-            self.__job.set_parameter(self.__paramKey, value)
+            self.__job.parameters[self.__paramKey] = value

@@ -39,6 +39,7 @@ class Conf(_config.ConfigNamespace):
     # query modes
     eph_columns = {'targetname': ('targetname', '---'),
                    'Date__(UT)__HR:MN': ('datetime_str', '---'),
+                   'Date__(UT)__HR:MN:SS': ('datetime_str', '---'),
                    'Date__(UT)__HR:MN:SC.fff': ('datetime_str', '---'),
                    'Date_________JDUT': ('datetime_jd', 'd'),
                    'H': ('H', 'mag'),
@@ -50,12 +51,20 @@ class Conf(_config.ConfigNamespace):
                    'phasecoeff': ('phasecoeff', 'mag/deg'),
                    'solar_presence': ('solar_presence', '---'),
                    'flags': ('flags', '---'),
+                   'R.A._(ICRF)': ('RA', 'deg'),
+                   'DEC_(ICRF)': ('DEC', 'deg'),
+                   'R.A.___(ICRF)': ('RA', 'deg'),
+                   'DEC____(ICRF)': ('DEC', 'deg'),
                    'R.A._(ICRF/J2000.0)': ('RA', 'deg'),
                    'DEC_(ICRF/J2000.0)': ('DEC', 'deg'),
                    'R.A._(FK4/B1950.0)': ('RA', 'deg'),
                    'DEC_(FK4/B1950.0)': ('DEC', 'deg'),
+                   'R.A._(FK4/B1950)': ('RA', 'deg'),
+                   'DEC_(FK4/B1950)': ('DEC', 'deg'),
                    'R.A._(a-app)': ('RA_app', 'deg'),
+                   'R.A.__(a-app)': ('RA_app', 'deg'),
                    'DEC_(a-app)': ('DEC_app', 'deg'),
+                   'DEC___(a-app)': ('DEC_app', 'deg'),
                    'R.A._(r-app)': ('RA_app', 'deg'),
                    'DEC_(r-app)': ('DEC_app', 'deg'),
                    'dRA*cosD': ('RA_rate', 'arcsec/hour'),
@@ -81,15 +90,20 @@ class Conf(_config.ConfigNamespace):
                    'Def_illu': ('illum_defect', 'arcsec'),
                    'ang-sep': ('sat_sep', 'arcsec'),
                    'v': ('sat_vis', '---'),
+                   'vis.': ('sat_vis', '---'),
                    'Ang-diam': ('ang_width', 'arcsec'),
-                   'Ob-lon': ('PDObsLon', 'deg'),
-                   'Ob-lat': ('PDObsLat', 'deg'),
-                   'Sl-lon': ('PDSunLon', 'deg'),
-                   'Sl-lat': ('PDSunLat', 'deg'),
-                   'Obsrv-lon': ('PDObsLon', 'deg'),
-                   'Obsrv-lat': ('PDObsLat', 'deg'),
-                   'Solar-lon': ('PDSunLon', 'deg'),
-                   'Solar-lat': ('PDSunLat', 'deg'),
+                   'ObsSub-LON': ('PDObsLon', 'deg'),
+                   'ObsSub-LAT': ('PDObsLat', 'deg'),
+                   'SunSub-LON': ('PDSunLon', 'deg'),
+                   'SunSub-LAT': ('PDSunLat', 'deg'),
+                   'Ob-lon': ('PDObsLon', 'deg'),  # deprecated
+                   'Ob-lat': ('PDObsLat', 'deg'),  # deprecated
+                   'Sl-lon': ('PDSunLon', 'deg'),  # deprecated
+                   'Sl-lat': ('PDSunLat', 'deg'),  # deprecated
+                   'Obsrv-lon': ('PDObsLon', 'deg'),  # deprecated
+                   'Obsrv-lat': ('PDObsLat', 'deg'),  # deprecated
+                   'Solar-lon': ('PDSunLon', 'deg'),  # deprecated
+                   'Solar-lat': ('PDSunLat', 'deg'),  # deprecated
                    'SN.ang': ('SubSol_ang', 'deg'),
                    'SN.dist': ('SubSol_dist', 'arcsec'),
                    'NP.ang': ('NPole_ang', 'deg'),
@@ -101,6 +115,7 @@ class Conf(_config.ConfigNamespace):
                    'delta': ('delta', 'au'),
                    'deldot': ('delta_rate', 'km/second'),
                    '1-way_LT': ('lighttime', 'minute'),
+                   '1-way_down_LT': ('lighttime', 'minute'),
                    'VmagSn': ('vel_sun', 'km/s'),
                    'VmagOb': ('vel_obs', 'km/s'),
                    'S-O-T': ('elong', 'deg'),
@@ -175,6 +190,7 @@ class Conf(_config.ConfigNamespace):
                    'JDTDB': ('datetime_jd', 'd'),
                    'Calendar Date (TDB)': ('datetime_str',
                                            '---'),
+                   'delta-T': ('delta_T', 's'),
                    'H': ('H', 'mag'),
                    'G': ('G', '---'),
                    'M1': ('M1', 'mag'),

@@ -1,17 +1,18 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from __future__ import print_function
 
-from astropy.tests.helper import remote_data
-from ...heasarc import Heasarc
-from ...utils import commons
+
+import pytest
 import requests
 
+from ...heasarc import Heasarc
+from ...utils import commons
 
-@remote_data
+
+@pytest.mark.remote_data
 class TestHeasarc:
 
     def test_basic_example(self):
-        mission = 'rospublic'
+        mission = 'rosmaster'
         object_name = '3c273'
 
         heasarc = Heasarc()
@@ -29,10 +30,10 @@ class TestHeasarc:
 
     def test_mission_cols(self):
         heasarc = Heasarc()
-        mission = 'rospublic'
+        mission = 'rosmaster'
         cols = heasarc.query_mission_cols(mission=mission)
 
-        assert len(cols) == 28
+        assert len(cols) == 29
 
         # Test that the cols list contains known names
         assert 'EXPOSURE' in cols
@@ -41,7 +42,7 @@ class TestHeasarc:
         assert 'SEARCH_OFFSET_' in cols
 
     def test_query_object_async(self):
-        mission = 'rospublic'
+        mission = 'rosmaster'
         object_name = '3c273'
 
         heasarc = Heasarc()
@@ -51,7 +52,7 @@ class TestHeasarc:
 
     def test_query_region_async(self):
         heasarc = Heasarc()
-        mission = 'rospublic'
+        mission = 'rosmaster'
         c = commons.coord.SkyCoord('12h29m06.70s +02d03m08.7s', frame='icrs')
         response = heasarc.query_region_async(c, mission=mission,
                                               radius='1 degree')
@@ -60,7 +61,7 @@ class TestHeasarc:
 
     def test_query_region(self):
         heasarc = Heasarc()
-        mission = 'rospublic'
+        mission = 'rosmaster'
 
         # Define coordinates for '3c273' object
         c = commons.coord.SkyCoord('12h29m06.70s +02d03m08.7s', frame='icrs')

@@ -8,4 +8,5 @@ a collection of data services provided by JPL
 """
 
 from .sbdb import *
+from .horizons import *
 from . import *

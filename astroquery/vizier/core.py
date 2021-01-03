@@ -1,5 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from __future__ import print_function
+
 
 import os
 import warnings
@@ -241,7 +241,7 @@ class VizierClass(BaseQuery):
 
         Parameters
         ----------
-        catalog : str or list, optional
+        catalog : str, Resource, or list, optional
             The catalog(s) that will be retrieved
 
         Returns
@@ -250,7 +250,7 @@ class VizierClass(BaseQuery):
             Returned if asynchronous method used
         """
 
-        if not isinstance(catalog, six.string_types):
+        if not isinstance(catalog, six.string_types + (votable.tree.Resource,)):
             catalog = list(catalog)
         data_payload = self._args_to_payload(catalog=catalog)
         if get_query_payload:
@@ -316,7 +316,7 @@ class VizierClass(BaseQuery):
     def query_region_async(self, coordinates, radius=None, inner_radius=None,
                            width=None, height=None, catalog=None,
                            get_query_payload=False, cache=True,
-                           return_type='votable'):
+                           return_type='votable', column_filters={}):
         """
         Serves the same purpose as `query_region` but only
         returns the HTTP response rather than the parsed result.
@@ -344,6 +344,9 @@ class VizierClass(BaseQuery):
         catalog : str or list, optional
             The catalog(s) which must be searched for this identifier.
             If not specified, all matching catalogs will be searched.
+        column_filters: dict, optional
+            Constraints on columns of the result. The dictionary contains
+            the column name as keys, and the constraints as values.
 
         Returns
         -------
@@ -423,8 +426,8 @@ class VizierClass(BaseQuery):
                 h_box = coord.Angle(height)
                 if w_box.unit != h_box.unit:
                     h_box = h_box.to(w_box.unit)
-                w_unit, w_value = _parse_angle(h_box)
-                h_unit, h_value = _parse_angle(w_box)
+                w_unit, w_value = _parse_angle(w_box)
+                h_unit, h_value = _parse_angle(h_box)
                 key = "-c.b" + w_unit
                 center[key] = "x".join([str(w_value), str(h_value)])
         else:
@@ -432,7 +435,7 @@ class VizierClass(BaseQuery):
                 "At least one of radius, width/height must be specified")
 
         data_payload = self._args_to_payload(center=center, columns=columns,
-                                             catalog=catalog)
+                                             catalog=catalog, column_filters=column_filters)
 
         if get_query_payload:
             return data_payload
@@ -523,14 +526,22 @@ class VizierClass(BaseQuery):
             if isinstance(catalog, six.string_types):
                 body['-source'] = catalog
             elif isinstance(catalog, list):
+                catalog = [item.name if hasattr(item, 'name') else item
+                           for item in catalog]
                 body['-source'] = ",".join(catalog)
+            elif hasattr(catalog, 'name'):
+                # this is probably a votable Resource, but no harm in duck-typing on `name`
+                body['-source'] = catalog.name
             else:
-                raise TypeError("Catalog must be specified as list or string")
+                raise TypeError("Catalog must be specified as list, string, or Resource")
         # process: columns
         columns = kwargs.get('columns', copy.copy(self.columns))
 
         if columns is not None:
             columns = self.columns + columns
+            # filter columns to _unique_ columns, preserving order in python >3.6
+            # note that "set" does not preserve order, but dict.keys does
+            columns = list(dict.fromkeys(columns, ).keys())
 
         # special keywords need to be treated separately
         # keyword names that can mean 'all'

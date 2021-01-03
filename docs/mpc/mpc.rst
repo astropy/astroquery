@@ -2,23 +2,26 @@
 
 .. _astroquery.mpc:
 
-**********************************************
-Minor Planet Center Queries (`astroquery.mpc`)
-**********************************************
+*************************************************************************
+Minor Planet Center Queries (`astroquery.mpc`/astroquery.solarsystem.MPC)
+*************************************************************************
 
 Getting started
 ===============
 
 This is an Astroquery wrapper for querying services at the IAU Minor
-Planet Center (MPC).  Two services are available:
+Planet Center (MPC).  Three services are available:
 
-    - `MPC Web Service
+    - `Minor Planet Center Web Service
       <https://minorplanetcenter.net/web_service/>`__ for comet and
       asteroid orbits and parameters
     - `Minor Planet Ephemeris Service
       <https://www.minorplanetcenter.net/iau/MPEph/MPEph.html>`__ for
       comet and asteroid ephemerides
-
+    - `Minor Planet Center Observations Database
+      <https://minorplanetcenter.net/db_search>`_ for obtaining
+      observations of asteroids and comets reported to the MPC
+      
 In addition, the module provides access to the MPC's hosted list of
 `IAU Observatory Codes
 <https://www.minorplanetcenter.net/iau/lists/ObsCodesF.html>`__.
@@ -408,6 +411,56 @@ The parallax constants are ``rho * cos(phi)`` and ``rho * sin(phi)`` where
 ``rho`` is the geocentric distance in earth radii, and ``phi`` is the
 geocentric latitude.
 
+
+Observations
+============
+
+The following code snippet queries all reported observations for
+asteroid 12893:
+
+.. code-block:: python
+
+   >>> obs = MPC.get_observations(12893)
+   >>> print(obs)
+   number   desig   discovery note1 ...         DEC          mag  band observatory
+				    ...         deg          mag                  
+   ------ --------- --------- ----- ... ------------------- ----- ---- -----------
+    12893 1998 QS55        --    -- ...  -15.78888888888889   0.0   --         413
+    12893 1998 QS55        --    -- ... -15.788944444444445   0.0   --         413
+    12893 1998 QS55         *     4 ...   5.526472222222222   0.0   --         809
+    12893 1998 QS55        --     4 ...   5.525555555555555   0.0   --         809
+    12893 1998 QS55        --     4 ...   5.524805555555555   0.0   --         809
+    12893 1998 QS55        --     4 ...   5.440555555555556  18.4   --         809
+      ...       ...       ...   ... ...                 ...   ...  ...         ...
+    12893 1998 QS55        --    -- ...            12.63075 18.53    c         T05
+    12893 1998 QS55        --    -- ...   12.63088888888889 18.63    c         T05
+    12893 1998 QS55        --    -- ...  12.631472222222223 18.55    c         T05
+    12893 1998 QS55        --    -- ...  12.669888888888888  18.3    r         I41
+    12893 1998 QS55        --    -- ...            12.71525  18.3    r         I41
+    12893 1998 QS55        --    -- ...  12.716833333333334  18.2    r         I41
+    12893 1998 QS55        --    -- ...  12.717527777777779  18.3    r         I41
+   Length = 1401 rows
+
+The query results of `~astroquery.mpc.MPCClass.get_observations` are parsed
+into a `~astropy.table.QTable` by default; it is also possible to
+output the original MPC 80-column format strings using the optional
+argument ``get_mpcformat``.
+
+The query can only be run for single targets. The target body is
+identified either through an asteroid number (as int or str), a
+periodic comet number (as str, e.g., ``'2P'``), a provisional asteroid
+designation (as str, e.g., ``'1998 QS55'``), or a provisional comet
+designation (as str, e.g., ``'P/2019 A4'``). Note that comet
+identifiers have to be accompanied by a comet type identifier (``P``,
+``C``, ``X``, etc.), e.g., ``'1P'``, ``'354P'``, ``'P/2019 A4'``,
+``'C/1932 Y1'``. The lack of a comet type identifier may lead to a
+misleading target identification or an error being raised. If the
+target identifier is not parsed properly, the user can use the keyword
+argument ``id_type`` to set the target type and identifier type
+manually. Asteroid or comet names cannot be queried, as well as
+Palomar-Leiden Survey designations, and individual comet fragments. In
+case an object name cannot be resolved, a ``ValueError`` is raised. If
+a query returns no results, a ``RuntimeError`` is raised.
 
 Reference/API
 =============

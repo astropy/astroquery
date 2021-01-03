@@ -14,11 +14,12 @@ this submodule or directly from their top-level modules.
 The currently available service providers and services are:
 
 .. toctree::
-  :maxdepth: 2
+  :maxdepth: 1
 
   jpl/jpl.rst
+  imcce/imcce.rst
+  mpc/mpc.rst
 
-  
 Reference/API
 =============
 

@@ -1,19 +1,15 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from __future__ import print_function
 
-from astropy.tests.helper import remote_data
+
+import pytest
+import astropy.units as u
 from astropy.table import Table
 from astropy.coordinates import SkyCoord
-import astropy.units as u
-import requests
-import imp
 
 from ... import ukidss
 
-imp.reload(requests)
 
-
-@remote_data
+@pytest.mark.remote_data
 class TestUkidss:
     ukidss.core.Ukidss.TIMEOUT = 20
 

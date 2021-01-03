@@ -1,5 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from __future__ import print_function
+
 
 import requests
 import warnings
@@ -259,10 +259,10 @@ class CosmoSimClass(QueryWithLogin):
         soup = BeautifulSoup(checkalljobs.content, "lxml")
         self.table_dict = {}
 
-        for i in soup.find_all({"uws:jobref"}):
-            jobid = i.get('xlink:href').split('/')[-1]
+        for tag in soup.find_all({"uws:jobref"}):
+            jobid = tag.get('xlink:href').split('/')[-1]
             if jobid in completed_jobs:
-                self.table_dict[jobid] = str(i.get('id'))
+                self.table_dict[jobid] = str(tag.get('id'))
 
     def check_job_status(self, jobid=None):
         """
@@ -329,13 +329,13 @@ class CosmoSimClass(QueryWithLogin):
         self.job_dict = {}
         soup = BeautifulSoup(checkalljobs.content, "lxml")
 
-        for i in soup.find_all({"uws:jobref"}):
-            i_phase = str(i.find('uws:phase').string)
-            if i_phase in ['COMPLETED', 'EXECUTING', 'ABORTED', 'ERROR']:
-                self.job_dict['{0}'.format(i.get('xlink:href')
-                                           .split('/')[-1])] = i_phase
+        for tag in soup.find_all({"uws:jobref"}):
+            tag_phase = str(tag.find('uws:phase').string)
+            if tag_phase in ['COMPLETED', 'EXECUTING', 'ABORTED', 'ERROR']:
+                self.job_dict['{0}'.format(tag.get('xlink:href')
+                                           .split('/')[-1])] = tag_phase
             else:
-                self.job_dict[str(i.get('id'))] = i_phase
+                self.job_dict[str(tag.get('id'))] = tag_phase
 
         if phase:
             phase = [phase[i].upper() for i in range(len(phase))]
@@ -1312,7 +1312,7 @@ class CosmoSimClass(QueryWithLogin):
             self.alert_completed = False
 
 
-class AlertThread(object):
+class AlertThread:
     """ Alert threading class
 
     The _alert() method will be started and it will run in the background

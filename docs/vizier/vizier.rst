@@ -50,6 +50,28 @@ the complete contents of those catalogs:
        '1:J/ApJS/191/232/table1' with 13 column(s) and 50 row(s)
        '2:J/ApJS/191/232/map' with 2 column(s) and 2 row(s)
 
+Similarly, the ``Resource`` objects (the values of the dictionary resulting from
+:meth:`~astroquery.vizier.VizierClass.find_catalogs`) can be used in the same
+way:
+
+.. code-block:: python
+
+    >>> catalogs = Vizier.get_catalogs(catalog_list.values())
+    >>> print(catalogs)
+    TableList with 3 tables:
+       '0:J/ApJ/706/83/ysos' with 22 column(s) and 50 row(s)
+       '1:J/ApJS/191/232/table1' with 13 column(s) and 50 row(s)
+       '2:J/ApJS/191/232/map' with 2 column(s) and 2 row(s)
+
+.. code-block:: python
+
+   >>> catalogs = Vizier.get_catalogs(catalog_list.keys())
+   >>> print(catalogs)
+   TableList with 3 tables:
+      '0:J/ApJ/706/83/ysos' with 22 column(s) and 50 row(s)
+      '1:J/ApJS/191/232/table1' with 13 column(s) and 50 row(s)
+      '2:J/ApJS/191/232/map' with 2 column(s) and 2 row(s)
+
 Note that the row limit is set to 50 by default, so if you want to get a truly
 complete catalog, you need to change that:
 
@@ -180,6 +202,21 @@ coordinate. Finally the ``catalog`` keyword argument may be passed in either
 :meth:`~astroquery.vizier.VizierClass.query_object` or
 :meth:`~astroquery.vizier.VizierClass.query_region` methods. This may be a string
 (if only a single catalog) or a list of strings otherwise.
+
+Last but not least, :meth:`~astroquery.vizier.VizierClass.query_region` also supports
+constraints on the columns of the returned tables by mean of the ``column_filters`` keyword.
+
+.. code-block:: python
+
+    >>> from astroquery.vizier import Vizier
+    >>> import astropy.units as u
+    >>> from astropy.coordinates import SkyCoord
+    >>> result = Vizier.query_region(SkyCoord.from_name('M81'),
+                                     radius=10*u.arcmin,
+                                     catalog='I/345/gaia2',
+                                     column_filters={'Gmag': '<19'})
+    >>> print(result[0]['Gmag'].max())
+    18.9508
 
 Specifying keywords, output columns and constraints on columns
 --------------------------------------------------------------

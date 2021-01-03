@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet href='https://casda.csiro.au/casda_vo_tools/votable.xsl' type='text/xsl'?>
+<VOTABLE version="1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.ivoa.net/xml/VOTable/v1.3" xmlns:stc="http://www.ivoa.net/xml/STC/v1.30" >
+<RESOURCE name="CASDA SIAPv2 Result" type='results'>
+<INFO name="QUERY_STATUS" value="OK">Successful query</INFO>
+<INFO name="Instrument" value="ASKAP">Instrument from which data originated </INFO>
+<INFO name="Server" value="https://casda.csiro.au/casda_vo_tools//tap">URL of the CASDA VO endpoint used </INFO>
+<INFO name="Service Short Name" value="CASDA TAP">Short name for the TAP service </INFO>
+<INFO name="Service Title" value="CSIRO ASKAP Science Data Archive TAP service">TAP service title </INFO>
+<INFO name="Identifier" value="ivo://casda.csiro.au/casda/TAP">Unique resource registry identifier</INFO>
+<INFO name="Service Publisher" value="The CASDA team">Publisher for the TAP service</INFO>
+<INFO name="Further Information" value="http://www.atnf.csiro.au/projects/askap/index.html">Link to further information on the data and usage of the service</INFO>
+<INFO name="Contact Person" value="CASDA Support &lt;atnf-datasup@csiro.au&gt;">Who to contact about this service </INFO>
+<INFO name="Copyright" value="Creative Commons Attribution 4.0 International Licence">CASDA's Data license</INFO>
+<INFO name="SIAP  query" value="POS=CIRCLE 333.9092 -45.8418 0.5">SIAP Query submitted by the user</INFO>
+<INFO name="Execution Time" value="100ms">Time taken to execute query</INFO>
+<INFO name="Datetime Requested" value="2019-06-21 00:49:11 UTC">Date and time that the request was received</INFO>
+<INFO name="Table Name" value="ivoa.obscore">Name of the table queried</INFO>
+<INFO name="Table Description" value="null">Description of the table queried</INFO>
+<INFO name="Table Long Description" value=" ">Long description of the table queried</INFO>
+<TABLE name="results">
+<FIELD name="dataproduct_type" ID="dataproduct_type" datatype="char" arraysize="255" ucd="meta.id" utype="obscore:Obs.dataProductType" >
+ <DESCRIPTION>Logical data product type from the IVOA controlled list. Catalogues will be null but described in the dataproduct_subtype field.</DESCRIPTION>
+</FIELD>
+<FIELD name="calib_level" ID="calib_level" datatype="int" ucd="meta.code;obs.calib" utype="obscore:Obs.calibLevel" >
+ <DESCRIPTION>Calibration level {0, 1, 2, 3}</DESCRIPTION>
+</FIELD>
+<FIELD name="obs_collection" ID="obs_collection" datatype="char" arraysize="255" ucd="meta.id" utype="obscore:DataID.Collection" >
+ <DESCRIPTION>Name of the data collection</DESCRIPTION>
+</FIELD>
+<FIELD name="obs_id" ID="obs_id" datatype="char" arraysize="255" ucd="meta.id" utype="obscore:DataID.observationID" >
+ <DESCRIPTION>Observation ID</DESCRIPTION>
+</FIELD>
+<FIELD name="obs_publisher_did" ID="obs_publisher_did" datatype="char" arraysize="255" ucd="meta.ref.url;meta.curation" utype="obscore:Curation.PublisherDID" >
+ <DESCRIPTION>Dataset identifier given by the publisher</DESCRIPTION>
+</FIELD>
+<FIELD name="access_url" ID="access_url" datatype="char" arraysize="2000" ucd="meta.ref.url" utype="obscore:Access.Reference" >
+ <DESCRIPTION>URL used to access (download) dataset</DESCRIPTION>
+</FIELD>
+<FIELD name="access_format" ID="access_format" datatype="char" arraysize="255" ucd="meta.code.mime" utype="obscore:Access.Format" >
+ <DESCRIPTION>File content format</DESCRIPTION>
+</FIELD>
+<FIELD name="access_estsize" ID="access_estsize" datatype="long" unit="kbyte" ucd="phys.size;meta.file" utype="obscore:Access.Size" >
+ <DESCRIPTION>Estimated size of dataset in kilobytes</DESCRIPTION>
+</FIELD>
+<FIELD name="target_name" ID="target_name" datatype="char" arraysize="255" ucd="meta.id;src" utype="obscore:Target.Name" >
+ <DESCRIPTION>Astronomical object observed, if any</DESCRIPTION>
+</FIELD>
+<FIELD name="s_ra" ID="s_ra" datatype="double" unit="deg" ucd="pos.eq.ra" utype="obscore:Char.SpatialAxis.Coverage.Location.Coord.Position2D.Value2.C1" >
+ <DESCRIPTION>Central right ascension, ICRS</DESCRIPTION>
+</FIELD>
+<FIELD name="s_dec" ID="s_dec" datatype="double" unit="deg" ucd="pos.eq.dec" utype="obscore:Char.SpatialAxis.Coverage.Location.Coord.Position2D.Value2.C2" >
+ <DESCRIPTION>Central declination, ICRS</DESCRIPTION>
+</FIELD>
+<FIELD name="s_fov" ID="s_fov" datatype="double" unit="deg" ucd="phys.angSize;instr.fov" utype="obscore:Char.SpatialAxis.Coverage.Bounds.Extent.diameter" >
+ <DESCRIPTION>Diameter (bounds) of the covered region</DESCRIPTION>
+</FIELD>
+<FIELD name="s_region" ID="s_region" datatype="char" arraysize="200" ucd="phys.angArea;obs" utype="obscore:Char.SpatialAxis.Coverage.Support.Area" >
+ <DESCRIPTION>Region covered as specified in STC or ADQL</DESCRIPTION>
+</FIELD>
+<FIELD name="s_resolution" ID="s_resolution" datatype="double" unit="arcsec" ucd="pos.angResolution" utype="obscore:Char.SpatialAxis.Resolution.refval" >
+ <DESCRIPTION>Spatial resolution of data as FWHM</DESCRIPTION>
+</FIELD>
+<FIELD name="t_min" ID="t_min" datatype="double" unit="d" ucd="time.start;obs.exposure" utype="obscore:Char.TimeAxis.Coverage.Bounds.Limits.Interval.StartTime" >
+ <DESCRIPTION>Start time in MJD</DESCRIPTION>
+</FIELD>
+<FIELD name="t_max" ID="t_max" datatype="double" unit="d" ucd="time.end;obs.exposure" utype="obscore:Char.TimeAxis.Coverage.Bounds.Limits.Interval.StopTime" >
+ <DESCRIPTION>Stop time in MJD</DESCRIPTION>
+</FIELD>
+<FIELD name="t_exptime" ID="t_exptime" datatype="double" unit="s" ucd="time.duration;obs.exposure" utype="obscore:Char.TimeAxis.Coverage.Support.Extent" >
+ <DESCRIPTION>Total exposure time</DESCRIPTION>
+</FIELD>
+<FIELD name="t_resolution" ID="t_resolution" datatype="double" unit="s" ucd="time.resolution" utype="obscore:Char.TimeAxis.Resolution.refval" >
+ <DESCRIPTION>Temporal resolution FWHM</DESCRIPTION>
+</FIELD>
+<FIELD name="em_min" ID="em_min" datatype="double" unit="m" ucd="em.wl;stat.min" utype="obscore:Char.SpectralAxis.Coverage.Bounds.Limits.Interval.LoLim" >
+ <DESCRIPTION>Start in spectral coordinates</DESCRIPTION>
+</FIELD>
+<FIELD name="em_max" ID="em_max" datatype="double" unit="m" ucd="em.wl;stat.max" utype="obscore:Char.SpectralAxis.Coverage.Bounds.Limits.Interval.HiLim" >
+ <DESCRIPTION>Stop in spectral coordinates</DESCRIPTION>
+</FIELD>
+<FIELD name="em_res_power" ID="em_res_power" datatype="double" ucd="spect.resolution" utype="obscore:Char.SpectralAxis.Resolution.ResolPower.refVal" >
+ <DESCRIPTION>Spectral resolving power</DESCRIPTION>
+</FIELD>
+<FIELD name="o_ucd" ID="o_ucd" datatype="char" arraysize="255" ucd="meta.ucd" utype="obscore:Char.ObservableAxis.ucd" >
+ <DESCRIPTION>UCD of observable (e.g. phot. plux. density)</DESCRIPTION>
+</FIELD>
+<FIELD name="pol_states" ID="pol_states" datatype="char" arraysize="255" ucd="meta.code;phys.polarization" utype="obscore:Char.PolarizationAxis.stateList" >
+ <DESCRIPTION>List of polarization states or NULL if not applicable</DESCRIPTION>
+</FIELD>
+<FIELD name="facility_name" ID="facility_name" datatype="char" arraysize="255" ucd="meta.id;instr.tel" utype="obscore:Provenance.ObsConfig.facility.name" >
+ <DESCRIPTION>Name of the facility used for this observation</DESCRIPTION>
+</FIELD>
+<FIELD name="instrument_name" ID="instrument_name" datatype="char" arraysize="255" ucd="meta.id;instr" utype="obscore:Provenance.ObsConfig.instrument.name" >
+ <DESCRIPTION>Name of the instrument used for this observation</DESCRIPTION>
+</FIELD>
+<FIELD name="dataproduct_subtype" ID="dataproduct_subtype" datatype="char" arraysize="255" ucd="meta.id" utype="obscore:Obs.dataProductSubtype" >
+ <DESCRIPTION>Further description of the type of data product, including where the dataproduct_type is null.</DESCRIPTION>
+</FIELD>
+<FIELD name="em_ucd" ID="em_ucd" datatype="char" arraysize="255" ucd="meta.ucd" utype="obscore:Char.SpectralAxis.ucd" >
+ <DESCRIPTION>Nature of the spectral axis</DESCRIPTION>
+</FIELD>
+<FIELD name="em_unit" ID="em_unit" datatype="char" arraysize="255" ucd="meta.unit" utype="obscore:Char.SpectralAxis.unit" >
+ <DESCRIPTION>Units along the spectral axis</DESCRIPTION>
+</FIELD>
+<FIELD name="em_resolution" ID="em_resolution" datatype="double" unit="m" ucd="spect.resolution;stat.mean" utype="obscore:Char.SpectralAxis.Resolution.refval.value" >
+ <DESCRIPTION>Value of Resolution along the spectral axis</DESCRIPTION>
+</FIELD>
+<FIELD name="s_resolution_min" ID="s_resolution_min" datatype="double" unit="arcsec" ucd="pos.angResolution;stat.min" utype="obscore:Char.SpatialAxis.Resolution.Bounds.Limits.Interval.LoLim" >
+ <DESCRIPTION>Resolution min value on spatial axis (FHWM of PSF)</DESCRIPTION>
+</FIELD>
+<FIELD name="s_resolution_max" ID="s_resolution_max" datatype="double" unit="arcsec" ucd="pos.angResolution;stat.max" utype="obscore:Char.SpatialAxis.Resolution.Bounds.Limits.Interval.HiLim" >
+ <DESCRIPTION>Resolution max value on spatial axis</DESCRIPTION>
+</FIELD>
+<FIELD name="s_ucd" ID="s_ucd" datatype="char" arraysize="255" ucd="meta.ucd" utype="obscore:Char.SpatialAxis.ucd" >
+ <DESCRIPTION>Ucd for the nature of the spatial axis (pos or u,v data)</DESCRIPTION>
+</FIELD>
+<FIELD name="s_unit" ID="s_unit" datatype="char" arraysize="255" ucd="meta.unit" utype="obscore:Char.SpatialAxis.unit" >
+ <DESCRIPTION>Unit used for spatial axis</DESCRIPTION>
+</FIELD>
+<FIELD name="obs_release_date" ID="obs_release_date" datatype="char" arraysize="24" >
+ <DESCRIPTION>The date that this data product was released</DESCRIPTION>
+</FIELD>
+<FIELD name="quality_level" ID="quality_level" datatype="char" arraysize="15" ucd="meta.code.qual" >
+ <DESCRIPTION>Indicator of quality level, updated by validators</DESCRIPTION>
+</FIELD>
+<FIELD name="thumbnail_id" ID="thumbnail_id" datatype="long" >
+ <DESCRIPTION>The id of the thumbnail or preview image for this data product.</DESCRIPTION>
+</FIELD>
+<DATA>
+<TABLEDATA>
+           <TR><TD>cube</TD><TD>2</TD><TD>ASKAP Early Science Broadband Survey</TD><TD>1934</TD><TD>cube-502</TD><TD>https://data.csiro.au/casda_vo_proxy/vo/datalink/links?ID=cube-502</TD><TD>application/x-votable+xml;content=datalink</TD><TD>415027</TD><TD></TD><TD>333.16767306594</TD><TD>-45.302084636451</TD><TD>73.780732638883</TD><TD>POLYGON ICRS 339.76820580537014 -49.443580029864 326.65233789508 -49.50286732922895 327.5038361349502 -40.839037046421986 338.7583703836203 -40.78819873241401</TD><TD>0.005049654966844</TD><TD></TD><TD></TD><TD>0.0</TD><TD></TD><TD>0.214062548031738</TD><TD>0.2140625481845863</TD><TD>1.40049E9</TD><TD>phot.flux.density</TD><TD>/I/</TD><TD>ASKAP</TD><TD></TD><TD>cont.restored.t0</TD><TD>em.freq</TD><TD>m</TD><TD>1.528483173363071E-10</TD><TD>0.00394983877814</TD><TD>0.005049654966844</TD><TD>pos.eq</TD><TD>deg</TD><TD>2017-08-02T03:51:19.728Z</TD><TD>UNCERTAIN</TD><TD></TD></TR>
+           <TR><TD>cube</TD><TD>2</TD><TD>ASKAP Early Science Broadband Survey</TD><TD>1934</TD><TD>cube-503</TD><TD>https://data.csiro.au/casda_vo_proxy/vo/datalink/links?ID=cube-503</TD><TD>application/x-votable+xml;content=datalink</TD><TD>415024</TD><TD></TD><TD>333.16767306594</TD><TD>-45.302084636451</TD><TD>73.780732638883</TD><TD>POLYGON ICRS 339.76820580537014 -49.443580029864 326.65233789508 -49.50286732922895 327.5038361349502 -40.839037046421986 338.7583703836203 -40.78819873241401</TD><TD>0.0</TD><TD></TD><TD></TD><TD>0.0</TD><TD></TD><TD>0.214062548031738</TD><TD>0.2140625481845863</TD><TD>1.40049E9</TD><TD>phot.flux.density</TD><TD>/I/</TD><TD>ASKAP</TD><TD></TD><TD>cont.weight.t0</TD><TD>em.freq</TD><TD>m</TD><TD>1.528483173363071E-10</TD><TD>0.0</TD><TD>0.0</TD><TD>pos.eq</TD><TD>deg</TD><TD>2218-01-02T16:51:00.728Z</TD><TD>UNCERTAIN</TD><TD></TD></TR>
+           <TR><TD>cube</TD><TD>2</TD><TD>ASKAP Early Science Broadband Survey</TD><TD>1934</TD><TD>cube-504</TD><TD>https://data.csiro.au/casda_vo_proxy/vo/datalink/links?ID=cube-504</TD><TD>application/x-votable+xml;content=datalink</TD><TD>415027</TD><TD></TD><TD>333.16767306594</TD><TD>-45.302084636451</TD><TD>73.780732638883</TD><TD>POLYGON ICRS 339.76820580537014 -49.443580029864 326.65233789508 -49.50286732922895 327.5038361349502 -40.839037046421986 338.7583703836203 -40.78819873241401</TD><TD>0.005049654966844</TD><TD></TD><TD></TD><TD>0.0</TD><TD></TD><TD>0.214062548031738</TD><TD>0.2140625481845863</TD><TD>1.40049E9</TD><TD>phot.flux.density</TD><TD>/I/</TD><TD>ASKAP</TD><TD></TD><TD>cont.noise.t0</TD><TD>em.freq</TD><TD>m</TD><TD>1.528483173363071E-10</TD><TD>0.00394983877814</TD><TD>0.005049654966844</TD><TD>pos.eq</TD><TD>deg</TD><TD></TD><TD>UNCERTAIN</TD><TD></TD></TR>
+</TABLEDATA>
+</DATA>
+</TABLE>
+</RESOURCE>
+</VOTABLE>

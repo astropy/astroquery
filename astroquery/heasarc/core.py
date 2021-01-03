@@ -1,5 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from __future__ import print_function
+
+import warnings
 from six import BytesIO
 from astropy.table import Table
 from astropy.io import fits
@@ -8,7 +9,7 @@ from astropy import units as u
 from ..query import BaseQuery
 from ..utils import commons
 from ..utils import async_to_sync
-from ..exceptions import InvalidQueryError
+from ..exceptions import InvalidQueryError, NoResultsWarning
 from . import conf
 
 __all__ = ['Heasarc', 'HeasarcClass']
@@ -53,11 +54,13 @@ class HeasarcClass(BaseQuery):
         # Parse the results specially (it's ascii format, not fits)
         response = self.query_async(
             request_payload,
-            url=conf.mission_server,
+            url=conf.server,
             cache=cache
         )
         data = BytesIO(response.content)
-        table = Table.read(data, format='ascii.fixed_width_two_line',
+        data_str = data.read().decode('utf-8')
+        data_str = data_str.replace('Table xxx does not seem to exist!\n\n\n\nAvailable tables:\n', '')
+        table = Table.read(data_str, format='ascii.fixed_width_two_line',
                            delimiter='+', header_start=1, position_line=2,
                            data_start=3, data_end=-1)
         return table
@@ -216,6 +219,9 @@ class HeasarcClass(BaseQuery):
         elif "Software error:" in response.text:
             raise InvalidQueryError("Unspecified error from HEASARC database. "
                                     "\nCheck error message: \n{!s}".format(response.text))
+        elif "NO MATCHING ROWS" in response.text:
+            warnings.warn(NoResultsWarning("No matching rows were found in the query."))
+            return Table()
 
         try:
             data = BytesIO(response.content)
@@ -318,7 +324,7 @@ class HeasarcClass(BaseQuery):
         # Set search radius (arcmin)
         radius = kwargs.get('radius', None)
         if radius is not None:
-            request_payload['Radius'] = "{}".format(radius.to(u.arcmin))
+            request_payload['Radius'] = "{}".format(u.Quantity(radius).to(u.arcmin))
 
         # Maximum number of results to be returned
         resultmax = kwargs.get('resultmax', None)

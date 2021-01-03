@@ -9,9 +9,6 @@ Tests for `astroquery.vo_conesearch.validator.validate`.
     When this happens, rerun or update the test.
 
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 # STDLIB
 import os
 import shutil
@@ -21,7 +18,7 @@ import pytest
 from numpy.testing import assert_allclose
 
 # ASTROPY
-from astropy.tests.helper import remote_data, catch_warnings
+from astropy.tests.helper import catch_warnings
 from astropy.utils.data import get_pkg_data_filename
 
 # LOCAL
@@ -31,8 +28,8 @@ from ...vos_catalog import VOSDatabase
 __doctest_skip__ = ['*']
 
 
-@remote_data
-class TestConeSearchValidation(object):
+@pytest.mark.remote_data
+class TestConeSearchValidation:
     """Validation on a small subset of Cone Search sites."""
 
     @pytest.fixture(autouse=True)
@@ -84,7 +81,7 @@ class TestConeSearchValidation(object):
         conf.reset('conesearch_master_list')
 
 
-@remote_data
+@pytest.mark.remote_data
 def test_tstquery():
     with catch_warnings() as w:
         d = tstquery.parse_cs('ivo://cds.vizier/i/252', cap_index=4)

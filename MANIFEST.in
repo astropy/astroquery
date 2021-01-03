@@ -2,17 +2,15 @@ include LICENSE.rst
 include README.rst
 include CHANGES.rst
 include CITATION
+include astroquery/CITATION
 include astroquery/splatalogue/data/*
 
-include ez_setup.py
 include ah_bootstrap.py
 include setup.cfg
 
-recursive-include astroquery *.pyx *.c *.pxd
+recursive-include astroquery *.py
 recursive-include docs *
 recursive-include licenses *
-recursive-include cextern *
-recursive-include scripts *
 
 prune build
 prune docs/_build
@@ -28,16 +26,14 @@ include astropy_helpers/CHANGES.rst
 include astropy_helpers/LICENSE.rst
 recursive-include astropy_helpers/licenses *
 
-include astropy_helpers/ez_setup.py
 include astropy_helpers/ah_bootstrap.py
 
-recursive-include astropy_helpers/astropy_helpers *.py *.pyx *.c *.h
+recursive-include astropy_helpers/astropy_helpers *.py *.c
 recursive-include astropy_helpers/astropy_helpers.egg-info *
 # include the sphinx stuff with "*" because there are css/html/rst/etc.
 recursive-include astropy_helpers/astropy_helpers/sphinx *
 
 prune astropy_helpers/build
 prune astropy_helpers/astropy_helpers/tests
-
 
 global-exclude *.pyc *.o

@@ -1,7 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """Inspect results from :func:`astroquery.vo_conesearch.validator.validate`."""
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 
 # STDLIB
 import sys
@@ -15,7 +13,7 @@ from . import conf
 __all__ = ['ConeSearchResults']
 
 
-class ConeSearchResults(object):
+class ConeSearchResults:
     """
     A class to store Cone Search validation results.
 

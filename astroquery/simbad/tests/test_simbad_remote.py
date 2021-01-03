@@ -1,17 +1,12 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import pytest
 
-from astropy.tests.helper import remote_data
 import astropy.coordinates as coord
 import astropy.units as u
 from astropy.table import Table
 from ...utils.testing_tools import MockResponse
 from ... import simbad
 
-# double-check super-undo monkeypatching...
-import requests
-import imp
-imp.reload(requests)
 
 # M42 coordinates
 ICRS_COORDS_M42 = coord.SkyCoord("05h35m17.3s -05h23m28s", frame='icrs')
@@ -19,8 +14,8 @@ ICRS_COORDS_SgrB2 = coord.SkyCoord(266.835*u.deg, -28.38528*u.deg, frame='icrs')
 multicoords = coord.SkyCoord([ICRS_COORDS_M42, ICRS_COORDS_SgrB2])
 
 
-@remote_data
-class TestSimbad(object):
+@pytest.mark.remote_data
+class TestSimbad:
 
     @classmethod
     def setup_class(cls):

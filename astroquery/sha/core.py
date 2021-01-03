@@ -144,8 +144,8 @@ def query(coord=None, ra=None, dec=None, size=None, naifid=None, pid=None,
     dtypes = _map_dtypes(type_names, field_widths)
     # To table
     # transpose data for appropriate table instance handling
-    t = Table(list(zip(*data)), names=col_names, dtype=dtypes)
-    return t
+    table = Table(list(zip(*data)), names=col_names, dtype=dtypes)
+    return table
 
 
 def save_file(url, out_dir='sha_tmp/', out_name=None):

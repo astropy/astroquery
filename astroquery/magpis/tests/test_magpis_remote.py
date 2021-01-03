@@ -1,18 +1,14 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from __future__ import print_function
 
-from astropy.coordinates import SkyCoord
+
+import pytest
 import astropy.units as u
-from astropy.tests.helper import remote_data
-import requests
-import imp
+from astropy.coordinates import SkyCoord
 
 from ... import magpis
 
-imp.reload(requests)
 
-
-@remote_data
+@pytest.mark.remote_data
 class TestMagpis:
 
     def test_get_images_async(self):

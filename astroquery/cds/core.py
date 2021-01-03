@@ -18,7 +18,7 @@ try:
     from mocpy import MOC
 except ImportError:
     print("Could not import mocpy, which is a requirement for the CDS service."
-          "Please refer to https://mocpy.readthedocs.io/en/latest/install.html for how to install it.")
+          "Please refer to https://cds-astro.github.io/mocpy/install.html for how to install it.")
     pass
 
 try:
@@ -72,7 +72,7 @@ class CdsClass(BaseQuery):
             * ``regions.CircleSkyRegion`` : defines an astropy cone region.
             * ``regions.PolygonSkyRegion`` : defines an astropy polygon region.
             * ``mocpy.moc.MOC`` : defines a MOC from the MOCPy library. See the `MOCPy's documentation
-              <https://mocpy.readthedocs.io/en/latest/>`__ for how to instantiate a MOC object.
+              <https://cds-astro.github.io/mocpy/>`__ for how to instantiate a MOC object.
 
         intersect : str, optional
             This parameter can take only three different values:
@@ -254,6 +254,8 @@ class CdsClass(BaseQuery):
             region = kwargs['region']
             if isinstance(region, MOC):
                 self.path_moc_file = os.path.join(os.getcwd(), 'moc.fits')
+                if os.path.isfile(self.path_moc_file):  # Silent overwrite
+                    os.remove(self.path_moc_file)
                 region.write(self.path_moc_file, format="fits")
                 # add the moc region payload to the request payload
             elif isinstance(region, CircleSkyRegion):

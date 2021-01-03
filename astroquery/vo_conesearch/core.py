@@ -1,10 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-import six
-from six import BytesIO
-from six.moves import urllib
 
+import urllib
+import warnings
+from io import BytesIO
 from numbers import Number
 
 from astropy import units as u
@@ -12,8 +10,9 @@ from astropy.coordinates import (BaseCoordinateFrame, ICRS, SkyCoord,
                                  Longitude, Latitude)
 from astropy.io.votable import table
 
-from .exceptions import ConeSearchError, InvalidAccessURL
+from .exceptions import VOSError, ConeSearchError, InvalidAccessURL
 from .vos_catalog import vo_tab_parse
+from ..exceptions import NoResultsWarning
 from ..query import BaseQuery
 from ..utils import commons
 
@@ -48,14 +47,8 @@ class ConeSearchClass(BaseQuery):
     23323175812948 00424403+4116069 ... 6453800072297      --
     23323175812930 00424403+4116108 ... 6453800072279      --
     """
-    TIMEOUT = conf.timeout
-    URL = conf.fallback_url
-    PEDANTIC = conf.pedantic
 
     def __init__(self):
-        if not self.URL.endswith(('?', '&')):
-            raise InvalidAccessURL("URL should end with '?' or '&'")
-
         super(ConeSearchClass, self).__init__()
 
     def query_region_async(self, *args, **kwargs):
@@ -66,8 +59,10 @@ class ConeSearchClass(BaseQuery):
         raise NotImplementedError(
             'Use astroquery.vo_conesearch.conesearch.AsyncConeSearch class.')
 
-    def query_region(self, coordinates, radius, verb=1,
-                     get_query_payload=False, cache=True, verbose=False):
+    def query_region(self, coordinates, radius, *, verb=1,
+                     get_query_payload=False, cache=True, verbose=False,
+                     service_url=None, return_astropy_table=True,
+                     use_names_over_ids=False):
         """
         Perform Cone Search and returns the result of the
         first successful query.
@@ -120,10 +115,26 @@ class ConeSearchClass(BaseQuery):
         verbose : bool, optional
             Verbose output, including VO table warnings.
 
+        service_url : str or `None`
+            URL for the Cone Search service. If not given, will use
+            ``fallback_url`` from ``vo_conesearch`` configuration.
+
+        return_astropy_table : bool
+            Returned ``result`` will be `astropy.table.Table` rather
+            than `astropy.io.votable.tree.Table`.
+
+        use_names_over_ids : bool
+            When `True` use the ``name`` attributes of columns as the names
+            of columns in the `~astropy.table.Table` instance.  Since names
+            are not guaranteed to be unique, this may cause some columns
+            to be renamed by appending numbers to the end.  Otherwise
+            (default), use the ID attributes as the column names.
+
         Returns
         -------
-        result : `astropy.io.votable.tree.Table`
+        result : `astropy.table.Table` or `astropy.io.votable.tree.Table`
             Table from successful VO service request.
+            See ``return_astropy_table`` option for the kind of table returned.
 
         """
         request_payload = self._args_to_payload(coordinates, radius, verb)
@@ -131,16 +142,17 @@ class ConeSearchClass(BaseQuery):
         if get_query_payload:
             return request_payload
 
-        # && in URL can break some queries, so remove trailing & if needed
-        if self.URL.endswith('&'):
-            url = self.URL[:-1]
-        else:
-            url = self.URL
-
+        url = _validate_url(service_url)
         response = self._request('GET', url, params=request_payload,
-                                 timeout=self.TIMEOUT, cache=cache)
-        result = self._parse_result(response, pars=request_payload,
+                                 timeout=conf.timeout, cache=cache)
+        result = self._parse_result(response, url, pars=request_payload,
                                     verbose=verbose)
+
+        # Convert to an astropy.table.Table object
+        if result is not None and return_astropy_table:
+            result = result.to_table(use_names_over_ids=use_names_over_ids)
+            result.url = url  # To be consistent with votable option
+
         return result
 
     def _args_to_payload(self, coordinates, radius, verb):
@@ -153,7 +165,7 @@ class ConeSearchClass(BaseQuery):
         v = _validate_verb(verb)
         return {'RA': ra, 'DEC': dec, 'SR': sr, 'VERB': v}
 
-    def _parse_result(self, response, pars={}, verbose=False):
+    def _parse_result(self, response, url, pars={}, verbose=False):
         """
         Parse the raw HTTP response and return it as a table.
         """
@@ -162,15 +174,37 @@ class ConeSearchClass(BaseQuery):
             commons.suppress_vo_warnings()
 
         query = []
-        for key, value in six.iteritems(pars):
+        for key, value in pars.items():
             query.append('{0}={1}'.format(urllib.parse.quote(key),
                                           urllib.parse.quote_plus(str(value))))
-        parsed_url = self.URL + '&'.join(query)
+        parsed_url = url + '&'.join(query)
 
         # Parse the result
         tab = table.parse(BytesIO(response.content), filename=parsed_url,
-                          pedantic=self.PEDANTIC)
-        return vo_tab_parse(tab, self.URL, pars)
+                          pedantic=conf.pedantic)
+        try:
+            result = vo_tab_parse(tab, url, pars)
+        except VOSError as exc:
+            result = None
+            warnings.warn(str(exc), NoResultsWarning)
+        return result
+
+
+def _validate_url(url):
+    """Validate Cone Search service URL."""
+    if url is None:
+        url = conf.fallback_url
+
+    # This is the standard expectation of a service URL
+    if not url.endswith(('?', '&')):
+        raise InvalidAccessURL("URL should end with '?' or '&'")
+
+    # && in URL can break some queries, so remove trailing & if needed
+    # as & will be added back later
+    if url.endswith('&'):
+        url = url[:-1]
+
+    return url
 
 
 def _validate_coord(coordinates):

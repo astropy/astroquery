@@ -1,17 +1,16 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from __future__ import print_function
+
 
 import pytest
 
 from astropy import coordinates as coord
 from astropy.table import Table
 import astropy.units as u
-from astropy.tests.helper import remote_data
 
 from .. import OAC
 
 
-@remote_data
+@pytest.mark.remote_data
 class TestOACClass:
     """Test methods to verify the functionality of methods in the
     OAC API astroquery module.

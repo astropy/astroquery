@@ -1,5 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from __future__ import print_function
+
 
 import re
 from collections import namedtuple
@@ -23,13 +23,13 @@ class NedClass(BaseQuery):
     """
     Class for querying the NED (NASA/IPAC Extragalactic Database) system
 
-    http://ned.ipac.caltech.edu/
+    https://ned.ipac.caltech.edu/
     """
     # make configurable
     BASE_URL = conf.server
-    OBJ_SEARCH_URL = BASE_URL + 'nph-objsearch'
-    ALL_SKY_URL = BASE_URL + 'nph-allsky'
-    DATA_SEARCH_URL = BASE_URL + 'nph-datasearch'
+    OBJ_SEARCH_URL = BASE_URL + 'objsearch'
+    ALL_SKY_URL = BASE_URL + 'allsky'
+    DATA_SEARCH_URL = BASE_URL + 'datasearch'
     IMG_DATA_URL = BASE_URL + 'imgdata'
     SPECTRA_URL = BASE_URL + 'NEDspectra'
     TIMEOUT = conf.timeout
@@ -616,6 +616,8 @@ class NedClass(BaseQuery):
         """
         Initializes common cgi-parameters for all queries.
 
+        For more information see <https://ned.ipac.caltech.edu/Documents/Guides/Interface/QueryAuto>
+
         Returns
         -------
         request_payload : dict
@@ -623,7 +625,7 @@ class NedClass(BaseQuery):
         """
         request_payload = dict(of='xml_main')
         # common settings for all queries as per NED guidelines
-        # for more see <http://ned.ipac.caltech.edu/help/guidelines_auto.html>
+        # for more see <https://ned.ipac.caltech.edu/Documents/Guides/Interface/QueryAuto>
         request_payload['img_stamp'] = 'NO'
         request_payload['extend'] = 'no'
         request_payload['list_limit'] = 0

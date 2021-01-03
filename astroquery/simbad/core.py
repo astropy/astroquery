@@ -2,9 +2,10 @@
 """
 Simbad query class for accessing the Simbad Service
 """
-from __future__ import print_function
+
 import copy
 import re
+import requests
 import json
 import os
 from collections import namedtuple
@@ -15,18 +16,19 @@ import astropy.coordinates as coord
 from astropy.table import Table
 import astropy.io.votable as votable
 from six import BytesIO
+
 from ..query import BaseQuery
 from ..utils import commons
 from ..exceptions import TableParseError, LargeQueryWarning
 from . import conf
 from ..utils.process_asyncs import async_to_sync
 
-__all__ = ['Simbad', 'SimbadClass']
+__all__ = ['Simbad', 'SimbadClass', 'SimbadBaseQuery']
 
 
 def validate_epoch(value):
-    p = re.compile(r'^[JB]\d+[.]?\d+$', re.IGNORECASE)
-    if p.match(value) is None:
+    pattern = re.compile(r'^[JB]\d+[.]?\d+$', re.IGNORECASE)
+    if pattern.match(value) is None:
         raise ValueError("Epoch must be specified as [J|B]<epoch>.\n"
                          "Example: epoch='J2000'")
     return value
@@ -65,7 +67,7 @@ def validate_equinox_decorator(func):
     return wrapper
 
 
-def strip_field(f, keep_filters=False):
+def strip_field(field, keep_filters=False):
     """Helper tool: remove parameters from VOTABLE fields
     However, this should only be applied to a subset of VOTABLE fields:
 
@@ -78,14 +80,14 @@ def strip_field(f, keep_filters=False):
 
     *if* keep_filters is specified
     """
-    if '(' in f:
-        root = f[:f.find('(')]
+    if '(' in field:
+        root = field[:field.find('(')]
         if (root in ('ra', 'dec', 'otype', 'id', 'coo', 'bibcodelist') or
                 not keep_filters):
             return root
 
     # the overall else (default option)
-    return f
+    return field
 
 
 error_regex = re.compile(r'(?ms)\[(?P<line>\d+)\]\s?(?P<msg>.+?)(\[|\Z)')
@@ -93,7 +95,7 @@ SimbadError = namedtuple('SimbadError', ('line', 'msg'))
 VersionInfo = namedtuple('VersionInfo', ('major', 'minor', 'micro', 'patch'))
 
 
-class SimbadResult(object):
+class SimbadResult:
     __sections = ('script', 'console', 'error', 'data')
 
     def __init__(self, txt, verbose=False):
@@ -221,8 +223,46 @@ class SimbadObjectIDsResult(SimbadResult):
         return table
 
 
+class SimbadBaseQuery(BaseQuery):
+    """
+    SimbadBaseQuery overloads the base query because we know that SIMBAD will
+    sometimes blacklist users for exceeding rate limits.  This warning results
+    in a "connection refused" error (error 61) instead of a more typical "error
+    8" that you would get from not having an internet connection at all.
+    """
+    def _request(self, *args, **kwargs):
+        try:
+            response = super(SimbadBaseQuery, self)._request(*args, **kwargs)
+        except requests.exceptions.ConnectionError as ex:
+            if 'Errno 61' in str(ex):
+                extratext = ("\n\n"
+                             "************************* \n"
+                             "ASTROQUERY ADDED WARNING: \n"
+                             "************************* \n"
+                             "Error 61 received from SIMBAD server.  "
+                             "This may indicate that you have been "
+                             "blacklisted for exceeding the query rate limit."
+                             "  See the astroquery SIMBAD documentation.  "
+                             "Blacklists are generally cleared after ~1 hour.  "
+                             "Please reconsider your approach, you may want "
+                             "to use vectorized queries."
+                             )
+                ex.args[0].args = (ex.args[0].args[0] + extratext,)
+            raise ex
+
+        if response.status_code == 403:
+            errmsg = ("Error 403: Forbidden.  You may get this error if you "
+                      "exceed the SIMBAD server's rate limits.  Try again in "
+                      "a few seconds or minutes.")
+            raise requests.exceptions.HTTPError(errmsg)
+        else:
+            response.raise_for_status()
+
+        return response
+
+
 @async_to_sync
-class SimbadClass(BaseQuery):
+class SimbadClass(SimbadBaseQuery):
     """
     The class for querying the Simbad web service.
 
@@ -907,8 +947,13 @@ class SimbadClass(BaseQuery):
         """
         request_payload = dict(script="\n".join(('format object "%IDLIST"',
                                                  'query id %s' % object_name)))
+
+        if get_query_payload:
+            return request_payload
+
         response = self._request("POST", self.SIMBAD_URL, data=request_payload,
                                  timeout=self.TIMEOUT, cache=cache)
+
         return response
 
     def _get_query_header(self, get_raw=False):
@@ -1023,10 +1068,10 @@ class SimbadClass(BaseQuery):
 
 def _parse_coordinates(coordinates):
     try:
-        c = commons.parse_coordinates(coordinates)
+        coordinates = commons.parse_coordinates(coordinates)
         # now c has some subclass of astropy.coordinate
         # get ra, dec and frame
-        return _get_frame_coords(c)
+        return _get_frame_coords(coordinates)
     except (u.UnitsError, TypeError):
         raise ValueError("Coordinates not specified correctly")
 
@@ -1040,29 +1085,29 @@ def _has_length(x):
         return False
 
 
-def _get_frame_coords(c):
-    if _has_length(c):
+def _get_frame_coords(coordinates):
+    if _has_length(coordinates):
         # deal with vectors differently
-        parsed = [_get_frame_coords(cc) for cc in c]
+        parsed = [_get_frame_coords(cc) for cc in coordinates]
         return ([ra for ra, dec, frame in parsed],
                 [dec for ra, dec, frame in parsed],
                 [frame for ra, dec, frame in parsed])
-    if c.frame.name == 'icrs':
-        ra, dec = _to_simbad_format(c.ra, c.dec)
+    if coordinates.frame.name == 'icrs':
+        ra, dec = _to_simbad_format(coordinates.ra, coordinates.dec)
         return (ra, dec, 'ICRS')
-    elif c.frame.name == 'galactic':
-        lon, lat = (str(c.l.degree), str(c.b.degree))
+    elif coordinates.frame.name == 'galactic':
+        lon, lat = (str(coordinates.l.degree), str(coordinates.b.degree))
         if lat[0] not in ['+', '-']:
             lat = '+' + lat
         return (lon, lat, 'GAL')
-    elif c.frame.name == 'fk4':
-        ra, dec = _to_simbad_format(c.ra, c.dec)
+    elif coordinates.frame.name == 'fk4':
+        ra, dec = _to_simbad_format(coordinates.ra, coordinates.dec)
         return (ra, dec, 'FK4')
-    elif c.frame.name == 'fk5':
-        ra, dec = _to_simbad_format(c.ra, c.dec)
+    elif coordinates.frame.name == 'fk5':
+        ra, dec = _to_simbad_format(coordinates.ra, coordinates.dec)
         return (ra, dec, 'FK5')
     else:
-        raise ValueError("%s is not a valid coordinate" % c)
+        raise ValueError("%s is not a valid coordinate" % coordinates)
 
 
 def _to_simbad_format(ra, dec):

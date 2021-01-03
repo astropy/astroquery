@@ -14,6 +14,8 @@ from ...xmatch import XMatch
 DATA_FILES = {
     'get': 'tables.csv',  # .action.getVizieRTableNames
     'post': 'query_res.csv',  # .request.xmatch
+    'poslist': 'posList.csv',
+    'poslist_duplicates': 'posList_duplicates.csv',
 }
 
 
@@ -23,8 +25,8 @@ class MockResponseXmatch(MockResponse):
 
         self.data = data
         fn = data_path(DATA_FILES[method.lower()])
-        with open(fn, 'rb') as f:
-            self.content = f.read()
+        with open(fn, 'rb') as file:
+            self.content = file.read()
 
     def get_content(self):
         return self.content
@@ -88,7 +90,7 @@ def test_xmatch_query_local(monkeypatch):
         response = xm.query_async(
             cat1=pos_list, cat2='vizier:II/246/out', max_distance=5 * arcsec,
             colRA1='ra', colDec1='dec')
-    table = ascii.read(response.text, format='csv')
+    table = ascii.read(response.text, format='csv', fast_reader=False)
     assert isinstance(table, Table)
     assert table.colnames == [
         'angDist', 'ra', 'dec', 'my_id', '2MASS', 'RAJ2000', 'DEJ2000',
@@ -112,10 +114,16 @@ def test_xmatch_query_cat1_table_local(monkeypatch):
     response = xm.query_async(
         cat1=input_table, cat2='vizier:II/246/out', max_distance=5 * arcsec,
         colRA1='ra', colDec1='dec')
-    table = ascii.read(response.text, format='csv')
+    table = ascii.read(response.text, format='csv', fast_reader=False)
     assert isinstance(table, Table)
     assert table.colnames == [
         'angDist', 'ra', 'dec', 'my_id', '2MASS', 'RAJ2000', 'DEJ2000',
         'errHalfMaj', 'errHalfMin', 'errPosAng', 'Jmag', 'Hmag', 'Kmag',
         'e_Jmag', 'e_Hmag', 'e_Kmag', 'Qfl', 'Rfl', 'X', 'MeasureJD']
     assert len(table) == 11
+
+
+@pytest.mark.parametrize('datafile', DATA_FILES.values())
+def test_parse_text(datafile):
+    xm = XMatch()
+    xm._parse_text(datafile)

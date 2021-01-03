@@ -17,7 +17,8 @@ if six.PY3:
 VO_DATA = {'HIP,NOMAD,UCAC': "viz.xml",
            'NOMAD,UCAC': "viz.xml",
            'B/iram/pdbi': "afgl2591_iram.xml",
-           'J/ApJ/706/83': "kang2010.xml"}
+           'J/ApJ/706/83': "kang2010.xml",
+           "find_2009ApJ...706...83K": "find_kangapj70683.xml"}
 
 
 def data_path(filename):
@@ -39,9 +40,18 @@ def post_mockreturn(self, method, url, data=None, timeout=10, files=None,
                     params=None, headers=None, **kwargs):
     if method != 'POST':
         raise ValueError("A 'post request' was made with method != POST")
-    datad = dict([urlparse.parse_qsl(d)[0] for d in data.split('\n')])
-    filename = data_path(VO_DATA[datad['-source']])
-    content = open(filename, "rb").read()
+    if isinstance(data, dict):
+        datad = data
+    else:
+        datad = dict([urlparse.parse_qsl(d)[0] for d in data.split('\n')])
+    if '-source' in datad:
+        # a request for the actual data
+        filename = data_path(VO_DATA[datad['-source']])
+        content = open(filename, "rb").read()
+    elif '-words' in datad:
+        # a find_catalog request/only metadata
+        filename = data_path(VO_DATA['find_' + datad['-words']])
+        content = open(filename, "rb").read()
     return MockResponse(content, **kwargs)
 
 
@@ -166,6 +176,20 @@ def test_get_catalogs_async(patch_post):
 def test_get_catalogs(patch_post):
     result = vizier.core.Vizier.get_catalogs('J/ApJ/706/83')
     assert isinstance(result, commons.TableList)
+
+
+def test_find_resource_then_get(patch_post):
+    reses = vizier.core.Vizier.find_catalogs('2009ApJ...706...83K')
+    res = next(iter(reses.values()))
+
+    result = vizier.core.Vizier.get_catalogs(res)
+    assert isinstance(result, commons.TableList)
+    assert next(iter(result.keys())).startswith(res.name)
+
+    resultl = vizier.core.Vizier.get_catalogs([res])
+    assert type(result) == type(resultl)
+    assert len(result) == len(resultl)
+    assert len(result[0]) == len(resultl[0])
 
 
 def test_catalog_consistency_issue1326(patch_post):

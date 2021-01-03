@@ -1,9 +1,9 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from astropy.tests.helper import remote_data
+import pytest
 from ... import open_exoplanet_catalogue as oec
 
 
-@remote_data
+@pytest.mark.remote_data
 def test_function():
 
     cata = oec.get_catalogue()

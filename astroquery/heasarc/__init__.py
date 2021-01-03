@@ -17,13 +17,8 @@ class Conf(_config.ConfigNamespace):
     """
     Configuration parameters for `astroquery.heasarc`.
     """
-    server = _config.ConfigItem(
-        ['http://heasarc.gsfc.nasa.gov/cgi-bin/W3Browse/w3query_noredir.pl'],
-        'Name of the HEASARC server to use.')
 
-    # The above server does not work for querying available missions.
-    # The following server does.
-    mission_server = _config.ConfigItem(
+    server = _config.ConfigItem(
         ['https://heasarc.gsfc.nasa.gov/db-perl/W3Browse/w3query.pl'],
         'Name of the HEASARC server used to query available missions.')
 

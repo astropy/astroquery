@@ -1,0 +1,99 @@
+<?xml version="1.0"?>
+<VOTABLE version="1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns="http://www.ivoa.net/xml/VOTable/v1.3"
+xmlns:stc="http://www.ivoa.net/xml/STC/v1.30">
+<RESOURCE>
+<PARAM name="fixlen" datatype="char" arraysize="*" value="T" />
+<PARAM name="RowsRetrieved" datatype="char" arraysize="*" value="1" />
+<PARAM name="For detailed descriptions of the columns, go to http://exoplanetarchive.ipac.caltech.edu/docs/documentation.html and choose the appropriate table guide." datatype="char" arraysize="*" value="" />
+<TABLE>
+<FIELD name="pl_hostname" datatype="char" arraysize="*"/>
+<FIELD name="pl_letter" datatype="char" arraysize="*"/>
+<FIELD name="pl_name" datatype="char" arraysize="*"/>
+<FIELD name="pl_discmethod" datatype="char" arraysize="*"/>
+<FIELD name="pl_controvflag" datatype="int"/>
+<FIELD name="pl_pnum" datatype="int"/>
+<FIELD name="pl_orbper" datatype="double" unit="d"/>
+<FIELD name="pl_orbpererr1" datatype="double" unit="d"/>
+<FIELD name="pl_orbpererr2" datatype="double" unit="d"/>
+<FIELD name="pl_orbperlim" datatype="int"/>
+<FIELD name="pl_orbpern" datatype="int"/>
+<FIELD name="pl_orbsmax" datatype="double" unit="AU"/>
+<FIELD name="pl_orbsmaxerr1" datatype="double" unit="AU"/>
+<FIELD name="pl_orbsmaxerr2" datatype="double" unit="AU"/>
+<FIELD name="pl_orbsmaxlim" datatype="int"/>
+<FIELD name="pl_orbsmaxn" datatype="int"/>
+<FIELD name="pl_orbeccen" datatype="double"/>
+<FIELD name="pl_orbeccenerr1" datatype="double"/>
+<FIELD name="pl_orbeccenerr2" datatype="double"/>
+<FIELD name="pl_orbeccenlim" datatype="int"/>
+<FIELD name="pl_orbeccenn" datatype="int"/>
+<FIELD name="pl_orbincl" datatype="double" unit="deg"/>
+<FIELD name="pl_orbinclerr1" datatype="double" unit="deg"/>
+<FIELD name="pl_orbinclerr2" datatype="double" unit="deg"/>
+<FIELD name="pl_orbincllim" datatype="int"/>
+<FIELD name="pl_orbincln" datatype="int"/>
+<FIELD name="pl_bmassj" datatype="double" unit="Mjup"/>
+<FIELD name="pl_bmassjerr1" datatype="double" unit="Mjup"/>
+<FIELD name="pl_bmassjerr2" datatype="double" unit="Mjup"/>
+<FIELD name="pl_bmassjlim" datatype="int"/>
+<FIELD name="pl_bmassn" datatype="int"/>
+<FIELD name="pl_bmassprov" datatype="char" arraysize="*"/>
+<FIELD name="pl_radj" datatype="double" unit="Rjup"/>
+<FIELD name="pl_radjerr1" datatype="double" unit="Rjup"/>
+<FIELD name="pl_radjerr2" datatype="double" unit="Rjup"/>
+<FIELD name="pl_radjlim" datatype="int"/>
+<FIELD name="pl_radn" datatype="int"/>
+<FIELD name="pl_dens" datatype="double" unit="g/cm3"/>
+<FIELD name="pl_denserr1" datatype="double" unit="g/cm3"/>
+<FIELD name="pl_denserr2" datatype="double" unit="g/cm3"/>
+<FIELD name="pl_denslim" datatype="int"/>
+<FIELD name="pl_densn" datatype="int"/>
+<FIELD name="pl_ttvflag" datatype="int"/>
+<FIELD name="pl_kepflag" datatype="int"/>
+<FIELD name="pl_k2flag" datatype="int"/>
+<FIELD name="ra_str" datatype="char" arraysize="*"/>
+<FIELD name="dec_str" datatype="char" arraysize="*"/>
+<FIELD name="ra" datatype="float" ucd="pos.eq.ra" width="12" precision="7" unit="deg"/>
+<FIELD name="st_raerr" datatype="double" unit="deg"/>
+<FIELD name="dec" datatype="float" ucd="pos.eq.dec" width="12" precision="7" unit="deg"/>
+<FIELD name="st_decerr" datatype="double" unit="deg"/>
+<FIELD name="st_posn" datatype="int"/>
+<FIELD name="st_dist" datatype="double" unit="pc"/>
+<FIELD name="st_disterr1" datatype="double" unit="pc"/>
+<FIELD name="st_disterr2" datatype="double" unit="pc"/>
+<FIELD name="st_distlim" datatype="int"/>
+<FIELD name="st_distn" datatype="int"/>
+<FIELD name="st_optmag" datatype="double" unit="mag"/>
+<FIELD name="st_optmagerr" datatype="double" unit="mag"/>
+<FIELD name="st_optmaglim" datatype="int"/>
+<FIELD name="st_optband" datatype="char" arraysize="*"/>
+<FIELD name="gaia_gmag" datatype="double" unit="mag"/>
+<FIELD name="gaia_gmagerr" datatype="double" unit="mag"/>
+<FIELD name="gaia_gmaglim" datatype="int"/>
+<FIELD name="st_teff" datatype="double" unit="K"/>
+<FIELD name="st_tefferr1" datatype="double" unit="K"/>
+<FIELD name="st_tefferr2" datatype="double" unit="K"/>
+<FIELD name="st_tefflim" datatype="int"/>
+<FIELD name="st_teffn" datatype="int"/>
+<FIELD name="st_mass" datatype="double" unit="Msun"/>
+<FIELD name="st_masserr1" datatype="double" unit="Msun"/>
+<FIELD name="st_masserr2" datatype="double" unit="Msun"/>
+<FIELD name="st_masslim" datatype="int"/>
+<FIELD name="st_massn" datatype="int"/>
+<FIELD name="st_rad" datatype="double" unit="Rsun"/>
+<FIELD name="st_raderr1" datatype="double" unit="Rsun"/>
+<FIELD name="st_raderr2" datatype="double" unit="Rsun"/>
+<FIELD name="st_radlim" datatype="int"/>
+<FIELD name="st_radn" datatype="int"/>
+<FIELD name="pl_nnotes" datatype="int"/>
+<FIELD name="rowupdate" datatype="char" arraysize="*"/>
+<FIELD name="pl_facility" datatype="char" arraysize="*"/>
+<DATA>
+<TABLEDATA>
+<TR><TD>HAT-P-11</TD><TD>b</TD><TD>HAT-P-11 b</TD><TD>Transit</TD><TD>0</TD><TD>2</TD><TD>4.88780244</TD><TD></TD><TD></TD><TD>0</TD><TD>7</TD><TD>0.052540</TD><TD>0.000640</TD><TD>-0.000660</TD><TD>0</TD><TD>3</TD><TD>0.218000</TD><TD>0.034000</TD><TD>-0.031000</TD><TD>0</TD><TD>4</TD><TD></TD><TD></TD><TD></TD><TD>0</TD><TD>3</TD><TD>0.07362</TD><TD>0.00472</TD><TD>-0.00472</TD><TD>0</TD><TD>5</TD><TD>Msini</TD><TD>0.389</TD><TD>0.005</TD><TD>-0.005</TD><TD>0</TD><TD>6</TD><TD></TD><TD></TD><TD></TD><TD>0</TD><TD>2</TD><TD>0</TD><TD>1</TD><TD>0</TD><TD>19h50m50.24s</TD><TD>+48d04m51.1s</TD><TD>297.709351</TD><TD>0.000002</TD><TD>48.080856</TD><TD>0.000002</TD><TD>3</TD><TD>37.81</TD><TD>0.03</TD><TD>-0.03</TD><TD>0</TD><TD>5</TD><TD>9.174</TD><TD></TD><TD>0</TD><TD>Kepler-band</TD><TD>9.151</TD><TD></TD><TD>0</TD><TD>4780.00</TD><TD>50.00</TD><TD>-50.00</TD><TD>0</TD><TD>9</TD><TD>0.81</TD><TD>0.02</TD><TD>-0.03</TD><TD>0</TD><TD>7</TD><TD>0.68</TD><TD>0.01</TD><TD>-0.01</TD><TD>0</TD><TD>9</TD><TD>1</TD><TD>2019-01-31</TD><TD>HATNet</TD></TR>
+</TABLEDATA>
+</DATA>
+</TABLE>
+</RESOURCE>
+</VOTABLE>

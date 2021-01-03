@@ -3,8 +3,6 @@
 VizieR Query Tool
 -----------------
 
-:Author: Julien Woillez (jwoillez@gmail.com)
-
 This package is for querying the VizieR service, primarily hosted at:
 http://vizier.u-strasbg.fr
 
@@ -25,11 +23,10 @@ class Conf(_config.ConfigNamespace):
 
     server = _config.ConfigItem(
         ['vizier.u-strasbg.fr',
+         'vizier.cfa.harvard.edu',
          'vizier.nao.ac.jp',
          'vizier.hia.nrc.ca',
          'vizier.ast.cam.ac.uk',
-         'vizier.cfa.harvard.edu',
-         'www.ukirt.jach.hawaii.edu',
          'vizier.iucaa.ernet.in',
          'vizier.china-vo.org',
          ],

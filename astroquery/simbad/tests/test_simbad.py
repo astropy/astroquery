@@ -69,7 +69,7 @@ def patch_post(request):
 def post_mockreturn(self, method, url, data, timeout, **kwargs):
     response = MockResponseSimbad(data['script'], **kwargs)
 
-    class last_query(object):
+    class last_query:
         pass
 
     self._last_query = last_query()
@@ -113,9 +113,9 @@ def test_get_frame_coordinates(coordinates, expected_frame):
     actual_frame = simbad.core._get_frame_coords(coordinates)[2]
     assert actual_frame == expected_frame
     if actual_frame == 'GAL':
-        l, b = simbad.core._get_frame_coords(coordinates)[:2]
-        np.testing.assert_almost_equal(float(l) % 360, -67.02084 % 360)
-        np.testing.assert_almost_equal(float(b), -29.75447)
+        l_gal, b_gal = simbad.core._get_frame_coords(coordinates)[:2]
+        np.testing.assert_almost_equal(float(l_gal) % 360, -67.02084 % 360)
+        np.testing.assert_almost_equal(float(b_gal), -29.75447)
 
 
 def test_parse_result():
@@ -433,5 +433,6 @@ def test_regression_issue388():
         response.content = f.read()
     parsed_table = simbad.Simbad._parse_result(response,
                                                simbad.core.SimbadVOTableResult)
-    assert parsed_table['MAIN_ID'][0] == b'M   1'
+    truth = b'M   1' if commons.ASTROPY_LT_4_1 else 'M   1'
+    assert parsed_table['MAIN_ID'][0] == truth
     assert len(parsed_table) == 1

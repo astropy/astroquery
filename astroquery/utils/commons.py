@@ -16,12 +16,13 @@ import six
 import astropy.units as u
 from astropy import coordinates as coord
 from collections import OrderedDict
+from astropy.utils import minversion
 import astropy.utils.data as aud
 from astropy.io import fits, votable
 
 from astropy.coordinates import BaseCoordinateFrame
 
-from ..exceptions import TimeoutError
+from ..exceptions import TimeoutError, InputWarning
 from .. import version
 
 
@@ -49,7 +50,12 @@ __all__ = ['send_request',
            'parse_coordinates',
            'TableList',
            'suppress_vo_warnings',
-           'validate_email']
+           'validate_email',
+           'ASTROPY_LT_4_0',
+           'ASTROPY_LT_4_1']
+
+ASTROPY_LT_4_0 = not minversion('astropy', '4.0')
+ASTROPY_LT_4_1 = not minversion('astropy', '4.1')
 
 
 def send_request(url, data, timeout, request_type='POST', headers={},
@@ -83,7 +89,7 @@ def send_request(url, data, timeout, request_type='POST', headers={},
 
     if hasattr(timeout, "unit"):
         warnings.warn("Converting timeout to seconds and truncating "
-                      "to integer.")
+                      "to integer.", InputWarning)
         timeout = int(timeout.to(u.s).value)
 
     try:
@@ -125,8 +131,8 @@ def radius_to_unit(radius, unit='degree'):
     if isinstance(unit, six.string_types):
         if hasattr(rad, unit):
             return getattr(rad, unit)
-        elif hasattr(rad, unit + 's'):
-            return getattr(rad, unit + 's')
+        elif hasattr(rad, f"{unit}s"):
+            return getattr(rad, f"{unit}s")
 
     return rad.to(unit).value
 
@@ -157,19 +163,19 @@ def parse_coordinates(coordinates):
         try:
             c = ICRSCoordGenerator(coordinates)
             warnings.warn("Coordinate string is being interpreted as an "
-                          "ICRS coordinate.")
+                          "ICRS coordinate.", InputWarning)
 
         except u.UnitsError:
             warnings.warn("Only ICRS coordinates can be entered as "
                           "strings.\n For other systems please use the "
-                          "appropriate astropy.coordinates object.")
+                          "appropriate astropy.coordinates object.", InputWarning)
             raise u.UnitsError
         except ValueError as err:
             if isinstance(err.args[1], u.UnitsError):
                 try:
                     c = ICRSCoordGenerator(coordinates, unit='deg')
                     warnings.warn("Coordinate string is being interpreted as an "
-                                  "ICRS coordinate provided in degrees.")
+                                  "ICRS coordinate provided in degrees.", InputWarning)
 
                 except ValueError:
                     c = ICRSCoord.from_name(coordinates)
@@ -288,7 +294,7 @@ class TableList(list):
     def pprint(self, **kwargs):
         """ Helper function to make API more similar to astropy.Tables """
         if kwargs != {}:
-            warnings.warn("TableList is a container of astropy.Tables.")
+            warnings.warn("TableList is a container of astropy.Tables.", InputWarning)
         self.print_table_list()
 
 
@@ -341,7 +347,7 @@ def validate_email(email):
         return bool(re.compile(r'^\S+@\S+\.\S+$').match(email))
 
 
-class FileContainer(object):
+class FileContainer:
     """
     A File Object container, meant to offer lazy access to downloaded FITS
     files.
@@ -354,7 +360,7 @@ class FileContainer(object):
         if (os.path.splitext(target)[1] == '.fits' and not
                 ('encoding' in kwargs and kwargs['encoding'] == 'binary')):
             warnings.warn("FITS files must be read as binaries; error is "
-                          "likely.")
+                          "likely.", InputWarning)
         self._readable_object = get_readable_fileobj(target, **kwargs)
 
     def get_fits(self):
@@ -363,6 +369,9 @@ class FileContainer(object):
         and return the file parsed as FITS HDUList
         """
         filedata = self.get_string()
+
+        if len(filedata) == 0:
+            raise TypeError("The file retrieved was empty.")
 
         self._fits = fits.HDUList.fromstring(filedata)
 
@@ -382,27 +391,22 @@ class FileContainer(object):
             If the system is unable to create a hardlink, the file will be
             copied to the target location.
         """
-        from warnings import warn
-
         self.get_fits()
+        target_key = str(self._target)
 
-        try:
-            dldir, urlmapfn = aud._get_download_cache_locs()
-        except (IOError, OSError) as e:
-            msg = 'Remote data cache could not be accessed due to '
-            estr = '' if len(e.args) < 1 else (': ' + str(e))
-            warn(aud.CacheMissingWarning(msg + e.__class__.__name__ + estr))
-
-        with _open_shelve(urlmapfn, True) as url2hash:
-            if str(self._target) in url2hash:
-                target = url2hash[str(self._target)]
-            else:
+        # There has been some internal refactoring in astropy.utils.data
+        # so we do this check. Update when minimum required astropy changes.
+        if ASTROPY_LT_4_0:
+            if not aud.is_url_in_cache(target_key):
                 raise IOError("Cached file not found / does not exist.")
+            target = aud.download_file(target_key, cache=True)
+        else:
+            target = aud.download_file(target_key, cache=True, sources=[])
 
         if link_cache == 'hard':
             try:
                 os.link(target, savepath)
-            except (IOError, OSError, AttributeError) as e:
+            except (IOError, OSError, AttributeError):
                 shutil.copy(target, savepath)
         elif link_cache == 'sym':
             try:
@@ -443,10 +447,9 @@ class FileContainer(object):
 
     def __repr__(self):
         if hasattr(self, '_fits'):
-            return "Downloaded FITS file: " + self._fits.__repr__()
+            return f"Downloaded FITS file: {self._fits!r}"
         else:
-            return ("Downloaded object from URL {} with ID {}"
-                    .format(self._target, id(self._readable_object)))
+            return f"Downloaded object from URL {self._target} with ID {id(self._readable_object)}"
 
 
 def get_readable_fileobj(*args, **kwargs):
@@ -463,22 +466,3 @@ def parse_votable(content):
     """
     tables = votable.parse(six.BytesIO(content), pedantic=False)
     return tables
-
-
-def _open_shelve(shelffn, withclosing=False):
-    """
-    Opens a shelf file.  If ``withclosing`` is True, it will be opened with
-    closing, allowing use like:
-
-        with _open_shelve('somefile',True) as s:
-            ...
-    """
-    import shelve
-    import contextlib
-
-    shelf = shelve.open(shelffn, protocol=2)
-
-    if withclosing:
-        return contextlib.closing(shelf)
-    else:
-        return shelf

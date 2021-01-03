@@ -14,7 +14,6 @@ Created on 30 jun. 2016
 
 
 """
-
 from astroquery.utils.tap.core import TapPlus
 from astropy import config as _config
 
@@ -30,12 +29,21 @@ class Conf(_config.ConfigNamespace):
                                             "Name of RA parameter in table")
     MAIN_GAIA_TABLE_DEC = _config.ConfigItem("dec",
                                              "Name of Dec parameter in table")
+    ROW_LIMIT = _config.ConfigItem(50,
+                                   "Number of rows to return from database "
+                                   "query (set to -1 for unlimited).")
+    VALID_DATALINK_RETRIEVAL_TYPES = ['EPOCH_PHOTOMETRY',
+                                      'XP_CONTINUOUS',
+                                      'XP_SAMPLED',
+                                      'RVS',
+                                      'MCMC_GSPPHOT',
+                                      'MCMC_MSC']
 
 
 conf = Conf()
 
-gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap", verbose=False)
 
 from .core import Gaia, GaiaClass
+
 
 __all__ = ['Gaia', 'GaiaClass', 'Conf', 'conf']

@@ -43,7 +43,7 @@ except ImportError:
     TKEntry = None
 
 
-class LoginDialog(object):
+class LoginDialog:
 
     def __init__(self, host):
         self.__interna_init()
@@ -92,7 +92,7 @@ class LoginDialog(object):
         x = (self.__top.winfo_screenwidth() // 2) - (width // 2)
         y = (self.__top.winfo_screenheight() // 2) - (height // 2)
 
-        self.__top.geometry("+%d+%d" % (x, y))
+        self.__top.geometry(f"+{x}+{y}")
 
         row = 0
         expLabel = TKLabel(self.__top, text='Login to host:')

@@ -70,10 +70,10 @@ constraint  Optional    User defined query constraint(s)
                         Note: The constraint should follow SQL syntax.
 
 """
-from __future__ import print_function, division
+
 
 import warnings
-import logging
+from astropy.logger import log
 
 import six
 import astropy.units as u
@@ -316,7 +316,7 @@ class LcogtClass(BaseQuery):
             commons.suppress_vo_warnings()
 
         content = response.text
-        logging.debug(content)
+        log.debug(content)
 
         # Check if results were returned
         if 'The catalog is not in the list' in content:

@@ -31,8 +31,9 @@ class Conf(_config.ConfigNamespace):
 
 conf = Conf()
 
-from .core import Simbad, SimbadClass
+from .core import Simbad, SimbadClass, SimbadBaseQuery
 
 __all__ = ['Simbad', 'SimbadClass',
+           'SimbadBaseQuery',
            'Conf', 'conf',
            ]

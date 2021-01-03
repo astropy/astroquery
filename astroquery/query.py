@@ -34,14 +34,16 @@ def _replace_none_iterable(iterable):
     return tuple('' if i is None else i for i in iterable)
 
 
-class AstroQuery(object):
+class AstroQuery:
 
-    def __init__(self, method, url, params=None, data=None, headers=None,
-                 files=None, timeout=None):
+    def __init__(self, method, url,
+                 params=None, data=None, headers=None,
+                 files=None, timeout=None, json=None):
         self.method = method
         self.url = url
         self.params = params
         self.data = data
+        self.json = json
         self.headers = headers
         self.files = files
         self._hash = None
@@ -59,16 +61,20 @@ class AstroQuery(object):
             self._timeout = value
 
     def request(self, session, cache_location=None, stream=False,
-                auth=None, verify=True):
+                auth=None, verify=True, allow_redirects=True,
+                json=None):
         return session.request(self.method, self.url, params=self.params,
                                data=self.data, headers=self.headers,
                                files=self.files, timeout=self.timeout,
-                               stream=stream, auth=auth, verify=verify)
+                               stream=stream, auth=auth, verify=verify,
+                               allow_redirects=allow_redirects,
+                               json=json)
 
     def hash(self):
         if self._hash is None:
             request_key = (self.method, self.url)
-            for k in (self.params, self.data, self.headers, self.files):
+            for k in (self.params, self.data, self.json,
+                      self.headers, self.files):
                 if isinstance(k, dict):
                     entry = (tuple(sorted(k.items(),
                                           key=_replace_none_iterable)))
@@ -139,7 +145,7 @@ class LoginABCMeta(abc.ABCMeta):
 
 
 @six.add_metaclass(LoginABCMeta)
-class BaseQuery(object):
+class BaseQuery:
     """
     This is the base class for all the query classes in astroquery. It
     is implemented as an abstract class and must not be directly instantiated.
@@ -163,9 +169,12 @@ class BaseQuery(object):
         """ init a fresh copy of self """
         return self.__class__(*args, **kwargs)
 
-    def _request(self, method, url, params=None, data=None, headers=None,
+    def _request(self, method, url,
+                 params=None, data=None, headers=None,
                  files=None, save=False, savedir='', timeout=None, cache=True,
-                 stream=False, auth=None, continuation=True, verify=True):
+                 stream=False, auth=None, continuation=True, verify=True,
+                 allow_redirects=True,
+                 json=None):
         """
         A generic HTTP request method, similar to `requests.Session.request`
         but with added caching-related tools
@@ -182,6 +191,7 @@ class BaseQuery(object):
         url : str
         params : None or dict
         data : None or dict
+        json : None or dict
         headers : None or dict
         auth : None or dict
         files : None or dict
@@ -217,7 +227,8 @@ class BaseQuery(object):
             data=data,
             headers=headers,
             files=files,
-            timeout=timeout
+            timeout=timeout,
+            json=json
         )
         if save:
             local_filename = url.split('/')[-1]
@@ -225,9 +236,11 @@ class BaseQuery(object):
                 # Windows doesn't allow special characters in filenames like
                 # ":" so replace them with an underscore
                 local_filename = local_filename.replace(':', '_')
-            local_filepath = os.path.join(self.cache_location or savedir or '.', local_filename)
+            local_filepath = os.path.join(savedir or self.cache_location or '.', local_filename)
+
             self._download_file(url, local_filepath, cache=cache,
                                 continuation=continuation, method=method,
+                                allow_redirects=allow_redirects,
                                 auth=auth, **req_kwargs)
             return local_filepath
         else:
@@ -235,7 +248,9 @@ class BaseQuery(object):
             if ((self.cache_location is None) or (not self._cache_active) or (not cache)):
                 with suspend_cache(self):
                     response = query.request(self._session, stream=stream,
-                                             auth=auth, verify=verify)
+                                             auth=auth, verify=verify,
+                                             allow_redirects=allow_redirects,
+                                             json=json)
             else:
                 response = query.from_cache(self.cache_location)
                 if not response:
@@ -243,7 +258,9 @@ class BaseQuery(object):
                                              self.cache_location,
                                              stream=stream,
                                              auth=auth,
-                                             verify=verify)
+                                             allow_redirects=allow_redirects,
+                                             verify=verify,
+                                             json=json)
                     to_cache(response, query.request_file(self.cache_location))
             self._last_query = query
             return response
@@ -271,19 +288,25 @@ class BaseQuery(object):
         """
 
         if head_safe:
-            response = self._session.request("HEAD", url, timeout=timeout, stream=True,
+            response = self._session.request("HEAD", url,
+                                             timeout=timeout, stream=True,
                                              auth=auth, **kwargs)
         else:
-            response = self._session.request(method, url, timeout=timeout, stream=True,
+            response = self._session.request(method, url,
+                                             timeout=timeout, stream=True,
                                              auth=auth, **kwargs)
 
         response.raise_for_status()
         if 'content-length' in response.headers:
             length = int(response.headers['content-length'])
+            if length == 0:
+                log.warn('URL {0} has length=0'.format(url))
         else:
             length = None
 
-        if ((os.path.exists(local_filepath) and ('Accept-Ranges' in response.headers) and continuation)):
+        if ((os.path.exists(local_filepath)
+             and ('Accept-Ranges' in response.headers)
+             and continuation)):
             open_mode = 'ab'
 
             existing_file_length = os.stat(local_filepath).st_size
@@ -306,7 +329,8 @@ class BaseQuery(object):
                 self._session.headers['Range'] = "bytes={0}-{1}".format(existing_file_length,
                                                                         end)
 
-                response = self._session.request(method, url, timeout=timeout, stream=True,
+                response = self._session.request(method, url,
+                                                 timeout=timeout, stream=True,
                                                  auth=auth, **kwargs)
                 response.raise_for_status()
 
@@ -332,7 +356,8 @@ class BaseQuery(object):
         else:
             open_mode = 'wb'
             if head_safe:
-                response = self._session.request(method, url, timeout=timeout, stream=True,
+                response = self._session.request(method, url,
+                                                 timeout=timeout, stream=True,
                                                  auth=auth, **kwargs)
                 response.raise_for_status()
 

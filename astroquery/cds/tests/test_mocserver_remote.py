@@ -4,7 +4,6 @@
 import sys
 import pytest
 
-from astropy.tests.helper import remote_data
 from astropy import coordinates
 from astropy.table import Table
 
@@ -14,15 +13,15 @@ except ImportError:
     pass
 
 try:
-    from regions import CircleSkyRegion, PolygonSkyRegion
+    from regions import CircleSkyRegion
 except ImportError:
     pass
 
 from ..core import cds
 
 
-@remote_data
-class TestMOCServerRemote(object):
+@pytest.mark.remote_data
+class TestMOCServerRemote:
     """
     Tests requiring regions
     """
