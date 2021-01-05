@@ -91,6 +91,7 @@ def _parse_cutout_size(size):
 
     return {"x": x, "y": y, "units": units}
 
+
 class TesscutClass(MastQueryWithLogin):
     """
     MAST TESS FFI cutout query class.
