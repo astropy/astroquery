@@ -3,10 +3,13 @@ Example 10
 ++++++++++
 Retrieve Hubble archival data of M83 and make a figure
 """
-from astroquery.mast import Mast, Observations
+
+from astropy.io import fits
 from astropy.visualization import make_lupton_rgb, ImageNormalize
 import matplotlib.pyplot as plt
 import reproject
+
+from astroquery.mast import Observations
 
 result = Observations.query_object('M83')
 selected_bands = result[(result['obs_collection'] == 'HST') &
