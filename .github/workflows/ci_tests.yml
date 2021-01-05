@@ -50,6 +50,25 @@ jobs:
             python: 3.8
             toxenv: py38-test
 
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python }}
+    - name: Install Python dependencies
+      run: python -m pip install --upgrade tox codecov
+    - name: Run tests
+      run: tox ${{ matrix.toxargs }} -e ${{ matrix.toxenv }}
+    - name: Upload coverage to codecov
+      if: ${{ contains(matrix.toxenv,'-cov') }}
+      uses: codecov/codecov-action@v1
+      with:
+        file: ./coverage.xml
+
 
   egg_info:
     name: egg_info with Python 3.7
