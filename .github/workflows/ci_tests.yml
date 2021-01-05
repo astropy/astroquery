@@ -27,17 +27,17 @@ jobs:
 
           - name: docs build
             os: ubuntu-latest
-            py: 3.8
+            python: 3.8
             toxenv: build_docs
 
           - name: oldest dependencies
             os: ubuntu-latest
-            py: 3.6
+            python: 3.6
             toxenv: py36-test-oldestdeps
 
           - name: astropy dev with all dependencies with coverage
             os: ubuntu-latest
-            py: 3.9
+            python: 3.9
             toxenv: py39-test-alldeps-devastropy-cov
 
           - name: Python 3.7 with all optional dependencies (MacOS X)
