@@ -96,7 +96,8 @@ class ESASkyClass(BaseQuery):
             self._get_spectra_json(), self.__MISSION_STRING)
 
     def query_object_maps(self, position, missions=__ALL_STRING,
-                          get_query_payload=False, cache=True, row_limit=DEFAULT_ROW_LIMIT):
+                          get_query_payload=False, cache=True,
+                          row_limit=DEFAULT_ROW_LIMIT):
         """
         This method queries a chosen object or coordinate for all available maps
         which have observation data on the chosen position. It returns a
@@ -201,7 +202,8 @@ class ESASkyClass(BaseQuery):
                                           cache=cache)
 
     def query_object_spectra(self, position, missions=__ALL_STRING,
-                          get_query_payload=False, cache=True, row_limit=DEFAULT_ROW_LIMIT):
+                             get_query_payload=False, cache=True,
+                             row_limit=DEFAULT_ROW_LIMIT):
         """
         This method queries a chosen object or coordinate for all available missions
         which have spectral data on the chosen position. It returns a
@@ -253,7 +255,8 @@ class ESASkyClass(BaseQuery):
                                       row_limit=row_limit)
 
     def query_region_maps(self, position, radius, missions=__ALL_STRING,
-                          get_query_payload=False, cache=True, row_limit=DEFAULT_ROW_LIMIT):
+                          get_query_payload=False, cache=True,
+                          row_limit=DEFAULT_ROW_LIMIT):
         """
         This method queries a chosen region for all available maps and returns a
         TableList with all the found maps metadata for the chosen missions and
@@ -387,7 +390,8 @@ class ESASkyClass(BaseQuery):
         return commons.TableList(query_result)
 
     def query_region_spectra(self, position, radius, missions=__ALL_STRING,
-                          row_limit=DEFAULT_ROW_LIMIT, get_query_payload=False, cache=True):
+                             row_limit=DEFAULT_ROW_LIMIT,
+                             get_query_payload=False, cache=True):
         """
         This method queries a chosen region for all available spectra and returns a
         TableList with all the found spectra metadata for the chosen missions and
@@ -524,8 +528,9 @@ class ESASkyClass(BaseQuery):
             log.info("No maps found.")
         return maps
 
-    def get_images(self, position, radius=__ZERO_ARCMIN_STRING, missions=__ALL_STRING,
-                   download_dir=_MAPS_DOWNLOAD_DIR, cache=True):
+    def get_images(self, position, radius=__ZERO_ARCMIN_STRING,
+                   missions=__ALL_STRING, download_dir=_MAPS_DOWNLOAD_DIR,
+                   cache=True):
         """
         This method gets the fits files available for the selected position and
         mission and downloads all maps to the the selected folder.
@@ -569,7 +574,6 @@ class ESASkyClass(BaseQuery):
         Examples
         --------
         get_images("m101", "14'", "all")
-
         """
         sanitized_position = self._sanitize_input_position(position)
         sanitized_radius = self._sanitize_input_radius(radius)
@@ -601,8 +605,9 @@ class ESASkyClass(BaseQuery):
             log.info("No maps found.")
         return maps
 
-    def get_spectra(self, position, radius=__ZERO_ARCMIN_STRING, missions=__ALL_STRING,
-                   download_dir=_SPECTRA_DOWNLOAD_DIR, cache=True):
+    def get_spectra(self, position, radius=__ZERO_ARCMIN_STRING,
+                    missions=__ALL_STRING, download_dir=_SPECTRA_DOWNLOAD_DIR,
+                    cache=True):
         """
         This method gets the fits files available for the selected position and
         mission and downloads all spectra to the the selected folder.
@@ -677,7 +682,7 @@ class ESASkyClass(BaseQuery):
         return spectra
 
     def get_spectra_from_table(self, query_table_list, missions=__ALL_STRING,
-                 download_dir=_SPECTRA_DOWNLOAD_DIR, cache=True):
+                               download_dir=_SPECTRA_DOWNLOAD_DIR, cache=True):
         """
         This method takes the dictionary of missions and metadata as returned by
         query_region_spectra and downloads all spectra to the selected folder.
@@ -723,7 +728,6 @@ class ESASkyClass(BaseQuery):
         --------
         table = query_region_spectra("m101", "14'", ["HST-IR", "XMM-NEWTON", "HERSCHEL"])
         get_spectra_from_table(table)
-
         """
         sanitized_query_table_list = self._sanitize_input_table_list(query_table_list)
         sanitized_missions = [m.lower() for m in self._sanitize_input_spectra(missions)]

@@ -104,7 +104,7 @@ To see the result:
 .. code-block:: python
 
     >>> print(result)
-TableList with 9 tables:
+    TableList with 9 tables:
         '0:ALLWISE' with 13 column(s) and 1 row(s)
         '1:TWOMASS' with 9 column(s) and 3 row(s)
         '2:CHANDRA-SC2' with 41 column(s) and 9 row(s)
