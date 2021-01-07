@@ -131,8 +131,8 @@ class ESASkyClass(BaseQuery):
             and observations available for the chosen missions and object.
             It is structured in a TableList like this:
             TableList with 2 tables:
-                    '0:HERSCHEL' with 12 column(s) and 152 row(s)
-                    '1:HST-OPTICAL' with 12 column(s) and 6 row(s)
+            '0:HERSCHEL' with 12 column(s) and 152 row(s)
+            '1:HST-OPTICAL' with 12 column(s) and 6 row(s)
 
         Examples
         --------
@@ -184,8 +184,8 @@ class ESASkyClass(BaseQuery):
             of the catalogs available for the chosen mission and object.
             It is structured in a TableList like this:
             TableList with 2 tables:
-                '0:HSC' with 9 column(s) and 232 row(s)
-                '1:XMM-OM' with 11 column(s) and 2 row(s)
+            '0:HSC' with 9 column(s) and 232 row(s)
+            '1:XMM-OM' with 11 column(s) and 2 row(s)
 
         Examples
         --------
@@ -237,8 +237,8 @@ class ESASkyClass(BaseQuery):
             and spectra available for the chosen missions and object.
             It is structured in a TableList like this:
             TableList with 2 tables:
-                    '0:HERSCHEL' with 12 column(s) and 12 row(s)
-                    '1:HST-OPTICAL' with 12 column(s) and 19 row(s)
+            '0:HERSCHEL' with 12 column(s) and 12 row(s)
+            '1:HST-OPTICAL' with 12 column(s) and 19 row(s)
 
         Examples
         --------
@@ -291,8 +291,8 @@ class ESASkyClass(BaseQuery):
             and observations available for the chosen missions and region.
             It is structured in a TableList like this:
             TableList with 2 tables:
-                '0:HERSCHEL' with 12 column(s) and 152 row(s)
-                '1:HST-OPTICAL' with 12 column(s) and 71 row(s)
+            '0:HERSCHEL' with 12 column(s) and 152 row(s)
+            '1:HST-OPTICAL' with 12 column(s) and 71 row(s)
 
         Examples
         --------
@@ -358,8 +358,8 @@ class ESASkyClass(BaseQuery):
             the catalogs available for the chosen mission and region.
             It is structured in a TableList like this:
             TableList with 2 tables:
-                '0:HIPPARCOS-2' with 7 column(s) and 2 row(s)
-                '1:HSC' with 9 column(s) and 10000 row(s)
+            '0:HIPPARCOS-2' with 7 column(s) and 2 row(s)
+            '1:HSC' with 9 column(s) and 10000 row(s)
 
         Examples
         --------
@@ -426,8 +426,8 @@ class ESASkyClass(BaseQuery):
             and observations available for the chosen missions and region.
             It is structured in a TableList like this:
             TableList with 2 tables:
-                '0:HERSCHEL' with 12 column(s) and 264 row(s)
-                '1:IUE' with 12 column(s) and 14 row(s)
+            '0:HERSCHEL' with 12 column(s) and 264 row(s)
+            '1:IUE' with 12 column(s) and 14 row(s)
 
         Examples
         --------
@@ -643,8 +643,7 @@ class ESASkyClass(BaseQuery):
             The response is structured in a dictionary like this:
             dict: {
             'HERSCHEL': {'1342211195': {'red' : {'HPSTBRRS' : HDUList}, 'blue' : {'HPSTBRBS': HDUList},
-                '1342180796': {'WBS' : {'WBS-H_LSB_5a' : HDUList}, 'HRS' : {'HRS-H_LSB_5a': HDUList},
-                ...},
+            '1342180796': {'WBS' : {'WBS-H_LSB_5a' : HDUList}, 'HRS' : {'HRS-H_LSB_5a': HDUList}, ...},
             'HST-IR':[HDUList, HDUList, HDUList, HDUList, HDUList, ...],
             'XMM-NEWTON' : [HDUList, HDUList, HDUList, HDUList, ...]
             ...
@@ -717,8 +716,7 @@ class ESASkyClass(BaseQuery):
             The response is structured in a dictionary like this:
             dict: {
             'HERSCHEL': {'1342211195': {'red' : {'HPSTBRRS' : HDUList}, 'blue' : {'HPSTBRBS': HDUList},
-                '1342180796': {'WBS' : {'WBS-H_LSB_5a' : HDUList}, 'HRS' : {'HRS-H_LSB_5a': HDUList},
-                ...},
+            '1342180796': {'WBS' : {'WBS-H_LSB_5a' : HDUList}, 'HRS' : {'HRS-H_LSB_5a': HDUList}, ...},
             'HST-IR':[HDUList, HDUList, HDUList, HDUList, HDUList, ...],
             'XMM-NEWTON' : [HDUList, HDUList, HDUList, HDUList, ...]
             ...
