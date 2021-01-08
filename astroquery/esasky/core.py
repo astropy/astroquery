@@ -14,6 +14,7 @@ from astropy import log
 import astropy.units
 import astropy.io.votable as votable
 from requests import HTTPError
+from requests import ConnectionError
 
 from ..query import BaseQuery
 from ..utils import commons
@@ -875,13 +876,13 @@ class ESASkyClass(BaseQuery):
                             maps.append(None)
 
                 else:
-                    response = self._request(
-                        'GET',
-                        product_url,
-                        cache=cache,
-                        headers=self._get_header())
-
                     try:
+                        response = self._request(
+                            'GET',
+                            product_url,
+                            cache=cache,
+                            headers=self._get_header())
+
                         response.raise_for_status()
 
                         file_name = self._extract_file_name_from_response_header(response.headers)
@@ -897,7 +898,7 @@ class ESASkyClass(BaseQuery):
                             with open(directory_path + file_name, 'wb') as fits_file:
                                 fits_file.write(fits_data)
                                 maps.append(fits.open(directory_path + file_name))
-                    except HTTPError as err:
+                    except (HTTPError, ConnectionError) as err:
                         log.error("Download failed with {}.".format(err))
                         maps.append(None)
 
