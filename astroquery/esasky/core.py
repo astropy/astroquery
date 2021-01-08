@@ -888,7 +888,7 @@ class ESASkyClass(BaseQuery):
                         file_name = self._extract_file_name_from_response_header(response.headers)
                         if (file_name == ""):
                             file_name = self._extract_file_name_from_url(product_url)
-                        if(file_name.lower().endswith("tar")):
+                        if(file_name.lower().endswith(self.__TAR_STRING)):
                             with tarfile.open(fileobj=BytesIO(response.content)) as tar:
                                 for member in tar.getmembers():
                                     tar.extract(member, directory_path)
@@ -897,6 +897,7 @@ class ESASkyClass(BaseQuery):
                             fits_data = response.content
                             with open(directory_path + file_name, 'wb') as fits_file:
                                 fits_file.write(fits_data)
+                                fits_file.flush()
                                 maps.append(fits.open(directory_path + file_name))
                     except (HTTPError, ConnectionError) as err:
                         log.error("Download failed with {}.".format(err))
