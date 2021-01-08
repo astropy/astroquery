@@ -88,14 +88,74 @@ class TestESASky:
         file_path = os.path.join(download_directory, 'ISO-IR')
 
         all_maps = ESASkyClass.query_object_maps("M51")
-        isomaps = ESASkyClass.query_object_maps("M51", missions='ISO-IR')
+        iso_maps = ESASkyClass.query_object_maps("M51", missions='ISO-IR')
         # Remove a few maps, so the other list will have downloadable ones, too
-        isomaps['ISO-IR'].remove_rows([0, 1])
-        ESASkyClass.get_maps(isomaps, download_dir=download_directory)
+        iso_maps['ISO-IR'].remove_rows([0, 1])
+        ESASkyClass.get_maps(iso_maps, download_dir=download_directory)
         assert len(os.listdir(file_path)) == len(all_maps['ISO-IR']) - 2
 
-        isomaps2 = dict({'ISO-IR': all_maps['ISO-IR'][:2]})
-        ESASkyClass.get_maps(isomaps2, download_dir=download_directory)
+        iso_maps2 = dict({'ISO-IR': all_maps['ISO-IR'][:2]})
+        ESASkyClass.get_maps(iso_maps2, download_dir=download_directory)
         assert len(os.listdir(file_path)) == len(all_maps['ISO-IR'])
+
+        shutil.rmtree(download_directory)
+
+    def test_esasky_query_region_spectra(self):
+        result = ESASkyClass.query_region_spectra("M51", "5 arcmin")
+        assert isinstance(result, TableList)
+
+    def test_esasky_query_object_spectra(self):
+        result = ESASkyClass.query_object_spectra("M51")
+        assert isinstance(result, TableList)
+
+    @pytest.mark.bigdata
+    def test_esasky_get_spectra(self):
+        download_directory = "ESASkyRemoteTest"
+        if not os.path.exists(download_directory):
+            os.makedirs(download_directory)
+
+        missions = ESASkyClass.list_spectra()
+        # HST-IR has no data, LAMOST does not support download
+        missions = [mission for mission in missions if mission not in ("HST-IR", "LAMOST")]
+        ESASkyClass.get_spectra("M1", missions=missions, download_dir=download_directory)
+
+        for mission in missions:
+            file_path = os.path.join(download_directory, mission)
+            assert os.path.exists(file_path)
+
+        shutil.rmtree(download_directory)
+
+    def test_esasky_get_spectra_small(self):
+        download_directory = "ESASkyRemoteTest"
+        if not os.path.exists(download_directory):
+            os.makedirs(download_directory)
+
+        missions = ['HST-IR']
+
+        ESASkyClass.get_spectra("M1", radius="9arcmin", missions=missions, download_dir=download_directory)
+
+        for mission in missions:
+            file_path = os.path.join(download_directory, mission)
+            assert os.path.exists(file_path)
+
+        shutil.rmtree(download_directory)
+
+    def test_esasky_get_spectra_from_table(self):
+        download_directory = "ESASkyRemoteTest"
+        if not os.path.exists(download_directory):
+            os.makedirs(download_directory)
+
+        file_path = os.path.join(download_directory, 'ISO-IR')
+
+        all_spectra = ESASkyClass.query_object_spectra("M51")
+        iso_spectra = ESASkyClass.query_object_spectra("M51", missions='ISO-IR')
+        # Remove a few maps, so the other list will have downloadable ones, too
+        iso_spectra['ISO-IR'].remove_rows([0, 1])
+        ESASkyClass.get_spectra_from_table(iso_spectra, download_dir=download_directory)
+        assert len(os.listdir(file_path)) == len(all_spectra['ISO-IR']) - 2
+
+        iso_spectra2 = dict({'ISO-IR': all_spectra['ISO-IR'][:2]})
+        ESASkyClass.get_spectra_from_table(iso_spectra2, download_dir=download_directory)
+        assert len(os.listdir(file_path)) == len(all_spectra['ISO-IR'])
 
         shutil.rmtree(download_directory)
