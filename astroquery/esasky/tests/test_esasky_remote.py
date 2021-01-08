@@ -33,8 +33,7 @@ class TestESASky:
         # Remove very large map missions & missions with many results
         # & missions without proper download url (INTEGRAL, SUZAKU, ALMA, AKARI)
         missions = [mission for mission in missions if mission not in
-                    ("HST-OPTICAL", "HST-IR", "HST-UV", "XMM-OM-UV", "Chandra", "INTEGRAL", "SUZAKU", "ALMA",
-                     "Spitzer", "AKARI")]
+                    ("HST-OPTICAL", "HST-IR", "HST-UV", "XMM-OM-UV", "INTEGRAL", "SUZAKU", "ALMA", "AKARI")]
 
         ESASkyClass.get_images("M51", missions=missions, download_dir=download_directory)
 
