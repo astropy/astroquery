@@ -1,5 +1,3 @@
-.. doctest-skip-all
-
 .. _astroquery.alma:
 
 ********************************
@@ -24,18 +22,15 @@ supports object and region based querying and data staging and retrieval.
 You can get interactive help to find out what keywords to query for:
 
 .. code-block:: python
-
-   >>> from astroquery.alma import Alma
-   >>> Alma.help()
-    Most common ALMA query keywords are listed below. These keywords are part
-    of the ALMA ObsCore model, an IVOA standard for metadata representation
-    (3rd column). They were also present in original ALMA Web form and, for
-    backwards compatibility can be accessed with their old names (2nd column).
-    More elaborate queries on the ObsCore model are possible with `query_sia`
-    or `query_tap` methods
-    Description                         Original ALMA keyword               ObsCore keyword
+.. doctest-remote-data::
+    >>> from astroquery.alma import Alma
+    >>> Alma.help()
+    <BLANKLINE>
+    Most common ALMA query keywords are listed below. These keywords are part of the ALMA ObsCore model, an IVOA standard for metadata representation (3rd column). They were also present in original ALMA Web form and, for backwards compatibility can be accessed with their old names (2nd column).
+    More elaborate queries on the ObsCore model are possible with `query_sia` or `query_tap` methods
+      Description                       Original ALMA keyword               ObsCore keyword
     -------------------------------------------------------------------------------------------------------
-
+    <BLANKLINE>
     Position
       Source name (astropy Resolver)    source_name_resolver                SkyCoord.from_name
       Source name (ALMA)                source_name_alma                    target_name
@@ -44,25 +39,25 @@ You can get interactive help to find out what keywords to query for:
       Angular resolution (arcsec)       spatial_resolution                  spatial_resolution
       Largest angular scale (arcsec)    spatial_scale_max                   spatial_scale_max
       Field of view (arcsec)            fov                                 s_fov
-
+    <BLANKLINE>
     Energy
       Frequency (GHz)                   frequency                           frequency
       Bandwidth (Hz)                    bandwidth                           bandwidth
       Spectral resolution (KHz)         spectral_resolution                 em_resolution
       Band                              band_list                           band_list
-
+    <BLANKLINE>
     Time
       Observation date                  start_date                          t_min
       Integration time (s)              integration_time                    t_exptime
-
+    <BLANKLINE>
     Polarization
-      Polarisation type (Single, Dual, Full) polarisation_type              pol_states
-
+      Polarisation type (Single, Dual, Full) polarisation_type                   pol_states
+    <BLANKLINE>
     Observation
-      Line sensitivity (10 km/s) (mJy/beam) line_sensitivity                sensitivity_10kms
+      Line sensitivity (10 km/s) (mJy/beam) line_sensitivity                    sensitivity_10kms
       Continuum sensitivity (mJy/beam)  continuum_sensitivity               cont_sensitivity_bandwidth
       Water vapour (mm)                 water_vapour                        pvw
-
+    <BLANKLINE>
     Project
       Project code                      project_code                        proposal_id
       Project title                     project_title                       obs_title
@@ -71,7 +66,7 @@ You can get interactive help to find out what keywords to query for:
       Project abstract                  project_abstract                    proposal_abstract
       Publication count                 publication_count                   NA
       Science keyword                   science_keyword                     science_keyword
-
+    <BLANKLINE>
     Publication
       Bibcode                           bibcode                             bib_reference
       Title                             pub_title                           pub_title
@@ -79,10 +74,16 @@ You can get interactive help to find out what keywords to query for:
       Authors                           authors                             authors
       Abstract                          pub_abstract                        pub_abstract
       Year                              publication_year                    pub_year
-
+    <BLANKLINE>
     Options
       Public data only                  public_data                         data_rights
       Science observations only         science_observations                calib_level
+    <BLANKLINE>
+    Examples of queries:
+    Alma.query('proposal_id':'2011.0.00131.S'}
+    Alma.query({'band_list': ['5', '7']}
+    Alma.query({'source_name_alma': 'GRB021004'})
+    Alma.query(payload=dict(project_code='2017.1.01355.L', source_name_alma='G008.67'))
 
 Authentication
 ==============
@@ -91,14 +92,14 @@ Users can log in to acquire proprietary data products.  Login is performed
 via the ALMA CAS (central authentication server).
 
 .. code-block:: python
-
+.. doctest-remote-data::
     >>> from astroquery.alma import Alma
     >>> alma = Alma()
     >>> # First example: TEST is not a valid username, it will fail
     >>> alma.login("TEST") # doctest: +SKIP
     TEST, enter your ALMA password:
 
-    Authenticating TEST on asa.alma.cl...
+    Authenticating TEST on asa.alma.cl ...
     Authentication failed!
     >>> # Second example: pretend ICONDOR is a valid username
     >>> alma.login("ICONDOR", store_password=True) # doctest: +SKIP
@@ -124,27 +125,24 @@ Querying Targets and Regions
 You can query by object name or by circular region:
 
 .. code-block:: python
-
+.. doctest-remote-data::
     >>> from astroquery.alma import Alma
     >>> m83_data = Alma.query_object('M83')
     >>> print(len(m83_data))
-    830
+    352
     >>> m83_data.colnames
-    ['obs_publisher_did', 'obs_collection', 'facility_name', 'instrument_name',
-    'obs_id', 'dataproduct_type', 'calib_level', 'target_name', 's_ra',
-    's_dec', 's_fov', 's_region', 's_resolution', 't_min', 't_max',
-    't_exptime', 't_resolution', 'em_min', 'em_max', 'em_res_power',
-    'pol_states', 'o_ucd', 'access_url', 'access_format', 'proposal_id',
-    'data_rights', 'gal_longitude', 'gal_latitude', 'band_list',
-    'em_resolution', 'bandwidth', 'antenna_arrays', 'is_mosaic',
-    'obs_release_date', 'spatial_resolution', 'frequency_support',
-    'frequency', 'velocity_resolution', 'obs_creator_name', 'pub_title',
-    'first_author', 'authors', 'pub_abstract', 'publication_year',
-    'proposal_abstract', 'schedblock_name', 'proposal_authors',
-    'sensitivity_10kms', 'cont_sensitivity_bandwidth', 'pwv', 'group_ous_uid',
-    'member_ous_uid', 'asdm_uid', 'obs_title', 'type', 'scan_intent',
-    'science_observation', 'spatial_scale_max', 'qa2_passed', 'bib_reference',
-    'science_keyword', 'scientific_category', 'lastModified']
+    ['access_url', 'access_format', 'proposal_id', 'data_rights', 'gal_longitude',
+    'gal_latitude', 'obs_publisher_did', 'obs_collection', 'facility_name',
+    'instrument_name', 'obs_id', 'dataproduct_type', 'calib_level', 'target_name',
+    's_ra', 's_dec', 's_fov', 's_region', 's_resolution', 't_min', 't_max', 't_exptime',
+    't_resolution', 'em_min', 'em_max', 'em_res_power', 'pol_states', 'o_ucd', 'band_list',
+    'em_resolution', 'authors', 'pub_abstract', 'publication_year', 'proposal_abstract',
+    'schedblock_name', 'proposal_authors', 'sensitivity_10kms', 'cont_sensitivity_bandwidth',
+    'pwv', 'group_ous_uid', 'member_ous_uid', 'asdm_uid', 'obs_title', 'type', 'scan_intent',
+    'science_observation', 'spatial_scale_max', 'bandwidth', 'antenna_arrays', 'is_mosaic',
+    'obs_release_date', 'spatial_resolution', 'frequency_support', 'frequency', 'velocity_resolution',
+    'obs_creator_name', 'pub_title', 'first_author', 'qa2_passed', 'bib_reference', 'science_keyword',
+    'scientific_category', 'lastModified']
 
 
 Please note that some of the column names are duplicated. First group of names
@@ -157,14 +155,14 @@ Region queries are just like any other in astroquery:
 
 
 .. code-block:: python
-
+.. doctest-remote-data::
     >>> from astropy import coordinates
     >>> from astropy import units as u
     >>> galactic_center = coordinates.SkyCoord(0*u.deg, 0*u.deg,
     ...                                        frame='galactic')
     >>> gc_data = Alma.query_region(galactic_center, 1*u.deg)
     >>> print(len(gc_data))
-    383
+    24
 
 Querying by other parameters
 ============================
@@ -173,15 +171,15 @@ As of version 0.3.4, you can also query other fields by keyword. For example,
 if you want to find all projects with a particular PI, you could do:
 
 .. code-block:: python
-
+.. doctest-remote-data::
    >>> rslt = Alma.query_object('W51', pi_name='*Ginsburg*', public=False)
 
 The ''query_sia'' method offers another way to query ALMA using the IVOA SIA
 subset of keywords returning results in 'ObsCore' format.
 
 .. code-block:: python
-
-    >>> Alma.query_sia(query_sia(pol='XX'))
+.. doctest-remote-data::
+    >>> # Alma.query_sia(pol='XX')
 
 Finally, the ''query_tap'' method is the most general way of querying the ALMA
 metadata. This method is used to send queries to the service using the
@@ -189,14 +187,15 @@ metadata. This method is used to send queries to the service using the
 format.
 
 .. code-block:: python
+.. doctest-remote-data::
+    >>> Alma.query_tap("select * from ivoa.obscore where target_name like '%M83%'") # doctest: +IGNORE_OUTPUT
 
-    >>> Alma.query_tap("select * from ivoa.obscore where target_name like '%M83%'")
 
 Use the ''help_tap'' method to learn about the ALMA 'ObsCore' keywords and
 their types.
 
 .. code-block:: python
-
+.. doctest-remote-data::
     >>> Alma.help_tap()
     Table to query is "voa.ObsCore".
     For example: "select top 1 * from ivoa.ObsCore"
@@ -276,7 +275,7 @@ cycle 1 data sets tend to be >100 GB!
 
 
 .. code-block:: python
-
+.. doctest-remote-data::
    >>> import numpy as np
    >>> uids = np.unique(m83_data['Member ous id'])
    >>> print(uids)
@@ -303,7 +302,7 @@ some of these files can be listed and accessed individually. To get information
 on the individual files:
 
 .. code-block:: python
-
+.. doctest-remote-data::
     >>> link_list = Alma.get_data_info(uids, expand_tarfiles=True)
     >>> len(link_list)
     >>> 50
@@ -314,7 +313,7 @@ directory is ``~/.astropy/cache/astroquery/Alma/``, but this can be changed by
 changing the ``cache_location`` variable:
 
 .. code-block:: python
-
+.. doctest-remote-data::
    >>> myAlma = Alma()
    >>> myAlma.cache_location = '/big/external/drive/'
    >>> myAlma.download_files(link_list, cache=True)
@@ -322,7 +321,7 @@ changing the ``cache_location`` variable:
 You can also do the downloading all in one step:
 
 .. code-block:: python
-
+.. doctest-remote-data::
    >>> myAlma.retrieve_data_from_uid(uids[0])
 
 If you have huge files, sometimes the transfer fails, so you will need to
@@ -343,7 +342,7 @@ If you want just the QA2-produced FITS files, you can download the tarball,
 extract the FITS file, then delete the tarball:
 
 .. code-block:: python
-
+.. doctest-remote-data::
     >>> from astroquery.alma.core import Alma
     >>> from astropy import coordinates
     >>> from astropy import units as u
@@ -360,8 +359,8 @@ extract the FITS file, then delete the tarball:
 You might want to look at the READMEs from a bunch of files so you know what kind of S/N to expect:
 
 .. code-block:: python
-
-    >>> filelist = Alma.download_and_extract_files(tarball_files['access_url'], regex='.*README$')
+.. doctest-remote-data::
+    >>> filelist = Alma.download_and_extract_files(uid_url_table['URL'], regex='.*README$')
 
 
 Further Examples
