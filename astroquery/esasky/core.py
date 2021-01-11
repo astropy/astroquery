@@ -881,6 +881,7 @@ class ESASkyClass(BaseQuery):
                             'GET',
                             product_url,
                             cache=cache,
+                            stream=True,
                             headers=self._get_header())
 
                         response.raise_for_status()
@@ -917,7 +918,7 @@ class ESASkyClass(BaseQuery):
     def _get_herschel_map(self, product_url, directory_path, cache):
         observation = dict()
         response = self._request('GET', product_url, cache=cache,
-                                 headers=self._get_header())
+                                 stream=True, headers=self._get_header())
         response.raise_for_status()
 
         with tarfile.open(fileobj=BytesIO(response.content)) as tar:
@@ -934,7 +935,7 @@ class ESASkyClass(BaseQuery):
     def _get_herschel_spectra(self, product_url, directory_path, cache):
         spectra = dict()
         response = self._request('GET', product_url, cache=cache,
-                                headers=self._get_header())
+                                stream=True, headers=self._get_header())
 
         response.raise_for_status()
 
