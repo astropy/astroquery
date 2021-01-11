@@ -37,7 +37,7 @@ __doctest_skip__ = ['AlmaClass.*']
 
 
 ALMA_TAP_PATH = 'tap'
-ALMA_SIA_PATH = 'sia'
+ALMA_SIA_PATH = 'sia2'
 
 # Map from ALMA ObsCore result to ALMA original query result
 # The map is provided in order to preserve the name of the columns in the
