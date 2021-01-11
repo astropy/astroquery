@@ -1,5 +1,3 @@
-.. doctest-skip-all
-
 .. _astroquery_atomic:
 
 **************************************
@@ -27,16 +25,19 @@ action. Note that Hz is actually not a supported unit by Atomic Line List,
 the atomic package takes care to support all spectral units.
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astropy import units as u
     >>> from astroquery.atomic import AtomicLineList
     >>> wavelength_range = (15 * u.nm, 1.5e+16 * u.Hz)
     >>> AtomicLineList.query_object(wavelength_range, wavelength_type='Air', wavelength_accuracy=20, element_spectrum='C II-IV')
-    <Table rows=3 names=('LAMBDA VAC ANG','SPECTRUM','TT','TERM','J J','LEVEL ENERGY  CM 1')>
-    array([(196.8874, 'C IV', 'E1', '2S-2Po', '1/2-*', '0.00 -   507904.40'),
-           (197.7992, 'C IV', 'E1', '2S-2Po', '1/2-*', '0.00 -   505563.30'),
-           (199.0122, 'C IV', 'E1', '2S-2Po', '1/2-*', '0.00 -   502481.80')],
-          dtype=[('LAMBDA VAC ANG', '<f8'), ('SPECTRUM', 'S4'), ('TT', 'S2'), ('TERM', 'S6'), ('J J', 'S5'), ('LEVEL ENERGY  CM 1', 'S18')])
+    <Table length=3>
+    LAMBDA VAC ANG SPECTRUM  TT  ...  J J      A_ki    LEVEL ENERGY  CM 1
+       float64       str4   str2 ...  str5   float64         str18       
+    -------------- -------- ---- ... ----- ----------- ------------------
+          196.8874     C IV   E1 ... 1/2-*  91300000.0 0.00 -   507904.40
+          197.7992     C IV   E1 ... 1/2-* 118000000.0 0.00 -   505563.30
+          199.0122     C IV   E1 ... 1/2-* 157000000.0 0.00 -   502481.80
 
 
 Reference/API
