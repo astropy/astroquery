@@ -1,5 +1,3 @@
-.. doctest-skip-all
-
 .. _astroquery.casda:
 
 **********************************
@@ -21,6 +19,7 @@ The location should be specified in ICRS coordinates or an `astropy.coordinates.
 For example:
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.casda import Casda
     >>> from astropy.coordinates import SkyCoord
@@ -62,6 +61,7 @@ To filter down to just the public data you can use the :meth:`~astroquery.casda.
 For example to filter out the 30 non-public results from the above data set:
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> public_results = Casda.filter_out_unreleased(result_table)
     >>> print(public_results['obs_publisher_did','s_ra', 's_dec', 'obs_release_date'])
@@ -123,6 +123,7 @@ Authentication is required when staging the data, but not for the download.
 
 An example script to download public continuum images of the NGC 7232 region taken in scheduling block 2338 is shown below:
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astropy import coordinates, units as u, wcs
     >>> from astroquery.casda import Casda
