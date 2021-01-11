@@ -162,7 +162,7 @@ Region queries are just like any other in astroquery:
     ...                                        frame='galactic')
     >>> gc_data = Alma.query_region(galactic_center, 1*u.deg)
     >>> print(len(gc_data))
-    24
+    1558
 
 Querying by other parameters
 ============================
@@ -200,7 +200,7 @@ their types.
     Table to query is "voa.ObsCore".
     For example: "select top 1 * from ivoa.ObsCore"
     The scheme of the table is as follows.
-
+    <BLANKLINE>
       Name                 Type            Unit       Description
     ------------------------------------------------------------------------------------------
       access_format        char(9)                    Content format of the data
@@ -209,8 +209,8 @@ their types.
       asdm_uid             char(32*)                  UID of the ASDM containing this Field.
       authors              char(4000*)                Full list of first author and all co-authors
       band_list            char(30*)                  Space delimited list of bands
-      bandwidth            double          Hz         Total Bandwidth
-      bib_reference        char(30*)                  Bibliography code
+      bandwidth            double          GHz        Total Bandwidth
+      bib_reference        char(4000*)                 Bibliography code
       calib_level          int                        calibration level (2 or 3). 2 if product_type = MOUS, 3 if product_type = GOUS
       cont_sensitivity_bandwidth double          mJy/beam   Estimated noise in the aggregated continuum bandwidth. Note this is an indication only, it does not include the effects of flagging or dynamic range limitations.
       data_rights          char(11)                   Access to data.
