@@ -1,5 +1,3 @@
-.. doctest-skip-all
-
 .. _astroquery.cadc:
 
 ************************
@@ -28,6 +26,7 @@ The CADC hosts a number of collections and
 these collections:
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.cadc import Cadc
     >>> cadc = Cadc()
@@ -36,8 +35,8 @@ these collections:
     ...
     APASS : {'Description': 'The APASS collection at the CADC', 'Bands': ['Optical', 'Infrared', '']}
     BLAST : {'Description': 'The BLAST collection at the CADC', 'Bands': ['', 'Millimeter']}
-    CFHT : {'Description': 'The CFHT collection at the CADC', 'Bands': ['Infrared|Optical', '', 'Optical', 'Infrared']}
-    CFHTMEGAPIPE : {'Description': 'The CFHTMEGAPIPE collection at the CADC', 'Bands': ['Infrared', 'Optical']}
+    CFHT : {'Description': 'The CFHT collection at the CADC', 'Bands': ['Infrared|Optical', 'Infrared|Optical|UV', '', 'Infrared|Optical|UV|EUV|X-ray|Ga', 'Optical', 'Infrared', 'X-ray|Gamma-ray']}
+    CFHTMEGAPIPE : {'Description': 'The CFHTMEGAPIPE collection at the CADC', 'Bands': ['', 'Infrared|Optical', 'Infrared', 'Optical']}
     CFHTTERAPIX : {'Description': 'The CFHTTERAPIX collection at the CADC', 'Bands': ['Optical', 'Infrared']}
     CFHTWIRWOLF : {'Description': 'The CFHTWIRWOLF collection at the CADC', 'Bands': ['Infrared']}
     CGPS : {'Description': 'The CGPS collection at the CADC', 'Bands': ['Infrared', 'Radio', 'Millimeter', '']}
@@ -63,7 +62,7 @@ these collections:
     TESS : {'Description': 'The TESS collection at the CADC', 'Bands': ['Optical']}
     UKIRT : {'Description': 'The UKIRT collection at the CADC', 'Bands': ['', 'Optical', 'Infrared']}
     VGPS : {'Description': 'The VGPS collection at the CADC', 'Bands': ['Radio']}
-    VLASS : {'Description': 'The VLASS collection at the CADC', 'Bands': ['', 'Radio']}
+    VLASS : {'Description': 'The VLASS collection at the CADC', 'Bands': ['Radio']}
     XMM : {'Description': 'The XMM collection at the CADC', 'Bands': ['Optical', 'UV', 'X-ray']}
 
 
@@ -73,35 +72,37 @@ France Hawaii Telescope (CFHT) data for a given region and resolves
 the URLs for downloading the corresponding data.
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.cadc import Cadc
     >>> cadc = Cadc()
     >>> result = cadc.query_region('08h45m07.5s +54d18m00s', collection='CFHT')
     >>> print(result)
-      observationURI  sequenceNumber metaReadGroups ...           accMetaChecksum2                lastModified2          maxLastModified2
-                                                    ...
-    ----------------- -------------- -------------- ... ------------------------------------ ----------------------- -----------------------
-    caom:CFHT/2366432        2366432                ... md5:2a6a9b9d399b5ef84899f83206eecd0d 2019-01-08T10:03:36.057 2019-01-08T10:17:16.206
-    caom:CFHT/2366188        2366188                ... md5:af8096be4d9d9186b2cc39fb6bd9914c 2019-01-07T11:27:37.922 2019-01-07T18:25:49.914
-    caom:CFHT/2480747        2480747                ... md5:c24ace389b760c290a5bf31842fb4ea9 2020-09-09T12:47:39.890 2020-09-09T12:47:39.890
-    caom:CFHT/2366188        2366188                ... md5:935330f6f4bb8211eaa8d84c76fbec33 2019-02-07T12:41:55.814 2019-11-06T08:37:00.616
-    caom:CFHT/2376828        2376828                ... md5:7c84ae4b76485a28336f03b2b5af18b3 2019-03-04T08:19:23.766 2019-03-04T10:55:53.572
-    caom:CFHT/2366432        2366432                ... md5:3bddcbca4ce44a337d6ed2fd7a99507d 2019-02-07T12:24:09.625 2019-11-06T08:37:54.590
-    caom:CFHT/2376828        2376828                ... md5:a3e8ccba7bc69d14a07d261d8615cc47 2019-04-10T22:14:33.111 2019-11-06T08:56:14.246
-    caom:CFHT/2480747        2480747                ... md5:a7cccd9710cbca222dc8f8b1eedff3b5 2020-09-09T12:47:39.890 2020-09-09T12:47:39.890
+      observationURI  sequenceNumber ...           accMetaChecksum2          
+                                     ...                                     
+    ----------------- -------------- ... ------------------------------------
+    caom:CFHT/2366432        2366432 ... md5:76a5e97c9d2f726f456c92b6d2303dd3
+    caom:CFHT/2366432        2366432 ... md5:eff6ecab03761186d6ce699dff43ddc7
+    caom:CFHT/2366188        2366188 ... md5:896250159a7e80eecdad34150201f361
+    caom:CFHT/2376828        2376828 ... md5:1c9008a82af8e5b0ed377c8544ded497
+    caom:CFHT/2376828        2376828 ... md5:297b56e1f2e80602e0cb0cc901505108
+    caom:CFHT/2366188        2366188 ... md5:f0ec6252250a86963a102351c23d0ca7
+    caom:CFHT/2480747        2480747 ... md5:a7cccd9710cbca222dc8f8b1eedff3b5
+    caom:CFHT/2480747        2480747 ... md5:c24ace389b760c290a5bf31842fb4ea9
 
+.. doctest-skip::
     >>> urls = cadc.get_data_urls(result)
     >>> for url in urls:
     ...     print(url)
     ...
-    https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/CFHT/2366432o.fits.fz?RUNID=njvos75ijcw0vo4r
-    https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/CFHT/2366188o.fits.fz?RUNID=njvos75ijcw0vo4r
-    https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/CFHT/2480747p.fits.fz?RUNID=njvos75ijcw0vo4r
-    https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/CFHT/2366188p.fits.fz?RUNID=njvos75ijcw0vo4r
-    https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/CFHT/2376828o.fits.fz?RUNID=njvos75ijcw0vo4r
-    https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/CFHT/2366432p.fits.fz?RUNID=njvos75ijcw0vo4r
-    https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/CFHT/2376828p.fits.fz?RUNID=njvos75ijcw0vo4r
-    https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/CFHT/2480747o.fits.fz?RUNID=njvos75ijcw0vo4r
+    https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/CFHT/2366432o.fits.fz?RUNID=queoo1qg8y4pgiep
+    https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/CFHT/2366432p.fits.fz?RUNID=queoo1qg8y4pgiep
+    https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/CFHT/2366188p.fits.fz?RUNID=queoo1qg8y4pgiep
+    https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/CFHT/2376828o.fits.fz?RUNID=queoo1qg8y4pgiep
+    https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/CFHT/2376828p.fits.fz?RUNID=queoo1qg8y4pgiep
+    https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/CFHT/2366188o.fits.fz?RUNID=queoo1qg8y4pgiep
+    https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/CFHT/2480747o.fits.fz?RUNID=queoo1qg8y4pgiep
+    https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/CFHT/2480747p.fits.fz?RUNID=queoo1qg8y4pgiep
 
 
 The next example queries all the data in the same region and filters
@@ -110,13 +111,15 @@ filtering possible) and resolves the URLs for both the primary and
 auxiliary data (in this case preview files)
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.cadc import Cadc
     >>> cadc = Cadc()
     >>> result = cadc.query_region('08h45m07.5s +54d18m00s')
     >>> print(len(result))
-    3032
-
+    3034
+    
+.. doctest-skip::
     >>> urls = cadc.get_data_urls(result[result['target_name'] == 'Nr3491_1'],
     ...                           include_auxiliaries=True)
     >>> for url in urls:
@@ -137,13 +140,13 @@ is not resolved. Instead it is matched against the target name in
 the CADC metadata.
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.cadc import Cadc
     >>> cadc = Cadc()
     >>> result = cadc.query_name('M31')
     >>> print(len(result))
     103949
-
     >>> result = cadc.query_name('Nr3491_1')
     >>> print(result)
       observationURI  sequenceNumber metaReadGroups ...           accMetaChecksum2                lastModified2          maxLastModified2
@@ -157,6 +160,8 @@ If only a subsection of the FITS file is needed, CADC can query an
 area and resolve the cutout of a result.
 
 .. code-block:: python
+.. doctest-skip::
+.. doctest-remote-data::
 
     >>> from astropy import units as u
     >>> from astroquery.cadc import Cadc
@@ -175,6 +180,8 @@ Alternatively, if the query result is large and data does not need to be
 in memory, lazy access to the downloaded FITS file can be used.
 
 .. code-block:: python
+.. doctest-skip::
+.. doctest-remote-data::
 
     >>> from astropy import units as u
     >>> from astropy.coordinates import SkyCoord
@@ -205,6 +212,8 @@ are needed, the result table can be passed into the
 cutout coordinates and radius.
 
 .. code-block:: python
+.. doctest-skip::
+.. doctest-remote-data::
 
     >>> from astroquery.cadc import Cadc
     >>> from astropy import units as u
@@ -309,6 +318,8 @@ Examples of TAP access
 To get a list of table objects:
 
 .. code-block:: python
+.. doctest-remote-data::
+
 
     >>> from astroquery.cadc import Cadc
     >>> cadc = Cadc()
@@ -346,6 +357,7 @@ To get a list of table objects:
 To get a single table object:
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.cadc import Cadc
     >>> cadc = Cadc()
@@ -419,49 +431,43 @@ The results can be saved in memory (default) or in a file.
 Query without saving results in a file:
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.cadc import Cadc
     >>> cadc = Cadc()
     >>> results = cadc.exec_sync("SELECT top 100 observationID, intent FROM caom2.Observation")
     >>> print(results)
-           observationID          intent
-    ---------------------------- -------
-                    C090503_0500 science
-      c4d_151207_032018_opd_u_v3 science
-                       ct3264072 science
-                        tu558265 science
-                       ct2318747 science
-                       tu1826354 science
-           c4d_150601_015113_ori science
-                        tu212518 science
-           k4i_041101_174620_zri science
-                        tu072083 science
-           psg_170118_012214_ori science
-    k4n_131022_051755_opd_KXs_v3 science
-          c15s_080828_031158_ori science
-      c4d_160214_072405_opi_r_v1 science
-                             ...     ...
-      c4d_150902_000343_opd_i_v1 science
-          c09i_141005_231309_sri science
-          kcfs_081028_074111_ori science
-                        tu802011 science
-      c4d_141122_004603_oow_u_v3 science
-          c15s_071230_081528_ori science
-          c15s_070924_203941_zri science
-                       tu1116697 science
-                       ct3429663 science
-            dao_c182_2020_005631 science
-            dao_c182_2020_005632 science
-                    C090317_0114 science
-                        cp828585 science
-          c09i_060720_044639_ori science
-            GS-2004A-Q-27-43-006 science
+                     observationID                     intent  
+    ----------------------------------------------- -----------
+                                          j8eh03boq     science
+                                          j8f635020     science
+                                          jbfkb1peq     science
+                                          j8ff06s2q     science
+                                          icdx40oxq     science
+                                          j8fd13rgq     science
+                                          j8ff03020     science
+                            GN-2014B-SV-101-761-010     science
+                                          j8ff07020     science
+                                          jbfh14020     science
+                                                ...         ...
+               hst_10476_50_acs_wfc_f850lp_j9fo50ul     science
+                       GS-CAL20181018-10-026-G-BIAS calibration
+                              GN-2020B-Q-120-40-050 calibration
+                       GS-CAL20181018-10-021-G-BIAS calibration
+                       GS-CAL20181018-10-036-G-BIAS calibration
+                       GS-CAL20181018-10-061-G-BIAS calibration
+                                          icdx13u2q     science
+                        GS-CAL20181117-2-046-G-BIAS calibration
+    tess2019357164649-s0020-0000000159539617-0165-s     science
+                        GS-CAL20181117-2-061-G-BIAS calibration
+                       GS-CAL20181018-10-086-G-BIAS calibration
     Length = 100 rows
 
 
 Query saving results in a file:
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.cadc import Cadc
     >>> cadc = Cadc()
@@ -474,6 +480,7 @@ Query saving results in a file:
 A table can be uploaded to the server in order to be used in a query.
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.cadc import Cadc
     >>> cadc = Cadc()
@@ -501,6 +508,8 @@ The results can be saved in memory (default) or in a file.
 Query without saving results in a file:
 
 .. code-block:: python
+.. doctest-skip::
+.. doctest-remote-data::
 
     >>> from astroquery.cadc import Cadc
     >>> cadc = Cadc()
@@ -508,41 +517,30 @@ Query without saving results in a file:
     >>> job.run().wait()
     >>> job.raise_if_error()
     >>> print(job.fetch_result().to_table())
-           observationID         instrument_name            target_name
-    ---------------------------- ---------------- --------------------------------
-                    C090503_0500           CPAPIR                             SH87
-      c4d_151207_032018_opd_u_v3            decam                          Field14
-                       ct3264072          andicam                          2227-08
-                        tu558265         mosaic_2                    xcs0058940301
-                       ct2318747         ccd_spec                             test
-                       tu1826354            decam                               B1
-           c4d_150601_015113_ori            decam                             junk
-                        tu212518          newfirm Mask for K4N09B_20091129_783db2b
-           k4i_041101_174620_zri        ir_imager                        TEST bias
-                        tu072083          newfirm Mask for K4N07B_20071113_776684b
-           psg_170118_012214_ori          goodman                          NGC1672
-    k4n_131022_051755_opd_KXs_v3          newfirm Mask for K4N13B_20131020_89c812c
-          c15s_080828_031158_ori         ccd_spec                              082
-      c4d_160214_072405_opi_r_v1            decam        MAGLITES field: 5354-01-r
-      c4d_141122_004603_oki_u_v3            decam                           Field4
-     c4d_140505_000543_opw_VR_v1            decam                          AiYN1Qv
-                             ...              ...                              ...
-          c09i_140321_044944_ori       ccd_imager twhya filter1 = dia, filter2 = g
-      c4d_150902_000343_opd_i_v1            decam                         C6p13c1A
-          c09i_141005_231309_sri       ccd_imager                            sflat
-          kcfs_081028_074111_ori         ccd_spec                         HD 22780
-                        tu802011       mosaic_1_1                            86326
-      c4d_141122_004603_oow_u_v3            decam                           Field4
-          c15s_071230_081528_ori         ccd_spec                         HD 95578
-          c15s_070924_203941_zri         ccd_spec                             Bias
-                       tu1116697         mosaic_2                             sm43
-                       ct3429663         mosaic_2                             test
-            dao_c182_2020_005631 Newtonian Imager                  s2020ihc(150@0)
-            dao_c182_2020_005632 Newtonian Imager                  s2020ihc(150@0)
-                    C090317_0114           CPAPIR                           2M1106
-                        cp828585          spartan             WISEJ1741+2533 x-6y5
-          c09i_060720_044639_ori       ccd_imager                    G2239n05d1243
-            GS-2004A-Q-27-43-006           GMOS-S                            LMCF4
+                     observationID                     intent  
+    ----------------------------------------------- -----------
+                                          j8eh03boq     science
+                                          j8f635020     science
+                                          jbfkb1peq     science
+                                          j8ff06s2q     science
+                                          icdx40oxq     science
+                                          j8fd13rgq     science
+                                          j8ff03020     science
+                            GN-2014B-SV-101-761-010     science
+                                          j8ff07020     science
+                                          jbfh14020     science
+                                                ...         ...
+               hst_10476_50_acs_wfc_f850lp_j9fo50ul     science
+                       GS-CAL20181018-10-026-G-BIAS calibration
+                              GN-2020B-Q-120-40-050 calibration
+                       GS-CAL20181018-10-021-G-BIAS calibration
+                       GS-CAL20181018-10-036-G-BIAS calibration
+                       GS-CAL20181018-10-061-G-BIAS calibration
+                                          icdx13u2q     science
+                        GS-CAL20181117-2-046-G-BIAS calibration
+    tess2019357164649-s0020-0000000159539617-0165-s     science
+                        GS-CAL20181117-2-061-G-BIAS calibration
+                       GS-CAL20181018-10-086-G-BIAS calibration
     Length = 100 rows
  
 
@@ -554,6 +552,8 @@ the job.
 
 
 .. code-block:: python
+.. doctest-skip::
+.. doctest-remote-data::
 
     >>> from astroquery.cadc import Cadc
     >>> cadc = Cadc()
@@ -633,6 +633,7 @@ users are applicable for authenticated ones.
 Login with username and password:
 
 .. code-block:: python
+.. doctest-skip::
 
     >>> from astroquery.cadc import Cadc
     >>> cadc = Cadc()
@@ -642,6 +643,7 @@ Login with username and password:
 Login with certificate:
 
 .. code-block:: python
+.. doctest-skip::
 
     >>> from astroquery.cadc import Cadc
     >>> cadc = Cadc()
@@ -652,6 +654,7 @@ To perform a logout:
 
 
 .. code-block:: python
+.. doctest-skip::
 
     >>> from astroquery.cadc import Cadc
     >>> cadc = Cadc()
