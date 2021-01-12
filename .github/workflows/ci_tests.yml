@@ -95,7 +95,7 @@ jobs:
     - name: Install Python dependencies
       run: python -m pip install --upgrade tox
     - name: Run tests
-      run: tox -v -e py38-test-alldeps -- --remote-data
+      run: tox -v -e py38-test-alldeps-devastropy -- --remote-data
 
   egg_info:
     name: egg_info with Python 3.7
