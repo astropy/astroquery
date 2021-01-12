@@ -13,7 +13,7 @@ Query the `CDS hips2fits service <http://alasky.u-strasbg.fr/hips-image-services
 
 The `CDS hips2fits service <http://alasky.u-strasbg.fr/hips-image-services/hips2fits>`_ offers a way
 to extract FITS images from HiPS sky maps. HiPS is an IVOA standard that combines individual images in
-order to produce a progressive hierarchical sky map describing the whole survey. Please refer to the 
+order to produce a progressive hierarchical sky map describing the whole survey. Please refer to the
 `IVOA paper <http://www.ivoa.net/documents/HiPS/20170519/REC-HIPS-1.0-20170519.pdf>`_ for more info.
 
 Given an astropy user-defined WCS with a HiPS name,
@@ -35,7 +35,7 @@ Examples
 ========
 
 With a user defined astropy WCS
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------
 
 .. code-block:: python
 
@@ -75,7 +75,7 @@ With a user defined astropy WCS
 .. image:: ./query_wcs.png
 
 Without WCS
-~~~~~~~~~~~
+-----------
 
     >>> from astroquery.hips2fits import hips2fits
     >>> import matplotlib.pyplot as plt
@@ -110,4 +110,3 @@ Reference/API
 
 
 .. _hips2fits: http://alasky.u-strasbg.fr/hips-image-services/hips2fits
-
