@@ -775,6 +775,9 @@ be accessed in Astroquery by using the Tesscut class.
 After the user has reached this limit TESScut will return a
 ``503 Service Temporarily Unavailable Error``.
 
+If you use TESSCut for your work, please cite Brasseur et al. 2019 
+https://ui.adsabs.harvard.edu/abs/2019ascl.soft05007B/abstract
+
 
 Cutouts
 -------
@@ -870,6 +873,7 @@ To access sector information at a particular location there is  `~astroquery.mas
 
 Zcut
 ====
+
 
 Zcut for MAST allows users to request cutouts from various Hubble deep field surveys. The cutouts can 
 be returned as either fits or image files (jpg and png are supported). This tool can be accessed in 
