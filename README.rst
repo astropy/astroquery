@@ -4,13 +4,17 @@
    :target: https://img.shields.io/pypi/v/astroquery.svg
    :alt: Latest PyPI version
 
-.. image:: https://travis-ci.com/astropy/astroquery.svg?branch=master
-   :target: https://travis-ci.com/astropy/astroquery
-   :alt: Travis CI Status
+.. image:: https://readthedocs.org/projects/astroquery/badge/?version=latest
+    :target: https://astroquery.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
 
-.. image:: https://coveralls.io/repos/astropy/astroquery/badge.png
-   :target: https://coveralls.io/r/astropy/astroquery
-   :alt: Coverage Status
+.. image:: https://github.com/astropy/astroquery/workflows/CI/badge.svg
+    :target: https://github.com/astropy/astroquery/actions?query=workflow%3ACI
+    :alt: Github Actions CI Status
+
+.. image:: https://codecov.io/gh/astropy/astroquery/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/astropy/astroquery
+    :alt: Coverage results
 
 .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.1160627.svg
    :target: https://doi.org/10.5281/zenodo.1160627
