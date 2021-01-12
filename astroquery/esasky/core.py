@@ -14,6 +14,7 @@ from astropy import log
 import astropy.units
 import astropy.io.votable as votable
 from requests import HTTPError
+from requests import ConnectionError
 
 from ..query import BaseQuery
 from ..utils import commons
@@ -131,8 +132,8 @@ class ESASkyClass(BaseQuery):
             and observations available for the chosen missions and object.
             It is structured in a TableList like this:
             TableList with 2 tables:
-                    '0:HERSCHEL' with 12 column(s) and 152 row(s)
-                    '1:HST-OPTICAL' with 12 column(s) and 6 row(s)
+            '0:HERSCHEL' with 12 column(s) and 152 row(s)
+            '1:HST-OPTICAL' with 12 column(s) and 6 row(s)
 
         Examples
         --------
@@ -184,8 +185,8 @@ class ESASkyClass(BaseQuery):
             of the catalogs available for the chosen mission and object.
             It is structured in a TableList like this:
             TableList with 2 tables:
-                '0:HSC' with 9 column(s) and 232 row(s)
-                '1:XMM-OM' with 11 column(s) and 2 row(s)
+            '0:HSC' with 9 column(s) and 232 row(s)
+            '1:XMM-OM' with 11 column(s) and 2 row(s)
 
         Examples
         --------
@@ -237,8 +238,8 @@ class ESASkyClass(BaseQuery):
             and spectra available for the chosen missions and object.
             It is structured in a TableList like this:
             TableList with 2 tables:
-                    '0:HERSCHEL' with 12 column(s) and 12 row(s)
-                    '1:HST-OPTICAL' with 12 column(s) and 19 row(s)
+            '0:HERSCHEL' with 12 column(s) and 12 row(s)
+            '1:HST-OPTICAL' with 12 column(s) and 19 row(s)
 
         Examples
         --------
@@ -291,8 +292,8 @@ class ESASkyClass(BaseQuery):
             and observations available for the chosen missions and region.
             It is structured in a TableList like this:
             TableList with 2 tables:
-                '0:HERSCHEL' with 12 column(s) and 152 row(s)
-                '1:HST-OPTICAL' with 12 column(s) and 71 row(s)
+            '0:HERSCHEL' with 12 column(s) and 152 row(s)
+            '1:HST-OPTICAL' with 12 column(s) and 71 row(s)
 
         Examples
         --------
@@ -358,8 +359,8 @@ class ESASkyClass(BaseQuery):
             the catalogs available for the chosen mission and region.
             It is structured in a TableList like this:
             TableList with 2 tables:
-                '0:HIPPARCOS-2' with 7 column(s) and 2 row(s)
-                '1:HSC' with 9 column(s) and 10000 row(s)
+            '0:HIPPARCOS-2' with 7 column(s) and 2 row(s)
+            '1:HSC' with 9 column(s) and 10000 row(s)
 
         Examples
         --------
@@ -426,8 +427,8 @@ class ESASkyClass(BaseQuery):
             and observations available for the chosen missions and region.
             It is structured in a TableList like this:
             TableList with 2 tables:
-                '0:HERSCHEL' with 12 column(s) and 264 row(s)
-                '1:IUE' with 12 column(s) and 14 row(s)
+            '0:HERSCHEL' with 12 column(s) and 264 row(s)
+            '1:IUE' with 12 column(s) and 14 row(s)
 
         Examples
         --------
@@ -643,8 +644,7 @@ class ESASkyClass(BaseQuery):
             The response is structured in a dictionary like this:
             dict: {
             'HERSCHEL': {'1342211195': {'red' : {'HPSTBRRS' : HDUList}, 'blue' : {'HPSTBRBS': HDUList},
-                '1342180796': {'WBS' : {'WBS-H_LSB_5a' : HDUList}, 'HRS' : {'HRS-H_LSB_5a': HDUList},
-                ...},
+            '1342180796': {'WBS' : {'WBS-H_LSB_5a' : HDUList}, 'HRS' : {'HRS-H_LSB_5a': HDUList}, ...},
             'HST-IR':[HDUList, HDUList, HDUList, HDUList, HDUList, ...],
             'XMM-NEWTON' : [HDUList, HDUList, HDUList, HDUList, ...]
             ...
@@ -717,8 +717,7 @@ class ESASkyClass(BaseQuery):
             The response is structured in a dictionary like this:
             dict: {
             'HERSCHEL': {'1342211195': {'red' : {'HPSTBRRS' : HDUList}, 'blue' : {'HPSTBRBS': HDUList},
-                '1342180796': {'WBS' : {'WBS-H_LSB_5a' : HDUList}, 'HRS' : {'HRS-H_LSB_5a': HDUList},
-                ...},
+            '1342180796': {'WBS' : {'WBS-H_LSB_5a' : HDUList}, 'HRS' : {'HRS-H_LSB_5a': HDUList}, ...},
             'HST-IR':[HDUList, HDUList, HDUList, HDUList, HDUList, ...],
             'XMM-NEWTON' : [HDUList, HDUList, HDUList, HDUList, ...]
             ...
@@ -877,24 +876,31 @@ class ESASkyClass(BaseQuery):
                             maps.append(None)
 
                 else:
-                    response = self._request(
-                        'GET',
-                        product_url,
-                        cache=cache,
-                        headers=self._get_header())
-
                     try:
+                        response = self._request(
+                            'GET',
+                            product_url,
+                            cache=cache,
+                            stream=True,
+                            headers=self._get_header())
+
                         response.raise_for_status()
 
                         file_name = self._extract_file_name_from_response_header(response.headers)
                         if (file_name == ""):
                             file_name = self._extract_file_name_from_url(product_url)
-
-                        fits_data = response.content
-                        with open(directory_path + file_name, 'wb') as fits_file:
-                            fits_file.write(fits_data)
-                            maps.append(fits.open(directory_path + file_name))
-                    except HTTPError as err:
+                        if(file_name.lower().endswith(self.__TAR_STRING)):
+                            with tarfile.open(fileobj=BytesIO(response.content)) as tar:
+                                for member in tar.getmembers():
+                                    tar.extract(member, directory_path)
+                                    maps.append(fits.open(directory_path + member.name))
+                        else:
+                            fits_data = response.content
+                            with open(directory_path + file_name, 'wb') as fits_file:
+                                fits_file.write(fits_data)
+                                fits_file.flush()
+                                maps.append(fits.open(directory_path + file_name))
+                    except (HTTPError, ConnectionError) as err:
                         log.error("Download failed with {}.".format(err))
                         maps.append(None)
 
@@ -912,7 +918,7 @@ class ESASkyClass(BaseQuery):
     def _get_herschel_map(self, product_url, directory_path, cache):
         observation = dict()
         response = self._request('GET', product_url, cache=cache,
-                                 headers=self._get_header())
+                                 stream=True, headers=self._get_header())
         response.raise_for_status()
 
         with tarfile.open(fileobj=BytesIO(response.content)) as tar:
@@ -929,7 +935,7 @@ class ESASkyClass(BaseQuery):
     def _get_herschel_spectra(self, product_url, directory_path, cache):
         spectra = dict()
         response = self._request('GET', product_url, cache=cache,
-                                headers=self._get_header())
+                                stream=True, headers=self._get_header())
 
         response.raise_for_status()
 
@@ -999,7 +1005,11 @@ class ESASkyClass(BaseQuery):
         if (content_disposition[start_index] == '\"'):
             start_index += 1
 
-        if (self.__FITS_STRING in content_disposition[start_index:].lower()):
+        if (".gz" in content_disposition[start_index:].lower()):
+            end_index = (
+                content_disposition.lower().index(".gz", start_index + 1) + len(".gz"))
+            return content_disposition[start_index: end_index]
+        elif (self.__FITS_STRING in content_disposition[start_index:].lower()):
             end_index = (
                 content_disposition.lower().index(self.__FITS_STRING, start_index + 1) +
                 len(self.__FITS_STRING))
@@ -1008,6 +1018,10 @@ class ESASkyClass(BaseQuery):
             end_index = (
                 content_disposition.upper().index(self.__FTZ_STRING, start_index + 1) +
                 len(self.__FTZ_STRING))
+            return content_disposition[start_index: end_index]
+        elif (".fit" in content_disposition[start_index:].upper()):
+            end_index = (
+                content_disposition.upper().index(".fit", start_index + 1) + len(".fit"))
             return content_disposition[start_index: end_index]
         elif (self.__TAR_STRING in content_disposition[start_index:].lower()):
             end_index = (

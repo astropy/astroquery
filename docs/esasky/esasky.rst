@@ -24,11 +24,12 @@ If you know the names of all the available catalogs you can use
 
 .. code-block:: python
 
+    >>> from astroquery.esasky import ESASky
     >>> catalog_list = ESASky.list_catalogs()
     >>> print(catalog_list)
     ['LAMOST', 'AllWise', 'AKARI-IRC-SC', 'TwoMASS', 'INTEGRAL',
     'CHANDRA-SC2', 'XMM-EPIC-STACK', 'XMM-EPIC', 'XMM-OM', 'XMM-SLEW',
-    'Tycho-2', 'Gaia-DR2', 'Hipparcos-2', 'HSC', 'Herschel-HPPSC-070',
+    'Tycho-2', 'Gaia-eDR3', 'Hipparcos-2', 'HSC', 'Herschel-HPPSC-070',
     'Herschel-HPPSC-100', 'Herschel-HPPSC-160', 'Herschel-SPSC-250',
     'Herschel-SPSC-350', 'Herschel-SPSC-500', 'Planck-PGCC',
     'Planck-PCCS2E-HFI', 'Planck-PCCS2-HFI', 'Planck-PCCS2-LFI',
@@ -45,8 +46,8 @@ If you know the names of all the available maps missions you can use
     >>> maps_list = ESASky.list_maps()
     >>> print(maps_list)
     ['INTEGRAL', 'XMM', 'Chandra', 'SUZAKU', 'XMM-OM-OPTICAL',
-    'XMM-OM-UV', 'HST-UV', 'HST-OPTICAL', 'HST-IR', 'Herschel',
-    'ISO', 'AKARI', 'Spitzer', 'ALMA']
+    'XMM-OM-UV', 'HST-UV', 'HST-OPTICAL', 'HST-IR', 'ISO-IR',
+    'Herschel', 'AKARI', 'Spitzer', 'ALMA']
 
 Get the available maps mission names
 ------------------------------------
@@ -108,9 +109,9 @@ To see the result:
         '0:ALLWISE' with 13 column(s) and 1 row(s)
         '1:TWOMASS' with 9 column(s) and 3 row(s)
         '2:CHANDRA-SC2' with 41 column(s) and 9 row(s)
-        '3:XMM-EPIC-STACK' with 14 column(s) and 1 row(s)
-        '4:XMM-EPIC' with 15 column(s) and 10 row(s)
-        '5:XMM-OM' with 11 column(s) and 2 row(s)
+        '3:XMM-EPIC-STACK' with 13 column(s) and 1 row(s)
+        '4:XMM-EPIC' with 14 column(s) and 11 row(s)
+        '5:XMM-OM' with 11 column(s) and 5 row(s)
         '6:HSC' with 9 column(s) and 230 row(s)
         '7:HERSCHEL-HPPSC-070' with 15 column(s) and 1 row(s)
         '8:HERSCHEL-HPPSC-100' with 15 column(s) and 1 row(s)
@@ -123,20 +124,20 @@ To access an individual table from the `~astroquery.utils.TableList` object
 
 .. code-block:: python
 
-    >>> interesting_table = result['PLANCK-PCCS2-HFI']
+    >>> interesting_table = result['ALLWISE']
     >>> print(interesting_table)
-              name              ra [1]       dec [1]
-    ----------------------- ------------- -------------
-    PCCS2 217 G104.83+68.55 202.485459453 47.2001843799
+            name             ra        dec     ... w3mpro_error w4mpro w4mpro_error
+                            deg        deg     ...     mag       mag       mag
+    ------------------- ----------- ---------- ... ------------ ------ ------------
+    J132952.72+471142.6 202.4696996 47.1951717 ...        0.023  3.386        0.036
 
 To do some common processing to all the tables in the returned
-`~astroquery.utils.TableList` object, do just what you would do for a python
-dictionary:
+`~astroquery.utils.TableList` object, you can just use a for loop:
 
 .. code-block:: python
 
-    >>> for table_name in result:
-    ...     table = result[table_name]
+    >>> for table in result:
+    ...     colnames = table.colnames
     ...     # table is now an `astropy.table.Table` object
     ...     # some code to apply on table
 
@@ -207,11 +208,11 @@ To see the result:
         '2:AKARI-IRC-SC' with 13 column(s) and 1 row(s)
         '3:TWOMASS' with 9 column(s) and 188 row(s)
         '4:CHANDRA-SC2' with 41 column(s) and 430 row(s)
-        '5:XMM-EPIC-STACK' with 14 column(s) and 205 row(s)
-        '6:XMM-EPIC' with 15 column(s) and 712 row(s)
-        '7:XMM-OM' with 11 column(s) and 2571 row(s)
-        '8:XMM-SLEW' with 10 column(s) and 2 row(s)
-        '9:GAIA-DR2' with 18 column(s) and 618 row(s)
+        '5:XMM-EPIC-STACK' with 13 column(s) and 214 row(s)
+        '6:XMM-EPIC' with 14 column(s) and 823 row(s)
+        '7:XMM-OM' with 11 column(s) and 4849 row(s)
+        '8:XMM-SLEW' with 9 column(s) and 2 row(s)
+        '9:GAIA-EDR3' with 20 column(s) and 932 row(s)
         '10:HSC' with 9 column(s) and 10000 row(s)
         '11:HERSCHEL-HPPSC-070' with 15 column(s) and 93 row(s)
         '12:HERSCHEL-HPPSC-100' with 15 column(s) and 122 row(s)
@@ -251,8 +252,7 @@ dictionary where the used filter is the key and the HDUList is the value.
 
     >>> from astroquery.esasky import ESASky
     >>> images = ESASky.get_images("m51", radius="20 arcmin",
-    ...                            missions=['Herschel', 'ISO'])
-
+    ...                            missions=['Herschel', 'ISO-IR'])
     Starting download of HERSCHEL data. (25 files)
     Downloading Observation ID: 1342188589 from http://archives.esac.esa.int/hsa/whsa-tap-server/data?RETRIEVAL_TYPE=STANDALONE&observation_oid=8618001&DATA_RETRIEVAL_ORIGIN=UI [Done]
     Downloading Observation ID: 1342188328 from http://archives.esac.esa.int/hsa/whsa-tap-server/data?RETRIEVAL_TYPE=STANDALONE&observation_oid=8637833&DATA_RETRIEVAL_ORIGIN=UI
@@ -272,7 +272,7 @@ parameter:
 .. code-block:: python
 
     >>> images = ESASky.get_images("m51", radius="20 arcmin",
-    ...                            missions=['Herschel', 'ISO'],
+    ...                            missions=['Herschel', 'ISO-IR'],
     ...                            download_dir="/home/user/esasky")
 
 Get maps
@@ -285,7 +285,7 @@ it takes a `~astroquery.utils.TableList` instead of position, radius and mission
 .. code-block:: python
 
     >>> table_list = ESASky.query_region_maps("m51", radius="20 arcmin",
-    ...                                       missions=['Herschel', 'ISO'])
+    ...                                       missions=['Herschel', 'ISO-IR'])
     >>> images = ESASky.get_maps(table_list, download_dir="/home/user/esasky")
 
 This example is equivalent to:
@@ -293,7 +293,7 @@ This example is equivalent to:
 .. code-block:: python
 
     >>> images = ESASky.get_images("m51", radius="20 arcmin",
-    ...                            missions=['Herschel', 'ISO'],
+    ...                            missions=['Herschel', 'ISO-IR'],
     ...                            download_dir="/home/user/esasky")
 
 
