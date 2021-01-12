@@ -40,5 +40,6 @@ __all__ = ['Observations', 'ObservationsClass',
            'Catalogs', 'CatalogsClass',
            'Mast', 'MastClass',
            'Tesscut', 'TesscutClass',
+           'Zcut', 'ZcutClass',
            'Conf', 'conf', 'utils',
            ]
