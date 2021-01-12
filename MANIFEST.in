@@ -6,7 +6,9 @@ include astroquery/CITATION
 include astroquery/splatalogue/data/*
 
 include ah_bootstrap.py
+include setup.py
 include setup.cfg
+include pyproject.toml
 
 recursive-include astroquery *.py
 recursive-include docs *

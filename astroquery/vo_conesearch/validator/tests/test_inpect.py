@@ -5,7 +5,16 @@
 import os
 
 # ASTROPY
-from astropy.utils.data import _find_pkg_data_path, get_pkg_data_filename
+import astropy
+from astropy.utils.data import get_pkg_data_filename
+from astropy.utils.introspection import minversion
+
+ASTROPY_LT_4_3 = not minversion(astropy, '4.3')
+
+if ASTROPY_LT_4_3:
+    from astropy.utils.data import _find_pkg_data_path as get_pkg_data_path
+else:
+    from astropy.utils.data import get_pkg_data_path
 
 # LOCAL
 from .. import inspect
@@ -18,7 +27,7 @@ class TestConeSearchResults:
     """Inspection of ``TestConeSearchValidation`` results."""
     def setup_class(self):
         self.datadir = 'data'
-        test_vos_path = _find_pkg_data_path(self.datadir) + os.sep
+        test_vos_path = get_pkg_data_path(self.datadir) + os.sep
 
         # Convert to a proper file:// URL--on *NIXen this is not necessary but
         # Windows paths will blow up if we don't do this.
