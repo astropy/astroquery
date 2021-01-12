@@ -19,9 +19,33 @@ on:
     branches: [ master ]
 
 jobs:
+  cancel_ci:
+    name: Mandatory checks before CI
+    runs-on: ubuntu-latest
+    outputs:
+      run_next: ${{ steps.skip_ci_step.outputs.run_next }}
+    steps:
+    - name: Check skip CI
+      uses: pllim/action-skip-ci@main
+      id: skip_ci_step
+      with:
+        NO_FAIL: true
+        SKIP_DIRECTIVES: '[skip ci],[ci skip],[skip codeql],[codeql skip]'
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    # This should only run if we did not skip CI
+    - name: Cancel Previous Runs
+      uses: styfle/cancel-workflow-action@ce17749
+      if: steps.skip_ci_step.outputs.run_next == 'true'
+      with:
+        access_token: ${{ secrets.GITHUB_TOKEN }}
+
+  # The rest only run if above are done
+
   analyze:
     name: Analyze
     runs-on: ubuntu-latest
+    needs: cancel_ci
+    if: needs.cancel_ci.outputs.run_next == 'true'
 
     strategy:
       fail-fast: false
