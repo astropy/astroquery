@@ -1,5 +1,3 @@
-.. doctest-skip-all
-
 .. _astroquery.dace:
 
 ************************
@@ -18,10 +16,11 @@ Query radial velocities
 If you need to get radial velocities data for an object you can do the following and get a `~astropy.table.Table` :
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.dace import Dace
     >>> radial_velocities_table = Dace.query_radial_velocities('HD40307')
-    >>> print(radial_velocities_table)
+    >>> print(radial_velocities_table) # doctest: +IGNORE_OUTPUT
 
           rjd                 rv               rv_err        ins_name
     ------------------ ------------------ ------------------ --------- ...
