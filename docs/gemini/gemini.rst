@@ -1,5 +1,3 @@
-.. doctest-skip-all
-
 .. _astroquery.gemini:
 
 ************************************
@@ -19,20 +17,20 @@ Positional queries can be based on a sky position.  Radius is an optional parame
 
 .. code-block:: python
 
-                >>> from astroquery.gemini import Observations
-                >>> from astropy import coordinates, units
+.. doctest-remote-data::
 
-                >>> coord = coordinates.SkyCoord(210.80242917, 54.34875, unit="deg")
-                >>> data = Observations.query_region(coordinates=coord, radius=0.3*units.deg)
-                >>> print(data[0:5])
-
-                exposure_time detector_roi_setting detector_welldepth_setting  telescope   ...
-                ------------- -------------------- -------------------------- ------------ ...
-                     119.9986           Full Frame                         -- Gemini-North ...
-                     119.9983           Full Frame                         -- Gemini-North ...
-                     119.9986           Full Frame                         -- Gemini-North ...
-                     119.9983           Full Frame                         -- Gemini-North ...
-                      99.9983           Full Frame                         -- Gemini-North ...
+               >>> from astroquery.gemini import Observations
+               >>> from astropy import coordinates, units
+               >>> coord = coordinates.SkyCoord(210.80242917, 54.34875, unit="deg")
+               >>> data = Observations.query_region(coordinates=coord, radius=0.3*units.deg)
+               >>> print(data[0:5])
+               exposure_time detector_roi_setting ...  release         dec
+               ------------- -------------------- ... ---------- ---------------
+                    119.9986           Full Frame ... 2008-08-21  54.34877772501
+                    119.9983           Full Frame ... 2008-09-25 54.376194395654
+                    119.9986           Full Frame ... 2008-09-25 54.366916626746
+                    119.9983           Full Frame ... 2008-09-25 54.274527402457
+                         99.9983           Full Frame ... 2013-08-16 54.307561057825
 
 
 Observation Name Queries
@@ -41,20 +39,18 @@ Observation Name Queries
 You may also do a query by the name of the object you are interested in.
 
 .. code-block:: python
+.. doctest-remote-data::
 
                 >>> from astroquery.gemini import Observations
-
                 >>> data = Observations.query_object(objectname='m101')
                 >>> print(data[0:5])
-
-                exposure_time detector_roi_setting detector_welldepth_setting  telescope   ...
-                ------------- -------------------- -------------------------- ------------ ...
-                     119.9986           Full Frame                         -- Gemini-North ...
-                     119.9983           Full Frame                         -- Gemini-North ...
-                     119.9986           Full Frame                         -- Gemini-North ...
-                     119.9983           Full Frame                         -- Gemini-North ...
-                      99.9983           Full Frame                         -- Gemini-North ...
-
+                exposure_time detector_roi_setting ...  release         dec
+                ------------- -------------------- ... ---------- ---------------
+                           --            Undefined ... 2013-12-21              --
+                           --            Undefined ... 2013-12-21              --
+                      49.9987           Full Frame ... 2013-08-28 54.348777039949
+                      49.9987           Full Frame ... 2013-08-28 54.346975563951
+                      49.9989           Full Frame ... 2013-08-28 54.347048438693
 
 Observation Criteria Queries
 ----------------------------
@@ -69,21 +65,22 @@ and the program ID.  For a complete list of available search fields, see
 `~astroquery.gemini.ObservationsClass.query_criteria`
 
 .. code-block:: python
+.. doctest-remote-data::
 
                 >>> from astroquery.gemini import Observations
-
                 >>> data = Observations.query_criteria(instrument='GMOS-N',
                 ...                                    program_id='GN-CAL20191122',
                 ...                                    observation_type='BIAS')
                 >>> print(data[0:5])
+                exposure_time detector_roi_setting detector_welldepth_setting ...  release   dec
+                ------------- -------------------- -------------------------- ... ---------- ---
+                          0.0        Central Stamp                         -- ... 2019-11-22  --
+                          0.0           Full Frame                         -- ... 2019-11-22  --
+                          0.0           Full Frame                         -- ... 2019-11-22  --
+                          0.0           Full Frame                         -- ... 2019-11-22  --
+                          0.0           Full Frame                         -- ... 2019-11-22  --
 
-                exposure_time detector_roi_setting detector_welldepth_setting  telescope   mdready ...
-                ------------- -------------------- -------------------------- ------------ ------- ...
-                          0.0        Central Stamp                         -- Gemini-North    True ...
-                          0.0           Full Frame                         -- Gemini-North    True ...
-                          0.0           Full Frame                         -- Gemini-North    True ...
-                          0.0           Full Frame                         -- Gemini-North    True ...
-                          0.0           Full Frame                         -- Gemini-North    True ...
+
 
 In addition, the criteria query can accept additional parameters via the ``*rawqueryargs`` and ``**rawquerykwargs``
 optional parameters.
@@ -91,9 +88,9 @@ optional parameters.
 The ``orderby`` parameter can be used to pass the desired sort order.
 
 .. code-block:: python
+.. doctest-remote-data::
 
                 >>> from astroquery.gemini import Observations
-
                 >>> data = Observations.query_criteria('centralspectrum',
                 ...                                    instrument='GMOS-N',
                 ...                                    program_id='GN-CAL20191122',
@@ -121,19 +118,18 @@ terms need be passed into the method.  If QA or engineering search terms are pas
 the *NotFail* or *notengineering* terms respectively.
 
 .. code-block:: python
+.. doctest-remote-data::
 
                 >>> from astroquery.gemini import Observations
-
                 >>> data = Observations.query_raw('GMOS-N', 'BIAS', progid='GN-CAL20191122')
                 >>> print(data[0:5])
-
-                exposure_time detector_roi_setting detector_welldepth_setting  telescope   mdready ...
-                ------------- -------------------- -------------------------- ------------ ------- ...
-                          0.0        Central Stamp                         -- Gemini-North    True ...
-                          0.0           Full Frame                         -- Gemini-North    True ...
-                          0.0           Full Frame                         -- Gemini-North    True ...
-                          0.0           Full Frame                         -- Gemini-North    True ...
-                          0.0           Full Frame                         -- Gemini-North    True ...
+                exposure_time detector_roi_setting detector_welldepth_setting ...  release   dec
+                ------------- -------------------- -------------------------- ... ---------- ---
+                          0.0        Central Stamp                         -- ... 2019-11-22  --
+                          0.0           Full Frame                         -- ... 2019-11-22  --
+                          0.0           Full Frame                         -- ... 2019-11-22  --
+                          0.0           Full Frame                         -- ... 2019-11-22  --
+                          0.0           Full Frame                         -- ... 2019-11-22  --
 
 
 Authenticated Sessions
@@ -144,9 +140,9 @@ with on the GOA homepage at `<https://archive.gemini.edu/>`__.  The `astroquery.
 method returns `True` if successful.
 
 .. code-block:: python
+.. doctest-skip::
 
                 >>> from astroquery.gemini import Observations
-
                 >>> Observations.login(username, password)
                 >>> # do something with your elevated access
 
@@ -159,10 +155,10 @@ URL and fetches the file.  It will use any authenticated session you may have, s
 proprietary data you may be permissioned for.
 
 .. code-block:: python
+.. doctest-skip::
 
                 >>> from astroquery.gemini import Observations
-
-                >>> Observations.get_file("GS2020AQ319-10.fits", download_dir="/tmp")
+                >>> Observations.get_file("GS2020AQ319-10.fits", download_dir="/tmp") # doctest: +REMOTE_DATA
 
 
 Reference/API
