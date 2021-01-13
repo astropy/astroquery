@@ -48,7 +48,7 @@ class AlfalfaClass(BaseQuery):
         iterable_lines = result.iter_lines()
 
         # Read header
-        cols = [col for col in next(iterable_lines).rstrip('\n').split(',')]
+        cols = [col for col in next(iterable_lines).rstrip(b'\n').split(b',')]
 
         catalog = {}
         for col in cols:
@@ -59,14 +59,14 @@ class AlfalfaClass(BaseQuery):
             # skip blank lines or trailing newlines
             if line == "":
                 continue
-            col_values = line.rstrip('\n').split(',')
+            col_values = line.rstrip(b'\n').split(b',')
             for i, col in enumerate(cols):
                 item = col_values[i].strip()
                 if item == '\"\"':
                     catalog[col].append(self.PLACEHOLDER)
                 elif item.isdigit():
                     catalog[col].append(int(item))
-                elif item.replace('.', '').isdigit():
+                elif item.replace(b'.', b'').isdigit():
                     catalog[col].append(float(item))
                 else:
                     catalog[col].append(item)
@@ -139,11 +139,11 @@ class AlfalfaClass(BaseQuery):
 
         # Use RA and DEC to find appropriate AGC
         if optical_counterpart:
-            ra_ref = cat['RAdeg_OC']
-            dec_ref = cat['DECdeg_OC']
+            ra_ref = cat[b'RAdeg_OC']
+            dec_ref = cat[b'DECdeg_OC']
         else:
-            ra_ref = cat['RAdeg_HI']
-            dec_ref = cat['Decdeg_HI']
+            ra_ref = cat[b'RAdeg_HI']
+            dec_ref = cat[b'Decdeg_HI']
 
         dra = np.abs(ra_ref - ra) \
             * np.cos(dec * np.pi / 180.)
@@ -155,7 +155,7 @@ class AlfalfaClass(BaseQuery):
 
         # Matched object within our search radius?
         if minsep < dr:
-            return cat['AGCNr'][i_minsep]
+            return cat[b'AGCNr'][i_minsep]
         else:
             return None
 
@@ -185,7 +185,7 @@ class AlfalfaClass(BaseQuery):
         agc = str(agc).zfill(6)
 
         link = "%s/A%s.fits" % (self.FITS_PREFIX, agc)
-        result = commons.FileContainer(link, show_progress=show_progress)
+        result = commons.FileContainer(link, show_progress=show_progress, encoding='binary')
         return result
 
     @prepend_docstr_nosections(get_spectrum_async.__doc__)
