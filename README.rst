@@ -65,7 +65,7 @@ or pip installed:
 
 .. code-block:: bash
 
-    $ pip install astroquery
+    $ pip install --pre astroquery
 
 and the 'bleeding edge' master version:
 
