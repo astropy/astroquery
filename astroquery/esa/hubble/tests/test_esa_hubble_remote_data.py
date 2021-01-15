@@ -46,6 +46,7 @@ def remove_last_job():
     if len(jobs) > 0:
         esa_hubble._tap.remove_jobs(jobs[-1].jobid)
 
+
 @pytest.mark.remote_data
 class TestRemoteData(unittest.TestCase):
 
