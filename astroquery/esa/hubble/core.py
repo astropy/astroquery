@@ -18,6 +18,8 @@ Created on 13 Aug. 2018
 """
 from astroquery.utils import commons
 from astropy import units
+from astropy.coordinates import SkyCoord
+from astropy.coordinates import Angle
 from astropy.units import Quantity
 from astroquery.utils.tap.core import TapPlus
 from astroquery.utils.tap.model import modelutils
@@ -58,7 +60,7 @@ class ESAHubbleClass(BaseQuery):
             self._tap = tap_handler
 
     def download_product(self, observation_id, calibration_level=None,
-                         product_type=None, filename=None, verbose=False):
+                         filename=None, verbose=False, **kwargs):
         """
         Download products from EHST based on their observation ID and the
         calibration level or the product type.
@@ -74,9 +76,6 @@ class ESAHubbleClass(BaseQuery):
             The identifier of the data reduction/processing applied to the
             data. By default, the most scientifically relevant level will be
             chosen. RAW, CALIBRATED, PRODUCT or AUXILIARY
-        product_type : string
-            type of product retrieval, optional
-            PRODUCT, SCIENCE_PRODUCT or POSTCARD
         filename : string
             file name to be used to store the artifact, optional, default
             None
@@ -84,6 +83,9 @@ class ESAHubbleClass(BaseQuery):
         verbose : bool
             optional, default 'False'
             flag to display information about the process
+        product_type : string
+            type of product retrieval, optional
+            PRODUCT, SCIENCE_PRODUCT or POSTCARD
 
         Returns
         -------
@@ -100,7 +102,8 @@ class ESAHubbleClass(BaseQuery):
             params["CALIBRATION_LEVEL"] = calibration_level
             url += "&CALIBRATION_LEVEL=" + calibration_level
 
-        if product_type:
+        if "product_type" in kwargs:
+            product_type = kwargs["product_type"]
             self.__validate_product_type(product_type)
             params["RETRIEVAL_TYPE"] = product_type
             filename = self._get_product_filename(product_type, filename)
@@ -249,11 +252,11 @@ class ESAHubbleClass(BaseQuery):
         -------
         astropy.table.Table with the result of the cone_search
         """
-        coord = self._getCoordInput(coordinates, "coordinate")
-        radius_in_grades = float(radius/60)  # Converts to degrees
+        coord = self._getCoordInput(coordinates)
+        radius_in_grades = Angle(radius, units.arcmin).deg
 
-        ra_hours, dec = commons.coord_to_radec(coord)
-        ra = ra_hours * 15.0  # Converts to degrees
+        ra = coord.ra.deg
+        dec = coord.dec.deg
 
         query = "select o.observation_id, "\
                 "o.start_time, o.end_time, o.start_time_mjd, "\
@@ -377,11 +380,11 @@ class ESAHubbleClass(BaseQuery):
             except Exception:
                 raise ValueError('This target cannot be resolved')
         else:
-            coord = self._getCoordInput(coordinates, "coordinate")
-            ra_hours, dec = commons.coord_to_radec(coord)
-            ra = ra_hours * 15.0  # Converts to degrees
+            coord = self._getCoordInput(coordinates)
+            ra = coord.ra.deg
+            dec = coord.dec.deg
 
-        radius_in_grades = float(radius/60)  # Converts to degrees
+        radius_in_grades = Angle(radius, units.arcmin).deg
         cone_query = "1=CONTAINS(POINT('ICRS', pos.ra, pos.dec),"\
                      "CIRCLE('ICRS', {0}, {1}, {2}))".\
                      format(str(ra), str(dec), str(radius_in_grades))
@@ -673,14 +676,13 @@ class ESAHubbleClass(BaseQuery):
         else:
             return columns
 
-    def _getCoordInput(self, value, msg):
-        if not (isinstance(value, str) or isinstance(value,
-                                                     commons.CoordClasses)):
-            raise ValueError(str(msg) + ""
+    def _getCoordInput(self, value):
+        if not (isinstance(value, str) or
+                isinstance(value, SkyCoord)):
+            raise ValueError("Coordinates" +
                              " must be either a string or astropy.coordinates")
         if isinstance(value, str):
-            coords = commons.parse_coordinates(value)
-            return coords
+            return SkyCoord(value)
         else:
             return value
 

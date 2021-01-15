@@ -121,7 +121,8 @@ class TestESAHubble():
                           verbose=parameters['verbose'])
 
     def test_cone_search(self):
-        coords = coordinates.SkyCoord("00h42m44.51s +41d16m08.45s", frame='icrs')
+        coords = coordinates.SkyCoord("00h42m44.51s +41d16m08.45s",
+                                      frame='icrs')
 
         parameterst = {'query': "select top 10 * from hsc_v2.hubble_sc2",
                        'output_file': "test2.vot",
@@ -172,8 +173,8 @@ class TestESAHubble():
                          parameters['async_job'],
                          parameters['cache'])
         with pytest.raises(ValueError) as err:
-            ehst._getCoordInput(1234, 'coordinate')
-        assert "coordinate must be either a string or "\
+            ehst._getCoordInput(1234)
+        assert "Coordinates must be either a string or "\
                "astropy.coordinates" in err.value.args[0]
 
     def test_query_hst_tap(self):
