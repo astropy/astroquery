@@ -49,7 +49,7 @@ This will download the science files associated to the observation 'J6FL25S4Q' a
 
   >>> from astroquery.esa.hubble import ESAHubble
   >>> esahubble = ESAHubble()
-  >>> esahubble.download_product(observation_id="J6FL25S4Q", product_type="SCIENCE_PRODUCT", filename="science_data_for_J6FL25S4Q.tar")
+  >>> esahubble.download_product(observation_id="J6FL25S4Q", filename="science_data_for_J6FL25S4Q.tar", product_type="SCIENCE_PRODUCT")
 
 This third case will download the science files associated to the observation 'J6FL25S4Q' in raw calibration level and it will store them in a file called
 'science_raw_data_for_J6FL25S4Q.fits.gz', modifying the filename provided to ensure that the extension of the file is correct.
@@ -58,7 +58,7 @@ This third case will download the science files associated to the observation 'J
 
   >>> from astroquery.esa.hubble import ESAHubble
   >>> esahubble = ESAHubble()
-  >>> esahubble.download_product(observation_id="J6FL25S4Q", calibration_level="RAW", product_type="SCIENCE_PRODUCT", filename="science_raw_data_for_J6FL25S4Q")
+  >>> esahubble.download_product(observation_id="J6FL25S4Q", calibration_level="RAW", filename="science_raw_data_for_J6FL25S4Q", product_type="SCIENCE_PRODUCT")
 
 ---------------------------
 2. Getting Hubble postcards

@@ -16,6 +16,7 @@ import tempfile
 import unittest
 import os
 
+import pytest
 from astropy.tests.helper import remote_data
 from requests.models import Response
 from astroquery.esa.hubble import ESAHubble
@@ -45,8 +46,7 @@ def remove_last_job():
     if len(jobs) > 0:
         esa_hubble._tap.remove_jobs(jobs[-1].jobid)
 
-
-@remote_data
+@pytest.mark.remote_data
 class TestRemoteData(unittest.TestCase):
 
     temp_file_vot = "/temp.vot"
