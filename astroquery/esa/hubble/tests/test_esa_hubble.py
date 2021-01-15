@@ -67,7 +67,7 @@ def ehst_cone_search(request):
     return mp
 
 
-class TestESAHubble():
+class TestESAHubble:
 
     def get_dummy_tap_handler(self):
         parameterst = {'query': "select top 10 * from hsc_v2.hubble_sc2",

@@ -254,10 +254,8 @@ class ESAHubbleClass(BaseQuery):
         """
         coord = self._getCoordInput(coordinates)
         radius_in_grades = Angle(radius, units.arcmin).deg
-
         ra = coord.ra.deg
         dec = coord.dec.deg
-
         query = "select o.observation_id, "\
                 "o.start_time, o.end_time, o.start_time_mjd, "\
                 "o.end_time_mjd, o.exposure_duration, o.release_date, "\
@@ -371,10 +369,10 @@ class ESAHubbleClass(BaseQuery):
         else:
             crit_query = crit_query + " WHERE ("
 
-        if(target and coordinates):
+        if target and coordinates:
             raise TypeError("Please use only target or coordinates as"
                             "parameter.")
-        if(target):
+        if target:
             try:
                 ra, dec = self._query_tap_target(target)
             except Exception:
