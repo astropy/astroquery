@@ -62,17 +62,6 @@ class TestEsaHubbleRemoteData:
 
     temp_folder = create_temp_folder()
 
-    def test_query_hst_tap(self):
-        result = esa_hubble.query_hst_tap(self.obs_query)
-        # assert len(result) <= 2000
-        assert "observation_id" in result.keys()
-        temp_file = self.temp_folder.name + "/temp.vot"
-        result = esa_hubble.query_hst_tap(query=self.obs_query,
-                                          output_file=temp_file,
-                                          output_format="votable")
-        assert os.path.exists(temp_file)
-        remove_last_job()
-
     def test_query_hst_tap_async(self):
         result = esa_hubble.query_hst_tap(self.top_obs_query, async_job=True)
         assert len(result) > 10
@@ -94,18 +83,6 @@ class TestEsaHubbleRemoteData:
         temp_file = self.temp_folder.name + "/" + artifact_id + ".gz"
         esa_hubble.get_artifact(artifact_id, temp_file)
         assert os.path.exists(temp_file)
-
-    def test_get_postcard(self):
-        result = esa_hubble.query_hst_tap(self.top_artifact_query +
-                                          " where a.archive_class = "
-                                          "'preview'")
-        assert "observation_id" in result.keys()
-        observation_id = random.choice(result["observation_id"])
-        temp_file = self.temp_folder.name + "/" + observation_id + ".jpg"
-        esa_hubble.get_postcard(observation_id, "RAW", 256, temp_file)
-        assert os.path.exists(temp_file)
-        img = Image.open(temp_file)
-        assert img.format == "JPEG"
 
     def test_query_target(self):
         temp_file = self.temp_folder.name + "/" + "m31_query.xml"

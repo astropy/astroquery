@@ -106,6 +106,18 @@ class TestESAHubble:
                               product_type=parameters['product_type'],
                               filename=parameters['filename'],
                               verbose=parameters['verbose'])
+        parameters['product_type'] = "PRODUCT"
+        ehst = ESAHubbleClass(self.get_dummy_tap_handler())
+        ehst.download_product(observation_id=parameters['observation_id'],
+                              product_type=parameters['product_type'],
+                              filename=parameters['filename'],
+                              verbose=parameters['verbose'])
+        parameters['product_type'] = "POSTCARD"
+        ehst = ESAHubbleClass(self.get_dummy_tap_handler())
+        ehst.download_product(observation_id=parameters['observation_id'],
+                              product_type=parameters['product_type'],
+                              filename=parameters['filename'],
+                              verbose=parameters['verbose'])
 
     def test_get_postcard(self):
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
@@ -123,20 +135,12 @@ class TestESAHubble:
     def test_cone_search(self):
         coords = coordinates.SkyCoord("00h42m44.51s +41d16m08.45s",
                                       frame='icrs')
-
-        parameterst = {'query': "select top 10 * from hsc_v2.hubble_sc2",
-                       'output_file': "test2.vot",
-                       'output_format': "votable",
-                       'verbose': False}
-        dummyTapHandler = DummyHubbleTapHandler("launch_job", parameterst)
-
+        ehst = ESAHubbleClass(self.get_dummy_tap_handler())
         parameters = {'coordinates': coords,
                       'radius': 0.0,
                       'filename': 'file_cone',
                       'output_format': 'votable',
                       'cache': True}
-
-        ehst = ESAHubbleClass(dummyTapHandler)
         target_file = data_path('cone_search.vot')
         with open(target_file, mode='rb') as file:
             target_obj = file.read()
@@ -148,6 +152,7 @@ class TestESAHubble:
                              parameters['filename'],
                              parameters['output_format'],
                              parameters['cache'])
+            dummyTapHandler = DummyHubbleTapHandler("cone_search", parameters)
 
     def test_cone_search_coords(self):
         coords = "00h42m44.51s +41d16m08.45s"
@@ -163,7 +168,8 @@ class TestESAHubble:
                       'filename': 'file_cone',
                       'async_job': False,
                       'output_format': 'votable',
-                      'cache': True}
+                      'cache': True,
+                      'verbose': True}
 
         ehst = ESAHubbleClass(dummyTapHandler)
         ehst.cone_search(parameters['coordinates'],
@@ -171,7 +177,8 @@ class TestESAHubble:
                          parameters['filename'],
                          parameters['output_format'],
                          parameters['async_job'],
-                         parameters['cache'])
+                         parameters['cache'],
+                         parameters['verbose'])
         with pytest.raises(ValueError) as err:
             ehst._getCoordInput(1234)
         assert "Coordinates must be either a string or "\
