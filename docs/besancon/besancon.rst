@@ -1,4 +1,5 @@
 .. doctest-skip-all
+
 .. _astroquery.besancon:
 
 *****************************************
@@ -20,8 +21,9 @@ A successful run should look something like this
 
 .. code-block:: python
 
+
     >>> from astroquery.besancon import Besancon
-    >>> #besancon_model = Besancon.query(glon=10.5, glat=0.0, email='your@email.net')
+    >>> besancon_model = Besancon.query(glon=10.5, glat=0.0, email='tinuademargaret@gmail.com')
 
     Waiting 30s for model to finish (elapsed wait time 30s, total 32)
     Loading page...
@@ -35,7 +37,7 @@ A successful run should look something like this
     Downloading ftp://sasftp.obs-besancon.fr/modele/modele2003/1407398212.212272.resu
     |========================================================================================================================================| 2.5M/2.5M (100.00%)         0s
 
-    >>> # B.pprint()
+    >>> B.pprint()
      Dist  Mv   CL Typ   LTef logg Age Mass  J-K   J-H   V-K    H-K    K    [Fe/H]   l     b     Av   Mbol 
     ----- ---- --- ---- ----- ---- --- ---- ----- ----- ------ ----- ------ ------ ----- ----- ----- ------
      0.87 12.5   5  7.5 3.515 4.99   5 0.24 0.966 0.649  5.408 0.318  17.44  -0.02 10.62 -0.38 0.637 10.844

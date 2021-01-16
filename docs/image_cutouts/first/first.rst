@@ -1,5 +1,3 @@
-.. doctest-skip-all
-
 .. _astroquery.image_cutouts.first:
 
 ************************************************
@@ -18,13 +16,14 @@ functions or as coordinates using any of the coordinate systems available in
 `~astropy.io.fits.HDUList` object. Here is a sample query:
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.image_cutouts.first import First
     >>> from astropy import coordinates
     >>> from astropy import units as u
     >>> image = First.get_images(coordinates.SkyCoord(162.530*u.deg, 30.677*u.deg,
     ...                                                frame='icrs'))
-    >>> image
+    >>> image  # doctest: +IGNORE_OUTPUT
     
     [<astropy.io.fits.hdu.image.PrimaryHDU object at 0x11c189390>]
 

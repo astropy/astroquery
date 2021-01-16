@@ -158,10 +158,10 @@ class BesanconClass(BaseQuery):
 
         # keep the text stored for possible later use
         text = response.text
-
         try:
             filename = self.result_re.search(text).group()
-        except AttributeError:  # if there are no matches
+        except AttributeError:
+            print('TEXT' + text, file=sys.stderr)  # if there are no matches
             errors = parse_errors(text)
             raise ValueError("Errors: " + "\n".join(errors))
 
@@ -286,8 +286,7 @@ class BesanconClass(BaseQuery):
 
         return request_data
 
-    @prepend_docstr_nosections("\n" + _parse_args.__doc__ +
-                              _parse_result.__doc__)
+    @prepend_docstr_nosections("\n" + _parse_args.__doc__ + _parse_result.__doc__)
     def query_async(self, *args, **kwargs):
         """
         Returns
