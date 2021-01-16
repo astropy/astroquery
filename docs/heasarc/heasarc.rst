@@ -1,5 +1,3 @@
-.. doctest-skip-all
-
 .. _astroquery.heasarc:
 
 **************************************
@@ -22,13 +20,14 @@ There are two ways to obtain a list of objects. The first is by querying around
 an object by name:
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.heasarc import Heasarc
     >>> heasarc = Heasarc()
     >>> mission = 'rosmaster'
     >>> object_name = '3c273'
     >>> table = heasarc.query_object(object_name, mission=mission)
-    >>> table[:3].pprint()
+    >>> table[:3].pprint()   # doctest: +IGNORE_OUTPUT
        SEQ_ID   INSTRUMENT EXPOSURE   RA    DEC           NAME         PUBLIC_DATE  SEARCH_OFFSET_
                               S     DEGREE DEGREE                          MJD
     ----------- ---------- -------- ------ ------ -------------------- ----------- ---------------
@@ -40,6 +39,7 @@ Alternatively, a query can also be conducted around a specific set of sky
 coordinates:
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.heasarc import Heasarc
     >>> from astropy.coordinates import SkyCoord
@@ -47,13 +47,15 @@ coordinates:
     >>> mission = 'rosmaster'
     >>> coords = SkyCoord('12h29m06.70s +02d03m08.7s', frame='icrs')
     >>> table = heasarc.query_region(coords, mission=mission, radius='1 degree')
-    >>> table[:3].pprint()
-       SEQ_ID   INSTRUMENT EXPOSURE   RA   ...         NAME         PUBLIC_DATE                  SEARCH_OFFSET_
-                              S     DEGREE ...                          MJD
-    ----------- ---------- -------- ------ ... -------------------- ----------- -----------------------------------------------
-    RH701576N00 HRI           68154 187.28 ... 3C 273                     50186  0.191 (187.27792281980047,2.0524148595265435)
-    RP600242A01 PSPCB         24822 186.93 ... GIOVANELLI-HAYNES CL       50437 34.237 (187.27792281980047,2.0524148595265435)
-    RH700234N00 HRI           17230 187.28 ... 3C 273                     50312  0.191 (187.27792281980047,2.0524148595265435)
+    >>> table[:3].pprint()  # doctest: +IGNORE_OUTPUT
+       SEQ_ID   INSTRUMENT EXPOSURE   RA    DEC           NAME          SEARCH_OFFSET_
+                          S     DEGREE DEGREE                                     
+    ----------- ---------- -------- ------ ------ -------------------- ---------------
+    RH701576N00 HRI           68154 0.0000 0.0000 3C 273                0.190 (3C273)
+
+    RP600242A01 PSPCB         24822 0.0000 0.0000 GIOVANELLI-HAYNES CL 34.236 (3C273)
+
+    RH700234N00 HRI           17230 0.0000 0.0000 3C 273                0.190 (3C273)
 
 Note that the :meth:`~astroquery.heasarc.HeasarcClass.query_region` converts 
 the passed coordinates to the FK5 reference frame before submitting the query.
@@ -67,22 +69,25 @@ the ``fields`` parameter in either of the above queries. For exampe:
 
 .. code-block:: python
 
-    >>> table = heasarc.query_object(object_name='3c273', mission='rosmaster', fields='All')
+    >>> table = heasarc.query_object(object_name='3c273', mission='rosmaster', fields='All') # doctest: +REMOTE_DATA
 
 will return all available columns from the ``rosmaster`` mission table.
 Alternatively, a comma-separated list of column names can also be provided to
 specify which columns will be returned:
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> table = heasarc.query_object(object_name='3c273', mission='rosmaster', fields='EXPOSURE,RA,DEC')
-    >>> table[:3].pprint()
+    >>> table[:3].pprint() # doctest: +IGNORE_OUTPUT
     EXPOSURE   RA    DEC    SEARCH_OFFSET_
-       S     DEGREE DEGREE
+        S     DEGREE DEGREE                
     -------- ------ ------ ---------------
-       68154 187.28   2.05  0.192 (3C273)
-       24822 186.93    1.6 34.236 (3C273)
-       17230 187.28   2.05  0.192 (3C273)
+        68154 0.0000 0.0000  0.190 (3C273)
+
+        24822 0.0000 0.0000 34.236 (3C273)
+
+        17230 0.0000 0.0000  0.190 (3C273)
 
 Note that the ``SEARCH_OFFSET_`` column will always be included in the results.
 If a column name is passed to the ``fields`` parameter which does not exist in
@@ -90,14 +95,15 @@ the requested mission table, the query will fail. To obtain a list of available
 columns for a given mission table, do the following:
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> cols = heasarc.query_mission_cols(mission='rosmaster')
     >>> print(cols)
-    ['SEQ_ID', 'INSTRUMENT', 'EXPOSURE', 'RA', 'DEC', 'NAME', 'PUBLIC_DATE', 
-    'BII', 'CLASS', 'DEC_1950', 'DIST_DATE', 'END_DATE','FILTER', 'FITS_TYPE', 
-    'INDEX_ID', 'LII', 'PI_FNAME', 'PI_LNAME', 'PROC_REV', 'QA_NUMBER', 'RA_1950', 
-    'REQUESTED_EXPOSURE', 'ROR', 'SITE', 'START_DATE', 'SUBJ_CAT', 'TITLE', 
-    'SEARCH_OFFSET_']
+    ['SEQ_ID', 'INSTRUMENT', 'EXPOSURE', 'RA', 'DEC', 'NAME', 'AO', 
+    'BII', 'CLASS', 'END_TIME', 'FILTER', 'FITS_TYPE', 'INDEX_ID',
+    'LII', 'PI_FNAME', 'PI_LNAME', 'PROC_REV', 'PROPOSAL_NUMBER', 
+    'QA_NUMBER', 'RDAY_BEGIN', 'RDAY_END', 'REQUESTED_EXPOSURE', 'ROLL', 
+    'ROR', 'SITE', 'START_TIME', 'SUBJ_CAT', 'TITLE', 'SEARCH_OFFSET_']
     
 Additional query parameters
 ---------------------------
@@ -109,6 +115,7 @@ takes a distance to look for objects. The following modifies the search radius
 to 120 arcmin:
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.heasarc import Heasarc
     >>> heasarc = Heasarc()
@@ -119,6 +126,7 @@ or a string that can be parsed into one (e.g., '1 degree' or 1*u.degree). The
 following are equivalent:
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> table = heasarc.query_object(object_name, mission='rosmaster', radius='120 arcmin')
     >>> table = heasarc.query_object(object_name, mission='rosmaster', radius='2 degree')
@@ -133,22 +141,25 @@ The results can also be sorted by the value in a given column using the ``sortva
 parameter. The following sorts the results by the value in the 'EXPOSURE' column.
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> table = heasarc.query_object(object_name, mission='rosmaster', sortvar='EXPOSURE')
-    >>> table[:3].pprint()
-       SEQ_ID   INSTRUMENT EXPOSURE   RA    DEC           NAME         PUBLIC_DATE  SEARCH_OFFSET_
-                              S     DEGREE DEGREE                          MJD
-    ----------- ---------- -------- ------ ------ -------------------- ----------- ---------------
-    RH120001N00 HRI               0 187.27   2.05 XRT/HRI NORTH DUMMY        55844  0.495 (3C273)
-    RH701979N00 HRI             354 187.28   2.05 3C273                      50137  0.192 (3C273)
-    RP141520N00 PSPCB           485 187.27   2.05 3C273                      49987  0.495 (3C273)
+    >>> table[:3].pprint()  # doctest: +IGNORE_OUTPUT
+       SEQ_ID   INSTRUMENT EXPOSURE   RA    DEC           NAME          SEARCH_OFFSET_
+                              S     DEGREE DEGREE                                     
+    ----------- ---------- -------- ------ ------ -------------------- ---------------
+    RH120001N00 HRI               0 0.0000 0.0000 XRT/HRI NORTH DUMMY   0.496 (3C273)
+
+    RH701979N00 HRI             354 0.0000 0.0000 3C273                 0.190 (3C273)
+
+    RP141520N00 PSPCB           485 0.0000 0.0000 3C273                 0.496 (3C273)
 
 Setting the ``resultmax`` parameter controls the maximum number of results to be
 returned. The following will store only the first 10 results:
 
 .. code-block:: python
 
-    >>> table = heasarc.query_object(object_name, mission='rosmaster', resultmax=10)
+    >>> table = heasarc.query_object(object_name, mission='rosmaster', resultmax=10) # doctest: +REMOTE_DATA
 
 All of the above parameters can be mixed and matched to refine the query results.
 
@@ -173,32 +184,70 @@ The ``query_mission_list()`` method will return a list of available missions
 that can be queried.
 
 .. code-block:: python
+.. doctest-remote-data::
     
     >>> from astroquery.heasarc import Heasarc
     >>> heasarc = Heasarc()
     >>> table = heasarc.query_mission_list()
-    >>> table.pprint()
-    Archive    name               Table_Description
-    ------- ---------- ----------------------------------------
-    HEASARC         a1           HEAO 1 A1 X-Ray Source Catalog
-    HEASARC    a1point                    HEAO 1 A1 Lightcurves
-    HEASARC  a2lcpoint            HEAO 1 A2 Pointed Lightcurves
-    HEASARC   a2lcscan            HEAO 1 A2 Scanned Lightcurves
-    HEASARC      a2led                    HEAO 1 A2 LED Catalog
-    HEASARC      a2pic             HEAO 1 A2 Piccinotti Catalog
-    HEASARC    a2point               HEAO 1 A2 Pointing Catalog
-    HEASARC    a2rtraw                      HEAO 1 A2 Raw Rates
-        ...        ...                                      ...
-    HEASARC  xteasscat          XTE All-Sky Slew Survey Catalog
-    HEASARC   xteindex                 XTE Target Index Catalog
-    HEASARC  xtemaster                       XTE Master Catalog
-    HEASARC   xtemlcat          XTE Mission-Long Source Catalog
-    HEASARC    xteslew            XTE Archived Public Slew Data
-    HEASARC       xwas             XMM-Newton Wide Angle Survey
-    HEASARC       zcat CfA Redshift Catalog (June 1995 Version)
-    HEASARC zwclusters                          Zwicky Clusters
-    HEASARC      zzbib             METADATA: Bibliography Codes
-    Length = 956 rows
+    >>> table.pprint()  # doctest: +IGNORE_OUTPUT
+       Mission       Table                                   Table Description                                
+    -------------- ---------- --------------------------------------------------------------------------------
+    GALAXY CATALOG      a2pic                                                     HEAO 1 A2 Piccinotti Catalog
+    GALAXY CATALOG      abell                                                                   Abell Clusters
+    GALAXY CATALOG  abellzcat                                        Abell Clusters Measured Redshifts Catalog
+    GALAXY CATALOG  acceptcat               Archive of Chandra Cluster Entropy Profile Tables (ACCEPT) Catalog
+    GALAXY CATALOG agnsdssxm2 Sloan Digital Sky Survey/XMM-Newton Type1 AGN X-Ray and Radio Properties Catalog
+    GALAXY CATALOG agnsdssxmm              Sloan Digital Sky Survey/XMM-Newton AGN Spectral Properties Catalog
+    GALAXY CATALOG allwiseagn                                                   AllWISE Catalog of Mid-IR AGNs
+    GALAXY CATALOG       arxa                                         Atlas of Radio/X-Ray Associations (ARXA)
+    GALAXY CATALOG ascaegclus                             ASCA Elliptical Galaxies and Galaxy Clusters Catalog
+    GALAXY CATALOG   asiagosn                                       Asiago Supernova Catalog (Dynamic Version)
+    GALAXY CATALOG baxgalclus                                     BAX X-Ray Galaxy Clusters and Groups Catalog
+    GALAXY CATALOG cbatpicagn                  CGRO BATSE-Observed Piccinotti Sample of Active Galactic Nuclei
+    GALAXY CATALOG ccosrssfag              Chandra COSMOS Radio-Selected Star-Forming Galaxies and AGN Catalog
+    GALAXY CATALOG      cfa2s                                     CfA Redshift Survey: South Galactic Cap Data
+    GALAXY CATALOG       cgmw                                          Candidate Galaxies Behind the Milky Way
+    GALAXY CATALOG cosmosvlba                            COSMOS Field VLBA Observations 1.4-GHz Source Catalog
+    GALAXY CATALOG cosxfirmwc         COSMOS Field X-Ray & FIR Detected AGN Multiwavelength Properties Catalog
+    GALAXY CATALOG  denisigal                                         First DENIS I-band Extragalactic Catalog
+    GALAXY CATALOG  eingalcat               Catalog of Galaxies Observed by the Einstein Observatory IPC & HRI
+    GALAXY CATALOG eingalclus                                Einstein Observatory Clusters of Galaxies Catalog
+    GALAXY CATALOG esouppsala                                                        ESO-Uppsala ESO(B) Survey
+    GALAXY CATALOG  etgalxray                                   Early-Type Galaxies X-Ray Luminosities Catalog
+    GALAXY CATALOG exgalemobj          Hewitt & Burbidge (1991) Catalog of Extragalactic Emission-Line Objects
+    GALAXY CATALOG     fricat                                             FIRST Catalog of FR I Radio Galaxies
+    GALAXY CATALOG    friicat                                            FIRST Catalog of FR II Radio Galaxies
+    GALAXY CATALOG fsvsclustr          Faint Sky Variability Survey Catalog of Galaxy Clusters and Rich Groups
+            ...        ...                                                                              ...
+        xmm-newton xmmlss10ks   XMM-Newton Large-Scale Structure Uniform 10-ksec Exposure X-Ray Source Catalog
+        xmm-newton xmmlssclas              XMM-Newton Large-Scale Structure Optical Counterparts and Redshifts
+        xmm-newton xmmlssdeep         XMM-Newton Large-Scale Structure Deep Full-Exposure X-Ray Source Catalog
+        xmm-newton  xmmlssoid                 XMM-Newton Large-Scale Structure Optical Identifications Catalog
+        xmm-newton  xmmmaster                                           XMM-Newton Master Log & Public Archive
+        xmm-newton xmmobstars                                                      XMM-Newton OB Stars Catalog
+        xmm-newton   xmmomcat                                                     XMM-Newton OM Object Catalog
+        xmm-newton  xmmomcdfs                   XMM-Newton Optical Monitor Chandra Deep Field-South UV Catalog
+        xmm-newton   xmmomobj                                             XMM-Newton OM Objects (2008 Version)
+        xmm-newton  xmmomsuob                   XMM-Newton Optical Monitor SUSS Catalog, v4.1: Observation IDs
+        xmm-newton  xmmomsuss          XMM-Newton Optical Monitor Serendipitous UV Source Survey Catalog, v4.1
+        xmm-newton xmmsdssgce                                       2XMMi/SDSS Galaxy Cluster Survey Extension
+        xmm-newton xmmsdssgcs                                                 2XMMi/SDSS Galaxy Cluster Survey
+        xmm-newton xmmslewcln                                XMM-Newton Slew Survey Clean Source Catalog, v2.0
+        xmm-newton xmmslewegs                                      XMM-Newton Slew Survey Extragalactic Sample
+        xmm-newton xmmslewful                                 XMM-Newton Slew Survey Full Source Catalog, v2.0
+        xmm-newton     xmmssc                      XMM-Newton Serendipitous Source Catalog (4XMM-DR10 Version)
+        xmm-newton  xmmsscgps                    XMM-Newton Survey Science Center Survey of the Galactic Plane
+        xmm-newton xmmssclwbd                          XMM-Newton 2XMMi-DR3 Selected Source Detections Catalog
+        xmm-newton xmmssclwbs                     XMM-Newton 2XMMi-DR3 Selected Source Classifications Catalog
+        xmm-newton   xmmstack   XMM-Newton Serendipitous Source Catalog from Stacked Observations (4XMM-DR10s)
+        xmm-newton xmmstackob     XMM-Newton Serendipitous Source Catalog from Stacked Observations: Obs. Data
+        xmm-newton xmmt2flare                                          2XMM Flares Detected from Tycho-2 Stars
+        xmm-newton  xmmvaragn                                   Ensemble X-Ray Variability of AGN in 2XMMi-DR3
+        xmm-newton xmmxassist                                                   XMM-Newton XAssist Source List
+        xmm-newton        xms                        XMM-Newton Medium Sensitivity Survey (XMS) Source Catalog
+        xmm-newton       xwas                                                     XMM-Newton Wide Angle Survey
+    Length = 1160 rows
+
 
 The returned table includes both the names and a short description of each 
 mission table.
