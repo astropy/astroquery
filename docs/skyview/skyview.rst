@@ -1,5 +1,3 @@
-.. doctest-skip-all
-
 .. _astroquery_skyview:
 
 **************************************
@@ -15,9 +13,10 @@ number of imaging surveys.
 To see the list of surveys, use the `~astroquery.skyview.SkyViewClass.list_surveys` method.  Note that the list here is not necessarily up-to-date; if SkyView has added surveys recently, they will appear when you run this code:
 
 .. code-block:: python
+.. doctest-remote-data::
 
    >>> from astroquery.skyview import SkyView
-   >>> SkyView.list_surveys()
+   >>> SkyView.list_surveys()  # doctest: +IGNORE_OUTPUT
     {'Allbands:GOODS/HDF/CDF': ['GOODS: Chandra ACIS HB',
                                 'GOODS: Chandra ACIS FB',
                                 'GOODS: Chandra ACIS SB',
@@ -205,25 +204,26 @@ files, while `~astroquery.skyview.SkyViewClass.get_image_list` just searches
 for the files.
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> paths = SkyView.get_images(position='Eta Carinae',
-    ...                       survey=['Fermi 5', 'HRI', 'DSS'])
+    ...                       survey=['Fermi 5', 'HRI', 'DSS'])  # doctest: +IGNORE_OUTPUT
     Downloading http://skyview.gsfc.nasa.gov/tempspace/fits/skv668576311417_1.fits
     |=========================================================================================================================| 371k/371k (100.00%)         0s
     Downloading http://skyview.gsfc.nasa.gov/tempspace/fits/skv668576311417_2.fits
     |=========================================================================================================================| 371k/371k (100.00%)         0s
     Downloading http://skyview.gsfc.nasa.gov/tempspace/fits/skv668576311417_3.fits
     |=========================================================================================================================| 374k/374k (100.00%)         0s
-    >>> print(paths)
+    >>> print(paths) # doctest: +IGNORE_OUTPUT
     [[<astropy.io.fits.hdu.image.PrimaryHDU object at 0x10ef3a250>], [<astropy.io.fits.hdu.image.PrimaryHDU object at 0x10f096f10>], [<astropy.io.fits.hdu.image.PrimaryHDU object at 0x10f0aea50>]]
 
 Without the download:
 
 .. code-block:: python
-
+.. doctest-remote-data::
 
     >>> SkyView.get_image_list(position='Eta Carinae',
-                      survey=['Fermi 5', 'HRI', 'DSS'])
+    ...                      survey=['Fermi 5', 'HRI', 'DSS'])  # doctest: +IGNORE_OUTPUT
     [u'http://skyview.gsfc.nasa.gov/tempspace/fits/skv669807193757_1.fits',
      u'http://skyview.gsfc.nasa.gov/tempspace/fits/skv669807193757_2.fits',
      u'http://skyview.gsfc.nasa.gov/tempspace/fits/skv669807193757_3.fits']
