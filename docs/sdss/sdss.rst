@@ -1,5 +1,3 @@
-.. doctest-skip-all
-
 .. _astroquery.sdss:
 
 ********************************
@@ -16,15 +14,16 @@ argument spectro, which requires matches to have spectroscopy, not just
 photometry:
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.sdss import SDSS
     >>> from astropy import coordinates as coords
     >>> pos = coords.SkyCoord('0h8m05.63s +14d50m23.3s', frame='icrs')
     >>> xid = SDSS.query_region(pos, spectro=True)
     >>> print(xid)
-        ra         dec           objid        run  rerun camcol field    z    plate  mjd  fiberID     specobjid      specClass
-    ---------- ----------- ------------------ ---- ----- ------ ----- ------- ----- ----- ------- ------------------ ---------
-    2.02344483 14.83982059 587727221951234166 1739    40      3   315 0.04541   751 52251     160 211612124516974592         3
+           ra              dec               objid        ... run2d instrument
+    ---------------- ---------------- ------------------- ... ----- ----------
+    2.02344596573482 14.8398237551311 1237652943176138868 ...    26       SDSS
 
 The result is an astropy.Table.
 
@@ -34,6 +33,7 @@ If we'd like to download spectra and/or images for our match, we have all
 the information we need in the elements of "xid" from the above example.
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> sp = SDSS.get_spectra(matches=xid)
     >>> im = SDSS.get_images(matches=xid, band='g')
@@ -59,15 +59,21 @@ It is also possible to download spectral templates from SDSS. To see what is
 available, do
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.sdss import SDSS
-    >>> print(SDSS.AVAILABLE_TEMPLATES)
+    >>> print(SDSS.AVAILABLE_TEMPLATES)    # doctest: +IGNORE_OUTPUT
+    {'star_O': 0, 'star_OB': 1, 'star_B': 2, 'star_A': [3, 4], 'star_FA': 5,
+    'star_F': [6, 7], 'star_G': [8, 9], 'star_K': 10, 'star_M1': 11, 'star_M3': 12,
+    'star_M5': 13, 'star_M8': 14, 'star_L1': 15, 'star_wd': [16, 20, 21], 'star_carbon': [17, 18, 19],
+    'star_Ksubdwarf': 22, 'galaxy_early': 23, 'galaxy': [24, 25, 26], 'galaxy_late': 27, 'galaxy_lrg': 28,
+    'qso': 29, 'qso_bal': [30, 31], 'qso_bright': 32}
 
 Then, to download your favorite template, do something like
 
 .. code-block:: python
 
-    >>> template = SDSS.get_spectral_template('qso')
+    >>> template = SDSS.get_spectral_template('qso')    # doctest: +REMOTE_DATA
 
 The variable "template" is a list of `~astropy.io.fits.HDUList` objects
 (same object as "sp" in the above example). In this case there is only one
