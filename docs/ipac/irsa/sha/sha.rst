@@ -1,6 +1,5 @@
-.. doctest-skip-all
-
 .. _astroquery.ipac.irsa.sha:
+
 
 *****************************************************
 Spitzer Heritage Archive (`astroquery.ipac.irsa.sha`)
@@ -24,6 +23,7 @@ Using the standard imports:
 Query with an astropy coordinate instance (preferred):
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> pos_t1 = sha.query(coord=coord.SkyCoord(ra=163.6136, dec=-11.784,
     ... unit=(u.degree, u.degree)), size=0.5)
@@ -32,23 +32,24 @@ Query with the alternate ``ra`` and ``dec`` parameters:
 
 .. code-block:: python
 
-    >>> pos_t2 = sha.query(ra=163.6136, dec=-11.784, size=0.5)
+    >>> pos_t2 = sha.query(ra=163.6136, dec=-11.784, size=0.5) # doctest: +REMOTE_DATA
 
 Query by NAIFID:
 
 .. code-block:: python
 
-    >>> nid_t = sha.query(naifid=2003226)
+    >>> nid_t = sha.query(naifid=2003226) # doctest: +REMOTE_DATA
 
 Query by PID:
 
 .. code-block:: python
 
-    >>> pid_t = sha.query(pid=30080)
+    >>> pid_t = sha.query(pid=30080) # doctest: +REMOTE_DATA
 
 Query by ReqKey:
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> # by ReqKey
     >>> rqk_t = sha.query(reqkey=21641216)
@@ -66,6 +67,7 @@ Using the access URLs found in the SHA queries, the functions `astroquery.ipac.i
 writes the file to disk. To save a file:
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> pid_t = sha.query(pid=30080)
     >>> url = pid_t['accessUrl'][0].strip()
@@ -74,6 +76,7 @@ writes the file to disk. To save a file:
 or alternatively with a name and path specified:
 
 .. code-block:: python
+.. doctest-skip::
 
    >>> sha.save_file(url, out_dir='proj_files/', out_name='sha_file1')
 
@@ -87,6 +90,7 @@ either a `~astropy.table.Table` instance for tabular data, or
 `~astropy.io.fits.PrimaryHDU` instance for FITS files.
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> pid_t = sha.query(pid=30080)
     >>> url = pid_t['accessUrl'][0].strip()
