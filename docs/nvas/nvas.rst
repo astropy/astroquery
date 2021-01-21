@@ -1,5 +1,3 @@
-.. doctest-skip-all
-
 .. _astroquery.nvas:
 
 ********************************
@@ -19,20 +17,18 @@ coordinates can also be entered directly as a string that conforms to the
 format specified by `astropy.coordinates`. Some other parameters you may
 optionally specify are the ``radius`` and the frequency band for which the image
 must be fetched. You can also specify the maximum allowable noise level in mJy
-via the ``max_rms`` keyword parameter. By default this is set to 10000 mJy 
+via the ``max_rms`` keyword parameter. By default this is set to 10000 mJy
 
 .. code-block:: python
-    
+.. doctest-remote-data::
+
     >>> from astroquery.nvas import Nvas
     >>> import astropy.units as u
-    >>> images = Nvas.get_images("3c 273", radius=2*u.arcsec, band="K", max_rms=500)
-
+    >>> images = Nvas.get_images("3c 273", radius=2*u.arcsec, band="K", max_rms=500)  # doctest: +IGNORE_OUTPUT
     1 images found.
     Downloading http://www.vla.nvas.edu/astro/archive/pipeline/position/J122906.7+020308/22.4I0.37_TEST_1995NOV15_1_352.U55.6S.imfits
     |===========================================|  10M/ 10M (100.00%)     19m37s
-
-    >>> images
-
+    >>> images      # doctest: +IGNORE_OUTPUT
     [[<astropy.io.fits.hdu.image.PrimaryHDU at 0x3376150>]]
 
 
@@ -48,15 +44,16 @@ Let's look at an example that uses coordinates for specifying the search
 centre.
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.nvas import Nvas
     >>> import astropy.coordinates as coord
     >>> import astropy.units as u
     >>> images = Nvas.get_images(coord.SkyCoord(49.489, -0.37,
     ...                          unit=(u.deg, u.deg), frame='galactic'),
-    ...                          band="K")
+    ...                          band="K")    # doctest: +IGNORE_OUTPUT
 
-                                 
+
 You may also fetch UVfits files rather than the IMfits files which is the
 default. To do this simply set the ``get_uvfits`` to ``True``, in any of the query
 methods. You can also fetch the URLs to the downloadable images rather than the
@@ -66,19 +63,15 @@ arguments as :meth:`~astroquery.nvas.NvasClass.get_images` above except for the
 ``verbose`` argument which isn't relevant in this case.
 
 .. code-block:: python
-  
+.. doctest-remote-data::
+
     >>> from astroquery.nvas import Nvas
     >>> import astropy.coordinates as coord
     >>> import astropy.units as u
     >>> image_urls = Nvas.get_image_list("05h34m31.94s 22d00m52.2s",
-    ...                                  radius='0d0m0.6s', max_rms=500)
-
-    WARNING: Coordinate string is being interpreted as an ICRS
-    coordinate. [astroquery.utils.commons]
-
-    >>> image_urls
-    
-     ['http://www.vla.nrao.edu/astro/archive/pipeline/position/J053431.5+220114/1.51I4.12_T75_1986AUG12_1_118.U3.06M.imfits',
+    ...                               radius='0d0m0.6s', max_rms=500) # doctest: +IGNORE_WARNINGS
+    >>> image_urls   # doctest: +IGNORE_OUTPUT
+    ['http://www.vla.nrao.edu/astro/archive/pipeline/position/J053431.5+220114/1.51I4.12_T75_1986AUG12_1_118.U3.06M.imfits',
      'http://www.vla.nrao.edu/astro/archive/pipeline/position/J053431.5+220114/1.51I3.92_T75_1986AUG20_1_373.U2.85M.imfits',
      'http://www.vla.nrao.edu/astro/archive/pipeline/position/J053431.5+220114/4.89I1.22_T75_1986AUG12_1_84.8U2.73M.imfits',
      'http://www.vla.nrao.edu/astro/archive/pipeline/position/J053431.9+220052/1.44I1.26_AH0336_1989FEB03_1_197.U8.29M.imfits',
