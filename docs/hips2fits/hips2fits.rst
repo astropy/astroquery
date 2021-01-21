@@ -1,5 +1,3 @@
-.. doctest-skip-all
-
 .. _astroquery.hips2fits:
 
 ******************************************
@@ -37,7 +35,7 @@ Examples
 With a user defined astropy WCS
 -------------------------------
 
-.. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.hips2fits import hips2fits
     >>> import matplotlib.pyplot as plt
@@ -70,12 +68,13 @@ With a user defined astropy WCS
     ...    cmap=Colormap('viridis'),
     ... )
     >>> im = plt.imshow(result)
-    >>> plt.show(im)
+    >>> plt.show()            # doctest: +IGNORE_OUTPUT
 
 .. image:: ./query_wcs.png
 
 Without WCS
------------
+
+.. doctest-remote-data::
 
     >>> from astroquery.hips2fits import hips2fits
     >>> import matplotlib.pyplot as plt
@@ -98,7 +97,7 @@ Without WCS
     ...    cmap=Colormap('viridis'),
     ... )
     >>> im = plt.imshow(result)
-    >>> plt.show(im)
+    >>> plt.show()    # doctest: +IGNORE_OUTPUT
 
 .. image:: ./query_no_wcs.png
 
