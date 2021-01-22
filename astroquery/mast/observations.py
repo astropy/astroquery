@@ -427,16 +427,18 @@ class ObservationsClass(MastQueryWithLogin):
         -------
             response : list of `~requests.Response`
         """
-        if len(observations) == 0 or not observations["obsid"]:
-            raise InvalidQueryError("Observation list is empty, no associated products.")
 
         # getting the obsid list
         if isinstance(observations, Row):
             observations = observations["obsid"]
         if np.isscalar(observations):
-            observations = [observations]
+            observations = np.array([observations])
         if isinstance(observations, Table):
             observations = observations['obsid']
+
+        observations = observations[observations != ""]
+        if len(observations) == 0:
+            raise InvalidQueryError("Observation list is empty, no associated products.")
 
         service = 'Mast.Caom.Products'
         params = {'obsid': ','.join(observations)}
