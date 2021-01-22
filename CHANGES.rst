@@ -41,6 +41,8 @@ mast
   ``Core.get_token()``, ``Core.enable_s3_hst_dataset()``, ``Core.disable_s3_hst_dataset()`` and 
   variables obstype and silent [#1884]
 - Added Zcut functionality to astroquery [#1911]
+- Fixed error causing empty products passed to ``Observations.get_product_list()`` to yeild a
+  non-empty result. [#1921]
 
 esa/hubble
 ^^^^^^^^^^
