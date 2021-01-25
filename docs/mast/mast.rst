@@ -680,7 +680,7 @@ The table to query is a required parameter.
                 ...                                       catalog="Panstarrs", data_release="dr1", table="mean")
                 >>> print("Number of results:",len(catalog_data))
                 Number of results: 7007
-                >>> print(catalog_data[:10])
+                >>> print(catalog_data[:10])     # doctest: +IGNORE_OUTPUT
                          ObjName           objAltName1 ... yFlags       distance
                 -------------------------- ----------- ... ------ --------------------
                 PSO J103359.653-071622.382        -999 ...  16416  0.04140441098310487
@@ -704,12 +704,22 @@ The TESS Input Catalog (TIC), Disk Detective Catalog, and PanSTARRS Catalog can 
 
                 >>> from astroquery.mast import Catalogs
                 >>> catalog_data = Catalogs.query_criteria(catalog="Tic",Bmag=[30,50],objType="STAR")
-                >>> print(catalog_data)
-                    ID    version  HIP TYC ... disposition duplicate_id priority   objID
-                --------- -------- --- --- ... ----------- ------------ -------- ---------
-                 81609218 20171221  --  -- ...          --           --       -- 217917514
-                 23868624 20171221  --  -- ...          --           --       -- 296973171
-                406300991 20171221  --  -- ...          --           --       -- 400575018
+                >>> print(catalog_data)  # doctest: +IGNORE_OUTPUT
+                    ID    version  HIP TYC ...     e_Dec_orig     raddflag wdflag   objID
+                --------- -------- --- --- ... ------------------ -------- ------ ----------
+                125413929 20190415  --  -- ...  0.293682765259495        1      0  579825059
+                261459129 20190415  --  -- ...  0.200397148604244        1      0 1701625107
+                 64575709 20190415  --  -- ...   0.21969663115091        1      0  595775997
+                 94322581 20190415  --  -- ...  0.205286802302475        1      0  606092549
+                125414201 20190415  --  -- ...   0.22398993783274        1      0  579825329
+                463721073 20190415  --  -- ...  0.489828592248652       -1      1  710312391
+                 81609218 20190415  --  -- ...  0.146788572369267        1      0  630541794
+                282024596 20190415  --  -- ...  0.548806522539047        1      0  573765450
+                 23868624 20190415  --  -- ...            355.949       --      0  916384285
+                282391528 20190415  --  -- ...   0.47766300834538        0      0  574723760
+                123585000 20190415  --  -- ...  0.618316068787371        0      0  574511442
+                260216294 20190415  --  -- ...  0.187170498094167        1      0  683390717
+                406300991 20190415  --  -- ... 0.0518318978617112        0      0 1411465651
 
 
 .. code-block:: python
@@ -719,16 +729,16 @@ The TESS Input Catalog (TIC), Disk Detective Catalog, and PanSTARRS Catalog can 
                 >>> catalog_data = Catalogs.query_criteria(catalog="Ctl",
                 ...                                        objectname='M101', radius=1, Tmag=[10.75,11])
                 >>> print(catalog_data)
-                    ID    version  HIP     TYC      ... wdflag     ctlPriority        objID
-                --------- -------- --- ------------ ... ------ -------------------- ---------
-                441639577 20190415  -- 3852-00429-1 ...      0  0.00138923974233085 150848150
-                441662028 20190415  -- 3855-00941-1 ...      0  0.00100773800289492 151174508
-                233458861 20190415  -- 3852-01407-1 ...      0 0.000843468567169446 151169732
-                441658008 20190415  -- 3852-00116-1 ...      0 0.000337697695047815 151025336
-                154258521 20190415  -- 3852-01403-1 ...      0 0.000791883530388075 151060938
-                441658179 20190415  -- 3855-00816-1 ...      0 0.000933466312394693 151025457
-                441659970 20190415  -- 3852-00505-1 ...      0 0.000894696498704202 151075682
-                441660006 20190415  -- 3852-00341-1 ...      0 0.000600037898043061 151075713
+                    ID    version  HIP     TYC      ... raddflag wdflag   objID
+                --------- -------- --- ------------ ... -------- ------ ---------
+                441639577 20190415  -- 3852-00429-1 ...        1      0 150070672
+                441658179 20190415  -- 3855-00816-1 ...        1      0 150246482
+                441658008 20190415  -- 3852-00116-1 ...        1      0 150246361
+                154258521 20190415  -- 3852-01403-1 ...        1      0 150281963
+                441659970 20190415  -- 3852-00505-1 ...        1      0 150296707
+                441660006 20190415  -- 3852-00341-1 ...        1      0 150296738
+                233458861 20190415  -- 3852-01407-1 ...        1      0 150390757
+                441662028 20190415  -- 3855-00941-1 ...        1      0 150395533
 
 
 .. code-block:: python
@@ -737,7 +747,7 @@ The TESS Input Catalog (TIC), Disk Detective Catalog, and PanSTARRS Catalog can 
                 >>> from astroquery.mast import Catalogs
                 >>> catalog_data = Catalogs.query_criteria(catalog="DiskDetective",
                 ...                                        objectname="M10",radius=2,state="complete")
-                >>> print(catalog_data)
+                >>> print(catalog_data)      # doctest: +IGNORE_OUTPUT
                     designation     ...                    ZooniverseURL
                 ------------------- ... ----------------------------------------------------
                 J165628.40-054630.8 ... https://talk.diskdetective.org/#/subjects/AWI0005cka
@@ -798,20 +808,19 @@ Given an HSC Match ID, return all catalog results.
                 >>> catalog_data = Catalogs.query_object("M10", radius=.02, catalog="HSC")
                 >>> matchid = catalog_data[0]["MatchID"]
                 >>> print(matchid)
-                17554326
+                63980492
                 >>> matches = Catalogs.query_hsc_matchid(matchid)
                 >>> print(matches)
                   CatID   MatchID  ...                       cd_matrix
                 --------- -------- ... ------------------------------------------------------
-                303940283 17554326 ...   -1.10059e-005 6.90694e-010 6.90694e-010 1.10059e-005
-                303936256 17554326 ...   -1.10059e-005 6.90694e-010 6.90694e-010 1.10059e-005
-                303938261 17554326 ...   -1.10059e-005 6.90694e-010 6.90694e-010 1.10059e-005
-                301986299 17554326 ...   -1.10049e-005 -1.6278e-010 -1.6278e-010 1.10049e-005
-                301988274 17554326 ...   -1.10049e-005 -1.6278e-010 -1.6278e-010 1.10049e-005
-                301990418 17554326 ...   -1.10049e-005 -1.6278e-010 -1.6278e-010 1.10049e-005
-                206511399 17554326 ... -1.38889e-005 -1.36001e-009 -1.36001e-009 1.38889e-005
-                206507082 17554326 ... -1.38889e-005 -1.36001e-009 -1.36001e-009 1.38889e-005
-
+                257195287 63980492 ... -1.38889e-005 -5.26157e-010 -5.26157e-010 1.38889e-005
+                257440119 63980492 ... -1.38889e-005 -5.26157e-010 -5.26157e-010 1.38889e-005
+                428373428 63980492 ...   -1.10056e-005 5.65193e-010 5.65193e-010 1.10056e-005
+                428373427 63980492 ...   -1.10056e-005 5.65193e-010 5.65193e-010 1.10056e-005
+                428373429 63980492 ...   -1.10056e-005 5.65193e-010 5.65193e-010 1.10056e-005
+                410574499 63980492 ...   -1.10056e-005 1.56577e-009 1.56577e-009 1.10056e-005
+                410574498 63980492 ...   -1.10056e-005 1.56577e-009 1.56577e-009 1.10056e-005
+                410574497 63980492 ...   -1.10056e-005 1.56577e-009 1.56577e-009 1.10056e-005
 
 HSC spectra accessed through this class as well. `~astroquery.mast.CatalogsClass.get_hsc_spectra` does not take any arguments, and simply loads all HSC spectra.
 
@@ -842,12 +851,12 @@ Individual or ranges of spectra can be downloaded using the `~astroquery.mast.Ca
 
                 >>> from astroquery.mast import Catalogs
                 >>> all_spectra = Catalogs.get_hsc_spectra()
-                >>> manifest = Catalogs.download_hsc_spectra(all_spectra[100:104])
+                >>> manifest = Catalogs.download_hsc_spectra(all_spectra[100:104])   # doctest: +IGNORE_OUTPUT
                 Downloading URL https://hla.stsci.edu/cgi-bin/ecfproxy?file_id=HAG_J072704.61+691530.3_J8HPAOZMQ_V01.SPEC1D.fits to ./mastDownload/HSC/HAG_J072704.61+691530.3_J8HPAOZMQ_V01.SPEC1D.fits ... [Done]
                 Downloading URL https://hla.stsci.edu/cgi-bin/ecfproxy?file_id=HAG_J072704.68+691535.9_J8HPAOZMQ_V01.SPEC1D.fits to ./mastDownload/HSC/HAG_J072704.68+691535.9_J8HPAOZMQ_V01.SPEC1D.fits ... [Done]
                 Downloading URL https://hla.stsci.edu/cgi-bin/ecfproxy?file_id=HAG_J072704.70+691530.2_J8HPAOZMQ_V01.SPEC1D.fits to ./mastDownload/HSC/HAG_J072704.70+691530.2_J8HPAOZMQ_V01.SPEC1D.fits ... [Done]
                 Downloading URL https://hla.stsci.edu/cgi-bin/ecfproxy?file_id=HAG_J072704.73+691808.0_J8HPAOZMQ_V01.SPEC1D.fits to ./mastDownload/HSC/HAG_J072704.73+691808.0_J8HPAOZMQ_V01.SPEC1D.fits ... [Done]
-                >>> print(manifest)
+                >>> print(manifest)     # doctest: +IGNORE_OUTPUT
                                              Local Path                              ... URL
                 -------------------------------------------------------------------- ... ----
                 ./mastDownload/HSC/HAG_J072704.61+691530.3_J8HPAOZMQ_V01.SPEC1D.fits ... None
@@ -951,13 +960,14 @@ If a given coordinate/object/moving target appears in more than one TESS sector,
                 >>> from astropy.coordinates import SkyCoord
                 >>> import astropy.units as u
                 >>> cutout_coord = SkyCoord(107.18696, -70.50919, unit="deg")
-                >>> manifest = Tesscut.download_cutouts(coordinates=cutout_coord, size=[5, 7]*u.arcmin, sector=9)
+                >>> manifest = Tesscut.download_cutouts(coordinates=cutout_coord, size=[5, 7]*u.arcmin, sector=9) # doctest: +IGNORE_OUTPUT
                 Downloading URL https://mast.stsci.edu/tesscut/api/v0.1/astrocut?ra=107.18696&dec=-70.50919&y=0.08333333333333333&x=0.11666666666666667&units=d&sector=9 to ./tesscut_20210716150026.zip ... [Done]
                 Inflating...
-                >>> print(manifest)
+                >>> print(manifest)  # doctest: +IGNORE_OUTPUT
                                        Local Path
                 ----------------------------------------------------------
                 ./tess-s0009-4-1_107.186960_-70.509190_21x15_astrocut.fits
+
 
 Sector information
 ------------------
@@ -972,18 +982,17 @@ To access sector information for a particular coordinate, object, or moving targ
                 >>> from astropy.coordinates import SkyCoord
                 >>> coord = SkyCoord(324.24368, -27.01029,unit="deg")
                 >>> sector_table = Tesscut.get_sectors(coordinates=coord)
-                >>> print(sector_table)
+                >>> print(sector_table)   # doctest: +IGNORE_OUTPUT
                   sectorName   sector camera ccd
                 -------------- ------ ------ ---
-                tess-s0001-1-3      1      1   3
-
+                tess-s0028-1-4     28      1   4
 
 .. code-block:: python
 .. doctest-remote-data::
 
                 >>> from astroquery.mast import Tesscut
                 >>> sector_table = Tesscut.get_sectors(objectname="TIC 32449963")
-                >>> print(sector_table)
+                >>> print(sector_table)     # doctest: +IGNORE_OUTPUT
                   sectorName   sector camera ccd
                 -------------- ------ ------ ---
                 tess-s0010-1-4     10      1   4
@@ -1047,9 +1056,10 @@ If a given coordinate appears in more than one Zcut survey, a cutout will be pro
                 >>> from astroquery.mast import Zcut
                 >>> from astropy.coordinates import SkyCoord
                 >>> cutout_coord = SkyCoord(189.49206, 62.20615, unit="deg")
-                >>> manifest = Zcut.download_cutouts(coordinates=cutout_coord, size=[200, 300], units="px")
-                Downloading URL https://mast.stsci.edu/zcut/api/v0.1/astrocut?ra=189.49206&dec=62.20615&y=200&x=300&units=px&format=fits to ./zcut_20201202132247.zip ... [Done]
-                >>> print(manifest)
+                >>> manifest = Zcut.download_cutouts(coordinates=cutout_coord, size=[200, 300], units="px")    # doctest: +IGNORE_OUTPUT
+                Downloading URL https://mast.stsci.edu/zcut/api/v0.1/astrocut?ra=189.49206&dec=62.20615&y=200&x=300&units=px&format=fits to ./zcut_20210125155545.zip ... [Done]
+                Inflating...
+                >>> print(manifest)    # doctest: +IGNORE_OUTPUT
                                                 Local Path
                 -------------------------------------------------------------------------
                 ./candels_gn_30mas_189.492060_62.206150_300.0pix-x-200.0pix_astrocut.fits
@@ -1061,9 +1071,9 @@ If a given coordinate appears in more than one Zcut survey, a cutout will be pro
                 >>> from astroquery.mast import Zcut
                 >>> from astropy.coordinates import SkyCoord
                 >>> cutout_coord = SkyCoord(189.49206, 62.20615, unit="deg")
-                >>> manifest = Zcut.download_cutouts(coordinates=cutout_coord, size=[200, 300], units="px", form="jpg")
+                >>> manifest = Zcut.download_cutouts(coordinates=cutout_coord, size=[200, 300], units="px", form="jpg")    # doctest: +IGNORE_OUTPUT
                 Downloading URL https://mast.stsci.edu/zcut/api/v0.1/astrocut?ra=189.49206&dec=62.20615&y=200&x=300&units=px&format=jpg to ./zcut_20201202132453.zip ... [Done]
-                >>> print(manifest)
+                >>> print(manifest)        # doctest: +IGNORE_OUTPUT
                                                                 Local Path
                 ---------------------------------------------------------------------------------------------------------
                  ./hlsp_candels_hst_acs_gn-tot-30mas_f606w_v1.0_drz_189.492060_62.206150_300.0pix-x-200.0pix_astrocut.jpg
@@ -1100,7 +1110,7 @@ If a token is not supplied, the user will be prompted to enter one.
 To view tokens accessible through your account, visit https://auth.mast.stsci.edu
 
 .. code-block:: python
-.. doctest-remote-data::
+.. doctest-skip::
 
                 >>> from astroquery.mast import Observations
                 >>> Observations.login(token="12348r9w0sa2392ff94as841")
@@ -1111,7 +1121,7 @@ To view tokens accessible through your account, visit https://auth.mast.stsci.ed
                 ...
 
 .. code-block:: python
-.. doctest-remote-data::
+.. doctest-skip::
 
                 >>> from astroquery.mast import Observations
                 >>> my_session = Observations(token="12348r9w0sa2392ff94as841")
@@ -1155,15 +1165,31 @@ The basic MAST query function returns query results as an `~astropy.table.Table`
                 ...           'radius':0.2}
                 >>> observations = Mast.service_request(service, params)
                 >>> print(observations)
-                dataproduct_type obs_collection instrument_name ...    distance   _selected_
-                ---------------- -------------- --------------- ... ------------- ----------
-                           image          GALEX           GALEX ...           0.0      False
-                           image          GALEX           GALEX ...           0.0      False
-                           image          GALEX           GALEX ...           0.0      False
-                           image          GALEX           GALEX ...           0.0      False
-                           image          GALEX           GALEX ...           0.0      False
-                           image          GALEX           GALEX ... 302.405835798      False
-                           image          GALEX           GALEX ... 302.405835798      False
+                intentType obs_collection provenance_name ...    obsid         distance
+                ---------- -------------- --------------- ... ----------- ------------------
+                   science           TESS            SPOC ... 17001016097                0.0
+                   science           TESS            SPOC ... 17000855562                0.0
+                   science           TESS            SPOC ... 17000815577 203.70471189751947
+                   science           TESS            SPOC ... 17000981417  325.4085155315165
+                   science           TESS            SPOC ... 17000821493  325.4085155315165
+                   science            PS1             3PI ... 16000864847                0.0
+                   science            PS1             3PI ... 16000864848                0.0
+                   science            PS1             3PI ... 16000864849                0.0
+                   science            PS1             3PI ... 16000864850                0.0
+                   science            PS1             3PI ... 16000864851                0.0
+                       ...            ...             ... ...         ...                ...
+                   science           HLSP             QLP ... 18013987996   637.806560287869
+                   science           HLSP             QLP ... 18007518640   637.806560287869
+                   science           HLSP       TESS-SPOC ... 18013510950   637.806560287869
+                   science           HLSP       TESS-SPOC ... 18007364076   637.806560287869
+                   science          GALEX             MIS ...  1000007123                0.0
+                   science          GALEX             AIS ...  1000016562                0.0
+                   science          GALEX             AIS ...  1000016562                0.0
+                   science          GALEX             AIS ...  1000016563                0.0
+                   science          GALEX             AIS ...  1000016563                0.0
+                   science          GALEX             AIS ...  1000016556  302.4058357983673
+                   science          GALEX             AIS ...  1000016556  302.4058357983673
+                Length = 77 rows
 
 
 If the output is not the MAST json result type it cannot be properly parsed into a `~astropy.table.Table`.
@@ -1178,7 +1204,7 @@ In this case, the async method should be used to get the raw http response, whic
                 ...          'format':'json'}
                 >>> response = Mast.service_request_async(service,params)
                 >>> result = response[0].json()
-                >>> print(result)
+                >>> print(result)     # doctest: +IGNORE_OUTPUT
                 {'resolvedCoordinate': [{'cacheDate': 'Apr 12, 2017 9:28:24 PM',
                                          'cached': True,
                                          'canonicalName': 'MESSIER 008',
