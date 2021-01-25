@@ -447,6 +447,7 @@ class XMMNewtonClass(BaseQuery):
             The coordinates of the target in a SkyCoord object
         radius : float, optional, default None
             The radius to query the target in degrees
+
         Returns
         -------
         epic_source,  cat_4xmm, stack_4xmm, slew_source : `~astropy.table.Table` objects
@@ -505,7 +506,6 @@ class XMMNewtonClass(BaseQuery):
                                                c.dec.degree,
                                                radius))
         return epic_source_table, cat_4xmm_table, stack_4xmm_table, slew_source_table
-
 
 
 XMMNewton = XMMNewtonClass()
