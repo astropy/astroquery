@@ -1,5 +1,3 @@
-.. doctest-skip-all
-
 .. _astroquery.esa.xmm_newton:
 
 ****************************************************
@@ -7,12 +5,12 @@ ESA XMM-Newton Archive (`astroquery.esa.xmm_newton`)
 ****************************************************
 
 
-The X-ray Multi-Mirror Mission, XMM-Newton, is an ESA X-ray observatory launched on 10 December 1999. 
-It carries 3 high-throughput X-ray telescopes with unprecedented effective area and an Optical Monitor, 
+The X-ray Multi-Mirror Mission, XMM-Newton, is an ESA X-ray observatory launched on 10 December 1999.
+It carries 3 high-throughput X-ray telescopes with unprecedented effective area and an Optical Monitor,
 the first flown on an X-ray observatory.
 
-This package allows the access to the `XMM-Newton Science Archive <http://nxsa.esac.esa.int/nxsa-web/>`__. 
-It has been developed by the ESAC Science Data Centre (ESDC) with requirements provided by the 
+This package allows the access to the `XMM-Newton Science Archive <http://nxsa.esac.esa.int/nxsa-web/>`__.
+It has been developed by the ESAC Science Data Centre (ESDC) with requirements provided by the
 XMM-Newton Science Operations Centre.
 
 ========
@@ -24,14 +22,15 @@ Examples
 --------------------------
 
 .. code-block:: python
+.. doctest-remote-data::
 
-  >>> from astroquery.esa.xmm_newton import XMMNewton
+  >>> from astroquery.esa.xmm_newton import XMMNewton  # doctest: +IGNORE_OUTPUT
   >>>
-  >>> XMMNewton.download_data('0505720401',level="PPS",extension="PDF",instname="M1",filename="result0505720401.tar")
-  INFO: File result0505720401.tar downloaded to current directory [astroquery.esa.xmm_newton.core]
+  >>> XMMNewton.download_data('0505720401',level="PPS",extension="PDF",instname="M1",filename="result0505720401")
+  INFO: Copying file to result0505720401.tar... [astroquery.esa.xmm_newton.core]
 
-This will download all PPS files for the observation '0505720401' and instrument MOS1, with 'PDF' extension and 
-it will store them in a tar called 'result0505720401.tar'. The parameters available are detailed in the API.       
+This will download all PPS files for the observation '0505720401' and instrument MOS1, with 'PDF' extension and
+it will store them in a tar called 'result0505720401.tar'. The parameters available are detailed in the API.
 
 For more details of the parameters check the section 3.4 at:
 		'http://nxsa.esac.esa.int/nxsa-web/#aio'
@@ -68,10 +67,11 @@ proprietary data. It will store them in a tar called 'result0505720401.tar'.
 -------------------------------
 
 .. code-block:: python
+.. doctest-remote-data::
 
-  >>> from astroquery.esa.xmm_newton import XMMNewton
+  >>> from astroquery.esa.xmm_newton import XMMNewton    # doctest: +IGNORE_OUTPUT
   >>>
-  >>> XMMNewton.get_postcard('0505720401')
+  >>> XMMNewton.get_postcard('0505720401')        # doctest: +IGNORE_OUTPUT
   INFO: File P0505720401EPX000OIMAGE8000.PNG downloaded to current directory [astroquery.esa.xmm_newton.core]
   'P0505720401EPX000OIMAGE8000.PNG'
 
@@ -86,8 +86,9 @@ This function provides access to the XMM-Newton Science Archive database using t
 Query Language (ADQL).
 
 .. code-block:: python
+.. doctest-remote-data::
 
-  >>> from astroquery.esa.xmm_newton import XMMNewton
+  >>> from astroquery.esa.xmm_newton import XMMNewton    # doctest: +IGNORE_OUTPUT
   >>>
   >>> result = XMMNewton.query_xsa_tap("select top 10 * from v_public_observations", output_format='csv', output_file='results10.csv')
   >>> print(result)
@@ -104,48 +105,50 @@ Query Language (ADQL).
   46.71747372703565 -15.78639    12101 ...      Denis-J1228         true
   -15.881772371450268 -77.61555    33986 ...         Cha-Ha-3         true
 
-This will execute an ADQL query to download the first 10 observations in the XMM-Newton Science Archive. The result of the query will be 
+This will execute an ADQL query to download the first 10 observations in the XMM-Newton Science Archive. The result of the query will be
 stored in the file 'results10.csv'. The result of this query can be printed by doing print(result).
-            
+
 -----------------------------------
 5. Getting table details of XSA TAP
 -----------------------------------
 
 .. code-block:: python
+.. doctest-remote-data::
 
-  >>> from astroquery.esa.xmm_newton import XMMNewton
+  >>> from astroquery.esa.xmm_newton import XMMNewton    # doctest: +IGNORE_OUTPUT
   >>>
-  >>> XMMNewton.get_tables()
+  >>> XMMNewton.get_tables()  # doctest: +IGNORE_OUTPUT
   INFO: Retrieving tables... [astroquery.utils.tap.core]
   INFO: Parsing tables... [astroquery.utils.tap.core]
   INFO: Done. [astroquery.utils.tap.core]
-  ['tap_schema.columns', 'tap_schema.key_columns', 'tap_schema.keys', 'tap_schema.schemas', 
-  'tap_schema.tables', 'xsa.dual', 'xsa.v_all_observations', 'xsa.v_epic_source', 
-  'xsa.v_epic_source_cat', 'xsa.v_epic_xmm_stack_cat', 'xsa.v_exposure', 'xsa.v_instrument_mode', 
-  'xsa.v_om_source', 'xsa.v_om_source_cat', 'xsa.v_proposal', 'xsa.v_proposal_observation_info', 
-  'xsa.v_publication', 'xsa.v_publication_observation', 'xsa.v_publication_slew_observation', 
-  'xsa.v_public_observations', 'xsa.v_rgs_source', 'xsa.v_slew_exposure', 'xsa.v_slew_observation', 
-  'xsa.v_slew_source', 'xsa.v_slew_source_cat', 'xsa.v_target_type', 'xsa.v_uls_exposure_image', 
+  ['tap_schema.columns', 'tap_schema.key_columns', 'tap_schema.keys', 'tap_schema.schemas',
+  'tap_schema.tables', 'xsa.dual', 'xsa.v_all_observations', 'xsa.v_epic_source',
+  'xsa.v_epic_source_cat', 'xsa.v_epic_xmm_stack_cat', 'xsa.v_exposure', 'xsa.v_instrument_mode',
+  'xsa.v_om_source', 'xsa.v_om_source_cat', 'xsa.v_proposal', 'xsa.v_proposal_observation_info',
+  'xsa.v_publication', 'xsa.v_publication_observation', 'xsa.v_publication_slew_observation',
+  'xsa.v_public_observations', 'xsa.v_rgs_source', 'xsa.v_slew_exposure', 'xsa.v_slew_observation',
+  'xsa.v_slew_source', 'xsa.v_slew_source_cat', 'xsa.v_target_type', 'xsa.v_uls_exposure_image',
   'xsa.v_uls_slew_exposure_image']
 
 This will show the available tables in XSA TAP service in the XMM-Newton Science Archive.
-            
+
 -------------------------------------
 6. Getting columns details of XSA TAP
 -------------------------------------
 
 .. code-block:: python
+.. doctest-remote-data::
 
   >>> from astroquery.esa.xmm_newton import XMMNewton
   >>>
-  >>> XMMNewton.get_columns('public.v_all_observations')
+  >>> XMMNewton.get_columns('xsa.v_all_observations')  # doctest: +IGNORE_OUTPUT
   INFO: Retrieving tables... [astroquery.utils.tap.core]
   INFO: Parsing tables... [astroquery.utils.tap.core]
   INFO: Done. [astroquery.utils.tap.core]
-  ['bii', 'citext', 'dec', 'duration', 'end_utc', 'footprint_fov', 'heasarc_code', 'lii', 'moving_target', 
-  'observation_equatorial_spoint', 'observation_fov_scircle', 'observation_galactic_spoint', 'observation_id', 
-  'observation_oid', 'odf_proc_date', 'odf_version', 'position_angle', 'pps_proc_date', 'pps_version', 'proposal_id', 
-  'proposal_oid', 'proprietary_end_date', 'ra', 'ra_nom', 'revolution', 'sas_version', 'start_utc', 'stc_s', 'with_science']
+  ['bii', 'citext', 'dec', 'duration', 'end_utc', 'footprint_fov', 'heasarc_code', 'lii', 'moving_target',
+  'observation_equatorial_spoint', 'observation_fov_scircle', 'observation_galactic_spoint', 'observation_id',
+  'observation_oid', 'odf_proc_date', 'odf_version', 'position_angle', 'pps_proc_date', 'pps_version', 'proposal_id',
+  'proposal_oid', 'proprietary_end_date', 'ra', 'ra_nom', 'revolution', 'sas_version', 'seq_id', 'start_utc', 'stc_s', 'with_science']
 
 This will show the column details of the table 'v_all_observations' in XSA TAP service in the XMM-Newton Science Archive.
 
@@ -154,8 +157,9 @@ This will show the column details of the table 'v_all_observations' in XSA TAP s
 --------------------------------------------
 
 .. code-block:: python
+.. doctest-remote-data::
 
-  >>> from astroquery.esa.xmm_newton import XMMNewton
+  >>> from astroquery.esa.xmm_newton import XMMNewton   # doctest: +IGNORE_OUTPUT
   >>>
   >>> XMMNewton.download_data('0405320501')
   Downloading URL http://nxsa.esac.esa.int/nxsa-sl/servlet/data-action-aio?obsno=0405320501 to 0405320501.tar ...
@@ -181,6 +185,7 @@ The EPIC metadata can be found in four tables in the XSA TAP:
 - xsa.v_slew_source_cat
 
 .. code-block:: python
+.. doctest-remote-data::
 
   >>> from astroquery.esa.xmm_newton import XMMNewton
   >>>
