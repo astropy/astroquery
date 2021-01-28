@@ -18,6 +18,7 @@ import errno
 import shutil
 from astropy.coordinates import SkyCoord
 from astropy.utils.diff import report_diff_values
+from astroquery.utils.tap.core import TapPlus
 
 from ..core import XMMNewtonClass
 from ..tests.dummy_tap_handler import DummyXMMNewtonTapHandler
@@ -301,6 +302,7 @@ class TestXMMNewton():
 
     @pytest.mark.remote_data
     def test_get_epic_metadata(self):
+        tap_url="http://nxsadev.esac.esa.int/tap-server/tap/"
         target_name = "4XMM J122934.7+015657"
         radius = 0.01
         epic_source_table = "xsa.v_epic_source"
@@ -311,7 +313,7 @@ class TestXMMNewton():
         stack_4xmm_column = "epic_stack_cat_equatorial_spoint"
         slew_source_table = "xsa.v_slew_source_cat"
         slew_source_column = "slew_source_cat_equatorial_spoint"
-        xsa = XMMNewtonClass()
+        xsa = XMMNewtonClass(TapPlus(url=tap_url))
         epic_source, cat_4xmm, stack_4xmm, slew_source = xsa.get_epic_metadata(target_name=target_name,
                                                                                 radius=radius)
         c = SkyCoord.from_name(target_name, parse=True)
