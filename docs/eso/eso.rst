@@ -1,5 +1,3 @@
-.. doctest-skip-all
-
 .. _astroquery.eso:
 
 ******************************
@@ -51,14 +49,14 @@ interaction with the ESO archive.
     Authenticating TEST on www.eso.org...
     Authentication failed!
     >>> # Second example: pretend ICONDOR is a valid username
-    >>> eso.login("ICONDOR", store_password=True) # doctest: +SKIP
-    ICONDOR, enter your ESO password:
+    >>> eso.login("Tinuade", store_password=True)  # doctest: +IGNORE_OUTPUT
+    Tinuade, enter your ESO password:
 
     Authenticating ICONDOR on www.eso.org...
     Authentication successful!
     >>> # After the first login, your password has been stored
-    >>> eso.login("ICONDOR") # doctest: +SKIP
-    Authenticating ICONDOR on www.eso.org...
+    >>> eso.login("Tinuade")
+    Authenticating Tinuade on www.eso.org...
     Authentication successful!
 
 Automatic password
@@ -108,8 +106,9 @@ list of available instrument-specific queries can be obtained with the
 :meth:`~astroquery.eso.EsoClass.list_instruments` method.
 
 .. code-block:: python
+.. doctest-remote-data::
 
-    >>> eso.list_instruments()
+    >>> eso.list_instruments()   # doctest: +IGNORE_OUTPUT
     ['fors1', 'fors2', 'vimos', 'omegacam', 'hawki', 'isaac', 'naco', 'visir', 'vircam',
     'apex', 'uves', 'giraffe', 'xshooter', 'muse, 'crires', 'kmos', 'sinfoni',
     'amber', 'gravity', 'midi', 'pionier']
@@ -125,6 +124,7 @@ inspected by setting the ``help=True`` keyword of the :meth:`~astroquery.eso.Eso
 method.
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> eso.query_instrument('midi', help=True)
     List of the column_filters parameters accepted by the midi instrument query.
@@ -176,12 +176,13 @@ target ``NGC 4151`` between ``2007-01-01`` and ``2008-01-01`` are searched, and 
 return the observation date column.
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> table = eso.query_instrument('midi', column_filters={'target':'NGC 4151', 'stime':'2007-01-01', 'etime':'2008-01-01'}, columns=['night'])
     >>> print(len(table))
     38
     >>> print(table.columns)
-    <TableColumns names=('Object','RA', 'DEC','Target l b','DATE OBS','ProgId','DP.ID','OB.ID','OBS.TARG.NAME','DPR.CATG','DPR.TYPE','DPR.TECH','INS.MODE','DIMM S-avg')>
+    <TableColumns names=('Release Date','Object','RA','DEC','Target Ra Dec','Target l b','DATE OBS','ProgId','DP.ID','OB.ID','OBS.TARG.NAME','DPR.CATG','DPR.TYPE','DPR.TECH','INS.MODE','DIMM Seeing-avg')>
     >>> table.pprint(max_width=100)
              Object              Target Ra Dec           Target l b      ... INS.MODE  DIMM S-avg
     ----------------------- ----------------------- -------------------- ... -------- -----------
@@ -224,9 +225,10 @@ is identical to :meth:`~astroquery.eso.EsoClass.query_instrument`.
 ESO instruments without a specific query interface can be queried with
 :meth:`~astroquery.eso.EsoClass.query_main`, specifying the ``instrument`` constraint.
 This is the case of e.g. ``harps``, ``feros`` or the all sky cameras APICAM and MASCOT. Here is an example to
-query all-sky images from APICAM with ``luminance`` filter. 
+query all-sky images from APICAM with ``luminance`` filter.
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> eso.ROW_LIMIT = -1   # Return all results
     >>> table = eso.query_main(column_filters={'instrument': 'APICAM', 'filter_path': 'LUMINANCE',
@@ -234,7 +236,7 @@ query all-sky images from APICAM with ``luminance`` filter.
     >>> print(len(table))
     207
     >>> print(table.columns)
-    <TableColumns names=('OBJECT','RA','DEC','Program_ID','Instrument','Category','Type','Mode','Dataset ID','Release_Date','TPL ID','TPL START','Exptime','Exposure','Filter','MJD-OBS','Airmass','DIMM Seeing at Start')>
+    <TableColumns names=('OBJECT','RA','DEC','Program_ID','Instrument','Category','Type','Mode','Dataset ID','Release_Date','TPL ID','TPL START','Exptime','Exposure','filter_lambda_min','filter_lambda_max','MJD-OBS','Airmass','DIMM Seeing at Start')>
     >>> table.pprint(max_width=100)
      OBJECT      RA         DEC      Program_ID  ...   Filter    MJD-OBS    Airmass DIMM Seeing at Start
     ------- ----------- ----------- ------------ ... --------- ------------ ------- --------------------
@@ -260,7 +262,7 @@ The list of available surveys can be obtained with :meth:`astroquery.eso.EsoClas
 
 .. code-block:: python
 
-    >>> surveys = eso.list_surveys()
+    >>> surveys = eso.list_surveys()    # doctest: +REMOTE_DATA
 
 Query a specific survey with constraints
 ----------------------------------------
@@ -270,8 +272,9 @@ target ``HD203608``.
 The archive can be queried as follows:
 
 .. code-block:: python
+.. doctest-remote-data::
 
-    >>> table = eso.query_surveys('HARPS', cache=False, target="HD203608")
+    >>> table = eso.query_surveys('HARPS', cache=False, target="HD203608")    # doctest: +REMOTE_DATA
 
 The returned table has an ``ARCFILE`` column. It can be used to retrieve the datasets with
 :meth:`astroquery.eso.EsoClass.retrieve_data` (see next section).
@@ -287,6 +290,7 @@ using :meth:`~astroquery.eso.EsoClass.get_headers`.
 This method is detailed in the example below, continuing with the previously obtained table.
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> table_headers = eso.get_headers(table['DP.ID'])
     >>> table_headers.pprint()
@@ -331,7 +335,7 @@ using their data product IDs ``DP.ID`` (or ``ARCFILE`` for surveys), and retriev
 
 .. code-block:: python
 
-    >>> data_files = eso.retrieve_data(table['DP.ID'][:2])
+    >>> data_files = eso.retrieve_data(table['DP.ID'][:2])   # doctest: +REMOTE_DATA
     Staging request...
     Downloading files...
     Downloading MIDI.2007-02-07T07:01:51.000.fits.Z...
