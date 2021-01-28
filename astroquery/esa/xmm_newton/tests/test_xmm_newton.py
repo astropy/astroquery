@@ -302,7 +302,7 @@ class TestXMMNewton():
 
     @pytest.mark.remote_data
     def test_get_epic_metadata(self):
-        tap_url="http://nxsadev.esac.esa.int/tap-server/tap/"
+        tap_url = "http://nxsadev.esac.esa.int/tap-server/tap/"
         target_name = "4XMM J122934.7+015657"
         radius = 0.01
         epic_source_table = "xsa.v_epic_source"
