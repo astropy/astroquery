@@ -22,6 +22,7 @@ import os
 
 from . import conf
 from astropy import log
+from astropy.coordinates import SkyCoord
 
 
 __all__ = ['XMMNewton', 'XMMNewtonClass']
@@ -432,6 +433,79 @@ class XMMNewtonClass(BaseQuery):
                     ret[b][ins] = value
 
         return ret
+
+    def get_epic_metadata(self, *, target_name=None,
+                          coordinates=None, radius=None):
+        """Downloads the European Photon Imaging Camera (EPIC)
+        metadata from a given target
+
+        Parameters
+        ----------
+        target_name : string, optional, default None
+            The name of the target
+        coordinates : `~astropy.coordinates.SkyCoord`, optinal, default None
+            The coordinates of the target in a SkyCoord object
+        radius : float, optional, default None
+            The radius to query the target in degrees
+
+        Returns
+        -------
+        epic_source,  cat_4xmm, stack_4xmm, slew_source : `~astropy.table.Table` objects
+            Tables containing the metadata of the target
+        """
+        if not target_name and not coordinates:
+                raise Exception("Input parameters needed, "
+                                "please provide the name "
+                                "or the coordinates of the target")
+
+        epic_source = {"table": "xsa.v_epic_source",
+                       "column": "epic_source_equatorial_spoint"}
+        cat_4xmm = {"table": "xsa.v_epic_source_cat",
+                    "column": "epic_source_cat_equatorial_spoint"}
+        stack_4xmm = {"table": "xsa.v_epic_xmm_stack_cat",
+                      "column": "epic_stack_cat_equatorial_spoint"}
+        slew_source = {"table": "xsa.v_slew_source_cat",
+                       "column": "slew_source_cat_equatorial_spoint"}
+
+        cols = "*"
+
+        c = coordinates
+        if not coordinates:
+            c = SkyCoord.from_name(target_name, parse=True)
+
+        if type(c) is not SkyCoord:
+            raise Exception("The coordinates must be an "
+                            "astroquery.coordinates.SkyCoord object")
+        if not radius:
+            radius = 0.1
+
+        query_fmt = ("select {} from {} "
+                     "where 1=contains({}, circle('ICRS', {}, {}, {}));")
+        epic_source_table = self.query_xsa_tap(query_fmt.format(cols,
+                                               epic_source["table"],
+                                               epic_source["column"],
+                                               c.ra.degree,
+                                               c.dec.degree,
+                                               radius))
+        cat_4xmm_table = self.query_xsa_tap(query_fmt.format(cols,
+                                            cat_4xmm["table"],
+                                            cat_4xmm["column"],
+                                            c.ra.degree,
+                                            c.dec.degree,
+                                            radius))
+        stack_4xmm_table = self.query_xsa_tap(query_fmt.format(cols,
+                                              stack_4xmm["table"],
+                                              stack_4xmm["column"],
+                                              c.ra.degree,
+                                              c.dec.degree,
+                                              radius))
+        slew_source_table = self.query_xsa_tap(query_fmt.format(cols,
+                                               slew_source["table"],
+                                               slew_source["column"],
+                                               c.ra.degree,
+                                               c.dec.degree,
+                                               radius))
+        return epic_source_table, cat_4xmm_table, stack_4xmm_table, slew_source_table
 
 
 XMMNewton = XMMNewtonClass()
