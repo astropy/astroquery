@@ -1,5 +1,3 @@
-.. doctest-skip-all
-
 .. _astroquery.gaia:
 
 *****************************
@@ -88,17 +86,19 @@ The following example searches for all the sources contained in an squared regio
 degrees around an specific point in RA/Dec coordinates.
 
 .. code-block:: python
+.. doctest-remote-data::
+.. doctest-skip::
 
   >>> import astropy.units as u
   >>> from astropy.coordinates import SkyCoord
-  >>> from astroquery.gaia import Gaia
+  >>> from astroquery.gaia import Gaia  # doctest: +IGNORE_OUTPUT
   >>>
   >>> coord = SkyCoord(ra=280, dec=-60, unit=(u.degree, u.degree), frame='icrs')
   >>> width = u.Quantity(0.1, u.deg)
   >>> height = u.Quantity(0.1, u.deg)
   >>> r = Gaia.query_object_async(coordinate=coord, width=width, height=height)
+  INFO: Query finished. [astroquery.utils.tap.core]
   >>> r.pprint()
-
            dist             solution_id     ... epoch_photometry_url
                                             ...
   --------------------- ------------------- ... --------------------
@@ -128,11 +128,13 @@ degrees around an specific point in RA/Dec coordinates.
 Queries return a limited number of rows controlled by ``Gaia.ROW_LIMIT``. To change the default behaviour set this appropriately.
 
 .. code-block:: python
+.. doctest-remote-data::
+.. doctest-skip::
 
   >>> Gaia.ROW_LIMIT = 8
   >>> r = Gaia.query_object_async(coordinate=coord, width=width, height=height)
+  INFO: Query finished. [astroquery.utils.tap.core]
   >>> r.pprint()
-
            dist             solution_id     ... epoch_photometry_url
                                             ...
   --------------------- ------------------- ... --------------------
@@ -148,11 +150,13 @@ Queries return a limited number of rows controlled by ``Gaia.ROW_LIMIT``. To cha
 To return an unlimited number of rows set ``Gaia.ROW_LIMIT`` to -1.
 
 .. code-block:: python
+.. doctest-remote-data::
+.. doctest-skip::
 
   >>> Gaia.ROW_LIMIT = -1
   >>> r = Gaia.query_object_async(coordinate=coord, width=width, height=height)
+  INFO: Query finished. [astroquery.utils.tap.core]
   >>> r.pprint()
-
            dist             solution_id     ... epoch_photometry_url
                                             ...
   --------------------- ------------------- ... --------------------
@@ -187,17 +191,19 @@ This query performs a cone search centered at the specified RA/Dec coordinates w
 radius argument.
 
 .. code-block:: python
+.. doctest-remote-data::
+.. doctest-skip::
 
   >>> import astropy.units as u
   >>> from astropy.coordinates import SkyCoord
-  >>> from astroquery.gaia import Gaia
+  >>> from astroquery.gaia import Gaia  # doctest: +IGNORE_OUTPUT
   >>>
   >>> coord = SkyCoord(ra=280, dec=-60, unit=(u.degree, u.degree), frame='icrs')
   >>> radius = u.Quantity(1.0, u.deg)
   >>> j = Gaia.cone_search_async(coord, radius)
+  INFO: Query finished. [astroquery.utils.tap.core]
   >>> r = j.get_results()
   >>> r.pprint()
-
       solution_id             designation          ...          dist
                                                    ...
   ------------------- ---------------------------- ... ---------------------
@@ -206,8 +212,23 @@ radius argument.
   1635721458409799680 Gaia DR2 6636090334814217600 ...   0.00454542650096783
   1635721458409799680 Gaia DR2 6636089583198816640 ...  0.005613919443965546
   1635721458409799680 Gaia DR2 6636090334814218752 ...  0.005846434715822121
+  1635721458409799680 Gaia DR2 6636090334814213632 ...  0.006209042666371929
+  1635721458409799680 Gaia DR2 6636090339112308864 ...  0.007469463683838576
+  1635721458409799680 Gaia DR2 6636089583198816512 ...  0.008202004514524316
+  1635721458409799680 Gaia DR2 6636089583198817664 ...  0.008338509690874027
+  1635721458409799680 Gaia DR2 6636089578899968384 ...  0.008406677772258921
                   ...                          ... ...                   ...
-  Length = 50 rows
+  1635721458409799680 Gaia DR2 6636390501490205824 ...    0.9999643454969411
+  1635721458409799680 Gaia DR2 6632788093377355008 ...    0.9999659159212859
+  1635721458409799680 Gaia DR2 6634904786402451456 ...    0.9999669801021075
+  1635721458409799680 Gaia DR2 6632896116097991040 ...    0.9999706747249028
+  1635721458409799680 Gaia DR2 6631479811977059072 ...    0.9999871727941554
+  1635721458409799680 Gaia DR2 6636408544648238464 ...    0.9999885095326156
+  1635721458409799680 Gaia DR2 6633180133694763264 ...    0.9999911459079347
+  1635721458409799680 Gaia DR2 6632920344009005184 ...    0.9999925631357645
+  1635721458409799680 Gaia DR2 6636406929741393024 ...    0.9999942477166328
+  1635721458409799680 Gaia DR2 6636389951735167872 ...    0.9999964452249156
+  Length = 113243 rows
 
 
 1.3. Getting public tables metadata
@@ -221,44 +242,58 @@ Table and columns metadata are specified by IVOA TAP_ recommendation
 To load only table names metadata (TAP+ capability):
 
 .. code-block:: python
+.. doctest-remote-data::
 
-  >>> from astroquery.gaia import Gaia
+  >>> from astroquery.gaia import Gaia   # doctest: +IGNORE_OUTPUT
   >>> tables = Gaia.load_tables(only_names=True)
+  INFO: Retrieving tables... [astroquery.utils.tap.core]
+  INFO: Parsing tables... [astroquery.utils.tap.core]
+  INFO: Done. [astroquery.utils.tap.core]
   >>> for table in (tables):
-  >>>   print(table.get_qualified_name())
-
-  public.dual
-  public.tycho2
-  public.igsl_source
-  public.hipparcos
-  ...
-  gaiadr2.gaia_source
+  ...   print(table.get_qualified_name())   # doctest: +IGNORE_OUTPUT
+  external.external.apassdr9
+  external.external.gaiadr2_geometric_distance
+  external.external.gaiaedr3_distance
+  external.external.galex_ais
+    ...     ...       ...
+  gaiadr2.gaiadr2.vari_short_timescale
+  gaiadr2.gaiadr2.vari_time_series_statistics
+  gaiadr2.gaiadr2.panstarrs1_original_valid
+  gaiadr2.gaiadr2.gaia_source
 
 To load all tables metadata (TAP compatible):
 
 .. code-block:: python
+.. doctest-remote-data::
 
   >>> from astroquery.gaia import Gaia
   >>> tables = Gaia.load_tables()
+  INFO: Retrieving tables... [astroquery.utils.tap.core]
+  INFO: Parsing tables... [astroquery.utils.tap.core]
+  INFO: Done. [astroquery.utils.tap.core]
   >>> for table in (tables):
-  >>>   print(table.get_qualified_name())
+  ...   print(table.get_qualified_name())  # doctest: +IGNORE_OUTPUT
+  external.external.apassdr9
+  external.external.gaiadr2_geometric_distance
+  external.external.gaiaedr3_distance
+  external.external.galex_ais
+    ...      ...      ...
+  gaiadr2.gaiadr2.vari_short_timescale
+  gaiadr2.gaiadr2.vari_time_series_statistics
+  gaiadr2.gaiadr2.panstarrs1_original_valid
+  gaiadr2.gaiadr2.gaia_source
 
-  public.dual
-  public.tycho2
-  public.igsl_source
-  public.hipparcos
-  ...
-  gaiadr2.gaia_source
 
 To load only a table (TAP+ capability):
 
 .. code-block:: python
+.. doctest-remote-data::
 
   >>> from astroquery.gaia import Gaia
   >>> table = Gaia.load_table('gaiadr2.gaia_source')
+  Retrieving table 'gaiadr2.gaia_source'
   >>> print(f"table = {table}")
-
-  Table name: gaiadr2.gaia_source
+  table = TAP Table name: gaiadr2.gaiadr2.gaia_source
   Description: This table has an entry for every Gaia observed source as listed in the
   Main Database accumulating catalogue version from which the catalogue
   release has been generated. It contains the basic source parameters,
@@ -270,12 +305,13 @@ To load only a table (TAP+ capability):
 Once a table is loaded, its columns can be inspected:
 
 .. code-block:: python
+.. doctest-remote-data::
 
   >>> from astroquery.gaia import Gaia
   >>> gaiadr2_table = Gaia.load_table('gaiadr2.gaia_source')
+  Retrieving table 'gaiadr2.gaia_source'
   >>> for column in (gaiadr2_table.columns):
-  >>>   print(column.name)
-
+  ...   print(column.name)   # doctest: +IGNORE_OUTPUT
   solution_id
   designation
   source_id
@@ -285,6 +321,9 @@ Once a table is loaded, its columns can be inspected:
   ra_error
   dec
   dec_error
+  parallax
+  parallax_error
+  parallax_over_error
   ...
 
 1.4. Synchronous query
@@ -304,16 +343,16 @@ The results can be saved in memory (default) or in a file.
 Query without saving results in a file:
 
 .. code-block:: python
+.. doctest-remote-data::
 
-  >>> from astroquery.gaia import Gaia
+  >>> from astroquery.gaia import Gaia    # doctest: +IGNORE_OUTPUT
   >>>
   >>> job = Gaia.launch_job("select top 100 "
   ...                       "solution_id,ref_epoch,ra_dec_corr,astrometric_n_obs_al, "
   ...                       "matched_observations,duplicated_source,phot_variable_flag "
   ...                       "from gaiadr2.gaia_source order by source_id")
   >>> r = job.get_results()
-  >>> print(r['solution_id'])
-
+  >>> print(r['solution_id'])    # doctest: +IGNORE_OUTPUT
     solution_id
   -------------------
   1635378410781933568
@@ -327,6 +366,7 @@ Query saving results in a file (you may use 'output_format' to specified the res
 available formats are: 'votable', 'votable_plain', 'fits', 'csv' and 'json', default is 'votable'):
 
 .. code-block:: python
+.. doctest-remote-data::
 
   >>> from astroquery.gaia import Gaia
   >>> job = Gaia.launch_job("select top 100 "
@@ -334,42 +374,40 @@ available formats are: 'votable', 'votable_plain', 'fits', 'csv' and 'json', def
   ...                       "matched_observations,duplicated_source,phot_variable_flag "
   ...                       "from gaiadr2.gaia_source order by source_id",
   ...                       dump_to_file=True, output_format='votable')
-  >>> print(job.outputFile)
-
+  >>> print(job.outputFile)     # doctest: +IGNORE_OUTPUT
   1592474300458O-result.vot.gz
-
   >>> r = job.get_results()
-  >>> print(r['solution_id'])
-
+  >>> print(r['solution_id'])  # doctest: +IGNORE_OUTPUT
     solution_id
   -------------------
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
+  1635721458409799680
+  1635721458409799680
+  1635721458409799680
+  1635721458409799680
+  1635721458409799680
                 ...
   Length = 100 rows
 
 Note: you can inspect the status of the job by typing:
 
 .. code-block:: python
+.. doctest-remote-data::
 
-  >>> print(job)
-
+  >>> print(job)     # doctest: +IGNORE_OUTPUT
   <Table length=100>
-          name          dtype  unit                     description
+        name          dtype  unit                     description
   -------------------- ------- ---- ---------------------------------------------------
-           solution_id   int64                                      Solution Identifier
-             ref_epoch float64   yr                                     Reference epoch
-           ra_dec_corr float32      Correlation between right ascension and declination
+          solution_id   int64                                      Solution Identifier
+            ref_epoch float64   yr                                     Reference epoch
+          ra_dec_corr float32      Correlation between right ascension and declination
   astrometric_n_obs_al   int32                          Total number of observations AL
   matched_observations   int16            Amount of observations matched to this source
-     duplicated_source    bool                            Source with duplicate sources
+    duplicated_source    bool                            Source with duplicate sources
     phot_variable_flag  object                             Photometric variability flag
   Jobid: None
   Phase: COMPLETED
   Owner: None
-  Output file: sync_20200525141041.xml.gz
+  Output file: 1611860042663O-result.vot.gz
   Results: None
 
 
@@ -383,15 +421,14 @@ the file 'my_table.xml' is located to the relative location where your python pr
 running. See note below.
 
 .. code-block:: python
+.. doctest-skip::
 
   >>> from astroquery.gaia import Gaia
-
   >>> upload_resource = 'my_table.xml'
   >>> j = Gaia.launch_job(query="select * from tap_upload.table_test",
   ... upload_resource=upload_resource, upload_table_name="table_test", verbose=True)
   >>> r = j.get_results()
   >>> r.pprint()
-
   source_id alpha delta
   --------- ----- -----
           a   1.0   2.0
@@ -401,10 +438,10 @@ running. See note below.
 Note: to obtain the current location, type:
 
 .. code-block:: python
+.. doctest-skip::
 
   >>> import os
   >>> print(os.getcwd())
-
   /Current/directory/path
 
 1.6. Asynchronous query
@@ -418,14 +455,14 @@ Queries retrieved results can be stored locally in memory (by default) or in a f
 Query without saving results in a file:
 
 .. code-block:: python
+.. doctest-remote-data::
 
   >>> from astroquery.gaia import Gaia
-
   >>> job = Gaia.launch_job_async("select top 100 designation,ra,dec "
   ...                             "from gaiadr2.gaia_source order by source_id")
+  INFO: Query finished. [astroquery.utils.tap.core]
   >>> r = job.get_results()
-  >>> print(r)
-
+  >>> print(r)     # doctest: +IGNORE_OUTPUT
      designation               ra                 dec
                               deg                 deg
   ---------------------- ------------------ --------------------
@@ -433,7 +470,6 @@ Query without saving results in a file:
     Gaia DR2 34361129088 45.004316164207644 0.021045032689712983
     Gaia DR2 38655544960   45.0049742449841 0.019877000365797714
    Gaia DR2 309238066432  44.99503703932583  0.03815183599451371
-   Gaia DR2 343597448960  44.96389532530429 0.043595184822725674
                 ...
   Length = 100 rows
 
@@ -441,32 +477,33 @@ Query saving results in a file (you may use 'output_format' to specified the res
 available formats are: 'votable', 'votable_plain', 'fits', 'csv' and 'json', default is 'votable'):
 
 .. code-block:: python
+.. doctest-remote-data::
 
   >>> from astroquery.gaia import Gaia
-
   >>> job = Gaia.launch_job_async("select top 100 * "
   ...                             "from gaiadr2.gaia_source order by source_id",
-  ...                             dump_to_file=True, output_format='votable')
-
-  Saving results to: 1592474453797O-result.vot.gz
-
-  >>> print(job)
-
-  Jobid: 1487845273526O
+  ...                             dump_to_file=True, output_format='votable')  # doctest: +IGNORE_OUTPUT
+  Saving results to: 1611860482314O-result.vot.gz
+  >>> print(job)          # doctest: +IGNORE_OUTPUT
+  <Table length=100>
+    name     dtype  unit                         description
+  ----------- ------- ---- -----------------------------------------------------------
+  designation  object      Unique source designation (unique across all Data Releases)
+          ra float64  deg                                             Right ascension
+          dec float64  deg                                                 Declination
+  Jobid: 1611860295313O
   Phase: COMPLETED
   Owner: None
-  Output file: async_20170223112113.vot
+  Output file: async_20210128195815.vot
   Results: None
-
   >>> r = job.get_results()
-  >>> print(r['solution_id'])
-
+  >>> print(r['solution_id'])   # doctest: +IGNORE_OUTPUT
     solution_id
   -------------------
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
-  1635378410781933568
+  1635721458409799680
+  1635721458409799680
+  1635721458409799680
+  1635721458409799680
                 ...
   Length = 100 rows
 
@@ -477,6 +514,7 @@ available formats are: 'votable', 'votable_plain', 'fits', 'csv' and 'json', def
 To remove asynchronous jobs
 
 .. code-block:: python
+.. doctest-skip::
 
   >>> from astroquery.gaia import Gaia
   >>> Gaia.remove_jobs(["job_id_1","job_id_2",...])
@@ -510,6 +548,7 @@ There are several ways to login to Gaia archive.
 *Note: Python Tkinter module is required to use login_gui method.*
 
 .. code-block:: python
+.. doctest-skip::
 
   >>> from astroquery.gaia import Gaia
   >>> Gaia.login_gui()
@@ -519,6 +558,7 @@ There are several ways to login to Gaia archive.
 
 
 .. code-block:: python
+.. doctest-skip::
 
   >>> from astroquery.gaia import Gaia
   >>> Gaia.login(user='userName', password='userPassword')
@@ -531,6 +571,7 @@ A file where the credentials are stored can be used to login:
 *The file must containing user and password in two different lines.*
 
 .. code-block:: python
+.. doctest-skip::
 
   >>> from astroquery.gaia import Gaia
   >>> Gaia.login(credentials_file='my_credentials_file')
@@ -539,6 +580,7 @@ A file where the credentials are stored can be used to login:
 If you do not provide any parameters at all, a prompt will ask for the user name and password.
 
 .. code-block:: python
+.. doctest-skip::
 
   >>> from astroquery.gaia import Gaia
   >>> Gaia.login()
@@ -550,6 +592,7 @@ To logout
 
 
 .. code-block:: python
+.. doctest-skip::
 
   >>> from astroquery.gaia import Gaia
   >>> Gaia.logout()
@@ -564,27 +607,24 @@ In the Gaia archive user tables can be shared among user groups.
 To obtain a list of the tables shared to a user type the following:
 
 .. code-block:: python
+.. doctest-remote-data::
 
-  >>> from astroquery.gaia import Gaia
+  >>> from astroquery.gaia import Gaia   # doctest: +IGNORE_OUTPUT
   >>> tables = Gaia.load_tables(only_names=True, include_shared_tables=True)
+  INFO: Retrieving tables... [astroquery.utils.tap.core]
+  INFO: Parsing tables... [astroquery.utils.tap.core]
+  INFO: Done. [astroquery.utils.tap.core]
   >>> for table in (tables):
-  >>>   print(table.get_qualified_name())
-
-  public.dual
-  public.tycho2
-  public.igsl_source
-  tap_schema.tables
-  tap_schema.keys
-  tap_schema.columns
-  tap_schema.schemas
-  tap_schema.key_columns
-  gaiadr1.phot_variable_time_series_gfov
-  gaiadr1.ppmxl_neighbourhood
-  gaiadr1.gsc23_neighbourhood
-  ...
-  user_schema_1.table1
-  user_schema_2.table1
-  ...
+  ...   print(table.get_qualified_name())    # doctest: +IGNORE_OUTPUT
+  external.external.apassdr9
+  external.external.gaiadr2_geometric_distance
+  external.external.gaiaedr3_distance
+  external.external.galex_ais
+    ...     ...       ...
+  gaiadr2.gaiadr2.vari_time_series_statistics
+  gaiadr2.gaiadr2.panstarrs1_original_valid
+  gaiadr2.gaiadr2.gaia_source
+  gaiadr2.gaiadr2.ruwe
 
 2.3. Uploading table to user space
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -611,6 +651,7 @@ VOTable that can be uploaded to the user private area.
 Your schema name will be automatically added to the provided table name.
 
 .. code-block:: python
+.. doctest-remote-data::
 
   >>> from astroquery.gaia import Gaia
   >>> Gaia.login()
@@ -618,16 +659,15 @@ Your schema name will be automatically added to the provided table name.
   >>> url = ("http://tapvizier.u-strasbg.fr/TAPVizieR/tap/sync/?"
   ...        "REQUEST=doQuery&lang=ADQL&FORMAT=votable&"
   ...        "QUERY=select+*+from+TAP_SCHEMA.columns+where+table_name='II/336/apass9'")
-
   >>> job = Gaia.upload_table(upload_resource=url, table_name="table_test_from_url",
   ... table_description="Some description")
-
   Job '1539932326689O' created to upload table 'table_test_from_url'.
 
 Now, you can query your table as follows (a full qualified table name must be provided,
 i.e.: *user_<your_login_name>.<table_name>*):
 
 .. code-block:: python
+.. doctest-skip::
 
   >>> full_qualified_table_name = 'user_<your_login_name>.table_test_from_url'
   >>> query = 'select * from ' + full_qualified_table_name
@@ -646,6 +686,7 @@ The parameter 'format' must be provided when the input file is not a votable fil
 Your schema name will be automatically added to the provided table name.
 
 .. code-block:: python
+.. doctest-remote-data::
 
   >>> from astroquery.gaia import Gaia
   >>> Gaia.login()
@@ -659,6 +700,7 @@ Now, you can query your table as follows (a full qualified table name must be pr
 i.e.: *user_<your_login_name>.<table_name>*):
 
 .. code-block:: python
+.. doctest-skip::
 
   >>> full_qualified_table_name = 'user_<your_login_name>.table_test_from_file'
   >>> query = 'select * from ' + full_qualified_table_name
@@ -676,13 +718,13 @@ Your schema name will be automatically added to the provided table name.
 
 
 .. code-block:: python
+.. doctest-remote-data::
 
   >>> from astroquery.gaia import Gaia
   >>> from astropy.table import Table
   >>> a=[1,2,3]
   >>> b=['a','b','c']
   >>> table = Table([a,b], names=['col1','col2'], meta={'meta':'first table'})
-
   >>> # Upload
   >>> Gaia.login()
   >>> Gaia.upload_table(upload_resource=table, table_name='table_test_from_astropy')
@@ -692,6 +734,7 @@ Now, you can query your table as follows (a full qualified table name must be pr
 i.e.: *user_<your_login_name>.<table_name>*):
 
 .. code-block:: python
+.. doctest-skip::
 
   >>> full_qualified_table_name = 'user_<your_login_name>.table_test_from_astropy'
   >>> query = 'select * from ' + full_qualified_table_name
@@ -711,18 +754,19 @@ The following example generates a job in the Gaia archive and then, the results 
 table named: user_<your_login_name>.'t'<job_id>:
 
 .. code-block:: python
+.. doctest-remote-data::
 
   >>> from astroquery.gaia import Gaia
   >>> Gaia.login()
   >>> j1 = Gaia.launch_job_async("select top 10 * from gaiadr2.gaia_source")
   >>> job = Gaia.upload_table_from_job(j1)
-
   Created table 't1539932994481O' from job: '1539932994481O'.
 
 Now, you can query your table as follows (a full qualified table name must be provided,
 i.e.: *user_<your_login_name>.t<job_id>*):
 
 .. code-block:: python
+.. doctest-skip::
 
   >>> full_qualified_table_name = 'user_<your_login_name>.t1539932994481O'
   >>> query = 'select * from ' + full_qualified_table_name
@@ -736,11 +780,11 @@ i.e.: *user_<your_login_name>.t<job_id>*):
 A table from the user private area can be deleted as follows:
 
 .. code-block:: python
+.. doctest-remote-data::
 
   >>> from astroquery.gaia import Gaia
   >>> Gaia.login_gui()
   >>> job = Gaia.delete_user_table("table_test_from_file")
-
   Table 'table_test_from_file' deleted.
 
 
@@ -753,7 +797,7 @@ about certain column. This is possible using:
 
 .. code-block:: python
 
-  >>> Gaia.update_user_table(table_name, list_of_changes)
+  >>> Gaia.update_user_table(table_name, list_of_changes)  # doctest: +SKIP
 
 where the list of changes is a list of 3 items:
 
@@ -800,6 +844,7 @@ We want to set:
 We can type the following:
 
 .. code-block:: python
+.. doctest-skip::
 
   >>> from astroquery.gaia import Gaia
   >>> Gaia.login_gui()
@@ -808,7 +853,6 @@ We can type the following:
   ...                                         ["nobs","utype","utype sample"],
   ...                                         ["raj2000","flags","Ra"],
   ...                                         ["dej2000","flags","Dec"]])
-
   Retrieving table 'user_joe.table'
   Parsing table 'user_joe.table'...
   Done.
@@ -830,16 +874,14 @@ In order to perform a cross match, both tables must have defined RA and Dec colu
 The following example uploads a table and then, the table is used in a cross match:
 
 .. code-block:: python
+.. doctest-skip::
 
   >>> from astroquery.gaia import Gaia
   >>> Gaia.login()
-
   >>> table = file or astropy.table
   >>> Gaia.upload_table(upload_resource=table, table_name='my_sources')
-
   >>> # the table will be uploaded into the user private space into the database
   >>> # the table can be referenced as <database user schema>.<table_name>
-
   >>> full_qualified_table_name = 'user_<your_login_name>.my_sources'
   >>> xmatch_table_name = 'xmatch_table'
   >>> Gaia.cross_match(full_qualified_table_name_a=full_qualified_table_name,
@@ -850,6 +892,7 @@ The following example uploads a table and then, the table is used in a cross mat
 Once you have your cross match finished, you can obtain the results:
 
 .. code-block:: python
+.. doctest-skip::
 
   >>> xmatch_table = 'user_<your_login_name>.' + xmatch_table_name
   >>> query = ('SELECT c."dist"*3600 as dist, a.*, b.* FROM gaiadr2.gaia_source AS a, '
@@ -875,6 +918,7 @@ will be able to access to your shared table in a query.
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
+.. doctest-remote-data::
 
   >>> from astroquery.gaia import Gaia
   >>> Gaia.login()
@@ -884,6 +928,7 @@ will be able to access to your shared table in a query.
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
+.. doctest-remote-data::
 
   >>> from astroquery.gaia import Gaia
   >>> Gaia.login()
@@ -893,17 +938,19 @@ will be able to access to your shared table in a query.
 ~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
+.. doctest-remote-data::
 
   >>> from astroquery.gaia import Gaia
   >>> Gaia.login()
   >>> groups = Gaia.load_groups()
   >>> for group in groups:
-  >>>   print(group.title)
+  ...   print(group.title)
 
 2.7.4. Adding users to a group
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
+.. doctest-skip::
 
   >>> from astroquery.gaia import Gaia
   >>> Gaia.login()
@@ -913,6 +960,7 @@ will be able to access to your shared table in a query.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
+.. doctest-skip::
 
   >>> from astroquery.gaia import Gaia
   >>> Gaia.login()
@@ -923,6 +971,7 @@ will be able to access to your shared table in a query.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
+.. doctest-skip::
 
   >>> from astroquery.gaia import Gaia
   >>> Gaia.login()
@@ -935,6 +984,7 @@ will be able to access to your shared table in a query.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
+.. doctest-skip::
 
   >>> from astroquery.gaia import Gaia
   >>> Gaia.login()
