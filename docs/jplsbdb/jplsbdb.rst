@@ -41,6 +41,7 @@ The most simple query to obtain information for a specific Solar
 System small-body works as follows:
 
 .. code-block:: python
+.. doctest-remote-data::
 
    >>> from astroquery.jplsbdb import SBDB
    >>> sbdb = SBDB.query('3552')
@@ -56,6 +57,7 @@ schematic. Please consult the `Data Output section
 documentation to learn more about the meaning of the different output fields:
 
 .. code-block:: python
+.. doctest-remote-data::
 
    >>> print(SBDB.schematic(sbdb))
    +-+ object:
@@ -146,7 +148,7 @@ item:
 
 .. code-block:: python
 
-   >>> sbdb['orbit']['moid_jup']
+   >>> sbdb['orbit']['moid_jup']   # doctest: +REMOTE_DATA
    0.441 AU
 
 Note that many of the items in the output dictionary are associated
@@ -157,7 +159,7 @@ orbit intersection distance of the target with respect to Jupiter
 
 .. code-block:: python
 
-   >>> print(sbdb['orbit']['moid_jup'].to('km'))
+   >>> print(sbdb['orbit']['moid_jup'].to('km'))    # doctest: +REMOTE_DATA
    65972660.9787
 
 The vast majority of parameter names are identical to those used in
@@ -185,14 +187,14 @@ the following query:
 
 .. code-block:: python
 
-    >>> sbdb = SBDB.query('2018 AA*', neo_only=True)
+    >>> sbdb = SBDB.query('2018 AA*', neo_only=True)    # doctest: +REMOTE_DATA
 
 Note that in case of a name search not the entire output is queries
 per target, but only a list of objects matching this pattern:
 
 .. code-block:: python
 
-    >>> sbdb['list']
+    >>> sbdb['list']     # doctest: +REMOTE_DATA
     OrderedDict([('pdes', ['2018 AA4', '2018 AA12']), ('name', ['(2018 AA4)', '(2018 AA12)'])])
 
 Customizing your Query
