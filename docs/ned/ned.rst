@@ -1,5 +1,3 @@
-.. doctest-skip-all
-
 .. _astroquery.ned:
 
 ******************************
@@ -22,11 +20,11 @@ This may be used to query the object *by name* from the NED service. For
 instance if you want to query NGC 224
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.ned import Ned
     >>> result_table = Ned.query_object("NGC 224")
     >>> print(result_table) # an astropy.table.Table
-
      No. Object Name  RA(deg)   ... Redshift Points Diameter Points Associations
     --- ----------- ---------- ... --------------- --------------- ------------
       1 MESSIER 031   10.68479 ...              26               7            2
@@ -44,12 +42,12 @@ arcmin. Another optional parameter is the equinox if coordinates are
 specified. By default this is J2000.0 but can also be set to B1950.0.
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.ned import Ned
     >>> import astropy.units as u
     >>> result_table = Ned.query_region("3c 273", radius=0.05 * u.deg)
     >>> print(result_table)
-
     No.       Object Name        ... Diameter Points Associations
     --- ------------------------ ... --------------- ------------
       1    3C 273:[PWC2011] 3640 ...               0            0
@@ -75,6 +73,7 @@ coordinates. Any of the coordinate systems available in `astropy.coordinates`
 may be used (ICRS, Galactic, FK4, FK5). Note also the use of the equinox keyword argument:
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.ned import Ned
     >>> import astropy.units as u
@@ -83,7 +82,6 @@ may be used (ICRS, Galactic, FK4, FK5). Note also the use of the equinox keyword
     ...                           unit=(u.deg, u.deg), frame='fk4')
     >>> result_table = Ned.query_region(co, radius=0.1 * u.deg, equinox='B1950.0')
     >>> print(result_table)
-
     No.       Object Name       ... Diameter Points Associations
     --- ----------------------- ... --------------- ------------
       1 2MASX J03514350+3841573 ...               2            0
@@ -105,11 +103,11 @@ that Ned report results by searching in a 15 arcmin radius around the specified
 target.
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.ned import Ned
     >>> result_table = Ned.query_region_iau('1234-423', frame='SuperGalactic', equinox='J2000.0')
     >>> print(result_table)
-
         No.       Object Name        RA(deg)   ... Diameter Points Associations
     --- ----------------------- ---------- ... --------------- ------------
       1    SUMSS J123651-423554  189.21425 ...               0            0
@@ -126,11 +124,11 @@ These queries can be used to retrieve all objects that appear in the specified
 :meth:`~astroquery.simbad.SimbadClass.query_bibobj` queries.
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.ned import Ned
     >>> result_table = Ned.query_refcode('1997A&A...323...31K')
     >>> print(result_table)
-
         No.       Object Name        RA(deg)   ... Diameter Points Associations
     --- ----------------------- ---------- ... --------------- ------------
       1                NGC 0262   12.19642 ...               8            0
@@ -157,10 +155,10 @@ The image queries return a list of `~astropy.io.fits.HDUList` objects for the
 specified name. For instance:
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.ned import Ned
     >>> images = Ned.get_images("m1")
-
     Downloading http://ned.ipac.caltech.edu/dss1B2/Bb/MESSIER_001:I:103aE:dss1.fits.gz
     |===========================================|  32k/ 32k (100.00%)        00s
     Downloading http://ned.ipac.caltech.edu/img5/1995RXCD3.T...0000C/p083n22a:I:0.1-2.4keV:cop1995.fits.gz
@@ -171,9 +169,7 @@ specified name. For instance:
     |===========================================|  52k/ 52k (100.00%)        01s
     Downloading http://ned.ipac.caltech.edu/img5/1998RXCD8.T...0000C/h083n22a:I:0.1-2.4keV:cps1998.fits.gz
     |===========================================|  35k/ 35k (100.00%)        00s
-
-    >>> images # may be used to do further processing on individual cutouts
-
+    >>> images # may be used to do further processing on individual cutouts doctest: +IGNORE_OUTPUT
     [[<astropy.io.fits.hdu.image.PrimaryHDU at 0x4311890>],
     [<astropy.io.fits.hdu.image.PrimaryHDU at 0x432b350>],
     [<astropy.io.fits.hdu.image.PrimaryHDU at 0x3e9c5d0>],
@@ -183,11 +179,11 @@ specified name. For instance:
 To get the URLs of the downloadable FITS images:
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.ned import Ned
     >>> image_list = Ned.get_image_list("m1")
     >>> image_list
-
     ['http://ned.ipac.caltech.edu/dss1B2/Bb/MESSIER_001:I:103aE:dss1.fits.gz',
      'http://ned.ipac.caltech.edu/img5/1995RXCD3.T...0000C/p083n22a:I:0.1-2.4keV:cop1995.fits.gz',
      'http://ned.ipac.caltech.edu/img5/1996RXCD6.T...0000C/p083n22a:I:0.1-2.4keV:cps1996.fits.gz',
@@ -197,19 +193,17 @@ To get the URLs of the downloadable FITS images:
 Spectra can also be fetched in the same way:
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.ned import Ned
     >>> spectra = Ned.get_spectra('3c 273')
-
     Downloading http://ned.ipac.caltech.edu/spc1/2009A+A...495.1033B/3C_273:S:B:bcc2009.fits.gz
     |===========================================| 7.8k/7.8k (100.00%)        00s
     Downloading http://ned.ipac.caltech.edu/spc1/1992ApJS...80..109B/PG_1226+023:S:B_V:bg1992.fits.gz
     |===========================================| 5.0k/5.0k (100.00%)        00s
     Downloading http://ned.ipac.caltech.edu/spc1/2009A+A...495.1033B/3C_273:S:RI:bcc2009.fits.gz
     |===========================================| 9.4k/9.4k (100.00%)        00s
-
-    >>> spectra
-
+    >>> spectra       # doctest: +IGNORE_OUTPUT
     [[<astropy.io.fits.hdu.image.PrimaryHDU at 0x41b4190>],
     [<astropy.io.fits.hdu.image.PrimaryHDU at 0x41b0990>],
     [<astropy.io.fits.hdu.image.PrimaryHDU at 0x430a450>]]
@@ -217,11 +211,11 @@ Spectra can also be fetched in the same way:
 Similarly the list of URLs for spectra of a particular object may be fetched:
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.ned import Ned
     >>> image_list = Ned.get_image_list("3c 273", item='spectra')
     >>> image_list
-
     ['http://ned.ipac.caltech.edu/spc1/2009A+A...495.1033B/3C_273:S:B:bcc2009.fits.gz',
     'http://ned.ipac.caltech.edu/spc1/1992ApJS...80..109B/PG_1226+023:S:B_V:bg1992.fits.gz',
     'http://ned.ipac.caltech.edu/spc1/2009A+A...495.1033B/3C_273:S:RI:bcc2009.fits.gz']
@@ -236,11 +230,11 @@ instance the ``table=photometry`` will fetch all the relevant photometric data
 for the specified object. We look at a simple example:
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.ned import Ned
     >>> result_table = Ned.get_table("3C 273", table='positions')
     >>> print(result_table)
-
       No.       RA            DEC       ... Published Frame  Published Frequence Mode                           Qualifiers
     --- -------------- -------------- ... --------------- ------------------------- --------------------------------------------------------------
       0 12h29m06.6997s +02d03m08.598s ...
