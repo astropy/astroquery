@@ -283,7 +283,15 @@ and a set of criteria to filter the results.
                                               async_job = True,
                                               filename = 'output1.vot.gz',
                                               output_format="votable")
-  >>> str(table)
+  >>> result
+  <Table length=302>
+algorithm_name collection          end_time             end_time_mjd    exposure_duration ... target_name calibration_level data_product_type         ra                dec        
+    object       object             object                float64            float64      ...    object         object            object           float64            float64      
+-------------- ---------- -------------------------- ------------------ ----------------- ... ----------- ----------------- ----------------- ------------------ ------------------
+       drizzle        HST    2002-06-29 14:15:20.787  52454.51065725694            1600.0 ...      M31-T3        CALIBRATED             image 10.791884595154517  41.28819762447081
+       drizzle        HST    2002-06-29 14:15:20.787  52454.51065725694            1600.0 ...      M31-T3           PRODUCT             image 10.791884595154517  41.28819762447081
+...
+      exposure        HST      2014-06-26 03:40:17.0  56834.06964120371            1246.0 ...   M-31-CORE               RAW             image 10.531742116262286  41.25273489574185
 
 .. code-block:: python
 
