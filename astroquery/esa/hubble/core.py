@@ -59,8 +59,8 @@ class ESAHubbleClass(BaseQuery):
         else:
             self._tap = tap_handler
 
-    def download_product(self, observation_id, calibration_level=None,
-                         filename=None, verbose=False, **kwargs):
+    def download_product(self, observation_id, *, calibration_level=None,
+                         filename=None, verbose=False, product_type=None):
         """
         Download products from EHST based on their observation ID and the
         calibration level or the product type.
