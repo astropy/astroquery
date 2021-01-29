@@ -22,19 +22,17 @@ specified in any appropriate unit, however it must fall in the range of 2 to
 37.5 degrees.
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.irsa_dust import IrsaDust
     >>> image_list = IrsaDust.get_images("m81")
-
     Downloading http://irsa.ipac.caltech.edu//workspace/TMP_pdTImE_1525/DUST/m81.v0001/p414Dust.fits
     |===========================================| 331k/331k (100.00%)        15s
     Downloading http://irsa.ipac.caltech.edu//workspace/TMP_pdTImE_1525/DUST/m81.v0001/p414i100.fits
     |===========================================| 331k/331k (100.00%)        13s
     Downloading http://irsa.ipac.caltech.edu//workspace/TMP_pdTImE_1525/DUST/m81.v0001/p414temp.fits
     |===========================================| 331k/331k (100.00%)        05s
-
-    >>> image_list
-
+    >>> image_list   # doctest: +IGNORE_OUTPUT
     [[<astropy.io.fits.hdu.image.PrimaryHDU at 0x39b8610>],
     [<astropy.io.fits.hdu.image.PrimaryHDU at 0x39b8bd0>],
     [<astropy.io.fits.hdu.image.PrimaryHDU at 0x39bd8d0>]]
@@ -47,39 +45,36 @@ to the :meth:`~astroquery.irsa_dust.IrsaDustClass.get_images` method. It can tak
 images:
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.irsa_dust import IrsaDust
     >>> import astropy.units as u
     >>> image = IrsaDust.get_images("m81", image_type="100um",
     ...                             radius=2*u.deg)
-
     Downloading http://irsa.ipac.caltech.edu//workspace/TMP_007Vob_24557/DUST/m81.v0001/p414i100.fits
     |===========================================| 149k/149k (100.00%)        02s
-
-
     >>> image
-
-    [[<astropy.io.fits.hdu.image.PrimaryHDU at 0x3a5a650>]]
+    [[<astropy.io.fits.hdu.image.PrimaryHDU at 0x3a5a650>]]   # doctest: +IGNORE_OUTPUT
 
 The image types that are available can also be listed out any time:
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.irsa_dust import IrsaDust
     >>> IrsaDust.list_image_types()
-
     ['ebv', 'temperature', '100um']
 
 The target may also be specified via coordinates passed as strings. Examples of acceptable coordinate
 strings can be found on this `IRSA DUST coordinates description page`_.
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.irsa_dust import IrsaDust
     >>> import astropy.coordinates as coord
     >>> import astropy.units as u
     >>> image_list = IrsaDust.get_images("17h44m34s -27d59m13s", radius=2.0 * u.deg)
-
     Downloading http://irsa.ipac.caltech.edu//workspace/TMP_46IWzq_9460/DUST/17h44m34s_-27d59m13s.v0001/p118Dust.fits
     |==============================|  57k/ 57k (100.00%)        00s
     Downloading http://irsa.ipac.caltech.edu//workspace/TMP_46IWzq_9460/DUST/17h44m34s_-27d59m13s.v0001/p118i100.fits
@@ -94,6 +89,7 @@ supports the ``image_type`` argument, in the same way as described for
 :meth:`~astroquery.irsa_dust.IrsaDustClass.get_images`.
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.irsa_dust import IrsaDust
     >>> import astropy.coordinates as coord
@@ -101,7 +97,6 @@ supports the ``image_type`` argument, in the same way as described for
     >>> coo = coord.SkyCoord(34.5565*u.deg, 54.2321*u.deg, frame='galactic')
     >>> image_urls = IrsaDust.get_image_list(coo)
     >>> image_urls
-
     ['http://irsa.ipac.caltech.edu//workspace/TMP_gB3awn_6492/DUST/34.5565_54.2321_gal.v0001/p292Dust.fits',
     'http://irsa.ipac.caltech.edu//workspace/TMP_gB3awn_6492/DUST/34.5565_54.2321_gal.v0001/p292i100.fits',
     'http://irsa.ipac.caltech.edu//workspace/TMP_gB3awn_6492/DUST/34.5565_54.2321_gal.v0001/p292temp.fits']
@@ -114,6 +109,7 @@ the queries discussed above, namely the target string and optionally a radius
 value:
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.irsa_dust import IrsaDust
     >>> import astropy.coordinates as coord
@@ -121,12 +117,9 @@ value:
     >>> # "22h57m57.5s +26d09m00.09s Equatorial B1950"
     >>> coo = coord.SkyCoord("22h57m57.5s +26d09m00.09s", frame='fk4')
     >>> table = IrsaDust.get_extinction_table(coo)
-
     Downloading http://irsa.ipac.caltech.edu//workspace/TMP_wuevFn_3781/DUST/345.094229457703_26.418650782801027.v0001/extinction.tbl
     |=======================================================================================| 4.4k/4.4k (100.00%)         0s
-
     >>> print(table)
-
     Filter_name  LamEff A_over_E_B_V_SandF A_SandF A_over_E_B_V_SFD A_SFD
                 microns                      mags                    mags
     ----------- ------- ------------------ ------- ---------------- -----
@@ -167,22 +160,19 @@ argument. If on the other hand, ``section`` is missing then the complete table
 with all the four sections will be returned.
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.irsa_dust import IrsaDust
     >>> table = IrsaDust.get_query_table('2MASXJ23045666+1219223') # get the whole table
     >>> print(table)
-
         RA      Dec    coord sys regSize ... temp mean temp std temp max temp min
        deg      deg                deg
     --------- -------- --------- ------- ... --------- -------- -------- --------
     346.23608 12.32286 equ J2000     5.0 ...   17.0721   0.0345  17.1189  17.0152
-
     # fetch only one section of the table
-
     >>> table = IrsaDust.get_query_table('2MASXJ23045666+1219223',
     ...                                   section='ebv')
     >>> print(table)
-
         ext desc     ... ext SFD min
                      ...
     ---------------- ... -----------
