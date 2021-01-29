@@ -42,7 +42,7 @@ def get_mockreturn(method, request, url, params, *args, **kwargs):
 def ehst_request(request):
     try:
         mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
+    except AttributeError:
         mp = request.getfuncargvalue("monkeypatch")
     mp.setattr(ESAHubbleClass, '_request', get_mockreturn)
     return mp
@@ -59,10 +59,7 @@ def get_cone_mockreturn(method, request, url, params, *args, **kwargs):
 
 @pytest.fixture(autouse=True)
 def ehst_cone_search(request):
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
+    mp = request.getfixturevalue("monkeypatch")
     mp.setattr(ESAHubbleClass, 'cone_search', get_cone_mockreturn)
     return mp
 

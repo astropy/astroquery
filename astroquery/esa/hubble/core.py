@@ -102,8 +102,7 @@ class ESAHubbleClass(BaseQuery):
             params["CALIBRATION_LEVEL"] = calibration_level
             url += "&CALIBRATION_LEVEL=" + calibration_level
 
-        if "product_type" in kwargs:
-            product_type = kwargs["product_type"]
+        if product_type:
             self.__validate_product_type(product_type)
             params["RETRIEVAL_TYPE"] = product_type
             filename = self._get_product_filename(product_type, filename)
@@ -219,18 +218,18 @@ class ESAHubbleClass(BaseQuery):
 
         shutil.move(response, filename)
 
-    def cone_search(self, coordinates, radius=0.0, filename=None,
-                    output_format='votable', async_job=False,
-                    cache=True, verbose=False):
+    def cone_search(self, coordinates, radius, filename=None,
+                    output_format='votable', cache=True,
+                    async_job=False, verbose=False):
         """
         To execute a cone search defined by a coordinate and a radius
 
         Parameters
         ----------
+        radius : float
+            radius in arcmin of the cone_search
         coordinates : astropy.coordinate, mandatory
             coordinates of the center in the cone search
-        radius : float, default 0
-            radius in arcmin of the cone_search
         filename : str, default None
             Path and name of the file to store the results.
             If the filename is defined, the file will be
@@ -285,8 +284,8 @@ class ESAHubbleClass(BaseQuery):
                                    verbose=verbose)
         return table
 
-    def cone_search_criteria(self, target=None, coordinates=None,
-                             radius=0.0,
+    def cone_search_criteria(self, radius, target=None,
+                             coordinates=None,
                              calibration_level=None,
                              data_product_type=None,
                              intent=None,
@@ -308,12 +307,12 @@ class ESAHubbleClass(BaseQuery):
 
         Parameters
         ----------
+        radius : float
+            radius in arcmin of the cone_search
         target : str, mandatory if no coordinates is provided
             name of the target, that will act as center in the cone search
         coordinates : astropy.coordinate, mandatory if no target is provided
             coordinates of the center in the cone search
-        radius : float, default 0
-            radius in arcmin of the cone_search
         calibration_level : str or int, optional
             The identifier of the data reduction/processing applied to the
             data. RAW (1), CALIBRATED (2), PRODUCT (3) or AUXILIARY (0)
