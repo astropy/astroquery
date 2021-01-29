@@ -1,5 +1,3 @@
-.. doctest-skip-all
-
 .. _astroquery.mpc:
 
 *************************************************************************
@@ -21,7 +19,7 @@ Planet Center (MPC).  Three services are available:
     - `Minor Planet Center Observations Database
       <https://minorplanetcenter.net/db_search>`_ for obtaining
       observations of asteroids and comets reported to the MPC
-      
+
 In addition, the module provides access to the MPC's hosted list of
 `IAU Observatory Codes
 <https://www.minorplanetcenter.net/iau/lists/ObsCodesF.html>`__.
@@ -29,78 +27,87 @@ In addition, the module provides access to the MPC's hosted list of
 To return the orbit of Ceres and an ephemeris for the next 20 days:
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.mpc import MPC
     >>> from pprint import pprint
     >>> result = MPC.query_object('asteroid', name='ceres')
-    >>> pprint(result)
-
-    [{'absolute_magnitude': '3.34',
-      'aphelion_distance': '2.976',
-      'arc_length': 79346,
-      'argument_of_perihelion': '73.11528',
-      'ascending_node': '80.309916',
+    >>> pprint(result)   # doctest: +IGNORE_OUTPUT
+    [{'absolute_magnitude': '3.52',
+      'aphelion_distance': '2.982',
+      'arc_length': 80185,
+      'argument_of_perihelion': '73.73165',
+      'ascending_node': '80.2869866',
       'critical_list_numbered_object': False,
       'delta_v': 10.5,
       'designation': None,
-      'earth_moid': 1.59353,
-      'eccentricity': '0.0755347',
-      'epoch': '2018-03-23.0',
-      'epoch_jd': '2458200.5',
-      'first_observation_date_used': '1801-01-31.0',
+      'earth_moid': 1.58537,
+      'eccentricity': '0.0775571',
+      'epoch': '2020-05-31.0',
+      'epoch_jd': '2459000.5',
+      'first_observation_date_used': '1801-01-01.0',
       'first_opposition_used': '1801',
-      'inclination': '10.59351',
-      'jupiter_moid': 2.09509,
+      'inclination': '10.58862',
+      'jupiter_moid': 2.09127,
       'km_neo': False,
-      'last_observation_date_used': '2018-04-30.0',
-      'last_opposition_used': '2018',
-      'mars_moid': 0.939285,
-      'mean_anomaly': '352.23053',
-      'mean_daily_motion': '0.2141308',
-      'mercury_moid': 2.18454,
+      'last_observation_date_used': '2020-07-17.0',
+      'last_opposition_used': '2020',
+      'mars_moid': 0.93178,
+      'mean_anomaly': '162.68618',
+      'mean_daily_motion': '0.21406',
+      'mercury_moid': 2.1761,
       'name': 'Ceres',
       'neo': False,
       'number': 1,
-      'observations': 6714,
-      'oppositions': 114,
+      'observations': 7663,
+      'oppositions': 119,
       'orbit_type': 0,
       'orbit_uncertainty': '0',
-      'p_vector_x': '-0.87827464',
-      'p_vector_y': '0.33795667',
-      'p_vector_z': '0.33825869',
-      'perihelion_date': '2018-04-28.28377',
-      'perihelion_date_jd': '2458236.78377',
-      'perihelion_distance': '2.5580384',
+      'p_vector_x': '-0.88282454',
+      'p_vector_y': '0.3292319',
+      'p_vector_z': '0.33500327',
+      'perihelion_date': '2018-05-01.99722',
+      'perihelion_date_jd': '2458240.49722',
+      'perihelion_distance': '2.5530055',
       'period': '4.6',
       'pha': False,
-      'phase_slope': '0.12',
-      'q_vector_x': '-0.44248619',
-      'q_vector_y': '-0.84255513',
-      'q_vector_z': '-0.30709418',
-      'residual_rms': '0.6',
-      'saturn_moid': 6.38856,
-      'semimajor_axis': '2.7670463',
+      'phase_slope': '0.15',
+      'q_vector_x': '-0.43337703',
+      'q_vector_y': '-0.84597284',
+      'q_vector_z': '-0.3106675',
+      'residual_rms': '0.51',
+      'saturn_moid': 6.37764,
+      'semimajor_axis': '2.7676568',
       'tisserand_jupiter': 3.3,
-      'updated_at': '2018-05-31T01:07:39Z',
-      'uranus_moid': 15.6642,
-      'venus_moid': 1.84632}]
-
+      'updated_at': '2021-01-16T13:32:57Z',
+      'uranus_moid': 15.8216,
+      'venus_moid': 1.8382}]
     >>> eph = MPC.get_ephemeris('ceres')
-    >>> print(eph)
-    
-              Date                  RA                Dec        Delta   r   Elongation Phase  V  Proper motion Direction Uncertainty 3sig Unc. P.A.
-                                   deg                deg          AU    AU     deg      deg  mag   arcsec / h     deg         arcsec         deg   
-    ----------------------- ------------------ ----------------- ----- ----- ---------- ----- --- ------------- --------- ---------------- ---------
-    2018-08-23 15:56:35.000 177.25874999999996              9.57 3.466 2.581       24.6   9.4 8.7         66.18     115.9               --        --
-    2018-08-24 15:56:35.000          177.66125 9.377222222222223 3.471 2.581       24.1   9.2 8.7         66.24     115.9               --        --
-    2018-08-25 15:56:35.000 178.06416666666667 9.184166666666666 3.476 2.582       23.6   9.0 8.7          66.3     115.9               --        --
-    2018-08-26 15:56:35.000  178.4670833333333  8.99111111111111 3.481 2.582       23.1   8.8 8.7         66.36     115.9               --        --
-                        ...                ...               ...   ...   ...        ...   ... ...           ...       ...              ...       ...
-    2018-09-09 15:56:35.000             184.13 6.287222222222222 3.539 2.588       16.3   6.3 8.7         67.08     115.5               --        --
-    2018-09-10 15:56:35.000          184.53625 6.094444444444444 3.542 2.588       15.9   6.1 8.6         67.12     115.5               --        --
-    2018-09-11 15:56:35.000 184.94249999999997 5.901944444444445 3.545 2.589       15.4   5.9 8.6         67.15     115.5               --        --
-    2018-09-12 15:56:35.000 185.34874999999997 5.709444444444444 3.548 2.589       14.9   5.8 8.6         67.18     115.4               --        --
-    Length = 21 rows
+    >>> print(eph)    # doctest: +IGNORE_OUTPUT
+              Date                   RA         ... Uncertainty 3sig Unc. P.A.
+                                    deg         ...      arcsec         deg
+    ----------------------- ------------------- ... ---------------- ---------
+    2021-01-29 03:16:34.000   355.2416666666667 ...               --        --
+    2021-01-30 03:16:34.000           355.56125 ...               --        --
+    2021-01-31 03:16:34.000   355.8812499999999 ...               --        --
+    2021-02-01 03:16:34.000   356.2029166666666 ...               --        --
+    2021-02-02 03:16:34.000   356.5254166666666 ...               --        --
+    2021-02-03 03:16:34.000   356.8491666666667 ...               --        --
+    2021-02-04 03:16:34.000           357.17375 ...               --        --
+    2021-02-05 03:16:34.000   357.4995833333333 ...               --        --
+    2021-02-06 03:16:34.000           357.82625 ...               --        --
+    2021-02-07 03:16:34.000  358.15374999999995 ...               --        --
+    2021-02-08 03:16:34.000  358.48249999999996 ...               --        --
+    2021-02-09 03:16:34.000   358.8120833333333 ...               --        --
+    2021-02-10 03:16:34.000   359.1429166666666 ...               --        --
+    2021-02-11 03:16:34.000  359.47416666666663 ...               --        --
+    2021-02-12 03:16:34.000   359.8066666666666 ...               --        --
+    2021-02-13 03:16:34.000 0.13999999999999999 ...               --        --
+    2021-02-14 03:16:34.000  0.4741666666666666 ...               --        --
+    2021-02-15 03:16:34.000             0.80875 ...               --        --
+    2021-02-16 03:16:34.000  1.1445833333333333 ...               --        --
+    2021-02-17 03:16:34.000  1.4812499999999997 ...               --        --
+    2021-02-18 03:16:34.000  1.8183333333333331 ...               --        --
 
 
 
@@ -121,18 +128,28 @@ queried in three manners:
 An example of an exact match:
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.mpc import MPC
     >>> result = MPC.query_object('asteroid', name='ceres')
-    >>> print(result)
-
-    [{'absolute_magnitude': '3.34', 'aphelion_distance': '2.976', 'arc_length': 79247, 'argument_of_perihelion': '73.11528', 'ascending_node': '80.3099167', 'critical_list_numbered_object': False, 'delta_v': 10.5, 'designation': None, 'earth_moid': 1.59353, 'eccentricity': '0.0755347', 'epoch': '2018-03-23.0', 'epoch_jd': '2458200.5', 'first_observation_date_used': '1801-01-31.0', 'first_opposition_used': '1801', 'inclination': '10.59351', 'jupiter_moid': 2.09509, 'km_neo': False, 'last_observation_date_used': '2018-01-20.0', 'last_opposition_used': '2018', 'mars_moid': 0.939285, 'mean_anomaly': '352.23052', 'mean_daily_motion': '0.2141308', 'mercury_moid': 2.18454, 'name': 'Ceres', 'neo': False, 'number': 1, 'observations': 6689, 'oppositions': 114, 'orbit_type': 0, 'orbit_uncertainty': '0', 'p_vector_x': '-0.87827466', 'p_vector_y': '0.33795664', 'p_vector_z': '0.33825868', 'perihelion_date': '2018-04-28.28378', 'perihelion_date_jd': '2458236.78378', 'perihelion_distance': '2.5580384', 'period': '4.6', 'pha': False, 'phase_slope': '0.12', 'q_vector_x': '-0.44248615', 'q_vector_y': '-0.84255514', 'q_vector_z': '-0.30709419', 'residual_rms': '0.6', 'saturn_moid': 6.38856, 'semimajor_axis': '2.7670463', 'tisserand_jupiter': 3.3, 'updated_at': '2018-02-26T17:29:46Z', 'uranus_moid': 15.6642, 'venus_moid': 1.84632}]
+    >>> print(result)   # doctest: +IGNORE_OUTPUT
+    [{'absolute_magnitude': '3.52', 'aphelion_distance': '2.982', 'arc_length': 80185,
+    'argument_of_perihelion': '73.73165', 'ascending_node': '80.2869866', 'critical_list_numbered_object': False, 'delta_v': 10.5,
+    'designation': None, 'earth_moid': 1.58537, 'eccentricity': '0.0775571', 'epoch': '2020-05-31.0', 'epoch_jd': '2459000.5',
+    'first_observation_date_used': '1801-01-01.0', 'first_opposition_used': '1801', 'inclination': '10.58862', 'jupiter_moid': 2.09127,
+    'km_neo': False, 'last_observation_date_used': '2020-07-17.0', 'last_opposition_used': '2020', 'mars_moid': 0.93178,
+    'mean_anomaly': '162.68618', 'mean_daily_motion': '0.21406', 'mercury_moid': 2.1761, 'name': 'Ceres', 'neo': False,
+    'number': 1, 'observations': 7663, 'oppositions': 119, 'orbit_type': 0, 'orbit_uncertainty': '0', 'p_vector_x': '-0.88282454',
+    'p_vector_y': '0.3292319', 'p_vector_z': '0.33500327', 'perihelion_date': '2018-05-01.99722', 'perihelion_date_jd': '2458240.49722',
+    'perihelion_distance': '2.5530055', 'period': '4.6', 'pha': False, 'phase_slope': '0.15', 'q_vector_x': '-0.43337703',
+    'q_vector_y': '-0.84597284', 'q_vector_z': '-0.3106675', 'residual_rms': '0.51', 'saturn_moid': 6.37764, 'semimajor_axis': '2.7676568',
+    'tisserand_jupiter': 3.3, 'updated_at': '2021-01-16T13:32:57Z', 'uranus_moid': 15.8216, 'venus_moid': 1.8382}]
 
 A minimum value:
 
 .. code-block:: python
 
-    >>> result = MPC.query_objects('asteroid', inclination_min=170)
+    >>> result = MPC.query_objects('asteroid', inclination_min=170)    # doctest: +REMOTE_DATA
 
 which will get all asteroids with an inclination of greater than or
 equal to 170.
@@ -141,8 +158,8 @@ A maximum value:
 
 .. code-block:: python
 
-    >>> result = MPC.query_objects('asteroid', inclination_max=1.0)
-    
+    >>> result = MPC.query_objects('asteroid', inclination_max=1.0)    # doctest: +REMOTE_DATA
+
 which will get all asteroids with an inclination of less than or equal to 1.
 
 There is another parameter that can be used, ```is_not_null```. This
@@ -150,7 +167,7 @@ can be used in the following fashion:
 
 .. code-block:: python
 
-    >>> result = MPC.query_objects('asteroid', name="is_not_null")
+    >>> result = MPC.query_objects('asteroid', name="is_not_null")   # doctest: +REMOTE_DATA
 
 This will, predictably, find all named objects in the MPC
 database--but that would take a while!
@@ -169,7 +186,7 @@ options.
 
 .. code-block:: python
 
-    >>> result = MPC.query_objects('asteroid', order_by_desc="semimajor_axis", limit=10)
+    >>> result = MPC.query_objects('asteroid', order_by_desc="semimajor_axis", limit=10)   # doctest: +REMOTE_DATA
 
 This will return the 10 furthest asteroids.
 
@@ -180,6 +197,7 @@ If a consumer isn't interested in some return fields, they can use the
 MPC to limit the fields they're interested in.
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> result = MPC.query_object('asteroid', name="ceres", return_fields="name,number")
     >>> print(result)
@@ -207,12 +225,13 @@ For the ephemeris of asteroid (24) Themis, starting today with the
 default time step (1 day) and location (geocenter):
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.mpc import MPC
     >>> eph = MPC.get_ephemeris('24')
-    >>> print(eph)
+    >>> print(eph)    # doctest: +IGNORE_OUTPUT
               Date                  RA                Dec         Delta   r   Elongation Phase  V   Proper motion Direction Uncertainty 3sig Unc. P.A.
-                                   deg                deg           AU    AU     deg      deg  mag    arcsec / h     deg         arcsec         deg   
+                                   deg                deg           AU    AU     deg      deg  mag    arcsec / h     deg         arcsec         deg
     ----------------------- ------------------ ------------------ ----- ----- ---------- ----- ---- ------------- --------- ---------------- ---------
     2018-08-16 14:34:53.000  96.46708333333333 23.749722222222225 3.502 2.916       47.5  14.8 12.9         53.08      92.1               --        --
     2018-08-17 14:34:53.000  96.85291666666666  23.73638888888889 3.491 2.915       48.1  15.0 12.9         52.91      92.3               --        --
@@ -228,11 +247,12 @@ default time step (1 day) and location (geocenter):
 Step sizes are parsed with Astropy's `~astropy.units.Quantity`.  For a time step of 1 hour:
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> eph = MPC.get_ephemeris('24', step='1h')
-    >>> print(eph)
+    >>> print(eph)     # doctest: +IGNORE_OUTPUT
               Date                  RA               Dec         Delta   r   Elongation Phase  V   Proper motion Direction Uncertainty 3sig Unc. P.A.
-                                   deg               deg           AU    AU     deg      deg  mag    arcsec / h     deg         arcsec         deg   
+                                   deg               deg           AU    AU     deg      deg  mag    arcsec / h     deg         arcsec         deg
     ----------------------- ----------------- ------------------ ----- ----- ---------- ----- ---- ------------- --------- ---------------- ---------
     2018-08-16 14:00:00.000 96.45791666666666              23.75 3.503 2.916       47.5  14.8 12.9         53.09      92.1               --        --
     2018-08-16 15:00:00.000 96.47374999999998 23.749444444444446 3.502 2.916       47.5  14.8 12.9         53.08      92.1               --        --
@@ -249,11 +269,12 @@ Start dates are parsed with Astropy's `~astropy.time.Time`.  For a
 weekly ephemeris in 2020:
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> eph = MPC.get_ephemeris('24', start='2020-01-01', step='7d', number=52)
-    >>> print(eph)
+    >>> print(eph)     # doctest: +IGNORE_OUTPUT
               Date                  RA                 Dec         Delta   r   Elongation Phase  V   Proper motion Direction Uncertainty 3sig Unc. P.A.
-                                   deg                 deg           AU    AU     deg      deg  mag    arcsec / h     deg         arcsec         deg   
+                                   deg                 deg           AU    AU     deg      deg  mag    arcsec / h     deg         arcsec         deg
     ----------------------- ------------------ ------------------- ----- ----- ---------- ----- ---- ------------- --------- ---------------- ---------
     2020-01-01 00:00:00.000 209.16749999999996  -11.63361111111111 3.066 2.856       68.5  18.7 12.7         45.15     110.6               --        --
     2020-01-08 00:00:00.000 211.11999999999995 -12.342500000000001  2.98 2.863       73.6  19.2 12.7         42.09     110.2               --        --
@@ -275,11 +296,12 @@ Makemake's ephemeris for the Discovery Channel Telescope (IAU
 observatory code G37):
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> eph = MPC.get_ephemeris('Makemake', location='G37')
-    >>> print(eph)
+    >>> print(eph)   # doctest: +IGNORE_OUTPUT
               Date                  RA                Dec         Delta    r    Elongation Phase  V   Proper motion Direction Azimuth Altitude Sun altitude Moon phase Moon distance Moon altitude Uncertainty 3sig Unc. P.A.
-                                   deg                deg           AU     AU      deg      deg  mag    arcsec / h     deg      deg     deg        deg                      deg           deg           arcsec         deg   
+                                   deg                deg           AU     AU      deg      deg  mag    arcsec / h     deg      deg     deg        deg                      deg           deg           arcsec         deg
     ----------------------- ------------------ ------------------ ------ ------ ---------- ----- ---- ------------- --------- ------- -------- ------------ ---------- ------------- ------------- ---------------- ---------
     2018-08-16 14:42:27.000 194.66791666666663 24.109722222222224 53.211 52.528       47.2   0.8 17.2          2.62     134.2      53       -9           23       0.33            36           -43               --        --
     2018-08-17 14:42:27.000 194.68166666666664  24.09722222222222  53.22 52.528       46.5   0.8 17.2          2.65     133.7      53       -8           23       0.43            46           -54               --        --
@@ -301,6 +323,7 @@ an array of longitude (east), latitude, and altitude (parsed with
 Encke's parallax between Mauna Kea and Botswana:
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astropy.table import Table
     >>> from astropy.coordinates import SkyCoord
@@ -310,9 +333,9 @@ Encke's parallax between Mauna Kea and Botswana:
     >>> bw = SkyCoord.guess_from_table(eph)
     >>> mu = mko.separation(bw)
     >>> tab = Table(data=(eph['Date'], mu), names=('Date', 'Parallax'))
-    >>> print(tab)
-              Date                 Parallax      
-                                     deg         
+    >>> print(tab)   # doctest: +IGNORE_OUTPUT
+              Date                 Parallax
+                                     deg
     ----------------------- ---------------------
     2003-11-01 00:00:00.000  0.005050002777840046
     2003-11-02 00:00:00.000  0.005439170027971742
@@ -325,7 +348,7 @@ Encke's parallax between Mauna Kea and Botswana:
     2003-11-21 00:00:00.000 0.0075389478267517745
     Length = 21 rows
 
-    
+
 Working with ephemeris tables
 -----------------------------
 
@@ -335,6 +358,7 @@ attribute.  To find comet Hyakutake's peak proper motion in the sky in
 degrees per hour:
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> eph = MPC.get_ephemeris('C/1996 B2', start='1996-03-01', step='1h', number=30 * 24)
     >>> print(eph['Proper motion'].quantity.to('deg/h').max())
@@ -347,11 +371,12 @@ strings using the ``ra_format`` and ``dec_format`` keyword arguments
 options):
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> eph = MPC.get_ephemeris('2P', ra_format={'sep': ':', 'unit': 'hourangle', 'precision': 1}, dec_format={'sep': ':', 'precision': 0})
-    >>> print(eph)
+    >>> print(eph)    # doctest: +IGNORE_OUTPUT
               Date              RA       Dec    Delta   r   Elongation Phase  V   Proper motion Direction
-                            hourangle    deg      AU    AU     deg      deg  mag    arcsec / h     deg   
+                            hourangle    deg      AU    AU     deg      deg  mag    arcsec / h     deg
     ----------------------- ---------- -------- ----- ----- ---------- ----- ---- ------------- ---------
     2018-08-16 14:12:18.000 22:52:30.5 -6:18:57 3.076 4.048      161.4   4.6 22.4         36.34     250.9
     2018-08-17 14:12:18.000 22:51:35.0 -6:23:43 3.072 4.049      162.6   4.3 22.4         36.67     250.9
@@ -372,10 +397,11 @@ Two methods are available for working with the MPC's observatory list.
 To retrieve a list of all observatories:
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> obs = MPC.get_observatory_codes()
-    >>> print(obs)
-    Code Longitude   cos      sin                      Name                  
+    >>> print(obs)   # doctest: +IGNORE_OUTPUT
+    Code Longitude   cos      sin                      Name
     ---- --------- -------- -------- ----------------------------------------
      000       0.0  0.62411  0.77873                                Greenwich
      001    0.1542  0.62992  0.77411                              Crowborough
@@ -397,14 +423,14 @@ The results are cached by default.  To update the cache, use the
 
 .. code-block:: python
 
-    >>> obs = MPC.get_observatory_codes(cache=False)
+    >>> obs = MPC.get_observatory_codes(cache=False)   # doctest: +REMOTE_DATA
 
 To get the location (longitude, parallax constants, and name) of a
 single observatory:
 
 .. code-block:: python
 
-    >>> print(MPC.get_observatory_location('371'))
+    >>> print(MPC.get_observatory_location('371'))    # doctest: +REMOTE_DATA
     (<Angle 133.5965 deg>, 0.82433, 0.56431, 'Tokyo-Okayama')
 
 The parallax constants are ``rho * cos(phi)`` and ``rho * sin(phi)`` where
@@ -419,11 +445,12 @@ The following code snippet queries all reported observations for
 asteroid 12893:
 
 .. code-block:: python
+.. doctest-remote-data::
 
    >>> obs = MPC.get_observations(12893)
-   >>> print(obs)
+   >>> print(obs)   # doctest: +IGNORE_OUTPUT
    number   desig   discovery note1 ...         DEC          mag  band observatory
-				    ...         deg          mag                  
+				    ...         deg          mag
    ------ --------- --------- ----- ... ------------------- ----- ---- -----------
     12893 1998 QS55        --    -- ...  -15.78888888888889   0.0   --         413
     12893 1998 QS55        --    -- ... -15.788944444444445   0.0   --         413
