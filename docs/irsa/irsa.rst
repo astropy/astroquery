@@ -1,5 +1,3 @@
-.. doctest-skip-all
-
 .. _astroquery.irsa:
 
 ********************************
@@ -26,10 +24,10 @@ the catalog in the IRSA database, on which the query must be performed. To take
 a look at all the available catalogs:
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.irsa import Irsa
-    >>> Irsa.list_catalogs()
-
+    >>> Irsa.list_catalogs()   # doctest: +IGNORE_OUTPUT
     {'a1763t2': 'Abell 1763 Source Catalog',
      'a1763t3': 'Abell 1763 MIPS 70 micron Catalog',
      'acs_iphot_sep07': 'COSMOS ACS I-band photometry catalog September 2007',
@@ -44,10 +42,10 @@ This returns a dictionary of catalog names with their description. If you would
 rather just print out this information:
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.irsa import Irsa
-    >>> Irsa.print_catalogs()
-
+    >>> Irsa.print_catalogs()    # doctest: +IGNORE_OUTPUT
     wise_allsky_2band_p1bm_frm      WISE Post-Cryo Single Exposure (L1b) Image Inventory Table
     wise_allsky_4band_p3as_psr      WISE All-Sky Reject Table
     cosmos_morph_col_1              COSMOS Zamojski Morphology Catalog v1.0
@@ -69,13 +67,13 @@ any appropriate unit using a `~astropy.units.Quantity` object. It may also be
 entered as a string that is parsable by `~astropy.coordinates.Angle`.
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.irsa import Irsa
     >>> import astropy.units as u
     >>> table = Irsa.query_region("m31", catalog="fp_psc", spatial="Cone",
     ...                           radius=2 * u.arcmin)
     >>> print(table)
-
           ra     dec       clon         clat     err_maj ...  j_h   h_k    j_k    id
     ------- ------- ------------ ------------ ------- ... ----- ------ ------ ---
      10.685  41.248 00h42m44.45s 41d14m52.56s    0.14 ... 1.792 -0.821  0.971   0
@@ -103,6 +101,7 @@ name. The coordinates can be specified using the appropriate
 a string, as specified by `astropy.coordinates`:
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.irsa import Irsa
     >>> import astropy.coordinates as coord
@@ -110,7 +109,7 @@ a string, as specified by `astropy.coordinates`:
     ...                           -21.5733, unit=(u.deg,u.deg),
     ...                           frame='galactic'),
     ...                           catalog='fp_psc', radius='0d2m0s')
-    >>> print(table)
+    >>> print(table)   # doctest: +IGNORE_OUTPUT
 
 Performing a box search
 -----------------------
@@ -122,16 +121,15 @@ for cone search queries, above - so it may be set using the appropriate
 `~astropy.units.Quantity` object or a string parsable by `~astropy.coordinates.Angle`.
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.irsa import Irsa
     >>> import astropy.units as u
     >>> table = Irsa.query_region("00h42m44.330s +41d16m07.50s",
     ...                           catalog='fp_psc', spatial='Box',
     ...                           width=5 * u.arcsec)
-
     WARNING: Coordinate string is being interpreted as an ICRS
     coordinate. [astroquery.irsa.core]
-
     >>> print(table)
 
           ra     dec       clon         clat     err_maj ...  j_h   h_k   j_k   id
@@ -157,6 +155,7 @@ tuples, each tuple containing the ra and dec values in degrees. Each of these
 options is illustrated below:
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.irsa import Irsa
     >>> from astropy import coordinates
@@ -166,7 +165,6 @@ options is illustrated below:
     ...          coordinates.SkyCoord(ra=10.0, dec=10.0, unit=(u.deg, u.deg), frame='icrs')
     ...         ])
     >>> print(table)
-
           ra     dec       clon         clat     err_maj ...  j_h   h_k   j_k   id
     ------- ------- ------------ ------------ ------- ... ----- ----- ----- ---
      10.016  10.099 00h40m03.77s 10d05m57.22s     0.1 ... 0.602 0.154 0.756   0
@@ -181,12 +179,12 @@ Another way to specify the polygon is directly as a list of tuples - each tuple
 is an ra, dec pair expressed in degrees:
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.irsa import Irsa
     >>> table = Irsa.query_region("m31", catalog="fp_psc", spatial="Polygon",
     ... polygon = [(10.1, 10.1), (10.0, 10.1), (10.0, 10.0)])
     >>> print(table)
-
           ra     dec       clon         clat     err_maj ...  j_h   h_k   j_k   id
     ------- ------- ------------ ------------ ------- ... ----- ----- ----- ---
      10.016  10.099 00h40m03.77s 10d05m57.22s     0.1 ... 0.602 0.154 0.756   0
@@ -205,11 +203,11 @@ The IRSA service allows to query either a subset of the default columns for a gi
 An example where the AllWISE Source Catalog needs to be queried around the star HIP 12 with just the ra, dec and w1mpro columns would be:
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.irsa import Irsa
     >>> table = Irsa.query_region("HIP 12", catalog="allwise_p3as_psd", spatial="Cone", selcols="ra,dec,w1mpro")
     >>> print(table)
-
        ra     dec       clon          clat     w1mpro   dist     angle     id
       deg     deg                               mag    arcsec     deg
     ------- ------- ------------ ------------- ------ -------- ---------- ---
@@ -227,13 +225,13 @@ is written in ``ascii.ipac`` or ``ascii.csv`` formats. The ``.format`` attribute
 individual columns may be set to increase the precision.
 
 .. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.irsa import Irsa
     >>> table = Irsa.query_region("HIP 12", catalog="allwise_p3as_psd", spatial="Cone", selcols="ra,dec,w1mpro")
     >>> table['ra'].format = '{:10.6f}'
     >>> table['dec'].format = '{:10.6f}'
     >>> print(table)
-
         ra         dec         clon          clat     w1mpro   dist     angle     id
         deg         deg                                 mag     arcs      deg
     ----------- ----------- ------------ ------------- ------ -------- ---------- ---
