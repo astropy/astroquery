@@ -1,5 +1,3 @@
-.. doctest-skip-all
-
 .. _astroquery.jplsbdb:
 
 *************************************************************************
@@ -45,8 +43,19 @@ System small-body works as follows:
 
    >>> from astroquery.jplsbdb import SBDB
    >>> sbdb = SBDB.query('3552')
-   >>> print(sbdb)
-   OrderedDict([('object', OrderedDict([('shortname', '3552 Don Quixote'), ('neo', True), ('orbit_class', OrderedDict([('name', 'Amor'), ('code', 'AMO')])), ('pha', False), ('spkid', '2003552'), ('kind', 'an'), ('orbit_id', '188'), ('fullname', '3552 Don Quixote (1983 SA)'), ('des', '3552'), ('prefix', None)])), ('signature', OrderedDict([('source', 'NASA/JPL Small-Body Database (SBDB) API'), ('version', '1.0')])), ('orbit', OrderedDict([('source', 'JPL'), ('cov_epoch', Unit("2.45657e+06 d")), ('moid_jup', Unit("0.441 AU")), ('t_jup', '2.315'), ('condition_code', '0'), ('not_valid_before', None), ('rms', '0.51'), ('model_pars', []), ('orbit_id', '188'), ('producer', 'Otto Matic'), ('first_obs', '1983-09-10'), ('soln_date', '2018-07-06 06:55:08'), ('two_body', None), ('epoch', Unit("2.4582e+06 d")), ('elements', OrderedDict([('e', '0.709'), ('e_sig', '4.8e-08'), ('a', Unit("4.26 AU")), ('a_sig', Unit("2.3e-08 AU")), ('q', Unit("1.24 AU")), ('q_sig', Unit("2e-07 AU")), ('i', Unit("31.1 deg")), ('i_sig', Unit("1.1e-05 deg")), ('om', Unit("350 deg")), ('om_sig', Unit("1e-05 deg")), ('w', Unit("316 deg")), ('w_sig', Unit("1.1e-05 deg")), ('ma', Unit("355 deg")), ('ma_sig', Unit("3.9e-06 deg")), ('tp', Unit("2.45825e+06 d")), ('tp_sig', Unit("3.5e-05 d")), ('per', Unit("3210 d")), ('per_sig', Unit("2.6e-05 d")), ('n', Unit("0.112 deg / d")), ('n_sig', Unit("9.2e-10 deg / d")), ('ad', Unit("7.27 AU")), ('ad_sig', Unit("4e-08 AU"))])), ('equinox', 'J2000'), ('data_arc', '12717'), ('not_valid_after', None), ('n_del_obs_used', None), ('sb_used', 'SB431-N16'), ('n_obs_used', '869'), ('comment', None), ('pe_used', 'DE431'), ('last_obs', '2018-07-05'), ('moid', Unit("0.334 AU")), ('n_dop_obs_used', None)]))])
+   >>> print(sbdb)   # doctest: +IGNORE_OUTPUT
+   OrderedDict([('object', OrderedDict([('shortname', '3552 Don Quixote'), ('neo', True), ('orbit_class', OrderedDict([('name', 'Amor'),
+   ('code', 'AMO')])), ('pha', False), ('spkid', '2003552'), ('kind', 'an'), ('orbit_id', '263'), ('fullname', '3552 Don Quixote (1983 SA)'),
+   ('des', '3552'), ('prefix', None)])), ('signature', OrderedDict([('source', 'NASA/JPL Small-Body Database (SBDB) API'), ('version', '1.2')])),
+   ('orbit', OrderedDict([('source', 'JPL'), ('cov_epoch', Unit("2.45756e+06 d")), ('moid_jup', Unit("0.44 AU")), ('t_jup', '2.314'),
+   ('condition_code', '0'), ('not_valid_before', None), ('rms', '0.46'), ('model_pars', []), ('orbit_id', '263'), ('producer', 'Otto Matic'),
+   ('first_obs', '1983-09-10'), ('soln_date', '2021-01-25 05:31:27'), ('two_body', None), ('epoch', Unit("2.459e+06 d")), ('elements', OrderedDict([('e', '0.709'),
+   ('e_sig', '2.7e-08'), ('a', Unit("4.26 AU")), ('a_sig', Unit("2e-08 AU")), ('q', Unit("1.24 AU")), ('q_sig', Unit("1.2e-07 AU")), ('i', Unit("31.1 deg")),
+   ('i_sig', Unit("5.3e-06 deg")), ('om', Unit("350 deg")), ('om_sig', Unit("9.4e-06 deg")), ('w', Unit("316 deg")), ('w_sig', Unit("9.3e-06 deg")),
+   ('ma', Unit("84.5 deg")), ('ma_sig', Unit("3.9e-06 deg")), ('tp', Unit("2.45825e+06 d")), ('tp_sig', Unit("3.1e-05 d")), ('per', Unit("3210 d")),
+   ('per_sig', Unit("2.3e-05 d")), ('n', Unit("0.112 deg / d")), ('n_sig', Unit("8.1e-10 deg / d")), ('ad', Unit("7.28 AU")), ('ad_sig', Unit("3.5e-08 AU"))])),
+   ('equinox', 'J2000'), ('data_arc', '13645'), ('not_valid_after', None), ('n_del_obs_used', None), ('sb_used', 'SB431-N16'), ('n_obs_used', '1322'),
+   ('comment', None), ('pe_used', 'DE431'), ('last_obs', '2021-01-18'), ('moid', Unit("0.334 AU")), ('n_dop_obs_used', None)]))])
 
 This function orders the parsed data into a dictionary. This
 representation of the results is convenient but not easy to read for a
@@ -59,7 +68,7 @@ documentation to learn more about the meaning of the different output fields:
 .. code-block:: python
 .. doctest-remote-data::
 
-   >>> print(SBDB.schematic(sbdb))
+   >>> print(SBDB.schematic(sbdb))   # doctest: +IGNORE_OUTPUT
    +-+ object:
    | +-- shortname: 3552 Don Quixote
    | +-- neo: True
@@ -69,60 +78,60 @@ documentation to learn more about the meaning of the different output fields:
    | +-- pha: False
    | +-- spkid: 2003552
    | +-- kind: an
-   | +-- orbit_id: 188
+   | +-- orbit_id: 263
    | +-- fullname: 3552 Don Quixote (1983 SA)
    | +-- des: 3552
    | +-- prefix: None
    +-+ signature:
    | +-- source: NASA/JPL Small-Body Database (SBDB) API
-   | +-- version: 1.0
+   | +-- version: 1.2
    +-+ orbit:
    | +-- source: JPL
-   | +-- cov_epoch: 2.45657e+06 d
-   | +-- moid_jup: 0.441 AU
-   | +-- t_jup: 2.315
+   | +-- cov_epoch: 2.45756e+06 d
+   | +-- moid_jup: 0.44 AU
+   | +-- t_jup: 2.314
    | +-- condition_code: 0
    | +-- not_valid_before: None
-   | +-- rms: 0.51
+   | +-- rms: 0.46
    | +-- model_pars: []
-   | +-- orbit_id: 188
+   | +-- orbit_id: 263
    | +-- producer: Otto Matic
    | +-- first_obs: 1983-09-10
-   | +-- soln_date: 2018-07-06 06:55:08
+   | +-- soln_date: 2021-01-25 05:31:27
    | +-- two_body: None
-   | +-- epoch: 2.4582e+06 d
+   | +-- epoch: 2.459e+06 d
    | +-+ elements:
    | | +-- e: 0.709
-   | | +-- e_sig: 4.8e-08
+   | | +-- e_sig: 2.7e-08
    | | +-- a: 4.26 AU
-   | | +-- a_sig: 2.3e-08 AU
+   | | +-- a_sig: 2e-08 AU
    | | +-- q: 1.24 AU
-   | | +-- q_sig: 2e-07 AU
+   | | +-- q_sig: 1.2e-07 AU
    | | +-- i: 31.1 deg
-   | | +-- i_sig: 1.1e-05 deg
+   | | +-- i_sig: 5.3e-06 deg
    | | +-- om: 350 deg
-   | | +-- om_sig: 1e-05 deg
+   | | +-- om_sig: 9.4e-06 deg
    | | +-- w: 316 deg
-   | | +-- w_sig: 1.1e-05 deg
-   | | +-- ma: 355 deg
+   | | +-- w_sig: 9.3e-06 deg
+   | | +-- ma: 84.5 deg
    | | +-- ma_sig: 3.9e-06 deg
    | | +-- tp: 2.45825e+06 d
-   | | +-- tp_sig: 3.5e-05 d
+   | | +-- tp_sig: 3.1e-05 d
    | | +-- per: 3210 d
-   | | +-- per_sig: 2.6e-05 d
+   | | +-- per_sig: 2.3e-05 d
    | | +-- n: 0.112 deg / d
-   | | +-- n_sig: 9.2e-10 deg / d
-   | | +-- ad: 7.27 AU
-   | | +-- ad_sig: 4e-08 AU
+   | | +-- n_sig: 8.1e-10 deg / d
+   | | +-- ad: 7.28 AU
+   | | +-- ad_sig: 3.5e-08 AU
    | +-- equinox: J2000
-   | +-- data_arc: 12717
+   | +-- data_arc: 13645
    | +-- not_valid_after: None
    | +-- n_del_obs_used: None
    | +-- sb_used: SB431-N16
-   | +-- n_obs_used: 869
+   | +-- n_obs_used: 1322
    | +-- comment: None
    | +-- pe_used: DE431
-   | +-- last_obs: 2018-07-05
+   | +-- last_obs: 2021-01-18
    | +-- moid: 0.334 AU
    | +-- n_dop_obs_used: None
 
@@ -149,7 +158,7 @@ item:
 .. code-block:: python
 
    >>> sbdb['orbit']['moid_jup']   # doctest: +REMOTE_DATA
-   0.441 AU
+   Unit("0.44 AU")
 
 Note that many of the items in the output dictionary are associated
 with `~astropy.units` which can be readily used for
@@ -160,7 +169,7 @@ orbit intersection distance of the target with respect to Jupiter
 .. code-block:: python
 
    >>> print(sbdb['orbit']['moid_jup'].to('km'))    # doctest: +REMOTE_DATA
-   65972660.9787
+   65823063.108
 
 The vast majority of parameter names are identical to those used in
 the `SBDB API documentation
