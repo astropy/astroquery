@@ -910,7 +910,6 @@ class ESASkyClass(BaseQuery):
                 log.error("Some downloads were unsuccessful, please check "
                           "the warnings for more details")
 
-
             log.info("Downloading of {} data complete.".format(mission))
 
         return maps
