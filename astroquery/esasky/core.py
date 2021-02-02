@@ -908,7 +908,7 @@ class ESASkyClass(BaseQuery):
 
             if None in maps:
                 log.error("Some downloads were unsuccessful, please check "
-                            "the warnings for more details")
+                          "the warnings for more details")
 
 
             log.info("Downloading of {} data complete.".format(mission))
