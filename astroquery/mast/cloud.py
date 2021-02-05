@@ -49,7 +49,7 @@ class CloudAccess:  # pragma:no-cover
         if profile is not None:
             warnings.warn(("MAST cloud data is now free to access and does "
                            "not require an AWS account"), AstropyDeprecationWarning)
-        
+
         import boto3
         import botocore
 
@@ -110,7 +110,6 @@ class CloudAccess:  # pragma:no-cover
             found in the cloud, None is returned.
         """
 
-        
         s3_client = self.boto3.client('s3', config=self.config)
 
         path = utils.mast_relative_path(data_product["dataURI"])
