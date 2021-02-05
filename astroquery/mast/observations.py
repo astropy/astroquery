@@ -539,7 +539,7 @@ class ObservationsClass(MastQueryWithLogin):
             local_path = os.path.join(os.path.abspath('.'), filename)
 
         # recreate the data_product key for cloud connection check
-        data_product = {'dataURI': data_url}
+        data_product = {'dataURI': uri}
 
         status = "COMPLETE"
         msg = None

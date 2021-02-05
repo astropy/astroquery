@@ -13,6 +13,7 @@ import requests
 
 from astropy.logger import log
 from astropy.utils.console import ProgressBarOrSpinner
+from astropy.utils.exceptions import AstropyDeprecationWarning
 
 from ..exceptions import NoResultsWarning, InvalidQueryError
 
@@ -44,25 +45,24 @@ class CloudAccess:  # pragma:no-cover
             Default False. Display extra info and warnings if true.
         """
 
+        # Dealing with deprecated argument
+        if profile is not None:
+            warnings.warn(("MAST cloud data is now free to access and does "
+                           "not require an AWS account"), AstropyDeprecationWarning)
+        
         import boto3
         import botocore
 
         self.supported_missions = ["mast:hst/product", "mast:tess/product", "mast:kepler"]
 
-        if profile is not None:
-            self.boto3 = boto3.Session(profile_name=profile)
-        else:
-            self.boto3 = boto3
+        self.boto3 = boto3
         self.botocore = botocore
+        self.config = botocore.client.Config(signature_version=botocore.UNSIGNED)
 
         self.pubdata_bucket = "stpubdata"
 
         if verbose:
             log.info("Using the S3 STScI public dataset")
-            log.warning("Your AWS account will be charged for access to the S3 bucket")
-            log.info("See Request Pricing in https://aws.amazon.com/s3/pricing/ for details")
-            log.info("If you have not configured boto3, follow the instructions here: "
-                     "https://boto3.readthedocs.io/en/latest/guide/configuration.html")
 
     def is_supported(self, data_product):
         """
@@ -110,7 +110,8 @@ class CloudAccess:  # pragma:no-cover
             found in the cloud, None is returned.
         """
 
-        s3_client = self.boto3.client('s3')
+        
+        s3_client = self.boto3.client('s3', config=self.config)
 
         path = utils.mast_relative_path(data_product["dataURI"])
         if path is None:
@@ -119,7 +120,7 @@ class CloudAccess:  # pragma:no-cover
         path = path.lstrip("/")
 
         try:
-            s3_client.head_object(Bucket=self.pubdata_bucket, Key=path, RequestPayer='requester')
+            s3_client.head_object(Bucket=self.pubdata_bucket, Key=path)
             if include_bucket:
                 path = "s3://{}/{}".format(self.pubdata_bucket, path)
             elif full_url:
@@ -172,8 +173,8 @@ class CloudAccess:  # pragma:no-cover
             Default is True. If file is found on disc it will not be downloaded again.
         """
 
-        s3 = self.boto3.resource('s3')
-        s3_client = self.boto3.client('s3')
+        s3 = self.boto3.resource('s3', config=self.config)
+        s3_client = self.boto3.client('s3', config=self.config)
         bkt = s3.Bucket(self.pubdata_bucket)
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
@@ -182,7 +183,7 @@ class CloudAccess:  # pragma:no-cover
             raise Exception("Unable to locate file {}.".format(data_product['productFilename']))
 
         # Ask the webserver (in this case S3) what the expected content length is and use that.
-        info_lookup = s3_client.head_object(Bucket=self.pubdata_bucket, Key=bucket_path, RequestPayer='requester')
+        info_lookup = s3_client.head_object(Bucket=self.pubdata_bucket, Key=bucket_path)
         length = info_lookup["ContentLength"]
 
         if cache and os.path.exists(local_path):
@@ -219,5 +220,4 @@ class CloudAccess:  # pragma:no-cover
                     bytes_read += numbytes
                     pb.update(bytes_read)
 
-            bkt.download_file(bucket_path, local_path, ExtraArgs={"RequestPayer": "requester"},
-                              Callback=progress_callback)
+            bkt.download_file(bucket_path, local_path, Callback=progress_callback)
