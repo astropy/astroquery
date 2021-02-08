@@ -47,7 +47,7 @@ class CloudAccess:  # pragma:no-cover
 
         # Dealing with deprecated argument
         if profile is not None:
-            warnings.warn(("MAST cloud data is now free to access and does "
+            warnings.warn(("MAST Open Data on AWS is now free to access and does "
                            "not require an AWS account"), AstropyDeprecationWarning)
 
         import boto3
