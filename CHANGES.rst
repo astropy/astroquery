@@ -43,6 +43,7 @@ mast
 - Added Zcut functionality to astroquery [#1911]
 - Fixed error causing empty products passed to ``Observations.get_product_list()`` to yeild a
   non-empty result. [#1921]
+- Changed AWS cloud access from RequesterPays to anonymous acces [#1980]
 
 esa/hubble
 ^^^^^^^^^^
