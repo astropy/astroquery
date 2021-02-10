@@ -79,9 +79,9 @@ class TestHeasarcISDC:
 
         heasarc = Heasarc()
 
-        T = (Time.now() - TimeDelta(30)).isot[:10] +
-        " .. " +
-        Time.now().isot[:10]
+        month_ago = (Time.now() - TimeDelta(30)).isot[:10]
+        today = Time.now().isot[:10]
+        T = month_ago + " .. " +  today
 
         def Q(mission):
             return heasarc.query_object(
