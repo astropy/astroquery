@@ -65,7 +65,6 @@ class HeasarcClass(BaseQuery):
         data = BytesIO(response.content)
         data_str = data.read().decode('utf-8')
         data_str = data_str.replace('Table xxx does not seem to exist!\n\n\n\nAvailable tables:\n', '')
-
         table = Table.read(data_str, format='ascii.fixed_width_two_line',
                            delimiter='+', header_start=1, position_line=2,
                            data_start=3, data_end=-1)
@@ -216,11 +215,9 @@ class HeasarcClass(BaseQuery):
         collens = [int(float(y[1:]))
                    for x, y in header.items() if "TFORM" in x]
 
-
-
         new_table = []
-        old_table = content.decode().split("END")[-1].strip()
 
+        old_table = content.decode().split("END")[-1].strip()
         for line in old_table.split("\n"):
             newline = []
             for n, tup in enumerate(zip(colstart, collens), start=1):
@@ -234,7 +231,6 @@ class HeasarcClass(BaseQuery):
             new_table.append("".join(newline))
 
         data = BytesIO(content.replace(old_table, "\n".join(new_table)))
-
         return Table.read(data, hdu=1)
 
     def _parse_result(self, response, verbose=False):
