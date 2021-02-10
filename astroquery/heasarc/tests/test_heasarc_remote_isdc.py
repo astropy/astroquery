@@ -9,11 +9,45 @@ from ...utils import commons
 
 
 @pytest.mark.remote_data
-class TestHeasarc:
+class TestHeasarcISDC:
 
     @property
     def isdc_context(self):
         return Conf.server.set_temp('https://www.isdc.unige.ch/browse/w3query.pl')
+    
+    def test_custom_args(self):
+        object_name = 'Crab'
+        mission='integral_rev3_scw'
+
+        heasarc = Heasarc()
+
+        with self.isdc_context:
+            table = heasarc.query_object(object_name, 
+                                         mission=mission, 
+                                         radius='1 degree', 
+                                         time="2020-09-01 .. 2020-12-01", 
+                                         resultmax=10,
+                                         good_isgri=">1000",
+                                         )
+
+        
+    def test_filter_custom_args(self):
+        object_name = 'Crab'
+        mission='integral_rev3_scw'
+
+        heasarc = Heasarc()
+
+        with self.isdc_context:
+            with pytest.raises(ValueError):
+                table = heasarc.query_object(object_name, 
+                                             mission=mission, 
+                                             radius='1 degree', 
+                                             time="2020-09-01 .. 2020-12-01", 
+                                             resultmax=10,
+                                             very_good_isgri=">1000",
+                                             )
+        
+
     
     def test_basic_time(self):
         object_name = 'Crab'

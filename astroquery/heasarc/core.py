@@ -48,7 +48,7 @@ class HeasarcClass(BaseQuery):
         Returns a list of all available mission tables with descriptions
         """
         request_payload = self._args_to_payload(
-            Entry='none',
+            entry='none',
             mission='xxx',
             displaymode='BatchDisplay'
         )
@@ -87,19 +87,12 @@ class HeasarcClass(BaseQuery):
             * <custom>      : User defined csv list of columns to be returned
         All other parameters have no effect
         """
-        # Query fails if nothing is found, so set search radius very large and
-        # only take a single value (all we care about is the column names)
-        kwargs['resultmax'] = 1
-
-        # By default, return all column names
-        fields = kwargs.get('fields', None)
-        if fields is None:
-            kwargs['fields'] = 'All'
 
         response = self.query_region_async(position='0.0 0.0', mission=mission,
                                            radius='361 degree', cache=cache,
                                            get_query_payload=get_query_payload,
-                                           **kwargs)
+                                           resultsmax=1,
+                                           fields='All')
 
         # Return payload if requested
         if get_query_payload:
@@ -308,18 +301,24 @@ class HeasarcClass(BaseQuery):
             Type of action to be taken (defaults to 'Query')
         """
         # Define the basic query for this object
+
+        mission = kwargs.pop('mission')
+
         request_payload = dict(
             tablehead=('name=BATCHRETRIEVALCATALOG_2.0 {}'
-                       .format(kwargs.get('mission'))),
-            Entry=kwargs.get('entry', 'none'),
-            Action=kwargs.get('action', 'Query'),
-            displaymode=kwargs.get('displaymode', 'FitsDisplay')
+                       .format(mission)),
+            Entry=kwargs.pop('entry', 'none'),
+            Action=kwargs.pop('action', 'Query'),
+            displaymode=kwargs.pop('displaymode', 'FitsDisplay'),
+            resultsmax=kwargs.pop('resultsmax', '10')
         )
 
         # Fill in optional information for refined queries
 
         # Handle queries involving coordinates
-        coordsys = kwargs.get('coordsys', 'fk5')
+        coordsys = kwargs.pop('coordsys', 'fk5')
+        equinox = kwargs.pop('equinox', None)
+
         if coordsys.lower() == 'fk5':
             request_payload['Coordinates'] = 'Equatorial: R.A. Dec'
 
@@ -330,7 +329,6 @@ class HeasarcClass(BaseQuery):
         elif coordsys.lower() == 'equatorial':
             request_payload['Coordinates'] = 'Equatorial: R.A. Dec'
 
-            equinox = kwargs.get('equinox', None)
             if equinox is not None:
                 request_payload['Equinox'] = str(equinox)
 
@@ -342,7 +340,7 @@ class HeasarcClass(BaseQuery):
                              .format(self.coord_systems))
 
         # Specify which table columns are to be returned
-        fields = kwargs.get('fields', None)
+        fields = kwargs.pop('fields', None)
         if fields is not None:
             if fields.lower() == 'standard':
                 request_payload['Fields'] = 'Standard'
@@ -352,24 +350,37 @@ class HeasarcClass(BaseQuery):
                 request_payload['varon'] = fields.lower().split(',')
 
         # Set search radius (arcmin)
-        radius = kwargs.get('radius', None)
+        radius = kwargs.pop('radius', None)
         if radius is not None:
             request_payload['Radius'] = "{}".format(u.Quantity(radius).to(u.arcmin))
 
         # Maximum number of results to be returned
-        resultmax = kwargs.get('resultmax', None)
+        resultmax = kwargs.pop('resultmax', None)
         if resultmax is not None:
             request_payload['ResultMax'] = int(resultmax)
 
         # Set variable for sorting results
-        sortvar = kwargs.get('sortvar', None)
+        sortvar = kwargs.pop('sortvar', None)
         if sortvar is not None:
             request_payload['sortvar'] = sortvar.lower()
         
         # Time range variable
-        _time = kwargs.get('time', None)
+        _time = kwargs.pop('time', None)
         if _time is not None:
             request_payload['Time'] = _time
+
+        if len(kwargs) > 0:
+            mission_fields = [ k.lower() for k in self.query_mission_cols(mission=mission) ]
+
+            for k, v in kwargs.items():
+                if k.lower() in mission_fields:
+                    request_payload[ 'bparam_' + k.lower() ]  = v
+                else:
+                    raise ValueError("unknown parameter '{}' provided, must be one of {!s}".format(
+                                      k,
+                                      mission_fields,
+                                    ))
+
         
         return request_payload
 
