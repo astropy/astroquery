@@ -33,19 +33,41 @@ class TestHeasarc:
 
     
     def test_compare_time(self):
+        from astropy.time import Time, TimeDelta
+
         object_name = 'Crab'
 
         heasarc = Heasarc()
 
-        with self.isdc_context:
-            table_isdc = heasarc.query_object(object_name, mission='integral_rev3_scw', time="2021-01-01 .. 2021-02-01", resultmax=10000, radius='1000 deg')
+        T = (Time.now()- TimeDelta(30)).isot[:10] + " .. " + Time.now().isot[:10]
+            
+        def Q(mission):
+            return heasarc.query_object(object_name, mission=mission, time=T, resultmax=10000, radius='1000 deg')
 
-        table_heasarc = heasarc.query_object(object_name, mission='intscw', time="2021-01-01 .. 2021-02-01", resultmax=10000, radius='1000 deg')
+        with self.isdc_context:
+            table_isdc = Q('integral_rev3_scw')
+
+        table_heasarc = Q('intscw')
 
         assert len(table_isdc) > len(table_heasarc) 
 
+    def test_ra_validity(self):
+        object_name = 'Crab'
 
-    @pytest.mark.skip(reason="no!")
+        heasarc = Heasarc()
+
+        T = "2020-01-01 03:56:30 .. 2020-01-01 04:55:10"
+
+        with self.isdc_context:
+            table_isdc = heasarc.query_object(object_name, mission='integral_rev3_scw', time=T, resultmax=10000, radius='1000 deg')
+
+        table_heasarc = heasarc.query_object(object_name, mission='intscw', time=T, resultmax=10000, radius='1000 deg')
+
+        assert len(table_isdc) == len(table_heasarc) == 1
+
+        assert table_isdc['SCW_ID'] == table_heasarc['SCW_ID']
+
+
     def test_basic_example(self):
         mission = 'integral_rev3_scw'
         object_name = '3c273'
@@ -57,7 +79,6 @@ class TestHeasarc:
 
         assert len(table) == 270
 
-    @pytest.mark.skip(reason="no!")
     def test_mission_list(self):
         heasarc = Heasarc()
         
@@ -68,7 +89,6 @@ class TestHeasarc:
         # Number of tables could change, but should be > 900 (currently 956)
         assert len(missions) == 5
 
-    @pytest.mark.skip(reason="no!")
     def test_mission_cols(self):
         heasarc = Heasarc()
         mission = 'integral_rev3_scw'
@@ -85,7 +105,6 @@ class TestHeasarc:
         assert 'DEC_X' in cols
         assert '_SEARCH_OFFSET' in cols
 
-    @pytest.mark.skip(reason="no!")
     def test_query_object_async(self):
         mission = 'integral_rev3_scw'
         object_name = '3c273'
@@ -95,7 +114,6 @@ class TestHeasarc:
         assert response is not None
         assert type(response) is requests.models.Response
 
-    @pytest.mark.skip(reason="no!")
     def test_query_region_async(self):
         heasarc = Heasarc()
         mission = 'integral_rev3_scw'
@@ -107,7 +125,6 @@ class TestHeasarc:
         assert response is not None
         assert type(response) is requests.models.Response
 
-    @pytest.mark.skip(reason="no!")
     def test_query_region(self):
         heasarc = Heasarc()
         mission = 'integral_rev3_scw'
