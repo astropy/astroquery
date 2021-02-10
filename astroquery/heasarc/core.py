@@ -2,8 +2,10 @@
 
 import warnings
 from six import BytesIO
+from astropy.io.fits.column import _AsciiColumnFormat
 from astropy.table import Table
 from astropy.io import fits
+from astropy.io.registry import IORegistryError
 from astropy import coordinates
 from astropy import units as u
 from ..query import BaseQuery
@@ -29,11 +31,15 @@ class HeasarcClass(BaseQuery):
     TIMEOUT = conf.timeout
     coord_systems = ['fk5', 'fk4', 'equatorial', 'galactic']
 
-    def query_async(self, request_payload, cache=True, url=conf.server):
+    def query_async(self, request_payload, cache=True, url=None):
         """
         Submit a query based on a given request_payload. This allows detailed
         control of the query to be submitted.
         """
+
+        if url is None:
+            url = conf.server
+
         response = self._request('GET', url, params=request_payload,
                                  timeout=self.TIMEOUT, cache=cache)
         return response
@@ -60,6 +66,7 @@ class HeasarcClass(BaseQuery):
         data = BytesIO(response.content)
         data_str = data.read().decode('utf-8')
         data_str = data_str.replace('Table xxx does not seem to exist!\n\n\n\nAvailable tables:\n', '')
+
         table = Table.read(data_str, format='ascii.fixed_width_two_line',
                            delimiter='+', header_start=1, position_line=2,
                            data_start=3, data_end=-1)
@@ -177,20 +184,44 @@ class HeasarcClass(BaseQuery):
         # Submit the request
         return self.query_async(request_payload, cache=cache)
 
+
+    def _old_w3query_fallback(self, content):
+        # old w3query (such as that used in ISDC) return very strange fits, with all ints
+
+        f = fits.open(BytesIO(content))
+
+        for c in f[1].columns:
+            if c.disp is not None:
+                c.format = c.disp
+            else:
+                c.format = _AsciiColumnFormat(str(c.format).replace("I", "A"))
+
+        I = BytesIO()
+
+        f.writeto(I)
+        I.seek(0)
+
+        return Table.read(I)
+
+
     def _fallback(self, content):
         """
         Blank columns which have to be converted to float or in fail so
         lets fix that by replacing with -1's
         """
+        
 
         data = BytesIO(content)
         header = fits.getheader(data, 1)  # Get header for column info
         colstart = [y for x, y in header.items() if "TBCOL" in x]
         collens = [int(float(y[1:]))
                    for x, y in header.items() if "TFORM" in x]
-        new_table = []
 
-        old_table = content.split("END")[-1].strip()
+
+
+        new_table = []
+        old_table = content.decode().split("END")[-1].strip()
+
         for line in old_table.split("\n"):
             newline = []
             for n, tup in enumerate(zip(colstart, collens), start=1):
@@ -199,11 +230,12 @@ class HeasarcClass(BaseQuery):
                 newline.append(part)
                 if len(part.strip()) == 0:
                     if header["TFORM%i" % n][0] in ["F", "I"]:
-                        # extra space is required to sperate column
+                        # extra space is required to separate column
                         newline[-1] = "-1".rjust(clen) + " "
             new_table.append("".join(newline))
 
         data = BytesIO(content.replace(old_table, "\n".join(new_table)))
+
         return Table.read(data, hdu=1)
 
     def _parse_result(self, response, verbose=False):
@@ -228,7 +260,10 @@ class HeasarcClass(BaseQuery):
             table = Table.read(data, hdu=1)
             return table
         except ValueError:
-            return self._fallback(response.content)
+            try:
+                return self._fallback(response.content)
+            except Exception as e:
+                return self._old_w3query_fallback(response.content)
 
     def _args_to_payload(self, **kwargs):
         """
@@ -340,3 +375,4 @@ class HeasarcClass(BaseQuery):
 
 
 Heasarc = HeasarcClass()
+

@@ -19,7 +19,8 @@ class Conf(_config.ConfigNamespace):
     """
 
     server = _config.ConfigItem(
-        ['https://heasarc.gsfc.nasa.gov/db-perl/W3Browse/w3query.pl'],
+        ['https://heasarc.gsfc.nasa.gov/db-perl/W3Browse/w3query.pl',
+         'https://www.isdc.unige.ch/browse/w3query.pl'],
         'Name of the HEASARC server used to query available missions.')
 
     timeout = _config.ConfigItem(
