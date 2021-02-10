@@ -369,9 +369,13 @@ class HeasarcClass(BaseQuery):
         sortvar = kwargs.get('sortvar', None)
         if sortvar is not None:
             request_payload['sortvar'] = sortvar.lower()
-
+        
+        # Time range variable
+        _time = kwargs.get('time', None)
+        if _time is not None:
+            request_payload['Time'] = _time
+        
         return request_payload
 
 
 Heasarc = HeasarcClass()
-
