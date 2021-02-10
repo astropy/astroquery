@@ -369,6 +369,7 @@ class BaseQuery:
                                                  timeout=timeout, stream=True,
                                                  auth=auth, **kwargs)
                 response.raise_for_status()
+                del self._session.headers['Range']
 
         elif cache and os.path.exists(local_filepath):
             if length is not None:
