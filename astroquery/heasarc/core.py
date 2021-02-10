@@ -175,7 +175,6 @@ class HeasarcClass(BaseQuery):
         # Submit the request
         return self.query_async(request_payload, cache=cache)
 
-
     def _old_w3query_fallback(self, content):
         # old w3query (such as that used in ISDC) return very strange fits, with all ints
 
@@ -194,13 +193,11 @@ class HeasarcClass(BaseQuery):
 
         return Table.read(I)
 
-
     def _fallback(self, content):
         """
         Blank columns which have to be converted to float or in fail so
         lets fix that by replacing with -1's
         """
-        
 
         data = BytesIO(content)
         header = fits.getheader(data, 1)  # Get header for column info
@@ -363,25 +360,24 @@ class HeasarcClass(BaseQuery):
         sortvar = kwargs.pop('sortvar', None)
         if sortvar is not None:
             request_payload['sortvar'] = sortvar.lower()
-        
+
         # Time range variable
         _time = kwargs.pop('time', None)
         if _time is not None:
             request_payload['Time'] = _time
 
         if len(kwargs) > 0:
-            mission_fields = [ k.lower() for k in self.query_mission_cols(mission=mission) ]
+            mission_fields = [k.lower() for k in self.query_mission_cols(mission=mission)]
 
             for k, v in kwargs.items():
                 if k.lower() in mission_fields:
-                    request_payload[ 'bparam_' + k.lower() ]  = v
+                    request_payload['bparam_' + k.lower()] = v
                 else:
                     raise ValueError("unknown parameter '{}' provided, must be one of {!s}".format(
                                       k,
                                       mission_fields,
                                     ))
 
-        
         return request_payload
 
 
