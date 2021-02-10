@@ -5,7 +5,6 @@ from six import BytesIO
 from astropy.io.fits.column import _AsciiColumnFormat
 from astropy.table import Table
 from astropy.io import fits
-from astropy.io.registry import IORegistryError
 from astropy import coordinates
 from astropy import units as u
 from ..query import BaseQuery
