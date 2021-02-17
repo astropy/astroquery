@@ -210,7 +210,7 @@ class BaseQuery:
                  files=None, save=False, savedir='', timeout=None, cache=True,
                  stream=False, auth=None, continuation=True, verify=True,
                  allow_redirects=True,
-                 json=None):
+                 json=None, return_response_on_save=False):
         """
         A generic HTTP request method, similar to `requests.Session.request`
         but with added caching-related tools
@@ -249,6 +249,9 @@ class BaseQuery:
             parameter will try to continue the download where it left off.
             See `_download_file`.
         stream : bool
+        return_response_on_save : bool
+            If ``save==True``, also return the server response. The default is to only
+            return the local file path.
 
         Returns
         -------
@@ -256,7 +259,11 @@ class BaseQuery:
             The response from the server if ``save`` is False
         local_filepath : list
             a list of strings containing the downloaded local paths if ``save``
-            is True
+            is True and ``return_response_on_save`` is False.
+        (local_filepath, response) : tuple(list, `requests.Response`)
+            a tuple containing a list of strings containing the downloaded local paths,
+            and the server response object, if ``save`` is True and ``return_response_on_save``
+            is True.
         """
         req_kwargs = dict(
             params=params,
@@ -274,11 +281,14 @@ class BaseQuery:
                 local_filename = local_filename.replace(':', '_')
             local_filepath = os.path.join(savedir or self.cache_location or '.', local_filename)
 
-            self._download_file(url, local_filepath, cache=cache,
-                                continuation=continuation, method=method,
-                                allow_redirects=allow_redirects,
-                                auth=auth, **req_kwargs)
-            return local_filepath
+            response = self._download_file(url, local_filepath, cache=cache,
+                                           continuation=continuation, method=method,
+                                           allow_redirects=allow_redirects,
+                                           auth=auth, **req_kwargs)
+            if return_response_on_save:
+                return local_filepath, response
+            else:
+                return local_filepath
         else:
             query = AstroQuery(method, url, **req_kwargs)
             if ((self.cache_location is None) or (not self._cache_active) or (not cache)):
