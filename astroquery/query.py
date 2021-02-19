@@ -250,7 +250,7 @@ class BaseQuery:
             See `_download_file`.
         stream : bool
         return_response_on_save : bool
-            If ``save==True``, also return the server response. The default is to only
+            If ``save``, also return the server response. The default is to only
             return the local file path.
 
         Returns
