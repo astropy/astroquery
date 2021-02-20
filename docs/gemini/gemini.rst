@@ -60,7 +60,9 @@ Observation Criteria Queries
 ----------------------------
 
 Additional search terms are available as optional arguments to the `~astroquery.gemini.ObservationsClass.query_criteria`
-call.  These all have default values of None, in which case they will not be considered during the search.
+call.  These all have default values of None, in which case they will not be considered during the search.  The one
+exception is `radius`, which will be set to 0.3 degrees by default if either `coordinates` or `objectname` are
+specified.
 
 Some examples of available search fields are the instrument used, such as GMOS-N, the observation_type, such as BIAS,
 and the program ID.  For a complete list of available search fields, see
