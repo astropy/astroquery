@@ -220,7 +220,7 @@ def test_launch_sync_job():
                            'source_id',
                            'source_id',
                            None,
-                           np.object)
+                           object)
     __check_results_column(results,
                            'table1_oid',
                            'table1_oid',
@@ -323,7 +323,7 @@ def test_launch_sync_job_redirect():
                            'source_id',
                            'source_id',
                            None,
-                           np.object)
+                           object)
     __check_results_column(results,
                            'table1_oid',
                            'table1_oid',
@@ -419,7 +419,7 @@ def test_launch_async_job():
                            'source_id',
                            'source_id',
                            None,
-                           np.object)
+                           object)
     __check_results_column(results,
                            'table1_oid',
                            'table1_oid',

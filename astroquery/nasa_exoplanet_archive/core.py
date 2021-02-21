@@ -430,7 +430,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
                 data[col].mask[:] = False
 
             # Deal with strings consistently
-            if data[col].dtype == np.object:
+            if data[col].dtype == object:
                 data[col] = data[col].astype(str)
 
             data[col].unit = unit
