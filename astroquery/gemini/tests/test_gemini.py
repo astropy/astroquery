@@ -147,4 +147,3 @@ def test_url_helper_eng_fail(test_arg):
     urlsplit = url.split('/')
     assert(('notengineering' in urlsplit) == should_have_noteng)
     assert(('NotFail' in urlsplit) == should_have_notfail)
-
