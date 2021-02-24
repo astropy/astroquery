@@ -865,6 +865,7 @@ class ESASkyClass(BaseQuery):
                                 product_url,
                                 directory_path,
                                 cache))
+                        log.info("[Done]")
                     except HTTPError as err:
                         log.error("Download failed with {}.".format(err))
                         if is_spectra:
@@ -900,16 +901,14 @@ class ESASkyClass(BaseQuery):
                                 fits_file.write(fits_data)
                                 fits_file.flush()
                                 maps.append(fits.open(directory_path + file_name))
+                        log.info("[Done]")
                     except (HTTPError, ConnectionError) as err:
                         log.error("Download failed with {}.".format(err))
                         maps.append(None)
 
-                if None in maps:
-                    log.error("Some downloads were unsuccessful, please check "
-                              "the warnings for more details")
-
-                else:
-                    log.info("[Done]")
+            if None in maps:
+                log.error("Some downloads were unsuccessful, please check "
+                          "the warnings for more details")
 
             log.info("Downloading of {} data complete.".format(mission))
 
