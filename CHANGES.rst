@@ -76,6 +76,8 @@ heasarc
 
 - A ``NoResultsWarning`` is now returned when there is no matching rows were
   found in query. [#1829]
+- Add alternative instance of HEASARC Server, maintainer by 
+  INTEGRAL Science Data Center [#1988]
 
 
 SVO FPS
