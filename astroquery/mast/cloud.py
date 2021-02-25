@@ -11,7 +11,7 @@ import warnings
 import threading
 import requests
 
-from astropy.logger import log
+from astroquery import log
 from astropy.utils.console import ProgressBarOrSpinner
 from astropy.utils.exceptions import AstropyDeprecationWarning
 

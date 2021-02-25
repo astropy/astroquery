@@ -8,22 +8,17 @@ import os
 
 from datetime import date
 
-from astropy import log
+from astroquery import log as logger
 from astropy import units
 from astropy.table import Table, MaskedColumn
 
 from astroquery.gemini.urlhelper import URLHelper
 import numpy as np
 
-import logging
-
 from ..query import BaseQuery, QueryWithLogin
 from ..utils.class_or_instance import class_or_instance
 from . import conf
 from ..exceptions import AuthenticationWarning
-
-
-logger = logging.getLogger(__name__)
 
 
 __all__ = ['Observations', 'ObservationsClass']  # specifies what to import

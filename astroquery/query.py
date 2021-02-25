@@ -14,7 +14,7 @@ import textwrap
 
 import six
 from astropy.config import paths
-from astropy.logger import log
+from astroquery import log
 import astropy.units as u
 from astropy.utils.console import ProgressBarOrSpinner
 import astropy.utils.data

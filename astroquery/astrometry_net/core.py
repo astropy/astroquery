@@ -6,7 +6,7 @@ import json
 import six
 from six import string_types
 from astropy.io import fits
-from astropy import log
+from astroquery import log
 from astropy.stats import sigma_clipped_stats
 from astropy.coordinates import SkyCoord
 

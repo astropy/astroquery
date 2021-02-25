@@ -19,7 +19,7 @@ from six.moves.email_mime_text import MIMEText
 # Astropy imports
 from astropy.table import Table
 import astropy.io.votable as votable
-from astropy import log as logging
+from astroquery import log as logging
 
 # Astroquery imports
 from ..query import QueryWithLogin

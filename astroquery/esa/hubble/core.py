@@ -28,7 +28,7 @@ import shutil
 import os
 
 from . import conf
-from astropy import log
+from astroquery import log
 
 __all__ = ['ESAHubble', 'ESAHubbleClass']
 

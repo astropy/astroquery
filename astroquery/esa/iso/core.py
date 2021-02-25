@@ -21,7 +21,7 @@ import requests
 from pathlib import Path
 
 from . import conf
-from astropy import log
+from astroquery import log
 
 
 __all__ = ['ISO', 'ISOClass']

@@ -10,7 +10,7 @@ from io import BytesIO
 
 import six
 from astropy.io import fits
-from astropy import log
+from astroquery import log
 import astropy.units
 import astropy.io.votable as votable
 from requests import HTTPError

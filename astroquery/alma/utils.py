@@ -7,7 +7,7 @@ import os
 import numpy as np
 
 from astropy import wcs
-from astropy import log
+from astroquery import log
 from astropy import units as u
 from astropy.io import fits
 from astroquery.utils.commons import ASTROPY_LT_4_1

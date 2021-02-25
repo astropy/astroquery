@@ -1,5 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from astropy import log
+from astroquery import log
 import os
 import json
 from ..splatalogue.load_species_table import SpeciesLookuptable

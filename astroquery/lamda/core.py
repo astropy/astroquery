@@ -2,7 +2,7 @@
 import os
 import json
 from astropy import table
-from astropy import log
+from astroquery import log
 from astropy.utils.console import ProgressBar
 from bs4 import BeautifulSoup
 from six.moves import urllib_parse as urlparse
