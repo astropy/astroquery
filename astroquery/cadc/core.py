@@ -38,7 +38,7 @@ __all__ = ['Cadc', 'CadcClass']
 
 CADC_COOKIE_PREFIX = 'CADC_SSO'
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('cadc')
 
 # TODO figure out what to do if anything about them. Some might require
 # fixes on the CADC servers
