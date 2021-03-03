@@ -284,7 +284,7 @@ class GaiaClass(TapPlus):
 
         if verbose:
             if output_file_specified:
-                logger.info("output_file =", output_file)
+                logger.info("output_file = %s" % output_file)
 
         logger.debug("List of products available:")
         # for key, value in files.items():
