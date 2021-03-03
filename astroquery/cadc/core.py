@@ -7,7 +7,7 @@ CADC
 Module to query the Canadian Astronomy Data Centre (CADC).
 """
 
-import logging
+from astroquery import log as logger
 import warnings
 import requests
 from numpy import ma
@@ -37,8 +37,6 @@ except AstropyDeprecationWarning as e:
 __all__ = ['Cadc', 'CadcClass']
 
 CADC_COOKIE_PREFIX = 'CADC_SSO'
-
-logger = logging.getLogger('cadc')
 
 # TODO figure out what to do if anything about them. Some might require
 # fixes on the CADC servers
