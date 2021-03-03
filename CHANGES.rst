@@ -134,7 +134,7 @@ Infrastructure, Utility and Other Changes and Additions
 
 - HTTP requests and responses can now be logged when the astropy
   logger is set to level "DEBUG" and "TRACE" respectively. [#1992]
-- Astroquery now uses a logger similar to Astropy's. [#1992]
+- Astroquery and all its modules now uses a logger similar to Astropy's. [#1992]
 
 
 0.4.1 (2020-06-19)
