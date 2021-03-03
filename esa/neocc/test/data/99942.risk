@@ -1,0 +1,34 @@
+Object: 99942 Apophis
+
+    date             MJD        sigma   sigimp   dist +/- width  stretch     p_RE      exp. en.    PS    TS  
+YYYY/MM/DD.ddd                                       (RE)          (RE)      (RE)        (MT)
+------------------------------------------------------------------------------------------------------------
+ 2056-04-13.094    72101.094    2.221    0.000   1.84 +/- 0.000   5.42E5    1.70E-7    1.29E-4    -4.55   0   
+ 2065-04-13.131    75388.131    2.430    0.000   1.37 +/- 0.001   1.20E6    5.85E-8    4.43E-5    -5.10   0   
+ 2068-04-12.634    76483.634    2.723    0.000   1.74 +/- 0.006   3.86E4    1.09E-6    8.30E-4    -3.86   0   
+ 2074-04-13.359    78675.359    2.396    0.000   1.35 +/- 0.008   3.28E6    2.91E-8    2.21E-5    -5.48   0   
+ 2075-04-13.212    79040.212    1.356    0.000   1.68 +/- 0.007   2.13E6    3.22E-7    2.44E-4    -4.44   0   
+ 2077-04-13.112    79771.112    2.714    0.000   1.63 +/- 0.000   1.31E6    2.66E-8    2.02E-5    -5.54   0   
+ 2098-10-16.481    87627.481    2.398    0.000   1.60 +/- 0.011   1.19E6    7.70E-8    5.83E-5    -5.21   0   
+ 2103-04-14.311    89267.311    2.706    0.000   2.00 +/- 0.001   4.94E5    5.44E-8    4.12E-5    -5.38   0   
+
+Based on  4714 optical observations (of which    3 are rejected as outliers) and 46 radar observations
+from 2004/03/15.108 to 2021/01/17.569.
+
+Coordinates are given on the Target Plane.
+
+Unit is one Earth radius, but impact cross section
+has radius between  2.15 and  2.16 Earth radii.
+Coordinates for LOV = KEP scaled= 2 second= F.
+
+AstOD software version= 2.0, Date of computation=20210119 112012.088 UTC.
+
+<p> </p>
+<p><span style="color: #0000CD;"><strong>ADDITIONAL NOTE</strong></span></p>
+<p>The results contained in this impactor table are based on the Line Of Variations method generalised
+to the 7-dimensional space of the orbital elements and the Yarkovsky parameter. The Yarkovsky parameter
+has been estimated from the fit to the astrometry as (-2.65+/- 0.23) 10<sup>-14</sup> au/d<sup>2</sup>.
+
+<p>The results are compatible with the ones obtained at JPL and NEODyS.</p>
+
+
