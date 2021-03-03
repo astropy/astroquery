@@ -7,7 +7,7 @@ CADC
 Module to query the Canadian Astronomy Data Centre (CADC).
 """
 
-from astroquery import log as logger
+from astroquery import log
 import warnings
 import requests
 from numpy import ma
@@ -190,7 +190,7 @@ class CadcClass(BaseQuery):
             try:
                 response.raise_for_status()
             except Exception as e:
-                logger.error('Logging error: {}'.format(e))
+                log.error('Logging error: {}'.format(e))
                 raise e
             # extract cookie
             cookie = '"{}"'.format(response.text)
@@ -355,7 +355,7 @@ class CadcClass(BaseQuery):
                 images.append(fn.get_fits())
             except requests.exceptions.HTTPError as err:
                 # Catch HTTPError if user is unauthorized to access file
-                logger.debug(
+                log.debug(
                     "{} - Problem retrieving the file: {}".
                     format(str(err), str(err.url)))
                 pass
@@ -809,7 +809,7 @@ def get_access_url(service, capability=None):
                 response = requests.get(conf.CADC_REGISTRY_URL)
                 response.raise_for_status()
             except requests.exceptions.HTTPError as err:
-                logger.debug(
+                log.debug(
                     "ERROR getting the CADC registry: {}".format(str(err)))
                 raise err
             for line in response.text.splitlines():
@@ -833,7 +833,7 @@ def get_access_url(service, capability=None):
         response2 = requests.get(caps_url)
         response2.raise_for_status()
     except Exception as e:
-        logger.debug(
+        log.debug(
             "ERROR getting the service capabilities: {}".format(str(e)))
         raise e
 

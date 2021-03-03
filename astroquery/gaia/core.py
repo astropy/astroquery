@@ -18,6 +18,7 @@ from requests import HTTPError
 
 from astroquery.utils.tap import TapPlus
 from astroquery.utils import commons
+from astroquery import log
 from astropy import units
 from astropy.units import Quantity
 import six
@@ -32,8 +33,6 @@ from astropy.io import votable
 from astropy.io import fits
 from astropy.table import Table
 from astropy import units as u
-
-from ..cadc.core import logger
 
 
 class GaiaClass(TapPlus):
@@ -93,22 +92,22 @@ class GaiaClass(TapPlus):
             flag to display information about the process
         """
         try:
-            logger.info("Login to gaia TAP server")
+            log.info("Login to gaia TAP server")
             TapPlus.login(self, user=user, password=password,
                           credentials_file=credentials_file,
                           verbose=verbose)
         except HTTPError as err:
-            logger.error("Error logging in TAP server")
+            log.error("Error logging in TAP server")
             return
         u = self._TapPlus__user
         p = self._TapPlus__pwd
         try:
-            logger.info("Login to gaia data server")
+            log.info("Login to gaia data server")
             TapPlus.login(self.__gaiadata, user=u, password=p,
                           verbose=verbose)
         except HTTPError as err:
-            logger.error("Error logging in data server")
-            logger.error("Logging out from TAP server")
+            log.error("Error logging in data server")
+            log.error("Logging out from TAP server")
             TapPlus.logout(self, verbose=verbose)
 
     def login_gui(self, verbose=False):
@@ -120,20 +119,20 @@ class GaiaClass(TapPlus):
             flag to display information about the process
         """
         try:
-            logger.info("Login to gaia TAP server")
+            log.info("Login to gaia TAP server")
             TapPlus.login_gui(self, verbose=verbose)
         except HTTPError as err:
-            logger.error("Error logging in TAP server")
+            log.error("Error logging in TAP server")
             return
         u = self._TapPlus__user
         p = self._TapPlus__pwd
         try:
-            logger.info("Login to gaia data server")
+            log.info("Login to gaia data server")
             TapPlus.login(self.__gaiadata, user=u, password=p,
                           verbose=verbose)
         except HTTPError as err:
-            logger.error("Error logging in data server")
-            logger.error("Logging out from TAP server")
+            log.error("Error logging in data server")
+            log.error("Logging out from TAP server")
             TapPlus.logout(self, verbose=verbose)
 
     def logout(self, verbose=False):
@@ -147,14 +146,14 @@ class GaiaClass(TapPlus):
         try:
             TapPlus.logout(self, verbose=verbose)
         except HTTPError as err:
-            logger.error("Error logging out TAP server")
+            log.error("Error logging out TAP server")
             return
-        logger.info("Gaia TAP server logout OK")
+        log.info("Gaia TAP server logout OK")
         try:
             TapPlus.logout(self.__gaiadata, verbose=verbose)
-            logger.info("Gaia data server logout OK")
+            log.info("Gaia data server logout OK")
         except HTTPError as err:
-            logger.error("Error logging out data server")
+            log.error("Error logging out data server")
 
     def load_data(self, ids, data_release=None, data_structure='INDIVIDUAL', retrieval_type="ALL", valid_data=True,
                   band=None, avoid_datatype_check=False, format="votable", output_file=None,
@@ -267,9 +266,9 @@ class GaiaClass(TapPlus):
             try:
                 os.mkdir(path)
             except FileExistsError:
-                logger.error("Path %s already exist" % path)
+                log.error("Path %s already exist" % path)
             except OSError:
-                logger.error("Creation of the directory %s failed" % path)
+                log.error("Creation of the directory %s failed" % path)
 
         try:
             self.__gaiadata.load_data(params_dict=params_dict,
@@ -284,9 +283,9 @@ class GaiaClass(TapPlus):
 
         if verbose:
             if output_file_specified:
-                logger.info("output_file = %s" % output_file)
+                log.info("output_file = %s" % output_file)
 
-        logger.debug("List of products available:")
+        log.debug("List of products available:")
         # for key, value in files.items():
         # print("Product =", key)
 
@@ -295,7 +294,7 @@ class GaiaClass(TapPlus):
         for item in items:
             # print(f'* {item}')
             if verbose:
-                logger.debug("Product = " + item)
+                log.debug("Product = " + item)
 
         return files
 
