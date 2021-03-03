@@ -44,6 +44,7 @@ mast
 - Fixed error causing empty products passed to ``Observations.get_product_list()`` to yeild a
   non-empty result. [#1921]
 - Changed AWS cloud access from RequesterPays to anonymous acces [#1980]
+- Fixed error with download of Spitzer data [#1994]
 
 esa/hubble
 ^^^^^^^^^^
