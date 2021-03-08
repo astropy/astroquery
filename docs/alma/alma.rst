@@ -285,17 +285,28 @@ cycle 1 data sets tend to be >100 GB!
      uid://A002/X3216af/X31
     uid://A002/X5a9a13/X689
 
-
-You can then stage the data and see how big it is (you can ask for one or more
-UIDs):
-
+New to most recent versions of the library is that data does not need to be
+staged any longer. The ```stage_data``` method has been deprecated, but the
+new ```get_data_info``` method can be used instead to get information about
+the data such as the files, their urls, sizes etc:
 
 .. code-block:: python
 
-   >>> link_list = Alma.stage_data(uids)
-   INFO: Staging files... [astroquery.alma.core]
-   >>> link_list['size'].sum()
-   159.26999999999998
+   >>> link_list = Alma.get_data_info(uids)
+   >>> link_list['content_length'].sum()
+   538298369462
+   >>> len(link_list)
+   >>> 47
+
+By default, ALMA data is delivered as tarball files. However, the content of
+some of these files can be listed and accessed individually. To get information
+on the individual files:
+
+.. code-block:: python
+
+    >>> link_list = Alma.get_data_info(uids, expand_tarfiles=True)
+    >>> len(link_list)
+    >>> 50
 
 You can then go on to download that data.  The download will be cached so that repeat
 queries of the same file will not re-download the data.  The default cache
@@ -328,17 +339,18 @@ extract the FITS file, then delete the tarball:
     >>> orionkl = coordinates.SkyCoord('5:35:14.461 -5:21:54.41', frame='fk5',
     ...                                unit=(u.hour, u.deg))
     >>> result = Alma.query_region(orionkl, radius=0.034*u.deg)
-    >>> uid_url_table = Alma.stage_data(result['Member ous id'])
+    >>> uid_url_table = Alma.get_data_info(result['obs_id'])
     >>> # Extract the data with tarball file size < 1GB
-    >>> small_uid_url_table = uid_url_table[uid_url_table['size'] < 1]
+    >>> small_uid_url_table = uid_url_table[uid_url_table['content_length'] < 10**9]
     >>> # get the first 10 files...
-    >>> filelist = Alma.download_and_extract_files(small_uid_url_table[:10]['URL'])
+    >>> tarball_files = uid_url_table[uid_url_table['content_type'] == 'application/x-tar']
+    >>> filelist = Alma.download_and_extract_files(tarball_files[1:10]['access_url])
 
 You might want to look at the READMEs from a bunch of files so you know what kind of S/N to expect:
 
 .. code-block:: python
 
-    >>> filelist = Alma.download_and_extract_files(uid_url_table['URL'], regex='.*README$')
+    >>> filelist = Alma.download_and_extract_files(tarball_files['access_url'], regex='.*README$')
 
 
 Further Examples

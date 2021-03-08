@@ -210,7 +210,9 @@ def _gen_pub_sql(field, value):
 
 def _gen_science_sql(field, value):
     if value is True:
-        return "{}>1".format(field)
+        return "{}='T'".format(field)
+    elif value is False:
+        return "{}='F'".format(field)
     else:
         return None
 

@@ -113,6 +113,8 @@ alma
 - ALMA queries using string representations will now convert to appropriate
   coordinates before being sent to the server; previously they were treated as
   whatever unit they were presented in.  [#1867]
+- Download mechanism uses the ALMA Datalink service that allows exploring and
+  downloading entire tarball package files or just part of their content. [#1820]
 
 gaia
 ^^^^
