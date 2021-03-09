@@ -22,7 +22,7 @@ Currently, only Cone Search validation is done using
 :func:`~astroquery.vo_conesearch.validator.validate.check_conesearch_sites`,
 which utilizes underlying `astropy.io.votable.validator` library.
 
-A main list of all available Cone Search services is obtained from
+A list of all available Cone Search services is obtained from
 ``astroquery.vo_conesearch.validator.conf.conesearch_master_list``,
 which is a URL query to STScI VAO Registry by default. However, by default,
 only the ones in ``astroquery.vo_conesearch.validator.conf.conesearch_urls``
@@ -92,7 +92,7 @@ Each Cone Search service is a
 `~astroquery.vo_conesearch.vos_catalog.VOSDatabase`
 (see :ref:`vo-sec-client-cat-manip` and :ref:`vo-sec-client-db-manip`).
 
-In the main registry, there are duplicate catalog titles with
+In the default registry, there are duplicate catalog titles with
 different access URLs, duplicate access URLs with different titles,
 duplicate catalogs with slightly different descriptions, etc.
 
@@ -162,7 +162,7 @@ Examples
 ^^^^^^^^
 
 Validate default Cone Search sites with multiprocessing and write results
-in the current directory. Reading the main registry can be slow, so the
+in the current directory. Reading the default registry can be slow, so the
 default timeout is internally set to 60 seconds for it.
 In addition, all VO table warnings from the registry are suppressed because
 we are not trying to validate the registry itself but the services it contains:
@@ -209,7 +209,7 @@ This is *not* recommended unless you know exactly what you are doing:
 >>> with validator_conf.set_temp('noncritical_warnings', new_warns):
 ...     validate.check_conesearch_sites()
 
-Validate *all* Cone Search services in the main registry
+Validate *all* Cone Search services in the registry
 (this will take a while) and write results in ``'all'`` sub-directory:
 
 >>> validate.check_conesearch_sites(destdir='./all', url_list=None)

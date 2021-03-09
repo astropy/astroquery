@@ -14,8 +14,8 @@ Filter Profile Service (`SVO FPS <http://svo2.cab.inta-csic.es/theory/fps/>`_).
 It allows retrieval of filter data (index, transmission data, filter list, etc.)
 from the service as astropy tables.
 
-Get index (main list) of all Filters
-------------------------------------
+Get index list of all Filters
+-----------------------------
 
 The filter index (all available filters with their properties) can be listed
 with `~astroquery.svo_fps.SvoFpsClass.get_filter_index`:

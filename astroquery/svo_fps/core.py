@@ -62,7 +62,7 @@ class SvoFpsClass(BaseQuery):
 
     def get_filter_index(self, wavelength_eff_min=0*u.angstrom,
                          wavelength_eff_max=FLOAT_MAX*u.angstrom, **kwargs):
-        """Get main list (index) of all filters at SVO
+        """Get master list (index) of all filters at SVO
         Optional parameters can be given to get filters data for specified
         Wavelength Effective range from SVO
 
