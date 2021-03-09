@@ -12,7 +12,7 @@
     :target: https://github.com/astropy/astroquery/actions?query=workflow%3ACI
     :alt: Github Actions CI Status
 
-.. image:: https://codecov.io/gh/astropy/astroquery/branch/master/graph/badge.svg
+.. image:: https://codecov.io/gh/astropy/astroquery/branch/main/graph/badge.svg
     :target: https://codecov.io/gh/astropy/astroquery
     :alt: Coverage results
 
@@ -67,11 +67,11 @@ or pip installed:
 
     $ pip install --pre astroquery
 
-and the 'bleeding edge' master version:
+and the 'bleeding edge' main version:
 
 .. code-block:: bash
 
-   $ pip install https://github.com/astropy/astroquery/archive/master.zip
+   $ pip install https://github.com/astropy/astroquery/archive/main.zip
 
 or cloned and installed from source:
 
@@ -96,7 +96,7 @@ and `query_region`.
 To report bugs and request features, please use the issue tracker.  Code
 contributions are very welcome, though we encourage you to follow the `API`_
 and `contributing guidelines
-<https://github.com/astropy/astroquery/blob/master/CONTRIBUTING.rst>`_ as much
+<https://github.com/astropy/astroquery/blob/main/CONTRIBUTING.rst>`_ as much
 as possible.
 
 List of Modules
@@ -182,8 +182,8 @@ Additional Links
 Maintained by `Adam Ginsburg`_ and `Brigitta Sipocz <https://github.com/bsipocz>`_ (`astropy.astroquery@gmail.com`_)
 
 
-.. _Download Development ZIP: https://github.com/astropy/astroquery/zipball/master
-.. _Download Development TAR: https://github.com/astropy/astroquery/tarball/master
+.. _Download Development ZIP: https://github.com/astropy/astroquery/zipball/main
+.. _Download Development TAR: https://github.com/astropy/astroquery/tarball/main
 .. _Download Stable ZIP: https://github.com/astropy/astroquery/zipball/stable
 .. _Download Stable TAR: https://github.com/astropy/astroquery/tarball/stable
 .. _View on Github: https://github.com/astropy/astroquery/

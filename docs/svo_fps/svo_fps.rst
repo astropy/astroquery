@@ -14,8 +14,8 @@ Filter Profile Service (`SVO FPS <http://svo2.cab.inta-csic.es/theory/fps/>`_).
 It allows retrieval of filter data (index, transmission data, filter list, etc.)
 from the service as astropy tables.
 
-Get index (master list) of all Filters
---------------------------------------
+Get index (main list) of all Filters
+------------------------------------
 
 The filter index (all available filters with their properties) can be listed
 with `~astroquery.svo_fps.SvoFpsClass.get_filter_index`:
@@ -28,19 +28,19 @@ with `~astroquery.svo_fps.SvoFpsClass.get_filter_index`:
     <Table masked=True length=5139>
             name          dtype  unit
     -------------------- ------- ----
-    FilterProfileService  object     
-                filterID  object     
-          WavelengthUnit  object     
-           WavelengthUCD  object     
-              PhotSystem  object     
-            DetectorType  object     
-                    Band  object     
-              Instrument  object     
-                Facility  object     
-        ProfileReference  object     
-    CalibrationReference  object     
-             Description  object     
-                Comments  object     
+    FilterProfileService  object
+                filterID  object
+          WavelengthUnit  object
+           WavelengthUCD  object
+              PhotSystem  object
+            DetectorType  object
+                    Band  object
+              Instrument  object
+                Facility  object
+        ProfileReference  object
+    CalibrationReference  object
+             Description  object
+                Comments  object
           WavelengthMean float32   AA
            WavelengthEff float32   AA
            WavelengthMin float32   AA
@@ -51,14 +51,14 @@ with `~astroquery.svo_fps.SvoFpsClass.get_filter_index`:
           WavelengthPeak float32   AA
           WavelengthPhot float32   AA
                     FWHM float32   AA
-               PhotCalID  object     
-                  MagSys  object     
+               PhotCalID  object
+                  MagSys  object
                ZeroPoint float32   Jy
-           ZeroPointUnit  object     
-                    Mag0 float32     
-           ZeroPointType  object     
-               AsinhSoft float32     
-        TrasmissionCurve  object     
+           ZeroPointUnit  object
+                    Mag0 float32
+           ZeroPointType  object
+               AsinhSoft float32
+        TrasmissionCurve  object
 
 There are options to downselect based on the minimum
 and maximum effective wavelength (``wavelength_eff_min``
@@ -80,19 +80,19 @@ is of the same form as that from `~astroquery.svo_fps.SvoFpsClass.get_filter_ind
     <Table masked=True length=11>
             name          dtype  unit
     -------------------- ------- ----
-    FilterProfileService  object     
-                filterID  object     
-          WavelengthUnit  object     
-           WavelengthUCD  object     
-              PhotSystem  object     
-            DetectorType  object     
-                    Band  object     
-              Instrument  object     
-                Facility  object     
-        ProfileReference  object     
-    CalibrationReference  object     
-             Description  object     
-                Comments  object     
+    FilterProfileService  object
+                filterID  object
+          WavelengthUnit  object
+           WavelengthUCD  object
+              PhotSystem  object
+            DetectorType  object
+                    Band  object
+              Instrument  object
+                Facility  object
+        ProfileReference  object
+    CalibrationReference  object
+             Description  object
+                Comments  object
           WavelengthMean float32   AA
            WavelengthEff float32   AA
            WavelengthMin float32   AA
@@ -103,14 +103,14 @@ is of the same form as that from `~astroquery.svo_fps.SvoFpsClass.get_filter_ind
           WavelengthPeak float32   AA
           WavelengthPhot float32   AA
                     FWHM float32   AA
-               PhotCalID  object     
-                  MagSys  object     
+               PhotCalID  object
+                  MagSys  object
                ZeroPoint float32   Jy
-           ZeroPointUnit  object     
-                    Mag0 float32     
-           ZeroPointType  object     
-               AsinhSoft float32     
-        TrasmissionCurve  object 
+           ZeroPointUnit  object
+                    Mag0 float32
+           ZeroPointType  object
+               AsinhSoft float32
+        TrasmissionCurve  object
 
 
 Get transmission data for a specific Filter
@@ -127,7 +127,7 @@ transmission curve data using
     >>> data = SvoFps.get_transmission_data('2MASS/2MASS.H')
     >>> print(data)
     Wavelength Transmission
-        AA                 
+        AA
     ---------- ------------
     12890.0          0.0
     13150.0          0.0

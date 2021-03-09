@@ -193,7 +193,7 @@ if eval(setup_cfg.get('edit_on_github')):
     if versionmod.release:
         edit_on_github_branch = "v" + versionmod.version
     else:
-        edit_on_github_branch = "master"
+        edit_on_github_branch = "main"
 
     edit_on_github_source_root = ""
     edit_on_github_doc_root = "docs"
