@@ -623,7 +623,7 @@ class VizierClass(BaseQuery):
             if type(val) is list:
                 script += "\n{key}=<<====AstroqueryList".format(key=key)
                 script += "\n" + "\n".join(val)
-                script += "\n====AstroqueryList"                       
+                script += "\n====AstroqueryList"
         # add keywords
         return script
 
