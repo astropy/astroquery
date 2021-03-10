@@ -613,7 +613,7 @@ class VizierClass(BaseQuery):
         script = ""
         if (not isinstance(self.keywords, property) and
                 self.keywords is not None):
-            script += "\n" + str(self.keywords)
+            script += str(self.keywords)
         # add all items that are not lists
         for key, val in body.items():
             if type(val) is not list:
