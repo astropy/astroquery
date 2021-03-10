@@ -610,22 +610,22 @@ class VizierClass(BaseQuery):
             body['-ucd'] = ucd
 
         # create final script starting with keywords
-        script = ""
+        script = []
         if (not isinstance(self.keywords, property) and
                 self.keywords is not None):
-            script += str(self.keywords)
+            script += [str(self.keywords)]
         # add all items that are not lists
         for key, val in body.items():
             if type(val) is not list:
-                script += "\n{key}={val}".format(key=key, val=val)
+                script += ["{key}={val}".format(key=key, val=val)]
         # add list at the end
         for key, val in body.items():
             if type(val) is list:
-                script += "\n{key}=<<====AstroqueryList".format(key=key)
-                script += "\n" + "\n".join(val)
-                script += "\n====AstroqueryList"
-        # add keywords
-        return script
+                script += ["{key}=<<====AstroqueryList".format(key=key)]
+                script += val
+                script += ["====AstroqueryList"]
+        # merge result
+        return "\n".join(script)
 
     def _parse_result(self, response, get_catalog_names=False, verbose=False,
                       invalid='warn'):
