@@ -317,9 +317,10 @@ class SBDBClass(BaseQuery):
 
             # use leaf scalars (and apply units, where applicable)
             else:
-                res[key] = val
                 if key in conf.field_unit.keys() and val is not None:
-                    res[key] *= u.Unit(conf.field_unit[key])
+                    res[key] = float(val) * u.Unit(conf.field_unit[key])
+                else:
+                    res[key] = val
 
         return res
 
@@ -344,11 +345,11 @@ class SBDBClass(BaseQuery):
             # try to combine value with units provided
             try:
                 if q['value'] is not None:
-                    eldict[q['name']] = (q['value'] * unit)
+                    eldict[q['name']] = (float(q['value']) * unit)
                 else:
                     eldict[q['name']] = q['value']
                 if q['sigma'] is not None:
-                    eldict[q['name']+'_sig'] = (q['sigma'] *
+                    eldict[q['name']+'_sig'] = (float(q['sigma']) *
                                                 unit)
                 else:
                     eldict[q['name']+'_sig'] = q['sigma']

@@ -40,6 +40,7 @@ class TestSBDBClass:
         sbdb = SBDB.query('Apophis', id_type='search',
                           close_approach=True)
 
-        assert sbdb['orbit']['moid_jup'].bases[0] == u.au
-        assert sbdb['orbit']['model_pars']['A2'].bases == [u.au, u.d]
-        assert sbdb['orbit']['elements']['tp'].bases[0] == u.d
+        assert sbdb['orbit']['moid_jup'].unit.bases[0] == u.au
+        assert sbdb['orbit']['model_pars']['A2'].unit.bases == [u.au, u.d]
+        assert sbdb['orbit']['model_pars']['A2'].unit.is_equivalent(u.au / u.d**2)
+        assert sbdb['orbit']['elements']['tp'].unit.bases[0] == u.d
