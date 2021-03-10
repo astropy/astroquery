@@ -87,7 +87,12 @@ def test_missing_value(patch_request):
 
 
 def test_quantities(patch_request):
-    """Regression test for astroquery#..."""
+    """Make sure query returns quantities.
+    
+    Regression test for astroquery #2011.
+    
+    """
+    
     sbdb = SBDB.query('Ceres', id_type='search', phys=True,
                       alternate_id=True, full_precision=True,
                       covariance='mat', validity=True,
