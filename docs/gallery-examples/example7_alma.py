@@ -9,7 +9,7 @@ import string
 from astropy import units as u
 from astropy.io import fits
 from astropy import wcs
-from astropy import log
+from astroquery import log
 import pylab as pl
 import aplpy
 import pyregion

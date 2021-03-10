@@ -27,7 +27,7 @@ from astroquery.utils.tap.xmlparser import utils
 from astroquery.utils.tap.model.filter import Filter
 import six
 import requests
-from astropy.logger import log
+from astroquery import log
 import getpass
 import os
 from astropy.table.table import Table

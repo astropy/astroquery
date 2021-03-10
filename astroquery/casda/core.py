@@ -12,7 +12,7 @@ import astropy.units as u
 import astropy.coordinates as coord
 from astropy.table import Table
 from astropy.io.votable import parse
-from astropy import log
+from astroquery import log
 
 # 3. local imports - use relative imports
 # commonly required local imports shown below as example

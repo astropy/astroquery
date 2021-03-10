@@ -21,7 +21,7 @@ import tarfile
 import os
 
 from . import conf
-from astropy import log
+from astroquery import log
 from astropy.coordinates import SkyCoord
 
 

@@ -11,7 +11,7 @@ from collections import OrderedDict
 from astropy.io import votable
 from astropy.io.votable.exceptions import E19
 from astropy.io.votable.validator import html, result
-from astropy.logger import log
+from astroquery import log
 from astropy.utils import data
 from astropy.utils.exceptions import AstropyUserWarning
 from astropy.utils.xml.unescaper import unescape_all

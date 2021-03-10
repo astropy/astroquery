@@ -73,7 +73,7 @@ constraint  Optional    User defined query constraint(s)
 
 
 import warnings
-from astropy.logger import log
+from astroquery import log
 
 import six
 import astropy.units as u

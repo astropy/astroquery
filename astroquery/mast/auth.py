@@ -13,7 +13,7 @@ import warnings
 
 from getpass import getpass
 
-from astropy.logger import log
+from astroquery import log
 
 from ..exceptions import AuthenticationWarning
 

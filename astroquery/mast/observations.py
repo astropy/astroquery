@@ -21,7 +21,7 @@ import astropy.units as u
 import astropy.coordinates as coord
 
 from astropy.table import Table, Row, vstack, MaskedColumn
-from astropy.logger import log
+from astroquery import log
 
 from astropy.utils import deprecated
 from astropy.utils.console import ProgressBarOrSpinner

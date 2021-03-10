@@ -16,7 +16,7 @@ import pyvo
 from six.moves.urllib_parse import urljoin
 import six
 from astropy.table import Table, Column, vstack
-from astropy import log
+from astroquery import log
 from astropy.utils import deprecated
 from astropy.utils.console import ProgressBar
 from astropy.utils.exceptions import AstropyDeprecationWarning

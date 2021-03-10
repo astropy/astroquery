@@ -11,7 +11,7 @@ from astropy.coordinates import SkyCoord
 import astropy.units as u
 from astropy.table import Table, Column
 from astropy.io.votable import parse
-from astropy import log
+from astroquery import log
 
 from astroquery.casda import Casda
 

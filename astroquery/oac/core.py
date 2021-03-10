@@ -15,7 +15,7 @@ import csv
 
 import astropy.units as u
 from astropy.table import Column, Table
-from astropy.logger import log
+from astroquery import log
 
 from . import conf
 from ..query import BaseQuery
