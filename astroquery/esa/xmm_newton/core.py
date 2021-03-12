@@ -97,6 +97,8 @@ class XMMNewtonClass(BaseQuery):
         None if not verbose. It downloads the observation indicated
         If verbose returns the filename
         """
+        
+        filename = filename.split('.')[0]
 
         link = self.data_aio_url + "obsno=" + observation_id
 
