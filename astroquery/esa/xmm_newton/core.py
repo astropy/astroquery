@@ -269,6 +269,75 @@ class XMMNewtonClass(BaseQuery):
         else:
             return columns
 
+    def get_product_from_4xmm_catalogue(self, *, target_name=None,
+                                        ra=None, dec=None, radius=None,
+                                        filename="",
+                                        path="", **kwargs):
+        """Downloads the products from a given 4XMM Catalogue target
+        Parameters
+        ----------
+        target_name : string, optional, default None
+            The name of the target
+        ra : float, optional, default None
+            The Right Ascension coordinate of the target
+        dec : float, optional, default None
+            The Declination coordinate of the target
+        radius : float, optional, default None
+            The radius to query the target
+        filename : string, optional, default ""
+            A prefix for the downloaded products
+        path : string, optional, default ""
+            A specific path to download the products
+        Returns
+        -------
+        A astropy.table.table.Table containing the observation ids
+        of the given target
+        """
+        if not target_name and (not ra or not dec):
+            raise Exception(("Input parameters needed, "
+                             "please provide the name "
+                             "or the equatorial coordinates of the target"))
+
+        # 4XMM catalogue table
+        xsa_table = "xsa.v_epic_source_cat"
+        obs_id_col = "observation_id"
+        target_name_col = "iauname"
+        equatorial_coor_col = "epic_source_cat_equatorial_spoint"
+        if target_name is not None:
+            query = ("select %s from %s "
+                     "where %s like '%s';" % (obs_id_col,
+                                              xsa_table,
+                                              target_name_col,
+                                              target_name))
+        else:
+            if not radius:
+                radius = 1.0
+            query = ("select %s from %s "
+                     "where 1=contains(%s, circle('ICRS', %f, %f, %f));"
+                     % (obs_id_col,
+                        xsa_table,
+                        equatorial_coor_col,
+                        ra,
+                        dec,
+                        radius))
+        table = self.query_xsa_tap(query)
+        if obs_id_col not in table.colnames:
+            raise Exception("No observations retrieved")
+        for ob in table[obs_id_col]:
+            if filename != "":
+                fname = filename + "-" + ob.decode('utf-8')
+                if path != "" and os.path.isdir(path):
+                    fname = os.path.join(path, fname)
+                self.download_data(ob.decode('utf-8'),
+                                   filename=fname, **kwargs)
+            else:
+                if path != "" and os.path.isdir(path):
+                    fname = os.path.join(path, ob.decode('utf-8'))
+                    self.download_data(ob.decode('utf-8'),
+                                       filename=fname, **kwargs)
+                self.download_data(ob.decode('utf-8'), **kwargs)
+        return table
+
     def _parse_filename(self, filename):
         """Parses the file's name of a product
 
@@ -295,6 +364,137 @@ class XMMNewtonClass(BaseQuery):
         ret["S"] = filename[23]
         ret["X-"] = filename[24:27]
         ret["Z"] = filename[28:]
+        return ret
+
+    def get_epic_spectra(self, filename, source_number, *,
+                         instrument=[], path=""):
+        """Extracts the EPIC sources spectral products from a given TAR file
+        For a given TAR file obtained with:
+            XMM.download_data(OBS_ID,level="PPS",extension="FTZ",filename=tarfile)
+        This function extracts the EPIC sources spectral products in a given
+        instrument (or instruments) from it
+        The result is a dictionary containing the paths to the extracted EPIC
+        sources spectral products with key being the instrument
+        If the instrument is not specified this function will
+        return all the available instruments
+        Examples:
+        Extracting all bands and instruments:
+            result = XMM.get_epic_spectra(tarfile,83,
+                                         instrument=['M1','M2','PN'])
+        If we want to retrieve the source spectrum of the instrument PN
+            fits_image = result['PN']
+        fits_image will be the full path to the extracted FTZ file
+        Parameters
+        ----------
+        filename : string, mandatory
+            The name of the tarfile to be proccessed
+        source_number : integer, mandatory
+            The source number, in decimal, in the observation
+        instruments : array of strings, optional, default []
+            An array of strings indicating the desired instruments
+        path: string, optional
+            If set, extracts the EPIC images in the indicated path
+        Returns
+        -------
+        A dictionary with the full paths of the extracted EPIC sources
+        spectral products. The key is the instrument
+        Notes
+        -----
+        The filenames will contain the source number in hexadecimal,
+        as this is the convention used by the pipeline.
+        The structure and the content of the extracted compressed FITS files
+        are described in details in the Pipeline Products Description
+        [XMM-SOC-GEN-ICD-0024](https://xmm-tools.cosmos.esa.int/external/xmm_obs_info/odf/data/docs/XMM-SOC-GEN-ICD-0024.pdf).
+        """
+        _instrument = ["M1", "M2", "PN", "EP"]
+        _product_type = ["SRSPEC", "BGSPEC", "SRCARF"]
+        _path = ""
+        ret = {}
+        if instrument == []:
+            instrument = _instrument
+        else:
+            for i in instrument:
+                if i not in _instrument:
+                    log.warning("Invalid instrument %s" % i)
+                    instrument.remove(i)
+        if path != "" and os.path.exists(path):
+            _path = path
+        try:
+            with tarfile.open(filename, "r") as tar:
+                for i in tar.getmembers():
+                    paths = os.path.split(i.name)
+                    fname = paths[1]
+                    paths = os.path.split(paths[0])
+                    if paths[1] != "pps":
+                        continue
+                    fname_info = self._parse_filename(fname)
+                    if fname_info["X"] != "P":
+                        continue
+                    if not fname_info["I"] in instrument:
+                        continue
+                    if not fname_info["T"] in _product_type:
+                        continue
+                    if int(fname_info["X-"], 16) != source_number:
+                        continue
+                    tar.extract(i, _path)
+                    key = fname_info["I"]
+                    value = os.path.abspath(os.path.join(_path, i.name))
+                    if fname_info["T"] == "BGSPEC":
+                        key = fname_info["I"] + "_bkg"
+                    elif fname_info["T"] == "SRCARF":
+                        key = fname_info["I"] + "_arf"
+                    else:
+                        with fits.open(value) as hdul:
+                            for ext in hdul:
+                                if ext.name != "SPECTRUM":
+                                    continue
+                                rmf_fname = ext.header["RESPFILE"]
+                                if fname_info["I"] == "M1" or \
+                                   fname_info["I"] == "M2":
+                                    inst = "MOS/" +\
+                                        str(ext.header["SPECDELT"]) + "eV/"
+                                elif fname_info["I"] == "PN":
+                                    inst = "PN/"
+                                    file_name, file_ext =\
+                                        os.path.splitext(rmf_fname)
+                                    rmf_fname = file_name +\
+                                        "_v18.0" + file_ext
+
+                                link = self._rmf_ftp + inst + rmf_fname
+
+                                response = self._request('GET', link)
+
+                                rsp_filename =\
+                                    os.path.join(_path,
+                                                 paths[0],
+                                                 paths[1],
+                                                 ext.header["RESPFILE"])
+
+                                with open(rsp_filename, 'wb') as f:
+                                    f.write(response.content)
+                                    ret[fname_info["I"] + "_rmf"] =\
+                                        rsp_filename
+
+                    if ret.get(key) and type(ret.get(key)) == str:
+                        log.warning("More than one file found with the "
+                                    "instrument: %s" % key)
+                        ret[key] = [ret[key], value]
+                    elif ret.get(key) and type(ret.get(key)) == list:
+                        ret[key].append(value)
+                    else:
+                        ret[key] = value
+
+        except FileNotFoundError:
+            log.error("File %s not found" % (filename))
+            return {}
+
+        if ret == {}:
+            log.info("Nothing to extract with the given parameters:\n"
+                     "  PPS: %s\n"
+                     "  Source Number: %u\n"
+                     "  Instrument: %s\n" % (filename, source_number,
+                                             instrument))
+
         return ret
 
     def get_epic_images(self, filename, *, band=[], instrument=[],
@@ -373,12 +573,13 @@ class XMMNewtonClass(BaseQuery):
         _instrument = ["M1", "M2", "PN", "EP"]
         _band = [1, 2, 3, 4, 5, 8]
         _path = ""
-        if get_detmask:
-            _product_type.append("DETMSK")
-        if get_exposure_map:
-            _product_type.append("EXPMAP")
-        if path != "" and os.path.exists(path):
-            _path = path
+        for arg in kwargs:
+            if arg == "get_detmask" and kwargs[arg] is True:
+                _product_type.append("DETMSK")
+            if arg == "get_exposure_map" and kwargs[arg] is True:
+                _product_type.append("EXPMAP")
+            if arg == "path" and os.path.exists(kwargs[arg]):
+                _path = kwargs[arg]
 
         ret = {}
         if band == []:
@@ -396,41 +597,46 @@ class XMMNewtonClass(BaseQuery):
                 if i not in _instrument:
                     log.warning("Invalid instrument %s" % i)
                     instrument.remove(i)
-        with tarfile.open(filename, "r") as tar:
-            for member in tar.getmembers():
-                paths = os.path.split(member.name)
-                fname = paths[1]
-                paths = os.path.split(paths[0])
-                if paths[1] != "pps":
-                    continue
-                fname_info = self._parse_filename(fname)
-                if fname_info["X"] != "P":
-                    continue
-                if not fname_info["I"] in instrument:
-                    continue
-                if not int(fname_info["S"]) in band:
-                    continue
-                if not fname_info["T"] in _product_type:
-                    continue
-                tar.extract(member, _path)
-                if not ret.get(int(fname_info["S"])):
-                    ret[int(fname_info["S"])] = {}
-                b = int(fname_info["S"])
-                ins = fname_info["I"]
-                value = os.path.abspath(os.path.join(_path, member.name))
-                if fname_info["T"] == "DETMSK":
-                    ins = fname_info["I"] + "_det"
-                elif fname_info["T"] == "EXPMAP":
-                    ins = fname_info["I"] + "_expo"
-                if ret[b].get(ins) and type(ret[b].get(ins)) == str:
-                    log.warning("More than one file found with the "
-                                "band %u and "
-                                "the instrument: %s" % (b, ins))
-                    ret[b][ins] = [ret[b][ins], value]
-                elif ret[b].get(ins) and type(ret[b].get(ins)) == list:
-                    ret[b][ins].append(value)
-                else:
-                    ret[b][ins] = value
+        try:
+            with tarfile.open(filename, "r") as tar:
+                for member in tar.getmembers():
+                    paths = os.path.split(member.name)
+                    fname = paths[1]
+                    paths = os.path.split(paths[0])
+                    if paths[1] != "pps":
+                        continue
+                    fname_info = self._parse_filename(fname)
+                    if fname_info["X"] != "P":
+                        continue
+                    if not fname_info["I"] in instrument:
+                        continue
+                    if not int(fname_info["S"]) in band:
+                        continue
+                    if not fname_info["T"] in _product_type:
+                        continue
+                    tar.extract(member, _path)
+                    if not ret.get(int(fname_info["S"])):
+                        ret[int(fname_info["S"])] = {}
+                    b = int(fname_info["S"])
+                    ins = fname_info["I"]
+                    value = os.path.abspath(os.path.join(_path, member.name))
+                    if fname_info["T"] == "DETMSK":
+                        ins = fname_info["I"] + "_det"
+                    elif fname_info["T"] == "EXPMAP":
+                        ins = fname_info["I"] + "_expo"
+                    if ret[b].get(ins) and type(ret[b].get(ins)) == str:
+                        log.warning("More than one file found with the "
+                                    "band %u and "
+                                    "the instrument: %s" % (b, ins))
+                        ret[b][ins] = [ret[b][ins], value]
+                    elif ret[b].get(ins) and type(ret[b].get(ins)) == list:
+                        ret[b][ins].append(value)
+                    else:
+                        ret[b][ins] = value
+
+        except FileNotFoundError:
+            log.error("File %s not found" % (filename))
+            return {}
 
         return ret
 
@@ -507,5 +713,120 @@ class XMMNewtonClass(BaseQuery):
                                                radius))
         return epic_source_table, cat_4xmm_table, stack_4xmm_table, slew_source_table
 
+    def get_epic_lightcurve(self, filename, source_number, *,
+                            instrument=[], path=""):
+        """Extracts the EPIC sources light curve products from a given TAR file
+
+        For a given TAR file obtained with:
+            XMM.download_data(OBS_ID,level="PPS",extension="FTZ",filename=tarfile)
+
+        This function extracts the EPIC sources light curve products in a given
+        instrument (or instruments) from said TAR file
+
+        The result is a dictionary containing the paths to the extracted EPIC
+        sources light curve products with the key being the instrument
+
+        If the instrument is not specified, this function will
+        return all available instruments
+
+        Examples:
+
+        Extracting all instruments:
+            result = XMM.get_epic_lightcurve(tarfile,146,
+                                             instrument=['M1','M2','PN'])
+
+        If we want to retrieve the light curve of the instrument PN
+            fits_image = result['PN']
+
+        fits_image will be the full path to the extracted FTZ file
+
+        Parameters
+        ----------
+        filename : string, mandatory
+            The name of the tarfile to be proccessed
+        source_number : integer, mandatory
+            The source number, in decimal, in the observation
+        instruments : array of strings, optional, default []
+            An array of strings indicating the desired instruments
+        path: string, optional
+            If set, extracts the EPIC images in the indicated path
+
+        Returns
+        -------
+        A dictionary with the full paths of the extracted EPIC sources
+        light curve products. The key is the instrument
+
+        Notes
+        -----
+        The filenames will contain the source number in hexadecimal,
+        as this is the convention used by the pipeline.
+
+        The structure and the content of the extracted compressed FITS files
+        are described in details in the Pipeline Products Description
+        [XMM-SOC-GEN-ICD-0024](https://xmm-tools.cosmos.esa.int/external/xmm_obs_info/odf/data/docs/XMM-SOC-GEN-ICD-0024.pdf).
+        """
+        _instrumnet = ["M1", "M2", "PN", "EP"]
+        _band = [8]
+        _product_type = ["SRCTSR", "FBKTSR"]
+        _path = ""
+
+        ret = {}
+
+        if instrument == []:
+            instrument = _instrumnet
+        else:
+            for i in instrument:
+                if i not in _instrumnet:
+                    log.warning("Invalid instrument %s" % i)
+                    instrument.remove(i)
+
+        if path != "" and os.path.exists(path):
+            _path = path
+
+        try:
+            with tarfile.open(filename, "r") as tar:
+                for i in tar.getmembers():
+                    paths = os.path.split(i.name)
+                    fname = paths[1]
+                    paths = os.path.split(paths[0])
+                    if paths[1] != "pps":
+                        continue
+                    fname_info = self._parse_filename(fname)
+                    if fname_info["X"] != "P":
+                        continue
+                    if not fname_info["I"] in instrument:
+                        continue
+                    if not int(fname_info["S"]) in _band:
+                        continue
+                    if not fname_info["T"] in _product_type:
+                        continue
+                    if int(fname_info["X-"], 16) != source_number:
+                        continue
+                    tar.extract(i, _path)
+                    key = fname_info["I"]
+                    value = os.path.abspath(os.path.join(_path, i.name))
+                    if fname_info["T"] == "FBKTSR":
+                        key = fname_info["I"] + "_bkg"
+                    if ret.get(key) and type(ret.get(key)) == str:
+                        log.warning("More than one file found with the "
+                                    "instrument: %s" % key)
+                        ret[key] = [ret[key], value]
+                    elif ret.get(key) and type(ret.get(key)) == list:
+                        ret[key].append(value)
+                    else:
+                        ret[key] = value
+
+        except FileNotFoundError:
+            log.error("File %s not found" % (filename))
+            return {}
+
+        if ret == {}:
+            log.info("Nothing to extract with the given parameters:\n"
+                     "  PPS: %s\n"
+                     "  Source Number: %u\n"
+                     "  Instrument: %s\n" % (filename, source_number,
+                                             instrument))
+
+        return ret
 
 XMMNewton = XMMNewtonClass()
