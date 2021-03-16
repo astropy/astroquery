@@ -23,6 +23,7 @@ from astroquery.utils.tap.core import TapPlus
 
 from ..core import XMMNewtonClass
 from ..tests.dummy_tap_handler import DummyXMMNewtonTapHandler
+from fileinput import filename
 
 
 class TestXMMNewton():
@@ -93,6 +94,19 @@ class TestXMMNewton():
         xsa = XMMNewtonClass(self.get_dummy_tap_handler())
         xsa.get_columns("table", only_names=True, verbose=True)
         dummyTapHandler.check_call("get_columns", parameters2)
+
+    def test_parse_filename(self):
+        self._create_tar("filename.tar", self._files)
+        xsa = XMMNewtonClass(self.get_dummy_tap_handler())
+        with tarfile.open("filename.tar", "r") as tar:
+            for i in tar.getmembers():
+                paths = os.path.split(i.name)
+                fname = paths[1]
+                paths = os.path.split(paths[0])
+                if paths[1] != "pps":
+                    continue
+                fname_info = xsa._parse_filename(fname)
+                assert fname_info["X"] == "P"
 
     _files = {
         "0405320501": {
