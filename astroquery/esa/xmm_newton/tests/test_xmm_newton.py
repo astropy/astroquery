@@ -12,6 +12,7 @@ Created on 4 Sept. 2019
 
 import pytest
 
+import sys
 import tarfile
 import os
 import errno
@@ -153,7 +154,95 @@ class TestXMMNewton():
         }
     }
 
+    _files_lightcurves = {
+        "0405320501": {
+            "pps": [
+                "P0405320501M1S002EXPMAP1000.FTZ",
+                "P0405320501M1S002IMAGE_4000.FTZ",
+                "P0405320501M2S003EXPMAP2000.FTZ",
+                "P0405320501M2S003IMAGE_5000.FTZ",
+                "P0405320501PNS001EXPMAP3000.FTZ",
+                "P0405320501PNS001IMAGE_8000.FTZ",
+                "P0405320501M1S002EXPMAP2000.FTZ",
+                "P0405320501M1S002IMAGE_5000.FTZ",
+                "P0405320501M2S003EXPMAP3000.FTZ",
+                "P0405320501M2S003IMAGE_8000.FTZ",
+                "P0405320501PNS001EXPMAP4000.FTZ",
+                "P0405320501PNX000DETMSK1000.FTZ",
+                "P0405320501M1S002EXPMAP3000.FTZ",
+                "P0405320501M1S002IMAGE_8000.FTZ",
+                "P0405320501M2S003EXPMAP4000.FTZ",
+                "P0405320501M2X000DETMSK1000.FTZ",
+                "P0405320501PNS001EXPMAP5000.FTZ",
+                "P0405320501PNX000DETMSK2000.FTZ",
+                "P0405320501M1S002EXPMAP4000.FTZ",
+                "P0405320501M1X000DETMSK1000.FTZ",
+                "P0405320501M2S003EXPMAP5000.FTZ",
+                "P0405320501M2X000DETMSK2000.FTZ",
+                "P0405320501PNS001EXPMAP8000.FTZ",
+                "P0405320501PNX000DETMSK3000.FTZ",
+                "P0405320501M1S002EXPMAP5000.FTZ",
+                "P0405320501M1X000DETMSK2000.FTZ",
+                "P0405320501M2S003EXPMAP8000.FTZ",
+                "P0405320501M2X000DETMSK3000.FTZ",
+                "P0405320501PNS001IMAGE_1000.FTZ",
+                "P0405320501PNX000DETMSK4000.FTZ",
+                "P0405320501M1S002EXPMAP8000.FTZ",
+                "P0405320501M1X000DETMSK3000.FTZ",
+                "P0405320501M2S003IMAGE_1000.FTZ",
+                "P0405320501M2X000DETMSK4000.FTZ",
+                "P0405320501PNS001IMAGE_2000.FTZ",
+                "P0405320501PNX000DETMSK5000.FTZ",
+                "P0405320501M1S002IMAGE_1000.FTZ",
+                "P0405320501M1X000DETMSK4000.FTZ",
+                "P0405320501M2S003IMAGE_2000.FTZ",
+                "P0405320501M2X000DETMSK5000.FTZ",
+                "P0405320501PNS001IMAGE_3000.FTZ",
+                "P0405320501M1S002IMAGE_2000.FTZ",
+                "P0405320501M1X000DETMSK5000.FTZ",
+                "P0405320501M2S003IMAGE_3000.FTZ",
+                "P0405320501PNS001EXPMAP1000.FTZ",
+                "P0405320501PNS001IMAGE_4000.FTZ",
+                "P0405320501M1S002IMAGE_3000.FTZ",
+                "P0405320501M2S003EXPMAP1000.FTZ",
+                "P0405320501M2S003IMAGE_4000.FTZ",
+                "P0405320501PNS001EXPMAP2000.FTZ",
+                "P0405320501PNS001IMAGE_5000.FTZ",
+                "P0405320501M2S003SRSPEC0053.FTZ",
+                "P0405320501PNS001BGSPEC0053.FTZ",
+                "P0405320501M2S003BGSPEC0053.FTZ",
+                "P0405320501PNS001SRCARF0053.FTZ",
+                "P0405320501M2S003SRCARF0053.FTZ",
+                "P0405320501PNS001SRSPEC0053.FTZ",
+                "P0405320501PNS001SRCTSR8092.FTZ",
+                "P0405320501PNS001FBKTSR8092.FTZ",
+                "P0405320501PNS001SRCTSR8093.FTZ",
+                "P0405320501PNS001FBKTSR8093.FTZ"
+            ]
+        }
+    }
+
     _rmf_files = ["epn_e2_ff20_sdY4.rmf", "m2_e9_im_pall_o.rmf"]
+
+    def _create_tar_lightcurves(self, tarname, files):
+        with tarfile.open(tarname, "w") as tar:
+            for ob_name, ob in self._files.items():
+                for ftype, ftype_val in ob.items():
+                    for f in ftype_val:
+                        try:
+                            os.makedirs(os.path.join(ob_name, ftype))
+                        except OSError as exc:
+                            if exc.errno == errno.EEXIST and \
+                              os.path.isdir(os.path.join(ob_name, ftype)):
+                                pass
+                            else:
+                                raise
+                        _file = open(os.path.join(ob_name, ftype, f), "w")
+                        _file.close()
+                        tar.add(os.path.join(ob_name, ftype, f))
+                        os.remove(os.path.join(ob_name, ftype, f))
+                    shutil.rmtree(os.path.join(ob_name, ftype))
+                shutil.rmtree(ob_name)
 
     def _create_tar(self, tarname, files):
         with tarfile.open(tarname, "w") as tar:
@@ -272,7 +361,7 @@ class TestXMMNewton():
             shutil.rmtree(ob_name)
         os.remove(_tarname)
 
-    def test_get_epic_images_non_existing_file(self):
+    def test_get_epic_images_non_existing_file(self, capsys):
         _tarname = "nonexistingfile.tar"
         xsa = XMMNewtonClass(self.get_dummy_tap_handler())
         res = xsa.get_epic_images(_tarname, [], [],
@@ -593,56 +682,3 @@ class TestXMMNewton():
         for ob_name in self._files:
             shutil.rmtree(ob_name)
         os.remove(_tarname)
-
-    def test_get_epic_lightcurve(self):
-        _tarname = "tarfile.tar"
-        _source_number = 146
-        _instruments = ["M1", "M1_bkg",
-                        "M2", "M2_bkg",
-                        "PN", "PN_bkg"]
-        self._create_tar(_tarname, self._files)
-        xsa = XMMNewtonClass(self.get_dummy_tap_handler())
-        res = xsa.get_epic_lightcurve(_tarname, _source_number,
-                                      instrument=[])
-        assert len(res) == 2
-        for k, v in res.items():
-            assert k in _instruments
-            if type(v) == str:
-                f = os.path.split(v)
-                assert f[1] in self._files["0405320501"]["pps"]
-            if type(v) == list:
-                for i in v:
-                    f = os.path.split(i)
-                    assert f[1] in self._files["0405320501"]["pps"]
-
-        for ob in self._files:
-            assert os.path.isdir(ob)
-            for t in self._files[ob]:
-                assert os.path.isdir(os.path.join(ob, t))
-                for i in res:
-                    if type(res[i]) == str:
-                        assert os.path.isfile(res[i])
-                    if type(res[i]) == list:
-                        for f in res[i]:
-                            assert os.path.isfile(f)
-
-        # Removing files created in this test
-        for ob_name in self._files:
-            shutil.rmtree(ob_name)
-        os.remove(_tarname)
-
-    @pytest.mark.remote_data
-    def test_get_product_from_4xmm_catalogue_by_target(self):
-        params = {'target_name': "4XMM J122934.7+015657",
-                  'filename': "tarfile",
-                  'level': "PPS",
-                  'extension': "FTZ",
-                  'path': ""}
-        obs_id_col = "observation_id"
-        xsa = XMMNewtonClass()
-        obs = xsa.get_product_from_4xmm_catalogue(**params)
-        assert obs_id_col in obs.colnames
-        for ob in obs[obs_id_col]:
-            fname = "%s-%s.tar" % (params['filename'], ob.decode('utf-8'))
-            assert os.path.isfile(fname)
-            os.remove(fname)

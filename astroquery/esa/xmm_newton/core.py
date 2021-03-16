@@ -20,6 +20,7 @@ from pathlib import Path
 import tarfile
 import os
 
+from astropy.io import fits
 from . import conf
 from astroquery import log
 from astropy.coordinates import SkyCoord
@@ -43,6 +44,8 @@ class XMMNewtonClass(BaseQuery):
                                     "/tap-server/tap/")
         else:
             self._tap = tap_handler
+        self._rmf_ftp = str("http://sasdev-xmm.esac.esa.int/"
+                            "pub/ccf/constituents/extras/responses/")
 
     def download_data(self, observation_id, *, filename=None, verbose=False,
                       **kwargs):
@@ -97,8 +100,8 @@ class XMMNewtonClass(BaseQuery):
         None if not verbose. It downloads the observation indicated
         If verbose returns the filename
         """
-        
-        filename = filename.split('.')[0]
+        if filename is not None:
+            filename = filename.split('.')[0]
 
         link = self.data_aio_url + "obsno=" + observation_id
 
@@ -271,75 +274,6 @@ class XMMNewtonClass(BaseQuery):
         else:
             return columns
 
-    def get_product_from_4xmm_catalogue(self, *, target_name=None,
-                                        ra=None, dec=None, radius=None,
-                                        filename="",
-                                        path="", **kwargs):
-        """Downloads the products from a given 4XMM Catalogue target
-        Parameters
-        ----------
-        target_name : string, optional, default None
-            The name of the target
-        ra : float, optional, default None
-            The Right Ascension coordinate of the target
-        dec : float, optional, default None
-            The Declination coordinate of the target
-        radius : float, optional, default None
-            The radius to query the target
-        filename : string, optional, default ""
-            A prefix for the downloaded products
-        path : string, optional, default ""
-            A specific path to download the products
-        Returns
-        -------
-        A astropy.table.table.Table containing the observation ids
-        of the given target
-        """
-        if not target_name and (not ra or not dec):
-            raise Exception(("Input parameters needed, "
-                             "please provide the name "
-                             "or the equatorial coordinates of the target"))
-
-        # 4XMM catalogue table
-        xsa_table = "xsa.v_epic_source_cat"
-        obs_id_col = "observation_id"
-        target_name_col = "iauname"
-        equatorial_coor_col = "epic_source_cat_equatorial_spoint"
-        if target_name is not None:
-            query = ("select %s from %s "
-                     "where %s like '%s';" % (obs_id_col,
-                                              xsa_table,
-                                              target_name_col,
-                                              target_name))
-        else:
-            if not radius:
-                radius = 1.0
-            query = ("select %s from %s "
-                     "where 1=contains(%s, circle('ICRS', %f, %f, %f));"
-                     % (obs_id_col,
-                        xsa_table,
-                        equatorial_coor_col,
-                        ra,
-                        dec,
-                        radius))
-        table = self.query_xsa_tap(query)
-        if obs_id_col not in table.colnames:
-            raise Exception("No observations retrieved")
-        for ob in table[obs_id_col]:
-            if filename != "":
-                fname = filename + "-" + ob.decode('utf-8')
-                if path != "" and os.path.isdir(path):
-                    fname = os.path.join(path, fname)
-                self.download_data(ob.decode('utf-8'),
-                                   filename=fname, **kwargs)
-            else:
-                if path != "" and os.path.isdir(path):
-                    fname = os.path.join(path, ob.decode('utf-8'))
-                    self.download_data(ob.decode('utf-8'),
-                                       filename=fname, **kwargs)
-                self.download_data(ob.decode('utf-8'), **kwargs)
-        return table
-
     def _parse_filename(self, filename):
         """Parses the file's name of a product
 
@@ -499,9 +433,8 @@ class XMMNewtonClass(BaseQuery):
 
         return ret
 
-    def get_epic_images(self, filename, *, band=[], instrument=[],
-                        get_detmask=False, get_exposure_map=False, path=""):
-        """Extracts the European Photon Imaging Camera (EPIC) images from a given TAR file
+    def get_epic_images(self, filename, band=[], instrument=[], **kwargs):
+        """Extracts the EPIC images from a given TAR file
 
         For a given TAR file obtained with:
             XMM.download_data(OBS_ID,level="PPS",extension="FTZ",filename=tarfile)
@@ -830,5 +763,6 @@ class XMMNewtonClass(BaseQuery):
                                              instrument))
 
         return ret
+
 
 XMMNewton = XMMNewtonClass()
