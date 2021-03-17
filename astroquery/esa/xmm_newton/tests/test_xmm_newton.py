@@ -23,7 +23,9 @@ from astroquery.utils.tap.core import TapPlus
 
 from ..core import XMMNewtonClass
 from ..tests.dummy_tap_handler import DummyXMMNewtonTapHandler
+from ..tests.dummy_handler import DummyHandler
 from fileinput import filename
+from tarfile import is_tarfile
 
 
 class TestXMMNewton():
@@ -75,15 +77,20 @@ class TestXMMNewton():
         xsa = XMMNewtonClass(self.get_dummy_tap_handler())
         xsa.query_xsa_tap(**parameters)
         self.get_dummy_tap_handler().check_call("launch_job", parameters)
+        self.get_dummy_tap_handler().check_parameters(parameters, "launch_job")
+        self.get_dummy_tap_handler().check_method("launch_job")
+        self.get_dummy_tap_handler().get_tables()
+        self.get_dummy_tap_handler().get_columns()
+        self.get_dummy_tap_handler().load_tables()
 
     def test_get_tables(self):
         parameters2 = {'only_names': True,
                        'verbose': True}
 
-        dummyTapHandler = DummyXMMNewtonTapHandler("get_tables", parameters2)
-        xsa = XMMNewtonClass(self.get_dummy_tap_handler())
-        xsa.get_tables(only_names=True, verbose=True)
-        dummyTapHandler.check_call("get_tables", parameters2)
+        dummyHandler = DummyXMMNewtonTapHandler("get_tables", parameters2)
+        dummyHandler.check_call("get_tables", parameters2)
+        dummyHandler.check_method("get_tables")
+        dummyHandler.check_parameters(parameters2, "get_tables")
 
     def test_get_columns(self):
         parameters2 = {'table_name': "table",
@@ -91,6 +98,16 @@ class TestXMMNewton():
                        'verbose': True}
 
         dummyTapHandler = DummyXMMNewtonTapHandler("get_columns", parameters2)
+        xsa = XMMNewtonClass(self.get_dummy_tap_handler())
+        xsa.get_columns("table", only_names=True, verbose=True)
+        dummyTapHandler.check_call("get_columns", parameters2)
+
+    def test_dummy_handler(self):
+        parameters2 = {'table_name': "table",
+                       'only_names': True,
+                       'verbose': True}
+
+        dummyTapHandler = DummyHandler("get_columns", parameters2)
         xsa = XMMNewtonClass(self.get_dummy_tap_handler())
         xsa.get_columns("table", only_names=True, verbose=True)
         dummyTapHandler.check_call("get_columns", parameters2)
@@ -289,6 +306,11 @@ class TestXMMNewton():
                         os.remove(os.path.join(ob_name, ftype, f))
                     shutil.rmtree(os.path.join(ob_name, ftype))
                 shutil.rmtree(ob_name)
+
+    def test_create_tar_lightcurves(self):
+        _tarname = "tarfile_lightcurves.tar"
+        self._create_tar_lightcurves(_tarname, self._files_lightcurves)
+        assert os.path.isfile(_tarname)
 
     def test_get_epic_spectra_non_existing_file(self, capsys):
         _tarname = "nonexistingfile.tar"
