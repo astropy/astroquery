@@ -172,26 +172,38 @@ class BaseQuery:
         return self.__class__(*args, **kwargs)
 
     def _response_hook(self, response, *args, **kwargs):
-        # Log request at INFO severity
-        request_hdrs = '\n'.join(f'{k}: {v}' for k, v in response.request.headers.items())
-        request_log = textwrap.indent(
-            f"-----------------------------------------\n"
-            f"{response.request.method} {response.request.url}\n"
-            f"{request_hdrs}\n"
-            f"\n"
-            f"{response.request.body}\n"
-            f"-----------------------------------------", '\t')
-        log.debug(f"HTTP request\n{request_log}")
-        # Log response at DEBUG severity
-        response_hdrs = '\n'.join(f'{k}: {v}' for k, v in response.headers.items())
-        response_log = textwrap.indent(
-            f"-----------------------------------------\n"
-            f"{response.status_code} {response.reason} {response.url}\n"
-            f"{response_hdrs}\n"
-            f"\n"
-            f"{response.text}\n"
-            f"-----------------------------------------", '\t')
-        log.log(5, f"HTTP response\n{response_log}")
+        loglevel = log.getEffectiveLevel()
+
+        if loglevel >= 10:
+            # Log request at DEBUG severity
+            request_hdrs = '\n'.join(f'{k}: {v}' for k, v in response.request.headers.items())
+            request_log = textwrap.indent(
+                f"-----------------------------------------\n"
+                f"{response.request.method} {response.request.url}\n"
+                f"{request_hdrs}\n"
+                f"\n"
+                f"{response.request.body}\n"
+                f"-----------------------------------------", '\t')
+            log.debug(f"HTTP request\n{request_log}")
+        if loglevel >= 5:
+            # Log response at super-DEBUG severity
+            response_hdrs = '\n'.join(f'{k}: {v}' for k, v in response.headers.items())
+            if kwargs.get('stream'):
+                response_log = textwrap.indent(
+                    f"-----------------------------------------\n"
+                    f"{response.status_code} {response.reason} {response.url}\n"
+                    f"{response_hdrs}\n"
+                    "Streaming Data\n"
+                    f"-----------------------------------------", '\t')
+            else:
+                response_log = textwrap.indent(
+                    f"-----------------------------------------\n"
+                    f"{response.status_code} {response.reason} {response.url}\n"
+                    f"{response_hdrs}\n"
+                    f"\n"
+                    f"{response.text}\n"
+                    f"-----------------------------------------", '\t')
+            log.log(5, f"HTTP response\n{response_log}")
 
     def _request(self, method, url,
                  params=None, data=None, headers=None,
@@ -386,6 +398,9 @@ class BaseQuery:
                 response.raise_for_status()
 
         blocksize = astropy.utils.data.conf.download_block_size
+
+        log.debug(f"Downloading URL {url} to {local_filepath} with size {length} "
+                  f"by blocks of {blocksize}")
 
         bytes_read = 0
 
