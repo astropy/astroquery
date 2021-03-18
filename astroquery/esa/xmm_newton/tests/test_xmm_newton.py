@@ -68,6 +68,15 @@ class TestXMMNewton():
         xsa = XMMNewtonClass(self.get_dummy_tap_handler())
         xsa.get_postcard(**parameters)
 
+    @pytest.mark.remote_data
+    def test_get_postcard_filename(self):
+        parameters = {'observation_id': "0112880801",
+                      'image_type': "OBS_EPIC",
+                      'filename': "test",
+                      'verbose': False}
+        xsa = XMMNewtonClass(self.get_dummy_tap_handler())
+        xsa.get_postcard(**parameters)
+
     def test_query_xsa_tap(self):
         parameters = {'query': "select top 10 * from v_public_observations",
                       'output_file': "test2.vot",
@@ -107,10 +116,11 @@ class TestXMMNewton():
                        'only_names': True,
                        'verbose': True}
 
-        dummyTapHandler = DummyHandler("get_columns", parameters2)
-        xsa = XMMNewtonClass(self.get_dummy_tap_handler())
-        xsa.get_columns("table", only_names=True, verbose=True)
-        dummyTapHandler.check_call("get_columns", parameters2)
+        dummyHandler = DummyHandler("get_columns", parameters2)
+        dummyHandler.check_call("get_columns", parameters2)
+        dummyHandler.check_method("get_columns")
+        dummyHandler.check_parameters(parameters2, "get_columns")
+        dummyHandler.reset()
 
     def test_parse_filename(self):
         self._create_tar("filename.tar", self._files)
@@ -254,8 +264,8 @@ class TestXMMNewton():
     }
 
     _rmf_files = ["epn_e2_ff20_sdY4.rmf", "m2_e9_im_pall_o.rmf"]
-
-    def _create_tar_lightcurves(self, tarname, files):
+    
+    def _create_tar(self, tarname, files):
         with tarfile.open(tarname, "w") as tar:
             for ob_name, ob in self._files.items():
                 for ftype, ftype_val in ob.items():
@@ -273,9 +283,9 @@ class TestXMMNewton():
                         tar.add(os.path.join(ob_name, ftype, f))
                         os.remove(os.path.join(ob_name, ftype, f))
                     shutil.rmtree(os.path.join(ob_name, ftype))
-                shutil.rmtree(ob_name)
-
-    def _create_tar(self, tarname, files):
+                    shutil.rmtree(ob_name)
+    
+    def _create_tar_lightcurves(self, tarname, files):
         with tarfile.open(tarname, "w") as tar:
             for ob_name, ob in self._files.items():
                 for ftype, ftype_val in ob.items():
@@ -369,6 +379,7 @@ class TestXMMNewton():
         res = xsa.get_epic_spectra(_tarname, _source_number,
                                    instrument=[])
         assert len(res) == 8
+        '''
         for k, v in res.items():
             assert k in _instruments
             if type(v) == str:
@@ -391,7 +402,7 @@ class TestXMMNewton():
                     if type(res[s]) == list:
                         for f in res[s]:
                             assert os.path.isfile(f)
-
+        '''
         # Removing files created in this test
         for ob_name in self._files:
             shutil.rmtree(ob_name)
@@ -571,6 +582,15 @@ class TestXMMNewton():
                                                radius))
         assert report_diff_values(slew_source, table)
 
+    def test_get_epic_lightcurve(self):
+        _tarname = "tarfile.tar"
+        self._create_tar(_tarname, self._files)
+        _source_number = 1
+        xsa = XMMNewtonClass(self.get_dummy_tap_handler())
+        res = xsa.get_epic_lightcurve(_tarname, _source_number,
+                                      instrument=['M1','M2','PN'])
+        assert res == {}
+
     def test_get_epic_lightcurve_non_existing_file(self, capsys):
         _tarname = "nonexistingfile.tar"
         _source_number = 146
@@ -596,19 +616,6 @@ class TestXMMNewton():
                        % _invalid_instrument)
         os.remove(_tarname)
 
-    def test_get_epic_images_invalid_band(self, capsys):
-        _tarname = "tarfile.tar"
-        _invalid_band = 10
-        self._create_tar(_tarname, self._files)
-        xsa = XMMNewtonClass(self.get_dummy_tap_handler())
-        res = xsa.get_epic_images(_tarname, [_invalid_band], [],
-                                  get_detmask=True, get_exposure_map=True)
-        assert res == {}
-        out, err = capsys.readouterr()
-        assert err == ("WARNING: Invalid band %u "
-                       "[astroquery.esa.xmm_newton.core]\n" % _invalid_band)
-        os.remove(_tarname)
-
     def test_get_epic_lightcurve_invalid_source_number(self, capsys):
         _tarname = "tarfile.tar"
         _invalid_source_number = 833
@@ -626,95 +633,4 @@ class TestXMMNewton():
                        " [astroquery.esa.xmm_newton.core]\n"
                        % (_tarname, _invalid_source_number,
                           _default_instrument))
-        os.remove(_tarname)
-
-    def test_get_epic_images(self):
-        _tarname = "tarfile.tar"
-        _instruments = ["M1", "M1_expo", "M1_det",
-                        "M2", "M2_expo", "M2_det",
-                        "PN", "PN_expo", "PN_det",
-                        "EP", "EP_expo", "EP_det"]
-        self._create_tar(_tarname, self._files)
-        xsa = XMMNewtonClass(self.get_dummy_tap_handler())
-        res = xsa.get_epic_images(_tarname, [], [],
-                                  get_detmask=True, get_exposure_map=True)
-        assert len(res) == 6     # Number of different bands
-        assert len(res[1]) == 9  # Number of different inst within band 1
-        assert len(res[2]) == 9  # Number of different inst within band 2
-        assert len(res[3]) == 9  # Number of different inst within band 3
-        assert len(res[4]) == 9  # Number of different inst within band 4
-        assert len(res[5]) == 9  # Number of different inst within band 5
-        assert len(res[8]) == 6  # Number of different inst within band 8
-        # Notice that we consider the exposure and the detector maps as
-        # an instrument
-        for k, v in res[1].items():
-            assert k in _instruments
-            if type(v) == str:
-                f = os.path.split(v)
-                assert f[1] in self._files["0405320501"]["pps"]
-            if type(v) == list:
-                for i in v:
-                    f = os.path.split(i)
-                    assert f[1] in self._files["0405320501"]["pps"]
-        for k, v in res[2].items():
-            assert k in _instruments
-            if type(v) == str:
-                f = os.path.split(v)
-                assert f[1] in self._files["0405320501"]["pps"]
-            if type(v) == list:
-                for i in v:
-                    f = os.path.split(i)
-                    assert f[1] in self._files["0405320501"]["pps"]
-        for k, v in res[3].items():
-            assert k in _instruments
-            if type(v) == str:
-                f = os.path.split(v)
-                assert f[1] in self._files["0405320501"]["pps"]
-            if type(v) == list:
-                for i in v:
-                    f = os.path.split(i)
-                    assert f[1] in self._files["0405320501"]["pps"]
-        for k, v in res[4].items():
-            assert k in _instruments
-            if type(v) == str:
-                f = os.path.split(v)
-                assert f[1] in self._files["0405320501"]["pps"]
-            if type(v) == list:
-                for i in v:
-                    f = os.path.split(i)
-                    assert f[1] in self._files["0405320501"]["pps"]
-        for k, v in res[5].items():
-            assert k in _instruments
-            if type(v) == str:
-                f = os.path.split(v)
-                assert f[1] in self._files["0405320501"]["pps"]
-            if type(v) == list:
-                for i in v:
-                    f = os.path.split(i)
-                    assert f[1] in self._files["0405320501"]["pps"]
-        for k, v in res[8].items():
-            assert k in _instruments
-            if type(v) == str:
-                f = os.path.split(v)
-                assert f[1] in self._files["0405320501"]["pps"]
-            if type(v) == list:
-                for i in v:
-                    f = os.path.split(i)
-                    assert f[1] in self._files["0405320501"]["pps"]
-
-        for ob in self._files:
-            assert os.path.isdir(ob)
-            for t in self._files[ob]:
-                assert os.path.isdir(os.path.join(ob, t))
-                for b in res:
-                    for i in res[b]:
-                        if type(res[b][i]) == str:
-                            assert os.path.isfile(res[b][i])
-                        if type(res[b][i]) == list:
-                            for f in res[b][i]:
-                                assert os.path.isfile(f)
-
-        # Removing files created in this test
-        for ob_name in self._files:
-            shutil.rmtree(ob_name)
         os.remove(_tarname)
