@@ -264,7 +264,7 @@ class TestXMMNewton():
     }
 
     _rmf_files = ["epn_e2_ff20_sdY4.rmf", "m2_e9_im_pall_o.rmf"]
-    
+
     def _create_tar(self, tarname, files):
         with tarfile.open(tarname, "w") as tar:
             for ob_name, ob in self._files.items():
@@ -284,7 +284,7 @@ class TestXMMNewton():
                         os.remove(os.path.join(ob_name, ftype, f))
                     shutil.rmtree(os.path.join(ob_name, ftype))
                     shutil.rmtree(ob_name)
-    
+
     def _create_tar_lightcurves(self, tarname, files):
         with tarfile.open(tarname, "w") as tar:
             for ob_name, ob in self._files.items():
@@ -588,7 +588,7 @@ class TestXMMNewton():
         _source_number = 1
         xsa = XMMNewtonClass(self.get_dummy_tap_handler())
         res = xsa.get_epic_lightcurve(_tarname, _source_number,
-                                      instrument=['M1','M2','PN'])
+                                      instrument=['M1', 'M2', 'PN'])
         assert res == {}
 
     def test_get_epic_lightcurve_non_existing_file(self, capsys):
