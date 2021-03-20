@@ -552,7 +552,7 @@ class VizierClass(BaseQuery):
             for x in alls:
                 if x in columns:
                     columns.remove(x)
-            body['-out.all'] = 2
+            body['-out.all'] = None
         # keyword name that means default columns
         if '*' in columns:
             columns.remove('*')
@@ -617,7 +617,10 @@ class VizierClass(BaseQuery):
         # add all items that are not lists
         for key, val in body.items():
             if type(val) is not list:
-                script += ["{key}={val}".format(key=key, val=val)]
+                if val:
+                    script += ["{key}={val}".format(key=key, val=val)]
+                else:
+                    script += [key]
         # add list at the end
         for key, val in body.items():
             if type(val) is list:
