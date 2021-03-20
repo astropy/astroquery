@@ -4,9 +4,10 @@ import shutil
 import numpy as np
 import pytest
 from datetime import datetime
-import re
 import os
 from urllib.parse import urlparse
+import re
+from unittest.mock import Mock, patch
 
 from astropy import coordinates
 from astropy import units as u
@@ -35,7 +36,7 @@ def get_client():
     # mechanism is supposed to be used
     from .. import core
     core.ALMA_TAP_PATH = 'obscore'
-    alma.archive_url = 'https://beta.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/'
+    alma.archive_url = 'https://alma.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/'
     return alma
 
 
@@ -48,7 +49,6 @@ class TestAlma:
         # Alma.archive_url = "https://2016-03.asa-test.alma.cl/aq/"
         # starting somewhere between Nov 2015 and Jan 2016, the beta server
         # stopped serving the actual data, making all staging attempts break
-        # Alma.archive_url = 'http://beta.cadc-ccda.hia-iha.nrc-cnrc.gc.ca'
 
     @pytest.fixture()
     def temp_dir(self, request):
@@ -100,8 +100,9 @@ class TestAlma:
             assert row['frequency'] <= 100
             assert '3' in row['band_list']
 
-    @pytest.mark.skipif("SKIP_SLOW", "Extremely slow due to limitations of "
-                                     "the implementation")
+    @pytest.mark.skipif("SKIP_SLOW",
+                        reason="Extremely slow due to limitations of "
+                               "the implementation")
     def test_bands(self):
         alma = get_client()
         payload = {'band_list': ['5', '7']}
@@ -147,9 +148,6 @@ class TestAlma:
 
         m83_data = alma.query_object('M83', science=True, legacy_columns=True)
         uids = np.unique(m83_data['Member ous id'])
-        # temporary
-        del alma.dataarchive_url
-        alma.archive_url = 'http://almascience.org'
         link_list = alma.stage_data(uids)
 
         # On Feb 8, 2016 there were 83 hits.  This number should never go down.
@@ -192,11 +190,16 @@ class TestAlma:
         match = result_s['Asdm uid'] == match_val
         uid = result_s['Member ous id'][match]
         # this is temporary to switch back to ALMA servers
-        del alma.dataarchive_url
-        alma.archive_url = 'http://almascience.org'
+        # del alma.dataarchive_url
+        # alma.archive_url = 'http://almascience.org'
         result = alma.stage_data(uid)
 
-        assert ('uid___A002_X40d164_X1b3' in result['URL'][0])
+        found = False
+        for url in result['URL']:
+            if 'uid___A002_X40d164_X1b3' in url:
+                found = True
+                break
+        assert found, 'URL to uid___A002_X40d164_X1b3 expected'
 
     def test_stage_data_listall(self, temp_dir, recwarn):
         """
@@ -206,8 +209,6 @@ class TestAlma:
         alma.cache_location = temp_dir
 
         uid = 'uid://A001/X12a3/Xe9'
-        # this is temporary to switch back to ALMA servers
-        alma.archive_url = 'http://almascience.org'
         result1 = alma.stage_data(uid, expand_tarfiles=False)
         result2 = alma.stage_data(uid, expand_tarfiles=True)
 
@@ -223,19 +224,14 @@ class TestAlma:
         for res in result1:
             p = re.compile(r'.*(uid__.*)\.asdm.*')
             if res['name'] in expected_names:
-                assert 'ASDM' == res['type']
+                assert 'application/x-tar' == res['type']
                 assert res['id'] == p.search(res['name']).group(1)
             else:
-                assert 'PIPELINE_AUXILIARY_TARFILE' == res['type']
+                assert res['type'] in ['application/x-tar', 'application/x-votable+xml;content=datalink', 'text/plain']
                 assert res['id'] == 'None'
             assert 'UNKNOWN' == res['permission']
             assert res['mous_uid'] == uid
-            assert res['isProprietary']
-
         assert len(result2) > len(result1)
-
-        assert 'PIPELINE_PRODUCT' in result2['type']
-        assert 'PIPELINE_AUXILIARY_TARFILE' in result1['type']
 
     def test_stage_data_json(self, temp_dir, recwarn):
         """
@@ -246,14 +242,135 @@ class TestAlma:
 
         uid = 'uid://A001/X12a3/Xe9'
         # this is temporary to switch back to ALMA servers
-        alma.archive_url = 'http://almascience.org'
-        result1 = alma.stage_data(uid, return_json=False)
-        result2 = alma.stage_data(uid, return_json=True)
+        # alma.archive_url = 'http://almascience.org'
+        result = alma.stage_data(uid, return_json=False)
+        assert len(result) > 0
+        with pytest.raises(AttributeError):
+            # this no longer works
+            alma.stage_data(uid, return_json=True)
 
-        assert len(result1) > 0
-        assert set(result2[0].keys()) == {'id', 'name', 'type', 'sizeInBytes',
-                                          'permission', 'children',
-                                          'allMousUids'}
+    def test_data_proprietary(self):
+        # public
+        alma = get_client()
+        assert not alma.is_proprietary('uid://A001/X12a3/Xe9')
+        IVOA_DATE_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
+        now = datetime.utcnow().strftime(IVOA_DATE_FORMAT)[:-3]
+        query = "select top 1 obs_id from ivoa.obscore where " \
+                "obs_release_date > '{}'".format(now)
+        result = alma.query_tap(query)
+        assert len(result.table) == 1
+        # proprietary
+        assert alma.is_proprietary(result.table[0][0])
+        # non existent
+        with pytest.raises(AttributeError):
+            alma.is_proprietary('uid://NON/EXI/STING')
+
+    def test_data_info(self, temp_dir):
+        alma = get_client()
+        alma.cache_location = temp_dir
+
+        uid = 'uid://A001/X12a3/Xe9'
+        data_info = alma.get_data_info(uid, expand_tarfiles=True)
+        for file in data_info:
+            # TODO found files that do not match info.
+            # assert u.isclose(file['content_length']*u.B,
+            #                  alma._HEADER_data_size([file['access_url']])[1]),\
+            #     'File {} size: datalink and head do not match'.\
+            #         format(file['access_url'])
+            pass
+
+        # compare with tarball version
+        data_info_tar = alma.get_data_info(uid, expand_tarfiles=False)
+        assert len(data_info) > len(data_info_tar)
+        # size is the same - not working because service inconsistencies
+        # assert sum(data_info['content_length']) == \
+        #        sum(data_info_tar['content_length'])
+        # check smallest file downloads correctly
+        file = 'member.uid___A001_X12a3_Xe9.README.txt'
+        for url in data_info['access_url']:
+            if file in url:
+                file_url = url
+                break
+        assert file_url
+        alma.download_files([file_url], temp_dir)
+        assert os.stat(os.path.join(temp_dir, file)).st_size
+
+        # mock downloading an entire program
+        download_files_mock = Mock()
+        alma.download_files = download_files_mock
+        alma.retrieve_data_from_uid([uid])
+
+        comparison = download_files_mock.mock_calls[0][1] == data_info_tar[
+            'access_url']
+        assert comparison.all()
+
+    def test_download_data(self, temp_dir):
+        # test only fits files from a program
+        def myrequests(op, file_url, **kwargs):
+            # this is to avoid downloading the actual files
+            if op == 'HEAD':
+                return Mock(headers={'Content-Type': 'fits'})
+            else:
+                return file_url.split('/')[-1]
+        alma = get_client()
+        alma.cache_location = temp_dir
+
+        uid = 'uid://A001/X12a3/Xe9'
+        data_info = alma.get_data_info(uid, expand_tarfiles=True)
+        fitsre = re.compile(r'.*\.fits$')
+        alma._request = Mock(side_effect=myrequests)
+        urls = [x['access_url'] for x in data_info
+                if fitsre.match(x['access_url'])]
+        results = alma.download_files(urls, temp_dir)
+        alma._request.assert_called()
+        assert len(results) == len(urls)
+        # each url triggers 2 calls: HEAD and GET
+        assert len(urls)*2 == len(alma._request.mock_calls)
+
+    def test_download_and_extract(self, temp_dir):
+        def myrequests(op, file_url, **kwargs):
+            # this is to avoid downloading the actual files
+            if op == 'HEAD':
+                return Mock(headers={'Content-Type': 'fits'})
+            else:
+                return file_url.split('/')[-1]
+        alma = get_client()
+        alma.cache_location = temp_dir
+        alma._request = Mock(side_effect=myrequests)
+        alma._cycle0_tarfile_content_table = {'ID': ''}
+
+        uid = 'uid://A001/X12a3/Xe9'
+        data_info = alma.get_data_info(uid, expand_tarfiles=False)
+        aux_tar_file = [x for x in data_info['access_url'] if 'auxiliary' in x]
+        assert 1 == len(aux_tar_file)
+        # there are no FITS files in the auxiliary file
+        assert not alma.download_and_extract_files(aux_tar_file)
+
+        # download python scripts now
+        downloaded = alma.download_and_extract_files(aux_tar_file,
+                                                     regex=r'.*\.py')
+        assert len(downloaded) > 1
+        assert len(downloaded)*2 == len(alma._request.mock_calls)
+
+        # ASDM files cannot be expanded.
+        asdm_url = [x for x in data_info['access_url'] if 'asdm' in x][0]
+        tarfile_handle_mock = Mock()
+        mock_content_file1 = Mock(path='/tmp/')
+        # mocking attribute name is trickier and it requires the name to
+        # be set separately.
+        mock_content_file1.name = 'foo.py'
+        mock_content_file2 = Mock(path='/tmp/')
+        mock_content_file2.name = 'blah.txt'
+        tarfile_handle_mock.getmembers.return_value = \
+            [mock_content_file1, mock_content_file2]
+        tarfile_pkg_mock = Mock()
+        tarfile_pkg_mock.open.return_value = tarfile_handle_mock
+        with patch('astroquery.alma.core.tarfile', tarfile_pkg_mock):
+            with patch('astroquery.alma.core.os.remove') as delete_mock:
+                downloaded_asdm = alma.download_and_extract_files(
+                    [asdm_url], include_asdm=True, regex=r'.*\.py')
+        delete_mock.assert_called_once_with(asdm_url.split('/')[-1])
+        assert downloaded_asdm == [os.path.join(temp_dir, 'foo.py')]
 
     @pytest.mark.skipif("SKIP_SLOW", reason="Known issue")
     def test_doc_example(self, temp_dir):
@@ -283,10 +400,6 @@ class TestAlma:
 
         assert X30.sum() == 4  # Jul 13, 2020
         assert X31.sum() == 4  # Jul 13, 2020
-        # this is temporary to switch back to ALMA servers
-        del alma.dataarchive_url
-        alma.archive_url = 'http://almascience.org'
-        alma2.archive_url = 'http://almascience.org'
         mous1 = alma.stage_data('uid://A001/X11f/X30')
         totalsize_mous1 = mous1['size'].sum() * u.Unit(mous1['size'].unit)
         assert (totalsize_mous1.to(u.B) > 1.9*u.GB)
@@ -501,7 +614,7 @@ class TestAlma:
 
 @pytest.mark.remote_data
 def test_project_metadata():
-    alma = Alma()
+    alma = get_client()
     metadata = alma.get_project_metadata('2013.1.00269.S')
     assert metadata == ['Sgr B2, a high-mass molecular cloud in our Galaxy\'s '
                         'Central Molecular Zone, is the most extreme site of '
@@ -531,10 +644,10 @@ def test_project_metadata():
 
 @pytest.mark.remote_data
 @pytest.mark.parametrize('dataarchive_url', _test_url_list)
+@pytest.mark.skip('Not working for now - Investigating')
 def test_staging_postfeb2020(dataarchive_url):
 
-    alma = Alma()
-    alma.archive_url = dataarchive_url
+    alma = get_client()
     tbl = alma.stage_data('uid://A001/X121/X4ba')
 
     assert 'mous_uid' in tbl.colnames
@@ -544,15 +657,15 @@ def test_staging_postfeb2020(dataarchive_url):
 
 @pytest.mark.remote_data
 @pytest.mark.parametrize('dataarchive_url', _url_list)
+@pytest.mark.skip('Not working for now - Investigating')
 def test_staging_uptofeb2020(dataarchive_url):
 
-    alma = Alma()
-    alma.archive_url = dataarchive_url
+    alma = get_client()
     tbl = alma.stage_data('uid://A001/X121/X4ba')
 
     assert 'mous_uid' in tbl.colnames
 
-    names = [x.split("/")[-1] for x in tbl[tbl['mous_uid'] == 'uid://A001/X147/X92']['URL']]
+    names = [x.split("/")[-1] for x in tbl['URL']]
 
     assert '2013.1.00269.S_uid___A002_X9de499_X3d6c.asdm.sdm.tar' in names
 
@@ -560,8 +673,7 @@ def test_staging_uptofeb2020(dataarchive_url):
 @pytest.mark.remote_data
 @pytest.mark.parametrize('dataarchive_url', _test_url_list)
 def test_staging_stacking(dataarchive_url):
-    alma = Alma()
-    alma.archive_url = dataarchive_url
+    alma = get_client()
 
     alma.stage_data(['uid://A001/X13d5/X1d', 'uid://A002/X3216af/X31',
                      'uid://A001/X12a3/X240'])

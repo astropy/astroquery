@@ -1,6 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-import json
 import os.path
 import keyring
 import numpy as np
@@ -13,16 +12,18 @@ from pkg_resources import resource_filename
 from bs4 import BeautifulSoup
 import pyvo
 
+
 from six.moves.urllib_parse import urljoin
 import six
-from astropy.table import Table, Column, vstack as table_vstack
-from astropy import log
+from astropy.table import Table, Column, vstack
+from astroquery import log
+from astropy.utils import deprecated
 from astropy.utils.console import ProgressBar
 from astropy.utils.exceptions import AstropyDeprecationWarning
 from astropy import units as u
 from astropy.time import Time
 
-from ..exceptions import (RemoteServiceError, LoginError)
+from ..exceptions import LoginError
 from ..utils import commons
 from ..utils.process_asyncs import async_to_sync
 from ..query import QueryWithLogin
@@ -30,14 +31,15 @@ from .tapsql import _gen_pos_sql, _gen_str_sql, _gen_numeric_sql,\
     _gen_band_list_sql, _gen_datetime_sql, _gen_pol_sql, _gen_pub_sql,\
     _gen_science_sql, _gen_spec_res_sql, ALMA_DATE_FORMAT
 from . import conf, auth_urls
+from astroquery.utils.commons import ASTROPY_LT_4_1
 
 __all__ = {'AlmaClass', 'ALMA_BANDS'}
 
 __doctest_skip__ = ['AlmaClass.*']
 
-
 ALMA_TAP_PATH = 'tap'
 ALMA_SIA_PATH = 'sia2'
+ALMA_DATALINK_PATH = 'datalink/sync'
 
 # Map from ALMA ObsCore result to ALMA original query result
 # The map is provided in order to preserve the name of the columns in the
@@ -152,8 +154,8 @@ ALMA_FORM_KEYS = {
     },
     'Options': {
         'Public data only': ['public_data', 'data_rights', _gen_pub_sql],
-        'Science observations only': ['science_observations', 'calib_level',
-                                      _gen_science_sql]
+        'Science observations only': ['science_observation',
+                                      'science_observation', _gen_science_sql]
     }
 }
 
@@ -195,8 +197,22 @@ class AlmaClass(QueryWithLogin):
         super(AlmaClass, self).__init__()
         self._sia = None
         self._tap = None
+        self._datalink = None
         self.sia_url = None
         self.tap_url = None
+        self.datalink_url = None
+
+    @property
+    def datalink(self):
+        if not self._datalink:
+            base_url = self._get_dataarchive_url()
+            if base_url.endswith('/'):
+                self.datalink_url = base_url + ALMA_DATALINK_PATH
+            else:
+                self.datalink_url = base_url + '/' + ALMA_DATALINK_PATH
+            self._datalink = pyvo.dal.adhoc.DatalinkService(
+                baseurl=self.datalink_url)
+        return self._datalink
 
     @property
     def sia(self):
@@ -231,9 +247,11 @@ class AlmaClass(QueryWithLogin):
             The object name.  Will be resolved by astropy.coord.SkyCoord
         cache : deprecated
         public : bool
-            Return only publicly available datasets?
+            True to return only public datasets, False to return private only,
+            None to return both
         science : bool
-            Return only data marked as "science" in the archive?
+            True to return only science datasets, False to return only
+            calibration, None to return both
         payload : dict
             Dictionary of additional keywords.  See `help`.
         """
@@ -258,9 +276,11 @@ class AlmaClass(QueryWithLogin):
         cache : Deprecated
             Cache the query?
         public : bool
-            Return only publicly available datasets?
+            True to return only public datasets, False to return private only,
+            None to return both
         science : bool
-            Return only data marked as "science" in the archive?
+            True to return only science datasets, False to return only
+            calibration, None to return both
         payload : dict
             Dictionary of additional keywords.  See `help`.
         """
@@ -292,9 +312,11 @@ class AlmaClass(QueryWithLogin):
             Please consult the `help` method
         cache : deprecated
         public : bool
-            Return only publicly available datasets?
+            True to return only public datasets, False to return private only,
+            None to return both
         science : bool
-            Return only data marked as "science" in the archive?
+            True to return only science datasets, False to return only
+            calibration, None to return both
         legacy_columns : bool
             True to return the columns from the obsolete ALMA advanced query,
             otherwise return the current columns based on ObsCore model.
@@ -309,8 +331,8 @@ class AlmaClass(QueryWithLogin):
 
         for arg in local_args:
             # check if the deprecated attributes have been used
-            for deprecated in ['cache', 'max_retries', 'get_html_version']:
-                if arg[0] == deprecated and arg[1] is not None:
+            for dep in ['cache', 'max_retries', 'get_html_version']:
+                if arg[0] == dep and arg[1] is not None:
                     warnings.warn(
                         ("Argument '{}' has been deprecated "
                          "since version 4.0.1 and will be ignored".format(arg[0])),
@@ -328,24 +350,20 @@ class AlmaClass(QueryWithLogin):
             else:
                 payload[arg] = value
 
-        if science:
-            payload['science_observations'] = True
-
+        if science is not None:
+            payload['science_observation'] = science
         if public is not None:
-            if public:
-                payload['public_data'] = True
-            else:
-                payload['public_data'] = False
-
+            payload['public_data'] = public
         if get_query_payload:
             return payload
 
         query = _gen_sql(payload)
-        result = self.query_tap(query, **kwargs)
-        if result:
+        result = self.query_tap(query, maxrec=payload.get('maxrec', None))
+        if result is not None:
             result = result.to_table()
         else:
-            return result
+            # Should not happen
+            raise RuntimeError('BUG: Unexpected result None')
         if legacy_columns:
             legacy_result = Table()
             # add 'Observation date' column
@@ -408,12 +426,19 @@ class AlmaClass(QueryWithLogin):
             maxrec=maxrec,
             **kwargs)
 
-    def query_tap(self, query, **kwargs):
+    def query_tap(self, query, maxrec=None):
         """
         Send query to the ALMA TAP. Results in pyvo.dal.TapResult format.
         result.table in Astropy table format
+
+        Parameters
+        ----------
+        maxrec : int
+            maximum number of records to return
+
         """
-        return self.tap.search(query, language='ADQL', **kwargs)
+        log.debug('TAP query: {}'.format(query))
+        return self.tap.search(query, language='ADQL', maxrec=maxrec)
 
     def help_tap(self):
         print('Table to query is "voa.ObsCore".')
@@ -468,22 +493,27 @@ class AlmaClass(QueryWithLogin):
                              "on github.")
         return self.dataarchive_url
 
+    @deprecated(since="v0.4.1", alternative="get_data_info")
     def stage_data(self, uids, expand_tarfiles=False, return_json=False):
         """
         Obtain table of ALMA files
+
+        DEPRECATED: Data is no longer staged. This method is deprecated and
+        kept here for backwards compatibility reasons but it's not fully
+        compatible with the original implementation.
 
         Parameters
         ----------
         uids : list or str
             A list of valid UIDs or a single UID.
             UIDs should have the form: 'uid://A002/X391d0b/X7b'
-        expand_tarfiles : bool
-            Expand the tarfiles to obtain lists of all contained files.  If
-            this is specified, the parent tarfile will *not* be included
-        return_json : bool
-            Return a list of the JSON data sets returned from the query.  This
-            is primarily intended as a debug routine, but may be useful if there
-            are unusual scheduling block layouts.
+        expand_tarfiles : DEPRECATED
+        return_json : DEPRECATED
+            Note: The returned astropy table can be easily converted to json
+            through pandas:
+            output = StringIO()
+            stage_data(...).to_pandas().to_json(output)
+            table_json = output.getvalue()
 
         Returns
         -------
@@ -492,95 +522,136 @@ class AlmaClass(QueryWithLogin):
             downloading), and the file size
         """
 
-        dataarchive_url = self._get_dataarchive_url()
-
-        # allow for the uid to be specified as single entry
-        if isinstance(uids, str):
-            uids = [uids]
-
-        tables = []
-        for uu in uids:
-            log.debug("Retrieving metadata for {0}".format(uu))
-            uid = clean_uid(uu)
-            req = self._request('GET', '{dataarchive_url}/rh/data/expand/{uid}'
-                                .format(dataarchive_url=dataarchive_url,
-                                        uid=uid),
-                                cache=False)
-            req.raise_for_status()
-            try:
-                jdata = req.json()
-            # Note this exception does not work in Python 2.7
-            except json.JSONDecodeError:
-                if 'Central Authentication Service' in req.text or 'recentRequests' in req.url:
-                    # this indicates a wrong server is being used;
-                    # the "pre-feb2020" stager will be phased out
-                    # when the new services are deployed
-                    raise RemoteServiceError("Failed query!  This shouldn't happen - please "
-                                             "report the issue as it may indicate a change in "
-                                             "the ALMA servers.")
-                else:
-                    raise
-
-            if return_json:
-                tables.append(jdata)
-            else:
-                if jdata['type'] != 'PROJECT':
-                    log.error("Skipped uid {uu} because it is not a project and"
-                              "lacks the appropriate metadata; it is a "
-                              "{jdata}".format(uu=uu, jdata=jdata['type']))
-                    continue
-                if expand_tarfiles:
-                    table = uid_json_to_table(jdata, productlist=['ASDM',
-                                                                  'PIPELINE_PRODUCT'])
-                else:
-                    table = uid_json_to_table(jdata,
-                                              productlist=['ASDM',
-                                                           'PIPELINE_PRODUCT',
-                                                           'PIPELINE_PRODUCT_TARFILE',
-                                                           'PIPELINE_AUXILIARY_TARFILE'])
-                table['sizeInBytes'].unit = u.B
-                table.rename_column('sizeInBytes', 'size')
-                table.add_column(Column(data=['{dataarchive_url}/dataPortal/{name}'
-                                              .format(dataarchive_url=dataarchive_url,
-                                                      name=name)
-                                              for name in table['name']],
-                                        name='URL'))
-
-                isp = self.is_proprietary(uid)
-                table.add_column(Column(data=[isp for row in table],
-                                        name='isProprietary'))
-
-                tables.append(table)
-                log.debug("Completed metadata retrieval for {0}".format(uu))
-
-        if len(tables) == 0:
-            raise ValueError("No valid UIDs supplied.")
-
         if return_json:
-            return tables
-
-        table = table_vstack(tables)
-
+            raise AttributeError(
+                'return_json is deprecated. See method docs for a workaround')
+        table = Table()
+        res = self.get_data_info(uids, expand_tarfiles=expand_tarfiles)
+        p = re.compile(r'.*(uid__.*)\.asdm.*')
+        if res:
+            table['name'] = [u.split('/')[-1] for u in res['access_url']]
+            table['id'] = [p.search(x).group(1) if 'asdm' in x else 'None'
+                           for x in table['name']]
+            table['type'] = res['content_type']
+            table['size'] = res['content_length']
+            table['permission'] = ['UNKNOWN'] * len(res)
+            table['mous_uid'] = [uids] * len(res)
+            table['URL'] = res['access_url']
+            table['isProprietary'] = res['readable']
         return table
+
+    def get_data_info(self, uids, expand_tarfiles=False,
+                      with_auxiliary=True, with_rawdata=True):
+
+        """
+        Return information about the data associated with ALMA uid(s)
+        Parameters
+        ----------
+        uids: list or str
+            A list of valid UIDs or a single UID.
+            UIDs should have the form: 'uid://A002/X391d0b/X7b'
+        expand_tarfiles: bool
+            False to return information on the tarfiles packages containing
+            the data or True to return information about individual files in
+            these packages
+        with_auxiliary: bool
+            True to include the auxiliary packages, False otherwise
+        with_rawdata: bool
+            True to include raw data, False otherwise
+
+        Returns
+        -------
+        Table with results or None. Table has the following columns: id (UID),
+        access_url (URL to access data), content_length, content_type (MIME
+        type), semantics, description (optional), error_message (optional)
+        """
+        if uids is None:
+            raise AttributeError('UIDs required')
+        if isinstance(uids, six.string_types + (np.bytes_,)):
+            uids = [uids]
+        if not isinstance(uids, (list, tuple, np.ndarray)):
+            raise TypeError("Datasets must be given as a list of strings.")
+        # TODO remove this loop and send uids at once when pyvo fixed
+        result = None
+        for uid in uids:
+            res = self.datalink.run_sync(uid)
+            if res.status[0] != 'OK':
+                raise Exception('ERROR {}: {}'.format(res.status[0],
+                                                      res.status[1]))
+            temp = res.table
+            if ASTROPY_LT_4_1:
+                # very annoying
+                for col in [x for x in temp.colnames
+                            if x not in ['content_length', 'readable']]:
+                    temp[col] = temp[col].astype(str)
+            result = temp if result is None else vstack([result, temp])
+            to_delete = []
+            for index, rr in enumerate(result):
+                if rr['error_message'] is not None and \
+                        rr['error_message'].strip():
+                    log.warning('Error accessing info about file {}: {}'.
+                                format(rr['access_url'], rr['error_message']))
+                    # delete from results. Good thing to do?
+                    to_delete.append(index)
+        result.remove_rows(to_delete)
+        if not with_auxiliary:
+            result = result[np.core.defchararray.find(
+                result['semantics'], '#aux') == -1]
+        if not with_rawdata:
+            result = result[np.core.defchararray.find(
+                result['semantics'], '#progenitor') == -1]
+        # primary data delivery type is files packaged in tarballs. However
+        # some type of data has an alternative way to retrieve each individual
+        # file as an alternative (semantics='#datalink' and
+        # 'content_type=application/x-votable+xml;content=datalink'). They also
+        # require an extra call to the datalink service to get the list of
+        # files.
+        DATALINK_FILE_TYPE = 'application/x-votable+xml;content=datalink'
+        DATALINK_SEMANTICS = '#datalink'
+        if expand_tarfiles:
+            # identify the tarballs that can be expandable and replace them
+            # with the list of components
+            expanded_result = None
+            to_delete = []
+            for index, row in enumerate(result):
+                if DATALINK_SEMANTICS in row['semantics'] and \
+                        row['content_type'] == DATALINK_FILE_TYPE:
+                    # subsequent call to datalink
+                    file_id = row['access_url'].split('ID=')[1]
+                    expanded_tar = self.get_data_info(file_id)
+                    expanded_tar = expanded_tar[
+                        expanded_tar['semantics'] != '#cutout']
+                    if not expanded_result:
+                        expanded_result = expanded_tar
+                    else:
+                        expanded_result = vstack(
+                            [expanded_result, expanded_tar], join_type='exact')
+                    to_delete.append(index)
+            # cleanup
+            result.remove_rows(to_delete)
+            # add the extra rows
+            if expanded_result:
+                result = vstack([result, expanded_result], join_type='exact')
+        else:
+            result = result[np.logical_or(np.core.defchararray.find(
+                result['semantics'], DATALINK_SEMANTICS) == -1,
+                result['content_type'] != DATALINK_FILE_TYPE)]
+
+        return result
 
     def is_proprietary(self, uid):
         """
         Given an ALMA UID, query the servers to determine whether it is
-        proprietary or not.  This will never be cached, since proprietarity is
-        time-sensitive.
+        proprietary or not.
         """
-        dataarchive_url = self._get_dataarchive_url()
-
-        is_proprietary = self._request('GET',
-                                       '{dataarchive_url}/rh/access/{uid}'
-                                       .format(dataarchive_url=dataarchive_url,
-                                               uid=clean_uid(uid)), cache=False)
-
-        is_proprietary.raise_for_status()
-
-        isp = is_proprietary.json()['isProprietary']
-
-        return isp
+        query = "select distinct data_rights from ivoa.obscore where " \
+                "obs_id='{}'".format(uid)
+        result = self.query_tap(query)
+        if not result or len(result.table) == 0:
+            raise AttributeError('{} not found'.format(uid))
+        if len(result.table) == 1 and result.table[0][0] == 'Public':
+            return False
+        return True
 
     def _HEADER_data_size(self, files):
         """
@@ -684,6 +755,15 @@ class AlmaClass(QueryWithLogin):
                     raise ex
         return downloaded_files
 
+    def _parse_result(self, response, verbose=False):
+        """
+        Parse a VOtable response
+        """
+        if not verbose:
+            commons.suppress_vo_warnings()
+
+        return response
+
     def retrieve_data_from_uid(self, uids, cache=True):
         """
         Stage & Download ALMA data.  Will print out the expected file size
@@ -707,56 +787,15 @@ class AlmaClass(QueryWithLogin):
         if not isinstance(uids, (list, tuple, np.ndarray)):
             raise TypeError("Datasets must be given as a list of strings.")
 
-        files = self.stage_data(uids)
-        file_urls = files['URL']
-        totalsize = files['size'].sum() * files['size'].unit
+        files = self.get_data_info(uids)
+        file_urls = files['access_url']
+        totalsize = files['content_length'].sum()*u.B
 
         # each_size, totalsize = self.data_size(files)
         log.info("Downloading files of size {0}...".format(totalsize.to(u.GB)))
         # TODO: Add cache=cache keyword here.  Currently would have no effect.
         downloaded_files = self.download_files(file_urls)
         return downloaded_files
-
-    def _parse_result(self, response, verbose=False):
-        """
-        Parse a VOtable response
-        """
-        if not verbose:
-            commons.suppress_vo_warnings()
-
-        return response
-
-    def _hack_bad_arraysize_vofix(self, text):
-        """
-        Hack to fix an error in the ALMA votables present in most 2016 and 2017 queries.
-
-        The problem is that this entry:
-        '      <FIELD name="Band" datatype="char" ID="32817" xtype="adql:VARCHAR" arraysize="0*">\r',
-        has an invalid ``arraysize`` entry.  Also, it returns a char, but it
-        should be an int.
-        As of February 2019, this issue appears to be half-fixed; the arraysize
-        is no longer incorrect, but the data type remains incorrect.
-
-        Since that problem was discovered and fixed, many other entries have
-        the same error.  Feb 2019, the other instances are gone.
-
-        According to the IVOA, the tables are wrong, not astropy.io.votable:
-        http://www.ivoa.net/documents/VOTable/20130315/PR-VOTable-1.3-20130315.html#ToC11
-
-        A new issue, #1340, noted that 'Release date' and 'Mosaic' both lack data type
-        metadata, necessitating the hack below
-        """
-        lines = text.split(b"\n")
-        newlines = []
-
-        for ln in lines:
-            if b'FIELD name="Band"' in ln:
-                ln = ln.replace(b'datatype="char"', b'datatype="int"')
-            elif b'FIELD name="Release date"' in ln or b'FIELD name="Mosaic"' in ln:
-                ln = ln.replace(b'/>', b' arraysize="*"/>')
-            newlines.append(ln)
-
-        return b"\n".join(newlines)
 
     def _get_auth_info(self, username, store_password=False,
                        reenter_password=False):
@@ -943,6 +982,9 @@ class AlmaClass(QueryWithLogin):
         with names matching a specified regular expression.  The default
         is to extract all FITS files
 
+        NOTE: alma now supports direct listing and downloads of tarballs. See
+        ``get_data_info`` and ``download_and_extract_files``
+
         Parameters
         ----------
         downloaded_files : list
@@ -987,13 +1029,8 @@ class AlmaClass(QueryWithLogin):
                                    include_asdm=False, path='cache_path',
                                    verbose=True):
         """
-        Given a list of tarball URLs:
-
-            1. Download the tarball
-            2. Extract all FITS files (or whatever matches the regex)
-            3. Delete the downloaded tarball
-
-        See ``Alma.get_files_from_tarballs`` for details
+        Given a list of tarball URLs, it extracts all the FITS files (or
+        whatever matches the regex)
 
         Parameters
         ----------
@@ -1011,8 +1048,11 @@ class AlmaClass(QueryWithLogin):
             urls = [urls]
         if not isinstance(urls, (list, tuple, np.ndarray)):
             raise TypeError("Datasets must be given as a list of strings.")
+        filere = re.compile(regex)
 
         all_files = []
+        tar_files = []
+        expanded_files = []
         for url in urls:
             if url[-4:] != '.tar':
                 raise ValueError("URLs should be links to tarballs.")
@@ -1031,32 +1071,43 @@ class AlmaClass(QueryWithLogin):
                              "skipping.")
                     continue
 
-            try:
-                tarball_name = self._request('GET', url, save=True,
-                                             timeout=self.TIMEOUT)
-            except requests.ConnectionError as ex:
-                self.partial_file_list = all_files
-                log.error("There was an error downloading the file. "
-                          "A partially completed download list is "
-                          "in Alma.partial_file_list")
-                raise ex
-            except requests.HTTPError as ex:
-                if ex.response.status_code == 401:
-                    log.info("Access denied to {url}.  Skipping to"
-                             " next file".format(url=url))
-                    continue
-                else:
-                    raise ex
+            tar_file = url.split('/')[-1]
+            files = self.get_data_info(tar_file)
+            if files:
+                expanded_files += [x for x in files['access_url'] if
+                                   filere.match(x.split('/')[-1])]
+            else:
+                tar_files.append(tar_file)
 
-            fitsfilelist = self.get_files_from_tarballs([tarball_name],
+        try:
+            # get the tar files
+            downloaded = self.download_files(tar_files, savedir=path)
+            fitsfilelist = self.get_files_from_tarballs(downloaded,
                                                         regex=regex, path=path,
                                                         verbose=verbose)
 
             if delete:
-                log.info("Deleting {0}".format(tarball_name))
-                os.remove(tarball_name)
+                for tarball_name in downloaded:
+                    log.info("Deleting {0}".format(tarball_name))
+                    os.remove(tarball_name)
 
             all_files += fitsfilelist
+
+            # download the other files
+            all_files += self.download_files(expanded_files, savedir=path)
+
+        except requests.ConnectionError as ex:
+            self.partial_file_list = all_files
+            log.error("There was an error downloading the file. "
+                      "A partially completed download list is "
+                      "in Alma.partial_file_list")
+            raise ex
+        except requests.HTTPError as ex:
+            if ex.response.status_code == 401:
+                log.info("Access denied to {url}.  Skipping to"
+                         " next file".format(url=url))
+            else:
+                raise ex
         return all_files
 
     def help(self, cache=True):
@@ -1139,16 +1190,17 @@ class AlmaClass(QueryWithLogin):
         """
         Get the metadata - specifically, the project abstract - for a given project ID.
         """
-        url = urljoin(self._get_dataarchive_url(), 'aq/')
-
-        assert len(projectid) == 14, "Wrong length for project ID"
-        assert projectid[4] == projectid[6] == projectid[12] == '.', "Wrong format for project ID"
-        response = self._request('GET', "{0}meta/project/{1}".format(url, projectid),
-                                 timeout=self.TIMEOUT,
-                                 cache=cache)
-        response.raise_for_status()
-
-        return response.json()
+        if len(projectid) != 14:
+            raise AttributeError('Wrong length for project ID')
+        if not projectid[4] == projectid[6] == projectid[12] == '.':
+            raise AttributeError('Wrong format for project ID')
+        result = self.query_tap(
+            "select distinct proposal_abstract from "
+            "ivoa.obscore where proposal_id='{}'".format(projectid))
+        if ASTROPY_LT_4_1:
+            return [result[0]['proposal_abstract'].astype(str)]
+        else:
+            return [result[0]['proposal_abstract']]
 
 
 Alma = AlmaClass()

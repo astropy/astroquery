@@ -13,6 +13,9 @@ from ._astropy_init import *
 # ----------------------------------------------------------------------------
 
 import os
+import logging
+
+from .logger import _init_log
 
 
 # Set the bibtex entry to the article referenced in CITATION.
@@ -39,3 +42,9 @@ try:
 except ImportError:
     # TODO: Issue a warning using the logging framework
     __githash__ = ''
+
+
+# Setup logging for astroquery
+logging.addLevelName(5, "TRACE")
+log = logging.getLogger()
+log = _init_log()

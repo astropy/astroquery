@@ -44,6 +44,7 @@ mast
 - Fixed error causing empty products passed to ``Observations.get_product_list()`` to yeild a
   non-empty result. [#1921]
 - Changed AWS cloud access from RequesterPays to anonymous acces [#1980]
+- Fixed error with download of Spitzer data [#1994]
 
 esa/hubble
 ^^^^^^^^^^
@@ -114,6 +115,8 @@ alma
 - ALMA queries using string representations will now convert to appropriate
   coordinates before being sent to the server; previously they were treated as
   whatever unit they were presented in.  [#1867]
+- Download mechanism uses the ALMA Datalink service that allows exploring and
+  downloading entire tarball package files or just part of their content. [#1820]
 
 gaia
 ^^^^
@@ -126,6 +129,15 @@ esa.xmm_newton
 ^^^^^^^^^^^^^^
 
 - Added new function to download EPIC sources metadate. [#1814]
+
+
+Infrastructure, Utility and Other Changes and Additions
+-------------------------------------------------------
+
+- HTTP requests and responses can now be logged when the astropy
+  logger is set to level "DEBUG" and "TRACE" respectively. [#1992]
+- Astroquery and all its modules now uses a logger similar to Astropy's. [#1992]
+
 
 0.4.1 (2020-06-19)
 ==================

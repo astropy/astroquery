@@ -86,7 +86,7 @@ class TestTap(unittest.TestCase):
                                     'source_id',
                                     'source_id',
                                     None,
-                                    np.object)
+                                    object)
         self.__check_results_column(table,
                                     'table1_oid',
                                     'table1_oid',
@@ -112,7 +112,7 @@ class TestTap(unittest.TestCase):
                                     'source_id',
                                     'source_id',
                                     None,
-                                    np.object)
+                                    object)
         self.__check_results_column(table,
                                     'table1_oid',
                                     'table1_oid',
@@ -181,7 +181,7 @@ class TestTap(unittest.TestCase):
                                     'source_id',
                                     'source_id',
                                     None,
-                                    np.object)
+                                    object)
         self.__check_results_column(table,
                                     'table1_oid',
                                     'table1_oid',
@@ -207,7 +207,7 @@ class TestTap(unittest.TestCase):
                                     'source_id',
                                     'source_id',
                                     None,
-                                    np.object)
+                                    object)
         self.__check_results_column(table,
                                     'table1_oid',
                                     'table1_oid',
@@ -260,7 +260,7 @@ class TestTap(unittest.TestCase):
                                     'source_id',
                                     'source_id',
                                     None,
-                                    np.object)
+                                    object)
         self.__check_results_column(results,
                                     'table1_oid',
                                     'table1_oid',
@@ -337,7 +337,7 @@ class TestTap(unittest.TestCase):
                                     'source_id',
                                     'source_id',
                                     None,
-                                    np.object)
+                                    object)
         self.__check_results_column(results,
                                     'table1_oid',
                                     'table1_oid',

@@ -14,7 +14,7 @@ from bs4 import BeautifulSoup
 from six import BytesIO
 import six
 from astropy.table import Table, Column
-from astropy import log
+from astroquery import log
 
 from ..exceptions import LoginError, RemoteServiceError, NoResultsWarning
 from ..utils import schema, system_tools

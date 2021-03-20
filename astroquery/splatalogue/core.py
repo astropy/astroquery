@@ -10,7 +10,7 @@ import warnings
 import sys
 from astropy.io import ascii
 from astropy import units as u
-from astropy import log
+from astroquery import log
 from ..query import BaseQuery
 from ..utils import async_to_sync, prepend_docstr_nosections
 from . import conf

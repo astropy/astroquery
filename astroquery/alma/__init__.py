@@ -11,7 +11,7 @@ _url_list = ['http://almascience.org',
              'https://almascience.nrao.edu',
              'https://almascience.nao.ac.jp']
 
-_test_url_list = ['https://almascience-dev.nrao.edu']
+_test_url_list = ['https://beta.cadc-ccda.hia-ha.nrc-cnrc.gc.ca']
 
 auth_urls = ['asa.alma.cl', 'rh-cas.alma.cl']
 

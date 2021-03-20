@@ -384,6 +384,16 @@ services in Astroquery, you can use them for your scripts, but we don't guarante
   query.rst
   utils/tap.rst
 
+To debug astroquery, logging level can be configured with the following:
+
+.. code-block:: python
+
+    >>> from astroquery import log
+    >>> log.setLevel(level)
+
+If ``level`` is set to ``"DEBUG"``, then HTTP requests are logged.
+If ``level`` is set to ``"TRACE"``, then HTTP requests and responses are logged.
+
 License
 -------
 

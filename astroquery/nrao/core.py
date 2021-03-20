@@ -13,7 +13,7 @@ import astropy.io.votable as votable
 from astropy import coordinates
 import six
 from astropy.table import Table
-from astropy import log
+from astroquery import log
 from bs4 import BeautifulSoup
 
 from ..query import QueryWithLogin

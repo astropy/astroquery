@@ -19,7 +19,7 @@ from six.moves.email_mime_text import MIMEText
 # Astropy imports
 from astropy.table import Table
 import astropy.io.votable as votable
-from astropy import log as logging
+from astroquery import log
 
 # Astroquery imports
 from ..query import QueryWithLogin
@@ -72,8 +72,8 @@ class CosmoSimClass(QueryWithLogin):
 
         # login after login (interactive)
         if hasattr(self, 'username'):
-            logging.warning("Attempting to login while another user ({0}) "
-                            "is already logged in.".format(self.username))
+            log.warning("Attempting to login while another user ({0}) "
+                        "is already logged in.".format(self.username))
             self.check_login_status()
             return
 
@@ -144,7 +144,7 @@ class CosmoSimClass(QueryWithLogin):
             del self.username
             del self.password
         else:
-            logging.error("You must log in before attempting to logout.")
+            log.error("You must log in before attempting to logout.")
 
     def check_login_status(self):
         """
@@ -220,8 +220,8 @@ class CosmoSimClass(QueryWithLogin):
                 gen_tablename = "{0}".format(phase)
             else:
                 gen_tablename = str(soup.find(id="table").string)
-            logging.warning("Table name {0} is already taken."
-                            .format(tablename))
+            log.warning("Table name {0} is already taken."
+                        .format(tablename))
             warnings.warn("Generated table name: {0}".format(gen_tablename))
         elif tablename is None:
             result = self._request('POST', CosmoSim.QUERY_URL,
@@ -293,7 +293,7 @@ class CosmoSimClass(QueryWithLogin):
             auth=(self.username, self.password), data={'print': 'b'},
             cache=False)
 
-        logging.info("Job {}: {}".format(jobid, response.content))
+        log.info("Job {}: {}".format(jobid, response.content))
         return response.content
 
     def check_all_jobs(self, phase=None, regex=None, sortby=None):
@@ -586,7 +586,7 @@ class CosmoSimClass(QueryWithLogin):
             elif len(dictkeys) == 1:
                 print(self.response_dict_current[dictkeys[0]]['content'])
             else:
-                logging.error('No completed jobs found.')
+                log.error('No completed jobs found.')
             return
         else:
             return
@@ -680,7 +680,7 @@ class CosmoSimClass(QueryWithLogin):
                 auth=(self.username, self.password), cache=False)]
 
             if response_list[0].ok is False:
-                logging.error('Must provide a valid jobid.')
+                log.error('Must provide a valid jobid.')
                 return
             else:
                 self.response_dict_current = {}
@@ -940,7 +940,7 @@ class CosmoSimClass(QueryWithLogin):
                          for key in self.db_dict[db].keys()]
                 size2 = len(max(slist, key=np.size))
             except (KeyError, NameError):
-                logging.error("Must first specify a valid database.")
+                log.error("Must first specify a valid database.")
                 return
             # if col is specified, table must be specified, and I need to
             # check the max size of any given column in the structure
@@ -954,13 +954,13 @@ class CosmoSimClass(QueryWithLogin):
                                                    [table]['columns']
                                                    [col].keys())))
                         except(KeyError, NameError):
-                            logging.error("Must first specify a valid column "
-                                          "of the `{0}` table within the `{1}`"
-                                          " db".format(table, db))
+                            log.error("Must first specify a valid column "
+                                      "of the `{0}` table within the `{1}`"
+                                      " db".format(table, db))
                             return
                 except (KeyError, NameError):
-                    logging.error("Must first specify a valid table within "
-                                  "the `{0}` db.".format(db))
+                    log.error("Must first specify a valid table within "
+                              "the `{0}` db.".format(db))
                     return
 
             t['Projects'] = (['--> @ {}:'.format(db)] +
@@ -1202,7 +1202,7 @@ class CosmoSimClass(QueryWithLogin):
         time.sleep(1)
 
         if jobid not in self.job_dict.keys():
-            logging.error("Job not present in job dictionary.")
+            log.error("Job not present in job dictionary.")
             return
 
         else:
@@ -1291,7 +1291,7 @@ class CosmoSimClass(QueryWithLogin):
             self._smspw = password_from_keyring
 
         if not password_from_keyring:
-            logging.warning("CosmoSim SMS alerting has not been initialized.")
+            log.warning("CosmoSim SMS alerting has not been initialized.")
             warnings.warn("Initializing SMS alerting.")
             keyring.set_password("astroquery:cosmosim.SMSAlert",
                                  self._smsaddress, "LambdaCDM")

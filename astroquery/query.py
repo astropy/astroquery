@@ -10,10 +10,11 @@ import keyring
 import io
 import os
 import requests
+import textwrap
 
 import six
 from astropy.config import paths
-from astropy.logger import log
+from astroquery import log
 import astropy.units as u
 from astropy.utils.console import ProgressBarOrSpinner
 import astropy.utils.data
@@ -152,7 +153,8 @@ class BaseQuery:
     """
 
     def __init__(self):
-        S = self._session = requests.session()
+        S = self._session = requests.Session()
+        self._session.hooks['response'].append(self._response_hook)
         S.headers['User-Agent'] = (
             'astroquery/{vers} {olduseragent}'
             .format(vers=version.version,
@@ -168,6 +170,28 @@ class BaseQuery:
     def __call__(self, *args, **kwargs):
         """ init a fresh copy of self """
         return self.__class__(*args, **kwargs)
+
+    def _response_hook(self, response, *args, **kwargs):
+        # Log request at INFO severity
+        request_hdrs = '\n'.join(f'{k}: {v}' for k, v in response.request.headers.items())
+        request_log = textwrap.indent(
+            f"-----------------------------------------\n"
+            f"{response.request.method} {response.request.url}\n"
+            f"{request_hdrs}\n"
+            f"\n"
+            f"{response.request.body}\n"
+            f"-----------------------------------------", '\t')
+        log.debug(f"HTTP request\n{request_log}")
+        # Log response at DEBUG severity
+        response_hdrs = '\n'.join(f'{k}: {v}' for k, v in response.headers.items())
+        response_log = textwrap.indent(
+            f"-----------------------------------------\n"
+            f"{response.status_code} {response.reason} {response.url}\n"
+            f"{response_hdrs}\n"
+            f"\n"
+            f"{response.text}\n"
+            f"-----------------------------------------", '\t')
+        log.log(5, f"HTTP response\n{response_log}")
 
     def _request(self, method, url,
                  params=None, data=None, headers=None,

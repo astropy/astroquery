@@ -21,7 +21,7 @@ import astropy.units as u
 import astropy.coordinates as coord
 
 from astropy.table import Table, Row, vstack, MaskedColumn
-from astropy.logger import log
+from astroquery import log
 
 from astropy.utils import deprecated
 from astropy.utils.console import ProgressBarOrSpinner
@@ -535,7 +535,7 @@ class ObservationsClass(MastQueryWithLogin):
 
         # create a local file path if none is input.  Use current directory as default.
         if not local_path:
-            filename = uri.rsplit('/', 1)[-1]
+            filename = os.path.basename(uri)
             local_path = os.path.join(os.path.abspath('.'), filename)
 
         # recreate the data_product key for cloud connection check
@@ -606,7 +606,7 @@ class ObservationsClass(MastQueryWithLogin):
             local_path = os.path.join(base_dir, data_product['obs_collection'], data_product['obs_id'])
             if not os.path.exists(local_path):
                 os.makedirs(local_path)
-            local_path = os.path.join(local_path, data_product['productFilename'])
+            local_path = os.path.join(local_path, os.path.basename(data_product['productFilename']))
 
             # download the files
             status, msg, url = self.download_file(data_product["dataURI"], local_path=local_path,

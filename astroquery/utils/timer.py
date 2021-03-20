@@ -13,7 +13,7 @@ import numpy as np
 
 # LOCAL
 from astropy import units as u
-from astropy import log
+from astroquery import log
 from astropy import modeling
 from astropy.utils.exceptions import AstropyUserWarning
 

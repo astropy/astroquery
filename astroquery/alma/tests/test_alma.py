@@ -210,10 +210,11 @@ def test_gen_public_sql():
 
 def test_gen_science_sql():
     common_select = 'select * from ivoa.obscore'
-    assert _gen_sql({'science_observations': None}) == common_select
-    assert _gen_sql({'science_observations': True}) == common_select +\
-        " WHERE calib_level>1"
-    assert _gen_sql({'science_observations': False}) == common_select
+    assert _gen_sql({'science_observation': None}) == common_select
+    assert _gen_sql({'science_observation': True}) == common_select +\
+        " WHERE science_observation='T'"
+    assert _gen_sql({'science_observation': False}) == common_select +\
+        " WHERE science_observation='F'"
 
 
 def test_pol_sql():
@@ -250,7 +251,8 @@ def test_query():
     tap_mock.search.assert_called_once_with(
         "select * from ivoa.obscore WHERE "
         "(INTERSECTS(CIRCLE('ICRS',1.0,2.0,1.0), s_region) = 1) "
-        "AND calib_level>1 AND data_rights='Public'", language='ADQL')
+        "AND science_observation='T' AND data_rights='Public'",
+        language='ADQL', maxrec=None)
 
     # one row result
     tap_mock = Mock()
@@ -270,8 +272,9 @@ def test_query():
     tap_mock.search.assert_called_once_with(
         "select * from ivoa.obscore WHERE "
         "(INTERSECTS(CIRCLE('ICRS',1.0,2.0,0.16666666666666666), s_region) = 1) "
-        "AND band_list LIKE '%3%' AND calib_level>1 AND data_rights='Proprietary'",
-        band_list=[3], language='ADQL')
+        "AND band_list LIKE '%3%' AND science_observation='T' AND "
+        "data_rights='Proprietary'",
+        language='ADQL', maxrec=None)
 
     # repeat for legacy columns
     mock_result = Mock()
@@ -291,8 +294,9 @@ def test_query():
     tap_mock.search.assert_called_once_with(
         "select * from ivoa.obscore WHERE "
         "(INTERSECTS(CIRCLE('ICRS',1.0,2.0,0.16666666666666666), s_region) = 1) "
-        "AND band_list LIKE '%3%' AND calib_level>1 AND data_rights='Proprietary'",
-        band_list=[3], language='ADQL')
+        "AND band_list LIKE '%3%' AND science_observation='T' AND "
+        "data_rights='Proprietary'",
+        language='ADQL', maxrec=None)
     row_legacy = result_legacy[0]
     row = result[0]
     for item in _OBSCORE_TO_ALMARESULT.items():
@@ -325,9 +329,8 @@ def test_query():
         "(INTERSECTS(CIRCLE('ICRS',1.0,2.0,1.0), s_region) = 1) AND "
         "(band_list LIKE '%1%' OR band_list LIKE '%3%') AND "
         "t_min=55197.0 AND pol_states='/XX/YY/' AND s_fov=0.012313 AND "
-        "t_exptime=25", band_list='1 3',
-        fov=0.012313, integration_time=25, language='ADQL',
-        polarisation_type='Dual', start_date='01-01-2010'
+        "t_exptime=25 AND science_observation='F'",
+        language='ADQL', maxrec=None
     )
 
 
@@ -372,7 +375,22 @@ def test_tap():
     assert len(result.table) == 0
 
     tap_mock.search.assert_called_once_with('select * from ivoa.ObsCore',
-                                            language='ADQL')
+                                            language='ADQL', maxrec=None)
+
+
+def test_get_data_info():
+    datalink_mock = Mock()
+    dl_result = Table.read(data_path('alma-datalink.xml'), format='votable')
+    mock_response = Mock(table=dl_result)
+    mock_response.status = ['OK']
+    datalink_mock.run_sync.return_value = mock_response
+    alma = Alma()
+    alma._get_dataarchive_url = Mock()
+    alma._datalink = datalink_mock
+    result = alma.get_data_info(uids='uid://A001/X12a3/Xe9')
+    assert len(result) == 7
+
+    datalink_mock.run_sync.assert_called_once_with('uid://A001/X12a3/Xe9')
 
 
 def test_galactic_query():

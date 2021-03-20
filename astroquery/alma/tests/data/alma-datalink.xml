@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Produced with astropy.io.votable version 4.0.1.post1
+     http://www.astropy.org/ -->
+<VOTABLE version="1.4" xmlns="http://www.ivoa.net/xml/VOTable/v1.4" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.ivoa.net/xml/VOTable/v1.4">
+ <RESOURCE type="results">
+  <TABLE ID="result">
+   <FIELD ID="ID" arraysize="20" datatype="unicodeChar" name="ID" ucd="meta.id;meta.main"/>
+   <FIELD ID="access_url" arraysize="113" datatype="unicodeChar" name="access_url" ucd="meta.ref.url"/>
+   <FIELD ID="service_def" arraysize="1" datatype="unicodeChar" name="service_def" ucd="meta.ref"/>
+   <FIELD ID="error_message" arraysize="1" datatype="unicodeChar" name="error_message" ucd="meta.code.error"/>
+   <FIELD ID="semantics" arraysize="15" datatype="unicodeChar" name="semantics" ucd="meta.code"/>
+   <FIELD ID="description" arraysize="1" datatype="unicodeChar" name="description" ucd="meta.note"/>
+   <FIELD ID="content_type" arraysize="42" datatype="unicodeChar" name="content_type" ucd="meta.code.mime"/>
+   <FIELD ID="content_length" datatype="long" name="content_length" ucd="phys.size;meta.file" unit="byte"/>
+   <FIELD ID="readable" datatype="bit" name="readable">
+    <DESCRIPTION>
+     the caller is allowed to use this link with the current
+     authenticated identity
+    </DESCRIPTION>
+   </FIELD>
+   <DATA>
+    <TABLEDATA>
+     <TR>
+      <TD>uid://A001/X12a3/Xe9</TD>
+      <TD>https://almascience.eso.org/dataPortal/member.uid___A001_X12a3_Xe9.README.txt</TD>
+      <TD/>
+      <TD/>
+      <TD>#auxiliary</TD>
+      <TD/>
+      <TD>text/plain</TD>
+      <TD>258</TD>
+      <TD>1</TD>
+     </TR>
+     <TR>
+      <TD>uid://A001/X12a3/Xe9</TD>
+      <TD>https://almascience.eso.org/dataPortal/2017.1.01185.S_uid___A001_X12a3_Xe9_001_of_001.tar</TD>
+      <TD/>
+      <TD/>
+      <TD>#this</TD>
+      <TD/>
+      <TD>application/x-tar</TD>
+      <TD>556278784</TD>
+      <TD>1</TD>
+     </TR>
+     <TR>
+      <TD>uid://A001/X12a3/Xe9</TD>
+      <TD>https://almascience.eso.org/dataPortal/2017.1.01185.S_uid___A001_X12a3_Xe9_auxiliary.tar</TD>
+      <TD/>
+      <TD/>
+      <TD>#auxiliary</TD>
+      <TD/>
+      <TD>application/x-tar</TD>
+      <TD>134937600</TD>
+      <TD>1</TD>
+     </TR>
+     <TR>
+      <TD>uid://A001/X12a3/Xe9</TD>
+      <TD>https://almascience.eso.org/dataPortal/2017.1.01185.S_uid___A002_Xd28a9e_X71b8.asdm.sdm.tar</TD>
+      <TD/>
+      <TD/>
+      <TD>#progenitor</TD>
+      <TD/>
+      <TD>application/x-tar</TD>
+      <TD>2342838272</TD>
+      <TD>1</TD>
+     </TR>
+     <TR>
+      <TD>uid://A001/X12a3/Xe9</TD>
+      <TD>https://almascience.eso.org/dataPortal/2017.1.01185.S_uid___A002_Xd28a9e_X7b4d.asdm.sdm.tar</TD>
+      <TD/>
+      <TD/>
+      <TD>#progenitor</TD>
+      <TD/>
+      <TD>application/x-tar</TD>
+      <TD>2343136256</TD>
+      <TD>1</TD>
+     </TR>
+     <TR>
+      <TD>uid://A001/X12a3/Xe9</TD>
+      <TD>https://almascience.eso.org/dataPortal/2017.1.01185.S_uid___A002_Xd29c1f_X1f74.asdm.sdm.tar</TD>
+      <TD/>
+      <TD/>
+      <TD>#progenitor</TD>
+      <TD/>
+      <TD>application/x-tar</TD>
+      <TD>2616060928</TD>
+      <TD>1</TD>
+     </TR>
+     <TR>
+      <TD>uid://A001/X12a3/Xe9</TD>
+      <TD>https://almascience.eso.org/dataPortal/2017.1.01185.S_uid___A002_Xd29c1f_X5cf.asdm.sdm.tar</TD>
+      <TD/>
+      <TD/>
+      <TD>#progenitor</TD>
+      <TD/>
+      <TD>application/x-tar</TD>
+      <TD>2679361536</TD>
+      <TD>1</TD>
+     </TR>
+    </TABLEDATA>
+   </DATA>
+  </TABLE>
+ </RESOURCE>
+</VOTABLE>
