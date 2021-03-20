@@ -576,7 +576,8 @@ class VizierClass(BaseQuery):
         if columns_default:
             body['-out'] = '*'
         else:
-            body['-out'] = ','.join(columns_out)
+            if columns_out:
+                body['-out'] = ','.join(columns_out)
 
         if columns_out:
             body['-out.add'] = ','.join(columns_out)
