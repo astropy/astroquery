@@ -6,7 +6,6 @@ import pytest
 from astropy.table import Table
 import astropy.units as u
 import six
-from six.moves import urllib_parse as urlparse
 from ... import vizier
 from ...utils import commons
 from ...utils.testing_tools import MockResponse
@@ -43,7 +42,13 @@ def post_mockreturn(self, method, url, data=None, timeout=10, files=None,
     if isinstance(data, dict):
         datad = data
     else:
-        datad = dict([urlparse.parse_qsl(d)[0] for d in data.split('\n')])
+        datad = {}
+        for line in data.split('\n'):
+            if '=' in line:
+                key, value = line.split('=', maxsplit=1)
+                datad[key.strip()] = value.strip()
+            else:
+                datad[line] = None
     if '-source' in datad:
         # a request for the actual data
         filename = data_path(VO_DATA[datad['-source']])

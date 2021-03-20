@@ -357,19 +357,20 @@ class VizierClass(BaseQuery):
         catalog = VizierClass._schema_catalog.validate(catalog)
         center = {}
         columns = []
+
+        # Process coordinates
         if isinstance(coordinates, (commons.CoordClasses,) + six.string_types):
             c = commons.parse_coordinates(coordinates).transform_to('fk5')
 
             if not c.isscalar:
-                pos_list = []
+                center["-c"] = []
                 for pos in c:
                     ra_deg = pos.ra.to_string(unit="deg", decimal=True,
                                               precision=8)
                     dec_deg = pos.dec.to_string(unit="deg", decimal=True,
                                                 precision=8, alwayssign=True)
-                    pos_list += ["{}{}".format(ra_deg, dec_deg)]
-                center["-c"] = "<<;" + ";".join(pos_list)
-                columns += ["_q"]  # request a reference to the input table
+                    center["-c"] += ["{}{}".format(ra_deg, dec_deg)]
+                columns += ["_q"]  # Always request reference to input table
             else:
                 ra = c.ra.to_string(unit='deg', decimal=True, precision=8)
                 dec = c.dec.to_string(unit="deg", decimal=True, precision=8,
@@ -378,7 +379,7 @@ class VizierClass(BaseQuery):
         elif isinstance(coordinates, tbl.Table):
             if (("_RAJ2000" in coordinates.keys()) and ("_DEJ2000" in
                                                         coordinates.keys())):
-                pos_list = []
+                center["-c"] = []
                 sky_coord = coord.SkyCoord(coordinates["_RAJ2000"],
                                            coordinates["_DEJ2000"],
                                            unit=(coordinates["_RAJ2000"].unit,
@@ -388,15 +389,15 @@ class VizierClass(BaseQuery):
                                           precision=8)
                     dec_deg = dec.to_string(unit="deg", decimal=True,
                                             precision=8, alwayssign=True)
-                    pos_list += ["{}{}".format(ra_deg, dec_deg)]
-                center["-c"] = "<<;" + ";".join(pos_list)
-                columns += ["_q"]  # request a reference to the input table
+                    center["-c"] += ["{}{}".format(ra_deg, dec_deg)]
+                columns += ["_q"]  # Always request reference to input table
             else:
                 raise ValueError("Table must contain '_RAJ2000' and "
                                  "'_DEJ2000' columns!")
         else:
             raise TypeError("Coordinates must be one of: string, astropy "
                             "coordinates, or table containing coordinates!")
+
         # decide whether box or radius
         if radius is not None:
             # is radius a disk or an annulus?
@@ -434,6 +435,7 @@ class VizierClass(BaseQuery):
             raise Exception(
                 "At least one of radius, width/height must be specified")
 
+        # Prepare payload
         data_payload = self._args_to_payload(center=center, columns=columns,
                                              catalog=catalog, column_filters=column_filters)
 
@@ -547,16 +549,13 @@ class VizierClass(BaseQuery):
         # keyword names that can mean 'all'
         alls = ['all', '**']
         if any(x in columns for x in alls):
+            columns_all = True
             for x in alls:
                 if x in columns:
                     columns.remove(x)
-            body['-out.all'] = 2
-        # keyword name that means default columns
-        if '*' in columns:
-            columns.remove('*')
-            columns_default = True
+            body['-out.all'] = None
         else:
-            columns_default = False
+            columns_all = False
 
         # process: columns - identify sorting requests
         columns_out = []
@@ -571,16 +570,23 @@ class VizierClass(BaseQuery):
             else:
                 columns_out += [column]
 
-        if columns_default:
-            body['-out'] = '*'
-        else:
-            body['-out'] = columns_out
+        # calculated keyword names that start with an underscore
+        columns_calc = []
+        for column in columns_out:
+            if column[0] == '_':
+                columns_calc.append(column)
+        for column in columns_calc:
+            columns_out.remove(column)
 
-        if columns_out:
-            body['-out.add'] = ','.join(columns_out)
+        if columns_out and not columns_all:
+                body['-out'] = ','.join(columns_out)
+
+        if columns_calc:
+            body['-out.add'] = ','.join(columns_calc)
 
         if len(sorts_out) > 0:
             body['-sort'] = ','.join(sorts_out)
+
         # process: maximum rows returned
         row_limit = kwargs.get('row_limit') or self.ROW_LIMIT
         if row_limit < 0:
@@ -607,14 +613,26 @@ class VizierClass(BaseQuery):
         if ucd:
             body['-ucd'] = ucd
 
-        # create final script
-        script = "\n".join(["{key}={val}".format(key=key, val=val)
-                            for key, val in body.items()])
-        # add keywords
+        # create final script starting with keywords
+        script = []
         if (not isinstance(self.keywords, property) and
                 self.keywords is not None):
-            script += "\n" + str(self.keywords)
-        return script
+            script += [str(self.keywords)]
+        # add all items that are not lists
+        for key, val in body.items():
+            if type(val) is not list:
+                if val:
+                    script += ["{key}={val}".format(key=key, val=val)]
+                else:
+                    script += [key]
+        # add list at the end
+        for key, val in body.items():
+            if type(val) is list:
+                script += ["{key}=<<====AstroqueryList".format(key=key)]
+                script += val
+                script += ["====AstroqueryList"]
+        # merge result
+        return "\n".join(script)
 
     def _parse_result(self, response, get_catalog_names=False, verbose=False,
                       invalid='warn'):
