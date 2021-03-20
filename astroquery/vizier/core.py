@@ -549,16 +549,13 @@ class VizierClass(BaseQuery):
         # keyword names that can mean 'all'
         alls = ['all', '**']
         if any(x in columns for x in alls):
+            columns_all = True
             for x in alls:
                 if x in columns:
                     columns.remove(x)
             body['-out.all'] = None
-        # keyword name that means default columns
-        if '*' in columns:
-            columns.remove('*')
-            columns_default = True
         else:
-            columns_default = False
+            columns_all = False
 
         # process: columns - identify sorting requests
         columns_out = []
@@ -573,17 +570,23 @@ class VizierClass(BaseQuery):
             else:
                 columns_out += [column]
 
-        if columns_default:
-            body['-out'] = '*'
-        else:
-            if columns_out:
+        # calculated keyword names that start with an underscore
+        columns_calc = []
+        for column in columns_out:
+            if column[0] == '_':
+                columns_calc.append(column)
+        for column in columns_calc:
+            columns_out.remove(column)
+
+        if columns_out and not columns_all:
                 body['-out'] = ','.join(columns_out)
 
-        if columns_out:
-            body['-out.add'] = ','.join(columns_out)
+        if columns_calc:
+            body['-out.add'] = ','.join(columns_calc)
 
         if len(sorts_out) > 0:
             body['-sort'] = ','.join(sorts_out)
+
         # process: maximum rows returned
         row_limit = kwargs.get('row_limit') or self.ROW_LIMIT
         if row_limit < 0:
