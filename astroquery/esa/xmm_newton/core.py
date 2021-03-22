@@ -44,8 +44,7 @@ class XMMNewtonClass(BaseQuery):
                                     "/tap-server/tap/")
         else:
             self._tap = tap_handler
-        self._rmf_ftp = str("http://sasdev-xmm.esac.esa.int/"
-                            "pub/ccf/constituents/extras/responses/")
+        self._rmf_ftp = str("http://sasdev-xmm.esac.esa.int/pub/ccf/constituents/extras/responses/")
 
     def download_data(self, observation_id, *, filename=None, verbose=False,
                       **kwargs):
@@ -303,7 +302,7 @@ class XMMNewtonClass(BaseQuery):
         return ret
 
     def get_epic_spectra(self, filename, source_number, *,
-                         instrument=[], path=""):
+                         instrument=[], path="", verbose=False):
         """Extracts the EPIC sources spectral products from a given TAR file
         For a given TAR file obtained with:
             XMM.download_data(OBS_ID,level="PPS",extension="FTZ",filename=tarfile)
@@ -330,6 +329,10 @@ class XMMNewtonClass(BaseQuery):
             An array of strings indicating the desired instruments
         path: string, optional
             If set, extracts the EPIC images in the indicated path
+        verbose : bool
+            optional, default 'False'
+            flag to display information about the process
+
         Returns
         -------
         A dictionary with the full paths of the extracted EPIC sources
@@ -397,6 +400,9 @@ class XMMNewtonClass(BaseQuery):
                                         "_v18.0" + file_ext
 
                                 link = self._rmf_ftp + inst + rmf_fname
+
+                                if verbose:
+                                    log.info("rmf link is: %s" % link)
 
                                 response = self._request('GET', link)
 
