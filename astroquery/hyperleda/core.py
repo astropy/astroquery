@@ -2,7 +2,8 @@
 
 __author__ = "Iskren Y. Georgiev"
 __author_email__ = "iskren.y.g@gmail.com"
-__date__ = '2020/12/06'
+
+# Based on: https://astroquery.readthedocs.io/en/latest/template.html
 
 # Imports organized as shown below
 
