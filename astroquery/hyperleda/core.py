@@ -29,12 +29,10 @@ import astropy.io.votable as votable
 from astropy.table import Table, vstack
 from astropy.io import fits
 
-
 # export all the public classes and methods
 __all__ = ['hyperleda', 'HyperLEDAClass']
 
 # declare global variables and constants if any
-
 
 # Begin main class
 # Should be decorated with the async_to_sync imported previously

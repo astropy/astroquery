@@ -4,8 +4,7 @@
 HyperLEDA Query Tool
 -------------------
 
-A tool to query HyperLEDA 
-http://leda.univ-lyon1.fr/
+A tool to query HyperLEDA http://leda.univ-lyon1.fr/
 
 :author: Iskren Y. Georgiev (iskren.y.g@gmail.com)
 """
