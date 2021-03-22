@@ -86,7 +86,6 @@ class HyperLEDAClass(BaseQuery):
 
     def _perp_param_lst(self, param_lst):
         # Prepare the parameter's list
-        #print('Full list of parameters number:',len(str(param_lst).split(',')))
 
         # These params are no longer in the leda tables
         for param in ['numtype', 'hptr', 'logavmm', 'e_logavmm']:
