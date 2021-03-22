@@ -634,8 +634,8 @@ class AlmaClass(QueryWithLogin):
                 result = vstack([result, expanded_result], join_type='exact')
         else:
             result = result[np.logical_or(np.core.defchararray.find(
-                result['semantics'], DATALINK_SEMANTICS) == -1,
-                result['content_type'] != DATALINK_FILE_TYPE)]
+                result['semantics'].astype(str), DATALINK_SEMANTICS) == -1,
+                result['content_type'].astype(str) != DATALINK_FILE_TYPE)]
 
         return result
 
