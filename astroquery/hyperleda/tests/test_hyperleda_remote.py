@@ -6,9 +6,10 @@ from astropy.table import Table
 
 from ..core import hyperleda
 
+
 @pytest.mark.remote_data
 class TestHyperLEDAClass:
-    
+
     def test_query_object(self):
         result = hyperleda.query_object('UGC12591', properties=['bt', 'vt'])
         assert isinstance(result, Table)

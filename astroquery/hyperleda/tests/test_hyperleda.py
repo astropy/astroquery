@@ -24,8 +24,7 @@ from ...hyperleda import conf
 # one would expect from the server when a valid query is made.
 
 DATA_FILES = {'query': 'query_object.dat',
-              #'query_sql': 'query_sql.dat',
-             }
+              }
 
 
 # ./setup_package.py helps the test function locate the data file
@@ -48,7 +47,7 @@ def nonremote_request(self, request_type, url, **kwargs):
     return response
 
 
-# pytest fixture creates a dummy 'requests.get' function, that 
+# pytest fixture creates a dummy 'requests.get' function, that
 # mocks(monkeypatches) the actual 'requests.get' function:
 @pytest.fixture
 def patch_request(request):
@@ -67,10 +66,10 @@ def test_query_object(patch_request):
                                                    properties=['bt', 'vt'])
     assert isinstance(result, Table)
 
+
 def test_query_sql(patch_request):
     sample_query = "(mod0<=27 and t>=-3 and t<=0 and type='S0') \
     or (mod0<=27 and t>=-3 and t<=0 and type='S0-a')"
     result = hyperleda.core.HyperLEDAClass().query_sql(sample_query,
                                                        properties=['bt', 'vt'])
     assert isinstance(result, Table)
-    

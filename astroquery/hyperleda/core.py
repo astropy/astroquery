@@ -37,16 +37,17 @@ __all__ = ['hyperleda', 'HyperLEDAClass']
 # Begin main class
 # Should be decorated with the async_to_sync imported previously
 
+
 @async_to_sync
 class HyperLEDAClass(BaseQuery):
-    
+
     """
     Base class for querying data from the HyperLEDA database.
-    
+
     http://leda.univ-lyon1.fr
-    
+
     """
-    
+
     URL = conf.server
     TIMEOUT = conf.timeout
     # The URL with the table of the main object properties
@@ -55,41 +56,40 @@ class HyperLEDAClass(BaseQuery):
 
     @class_or_instance
     def get_properties(self):
-        
         """
-        
+
         Get the available object properties in the HyperLEDA database.
         (See http://leda.univ-lyon1.fr/leda/meandata.html)
-        
+
         Returns an `~astropy.table.Table` object.
-        
+
         Returns
         -------
-        
+
         prop_tbl : An `~astropy.table.Table` object with the available object
         properties in HyperLEDA
-        
+
         Example
         --------
         >>> from astroquery.hyperleda import hyperleda
-        >>> 
+        >>>
         >>> properties_tbl = hyperleda.get_properties()
         >>> properties_tbl.pprint_all()
-        
+
         """
-        
+
         url_prop = self.URL_PROPERTIES
         response = self._request("GET", url_prop)
         prop_tbl = self._parse_result(response)
 
-        return prop_tbl 
+        return prop_tbl
 
     def _perp_param_lst(self, param_lst):
         # Prepare the parameter's list
         #print('Full list of parameters number:',len(str(param_lst).split(',')))
 
         # These params are no longer in the leda tables
-        for param in ['numtype','hptr','logavmm','e_logavmm']:
+        for param in ['numtype', 'hptr', 'logavmm', 'e_logavmm']:
             if param in param_lst:
                 param_lst.remove(param)
 
@@ -99,13 +99,13 @@ class HyperLEDAClass(BaseQuery):
         return param_str
 
     @class_or_instance
-    def query_object(self, obj_name, properties = 'all'):
+    def query_object(self, obj_name, properties='all'):
         """
-        
+
         Query an object from the HyperLEDA database.
-        
+
         Returns the object properties in an `~astropy.table.Table` object.
-        
+
         Example
         --------
         >>> from astroquery.hyperleda import hyperleda
@@ -118,76 +118,75 @@ class HyperLEDAClass(BaseQuery):
         Parameters
         ----------
         obj_name : str
-            
+
             Object ID recognizable by HyperLEDA or SIMBAD
-            
+
         properties : str, or comma separated strings. Default: 'all'
-            
+
             The full list of properties in HyperLEDA is available at
             http://leda.univ-lyon1.fr/leda/meandata.html
             or via
             hyperleda.get_properties().pprint_all()
-                    
+
         Returns
         -------
-        
-        Table : An `~astropy.table.Table` object with the object properties 
+
+        Table : An `~astropy.table.Table` object with the object properties
             from HyperLEDA
-        
+
         """
-        
+
         if properties == 'all':
             prop_tbl = self.get_properties()
             param_lst = prop_tbl['field'].data.tolist()
             param_str = self._perp_param_lst(param_lst)
         else:
             param_str = properties
-            
+
         url_http_request = self.URL_HTTP_REQUEST
 
         ls_SQL_search = "objname = objname('{:}')".format(obj_name)
-        
-        request_payload = dict(n = 'meandata', c = 'o', of = '1,leda,simbad',
-                               nra = 'l', nakd = '1', 
-                               d = '{:}'.format(param_str),
-                               sql = '{:}'.format(ls_SQL_search), ob = '',
-                               a = 'csv[|]')
+
+        request_payload = dict(n='meandata', c='o', of='1,leda,simbad',
+                               nra='l', nakd='1',
+                               d='{:}'.format(param_str),
+                               sql='{:}'.format(ls_SQL_search), ob='',
+                               a='csv[|]')
         response = self._request("GET", url_http_request,
                                  params=request_payload)
         sql_result_tbl = Table.read(response.url, format='ascii', delimiter='|')
-        
+
         return sql_result_tbl
 
     @class_or_instance
-    def query_sql(self, search, properties = 'all'):
-        
+    def query_sql(self, search, properties='all'):
         """
-        
+
         Perform SQL search in the HyperLEDA database.
         (See http://leda.univ-lyon1.fr/fullsql.html)
-        
+
         Returns an `~astropy.table.Table` object with the results from the
         search containing the object properties.
 
         Parameters
         ----------
         search : str
-            
+
             A string containing a valid SQL WHERE clause.
-            
+
         properties : str, or comma separated strings. Default: 'all'
-            
+
             The full list of properties in HyperLEDA is available at
             http://leda.univ-lyon1.fr/leda/meandata.html
             or via
             hyperleda.get_properties().pprint_all()
-                    
+
         Returns
         -------
-        
+
         Table : An `~astropy.table.Table` object with the object properties from
         HyperLEDA
-        
+
         Example
         --------
         >>> from astroquery.hyperleda import hyperleda
@@ -200,27 +199,27 @@ class HyperLEDAClass(BaseQuery):
                                             celposJ(pgc)')
         >>> result_table.pprint()
         """
-        
+
         if properties == 'all':
             prop_tbl = self.get_properties()
             param_lst = prop_tbl['field'].data.tolist()
             param_str = self._perp_param_lst(param_lst)
         else:
             param_str = properties
-            
+
         url_http_request = self.URL_HTTP_REQUEST
 
         ls_SQL_search = search
-        
-        request_payload = dict(n = 'meandata', c = 'o', of = '1,leda,simbad',
-                               nra = 'l', nakd = '1', 
-                               d = '{:}'.format(param_str),
-                               sql = '{:}'.format(ls_SQL_search), ob = '',
-                               a = 'csv[|]')
+
+        request_payload = dict(n='meandata', c='o', of='1,leda,simbad',
+                               nra='l', nakd='1',
+                               d='{:}'.format(param_str),
+                               sql='{:}'.format(ls_SQL_search), ob='',
+                               a='csv[|]')
         response = self._request("GET", url_http_request,
                                  params=request_payload)
         sql_result_tbl = Table.read(response.url, format='ascii', delimiter='|')
-        
+
         return sql_result_tbl
 
     def _parse_result(self, response, verbose=False):
@@ -239,13 +238,13 @@ class HyperLEDAClass(BaseQuery):
             ls_url_props = self.URL + ls_url_props_src
 
             # Get the main table
-            prop_tbl = Table.read(ls_url_props, format = 'ascii.html')
+            prop_tbl = Table.read(ls_url_props, format='ascii.html')
             prop_tbl.rename_columns(prop_tbl.colnames,
                                     ['field', 'type', 'units', 'description'])
 
             # Get the table with the available SQL functions
-            sql_func_tbl = Table.read(response.url, format='ascii.html', 
-                                      htmldict={'table_id' : 2})
+            sql_func_tbl = Table.read(response.url, format='ascii.html',
+                                      htmldict={'table_id': 2})
 
             sql_func_tbl.add_column(col='--', name='units', index=2)
             sql_func_tbl.rename_columns(sql_func_tbl.colnames,
@@ -257,6 +256,7 @@ class HyperLEDAClass(BaseQuery):
             pass
 
         return prop_tbl
+
 
 # the default tool for users to interact with is an instance of the Class
 hyperleda = HyperLEDAClass()

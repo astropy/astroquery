@@ -11,6 +11,7 @@ A tool to query HyperLEDA http://leda.univ-lyon1.fr/
 
 from astropy import config as _config
 
+
 class Conf(_config.ConfigNamespace):
     """
     Configuration parameters for `astroquery.hyperleda`.
@@ -19,15 +20,16 @@ class Conf(_config.ConfigNamespace):
         ['http://leda.univ-lyon1.fr/'],
         'Base URL for HyperLeda http requests'
         )
-    
+
     timeout = _config.ConfigItem(
         30,
         'Time timeout for the HyperLeda query.'
         )
 
+
 conf = Conf()
 
-from .core import  hyperleda, HyperLEDAClass
+from .core import hyperleda, HyperLEDAClass
 
 __all__ = ['hyperleda', 'HyperLEDAClass',
            'Conf', 'conf',
