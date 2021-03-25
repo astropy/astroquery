@@ -372,7 +372,7 @@ class ESASkyClass(BaseQuery):
         """
         sanitized_position = self._sanitize_input_position(position)
         sanitized_radius = self._sanitize_input_radius(radius)
-        sanitized_catalogs = [cat.lower() for cat in self._sanitize_input_catalogs(catalogs)]
+        sanitized_catalogs = self._sanitize_input_catalogs(catalogs)
         sanitized_row_limit = self._sanitize_input_row_limit(row_limit)
 
         sesame_database.set('simbad')
@@ -440,7 +440,7 @@ class ESASkyClass(BaseQuery):
         """
         sanitized_position = self._sanitize_input_position(position)
         sanitized_radius = self._sanitize_input_radius(radius)
-        sanitized_missions = [m.lower() for m in self._sanitize_input_spectra(missions)]
+        sanitized_missions = self._sanitize_input_spectra(missions)
         sanitized_row_limit = self._sanitize_input_row_limit(row_limit)
 
         query_result = {}
@@ -657,7 +657,7 @@ class ESASkyClass(BaseQuery):
         """
         sanitized_position = self._sanitize_input_position(position)
         sanitized_radius = self._sanitize_input_radius(radius)
-        sanitized_missions = [m.lower() for m in self._sanitize_input_spectra(missions)]
+        sanitized_missions = self._sanitize_input_spectra(missions)
 
         spectra = dict()
 
@@ -1197,7 +1197,7 @@ class ESASkyClass(BaseQuery):
             return
         url = ('https://esdcwebanalytics.esac.esa.int/matomo/matomo.php?ca=1'
                '&e_c={category}&e_a={action}&e_n={names}&idsite=3&rec=1'
-               ).format(category=category, action=str(action), names=names)
+               ).format(category=category, action=action, names=names)
         try:
             response = self._request(
                 'GET',
