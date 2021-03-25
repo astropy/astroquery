@@ -142,15 +142,12 @@ class ESASkyClass(BaseQuery):
         query_object_maps("265.05, 69.0", "Herschel")
         query_object_maps("265.05, 69.0", ["Herschel", "HST-OPTICAL"])
         """
-        sanitized_missions = [m.lower() for m in self._sanitize_input_mission(missions)]
-
-        self._send_stats("Query Object Maps", self._comma_separate_upper_list(sanitized_missions))
-        return self._query_region_maps(position=position,
+        return self.query_region_maps(position=position,
                                       radius=self.__ZERO_ARCMIN_STRING,
-                                      missions=sanitized_missions,
+                                      missions=missions,
                                       get_query_payload=get_query_payload,
                                       cache=cache,
-                                      row_limit=row_limit, send_stats=False)
+                                      row_limit=row_limit)
 
     def query_object_catalogs(self, position, catalogs=__ALL_STRING,
                               row_limit=DEFAULT_ROW_LIMIT,
@@ -198,15 +195,12 @@ class ESASkyClass(BaseQuery):
         query_object_catalogs("202.469, 47.195", "HSC")
         query_object_catalogs("202.469, 47.195", ["HSC", "XMM-OM"])
         """
-        sanitized_catalogs = [m.lower() for m in self._sanitize_input_catalogs(catalogs)]
-
-        self._send_stats("Query Object Catalogs", self._comma_separate_upper_list(sanitized_catalogs))
-        return self._query_region_catalogs(position=position,
+        return self.query_region_catalogs(position=position,
                                           radius=self.__ZERO_ARCMIN_STRING,
-                                          catalogs=sanitized_catalogs,
+                                          catalogs=catalogs,
                                           row_limit=row_limit,
                                           get_query_payload=get_query_payload,
-                                          cache=cache, send_stats=False)
+                                          cache=cache)
 
     def query_object_spectra(self, position, missions=__ALL_STRING,
                              get_query_payload=False, cache=True,
@@ -254,15 +248,12 @@ class ESASkyClass(BaseQuery):
         query_object_spectra("202.469, 47.195", "Herschel")
         query_object_spectra("202.469, 47.195", ["Herschel", "HST-OPTICAL"])
         """
-        sanitized_missions = [m.lower() for m in self._sanitize_input_spectra(missions)]
-
-        self._send_stats("Query Object Spectra", self._comma_separate_upper_list(sanitized_missions))
-        return self._query_region_spectra(position=position,
+        return self.query_region_spectra(position=position,
                                       radius=self.__ZERO_ARCMIN_STRING,
-                                      missions=sanitized_missions,
+                                      missions=missions,
                                       get_query_payload=get_query_payload,
                                       cache=cache,
-                                      row_limit=row_limit, send_stats=False)
+                                      row_limit=row_limit)
 
     def query_region_maps(self, position, radius, missions=__ALL_STRING,
                           get_query_payload=False, cache=True,
@@ -312,9 +303,24 @@ class ESASkyClass(BaseQuery):
         query_region_maps("265.05, 69.0", 14*u.arcmin, "Herschel")
         query_region_maps("265.05, 69.0", 14*u.arcmin, ["Herschel", "HST-OPTICAL"])
         """
-        return self._query_region_maps(position, radius, missions=missions,
-                          get_query_payload=get_query_payload, cache=cache,
-                          row_limit=row_limit)
+        sanitized_position = self._sanitize_input_position(position)
+        sanitized_radius = self._sanitize_input_radius(radius)
+        sanitized_missions = [m.lower() for m in self._sanitize_input_mission(missions)]
+        sanitized_row_limit = self._sanitize_input_row_limit(row_limit)
+
+        query_result = {}
+
+        sesame_database.set('simbad')
+        coordinates = commons.parse_coordinates(sanitized_position)
+
+        self._store_query_result(query_result, sanitized_missions,
+                                    coordinates, sanitized_radius, sanitized_row_limit,
+                                    get_query_payload, cache, self._get_observation_json())
+
+        if (get_query_payload):
+            return query_result
+
+        return commons.TableList(query_result)
 
     def query_region_catalogs(self, position, radius, catalogs=__ALL_STRING,
                               row_limit=DEFAULT_ROW_LIMIT,
@@ -364,9 +370,25 @@ class ESASkyClass(BaseQuery):
         query_region_catalogs("265.05, 69.0", 14*u.arcmin, "Hipparcos-2")
         query_region_catalogs("265.05, 69.0", 14*u.arcmin, ["Hipparcos-2", "HSC"])
         """
-        return self._query_region_catalogs(position, radius, catalogs=catalogs,
-                              row_limit=row_limit,
-                              get_query_payload=get_query_payload, cache=cache)
+        sanitized_position = self._sanitize_input_position(position)
+        sanitized_radius = self._sanitize_input_radius(radius)
+        sanitized_catalogs = [cat.lower() for cat in self._sanitize_input_catalogs(catalogs)]
+        sanitized_row_limit = self._sanitize_input_row_limit(row_limit)
+
+        sesame_database.set('simbad')
+        coordinates = commons.parse_coordinates(sanitized_position)
+
+        query_result = {}
+
+        self._store_query_result(query_result, sanitized_catalogs,
+                                          coordinates, sanitized_radius,
+                                          sanitized_row_limit,
+                                          get_query_payload, cache, self._get_catalogs_json())
+
+        if (get_query_payload):
+            return query_result
+
+        return commons.TableList(query_result)
 
     def query_region_spectra(self, position, radius, missions=__ALL_STRING,
                              row_limit=DEFAULT_ROW_LIMIT,
@@ -416,9 +438,24 @@ class ESASkyClass(BaseQuery):
         query_region_spectra("265.05, 69.0", 30*u.arcmin, "Herschel")
         query_region_spectra("265.05, 69.0", 30*u.arcmin, ["Herschel", "IUE"])
         """
-        return self._query_region_spectra(position, radius, missions=missions,
-                             row_limit=row_limit,
-                             get_query_payload=get_query_payload, cache=cache)
+        sanitized_position = self._sanitize_input_position(position)
+        sanitized_radius = self._sanitize_input_radius(radius)
+        sanitized_missions = [m.lower() for m in self._sanitize_input_spectra(missions)]
+        sanitized_row_limit = self._sanitize_input_row_limit(row_limit)
+
+        query_result = {}
+
+        sesame_database.set('simbad')
+        coordinates = commons.parse_coordinates(sanitized_position)
+
+        self._store_query_result(query_result, sanitized_missions,
+                                    coordinates, sanitized_radius, sanitized_row_limit,
+                                    get_query_payload, cache, self._get_spectra_json())
+
+        if (get_query_payload):
+            return query_result
+
+        return commons.TableList(query_result)
 
     def get_maps(self, query_table_list, missions=__ALL_STRING,
                  download_dir=_MAPS_DOWNLOAD_DIR, cache=True):
@@ -468,12 +505,6 @@ class ESASkyClass(BaseQuery):
         """
         sanitized_query_table_list = self._sanitize_input_table_list(query_table_list)
         sanitized_missions = [m.lower() for m in self._sanitize_input_mission(missions)]
-
-        matching_missions = [input_mission for input_mission in sanitized_missions if input_mission.lower()
-                             in (query_table_mission.lower() for query_table_mission
-                                 in sanitized_query_table_list.keys())]
-
-        self._send_stats("Get maps", self._comma_separate_upper_list(matching_missions))
 
         maps = dict()
         json = self._get_observation_json()
@@ -551,13 +582,11 @@ class ESASkyClass(BaseQuery):
 
         maps = dict()
 
-        self._send_stats("Get Images", self._comma_separate_upper_list(sanitized_missions))
-
-        map_query_result = self._query_region_maps(sanitized_position,
+        map_query_result = self.query_region_maps(sanitized_position,
                                                   sanitized_radius,
                                                   sanitized_missions,
                                                   get_query_payload=False,
-                                                  cache=cache, send_stats=False)
+                                                  cache=cache)
 
         json = self._get_observation_json()
         for query_mission in map_query_result.keys():
@@ -630,15 +659,13 @@ class ESASkyClass(BaseQuery):
         sanitized_radius = self._sanitize_input_radius(radius)
         sanitized_missions = [m.lower() for m in self._sanitize_input_spectra(missions)]
 
-        self._send_stats("Get Spectra", self._comma_separate_upper_list(sanitized_missions))
-
         spectra = dict()
 
-        spectra_query_result = self._query_region_spectra(sanitized_position,
+        spectra_query_result = self.query_region_spectra(sanitized_position,
                                                   sanitized_radius,
                                                   sanitized_missions,
                                                   get_query_payload=False,
-                                                  cache=cache, send_stats=False)
+                                                  cache=cache)
         json = self._get_spectra_json()
         for query_mission in spectra_query_result.keys():
             spectra[query_mission] = (
@@ -704,11 +731,6 @@ class ESASkyClass(BaseQuery):
         sanitized_query_table_list = self._sanitize_input_table_list(query_table_list)
         sanitized_missions = [m.lower() for m in self._sanitize_input_spectra(missions)]
 
-        matching_missions = [input_mission for input_mission in sanitized_missions if input_mission.lower()
-                             in (query_table_mission.lower()
-                                 for query_table_mission in sanitized_query_table_list.keys())]
-        self._send_stats("Get Spectra From Table", self._comma_separate_upper_list(matching_missions))
-
         spectra = dict()
         json = self._get_spectra_json()
 
@@ -727,83 +749,6 @@ class ESASkyClass(BaseQuery):
         else:
             log.info("No spectra found.")
         return spectra
-
-
-    def _query_region_maps(self, position, radius, missions=__ALL_STRING,
-                          get_query_payload=False, cache=True,
-                          row_limit=DEFAULT_ROW_LIMIT, send_stats=True):
-        sanitized_position = self._sanitize_input_position(position)
-        sanitized_radius = self._sanitize_input_radius(radius)
-        sanitized_missions = [m.lower() for m in self._sanitize_input_mission(missions)]
-        sanitized_row_limit = self._sanitize_input_row_limit(row_limit)
-
-        query_result = {}
-
-        sesame_database.set('simbad')
-        coordinates = commons.parse_coordinates(sanitized_position)
-
-        if send_stats:
-            self._send_stats("Query Region Maps", self._comma_separate_upper_list(sanitized_missions))
-
-        self._store_query_result(query_result, sanitized_missions,
-                                    coordinates, sanitized_radius, sanitized_row_limit,
-                                    get_query_payload, cache, self._get_observation_json())
-
-        if (get_query_payload):
-            return query_result
-
-        return commons.TableList(query_result)
-
-    def _query_region_catalogs(self, position, radius, catalogs=__ALL_STRING,
-                              row_limit=DEFAULT_ROW_LIMIT,
-                              get_query_payload=False, cache=True, send_stats=True):
-        sanitized_position = self._sanitize_input_position(position)
-        sanitized_radius = self._sanitize_input_radius(radius)
-        sanitized_catalogs = [cat.lower() for cat in self._sanitize_input_catalogs(catalogs)]
-        sanitized_row_limit = self._sanitize_input_row_limit(row_limit)
-
-        sesame_database.set('simbad')
-        coordinates = commons.parse_coordinates(sanitized_position)
-
-        if send_stats:
-            self._send_stats("Query Region Catalogs", self._comma_separate_upper_list(sanitized_catalogs))
-
-        query_result = {}
-
-        self._store_query_result(query_result, sanitized_catalogs,
-                                          coordinates, sanitized_radius,
-                                          sanitized_row_limit,
-                                          get_query_payload, cache, self._get_catalogs_json())
-
-        if (get_query_payload):
-            return query_result
-
-        return commons.TableList(query_result)
-
-    def _query_region_spectra(self, position, radius, missions=__ALL_STRING,
-                             row_limit=DEFAULT_ROW_LIMIT,
-                             get_query_payload=False, cache=True, send_stats=True):
-        sanitized_position = self._sanitize_input_position(position)
-        sanitized_radius = self._sanitize_input_radius(radius)
-        sanitized_missions = [m.lower() for m in self._sanitize_input_spectra(missions)]
-        sanitized_row_limit = self._sanitize_input_row_limit(row_limit)
-
-        query_result = {}
-
-        sesame_database.set('simbad')
-        coordinates = commons.parse_coordinates(sanitized_position)
-
-        if send_stats:
-            self._send_stats("Query Region Spectra", self._comma_separate_upper_list(sanitized_missions))
-
-        self._store_query_result(query_result, sanitized_missions,
-                                    coordinates, sanitized_radius, sanitized_row_limit,
-                                    get_query_payload, cache, self._get_spectra_json())
-
-        if (get_query_payload):
-            return query_result
-
-        return commons.TableList(query_result)
 
     def _sanitize_input_position(self, position):
         if (isinstance(position, str) or isinstance(position,
@@ -1263,9 +1208,6 @@ class ESASkyClass(BaseQuery):
 
         except (HTTPError, ConnectionError) as err:
             None
-
-    def _comma_separate_upper_list(self, list):
-        return ', '.join(str(item).upper() for item in list)
 
 
 ESASky = ESASkyClass()
