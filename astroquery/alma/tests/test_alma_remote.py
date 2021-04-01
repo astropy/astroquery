@@ -687,11 +687,11 @@ def test_big_download_regression(dataarchive_url):
     Regression test for #2020/#2021 - this download fails if logging tries to
     load the whole data file into memory.
     """
-    result = Alma.query({'project_code':'2013.1.01365.S'})
+    result = Alma.query({'project_code': '2013.1.01365.S'})
     uids = np.unique(result['member_ous_uid'])
     files = Alma.get_data_info(uids)
 
-    #we may need to change the cache dir for this to work on testing machines?
+    # we may need to change the cache dir for this to work on testing machines?
     # savedir='/big/data/path/'
     # Alma.cache_dir=savedir
 
