@@ -77,11 +77,8 @@ class NEODySClass(BaseQuery):
 
         object_url = f'{self.NEODYS_URL}/{object_id}.{orbital_element_type}{epoch_near_present}'
 
-        response = requests.get(object_url, timeout=self.TIMEOUT)
-
-        if response.status_code != 200:
-            print(object_url)
-            raise RuntimeError("Request failed with error {0}: {1}".format(response.status_code, response.text))
+        response = self._request('GET', object_url, timeout=self.TIMEOUT)
+        response.raise_for_status()
 
         ascii_text = (response.text).split('\n')
 
