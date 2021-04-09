@@ -17,6 +17,7 @@ from requests import HTTPError
 from requests import ConnectionError
 
 from ..query import BaseQuery
+from ..utils.tap.core import TapPlus
 from ..utils import commons
 from ..utils import async_to_sync
 from . import conf
@@ -74,6 +75,115 @@ class ESASkyClass(BaseQuery):
     _MAPS_DOWNLOAD_DIR = "Maps"
     _SPECTRA_DOWNLOAD_DIR = "Spectra"
     _isTest = ""
+
+    def __init__(self, tap_handler=None):
+        super(ESASkyClass, self).__init__()
+
+        if tap_handler is None:
+            self._tap = TapPlus(url="https://sky.esa.int/esasky-tap/tap/")
+        else:
+            self._tap = tap_handler
+
+    def query(self, query, *, output_file=None,
+                      output_format="votable", verbose=False):
+        """Launches a synchronous job to query the ESASky TAP
+
+        Parameters
+        ----------
+        query : str, mandatory
+            query (adql) to be executed
+        output_file : str, optional, default None
+            file name where the results are saved if dumpToFile is True.
+            If this parameter is not provided, the jobid is used instead
+        output_format : str, optional, default 'votable'
+            possible values 'votable' or 'csv'
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        A table object
+        """
+        job = self._tap.launch_job(query=query, output_file=output_file,
+                                   output_format=output_format,
+                                   verbose=verbose,
+                                   dump_to_file=output_file is not None)
+        return job.get_results()
+
+    def get_tables(self, *, only_names=True, verbose=False):
+        """
+        Get the available table in ESASky TAP service
+
+        Parameters
+        ----------
+        only_names : bool, optional, default 'True'
+            True to load table names only
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        A list of tables
+        """
+
+        tables = self._tap.load_tables(only_names=only_names,
+                                       include_shared_tables=False,
+                                       verbose=verbose)
+        if only_names:
+            return [t.name for t in tables]
+        else:
+            return tables
+
+    def get_columns(self, table_name, *, only_names=True, verbose=False):
+        """
+        Get the available columns for a table in ESASky TAP service
+
+        Parameters
+        ----------
+        table_name : string, mandatory, default None
+            table name of which, columns will be returned
+        only_names : bool, optional, default 'True'
+            True to load table names only
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        A list of columns
+        """
+
+        tables = self._tap.load_tables(only_names=False,
+                                       include_shared_tables=False,
+                                       verbose=verbose)
+        columns = None
+        for table in tables:
+            if str(table.name) == str(table_name):
+                columns = table.columns
+                break
+
+        if columns is None:
+            raise ValueError("table name specified is not found in "
+                             "ESASky TAP service")
+
+        if only_names:
+            return [c.name for c in columns]
+        else:
+            return columns
+
+    def get_tap(self):
+        """
+        Get a TAP+ instance for the ESASky servers, which supports
+        all common TAP+ operations (synchronous & asynchronous queries,
+        uploading of tables, table sharing and more)
+        Full documentation and examples available here:
+        https://astroquery.readthedocs.io/en/latest/utils/tap.html
+
+        Returns
+        -------
+        tap : `~astroquery.utils.tap.core.TapPlus`
+        """
+
+        return self._tap
 
     def list_maps(self):
         """
