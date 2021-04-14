@@ -30,6 +30,10 @@ irsa
 
 - Used more specific exceptions in IRSA. [#1854]
 
+jplsbdb
+^^^^^^^
+
+- Returns astropy quantities, rather than scaled units. [#2011]
 
 mast
 ^^^^
