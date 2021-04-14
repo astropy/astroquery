@@ -143,6 +143,16 @@ All query tools allow coordinate-based queries:
 
 For additional guidance and examples, read the documentation for the individual services below.
 
+.. _default_config:
+
+Default configuration file
+--------------------------
+
+To customize this, copy it to your ``$HOME/.astropy/config/astroquery.cfg``,
+uncomment the relevant configuration item(s), and insert your desired value(s).
+
+.. generate_config:: astroquery
+
 Available Services
 ==================
 
