@@ -62,6 +62,16 @@ class VizierClass(BaseQuery):
             column descriptions defined on the Vizier web pages.
             See http://vizier.u-strasbg.fr/vizier/vizHelp/1.htx#ucd and
             http://cds.u-strasbg.fr/w/doc/UCD/
+         vizier_server : string
+            Name of the VizieR mirror to use.
+            (This parameter's default is set from a configuration object.)
+        timeout : number
+            timeout for connecting to server
+            (This parameter's default is set from a configuration object.)
+        row_limit : int
+            Maximum number of rows that will be fetched from the result
+            (set to -1 for unlimited).
+            (This parameter's default is set from a configuration object.)
         """
 
         super(VizierClass, self).__init__()
