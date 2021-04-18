@@ -62,7 +62,7 @@ class VizierClass(BaseQuery):
             column descriptions defined on the Vizier web pages.
             See http://vizier.u-strasbg.fr/vizier/vizHelp/1.htx#ucd and
             http://cds.u-strasbg.fr/w/doc/UCD/
-         vizier_server : string
+        vizier_server : string
             Name of the VizieR mirror to use.
             (This parameter's default is set from a configuration object.)
         timeout : number
