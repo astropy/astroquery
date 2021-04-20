@@ -2,4 +2,4 @@
 
 
 def get_package_data():
-    return {'astroquery': ['astroquery.cfg', 'CITATION']}
+    return {'astroquery': ['CITATION']}
