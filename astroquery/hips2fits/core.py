@@ -71,8 +71,7 @@ class hips2fitsClass(BaseQuery):
             See the list of valid HiPS ids hosted by the CDS `here <http://aladin.unistra.fr/hips/list>`_.
         wcs : `~astropy.wcs.WCS`
             An astropy WCS defining the astrometry you wish.
-            Alternatively, you can pass lon, lat, fov, coordsys keywords (if so, please use the
-            :meth:`~astroquery.hips2fits.hips2fitsClass.query_with_user_defined_wcs` method).
+            Alternatively, you can pass lon, lat, fov, coordsys keywords.
         format : str, optional
             Format of the output image.
             Allowed values are fits (default), jpg and png
