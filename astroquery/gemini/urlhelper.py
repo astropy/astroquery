@@ -73,8 +73,34 @@ class URLHelper:
         -------
         response : `string` url to execute the query
         """
+        qa_parm = ''
+        eng_parm = ''
 
-        url = "%s/jsonsummary/notengineering/NotFail" % self.server
+        # List of args that specify a QA state
+        qa_parameters = (
+            'NotFail',
+            'AnyQA',
+            'Pass',
+            'Lucky',
+            'Win',
+            'Usable',
+            'Undefind',
+            'Fail'
+        )
+
+        # List of args that specify engineering data (or not)
+        engineering_parameters = (
+            'notengineering',
+            'engineering',
+            'includeengineering'
+        )
+
+        if not any(eng_parm in args for eng_parm in engineering_parameters):
+            eng_parm = 'notengineering/'
+        if not any(qa_parm in args for qa_parm in qa_parameters):
+            qa_parm = 'NotFail/'
+        url = "%s/jsonsummary/%s%s" % (self.server, eng_parm, qa_parm)
+        url = url[:-1]  # strip trailing /
 
         for arg in args:
             url = "%s/%s" % (url, arg)

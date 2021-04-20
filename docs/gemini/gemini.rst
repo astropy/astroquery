@@ -114,7 +114,8 @@ Gemini website.  This call also supports the ``orderby`` kwarg for requesting th
 This example is equivalent to doing a web search with 
 `this example search <https://archive.gemini.edu/searchform/RAW/cols=CTOWEQ/notengineering/GMOS-N/PIname=Hirst/NotFail>`_ .
 Note that *NotFail*, *notengineering*, *RAW*, and *cols* are all sent automatically.  Only the additional 
-terms need be passed into the method.
+terms need be passed into the method.  If QA or engineering search terms are passed, those will replace
+the *NotFail* or *notengineering* terms respectively.
 
 .. code-block:: python
                 

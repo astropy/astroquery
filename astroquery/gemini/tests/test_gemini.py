@@ -117,3 +117,33 @@ def test_url_helper_coordinates():
     kwargs = {"coordinates": "210.80242917 54.348753"}
     url = urlh.build_url(*args, **kwargs)
     assert url == "https://archive.gemini.edu/jsonsummary/notengineering/NotFail/ra=210.802429/dec=54.348753"
+
+
+# send arg, should it have notengineering?, should it have NotFail?
+eng_fail_tests = [
+    ('notengineering', True, True),
+    ('engineering', False, True),
+    ('includeengineering', False, True),
+    ('NotFail', True, True),
+    ('AnyQA', True, False),
+    ('Pass', True, False),
+    ('Lucky', True, False),
+    ('Win', True, False),
+    ('Usable', True, False),
+    ('Undefind', True, False),
+    ('Fail', True, False),
+    ]
+
+
+@pytest.mark.parametrize("test_arg", eng_fail_tests)
+def test_url_helper_eng_fail(test_arg):
+    """ test the urlhelper logic around engineering/fail requests/defaults """
+    urlh = URLHelper()
+    args = [test_arg[0]]
+    should_have_noteng = test_arg[1]
+    should_have_notfail = test_arg[2]
+    kwargs = {}
+    url = urlh.build_url(*args, **kwargs)
+    urlsplit = url.split('/')
+    assert(('notengineering' in urlsplit) == should_have_noteng)
+    assert(('NotFail' in urlsplit) == should_have_notfail)
