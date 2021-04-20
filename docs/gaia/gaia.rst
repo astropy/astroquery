@@ -77,6 +77,13 @@ Examples
 
 This query searches for all the objects contained in an arbitrary rectangular projection of the sky.
 
+It is possible to choose which data release to query, by default the Gaia DR2 catalogue is used. For example:
+
+.. code-block:: python
+
+  >>> Gaia.MAIN_GAIA_TABLE = "gaiadr2.gaia_source"  # Select Data Release 2, default
+  >>> Gaia.MAIN_GAIA_TABLE = "gaiaedr3.gaia_source" # Select early Data Release 3
+
 The following example searches for all the sources contained in an squared region of side = 0.1
 degrees around an specific point in RA/Dec coordinates.
 
