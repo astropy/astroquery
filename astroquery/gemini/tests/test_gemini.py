@@ -101,7 +101,6 @@ def test_observations_query_criteria_radius_defaults(patch_get):
     assert('/sr=0.300000d' in saved_request['args'][1])
 
 
-
 def test_observations_query_raw(patch_get):
     """ test querying raw """
     result = gemini.Observations.query_raw('GMOS-N', 'BIAS', progid='GN-CAL20191122')
