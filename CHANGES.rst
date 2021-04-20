@@ -41,8 +41,8 @@ mast
 - Added ``Observations.download_file`` method to download a single file from MAST given an input
   data URI. [#1825]
 - Added case for passing a row to ``Observations.download_file` [#1881]
-- Removed deprecated ``Observations.get_hst_s3_uris()``, ``Observations.get_hst_s3_uri()``, 
-  ``Core.get_token()``, ``Core.enable_s3_hst_dataset()``, ``Core.disable_s3_hst_dataset()`` and 
+- Removed deprecated ``Observations.get_hst_s3_uris()``, ``Observations.get_hst_s3_uri()``,
+  ``Core.get_token()``, ``Core.enable_s3_hst_dataset()``, ``Core.disable_s3_hst_dataset()`` and
   variables obstype and silent [#1884]
 - Added Zcut functionality to astroquery [#1911]
 - Fixed error causing empty products passed to ``Observations.get_product_list()`` to yeild a
@@ -55,6 +55,7 @@ esa/hubble
 
 - Module added to query eHST TAP based on a set of specific criteria and
   asynchronous jobs are now supported. [#1723]
+
 
 esa/xmm_newton
 ^^^^^^^^^^^^^^
@@ -75,14 +76,14 @@ Gemini
 - get_file() support for downloading files [#1778]
 - fix syntax error in query_criteria() [#1823]
 - If QA and/or engineering parameters are explicitly passed, remove the add defaults of `notengineering` and/or
-  `NotFail` [#1996]
+- Smarter defaulting of radius to None unless coordinates are specified, in
+  which case defaults to 0.3 degrees. [#1995]
 
 heasarc
 ^^^^^^^
 
 - A ``NoResultsWarning`` is now returned when there is no matching rows were
   found in query. [#1829]
-
 
 SVO FPS
 ^^^^^^^

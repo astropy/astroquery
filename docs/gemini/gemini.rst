@@ -25,7 +25,7 @@ Positional queries can be based on a sky position.  Radius is an optional parame
                 >>> coord = coordinates.SkyCoord(210.80242917, 54.34875, unit="deg")
                 >>> data = Observations.query_region(coordinates=coord, radius=0.3*units.deg)
                 >>> print(data[0:5])
-                
+
                 exposure_time detector_roi_setting detector_welldepth_setting  telescope   ...
                 ------------- -------------------- -------------------------- ------------ ...
                      119.9986           Full Frame                         -- Gemini-North ...
@@ -60,14 +60,16 @@ Observation Criteria Queries
 ----------------------------
 
 Additional search terms are available as optional arguments to the `~astroquery.gemini.ObservationsClass.query_criteria`
-call.  These all have default values of None, in which case they will not be considered during the search.
+call.  These all have default values of None, in which case they will not be considered during the search.  The one
+exception is ``radius``, which will be set to 0.3 degrees by default if either ``coordinates`` or ``objectname`` are
+specified.
 
 Some examples of available search fields are the instrument used, such as GMOS-N, the observation_type, such as BIAS,
 and the program ID.  For a complete list of available search fields, see
 `~astroquery.gemini.ObservationsClass.query_criteria`
 
 .. code-block:: python
-                
+
                 >>> from astroquery.gemini import Observations
 
                 >>> data = Observations.query_criteria(instrument='GMOS-N',
@@ -83,7 +85,7 @@ and the program ID.  For a complete list of available search fields, see
                           0.0           Full Frame                         -- Gemini-North    True ...
                           0.0           Full Frame                         -- Gemini-North    True ...
 
-In addition, the criteria query can accept additional parameters via the ``*rawqueryargs`` and ``**rawquerykwargs`` 
+In addition, the criteria query can accept additional parameters via the ``*rawqueryargs`` and ``**rawquerykwargs``
 optional parameters.
 
 The ``orderby`` parameter can be used to pass the desired sort order.
@@ -111,14 +113,15 @@ Regular *args* search terms are sent down as part of the URL path.  Any *kwargs*
 key=value also in the URL path.  You can infer what to pass the function by inspecting the URL after a search in the
 Gemini website.  This call also supports the ``orderby`` kwarg for requesting the sort order.
 
-This example is equivalent to doing a web search with 
+This example is equivalent to doing a web search with
 `this example search <https://archive.gemini.edu/searchform/RAW/cols=CTOWEQ/notengineering/GMOS-N/PIname=Hirst/NotFail>`_ .
-Note that *NotFail*, *notengineering*, *RAW*, and *cols* are all sent automatically.  Only the additional 
+
+Note that *NotFail*, *notengineering*, *RAW*, and *cols* are all sent automatically.  Only the additional
 terms need be passed into the method.  If QA or engineering search terms are passed, those will replace
 the *NotFail* or *notengineering* terms respectively.
 
 .. code-block:: python
-                
+
                 >>> from astroquery.gemini import Observations
 
                 >>> data = Observations.query_raw('GMOS-N', 'BIAS', progid='GN-CAL20191122')
@@ -137,7 +140,7 @@ Authenticated Sessions
 ----------------------
 
 The Gemini module allows for authenticated sessions using your GOA account.  This is the same account you login
-with on the GOA homepage at `<https://archive.gemini.edu/>`__.  The `astroquery.gemini.ObservationsClass.login` 
+with on the GOA homepage at `<https://archive.gemini.edu/>`__.  The `astroquery.gemini.ObservationsClass.login`
 method returns `True` if successful.
 
 .. code-block:: python
@@ -167,4 +170,3 @@ Reference/API
 
 .. automodapi:: astroquery.gemini
     :no-inheritance-diagram:
-
