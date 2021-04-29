@@ -92,8 +92,10 @@ class ESAHubbleClass(BaseQuery):
         None. It downloads the observation indicated
         """
 
-        params = {"OBSERVATION_ID": observation_id}
+        params = {"OBSERVATION_ID": observation_id,
+                  "USERNAME": "ehst-astroquery"}
         url = self.data_url + "?OBSERVATION_ID=" + observation_id
+        url += "&USERNAME=" + "ehst-astroquery"
 
         if filename is None:
             filename = observation_id + ".tar"
@@ -154,14 +156,15 @@ class ESAHubbleClass(BaseQuery):
         None. It downloads the artifact indicated
         """
 
-        params = {"ARTIFACT_ID": artifact_id}
+        params = {"ARTIFACT_ID": artifact_id, "USERNAME": "ehst-astroquery"}
         response = self._request('GET', self.data_url, save=True, cache=True,
                                  params=params)
         if filename is None:
             filename = artifact_id
 
         if verbose:
-            log.info(self.data_url + "?ARTIFACT_ID=" + artifact_id)
+            log.info(self.data_url + "?ARTIFACT_ID=" + artifact_id +
+                     "&USERNAME=ehst-astroquery")
             log.info(self.copying_string.format(filename))
 
         shutil.move(response, filename)
@@ -200,7 +203,8 @@ class ESAHubbleClass(BaseQuery):
         params = {"RETRIEVAL_TYPE": "POSTCARD",
                   "OBSERVATION_ID": observation_id,
                   "CALIBRATION_LEVEL": calibration_level,
-                  "RESOLUTION": resolution}
+                  "RESOLUTION": resolution,
+                  "USERNAME": "ehst-astroquery"}
 
         response = self._request('GET', self.data_url, save=True, cache=True,
                                  params=params)
@@ -213,7 +217,8 @@ class ESAHubbleClass(BaseQuery):
                      "&".join(["?RETRIEVAL_TYPE=POSTCARD",
                                "OBSERVATION_ID=" + observation_id,
                                "CALIBRATION_LEVEL=" + calibration_level,
-                               "RESOLUTION=" + str(resolution)]))
+                               "RESOLUTION=" + str(resolution),
+                               "USERNAME=ehst-astroquery"]))
             log.info(self.copying_string.format(filename))
 
         shutil.move(response, filename)
@@ -435,6 +440,7 @@ class ESAHubbleClass(BaseQuery):
         """
 
         params = {"RESOURCE_CLASS": "OBSERVATION",
+                  "USERNAME": "ehst-astroquery",
                   "SELECTED_FIELDS": "OBSERVATION",
                   "QUERY": "(TARGET.TARGET_NAME=='" + name + "')",
                   "RETURN_TYPE": str(output_format)}
@@ -445,7 +451,8 @@ class ESAHubbleClass(BaseQuery):
         if verbose:
             log.info(self.metadata_url + "?RESOURCE_CLASS=OBSERVATION&"
                      "SELECTED_FIELDS=OBSERVATION&QUERY=(TARGET.TARGET_NAME"
-                     "=='" + name + "')&RETURN_TYPE=" + str(output_format))
+                     "=='" + name + "')&USERNAME=ehst-astroquery&"
+                     "RETURN_TYPE=" + str(output_format))
             log.info(self.copying_string.format(filename))
         if filename is None:
             filename = "target.xml"
