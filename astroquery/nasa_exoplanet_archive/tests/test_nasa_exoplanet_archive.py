@@ -17,15 +17,18 @@ from astropy.utils.exceptions import AstropyDeprecationWarning
 
 from ...exceptions import InputWarning, InvalidQueryError, NoResultsWarning
 from ...utils.testing_tools import MockResponse
-from ..core import NasaExoplanetArchive, conf
+from ..core import NasaExoplanetArchive, conf, InvalidTableError
 
 MAIN_DATA = pkg_resources.resource_filename("astroquery.nasa_exoplanet_archive", "data")
 TEST_DATA = pkg_resources.resource_filename(__name__, "data")
 RESPONSE_FILE = os.path.join(TEST_DATA, "responses.json")
+
+# TAP supported: ps, pscomppars, keplernames, k2names. API support: all others
+# TODO: add tables transitspec and emissionspec
+# TODO: these tests might have to be split between TAP and API accessed tables
 ALL_TABLES = [
-    ("exoplanets", dict(where="pl_hostname='Kepler-11'")),
-    ("compositepars", dict(where="fpl_hostname='WASP-166'")),
-    ("exomultpars", dict(where="mpl_hostname='TrES-2'")),
+    # ("ps", dict(where="hostname='Kepler-11'")),
+    # ("pscomppars", dict(where="hostname='WASP-166'")),
     ("microlensing", dict(where="plntname='MOA-2010-BLG-353L b'")),
     ("cumulative", dict(where="kepid=10601284")),
     ("koi", dict(where="kepid=10601284")),
@@ -48,13 +51,13 @@ ALL_TABLES = [
     ("q1_q16_stellar", dict(where="kepid=10601284")),
     ("q1_q12_stellar", dict(where="kepid=10601284")),
     ("keplertimeseries", dict(kepid=8561063, quarter=14)),
-    ("keplernames", dict(where="kepid=10601284")),
+    # ("keplernames", dict(where="kepid=10601284")),
     ("kelttimeseries", dict(where="kelt_sourceid='KELT_N02_lc_012738_V01_east'", kelt_field="N02")),
     ("kelt", dict(where="kelt_sourceid='KELT_N02_lc_012738_V01_east'", kelt_field="N02")),
     ("superwasptimeseries", dict(sourceid="1SWASP J191645.46+474912.3")),
     ("k2targets", dict(where="epic_number=206027655")),
     ("k2candidates", dict(where="epic_name='EPIC 206027655'")),
-    ("k2names", dict(where="epic_host='EPIC 206027655'")),
+    # ("k2names", dict(where="epic_host='EPIC 206027655'")),
     ("missionstars", dict(where="star_name='tau Cet'")),
     ("mission_exocat", dict(where="star_name='HIP 5110 A'")),
     pytest.param(
@@ -68,44 +71,66 @@ ALL_TABLES = [
 
 
 def mock_get(self, method, url, *args, **kwargs):  # pragma: nocover
-    assert url == conf.url
 
+    # Read request parameters
     params = kwargs.get("params", None)
     assert params is not None
 
     try:
+        # Read request (URL substring for API or SQL query for TAP) from json file as dict
         with open(RESPONSE_FILE, "r") as f:
             responses = json.load(f)
     except FileNotFoundError:
         responses = {}
 
+
+    # Set base URL depending on whether TAP or API for access
+    if table in ["ps", "pscomppars", "k2names", "keplernames"]:
+        assert url == conf.url_tap
+        service_type = "tap"
+    else:
+        assert url == conf.url_api
+        service_type = "api"
+
+
     # Work out where the expected response is saved
     table = params["table"]
-    key = urlencode(sorted(params.items()))
+    if service_type == "api":
+        key = urlencode(sorted(params.items())) # construct URL query string from params
+    else:
+        key = 
     try:
+        # Find index of URL query string in list of URLs for specific table.
+        # Set to empty list if table isn't in dictionary, which will return ValueError
         index = responses.get(table, []).index(key)
     except ValueError:
         index = -1
 
     # If the NASA_EXOPLANET_ARCHIVE_GENERATE_RESPONSES environment variable is set, we make a
     # remote request if necessary. Otherwise we throw a ValueError.
-    if index < 0:
+    if index < 0: # Request wasn't already in responses.json
         if "NASA_EXOPLANET_ARCHIVE_GENERATE_RESPONSES" not in os.environ:
             raise ValueError("unexpected request")
-        with requests.Session() as session:
-            resp = session.old_request(method, url, params=params)
         responses[table] = responses.get(table, [])
-        responses[table].append(key)
-        index = len(responses[table]) - 1
+        responses[table].append(key) # add query string to dict of table entries
+        index = len(responses[table]) - 1 # set index to write new entry
+        if table in ["ps", "pscomppars", "k2names", "keplernames"]:
+            tap = pyvo.dal.tap.TAPService(baseurl=url)
+            tap.create_query()
+            # with requests.Session() as session: # TODO: this has be changed to a TAP request
+            #     resp = session.old_request(method, url, params=params)
+        else: # use basic http request of URL
+            with requests.Session() as session:
+                resp = session.old_request(method, url, params=params)
         with open(os.path.join(TEST_DATA, "{0}_expect_{1}.txt".format(table, index)), "w") as f:
-            f.write(resp.text)
+            f.write(resp.text) # writing response text (actual response from server) to data files
         with open(RESPONSE_FILE, "w") as f:
-            json.dump(responses, f, sort_keys=True, indent=2)
+            json.dump(responses, f, sort_keys=True, indent=2) # write updated dict to responses.json
 
     with open(os.path.join(TEST_DATA, "{0}_expect_{1}.txt".format(table, index)), "r") as f:
-        data = f.read()
+        data = f.read() # Read saved response from data file
 
-    return MockResponse(data.encode("utf-8"))
+    return MockResponse(data.encode("utf-8")) # Return as MockResponse
 
 
 @pytest.fixture
@@ -131,55 +156,43 @@ def test_regularize_object_name(patch_get):
 
 
 def test_backwards_compat(patch_get):
-    """These are the tests from the previous version of this interface"""
+    """
+    These are the tests from the previous version of this interface.
+    They query old tables by default and should return InvalidTableError.
+    """
 
     # test_hd209458b_exoplanets_archive
     with pytest.warns(AstropyDeprecationWarning):
-        params = NasaExoplanetArchive.query_planet("HD 209458 b ")
-    assert_quantity_allclose(params["pl_radj"], 1.320 * u.R_jup, atol=0.1 * u.R_jup)
+        with pytest.raises(InvalidTableError) as error:
+            params = NasaExoplanetArchive.query_planet("HD 209458 b ")
+        assert "replaced" in str(error)
+
 
     # test_hd209458b_exoplanet_archive_coords
     with pytest.warns(AstropyDeprecationWarning):
-        params = NasaExoplanetArchive.query_planet("HD 209458 b ")
-    simbad_coords = SkyCoord(ra="22h03m10.77207s", dec="+18d53m03.5430s")
-    sep = params["sky_coord"][0].separation(simbad_coords)
-    assert abs(sep) < 5 * u.arcsec
+        with pytest.raises(InvalidTableError) as error:
+            params = NasaExoplanetArchive.query_planet("HD 209458 b ")
+        assert "replaced" in str(error)
+
 
     # test_hd209458_stellar_exoplanet
     with pytest.warns(AstropyDeprecationWarning):
-        params = NasaExoplanetArchive.query_star("HD 209458")
-    assert len(params) == 1
-    assert str(params["pl_name"][0]) == "HD 209458 b"
-    assert_quantity_allclose(params["pl_orbper"], 3.52474859 * u.day, atol=1e-5 * u.day)
-    assert not params["pl_kepflag"]
-    assert not params["pl_ttvflag"]
+        with pytest.raises(InvalidTableError) as error:
+            params = NasaExoplanetArchive.query_star("HD 209458")
+        assert "replaced" in str(error)
+
 
     # test_hd136352_stellar_exoplanet_archive
     with pytest.warns(AstropyDeprecationWarning):
-        params = NasaExoplanetArchive.query_star("HD 136352")
-    assert len(params) == 3
-    expected_planets = ["HD 136352 b", "HD 136352 c", "HD 136352 d"]
-    for planet in expected_planets:
-        assert planet in params["pl_name"]
-    assert "pl_trandep" not in params.colnames
+        with pytest.raises(InvalidTableError) as error:
+            params = NasaExoplanetArchive.query_star("HD 136352")
+        assert "replaced" in str(error)
 
     # test_exoplanet_archive_query_all_columns
     with pytest.warns(AstropyDeprecationWarning):
-        params = NasaExoplanetArchive.query_planet("HD 209458 b ", all_columns=True)
-    assert "pl_tranflag" in params.columns
-
-
-def test_query_object_compat(patch_get):
-    """Make sure that query_object is compatible with query_planet and query_star"""
-    with pytest.warns(AstropyDeprecationWarning):
-        table1 = NasaExoplanetArchive.query_planet("HD 209458 b ")
-    table2 = NasaExoplanetArchive.query_object("HD 209458 b ")
-    _compare_tables(table1, table2)
-
-    with pytest.warns(AstropyDeprecationWarning):
-        table1 = NasaExoplanetArchive.query_star(" Kepler 2")
-    table2 = NasaExoplanetArchive.query_object("HAT-P-7 ")
-    _compare_tables(table1, table2)
+        with pytest.raises(InvalidTableError) as error:
+            params = NasaExoplanetArchive.query_planet("HD 209458 b ", all_columns=True)
+        assert "replaced" in str(error)
 
 
 @pytest.mark.filterwarnings("error")
@@ -195,25 +208,25 @@ def test_all_tables(patch_get, table, query):
 
 def test_select(patch_get):
     payload = NasaExoplanetArchive.query_criteria(
-        "exoplanets",
-        select=["pl_hostname", "pl_name"],
-        where="pl_hostname='Kepler-11'",
+        "ps",
+        select=["hostname", "pl_name"],
+        where="hostname='Kepler-11'",
         get_query_payload=True,
     )
-    assert payload["select"] == "pl_hostname,pl_name"
+    assert payload["select"] == "hostname,pl_name"
 
     table1 = NasaExoplanetArchive.query_criteria(
-        "exoplanets", select=["pl_hostname", "pl_name"], where="pl_hostname='Kepler-11'"
+        "ps", select=["hostname", "pl_name"], where="hostname='Kepler-11'"
     )
     table2 = NasaExoplanetArchive.query_criteria(
-        "exoplanets", select="pl_hostname,pl_name", where="pl_hostname='Kepler-11'"
+        "ps", select="hostname,pl_name", where="hostname='Kepler-11'"
     )
     _compare_tables(table1, table2)
 
 
 def test_warnings(patch_get):
     with pytest.warns(NoResultsWarning):
-        NasaExoplanetArchive.query_criteria("exoplanets", where="pl_hostname='not a host'")
+        NasaExoplanetArchive.query_criteria("ps", where="hostname='not a host'")
 
     with pytest.warns(InputWarning):
         NasaExoplanetArchive.query_object("HAT-P-11 b", where="nothing")
@@ -232,11 +245,11 @@ def test_warnings(patch_get):
 def test_query_region(patch_get):
     coords = SkyCoord(ra=330.79488 * u.deg, dec=18.8843 * u.deg)
     radius = 0.001
-    table1 = NasaExoplanetArchive.query_region("exoplanets", coords, radius * u.deg)
+    table1 = NasaExoplanetArchive.query_region("ps", coords, radius * u.deg)
     assert len(table1) == 1
-    assert table1["pl_hostname"] == "HD 209458"
+    assert table1["hostname"] == "HD 209458"
 
-    table2 = NasaExoplanetArchive.query_region("exoplanets", coords, radius)
+    table2 = NasaExoplanetArchive.query_region("ps", coords, radius)
     _compare_tables(table1, table2)
 
 

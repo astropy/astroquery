@@ -9,22 +9,23 @@ from ..core import InvalidTableError, NasaExoplanetArchive
 
 @pytest.mark.remote_data
 def test_invalid_table():
-    with pytest.raises(InvalidTableError):
+    with pytest.raises(InvalidTableError) as error:
         NasaExoplanetArchive.query_criteria("not_a_table")
+    assert "not_a_table" in str(error)
 
 
 @pytest.mark.remote_data
 def test_invalid_column():
     with pytest.raises(InvalidQueryError) as error:
-        NasaExoplanetArchive.query_criteria("exoplanets", select="not_a_column")
-    assert "not_a_column" in str(error)
+        NasaExoplanetArchive.query_criteria("ps", select="not_a_column")
+    assert "not_a_column" in str(error).lower()
 
 
 @pytest.mark.remote_data
 def test_invalid_query_exoplanets():
     with pytest.raises(InvalidQueryError) as error:
-        NasaExoplanetArchive.query_criteria("exoplanets", where="pl_hostname=Kepler-11")
-    assert "kepler" in str(error)
+        NasaExoplanetArchive.query_criteria("ps", where="hostname=Kepler-11")
+    assert "kepler" in str(error).lower()
 
 
 @pytest.mark.remote_data

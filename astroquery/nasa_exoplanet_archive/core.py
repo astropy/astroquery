@@ -1,11 +1,12 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-
+# Basic imports
 import copy
 import io
 import re
 import warnings
 
+# Import various astropy modules
 import astropy.coordinates as coord
 import astropy.units as u
 import astropy.units.cds as cds
@@ -17,6 +18,7 @@ from astropy.table import QTable
 from astropy.utils import deprecated, deprecated_renamed_argument
 from astropy.utils.exceptions import AstropyWarning
 
+# Import astroquery utilities
 from ..exceptions import (InputWarning, InvalidQueryError, NoResultsWarning,
                           RemoteServiceError)
 from ..query import BaseQuery
@@ -24,25 +26,30 @@ from ..utils import async_to_sync, commons
 from ..utils.class_or_instance import class_or_instance
 from . import conf
 
+# Import TAP client
+#from astroquery.utils.tap.core import TapPlus # This package will be deprecated, use PyVO
+import pyvo
+
+# Objects exported when calling from astroquery.nasa_exoplanet_archive import *
 __all__ = ["NasaExoplanetArchive", "NasaExoplanetArchiveClass"]
 
-
+# Dictionary mapping unit strings to astropy units
 UNIT_MAPPER = {
     "--": None,
-    "BJD": None,  # TODO: optionally supprot mapping columns to Time objects
-    "BKJD": None,  # TODO: optionally supprot mapping columns to Time objects
+    "BJD": None,  # TODO: optionally support mapping columns to Time objects
+    "BKJD": None,  # TODO: optionally support mapping columns to Time objects
     "D_L": u.pc,
     "D_S": u.pc,
-    "Earth flux": None,  # TODO: Include Earth insolation units
-    "Fearth": None,  # TODO: Include Earth insolation units
+    "Earth flux": u.W / u.m ** 2,
+    "Fearth": u.W / u.m ** 2,
     "M_E": u.M_earth,
     "M_J": u.M_jupiter,
-    "R_Earth": u.R_earth,
+    "R_Earth": u.R_earth, # Add u.R_jupiter
     "R_Sun": u.R_sun,
     "Rstar": u.R_sun,
     "a_perp": u.au,
     "arc-sec/year": u.arcsec / u.yr,
-    "cm/s**2": u.dex(u.dm / u.s ** 2),
+    "cm/s**2": u.cm / u.s ** 2,
     "days": u.day,
     "degrees": u.deg,
     "dexincgs": u.dex(u.cm / u.s ** 2),
@@ -61,42 +68,65 @@ UNIT_MAPPER = {
     "seconds": u.s,
     "solarradius": u.R_sun,
 }
+
 CONVERTERS = dict(koi_quarters=[ascii.convert_numpy(str)])
 OBJECT_TABLES = {"exoplanets": "pl_", "compositepars": "fpl_", "exomultpars": "mpl_"}
 
+# 'ps' and 'pscomppars' are the main tables of detected exoplanets. Calls to the old tables ('exoplanets', 'compositepars', 'exomultpars') will return errors and urge the user to call the 'ps' or 'pscomppars' tables
+OBJECT_TABLES = {"ps": "pl_", "pscomppars": "pl_", "exoplanets": "pl_", "compositepars": "fpl_", "exomultpars": "mpl_"}
 
 class InvalidTableError(InvalidQueryError):
     """Exception thrown if the given table is not recognized by the Exoplanet Archive Servers"""
 
     pass
 
+# This can be used for error message when old tables are given, but server will return its own error message.
+class DeprecatedTableError(InvalidQueryError):
+    """Exception thrown if the given table is deprecated"""
 
+    def __init__(self, *args):
+        if args:
+            self.message = args[0]
+        else:
+            self.message = None
+
+    def __str__(self):
+        if self.message:
+            return "DeprecatedTableError {0} ".format(self.message)
+        else:
+            return "DeprecatedTableError has been raised"
+
+
+# Class decorator, async_to_sync, modifies NasaExoplanetArchiveClass to convert all query_x_async methods to query_x methods
 @async_to_sync
 class NasaExoplanetArchiveClass(BaseQuery):
     """
-    The interface for querying the NASA Exoplanet Archive API
+    The interface for querying the NASA Exoplanet Archive TAP and API services
 
-    A full discussion of the available tables and query syntax is available on `the documentation
-    page <https://exoplanetarchive.ipac.caltech.edu/docs/program_interfaces.html>`_.
+    A full discussion of the available tables and query syntax is available on the documentation
+    pages for `TAP <https://exoplanetarchive.ipac.caltech.edu/docs/TAP/usingTAP.html>`_ and `API <https://exoplanetarchive.ipac.caltech.edu/docs/program_interfaces.html>`_.
     """
 
-    URL = conf.url
+    # When module us imported, __init__.py runs and loads a configuration object, setting the configuration parameters con.url, conf.timeout and conf.cache
+    URL_API = conf.url_api
+    URL_TAP = conf.url_tap
     TIMEOUT = conf.timeout
     CACHE = conf.cache
 
+    # Ensures methods can be called either as class methods or instance methods. This is the basic query method.
     @class_or_instance
     def query_criteria_async(self, table, get_query_payload=False, cache=None, **criteria):
         """
         Search a table given a set of criteria or return the full table
 
-        The syntax for these queries is described on the Exoplanet Archive API documentation page
-        [1]_. In particular, the most commonly used criteria will be ``select`` and ``where``.
+        The syntax for these queries is described on the Exoplanet Archive TAP[1]_ API[2]_ documentation pages.
+        In particular, the most commonly used criteria will be ``select`` and ``where``.
 
         Parameters
         ----------
         table : str
             The name of the table to query. A list of the tables on the Exoplanet Archive can be
-            found on the documentation page [1]_.
+            found on the documentation pages [1]_, [2]_.
         get_query_payload : bool, optional
             Just return the dict of HTTP request parameters. Defaults to ``False``.
         cache : bool, optional
@@ -104,7 +134,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
             but since the data in the archive is updated regularly, this defaults to ``False``.
         **criteria
             The filtering criteria to apply. These are described in detail in the archive
-            documentation [1]_, but some examples include ``select="*"`` to return all columns of
+            documentation [1]_, [2]_ but some examples include ``select="*"`` to return all columns of
             the queried table or ``where=pl_name='K2-18 b'`` to filter a specific column.
 
         Returns
@@ -115,10 +145,23 @@ class NasaExoplanetArchiveClass(BaseQuery):
         References
         ----------
 
-        .. [1] `NASA Exoplanet Archive API Documentation
+        .. [1] `NASA Exoplanet Archive TAP Documentation
+           <https://exoplanetarchive.ipac.caltech.edu/docs/TAP/usingTAP.html>`_
+        .. [2] `NASA Exoplanet Archive API Documentation
            <https://exoplanetarchive.ipac.caltech.edu/docs/program_interfaces.html>`_
         """
+        # Make sure table is lower-case
         table = table.lower()
+
+        # Warn if old table is requested
+        if table in ["exoplanets", "exomultpars"]:
+            #warnings.warn("The '{0}' table is stale and will be depracated in the Archive 2.0 release. Use the 'ps' table. See https://exoplanetarchive.ipac.caltech.edu/docs/ps-pscp_release_notes.html".format(table), InputWarning, )
+            raise InvalidTableError("The ``{0}`` table is no longer updated and has been replaced by the Planetary Systems table (PS), which is connected to the Exoplanet Archive TAP service. Although the argument keywords of the called method should still work on the new table, the allowed values could have changed since the database column names have changed; this document contains the current definitions and a mapping between the new and deprecated names: https://exoplanetarchive.ipac.caltech.edu/docs/API_PS_columns.html. You might also want to review the TAP User Guide for help on creating a new query for the most current data: https://exoplanetarchive.ipac.caltech.edu/docs/TAP/usingTAP.html.".format(table))
+
+        # Warn if old table is requested
+        if table in ["compositepars"]:
+            #warnings.warn("The '{0}' table is stale and will be depracated in the Archive 2.0 release. Use the 'pscomppars' table. See https://exoplanetarchive.ipac.caltech.edu/docs/ps-pscp_release_notes.html".format(table), InputWarning, )
+            raise InvalidTableError("The ``{0}`` table is no longer updated and has been replaced by the Planetary System Composite Parameters table (PSCompPars), which is connected to the Exoplanet Archive TAP service. Although the argument keywords of the called method should still work on the new table, the allowed values could have changed since the database column names have changed; this document contains the current definitions and a mapping between the new and deprecated names: https://exoplanetarchive.ipac.caltech.edu/docs/API_PS_columns.html. You might also want to review the TAP User Guide for help on creating a new query for the most current data: https://exoplanetarchive.ipac.caltech.edu/docs/TAP/usingTAP.html.".format(table))
 
         # Deal with lists of columns instead of comma separated strings
         criteria = copy.copy(criteria)
@@ -130,11 +173,13 @@ class NasaExoplanetArchiveClass(BaseQuery):
 
         # We prefer to work with IPAC format so that we get units, but everything it should work
         # with the other options too
+        # Get the format, or set it to "ipac" if not given. Makes more sense to use CSV here.
         criteria["format"] = criteria.get("format", "ipac")
+        # Less formats are allowed for TAP, so this needs to be updated. Default is VOTable (vot?, xml?), also csv and tsv are allowed
         if "json" in criteria["format"].lower():
             raise InvalidQueryError("The 'json' format is not supported")
 
-        # Build the query
+        # Build the query (and return it if requested)
         request_payload = dict(table=table, **criteria)
         if get_query_payload:
             return request_payload
@@ -143,14 +188,46 @@ class NasaExoplanetArchiveClass(BaseQuery):
         if cache is None:
             cache = self.CACHE
 
-        # Execute the request
-        response = self._request(
-            "GET", self.URL, params=request_payload, timeout=self.TIMEOUT, cache=cache,
-        )
-        response.requested_format = criteria["format"]
+        # The _request method is a custom astroquery wrapper around the requests.request function that provides important astroquery-specific utility, including caching, HTTP header generation, progressbars, and local writing-to-disk.
+        # This needs to be updated to use TAP (TapPlus), and the request_payload formatted correctly
+        # Execute the request (generic HTTP request, similar to requests.Session.request but with added caching-related tools)
+        if table in ["ps", "pscomppars"]:
+            tap = pyvo.dal.tap.TAPService(baseurl=self.URL_TAP)
+            # construct query from table and request_payload (including format)
+            query_req = "select {0} from {1}".format(request_payload.pop('select', '*'), request_payload.pop('table', None))
+            if "order" in request_payload.keys():
+                request_payload["order by"] = request_payload.pop("order")
+            if "format" in request_payload.keys():
+                request_payload.pop("format") # figure out what to do with the format keyword
+            if "ra" in request_payload.keys(): # means this is a `query_region` call
+                #query_type = "region"
+                request_payload["where"] = "contains(point('icrs',ra,dec),circle('icrs',{0},{1},{2}))=1".format(request_payload["ra"], request_payload["dec"], request_payload["radius"])
+                del request_payload["ra"]
+                del request_payload["dec"]
+                del request_payload["radius"]
+            # if ra, dec and radius in request_payload.keys(), add "where contains(point('icrs',ra,dec),circle('icrs',request_payload["ra"],request_payload["dec"],0.1))=1"
+            if "where" in request_payload:
+                if "pl_hostname" in request_payload["where"]: # means this is a `query_object`
+                    #query_type = "object"
+                    request_payload["where"] = "pl_hostname or pl_name like {0}".format(request_payload["where"][request_payload["where"].find("=")+2:request_payload["where"].find("OR")-2]) # This is a bit hacky since we are getting this from the request_payload (downstream) instead of directly from object_name
+            query_opt = " ".join("{0} {1}".format(key, value) for key, value in request_payload.items())
+            tap_query = "{0} {1}".format(query_req, query_opt)
+            #print(tap_query) # debugging
+            try:
+                response = tap.search(query=tap_query, language='ADQL') # Note that this returns a VOTable
+            except Exception as err:
+                raise InvalidQueryError(str(err))
+            #response = response.to_table() # Convert to Astropy table
+        else:
+            #print(request_payload)
+            response = self._request(
+                "GET", self.URL_API, params=request_payload, timeout=self.TIMEOUT, cache=cache,
+            )
+            response.requested_format = criteria["format"]
 
         return response
 
+    # This is the region query method
     @class_or_instance
     def query_region_async(self, table, coordinates, radius, *, get_query_payload=False, cache=None,
                            **criteria):
@@ -161,7 +238,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
         ----------
         table : str
             The name of the table to query. A list of the tables on the Exoplanet Archive can be
-            found on the documentation page [1]_.
+            found on the documentation pages [1]_, [2]_.
         coordinates : str or `~astropy.coordinates`
             The coordinates around which to query.
         radius : str or `~astropy.units.Quantity`
@@ -174,7 +251,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
             but since the data in the archive is updated regularly, this defaults to ``False``.
         **criteria
             Any other filtering criteria to apply. These are described in detail in the archive
-            documentation [1]_, but some examples include ``select="*"`` to return all columns of
+            documentation [1]_,[2]_ but some examples include ``select="*"`` to return all columns of
             the queried table or ``where=pl_name='K2-18 b'`` to filter a specific column.
 
         Returns
@@ -185,9 +262,12 @@ class NasaExoplanetArchiveClass(BaseQuery):
         References
         ----------
 
-        .. [1] `NASA Exoplanet Archive API Documentation
+        .. [1] `NASA Exoplanet Archive TAP Documentation
+           <https://exoplanetarchive.ipac.caltech.edu/docs/TAP/usingTAP.html>`_
+        .. [2] `NASA Exoplanet Archive API Documentation
            <https://exoplanetarchive.ipac.caltech.edu/docs/program_interfaces.html>`_
         """
+        # Checks if coordinate strings is parsable as an astropy.coordinates object
         coordinates = commons.parse_coordinates(coordinates)
 
         # if radius is just a number we assume degrees
@@ -199,41 +279,44 @@ class NasaExoplanetArchiveClass(BaseQuery):
         criteria["dec"] = coordinates.dec.deg
         criteria["radius"] = "{0} degree".format(radius.deg)
 
+        # Runs the query method defined above, but with added region filter
         return self.query_criteria_async(
             table, get_query_payload=get_query_payload, cache=cache, **criteria,
         )
 
+    # This method queries for a specific object in `exoplanets`, `compositepars`, or `exomultpars` tables.
+    # Needs to be updated
     @class_or_instance
-    def query_object_async(self, object_name, *, table="exoplanets", get_query_payload=False,
-                           cache=None, regularize=True, **criteria):
+    def query_object_async(self, object_name, *, table="ps", get_query_payload=False,
+                           cache=None, regularize=False, **criteria):
         """
-        Search the global tables for information about a confirmed planet or planet host
+        Search the tables of confirmed exoplanets for information about a planet or planet host
 
         The tables available to this query are the following (more information can be found on
-        the archive's documentation page [1]_):
+        the archive's documentation pages [1]_):
 
-        - ``exoplanets``: This table contains parameters derived from a single, published
-          reference that are designated as the archive's default parameter set.
-        - ``compositepars``: This table contains a full set of parameters compiled from multiple,
-          published references.
-        - ``exomultpars``: This table includes all sets of planet and stellar parameters for
-          confirmed planets and hosts in the archive.
+        - ``ps``: This table compiles parameters derived from a multiple published
+          references on separate rows, each row containing self-consistent values from one reference.
+        - ``pscomppars``: This table compiles all parameters of confirmed exoplanets from multiple,
+          published references in one row (not all self-consistent) per object.
 
         Parameters
         ----------
         object_name : str
             The name of the planet or star.  If ``regularize`` is ``True``, an attempt will be made
-            to regularize this name using the ``aliastable`` table.
-        table : [``"exoplanets"``, ``"compositepars"``, or ``"exomultpars"``], optional
-            The table to query, must be one of the supported tables: ``"exoplanets"``,
-            ``"compositepars"``, or ``"exomultpars"``. Defaults to ``"exoplanets"``.
+            to regularize this name using the ``aliastable`` table. _This defaults to ``False`` while
+            the ``aliastable`` is being migrated to the TAP service in Archive 2.0._
+        table : [``"ps"`` or ``"pscomppars"``], optional
+            The table to query, must be one of the supported tables: ``"ps"`` or ``"exomultpars"``.
+            Defaults to ``"ps"``.
         get_query_payload : bool, optional
             Just return the dict of HTTP request parameters. Defaults to ``False``.
         cache : bool, optional
             Should the request result be cached? This can be useful for large repeated queries,
             but since the data in the archive is updated regularly, this defaults to ``False``.
         regularize : bool, optional
-            If ``True``, the ``aliastable`` will be used to regularize the target name.
+            If ``True``, the ``aliastable`` will be used to regularize the target name. _Note that the
+            ``aliastable`` will be unavailable while migrating to the TAP service in Archive 2.0._
         **criteria
             Any other filtering criteria to apply. Values provided using the ``where`` keyword will
             be ignored.
@@ -246,9 +329,14 @@ class NasaExoplanetArchiveClass(BaseQuery):
         References
         ----------
 
-        .. [1] `NASA Exoplanet Archive API Documentation
+        .. [1] `NASA Exoplanet Archive TAP Documentation
+           <https://exoplanetarchive.ipac.caltech.edu/docs/TAP/usingTAP.html>`_
+        .. [2] `NASA Exoplanet Archive API Documentation
            <https://exoplanetarchive.ipac.caltech.edu/docs/program_interfaces.html>`_
         """
+        if table.lower() in ["ps"]: # actually want to check if default was used, but wasn't working ...
+            warnings.warn("The default table for this query method has changed after Archive 2.0 release. The ``ps`` table is being used, and is likely to return multiple rows for an object query. See https://exoplanetarchive.ipac.caltech.edu/docs/API_PS_columns.html", InputWarning, )
+
         prefix = OBJECT_TABLES.get(table, None)
         if prefix is None:
             raise InvalidQueryError(
@@ -258,19 +346,24 @@ class NasaExoplanetArchiveClass(BaseQuery):
             )
 
         if regularize:
+            warnings.warn("The ``aliastable`` will be unavailable while migrating to the TAP service in Archive 2.0.", InputWarning, )
             object_name = self._regularize_object_name(object_name)
 
         if "where" in criteria:
             warnings.warn(
-                "Any filters using the 'where' argument are ignored in ``query_object``",
+                "Any filters using the 'where' argument are ignored in ``query_object``. Consider using ``query_criteria`` instead.",
                 InputWarning,
             )
-        criteria["where"] = "{0}hostname='{1}' OR {0}name='{1}'".format(prefix, object_name.strip())
+        if table in ["ps", "pscomppars"]:
+            criteria["where"] = "hostname='{1}' OR {0}name='{1}'".format(prefix, object_name.strip())
+        else:
+            criteria["where"] = "{0}hostname='{1}' OR {0}name='{1}'".format(prefix, object_name.strip())
 
         return self.query_criteria_async(
             table, get_query_payload=get_query_payload, cache=cache, **criteria,
         )
 
+    # This should stay the same for now
     @class_or_instance
     def query_aliases(self, object_name, *, cache=None):
         """
@@ -307,6 +400,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
         warnings.warn("No aliases found for name: '{0}'".format(object_name), NoResultsWarning)
         return object_name
 
+    # Look for response errors. This might need to be updated for TAP
     def _handle_error(self, text):
         """
         Parse the response from a request to see if it failed
@@ -378,6 +472,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
         message = "\n".join(line for line in (error_type, error_message) if line is not None)
         raise RemoteServiceError(message)
 
+    # TODO: Implement for unit fix for TAP returned VOTable
     def _fix_units(self, data):
         """
         Fix any undefined units using a set of hacks
@@ -445,11 +540,12 @@ class NasaExoplanetArchiveClass(BaseQuery):
 
     def _parse_result(self, response, verbose=False):
         """
-        Parse the result of a `~requests.Response` object and return an `~astropy.table.Table`
+        Parse the result of a `~requests.Response` (from API) or `pyvo.dal.tap.TAPResults` (from TAP) object
+        and return an `~astropy.table.Table`
 
         Parameters
         ----------
-        response : `~requests.Response`
+        response : `~requests.Response` or `pyvo.dal.tap.TAPResults`
             The response from the server.
         verbose : bool
             Currently has no effect.
@@ -459,24 +555,29 @@ class NasaExoplanetArchiveClass(BaseQuery):
         data : `~astropy.table.Table` or `~astropy.table.QTable`
         """
 
-        # Extract the decoded body of the response
-        text = response.text
-
-        # Raise an exception if anything went wrong
-        self._handle_error(text)
-
-        # Parse the requested format to figure out how to parse the returned data
-        fmt = response.requested_format.lower()
-        if "ascii" in fmt or "ipac" in fmt:
-            data = ascii.read(text, format="ipac", fast_reader=False, converters=CONVERTERS)
-        elif "csv" in fmt:
-            data = ascii.read(text, format="csv", fast_reader=False, converters=CONVERTERS)
-        elif "bar" in fmt or "pipe" in fmt:
-            data = ascii.read(text, fast_reader=False, delimiter="|", converters=CONVERTERS)
-        elif "xml" in fmt or "table" in fmt:
-            data = parse_single_table(io.BytesIO(response.content)).to_table()
+        if isinstance(response, pyvo.dal.tap.TAPResults):
+            data = response.to_table()
+            # TODO: implement format conversion for TAP return
         else:
-            data = ascii.read(text, fast_reader=False, converters=CONVERTERS)
+            # Extract the decoded body of the response
+            text = response.text
+            #print(text)
+
+            # Raise an exception if anything went wrong
+            self._handle_error(text)
+
+            # Parse the requested format to figure out how to parse the returned data.
+            fmt = response.requested_format.lower()
+            if "ascii" in fmt or "ipac" in fmt:
+                data = ascii.read(text, format="ipac", fast_reader=False, converters=CONVERTERS)
+            elif "csv" in fmt:
+                data = ascii.read(text, format="csv", fast_reader=False, converters=CONVERTERS)
+            elif "bar" in fmt or "pipe" in fmt:
+                data = ascii.read(text, fast_reader=False, delimiter="|", converters=CONVERTERS)
+            elif "xml" in fmt or "table" in fmt:
+                data = parse_single_table(io.BytesIO(response.content)).to_table()
+            else:
+                data = ascii.read(text, fast_reader=False, converters=CONVERTERS)
 
         # Fix any undefined units
         data = self._fix_units(data)
@@ -510,6 +611,8 @@ class NasaExoplanetArchiveClass(BaseQuery):
 
         return kwargs
 
+
+    # Could we use similar @deprecated decorator for new changes and warnings?
     @deprecated(since="v0.4.1", alternative="query_object")
     @deprecated_renamed_argument(["show_progress", "table_path"],
                                  [None, None], "v0.4.1", arg_in_kwargs=True)
