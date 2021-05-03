@@ -80,21 +80,31 @@ class InvalidTableError(InvalidQueryError):
 
     pass
 
-# This can be used for error message when old tables are given, but server will return its own error message.
-class DeprecatedTableError(InvalidQueryError):
-    """Exception thrown if the given table is deprecated"""
 
-    def __init__(self, *args):
-        if args:
-            self.message = args[0]
-        else:
-            self.message = None
-
-    def __str__(self):
-        if self.message:
-            return "DeprecatedTableError {0} ".format(self.message)
-        else:
-            return "DeprecatedTableError has been raised"
+def request_to_sql(request_payload):
+    """Convert request_payload dict to SQL query string to be parsed by TAP."""
+    
+    # Required minimum query string
+    query_req = "select {0} from {1}".format(request_payload.pop("select", "*"), request_payload.pop("table", None))
+    if "order" in request_payload.keys():
+        request_payload["order by"] = request_payload.pop("order")
+    if "format" in request_payload.keys():
+        responseformat = request_payload.pop("format") # figure out what to do with the format keyword
+    if "ra" in request_payload.keys(): # means this is a `query_region` call
+        #query_type = "region"
+        request_payload["where"] = "contains(point('icrs',ra,dec),circle('icrs',{0},{1},{2}))=1".format(request_payload["ra"], request_payload["dec"], request_payload["radius"])
+        del request_payload["ra"]
+        del request_payload["dec"]
+        del request_payload["radius"]
+    # if ra, dec and radius in request_payload.keys(), add "where contains(point('icrs',ra,dec),circle('icrs',request_payload["ra"],request_payload["dec"],0.1))=1"
+    if "where" in request_payload:
+        if "pl_hostname" in request_payload["where"]: # means this is a `query_object`
+            #query_type = "object"
+            request_payload["where"] = "pl_hostname or pl_name like {0}".format(request_payload["where"][request_payload["where"].find("=")+2:request_payload["where"].find("OR")-2]) # This is a bit hacky since we are getting this from the request_payload (downstream) instead of directly from object_name
+    query_opt = " ".join("{0} {1}".format(key, value) for key, value in request_payload.items())
+    tap_query = "{0} {1}".format(query_req, query_opt)
+    
+    return tap_query
 
 
 # Class decorator, async_to_sync, modifies NasaExoplanetArchiveClass to convert all query_x_async methods to query_x methods
@@ -194,24 +204,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
         if table in ["ps", "pscomppars"]:
             tap = pyvo.dal.tap.TAPService(baseurl=self.URL_TAP)
             # construct query from table and request_payload (including format)
-            query_req = "select {0} from {1}".format(request_payload.pop('select', '*'), request_payload.pop('table', None))
-            if "order" in request_payload.keys():
-                request_payload["order by"] = request_payload.pop("order")
-            if "format" in request_payload.keys():
-                request_payload.pop("format") # figure out what to do with the format keyword
-            if "ra" in request_payload.keys(): # means this is a `query_region` call
-                #query_type = "region"
-                request_payload["where"] = "contains(point('icrs',ra,dec),circle('icrs',{0},{1},{2}))=1".format(request_payload["ra"], request_payload["dec"], request_payload["radius"])
-                del request_payload["ra"]
-                del request_payload["dec"]
-                del request_payload["radius"]
-            # if ra, dec and radius in request_payload.keys(), add "where contains(point('icrs',ra,dec),circle('icrs',request_payload["ra"],request_payload["dec"],0.1))=1"
-            if "where" in request_payload:
-                if "pl_hostname" in request_payload["where"]: # means this is a `query_object`
-                    #query_type = "object"
-                    request_payload["where"] = "pl_hostname or pl_name like {0}".format(request_payload["where"][request_payload["where"].find("=")+2:request_payload["where"].find("OR")-2]) # This is a bit hacky since we are getting this from the request_payload (downstream) instead of directly from object_name
-            query_opt = " ".join("{0} {1}".format(key, value) for key, value in request_payload.items())
-            tap_query = "{0} {1}".format(query_req, query_opt)
+            tap_query = request_to_sql(request_payload)
             #print(tap_query) # debugging
             try:
                 response = tap.search(query=tap_query, language='ADQL') # Note that this returns a VOTable
