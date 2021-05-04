@@ -1,9 +1,3 @@
-aliasdis
-HAT-P-7
-2MASS J19285935+4758102
-BD+47 2846
-KIC 10666592
-KOI-2
-Kepler-2
-TYC 3547-01402-1
-WISE J192859.33+475810.3
+ERROR<br>
+Error Type: exoLookup call failure<br>
+Message:    Object not found by Exoplanet Archive, SIMBAD, or NED.
