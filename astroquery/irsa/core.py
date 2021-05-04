@@ -410,7 +410,7 @@ class IrsaClass(BaseQuery):
 
         return table
 
-    def list_catalogs(self):
+    def list_catalogs(self, mode='ascii'):
         """
         Return a dictionary of the catalogs in the IRSA Gator tool.
 
@@ -420,16 +420,26 @@ class IrsaClass(BaseQuery):
             A dictionary of catalogs where the key indicates the catalog
             name to be used in query functions, and the value is the verbose
             description of the catalog.
+        mode : str
+            'ascii' or 'xml'.  These are documented at
+            https://irsa.ipac.caltech.edu/applications/Gator/GatorAid/irsa/catsearch.html
+            and
+            https://irsa.ipac.caltech.edu/applications/Gator/GatorAid/irsa/catlist.html
         """
         response = self._request("GET", url=Irsa.GATOR_LIST_URL,
-                                 params=dict(mode='xml'), timeout=Irsa.TIMEOUT)
+                                 params=dict(mode=mode), timeout=Irsa.TIMEOUT)
 
-        root = tree.fromstring(response.content)
-        catalogs = {}
-        for catalog in root.findall('catalog'):
-            catname = catalog.find('catname').text
-            desc = catalog.find('desc').text
-            catalogs[catname] = desc
+        if mode == 'xml':
+            root = tree.fromstring(response.content)
+            catalogs = {}
+            for catalog in root.findall('catalog'):
+                catname = catalog.find('catname').text
+                desc = catalog.find('desc').text
+                catalogs[catname] = desc
+        else:
+            tbl = ascii.read(response.text)
+            catalogs = dict(zip(tbl['catname'], tbl['description']))
+
         return catalogs
 
     def print_catalogs(self):
