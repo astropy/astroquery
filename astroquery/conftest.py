@@ -21,7 +21,12 @@ try:
     PYTEST_HEADER_MODULES['Astropy'] = 'astropy'
     PYTEST_HEADER_MODULES['APLpy'] = 'aplpy'
     PYTEST_HEADER_MODULES['pyregion'] = 'pyregion'
+    PYTEST_HEADER_MODULES['regions'] = 'regions'
     PYTEST_HEADER_MODULES['pyVO'] = 'pyvo'
+    PYTEST_HEADER_MODULES['mocpy'] = 'mocpy'
+    PYTEST_HEADER_MODULES['astropy-healpix'] = 'astropy_healpix'
+    PYTEST_HEADER_MODULES['vamdclib'] = 'vamdclib'
+
     # keyring doesn't provide __version__ any more
     # PYTEST_HEADER_MODULES['keyring'] = 'keyring'
     del PYTEST_HEADER_MODULES['h5py']
