@@ -61,7 +61,7 @@ UNIT_MAPPER = {
     "seconds": u.s,
     "solarradius": u.R_sun,
 }
-CONVERTERS = dict(koi_quarters=[ascii.convert_numpy(np.str)])
+CONVERTERS = dict(koi_quarters=[ascii.convert_numpy(str)])
 OBJECT_TABLES = {"exoplanets": "pl_", "compositepars": "fpl_", "exomultpars": "mpl_"}
 
 
