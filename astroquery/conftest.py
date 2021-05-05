@@ -32,7 +32,7 @@ except (NameError, KeyError):
 
 # ignoring pyvo can be removed once we require >0.9.3
 enable_deprecations_as_exceptions(include_astropy_deprecations=False,
-                                  warnings_to_ignore_entire_module=['pyregion', 'html5lib'],)
+                                  warnings_to_ignore_entire_module=['regions', 'pyregion', 'html5lib'],)
 
 # add '_testrun' to the version name so that the user-agent indicates that
 # it's being run in a test
