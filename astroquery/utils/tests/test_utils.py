@@ -410,6 +410,8 @@ def patch_getreadablefileobj(request):
     # Monkeypatch hack: ALWAYS treat as a URL
     _is_url = aud._is_url
     aud._is_url = lambda x: True
+    _try_url_open = aud._try_url_open
+    aud._try_url_open = lambda x, **kwargs: MockRemote(x, **kwargs)
     _urlopen = urllib.request.urlopen
     _urlopener = urllib.request.build_opener
     _urlrequest = urllib.request.Request
@@ -457,6 +459,7 @@ def patch_getreadablefileobj(request):
 
     def closing():
         aud._is_url = _is_url
+        aud._try_url_open = _try_url_open
         urllib.request.urlopen = _urlopen
         aud.urllib.request.urlopen = _urlopen
         urllib.request.build_opener = _urlopener
