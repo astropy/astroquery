@@ -98,6 +98,8 @@ full functionality of the `~astroquery.cds` module:
 * `astropy-healpix <http://astropy-healpix.readthedocs.io/en/latest/>`_
 * `regions <https://astropy-regions.readthedocs.io/en/latest/>`_
 * `mocpy <https://cds-astro.github.io/mocpy/>`_ >= 0.5.2
+* `vamdclib <https://github.com/VAMDC/vamdclib/>`_  install version from
+  personal fork: ``pip install git+https://github.com/keflavich/vamdclib-1.git``
 
 The following packages are optional dependencies and are required for the
 full functionality of the `~astroquery.mast` module:
