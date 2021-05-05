@@ -16,7 +16,7 @@ class Conf(_config.ConfigNamespace):
     """
 
     url_api = _config.ConfigItem(
-        "http://exoplanetarchive.ipac.caltech.edu/cgi-bin/nstedAPI/nph-nstedAPI",
+        "https://exoplanetarchive.ipac.caltech.edu/cgi-bin/nstedAPI/nph-nstedAPI",
         "URL for the NASA Exoplanet Archive API")
     url_tap = _config.ConfigItem(
         "https://exoplanetarchive.ipac.caltech.edu/TAP/",
