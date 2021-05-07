@@ -7,8 +7,6 @@ import os
 from pytest_astropy_header.display import (PYTEST_HEADER_MODULES,
                                            TESTED_VERSIONS)
 
-from astropy.tests.helper import enable_deprecations_as_exceptions
-
 
 def pytest_configure(config):
     config.option.astropy_header = True
@@ -34,10 +32,6 @@ try:
     del PYTEST_HEADER_MODULES['Pandas']
 except (NameError, KeyError):
     pass
-
-# ignoring pyvo can be removed once we require >0.9.3
-enable_deprecations_as_exceptions(include_astropy_deprecations=False,
-                                  warnings_to_ignore_entire_module=['regions', 'pyregion', 'html5lib'],)
 
 # add '_testrun' to the version name so that the user-agent indicates that
 # it's being run in a test
