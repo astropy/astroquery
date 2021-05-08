@@ -11,10 +11,10 @@ import astropy.io.votable as votable
 from astropy.table import Table
 from astropy.io import fits
 
-from ..query import BaseQuery, AstroQuery
-from ..utils import commons
-from ..utils import prepend_docstr_nosections
-from ..utils import async_to_sync
+from ...query import BaseQuery, AstroQuery
+from ...utils import commons
+from ...utils import prepend_docstr_nosections
+from ...utils import async_to_sync
 from . import conf
 
 __all__ = ['HiGal', 'HiGalClass']
