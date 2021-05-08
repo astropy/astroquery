@@ -2,7 +2,6 @@
 
 import pytest
 import os
-import warnings
 
 from astroquery.utils.testing_tools import MockResponse
 import astropy.units as u
@@ -61,11 +60,10 @@ def test_input():
                                 2451200, get_query_payload=True)
     assert(a['-rd'] == b['-rd'])
 
-    with warnings.catch_warnings(record=True) as w:
+    with pytest.warns(UserWarning, match='search cone radius'):
         a = core.Skybot.cone_search((100, 20), 100, 2451200,
                                     get_query_payload=True)
         assert(a['-rd'] == 10)
-        assert('search cone radius' in str(w[-1].message))
 
     # test epoch input
     a = core.Skybot.cone_search((100, 20), 1, 2451200, get_query_payload=True)
@@ -84,11 +82,10 @@ def test_input():
                                 get_query_payload=True)
     assert(a['-filter'] == b['-filter'])
 
-    with warnings.catch_warnings(record=True) as w:
+    with pytest.warns(UserWarning, match='positional error'):
         a = core.Skybot.cone_search((100, 20), 1, 2451200, position_error=1000,
                                     get_query_payload=True)
         assert(a['-filter'] == 120)
-        assert('positional error' in str(w[-1].message))
 
     # test target filters
     a = core.Skybot.cone_search((100, 20), 1, 2451200, get_query_payload=True)

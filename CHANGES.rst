@@ -1,22 +1,62 @@
 0.4.2 (unreleased)
 ==================
 
-Service fixes and enhancements
-------------------------------
+New Tools and Services
+----------------------
 
 cds.hips2fits
 ^^^^^^^^^^^^^
 
-- HIPS2fits is a service providing nice fits/jpg/png image cutouts from a HiPS + a WCS. It can now be queried from python [#1734]
+- New module HIPS2fits to provide access to fits/jpg/png image cutouts from a
+  HiPS + a WCS. [#1734]
 
-
-esa/iso
+esa.iso
 ^^^^^^^
 
-- New module to access ESA ISO mission [#1914]
+- New module to access ESA ISO mission. [#1914]
 
-ESASky
+esa.xmm_newton
+^^^^^^^^^^^^^^
+
+- New method ``get_epic_images`` is added to extract EPIC images from
+  tarballs. [#1759]
+
+- New method ``get_epic_metadata`` is added to download EPIC sources
+  metadata. [#1814]
+
+mast
 ^^^^
+
+- Added Zcut functionality to astroquery [#1911]
+
+svo_fps
+^^^^^^^
+
+- New module to access the Spanish Virtual Observatory Filter Profile List. [#1498]
+
+
+Service fixes and enhancements
+------------------------------
+
+alma
+^^^^
+
+- The archive query interface has been deprecated in favour of
+  VirtualObservatory (VO) services such as TAP, ObsCore etc. The alma
+  library has been updated accordingly. [#1689]
+
+- ALMA queries using string representations will now convert to appropriate
+  coordinates before being sent to the server; previously they were treated as
+  whatever unit they were presented in.  [#1867]
+
+- Download mechanism uses the ALMA Datalink service that allows exploring and
+  downloading entire tarball package files or just part of their
+  content. [#1820]
+
+- Fixed bug in ``get_data_info`` to ensure relevant fields are strings. [#2022]
+
+esa.esasky
+^^^^^^^^^^
 
 - All ESASky spectra now accessible. [#1909]
 
@@ -24,6 +64,42 @@ ESASky
 
 - Added row limit parameter for map queries. [#1858]
 
+esa.hubble
+^^^^^^^^^^
+
+- Module added to query eHST TAP based on a set of specific criteria and
+  asynchronous jobs are now supported. [#1723]
+
+gaia
+^^^^
+- Fixed RA/dec table edit capability. [#1784]
+
+- Changed file names handling when downloading data. [#1784]
+
+- Improved code to handle bit data type. [#1784]
+
+- Prepared code to handle new datalink products. [#1784]
+
+gemini
+^^^^^^
+
+- ``login()`` method to support authenticated sessions to the GOA. [#1780]
+
+- ``get_file()`` to support downloading files. [#1780]
+
+- fix syntax error in ``query_criteria()`` [#1823]
+
+- If QA and/or engineering parameters are explicitly passed, remove the
+  defaults of ``notengineering`` and/or ``NotFail``. [#2000]
+
+- Smarter defaulting of radius to None unless coordinates are specified, in
+  which case defaults to 0.3 degrees. [#1995]
+
+heasarc
+^^^^^^^
+
+- A ``NoResultsWarning`` is now returned when there is no matching rows were
+  found in query. [#1829]
 
 irsa
 ^^^^
@@ -38,101 +114,48 @@ jplsbdb
 mast
 ^^^^
 
-- Added ``Observations.download_file`` method to download a single file from MAST given an input
-  data URI. [#1825]
-- Added case for passing a row to ``Observations.download_file` [#1881]
-- Removed deprecated ``Observations.get_hst_s3_uris()``, ``Observations.get_hst_s3_uri()``,
-  ``Core.get_token()``, ``Core.enable_s3_hst_dataset()``, ``Core.disable_s3_hst_dataset()`` and
-  variables obstype and silent [#1884]
-- Added Zcut functionality to astroquery [#1911]
-- Fixed error causing empty products passed to ``Observations.get_product_list()`` to yeild a
-  non-empty result. [#1921]
-- Changed AWS cloud access from RequesterPays to anonymous acces [#1980]
-- Fixed error with download of Spitzer data [#1994]
+- Added ``Observations.download_file`` method to download a single file from
+  MAST given an input data URI. [#1825]
 
-esa/hubble
-^^^^^^^^^^
+- Added case for passing a row to ``Observations.download_file``. [#1881]
 
-- Module added to query eHST TAP based on a set of specific criteria and
-  asynchronous jobs are now supported. [#1723]
+- Removed deprecated methods: ``Observations.get_hst_s3_uris()``,
+  ``Observations.get_hst_s3_uri()``, ``Core.get_token()``,
+  ``Core.enable_s3_hst_dataset()``, ``Core.disable_s3_hst_dataset()``; and
+  parameters: ``obstype`` and ``silent``. [#1884]
 
+- Fixed error causing empty products passed to ``Observations.get_product_list()``
+  to yeild a non-empty result. [#1921]
 
-esa/xmm_newton
-^^^^^^^^^^^^^^
+- Changed AWS cloud access from RequesterPays to anonymous acces. [#1980]
 
-- new method ``get_epic_images`` is added to extract EPIC images from
-  tarballs. [#1759]
+- Fixed error with download of Spitzer data. [#1994]
 
-esasky
-^^^^^^
+sdss
+^^^^
 
-- Converted unittest styled tests to pytest. [#1862]
+- Fix validation of field names. [#1790]
 
-
-Gemini
-^^^^^^
-
-- login() support for authenticated sessions to the GOA [#1778]
-- get_file() support for downloading files [#1778]
-- fix syntax error in query_criteria() [#1823]
-- If QA and/or engineering parameters are explicitly passed, remove the add defaults of `notengineering` and/or
-- Smarter defaulting of radius to None unless coordinates are specified, in
-  which case defaults to 0.3 degrees. [#1995]
-
-heasarc
-^^^^^^^
-
-- A ``NoResultsWarning`` is now returned when there is no matching rows were
-  found in query. [#1829]
-
-SVO FPS
-^^^^^^^
-
-- Module added to access the Spanish Virtual Observatory Filter Profile List [#1498]
-
-Splatalogue
+splatalogue
 ^^^^^^^^^^^
 
-- The Splatalogue ID querying is now properly cached in the `astropy` cache
-  directory (Issue [#423]) The scraping function has also been updated to reflect
+- The Splatalogue ID querying is now properly cached in the astropy cache
+  directory. The scraping function has also been updated to reflect
   the Splatalogue webpage. [#1772]
 
 - The splatalogue URL has changed to https://splatalogue.online, as the old site
   stopped functioning in September 2020 [#1817]
 
-UKIDSS
+ukidss
 ^^^^^^
 
-- Updated to ``UKIDSSDR11PLUS`` as the default version [#1767]
+- Updated to ``UKIDSSDR11PLUS`` as the default data release. [#1767]
 
-utils/tap
+vizier
 ^^^^^^
 
-- Converted unittest styled tests to pytest. [#1862]
-
-alma
-^^^^
-
-- The archive query interface has been deprecated in favour of
-  VirtualObservatory (VO) services such as TAP, ObsCore etc. The alma
-  library has been updated accordingly. [#1689]
-- ALMA queries using string representations will now convert to appropriate
-  coordinates before being sent to the server; previously they were treated as
-  whatever unit they were presented in.  [#1867]
-- Download mechanism uses the ALMA Datalink service that allows exploring and
-  downloading entire tarball package files or just part of their content. [#1820]
-
-gaia
-^^^^
-- Fixed RA/dec table edit capability. [#1784]
-- Changed file names handling when downloading data. [#1784]
-- Improved code to handle bit data type. [#1784]
-- Prepared code to handle new datalink products. [#1784]
-
-esa.xmm_newton
-^^^^^^^^^^^^^^
-
-- Added new function to download EPIC sources metadate. [#1814]
+- Refactor module to support list of coordinates as well as several fixes to
+  follow changes in upstream API. [#2012]
 
 
 Infrastructure, Utility and Other Changes and Additions
@@ -140,6 +163,7 @@ Infrastructure, Utility and Other Changes and Additions
 
 - HTTP requests and responses can now be logged when the astropy
   logger is set to level "DEBUG" and "TRACE" respectively. [#1992]
+
 - Astroquery and all its modules now uses a logger similar to Astropy's. [#1992]
 
 
