@@ -40,16 +40,22 @@ UNIT_MAPPER = {
     "BKJD": None,  # TODO: optionally support mapping columns to Time objects
     "D_L": u.pc,
     "D_S": u.pc,
-    "Earth flux": u.W / u.m ** 2,
-    "Fearth": u.W / u.m ** 2,
+    "Earth flux": u.L_sun / (4 * np.pi * u.au**2),
+    "Earth Flux": u.L_sun / (4 * np.pi * u.au**2),
+    "Fearth": u.L_sun / (4 * np.pi * u.au**2),
     "M_E": u.M_earth,
+    "Earth Mass": u.M_earth,
     "M_J": u.M_jupiter,
+    "Jupiter Mass": u.M_jupiter,
     "R_Earth": u.R_earth, # Add u.R_jupiter
+    "Earth Radius": u.R_earth,
+    "Jupiter Radius": u.R_jupiter,
     "R_Sun": u.R_sun,
     "Rstar": u.R_sun,
     "a_perp": u.au,
     "arc-sec/year": u.arcsec / u.yr,
     "cm/s**2": u.cm / u.s ** 2,
+    "g/cm**3": u.g / u.cm ** 3,
     "days": u.day,
     "degrees": u.deg,
     "dexincgs": u.dex(u.cm / u.s ** 2),
@@ -57,6 +63,7 @@ UNIT_MAPPER = {
     "hrs": u.hr,
     "kelvin": u.K,
     "logLsun": u.dex(u.L_sun),
+    "log(Solar)": u.dex(u.L_sun),
     "mags": u.mag,
     "microas": u.uas,
     "perc": u.percent,
@@ -66,7 +73,12 @@ UNIT_MAPPER = {
     "pi_rel": None,
     "ppm": cds.ppm,
     "seconds": u.s,
+    "Solar mass": u.M_sun,
     "solarradius": u.R_sun,
+    "Solar Radius": u.R_sun,
+    "log10(cm/s**2)": u.dex(u.cm / u.s ** 2),
+    "dex": u.dex(None),
+    "sexagesimal": None
 }
 
 CONVERTERS = dict(koi_quarters=[ascii.convert_numpy(str)])
@@ -325,8 +337,8 @@ class NasaExoplanetArchiveClass(BaseQuery):
         .. [2] `NASA Exoplanet Archive API Documentation
            <https://exoplanetarchive.ipac.caltech.edu/docs/program_interfaces.html>`_
         """
-        if table.lower() in ["ps"]: # actually want to check if default was used, but wasn't working ...
-            warnings.warn("The default table for this query method has changed after Archive 2.0 release. The ``ps`` table is being used, and is likely to return multiple rows for an object query. See https://exoplanetarchive.ipac.caltech.edu/docs/API_PS_columns.html", InputWarning, )
+        # if table.lower() in ["ps"]: # actually want to check if default was used, but wasn't working ...
+        #     warnings.warn("The default table for this query method has changed after Archive 2.0 release. The ``ps`` table is being used, and is likely to return multiple rows for an object query. See https://exoplanetarchive.ipac.caltech.edu/docs/API_PS_columns.html", InputWarning, )
 
         prefix = OBJECT_TABLES.get(table, None)
         if prefix is None:
@@ -462,7 +474,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
         message = "\n".join(line for line in (error_type, error_message) if line is not None)
         raise RemoteServiceError(message)
 
-    # TODO: Implement for unit fix for TAP returned VOTable
+
     def _fix_units(self, data):
         """
         Fix any undefined units using a set of hacks
@@ -486,7 +498,19 @@ class NasaExoplanetArchiveClass(BaseQuery):
         for col in column_names:
             unit = data[col].unit
             unit = UNIT_MAPPER.get(str(unit), unit)
+            try:
+                data[col].mask = False
+            except AttributeError:
+                pass
+            # Columns with dtype==object/str can't have units according to astropy
+            # Set unit to None
+            if data[col].dtype == object and unit is not None:
+                unit = None
+                data[col] = data[col].astype(str)
+            if data[col].dtype == object and unit is None:
+                data[col] = data[col].astype(str)
             if isinstance(unit, u.UnrecognizedUnit):
+                # some special cases
                 unit_str = str(unit).lower()
                 if unit_str == "earth" and "prad" in col:
                     unit = u.R_earth
@@ -505,18 +529,13 @@ class NasaExoplanetArchiveClass(BaseQuery):
                 else:  # pragma: nocover
                     warnings.warn("Unrecognized unit: '{0}'".format(unit), AstropyWarning)
 
-            # Here we're figuring out out if the column is masked because this doesn't
-            # play nice with quantities so we need to keep track of the mask separately.
+            # Unmask since astropy doesn't like masked values in columns with units
             try:
                 column_masks[col] = data[col].mask
             except AttributeError:
                 pass
             else:
-                data[col].mask[:] = False
-
-            # Deal with strings consistently
-            if data[col].dtype == object:
-                data[col] = data[col].astype(str)
+                column_masks[col] = False
 
             data[col].unit = unit
             column_data.append(data[col])
