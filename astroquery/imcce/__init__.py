@@ -17,6 +17,9 @@ class Conf(_config.ConfigNamespace):
     """
 
     # server settings
+    obs_codes_url = _config.ConfigItem(
+        'http://www.minorplanetcenter.net/iau/lists/ObsCodes.html',
+        'IAU observatory codes')
     ephemcc_server = _config.ConfigItem(
         'http://vo.imcce.fr/webservices/miriade/ephemcc_query.php',
         'IMCCE/Miriade.ephemcc base server')

@@ -3,6 +3,7 @@
 
 import pytest
 import os
+import numpy.testing as npt
 
 import astropy.units as u
 from ...utils.testing_tools import MockResponse
@@ -20,8 +21,11 @@ def data_path(filename):
 # monkeypatch replacement request function
 def nonremote_request(self, request_type, url, **kwargs):
 
-    filename = '3552_coordtype{}.dat'.format(
-        kwargs['params']['-tcoor'])
+    if 'minorplanetcenter' in url:
+        filename = 'ObsCodes.dat'
+    else:
+        filename = '3552_coordtype{}.dat'.format(
+            kwargs['params']['-tcoor'])
     with open(data_path(filename), 'rb') as f:
         response = MockResponse(content=f.read(), url=url)
 
@@ -120,3 +124,21 @@ def test_get_raw_response(patch_request):
     raw_eph = Miriade.get_ephemerides(
         '3552', coordtype=1, get_raw_response=True)
     assert "<?xml version='1.0' encoding='UTF-8'?>" in raw_eph
+
+
+def test_observatories(patch_request):
+    obs = Miriade.get_observatory_codes()
+    obs["sum"] = obs["sin"]**2 + obs["cos"]**2
+
+    assert len(obs) == 2238
+    assert obs["Code"][-1] == 'Z99'
+    npt.assert_allclose(obs["sum"][obs["sum"] > 0], .995, rtol=1e-2)
+
+
+def test_observatories_restr(patch_request):
+    obs = Miriade.get_observatory_codes(restr='Greenwich')
+
+    assert len(obs) == 1
+    assert obs["Code"][0] == '000'
+    assert obs["Name"][0] == 'Greenwich'
+    npt.assert_allclose(obs["Long."], [0.])

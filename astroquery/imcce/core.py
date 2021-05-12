@@ -1,11 +1,11 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 
-from collections import OrderedDict
 import warnings
 from io import BytesIO
+import re
 
-from astropy.table import QTable, MaskedColumn
+from astropy.table import QTable, MaskedColumn, vstack
 from astropy.io import ascii
 from astropy.time import Time
 from astropy.io.votable import parse
@@ -29,6 +29,12 @@ class MiriadeClass(BaseQuery):
     _query_uri = None  # uri used in query
     _get_raw_response = False
 
+    TYPES = ('Asteroid', 'Comet', 'Dwarf Planet', 'Planet', 'Satellite')
+    TSCALE = ('UTC', 'TT')
+    THEORY = ('INPOP', 'DE405', 'DE406')
+    RPLANE = {'equator': 1, 'ecliptic': 2}
+    OSCELEM = ('astorb', 'mpcorb', 'mpcorb/nea')
+
     @property
     def uri(self):
         """
@@ -36,9 +42,57 @@ class MiriadeClass(BaseQuery):
         """
         return self._query_uri
 
+    def get_observatory_codes(self, restr=None):
+        """
+        Get a dictionary of IAU observatory codes
+
+        Parameters
+        ----------
+        restr : str
+            String to compile into an re, if specified.   Searches
+            table for observatories whose names match
+
+        Examples
+        --------
+        >>> from astroquery.imcce import Miriade
+        >>> obs = Miriade.get_observatory_codes(restr='Green') # doctest: +REMOTE_DATA
+        >>> print(obs) # doctest: +REMOTE_DATA
+        <Table length=8>
+        Code   Long.     cos       sin                        Name
+        str3  float64  float64   float64                     str48
+        ---- --------- -------- --------- -------------------------------------------
+         000       0.0  0.62411   0.77873                                   Greenwich
+         256 280.16017 0.784451   0.61832                                  Green Bank
+         912  288.2342  0.74769   0.66186          Carbuncle Hill Observatory, Greene
+         967  358.9778  0.61508   0.78585                               Greens Norton
+         B34   33.7258  0.81748   0.57405         Green Island Observatory, Gecitkale
+         H48  265.0139  0.79424   0.60565        PSU Greenbush Observatory, Pittsburg
+         Q54 147.28772  0.73929 -0.671278 Harlingten Telescope, Greenhill Observatory
+         Z54 358.92214 0.623422  0.779306             Greenmoor Observatory, Woodcote
+        """
+        URL = conf.obs_codes_url
+        TIMEOUT = conf.timeout
+
+        response = self._request('GET', URL, timeout=TIMEOUT)
+        if not hasattr(self, '_observatory_codes'):
+            self._observatory_codes = ascii.read(response.text,
+                                                 format='fixed_width',
+                                                 header_start=1,
+                                                 data_start=2,
+                                                 data_end=-1,
+                                                 col_starts=[0, 4, 13, 21, 30],
+                                                 col_ends=[3, 12, 20, 29, 100])
+
+        if restr is not None:
+            R = re.compile(restr)
+            return vstack([t for t in self._observatory_codes
+                           if R.search(t["Name"])])
+        else:
+            return self._observatory_codes
+
     def get_ephemerides_async(self, targetname, objtype='asteroid',
                               epoch=None, epoch_step='1d', epoch_nsteps=1,
-                              location=500, coordtype=1,
+                              location='500', coordtype=1,
                               timescale='UTC',
                               planetary_theory='INPOP',
                               ephtype=1,
@@ -238,6 +292,61 @@ class MiriadeClass(BaseQuery):
         URL = conf.ephemcc_server
         TIMEOUT = conf.timeout
 
+        request_payload = dict()
+
+        # check for required information
+        if targetname is None:
+            raise ValueError("'targetname' parameter not set. Query aborted.")
+        else:
+            request_payload['-name'] = targetname
+
+        if objtype.title() in self.TYPES:
+            request_payload['-type'] = objtype
+        elif objtype is not None:
+            raise ValueError("Invalid objtype specified.  Allowed types "
+                             "are {0}".format(str(self.TYPES)))
+
+        if epoch_nsteps >= 1 and epoch_nsteps <= 5000:
+            request_payload['-nbd'] = epoch_nsteps
+        else:
+            raise ValueError("Invalid nbd specified. 1 <= epoch_nsteps <= 5000")
+
+        if (epoch_step[-1] in ('d', 'h', 'm', 's') and
+            epoch_step[:-1].replace('.', '', 1).isdigit()):
+            request_payload['-step'] = epoch_step
+        else:
+            raise ValueError("Invalid epoch_step specified. Step (float) "
+                             "followed by one of (d)ays or (h)ours or "
+                             "(m)inutes or (s)econds")
+
+        if timescale in self.TSCALE:
+            request_payload['-tscale'] = timescale
+        else:
+            raise ValueError("Invalid timescale specified.  Allowed types "
+                             "are {0}".format(str(self.TSCALE)))
+
+        if planetary_theory in self.THEORY:
+            request_payload['-theory'] = planetary_theory
+        else:
+            raise ValueError("Invalid planetary_theory specified.  Allowed "
+                             "types are {0}".format(str(self.THEORY)))
+
+        if ephtype in range(1, 5):
+            request_payload['-teph'] = ephtype
+        else:
+            raise ValueError("Invalid ephtype specified. 1 <= teph <= 4")
+
+        if coordtype in range(1, 7):
+            request_payload['-tcoor'] = coordtype
+        else:
+            raise ValueError("Invalid coordtype specified. 1 <= tcoor <= 6")
+
+        if refplane in self.RPLANE:
+            request_payload['-rplane'] = self.RPLANE[refplane]
+        else:
+            raise ValueError("Invalid refplane specified. Allowed "
+                             "values are equator and ecliptic.")
+
         if isinstance(epoch, (int, float)):
             epoch = Time(epoch, format='jd')
         elif isinstance(epoch, str):
@@ -245,21 +354,10 @@ class MiriadeClass(BaseQuery):
         elif epoch is None:
             epoch = Time.now()
 
-        request_payload = OrderedDict([
-            ('-name', targetname),
-            ('-type', objtype[0].upper()+objtype[1:]),
-            ('-ep', str(epoch.jd)),
-            ('-step', epoch_step),
-            ('-nbd', epoch_nsteps),
-            ('-observer', location),
-            ('-output', '--jul'),
-            ('-tscale', timescale),
-            ('-theory', planetary_theory),
-            ('-teph', ephtype),
-            ('-tcoor', coordtype),
-            ('-rplane', {'equator': 1, 'ecliptic': 2}[refplane]),
-            ('-oscelem', elements),
-            ('-mime', 'votable')])
+        request_payload['-ep'] = str(epoch.jd)
+        request_payload['-observer'] = location
+        request_payload['-output'] = "--jul"
+        request_payload['-mime'] = "votable"
 
         if radial_velocity:
             request_payload['-output'] += ',--rv'
