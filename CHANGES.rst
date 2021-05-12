@@ -1,4 +1,4 @@
-0.4.2 (unreleased)
+0.4.2 (2021-05-14)
 ==================
 
 New Tools and Services
