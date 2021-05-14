@@ -7,6 +7,7 @@
 # remote_data decorator from astropy:
 
 import pytest
+from astropy.utils.exceptions import AstropyDeprecationWarning
 
 try:
     from ... import vamdc
@@ -23,3 +24,8 @@ class TestVamdcClass:
     def test_query_molecule(self):
         ch3oh = vamdc.core.VamdcClass().query_molecule('CH3OH')
         assert 'SCDMS-2369983' in ch3oh.data['States']
+
+
+def test_deprecation():
+    with pytest.warns(AstropyDeprecationWarning):
+        vamdc.Vamdc()

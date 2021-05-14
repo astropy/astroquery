@@ -151,6 +151,12 @@ ukidss
 
 - Updated to ``UKIDSSDR11PLUS`` as the default data release. [#1767]
 
+vamdc
+^^^^^
+
+- Deprecate module due to upstream library dependence and compability
+  issues. [#2070]
+
 vizier
 ^^^^^^
 

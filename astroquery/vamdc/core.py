@@ -8,10 +8,14 @@ from ..utils.process_asyncs import async_to_sync
 from ..query import BaseQuery
 from . import conf
 from . load_species_table import species_lookuptable
+from astropy.utils.decorators import deprecated
 
 __doctest_skip__ = ['VamdcClass.*']
 
 
+@deprecated('0.4.2', 'the module relies on an unmaintained library and is'
+            'considered deprecated until completely refactored or upstream'
+            'is stablised.')
 @async_to_sync
 class VamdcClass(BaseQuery):
 
