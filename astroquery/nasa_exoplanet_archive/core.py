@@ -87,6 +87,7 @@ OBJECT_TABLES = {"exoplanets": "pl_", "compositepars": "fpl_", "exomultpars": "m
 # 'ps' and 'pscomppars' are the main tables of detected exoplanets. Calls to the old tables ('exoplanets', 'compositepars', 'exomultpars') will return errors and urge the user to call the 'ps' or 'pscomppars' tables
 OBJECT_TABLES = {"ps": "pl_", "pscomppars": "pl_", "exoplanets": "pl_", "compositepars": "fpl_", "exomultpars": "mpl_"}
 
+
 class InvalidTableError(InvalidQueryError):
     """Exception thrown if the given table is not recognized by the Exoplanet Archive Servers"""
 
@@ -467,7 +468,6 @@ class NasaExoplanetArchiveClass(BaseQuery):
         # Finally just return the full error message if we got here
         message = "\n".join(line for line in (error_type, error_message) if line is not None)
         raise RemoteServiceError(message)
-
 
     def _fix_units(self, data):
         """

@@ -85,7 +85,6 @@ def mock_get(self, method, url, *args, **kwargs):  # pragma: nocover
     except FileNotFoundError:
         responses = {}
 
-
     table = params["table"]
     # Set base URL depending on whether TAP or API for access
     if table in ["ps", "pscomppars", "k2names", "keplernames"]:
@@ -106,7 +105,6 @@ def mock_get(self, method, url, *args, **kwargs):  # pragma: nocover
         index = responses.get(table, []).index(key)
     except ValueError:
         index = -1
-
 
     # If the NASA_EXOPLANET_ARCHIVE_GENERATE_RESPONSES environment variable is set, we make a
     # remote request if necessary. Otherwise we throw a ValueError.
@@ -170,20 +168,17 @@ def test_backwards_compat(patch_get):
             params = NasaExoplanetArchive.query_planet("HD 209458 b ")
         assert "replaced" in str(error)
 
-
     # test_hd209458b_exoplanet_archive_coords
     with pytest.warns(AstropyDeprecationWarning):
         with pytest.raises(InvalidTableError) as error:
             params = NasaExoplanetArchive.query_planet("HD 209458 b ")
         assert "replaced" in str(error)
 
-
     # test_hd209458_stellar_exoplanet
     with pytest.warns(AstropyDeprecationWarning):
         with pytest.raises(InvalidTableError) as error:
             params = NasaExoplanetArchive.query_star("HD 209458")
         assert "replaced" in str(error)
-
 
     # test_hd136352_stellar_exoplanet_archive
     with pytest.warns(AstropyDeprecationWarning):
