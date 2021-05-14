@@ -23,7 +23,7 @@ from ..core import NasaExoplanetArchive, conf, InvalidTableError, request_to_sql
 MAIN_DATA = pkg_resources.resource_filename("astroquery.nasa_exoplanet_archive", "data")
 TEST_DATA = pkg_resources.resource_filename(__name__, "data")
 RESPONSE_FILE = os.path.join(TEST_DATA, "responses.json")
-os.environ["NASA_EXOPLANET_ARCHIVE_GENERATE_RESPONSES"] = '1' # Activate for generating responses 
+os.environ["NASA_EXOPLANET_ARCHIVE_GENERATE_RESPONSES"] = '1'  # Activate for generating responses
 
 # TAP supported: ps, pscomppars, keplernames, k2names. API support: all others
 # TODO: add tables transitspec and emissionspec
@@ -95,11 +95,11 @@ def mock_get(self, method, url, *args, **kwargs):  # pragma: nocover
         assert url == conf.url_api
         service_type = "api"
 
-    # Work out where the expected response is saved  
+    # Work out where the expected response is saved
     if service_type == "api":
-        key = urlencode(sorted(params.items())) # construct URL query string from params
+        key = urlencode(sorted(params.items()))  # construct URL query string from params
     else:
-        key = request_to_sql(sorted(params.items())) # construct SQL query string from params
+        key = request_to_sql(sorted(params.items()))  # construct SQL query string from params
     try:
         # Find index of query string in list of queries for specific table.
         # Set to empty list if table isn't in dictionary, which will return ValueError
@@ -110,28 +110,28 @@ def mock_get(self, method, url, *args, **kwargs):  # pragma: nocover
 
     # If the NASA_EXOPLANET_ARCHIVE_GENERATE_RESPONSES environment variable is set, we make a
     # remote request if necessary. Otherwise we throw a ValueError.
-    if index < 0: # Request wasn't already in responses.json
+    if index < 0:  # Request wasn't already in responses.json
         if "NASA_EXOPLANET_ARCHIVE_GENERATE_RESPONSES" not in os.environ:
             raise ValueError("unexpected request")
         responses[table] = responses.get(table, [])
-        responses[table].append(key) # add query string to dict of table entries
-        index = len(responses[table]) - 1 # set index to write new entry
+        responses[table].append(key)  # add query string to dict of table entries
+        index = len(responses[table]) - 1  # set index to write new entry
         if table in ["ps", "pscomppars", "k2names", "keplernames"]:
             tap = pyvo.dal.tap.TAPService(baseurl=url)
             resp = tap.run_async(query=key, language="ADQL")
             ap_write(resp.to_table(), output=os.path.join(TEST_DATA, "{0}_expect_{1}.txt".format(table, index)))
-        else: # use basic http request of URL
+        else:  # use basic http request of URL
             with requests.Session() as session:
                 resp = session.old_request(method, url, params=params)
         with open(os.path.join(TEST_DATA, "{0}_expect_{1}.txt".format(table, index)), "w") as f:
-            f.write(resp.text) # writing response text (actual response from server) to data files
+            f.write(resp.text)  # writing response text (actual response from server) to data files
         with open(RESPONSE_FILE, "w") as f:
-            json.dump(responses, f, sort_keys=True, indent=2) # write updated dict to responses.json
+            json.dump(responses, f, sort_keys=True, indent=2)  # write updated dict to responses.json
 
     with open(os.path.join(TEST_DATA, "{0}_expect_{1}.txt".format(table, index)), "r") as f:
-        data = f.read() # Read saved response from data file
+        data = f.read()  # Read saved response from data file
 
-    return MockResponse(data.encode("utf-8")) # Return as MockResponse
+    return MockResponse(data.encode("utf-8"))  # Return as MockResponse
 
 
 @pytest.fixture
@@ -154,7 +154,7 @@ def test_regularize_object_name(patch_get):
     assert NasaExoplanetArchive._regularize_object_name("kepler 1 b") == "TrES-2 b"
 
     with pytest.warns(NoResultsWarning) as warning:
-        NasaExoplanetArchive._regularize_object_name("not a planet") # 
+        NasaExoplanetArchive._regularize_object_name("not a planet")
     assert "No aliases found for name: 'not a planet'" == str(warning[0].message)
 
 
@@ -209,7 +209,7 @@ def test_all_tables(patch_get, table, query):
         assert isinstance(data[col], SkyCoord) or not isinstance(data[col].unit, u.UnrecognizedUnit)
 
 
-def test_select(): # removed patch_get for now
+def test_select():  # removed patch_get for now
     payload = NasaExoplanetArchive.query_criteria(
         "ps",
         select=["hostname", "pl_name"],
@@ -227,7 +227,7 @@ def test_select(): # removed patch_get for now
     _compare_tables(table1, table2)
 
 
-def test_warnings(): # removed patch_get for now
+def test_warnings():  # removed patch_get for now
     with pytest.warns(NoResultsWarning):
         NasaExoplanetArchive.query_criteria("ps", where="hostname='not a host'")
 
@@ -239,7 +239,7 @@ def test_warnings(): # removed patch_get for now
     assert "Invalid table 'cumulative'" in str(error)
 
 
-def test_query_region(): # removed patch_get for now
+def test_query_region():  # removed patch_get for now
     coords = SkyCoord(ra=330.79488 * u.deg, dec=18.8843 * u.deg)
     radius = 0.001
     table1 = NasaExoplanetArchive.query_region("pscomppars", coords, radius * u.deg)
@@ -250,7 +250,7 @@ def test_query_region(): # removed patch_get for now
     _compare_tables(table1, table2)
 
 
-def test_format(): # removed patch_get for now
+def test_format():  # removed patch_get for now
     table1 = NasaExoplanetArchive.query_object("HAT-P-11 b")
     table2 = NasaExoplanetArchive.query_object("HAT-P-11 b", format="votable")
     _compare_tables(table1, table2)

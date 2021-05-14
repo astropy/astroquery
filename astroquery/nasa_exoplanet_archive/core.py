@@ -27,7 +27,7 @@ from ..utils.class_or_instance import class_or_instance
 from . import conf
 
 # Import TAP client
-#from astroquery.utils.tap.core import TapPlus # This package will be deprecated, use PyVO
+# from astroquery.utils.tap.core import TapPlus # This package will be deprecated, use PyVO
 import pyvo
 
 # Objects exported when calling from astroquery.nasa_exoplanet_archive import *
@@ -47,7 +47,7 @@ UNIT_MAPPER = {
     "Earth Mass": u.M_earth,
     "M_J": u.M_jupiter,
     "Jupiter Mass": u.M_jupiter,
-    "R_Earth": u.R_earth, # Add u.R_jupiter
+    "R_Earth": u.R_earth,  # Add u.R_jupiter
     "Earth Radius": u.R_earth,
     "Jupiter Radius": u.R_jupiter,
     "R_Sun": u.R_sun,
@@ -101,18 +101,15 @@ def request_to_sql(request_payload):
     if "order" in request_payload.keys():
         request_payload["order by"] = request_payload.pop("order")
     if "format" in request_payload.keys():
-        responseformat = request_payload.pop("format") # figure out what to do with the format keyword
-    if "ra" in request_payload.keys(): # means this is a `query_region` call
-        #query_type = "region"
+        responseformat = request_payload.pop("format")  # figure out what to do with the format keyword
+    if "ra" in request_payload.keys():  # means this is a `query_region` call
         request_payload["where"] = "contains(point('icrs',ra,dec),circle('icrs',{0},{1},{2}))=1".format(request_payload["ra"], request_payload["dec"], request_payload["radius"])
         del request_payload["ra"]
         del request_payload["dec"]
         del request_payload["radius"]
-    # if ra, dec and radius in request_payload.keys(), add "where contains(point('icrs',ra,dec),circle('icrs',request_payload["ra"],request_payload["dec"],0.1))=1"
     if "where" in request_payload:
-        if "pl_hostname" in request_payload["where"]: # means this is a `query_object`
-            #query_type = "object"
-            request_payload["where"] = "pl_hostname or pl_name like {0}".format(request_payload["where"][request_payload["where"].find("=")+2:request_payload["where"].find("OR")-2]) # This is a bit hacky since we are getting this from the request_payload (downstream) instead of directly from object_name
+        if "pl_hostname" in request_payload["where"]:  # means this is a `query_object`
+            request_payload["where"] = "pl_hostname or pl_name like {0}".format(request_payload["where"][request_payload["where"].find("=")+2:request_payload["where"].find("OR")-2])  # This is a bit hacky since we are getting this from the request_payload (downstream) instead of directly from object_name
     query_opt = " ".join("{0} {1}".format(key, value) for key, value in request_payload.items())
     tap_query = "{0} {1}".format(query_req, query_opt)
 
@@ -177,12 +174,12 @@ class NasaExoplanetArchiveClass(BaseQuery):
 
         # Warn if old table is requested
         if table in ["exoplanets", "exomultpars"]:
-            #warnings.warn("The '{0}' table is stale and will be depracated in the Archive 2.0 release. Use the 'ps' table. See https://exoplanetarchive.ipac.caltech.edu/docs/ps-pscp_release_notes.html".format(table), InputWarning, )
+            # warnings.warn("The '{0}' table is stale and will be depracated in the Archive 2.0 release. Use the 'ps' table. See https://exoplanetarchive.ipac.caltech.edu/docs/ps-pscp_release_notes.html".format(table), InputWarning, )
             raise InvalidTableError("The ``{0}`` table is no longer updated and has been replaced by the Planetary Systems table (PS), which is connected to the Exoplanet Archive TAP service. Although the argument keywords of the called method should still work on the new table, the allowed values could have changed since the database column names have changed; this document contains the current definitions and a mapping between the new and deprecated names: https://exoplanetarchive.ipac.caltech.edu/docs/API_PS_columns.html. You might also want to review the TAP User Guide for help on creating a new query for the most current data: https://exoplanetarchive.ipac.caltech.edu/docs/TAP/usingTAP.html.".format(table))
 
         # Warn if old table is requested
         if table in ["compositepars"]:
-            #warnings.warn("The '{0}' table is stale and will be depracated in the Archive 2.0 release. Use the 'pscomppars' table. See https://exoplanetarchive.ipac.caltech.edu/docs/ps-pscp_release_notes.html".format(table), InputWarning, )
+            # warnings.warn("The '{0}' table is stale and will be depracated in the Archive 2.0 release. Use the 'pscomppars' table. See https://exoplanetarchive.ipac.caltech.edu/docs/ps-pscp_release_notes.html".format(table), InputWarning, )
             raise InvalidTableError("The ``{0}`` table is no longer updated and has been replaced by the Planetary System Composite Parameters table (PSCompPars), which is connected to the Exoplanet Archive TAP service. Although the argument keywords of the called method should still work on the new table, the allowed values could have changed since the database column names have changed; this document contains the current definitions and a mapping between the new and deprecated names: https://exoplanetarchive.ipac.caltech.edu/docs/API_PS_columns.html. You might also want to review the TAP User Guide for help on creating a new query for the most current data: https://exoplanetarchive.ipac.caltech.edu/docs/TAP/usingTAP.html.".format(table))
 
         # Deal with lists of columns instead of comma separated strings
@@ -217,14 +214,11 @@ class NasaExoplanetArchiveClass(BaseQuery):
             tap = pyvo.dal.tap.TAPService(baseurl=self.URL_TAP)
             # construct query from table and request_payload (including format)
             tap_query = request_to_sql(request_payload)
-            #print(tap_query) # debugging
             try:
-                response = tap.search(query=tap_query, language='ADQL') # Note that this returns a VOTable
+                response = tap.search(query=tap_query, language='ADQL')  # Note that this returns a VOTable
             except Exception as err:
                 raise InvalidQueryError(str(err))
-            #response = response.to_table() # Convert to Astropy table
         else:
-            #print(request_payload)
             response = self._request(
                 "GET", self.URL_API, params=request_payload, timeout=self.TIMEOUT, cache=cache,
             )
@@ -570,7 +564,6 @@ class NasaExoplanetArchiveClass(BaseQuery):
         else:
             # Extract the decoded body of the response
             text = response.text
-            #print(text)
 
             # Raise an exception if anything went wrong
             self._handle_error(text)
@@ -619,7 +612,6 @@ class NasaExoplanetArchiveClass(BaseQuery):
             kwargs["select"] = kwargs.get("select", "*")
 
         return kwargs
-
 
     # Could we use similar @deprecated decorator for new changes and warnings?
     @deprecated(since="v0.4.1", alternative="query_object")
