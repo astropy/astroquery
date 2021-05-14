@@ -18,7 +18,7 @@ Planetary Systems table (``ps``). Likewise, the `compositepars` table has been r
 Planetary Systems Composite Parameters table (``pscomppars``). Both the ``ps`` and ``pscomppars`` tables are accessible 
 through the Exoplanet Archive TAP service. Database column names have changed; 
 `this document <https://exoplanetarchive.ipac.caltech.edu/docs/API_PS_columns.html>`_ contains the current definitions 
-and a mapping between the new and deprecated names. The ``ps`` table 
+and a mapping between the new and deprecated names.
 
 Query methods
 =============
