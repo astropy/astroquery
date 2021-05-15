@@ -48,3 +48,26 @@ except ImportError:
 logging.addLevelName(5, "TRACE")
 log = logging.getLogger()
 log = _init_log()
+
+# backward compatibility: retain the flat namespace as of May 2019 at least
+# until we deprecate it
+
+# categories of data type
+from atomic_molecular_databases import atomic, hitran, jplspec, nist, splatalogue, vamdc
+from simulations import besancon, cosmosim
+from observatory_archives import alma, fermi, gaia, lcogt, nrao
+from image_cutout_services import skyview, magpis
+
+# institutes with multiple submodules
+from wfau import vsa, ukidss
+from cds import simbad, vizier, xmatch
+from ipac import ibe, irsa, irsa_dust, sha, ned
+from esa import esasky, gaia, hubble
+# from mast import
+# from heasarc import
+# from cadc import
+
+from exoplanets import open_exoplanet_catalogue, exoplanet_orbit_database, nasa_exoplanet_archive
+from solarsystem import jplsbdb, jplhorizons, mpc
+
+from surveys import alfalfa, nvas, gama, ogle, sdss
