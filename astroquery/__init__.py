@@ -62,10 +62,9 @@ from image_cutout_services import skyview, magpis
 from wfau import vsa, ukidss
 from cds import simbad, vizier, xmatch
 from ipac import ibe, irsa, irsa_dust, sha, ned
-from esa import esasky, gaia, hubble
-# from mast import
-# from heasarc import
-# from cadc import
+from esa import esasky, gaia
+# hubble is not importable alone b/c there are several
+import esa.hubble
 
 from exoplanets import open_exoplanet_catalogue, exoplanet_orbit_database, nasa_exoplanet_archive
 from solarsystem import jplsbdb, jplhorizons, mpc
