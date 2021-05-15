@@ -111,6 +111,12 @@ jplsbdb
 
 - Returns astropy quantities, rather than scaled units. [#2011]
 
+lcogt
+^^^^^
+
+- Module has been removed after having been defunct due to upstream API
+  refactoring a few years ago. [#2071]
+
 mast
 ^^^^
 
