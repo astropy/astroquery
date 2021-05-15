@@ -28,4 +28,4 @@ class TestVamdcClass:
 
 def test_deprecation():
     with pytest.warns(AstropyDeprecationWarning):
-        vamdc.Vamdc()
+        vamdc.Vamdc(doimport=False)
