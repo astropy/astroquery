@@ -99,7 +99,7 @@ def mock_get(self, method, url, *args, **kwargs):  # pragma: nocover
     if service_type == "api":
         key = urlencode(sorted(params.items()))  # construct URL query string from params
     else:
-        key = request_to_sql(sorted(params.items()))  # construct SQL query string from params
+        key = NasaExoplanetArchive._request_to_sql(sorted(params.items()))  # construct SQL query string from params
     try:
         # Find index of query string in list of queries for specific table.
         # Set to empty list if table isn't in dictionary, which will return ValueError
