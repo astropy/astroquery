@@ -203,4 +203,3 @@ def test_all_tables(patch_get, table, query):
     # Check that the units were fixed properly
     for col in data.columns:
         assert isinstance(data[col], SkyCoord) or not isinstance(data[col].unit, u.UnrecognizedUnit)
-
