@@ -3,7 +3,12 @@
 
 import pytest
 
-from ...exceptions import InvalidQueryError
+import numpy as np
+import astropy.units as u
+from astropy.coordinates import SkyCoord
+
+from astropy.tests.helper import assert_quantity_allclose
+from ...exceptions import InputWarning, InvalidQueryError, NoResultsWarning
 from ..core import InvalidTableError, NasaExoplanetArchive
 
 
@@ -54,3 +59,100 @@ def test_missing_criterion_super_wasp():
     NasaExoplanetArchive.query_criteria(
         "superwasptimeseries", sourceid="1SWASP J191645.46+474912.3"
     )
+
+
+@pytest.mark.remote_data
+def test_select():
+    payload = NasaExoplanetArchive.query_criteria(
+        "ps",
+        select=["hostname", "pl_name"],
+        where="hostname='Kepler-11'",
+        get_query_payload=True,
+    )
+    assert payload["select"] == "hostname,pl_name"
+
+    table1 = NasaExoplanetArchive.query_criteria(
+        "ps", select=["hostname", "pl_name"], where="hostname='Kepler-11'"
+    )
+    table2 = NasaExoplanetArchive.query_criteria(
+        "ps", select="hostname,pl_name", where="hostname='Kepler-11'"
+    )
+    _compare_tables(table1, table2)
+
+
+@pytest.mark.remote_data
+def test_warnings():  # removed patch_get for now
+    with pytest.warns(NoResultsWarning):
+        NasaExoplanetArchive.query_criteria("ps", where="hostname='not a host'")
+
+    with pytest.warns(InputWarning):
+        NasaExoplanetArchive.query_object("HAT-P-11 b", where="nothing")
+
+    with pytest.warns(InputWarning):
+        NasaExoplanetArchive.query_object(object_name="K2-18 b", table="pscomppars", where="nothing")
+
+    with pytest.raises(InvalidQueryError) as error:
+        NasaExoplanetArchive.query_object("HAT-P-11 b", table="cumulative")
+    assert "Invalid table 'cumulative'" in str(error)
+
+
+@pytest.mark.remote_data
+def test_table_errors():
+    with pytest.raises(InvalidTableError) as error:
+        NasaExoplanetArchive.query_object("K2-18 b", table="exoplanets")
+    assert "exoplanets" in str(error)
+
+    with pytest.raises(InvalidTableError) as error:
+        NasaExoplanetArchive.query_object("K2-18 b", table="exomultpars")
+    assert "exomultpars" in str(error)
+
+    with pytest.raises(InvalidTableError) as error:
+        NasaExoplanetArchive.query_object("K2-18 b", table="compositepars")
+    assert "compositepars" in str(error)
+
+
+@pytest.mark.remote_data
+def test_request_to_sql():
+    payload_dict = NasaExoplanetArchive.query_region(table="ps", coordinates=SkyCoord(ra=172.56 * u.deg, dec=7.59 * u.deg), radius=1.0 * u.deg, get_query_payload=True)
+    sql_str = NasaExoplanetArchive._request_to_sql(payload_dict)
+    assert sql_str == "select * from ps where contains(point('icrs',ra,dec),circle('icrs',172.56,7.59,1.0 degree))=1"
+
+
+@pytest.mark.remote_data
+def test_query_region():  # removed patch_get for now
+    coords = SkyCoord(ra=330.79488 * u.deg, dec=18.8843 * u.deg)
+    radius = 0.001
+    table1 = NasaExoplanetArchive.query_region("pscomppars", coords, radius * u.deg)
+    assert len(table1) == 1
+    assert table1["hostname"] == "HD 209458"
+
+    table2 = NasaExoplanetArchive.query_region("pscomppars", coords, radius)
+    _compare_tables(table1, table2)
+
+
+@pytest.mark.remote_data
+def test_format():  # removed patch_get for now
+    table1 = NasaExoplanetArchive.query_object("HAT-P-11 b")
+    table2 = NasaExoplanetArchive.query_object("HAT-P-11 b", format="votable")
+    _compare_tables(table1, table2)
+
+    table1 = NasaExoplanetArchive.query_object("HAT-P-11 b", format="csv")
+    table2 = NasaExoplanetArchive.query_object("HAT-P-11 b", format="bar")
+    _compare_tables(table1, table2)
+
+
+@pytest.mark.remote_data
+def _compare_tables(table1, table2):
+    assert len(table1) == len(table2)
+    for col in sorted(set(table1.columns) | set(table2.columns)):
+        assert col in table1.columns
+        assert col in table2.columns
+        try:
+            m = np.isfinite(table1[col]) & np.isfinite(table2[col])
+            assert_quantity_allclose(table1[col][m], table2[col][m])
+        except TypeError:
+            try:
+                # SkyCoords
+                assert np.all(table1[col].separation(table2[col]) < 0.1 * u.arcsec)
+            except AttributeError:
+                assert np.all(table1[col] == table2[col])
