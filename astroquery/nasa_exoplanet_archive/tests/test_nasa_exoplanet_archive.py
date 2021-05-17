@@ -12,6 +12,7 @@ import numpy as np
 import pkg_resources
 import pytest
 import requests
+import pyvo
 from astropy.coordinates import SkyCoord
 from astropy.tests.helper import assert_quantity_allclose
 from astropy.utils.exceptions import AstropyDeprecationWarning
@@ -231,9 +232,34 @@ def test_warnings():  # removed patch_get for now
     with pytest.warns(InputWarning):
         NasaExoplanetArchive.query_object("HAT-P-11 b", where="nothing")
 
+    with pytest.warns(InputWarning):
+        NasaExoplanetArchive.query_object(object_name="K2-18 b", table="pscomppars", where="nothing")
+
     with pytest.raises(InvalidQueryError) as error:
         NasaExoplanetArchive.query_object("HAT-P-11 b", table="cumulative")
     assert "Invalid table 'cumulative'" in str(error)
+
+
+@pytest.mark.remote_data
+def test_table_errors():
+    with pytest.raises(InvalidTableError) as error:
+        NasaExoplanetArchive.query_object("K2-18 b", table="exoplanets")
+    assert "exoplanets" in str(error)
+
+    with pytest.raises(InvalidTableError) as error:
+        NasaExoplanetArchive.query_object("K2-18 b", table="exomultpars")
+    assert "exomultpars" in str(error)
+
+    with pytest.raises(InvalidTableError) as error:
+        NasaExoplanetArchive.query_object("K2-18 b", table="exomultpars")
+    assert "compositepars" in str(error)
+
+
+@pytest.mark.remote_data
+def test_request_to_sql():
+    payload_dict = NasaExoplanetArchive.query_region(table="ps", coordinates=SkyCoord(ra=172.56 * u.deg, dec=7.59 * u.deg), radius=1.0 * u.deg, get_query_payload=True)
+    sql_str = NasaExoplanetArchive._request_to_sql(payload_dict)
+    assert sql_str == "select * from ps where contains(point('icrs',ra,dec),circle('icrs',172.56,7.59,1.0 degree))=1"
 
 
 @pytest.mark.remote_data

@@ -94,29 +94,6 @@ class InvalidTableError(InvalidQueryError):
     pass
 
 
-def request_to_sql(request_payload):
-    """Convert request_payload dict to SQL query string to be parsed by TAP."""
-
-    # Required minimum query string
-    query_req = "select {0} from {1}".format(request_payload.pop("select", "*"), request_payload.pop("table", None))
-    if "order" in request_payload.keys():
-        request_payload["order by"] = request_payload.pop("order")
-    if "format" in request_payload.keys():
-        responseformat = request_payload.pop("format")  # figure out what to do with the format keyword
-    if "ra" in request_payload.keys():  # means this is a `query_region` call
-        request_payload["where"] = "contains(point('icrs',ra,dec),circle('icrs',{0},{1},{2}))=1".format(request_payload["ra"], request_payload["dec"], request_payload["radius"])
-        del request_payload["ra"]
-        del request_payload["dec"]
-        del request_payload["radius"]
-    if "where" in request_payload:
-        if "pl_hostname" in request_payload["where"]:  # means this is a `query_object`
-            request_payload["where"] = "pl_hostname or pl_name like {0}".format(request_payload["where"][request_payload["where"].find("=")+2:request_payload["where"].find("OR")-2])  # This is a bit hacky since we are getting this from the request_payload (downstream) instead of directly from object_name
-    query_opt = " ".join("{0} {1}".format(key, value) for key, value in request_payload.items())
-    tap_query = "{0} {1}".format(query_req, query_opt)
-
-    return tap_query
-
-
 # Class decorator, async_to_sync, modifies NasaExoplanetArchiveClass to convert all query_x_async methods to query_x methods
 @async_to_sync
 class NasaExoplanetArchiveClass(BaseQuery):
@@ -214,7 +191,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
         if table in ["ps", "pscomppars"]:
             tap = pyvo.dal.tap.TAPService(baseurl=self.URL_TAP)
             # construct query from table and request_payload (including format)
-            tap_query = request_to_sql(request_payload)
+            tap_query = self._request_to_sql(request_payload)
             try:
                 response = tap.search(query=tap_query, language='ADQL')  # Note that this returns a VOTable
             except Exception as err:
@@ -612,6 +589,29 @@ class NasaExoplanetArchiveClass(BaseQuery):
             kwargs["select"] = kwargs.get("select", "*")
 
         return kwargs
+
+    @class_or_instance
+    def _request_to_sql(self, request_payload):
+        """Convert request_payload dict to SQL query string to be parsed by TAP."""
+
+        # Required minimum query string
+        query_req = "select {0} from {1}".format(request_payload.pop("select", "*"), request_payload.pop("table", None))
+        if "order" in request_payload.keys():
+            request_payload["order by"] = request_payload.pop("order")
+        if "format" in request_payload.keys():
+            responseformat = request_payload.pop("format")  # figure out what to do with the format keyword
+        if "ra" in request_payload.keys():  # means this is a `query_region` call
+            request_payload["where"] = "contains(point('icrs',ra,dec),circle('icrs',{0},{1},{2}))=1".format(request_payload["ra"], request_payload["dec"], request_payload["radius"])
+            del request_payload["ra"]
+            del request_payload["dec"]
+            del request_payload["radius"]
+        if "where" in request_payload:
+            if "pl_hostname" in request_payload["where"]:  # means this is a `query_object`
+                request_payload["where"] = "pl_hostname or pl_name like {0}".format(request_payload["where"][request_payload["where"].find("=")+2:request_payload["where"].find("OR")-2])  # This is a bit hacky since we are getting this from the request_payload (downstream) instead of directly from object_name
+        query_opt = " ".join("{0} {1}".format(key, value) for key, value in request_payload.items())
+        tap_query = "{0} {1}".format(query_req, query_opt)
+
+        return tap_query
 
     # Could we use similar @deprecated decorator for new changes and warnings?
     @deprecated(since="v0.4.1", alternative="query_object")
