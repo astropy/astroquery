@@ -204,6 +204,7 @@ def test_all_tables(patch_get, table, query):
         assert isinstance(data[col], SkyCoord) or not isinstance(data[col].unit, u.UnrecognizedUnit)
 
 
+@pytest.mark.remote_data
 def test_select():  # removed patch_get for now
     payload = NasaExoplanetArchive.query_criteria(
         "ps",
@@ -222,6 +223,7 @@ def test_select():  # removed patch_get for now
     _compare_tables(table1, table2)
 
 
+@pytest.mark.remote_data
 def test_warnings():  # removed patch_get for now
     with pytest.warns(NoResultsWarning):
         NasaExoplanetArchive.query_criteria("ps", where="hostname='not a host'")
@@ -234,6 +236,7 @@ def test_warnings():  # removed patch_get for now
     assert "Invalid table 'cumulative'" in str(error)
 
 
+@pytest.mark.remote_data
 def test_query_region():  # removed patch_get for now
     coords = SkyCoord(ra=330.79488 * u.deg, dec=18.8843 * u.deg)
     radius = 0.001
@@ -245,6 +248,7 @@ def test_query_region():  # removed patch_get for now
     _compare_tables(table1, table2)
 
 
+@pytest.mark.remote_data
 def test_format():  # removed patch_get for now
     table1 = NasaExoplanetArchive.query_object("HAT-P-11 b")
     table2 = NasaExoplanetArchive.query_object("HAT-P-11 b", format="votable")
@@ -255,6 +259,7 @@ def test_format():  # removed patch_get for now
     _compare_tables(table1, table2)
 
 
+@pytest.mark.remote_data
 def _compare_tables(table1, table2):
     assert len(table1) == len(table2)
     for col in sorted(set(table1.columns) | set(table2.columns)):
