@@ -24,7 +24,7 @@ from ..core import NasaExoplanetArchive, conf, InvalidTableError
 MAIN_DATA = pkg_resources.resource_filename("astroquery.nasa_exoplanet_archive", "data")
 TEST_DATA = pkg_resources.resource_filename(__name__, "data")
 RESPONSE_FILE = os.path.join(TEST_DATA, "responses.json")
-# os.environ["NASA_EXOPLANET_ARCHIVE_GENERATE_RESPONSES"] = '1'  # Activate for generating responses
+os.environ["NASA_EXOPLANET_ARCHIVE_GENERATE_RESPONSES"] = '1'  # Activate for generating responses
 
 # TAP supported: ps, pscomppars, keplernames, k2names. API support: all others
 # TODO: add tables transitspec and emissionspec

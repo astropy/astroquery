@@ -62,6 +62,23 @@ def test_missing_criterion_super_wasp():
 
 
 @pytest.mark.remote_data
+def _compare_tables(table1, table2):
+    assert len(table1) == len(table2)
+    for col in sorted(set(table1.columns) | set(table2.columns)):
+        assert col in table1.columns
+        assert col in table2.columns
+        try:
+            m = np.isfinite(table1[col]) & np.isfinite(table2[col])
+            assert_quantity_allclose(table1[col][m], table2[col][m])
+        except TypeError:
+            try:
+                # SkyCoords
+                assert np.all(table1[col].separation(table2[col]) < 0.1 * u.arcsec)
+            except AttributeError:
+                assert np.all(table1[col] == table2[col])
+
+
+@pytest.mark.remote_data
 def test_select():
     payload = NasaExoplanetArchive.query_criteria(
         "ps",
@@ -117,6 +134,12 @@ def test_request_to_sql():
     sql_str = NasaExoplanetArchive._request_to_sql(payload_dict)
     assert sql_str == "select * from ps where contains(point('icrs',ra,dec),circle('icrs',172.56,7.59,1.0 degree))=1"
 
+    payload_dict = NasaExoplanetArchive.query_criteria(table="ps", where="hostname like 'Kepler%'", order="hostname", get_query_payload=True)
+    assert "order by" in NasaExoplanetArchive._request_to_sql(payload_dict)
+
+    payload_dict = NasaExoplanetArchive.query_criteria(table="cumulative", where="pl_hostname like 'Kepler%'", order="pl_hostname", get_query_payload=True)
+    assert "pl_hostname or pl_name" in NasaExoplanetArchive._request_to_sql(payload_dict)
+
 
 @pytest.mark.remote_data
 def test_query_region():  # removed patch_get for now
@@ -140,19 +163,10 @@ def test_format():  # removed patch_get for now
     table2 = NasaExoplanetArchive.query_object("HAT-P-11 b", format="bar")
     _compare_tables(table1, table2)
 
+    table1 = NasaExoplanetArchive.query_object("HAT-P-11 b", format="xml")
+    table2 = NasaExoplanetArchive.query_object("HAT-P-11 b", format="table")
+    _compare_tables(table1, table2)
 
-@pytest.mark.remote_data
-def _compare_tables(table1, table2):
-    assert len(table1) == len(table2)
-    for col in sorted(set(table1.columns) | set(table2.columns)):
-        assert col in table1.columns
-        assert col in table2.columns
-        try:
-            m = np.isfinite(table1[col]) & np.isfinite(table2[col])
-            assert_quantity_allclose(table1[col][m], table2[col][m])
-        except TypeError:
-            try:
-                # SkyCoords
-                assert np.all(table1[col].separation(table2[col]) < 0.1 * u.arcsec)
-            except AttributeError:
-                assert np.all(table1[col] == table2[col])
+    with pytest.raises(InvalidQueryError) as error:
+        NasaExoplanetArchive.query_object("HAT-P-11 b", format="json")
+    assert "json" in str(error)
