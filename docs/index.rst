@@ -256,11 +256,13 @@ for each source)
   :maxdepth: 1
 
   alfalfa/alfalfa.rst
+  exoplanet_orbit_database/exoplanet_orbit_database.rst
   gama/gama.rst
   ibe/ibe.rst
   irsa/irsa.rst
   irsa/irsa_dust.rst
   mast/mast.rst
+  nasa_exoplanet_archive/nasa_exoplanet_archive.rst
   ned/ned.rst
   ogle/ogle.rst
   open_exoplanet_catalogue/open_exoplanet_catalogue.rst
@@ -272,8 +274,6 @@ for each source)
   vizier/vizier.rst
   xmatch/xmatch.rst
   vo_conesearch/vo_conesearch.rst
-  nasa_exoplanet_archive/nasa_exoplanet_archive.rst
-  exoplanet_orbit_database/exoplanet_orbit_database.rst
 
 Archives
 --------
