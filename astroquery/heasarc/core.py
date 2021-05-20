@@ -297,11 +297,9 @@ class HeasarcClass(BaseQuery):
         action : str, optional
             Type of action to be taken (defaults to 'Query')
         """
-        # All user-facing parameters are lower case, for consistency and to preserve current interface.
-        # The parameters as passed to the HEASARC service are capitalized according to the HEASARC requirements.
-        # It means that in some cases, unfortunately, this module will identical but differently capitalized, e.g. `Entry` vs `entry`.
-        # All transformations to the HEASARC-specific capitalization is done in this `_args_to_payload` function.
-
+        # User-facing parameters are lower case, while parameters as passed to the HEASARC service are capitalized according to the HEASARC requirements.
+        # The necessary transformations are done in this function.
+        
         # Define the basic query for this object        
 
         mission = kwargs.pop('mission')
