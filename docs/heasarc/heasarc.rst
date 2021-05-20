@@ -190,7 +190,7 @@ The returned table includes both the names and a short description of each
 mission table.
 
 Using alternative HEASARC servers
--------------------------------
+---------------------------------
 
 It is possible to set alternative locations for HEASARC server. One such location
 is hosted by `INTEGRAL Science Data Center <https://www.isdc.unige.ch/>`_, and has further, 
