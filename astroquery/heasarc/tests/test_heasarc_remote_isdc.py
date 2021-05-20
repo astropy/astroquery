@@ -79,7 +79,7 @@ class TestHeasarcISDC:
 
         heasarc = Heasarc()
 
-        month_ago = (Time.now() - TimeDelta(30)).isot[:10]
+        month_ago = (Time.now() - TimeDelta(15)).isot[:10]
         today = Time.now().isot[:10]
         T = month_ago + " .. " +  today
 
@@ -97,7 +97,8 @@ class TestHeasarcISDC:
 
         table_heasarc = Q('intscw')
 
-        assert len(table_isdc) > len(table_heasarc)
+        # heasarc synchronizes twice a month, and it might or might not be the same at the request time
+        assert len(table_isdc) >= len(table_heasarc)
 
     def test_ra_validity(self):
         object_name = 'Crab'

@@ -1,7 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 import warnings
-from six import BytesIO
+from six import StringIO, BytesIO
 from astropy.io.fits.column import _AsciiColumnFormat
 from astropy.table import Table
 from astropy.io import fits
@@ -62,8 +62,7 @@ class HeasarcClass(BaseQuery):
             url=conf.server,
             cache=cache
         )
-        data = BytesIO(response.content)
-        data_str = data.read().decode('utf-8')
+        data_str = response.text
         data_str = data_str.replace('Table xxx does not seem to exist!\n\n\n\nAvailable tables:\n', '')
         table = Table.read(data_str, format='ascii.fixed_width_two_line',
                            delimiter='+', header_start=1, position_line=2,
@@ -175,7 +174,7 @@ class HeasarcClass(BaseQuery):
         # Submit the request
         return self.query_async(request_payload, cache=cache)
 
-    def _old_w3query_fallback(self, content):
+    def _old_w3query_fallback(self, content: bytes):
         # old w3query (such as that used in ISDC) return very strange fits, with all ints
 
         f = fits.open(BytesIO(content))
@@ -193,13 +192,13 @@ class HeasarcClass(BaseQuery):
 
         return Table.read(I)
 
-    def _fallback(self, content):
+    def _fallback(self, text: str):
         """
         Blank columns which have to be converted to float or in fail so
         lets fix that by replacing with -1's
         """
 
-        data = BytesIO(content)
+        data = StringIO(text)
         header = fits.getheader(data, 1)  # Get header for column info
         colstart = [y for x, y in header.items() if "TBCOL" in x]
         collens = [int(float(y[1:]))
@@ -207,7 +206,7 @@ class HeasarcClass(BaseQuery):
 
         new_table = []
 
-        old_table = content.decode().split("END")[-1].strip()
+        old_table = text.split("END")[-1].strip()
         for line in old_table.split("\n"):
             newline = []
             for n, tup in enumerate(zip(colstart, collens), start=1):
@@ -220,7 +219,7 @@ class HeasarcClass(BaseQuery):
                         newline[-1] = "-1".rjust(clen) + " "
             new_table.append("".join(newline))
 
-        data = BytesIO(content.replace(old_table, "\n".join(new_table)))
+        data = StringIO(text.replace(old_table, "\n".join(new_table)))
         return Table.read(data, hdu=1)
 
     def _parse_result(self, response, verbose=False):
@@ -246,7 +245,7 @@ class HeasarcClass(BaseQuery):
             return table
         except ValueError:
             try:
-                return self._fallback(response.content)
+                return self._fallback(response.text)
             except Exception as e:
                 return self._old_w3query_fallback(response.content)
 
@@ -299,9 +298,8 @@ class HeasarcClass(BaseQuery):
         """
         # User-facing parameters are lower case, while parameters as passed to the HEASARC service are capitalized according to the HEASARC requirements.
         # The necessary transformations are done in this function.
-        
-        # Define the basic query for this object        
 
+        # Define the basic query for this object
         mission = kwargs.pop('mission')
 
         request_payload = dict(
