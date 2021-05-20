@@ -40,8 +40,14 @@ def patch_get(request):
     return mp
 
 
+# to inspect behavior, updated when the mock get call is made
+saved_request = None
+
+
 def get_mockreturn(url, *args, **kwargs):
     """ generate the actual mock textual data from our included datafile with json results """
+    global saved_request
+    saved_request = {'url': url, 'args': args, 'kwargs': kwargs}
     filename = data_path(DATA_FILES['m101'])
     f = open(filename, 'r')
     text = f.read()
@@ -74,6 +80,25 @@ def test_observations_query_criteria(patch_get):
                                                 utc_date=(date(2019, 10, 1), date(2019, 11, 25)))
     assert isinstance(result, Table)
     assert len(result) > 0
+
+
+def test_observations_query_criteria_radius_defaults(patch_get):
+    """ test query against an instrument/program via criteria """
+    result = gemini.Observations.query_criteria(instrument='GMOS-N', program_id='GN-CAL20191122',
+                                                observation_type='BIAS')
+    global saved_request
+    assert(saved_request is not None and 'args' in saved_request and len(saved_request['args']) >= 2)
+    assert('/sr=' not in saved_request['args'][1])
+    saved_request = None
+    result = gemini.Observations.query_criteria(instrument='GMOS-N', program_id='GN-2016A-Q-9',
+                                                observation_type='BIAS', coordinates=coords)
+    assert(saved_request is not None and 'args' in saved_request and len(saved_request['args']) >= 2)
+    assert('/sr=0.300000d' in saved_request['args'][1])
+    saved_request = None
+    result = gemini.Observations.query_criteria(instrument='GMOS-N', program_id='GN-2016A-Q-9',
+                                                observation_type='BIAS', objectname='m101')
+    assert(saved_request is not None and 'args' in saved_request and len(saved_request['args']) >= 2)
+    assert('/sr=0.300000d' in saved_request['args'][1])
 
 
 def test_observations_query_raw(patch_get):
@@ -117,3 +142,33 @@ def test_url_helper_coordinates():
     kwargs = {"coordinates": "210.80242917 54.348753"}
     url = urlh.build_url(*args, **kwargs)
     assert url == "https://archive.gemini.edu/jsonsummary/notengineering/NotFail/ra=210.802429/dec=54.348753"
+
+
+# send arg, should it have notengineering?, should it have NotFail?
+eng_fail_tests = [
+    ('notengineering', True, True),
+    ('engineering', False, True),
+    ('includeengineering', False, True),
+    ('NotFail', True, True),
+    ('AnyQA', True, False),
+    ('Pass', True, False),
+    ('Lucky', True, False),
+    ('Win', True, False),
+    ('Usable', True, False),
+    ('Undefind', True, False),
+    ('Fail', True, False),
+    ]
+
+
+@pytest.mark.parametrize("test_arg", eng_fail_tests)
+def test_url_helper_eng_fail(test_arg):
+    """ test the urlhelper logic around engineering/fail requests/defaults """
+    urlh = URLHelper()
+    args = [test_arg[0]]
+    should_have_noteng = test_arg[1]
+    should_have_notfail = test_arg[2]
+    kwargs = {}
+    url = urlh.build_url(*args, **kwargs)
+    urlsplit = url.split('/')
+    assert(('notengineering' in urlsplit) == should_have_noteng)
+    assert(('NotFail' in urlsplit) == should_have_notfail)

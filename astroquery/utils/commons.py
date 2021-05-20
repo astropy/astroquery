@@ -52,10 +52,12 @@ __all__ = ['send_request',
            'suppress_vo_warnings',
            'validate_email',
            'ASTROPY_LT_4_0',
-           'ASTROPY_LT_4_1']
+           'ASTROPY_LT_4_1',
+           'ASTROPY_LT_4_3']
 
 ASTROPY_LT_4_0 = not minversion('astropy', '4.0')
 ASTROPY_LT_4_1 = not minversion('astropy', '4.1')
+ASTROPY_LT_4_3 = not minversion('astropy', '4.3')
 
 
 def send_request(url, data, timeout, request_type='POST', headers={},

@@ -76,11 +76,11 @@ class TestHips2fitsRemote(object):
             cmap=Colormap('viridis'),
         )
 
-        import matplotlib.cm as cm
-        import matplotlib.pyplot as plt
+        # import matplotlib.cm as cm
+        # import matplotlib.pyplot as plt
 
-        im = plt.imshow(result)
-        plt.show(im)
+        # im = plt.imshow(result)
+        # plt.show(im)
 
         # We must get a numpy array with 3 dimensions, and the last one should be of size 3 (RGB)
         assert isinstance(result, np.ndarray) and result.shape[2] == 3

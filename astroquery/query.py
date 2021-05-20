@@ -172,33 +172,45 @@ class BaseQuery:
         return self.__class__(*args, **kwargs)
 
     def _response_hook(self, response, *args, **kwargs):
-        # Log request at INFO severity
-        request_hdrs = '\n'.join(f'{k}: {v}' for k, v in response.request.headers.items())
-        request_log = textwrap.indent(
-            f"-----------------------------------------\n"
-            f"{response.request.method} {response.request.url}\n"
-            f"{request_hdrs}\n"
-            f"\n"
-            f"{response.request.body}\n"
-            f"-----------------------------------------", '\t')
-        log.debug(f"HTTP request\n{request_log}")
-        # Log response at DEBUG severity
-        response_hdrs = '\n'.join(f'{k}: {v}' for k, v in response.headers.items())
-        response_log = textwrap.indent(
-            f"-----------------------------------------\n"
-            f"{response.status_code} {response.reason} {response.url}\n"
-            f"{response_hdrs}\n"
-            f"\n"
-            f"{response.text}\n"
-            f"-----------------------------------------", '\t')
-        log.log(5, f"HTTP response\n{response_log}")
+        loglevel = log.getEffectiveLevel()
+
+        if loglevel >= 10:
+            # Log request at DEBUG severity
+            request_hdrs = '\n'.join(f'{k}: {v}' for k, v in response.request.headers.items())
+            request_log = textwrap.indent(
+                f"-----------------------------------------\n"
+                f"{response.request.method} {response.request.url}\n"
+                f"{request_hdrs}\n"
+                f"\n"
+                f"{response.request.body}\n"
+                f"-----------------------------------------", '\t')
+            log.debug(f"HTTP request\n{request_log}")
+        if loglevel >= 5:
+            # Log response at super-DEBUG severity
+            response_hdrs = '\n'.join(f'{k}: {v}' for k, v in response.headers.items())
+            if kwargs.get('stream'):
+                response_log = textwrap.indent(
+                    f"-----------------------------------------\n"
+                    f"{response.status_code} {response.reason} {response.url}\n"
+                    f"{response_hdrs}\n"
+                    "Streaming Data\n"
+                    f"-----------------------------------------", '\t')
+            else:
+                response_log = textwrap.indent(
+                    f"-----------------------------------------\n"
+                    f"{response.status_code} {response.reason} {response.url}\n"
+                    f"{response_hdrs}\n"
+                    f"\n"
+                    f"{response.text}\n"
+                    f"-----------------------------------------", '\t')
+            log.log(5, f"HTTP response\n{response_log}")
 
     def _request(self, method, url,
                  params=None, data=None, headers=None,
                  files=None, save=False, savedir='', timeout=None, cache=True,
                  stream=False, auth=None, continuation=True, verify=True,
                  allow_redirects=True,
-                 json=None):
+                 json=None, return_response_on_save=False):
         """
         A generic HTTP request method, similar to `requests.Session.request`
         but with added caching-related tools
@@ -237,6 +249,9 @@ class BaseQuery:
             parameter will try to continue the download where it left off.
             See `_download_file`.
         stream : bool
+        return_response_on_save : bool
+            If ``save``, also return the server response. The default is to only
+            return the local file path.
 
         Returns
         -------
@@ -244,7 +259,11 @@ class BaseQuery:
             The response from the server if ``save`` is False
         local_filepath : list
             a list of strings containing the downloaded local paths if ``save``
-            is True
+            is True and ``return_response_on_save`` is False.
+        (local_filepath, response) : tuple(list, `requests.Response`)
+            a tuple containing a list of strings containing the downloaded local paths,
+            and the server response object, if ``save`` is True and ``return_response_on_save``
+            is True.
         """
         req_kwargs = dict(
             params=params,
@@ -262,11 +281,14 @@ class BaseQuery:
                 local_filename = local_filename.replace(':', '_')
             local_filepath = os.path.join(savedir or self.cache_location or '.', local_filename)
 
-            self._download_file(url, local_filepath, cache=cache,
-                                continuation=continuation, method=method,
-                                allow_redirects=allow_redirects,
-                                auth=auth, **req_kwargs)
-            return local_filepath
+            response = self._download_file(url, local_filepath, cache=cache,
+                                           continuation=continuation, method=method,
+                                           allow_redirects=allow_redirects,
+                                           auth=auth, **req_kwargs)
+            if return_response_on_save:
+                return local_filepath, response
+            else:
+                return local_filepath
         else:
             query = AstroQuery(method, url, **req_kwargs)
             if ((self.cache_location is None) or (not self._cache_active) or (not cache)):
@@ -357,6 +379,7 @@ class BaseQuery:
                                                  timeout=timeout, stream=True,
                                                  auth=auth, **kwargs)
                 response.raise_for_status()
+                del self._session.headers['Range']
 
         elif cache and os.path.exists(local_filepath):
             if length is not None:
@@ -386,6 +409,9 @@ class BaseQuery:
                 response.raise_for_status()
 
         blocksize = astropy.utils.data.conf.download_block_size
+
+        log.debug(f"Downloading URL {url} to {local_filepath} with size {length} "
+                  f"by blocks of {blocksize}")
 
         bytes_read = 0
 

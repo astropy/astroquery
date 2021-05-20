@@ -8,7 +8,7 @@ This is the documentation for the Astroquery coordinated package of `astropy
 
 Code and issue tracker are on `GitHub <https://github.com/astropy/astroquery>`_.
 
-If you use astroquery, please `cite <https://github.com/astropy/astroquery/blob/master/astroquery/CITATION>`__ the
+If you use astroquery, please `cite <https://github.com/astropy/astroquery/blob/main/astroquery/CITATION>`__ the
 paper `Ginsburg, Sipőcz, Brasseur et al 2019 <https://ui.adsabs.harvard.edu/abs/2019AJ....157...98G/abstract>`_.
 
 Introduction
@@ -98,6 +98,8 @@ full functionality of the `~astroquery.cds` module:
 * `astropy-healpix <http://astropy-healpix.readthedocs.io/en/latest/>`_
 * `regions <https://astropy-regions.readthedocs.io/en/latest/>`_
 * `mocpy <https://cds-astro.github.io/mocpy/>`_ >= 0.5.2
+* `vamdclib <https://github.com/VAMDC/vamdclib/>`_  install version from
+  personal fork: ``pip install git+https://github.com/keflavich/vamdclib-1.git``
 
 The following packages are optional dependencies and are required for the
 full functionality of the `~astroquery.mast` module:
@@ -142,6 +144,16 @@ All query tools allow coordinate-based queries:
 
 
 For additional guidance and examples, read the documentation for the individual services below.
+
+.. _default_config:
+
+Default configuration file
+--------------------------
+
+To customize this, copy it to your ``$HOME/.astropy/config/astroquery.cfg``,
+uncomment the relevant configuration item(s), and insert your desired value(s).
+
+.. generate_config:: astroquery
 
 Available Services
 ==================
@@ -244,11 +256,13 @@ for each source)
   :maxdepth: 1
 
   alfalfa/alfalfa.rst
+  exoplanet_orbit_database/exoplanet_orbit_database.rst
   gama/gama.rst
   ibe/ibe.rst
   irsa/irsa.rst
   irsa/irsa_dust.rst
   mast/mast.rst
+  nasa_exoplanet_archive/nasa_exoplanet_archive.rst
   ned/ned.rst
   ogle/ogle.rst
   open_exoplanet_catalogue/open_exoplanet_catalogue.rst
@@ -260,8 +274,6 @@ for each source)
   vizier/vizier.rst
   xmatch/xmatch.rst
   vo_conesearch/vo_conesearch.rst
-  nasa_exoplanet_archive/nasa_exoplanet_archive.rst
-  exoplanet_orbit_database/exoplanet_orbit_database.rst
 
 Archives
 --------

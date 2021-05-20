@@ -182,7 +182,7 @@ class ObservationsClass(QueryWithLogin):
         return self.query_criteria(objectname=objectname, radius=radius)
 
     @class_or_instance
-    def query_criteria(self, *rawqueryargs, coordinates=None, radius=0.3*units.deg, pi_name=None, program_id=None, utc_date=None,
+    def query_criteria(self, *rawqueryargs, coordinates=None, radius=None, pi_name=None, program_id=None, utc_date=None,
                        instrument=None, observation_class=None, observation_type=None, mode=None,
                        adaptive_optics=None, program_text=None, objectname=None, raw_reduced=None,
                        orderby=None, **rawquerykwargs):
@@ -199,7 +199,7 @@ class ObservationsClass(QueryWithLogin):
             The target around which to search. It may be specified as a
             string or as the appropriate `~astropy.coordinates` object.
         radius : str or `~astropy.units.Quantity` object, optional
-            Default 0.3 degrees.
+            Default 0.3 degrees if coordinates are set, else None
             The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from
             `~astropy.units` may also be used. Defaults to 0.3 deg.
@@ -319,6 +319,9 @@ class ObservationsClass(QueryWithLogin):
             for (k, v) in rawquerykwargs.items():
                 kwargs[k] = v
 
+        # If coordinates is set but we have no radius, set a default
+        if (coordinates or objectname) and radius is None:
+            radius = 0.3 * units.deg
         # Now consider the canned criteria
         if radius is not None:
             kwargs["radius"] = radius

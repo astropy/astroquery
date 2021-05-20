@@ -23,11 +23,11 @@ SCHEMATICS = {'1': '| +-- n_del_obs_used: 405',
               'Ceres': '| +-- n_del_obs_used: 405'
               }
 
-SEMI_MAJOR = {'1': 2.767046248500289,
-              'Apophis': .9224383019077086,
-              '3200': 1.271196435728355,
-              '67P': 3.46473701803964,
-              'Ceres': 2.767046248500289}
+SEMI_MAJOR = {'1': 2.767046248500289 * u.au,
+              'Apophis': .9224383019077086 * u.au,
+              '3200': 1.271196435728355 * u.au,
+              '67P': 3.46473701803964 * u.au,
+              'Ceres': 2.767046248500289 * u.au}
 
 
 def data_path(filename):
@@ -70,7 +70,7 @@ def test_objects_numerically(patch_request):
                           virtual_impactor=True,
                           discovery=True, radar=True)
 
-        assert_quantity_allclose(sbdb['orbit']['elements']['a'].scale,
+        assert_quantity_allclose(sbdb['orbit']['elements']['a'],
                                  SEMI_MAJOR[targetname])
 
 
@@ -85,6 +85,23 @@ def test_missing_value(patch_request):
 
     assert sbdb['orbit']['elements']['per'] is None
 
+
+def test_quantities(patch_request):
+    """Make sure query returns quantities.
+
+    Regression test for astroquery #2011.
+
+    """
+
+    sbdb = SBDB.query('Ceres', id_type='search', phys=True,
+                      alternate_id=True, full_precision=True,
+                      covariance='mat', validity=True,
+                      alternate_orbit=True, close_approach=True,
+                      virtual_impactor=True,
+                      discovery=True, radar=True)
+
+    assert isinstance(sbdb['phys_par']['H'], u.Quantity)
+    assert sbdb['phys_par']['H'].unit == u.mag
 
 # def test_objects_against_schema(patch_request):
 #     for targetname in DATA_FILES.keys():
