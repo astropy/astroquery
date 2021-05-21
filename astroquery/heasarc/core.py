@@ -174,7 +174,7 @@ class HeasarcClass(BaseQuery):
         # Submit the request
         return self.query_async(request_payload, cache=cache)
 
-    def _old_w3query_fallback(self, content: bytes):
+    def _old_w3query_fallback(self, content):
         # old w3query (such as that used in ISDC) return very strange fits, with all ints
 
         f = fits.open(BytesIO(content))
@@ -192,7 +192,7 @@ class HeasarcClass(BaseQuery):
 
         return Table.read(I)
 
-    def _fallback(self, text: str):
+    def _fallback(self, text):
         """
         Blank columns which have to be converted to float or in fail so
         lets fix that by replacing with -1's
