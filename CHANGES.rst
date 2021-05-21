@@ -8,6 +8,17 @@ New Tools and Services
 Service fixes and enhancements
 ------------------------------
 
+heasarc
+^^^^^^^
+
+- Added posibility to query limited time range. [#1988]
+- Add alternative instance of HEASARC Server, maintainer by 
+  INTEGRAL Science Data Center. [#1988]
+
+
+Service fixes and enhancements
+------------------------------
+
 
 
 0.4.2 (2021-05-14)
@@ -112,8 +123,6 @@ heasarc
 
 - A ``NoResultsWarning`` is now returned when there is no matching rows were
   found in query. [#1829]
-- Add alternative instance of HEASARC Server, maintainer by 
-  INTEGRAL Science Data Center [#1988]
 
 irsa
 ^^^^
