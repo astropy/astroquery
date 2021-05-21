@@ -58,6 +58,19 @@ coordinates:
 Note that the :meth:`~astroquery.heasarc.HeasarcClass.query_region` converts 
 the passed coordinates to the FK5 reference frame before submitting the query.
 
+It is also possible to select time range:
+
+.. code-block:: python
+
+    >>> from astroquery.heasarc import Heasarc
+    >>> heasarc = Heasarc()
+    >>> table = heasarc.query_region('3C273', mission="numaster", radius='1 degree', time='2019-01-01 .. 2020-01-01')
+    >>> table.pprint()
+     NAME    RA     DEC         TIME          OBSID     STATUS  EXPOSURE_A OBSERVATION_MODE OBS_TYPE PROCESSING_DATE  PUBLIC_DATE ISSUE_FLAG                 SEARCH_OFFSET_               
+           DEGREE  DEGREE       MJD                                 S                                      MJD            MJD                                                             
+    ----- -------- ------ ---------------- ----------- -------- ---------- ---------------- -------- ---------------- ----------- ---------- ---------------------------------------------
+    3C273 187.2473 2.0362       58666.3272 10502620002 ARCHIVED      49410 SCIENCE          CAL            59054.3142       58677          0 2.077 (187.2779215031367,2.0523867628597445)
+
 Modifying returned table columns
 --------------------------------
 
@@ -216,6 +229,7 @@ tables listing most recent INTEGRAL data.
                         mission='integral_rev3_scw',
                         radius='361 degree',
                         time="2021-02-01 .. 2030-12-01",
+                        sortvar='START_DATE',
                         resultmax=100000
                    )
     >>> table.pprint(max_lines=10)
