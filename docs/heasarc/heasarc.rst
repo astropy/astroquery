@@ -193,14 +193,41 @@ Using alternative HEASARC servers
 ---------------------------------
 
 It is possible to set alternative locations for HEASARC server. One such location
-is hosted by `INTEGRAL Science Data Center <https://www.isdc.unige.ch/>`_, and has further, 
-more recent, tables relevant for INTEGRAL spacecraft.
+is hosted by `INTEGRAL Science Data Center <https://www.isdc.unige.ch/>`_, and has further 
+tables listing most recent INTEGRAL data.
 
 .. code-block:: python
 
-    import astroquery
-    astroquery.heasarc.Conf.server.set('https://www.isdc.unige.ch/browse/w3query.pl')
+    >>> from astroquery.heasarc import Heasarc, Conf
+    >>> heasarc = Heasarc()
+    >>> Conf.server.set('https://www.isdc.unige.ch/browse/w3query.pl')
+    >>> table = heasarc.query_mission_list()
+    >>> table.pprint()
+       Mission            Table                         Table Description               
+    ------------- ---------------------- -----------------------------------------------
+    CTASST1M-REV1     cta_sst1m_rev1_run                                             Run
+        FACT-REV1          fact_rev1_run                                             Run
+    INTEGRAL-REV3     integral_rev3_prop                                       Proposals
+    INTEGRAL-REV3 integral_rev3_prop_obs Proposal Information and Observation Parameters
+    INTEGRAL-REV3      integral_rev3_scw                       SCW - Science Window Data
 
+    >>> table = heasarc.query_object(
+                        'Crab',
+                        mission='integral_rev3_scw',
+                        radius='361 degree',
+                        time="2021-02-01 .. 2030-12-01",
+                        resultmax=100000
+                   )
+    >>> table.pprint(max_lines=10)
+        SCW_ID    SCW_VER SCW_TYPE    RA_X      DEC_X         START_DATE           END_DATE         OBS_ID   ... GOOD_ISGRI GOOD_JEMX GOOD_JEMX1 GOOD_JEMX2 GOOD_OMC   DSIZE   _SEARCH_OFFSET
+                                                                ISO                 ISO                     ...                                                                             
+    ------------ ------- -------- ---------- ---------- ------------------- ------------------- ----------- ... ---------- --------- ---------- ---------- -------- --------- --------------
+    232600870020 001     POINTING  48.302208  17.841444 2021-02-01 00:44:06 2021-02-01 02:35:06 18200040005 ...        171         0          0          0      370  20242432       2004.207
+    232600870031 001     SLEW      47.182667   5.709550 2021-02-01 02:35:06 2021-02-01 02:45:48             ...          0         0          0          0        0   1380352       2328.123
+            ...     ...      ...        ...        ...                 ...                 ...         ... ...        ...       ...        ...        ...      ...       ...            ...
+    236100790021 001     SLEW     145.884599  72.135748 2021-05-05 02:46:32 2021-05-05 02:48:45 18200120001 ...        133       133        132        133        0   6934528       3642.794
+    236100800010 001     POINTING 145.303131  71.057442 2021-05-05 02:48:45 2021-05-05 03:47:39 18200120001 ...       3503      1024       1022       1024     3502 150392832       3610.480
+    236100800020 001     POINTING 145.303085  71.057442 2021-05-05 03:47:39 2021-05-05 05:12:46 18200120001 ...         97         0          0          0       90   7905280       3610.479
 
 
 Downloading identified datasets
