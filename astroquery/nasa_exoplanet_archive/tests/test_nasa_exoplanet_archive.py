@@ -72,63 +72,44 @@ ALL_TABLES = [
 
 
 def mock_get(self, method, url, *args, **kwargs):  # pragma: nocover
+    assert url == conf.url
 
-    # Read request parameters
     params = kwargs.get("params", None)
     assert params is not None
 
     try:
-        # Read request (URL substring for API or SQL query for TAP) from json file as dict
         with open(RESPONSE_FILE, "r") as f:
             responses = json.load(f)
     except FileNotFoundError:
         responses = {}
 
-    table = params["table"]
-    # Set base URL depending on whether TAP or API for access
-    if table in ["ps", "pscomppars", "k2names", "keplernames"]:
-        assert url == conf.url_tap
-        service_type = "tap"
-    else:
-        assert url == conf.url_api
-        service_type = "api"
-
     # Work out where the expected response is saved
-    if service_type == "api":
-        key = urlencode(sorted(params.items()))  # construct URL query string from params
-    else:
-        key = NasaExoplanetArchive._request_to_sql(sorted(params.items()))  # construct SQL query string from params
+    table = params["table"]
+    key = urlencode(sorted(params.items()))
     try:
-        # Find index of query string in list of queries for specific table.
-        # Set to empty list if table isn't in dictionary, which will return ValueError
         index = responses.get(table, []).index(key)
     except ValueError:
         index = -1
 
     # If the NASA_EXOPLANET_ARCHIVE_GENERATE_RESPONSES environment variable is set, we make a
     # remote request if necessary. Otherwise we throw a ValueError.
-    if index < 0:  # Request wasn't already in responses.json
+    if index < 0:
         if "NASA_EXOPLANET_ARCHIVE_GENERATE_RESPONSES" not in os.environ:
             raise ValueError("unexpected request")
+        with requests.Session() as session:
+            resp = session.old_request(method, url, params=params)
         responses[table] = responses.get(table, [])
-        responses[table].append(key)  # add query string to dict of table entries
-        index = len(responses[table]) - 1  # set index to write new entry
-        if service_type == "tap":
-            tap = pyvo.dal.tap.TAPService(baseurl=url)
-            resp = tap.run_async(query=key, language="ADQL")
-            ap_write(resp.to_table(), output=os.path.join(TEST_DATA, "{0}_expect_{1}.txt".format(table, index)))
-        else:  # use basic http request of URL
-            with requests.Session() as session:
-                resp = session.old_request(method, url, params=params)
+        responses[table].append(key)
+        index = len(responses[table]) - 1
         with open(os.path.join(TEST_DATA, "{0}_expect_{1}.txt".format(table, index)), "w") as f:
-            f.write(resp.text)  # writing response text (actual response from server) to data files
+            f.write(resp.text)
         with open(RESPONSE_FILE, "w") as f:
-            json.dump(responses, f, sort_keys=True, indent=2)  # write updated dict to responses.json
+            json.dump(responses, f, sort_keys=True, indent=2)
 
     with open(os.path.join(TEST_DATA, "{0}_expect_{1}.txt".format(table, index)), "r") as f:
-        data = f.read()  # Read saved response from data file
+        data = f.read()
 
-    return MockResponse(data.encode("utf-8"))  # Return as MockResponse
+    return MockResponse(data.encode("utf-8"))
 
 
 @pytest.fixture
@@ -139,7 +120,6 @@ def patch_get(request):  # pragma: nocover
         mp = request.getfuncargvalue("monkeypatch")
 
     # Keep track of the original function so that we can use it to generate the expected responses
-    # TODO: Need to add similar for TAP here ...
     requests.Session.old_request = requests.Session.request
     mp.setattr(requests.Session, "request", mock_get)
     return mp
