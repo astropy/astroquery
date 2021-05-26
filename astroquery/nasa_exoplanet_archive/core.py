@@ -87,7 +87,10 @@ OBJECT_TABLES = {"exoplanets": "pl_", "compositepars": "fpl_", "exomultpars": "m
 # 'ps' and 'pscomppars' are the main tables of detected exoplanets. Calls to the old tables ('exoplanets', 'compositepars', 'exomultpars') will return errors and urge the user to call the 'ps' or 'pscomppars' tables
 OBJECT_TABLES = {"ps": "pl_", "pscomppars": "pl_", "exoplanets": "pl_", "compositepars": "fpl_", "exomultpars": "mpl_"}
 MAP_TABLEWARNINGS = {"exoplanets": "Planetary Systems (PS)", "compositepars": "Planetary System Composite Parameters table (PSCompPars)", "exomultpars": "Planetary Systems (PS)"}
-
+# Tables accessed by API are gradually migrating to TAP service. Generate current list of tables in TAP.
+tap = pyvo.dal.tap.TAPService(baseurl=conf.url_tap)
+response = tap.search(query="select * from TAP_SCHEMA.tables", language="ADQL")
+TAP_TABLES = [table for table in response["table_name"].data if "TAP_SCHEMA." not in table]
 
 class InvalidTableError(InvalidQueryError):
     """Exception thrown if the given table is not recognized by the Exoplanet Archive Servers"""
@@ -181,10 +184,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
         if cache is None:
             cache = self.CACHE
 
-        # The _request method is a custom astroquery wrapper around the requests.request function that provides important astroquery-specific utility, including caching, HTTP header generation, progressbars, and local writing-to-disk.
-        # This needs to be updated to use TAP (TapPlus), and the request_payload formatted correctly
-        # Execute the request (generic HTTP request, similar to requests.Session.request but with added caching-related tools)
-        if table in ["ps", "pscomppars"]:
+        if table in TAP_TABLES:
             tap = pyvo.dal.tap.TAPService(baseurl=self.URL_TAP)
             # construct query from table and request_payload (including format)
             tap_query = self._request_to_sql(request_payload)
@@ -279,7 +279,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
             The name of the planet or star.  If ``regularize`` is ``True``, an attempt will be made
             to regularize this name using the ``aliastable`` table. Defaults to ``True``.
         table : [``"ps"`` or ``"pscomppars"``], optional
-            The table to query, must be one of the supported tables: ``"ps"`` or ``"exomultpars"``.
+            The table to query, must be one of the supported tables: ``"ps"`` or ``"pscomppars"``.
             Defaults to ``"ps"``.
         get_query_payload : bool, optional
             Just return the dict of HTTP request parameters. Defaults to ``False``.
@@ -324,7 +324,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
                 "Any filters using the 'where' argument are ignored in ``query_object``. Consider using ``query_criteria`` instead.",
                 InputWarning,
             )
-        if table in ["ps", "pscomppars"]:
+        if table in TAP_TABLES:
             criteria["where"] = "hostname='{1}' OR {0}name='{1}'".format(prefix, object_name.strip())
         else:
             criteria["where"] = "{0}hostname='{1}' OR {0}name='{1}'".format(prefix, object_name.strip())
@@ -333,7 +333,6 @@ class NasaExoplanetArchiveClass(BaseQuery):
             table, get_query_payload=get_query_payload, cache=cache, **criteria,
         )
 
-    # This should stay the same for now
     @class_or_instance
     def query_aliases(self, object_name, *, cache=None):
         """
@@ -598,9 +597,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
             responseformat = request_payload.pop("format")  # figure out what to do with the format keyword
         if "ra" in request_payload.keys():  # means this is a `query_region` call
             request_payload["where"] = "contains(point('icrs',ra,dec),circle('icrs',{0},{1},{2}))=1".format(request_payload["ra"], request_payload["dec"], request_payload["radius"])
-            del request_payload["ra"]
-            del request_payload["dec"]
-            del request_payload["radius"]
+            del request_payload["ra"], request_payload["dec"], request_payload["radius"]
         if "where" in request_payload:
             if "pl_hostname" in request_payload["where"]:  # means this is a `query_object`
                 request_payload["where"] = "pl_hostname or pl_name like {0}".format(request_payload["where"][request_payload["where"].find("=")+2:request_payload["where"].find("OR")-2])  # This is a bit hacky since we are getting this from the request_payload (downstream) instead of directly from object_name
@@ -609,7 +606,6 @@ class NasaExoplanetArchiveClass(BaseQuery):
 
         return tap_query
 
-    # Could we use similar @deprecated decorator for new changes and warnings?
     @deprecated(since="v0.4.1", alternative="query_object")
     @deprecated_renamed_argument(["show_progress", "table_path"],
                                  [None, None], "v0.4.1", arg_in_kwargs=True)

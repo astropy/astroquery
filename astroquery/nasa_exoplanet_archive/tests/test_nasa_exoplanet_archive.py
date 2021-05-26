@@ -113,7 +113,7 @@ def mock_get(self, method, url, *args, **kwargs):  # pragma: nocover
         responses[table] = responses.get(table, [])
         responses[table].append(key)  # add query string to dict of table entries
         index = len(responses[table]) - 1  # set index to write new entry
-        if table in ["ps", "pscomppars", "k2names", "keplernames"]:
+        if service_type == "tap":
             tap = pyvo.dal.tap.TAPService(baseurl=url)
             resp = tap.run_async(query=key, language="ADQL")
             ap_write(resp.to_table(), output=os.path.join(TEST_DATA, "{0}_expect_{1}.txt".format(table, index)))
@@ -146,7 +146,6 @@ def patch_get(request):  # pragma: nocover
 
 
 def test_regularize_object_name(patch_get):
-    # aliastable temporarily inacessible, so no regularization possible
     assert NasaExoplanetArchive._regularize_object_name("kepler 2") == "HAT-P-7"
     assert NasaExoplanetArchive._regularize_object_name("kepler 1 b") == "TrES-2 b"
 
