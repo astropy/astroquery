@@ -24,11 +24,9 @@ from ..core import NasaExoplanetArchive, conf, InvalidTableError
 MAIN_DATA = pkg_resources.resource_filename("astroquery.nasa_exoplanet_archive", "data")
 TEST_DATA = pkg_resources.resource_filename(__name__, "data")
 RESPONSE_FILE = os.path.join(TEST_DATA, "responses.json")
-os.environ["NASA_EXOPLANET_ARCHIVE_GENERATE_RESPONSES"] = '1'  # Activate for generating responses
 
-# TAP supported: ps, pscomppars, keplernames, k2names. API support: all others
+# TAP supported: ps, pscomppars(, keplernames, k2names). API support: all others
 # TODO: add tables transitspec and emissionspec
-# TODO: these tests might have to be split between TAP and API accessed tables
 ALL_TABLES = [
     # ("ps", dict(where="hostname='Kepler-11'")),
     # ("pscomppars", dict(where="hostname='WASP-166'")),
@@ -54,13 +52,13 @@ ALL_TABLES = [
     ("q1_q16_stellar", dict(where="kepid=10601284")),
     ("q1_q12_stellar", dict(where="kepid=10601284")),
     ("keplertimeseries", dict(kepid=8561063, quarter=14)),
-    # ("keplernames", dict(where="kepid=10601284")),
+    # ("keplernames", dict(where="kepid=10601284")), # not yet officially supported
     ("kelttimeseries", dict(where="kelt_sourceid='KELT_N02_lc_012738_V01_east'", kelt_field="N02")),
     ("kelt", dict(where="kelt_sourceid='KELT_N02_lc_012738_V01_east'", kelt_field="N02")),
     ("superwasptimeseries", dict(sourceid="1SWASP J191645.46+474912.3")),
     ("k2targets", dict(where="epic_number=206027655")),
     ("k2candidates", dict(where="epic_name='EPIC 206027655'")),
-    # ("k2names", dict(where="epic_host='EPIC 206027655'")),
+    # ("k2names", dict(where="epic_host='EPIC 206027655'")), # not yet officially supported
     ("missionstars", dict(where="star_name='tau Cet'")),
     ("mission_exocat", dict(where="star_name='HIP 5110 A'")),
     pytest.param(

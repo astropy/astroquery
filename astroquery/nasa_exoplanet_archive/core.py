@@ -86,6 +86,7 @@ OBJECT_TABLES = {"exoplanets": "pl_", "compositepars": "fpl_", "exomultpars": "m
 
 # 'ps' and 'pscomppars' are the main tables of detected exoplanets. Calls to the old tables ('exoplanets', 'compositepars', 'exomultpars') will return errors and urge the user to call the 'ps' or 'pscomppars' tables
 OBJECT_TABLES = {"ps": "pl_", "pscomppars": "pl_", "exoplanets": "pl_", "compositepars": "fpl_", "exomultpars": "mpl_"}
+MAP_TABLEWARNINGS = {"exoplanets": "Planetary Systems (PS)", "compositepars": "Planetary System Composite Parameters table (PSCompPars)", "exomultpars": "Planetary Systems (PS)"}
 
 
 class InvalidTableError(InvalidQueryError):
@@ -151,14 +152,9 @@ class NasaExoplanetArchiveClass(BaseQuery):
         table = table.lower()
 
         # Warn if old table is requested
-        if table in ["exoplanets", "exomultpars"]:
+        if table in MAP_TABLEWARNINGS.keys():
             # warnings.warn("The '{0}' table is stale and will be depracated in the Archive 2.0 release. Use the 'ps' table. See https://exoplanetarchive.ipac.caltech.edu/docs/ps-pscp_release_notes.html".format(table), InputWarning, )
-            raise InvalidTableError("The ``{0}`` table is no longer updated and has been replaced by the Planetary Systems table (PS), which is connected to the Exoplanet Archive TAP service. Although the argument keywords of the called method should still work on the new table, the allowed values could have changed since the database column names have changed; this document contains the current definitions and a mapping between the new and deprecated names: https://exoplanetarchive.ipac.caltech.edu/docs/API_PS_columns.html. You might also want to review the TAP User Guide for help on creating a new query for the most current data: https://exoplanetarchive.ipac.caltech.edu/docs/TAP/usingTAP.html.".format(table))
-
-        # Warn if old table is requested
-        if table in ["compositepars"]:
-            # warnings.warn("The '{0}' table is stale and will be depracated in the Archive 2.0 release. Use the 'pscomppars' table. See https://exoplanetarchive.ipac.caltech.edu/docs/ps-pscp_release_notes.html".format(table), InputWarning, )
-            raise InvalidTableError("The ``{0}`` table is no longer updated and has been replaced by the Planetary System Composite Parameters table (PSCompPars), which is connected to the Exoplanet Archive TAP service. Although the argument keywords of the called method should still work on the new table, the allowed values could have changed since the database column names have changed; this document contains the current definitions and a mapping between the new and deprecated names: https://exoplanetarchive.ipac.caltech.edu/docs/API_PS_columns.html. You might also want to review the TAP User Guide for help on creating a new query for the most current data: https://exoplanetarchive.ipac.caltech.edu/docs/TAP/usingTAP.html.".format(table))
+            raise InvalidTableError("The ``{0}`` table is no longer updated and has been replaced by the {1}, which is connected to the Exoplanet Archive TAP service. Although the argument keywords of the called method should still work on the new table, the allowed values could have changed since the database column names have changed; this document contains the current definitions and a mapping between the new and deprecated names: https://exoplanetarchive.ipac.caltech.edu/docs/API_PS_columns.html. You might also want to review the TAP User Guide for help on creating a new query for the most current data: https://exoplanetarchive.ipac.caltech.edu/docs/TAP/usingTAP.html.".format(table, MAP_TABLEWARNINGS[table]))
 
         # Deal with lists of columns instead of comma separated strings
         criteria = copy.copy(criteria)

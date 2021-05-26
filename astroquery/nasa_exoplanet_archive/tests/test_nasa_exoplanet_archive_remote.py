@@ -61,7 +61,6 @@ def test_missing_criterion_super_wasp():
     )
 
 
-@pytest.mark.remote_data
 def _compare_tables(table1, table2):
     assert len(table1) == len(table2)
     for col in sorted(set(table1.columns) | set(table2.columns)):
