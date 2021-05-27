@@ -216,7 +216,7 @@ def test_query_object():
         return result
     nasa_exoplanet_archive.query_object = mock_run_query
     response = nasa_exoplanet_archive.query_object()
-    assert 'pl_name' == 'K2-18 b'
+    assert response['pl_name'] == 'K2-18 b'
     assert response['disc_year'] == 2015
     assert 'Transit' in response['discoverymethod']
     assert response['ra'] == [172.560141] * u.deg
