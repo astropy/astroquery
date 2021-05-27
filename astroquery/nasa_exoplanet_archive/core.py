@@ -92,6 +92,15 @@ tap = pyvo.dal.tap.TAPService(baseurl=conf.url_tap)
 response = tap.search(query="select * from TAP_SCHEMA.tables", language="ADQL")
 TAP_TABLES = [table for table in response["table_name"].data if "TAP_SCHEMA." not in table]
 
+
+def get_access_url(service='tap'):
+    if service == 'tap':
+        url = conf.url_tap
+    elif service == 'api':
+        url = conf.url_api
+    return url
+
+
 class InvalidTableError(InvalidQueryError):
     """Exception thrown if the given table is not recognized by the Exoplanet Archive Servers"""
 

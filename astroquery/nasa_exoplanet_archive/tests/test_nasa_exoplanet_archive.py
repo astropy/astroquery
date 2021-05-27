@@ -8,11 +8,18 @@ from urllib.parse import urlencode
 
 import astropy.units as u
 from astropy.io.ascii import write as ap_write
+from astroquery.utils.commons import parse_coordinates
+from astropy.table import Table as AstroTable
 import numpy as np
 import pkg_resources
 import pytest
 import requests
-import pyvo
+try:
+    pyvo_OK = True
+    from pyvo.auth import authsession
+except ImportError:
+    pyvo_OK = False
+    pytest.skip("Install pyvo for the nasa_exoplanet_archive module.", allow_module_level=True)
 from astropy.coordinates import SkyCoord
 from astropy.tests.helper import assert_quantity_allclose
 from astropy.utils.exceptions import AstropyDeprecationWarning
@@ -20,6 +27,10 @@ from astropy.utils.exceptions import AstropyDeprecationWarning
 from ...exceptions import InputWarning, InvalidQueryError, NoResultsWarning
 from ...utils.testing_tools import MockResponse
 from ..core import NasaExoplanetArchive, conf, InvalidTableError
+try:
+    from unittest.mock import Mock, patch, PropertyMock
+except ImportError:
+    pytest.skip("Install mock for the nasa_exoplanet_archive tests.", allow_module_level=True)
 
 MAIN_DATA = pkg_resources.resource_filename("astroquery.nasa_exoplanet_archive", "data")
 TEST_DATA = pkg_resources.resource_filename(__name__, "data")
@@ -27,10 +38,7 @@ RESPONSE_FILE = os.path.join(TEST_DATA, "responses.json")
 
 # TAP supported: ps, pscomppars(, keplernames, k2names). API support: all others
 # TODO: add tables transitspec and emissionspec
-ALL_TABLES = [
-    # ("ps", dict(where="hostname='Kepler-11'")),
-    # ("pscomppars", dict(where="hostname='WASP-166'")),
-    # ("ml", dict(where="pl_name='MOA-2010-BLG-353L b'")), # new microlensing table not ready for the wild yet
+API_TABLES = [
     ("cumulative", dict(where="kepid=10601284")),
     ("koi", dict(where="kepid=10601284")),
     ("q1_q17_dr25_sup_koi", dict(where="kepid=10601284")),
@@ -52,13 +60,11 @@ ALL_TABLES = [
     ("q1_q16_stellar", dict(where="kepid=10601284")),
     ("q1_q12_stellar", dict(where="kepid=10601284")),
     ("keplertimeseries", dict(kepid=8561063, quarter=14)),
-    # ("keplernames", dict(where="kepid=10601284")), # not yet officially supported
     ("kelttimeseries", dict(where="kelt_sourceid='KELT_N02_lc_012738_V01_east'", kelt_field="N02")),
     ("kelt", dict(where="kelt_sourceid='KELT_N02_lc_012738_V01_east'", kelt_field="N02")),
     ("superwasptimeseries", dict(sourceid="1SWASP J191645.46+474912.3")),
     ("k2targets", dict(where="epic_number=206027655")),
     ("k2candidates", dict(where="epic_name='EPIC 206027655'")),
-    # ("k2names", dict(where="epic_host='EPIC 206027655'")), # not yet officially supported
     ("missionstars", dict(where="star_name='tau Cet'")),
     ("mission_exocat", dict(where="star_name='HIP 5110 A'")),
     pytest.param(
@@ -69,10 +75,22 @@ ALL_TABLES = [
         ),
     ),
 ]
+TAP_TABLES = [
+    ("ps", dict(where="hostname='Kepler-11'")),
+    ("pscomppars", dict(where="hostname='WASP-166'"))
+    # ("ml", dict(where="pl_name='MOA-2010-BLG-353L b'")), # new microlensing table not ready for the wild yet
+    # ("keplernames", dict(where="kepid=10601284")), # not yet officially supported
+    # ("k2names", dict(where="epic_host='EPIC 206027655'")), # not yet officially supported
+]
+
+
+def data_path(filename):
+    data_dir = os.path.join(os.path.dirname(__file__), 'data')
+    return os.path.join(data_dir, filename)
 
 
 def mock_get(self, method, url, *args, **kwargs):  # pragma: nocover
-    assert url == conf.url
+    assert url == conf.url_api
 
     params = kwargs.get("params", None)
     assert params is not None
@@ -172,11 +190,76 @@ def test_backwards_compat(patch_get):
 
 
 @pytest.mark.filterwarnings("error")
-@pytest.mark.parametrize("table,query", ALL_TABLES)
-def test_all_tables(patch_get, table, query):
+@pytest.mark.parametrize("table,query", API_TABLES)
+def test_api_tables(patch_get, table, query):
     data = NasaExoplanetArchive.query_criteria(table, select="*", **query)
     assert len(data) > 0
 
     # Check that the units were fixed properly
     for col in data.columns:
         assert isinstance(data[col], SkyCoord) or not isinstance(data[col].unit, u.UnrecognizedUnit)
+
+
+# Mock tests on TAP service below
+@patch('astroquery.nasa_exoplanet_archive.core.get_access_url',
+       Mock(side_effect=lambda x: 'https://some.url'))
+@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
+def test_query_object():
+    nasa_exoplanet_archive = NasaExoplanetArchive()
+
+    def mock_run_query(object_name="K2-18 b", table="pscomppars", select="pl_name,disc_year,discoverymethod,ra,dec"):
+        assert object_name == "K2-18 b"
+        assert table == "pscomppars"
+        assert select == "pl_name,disc_year,discoverymethod,ra,dec"
+        result = AstroTable(rows=[('K2-18 b', 2015, 'Transit', 172.560141, 7.5878315)], \
+                    names=('pl_name', 'disc_year', 'discoverymethod', 'ra', 'dec'), \
+                    dtype=(str, int, str, float, float), \
+                    units=(None, None, None, u.deg, u.deg))
+        return result
+    nasa_exoplanet_archive.query_object = mock_run_query
+    response = nasa_exoplanet_archive.query_object()
+    assert len(response) == 1
+    assert 'pl_name' in response.colnames
+    assert response['disc_year'] == 2015
+    assert 'Transit' in response['discoverymethod']
+    assert response['ra'] == [172.560141] * u.deg
+    assert response['dec'] == [7.5878315] * u.deg
+
+
+@patch('astroquery.nasa_exoplanet_archive.core.get_access_url',
+       Mock(side_effect=lambda x: 'https://some.url'))
+@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
+def test_query_region():
+    nasa_exoplanet_archive = NasaExoplanetArchive()
+
+    def mock_run_query(table="ps", select='pl_name,ra,dec', coordinates=SkyCoord(ra=172.56 * u.deg, dec=7.59 * u.deg), radius=1.0 * u.deg):
+        assert table == "ps"
+        assert select == 'pl_name,ra,dec'
+        assert coordinates == SkyCoord(ra=172.56 * u.deg, dec=7.59 * u.deg)
+        assert radius == 1.0 * u.deg
+        result = PropertyMock()
+        result = {'pl_name': 'K2-18 b'}
+        return result
+    nasa_exoplanet_archive.query_object = mock_run_query
+    response = nasa_exoplanet_archive.query_object()
+    assert 'K2-18 b' in response['pl_name']
+
+
+@patch('astroquery.nasa_exoplanet_archive.core.get_access_url',
+       Mock(side_effect=lambda x: 'https://some.url'))
+@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
+def test_query_criteria():
+    nasa_exoplanet_archive = NasaExoplanetArchive()
+
+    def mock_run_query(table="ps", select='pl_name,discoverymethod,dec', where="discoverymethod like 'Microlensing' and dec > 0"):
+        assert table == "ps"
+        assert select == 'pl_name,discoverymethod,dec'
+        assert where == "discoverymethod like 'Microlensing' and dec > 0"
+        result = PropertyMock()
+        result = {'pl_name': 'TCP J05074264+2447555 b', 'discoverymethod': 'Microlensing', 'dec': [24.7987499] * u.deg}
+        return result
+    nasa_exoplanet_archive.query_object = mock_run_query
+    response = nasa_exoplanet_archive.query_object()
+    assert 'TCP J05074264+2447555 b' in response['pl_name']
+    assert 'Microlensing' in response['discoverymethod']
+    assert response['dec'] == [24.7987499] * u.deg
