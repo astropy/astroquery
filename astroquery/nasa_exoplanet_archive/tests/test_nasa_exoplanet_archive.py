@@ -211,9 +211,9 @@ def test_query_object():
         assert object_name == "K2-18 b"
         assert table == "pscomppars"
         assert select == "pl_name,disc_year,discoverymethod,ra,dec"
-        result = AstroTable(rows=[('K2-18 b', 2015, 'Transit', 172.560141, 7.5878315)], \
-                    names=('pl_name', 'disc_year', 'discoverymethod', 'ra', 'dec'), \
-                    dtype=(str, int, str, float, float), \
+        result = AstroTable(rows=[('K2-18 b', 2015, 'Transit', 172.560141, 7.5878315)],
+                    names=('pl_name', 'disc_year', 'discoverymethod', 'ra', 'dec'),
+                    dtype=(str, int, str, float, float),
                     units=(None, None, None, u.deg, u.deg))
         return result
     nasa_exoplanet_archive.query_object = mock_run_query
