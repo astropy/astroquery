@@ -84,11 +84,7 @@ TAP_TABLES = [
 ]
 
 
-def data_path(filename):
-    data_dir = os.path.join(os.path.dirname(__file__), 'data')
-    return os.path.join(data_dir, filename)
-
-
+@pytest.mark.remote_data
 def mock_get(self, method, url, *args, **kwargs):  # pragma: nocover
     assert url == conf.url_api
 
@@ -130,6 +126,7 @@ def mock_get(self, method, url, *args, **kwargs):  # pragma: nocover
     return MockResponse(data.encode("utf-8"))
 
 
+@pytest.mark.remote_data
 @pytest.fixture
 def patch_get(request):  # pragma: nocover
     try:
@@ -203,69 +200,69 @@ def test_api_tables(patch_get, table, query):
         assert isinstance(data[col], SkyCoord) or not isinstance(data[col].unit, u.UnrecognizedUnit)
 
 
-# # Mock tests on TAP service below
-# @pytest.mark.remote_data
-# @patch('astroquery.nasa_exoplanet_archive.core.get_access_url',
-#        Mock(side_effect=lambda x: 'https://some.url'))
-# @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
-# def test_query_object():
-#     nasa_exoplanet_archive = NasaExoplanetArchive()
+# Mock tests on TAP service below
+@pytest.mark.remote_data
+@patch('astroquery.nasa_exoplanet_archive.core.get_access_url',
+       Mock(side_effect=lambda x: 'https://some.url'))
+@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
+def test_query_object():
+    nasa_exoplanet_archive = NasaExoplanetArchive()
 
-#     def mock_run_query(object_name="K2-18 b", table="pscomppars", select="pl_name,disc_year,discoverymethod,ra,dec"):
-#         assert object_name == "K2-18 b"
-#         assert table == "pscomppars"
-#         assert select == "pl_name,disc_year,discoverymethod,ra,dec"
-#         result = AstroTable(rows=[('K2-18 b', 2015, 'Transit', 172.560141, 7.5878315)],
-#                     names=('pl_name', 'disc_year', 'discoverymethod', 'ra', 'dec'),
-#                     dtype=(str, int, str, float, float),
-#                     units=(None, None, None, u.deg, u.deg))
-#         return result
-#     nasa_exoplanet_archive.query_object = mock_run_query
-#     response = nasa_exoplanet_archive.query_object()
-#     assert len(response) == 1
-#     assert 'pl_name' in response.colnames
-#     assert response['disc_year'] == 2015
-#     assert 'Transit' in response['discoverymethod']
-#     assert response['ra'] == [172.560141] * u.deg
-#     assert response['dec'] == [7.5878315] * u.deg
-
-
-# @pytest.mark.remote_data
-# @patch('astroquery.nasa_exoplanet_archive.core.get_access_url',
-#        Mock(side_effect=lambda x: 'https://some.url'))
-# @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
-# def test_query_region():
-#     nasa_exoplanet_archive = NasaExoplanetArchive()
-
-#     def mock_run_query(table="ps", select='pl_name,ra,dec', coordinates=SkyCoord(ra=172.56 * u.deg, dec=7.59 * u.deg), radius=1.0 * u.deg):
-#         assert table == "ps"
-#         assert select == 'pl_name,ra,dec'
-#         assert coordinates == SkyCoord(ra=172.56 * u.deg, dec=7.59 * u.deg)
-#         assert radius == 1.0 * u.deg
-#         result = PropertyMock()
-#         result = {'pl_name': 'K2-18 b'}
-#         return result
-#     nasa_exoplanet_archive.query_object = mock_run_query
-#     response = nasa_exoplanet_archive.query_object()
-#     assert 'K2-18 b' in response['pl_name']
+    def mock_run_query(object_name="K2-18 b", table="pscomppars", select="pl_name,disc_year,discoverymethod,ra,dec"):
+        assert object_name == "K2-18 b"
+        assert table == "pscomppars"
+        assert select == "pl_name,disc_year,discoverymethod,ra,dec"
+        result = AstroTable(rows=[('K2-18 b', 2015, 'Transit', 172.560141, 7.5878315)],
+                    names=('pl_name', 'disc_year', 'discoverymethod', 'ra', 'dec'),
+                    dtype=(str, int, str, float, float),
+                    units=(None, None, None, u.deg, u.deg))
+        return result
+    nasa_exoplanet_archive.query_object = mock_run_query
+    response = nasa_exoplanet_archive.query_object()
+    assert len(response) == 1
+    assert 'pl_name' in response.colnames
+    assert response['disc_year'] == 2015
+    assert 'Transit' in response['discoverymethod']
+    assert response['ra'] == [172.560141] * u.deg
+    assert response['dec'] == [7.5878315] * u.deg
 
 
-# @pytest.mark.remote_data
-# @patch('astroquery.nasa_exoplanet_archive.core.get_access_url',
-#        Mock(side_effect=lambda x: 'https://some.url'))
-# @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
-# def test_query_criteria():
-#     nasa_exoplanet_archive = NasaExoplanetArchive()
+@pytest.mark.remote_data
+@patch('astroquery.nasa_exoplanet_archive.core.get_access_url',
+       Mock(side_effect=lambda x: 'https://some.url'))
+@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
+def test_query_region():
+    nasa_exoplanet_archive = NasaExoplanetArchive()
 
-#     def mock_run_query(table="ps", select='pl_name,discoverymethod,dec', where="discoverymethod like 'Microlensing' and dec > 0"):
-#         assert table == "ps"
-#         assert select == 'pl_name,discoverymethod,dec'
-#         assert where == "discoverymethod like 'Microlensing' and dec > 0"
-#         result = PropertyMock()
-#         result = {'pl_name': 'TCP J05074264+2447555 b', 'discoverymethod': 'Microlensing', 'dec': [24.7987499] * u.deg}
-#         return result
-#     nasa_exoplanet_archive.query_object = mock_run_query
-#     response = nasa_exoplanet_archive.query_object()
-#     assert 'TCP J05074264+2447555 b' in response['pl_name']
-#     assert 'Microlensing' in response['discoverymethod']
-#     assert response['dec'] == [24.7987499] * u.deg
+    def mock_run_query(table="ps", select='pl_name,ra,dec', coordinates=SkyCoord(ra=172.56 * u.deg, dec=7.59 * u.deg), radius=1.0 * u.deg):
+        assert table == "ps"
+        assert select == 'pl_name,ra,dec'
+        assert coordinates == SkyCoord(ra=172.56 * u.deg, dec=7.59 * u.deg)
+        assert radius == 1.0 * u.deg
+        result = PropertyMock()
+        result = {'pl_name': 'K2-18 b'}
+        return result
+    nasa_exoplanet_archive.query_object = mock_run_query
+    response = nasa_exoplanet_archive.query_object()
+    assert 'K2-18 b' in response['pl_name']
+
+
+@pytest.mark.remote_data
+@patch('astroquery.nasa_exoplanet_archive.core.get_access_url',
+       Mock(side_effect=lambda x: 'https://some.url'))
+@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
+def test_query_criteria():
+    nasa_exoplanet_archive = NasaExoplanetArchive()
+
+    def mock_run_query(table="ps", select='pl_name,discoverymethod,dec', where="discoverymethod like 'Microlensing' and dec > 0"):
+        assert table == "ps"
+        assert select == 'pl_name,discoverymethod,dec'
+        assert where == "discoverymethod like 'Microlensing' and dec > 0"
+        result = PropertyMock()
+        result = {'pl_name': 'TCP J05074264+2447555 b', 'discoverymethod': 'Microlensing', 'dec': [24.7987499] * u.deg}
+        return result
+    nasa_exoplanet_archive.query_object = mock_run_query
+    response = nasa_exoplanet_archive.query_object()
+    assert 'TCP J05074264+2447555 b' in response['pl_name']
+    assert 'Microlensing' in response['discoverymethod']
+    assert response['dec'] == [24.7987499] * u.deg
