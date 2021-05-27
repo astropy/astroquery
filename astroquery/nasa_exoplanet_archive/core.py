@@ -96,6 +96,12 @@ def get_access_url(service='tap'):
         url = conf.url_api
     return url
 
+# def get_tap_tables(url):
+#     """Tables accessed by API are gradually migrating to TAP service. Generate current list of tables in TAP."""
+#     tap = pyvo.dal.tap.TAPService(baseurl=url)
+#     response = tap.search(query="select * from TAP_SCHEMA.tables", language="ADQL")
+#     tables = [table for table in response["table_name"].data if "TAP_SCHEMA." not in table]
+#     return tables
 
 class InvalidTableError(InvalidQueryError):
     """Exception thrown if the given table is not recognized by the Exoplanet Archive Servers"""
@@ -118,11 +124,6 @@ class NasaExoplanetArchiveClass(BaseQuery):
     URL_TAP = conf.url_tap
     TIMEOUT = conf.timeout
     CACHE = conf.cache
-
-    # Tables accessed by API are gradually migrating to TAP service. Generate current list of tables in TAP.
-    tap = pyvo.dal.tap.TAPService(baseurl=conf.url_tap)
-    response = tap.search(query="select * from TAP_SCHEMA.tables", language="ADQL")
-    TAP_TABLES = [table for table in response["table_name"].data if "TAP_SCHEMA." not in table]
 
     # Ensures methods can be called either as class methods or instance methods. This is the basic query method.
     @class_or_instance
@@ -194,7 +195,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
         if cache is None:
             cache = self.CACHE
 
-        if table in self.TAP_TABLES:
+        if table in ['ps', 'pscomppars']:
             tap = pyvo.dal.tap.TAPService(baseurl=self.URL_TAP)
             # construct query from table and request_payload (including format)
             tap_query = self._request_to_sql(request_payload)
@@ -334,7 +335,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
                 "Any filters using the 'where' argument are ignored in ``query_object``. Consider using ``query_criteria`` instead.",
                 InputWarning,
             )
-        if table in self.TAP_TABLES:
+        if table in ['ps', 'pscomppars']:
             criteria["where"] = "hostname='{1}' OR {0}name='{1}'".format(prefix, object_name.strip())
         else:
             criteria["where"] = "{0}hostname='{1}' OR {0}name='{1}'".format(prefix, object_name.strip())
