@@ -60,6 +60,7 @@ def test_missing_criterion_super_wasp():
         "superwasptimeseries", sourceid="1SWASP J191645.46+474912.3"
     )
 
+
 @pytest.mark.remote_data
 def _compare_tables(table1, table2):
     assert len(table1) == len(table2)
