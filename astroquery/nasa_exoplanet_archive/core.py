@@ -5,7 +5,6 @@ import copy
 import io
 import re
 import warnings
-import pytest
 
 # Import various astropy modules
 import astropy.coordinates as coord
