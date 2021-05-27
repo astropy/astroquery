@@ -87,10 +87,6 @@ OBJECT_TABLES = {"exoplanets": "pl_", "compositepars": "fpl_", "exomultpars": "m
 # 'ps' and 'pscomppars' are the main tables of detected exoplanets. Calls to the old tables ('exoplanets', 'compositepars', 'exomultpars') will return errors and urge the user to call the 'ps' or 'pscomppars' tables
 OBJECT_TABLES = {"ps": "pl_", "pscomppars": "pl_", "exoplanets": "pl_", "compositepars": "fpl_", "exomultpars": "mpl_"}
 MAP_TABLEWARNINGS = {"exoplanets": "Planetary Systems (PS)", "compositepars": "Planetary System Composite Parameters table (PSCompPars)", "exomultpars": "Planetary Systems (PS)"}
-# Tables accessed by API are gradually migrating to TAP service. Generate current list of tables in TAP.
-tap = pyvo.dal.tap.TAPService(baseurl=conf.url_tap)
-response = tap.search(query="select * from TAP_SCHEMA.tables", language="ADQL")
-TAP_TABLES = [table for table in response["table_name"].data if "TAP_SCHEMA." not in table]
 
 
 def get_access_url(service='tap'):
@@ -122,6 +118,11 @@ class NasaExoplanetArchiveClass(BaseQuery):
     URL_TAP = conf.url_tap
     TIMEOUT = conf.timeout
     CACHE = conf.cache
+
+    # Tables accessed by API are gradually migrating to TAP service. Generate current list of tables in TAP.
+    tap = pyvo.dal.tap.TAPService(baseurl=conf.url_tap)
+    response = tap.search(query="select * from TAP_SCHEMA.tables", language="ADQL")
+    TAP_TABLES = [table for table in response["table_name"].data if "TAP_SCHEMA." not in table]
 
     # Ensures methods can be called either as class methods or instance methods. This is the basic query method.
     @class_or_instance
@@ -193,7 +194,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
         if cache is None:
             cache = self.CACHE
 
-        if table in TAP_TABLES:
+        if table in self.TAP_TABLES:
             tap = pyvo.dal.tap.TAPService(baseurl=self.URL_TAP)
             # construct query from table and request_payload (including format)
             tap_query = self._request_to_sql(request_payload)
@@ -333,7 +334,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
                 "Any filters using the 'where' argument are ignored in ``query_object``. Consider using ``query_criteria`` instead.",
                 InputWarning,
             )
-        if table in TAP_TABLES:
+        if table in self.TAP_TABLES:
             criteria["where"] = "hostname='{1}' OR {0}name='{1}'".format(prefix, object_name.strip())
         else:
             criteria["where"] = "{0}hostname='{1}' OR {0}name='{1}'".format(prefix, object_name.strip())
