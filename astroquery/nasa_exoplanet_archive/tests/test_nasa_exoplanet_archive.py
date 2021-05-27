@@ -143,6 +143,7 @@ def patch_get(request):  # pragma: nocover
     return mp
 
 
+@pytest.mark.remote_data
 def test_regularize_object_name(patch_get):
     assert NasaExoplanetArchive._regularize_object_name("kepler 2") == "HAT-P-7"
     assert NasaExoplanetArchive._regularize_object_name("kepler 1 b") == "TrES-2 b"
@@ -152,6 +153,7 @@ def test_regularize_object_name(patch_get):
     assert "No aliases found for name: 'not a planet'" == str(warning[0].message)
 
 
+@pytest.mark.remote_data
 def test_backwards_compat(patch_get):
     """
     These are the tests from the previous version of this interface.
@@ -189,6 +191,7 @@ def test_backwards_compat(patch_get):
         assert "replaced" in str(error)
 
 
+@pytest.mark.remote_data
 @pytest.mark.filterwarnings("error")
 @pytest.mark.parametrize("table,query", API_TABLES)
 def test_api_tables(patch_get, table, query):
@@ -201,6 +204,7 @@ def test_api_tables(patch_get, table, query):
 
 
 # Mock tests on TAP service below
+@pytest.mark.remote_data
 @patch('astroquery.nasa_exoplanet_archive.core.get_access_url',
        Mock(side_effect=lambda x: 'https://some.url'))
 @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
@@ -226,6 +230,7 @@ def test_query_object():
     assert response['dec'] == [7.5878315] * u.deg
 
 
+@pytest.mark.remote_data
 @patch('astroquery.nasa_exoplanet_archive.core.get_access_url',
        Mock(side_effect=lambda x: 'https://some.url'))
 @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
@@ -245,6 +250,7 @@ def test_query_region():
     assert 'K2-18 b' in response['pl_name']
 
 
+@pytest.mark.remote_data
 @patch('astroquery.nasa_exoplanet_archive.core.get_access_url',
        Mock(side_effect=lambda x: 'https://some.url'))
 @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
