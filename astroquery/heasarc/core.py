@@ -2,7 +2,6 @@
 
 import warnings
 from six import StringIO, BytesIO
-from astropy.io.fits.column import _AsciiColumnFormat
 from astropy.table import Table
 from astropy.io import fits
 from astropy import coordinates
@@ -183,13 +182,12 @@ class HeasarcClass(BaseQuery):
             if c.disp is not None:
                 c.format = c.disp
             else:
-                c.format = _AsciiColumnFormat(str(c.format).replace("I", "A"))
+                c.format = str(c.format).replace("I", "A")
 
         I = BytesIO()
-
         f.writeto(I)
         I.seek(0)
-
+        
         return Table.read(I)
 
     def _fallback(self, text):

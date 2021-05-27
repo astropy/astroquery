@@ -128,6 +128,11 @@ class TestHeasarcISDC:
 
         assert table_isdc['SCW_ID'] == table_heasarc['SCW_ID']
 
+        assert 'RA' in table_heasarc.columns
+        assert 'RA_X' in table_isdc.columns
+
+        assert abs(float(table_isdc['RA_X'][0]) - float(table_heasarc['RA'][0])) < 0.0001
+
     def test_basic_example(self):
         mission = 'integral_rev3_scw'
         object_name = '3c273'
