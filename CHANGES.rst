@@ -12,7 +12,7 @@ heasarc
 ^^^^^^^
 
 - Added posibility to query limited time range. [#1988]
-- Add alternative instance of HEASARC Server, maintainer by 
+- Add alternative instance of HEASARC Server, maintained by 
   INTEGRAL Science Data Center. [#1988]
 
 
