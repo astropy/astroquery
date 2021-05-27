@@ -5,6 +5,7 @@ import copy
 import io
 import re
 import warnings
+import pytest
 
 # Import various astropy modules
 import astropy.coordinates as coord
@@ -96,12 +97,18 @@ def get_access_url(service='tap'):
         url = conf.url_api
     return url
 
-# def get_tap_tables(url):
-#     """Tables accessed by API are gradually migrating to TAP service. Generate current list of tables in TAP."""
-#     tap = pyvo.dal.tap.TAPService(baseurl=url)
-#     response = tap.search(query="select * from TAP_SCHEMA.tables", language="ADQL")
-#     tables = [table for table in response["table_name"].data if "TAP_SCHEMA." not in table]
-#     return tables
+
+@pytest.mark.remote_data
+def get_tap_tables(url):
+    """Tables accessed by API are gradually migrating to TAP service. Generate current list of tables in TAP."""
+    tap = pyvo.dal.tap.TAPService(baseurl=url)
+    response = tap.search(query="select * from TAP_SCHEMA.tables", language="ADQL")
+    tables = [table for table in response["table_name"].data if "TAP_SCHEMA." not in table]
+    return tables
+
+
+TAP_TABLES = get_tap_tables(conf.url_tap)
+
 
 class InvalidTableError(InvalidQueryError):
     """Exception thrown if the given table is not recognized by the Exoplanet Archive Servers"""
@@ -195,7 +202,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
         if cache is None:
             cache = self.CACHE
 
-        if table in ['ps', 'pscomppars']:
+        if table in TAP_TABLES:
             tap = pyvo.dal.tap.TAPService(baseurl=self.URL_TAP)
             # construct query from table and request_payload (including format)
             tap_query = self._request_to_sql(request_payload)
@@ -335,7 +342,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
                 "Any filters using the 'where' argument are ignored in ``query_object``. Consider using ``query_criteria`` instead.",
                 InputWarning,
             )
-        if table in ['ps', 'pscomppars']:
+        if table in TAP_TABLES:
             criteria["where"] = "hostname='{1}' OR {0}name='{1}'".format(prefix, object_name.strip())
         else:
             criteria["where"] = "{0}hostname='{1}' OR {0}name='{1}'".format(prefix, object_name.strip())
