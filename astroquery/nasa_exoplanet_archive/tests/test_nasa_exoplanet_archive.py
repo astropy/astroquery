@@ -211,7 +211,7 @@ def test_query_object():
         #             dtype=(str, int, str, float, float),
         #             units=(None, None, None, u.deg, u.deg))
         result = PropertyMock()
-        result = {'colnames':('pl_name', 'disc_year', 'discoverymethod', 'ra', 'dec'), 
+        result = {'colnames': ('pl_name', 'disc_year', 'discoverymethod', 'ra', 'dec'),
         'disc_year': 2015, 'discoverymethod': 'Transit', 'ra': [172.560141] * u.deg, 'dec': [7.5878315] * u.deg}
 
         return result
