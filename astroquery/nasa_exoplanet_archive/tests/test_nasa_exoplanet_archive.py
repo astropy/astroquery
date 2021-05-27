@@ -235,8 +235,8 @@ def test_query_region():
         result = PropertyMock()
         result = {'pl_name': 'K2-18 b'}
         return result
-    nasa_exoplanet_archive.query_object = mock_run_query
-    response = nasa_exoplanet_archive.query_object()
+    nasa_exoplanet_archive.query_region = mock_run_query
+    response = nasa_exoplanet_archive.query_region()
     assert 'K2-18 b' in response['pl_name']
 
 
@@ -253,8 +253,8 @@ def test_query_criteria():
         result = PropertyMock()
         result = {'pl_name': 'TCP J05074264+2447555 b', 'discoverymethod': 'Microlensing', 'dec': [24.7987499] * u.deg}
         return result
-    nasa_exoplanet_archive.query_object = mock_run_query
-    response = nasa_exoplanet_archive.query_object()
+    nasa_exoplanet_archive.query_criteria = mock_run_query
+    response = nasa_exoplanet_archive.query_criteria()
     assert 'TCP J05074264+2447555 b' in response['pl_name']
     assert 'Microlensing' in response['discoverymethod']
     assert response['dec'] == [24.7987499] * u.deg
