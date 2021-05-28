@@ -270,7 +270,7 @@ def test_get_query_payload():
 
     def mock_run_query(table="ps", get_query_payload=True, select="count(*)", where="disc_facility like '%TESS%'"):
         assert table == "ps"
-        assert get_query_payload == True
+        assert get_query_payload
         assert select == "count(*)"
         assert where == "disc_facility like '%TESS%'"
         result = PropertyMock()
@@ -281,4 +281,3 @@ def test_get_query_payload():
     assert 'ps' in response['table']
     assert 'count(*)' in response['select']
     assert "disc_facility like '%TESS%'" in response['where']
-    
