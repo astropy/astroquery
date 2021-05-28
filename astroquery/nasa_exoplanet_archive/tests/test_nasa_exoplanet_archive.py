@@ -250,7 +250,7 @@ def test_query_criteria():
 
     def mock_run_query(table="ps", select='pl_name,discoverymethod,dec', where="discoverymethod like 'Microlensing' and dec > 0"):
         assert table == "ps"
-        assert select == 'pl_name,discoverymethod,dec'
+        assert select == "pl_name,discoverymethod,dec"
         assert where == "discoverymethod like 'Microlensing' and dec > 0"
         result = PropertyMock()
         result = {'pl_name': 'TCP J05074264+2447555 b', 'discoverymethod': 'Microlensing', 'dec': [24.7987499] * u.deg}
@@ -260,3 +260,25 @@ def test_query_criteria():
     assert 'TCP J05074264+2447555 b' in response['pl_name']
     assert 'Microlensing' in response['discoverymethod']
     assert response['dec'] == [24.7987499] * u.deg
+
+
+@patch('astroquery.nasa_exoplanet_archive.core.get_access_url',
+       Mock(side_effect=lambda x: 'https://some.url'))
+@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
+def test_get_query_payload():
+    nasa_exoplanet_archive = NasaExoplanetArchive()
+
+    def mock_run_query(table="ps", get_query_payload=True, select="count(*)", where="disc_facility like '%TESS%'"):
+        assert table == "ps"
+        assert get_query_payload == True
+        assert select == "count(*)"
+        assert where == "disc_facility like '%TESS%'"
+        result = PropertyMock()
+        result = {'table': 'ps', 'select': 'count(*)', 'where': "disc_facility like '%TESS%'", 'format': 'ipac'}
+        return result
+    nasa_exoplanet_archive.query_criteria = mock_run_query
+    response = nasa_exoplanet_archive.query_criteria()
+    assert 'ps' in response['table']
+    assert 'count(*)' in response['select']
+    assert "disc_facility like '%TESS%'" in response['where']
+    

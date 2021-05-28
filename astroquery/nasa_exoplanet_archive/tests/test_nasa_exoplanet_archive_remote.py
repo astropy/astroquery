@@ -98,7 +98,7 @@ def test_select():
 
 
 @pytest.mark.remote_data
-def test_warnings():  # removed patch_get for now
+def test_warnings():
     with pytest.warns(NoResultsWarning):
         NasaExoplanetArchive.query_criteria("ps", where="hostname='not a host'")
 
@@ -142,7 +142,7 @@ def test_request_to_sql():
 
 
 @pytest.mark.remote_data
-def test_query_region():  # removed patch_get for now
+def test_query_region():
     coords = SkyCoord(ra=330.79488 * u.deg, dec=18.8843 * u.deg)
     radius = 0.001
     table1 = NasaExoplanetArchive.query_region("pscomppars", coords, radius * u.deg)
@@ -154,7 +154,15 @@ def test_query_region():  # removed patch_get for now
 
 
 @pytest.mark.remote_data
-def test_format():  # removed patch_get for now
+def test_query_aliases():
+    name = "bet Pic"
+    aliases = NasaExoplanetArchive.query_aliases(name)
+    assert len(aliases) == 12
+    assert "HD 39060" in aliases
+
+
+@pytest.mark.remote_data
+def test_format():
     table1 = NasaExoplanetArchive.query_object("HAT-P-11 b")
     table2 = NasaExoplanetArchive.query_object("HAT-P-11 b", format="votable")
     _compare_tables(table1, table2)
