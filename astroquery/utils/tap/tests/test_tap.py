@@ -179,7 +179,7 @@ def test_launch_sync_job():
     dTmp = {"q": query}
     dTmpEncoded = connHandler.url_encode(dTmp)
     p = dTmpEncoded.find("=")
-    q = dTmpEncoded[p+1:]
+    q = dTmpEncoded[p + 1:]
     dictTmp = {
         "REQUEST": "doQuery",
         "LANG": "ADQL",
@@ -238,8 +238,8 @@ def test_launch_sync_job_redirect():
     resultsReq = f'sync/{jobid}'
     resultsLocation = f'http://test:1111/tap/{resultsReq}'
     launchResponseHeaders = [
-            ['location', resultsLocation]
-        ]
+        ['location', resultsLocation]
+    ]
     responseLaunchJob.set_data(method='POST',
                                context=None,
                                body=None,
@@ -248,7 +248,7 @@ def test_launch_sync_job_redirect():
     dTmp = {"q": query}
     dTmpEncoded = connHandler.url_encode(dTmp)
     p = dTmpEncoded.find("=")
-    q = dTmpEncoded[p+1:]
+    q = dTmpEncoded[p + 1:]
     dictTmp = {
         "REQUEST": "doQuery",
         "LANG": "ADQL",
@@ -341,8 +341,8 @@ def test_launch_async_job():
     responseLaunchJob.set_message("ERROR")
     # list of list (httplib implementation for headers in response)
     launchResponseHeaders = [
-            ['location', f'http://test:1111/tap/async/{jobid}']
-        ]
+        ['location', f'http://test:1111/tap/async/{jobid}']
+    ]
     responseLaunchJob.set_data(method='POST',
                                context=None,
                                body=None,
@@ -447,8 +447,8 @@ def test_start_job():
     responseLaunchJob.set_message("OK")
     # list of list (httplib implementation for headers in response)
     launchResponseHeaders = [
-            ['location', f'http://test:1111/tap/async/{jobid}']
-        ]
+        ['location', f'http://test:1111/tap/async/{jobid}']
+    ]
     responseLaunchJob.set_data(method='POST',
                                context=None,
                                body=None,
@@ -525,8 +525,8 @@ def test_abort_job():
     responseLaunchJob.set_message("OK")
     # list of list (httplib implementation for headers in response)
     launchResponseHeaders = [
-            ['location', f'http://test:1111/tap/async/{jobid}']
-        ]
+        ['location', f'http://test:1111/tap/async/{jobid}']
+    ]
     responseLaunchJob.set_data(method='POST',
                                context=None,
                                body=None,
@@ -563,8 +563,8 @@ def test_job_parameters():
     responseLaunchJob.set_message("OK")
     # list of list (httplib implementation for headers in response)
     launchResponseHeaders = [
-            ['location', f'http://test:1111/tap/async/{jobid}']
-        ]
+        ['location', f'http://test:1111/tap/async/{jobid}']
+    ]
     responseLaunchJob.set_data(method='POST',
                                context=None,
                                body=None,
@@ -954,6 +954,55 @@ def test_update_user_table():
     list_of_changes = [['alpha', 'flags', 'Ra'], ['delta', 'flags', 'Dec']]
     tap.update_user_table(table_name=tableName, list_of_changes=list_of_changes)
 
+
+def test_rename_table():
+    tableName = 'user_mhenar.table_test_rename'
+    newTableName = 'user_mhenar.table_test_rename_new'
+    newColumnNames = {'ra': 'alpha', 'dec': 'delta'}
+    connHandler = DummyConnHandler()
+    tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
+    dummyResponse = DummyResponse()
+    dummyResponse.set_status_code(200)
+    dummyResponse.set_message("OK")
+    tableDataFile = data_path('test_table_rename.xml')
+    tableData = utils.read_file_content(tableDataFile)
+    dummyResponse.set_data(method='GET',
+                           context=None,
+                           body=tableData,
+                           headers=None)
+    tableRequest = f"tables?tables={tableName}"
+    connHandler.set_response(tableRequest, dummyResponse)
+
+    with pytest.raises(Exception):
+        tap.rename_table()
+    with pytest.raises(Exception):
+        tap.rename_table(table_name=tableName)
+    with pytest.raises(Exception):
+        tap.rename_table(table_name=tableName, new_table_name=None, new_column_names_dict=None)
+    with pytest.raises(Exception):
+        tap.rename_table(table_name=tableName, new_table_name=newTableName, verbose=True)
+    with pytest.raises(Exception):
+        tap.rename_table(table_name=tableName, new_column_names_dict=newColumnNames, verbose=True)
+    with pytest.raises(Exception):
+        tap.rename_table(table_name=tableName, new_table_name=newTableName, new_column_names_dict=newColumnNames,
+                         verbose=True)
+    # OK
+    responseRenameTable = DummyResponse()
+    responseRenameTable.set_status_code(200)
+    responseRenameTable.set_message("OK")
+    dictArgs = {
+        "action": "rename",
+        "new_column_names": newColumnNames,
+        "new_table_name": newTableName,
+        "table_name": tableName,
+    }
+    req = f"tableTool?{dictArgs}"
+    connHandler.set_response(req, responseRenameTable)
+
+    tap.rename_table(table_name=tableName, new_table_name=newTableName, new_column_names_dict=newColumnNames)
+
+
+# __end_of_Test
 
 def __find_table(schemaName, tableName, tables):
     qualifiedName = f"{schemaName}.{tableName}"

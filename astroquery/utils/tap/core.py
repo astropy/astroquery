@@ -32,7 +32,6 @@ import os
 from astropy.table.table import Table
 import tempfile
 
-
 __all__ = ['Tap', 'TapPlus']
 
 VERSION = "20200428.1"
@@ -571,7 +570,7 @@ class Tap:
             "FORMAT": str(outputFormat),
             "tapclient": str(TAP_CLIENT_ID),
             "QUERY": str(query),
-            "UPLOAD": ""+str(uploadValue)}
+            "UPLOAD": "" + str(uploadValue)}
         if autorun is True:
             args['PHASE'] = 'RUN'
         if name is not None:
@@ -657,7 +656,7 @@ class Tap:
         if urlInfoPos < 0:
             raise ValueError("Invalid URL format")
 
-        urlInfo = url[(urlInfoPos+3):]
+        urlInfo = url[(urlInfoPos + 3):]
 
         items = urlInfo.split("/")
 
@@ -672,7 +671,7 @@ class Tap:
         if portPos > 0:
             # port found
             host = hostPort[0:portPos]
-            port = int(hostPort[portPos+1:])
+            port = int(hostPort[portPos + 1:])
         else:
             # no port found
             host = hostPort
@@ -693,10 +692,10 @@ class Tap:
             tapContext = f"/{items[2]}"
         else:
             data = []
-            for i in range(1, itemsSize-1):
+            for i in range(1, itemsSize - 1):
                 data.append(f"/{items[i]}")
             serverContext = utils.util_create_string_from_buffer(data)
-            tapContext = f"/{items[itemsSize-1]}"
+            tapContext = f"/{items[itemsSize - 1]}"
         if verbose:
             print(f"protocol: '{protocol}'")
             print(f"host: '{host}'")
@@ -713,6 +712,7 @@ class TapPlus(Tap):
     """TAP plus class
     Provides TAP and TAP+ capabilities
     """
+
     def __init__(self, url=None,
                  host=None,
                  server_context=None,
@@ -1532,7 +1532,7 @@ class TapPlus(Tap):
                     chunk = f.read()
                 files = [['FILE', os.path.basename(resource), chunk]]
                 contentType, body = connHandler.encode_multipart(args, files)
-            else:    # upload from URL
+            else:  # upload from URL
                 args = {
                     "TASKID": str(-1),
                     "TABLE_NAME": str(table_name),
@@ -1628,14 +1628,14 @@ class TapPlus(Tap):
             raise ValueError("Table name cannot be null")
         if force_removal is True:
             args = {
-                    "TABLE_NAME": str(table_name),
-                    "DELETE": "TRUE",
-                    "FORCE_REMOVAL": "TRUE"}
+                "TABLE_NAME": str(table_name),
+                "DELETE": "TRUE",
+                "FORCE_REMOVAL": "TRUE"}
         else:
             args = {
-                    "TABLE_NAME": str(table_name),
-                    "DELETE": "TRUE",
-                    "FORCE_REMOVAL": "FALSE"}
+                "TABLE_NAME": str(table_name),
+                "DELETE": "TRUE",
+                "FORCE_REMOVAL": "FALSE"}
         connHandler = self.__getconnhandler()
         data = connHandler.url_encode(args)
         response = connHandler.execute_upload(data, verbose=verbose)
@@ -1647,6 +1647,145 @@ class TapPlus(Tap):
                                                  200)
         msg = f"Table '{table_name}' deleted."
         print(msg)
+
+    def rename_table(self, table_name=None, new_table_name=None, new_column_names_dict={},
+                     verbose=False):
+        """
+            This new method allows to update the column names of a user table.
+            header example: rename_table(table_name=old_table_name, new_table_name=new_table_name -optional-
+             , new_column_names_dict=[old_column1:new_column1, old_column2:new_colum2...])
+            Parameters
+            ----------
+            table_name: str, required
+                old name of the user's table
+            new_table_name: str, required
+                new name of the user's table
+            new_column_names_dict: dict str:str, required
+                dict with pairs "old_column1_name:new_column1_name"
+            verbose : bool, optional, default 'False'
+                flag to display information about the process
+        """
+        args = {}
+
+        if table_name is None:
+            raise ValueError("Table name cannot be null")
+        if (new_table_name is None or new_table_name == '') and \
+                (new_column_names_dict is None or not new_column_names_dict):
+            raise ValueError("Please introduce as minimum a new table tame or a new name for a column with format "
+                             "old_column1_name:new_column1_name, ... ,old_columnN_name:new_columnN_name")
+
+        # Now we will check that the table exist
+        table = self.load_table(table=table_name, verbose=verbose)
+
+        # Check now if the table exist and contains values
+        if table is None:
+            raise ValueError("Table name not found")
+        columns = table.columns
+        if len(columns) == 0:
+            raise ValueError("Table has no columns")
+
+        if new_table_name is not None or new_table_name != '':
+            if new_column_names_dict is None or not new_column_names_dict:
+                # case 1: We only need to rename the table
+                args = self.get_args_4_rename_table_only_table_name(table_name, new_table_name)
+            else:
+                # case 2: We need to rename both, columns and column name
+                args = self.get_args_4_rename_table_all(table_name, new_table_name, new_column_names_dict)
+            # __end_if
+        # __end_if
+
+        if new_table_name is None or new_table_name == '':
+            if new_column_names_dict is not None or new_column_names_dict:
+                # case 3: We only need to rename the columns but same column name
+                args = self.get_args_4_rename_table_only_columns(table_name, new_column_names_dict)
+
+        connHandler = self.__getconnhandler()
+        data = connHandler.url_encode(args)
+        response = connHandler.execute_table_tool(data, verbose=verbose)
+        if verbose:
+            print(response.status, response.reason)
+            print(response.getheaders())
+        connHandler.check_launch_response_status(response,
+                                                 verbose,
+                                                 200)
+        msg = f"Table '{table_name}' updated."
+        print(msg)
+
+    # __end_of_rename_table
+
+    def get_args_4_rename_table_only_table_name(self, table_name, new_table_name):
+
+        args = {
+            "action": "rename",
+            "new_table_name": new_table_name,
+            "table_name": table_name
+        }
+        return args
+
+    # __end_of_rename_table_only_table_name
+
+    def get_args_4_rename_table_all(self, table_name, new_table_name, new_column_names_dict):
+        count = 0
+        new_column_names = ""
+        # check if the changes proposed for the columns are correct.
+        for key, value in new_column_names_dict.items():
+            if key == '':
+                raise ValueError(f" Old column name introduced "f"{key}"f" cannot be empty")
+            if key == value:
+                raise ValueError(f" Old column name introduced "f"{key}"f" and new column name introduced "
+                                 f" "f"{key}"f" cannot be the same")
+            if value == "":
+                raise ValueError(f" New column name introduced "f"{value}"f" cannot be empty")
+
+            # Converting dict into a string with the format expected by the TAP server
+            new_pair = key + ":" + value
+            new_column_names = new_column_names + new_pair
+            count = count + 1
+            if count < len(new_column_names_dict):
+                new_column_names = new_column_names + ','
+        # __end_for_loop
+
+        args = {
+            "action": "rename",
+            "new_column_names": new_column_names,
+            "new_table_name": new_table_name,
+            "table_name": table_name
+        }
+        return args
+
+    # __end_of_rename_table_all
+
+    def get_args_4_rename_table_only_columns(self, table_name, new_column_names_dict):
+        # check if the changes proposed for the columns are correct.
+
+        new_column_names = ""
+
+        count = 0
+        for key, value in new_column_names_dict.items():
+            if key == '':
+                raise ValueError(f" Old column name introduced "f"{key}"f" cannot be empty")
+            if key == value:
+                raise ValueError(f" Old column name introduced "f"{key}"f" and new column name introduced "
+                                 f" "f"{key}"f" cannot be the same")
+            if value == "":
+                raise ValueError(f" New column name introduced "f"{value}"f" cannot be empty")
+
+            # Converting dict into a string with the format expected by the TAP server
+            new_pair = key + ":" + value
+            new_column_names = new_column_names + new_pair
+            count = count + 1
+            if count < len(new_column_names_dict):
+                new_column_names = new_column_names + ','
+        # __end_for_loop
+
+        args = {
+            "action": "rename",
+            "new_column_names": new_column_names,
+            "table_name": table_name
+        }
+        return args
+
+    # __end_of_rename_table_only_columns
 
     def update_user_table(self, table_name=None, list_of_changes=[],
                           verbose=False):
@@ -1738,11 +1877,11 @@ class TapPlus(Tap):
     def get_table_update_arguments(table_name, columns, list_of_changes):
         num_cols = len(columns)
         args = {
-                "ACTION": "edit",
-                "NUMTABLES": str(1),
-                "TABLE0_NUMCOLS": str(num_cols),
-                "TABLE0": str(table_name),
-                }
+            "ACTION": "edit",
+            "NUMTABLES": str(1),
+            "TABLE0_NUMCOLS": str(num_cols),
+            "TABLE0": str(table_name),
+        }
         index = 0
         for column in columns:
             found_in_changes = False
@@ -1890,11 +2029,11 @@ class TapPlus(Tap):
             raise ValueError("Dec column name cannot be null")
 
         args = {
-                "ACTION": "radec",
-                "TABLE_NAME": str(table_name),
-                "RA": str(ra_column_name),
-                "DEC": str(dec_column_name),
-                }
+            "ACTION": "radec",
+            "TABLE_NAME": str(table_name),
+            "RA": str(ra_column_name),
+            "DEC": str(dec_column_name),
+        }
         connHandler = self.__getconnhandler()
         data = connHandler.url_encode(args)
         response = connHandler.execute_table_edit(data, verbose=verbose)

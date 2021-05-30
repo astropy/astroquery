@@ -391,6 +391,32 @@ class TapConn:
         context = self.__get_table_edit_context()
         return self.__execute_post(context, data, content_type, verbose)
 
+    def execute_table_tool(self, data,
+                           content_type=CONTENT_TYPE_POST_DEFAULT,
+                           verbose=False):
+        """Executes a POST upload request
+        The connection is done through HTTP or HTTPS depending on the login
+        status (logged in -> HTTPS)
+
+        Parameters
+        ----------
+        data : str, mandatory
+            POST data
+        content_type: str, optional, default: application/x-www-form-urlencoded
+            HTTP(s) content-type header value
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        An HTTP(s) response object
+        """
+        context = self.__get_table_edit_context()
+        return self.__execute_post(context, data, content_type, verbose)
+
+
+
+
     def __execute_post(self, context, data,
                        content_type=CONTENT_TYPE_POST_DEFAULT,
                        verbose=False):

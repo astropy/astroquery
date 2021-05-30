@@ -170,3 +170,9 @@ class DummyConnHandler:
                            verbose=False):
         return self.__execute_post(subcontext="tableEdit", data=data,
                                    content_type=content_type, verbose=verbose)
+
+    def execute_table_tool(self, data,
+                           content_type="application/x-www-form-urlencoded",
+                           verbose=False):
+        return self.__execute_post(subcontext="TableTool", data=data,
+                                   content_type=content_type, verbose=verbose)
