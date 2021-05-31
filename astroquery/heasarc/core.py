@@ -187,7 +187,7 @@ class HeasarcClass(BaseQuery):
         I = BytesIO()
         f.writeto(I)
         I.seek(0)
-        
+
         return Table.read(I)
 
     def _fallback(self, text):
