@@ -24,9 +24,7 @@ from astropy.coordinates import Angle, BaseCoordinateFrame, SkyCoord
 from ..exceptions import TimeoutError, InputWarning
 from .. import version
 
-
 CoordClasses = (SkyCoord, BaseCoordinateFrame)
-
 
 __all__ = ['send_request',
            'parse_coordinates',
