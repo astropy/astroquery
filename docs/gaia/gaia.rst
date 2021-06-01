@@ -862,6 +862,26 @@ will be able to access to your shared table in a query.
   >>> Gaia.login()
   >>> Gaia.share_table_stop(table_name="user_<user_login_name>.my_table", group_name="my_group")
 
+2.7.8. Rename Table
+~~~~~~~~~~~~~~~~~~~~
+
+This query allows the user to rename a table and/or its columns names. For this method it is only mandatory
+to provide the old name of the table and at least one of the following parameters: new table name and/or
+new columns names. Here is an example:
+
+
+.. code-block:: python
+
+    >>>from astroquery.gaia import Gaia, GaiaClass
+    >>>from astroquery.utils.tap.model.tapcolumn import TapColumn
+    >>>from astroquery.utils.tap.core import TapPlus, TAP_CLIENT_ID
+    >>>from astroquery.utils.tap import taputils
+    >>>gaia = GaiaClass(gaia_tap_server='https://<env>.esac.esa.int/', gaia_data_server='https://<env>.esac.esa.int/')
+    >>>gaia.login()
+    >>>tableName = 'user_<user_login_name>.my_old_table_name'
+    >>>newTableName = 'user_<user_login_name>.my_new_table_name'
+    >>>newColumnNames = {'old_col_name1': 'new_col_name1', 'old_col_name2': 'new_col_name2'}
+    >>>gaia.rename_table(table_name=tableName, new_table_name=newTableName, new_column_names_dict=newColumnNames,verbose=True)
 
 Reference/API
 =============
