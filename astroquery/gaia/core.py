@@ -11,7 +11,8 @@ European Space Astronomy Centre (ESAC)
 European Space Agency (ESA)
 
 Created on 30 jun. 2016
-
+Modified on 1 jun. 2021 by mhsarmiento
+Version: gaia-astroquery-1.0
 
 """
 from requests import HTTPError

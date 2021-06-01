@@ -11,6 +11,8 @@ European Space Astronomy Centre (ESAC)
 European Space Agency (ESA)
 
 Created on 30 jun. 2016
+Modified on 1 jun. 2021 by mhsarmiento
+Version: gaia-astroquery-1.0
 
 
 """
@@ -1674,15 +1676,15 @@ class TapPlus(Tap):
             raise ValueError("Please introduce as minimum a new table tame or a new name for a column with format "
                              "old_column1_name:new_column1_name, ... ,old_columnN_name:new_columnN_name")
 
-        # Now we will check that the table exist
-        table = self.load_table(table=table_name, verbose=verbose)
-
-        # Check now if the table exist and contains values
-        if table is None:
-            raise ValueError("Table name not found")
-        columns = table.columns
-        if len(columns) == 0:
-            raise ValueError("Table has no columns")
+        # # Now we will check that the table exist
+        # table = self.load_table(table=table_name, verbose=verbose)
+        #
+        # # Check now if the table exist and contains values
+        # if table is None:
+        #     raise ValueError("Table name not found")
+        # columns = table.columns
+        # if len(columns) == 0:
+        #     raise ValueError("Table has no columns")
 
         if new_table_name is not None or new_table_name != '':
             if new_column_names_dict is None or not new_column_names_dict:

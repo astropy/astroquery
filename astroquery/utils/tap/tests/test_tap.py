@@ -11,8 +11,6 @@ European Space Astronomy Centre (ESAC)
 European Space Agency (ESA)
 
 Created on 30 jun. 2016
-
-
 """
 import os
 import numpy as np
@@ -970,8 +968,11 @@ def test_rename_table():
                            context=None,
                            body=tableData,
                            headers=None)
-    tableRequest = f"tables?tables={tableName}"
-    connHandler.set_response(tableRequest, dummyResponse)
+    # tableRequest = f"tables?tables={tableName}"
+    # connHandler.set_response(tableRequest, dummyResponse)
+
+    # data = connHandler.url_encode(dictArgs)
+    # response = connHandler.execute_table_tool(data, verbose=verbose)
 
     with pytest.raises(Exception):
         tap.rename_table()
@@ -979,26 +980,20 @@ def test_rename_table():
         tap.rename_table(table_name=tableName)
     with pytest.raises(Exception):
         tap.rename_table(table_name=tableName, new_table_name=None, new_column_names_dict=None)
-    with pytest.raises(Exception):
-        tap.rename_table(table_name=tableName, new_table_name=newTableName, verbose=True)
-    with pytest.raises(Exception):
-        tap.rename_table(table_name=tableName, new_column_names_dict=newColumnNames, verbose=True)
-    with pytest.raises(Exception):
-        tap.rename_table(table_name=tableName, new_table_name=newTableName, new_column_names_dict=newColumnNames,
-                         verbose=True)
-    # OK
+
+    # Test OK.
     responseRenameTable = DummyResponse()
     responseRenameTable.set_status_code(200)
     responseRenameTable.set_message("OK")
     dictArgs = {
         "action": "rename",
-        "new_column_names": newColumnNames,
+        "new_column_names": "ra:alpha,dec:delta",
         "new_table_name": newTableName,
         "table_name": tableName,
     }
-    req = f"tableTool?{dictArgs}"
+    data = connHandler.url_encode(dictArgs)
+    req = f"TableTool?{data}"
     connHandler.set_response(req, responseRenameTable)
-
     tap.rename_table(table_name=tableName, new_table_name=newTableName, new_column_names_dict=newColumnNames)
 
 

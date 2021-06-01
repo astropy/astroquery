@@ -13,8 +13,8 @@
 <FIELD arraysize="*" datatype="char" name="source_id">
 <DESCRIPTION>source_id</DESCRIPTION>
 </FIELD>
-<FIELD datatype="int" name="table1_oid">
-<DESCRIPTION>table_test_update_oid</DESCRIPTION>
+<FIELD datatype="int" name="object_id">
+<DESCRIPTION>object_id</DESCRIPTION>
 </FIELD>
 <DATA>
 <BINARY2>
