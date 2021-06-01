@@ -18,6 +18,8 @@ Created on 13 Aug. 2018
 """
 from astroquery.utils import commons
 from astropy import units
+from astropy.coordinates import SkyCoord
+from astropy.coordinates import Angle
 from astropy.units import Quantity
 from astroquery.utils.tap.core import TapPlus
 from astroquery.utils.tap.model import modelutils
@@ -26,6 +28,7 @@ from astropy.table import Table
 from six import BytesIO
 import shutil
 import os
+import json
 
 from . import conf
 from astroquery import log
@@ -40,9 +43,11 @@ class ESAHubbleClass(BaseQuery):
 
     data_url = conf.DATA_ACTION
     metadata_url = conf.METADATA_ACTION
+    target_url = conf.TARGET_ACTION
     TIMEOUT = conf.TIMEOUT
     calibration_levels = {0: "AUXILIARY", 1: "RAW", 2: "CALIBRATED",
                           3: "PRODUCT"}
+    product_types = ["PRODUCT", "SCIENCE_PRODUCT", "POSTCARD"]
     copying_string = "Copying file to {0}..."
 
     def __init__(self, tap_handler=None):
@@ -54,10 +59,11 @@ class ESAHubbleClass(BaseQuery):
         else:
             self._tap = tap_handler
 
-    def download_product(self, observation_id, calibration_level="RAW",
-                         filename=None, verbose=False):
+    def download_product(self, observation_id, *, calibration_level=None,
+                         filename=None, verbose=False, product_type=None):
         """
-        Download products from EHST
+        Download products from EHST based on their observation ID and the
+        calibration level or the product type.
 
         Parameters
         ----------
@@ -66,7 +72,7 @@ class ESAHubbleClass(BaseQuery):
             The identifier of the observation we want to retrieve, regardless
             of whether it is simple or composite.
         calibration_level : string
-            calibration level, optional, default 'RAW'
+            calibration level, optional
             The identifier of the data reduction/processing applied to the
             data. By default, the most scientifically relevant level will be
             chosen. RAW, CALIBRATED, PRODUCT or AUXILIARY
@@ -77,6 +83,9 @@ class ESAHubbleClass(BaseQuery):
         verbose : bool
             optional, default 'False'
             flag to display information about the process
+        product_type : string
+            type of product retrieval, optional
+            PRODUCT, SCIENCE_PRODUCT or POSTCARD
 
         Returns
         -------
@@ -84,20 +93,47 @@ class ESAHubbleClass(BaseQuery):
         """
 
         params = {"OBSERVATION_ID": observation_id,
-                  "CALIBRATION_LEVEL": calibration_level}
+                  "USERNAME": "ehst-astroquery"}
+        url = self.data_url + "?OBSERVATION_ID=" + observation_id
+        url += "&USERNAME=" + "ehst-astroquery"
 
         if filename is None:
             filename = observation_id + ".tar"
+
+        if calibration_level:
+            params["CALIBRATION_LEVEL"] = calibration_level
+            url += "&CALIBRATION_LEVEL=" + calibration_level
+
+        if product_type:
+            self.__validate_product_type(product_type)
+            params["RETRIEVAL_TYPE"] = product_type
+            filename = self._get_product_filename(product_type, filename)
+            url += "&RETRIEVAL_TYPE=" + params["RETRIEVAL_TYPE"]
 
         response = self._request('GET', self.data_url, save=True, cache=True,
                                  params=params)
 
         if verbose:
-            log.info(self.data_url + "?OBSERVATION_ID=" + observation_id +
-                     "&CALIBRATION_LEVEL=" + calibration_level)
+            log.info(url)
             log.info(self.copying_string.format(filename))
 
         shutil.move(response, filename)
+
+    def __validate_product_type(self, product_type):
+        if(product_type not in self.product_types):
+            raise ValueError("This product_type is not allowed")
+
+    def _get_product_filename(self, product_type, filename):
+        if(product_type == "PRODUCT"):
+            return filename
+        elif(product_type == "SCIENCE_PRODUCT"):
+            log.info("This is a SCIENCE_PRODUCT, the filename will be "
+                     "renamed to " + filename + ".fits.gz")
+            return filename + ".fits.gz"
+        else:
+            log.info("This is a POSTCARD, the filename will be "
+                     "renamed to " + filename + ".jpg")
+            return filename + ".jpg"
 
     def get_artifact(self, artifact_id, filename=None, verbose=False):
         """
@@ -120,14 +156,15 @@ class ESAHubbleClass(BaseQuery):
         None. It downloads the artifact indicated
         """
 
-        params = {"ARTIFACT_ID": artifact_id}
+        params = {"ARTIFACT_ID": artifact_id, "USERNAME": "ehst-astroquery"}
         response = self._request('GET', self.data_url, save=True, cache=True,
                                  params=params)
         if filename is None:
             filename = artifact_id
 
         if verbose:
-            log.info(self.data_url + "?ARTIFACT_ID=" + artifact_id)
+            log.info(self.data_url + "?ARTIFACT_ID=" + artifact_id +
+                     "&USERNAME=ehst-astroquery")
             log.info(self.copying_string.format(filename))
 
         shutil.move(response, filename)
@@ -166,7 +203,8 @@ class ESAHubbleClass(BaseQuery):
         params = {"RETRIEVAL_TYPE": "POSTCARD",
                   "OBSERVATION_ID": observation_id,
                   "CALIBRATION_LEVEL": calibration_level,
-                  "RESOLUTION": resolution}
+                  "RESOLUTION": resolution,
+                  "USERNAME": "ehst-astroquery"}
 
         response = self._request('GET', self.data_url, save=True, cache=True,
                                  params=params)
@@ -179,59 +217,207 @@ class ESAHubbleClass(BaseQuery):
                      "&".join(["?RETRIEVAL_TYPE=POSTCARD",
                                "OBSERVATION_ID=" + observation_id,
                                "CALIBRATION_LEVEL=" + calibration_level,
-                               "RESOLUTION=" + str(resolution)]))
+                               "RESOLUTION=" + str(resolution),
+                               "USERNAME=ehst-astroquery"]))
             log.info(self.copying_string.format(filename))
 
         shutil.move(response, filename)
 
-    def cone_search(self, coordinates, radius=0.0, filename=None,
-                    output_format='votable', cache=True):
+    def cone_search(self, coordinates, radius, filename=None,
+                    output_format='votable', cache=True,
+                    async_job=False, verbose=False):
         """
+        To execute a cone search defined by a coordinate and a radius
+
+        Parameters
+        ----------
+        coordinates : astropy.coordinate, mandatory
+            coordinates of the center in the cone search
+        radius : float or quantity
+            radius in arcmin (int, float) or quantity of the cone_search
+        filename : str, default None
+            Path and name of the file to store the results.
+            If the filename is defined, the file will be
+            automatically saved
+        output_format : string
+            results format. Options are:
+            'votable': str, binary VOTable format
+            'csv': str, comma-separated values format
+        async_job : bool, optional, default 'False'
+            executes the query (job) in asynchronous/synchronous mode (default
+            synchronous)
+        cache : bool
+            optional, default 'True'
+            Flag to save the results in the local cache
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        astropy.table.Table with the result of the cone_search
         """
-        coord = self._getCoordInput(coordinates, "coordinate")
-        radiusInGrades = float(radius/60)  # Converts to degrees
-
-        raHours, dec = commons.coord_to_radec(coord)
-        ra = raHours * 15.0  # Converts to degrees
-        payload = {"RESOURCE_CLASS": "OBSERVATION",
-                   "ADQLQUERY": "SELECT DISTINCT OBSERVATION,OBSERVATION.TYPE,"
-                   "TARGET.MOVING_TARGET"
-                   ",TARGET.TARGET_NAME,TARGET.TARGET_DESCRIPTION,PROPOSAL."
-                   "PROPOSAL_ID,PROPOSAL.PI_"
-                   "NAME,PROPOSAL.PROPOSAL_TITLE,INSTRUMENT.INSTRUMENT_NAME,"
-                   "PLANE.METADATA_PROVENANCE"
-                   ",PLANE.DATA_PRODUCT_TYPE,PLANE.SOFTWARE_VERSION,POSITION"
-                   ".RA,POSITION.DEC,POSITION."
-                   "GAL_LAT,POSITION.GAL_LON,POSITION.ECL_LAT,POSITION.ECL_LON"
-                   ",POSITION.FOV_SIZE,ENERGY."
-                   "WAVE_CENTRAL,ENERGY.WAVE_BANDWIDTH,ENERGY.WAVE_MAX,ENERGY"
-                   ".WAVE_MIN,ENERGY.FILTER FROM"
-                   " FIELD_NOT_USED  WHERE OBSERVATION.COLLECTION='HST'  AND  "
-                   "PLANE.MAIN_SCIENCE_PLANE="
-                   "'true'  AND  (OBSERVATION.TYPE='HST Composite' OR "
-                   "OBSERVATION.TYPE='HST Singleton')"
-                   "  AND  INTERSECTS(CIRCLE('ICRS', {0}, {1}, {2}"
-                   "),POSITION)=1  AND  PLANE.MAIN_SCIENCE_PLANE='true' "
-                   "ORDER BY PROPOSAL.PROPOSAL_ID "
-                   "DESC".format(str(ra), str(dec), str(radiusInGrades)),
-                   "RETURN_TYPE": str(output_format)}
-        response = self._request('GET',
-                                 self.metadata_url,
-                                 params=payload,
-                                 cache=cache,
-                                 timeout=self.TIMEOUT)
-
-        if filename is None:
-            filename = "cone." + str(output_format)
-
-        if response is None:
-            table = None
+        coord = self._getCoordInput(coordinates)
+        if type(radius) == int or type(radius) == float:
+            radius_in_grades = Angle(radius, units.arcmin).deg
         else:
-            fileobj = BytesIO(response.content)
-            table = Table.read(fileobj, format=output_format)
-            # TODO: add "correct units" material here
-
+            radius_in_grades = radius.to(units.deg).value
+        ra = coord.ra.deg
+        dec = coord.dec.deg
+        query = "select o.observation_id, "\
+                "o.start_time, o.end_time, o.start_time_mjd, "\
+                "o.end_time_mjd, o.exposure_duration, o.release_date, "\
+                "o.run_id, o.program_id, o.set_id, o.collection, "\
+                "o.members_number, o.instrument_configuration, "\
+                "o.instrument_name, o.obs_type, o.target_moving, "\
+                "o.target_name, o.target_description, o.proposal_id, "\
+                "o.pi_name, prop.title, pl.metadata_provenance, "\
+                "pl.data_product_type, pl.software_version, pos.ra, "\
+                "pos.dec, pos.gal_lat, pos.gal_lon, pos.ecl_lat, "\
+                "pos.ecl_lon, pos.fov_size, en.wave_central, "\
+                "en.wave_bandwidth, en.wave_max, en.wave_min, "\
+                "en.filter from ehst.observation o join ehst.proposal "\
+                "prop on o.proposal_id=prop.proposal_id join ehst.plane "\
+                "pl on pl.observation_id=o.observation_id join "\
+                "ehst.position pos on pos.plane_id = pl.plane_id join "\
+                "ehst.energy en on en.plane_id=pl.plane_id where "\
+                "pl.main_science_plane='true' and 1=CONTAINS(POINT('ICRS', "\
+                "pos.ra, pos.dec),CIRCLE('ICRS', {0}, {1}, {2})) order "\
+                "by prop.proposal_id desc".format(str(ra), str(dec),
+                                                  str(radius_in_grades))
+        if verbose:
+            log.info(query)
+        table = self.query_hst_tap(query=query, async_job=async_job,
+                                   output_file=filename,
+                                   output_format=output_format,
+                                   verbose=verbose)
         return table
+
+    def cone_search_criteria(self, radius, target=None,
+                             coordinates=None,
+                             calibration_level=None,
+                             data_product_type=None,
+                             intent=None,
+                             obs_collection=None,
+                             instrument_name=None,
+                             filters=None,
+                             async_job=True,
+                             filename=None,
+                             output_format='votable',
+                             save=False,
+                             cache=True,
+                             verbose=False):
+        """
+        To execute a cone search defined by a coordinate (an
+        astropy.coordinate element or a target name which is resolved),
+        a radius and a set of criteria to filter the results. This function
+        comprises the outputs of query_target, cone_search and query_criteria
+        methods.
+
+        Parameters
+        ----------
+        radius : float or quantity
+            radius in arcmin (int, float) or quantity of the cone_search
+        target : str, mandatory if no coordinates is provided
+            name of the target, that will act as center in the cone search
+        coordinates : astropy.coordinate, mandatory if no target is provided
+            coordinates of the center in the cone search
+        calibration_level : str or int, optional
+            The identifier of the data reduction/processing applied to the
+            data. RAW (1), CALIBRATED (2), PRODUCT (3) or AUXILIARY (0)
+        data_product_type : str, optional
+            High level description of the product.
+            image, spectrum or timeseries.
+        intent : str, optional
+            The intent of the original observer in acquiring this observation.
+            SCIENCE or CALIBRATION
+        collection : list of str, optional
+            List of collections that are available in eHST catalogue.
+            HLA, HST
+        instrument_name : list of str, optional
+            Name(s) of the instrument(s) used to generate the dataset
+        filters : list of str, optional
+            Name(s) of the filter(s) used to generate the dataset
+        async_job : bool, optional, default 'False'
+            executes the query (job) in asynchronous/synchronous mode (default
+            synchronous)
+        filename : str, default None
+            Path and name of the file to store the results.
+            If the filename is defined, the file will be
+            automatically saved
+        output_format : string
+            results format. Options are:
+            'votable': str, binary VOTable format
+            'csv': str, comma-separated values format
+        save : bool
+            optional, default 'False'
+            Flag to save the result in a file. If the filename
+            is not defined, it will use a formatted name to save
+            the file
+        cache : bool
+            optional, default 'True'
+            Flag to save the results in the local cache
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        astropy.table.Table with the result of the cone_search
+        """
+        crit_query = self.query_criteria(calibration_level=calibration_level,
+                                         data_product_type=data_product_type,
+                                         intent=intent,
+                                         obs_collection=obs_collection,
+                                         instrument_name=instrument_name,
+                                         filters=filters,
+                                         async_job=True,
+                                         get_query=True)
+        if crit_query.endswith(")"):
+            crit_query = crit_query[:-1] + " AND "
+        else:
+            crit_query = crit_query + " WHERE ("
+
+        if target and coordinates:
+            raise TypeError("Please use only target or coordinates as"
+                            "parameter.")
+        if target:
+            ra, dec = self._query_tap_target(target)
+        else:
+            coord = self._getCoordInput(coordinates)
+            ra = coord.ra.deg
+            dec = coord.dec.deg
+
+        if type(radius) == int or type(radius) == float:
+            radius_in_grades = Angle(radius, units.arcmin).deg
+        else:
+            radius_in_grades = radius.to(units.deg).value
+        cone_query = "1=CONTAINS(POINT('ICRS', pos.ra, pos.dec),"\
+                     "CIRCLE('ICRS', {0}, {1}, {2}))".\
+                     format(str(ra), str(dec), str(radius_in_grades))
+        query = "{}{})".format(crit_query, cone_query)
+        if verbose:
+            log.info(query)
+
+        table = self.query_hst_tap(query=query, async_job=async_job,
+                                   output_file=filename,
+                                   output_format=output_format,
+                                   verbose=verbose)
+        return table
+
+    def _query_tap_target(self, target):
+        try:
+            params = {"TARGET_NAME": target,
+                      "RESOLVER_TYPE": "SN",
+                      "FORMAT": "json"}
+            target_response = self._request('GET',
+                                            self.target_url,
+                                            cache=True,
+                                            params=params)
+            target_result = target_response.json()['data'][0]
+            ra = target_result['RA_DEGREES']
+            dec = target_result['DEC_DEGREES']
+            return ra, dec
+        except KeyError as e:
+            raise ValueError("This target cannot be resolved")
 
     def query_metadata(self, output_format='votable', verbose=False):
         return
@@ -260,6 +446,7 @@ class ESAHubbleClass(BaseQuery):
         """
 
         params = {"RESOURCE_CLASS": "OBSERVATION",
+                  "USERNAME": "ehst-astroquery",
                   "SELECTED_FIELDS": "OBSERVATION",
                   "QUERY": "(TARGET.TARGET_NAME=='" + name + "')",
                   "RETURN_TYPE": str(output_format)}
@@ -270,7 +457,8 @@ class ESAHubbleClass(BaseQuery):
         if verbose:
             log.info(self.metadata_url + "?RESOURCE_CLASS=OBSERVATION&"
                      "SELECTED_FIELDS=OBSERVATION&QUERY=(TARGET.TARGET_NAME"
-                     "=='" + name + "')&RETURN_TYPE=" + str(output_format))
+                     "=='" + name + "')&USERNAME=ehst-astroquery&"
+                     "RETURN_TYPE=" + str(output_format))
             log.info(self.copying_string.format(filename))
         if filename is None:
             filename = "target.xml"
@@ -319,11 +507,11 @@ class ESAHubbleClass(BaseQuery):
         return table
 
     def query_criteria(self, calibration_level=None,
-                          data_product_type=None, intent=None,
-                          obs_collection=None, instrument_name=None,
-                          filters=None, async_job=True, output_file=None,
-                          output_format="votable", verbose=False,
-                          get_query=False):
+                       data_product_type=None, intent=None,
+                       obs_collection=None, instrument_name=None,
+                       filters=None, async_job=True, output_file=None,
+                       output_format="votable", verbose=False,
+                       get_query=False):
         """
         Launches a synchronous or asynchronous job to query the HST tap
         using calibration level, data product type, intent, collection,
@@ -394,19 +582,20 @@ class ESAHubbleClass(BaseQuery):
             parameters.append("(o.instrument_configuration LIKE '%{}%')"
                               .format("%' OR o.instrument_configuration "
                                       "LIKE '%".join(filters)))
-        query = "select o.*, p.calibration_level, p.data_product_type "\
-                "from ehst.observation AS o LEFT JOIN ehst.plane as p "\
-                "on o.observation_uuid=p.observation_uuid"
+        query = "select o.*, p.calibration_level, p.data_product_type, "\
+                "pos.ra, pos.dec from ehst.observation AS o JOIN "\
+                "ehst.plane as p on o.observation_uuid=p.observation_uuid "\
+                "JOIN ehst.position as pos on p.plane_id = pos.plane_id"
         if parameters:
             query += " where({})".format(" AND ".join(parameters))
-        table = self.query_hst_tap(query=query, async_job=async_job,
-                                   output_file=output_file,
-                                   output_format=output_format,
-                                   verbose=verbose)
         if verbose:
             log.info(query)
         if get_query:
             return query
+        table = self.query_hst_tap(query=query, async_job=async_job,
+                                   output_file=output_file,
+                                   output_format=output_format,
+                                   verbose=verbose)
         return table
 
     def __get_calibration_level(self, calibration_level):
@@ -497,14 +686,13 @@ class ESAHubbleClass(BaseQuery):
         else:
             return columns
 
-    def _getCoordInput(self, value, msg):
-        if not (isinstance(value, str) or isinstance(value,
-                                                     commons.CoordClasses)):
-            raise ValueError(str(msg) + ""
+    def _getCoordInput(self, value):
+        if not (isinstance(value, str) or
+                isinstance(value, SkyCoord)):
+            raise ValueError("Coordinates" +
                              " must be either a string or astropy.coordinates")
         if isinstance(value, str):
-            coords = commons.parse_coordinates(value)
-            return coords
+            return SkyCoord(value)
         else:
             return value
 

@@ -29,15 +29,36 @@ Examples
 1. Getting Hubble products
 --------------------------
 
+This function allows the user to download products based on their observation ID (mandatory) and
+a required calibration_level (RAW, CALIBRATED, PRODUCT or AUXILIARY) and/or product type (PRODUCT,
+SCIENCE_PRODUCT or POSTCARD).
+
+This will download all files for the raw calibration level of the observation 'J6FL25S4Q' and it will store them in a tar called
+'raw_data_for_J6FL25S4Q.tar'.
+
 .. code-block:: python
 
   >>> from astroquery.esa.hubble import ESAHubble
   >>> esahubble = ESAHubble()
-  >>> esahubble.download_product("J6FL25S4Q", "RAW", "raw_data_for_J6FL25S4Q.tar")
+  >>> esahubble.download_product(observation_id="J6FL25S4Q", calibration_level="RAW", filename="raw_data_for_J6FL25S4Q.tar")
 
-This will download all files for the raw calibration level of the
-observation 'J6FL25S4Q' and it will store them in a tar called
-'raw_data_for_J6FL25S4Q.tar'.
+This will download the science files associated to the observation 'J6FL25S4Q' and it will store them in a file called
+'science_data_for_J6FL25S4Q.tar.fits.gz', modifying the filename provided to ensure that the extension of the file is correct.
+
+.. code-block:: python
+
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = ESAHubble()
+  >>> esahubble.download_product(observation_id="J6FL25S4Q", filename="science_data_for_J6FL25S4Q.tar", product_type="SCIENCE_PRODUCT")
+
+This third case will download the science files associated to the observation 'J6FL25S4Q' in raw calibration level and it will store them in a file called
+'science_raw_data_for_J6FL25S4Q.fits.gz', modifying the filename provided to ensure that the extension of the file is correct.
+
+.. code-block:: python
+
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = ESAHubble()
+  >>> esahubble.download_product(observation_id="J6FL25S4Q", calibration_level="RAW", filename="science_raw_data_for_J6FL25S4Q", product_type="SCIENCE_PRODUCT")
 
 ---------------------------
 2. Getting Hubble postcards
@@ -239,11 +260,66 @@ If no criteria are specified to limit the selection, this function will retrieve
 
 This will perform a cone search with radius 7 arcmins. The result of the
 query will be returned and stored in the votable file
-'cone_search_m31_5.vot'.
+'cone_search_m31_5.vot'. If no filename is defined and the "save" tag is True,
+the module will provide a default name. It is also possible to store only the results
+in memory, without defining neither a filename nor the "save" tag.
+
+----------------------------------------------------
+7. Cone searches with criteria in the Hubble archive
+----------------------------------------------------
+
+It is also possible to perform a cone search defined by a target name or coordinates, a radius
+and a set of criteria to filter the results.
+
+.. code-block:: python
+
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = ESAHubble()
+  >>> result = esahubble.cone_search_criteria(target= 'm31',radius=7,
+                                              obs_collection=['HST'],
+                                              data_product_type = 'image',
+                                              instrument_name = ['ACS/WFC'],
+                                              filters = ['F435W'],
+                                              async_job = True,
+                                              filename = 'output1.vot.gz',
+                                              output_format="votable")
+  >>> result
+
+    <Table length=302>
+    algorithm_name collection         end_time           end_time_mjd   exposure_duration ... target_name calibration_level data_product_type         ra                dec
+        object       object            object              float64           float64      ...    object         object            object           float64            float64
+    -------------- ---------- ----------------------- ----------------- ----------------- ... ----------- ----------------- ----------------- ------------------ -----------------
+           drizzle        HST 2002-06-29 14:15:20.787 52454.51065725694            1600.0 ...      M31-T3        CALIBRATED             image 10.791884595154517 41.28819762447081
+               ...        ...                     ...               ...               ... ...         ...               ...               ...                ...               ...
+          exposure        HST   2014-06-26 03:40:17.0 56834.06964120371            1246.0 ...   M-31-CORE        CALIBRATED             image 10.531742116262286 41.25273489574185
+          exposure        HST   2014-06-26 03:40:17.0 56834.06964120371            1246.0 ...   M-31-CORE               RAW             image 10.531742116262286 41.25273489574185
+
+
+.. code-block:: python
+
+  >>> from astropy import coordinates
+  >>> from astropy import units as u
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = ESAHubble()
+  >>> c = coordinates.SkyCoord("00h42m44.51s +41d16m08.45s", frame='icrs')
+  >>> result = esahubble.cone_search_criteria(coordinates=c,radius=7*u.arcmin,
+                                              obs_collection=['HST'],
+                                              instrument_name = ['WFPC2'],
+                                              filters = ['F606W'],
+                                              async_job = True,
+                                              filename = 'output1.vot.gz',
+                                              output_format="votable",
+                                              verbose=True)
+  >>> str(table)
+
+This will perform a cone search with radius 7 arcmins around the target (defined by
+its coordinates or its name) using the filters defined when executing the function.
+
+This function allows the same parameters than the search criteria (see Section 5).
 
 
 -------------------------------
-7. Getting access to catalogues
+8. Getting access to catalogues
 -------------------------------
 
 This function provides access to the HST archive database using the Table

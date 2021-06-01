@@ -4,6 +4,11 @@
 New Tools and Services
 ----------------------
 
+esa.hubble
+^^^^^^^^^^
+
+- Cone search module allows the user to save the result in local storage. [#1855]
+- Module added to perform a cone search based on a set of criteria. [#1855]
 
 Service fixes and enhancements
 ------------------------------
