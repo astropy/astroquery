@@ -231,10 +231,10 @@ class ESAHubbleClass(BaseQuery):
 
         Parameters
         ----------
-        radius : float
-            radius in arcmin of the cone_search
         coordinates : astropy.coordinate, mandatory
             coordinates of the center in the cone search
+        radius : float or quantity
+            radius in arcmin (int, float) or quantity of the cone_search
         filename : str, default None
             Path and name of the file to store the results.
             If the filename is defined, the file will be
@@ -257,7 +257,10 @@ class ESAHubbleClass(BaseQuery):
         astropy.table.Table with the result of the cone_search
         """
         coord = self._getCoordInput(coordinates)
-        radius_in_grades = Angle(radius, units.arcmin).deg
+        if type(radius) == int or type(radius) == float:
+            radius_in_grades = Angle(radius, units.arcmin).deg
+        else:
+            radius_in_grades = radius.to(units.deg).value
         ra = coord.ra.deg
         dec = coord.dec.deg
         query = "select o.observation_id, "\
@@ -312,8 +315,8 @@ class ESAHubbleClass(BaseQuery):
 
         Parameters
         ----------
-        radius : float
-            radius in arcmin of the cone_search
+        radius : float or quantity
+            radius in arcmin (int, float) or quantity of the cone_search
         target : str, mandatory if no coordinates is provided
             name of the target, that will act as center in the cone search
         coordinates : astropy.coordinate, mandatory if no target is provided
@@ -377,16 +380,16 @@ class ESAHubbleClass(BaseQuery):
             raise TypeError("Please use only target or coordinates as"
                             "parameter.")
         if target:
-            try:
-                ra, dec = self._query_tap_target(target)
-            except Exception:
-                raise ValueError('This target cannot be resolved')
+            ra, dec = self._query_tap_target(target)
         else:
             coord = self._getCoordInput(coordinates)
             ra = coord.ra.deg
             dec = coord.dec.deg
 
-        radius_in_grades = Angle(radius, units.arcmin).deg
+        if type(radius) == int or type(radius) == float:
+            radius_in_grades = Angle(radius, units.arcmin).deg
+        else:
+            radius_in_grades = radius.to(units.deg).value
         cone_query = "1=CONTAINS(POINT('ICRS', pos.ra, pos.dec),"\
                      "CIRCLE('ICRS', {0}, {1}, {2}))".\
                      format(str(ra), str(dec), str(radius_in_grades))
@@ -401,17 +404,20 @@ class ESAHubbleClass(BaseQuery):
         return table
 
     def _query_tap_target(self, target):
-        params = {"TARGET_NAME": target,
-                  "RESOLVER_TYPE": "SN",
-                  "FORMAT": "json"}
-        target_response = self._request('GET',
-                                        self.target_url,
-                                        cache=True,
-                                        params=params)
-        target_result = target_response.json()['data'][0]
-        ra = target_result['RA_DEGREES']
-        dec = target_result['DEC_DEGREES']
-        return ra, dec
+        try:
+            params = {"TARGET_NAME": target,
+                      "RESOLVER_TYPE": "SN",
+                      "FORMAT": "json"}
+            target_response = self._request('GET',
+                                            self.target_url,
+                                            cache=True,
+                                            params=params)
+            target_result = target_response.json()['data'][0]
+            ra = target_result['RA_DEGREES']
+            dec = target_result['DEC_DEGREES']
+            return ra, dec
+        except KeyError as e:
+            raise ValueError("This target cannot be resolved")
 
     def query_metadata(self, output_format='votable', verbose=False):
         return
@@ -582,14 +588,14 @@ class ESAHubbleClass(BaseQuery):
                 "JOIN ehst.position as pos on p.plane_id = pos.plane_id"
         if parameters:
             query += " where({})".format(" AND ".join(parameters))
-        table = self.query_hst_tap(query=query, async_job=async_job,
-                                   output_file=output_file,
-                                   output_format=output_format,
-                                   verbose=verbose)
         if verbose:
             log.info(query)
         if get_query:
             return query
+        table = self.query_hst_tap(query=query, async_job=async_job,
+                                   output_file=output_file,
+                                   output_format=output_format,
+                                   verbose=verbose)
         return table
 
     def __get_calibration_level(self, calibration_level):
