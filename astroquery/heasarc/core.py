@@ -1,7 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 import warnings
-from six import BytesIO
+from six import StringIO, BytesIO
 from astropy.table import Table
 from astropy.io import fits
 from astropy import coordinates
@@ -29,11 +29,15 @@ class HeasarcClass(BaseQuery):
     TIMEOUT = conf.timeout
     coord_systems = ['fk5', 'fk4', 'equatorial', 'galactic']
 
-    def query_async(self, request_payload, cache=True, url=conf.server):
+    def query_async(self, request_payload, cache=True, url=None):
         """
         Submit a query based on a given request_payload. This allows detailed
         control of the query to be submitted.
         """
+
+        if url is None:
+            url = conf.server
+
         response = self._request('GET', url, params=request_payload,
                                  timeout=self.TIMEOUT, cache=cache)
         return response
@@ -43,7 +47,7 @@ class HeasarcClass(BaseQuery):
         Returns a list of all available mission tables with descriptions
         """
         request_payload = self._args_to_payload(
-            Entry='none',
+            entry='none',
             mission='xxx',
             displaymode='BatchDisplay'
         )
@@ -57,8 +61,7 @@ class HeasarcClass(BaseQuery):
             url=conf.server,
             cache=cache
         )
-        data = BytesIO(response.content)
-        data_str = data.read().decode('utf-8')
+        data_str = response.text
         data_str = data_str.replace('Table xxx does not seem to exist!\n\n\n\nAvailable tables:\n', '')
         table = Table.read(data_str, format='ascii.fixed_width_two_line',
                            delimiter='+', header_start=1, position_line=2,
@@ -82,19 +85,12 @@ class HeasarcClass(BaseQuery):
             * <custom>      : User defined csv list of columns to be returned
         All other parameters have no effect
         """
-        # Query fails if nothing is found, so set search radius very large and
-        # only take a single value (all we care about is the column names)
-        kwargs['resultmax'] = 1
-
-        # By default, return all column names
-        fields = kwargs.get('fields', None)
-        if fields is None:
-            kwargs['fields'] = 'All'
 
         response = self.query_region_async(position='0.0 0.0', mission=mission,
                                            radius='361 degree', cache=cache,
                                            get_query_payload=get_query_payload,
-                                           **kwargs)
+                                           resultsmax=1,
+                                           fields='All')
 
         # Return payload if requested
         if get_query_payload:
@@ -177,20 +173,38 @@ class HeasarcClass(BaseQuery):
         # Submit the request
         return self.query_async(request_payload, cache=cache)
 
-    def _fallback(self, content):
+    def _old_w3query_fallback(self, content):
+        # old w3query (such as that used in ISDC) return very strange fits, with all ints
+
+        f = fits.open(BytesIO(content))
+
+        for c in f[1].columns:
+            if c.disp is not None:
+                c.format = c.disp
+            else:
+                c.format = str(c.format).replace("I", "A")
+
+        I = BytesIO()
+        f.writeto(I)
+        I.seek(0)
+
+        return Table.read(I)
+
+    def _fallback(self, text):
         """
         Blank columns which have to be converted to float or in fail so
         lets fix that by replacing with -1's
         """
 
-        data = BytesIO(content)
+        data = StringIO(text)
         header = fits.getheader(data, 1)  # Get header for column info
         colstart = [y for x, y in header.items() if "TBCOL" in x]
         collens = [int(float(y[1:]))
                    for x, y in header.items() if "TFORM" in x]
+
         new_table = []
 
-        old_table = content.split("END")[-1].strip()
+        old_table = text.split("END")[-1].strip()
         for line in old_table.split("\n"):
             newline = []
             for n, tup in enumerate(zip(colstart, collens), start=1):
@@ -199,11 +213,11 @@ class HeasarcClass(BaseQuery):
                 newline.append(part)
                 if len(part.strip()) == 0:
                     if header["TFORM%i" % n][0] in ["F", "I"]:
-                        # extra space is required to sperate column
+                        # extra space is required to separate column
                         newline[-1] = "-1".rjust(clen) + " "
             new_table.append("".join(newline))
 
-        data = BytesIO(content.replace(old_table, "\n".join(new_table)))
+        data = StringIO(text.replace(old_table, "\n".join(new_table)))
         return Table.read(data, hdu=1)
 
     def _parse_result(self, response, verbose=False):
@@ -228,7 +242,10 @@ class HeasarcClass(BaseQuery):
             table = Table.read(data, hdu=1)
             return table
         except ValueError:
-            return self._fallback(response.content)
+            try:
+                return self._fallback(response.text)
+            except Exception as e:
+                return self._old_w3query_fallback(response.content)
 
     def _args_to_payload(self, **kwargs):
         """
@@ -277,19 +294,27 @@ class HeasarcClass(BaseQuery):
         action : str, optional
             Type of action to be taken (defaults to 'Query')
         """
+        # User-facing parameters are lower case, while parameters as passed to the HEASARC service are capitalized according to the HEASARC requirements.
+        # The necessary transformations are done in this function.
+
         # Define the basic query for this object
+        mission = kwargs.pop('mission')
+
         request_payload = dict(
             tablehead=('name=BATCHRETRIEVALCATALOG_2.0 {}'
-                       .format(kwargs.get('mission'))),
-            Entry=kwargs.get('entry', 'none'),
-            Action=kwargs.get('action', 'Query'),
-            displaymode=kwargs.get('displaymode', 'FitsDisplay')
+                       .format(mission)),
+            Entry=kwargs.pop('entry', 'none'),
+            Action=kwargs.pop('action', 'Query'),
+            displaymode=kwargs.pop('displaymode', 'FitsDisplay'),
+            resultsmax=kwargs.pop('resultsmax', '10')
         )
 
         # Fill in optional information for refined queries
 
         # Handle queries involving coordinates
-        coordsys = kwargs.get('coordsys', 'fk5')
+        coordsys = kwargs.pop('coordsys', 'fk5')
+        equinox = kwargs.pop('equinox', None)
+
         if coordsys.lower() == 'fk5':
             request_payload['Coordinates'] = 'Equatorial: R.A. Dec'
 
@@ -300,7 +325,6 @@ class HeasarcClass(BaseQuery):
         elif coordsys.lower() == 'equatorial':
             request_payload['Coordinates'] = 'Equatorial: R.A. Dec'
 
-            equinox = kwargs.get('equinox', None)
             if equinox is not None:
                 request_payload['Equinox'] = str(equinox)
 
@@ -312,7 +336,7 @@ class HeasarcClass(BaseQuery):
                              .format(self.coord_systems))
 
         # Specify which table columns are to be returned
-        fields = kwargs.get('fields', None)
+        fields = kwargs.pop('fields', None)
         if fields is not None:
             if fields.lower() == 'standard':
                 request_payload['Fields'] = 'Standard'
@@ -322,19 +346,36 @@ class HeasarcClass(BaseQuery):
                 request_payload['varon'] = fields.lower().split(',')
 
         # Set search radius (arcmin)
-        radius = kwargs.get('radius', None)
+        radius = kwargs.pop('radius', None)
         if radius is not None:
             request_payload['Radius'] = "{}".format(u.Quantity(radius).to(u.arcmin))
 
         # Maximum number of results to be returned
-        resultmax = kwargs.get('resultmax', None)
+        resultmax = kwargs.pop('resultmax', None)
         if resultmax is not None:
             request_payload['ResultMax'] = int(resultmax)
 
         # Set variable for sorting results
-        sortvar = kwargs.get('sortvar', None)
+        sortvar = kwargs.pop('sortvar', None)
         if sortvar is not None:
             request_payload['sortvar'] = sortvar.lower()
+
+        # Time range variable
+        _time = kwargs.pop('time', None)
+        if _time is not None:
+            request_payload['Time'] = _time
+
+        if len(kwargs) > 0:
+            mission_fields = [k.lower() for k in self.query_mission_cols(mission=mission)]
+
+            for k, v in kwargs.items():
+                if k.lower() in mission_fields:
+                    request_payload['bparam_' + k.lower()] = v
+                else:
+                    raise ValueError("unknown parameter '{}' provided, must be one of {!s}".format(
+                                      k,
+                                      mission_fields,
+                                    ))
 
         return request_payload
 
