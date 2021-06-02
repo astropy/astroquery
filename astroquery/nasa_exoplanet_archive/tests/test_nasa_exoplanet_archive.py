@@ -36,8 +36,8 @@ MAIN_DATA = pkg_resources.resource_filename("astroquery.nasa_exoplanet_archive",
 TEST_DATA = pkg_resources.resource_filename(__name__, "data")
 RESPONSE_FILE = os.path.join(TEST_DATA, "responses.json")
 
-# TAP supported: ps, pscomppars(, keplernames, k2names). API support: all others
-# TODO: add tables transitspec and emissionspec
+# API accessible tables will gradually transition to TAP service
+# Check https://exoplanetarchive.ipac.caltech.edu/docs/TAP/usingTAP.html for an up-to-date list
 API_TABLES = [
     ("cumulative", dict(where="kepid=10601284")),
     ("koi", dict(where="kepid=10601284")),
@@ -206,10 +206,6 @@ def test_query_object():
         assert object_name == "K2-18 b"
         assert table == "pscomppars"
         assert select == "pl_name,disc_year,discoverymethod,ra,dec"
-        # result = AstroTable(rows=[('K2-18 b', 2015, 'Transit', 172.560141, 7.5878315)],
-        #             names=('pl_name', 'disc_year', 'discoverymethod', 'ra', 'dec'),
-        #             dtype=(str, int, str, float, float),
-        #             units=(None, None, None, u.deg, u.deg))
         result = PropertyMock()
         result = {'pl_name': 'K2-18 b', 'disc_year': 2015, 'discoverymethod': 'Transit', 'ra': [172.560141] * u.deg, 'dec': [7.5878315] * u.deg}
 
@@ -232,7 +228,6 @@ def test_query_region():
     def mock_run_query(table="ps", select='pl_name,ra,dec', coordinates=SkyCoord(ra=172.56 * u.deg, dec=7.59 * u.deg), radius=1.0 * u.deg):
         assert table == "ps"
         assert select == 'pl_name,ra,dec'
-        # assert coordinates == SkyCoord(ra=172.56 * u.deg, dec=7.59 * u.deg)
         assert radius == 1.0 * u.deg
         result = PropertyMock()
         result = {'pl_name': 'K2-18 b'}
@@ -281,3 +276,22 @@ def test_get_query_payload():
     assert 'ps' in response['table']
     assert 'count(*)' in response['select']
     assert "disc_facility like '%TESS%'" in response['where']
+
+
+@patch('astroquery.nasa_exoplanet_archive.core.get_access_url',
+       Mock(side_effect=lambda x: 'https://some.url'))
+@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
+def test_select():
+    nasa_exoplanet_archive = NasaExoplanetArchive()
+
+    def mock_run_query(table="ps", select=["hostname", "pl_name"], where="hostname='Kepler-11'", get_query_payload=True):
+        assert table == "ps"
+        assert select == ["hostname", "pl_name"]
+        assert where == "hostname='Kepler-11'"
+        assert get_query_payload
+        payload = PropertyMock()
+        payload = {'table': 'ps', 'select': 'hostname,pl_name','where': "hostname='Kepler-11'", 'format': 'ipac'}
+        return payload
+    nasa_exoplanet_archive.query_criteria = mock_run_query
+    payload = nasa_exoplanet_archive.query_criteria()
+    assert payload["select"] == "hostname,pl_name"
