@@ -290,7 +290,7 @@ def test_select():
         assert where == "hostname='Kepler-11'"
         assert get_query_payload
         payload = PropertyMock()
-        payload = {'table': 'ps', 'select': 'hostname,pl_name','where': "hostname='Kepler-11'", 'format': 'ipac'}
+        payload = {'table': 'ps', 'select': 'hostname,pl_name', 'where': "hostname='Kepler-11'", 'format': 'ipac'}
         return payload
     nasa_exoplanet_archive.query_criteria = mock_run_query
     payload = nasa_exoplanet_archive.query_criteria()
