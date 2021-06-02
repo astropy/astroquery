@@ -234,10 +234,30 @@ To execute the same command as above you write this:
 The parameters are interchangeable in the same way as in
 :meth:`~astroquery.esasky.ESASkyClass.query_region_catalogs`.
 
+Get the metadata of specific observations or sources
+--------------
+If you already know the observation ID's or source names of interest,
+you can get their related metadata directly with
+:meth:`~astroquery.esasky.ESASkyClass.query_ids_maps`,
+or :meth:`~astroquery.esasky.ESASkyClass.query_ids_catalogs`, or
+:meth:`~astroquery.esasky.ESASkyClass.query_ids_spectra`
+
+.. code-block:: python
+
+    >>> maps = ESASky.query_ids_maps(observation_ids=["lbsk03vbq", "ieag90010"], missions="HST-UV")
+    >>> catalogs = ESASky.query_ids_catalogs(source_ids=["2CXO J090341.1-322609", "2CXO J090353.8-322642",
+                                                         "44899", "45057"], catalogs=["CHANDRA-SC2", "Hipparcos-2"])
+    >>> spectra = ESASky.query_ids_spectra(observation_ids="0001730501")
+
+If you already know which missions you are interested in, it is recommended to explicitly mention
+them in the mission parameter. Otherwise, ESASky will search through all missions for the ID's,
+which also works, but is a little bit slower.
+
 Get images
 ----------
 
-You can fetch images around the specified target or coordinates. When a target
+You can either fetch images around the specified target or coordinates,
+or fetch images from a list of observation ID's. When a target
 name is used rather than the coordinates, this will be resolved to coordinates
 using astropy name resolving methods that utilize online services like
 SESAME. Coordinates may be entered using the suitable object from
@@ -265,15 +285,23 @@ dictionary where the used filter is the key and the HDUList is the value.
     ...
     }
 
+As mentioned above, you can also download a images from a list of observation ID's.
+To do that you just have to use the parameter observation_id instead of target and position.
+
+.. code-block:: python
+
+    >>> from astroquery.esasky import ESASky
+    >>> images = ESASky.get_images("m51", radius="20 arcmin",
+    ...                            missions=['Herschel', 'ISO-IR'])
+
 Note that the fits files also are stored to disk. By default they are saved to
 the working directory but the location can be chosen by the download_dir
 parameter:
 
 .. code-block:: python
 
-    >>> images = ESASky.get_images("m51", radius="20 arcmin",
-    ...                            missions=['Herschel', 'ISO-IR'],
-    ...                            download_dir="/home/user/esasky")
+    >>> images = ESASky.get_images(observation_ids="100001010", missions="SUZAKU")
+    >>> images = ESASky.get_images(observation_ids=["100001010", "01500403"], missions=["SUZAKU", "ISO-IR"])
 
 Get maps
 --------
@@ -316,6 +344,8 @@ three-level dictionary.
     >>> from astroquery.esasky import ESASky
     >>> spectra = ESASky.get_spectra("m51", radius="20 arcmin",
     ...                            missions=['Herschel', 'XMM-NEWTON'])
+    >>> spectra = ESASky.get_spectra(observation_ids=["02101201", "z1ax0102t"],
+    ...                              missions=["ISO-IR", "HST-UV"])
 
 or
 

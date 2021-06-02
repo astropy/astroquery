@@ -2,17 +2,14 @@
 
 import json
 import os
-import tempfile
 import tarfile
 import sys
 import re
 from io import BytesIO
 
-import six
 from astropy.io import fits
 from astroquery import log
 import astropy.units
-import astropy.io.votable as votable
 from requests import HTTPError
 from requests import ConnectionError
 
@@ -21,7 +18,6 @@ from ..utils.tap.core import TapPlus
 from ..utils import commons
 from ..utils import async_to_sync
 from . import conf
-from ..exceptions import TableParseError
 from .. import version
 from astropy.coordinates.name_resolve import sesame_database
 
@@ -76,16 +72,17 @@ class ESASkyClass(BaseQuery):
     _SPECTRA_DOWNLOAD_DIR = "Spectra"
     _isTest = ""
 
+    _NUMBER_DATA_TYPES = ["REAL", "float", "INTEGER", "int", "BIGINT", "long", "DOUBLE", "double", "SMALLINT", "short"]
+
     def __init__(self, tap_handler=None):
         super(ESASkyClass, self).__init__()
 
         if tap_handler is None:
-            self._tap = TapPlus(url="https://sky.esa.int/esasky-tap/tap/")
+            self._tap = TapPlus(url=self.URLbase + "/tap")
         else:
             self._tap = tap_handler
 
-    def query(self, query, *, output_file=None,
-                      output_format="votable", verbose=False):
+    def query(self, query, *, output_file=None, output_format="votable", verbose=False):
         """Launches a synchronous job to query the ESASky TAP
 
         Parameters
@@ -423,9 +420,9 @@ class ESASkyClass(BaseQuery):
         sesame_database.set('simbad')
         coordinates = commons.parse_coordinates(sanitized_position)
 
-        self._store_query_result(query_result, sanitized_missions,
-                                    coordinates, sanitized_radius, sanitized_row_limit,
-                                    get_query_payload, cache, self._get_observation_json())
+        self._store_query_result(query_result=query_result, names=sanitized_missions, json=self._get_observation_json(),
+                                 coordinates=coordinates, radius=sanitized_radius, row_limit=sanitized_row_limit,
+                                 get_query_payload=get_query_payload, cache=cache)
 
         if (get_query_payload):
             return query_result
@@ -490,10 +487,9 @@ class ESASkyClass(BaseQuery):
 
         query_result = {}
 
-        self._store_query_result(query_result, sanitized_catalogs,
-                                          coordinates, sanitized_radius,
-                                          sanitized_row_limit,
-                                          get_query_payload, cache, self._get_catalogs_json())
+        self._store_query_result(query_result=query_result, names=sanitized_catalogs, json=self._get_catalogs_json(),
+                                 coordinates=coordinates, radius=sanitized_radius, row_limit=sanitized_row_limit,
+                                 get_query_payload=get_query_payload, cache=cache)
 
         if (get_query_payload):
             return query_result
@@ -558,11 +554,172 @@ class ESASkyClass(BaseQuery):
         sesame_database.set('simbad')
         coordinates = commons.parse_coordinates(sanitized_position)
 
-        self._store_query_result(query_result, sanitized_missions,
-                                    coordinates, sanitized_radius, sanitized_row_limit,
-                                    get_query_payload, cache, self._get_spectra_json())
+        self._store_query_result(query_result=query_result, names=sanitized_missions, json=self._get_spectra_json(),
+                                 coordinates=coordinates, radius=sanitized_radius, row_limit=sanitized_row_limit,
+                                 get_query_payload=get_query_payload, cache=cache)
 
         if (get_query_payload):
+            return query_result
+
+        return commons.TableList(query_result)
+
+    def query_ids_maps(self, observation_ids, missions=__ALL_STRING, row_limit=DEFAULT_ROW_LIMIT,
+                       get_query_payload=False, cache=True):
+        """
+        This method fetches the metadata for all the given observations id's and returns a TableList.
+
+        Parameters
+        ----------
+        observation_ids : string or list
+            The observation IDs to fetch.
+        missions : string or list, optional
+            Can be either a specific mission or a list of missions (all mission
+            names are found in list_missions()) or 'all' to search in all
+            missions. Defaults to 'all'.
+        get_query_payload : bool, optional
+            When set to True the method returns the HTTP request parameters.
+            Defaults to False.
+        cache : bool, optional
+            When set to True the method will use a cache located at
+            .astropy/astroquery/cache. Defaults to True.
+        row_limit : int, optional
+            Determines how many rows that will be fetched from the database
+            for each mission. Can be -1 to select maximum (currently 100 000).
+            Defaults to 10000.
+
+        Returns
+        -------
+        table_list : `~astroquery.utils.TableList`
+            Each mission returns a `~astropy.table.Table` with the metadata.
+            It is structured in a TableList like this:
+            TableList with 2 tables:
+            '0:HERSCHEL' with 15 column(s) and 2 row(s)
+            '1:HST-UV' with 15 column(s) and 2 row(s)
+
+        Examples
+        --------
+        query_ids_maps(observation_ids=['lbsk03vbq', 'ieag90010'], missions="HST-UV")
+        query_ids_maps(observation_ids='lbsk03vbq')
+        query_ids_maps(observation_ids=['lbsk03vbq', 'ieag90010', '1342221275', '1342221848'],
+                          missions=["Herschel", "HST-UV"])
+        """
+        sanitized_observation_ids = self._sanitize_input_ids(observation_ids)
+        sanitized_missions = self._sanitize_input_mission(missions)
+        sanitized_row_limit = self._sanitize_input_row_limit(row_limit)
+
+        query_result = {}
+        self._store_query_result(query_result=query_result, names=sanitized_missions, json=self._get_observation_json(),
+                                 row_limit=sanitized_row_limit, get_query_payload=get_query_payload, cache=cache,
+                                 ids=sanitized_observation_ids)
+
+        if get_query_payload:
+            return query_result
+
+        return commons.TableList(query_result)
+
+    def query_ids_catalogs(self, source_ids, catalogs=__ALL_STRING, row_limit=DEFAULT_ROW_LIMIT,
+                           get_query_payload=False, cache=True):
+        """
+        This method fetches the metadata for all the given source id's and returns a TableList.
+
+        Parameters
+        ----------
+        source_ids : string or list
+            The source IDs / names to fetch.
+        catalogs : string or list, optional
+            Can be either a specific catalog or a list of catalogs (all catalog
+            names are found in list_catalogs()) or 'all' to search in all
+            catalogs. Defaults to 'all'.
+        row_limit : int, optional
+            Determines how many rows that will be fetched from the database
+            for each mission. Can be -1 to select maximum (currently 100 000).
+            Defaults to 10000.
+        get_query_payload : bool, optional
+            When set to True the method returns the HTTP request parameters.
+            Defaults to False.
+        cache : bool, optional
+            When set to True the method will use a cache located at
+            .astropy/astroquery/cache. Defaults to True.
+
+        Returns
+        -------
+        table_list : `~astroquery.utils.TableList`
+            Each mission returns a `~astropy.table.Table` with the metadata.
+            It is structured in a TableList like this:
+            TableList with 2 tables:
+            '0:CHANDRA-SC2' with 41 column(s) and 2 row(s)
+            '1:HIPPARCOS-2' with 45 column(s) and 2 row(s)
+
+        Examples
+        --------
+        query_ids_catalogs(source_ids=['2CXO J090341.1-322609', '2CXO J090353.8-322642'], catalogs="CHANDRA-SC2")
+        query_ids_catalogs(source_ids='2CXO J090341.1-322609')
+        query_ids_catalogs(source_ids=['2CXO J090341.1-322609', '2CXO J090353.8-322642', '44899', '45057'],
+                           catalogs=["CHANDRA-SC2", "Hipparcos-2"])
+        """
+        sanitized_catalogs = self._sanitize_input_catalogs(catalogs)
+        sanitized_row_limit = self._sanitize_input_row_limit(row_limit)
+        sanitized_source_ids = self._sanitize_input_ids(source_ids)
+
+        query_result = {}
+        self._store_query_result(query_result=query_result, names=sanitized_catalogs, json=self._get_catalogs_json(),
+                                 row_limit=sanitized_row_limit, get_query_payload=get_query_payload, cache=cache,
+                                 ids=sanitized_source_ids)
+
+        if get_query_payload:
+            return query_result
+
+        return commons.TableList(query_result)
+
+    def query_ids_spectra(self, observation_ids, missions=__ALL_STRING, row_limit=DEFAULT_ROW_LIMIT,
+                          get_query_payload=False, cache=True):
+        """
+        This method fetches the metadata for all the given observations id's and returns a TableList.
+
+        Parameters
+        ----------
+        observation_ids : string or list
+            The observation IDs to fetch.
+        missions : string or list, optional
+            Can be either a specific mission or a list of missions (all mission
+            names are found in list_spectra()) or 'all' to search in all
+            missions. Defaults to 'all'.
+        row_limit : int, optional
+            Determines how many rows that will be fetched from the database
+            for each mission. Can be -1 to select maximum (currently 100 000).
+            Defaults to 10000.
+        get_query_payload : bool, optional
+            When set to True the method returns the HTTP request parameters.
+            Defaults to False.
+        cache : bool, optional
+            When set to True the method will use a cache located at
+            .astropy/astroquery/cache. Defaults to True.
+
+        Returns
+        -------
+        table_list : `~astroquery.utils.TableList`
+            Each mission returns a `~astropy.table.Table` with the metadata.
+            It is structured in a TableList like this:
+            TableList with 2 tables:
+            '0:XMM-NEWTON' with 16 column(s) and 2 row(s)
+            '1:HERSCHEL' with 16 column(s) and 1 row(s)
+
+        Examples
+        --------
+        query_ids_spectra(observation_ids=['0001730501', '0011420101'], missions='XMM-NEWTON')
+        query_ids_spectra(observation_ids='0001730501')
+        query_ids_spectra(observation_ids=['0001730501', '0011420101', '1342246640'], missions=['XMM-NEWTON', 'Herschel'])
+        """
+        sanitized_observation_ids = self._sanitize_input_ids(observation_ids)
+        sanitized_missions = self._sanitize_input_spectra(missions)
+        sanitized_row_limit = self._sanitize_input_row_limit(row_limit)
+
+        query_result = {}
+        self._store_query_result(query_result=query_result, names=sanitized_missions, json=self._get_spectra_json(),
+                                 row_limit=sanitized_row_limit, get_query_payload=get_query_payload, cache=cache,
+                                 ids=sanitized_observation_ids)
+
+        if get_query_payload:
             return query_result
 
         return commons.TableList(query_result)
@@ -639,12 +796,12 @@ class ESASkyClass(BaseQuery):
             log.info("No maps found.")
         return maps
 
-    def get_images(self, position, radius=__ZERO_ARCMIN_STRING,
+    def get_images(self, position="", radius=__ZERO_ARCMIN_STRING,
                    missions=__ALL_STRING, download_dir=_MAPS_DOWNLOAD_DIR,
-                   cache=True):
+                   cache=True, observation_ids=None):
         """
-        This method gets the fits files available for the selected position and
-        mission and downloads all maps to the the selected folder.
+        This method gets the fits files available for the selected mission and
+        position or observation_ids and downloads all maps to the the selected folder.
         The method returns a dictionary which is divided by mission.
         All mission except Herschel returns a list of HDULists.
         For Herschel each item in the list is a dictionary where the used
@@ -667,6 +824,9 @@ class ESASkyClass(BaseQuery):
         cache : bool, optional
             When set to True the method will use a cache located at
             .astropy/astroquery/cache. Defaults to True.
+        observation_ids : string or list, optional
+            A list of observation ID's, you would like to download.
+            If this parameter is empty, a cone search will be performed instead using the radius and position.
 
         Returns
         -------
@@ -685,18 +845,30 @@ class ESASkyClass(BaseQuery):
         Examples
         --------
         get_images("m101", "14'", "all")
+
+        missions = ["SUZAKU", "ISO-IR", "Chandra", "XMM-OM-OPTICAL", "XMM", "XMM-OM-UV", "HST-IR", "Herschel",
+                    "Spitzer", "HST-UV", "HST-OPTICAL"]
+        observation_ids = ["100001010", "01500403", "21171", "0852000101", "0851180201", "0851180201", "n3tr01c3q",
+                           "1342247257", "30002561-25100", "hst_07553_3h_wfpc2_f160bw_pc", "ocli05leq"]
+        get_images(observation_ids=observation_ids, missions=missions)
         """
         sanitized_position = self._sanitize_input_position(position)
         sanitized_radius = self._sanitize_input_radius(radius)
         sanitized_missions = self._sanitize_input_mission(missions)
+        sanitized_observation_ids = self._sanitize_input_ids(observation_ids)
 
+        if sanitized_observation_ids is None:
+            map_query_result = self.query_region_maps(sanitized_position,
+                                                      sanitized_radius,
+                                                      sanitized_missions,
+                                                      get_query_payload=False,
+                                                      cache=cache)
+        else:
+            map_query_result = self.query_ids_maps(missions=sanitized_missions,
+                                                   observation_ids=sanitized_observation_ids,
+                                                   get_query_payload=False,
+                                                   cache=cache)
         maps = dict()
-
-        map_query_result = self.query_region_maps(sanitized_position,
-                                                  sanitized_radius,
-                                                  sanitized_missions,
-                                                  get_query_payload=False,
-                                                  cache=cache)
 
         json = self._get_observation_json()
         for query_mission in map_query_result.keys():
@@ -716,12 +888,12 @@ class ESASkyClass(BaseQuery):
             log.info("No maps found.")
         return maps
 
-    def get_spectra(self, position, radius=__ZERO_ARCMIN_STRING,
+    def get_spectra(self, position="", radius=__ZERO_ARCMIN_STRING,
                     missions=__ALL_STRING, download_dir=_SPECTRA_DOWNLOAD_DIR,
-                    cache=True):
+                    cache=True, observation_ids=None):
         """
-        This method gets the fits files available for the selected position and
-        mission and downloads all spectra to the the selected folder.
+        This method gets the fits files available for the selected missions and
+        position or observation_ids and downloads all spectra to the the selected folder.
         The method returns a dictionary which is divided by mission.
         All mission except Herschel returns a list of HDULists.
         Herschel returns a three-level dictionary.
@@ -743,6 +915,9 @@ class ESASkyClass(BaseQuery):
         cache : bool, optional
             When set to True the method will use a cache located at
             .astropy/astroquery/cache. Defaults to True.
+        observation_ids : string or list, optional
+            A list of observation ID's, you would like to download.
+            If this parameter is empty, a cone search will be performed instead using the radius and position.
 
         Returns
         -------
@@ -764,18 +939,30 @@ class ESASkyClass(BaseQuery):
         --------
         get_spectra("m101", "14'", ["HST-IR", "XMM-NEWTON", "HERSCHEL"])
 
+        missions = ["ISO-IR", "Chandra", "IUE", "XMM-NEWTON", "HST-IR", "Herschel", "HST-UV", "HST-OPTICAL"]
+        observation_ids = ["02101201", "1005", "LWR13178", "0001730201", "ibh706cqq", "1342253595", "z1ax0102t",
+                           "oeik2s020"]
+        get_spectra(observation_ids=observation_ids, missions=missions)
+
         """
         sanitized_position = self._sanitize_input_position(position)
         sanitized_radius = self._sanitize_input_radius(radius)
         sanitized_missions = self._sanitize_input_spectra(missions)
+        sanitized_observation_ids = self._sanitize_input_ids(observation_ids)
 
         spectra = dict()
 
-        spectra_query_result = self.query_region_spectra(sanitized_position,
-                                                  sanitized_radius,
-                                                  sanitized_missions,
-                                                  get_query_payload=False,
-                                                  cache=cache)
+        if sanitized_observation_ids is None:
+            spectra_query_result = self.query_region_spectra(sanitized_position,
+                                                             sanitized_radius,
+                                                             sanitized_missions,
+                                                             get_query_payload=False,
+                                                             cache=cache)
+        else:
+            spectra_query_result = self.query_ids_spectra(missions=sanitized_missions,
+                                                          observation_ids=sanitized_observation_ids,
+                                                          get_query_payload=False,
+                                                          cache=cache)
         json = self._get_spectra_json()
         for query_mission in spectra_query_result.keys():
             spectra[query_mission] = (
@@ -908,6 +1095,16 @@ class ESASkyClass(BaseQuery):
                 return [catalogs]
         raise ValueError("Catalog must be either a string or a list of "
                          "catalogs")
+
+    def _sanitize_input_ids(self, ids):
+        if isinstance(ids, list):
+            return ids
+        if isinstance(ids, str):
+            return [ids]
+        if ids is None:
+            return None
+        raise ValueError("observation_ids/source_ids must be either a string or a list of "
+                         "observation/source IDs")
 
     def _sanitize_input_table_list(self, table_list):
         if isinstance(table_list, commons.TableList):
@@ -1144,44 +1341,51 @@ class ESASkyClass(BaseQuery):
         start_index = product_url.rindex("/") + 1
         return product_url[start_index:]
 
-    def _query_region(self, coordinates, radius, name, row_limit,
-                              get_query_payload, cache, json):
+    def _query(self, name, json, **kwargs):
         table_tap_name = self._find_mission_tap_table_name(json, name)
-        query = self._build_query(coordinates, radius, row_limit,
-                                          self._find_mission_parameters_in_json(table_tap_name,
-                                            json))
-        request_payload = self._create_request_payload(query)
-        if (get_query_payload):
-            return request_payload
-        return self._get_and_parse_from_tap(request_payload, cache)
+        if 'ids' in kwargs:
+            query = self._build_id_query(ids=kwargs.get('ids'),
+                                         row_limit=kwargs.get('row_limit'),
+                                         json=self._find_mission_parameters_in_json(table_tap_name, json))
+        else:
+            query = self._build_region_query(coordinates=kwargs.get('coordinates'), radius=kwargs.get('radius'),
+                                             row_limit=kwargs.get('row_limit'),
+                                             json=self._find_mission_parameters_in_json(table_tap_name, json))
 
-    def _build_query(self, coordinates, radius, row_limit, json):
-        raHours, dec = commons.coord_to_radec(coordinates)
-        ra = raHours * 15.0  # Converts to degrees
-        radiusDeg = commons.radius_to_unit(radius, unit='deg')
+        if 'get_query_payload' in kwargs and kwargs.get('get_query_payload'):
+            return self._create_request_payload(query)
+
+        if not query:
+            return query
+
+        return self.query(query, output_format="votable")
+
+    def _build_region_query(self, coordinates, radius, row_limit, json):
+        ra_hours, dec = commons.coord_to_radec(coordinates)
+        ra = ra_hours * 15.0  # Converts to degrees
+        radius_deg = commons.radius_to_unit(radius, unit='deg')
 
         select_query = "SELECT "
-        if(row_limit > 0):
+        if row_limit > 0:
             select_query = "".join([select_query, "TOP {} ".format(row_limit)])
-        elif(not row_limit == -1):
+        elif not row_limit == -1:
             raise ValueError("Invalid value of row_limit")
 
-        metadata = json[self.__METADATA_STRING]
-        metadata_tap_names = ", ".join(["{}".format(entry[self.__TAP_NAME_STRING])
-                                        for entry in metadata])
-        tapRaColumn = json[self.__TAP_RA_COLUMN_STRING]
-        tapDecColumn = json[self.__TAP_DEC_COLUMN_STRING]
+        select_query = "".join([select_query, "* "])
+
+        tap_ra_column = json[self.__TAP_RA_COLUMN_STRING]
+        tap_dec_column = json[self.__TAP_DEC_COLUMN_STRING]
 
         from_query = " FROM {}".format(json[self.__TAP_TABLE_STRING])
-        if (radiusDeg == 0):
-            if(json[self.__USE_INTERSECT_STRING]):
+        if radius_deg == 0:
+            if json[self.__USE_INTERSECT_STRING]:
                 where_query = (" WHERE 1=INTERSECTS(CIRCLE('ICRS', {}, {}, {}), fov)".
                             format(ra, dec, commons.radius_to_unit(
                                       self.__MIN_RADIUS_CATALOG_STRING,
                                       unit='deg')))
             else:
                 where_query = (" WHERE 1=CONTAINS(POINT('ICRS', {}, {}), CIRCLE('ICRS', {}, {}, {}))".
-                           format(tapRaColumn, tapDecColumn,
+                           format(tap_ra_column, tap_dec_column,
                                   ra,
                                   dec,
                                   commons.radius_to_unit(
@@ -1190,23 +1394,56 @@ class ESASkyClass(BaseQuery):
         else:
             if(json[self.__USE_INTERSECT_STRING]):
                 where_query = (" WHERE 1=INTERSECTS(CIRCLE('ICRS', {}, {}, {}), fov)".
-                            format(ra, dec, radiusDeg))
+                            format(ra, dec, radius_deg))
             else:
                 where_query = (" WHERE 1=CONTAINS(POINT('ICRS', {}, {}), CIRCLE('ICRS', {}, {}, {}))".
-                           format(tapRaColumn, tapDecColumn, ra, dec, radiusDeg))
+                               format(tap_ra_column, tap_dec_column, ra, dec, radius_deg))
 
-        query = "".join([select_query, metadata_tap_names, from_query,
+        query = "".join([select_query, from_query,
+                         where_query])
+
+        return query
+
+    def _build_id_query(self, ids, row_limit, json):
+        select_query = "SELECT "
+        if row_limit > 0:
+            select_query = "".join([select_query, "TOP {} ".format(row_limit)])
+        elif not row_limit == -1:
+            raise ValueError("Invalid value of row_limit")
+
+        select_query = "".join([select_query, "* "])
+
+        from_query = " FROM {}".format(json[self.__TAP_TABLE_STRING])
+        id_column = json["uniqueIdentifierField"]
+        if "observations" in json["tapTable"] or "spectra" in json["tapTable"]:
+            if id_column == "observation_oid":
+                id_column = "observation_id"
+            if id_column == "designation":
+                id_column = "obsid"
+
+        for column in self.get_columns(table_name=json['tapTable'], only_names=False):
+            if column.name == id_column:
+                data_type = column.data_type
+
+        valid_ids = ids
+        if data_type in self._NUMBER_DATA_TYPES:
+            valid_ids = [int(obs_id) for obs_id in ids if obs_id.isdigit()]
+
+        if not valid_ids:
+            return ""
+
+        observation_ids_query_list = ", ".join(repr(id) for id in valid_ids)
+        where_query = (" WHERE {} IN ({})".format(id_column, observation_ids_query_list))
+
+        query = "".join([select_query, from_query,
                         where_query])
 
         return query
 
-    def _store_query_result(self, query_result, names, coordinates,
-                                     radius, row_limit, get_query_payload, cache, json):
+    def _store_query_result(self, query_result, names, json, **kwargs):
         for name in names:
-            table = self._query_region(coordinates, radius,
-                                                       name, row_limit,
-                                                       get_query_payload, cache, json)
-            if (len(table) > 0):
+            table = self._query(name=name, json=json, **kwargs)
+            if len(table) > 0:
                 query_result[name.upper()] = table
 
     def _find_mission_parameters_in_json(self, mission_tap_name, json):
@@ -1260,10 +1497,6 @@ class ESASkyClass(BaseQuery):
         return {'REQUEST': 'doQuery', 'LANG': 'ADQL', 'FORMAT': 'VOTABLE',
                 'QUERY': query}
 
-    def _get_and_parse_from_tap(self, request_payload, cache):
-        response = self._send_get_request("/tap/sync", request_payload, cache)
-        return self._parse_xml_table(response)
-
     def _send_get_request(self, url_extension, request_payload, cache):
         url = self.URLbase + url_extension
         return self._request('GET',
@@ -1272,23 +1505,6 @@ class ESASkyClass(BaseQuery):
                              timeout=self.TIMEOUT,
                              cache=cache,
                              headers=self._get_header())
-
-    def _parse_xml_table(self, response):
-        # try to parse the result into an astropy.Table, else
-        # return the raw result with an informative error message.
-        try:
-            tf = six.BytesIO(response.content)
-            vo_table = votable.parse(tf, pedantic=False)
-            first_table = vo_table.get_first_table()
-            table = first_table.to_table(use_names_over_ids=True)
-            return table
-        except Exception as ex:
-            self.response = response
-            self.table_parse_error = ex
-            raise TableParseError(
-                "Failed to parse ESASky VOTABLE result! The raw response can be "
-                "found in self.response, and the error in "
-                "self.table_parse_error.")
 
     def _get_header(self):
         user_agent = 'astropy:astroquery.esasky.{vers} {isTest}'.format(
