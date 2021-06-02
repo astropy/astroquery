@@ -207,7 +207,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
         if cache is None:
             cache = self.CACHE
 
-        if table in TAP_TABLES:
+        if table in self.TAP_TABLES:
             tap = pyvo.dal.tap.TAPService(baseurl=self.URL_TAP)
             # construct query from table and request_payload (including format)
             tap_query = self._request_to_sql(request_payload)
@@ -347,7 +347,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
                 "Any filters using the 'where' argument are ignored in ``query_object``. Consider using ``query_criteria`` instead.",
                 InputWarning,
             )
-        if table in TAP_TABLES:
+        if table in self.TAP_TABLES:
             criteria["where"] = "hostname='{1}' OR {0}name='{1}'".format(prefix, object_name.strip())
         else:
             criteria["where"] = "{0}hostname='{1}' OR {0}name='{1}'".format(prefix, object_name.strip())
