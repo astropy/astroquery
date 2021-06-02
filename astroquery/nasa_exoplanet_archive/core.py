@@ -130,6 +130,13 @@ class NasaExoplanetArchiveClass(BaseQuery):
     TIMEOUT = conf.timeout
     CACHE = conf.cache
 
+    # Make TAP_TABLES an attribute of NasaExoplanetArchiveClass
+    @property
+    def TAP_TABLES(self):
+        if not hasattr(self, '_tap_tables'):
+            self._tap_tables = get_tap_tables(conf.url_tap)
+        return self._tap_tables
+
     # Ensures methods can be called either as class methods or instance methods. This is the basic query method.
     @class_or_instance
     def query_criteria_async(self, table, get_query_payload=False, cache=None, **criteria):
