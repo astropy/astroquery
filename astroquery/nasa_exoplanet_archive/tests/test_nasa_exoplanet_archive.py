@@ -295,3 +295,20 @@ def test_select():
     nasa_exoplanet_archive.query_criteria = mock_run_query
     payload = nasa_exoplanet_archive.query_criteria()
     assert payload["select"] == "hostname,pl_name"
+
+
+@patch('astroquery.nasa_exoplanet_archive.core.get_access_url',
+       Mock(side_effect=lambda x: 'https://some.url'))
+@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
+def test_get_tap_tables():
+    nasa_exoplanet_archive = NasaExoplanetArchive()
+
+    def mock_run_query(url=conf.url_tap):
+        assert url == conf.url_tap
+        result = PropertyMock()
+        result = ['transitspec', 'emissionspec', 'ps', 'pscomppars', 'keplernames', 'k2names']
+        return result
+    nasa_exoplanet_archive.get_tap_tables = mock_run_query
+    result = nasa_exoplanet_archive.get_tap_tables()
+    assert 'ps' in result
+    assert 'pscomppars' in result

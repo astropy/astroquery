@@ -97,16 +97,15 @@ def get_access_url(service='tap'):
     return url
 
 
-# @pytest.mark.remote_data
-# def get_tap_tables(url):
-#     """Tables accessed by API are gradually migrating to TAP service. Generate current list of tables in TAP."""
-#     tap = pyvo.dal.tap.TAPService(baseurl=url)
-#     response = tap.search(query="select * from TAP_SCHEMA.tables", language="ADQL")
-#     tables = [table for table in response["table_name"].data if "TAP_SCHEMA." not in table]
-#     return tables
+def get_tap_tables(url):
+    """Tables accessed by API are gradually migrating to TAP service. Generate current list of tables in TAP."""
+    tap = pyvo.dal.tap.TAPService(baseurl=url)
+    response = tap.search(query="select * from TAP_SCHEMA.tables", language="ADQL")
+    tables = [table for table in response["table_name"].data if "TAP_SCHEMA." not in table]
+    return tables
 
 
-TAP_TABLES = ['ps', 'pscomppars']  # get_tap_tables(conf.url_tap)
+TAP_TABLES = get_tap_tables(conf.url_tap)  # TAP_TABLES = ['ps', 'pscomppars']
 
 
 class InvalidTableError(InvalidQueryError):
