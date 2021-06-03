@@ -138,6 +138,21 @@ class LegacySurveyClass(BaseQuery):
                                  timeout=self.TIMEOUT, cache=cache)
         return response
 
+    def query_brick_list_async(self, data_release=9, get_query_payload=False,
+                           cache=True):
+        """
+
+        """
+        request_payload = dict()
+
+        if get_query_payload:
+            return request_payload
+        URL = f"{self.URL}/dr{data_release}/north/survey-bricks-dr{data_release}-north.fits.gz"
+
+        response = self._request('GET', URL, params={},
+                                 timeout=self.TIMEOUT, cache=cache)
+        return response
+
     # For services that can query coordinates, use the query_region method.
     # The pattern is similar to the query_object method. The query_region
     # method also has a 'radius' keyword for specifying the radius around

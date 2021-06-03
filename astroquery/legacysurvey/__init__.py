@@ -21,7 +21,7 @@ class Conf(_config.ConfigNamespace):
     Configuration parameters for `astroquery.legacysurvey`.
     """
     server = _config.ConfigItem(
-        ['https://portal.nersc.gov/cfs/cosmo/data/legacysurvey/dr9/',
+        ['https://portal.nersc.gov/cfs/cosmo/data/legacysurvey/',
          ],
         'base url')
 
