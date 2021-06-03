@@ -134,8 +134,16 @@ class NasaExoplanetArchiveClass(BaseQuery):
     @property
     def TAP_TABLES(self):
         if not hasattr(self, '_tap_tables'):
-            self._tap_tables = get_tap_tables(conf.url_tap)
+            self._tap_tables = self.get_tap_tables(conf.url_tap)
         return self._tap_tables
+
+    @class_or_instance
+    def get_tap_tables(self, url):
+        """Tables accessed by API are gradually migrating to TAP service. Generate current list of tables in TAP."""
+        tap = pyvo.dal.tap.TAPService(baseurl=url)
+        response = tap.search(query="select * from TAP_SCHEMA.tables", language="ADQL")
+        tables = [table for table in response["table_name"].data if "TAP_SCHEMA." not in table]
+        return tables
 
     # Ensures methods can be called either as class methods or instance methods. This is the basic query method.
     @class_or_instance
@@ -180,7 +188,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
         # Warn if old table is requested
         if table in MAP_TABLEWARNINGS.keys():
             # warnings.warn("The '{0}' table is stale and will be depracated in the Archive 2.0 release. Use the 'ps' table. See https://exoplanetarchive.ipac.caltech.edu/docs/ps-pscp_release_notes.html".format(table), InputWarning, )
-            raise InvalidTableError("The ``{0}`` table is no longer updated and has been replaced by the {1}, which is connected to the Exoplanet Archive TAP service. Although the argument keywords of the called method should still work on the new table, the allowed values could have changed since the database column names have changed; this document contains the current definitions and a mapping between the new and deprecated names: https://exoplanetarchive.ipac.caltech.edu/docs/API_PS_columns.html. You might also want to review the TAP User Guide for help on creating a new query for the most current data: https://exoplanetarchive.ipac.caltech.edu/docs/TAP/usingTAP.html.".format(table, MAP_TABLEWARNINGS[table]))
+            raise InvalidTableError("The ``{0}`` table is no longer updated and has been replaced by the {1} table, which is connected to the Exoplanet Archive TAP service. Although the argument keywords of the called method should still work on the new table, the allowed values could have changed since the database column names have changed; this document contains the current definitions and a mapping between the new and deprecated names: https://exoplanetarchive.ipac.caltech.edu/docs/API_PS_columns.html. You might also want to review the TAP User Guide for help on creating a new query for the most current data: https://exoplanetarchive.ipac.caltech.edu/docs/TAP/usingTAP.html.".format(table, MAP_TABLEWARNINGS[table]))
 
         # Deal with lists of columns instead of comma separated strings
         criteria = copy.copy(criteria)
