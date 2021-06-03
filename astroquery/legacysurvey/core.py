@@ -8,6 +8,7 @@
 import astropy.units as u
 import astropy.coordinates as coord
 import astropy.io.votable as votable
+import requests
 from astropy.table import Table
 from astropy.io import fits
 
@@ -148,9 +149,15 @@ class LegacySurveyClass(BaseQuery):
         if get_query_payload:
             return request_payload
         URL = f"{self.URL}/dr{data_release}/north/survey-bricks-dr{data_release}-north.fits.gz"
+        # TODO make it work with the original request
+        # response = self._request('GET', URL, params={},
+        #                          timeout=self.TIMEOUT, cache=cache)
 
-        response = self._request('GET', URL, params={},
-                                 timeout=self.TIMEOUT, cache=cache)
+        response = requests.get(URL)
+
+
+        print("completed fits file request")
+
         return response
 
     # For services that can query coordinates, use the query_region method.
@@ -221,8 +228,14 @@ class LegacySurveyClass(BaseQuery):
         try:
             # do something with regex to get the result into
             # astropy.Table form. return the Table.
-            data = io.BytesIO(response.content)
-            table = Table.read(data, hdu=1)                       
+            # data = io.BytesIO(response.content)
+            # TODO figure out on how to avoid writing in a file
+            with open('/tmp/file_content', 'wb') as fin:
+                fin.write(response.content)
+
+            table = Table.read('/tmp/file_content', hdu=1)
+
+            # table = Table.read(data, hdu=1)
         except ValueError:
             # catch common errors here, but never use bare excepts
             # return raw result/ handle in some way
