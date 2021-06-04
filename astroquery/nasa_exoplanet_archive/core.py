@@ -134,16 +134,8 @@ class NasaExoplanetArchiveClass(BaseQuery):
     @property
     def TAP_TABLES(self):
         if not hasattr(self, '_tap_tables'):
-            self._tap_tables = self.get_tap_tables(conf.url_tap)
+            self._tap_tables = get_tap_tables()
         return self._tap_tables
-
-    @class_or_instance
-    def get_tap_tables(self, url):
-        """Tables accessed by API are gradually migrating to TAP service. Generate current list of tables in TAP."""
-        tap = pyvo.dal.tap.TAPService(baseurl=url)
-        response = tap.search(query="select * from TAP_SCHEMA.tables", language="ADQL")
-        tables = [table for table in response["table_name"].data if "TAP_SCHEMA." not in table]
-        return tables
 
     # Ensures methods can be called either as class methods or instance methods. This is the basic query method.
     @class_or_instance

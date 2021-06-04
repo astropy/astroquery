@@ -75,13 +75,13 @@ API_TABLES = [
         ),
     ),
 ]
-TAP_TABLES = [
-    ("ps", dict(where="hostname='Kepler-11'")),
-    ("pscomppars", dict(where="hostname='WASP-166'"))
-    # ("ml", dict(where="pl_name='MOA-2010-BLG-353L b'")), # new microlensing table not ready for the wild yet
-    # ("keplernames", dict(where="kepid=10601284")), # not yet officially supported
-    # ("k2names", dict(where="epic_host='EPIC 206027655'")), # not yet officially supported
-]
+# TAP_TABLES = [
+#     ("ps", dict(where="hostname='Kepler-11'")),
+#     ("pscomppars", dict(where="hostname='WASP-166'"))
+#     # ("ml", dict(where="pl_name='MOA-2010-BLG-353L b'")), # new microlensing table not ready for the wild yet
+#     # ("keplernames", dict(where="kepid=10601284")), # not yet officially supported
+#     # ("k2names", dict(where="epic_host='EPIC 206027655'")), # not yet officially supported
+# ]
 
 
 def mock_get(self, method, url, *args, **kwargs):  # pragma: nocover
@@ -139,6 +139,7 @@ def patch_get(request):  # pragma: nocover
 
 
 def test_regularize_object_name(patch_get):
+    NasaExoplanetArchive._tap_tables = ['list']
     assert NasaExoplanetArchive._regularize_object_name("kepler 2") == "HAT-P-7"
     assert NasaExoplanetArchive._regularize_object_name("kepler 1 b") == "TrES-2 b"
 
@@ -152,6 +153,7 @@ def test_backwards_compat(patch_get):
     These are the tests from the previous version of this interface.
     They query old tables by default and should return InvalidTableError.
     """
+    NasaExoplanetArchive._tap_tables = ['list']
 
     # test_hd209458b_exoplanets_archive
     with pytest.warns(AstropyDeprecationWarning):
@@ -187,6 +189,7 @@ def test_backwards_compat(patch_get):
 @pytest.mark.filterwarnings("error")
 @pytest.mark.parametrize("table,query", API_TABLES)
 def test_api_tables(patch_get, table, query):
+    NasaExoplanetArchive._tap_tables = ['list']
     data = NasaExoplanetArchive.query_criteria(table, select="*", **query)
     assert len(data) > 0
 
