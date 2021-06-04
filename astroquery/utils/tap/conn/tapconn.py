@@ -23,7 +23,6 @@ except ImportError:
     import httplib
 import mimetypes
 import time
-from astroquery import version
 
 from six.moves.urllib.parse import urlencode
 
@@ -125,8 +124,7 @@ class TapConn:
         self.__tapContext = None
         self.__postHeaders = {
             "Content-type": CONTENT_TYPE_POST_DEFAULT,
-            "Accept": "text/plain",
-            "User-Agent": 'astropy:astroquery.{vers}'.format(vers=version.version)
+            "Accept": "text/plain"
             }
         self.__getHeaders = {}
         self.__cookie = None
