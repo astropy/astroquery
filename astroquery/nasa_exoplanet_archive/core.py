@@ -97,15 +97,12 @@ def get_access_url(service='tap'):
     return url
 
 
-def get_tap_tables(url):
+def get_tap_tables():
     """Tables accessed by API are gradually migrating to TAP service. Generate current list of tables in TAP."""
-    tap = pyvo.dal.tap.TAPService(baseurl=url)
+    tap = pyvo.dal.tap.TAPService(baseurl=conf.url_tap)
     response = tap.search(query="select * from TAP_SCHEMA.tables", language="ADQL")
     tables = [table for table in response["table_name"].data if "TAP_SCHEMA." not in table]
     return tables
-
-
-TAP_TABLES = get_tap_tables(conf.url_tap)  # TAP_TABLES = ['ps', 'pscomppars']
 
 
 class InvalidTableError(InvalidQueryError):
@@ -334,8 +331,8 @@ class NasaExoplanetArchiveClass(BaseQuery):
         prefix = OBJECT_TABLES.get(table, None)
         if prefix is None:
             raise InvalidQueryError(
-                "Invalid table '{0}'. The allowed options are: {1}".format(
-                    table, OBJECT_TABLES.keys()
+                "Invalid table '{0}'. The allowed options are: 'ps' and 'pscomppars'".format(
+                    table
                 )
             )
 

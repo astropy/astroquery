@@ -75,13 +75,6 @@ API_TABLES = [
         ),
     ),
 ]
-# TAP_TABLES = [
-#     ("ps", dict(where="hostname='Kepler-11'")),
-#     ("pscomppars", dict(where="hostname='WASP-166'"))
-#     # ("ml", dict(where="pl_name='MOA-2010-BLG-353L b'")), # new microlensing table not ready for the wild yet
-#     # ("keplernames", dict(where="kepid=10601284")), # not yet officially supported
-#     # ("k2names", dict(where="epic_host='EPIC 206027655'")), # not yet officially supported
-# ]
 
 
 def mock_get(self, method, url, *args, **kwargs):  # pragma: nocover
