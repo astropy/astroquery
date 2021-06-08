@@ -65,7 +65,7 @@ class LegacySurveyClass(BaseQuery):
     """
 
     def query_object_async(self, object_name, get_query_payload=False,
-                           cache=True):
+                           cache=True, data_release=9):
         """
         This method is for services that can parse object names. Otherwise
         use :meth:`astroquery.template_module.TemplateClass.query_region`.
@@ -133,7 +133,7 @@ class LegacySurveyClass(BaseQuery):
         # to confirm with AG, AN
         # if so:
          
-        URL = f"{self.URL}/north/tractor/000/tractor-0001m002.fits"
+        URL = f"{self.URL}/dr{data_release}/north/tractor/000/tractor-0001m002.fits"
 
         response = self._request('GET', URL, params={},
                                  timeout=self.TIMEOUT, cache=cache)
@@ -155,7 +155,6 @@ class LegacySurveyClass(BaseQuery):
 
         response = requests.get(URL)
 
-
         print("completed fits file request")
 
         return response
@@ -171,8 +170,8 @@ class LegacySurveyClass(BaseQuery):
     # similarly we write a query_region_async method that makes the
     # actual HTTP request and returns the HTTP response
 
-    def query_region_async(self, coordinates, radius, height, width,
-                           get_query_payload=False, cache=True):
+    def query_region_async(self, coordinates, radius,
+                           get_query_payload=False, cache=True, data_release=9):
         """
         Queries a region around the specified coordinates.
 
@@ -182,10 +181,6 @@ class LegacySurveyClass(BaseQuery):
             coordinates around which to query
         radius : str or `astropy.units.Quantity`.
             the radius of the cone search
-        width : str or `astropy.units.Quantity`
-            the width for a box region
-        height : str or `astropy.units.Quantity`
-            the height for a box region
         get_query_payload : bool, optional
             Just return the dict of HTTP request parameters.
         verbose : bool, optional
@@ -197,13 +192,40 @@ class LegacySurveyClass(BaseQuery):
             The HTTP response returned from the service.
             All async methods should return the raw HTTP response.
         """
-        request_payload = self._args_to_payload(coordinates, radius, height,
-                                                width)
-        if get_query_payload:
-            return request_payload
-        response = self._request('GET', self.URL, params=request_payload,
-                                 timeout=self.TIMEOUT, cache=cache)
-        return response
+        # call the brick list
+        table = self.query_brick_list(data_release=data_release)
+        # needed columns: ra1, ra2, dec1, dec2 (corners of the bricks), and also brickname
+        ra1 = table['ra1']
+        ra2 = table['ra2']
+        dec1 = table['dec1']
+        dec2 = table['dec2']
+        ra = coordinates.ra.deg
+        # radius not used for the moment, but it will be in the future
+        # must find the brick within ra1 and ra2
+        dec = coordinates.dec.deg
+        # must find the brick within dec1 and dec2
+        row = None
+
+        for r in table:
+            ra1 = r['ra1']
+            ra2 = r['ra2']
+            dec1 = r['dec1']
+            dec2 = r['dec2']
+            if ra1 <= ra <= ra2 and dec1 <= dec <= dec2:
+                row = r
+                break
+        if row is not None:
+            brickname = r['brickname']
+            raIntPart = "{0:03}".format(int(r['ra1']))
+            # to get then the brickname of the line of the table
+            # extract the integer part of ra1, and in string format (eg 001)
+            URL = f"{self.URL}/dr{data_release}/north/tractor/{raIntPart}/tractor-{brickname}.fits"
+
+            response = requests.get(URL)
+            return response
+
+        else:
+            return None
 
     # as we mentioned earlier use various python regular expressions, etc
     # to create the dict of HTTP request parameters by parsing the user
@@ -213,6 +235,7 @@ class LegacySurveyClass(BaseQuery):
         request_payload = dict()
         # code to parse input and construct the dict
         # goes here. Then return the dict to the caller
+
         return request_payload
 
     # the methods above call the private _parse_result method.
@@ -229,13 +252,14 @@ class LegacySurveyClass(BaseQuery):
             # do something with regex to get the result into
             # astropy.Table form. return the Table.
             # data = io.BytesIO(response.content)
+
             # TODO figure out on how to avoid writing in a file
             with open('/tmp/file_content', 'wb') as fin:
                 fin.write(response.content)
 
             table = Table.read('/tmp/file_content', hdu=1)
 
-            # table = Table.read(data, hdu=1)
+            # table = Table.read(data)
         except ValueError:
             # catch common errors here, but never use bare excepts
             # return raw result/ handle in some way

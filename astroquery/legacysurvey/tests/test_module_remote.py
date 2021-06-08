@@ -9,6 +9,7 @@
 import pytest
 from astropy.table import Table
 
+
 @pytest.mark.remote_data
 class TestLegacySurveyClass:
     # now write tests for each method here
@@ -27,20 +28,14 @@ class TestLegacySurveyClass:
         from astropy.coordinates import SkyCoord
         from astropy.coordinates import Angle, Latitude, Longitude  # Angles
 
-        ra = Angle('0h8m05.63s', unit='hourangle').degree
-        dec = Angle('+14d50m23.3s', unit='hourangle').degree
+        ra = Angle('11h04m27.31s', unit='hourangle').degree
+        dec = Angle('+38d12m31.8s', unit='hourangle').degree
         radius_input = 3.0  # arcmin
 
-        source = SkyCoord(ra, dec, unit='degree')
+        coordinates = SkyCoord(ra, dec, unit='degree')
         radius = Angle(radius_input, unit='arcmin')
 
-        photoobj_fields = ['run', 'rerun', 'camcol', 'field', 'ra', 'dec', 'mode',
-                           'psfFlux_u', 'psfFlux_g', 'psfFlux_r', 'psfFlux_i', 'psfFlux_z',
-                           'psfFluxIvar_u', 'psfFluxIvar_g', 'psfFluxIvar_r', 'psfFluxIvar_i', 'psfFluxIvar_z',
-                           'TAI_u', 'TAI_g', 'TAI_r', 'TAI_i', 'TAI_z', 'objID', 'thingId']
-
-        query1 = astroquery.legacysurvey.LegacySurvey.query_region(source, radius=radius, data_release=16,
-                                        photoobj_fields=photoobj_fields)
+        query1 = astroquery.legacysurvey.LegacySurvey.query_region(coordinates=coordinates, radius=radius, data_release=9)
 
         print(query1)
 
