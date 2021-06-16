@@ -13,8 +13,6 @@ European Space Agency (ESA)
 Created on 30 jun. 2016
 Modified on 1 jun. 2021 by mhsarmiento
 Version: gaia-astroquery-1.0
-
-
 """
 from astroquery.utils.tap import taputils
 from astroquery.utils.tap.conn.tapconn import TapConn
@@ -1650,23 +1648,28 @@ class TapPlus(Tap):
         msg = f"Table '{table_name}' deleted."
         print(msg)
 
-    def rename_table(self, table_name=None, new_table_name=None, new_column_names_dict={},
+    def rename_table(self, table_name=None, new_table_name=None, new_column_names_dict=None,
                      verbose=False):
+        """ This new method allows you to update the column names of a user table.
+
+        Parameters
+        ----------
+        table_name: str, required
+            old name of the user's table
+        new_table_name: str, required
+            new name of the user's table
+        new_column_names_dict: dict str:str, required
+            dict with pairs "old_column1_name:new_column1_name"
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Example
+        -------
+        rename_table(table_name=old_table_name, new_table_name=new_table_name,
+        new_column_names_dict=[old_column1:new_column1, old_column2:new_column2, ...])
         """
-            This new method allows to update the column names of a user table.
-            header example: rename_table(table_name=old_table_name, new_table_name=new_table_name -optional-
-             , new_column_names_dict=[old_column1:new_column1, old_column2:new_colum2...])
-            Parameters
-            ----------
-            table_name: str, required
-                old name of the user's table
-            new_table_name: str, required
-                new name of the user's table
-            new_column_names_dict: dict str:str, required
-                dict with pairs "old_column1_name:new_column1_name"
-            verbose : bool, optional, default 'False'
-                flag to display information about the process
-        """
+        if new_column_names_dict is None:
+            new_column_names_dict = {}
         args = {}
 
         if table_name is None:
@@ -1676,16 +1679,6 @@ class TapPlus(Tap):
             raise ValueError("Please introduce as minimum a new table tame or a new name for a column with format "
                              "old_column1_name:new_column1_name, ... ,old_columnN_name:new_columnN_name")
 
-        # # Now we will check that the table exist
-        # table = self.load_table(table=table_name, verbose=verbose)
-        #
-        # # Check now if the table exist and contains values
-        # if table is None:
-        #     raise ValueError("Table name not found")
-        # columns = table.columns
-        # if len(columns) == 0:
-        #     raise ValueError("Table has no columns")
-
         if new_table_name is not None or new_table_name != '':
             if new_column_names_dict is None or not new_column_names_dict:
                 # case 1: We only need to rename the table
@@ -1693,8 +1686,6 @@ class TapPlus(Tap):
             else:
                 # case 2: We need to rename both, columns and column name
                 args = self.get_args_4_rename_table_all(table_name, new_table_name, new_column_names_dict)
-            # __end_if
-        # __end_if
 
         if new_table_name is None or new_table_name == '':
             if new_column_names_dict is not None or new_column_names_dict:
@@ -1713,8 +1704,6 @@ class TapPlus(Tap):
         msg = f"Table '{table_name}' updated."
         print(msg)
 
-    # __end_of_rename_table
-
     def get_args_4_rename_table_only_table_name(self, table_name, new_table_name):
 
         args = {
@@ -1723,8 +1712,6 @@ class TapPlus(Tap):
             "table_name": table_name
         }
         return args
-
-    # __end_of_rename_table_only_table_name
 
     def get_args_4_rename_table_all(self, table_name, new_table_name, new_column_names_dict):
         count = 0
@@ -1754,8 +1741,6 @@ class TapPlus(Tap):
             "table_name": table_name
         }
         return args
-
-    # __end_of_rename_table_all
 
     def get_args_4_rename_table_only_columns(self, table_name, new_column_names_dict):
         # check if the changes proposed for the columns are correct.
