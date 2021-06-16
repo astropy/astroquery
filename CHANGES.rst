@@ -10,8 +10,19 @@ esa.hubble
 - Cone search module allows the user to save the result in local storage. [#1855]
 - Module added to perform a cone search based on a set of criteria. [#1855]
 
+esa.xmm_newton
+^^^^^^^^^^^^^^
+
+- Adding the extraction epic light curves. [#2017]
+- Adding the extraction of epic spectra. [#2017]
+
 Service fixes and enhancements
 ------------------------------
+
+esa.xmm_newton
+^^^^^^^^^^^^^^
+
+- Bug fixes. Fixed the generation of files with wrong extension. [#2017]
 
 heasarc
 ^^^^^^^
