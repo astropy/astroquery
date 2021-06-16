@@ -423,9 +423,9 @@ class XMMNewtonClass(BaseQuery):
 
         except FileNotFoundError:
             log.error("File %s not found" % (filename))
-            return None
+            return
 
-        if ret is None or ret == {}:
+        if not ret:
             log.info("Nothing to extract with the given parameters:\n"
                      "  PPS: %s\n"
                      "  Source Number: %u\n"
