@@ -27,7 +27,6 @@ from ..utils.class_or_instance import class_or_instance
 from . import conf
 
 # Import TAP client
-# from astroquery.utils.tap.core import TapPlus # This package will be deprecated, use PyVO
 import pyvo
 
 # Objects exported when calling from astroquery.nasa_exoplanet_archive import *
@@ -82,11 +81,15 @@ UNIT_MAPPER = {
 }
 
 CONVERTERS = dict(koi_quarters=[ascii.convert_numpy(str)])
-OBJECT_TABLES = {"exoplanets": "pl_", "compositepars": "fpl_", "exomultpars": "mpl_"}
 
-# 'ps' and 'pscomppars' are the main tables of detected exoplanets. Calls to the old tables ('exoplanets', 'compositepars', 'exomultpars') will return errors and urge the user to call the 'ps' or 'pscomppars' tables
-OBJECT_TABLES = {"ps": "pl_", "pscomppars": "pl_", "exoplanets": "pl_", "compositepars": "fpl_", "exomultpars": "mpl_"}
-MAP_TABLEWARNINGS = {"exoplanets": "Planetary Systems (PS)", "compositepars": "Planetary System Composite Parameters table (PSCompPars)", "exomultpars": "Planetary Systems (PS)"}
+# 'ps' and 'pscomppars' are the main tables of detected exoplanets.
+# Calls to the old tables ('exoplanets', 'compositepars', 'exomultpars') will
+# return errors and urge the user to call the 'ps' or 'pscomppars' tables
+OBJECT_TABLES = {"ps": "pl_", "pscomppars": "pl_", "exoplanets": "pl_",
+                 "compositepars": "fpl_", "exomultpars": "mpl_"}
+MAP_TABLEWARNINGS = {"exoplanets": "Planetary Systems (PS)",
+                     "compositepars": "Planetary System Composite Parameters table (PSCompPars)",
+                     "exomultpars": "Planetary Systems (PS)"}
 
 
 def get_access_url(service='tap'):
@@ -111,17 +114,20 @@ class InvalidTableError(InvalidQueryError):
     pass
 
 
-# Class decorator, async_to_sync, modifies NasaExoplanetArchiveClass to convert all query_x_async methods to query_x methods
+# Class decorator, async_to_sync, modifies NasaExoplanetArchiveClass to convert
+# all query_x_async methods to query_x methods
 @async_to_sync
 class NasaExoplanetArchiveClass(BaseQuery):
     """
     The interface for querying the NASA Exoplanet Archive TAP and API services
 
     A full discussion of the available tables and query syntax is available on the documentation
-    pages for `TAP <https://exoplanetarchive.ipac.caltech.edu/docs/TAP/usingTAP.html>`_ and `API <https://exoplanetarchive.ipac.caltech.edu/docs/program_interfaces.html>`_.
+    pages for `TAP <https://exoplanetarchive.ipac.caltech.edu/docs/TAP/usingTAP.html>`_ and
+    `API <https://exoplanetarchive.ipac.caltech.edu/docs/program_interfaces.html>`_.
     """
 
-    # When module us imported, __init__.py runs and loads a configuration object, setting the configuration parameters con.url, conf.timeout and conf.cache
+    # When module us imported, __init__.py runs and loads a configuration object,
+    # setting the configuration parameters con.url, conf.timeout and conf.cache
     URL_API = conf.url_api
     URL_TAP = conf.url_tap
     TIMEOUT = conf.timeout
@@ -176,8 +182,16 @@ class NasaExoplanetArchiveClass(BaseQuery):
 
         # Warn if old table is requested
         if table in MAP_TABLEWARNINGS.keys():
-            # warnings.warn("The '{0}' table is stale and will be depracated in the Archive 2.0 release. Use the 'ps' table. See https://exoplanetarchive.ipac.caltech.edu/docs/ps-pscp_release_notes.html".format(table), InputWarning, )
-            raise InvalidTableError("The ``{0}`` table is no longer updated and has been replaced by the {1} table, which is connected to the Exoplanet Archive TAP service. Although the argument keywords of the called method should still work on the new table, the allowed values could have changed since the database column names have changed; this document contains the current definitions and a mapping between the new and deprecated names: https://exoplanetarchive.ipac.caltech.edu/docs/API_PS_columns.html. You might also want to review the TAP User Guide for help on creating a new query for the most current data: https://exoplanetarchive.ipac.caltech.edu/docs/TAP/usingTAP.html.".format(table, MAP_TABLEWARNINGS[table]))
+            raise InvalidTableError(
+                "The `{0}` table is no longer updated and has been replacedby the `{1}` table, which"
+                " is connected to the Exoplanet Archive TAP service. Although the argument keywords "
+                "of the called method should still work on the new table, the allowed values could "
+                "have changed since the database column names have changed; this document contains "
+                "the current definitions and a mapping between the new and deprecated names: "
+                "https://exoplanetarchive.ipac.caltech.edu/docs/API_PS_columns.html. You might also "
+                "want to review the TAP User Guide for help on creating a new query for the most "
+                "current data: https://exoplanetarchive.ipac.caltech.edu/docs/TAP/usingTAP.html."
+                .format(table, MAP_TABLEWARNINGS[table]))
 
         # Deal with lists of columns instead of comma separated strings
         criteria = copy.copy(criteria)
@@ -191,7 +205,8 @@ class NasaExoplanetArchiveClass(BaseQuery):
         # with the other options too
         # Get the format, or set it to "ipac" if not given. Makes more sense to use CSV here.
         criteria["format"] = criteria.get("format", "ipac")
-        # Less formats are allowed for TAP, so this needs to be updated. Default is VOTable (vot?, xml?), also csv and tsv are allowed
+        # Less formats are allowed for TAP, so this needs to be updated. Default
+        # is VOTable (vot?, xml?), also csv and tsv are allowed
         if "json" in criteria["format"].lower():
             raise InvalidQueryError("The 'json' format is not supported")
 
@@ -325,33 +340,23 @@ class NasaExoplanetArchiveClass(BaseQuery):
         .. [2] `NASA Exoplanet Archive API Documentation
            <https://exoplanetarchive.ipac.caltech.edu/docs/program_interfaces.html>`_
         """
-        # if table.lower() in ["ps"]: # actually want to check if default was used, but wasn't working ...
-        #     warnings.warn("The default table for this query method has changed after Archive 2.0 release. The ``ps`` table is being used, and is likely to return multiple rows for an object query. See https://exoplanetarchive.ipac.caltech.edu/docs/API_PS_columns.html", InputWarning, )
 
         prefix = OBJECT_TABLES.get(table, None)
         if prefix is None:
-            raise InvalidQueryError(
-                "Invalid table '{0}'. The allowed options are: 'ps' and 'pscomppars'".format(
-                    table
-                )
-            )
+            raise InvalidQueryError(f"Invalid table '{table}'. The allowed options are: 'ps' and 'pscomppars'")
 
         if regularize:
             object_name = self._regularize_object_name(object_name)
 
         if "where" in criteria:
-            warnings.warn(
-                "Any filters using the 'where' argument are ignored in ``query_object``. Consider using ``query_criteria`` instead.",
-                InputWarning,
-            )
+            warnings.warn("Any filters using the 'where' argument are ignored "
+                          "in ``query_object``. Consider using ``query_criteria`` instead.", InputWarning)
         if table in self.TAP_TABLES:
             criteria["where"] = "hostname='{1}' OR {0}name='{1}'".format(prefix, object_name.strip())
         else:
             criteria["where"] = "{0}hostname='{1}' OR {0}name='{1}'".format(prefix, object_name.strip())
 
-        return self.query_criteria_async(
-            table, get_query_payload=get_query_payload, cache=cache, **criteria,
-        )
+        return self.query_criteria_async(table, get_query_payload=get_query_payload, cache=cache, **criteria)
 
     @class_or_instance
     def query_aliases(self, object_name, *, cache=None):
@@ -614,13 +619,21 @@ class NasaExoplanetArchiveClass(BaseQuery):
         if "order" in request_payload.keys():
             request_payload["order by"] = request_payload.pop("order")
         if "format" in request_payload.keys():
-            responseformat = request_payload.pop("format")  # figure out what to do with the format keyword
+            # TODO figure out what to do with the format keyword
+            responseformat = request_payload.pop("format")
         if "ra" in request_payload.keys():  # means this is a `query_region` call
-            request_payload["where"] = "contains(point('icrs',ra,dec),circle('icrs',{0},{1},{2}))=1".format(request_payload["ra"], request_payload["dec"], request_payload["radius"])
+            request_payload["where"] = ("contains(point('icrs',ra,dec),circle('icrs',{0},{1},{2}))=1"
+                                        .format(request_payload["ra"], request_payload["dec"],
+                                                request_payload["radius"]))
             del request_payload["ra"], request_payload["dec"], request_payload["radius"]
         if "where" in request_payload:
             if "pl_hostname" in request_payload["where"]:  # means this is a `query_object`
-                request_payload["where"] = "pl_hostname or pl_name like {0}".format(request_payload["where"][request_payload["where"].find("=")+2:request_payload["where"].find("OR")-2])  # This is a bit hacky since we are getting this from the request_payload (downstream) instead of directly from object_name
+                # This is a bit hacky since we are getting this from the request_payload (downstream)
+                # instead of directly from object_name
+                name = request_payload["where"][
+                    request_payload["where"].find("=")+2:request_payload["where"].find("OR")-2]
+                request_payload["where"] = f"pl_hostname or pl_name like {name}"
+
         query_opt = " ".join("{0} {1}".format(key, value) for key, value in request_payload.items())
         tap_query = "{0} {1}".format(query_req, query_opt)
 
