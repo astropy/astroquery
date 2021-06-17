@@ -28,8 +28,15 @@ heasarc
 ^^^^^^^
 
 - Added posibility to query limited time range. [#1988]
-- Add alternative instance of HEASARC Server, maintained by 
+- Add alternative instance of HEASARC Server, maintained by
   INTEGRAL Science Data Center. [#1988]
+
+nasa_exoplanet_archive
+^^^^^^^^^^^^^^^^^^^^^^
+
+- Making module compatible with the NASA Exoplanet Archive 2.0 using TAP.
+  release. Support for querying old tables (exoplanets, compositepars, and
+  exomultpars) has been dropped. [#2067]
 
 
 Service fixes and enhancements
