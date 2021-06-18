@@ -7,26 +7,38 @@ import sys
 from urllib.parse import urlencode
 
 import astropy.units as u
+from astropy.io.ascii import write as ap_write
+from astroquery.utils.commons import parse_coordinates
+from astropy.table import Table as AstroTable
 import numpy as np
 import pkg_resources
 import pytest
 import requests
+try:
+    pyvo_OK = True
+    from pyvo.auth import authsession
+except ImportError:
+    pyvo_OK = False
+    pytest.skip("Install pyvo for the nasa_exoplanet_archive module.", allow_module_level=True)
 from astropy.coordinates import SkyCoord
 from astropy.tests.helper import assert_quantity_allclose
 from astropy.utils.exceptions import AstropyDeprecationWarning
 
 from ...exceptions import InputWarning, InvalidQueryError, NoResultsWarning
 from ...utils.testing_tools import MockResponse
-from ..core import NasaExoplanetArchive, conf
+from ..core import NasaExoplanetArchive, conf, InvalidTableError
+try:
+    from unittest.mock import Mock, patch, PropertyMock
+except ImportError:
+    pytest.skip("Install mock for the nasa_exoplanet_archive tests.", allow_module_level=True)
 
 MAIN_DATA = pkg_resources.resource_filename("astroquery.nasa_exoplanet_archive", "data")
 TEST_DATA = pkg_resources.resource_filename(__name__, "data")
 RESPONSE_FILE = os.path.join(TEST_DATA, "responses.json")
-ALL_TABLES = [
-    ("exoplanets", dict(where="pl_hostname='Kepler-11'")),
-    ("compositepars", dict(where="fpl_hostname='WASP-166'")),
-    ("exomultpars", dict(where="mpl_hostname='TrES-2'")),
-    ("microlensing", dict(where="plntname='MOA-2010-BLG-353L b'")),
+
+# API accessible tables will gradually transition to TAP service
+# Check https://exoplanetarchive.ipac.caltech.edu/docs/TAP/usingTAP.html for an up-to-date list
+API_TABLES = [
     ("cumulative", dict(where="kepid=10601284")),
     ("koi", dict(where="kepid=10601284")),
     ("q1_q17_dr25_sup_koi", dict(where="kepid=10601284")),
@@ -48,13 +60,11 @@ ALL_TABLES = [
     ("q1_q16_stellar", dict(where="kepid=10601284")),
     ("q1_q12_stellar", dict(where="kepid=10601284")),
     ("keplertimeseries", dict(kepid=8561063, quarter=14)),
-    ("keplernames", dict(where="kepid=10601284")),
     ("kelttimeseries", dict(where="kelt_sourceid='KELT_N02_lc_012738_V01_east'", kelt_field="N02")),
     ("kelt", dict(where="kelt_sourceid='KELT_N02_lc_012738_V01_east'", kelt_field="N02")),
     ("superwasptimeseries", dict(sourceid="1SWASP J191645.46+474912.3")),
     ("k2targets", dict(where="epic_number=206027655")),
     ("k2candidates", dict(where="epic_name='EPIC 206027655'")),
-    ("k2names", dict(where="epic_host='EPIC 206027655'")),
     ("missionstars", dict(where="star_name='tau Cet'")),
     ("mission_exocat", dict(where="star_name='HIP 5110 A'")),
     pytest.param(
@@ -68,7 +78,7 @@ ALL_TABLES = [
 
 
 def mock_get(self, method, url, *args, **kwargs):  # pragma: nocover
-    assert url == conf.url
+    assert url == conf.url_api
 
     params = kwargs.get("params", None)
     assert params is not None
@@ -122,6 +132,7 @@ def patch_get(request):  # pragma: nocover
 
 
 def test_regularize_object_name(patch_get):
+    NasaExoplanetArchive._tap_tables = ['list']
     assert NasaExoplanetArchive._regularize_object_name("kepler 2") == "HAT-P-7"
     assert NasaExoplanetArchive._regularize_object_name("kepler 1 b") == "TrES-2 b"
 
@@ -131,60 +142,47 @@ def test_regularize_object_name(patch_get):
 
 
 def test_backwards_compat(patch_get):
-    """These are the tests from the previous version of this interface"""
+    """
+    These are the tests from the previous version of this interface.
+    They query old tables by default and should return InvalidTableError.
+    """
+    NasaExoplanetArchive._tap_tables = ['list']
 
     # test_hd209458b_exoplanets_archive
     with pytest.warns(AstropyDeprecationWarning):
-        params = NasaExoplanetArchive.query_planet("HD 209458 b ")
-    assert_quantity_allclose(params["pl_radj"], 1.320 * u.R_jup, atol=0.1 * u.R_jup)
+        with pytest.raises(InvalidTableError) as error:
+            params = NasaExoplanetArchive.query_planet("HD 209458 b ")
+        assert "replaced" in str(error)
 
     # test_hd209458b_exoplanet_archive_coords
     with pytest.warns(AstropyDeprecationWarning):
-        params = NasaExoplanetArchive.query_planet("HD 209458 b ")
-    simbad_coords = SkyCoord(ra="22h03m10.77207s", dec="+18d53m03.5430s")
-    sep = params["sky_coord"][0].separation(simbad_coords)
-    assert abs(sep) < 5 * u.arcsec
+        with pytest.raises(InvalidTableError) as error:
+            params = NasaExoplanetArchive.query_planet("HD 209458 b ")
+        assert "replaced" in str(error)
 
     # test_hd209458_stellar_exoplanet
     with pytest.warns(AstropyDeprecationWarning):
-        params = NasaExoplanetArchive.query_star("HD 209458")
-    assert len(params) == 1
-    assert str(params["pl_name"][0]) == "HD 209458 b"
-    assert_quantity_allclose(params["pl_orbper"], 3.52474859 * u.day, atol=1e-5 * u.day)
-    assert not params["pl_kepflag"]
-    assert not params["pl_ttvflag"]
+        with pytest.raises(InvalidTableError) as error:
+            params = NasaExoplanetArchive.query_star("HD 209458")
+        assert "replaced" in str(error)
 
     # test_hd136352_stellar_exoplanet_archive
     with pytest.warns(AstropyDeprecationWarning):
-        params = NasaExoplanetArchive.query_star("HD 136352")
-    assert len(params) == 3
-    expected_planets = ["HD 136352 b", "HD 136352 c", "HD 136352 d"]
-    for planet in expected_planets:
-        assert planet in params["pl_name"]
-    assert "pl_trandep" not in params.colnames
+        with pytest.raises(InvalidTableError) as error:
+            params = NasaExoplanetArchive.query_star("HD 136352")
+        assert "replaced" in str(error)
 
     # test_exoplanet_archive_query_all_columns
     with pytest.warns(AstropyDeprecationWarning):
-        params = NasaExoplanetArchive.query_planet("HD 209458 b ", all_columns=True)
-    assert "pl_tranflag" in params.columns
-
-
-def test_query_object_compat(patch_get):
-    """Make sure that query_object is compatible with query_planet and query_star"""
-    with pytest.warns(AstropyDeprecationWarning):
-        table1 = NasaExoplanetArchive.query_planet("HD 209458 b ")
-    table2 = NasaExoplanetArchive.query_object("HD 209458 b ")
-    _compare_tables(table1, table2)
-
-    with pytest.warns(AstropyDeprecationWarning):
-        table1 = NasaExoplanetArchive.query_star(" Kepler 2")
-    table2 = NasaExoplanetArchive.query_object("HAT-P-7 ")
-    _compare_tables(table1, table2)
+        with pytest.raises(InvalidTableError) as error:
+            params = NasaExoplanetArchive.query_planet("HD 209458 b ", all_columns=True)
+        assert "replaced" in str(error)
 
 
 @pytest.mark.filterwarnings("error")
-@pytest.mark.parametrize("table,query", ALL_TABLES)
-def test_all_tables(patch_get, table, query):
+@pytest.mark.parametrize("table,query", API_TABLES)
+def test_api_tables(patch_get, table, query):
+    NasaExoplanetArchive._tap_tables = ['list']
     data = NasaExoplanetArchive.query_criteria(table, select="*", **query)
     assert len(data) > 0
 
@@ -193,74 +191,120 @@ def test_all_tables(patch_get, table, query):
         assert isinstance(data[col], SkyCoord) or not isinstance(data[col].unit, u.UnrecognizedUnit)
 
 
-def test_select(patch_get):
-    payload = NasaExoplanetArchive.query_criteria(
-        "exoplanets",
-        select=["pl_hostname", "pl_name"],
-        where="pl_hostname='Kepler-11'",
-        get_query_payload=True,
-    )
-    assert payload["select"] == "pl_hostname,pl_name"
+# Mock tests on TAP service below
+@patch('astroquery.nasa_exoplanet_archive.core.get_access_url',
+       Mock(side_effect=lambda x: 'https://some.url'))
+@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
+def test_query_object():
+    nasa_exoplanet_archive = NasaExoplanetArchive()
 
-    table1 = NasaExoplanetArchive.query_criteria(
-        "exoplanets", select=["pl_hostname", "pl_name"], where="pl_hostname='Kepler-11'"
-    )
-    table2 = NasaExoplanetArchive.query_criteria(
-        "exoplanets", select="pl_hostname,pl_name", where="pl_hostname='Kepler-11'"
-    )
-    _compare_tables(table1, table2)
+    def mock_run_query(object_name="K2-18 b", table="pscomppars", select="pl_name,disc_year,discoverymethod,ra,dec"):
+        assert object_name == "K2-18 b"
+        assert table == "pscomppars"
+        assert select == "pl_name,disc_year,discoverymethod,ra,dec"
+        result = PropertyMock()
+        result = {'pl_name': 'K2-18 b', 'disc_year': 2015, 'discoverymethod': 'Transit', 'ra': [172.560141] * u.deg, 'dec': [7.5878315] * u.deg}
 
-
-def test_warnings(patch_get):
-    with pytest.warns(NoResultsWarning):
-        NasaExoplanetArchive.query_criteria("exoplanets", where="pl_hostname='not a host'")
-
-    with pytest.warns(InputWarning):
-        NasaExoplanetArchive.query_object("HAT-P-11 b", where="nothing")
-
-    with pytest.warns(AstropyDeprecationWarning) as warning:
-        NasaExoplanetArchive.query_planet(
-            "HAT-P-11 b", all_columns=False, show_progress=True, table_path="nothing"
-        )
-    assert len(warning) == 3
-
-    with pytest.raises(InvalidQueryError) as error:
-        NasaExoplanetArchive.query_object("HAT-P-11 b", table="cumulative")
-    assert "Invalid table 'cumulative'" in str(error)
+        return result
+    nasa_exoplanet_archive.query_object = mock_run_query
+    response = nasa_exoplanet_archive.query_object()
+    assert response['pl_name'] == 'K2-18 b'
+    assert response['disc_year'] == 2015
+    assert 'Transit' in response['discoverymethod']
+    assert response['ra'] == [172.560141] * u.deg
+    assert response['dec'] == [7.5878315] * u.deg
 
 
-def test_query_region(patch_get):
-    coords = SkyCoord(ra=330.79488 * u.deg, dec=18.8843 * u.deg)
-    radius = 0.001
-    table1 = NasaExoplanetArchive.query_region("exoplanets", coords, radius * u.deg)
-    assert len(table1) == 1
-    assert table1["pl_hostname"] == "HD 209458"
+@patch('astroquery.nasa_exoplanet_archive.core.get_access_url',
+       Mock(side_effect=lambda x: 'https://some.url'))
+@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
+def test_query_region():
+    nasa_exoplanet_archive = NasaExoplanetArchive()
 
-    table2 = NasaExoplanetArchive.query_region("exoplanets", coords, radius)
-    _compare_tables(table1, table2)
-
-
-def test_format(patch_get):
-    table1 = NasaExoplanetArchive.query_object("HAT-P-11 b")
-    table2 = NasaExoplanetArchive.query_object("HAT-P-11 b", format="votable")
-    _compare_tables(table1, table2)
-
-    table1 = NasaExoplanetArchive.query_object("HAT-P-11 b", format="csv")
-    table2 = NasaExoplanetArchive.query_object("HAT-P-11 b", format="bar")
-    _compare_tables(table1, table2)
+    def mock_run_query(table="ps", select='pl_name,ra,dec', coordinates=SkyCoord(ra=172.56 * u.deg, dec=7.59 * u.deg), radius=1.0 * u.deg):
+        assert table == "ps"
+        assert select == 'pl_name,ra,dec'
+        assert radius == 1.0 * u.deg
+        result = PropertyMock()
+        result = {'pl_name': 'K2-18 b'}
+        return result
+    nasa_exoplanet_archive.query_region = mock_run_query
+    response = nasa_exoplanet_archive.query_region()
+    assert 'K2-18 b' in response['pl_name']
 
 
-def _compare_tables(table1, table2):
-    assert len(table1) == len(table2)
-    for col in sorted(set(table1.columns) | set(table2.columns)):
-        assert col in table1.columns
-        assert col in table2.columns
-        try:
-            m = np.isfinite(table1[col]) & np.isfinite(table2[col])
-            assert_quantity_allclose(table1[col][m], table2[col][m])
-        except TypeError:
-            try:
-                # SkyCoords
-                assert np.all(table1[col].separation(table2[col]) < 0.1 * u.arcsec)
-            except AttributeError:
-                assert np.all(table1[col] == table2[col])
+@patch('astroquery.nasa_exoplanet_archive.core.get_access_url',
+       Mock(side_effect=lambda x: 'https://some.url'))
+@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
+def test_query_criteria():
+    nasa_exoplanet_archive = NasaExoplanetArchive()
+
+    def mock_run_query(table="ps", select='pl_name,discoverymethod,dec', where="discoverymethod like 'Microlensing' and dec > 0"):
+        assert table == "ps"
+        assert select == "pl_name,discoverymethod,dec"
+        assert where == "discoverymethod like 'Microlensing' and dec > 0"
+        result = PropertyMock()
+        result = {'pl_name': 'TCP J05074264+2447555 b', 'discoverymethod': 'Microlensing', 'dec': [24.7987499] * u.deg}
+        return result
+    nasa_exoplanet_archive.query_criteria = mock_run_query
+    response = nasa_exoplanet_archive.query_criteria()
+    assert 'TCP J05074264+2447555 b' in response['pl_name']
+    assert 'Microlensing' in response['discoverymethod']
+    assert response['dec'] == [24.7987499] * u.deg
+
+
+@patch('astroquery.nasa_exoplanet_archive.core.get_access_url',
+       Mock(side_effect=lambda x: 'https://some.url'))
+@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
+def test_get_query_payload():
+    nasa_exoplanet_archive = NasaExoplanetArchive()
+
+    def mock_run_query(table="ps", get_query_payload=True, select="count(*)", where="disc_facility like '%TESS%'"):
+        assert table == "ps"
+        assert get_query_payload
+        assert select == "count(*)"
+        assert where == "disc_facility like '%TESS%'"
+        result = PropertyMock()
+        result = {'table': 'ps', 'select': 'count(*)', 'where': "disc_facility like '%TESS%'", 'format': 'ipac'}
+        return result
+    nasa_exoplanet_archive.query_criteria = mock_run_query
+    response = nasa_exoplanet_archive.query_criteria()
+    assert 'ps' in response['table']
+    assert 'count(*)' in response['select']
+    assert "disc_facility like '%TESS%'" in response['where']
+
+
+@patch('astroquery.nasa_exoplanet_archive.core.get_access_url',
+       Mock(side_effect=lambda x: 'https://some.url'))
+@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
+def test_select():
+    nasa_exoplanet_archive = NasaExoplanetArchive()
+
+    def mock_run_query(table="ps", select=["hostname", "pl_name"], where="hostname='Kepler-11'", get_query_payload=True):
+        assert table == "ps"
+        assert select == ["hostname", "pl_name"]
+        assert where == "hostname='Kepler-11'"
+        assert get_query_payload
+        payload = PropertyMock()
+        payload = {'table': 'ps', 'select': 'hostname,pl_name', 'where': "hostname='Kepler-11'", 'format': 'ipac'}
+        return payload
+    nasa_exoplanet_archive.query_criteria = mock_run_query
+    payload = nasa_exoplanet_archive.query_criteria()
+    assert payload["select"] == "hostname,pl_name"
+
+
+@patch('astroquery.nasa_exoplanet_archive.core.get_access_url',
+       Mock(side_effect=lambda x: 'https://some.url'))
+@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
+def test_get_tap_tables():
+    nasa_exoplanet_archive = NasaExoplanetArchive()
+
+    def mock_run_query(url=conf.url_tap):
+        assert url == conf.url_tap
+        result = PropertyMock()
+        result = ['transitspec', 'emissionspec', 'ps', 'pscomppars', 'keplernames', 'k2names']
+        return result
+    nasa_exoplanet_archive.get_tap_tables = mock_run_query
+    result = nasa_exoplanet_archive.get_tap_tables()
+    assert 'ps' in result
+    assert 'pscomppars' in result

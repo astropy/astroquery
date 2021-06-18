@@ -15,9 +15,12 @@ class Conf(_config.ConfigNamespace):
     Configuration parameters for `astroquery.nasa_exoplanet_archive`.
     """
 
-    url = _config.ConfigItem(
+    url_api = _config.ConfigItem(
         "https://exoplanetarchive.ipac.caltech.edu/cgi-bin/nstedAPI/nph-nstedAPI",
         "URL for the NASA Exoplanet Archive API")
+    url_tap = _config.ConfigItem(
+        "https://exoplanetarchive.ipac.caltech.edu/TAP/",
+        "URL for the NASA Exoplanet Archive TAP")
     timeout = _config.ConfigItem(
         600, "Time limit for requests from the NASA Exoplanet Archive servers")
     cache = _config.ConfigItem(False, "Should the requests be cached?")
