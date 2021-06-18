@@ -10,8 +10,5 @@ filename = "CHANGES.rst"
 # dependency.
 
 [build-system]
-requires = ["setuptools",
-            "wheel",
-            "numpy",
-            "astropy"]
+requires = ["setuptools", "wheel"]
 build-backend = 'setuptools.build_meta'
