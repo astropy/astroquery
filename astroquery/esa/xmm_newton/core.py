@@ -110,7 +110,7 @@ class XMMNewtonClass(BaseQuery):
         if verbose:
             log.info(link)
 
-        response = self._request('GET', link, save=False, cache=True)
+        response = self._request('HEAD', link, save=False, cache=False)
 
         # Get original extension
         _, params = cgi.parse_header(response.headers['Content-Disposition'])
@@ -122,9 +122,7 @@ class XMMNewtonClass(BaseQuery):
 
         filename += "".join(suffixes)
 
-        log.info("Copying file to {0}...".format(filename))
-        with open(filename, 'wb') as f:
-            f.write(response.content)
+        self._download_file(link, filename)
 
         if verbose:
             log.info("Wrote {0} to {1}".format(link, filename))
