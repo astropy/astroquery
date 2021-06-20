@@ -43,8 +43,7 @@ class AtomicLineListClass(BaseQuery):
                                      'term', 'angm', 'prob',
                                      'ener'),
                      cache=True,
-                     get_query_payload=False
-                    ):
+                     get_query_payload=False):
         """
         Queries Atomic Line List for the given parameters adnd returns the
         result as a `~astropy.table.Table`. All parameters are optional.
@@ -188,8 +187,7 @@ class AtomicLineListClass(BaseQuery):
                                            'term', 'angm', 'prob',
                                            'ener'),
                            cache=True,
-                           get_query_payload=False
-                          ):
+                           get_query_payload=False):
         """
         Returns
         -------
@@ -251,7 +249,7 @@ class AtomicLineListClass(BaseQuery):
             'nmax': nmax,
             'term': multiplet,
             'type': _type,
-            #'type2': type2,
+            'type2': type2,
             'hydr': show_fine_structure,
             'auto': show_auto_ionizing_transitions,
             'form': output_columns,
