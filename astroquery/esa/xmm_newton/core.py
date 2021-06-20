@@ -122,7 +122,7 @@ class XMMNewtonClass(BaseQuery):
 
         filename += "".join(suffixes)
 
-        self._download_file(link, filename)
+        self._download_file(link, filename, head_safe=True)
 
         if verbose:
             log.info("Wrote {0} to {1}".format(link, filename))
