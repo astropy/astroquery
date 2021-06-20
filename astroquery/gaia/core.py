@@ -50,7 +50,8 @@ class GaiaClass(TapPlus):
                  gaia_tap_server='https://gea.esac.esa.int/',
                  gaia_data_server='https://gea.esac.esa.int/',
                  tap_server_context="tap-server",
-                 data_server_context="data-server"):
+                 data_server_context="data-server",
+                 verbose=False):
         super(GaiaClass, self).__init__(url=gaia_tap_server,
                                         server_context=tap_server_context,
                                         tap_context="tap",
@@ -58,7 +59,8 @@ class GaiaClass(TapPlus):
                                         table_edit_context="TableTool",
                                         data_context="data",
                                         datalink_context="datalink",
-                                        connhandler=tap_plus_conn_handler)
+                                        connhandler=tap_plus_conn_handler,
+                                        verbose=verbose)
         # Data uses a different TapPlus connection
         if datalink_handler is None:
             self.__gaiadata = TapPlus(url=gaia_data_server,
@@ -67,7 +69,8 @@ class GaiaClass(TapPlus):
                                       upload_context="Upload",
                                       table_edit_context="TableTool",
                                       data_context="data",
-                                      datalink_context="datalink")
+                                      datalink_context="datalink",
+                                      verbose=verbose)
         else:
             self.__gaiadata = datalink_handler
 

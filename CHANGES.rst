@@ -24,6 +24,11 @@ esa.xmm_newton
 
 - Bug fixes. Fixed the generation of files with wrong extension. [#2017]
 
+gaia
+^^^^
+
+- Bug fixes. Changed default behavior of Gaia TAP Plus interface to instantiate silently. [#1722]
+
 heasarc
 ^^^^^^^
 
