@@ -809,9 +809,9 @@ class ESASkyClass(BaseQuery):
 
         Parameters
         ----------
-        position : str or `astropy.coordinates` object
+        position : str or `astropy.coordinates` object, optional
             Can either be a string of the location, eg 'M51', or the coordinates
-            of the object.
+            of the object. An input is required for either position or observation_ids.
         radius : str or `~astropy.units.Quantity`, optional
             The radius of a region. Defaults to 0.
         missions : string or list, optional
@@ -827,6 +827,7 @@ class ESASkyClass(BaseQuery):
         observation_ids : string or list, optional
             A list of observation ID's, you would like to download.
             If this parameter is empty, a cone search will be performed instead using the radius and position.
+            An input is required for either position or observation_ids.
 
         Returns
         -------
@@ -852,6 +853,8 @@ class ESASkyClass(BaseQuery):
                            "1342247257", "30002561-25100", "hst_07553_3h_wfpc2_f160bw_pc", "ocli05leq"]
         get_images(observation_ids=observation_ids, missions=missions)
         """
+        if position == "" and observation_ids is None:
+            raise ValueError("An input is required for either position or observation_ids.")
         sanitized_position = self._sanitize_input_position(position)
         sanitized_radius = self._sanitize_input_radius(radius)
         sanitized_missions = self._sanitize_input_mission(missions)
@@ -900,9 +903,9 @@ class ESASkyClass(BaseQuery):
 
         Parameters
         ----------
-        position : str or `astropy.coordinates` object
+        position : str or `astropy.coordinates` object, optional
             Can either be a string of the location, eg 'M51', or the coordinates
-            of the object.
+            of the object. An input is required for either position or observation_ids.
         radius : str or `~astropy.units.Quantity`, optional
             The radius of a region. Defaults to 0.
         missions : string or list, optional
@@ -918,6 +921,7 @@ class ESASkyClass(BaseQuery):
         observation_ids : string or list, optional
             A list of observation ID's, you would like to download.
             If this parameter is empty, a cone search will be performed instead using the radius and position.
+            An input is required for either position or observation_ids.
 
         Returns
         -------
@@ -945,6 +949,8 @@ class ESASkyClass(BaseQuery):
         get_spectra(observation_ids=observation_ids, missions=missions)
 
         """
+        if position == "" and observation_ids is None:
+            raise ValueError("An input is required for either position or observation_ids.")
         sanitized_position = self._sanitize_input_position(position)
         sanitized_radius = self._sanitize_input_radius(radius)
         sanitized_missions = self._sanitize_input_spectra(missions)
@@ -1368,7 +1374,7 @@ class ESASkyClass(BaseQuery):
         select_query = "SELECT "
         if row_limit > 0:
             select_query = "".join([select_query, "TOP {} ".format(row_limit)])
-        elif not row_limit == -1:
+        elif row_limit != -1:
             raise ValueError("Invalid value of row_limit")
 
         select_query = "".join([select_query, "* "])
@@ -1408,7 +1414,7 @@ class ESASkyClass(BaseQuery):
         select_query = "SELECT "
         if row_limit > 0:
             select_query = "".join([select_query, "TOP {} ".format(row_limit)])
-        elif not row_limit == -1:
+        elif row_limit != -1:
             raise ValueError("Invalid value of row_limit")
 
         select_query = "".join([select_query, "* "])
