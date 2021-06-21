@@ -15,6 +15,8 @@ esa.xmm_newton
 
 - Adding the extraction epic light curves. [#2017]
 - Adding the extraction of epic spectra. [#2017]
+- Use astroquery downloader tool to get progressbar, caching, and prevent
+  memory leaks [#2087]
 
 Service fixes and enhancements
 ------------------------------

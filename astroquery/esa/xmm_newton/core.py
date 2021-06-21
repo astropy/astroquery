@@ -47,7 +47,7 @@ class XMMNewtonClass(BaseQuery):
         self._rmf_ftp = str("http://sasdev-xmm.esac.esa.int/pub/ccf/constituents/extras/responses/")
 
     def download_data(self, observation_id, *, filename=None, verbose=False,
-                      **kwargs):
+                      cache=True, **kwargs):
         """
         Download data from XMM-Newton
 
@@ -110,7 +110,9 @@ class XMMNewtonClass(BaseQuery):
         if verbose:
             log.info(link)
 
-        response = self._request('HEAD', link, save=False, cache=False)
+        # we can cache this HEAD request - the _download_file one will check
+        # the file size and will never cache
+        response = self._request('HEAD', link, save=False, cache=cache)
 
         # Get original extension
         _, params = cgi.parse_header(response.headers['Content-Disposition'])
@@ -122,7 +124,7 @@ class XMMNewtonClass(BaseQuery):
 
         filename += "".join(suffixes)
 
-        self._download_file(link, filename, head_safe=True)
+        self._download_file(link, filename, head_safe=True, cache=cache)
 
         if verbose:
             log.info("Wrote {0} to {1}".format(link, filename))
