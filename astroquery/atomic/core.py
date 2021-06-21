@@ -29,20 +29,13 @@ class AtomicLineListClass(BaseQuery):
 
     def __init__(self):
         super(AtomicLineListClass, self).__init__()
-        self._default_form_values_ = None
+        self.__default_form_values = None
 
-    def query_object(self, wavelength_range=None, wavelength_type=None,
-                     wavelength_accuracy=None, element_spectrum=None,
-                     minimal_abundance=None, depl_factor=None,
-                     lower_level_energy_range=None,
-                     upper_level_energy_range=None, nmax=None,
-                     multiplet=None, transitions=None,
-                     show_fine_structure=None,
-                     show_auto_ionizing_transitions=None,
-                     output_columns=('spec', 'type', 'conf',
-                                     'term', 'angm', 'prob',
-                                     'ener'),
-                     cache=True,
+    def query_object(self, wavelength_range=None, wavelength_type=None, wavelength_accuracy=None, element_spectrum=None,
+                     minimal_abundance=None, depl_factor=None, lower_level_energy_range=None,
+                     upper_level_energy_range=None, nmax=None, multiplet=None, transitions=None,
+                     show_fine_structure=None, show_auto_ionizing_transitions=None,
+                     output_columns=('spec', 'type', 'conf', 'term', 'angm', 'prob', 'ener'), cache=True,
                      get_query_payload=False):
         """
         Queries Atomic Line List for the given parameters adnd returns the
@@ -175,19 +168,12 @@ class AtomicLineListClass(BaseQuery):
         return table
 
     @prepend_docstr_nosections(query_object.__doc__)
-    def query_object_async(self, wavelength_range=None, wavelength_type='',
-                           wavelength_accuracy=None, element_spectrum=None,
-                           minimal_abundance=None, depl_factor=None,
-                           lower_level_energy_range=None,
-                           upper_level_energy_range=None, nmax=None,
-                           multiplet=None, transitions=None,
-                           show_fine_structure=None,
-                           show_auto_ionizing_transitions=None,
-                           output_columns=('spec', 'type', 'conf',
-                                           'term', 'angm', 'prob',
-                                           'ener'),
-                           cache=True,
-                           get_query_payload=False):
+    def query_object_async(self, wavelength_range=None, wavelength_type='', wavelength_accuracy=None,
+                           element_spectrum=None, minimal_abundance=None, depl_factor=None,
+                           lower_level_energy_range=None, upper_level_energy_range=None, nmax=None, multiplet=None,
+                           transitions=None, show_fine_structure=None, show_auto_ionizing_transitions=None,
+                           output_columns=('spec', 'type', 'conf', 'term', 'angm', 'prob', 'ener'),
+                           cache=True, get_query_payload=False):
         """
         Returns
         -------
@@ -319,14 +305,14 @@ class AtomicLineListClass(BaseQuery):
     @property
     def _default_form_values(self):
 
-        if self._default_form_values_ is None:
+        if self.__default_form_values is None:
             response = self._request("GET", url=self.FORM_URL, data={},
                                      timeout=self.TIMEOUT, cache=True)
             bs = BeautifulSoup(response.text)
             self._default_form = form = bs.find('form')
-            self._default_form_values_ = self._get_default_form_values(form)
+            self.__default_form_values = self._get_default_form_values(form)
 
-        return self._default_form_values_
+        return self.__default_form_values
 
     def _get_default_form_values(self, form):
         """Return the already selected values of a given form (a BeautifulSoup
