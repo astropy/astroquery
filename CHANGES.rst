@@ -43,9 +43,10 @@ nasa_exoplanet_archive
   release. Support for querying old tables (exoplanets, compositepars, and
   exomultpars) has been dropped. [#2067]
 
+atomic
+^^^^^^
 
-Service fixes and enhancements
-------------------------------
+ - Change URL to https [#2088]
 
 
 

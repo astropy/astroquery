@@ -12,6 +12,8 @@ from astropy.table import Table
 from astropy import units as u
 from bs4 import BeautifulSoup
 
+from .. import log
+
 from ..query import BaseQuery
 from ..utils import prepend_docstr_nosections, async_to_sync
 from . import conf
@@ -27,19 +29,14 @@ class AtomicLineListClass(BaseQuery):
 
     def __init__(self):
         super(AtomicLineListClass, self).__init__()
-        self._default_form_values = None
+        self.__default_form_values = None
 
-    def query_object(self, wavelength_range=None, wavelength_type=None,
-                     wavelength_accuracy=None, element_spectrum=None,
-                     minimal_abundance=None, depl_factor=None,
-                     lower_level_energy_range=None,
-                     upper_level_energy_range=None, nmax=None,
-                     multiplet=None, transitions=None,
-                     show_fine_structure=None,
-                     show_auto_ionizing_transitions=None,
-                     output_columns=('spec', 'type', 'conf',
-                                     'term', 'angm', 'prob',
-                                     'ener')):
+    def query_object(self, wavelength_range=None, wavelength_type=None, wavelength_accuracy=None, element_spectrum=None,
+                     minimal_abundance=None, depl_factor=None, lower_level_energy_range=None,
+                     upper_level_energy_range=None, nmax=None, multiplet=None, transitions=None,
+                     show_fine_structure=None, show_auto_ionizing_transitions=None,
+                     output_columns=('spec', 'type', 'conf', 'term', 'angm', 'prob', 'ener'), cache=True,
+                     get_query_payload=False):
         """
         Queries Atomic Line List for the given parameters adnd returns the
         result as a `~astropy.table.Table`. All parameters are optional.
@@ -163,34 +160,26 @@ class AtomicLineListClass(BaseQuery):
             multiplet=multiplet, transitions=transitions,
             show_fine_structure=show_fine_structure,
             show_auto_ionizing_transitions=show_auto_ionizing_transitions,
-            output_columns=output_columns)
+            output_columns=output_columns, cache=cache,
+            get_query_payload=get_query_payload)
+        if get_query_payload:
+            return input
         table = self._parse_result(response)
         return table
 
     @prepend_docstr_nosections(query_object.__doc__)
-    def query_object_async(self, wavelength_range=None, wavelength_type='',
-                           wavelength_accuracy=None, element_spectrum=None,
-                           minimal_abundance=None, depl_factor=None,
-                           lower_level_energy_range=None,
-                           upper_level_energy_range=None, nmax=None,
-                           multiplet=None, transitions=None,
-                           show_fine_structure=None,
-                           show_auto_ionizing_transitions=None,
-                           output_columns=('spec', 'type', 'conf',
-                                           'term', 'angm', 'prob',
-                                           'ener')):
+    def query_object_async(self, wavelength_range=None, wavelength_type='', wavelength_accuracy=None,
+                           element_spectrum=None, minimal_abundance=None, depl_factor=None,
+                           lower_level_energy_range=None, upper_level_energy_range=None, nmax=None, multiplet=None,
+                           transitions=None, show_fine_structure=None, show_auto_ionizing_transitions=None,
+                           output_columns=('spec', 'type', 'conf', 'term', 'angm', 'prob', 'ener'),
+                           cache=True, get_query_payload=False):
         """
         Returns
         -------
         response : `requests.Response`
             The HTTP response returned from the service.
         """
-        if self._default_form_values is None:
-            response = self._request("GET", url=self.FORM_URL, data={},
-                                     timeout=self.TIMEOUT)
-            bs = BeautifulSoup(response.text)
-            form = bs.find('form')
-            self._default_form_values = self._get_default_form_values(form)
         default_values = self._default_form_values
         wltype = (wavelength_type or default_values.get('air', '')).lower()
         if wltype in ('air', 'vacuum'):
@@ -233,7 +222,7 @@ class AtomicLineListClass(BaseQuery):
             upper_level_erange = upper_level_erange.to(
                 u.cm ** -1, equivalencies=u.spectral()).value
         input = {
-            'wavl': '-'.join(map(str, wlrange_in_angstroms)),
+            'wavl': ' '.join(map(str, wlrange_in_angstroms)),
             'wave': 'Angstrom',
             'air': air,
             'wacc': wavelength_accuracy,
@@ -250,8 +239,12 @@ class AtomicLineListClass(BaseQuery):
             'hydr': show_fine_structure,
             'auto': show_auto_ionizing_transitions,
             'form': output_columns,
-            'tptype': 'as_a'}
-        response = self._submit_form(input)
+            'jval': 'usej',
+            'tptype': 'as_a',
+        }
+        if get_query_payload:
+            return input
+        response = self._submit_form(input, cache=cache)
         return response
 
     def _parse_result(self, response):
@@ -288,7 +281,7 @@ class AtomicLineListClass(BaseQuery):
             # return an empty table if the query yielded no results
             return Table()
 
-    def _submit_form(self, input=None):
+    def _submit_form(self, input=None, cache=True):
         """Fill out the form of the SkyView site and submit it with the
         values given in `input` (a dictionary where the keys are the form
         element's names and the values are their respective values).
@@ -296,23 +289,30 @@ class AtomicLineListClass(BaseQuery):
         """
         if input is None:
             input = {}
-        response = self._request("GET", url=self.FORM_URL, data={},
-                                 timeout=self.TIMEOUT)
-        bs = BeautifulSoup(response.text)
-        form = bs.find('form')
-        # cache the default values to save HTTP traffic
-        if self._default_form_values is None:
-            self._default_form_values = self._get_default_form_values(form)
         # only overwrite payload's values if the `input` value is not None
         # to avoid overwriting of the form's default values
         payload = self._default_form_values.copy()
         for k, v in six.iteritems(input):
             if v is not None:
                 payload[k] = v
-        url = urlparse.urljoin(self.FORM_URL, form.get('action'))
+        url = urlparse.urljoin(self.FORM_URL, self._default_form.get('action'))
+        log.debug(f"final payload = {payload} from url={url}")
         response = self._request("POST", url=url, data=payload,
-                                 timeout=self.TIMEOUT)
+                                 timeout=self.TIMEOUT, cache=cache)
+        log.debug("Retrieved data from POST request")
         return response
+
+    @property
+    def _default_form_values(self):
+
+        if self.__default_form_values is None:
+            response = self._request("GET", url=self.FORM_URL, data={},
+                                     timeout=self.TIMEOUT, cache=True)
+            bs = BeautifulSoup(response.text)
+            self._default_form = form = bs.find('form')
+            self.__default_form_values = self._get_default_form_values(form)
+
+        return self.__default_form_values
 
     def _get_default_form_values(self, form):
         """Return the already selected values of a given form (a BeautifulSoup
