@@ -7,24 +7,14 @@ import sys
 from urllib.parse import urlencode
 
 import astropy.units as u
-from astropy.io.ascii import write as ap_write
-from astroquery.utils.commons import parse_coordinates
-from astropy.table import Table as AstroTable
-import numpy as np
 import pkg_resources
 import pytest
 import requests
-try:
-    pyvo_OK = True
-    from pyvo.auth import authsession
-except ImportError:
-    pyvo_OK = False
-    pytest.skip("Install pyvo for the nasa_exoplanet_archive module.", allow_module_level=True)
+
 from astropy.coordinates import SkyCoord
-from astropy.tests.helper import assert_quantity_allclose
 from astropy.utils.exceptions import AstropyDeprecationWarning
 
-from ...exceptions import InputWarning, InvalidQueryError, NoResultsWarning
+from ...exceptions import NoResultsWarning
 from ...utils.testing_tools import MockResponse
 from ..core import NasaExoplanetArchive, conf, InvalidTableError
 try:
@@ -194,7 +184,6 @@ def test_api_tables(patch_get, table, query):
 # Mock tests on TAP service below
 @patch('astroquery.nasa_exoplanet_archive.core.get_access_url',
        Mock(side_effect=lambda x: 'https://some.url'))
-@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
 def test_query_object():
     nasa_exoplanet_archive = NasaExoplanetArchive()
 
@@ -217,7 +206,6 @@ def test_query_object():
 
 @patch('astroquery.nasa_exoplanet_archive.core.get_access_url',
        Mock(side_effect=lambda x: 'https://some.url'))
-@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
 def test_query_region():
     nasa_exoplanet_archive = NasaExoplanetArchive()
 
@@ -235,7 +223,6 @@ def test_query_region():
 
 @patch('astroquery.nasa_exoplanet_archive.core.get_access_url',
        Mock(side_effect=lambda x: 'https://some.url'))
-@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
 def test_query_criteria():
     nasa_exoplanet_archive = NasaExoplanetArchive()
 
@@ -255,7 +242,6 @@ def test_query_criteria():
 
 @patch('astroquery.nasa_exoplanet_archive.core.get_access_url',
        Mock(side_effect=lambda x: 'https://some.url'))
-@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
 def test_get_query_payload():
     nasa_exoplanet_archive = NasaExoplanetArchive()
 
@@ -276,7 +262,6 @@ def test_get_query_payload():
 
 @patch('astroquery.nasa_exoplanet_archive.core.get_access_url',
        Mock(side_effect=lambda x: 'https://some.url'))
-@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
 def test_select():
     nasa_exoplanet_archive = NasaExoplanetArchive()
 
@@ -295,7 +280,6 @@ def test_select():
 
 @patch('astroquery.nasa_exoplanet_archive.core.get_access_url',
        Mock(side_effect=lambda x: 'https://some.url'))
-@pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
 def test_get_tap_tables():
     nasa_exoplanet_archive = NasaExoplanetArchive()
 
