@@ -171,7 +171,6 @@ def test_backwards_compat(patch_get):
         assert "replaced" in str(error)
 
 
-@pytest.mark.filterwarnings("error")
 @pytest.mark.parametrize("table,query", API_TABLES)
 def test_api_tables(patch_get, table, query):
     NasaExoplanetArchiveMock = NasaExoplanetArchiveClass()
