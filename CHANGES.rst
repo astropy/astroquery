@@ -16,6 +16,7 @@ esa.xmm_newton
 - Adding the extraction epic light curves. [#2017]
 - Adding the extraction of epic spectra. [#2017]
 
+
 Service fixes and enhancements
 ------------------------------
 
@@ -49,6 +50,13 @@ atomic
 ^^^^^^
 
  - Change URL to https [#2088]
+
+
+Infrastructure, Utility and Other Changes and Additions
+-------------------------------------------------------
+
+- Fixed progressbar download to report the correct downloaded amount. [#2091]
+
 
 
 0.4.2 (2021-05-14)
