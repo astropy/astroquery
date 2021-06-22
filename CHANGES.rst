@@ -23,6 +23,8 @@ esa.xmm_newton
 ^^^^^^^^^^^^^^
 
 - Bug fixes. Fixed the generation of files with wrong extension. [#2017]
+- Use astroquery downloader tool to get progressbar, caching, and prevent
+  memory leaks [#2087]
 
 gaia
 ^^^^
@@ -47,7 +49,6 @@ atomic
 ^^^^^^
 
  - Change URL to https [#2088]
-
 
 
 0.4.2 (2021-05-14)

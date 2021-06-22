@@ -24,6 +24,7 @@ from astropy.io import fits
 from . import conf
 from astroquery import log
 from astropy.coordinates import SkyCoord
+from ...exceptions import LoginError
 
 
 __all__ = ['XMMNewton', 'XMMNewtonClass']
@@ -47,7 +48,7 @@ class XMMNewtonClass(BaseQuery):
         self._rmf_ftp = str("http://sasdev-xmm.esac.esa.int/pub/ccf/constituents/extras/responses/")
 
     def download_data(self, observation_id, *, filename=None, verbose=False,
-                      **kwargs):
+                      cache=True, **kwargs):
         """
         Download data from XMM-Newton
 
@@ -110,10 +111,17 @@ class XMMNewtonClass(BaseQuery):
         if verbose:
             log.info(link)
 
-        response = self._request('GET', link, save=False, cache=True)
+        # we can cache this HEAD request - the _download_file one will check
+        # the file size and will never cache
+        response = self._request('HEAD', link, save=False, cache=cache)
 
         # Get original extension
-        _, params = cgi.parse_header(response.headers['Content-Disposition'])
+        if 'Content-Type' in response.headers and 'text' not in response.headers['Content-Type']:
+            _, params = cgi.parse_header(response.headers['Content-Disposition'])
+        else:
+            error = "Data protected by proprietary rights. Please check your credentials"
+            raise LoginError(error)
+
         r_filename = params["filename"]
         suffixes = Path(r_filename).suffixes
 
@@ -122,9 +130,7 @@ class XMMNewtonClass(BaseQuery):
 
         filename += "".join(suffixes)
 
-        log.info("Copying file to {0}...".format(filename))
-        with open(filename, 'wb') as f:
-            f.write(response.content)
+        self._download_file(link, filename, head_safe=True, cache=cache)
 
         if verbose:
             log.info("Wrote {0} to {1}".format(link, filename))
