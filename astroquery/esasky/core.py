@@ -6,6 +6,7 @@ import tarfile
 import sys
 import re
 from io import BytesIO
+from zipfile import ZipFile
 
 from astropy.io import fits
 from astroquery import log
@@ -1141,7 +1142,7 @@ class ESASkyClass(BaseQuery):
             url_key = self.__PRODUCT_URL_STRING
         if url_key == "" and self.__ACCESS_URL_STRING in maps_table.keys():
             url_key = self.__ACCESS_URL_STRING
-        if url_key == "" or mission == "ALMA" or mission == "INTEGRAL":
+        if url_key == "" or mission == "ALMA":
             log.info(mission + " does not yet support downloading of fits files")
             return maps
 
@@ -1203,20 +1204,26 @@ class ESASkyClass(BaseQuery):
 
                         response.raise_for_status()
 
-                        file_name = self._extract_file_name_from_response_header(response.headers)
-                        if (file_name == ""):
-                            file_name = self._extract_file_name_from_url(product_url)
-                        if(file_name.lower().endswith(self.__TAR_STRING)):
-                            with tarfile.open(fileobj=BytesIO(response.content)) as tar:
-                                for member in tar.getmembers():
-                                    tar.extract(member, directory_path)
-                                    maps.append(fits.open(directory_path + member.name))
+                        if mission.lower() == "integral":
+                            with ZipFile(file=BytesIO(response.content)) as zip:
+                                for info in zip.infolist():
+                                    if self._ends_with_fits_like_extentsion(info.filename):
+                                        maps.append(fits.open(zip.extract(info.filename)))
                         else:
-                            fits_data = response.content
-                            with open(directory_path + file_name, 'wb') as fits_file:
-                                fits_file.write(fits_data)
-                                fits_file.flush()
-                                maps.append(fits.open(directory_path + file_name))
+                            file_name = self._extract_file_name_from_response_header(response.headers)
+                            if (file_name == ""):
+                                file_name = self._extract_file_name_from_url(product_url)
+                            if(file_name.lower().endswith(self.__TAR_STRING)):
+                                with tarfile.open(fileobj=BytesIO(response.content)) as tar:
+                                    for member in tar.getmembers():
+                                        tar.extract(member, directory_path)
+                                        maps.append(fits.open(directory_path + member.name))
+                            else:
+                                fits_data = response.content
+                                with open(directory_path + file_name, 'wb') as fits_file:
+                                    fits_file.write(fits_data)
+                                    fits_file.flush()
+                                    maps.append(fits.open(directory_path + file_name))
                         log.info("[Done]")
                     except (HTTPError, ConnectionError) as err:
                         log.error("Download failed with {}.".format(err))
@@ -1229,6 +1236,18 @@ class ESASkyClass(BaseQuery):
             log.info("Downloading of {} data complete.".format(mission))
 
         return maps
+
+    def _ends_with_fits_like_extentsion(self, name):
+        lower_case_name = name.lower()
+        return (lower_case_name.endswith("fits")
+                or lower_case_name.endswith("fits.gz")
+                or lower_case_name.endswith("ftz")
+                or lower_case_name.endswith("ftz.gz")
+                or lower_case_name.endswith("fit")
+                or lower_case_name.endswith("fit.gz")
+                or lower_case_name.endswith("fts")
+                or lower_case_name.endswith("fts.gz")
+                )
 
     def _get_herschel_map(self, product_url, directory_path, cache):
         observation = dict()
