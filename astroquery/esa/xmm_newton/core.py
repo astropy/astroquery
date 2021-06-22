@@ -24,6 +24,7 @@ from astropy.io import fits
 from . import conf
 from astroquery import log
 from astropy.coordinates import SkyCoord
+from ...exceptions import LoginError
 
 
 __all__ = ['XMMNewton', 'XMMNewtonClass']
@@ -115,7 +116,13 @@ class XMMNewtonClass(BaseQuery):
         response = self._request('HEAD', link, save=False, cache=cache)
 
         # Get original extension
-        _, params = cgi.parse_header(response.headers['Content-Disposition'])
+        if 'Content-Type' in response.headers.keys() and 'text' not in response.headers['Content-Type']:
+            _, params = cgi.parse_header(response.headers['Content-Disposition'])
+        else:
+            error = "Data protected by proprietary rights. Please check your credentials"
+            log.error(error)
+            raise LoginError(error)
+
         r_filename = params["filename"]
         suffixes = Path(r_filename).suffixes
 
