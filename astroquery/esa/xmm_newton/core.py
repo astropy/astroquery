@@ -116,11 +116,10 @@ class XMMNewtonClass(BaseQuery):
         response = self._request('HEAD', link, save=False, cache=cache)
 
         # Get original extension
-        if 'Content-Type' in response.headers.keys() and 'text' not in response.headers['Content-Type']:
+        if 'Content-Type' in response.headers and 'text' not in response.headers['Content-Type']:
             _, params = cgi.parse_header(response.headers['Content-Disposition'])
         else:
             error = "Data protected by proprietary rights. Please check your credentials"
-            log.error(error)
             raise LoginError(error)
 
         r_filename = params["filename"]
