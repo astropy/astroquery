@@ -423,7 +423,7 @@ class BaseQuery:
             with open(local_filepath, open_mode) as f:
                 for block in response.iter_content(blocksize):
                     f.write(block)
-                    bytes_read += blocksize
+                    bytes_read += len(block)
                     if length is not None:
                         pb.update(bytes_read if bytes_read <= length else length)
                     else:
