@@ -130,7 +130,7 @@ class IrsaClass(BaseQuery):
     def query_region_async(self, coordinates=None, *, catalog=None,
                            spatial='Cone', radius=10 * u.arcsec, width=None,
                            polygon=None, get_query_payload=False,
-                           selcols=None, cache=True):
+                           selcols=None, verbose=False, cache=True):
         """
         This function serves the same purpose as
         :meth:`~astroquery.irsa.IrsaClass.query_region`, but returns the raw
@@ -170,6 +170,9 @@ class IrsaClass(BaseQuery):
             Defaults to `False`.
         selcols : str, optional
             Target column list with value separated by a comma(,)
+        verbose : bool, optional.
+            If `True` then displays warnings when the returned VOTable does not
+            conform to the standard. Defaults to `False`.
         cache : bool, optional
             Use local cache when set to `True`.
 
