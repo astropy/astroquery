@@ -101,93 +101,33 @@ If onlist=0, the following parameters are required:
 
 
 import warnings
+from io import BytesIO
 import xml.etree.ElementTree as tree
 
-import six
 import astropy.units as u
 import astropy.coordinates as coord
 import astropy.io.votable as votable
+from astropy.table import Table
 
-from ..query import BaseQuery
-from ..utils import commons
-from . import conf
-from ..exceptions import TableParseError, NoResultsWarning, InvalidQueryError
+
+from astroquery.query import BaseQuery
+from astroquery.utils import commons, async_to_sync
+from astroquery.irsa import conf
+from astroquery.exceptions import TableParseError, NoResultsWarning, InvalidQueryError
 
 
 __all__ = ['Irsa', 'IrsaClass']
 
 
+@async_to_sync
 class IrsaClass(BaseQuery):
     IRSA_URL = conf.server
     GATOR_LIST_URL = conf.gator_list_catalogs
     TIMEOUT = conf.timeout
     ROW_LIMIT = conf.row_limit
 
-    def query_region(self, coordinates=None, catalog=None, spatial='Cone',
-                     radius=10 * u.arcsec, width=None, polygon=None,
-                     get_query_payload=False, verbose=False, selcols=None,
-                     cache=True):
-        """
-        This function can be used to perform either cone, box, polygon or
-        all-sky search in the catalogs hosted by the NASA/IPAC Infrared
-        Science Archive (IRSA).
 
-        Parameters
-        ----------
-        coordinates : str, `astropy.coordinates` object
-            Gives the position of the center of the cone or box if
-            performing a cone or box search. The string can give coordinates
-            in various coordinate systems, or the name of a source that will
-            be resolved on the server (see `here
-            <https://irsa.ipac.caltech.edu/search_help.html>`_ for more
-            details). Required if spatial is ``'Cone'`` or ``'Box'``. Optional
-            if spatial is ``'Polygon'``.
-        catalog : str
-            The catalog to be used. To list the available catalogs, use
-            :meth:`~astroquery.irsa.IrsaClass.print_catalogs`.
-        spatial : str
-            Type of spatial query: ``'Cone'``, ``'Box'``, ``'Polygon'``, and
-            ``'All-Sky'``. If missing then defaults to ``'Cone'``.
-        radius : str or `~astropy.units.Quantity` object, [optional for spatial is ``'Cone'``]
-            The string must be parsable by `~astropy.coordinates.Angle`. The
-            appropriate `~astropy.units.Quantity` object from
-            `astropy.units` may also be used. Defaults to 10 arcsec.
-        width : str, `~astropy.units.Quantity` object [Required for spatial is ``'Polygon'``.]
-
-            The string must be parsable by `~astropy.coordinates.Angle`. The
-            appropriate `~astropy.units.Quantity` object from `astropy.units`
-            may also be used.
-        polygon : list, [Required for spatial is ``'Polygon'``]
-            A list of ``(ra, dec)`` pairs (as tuples), in decimal degrees,
-            outlining the polygon to search in. It can also be a list of
-            `astropy.coordinates` object or strings that can be parsed by
-            `astropy.coordinates.ICRS`.
-        get_query_payload : bool, optional
-            If `True` then returns the dictionary sent as the HTTP request.
-            Defaults to `False`.
-        verbose : bool, optional.
-            If `True` then displays warnings when the returned VOTable does not
-            conform to the standard. Defaults to `False`.
-        selcols : str, optional
-            Target column list with value separated by a comma(,)
-        cache : bool, optional
-            Use local cache when set to `True`.
-
-        Returns
-        -------
-        table : `~astropy.table.Table`
-            A table containing the results of the query
-        """
-        response = self.query_region_async(coordinates, catalog=catalog,
-                                           spatial=spatial, radius=radius,
-                                           width=width, polygon=polygon,
-                                           get_query_payload=get_query_payload,
-                                           selcols=selcols, cache=cache)
-        if get_query_payload:
-            return response
-        return self._parse_result(response, verbose=verbose)
-
-    def query_region_async(self, coordinates=None, catalog=None,
+    def query_region_async(self, coordinates=None, *, catalog=None,
                            spatial='Cone', radius=10 * u.arcsec, width=None,
                            polygon=None, get_query_payload=False,
                            selcols=None, cache=True):
@@ -396,7 +336,7 @@ class IrsaClass(BaseQuery):
 
         # Read it in using the astropy VO table reader
         try:
-            first_table = votable.parse(six.BytesIO(response.content),
+            first_table = votable.parse(BytesIO(response.content),
                                         pedantic=False).get_first_table()
         except Exception as ex:
             self.response = response
@@ -461,7 +401,7 @@ Irsa = IrsaClass()
 def _parse_coordinates(coordinates):
     # borrowed from commons.parse_coordinates as from_name wasn't required in
     # this case
-    if isinstance(coordinates, six.string_types):
+    if isinstance(coordinates, str):
         try:
             c = coord.SkyCoord(coordinates, frame='icrs')
             warnings.warn("Coordinate string is being interpreted as an "

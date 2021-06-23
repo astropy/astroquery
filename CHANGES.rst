@@ -42,6 +42,8 @@ irsa
 - Adding ``cache`` kwarg to the class methods to be able to control the use
   of local cache. [#2092]
 
+- Making optional kwargs keyword only. [#2092]
+
 nasa_exoplanet_archive
 ^^^^^^^^^^^^^^^^^^^^^^
 
