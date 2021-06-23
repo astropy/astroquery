@@ -19,6 +19,7 @@ from ... import mast
 
 DATA_FILES = {'Mast.Caom.Cone': 'caom.json',
               'Mast.Name.Lookup': 'resolver.json',
+              'mission_search_results: 'mission_results.json''
               'columnsconfig': 'columnsconfig.json',
               'ticcolumns': 'ticcolumns.json',
               'ticcol_filtered': 'ticcolumns_filtered.json',
@@ -62,6 +63,7 @@ def patch_post(request):
     mp.setattr(mast.utils, '_simple_request', resolver_mockreturn)
     mp.setattr(mast.discovery_portal.PortalAPI, '_request', post_mockreturn)
     mp.setattr(mast.services.ServiceAPI, '_request', service_mockreturn)
+    mp.setattr(mast.services.MissionSearchAPI, '_request', mission_mockreturn)
     mp.setattr(mast.auth.MastAuth, 'session_info', session_info_mockreturn)
 
     mp.setattr(mast.Observations, '_download_file', download_mockreturn)
@@ -119,6 +121,12 @@ def service_mockreturn(self, method="POST", url=None, data=None, timeout=10, **k
     return MockResponse(content)
 
 
+def mission_mockreturn(self, method="POST", url=None, data=None, timeout=10, **kwargs):
+    filename = data_path(DATA_FILES["mission_search_results"])
+    content = open(filename, 'rb').read()
+    return MockResponse(content)
+
+
 def resolver_mockreturn(*args, **kwargs):
     filename = data_path(DATA_FILES["Mast.Name.Lookup"])
     content = open(filename, 'rb').read()
@@ -169,6 +177,37 @@ def zcut_download_mockreturn(url, file_path):
         filename = data_path(DATA_FILES['z_cutout_fit'])
     copyfile(filename, file_path)
     return
+
+
+###########################
+# MissionSearchClass Test #
+###########################
+
+
+'''def test_mission_search(patch_post):
+    params = {"target": ["40.66963 -0.01328"],
+              "radius": 3,
+              "radius_units": "arcminutes",
+              "select_cols": [
+                  "sci_start_time",
+                  "sci_stop_time",
+                  "sci_targname",
+                  "sci_status"
+              ],
+              "user_fields": [],
+              "conditions": [
+                  {"sci_spec_1234": ""},
+                  {"sci_release_date": ""},
+                  {"sci_start_time": ""}
+              ],
+              "limit": 5000,
+              "offset": 0,
+              "sort_by": [],
+              "sort_desc": [],
+              "skip_count": false}
+    result = mast.Dataset.service_request(params)
+    assert isinstance(result, Table)'''
+
 
 
 ###################
