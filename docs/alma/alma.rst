@@ -362,12 +362,12 @@ tools in :doc:`../gallery`, especially :ref:`gallery-almaskyview`.
 Troubleshooting
 ===============
 
-If you encounter issues with the astroquery.alma module, please submit a ticket
+If you encounter issues with the ``astroquery.alma`` module, please submit a ticket
 to the ALMA helpdesk (https://help.almascience.org/).
 
 If you are certain the issue is within astroquery itself, please file an issue
-on https://github.com/astropy/astroquery/issues and tag it 'alma'.  If you are
-uncertain, you should default to the ALMA helpdesk.
+on the usual GitHub page https://github.com/astropy/astroquery/issues.  If you are
+uncertain, you should follow the archive's policy and default to the ALMA helpdesk.
 
 
 
