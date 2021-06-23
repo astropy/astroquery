@@ -125,7 +125,8 @@ class IrsaClass(BaseQuery):
 
     def query_region(self, coordinates=None, catalog=None, spatial='Cone',
                      radius=10 * u.arcsec, width=None, polygon=None,
-                     get_query_payload=False, verbose=False, selcols=None):
+                     get_query_payload=False, verbose=False, selcols=None,
+                     cache=True):
         """
         This function can be used to perform either cone, box, polygon or
         all-sky search in the catalogs hosted by the NASA/IPAC Infrared
@@ -169,7 +170,8 @@ class IrsaClass(BaseQuery):
             conform to the standard. Defaults to `False`.
         selcols : str, optional
             Target column list with value separated by a comma(,)
-
+        cache : bool, optional
+            Use local cache when set to `True`.
 
         Returns
         -------
@@ -180,7 +182,7 @@ class IrsaClass(BaseQuery):
                                            spatial=spatial, radius=radius,
                                            width=width, polygon=polygon,
                                            get_query_payload=get_query_payload,
-                                           selcols=selcols)
+                                           selcols=selcols, cache=cache)
         if get_query_payload:
             return response
         return self._parse_result(response, verbose=verbose)
@@ -188,7 +190,7 @@ class IrsaClass(BaseQuery):
     def query_region_async(self, coordinates=None, catalog=None,
                            spatial='Cone', radius=10 * u.arcsec, width=None,
                            polygon=None, get_query_payload=False,
-                           selcols=None):
+                           selcols=None, cache=True):
         """
         This function serves the same purpose as
         :meth:`~astroquery.irsa.IrsaClass.query_region`, but returns the raw
@@ -228,6 +230,8 @@ class IrsaClass(BaseQuery):
             Defaults to `False`.
         selcols : str, optional
             Target column list with value separated by a comma(,)
+        cache : bool, optional
+            Use local cache when set to `True`.
 
         Returns
         -------
@@ -246,7 +250,8 @@ class IrsaClass(BaseQuery):
         if get_query_payload:
             return request_payload
         response = self._request("GET", url=Irsa.IRSA_URL,
-                                 params=request_payload, timeout=Irsa.TIMEOUT)
+                                 params=request_payload, timeout=Irsa.TIMEOUT,
+                                 cache=cache)
         return response
 
     def _parse_spatial(self, spatial, coordinates, radius=None, width=None,
@@ -410,9 +415,15 @@ class IrsaClass(BaseQuery):
 
         return table
 
-    def list_catalogs(self):
+
+    def list_catalogs(self, cache=False):
         """
         Return a dictionary of the catalogs in the IRSA Gator tool.
+
+        Parameters
+        ----------
+        cache : bool
+            Use local cache when set to `True`. Default is `False`.
 
         Returns
         -------
@@ -420,9 +431,11 @@ class IrsaClass(BaseQuery):
             A dictionary of catalogs where the key indicates the catalog
             name to be used in query functions, and the value is the verbose
             description of the catalog.
+
         """
         response = self._request("GET", url=Irsa.GATOR_LIST_URL,
-                                 params=dict(mode='xml'), timeout=Irsa.TIMEOUT)
+                                 params=dict(mode='xml'), cache=cache,
+                                 timeout=Irsa.TIMEOUT)
 
         root = tree.fromstring(response.content)
         catalogs = {}
@@ -430,13 +443,14 @@ class IrsaClass(BaseQuery):
             catname = catalog.find('catname').text
             desc = catalog.find('desc').text
             catalogs[catname] = desc
+
         return catalogs
 
-    def print_catalogs(self):
+    def print_catalogs(self, cache=False):
         """
         Display a table of the catalogs in the IRSA Gator tool.
         """
-        catalogs = self.list_catalogs()
+        catalogs = self.list_catalogs(cache=cache)
         for catname in catalogs:
             print("{:30s}  {:s}".format(catname, catalogs[catname]))
 
