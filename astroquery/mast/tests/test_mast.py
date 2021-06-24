@@ -184,7 +184,7 @@ def zcut_download_mockreturn(url, file_path):
 ###########################
 
 
-'''def test_mission_search(patch_post):
+def test_mission_search(patch_post):
     params = {"target": ["40.66963 -0.01328"],
               "radius": 3,
               "radius_units": "arcminutes",
@@ -204,9 +204,9 @@ def zcut_download_mockreturn(url, file_path):
               "offset": 0,
               "sort_by": [],
               "sort_desc": [],
-              "skip_count": false}
-    result = mast.Dataset.service_request(params)
-    assert isinstance(result, Table)'''
+              "skip_count": False}
+    result = mast.Datasets.service_request(params)
+    assert isinstance(result, Table)
 
 
 

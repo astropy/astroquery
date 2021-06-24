@@ -63,6 +63,50 @@ Radius is an optional parameter and the default is 0.2 degrees.
                         spectrum            IUE             LWR ...           0.0
 
 
+Dataset Queries
+---------------
+
+These can use different search criteria including a sky position or a target name
+plus other search criteria including principle investigator last name, dataset ids,
+spectral_element and other search conditions.
+
+.. code-block:: python
+
+                >>> from astroquery.mast import Datasets
+                >>> params = {"target": ["40.66963 -0.01328"],
+                ...               "radius": 3,
+                ...               "radius_units": "arcminutes",
+                ...               "select_cols": [
+                ...                   "sci_start_time",
+                ...                   "sci_stop_time",
+                ...                   "sci_targname",
+                ...                   "sci_status"
+                ...               ],
+                ...               "user_fields": [],
+                ...               "conditions": [
+                ...                   {"sci_spec_1234": ""},
+                ...                   {"sci_release_date": ""},
+                ...                   {"sci_start_time": ""}
+                ...               ],
+                ...               "limit": 5000,
+                ...               "offset": 0,
+                ...               "sort_by": [],
+                ...               "sort_desc": [],
+                ...               "skip_count": False}
+                >>> print(result[:10])
+                sci_data_set_name   sci_targname        sci_start_time             sci_stop_time        sci_status         search_key             search_pos           ang_sep        
+                ----------------- --------------- -------------------------- -------------------------- ---------- -------------------------- ----------------- ----------------------
+                O5LJ01010 NGC1068-HOTSPOT 2000-01-14T02:38:46.733000 2000-01-14T02:49:30.733000     PUBLIC 40.66963 -0.01328O5LJ01010 40.66963 -0.01328  6.009235381703309e-05
+                O5LJ01050 NGC1068-HOTSPOT 2000-01-14T05:33:17.740000 2000-01-14T05:47:21.740000     PUBLIC 40.66963 -0.01328O5LJ01050 40.66963 -0.01328  6.009235381703309e-05
+                O5LJ01080 NGC1068-HOTSPOT 2000-01-14T07:09:55.723000 2000-01-14T07:24:07.723000     PUBLIC 40.66963 -0.01328O5LJ01080 40.66963 -0.01328  6.009235381703309e-05
+                O5LJ01KZQ NGC1068-HOTSPOT 2000-01-14T02:30:52.843000 2000-01-14T02:34:00.943000     PUBLIC 40.66963 -0.01328O5LJ01KZQ 40.66963 -0.01328  6.009235381703309e-05
+                J8MX02010         NGC1068 2003-10-26T23:13:57.507000 2003-10-26T23:28:14.557000     PUBLIC 40.66963 -0.01328J8MX02010 40.66963 -0.01328 0.00030184616324075504
+                J8MX02FGQ         NGC1068 2003-10-26T23:08:56.517000 2003-10-26T23:10:57.530000     PUBLIC 40.66963 -0.01328J8MX02FGQ 40.66963 -0.01328 0.00030184616324075504
+                N4HK07010         NGC1068 1998-02-21T12:38:02.613000 1998-02-21T13:00:35.613000     PUBLIC 40.66963 -0.01328N4HK07010 40.66963 -0.01328  0.0003961467789354281
+                N4HK07040         NGC1068 1998-02-21T13:01:22.613000 1998-02-21T13:23:55.613000     PUBLIC 40.66963 -0.01328N4HK07040 40.66963 -0.01328  0.0003961467789354281
+                N4HK09040         NGC1068 1998-02-21T14:38:10.613000 1998-02-21T15:00:43.613000     PUBLIC 40.66963 -0.01328N4HK09040 40.66963 -0.01328  0.0003961467789354281
+                N4HK01010         NGC1068 1998-02-20T20:30:10.613000 1998-02-20T20:48:27.613000     PUBLIC 40.66963 -0.01328N4HK01010 40.66963 -0.01328   0.000409236568193906
+
 
 Observation Criteria Queries
 ----------------------------
