@@ -209,7 +209,6 @@ def test_mission_search(patch_post):
     assert isinstance(result, Table)
 
 
-
 ###################
 # MastClass tests #
 ###################

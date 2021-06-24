@@ -21,7 +21,6 @@ from astropy.utils import deprecated
 from ..query import BaseQuery, QueryWithLogin
 from ..utils import async_to_sync
 from ..utils.class_or_instance import class_or_instance
-#from ..exceptions import InputWarning, NoResultsWarning, RemoteServiceError
 
 from . import conf, utils
 
@@ -44,7 +43,6 @@ def _json_to_table(json_obj, col_config=None):
     -------
     response : `~astropy.table.Table`
     """
-
 
     col_type = 'str'
     ignore_value = None
@@ -69,7 +67,7 @@ def _json_to_table(json_obj, col_config=None):
             column_names = column_names + (key,)
             column_types = column_types + (col_type,)
     data_table = Table(masked=True, names=column_names, dtype=column_types)
-       
+ 
     for result in json_obj['results']:
         row = ()
         for key, val in result.items():
@@ -89,8 +87,9 @@ def _json_to_table(json_obj, col_config=None):
                 ignore_value = -999
             row = row + (val,)
         data_table.add_row(row)
-        
+ 
     return data_table
+
 
 @async_to_sync
 class MissionSearchAPI(BaseQuery):
