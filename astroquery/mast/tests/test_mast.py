@@ -19,7 +19,7 @@ from ... import mast
 
 DATA_FILES = {'Mast.Caom.Cone': 'caom.json',
               'Mast.Name.Lookup': 'resolver.json',
-              'mission_search_results: 'mission_results.json''
+              'mission_search_results': 'mission_results.json''
               'columnsconfig': 'columnsconfig.json',
               'ticcolumns': 'ticcolumns.json',
               'ticcol_filtered': 'ticcolumns_filtered.json',
