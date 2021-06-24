@@ -6,16 +6,17 @@ MAST Datasets
 This module contains methods for searching MAST datasets.
 """
 
+import json
 from ..utils import async_to_sync
 from ..utils.class_or_instance import class_or_instance
 
 from .core import MastQueryWithLogin
 
-__all__ = ['DatasetClass', 'Dataset']
+__all__ = ['DatasetsClass', 'Datasets']
 
 
 @async_to_sync
-class DatasetClass(MastQueryWithLogin):
+class DatasetsClass(MastQueryWithLogin):
     """
     MAST search datasets class.
 
@@ -57,6 +58,7 @@ class DatasetClass(MastQueryWithLogin):
         response : `~requests.Response`
         """
 
+        params = json.dumps(params)
         return self._mission_api_connection.service_request_async(params)
 
-Dataset = DatasetClass()
+Datasets = DatasetsClass()

@@ -50,12 +50,30 @@ def _json_to_table(json_obj, col_config=None):
     ignore_value = None
     column_names = ()
     column_types = ()
-    rows = []
 
+    if len(json_obj['results']) > 0:
+        for key, val in json_obj['results'][0].items():
+            if isinstance(val, str):
+                col_type = 'str'
+                ignore_value = ''
+            elif isinstance(val, bool):
+                col_type = 'bool'
+                ignore_value = ''
+            elif isinstance(val, int):
+                col_type = np.int64
+                ignore_value = -999
+            elif isinstance(val, float):
+                col_type = np.float64
+                ignore_value = -999
+
+            column_names = column_names + (key,)
+            column_types = column_types + (col_type,)
+    data_table = Table(masked=True, names=column_names, dtype=column_types)
+       
     for result in json_obj['results']:
-        rows.append([])
+        row = ()
         for key, val in result.items():
-            if val === 'null':
+            if val == 'null' or val is None:
                 val = ''
             if isinstance(val, str):
                 col_type = 'str'
@@ -69,12 +87,9 @@ def _json_to_table(json_obj, col_config=None):
             elif isinstance(val, float):
                 col_type = np.float64
                 ignore_value = -999
-            rows[-1].append(val)
+            row = row + (val,)
+        data_table.add_row(row)
         
-            column_names = column_names + (val,)
-            column_types = column_types + (col_type,)
-
-    data_table = Table(rows, masked=True, names=column_names, dtype=column_types)
     return data_table
 
 @async_to_sync
@@ -161,7 +176,7 @@ class MissionSearchAPI(BaseQuery):
         response : `~astropy.table.Table`
         """
 
-        result = resp.json()
+        result = response.json()
 
         result_table = _json_to_table(result)
 
