@@ -63,12 +63,15 @@ Radius is an optional parameter and the default is 0.2 degrees.
                         spectrum            IUE             LWR ...           0.0
 
 
-Dataset Queries
----------------
+Mission-Specific Search Queries
+-------------------------------
 
-These can use different search criteria including a sky position or a target name
-plus other search criteria including principle investigator last name, dataset ids,
-spectral_element and other search conditions.
+These queries allow for searches based on mission-specific metadata for a given
+data collection.  Currently it provides access to a broad set of Hubble Space
+Telescope (HST) metadata, including header keywords, proposal information, and
+observational parameters.  The available metadata includes all information that
+was previously available in the original HST web search form, and are present in
+the current Mission Search interface.
 
 .. code-block:: python
 
