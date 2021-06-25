@@ -19,7 +19,7 @@ from ... import mast
 
 DATA_FILES = {'Mast.Caom.Cone': 'caom.json',
               'Mast.Name.Lookup': 'resolver.json',
-              'mission_search_results': 'mission_results.json''
+              'mission_search_results': 'mission_results.json',
               'columnsconfig': 'columnsconfig.json',
               'ticcolumns': 'ticcolumns.json',
               'ticcol_filtered': 'ticcolumns_filtered.json',
@@ -63,7 +63,7 @@ def patch_post(request):
     mp.setattr(mast.utils, '_simple_request', resolver_mockreturn)
     mp.setattr(mast.discovery_portal.PortalAPI, '_request', post_mockreturn)
     mp.setattr(mast.services.ServiceAPI, '_request', service_mockreturn)
-    mp.setattr(mast.services.MissionSearchAPI, '_request', mission_mockreturn)
+    mp.setattr(mast.missions.MissionSearchAPI, '_request', mission_mockreturn)
     mp.setattr(mast.auth.MastAuth, 'session_info', session_info_mockreturn)
 
     mp.setattr(mast.Observations, '_download_file', download_mockreturn)

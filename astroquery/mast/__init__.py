@@ -39,7 +39,7 @@ from . import utils
 
 __all__ = ['Observations', 'ObservationsClass',
            'Catalogs', 'CatalogsClass',
-           'Datasets', 'DatasetClass',
+           'Datasets', 'DatasetsClass',
            'Mast', 'MastClass',
            'Tesscut', 'TesscutClass',
            'Zcut', 'ZcutClass',
