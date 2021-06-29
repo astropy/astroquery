@@ -99,7 +99,6 @@ If onlist=0, the following parameters are required:
                         constraints.
 """
 
-
 import warnings
 from io import BytesIO
 import xml.etree.ElementTree as tree
@@ -107,8 +106,6 @@ import xml.etree.ElementTree as tree
 import astropy.units as u
 import astropy.coordinates as coord
 import astropy.io.votable as votable
-from astropy.table import Table
-
 
 from astroquery.query import BaseQuery
 from astroquery.utils import commons, async_to_sync
@@ -125,7 +122,6 @@ class IrsaClass(BaseQuery):
     GATOR_LIST_URL = conf.gator_list_catalogs
     TIMEOUT = conf.timeout
     ROW_LIMIT = conf.row_limit
-
 
     def query_region_async(self, coordinates=None, *, catalog=None,
                            spatial='Cone', radius=10 * u.arcsec, width=None,
@@ -357,7 +353,6 @@ class IrsaClass(BaseQuery):
                           "be empty", NoResultsWarning)
 
         return table
-
 
     def list_catalogs(self, cache=False):
         """
