@@ -385,11 +385,8 @@ class BaseQuery:
             if length is not None:
                 statinfo = os.stat(local_filepath)
                 if statinfo.st_size != length:
-                    log.warning("Found cached file {0} with size {1} that is "
-                                "different from expected size {2}"
-                                .format(local_filepath,
-                                        statinfo.st_size,
-                                        length))
+                    log.warning(f"Found cached file {local_filepath} with size {statinfo.st_size} "
+                                f"that is different from expected size {length}")
                     open_mode = 'wb'
                 else:
                     log.info("Found cached file {0} with expected size {1}."
@@ -421,20 +418,16 @@ class BaseQuery:
         else:
             progress_stream = io.StringIO()
 
-        with ProgressBarOrSpinner(
-                length, ('Downloading URL {0} to {1} ...'
-                         .format(url, local_filepath)),
-                file=progress_stream) as pb:
+        with ProgressBarOrSpinner(length, f'Downloading URL {url} to {local_filepath} ...',
+                                  file=progress_stream) as pb:
             with open(local_filepath, open_mode) as f:
                 for block in response.iter_content(blocksize):
                     f.write(block)
-                    bytes_read += blocksize
+                    bytes_read += len(block)
                     if length is not None:
-                        pb.update(bytes_read if bytes_read <= length else
-                                  length)
+                        pb.update(bytes_read if bytes_read <= length else length)
                     else:
                         pb.update(bytes_read)
-
         response.close()
         return response
 
