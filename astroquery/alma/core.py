@@ -708,22 +708,47 @@ class AlmaClass(QueryWithLogin):
         if savedir is None:
             savedir = self.cache_location
         for fileLink in unique(files):
+            log.debug("Downloading {0} to {1}".format(fileLink, savedir))
             try:
-                log.debug("Downloading {0} to {1}".format(fileLink, savedir))
                 check_filename = self._request('HEAD', fileLink, auth=auth,
                                                stream=True)
                 check_filename.raise_for_status()
-                if 'text/html' in check_filename.headers['Content-Type']:
-                    raise ValueError("Bad query.  This can happen if you "
-                                     "attempt to download proprietary "
-                                     "data when not logged in")
+            except requests.HTTPError as ex:
+                if ex.response.status_code == 401:
+                    if skip_unauthorized:
+                        log.info("Access denied to {url}.  Skipping to"
+                                 " next file".format(url=fileLink))
+                        continue
+                    else:
+                        raise(ex)
 
-                filename = self._request("GET", fileLink, save=True,
-                                         savedir=savedir,
-                                         timeout=self.TIMEOUT,
-                                         cache=cache,
-                                         auth=auth,
-                                         continuation=continuation)
+            if 'text/html' in check_filename.headers['Content-Type']:
+                raise ValueError("Bad query.  This can happen if you "
+                                 "attempt to download proprietary "
+                                 "data when not logged in")
+
+            try:
+                filename = re.search("filename=(.*)",
+                                     check_filename.headers['Content-Disposition']).groups()[0]
+            except KeyError:
+                log.info(f"Unable to find filename for {fileLink}  "
+                         "(missing Content-Disposition in header).  "
+                         "Skipping to next file.")
+
+            if savedir is not None:
+                filename = os.path.join(savedir,
+                                        filename)
+
+            try:
+                self._download_file(fileLink,
+                                    filename,
+                                    timeout=self.TIMEOUT,
+                                    auth=auth,
+                                    cache=cache,
+                                    method='GET',
+                                    head_safe=True,
+                                    continuation=continuation)
+
                 downloaded_files.append(filename)
             except requests.HTTPError as ex:
                 if ex.response.status_code == 401:
@@ -744,12 +769,15 @@ class AlmaClass(QueryWithLogin):
                     raise ex
                 elif ex.response.status_code == 500:
                     # empirically, this works the second time most of the time...
-                    filename = self._request("GET", fileLink, save=True,
-                                             savedir=savedir,
-                                             timeout=self.TIMEOUT,
-                                             cache=cache,
-                                             auth=auth,
-                                             continuation=continuation)
+                    self._download_file(fileLink,
+                                        filename,
+                                        timeout=self.TIMEOUT,
+                                        auth=auth,
+                                        cache=cache,
+                                        method='GET',
+                                        head_safe=True,
+                                        continuation=continuation)
+
                     downloaded_files.append(filename)
                 else:
                     raise ex
