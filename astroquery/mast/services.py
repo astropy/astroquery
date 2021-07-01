@@ -54,18 +54,19 @@ def _json_to_table(json_obj):
         if ignore_value == "NULL":
             ignore_value = None
         # making type adjustments
-        if col_type == "char" or col_type == "STRING":
+        if col_type == "char" or col_type == "STRING" or col_type == 'VARCHAR':
             col_type = "str"
             ignore_value = "" if (ignore_value is None) else ignore_value
         elif col_type == "boolean" or col_type == "BINARY":
             col_type = "bool"
         elif col_type == "unsignedByte":
             col_type = np.ubyte
-        elif col_type == "int" or col_type == "short" or col_type == "long" or col_type == "NUMBER":
+        elif (col_type == "int" or col_type == "short" or col_type == "long" or col_type == "NUMBER"
+                or col_type == 'INTEGER'):
             # int arrays do not admit Non/nan vals
             col_type = np.int64
             ignore_value = -999 if (ignore_value is None) else ignore_value
-        elif col_type == "double" or col_type == "float" or col_type == "DECIMAL":
+        elif col_type == "double" or lower(col_type) == "float" or col_type == "DECIMAL":
             # int arrays do not admit Non/nan vals
             col_type = np.float64
             ignore_value = -999 if (ignore_value is None) else ignore_value

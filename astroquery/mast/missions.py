@@ -106,11 +106,25 @@ class MissionSearchAPI(BaseQuery):
         if session:
             self._session = session
 
-        self.MAST_SEARCH_URL = conf.server + "/search/hst/api/v0.1/search"
+        self.MAST_SEARCH_URL = conf.server + "/search/v0.1/"
 
         self.TIMEOUT = conf.timeout
 
-        self._current_service = None
+       self.set_mission_params()
+
+    def set_mission_params(self, mission_name="hst", service_name="search"):
+        """
+        Initialize the request url for a given mission.
+
+        Parameters
+        ----------
+        mission_name : str
+            Name of the specific mission, i.e. hst
+        service_name : str
+            Name of the specific service, i.e. search
+        """
+
+        self.MAST_SEARCH_URL += f"/api/v0.1/{mission_name}/{service_name}"
 
     def _request(self, method, url, params=None, data=None, headers=None,
                  files=None, stream=False, auth=None, cache=False):

@@ -15,7 +15,7 @@ class Conf(_config.ConfigNamespace):
     """
 
     server = _config.ConfigItem(
-        'https://masttest.stsci.edu',
+        'http://localhost:15000',
         'Name of the MAST server.')
     ssoserver = _config.ConfigItem(
         'https://ssoportal.stsci.edu',
@@ -39,7 +39,7 @@ from . import utils
 
 __all__ = ['Observations', 'ObservationsClass',
            'Catalogs', 'CatalogsClass',
-           'Datasets', 'DatasetsClass',
+           'Missions', 'MissionsMastClass',
            'Mast', 'MastClass',
            'Tesscut', 'TesscutClass',
            'Zcut', 'ZcutClass',
