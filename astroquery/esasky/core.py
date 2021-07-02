@@ -563,7 +563,7 @@ class ESASkyClass(BaseQuery):
 
         return commons.TableList(query_result)
 
-    def query_ids_maps(self, observation_ids, missions=__ALL_STRING, row_limit=DEFAULT_ROW_LIMIT,
+    def query_ids_maps(self, observation_ids, *, missions=__ALL_STRING, row_limit=DEFAULT_ROW_LIMIT,
                        get_query_payload=False, cache=True):
         """
         This method fetches the metadata for all the given observations id's and returns a TableList.
@@ -617,7 +617,7 @@ class ESASkyClass(BaseQuery):
 
         return commons.TableList(query_result)
 
-    def query_ids_catalogs(self, source_ids, catalogs=__ALL_STRING, row_limit=DEFAULT_ROW_LIMIT,
+    def query_ids_catalogs(self, source_ids, *, catalogs=__ALL_STRING, row_limit=DEFAULT_ROW_LIMIT,
                            get_query_payload=False, cache=True):
         """
         This method fetches the metadata for all the given source id's and returns a TableList.
@@ -671,7 +671,7 @@ class ESASkyClass(BaseQuery):
 
         return commons.TableList(query_result)
 
-    def query_ids_spectra(self, observation_ids, missions=__ALL_STRING, row_limit=DEFAULT_ROW_LIMIT,
+    def query_ids_spectra(self, observation_ids, *, missions=__ALL_STRING, row_limit=DEFAULT_ROW_LIMIT,
                           get_query_payload=False, cache=True):
         """
         This method fetches the metadata for all the given observations id's and returns a TableList.
@@ -796,9 +796,9 @@ class ESASkyClass(BaseQuery):
             log.info("No maps found.")
         return maps
 
-    def get_images(self, position="", radius=__ZERO_ARCMIN_STRING,
+    def get_images(self, *, position=None, observation_ids=None, radius=__ZERO_ARCMIN_STRING,
                    missions=__ALL_STRING, download_dir=_MAPS_DOWNLOAD_DIR,
-                   cache=True, observation_ids=None):
+                   cache=True):
         """
         This method gets the fits files available for the selected mission and
         position or observation_ids and downloads all maps to the the selected folder.
@@ -812,6 +812,10 @@ class ESASkyClass(BaseQuery):
         position : str or `astropy.coordinates` object, optional
             Can either be a string of the location, eg 'M51', or the coordinates
             of the object. An input is required for either position or observation_ids.
+        observation_ids : string or list, optional
+            A list of observation ID's, you would like to download.
+            If this parameter is empty, a cone search will be performed instead using the radius and position.
+            An input is required for either position or observation_ids.
         radius : str or `~astropy.units.Quantity`, optional
             The radius of a region. Defaults to 0.
         missions : string or list, optional
@@ -824,10 +828,7 @@ class ESASkyClass(BaseQuery):
         cache : bool, optional
             When set to True the method will use a cache located at
             .astropy/astroquery/cache. Defaults to True.
-        observation_ids : string or list, optional
-            A list of observation ID's, you would like to download.
-            If this parameter is empty, a cone search will be performed instead using the radius and position.
-            An input is required for either position or observation_ids.
+
 
         Returns
         -------
@@ -845,7 +846,7 @@ class ESASkyClass(BaseQuery):
 
         Examples
         --------
-        get_images("m101", "14'", "all")
+        get_images(position="m101", radius="14'", missions="all")
 
         missions = ["SUZAKU", "ISO-IR", "Chandra", "XMM-OM-OPTICAL", "XMM", "XMM-OM-UV", "HST-IR", "Herschel",
                     "Spitzer", "HST-UV", "HST-OPTICAL"]
@@ -853,7 +854,7 @@ class ESASkyClass(BaseQuery):
                            "1342247257", "30002561-25100", "hst_07553_3h_wfpc2_f160bw_pc", "ocli05leq"]
         get_images(observation_ids=observation_ids, missions=missions)
         """
-        if position == "" and observation_ids is None:
+        if position is None and observation_ids is None:
             raise ValueError("An input is required for either position or observation_ids.")
         sanitized_position = self._sanitize_input_position(position)
         sanitized_radius = self._sanitize_input_radius(radius)
@@ -891,9 +892,9 @@ class ESASkyClass(BaseQuery):
             log.info("No maps found.")
         return maps
 
-    def get_spectra(self, position="", radius=__ZERO_ARCMIN_STRING,
+    def get_spectra(self, position=None, observation_ids=None, radius=__ZERO_ARCMIN_STRING,
                     missions=__ALL_STRING, download_dir=_SPECTRA_DOWNLOAD_DIR,
-                    cache=True, observation_ids=None):
+                    cache=True):
         """
         This method gets the fits files available for the selected missions and
         position or observation_ids and downloads all spectra to the the selected folder.
@@ -906,6 +907,10 @@ class ESASkyClass(BaseQuery):
         position : str or `astropy.coordinates` object, optional
             Can either be a string of the location, eg 'M51', or the coordinates
             of the object. An input is required for either position or observation_ids.
+        observation_ids : string or list, optional
+            A list of observation ID's, you would like to download.
+            If this parameter is empty, a cone search will be performed instead using the radius and position.
+            An input is required for either position or observation_ids.
         radius : str or `~astropy.units.Quantity`, optional
             The radius of a region. Defaults to 0.
         missions : string or list, optional
@@ -918,10 +923,6 @@ class ESASkyClass(BaseQuery):
         cache : bool, optional
             When set to True the method will use a cache located at
             .astropy/astroquery/cache. Defaults to True.
-        observation_ids : string or list, optional
-            A list of observation ID's, you would like to download.
-            If this parameter is empty, a cone search will be performed instead using the radius and position.
-            An input is required for either position or observation_ids.
 
         Returns
         -------
@@ -941,7 +942,7 @@ class ESASkyClass(BaseQuery):
 
         Examples
         --------
-        get_spectra("m101", "14'", ["HST-IR", "XMM-NEWTON", "HERSCHEL"])
+        get_spectra(position="m101", radius="14'", missions=["HST-IR", "XMM-NEWTON", "HERSCHEL"])
 
         missions = ["ISO-IR", "Chandra", "IUE", "XMM-NEWTON", "HST-IR", "Herschel", "HST-UV", "HST-OPTICAL"]
         observation_ids = ["02101201", "1005", "LWR13178", "0001730201", "ibh706cqq", "1342253595", "z1ax0102t",
@@ -949,7 +950,7 @@ class ESASkyClass(BaseQuery):
         get_spectra(observation_ids=observation_ids, missions=missions)
 
         """
-        if position == "" and observation_ids is None:
+        if position is None and observation_ids is None:
             raise ValueError("An input is required for either position or observation_ids.")
         sanitized_position = self._sanitize_input_position(position)
         sanitized_radius = self._sanitize_input_radius(radius)
@@ -1057,6 +1058,8 @@ class ESASkyClass(BaseQuery):
         if (isinstance(position, str) or isinstance(position,
                                                     commons.CoordClasses)):
             return position
+        if position is None:
+            return None
         else:
             raise ValueError("Position must be either a string or "
                              "astropy.coordinates")
@@ -1103,7 +1106,7 @@ class ESASkyClass(BaseQuery):
                          "catalogs")
 
     def _sanitize_input_ids(self, ids):
-        if isinstance(ids, list):
+        if isinstance(ids, list) and len(ids) > 0:
             return ids
         if isinstance(ids, str):
             return [ids]
@@ -1362,13 +1365,18 @@ class ESASkyClass(BaseQuery):
             return self._create_request_payload(query)
 
         if not query:
+            # Could not create query. The most common reason for this is a type mismatch between user specified ID and
+            # data type of database column.
+            # For example query_ids_catalogs(source_ids=["2CXO J090341.1-322609"], mission=["CHANDRA", "HSC"])
+            # would be able to create a query for Chandra, but not for Hubble because the hubble source id column type
+            # is a number and "2CXO J090341.1-322609" cannot be converted to a number.
             return query
 
         return self.query(query, output_format="votable")
 
     def _build_region_query(self, coordinates, radius, row_limit, json):
-        ra_hours, dec = commons.coord_to_radec(coordinates)
-        ra = ra_hours * 15.0  # Converts to degrees
+        ra = coordinates.transform_to('icrs').ra.deg
+        dec = coordinates.transform_to('icrs').dec.deg
         radius_deg = commons.radius_to_unit(radius, unit='deg')
 
         select_query = "SELECT "
@@ -1434,9 +1442,10 @@ class ESASkyClass(BaseQuery):
         valid_ids = ids
         if data_type in self._NUMBER_DATA_TYPES:
             valid_ids = [int(obs_id) for obs_id in ids if obs_id.isdigit()]
-
-        if not valid_ids:
-            return ""
+            if not valid_ids:
+                log.info("Could not construct query for mission {}. Database column type is a number, "
+                         "while none of the input id's could be interpreted as numbers.".format(json['mission']))
+                return ""
 
         observation_ids_query_list = ", ".join(repr(id) for id in valid_ids)
         where_query = (" WHERE {} IN ({})".format(id_column, observation_ids_query_list))
