@@ -274,18 +274,18 @@ class TestESASky:
     def test_query(self):
         result = ESASkyClass.query(query="SELECT * from observations.mv_v_esasky_xmm_om_uv_fdw")
         assert len(result) == 2000  # Default row limit is 2000
-    
+
     def test_get_tables(self):
         table_names = ESASkyClass.get_tables(only_names=True)
         assert len(table_names) > 70
         tables = ESASkyClass.get_tables(only_names=False)
         assert isinstance(tables[0], TapTableMeta)
         assert len(table_names) == len(tables)
-    
+
     def test_get_columns(self):
         column_names = ESASkyClass.get_columns(table_name='observations.mv_v_esasky_xmm_om_uv_fdw', only_names=True)
         assert len(column_names) == 17
-    
+
         columns = ESASkyClass.get_columns(table_name='observations.mv_v_esasky_xmm_om_uv_fdw', only_names=False)
         assert isinstance(columns[0], TapColumn)
         assert len(column_names) == len(columns)
