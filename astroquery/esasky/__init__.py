@@ -7,7 +7,7 @@ class Conf(_config.ConfigNamespace):
     Configuration parameters for `astroquery.esasky`.
     """
     urlBase = _config.ConfigItem(
-        'http://sky.esa.int/esasky-tap',
+        'https://sky.esa.int/esasky-tap',
         'ESASky base URL')
 
     timeout = _config.ConfigItem(

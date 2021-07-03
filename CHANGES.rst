@@ -4,6 +4,12 @@
 New Tools and Services
 ----------------------
 
+esa.esasky
+^^^^^^^^^^
+
+- Download by observation id or source name. [#2078]
+- Added cusom ADQL and TAP+ functionality. [#2078]
+
 esa.hubble
 ^^^^^^^^^^
 
