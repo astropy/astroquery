@@ -228,7 +228,7 @@ class TestESASky:
         missions = ESASkyClass.list_spectra()
         # HST-IR has no data, LAMOST does not support download
         missions = [mission for mission in missions if mission not in ("HST-IR", "LAMOST")]
-        ESASkyClass.get_spectra("M1", missions=missions, download_dir=download_directory)
+        ESASkyClass.get_spectra(position="M1", missions=missions, download_dir=download_directory)
 
         for mission in missions:
             file_path = os.path.join(download_directory, mission)
