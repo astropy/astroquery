@@ -65,6 +65,7 @@ Infrastructure, Utility and Other Changes and Additions
 
 - Fixed progressbar download to report the correct downloaded amount. [#2091]
 
+- Dropping Python 3.6 support. [#2102]
 
 
 0.4.2 (2021-05-14)

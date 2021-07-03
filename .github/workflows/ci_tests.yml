@@ -35,8 +35,8 @@ jobs:
 
           - name: oldest dependencies
             os: ubuntu-latest
-            python: 3.6
-            toxenv: py36-test-oldestdeps
+            python: 3.7
+            toxenv: py37-test-oldestdeps
             toxargs: -v
 
           - name: astropy dev with all dependencies with coverage
