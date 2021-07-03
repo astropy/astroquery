@@ -734,6 +734,7 @@ class AlmaClass(QueryWithLogin):
                 log.info(f"Unable to find filename for {fileLink}  "
                          "(missing Content-Disposition in header).  "
                          "Skipping to next file.")
+                continue
 
             if savedir is not None:
                 filename = os.path.join(savedir,
