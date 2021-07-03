@@ -724,7 +724,7 @@ class ESASkyClass(BaseQuery):
 
         return commons.TableList(query_result)
 
-    def get_maps(self, query_table_list, missions=__ALL_STRING,
+    def get_maps(self, query_table_list, *, missions=__ALL_STRING,
                  download_dir=_MAPS_DOWNLOAD_DIR, cache=True):
         """
         This method takes the dictionary of missions and metadata as returned by
@@ -892,7 +892,7 @@ class ESASkyClass(BaseQuery):
             log.info("No maps found.")
         return maps
 
-    def get_spectra(self, position=None, observation_ids=None, radius=__ZERO_ARCMIN_STRING,
+    def get_spectra(self, *, position=None, observation_ids=None, radius=__ZERO_ARCMIN_STRING,
                     missions=__ALL_STRING, download_dir=_SPECTRA_DOWNLOAD_DIR,
                     cache=True):
         """
