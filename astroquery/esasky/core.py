@@ -501,7 +501,7 @@ class ESASkyClass(BaseQuery):
                                      type_text=type_text,
                                      specify_type=specify_type,
                                      found_ssos='\n'.join(map(str, sso)))
-                            )
+                             )
             return None
 
         sanitized_missions = self._sanitize_input_sso_mission(missions)
@@ -1416,6 +1416,7 @@ class ESASkyClass(BaseQuery):
                 return [missions]
         raise ValueError("Mission must be either a string or a list of "
                          "missions. Valid entries are found in list_sso()")
+
     def _get_sso_db_type(self, sso_type):
         sso_type = sso_type.lower()
         if sso_type == "asteroid" or sso_type == "dwarf_planet":
