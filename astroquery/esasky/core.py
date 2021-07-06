@@ -209,7 +209,7 @@ class ESASkyClass(BaseQuery):
 
     def list_sso(self):
         """
-        Get a list of the mission names of the available observations with SSO cross match in ESASky
+        Get a list of the mission names of the available observations with SSO crossmatch in ESASky
         """
         return self._json_object_field_to_list(
             self._get_sso_json(), self.__MISSION_STRING)
@@ -443,8 +443,8 @@ class ESASkyClass(BaseQuery):
     def query_sso_maps(self, sso_name, *, sso_type="ALL", missions=__ALL_STRING,
                        row_limit=DEFAULT_ROW_LIMIT):
         """
-        This method performs a cross match on the chosen solar system object
-        and the selected missions using ESASky's cross match algorithm.
+        This method performs a crossmatch on the chosen solar system object
+        and the selected missions using ESASky's crossmatch algorithm.
         The algorithm detects both targeted and serendipitous observations.
         It returns a TableList with all the found maps metadata for the
         chosen missions and object.
@@ -494,7 +494,7 @@ class ESASkyClass(BaseQuery):
             if sso_type != 'ALL':
                 type_text = ' and type {}'.format(sso_type)
             log.info('Found {num_sso} SSO\'s with name: {sso_name}{type_text}.\n'
-                     'Try narrowing your search by typing a more specific sso_name.\n{specify_type} '
+                     'Try narrowing your search by typing a more specific sso_name.\n{specify_type}'
                      'The following SSO\'s were found:\n{found_ssos}'
                      .format(num_sso=len(sso),
                              sso_name=sso_name,
@@ -535,9 +535,9 @@ class ESASkyClass(BaseQuery):
         """
         This method gets the fits files for the input (either a sso_name or table_list)
         and downloads all maps to the the selected folder.
-        If a sso_name is entered, this method performs a cross match on
+        If a sso_name is entered, this method performs a crossmatch on
         the chosen solar system object and the selected missions using
-        ESASky's cross match algorithm.
+        ESASky's crossmatch algorithm.
         The method returns a dictionary which is divided by mission.
         All mission except Herschel returns a list of HDULists.
         For Herschel each item in the list is a dictionary where the used
@@ -1573,7 +1573,7 @@ class ESASkyClass(BaseQuery):
             for member in tar.getmembers():
                 member_name = member.name.lower()
                 if ('hspire' in member_name or 'hpacs' in member_name
-                        or 'hhifi' in member_name):
+                    or 'hhifi' in member_name):
                     herschel_filter = self._get_herschel_filter_name(member_name)
                     tar.extract(member, directory_path)
                     herschel_fits = []
@@ -1723,7 +1723,7 @@ class ESASkyClass(BaseQuery):
         else:
             if (json[self.__USE_INTERSECT_STRING]):
                 where_query = (" WHERE 1=INTERSECTS(CIRCLE('ICRS', {}, {}, {}), fov)".
-                                format(ra, dec, radius_deg))
+                               format(ra, dec, radius_deg))
             else:
                 where_query = (" WHERE 1=CONTAINS(POINT('ICRS', {}, {}), CIRCLE('ICRS', {}, {}, {}))".
                                format(tap_ra_column, tap_dec_column, ra, dec, radius_deg))

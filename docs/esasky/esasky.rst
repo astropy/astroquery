@@ -10,10 +10,13 @@ Getting started
 ===============
 
 This is a python interface for querying the `ESASky web service
-<http://www.cosmos.esa.int/web/esdc/esasky>`__. This supports querying an object
-as well as querying a region around the target. For region queries, the region
-dimensions may be specified as a radius. The queries may be further constrained
-by specifying a choice of catalogs, missions, or spectra.  `Documentation on the ESASky
+<http://www.cosmos.esa.int/web/esdc/esasky>`__. This module supports cone
+searches and download of data products from all missions available in ESASky.
+You can also use the ESASky Solar System Object crossmatch methods to get
+all observations (both targeted and serendipitous) of a solar system object.
+
+There are 4 categories of methods, based on the type of data:
+catalogs, observations, spectra, and SSO. `Documentation on the ESASky
 web service can be found here. <http://www.cosmos.esa.int/web/esdc/esasky-help>`__
 
 Get the available catalog names
@@ -49,7 +52,7 @@ If you know the names of all the available maps missions you can use
     'XMM-OM-UV', 'HST-UV', 'HST-OPTICAL', 'HST-IR', 'ISO-IR',
     'Herschel', 'AKARI', 'Spitzer', 'ALMA']
 
-Get the available maps mission names
+Get the available spectra mission names
 ------------------------------------
 
 If you know the names of all the available spectra you can use
@@ -62,14 +65,29 @@ If you know the names of all the available spectra you can use
     ['XMM-NEWTON', 'Chandra', 'IUE', 'HST-UV',
     'HST-OPTICAL', 'HST-IR', 'ISO-IR', 'Herschel', 'LAMOST']
 
+Get the available SSO mission names
+------------------------------------
+
+If you know the names of all the available missions with SSO cross
+match data, you can use
+:meth:`~astroquery.esasky.ESASkyClass.list_sso`:
+
+.. code-block:: python
+
+    >>> sso_list = ESASky.list_sso()
+    >>> print(sso_list)
+    ['Herschel', 'HST', 'XMM']
+
 Query an object
 ---------------
 
-There are three query objects methods in this module
+There are three very similar query objects methods in this module
 :meth:`~astroquery.esasky.ESASkyClass.query_object_catalogs`,
 :meth:`~astroquery.esasky.ESASkyClass.query_object_maps`, and
-:meth:`~astroquery.esasky.ESASkyClass.query_object_spectra`, which all work in
-almost the same way.
+:meth:`~astroquery.esasky.ESASkyClass.query_object_spectra`.
+There is also a method for querying SSO object
+:meth:`~astroquery.esasky.ESASkyClass.query_sso_maps`
+which is covered in its own section further down.
 
 For catalogs, the query returns a maximum of 10000 sources per mission by
 default. However, this can be modified by the row_limit parameter.
@@ -355,7 +373,7 @@ or
     ...                                       missions=['Herschel', 'XMM-NEWTON'])
     >>> spectra = ESASky.get_spectra_from_table(query_table_list=table_list, download_dir="/home/user/esasky")
 
-The response is structured in a dictionary like this:
+The return value is structured in a dictionary like this:
 
 .. code-block:: python
 
@@ -379,6 +397,97 @@ Here is another example for Herschel, since it is a bit special:
     >>> spectra = ESASky.get_spectra_from_table(query_table_list=[('HERSCHEL', herschel_result)], download_dir='Spectra_new')
     >>> spectra['HERSCHEL']['1342211195']['red'].keys()
     >>> spectra['HERSCHEL']['1342211195']['red']['HPSTBRRS'].info()
+
+Solar System Object Crossmatch
+------------------------------
+ESASky has a solar system object crossmatch feature which
+performs a crossmatch on the SSO orbits against the entire
+mission archives to find observations in which the SSO fell
+within the imaging instrument's field of view during the
+time the images were being taken.
+`Read more about the ESASky SSO feature
+<https://www.cosmos.esa.int/web/esdc/esasky-interface#SSO>`__
+You can access the results of this crossmatch by using
+:meth:`astroquery.esasky.ESASkyClass.query_sso_maps` which
+works like the other query methods, but it takes an SSO
+name as input instead of a position.
+
+.. code-block:: python
+
+    >>> from astroquery.esasky import ESASky
+    >>> result = ESASky.query_sso_maps(sso_name="Pallas", missions=["XMM", "HST"])
+
+In some cases an SSO name is ambiguous, in which case you
+may need to use a more precise SSO name or specify the
+SSO type of the desired object. For example:
+
+.. code-block:: python
+
+    >>> from astroquery.esasky import ESASky
+    >>> ESASky.query_sso_maps(sso_name="503")
+    INFO: Found 4 SSO's with name: 503.
+    Try narrowing your search by typing a more specific sso_name.
+    You can also narrow your search by specifying the sso_type.
+    Allowed values are ALL, ASTEROID, COMET, SATELLITE, PLANET, DWARF_PLANET, SPACECRAFT, SPACEJUNK, EXOPLANET, STAR.
+    The following SSO's were found:
+    {'aliases': ['503', 'J-3', 'J-III'], 'sso_name': 'Ganymede', 'sso_type': 'SATELLITE'}
+    {'aliases': [], 'sso_name': 'TOI-503 b', 'sso_type': 'EXOPLANET'}
+    {'aliases': [], 'sso_name': 'Wolf 503 b', 'sso_type': 'EXOPLANET'}
+    {'aliases': ['00503', '1899 GA', '1903 BL', '1948 BA', '1948 DA', '2000503', '503', 'I99G00A', 'J03B00L', 'J48B00A', 'J48D00A'], 'sso_name': 'Evelyn', 'sso_type': 'ASTEROID'}
+
+
+In this case, you can specify the sso_type
+
+.. code-block:: python
+    >>> from astroquery.esasky import ESASky
+    >>> ESASky.query_sso_maps(sso_name="503", sso_type="SATELLITE")
+
+
+You can see the available missions with:
+
+.. code-block:: python
+    >>> from astroquery.esasky import ESASky
+    >>> ESASky.list_sso()
+
+
+Other parameters and the return value are structured in the
+same manner as the other query methods.
+
+You can also download the observation for a given SSO with
+:meth:`astroquery.esasky.ESASkyClass.get_images_sso`.
+This function works very similar to
+:meth:`astroquery.esasky.ESASkyClass.get_images` and
+:meth:`astroquery.esasky.ESASkyClass.get_maps`, as it
+structures the return values in the same way, and
+most parameters are the same.
+You can for example, download a table list just like
+in get_maps by doing something like this:
+
+.. code-block:: python
+    >>> from astroquery.esasky import ESASky
+    >>> table_list_from_query_maps=ESASky.query_sso_maps(sso_name="ganymede", missions="XMM")
+    >>> table_list_from_query_maps['XMM'].remove_rows(list(range(0, 32)))
+    >>> images=ESASky.get_images_sso(table_list=table_list_from_query_maps)
+
+Or download everything on an SSO by something like this:
+
+.. code-block:: python
+    >>> from astroquery.esasky import ESASky
+    >>> images=ESASky.get_images(sso_name="ganymede")
+
+
+This module also offers access to IMCCE's SsODNet resolver,
+which allows you to find solar and extra solar system
+objects with a given name. Here you can see all matches
+and there aliases and types. You can use this method to
+help you specify which SSO you are after. Use
+:meth:`astroquery.esasky.ESASkyClass.find_sso`
+like this:
+
+.. code-block:: python
+    >>> from astroquery.esasky import ESASky
+    >>> list_of_matches=ESASky.find_sso(sso_name="Io")
+
 
 Reference/API
 =============
