@@ -10,6 +10,7 @@ esa.esasky
 - Download by observation id or source name. [#2078]
 - Added custom ADQL and TAP+ functionality. [#2078]
 - Enabled download of INTEGRAL data products. [#2105]
+- Added Solar System Object functionality. [#2106]
 
 esa.hubble
 ^^^^^^^^^^
