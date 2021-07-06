@@ -5,7 +5,7 @@ IBE
 
 API from
 
- http://irsa.ipac.caltech.edu/ibe/
+ https://irsa.ipac.caltech.edu/ibe/
 """
 
 

@@ -12,16 +12,16 @@ from ...utils.testing_tools import MockResponse
 from ...ibe import Ibe
 
 DATA_FILES = {
-    ('http://irsa.ipac.caltech.edu/ibe/search/', None): 'missions.html',
-    ('http://irsa.ipac.caltech.edu/ibe/search/ptf/', None): 'datasets.html',
-    ('http://irsa.ipac.caltech.edu/ibe/search/ptf/images/',
+    ('https://irsa.ipac.caltech.edu/ibe/search/', None): 'missions.html',
+    ('https://irsa.ipac.caltech.edu/ibe/search/ptf/', None): 'datasets.html',
+    ('https://irsa.ipac.caltech.edu/ibe/search/ptf/images/',
      None): 'tables.html',
-    ('http://irsa.ipac.caltech.edu/ibe/search/ptf/images/level1',
+    ('https://irsa.ipac.caltech.edu/ibe/search/ptf/images/level1',
      frozenset((('FORMAT', 'METADATA'),))): 'columns.txt',
-    ('http://irsa.ipac.caltech.edu/ibe/search/ptf/images/level1',
+    ('https://irsa.ipac.caltech.edu/ibe/search/ptf/images/level1',
      frozenset((('where', 'expid <= 43010'), ('POS', '148.969687,69.679383'),
                 ('INTERSECT', 'OVERLAPS')))): 'pos.txt',
-    ('http://irsa.ipac.caltech.edu/ibe/search/ptf/images/level1',
+    ('https://irsa.ipac.caltech.edu/ibe/search/ptf/images/level1',
      frozenset((('where', "ptffield = 4808 and filter='R'"),
                 ('INTERSECT', 'OVERLAPS')))): 'field_id.txt'}
 

@@ -6,7 +6,7 @@ SHA Query Tool
 :Author: Brian Svoboda (svobodb@email.arizona.edu)
 
 This package is for querying the Spitzer Heritage Archive (SHA)
-found at: http://sha.ipac.caltech.edu/applications/Spitzer/SHA.
+found at: https://sha.ipac.caltech.edu/applications/Spitzer/SHA.
 """
 from .core import *
 
