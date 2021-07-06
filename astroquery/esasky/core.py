@@ -493,15 +493,15 @@ class ESASkyClass(BaseQuery):
                            'Allowed values are {}.\n'.format(', '.join(map(str, self.SSO_TYPES)))
             if sso_type != 'ALL':
                 type_text = ' and type {}'.format(sso_type)
-            log.info('Found {num_sso} SSO\'s with name: {sso_name}{type_text}.\n'
-                     'Try narrowing your search by typing a more specific sso_name.\n{specify_type}'
-                     'The following SSO\'s were found:\n{found_ssos}'
-                     .format(num_sso=len(sso),
-                             sso_name=sso_name,
-                             type_text=type_text,
-                             specify_type=specify_type,
-                             found_ssos='\n'.join(map(str, sso)))
-                     )
+            raise ValueError('Found {num_sso} SSO\'s with name: {sso_name}{type_text}.\n'
+                             'Try narrowing your search by typing a more specific sso_name.\n{specify_type}'
+                             'The following SSO\'s were found:\n{found_ssos}'
+                             .format(num_sso=len(sso),
+                                     sso_name=sso_name,
+                                     type_text=type_text,
+                                     specify_type=specify_type,
+                                     found_ssos='\n'.join(map(str, sso)))
+                            )
             return None
 
         sanitized_missions = self._sanitize_input_sso_mission(missions)
@@ -513,7 +513,7 @@ class ESASkyClass(BaseQuery):
         query_result = {}
 
         sso_type = self._get_sso_db_type(sso['sso_type'])
-        sso_db_identifier = self._get_db_sso_identifier(self._get_db_sso_identifier(sso['sso_type']))
+        sso_db_identifier = self._get_db_sso_identifier(sso['sso_type'])
         for name in sanitized_missions:
             data_table = self._find_mission_tap_table_name(sso_json, name)
             mission_json = self._find_mission_parameters_in_json(data_table, sso_json)
@@ -528,7 +528,7 @@ class ESASkyClass(BaseQuery):
             if len(table) > 0:
                 query_result[name.upper()] = table
 
-        return query_result
+        return commons.TableList(query_result)
 
     def get_images_sso(self, *, sso_name=None, sso_type="ALL", table_list=None, missions=__ALL_STRING,
                        download_dir=_MAPS_DOWNLOAD_DIR, cache=True):
@@ -595,7 +595,7 @@ class ESASkyClass(BaseQuery):
         if sso_name is None and table_list is None:
             raise ValueError("An input is required for either sso_name or table.")
 
-        sanitized_missions = self._sanitize_input_sso_mission(missions)
+        sanitized_missions = [m.lower() for m in self._sanitize_input_sso_mission(missions)]
         sso_name = self._sanitize_input_sso_name(sso_name)
         sso_type = self._sanitize_input_sso_type(sso_type)
         if table_list is None:
@@ -1415,7 +1415,7 @@ class ESASkyClass(BaseQuery):
             else:
                 return [missions]
         raise ValueError("Mission must be either a string or a list of "
-                         "missions")
+                         "missions. Valid entries are found in list_sso()")
     def _get_sso_db_type(self, sso_type):
         sso_type = sso_type.lower()
         if sso_type == "asteroid" or sso_type == "dwarf_planet":

@@ -289,3 +289,72 @@ class TestESASky:
         columns = ESASkyClass.get_columns(table_name='observations.mv_v_esasky_xmm_om_uv_fdw', only_names=False)
         assert isinstance(columns[0], TapColumn)
         assert len(column_names) == len(columns)
+
+    def test_esasky_query_sso_maps(self):
+        result = ESASkyClass.query_sso_maps(sso_name="ceres")
+        assert isinstance(result, TableList)
+        assert "HST" in result.keys()
+        assert "XMM" in result.keys()
+        assert "HERSCHEL" in result.keys()
+        assert len(result["HST"]) >= 176
+
+        result = ESASkyClass.query_sso_maps(sso_name="ceres", missions="HST", row_limit=1)
+        assert isinstance(result, TableList)
+        assert "HST" in result.keys()
+        assert "XMM" not in result.keys()
+        assert "HERSCHEL" not in result.keys()
+        assert len(result["HST"]) == 1
+
+        result = ESASkyClass.query_sso_maps(sso_name="io", sso_type="SATELLITE", missions=["HST", "XMM"])
+        assert isinstance(result, TableList)
+        assert "HST" in result.keys()
+        assert "XMM" in result.keys()
+        assert "HERSCHEL" not in result.keys()
+
+    def test_esasky_query_sso_maps_ambiguous_name(self):
+        try:
+            ESASkyClass.query_sso_maps(sso_name="io")
+        except ValueError as err:
+            assert 'Try narrowing your search' in str(err)
+            return
+        assert False
+
+    def test_esasky_find_sso(self):
+        sso = ESASkyClass.find_sso(sso_name="Io")
+        assert len(sso) >= 2
+        assert "Io" in sso[0]['aliases'] or "Io" in sso[0]['sso_name']
+
+        sso = ESASkyClass.find_sso(sso_name="Io", sso_type="asteroid")
+        assert len(sso) >= 1
+        assert "Io" in sso[0]['aliases'] or "Io" in sso[0]['sso_name']
+        assert "ASTEROID" in sso[0]['sso_type']
+
+        assert ESASkyClass.find_sso(sso_name="Not an SSO") is None
+
+    def test_esasky_list_sso(self):
+        assert len(ESASkyClass.list_sso()) >= 3
+
+    def test_esasky_get_images_sso(self):
+        download_directory = "ESASkyRemoteTest"
+        if not os.path.exists(download_directory):
+            os.makedirs(download_directory)
+
+        table_list = ESASkyClass.query_sso_maps(sso_name="ceres")
+        assert "HERSCHEL" in table_list.keys()
+        fits_files = ESASkyClass.get_images_sso(table_list=table_list, missions="XMM",
+                                                download_dir=download_directory)
+        assert "HERSCHEL" not in fits_files
+        assert "XMM" in fits_files
+        assert isinstance(fits_files["XMM"][0], HDUList)
+
+        fits_files = ESASkyClass.get_images_sso(sso_name="ceres", missions="XMM",
+                                                download_dir=download_directory)
+        assert "HERSCHEL" not in fits_files
+        assert "XMM" in fits_files
+        assert isinstance(fits_files["XMM"][0], HDUList)
+
+        file_path = os.path.join(download_directory, "XMM")
+        assert os.path.exists(file_path)
+
+        fits_files = None
+        shutil.rmtree(download_directory)
