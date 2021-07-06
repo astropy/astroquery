@@ -502,7 +502,6 @@ class ESASkyClass(BaseQuery):
                                      specify_type=specify_type,
                                      found_ssos='\n'.join(map(str, sso)))
                              )
-            return None
 
         sanitized_missions = self._sanitize_input_sso_mission(missions)
         sanitized_row_limit = self._sanitize_input_row_limit(row_limit)
@@ -672,7 +671,6 @@ class ESASkyClass(BaseQuery):
         query_region_maps("265.05, 69.0", 14*u.arcmin, "Herschel")
         query_region_maps("265.05, 69.0", 14*u.arcmin, ["Herschel", "HST-OPTICAL"])
         """
-        sanitized_position = self._sanitize_input_position(position)
         sanitized_radius = self._sanitize_input_radius(radius)
         sanitized_missions = self._sanitize_input_mission(missions)
         sanitized_row_limit = self._sanitize_input_row_limit(row_limit)
@@ -680,7 +678,7 @@ class ESASkyClass(BaseQuery):
         query_result = {}
 
         sesame_database.set('simbad')
-        coordinates = commons.parse_coordinates(sanitized_position)
+        coordinates = commons.parse_coordinates(position)
 
         self._store_query_result(query_result=query_result, names=sanitized_missions, json=self._get_observation_json(),
                                  coordinates=coordinates, radius=sanitized_radius, row_limit=sanitized_row_limit,
@@ -739,13 +737,12 @@ class ESASkyClass(BaseQuery):
         query_region_catalogs("265.05, 69.0", 14*u.arcmin, "Hipparcos-2")
         query_region_catalogs("265.05, 69.0", 14*u.arcmin, ["Hipparcos-2", "HSC"])
         """
-        sanitized_position = self._sanitize_input_position(position)
         sanitized_radius = self._sanitize_input_radius(radius)
         sanitized_catalogs = self._sanitize_input_catalogs(catalogs)
         sanitized_row_limit = self._sanitize_input_row_limit(row_limit)
 
         sesame_database.set('simbad')
-        coordinates = commons.parse_coordinates(sanitized_position)
+        coordinates = commons.parse_coordinates(position)
 
         query_result = {}
 
@@ -806,7 +803,6 @@ class ESASkyClass(BaseQuery):
         query_region_spectra("265.05, 69.0", 30*u.arcmin, "Herschel")
         query_region_spectra("265.05, 69.0", 30*u.arcmin, ["Herschel", "IUE"])
         """
-        sanitized_position = self._sanitize_input_position(position)
         sanitized_radius = self._sanitize_input_radius(radius)
         sanitized_missions = self._sanitize_input_spectra(missions)
         sanitized_row_limit = self._sanitize_input_row_limit(row_limit)
@@ -814,7 +810,7 @@ class ESASkyClass(BaseQuery):
         query_result = {}
 
         sesame_database.set('simbad')
-        coordinates = commons.parse_coordinates(sanitized_position)
+        coordinates = commons.parse_coordinates(position)
 
         self._store_query_result(query_result=query_result, names=sanitized_missions, json=self._get_spectra_json(),
                                  coordinates=coordinates, radius=sanitized_radius, row_limit=sanitized_row_limit,
@@ -1118,13 +1114,12 @@ class ESASkyClass(BaseQuery):
         """
         if position is None and observation_ids is None:
             raise ValueError("An input is required for either position or observation_ids.")
-        sanitized_position = self._sanitize_input_position(position)
         sanitized_radius = self._sanitize_input_radius(radius)
         sanitized_missions = self._sanitize_input_mission(missions)
         sanitized_observation_ids = self._sanitize_input_ids(observation_ids)
 
         if sanitized_observation_ids is None:
-            map_query_result = self.query_region_maps(sanitized_position,
+            map_query_result = self.query_region_maps(position,
                                                       sanitized_radius,
                                                       sanitized_missions,
                                                       get_query_payload=False,
@@ -1214,7 +1209,6 @@ class ESASkyClass(BaseQuery):
         """
         if position is None and observation_ids is None:
             raise ValueError("An input is required for either position or observation_ids.")
-        sanitized_position = self._sanitize_input_position(position)
         sanitized_radius = self._sanitize_input_radius(radius)
         sanitized_missions = self._sanitize_input_spectra(missions)
         sanitized_observation_ids = self._sanitize_input_ids(observation_ids)
@@ -1222,7 +1216,7 @@ class ESASkyClass(BaseQuery):
         spectra = dict()
 
         if sanitized_observation_ids is None:
-            spectra_query_result = self.query_region_spectra(sanitized_position,
+            spectra_query_result = self.query_region_spectra(position,
                                                              sanitized_radius,
                                                              sanitized_missions,
                                                              get_query_payload=False,
@@ -1315,16 +1309,6 @@ class ESASkyClass(BaseQuery):
         else:
             log.info("No spectra found.")
         return spectra
-
-    def _sanitize_input_position(self, position):
-        if (isinstance(position, str) or isinstance(position,
-                                                    commons.CoordClasses)):
-            return position
-        if position is None:
-            return None
-        else:
-            raise ValueError("Position must be either a string or "
-                             "astropy.coordinates")
 
     def _sanitize_input_radius(self, radius):
         if (isinstance(radius, str) or isinstance(radius,
@@ -1751,6 +1735,7 @@ class ESASkyClass(BaseQuery):
             if id_column == "designation":
                 id_column = "obsid"
 
+        data_type = None
         for column in self.get_columns(table_name=json['tapTable'], only_names=False):
             if column.name == id_column:
                 data_type = column.data_type
