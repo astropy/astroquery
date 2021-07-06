@@ -31,7 +31,7 @@ class Conf(_config.ConfigNamespace):
         ('Default table. See, for example, '
          'https://irsa.ipac.caltech.edu/ibe/search/ptf/images for options.'))
     timeout = _config.ConfigItem(
-        60,
+        120,
         'Time limit for connecting to the IRSA server.')
 
 
