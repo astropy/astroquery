@@ -463,7 +463,7 @@ class ESASkyClass(BaseQuery):
             .astropy/astroquery/cache. Defaults to True.
         row_limit : int, optional
             Determines how many rows that will be fetched from the database
-            for each mission.
+            for each mission. Can be -1 to select maximum (currently 100 000).
             Defaults to 10000.
 
         Returns
@@ -513,15 +513,18 @@ class ESASkyClass(BaseQuery):
 
         sso_type = self._get_sso_db_type(sso['sso_type'])
         sso_db_identifier = self._get_db_sso_identifier(sso['sso_type'])
+        top = ""
+        if sanitized_row_limit > 0:
+            top = "TOP {row_limit} ".format(sanitized_row_limit)
         for name in sanitized_missions:
             data_table = self._find_mission_tap_table_name(sso_json, name)
             mission_json = self._find_mission_parameters_in_json(data_table, sso_json)
             x_match_table = mission_json['ssoXMatchTapTable']
-            query = 'SELECT TOP {row_limit} * FROM {data_table} AS a JOIN {x_match_table} AS b ' \
+            query = 'SELECT {top}* FROM {data_table} AS a JOIN {x_match_table} AS b ' \
                     'ON a.observation_oid = b.observation_oid JOIN sso.ssoid AS c ' \
                     'ON b.sso_oid = c.sso_oid WHERE c.{sso_db_identifier} = \'{sso_name}\' ' \
                     'AND c.sso_type = \'{sso_type}\'' \
-                .format(row_limit=sanitized_row_limit, data_table=data_table, x_match_table=x_match_table,
+                .format(top=top, data_table=data_table, x_match_table=x_match_table,
                         sso_db_identifier=sso_db_identifier, sso_name=sso['sso_name'], sso_type=sso_type)
             table = self.query(query)
             if len(table) > 0:
