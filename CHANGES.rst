@@ -54,6 +54,13 @@ irsa
 
 - Making optional kwargs keyword only. [#2092]
 
+ibe
+^^^
+
+- Doubling default timeout to 120 seconds. [#2108]
+
+- Change URL to https. [#2108]
+
 nasa_exoplanet_archive
 ^^^^^^^^^^^^^^^^^^^^^^
 
@@ -65,6 +72,11 @@ atomic
 ^^^^^^
 
  - Change URL to https [#2088]
+
+sha
+^^^
+
+- Change URL to https. [#2108]
 
 
 Infrastructure, Utility and Other Changes and Additions
