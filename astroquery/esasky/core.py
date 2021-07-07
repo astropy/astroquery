@@ -515,7 +515,7 @@ class ESASkyClass(BaseQuery):
         sso_db_identifier = self._get_db_sso_identifier(sso['sso_type'])
         top = ""
         if sanitized_row_limit > 0:
-            top = "TOP {row_limit} ".format(sanitized_row_limit)
+            top = "TOP {row_limit} ".format(row_limit=sanitized_row_limit)
         for name in sanitized_missions:
             data_table = self._find_mission_tap_table_name(sso_json, name)
             mission_json = self._find_mission_parameters_in_json(data_table, sso_json)
