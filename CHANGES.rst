@@ -1,4 +1,4 @@
-0.4.3 (unreleased)
+0.4.3 (2021-07-07)
 ==================
 
 New Tools and Services
@@ -8,58 +8,26 @@ esa.esasky
 ^^^^^^^^^^
 
 - Download by observation id or source name. [#2078]
+
 - Added custom ADQL and TAP+ functionality. [#2078]
+
 - Enabled download of INTEGRAL data products. [#2105]
 
 esa.hubble
 ^^^^^^^^^^
 
-- Cone search module allows the user to save the result in local storage. [#1855]
 - Module added to perform a cone search based on a set of criteria. [#1855]
 
 esa.xmm_newton
 ^^^^^^^^^^^^^^
 
-- Adding the extraction epic light curves. [#2017]
-- Adding the extraction of epic spectra. [#2017]
-
-
-Service fixes and enhancements
-------------------------------
-
-esa.xmm_newton
-^^^^^^^^^^^^^^
-
-- Bug fixes. Fixed the generation of files with wrong extension. [#2017]
-- Use astroquery downloader tool to get progressbar, caching, and prevent
-  memory leaks [#2087]
-
-gaia
-^^^^
-
-- Bug fixes. Changed default behavior of Gaia TAP Plus interface to instantiate silently. [#1722]
+- Adding the extraction epic light curves and spectra. [#2017]
 
 heasarc
 ^^^^^^^
 
-- Added posibility to query limited time range. [#1988]
 - Add alternative instance of HEASARC Server, maintained by
   INTEGRAL Science Data Center. [#1988]
-
-irsa
-^^^^
-
-- Adding ``cache`` kwarg to the class methods to be able to control the use
-  of local cache. [#2092]
-
-- Making optional kwargs keyword only. [#2092]
-
-ibe
-^^^
-
-- Doubling default timeout to 120 seconds. [#2108]
-
-- Change URL to https. [#2108]
 
 nasa_exoplanet_archive
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -68,10 +36,47 @@ nasa_exoplanet_archive
   release. Support for querying old tables (exoplanets, compositepars, and
   exomultpars) has been dropped. [#2067]
 
+
+Service fixes and enhancements
+------------------------------
+
 atomic
 ^^^^^^
 
- - Change URL to https [#2088]
+- Change URL to https. [#2088]
+
+esa.xmm_newton
+^^^^^^^^^^^^^^
+
+- Fixed the generation of files with wrong extension. [#2017]
+
+- Use astroquery downloader tool to get progressbar, caching, and prevent
+  memory leaks. [#2087]
+
+gaia
+^^^^
+
+- Changed default of Gaia TAP Plus interface to instantiate silently. [#2085]
+
+heasarc
+^^^^^^^
+
+- Added posibility to query limited time range. [#1988]
+
+ibe
+^^^
+
+- Doubling default timeout to 120 seconds. [#2108]
+
+- Change URL to https. [#2108]
+
+irsa
+^^^^
+
+- Adding ``cache`` kwarg to the class methods to be able to control the use
+  of local cache. [#2092]
+
+- Making optional kwargs keyword only. [#2092]
 
 sha
 ^^^
@@ -185,7 +190,7 @@ gemini
   defaults of ``notengineering`` and/or ``NotFail``. [#2000]
 
 - Smarter defaulting of radius to None unless coordinates are specified, in
-  which case defaults to 0.3 degrees. [#1995]
+  which case defaults to 0.3 degrees. [#1998]
 
 heasarc
 ^^^^^^^
