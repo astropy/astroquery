@@ -134,6 +134,7 @@ class ESASkyClass(BaseQuery):
             tables = self._tap.load_tables(only_names=only_names,
                                            include_shared_tables=False,
                                            verbose=verbose)
+            self._cached_tables = tables
         if only_names:
             return [t.name for t in tables]
         else:
@@ -157,9 +158,8 @@ class ESASkyClass(BaseQuery):
         A list of columns
         """
 
-        tables = self._tap.load_tables(only_names=False,
-                                       include_shared_tables=False,
-                                       verbose=verbose)
+        tables = self.get_tables(only_names=False,
+                                 verbose=verbose)
         columns = None
         for table in tables:
             if str(table.name) == str(table_name):
