@@ -72,6 +72,7 @@ class ESASkyClass(BaseQuery):
     _MAPS_DOWNLOAD_DIR = "Maps"
     _SPECTRA_DOWNLOAD_DIR = "Spectra"
     _isTest = ""
+    _cached_tables = None
 
     _NUMBER_DATA_TYPES = ["REAL", "float", "INTEGER", "int", "BIGINT", "long", "DOUBLE", "double", "SMALLINT", "short"]
 
@@ -111,7 +112,7 @@ class ESASkyClass(BaseQuery):
                                    dump_to_file=output_file is not None)
         return job.get_results()
 
-    def get_tables(self, *, only_names=True, verbose=False):
+    def get_tables(self, *, only_names=True, verbose=False, cache=True):
         """
         Get the available table in ESASky TAP service
 
@@ -126,10 +127,13 @@ class ESASkyClass(BaseQuery):
         -------
         A list of tables
         """
-
-        tables = self._tap.load_tables(only_names=only_names,
-                                       include_shared_tables=False,
-                                       verbose=verbose)
+        
+        if cache and self._cached_tables is not None:
+            tables = self._cached_tables
+        else:
+            tables = self._tap.load_tables(only_names=only_names,
+                                           include_shared_tables=False,
+                                           verbose=verbose)
         if only_names:
             return [t.name for t in tables]
         else:
