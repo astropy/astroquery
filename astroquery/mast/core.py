@@ -17,7 +17,6 @@ from .auth import MastAuth
 from .cloud import CloudAccess
 from .discovery_portal import PortalAPI
 from .services import ServiceAPI
-from .missions import MissionSearchAPI
 
 
 __all__ = []

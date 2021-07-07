@@ -63,7 +63,6 @@ def patch_post(request):
     mp.setattr(mast.utils, '_simple_request', resolver_mockreturn)
     mp.setattr(mast.discovery_portal.PortalAPI, '_request', post_mockreturn)
     mp.setattr(mast.services.ServiceAPI, '_request', service_mockreturn)
-    mp.setattr(mast.missions.MissionSearchAPI, '_request', mission_mockreturn)
     mp.setattr(mast.auth.MastAuth, 'session_info', session_info_mockreturn)
 
     mp.setattr(mast.Observations, '_download_file', download_mockreturn)
@@ -104,7 +103,7 @@ def post_mockreturn(self, method="POST", url=None, data=None, timeout=10, **kwar
     return [MockResponse(content)]
 
 
-def service_mockreturn(self, method="POST", url=None, data=None, timeout=10, **kwargs):
+def service_mockreturn(self, method="POST", url=None, data=None, timeout=10, use_json=False, **kwargs):
     if "panstarrs" in url:
         filename = data_path(DATA_FILES["panstarrs"])
     elif "tesscut" in url:
@@ -117,12 +116,8 @@ def service_mockreturn(self, method="POST", url=None, data=None, timeout=10, **k
             filename = data_path(DATA_FILES['z_survey'])
         else:
             filename = data_path(DATA_FILES['z_cutout_fit'])
-    content = open(filename, 'rb').read()
-    return MockResponse(content)
-
-
-def mission_mockreturn(self, method="POST", url=None, data=None, timeout=10, **kwargs):
-    filename = data_path(DATA_FILES["mission_search_results"])
+    elif use_json:
+        filename = data_path(DATA_FILES["mission_search_results"])
     content = open(filename, 'rb').read()
     return MockResponse(content)
 
@@ -184,28 +179,23 @@ def zcut_download_mockreturn(url, file_path):
 ###########################
 
 
-def test_mission_search(patch_post):
-    params = {"target": ["40.66963 -0.01328"],
-              "radius": 3,
-              "radius_units": "arcminutes",
-              "select_cols": [
-                  "sci_start_time",
-                  "sci_stop_time",
-                  "sci_targname",
-                  "sci_status"
-              ],
-              "user_fields": [],
-              "conditions": [
-                  {"sci_spec_1234": ""},
-                  {"sci_release_date": ""},
-                  {"sci_start_time": ""}
-              ],
-              "limit": 5000,
-              "offset": 0,
-              "sort_by": [],
-              "sort_desc": [],
-              "skip_count": False}
-    result = mast.Datasets.service_request(params)
+def test_missions_query_region_async(patch_post):
+    responses = mast.Missions.query_region_async(regionCoords, radius=0.002)
+    assert isinstance(responses, MockResponse)
+
+
+def test_missions_query_object_async(patch_post):
+    responses = mast.Missions.query_object_async("M101", radius="0.002 deg")
+    assert isinstance(responses, MockResponse)
+
+
+def test_missions_query_object(patch_post):
+    result = mast.Missions.query_object("M101", radius=".002 deg")
+    assert isinstance(result, Table)
+
+
+def test_missions_query_region(patch_post):
+    result = mast.Missions.query_region(regionCoords, radius=0.002 * u.deg)
     assert isinstance(result, Table)
 
 

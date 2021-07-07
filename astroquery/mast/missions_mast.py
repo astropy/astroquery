@@ -65,25 +65,8 @@ class MissionsMastClass(MastQueryWithLogin):
         response : `~astropy.table.Table`
         """
 
+        print(response)
         return self._service_api_connection._parse_result(response, verbose, data_key='results')
-
-    @class_or_instance
-    def service_request_async(self, params):
-        """
-        Given search  parameters, builds and excecutes a search query.
-
-        Parameters
-        ----------
-        params : dict
-            JSON object containing search parameters.
-
-        Returns
-        -------
-        response : `~requests.Response`
-        """
-
-        return self._service_api_connection.service_request_async('search', params, use_json=True)
-
 
     @class_or_instance
     def query_region_async(self, coordinates, radius=3*u.arcmin, **kwargs):
@@ -217,19 +200,6 @@ class MissionsMastClass(MastQueryWithLogin):
 
         coordinates = utils.resolve_object(objectname)
 
-        # if radius is just a number we assume degrees
-        radius = coord.Angle(radius, u.arcmin)
-
-        # basic params
-        params = {'target': f"[{coordinates.ra.deg} {coordinates.dec.deg}]",
-                  'radius': radius.arcmin,
-                  'radius_units': 'arcmin'}
-
-
-        # adding additional user specified parameters
-        for prop, value in kwargs.items():
-            params[prop] = value
-
-        return self._service_api_connection.service_request_async(self.service, params, use_json=True)
+        return self.query_region_async(coordinates, radius)
 
 Missions = MissionsMastClass()
