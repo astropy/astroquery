@@ -127,7 +127,7 @@ class ESASkyClass(BaseQuery):
         -------
         A list of tables
         """
-        
+
         if cache and self._cached_tables is not None:
             tables = self._cached_tables
         else:
