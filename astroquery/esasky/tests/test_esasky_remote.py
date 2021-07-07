@@ -290,30 +290,30 @@ class TestESASky:
         assert isinstance(columns[0], TapColumn)
         assert len(column_names) == len(columns)
 
-    def test_esasky_query_sso_maps(self):
-        result = ESASkyClass.query_sso_maps(sso_name="ceres")
+    def test_esasky_query_sso(self):
+        result = ESASkyClass.query_sso(sso_name="ceres")
         assert isinstance(result, TableList)
         assert "HST" in result.keys()
         assert "XMM" in result.keys()
         assert "HERSCHEL" in result.keys()
         assert len(result["HST"]) >= 176
 
-        result = ESASkyClass.query_sso_maps(sso_name="ceres", missions="HST", row_limit=1)
+        result = ESASkyClass.query_sso(sso_name="ceres", missions="HST", row_limit=1)
         assert isinstance(result, TableList)
         assert "HST" in result.keys()
         assert "XMM" not in result.keys()
         assert "HERSCHEL" not in result.keys()
         assert len(result["HST"]) == 1
 
-        result = ESASkyClass.query_sso_maps(sso_name="io", sso_type="SATELLITE", missions=["HST", "XMM"])
+        result = ESASkyClass.query_sso(sso_name="io", sso_type="SATELLITE", missions=["HST", "XMM"])
         assert isinstance(result, TableList)
         assert "HST" in result.keys()
         assert "XMM" in result.keys()
         assert "HERSCHEL" not in result.keys()
 
-    def test_esasky_query_sso_maps_ambiguous_name(self):
+    def test_esasky_query_sso_ambiguous_name(self):
         try:
-            ESASkyClass.query_sso_maps(sso_name="io")
+            ESASkyClass.query_sso(sso_name="io")
         except ValueError as err:
             assert 'Try narrowing your search' in str(err)
             return
@@ -339,7 +339,7 @@ class TestESASky:
         if not os.path.exists(download_directory):
             os.makedirs(download_directory)
 
-        table_list = ESASkyClass.query_sso_maps(sso_name="ceres")
+        table_list = ESASkyClass.query_sso(sso_name="ceres")
         assert "HERSCHEL" in table_list.keys()
         fits_files = ESASkyClass.get_images_sso(table_list=table_list, missions="XMM",
                                                 download_dir=download_directory)

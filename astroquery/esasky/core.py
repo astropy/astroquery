@@ -444,7 +444,7 @@ class ESASkyClass(BaseQuery):
         except (HTTPError, ConnectionError) as err:
             log.error("Connection failed with {}.".format(err))
 
-    def query_sso_maps(self, sso_name, *, sso_type="ALL", missions=__ALL_STRING,
+    def query_sso(self, sso_name, *, sso_type="ALL", missions=__ALL_STRING,
                        row_limit=DEFAULT_ROW_LIMIT):
         """
         This method performs a crossmatch on the chosen solar system object
@@ -482,9 +482,9 @@ class ESASkyClass(BaseQuery):
 
         Examples
         --------
-        query_sso_maps(sso_name="Pallas", missions="HST")
-        query_sso_maps(sso_name="503", sso_type="SATELLITE")
-        query_sso_maps(sso_name="503", sso_type="SATELLITE", missions=["XMM", "HST"])
+        query_sso(sso_name="Pallas", missions="HST")
+        query_sso(sso_name="503", sso_type="SATELLITE")
+        query_sso(sso_name="503", sso_type="SATELLITE", missions=["XMM", "HST"])
         """
         sso = self.find_sso(sso_name=sso_name, sso_type=sso_type)
         if len(sso) == 0:
@@ -560,7 +560,7 @@ class ESASkyClass(BaseQuery):
         table_list : `~astroquery.utils.TableList` or dict or list of (name, `~astropy.table.Table`) pairs
             A TableList or dict or list of name and Table pairs with all the
             missions wanted and their respective metadata. Usually the
-            return value of query_sso_maps.
+            return value of query_sso.
         missions : str or list, optional
             Can be either a specific mission or a list of missions (all mission
             names are found in list_sso()) or 'all' to search in all
@@ -593,7 +593,7 @@ class ESASkyClass(BaseQuery):
         get_images_sso(sso_name="503", sso_type="SATELLITE")
         get_images_sso(sso_name="503", sso_type="SATELLITE", missions=["XMM", "HST"])
 
-        table = ESASky.query_sso_maps(sso_name="503", sso_type="SATELLITE", missions=["XMM", "HST"])
+        table = ESASky.query_sso(sso_name="503", sso_type="SATELLITE", missions=["XMM", "HST"])
         table["XMM"].remove_rows([1, 18, 23])
         get_images_sso(table_list=table, missions="XMM")
 
@@ -605,7 +605,7 @@ class ESASkyClass(BaseQuery):
         sso_name = self._sanitize_input_sso_name(sso_name)
         sso_type = self._sanitize_input_sso_type(sso_type)
         if table_list is None:
-            map_query_result = self.query_sso_maps(sso_name=sso_name, sso_type=sso_type, missions=sanitized_missions)
+            map_query_result = self.query_sso(sso_name=sso_name, sso_type=sso_type, missions=sanitized_missions)
         else:
             map_query_result = self._sanitize_input_table_list(table_list)
 

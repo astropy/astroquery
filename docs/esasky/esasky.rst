@@ -86,7 +86,7 @@ There are three very similar query objects methods in this module
 :meth:`~astroquery.esasky.ESASkyClass.query_object_maps`, and
 :meth:`~astroquery.esasky.ESASkyClass.query_object_spectra`.
 There is also a method for querying SSO object
-:meth:`~astroquery.esasky.ESASkyClass.query_sso_maps`
+:meth:`~astroquery.esasky.ESASkyClass.query_sso`
 which is covered in its own section further down.
 
 For catalogs, the query returns a maximum of 10000 sources per mission by
@@ -408,14 +408,14 @@ time the images were being taken.
 `Read more about the ESASky SSO feature
 <https://www.cosmos.esa.int/web/esdc/esasky-interface#SSO>`__
 You can access the results of this crossmatch by using
-:meth:`astroquery.esasky.ESASkyClass.query_sso_maps` which
+:meth:`astroquery.esasky.ESASkyClass.query_sso` which
 works like the other query methods, but it takes an SSO
 name as input instead of a position.
 
 .. code-block:: python
 
     >>> from astroquery.esasky import ESASky
-    >>> result = ESASky.query_sso_maps(sso_name="Pallas", missions=["XMM", "HST"])
+    >>> result = ESASky.query_sso(sso_name="Pallas", missions=["XMM", "HST"])
 
 In some cases an SSO name is ambiguous, in which case you
 may need to use a more precise SSO name or specify the
@@ -424,7 +424,7 @@ SSO type of the desired object. For example:
 .. code-block:: python
 
     >>> from astroquery.esasky import ESASky
-    >>> ESASky.query_sso_maps(sso_name="503")
+    >>> ESASky.query_sso(sso_name="503")
     INFO: Found 4 SSO's with name: 503.
     Try narrowing your search by typing a more specific sso_name.
     You can also narrow your search by specifying the sso_type.
@@ -440,7 +440,7 @@ In this case, you can specify the sso_type
 
 .. code-block:: python
     >>> from astroquery.esasky import ESASky
-    >>> ESASky.query_sso_maps(sso_name="503", sso_type="SATELLITE")
+    >>> ESASky.query_sso(sso_name="503", sso_type="SATELLITE")
 
 
 You can see the available missions with:
@@ -465,7 +465,7 @@ in get_maps by doing something like this:
 
 .. code-block:: python
     >>> from astroquery.esasky import ESASky
-    >>> table_list_from_query_maps=ESASky.query_sso_maps(sso_name="ganymede", missions="XMM")
+    >>> table_list_from_query_maps=ESASky.query_sso(sso_name="ganymede", missions="XMM")
     >>> table_list_from_query_maps['XMM'].remove_rows(list(range(0, 32)))
     >>> images=ESASky.get_images_sso(table_list=table_list_from_query_maps)
 
