@@ -3,10 +3,11 @@ import re
 import os
 import io
 import requests
+import warnings
 import numpy as np
 from astropy.table import Table
 import astropy.io.fits as fits
-
+from ..exceptions import NoResultsWarning
 
 __all__ = ['query', 'save_file', 'get_file']
 id_parse = re.compile(r'ID\=(\d+)')
@@ -144,7 +145,12 @@ def query(coord=None, ra=None, dec=None, size=None, naifid=None, pid=None,
     dtypes = _map_dtypes(type_names, field_widths)
     # To table
     # transpose data for appropriate table instance handling
-    table = Table(list(zip(*data)), names=col_names, dtype=dtypes)
+
+    if len(data) > 0:
+        table = Table(list(zip(*data)), names=col_names, dtype=dtypes)
+    else:
+        warnings.warn(NoResultsWarning("No matching rows were found in the query."))
+        table = Table()
     return table
 
 
