@@ -21,9 +21,9 @@ __all__ = ['DatasetsClass', 'Datasets']
 
 
 @async_to_sync
-class MissionsMastClass(MastQueryWithLogin):
+class MissionsClass(MastQueryWithLogin):
     """
-    Missions MAST search class.
+    Missions search class.
 
     Class that allows direct programatic access to the MAST search API for a given mission.
     """
@@ -198,4 +198,4 @@ class MissionsMastClass(MastQueryWithLogin):
 
         return self.query_region_async(coordinates, radius)
 
-Missions = MissionsMastClass()
+Missions = MissionsClass()
