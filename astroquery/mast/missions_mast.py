@@ -39,12 +39,25 @@ class MissionsMastClass(MastQueryWithLogin):
 
     def set_service(self, service):
         """
+        Set the service name
+
+        Parameters
+        ----------
+        service : `str`
+            the name of the service
         """
         self.service = service
 
     def set_mission(self, mission):
         """
+        Set the mission name
+
+        Parameters
+        ----------
+        mission : `str`
+            the name of the mission
         """
+
         self.mission = mission
 
     def _parse_result(self, response, verbose=False):  # Used by the async_to_sync decorator functionality
@@ -72,7 +85,6 @@ class MissionsMastClass(MastQueryWithLogin):
     def query_region_async(self, coordinates, radius=3*u.arcmin, **kwargs):
         """
         Given a sky position and radius, returns a list matching datasets.
-        See column documentation for specific catalogs `here <https://mast.stsci.edu/api/v0/pages.htmll>`__.
 
         Parameters
         ----------
@@ -119,7 +131,6 @@ class MissionsMastClass(MastQueryWithLogin):
     def query_criteria_async(self, **criteria):
         """
         Given an set of filters, returns a list of catalog entries.
-        See column documentation for specific catalogs `here <https://mast.stsci.edu/api/v0/pages.htmll>`__.
 
         Parameters
         ----------
@@ -127,20 +138,6 @@ class MissionsMastClass(MastQueryWithLogin):
             Criteria to apply. At least one non-positional criteria must be supplied.
             Valid criteria are coordinates, objectname, radius (as in `query_region` and `query_object`),
             and all fields listed in the column documentation for the mission being queried.
-            The Column Name is the keyword, with the argument being one or more acceptable values for that parameter.
-            except for fields with a float datatype where the argument should be in the form [minVal, maxVal].
-            For non-float type criteria wildcards maybe used (both * and % are considered wildcards), however
-            only one wildcarded value can be processed per criterion.
-            RA and Dec must be given in decimal degrees, and datetimes in MJD.
-            For example: filters=["FUV","NUV"],proposal_pi="Ost*",t_max=[52264.4586,54452.8914]
-            For catalogs available through Catalogs.MAST (PanSTARRS), the Column Name is the keyword, and the argument
-            should be either an acceptable value for that parameter, or a list consisting values, or  tuples of
-            decorator, value pairs (decorator, value). In addition, columns may be used to select the return columns,
-            consisting of a list of column names. Results may also be sorted through the query with the parameter
-            sort_by composed of either a single Column Name to sort ASC, or a list of Column Nmaes to sort ASC or
-            tuples of Column Name and Direction (ASC, DESC) to indicate sort order (Column Name, DESC).
-            Detailed information of Catalogs.MAST criteria usage can
-            be found `here <https://catalogs.mast.stsci.edu/docs/index.html>`__.
 
         Returns
         -------
@@ -177,7 +174,6 @@ class MissionsMastClass(MastQueryWithLogin):
     def query_object_async(self, objectname, radius=3*u.arcmin, **kwargs):
         """
         Given an object name, returns a list of catalog entries.
-        See column documentation for specific catalogs `here <https://mast.stsci.edu/api/v0/pages.html>`__.
 
         Parameters
         ----------
