@@ -139,7 +139,7 @@ class LegacySurveyClass(BaseQuery):
                                  timeout=self.TIMEOUT, cache=cache)
         return response
 
-    def query_brick_list_async(self, data_release=9, get_query_payload=False,
+    def query_brick_list_async(self, data_release=9, get_query_payload=False, emisphere="north",
                            cache=True):
         """
 
@@ -148,7 +148,7 @@ class LegacySurveyClass(BaseQuery):
 
         if get_query_payload:
             return request_payload
-        URL = f"{self.URL}/dr{data_release}/north/survey-bricks-dr{data_release}-north.fits.gz"
+        URL = f"{self.URL}/dr{data_release}/{emisphere}/survey-bricks-dr{data_release}-{emisphere}.fits.gz"
         # TODO make it work with the original request
         # response = self._request('GET', URL, params={},
         #                          timeout=self.TIMEOUT, cache=cache)
@@ -193,39 +193,64 @@ class LegacySurveyClass(BaseQuery):
             All async methods should return the raw HTTP response.
         """
         # call the brick list
-        table = self.query_brick_list(data_release=data_release)
-        # needed columns: ra1, ra2, dec1, dec2 (corners of the bricks), and also brickname
-        ra1 = table['ra1']
-        ra2 = table['ra2']
-        dec1 = table['dec1']
-        dec2 = table['dec2']
+        table_north = self.query_brick_list(data_release=data_release, emisphere="north")
+        table_south = self.query_brick_list(data_release=data_release, emisphere="south")
+        # # needed columns: ra1, ra2, dec1, dec2 (corners of the bricks), and also brickname
+        # ra1 = table_north['ra1']
+        # ra2 = table_north['ra2']
+        # dec1 = table_north['dec1']
+        # dec2 = table_north['dec2']
         ra = coordinates.ra.deg
         # radius not used for the moment, but it will be in the future
         # must find the brick within ra1 and ra2
         dec = coordinates.dec.deg
         # must find the brick within dec1 and dec2
-        row = None
+        row_north = None
+        row_south = None
 
-        for r in table:
+        response_north = None
+        response_south = None
+
+        for r in table_north:
             ra1 = r['ra1']
             ra2 = r['ra2']
             dec1 = r['dec1']
             dec2 = r['dec2']
             if ra1 <= ra <= ra2 and dec1 <= dec <= dec2:
-                row = r
+                row_north = r
                 break
-        if row is not None:
-            brickname = r['brickname']
-            raIntPart = "{0:03}".format(int(r['ra1']))
+        for r in table_south:
+            ra1 = r['ra1']
+            ra2 = r['ra2']
+            dec1 = r['dec1']
+            dec2 = r['dec2']
+            if ra1 <= ra <= ra2 and dec1 <= dec <= dec2:
+                row_south = r
+                break
+
+        if row_north is not None:
+            brickname = row_north['brickname']
+            raIntPart = "{0:03}".format(int(row_north['ra1']))
+
             # to get then the brickname of the line of the table
             # extract the integer part of ra1, and in string format (eg 001)
             URL = f"{self.URL}/dr{data_release}/north/tractor/{raIntPart}/tractor-{brickname}.fits"
 
-            response = requests.get(URL)
-            return response
+            response_north = requests.get(URL)
+            return response_north
 
-        else:
-            return None
+        if row_south is not None:
+            brickname = row_south['brickname']
+            raIntPart = "{0:03}".format(int(row_south['ra1']))
+
+            # to get then the brickname of the line of the table
+            # extract the integer part of ra1, and in string format (eg 001)
+            URL = f"{self.URL}/dr{data_release}/south/tractor/{raIntPart}/tractor-{brickname}.fits"
+
+            response_south = requests.get(URL)
+            return response_south
+
+        return None
 
     # as we mentioned earlier use various python regular expressions, etc
     # to create the dict of HTTP request parameters by parsing the user
