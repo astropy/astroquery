@@ -24,8 +24,8 @@ Query methods
 The `~astroquery.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_object` method can be used to query for a specific planet or planet host.
 For example, the following query searches the ``ps`` table of confirmed exoplanets for information about the planet K2-18 b.
 
-.. code-block:: python
 .. doctest-remote-data::
+
     >>> from astroquery.nasa_exoplanet_archive import NasaExoplanetArchive
     >>> NasaExoplanetArchive.query_object("K2-18 b")
     <QTable masked=True length=11>
@@ -48,7 +48,6 @@ For example, the following query searches the ``ps`` table of confirmed exoplane
 
 Similarly, cone searches can be executed using the `~astroquery.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_region` method:
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> import astropy.units as u
@@ -69,7 +68,6 @@ Similarly, cone searches can be executed using the `~astroquery.nasa_exoplanet_a
 The most general queries can be performed using the `~astroquery.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_criteria` method.
 For example, a full table can be queried as follows:
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> from astroquery.nasa_exoplanet_archive import NasaExoplanetArchive
@@ -97,7 +95,6 @@ In this section, we demonstrate
 
 1. The number of confirmed planets discovered by TESS:
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> from astroquery.nasa_exoplanet_archive import NasaExoplanetArchive
@@ -112,7 +109,6 @@ In this section, we demonstrate
 
 2. The list of confirmed planets discovered by TESS and their host star coordinates:
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> from astroquery.nasa_exoplanet_archive import NasaExoplanetArchive
@@ -134,7 +130,6 @@ In this section, we demonstrate
 
 3. The list of confirmed planets discovered using microlensing that have data available in the archive:
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> from astroquery.nasa_exoplanet_archive import NasaExoplanetArchive
@@ -158,7 +153,6 @@ In this section, we demonstrate
 
 4. The list of confirmed planets where the host star name starts with "Kepler" using a *wildcard search*:
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> from astroquery.nasa_exoplanet_archive import NasaExoplanetArchive
@@ -185,7 +179,6 @@ In this section, we demonstrate
 
 5. The Kepler Objects of Interest that were vetted more recently than January 24, 2015 using a *date search*:
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> from astroquery.nasa_exoplanet_archive import NasaExoplanetArchive
