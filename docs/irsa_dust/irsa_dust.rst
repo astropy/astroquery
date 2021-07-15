@@ -20,7 +20,6 @@ specified. If missing the radius defaults to 5 degrees. Note that radius may be
 specified in any appropriate unit, however it must fall in the range of 2 to
 37.5 degrees.
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> from astroquery.irsa_dust import IrsaDust
@@ -43,7 +42,6 @@ to the :meth:`~astroquery.irsa_dust.IrsaDustClass.get_images` method. It can tak
 ``ebv``, ``100um`` and ``temperature``, corresponding to each of the 3 kinds of
 images:
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> from astroquery.irsa_dust import IrsaDust
@@ -56,7 +54,6 @@ images:
 
 The image types that are available can also be listed out any time:
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> from astroquery.irsa_dust import IrsaDust
@@ -66,7 +63,6 @@ The image types that are available can also be listed out any time:
 The target may also be specified via coordinates passed as strings. Examples of acceptable coordinate
 strings can be found on this `IRSA DUST coordinates description page`_.
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> from astroquery.irsa_dust import IrsaDust
@@ -86,7 +82,6 @@ than the actual images, via the :meth:`~astroquery.irsa_dust.IrsaDustClass.get_i
 supports the ``image_type`` argument, in the same way as described for
 :meth:`~astroquery.irsa_dust.IrsaDustClass.get_images`.
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> from astroquery.irsa_dust import IrsaDust
@@ -107,7 +102,6 @@ This fetches the extinction table as a `~astropy.table.Table`. The input paramet
 the queries discussed above, namely the target string and optionally a radius
 value:
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> from astroquery.irsa_dust import IrsaDust
@@ -155,7 +149,6 @@ additional section ``location`` may be fetched using the ``section`` keyword
 argument. If on the other hand, ``section`` is missing then the complete table
 with all the four sections will be returned.
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> from astroquery.irsa_dust import IrsaDust

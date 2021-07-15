@@ -23,7 +23,6 @@ All region queries require a ``catalog`` keyword argument, which is the name of
 the catalog in the IRSA database, on which the query must be performed. To take
 a look at all the available catalogs:
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> from astroquery.irsa import Irsa
@@ -41,7 +40,6 @@ a look at all the available catalogs:
 This returns a dictionary of catalog names with their description. If you would
 rather just print out this information:
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> from astroquery.irsa import Irsa
@@ -64,7 +62,6 @@ missing, it defaults to a value of 10 arcsec. The radius may be specified in
 any appropriate unit using a `~astropy.units.Quantity` object. It may also be
 entered as a string that is parsable by `~astropy.coordinates.Angle`.
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> from astroquery.irsa import Irsa
@@ -89,7 +86,6 @@ name. The coordinates can be specified using the appropriate
 `astropy.coordinates` object. ICRS coordinates may also be entered directly as
 a string, as specified by `astropy.coordinates`:
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> from astroquery.irsa import Irsa
@@ -120,7 +116,6 @@ region is required. The width may be specified in the same way as the radius
 for cone search queries, above - so it may be set using the appropriate
 `~astropy.units.Quantity` object or a string parsable by `~astropy.coordinates.Angle`.
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> from astroquery.irsa import Irsa
@@ -152,7 +147,6 @@ the coordinates is also available - Coordinates may also be entered as a list of
 tuples, each tuple containing the ra and dec values in degrees. Each of these
 options is illustrated below:
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> from astroquery.irsa import Irsa
@@ -177,7 +171,6 @@ options is illustrated below:
 Another way to specify the polygon is directly as a list of tuples - each tuple
 is an ra, dec pair expressed in degrees:
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> from astroquery.irsa import Irsa
@@ -209,7 +202,6 @@ An example where the AllWISE Source Catalog needs to be queried around the
 star HIP 12 with just the ra, dec and w1mpro columns would be:
 
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> from astroquery.irsa import Irsa
@@ -235,7 +227,6 @@ not only the display of columns, but also the precision that is output when the 
 is written in ``ascii.ipac`` or ``ascii.csv`` formats. The ``.format`` attribute of
 individual columns may be set to increase the precision.
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> from astroquery.irsa import Irsa
@@ -256,7 +247,6 @@ By default the maximum number of rows that is fetched is set to 500. However,
 this option may be changed by changing the astroquery configuration file. To
 change the setting only for the ongoing python session, you could also do:
 
-.. code-block:: python
 
     >>> from astroquery.irsa import Irsa
     >>> Irsa.ROW_LIMIT = 1000   # 1000 is the new value for row limit here.
