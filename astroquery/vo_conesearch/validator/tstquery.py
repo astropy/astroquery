@@ -30,7 +30,7 @@ def parse_cs(ivoid, cap_index=1):
         ivoid = ivoid.decode('ascii')
 
     # Production server.
-    url = ("http://vao.stsci.edu/regtap/tapservice.aspx/sync?lang=adql&"
+    url = ("https://vao.stsci.edu/regtap/tapservice.aspx/sync?lang=adql&"
            "query=select%20detail_xpath%2Cdetail_value%20from%20"
            "rr.res_detail%20where%20"
            "ivoid%3D%27{0}%27%20and%20cap_index={1}%20and%20"
