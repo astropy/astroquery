@@ -551,11 +551,18 @@ class ObservationsClass(MastQueryWithLogin):
         url = None
 
         try:
-            if self._cloud_connection is not None and self._cloud_connection.is_supported(data_product):
-                try:
-                    self._cloud_connection.download_file(data_product, local_path, cache)
-                except Exception as ex:
-                    log.exception("Error pulling from S3 bucket: {}".format(ex))
+            if self._cloud_connection is not None:
+                fall_back = False
+                if not self._cloud_connection.is_supported(data_product):
+                    log.warn("Data product not in S3.")
+                    fall_back = True
+                else:
+                    try:
+                        self._cloud_connection.download_file(data_product, local_path, cache)
+                    except Exception as ex:
+                        log.exception("Error pulling from S3 bucket: {}".format(ex))
+                        fall_back = True
+                if fall_back:
                     if cloud_only:
                         log.warn("Skipping file...")
                         local_path = ""
@@ -565,6 +572,7 @@ class ObservationsClass(MastQueryWithLogin):
                         self._download_file(data_url, local_path,
                                             cache=cache, head_safe=True, continuation=False)
             else:
+                
                 self._download_file(data_url, local_path,
                                     cache=cache, head_safe=True, continuation=False)
 

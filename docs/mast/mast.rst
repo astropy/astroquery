@@ -247,44 +247,6 @@ The product fields are documented `here <https://mast.stsci.edu/api/v0/_products
                 True
 
 
-
-
-
-Downloading Data Products
--------------------------
-
-Products can be downloaded by using `~astroquery.mast.ObservationsClass.download_products`,
-with a `~astropy.table.Table` of data products, or a list (or single) obsid as the argument.
-
-.. code-block:: python
-
-                >>> from astroquery.mast import Observations
-
-                >>> obsid = '3000007760'
-                >>> data_products = Observations.get_product_list(obsid)
-                >>> manifest = Observations.download_products(data_products)
-                Downloading URL http://archive.stsci.edu/pub/iue/data/lwp/13000/lwp13058.mxlo.gz to ./mastDownload/IUE/lwp13058/lwp13058.mxlo.gz ... [Done]
-                Downloading URL http://archive.stsci.edu/pub/vospectra/iue2/lwp13058mxlo_vo.fits to ./mastDownload/IUE/lwp13058/lwp13058mxlo_vo.fits ... [Done]
-                >>> print(manifest)
-
-                                   Local Path                     Status  Message URL
-                ------------------------------------------------ -------- ------- ----
-                    ./mastDownload/IUE/lwp13058/lwp13058.mxlo.gz COMPLETE    None None
-                ./mastDownload/IUE/lwp13058/lwp13058mxlo_vo.fits COMPLETE    None None
-
-​As an alternative to downloading the data files now, the curl_flag can be used instead to instead get a curl script that can be used to download the files at a later time.
-
-.. code-block:: python
-
-                >>> from astroquery.mast import Observations
-
-                >>> Observations.download_products('2003839997',
-                ...                                productType="SCIENCE",
-                ...                                curl_flag=True)
-
-                Downloading URL https://mast.stsci.edu/portal/Download/stage/anonymous/public/514cfaa9-fdc1-4799-b043-4488b811db4f/mastDownload_20170629162916.sh to ./mastDownload_20170629162916.sh ... [Done]
-
-
 Filtering
 ---------
 
@@ -324,20 +286,68 @@ Product filtering can also be applied directly to a table of products without pr
                 >>> print(len(products))
                 4
 
-Downloading a Single File
+
+Downloading Data Products
 -------------------------
 
-You can download a single data product file using the `~astroquery.mast.ObservationsClass.download_file` method, and passing in
-a MAST dataURL.  The default is to download the file the current working directory, which can be changed with
-the *local_path* keyword argument.
+Products can be downloaded by using `~astroquery.mast.ObservationsClass.download_products`,
+with a `~astropy.table.Table` of data products, or a list (or single) obsid as the argument.
 
 .. code-block:: python
 
                 >>> from astroquery.mast import Observations
 
-                >>> product = 'mast:IUE/url/pub/iue/data/lwp/13000/lwp13058.elbll.gz'
+                >>> single_obs = Observations.query_criteria(obs_collection="IUE",obs_id="lwp13058")
+                >>> data_products = Observations.get_product_list(single_obs)
+
+                >>> manifest = Observations.download_products(data_products, productType="SCIENCE")
+                Downloading URL https://mast.stsci.edu/api/v0.1/Download/file?uri=http://archive.stsci.edu/pub/iue/data/lwp/13000/lwp13058.mxlo.gz to ./mastDownload/IUE/lwp13058/lwp13058.mxlo.gz ... [Done]
+                Downloading URL https://mast.stsci.edu/api/v0.1/Download/file?uri=http://archive.stsci.edu/pub/vospectra/iue2/lwp13058mxlo_vo.fits to ./mastDownload/IUE/lwp13058/lwp13058mxlo_vo.fits ... [Done]
+
+                >>> print(manifest)
+
+                                   Local Path                     Status  Message URL 
+                ------------------------------------------------ -------- ------- ----
+                    ./mastDownload/IUE/lwp13058/lwp13058.mxlo.gz COMPLETE    None None
+                ./mastDownload/IUE/lwp13058/lwp13058mxlo_vo.fits COMPLETE    None None
+
+​As an alternative to downloading the data files now, the ``curl_flag`` can be used instead to instead get a curl script that can be used to download the files at a later time.
+
+.. code-block:: python
+
+                >>> from astroquery.mast import Observations
+
+                >>> single_obs = Observations.query_criteria(obs_collection="IUE",obs_id="lwp13058")
+                >>> data_products = Observations.get_product_list(single_obs)
+                
+                >>> Observations.download_products(data_products,
+                ...                                productType="SCIENCE",
+                ...                                curl_flag=True)
+
+                Downloading URL https://mast.stsci.edu/portal/Download/stage/anonymous/public/514cfaa9-fdc1-4799-b043-4488b811db4f/mastDownload_20170629162916.sh to ./mastDownload_20170629162916.sh ... [Done]
+
+
+Downloading a Single File
+-------------------------
+
+You can download a single data product file using the `~astroquery.mast.ObservationsClass.download_file` method, and passing in
+a MAST Data URI.  The default is to download the file the current working directory, which can be changed with
+the ``local_path`` keyword argument.
+
+.. code-block:: python
+
+                >>> from astroquery.mast import Observations
+
+                >>> single_obs = Observations.query_criteria(obs_collection="IUE",obs_id="lwp13058")
+                >>> data_products = Observations.get_product_list(single_obs)
+                
+                >>> product = data_products[0]["dataURI"]
+                >>> print(product)
+                mast:IUE/url/pub/iue/data/lwp/13000/lwp13058.elbll.gz
+                
                 >>> result = Observations.download_file(product)
                 Downloading URL https://mast.stsci.edu/api/v0.1/Download/file?uri=mast:IUE/url/pub/iue/data/lwp/13000/lwp13058.elbll.gz to ./lwp13058.elbll.gz ... [Done]
+
                 >>> print(result)
                 ('COMPLETE', None, None)
 
@@ -763,13 +773,18 @@ https://ui.adsabs.harvard.edu/abs/2019ascl.soft05007B/abstract
 Cutouts
 -------
 
-The `~astroquery.mast.TesscutClass.get_cutouts` function takes a coordinate or object name
-(such as "M104" or "TIC 32449963") and cutout size (in pixels or an angular quantity) and
-returns the cutout target pixel file(s) as a list of `~astropy.io.fits.HDUList` objects.
+The `~astroquery.mast.TesscutClass.get_cutouts` function takes a coordinate, object name
+(i.e. "M104" or "TIC 32449963"), or moving target (i.e. "Eleonora") and cutout size
+(in pixels or an angular quantity) and returns the cutout target pixel file(s) as a
+list of `~astropy.io.fits.HDUList` objects.
 
 If the given coordinate/object location appears in more than one TESS sector a target pixel
 file will be produced for each sector.  If the cutout area overlaps more than one camera or
 ccd a target pixel file will be produced for each one.
+
+Requesting a cutout by coordinate or objectname accesses the
+`MAST TESScut API <https://mast.stsci.edu/tesscut/docs/getting_started.html#requesting-a-cutout>`__
+and returns a target pixel file, with format described `here <https://astrocut.readthedocs.io/en/latest/astrocut/file_formats.html#target-pixel-files>`__.
 
 .. code-block:: python
 
@@ -799,13 +814,35 @@ ccd a target pixel file will be produced for each one.
                   2  APERTURE      1 ImageHDU        80   (5, 5)   int32
 
 
-The `~astroquery.mast.TesscutClass.download_cutouts` function takes a coordinate or object name
-(such as "M104" or "TIC 32449963") and cutout size (in pixels or an angular quantity) and
-downloads the cutout target pixel file(s).
+Requesting a cutout by moving_target accesses the
+`MAST Moving Target TESScut API <https://mast.stsci.edu/tesscut/docs/getting_started.html#moving-target-cutouts>`__
+and returns a target pixel file, with format described
+`here <https://astrocut.readthedocs.io/en/latest/astrocut/file_formats.html#path-focused-target-pixel-files>`__.
+The moving_target may be any object name or ID understood by the
+`JPL Horizonf ephemerades interface <https://ssd.jpl.nasa.gov/horizons.cgi>`__.
 
-If a given coordinate appears in more than one TESS sector a target pixel file will be
-produced for each sector.  If the cutout area overlaps more than one camera or ccd
-a target pixel file will be produced for each one.
+.. code-block:: python
+
+                >>> from astroquery.mast import Tesscut
+
+                >>> hdulist = Tesscut.get_cutouts(moving_target="Eleonora", size=5, sector=6)
+                >>> hdulist[0].info()
+                Filename: <class '_io.BytesIO'>
+                No.    Name      Ver    Type      Cards   Dimensions   Format
+                0  PRIMARY       1 PrimaryHDU      54   ()      
+                1  PIXELS        1 BinTableHDU    150   356R x 16C   [D, E, J, 25J, 25E, 25E, 25E, 25E, J, E, E, 38A, D, D, D, D]   
+                2  APERTURE      1 ImageHDU        97   (2136, 2078)   int32   
+
+
+
+                  
+The `~astroquery.mast.TesscutClass.download_cutouts` function takes a coordinate, object name
+(i.e. "M104" or "TIC 32449963"), or moving target (i.e. "Eleonora") and cutout size
+(in pixels or an angular quantity) and downloads the cutout target pixel file(s).
+
+If a given coordinate/object/moving target appears in more than one TESS sector a
+target pixel file will be produced for each sector.  If the cutout area overlaps
+more than one camera or ccd a target pixel file will be produced for each one.
 
 .. code-block:: python
 
@@ -814,19 +851,20 @@ a target pixel file will be produced for each one.
                 >>> import astropy.units as u
 
                 >>> cutout_coord = SkyCoord(107.18696, -70.50919, unit="deg")
-                >>> manifest = Tesscut.download_cutouts(coordinates=cutout_coord, size=[5, 7]*u.arcmin)
-                Downloading URL https://mast.stsci.edu/tesscut/api/v0.1/astrocut?ra=107.18696&dec=-70.50919&y=0.08333333333333333&x=0.11666666666666667&units=d&sector=1 to ./tesscut_20181102104719.zip ... [Done]
+                >>> manifest = Tesscut.download_cutouts(coordinates=cutout_coord, size=[5, 7]*u.arcmin, sector=9)
+                Downloading URL https://mast.stsci.edu/tesscut/api/v0.1/astrocut?ra=107.18696&dec=-70.50919&y=0.08333333333333333&x=0.11666666666666667&units=d&sector=9 to ./tesscut_20210716150026.zip ... [Done]
                 Inflating...
 
                 >>> print(manifest)
-                                      local_file
-                ------------------------------------------------------
-                ./tess-s0001-4-3_107.18696_-70.50919_14x21_astrocut.fits
+                                       Local Path                        
+                ----------------------------------------------------------
+                ./tess-s0009-4-1_107.186960_-70.509190_21x15_astrocut.fits
 
 Sector information
 ------------------
 
-To access sector information at a particular location there is  `~astroquery.mast.TesscutClass.get_sectors`.
+To access sector information for a particular coordinate, object, or moving target there is
+`~astroquery.mast.TesscutClass.get_sectors`.
 
 .. code-block:: python
 
@@ -852,6 +890,16 @@ To access sector information at a particular location there is  `~astroquery.mas
                 tess-s0010-1-4     10      1   4
 
 
+.. code-block:: python
+
+                >>> from astroquery.mast import Tesscut
+
+                >>> sector_table = Tesscut.get_sectors(moving_target="Ceres")
+                >>> print(sector_table)
+                  sectorName   sector camera ccd
+                -------------- ------ ------ ---
+                tess-s0029-1-4     29      1   4
+   
 Zcut
 ====
 
