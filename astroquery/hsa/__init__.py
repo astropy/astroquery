@@ -13,7 +13,7 @@ class Conf(_config.ConfigNamespace):
     """
     Configuration parameters for `astroquery.hsa`.
     """
-    DATA_ACTION = _config.ConfigItem("http://archives.esac.esa.int/hsa/whsa-tap-server/data",
+    DATA_ACTION = _config.ConfigItem("http://archives.esac.esa.int/hsa/whsa-tap-server/data?",
                                      "Main url for retrieving HSA Data Archive files")
 
     METADATA_ACTION = _config.ConfigItem("http://archives.esac.esa.int/hsa/whsa-tap-server/tap",
