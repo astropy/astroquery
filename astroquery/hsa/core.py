@@ -35,6 +35,37 @@ class HSAClass(BaseQuery):
                       cache=True,
                       **kwargs):
         """
+        Download data from Herschel
+
+        Parameters
+        ----------
+        observation_id : string, mandatory
+            id of the observation to be downloaded
+            The identifies of the observation we want to retrieve, 10 digits
+            example: 1342195355
+        retrieval_type : string, optional, default 'OBSERVATION'
+            The type of product that we want to retrieve
+            values: OBSERVATION, PRODUCT, POSTCARD, POSTCARDFITS, REQUESTFILE_XML, STANDALONE, UPDP, HPDP
+        instrument_name : string, optinal, default 'PACS'
+            values: PACS, SPIRE, HIFI
+            The instrument name, by default 'PACS' if the retrieval_type is 'OBSERVATION'
+        filename : string, optinal, default None
+            If the filename is not set it will use the observation_id as filename
+            file name to be used to store the file
+        verbose : bool, optinal, default False
+            flag to display information about the process
+        observation_oid : string, optional
+            Observation internal identifies. This is the database identifier
+        istrument_oid : string, optional
+            The database identifies of the instrument
+            values: 1, 2, 3
+        product_level : string, optional
+            level to download
+            values: ALL, AUXILIARY, CALIBRATION, LEVEL0, LEVEL0_5, LEVEL1, LEVEL2, LEVEL2_5, LEVEL3, ALL-LEVEL3
+
+        Returns
+        -------
+        File name of downloaded data
         """
         if filename is not None:
             filename = os.path.splitext(filename)[0]
@@ -42,12 +73,12 @@ class HSAClass(BaseQuery):
         if retrieval_type is None:
             retrieval_type = "OBSERVATION"
 
+        params = {'retrieval_type': retrieval_type,
+                  'observation_id': observation_id}
+
         if retrieval_type == "OBSERVATION" and instrument_name is None:
             instrument_name = "PACS"
-
-        params = {'retrieval_type': retrieval_type,
-                  'observation_id': observation_id,
-                  'instrument_name': instrument_name}
+            params['instrument_name'] = instrument_name
 
         link = self.data_url + "".join("&{0}={1}".format(key, val)
                                        for key, val in params.items())
@@ -86,6 +117,34 @@ class HSAClass(BaseQuery):
                         verbose=False,
                         cache=True, **kwargs):
         """
+        Download observation from Herschel
+
+        Parameters
+        ----------
+        observation_id : string, mandatory
+            id of the observation to be downloaded
+            The identifies of the observation we want to retrieve, 10 digits
+            example: 1342195355
+        instrument_name : string, mandatory
+            The instrument name
+            values: PACS, SPIRE, HIFI
+        filename : string, optinal, default None
+            If the filename is not set it will use the observation_id as filename
+            file name to be used to store the file
+        verbose : bool, optinal, default 'False'
+            flag to display information about the process
+        observation_oid : string, optional
+            Observation internal identifies. This is the database identifier
+        istrument_oid : string, optional
+            The database identifies of the instrument
+            values: 1, 2, 3
+        product_level : string, optional
+            level to download
+            values: ALL, AUXILIARY, CALIBRATION, LEVEL0, LEVEL0_5, LEVEL1, LEVEL2, LEVEL2_5, LEVEL3, ALL-LEVEL3
+
+        Returns
+        -------
+        File name of downloaded data
         """
         if filename is not None:
             filename = os.path.splitext(filename)[0]
@@ -131,6 +190,37 @@ class HSAClass(BaseQuery):
                      verbose=False,
                      cache=True, **kwargs):
         """
+        Download postcard from Herschel
+
+        Parameters
+        ----------
+        observation_id : string, mandatory
+            id of the observation to be downloaded
+            The identifies of the observation we want to retrieve, 10 digits
+            example: 1342195355
+        instrument_name : string, mandatory
+            The instrument name
+            values: PACS, SPIRE, HIFI
+        filename : string, optinal, default None
+            If the filename is not set it will use the observation_id as filename
+            file name to be used to store the file
+        verbose : bool, optinal, default False
+            flag to display information about the process
+        observation_oid : string, optional
+            Observation internal identifies. This is the database identifier
+        istrument_oid : string, optional
+            The database identifies of the instrument
+            values: 1, 2, 3
+        product_level : string, optional
+            level to download
+            values: ALL, AUXILIARY, CALIBRATION, LEVEL0, LEVEL0_5, LEVEL1, LEVEL2, LEVEL2_5, LEVEL3, ALL-LEVEL3
+        postcard_single : string, optional
+            'true' to retrieve one single postcard (main one)
+            values: true, false
+
+        Returns
+        -------
+        File name of downloaded data
         """
         if filename is not None:
             filename = os.path.splitext(filename)[0]
@@ -170,6 +260,23 @@ class HSAClass(BaseQuery):
     def query_hsa_tap(self, query, *, output_file=None,
                       output_format="votable", verbose=False):
         """
+        Launches a synchronous job to query HSA Tabular Access Protocol (TAP) Service
+
+        Parameters
+        ----------
+        query : string, mandatory
+            query (adql) to be executed
+        output_file : string, optional, default None
+            file name where the results are saved if dumpToFile is True.
+            If this parameter is not provided, the jobid is used instead
+        output_format : string, optional, default 'votable'
+            values 'votable' or 'csv'
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        A table object
         """
         job = self._tap.launch_job(query=query, output_file=output_file,
                                    output_format=output_format,
@@ -180,6 +287,18 @@ class HSAClass(BaseQuery):
 
     def get_tables(self, *, only_names=True, verbose=False):
         """
+        Get the available table in HSA TAP service
+
+        Parameters
+        ----------
+        only_names : bool, optional, default True
+            True to load table names only
+        verbose : bool, optional, default False
+            flag to display information about the process
+
+        Returns
+        -------
+        A list of tables
         """
         tables = self._tap.load_tables(verbose=verbose)
         if only_names:
@@ -189,6 +308,20 @@ class HSAClass(BaseQuery):
 
     def get_columns(self, table_name, *, only_names=True, verbose=False):
         """
+        Get the available columns for a table in HSA TAP service
+
+        Parameters
+        ----------
+        table_name : string, mandatory
+            table name of which, columns will be returned
+        only_names : bool, optional, default True
+            True to load column names only
+        verbose : bool, optional, default False
+
+            flag to display information about the process
+        Returns
+        -------
+        A list of columns
         """
         tables = self._tap.load_tables(verbose=verbose)
 
