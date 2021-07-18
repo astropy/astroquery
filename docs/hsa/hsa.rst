@@ -85,18 +85,18 @@ Query Language (ADQL).
   >>>
   >>> result = HSA.query_hsa_tap("select top 10 * from hsa.v_active_observation", output_format='csv', output_file='results.csv')
   >>> print(result)
-                              aor                                      bii                 dec          duration  ... status            target_name             urn_version
------------------------------------------------------------- ------------------- ------------------- ---------- ... ------ ---------------------------------- -----------
-                                             PPhot.Cart-perp  -33.71633333333334  -33.71633333333334  1759000.0 ... FAILED                          Cartwheel      925353
-                                                  PPhot.Cart  -33.71633333333334  -33.71633333333334  1759000.0 ... FAILED                          Cartwheel      925352
-PPhoto-0005 - cosmos6 - cosmos_328-1 - XMMXCS J2215.9-1738-1 -17.633888888888887 -17.633888888888887 18149000.0 ... FAILED XMMXCS J2215.9-1738-1 cross scan-1      925351
-                                              DRT-B-HD013246  -59.67941666666666  -59.67941666666666  2250000.0 ... FAILED                         HD013246-1      925350
-                                              DRT-A-HD013246  -59.67941666666666  -59.67941666666666  2250000.0 ... FAILED                         HD013246-1      925348
-                                  e0102green1_135  - hsc rec  -72.03119444444444  -72.03119444444444  4272000.0 ... FAILED                      1e0102.2-7219      925346
-                                   e0102green1_45  - hsc rec  -72.03119444444444  -72.03119444444444  4272000.0 ... FAILED                      1e0102.2-7219      925344
-                                   e0102blue1_135  - hsc rec  -72.03119444444444  -72.03119444444444  4272000.0 ... FAILED                      1e0102.2-7219      925342
-                                    e0102blue1_45  - hsc rec  -72.03119444444444  -72.03119444444444  4272000.0 ... FAILED                      1e0102.2-7219      925340
-                                             PPhot.AM06-perp  -74.22638888888889  -74.22638888888889  1759000.0 ... FAILED                         AM0644-741      925338
+                                aor                                      bii                 dec          duration  ... status            target_name             urn_version
+  ------------------------------------------------------------ ------------------- ------------------- ---------- ... ------ ---------------------------------- -----------
+                                              PPhot.Cart-perp  -33.71633333333334  -33.71633333333334  1759000.0 ... FAILED                          Cartwheel      925353
+                                                    PPhot.Cart  -33.71633333333334  -33.71633333333334  1759000.0 ... FAILED                          Cartwheel      925352
+  PPhoto-0005 - cosmos6 - cosmos_328-1 - XMMXCS J2215.9-1738-1 -17.633888888888887 -17.633888888888887 18149000.0 ... FAILED XMMXCS J2215.9-1738-1 cross scan-1      925351
+                                                DRT-B-HD013246  -59.67941666666666  -59.67941666666666  2250000.0 ... FAILED                         HD013246-1      925350
+                                                DRT-A-HD013246  -59.67941666666666  -59.67941666666666  2250000.0 ... FAILED                         HD013246-1      925348
+                                    e0102green1_135  - hsc rec  -72.03119444444444  -72.03119444444444  4272000.0 ... FAILED                      1e0102.2-7219      925346
+                                    e0102green1_45  - hsc rec  -72.03119444444444  -72.03119444444444  4272000.0 ... FAILED                      1e0102.2-7219      925344
+                                    e0102blue1_135  - hsc rec  -72.03119444444444  -72.03119444444444  4272000.0 ... FAILED                      1e0102.2-7219      925342
+                                      e0102blue1_45  - hsc rec  -72.03119444444444  -72.03119444444444  4272000.0 ... FAILED                      1e0102.2-7219      925340
+                                              PPhot.AM06-perp  -74.22638888888889  -74.22638888888889  1759000.0 ... FAILED                         AM0644-741      925338
 
 This will execute an ADQL query to download the first 10 observations in the Herschel Science Archive. The result of the query will be
 stored in the file 'results.csv'. The result of this query can be printed by doing print(result).
