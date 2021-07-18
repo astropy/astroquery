@@ -2,9 +2,9 @@
 
 .. _astroquery.hsa:
 
-**********************
-hsa (`astroquery.hsa`)
-**********************
+*******************************************
+Herschel Science Archive (`astroquery.hsa`)
+*******************************************
 
 Herschel was the fourth cornerstone in ESA's Horizon 2000 science programme, designed to observe the 'cool' universe. 
 It performed photometry and spectroscopy in the poorly explored 55-670 µm spectral range with a 3.5 m diameter 
@@ -12,7 +12,7 @@ Cassegrain telescope, providing unique observing capabilities and bridging the g
 missions and groundbased facilities. Herschel successfully performed ~37000 science observations and ~6600 science 
 calibration observations which are publicly available to the worldwide astronomical community through the Herschel Science Archive.
 
-This package allows the access to the `Herschel Science Archive <http://archive.esac.esa.int/hsa/whsa/>`__.
+This package allows the access to the `Herschel Science Archive <http://archives.esac.esa.int/hsa/whsa/>`__.
 
 ========
 Examples
@@ -26,7 +26,7 @@ Examples
 
   >>> from astroquery.hsa import HSA 
   >>>
-  >>> HSA.download_data('1342195355',retrieval_type='OBSERVATION', instrument_name='PACS')
+  >>> HSA.download_data(observation_id='1342195355',retrieval_type='OBSERVATION', instrument_name='PACS')
   Downloading URL http://archives.esac.esa.int/hsa/whsa-tap-server/data?&retrieval_type=OBSERVATION&observation_id=1342195355&instrument_name=PACS to 1342195355.tar ... [Done]
   '1342195355.tar'
 

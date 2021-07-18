@@ -27,4 +27,3 @@ conf = Conf()
 from .core import HSA, HSAClass
 
 __all__ = ['HSA', 'HSAClass', 'Conf', 'conf']
-

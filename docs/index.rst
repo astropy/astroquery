@@ -200,6 +200,7 @@ The following modules have been completed using a common API:
   heasarc/heasarc.rst
   hips2fits/hips2fits.rst
   hitran/hitran.rst
+  hsa/hsa.rst
   ipac/irsa/irsa_dust/irsa_dust.rst
   ipac/irsa/ibe/ibe.rst
   ipac/irsa/irsa.rst

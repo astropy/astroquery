@@ -48,4 +48,3 @@ class DummyHandler(object):
                 raise ValueError("Parameter '%s' not found in method '%s'",
                                  (str(key), method_name))
         return True
-

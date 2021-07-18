@@ -268,6 +268,11 @@ heasarc
 - Add alternative instance of HEASARC Server, maintained by
   INTEGRAL Science Data Center. [#1988]
 
+hsa
+^^^
+
+- New module to access ESA Herschel mission. [#]
+
 nasa_exoplanet_archive
 ^^^^^^^^^^^^^^^^^^^^^^
 

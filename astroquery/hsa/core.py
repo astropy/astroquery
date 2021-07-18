@@ -7,13 +7,14 @@ import shutil
 from pathlib import Path
 
 from astroquery import log
-from astroquery.exceptions import LoginError
+from astroquery.exceptions import LoginError, InputWarning
 from astroquery.query import BaseQuery
 from astroquery.utils.tap.core import Tap
 
 from . import conf
 
 __all__ = ['HSA', 'HSAClass']
+
 
 class HSAClass(BaseQuery):
 
@@ -28,7 +29,8 @@ class HSAClass(BaseQuery):
         else:
             self._tap = tap_handler
 
-    def download_data(self, observation_id, *, retrieval_type=None,
+    def download_data(self, *, retrieval_type=None,
+                      observation_id=None,
                       instrument_name=None,
                       filename=None,
                       verbose=False,
@@ -39,24 +41,24 @@ class HSAClass(BaseQuery):
 
         Parameters
         ----------
-        observation_id : string, mandatory
+        observation_id : string, optional
             id of the observation to be downloaded
             The identifies of the observation we want to retrieve, 10 digits
             example: 1342195355
         retrieval_type : string, optional, default 'OBSERVATION'
             The type of product that we want to retrieve
             values: OBSERVATION, PRODUCT, POSTCARD, POSTCARDFITS, REQUESTFILE_XML, STANDALONE, UPDP, HPDP
-        instrument_name : string, optinal, default 'PACS'
+        instrument_name : string, optional, default 'PACS'
             values: PACS, SPIRE, HIFI
             The instrument name, by default 'PACS' if the retrieval_type is 'OBSERVATION'
-        filename : string, optinal, default None
+        filename : string, optional, default None
             If the filename is not set it will use the observation_id as filename
             file name to be used to store the file
-        verbose : bool, optinal, default False
+        verbose : bool, optional, default False
             flag to display information about the process
         observation_oid : string, optional
             Observation internal identifies. This is the database identifier
-        istrument_oid : string, optional
+        instrument_oid : string, optional
             The database identifies of the instrument
             values: 1, 2, 3
         product_level : string, optional
@@ -73,11 +75,14 @@ class HSAClass(BaseQuery):
         if retrieval_type is None:
             retrieval_type = "OBSERVATION"
 
-        params = {'retrieval_type': retrieval_type,
-                  'observation_id': observation_id}
+        params = {'retrieval_type': retrieval_type}
+        if observation_id is not None:
+            params['observation_id'] = observation_id
 
         if retrieval_type == "OBSERVATION" and instrument_name is None:
             instrument_name = "PACS"
+
+        if instrument_name is not None:
             params['instrument_name'] = instrument_name
 
         link = self.data_url + "".join("&{0}={1}".format(key, val)
@@ -98,13 +103,20 @@ class HSAClass(BaseQuery):
             error = "Data protected by propietary rights. Please check your credentials"
             raise LoginError(error)
 
+        if filename is None:
+            if observation_id is not None:
+                filename = observation_id
+            else:
+                error = "Please set a filename for the output"
+                raise InputWarning(error)
+
         r_filename = params["filename"]
         suffixes = Path(r_filename).suffixes
 
-        if filename is None:
-            filename = observation_id
-
-        filename += "".join(suffixes)
+        if len(suffixes) > 1 and suffixes[len(suffixes) - 1] == ".jpg":
+            filename += suffixes[len(suffixes) - 1]
+        else:
+            filename += "".join(suffixes)
 
         self._download_file(link, filename, head_safe=True, cache=cache)
 
@@ -128,10 +140,10 @@ class HSAClass(BaseQuery):
         instrument_name : string, mandatory
             The instrument name
             values: PACS, SPIRE, HIFI
-        filename : string, optinal, default None
+        filename : string, optional, default None
             If the filename is not set it will use the observation_id as filename
             file name to be used to store the file
-        verbose : bool, optinal, default 'False'
+        verbose : bool, optional, default 'False'
             flag to display information about the process
         observation_oid : string, optional
             Observation internal identifies. This is the database identifier
@@ -201,10 +213,10 @@ class HSAClass(BaseQuery):
         instrument_name : string, mandatory
             The instrument name
             values: PACS, SPIRE, HIFI
-        filename : string, optinal, default None
+        filename : string, optional, default None
             If the filename is not set it will use the observation_id as filename
             file name to be used to store the file
-        verbose : bool, optinal, default False
+        verbose : bool, optional, default False
             flag to display information about the process
         observation_oid : string, optional
             Observation internal identifies. This is the database identifier

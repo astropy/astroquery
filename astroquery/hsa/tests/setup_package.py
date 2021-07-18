@@ -14,4 +14,3 @@ def get_package_data():
     # you can also enlist files individually by names
     # finally construct and return a dict for the sub module
     return {'astroquery.hsa.tests': paths}
-

@@ -80,4 +80,3 @@ class DummyHSATapHandler(object):
         table = TapTableMeta()
         table.name = "table"
         return [table]
-

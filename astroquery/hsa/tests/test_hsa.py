@@ -5,6 +5,7 @@ from ..core import HSAClass
 from ..tests.dummy_handler import DummyHandler
 from ..tests.dummy_tap_handler import DummyHSATapHandler
 
+
 class TestHSA():
 
     def get_dummy_tap_handler(self):
