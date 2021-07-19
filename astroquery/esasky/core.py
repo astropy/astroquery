@@ -599,12 +599,9 @@ class ESASkyClass(BaseQuery):
 
         Examples
         --------
-        >>> query_ids_maps(observation_ids=['lbsk03vbq', 'ieag90010'], missions="HST-UV")
-
-        >>> query_ids_maps(observation_ids='lbsk03vbq')
-
-        >>> query_ids_maps(observation_ids=['lbsk03vbq', 'ieag90010', '1342221275', '1342221848'],
-        ...                   missions=["Herschel", "HST-UV"])
+        query_ids_maps(observation_ids=['lbsk03vbq', 'ieag90010'], missions="HST-UV")
+        query_ids_maps(observation_ids='lbsk03vbq')
+        query_ids_maps(observation_ids=['lbsk03vbq', '1342221848'], missions=["Herschel", "HST-UV"])
         """
         sanitized_observation_ids = self._sanitize_input_ids(observation_ids)
         sanitized_missions = self._sanitize_input_mission(missions)
@@ -655,12 +652,9 @@ class ESASkyClass(BaseQuery):
 
         Examples
         --------
-        >>> query_ids_catalogs(source_ids=['2CXO J090341.1-322609', '2CXO J090353.8-322642'], catalogs="CHANDRA-SC2")
-
-        >>> query_ids_catalogs(source_ids='2CXO J090341.1-322609')
-
-        >>> query_ids_catalogs(source_ids=['2CXO J090341.1-322609', '2CXO J090353.8-322642', '44899', '45057'],
-        ...                    catalogs=["CHANDRA-SC2", "Hipparcos-2"])
+        query_ids_catalogs(source_ids=['2CXO J090341.1-322609', '2CXO J090353.8-322642'], catalogs="CHANDRA-SC2")
+        query_ids_catalogs(source_ids='2CXO J090341.1-322609')
+        query_ids_catalogs(source_ids=['2CXO J090341.1-322609', '45057'], catalogs=["CHANDRA-SC2", "Hipparcos-2"])
         """
         sanitized_catalogs = self._sanitize_input_catalogs(catalogs)
         sanitized_row_limit = self._sanitize_input_row_limit(row_limit)
@@ -851,13 +845,11 @@ class ESASkyClass(BaseQuery):
 
         Examples
         --------
-        >>> get_images(position="m101", radius="14'", missions="all")
+        get_images(position="m101", radius="14'", missions="all")
 
-        >>> missions = ["SUZAKU", "ISO-IR", "Chandra", "XMM-OM-OPTICAL", "XMM", "XMM-OM-UV", "HST-IR", "Herschel",
-        ...             "Spitzer", "HST-UV", "HST-OPTICAL"]
-        >>> observation_ids = ["100001010", "01500403", "21171", "0852000101", "0851180201", "0851180201", "n3tr01c3q",
-        ...                    "1342247257", "30002561-25100", "hst_07553_3h_wfpc2_f160bw_pc", "ocli05leq"]
-        >>> get_images(observation_ids=observation_ids, missions=missions)
+        missions = ["SUZAKU", "ISO-IR", "Chandra", "XMM-OM-OPTICAL", "XMM", "XMM-OM-UV", "HST-IR", "Herschel", "Spitzer", "HST-UV", "HST-OPTICAL"]
+        observation_ids = ["100001010", "01500403", "21171", "0852000101", "0851180201", "0851180201", "n3tr01c3q", "1342247257", "30002561-25100", "hst_07553_3h_wfpc2_f160bw_pc", "ocli05leq"]
+        get_images(observation_ids=observation_ids, missions=missions)
         """
         if position is None and observation_ids is None:
             raise ValueError("An input is required for either position or observation_ids.")
@@ -948,12 +940,11 @@ class ESASkyClass(BaseQuery):
         Examples
         --------
 
-        >>> get_spectra(position="m101", radius="14'", missions=["HST-IR", "XMM-NEWTON", "HERSCHEL"])
+        get_spectra(position="m101", radius="14'", missions=["HST-IR", "XMM-NEWTON", "HERSCHEL"])
 
-        >>> missions = ["ISO-IR", "Chandra", "IUE", "XMM-NEWTON", "HST-IR", "Herschel", "HST-UV", "HST-OPTICAL"]
-        >>> observation_ids = ["02101201", "1005", "LWR13178", "0001730201", "ibh706cqq",
-        ...                    "1342253595", "z1ax0102t", "oeik2s020"]
-        >>> get_spectra(observation_ids=observation_ids, missions=missions)
+        missions = ["ISO-IR", "Chandra", "IUE", "XMM-NEWTON", "HST-IR", "Herschel", "HST-UV", "HST-OPTICAL"]
+        observation_ids = ["02101201", "1005", "LWR13178", "0001730201", "ibh706cqq", "1342253595", "z1ax0102t", "oeik2s020"]
+        get_spectra(observation_ids=observation_ids, missions=missions)
 
         """
         if position is None and observation_ids is None:

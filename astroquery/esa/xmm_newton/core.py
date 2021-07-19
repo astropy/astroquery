@@ -346,17 +346,6 @@ class XMMNewtonClass(BaseQuery):
         are described in details in the Pipeline Products Description
         [XMM-SOC-GEN-ICD-0024](https://xmm-tools.cosmos.esa.int/external/xmm_obs_info/odf/data/docs/XMM-SOC-GEN-ICD-0024.pdf).
 
-        Examples
-        --------
-        Extracting all bands and instruments:
-
-        >>> result = XMM.get_epic_spectra(tarfile,83, instrument=['M1','M2','PN'])
-
-        To retrieve the source spectrum of the instrument PN.
-        (The full path of the extracted FTZ file is returned.)
-
-        >>> fits_image = result['PN']
-
         """
         _instrument = ["M1", "M2", "PN", "EP"]
         _product_type = ["SRSPEC", "BGSPEC", "SRCARF"]
@@ -487,32 +476,6 @@ class XMMNewtonClass(BaseQuery):
         The structure and the content of the extracted compressed FITS files
         are described in details in the Pipeline Products Description
         [XMM-SOC-GEN-ICD-0024](https://xmm-tools.cosmos.esa.int/external/xmm_obs_info/odf/data/docs/XMM-SOC-GEN-ICD-0024.pdf).
-
-        Examples
-        --------
-
-        Extract all bands and instruments:
-
-        >>> result = XMM.get_epic_images(tarfile, band=[1,2,3,4,5,8], instrument=['M1','M2','PN'])
-
-        To retrieve the band 3 for the instrument PN (p-n junction):
-
-        >>> fits_image = result[3]['PN']
-
-        Extract the exposure and detector maps:
-
-        >>> result = XMM.get_epic_images(tarfile, band=[1, 2, 3, 4, 5, 8],
-                                         instrument=['M1', 'M2', 'PN'],
-                                         get_detmask=True,
-                                         get_exposure_map=True)
-
-        To retrieve exposure map in the band 3 for the instrument PN:
-
-        >>> fits_image = result[3]['PN_expo']
-
-        To retrieve the detector mask in the band 3 for the instrument PN:
-
-        >>> fits_image = result[3]['PN_det']
 
         """
 
@@ -664,8 +627,7 @@ class XMMNewtonClass(BaseQuery):
                             instrument=[], path=""):
         """Extracts the EPIC sources light curve products from a given TAR file
 
-        For a given TAR file obtained with:
-            XMM.download_data(OBS_ID,level="PPS",extension="FTZ",filename=tarfile)
+        For a given TAR file obtained with ``XMMNewton.download_data``.
 
         This function extracts the EPIC sources light curve products in a given
         instrument (or instruments) from said TAR file
@@ -700,17 +662,6 @@ class XMMNewtonClass(BaseQuery):
         The structure and the content of the extracted compressed FITS files
         are described in details in the Pipeline Products Description
         [XMM-SOC-GEN-ICD-0024](https://xmm-tools.cosmos.esa.int/external/xmm_obs_info/odf/data/docs/XMM-SOC-GEN-ICD-0024.pdf).
-
-        Examples
-        --------
-
-        Extracting all instruments:
-
-        >>> result = XMM.get_epic_lightcurve(tarfile, 146, instrument=['M1','M2', 'PN'])
-
-        To retrieve the light curve of the instrument PN:
-
-        >>> fits_image = result['PN']
 
         """
         _instrumnet = ["M1", "M2", "PN", "EP"]
