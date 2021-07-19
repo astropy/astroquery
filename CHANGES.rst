@@ -8,6 +8,11 @@ esa.hubble
 
 - Added new method ``get_hap_hst_link`` and ``get_member_observations`` to get related observations [#2268]
 
+hsa
+^^^
+
+- New module to access ESA Herschel mission. [#2122]
+
 Service fixes and enhancements
 ------------------------------
 esa.hubble
@@ -267,11 +272,6 @@ heasarc
 
 - Add alternative instance of HEASARC Server, maintained by
   INTEGRAL Science Data Center. [#1988]
-
-hsa
-^^^
-
-- New module to access ESA Herschel mission. [#]
 
 nasa_exoplanet_archive
 ^^^^^^^^^^^^^^^^^^^^^^
