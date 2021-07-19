@@ -351,4 +351,6 @@ class HSAClass(BaseQuery):
             return [c.name for c in columns]
         else:
             return columns
+
+
 HSA = HSAClass()
