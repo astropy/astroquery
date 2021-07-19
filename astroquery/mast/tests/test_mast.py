@@ -13,7 +13,7 @@ from astropy.io import fits
 import astropy.units as u
 
 from ...utils.testing_tools import MockResponse
-from ...exceptions import (InvalidQueryError, InputWarning)
+from ...exceptions import InvalidQueryError, InputWarning
 
 from ... import mast
 
@@ -598,6 +598,17 @@ def test_tesscut_get_sector(patch_post):
     assert sector_table['camera'][0] == 1
     assert sector_table['ccd'][0] == 3
 
+    # Testing catch for multiple designators'
+    error_str = "Only one of objectname, coordinates, and moving_target may be specified."
+
+    with pytest.raises(InvalidQueryError) as invalid_query:
+        mast.Tesscut.get_sectors(moving_target="Ceres", coordinates=coord)
+    assert error_str in str(invalid_query.value)
+
+    with pytest.raises(InvalidQueryError) as invalid_query:
+        mast.Tesscut.get_sectors(moving_target="Ceres", objectname="M103")
+    assert error_str in str(invalid_query.value)
+
 
 def test_tesscut_download_cutouts(patch_post, tmpdir):
 
@@ -632,6 +643,17 @@ def test_tesscut_download_cutouts(patch_post, tmpdir):
     assert manifest["Local Path"][0][-4:] == "fits"
     assert os.path.isfile(manifest[0]['Local Path'])
 
+    # Testing catch for multiple designators'
+    error_str = "Only one of objectname, coordinates, and moving_target may be specified."
+
+    with pytest.raises(InvalidQueryError) as invalid_query:
+        mast.Tesscut.download_cutouts(moving_target="Eleonora", coordinates=coord, size=5, path=str(tmpdir))
+    assert error_str in str(invalid_query.value)
+
+    with pytest.raises(InvalidQueryError) as invalid_query:
+        mast.Tesscut.download_cutouts(moving_target="Eleonora", objectname="M103", size=5, path=str(tmpdir))
+    assert error_str in str(invalid_query.value)
+
 
 def test_tesscut_get_cutouts(patch_post, tmpdir):
 
@@ -652,6 +674,17 @@ def test_tesscut_get_cutouts(patch_post, tmpdir):
     assert isinstance(cutout_hdus_list, list)
     assert len(cutout_hdus_list) == 1
     assert isinstance(cutout_hdus_list[0], fits.HDUList)
+
+    # Testing catch for multiple designators'
+    error_str = "Only one of objectname, coordinates, and moving_target may be specified."
+
+    with pytest.raises(InvalidQueryError) as invalid_query:
+        mast.Tesscut.get_cutouts(moving_target="Eleonora", coordinates=coord, size=5)
+    assert error_str in str(invalid_query.value)
+
+    with pytest.raises(InvalidQueryError) as invalid_query:
+        mast.Tesscut.get_cutouts(moving_target="Eleonora", objectname="M103", size=5)
+    assert error_str in str(invalid_query.value)
 
 
 ######################

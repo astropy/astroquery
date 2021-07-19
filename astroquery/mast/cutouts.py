@@ -133,8 +133,8 @@ class TesscutClass(MastQueryWithLogin):
             or TIC ID (objectname="TIC 141914082").
             One and only one of coordinates, objectname, moving_target must be supplied.
         moving_target : str, optional
-            The name or ID (as understood by the 
-            `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__) 
+            The name or ID (as understood by the
+            `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__)
             of a moving target such as an asteroid or comet.
             One and only one of coordinates, objectname, and moving_target must be supplied.
         mt_type : str, optional
@@ -150,7 +150,7 @@ class TesscutClass(MastQueryWithLogin):
 
         if moving_target:
 
-            # Check only ony object designator has been passed in 
+            # Check only ony object designator has been passed in
             if objectname or coordinates:
                 raise InvalidQueryError("Only one of objectname, coordinates, and moving_target may be specified.")
 
@@ -163,7 +163,7 @@ class TesscutClass(MastQueryWithLogin):
             response = self._service_api_connection.service_request_async("mt_sector", params)
 
         else:
-            
+
             # Get Skycoord object for coordinates/object
             coordinates = parse_input_location(coordinates, objectname)
 
@@ -176,8 +176,8 @@ class TesscutClass(MastQueryWithLogin):
 
             response = self._service_api_connection.service_request_async("sector", params)
 
-        # Raise any errors 
-        response.raise_for_status()  
+        # Raise any errors
+        response.raise_for_status()
 
         sector_json = response.json()['results']
         sector_dict = {'sectorName': [],
@@ -232,8 +232,8 @@ class TesscutClass(MastQueryWithLogin):
             or TIC ID (objectname="TIC 141914082").
             One and only one of coordinates, objectname, and moving_target must be supplied.
         moving_target : str, optional
-            The name or ID (as understood by the 
-            `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__) 
+            The name or ID (as understood by the
+            `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__)
             of a moving target such as an asteroid or comet.
             One and only one of coordinates, objectname, and moving_target must be supplied.
         mt_type : str, optional
@@ -247,23 +247,23 @@ class TesscutClass(MastQueryWithLogin):
         """
 
         if moving_target:
-            # Check only ony object designator has been passed in 
+            # Check only ony object designator has been passed in
             if objectname or coordinates:
                 raise InvalidQueryError("Only one of objectname, coordinates, and moving_target may be specified.")
-            
+
             astrocut_request = f"moving_target/astrocut?obj_id={moving_target}"
             if mt_type:
                 astrocut_request += f"&obj_type={mt_type}"
         else:
             # Get Skycoord object for coordinates/object
             coordinates = parse_input_location(coordinates, objectname)
-            
+
             astrocut_request = f"astrocut?ra={coordinates.ra.deg}&dec={coordinates.dec.deg}"
 
         # Adding the arguments that are common between moving/still astrocut requests
         size_dict = _parse_cutout_size(size)
         astrocut_request += f"&y={size_dict['y']}&x={size_dict['x']}&units={size_dict['units']}"
-        
+
         if sector:
             astrocut_request += "&sector={}".format(sector)
 
@@ -325,8 +325,8 @@ class TesscutClass(MastQueryWithLogin):
             or TIC ID (objectname="TIC 141914082").
             One and only one of coordinates, objectname, and moving_target must be supplied.
         moving_target : str, optional
-            The name or ID (as understood by the 
-            `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__) 
+            The name or ID (as understood by the
+            `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__)
             of a moving target such as an asteroid or comet.
             One and only one of coordinates, objectname, and moving_target must be supplied.
         mt_type : str, optional
@@ -345,10 +345,10 @@ class TesscutClass(MastQueryWithLogin):
         # Add sector if present
         if sector:
             param_dict["sector"] = sector
-        
+
         if moving_target:
 
-            # Check only on object designator has been passed in 
+            # Check only on object designator has been passed in
             if objectname or coordinates:
                 raise InvalidQueryError("Only one of objectname, coordinates, and moving_target may be specified.")
 
@@ -361,13 +361,13 @@ class TesscutClass(MastQueryWithLogin):
             response = self._service_api_connection.service_request_async("mt_astrocut", param_dict)
 
         else:
-        
+
             # Get Skycoord object for coordinates/object
             coordinates = parse_input_location(coordinates, objectname)
- 
+
             param_dict["ra"] = coordinates.ra.deg
             param_dict["dec"] = coordinates.dec.deg
-            
+
             response = self._service_api_connection.service_request_async("astrocut", param_dict)
 
         response.raise_for_status()  # Raise any errors

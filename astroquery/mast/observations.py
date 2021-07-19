@@ -572,7 +572,7 @@ class ObservationsClass(MastQueryWithLogin):
                         self._download_file(data_url, local_path,
                                             cache=cache, head_safe=True, continuation=False)
             else:
-                
+
                 self._download_file(data_url, local_path,
                                     cache=cache, head_safe=True, continuation=False)
 

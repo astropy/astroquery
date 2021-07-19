@@ -197,8 +197,8 @@ class TestMast:
 
     # product functions
     def test_observations_get_product_list_async(self):
- 
-        test_obs = mast.Observations.query_criteria(filters=["NUV","FUV"],objectname="M101")
+
+        test_obs = mast.Observations.query_criteria(filters=["NUV", "FUV"], objectname="M101")
 
         responses = mast.Observations.get_product_list_async(test_obs[0]["obsid"])
         assert isinstance(responses, list)
@@ -247,12 +247,8 @@ class TestMast:
         result = mast.Observations.get_product_list(observations[obsLocs])
         obs_collection = np.unique(list(result['obs_collection']))
         assert isinstance(result, Table)
-<<<<<<< HEAD
         assert len(obs_collection) == 1
         assert obs_collection[0] == 'IUE'
-=======
-        assert len(result) > 10
->>>>>>> adding moving tesscut tests
 
     def test_observations_filter_products(self):
         observations = mast.Observations.query_object("M8", radius=".04 deg")
@@ -714,7 +710,6 @@ class TestMast:
         assert sector_table['camera'][0] == 1
         assert sector_table['ccd'][0] == 1
 
-
     def test_tesscut_download_cutouts(self, tmpdir):
 
         coord = SkyCoord(349.62609, -47.12424, unit="deg")
@@ -760,7 +755,6 @@ class TestMast:
         assert manifest["Local Path"][0][-4:] == "fits"
         for row in manifest:
             assert os.path.isfile(row['Local Path'])
-        
 
     def test_tesscut_get_cutouts(self, tmpdir):
 
@@ -793,7 +787,6 @@ class TestMast:
         assert len(cutout_hdus_list) == 1
         assert isinstance(cutout_hdus_list[0], fits.HDUList)
 
-        
     ###################
     # ZcutClass tests #
     ###################
