@@ -311,22 +311,13 @@ class XMMNewtonClass(BaseQuery):
                          instrument=[], path="", verbose=False):
         """Extracts in path (when set) the EPIC sources spectral products from a
         given TAR file.
-        For a given TAR file obtained with:
-            XMM.download_data(OBS_ID,level="PPS",extension="FTZ",filename=tarfile)
+
         This function extracts the EPIC sources spectral products in a given
         instrument (or instruments) from it
         The result is a dictionary containing the paths to the extracted EPIC
         sources spectral products with key being the instrument
         If the instrument is not specified this function will
         return all the available instruments
-
-        Examples:
-        Extracting all bands and instruments:
-            result = XMM.get_epic_spectra(tarfile,83,
-                                         instrument=['M1','M2','PN'])
-        If we want to retrieve the source spectrum of the instrument PN
-            fits_image = result['PN']
-        fits_image will be the full path to the extracted FTZ file
 
         Parameters
         ----------
@@ -354,6 +345,18 @@ class XMMNewtonClass(BaseQuery):
         The structure and the content of the extracted compressed FITS files
         are described in details in the Pipeline Products Description
         [XMM-SOC-GEN-ICD-0024](https://xmm-tools.cosmos.esa.int/external/xmm_obs_info/odf/data/docs/XMM-SOC-GEN-ICD-0024.pdf).
+
+        Examples
+        --------
+        Extracting all bands and instruments:
+
+        >>> result = XMM.get_epic_spectra(tarfile,83, instrument=['M1','M2','PN'])
+
+        To retrieve the source spectrum of the instrument PN.
+        (The full path of the extracted FTZ file is returned.)
+
+        >>> fits_image = result['PN']
+
         """
         _instrument = ["M1", "M2", "PN", "EP"]
         _product_type = ["SRSPEC", "BGSPEC", "SRCARF"]
@@ -445,9 +448,6 @@ class XMMNewtonClass(BaseQuery):
 
         """Extracts the EPIC images from a given TAR file
 
-        For a given TAR file obtained with:
-            XMM.download_data(OBS_ID,level="PPS",extension="FTZ",filename=tarfile)
-
         This function extracts the EPIC images in a given band (or bands) and
         instrument (or instruments) from it
 
@@ -460,30 +460,6 @@ class XMMNewtonClass(BaseQuery):
         Additionally, ``get_detmask`` and ``get_exposure_map`` can be set to True.
         If so, this function will also extract the exposure maps and detector
         masks within the specified bands and instruments
-
-        Examples
-        --------
-
-        Extract all bands and instruments::
-            result = XMM.get_epic_images(tarfile,band=[1,2,3,4,5,8],
-                                         instrument=['M1','M2','PN'],**kwargs)
-
-        If we want to retrieve the band 3 for the instrument PN (p-n junction)::
-            fits_image = result[3]['PN']
-
-        ``fits_image`` will be the full path to the extracted FTZ file
-
-        Extract the exposure and detector maps::
-            result = XMM.get_epic_images(tarfile,band=[1,2,3,4,5,8],
-                                         instrument=['M1','M2','PN'],
-                                         get_detmask=True,
-                                         get_exposure_map=True)
-
-        If we want to retrieve exposure map in the band 3 for the instrument PN::
-            fits_image = result[3]['PN_expo']
-
-        For retrieving the detector mask in the band 3 for the instrument PN::
-            fits_image = result[3]['PN_det']
 
         Parameters
         ----------
@@ -511,6 +487,33 @@ class XMMNewtonClass(BaseQuery):
         The structure and the content of the extracted compressed FITS files
         are described in details in the Pipeline Products Description
         [XMM-SOC-GEN-ICD-0024](https://xmm-tools.cosmos.esa.int/external/xmm_obs_info/odf/data/docs/XMM-SOC-GEN-ICD-0024.pdf).
+
+        Examples
+        --------
+
+        Extract all bands and instruments:
+
+        >>> result = XMM.get_epic_images(tarfile, band=[1,2,3,4,5,8], instrument=['M1','M2','PN'])
+
+        To retrieve the band 3 for the instrument PN (p-n junction):
+
+        >>> fits_image = result[3]['PN']
+
+        Extract the exposure and detector maps:
+
+        >>> result = XMM.get_epic_images(tarfile, band=[1, 2, 3, 4, 5, 8],
+                                         instrument=['M1', 'M2', 'PN'],
+                                         get_detmask=True,
+                                         get_exposure_map=True)
+
+        To retrieve exposure map in the band 3 for the instrument PN:
+
+        >>> fits_image = result[3]['PN_expo']
+
+        To retrieve the detector mask in the band 3 for the instrument PN:
+
+        >>> fits_image = result[3]['PN_det']
+
         """
 
         _product_type = ["IMAGE_"]
@@ -673,17 +676,6 @@ class XMMNewtonClass(BaseQuery):
         If the instrument is not specified, this function will
         return all available instruments
 
-        Examples:
-
-        Extracting all instruments:
-            result = XMM.get_epic_lightcurve(tarfile,146,
-                                             instrument=['M1','M2','PN'])
-
-        If we want to retrieve the light curve of the instrument PN
-            fits_image = result['PN']
-
-        fits_image will be the full path to the extracted FTZ file
-
         Parameters
         ----------
         filename : string, mandatory
@@ -708,6 +700,18 @@ class XMMNewtonClass(BaseQuery):
         The structure and the content of the extracted compressed FITS files
         are described in details in the Pipeline Products Description
         [XMM-SOC-GEN-ICD-0024](https://xmm-tools.cosmos.esa.int/external/xmm_obs_info/odf/data/docs/XMM-SOC-GEN-ICD-0024.pdf).
+
+        Examples
+        --------
+
+        Extracting all instruments:
+
+        >>> result = XMM.get_epic_lightcurve(tarfile, 146, instrument=['M1','M2', 'PN'])
+
+        To retrieve the light curve of the instrument PN:
+
+        >>> fits_image = result['PN']
+
         """
         _instrumnet = ["M1", "M2", "PN", "EP"]
         _band = [8]

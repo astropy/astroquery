@@ -189,7 +189,7 @@ The following modules have been completed using a common API:
   hitran/hitran.rst
   ibe/ibe.rst
   irsa/irsa.rst
-  irsa/irsa_dust.rst
+  irsa_dust/irsa_dust.rst
   jplspec/jplspec.rst
   magpis/magpis.rst
   mast/mast.rst
@@ -260,7 +260,7 @@ for each source)
   gama/gama.rst
   ibe/ibe.rst
   irsa/irsa.rst
-  irsa/irsa_dust.rst
+  irsa_dust/irsa_dust.rst
   mast/mast.rst
   nasa_exoplanet_archive/nasa_exoplanet_archive.rst
   ned/ned.rst
