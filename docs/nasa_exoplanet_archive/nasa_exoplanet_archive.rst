@@ -14,7 +14,7 @@ More information about the development of a more integrated NASA Exoplanet Archi
 fully TAP supported services can be found at [3]_.
 
 *NOTE*: the ``exoplanet`` and ``exomultpars`` tables are no longer available and have been replaced by the
-Planetary Systems table (``ps``). Likewise, the `compositepars` table has been replaced by the
+Planetary Systems table (``ps``). Likewise, the ``compositepars`` table has been replaced by the
 Planetary Systems Composite Parameters table (``pscomppars``). Both the ``ps`` and ``pscomppars`` tables are accessible
 through the Exoplanet Archive TAP service. Database column names have changed;
 `this document <https://exoplanetarchive.ipac.caltech.edu/docs/API_PS_columns.html>`_ contains the current definitions

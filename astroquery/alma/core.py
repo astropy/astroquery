@@ -12,7 +12,6 @@ from pkg_resources import resource_filename
 from bs4 import BeautifulSoup
 import pyvo
 
-
 from six.moves.urllib_parse import urljoin
 import six
 from astropy.table import Table, Column, vstack
@@ -545,18 +544,19 @@ class AlmaClass(QueryWithLogin):
 
         """
         Return information about the data associated with ALMA uid(s)
+
         Parameters
         ----------
-        uids: list or str
+        uids : list or str
             A list of valid UIDs or a single UID.
             UIDs should have the form: 'uid://A002/X391d0b/X7b'
-        expand_tarfiles: bool
+        expand_tarfiles : bool
             False to return information on the tarfiles packages containing
             the data or True to return information about individual files in
             these packages
-        with_auxiliary: bool
+        with_auxiliary : bool
             True to include the auxiliary packages, False otherwise
-        with_rawdata: bool
+        with_rawdata : bool
             True to include raw data, False otherwise
 
         Returns

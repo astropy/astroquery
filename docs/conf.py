@@ -29,18 +29,13 @@ import datetime
 import os
 import sys
 
-try:
-    import astropy_helpers
-except ImportError:
-    # Building from inside the docs/ directory?
-    if os.path.basename(os.getcwd()) == 'docs':
-        a_h_path = os.path.abspath(os.path.join('..', 'astropy_helpers'))
-        if os.path.isdir(a_h_path):
-            sys.path.insert(1, a_h_path)
-
 # Load all of the global Astropy configuration
-from astropy_helpers.sphinx.conf import *
-import urllib
+try:
+    from sphinx_astropy.conf.v1 import *  # noqa
+except ImportError:
+    print('ERROR: the documentation requires the sphinx-astropy package to '
+          'be installed')
+    sys.exit(1)
 
 from configparser import ConfigParser
 conf = ConfigParser()
@@ -70,10 +65,10 @@ rst_epilog += """
 del intersphinx_mapping['scipy']
 del intersphinx_mapping['h5py']
 intersphinx_mapping.update({
-    'astropy': ('http://docs.astropy.org/en/stable/', None),
+    'astropy': ('https://docs.astropy.org/en/stable/', None),
     'requests': ('https://requests.kennethreitz.org/en/stable/', None),
-    'pyregion': ('http://pyregion.readthedocs.io/en/stable/', None),
-    'regions': ('http://astropy-regions.readthedocs.io/en/stable/', None),
+    'pyregion': ('https://pyregion.readthedocs.io/en/stable/', None),
+    'regions': ('https://astropy-regions.readthedocs.io/en/stable/', None),
     'mocpy': ('https://cds-astro.github.io/mocpy/', None),
     'pyvo': ('https://pyvo.readthedocs.io/en/stable/', None),
 })

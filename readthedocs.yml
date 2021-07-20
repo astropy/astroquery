@@ -3,3 +3,6 @@ conda:
 
 python:
    setup_py_install: true
+
+sphinx:
+   fail_on_warning: true
