@@ -33,7 +33,7 @@ conf = Conf()
 from .cutouts import TesscutClass, Tesscut, ZcutClass, Zcut
 from .observations import Observations, ObservationsClass, MastClass, Mast
 from .collections import Catalogs, CatalogsClass
-from .missions_mast import Missions, MissionsClass
+from .missions import Missions, MissionsClass
 from .core import MastQueryWithLogin
 from . import utils
 
