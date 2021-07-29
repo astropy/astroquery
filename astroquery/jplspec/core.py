@@ -121,7 +121,7 @@ class JPLSpecClass(BaseQuery):
         # BaseQuery classes come with a _request method that includes a
         # built-in caching system
         response = self._request(method='POST', url=self.URL, data=payload,
-                                 timeout=self.TIMEOUT, cache=cache)
+                                 timeout=self.TIMEOUT, cache=cache, verify=False)
 
         return response
 
