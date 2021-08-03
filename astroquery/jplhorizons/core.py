@@ -152,7 +152,7 @@ class HorizonsClass(BaseQuery):
                           extra_precision=False):
         """
         Query JPL Horizons for ephemerides.
-        
+
         The ``location`` parameter in ``HorizonsClass`` refers in this case to
         the location of the observer.
 
@@ -466,7 +466,7 @@ class HorizonsClass(BaseQuery):
         >>> eph = obj.ephemerides()  # doctest: +SKIP
         >>> print(eph)  # doctest: +SKIP
             targetname       datetime_str   datetime_jd ...  PABLon  PABLat
-               ---               ---             d      ...   deg     deg  
+               ---               ---             d      ...   deg     deg
         ----------------- ----------------- ----------- ... -------- ------
         1 Ceres (A801 AA) 2010-Jan-01 00:00   2455197.5 ... 238.2494 4.5532
         1 Ceres (A801 AA) 2010-Jan-11 00:00   2455207.5 ... 241.3339 4.2832
@@ -601,7 +601,7 @@ class HorizonsClass(BaseQuery):
                        get_raw_response=False, cache=True):
         """
         Query JPL Horizons for osculating orbital elements.
-        
+
         The ``location`` parameter in ``HorizonsClass`` refers in this case to
         the center body relative to which the elements are provided.
 
@@ -808,7 +808,7 @@ class HorizonsClass(BaseQuery):
                       delta_T=False,):
         """
         Query JPL Horizons for state vectors.
-        
+
         The ``location`` parameter in ``HorizonsClass`` refers in this case to
         the center body relative to which the vectors are provided.
 
