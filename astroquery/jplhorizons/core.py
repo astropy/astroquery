@@ -62,7 +62,7 @@ class HorizonsClass(BaseQuery):
             be of the form {``'start'``:'YYYY-MM-DD [HH:MM:SS]',
             ``'stop'``:'YYYY-MM-DD [HH:MM:SS]', ``'step'``:'n[y|d|m|s]'}.
             Epoch timescales depend on the type of query performed: UTC for
-            ephemerides queries, TDB for element queries, CT for vector queries.
+            ephemerides queries, TDB for element and vector queries.
             If no epochs are provided, the current time is used.
         id_type : str, optional
             Identifier type, options:
