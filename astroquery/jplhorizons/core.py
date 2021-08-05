@@ -41,47 +41,45 @@ class HorizonsClass(BaseQuery):
         Parameters
         ----------
         id : str, required
-            Name, number, or designation of the object to be queried
+            Name, number, or designation of the object to be queried.
         location : str or dict, optional
-            Observer's location for ephemerides queries or center body
-            name for orbital element or vector queries. Uses the same
-            codes as JPL Horizons. If no location is provided, Earth's
-            center is used for ephemerides queries and the Sun's
-            center for elements and vectors queries. Arbitrary topocentic
-            coordinates for ephemerides queries can be provided in the
-            format of a dictionary. The
-            dictionary has to be of the form {``'lon'``: longitude in
-            deg (East positive, West negative), ``'lat'``: latitude in
-            deg (North positive, South negative), ``'elevation'``:
-            elevation in km above the reference ellipsoid, [``'body'``:
-            Horizons body ID of the central body; optional; if this value
-            is not provided it is assumed that this location is on Earth]}.
+            Observer's location for ephemerides queries or center body name for
+            orbital element or vector queries. Uses the same codes as JPL
+            Horizons. If no location is provided, Earth's center is used for
+            ephemerides queries and the Sun's center for elements and vectors
+            queries. Arbitrary topocentic coordinates for ephemerides queries
+            can be provided in the format of a dictionary. The dictionary has to
+            be of the form {``'lon'``: longitude in deg (East positive, West
+            negative), ``'lat'``: latitude in deg (North positive, South
+            negative), ``'elevation'``: elevation in km above the reference
+            ellipsoid, [``'body'``: Horizons body ID of the central body;
+            optional; if this value is not provided it is assumed that this
+            location is on Earth]}.
         epochs : scalar, list-like, or dictionary, optional
-            Either a list of epochs in JD or MJD format or a dictionary
-            defining a range of times and dates; the range dictionary has to
-            be of the form {``'start'``:'YYYY-MM-DD [HH:MM:SS]',
-            ``'stop'``:'YYYY-MM-DD [HH:MM:SS]', ``'step'``:'n[y|d|m|s]'}.
-            Epoch timescales depend on the type of query performed: UTC for
-            ephemerides queries, TDB for element queries, CT for vector queries.
-            If no epochs are provided, the current time is used.
+            Either a list of epochs in JD or MJD format or a dictionary defining
+            a range of times and dates; the range dictionary has to be of the
+            form {``'start'``: 'YYYY-MM-DD [HH:MM:SS]', ``'stop'``: 'YYYY-MM-DD
+            [HH:MM:SS]', ``'step'``: 'n[y|d|m|s]'}. Epoch timescales depend on
+            the type of query performed: UTC for ephemerides queries, TDB for
+            element and vector queries. If no epochs are provided, the current
+            time is used.
         id_type : str, optional
-            Identifier type, options:
-            ``'smallbody'``, ``'majorbody'`` (planets but also
-            anything that is not a small body), ``'designation'``,
-            ``'name'``, ``'asteroid_name'``, ``'comet_name'``,
-            ``'id'`` (Horizons id number), or ``'smallbody'`` (find the
-            closest match under any id_type), default: ``'smallbody'``
+            Identifier type, options: ``'smallbody'``, ``'majorbody'`` (planets
+            but also anything that is not a small body), ``'designation'``,
+            ``'name'``, ``'asteroid_name'``, ``'comet_name'``, ``'id'``
+            (Horizons id number), or ``'smallbody'`` (find the closest match
+            under any id_type), default: ``'smallbody'``
 
 
         Examples
         --------
-            >>> from astroquery.jplhorizons import Horizons
-            >>> eros = Horizons(id='433', location='568',
-            ...              epochs={'start':'2017-01-01',
-            ...                      'stop':'2017-02-01',
-            ...                      'step':'1d'})
-            >>> print(eros)  # doctest: +SKIP
-            JPLHorizons instance "433"; location=568, epochs={'start': '2017-01-01', 'step': '1d', 'stop': '2017-02-01'}, id_type=smallbody
+        >>> from astroquery.jplhorizons import Horizons
+        >>> eros = Horizons(id='433', location='568',
+        ...              epochs={'start':'2017-01-01',
+        ...                      'stop':'2017-02-01',
+        ...                      'step':'1d'})
+        >>> print(eros)  # doctest: +SKIP
+        JPLHorizons instance "433"; location=568, epochs={'start': '2017-01-01', 'step': '1d', 'stop': '2017-02-01'}, id_type=smallbody
         """
         super(HorizonsClass, self).__init__()
         self.id = id
@@ -124,13 +122,13 @@ class HorizonsClass(BaseQuery):
 
         Examples
         --------
-            >>> from astroquery.jplhorizons import Horizons
-            >>> eros = Horizons(id='433', location='568',
-            ...                 epochs={'start':'2017-01-01',
-            ...                         'stop':'2017-02-01',
-            ...                         'step':'1d'})
-            >>> print(eros)  # doctest: +SKIP
-            JPLHorizons instance "433"; location=568, epochs={'start': '2017-01-01', 'step': '1d', 'stop': '2017-02-01'}, id_type=smallbody
+        >>> from astroquery.jplhorizons import Horizons
+        >>> eros = Horizons(id='433', location='568',
+        ...                 epochs={'start':'2017-01-01',
+        ...                         'stop':'2017-02-01',
+        ...                         'step':'1d'})
+        >>> print(eros)  # doctest: +SKIP
+        JPLHorizons instance "433"; location=568, epochs={'start': '2017-01-01', 'step': '1d', 'stop': '2017-02-01'}, id_type=smallbody
         """
         return ('JPLHorizons instance \"{:s}\"; location={:s}, '
                 'epochs={:s}, id_type={:s}').format(
@@ -153,15 +151,15 @@ class HorizonsClass(BaseQuery):
                           get_raw_response=False, cache=True,
                           extra_precision=False):
         """
-        Query JPL Horizons for ephemerides. The ``location`` parameter
-        in ``HorizonsClass`` refers in this case to the location of
-        the observer.
+        Query JPL Horizons for ephemerides.
 
-        The following tables list the values queried, their
-        definitions, data types, units, and original Horizons
-        designations (where available). For more information on the
-        definitions of these quantities, please refer to the `Horizons
-        User Manual <https://ssd.jpl.nasa.gov/?horizons_doc>`_.
+        The ``location`` parameter in ``HorizonsClass`` refers in this case to
+        the location of the observer.
+
+        The following tables list the values queried, their definitions, data
+        types, units, and original Horizons designations (where available). For
+        more information on the definitions of these quantities, please refer to
+        the `Horizons User Manual <https://ssd.jpl.nasa.gov/?horizons_doc>`_.
 
 
 
@@ -417,40 +415,37 @@ class HorizonsClass(BaseQuery):
         max_hour_angle : float, optional
             Defines a maximum hour angle for the query, default: 0
         rate_cutoff : float, optional
-            Angular range rate upper limit cutoff in arcsec/h; default:
-            disabled
+            Angular range rate upper limit cutoff in arcsec/h; default: disabled
         skip_daylight : boolean, optional
             Crop daylight epochs in query, default: False
         refraction : boolean
-            If `True`, coordinates account for a standard atmosphere
-            refraction model; if `False`, coordinates do not account for
-            refraction (airless model); default: `False`
+            If ``True``, coordinates account for a standard atmosphere
+            refraction model; if ``False``, coordinates do not account for
+            refraction (airless model); default: ``False``
         refsystem : string
-            Coordinate reference system: ``'J2000'`` or ``'B1950'``;
-            default: ``'J2000'``
+            Coordinate reference system: ``'J2000'`` or ``'B1950'``; default:
+            ``'J2000'``
         closest_apparition : boolean, optional
-            Only applies to comets. This option will choose the
-            closest apparition available in time to the selected
-            epoch; default: False. Do not use this option for
-            non-cometary objects.
+            Only applies to comets. This option will choose the closest
+            apparition available in time to the selected epoch; default: False.
+            Do not use this option for non-cometary objects.
         no_fragments : boolean, optional
-            Only applies to comets. Reject all comet fragments from
-            selection; default: False. Do not use this option for
+            Only applies to comets. Reject all comet fragments from selection;
+            default: False. Do not use this option for
             non-cometary objects.
         quantities : integer or string, optional
             Single integer or comma-separated list in the form of a string
-            corresponding to all the
-            quantities to be queried from JPL Horizons using the coding
-            according to the `JPL Horizons User Manual Definition of
-            Observer Table Quantities
+            corresponding to all the quantities to be queried from JPL Horizons
+            using the coding according to the `JPL Horizons User Manual
+            Definition of Observer Table Quantities
             <https://ssd.jpl.nasa.gov/?horizons_doc#table_quantities>`_;
             default: all quantities
         get_query_payload : boolean, optional
-            When set to `True` the method returns the HTTP request
-            parameters as a dict, default: False
+            When set to `True` the method returns the HTTP request parameters as
+            a dict, default: False
         get_raw_response : boolean, optional
-            Return raw data as obtained by JPL Horizons without parsing the
-            data into a table, default: False
+            Return raw data as obtained by JPL Horizons without parsing the data
+            into a table, default: False
         extra_precision : boolean, optional
             Enables extra precision in RA and DEC values; default: False
 
@@ -463,32 +458,22 @@ class HorizonsClass(BaseQuery):
 
         Examples
         --------
-            >>> from astroquery.jplhorizons import Horizons
-            >>> obj = Horizons(id='Ceres', location='568',
-            ...             epochs={'start':'2010-01-01',
-            ...                     'stop':'2010-03-01',
-            ...                     'step':'10d'})
-            >>> eph = obj.ephemerides()  # doctest: +SKIP
-            >>> print(eph)  # doctest: +SKIP
-            targetname    datetime_str   datetime_jd ...   GlxLat  RA_3sigma
-            DEC_3sigma
-               ---            ---             d      ...    deg      arcsec
-            arcsec
-            ---------- ----------------- ----------- ... --------- ---------
-            ----------
-               1 Ceres 2010-Jan-01 00:00   2455197.5 ... 24.120057       0.0
-            0.0
-               1 Ceres 2010-Jan-11 00:00   2455207.5 ... 20.621496       0.0
-            0.0
-               1 Ceres 2010-Jan-21 00:00   2455217.5 ... 17.229529       0.0
-            0.0
-               1 Ceres 2010-Jan-31 00:00   2455227.5 ...  13.97264       0.0
-            0.0
-               1 Ceres 2010-Feb-10 00:00   2455237.5 ... 10.877201       0.0
-            0.0
-               1 Ceres 2010-Feb-20 00:00   2455247.5 ...  7.976737       0.0
-            0.0
-
+        >>> from astroquery.jplhorizons import Horizons
+        >>> obj = Horizons(id='Ceres', location='568',
+        ...             epochs={'start':'2010-01-01',
+        ...                     'stop':'2010-03-01',
+        ...                     'step':'10d'})
+        >>> eph = obj.ephemerides()  # doctest: +SKIP
+        >>> print(eph)  # doctest: +SKIP
+            targetname       datetime_str   datetime_jd ...  PABLon  PABLat
+               ---               ---             d      ...   deg     deg
+        ----------------- ----------------- ----------- ... -------- ------
+        1 Ceres (A801 AA) 2010-Jan-01 00:00   2455197.5 ... 238.2494 4.5532
+        1 Ceres (A801 AA) 2010-Jan-11 00:00   2455207.5 ... 241.3339 4.2832
+        1 Ceres (A801 AA) 2010-Jan-21 00:00   2455217.5 ... 244.3394 4.0089
+        1 Ceres (A801 AA) 2010-Jan-31 00:00   2455227.5 ... 247.2518 3.7289
+        1 Ceres (A801 AA) 2010-Feb-10 00:00   2455237.5 ... 250.0576 3.4415
+        1 Ceres (A801 AA) 2010-Feb-20 00:00   2455247.5 ... 252.7383 3.1451
         """
 
         URL = conf.horizons_server
@@ -615,15 +600,15 @@ class HorizonsClass(BaseQuery):
                        closest_apparition=False, no_fragments=False,
                        get_raw_response=False, cache=True):
         """
-        Query JPL Horizons for osculating orbital elements. The ``location``
-        parameter in ``HorizonsClass`` refers in this case to the  center
-        body relative to which the elements are provided.
+        Query JPL Horizons for osculating orbital elements.
 
-        The following table lists the values queried, their
-        definitions, data types, units, and original Horizons
-        designations (where available). For more information on the
-        definitions of these quantities, please refer to the `Horizons
-        User Manual <https://ssd.jpl.nasa.gov/?horizons_doc>`_.
+        The ``location`` parameter in ``HorizonsClass`` refers in this case to
+        the center body relative to which the elements are provided.
+
+        The following table lists the values queried, their definitions, data
+        types, units, and original Horizons designations (where available). For
+        more information on the definitions of these quantities, please refer to
+        the `Horizons User Manual <https://ssd.jpl.nasa.gov/?horizons_doc>`_.
 
         +------------------+-----------------------------------------------+
         | Column Name      | Definition                                    |
@@ -677,32 +662,29 @@ class HorizonsClass(BaseQuery):
         Parameters
         ----------
         refsystem : string
-            Element reference system for geometric and astrometric
-            quantities: ``'J2000'`` or ``'B1950'``; default: ``'J2000'``
+            Element reference system for geometric and astrometric quantities:
+            ``'J2000'`` or ``'B1950'``; default: ``'J2000'``
         refplane : string
-            Reference plane for all output quantities: ``'ecliptic'``
-            (ecliptic and mean equinox of reference epoch), ``'earth'``
-            (Earth mean equator and equinox of reference epoch), or
-            ``'body'`` (body mean equator and node of date); default:
-            ``'ecliptic'``
+            Reference plane for all output quantities: ``'ecliptic'`` (ecliptic
+            and mean equinox of reference epoch), ``'earth'`` (Earth mean
+            equator and equinox of reference epoch), or ``'body'`` (body mean
+            equator and node of date); default: ``'ecliptic'``
         tp_type : string
             Representation for time-of-perihelion passage: ``'absolute'`` or
             ``'relative'`` (to epoch); default: ``'absolute'``
         closest_apparition : boolean, optional
-            Only applies to comets. This option will choose the
-            closest apparition available in time to the selected
-            epoch; default: False. Do not use this option for
-            non-cometary objects.
+            Only applies to comets. This option will choose the closest
+            apparition available in time to the selected epoch; default: False.
+            Do not use this option for non-cometary objects.
         no_fragments : boolean, optional
-            Only applies to comets. Reject all comet fragments from
-            selection; default: False. Do not use this option for
-            non-cometary objects.
+            Only applies to comets. Reject all comet fragments from selection;
+            default: False. Do not use this option for non-cometary objects.
         get_query_payload : boolean, optional
-            When set to ``True`` the method returns the HTTP request
-            parameters as a dict, default: False
+            When set to ``True`` the method returns the HTTP request parameters
+            as a dict, default: False
         get_raw_response: boolean, optional
-            Return raw data as obtained by JPL Horizons without parsing the
-            data into a table, default: False
+            Return raw data as obtained by JPL Horizons without parsing the data
+            into a table, default: False
 
 
         Returns
@@ -825,15 +807,15 @@ class HorizonsClass(BaseQuery):
                       refplane='ecliptic', aberrations='geometric',
                       delta_T=False,):
         """
-        Query JPL Horizons for state vectors. The ``location``
-        parameter in ``HorizonsClass`` refers in this case to the center
-        body relative to which the vectors are provided.
+        Query JPL Horizons for state vectors.
 
-        The following table lists the values queried, their
-        definitions, data types, units, and original Horizons
-        designations (where available). For more information on the
-        definitions of these quantities, please refer to the `Horizons
-        User Manual <https://ssd.jpl.nasa.gov/?horizons_doc>`_.
+        The ``location`` parameter in ``HorizonsClass`` refers in this case to
+        the center body relative to which the vectors are provided.
+
+        The following table lists the values queried, their definitions, data
+        types, units, and original Horizons designations (where available). For
+        more information on the definitions of these quantities, please refer to
+        the `Horizons User Manual <https://ssd.jpl.nasa.gov/?horizons_doc>`_.
 
         +------------------+-----------------------------------------------+
         | Column Name      | Definition                                    |
@@ -891,26 +873,23 @@ class HorizonsClass(BaseQuery):
         Parameters
         ----------
         closest_apparition : boolean, optional
-            Only applies to comets. This option will choose the
-            closest apparition available in time to the selected
-            epoch; default: False. Do not use this option for
-            non-cometary objects.
+            Only applies to comets. This option will choose the closest
+            apparition available in time to the selected epoch; default: False.
+            Do not use this option for non-cometary objects.
         no_fragments : boolean, optional
-            Only applies to comets. Reject all comet fragments from
-            selection; default: False. Do not use this option for
-            non-cometary objects.
+            Only applies to comets. Reject all comet fragments from selection;
+            default: False. Do not use this option for non-cometary objects.
         get_query_payload : boolean, optional
-            When set to `True` the method returns the HTTP request
-            parameters as a dict, default: False
+            When set to `True` the method returns the HTTP request parameters as
+            a dict, default: False
         get_raw_response: boolean, optional
-            Return raw data as obtained by JPL Horizons without parsing the
-            data into a table, default: False
+            Return raw data as obtained by JPL Horizons without parsing the data
+            into a table, default: False
         refplane : string
-            Reference plane for all output quantities: ``'ecliptic'``
-            (ecliptic and mean equinox of reference epoch), ``'earth'``
-            (Earth mean equator and equinox of reference epoch), or
-            ``'body'`` (body mean equator and node of date); default:
-            ``'ecliptic'``
+            Reference plane for all output quantities: ``'ecliptic'`` (ecliptic
+            and mean equinox of reference epoch), ``'earth'`` (Earth mean
+            equator and equinox of reference epoch), or ``'body'`` (body mean
+            equator and node of date); default: ``'ecliptic'``
         aberrations : string, optional
             Aberrations to be accounted for: [``'geometric'``,
             ``'astrometric'``, ``'apparent'``]. Default: ``'geometric'``
