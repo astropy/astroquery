@@ -1,12 +1,12 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-
 import re
+from io import BytesIO
 from collections import namedtuple
 from xml.dom.minidom import parseString
+
 from datetime import datetime
 
-import six
 import astropy.units as u
 import astropy.coordinates as coord
 import astropy.io.votable as votable
@@ -680,7 +680,7 @@ class NedClass(BaseQuery):
         if not verbose:
             commons.suppress_vo_warnings()
         try:
-            tf = six.BytesIO(response.content)
+            tf = BytesIO(response.content)
             first_table = votable.parse(tf, pedantic=False).get_first_table()
             table = first_table.to_table(use_names_over_ids=True)
             return table
