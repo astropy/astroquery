@@ -173,3 +173,8 @@ def test_spatial_valdi(spatial, result):
 def test_spatial_invalid(spatial):
     with pytest.raises(ValueError):
         Irsa._parse_spatial(spatial, coordinates='m31')
+
+
+def test_deprecated_namespace_import_warning():
+    with pytest.warns(DeprecationWarning):
+        import astroquery.irsa

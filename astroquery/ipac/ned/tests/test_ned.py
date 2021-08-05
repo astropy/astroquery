@@ -276,3 +276,8 @@ def test_parse_result(capsys):
         assert exinfo.value.args == ("The remote service returned the "
                                      "following error message.\nERROR:  "
                                      "No note found.",)
+
+
+def test_deprecated_namespace_import_warning():
+    with pytest.warns(DeprecationWarning):
+        import astroquery.ned

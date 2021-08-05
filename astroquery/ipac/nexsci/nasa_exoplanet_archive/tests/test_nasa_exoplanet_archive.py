@@ -295,3 +295,8 @@ def test_get_tap_tables():
     result = nasa_exoplanet_archive.get_tap_tables()
     assert 'ps' in result
     assert 'pscomppars' in result
+
+
+def test_deprecated_namespace_import_warning():
+    with pytest.warns(DeprecationWarning):
+        import astroquery.nasa_exoplanet_archive
