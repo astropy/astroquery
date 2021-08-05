@@ -8,8 +8,8 @@ import astropy.units as u
 from astropy.coordinates import SkyCoord
 
 from astropy.tests.helper import assert_quantity_allclose
-from ...exceptions import InputWarning, InvalidQueryError, NoResultsWarning
-from ..core import InvalidTableError, NasaExoplanetArchive
+from astroquery.exceptions import InputWarning, InvalidQueryError, NoResultsWarning
+from astroquery.ipac.nexsci.nasa_exoplanet_archive.core import InvalidTableError, NasaExoplanetArchive
 
 
 @pytest.mark.remote_data

@@ -12,15 +12,15 @@ import requests
 from astropy.coordinates import SkyCoord
 from astropy.utils.exceptions import AstropyDeprecationWarning
 
-from ...exceptions import NoResultsWarning
-from ...utils.testing_tools import MockResponse
-from ..core import NasaExoplanetArchiveClass, conf, InvalidTableError
+from astroquery.exceptions import NoResultsWarning
+from astroquery.utils.testing_tools import MockResponse
+from astroquery.ipac.nexsci.nasa_exoplanet_archive.core import NasaExoplanetArchiveClass, conf, InvalidTableError
 try:
     from unittest.mock import Mock, patch, PropertyMock
 except ImportError:
     pytest.skip("Install mock for the nasa_exoplanet_archive tests.", allow_module_level=True)
 
-MAIN_DATA = pkg_resources.resource_filename("astroquery.nasa_exoplanet_archive", "data")
+MAIN_DATA = pkg_resources.resource_filename("astroquery.ipac.nexsci.nasa_exoplanet_archive", "data")
 TEST_DATA = pkg_resources.resource_filename(__name__, "data")
 RESPONSE_FILE = os.path.join(TEST_DATA, "responses.json")
 
@@ -185,7 +185,7 @@ def test_api_tables(patch_get, table, query):
 
 
 # Mock tests on TAP service below
-@patch('astroquery.nasa_exoplanet_archive.core.get_access_url',
+@patch('astroquery.ipac.nexsci.nasa_exoplanet_archive.core.get_access_url',
        Mock(side_effect=lambda x: 'https://some.url'))
 def test_query_object():
     nasa_exoplanet_archive = NasaExoplanetArchiveClass()
@@ -207,7 +207,7 @@ def test_query_object():
     assert response['dec'] == [7.5878315] * u.deg
 
 
-@patch('astroquery.nasa_exoplanet_archive.core.get_access_url',
+@patch('astroquery.ipac.nexsci.nasa_exoplanet_archive.core.get_access_url',
        Mock(side_effect=lambda x: 'https://some.url'))
 def test_query_region():
     nasa_exoplanet_archive = NasaExoplanetArchiveClass()
@@ -224,7 +224,7 @@ def test_query_region():
     assert 'K2-18 b' in response['pl_name']
 
 
-@patch('astroquery.nasa_exoplanet_archive.core.get_access_url',
+@patch('astroquery.ipac.nexsci.nasa_exoplanet_archive.core.get_access_url',
        Mock(side_effect=lambda x: 'https://some.url'))
 def test_query_criteria():
     nasa_exoplanet_archive = NasaExoplanetArchiveClass()
@@ -243,7 +243,7 @@ def test_query_criteria():
     assert response['dec'] == [24.7987499] * u.deg
 
 
-@patch('astroquery.nasa_exoplanet_archive.core.get_access_url',
+@patch('astroquery.ipac.nexsci.nasa_exoplanet_archive.core.get_access_url',
        Mock(side_effect=lambda x: 'https://some.url'))
 def test_get_query_payload():
     nasa_exoplanet_archive = NasaExoplanetArchiveClass()
@@ -263,7 +263,7 @@ def test_get_query_payload():
     assert "disc_facility like '%TESS%'" in response['where']
 
 
-@patch('astroquery.nasa_exoplanet_archive.core.get_access_url',
+@patch('astroquery.ipac.nexsci.nasa_exoplanet_archive.core.get_access_url',
        Mock(side_effect=lambda x: 'https://some.url'))
 def test_select():
     nasa_exoplanet_archive = NasaExoplanetArchiveClass()
@@ -281,7 +281,7 @@ def test_select():
     assert payload["select"] == "hostname,pl_name"
 
 
-@patch('astroquery.nasa_exoplanet_archive.core.get_access_url',
+@patch('astroquery.ipac.nexsci.nasa_exoplanet_archive.core.get_access_url',
        Mock(side_effect=lambda x: 'https://some.url'))
 def test_get_tap_tables():
     nasa_exoplanet_archive = NasaExoplanetArchiveClass()

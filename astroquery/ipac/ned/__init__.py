@@ -29,7 +29,7 @@ from astropy import config as _config
 
 class Conf(_config.ConfigNamespace):
     """
-    Configuration parameters for `astroquery.ned`.
+    Configuration parameters for `astroquery.ipac.ned`.
     """
     server = _config.ConfigItem(
         ['http://ned.ipac.caltech.edu/cgi-bin/'],

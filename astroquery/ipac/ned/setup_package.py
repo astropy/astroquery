@@ -13,6 +13,6 @@ def get_package_data():
                   os.path.join('data', '*.html'),
                   ]
 
-    return {'astroquery.ned': paths_core,
-            'astroquery.ned.tests': paths_test,
+    return {'astroquery.ipac.ned': paths_core,
+            'astroquery.ipac.ned.tests': paths_test,
             }

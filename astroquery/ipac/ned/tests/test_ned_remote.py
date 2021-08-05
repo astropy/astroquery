@@ -4,7 +4,7 @@
 import pytest
 from astropy.table import Table
 
-from ... import ned
+from astroquery.ipac import ned
 
 
 @pytest.mark.remote_data

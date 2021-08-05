@@ -1,6 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-
 import os
 
 from numpy import testing as npt
@@ -8,12 +7,12 @@ import pytest
 from astropy.table import Table
 import astropy.coordinates as coord
 import astropy.units as u
-from ...exceptions import RemoteServiceError
-from ...utils.testing_tools import MockResponse
+from astroquery.exceptions import RemoteServiceError
+from astroquery.utils.testing_tools import MockResponse
 
-from ... import ned
-from ...utils import commons
-from ...ned import conf
+from astroquery.ipac import ned
+from astroquery.utils import commons
+from astroquery.ipac.ned import conf
 
 DATA_FILES = {
     'object': 'query_object.xml',

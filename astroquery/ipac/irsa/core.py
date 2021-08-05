@@ -109,7 +109,7 @@ import astropy.io.votable as votable
 
 from astroquery.query import BaseQuery
 from astroquery.utils import commons, async_to_sync
-from astroquery.irsa import conf
+from astroquery.ipac.irsa import conf
 from astroquery.exceptions import TableParseError, NoResultsWarning, InvalidQueryError
 
 
@@ -129,7 +129,7 @@ class IrsaClass(BaseQuery):
                            selcols=None, verbose=False, cache=True):
         """
         This function serves the same purpose as
-        :meth:`~astroquery.irsa.IrsaClass.query_region`, but returns the raw
+        :meth:`~astroquery.ipac.irsa.IrsaClass.query_region`, but returns the raw
         HTTP response rather than the results in a `~astropy.table.Table`.
 
         Parameters
@@ -144,7 +144,7 @@ class IrsaClass(BaseQuery):
             if spatial is ``'Polygon'``.
         catalog : str
             The catalog to be used. To list the available catalogs, use
-            :meth:`~astroquery.irsa.IrsaClass.print_catalogs`.
+            :meth:`~astroquery.ipac.irsa.IrsaClass.print_catalogs`.
         spatial : str
             Type of spatial query: ``'Cone'``, ``'Box'``, ``'Polygon'``, and
             ``'All-Sky'``. If missing then defaults to ``'Cone'``.

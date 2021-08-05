@@ -11,10 +11,10 @@ import astropy.units as u
 import astropy.coordinates as coord
 import astropy.io.votable as votable
 
-from ..query import BaseQuery
-from ..utils import commons
-from . import conf
-from ..exceptions import TableParseError, RemoteServiceError
+from astroquery.query import BaseQuery
+from astroquery.utils import commons
+from astroquery.ipac.ned import conf
+from astroquery.exceptions import TableParseError, RemoteServiceError
 
 __all__ = ["Ned", "NedClass"]
 

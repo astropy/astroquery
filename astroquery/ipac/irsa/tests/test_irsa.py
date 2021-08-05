@@ -2,7 +2,6 @@
 
 import os
 import re
-import requests
 import numpy as np
 
 import pytest
@@ -12,8 +11,8 @@ import astropy.units as u
 
 from astroquery.utils.testing_tools import MockResponse
 from astroquery.utils import commons
-from astroquery.irsa import Irsa, conf
-from astroquery import irsa
+from astroquery.ipac.irsa import Irsa, conf
+from astroquery.ipac import irsa
 
 DATA_FILES = {'Cone': 'Cone.xml',
               'Box': 'Box.xml',

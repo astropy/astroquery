@@ -6,7 +6,7 @@ import astropy.units as u
 from astropy.table import Table
 from astropy.coordinates import SkyCoord
 
-from astroquery.irsa import Irsa
+from astroquery.ipac.irsa import Irsa
 
 
 OBJ_LIST = ["m31", "00h42m44.330s +41d16m07.50s",

@@ -12,7 +12,7 @@ from astropy import config as _config
 
 class Conf(_config.ConfigNamespace):
     """
-    Configuration parameters for `astroquery.nasa_exoplanet_archive`.
+    Configuration parameters for `astroquery.ipac.nexsci.nasa_exoplanet_archive`.
     """
 
     url_api = _config.ConfigItem(

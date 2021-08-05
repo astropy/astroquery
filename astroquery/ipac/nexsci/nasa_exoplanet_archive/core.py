@@ -19,17 +19,17 @@ from astropy.utils import deprecated, deprecated_renamed_argument
 from astropy.utils.exceptions import AstropyWarning
 
 # Import astroquery utilities
-from ..exceptions import (InputWarning, InvalidQueryError, NoResultsWarning,
+from astroquery.exceptions import (InputWarning, InvalidQueryError, NoResultsWarning,
                           RemoteServiceError)
-from ..query import BaseQuery
-from ..utils import async_to_sync, commons
-from ..utils.class_or_instance import class_or_instance
-from . import conf
+from astroquery.query import BaseQuery
+from astroquery.utils import async_to_sync, commons
+from astroquery.utils.class_or_instance import class_or_instance
+from astroquery.ipac.nexsci.nasa_exoplanet_archive import conf
 
 # Import TAP client
 import pyvo
 
-# Objects exported when calling from astroquery.nasa_exoplanet_archive import *
+# Objects exported when calling from astroquery.ipac.nexsci.nasa_exoplanet_archive import *
 __all__ = ["NasaExoplanetArchive", "NasaExoplanetArchiveClass"]
 
 # Dictionary mapping unit strings to astropy units
