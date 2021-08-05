@@ -41,6 +41,7 @@ def test_missing_criterion_kepler():
     NasaExoplanetArchive.query_criteria("keplertimeseries", kepid=8561063, quarter=14)
 
 
+@pytest.mark.skip('TMP skip, server stuck with query')
 @pytest.mark.remote_data
 def test_missing_criterion_kelt():
     with pytest.raises(InvalidQueryError) as error:
@@ -51,6 +52,7 @@ def test_missing_criterion_kelt():
     )
 
 
+@pytest.mark.skip('TMP skip, server stuck with query')
 @pytest.mark.remote_data
 def test_missing_criterion_super_wasp():
     with pytest.raises(InvalidQueryError) as error:
