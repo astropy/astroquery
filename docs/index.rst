@@ -150,10 +150,13 @@ For additional guidance and examples, read the documentation for the individual 
 Default configuration file
 --------------------------
 
-To customize this, copy it to your ``$HOME/.astropy/config/astroquery.cfg``,
+To customize this, copy the default configuration to ``$HOME/.astropy/config/astroquery.cfg``,
 uncomment the relevant configuration item(s), and insert your desired value(s).
 
-.. generate_config:: astroquery
+.. toctree::
+  :maxdepth: 1
+
+  configuration
 
 Available Services
 ==================
