@@ -23,7 +23,7 @@ You can get interactive help to find out what keywords to query for:
 
 .. code-block:: python
     >>> from astroquery.alma import Alma
-    >>> Alma.help()
+    >>> Alma.help() # doctest: +IGNORE_OUTPUT
     <BLANKLINE>
     Most common ALMA query keywords are listed below. These keywords are part of the ALMA ObsCore model, an IVOA standard for metadata representation (3rd column). They were also present in original ALMA Web form and, for backwards compatibility can be accessed with their old names (2nd column).
     More elaborate queries on the ObsCore model are possible with `query_sia` or `query_tap` methods
@@ -280,7 +280,7 @@ new ```get_data_info``` method can be used instead to get information about
 the data such as the files, their urls, sizes etc:
 
 .. code-block:: python
-
+.. doctest-remote-data::
    >>> link_list = Alma.get_data_info(uids)
    >>> link_list['content_length'].sum()
    538298369462
