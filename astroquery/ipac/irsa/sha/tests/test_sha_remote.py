@@ -2,7 +2,7 @@ import pytest
 
 from astropy.table import Table
 
-from astroquery import sha
+from astroquery.ipac.irsa import sha
 from astroquery.exceptions import NoResultsWarning
 
 

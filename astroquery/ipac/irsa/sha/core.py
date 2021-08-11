@@ -5,9 +5,11 @@ import io
 import requests
 import warnings
 import numpy as np
+
 from astropy.table import Table
 import astropy.io.fits as fits
-from ..exceptions import NoResultsWarning
+
+from astroquery.exceptions import NoResultsWarning
 
 __all__ = ['query', 'save_file', 'get_file']
 id_parse = re.compile(r'ID\=(\d+)')

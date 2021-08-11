@@ -8,4 +8,4 @@ def get_package_data():
     paths = [os.path.join('data', '*.html'),
              os.path.join('data', '*.txt'),
              ]
-    return {'astroquery.ibe.tests': paths}
+    return {'astroquery.ipac.irsa.ibe.tests': paths}

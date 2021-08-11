@@ -1,9 +1,10 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from ... import sha
-from ...utils.testing_tools import MockResponse
 import os
 import pytest
 import requests
+
+from astroquery.ipac.irsa import sha
+from astroquery.utils.testing_tools import MockResponse
 
 DATA_FILES = {'img': 'img.fits',
               'nid_t': 'nid_t.txt',

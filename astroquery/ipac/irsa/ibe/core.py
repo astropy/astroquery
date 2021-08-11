@@ -15,12 +15,11 @@ from bs4 import BeautifulSoup
 
 import astropy.coordinates as coord
 from astropy.table import Table
-import six
 
-from ..exceptions import InvalidQueryError
-from ..query import BaseQuery
-from ..utils import commons
-from . import conf
+from astroquery.exceptions import InvalidQueryError
+from astroquery.query import BaseQuery
+from astroquery.utils import commons
+from astroquery.ipac.irsa.ibe import conf
 
 __all__ = ['Ibe', 'IbeClass']
 
@@ -32,10 +31,9 @@ class IbeClass(BaseQuery):
     TABLE = conf.table
     TIMEOUT = conf.timeout
 
-    def query_region(
-            self, coordinate=None, where=None, mission=None, dataset=None,
-            table=None, columns=None, width=None, height=None,
-            intersect='OVERLAPS', most_centered=False):
+    def query_region(self, coordinate=None, where=None, mission=None, dataset=None,
+                     table=None, columns=None, width=None, height=None,
+                     intersect='OVERLAPS', most_centered=False):
         """
         For certain missions, this function can be used to search for image and
         catalog files based on a point, a box (bounded by great circles) and/or
@@ -129,11 +127,9 @@ class IbeClass(BaseQuery):
         return commons.parse_votable(
             response.text).get_first_table().to_table()
 
-    def query_region_async(
-            self, coordinate=None, where=None, mission=None, dataset=None,
-            table=None, columns=None, width=None, height=None,
-            action='search',
-            intersect='OVERLAPS', most_centered=False):
+    def query_region_async(self, coordinate=None, where=None, mission=None, dataset=None,
+                           table=None, columns=None, width=None, height=None,
+                           action='search', intersect='OVERLAPS', most_centered=False):
         """
         For certain missions, this function can be used to search for image and
         catalog files based on a point, a box (bounded by great circles) and/or
@@ -243,7 +239,7 @@ class IbeClass(BaseQuery):
             args['where'] = where
 
         if columns:
-            if isinstance(columns, six.string_types):
+            if isinstance(columns, str):
                 columns = columns.split()
             args['columns'] = ','.join(columns)
 

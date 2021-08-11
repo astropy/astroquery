@@ -8,8 +8,8 @@ from astropy.table import Table
 from astropy.coordinates import SkyCoord
 import astropy.units as u
 
-from ...utils.testing_tools import MockResponse
-from ...ibe import Ibe
+from astroquery.utils.testing_tools import MockResponse
+from astroquery.ipac.irsa.ibe import Ibe
 
 DATA_FILES = {
     ('https://irsa.ipac.caltech.edu/ibe/search/', None): 'missions.html',

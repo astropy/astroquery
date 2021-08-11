@@ -4,7 +4,7 @@ from astropy.coordinates import SkyCoord
 import astropy.units as u
 from astropy.table import Table
 
-from ... import ibe
+from astroquery.ipac.irsa import ibe
 
 # Some very basic remote tests based on examples from
 # http://www.ptf.caltech.edu/system/media_files/binaries/5/original/ptf_irsaibeguide.pdf
