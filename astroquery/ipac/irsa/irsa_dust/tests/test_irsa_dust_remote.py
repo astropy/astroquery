@@ -6,7 +6,7 @@ import requests
 from astropy.table import Table
 import astropy.units as u
 
-from ... import irsa_dust
+from astroquery.ipac.irsa import irsa_dust
 
 M31_XML = "dustm31.xml"
 M81_XML = "dustm81.xml"

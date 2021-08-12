@@ -10,4 +10,4 @@ def get_package_data():
              os.path.join('data', '*.tbl'),
              os.path.join('data', '*.txt'),
              ]
-    return {'astroquery.irsa_dust.tests': paths}
+    return {'astroquery.ipac.irsa.irsa_dust.tests': paths}

@@ -2,11 +2,11 @@
 from astropy.table import Table, Column
 import astropy.units as u
 from astropy import coordinates
-import six
-from . import utils
-from . import conf
-from ..utils import commons
-from ..query import BaseQuery
+
+from astroquery.ipac.irsa.irsa_dust import utils
+from astroquery.ipac.irsa.irsa_dust import conf
+from astroquery.utils import commons
+from astroquery.query import BaseQuery
 
 
 # TODO Add support for server url from JSON cache
@@ -331,7 +331,7 @@ class IrsaDustClass(BaseQuery):
         payload : dict
             A dictionary that specifies the data for an HTTP POST request
         """
-        if isinstance(coordinate, six.string_types):
+        if isinstance(coordinate, str):
             try:
                 # If the coordinate is a resolvable name, pass that name
                 # directly to irsa_dust because it can handle it (and that
