@@ -2,6 +2,7 @@
 from ... import splatalogue
 from astropy import units as u
 import numpy as np
+import pytest
 from .test_splatalogue import patch_post
 from .. import utils
 
@@ -31,3 +32,17 @@ def test_minimize(patch_post):
     assert np.all(c['Freq'] > 0)
     assert 'Resolved QNs' not in c.colnames
     assert 'QNs' in c.colnames
+
+@pytest.mark.remote_data
+def test_minimize_issue2135():
+    rslt = splatalogue.Splatalogue.query_lines(100*u.GHz, 200*u.GHz,
+                                               chemical_name=' SiO ',
+                                               energy_max=1840,
+                                               energy_type='eu_k',
+                                               line_lists=['JPL','CDMS','SLAIM'],
+                                               show_upper_degeneracy=True)
+
+    minimized = utils.minimize_table(rslt)
+    
+    theomask = rslt['Freq-GHz(rest frame,redshifted)'].mask
+    np.testing.assert_allclose(minimized['FreqGHz'][theomask], rslt['Meas Freq-GHz(rest frame,redshifted)'])
