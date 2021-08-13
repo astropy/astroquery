@@ -45,4 +45,4 @@ def test_minimize_issue2135():
     minimized = utils.minimize_table(rslt)
     
     theomask = rslt['Freq-GHz(rest frame,redshifted)'].mask
-    np.testing.assert_allclose(minimized['Freq'][theomask], rslt['Meas Freq-GHz(rest frame,redshifted)'])
+    np.testing.assert_allclose(minimized['Freq'][theomask], rslt['Meas Freq-GHz(rest frame,redshifted)'][theomask])
