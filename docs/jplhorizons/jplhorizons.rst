@@ -564,6 +564,47 @@ might be truncated as URIs are typically expected to be shorter than
 is longer than this limit, a warning is given. In that case, please
 try using a range of dates instead of a list of individual dates.
 
+.. _jpl-horizons-reference-frames:
+
+Reference Frames
+----------------
+
+The coordinate reference frame for Horizons output is controlled by the
+``refplane`` and ``refsystem`` keyword arguments.  See the `Horizons
+documentation`_ for details. Some
+output reference frames are included in astropy's `~astropy.coordinates`
+
++----------------+--------------+----------------+----------------+---------------------------------+
+| Method         | ``location`` | ``refplane``   | ``refsystem``  | astropy frame                   |
++================+==============+================+================+=================================+
+| ``.vectors()`` | ``'@0'``     | ``'ecliptic'`` | N/A            | ``'custombarycentricecliptic'`` |
++----------------+--------------+----------------+----------------+---------------------------------+
+| ``.vectors()`` | ``'@0'``     | ``'earth'``    | N/A            | ``'icrs'``                      |
++----------------+--------------+----------------+----------------+---------------------------------+
+| ``.vectors()`` | ``'@10'``    | ``'ecliptic'`` | N/A            | ``'heliocentriceclipticiau76'`` |
++----------------+--------------+----------------+----------------+---------------------------------+
+
+For example, get the barycentric coordinates of Jupiter as an astropy
+`~astropy.coordinates.SkyCoord` object:
+
+.. code-block:: python
+
+   >>> from astropy.coordinates import SkyCoord
+   >>> from astropy.time import Time
+   >>> from astroquery.jplhorizons import Horizons
+   >>> epoch = Time('2021-01-01')
+   >>> q = Horizons('599', id_type='majorbody', location='@0',
+   ...              epochs=epoch.tdb.jd)
+   >>> tab = q.vectors(refplane='earth')
+   >>> c = SkyCoord(tab['x'].quantity, tab['y'].quantity, tab['z'].quantity,
+   ...              representation_type='cartesian', frame='icrs',
+   ...              obstime=epoch)
+   >>> print(c)
+   <SkyCoord (ICRS): (x, y, z) in AU
+       [(3.03483263, -3.72503309, -1.67054586)]>
+
+
+
 
 Acknowledgements
 ================
