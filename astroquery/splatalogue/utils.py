@@ -59,14 +59,14 @@ def merge_frequencies(table, prefer='measured',
         if hasattr(table[meas_kwd], 'mask'):
             measmask = np.logical_not(table[meas_kwd].mask)
         else:
-            measmask = slice(None) # equivalent to [:] - all data are good
+            measmask = slice(None)  # equivalent to [:] - all data are good
         Freq[measmask] = table[meas_kwd][measmask].astype('float')
     elif prefer == 'theoretical':
         Freq = np.copy(table[meas_kwd]).astype('float')
         if hasattr(table[theor_kwd], 'mask'):
             theomask = np.logical_not(table[theor_kwd].mask)
         else:
-            theomask = slice(None) # equivalent to [:] - all data are good
+            theomask = slice(None)  # equivalent to [:] - all data are good
         Freq[theomask] = table[theor_kwd][theomask].astype('float')
     else:
         raise ValueError('prefer must be one of "measured" or "theoretical"')
