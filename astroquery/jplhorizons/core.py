@@ -889,7 +889,10 @@ class HorizonsClass(BaseQuery):
             Reference plane for all output quantities: ``'ecliptic'`` (ecliptic
             and mean equinox of reference epoch), ``'earth'`` (Earth mean
             equator and equinox of reference epoch), or ``'body'`` (body mean
-            equator and node of date); default: ``'ecliptic'``
+            equator and node of date); default: ``'ecliptic'``.
+            
+            See :ref:`Horizons Reference Frames <jpl-horizons-reference-frames>`
+            in the astroquery documentation for details.
         aberrations : string, optional
             Aberrations to be accounted for: [``'geometric'``,
             ``'astrometric'``, ``'apparent'``]. Default: ``'geometric'``
