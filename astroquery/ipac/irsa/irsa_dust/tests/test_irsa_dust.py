@@ -374,3 +374,8 @@ class TestDust(DustTestCase):
         image_node = results_node.find("./data/image")
         image_url = text
         image_node.text = image_url
+
+
+def test_deprecated_namespace_import_warning():
+    with pytest.warns(DeprecationWarning):
+        import astroquery.irsa_dust

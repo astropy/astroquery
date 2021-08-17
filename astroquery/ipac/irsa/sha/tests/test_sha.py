@@ -75,3 +75,8 @@ def test_get_file(patch_get):
     # sha.save_file(table_url)
     # sha.save_file(image_url)
     img = sha.get_file(image_url)
+
+
+def test_deprecated_namespace_import_warning():
+    with pytest.warns(DeprecationWarning):
+        import astroquery.sha
