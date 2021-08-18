@@ -1,8 +1,8 @@
-.. _astroquery.nasa_exoplanet_archive:
+.. _astroquery.ipac.nexsci.nasa_exoplanet_archive:
 
-************************************************************
-NASA Exoplanet Archive (`astroquery.nasa_exoplanet_archive`)
-************************************************************
+************************************************************************
+NASA Exoplanet Archive (`astroquery.ipac.nexsci.nasa_exoplanet_archive`)
+************************************************************************
 
 This module can be used to query the `NASA Exoplanet Archive <https://exoplanetarchive.ipac.caltech.edu>`_ via
 `the TAP service <https://exoplanetarchive.ipac.caltech.edu/docs/TAP/usingTAP.html>`_ or
@@ -21,12 +21,12 @@ and a mapping between the new and deprecated names.
 Query methods
 =============
 
-The `~astroquery.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_object` method can be used to query for a specific planet or planet host.
+The `~astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_object` method can be used to query for a specific planet or planet host.
 For example, the following query searches the ``ps`` table of confirmed exoplanets for information about the planet K2-18 b.
 
 .. doctest-remote-data::
 
-    >>> from astroquery.nasa_exoplanet_archive import NasaExoplanetArchive
+    >>> from astroquery.ipac.nexsci.nasa_exoplanet_archive import NasaExoplanetArchive
     >>> NasaExoplanetArchive.query_object("K2-18 b")
     <QTable masked=True length=11>
     pl_name pl_letter hostname ... sy_kmagerr1 sy_kmagerr2      sky_coord
@@ -46,13 +46,13 @@ For example, the following query searches the ``ps`` table of confirmed exoplane
     K2-18 b         b    K2-18 ...       0.019      -0.019 172.560141,7.5878315
 
 
-Similarly, cone searches can be executed using the `~astroquery.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_region` method:
+Similarly, cone searches can be executed using the `~astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_region` method:
 
 .. doctest-remote-data::
 
     >>> import astropy.units as u
     >>> from astropy.coordinates import SkyCoord
-    >>> from astroquery.nasa_exoplanet_archive import NasaExoplanetArchive
+    >>> from astroquery.ipac.nexsci.nasa_exoplanet_archive import NasaExoplanetArchive
     >>> NasaExoplanetArchive.query_region(
     ...     table="pscomppars", coordinates=SkyCoord(ra=172.56 * u.deg, dec=7.59 * u.deg),
     ...     radius=1.0 * u.deg)
@@ -65,12 +65,12 @@ Similarly, cone searches can be executed using the `~astroquery.nasa_exoplanet_a
     K2-18 c         c    K2-18 ... -244884223 172.560141,7.5878315
 
 
-The most general queries can be performed using the `~astroquery.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_criteria` method.
+The most general queries can be performed using the `~astroquery.ipac.nexsci.nasa_exoplanet_archive.NasaExoplanetArchiveClass.query_criteria` method.
 For example, a full table can be queried as follows:
 
 .. doctest-remote-data::
 
-    >>> from astroquery.nasa_exoplanet_archive import NasaExoplanetArchive
+    >>> from astroquery.ipac.nexsci.nasa_exoplanet_archive import NasaExoplanetArchive
     >>> NasaExoplanetArchive.query_criteria(table="cumulative", select="*")
     <QTable masked=True length=9564>
      kepid   kepoi_name kepler_name  ... koi_fittype koi_score      sky_coord
@@ -97,7 +97,7 @@ In this section, we demonstrate
 
 .. doctest-remote-data::
 
-    >>> from astroquery.nasa_exoplanet_archive import NasaExoplanetArchive
+    >>> from astroquery.ipac.nexsci.nasa_exoplanet_archive import NasaExoplanetArchive
     >>> NasaExoplanetArchive.query_criteria(table="pscomppars", select="count(*)",
     ...                                     where="disc_facility like '%TESS%'")
     <QTable masked=True length=1>
@@ -111,7 +111,7 @@ In this section, we demonstrate
 
 .. doctest-remote-data::
 
-    >>> from astroquery.nasa_exoplanet_archive import NasaExoplanetArchive
+    >>> from astroquery.ipac.nexsci.nasa_exoplanet_archive import NasaExoplanetArchive
     >>> NasaExoplanetArchive.query_criteria(table="pscomppars", select="pl_name,ra,dec",
     ...                                     where="disc_facility like '%TESS%'")
     <QTable masked=True length=131>
@@ -132,7 +132,7 @@ In this section, we demonstrate
 
 .. doctest-remote-data::
 
-    >>> from astroquery.nasa_exoplanet_archive import NasaExoplanetArchive
+    >>> from astroquery.ipac.nexsci.nasa_exoplanet_archive import NasaExoplanetArchive
     >>> NasaExoplanetArchive.query_criteria(
     ...     table="pscomppars", where="discoverymethod like 'Microlensing'")
     <QTable masked=True length=108>
@@ -155,7 +155,7 @@ In this section, we demonstrate
 
 .. doctest-remote-data::
 
-    >>> from astroquery.nasa_exoplanet_archive import NasaExoplanetArchive
+    >>> from astroquery.ipac.nexsci.nasa_exoplanet_archive import NasaExoplanetArchive
     >>> NasaExoplanetArchive.query_criteria(
     ...     table="pscomppars", where="hostname like 'Kepler%'", order="hostname")
     <QTable masked=True length=2369>
@@ -181,7 +181,7 @@ In this section, we demonstrate
 
 .. doctest-remote-data::
 
-    >>> from astroquery.nasa_exoplanet_archive import NasaExoplanetArchive
+    >>> from astroquery.ipac.nexsci.nasa_exoplanet_archive import NasaExoplanetArchive
     >>> NasaExoplanetArchive.query_criteria(
     ...     table="koi", where="koi_vet_date>to_date('2015-01-24','yyyy-mm-dd')",
     ...     select="kepoi_name,koi_vet_date", order="koi_vet_date")
@@ -209,5 +209,5 @@ References
 Reference/API
 =============
 
-.. automodapi:: astroquery.nasa_exoplanet_archive
+.. automodapi:: astroquery.ipac.nexsci.nasa_exoplanet_archive
     :no-inheritance-diagram:

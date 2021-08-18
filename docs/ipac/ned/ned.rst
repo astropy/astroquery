@@ -1,8 +1,9 @@
-.. _astroquery.ned:
+.. _astroquery.ipac.ned:
 
-******************************
-NED Queries (`astroquery.ned`)
-******************************
+
+***********************************
+NED Queries (`astroquery.ipac.ned`)
+***********************************
 
 Getting Started
 ===============
@@ -22,7 +23,7 @@ instance if you want to query NGC 224
 
 .. doctest-remote-data::
 
-    >>> from astroquery.ned import Ned
+    >>> from astroquery.ipac.ned import Ned
     >>> result_table = Ned.query_object("NGC 224")
     >>> print(result_table) # an astropy.table.Table
     No. Object Name     RA     ... Redshift Points Diameter Points Associations
@@ -45,7 +46,7 @@ specified. By default this is J2000.0 but can also be set to B1950.0.
 
 .. doctest-remote-data::
 
-    >>> from astroquery.ned import Ned
+    >>> from astroquery.ipac.ned import Ned
     >>> import astropy.units as u
     >>> result_table = Ned.query_region("3c 273", radius=0.05 * u.deg)
     >>> print(result_table)
@@ -70,7 +71,7 @@ may be used (ICRS, Galactic, FK4, FK5). Note also the use of the equinox keyword
 
 .. doctest-remote-data::
 
-    >>> from astroquery.ned import Ned
+    >>> from astroquery.ipac.ned import Ned
     >>> import astropy.units as u
     >>> from astropy import coordinates
     >>> co = coordinates.SkyCoord(ra=56.38, dec=38.43,
@@ -106,7 +107,7 @@ target.
 
 .. doctest-remote-data::
 
-    >>> from astroquery.ned import Ned
+    >>> from astroquery.ipac.ned import Ned
     >>> result_table = Ned.query_region_iau('1234-423', frame='SuperGalactic', equinox='J2000.0')
     >>> print(result_table)
     No.        Object Name            RA     ... Diameter Points Associations
@@ -133,7 +134,7 @@ These queries can be used to retrieve all objects that appear in the specified
 
 .. doctest-remote-data::
 
-    >>> from astroquery.ned import Ned
+    >>> from astroquery.ipac.ned import Ned
     >>> result_table = Ned.query_refcode('1997A&A...323...31K')
     >>> print(result_table)
     No.        Object Name            RA     ... Diameter Points Associations
@@ -159,7 +160,7 @@ specified name. For instance:
 
 .. doctest-remote-data::
 
-    >>> from astroquery.ned import Ned
+    >>> from astroquery.ipac.ned import Ned
     >>> images = Ned.get_images("m1")  # doctest: +IGNORE_OUTPUT
     Downloading http://ned.ipac.caltech.edu/dss1B2/Bb/MESSIER_001:I:103aE:dss1.fits.gz
     |===========================================|  32k/ 32k (100.00%)        00s
@@ -182,7 +183,7 @@ To get the URLs of the downloadable FITS images:
 
 .. doctest-remote-data::
 
-    >>> from astroquery.ned import Ned
+    >>> from astroquery.ipac.ned import Ned
     >>> image_list = Ned.get_image_list("m1")
     >>> image_list  # doctest: +NORMALIZE_WHITESPACE
     ['http://ned.ipac.caltech.edu/dss1B2/Bb/MESSIER_001:I:103aE:dss1.fits.gz',
@@ -196,7 +197,7 @@ Spectra can also be fetched in the same way:
 
 .. doctest-remote-data::
 
-    >>> from astroquery.ned import Ned
+    >>> from astroquery.ipac.ned import Ned
     >>> spectra = Ned.get_spectra('3c 273')  # doctest: +IGNORE_OUTPUT
     Downloading http://ned.ipac.caltech.edu/spc1/2009A+A...495.1033B/3C_273:S:B:bcc2009.fits.gz
     |===========================================| 7.8k/7.8k (100.00%)        00s
@@ -214,7 +215,7 @@ Similarly the list of URLs for spectra of a particular object may be fetched:
 
 .. doctest-remote-data::
 
-    >>> from astroquery.ned import Ned
+    >>> from astroquery.ipac.ned import Ned
     >>> spectra_list = Ned.get_image_list("3c 273", item='spectra')
     >>> spectra_list
     ['http://ned.ipac.caltech.edu/spc1/1992/1992ApJS...80..109B/PG_1226+023:S:B_V:bg1992.fits.gz',
@@ -225,7 +226,7 @@ Similarly the list of URLs for spectra of a particular object may be fetched:
 Fetching other data tables for an object
 ----------------------------------------
 
-Several other data tables for an object may be fetched via the :meth:`~astroquery.ned.NedClass.get_table`
+Several other data tables for an object may be fetched via the :meth:`~astroquery.ipac.ned.NedClass.get_table`
 queries. These take a keyword argument ``table``, which may be set to one of
 ``photometry``, ``diameters``, ``redshifts``, ``references`` or ``object_notes``. For
 instance the ``table=photometry`` will fetch all the relevant photometric data
@@ -233,7 +234,7 @@ for the specified object. We look at a simple example:
 
 .. doctest-remote-data::
 
-    >>> from astroquery.ned import Ned
+    >>> from astroquery.ipac.ned import Ned
     >>> result_table = Ned.get_table("3C 273", table='positions')
     >>> print(result_table)
     No.       RA       ... Published Frequence Mode         Qualifiers
@@ -254,7 +255,7 @@ for the specified object. We look at a simple example:
 Reference/API
 =============
 
-.. automodapi:: astroquery.ned
+.. automodapi:: astroquery.ipac.ned
     :no-inheritance-diagram:
 
 .. _IAU format: http://cdsweb.u-strasbg.fr/Dic/iau-spec.htx

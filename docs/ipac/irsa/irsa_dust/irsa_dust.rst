@@ -1,8 +1,8 @@
-.. _astroquery.irsa_dust:
+.. _astroquery.ipac.irsa.irsa_dust:
 
-*************************************************************
-IRSA Dust Extinction Service Queries (`astroquery.irsa_dust`)
-*************************************************************
+***********************************************************************
+IRSA Dust Extinction Service Queries (`astroquery.ipac.irsa.irsa_dust`)
+***********************************************************************
 
 Getting started
 ===============
@@ -22,7 +22,7 @@ specified in any appropriate unit, however it must fall in the range of 2 to
 
 .. doctest-remote-data::
 
-    >>> from astroquery.irsa_dust import IrsaDust
+    >>> from astroquery.ipac.irsa.irsa_dust import IrsaDust
     >>> image_list = IrsaDust.get_images("m81")   # doctest: +IGNORE_OUTPUT
     Downloading http://irsa.ipac.caltech.edu//workspace/TMP_pdTImE_1525/DUST/m81.v0001/p414Dust.fits
     |===========================================| 331k/331k (100.00%)        15s
@@ -38,13 +38,13 @@ specified in any appropriate unit, however it must fall in the range of 2 to
 Image queries return cutouts for 3 images - E(B-V) reddening, 100 micron
 intensity, and dust temperature maps. If only the image of a particular type is
 required, then this may be specified by using the ``image_type`` keyword argument
-to the :meth:`~astroquery.irsa_dust.IrsaDustClass.get_images` method. It can take on one of the three values
+to the :meth:`~astroquery.ipac.irsa.irsa_dust.IrsaDustClass.get_images` method. It can take on one of the three values
 ``ebv``, ``100um`` and ``temperature``, corresponding to each of the 3 kinds of
 images:
 
 .. doctest-remote-data::
 
-    >>> from astroquery.irsa_dust import IrsaDust
+    >>> from astroquery.ipac.irsa.irsa_dust import IrsaDust
     >>> import astropy.units as u
     >>> image = IrsaDust.get_images("m81", image_type="100um", radius=2*u.deg)  # doctest: +IGNORE_OUTPUT
     Downloading http://irsa.ipac.caltech.edu//workspace/TMP_007Vob_24557/DUST/m81.v0001/p414i100.fits
@@ -56,7 +56,7 @@ The image types that are available can also be listed out any time:
 
 .. doctest-remote-data::
 
-    >>> from astroquery.irsa_dust import IrsaDust
+    >>> from astroquery.ipac.irsa.irsa_dust import IrsaDust
     >>> IrsaDust.list_image_types()
     ['temperature', 'ebv', '100um']
 
@@ -65,7 +65,7 @@ strings can be found on this `IRSA DUST coordinates description page`_.
 
 .. doctest-remote-data::
 
-    >>> from astroquery.irsa_dust import IrsaDust
+    >>> from astroquery.ipac.irsa.irsa_dust import IrsaDust
     >>> import astropy.coordinates as coord
     >>> import astropy.units as u
     >>> image_list = IrsaDust.get_images("17h44m34s -27d59m13s", radius=2.0 * u.deg)  # doctest: +IGNORE_OUTPUT
@@ -78,13 +78,13 @@ strings can be found on this `IRSA DUST coordinates description page`_.
 
 
 A list having the download links for the FITS image may also be fetched, rather
-than the actual images, via the :meth:`~astroquery.irsa_dust.IrsaDustClass.get_image_list` method. This also
+than the actual images, via the :meth:`~astroquery.ipac.irsa.irsa_dust.IrsaDustClass.get_image_list` method. This also
 supports the ``image_type`` argument, in the same way as described for
-:meth:`~astroquery.irsa_dust.IrsaDustClass.get_images`.
+:meth:`~astroquery.ipac.irsa.irsa_dust.IrsaDustClass.get_images`.
 
 .. doctest-remote-data::
 
-    >>> from astroquery.irsa_dust import IrsaDust
+    >>> from astroquery.ipac.irsa.irsa_dust import IrsaDust
     >>> import astropy.coordinates as coord
     >>> import astropy.units as u
     >>> coo = coord.SkyCoord(34.5565*u.deg, 54.2321*u.deg, frame='galactic')
@@ -104,7 +104,7 @@ value:
 
 .. doctest-remote-data::
 
-    >>> from astroquery.irsa_dust import IrsaDust
+    >>> from astroquery.ipac.irsa.irsa_dust import IrsaDust
     >>> import astropy.coordinates as coord
     >>> import astropy.units as u
     >>> # "22h57m57.5s +26d09m00.09s Equatorial B1950"
@@ -151,7 +151,7 @@ with all the four sections will be returned.
 
 .. doctest-remote-data::
 
-    >>> from astroquery.irsa_dust import IrsaDust
+    >>> from astroquery.ipac.irsa.irsa_dust import IrsaDust
     >>> table = IrsaDust.get_query_table('2MASXJ23045666+1219223') # get the whole table
     >>> print(table)
         RA      Dec    coord sys regSize ... temp mean temp std temp max temp min
@@ -169,7 +169,7 @@ with all the four sections will be returned.
 Reference/API
 =============
 
-.. automodapi:: astroquery.irsa_dust
+.. automodapi:: astroquery.ipac.irsa.irsa_dust
     :no-inheritance-diagram:
 
 .. _IRSA Dust Extinction Service: http://irsa.ipac.caltech.edu/applications/DUST/index.html

@@ -1,10 +1,10 @@
 .. doctest-skip-all
 
-.. _astroquery.sha:
+.. _astroquery.ipac.irsa.sha:
 
-*******************************************
-Spitzer Heritage Archive (`astroquery.sha`)
-*******************************************
+*****************************************************
+Spitzer Heritage Archive (`astroquery.ipac.irsa.sha`)
+*****************************************************
 
 Querying catalogs
 =================
@@ -62,7 +62,7 @@ API_ help page.
 Saving files to disk
 ====================
 
-Using the access URLs found in the SHA queries, the functions `astroquery.sha.save_file`
+Using the access URLs found in the SHA queries, the functions `astroquery.ipac.irsa.sha.save_file`
 writes the file to disk. To save a file:
 
 .. code-block:: python
@@ -82,7 +82,7 @@ The extension will automatically be added depending on the filetype.
 Reading files into python
 =========================
 
-Given an access URL, `astroquery.sha.get_file` returns an appropriate astropy object,
+Given an access URL, `astroquery.ipac.irsa.sha.get_file` returns an appropriate astropy object,
 either a `~astropy.table.Table` instance for tabular data, or
 `~astropy.io.fits.PrimaryHDU` instance for FITS files.
 
@@ -95,7 +95,7 @@ either a `~astropy.table.Table` instance for tabular data, or
 Reference/API
 =============
 
-.. automodapi:: astroquery.sha
+.. automodapi:: astroquery.ipac.irsa.sha
     :no-inheritance-diagram:
 
 .. _API: http://sha.ipac.caltech.edu/applications/Spitzer/SHA/help/doc/api.html
