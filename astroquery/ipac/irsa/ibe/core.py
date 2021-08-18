@@ -287,7 +287,7 @@ class IbeClass(BaseQuery):
         ----------
         mission : str
             A mission name.  Must be one of the valid missions from
-            `~astroquery.ibe.IbeClass.list_missions`.  Defaults to the
+            `~astroquery.ipac.irsa.ibe.IbeClass.list_missions`.  Defaults to the
             configured Mission
         cache : bool
             Cache the query result
@@ -319,9 +319,9 @@ class IbeClass(BaseQuery):
     def list_tables(self, mission=None, dataset=None, cache=True):
         """
         For a given mission and dataset (see
-        `~.astroquery.ibe.IbeClass.list_missions`,
-        `~astroquery.ibe.IbeClass.list_datasets`), return the list of valid
-        table names to query.
+        `~.astroquery.ipac.irsa.ibe.IbeClass.list_missions`,
+        `~astroquery.ipac.irsa.ibe.IbeClass.list_datasets`),
+        returns the list of valid table names to query.
 
         Parameters
         ----------

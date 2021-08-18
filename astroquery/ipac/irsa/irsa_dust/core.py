@@ -71,7 +71,7 @@ class IrsaDustClass(BaseQuery):
             ``'temperature'``,  ``'ebv'``, ``'100um'``. Defaults to `None`.
         timeout : int, optional
             Time limit for establishing successful connection with remote
-            server. Defaults to `~astroquery.irsa_dust.IrsaDustClass.TIMEOUT`.
+            server. Defaults to `~astroquery.ipac.irsa.irsa_dust.IrsaDustClass.TIMEOUT`.
         get_query_payload : bool, optional
             If `True` then returns the dictionary of query parameters, posted
             to remote server. Defaults to `False`.
@@ -94,7 +94,7 @@ class IrsaDustClass(BaseQuery):
                          show_progress=True):
         """
         A query function similar to
-        `astroquery.irsa_dust.IrsaDustClass.get_images` but returns
+        `astroquery.ipac.irsa.irsa_dust.IrsaDustClass.get_images` but returns
         file-handlers to the remote files rather than downloading
         them. Useful for asynchronous queries so that the actual download
         may be performed later.
@@ -117,7 +117,7 @@ class IrsaDustClass(BaseQuery):
             ``'temperature'``, ``'ebv'``, ``'100um'``. Defaults to `None`.
         timeout : int, optional
             Time limit for establishing successful connection with remote
-            server. Defaults to `~astroquery.irsa_dust.IrsaDustClass.TIMEOUT`.
+            server. Defaults to `~astroquery.ipac.irsa.irsa_dust.IrsaDustClass.TIMEOUT`.
         get_query_payload : bool, optional
             If `True` then returns the dictionary of query parameters, posted
             to remote server. Defaults to `False`.
@@ -163,7 +163,7 @@ class IrsaDustClass(BaseQuery):
             ``'temperature'``, ``'ebv'``, ``'100um'``. Defaults to `None`.
         timeout : int, optional
             Time limit for establishing successful connection with remote
-            server. Defaults to `~astroquery.irsa_dust.IrsaDustClass.TIMEOUT`.
+            server. Defaults to `~astroquery.ipac.irsa.irsa_dust.IrsaDustClass.TIMEOUT`.
         get_query_payload : bool
             If `True` then returns the dictionary of query parameters, posted
             to remote server. Defaults to `False`.
@@ -200,7 +200,7 @@ class IrsaDustClass(BaseQuery):
             Defaults to 5 degrees.
         timeout : int, optional
             Time limit for establishing successful connection with remote
-            server. Defaults to `~astroquery.irsa_dust.IrsaDustClass.TIMEOUT`.
+            server. Defaults to `~astroquery.ipac.irsa.irsa_dust.IrsaDustClass.TIMEOUT`.
 
         Returns
         --------
@@ -222,7 +222,7 @@ class IrsaDustClass(BaseQuery):
                                    timeout=TIMEOUT, show_progress=True):
         """
         A query function similar to
-        `astroquery.irsa_dust.IrsaDustClass.get_extinction_table` but
+        `astroquery.ipac.irsa.irsa_dust.IrsaDustClass.get_extinction_table` but
         returns a file-handler to the remote files rather than downloading
         it.  Useful for asynchronous queries so that the actual download may
         be performed later.
@@ -240,7 +240,7 @@ class IrsaDustClass(BaseQuery):
             `~astropy.coordinates.Angle`. Defaults to 5 degrees.
         timeout : int, optional
             Time limit for establishing successful connection with remote
-            server. Defaults to `~astroquery.irsa_dust.IrsaDustClass.TIMEOUT`.
+            server. Defaults to `~astroquery.ipac.irsa.irsa_dust.IrsaDustClass.TIMEOUT`.
 
         Returns
         -------
@@ -283,10 +283,10 @@ class IrsaDustClass(BaseQuery):
             ``'temperature'``, ``'location'``) is returned. Defaults to `None`.
         timeout : int, optional
             Time limit for establishing successful connection with remote
-            server. Defaults to `~astroquery.irsa_dust.IrsaDustClass.TIMEOUT`.
+            server. Defaults to `~astroquery.ipac.irsa.irsa_dust.IrsaDustClass.TIMEOUT`.
         url : str, optional
             Only provided for debugging. Should generally not be assigned.
-            Defaults to `~astroquery.irsa_dust.IrsaDustClass.DUST_SERVICE_URL`.
+            Defaults to `~astroquery.ipac.irsa.irsa_dust.IrsaDustClass.DUST_SERVICE_URL`.
 
         Returns
         --------

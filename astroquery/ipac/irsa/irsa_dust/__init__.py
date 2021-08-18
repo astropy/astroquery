@@ -14,7 +14,7 @@ from astropy import config as _config
 
 class Conf(_config.ConfigNamespace):
     """
-    Configuration parameters for `astroquery.irsa_dust`.
+    Configuration parameters for `astroquery.ipac.irsa.irsa_dust`.
     """
     # maintain a list of URLs in case the user wants to append a mirror
     server = _config.ConfigItem(
