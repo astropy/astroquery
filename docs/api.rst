@@ -255,7 +255,7 @@ Standard usage should be along these lines:
     result = Simbad.query_object("M 31")
     # returns astropy.Table object
 
-    from astroquery.irsa import Irsa
+    from astroquery.ipac.irsa import Irsa
 
     images = Irsa.get_images("M 31","5 arcmin")
     # searches for images in a 5-arcminute circle around M 31

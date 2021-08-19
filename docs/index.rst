@@ -190,15 +190,15 @@ The following modules have been completed using a common API:
   heasarc/heasarc.rst
   hips2fits/hips2fits.rst
   hitran/hitran.rst
-  ibe/ibe.rst
-  irsa/irsa.rst
-  irsa_dust/irsa_dust.rst
+  ipac/irsa/ibe/ibe.rst
+  ipac/irsa/irsa.rst
+  ipac/irsa/irsa_dust/irsa_dust.rst
   jplspec/jplspec.rst
   magpis/magpis.rst
   mast/mast.rst
   mpc/mpc.rst
   nasa_ads/nasa_ads.rst
-  ned/ned.rst
+  ipac/ned/ned.rst
   nist/nist.rst
   noirlab/noirlab.rst
   nrao/nrao.rst
@@ -228,12 +228,12 @@ These others are functional, but do not follow a common & consistent API:
   jplhorizons/jplhorizons.rst
   jplsbdb/jplsbdb.rst
   lamda/lamda.rst
-  nasa_exoplanet_archive/nasa_exoplanet_archive.rst
+  ipac/nasa_exoplanet_archive/nasa_exoplanet_archive.rst
   oac/oac.rst
   ogle/ogle.rst
   open_exoplanet_catalogue/open_exoplanet_catalogue.rst
   sdss/sdss.rst
-  sha/sha.rst
+  ipac/irsa/sha/sha.rst
 
 There are also subpackages that serve as the basis of others.
 
@@ -261,16 +261,16 @@ for each source)
   alfalfa/alfalfa.rst
   exoplanet_orbit_database/exoplanet_orbit_database.rst
   gama/gama.rst
-  ibe/ibe.rst
-  irsa/irsa.rst
-  irsa_dust/irsa_dust.rst
+  ipac/irsa/ibe/ibe.rst
+  ipac/irsa/irsa.rst
+  ipac/irsa/irsa_dust/irsa_dust.rst
   mast/mast.rst
-  nasa_exoplanet_archive/nasa_exoplanet_archive.rst
-  ned/ned.rst
+  ipac/nasa_exoplanet_archive/nasa_exoplanet_archive.rst
+  ipac/ned/ned.rst
   ogle/ogle.rst
   open_exoplanet_catalogue/open_exoplanet_catalogue.rst
   sdss/sdss.rst
-  sha/sha.rst
+  ipac/irsa/sha/sha.rst
   simbad/simbad.rst
   ukidss/ukidss.rst
   vsa/vsa.rst
@@ -296,17 +296,17 @@ generally return a table listing the available data first.
   fermi/fermi.rst
   gaia/gaia.rst
   heasarc/heasarc.rst
-  ibe/ibe.rst
-  irsa/irsa.rst
+  ipac/irsa/ibe/ibe.rst
+  ipac/irsa/irsa.rst
   magpis/magpis.rst
   gemini/gemini.rst
   mast/mast.rst
-  ned/ned.rst
+  ipac/ned/ned.rst
   noirlab/noirlab.rst
   nrao/nrao.rst
   nvas/nvas.rst
   sdss/sdss.rst
-  sha/sha.rst
+  ipac/irsa/sha/sha.rst
   ukidss/ukidss.rst
   vsa/vsa.rst
   skyview/skyview.rst
