@@ -8,6 +8,8 @@ New Tools and Services
 Service fixes and enhancements
 ------------------------------
 
+- Splatalogue table merging can now handle unmasked columns [#2136]
+
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
