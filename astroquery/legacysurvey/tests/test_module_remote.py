@@ -5,6 +5,7 @@
 # the actual HTTP request rather than monkeypatching them.
 # should be disabled or enabled at will - use the
 # remote_data decorator from astropy:
+import time
 
 import pytest
 from astropy.table import Table
@@ -24,6 +25,8 @@ class TestLegacySurveyClass:
         assert len(table) > 10
 
     def test_query_region(self):
+        t0 = time.time()
+        print("Beginning test")
         import astroquery.legacysurvey
         from astropy.coordinates import SkyCoord
         from astropy.coordinates import Angle, Latitude, Longitude  # Angles
@@ -36,7 +39,7 @@ class TestLegacySurveyClass:
         radius = Angle(radius_input, unit='arcmin')
 
         query1 = astroquery.legacysurvey.LegacySurvey.query_region(coordinates=coordinates, radius=radius, data_release=9)
-
+        print("Test completion: ", time.time() - t0)
         print(query1)
 
     def test_query_brick_list(self):

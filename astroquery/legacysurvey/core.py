@@ -206,6 +206,8 @@ class LegacySurveyClass(BaseQuery):
         row_north_list = []
         row_south_list = []
 
+        responses = []
+
         # north table extraction
         brick_name = table_north['brickname']
         ra1 = table_north['ra1']
@@ -223,11 +225,20 @@ class LegacySurveyClass(BaseQuery):
         sep3 = coordinates.separation(corners3)
         sep4 = coordinates.separation(corners4)
 
-        # for r in table_north:
+        t0 = time.time()
+        print("Beginning processing bricks northern emishpere")
         for i in range(len(table_north)):
             if ((ra1[i] < ra < ra2[i]) and (dec1[i] < dec < dec2[i])) \
                     or (sep1[i] < radius) or (sep2[i] < radius) or (sep3[i] < radius) or (sep4[i] < radius):
-                row_north_list.append(table_north[i])
+                # row_north_list.append(table_north[i])
+                brickname = brick_name[i]
+                raIntPart = "{0:03}".format(int(ra1[i]))
+                URL = f"{self.URL}/dr{data_release}/north/tractor/{raIntPart}/tractor-{brickname}.fits"
+
+                response = requests.get(URL)
+                if response is not None and response.status_code == 200:
+                    responses.append(response)
+        print("Completion processing bricks northern emishpere, total time: ", time.time() - t0)
 
         # south table extraction
         brick_name = table_south['brickname']
@@ -246,36 +257,55 @@ class LegacySurveyClass(BaseQuery):
         sep3 = coordinates.separation(corners3)
         sep4 = coordinates.separation(corners4)
 
+        t0 = time.time()
+        print("Beginning processing bricks southern emisphere")
         for i in range(len(table_south)):
             if ((ra1[i] < ra < ra2[i]) and (dec1[i] < dec < dec2[i])) \
                     or (sep1[i] < radius) or (sep2[i] < radius) or (sep3[i] < radius) or (sep4[i] < radius):
-                row_south_list.append(table_south[i])
+                # row_south_list.append(table_south[i])
+                brickname = brick_name[i]
+                raIntPart = "{0:03}".format(int(ra1[i]))
+                URL = f"{self.URL}/dr{data_release}/south/tractor/{raIntPart}/tractor-{brickname}.fits"
 
-        responses = []
+                response = requests.get(URL)
+                if response is not None and response.status_code == 200:
+                    responses.append(response)
+        print("Completion processing bricks southern emisphere, total time: ", time.time() - t0)
+        print("-----------------------------------------------------")
 
-        for r in row_north_list:
-            brickname = r['brickname']
-            raIntPart = "{0:03}".format(int(r['ra1']))
 
-            # to get then the brickname of the line of the table
-            # extract the integer part of ra1, and in string format (eg 001)
-            URL = f"{self.URL}/dr{data_release}/north/tractor/{raIntPart}/tractor-{brickname}.fits"
-
-            response = requests.get(URL)
-            if response is not None:
-                responses.append(response)
-
-        for r in row_south_list:
-            brickname = r['brickname']
-            raIntPart = "{0:03}".format(int(r['ra1']))
-
-            # to get then the brickname of the line of the table
-            # extract the integer part of ra1, and in string format (eg 001)
-            URL = f"{self.URL}/dr{data_release}/south/tractor/{raIntPart}/tractor-{brickname}.fits"
-
-            response = requests.get(URL)
-            if response is not None:
-                responses.append(response)
+        # t0 = time.time()
+        # print("Beginning requesting northern tractors, row_north_list size: ", len(row_north_list))
+        # for r in row_north_list:
+        #     brickname = r['brickname']
+        #     raIntPart = "{0:03}".format(int(r['ra1']))
+        #
+        #     # to get then the brickname of the line of the table
+        #     # extract the integer part of ra1, and in string format (eg 001)
+        #     URL = f"{self.URL}/dr{data_release}/north/tractor/{raIntPart}/tractor-{brickname}.fits"
+        #
+        #     response = requests.get(URL)
+        #     if response is not None and response.status_code == 200:
+        #         responses.append(response)
+        # print("Completion requests northern tractors, total time: ", time.time() - t0)
+        #
+        #
+        # t0 = time.time()
+        # print("Beginning processing requesting southern tractors, row_south_list size: ", len(row_south_list))
+        # for r in row_south_list:
+        #     brickname = r['brickname']
+        #     raIntPart = "{0:03}".format(int(r['ra1']))
+        #     # brickname = r[0]
+        #     # raIntPart = "{0:03}".format(int(r[1]))
+        #
+        #     # to get then the brickname of the line of the table
+        #     # extract the integer part of ra1, and in string format (eg 001)
+        #     URL = f"{self.URL}/dr{data_release}/south/tractor/{raIntPart}/tractor-{brickname}.fits"
+        #
+        #     response = requests.get(URL)
+        #     if response is not None and response.status_code == 200:
+        #         responses.append(response)
+        # print("Completion requests southern tractors, total time: ", time.time() - t0)
 
         return responses
 
