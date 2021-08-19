@@ -202,9 +202,6 @@ class LegacySurveyClass(BaseQuery):
         # must find the brick within ra1 and ra2
         dec = coordinates.dec.deg
         ra = coordinates.ra.deg
-        # must find the brick within dec1 and dec2
-        row_north = None
-        row_south = None
 
         row_north_list = []
         row_south_list = []
@@ -231,34 +228,6 @@ class LegacySurveyClass(BaseQuery):
             if ((ra1[i] < ra < ra2[i]) and (dec1[i] < dec < dec2[i])) \
                     or (sep1[i] < radius) or (sep2[i] < radius) or (sep3[i] < radius) or (sep4[i] < radius):
                 row_north_list.append(table_north[i])
-            # ra1 = r['ra1']
-            # ra2 = r['ra2']
-            # dec1 = r['dec1']
-            # dec2 = r['dec2']
-
-            # step_deg = (dec2 - dec1)
-            # numb_steps_deg = step_deg / radius
-            #
-            # if numb_steps_deg > 0:
-
-            # skycoord1 = SkyCoord(ra1, dec1, unit='degree')
-            # skycoord2 = SkyCoord(ra2, dec2, unit='degree')
-            #
-            # t0 = time.time()
-            # sep1 = skycoord1.separation(coordinates)
-            # print("time for calculating separation1: %s s", time.time() - t0)
-            #
-            # t0 = time.time()
-            # sep2 = skycoord2.separation(coordinates)
-            # print("time for calculating separation2: %s s", time.time() - t0)
-
-            # if ra1 <= ra <= ra2 and dec1 <= dec <= dec2:
-            #     row_north = r
-            #     break
-            # if sep1 < radius or sep2 < radius or \
-            #         (ra1 <= ra <= ra2 and dec1 <= dec <= dec2):
-            #     # query a brick
-            #     row_north_list.append(r)
 
         # south table extraction
         brick_name = table_south['brickname']
@@ -277,25 +246,10 @@ class LegacySurveyClass(BaseQuery):
         sep3 = coordinates.separation(corners3)
         sep4 = coordinates.separation(corners4)
 
-        # for r in table_south:
         for i in range(len(table_south)):
             if ((ra1[i] < ra < ra2[i]) and (dec1[i] < dec < dec2[i])) \
                     or (sep1[i] < radius) or (sep2[i] < radius) or (sep3[i] < radius) or (sep4[i] < radius):
                 row_south_list.append(table_south[i])
-        #     ra1 = r['ra1']
-        #     ra2 = r['ra2']
-        #     dec1 = r['dec1']
-        #     dec2 = r['dec2']
-        #
-        #     skycoord1 = SkyCoord(ra1, dec1, unit='degree')
-        #     skycoord2 = SkyCoord(ra2, dec2, unit='degree')
-        #
-        #     sep1 = skycoord1.separation(coordinates)
-        #     sep2 = skycoord2.separation(coordinates)
-        #
-        #     if sep1 < radius or sep2 < radius:
-        #         # query a brick
-        #         row_south_list.append(r)
 
         responses = []
 
@@ -324,28 +278,6 @@ class LegacySurveyClass(BaseQuery):
                 responses.append(response)
 
         return responses
-
-        # if row_north is not None:
-        #     brickname = row_north['brickname']
-        #     raIntPart = "{0:03}".format(int(row_north['ra1']))
-        #
-        #     # to get then the brickname of the line of the table
-        #     # extract the integer part of ra1, and in string format (eg 001)
-        #     URL = f"{self.URL}/dr{data_release}/north/tractor/{raIntPart}/tractor-{brickname}.fits"
-        #
-        #     response_north = requests.get(URL)
-        #     return response_north
-        #
-        # if row_south is not None:
-        #     brickname = row_south['brickname']
-        #     raIntPart = "{0:03}".format(int(row_south['ra1']))
-        #
-        #     # to get then the brickname of the line of the table
-        #     # extract the integer part of ra1, and in string format (eg 001)
-        #     URL = f"{self.URL}/dr{data_release}/south/tractor/{raIntPart}/tractor-{brickname}.fits"
-        #
-        #     response_south = requests.get(URL)
-        #     return response_south
 
     # as we mentioned earlier use various python regular expressions, etc
     # to create the dict of HTTP request parameters by parsing the user
