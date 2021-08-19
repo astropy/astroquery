@@ -28,9 +28,9 @@ class TestLegacySurveyClass:
         from astropy.coordinates import SkyCoord
         from astropy.coordinates import Angle, Latitude, Longitude  # Angles
 
-        ra = Angle('11h10m55s', unit='hourangle').degree
-        dec = Angle('+28d32m37s', unit='hourangle').degree
-        radius_input = 3.0  # arcmin
+        ra = Angle('11h04m27s', unit='hourangle').degree
+        dec = Angle('+38d12m32s', unit='hourangle').degree
+        radius_input = 30.0  # arcmin
 
         coordinates = SkyCoord(ra, dec, unit='degree')
         radius = Angle(radius_input, unit='arcmin')

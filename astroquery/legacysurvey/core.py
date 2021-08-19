@@ -8,11 +8,13 @@
 import astropy.units as u
 import astropy.coordinates as coord
 import astropy.io.votable as votable
+from astropy.coordinates import SkyCoord
 import requests
-from astropy.table import Table
+from astropy.table import Table, vstack
 from astropy.io import fits
 
 import io
+import time
 
 # 3. local imports - use relative imports
 # commonly required local imports shown below as example
@@ -195,62 +197,155 @@ class LegacySurveyClass(BaseQuery):
         # call the brick list
         table_north = self.query_brick_list(data_release=data_release, emisphere="north")
         table_south = self.query_brick_list(data_release=data_release, emisphere="south")
-        # # needed columns: ra1, ra2, dec1, dec2 (corners of the bricks), and also brickname
-        # ra1 = table_north['ra1']
-        # ra2 = table_north['ra2']
-        # dec1 = table_north['dec1']
-        # dec2 = table_north['dec2']
-        ra = coordinates.ra.deg
+        # needed columns: ra1, ra2, dec1, dec2 (corners of the bricks), and also brickname
         # radius not used for the moment, but it will be in the future
         # must find the brick within ra1 and ra2
         dec = coordinates.dec.deg
+        ra = coordinates.ra.deg
         # must find the brick within dec1 and dec2
         row_north = None
         row_south = None
 
-        response_north = None
-        response_south = None
+        row_north_list = []
+        row_south_list = []
 
-        for r in table_north:
-            ra1 = r['ra1']
-            ra2 = r['ra2']
-            dec1 = r['dec1']
-            dec2 = r['dec2']
-            if ra1 <= ra <= ra2 and dec1 <= dec <= dec2:
-                row_north = r
-                break
-        for r in table_south:
-            ra1 = r['ra1']
-            ra2 = r['ra2']
-            dec1 = r['dec1']
-            dec2 = r['dec2']
-            if ra1 <= ra <= ra2 and dec1 <= dec <= dec2:
-                row_south = r
-                break
+        # north table extraction
+        brick_name = table_north['brickname']
+        ra1 = table_north['ra1']
+        dec1 = table_north['dec1']
+        ra2 = table_north['ra2']
+        dec2 = table_north['dec2']
 
-        if row_north is not None:
-            brickname = row_north['brickname']
-            raIntPart = "{0:03}".format(int(row_north['ra1']))
+        corners1 = SkyCoord(ra1, dec1, unit="deg")
+        corners2 = SkyCoord(ra1, dec2, unit="deg")
+        corners3 = SkyCoord(ra2, dec1, unit="deg")
+        corners4 = SkyCoord(ra2, dec2, unit="deg")
+
+        sep1 = coordinates.separation(corners1)
+        sep2 = coordinates.separation(corners2)
+        sep3 = coordinates.separation(corners3)
+        sep4 = coordinates.separation(corners4)
+
+        # for r in table_north:
+        for i in range(len(table_north)):
+            if ((ra1[i] < ra < ra2[i]) and (dec1[i] < dec < dec2[i])) \
+                    or (sep1[i] < radius) or (sep2[i] < radius) or (sep3[i] < radius) or (sep4[i] < radius):
+                row_north_list.append(table_north[i])
+            # ra1 = r['ra1']
+            # ra2 = r['ra2']
+            # dec1 = r['dec1']
+            # dec2 = r['dec2']
+
+            # step_deg = (dec2 - dec1)
+            # numb_steps_deg = step_deg / radius
+            #
+            # if numb_steps_deg > 0:
+
+            # skycoord1 = SkyCoord(ra1, dec1, unit='degree')
+            # skycoord2 = SkyCoord(ra2, dec2, unit='degree')
+            #
+            # t0 = time.time()
+            # sep1 = skycoord1.separation(coordinates)
+            # print("time for calculating separation1: %s s", time.time() - t0)
+            #
+            # t0 = time.time()
+            # sep2 = skycoord2.separation(coordinates)
+            # print("time for calculating separation2: %s s", time.time() - t0)
+
+            # if ra1 <= ra <= ra2 and dec1 <= dec <= dec2:
+            #     row_north = r
+            #     break
+            # if sep1 < radius or sep2 < radius or \
+            #         (ra1 <= ra <= ra2 and dec1 <= dec <= dec2):
+            #     # query a brick
+            #     row_north_list.append(r)
+
+        # south table extraction
+        brick_name = table_south['brickname']
+        ra1 = table_south['ra1']
+        dec1 = table_south['dec1']
+        ra2 = table_south['ra2']
+        dec2 = table_south['dec2']
+
+        corners1 = SkyCoord(ra1, dec1, unit="deg")
+        corners2 = SkyCoord(ra1, dec2, unit="deg")
+        corners3 = SkyCoord(ra2, dec1, unit="deg")
+        corners4 = SkyCoord(ra2, dec2, unit="deg")
+
+        sep1 = coordinates.separation(corners1)
+        sep2 = coordinates.separation(corners2)
+        sep3 = coordinates.separation(corners3)
+        sep4 = coordinates.separation(corners4)
+
+        # for r in table_south:
+        for i in range(len(table_south)):
+            if ((ra1[i] < ra < ra2[i]) and (dec1[i] < dec < dec2[i])) \
+                    or (sep1[i] < radius) or (sep2[i] < radius) or (sep3[i] < radius) or (sep4[i] < radius):
+                row_south_list.append(table_south[i])
+        #     ra1 = r['ra1']
+        #     ra2 = r['ra2']
+        #     dec1 = r['dec1']
+        #     dec2 = r['dec2']
+        #
+        #     skycoord1 = SkyCoord(ra1, dec1, unit='degree')
+        #     skycoord2 = SkyCoord(ra2, dec2, unit='degree')
+        #
+        #     sep1 = skycoord1.separation(coordinates)
+        #     sep2 = skycoord2.separation(coordinates)
+        #
+        #     if sep1 < radius or sep2 < radius:
+        #         # query a brick
+        #         row_south_list.append(r)
+
+        responses = []
+
+        for r in row_north_list:
+            brickname = r['brickname']
+            raIntPart = "{0:03}".format(int(r['ra1']))
 
             # to get then the brickname of the line of the table
             # extract the integer part of ra1, and in string format (eg 001)
             URL = f"{self.URL}/dr{data_release}/north/tractor/{raIntPart}/tractor-{brickname}.fits"
 
-            response_north = requests.get(URL)
-            return response_north
+            response = requests.get(URL)
+            if response is not None:
+                responses.append(response)
 
-        if row_south is not None:
-            brickname = row_south['brickname']
-            raIntPart = "{0:03}".format(int(row_south['ra1']))
+        for r in row_south_list:
+            brickname = r['brickname']
+            raIntPart = "{0:03}".format(int(r['ra1']))
 
             # to get then the brickname of the line of the table
             # extract the integer part of ra1, and in string format (eg 001)
             URL = f"{self.URL}/dr{data_release}/south/tractor/{raIntPart}/tractor-{brickname}.fits"
 
-            response_south = requests.get(URL)
-            return response_south
+            response = requests.get(URL)
+            if response is not None:
+                responses.append(response)
 
-        return None
+        return responses
+
+        # if row_north is not None:
+        #     brickname = row_north['brickname']
+        #     raIntPart = "{0:03}".format(int(row_north['ra1']))
+        #
+        #     # to get then the brickname of the line of the table
+        #     # extract the integer part of ra1, and in string format (eg 001)
+        #     URL = f"{self.URL}/dr{data_release}/north/tractor/{raIntPart}/tractor-{brickname}.fits"
+        #
+        #     response_north = requests.get(URL)
+        #     return response_north
+        #
+        # if row_south is not None:
+        #     brickname = row_south['brickname']
+        #     raIntPart = "{0:03}".format(int(row_south['ra1']))
+        #
+        #     # to get then the brickname of the line of the table
+        #     # extract the integer part of ra1, and in string format (eg 001)
+        #     URL = f"{self.URL}/dr{data_release}/south/tractor/{raIntPart}/tractor-{brickname}.fits"
+        #
+        #     response_south = requests.get(URL)
+        #     return response_south
 
     # as we mentioned earlier use various python regular expressions, etc
     # to create the dict of HTTP request parameters by parsing the user
@@ -267,30 +362,42 @@ class LegacySurveyClass(BaseQuery):
     # This should parse the raw HTTP response and return it as
     # an `astropy.table.Table`. Below is the skeleton:
 
-    def _parse_result(self, response, verbose=False):
+    def _parse_result(self, responses, verbose=False):
+        tables_list = []
+        output_table = Table()
+
         # if verbose is False then suppress any VOTable related warnings
         if not verbose:
             commons.suppress_vo_warnings()
         # try to parse the result into an astropy.Table, else
         # return the raw result with an informative error message.
         try:
+            if not isinstance(responses, list):
+                responses = [responses]
+
             # do something with regex to get the result into
             # astropy.Table form. return the Table.
             # data = io.BytesIO(response.content)
-
-            # TODO figure out on how to avoid writing in a file
-            with open('/tmp/file_content', 'wb') as fin:
-                fin.write(response.content)
-
-            table = Table.read('/tmp/file_content', hdu=1)
-
             # table = Table.read(data)
+
+            for r in responses:
+                if r.status_code == 200:
+                    # TODO figure out on how to avoid writing in a file
+                    with open('/tmp/file_content', 'wb') as fin:
+                        fin.write(r.content)
+
+                    table = Table.read('/tmp/file_content', hdu=1)
+                    tables_list.append(table)
+
+            if len(tables_list) > 0:
+                output_table = vstack(tables_list)
+
         except ValueError:
             # catch common errors here, but never use bare excepts
             # return raw result/ handle in some way
             pass
 
-        return table
+        return output_table
 
  
 # the default tool for users to interact with is an instance of the Class
