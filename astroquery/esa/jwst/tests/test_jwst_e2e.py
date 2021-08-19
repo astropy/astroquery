@@ -335,11 +335,11 @@ class TestEndToEnd(unittest.TestCase):
         target_name = 'LMC'
         target_resolver = 'SIMBAD'
         t = jwst.query_target(target_name,
-                                target_resolver,
-                                width,
-                                height,
-                                filter_name='F277W',
-                                cal_level=1)
+                              target_resolver,
+                              width,
+                              height,
+                              filter_name='F277W',
+                              cal_level=1)
         filter_index = t.colnames.index('energy_bandpassname')
         assert('F277W' in t[0][filter_index].decode('UTF-8'))
 

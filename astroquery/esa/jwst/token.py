@@ -124,9 +124,11 @@ class TokenDialog(object):
         self.__tokenEntry.grid(row=row, column=2, columnspan=2, padx=5, pady=5)
 
         row = row+1
-        cancelButton = TKButton(self.__top, text='Cancel', command=self.__cancel_action)
+        cancelButton = TKButton(self.__top, text='Cancel',
+                                command=self.__cancel_action)
         cancelButton.grid(row=row, column=1, padx=5, pady=5)
-        loginButton = TKButton(self.__top, text='Login', command=self.__login_action)
+        loginButton = TKButton(self.__top, text='Login',
+                               command=self.__login_action)
         loginButton.grid(row=row, column=2, padx=5, pady=5)
 
     def show_login(self):
