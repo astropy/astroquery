@@ -130,8 +130,11 @@ This will show the column details of the table 'v_all_observations' in XSA TAP s
 
   >>> from astroquery.esa.xmm_newton import XMMNewton
   >>>
-  >>> XMMNewton.get_epic_images('tarfile.tar', band=[1,2], instrument=['M1'])
-  {1: {'M1': '/home/dev/esa/0405320501/pps/P0405320501M1S002IMAGE_1000.FTZ'}, 2: {'M1': '/home/dev/esa/0405320501/pps/P0405320501M1S002IMAGE_2000.FTZ'}}
+  >>> XMMNewton.download_data('0405320501')
+  Downloading URL http://nxsa.esac.esa.int/nxsa-sl/servlet/data-action-aio?obsno=0405320501 to 0405320501.tar ...
+  |===================================================================================================================================================| 540M/540M (100.00%)        57s
+  >>> XMMNewton.get_epic_images('0405320501.tar', band=[1,2], instrument=['M1'])
+  {1: {'M1': '/home/esa/0405320501/pps/P0405320501M1S002IMAGE_1000.FTZ'}, 2: {'M1': '/home/esa/0405320501/pps/P0405320501M1S002IMAGE_2000.FTZ'}}
 
 This will extract the European Photon Imaging Camera (EPIC) images within the specified TAR file, bands, and instruments. It will also return a dictionary containing the paths to the extracted files.
 
