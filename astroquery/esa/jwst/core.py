@@ -18,7 +18,7 @@ from astroquery.utils.tap import TapPlus
 from astroquery.utils import commons
 from astroquery.simbad import Simbad
 from astroquery.vizier import Vizier
-from astroquery.ned import Ned
+from astroquery.ipac.ned import Ned
 from astropy import units
 from astropy.units import Quantity
 from astropy.coordinates import SkyCoord

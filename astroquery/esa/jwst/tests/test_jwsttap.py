@@ -36,7 +36,7 @@ from astropy.table.table import Table
 from astroquery.utils import TableList
 from astroquery.simbad import Simbad
 from astroquery.vizier import Vizier
-from astroquery.ned import Ned
+from astroquery.ipac.ned import Ned
 from astropy.table import Table
 from astropy import units
 from astropy.logger import log
