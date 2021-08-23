@@ -14,34 +14,29 @@ Created on 24 oct. 2018
 
 
 """
-import unittest
 import os
-import pytest
 import shutil
-import mock
+import unittest
+from unittest.mock import MagicMock
+
+import astropy.units as u
+import numpy as np
+import pytest
+from astropy import units
+from astropy.coordinates.sky_coordinate import SkyCoord
+from astropy.table import Table
+from astropy.units import Quantity
 
 from astroquery.esa.jwst import JwstClass
 from astroquery.esa.jwst.tests.DummyTapHandler import DummyTapHandler
-from astroquery.esa.jwst.tests.DummyDataHandler import DummyDataHandler
+from astroquery.ipac.ned import Ned
+from astroquery.simbad import Simbad
+from astroquery.utils import TableList
 from astroquery.utils.tap.conn.tests.DummyConnHandler import DummyConnHandler
 from astroquery.utils.tap.conn.tests.DummyResponse import DummyResponse
-import astropy.units as u
-from astropy.coordinates.sky_coordinate import SkyCoord
-from astropy.units import Quantity
-import numpy as np
-from astroquery.utils.tap.xmlparser import utils
 from astroquery.utils.tap.core import TapPlus
-from astropy.io.votable import parse
-from astropy.table.table import Table
-from astroquery.utils import TableList
-from astroquery.simbad import Simbad
+from astroquery.utils.tap.xmlparser import utils
 from astroquery.vizier import Vizier
-from astroquery.ipac.ned import Ned
-from astropy.table import Table
-from astropy import units
-from astropy.logger import log
-
-from unittest.mock import MagicMock
 
 
 def data_path(filename):

@@ -15,33 +15,19 @@ Created on 19 aug. 2020
 
 """
 
-import getpass
 import os
-import shutil
 import tempfile
 import unittest
 from decimal import Decimal
 
-import astropy.units as u
-import mock
-import numpy as np
 import pytest
 import requests
 from astropy import units as u
 from astropy.coordinates.sky_coordinate import SkyCoord
-from astropy.io.votable import parse
-from astropy.table import Table
 from astropy.table.table import Table
 from astropy.tests.helper import remote_data
-from astropy.units import Quantity
+
 from astroquery.esa.jwst import JwstClass
-from astroquery.ipac.ned import Ned
-from astroquery.simbad import Simbad
-from astroquery.utils import TableList
-from astroquery.utils.tap.core import TapPlus
-from astroquery.utils.tap.model.filter import Filter
-from astroquery.utils.tap.xmlparser import utils
-from astroquery.vizier import Vizier
 
 
 def data_path(filename):

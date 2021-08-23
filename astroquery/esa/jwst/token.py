@@ -15,8 +15,6 @@ Created on 04 sept. 2020
 
 """
 
-import six
-
 try:
     from six.moves.tkinter import Tk as TKTk
 except ImportError:

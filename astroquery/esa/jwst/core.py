@@ -14,31 +14,29 @@ Created on 23 oct. 2018
 
 
 """
-from astroquery.utils.tap import TapPlus
-from astroquery.utils import commons
-from astroquery.simbad import Simbad
-from astroquery.vizier import Vizier
-from astroquery.ipac.ned import Ned
-from astropy import units
-from astropy.units import Quantity
-from astropy.coordinates import SkyCoord
-from astropy import log
-from astropy.table import vstack
-
-from datetime import datetime
-import os
-import zipfile
-import tarfile
 import binascii
-import shutil
 import gzip
+import os
+import shutil
+import tarfile
+import zipfile
+from builtins import isinstance
+from datetime import datetime
 
+from astropy import log
+from astropy import units
+from astropy.coordinates import SkyCoord
+from astropy.table import vstack
+from astropy.units import Quantity
 
+from astroquery.esa.jwst.token import TokenDialog
+from astroquery.ipac.ned import Ned
+from astroquery.simbad import Simbad
+from astroquery.utils import commons
+from astroquery.utils.tap import TapPlus
+from astroquery.vizier import Vizier
 from . import conf
 from .data_access import JwstDataHandler
-
-from builtins import isinstance
-from astroquery.esa.jwst.token import TokenDialog
 
 __all__ = ['Jwst', 'JwstClass']
 
