@@ -203,8 +203,6 @@ class LegacySurveyClass(BaseQuery):
         dec = coordinates.dec.deg
         ra = coordinates.ra.deg
 
-        row_north_list = []
-        row_south_list = []
 
         responses = []
 
@@ -272,40 +270,6 @@ class LegacySurveyClass(BaseQuery):
                     responses.append(response)
         print("Completion processing bricks southern emisphere, total time: ", time.time() - t0)
         print("-----------------------------------------------------")
-
-
-        # t0 = time.time()
-        # print("Beginning requesting northern tractors, row_north_list size: ", len(row_north_list))
-        # for r in row_north_list:
-        #     brickname = r['brickname']
-        #     raIntPart = "{0:03}".format(int(r['ra1']))
-        #
-        #     # to get then the brickname of the line of the table
-        #     # extract the integer part of ra1, and in string format (eg 001)
-        #     URL = f"{self.URL}/dr{data_release}/north/tractor/{raIntPart}/tractor-{brickname}.fits"
-        #
-        #     response = requests.get(URL)
-        #     if response is not None and response.status_code == 200:
-        #         responses.append(response)
-        # print("Completion requests northern tractors, total time: ", time.time() - t0)
-        #
-        #
-        # t0 = time.time()
-        # print("Beginning processing requesting southern tractors, row_south_list size: ", len(row_south_list))
-        # for r in row_south_list:
-        #     brickname = r['brickname']
-        #     raIntPart = "{0:03}".format(int(r['ra1']))
-        #     # brickname = r[0]
-        #     # raIntPart = "{0:03}".format(int(r[1]))
-        #
-        #     # to get then the brickname of the line of the table
-        #     # extract the integer part of ra1, and in string format (eg 001)
-        #     URL = f"{self.URL}/dr{data_release}/south/tractor/{raIntPart}/tractor-{brickname}.fits"
-        #
-        #     response = requests.get(URL)
-        #     if response is not None and response.status_code == 200:
-        #         responses.append(response)
-        # print("Completion requests southern tractors, total time: ", time.time() - t0)
 
         return responses
 
