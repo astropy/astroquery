@@ -4,6 +4,7 @@
 New Tools and Services
 ----------------------
 
+- CDMS molecular line catalog query tool [#2143]
 
 Service fixes and enhancements
 ------------------------------
