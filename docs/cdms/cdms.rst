@@ -231,5 +231,5 @@ The regular expression parsing is analogous to that in the JPLSpec module.
 Reference/API
 =============
 
-.. automodapi:: astroquery.cdms
+.. automodapi:: astroquery.linelists.cdms
     :no-inheritance-diagram:
