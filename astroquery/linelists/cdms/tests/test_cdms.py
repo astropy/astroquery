@@ -4,7 +4,7 @@ import os
 
 from astropy import units as u
 from astropy.table import Table
-from astroquery.utils.cdms import CDMS
+from astroquery.linelists.cdms import CDMS
 
 
 def data_path(filename):

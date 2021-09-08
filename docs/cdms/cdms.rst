@@ -150,15 +150,19 @@ shown below:
    >>> plt.xlabel('Temperature (K)')
    >>> plt.ylabel('Partition Function Value')
    >>> plt.title('Parititon Fn vs Temp')
-   >>> plt.show()
 
 .. plot::
+   import matplotlib.pyplot as plt
+   from astroquery.linelists.cdms import CDMS
+   from scipy.optimize import curve_fit
 
-.. figure:: images/docplot_cdms_q.png
-   :scale: 50%
-   :alt: Plot of Partition Function vs Temperature
-
-   The resulting plot from the example above
+   keys = [k for k in mol.keys() if 'lg' in k]
+   temp = np.array([float(k.split('(')[-1].split(')')[0]) for k in keys])
+   part = list(mol[keys][0])
+   plt.scatter(temp,part)
+   plt.xlabel('Temperature (K)')
+   plt.ylabel('Partition Function Value')
+   plt.title('Parititon Fn vs Temp')
 
 For non-linear molecules like H2CO, curve fitting methods can be used to
 calculate production rates at different temperatures with the proportionality:
@@ -192,7 +196,6 @@ other temperatures using curve fitting models:
    >>> plt.title('Partition Function vs Temperature')
    >>> plt.xlabel('Temperature')
    >>> plt.ylabel('Log10 of Partition Function')
-   >>> plt.show()
 
 
 .. plot::
@@ -221,7 +224,6 @@ other temperatures using curve fitting models:
    plt.title('Partition Function vs Temperature')
    plt.xlabel('Temperature')
    plt.ylabel('Log10 of Partition Function')
-   plt.show()
 
 
 We can then compare linear interpolation to the fitted interpolation above:
