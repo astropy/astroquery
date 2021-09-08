@@ -11,7 +11,7 @@ from astropy import config as _config
 
 class Conf(_config.ConfigNamespace):
     """
-    Configuration parameters for `astroquery.cdms`.
+    Configuration parameters for `astroquery.linelists.cdms`.
     """
     server = _config.ConfigItem(
         'https://cdms.astro.uni-koeln.de/cgi-bin/cdmssearch',
