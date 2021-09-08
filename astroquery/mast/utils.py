@@ -155,22 +155,30 @@ def parse_input_location(coordinates=None, objectname=None):
 
 def mast_relative_path(mast_uri):
     """
-    Given a MAST dataURI, return the associated relative path.
+    Given one or more MAST dataURI(s), return the associated relative path(s).
 
     Parameters
     ----------
-    mast_uri : str
-        The MAST uri.
+    mast_uri : str, list of str
+        The MAST uri(s).
 
     Returns
     -------
-    response : str
-        The associated relative path.
+    response : str, list of str
+        The associated relative path(s).
     """
+    if isinstance(mast_uri, str):
+        uri_list = [("uri", mast_uri)]
+    else:  # mast_uri parameter is a list
+        uri_list = [("uri", uri) for uri in mast_uri]
 
     response = _simple_request("https://mast.stsci.edu/api/v0.1/path_lookup/",
-                               {"uri": mast_uri})
+                               {"uri": uri_list})
     result = response.json()
-    uri_result = result.get(mast_uri)
+    uri_result = [result.get(uri[1])["path"] for uri in uri_list]
 
-    return uri_result["path"]
+    # If the input was a single URI string, we return a single string
+    if isinstance(mast_uri, str):
+        return uri_result[0]
+    # Else, return a list of paths
+    return uri_result

@@ -242,6 +242,12 @@ xmatch
 - Minor internal change to use VOTable as the response format that include
   units, too. [#1375]
 
+mast
+^^^^
+
+- Increased the speed of ``get_cloud_uri`` by obtaining multiple file
+  product paths using a single request.
+
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------

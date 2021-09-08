@@ -14,7 +14,7 @@ from astroquery import log
 from astropy.utils.console import ProgressBarOrSpinner
 from astropy.utils.exceptions import AstropyDeprecationWarning
 
-from ..exceptions import NoResultsWarning, InvalidQueryError
+from ..exceptions import NoResultsWarning
 
 from . import utils
 
@@ -109,30 +109,8 @@ class CloudAccess:  # pragma:no-cover
             found in the cloud, None is returned.
         """
 
-        s3_client = self.boto3.client('s3', config=self.config)
-
-        path = utils.mast_relative_path(data_product["dataURI"])
-        if path is None:
-            raise InvalidQueryError("Malformed data uri {}".format(data_product['dataURI']))
-
-        if 'galex' in path:
-            path = path.lstrip("/mast/")
-        else:
-            path = path.lstrip("/")
-
-        try:
-            s3_client.head_object(Bucket=self.pubdata_bucket, Key=path)
-            if include_bucket:
-                path = "s3://{}/{}".format(self.pubdata_bucket, path)
-            elif full_url:
-                path = "http://s3.amazonaws.com/{}/{}".format(self.pubdata_bucket, path)
-            return path
-        except self.botocore.exceptions.ClientError as e:
-            if e.response['Error']['Code'] != "404":
-                raise
-
-        warnings.warn("Unable to locate file {}.".format(data_product['productFilename']), NoResultsWarning)
-        return None
+        uri_list = self.get_cloud_uri_list(data_product, include_bucket=include_bucket, full_url=full_url)
+        return uri_list[0]
 
     def get_cloud_uri_list(self, data_products, include_bucket=True, full_url=False):
         """
@@ -156,8 +134,37 @@ class CloudAccess:  # pragma:no-cover
             List of URIs generated from the data products, list way contain entries that are None
             if data_products includes products not found in the cloud.
         """
+        s3_client = self.boto3.client('s3', config=self.config)
 
-        return [self.get_cloud_uri(product, include_bucket, full_url) for product in data_products]
+        paths = utils.mast_relative_path(data_products["dataURI"])
+        if isinstance(paths, str):  # Handle the case where only one product was requested
+            paths = [paths]
+
+        uri_list = []
+        for path in paths:
+
+            if path is None:
+                uri_list.append(None)
+            elif 'galex' in path:
+                path = path.lstrip("/mast/")
+            else:
+                path = path.lstrip("/")
+
+                try:
+                    # Use `head_object` to verify that the product is available on S3 (not all products are)
+                    s3_client.head_object(Bucket=self.pubdata_bucket, Key=path)
+                    if include_bucket:
+                        path = "s3://{}/{}".format(self.pubdata_bucket, path)
+                    elif full_url:
+                        path = "http://s3.amazonaws.com/{}/{}".format(self._pubdata_bucket, path)
+                    uri_list.append(path)
+                except self.botocore.exceptions.ClientError as e:
+                    if e.response['Error']['Code'] != "404":
+                        raise
+                    warnings.warn("Unable to locate file {}.".format(path), NoResultsWarning)
+                    uri_list.append(None)
+
+        return uri_list
 
     def download_file(self, data_product, local_path, cache=True):
         """
