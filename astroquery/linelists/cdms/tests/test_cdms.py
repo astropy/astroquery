@@ -7,7 +7,6 @@ from astropy.table import Table
 from astroquery.utils.cdms import CDMS
 
 
-
 def data_path(filename):
 
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
