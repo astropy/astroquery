@@ -26,7 +26,7 @@ each setting yields:
 
 .. doctest-remote-data::
 
-   >>> from astroquery.cdms import CDMS
+   >>> from astroquery.linelists.cdms import CDMS
    >>> import astropy.units as u
    >>> response = CDMS.query_lines(min_frequency=100 * u.GHz,
                                    max_frequency=1000 * u.GHz,
@@ -126,7 +126,7 @@ laboratory but not in space
 .. doctest-remote-data::
 
    >>> import matplotlib.pyplot as plt
-   >>> from astroquery.cdms import CDMS
+   >>> from astroquery.linelists.cdms import CDMS
    >>> result = CDMS.get_species_table()
    >>> mol = result[result['tag'] == 28503] #do not include signs of TAG for this
    >>> print(mol)
