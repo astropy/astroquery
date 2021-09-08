@@ -1,5 +1,3 @@
-.. doctest-skip-all
-
 .. _astroquery.cdms:
 
 ****************************************************************************
@@ -26,7 +24,7 @@ The default option to return the query payload is set to ``False``.  In the
 following examples we have explicitly set it to False and True to show the what
 each setting yields:
 
-.. code-block:: python
+.. doctest-remote-data::
 
    >>> from astroquery.cdms import CDMS
    >>> import astropy.units as u
@@ -51,7 +49,7 @@ each setting yields:
 
 The following example, with ``get_query_payload = True``, returns the payload:
 
-.. code-block:: python
+.. doctest-remote-data::
 
    >>> response = CDMS.query_lines(min_frequency=100 * u.GHz,
                                       max_frequency=1000 * u.GHz,
@@ -68,7 +66,7 @@ The following example, with ``get_query_payload = True``, returns the payload:
 The units of the columns of the query can be displayed by calling
 ``response.info``:
 
-.. code-block:: python
+.. doctest-remote-data::
 
    >>> response = CDMS.query_lines(min_frequency=100 * u.GHz,
                                    max_frequency=1000 * u.GHz,
@@ -99,7 +97,7 @@ The units of the columns of the query can be displayed by calling
 These come in handy for converting to other units easily, an example using a
 simplified version of the data above is shown below:
 
-.. code-block:: python
+.. doctest-remote-data::
 
    >>> print (response)
        FREQ      ERR     ELO
@@ -125,7 +123,7 @@ such as the partition functions at different temperatures. Keep in mind that a
 negative TAG value signifies that the line frequency has been measured in the
 laboratory but not in space
 
-.. code-block:: python
+.. doctest-remote-data::
 
    >>> import matplotlib.pyplot as plt
    >>> from astroquery.cdms import CDMS
@@ -143,7 +141,7 @@ JPL). As a continuation of the example above, an example that accesses and
 plots the partition function against the temperatures found in the metadata is
 shown below:
 
-.. code-block:: python
+.. doctest-remote-data::
 
    >>> keys = [k for k in mol.keys() if 'lg' in k]
    >>> temp = np.array([float(k.split('(')[-1].split(')')[0]) for k in keys])
@@ -167,7 +165,7 @@ calculate production rates at different temperatures with the proportionality:
 for the CO molecule) we can continue to determine the partition function at
 other temperatures using curve fitting models:
 
-.. code-block:: python
+.. doctest-remote-data::
 
    >>> result = CDMS.get_species_table()
    >>> mol = result[result['TAG'] == 30501] #do not include signs of TAG for this
@@ -206,7 +204,7 @@ other temperatures using curve fitting models:
 We can then compare linear interpolation to the fitted interpolation above:
 
 
-.. code-block:: python
+.. doctest-remote-data::
 
    >>> interp_Q = np.interp(x, temp, 10**part)
    >>> pl.plot(x, (10**y-interp_Q)/10**y)

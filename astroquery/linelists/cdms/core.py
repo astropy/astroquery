@@ -6,11 +6,11 @@ import warnings
 from bs4 import BeautifulSoup
 import astropy.units as u
 from astropy.io import ascii
-from ..query import BaseQuery
-from ..utils import async_to_sync
+from astroquery.query import BaseQuery
+from astroquery.utils import async_to_sync
 # import configurable items declared in __init__.py
-from . import conf
-from ..jplspec import lookup_table
+from astroquery.linelists.cdms import conf
+from astroquery.linelists.jplspec import lookup_table
 
 
 __all__ = ['CDMS', 'CDMSClass']
@@ -23,14 +23,11 @@ def data_path(filename):
 
 @async_to_sync
 class CDMSClass(BaseQuery):
-    """
-    """
-
     # use the Configuration Items imported from __init__.py
     URL = conf.server
     TIMEOUT = conf.timeout
 
-    def query_lines_async(self, min_frequency, max_frequency,
+    def query_lines_async(self, min_frequency, max_frequency, *,
                           min_strength=-500, molecule='All',
                           temperature_for_intensity=300, flags=0,
                           parse_name_locally=False, get_query_payload=False,
@@ -41,10 +38,13 @@ class CDMSClass(BaseQuery):
 
         Parameters
         ----------
-        min_frequency : `astropy.units`
-            Minimum frequency (or any spectral() equivalent)
-        max_frequency : `astropy.units`
-            Maximum frequency (or any spectral() equivalent)
+        min_frequency : `astropy.units.Quantity` or None
+            Minimum frequency (or any spectral() equivalent).
+            ``None`` can be interpreted as zero.
+        max_frequency : `astropy.units.Quantity` or None
+            Maximum frequency (or any spectral() equivalent).
+            ``None`` can be interpreted as infinite.
+
         min_strength : int, optional
             Minimum strength in catalog units, the default is -500
 
@@ -64,13 +64,17 @@ class CDMSClass(BaseQuery):
 
         parse_name_locally : bool, optional
             When set to True it allows the method to parse through catdir.cat
-            in order to match the regex inputted in the molecule parameter
-            and request the corresponding tags of the matches instead. Default
-            is set to False
+            (see `get_species_table`) in order to match the regex inputted in
+            the molecule parameter and request the corresponding tags of the
+            matches instead. Default is set to False
 
         get_query_payload : bool, optional
             When set to `True` the method should return the HTTP request
             parameters as a dict. Default value is set to False
+
+        cache : bool
+            Cache the request and, for repeat identical requests, reuse the
+            cache?
 
         Returns
         -------
@@ -80,9 +84,9 @@ class CDMSClass(BaseQuery):
         Examples
         --------
         >>> table = CDMS.query_lines(min_frequency=100*u.GHz,
-        ...                             max_frequency=110*u.GHz,
-        ...                             min_strength=-500,
-        ...                             molecule="018505 H2O+") # doctest: +REMOTE_DATA
+        ...                          max_frequency=110*u.GHz,
+        ...                          min_strength=-500,
+        ...                          molecule="018505 H2O+") # doctest: +REMOTE_DATA
         >>> print(table) # doctest: +SKIP
             FREQ     ERR   LGINT   DR   ELO    GUP  TAG  QNFMT  Ju  Ku  vu  Jl  Kl  vl      F      name
             MHz      MHz  MHz nm2      1 / cm
@@ -100,7 +104,7 @@ class CDMSClass(BaseQuery):
             min_frequency = min_frequency.to(u.GHz, u.spectral())
             max_frequency = max_frequency.to(u.GHz, u.spectral())
             if min_frequency > max_frequency:
-                min_frequency, max_frequency = max_frequency, min_frequency
+                raise ValueError("min_frequency must be less than max_frequency")
 
             payload['MinNu'] = min_frequency.value
             payload['MaxNu'] = max_frequency.value
@@ -124,9 +128,9 @@ class CDMSClass(BaseQuery):
                 payload['Molecules'] = tuple(f"{val:06d} {key}"
                                              for key, val in luts.items())[0]
                 if len(molecule) == 0:
-                    raise ValueError('No matching species found. Please\
-                                     refine your search or read the Docs\
-                                     for pointers on how to search.')
+                    raise ValueError('No matching species found. Please '
+                                     'refine your search or read the Docs '
+                                     'for pointers on how to search.')
             else:
                 payload['Molecules'] = molecule
 

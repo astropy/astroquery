@@ -2,7 +2,7 @@ import pytest
 from astropy import units as u
 from astropy.table import Table
 
-from ...cdms import CDMS
+from astroquery.linelists.cdms import CDMS
 
 
 @pytest.mark.remote_data

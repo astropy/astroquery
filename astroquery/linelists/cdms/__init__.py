@@ -2,12 +2,8 @@
 """
 CDMS catalog
 ------------
-Cologne Database for Molecular Spectroscopy
+Cologne Database for Molecular Spectroscopy query tool
 
-
-:author: Giannina Guzman (gguzman2@villanova.edu)
-:author: Miguel de Val-Borro (miguel.deval@gmail.com)
-:author: Adam Ginsburg (adam.g.ginsburg@gmail.com)
 
 """
 from astropy import config as _config

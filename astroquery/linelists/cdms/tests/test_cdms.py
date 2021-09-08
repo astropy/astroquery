@@ -4,9 +4,8 @@ import os
 
 from astropy import units as u
 from astropy.table import Table
-from ...cdms import CDMS
+from astroquery.utils.cdms import CDMS
 
-file1 = 'CO.data'
 
 
 def data_path(filename):
@@ -55,7 +54,7 @@ def test_input_multi():
 
 def test_query():
 
-    response = MockResponseSpec(file1)
+    response = MockResponseSpec('CO.data')
     tbl = CDMS._parse_result(response)
     assert isinstance(tbl, Table)
     assert len(tbl) == 8
