@@ -104,7 +104,7 @@ class JPLSpecClass(BaseQuery):
         if molecule is not None:
             if parse_name_locally:
                 self.lookup_ids = build_lookup()
-                payload['Mol'] = tuple(self.lookup_ids.find(molecule, flags))
+                payload['Mol'] = tuple(self.lookup_ids.find(molecule, flags).values())
                 if len(molecule) == 0:
                     raise ValueError('No matching species found. Please\
                                      refine your search or read the Docs\
@@ -155,6 +155,9 @@ class JPLSpecClass(BaseQuery):
         QN':   Quantum numbers for the upper state.
         QN":   Quantum numbers for the lower state.
         """
+
+        if 'Zero lines were found' in response.text:
+            raise ValueError(f"Response was empty; message was '{response.text}'.")
 
         # data starts at 0 since regex was applied
         # Warning for a result with more than 1000 lines:

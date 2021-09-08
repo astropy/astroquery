@@ -35,4 +35,4 @@ class Lookuptable(dict):
             if match:
                 out[k] = v
 
-        return out.values()
+        return out
