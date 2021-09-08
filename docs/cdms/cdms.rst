@@ -152,6 +152,7 @@ shown below:
    >>> plt.title('Parititon Fn vs Temp')
    >>> plt.show()
 
+.. plot::
 
 .. figure:: images/docplot_cdms_q.png
    :scale: 50%
@@ -194,11 +195,33 @@ other temperatures using curve fitting models:
    >>> plt.show()
 
 
-.. figure:: images/docplot_cdms_fitted.png
-   :scale: 50%
-   :alt: Plot of Partition Function vs Temperature and resulting Curve Fit
+.. plot::
+   import matplotlib.pyplot as plt
+   from astroquery.linelists.cdms import CDMS
+   from scipy.optimize import curve_fit
 
-   The resulting plot from the example above
+   result = CDMS.get_species_table()
+   mol = result[result['TAG'] == 30501] #do not include signs of TAG for this
+   from scipy.optimize import curve_fit
+   def f(T, a):
+       return np.log10(a*T**(1.5))
+   keys = [k for k in mol.keys() if 'lg' in k]
+   def tryfloat(x):
+       try:
+           return float(x)
+       except:
+           return np.nan
+   temp = np.array([float(k.split('(')[-1].split(')')[0]) for k in keys])
+   part = np.array([tryfloat(x) for x in mol[keys][0]])
+   param, cov = curve_fit(f, temp[np.isfinite(part)], part[np.isfinite(part)])
+   x = np.linspace(2.7,500)
+   y = f(x,param[0])
+   plt.scatter(temp,part,c='r')
+   plt.plot(x,y,'k')
+   plt.title('Partition Function vs Temperature')
+   plt.xlabel('Temperature')
+   plt.ylabel('Log10 of Partition Function')
+   plt.show()
 
 
 We can then compare linear interpolation to the fitted interpolation above:
@@ -210,12 +233,32 @@ We can then compare linear interpolation to the fitted interpolation above:
    >>> pl.plot(x, (10**y-interp_Q)/10**y)
    >>> pl.xlabel("Temperature")
    >>> pl.ylabel("Fractional difference between linear and fitted")
-   
-.. figure:: images/docplot_cdms_fitted_vs_linear.png
-   :scale: 50%
-   :alt: Plot of the fractional difference between fitted & linear interpolation
 
-   The resulting plot from the example above
+.. plot::
+   
+   import matplotlib.pyplot as plt
+   from astroquery.linelists.cdms import CDMS
+   from scipy.optimize import curve_fit
+
+   result = CDMS.get_species_table()
+   mol = result[result['TAG'] == 30501] #do not include signs of TAG for this
+   def f(T, a):
+       return np.log10(a*T**(1.5))
+   keys = [k for k in mol.keys() if 'lg' in k]
+   def tryfloat(x):
+       try:
+           return float(x)
+       except:
+           return np.nan
+   x = np.linspace(2.7,500)
+   y = f(x,param[0])
+   temp = np.array([float(k.split('(')[-1].split(')')[0]) for k in keys])
+   part = np.array([tryfloat(x) for x in mol[keys][0]])
+   param, cov = curve_fit(f, temp[np.isfinite(part)], part[np.isfinite(part)])
+   interp_Q = np.interp(x, temp, 10**part)
+   pl.plot(x, (10**y-interp_Q)/10**y)
+   pl.xlabel("Temperature")
+   pl.ylabel("Fractional difference between linear and fitted")
 
 
 Linear interpolation is a good approximation, in this case, for any moderately
