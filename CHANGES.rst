@@ -245,8 +245,8 @@ xmatch
 mast
 ^^^^
 
-- Increased the speed of ``get_cloud_uri`` by obtaining multiple file
-  product paths using a single request.
+- Increased the speed of ``Observations.get_cloud_uris`` by obtaining multiple
+  URIs from MAST at once. [#2145]
 
 
 Infrastructure, Utility and Other Changes and Additions

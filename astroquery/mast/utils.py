@@ -172,13 +172,26 @@ def mast_relative_path(mast_uri):
     else:  # mast_uri parameter is a list
         uri_list = [("uri", uri) for uri in mast_uri]
 
-    response = _simple_request("https://mast.stsci.edu/api/v0.1/path_lookup/",
-                               {"uri": uri_list})
-    result = response.json()
-    uri_result = [result.get(uri[1])["path"] for uri in uri_list]
+    # Split the list into chunks of 50 URIs; this is necessary
+    # to avoid "414 Client Error: Request-URI Too Large".
+    uri_list_chunks = list(_split_list_into_chunks(uri_list, chunk_size=50))
+
+    result = []
+    for chunk in uri_list_chunks:
+        response = _simple_request("https://mast.stsci.edu/api/v0.1/path_lookup/",
+                                   {"uri": chunk})
+        json_response = response.json()
+        for uri in chunk:
+            result.append(json_response.get(uri[1])["path"])
 
     # If the input was a single URI string, we return a single string
     if isinstance(mast_uri, str):
-        return uri_result[0]
+        return result[0]
     # Else, return a list of paths
-    return uri_result
+    return result
+
+
+def _split_list_into_chunks(input_list, chunk_size):
+    """Helper function for `mast_relative_path`."""
+    for idx in range(0, len(input_list), chunk_size):
+        yield input_list[idx:idx + chunk_size]
