@@ -10,7 +10,7 @@ from astroquery.query import BaseQuery
 from astroquery.utils import async_to_sync
 # import configurable items declared in __init__.py
 from astroquery.linelists.cdms import conf
-from astroquery.linelists.jplspec import lookup_table
+from astroquery.jplspec import lookup_table
 
 
 __all__ = ['CDMS', 'CDMSClass']
