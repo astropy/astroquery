@@ -96,3 +96,10 @@ class MaxResultsWarning(AstropyWarning):
     results are returned.
     """
     pass
+
+
+class EmptyResponseError(ValueError):
+    """
+    Astroquery error class to be raised when the query returns an empty result
+    """
+    pass

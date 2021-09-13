@@ -14,6 +14,9 @@ Service fixes and enhancements
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
 
+- JPLSpec now raises an EmptyResponseError if the returned result is empty.
+  The API for JPLspec's ``lookup_table.find`` function returns a dictionary
+  instead of values (for compatibility w/CDMS).  [#2144]
 
 
 0.4.3 (2021-07-07)
