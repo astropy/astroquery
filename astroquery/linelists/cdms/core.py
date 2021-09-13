@@ -11,6 +11,7 @@ from astroquery.utils import async_to_sync
 # import configurable items declared in __init__.py
 from astroquery.linelists.cdms import conf
 from astroquery.jplspec import lookup_table
+from astroquery.exceptions import InvalidQueryError, EmptyResponseError
 
 
 __all__ = ['CDMS', 'CDMSClass']
@@ -104,7 +105,7 @@ class CDMSClass(BaseQuery):
             min_frequency = min_frequency.to(u.GHz, u.spectral())
             max_frequency = max_frequency.to(u.GHz, u.spectral())
             if min_frequency > max_frequency:
-                raise ValueError("min_frequency must be less than max_frequency")
+                raise InvalidQueryError("min_frequency must be less than max_frequency")
 
             payload['MinNu'] = min_frequency.value
             payload['MaxNu'] = max_frequency.value
@@ -128,9 +129,9 @@ class CDMSClass(BaseQuery):
                 payload['Molecules'] = tuple(f"{val:06d} {key}"
                                              for key, val in luts.items())[0]
                 if len(molecule) == 0:
-                    raise ValueError('No matching species found. Please '
-                                     'refine your search or read the Docs '
-                                     'for pointers on how to search.')
+                    raise InvalidQueryError('No matching species found. Please '
+                                            'refine your search or read the Docs '
+                                            'for pointers on how to search.')
             else:
                 payload['Molecules'] = molecule
 
@@ -153,7 +154,7 @@ class CDMSClass(BaseQuery):
                 ok = True
                 break
         if not ok:
-            raise ValueError("Did not find table in response")
+            raise EmptyResponseError("Did not find table in response")
 
         baseurl = self.URL.split('cgi-bin')[0]
         fullurl = f'{baseurl}/{url}'
@@ -203,7 +204,7 @@ class CDMSClass(BaseQuery):
         """
 
         if 'Zero lines were found' in response.text:
-            raise ValueError(f"Response was empty; message was '{response.text}'.")
+            raise EmptyResponseError(f"Response was empty; message was '{response.text}'.")
 
         soup = BeautifulSoup(response.text, 'html.parser')
         text = soup.find('pre').text
