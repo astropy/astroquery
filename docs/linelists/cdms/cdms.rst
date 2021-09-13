@@ -151,7 +151,8 @@ shown below:
    >>> plt.ylabel('Partition Function Value')
    >>> plt.title('Parititon Fn vs Temp')
 
-.. plot::
+.. plot:: python
+
    import matplotlib.pyplot as plt
    from astroquery.linelists.cdms import CDMS
    from scipy.optimize import curve_fit
@@ -198,7 +199,8 @@ other temperatures using curve fitting models:
    >>> plt.ylabel('Log10 of Partition Function')
 
 
-.. plot::
+.. plot:: python
+
    import matplotlib.pyplot as plt
    from astroquery.linelists.cdms import CDMS
    from scipy.optimize import curve_fit
@@ -236,7 +238,7 @@ We can then compare linear interpolation to the fitted interpolation above:
    >>> pl.xlabel("Temperature")
    >>> pl.ylabel("Fractional difference between linear and fitted")
 
-.. plot::
+.. plot:: python
 
    import matplotlib.pyplot as plt
    from astroquery.linelists.cdms import CDMS
