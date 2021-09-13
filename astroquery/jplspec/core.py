@@ -9,6 +9,7 @@ from ..utils import async_to_sync
 # import configurable items declared in __init__.py
 from . import conf
 from . import lookup_table
+from astroquery.exceptions import EmptyResponseError, InvalidQueryError
 
 
 __all__ = ['JPLSpec', 'JPLSpecClass']
@@ -106,9 +107,9 @@ class JPLSpecClass(BaseQuery):
                 self.lookup_ids = build_lookup()
                 payload['Mol'] = tuple(self.lookup_ids.find(molecule, flags).values())
                 if len(molecule) == 0:
-                    raise ValueError('No matching species found. Please\
-                                     refine your search or read the Docs\
-                                     for pointers on how to search.')
+                    raise InvalidQueryError('No matching species found. Please '
+                                            'refine your search or read the Docs '
+                                            'for pointers on how to search.')
             else:
                 payload['Mol'] = molecule
 
@@ -157,7 +158,7 @@ class JPLSpecClass(BaseQuery):
         """
 
         if 'Zero lines were found' in response.text:
-            raise ValueError(f"Response was empty; message was '{response.text}'.")
+            raise EmptyResponseError(f"Response was empty; message was '{response.text}'.")
 
         # data starts at 0 since regex was applied
         # Warning for a result with more than 1000 lines:
