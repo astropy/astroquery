@@ -159,7 +159,7 @@ shown below:
    from scipy.optimize import curve_fit
 
    result = CDMS.get_species_table()
-   mol = result[result['tag'] == 28503] #do not include signs of TAG for this
+   mol = result[result['TAG'] == 28503] #do not include signs of TAG for this
    keys = [k for k in mol.keys() if 'lg' in k]
    temp = np.array([float(k.split('(')[-1].split(')')[0]) for k in keys])
    part = list(mol[keys][0])
@@ -234,9 +234,9 @@ We can then compare linear interpolation to the fitted interpolation above:
 .. doctest-remote-data::
 
    >>> interp_Q = np.interp(x, temp, 10**part)
-   >>> pl.plot(x, (10**y-interp_Q)/10**y)
-   >>> pl.xlabel("Temperature")
-   >>> pl.ylabel("Fractional difference between linear and fitted")
+   >>> plt.plot(x, (10**y-interp_Q)/10**y)
+   >>> plt.xlabel("Temperature")
+   >>> plt.ylabel("Fractional difference between linear and fitted")
 
 .. plot::
    :context:
@@ -257,9 +257,9 @@ We can then compare linear interpolation to the fitted interpolation above:
    part = np.array([tryfloat(x) for x in mol[keys][0]])
    param, cov = curve_fit(f, temp[np.isfinite(part)], part[np.isfinite(part)])
    interp_Q = np.interp(x, temp, 10**part)
-   pl.plot(x, (10**y-interp_Q)/10**y)
-   pl.xlabel("Temperature")
-   pl.ylabel("Fractional difference between linear and fitted")
+   plt.plot(x, (10**y-interp_Q)/10**y)
+   plt.xlabel("Temperature")
+   plt.ylabel("Fractional difference between linear and fitted")
 
 
 Linear interpolation is a good approximation, in this case, for any moderately
