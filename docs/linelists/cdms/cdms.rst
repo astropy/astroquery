@@ -237,7 +237,7 @@ We can then compare linear interpolation to the fitted interpolation above:
    >>> pl.ylabel("Fractional difference between linear and fitted")
 
 .. plot::
-   
+
    import matplotlib.pyplot as plt
    from astroquery.linelists.cdms import CDMS
    from scipy.optimize import curve_fit
