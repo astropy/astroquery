@@ -338,6 +338,8 @@ well as  cross section and collision rates.  Those services are:
   splatalogue/splatalogue.rst
   vamdc/vamdc.rst
   hitran/hitran.rst
+  linelists/cdms/cdms.rst
+  jplspec/jplspec.rst
 
 Other
 -----
