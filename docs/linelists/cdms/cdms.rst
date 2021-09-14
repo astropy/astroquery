@@ -224,8 +224,9 @@ other temperatures using curve fitting models:
    plt.clf()
    plt.scatter(temp,part,c='r',label='CDMS Data')
    plt.plot(x,y,'k',label='Fitted')
-   interp_Q = np.interp(x, temp, 10**part)
-   plt.plot(x, np.log10(interp_Q), label='Interpolated')
+   inds = np.argsort(temp)
+   interp_Q = np.interp(x, temp[inds], 10**part[inds])
+   plt.plot(x, np.log10(interp_Q), label='Interpolated', linewidth=0.75)
    plt.title('Partition Function vs Temperature')
    plt.xlabel('Temperature')
    plt.ylabel('Log10 of Partition Function')
@@ -245,7 +246,6 @@ We can then compare linear interpolation to the fitted interpolation above:
 .. plot::
    :context:
 
-   interp_Q = np.interp(x, temp, 10**part)
    plt.clf()
    plt.plot(x, (10**y-interp_Q)/10**y)
    plt.xlabel("Temperature")
