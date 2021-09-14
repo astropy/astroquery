@@ -194,6 +194,7 @@ The following modules have been completed using a common API:
   ipac/irsa/irsa.rst
   ipac/irsa/irsa_dust/irsa_dust.rst
   jplspec/jplspec.rst
+  linelists/cdms/cdms.rst
   magpis/magpis.rst
   mast/mast.rst
   mpc/mpc.rst
@@ -354,7 +355,6 @@ above categories. Those services are here:
   utils/tap.rst
   jplhorizons/jplhorizons.rst
   jplsbdb/jplsbdb.rst
-  jplspec/jplspec.rst
   imcce/imcce.rst
   astrometry_net/astrometry_net.rst
 
