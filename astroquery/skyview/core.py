@@ -65,6 +65,7 @@ class SkyViewClass(BaseQuery):
         if input is None:
             input = {}
         form_response = self._request('GET', self.URL)
+        form_response.raise_for_status()
         bs = BeautifulSoup(form_response.content, "html.parser")
         form = bs.find('form')
         # cache the default values to save HTTP traffic
@@ -82,6 +83,7 @@ class SkyViewClass(BaseQuery):
     def _submit_form(self, input=None, cache=True):
         url, payload = self._generate_payload(input=input)
         response = self._request('GET', url, params=payload, cache=cache)
+        response.raise_for_status()
         return response
 
     def get_images(self, position, survey, coordinates=None, projection=None,
@@ -293,6 +295,7 @@ class SkyViewClass(BaseQuery):
         if not hasattr(self, '_survey_dict'):
 
             response = self._request('GET', self.URL, cache=False)
+            response.raise_for_status()
             page = BeautifulSoup(response.content, "html.parser")
             surveys = page.findAll('select', {'name': 'survey'})
 
