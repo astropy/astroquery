@@ -267,6 +267,8 @@ We can then compare linear interpolation to the fitted interpolation above:
    param, cov = curve_fit(f, temp[np.isfinite(part)], part[np.isfinite(part)])
    x = np.linspace(2.7,500)
    y = f(x,param[0])
+   inds = np.argsort(temp)
+   interp_Q = np.interp(x, temp[inds], 10**part[inds])
 
    plt.clf()
    plt.plot(x, (10**y-interp_Q)/10**y)
