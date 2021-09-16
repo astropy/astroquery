@@ -325,7 +325,7 @@ class VizierClass(BaseQuery):
 
     def query_region_async(self, coordinates, radius=None, inner_radius=None,
                            width=None, height=None, catalog=None,
-                           get_query_payload=False, cache=True,
+                           get_query_payload=False, frame='fk5', cache=True,
                            return_type='votable', column_filters={}):
         """
         Serves the same purpose as `query_region` but only
@@ -354,6 +354,9 @@ class VizierClass(BaseQuery):
         catalog : str or list, optional
             The catalog(s) which must be searched for this identifier.
             If not specified, all matching catalogs will be searched.
+        frame : str, optional
+            The frame to use for the request: can be 'galactic' or 'fk5'.
+            It influences the orientation of box requests.
         column_filters: dict, optional
             Constraints on columns of the result. The dictionary contains
             the column name as keys, and the constraints as values.
@@ -370,22 +373,35 @@ class VizierClass(BaseQuery):
 
         # Process coordinates
         if isinstance(coordinates, (commons.CoordClasses,) + six.string_types):
-            c = commons.parse_coordinates(coordinates).transform_to('fk5')
+            c = commons.parse_coordinates(coordinates).transform_to(frame)
 
             if not c.isscalar:
                 center["-c"] = []
                 for pos in c:
-                    ra_deg = pos.ra.to_string(unit="deg", decimal=True,
-                                              precision=8)
-                    dec_deg = pos.dec.to_string(unit="deg", decimal=True,
+                    if frame == 'galactic':
+                        glon_deg = pos.l.to_string(unit="deg", decimal=True,
+                                                precision=8)
+                        glat_deg = pos.b.to_string(unit="deg", decimal=True,
                                                 precision=8, alwayssign=True)
-                    center["-c"] += ["{}{}".format(ra_deg, dec_deg)]
+                        center["-c"] += ["B{}{}".format(glon_deg, glat_deg)]
+                    else:
+                        ra_deg = pos.ra.to_string(unit="deg", decimal=True,
+                                                precision=8)
+                        dec_deg = pos.dec.to_string(unit="deg", decimal=True,
+                                                    precision=8, alwayssign=True)
+                        center["-c"] += ["{}{}".format(ra_deg, dec_deg)]
                 columns += ["_q"]  # Always request reference to input table
             else:
-                ra = c.ra.to_string(unit='deg', decimal=True, precision=8)
-                dec = c.dec.to_string(unit="deg", decimal=True, precision=8,
-                                      alwayssign=True)
-                center["-c"] = "{ra}{dec}".format(ra=ra, dec=dec)
+                if frame == 'galactic':
+                    glon = c.l.to_string(unit='deg', decimal=True, precision=8)
+                    glat = c.b.to_string(unit="deg", decimal=True, precision=8,
+                                        alwayssign=True)
+                    center["-c"] = "G{glon}{glat}".format(glon=glon, glat=glat)
+                else:
+                    ra = c.ra.to_string(unit='deg', decimal=True, precision=8)
+                    dec = c.dec.to_string(unit="deg", decimal=True, precision=8,
+                                        alwayssign=True)
+                    center["-c"] = "{ra}{dec}".format(ra=ra, dec=dec)
         elif isinstance(coordinates, tbl.Table):
             if (("_RAJ2000" in coordinates.keys()) and ("_DEJ2000" in
                                                         coordinates.keys())):
