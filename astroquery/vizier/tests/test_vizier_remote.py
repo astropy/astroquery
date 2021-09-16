@@ -38,9 +38,16 @@ class TestVizierRemote(object):
     def test_query_region_async(self):
         response = vizier.core.Vizier.query_region_async(
             self.target, radius=5 * u.deg, catalog=["HIP", "NOMAD", "UCAC"])
-
         assert response is not None
-
+        response = vizier.core.Vizier.query_region_async(
+            self.target, radius=0.5 * u.deg, catalog="HIP", 
+            frame="galactic")
+        assert response is not None
+        payload = vizier.core.Vizier.query_region_async(
+            self.target, radius=0.5 * u.deg, catalog="HIP", 
+            frame="galactic", get_query_payload=True)
+        assert "-c=G" in payload
+        
     def test_query_Vizier_instance(self):
         v = vizier.core.Vizier(
             columns=['_RAJ2000', 'DEJ2000', 'B-V', 'Vmag', 'Plx'],
