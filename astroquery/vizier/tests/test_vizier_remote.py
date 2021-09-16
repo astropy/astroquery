@@ -39,6 +39,9 @@ class TestVizierRemote(object):
         response = vizier.core.Vizier.query_region_async(
             self.target, radius=5 * u.deg, catalog=["HIP", "NOMAD", "UCAC"])
         assert response is not None
+
+    
+    def test_query_region_async_galactic(self):
         response = vizier.core.Vizier.query_region_async(
             self.target, radius=0.5 * u.deg, catalog="HIP",
             frame="galactic")
