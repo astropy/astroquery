@@ -4,6 +4,8 @@
 New Tools and Services
 ----------------------
 
+- linelists.cdms molecular line catalog query tool provides an interface to the
+  Cologne Database for Molecular Spectroscopy [#2143]
 
 Service fixes and enhancements
 ------------------------------
