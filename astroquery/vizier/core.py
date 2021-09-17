@@ -325,8 +325,9 @@ class VizierClass(BaseQuery):
 
     def query_region_async(self, coordinates, radius=None, inner_radius=None,
                            width=None, height=None, catalog=None,
-                           get_query_payload=False, frame='fk5', cache=True,
-                           return_type='votable', column_filters={}):
+                           get_query_payload=False, cache=True,
+                           return_type='votable', column_filters={},
+                           frame='fk5'):
         """
         Serves the same purpose as `query_region` but only
         returns the HTTP response rather than the parsed result.
@@ -354,12 +355,13 @@ class VizierClass(BaseQuery):
         catalog : str or list, optional
             The catalog(s) which must be searched for this identifier.
             If not specified, all matching catalogs will be searched.
-        frame : str, optional
-            The frame to use for the request: can be 'galactic' or 'fk5'.
-            It influences the orientation of box requests.
         column_filters: dict, optional
             Constraints on columns of the result. The dictionary contains
             the column name as keys, and the constraints as values.
+        frame : str, optional
+            The frame to use for the request. It should be 'fk5', 'icrs', 
+            or 'galactic'. This choice influences the the orientation of 
+            box requests.
 
         Returns
         -------
@@ -367,6 +369,8 @@ class VizierClass(BaseQuery):
             The response of the HTTP request.
 
         """
+        if frame not in ('galactic', 'fk5', 'icrs'):
+            raise ValueError("Only the 'galactic', 'icrs', and 'fk5' frames are supported by VizieR")
         catalog = VizierClass._schema_catalog.validate(catalog)
         center = {}
         columns = []
@@ -379,14 +383,12 @@ class VizierClass(BaseQuery):
                 center["-c"] = []
                 for pos in c:
                     if frame == 'galactic':
-                        glon_deg = pos.l.to_string(unit="deg", decimal=True,
-                                                precision=8)
-                        glat_deg = pos.b.to_string(unit="deg", decimal=True,
-                                                precision=8, alwayssign=True)
-                        center["-c"] += ["B{}{}".format(glon_deg, glat_deg)]
+                        glon_deg = pos.l.to_string(unit="deg", decimal=True, precision=8)
+                        glat_deg = pos.b.to_string(unit="deg", decimal=True, precision=8,
+                                                   alwayssign=True)
+                        center["-c"] += ["G{}{}".format(glon_deg, glat_deg)]
                     else:
-                        ra_deg = pos.ra.to_string(unit="deg", decimal=True,
-                                                precision=8)
+                        ra_deg = pos.ra.to_string(unit="deg", decimal=True, precision=8)
                         dec_deg = pos.dec.to_string(unit="deg", decimal=True,
                                                     precision=8, alwayssign=True)
                         center["-c"] += ["{}{}".format(ra_deg, dec_deg)]
@@ -395,12 +397,12 @@ class VizierClass(BaseQuery):
                 if frame == 'galactic':
                     glon = c.l.to_string(unit='deg', decimal=True, precision=8)
                     glat = c.b.to_string(unit="deg", decimal=True, precision=8,
-                                        alwayssign=True)
+                                         alwayssign=True)
                     center["-c"] = "G{glon}{glat}".format(glon=glon, glat=glat)
                 else:
                     ra = c.ra.to_string(unit='deg', decimal=True, precision=8)
                     dec = c.dec.to_string(unit="deg", decimal=True, precision=8,
-                                        alwayssign=True)
+                                          alwayssign=True)
                     center["-c"] = "{ra}{dec}".format(ra=ra, dec=dec)
         elif isinstance(coordinates, tbl.Table):
             if (("_RAJ2000" in coordinates.keys()) and ("_DEJ2000" in
