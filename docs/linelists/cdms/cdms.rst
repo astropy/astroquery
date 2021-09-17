@@ -1,8 +1,8 @@
-.. _astroquery.cdms:
+.. _astroquery.linelists.cdms:
 
-****************************************************************************
-Cologne Database for Molecular Spectroscopy (CDMS) Queries (astroquery.cdms)
-****************************************************************************
+******************************************************************************************
+Cologne Database for Molecular Spectroscopy (CDMS) Queries (``astroquery.linelists.cdms``)
+******************************************************************************************
 
 Getting Started
 ===============
@@ -149,23 +149,24 @@ shown below:
    >>> plt.scatter(temp,part)
    >>> plt.xlabel('Temperature (K)')
    >>> plt.ylabel('Partition Function Value')
-   >>> plt.title('Parititon Fn vs Temp')
+   >>> plt.title('Partition Function vs Temperature')
 
 .. plot::
    :context: reset
 
+   import numpy as np
    import matplotlib.pyplot as plt
    from astroquery.linelists.cdms import CDMS
 
    result = CDMS.get_species_table()
-   mol = result[result['TAG'] == 28503] #do not include signs of TAG for this
+   mol = result[result['TAG'] == 28503]  # do not include signs of TAG for this
    keys = [k for k in mol.keys() if 'lg' in k]
    temp = np.array([float(k.split('(')[-1].split(')')[0]) for k in keys])
    part = list(mol[keys][0])
    plt.scatter(temp,part)
    plt.xlabel('Temperature (K)')
    plt.ylabel('Partition Function Value')
-   plt.title('Parititon Fn vs Temp')
+   plt.title('Partition Function vs Temperature')
 
 For non-linear molecules like H2CO, curve fitting methods can be used to
 calculate production rates at different temperatures with the proportionality:
@@ -204,12 +205,13 @@ other temperatures using curve fitting models:
 .. plot::
    :context: reset
 
+   import numpy as np
    import matplotlib.pyplot as plt
    from astroquery.linelists.cdms import CDMS
    from scipy.optimize import curve_fit
 
    result = CDMS.get_species_table()
-   mol = result[result['TAG'] == 30501] #do not include signs of TAG for this
+   mol = result[result['TAG'] == 30501]  # do not include signs of TAG for this
    def f(T, a):
        return np.log10(a*T**(1.5))
    keys = [k for k in mol.keys() if 'lg' in k]
@@ -248,12 +250,13 @@ We can then compare linear interpolation to the fitted interpolation above:
 .. plot::
    :context: reset
 
+   import numpy as np
    import matplotlib.pyplot as plt
    from astroquery.linelists.cdms import CDMS
    from scipy.optimize import curve_fit
 
    result = CDMS.get_species_table()
-   mol = result[result['TAG'] == 30501] #do not include signs of TAG for this
+   mol = result[result['TAG'] == 30501]  # do not include signs of TAG for this
    def f(T, a):
        return np.log10(a*T**(1.5))
    keys = [k for k in mol.keys() if 'lg' in k]
