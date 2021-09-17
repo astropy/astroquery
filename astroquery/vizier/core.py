@@ -377,11 +377,11 @@ class VizierClass(BaseQuery):
 
         # Process coordinates
         if isinstance(coordinates, (commons.CoordClasses,) + six.string_types):
-            c = commons.parse_coordinates(coordinates).transform_to(frame)
+            target = commons.parse_coordinates(coordinates).transform_to(frame)
 
-            if not c.isscalar:
+            if not target.isscalar:
                 center["-c"] = []
-                for pos in c:
+                for pos in target:
                     if frame == 'galactic':
                         glon_deg = pos.l.to_string(unit="deg", decimal=True, precision=8)
                         glat_deg = pos.b.to_string(unit="deg", decimal=True, precision=8,
@@ -389,20 +389,21 @@ class VizierClass(BaseQuery):
                         center["-c"] += ["G{}{}".format(glon_deg, glat_deg)]
                     else:
                         ra_deg = pos.ra.to_string(unit="deg", decimal=True, precision=8)
-                        dec_deg = pos.dec.to_string(unit="deg", decimal=True,
+                        dec_deg = pos.de
+                        to_string(unit="deg", decimal=True,
                                                     precision=8, alwayssign=True)
                         center["-c"] += ["{}{}".format(ra_deg, dec_deg)]
                 columns += ["_q"]  # Always request reference to input table
             else:
                 if frame == 'galactic':
-                    glon = c.l.to_string(unit='deg', decimal=True, precision=8)
-                    glat = c.b.to_string(unit="deg", decimal=True, precision=8,
-                                         alwayssign=True)
+                    glon = target.l.to_string(unit='deg', decimal=True, precision=8)
+                    glat = target.b.to_string(unit="deg", decimal=True, precision=8,
+                                              alwayssign=True)
                     center["-c"] = "G{glon}{glat}".format(glon=glon, glat=glat)
                 else:
-                    ra = c.ra.to_string(unit='deg', decimal=True, precision=8)
-                    dec = c.dec.to_string(unit="deg", decimal=True, precision=8,
-                                          alwayssign=True)
+                    ra = target.ra.to_string(unit='deg', decimal=True, precision=8)
+                    dec = target.dec.to_string(unit="deg", decimal=True, precision=8,
+                                               alwayssign=True)
                     center["-c"] = "{ra}{dec}".format(ra=ra, dec=dec)
         elif isinstance(coordinates, tbl.Table):
             if (("_RAJ2000" in coordinates.keys()) and ("_DEJ2000" in
