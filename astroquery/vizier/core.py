@@ -389,8 +389,7 @@ class VizierClass(BaseQuery):
                         center["-c"] += ["G{}{}".format(glon_deg, glat_deg)]
                     else:
                         ra_deg = pos.ra.to_string(unit="deg", decimal=True, precision=8)
-                        dec_deg = pos.de
-                        to_string(unit="deg", decimal=True,
+                        dec_deg = pos.dec.to_string(unit="deg", decimal=True,
                                                     precision=8, alwayssign=True)
                         center["-c"] += ["{}{}".format(ra_deg, dec_deg)]
                 columns += ["_q"]  # Always request reference to input table
