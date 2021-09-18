@@ -359,8 +359,8 @@ class VizierClass(BaseQuery):
             Constraints on columns of the result. The dictionary contains
             the column name as keys, and the constraints as values.
         frame : str, optional
-            The frame to use for the request. It should be 'fk5', 'icrs', 
-            or 'galactic'. This choice influences the the orientation of 
+            The frame to use for the request. It should be 'fk5', 'icrs',
+            or 'galactic'. This choice influences the the orientation of
             box requests.
 
         Returns
