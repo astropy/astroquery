@@ -326,7 +326,8 @@ class VizierClass(BaseQuery):
     def query_region_async(self, coordinates, radius=None, inner_radius=None,
                            width=None, height=None, catalog=None,
                            get_query_payload=False, cache=True,
-                           return_type='votable', column_filters={}):
+                           return_type='votable', column_filters={},
+                           frame='fk5'):
         """
         Serves the same purpose as `query_region` but only
         returns the HTTP response rather than the parsed result.
@@ -357,6 +358,10 @@ class VizierClass(BaseQuery):
         column_filters: dict, optional
             Constraints on columns of the result. The dictionary contains
             the column name as keys, and the constraints as values.
+        frame : str, optional
+            The frame to use for the request. It should be 'fk5', 'icrs',
+            or 'galactic'. This choice influences the the orientation of
+            box requests.
 
         Returns
         -------
@@ -364,28 +369,41 @@ class VizierClass(BaseQuery):
             The response of the HTTP request.
 
         """
+        if frame not in ('galactic', 'fk5', 'icrs'):
+            raise ValueError("Only the 'galactic', 'icrs', and 'fk5' frames are supported by VizieR")
         catalog = VizierClass._schema_catalog.validate(catalog)
         center = {}
         columns = []
 
         # Process coordinates
         if isinstance(coordinates, (commons.CoordClasses,) + six.string_types):
-            c = commons.parse_coordinates(coordinates).transform_to('fk5')
+            target = commons.parse_coordinates(coordinates).transform_to(frame)
 
-            if not c.isscalar:
+            if not target.isscalar:
                 center["-c"] = []
-                for pos in c:
-                    ra_deg = pos.ra.to_string(unit="deg", decimal=True,
-                                              precision=8)
-                    dec_deg = pos.dec.to_string(unit="deg", decimal=True,
-                                                precision=8, alwayssign=True)
-                    center["-c"] += ["{}{}".format(ra_deg, dec_deg)]
+                for pos in target:
+                    if frame == 'galactic':
+                        glon_deg = pos.l.to_string(unit="deg", decimal=True, precision=8)
+                        glat_deg = pos.b.to_string(unit="deg", decimal=True, precision=8,
+                                                   alwayssign=True)
+                        center["-c"] += ["G{}{}".format(glon_deg, glat_deg)]
+                    else:
+                        ra_deg = pos.ra.to_string(unit="deg", decimal=True, precision=8)
+                        dec_deg = pos.dec.to_string(unit="deg", decimal=True,
+                                                    precision=8, alwayssign=True)
+                        center["-c"] += ["{}{}".format(ra_deg, dec_deg)]
                 columns += ["_q"]  # Always request reference to input table
             else:
-                ra = c.ra.to_string(unit='deg', decimal=True, precision=8)
-                dec = c.dec.to_string(unit="deg", decimal=True, precision=8,
-                                      alwayssign=True)
-                center["-c"] = "{ra}{dec}".format(ra=ra, dec=dec)
+                if frame == 'galactic':
+                    glon = target.l.to_string(unit='deg', decimal=True, precision=8)
+                    glat = target.b.to_string(unit="deg", decimal=True, precision=8,
+                                              alwayssign=True)
+                    center["-c"] = "G{glon}{glat}".format(glon=glon, glat=glat)
+                else:
+                    ra = target.ra.to_string(unit='deg', decimal=True, precision=8)
+                    dec = target.dec.to_string(unit="deg", decimal=True, precision=8,
+                                               alwayssign=True)
+                    center["-c"] = "{ra}{dec}".format(ra=ra, dec=dec)
         elif isinstance(coordinates, tbl.Table):
             if (("_RAJ2000" in coordinates.keys()) and ("_DEJ2000" in
                                                         coordinates.keys())):

@@ -10,6 +10,15 @@ New Tools and Services
 Service fixes and enhancements
 ------------------------------
 
+vizier
+^^^^^^
+
+- It is now possible to specify 'galatic' centers in region queries to
+  have box queries oriented along the galactic axes [#2152]
+
+splatalogue
+^^^^^^^^^^^
+
 - Splatalogue table merging can now handle unmasked columns [#2136]
 
 
