@@ -15,7 +15,7 @@ class Conf(_config.ConfigNamespace):
     """
 
     server = _config.ConfigItem(
-        'https://masttest.stsci.edu',
+        'https://mast.stsci.edu',
         'Name of the MAST server.')
     ssoserver = _config.ConfigItem(
         'https://ssoportal.stsci.edu',
