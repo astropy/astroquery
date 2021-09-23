@@ -24,7 +24,7 @@ splatalogue
 jplhorizons
 ^^^^^^^^^^^
 
-- Updated to use new JPL Horizons API.
+- Updated to use new JPL Horizons API. [#2154]
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
