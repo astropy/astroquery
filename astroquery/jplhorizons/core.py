@@ -144,7 +144,7 @@ class HorizonsClass(BaseQuery):
                           rate_cutoff=None,
                           skip_daylight=False,
                           refraction=False,
-                          refsystem='J2000',
+                          refsystem='ICRF',
                           closest_apparition=False, no_fragments=False,
                           quantities=conf.eph_quantities,
                           get_query_payload=False,
@@ -423,8 +423,8 @@ class HorizonsClass(BaseQuery):
             refraction model; if ``False``, coordinates do not account for
             refraction (airless model); default: ``False``
         refsystem : string
-            Coordinate reference system: ``'J2000'`` or ``'B1950'``; default:
-            ``'J2000'``
+            Coordinate reference system: ``'ICRF'`` or ``'B1950'``; default:
+            ``'ICRF'``
         closest_apparition : boolean, optional
             Only applies to comets. This option will choose the closest
             apparition available in time to the selected epoch; default: False.
@@ -507,8 +507,8 @@ class HorizonsClass(BaseQuery):
                 commandline += ' NOFRAG;'
 
         request_payload = OrderedDict([
-            ('batch', 1),
-            ('TABLE_TYPE', 'OBSERVER'),
+            ('format', 'text'),
+            ('EPHEM_TYPE', 'OBSERVER'),
             ('QUANTITIES', "'"+str(quantities)+"'"),
             ('COMMAND', '"' + commandline + '"'),
             ('SOLAR_ELONG', ('"' + str(solar_elongation[0]) + "," +
@@ -519,7 +519,7 @@ class HorizonsClass(BaseQuery):
             ('ANG_FORMAT', ('DEG')),
             ('APPARENT', ({False: 'AIRLESS',
                            True: 'REFRACTED'}[refraction])),
-            ('REF_SYSTEM', (refsystem)),
+            ('REF_SYSTEM', refsystem),
             ('EXTRA_PREC', {True: 'YES', False: 'NO'}[extra_precision])])
 
         if isinstance(self.location, dict):
@@ -594,7 +594,7 @@ class HorizonsClass(BaseQuery):
         return response
 
     def elements_async(self, get_query_payload=False,
-                       refsystem='J2000',
+                       refsystem='ICRF',
                        refplane='ecliptic',
                        tp_type='absolute',
                        closest_apparition=False, no_fragments=False,
@@ -663,7 +663,7 @@ class HorizonsClass(BaseQuery):
         ----------
         refsystem : string
             Element reference system for geometric and astrometric quantities:
-            ``'J2000'`` or ``'B1950'``; default: ``'J2000'``
+            ``'ICRF'`` or ``'B1950'``; default: ``'ICRF'``
         refplane : string
             Reference plane for all output quantities: ``'ecliptic'`` (ecliptic
             and mean equinox of reference epoch), ``'earth'`` (Earth mean
@@ -742,8 +742,8 @@ class HorizonsClass(BaseQuery):
 
         # configure request_payload for ephemerides query
         request_payload = OrderedDict([
-            ('batch', 1),
-            ('TABLE_TYPE', 'ELEMENTS'),
+            ('format', 'text'),
+            ('EPHEM_TYPE', 'ELEMENTS'),
             ('MAKE_EPHEM', 'YES'),
             ('OUT_UNITS', 'AU-D'),
             ('COMMAND', '"' + commandline + '"'),
@@ -973,19 +973,26 @@ class HorizonsClass(BaseQuery):
 
         # configure request_payload for ephemerides query
         request_payload = OrderedDict([
-            ('batch', 1),
-            ('TABLE_TYPE', 'VECTORS'),
+            ('format', 'text'),
+            ('EPHEM_TYPE', 'VECTORS'),
             ('OUT_UNITS', 'AU-D'),
             ('COMMAND', '"' + commandline + '"'),
             ('CENTER', ("'" + str(self.location) + "'")),
             ('CSV_FORMAT', ('"YES"')),
-            ('REF_PLANE', {'ecliptic': 'ECLIPTIC', 'earth': 'FRAME',
-                           'body': "'BODY EQUATOR'"}[refplane]),
-            ('REF_SYSTEM', 'J2000'),
+            ('REF_PLANE', {
+                'ecliptic': 'ECLIPTIC',
+                'earth': 'FRAME',
+                'frame': 'FRAME',
+                'body': "'BODY EQUATOR'"
+            }[refplane]),
+            ('REF_SYSTEM', 'ICRF'),
             ('TP_TYPE', 'ABSOLUTE'),
-            ('LABELS', 'YES'),
-            ('VECT_CORR', {'geometric': '"NONE"', 'astrometric': '"LT"',
-                           'apparent': '"LT+S"'}[aberrations]),
+            ('VEC_LABELS', 'YES'),
+            ('VEC_CORR', {
+                'geometric': '"NONE"',
+                'astrometric': '"LT"',
+                'apparent': '"LT+S"'
+            }[aberrations]),
             ('VEC_DELTA_T', {True: 'YES', False: 'NO'}[delta_T]),
             ('OBJ_DATA', 'YES')]
         )

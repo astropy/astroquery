@@ -21,6 +21,10 @@ splatalogue
 
 - Splatalogue table merging can now handle unmasked columns [#2136]
 
+jplhorizons
+^^^^^^^^^^^
+
+- Updated to use new JPL Horizons API.
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------

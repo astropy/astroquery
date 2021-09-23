@@ -31,7 +31,7 @@ class TestHorizonsClass:
         assert_quantity_allclose(
             [2451544.5,
              188.70280, 9.09829, 34.40956, -2.68359,
-             8.33, 6.89, 96.171,
+             8.459, 6.999, 96.171,
              161.3828, 10.4528, 2.551099014238, 0.1744491,
              2.26315116146176, -21.9390511, 18.822054,
              95.3996, 22.5698, 292.551, 296.850,
@@ -222,7 +222,7 @@ class TestHorizonsClass:
                                    epochs=2451544.5).elements(
                                        get_raw_response=True)
 
-        assert len(res) >= 7400
+        assert len(res) >= 6686
 
     def test_vectors_query(self):
         # check values of Ceres for a given epoch
@@ -254,7 +254,7 @@ class TestHorizonsClass:
                                    epochs=2451544.5).vectors(
                                        get_raw_response=True)
 
-        assert len(res) >= 6900
+        assert len(res) >= 6412
 
     def test_unknownobject(self):
         try:
@@ -277,8 +277,8 @@ class TestHorizonsClass:
 
         target.ephemerides()
 
-        assert target.uri == ('https://ssd.jpl.nasa.gov/horizons_batch.cgi?'
-                              'batch=1&TABLE_TYPE=OBSERVER&QUANTITIES='
+        assert target.uri == ('https://ssd.jpl.nasa.gov/api/horizons.api?'
+                              'format=text&EPHEM_TYPE=OBSERVER&QUANTITIES='
                               '%271%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9%2C10'
                               '%2C11%2C12%2C13%2C14%2C15%2C16%2C17%2C18%2C19'
                               '%2C20%2C21%2C22%2C23%2C24%2C25%2C26%2C27%2C28'
@@ -287,7 +287,7 @@ class TestHorizonsClass:
                               'COMMAND=%223552%3B%22&SOLAR_ELONG=%220%2C180'
                               '%22&LHA_CUTOFF=0&CSV_FORMAT=YES&CAL_FORMAT='
                               'BOTH&ANG_FORMAT=DEG&APPARENT=AIRLESS&'
-                              'REF_SYSTEM=J2000&EXTRA_PREC=NO&'
+                              'REF_SYSTEM=ICRF&EXTRA_PREC=NO&'
                               'CENTER=%27500%27&'
                               'TLIST=2451544.5&SKIP_DAYLT=NO')
 
@@ -355,13 +355,13 @@ class TestHorizonsClass:
         obj = jplhorizons.Horizons(id='1', epochs=2458500, location='500@0')
 
         vec = obj.vectors(aberrations='geometric')
-        assert_quantity_allclose(vec['x'][0], -2.08648627706842)
+        assert_quantity_allclose(vec['x'][0], -2.086487005013347)
 
         vec = obj.vectors(aberrations='astrometric')
-        assert_quantity_allclose(vec['x'][0], -2.086575559005298)
+        assert_quantity_allclose(vec['x'][0], -2.086576286974797)
 
         vec = obj.vectors(aberrations='apparent')
-        assert_quantity_allclose(vec['x'][0], -2.086575559005298)
+        assert_quantity_allclose(vec['x'][0], -2.086576286974797)
 
     def test_vectors_delta_T(self):
         obj = jplhorizons.Horizons(id='1', epochs=2458500, location='500@0')
