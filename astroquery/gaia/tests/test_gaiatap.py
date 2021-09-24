@@ -18,6 +18,7 @@ import unittest
 import os
 import pytest
 
+from astroquery.gaia import conf
 from astroquery.gaia.core import GaiaClass
 from astroquery.gaia.tests.DummyTapHandler import DummyTapHandler
 from astroquery.utils.tap.conn.tests.DummyConnHandler import DummyConnHandler
@@ -343,6 +344,21 @@ class TestTap(unittest.TestCase):
                                     'table1_oid',
                                     None,
                                     np.int32)
+
+        # Regression test for #2093 and #2099 - changing the MAIN_GAIA_TABLE
+        # had no effect.
+        # The preceding tests should have used the default value.
+        assert 'gaiadr2.gaia_source' in job.parameters['query']
+        # Test changing the table name through conf.
+        conf.MAIN_GAIA_TABLE = 'name_from_conf'
+        job = tap.cone_search_async(sc, radius)
+        assert 'name_from_conf' in job.parameters['query']
+        # Changing the value through the class should overrule conf.
+        tap.MAIN_GAIA_TABLE = 'name_from_class'
+        job = tap.cone_search_async(sc, radius)
+        assert 'name_from_class' in job.parameters['query']
+        # Cleanup.
+        conf.reset('MAIN_GAIA_TABLE')
 
     def __check_results_column(self, results, columnName, description, unit,
                                dataType):
