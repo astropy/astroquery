@@ -39,7 +39,7 @@ class GaiaClass(TapPlus):
     """
     Proxy class to default TapPlus object (pointing to Gaia Archive)
     """
-    MAIN_GAIA_TABLE = conf.MAIN_GAIA_TABLE
+    MAIN_GAIA_TABLE = None
     MAIN_GAIA_TABLE_RA = conf.MAIN_GAIA_TABLE_RA
     MAIN_GAIA_TABLE_DEC = conf.MAIN_GAIA_TABLE_DEC
     ROW_LIMIT = conf.ROW_LIMIT
@@ -427,7 +427,7 @@ class GaiaClass(TapPlus):
                       dist ASC
                     """.format(**{'row_limit': "TOP {0}".format(self.ROW_LIMIT) if self.ROW_LIMIT > 0 else "",
                                   'ra_column': self.MAIN_GAIA_TABLE_RA, 'dec_column': self.MAIN_GAIA_TABLE_DEC,
-                                  'columns': columns, 'table_name': self.MAIN_GAIA_TABLE, 'ra': ra, 'dec': dec,
+                                  'columns': columns, 'table_name': self.MAIN_GAIA_TABLE or conf.MAIN_GAIA_TABLE, 'ra': ra, 'dec': dec,
                                   'width': widthDeg.value, 'height': heightDeg.value})
             if async_job:
                 job = self.launch_job_async(query, verbose=verbose)
@@ -487,7 +487,7 @@ class GaiaClass(TapPlus):
         """
         return self.__query_object(coordinate, radius, width, height, async_job=True, verbose=verbose, columns=columns)
 
-    def __cone_search(self, coordinate, radius, table_name=MAIN_GAIA_TABLE,
+    def __cone_search(self, coordinate, radius, table_name=None,
                       ra_column_name=MAIN_GAIA_TABLE_RA,
                       dec_column_name=MAIN_GAIA_TABLE_DEC,
                       async_job=False,
@@ -564,7 +564,7 @@ class GaiaClass(TapPlus):
                 """.format(**{'ra_column': ra_column_name,
                               'row_limit': "TOP {0}".format(self.ROW_LIMIT) if self.ROW_LIMIT > 0 else "",
                               'dec_column': dec_column_name, 'columns': columns, 'ra': ra, 'dec': dec,
-                              'radius': radiusDeg, 'table_name': table_name})
+                              'radius': radiusDeg, 'table_name': table_name or self.MAIN_GAIA_TABLE or conf.MAIN_GAIA_TABLE})
 
         if async_job:
             return self.launch_job_async(query=query,
@@ -581,7 +581,7 @@ class GaiaClass(TapPlus):
                                    dump_to_file=dump_to_file)
 
     def cone_search(self, coordinate, radius=None,
-                    table_name=MAIN_GAIA_TABLE,
+                    table_name=None,
                     ra_column_name=MAIN_GAIA_TABLE_RA,
                     dec_column_name=MAIN_GAIA_TABLE_DEC,
                     output_file=None,
@@ -632,7 +632,7 @@ class GaiaClass(TapPlus):
                                   dump_to_file=dump_to_file, columns=columns)
 
     def cone_search_async(self, coordinate, radius=None,
-                          table_name=MAIN_GAIA_TABLE,
+                          table_name=None,
                           ra_column_name=MAIN_GAIA_TABLE_RA,
                           dec_column_name=MAIN_GAIA_TABLE_DEC,
                           background=False,
