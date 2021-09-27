@@ -15,6 +15,7 @@ class TestHorizonsClass:
         # check values of Ceres for a given epoch
         # orbital uncertainty of Ceres is basically zero
         res = jplhorizons.Horizons(id='Ceres', location='500',
+                                   id_type='smallbody',
                                    epochs=2451544.5).ephemerides()[0]
 
         assert res['targetname'] == "1 Ceres (A801 AA)"
@@ -152,7 +153,7 @@ class TestHorizonsClass:
 
     def test_ephemerides_query_six(self):
         # tests optional constrains for ephemerides queries
-        obj = jplhorizons.Horizons(id='3552',
+        obj = jplhorizons.Horizons(id='3552', id_type='smallbody',
                                    location='I33',
                                    epochs={'start': '2018-05-01',
                                            'stop': '2018-08-01',
@@ -169,13 +170,14 @@ class TestHorizonsClass:
 
     def test_ephemerides_query_raw(self):
         res = (jplhorizons.Horizons(id='Ceres', location='500',
-                                    epochs=2451544.5).
+                                    id_type='smallbody', epochs=2451544.5).
                ephemerides(get_raw_response=True))
 
         assert len(res) >= 15400
 
     def test_elements_query(self):
         res = jplhorizons.Horizons(id='Ceres', location='500@10',
+                                   id_type='smallbody',
                                    epochs=[2451544.5,
                                            2451545.5]).elements()[0]
 
@@ -204,6 +206,7 @@ class TestHorizonsClass:
 
     def test_elements_query_two(self):
         obj = jplhorizons.Horizons(id='Ceres', location='500@10',
+                                   id_type='smallbody',
                                    epochs=[2451544.5,
                                            2451545.5])
 
@@ -219,6 +222,7 @@ class TestHorizonsClass:
 
     def test_elements_query_raw(self):
         res = jplhorizons.Horizons(id='Ceres', location='500@10',
+                                   id_type='smallbody',
                                    epochs=2451544.5).elements(
                                        get_raw_response=True)
 
@@ -228,6 +232,7 @@ class TestHorizonsClass:
         # check values of Ceres for a given epoch
         # orbital uncertainty of Ceres is basically zero
         res = jplhorizons.Horizons(id='Ceres', location='500@10',
+                                   id_type='smallbody',
                                    epochs=2451544.5).vectors()[0]
 
         assert res['targetname'] == "1 Ceres (A801 AA)"
@@ -251,6 +256,7 @@ class TestHorizonsClass:
 
     def test_vectors_query_raw(self):
         res = jplhorizons.Horizons(id='Ceres', location='500@10',
+                                   id_type='smallbody',
                                    epochs=2451544.5).vectors(
                                        get_raw_response=True)
 
@@ -259,20 +265,20 @@ class TestHorizonsClass:
     def test_unknownobject(self):
         try:
             jplhorizons.Horizons(id='spamspamspameggsspam', location='500',
-                                 epochs=2451544.5).ephemerides()
+                                 id_type='', epochs=2451544.5).ephemerides()
         except ValueError:
             pass
 
     def test_multipleobjects(self):
         try:
-            jplhorizons.Horizons(id='73P', location='500',
+            jplhorizons.Horizons(id='73P', location='500', id_type='smallbody',
                                  epochs=2451544.5).ephemerides()
         except ValueError:
             pass
 
     def test_uri(self):
         target = jplhorizons.Horizons(id='3552', location='500',
-                                      epochs=2451544.5)
+                                      id_type='smallbody', epochs=2451544.5)
         assert target.uri is None
 
         target.ephemerides()
@@ -299,10 +305,12 @@ class TestHorizonsClass:
 
         am_res = jplhorizons.Horizons(id='Ceres',
                                       location='688',
+                                      id_type='smallbody',
                                       epochs=2451544.5).ephemerides()[0]
 
         user_res = jplhorizons.Horizons(id='Ceres',
                                         location=anderson_mesa,
+                                        id_type='smallbody',
                                         epochs=2451544.5).ephemerides()[0]
 
         assert_quantity_allclose([am_res['RA'], am_res['DEC']],
@@ -321,7 +329,8 @@ class TestHorizonsClass:
         quantities = ('1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,'
                       '21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,'
                       '38,39,40,41,42,43')
-        target = jplhorizons.Horizons(id='301', location='688', epochs=epochs)
+        target = jplhorizons.Horizons(id='301', location='688', epochs=epochs,
+                                      id_type='')
         eph = target.ephemerides(quantities=quantities)
         assert len(eph) == 2
 
@@ -342,6 +351,7 @@ class TestHorizonsClass:
 
         # verify data['a-mass'].filled(99) works:
         target = jplhorizons.Horizons('Ceres', location='I41',
+                                      id_type='smallbody',
                                       epochs=[2458300.5])
         eph = target.ephemerides(quantities='1,8')
         assert len(eph) == 1
@@ -352,7 +362,8 @@ class TestHorizonsClass:
 
     def test_vectors_aberrations(self):
         """Check functionality of `aberrations` options"""
-        obj = jplhorizons.Horizons(id='1', epochs=2458500, location='500@0')
+        obj = jplhorizons.Horizons(id='1', epochs=2458500, location='500@0',
+                                   id_type='smallbody')
 
         vec = obj.vectors(aberrations='geometric')
         assert_quantity_allclose(vec['x'][0], -2.086487005013347)
@@ -364,7 +375,8 @@ class TestHorizonsClass:
         assert_quantity_allclose(vec['x'][0], -2.086576286974797)
 
     def test_vectors_delta_T(self):
-        obj = jplhorizons.Horizons(id='1', epochs=2458500, location='500@0')
+        obj = jplhorizons.Horizons(id='1', epochs=2458500, location='500@0',
+                                   id_type='smallbody')
 
         vec = obj.vectors(delta_T=False)
         assert 'delta_T' not in vec.columns
@@ -373,7 +385,8 @@ class TestHorizonsClass:
         assert_quantity_allclose(vec['delta_T'][0], 69.184373)
 
     def test_ephemerides_extraprecision(self):
-        obj = jplhorizons.Horizons(id='1', epochs=2458500, location='G37')
+        obj = jplhorizons.Horizons(id='1', epochs=2458500, location='G37',
+                                   id_type='smallbody')
 
         vec_simple = obj.ephemerides(extra_precision=False)
         vec_highprec = obj.ephemerides(extra_precision=True)

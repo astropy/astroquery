@@ -6,9 +6,10 @@ import os
 from collections import OrderedDict
 
 from numpy.ma import is_masked
-from ...utils.testing_tools import MockResponse
 from astropy.tests.helper import assert_quantity_allclose
+from astropy.utils.exceptions import AstropyDeprecationWarning
 
+from ...utils.testing_tools import MockResponse
 from ... import jplhorizons
 
 # files in data/ for different query types
@@ -218,3 +219,18 @@ def test_no_H(patch_request):
     """testing missing H value (also applies for G, M1, k1, M2, k2)"""
     res = jplhorizons.Horizons(id='1935 UZ').ephemerides()[0]
     assert 'H' not in res
+
+
+def test_id_type_deprecation():
+    """Test deprecation warnings based on issue 1742.
+
+    Remove when id_type behavior is changed.
+
+    https://github.com/astropy/astroquery/pull/1742
+
+    """
+    with pytest.warns(AstropyDeprecationWarning):
+        res = jplhorizons.Horizons(id='Ceres')
+
+    with pytest.warns(AstropyDeprecationWarning):
+        res = jplhorizons.Horizons(id='Ceres', id_type='majorbody')

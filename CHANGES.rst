@@ -34,6 +34,16 @@ jplhorizons
   Included in this update, the default reference system is changed from
   J2000 to ICRF, following API documentation. [#2154]
 
+- Query `id_type` behavior and options are changing:
+  - `'majorbody'` has been renamed to `''` (empty string) to represent the
+    Horizons default behavior. The Horizons default to search major bodies
+    first, then fall back to a small body search.  Horizons does not have
+    a major body only search.
+  - The default behavior was `'smallbody'` but this will be changed to the
+    Horizons default in a future version.
+  - Deprecation warnings are raised if `id_type` is `'majorbody'` or
+    was not specified by the user.
+
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
 

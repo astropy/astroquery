@@ -12,6 +12,7 @@ import warnings
 from astropy.table import Table, Column
 from astropy.io import ascii
 from astropy.time import Time
+from astropy.utils.exceptions import AstropyDeprecationWarning
 
 # 3. local imports - use relative imports
 # commonly required local imports shown below as example
@@ -35,7 +36,7 @@ class HorizonsClass(BaseQuery):
     TIMEOUT = conf.timeout
 
     def __init__(self, id=None, location=None, epochs=None,
-                 id_type='smallbody'):
+                 id_type=None):
         """Instantiate JPL query.
 
         Parameters
@@ -64,11 +65,19 @@ class HorizonsClass(BaseQuery):
             element and vector queries. If no epochs are provided, the current
             time is used.
         id_type : str, optional
-            Identifier type, options: ``'smallbody'``, ``'majorbody'`` (planets
-            but also anything that is not a small body), ``'designation'``,
-            ``'name'``, ``'asteroid_name'``, ``'comet_name'``, ``'id'``
-            (Horizons id number), or ``'smallbody'`` (find the closest match
-            under any id_type), default: ``'smallbody'``
+            Controls Horizons's object selection for ``id``
+            [HORIZONSDOC_SELECTION]_ .  Options: ``'majorbody'`` (DEPRECATED,
+            use ``''``), ``'designation'`` (small body designation), ``'name'``
+            (asteroid or comet name), ``'asteroid_name'``, ``'comet_name'``,
+            ``'id'`` (Horizons ID number), ``'smallbody'`` (asteroid and comet
+            search), or ``''`` (empty string; first search search planets,
+            natural satellites, spacecraft, and special cases, then small
+            bodies).
+
+        References
+        ----------
+
+        .. [HORIZONSDOC_SELECTION] https://ssd.jpl.nasa.gov/?horizons_doc#selection (retrieved 2021 Sep 23).
 
 
         Examples
@@ -101,8 +110,18 @@ class HorizonsClass(BaseQuery):
         self.epochs = epochs
 
         # check for id_type
-        if id_type not in ['smallbody', 'majorbody',
-                           'designation', 'name',
+        if id_type is None:
+            warnings.warn('id_type was not specified, defaulting to a '
+            '"smallbody" search.  This behavior is deprecated and will be '
+            'changed to "" (empty string / Horizons default) in the future.',
+            AstropyDeprecationWarning)
+            id_type = 'smallbody'
+        elif id_type == 'majorbody':
+            warnings.warn('id_type "majorbody" is deprecated and will be '
+            'removed.  For the equivalent search behavior, use "" (empty '
+            'string).', AstropyDeprecationWarning)
+            id_type = ''
+        if id_type not in ['', 'smallbody', 'designation', 'name',
                            'asteroid_name', 'comet_name', 'id']:
             raise ValueError('id_type ({:s}) not allowed'.format(id_type))
         self.id_type = id_type
