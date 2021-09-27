@@ -21,7 +21,7 @@ except ImportError:
     pytest.skip("Install mock for the casda tests.", allow_module_level=True)
 
 DATA_FILES = {'CIRCLE': 'cone.xml', 'RANGE': 'box.xml', 'DATALINK': 'datalink.xml', 'RUN_JOB': 'run_job.xml',
-              'COMPLETED_JOB': 'completed_job.xml'}
+              'COMPLETED_JOB': 'completed_job.xml', 'DATALINK_NOACCESS' : 'datalink_noaccess.xml'}
 
 
 class MockResponse:
@@ -59,7 +59,10 @@ def get_mockreturn(self, method, url, data=None, timeout=10,
         else:
             raise ValueError("Unexpected SODA async {} call to url {}".format(method, url))
     elif 'datalink' in str(url):
-        key = 'DATALINK'
+        if 'cube-244' in str(url):
+            key = 'DATALINK'
+        else:
+            key = 'DATALINK_NOACCESS'
     else:
         key = params['POS'].split()[0] if params['POS'] else None
     filename = data_path(DATA_FILES[key])
@@ -256,6 +259,18 @@ def test_stage_data_invalid_credentials(patch_get):
     with pytest.raises(requests.exceptions.HTTPError) as excinfo:
         casda.stage_data(table)
 
+
+def test_stage_data_no_link(patch_get):
+    prefix = 'https://somewhere/casda/datalink/links?'
+    access_urls = [prefix + 'cube-240']
+    table = Table([Column(data=access_urls, name='access_url')])
+    casda = Casda('user', 'password')
+    casda.POLL_INTERVAL = 1
+
+    with pytest.raises(ValueError) as excinfo:
+        casda.stage_data(table)
+
+    assert "You do not have access to any of the requested data files." in str(excinfo.value)
 
 def test_stage_data(patch_get):
     prefix = 'https://somewhere/casda/datalink/links?'

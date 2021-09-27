@@ -27,8 +27,8 @@ For example:
     >>> from astropy import units as u
     >>> centre = SkyCoord.from_name('NGC 7232')
     >>> result_table = Casda.query_region(centre, radius=30*u.arcmin)
-    >>> print(result_table['obs_publisher_did','s_ra', 's_dec', 'obs_released_date'])
-    obs_publisher_did       s_ra           s_dec          obs_released_date
+    >>> print(result_table['obs_publisher_did','s_ra', 's_dec', 'obs_release_date'])
+    obs_publisher_did       s_ra           s_dec          obs_release_date
                             deg             deg
     ----------------- --------------- ---------------- ------------------------
              cube-502 333.16767306594 -45.302084636451 2017-08-02T03:51:19.728Z
@@ -64,8 +64,8 @@ For example to filter out the 30 non-public results from the above data set:
 .. code-block:: python
 
     >>> public_results = Casda.filter_out_unreleased(result_table)
-    >>> print(public_results['obs_publisher_did','s_ra', 's_dec', 'obs_released_date'])
-    obs_publisher_did       s_ra           s_dec          obs_released_date
+    >>> print(public_results['obs_publisher_did','s_ra', 's_dec', 'obs_release_date'])
+    obs_publisher_did       s_ra           s_dec          obs_release_date
                             deg             deg
     ----------------- --------------- ---------------- ------------------------
              cube-502 333.16767306594 -45.302084636451 2017-08-02T03:51:19.728Z

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?><?xml-stylesheet href='https://data.csiro.au/casda_vo_proxy/vo/votable.xsl' type='text/xsl' ?>
+
+<VOTABLE xmlns="http://www.ivoa.net/xml/VOTable/v1.3" version="1.3">
+    <RESOURCE name="CASDA Datalink Result" type="results">
+        <TABLE>
+            <FIELD datatype="char" name="ID" ucd="meta.id;meta.main" arraysize="*"/>
+            <FIELD datatype="char" name="access_url" ucd="meta.ref.url" arraysize="*"/>
+            <FIELD datatype="char" name="service_def" ucd="meta.ref" arraysize="*"/>
+            <FIELD datatype="char" name="error_message" ucd="meta.code.error" arraysize="*"/>
+            <FIELD datatype="char" name="description" ucd="meta.note" arraysize="*"/>
+            <FIELD datatype="char" name="semantics" ucd="meta.code" arraysize="*"/>
+            <FIELD datatype="char" name="content_type" ucd="meta.code.mime" arraysize="*"/>
+            <FIELD unit="byte" datatype="long" name="content_length" ucd="phys.size;meta.file"/>
+            <FIELD ID="authenticatedIdToken" datatype="char" name="authenticated_id_token" ucd="meta.id" arraysize="*"/>
+            <DATA>
+                <TABLEDATA>
+                    <TR>
+                        <TD>3242</TD>
+                        <TD/>
+                        <TD/>
+                        <TD>DefaultFault: Sorry, but you do not have permission to access this data product</TD>
+                        <TD/>
+                        <TD>#error</TD>
+                        <TD/>
+                        <TD/>
+                        <TD/>
+                    </TR>
+                </TABLEDATA>
+            </DATA>
+        </TABLE>
+    </RESOURCE>
+</VOTABLE>
