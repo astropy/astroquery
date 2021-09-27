@@ -21,7 +21,7 @@ except ImportError:
     pytest.skip("Install mock for the casda tests.", allow_module_level=True)
 
 DATA_FILES = {'CIRCLE': 'cone.xml', 'RANGE': 'box.xml', 'DATALINK': 'datalink.xml', 'RUN_JOB': 'run_job.xml',
-              'COMPLETED_JOB': 'completed_job.xml', 'DATALINK_NOACCESS' : 'datalink_noaccess.xml'}
+              'COMPLETED_JOB': 'completed_job.xml', 'DATALINK_NOACCESS': 'datalink_noaccess.xml'}
 
 
 class MockResponse:
@@ -271,6 +271,7 @@ def test_stage_data_no_link(patch_get):
         casda.stage_data(table)
 
     assert "You do not have access to any of the requested data files." in str(excinfo.value)
+
 
 def test_stage_data(patch_get):
     prefix = 'https://somewhere/casda/datalink/links?'
