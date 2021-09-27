@@ -1,9 +1,9 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
-MAST Datasets
+MAST Missions
 =================
 
-This module contains methods for searching MAST datasets.
+This module contains methods for searching MAST missions.
 """
 
 import json
@@ -17,7 +17,7 @@ from ..utils.class_or_instance import class_or_instance
 from . import utils
 from .core import MastQueryWithLogin
 
-__all__ = ['DatasetsClass', 'Datasets']
+__all__ = ['MissionsClass', 'Missions']
 
 
 @async_to_sync
@@ -78,7 +78,6 @@ class MissionsClass(MastQueryWithLogin):
         response : `~astropy.table.Table`
         """
 
-        print(response)
         return self._service_api_connection._parse_result(response, verbose, data_key='results')
 
     @class_or_instance
@@ -92,7 +91,7 @@ class MissionsClass(MastQueryWithLogin):
             The target around which to search. It may be specified as a
             string or as the appropriate `~astropy.coordinates` object.
         radius : str or `~astropy.units.Quantity` object, optional
-            Default 0.2 degrees.
+            Default 3 degrees.
             The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from
             `~astropy.units` may also be used. Defaults to 0.2 deg.

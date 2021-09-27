@@ -226,35 +226,6 @@ def test_missions_query_criteria_async(patch_post):
     assert isinstance(responses, MockResponse)
 
 
-def test_catalogs_query_criteria(patch_post):
-    pep_id = {'sci_pep_id':'12556'}
-    obs_type = {'sci_obs_type': "SPECTRUM"}
-    instruments = {'sci_instrume': "stis,acs,wfc3,cos,fos,foc,nicmos,ghrs"}
-    datasets = {'sci_data_set_name': ""}
-    pi_lname = {'sci_pi_last_name': ""}
-    actual_duration = {'sci_actual_duration': ""}
-    spec_1234 = {'sci_spec_1234': ""}
-    release_date = {'sci_release_date': ""}
-    start_time = {'sci_start_time': ""}
-    obs_type = {'sci_obs_type': 'all'}
-    aec = {'sci_aec': 'S'}
-
-    result = mast.Missions.query_criteria(coordinates=regionCoords,
-                                        radius=3,
-                                        conditions=[pep_id,
-                                                    obs_type,
-                                                    instruments,
-                                                    datasets,
-                                                    pi_lname,
-                                                    spec_1234,
-                                                    release_date,
-                                                    start_time,
-                                                    obs_type,
-                                                    aec])
-
-    assert isinstance(result, Table)
-
-
 ###################
 # MastClass tests #
 ###################
