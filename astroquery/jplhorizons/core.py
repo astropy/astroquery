@@ -979,20 +979,16 @@ class HorizonsClass(BaseQuery):
             ('COMMAND', '"' + commandline + '"'),
             ('CENTER', ("'" + str(self.location) + "'")),
             ('CSV_FORMAT', ('"YES"')),
-            ('REF_PLANE', {
-                'ecliptic': 'ECLIPTIC',
-                'earth': 'FRAME',
-                'frame': 'FRAME',
-                'body': "'BODY EQUATOR'"
-            }[refplane]),
+            ('REF_PLANE', {'ecliptic': 'ECLIPTIC',
+                           'earth': 'FRAME',
+                           'frame': 'FRAME',
+                           'body': "'BODY EQUATOR'"}[refplane]),
             ('REF_SYSTEM', 'ICRF'),
             ('TP_TYPE', 'ABSOLUTE'),
             ('VEC_LABELS', 'YES'),
-            ('VEC_CORR', {
-                'geometric': '"NONE"',
-                'astrometric': '"LT"',
-                'apparent': '"LT+S"'
-            }[aberrations]),
+            ('VEC_CORR', {'geometric': '"NONE"',
+                          'astrometric': '"LT"',
+                          'apparent': '"LT+S"'}[aberrations]),
             ('VEC_DELTA_T', {True: 'YES', False: 'NO'}[delta_T]),
             ('OBJ_DATA', 'YES')]
         )
