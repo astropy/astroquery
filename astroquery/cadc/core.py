@@ -18,7 +18,7 @@ from ..utils import async_to_sync, commons
 from ..query import BaseQuery
 from bs4 import BeautifulSoup
 from astropy.utils.exceptions import AstropyDeprecationWarning
-from astroquery.utils.decorators import deprecated
+from astropy.utils.decorators import deprecated
 from astropy import units as u
 from . import conf
 
