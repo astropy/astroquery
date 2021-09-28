@@ -30,10 +30,10 @@ class MissionsClass(MastQueryWithLogin):
 
     def __init__(self):
         super().__init__()
-        
+
         self.service = 'search'
         self.mission = 'hst'
-        
+
         service_dict = {self.service: {'path': self.service, 'args': {}}}
         self._service_api_connection.set_service_params(service_dict, f"{self.service}/{self.mission}")
 
@@ -119,7 +119,6 @@ class MissionsClass(MastQueryWithLogin):
                   'radius': radius.arcmin,
                   'radius_units': 'arcminutes'}
 
-
         # adding additional user specified parameters
         for prop, value in kwargs.items():
             params[prop] = value
@@ -196,5 +195,6 @@ class MissionsClass(MastQueryWithLogin):
         coordinates = utils.resolve_object(objectname)
 
         return self.query_region_async(coordinates, radius)
+
 
 Missions = MissionsClass()

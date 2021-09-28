@@ -200,7 +200,7 @@ def test_missions_query_region(patch_post):
 
 
 def test_missions_query_criteria_async(patch_post):
-    pep_id = {'sci_pep_id':'12556'}
+    pep_id = {'sci_pep_id': '12556'}
     obs_type = {'sci_obs_type': "SPECTRUM"}
     instruments = {'sci_instrume': "stis,acs,wfc3,cos,fos,foc,nicmos,ghrs"}
     datasets = {'sci_data_set_name': ""}
