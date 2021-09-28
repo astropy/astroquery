@@ -10,6 +10,12 @@ New Tools and Services
 Service fixes and enhancements
 ------------------------------
 
+casda
+^^^^^^
+
+- Add ability to stage and download non image data which have been found 
+  through the CASDA obscore table. [#2158]
+
 vizier
 ^^^^^^
 

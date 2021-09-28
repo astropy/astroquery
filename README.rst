@@ -109,6 +109,7 @@ The following modules have been completed using a common API:
   * `Besancon <http://astroquery.readthedocs.io/en/latest/besancon/besancon.html>`_: Model of stellar population synthesis in the Galaxy.
   * `CDS MOC Service <https://astroquery.readthedocs.io/en/latest/cds/cds.html>`_: A collection of all-sky survey coverage maps.
   * `CADC <https://astroquery.readthedocs.io/en/latest/cadc/cadc.html>`_: Canadian Astronomy Data Centre.
+  * `CASDA <https://astroquery.readthedocs.io/en/latest/casda/casda.html>`_:  CSIRO ASKAP Science Data Archive.
   * `ESASky <http://astroquery.readthedocs.io/en/latest/esasky/esasky.html>`_: ESASky is a science driven discovery portal providing easy visualizations and full access to the entire sky as observed with ESA Space astronomy missions.
   * `ESO Archive <http://astroquery.readthedocs.io/en/latest/eso/eso.html>`_
   * `FIRST <http://astroquery.readthedocs.io/en/latest/image_cutouts/first/first.html>`_: Faint Images of the Radio Sky at Twenty-cm. 20-cm radio images of the extragalactic sky from the VLA.

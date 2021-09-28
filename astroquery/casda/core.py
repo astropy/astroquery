@@ -184,13 +184,21 @@ class CasdaClass(BaseQuery):
 
         # Use datalink to get authenticated access for each file
         tokens = []
+        soda_url = None
         for row in table:
             access_url = row['access_url']
-            response = self._request('GET', access_url, auth=self._auth,
-                                     timeout=self.TIMEOUT, cache=False)
-            response.raise_for_status()
-            soda_url, id_token = self._parse_datalink_for_service_and_id(response, 'cutout_service')
-            tokens.append(id_token)
+            if access_url:
+                response = self._request('GET', access_url, auth=self._auth,
+                                        timeout=self.TIMEOUT, cache=False)
+                response.raise_for_status()
+                service_url, id_token = self._parse_datalink_for_service_and_id(response, 'async_service')
+                if id_token:
+                    tokens.append(id_token)
+                    soda_url = service_url
+
+        # Trap a request with no allowed data
+        if not soda_url:
+            raise ValueError('You do not have access to any of the requested data files.')
 
         # Create job to stage all files
         job_url = self._create_soda_job(tokens, soda_url=soda_url)
