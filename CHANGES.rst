@@ -27,6 +27,12 @@ splatalogue
 
 - Splatalogue table merging can now handle unmasked columns [#2136]
 
+jplhorizons
+^^^^^^^^^^^
+
+- Updated to use v1.0 of the new JPL Horizons API released 2021-09-15.
+  Included in this update, the default reference system is changed from
+  J2000 to ICRF, following API documentation. [#2154]
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------

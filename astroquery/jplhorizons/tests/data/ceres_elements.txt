@@ -1,33 +1,36 @@
+API VERSION: 1.0
+API SOURCE: NASA/JPL Horizons API
+
 *******************************************************************************
-JPL/HORIZONS                  1 Ceres (A801 AA)            2020-May-29 09:49:47
-Rec #:       1 (+COV) Soln.date: 2020-May-20_11:11:55   # obs: 1030 (1995-2020)
-
+JPL/HORIZONS                  1 Ceres (A801 AA)            2021-Sep-22 17:02:01
+Rec #:       1 (+COV) Soln.date: 2021-Apr-13_11:04:44   # obs: 1075 (1995-2021)
+ 
 IAU76/J2000 helio. ecliptic osc. elements (au, days, deg., period=Julian yrs):
-
-  EPOCH=  2454061.5 ! 2006-Nov-22.00 (TDB)         Residual RMS= .24184
-   EC= .07985681703215082  QR= 2.544823927206557   TP= 2454873.5774668744
-   OM= 80.40822338295483   W=  73.18422155550952   IN= 10.58670363476912
-   A= 2.765682531058295    MA= 185.9804488570544   ADIST= 2.986541134910033
-   PER= 4.59951            N= .214289342           ANGMOM= .028516315
-   DAN= 2.68599            DDN= 2.81303            L= 153.318086
-   B= 10.1291284           MOID= 1.57983994        TP= 2009-Feb-11.0774668744
-
+ 
+  EPOCH=  2458849.5 ! 2020-Jan-01.00 (TDB)         Residual RMS= .24563
+   EC= .07687465013145245  QR= 2.556401146697176   TP= 2458240.1791309435
+   OM= 80.3011901917491    W=  73.80896808746482   IN= 10.59127767086216
+   A= 2.769289292143484    MA= 130.3159688200986   ADIST= 2.982177437589792
+   PER= 4.60851            N= .213870839           ANGMOM= .028541613
+   DAN= 2.69515            DDN= 2.81323            L= 153.8445988
+   B= 10.1666388           MOID= 1.59231997        TP= 2018-May-01.6791309435
+ 
 Asteroid physical parameters (km, seconds, rotational period in hours):
    GM= 62.6284             RAD= 469.7              ROTPER= 9.07417
-   H= 3.4                  G= .120                 B-V= .713
+   H= 3.53                 G= .120                 B-V= .713
                            ALBEDO= .090            STYP= C
-
-ASTEROID comments:
-1: soln ref.= JPL#47, OCC=0           radar(60 delay, 0 Dop.)
+ 
+ASTEROID comments: 
+1: soln ref.= JPL#48, OCC=0           radar(60 delay, 0 Dop.)
 2: source=ORB
 *******************************************************************************
 
 
 *******************************************************************************
-Ephemeris / WWW_USER Fri May 29 09:49:47 2020 Pasadena, USA      / Horizons
+Ephemeris / API_USER Wed Sep 22 17:02:01 2021 Pasadena, USA      / Horizons
 *******************************************************************************
-Target body name: 1 Ceres (A801 AA)               {source: JPL#47}
-Center body name: Sun (10)                        {source: DE431}
+Target body name: 1 Ceres (A801 AA)               {source: JPL#48}
+Center body name: Sun (10)                        {source: DE441}
 Center-site name: BODY CENTER
 *******************************************************************************
 Start time      : A.D. 2000-Jan-01 00:00:00.0000 TDB
@@ -36,51 +39,49 @@ Step-size       : 0 steps
 *******************************************************************************
 Center geodetic : 0.00000000,0.00000000,0.0000000 {E-lon(deg),Lat(deg),Alt(km)}
 Center cylindric: 0.00000000,0.00000000,0.0000000 {E-lon(deg),Dxy(km),Dz(km)}
-Center radii    : 696000.0 x 696000.0 x 696000.0 k{Equator, meridian, pole}
-Keplerian GM    : 2.9591220828559093E-04 au^3/d^2
-Small perturbers: Yes                             {source: SB431-N16}
+Center radii    : 696000.0 x 696000.0 x 696000.0 k{Equator, meridian, pole}    
+Keplerian GM    : 2.9591220828411951E-04 au^3/d^2
+Small perturbers: Yes                             {source: SB441-N16}
 Output units    : AU-D, deg, Julian Day Number (Tp)
 Output type     : GEOMETRIC osculating elements
 Output format   : 10
-Reference frame : ICRF/J2000.0
-Coordinate systm: Ecliptic and Mean Equinox of Reference Epoch
+Reference frame : Ecliptic of J2000.0
 *******************************************************************************
 Initial IAU76/J2000 heliocentric ecliptic osculating elements (au, days, deg.):
-  EPOCH=  2454061.5 ! 2006-Nov-22.00 (TDB)         Residual RMS= .24184
-   EC= .07985681703215082  QR= 2.544823927206557   TP= 2454873.5774668744
-   OM= 80.40822338295483   W=  73.18422155550952   IN= 10.58670363476912
-  Equivalent ICRF heliocentric equatorial cartesian coordinates (au, au/d):
-   X= 2.732617277025615E+00  Y=-7.734822664676754E-01  Z=-9.207592896905449E-01
-  VX= 3.368590810386608E-03 VY= 8.330863405401928E-03 VZ= 3.238410491551668E-03
-Asteroid physical parameters (km, seconds, rotational period in hours):
-   GM= 62.6284             RAD= 469.7              ROTPER= 9.07417
-   H= 3.4                  G= .120                 B-V= .713
-                           ALBEDO= .090            STYP= C
+  EPOCH=  2458849.5 ! 2020-Jan-01.00 (TDB)         Residual RMS= .24563        
+   EC= .07687465013145245  QR= 2.556401146697176   TP= 2458240.1791309435      
+   OM= 80.3011901917491    W=  73.80896808746482   IN= 10.59127767086216       
+  Equivalent ICRF heliocentric cartesian coordinates (au, au/d):
+   X= 1.007608869613381E+00  Y=-2.390064275223502E+00  Z=-1.332124522752402E+00
+  VX= 9.201724467227128E-03 VY= 3.370381135398406E-03 VZ=-2.850337057661093E-04
+Asteroid physical parameters (km, seconds, rotational period in hours):        
+   GM= 62.6284             RAD= 469.7              ROTPER= 9.07417             
+   H= 3.53                 G= .120                 B-V= .713                   
+                           ALBEDO= .090            STYP= C                     
 *******************************************************************************
             JDTDB,            Calendar Date (TDB),                     EC,                     QR,                     IN,                     OM,                      W,                     Tp,                      N,                     MA,                     TA,                      A,                     AD,                     PR,
 **************************************************************************************************************************************************************************************************************************************************************************************************************************************************
 $$SOE
-2451544.500000000, A.D. 2000-Jan-01 00:00:00.0000,  7.837505661794254E-02,  2.549670138349935E+00,  1.058336073882007E+01,  8.049436523546700E+01,  7.392278833506030E+01,  2.451516163109598E+06,  2.141950390313929E-01,  6.069621345711466E+00,  7.121192564072539E+00,  2.766494284533461E+00,  2.983318430716986E+00,  1.680711194936862E+03,
+2451544.500000000, A.D. 2000-Jan-01 00:00:00.0000,  7.837505574674922E-02,  2.549670145428669E+00,  1.058336066935565E+01,  8.049436497808115E+01,  7.392278720553115E+01,  2.451516163103133E+06,  2.141950384425567E-01,  6.069622713669460E+00,  7.121194154895409E+00,  2.766494289599058E+00,  2.983318433769447E+00,  1.680711199557247E+03,
 $$EOE
 **************************************************************************************************************************************************************************************************************************************************************************************************************************************************
 Coordinate system description:
 
-  Ecliptic and Mean Equinox of Reference Epoch
+  Ecliptic at the standard reference epoch
 
     Reference epoch: J2000.0
-    XY-plane: plane of the Earth's orbit at the reference epoch
-              Note: obliquity of 84381.448 arcseconds wrt ICRF equator (IAU76)
-    X-axis  : out along ascending node of instantaneous plane of the Earth's
-              orbit and the Earth's mean equator at the reference epoch
-    Z-axis  : perpendicular to the xy-plane in the directional (+ or -) sense
-              of Earth's north pole at the reference epoch.
+    X-Y plane: adopted Earth orbital plane at the reference epoch
+               Note: obliquity of 84381.448 arcseconds (IAU76) wrt ICRF equator
+    X-axis   : ICRF
+    Z-axis   : perpendicular to the X-Y plane in the directional (+ or -) sense
+               of Earth's north pole at the reference epoch.
 
   Symbol meaning [1 au= 149597870.700 km, 1 day= 86400.0 s]:
 
     JDTDB    Julian Day Number, Barycentric Dynamical Time
       EC     Eccentricity, e
       QR     Periapsis distance, q (au)
-      IN     Inclination w.r.t XY-plane, i (degrees)
+      IN     Inclination w.r.t X-Y plane, i (degrees)
       OM     Longitude of Ascending Node, OMEGA, (degrees)
       W      Argument of Perifocus, w (degrees)
       Tp     Time of periapsis (Julian Day Number)
@@ -93,13 +94,16 @@ Coordinate system description:
 
 Geometric states/elements have no aberrations applied.
 
+
  Computations by ...
      Solar System Dynamics Group, Horizons On-Line Ephemeris System
      4800 Oak Grove Drive, Jet Propulsion Laboratory
      Pasadena, CA  91109   USA
-     Information: http://ssd.jpl.nasa.gov/
-     Connect    : telnet://ssd.jpl.nasa.gov:6775  (via browser)
-                  http://ssd.jpl.nasa.gov/?horizons
-                  telnet ssd.jpl.nasa.gov 6775    (via command-line)
-     Author     : Jon.D.Giorgini@jpl.nasa.gov
+     Information  : https://ssd.jpl.nasa.gov/
+     Documentation: https://ssd.jpl.nasa.gov/?horizons_doc
+     Connect      : https://ssd.jpl.nasa.gov/?horizons (browser)
+                    telnet ssd.jpl.nasa.gov 6775       (command-line)
+                    e-mail command interface available
+                    Script and CGI interfaces available
+     Author       : Jon.D.Giorgini@jpl.nasa.gov
 *******************************************************************************

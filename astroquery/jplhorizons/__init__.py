@@ -17,7 +17,7 @@ class Conf(_config.ConfigNamespace):
 
     # server settings
     horizons_server = _config.ConfigItem(
-        'https://ssd.jpl.nasa.gov/horizons_batch.cgi',
+        ['https://ssd.jpl.nasa.gov/api/horizons.api', ],
         'JPL Horizons')
 
     # implement later: sbdb_server = 'http://ssd-api.jpl.nasa.gov/sbdb.api'

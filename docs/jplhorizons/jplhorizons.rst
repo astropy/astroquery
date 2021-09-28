@@ -169,7 +169,7 @@ range, ``max_hour_angle`` sets a cutoff of the hour angle,
 allows to reject targets with sky motion rates higher than provided
 (in units of arcsec/h), ``refraction`` accounts for refraction in the
 computation of the ephemerides (disabled by default), and
-``refsystem`` defines the coordinate reference system used (J2000 by
+``refsystem`` defines the coordinate reference system used (ICRF by
 default).. For comets, the options ``closest_apparation`` and
 ``no_fragments`` are available, which select the closest apparition in
 time and reject fragments, respectively. Note that these options
@@ -225,7 +225,7 @@ The following fields are queried:
 Optional parameters of
 :meth:`~astroquery.jplhorizons.HorizonsClass.elements` include
 ``refsystem``, which defines the coordinate reference system used
-(J2000 by default), ``refplane`` which defines the reference plane of
+(ICRF by default), ``refplane`` which defines the reference plane of
 the orbital elements queried, and ``tp_type``, which switches between
 a relative and absolute representation of the time of perihelion
 passage.  For comets, the options ``closest_apparation`` and
@@ -521,7 +521,7 @@ from the JPL Horizons server can be obtained from the
 has been performed (before the query only ``None`` would be returned):
 
    >>> print(obj.uri)
-   https://ssd.jpl.nasa.gov/horizons_batch.cgi?batch=1&TABLE_TYPE=VECTORS&OUT_UNITS=AU-D&COMMAND=%222012+TC4%3B%22&CENTER=%27257%27&CSV_FORMAT=%22YES%22&REF_PLANE=ECLIPTIC&REF_SYSTEM=J2000&TP_TYPE=ABSOLUTE&LABELS=YES&OBJ_DATA=YES&START_TIME=2017-10-01&STOP_TIME=2017-10-02&STEP_SIZE=10m
+   https://ssd.jpl.nasa.gov/api/horizons.api?format=text&EPHEM_TYPE=VECTORS&OUT_UNITS=AU-D&COMMAND=%222012+TC4%3B%22&CENTER=%27257%27&CSV_FORMAT=%22YES%22&REF_PLANE=ECLIPTIC&REF_SYSTEM=ICRF&TP_TYPE=ABSOLUTE&VEC_LABELS=YES&OBJ_DATA=YES&START_TIME=2017-10-01&STOP_TIME=2017-10-02&STEP_SIZE=10m
 
 If your query failed, it might be useful for you to put the URI into a
 web browser to get more information why it failed. Please note that
