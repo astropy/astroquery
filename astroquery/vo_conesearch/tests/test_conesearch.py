@@ -12,6 +12,7 @@ import pytest
 # ASTROPY
 from astropy import units as u
 from astropy.coordinates import ICRS, SkyCoord
+from astropy.io.votable.exceptions import W25
 from astropy.io.votable.tree import Table as VOTable
 from astropy.table import Table
 from astropy.utils.data import get_pkg_data_filename
@@ -81,6 +82,7 @@ class TestConeSearch:
                 service_url=self.url)
         assert result is None
 
+    @pytest.mark.filterwarnings('ignore::astropy.io.votable.exceptions.W25')
     @pytest.mark.parametrize(('center', 'radius'),
                              [((SCS_RA, SCS_DEC), SCS_SR),
                               (SCS_CENTER, SCS_RADIUS)])
@@ -113,7 +115,7 @@ class TestConeSearch:
 
     def test_timeout_classic(self):
         """Test timed out query."""
-        with pytest.warns(NoResultsWarning, match='timed out'):
+        with pytest.warns(W25, match='timed out'):
             with conf.set_temp('timeout', 1e-6):
                 result = conesearch.conesearch(
                     SCS_CENTER, SCS_RADIUS, cache=False,
@@ -142,6 +144,7 @@ class TestConeSearch:
         assert tab_2.url == tab_4.url
         np.testing.assert_array_equal(tab_2.array, tab_4.array)
 
+    @pytest.mark.filterwarnings('ignore::astropy.io.votable.exceptions.W25')
     @pytest.mark.parametrize(('center', 'radius'),
                              [((SCS_RA, SCS_DEC), SCS_SR),
                               (SCS_CENTER, SCS_RADIUS)])
@@ -156,6 +159,7 @@ class TestConeSearch:
 
         assert tab_1.array.size > 0
 
+    @pytest.mark.filterwarnings('ignore::astropy.io.votable.exceptions.W25')
     def test_async(self):
         async_search = conesearch.AsyncConeSearch(
             SCS_CENTER, SCS_RADIUS, return_astropy_table=False)
@@ -172,6 +176,7 @@ class TestConeSearch:
         else:
             assert tab.array.size > 0
 
+    @pytest.mark.filterwarnings('ignore::astropy.io.votable.exceptions.W25')
     def test_async_all(self):
         async_search_all = conesearch.AsyncSearchAll(
             SCS_CENTER, SCS_RADIUS, return_astropy_table=False)
