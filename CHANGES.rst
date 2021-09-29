@@ -41,6 +41,7 @@ Infrastructure, Utility and Other Changes and Additions
   The API for JPLspec's ``lookup_table.find`` function returns a dictionary
   instead of values (for compatibility w/CDMS).  [#2144]
 
+- Versions of astropy <4 and numpy <1.16 are no longer supported. [#2163]
 
 0.4.3 (2021-07-07)
 ==================
