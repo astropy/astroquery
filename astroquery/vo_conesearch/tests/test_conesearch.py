@@ -50,7 +50,7 @@ class TestConeSearch:
     """
     def setup_class(self):
         # If this link is broken, use the next in database that works
-        self.url = ('http://vizier.u-strasbg.fr/viz-bin/votable/-A?-out.all&'
+        self.url = ('http://vizier.unistra.fr/viz-bin/votable/-A?-out.all&'
                     '-source=I/252/out&')
         self.catname = 'USNO-A2'
 
