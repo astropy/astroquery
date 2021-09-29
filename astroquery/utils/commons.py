@@ -16,7 +16,7 @@ import six
 import astropy.units as u
 from astropy import coordinates as coord
 from collections import OrderedDict
-from astropy.utils import minversion
+from astropy.utils import deprecated, minversion
 import astropy.utils.data as aud
 from astropy.io import fits, votable
 
@@ -60,6 +60,7 @@ ASTROPY_LT_4_1 = not minversion('astropy', '4.1')
 ASTROPY_LT_4_3 = not minversion('astropy', '4.3')
 
 
+@deprecated('0.4.4', alternative='astroquery.query.BaseQuery._request')
 def send_request(url, data, timeout, request_type='POST', headers={},
                  **kwargs):
     """
