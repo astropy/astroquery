@@ -263,18 +263,14 @@ class TestHorizonsClass:
         assert len(res) >= 6412
 
     def test_unknownobject(self):
-        try:
+        with pytest.raises(ValueError):
             jplhorizons.Horizons(id='spamspamspameggsspam', location='500',
-                                 id_type='', epochs=2451544.5).ephemerides()
-        except ValueError:
-            pass
+                                 epochs=2451544.5).ephemerides()
 
     def test_multipleobjects(self):
-        try:
+        with pytest.raises(ValueError):
             jplhorizons.Horizons(id='73P', location='500', id_type='smallbody',
                                  epochs=2451544.5).ephemerides()
-        except ValueError:
-            pass
 
     def test_uri(self):
         target = jplhorizons.Horizons(id='3552', location='500',
@@ -329,8 +325,7 @@ class TestHorizonsClass:
         quantities = ('1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,'
                       '21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,'
                       '38,39,40,41,42,43')
-        target = jplhorizons.Horizons(id='301', location='688', epochs=epochs,
-                                      id_type='')
+        target = jplhorizons.Horizons(id='301', location='688', epochs=epochs)
         eph = target.ephemerides(quantities=quantities)
         assert len(eph) == 2
 
