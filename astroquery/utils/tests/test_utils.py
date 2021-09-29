@@ -15,6 +15,7 @@ import astropy.io.votable as votable
 import astropy.units as u
 from astropy.table import Table
 import astropy.utils.data as aud
+from astropy.utils.exceptions import AstropyDeprecationWarning
 
 from ...utils import chunk_read, chunk_report, class_or_instance, commons
 from ...utils.process_asyncs import async_to_sync_docstr, async_to_sync
@@ -96,8 +97,9 @@ def test_send_request_post(monkeypatch):
                                    status_code=status_code)
     monkeypatch.setattr(requests, 'post', mock_post)
 
-    response = commons.send_request('https://github.com/astropy/astroquery',
-                                    data=dict(msg='ok'), timeout=30)
+    with pytest.warns(AstropyDeprecationWarning):
+        response = commons.send_request('https://github.com/astropy/astroquery',
+                                            data=dict(msg='ok'), timeout=30)
     assert response.url == 'https://github.com/astropy/astroquery'
     assert response.data == dict(msg='ok')
     assert 'astroquery' in response.headers['User-Agent']
@@ -112,8 +114,9 @@ def test_send_request_get(monkeypatch):
         req.raise_for_status = lambda: None
         return req
     monkeypatch.setattr(requests, 'get', mock_get)
-    response = commons.send_request('https://github.com/astropy/astroquery',
-                                    dict(a='b'), 60, request_type='GET')
+    with pytest.warns(AstropyDeprecationWarning):
+        response = commons.send_request('https://github.com/astropy/astroquery',
+                                        dict(a='b'), 60, request_type='GET')
     assert response.url == 'https://github.com/astropy/astroquery?a=b'
 
 
@@ -125,15 +128,18 @@ def test_quantity_timeout(monkeypatch):
         req.raise_for_status = lambda: None
         return req
     monkeypatch.setattr(requests, 'get', mock_get)
-    response = commons.send_request('https://github.com/astropy/astroquery',
-                                    dict(a='b'), 1 * u.min, request_type='GET')
+    with pytest.warns(AstropyDeprecationWarning):
+        response = commons.send_request('https://github.com/astropy/astroquery',
+                                        dict(a='b'), 1 * u.min,
+                                        request_type='GET')
     assert response.url == 'https://github.com/astropy/astroquery?a=b'
 
 
 def test_send_request_err():
     with pytest.raises(ValueError):
-        commons.send_request('https://github.com/astropy/astroquery',
-                             dict(a='b'), 60, request_type='PUT')
+        with pytest.warns(AstropyDeprecationWarning):
+            commons.send_request('https://github.com/astropy/astroquery',
+                                 dict(a='b'), 60, request_type='PUT')
 
 
 col_1 = [1, 2, 3]
