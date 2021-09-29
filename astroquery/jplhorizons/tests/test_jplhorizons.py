@@ -219,3 +219,17 @@ def test_no_H(patch_request):
     """testing missing H value (also applies for G, M1, k1, M2, k2)"""
     res = jplhorizons.Horizons(id='1935 UZ').ephemerides()[0]
     assert 'H' not in res
+
+
+def test_id_type_deprecation():
+    """Test deprecation warnings based on issue 1742.
+￼
+￼    https://github.com/astropy/astroquery/pull/2161
+
+    """
+
+    with pytest.warns(AstropyDeprecationWarning):
+        res = jplhorizons.Horizons(id='Ceres', id_type='id')
+
+    with pytest.warns(AstropyDeprecationWarning):
+        res = jplhorizons.Horizons(id='Ceres', id_type='majorbody')

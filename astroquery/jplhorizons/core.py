@@ -12,6 +12,7 @@ import warnings
 from astropy.table import Table, Column
 from astropy.io import ascii
 from astropy.time import Time
+from astropy.utils.exceptions import AstropyDeprecationWarning
 
 # 3. local imports - use relative imports
 # commonly required local imports shown below as example
@@ -108,7 +109,11 @@ class HorizonsClass(BaseQuery):
         self.epochs = epochs
 
         # check for id_type
-
+        if id_type in ['majorbody', 'id']:
+            warnings.warn("``id_type``s 'majorbody' and 'id' are deprecated "
+                          "and replaced with ``None``, which has the same "
+                          "functionality.", AstropyDeprecationWarning)
+            id_type = None
         if id_type not in [None, 'smallbody', 'designation', 'name',
                            'asteroid_name', 'comet_name']:
             raise ValueError('id_type ({:s}) not allowed'.format(id_type))
