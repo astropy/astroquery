@@ -75,7 +75,7 @@ class HorizonsClass(BaseQuery):
         References
         ----------
 
-        .. [HORIZONSDOC_SELECTION] https://ssd.jpl.nasa.gov/?horizons_doc#selection (retrieved 2021 Sep 23).
+        .. [HORIZONSDOC_SELECTION] https://ssd.jpl.nasa.gov/horizons/manual.html#select (retrieved 2021 Sep 23).
 
 
         Examples
@@ -86,7 +86,7 @@ class HorizonsClass(BaseQuery):
         ...                      'stop':'2017-02-01',
         ...                      'step':'1d'})
         >>> print(eros)  # doctest: +SKIP
-        JPLHorizons instance "433"; location=568, epochs={'start': '2017-01-01', 'step': '1d', 'stop': '2017-02-01'}, id_type=smallbody
+        JPLHorizons instance "433"; location=568, epochs={'start': '2017-01-01', 'step': '1d', 'stop': '2017-02-01'}, id_type=None
         """
         super(HorizonsClass, self).__init__()
         self.id = id
@@ -135,7 +135,7 @@ class HorizonsClass(BaseQuery):
         ...                         'stop':'2017-02-01',
         ...                         'step':'1d'})
         >>> print(eros)  # doctest: +SKIP
-        JPLHorizons instance "433"; location=568, epochs={'start': '2017-01-01', 'step': '1d', 'stop': '2017-02-01'}, id_type=smallbody
+        JPLHorizons instance "433"; location=568, epochs={'start': '2017-01-01', 'step': '1d', 'stop': '2017-02-01'}, id_type=None
         """
         return ('JPLHorizons instance \"{:s}\"; location={:s}, '
                 'epochs={:s}, id_type={:s}').format(
