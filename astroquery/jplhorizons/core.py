@@ -12,7 +12,6 @@ import warnings
 from astropy.table import Table, Column
 from astropy.io import ascii
 from astropy.time import Time
-from astropy.utils.exceptions import AstropyDeprecationWarning
 
 # 3. local imports - use relative imports
 # commonly required local imports shown below as example
@@ -30,7 +29,7 @@ __all__ = ['Horizons', 'HorizonsClass']
 class HorizonsClass(BaseQuery):
     """
     A class for querying the
-    `JPL Horizons <https://ssd.jpl.nasa.gov/horizons.cgi>`_ service.
+    `JPL Horizons <https://ssd.jpl.nasa.gov/horizons/>`_ service.
     """
 
     TIMEOUT = conf.timeout
@@ -48,7 +47,7 @@ class HorizonsClass(BaseQuery):
             orbital element or vector queries. Uses the same codes as JPL
             Horizons. If no location is provided, Earth's center is used for
             ephemerides queries and the Sun's center for elements and vectors
-            queries. Arbitrary topocentic coordinates for ephemerides queries
+            queries. Arbitrary topocentric coordinates for ephemerides queries
             can be provided in the format of a dictionary. The dictionary has to
             be of the form {``'lon'``: longitude in deg (East positive, West
             negative), ``'lat'``: latitude in deg (North positive, South
@@ -66,13 +65,12 @@ class HorizonsClass(BaseQuery):
             time is used.
         id_type : str, optional
             Controls Horizons's object selection for ``id``
-            [HORIZONSDOC_SELECTION]_ .  Options: ``'majorbody'`` (DEPRECATED,
-            use ``''``), ``'designation'`` (small body designation), ``'name'``
-            (asteroid or comet name), ``'asteroid_name'``, ``'comet_name'``,
-            ``'id'`` (Horizons ID number), ``'smallbody'`` (asteroid and comet
-            search), or ``''`` (empty string; first search search planets,
-            natural satellites, spacecraft, and special cases, then small
-            bodies).
+            [HORIZONSDOC_SELECTION]_ .  Options: ``'designation'`` (small body
+            designation), ``'name'`` (asteroid or comet name),
+            ``'asteroid_name'``, ``'comet_name'``, ``'smallbody'`` (asteroid
+            and comet search), or ``None`` (first search search planets,
+            natural satellites, spacecraft, and special cases, and if no
+            matches, then search small bodies).
 
         References
         ----------
@@ -110,19 +108,9 @@ class HorizonsClass(BaseQuery):
         self.epochs = epochs
 
         # check for id_type
-        if id_type is None:
-            warnings.warn('id_type was not specified, defaulting to a '
-            '"smallbody" search.  This behavior is deprecated and will be '
-            'changed to "" (empty string / Horizons default) in the future.',
-            AstropyDeprecationWarning)
-            id_type = 'smallbody'
-        elif id_type == 'majorbody':
-            warnings.warn('id_type "majorbody" is deprecated and will be '
-            'removed.  For the equivalent search behavior, use "" (empty '
-            'string).', AstropyDeprecationWarning)
-            id_type = ''
-        if id_type not in ['', 'smallbody', 'designation', 'name',
-                           'asteroid_name', 'comet_name', 'id']:
+
+        if id_type not in [None, 'smallbody', 'designation', 'name',
+                           'asteroid_name', 'comet_name']:
             raise ValueError('id_type ({:s}) not allowed'.format(id_type))
         self.id_type = id_type
 

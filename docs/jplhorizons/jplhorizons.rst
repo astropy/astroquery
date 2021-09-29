@@ -6,11 +6,18 @@
 JPL Horizons Queries (`astroquery.jplhorizons`/astroquery.solarsystem.jpl.horizons)
 ***********************************************************************************
 
+.. Warning::
+
+   The default search behavior has changed.  In v0.4.3 and earlier, the default
+   ``id_type`` was ``'smallbody'``.  With v0.4.4, the default is ``None``, which
+   aligns with JPL Hoirizons's `default behavior
+   <https://ssd.jpl.nasa.gov/?horizons_doc#selection>`_: search major bodies
+   first, and if no major bodies are found, then search small bodies.
+
 .. Note::
 
    Due to serverside changes the ``jplhorizons`` module requires astroquery v0.4.1 or newer.
    Previous versions are not expected to function, please upgrade the package if you observe any issues.
-
 
 Overview
 ========
