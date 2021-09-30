@@ -34,6 +34,7 @@ from .cutouts import TesscutClass, Tesscut, ZcutClass, Zcut
 from .observations import Observations, ObservationsClass, MastClass, Mast
 from .collections import Catalogs, CatalogsClass
 from .core import MastQueryWithLogin
+from .cloud import CloudAccess
 from . import utils
 
 __all__ = ['Observations', 'ObservationsClass',
@@ -42,4 +43,5 @@ __all__ = ['Observations', 'ObservationsClass',
            'Tesscut', 'TesscutClass',
            'Zcut', 'ZcutClass',
            'Conf', 'conf', 'utils',
+	   'CloudAccess'
            ]
