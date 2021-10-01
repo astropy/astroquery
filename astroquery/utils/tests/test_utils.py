@@ -6,10 +6,9 @@ import requests
 import pytest
 import tempfile
 import textwrap
+import urllib
 
 import astropy.coordinates as coord
-from six.moves import urllib
-import six
 from astropy.io import fits
 import astropy.io.votable as votable
 import astropy.units as u
@@ -404,7 +403,7 @@ def test_payload_return(cls=DummyQuery):
     result = DummyQuery.query(get_query_payload=True)
     assert isinstance(result, dict)
     result = DummyQuery.query(get_query_payload=False)
-    assert isinstance(result, six.string_types)
+    assert isinstance(result, str)
 
 
 fitsfilepath = os.path.join(os.path.dirname(__file__),

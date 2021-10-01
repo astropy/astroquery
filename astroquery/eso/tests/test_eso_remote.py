@@ -3,7 +3,6 @@ import numpy as np
 import pytest
 import tempfile
 import shutil
-import six
 from ...exceptions import LoginError
 
 from ...eso import Eso
@@ -126,10 +125,10 @@ class TestEso:
         assert len(result) > 0
         assert "MIDI.2014-07-25T02:03:11.561" in result[0]
         result = eso.retrieve_data("MIDI.2014-07-25T02:03:11.561")
-        assert isinstance(result, six.string_types)
+        assert isinstance(result, str)
         result = eso.retrieve_data("MIDI.2014-07-25T02:03:11.561",
                                    request_all_objects=True)
-        assert isinstance(result, six.string_types)
+        assert isinstance(result, str)
 
     @pytest.mark.skipif('not Eso.USERNAME')
     def test_retrieve_data_twice(self):

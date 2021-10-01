@@ -2,7 +2,6 @@
 import os
 import re
 
-import six
 import pytest
 import astropy.units as u
 from astropy.table import Table
@@ -131,8 +130,8 @@ def test_parse_result():
                              'The attempted parsed result is in '
                              'self.last_parsed_result.\n Exception: 7:115: '
                              'no element found')
-    assert isinstance(simbad.Simbad.last_response.text, six.string_types)
-    assert isinstance(simbad.Simbad.last_response.content, six.binary_type)
+    assert isinstance(simbad.Simbad.last_response.text, str)
+    assert isinstance(simbad.Simbad.last_response.content, bytes)
 
 
 votable_fields = ",".join(simbad.core.Simbad.get_votable_fields())

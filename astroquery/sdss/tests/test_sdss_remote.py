@@ -6,7 +6,7 @@ import pytest
 from astropy import coordinates
 from astropy.table import Table
 
-from six.moves.urllib_error import URLError
+from urllib.error import URLError
 
 from ... import sdss
 from ...exceptions import TimeoutError

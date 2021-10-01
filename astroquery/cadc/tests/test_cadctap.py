@@ -5,6 +5,8 @@ CadcClass TAP plus
 =============
 
 """
+from io import BytesIO
+from urllib.parse import urlsplit, parse_qs
 import os
 import sys
 
@@ -12,8 +14,6 @@ from astropy.table import Table as AstroTable
 from astropy.io.fits.hdu.hdulist import HDUList
 from astropy.io.votable.tree import VOTableFile, Resource, Table, Field
 from astropy.io.votable import parse
-from six import BytesIO
-from six.moves.urllib_parse import urlsplit, parse_qs
 from astroquery.utils.commons import parse_coordinates, FileContainer
 from astropy import units as u
 from astropy.utils.exceptions import AstropyDeprecationWarning
