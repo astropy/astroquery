@@ -12,9 +12,9 @@ import smtplib
 import re
 import os
 import threading
-from six.moves.email_mime_multipart import MIMEMultipart
-from six.moves.email_mime_base import MIMEBase, message
-from six.moves.email_mime_text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase, message
+from email.mime.text import MIMEText
 
 # Astropy imports
 from astropy.table import Table

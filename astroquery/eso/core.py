@@ -11,8 +11,7 @@ import numpy as np
 import re
 from bs4 import BeautifulSoup
 
-from six import BytesIO
-import six
+from io import BytesIO
 from astropy.table import Table, Column
 from astroquery import log
 
@@ -347,7 +346,7 @@ class EsoClass(QueryWithLogin):
             survey_form = self._request("GET", url, cache=cache)
             query_dict = kwargs
             query_dict["wdbo"] = "csv/download"
-            if isinstance(surveys, six.string_types):
+            if isinstance(surveys, str):
                 surveys = surveys.split(",")
             query_dict['collection_name'] = surveys
             if self.ROW_LIMIT >= 0:
@@ -510,7 +509,7 @@ class EsoClass(QueryWithLogin):
 
         """
         _schema_product_ids = schema.Schema(
-            schema.Or(Column, [schema.Or(*six.string_types)]))
+            schema.Or(Column, [schema.Schema(str)]))
         _schema_product_ids.validate(product_ids)
         # Get all headers
         result = []
@@ -678,7 +677,7 @@ class EsoClass(QueryWithLogin):
             raise ValueError("invalid value for 'with_calib', "
                              "it must be 'none', 'raw' or 'processed'")
 
-        if isinstance(datasets, six.string_types):
+        if isinstance(datasets, str):
             return_list = False
             datasets = [datasets]
         else:

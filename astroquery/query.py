@@ -12,7 +12,6 @@ import os
 import requests
 import textwrap
 
-import six
 from astropy.config import paths
 from astroquery import log
 import astropy.units as u
@@ -91,7 +90,7 @@ class AstroQuery:
                                                  key=_replace_none_iterable)),)
                 elif k is None:
                     request_key += (None,)
-                elif isinstance(k, six.string_types):
+                elif isinstance(k, str):
                     request_key += (k,)
                 else:
                     raise TypeError("{0} must be a dict, tuple, str, or "
@@ -138,15 +137,13 @@ class LoginABCMeta(abc.ABCMeta):
                 bases[0].login(*args, **kwargs)
 
             login.__doc__ = attrs['_login'].__doc__
-            if not six.PY2:
-                login.__signature__ = inspect.signature(attrs['_login'])
+            login.__signature__ = inspect.signature(attrs['_login'])
             setattr(newcls, login.__name__, login)
 
         return newcls
 
 
-@six.add_metaclass(LoginABCMeta)
-class BaseQuery:
+class BaseQuery(metaclass=LoginABCMeta):
     """
     This is the base class for all the query classes in astroquery. It
     is implemented as an abstract class and must not be directly instantiated.

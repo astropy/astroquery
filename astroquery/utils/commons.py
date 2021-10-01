@@ -8,11 +8,11 @@ import warnings
 import os
 import shutil
 import socket
+from io import BytesIO, StringIO
+from urllib.error import URLError
 
 import requests
 
-from six.moves.urllib_error import URLError
-import six
 import astropy.units as u
 from astropy import coordinates as coord
 from collections import OrderedDict
@@ -131,7 +131,7 @@ def radius_to_unit(radius, unit='degree'):
     """
     rad = coord.Angle(radius)
 
-    if isinstance(unit, six.string_types):
+    if isinstance(unit, str):
         if hasattr(rad, unit):
             return getattr(rad, unit)
         elif hasattr(rad, f"{unit}s"):
@@ -162,7 +162,7 @@ def parse_coordinates(coordinates):
     astropy.units.UnitsError
     TypeError
     """
-    if isinstance(coordinates, six.string_types):
+    if isinstance(coordinates, str):
         try:
             c = ICRSCoordGenerator(coordinates)
             warnings.warn("Coordinate string is being interpreted as an "
@@ -442,11 +442,10 @@ class FileContainer:
         Return the file as an io.StringIO object
         """
         s = self.get_string()
-        # TODO: replace with six.BytesIO
         try:
-            return six.BytesIO(s)
+            return BytesIO(s)
         except TypeError:
-            return six.StringIO(s)
+            return StringIO(s)
 
     def __repr__(self):
         if hasattr(self, '_fits'):
@@ -467,5 +466,5 @@ def parse_votable(content):
     """
     Parse a votable in string format
     """
-    tables = votable.parse(six.BytesIO(content), pedantic=False)
+    tables = votable.parse(BytesIO(content), pedantic=False)
     return tables

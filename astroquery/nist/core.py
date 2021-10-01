@@ -1,19 +1,16 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 
+import html
 import re
 
 import astropy.units as u
 import astropy.io.ascii as asciitable
-from six import PY2
 
 from ..query import BaseQuery
 from ..utils import async_to_sync, prepend_docstr_nosections
 from . import conf
 from ..exceptions import TableParseError
-
-if not PY2:
-    import html  # html is available in Py3 stdlib, but not in Py2
 
 __all__ = ['Nist', 'NistClass']
 
@@ -173,8 +170,7 @@ class NistClass(BaseQuery):
         try:
             table = _strip_blanks(pre)
             table = links_re.sub(r'\1', table)
-            if not PY2:
-                table = html.unescape(table)
+            table = html.unescape(table)
             table = asciitable.read(table, Reader=asciitable.FixedWidth,
                                     data_start=3, delimiter='|')
             return table

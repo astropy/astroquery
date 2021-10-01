@@ -9,13 +9,13 @@ import requests
 import json
 import os
 from collections import namedtuple
+from io import BytesIO
 import warnings
 import astropy.units as u
 from astropy.utils.data import get_pkg_data_filename
 import astropy.coordinates as coord
 from astropy.table import Table
 import astropy.io.votable as votable
-from six import BytesIO
 
 from ..query import BaseQuery
 from ..utils import commons

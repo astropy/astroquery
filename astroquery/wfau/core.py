@@ -7,9 +7,8 @@ import time
 from math import cos, radians
 import requests
 from bs4 import BeautifulSoup
-from io import StringIO
+from io import BytesIO, StringIO
 
-from six import BytesIO
 import astropy.units as u
 import astropy.coordinates as coord
 import astropy.io.votable as votable

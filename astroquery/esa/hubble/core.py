@@ -25,7 +25,7 @@ from astroquery.utils.tap.core import TapPlus
 from astroquery.utils.tap.model import modelutils
 from astroquery.query import BaseQuery
 from astropy.table import Table
-from six import BytesIO
+from io import BytesIO
 import shutil
 import os
 import json

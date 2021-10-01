@@ -7,8 +7,8 @@ import json
 import copy
 import re
 
-import six
-from six import BytesIO
+from io import BytesIO
+
 import astropy.units as u
 import astropy.coordinates as coord
 import astropy.table as tbl
@@ -33,7 +33,7 @@ __doctest_skip__ = ['VizierClass.*']
 @async_to_sync
 class VizierClass(BaseQuery):
 
-    _str_schema = schema.Or(*six.string_types)
+    _str_schema = schema.Schema(str)
     _schema_columns = schema.Schema([_str_schema],
                                     error="columns must be a list of strings")
     _schema_ucd = schema.Schema(_str_schema, error="ucd must be string")
@@ -260,7 +260,7 @@ class VizierClass(BaseQuery):
             Returned if asynchronous method used
         """
 
-        if not isinstance(catalog, six.string_types + (votable.tree.Resource,)):
+        if not isinstance(catalog, (str, votable.tree.Resource)):
             catalog = list(catalog)
         data_payload = self._args_to_payload(catalog=catalog)
         if get_query_payload:
@@ -376,7 +376,7 @@ class VizierClass(BaseQuery):
         columns = []
 
         # Process coordinates
-        if isinstance(coordinates, (commons.CoordClasses,) + six.string_types):
+        if isinstance(coordinates, (commons.CoordClasses, str)):
             target = commons.parse_coordinates(coordinates).transform_to(frame)
 
             if not target.isscalar:
@@ -553,7 +553,7 @@ class VizierClass(BaseQuery):
         catalog = kwargs.get('catalog') or self.catalog
 
         if catalog is not None:
-            if isinstance(catalog, six.string_types):
+            if isinstance(catalog, str):
                 body['-source'] = catalog
             elif isinstance(catalog, list):
                 catalog = [item.name if hasattr(item, 'name') else item
@@ -843,7 +843,7 @@ class VizierKeyword(list):
 
     @keywords.setter
     def keywords(self, values):
-        if isinstance(values, six.string_types):
+        if isinstance(values, str):
             values = list(values)
         keys = [key.lower() for key in self.keyword_dict]
         values = [val.lower() for val in values]

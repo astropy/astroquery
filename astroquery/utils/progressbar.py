@@ -1,8 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import gzip
 import sys
-from six import StringIO
-from six.moves import urllib
+from io import StringIO
+from urllib.request import build_opener
 from astropy.io import fits
 
 
@@ -57,7 +57,7 @@ def retrieve(url, outfile, opener=None, overwrite=False):
     """
 
     if opener is None:
-        opener = urllib.build_opener()
+        opener = build_opener()
 
     page = opener.open(url)
 

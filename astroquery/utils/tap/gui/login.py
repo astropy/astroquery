@@ -15,30 +15,28 @@ Created on 30 jun. 2016
 
 """
 
-import six
-
 try:
-    from six.moves.tkinter import Tk as TKTk
+    from tkinter import Tk as TKTk
 except ImportError:
     TKTk = None
 
 try:
-    from six.moves.tkinter import Toplevel as TKToplevel
+    from tkinter import Toplevel as TKToplevel
 except ImportError:
     TKToplevel = None
 
 try:
-    from six.moves.tkinter import Button as TKButton
+    from tkinter import Button as TKButton
 except ImportError:
     TKButton = None
 
 try:
-    from six.moves.tkinter import Label as TKLabel
+    from tkinter import Label as TKLabel
 except ImportError:
     TKLabel = None
 
 try:
-    from six.moves.tkinter import Entry as TKEntry
+    from tkinter import Entry as TKEntry
 except ImportError:
     TKEntry = None
 
