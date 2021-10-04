@@ -752,8 +752,10 @@ class ObservationsClass(MastQueryWithLogin):
             if data_products includes products not found in the cloud.
         """
 
+        # Instatiate anonymous cloud access
         self.enable_cloud_dataset()
 
+        # Query for product URIs
         return self._cloud_connection.get_cloud_uri_list(data_products, include_bucket, full_url)
 
     def get_cloud_uri(self, data_product, include_bucket=True, full_url=False, verbose=True):
