@@ -752,13 +752,12 @@ class ObservationsClass(MastQueryWithLogin):
             if data_products includes products not found in the cloud.
         """
 
-        # Instatiate anonymous cloud access
-        self.enable_cloud_dataset()
+        if self._cloud_connection == None:
+            raise RemoteServiceError('Please enable anonymous cloud access by calling `enable_cloud_dataset` method. See MAST Labs documentation for an example: https://mast-labs.stsci.io/#example-data-access-with-astroquery-observations')
 
-        # Query for product URIs
         return self._cloud_connection.get_cloud_uri_list(data_products, include_bucket, full_url)
 
-    def get_cloud_uri(self, data_product, include_bucket=True, full_url=False, verbose=True):
+    def get_cloud_uri(self, data_product, include_bucket=True, full_url=False):
         """
         For a given data product, returns the associated cloud URI.
         If the product is from a mission that does not support cloud access an
@@ -784,8 +783,8 @@ class ObservationsClass(MastQueryWithLogin):
             found in the cloud, None is returned.
         """
 
-        # Instatiate anonymous cloud access
-        self.enable_cloud_dataset(verbose)
+        if self._cloud_connection == None:
+            raise RemoteServiceError('Please enable anonymous cloud access by calling `enable_cloud_dataset` method. See MAST Labs documentation for an example: https://mast-labs.stsci.io/#example-data-access-with-astroquery-observations')
 
         # Query for product URIs
         return self._cloud_connection.get_cloud_uri(data_product, include_bucket, full_url)
