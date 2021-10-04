@@ -294,6 +294,20 @@ class TestMast:
         result = mast.Observations.download_file(uri)
         assert result == ('COMPLETE', None, None)
 
+    def test_get_cloud_uri(self, )
+        test_obs_id = '2003600312'
+
+        # get a product list
+        product = mast.Observations.get_product_list(test_obs_id)
+
+        # enable access to public AWS S3 bucket
+        mast.Observations.enable_cloud_dataset()
+
+        # get uri
+        mast.Observations.get_cloud_uri(product)
+
+    def test_get_cloud_uris(self, )
+
     ######################
     # CatalogClass tests #
     ######################
