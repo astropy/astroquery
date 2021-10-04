@@ -752,12 +752,11 @@ class ObservationsClass(MastQueryWithLogin):
             if data_products includes products not found in the cloud.
         """
 
-        if self._cloud_connection is None:
-            raise AttributeError("Must enable s3 dataset before attempting to query the s3 information")
+        self.enable_cloud_dataset()
 
         return self._cloud_connection.get_cloud_uri_list(data_products, include_bucket, full_url)
 
-    def get_cloud_uri(self, data_product, include_bucket=True, full_url=False):
+    def get_cloud_uri(self, data_product, include_bucket=True, full_url=False, verbose=True):
         """
         For a given data product, returns the associated cloud URI.
         If the product is from a mission that does not support cloud access an
@@ -783,9 +782,10 @@ class ObservationsClass(MastQueryWithLogin):
             found in the cloud, None is returned.
         """
 
-        if self._cloud_connection is None:
-            raise AttributeError("Must enable s3 dataset before attempting to query the s3 information")
+        # Instatiate anonymous cloud access
+        self.enable_cloud_dataset(verbose)
 
+        # Query for product URIs
         return self._cloud_connection.get_cloud_uri(data_product, include_bucket, full_url)
 
 
