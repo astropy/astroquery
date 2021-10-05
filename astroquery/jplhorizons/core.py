@@ -12,6 +12,7 @@ import warnings
 from astropy.table import Table, Column
 from astropy.io import ascii
 from astropy.time import Time
+from astropy.utils.exceptions import AstropyDeprecationWarning
 
 # 3. local imports - use relative imports
 # commonly required local imports shown below as example
@@ -29,13 +30,13 @@ __all__ = ['Horizons', 'HorizonsClass']
 class HorizonsClass(BaseQuery):
     """
     A class for querying the
-    `JPL Horizons <https://ssd.jpl.nasa.gov/horizons.cgi>`_ service.
+    `JPL Horizons <https://ssd.jpl.nasa.gov/horizons/>`_ service.
     """
 
     TIMEOUT = conf.timeout
 
     def __init__(self, id=None, location=None, epochs=None,
-                 id_type='smallbody'):
+                 id_type=None):
         """Instantiate JPL query.
 
         Parameters
@@ -47,7 +48,7 @@ class HorizonsClass(BaseQuery):
             orbital element or vector queries. Uses the same codes as JPL
             Horizons. If no location is provided, Earth's center is used for
             ephemerides queries and the Sun's center for elements and vectors
-            queries. Arbitrary topocentic coordinates for ephemerides queries
+            queries. Arbitrary topocentric coordinates for ephemerides queries
             can be provided in the format of a dictionary. The dictionary has to
             be of the form {``'lon'``: longitude in deg (East positive, West
             negative), ``'lat'``: latitude in deg (North positive, South
@@ -64,11 +65,18 @@ class HorizonsClass(BaseQuery):
             element and vector queries. If no epochs are provided, the current
             time is used.
         id_type : str, optional
-            Identifier type, options: ``'smallbody'``, ``'majorbody'`` (planets
-            but also anything that is not a small body), ``'designation'``,
-            ``'name'``, ``'asteroid_name'``, ``'comet_name'``, ``'id'``
-            (Horizons id number), or ``'smallbody'`` (find the closest match
-            under any id_type), default: ``'smallbody'``
+            Controls Horizons's object selection for ``id``
+            [HORIZONSDOC_SELECTION]_ .  Options: ``'designation'`` (small body
+            designation), ``'name'`` (asteroid or comet name),
+            ``'asteroid_name'``, ``'comet_name'``, ``'smallbody'`` (asteroid
+            and comet search), or ``None`` (first search search planets,
+            natural satellites, spacecraft, and special cases, and if no
+            matches, then search small bodies).
+
+        References
+        ----------
+
+        .. [HORIZONSDOC_SELECTION] https://ssd.jpl.nasa.gov/horizons/manual.html#select (retrieved 2021 Sep 23).
 
 
         Examples
@@ -79,7 +87,7 @@ class HorizonsClass(BaseQuery):
         ...                      'stop':'2017-02-01',
         ...                      'step':'1d'})
         >>> print(eros)  # doctest: +SKIP
-        JPLHorizons instance "433"; location=568, epochs={'start': '2017-01-01', 'step': '1d', 'stop': '2017-02-01'}, id_type=smallbody
+        JPLHorizons instance "433"; location=568, epochs={'start': '2017-01-01', 'step': '1d', 'stop': '2017-02-01'}, id_type=None
         """
         super(HorizonsClass, self).__init__()
         self.id = id
@@ -101,9 +109,13 @@ class HorizonsClass(BaseQuery):
         self.epochs = epochs
 
         # check for id_type
-        if id_type not in ['smallbody', 'majorbody',
-                           'designation', 'name',
-                           'asteroid_name', 'comet_name', 'id']:
+        if id_type in ['majorbody', 'id']:
+            warnings.warn("``id_type``s 'majorbody' and 'id' are deprecated "
+                          "and replaced with ``None``, which has the same "
+                          "functionality.", AstropyDeprecationWarning)
+            id_type = None
+        if id_type not in [None, 'smallbody', 'designation', 'name',
+                           'asteroid_name', 'comet_name']:
             raise ValueError('id_type ({:s}) not allowed'.format(id_type))
         self.id_type = id_type
 
@@ -128,7 +140,7 @@ class HorizonsClass(BaseQuery):
         ...                         'stop':'2017-02-01',
         ...                         'step':'1d'})
         >>> print(eros)  # doctest: +SKIP
-        JPLHorizons instance "433"; location=568, epochs={'start': '2017-01-01', 'step': '1d', 'stop': '2017-02-01'}, id_type=smallbody
+        JPLHorizons instance "433"; location=568, epochs={'start': '2017-01-01', 'step': '1d', 'stop': '2017-02-01'}, id_type=None
         """
         return ('JPLHorizons instance \"{:s}\"; location={:s}, '
                 'epochs={:s}, id_type={:s}').format(

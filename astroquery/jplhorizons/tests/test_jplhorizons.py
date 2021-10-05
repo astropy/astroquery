@@ -6,16 +6,17 @@ import os
 from collections import OrderedDict
 
 from numpy.ma import is_masked
-from ...utils.testing_tools import MockResponse
 from astropy.tests.helper import assert_quantity_allclose
+from astropy.utils.exceptions import AstropyDeprecationWarning
 
+from ...utils.testing_tools import MockResponse
 from ... import jplhorizons
 
 # files in data/ for different query types
 DATA_FILES = {'ephemerides': 'ceres_ephemerides.txt',
               'elements': 'ceres_elements.txt',
               'vectors': 'ceres_vectors.txt',
-              '"1935 UZ;"': 'no_H.txt'}
+              '"1935 UZ"': 'no_H.txt'}
 
 
 def data_path(filename):
@@ -26,7 +27,7 @@ def data_path(filename):
 # monkeypatch replacement request function
 def nonremote_request(self, request_type, url, **kwargs):
 
-    if kwargs['params']['COMMAND'] == '"Ceres;"':
+    if kwargs['params']['COMMAND'] == '"Ceres"':
         # pick DATA_FILE based on query type
         query_type = {'OBSERVER': 'ephemerides',
                       'ELEMENTS': 'elements',
@@ -181,7 +182,7 @@ def test_elements_query_payload():
         ('EPHEM_TYPE', 'ELEMENTS'),
         ('MAKE_EPHEM', 'YES'),
         ('OUT_UNITS', 'AU-D'),
-        ('COMMAND', '"Ceres;"'),
+        ('COMMAND', '"Ceres"'),
         ('CENTER', "'500@10'"),
         ('CSV_FORMAT', 'YES'),
         ('ELEM_LABELS', 'YES'),
@@ -201,7 +202,7 @@ def test_vectors_query_payload():
         ('format', 'text'),
         ('EPHEM_TYPE', 'VECTORS'),
         ('OUT_UNITS', 'AU-D'),
-        ('COMMAND', '"Ceres;"'),
+        ('COMMAND', '"Ceres"'),
         ('CENTER', "'500@10'"),
         ('CSV_FORMAT', '"YES"'),
         ('REF_PLANE', 'ECLIPTIC'),
@@ -218,3 +219,17 @@ def test_no_H(patch_request):
     """testing missing H value (also applies for G, M1, k1, M2, k2)"""
     res = jplhorizons.Horizons(id='1935 UZ').ephemerides()[0]
     assert 'H' not in res
+
+
+def test_id_type_deprecation():
+    """Test deprecation warnings based on issue 1742.
+￼
+￼    https://github.com/astropy/astroquery/pull/2161
+
+    """
+
+    with pytest.warns(AstropyDeprecationWarning):
+        res = jplhorizons.Horizons(id='Ceres', id_type='id')
+
+    with pytest.warns(AstropyDeprecationWarning):
+        res = jplhorizons.Horizons(id='Ceres', id_type='majorbody')
