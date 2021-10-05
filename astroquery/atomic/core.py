@@ -1,9 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-from six.moves.urllib import parse as urlparse
-from six.moves import map, zip
-from six import StringIO
-import six
+from io import StringIO
+from urllib import parse as urlparse
 
 from collections import defaultdict
 
@@ -292,7 +290,7 @@ class AtomicLineListClass(BaseQuery):
         # only overwrite payload's values if the `input` value is not None
         # to avoid overwriting of the form's default values
         payload = self._default_form_values.copy()
-        for k, v in six.iteritems(input):
+        for k, v in input.items():
             if v is not None:
                 payload[k] = v
         url = urlparse.urljoin(self.FORM_URL, self._default_form.get('action'))
@@ -346,7 +344,7 @@ class AtomicLineListClass(BaseQuery):
 
         # avoid values with size 1 lists
         d = dict(res)
-        for k, v in six.iteritems(d):
+        for k, v in d.items():
             if len(v) == 1:
                 d[k] = v[0]
         return d

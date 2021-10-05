@@ -1,8 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import pprint
 from bs4 import BeautifulSoup
-from six.moves.urllib import parse as urlparse
-import six
+from urllib import parse as urlparse
 from astropy import units as u
 
 from . import conf
@@ -74,7 +73,7 @@ class SkyViewClass(BaseQuery):
         # only overwrite payload's values if the `input` value is not None
         # to avoid overwriting of the form's default values
         payload = self._default_form_values.copy()
-        for k, v in six.iteritems(input):
+        for k, v in input.items():
             if v is not None:
                 payload[k] = v
         url = urlparse.urljoin(self.URL, form.get('action'))

@@ -25,7 +25,6 @@ from astroquery.utils.tap.xmlparser.groupSaxParser import GroupSaxParser
 from astroquery.utils.tap.xmlparser.sharedItemsSaxParser import SharedItemsSaxParser  # noqa
 from astroquery.utils.tap.xmlparser import utils
 from astroquery.utils.tap.model.filter import Filter
-import six
 import requests
 from astroquery import log
 import getpass
@@ -1246,7 +1245,7 @@ class TapPlus(Tap):
             print("Retrieving datalink.")
         if ids is None:
             raise ValueError("Missing mandatory argument 'ids'")
-        if isinstance(ids, six.string_types):
+        if isinstance(ids, str):
             ids_arg = f"ID={ids}"
         else:
             if isinstance(ids, int):
@@ -1369,7 +1368,7 @@ class TapPlus(Tap):
                 user = ins.readline().strip()
                 password = ins.readline().strip()
         if user is None:
-            user = six.moves.input("User: ")
+            user = input("User: ")
             if user is None:
                 print("Invalid user name")
                 return
@@ -1934,7 +1933,7 @@ class TapPlus(Tap):
                 user = ins.readline().strip()
                 password = ins.readline().strip()
         if user is None:
-            user = six.moves.input("User: ")
+            user = input("User: ")
             if user is None:
                 log.info("Invalid user name")
                 return

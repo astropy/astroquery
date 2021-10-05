@@ -5,13 +5,11 @@ from numpy import testing as npt
 import pytest
 from astropy.table import Table
 import astropy.units as u
-import six
+
 from ... import vizier
 from ...utils import commons
 from ...utils.testing_tools import MockResponse
 
-if six.PY3:
-    str, = six.string_types
 
 VO_DATA = {'HIP,NOMAD,UCAC': "viz.xml",
            'NOMAD,UCAC': "viz.xml",

@@ -12,8 +12,7 @@ from pkg_resources import resource_filename
 from bs4 import BeautifulSoup
 import pyvo
 
-from six.moves.urllib_parse import urljoin
-import six
+from urllib.parse import urljoin
 from astropy.table import Table, Column, vstack
 from astroquery import log
 from astropy.utils import deprecated
@@ -567,7 +566,7 @@ class AlmaClass(QueryWithLogin):
         """
         if uids is None:
             raise AttributeError('UIDs required')
-        if isinstance(uids, six.string_types + (np.bytes_,)):
+        if isinstance(uids, (str, bytes)):
             uids = [uids]
         if not isinstance(uids, (list, tuple, np.ndarray)):
             raise TypeError("Datasets must be given as a list of strings.")
@@ -811,7 +810,7 @@ class AlmaClass(QueryWithLogin):
         downloaded_files : list
             A list of the downloaded file paths
         """
-        if isinstance(uids, six.string_types + (np.bytes_,)):
+        if isinstance(uids, (str, bytes)):
             uids = [uids]
         if not isinstance(uids, (list, tuple, np.ndarray)):
             raise TypeError("Datasets must be given as a list of strings.")
@@ -1073,7 +1072,7 @@ class AlmaClass(QueryWithLogin):
             data from an ASDM tarball
         """
 
-        if isinstance(urls, six.string_types):
+        if isinstance(urls, str):
             urls = [urls]
         if not isinstance(urls, (list, tuple, np.ndarray)):
             raise TypeError("Datasets must be given as a list of strings.")
@@ -1174,7 +1173,6 @@ class AlmaClass(QueryWithLogin):
         March 2020 - should be removed along with stage_data_prefeb2020
         """
         from ..utils import url_helpers
-        from six import iteritems
         columns = {'mous_uid': [], 'URL': [], 'size': []}
         for entry in data['node_data']:
             # de_type can be useful (e.g., MOUS), but it is not necessarily
@@ -1212,7 +1210,7 @@ class AlmaClass(QueryWithLogin):
 
         columns['size'] = u.Quantity(columns['size'], u.Gbyte)
 
-        tbl = Table([Column(name=k, data=v) for k, v in iteritems(columns)])
+        tbl = Table([Column(name=k, data=v) for k, v in columns.items()])
         return tbl
 
     def get_project_metadata(self, projectid, cache=True):

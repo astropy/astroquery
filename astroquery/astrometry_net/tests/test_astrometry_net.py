@@ -4,7 +4,6 @@ import json
 from distutils.version import LooseVersion
 
 import pytest
-import six
 
 from ...utils.testing_tools import MockResponse
 from ...exceptions import (InvalidQueryError)
@@ -87,7 +86,7 @@ def test_setting_validation_basic():
     anet = AstrometryNet()
     # This gets us a list of settings, their types, and restrictions.
     constraints = anet._constraints
-    for constraint, vals in six.iteritems(constraints):
+    for constraint, vals in constraints.items():
         if vals['type'] == str or vals['type'] == bool:
             settings = {constraint: 'asdiuhiuas'}
             with pytest.raises(ValueError) as e:

@@ -3,8 +3,6 @@
 
 import json
 
-import six
-from six import string_types
 from astropy.io import fits
 from astroquery import log
 from astropy.stats import sigma_clipped_stats
@@ -137,7 +135,7 @@ class AstrometryNetClass(BaseQuery):
         """
 
         # Check the types and values
-        for key, value in six.iteritems(settings):
+        for key, value in settings.items():
             if key not in self._constraints or value is None:
                 message = ('Setting {} is not allowed. Display all of '
                            'the allowed settings with: '
@@ -284,7 +282,7 @@ class AstrometryNetClass(BaseQuery):
         For a list of the remaining settings, use the method
         `~AstrometryNetClass.show_allowed_settings`.
         """
-        settings = {k: v for k, v in six.iteritems(settings) if v is not None}
+        settings = {k: v for k, v in settings.items() if v is not None}
         self._validate_settings(settings)
         if self._session_id is None:
             self._login()
@@ -363,7 +361,7 @@ class AstrometryNetClass(BaseQuery):
                 settings['center_ra'] = center.ra.degree
                 settings['center_dec'] = center.dec.degree
 
-        settings = {k: v for k, v in six.iteritems(settings) if v is not None}
+        settings = {k: v for k, v in settings.items() if v is not None}
         self._validate_settings(settings)
 
         if force_image_upload or self._no_source_detector:

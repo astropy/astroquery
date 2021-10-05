@@ -7,11 +7,12 @@ import warnings
 import functools
 import keyring
 
+from io import BytesIO
+
 import numpy as np
 import astropy.units as u
 import astropy.io.votable as votable
 from astropy import coordinates
-import six
 from astropy.table import Table
 from astroquery import log
 from bs4 import BeautifulSoup
@@ -181,19 +182,19 @@ class NraoClass(QueryWithLogin):
             freq_str = ""
 
         obs_bands = kwargs.get('obs_band', 'all')
-        if isinstance(obs_bands, six.string_types):
+        if isinstance(obs_bands, str):
             obs_bands = obs_bands.upper()
         elif isinstance(obs_bands, (list, tuple)):
             obs_bands = [x.upper() for x in obs_bands]
 
         telescope_config = kwargs.get('telescope_config', 'all')
-        if isinstance(telescope_config, six.string_types):
+        if isinstance(telescope_config, str):
             telescope_config = telescope_config.upper()
         elif isinstance(telescope_config, (list, tuple)):
             telescope_config = [x.upper() for x in telescope_config]
 
         telescope_ = kwargs.get('telescope', 'all')
-        if isinstance(telescope_, six.string_types):
+        if isinstance(telescope_, str):
             telescope = Nrao.telescope_code[telescope_]
         elif isinstance(telescope, (list, tuple)):
             telescope = [Nrao.telescope_code[telescope_] for x in telescope_]
@@ -434,7 +435,7 @@ class NraoClass(QueryWithLogin):
         datatype_mapping = {'integer': 'long'}
 
         try:
-            tf = six.BytesIO(new_content.encode())
+            tf = BytesIO(new_content.encode())
             first_table = votable.parse(
                 tf, pedantic=False,
                 datatype_mapping=datatype_mapping).get_first_table()
@@ -464,14 +465,7 @@ class NraoClass(QueryWithLogin):
 
         string_to_parse = htmltable[-1].encode('ascii')
 
-        if six.PY2:
-            from astropy.io.ascii import html
-            from astropy.io.ascii.core import convert_numpy
-            htmlreader = html.HTML({'parser': 'html5lib'})
-            htmlreader.outputter.default_converters.append(convert_numpy(np.unicode))
-            table = htmlreader.read(string_to_parse)
-        else:
-            table = Table.read(string_to_parse.decode('utf-8'), format='ascii.html')
+        table = Table.read(string_to_parse.decode('utf-8'), format='ascii.html')
 
         return table
 

@@ -4,7 +4,6 @@ import os
 from contextlib import contextmanager
 import pytest
 from astropy.io.ascii.tests.common import assert_equal
-from six import string_types
 from ... import besancon
 from ...utils import commons
 from ...utils.testing_tools import MockResponse
@@ -65,7 +64,7 @@ def patch_post(request):
 def patch_get_readable_fileobj(request):
     @contextmanager
     def get_readable_fileobj_mockreturn(filename, **kwargs):
-        if isinstance(filename, string_types):
+        if isinstance(filename, str):
             if '1376235131.430670' in filename:
                 is_binary = kwargs.get('encoding', None) == 'binary'
                 file_obj = open(data_path('1376235131.430670.resu'),

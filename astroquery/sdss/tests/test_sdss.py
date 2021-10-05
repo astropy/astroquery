@@ -1,11 +1,11 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from contextlib import contextmanager
+from urllib.error import URLError
 import os
 import socket
 import numpy as np
 from numpy.testing import assert_allclose
 
-import six
 from astropy.io import fits
 from astropy.table import Column, Table
 import pytest
@@ -78,7 +78,7 @@ def patch_get_readable_fileobj(request):
 def patch_get_readable_fileobj_slow(request):
     @contextmanager
     def get_readable_fileobj_mockreturn(filename, **kwargs):
-        error = six.moves.urllib_error.URLError('timeout')
+        error = URLError('timeout')
         error.reason = socket.timeout()
         raise error
         yield True

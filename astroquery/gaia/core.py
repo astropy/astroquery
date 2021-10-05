@@ -21,7 +21,6 @@ from astroquery.utils import commons
 from astroquery import log
 from astropy import units
 from astropy.units import Quantity
-import six
 import zipfile
 from astroquery.utils.tap import taputils
 from . import conf
@@ -250,7 +249,7 @@ class GaiaClass(TapPlus):
                                  "'G', 'BP' and 'RP)" % band)
             else:
                 params_dict['BAND'] = band
-        if isinstance(ids, six.string_types):
+        if isinstance(ids, str):
             ids_arg = ids
         else:
             if isinstance(ids, int):

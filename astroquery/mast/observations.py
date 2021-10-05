@@ -26,7 +26,7 @@ from astroquery import log
 from astropy.utils import deprecated
 from astropy.utils.console import ProgressBarOrSpinner
 
-from six.moves.urllib.parse import quote as urlencode
+from urllib.parse import quote as urlencode
 
 from ..query import QueryWithLogin
 from ..utils import commons, async_to_sync

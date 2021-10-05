@@ -5,7 +5,7 @@ from astropy import table
 from astroquery import log
 from astropy.utils.console import ProgressBar
 from bs4 import BeautifulSoup
-from six.moves import urllib_parse as urlparse
+from urllib import parse as urlparse
 import re
 import warnings
 

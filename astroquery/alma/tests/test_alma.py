@@ -1,9 +1,9 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+from io import StringIO
 import os
 
 import pytest
 from unittest.mock import patch, Mock
-from six import StringIO
 
 from astropy import units as u
 from astropy import coordinates as coord

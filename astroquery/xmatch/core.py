@@ -1,6 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-import six
+from io import StringIO
+
 from astropy.io import ascii
 import astropy.units as u
 from astropy.table import Table
@@ -114,13 +115,13 @@ class XMatchClass(BaseQuery):
         query parameters accordingly.
         '''
         catstr = 'cat{0}'.format(cat_index)
-        if isinstance(cat, six.string_types):
+        if isinstance(cat, str):
             payload[catstr] = cat
         elif isinstance(cat, Table):
             # write the Table's content into a new, temporary CSV-file
             # so that it can be pointed to via the `files` option
             # file will be closed when garbage-collected
-            fp = six.StringIO()
+            fp = StringIO()
             cat.write(fp, format='ascii.csv')
             fp.seek(0)
             kwargs['files'] = {catstr: ('cat1.csv', fp.read())}
@@ -158,7 +159,7 @@ class XMatchClass(BaseQuery):
 
         # table_id can actually be a Table instance, there is no point in
         # comparing those to stings
-        if not isinstance(table_id, six.string_types):
+        if not isinstance(table_id, str):
             return False
 
         if (table_id[:7] == 'vizier:'):

@@ -24,7 +24,7 @@ except ImportError:
 import mimetypes
 import time
 
-from six.moves.urllib.parse import urlencode
+from urllib.parse import urlencode
 
 from astroquery.utils.tap.xmlparser import utils
 from astroquery.utils.tap import taputils

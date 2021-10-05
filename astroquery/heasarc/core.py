@@ -1,7 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 import warnings
-from six import StringIO, BytesIO
+from io import StringIO, BytesIO
 from astropy.table import Table
 from astropy.io import fits
 from astropy import coordinates

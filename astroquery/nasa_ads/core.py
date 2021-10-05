@@ -8,7 +8,7 @@ Module to search the SAO/NASA Astrophysics Data System
 import os
 
 from astropy.table import Table
-from six.moves.urllib.parse import quote as urlencode
+from urllib.parse import quote as urlencode
 
 from ..query import BaseQuery
 from ..utils import async_to_sync
