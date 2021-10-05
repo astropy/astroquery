@@ -51,11 +51,9 @@ __all__ = ['send_request',
            'TableList',
            'suppress_vo_warnings',
            'validate_email',
-           'ASTROPY_LT_4_0',
            'ASTROPY_LT_4_1',
            'ASTROPY_LT_4_3']
 
-ASTROPY_LT_4_0 = not minversion('astropy', '4.0')
 ASTROPY_LT_4_1 = not minversion('astropy', '4.1')
 ASTROPY_LT_4_3 = not minversion('astropy', '4.3')
 
@@ -397,14 +395,7 @@ class FileContainer:
         self.get_fits()
         target_key = str(self._target)
 
-        # There has been some internal refactoring in astropy.utils.data
-        # so we do this check. Update when minimum required astropy changes.
-        if ASTROPY_LT_4_0:
-            if not aud.is_url_in_cache(target_key):
-                raise IOError("Cached file not found / does not exist.")
-            target = aud.download_file(target_key, cache=True)
-        else:
-            target = aud.download_file(target_key, cache=True, sources=[])
+        target = aud.download_file(target_key, cache=True, sources=[])
 
         if link_cache == 'hard':
             try:
