@@ -566,7 +566,7 @@ class VOSDatabase(VOSBase):
         # Download registry as VO table
         with data_conf.set_temp('remote_timeout', timeout):
             with get_readable_fileobj(registry_url, **kwargs) as fd:
-                tab_all = parse_single_table(fd, pedantic=False)
+                tab_all = parse_single_table(fd, verify='warn')
 
         # Registry must have these fields
         compulsory_fields = ['res_title', 'access_url']
@@ -728,7 +728,8 @@ def _vo_service_request(url, pedantic, kwargs, cache=True, verbose=False):
     parsed_url = url + '&'.join(query)
     with get_readable_fileobj(parsed_url, encoding='binary', cache=cache,
                               show_progress=verbose) as req:
-        tab = table.parse(req, filename=parsed_url, pedantic=pedantic)
+        pedantic = 'exception' if pedantic else 'warn'
+        tab = table.parse(req, filename=parsed_url, verify=pedantic)
 
     return vo_tab_parse(tab, url, kwargs)
 

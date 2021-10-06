@@ -614,7 +614,7 @@ class BaseWFAUClass(QueryWithLogin):
 
         try:
             io_obj = BytesIO(content.encode('utf-8'))
-            parsed_table = votable.parse(io_obj, pedantic=False)
+            parsed_table = votable.parse(io_obj, verify='warn')
             first_table = parsed_table.get_first_table()
             table = first_table.to_table()
             if len(table) == 0:

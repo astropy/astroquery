@@ -189,7 +189,7 @@ class SimbadVOTableResult(SimbadResult):
     def table(self):
         if self.__table is None:
             self.bytes = BytesIO(self.data.encode('utf8'))
-            tbl = votable.parse_single_table(self.bytes, pedantic=False)
+            tbl = votable.parse_single_table(self.bytes, verify='warn')
             self.__table = tbl.to_table()
             self.__table.convert_bytestring_to_unicode()
         return self.__table

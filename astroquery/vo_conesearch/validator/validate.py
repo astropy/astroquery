@@ -301,7 +301,7 @@ def _do_validation(args):
         with warnings.catch_warnings(record=True) as warning_lines:
             try:
                 vo_tab_parse(votable.table.parse(
-                    r.get_vo_xml_path(), pedantic=False), r.url, {})
+                    r.get_vo_xml_path(), verify='warn'), r.url, {})
             except (E19, IndexError, VOSError) as e:  # pragma: no cover
                 lines.append(str(e))
                 nexceptions += 1
