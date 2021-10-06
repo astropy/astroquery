@@ -104,7 +104,10 @@ def get_tap_tables():
     """Tables accessed by API are gradually migrating to TAP service. Generate current list of tables in TAP."""
     tap = pyvo.dal.tap.TAPService(baseurl=conf.url_tap)
     response = tap.search(query="select * from TAP_SCHEMA.tables", language="ADQL")
-    tables = [table for table in response["table_name"].data if "TAP_SCHEMA." not in table]
+    if not commons.ASTROPY_LT_4_1:
+        tables = [table for table in response["table_name"].data if "TAP_SCHEMA." not in table]
+    else:
+        tables = [table.decode() for table in response["table_name"].data if b"TAP_SCHEMA." not in table]
     return tables
 
 
