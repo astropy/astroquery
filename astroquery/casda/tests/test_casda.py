@@ -221,7 +221,7 @@ def test_query_region_async_box(patch_get):
 
 
 def test_filter_out_unreleased():
-    all_records = parse(data_path('partial_unreleased.xml'), pedantic=False).get_first_table().to_table()
+    all_records = parse(data_path('partial_unreleased.xml'), verify='warn').get_first_table().to_table()
     assert all_records[0]['obs_release_date'] == '2017-08-02T03:51:19.728Z'
     assert all_records[1]['obs_release_date'] == '2218-01-02T16:51:00.728Z'
     assert all_records[2]['obs_release_date'] == ''
