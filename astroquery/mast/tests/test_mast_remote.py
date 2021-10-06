@@ -294,21 +294,37 @@ class TestMast:
         result = mast.Observations.download_file(uri)
         assert result == ('COMPLETE', None, None)
 
-    def test_get_cloud_uri(self)
-        test_obs_id = '44308'
+    def test_get_cloud_uri(self):
+        test_obs_id = '25568122'
 
         # get a product list
-        product = mast.Observations.get_product_list(test_obs_id)
+        product = mast.Observations.get_product_list(test_obs_id)[24]
 
-        assert len(product) > 0, 'No products found for OBSID {}. Unable to move forward with getting URIs from the cloud.'.format(test_obs_id)
+        assert len(product) > 0, f'No product found for OBSID {test_obs_id}. Unable to move forward with getting URIs from the cloud.'
 
         # enable access to public AWS S3 bucket
         mast.Observations.enable_cloud_dataset()
 
         # get uri
-        mast.Observations.get_cloud_uri(product)
+        uri = mast.Observations.get_cloud_uri(product)
 
-    #def test_get_cloud_uris(self, )
+        assert len(uri) > 0, f'Product for OBSID {test_obs_id} was not found in the cloud.'
+
+    def test_get_cloud_uris(self):
+        test_obs_id = '25568122'
+
+        # get a product list
+        products = mast.Observations.get_product_list(test_obs_id)[24:]
+
+        assert len(products) > 0, f'No products found for OBSID {test_obs_id}. Unable to move forward with getting URIs from the cloud.'
+
+        # enable access to public AWS S3 bucket
+        mast.Observations.enable_cloud_dataset()
+
+        # get uris
+        uris = mast.Observations.get_cloud_uris(products)
+
+        assert len(uris) > 0, f'Products for OBSID {test_obs_id} were not found in the cloud.'
 
     ######################
     # CatalogClass tests #
