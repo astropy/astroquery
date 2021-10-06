@@ -761,15 +761,15 @@ def parse_vizier_votable(data, verbose=False, invalid='warn',
     tf = BytesIO(data)
 
     if invalid == 'mask':
-        vo_tree = votable.parse(tf, pedantic=False, invalid='mask')
+        vo_tree = votable.parse(tf, verify='warn', invalid='mask')
     elif invalid == 'warn':
         try:
-            vo_tree = votable.parse(tf, pedantic=False, invalid='exception')
+            vo_tree = votable.parse(tf, verify='warn', invalid='exception')
         except Exception as ex:
             warnings.warn("VOTABLE parsing raised exception: {0}".format(ex))
-            vo_tree = votable.parse(tf, pedantic=False, invalid='mask')
+            vo_tree = votable.parse(tf, verify='warn', invalid='mask')
     elif invalid == 'exception':
-        vo_tree = votable.parse(tf, pedantic=False, invalid='exception')
+        vo_tree = votable.parse(tf, verify='warn', invalid='exception')
     else:
         raise ValueError("Invalid keyword for 'invalid'. "
                          "Must be exception, mask, or warn")

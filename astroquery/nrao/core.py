@@ -437,7 +437,7 @@ class NraoClass(QueryWithLogin):
         try:
             tf = BytesIO(new_content.encode())
             first_table = votable.parse(
-                tf, pedantic=False,
+                tf, verify='warn',
                 datatype_mapping=datatype_mapping).get_first_table()
             try:
                 table = first_table.to_table(use_names_over_ids=True)

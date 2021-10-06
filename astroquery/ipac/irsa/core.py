@@ -336,7 +336,7 @@ class IrsaClass(BaseQuery):
         # Read it in using the astropy VO table reader
         try:
             first_table = votable.parse(BytesIO(response.content),
-                                        pedantic=False).get_first_table()
+                                        verify='warn').get_first_table()
         except Exception as ex:
             self.response = response
             self.table_parse_error = ex

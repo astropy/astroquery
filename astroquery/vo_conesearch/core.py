@@ -180,8 +180,9 @@ class ConeSearchClass(BaseQuery):
         parsed_url = url + '&'.join(query)
 
         # Parse the result
+        pedantic = 'exception' if conf.pedantic else 'warn'
         tab = table.parse(BytesIO(response.content), filename=parsed_url,
-                          pedantic=conf.pedantic)
+                          verify=pedantic)
         try:
             result = vo_tab_parse(tab, url, pars)
         except VOSError as exc:

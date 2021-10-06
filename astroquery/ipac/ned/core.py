@@ -681,7 +681,7 @@ class NedClass(BaseQuery):
             commons.suppress_vo_warnings()
         try:
             tf = BytesIO(response.content)
-            first_table = votable.parse(tf, pedantic=False).get_first_table()
+            first_table = votable.parse(tf, verify='warn').get_first_table()
             table = first_table.to_table(use_names_over_ids=True)
             return table
         except Exception as ex:

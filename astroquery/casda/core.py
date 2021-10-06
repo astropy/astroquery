@@ -262,7 +262,7 @@ class CasdaClass(BaseQuery):
         """
         data = BytesIO(response.content)
 
-        votable = parse(data, pedantic=False)
+        votable = parse(data, verify='warn')
         results = next(resource for resource in votable.resources if
                        resource.type == "results")
         if results is None:

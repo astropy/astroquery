@@ -457,5 +457,5 @@ def parse_votable(content):
     """
     Parse a votable in string format
     """
-    tables = votable.parse(BytesIO(content), pedantic=False)
+    tables = votable.parse(BytesIO(content), verify='warn')
     return tables
