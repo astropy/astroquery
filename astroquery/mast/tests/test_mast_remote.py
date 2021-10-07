@@ -233,7 +233,7 @@ class TestMast:
         filenames2 = list(result2['productFilename'])
         assert isinstance(result1, Table)
         assert len(result1) == len(result2)
-        assert filenames1.sort() == filenames2.sort()
+        assert set(filenames1).difference(set(filenames2)) == set()
 
         result1 = mast.Observations.get_product_list(mult_obs_ids)
         result2 = mast.Observations.get_product_list(observations[0:2])
@@ -241,7 +241,7 @@ class TestMast:
         filenames2 = list(result2['productFilename'])
         assert isinstance(result1, Table)
         assert len(result1) == len(result2)
-        assert filenames1.sort() == filenames2.sort()
+        assert set(filenames1).difference(set(filenames2)) == set()
 
         obsLoc = np.where(observations["obs_id"] == 'ktwo200071160-c92_lc')
         result = mast.Observations.get_product_list(observations[obsLoc])
