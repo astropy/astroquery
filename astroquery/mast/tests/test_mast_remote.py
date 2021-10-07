@@ -228,13 +228,19 @@ class TestMast:
 
         result1 = mast.Observations.get_product_list(test_obs_id)
         result2 = mast.Observations.get_product_list(observations[0])
+        filenames1 = list(result1['productFilename'])
+        filenames2 = list(result2['productFilename'])
         assert isinstance(result1, Table)
         assert len(result1) == len(result2)
+        assert filenames1.sort() == filenames2.sort()
 
         result1 = mast.Observations.get_product_list(mult_obs_ids)
         result2 = mast.Observations.get_product_list(observations[0:2])
+        filenames1 = list(result1['productFilename'])
+        filenames2 = list(result2['productFilename'])
         assert isinstance(result1, Table)
         assert len(result1) == len(result2)
+        assert filenames1.sort() == filenames2.sort()
 
         obsLoc = np.where(observations["obs_id"] == 'ktwo200071160-c92_lc')
         result = mast.Observations.get_product_list(observations[obsLoc])
@@ -243,8 +249,10 @@ class TestMast:
 
         obsLocs = np.where((observations['target_name'] == 'NGC6523') & (observations['obs_collection'] == "IUE"))
         result = mast.Observations.get_product_list(observations[obsLocs])
+        obs_collection = np.unique(list(result['obs_collection']))
         assert isinstance(result, Table)
-        assert len(result) == 30
+        assert len(obs_collection) == 1
+        assert obs_collection[0] == 'IUE'
 
     def test_observations_filter_products(self):
         observations = mast.Observations.query_object("M8", radius=".04 deg")
