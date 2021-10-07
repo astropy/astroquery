@@ -19,6 +19,7 @@ from ... import mast
 
 from ...exceptions import RemoteServiceError
 
+OBSID = mast.Observations.query_object("M8", radius=".04 deg")[0]['obsid']
 
 @pytest.mark.remote_data
 class TestMast:
@@ -265,7 +266,7 @@ class TestMast:
         assert len(result) == sum(products['productType'] == "SCIENCE")
 
     def test_observations_download_products(self, tmpdir):
-        test_obs_id = '2003600312'
+        test_obs_id = OBSID
         result = mast.Observations.download_products(test_obs_id,
                                                      download_dir=str(tmpdir),
                                                      productType=["SCIENCE"],
