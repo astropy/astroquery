@@ -293,7 +293,7 @@ class TestMast:
         assert len(result2) == 1
 
     def test_observations_download_file(self, tmpdir):
-        test_obs_id = '2003600312'
+        test_obs_id = OBSID
 
         # pull a single data product
         products = mast.Observations.get_product_list(test_obs_id)
@@ -325,20 +325,16 @@ class TestMast:
         # clear columns config
         mast.Catalogs._column_configs = dict()
 
-        result = mast.Catalogs.query_region("158.47924 -7.30962", radius=0.1,
+        result = mast.Catalogs.query_region("158.47924 -7.30962", radius = 0.1,
                                             catalog="Gaia")
         assert isinstance(result, Table)
-        assert len(result) >= 82
         assert result[np.where(result['source_id'] == '3774902350511581696')]
 
-        result = mast.Catalogs.query_region("322.49324 12.16683", catalog="HSC", magtype=2)
+        result = mast.Catalogs.query_region("322.49324 12.16683", radius = 0.1, catalog = "HSC", magtype=2)
         assert isinstance(result, Table)
-        assert len(result) == 50000
 
-        result = mast.Catalogs.query_region("322.49324 12.16683", catalog="HSC",
-                                            version=2, magtype=2)
+        result = mast.Catalogs.query_region("322.49324 12.16683", radius = 0.1, catalog="HSC", version=2, magtype=2)
         assert isinstance(result, Table)
-        assert len(result) == 50000
 
         result = mast.Catalogs.query_region("322.49324 12.16683", radius=0.01,
                                             catalog="Gaia", version=1)
@@ -360,15 +356,15 @@ class TestMast:
         assert isinstance(result, Table)
         assert len(result) == 3
 
-        result = mast.Catalogs.query_region("158.47924 -7.30962", catalog="Galex")
+        result = mast.Catalogs.query_region("158.47924 -7.30962", radius = 0.1, catalog="Galex")
         assert isinstance(result, Table)
         assert len(result) > 700
 
-        result = mast.Catalogs.query_region("158.47924 -7.30962", catalog="tic")
+        result = mast.Catalogs.query_region("158.47924 -7.30962", radius = 0.1, catalog="tic")
         assert isinstance(result, Table)
         assert len(result) > 450
 
-        result = mast.Catalogs.query_region("158.47924 -7.30962", catalog="ctl")
+        result = mast.Catalogs.query_region("158.47924 -7.30962", radius = 0.1, catalog="ctl")
         assert isinstance(result, Table)
         assert len(result) > 10
 
