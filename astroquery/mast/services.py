@@ -33,6 +33,8 @@ def _json_to_table(json_obj, data_key='data'):
     ----------
     json_obj : dict
         A MAST microservice response JSON object (python dictionary)
+    data_key : str
+        string that contains the key name in json_obj that stores the data rows 
 
     Returns
     -------
@@ -41,7 +43,7 @@ def _json_to_table(json_obj, data_key='data'):
     data_table = Table(masked=True)
 
     if not all(x in json_obj.keys() for x in ['info', data_key]):
-        raise KeyError("Missing required key(s) 'data' and/or 'info.'")
+        raise KeyError(f"Missing required key(s) {data_key} and/or 'info.'")
 
     # determine database type key in case missing
     type_key = 'type' if json_obj['info'][0].get('type') else 'db_type'
@@ -169,6 +171,8 @@ class ServiceAPI(BaseQuery):
             See `~requests.request`
         cache : bool
             Default False. Use of bulit in _request caching
+        use_json: bool
+            Default False. if True then use the json parameter for passing data to super()._request
 
         Returns
         -------
@@ -203,6 +207,8 @@ class ServiceAPI(BaseQuery):
             (presently does nothing - there is no output with verbose set to
             True or False)
             Default False.  Setting to True provides more extensive output.
+        data_key : str
+            the key in response that contains the data rows
 
         Returns
         -------
@@ -238,6 +244,8 @@ class ServiceAPI(BaseQuery):
            Default None.
            Can be used to override the default behavior of all results being returned to obtain
            a specific page of results.
+        use_json: bool, optional
+           if True, parameters don't need to be built 
         **kwargs :
            See Catalogs.MAST properties in documentation referenced above
 

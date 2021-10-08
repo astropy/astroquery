@@ -6,8 +6,6 @@ MAST Missions
 This module contains methods for searching MAST missions.
 """
 
-import json
-
 import astropy.units as u
 import astropy.coordinates as coord
 
@@ -83,7 +81,7 @@ class MissionsClass(MastQueryWithLogin):
     @class_or_instance
     def query_region_async(self, coordinates, radius=3*u.arcmin, **kwargs):
         """
-        Given a sky position and radius, returns a list matching datasets.
+        Given a sky position and radius, returns a list of matching dataset IDs.
 
         Parameters
         ----------
@@ -95,13 +93,11 @@ class MissionsClass(MastQueryWithLogin):
             The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from
             `~astropy.units` may also be used. Defaults to 0.2 deg.
-        mission : str, optional
-            Default HST.
-            The mission to be queried.
         **kwargs
             Other mission-specific keyword args.
-            These can be found in the (service documentation)[https://mast.stsci.edu/api/v0/_services.html]
-            for specific catalogs. For example one can specify the magtype for an HSC search.
+            These can be found at the following link
+            https://mast.stsci.edu/search/docs/#/Hubble%20Search/post_search_hst_api_v0_1_search_post
+            For example one can specify the output columns(select_cols) or use other filters(conditions)
 
         Returns
         -------
@@ -136,6 +132,10 @@ class MissionsClass(MastQueryWithLogin):
             Criteria to apply. At least one non-positional criteria must be supplied.
             Valid criteria are coordinates, objectname, radius (as in `query_region` and `query_object`),
             and all fields listed in the column documentation for the mission being queried.
+            Fields that can be used to match results on criteria. See the TAP schema link below for all field names.
+            https://vao.stsci.edu/missionmast/tapservice.aspx/tables#folder38
+            some common fields for criteria are sci_pep_id, sci_spec_1234 and sci_actual_duration. 
+            
 
         Returns
         -------
@@ -171,7 +171,7 @@ class MissionsClass(MastQueryWithLogin):
     @class_or_instance
     def query_object_async(self, objectname, radius=3*u.arcmin, **kwargs):
         """
-        Given an object name, returns a list of catalog entries.
+        Given an object name, returns a list of matching rows.
 
         Parameters
         ----------
@@ -194,7 +194,7 @@ class MissionsClass(MastQueryWithLogin):
 
         coordinates = utils.resolve_object(objectname)
 
-        return self.query_region_async(coordinates, radius)
+        return self.query_region_async(coordinates, radius, **kwargs)
 
 
 Missions = MissionsClass()

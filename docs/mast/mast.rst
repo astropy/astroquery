@@ -193,42 +193,79 @@ observational parameters.  The available metadata includes all information that
 was previously available in the original HST web search form, and are present in
 the current Mission Search interface.
 
+An object of Missions class is instantiated with a default mission of 'hst' and 
+default service set to 'search'. set_service() and set_mission() can be used to change
+the service and mission to other values but right now, API only supports search service
+and 'hst' mission.
+
 .. code-block:: python
 
-                >>> from astroquery.mast import Datasets
-                >>> params = {"target": ["40.66963 -0.01328"],
-                ...               "radius": 3,
-                ...               "radius_units": "arcminutes",
-                ...               "select_cols": [
-                ...                   "sci_start_time",
-                ...                   "sci_stop_time",
-                ...                   "sci_targname",
-                ...                   "sci_status"
-                ...               ],
-                ...               "user_fields": [],
-                ...               "conditions": [
-                ...                   {"sci_spec_1234": ""},
-                ...                   {"sci_release_date": ""},
-                ...                   {"sci_start_time": ""}
-                ...               ],
-                ...               "limit": 5000,
-                ...               "offset": 0,
-                ...               "sort_by": [],
-                ...               "sort_desc": [],
-                ...               "skip_count": False}
-                >>> print(result[:10])
-                sci_data_set_name   sci_targname        sci_start_time             sci_stop_time        sci_status         search_key             search_pos           ang_sep        
-                ----------------- --------------- -------------------------- -------------------------- ---------- -------------------------- ----------------- ----------------------
-                O5LJ01010 NGC1068-HOTSPOT 2000-01-14T02:38:46.733000 2000-01-14T02:49:30.733000     PUBLIC 40.66963 -0.01328O5LJ01010 40.66963 -0.01328  6.009235381703309e-05
-                O5LJ01050 NGC1068-HOTSPOT 2000-01-14T05:33:17.740000 2000-01-14T05:47:21.740000     PUBLIC 40.66963 -0.01328O5LJ01050 40.66963 -0.01328  6.009235381703309e-05
-                O5LJ01080 NGC1068-HOTSPOT 2000-01-14T07:09:55.723000 2000-01-14T07:24:07.723000     PUBLIC 40.66963 -0.01328O5LJ01080 40.66963 -0.01328  6.009235381703309e-05
-                O5LJ01KZQ NGC1068-HOTSPOT 2000-01-14T02:30:52.843000 2000-01-14T02:34:00.943000     PUBLIC 40.66963 -0.01328O5LJ01KZQ 40.66963 -0.01328  6.009235381703309e-05
-                J8MX02010         NGC1068 2003-10-26T23:13:57.507000 2003-10-26T23:28:14.557000     PUBLIC 40.66963 -0.01328J8MX02010 40.66963 -0.01328 0.00030184616324075504
-                J8MX02FGQ         NGC1068 2003-10-26T23:08:56.517000 2003-10-26T23:10:57.530000     PUBLIC 40.66963 -0.01328J8MX02FGQ 40.66963 -0.01328 0.00030184616324075504
-                N4HK07010         NGC1068 1998-02-21T12:38:02.613000 1998-02-21T13:00:35.613000     PUBLIC 40.66963 -0.01328N4HK07010 40.66963 -0.01328  0.0003961467789354281
-                N4HK07040         NGC1068 1998-02-21T13:01:22.613000 1998-02-21T13:23:55.613000     PUBLIC 40.66963 -0.01328N4HK07040 40.66963 -0.01328  0.0003961467789354281
-                N4HK09040         NGC1068 1998-02-21T14:38:10.613000 1998-02-21T15:00:43.613000     PUBLIC 40.66963 -0.01328N4HK09040 40.66963 -0.01328  0.0003961467789354281
-                N4HK01010         NGC1068 1998-02-20T20:30:10.613000 1998-02-20T20:48:27.613000     PUBLIC 40.66963 -0.01328N4HK01010 40.66963 -0.01328   0.000409236568193906
+                >>> from astroquery.mast.missions import Missions
+                >>> missions = Missions()
+                >>> missions.mission
+                'hst'
+                >>> missions.service
+                'search'
+
+missions object can be used to search meta data usiong region coordinates. the kwargs can be
+used to specify other filters like selec_cols and sort_by. The available column names to filter and
+their description for can be found here https://vao.stsci.edu/missionmast/tapservice.aspx/tables#folder38
+
+For a cone search, select_cols would always include ang_sep, sci_data_set_name, search_key and 
+search_position, in addition to the columns specified using select_cols.
+
+for a non cone search, select_cols would always include search_key and sci_data_set_name.
+
+.. code-block:: python
+
+                >>> from astroquery.mast.missions import Missions
+                >>> from astropy.coordinates import SkyCoord
+                >>> missions = Missions()
+                >>> regionCoords = SkyCoord(210.80227, 54.34895, unit=('deg', 'deg'))
+                >>> results = missions.query_region(regionCoords, 3, select_cols=["sci_stop_time", "sci_targname", "sci_start_time", "sci_status"], sort_by=['sci_targname'])
+                >>> results[:5]
+                <Table masked=True length=10>
+                ang_sep       sci_data_set_name       sci_stop_time        sci_targname          search_key             search_pos     sci_status       sci_start_time      
+                str20               str9                 str26               str16                str27                  str18           str6              str26           
+                ------------------ ----------------- -------------------------- ------------ --------------------------- ------------------ ---------- --------------------------
+                2.751140575012458         LDJI01010 2019-02-19T05:52:40.020000   +164.6+9.9 210.80227 54.34895LDJI01010 210.80227 54.34895     PUBLIC 2019-02-19T00:49:58.010000
+                0.8000626246647815        J8OB02011 2003-08-27T08:27:34.513000   ANY        210.80227 54.34895J8OB02011 210.80227 54.34895     PUBLIC 2003-08-27T07:44:47.417000
+                1.1261718338567348        J8D711J1Q 2003-01-17T00:50:22.250000   ANY        210.80227 54.34895J8D711J1Q 210.80227 54.34895     PUBLIC 2003-01-17T00:42:06.993000
+                1.1454431087675097        JD6V01012 2017-06-15T18:33:25.983000   ANY        210.80227 54.34895JD6V01012 210.80227 54.34895     PUBLIC 2017-06-15T18:10:12.037000
+                1.1457795862361977        JD6V01013 2017-06-15T20:08:44.063000   ANY        210.80227 54.34895JD6V01013 210.80227 54.34895     PUBLIC 2017-06-15T19:45:30.023000
+
+Meta data search can also be performed using object names like M101.
+
+.. code-block:: python
+
+                >>> results = missions.query_object('M101', 3, select_cols=["sci_stop_time", "sci_targname", "sci_start_time", "sci_status"], sort_by=['sci_targname'])
+                >>> results[:5]
+                <Table masked=True length=5>
+                ang_sep           search_pos     sci_status          search_key               sci_stop_time        sci_targname       sci_start_time       sci_data_set_name
+                str20              str18           str6               str27                      str26               str16               str26                   str9      
+                ------------------ ------------------ ---------- --------------------------- -------------------------- ------------ -------------------------- -----------------
+                2.751140575012458  210.80227 54.34895     PUBLIC 210.80227 54.34895LDJI01010 2019-02-19T05:52:40.020000   +164.6+9.9 2019-02-19T00:49:58.010000         LDJI01010
+                0.8000626246647815 210.80227 54.34895     PUBLIC 210.80227 54.34895J8OB02011 2003-08-27T08:27:34.513000   ANY        2003-08-27T07:44:47.417000         J8OB02011
+                1.1261718338567348 210.80227 54.34895     PUBLIC 210.80227 54.34895J8D711J1Q 2003-01-17T00:50:22.250000   ANY        2003-01-17T00:42:06.993000         J8D711J1Q
+                1.1454431087675097 210.80227 54.34895     PUBLIC 210.80227 54.34895JD6V01012 2017-06-15T18:33:25.983000   ANY        2017-06-15T18:10:12.037000         JD6V01012
+                1.1457795862361977 210.80227 54.34895     PUBLIC 210.80227 54.34895JD6V01013 2017-06-15T20:08:44.063000   ANY        2017-06-15T19:45:30.023000         JD6V01013
+
+Meta search can be performed by using key value pairs for search filters.
+
+.. code-block:: python
+
+                >>> results = missions.query_criteria(select_cols=["sci_stop_time", "sci_targname", "sci_start_time", "sci_status"], sort_by=['sci_targname'])
+                >>> results[:5]
+                <Table masked=True length=5>
+                search_key       sci_stop_time        sci_data_set_name       sci_start_time       sci_targname sci_status
+                str9              str26                   str9                 str26               str19        str6   
+                ---------- -------------------------- ----------------- -------------------------- ------------ ----------
+                Z06G0101T  1990-05-13T11:02:34.567000         Z06G0101T 1990-05-13T10:38:09.193000           --     PUBLIC
+                Z06G0201T  1990-05-13T11:31:47.567000         Z06G0201T 1990-05-13T11:07:22.190000           --     PUBLIC
+                Z06G0301T  1990-05-13T12:43:18.567000         Z06G0301T 1990-05-13T12:18:53.190000           --     PUBLIC
+                Z06G0401T  1990-05-13T13:12:18.567000         Z06G0401T 1990-05-13T12:47:53.190000           --     PUBLIC
+                Z0AM5201T                         --          Z0AM5201T                         --           --     PUBLIC
+
 
 
 Downloading Data
