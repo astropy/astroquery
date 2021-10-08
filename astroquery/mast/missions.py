@@ -134,8 +134,7 @@ class MissionsClass(MastQueryWithLogin):
             and all fields listed in the column documentation for the mission being queried.
             Fields that can be used to match results on criteria. See the TAP schema link below for all field names.
             https://vao.stsci.edu/missionmast/tapservice.aspx/tables#folder38
-            some common fields for criteria are sci_pep_id, sci_spec_1234 and sci_actual_duration. 
-            
+            some common fields for criteria are sci_pep_id, sci_spec_1234 and sci_actual_duration.
 
         Returns
         -------

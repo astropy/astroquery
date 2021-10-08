@@ -34,7 +34,7 @@ def _json_to_table(json_obj, data_key='data'):
     json_obj : dict
         A MAST microservice response JSON object (python dictionary)
     data_key : str
-        string that contains the key name in json_obj that stores the data rows 
+        string that contains the key name in json_obj that stores the data rows
 
     Returns
     -------
@@ -245,7 +245,7 @@ class ServiceAPI(BaseQuery):
            Can be used to override the default behavior of all results being returned to obtain
            a specific page of results.
         use_json: bool, optional
-           if True, parameters don't need to be built 
+           if True, parameters don't need to be built
         **kwargs :
            See Catalogs.MAST properties in documentation referenced above
 
