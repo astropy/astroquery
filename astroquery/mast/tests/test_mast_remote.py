@@ -324,47 +324,47 @@ class TestMast:
 
         # clear columns config
         mast.Catalogs._column_configs = dict()
+        in_radius = 0.1
 
-        result = mast.Catalogs.query_region("158.47924 -7.30962", radius = 0.1,
-                                            catalog="Gaia")
+        result = mast.Catalogs.query_region("158.47924 -7.30962", radius=in_radius*u.deg, catalog="Gaia")
+        index = np.where(result['source_id'] == '3774902350511581696')
         assert isinstance(result, Table)
-        assert result[np.where(result['source_id'] == '3774902350511581696')]
+        assert result[index]['solution_id'] == 0.1635721458409799680
 
-        result = mast.Catalogs.query_region("322.49324 12.16683", radius = 0.1, catalog = "HSC", magtype=2)
+        result = mast.Catalogs.query_region("322.49324 12.16683", radius=in_radius, catalog = "HSC", magtype=2)
+        index = np.where((result['TargetName'] == 'M15-SECOND') & (result['NumImages'] == 1))
+        assert isinstance(result, Table)
+        assert result[index]['MatchID'] == '45814093'
+
+        result = mast.Catalogs.query_region("322.49324 12.16683", radius=in_radius, catalog="HSC", version=2, magtype=2)
         assert isinstance(result, Table)
 
-        result = mast.Catalogs.query_region("322.49324 12.16683", radius = 0.1, catalog="HSC", version=2, magtype=2)
-        assert isinstance(result, Table)
-
-        result = mast.Catalogs.query_region("322.49324 12.16683", radius=0.01,
+        result = mast.Catalogs.query_region("322.49324 12.16683", radius=in_radius,
                                             catalog="Gaia", version=1)
         assert isinstance(result, Table)
         assert len(result) > 200
 
-        result = mast.Catalogs.query_region("322.49324 12.16683", radius=0.01,
-                                            catalog="Gaia", version=2)
+        result = mast.Catalogs.query_region("322.49324 12.16683", radius=in_radius, catalog="Gaia", version=2)
         assert isinstance(result, Table)
         assert len(result) > 550
 
-        result = mast.Catalogs.query_region("322.49324 12.16683", radius=0.01,
-                                            catalog="panstarrs", table="mean")
+        result = mast.Catalogs.query_region("322.49324 12.16683", radius=in_radius, catalog="panstarrs", table="mean")
         assert isinstance(result, Table)
         assert len(result) > 800
 
-        result = mast.Catalogs.query_region("322.49324 12.16683", radius=0.01,
-                                            catalog="panstarrs", table="mean", pagesize=3)
+        result = mast.Catalogs.query_region("322.49324 12.16683", radius=in_radius, catalog="panstarrs", table="mean", pagesize=3)
         assert isinstance(result, Table)
         assert len(result) == 3
 
-        result = mast.Catalogs.query_region("158.47924 -7.30962", radius = 0.1, catalog="Galex")
+        result = mast.Catalogs.query_region("158.47924 -7.30962", radius=in_radius, catalog="Galex")
         assert isinstance(result, Table)
         assert len(result) > 700
 
-        result = mast.Catalogs.query_region("158.47924 -7.30962", radius = 0.1, catalog="tic")
+        result = mast.Catalogs.query_region("158.47924 -7.30962", radius=in_radius, catalog="tic")
         assert isinstance(result, Table)
         assert len(result) > 450
 
-        result = mast.Catalogs.query_region("158.47924 -7.30962", radius = 0.1, catalog="ctl")
+        result = mast.Catalogs.query_region("158.47924 -7.30962", radius=in_radius, catalog="ctl")
         assert isinstance(result, Table)
         assert len(result) > 10
 
