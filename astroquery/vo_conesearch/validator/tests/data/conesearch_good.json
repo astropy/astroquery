@@ -30,7 +30,7 @@
             "std_version": "",
             "title": "The USNO-A2.0 Catalogue (Monet+ 1998)",
             "updated": "4/5/2018 10:00:00 AM",
-            "url": "http://vizier.u-strasbg.fr/viz-bin/conesearch/I/252/out?",
+            "url": "http://vizier.unistra.fr/viz-bin/conesearch/I/252/out?",
             "url_use": "base",
             "validate_expected": "good",
             "validate_network_error": null,

@@ -69,7 +69,7 @@ class TestConeSearchValidation:
         local_outdir = os.path.join(self.out_dir, 'subtmp1')
         local_list = [
             'http://www.google.com/foo&',
-            'http://vizier.u-strasbg.fr/viz-bin/conesearch/I/252/out?']
+            'http://vizier.unistra.fr/viz-bin/conesearch/I/252/out?']
         validate.check_conesearch_sites(destdir=local_outdir,
                                         parallel=parallel,
                                         url_list=local_list)

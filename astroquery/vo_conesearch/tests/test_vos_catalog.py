@@ -187,6 +187,7 @@ def test_write_json(tmpdir):
     assert db.list_catalogs_by_url() == db2.list_catalogs_by_url()
 
 
+@pytest.mark.filterwarnings('ignore')
 @pytest.mark.remote_data
 def test_db_from_registry():
     """Test database created from VO registry.
