@@ -119,8 +119,10 @@ class XMMNewtonClass(BaseQuery):
         if 'Content-Type' in response.headers and 'text' not in response.headers['Content-Type']:
             _, params = cgi.parse_header(response.headers['Content-Disposition'])
         else:
-            error = "Data protected by proprietary rights. Please check your credentials"
-            raise LoginError(error)
+            if response.status_code == 401:
+                error = "Data protected by proprietary rights. Please check your credentials"
+                raise LoginError(error)
+        response.raise_for_status()
 
         r_filename = params["filename"]
         suffixes = Path(r_filename).suffixes
