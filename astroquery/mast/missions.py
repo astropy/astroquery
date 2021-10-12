@@ -29,6 +29,8 @@ class MissionsClass(MastQueryWithLogin):
     def __init__(self):
         super().__init__()
 
+        self._search_option_fields = ['limit', 'offset', 'sort_by', 'search_key', 'sort_desc', 'select_cols',
+                                'skip_count', 'user_fields']
         self.service = 'search'
         self.mission = 'hst'
 
@@ -115,9 +117,13 @@ class MissionsClass(MastQueryWithLogin):
                   'radius': radius.arcmin,
                   'radius_units': 'arcminutes'}
 
+        params['conditions'] = []
         # adding additional user specified parameters
         for prop, value in kwargs.items():
-            params[prop] = value
+            if prop not in self._search_option_fields:
+                params['conditions'].append({prop: value})
+            else:
+                params[prop] = value
 
         return self._service_api_connection.service_request_async(self.service, params, use_json=True)
 
@@ -162,8 +168,12 @@ class MissionsClass(MastQueryWithLogin):
         if not self._service_api_connection.check_catalogs_criteria_params(criteria):
             raise InvalidQueryError("At least one non-positional criterion must be supplied.")
 
+        params['conditions'] = []
         for prop, value in criteria.items():
-            params[prop] = value
+            if prop not in self._search_option_fields:
+                params['conditions'].append({prop: value})
+            else:
+                params[prop] = value
 
         return self._service_api_connection.service_request_async(self.service, params, use_json=True)
 
