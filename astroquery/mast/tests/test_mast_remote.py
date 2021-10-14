@@ -396,15 +396,17 @@ class TestMast:
         assert isinstance(result, Table)
         assert max(distances) <= in_radius_arcmin
 
-        result = mast.Catalogs.query_region("158.47924 -7.30962", radius=in_radius, catalog="tic")
-
+        result = mast.Catalogs.query_region("158.47924 -7.30962",
+                                            radius=in_radius,
+                                            catalog="tic")
         row = np.where(result['ID'] == '841736289')
         assert isinstance(result, Table)
         assert result[row]['RA_orig'] == 158.475246786483
         assert result[row]['gaiaqflag'] == 1
 
-        result = mast.Catalogs.query_region("158.47924 -7.30962", radius=in_radius, catalog="ctl")
-
+        result = mast.Catalogs.query_region("158.47924 -7.30962",
+                                            radius=in_radius,
+                                            catalog="ctl")
         row = np.where(result['ID'] == '56662064')
         assert isinstance(result, Table)
         assert result[row]['TYC'] == '4918-01335-1'
@@ -412,7 +414,6 @@ class TestMast:
         result = mast.Catalogs.query_region("210.80227 54.34895",
                                             radius=1*u.deg,
                                             catalog="diskdetective")
-
         row = np.where(result['designation'] == 'J140544.95+535941.1')
         assert isinstance(result, Table)
         assert result[row]['ZooniverseID'] == 'AWI0000r57'
@@ -428,30 +429,46 @@ class TestMast:
         # clear columns config
         mast.Catalogs._column_configs = dict()
 
-        result = mast.Catalogs.query_object("M10", radius=".02 deg", catalog="TIC")
+        result = mast.Catalogs.query_object("M10",
+                                            radius=".02 deg",
+                                            catalog="TIC")
         assert isinstance(result, Table)
-        assert len(result) >= 300
         assert result[np.where(result['ID'] == '189844449')]
 
-        result = mast.Catalogs.query_object("M10", radius=.001, catalog="HSC", magtype=1)
+        result = mast.Catalogs.query_object("M10",
+                                            radius=.001,
+                                            catalog="HSC",
+                                            magtype=1)
         assert isinstance(result, Table)
-        assert len(result) >= 50
+        assert result[np.where(result['MatchID']) == '60112519']
 
-        result = mast.Catalogs.query_object("M10", radius=.001, catalog="panstarrs", table="mean")
+        result = mast.Catalogs.query_object("M10",
+                                            radius=.001,
+                                            catalog="panstarrs",
+                                            table="mean")
         assert isinstance(result, Table)
-        assert len(result) >= 5
+        assert result[np.where(result['objName'] == 'PSO J254.2872-04.0991')]
 
-        result = mast.Catalogs.query_object("M101", radius=1, catalog="diskdetective")
+        result = mast.Catalogs.query_object("M101",
+                                            radius=1,
+                                            catalog="diskdetective")
         assert isinstance(result, Table)
-        assert len(result) > 10
+        assert result[np.where(result['designation'] == 'J140758.82+534902.4')]
 
-        result = mast.Catalogs.query_object("M10", radius=0.01, catalog="Gaia", version=1)
+        result = mast.Catalogs.query_object("M10",
+                                            radius=0.01,
+                                            catalog="Gaia",
+                                            version=1)
+        distances = list(result['distance'])
+        radius_arcmin = 0.01 * u.deg.to(u.arcmin)
         assert isinstance(result, Table)
-        assert len(result) > 200
+        assert max(distances) < radius_arcmin
 
-        result = mast.Catalogs.query_object("TIC 441662144", radius=0.01, catalog="ctl")
+        result = mast.Catalogs.query_object("TIC 441662144",
+                                            radius=0.01,
+                                            catalog="ctl")
         assert isinstance(result, Table)
-        assert len(result) == 1
+        assert result[np.where(result['ID'] == '441662144')]
 
     def test_catalogs_query_criteria_async(self):
         # without position
@@ -488,7 +505,8 @@ class TestMast:
                                                        state="complete")
         assert isinstance(responses, list)
 
-        responses = mast.Catalogs.query_criteria_async(catalog="panstarrs", table="mean",
+        responses = mast.Catalogs.query_criteria_async(catalog="panstarrs",
+                                                       table="mean",
                                                        objectname="M10",
                                                        radius=.02,
                                                        qualityFlag=48)
@@ -500,47 +518,58 @@ class TestMast:
         mast.Catalogs._column_configs = dict()
 
         # without position
-        result = mast.Catalogs.query_criteria(catalog="Tic", Bmag=[30, 50], objType="STAR")
+        result = mast.Catalogs.query_criteria(catalog="Tic",
+                                              Bmag=[30, 50],
+                                              objType="STAR")
         assert isinstance(result, Table)
-        assert len(result) >= 10
         assert result[np.where(result['ID'] == '81609218')]
 
-        result = mast.Catalogs.query_criteria(catalog="ctl", Tmag=[10.5, 11], POSflag="2mass")
+        result = mast.Catalogs.query_criteria(catalog="ctl",
+                                              Tmag=[10.5, 11],
+                                              POSflag="2mass")
         assert isinstance(result, Table)
-        assert len(result) >= 400
         assert result[np.where(result['ID'] == '291067184')]
 
         result = mast.Catalogs.query_criteria(catalog="DiskDetective",
                                               state=["inactive", "disabled"],
-                                              oval=[8, 10], multi=[3, 7])
+                                              oval=[8, 10],
+                                              multi=[3, 7])
         assert isinstance(result, Table)
-        assert len(result) >= 30
         assert result[np.where(result['designation'] == 'J003920.04-300132.4')]
 
         # with position
-        result = mast.Catalogs.query_criteria(catalog="Tic", objectname="M10", objType="EXTENDED")
+        result = mast.Catalogs.query_criteria(catalog="Tic",
+                                              objectname="M10", objType="EXTENDED")
         assert isinstance(result, Table)
-        assert len(result) >= 7
         assert result[np.where(result['ID'] == '10000732589')]
 
-        result = mast.Catalogs.query_criteria(objectname='TIC 291067184', catalog="ctl",
-                                              Tmag=[10.5, 11], POSflag="2mass")
+        result = mast.Catalogs.query_criteria(objectname='TIC 291067184',
+                                              catalog="ctl",
+                                              Tmag=[10.5, 11],
+                                              POSflag="2mass")
         assert isinstance(result, Table)
-        assert len(result) == 1
+        assert result[np.where(result['Tmag']) == 10.893]
 
-        result = mast.Catalogs.query_criteria(catalog="DiskDetective", objectname="M10", radius=2,
+        result = mast.Catalogs.query_criteria(catalog="DiskDetective",
+                                              objectname="M10",
+                                              radius=2,
                                               state="complete")
         assert isinstance(result, Table)
-        assert len(result) >= 5
         assert result[np.where(result['designation'] == 'J165628.40-054630.8')]
 
-        result = mast.Catalogs.query_criteria(catalog="panstarrs", objectname="M10", radius=.01,
-                                              qualityFlag=32, zoneID=10306)
+        result = mast.Catalogs.query_criteria(catalog="panstarrs",
+                                              objectname="M10",
+                                              radius=.01,
+                                              qualityFlag=32,
+                                              zoneID=10306)
         assert isinstance(result, Table)
-        assert len(result) >= 5
+        assert result[np.where(result['objName'] == 'PSO J254.2861-04.1091')]
 
     def test_catalogs_query_hsc_matchid_async(self):
-        catalogData = mast.Catalogs.query_object("M10", radius=.001, catalog="HSC", magtype=1)
+        catalogData = mast.Catalogs.query_object("M10",
+                                                 radius=.001,
+                                                 catalog="HSC",
+                                                 magtype=1)
 
         responses = mast.Catalogs.query_hsc_matchid_async(catalogData[0])
         assert isinstance(responses, list)
@@ -553,7 +582,10 @@ class TestMast:
         # clear columns config
         mast.Catalogs._column_configs = dict()
 
-        catalogData = mast.Catalogs.query_object("M10", radius=.001, catalog="HSC", magtype=1)
+        catalogData = mast.Catalogs.query_object("M10",
+                                                 radius=.001,
+                                                 catalog="HSC",
+                                                 magtype=1)
         matchid = catalogData[0]["MatchID"]
 
         result = mast.Catalogs.query_hsc_matchid(catalogData[0])
@@ -576,15 +608,17 @@ class TestMast:
 
         result = mast.Catalogs.get_hsc_spectra()
         assert isinstance(result, Table)
-        assert len(result) >= 45762
         assert result[np.where(result['MatchID'] == '19657846')]
+        assert result[np.where(result['DatasetName'] == 'HAG_J072657.06+691415.5_J8HPAXAEQ_V01.SPEC1D')]
 
     def test_catalogs_download_hsc_spectra(self, tmpdir):
         allSpectra = mast.Catalogs.get_hsc_spectra()
 
         # actually download the products
-        result = mast.Catalogs.download_hsc_spectra(allSpectra[10], download_dir=str(tmpdir))
+        result = mast.Catalogs.download_hsc_spectra(allSpectra[10],
+                                                    download_dir=str(tmpdir))
         assert isinstance(result, Table)
+
         for row in result:
             if row['Status'] == 'COMPLETE':
                 assert os.path.isfile(row['Local Path'])
