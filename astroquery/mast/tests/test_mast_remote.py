@@ -69,7 +69,7 @@ class TestMast:
         # Are the two GALEX observations with obs_id 6374399093149532160 in the results table
         assert len(result[np.where(result["obs_id"] == "6374399093149532160")]) == 2
 
-    def test_mast_sesion_info(self):
+    def test_mast_session_info(self):
         sessionInfo = mast.Mast.session_info(verbose=False)
         assert sessionInfo['ezid'] == 'anonymous'
         assert sessionInfo['token'] is None
@@ -307,16 +307,18 @@ class TestMast:
     # CatalogClass tests #
     ######################
 
-        # query functions
+    # query functions
     def test_catalogs_query_region_async(self):
         responses = mast.Catalogs.query_region_async("158.47924 -7.30962", catalog="Galex")
         assert isinstance(responses, list)
 
         # Default catalog is HSC
-        responses = mast.Catalogs.query_region_async("322.49324 12.16683", radius="0.02 deg")
+        responses = mast.Catalogs.query_region_async("322.49324 12.16683",
+                                                     radius="0.02 deg")
         assert isinstance(responses, list)
 
-        responses = mast.Catalogs.query_region_async("322.49324 12.16683", radius="0.02 deg",
+        responses = mast.Catalogs.query_region_async("322.49324 12.16683",
+                                                     radius="0.02 deg",
                                                      catalog="panstarrs", table="mean")
         assert isinstance(responses, Response)
 
@@ -324,56 +326,101 @@ class TestMast:
 
         # clear columns config
         mast.Catalogs._column_configs = dict()
-        in_radius = 0.1
+        in_radius = 0.1 * u.deg
 
-        result = mast.Catalogs.query_region("158.47924 -7.30962", radius=in_radius*u.deg, catalog="Gaia")
-        index = np.where(result['source_id'] == '3774902350511581696')
+        result = mast.Catalogs.query_region("158.47924 -7.30962",
+                                            radius=in_radius,
+                                            catalog="Gaia")
+        row = np.where(result['source_id'] == '3774902350511581696')
         assert isinstance(result, Table)
-        assert result[index]['solution_id'] == 0.1635721458409799680
-
-        result = mast.Catalogs.query_region("322.49324 12.16683", radius=in_radius, catalog = "HSC", magtype=2)
-        index = np.where((result['TargetName'] == 'M15-SECOND') & (result['NumImages'] == 1))
+        assert result[row]['solution_id'].item() == '1635721458409799680'
+        """
+        result = mast.Catalogs.query_region("322.49324 12.16683",
+                                            radius=in_radius,
+                                            catalog = "HSC",
+                                            magtype=2)
+        row = np.where(result['MatchID'] == '78095437')
         assert isinstance(result, Table)
-        assert result[index]['MatchID'] == '45814093'
+        assert result[row]['NumImages'] == 1
+        assert result[row]['TargetName'] == 'M15'
 
-        result = mast.Catalogs.query_region("322.49324 12.16683", radius=in_radius, catalog="HSC", version=2, magtype=2)
+        result = mast.Catalogs.query_region("322.49324 12.16683",
+                                            radius=in_radius,
+                                            catalog="HSC",
+                                            version=2,
+                                            magtype=2)
+        row = np.where(result['MatchID'] == '8150896')
         assert isinstance(result, Table)
-
-        result = mast.Catalogs.query_region("322.49324 12.16683", radius=in_radius,
-                                            catalog="Gaia", version=1)
+        assert result[row]['NumImages'].item() == 14
+        assert result[row]['TargetName'].item() == 'M15'
+        """
+        result = mast.Catalogs.query_region("322.49324 12.16683",
+                                            radius=in_radius,
+                                            catalog="Gaia",
+                                            version=1)
+        row = np.where(result['source_id'] == '1745948323734098688')
         assert isinstance(result, Table)
-        assert len(result) > 200
+        assert result[row]['solution_id'].item() == '1635378410781933568'
 
-        result = mast.Catalogs.query_region("322.49324 12.16683", radius=in_radius, catalog="Gaia", version=2)
+        result = mast.Catalogs.query_region("322.49324 12.16683",
+                                            radius=in_radius,
+                                            catalog="Gaia",
+                                            version=2)
+
+        row = np.where(result['source_id'] == '1745973204477191424')
         assert isinstance(result, Table)
-        assert len(result) > 550
+        assert result[row]['solution_id'].item() == '1635721458409799680'
 
-        result = mast.Catalogs.query_region("322.49324 12.16683", radius=in_radius, catalog="panstarrs", table="mean")
+
+        result = mast.Catalogs.query_region("322.49324 12.16683",
+                                            radius=in_radius, catalog="panstarrs",
+                                            table="mean")
+        row = np.where((result['objName'] == 'PSO J322.4622+12.1920') & (result['yFlags'] == 16777496))
         assert isinstance(result, Table)
-        assert len(result) > 800
+        assert result[row]['distance'].item() == 0.039381703406789904
 
-        result = mast.Catalogs.query_region("322.49324 12.16683", radius=in_radius, catalog="panstarrs", table="mean", pagesize=3)
+
+        result = mast.Catalogs.query_region("322.49324 12.16683",
+                                            radius=in_radius, catalog="panstarrs",
+                                            table="mean",
+                                            pagesize=3)
         assert isinstance(result, Table)
         assert len(result) == 3
 
-        result = mast.Catalogs.query_region("158.47924 -7.30962", radius=in_radius, catalog="Galex")
+
+        result = mast.Catalogs.query_region("158.47924 -7.30962",
+                                            radius=in_radius,
+                                            catalog="Galex")
+        in_radius_arcmin = 0.1*u.deg.to(u.arcmin)
+        distances = list(result['distance_arcmin'])
         assert isinstance(result, Table)
-        assert len(result) > 700
+        assert max(distances) <= in_radius_arcmin
 
         result = mast.Catalogs.query_region("158.47924 -7.30962", radius=in_radius, catalog="tic")
+
+        row = np.where(result['ID'] == '841736289')
         assert isinstance(result, Table)
-        assert len(result) > 450
+        assert result[row]['RA_orig'] == 158.475246786483
+        assert result[row]['gaiaqflag'] == 1
 
         result = mast.Catalogs.query_region("158.47924 -7.30962", radius=in_radius, catalog="ctl")
-        assert isinstance(result, Table)
-        assert len(result) > 10
 
-        result = mast.Catalogs.query_region("210.80227 54.34895", radius=1, catalog="diskdetective")
+        row = np.where(result['ID'] == '56662064')
         assert isinstance(result, Table)
-        assert len(result) > 10
+        assert result[row]['TYC'] == '4918-01335-1'
+
+        result = mast.Catalogs.query_region("210.80227 54.34895",
+                                            radius=1*u.deg,
+                                            catalog="diskdetective")
+
+        row = np.where(result['designation'] == 'J140544.95+535941.1')
+        assert isinstance(result, Table)
+        assert result[row]['ZooniverseID'] == 'AWI0000r57'
 
     def test_catalogs_query_object_async(self):
-        responses = mast.Catalogs.query_object_async("M10", radius=.02, catalog="TIC")
+        responses = mast.Catalogs.query_object_async("M10",
+                                                     radius=.02,
+                                                     catalog="TIC")
         assert isinstance(responses, list)
 
     def test_catalogs_query_object(self):
