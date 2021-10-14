@@ -17,7 +17,7 @@ import astropy.units as u
 
 from ... import mast
 
-from ...exceptions import RemoteServiceError
+from ...exceptions import RemoteServiceError, NoResultsWarning
 
 OBSID = mast.Observations.query_object("M8", radius=".04 deg")[0]['obsid']
 
@@ -642,10 +642,12 @@ class TestMast:
         assert sector_table['ccd'][0] > 0
 
         # This should always return no results
-        #coord = SkyCoord(90, -66.5, unit="deg")
-        #sector_table = mast.Tesscut.get_sectors(coordinates=coord, radius=0)
-        #assert isinstance(sector_table, Table)
-        #assert len(sector_table) == 0
+        with pytest.warns(NoResultsWarning):
+            coord = SkyCoord(90, -66.5, unit="deg")
+            sector_table = mast.Tesscut.get_sectors(coordinates=coord,
+                                                    radius=0)
+            assert isinstance(sector_table, Table)
+            assert len(sector_table) == 0
 
         sector_table = mast.Tesscut.get_sectors(objectname="M104")
         assert isinstance(sector_table, Table)
@@ -734,10 +736,11 @@ class TestMast:
         assert survey_list[2] == 'goods_north'
 
         # This should always return no results
-        #coord = SkyCoord(57.10523, -30.08085, unit="deg")
-        #survey_list = mast.Zcut.get_surveys(coordinates=coord, radius=0)
-        #assert isinstance(survey_list, list)
-        #assert len(survey_list) == 0
+        with pytest.warns(NoResultsWarning):
+            coord = SkyCoord(57.10523, -30.08085, unit="deg")
+            survey_list = mast.Zcut.get_surveys(coordinates=coord, radius=0)
+            assert isinstance(survey_list, list)
+            assert len(survey_list) == 0
 
     def test_zcut_download_cutouts(self, tmpdir):
 
@@ -773,12 +776,14 @@ class TestMast:
         for row in cutout_table:
             assert os.path.isfile(cutout_table[0]['Local Path'])
 
-        #cutout_table = mast.Zcut.download_cutouts(coordinates=coord, survey='candels_gn_30mas', cutout_format="jpg", path=str(tmpdir))
-        #assert isinstance(cutout_table, Table)
-        #assert len(cutout_table) == 3
-        #assert cutout_table["Local Path"][0][-4:] == ".jpg"
-        #for row in cutout_table:
-        #    assert os.path.isfile(cutout_table[0]['Local Path'])
+        # Intetionally returns no results
+        with pytest.warns(NoResultsWarning):
+            cutout_table = mast.Zcut.download_cutouts(coordinates=coord,
+                                                      survey='candels_gn_30mas',
+                                                      cutout_format="jpg",
+                                                      path=str(tmpdir))
+            assert isinstance(cutout_table, Table)
+            assert len(cutout_table) == 0
 
         cutout_table = mast.Zcut.download_cutouts(coordinates=coord, cutout_format="jpg", path=str(tmpdir), stretch='asinh', invert=True)
         assert isinstance(cutout_table, Table)
@@ -801,7 +806,9 @@ class TestMast:
         assert len(cutout_list) >= 1
         assert isinstance(cutout_list[0], fits.HDUList)
 
-        #cutout_list = mast.Zcut.get_cutouts(coordinates=coord, survey='candels_gn_30mas')
-        #assert isinstance(cutout_list, list)
-        #assert len(cutout_list) == 1
-        #assert isinstance(cutout_list[0], fits.HDUList)
+        # Intentionally returns no results
+        with pytest.warns(NoResultsWarning):
+            cutout_list = mast.Zcut.get_cutouts(coordinates=coord,
+                                                survey='candels_gn_30mas')
+            assert isinstance(cutout_list, list)
+            assert len(cutout_list) == 0
