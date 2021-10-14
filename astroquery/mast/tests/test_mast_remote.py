@@ -430,27 +430,27 @@ class TestMast:
                                             radius=".02 deg",
                                             catalog="TIC")
         assert isinstance(result, Table)
-        assert result[np.where(result['ID'] == '189844449')]
+        assert '189844449' in result['ID']
 
         result = mast.Catalogs.query_object("M10",
                                             radius=.001,
                                             catalog="HSC",
                                             magtype=1)
         assert isinstance(result, Table)
-        assert result[np.where(result['MatchID']) == '60112519']
+        assert '60112519' in result['MatchID']
 
         result = mast.Catalogs.query_object("M10",
                                             radius=.001,
                                             catalog="panstarrs",
                                             table="mean")
         assert isinstance(result, Table)
-        assert result[np.where(result['objName'] == 'PSO J254.2872-04.0991')]
+        assert 'PSO J254.2872-04.0991' in result['objName']
 
         result = mast.Catalogs.query_object("M101",
                                             radius=1,
                                             catalog="diskdetective")
         assert isinstance(result, Table)
-        assert result[np.where(result['designation'] == 'J140758.82+534902.4')]
+        assert 'J140758.82+534902.4' in result['designation']
 
         result = mast.Catalogs.query_object("M10",
                                             radius=0.01,
@@ -465,7 +465,7 @@ class TestMast:
                                             radius=0.01,
                                             catalog="ctl")
         assert isinstance(result, Table)
-        assert result[np.where(result['ID'] == '441662144')]
+        assert '441662144' in result['ID']
 
     def test_catalogs_query_criteria_async(self):
         # without position
@@ -519,40 +519,40 @@ class TestMast:
                                               Bmag=[30, 50],
                                               objType="STAR")
         assert isinstance(result, Table)
-        assert result[np.where(result['ID'] == '81609218')]
+        assert '81609218' in result['ID']
 
         result = mast.Catalogs.query_criteria(catalog="ctl",
                                               Tmag=[10.5, 11],
                                               POSflag="2mass")
         assert isinstance(result, Table)
-        assert result[np.where(result['ID'] == '291067184')]
+        assert '291067184' in result['ID']
 
         result = mast.Catalogs.query_criteria(catalog="DiskDetective",
                                               state=["inactive", "disabled"],
                                               oval=[8, 10],
                                               multi=[3, 7])
         assert isinstance(result, Table)
-        assert result[np.where(result['designation'] == 'J003920.04-300132.4')]
+        assert 'J003920.04-300132.4' in result['designation']
 
         # with position
         result = mast.Catalogs.query_criteria(catalog="Tic",
                                               objectname="M10", objType="EXTENDED")
         assert isinstance(result, Table)
-        assert result[np.where(result['ID'] == '10000732589')]
+        assert '10000732589' in result['ID']
 
         result = mast.Catalogs.query_criteria(objectname='TIC 291067184',
                                               catalog="ctl",
                                               Tmag=[10.5, 11],
                                               POSflag="2mass")
         assert isinstance(result, Table)
-        assert result[np.where(result['Tmag']) == 10.893]
+        assert 10.893 in result['Tmag']
 
         result = mast.Catalogs.query_criteria(catalog="DiskDetective",
                                               objectname="M10",
                                               radius=2,
                                               state="complete")
         assert isinstance(result, Table)
-        assert result[np.where(result['designation'] == 'J165628.40-054630.8')]
+        assert 'J165628.40-054630.8' in result['designation']
 
         result = mast.Catalogs.query_criteria(catalog="panstarrs",
                                               objectname="M10",
@@ -560,7 +560,7 @@ class TestMast:
                                               qualityFlag=32,
                                               zoneID=10306)
         assert isinstance(result, Table)
-        assert result[np.where(result['objName'] == 'PSO J254.2861-04.1091')]
+        assert 'PSO J254.2861-04.1091' in result['objName']
 
     def test_catalogs_query_hsc_matchid_async(self):
         catalogData = mast.Catalogs.query_object("M10",
