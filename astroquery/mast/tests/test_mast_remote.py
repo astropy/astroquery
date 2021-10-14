@@ -237,8 +237,8 @@ class TestMast:
 
         result1 = mast.Observations.get_product_list(mult_obs_ids)
         result2 = mast.Observations.get_product_list(observations[0:2])
-        filenames1 = list(result1['productFilename'])
-        filenames2 = list(result2['productFilename'])
+        filenames1 = result1['productFilename']
+        filenames2 = result2['productFilename']
         assert isinstance(result1, Table)
         assert len(result1) == len(result2)
         assert set(filenames1) == set(filenames2)
