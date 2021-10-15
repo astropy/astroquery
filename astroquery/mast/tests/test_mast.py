@@ -185,7 +185,7 @@ def test_missions_query_region_async(patch_post):
 
 
 def test_missions_query_object_async(patch_post):
-    responses = mast.MissionsMAst.query_object_async("M101", radius="0.002 deg")
+    responses = mast.MissionsMast.query_object_async("M101", radius="0.002 deg")
     assert isinstance(responses, MockResponse)
 
 
