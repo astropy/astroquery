@@ -212,17 +212,17 @@ def test_missions_query_criteria_async(patch_post):
     obs_type = {'sci_obs_type': 'all'}
     aec = {'sci_aec': 'S'}
     responses = mast.MissionsMast.query_criteria_async(coordinates=regionCoords,
-                                        radius=3,
-                                        conditions=[pep_id,
-                                                    obs_type,
-                                                    instruments,
-                                                    datasets,
-                                                    pi_lname,
-                                                    spec_1234,
-                                                    release_date,
-                                                    start_time,
-                                                    obs_type,
-                                                    aec])
+                                                       radius=3,
+                                                       conditions=[pep_id,
+                                                                   obs_type,
+                                                                   instruments,
+                                                                   datasets,
+                                                                   pi_lname,
+                                                                   spec_1234,
+                                                                   release_date,
+                                                                   start_time,
+                                                                   obs_type,
+                                                                   aec])
     assert isinstance(responses, MockResponse)
 
 

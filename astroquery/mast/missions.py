@@ -27,13 +27,13 @@ class MissionsMastClass(MastQueryWithLogin):
     Class that allows direct programatic access to the MAST search API for a given mission.
     """
 
-    def __init__(self):
+    def __init__(self, mission='hst', service='search'):
         super().__init__()
 
         self._search_option_fields = ['limit', 'offset', 'sort_by', 'search_key', 'sort_desc', 'select_cols',
                                       'skip_count', 'user_fields']
-        self.service = 'search'
-        self.mission = 'hst'
+        self.service = service
+        self.mission = mission
 
         service_dict = {self.service: {'path': self.service, 'args': {}}}
         self._service_api_connection.set_service_params(service_dict, f"{self.service}/{self.mission}")

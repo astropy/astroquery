@@ -245,7 +245,7 @@ class ServiceAPI(BaseQuery):
            Can be used to override the default behavior of all results being returned to obtain
            a specific page of results.
         use_json: bool, optional
-           if True, parameters don't need to be built
+           if True, params are directly passed as json object
         **kwargs :
            See Catalogs.MAST properties in documentation referenced above
 
