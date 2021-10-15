@@ -15,13 +15,13 @@ from ..utils.class_or_instance import class_or_instance
 from . import utils
 from .core import MastQueryWithLogin
 
-__all__ = ['MissionsClass', 'Missions']
+__all__ = ['MissionsMastClass', 'MissionsMast']
 
 
 @async_to_sync
-class MissionsClass(MastQueryWithLogin):
+class MissionsMastClass(MastQueryWithLogin):
     """
-    Missions search class.
+    MissionsMast search class.
 
     Class that allows direct programatic access to the MAST search API for a given mission.
     """
@@ -206,4 +206,4 @@ class MissionsClass(MastQueryWithLogin):
         return self.query_region_async(coordinates, radius, **kwargs)
 
 
-Missions = MissionsClass()
+MissionsMast = MissionsMastClass()
