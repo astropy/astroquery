@@ -19,11 +19,12 @@ from ... import mast
 
 from ...exceptions import RemoteServiceError, NoResultsWarning
 
-OBSID = mast.Observations.query_object("M8", radius=".04 deg")[0]['obsid']
 
 @pytest.mark.remote_data
 class TestMast:
 
+    # New branch after the rebase disaster
+    OBSID = mast.Observations.query_object("M8", radius=".04 deg")[0]['obsid']
     ###############
     # utils tests #
     ###############
