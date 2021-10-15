@@ -9,11 +9,11 @@ This module contains methods for searching MAST missions.
 import astropy.units as u
 import astropy.coordinates as coord
 
-from ..utils import commons, async_to_sync
-from ..utils.class_or_instance import class_or_instance
+from astroquery.utils import commons, async_to_sync
+from astroquery.utils.class_or_instance import class_or_instance
 
-from . import utils
-from .core import MastQueryWithLogin
+from astroquery.mast import utils
+from astroquery.mast.core import MastQueryWithLogin
 
 __all__ = ['MissionsMastClass', 'MissionsMast']
 
