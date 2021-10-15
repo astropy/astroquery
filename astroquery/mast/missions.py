@@ -11,6 +11,7 @@ import astropy.coordinates as coord
 
 from astroquery.utils import commons, async_to_sync
 from astroquery.utils.class_or_instance import class_or_instance
+from astroquery.exceptions import InvalidQueryError
 
 from astroquery.mast import utils
 from astroquery.mast.core import MastQueryWithLogin
@@ -30,7 +31,7 @@ class MissionsMastClass(MastQueryWithLogin):
         super().__init__()
 
         self._search_option_fields = ['limit', 'offset', 'sort_by', 'search_key', 'sort_desc', 'select_cols',
-                                'skip_count', 'user_fields']
+                                      'skip_count', 'user_fields']
         self.service = 'search'
         self.mission = 'hst'
 
