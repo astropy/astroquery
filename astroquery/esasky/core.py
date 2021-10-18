@@ -67,13 +67,17 @@ class ESASkyClass(BaseQuery):
         'rs_': 'red',
         'wbs': 'WBS',
         'hrs': 'HRS'
-        }
+    }
 
     _MAPS_DOWNLOAD_DIR = "Maps"
     _SPECTRA_DOWNLOAD_DIR = "Spectra"
     _isTest = ""
+    _cached_tables = None
 
     _NUMBER_DATA_TYPES = ["REAL", "float", "INTEGER", "int", "BIGINT", "long", "DOUBLE", "double", "SMALLINT", "short"]
+
+    SSO_TYPES = ['ALL', 'ASTEROID', 'COMET', 'SATELLITE', 'PLANET',
+                 'DWARF_PLANET', 'SPACECRAFT', 'SPACEJUNK', 'EXOPLANET', 'STAR']
 
     def __init__(self, tap_handler=None):
         super(ESASkyClass, self).__init__()
@@ -108,7 +112,7 @@ class ESASkyClass(BaseQuery):
                                    dump_to_file=output_file is not None)
         return job.get_results()
 
-    def get_tables(self, *, only_names=True, verbose=False):
+    def get_tables(self, *, only_names=True, verbose=False, cache=True):
         """
         Get the available table in ESASky TAP service
 
@@ -124,9 +128,13 @@ class ESASkyClass(BaseQuery):
         A list of tables
         """
 
-        tables = self._tap.load_tables(only_names=only_names,
-                                       include_shared_tables=False,
-                                       verbose=verbose)
+        if cache and self._cached_tables is not None:
+            tables = self._cached_tables
+        else:
+            tables = self._tap.load_tables(only_names=only_names,
+                                           include_shared_tables=False,
+                                           verbose=verbose)
+            self._cached_tables = tables
         if only_names:
             return [t.name for t in tables]
         else:
@@ -138,7 +146,7 @@ class ESASkyClass(BaseQuery):
 
         Parameters
         ----------
-        table_name : string, mandatory, default None
+        table_name : str, mandatory, default None
             table name of which, columns will be returned
         only_names : bool, optional, default 'True'
             True to load table names only
@@ -150,9 +158,8 @@ class ESASkyClass(BaseQuery):
         A list of columns
         """
 
-        tables = self._tap.load_tables(only_names=False,
-                                       include_shared_tables=False,
-                                       verbose=verbose)
+        tables = self.get_tables(only_names=False,
+                                 verbose=verbose)
         columns = None
         for table in tables:
             if str(table.name) == str(table_name):
@@ -204,6 +211,13 @@ class ESASkyClass(BaseQuery):
         return self._json_object_field_to_list(
             self._get_spectra_json(), self.__MISSION_STRING)
 
+    def list_sso(self):
+        """
+        Get a list of the mission names of the available observations with SSO crossmatch in ESASky
+        """
+        return self._json_object_field_to_list(
+            self._get_sso_json(), self.__MISSION_STRING)
+
     def query_object_maps(self, position, missions=__ALL_STRING,
                           get_query_payload=False, cache=True,
                           row_limit=DEFAULT_ROW_LIMIT):
@@ -218,7 +232,7 @@ class ESASkyClass(BaseQuery):
         position : str or `astropy.coordinates` object
             Can either be a string of the location, eg 'M51', or the coordinates
             of the object.
-        missions : string or list, optional
+        missions : str or list, optional
             Can be either a specific mission or a list of missions (all mission
             names are found in list_missions()) or 'all' to search in all
             missions. Defaults to 'all'.
@@ -240,8 +254,8 @@ class ESASkyClass(BaseQuery):
             and observations available for the chosen missions and object.
             It is structured in a TableList like this:
             TableList with 2 tables:
-            '0:HERSCHEL' with 12 column(s) and 152 row(s)
-            '1:HST-OPTICAL' with 12 column(s) and 6 row(s)
+            'HERSCHEL' with 12 column(s) and 152 row(s)
+            'HST-OPTICAL' with 12 column(s) and 6 row(s)
 
         Examples
         --------
@@ -272,7 +286,7 @@ class ESASkyClass(BaseQuery):
         position : str or `astropy.coordinates` object
             Can either be a string of the location, eg 'M51', or the coordinates
             of the object.
-        catalogs : string or list, optional
+        catalogs : str or list, optional
             Can be either a specific catalog or a list of catalogs (all catalog
             names are found in list_catalogs()) or 'all' to search in all
             catalogs. Defaults to 'all'.
@@ -293,8 +307,8 @@ class ESASkyClass(BaseQuery):
             of the catalogs available for the chosen mission and object.
             It is structured in a TableList like this:
             TableList with 2 tables:
-            '0:HSC' with 9 column(s) and 232 row(s)
-            '1:XMM-OM' with 11 column(s) and 2 row(s)
+            'HSC' with 9 column(s) and 232 row(s)
+            'XMM-OM' with 11 column(s) and 2 row(s)
 
         Examples
         --------
@@ -324,7 +338,7 @@ class ESASkyClass(BaseQuery):
         position : str or `astropy.coordinates` object
             Can either be a string of the location, eg 'M51', or the coordinates
             of the object.
-        missions : string or list, optional
+        missions : str or list, optional
             Can be either a specific mission or a list of missions (all mission
             names are found in list_spectra()) or 'all' to search in all
             missions. Defaults to 'all'.
@@ -346,8 +360,8 @@ class ESASkyClass(BaseQuery):
             and spectra available for the chosen missions and object.
             It is structured in a TableList like this:
             TableList with 2 tables:
-            '0:HERSCHEL' with 12 column(s) and 12 row(s)
-            '1:HST-OPTICAL' with 12 column(s) and 19 row(s)
+            'HERSCHEL' with 12 column(s) and 12 row(s)
+            'HST-OPTICAL' with 12 column(s) and 19 row(s)
 
         Examples
         --------
@@ -357,11 +371,264 @@ class ESASkyClass(BaseQuery):
         query_object_spectra("202.469, 47.195", ["Herschel", "HST-OPTICAL"])
         """
         return self.query_region_spectra(position=position,
-                                      radius=self.__ZERO_ARCMIN_STRING,
-                                      missions=missions,
-                                      get_query_payload=get_query_payload,
-                                      cache=cache,
-                                      row_limit=row_limit)
+                                         radius=self.__ZERO_ARCMIN_STRING,
+                                         missions=missions,
+                                         get_query_payload=get_query_payload,
+                                         cache=cache,
+                                         row_limit=row_limit)
+
+    def find_sso(self, sso_name, *, sso_type="ALL", cache=True):
+        """
+        This method allows you to find solar and extra solar system objects with a given name.
+        ESASky is using IMCCE's SsODNet to resolve the objects.
+
+        Parameters
+        ----------
+        sso_name : str
+            A name or alias of a solar system object recognized by SsODNet.
+        sso_type : str, optional
+            Can be any of the sso types found in SSO_TYPES.
+            Defaults to 'all'.
+        cache : bool, optional
+            When set to True the method will use a cache located at
+            .astropy/astroquery/cache. Defaults to True.
+
+        Returns
+        -------
+        list : `list`
+            Returns a list of object matching your search.
+            Each mission match has sso_name, sso_type, and aliases.
+
+        Examples
+        --------
+        find_sso(sso_name="Pallas")
+        find_sso(sso_name="503")
+        find_sso(sso_name="503", sso_type="SATELLITE")
+        """
+        sso_type = self._sanitize_input_sso_type(sso_type)
+        sso_name = self._sanitize_input_sso_name(sso_name)
+        try:
+            response = self._request(
+                method='GET',
+                url=self.URLbase + "/generalresolver",
+                params={
+                    'action': 'bytarget',
+                    'target': sso_name,
+                    'type': sso_type
+                },
+                cache=cache,
+                stream=True,
+                headers=self._get_header())
+
+            response.raise_for_status()
+
+            search_result = response.content
+            if isinstance(response.content, bytes):
+                search_result = response.content.decode('utf-8')
+
+            search_result = json.loads(search_result)
+            sso_result = search_result['ssoDnetResults']
+            if sso_result is None:
+                log.info('No SSO found with name: {} and type: {}'.format(sso_name, sso_type))
+                return None
+            error_message = sso_result['errorMessage']
+            if error_message is not None:
+                log.error('Failed to resolve SSO: {} {} - Reason: {}'.format(sso_name, sso_type, error_message))
+                return None
+            else:
+                sso_list = sso_result['results']
+                for sso in sso_list:
+                    sso['sso_name'] = sso.pop('name')
+                    sso['sso_type'] = sso.pop('ssoObjType')
+                return sso_list
+        except (HTTPError, ConnectionError) as err:
+            log.error("Connection failed with {}.".format(err))
+
+    def query_sso(self, sso_name, *, sso_type="ALL", missions=__ALL_STRING,
+                       row_limit=DEFAULT_ROW_LIMIT):
+        """
+        This method performs a crossmatch on the chosen solar system object
+        and the selected missions using ESASky's crossmatch algorithm.
+        The algorithm detects both targeted and serendipitous observations.
+        It returns a TableList with all the found maps metadata for the
+        chosen missions and object.
+
+        Parameters
+        ----------
+        sso_name : str
+            A name or alias of a solar system object recognized by SsODNet.
+        sso_type : str, optional
+            Can be any of the sso types found in SSO_TYPES.
+            Defaults to 'all'.
+        missions : str or list, optional
+            Can be either a specific mission or a list of missions (all mission
+            names are found in list_sso()) or 'all' to search in all
+            missions. Defaults to 'all'.
+            .astropy/astroquery/cache. Defaults to True.
+        row_limit : int, optional
+            Determines how many rows that will be fetched from the database
+            for each mission. Can be -1 to select maximum (currently 100 000).
+            Defaults to 10000.
+
+        Returns
+        -------
+        table_list : `~astroquery.utils.TableList`
+            Each mission returns a `~astropy.table.Table` with the metadata
+            and observations available for the chosen missions and object.
+            It is structured in a TableList like this:
+            TableList with 2 tables:
+            'HERSCHEL' with 12 column(s) and 152 row(s)
+            'HST' with 12 column(s) and 6 row(s)
+
+        Examples
+        --------
+        query_sso(sso_name="Pallas", missions="HST")
+        query_sso(sso_name="503", sso_type="SATELLITE")
+        query_sso(sso_name="503", sso_type="SATELLITE", missions=["XMM", "HST"])
+        """
+        sso = self.find_sso(sso_name=sso_name, sso_type=sso_type)
+        if len(sso) == 0:
+            # Explanatory text logged by find_sso
+            return None
+
+        if len(sso) > 1:
+            type_text = ''
+            specify_type = 'You can also narrow your search by specifying the sso_type.\n' \
+                           'Allowed values are {}.\n'.format(', '.join(map(str, self.SSO_TYPES)))
+            if sso_type != 'ALL':
+                type_text = ' and type {}'.format(sso_type)
+            raise ValueError('Found {num_sso} SSO\'s with name: {sso_name}{type_text}.\n'
+                             'Try narrowing your search by typing a more specific sso_name.\n{specify_type}'
+                             'The following SSO\'s were found:\n{found_ssos}'
+                             .format(num_sso=len(sso),
+                                     sso_name=sso_name,
+                                     type_text=type_text,
+                                     specify_type=specify_type,
+                                     found_ssos='\n'.join(map(str, sso)))
+                             )
+
+        sanitized_missions = self._sanitize_input_sso_mission(missions)
+        sanitized_row_limit = self._sanitize_input_row_limit(row_limit)
+
+        sso = sso[0]
+        sso_json = self._get_sso_json()
+
+        query_result = {}
+
+        sso_type = self._get_sso_db_type(sso['sso_type'])
+        sso_db_identifier = self._get_db_sso_identifier(sso['sso_type'])
+        top = ""
+        if sanitized_row_limit > 0:
+            top = "TOP {row_limit} ".format(row_limit=sanitized_row_limit)
+        for name in sanitized_missions:
+            data_table = self._find_mission_tap_table_name(sso_json, name)
+            mission_json = self._find_mission_parameters_in_json(data_table, sso_json)
+            x_match_table = mission_json['ssoXMatchTapTable']
+            query = 'SELECT {top}* FROM {data_table} AS a JOIN {x_match_table} AS b ' \
+                    'ON a.observation_oid = b.observation_oid JOIN sso.ssoid AS c ' \
+                    'ON b.sso_oid = c.sso_oid WHERE c.{sso_db_identifier} = \'{sso_name}\' ' \
+                    'AND c.sso_type = \'{sso_type}\'' \
+                .format(top=top, data_table=data_table, x_match_table=x_match_table,
+                        sso_db_identifier=sso_db_identifier, sso_name=sso['sso_name'], sso_type=sso_type)
+            table = self.query(query)
+            if len(table) > 0:
+                query_result[name.upper()] = table
+
+        return commons.TableList(query_result)
+
+    def get_images_sso(self, *, sso_name=None, sso_type="ALL", table_list=None, missions=__ALL_STRING,
+                       download_dir=_MAPS_DOWNLOAD_DIR, cache=True):
+        """
+        This method gets the fits files for the input (either a sso_name or table_list)
+        and downloads all maps to the the selected folder.
+        If a sso_name is entered, this method performs a crossmatch on
+        the chosen solar system object and the selected missions using
+        ESASky's crossmatch algorithm.
+        The method returns a dictionary which is divided by mission.
+        All mission except Herschel returns a list of HDULists.
+        For Herschel each item in the list is a dictionary where the used
+        filter is the key and the HDUList is the value.
+
+        Parameters
+        ----------
+        sso_name : str, optional
+            A name or alias of a solar system object recognized by SsODNet.
+            One of sso_name and table_list is required.
+        sso_type : str, optional
+            Can be any of the sso types found in SSO_TYPES.
+            Defaults to 'all'.
+        table_list : `~astroquery.utils.TableList` or dict or list of (name, `~astropy.table.Table`) pairs
+            A TableList or dict or list of name and Table pairs with all the
+            missions wanted and their respective metadata. Usually the
+            return value of query_sso.
+        missions : str or list, optional
+            Can be either a specific mission or a list of missions (all mission
+            names are found in list_sso()) or 'all' to search in all
+            missions. Defaults to 'all'.
+            .astropy/astroquery/cache. Defaults to True.
+        download_dir : str, optional
+            The folder where all downloaded maps should be stored.
+            Defaults to a folder called 'Maps' in the current working directory.
+        cache : bool, optional
+            When set to True the method will use a cache located at
+            .astropy/astroquery/cache. Defaults to True.
+
+        Returns
+        -------
+        maps : `dict`
+            All mission except Herschel returns a list of HDULists.
+            For Herschel each item in the list is a dictionary where the used
+            filter is the key and the HDUList is the value.
+            It is structured in a dictionary like this:
+            dict: {
+            'HERSCHEL': [{'70': HDUList, '160': HDUList}, {'70': HDUList, '160': HDUList}, ...],
+            'HST':[HDUList, HDUList, HDUList, HDUList, HDUList, ...],
+            'XMM' : [HDUList, HDUList, HDUList, HDUList, ...]
+            ...
+            }
+
+        Examples
+        --------
+        get_images_sso(sso_name="Pallas", missions="HST")
+        get_images_sso(sso_name="503", sso_type="SATELLITE")
+        get_images_sso(sso_name="503", sso_type="SATELLITE", missions=["XMM", "HST"])
+
+        table = ESASky.query_sso(sso_name="503", sso_type="SATELLITE", missions=["XMM", "HST"])
+        table["XMM"].remove_rows([1, 18, 23])
+        get_images_sso(table_list=table, missions="XMM")
+
+        """
+        if sso_name is None and table_list is None:
+            raise ValueError("An input is required for either sso_name or table.")
+
+        sanitized_missions = [m.lower() for m in self._sanitize_input_sso_mission(missions)]
+        sso_name = self._sanitize_input_sso_name(sso_name)
+        sso_type = self._sanitize_input_sso_type(sso_type)
+        if table_list is None:
+            map_query_result = self.query_sso(sso_name=sso_name, sso_type=sso_type, missions=sanitized_missions)
+        else:
+            map_query_result = self._sanitize_input_table_list(table_list)
+
+        maps = dict()
+
+        json = self._get_sso_json()
+        for query_mission in map_query_result.keys():
+            if query_mission.lower() in sanitized_missions:
+                maps[query_mission] = (
+                    self._get_maps_for_mission(
+                        map_query_result[query_mission],
+                        query_mission,
+                        download_dir,
+                        cache, json))
+
+        if all([maps[mission].count(None) == len(maps[mission])
+                for mission in maps]):
+            log.info("No maps got downloaded, check errors above.")
+        elif len(map_query_result) > 0:
+            log.info("Maps available at {}".format(os.path.abspath(download_dir)))
+        else:
+            log.info("No maps found.")
+        return maps
 
     def query_region_maps(self, position, radius, missions=__ALL_STRING,
                           get_query_payload=False, cache=True,
@@ -378,7 +645,7 @@ class ESASkyClass(BaseQuery):
             of the object.
         radius : str or `~astropy.units.Quantity`
             The radius of a region.
-        missions : string or list, optional
+        missions : str or list, optional
             Can be either a specific mission or a list of missions (all mission
             names are found in list_missions()) or 'all' to search in all
             missions. Defaults to 'all'.
@@ -400,8 +667,8 @@ class ESASkyClass(BaseQuery):
             and observations available for the chosen missions and region.
             It is structured in a TableList like this:
             TableList with 2 tables:
-            '0:HERSCHEL' with 12 column(s) and 152 row(s)
-            '1:HST-OPTICAL' with 12 column(s) and 71 row(s)
+            'HERSCHEL' with 12 column(s) and 152 row(s)
+            'HST-OPTICAL' with 12 column(s) and 71 row(s)
 
         Examples
         --------
@@ -411,7 +678,6 @@ class ESASkyClass(BaseQuery):
         query_region_maps("265.05, 69.0", 14*u.arcmin, "Herschel")
         query_region_maps("265.05, 69.0", 14*u.arcmin, ["Herschel", "HST-OPTICAL"])
         """
-        sanitized_position = self._sanitize_input_position(position)
         sanitized_radius = self._sanitize_input_radius(radius)
         sanitized_missions = self._sanitize_input_mission(missions)
         sanitized_row_limit = self._sanitize_input_row_limit(row_limit)
@@ -419,7 +685,7 @@ class ESASkyClass(BaseQuery):
         query_result = {}
 
         sesame_database.set('simbad')
-        coordinates = commons.parse_coordinates(sanitized_position)
+        coordinates = commons.parse_coordinates(position)
 
         self._store_query_result(query_result=query_result, names=sanitized_missions, json=self._get_observation_json(),
                                  coordinates=coordinates, radius=sanitized_radius, row_limit=sanitized_row_limit,
@@ -445,7 +711,7 @@ class ESASkyClass(BaseQuery):
             of the object.
         radius : str or `~astropy.units.Quantity`
             The radius of a region.
-        catalogs : string or list, optional
+        catalogs : str or list, optional
             Can be either a specific catalog or a list of catalogs (all catalog
             names are found in list_catalogs()) or 'all' to search in all
             catalogs. Defaults to 'all'.
@@ -467,8 +733,8 @@ class ESASkyClass(BaseQuery):
             the catalogs available for the chosen mission and region.
             It is structured in a TableList like this:
             TableList with 2 tables:
-            '0:HIPPARCOS-2' with 7 column(s) and 2 row(s)
-            '1:HSC' with 9 column(s) and 10000 row(s)
+            'HIPPARCOS-2' with 7 column(s) and 2 row(s)
+            'HSC' with 9 column(s) and 10000 row(s)
 
         Examples
         --------
@@ -478,13 +744,12 @@ class ESASkyClass(BaseQuery):
         query_region_catalogs("265.05, 69.0", 14*u.arcmin, "Hipparcos-2")
         query_region_catalogs("265.05, 69.0", 14*u.arcmin, ["Hipparcos-2", "HSC"])
         """
-        sanitized_position = self._sanitize_input_position(position)
         sanitized_radius = self._sanitize_input_radius(radius)
         sanitized_catalogs = self._sanitize_input_catalogs(catalogs)
         sanitized_row_limit = self._sanitize_input_row_limit(row_limit)
 
         sesame_database.set('simbad')
-        coordinates = commons.parse_coordinates(sanitized_position)
+        coordinates = commons.parse_coordinates(position)
 
         query_result = {}
 
@@ -512,7 +777,7 @@ class ESASkyClass(BaseQuery):
             of the object.
         radius : str or `~astropy.units.Quantity`
             The radius of a region.
-        missions : string or list, optional
+        missions : str or list, optional
             Can be either a specific mission or a list of missions (all mission
             names are found in list_spectra()) or 'all' to search in all
             missions. Defaults to 'all'.
@@ -534,8 +799,8 @@ class ESASkyClass(BaseQuery):
             and observations available for the chosen missions and region.
             It is structured in a TableList like this:
             TableList with 2 tables:
-            '0:HERSCHEL' with 12 column(s) and 264 row(s)
-            '1:IUE' with 12 column(s) and 14 row(s)
+            'HERSCHEL' with 12 column(s) and 264 row(s)
+            'IUE' with 12 column(s) and 14 row(s)
 
         Examples
         --------
@@ -545,7 +810,6 @@ class ESASkyClass(BaseQuery):
         query_region_spectra("265.05, 69.0", 30*u.arcmin, "Herschel")
         query_region_spectra("265.05, 69.0", 30*u.arcmin, ["Herschel", "IUE"])
         """
-        sanitized_position = self._sanitize_input_position(position)
         sanitized_radius = self._sanitize_input_radius(radius)
         sanitized_missions = self._sanitize_input_spectra(missions)
         sanitized_row_limit = self._sanitize_input_row_limit(row_limit)
@@ -553,7 +817,7 @@ class ESASkyClass(BaseQuery):
         query_result = {}
 
         sesame_database.set('simbad')
-        coordinates = commons.parse_coordinates(sanitized_position)
+        coordinates = commons.parse_coordinates(position)
 
         self._store_query_result(query_result=query_result, names=sanitized_missions, json=self._get_spectra_json(),
                                  coordinates=coordinates, radius=sanitized_radius, row_limit=sanitized_row_limit,
@@ -573,7 +837,7 @@ class ESASkyClass(BaseQuery):
         ----------
         observation_ids : string or list
             The observation IDs to fetch.
-        missions : string or list, optional
+        missions : str or list, optional
             Can be either a specific mission or a list of missions (all mission
             names are found in list_missions()) or 'all' to search in all
             missions. Defaults to 'all'.
@@ -594,8 +858,8 @@ class ESASkyClass(BaseQuery):
             Each mission returns a `~astropy.table.Table` with the metadata.
             It is structured in a TableList like this:
             TableList with 2 tables:
-            '0:HERSCHEL' with 15 column(s) and 2 row(s)
-            '1:HST-UV' with 15 column(s) and 2 row(s)
+            'HERSCHEL' with 15 column(s) and 2 row(s)
+            'HST-UV' with 15 column(s) and 2 row(s)
 
         Examples
         --------
@@ -624,9 +888,9 @@ class ESASkyClass(BaseQuery):
 
         Parameters
         ----------
-        source_ids : string or list
+        source_ids : str or list
             The source IDs / names to fetch.
-        catalogs : string or list, optional
+        catalogs : str or list, optional
             Can be either a specific catalog or a list of catalogs (all catalog
             names are found in list_catalogs()) or 'all' to search in all
             catalogs. Defaults to 'all'.
@@ -647,8 +911,8 @@ class ESASkyClass(BaseQuery):
             Each mission returns a `~astropy.table.Table` with the metadata.
             It is structured in a TableList like this:
             TableList with 2 tables:
-            '0:CHANDRA-SC2' with 41 column(s) and 2 row(s)
-            '1:HIPPARCOS-2' with 45 column(s) and 2 row(s)
+            'CHANDRA-SC2' with 41 column(s) and 2 row(s)
+            'HIPPARCOS-2' with 45 column(s) and 2 row(s)
 
         Examples
         --------
@@ -677,9 +941,9 @@ class ESASkyClass(BaseQuery):
 
         Parameters
         ----------
-        observation_ids : string or list
+        observation_ids : str or list
             The observation IDs to fetch.
-        missions : string or list, optional
+        missions : str or list, optional
             Can be either a specific mission or a list of missions (all mission
             names are found in list_spectra()) or 'all' to search in all
             missions. Defaults to 'all'.
@@ -700,8 +964,8 @@ class ESASkyClass(BaseQuery):
             Each mission returns a `~astropy.table.Table` with the metadata.
             It is structured in a TableList like this:
             TableList with 2 tables:
-            '0:XMM-NEWTON' with 16 column(s) and 2 row(s)
-            '1:HERSCHEL' with 16 column(s) and 1 row(s)
+            'XMM-NEWTON' with 16 column(s) and 2 row(s)
+            'HERSCHEL' with 16 column(s) and 1 row(s)
 
         Examples
         --------
@@ -739,11 +1003,11 @@ class ESASkyClass(BaseQuery):
             A TableList or dict or list of name and Table pairs with all the
             missions wanted and their respective metadata. Usually the
             return value of query_region_maps.
-        missions : string or list, optional
+        missions : str or list, optional
             Can be either a specific mission or a list of missions (all mission
             names are found in list_missions()) or 'all' to search in all
             missions. Defaults to 'all'.
-        download_dir : string, optional
+        download_dir : str, optional
             The folder where all downloaded maps should be stored.
             Defaults to a folder called 'Maps' in the current working directory.
         cache : bool, optional
@@ -811,17 +1075,17 @@ class ESASkyClass(BaseQuery):
         position : str or `astropy.coordinates` object, optional
             Can either be a string of the location, eg 'M51', or the coordinates
             of the object. An input is required for either position or observation_ids.
-        observation_ids : string or list, optional
+        observation_ids : str or list, optional
             A list of observation ID's, you would like to download.
             If this parameter is empty, a cone search will be performed instead using the radius and position.
             An input is required for either position or observation_ids.
         radius : str or `~astropy.units.Quantity`, optional
             The radius of a region. Defaults to 0.
-        missions : string or list, optional
+        missions : str or list, optional
             Can be either a specific mission or a list of missions (all mission
             names are found in list_missions()) or 'all' to search in all
             missions. Defaults to 'all'.
-        download_dir : string, optional
+        download_dir : str, optional
             The folder where all downloaded maps should be stored.
             Defaults to a folder called 'Maps' in the current working directory.
         cache : bool, optional
@@ -853,13 +1117,12 @@ class ESASkyClass(BaseQuery):
         """
         if position is None and observation_ids is None:
             raise ValueError("An input is required for either position or observation_ids.")
-        sanitized_position = self._sanitize_input_position(position)
         sanitized_radius = self._sanitize_input_radius(radius)
         sanitized_missions = self._sanitize_input_mission(missions)
         sanitized_observation_ids = self._sanitize_input_ids(observation_ids)
 
         if sanitized_observation_ids is None:
-            map_query_result = self.query_region_maps(sanitized_position,
+            map_query_result = self.query_region_maps(position,
                                                       sanitized_radius,
                                                       sanitized_missions,
                                                       get_query_payload=False,
@@ -904,17 +1167,17 @@ class ESASkyClass(BaseQuery):
         position : str or `astropy.coordinates` object, optional
             Can either be a string of the location, eg 'M51', or the coordinates
             of the object. An input is required for either position or observation_ids.
-        observation_ids : string or list, optional
+        observation_ids : str or list, optional
             A list of observation ID's, you would like to download.
             If this parameter is empty, a cone search will be performed instead using the radius and position.
             An input is required for either position or observation_ids.
         radius : str or `~astropy.units.Quantity`, optional
             The radius of a region. Defaults to 0.
-        missions : string or list, optional
+        missions : str or list, optional
             Can be either a specific mission or a list of missions (all mission
             names are found in list_spectra()) or 'all' to search in all
             missions. Defaults to 'all'.
-        download_dir : string, optional
+        download_dir : str, optional
             The folder where all downloaded spectra should be stored.
             Defaults to a folder called 'Spectra' in the current working directory.
         cache : bool, optional
@@ -949,7 +1212,6 @@ class ESASkyClass(BaseQuery):
         """
         if position is None and observation_ids is None:
             raise ValueError("An input is required for either position or observation_ids.")
-        sanitized_position = self._sanitize_input_position(position)
         sanitized_radius = self._sanitize_input_radius(radius)
         sanitized_missions = self._sanitize_input_spectra(missions)
         sanitized_observation_ids = self._sanitize_input_ids(observation_ids)
@@ -957,7 +1219,7 @@ class ESASkyClass(BaseQuery):
         spectra = dict()
 
         if sanitized_observation_ids is None:
-            spectra_query_result = self.query_region_spectra(sanitized_position,
+            spectra_query_result = self.query_region_spectra(position,
                                                              sanitized_radius,
                                                              sanitized_missions,
                                                              get_query_payload=False,
@@ -997,11 +1259,11 @@ class ESASkyClass(BaseQuery):
             A TableList or dict or list of name and Table pairs with all the
             missions wanted and their respective metadata. Usually the
             return value of query_region_spectra.
-        missions : string or list, optional
+        missions : str or list, optional
             Can be either a specific mission or a list of missions (all mission
             names are found in list_spectra()) or 'all' to search in all
             missions. Defaults to 'all'.
-        download_dir : string, optional
+        download_dir : str, optional
             The folder where all downloaded spectra should be stored.
             Defaults to a folder called 'Spectra' in the current working directory.
         cache : bool, optional
@@ -1050,16 +1312,6 @@ class ESASkyClass(BaseQuery):
         else:
             log.info("No spectra found.")
         return spectra
-
-    def _sanitize_input_position(self, position):
-        if (isinstance(position, str) or isinstance(position,
-                                                    commons.CoordClasses)):
-            return position
-        if position is None:
-            return None
-        else:
-            raise ValueError("Position must be either a string or "
-                             "astropy.coordinates")
 
     def _sanitize_input_radius(self, radius):
         if (isinstance(radius, str) or isinstance(radius,
@@ -1127,6 +1379,42 @@ class ESASkyClass(BaseQuery):
         if isinstance(row_limit, int):
             return row_limit
         raise ValueError("Row_limit must be an integer")
+
+    def _sanitize_input_sso_name(self, sso_name):
+        if isinstance(sso_name, str):
+            return sso_name
+        if sso_name is None:
+            return None
+        raise ValueError("sso_name must be a string")
+
+    def _sanitize_input_sso_type(self, sso_type):
+        if isinstance(sso_type, str) and sso_type.upper() in self.SSO_TYPES:
+            return sso_type
+        valid_types = ", ".join(map(str, self.SSO_TYPES))
+        raise ValueError("sso_type must be one of {}".format(valid_types))
+
+    def _sanitize_input_sso_mission(self, missions):
+        if isinstance(missions, list):
+            return missions
+        if isinstance(missions, str):
+            if missions.lower() == self.__ALL_STRING:
+                return self.list_sso()
+            else:
+                return [missions]
+        raise ValueError("Mission must be either a string or a list of "
+                         "missions. Valid entries are found in list_sso()")
+
+    def _get_sso_db_type(self, sso_type):
+        sso_type = sso_type.lower()
+        if sso_type == "asteroid" or sso_type == "dwarf_planet":
+            return "aster"
+        return sso_type
+
+    def _get_db_sso_identifier(self, sso_type):
+        sso_type = sso_type.lower()
+        if sso_type == "comet" or sso_type == "spacecraft":
+            return "sso_id"
+        return "sso_name"
 
     def _get_maps_for_mission(self, maps_table, mission, download_dir, cache, json, is_spectra=False):
         if is_spectra and mission.lower() == self.__HERSCHEL_STRING:
@@ -1265,7 +1553,7 @@ class ESASkyClass(BaseQuery):
     def _get_herschel_spectra(self, product_url, directory_path, cache):
         spectra = dict()
         response = self._request('GET', product_url, cache=cache,
-                                stream=True, headers=self._get_header())
+                                 stream=True, headers=self._get_header())
 
         response.raise_for_status()
 
@@ -1287,14 +1575,14 @@ class ESASkyClass(BaseQuery):
 
                     hduListType = {}
                     for hduList in herschel_fits:
-                        if(hduList[0].header['INSTRUME'] == 'HIFI'):
+                        if (hduList[0].header['INSTRUME'] == 'HIFI'):
                             if ('BACKEND' in hduList[0].header):
                                 headerKey = 'BACKEND'
                                 label = hduList[0].header[headerKey].upper()
-                            if('SIDEBAND' in hduList[0].header):
+                            if ('SIDEBAND' in hduList[0].header):
                                 headerKey = 'SIDEBAND'
                                 label = label + '_{}'.format(hduList[0].header[headerKey].upper())
-                            if('BAND' in hduList[0].header):
+                            if ('BAND' in hduList[0].header):
                                 headerKey = 'BAND'
                                 label = label + '_{}'.format(hduList[0].header[headerKey].lower())
                             hduListType[label] = hduList
@@ -1421,9 +1709,9 @@ class ESASkyClass(BaseQuery):
                                       self.__MIN_RADIUS_CATALOG_STRING,
                                       unit='deg')))
         else:
-            if(json[self.__USE_INTERSECT_STRING]):
+            if (json[self.__USE_INTERSECT_STRING]):
                 where_query = (" WHERE 1=INTERSECTS(CIRCLE('ICRS', {}, {}, {}), fov)".
-                            format(ra, dec, radius_deg))
+                               format(ra, dec, radius_deg))
             else:
                 where_query = (" WHERE 1=CONTAINS(POINT('ICRS', {}, {}), CIRCLE('ICRS', {}, {}, {}))".
                                format(tap_ra_column, tap_dec_column, ra, dec, radius_deg))
@@ -1450,6 +1738,7 @@ class ESASkyClass(BaseQuery):
             if id_column == "designation":
                 id_column = "obsid"
 
+        data_type = None
         for column in self.get_columns(table_name=json['tapTable'], only_names=False):
             if column.name == id_column:
                 data_type = column.data_type
@@ -1466,7 +1755,7 @@ class ESASkyClass(BaseQuery):
         where_query = (" WHERE {} IN ({})".format(id_column, observation_ids_query_list))
 
         query = "".join([select_query, from_query,
-                        where_query])
+                         where_query])
 
         return query
 
@@ -1498,6 +1787,9 @@ class ESASkyClass(BaseQuery):
     def _get_spectra_json(self):
         return self._fetch_and_parse_json(self.__SPECTRA_STRING)
 
+    def _get_sso_json(self):
+        return self._fetch_and_parse_json("sso")
+
     def _fetch_and_parse_json(self, object_name):
         url = self.URLbase + "/" + object_name
         response = self._request(
@@ -1520,7 +1812,7 @@ class ESASkyClass(BaseQuery):
 
     def _get_json_data_for_mission(self, json, mission):
         for index in range(len(json)):
-            if(json[index][self.__MISSION_STRING].lower() == mission.lower()):
+            if (json[index][self.__MISSION_STRING].lower() == mission.lower()):
                 return json[index]
 
     def _create_request_payload(self, query):
