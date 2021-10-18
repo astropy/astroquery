@@ -348,15 +348,15 @@ class TestTap(unittest.TestCase):
         # Regression test for #2093 and #2099 - changing the MAIN_GAIA_TABLE
         # had no effect.
         # The preceding tests should have used the default value.
-        assert 'gaiadr2.gaia_source' in job.parameters['query']
+        assert 'FROM gaiadr2.gaia_source' in job.parameters['query']
         # Test changing the table name through conf.
         conf.MAIN_GAIA_TABLE = 'name_from_conf'
         job = tap.cone_search_async(sc, radius)
-        assert 'name_from_conf' in job.parameters['query']
+        assert 'FROM name_from_conf' in job.parameters['query']
         # Changing the value through the class should overrule conf.
         tap.MAIN_GAIA_TABLE = 'name_from_class'
         job = tap.cone_search_async(sc, radius)
-        assert 'name_from_class' in job.parameters['query']
+        assert 'FROM name_from_class' in job.parameters['query']
         # Cleanup.
         conf.reset('MAIN_GAIA_TABLE')
 
