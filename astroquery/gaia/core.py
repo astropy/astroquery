@@ -14,6 +14,7 @@ Created on 30 jun. 2016
 
 
 """
+from re import sub as regex_sub
 from requests import HTTPError
 
 from astroquery.utils.tap import TapPlus
@@ -428,6 +429,7 @@ class GaiaClass(TapPlus):
                                   'ra_column': self.MAIN_GAIA_TABLE_RA, 'dec_column': self.MAIN_GAIA_TABLE_DEC,
                                   'columns': columns, 'table_name': self.MAIN_GAIA_TABLE or conf.MAIN_GAIA_TABLE, 'ra': ra, 'dec': dec,
                                   'width': widthDeg.value, 'height': heightDeg.value})
+            query = regex_sub(r'\s+', ' ', query)
             if async_job:
                 job = self.launch_job_async(query, verbose=verbose)
             else:
@@ -565,6 +567,7 @@ class GaiaClass(TapPlus):
                               'dec_column': dec_column_name, 'columns': columns, 'ra': ra, 'dec': dec,
                               'radius': radiusDeg, 'table_name': table_name or self.MAIN_GAIA_TABLE or conf.MAIN_GAIA_TABLE})
 
+        query = regex_sub(r'\s+', ' ', query)
         if async_job:
             return self.launch_job_async(query=query,
                                          output_file=output_file,
