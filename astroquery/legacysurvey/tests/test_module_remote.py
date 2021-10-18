@@ -33,7 +33,7 @@ class TestLegacySurveyClass:
 
         ra = Angle('11h04m27s', unit='hourangle').degree
         dec = Angle('+38d12m32s', unit='hourangle').degree
-        radius_input = 30.0  # arcmin
+        radius_input = 30  # arcmin
 
         coordinates = SkyCoord(ra, dec, unit='degree')
         radius = Angle(radius_input, unit='arcmin')
