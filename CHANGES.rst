@@ -16,6 +16,12 @@ casda
 - Add ability to stage and download non image data which have been found 
   through the CASDA obscore table. [#2158]
 
+gaia
+^^^^
+
+- The bug which caused changing the ``MAIN_GAIA_TABLE`` option to have no
+  effect has been fixed [#2153]
+
 vizier
 ^^^^^^
 
