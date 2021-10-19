@@ -29,7 +29,6 @@ from astropy.coordinates import SkyCoord
 from astropy.table import vstack
 from astropy.units import Quantity
 
-from astroquery.esa.jwst.token import TokenDialog
 from astroquery.ipac.ned import Ned
 from astroquery.simbad import Simbad
 from astroquery.utils import commons
@@ -987,31 +986,6 @@ class JwstClass(object):
             flag to display information about the process
         """
         return self.__jwsttap.login_gui(verbose)
-
-    def login_token_gui(self, verbose=False):
-        """Performs a login using a GUI dialog
-        TAP+ only, with an additiona field to
-        specify a token
-
-        Parameters
-        ----------
-        verbose : bool, optional, default 'False'
-            flag to display information about the process
-        """
-        connHandler = self.__jwsttap._TapPlus__getconnhandler()
-        url = connHandler.get_host_url()
-        loginDialog = TokenDialog(url)
-        loginDialog.show_login()
-        if loginDialog.is_accepted():
-            user = loginDialog.get_user()
-            pwd = loginDialog.get_password()
-            if loginDialog.get_token():
-                token = loginDialog.get_token()
-                self.login(user=user, password=pwd, token=token,
-                           verbose=verbose)
-            else:
-                self.login(user=user, password=pwd, verbose=verbose)
-            # execute login
 
     def logout(self, verbose=False):
         """Performs a logout

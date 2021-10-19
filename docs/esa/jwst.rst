@@ -640,7 +640,7 @@ The main differences are:
 
 * Asynchronous results are kept at server side for ever (until the user decides to remove one of them).
 * Users can access to shared tables.
-* ``login_token_gui`` allows the user to include a MAST token to download propietary data. It is also possible to set a token after logging using ``set_token`` function.
+* It is also possible to set a token after logging using ``set_token`` function.
 
 
 2.1. Login/Logout
@@ -656,12 +656,6 @@ Using the graphic interface:
   >>> from astroquery.esa.jwst import Jwst
   >>> Jwst.login_gui()
 
-If the user wants to specify a MAST token to download propietary data:
-
-.. code-block:: python
-
-  >>> from astroquery.esa.jwst import Jwst
-  >>> Jwst.login_token_gui()
 
 Using the command line:
 
@@ -696,7 +690,7 @@ specified using the ``set_token`` function.
   >>> Jwst.login(user='userName', password='userPassword')
   >>> Jwst.set_token(token='mastToken')
 
-To perform a logout
+To perform a logout:
 
 
 .. code-block:: python
