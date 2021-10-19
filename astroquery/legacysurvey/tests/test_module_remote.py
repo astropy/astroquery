@@ -33,12 +33,31 @@ class TestLegacySurveyClass:
 
         ra = Angle('11h04m27s', unit='hourangle').degree
         dec = Angle('+38d12m32s', unit='hourangle').degree
-        radius_input = 30  # arcmin
+        radius_input = 5  # arcmin
 
         coordinates = SkyCoord(ra, dec, unit='degree')
         radius = Angle(radius_input, unit='arcmin')
 
         query1 = astroquery.legacysurvey.LegacySurvey.query_region(coordinates=coordinates, radius=radius, data_release=9)
+        print("Test completion: ", time.time() - t0)
+        print(query1)
+
+    def test_get_images(self):
+        t0 = time.time()
+        print("Beginning test")
+        import astroquery.legacysurvey
+        from astropy.coordinates import SkyCoord
+        from astropy.coordinates import Angle, Latitude, Longitude  # Angles
+
+        ra = Angle('11h04m27s', unit='hourangle').degree
+        dec = Angle('+38d12m32s', unit='hourangle').degree
+        radius_input = 1  # arcmin
+
+        coordinates = SkyCoord(ra, dec, unit='degree')
+        radius = Angle(radius_input, unit='arcmin')
+
+        query1 = astroquery.legacysurvey.LegacySurvey.get_images(coordinates=coordinates, radius=radius, data_release=9,
+                                                                 pixels=60)
         print("Test completion: ", time.time() - t0)
         print(query1)
 

@@ -39,6 +39,9 @@ __all__ = ['LegacySurvey', 'LegacySurveyClass']
 
 # Now begin your main class
 # should be decorated with the async_to_sync imported previously
+from ..utils.commons import FileContainer
+
+
 @async_to_sync
 class LegacySurveyClass(BaseQuery):
 
@@ -292,6 +295,26 @@ class LegacySurveyClass(BaseQuery):
 
             return responses
 
+    def get_images_async(self, coordinates=None, data_release=9,
+                         projection=None, pixels=None, scaling=None,
+                         sampler=None, resolver=None, deedger=None, lut=None,
+                         grid=None, gridlabels=None, radius=None, height=None,
+                         width=None, cache=True, show_progress=True, image_band='g'):
+        """
+        Returns
+        -------
+        A list of context-managers that yield readable file-like objects
+        """
+
+        image_size_arcsec = radius.arcsec
+        pixsize = 2 * image_size_arcsec / pixels
+
+        image_url = 'https://www.legacysurvey.org/viewer/fits-cutout?ra=' + str(coordinates.ra.deg) + '&dec=' + str(coordinates.dec.deg) + '&size=' + str(
+            pixels) + '&layer=ls-dr' + str(data_release) + '&pixscale=' + str(pixsize) + '&bands=' + image_band
+
+        print("image_url: ", image_url)
+
+        return commons.FileContainer(image_url, encoding='binary', show_progress=show_progress)
 
     # as we mentioned earlier use various python regular expressions, etc
     # to create the dict of HTTP request parameters by parsing the user
@@ -313,6 +336,9 @@ class LegacySurveyClass(BaseQuery):
         output_table = Table()
 
         if isinstance(responses, Table):
+            return responses
+
+        if isinstance(responses, FileContainer):
             return responses
 
         # if verbose is False then suppress any VOTable related warnings
