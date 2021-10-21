@@ -38,29 +38,6 @@ class MissionsMastClass(MastQueryWithLogin):
         service_dict = {self.service: {'path': self.service, 'args': {}}}
         self._service_api_connection.set_service_params(service_dict, f"{self.service}/{self.mission}")
 
-    def set_service(self, service):
-        """
-        Set the service name
-
-        Parameters
-        ----------
-        service : `str`
-            the name of the service
-        """
-        self.service = service
-
-    def set_mission(self, mission):
-        """
-        Set the mission name
-
-        Parameters
-        ----------
-        mission : `str`
-            the name of the mission
-        """
-
-        self.mission = mission
-
     def _parse_result(self, response, verbose=False):  # Used by the async_to_sync decorator functionality
         """
         Parse the results of a `~requests.Response` objects and return an `~astropy.table.Table` of results.
