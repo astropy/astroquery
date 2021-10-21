@@ -49,32 +49,29 @@ def _json_to_table(json_obj, data_key='data'):
     type_key = 'type' if json_obj['info'][0].get('type') else 'db_type'
 
     # for each item in info, store the type and column name
+    # for each item in info, type has to be converted from DB data types (SQL server in most cases)
+    # to corresponding numpy type
     for idx, col, col_type, ignore_value in \
-            [(idx, x['name'], x[type_key], "NULL") for idx, x in enumerate(json_obj['info'])]:
+            [(idx, x['name'], x[type_key].lower(), None) for idx, x in enumerate(json_obj['info'])]:
 
-        # if default value is NULL, set ignore value to None
-        if ignore_value == "NULL":
-            ignore_value = None
         # making type adjustments
-        if col_type == "char" or col_type == "STRING" or 'VARCHAR' in col_type or col_type == "NULL":
+        if (col_type == "char" or col_type == "string" or 'varchar' in col_type or col_type == "null" or
+            col_type == 'datetime'):
             col_type = "str"
             ignore_value = "" if (ignore_value is None) else ignore_value
-        elif col_type == "boolean" or col_type == "BINARY":
+        elif col_type == "boolean" or col_type == "binary":
             col_type = "bool"
         elif col_type == "unsignedByte":
             col_type = np.ubyte
-        elif (col_type == "int" or col_type == "short" or col_type == "long" or col_type == "NUMBER"
-                or col_type == 'INTEGER'):
+        elif (col_type == "int" or col_type == "short" or col_type == "long" or col_type == "number"
+                or col_type == 'integer'):
             # int arrays do not admit Non/nan vals
             col_type = np.int64
             ignore_value = -999 if (ignore_value is None) else ignore_value
-        elif col_type == "double" or col_type.lower() == "float" or col_type == "DECIMAL":
+        elif col_type == "double" or col_type.lower() == "float" or col_type == "decimal":
             # int arrays do not admit Non/nan vals
             col_type = np.float64
             ignore_value = -999 if (ignore_value is None) else ignore_value
-        elif col_type == "DATETIME":
-            col_type = "str"
-            ignore_value = "" if (ignore_value is None) else ignore_value
 
         # Make the column list (don't assign final type yet or there will be errors)
         try:
