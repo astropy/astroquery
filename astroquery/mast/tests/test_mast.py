@@ -13,9 +13,9 @@ from astropy.io import fits
 import astropy.units as u
 
 from astroquery.utils.mocks import MockResponse
-from ...exceptions import InvalidQueryError, InputWarning
+from astroquery.exceptions import InvalidQueryError, InputWarning
 
-from ... import mast
+from astroquery import mast
 
 DATA_FILES = {'Mast.Caom.Cone': 'caom.json',
               'Mast.Name.Lookup': 'resolver.json',
