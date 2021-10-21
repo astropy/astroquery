@@ -196,15 +196,15 @@ the current Mission Search interface.
 Currenlty, the API only includes the search functionality. The functionality to
 download data products associated with search results is not currently supported. 
 
-An object of MissionsMast class is instantiated with a default mission of 'hst' and 
+An object of MastMissions class is instantiated with a default mission of 'hst' and 
 default service set to 'search'. set_service() and set_mission() can be used to change
 the service and mission to other values but right now, API only supports search service
 and 'hst' mission.
 
 .. code-block:: python
 
-                >>> from astroquery.mast.missions import MissionsMast
-                >>> missions = MissionsMast()
+                >>> from astroquery.mast.missions import MastMissions
+                >>> missions = MastMissions()
                 >>> missions.mission
                 'hst'
                 >>> missions.service
@@ -222,9 +222,9 @@ for a non cone search, select_cols would always include search_key and sci_data_
 
 .. code-block:: python
 
-                >>> from astroquery.mast.missions import MissionsMast
+                >>> from astroquery.mast.missions import MastMissions
                 >>> from astropy.coordinates import SkyCoord
-                >>> missions = MissionsMast()
+                >>> missions = MastMissions()
                 >>> regionCoords = SkyCoord(210.80227, 54.34895, unit=('deg', 'deg'))
                 >>> results = missions.query_region(regionCoords, 3, sci_pep_id=12556, select_cols=["sci_stop_time", "sci_targname", "sci_start_time", "sci_status"], sort_by=['sci_targname'])
                 >>> results[:5]
@@ -244,9 +244,9 @@ of returned records. the default values for offset and limit is 0 and 5000 respe
 
 .. code-block:: python
 
-                >>> from astroquery.mast.missions import MissionsMast
+                >>> from astroquery.mast.missions import MastMissions
                 >>> from astropy.coordinates import SkyCoord
-                >>> missions = MissionsMast()
+                >>> missions = MastMissions()
                 >>> results = missions.query_criteria(sci_start_time=">=2021-01-01 00:00:00", select_cols=["sci_stop_time", "sci_targname", "sci_start_time", "sci_status", "sci_pep_id"], sort_by=['sci_pep_id'], limit=1000, offset=1000)
                 >>> len(results)
                 >>> 1000 

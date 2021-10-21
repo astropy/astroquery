@@ -16,13 +16,13 @@ from astroquery.exceptions import InvalidQueryError
 from astroquery.mast import utils
 from astroquery.mast.core import MastQueryWithLogin
 
-__all__ = ['MissionsMastClass', 'MissionsMast']
+__all__ = ['MastMissionsClass', 'MastMissions']
 
 
 @async_to_sync
-class MissionsMastClass(MastQueryWithLogin):
+class MastMissionsClass(MastQueryWithLogin):
     """
-    MissionsMast search class.
+    MastMissions search class.
 
     Class that allows direct programatic access to the MAST search API for a given mission.
     """
@@ -184,4 +184,4 @@ class MissionsMastClass(MastQueryWithLogin):
         return self.query_region_async(coordinates, radius, **kwargs)
 
 
-MissionsMast = MissionsMastClass()
+MastMissions = MastMissionsClass()

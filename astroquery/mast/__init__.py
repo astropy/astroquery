@@ -33,13 +33,13 @@ conf = Conf()
 from .cutouts import TesscutClass, Tesscut, ZcutClass, Zcut
 from .observations import Observations, ObservationsClass, MastClass, Mast
 from .collections import Catalogs, CatalogsClass
-from .missions import MissionsMast, MissionsMastClass
+from .missions import MastMissions, MastMissionsClass
 from .core import MastQueryWithLogin
 from . import utils
 
 __all__ = ['Observations', 'ObservationsClass',
            'Catalogs', 'CatalogsClass',
-           'MissionsMast', 'MissionsMastClass',
+           'MastMissions', 'MastMissionsClass',
            'Mast', 'MastClass',
            'Tesscut', 'TesscutClass',
            'Zcut', 'ZcutClass',

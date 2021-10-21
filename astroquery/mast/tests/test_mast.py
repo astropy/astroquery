@@ -180,22 +180,22 @@ def zcut_download_mockreturn(url, file_path):
 
 
 def test_missions_query_region_async(patch_post):
-    responses = mast.MissionsMast.query_region_async(regionCoords, radius=0.002, sci_pi_last_name='GORDON')
+    responses = mast.MastMissions.query_region_async(regionCoords, radius=0.002, sci_pi_last_name='GORDON')
     assert isinstance(responses, MockResponse)
 
 
 def test_missions_query_object_async(patch_post):
-    responses = mast.MissionsMast.query_object_async("M101", radius="0.002 deg")
+    responses = mast.MastMissions.query_object_async("M101", radius="0.002 deg")
     assert isinstance(responses, MockResponse)
 
 
 def test_missions_query_object(patch_post):
-    result = mast.MissionsMast.query_object("M101", radius=".002 deg")
+    result = mast.MastMissions.query_object("M101", radius=".002 deg")
     assert isinstance(result, Table)
 
 
 def test_missions_query_region(patch_post):
-    result = mast.MissionsMast.query_region(regionCoords, radius=0.002 * u.deg)
+    result = mast.MastMissions.query_region(regionCoords, radius=0.002 * u.deg)
     assert isinstance(result, Table)
 
 
@@ -211,7 +211,7 @@ def test_missions_query_criteria_async(patch_post):
     start_time = {'sci_start_time': ""}
     obs_type = {'sci_obs_type': 'all'}
     aec = {'sci_aec': 'S'}
-    responses = mast.MissionsMast.query_criteria_async(coordinates=regionCoords,
+    responses = mast.MastMissions.query_criteria_async(coordinates=regionCoords,
                                                        radius=3,
                                                        conditions=[pep_id,
                                                                    obs_type,
