@@ -467,8 +467,7 @@ class CatalogsClass(MastQueryWithLogin):
                 else:
                     data_url = f'https://hla.stsci.edu/cgi-bin/ecfproxy?file_id={spec["DatasetName"]}.fits'
 
-                filename = spec['DatasetName']
-                local_path = os.path.join(base_dir, f'{filename}.fits')
+                local_path = os.path.join(base_dir, f'{spec["DatasetName"]}.fits')
 
                 status = "COMPLETE"
                 msg = None
