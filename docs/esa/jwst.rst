@@ -218,7 +218,7 @@ To query the data products associated with a certain Observation ID
   >>> from astroquery.esa.jwst import Jwst
   >>> product_list = Jwst.get_product_list(observation_id='jw00777011001_02104_00001_nrcblong')
   >>> for row in product_list:
-  >>>     print("filename: %s" % (row['filename'].decode('UTF-8')))
+  >>>     print("filename: %s" % (row['filename']))
 
   filename: jw00777011001_02104_00001_nrcblong_c1005_crf.fits
   filename: jw00777011001_02104_00001_nrcblong_cal.fits
@@ -235,7 +235,7 @@ all the products associated to this observation_id with the same and lower level
   >>> from astroquery.esa.jwst import Jwst
   >>> product_list = Jwst.get_product_list(observation_id='jw97012001001_02101_00001_guider1', product_type='science')
   >>> for row in product_list:
-  >>>     print("filename: %s" % (row['filename'].decode('UTF-8')))
+  >>>     print("filename: %s" % (row['filename']))
 
   filename: jw97012001001_02101_00001_guider1_cal.fits
   filename: jw97012001001_02101_00001_guider1_uncal.fits
@@ -268,7 +268,7 @@ than get_product_list.
 .. code-block:: python
 
   >>> observation_id = 'jw00777011001_02104_00001_nrcblong'
-  >>> results = Jwst.get_obs_products(observation_id=observation_id, cal_level=3, product_type='science')
+  >>> results = Jwst.get_obs_products(observation_id=observation_id, cal_level=2, product_type='science')
 
   INFO: {'RETRIEVAL_TYPE': 'OBSERVATION', 'DATA_RETRIEVAL_ORIGIN': 'ASTROQUERY', 'planeid': '00000000-0000-0000-879d-ae91fa2f43e2', 'calibrationlevel': 'SELECTED', 'product_type': 'science'} [astroquery.esa.jwst.core]
   Retrieving data.
@@ -282,6 +282,19 @@ than get_product_list.
 A temporary directory is created with the files and a list of the them is provided.
 
 When more than one product is found, a tar file is retrieved. This method extracts the products.
+
+This method is only intended to download the products with the same calibration level or below. If an upper level is requested:
+
+.. code-block:: python
+
+  ValueError: Requesting upper levels is not allowed
+
+If proprietary data is requested and the user has not logged in:
+
+.. code-block:: python
+
+  403 Error 403:
+  Private file(s) requested: MAST token required for authentication.
 
 It is also possible to extract the products associated to an observation with upper calibration levels with get_related_observations.
 Using the observation ID as input parameter, this function will retrieve the observations (IDs) that use it to create a composite observation.
@@ -402,8 +415,7 @@ Query without saving results in a file:
   >>>
   >>> job = Jwst.launch_job("SELECT TOP 100 \
   >>> instrument_name, observationuri, planeid, calibrationlevel, \
-  >>> dataproducttype, targetposition_coordinates_cval1 as target_ra, \
-  >>> targetposition_coordinates_cval2 as target_dec \
+  >>> dataproducttype \
   >>> FROM jwst.main ORDER BY instrument_name, observationuri")
   >>>
   >>> print(job)
@@ -653,6 +665,7 @@ Using the graphic interface:
 
 .. code-block:: python
 
+  >>> from astroquery.esa.jwst import Jwst
   >>> from astroquery.esa.jwst import Jwst
   >>> Jwst.login_gui()
 

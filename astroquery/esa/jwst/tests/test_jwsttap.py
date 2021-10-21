@@ -38,6 +38,8 @@ from astroquery.utils.tap.core import TapPlus
 from astroquery.utils.tap.xmlparser import utils
 from astroquery.vizier import Vizier
 
+from astroquery.esa.jwst import conf
+
 
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
@@ -704,7 +706,7 @@ class TestTap(unittest.TestCase):
         query = "select distinct a.uri, a.artifactid, a.filename, "\
             "a.contenttype, a.producttype, p.calibrationlevel, p.public "\
             "FROM {0} p JOIN {1} a ON (p.planeid=a.planeid) WHERE a.planeid "\
-            "IN {2};".format(jwst.JWST_PLANE_TABLE, jwst.JWST_ARTIFACT_TABLE,
+            "IN {2};".format(conf.JWST_PLANE_TABLE, conf.JWST_ARTIFACT_TABLE,
                              planeids)
 
         parameters = {}
@@ -729,8 +731,8 @@ class TestTap(unittest.TestCase):
                 "p.public FROM {} p JOIN {} a ON (p.planeid=a.planeid) "\
                 "WHERE a.planeid IN ('00000000-0000-0000-879d-ae91fa2f43e2') "\
                 "AND producttype LIKE "\
-                "'science';".format(jwst.JWST_PLANE_TABLE,
-                                    jwst.JWST_ARTIFACT_TABLE)
+                "'science';".format(conf.JWST_PLANE_TABLE,
+                                    conf.JWST_ARTIFACT_TABLE)
 
         parameters = {}
         parameters['query'] = query
@@ -962,8 +964,8 @@ class TestTap(unittest.TestCase):
             extracted_file = (JwstClass.gzip_uncompress_and_rename_single_file(
                               output_file_full_path))
             if extracted_file != extracted_file_1:
-                raise ValueError("Extracted file not found: "
-                                 "%s" % extracted_file_1)
+                raise ValueError(f"Extracted file not found: "
+                                 f"{extracted_file_1}")
         finally:
             # self.__remove_folder_contents(folder=output_file_full_path_dir)
             shutil.rmtree(output_file_full_path_dir)
@@ -993,14 +995,15 @@ class TestTap(unittest.TestCase):
 
     def __check_extracted_files(self, files_expected, files_returned):
         if len(files_expected) != len(files_returned):
-            raise ValueError("Expected files size error. Found %i, "
-                             "expected %i" %
-                             (len(files_returned), len(files_expected)))
+            raise ValueError(f"Expected files size error. "
+                             f"Found {len(files_returned)}, "
+                             f"expected {len(files_expected)}")
         for f in files_expected:
             if not os.path.exists(f):
-                raise ValueError("Not found extracted file: %s" % f)
+                raise ValueError(f"Not found extracted file: "
+                                 f"{f}")
             if f not in files_returned:
-                raise ValueError("Not found expected file: %s" % f)
+                raise ValueError(f"Not found expected file: {f}")
 
     def test_query_target(self):
         jwst = JwstClass()

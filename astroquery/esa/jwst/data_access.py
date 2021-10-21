@@ -20,7 +20,7 @@ from astropy.utils import data
 __all__ = ['JwstDataHandler']
 
 
-class JwstDataHandler(object):
+class JwstDataHandler:
     def __init__(self, base_url=None):
         if base_url is None:
             self.base_url = "http://jwstdummydata.com"

@@ -45,13 +45,6 @@ class JwstClass(object):
     """
     Proxy class to default TapPlus object (pointing to JWST Archive)
     """
-    JWST_MAIN_TABLE = conf.JWST_MAIN_TABLE
-    JWST_OBSERVATION_TABLE = conf.JWST_OBSERVATION_TABLE
-    JWST_OBS_MEMBER_TABLE = conf.JWST_OBS_MEMBER_TABLE
-    JWST_MAIN_TABLE_RA = conf.JWST_MAIN_TABLE_RA
-    JWST_MAIN_TABLE_DEC = conf.JWST_MAIN_TABLE_DEC
-    JWST_PLANE_TABLE = conf.JWST_PLANE_TABLE
-    JWST_ARTIFACT_TABLE = conf.JWST_ARTIFACT_TABLE
 
     JWST_DEFAULT_COLUMNS = ['observationid', 'calibrationlevel', 'public',
                             'dataproducttype', 'instrument_name',
@@ -348,27 +341,27 @@ class JwstClass(object):
             if show_all_columns:
                 columns = '*'
 
-            query = "SELECT DISTANCE(POINT('ICRS'," +\
-                str(self.JWST_MAIN_TABLE_RA) + "," +\
-                str(self.JWST_MAIN_TABLE_DEC) + "), \
-                POINT('ICRS'," + str(ra) + "," + str(dec) + ")) "\
-                "AS dist, "+columns+" \
-                FROM " + str(self.JWST_MAIN_TABLE) + " \
-                WHERE CONTAINS(\
-                POINT('ICRS'," +\
-                str(self.JWST_MAIN_TABLE_RA)+"," +\
-                str(self.JWST_MAIN_TABLE_DEC)+"),\
-                BOX('ICRS'," + str(ra) + "," + str(dec)+", " +\
-                str(widthDeg.value)+", " +\
-                str(heightDeg.value)+"))=1 " +\
-                obsid_cond +\
-                cal_level_condition +\
-                public_condition +\
-                prod_cond +\
-                instr_cond + \
-                filter_name_cond + \
-                props_id_cond + \
-                "ORDER BY dist ASC"
+            query = (f"SELECT DISTANCE(POINT('ICRS',"
+                     f"{str(conf.JWST_MAIN_TABLE_RA)},"
+                     f"{str(conf.JWST_MAIN_TABLE_DEC)} ), "
+                     f"POINT('ICRS',{str(ra)},{str(dec)} )) "
+                     f"AS dist, {columns} "
+                     f"FROM {str(conf.JWST_MAIN_TABLE)} "
+                     f"WHERE CONTAINS("
+                     f"POINT('ICRS',"
+                     f"{str(conf.JWST_MAIN_TABLE_RA)},"
+                     f"{str(conf.JWST_MAIN_TABLE_DEC)}),"
+                     f"BOX('ICRS',{str(ra)},{str(dec)}, "
+                     f"{str(widthDeg.value)}, "
+                     f"{str(heightDeg.value)}))=1 "
+                     f"{obsid_cond}"
+                     f"{cal_level_condition}"
+                     f"{public_condition}"
+                     f"{prod_cond}"
+                     f"{instr_cond}"
+                     f"{filter_name_cond}"
+                     f"{props_id_cond}"
+                     f"ORDER BY dist ASC")
             print(query)
             if async_job:
                 job = self.__jwsttap.launch_job_async(query, verbose=verbose)
@@ -598,23 +591,23 @@ class JwstClass(object):
             radius_quantity = self.__get_quantity_input(radius, "radius")
             radius_deg = commons.radius_to_unit(radius_quantity, unit='deg')
 
-        query = "SELECT DISTANCE(POINT('ICRS'," +\
-            str(self.JWST_MAIN_TABLE_RA) + "," +\
-            str(self.JWST_MAIN_TABLE_DEC) + "), \
-            POINT('ICRS'," + str(ra) + "," + str(dec) + ")) AS dist, "+columns+" \
-            FROM " + str(self.JWST_MAIN_TABLE) + " WHERE CONTAINS(\
-            POINT('ICRS'," + str(self.JWST_MAIN_TABLE_RA) + "," +\
-            str(self.JWST_MAIN_TABLE_DEC)+"),\
-            CIRCLE('ICRS'," + str(ra)+"," + str(dec) + ", " +\
-            str(radius_deg)+"))=1" +\
-            obsid_condition +\
-            cal_level_condition +\
-            public_condition + \
-            prod_type_cond + \
-            inst_name_cond + \
-            filter_name_condition + \
-            proposal_id_condition + \
-            "ORDER BY dist ASC"
+        query = (f"SELECT DISTANCE(POINT('ICRS',"
+                 f"{str(conf.JWST_MAIN_TABLE_RA)},"
+                 f"{str(conf.JWST_MAIN_TABLE_DEC)}), "
+                 f"POINT('ICRS',{str(ra)},{str(dec)})) AS dist, {columns} "
+                 f"FROM {str(conf.JWST_MAIN_TABLE)} WHERE CONTAINS("
+                 f"POINT('ICRS',{str(conf.JWST_MAIN_TABLE_RA)},"
+                 f"{str(conf.JWST_MAIN_TABLE_DEC)}),"
+                 f"CIRCLE('ICRS',{str(ra)},{str(dec)}, "
+                 f"{str(radius_deg)}))=1"
+                 f"{obsid_condition}"
+                 f"{cal_level_condition}"
+                 f"{public_condition}"
+                 f"{prod_type_cond}"
+                 f"{inst_name_cond}"
+                 f"{filter_name_condition}"
+                 f"{proposal_id_condition}"
+                 f"ORDER BY dist ASC")
         if async_job:
             return self.__jwsttap.launch_job_async(query=query,
                                                    output_file=output_file,
@@ -891,8 +884,8 @@ class JwstClass(object):
         if target_resolver == "ALL" or target_resolver == "SIMBAD":
             try:
                 result_table = Simbad.query_object(target_name)
-                return SkyCoord('{} {}'.format(result_table["RA"][0],
-                                               result_table["DEC"][0]),
+                return SkyCoord((f'{result_table["RA"][0]} '
+                                 f'{result_table["DEC"][0]}'),
                                 unit=(units.hourangle,
                                       units.deg), frame="icrs")
             except Exception:
@@ -917,8 +910,8 @@ class JwstClass(object):
             except Exception:
                 log.info("VIZIER could not resolve this target")
         if result_table is None:
-            raise ValueError("This target name cannot be determined with"
-                             " this resolver: {}".format(target_resolver))
+            raise ValueError(f"This target name cannot be determined with"
+                             f" this resolver: {target_resolver}")
 
     def remove_jobs(self, jobs_list, verbose=False):
         """Removes the specified jobs
@@ -1047,12 +1040,12 @@ class JwstClass(object):
         list = self._get_associated_planes(plane_ids, cal_level,
                                            max_cal_level, False)
 
-        query = "select distinct a.uri, a.artifactid, a.filename, "\
-            "a.contenttype, a.producttype, p.calibrationlevel, "\
-            "p.public FROM {0} p JOIN {1} a ON (p.planeid=a.planeid) "\
-            "WHERE a.planeid IN {2}{3};"\
-            .format(self.JWST_PLANE_TABLE, self.JWST_ARTIFACT_TABLE, list,
-                    self.__get_artifact_producttype_condition(product_type))
+        query = (f"select distinct a.uri, a.artifactid, a.filename, "
+                 f"a.contenttype, a.producttype, p.calibrationlevel, "
+                 f"p.public FROM {conf.JWST_PLANE_TABLE} p JOIN "
+                 f"{conf.JWST_ARTIFACT_TABLE} a ON (p.planeid=a.planeid) "
+                 f"WHERE a.planeid IN {list}"
+                 f"{self.__get_artifact_producttype_condition(product_type)};")
         job = self.__jwsttap.launch_job(query=query)
         return job.get_results()
 
@@ -1085,9 +1078,9 @@ class JwstClass(object):
     def _get_plane_id(self, observation_id):
         try:
             planeids = []
-            query_plane = "select distinct m.planeid, m.calibrationlevel "\
-                "from {} m where m.observationid = '{}'"\
-                .format(self.JWST_MAIN_TABLE, observation_id)
+            query_plane = (f"select distinct m.planeid, m.calibrationlevel "
+                           f"from {conf.JWST_MAIN_TABLE} m where "
+                           f"m.observationid = '{observation_id}'")
             job = self.__jwsttap.launch_job(query=query_plane)
             job.get_results().sort(["calibrationlevel"])
             job.get_results().reverse()
@@ -1107,19 +1100,18 @@ class JwstClass(object):
             where_clause = "WHERE sp.calibrationlevel<=p.calibrationlevel "\
                            "AND p.planeid ="
         else:
-            where_clause = "WHERE sp.calibrationlevel={} AND "\
-                           "p.planeid =".format(cal_level)
+            where_clause = (f"WHERE sp.calibrationlevel={cal_level} AND "
+                            f"p.planeid =")
         try:
-            query_siblings = "SELECT o.observationuri, p.planeid, "\
-                             "p.calibrationlevel, sp.planeid as "\
-                             "product_planeid, sp.calibrationlevel as "\
-                             "product_level FROM {0} o JOIN {1} p ON "\
-                             "p.obsid=o.obsid JOIN {1} sp ON "\
-                             "sp.obsid=o.obsid {2}'{3}'"\
-                             .format(self.JWST_OBSERVATION_TABLE,
-                                     self.JWST_PLANE_TABLE,
-                                     where_clause,
-                                     planeid)
+            query_siblings = (f"SELECT o.observationuri, p.planeid, "
+                              f"p.calibrationlevel, sp.planeid as "
+                              f"product_planeid, sp.calibrationlevel as "
+                              f"product_level FROM "
+                              f"{conf.JWST_OBSERVATION_TABLE} o JOIN "
+                              f"{conf.JWST_PLANE_TABLE} p ON "
+                              f"p.obsid=o.obsid JOIN "
+                              f"{conf.JWST_PLANE_TABLE} sp ON "
+                              f"sp.obsid=o.obsid {where_clause}'{planeid}'")
             job = self.__jwsttap.launch_job(query=query_siblings)
             return job.get_results()
         except Exception as e:
@@ -1130,22 +1122,23 @@ class JwstClass(object):
         if (cal_level == "ALL"):
             where_clause = "WHERE p.planeid ="
         else:
-            where_clause = "WHERE mp.calibrationlevel={} AND "\
-                           "p.planeid =".format(cal_level)
+            where_clause = (f"WHERE mp.calibrationlevel={cal_level} AND "
+                            f"p.planeid =")
         try:
-            query_members = "SELECT o.observationuri, p.planeid, "\
-                            "p.calibrationlevel, mp.planeid as "\
-                            "product_planeid, mp.calibrationlevel as "\
-                            "product_level FROM {0} o JOIN {1} p on "\
-                            "o.obsid=p.obsid JOIN {2} m on "\
-                            "o.obsid=m.parentid JOIN {0} "\
-                            "mo on m.memberid=mo.observationuri JOIN "\
-                            "{1} mp on mo.obsid=mp.obsid {3}'{4}'"\
-                            .format(self.JWST_OBSERVATION_TABLE,
-                                    self.JWST_PLANE_TABLE,
-                                    self.JWST_OBS_MEMBER_TABLE,
-                                    where_clause,
-                                    planeid)
+            query_members = (f"SELECT o.observationuri, p.planeid, "
+                             f"p.calibrationlevel, mp.planeid as "
+                             f"product_planeid, mp.calibrationlevel as "
+                             f"product_level FROM "
+                             f"{conf.JWST_OBSERVATION_TABLE} o JOIN "
+                             f"{conf.JWST_PLANE_TABLE} p on "
+                             f"o.obsid=p.obsid JOIN "
+                             f"{conf.JWST_OBS_MEMBER_TABLE} m on "
+                             f"o.obsid=m.parentid JOIN "
+                             f"{conf.JWST_OBSERVATION_TABLE} "
+                             f"mo on m.memberid=mo.observationuri JOIN "
+                             f"{conf.JWST_PLANE_TABLE} mp on "
+                             f"mo.obsid=mp.obsid "
+                             f"{where_clause}'{planeid}'")
             job = self.__jwsttap.launch_job(query=query_members)
             return job.get_results()
         except Exception as e:
@@ -1170,14 +1163,16 @@ class JwstClass(object):
         """
         if observation_id is None:
             raise ValueError(self.REQUESTED_OBSERVATION_ID)
-        query_upper = "select * from {} m where m.members like "\
-                      "'%{}%'".format(self.JWST_MAIN_TABLE, observation_id)
+        query_upper = (f"select * from {conf.JWST_MAIN_TABLE} m "
+                       f"where m.members like "
+                       f"'%{observation_id}%'")
         job = self.__jwsttap.launch_job(query=query_upper)
         if any(job.get_results()["observationid"]):
             oids = job.get_results()["observationid"].pformat(show_name=False)
         else:
-            query_members = "select m.members from {} m where m.observationid"\
-                      "='{}'".format(self.JWST_MAIN_TABLE, observation_id)
+            query_members = (f"select m.members from {conf.JWST_MAIN_TABLE} "
+                             f"m where m.observationid"
+                             f"='{observation_id}'")
             job = self.__jwsttap.launch_job(query=query_members)
             oids = JwstClass.get_decoded_string(
                 job.get_results()["members"][0]).\
@@ -1238,14 +1233,16 @@ class JwstClass(object):
 
     def _query_get_product(self, artifact_id=None, file_name=None):
         if(file_name):
-            query_artifactid = "select * from {} a where a.filename = "\
-                "'{}'".format(self.JWST_ARTIFACT_TABLE, file_name)
+            query_artifactid = (f"select * from {conf.JWST_ARTIFACT_TABLE} "
+                                f"a where a.filename = "
+                                f"'{file_name}'")
             job = self.__jwsttap.launch_job(query=query_artifactid)
             return JwstClass.get_decoded_string(
                 job.get_results()['artifactid'][0])
         else:
-            query_filename = "select * from {} a where a.artifactid = "\
-                "'{}'".format(self.JWST_ARTIFACT_TABLE, artifact_id)
+            query_filename = (f"select * from {conf.JWST_ARTIFACT_TABLE} a "
+                              f"where a.artifactid = "
+                              f"'{artifact_id}'")
             job = self.__jwsttap.launch_job(query=query_filename)
             return JwstClass.get_decoded_string(
                 job.get_results()['filename'][0])

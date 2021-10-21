@@ -17,7 +17,6 @@ Created on 19 aug. 2020
 
 import os
 import tempfile
-import unittest
 from decimal import Decimal
 
 import pytest
@@ -47,7 +46,7 @@ def get_license():
 
 
 @remote_data
-class TestRemoteData(unittest.TestCase):
+class TestRemoteData:
 
     temp_file_vot = '/temp.vot'
 
@@ -326,8 +325,3 @@ class TestRemoteData(unittest.TestCase):
             encoded_chars.append(encoded_c)
         encoded_string = ''.join(encoded_chars)
         return encoded_string
-
-
-if __name__ == "__main__":
-    # import sys;sys.argv = ['', 'Test.testName']
-    unittest.main()
