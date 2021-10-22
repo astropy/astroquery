@@ -85,8 +85,7 @@ class CatalogsClass(MastQueryWithLogin):
             E.g. when using a slow internet connection.
         page : int, optional
             Default None.
-            Can be used to override the default behavior of all results being returned to
-            obtain a specific page of results.
+            Can be used to override the default behavior of all results being returned to obtain a specific page of results.
         **kwargs
             Other catalog-specific keyword args.
             These can be found in the (service documentation)[https://mast.stsci.edu/api/v0/_services.html]
@@ -466,9 +465,9 @@ class CatalogsClass(MastQueryWithLogin):
                 if spec['SpectrumType'] < 2:
                     data_url = f'https://hla.stsci.edu/cgi-bin/getdata.cgi?config=ops&dataset={spec["DatasetName"]}'
                 else:
-                    data_url = f'https://hla.stsci.edu/cgi-bin/ecfproxy?file_id=spec["DatasetName"].fits'
+                    data_url = f'https://hla.stsci.edu/cgi-bin/ecfproxy?file_id={spec["DatasetName"]}.fits'
 
-                local_path = os.path.join(base_dir, "{spec['DatasetName']}.fits")
+                local_path = os.path.join(base_dir, f'{spec["DatasetName"]}.fits')
 
                 status = "COMPLETE"
                 msg = None
