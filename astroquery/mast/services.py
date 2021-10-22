@@ -61,7 +61,7 @@ def _json_to_table(json_obj, data_key='data'):
             ignore_value = "" if (ignore_value is None) else ignore_value
         elif col_type == "boolean" or col_type == "binary":
             col_type = "bool"
-        elif col_type == "unsignedByte":
+        elif col_type == "unsignedbyte":
             col_type = np.ubyte
         elif (col_type == "int" or col_type == "short" or col_type == "long" or col_type == "number"
                 or col_type == 'integer'):
