@@ -29,7 +29,7 @@ jobs:
 
           - name: docs build
             os: ubuntu-latest
-            python: 3.8
+            python: 3.9
             toxenv: build_docs
             toxargs: -v
 
@@ -41,8 +41,8 @@ jobs:
 
           - name: astropy dev with all dependencies with coverage
             os: ubuntu-latest
-            python: 3.9
-            toxenv: py39-test-alldeps-devastropy-cov
+            python: 3.10
+            toxenv: py310-test-alldeps-devastropy-cov
             toxargs: -v
 
           - name: Python 3.7 with all optional dependencies (MacOS X)
