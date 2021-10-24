@@ -928,7 +928,6 @@ class SimbadClass(SimbadBaseQuery):
         return self._parse_result(response, SimbadObjectIDsResult,
                                   verbose=verbose)
 
-
     def query_objectids_async(self, object_name, cache=True,
                               get_query_payload=False):
         """

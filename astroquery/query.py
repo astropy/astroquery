@@ -129,7 +129,6 @@ class AstroQuery:
                           "it does not exist")
 
 
-
 class LoginABCMeta(abc.ABCMeta):
     """
     The goal of this metaclass is to copy the docstring and signature from
