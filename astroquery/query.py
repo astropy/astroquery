@@ -115,6 +115,20 @@ class AstroQuery:
             log.debug("Retrieving data from {0}".format(request_file))
         return response
 
+    def remove_cache_file(self, cache_location):
+        """
+        Remove the cache file - may be needed if a query fails during parsing
+        (successful request, but failed return)
+        """
+        request_file = self.request_file(cache_location)
+
+        if os.path.exists(request_file):
+            os.remove(request_file)
+        else:
+            raise OSError(f"Tried to remove cache file {request_file} but "
+                          "it does not exist")
+
+
 
 class LoginABCMeta(abc.ABCMeta):
     """
