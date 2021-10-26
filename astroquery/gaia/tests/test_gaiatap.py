@@ -360,6 +360,23 @@ class TestTap(unittest.TestCase):
         # Cleanup.
         conf.reset('MAIN_GAIA_TABLE')
 
+        # Test the default value from conf.
+        assert 'TOP 50' in job.parameters['query']
+        # Test changing the row limit through conf at runtime.
+        with conf.set_temp('ROW_LIMIT', 42):
+            job = tap.cone_search_async(sc, radius)
+            assert 'TOP 42' in job.parameters['query']
+        # Changing the value through the class should overrule conf.
+        tap.ROW_LIMIT = 17
+        job = tap.cone_search_async(sc, radius)
+        assert 'TOP 17' in job.parameters['query']
+        # Function argument has highest priority.
+        job = tap.cone_search_async(sc, radius, row_limit=9)
+        assert 'TOP 9' in job.parameters['query']
+        # No row limit
+        job = tap.cone_search_async(sc, radius, row_limit=-1)
+        assert 'TOP' not in job.parameters['query']
+
     def __check_results_column(self, results, columnName, description, unit,
                                dataType):
         c = results[columnName]

@@ -2,6 +2,7 @@ import astropy.units as u
 import pytest
 from astropy.coordinates import SkyCoord
 
+from astroquery.gaia import conf
 from .. import GaiaClass
 
 
@@ -13,15 +14,14 @@ def test_query_object_row_limit():
     height = u.Quantity(0.1, u.deg)
     r = Gaia.query_object_async(coordinate=coord, width=width, height=height)
 
-    assert len(r) == Gaia.ROW_LIMIT
+    assert len(r) == conf.ROW_LIMIT
 
     Gaia.ROW_LIMIT = 10
     r = Gaia.query_object_async(coordinate=coord, width=width, height=height)
 
     assert len(r) == 10 == Gaia.ROW_LIMIT
 
-    Gaia.ROW_LIMIT = -1
-    r = Gaia.query_object_async(coordinate=coord, width=width, height=height)
+    r = Gaia.query_object_async(coordinate=coord, width=width, height=height, row_limit=-1)
 
     assert len(r) == 176
 
@@ -34,7 +34,7 @@ def test_cone_search_row_limit():
     j = Gaia.cone_search_async(coord, radius)
     r = j.get_results()
 
-    assert len(r) == Gaia.ROW_LIMIT
+    assert len(r) == conf.ROW_LIMIT
 
     Gaia.ROW_LIMIT = 10
     j = Gaia.cone_search_async(coord, radius)
@@ -42,8 +42,7 @@ def test_cone_search_row_limit():
 
     assert len(r) == 10 == Gaia.ROW_LIMIT
 
-    Gaia.ROW_LIMIT = -1
-    j = Gaia.cone_search_async(coord, radius)
+    j = Gaia.cone_search_async(coord, radius, row_limit=-1)
     r = j.get_results()
 
     assert len(r) == 1188

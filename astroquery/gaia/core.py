@@ -41,7 +41,7 @@ class GaiaClass(TapPlus):
     MAIN_GAIA_TABLE = None
     MAIN_GAIA_TABLE_RA = conf.MAIN_GAIA_TABLE_RA
     MAIN_GAIA_TABLE_DEC = conf.MAIN_GAIA_TABLE_DEC
-    ROW_LIMIT = conf.ROW_LIMIT
+    ROW_LIMIT = None
     VALID_DATALINK_RETRIEVAL_TYPES = conf.VALID_DATALINK_RETRIEVAL_TYPES
 
     def __init__(self, tap_plus_conn_handler=None,
@@ -356,7 +356,7 @@ class GaiaClass(TapPlus):
         return self.__gaiadata.get_datalinks(ids=ids, verbose=verbose)
 
     def __query_object(self, coordinate, radius=None, width=None, height=None,
-                       async_job=False, verbose=False, columns=[]):
+                       async_job=False, verbose=False, columns=[], row_limit=None):
         """Launches a job
         TAP & TAP+
 
@@ -378,6 +378,10 @@ class GaiaClass(TapPlus):
             flag to display information about the process
         columns: list, optional, default []
             if empty, all columns will be selected
+        row_limit : int, optional
+            The maximum number of retrieved rows. Will default to the value
+            provided by the configuration system if not set explicitly. The
+            value -1 removes the limit entirely.
 
         Returns
         -------
@@ -395,7 +399,7 @@ class GaiaClass(TapPlus):
             heightQuantity = self.__getQuantityInput(height, "height")
             widthDeg = widthQuantity.to(units.deg)
             heightDeg = heightQuantity.to(units.deg)
-
+            row_limit = row_limit or self.ROW_LIMIT or conf.ROW_LIMIT
             if columns:
                 columns = ','.join(map(str, columns))
             else:
@@ -424,7 +428,7 @@ class GaiaClass(TapPlus):
                       )
                     ORDER BY
                       dist ASC
-                    """.format(**{'row_limit': "TOP {0}".format(self.ROW_LIMIT) if self.ROW_LIMIT > 0 else "",
+                    """.format(**{'row_limit': "TOP {0}".format(row_limit) if row_limit > 0 else "",
                                   'ra_column': self.MAIN_GAIA_TABLE_RA, 'dec_column': self.MAIN_GAIA_TABLE_DEC,
                                   'columns': columns, 'table_name': self.MAIN_GAIA_TABLE or conf.MAIN_GAIA_TABLE, 'ra': ra, 'dec': dec,
                                   'width': widthDeg.value, 'height': heightDeg.value})
@@ -435,7 +439,7 @@ class GaiaClass(TapPlus):
         return job.get_results()
 
     def query_object(self, coordinate, radius=None, width=None, height=None,
-                     verbose=False, columns=[]):
+                     verbose=False, columns=[], row_limit=None):
         """Launches a job
         TAP & TAP+
 
@@ -453,15 +457,21 @@ class GaiaClass(TapPlus):
             flag to display information about the process
         columns: list, optional, default []
             if empty, all columns will be selected
+        row_limit : int, optional
+            The maximum number of retrieved rows. Will default to the value
+            provided by the configuration system if not set explicitly. The
+            value -1 removes the limit entirely.
 
         Returns
         -------
         The job results (astropy.table).
         """
-        return self.__query_object(coordinate, radius, width, height, async_job=False, verbose=verbose, columns=columns)
+        return self.__query_object(coordinate, radius, width, height,
+                                   async_job=False, verbose=verbose,
+                                   columns=columns, row_limit=row_limit)
 
     def query_object_async(self, coordinate, radius=None, width=None,
-                           height=None, verbose=False, columns=[]):
+                           height=None, verbose=False, columns=[], row_limit=None):
         """Launches a job (async)
         TAP & TAP+
 
@@ -479,12 +489,17 @@ class GaiaClass(TapPlus):
             flag to display information about the process
         columns: list, optional, default []
             if empty, all columns will be selected
+        row_limit : int, optional
+            The maximum number of retrieved rows. Will default to the value
+            provided by the configuration system if not set explicitly. The
+            value -1 removes the limit entirely.
 
         Returns
         -------
         The job results (astropy.table).
         """
-        return self.__query_object(coordinate, radius, width, height, async_job=True, verbose=verbose, columns=columns)
+        return self.__query_object(coordinate, radius, width, height, async_job=True,
+                                   verbose=verbose, columns=columns, row_limit=row_limit)
 
     def __cone_search(self, coordinate, radius, table_name=None,
                       ra_column_name=MAIN_GAIA_TABLE_RA,
@@ -493,7 +508,7 @@ class GaiaClass(TapPlus):
                       background=False,
                       output_file=None, output_format="votable", verbose=False,
                       dump_to_file=False,
-                      columns=[]):
+                      columns=[], row_limit=None):
         """Cone search sorted by distance
         TAP & TAP+
 
@@ -526,6 +541,10 @@ class GaiaClass(TapPlus):
             if True, the results are saved in a file instead of using memory
         columns: list, optional, default []
             if empty, all columns will be selected
+        row_limit : int, optional
+            The maximum number of retrieved rows. Will default to the value
+            provided by the configuration system if not set explicitly. The
+            value -1 removes the limit entirely.
 
         Returns
         -------
@@ -542,6 +561,7 @@ class GaiaClass(TapPlus):
             columns = ','.join(map(str, columns))
         else:
             columns = "*"
+        row_limit = row_limit or self.ROW_LIMIT or conf.ROW_LIMIT
 
         query = """
                 SELECT
@@ -561,7 +581,7 @@ class GaiaClass(TapPlus):
                 ORDER BY
                   dist ASC
                 """.format(**{'ra_column': ra_column_name,
-                              'row_limit': "TOP {0}".format(self.ROW_LIMIT) if self.ROW_LIMIT > 0 else "",
+                              'row_limit': "TOP {0}".format(row_limit) if row_limit > 0 else "",
                               'dec_column': dec_column_name, 'columns': columns, 'ra': ra, 'dec': dec,
                               'radius': radiusDeg, 'table_name': table_name or self.MAIN_GAIA_TABLE or conf.MAIN_GAIA_TABLE})
 
@@ -586,7 +606,7 @@ class GaiaClass(TapPlus):
                     output_file=None,
                     output_format="votable", verbose=False,
                     dump_to_file=False,
-                    columns=[]):
+                    columns=[], row_limit=None):
         """Cone search sorted by distance (sync.)
         TAP & TAP+
 
@@ -613,6 +633,10 @@ class GaiaClass(TapPlus):
             if True, the results are saved in a file instead of using memory
         columns: list, optional, default []
             if empty, all columns will be selected
+        row_limit : int, optional
+            The maximum number of retrieved rows. Will default to the value
+            provided by the configuration system if not set explicitly. The
+            value -1 removes the limit entirely.
 
         Returns
         -------
@@ -628,7 +652,7 @@ class GaiaClass(TapPlus):
                                   output_file=output_file,
                                   output_format=output_format,
                                   verbose=verbose,
-                                  dump_to_file=dump_to_file, columns=columns)
+                                  dump_to_file=dump_to_file, columns=columns, row_limit=row_limit)
 
     def cone_search_async(self, coordinate, radius=None,
                           table_name=None,
@@ -636,7 +660,7 @@ class GaiaClass(TapPlus):
                           dec_column_name=MAIN_GAIA_TABLE_DEC,
                           background=False,
                           output_file=None, output_format="votable",
-                          verbose=False, dump_to_file=False, columns=[]):
+                          verbose=False, dump_to_file=False, columns=[], row_limit=None):
         """Cone search sorted by distance (async)
         TAP & TAP+
 
@@ -665,6 +689,10 @@ class GaiaClass(TapPlus):
             flag to display information about the process
         dump_to_file : bool, optional, default 'False'
             if True, the results are saved in a file instead of using memory
+        row_limit : int, optional
+            The maximum number of retrieved rows. Will default to the value
+            provided by the configuration system if not set explicitly. The
+            value -1 removes the limit entirely.
 
         Returns
         -------
@@ -680,7 +708,7 @@ class GaiaClass(TapPlus):
                                   output_file=output_file,
                                   output_format=output_format,
                                   verbose=verbose,
-                                  dump_to_file=dump_to_file, columns=columns)
+                                  dump_to_file=dump_to_file, columns=columns, row_limit=row_limit)
 
     def __checkQuantityInput(self, value, msg):
         if not (isinstance(value, str) or isinstance(value, units.Quantity)):
