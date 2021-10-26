@@ -124,6 +124,8 @@ degrees around an specific point in RA/Dec coordinates.
    0.020802655215768254 1635721458409799680 ...
    0.021615117161838747 1635721458409799680 ...
   Length = 50 rows
+  MaxResultsWarning: The number of rows in the result matches the current row
+  limit of 50. You might wish to specify a different "row_limit" value.
 
 By default the number of rows returned by a query is limited by the
 ``astroquery.gaia.conf.ROW_LIMIT`` value. This value can be overruled in a
@@ -149,6 +151,8 @@ class attribute ``Gaia.ROW_LIMIT`` is set then it will take precedence over
    0.006209042666371929 1635721458409799680 ...
    0.007469463683838576 1635721458409799680 ...
    0.008202004514524316 1635721458409799680 ...
+  MaxResultsWarning: The number of rows in the result matches the current row
+  limit of 8. You might wish to specify a different "row_limit" value.
 
 To return an unlimited number of rows set the row limit to ``-1``.
 
@@ -213,6 +217,8 @@ radius argument. The number of rows is limited just like in object queries.
   1635721458409799680 Gaia DR2 6636090334814218752 ...  0.005846434715822121
                   ...                          ... ...                   ...
   Length = 50 rows
+  MaxResultsWarning: The number of rows in the result matches the current row
+  limit of 50. You might wish to specify a different "row_limit" value.
 
 
 1.3. Getting public tables metadata

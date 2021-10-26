@@ -14,8 +14,11 @@ Created on 30 jun. 2016
 
 
 """
+from warnings import warn
+
 from requests import HTTPError
 
+from astroquery.exceptions import MaxResultsWarning
 from astroquery.utils.tap import TapPlus
 from astroquery.utils import commons
 from astroquery import log
@@ -436,7 +439,11 @@ class GaiaClass(TapPlus):
                 job = self.launch_job_async(query, verbose=verbose)
             else:
                 job = self.launch_job(query, verbose=verbose)
-        return job.get_results()
+        table = job.get_results()
+        if len(table) == row_limit:
+            warn(f'The number of rows in the result matches the current row limit of {row_limit}. '
+                 f'You might wish to specify a different "row_limit" value.', MaxResultsWarning)
+        return table
 
     def query_object(self, coordinate, radius=None, width=None, height=None,
                      verbose=False, columns=[], row_limit=None):
@@ -586,18 +593,17 @@ class GaiaClass(TapPlus):
                               'radius': radiusDeg, 'table_name': table_name or self.MAIN_GAIA_TABLE or conf.MAIN_GAIA_TABLE})
 
         if async_job:
-            return self.launch_job_async(query=query,
-                                         output_file=output_file,
-                                         output_format=output_format,
-                                         verbose=verbose,
-                                         dump_to_file=dump_to_file,
-                                         background=background)
+            result = self.launch_job_async(query=query, output_file=output_file,
+                                           output_format=output_format, verbose=verbose,
+                                           dump_to_file=dump_to_file, background=background)
         else:
-            return self.launch_job(query=query,
-                                   output_file=output_file,
-                                   output_format=output_format,
-                                   verbose=verbose,
-                                   dump_to_file=dump_to_file)
+            result = self.launch_job(query=query, output_file=output_file,
+                                     output_format=output_format, verbose=verbose,
+                                     dump_to_file=dump_to_file)
+        if len(result.get_data()) == row_limit:
+            warn(f'The number of rows in the result matches the current row limit of {row_limit}. '
+                 f'You might wish to specify a different "row_limit" value.', MaxResultsWarning)
+        return result
 
     def cone_search(self, coordinate, radius=None,
                     table_name=None,
