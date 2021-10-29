@@ -215,10 +215,12 @@ class TestTap(unittest.TestCase):
                                     'table1_oid',
                                     None,
                                     np.int32)
+        # No warning without verbose=True
+        job = tap.query_object_async(sc, radius, row_limit=3)
         msg = ('The number of rows in the result matches the current row limit of 3. You might '
                'wish to specify a different "row_limit" value.')
         with pytest.warns(MaxResultsWarning, match=msg):
-            job = tap.query_object_async(sc, radius, row_limit=3)
+            job = tap.query_object_async(sc, radius, row_limit=3, verbose=True)
 
     def test_cone_search_sync(self):
         connHandler = DummyConnHandler()
@@ -381,10 +383,12 @@ class TestTap(unittest.TestCase):
         # No row limit
         job = tap.cone_search_async(sc, radius, row_limit=-1)
         assert 'TOP' not in job.parameters['query']
+        # No warning without verbose=True
+        job = tap.cone_search_async(sc, radius, row_limit=3)
         msg = ('The number of rows in the result matches the current row limit of 3. You might '
                'wish to specify a different "row_limit" value.')
         with pytest.warns(MaxResultsWarning, match=msg):
-            job = tap.cone_search_async(sc, radius, row_limit=3)
+            job = tap.cone_search_async(sc, radius, row_limit=3, verbose=True)
 
     def __check_results_column(self, results, columnName, description, unit,
                                dataType):

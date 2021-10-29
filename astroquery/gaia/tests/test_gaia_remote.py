@@ -13,10 +13,7 @@ def test_query_object_row_limit():
     coord = SkyCoord(ra=280, dec=-60, unit=(u.degree, u.degree), frame='icrs')
     width = u.Quantity(0.1, u.deg)
     height = u.Quantity(0.1, u.deg)
-    msg = ('The number of rows in the result matches the current row limit of 50. You might wish '
-           'to specify a different "row_limit" value.')
-    with pytest.warns(MaxResultsWarning, match=msg):
-        r = Gaia.query_object_async(coordinate=coord, width=width, height=height)
+    r = Gaia.query_object_async(coordinate=coord, width=width, height=height)
 
     assert len(r) == conf.ROW_LIMIT
 
@@ -24,7 +21,7 @@ def test_query_object_row_limit():
     msg = ('The number of rows in the result matches the current row limit of '
            '10. You might wish to specify a different "row_limit" value.')
     with pytest.warns(MaxResultsWarning, match=msg):
-        r = Gaia.query_object_async(coordinate=coord, width=width, height=height)
+        r = Gaia.query_object_async(coordinate=coord, width=width, height=height, verbose=True)
 
     assert len(r) == 10 == Gaia.ROW_LIMIT
 
@@ -38,10 +35,7 @@ def test_cone_search_row_limit():
     Gaia = GaiaClass()
     coord = SkyCoord(ra=280, dec=-60, unit=(u.degree, u.degree), frame='icrs')
     radius = u.Quantity(0.1, u.deg)
-    msg = ('The number of rows in the result matches the current row limit of 50. You might wish '
-           'to specify a different "row_limit" value.')
-    with pytest.warns(MaxResultsWarning, match=msg):
-        j = Gaia.cone_search_async(coord, radius)
+    j = Gaia.cone_search_async(coord, radius)
     r = j.get_results()
 
     assert len(r) == conf.ROW_LIMIT
@@ -50,7 +44,7 @@ def test_cone_search_row_limit():
     msg = ('The number of rows in the result matches the current row limit of 10. You might wish '
            'to specify a different "row_limit" value.')
     with pytest.warns(MaxResultsWarning, match=msg):
-        j = Gaia.cone_search_async(coord, radius)
+        j = Gaia.cone_search_async(coord, radius, verbose=True)
     r = j.get_results()
 
     assert len(r) == 10 == Gaia.ROW_LIMIT

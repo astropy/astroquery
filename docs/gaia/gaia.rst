@@ -124,20 +124,20 @@ degrees around an specific point in RA/Dec coordinates.
    0.020802655215768254 1635721458409799680 ...
    0.021615117161838747 1635721458409799680 ...
   Length = 50 rows
-  MaxResultsWarning: The number of rows in the result matches the current row
-  limit of 50. You might wish to specify a different "row_limit" value.
 
 By default the number of rows returned by a query is limited by the
 ``astroquery.gaia.conf.ROW_LIMIT`` value. This value can be overruled in a
 single function call with the ``row_limit`` argument. Alternatively, if the
 class attribute ``Gaia.ROW_LIMIT`` is set then it will take precedence over
-``conf.ROW_LIMIT``.
+``conf.ROW_LIMIT``. If you call the function with ``verbose=True`` then you
+will be warned if the length of the query result is equal to the row limit.
 
 .. code-block:: python
 
   >>> from astroquery.gaia import conf
   >>> conf.ROW_LIMIT = 8       # Or Gaia.ROW_LIMIT = 8
-  >>> r = Gaia.query_object_async(coordinate=coord, width=width, height=height)
+  >>> r = Gaia.query_object_async(coordinate=coord, width=width, height=height,
+                                  verbose=True)
   >>> r.pprint()
 
            dist             solution_id     ... epoch_photometry_url
@@ -217,8 +217,6 @@ radius argument. The number of rows is limited just like in object queries.
   1635721458409799680 Gaia DR2 6636090334814218752 ...  0.005846434715822121
                   ...                          ... ...                   ...
   Length = 50 rows
-  MaxResultsWarning: The number of rows in the result matches the current row
-  limit of 50. You might wish to specify a different "row_limit" value.
 
 
 1.3. Getting public tables metadata

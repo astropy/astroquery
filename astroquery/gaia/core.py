@@ -440,7 +440,7 @@ class GaiaClass(TapPlus):
             else:
                 job = self.launch_job(query, verbose=verbose)
         table = job.get_results()
-        if len(table) == row_limit:
+        if verbose and len(table) == row_limit:
             warn(f'The number of rows in the result matches the current row limit of {row_limit}. '
                  f'You might wish to specify a different "row_limit" value.', MaxResultsWarning)
         return table
@@ -600,7 +600,7 @@ class GaiaClass(TapPlus):
             result = self.launch_job(query=query, output_file=output_file,
                                      output_format=output_format, verbose=verbose,
                                      dump_to_file=dump_to_file)
-        if len(result.get_data()) == row_limit:
+        if verbose and len(result.get_data()) == row_limit:
             warn(f'The number of rows in the result matches the current row limit of {row_limit}. '
                  f'You might wish to specify a different "row_limit" value.', MaxResultsWarning)
         return result
