@@ -41,7 +41,7 @@ jobs:
 
           - name: astropy dev with all dependencies with coverage
             os: ubuntu-latest
-            python: 3.10
+            python: '3.10'
             toxenv: py310-test-alldeps-devastropy-cov
             toxargs: -v
 
