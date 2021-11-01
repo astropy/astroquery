@@ -200,14 +200,13 @@ class LegacySurveyClass(BaseQuery):
         """
 
         if use_tap:
-            # TAP query`
+            # TAP query
             # Download tractor catalogue
             url = 'https://datalab.noirlab.edu/tap'
             tap_service = vo.dal.TAPService(url)
             qstr = "SELECT all * FROM ls_dr" + str(data_release) + ".tractor WHERE dec>" + str(coordinates.dec.deg - radius.deg) + " and dec<" + str(
                 coordinates.dec.deg + radius.deg) + " and ra>" + str(coordinates.ra.deg - radius.deg / cos(coordinates.dec.deg * pi / 180.)) + " and ra<" + str(
                 coordinates.ra.deg + radius.deg / cos(coordinates.dec.deg * pi / 180))
-            print(qstr)
 
             tap_result = tap_service.run_sync(qstr)
             tap_result = tap_result.to_table()
@@ -295,7 +294,7 @@ class LegacySurveyClass(BaseQuery):
 
             return responses
 
-    def get_images_async(self, coordinates=None, data_release=9,
+    def get_images_async(self, position, survey, coordinates=None, data_release=9,
                          projection=None, pixels=None, scaling=None,
                          sampler=None, resolver=None, deedger=None, lut=None,
                          grid=None, gridlabels=None, radius=None, height=None,
