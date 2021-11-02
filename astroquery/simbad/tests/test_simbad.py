@@ -134,8 +134,8 @@ def test_parse_result():
                              'The attempted parsed result is in '
                              'self.last_parsed_result.\n Exception: 7:115: '
                              'no element found')
-    assert isinstance(simbad.Simbad.last_response.text, str)
-    assert isinstance(simbad.Simbad.last_response.content, bytes)
+    assert isinstance(sb.last_response.text, str)
+    assert isinstance(sb.last_response.content, bytes)
 
 
 votable_fields = ",".join(simbad.core.Simbad.get_votable_fields())
