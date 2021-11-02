@@ -93,8 +93,11 @@ class ObservationsClass(MastQueryWithLogin):
             List of available missions.
         """
 
+        # calling `service` variable 
+        service = "Mast.Caom.All"
+        if testing is not None: _overwrite_service(testing)
+
         # getting all the histogram information
-        service = "Mast.Caom.All" if testing is None else _overwrite_service(testing)
         params = {}
         response = self._portal_api_connection.service_request_async(service, params, format='extjs')
         json_response = response[0].json()
