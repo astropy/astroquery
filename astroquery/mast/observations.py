@@ -7,10 +7,12 @@ This module contains various methods for querying MAST observations.
 """
 
 
+import ctypes
 import warnings
 import json
 import time
 import os
+import sys
 import uuid
 
 import numpy as np
