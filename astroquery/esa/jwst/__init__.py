@@ -1,8 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
-=============
-JWST TAP plus
-=============
+==========
+eJWST Init
+==========
 
 @author: Raul Gutierrez-Sanchez
 @contact: raul.gutierrez@sciops.esa.int
@@ -24,36 +24,28 @@ class Conf(_config.ConfigNamespace):
     Configuration parameters for `astroquery.esa.jwst`.
     """
 
-    JWST_MAIN_TABLE = _config.ConfigItem("jwst.main",
-                                         "JWST main table, combination of \
-                                         observation and plane tables.")
+    JWST_TAP_SERVER = _config.ConfigItem("http://jwstdummytap.com")
+    JWST_DATA_SERVER = _config.ConfigItem("http://jwstdummydata.com")
 
-    JWST_MAIN_TABLE_RA = _config.ConfigItem("target_ra",
-                                            "Name of RA parameter in table")
+    JWST_MAIN_TABLE = _config.ConfigItem("jwst.main", "JWST main table, combination of observation and plane tables.")
 
-    JWST_MAIN_TABLE_DEC = _config.ConfigItem("target_dec",
-                                             "Name of Dec parameter in table")
+    JWST_MAIN_TABLE_RA = _config.ConfigItem("target_ra", "Name of RA parameter in table")
 
-    JWST_ARTIFACT_TABLE = _config.ConfigItem("jwst.artifact",
-                                             "JWST artifacts "
-                                             "(data files) table.")
+    JWST_MAIN_TABLE_DEC = _config.ConfigItem("target_dec", "Name of Dec parameter in table")
 
-    JWST_OBSERVATION_TABLE = _config.ConfigItem("jwst.observation",
-                                                "JWST observation table")
+    JWST_ARTIFACT_TABLE = _config.ConfigItem("jwst.artifact", "JWST artifacts (data files) table.")
 
-    JWST_PLANE_TABLE = _config.ConfigItem("jwst.plane",
-                                          "JWST plane table")
+    JWST_OBSERVATION_TABLE = _config.ConfigItem("jwst.observation", "JWST observation table")
 
-    JWST_OBS_MEMBER_TABLE = _config.ConfigItem("jwst.observationmember",
-                                               "JWST observation member table")
+    JWST_PLANE_TABLE = _config.ConfigItem("jwst.plane", "JWST plane table")
 
-    JWST_OBSERVATION_TABLE_RA = _config.ConfigItem("targetposition_"
-                                                   "coordinates_cval1",
+    JWST_OBS_MEMBER_TABLE = _config.ConfigItem("jwst.observationmember", "JWST observation member table")
+
+    JWST_OBSERVATION_TABLE_RA = _config.ConfigItem("targetposition_coordinates_cval1",
                                                    "Name of RA parameter "
                                                    "in table")
 
-    JWST_OBSERVATION_TABLE_DEC = _config.ConfigItem("targetposition_"
-                                                    "coordinates_cval2",
+    JWST_OBSERVATION_TABLE_DEC = _config.ConfigItem("targetposition_coordinates_cval2",
                                                     "Name of Dec parameter "
                                                     "in table")
 

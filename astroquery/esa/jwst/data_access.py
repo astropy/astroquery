@@ -1,17 +1,11 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
-================
-JWST Data Access
-================
-
-@author: Raul Gutierrez-Sanchez
-@contact: raul.gutierrez@sciops.esa.int
+=================
+eJWST Data Access
+=================
 
 European Space Astronomy Centre (ESAC)
 European Space Agency (ESA)
-
-Created on 02 nov. 2018
-
 
 """
 

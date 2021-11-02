@@ -1,20 +1,13 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
-===============
-JWST DATA Tests
-===============
-
-@author: Raul Gutierrez-Sanchez
-@contact: raul.gutierrez@sciops.esa.int
+================
+eJWST DATA Tests
+================
 
 European Space Astronomy Centre (ESAC)
 European Space Agency (ESA)
 
-Created on 05 nov. 2018
-
-
 """
-import unittest
 import os
 import pytest
 
@@ -30,7 +23,7 @@ def data_path(filename):
 
 
 def get_product_mock(params, *args, **kwargs):
-    if(args[0] == 'file_name_id'):
+    if kwargs and kwargs.get('file_name'):
         return "00000000-0000-0000-8740-65e2827c9895"
     else:
         return "jw00617023001_02102_00001_nrcb4_uncal.fits"
@@ -46,7 +39,7 @@ def get_product_request(request):
     return mp
 
 
-class TestData(unittest.TestCase):
+class TestData:
 
     def test_get_product(self):
         dummyTapHandler = DummyTapHandler()
@@ -71,8 +64,3 @@ class TestData(unittest.TestCase):
         parameters['verbose'] = False
         jwst.get_product(artifact_id='00000000-0000-0000-8740-65e2827c9895')
         dummyTapHandler.check_call('load_data', parameters)
-
-
-if __name__ == "__main__":
-    # import sys;sys.argv = ['', 'Test.testName']
-    unittest.main()

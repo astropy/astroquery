@@ -1,17 +1,11 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
-=======================
-JWST Dummy Data Handler
-=======================
-
-@author: Raul Gutierrez-Sanchez
-@contact: raul.gutierrez@sciops.esa.int
+========================
+eJWST Dummy Data Handler
+========================
 
 European Space Astronomy Centre (ESAC)
 European Space Agency (ESA)
-
-Created on 09 nov. 2018
-
 
 """
 

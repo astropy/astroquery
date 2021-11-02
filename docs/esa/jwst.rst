@@ -50,6 +50,8 @@ TAP provides two operation modes: Synchronous and Asynchronous:
   to obtain the job status.
   Once the job is finished, the results can be retrieved.
 
+This module can use these two modes, usinc the 'async_job=False/True' tag in different functions.
+
 ESA JWST TAP+ server provides two access mode: public and authenticated:
 
 * Public: this is the standard TAP access. A user can execute ADQL queries and
@@ -70,8 +72,7 @@ ESA JWST TAP+ server provides two access mode: public and authenticated:
     These tables can be used in queries as well as in cross-matches operations.
 
 
-This python module provides an Astroquery API access. Nevertheless, only
-``query_region`` and ``query_region_async`` are implemented.
+This python module provides an Astroquery API access.
 
 
 ========
@@ -91,11 +92,11 @@ Examples
   >>> from astropy.coordinates import SkyCoord
   >>> from astroquery.esa.jwst import Jwst
   >>>
-  >>> coord = SkyCoord(ra=53, dec=-27, unit=(u.degree, u.degree), frame='icrs')
-  >>> width = u.Quantity(5, u.deg)
-  >>> height = u.Quantity(5, u.deg)
-  >>> r = Jwst.query_region_async(coordinate=coord, width=width, height=height)
-  >>> r.pprint()
+  >>> coord=SkyCoord(ra=53, dec=-27, unit=(u.degree, u.degree), frame='icrs')
+  >>> width=u.Quantity(5, u.deg)
+  >>> height=u.Quantity(5, u.deg)
+  >>> r=Jwst.query_region(coordinate=coord, width=width, height=height)
+  >>> r
 
   Query finished.
          dist                       obsid                 ...  type typecode
@@ -123,11 +124,11 @@ Examples
   >>> from astropy.coordinates import SkyCoord
   >>> from astroquery.esa.jwst import Jwst
   >>>
-  >>> coord = SkyCoord(ra=53, dec=-27, unit=(u.degree, u.degree), frame='icrs')
-  >>> radius = u.Quantity(5.0, u.deg)
-  >>> j = Jwst.cone_search_async(coord, radius)
-  >>> r = j.get_results()
-  >>> r.pprint()
+  >>> coord=SkyCoord(ra=53, dec=-27, unit=(u.degree, u.degree), frame='icrs')
+  >>> radius=u.Quantity(5.0, u.deg)
+  >>> j=Jwst.cone_search(coordinate=coord, radius=radius, async_job=True)
+  >>> r=j.get_results()
+  >>> r
 
          dist                       obsid                 ...  type typecode
   ------------------ ------------------------------------ ... ----- --------
@@ -158,11 +159,11 @@ element in the list if the target name cannot be resolved).
   >>> from astroquery.esa.jwst import Jwst
   >>> import astropy.units as u
   >>>
-  >>> target_name = 'M1'
-  >>> target_resolver = 'ALL'
-  >>> radius = u.Quantity(5, u.deg)
-  >>> r = Jwst.query_target(target_name = target_name, target_resolver = target_resolver, radius = radius)
-  >>> r.pprint()
+  >>> target_name='M1'
+  >>> target_resolver='ALL'
+  >>> radius=u.Quantity(5, u.deg)
+  >>> r=Jwst.query_target(target_name=target_name, target_resolver=target_resolver, radius=radius)
+  >>> r
 
          dist                   observationid         ...
   ------------------ -------------------------------- ...
@@ -189,12 +190,12 @@ This method uses the same parameters as query region, but also includes the targ
   >>> from astroquery.esa.jwst import Jwst
   >>> import astropy.units as u
   >>>
-  >>> target_name = 'LMC'
-  >>> target_resolver = 'NED'
-  >>> width = u.Quantity(5, u.deg)
-  >>> height = u.Quantity(5, u.deg)
-  >>> r = Jwst.query_target(target_name = target_name, target_resolver = target_resolver, width = width, height = height)
-  >>> r.pprint()
+  >>> target_name='LMC'
+  >>> target_resolver='NED'
+  >>> width=u.Quantity(5, u.deg)
+  >>> height=u.Quantity(5, u.deg)
+  >>> r=Jwst.query_target(target_name=target_name, target_resolver=target_resolver, width=width, height=height, async_job=True)
+  >>> r
 
          dist                        observationid              ...
   ---------------------- -------------------------------------- ...
@@ -216,7 +217,7 @@ To query the data products associated with a certain Observation ID
 .. code-block:: python
 
   >>> from astroquery.esa.jwst import Jwst
-  >>> product_list = Jwst.get_product_list(observation_id='jw00777011001_02104_00001_nrcblong')
+  >>> product_list=Jwst.get_product_list(observation_id='jw00777011001_02104_00001_nrcblong')
   >>> for row in product_list:
   >>>     print("filename: %s" % (row['filename']))
 
@@ -233,7 +234,7 @@ all the products associated to this observation_id with the same and lower level
 .. code-block:: python
 
   >>> from astroquery.esa.jwst import Jwst
-  >>> product_list = Jwst.get_product_list(observation_id='jw97012001001_02101_00001_guider1', product_type='science')
+  >>> product_list=Jwst.get_product_list(observation_id='jw97012001001_02101_00001_guider1', product_type='science')
   >>> for row in product_list:
   >>>     print("filename: %s" % (row['filename']))
 
@@ -246,9 +247,9 @@ To download a data product
 
   >>> from astroquery.esa.jwst import Jwst
   >>> query="select a.artifactid, a.uri from jwst.artifact a, jwst.plane p where p.planeid=a.planeid and p.obsid='00000000-0000-0000-9c08-f5be8f3df805'"
-  >>> job = Jwst.launch_job(query)
-  >>> results = job.get_results()
-  >>> print(results)
+  >>> job=Jwst.launch_job(query, async_job=True)
+  >>> results=job.get_results()
+  >>> results
                artifactid                               filename
   ------------------------------------ ------------------------------------------------
   00000000-0000-0000-a4f7-23ab64230444        jw00601004001_02102_00001_nrcb1_rate.fits
@@ -259,16 +260,16 @@ To download a data product
   00000000-0000-0000-9392-45ebdada66be  jw00601004001_02102_00001_nrcb1_uncal_thumb.jpg
 
 
-  >>> output_file = Jwst.get_product(artifact_id='00000000-0000-0000-9335-09ff0e02f06b')
-  >>> output_file = Jwst.get_product(file_name='jw00601004001_02102_00001_nrcb1_uncal.fits')
+  >>> output_file=Jwst.get_product(artifact_id='00000000-0000-0000-9335-09ff0e02f06b')
+  >>> output_file=Jwst.get_product(file_name='jw00601004001_02102_00001_nrcb1_uncal.fits')
 
 To download products by observation identifier, it is possible to use the get_obs_products function, with the same parameters
 than get_product_list.
 
 .. code-block:: python
 
-  >>> observation_id = 'jw00777011001_02104_00001_nrcblong'
-  >>> results = Jwst.get_obs_products(observation_id=observation_id, cal_level=2, product_type='science')
+  >>> observation_id='jw00777011001_02104_00001_nrcblong'
+  >>> results=Jwst.get_obs_products(observation_id=observation_id, cal_level=2, product_type='science')
 
   INFO: {'RETRIEVAL_TYPE': 'OBSERVATION', 'DATA_RETRIEVAL_ORIGIN': 'ASTROQUERY', 'planeid': '00000000-0000-0000-879d-ae91fa2f43e2', 'calibrationlevel': 'SELECTED', 'product_type': 'science'} [astroquery.esa.jwst.core]
   Retrieving data.
@@ -301,8 +302,8 @@ Using the observation ID as input parameter, this function will retrieve the obs
 
 .. code-block:: python
 
-  >>> observation_id = 'jw00777011001_02104_00001_nrcblong'
-  >>> results = Jwst.get_related_observations(observation_id=observation_id)
+  >>> observation_id='jw00777011001_02104_00001_nrcblong'
+  >>> results=Jwst.get_related_observations(observation_id=observation_id)
 
   [' jw00777-o011_t005_nircam_f277w-sub160', 'jw00777-c1005_t005_nircam_f277w-sub160']
 
@@ -315,7 +316,7 @@ To load only table names (TAP+ capability)
 .. code-block:: python
 
   >>> from astroquery.esa.jwst import Jwst
-  >>> tables = Jwst.load_tables(only_names=True)
+  >>> tables=Jwst.load_tables(only_names=True)
   >>> for table in (tables):
   >>>   print(table.name)
 
@@ -339,7 +340,7 @@ To load table names (TAP compatible)
 .. code-block:: python
 
   >>> from astroquery.esa.jwst import Jwst
-  >>> tables = Jwst.load_tables()
+  >>> tables=Jwst.load_tables()
   >>> for table in (tables):
   >>>   print(table.name)
 
@@ -363,7 +364,7 @@ To load only a table (TAP+ capability)
 .. code-block:: python
 
   >>> from astroquery.esa.jwst import Jwst
-  >>> table = Jwst.load_table('jwst.main')
+  >>> table=Jwst.load_table('jwst.main')
   >>> print(table)
 
   TAP Table name: jwst.main
@@ -376,7 +377,7 @@ Once a table is loaded, columns can be inspected
 .. code-block:: python
 
   >>> from astroquery.esa.jwst import Jwst
-  >>> table = Jwst.load_table('jwst.main')
+  >>> table=Jwst.load_table('jwst.main')
   >>> for column in (table.columns):
   >>>   print(column.name)
 
@@ -413,7 +414,7 @@ Query without saving results in a file:
 
   >>> from astroquery.esa.jwst import Jwst
   >>>
-  >>> job = Jwst.launch_job("SELECT TOP 100 \
+  >>> job=Jwst.launch_job("SELECT TOP 100 \
   >>> instrument_name, observationuri, planeid, calibrationlevel, \
   >>> dataproducttype \
   >>> FROM jwst.main ORDER BY instrument_name, observationuri")
@@ -426,8 +427,8 @@ Query without saving results in a file:
   Output file: sync_20170223111452.xml.gz
   Results: None
 
-  >>> r = job.get_results()
-  >>> print(r['planeid'])
+  >>> r=job.get_results()
+  >>> r['planeid']
 
                 planeid
   ------------------------------------
@@ -460,10 +461,9 @@ Query saving results in a file:
 .. code-block:: python
 
   >>> from astroquery.esa.jwst import JWST
-  >>> job = Jwst.launch_job("SELECT TOP 100 \
+  >>> job=Jwst.launch_job("SELECT TOP 100 \
   >>> instrument_name, observationuri, planeid, calibrationlevel, \
-  >>> dataproducttype, targetposition_coordinates_cval1 as target_ra, \
-  >>> targetposition_coordinates_cval2 as target_dec \
+  >>> dataproducttype, target_ra, target_dec \
   >>> FROM jwst.main ORDER BY instrument_name, observationuri", \
   >>> dump_to_file=True)
   >>>
@@ -475,10 +475,10 @@ Query saving results in a file:
   Output file: sync_20181116164108.xml.gz
   Results: None
 
-  >>> r = job.get_results()
+  >>> r=job.get_results()
   >>> print(r['solution_id'])
 
-  >>> r = job.get_results()
+  >>> r=job.get_results()
   >>> print(r['planeid'])
 
                 planeid
@@ -516,11 +516,11 @@ A table can be uploaded to the server in order to be used in a query.
 .. code-block:: python
 
   >>> from astroquery.esa.jwst import Jwst
-  >>> upload_resource = 'mytable.xml.gz'
-  >>> j = Jwst.launch_job(query="SELECT * from tap_upload.table_test", \
+  >>> upload_resource='mytable.xml.gz'
+  >>> j=Jwst.launch_job(query="SELECT * from tap_upload.table_test", \
   >>>   upload_resource=upload_resource, \
   >>>   upload_table_name="table_test", verbose=True)
-  >>> r = j.get_results()
+  >>> r=j.get_results()
   >>> r.pprint()
 
   source_id alpha delta
@@ -542,7 +542,7 @@ Query without saving results in a file:
 .. code-block:: python
 
   >>> from astroquery.esa.jwst import Jwst
-  >>> job = Jwst.launch_job_async("select top 100 * from jwst.main")
+  >>> job=Jwst.launch_job("select top 100 * from jwst.main", async_job=True)
   >>> print(job)
 
   Jobid: 1542383562372I
@@ -551,8 +551,8 @@ Query without saving results in a file:
   Output file: async_20181116165244.vot
   Results: None
 
-  >>> r = job.get_results()
-  >>> print(r['planeid'])
+  >>> r=job.get_results()
+  >>> r['planeid']
 
     solution_id
   -------------------
@@ -586,18 +586,19 @@ Query saving results in a file:
 
   >>> from astroquery.esa.jwst import Jwst
   >>>
-  >>> job = Jwst.launch_job_async("select top 100 * from jwst.main", dump_to_file=True)
+  >>> job=Jwst.launch_job("select top 100 * from jwst.main", dump_to_file=True)
   >>>
   >>> print(job)
 
-  Jobid: 1487845273526O
+  Jobid: None
   Phase: COMPLETED
   Owner: None
-  Output file: async_20170223112113.vot
+  Output file: 1635853688471D-result.vot.gz
   Results: None
 
-  >>> r = job.get_results()
-  >>> print(r['solution_id'])
+
+  >>> r=job.get_results()
+  >>> r['solution_id']
 
                planeid
   ------------------------------------
@@ -634,12 +635,12 @@ To remove asynchronous
 .. code-block:: python
 
   >>> from astroquery.esa.jwst import Jwst
-  >>> job = Jwst.remove_jobs(["job_id_1","job_id_2",...])
+  >>> job=Jwst.remove_jobs(["job_id_1","job_id_2",...])
 
 
----------------------------
+-----------------------
 2. Authenticated access
----------------------------
+-----------------------
 
 Authenticated users are able to access to TAP+ capabilities (shared tables, persistent jobs, etc.)
 In order to authenticate a user, ``login``, ``login_gui`` or ``login_token_gui`` methods must be called. After a successful
@@ -719,7 +720,7 @@ To perform a logout:
 .. code-block:: python
 
   >>> from astroquery.esa.jwst import Jwst
-  >>> tables = Jwst.load_tables(only_names=True, include_shared_tables=True)
+  >>> tables=Jwst.load_tables(only_names=True, include_shared_tables=True)
   >>> for table in (tables):
   >>>   print(table.name)
 

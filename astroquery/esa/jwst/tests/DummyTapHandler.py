@@ -1,17 +1,11 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
-=============
-JWST TAP plus
-=============
-
-@author: Raul Gutierrez-Sanchez
-@contact: raul.gutierrez@sciops.esa.int
+=======================
+eJWST Dummy Tap Handler
+=======================
 
 European Space Astronomy Centre (ESAC)
 European Space Agency (ESA)
-
-Created on 24 oct. 2018
-
 
 """
 
@@ -53,6 +47,10 @@ class DummyTapHandler:
                              f"{str(self.__invokedMethod)}"+"')")
 
     def check_parameters(self, parameters, method_name):
+        print("FOUND")
+        print(self.__parameters)
+        print("EXPECTED")
+        print(parameters)
         if parameters is None:
             return len(self.__parameters) == 0
         if len(parameters) != len(self.__parameters):
@@ -64,10 +62,6 @@ class DummyTapHandler:
             if key in self.__parameters:
                 # check value
                 if self.__parameters[key] != parameters[key]:
-                    print("Found")
-                    print(self.__parameters[key])
-                    print("Expected")
-                    print(parameters[key])
                     raise ValueError(f"Wrong {key} parameter value for "
                                      f" method '{method_name}'. "
                                      f"Found: {self.__parameters[key]}. "

@@ -1,22 +1,15 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
-=============
-JWST TAP plus
-=============
-
-@author: Raul Gutierrez-Sanchez
-@contact: raul.gutierrez@sciops.esa.int
+===============
+eJWST TAP tests
+===============
 
 European Space Astronomy Centre (ESAC)
 European Space Agency (ESA)
 
-Created on 24 oct. 2018
-
-
 """
 import os
 import shutil
-import unittest
 from unittest.mock import MagicMock
 
 import astropy.units as u
@@ -46,8 +39,8 @@ def data_path(filename):
     return os.path.join(data_dir, filename)
 
 
-def get_plane_id_mock(url, params, *args, **kwargs):
-    return ['00000000-0000-0000-879d-ae91fa2f43e2'], 2
+def get_plane_id_mock(url, *args, **kwargs):
+    return ['00000000-0000-0000-879d-ae91fa2f43e2'], 3
 
 
 @pytest.fixture(autouse=True)
@@ -60,8 +53,8 @@ def plane_id_request(request):
     return mp
 
 
-def get_associated_planes_mock(url, params, *args, **kwargs):
-    if(args[0] == 2):
+def get_associated_planes_mock(url, *args, **kwargs):
+    if kwargs.get("max_cal_level") == 2:
         return "('00000000-0000-0000-879d-ae91fa2f43e2')"
     else:
         return planeids
@@ -98,7 +91,7 @@ planeids = "('00000000-0000-0000-879d-ae91fa2f43e2', "\
             "'00000000-0000-0000-9852-a9fa8c63f7ef')"
 
 
-class TestTap(unittest.TestCase):
+class TestTap:
 
     def test_load_tables(self):
         dummyTapHandler = DummyTapHandler()
@@ -116,7 +109,7 @@ class TestTap(unittest.TestCase):
         parameters['only_names'] = True
         parameters['include_shared_tables'] = True
         parameters['verbose'] = True
-        tap.load_tables(True, True, True)
+        tap.load_tables(only_names=True, include_shared_tables=True, verbose=True)
         dummyTapHandler.check_call('load_tables', parameters)
 
     def test_load_table(self):
@@ -194,7 +187,7 @@ class TestTap(unittest.TestCase):
         parameters['background'] = False
         parameters['upload_resource'] = None
         parameters['upload_table_name'] = None
-        tap.launch_job_async(query)
+        tap.launch_job(query, async_job=True)
         dummyTapHandler.check_call('launch_job_async', parameters)
         # test with parameters
         dummyTapHandler.reset()
@@ -215,15 +208,16 @@ class TestTap(unittest.TestCase):
         parameters['background'] = background
         parameters['upload_resource'] = upload_resource
         parameters['upload_table_name'] = upload_table_name
-        tap.launch_job_async(query,
-                             name=name,
-                             output_file=output_file,
-                             output_format=output_format,
-                             verbose=verbose,
-                             dump_to_file=dump_to_file,
-                             background=background,
-                             upload_resource=upload_resource,
-                             upload_table_name=upload_table_name)
+        tap.launch_job(query,
+                       name=name,
+                       output_file=output_file,
+                       output_format=output_format,
+                       verbose=verbose,
+                       dump_to_file=dump_to_file,
+                       background=background,
+                       upload_resource=upload_resource,
+                       upload_table_name=upload_table_name,
+                       async_job=True)
         dummyTapHandler.check_call('launch_job_async', parameters)
 
     def test_list_async_jobs(self):
@@ -411,7 +405,7 @@ class TestTap(unittest.TestCase):
                       frame='icrs')
         width = Quantity(12, u.deg)
         height = Quantity(10, u.deg)
-        table = tap.query_region_async(sc, width=width, height=height)
+        table = tap.query_region(sc, width=width, height=height, async_job=True)
         assert len(table) == 3, \
             "Wrong job results (num rows). Expected: %d, found %d" % \
             (3, len(table))
@@ -437,7 +431,7 @@ class TestTap(unittest.TestCase):
                                     np.int32)
         # by radius
         radius = Quantity(1, u.deg)
-        table = tap.query_region_async(sc, radius=radius)
+        table = tap.query_region(sc, radius=radius, async_job=True)
         assert len(table) == 3, \
             "Wrong job results (num rows). Expected: %d, found %d" % \
             (3, len(table))
@@ -603,7 +597,7 @@ class TestTap(unittest.TestCase):
                                     headers=None)
         req = "async/" + jobid + "/results/result"
         connHandler.set_response(req, responseResultsJob)
-        job = tap.cone_search_async(sc, radius)
+        job = tap.cone_search(sc, radius, async_job=True)
         assert job is not None, "Expected a valid job"
         assert job.async_ is True, "Expected an asynchronous job"
         assert job.get_phase() == 'COMPLETED', \
@@ -722,32 +716,32 @@ class TestTap(unittest.TestCase):
         jwst.get_product_list(observation_id=observation_id)
         dummyTapHandler.check_call('launch_job', parameters)
 
-        dummyTapHandler.reset()
-        cal_level = 2
-        product_type = "science"
-
-        query = "select distinct a.uri, a.artifactid, a.filename, "\
-                "a.contenttype, a.producttype, p.calibrationlevel, "\
-                "p.public FROM {} p JOIN {} a ON (p.planeid=a.planeid) "\
-                "WHERE a.planeid IN ('00000000-0000-0000-879d-ae91fa2f43e2') "\
-                "AND producttype LIKE "\
-                "'science';".format(conf.JWST_PLANE_TABLE,
-                                    conf.JWST_ARTIFACT_TABLE)
-
-        parameters = {}
-        parameters['query'] = query
-        parameters['name'] = None
-        parameters['output_file'] = None
-        parameters['output_format'] = 'votable'
-        parameters['verbose'] = False
-        parameters['dump_to_file'] = False
-        parameters['upload_resource'] = None
-        parameters['upload_table_name'] = None
-
-        jwst.get_product_list(observation_id=observation_id,
-                              cal_level=cal_level,
-                              product_type=product_type)
-        dummyTapHandler.check_call('launch_job', parameters)
+        # dummyTapHandler.reset()
+        # cal_level = 2
+        # product_type = "science"
+        #
+        # query = "select distinct a.uri, a.artifactid, a.filename, "\
+        #         "a.contenttype, a.producttype, p.calibrationlevel, "\
+        #         "p.public FROM {} p JOIN {} a ON (p.planeid=a.planeid) "\
+        #         "WHERE a.planeid IN ('00000000-0000-0000-879d-ae91fa2f43e2') "\
+        #         "AND producttype LIKE "\
+        #         "'science';".format(conf.JWST_PLANE_TABLE,
+        #                             conf.JWST_ARTIFACT_TABLE)
+        #
+        # parameters = {}
+        # parameters['query'] = query
+        # parameters['name'] = None
+        # parameters['output_file'] = None
+        # parameters['output_format'] = 'votable'
+        # parameters['verbose'] = False
+        # parameters['dump_to_file'] = False
+        # parameters['upload_resource'] = None
+        # parameters['upload_table_name'] = None
+        #
+        # jwst.get_product_list(observation_id=observation_id,
+        #                       cal_level=cal_level,
+        #                       product_type=product_type)
+        # dummyTapHandler.check_call('launch_job', parameters)
 
     def test_get_obs_products(self):
         dummyTapHandler = DummyTapHandler()
@@ -1009,14 +1003,14 @@ class TestTap(unittest.TestCase):
         jwst = JwstClass()
         # Testing default parameters
         with pytest.raises(ValueError) as err:
-            jwst.query_target("M1", "")
+            jwst.query_target(target_name="M1", target_resolver="")
         assert "This target resolver is not allowed" in err.value.args[0]
         with pytest.raises(ValueError) as err:
             jwst.query_target("TEST")
         assert "This target name cannot be determined with this resolver:"\
             " ALL" in err.value.args[0]
         with pytest.raises(ValueError) as err:
-            jwst.query_target("M1", "ALL")
+            jwst.query_target(target_name="M1", target_resolver="ALL")
         assert err.value.args[0] in ["This target name cannot be determined "
                                      "with this resolver: ALL", "Missing "
                                      "required argument: 'width'"]
@@ -1037,18 +1031,18 @@ class TestTap(unittest.TestCase):
         coordinate_error = 'coordinate must be either a string or '\
                            'astropy.coordinates'
         with pytest.raises(ValueError) as err:
-            jwst.query_target("M1", "SIMBAD",
-                              units.Quantity(5, units.deg))
+            jwst.query_target(target_name="M1", target_resolver="SIMBAD",
+                              radius=units.Quantity(5, units.deg))
         assert coordinate_error in err.value.args[0]
 
         with pytest.raises(ValueError) as err:
-            jwst.query_target("M1", "NED",
-                              units.Quantity(5, units.deg))
+            jwst.query_target(target_name="M1", target_resolver="NED",
+                              radius=units.Quantity(5, units.deg))
         assert coordinate_error in err.value.args[0]
 
         with pytest.raises(ValueError) as err:
-            jwst.query_target("M1", "VIZIER",
-                              units.Quantity(5, units.deg))
+            jwst.query_target(target_name="M1", target_resolver="VIZIER",
+                              radius=units.Quantity(5, units.deg))
         assert coordinate_error in err.value.args[0]
 
         # Testing valid coordinates from resolvers
@@ -1077,23 +1071,18 @@ class TestTap(unittest.TestCase):
         with open(data_path('test_query_by_target_name_simbad_query.txt'),
                   'r') as file:
             parameters['query'] = file.read()
-            jwst.query_target("M1", "SIMBAD",
-                              units.Quantity(5, units.deg))
+            jwst.query_target(target_name="M1", target_resolver="SIMBAD",
+                              radius=units.Quantity(5, units.deg))
             dummyTapHandler.check_call('launch_job', parameters)
         with open(data_path('test_query_by_target_name_ned_query.txt'),
                   'r') as file:
             parameters['query'] = file.read()
-            jwst.query_target("M1", "NED",
-                              units.Quantity(5, units.deg))
+            jwst.query_target(target_name="M1", target_resolver="NED",
+                              radius=units.Quantity(5, units.deg))
             dummyTapHandler.check_call('launch_job', parameters)
         with open(data_path('test_query_by_target_name_vizier_query.txt'),
                   'r') as file:
             parameters['query'] = file.read()
-            jwst.query_target("M1", "VIZIER",
-                              units.Quantity(5, units.deg))
+            jwst.query_target(target_name="M1", target_resolver="VIZIER",
+                              radius=units.Quantity(5, units.deg))
             dummyTapHandler.check_call('launch_job', parameters)
-
-
-if __name__ == "__main__":
-    # import sys;sys.argv = ['', 'Test.testName']
-    unittest.main()
