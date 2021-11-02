@@ -10,6 +10,7 @@ import numpy as np
 from ... import simbad
 from ...utils.testing_tools import MockResponse
 from ...utils import commons
+from ...query import AstroQuery
 from ...exceptions import TableParseError
 from .test_simbad_remote import multicoords
 
@@ -118,20 +119,23 @@ def test_get_frame_coordinates(coordinates, expected_frame):
 
 
 def test_parse_result():
-    result1 = simbad.core.Simbad._parse_result(
+    sb = simbad.core.Simbad()
+    # need _last_query to be defined
+    sb._last_query = AstroQuery('GET', 'http://dummy')
+    result1 = sb._parse_result(
         MockResponseSimbad('query id '), simbad.core.SimbadVOTableResult)
     assert isinstance(result1, Table)
     with pytest.raises(TableParseError) as ex:
-        simbad.core.Simbad._parse_result(MockResponseSimbad('query error '),
-                                         simbad.core.SimbadVOTableResult)
+        sb._parse_result(MockResponseSimbad('query error '),
+                simbad.core.SimbadVOTableResult)
     assert str(ex.value) == ('Failed to parse SIMBAD result! The raw response '
                              'can be found in self.last_response, and the '
                              'error in self.last_table_parse_error. '
                              'The attempted parsed result is in '
                              'self.last_parsed_result.\n Exception: 7:115: '
                              'no element found')
-    assert isinstance(simbad.Simbad.last_response.text, str)
-    assert isinstance(simbad.Simbad.last_response.content, bytes)
+    assert isinstance(sb.last_response.text, str)
+    assert isinstance(sb.last_response.content, bytes)
 
 
 votable_fields = ",".join(simbad.core.Simbad.get_votable_fields())

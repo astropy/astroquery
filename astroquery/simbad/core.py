@@ -1055,6 +1055,12 @@ class SimbadClass(SimbadBaseQuery):
                 return None
         except Exception as ex:
             self.last_table_parse_error = ex
+            try:
+                self._last_query.remove_cache_file(self.cache_location)
+            except OSError:
+                # this is allowed: if `cache` was set to False, this
+                # won't be needed
+                pass
             raise TableParseError("Failed to parse SIMBAD result! The raw "
                                   "response can be found in "
                                   "self.last_response, and the error in "
