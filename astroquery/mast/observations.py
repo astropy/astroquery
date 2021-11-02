@@ -77,8 +77,8 @@ class ObservationsClass(MastQueryWithLogin):
 
         frame = sys._getframe(1)
 
-        # The input parameter that gets called (`service`) will be overwritten by `input_service`
-        frame.f_locals['service'] = input_service
+        # The input parameter that gets called (`service`) will be modified by `input_service`
+        frame.f_locals['service'] = frame.f_locals['service']+in_service
 
         ctypes.pythonapi.PyFrame_LocalsToFast(ctypes.py_object(frame),
                                               ctypes.c_int(0))
