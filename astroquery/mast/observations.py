@@ -53,6 +53,16 @@ class ObservationsClass(MastQueryWithLogin):
     Class for querying MAST observational data.
     """
 
+    def _overwrite_service(input_service):
+
+        frame = sys._getframe(1)
+
+        # The input parameter that gets called (`service`) will be modified by `input_service`
+        frame.f_locals['service'] = frame.f_locals['service']+in_service
+
+        ctypes.pythonapi.PyFrame_LocalsToFast(ctypes.py_object(frame),
+                                              ctypes.c_int(0))
+
     def _parse_result(self, responses, verbose=False):  # Used by the async_to_sync decorator functionality
         """
         Parse the results of a list of `~requests.Response` objects and returns an `~astropy.table.Table` of results.
@@ -73,16 +83,6 @@ class ObservationsClass(MastQueryWithLogin):
 
         return self._portal_api_connection._parse_result(responses, verbose)
 
-    def overwrite_service(input_service):
-
-        frame = sys._getframe(1)
-
-        # The input parameter that gets called (`service`) will be modified by `input_service`
-        frame.f_locals['service'] = frame.f_locals['service']+in_service
-
-        ctypes.pythonapi.PyFrame_LocalsToFast(ctypes.py_object(frame),
-                                              ctypes.c_int(0))
-
     def list_missions(self, testing=TESTING):
         """
         Lists data missions archived by MAST and avaiable through `astroquery.mast`.
@@ -94,7 +94,7 @@ class ObservationsClass(MastQueryWithLogin):
         """
 
         # getting all the histogram information
-        service = "Mast.Caom.All" if testing is None else testing
+        service = "Mast.Caom.All" if testing is None else _overwrite_service(testing)
         params = {}
         response = self._portal_api_connection.service_request_async(service, params, format='extjs')
         json_response = response[0].json()
