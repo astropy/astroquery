@@ -51,13 +51,6 @@ class ObservationsClass(MastQueryWithLogin):
     Class for querying MAST observational data.
     """
 
-    environment = os.environ['CONDA_DEFAULT_ENV']
-
-    if 'test' in environment.lower():
-        TESTING = '.24test'
-    elif 'ops' in environment.lower():
-        TESTING = None
-
     def _parse_result(self, responses, verbose=False):  # Used by the async_to_sync decorator functionality
         """
         Parse the results of a list of `~requests.Response` objects and returns an `~astropy.table.Table` of results.
