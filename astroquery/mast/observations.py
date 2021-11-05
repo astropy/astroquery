@@ -40,6 +40,7 @@ from ..exceptions import (TimeoutError, InvalidQueryError, RemoteServiceError,
 from . import conf, utils
 from .core import MastQueryWithLogin
 
+import astroquery
 
 __all__ = ['Observations', 'ObservationsClass',
            'MastClass', 'Mast']
@@ -91,7 +92,7 @@ class ObservationsClass(MastQueryWithLogin):
         """
 
         # calling `service` variable
-        service = ObservationsClass.caom_all
+        service = Observations.caom_all
 
         # getting all the histogram information
         params = {}
@@ -106,6 +107,7 @@ class ObservationsClass(MastQueryWithLogin):
                 missions = list(mission_info.keys())
                 missions.remove('hist')
                 return missions
+
 
     def get_metadata(self, query_type):
         """
@@ -164,7 +166,7 @@ class ObservationsClass(MastQueryWithLogin):
         # Build the mashup filter object and store it in the correct service_name entry
         if coordinates or objectname:
             mashup_filters = self._portal_api_connection.build_filter_set(ObservationsClass.caom_cone,
-                                                                           ObservationsClass.caom_filtercaom_filtered_position,
+                                                                           ObservationsClass.caom_filtered_position,
                                                                            **criteria)
             coordinates = utils.parse_input_location(coordinates, objectname)
         else:
