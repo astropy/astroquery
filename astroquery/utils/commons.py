@@ -52,10 +52,12 @@ __all__ = ['send_request',
            'suppress_vo_warnings',
            'validate_email',
            'ASTROPY_LT_4_1',
-           'ASTROPY_LT_4_3']
+           'ASTROPY_LT_4_3',
+           'ASTROPY_LT_5_0']
 
 ASTROPY_LT_4_1 = not minversion('astropy', '4.1')
 ASTROPY_LT_4_3 = not minversion('astropy', '4.3')
+ASTROPY_LT_5_0 = not minversion('astropy', '5.0')
 
 
 @deprecated('0.4.4', alternative='astroquery.query.BaseQuery._request')
@@ -172,7 +174,8 @@ def parse_coordinates(coordinates):
                           "appropriate astropy.coordinates object.", InputWarning)
             raise u.UnitsError
         except ValueError as err:
-            if isinstance(err.args[1], u.UnitsError):
+            if ((ASTROPY_LT_5_0 and isinstance(err.args[1], u.UnitsError)) or
+                (not ASTROPY_LT_5_0 and isinstance(err.__context__, u.UnitsError))):
                 try:
                     c = ICRSCoordGenerator(coordinates, unit='deg')
                     warnings.warn("Coordinate string is being interpreted as an "
