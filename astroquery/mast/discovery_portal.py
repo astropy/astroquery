@@ -133,6 +133,9 @@ class PortalAPI(BaseQuery):
         self._column_configs = dict()
         self._current_service = None
 
+        self.tess_all_name = 'Mast.Catalogs.All.Tic'
+        self.dd_all_name = 'Mast.Catalogs.All.Disk.Detective'
+
     def _request(self, method, url, params=None, data=None, headers=None,
                  files=None, stream=False, auth=None, retrieve_all=True):
         """
@@ -238,10 +241,10 @@ class PortalAPI(BaseQuery):
 
         more = False  # for some catalogs this is not enough information
         if "tess" in fetch_name.lower():
-            all_name = "Mast.Catalogs.All.Tic"
+            all_name = self.test_all_name
             more = True
         elif "dd." in fetch_name.lower():
-            all_name = "Mast.Catalogs.All.DiskDetective"
+            all_name = self.dd_all_name
             more = True
 
         if more:

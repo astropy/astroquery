@@ -6,13 +6,10 @@ MAST Observations
 This module contains various methods for querying MAST observations.
 """
 
-
-import ctypes
 import warnings
 import json
 import time
 import os
-import sys
 import uuid
 
 import numpy as np
@@ -39,8 +36,6 @@ from ..exceptions import (TimeoutError, InvalidQueryError, RemoteServiceError,
 
 from . import conf, utils
 from .core import MastQueryWithLogin
-
-import astroquery
 
 __all__ = ['Observations', 'ObservationsClass',
            'MastClass', 'Mast']
@@ -91,10 +86,8 @@ class ObservationsClass(MastQueryWithLogin):
             List of available missions.
         """
 
-        # calling `service` variable
-        service = self.caom_all
-
         # getting all the histogram information
+        service = self.caom_all
         params = {}
         response = self._portal_api_connection.service_request_async(service, params, format='extjs')
         json_response = response[0].json()
@@ -107,7 +100,6 @@ class ObservationsClass(MastQueryWithLogin):
                 missions = list(mission_info.keys())
                 missions.remove('hist')
                 return missions
-
 
     def get_metadata(self, query_type):
         """
@@ -170,7 +162,8 @@ class ObservationsClass(MastQueryWithLogin):
                                                          **criteria)
             coordinates = utils.parse_input_location(coordinates, objectname)
         else:
-            mashup_filters = self._portal_api_connection.build_filter_set(self.caom_cone,                                                     self.caom_filtered,
+            mashup_filters = self._portal_api_connection.build_filter_set(self.caom_cone,
+                                                         self.caom_filtered,
                                                          **criteria)
 
         # handle position info (if any)
