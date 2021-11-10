@@ -92,7 +92,7 @@ class ObservationsClass(MastQueryWithLogin):
         """
 
         # calling `service` variable
-        service = Observations.caom_all
+        service = self.caom_all
 
         # getting all the histogram information
         params = {}
@@ -125,9 +125,9 @@ class ObservationsClass(MastQueryWithLogin):
         """
 
         if query_type.lower() == "observations":
-            colconf_name = ObservationsClass.caom_cone
+            colconf_name = self.caom_cone
         elif query_type.lower() == "products":
-            colconf_name = ObservationsClass.caom_products
+            colconf_name = self.caom_products
         else:
             raise InvalidQueryError("Unknown query type.")
 
@@ -165,14 +165,13 @@ class ObservationsClass(MastQueryWithLogin):
 
         # Build the mashup filter object and store it in the correct service_name entry
         if coordinates or objectname:
-            mashup_filters = self._portal_api_connection.build_filter_set(ObservationsClass.caom_cone,
-                                                                           ObservationsClass.caom_filtered_position,
-                                                                           **criteria)
+            mashup_filters = self._portal_api_connection.build_filter_set(self.caom_cone,
+                                                         self.caom_filtered_position,
+                                                         **criteria)
             coordinates = utils.parse_input_location(coordinates, objectname)
         else:
-            mashup_filters = self._portal_api_connection.build_filter_set(ObservationsClass.caom_cone,
-                                                                           ObservationsClass.caom_filtered,
-                                                                           **criteria)
+            mashup_filters = self._portal_api_connection.build_filter_set(self.caom_cone,                                                     self.caom_filtered,
+                                                         **criteria)
 
         # handle position info (if any)
         position = None
@@ -222,7 +221,7 @@ class ObservationsClass(MastQueryWithLogin):
         # if radius is just a number we assume degrees
         radius = coord.Angle(radius, u.deg)
 
-        service = ObservationsClass.caom_cone
+        service = self.caom_cone
         params = {'ra': coordinates.ra.deg,
                   'dec': coordinates.dec.deg,
                   'radius': radius.deg}
@@ -299,12 +298,12 @@ class ObservationsClass(MastQueryWithLogin):
             raise InvalidQueryError("At least one non-positional criterion must be supplied.")
 
         if position:
-            service = ObservationsClass.caom_filtered_position
+            service = self.caom_filtered_position
             params = {"columns": "*",
                       "filters": mashup_filters,
                       "position": position}
         else:
-            service = ObservationsClass.caom_filtered
+            service = self.caom_filtered
             params = {"columns": "*",
                       "filters": mashup_filters}
 
@@ -344,7 +343,7 @@ class ObservationsClass(MastQueryWithLogin):
         # turn coordinates into the format
         position = ', '.join([str(x) for x in (coordinates.ra.deg, coordinates.dec.deg, radius.deg)])
 
-        service = ObservationsClass.caom_filtered_position
+        service = self.caom_filtered_position
         params = {"columns": "COUNT_BIG(*)",
                   "filters": [],
                   "position": position}
@@ -412,12 +411,12 @@ class ObservationsClass(MastQueryWithLogin):
 
         # send query
         if position:
-            service = ObservationsClass.caom_filtered_position
+            service = self.caom_filtered_position
             params = {"columns": "COUNT_BIG(*)",
                       "filters": mashup_filters,
                       "position": position}
         else:
-            service = ObservationsClass.caom_filtered
+            service = self.caom_filtered
             params = {"columns": "COUNT_BIG(*)",
                       "filters": mashup_filters}
 
@@ -453,7 +452,7 @@ class ObservationsClass(MastQueryWithLogin):
         if len(observations) == 0:
             raise InvalidQueryError("Observation list is empty, no associated products.")
 
-        service = ObservationsClass.caom_products
+        service = self.caom_products
         params = {'obsid': ','.join(observations)}
 
         return self._portal_api_connection.service_request_async(service, params)
