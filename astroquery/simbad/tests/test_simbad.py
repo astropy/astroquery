@@ -38,7 +38,7 @@ DATA_FILES = {
 class MockResponseSimbad(MockResponse):
     query_regex = re.compile(r'query\s+([a-z]+)\s+')
 
-    def __init__(self, script, cache=True, **kwargs):
+    def __init__(self, script, cache=False, **kwargs):
         # preserve, e.g., headers
         super(MockResponseSimbad, self).__init__(**kwargs)
         self.content = self.get_content(script)
