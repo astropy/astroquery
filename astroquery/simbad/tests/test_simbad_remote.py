@@ -21,10 +21,6 @@ multicoords = SkyCoord([ICRS_COORDS_M42, ICRS_COORDS_SgrB2])
 @pytest.mark.remote_data
 class TestSimbad:
 
-    @classmethod
-    def setup_class(cls):
-        Simbad.ROW_LIMIT = 5
-
     @pytest.fixture()
     def temp_dir(self, request):
         my_temp_dir = tempfile.mkdtemp()
@@ -71,14 +67,16 @@ class TestSimbad:
     def test_query_bibobj_async(self, temp_dir):
         simbad = Simbad()
         simbad.cache_location = temp_dir
-        response = simbad.query_bibobj_async('2005A&A.430.165F')
+        response = simbad.query_bibobj_async('2006AJ....131.1163S')
         assert response is not None
 
     def test_query_bibobj(self, temp_dir):
         simbad = Simbad()
+        simbad.ROW_LIMIT = 5
         simbad.cache_location = temp_dir
         result = simbad.query_bibobj('2005A&A.430.165F')
         assert isinstance(result, Table)
+        assert len(result) == 5
 
     def test_query_catalog_async(self, temp_dir):
         simbad = Simbad()
@@ -94,23 +92,26 @@ class TestSimbad:
 
     def test_query_region_async(self, temp_dir):
         simbad = Simbad()
+        # TODO: rewise once ROW_LIMIT is working
+        simbad.TIMEOUT = 100
         simbad.cache_location = temp_dir
         response = simbad.query_region_async(
-            ICRS_COORDS_M42, radius=5 * u.deg, equinox=2000.0, epoch='J2000')
+            ICRS_COORDS_M42, radius=2 * u.deg, equinox=2000.0, epoch='J2000')
 
         assert response is not None
 
     def test_query_region_async_vector(self, temp_dir):
         simbad = Simbad()
         simbad.cache_location = temp_dir
-        response1 = simbad.query_region_async(multicoords,
-                                                          radius=0.5*u.arcsec)
+        response1 = simbad.query_region_async(multicoords, radius=0.5*u.arcsec)
         assert response1.request.body == 'script=votable+%7Bmain_id%2Ccoordinates%7D%0Avotable+open%0Aquery+coo+5%3A35%3A17.3+-80%3A52%3A00+radius%3D0.5s+frame%3DICRS+equi%3D2000.0%0Aquery+coo+17%3A47%3A20.4+-28%3A23%3A07.008+radius%3D0.5s+frame%3DICRS+equi%3D2000.0%0Avotable+close'   # noqa
 
     def test_query_region(self, temp_dir):
         simbad = Simbad()
+        # TODO: rewise once ROW_LIMIT is working
+        simbad.TIMEOUT = 100
         simbad.cache_location = temp_dir
-        result = simbad.query_region(ICRS_COORDS_M42, radius=5 * u.deg,
+        result = simbad.query_region(ICRS_COORDS_M42, radius=2 * u.deg,
                                      equinox=2000.0, epoch='J2000')
         assert isinstance(result, Table)
 
