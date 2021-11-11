@@ -206,7 +206,7 @@ class SimbadBibcodeResult(SimbadResult):
         splitter = bibcode_match.group(2)
         ref_list = [splitter + ref for ref in self.data.split(splitter)][1:]
         max_len = max([len(r) for r in ref_list])
-        table = Table(names=['References'], dtype=['S%i' % max_len])
+        table = Table(names=['References'], dtype=['U%i' % max_len])
         for ref in ref_list:
             table.add_row([ref])
         return table
@@ -821,8 +821,7 @@ class SimbadClass(SimbadBaseQuery):
              Response of the query from the server.
 
         """
-        request_payload = self._args_to_payload(
-            bibcode, caller='query_bibobj_async')
+        request_payload = self._args_to_payload(bibcode, caller='query_bibobj_async')
 
         if get_query_payload:
             return request_payload
@@ -1046,7 +1045,7 @@ class SimbadClass(SimbadBaseQuery):
         """
         self.last_response = result
         try:
-            content = result.text
+            content = result.content.decode('utf-8')
             self.last_parsed_result = resultclass(content, verbose=verbose)
             if self.last_parsed_result.data is None:
                 return None

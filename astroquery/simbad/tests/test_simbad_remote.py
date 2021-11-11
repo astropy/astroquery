@@ -64,6 +64,13 @@ class TestSimbad:
         result = simbad.query_bibcode('2006ApJ*', wildcard=True)
         assert isinstance(result, Table)
 
+    def test_non_ascii_bibcode(self, temp_dir):
+        # regression test for #1775
+        simbad = Simbad()
+        simbad.cache_location = temp_dir
+        result = simbad.query_bibcode('2019PASJ...71...55K')
+        assert len(result) > 0
+
     def test_query_bibobj_async(self, temp_dir):
         simbad = Simbad()
         simbad.cache_location = temp_dir
