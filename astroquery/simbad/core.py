@@ -17,11 +17,11 @@ import astropy.coordinates as coord
 from astropy.table import Table
 import astropy.io.votable as votable
 
-from ..query import BaseQuery
-from ..utils import commons
-from ..exceptions import TableParseError, LargeQueryWarning
+from astroquery.query import BaseQuery
+from astroquery.utils import commons, async_to_sync
+from astroquery.exceptions import TableParseError, LargeQueryWarning
 from . import conf
-from ..utils.process_asyncs import async_to_sync
+
 
 __all__ = ['Simbad', 'SimbadClass', 'SimbadBaseQuery']
 
@@ -183,7 +183,7 @@ class SimbadVOTableResult(SimbadResult):
         self.__table = None
         if not verbose:
             commons.suppress_vo_warnings()
-        super(SimbadVOTableResult, self).__init__(txt, verbose=verbose)
+        super().__init__(txt, verbose=verbose)
 
     @property
     def table(self):
@@ -232,7 +232,7 @@ class SimbadBaseQuery(BaseQuery):
     """
     def _request(self, *args, **kwargs):
         try:
-            response = super(SimbadBaseQuery, self)._request(*args, **kwargs)
+            response = super()._request(*args, **kwargs)
         except requests.exceptions.ConnectionError as ex:
             if 'Errno 61' in str(ex):
                 extratext = ("\n\n"
@@ -302,7 +302,7 @@ class SimbadClass(SimbadBaseQuery):
     _VOTABLE_FIELDS = ['main_id', 'coordinates']
 
     def __init__(self):
-        super(SimbadClass, self).__init__()
+        super().__init__()
         self._VOTABLE_FIELDS = copy.copy(self._VOTABLE_FIELDS)
 
     def list_wildcards(self):
