@@ -334,7 +334,7 @@ class TestMast:
                                             catalog="Gaia")
         row = np.where(result['source_id'] == '3774902350511581696')
         assert isinstance(result, Table)
-        assert result[row]['solution_id'].item() == '1635721458409799680'
+        assert result[row]['solution_id'] == '1635721458409799680'
 
         result = mast.Catalogs.query_region("322.49324 12.16683",
                                             radius=0.01*u.deg,
@@ -352,8 +352,8 @@ class TestMast:
                                             magtype=2)
         row = np.where(result['MatchID'] == '82368728')
         assert isinstance(result, Table)
-        assert result[row]['NumImages'].item() == 11
-        assert result[row]['TargetName'].item() == 'NGC7078'
+        assert result[row]['NumImages'] == 11
+        assert result[row]['TargetName'] == 'NGC7078'
 
         result = mast.Catalogs.query_region("322.49324 12.16683",
                                             radius=in_radius,
@@ -361,7 +361,7 @@ class TestMast:
                                             version=1)
         row = np.where(result['source_id'] == '1745948323734098688')
         assert isinstance(result, Table)
-        assert result[row]['solution_id'].item() == '1635378410781933568'
+        assert result[row]['solution_id'] == '1635378410781933568'
 
         result = mast.Catalogs.query_region("322.49324 12.16683",
                                             radius=in_radius,
@@ -370,14 +370,14 @@ class TestMast:
 
         row = np.where(result['source_id'] == '1745973204477191424')
         assert isinstance(result, Table)
-        assert result[row]['solution_id'].item() == '1635721458409799680'
+        assert result[row]['solution_id'] == '1635721458409799680'
 
         result = mast.Catalogs.query_region("322.49324 12.16683",
                                             radius=in_radius, catalog="panstarrs",
                                             table="mean")
         row = np.where((result['objName'] == 'PSO J322.4622+12.1920') & (result['yFlags'] == 16777496))
         assert isinstance(result, Table)
-        assert result[row]['distance'].item() == 0.039381703406789904
+        np.testing.assert_allclose(result[row]['distance'], 0.039381703406789904)
 
         result = mast.Catalogs.query_region("322.49324 12.16683",
                                             radius=in_radius, catalog="panstarrs",
@@ -399,7 +399,7 @@ class TestMast:
                                             catalog="tic")
         row = np.where(result['ID'] == '841736289')
         assert isinstance(result, Table)
-        assert result[row]['RA_orig'] == 158.475246786483
+        np.testing.assert_allclose(result[row]['RA_orig'], 158.475246786483)
         assert result[row]['gaiaqflag'] == 1
 
         result = mast.Catalogs.query_region("158.47924 -7.30962",
