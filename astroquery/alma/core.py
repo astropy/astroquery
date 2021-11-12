@@ -577,7 +577,7 @@ class AlmaClass(QueryWithLogin):
             if res.status[0] != 'OK':
                 raise Exception('ERROR {}: {}'.format(res.status[0],
                                                       res.status[1]))
-            temp = res.table
+            temp = res.to_table()
             if ASTROPY_LT_4_1:
                 # very annoying
                 for col in [x for x in temp.colnames
@@ -646,9 +646,11 @@ class AlmaClass(QueryWithLogin):
         query = "select distinct data_rights from ivoa.obscore where " \
                 "obs_id='{}'".format(uid)
         result = self.query_tap(query)
-        if not result or len(result.table) == 0:
+        if result:
+            tableresult = result.to_table()
+        if not result or len(tableresult) == 0:
             raise AttributeError('{} not found'.format(uid))
-        if len(result.table) == 1 and result.table[0][0] == 'Public':
+        if len(tableresult) == 1 and tableresult[0][0] == 'Public':
             return False
         return True
 

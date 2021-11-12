@@ -381,7 +381,7 @@ def test_tap():
 def test_get_data_info():
     datalink_mock = Mock()
     dl_result = Table.read(data_path('alma-datalink.xml'), format='votable')
-    mock_response = Mock(table=dl_result)
+    mock_response = Mock(to_table=Mock(return_value=dl_result))
     mock_response.status = ['OK']
     datalink_mock.run_sync.return_value = mock_response
     alma = Alma()
