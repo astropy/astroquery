@@ -577,7 +577,7 @@ class AlmaClass(QueryWithLogin):
             if res.status[0] != 'OK':
                 raise Exception('ERROR {}: {}'.format(res.status[0],
                                                       res.status[1]))
-            temp = res.table
+            temp = res.to_table()
             if ASTROPY_LT_4_1:
                 # very annoying
                 for col in [x for x in temp.colnames
