@@ -13,7 +13,7 @@ Service fixes and enhancements
 casda
 ^^^^^^
 
-- Add ability to stage and download non image data which have been found 
+- Add ability to stage and download non image data which have been found
   through the CASDA obscore table. [#2158]
 
 gaia
@@ -47,6 +47,9 @@ jplhorizons
     no matches are found.  Horizons does not have a major body only search.
   - The default value was ``'smallbody'`` but it is now ``None``, which
     follows Horizons's default behavior.
+
+- Fix changes in column names that resulted KeyErrors. [#2202]
+
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
