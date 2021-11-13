@@ -1,6 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-
 import numpy as np
 import os
 import pytest
@@ -10,20 +9,17 @@ from requests.models import Response
 from astropy.table import Table
 from astropy.coordinates import SkyCoord
 from astropy.io import fits
-from astropy.tests.helper import catch_warnings
-from astropy.utils.exceptions import AstropyDeprecationWarning
-
 import astropy.units as u
 
-from ... import mast
+from astroquery.exceptions import NoResultsWarning
+from astroquery import mast
 
-from ...exceptions import RemoteServiceError, NoResultsWarning
+
+OBSID = '1647157'
 
 
 @pytest.mark.remote_data
 class TestMast:
-
-    OBSID = '1647157'
 
     ###############
     # utils tests #
@@ -74,13 +70,6 @@ class TestMast:
         sessionInfo = mast.Mast.session_info(verbose=False)
         assert sessionInfo['ezid'] == 'anonymous'
         assert sessionInfo['token'] is None
-
-    def test_resolve_object(self):
-        m101_loc = mast.Mast.resolve_object("M101")
-        assert round(m101_loc.separation(SkyCoord("210.80227 54.34895", unit='deg')).value, 4) == 0
-
-        ticobj_loc = mast.Mast.resolve_object("TIC 141914082")
-        assert round(ticobj_loc.separation(SkyCoord("94.6175354 -72.04484622", unit='deg')).value, 4) == 0
 
     ###########################
     # ObservationsClass tests #
@@ -266,6 +255,8 @@ class TestMast:
         assert isinstance(result, Table)
         assert len(result) == sum(products['productType'] == "SCIENCE")
 
+    # test downloads 150+ files, 50MB+, TODO: revise OBSID to query only a few, small files for download
+    @pytest.mark.skip("Tests should not download this much data. Skipping until revised.")
     def test_observations_download_products(self, tmpdir):
         test_obs_id = OBSID
         result = mast.Observations.download_products(test_obs_id,
