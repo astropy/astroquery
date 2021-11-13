@@ -753,7 +753,8 @@ class ObservationsClass(MastQueryWithLogin):
         """
 
         if self._cloud_connection is None:
-            raise AttributeError("Must enable s3 dataset before attempting to query the s3 information")
+            raise RemoteServiceError('Please enable anonymous cloud access by calling `enable_cloud_dataset` method. '
+                                     'See MAST Labs documentation for an example: https://mast-labs.stsci.io/#example-data-access-with-astroquery-observations')
 
         return self._cloud_connection.get_cloud_uri_list(data_products, include_bucket, full_url)
 
@@ -784,8 +785,10 @@ class ObservationsClass(MastQueryWithLogin):
         """
 
         if self._cloud_connection is None:
-            raise AttributeError("Must enable s3 dataset before attempting to query the s3 information")
+            raise RemoteServiceError('Please enable anonymous cloud access by calling `enable_cloud_dataset` method. '
+                                     'See MAST Labs documentation for an example: https://mast-labs.stsci.io/#example-data-access-with-astroquery-observations')
 
+        # Query for product URIs
         return self._cloud_connection.get_cloud_uri(data_product, include_bucket, full_url)
 
 
