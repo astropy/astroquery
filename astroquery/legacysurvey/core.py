@@ -308,7 +308,7 @@ class LegacySurveyClass(BaseQuery):
         image_size_arcsec = radius.arcsec
         pixsize = 2 * image_size_arcsec / pixels
 
-        image_url = 'https://www.legacysurvey.org/viewer/fits-cutout?ra=' + str(coordinates.ra.deg) + '&dec=' + str(coordinates.dec.deg) + '&size=' + str(
+        image_url = 'https://www.legacysurvey.org/viewer/fits-cutout?ra=' + str(position.ra.deg) + '&dec=' + str(position.dec.deg) + '&size=' + str(
             pixels) + '&layer=ls-dr' + str(data_release) + '&pixscale=' + str(pixsize) + '&bands=' + image_band
 
         print("image_url: ", image_url)
