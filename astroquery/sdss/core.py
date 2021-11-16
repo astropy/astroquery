@@ -39,8 +39,8 @@ class SDSSClass(BaseQuery):
                           'frame-{band}-{run:06d}-{camcol}-'
                           '{field:04d}.fits.bz2')
     SPECTRA_URL_SUFFIX = ('{base}/dr{dr}/sdss/spectro/redux/'
-                          '{run2d}/spectra/{plate:04d}/'
-                          'spec-{plate:04d}-{mjd}-{fiber:04d}.fits')
+                          '{run2d}/spectra/{plate:0>4d}/'
+                          'spec-{plate:0>4d}-{mjd}-{fiber:04d}.fits')
 
     TEMPLATES_URL = 'http://classic.sdss.org/dr7/algorithms/spectemplates/spDR2'
     # Cross-correlation templates from DR-7 - no clear way to look this up via
@@ -587,8 +587,6 @@ class SDSSClass(BaseQuery):
                 run2d = row['run2d']
             if data_release > 15:
                 linkstr.replace('/spectra/', '/spectra/full/')
-            if data_release > 13 and row['plate'] > 9999:
-                linkstr.replace('{plate:04d}', '{plate:5d}')
             link = linkstr.format(
                 base=conf.sas_baseurl, dr=data_release,
                 run2d=run2d, plate=row['plate'],
