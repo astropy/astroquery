@@ -11,6 +11,7 @@ from urllib.error import URLError
 from ... import sdss
 from ...exceptions import TimeoutError
 
+dr_list = list(range(8, sdss.conf.default_release + 3))
 
 @pytest.mark.remote_data
 class TestSDSSRemote:
@@ -34,8 +35,9 @@ class TestSDSSRemote:
                          "error with 'No route to host'.  We don't know a "
                          "workaround for this yet.")
 
-    def test_sdss_spectrum(self):
-        xid = sdss.SDSS.query_region(self.coords, spectro=True)
+    @pytest.mark.parametrize("dr", dr_list)
+    def test_sdss_spectrum(self, dr):
+        xid = sdss.SDSS.query_region(self.coords, spectro=True, data_release=dr)
         assert isinstance(xid, Table)
         sp = sdss.SDSS.get_spectra(matches=xid)
 
