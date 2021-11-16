@@ -38,7 +38,7 @@ class SDSSClass(BaseQuery):
                           '{rerun}/{run}/{camcol}/'
                           'frame-{band}-{run:06d}-{camcol}-'
                           '{field:04d}.fits.bz2')
-    SPECTRA_URL_SUFFIX = ('{base}/dr{dr}/{instrument}/spectro/redux/'
+    SPECTRA_URL_SUFFIX = ('{base}/dr{dr}/sdss/spectro/redux/'
                           '{run2d}/spectra/{plate:04d}/'
                           'spec-{plate:04d}-{mjd}-{fiber:04d}.fits')
 
@@ -585,9 +585,12 @@ class SDSSClass(BaseQuery):
                 run2d = row['run2d'].decode()
             else:
                 run2d = row['run2d']
+            if data_release > 15:
+                linkstr.replace('/spectra/', '/spectra/full/')
+            if data_release > 13 and row['plate'] > 9999:
+                linkstr.replace('{plate:04d}', '{plate:5d}')
             link = linkstr.format(
                 base=conf.sas_baseurl, dr=data_release,
-                instrument=row['instrument'].lower(),
                 run2d=run2d, plate=row['plate'],
                 fiber=row['fiberID'], mjd=row['mjd'])
 
