@@ -30,7 +30,7 @@ def test_default_form_values():
 
 @pytest.mark.remote_data
 def test_query_with_default_params():
-    table = AtomicLineList.query_object()
+    table = AtomicLineList.query_object(cache=False)
     assert isinstance(table, Table)
     assert len(table) == 500
     assert str(table[:5]) == '''
@@ -49,7 +49,8 @@ def test_query_with_wavelength_params():
         wavelength_range=(15 * u.nm, 200 * u.Angstrom),
         wavelength_type='Air',
         wavelength_accuracy=20,
-        element_spectrum='C II-IV')
+        element_spectrum='C II-IV',
+        cache=False)
     assert isinstance(result, Table)
     assert result.colnames == ['LAMBDA VAC ANG', 'SPECTRUM', 'TT',
                               'CONFIGURATION', 'TERM', 'J J', 'A_ki',
@@ -67,7 +68,7 @@ def test_query_with_wavelength_params():
 
 @pytest.mark.remote_data
 def test_empty_result_set():
-    result = AtomicLineList.query_object(wavelength_accuracy=0)
+    result = AtomicLineList.query_object(wavelength_accuracy=0, cache=False)
     assert isinstance(result, Table)
     assert not result
     assert len(result) == 0
@@ -78,7 +79,7 @@ def test_lower_upper_ranges():
     result = AtomicLineList.query_object(
         lower_level_energy_range=u.Quantity((600 * u.cm**(-1), 1000 * u.cm**(-1))),
         upper_level_energy_range=u.Quantity((15000 * u.cm**(-1), 100000 * u.cm**(-1))),
-        element_spectrum='Ne III')
+        element_spectrum='Ne III', cache=False)
     assert isinstance(result, Table)
 
     assert np.all(result['LAMBDA VAC ANG'] ==
