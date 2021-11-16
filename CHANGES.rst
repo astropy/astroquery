@@ -50,6 +50,11 @@ jplhorizons
 
 - Fix changes in column names that resulted KeyErrors. [#2202]
 
+simbad
+^^^^^^
+
+- Fix parsing of non-ascii bibcode responses. [#2200]
+
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
