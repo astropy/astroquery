@@ -13,6 +13,7 @@ from ...exceptions import TimeoutError
 
 dr_list = list(range(8, sdss.conf.default_release + 3))
 
+
 @pytest.mark.remote_data
 class TestSDSSRemote:
     # Test Case: A Seyfert 1 galaxy
