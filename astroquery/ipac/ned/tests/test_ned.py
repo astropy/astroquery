@@ -141,7 +141,7 @@ def test_photometry(patch_get):
 
 def test_extract_image_urls():
     html_in = open(data_path(DATA_FILES['extract_urls']), 'r').read()
-    url_list = ned.core.Ned.extract_image_urls(html_in)
+    url_list = ned.core.Ned._extract_image_urls(html_in)
     assert len(url_list) == 5
     for url in url_list:
         assert url.endswith('fits.gz')

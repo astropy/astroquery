@@ -22,6 +22,12 @@ gaia
 - The bug which caused changing the ``MAIN_GAIA_TABLE`` option to have no
   effect has been fixed [#2153]
 
+ipac.ned
+^^^^^^^^
+
+- Keyword 'file_format' is added to ``get_image_list`` to enable obtaining
+  links to non-fits file formats, too. [#2217]
+
 vizier
 ^^^^^^
 
