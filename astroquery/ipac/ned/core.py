@@ -427,7 +427,7 @@ class NedClass(BaseQuery):
                           show_progress=True):
         """
         Serves the same purpose as `~NedClass.get_spectra` but returns
-        file-handlers to the remote files rather than downloading them.
+        file-handlers to the remote fits files rather than downloading them.
 
         Parameters
         ----------
@@ -443,7 +443,8 @@ class NedClass(BaseQuery):
 
         """
         image_urls = self.get_image_list(object_name, item='spectra',
-                                         get_query_payload=get_query_payload)
+                                         get_query_payload=get_query_payload,
+                                         file_format='fits')
         if get_query_payload:
             return image_urls
         return [commons.FileContainer(U, encoding='binary',
@@ -487,9 +488,9 @@ class NedClass(BaseQuery):
         url = Ned.SPECTRA_URL if item == 'spectra' else Ned.IMG_DATA_URL
         response = self._request("GET", url=url, params=request_payload,
                                  timeout=Ned.TIMEOUT)
-        return self.extract_image_urls(response.text, file_format=file_format)
+        return self._extract_image_urls(response.text, file_format=file_format)
 
-    def extract_image_urls(self, html_in, file_format='fits'):
+    def _extract_image_urls(self, html_in, file_format='fits'):
         """
         Helper function that uses regexps to extract the image urls from the
         given HTML.
