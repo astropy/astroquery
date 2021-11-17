@@ -521,7 +521,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
                     unit = u.mag
 
                 else:  # pragma: nocover
-                    warnings.warn("Unrecognized unit: '{0}'".format(unit), AstropyWarning)
+                    warnings.warn(f"Unrecognized unit: '{unit}' for column {col}.", AstropyWarning)
 
             # Unmask since astropy doesn't like masked values in columns with units
             try:
