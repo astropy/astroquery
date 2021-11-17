@@ -93,3 +93,11 @@ class TestNed:
     def test_get_object_notes(self):
         result = ned.core.Ned.get_table('3c 273', table='object_notes')
         assert isinstance(result, Table)
+
+    def test_file_format(self):
+        result_ascii = ned.core.Ned.get_image_list('NGC6060', item='spectra',
+                                                   file_format='NED-ascii')
+        result_fits = ned.core.Ned.get_image_list('NGC6060', item='spectra',
+                                                  file_format='fits')
+        assert len(result_ascii) == 3
+        assert len(result_fits) == 1
