@@ -450,7 +450,7 @@ class NedClass(BaseQuery):
                                       show_progress=show_progress)
                 for U in image_urls]
 
-    def get_image_list(self, object_name, item='image',
+    def get_image_list(self, object_name, *, item='image', file_format='fits',
                        get_query_payload=False):
         """
         Helper function that returns a list of urls from which to download
@@ -466,6 +466,10 @@ class NedClass(BaseQuery):
         item : str, optional
             Can be either 'image' or 'spectra'. Defaults to 'image'.
             Required to decide the right URL to query.
+        file_format : str, optional
+            Format of images/spectra to return. Defaults to 'fits'.
+            Other options available: 'author-ascii', 'NED-ascii', 'VO-table'.
+
 
         Returns
         -------
@@ -483,9 +487,9 @@ class NedClass(BaseQuery):
         url = Ned.SPECTRA_URL if item == 'spectra' else Ned.IMG_DATA_URL
         response = self._request("GET", url=url, params=request_payload,
                                  timeout=Ned.TIMEOUT)
-        return self.extract_image_urls(response.text)
+        return self.extract_image_urls(response.text, file_format=file_format)
 
-    def extract_image_urls(self, html_in):
+    def extract_image_urls(self, html_in, file_format='fits'):
         """
         Helper function that uses regexps to extract the image urls from the
         given HTML.
@@ -495,10 +499,25 @@ class NedClass(BaseQuery):
         html_in : str
             source from which the urls are to be extracted
 
+        format : str, optional
+            Format of spectra to return. Defaults to 'fits'.
+            Other options available: 'author-ascii', 'NED-ascii', 'VO-table'.
+
         """
         base_url = 'http://ned.ipac.caltech.edu'
+
+        extensions = {'fits': 'fits.gz',
+                      'author-ascii': 'txt',
+                      'NED-ascii': '_NED.txt',
+                      'VO-table': '_votable.xml'}
+
+        names = {'fits': 'FITS',
+                 'author-ascii': 'Author-ASCII',
+                 'NED-ascii': 'NED-ASCII',
+                 'VO-table': 'VOTable'}
+
         pattern = re.compile(
-            r'<a\s+href\s*?="?\s*?(.+?fits.gz)"?\s*?>\s*?(?:Retrieve|FITS)</a>',
+            f'<a\s+href\s*?="?\s*?(.+?{extensions[file_format]})"?\s*?>\s*?(?:Retrieve|{names[file_format]})</a>',
             re.IGNORECASE)
         matched_urls = pattern.findall(html_in)
         url_list = [base_url + img_url for img_url in matched_urls]
