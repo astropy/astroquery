@@ -11,7 +11,8 @@ from urllib.error import URLError
 from ... import sdss
 from ...exceptions import TimeoutError
 
-dr_list = (8, 9, 10, 11, 12, 13, 14, 15, 16)
+# DR11 is a quasi-internal data release that does not have SkyServer support.
+dr_list = (8, 9, 10, 12, 13, 14, 15, 16)
 
 
 @pytest.mark.remote_data
