@@ -8,6 +8,10 @@ New Tools and Services
 Service fixes and enhancements
 ------------------------------
 
+sdss
+^^^^
+
+- Fix URL for individual spectrum file download in recent data releases. [#2214]
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------

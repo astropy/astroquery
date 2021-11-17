@@ -585,7 +585,7 @@ class SDSSClass(BaseQuery):
                 run2d = row['run2d'].decode()
             else:
                 run2d = row['run2d']
-            if data_release > 15:
+            if data_release > 15 and run2d not in ('26', '103', '104'):
                 linkstr.replace('/spectra/', '/spectra/full/')
             link = linkstr.format(
                 base=conf.sas_baseurl, dr=data_release,

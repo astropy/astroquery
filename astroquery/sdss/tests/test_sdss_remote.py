@@ -41,7 +41,7 @@ class TestSDSSRemote:
     def test_sdss_spectrum(self, dr):
         xid = sdss.SDSS.query_region(self.coords, spectro=True, data_release=dr)
         assert isinstance(xid, Table)
-        sp = sdss.SDSS.get_spectra(matches=xid)
+        sp = sdss.SDSS.get_spectra(matches=xid, data_release=dr)
 
     def test_sdss_spectrum_mjd(self):
         sp = sdss.SDSS.get_spectra(plate=2345, fiberID=572)
