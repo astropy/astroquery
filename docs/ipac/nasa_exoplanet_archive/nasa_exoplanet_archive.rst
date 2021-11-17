@@ -75,7 +75,7 @@ For example, a full table can be queried as follows:
     <QTable masked=True length=9564>
      kepid   kepoi_name kepler_name  ... koi_fittype koi_score      sky_coord
                                      ...                             deg,deg
-     int64      str9       str15     ...     str7     float64         object
+     int64      str9       str14     ...     str7     float64         object
     -------- ---------- ------------ ... ----------- --------- -------------------
     10797460  K00752.01 Kepler-227 b ...     LS+MCMC       1.0 291.93423,48.141651
     10797460  K00752.02 Kepler-227 c ...     LS+MCMC     0.969 291.93423,48.141651
@@ -99,7 +99,7 @@ In this section, we demonstrate
 
     >>> from astroquery.ipac.nexsci.nasa_exoplanet_archive import NasaExoplanetArchive
     >>> NasaExoplanetArchive.query_criteria(table="pscomppars", select="count(*)",
-    ...                                     where="disc_facility like '%TESS%'")
+    ...                                     where="disc_facility like '%TESS%'")  # doctest: +IGNORE_OUTPUT
     <QTable masked=True length=1>
     count(*)
      int32
@@ -107,25 +107,23 @@ In this section, we demonstrate
          131
 
 
-2. The list of confirmed planets discovered by TESS and their host star coordinates:
+2. The list of 10 confirmed planets discovered by TESS and their host star coordinates:
 
 .. doctest-remote-data::
 
     >>> from astroquery.ipac.nexsci.nasa_exoplanet_archive import NasaExoplanetArchive
-    >>> NasaExoplanetArchive.query_criteria(table="pscomppars", select="pl_name,ra,dec",
+    >>> NasaExoplanetArchive.query_criteria(table="pscomppars", select="top 10 pl_name,ra,dec",
     ...                                     where="disc_facility like '%TESS%'")
-    <QTable masked=True length=131>
+    <QTable masked=True length=10>
        pl_name         ra         dec            sky_coord
                       deg         deg             deg,deg
-        str15       float64     float64            object
+        str13       float64     float64            object
     ------------- ----------- ----------- -----------------------
     WD 1856+534 b  284.415675  53.5090244   284.415675,53.5090244
+       TOI-1201 b  42.2476999 -14.5372835  42.2476999,-14.5372835
       HD 213885 b 338.9837166  -59.864829  338.9837166,-59.864829
       HD 219666 b 349.5592665 -56.9039857 349.5592665,-56.9039857
               ...         ...         ...                     ...
-        TOI-257 b  47.5172608 -50.8322632  47.5172608,-50.8322632
-        HD 5278 b  12.5467785 -83.7437671  12.5467785,-83.7437671
-       LHS 1478 b  44.3388743  76.5514045   44.3388743,76.5514045
 
 
 3. The list of confirmed planets discovered using microlensing that have data available in the archive:
@@ -134,7 +132,7 @@ In this section, we demonstrate
 
     >>> from astroquery.ipac.nexsci.nasa_exoplanet_archive import NasaExoplanetArchive
     >>> NasaExoplanetArchive.query_criteria(
-    ...     table="pscomppars", where="discoverymethod like 'Microlensing'")
+    ...     table="pscomppars", where="discoverymethod like 'Microlensing'")  # doctest: +IGNORE_OUTPUT
     <QTable masked=True length=108>
            pl_name        pl_letter ...    htm20           sky_coord
                                     ...                     deg,deg
@@ -158,7 +156,7 @@ In this section, we demonstrate
     >>> from astroquery.ipac.nexsci.nasa_exoplanet_archive import NasaExoplanetArchive
     >>> NasaExoplanetArchive.query_criteria(
     ...     table="pscomppars", where="hostname like 'Kepler%'", order="hostname")
-    <QTable masked=True length=2369>
+    <QTable masked=True length=2370>
        pl_name    pl_letter   hostname  ...    htm20          sky_coord
                                         ...                    deg,deg
         str14        str1      str12    ...    int32            object
