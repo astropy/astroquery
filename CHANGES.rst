@@ -1,11 +1,24 @@
-0.4.4 (unreleased)
+0.4.4 (2021-11-17)
 ==================
 
 New Tools and Services
 ----------------------
 
-- linelists.cdms molecular line catalog query tool provides an interface to the
-  Cologne Database for Molecular Spectroscopy [#2143]
+esa.esasky
+^^^^^^^^^^
+
+- Added Solar System Object functionality. [#2106]
+
+ipac
+^^^^
+
+- New namespace for IPAC services. [#2131]
+
+linelists.cdms
+^^^^^^^^^^^^^^
+- Molecular line catalog query tool provides an interface to the
+  Cologne Database for Molecular Spectroscopy. [#2143]
+
 
 Service fixes and enhancements
 ------------------------------
@@ -20,24 +33,13 @@ gaia
 ^^^^
 
 - The bug which caused changing the ``MAIN_GAIA_TABLE`` option to have no
-  effect has been fixed [#2153]
+  effect has been fixed. [#2153]
 
 ipac.ned
 ^^^^^^^^
 
 - Keyword 'file_format' is added to ``get_image_list`` to enable obtaining
   links to non-fits file formats, too. [#2217]
-
-vizier
-^^^^^^
-
-- It is now possible to specify 'galatic' centers in region queries to
-  have box queries oriented along the galactic axes [#2152]
-
-splatalogue
-^^^^^^^^^^^
-
-- Splatalogue table merging can now handle unmasked columns [#2136]
 
 jplhorizons
 ^^^^^^^^^^^
@@ -47,29 +49,58 @@ jplhorizons
   J2000 to ICRF, following API documentation. [#2154]
 
 - Query ``id_type`` behavior has changed:
-  - ``'majorbody'`` and ``'id'`` have been removed and the equivalent functionality
-    replaced with ``None``.  ``None`` implements the Horizons default, which is
-    to search for major bodies first, then fall back to a small body search when
-    no matches are found.  Horizons does not have a major body only search.
+  - ``'majorbody'`` and ``'id'`` have been removed and the equivalent
+    functionality replaced with ``None``.  ``None`` implements the Horizons
+    default, which is to search for major bodies first, then fall back to a
+    small body search when no matches are found. Horizons does not have a
+    major body only search. [#2161]
+
   - The default value was ``'smallbody'`` but it is now ``None``, which
-    follows Horizons's default behavior.
+    follows Horizons's default behavior. [#2161]
 
 - Fix changes in column names that resulted KeyErrors. [#2202]
 
-simbad
-^^^^^^
-
-- Fix parsing of non-ascii bibcode responses. [#2200]
-
-
-Infrastructure, Utility and Other Changes and Additions
--------------------------------------------------------
+jplspec
+^^^^^^^
 
 - JPLSpec now raises an EmptyResponseError if the returned result is empty.
   The API for JPLspec's ``lookup_table.find`` function returns a dictionary
   instead of values (for compatibility w/CDMS).  [#2144]
 
+simbad
+^^^^^^
+
+- Fix result parsing issues by disabling caching of failed queries. [#2187]
+
+- Fix parsing of non-ascii bibcode responses. [#2200]
+
+splatalogue
+^^^^^^^^^^^
+
+- Splatalogue table merging can now handle unmasked columns. [#2136]
+
+vizier
+^^^^^^
+
+- It is now possible to specify 'galatic' centers in region queries to
+  have box queries oriented along the galactic axes. [#2152]
+
+
+Infrastructure, Utility and Other Changes and Additions
+-------------------------------------------------------
+
 - Versions of astropy <4 and numpy <1.16 are no longer supported. [#2163]
+
+ipac
+^^^^
+
+- As part of the namespace restructure, now modules for the IPAC archives are
+  avalable as: ``ipac.irsa``, ``ipac.ned``, and ``ipac.nexsci``.
+  Additional services have also been moved to their parent organisations'
+  namespace. Acces from the top namespace have been deprecated for the
+  following modules: ``ibe``, ``irsa``, ``irsa_dust``,
+  ``nasa_exoplanet_archive``, ``ned``, ``sha``. [#2131]
+
 
 0.4.3 (2021-07-07)
 ==================
@@ -85,7 +116,6 @@ esa.esasky
 - Added custom ADQL and TAP+ functionality. [#2078]
 
 - Enabled download of INTEGRAL data products. [#2105]
-- Added Solar System Object functionality. [#2106]
 
 esa.hubble
 ^^^^^^^^^^
