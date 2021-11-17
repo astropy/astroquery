@@ -228,7 +228,7 @@ These others are functional, but do not follow a common & consistent API:
   jplhorizons/jplhorizons.rst
   jplsbdb/jplsbdb.rst
   lamda/lamda.rst
-  ipac/nasa_exoplanet_archive/nasa_exoplanet_archive.rst
+  ipac/nexsci/nasa_exoplanet_archive.rst
   oac/oac.rst
   ogle/ogle.rst
   open_exoplanet_catalogue/open_exoplanet_catalogue.rst
@@ -265,7 +265,7 @@ for each source)
   ipac/irsa/irsa.rst
   ipac/irsa/irsa_dust/irsa_dust.rst
   mast/mast.rst
-  ipac/nasa_exoplanet_archive/nasa_exoplanet_archive.rst
+  ipac/nexsci/nasa_exoplanet_archive.rst
   ipac/ned/ned.rst
   ogle/ogle.rst
   open_exoplanet_catalogue/open_exoplanet_catalogue.rst
