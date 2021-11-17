@@ -11,7 +11,7 @@ from urllib.error import URLError
 from ... import sdss
 from ...exceptions import TimeoutError
 
-dr_list = list(range(8, sdss.conf.default_release + 3))
+dr_list = (8, 9, 10, 11, 12, 13, 14, 15, 16)
 
 
 @pytest.mark.remote_data
