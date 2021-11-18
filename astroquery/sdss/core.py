@@ -555,7 +555,7 @@ class SDSSClass(BaseQuery):
 
         if not matches:
             request_payload = self._args_to_payload(
-                specobj_fields=['instrument', 'run2d', 'plate',
+                specobj_fields=['run2d', 'plate',
                                 'mjd', 'fiberID'],
                 coordinates=coordinates, radius=radius, spectro=True,
                 plate=plate, mjd=mjd, fiberID=fiberID,
