@@ -584,7 +584,7 @@ class SDSSClass(BaseQuery):
             if isinstance(row['run2d'], bytes):
                 run2d = row['run2d'].decode()
             elif isinstance(row['run2d'], (np.integer, int)):
-                run2d = str(run2d)
+                run2d = str(row['run2d'])
             else:
                 run2d = row['run2d']
             if data_release > 15 and run2d not in ('26', '103', '104'):
