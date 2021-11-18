@@ -89,7 +89,7 @@ class TestSDSSRemote:
         colnames = ['ra', 'dec', 'objid', 'run', 'rerun', 'camcol', 'field',
                     'z', 'plate', 'mjd', 'fiberID', 'specobjid', 'run2d']
         dtypes = [float, float, np.int64, int, int, int, int, float, int, int,
-                  int, np.int64, int, bytes]
+                  int, np.int64, int]
         data = [
             [46.8390680395307, 5.16972676625711, 1237670015125750016, 5714,
              301, 2, 185, -0.0006390358, 2340, 53733, 291, 2634685834112034816,
