@@ -862,7 +862,7 @@ class SDSSClass(BaseQuery):
         if 'error_message' in io.BytesIO(response.content):
             raise RemoteServiceError(response.content)
         skip_header = 0
-        if response.content.startswith('#Table'):
+        if response.content.startswith(b'#Table'):
             skip_header = 1
         arr = np.atleast_1d(np.genfromtxt(io.BytesIO(response.content),
                                           names=True, dtype=None,
