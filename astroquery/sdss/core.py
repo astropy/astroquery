@@ -583,15 +583,16 @@ class SDSSClass(BaseQuery):
             # - run2d sometimes (#739)
             if isinstance(row['run2d'], bytes):
                 run2d = row['run2d'].decode()
+            elif isinstance(row['run2d'], (np.integer, int)):
+                run2d = str(run2d)
             else:
                 run2d = row['run2d']
             if data_release > 15 and run2d not in ('26', '103', '104'):
-                linkstr.replace('/spectra/', '/spectra/full/')
+                linkstr = linkstr.replace('/spectra/', '/spectra/full/')
             link = linkstr.format(
                 base=conf.sas_baseurl, dr=data_release,
                 run2d=run2d, plate=row['plate'],
                 fiber=row['fiberID'], mjd=row['mjd'])
-
             results.append(commons.FileContainer(link,
                                                  encoding='binary',
                                                  remote_timeout=timeout,
@@ -860,9 +861,12 @@ class SDSSClass(BaseQuery):
 
         if 'error_message' in io.BytesIO(response.content):
             raise RemoteServiceError(response.content)
+        skip_header = 0
+        if response.content.startswith('#Table'):
+            skip_header = 1
         arr = np.atleast_1d(np.genfromtxt(io.BytesIO(response.content),
                                           names=True, dtype=None,
-                                          delimiter=',', skip_header=1,
+                                          delimiter=',', skip_header=skip_header,
                                           comments='#'))
 
         if len(arr) == 0:
