@@ -49,6 +49,13 @@ are available from the ``conda-forge`` conda channel.
 
     $ conda install -c conda-forge astroquery
 
+To review recent changes and fixes, please have a look at the changelog:
+
+.. toctree::
+   :maxdepth: 1
+
+   changelog
+
 
 Building from source
 ^^^^^^^^^^^^^^^^^^^^
