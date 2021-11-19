@@ -125,7 +125,7 @@ coords_list = [coords, coords]
 coords_column = Column(coords_list, name='coordinates')
 
 # List of all data releases.
-dr_list = list(range(1, sdss.conf.default_release + 1))
+dr_list = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)
 
 
 # We are not testing queries for DR11 because it is not easily available to

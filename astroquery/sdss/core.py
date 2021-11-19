@@ -38,9 +38,9 @@ class SDSSClass(BaseQuery):
                           '{rerun}/{run}/{camcol}/'
                           'frame-{band}-{run:06d}-{camcol}-'
                           '{field:04d}.fits.bz2')
-    SPECTRA_URL_SUFFIX = ('{base}/dr{dr}/{instrument}/spectro/redux/'
-                          '{run2d}/spectra/{plate:04d}/'
-                          'spec-{plate:04d}-{mjd}-{fiber:04d}.fits')
+    SPECTRA_URL_SUFFIX = ('{base}/dr{dr}/sdss/spectro/redux/'
+                          '{run2d}/spectra/{plate:0>4d}/'
+                          'spec-{plate:0>4d}-{mjd}-{fiber:04d}.fits')
 
     TEMPLATES_URL = 'http://classic.sdss.org/dr7/algorithms/spectemplates/spDR2'
     # Cross-correlation templates from DR-7 - no clear way to look this up via
@@ -555,7 +555,7 @@ class SDSSClass(BaseQuery):
 
         if not matches:
             request_payload = self._args_to_payload(
-                specobj_fields=['instrument', 'run2d', 'plate',
+                specobj_fields=['run2d', 'plate',
                                 'mjd', 'fiberID'],
                 coordinates=coordinates, radius=radius, spectro=True,
                 plate=plate, mjd=mjd, fiberID=fiberID,
@@ -583,14 +583,16 @@ class SDSSClass(BaseQuery):
             # - run2d sometimes (#739)
             if isinstance(row['run2d'], bytes):
                 run2d = row['run2d'].decode()
+            elif isinstance(row['run2d'], (np.integer, int)):
+                run2d = str(row['run2d'])
             else:
                 run2d = row['run2d']
+            if data_release > 15 and run2d not in ('26', '103', '104'):
+                linkstr = linkstr.replace('/spectra/', '/spectra/full/')
             link = linkstr.format(
                 base=conf.sas_baseurl, dr=data_release,
-                instrument=row['instrument'].lower(),
                 run2d=run2d, plate=row['plate'],
                 fiber=row['fiberID'], mjd=row['mjd'])
-
             results.append(commons.FileContainer(link,
                                                  encoding='binary',
                                                  remote_timeout=timeout,
@@ -859,9 +861,12 @@ class SDSSClass(BaseQuery):
 
         if 'error_message' in io.BytesIO(response.content):
             raise RemoteServiceError(response.content)
+        skip_header = 0
+        if response.content.startswith(b'#Table'):
+            skip_header = 1
         arr = np.atleast_1d(np.genfromtxt(io.BytesIO(response.content),
                                           names=True, dtype=None,
-                                          delimiter=',', skip_header=1,
+                                          delimiter=',', skip_header=skip_header,
                                           comments='#'))
 
         if len(arr) == 0:

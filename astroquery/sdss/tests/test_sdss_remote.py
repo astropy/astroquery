@@ -11,6 +11,9 @@ from urllib.error import URLError
 from ... import sdss
 from ...exceptions import TimeoutError
 
+# DR11 is a quasi-internal data release that does not have SkyServer support.
+dr_list = (8, 9, 10, 12, 13, 14, 15, 16)
+
 
 @pytest.mark.remote_data
 class TestSDSSRemote:
@@ -34,10 +37,19 @@ class TestSDSSRemote:
                          "error with 'No route to host'.  We don't know a "
                          "workaround for this yet.")
 
-    def test_sdss_spectrum(self):
-        xid = sdss.SDSS.query_region(self.coords, spectro=True)
+    @pytest.mark.parametrize("dr", dr_list)
+    def test_sdss_spectrum(self, dr):
+        xid = sdss.SDSS.query_region(self.coords, spectro=True, data_release=dr)
         assert isinstance(xid, Table)
-        sp = sdss.SDSS.get_spectra(matches=xid)
+        sp = sdss.SDSS.get_spectra(matches=xid, data_release=dr)
+
+    def test_sdss_spectrum_plate_mjd_fiber(self):
+        """These plates are only available in recent data releases.
+        """
+        sp = sdss.SDSS.get_spectra(plate=9403, mjd=58018, fiberID=485,
+                                   data_release=16)
+        sp = sdss.SDSS.get_spectra(plate=10909, mjd=58280, fiberID=485,
+                                   data_release=16)
 
     def test_sdss_spectrum_mjd(self):
         sp = sdss.SDSS.get_spectra(plate=2345, fiberID=572)
@@ -75,25 +87,22 @@ class TestSDSSRemote:
 
     def test_sdss_specobj(self):
         colnames = ['ra', 'dec', 'objid', 'run', 'rerun', 'camcol', 'field',
-                    'z', 'plate', 'mjd', 'fiberID', 'specobjid', 'run2d',
-                    'instrument']
+                    'z', 'plate', 'mjd', 'fiberID', 'specobjid', 'run2d']
         dtypes = [float, float, np.int64, int, int, int, int, float, int, int,
-                  int, np.int64, int, bytes]
+                  int, np.int64, int]
         data = [
             [46.8390680395307, 5.16972676625711, 1237670015125750016, 5714,
              301, 2, 185, -0.0006390358, 2340, 53733, 291, 2634685834112034816,
-             26, 'SDSS'],
+             26],
             [46.8705377929765, 5.42458826592292, 1237670015662621224, 5714,
-             301, 3, 185, 0, 2340, 53733, 3, 2634606669274834944, 26, 'SDSS'],
+             301, 3, 185, 0, 2340, 53733, 3, 2634606669274834944, 26],
             [46.8899751105478, 5.09432755808192, 1237670015125815346, 5714,
              301, 2, 186, -4.898809E-05, 2340, 53733, 287, 2634684734600407040,
-             26, 'SDSS'],
+             26],
             [46.8954031261838, 5.9739184644185, 1237670016199491831, 5714,
-             301, 4, 185, 0, 2340, 53733, 329, 2634696279472498688, 26,
-             'SDSS'],
+             301, 4, 185, 0, 2340, 53733, 329, 2634696279472498688, 26],
             [46.9155836662379, 5.50671723824944, 1237670015662686398, 5714,
-             301, 3, 186, 0, 2340, 53733, 420, 2634721293362030592, 26,
-             'SDSS']]
+             301, 3, 186, 0, 2340, 53733, 420, 2634721293362030592, 26]]
         table = Table(data=[x for x in zip(*data)],
                       names=colnames, dtype=dtypes)
         xid = sdss.SDSS.query_specobj(plate=2340)
