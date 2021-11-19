@@ -677,7 +677,7 @@ class AlmaClass(QueryWithLogin):
         return data_sizes, totalsize.to(u.GB)
 
     def download_files(self, files, savedir=None, cache=True,
-                       continuation=True, skip_unauthorized=True):
+                       continuation=True, skip_unauthorized=True,):
         """
         Given a list of file URLs, download them
 
@@ -711,8 +711,7 @@ class AlmaClass(QueryWithLogin):
         for fileLink in unique(files):
             log.debug("Downloading {0} to {1}".format(fileLink, savedir))
             try:
-                check_filename = self._request('HEAD', fileLink, auth=auth,
-                                               stream=True)
+                check_filename = self._request('HEAD', fileLink, auth=auth)
                 check_filename.raise_for_status()
             except requests.HTTPError as ex:
                 if ex.response.status_code == 401:
@@ -748,7 +747,7 @@ class AlmaClass(QueryWithLogin):
                                     auth=auth,
                                     cache=cache,
                                     method='GET',
-                                    head_safe=True,
+                                    head_safe=False,
                                     continuation=continuation)
 
                 downloaded_files.append(filename)
@@ -777,7 +776,7 @@ class AlmaClass(QueryWithLogin):
                                         auth=auth,
                                         cache=cache,
                                         method='GET',
-                                        head_safe=True,
+                                        head_safe=False,
                                         continuation=continuation)
 
                     downloaded_files.append(filename)
@@ -1107,7 +1106,7 @@ class AlmaClass(QueryWithLogin):
                 expanded_files += [x for x in files['access_url'] if
                                    filere.match(x.split('/')[-1])]
             else:
-                tar_files.append(tar_file)
+                tar_files.append(url)
 
         try:
             # get the tar files
