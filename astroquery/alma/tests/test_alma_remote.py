@@ -17,7 +17,7 @@ from .. import Alma
 
 # ALMA tests involving staging take too long, leading to travis timeouts
 # TODO: make this a configuration item
-SKIP_SLOW = False
+SKIP_SLOW = True
 
 all_colnames = {'Project code', 'Source name', 'RA', 'Dec', 'Band',
                 'Frequency resolution', 'Integration', 'Release date',

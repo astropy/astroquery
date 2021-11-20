@@ -47,3 +47,14 @@ from .version import version, astropy_helpers_version
 packagename = os.path.basename(os.path.dirname(__file__))
 TESTED_VERSIONS[packagename] = version
 TESTED_VERSIONS['astropy_helpers'] = astropy_helpers_version
+
+def pytest_addoption(parser):
+    parser.addoption(
+        '--alma-site',
+        action='store',
+        default='almascience.org',
+        help='ALMA site',
+        choices={'almascience.nrao.edu',
+                 'almascience.eso.org',
+                 'almascience.nao.ac.jp'}
+    )
