@@ -708,21 +708,21 @@ class AlmaClass(QueryWithLogin):
         downloaded_files = []
         if savedir is None:
             savedir = self.cache_location
-        for fileLink in unique(files):
-            log.debug("Downloading {0} to {1}".format(fileLink, savedir))
+        for file_link in unique(files):
+            log.debug("Downloading {0} to {1}".format(file_link, savedir))
             try:
-                check_filename = self._request('HEAD', fileLink, auth=auth)
+                check_filename = self._request('HEAD', file_link, auth=auth)
                 check_filename.raise_for_status()
             except requests.HTTPError as ex:
                 if ex.response.status_code == 401:
                     if skip_unauthorized:
                         log.info("Access denied to {url}.  Skipping to"
-                                 " next file".format(url=fileLink))
+                                 " next file".format(url=file_link))
                         continue
                     else:
                         raise(ex)
 
-            if 'text/html' in check_filename.headers['Content-Type']:
+            if 'text/html' in check_filename.headers.get('Content-Type', ''):
                 raise ValueError("Bad query.  This can happen if you "
                                  "attempt to download proprietary "
                                  "data when not logged in")
@@ -731,7 +731,7 @@ class AlmaClass(QueryWithLogin):
                 filename = re.search("filename=(.*)",
                                      check_filename.headers['Content-Disposition']).groups()[0]
             except KeyError:
-                log.info(f"Unable to find filename for {fileLink}  "
+                log.info(f"Unable to find filename for {file_link}  "
                          "(missing Content-Disposition in header).  "
                          "Skipping to next file.")
                 continue
@@ -741,7 +741,7 @@ class AlmaClass(QueryWithLogin):
                                         filename)
 
             try:
-                self._download_file(fileLink,
+                self._download_file(file_link,
                                     filename,
                                     timeout=self.TIMEOUT,
                                     auth=auth,
@@ -755,22 +755,22 @@ class AlmaClass(QueryWithLogin):
                 if ex.response.status_code == 401:
                     if skip_unauthorized:
                         log.info("Access denied to {url}.  Skipping to"
-                                 " next file".format(url=fileLink))
+                                 " next file".format(url=file_link))
                         continue
                     else:
                         raise(ex)
                 elif ex.response.status_code == 403:
-                    log.error("Access denied to {url}".format(url=fileLink))
-                    if 'dataPortal' in fileLink and 'sso' not in fileLink:
+                    log.error("Access denied to {url}".format(url=file_link))
+                    if 'dataPortal' in file_link and 'sso' not in file_link:
                         log.error("The URL may be incorrect.  Try using "
                                   "{0} instead of {1}"
-                                  .format(fileLink.replace('dataPortal/',
-                                                           'dataPortal/sso/'),
-                                          fileLink))
+                                  .format(file_link.replace('dataPortal/',
+                                                            'dataPortal/sso/'),
+                                          file_link))
                     raise ex
                 elif ex.response.status_code == 500:
                     # empirically, this works the second time most of the time...
-                    self._download_file(fileLink,
+                    self._download_file(file_link,
                                         filename,
                                         timeout=self.TIMEOUT,
                                         auth=auth,

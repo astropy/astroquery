@@ -312,7 +312,7 @@ class TestAlma:
         aux_tar_file = [x for x in data_info['access_url'] if 'auxiliary' in x]
         assert 1 == len(aux_tar_file)
         download_mock = MagicMock()
-        # following line require to make alma picklable
+        # following line is required to make alma picklable
         download_mock.__reduce__ = lambda self: (MagicMock, ())
         alma._download_file = download_mock
 
