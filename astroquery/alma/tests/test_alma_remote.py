@@ -55,7 +55,6 @@ class TestAlma:
         return my_temp_dir
 
     def test_public(self, alma):
-        assert alma.archive_url == 'https://almascience.eso.org'
         results = alma.query(payload=None, public=True, maxrec=100)
         assert len(results) == 100
         for row in results:
