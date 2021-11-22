@@ -417,7 +417,7 @@ def test_download_files():
         response = Mock()
         response.headers = {
             'Content-Disposition': 'attachment; '
-                                   'filename="{}"'.format(url.split('/')[-1])}
+                                   'filename={}'.format(url.split('/')[-1])}
         return response
 
     def _download_file_mock(url, file_name, **kwargs):
@@ -427,3 +427,17 @@ def test_download_files():
     alma._download_file = Mock(side_effect=_download_file_mock)
     downloaded_files = alma.download_files(['https://location/file1'])
     assert len(downloaded_files) == 1
+    assert downloaded_files[0].split('/')[-1] == 'file1'
+
+    alma._request.reset_mock()
+    alma._download_file.reset_mock()
+    downloaded_files = alma.download_files(['https://location/file1',
+                                            'https://location/file2'])
+    assert len(downloaded_files) == 2
+
+    # error cases
+    alma._request = Mock()
+    # no Content-Disposition results in no downloaded file
+    alma._request.return_value = Mock(headers={})
+    result = alma.download_files(['https://location/file1'])
+    assert not result
