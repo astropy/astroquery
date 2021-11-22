@@ -30,6 +30,12 @@ all_colnames = {'Project code', 'Source name', 'RA', 'Dec', 'Band',
 
 @pytest.fixture
 def alma(request):
+    """
+    Returns an alma client class. `--alma-site` pytest option can be used
+    to have the client run against a specific site
+    :param request: pytest request fixture
+    :return: alma client to use in tests
+    """
     alma = Alma()
     alma_site = request.config.getoption('--alma-site',
                                          'almascience.org')

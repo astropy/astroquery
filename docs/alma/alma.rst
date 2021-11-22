@@ -47,7 +47,7 @@ You can get interactive help to find out what keywords to query for:
 
     Energy
       Frequency (GHz)                   frequency                           frequency
-      Bandwidth (GHz)                   bandwidth                           bandwidth
+      Bandwidth (Hz)                    bandwidth                           bandwidth
       Spectral resolution (KHz)         spectral_resolution                 em_resolution
       Band                              band_list                           band_list
 
@@ -210,7 +210,7 @@ their types.
       asdm_uid             char(32*)                  UID of the ASDM containing this Field.
       authors              char(4000*)                Full list of first author and all co-authors
       band_list            char(30*)                  Space delimited list of bands
-      bandwidth            double          GHz        Total Bandwidth
+      bandwidth            double          Hz         Total Bandwidth
       bib_reference        char(30*)                  Bibliography code
       calib_level          int                        calibration level (2 or 3). 2 if product_type = MOUS, 3 if product_type = GOUS
       cont_sensitivity_bandwidth double          mJy/beam   Estimated noise in the aggregated continuum bandwidth. Note this is an indication only, it does not include the effects of flagging or dynamic range limitations.

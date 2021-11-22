@@ -110,7 +110,7 @@ ALMA_FORM_KEYS = {
     },
     'Energy': {
         'Frequency (GHz)': ['frequency', 'frequency', _gen_numeric_sql],
-        'Bandwidth (GHz)': ['bandwidth', 'bandwidth', _gen_numeric_sql],
+        'Bandwidth (Hz)': ['bandwidth', 'bandwidth', _gen_numeric_sql],
         'Spectral resolution (KHz)': ['spectral_resolution',
                                       'em_resolution', _gen_spec_res_sql],
         'Band': ['band_list', 'band_list', _gen_band_list_sql]
