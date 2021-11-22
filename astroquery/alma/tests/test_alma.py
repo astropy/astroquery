@@ -427,7 +427,7 @@ def test_download_files():
     alma._download_file = Mock(side_effect=_download_file_mock)
     downloaded_files = alma.download_files(['https://location/file1'])
     assert len(downloaded_files) == 1
-    assert downloaded_files[0].split('/')[-1] == 'file1'
+    assert downloaded_files[0].endswith('file1')
 
     alma._request.reset_mock()
     alma._download_file.reset_mock()
