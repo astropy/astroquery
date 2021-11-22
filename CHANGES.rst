@@ -85,13 +85,13 @@ jplhorizons
   J2000 to ICRF, following API documentation. [#2154]
 
 - Query ``id_type`` behavior has changed:
-  - ``'majorbody'`` and ``'id'`` have been removed and the equivalent
+  * ``'majorbody'`` and ``'id'`` have been removed and the equivalent
     functionality replaced with ``None``.  ``None`` implements the Horizons
     default, which is to search for major bodies first, then fall back to a
     small body search when no matches are found. Horizons does not have a
     major body only search. [#2161]
 
-  - The default value was ``'smallbody'`` but it is now ``None``, which
+  * The default value was ``'smallbody'`` but it is now ``None``, which
     follows Horizons's default behavior. [#2161]
 
 - Fix changes in column names that resulted KeyErrors. [#2202]
