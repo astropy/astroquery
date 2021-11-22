@@ -391,6 +391,7 @@ type of the desired object. For example:
 In this case, you can specify the sso_type
 
 .. code-block:: python
+
     >>> from astroquery.esasky import ESASky
     >>> ESASky.query_sso(sso_name="503", sso_type="SATELLITE")
 
@@ -398,6 +399,7 @@ In this case, you can specify the sso_type
 You can see the available missions with:
 
 .. code-block:: python
+
     >>> from astroquery.esasky import ESASky
     >>> ESASky.list_sso()
 
@@ -410,6 +412,7 @@ This function works very similar to :meth:`astroquery.esasky.ESASkyClass.get_ima
 are the same. You can for example, download a table list just like in get_maps by doing something like this:
 
 .. code-block:: python
+
     >>> from astroquery.esasky import ESASky
     >>> table_list_from_query_maps=ESASky.query_sso(sso_name="ganymede", missions="XMM")
     >>> table_list_from_query_maps['XMM'].remove_rows(list(range(0, 32)))
@@ -418,6 +421,7 @@ are the same. You can for example, download a table list just like in get_maps b
 Or download everything on an SSO by something like this:
 
 .. code-block:: python
+
     >>> from astroquery.esasky import ESASky
     >>> images=ESASky.get_images_sso(sso_name="ganymede")
 
@@ -427,6 +431,7 @@ objects with a given name. Here you can see all matches and there aliases and ty
 specify which SSO you are after. Use :meth:`astroquery.esasky.ESASkyClass.find_sso` like this:
 
 .. code-block:: python
+
     >>> from astroquery.esasky import ESASky
     >>> list_of_matches=ESASky.find_sso(sso_name="Io")
 
