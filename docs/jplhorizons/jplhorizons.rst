@@ -82,9 +82,8 @@ calendar dates/times and Julian Dates, refer to UTC for ephemerides queries, TDB
 for element queries and vector queries. By default, ``epochs=None``, which uses
 the current date and time.
 
-``id_type`` controls how `Horizons resolves the ``id``
-<https://ssd.jpl.nasa.gov/horizons/manual.html#select>_` to match a Solar System
-body:
+``id_type`` controls how `Horizons resolves the 'id' <https://ssd.jpl.nasa.gov/horizons/manual.html#select>`_
+to match a Solar System body:
 
 +--------------------+------------------------------------------------------------------------------------------------------------------------------------------+
 | ``id_type``        | Query behavior                                                                                                                           |
