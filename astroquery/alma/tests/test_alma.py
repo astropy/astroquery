@@ -410,3 +410,34 @@ def test_galactic_query():
                                radius=1*u.deg, get_query_payload=True)
 
     assert result['ra_dec'] == SkyCoord(0*u.deg, 0*u.deg, frame='galactic').icrs.to_string() + ", 1.0"
+
+
+def test_download_files():
+    def _requests_mock(method, url, **kwargs):
+        response = Mock()
+        response.headers = {
+            'Content-Disposition': 'attachment; '
+                                   'filename={}'.format(url.split('/')[-1])}
+        return response
+
+    def _download_file_mock(url, file_name, **kwargs):
+        return file_name
+    alma = Alma()
+    alma._request = Mock(side_effect=_requests_mock)
+    alma._download_file = Mock(side_effect=_download_file_mock)
+    downloaded_files = alma.download_files(['https://location/file1'])
+    assert len(downloaded_files) == 1
+    assert downloaded_files[0].endswith('file1')
+
+    alma._request.reset_mock()
+    alma._download_file.reset_mock()
+    downloaded_files = alma.download_files(['https://location/file1',
+                                            'https://location/file2'])
+    assert len(downloaded_files) == 2
+
+    # error cases
+    alma._request = Mock()
+    # no Content-Disposition results in no downloaded file
+    alma._request.return_value = Mock(headers={})
+    result = alma.download_files(['https://location/file1'])
+    assert not result
