@@ -72,7 +72,7 @@ class MastMissionsClass(MastQueryWithLogin):
             Default 3 degrees.
             The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from
-            `~astropy.units` may also be used. Defaults to 0.2 deg.
+            `~astropy.units` may also be used. Defaults to 3 arcminutes.
         **kwargs
             Other mission-specific keyword args.
             These can be found at the following link
@@ -108,7 +108,7 @@ class MastMissionsClass(MastQueryWithLogin):
     @class_or_instance
     def query_criteria_async(self, **criteria):
         """
-        Given an set of filters, returns a list of catalog entries.
+        Given a set of search criteria, returns a list of mission metadata.
 
         Parameters
         ----------
@@ -168,7 +168,7 @@ class MastMissionsClass(MastQueryWithLogin):
             Default 3 arcmin.
             The string must be parsable by `~astropy.coordinates.Angle`.
             The appropriate `~astropy.units.Quantity` object from
-            `~astropy.units` may also be used. Defaults to 0.2 deg.
+            `~astropy.units` may also be used. Defaults to 3 arcminutes.
         **kwargs
             Mission-specific keyword args.
             These can be found in the `service documentation <https://mast.stsci.edu/api/v0/_services.html>`__.

@@ -192,11 +192,13 @@ def test_missions_query_object_async(patch_post):
 def test_missions_query_object(patch_post):
     result = mast.MastMissions.query_object("M101", radius=".002 deg")
     assert isinstance(result, Table)
+    assert len(result) > 0
 
 
 def test_missions_query_region(patch_post):
     result = mast.MastMissions.query_region(regionCoords, radius=0.002 * u.deg)
     assert isinstance(result, Table)
+    assert len(result) > 0
 
 
 def test_missions_query_criteria_async(patch_post):
