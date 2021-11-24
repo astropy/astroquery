@@ -126,8 +126,6 @@ You can query by object name or by circular region:
 .. doctest-remote-data::
     >>> from astroquery.alma import Alma
     >>> m83_data = Alma.query_object('M83')
-    >>> print(len(m83_data))
-    352
     >>> m83_data.colnames
     ['access_url', 'access_format', 'proposal_id', 'data_rights', 'gal_longitude',
     'gal_latitude', 'obs_publisher_did', 'obs_collection', 'facility_name',
@@ -152,8 +150,6 @@ Region queries are just like any other in astroquery:
     >>> galactic_center = coordinates.SkyCoord(0*u.deg, 0*u.deg,
     ...                                        frame='galactic')
     >>> gc_data = Alma.query_region(galactic_center, 1*u.deg)
-    >>> print(len(gc_data))
-    1558
 
 Querying by other parameters
 ============================
