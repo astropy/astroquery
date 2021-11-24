@@ -348,6 +348,24 @@ a ``location`` keyword in the call to :meth:`~astroquery.eso.EsoClass.retrieve_d
 In all cases, if a requested dataset is already found,
 it is not downloaded again from the archive.
 
+By default, calling ``eso.retrieve_data`` submits a new archive request
+through the web form to stage and download the requested ``datasets``. If you
+would like to download datasets from an existing request, either submitted
+through the functions here or externally, call ``retrieve_data`` with the
+``request_id`` option:
+
+.. code-block:: python
+
+    >>> data_files = eso.retrieve_data(table['DP.ID'][:2], request_id=999999)
+
+The ``request_id`` can be found in the automatic email sent by the archive after
+staging the initial request, i.e., https://dataportal.eso.org/rh/requests/[USERNAME]/{request_id}. A summary of your available requests is shown at https://dataportal.eso.org/rh/requests/[USERNAME]/recentRequests.  
+
+Note: The function does check that the specified retrieval URL based on
+``request_id`` is valid and then that the datasets indicated there are
+consistent with the user-specified ``datasets``, but there is currently no
+reverse checking that the specified ``datasets`` are provided in
+``request_id``.
 
 Reference/API
 =============
