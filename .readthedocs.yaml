@@ -1,3 +1,5 @@
+version: 2
+
 conda:
   file: .rtd-environment.yml
 
