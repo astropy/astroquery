@@ -281,10 +281,6 @@ the data such as the files, their urls, sizes etc:
 .. code-block:: python
 .. doctest-remote-data::
    >>> link_list = Alma.get_data_info(uids)
-   >>> link_list['content_length'].sum()
-   538298369462
-   >>> len(link_list)
-   >>> 47
 
 By default, ALMA data is delivered as tarball files. However, the content of
 some of these files can be listed and accessed individually. To get information
@@ -293,8 +289,6 @@ on the individual files:
 .. code-block:: python
 .. doctest-remote-data::
     >>> link_list = Alma.get_data_info(uids, expand_tarfiles=True)
-    >>> len(link_list)
-    >>> 50
 
 You can then go on to download that data.  The download will be cached so that repeat
 queries of the same file will not re-download the data.  The default cache
@@ -303,15 +297,15 @@ changing the ``cache_location`` variable:
 
 .. code-block:: python
 .. doctest-remote-data::
-   >>> myAlma = Alma()
-   >>> myAlma.cache_location = '/big/external/drive/'
-   >>> myAlma.download_files(link_list, cache=True)
+   >>> myAlma = Alma() # doctest: +SKIP
+   >>> myAlma.cache_location = '/big/external/drive/' # doctest: +SKIP
+   >>> myAlma.download_files(link_list, cache=True) # doctest: +SKIP
 
 You can also do the downloading all in one step:
 
 .. code-block:: python
 .. doctest-remote-data::
-   >>> myAlma.retrieve_data_from_uid(uids[0])
+   >>> myAlma.retrieve_data_from_uid(uids[0]) # doctest: +SKIP
 
 If you have huge files, sometimes the transfer fails, so you will need to
 restart the download.  By default, the module will resume downloading where the
