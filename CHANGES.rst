@@ -24,6 +24,11 @@ Infrastructure, Utility and Other Changes and Additions
 - Adding ``--alma-site`` pytest option for testing to have a control over
   which specific site to test. [#2224]
 
+utils.tap
+^^^^^^^^^
+
+- Changing the default verbosity of TapPlus to False. [#2228]
+
 
 0.4.4 (2021-11-17)
 ==================

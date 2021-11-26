@@ -724,7 +724,7 @@ class TapPlus(Tap):
                  table_edit_context=None,
                  data_context=None,
                  datalink_context=None,
-                 verbose=True):
+                 verbose=False):
         """Constructor
 
         Parameters
