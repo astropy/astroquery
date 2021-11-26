@@ -12,10 +12,9 @@ European Space Agency (ESA)
 
 Created on 23 oct. 2018
 
-
 """
 
-from astroquery.utils.tap.core import TapPlus
+
 from astropy import config as _config
 
 
@@ -24,10 +23,10 @@ class Conf(_config.ConfigNamespace):
     Configuration parameters for `astroquery.esa.jwst`.
     """
 
-    JWST_TAP_SERVER = _config.ConfigItem("http://jwstdummytap.com")
-    JWST_DATA_SERVER = _config.ConfigItem("http://jwstdummydata.com")
-    JWST_TOKEN = _config.ConfigItem("jwstToken")
-    JWST_MESSAGES = _config.ConfigItem("notification?action=GetNotifications")
+    JWST_TAP_SERVER = _config.ConfigItem("http://jwstdummytap.com", "eJWST TAP Server")
+    JWST_DATA_SERVER = _config.ConfigItem("http://jwstdummydata.com", "eJWST Data Server")
+    JWST_TOKEN = _config.ConfigItem("jwstToken", "eJWST token")
+    JWST_MESSAGES = _config.ConfigItem("notification?action=GetNotifications", "eJWST Messages")
 
     JWST_MAIN_TABLE = _config.ConfigItem("jwst.main", "JWST main table, combination of observation and plane tables.")
 
