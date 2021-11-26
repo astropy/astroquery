@@ -518,7 +518,7 @@ class NedClass(BaseQuery):
                  'VO-table': 'VOTable'}
 
         pattern = re.compile(
-            f'<a\s+href\s*?="?\s*?(.+?{extensions[file_format]})"?\s*?>\s*?(?:Retrieve|{names[file_format]})</a>',
+            fr'<a\s+href\s*?="?\s*?(.+?{extensions[file_format]})"?\s*?>\s*?(?:Retrieve|{names[file_format]})</a>',
             re.IGNORECASE)
         matched_urls = pattern.findall(html_in)
         url_list = [base_url + img_url for img_url in matched_urls]
