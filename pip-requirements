@@ -1,7 +1,0 @@
-numpy>=1.12
-astropy>=2.0
-requests>=2.4.3
-keyring>=4.0
-beautifulsoup4>=4.3.2
-html5lib>=0.999
-pyvo>=1.1
