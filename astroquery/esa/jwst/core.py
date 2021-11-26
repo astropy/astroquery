@@ -14,7 +14,6 @@ import os
 import shutil
 import tarfile
 import zipfile
-from urllib.parse import urlencode, quote_plus
 from builtins import isinstance
 from datetime import datetime
 
@@ -23,19 +22,17 @@ from astropy import units
 from astropy.coordinates import SkyCoord
 from astropy.table import vstack
 from astropy.units import Quantity
-from astroquery.exceptions import RemoteServiceError
 from requests.exceptions import ConnectionError
-from astroquery.utils import send_request
 
-from astroquery.query import BaseQuery
+from astroquery.exceptions import RemoteServiceError
 from astroquery.ipac.ned import Ned
+from astroquery.query import BaseQuery
 from astroquery.simbad import Simbad
 from astroquery.utils import commons
 from astroquery.utils.tap import TapPlus
 from astroquery.vizier import Vizier
 from . import conf
 from .data_access import JwstDataHandler
-
 
 __all__ = ['Jwst', 'JwstClass']
 
@@ -44,6 +41,7 @@ class JwstClass(BaseQuery):
 
     """
     Proxy class to default TapPlus object (pointing to JWST Archive)
+    THIS MODULE IS NOT OPERATIVE YET. METHODS WILL NOT WORK UNTIL eJWST ARCHIVE IS OFFICIALLY RELEASED
     """
 
     JWST_DEFAULT_COLUMNS = ['observationid', 'calibrationlevel', 'public',
@@ -60,7 +58,7 @@ class JwstClass(BaseQuery):
     CAL_LEVELS = ['ALL', 1, 2, 3, -1]
     REQUESTED_OBSERVATION_ID = "Missing required argument: 'observation_id'"
 
-    def __init__(self, tap_plus_handler=None, data_handler=None):
+    def __init__(self, *, tap_plus_handler=None, data_handler=None):
         if tap_plus_handler is None:
             self.__jwsttap = TapPlus(url=conf.JWST_TAP_SERVER,
                                      data_context='data')
@@ -70,9 +68,9 @@ class JwstClass(BaseQuery):
         if data_handler is None:
             self.__jwstdata = JwstDataHandler(
                 base_url=conf.JWST_DATA_SERVER)
-            # self.__jwstdata = self.__jwsttap;
         else:
             self.__jwstdata = data_handler
+        print("THIS MODULE IS NOT OPERATIVE YET. METHODS WILL NOT WORK UNTIL eJWST ARCHIVE IS OFFICIALLY RELEASED")
 
     def load_tables(self, *, only_names=False, include_shared_tables=False,
                     verbose=False):
@@ -677,7 +675,7 @@ class JwstClass(BaseQuery):
         token: str, mandatory
             MAST token to have access to propietary data
         """
-        subContext = "jwstToken"
+        subContext = conf.JWST_TOKEN
         args = {"token": token}
         connHandler = self.__jwsttap._TapPlus__getconnhandler()
         data = connHandler.url_encode(args)
@@ -688,6 +686,19 @@ class JwstClass(BaseQuery):
             print("ERROR: Server error when setting the token")
         else:
             print("MAST token has been set successfully")
+
+    def get_status_messages(self):
+        """Retrieve the messages to inform users about
+        the status of JWST TAP
+        """
+
+        subContext = conf.JWST_MESSAGES
+        connHandler = self.__jwsttap._TapPlus__getconnhandler()
+        response = connHandler.execute_tapget(subContext, False)
+        if response.status == 200:
+            for line in response:
+                string_message = line.decode("utf-8")
+                print(string_message[string_message.index('=')+1:])
 
     def get_product_list(self, *, observation_id=None,
                          cal_level="ALL",

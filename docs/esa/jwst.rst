@@ -6,13 +6,15 @@
 JWST TAP+ (`astroquery.esa.jwst`)
 *********************************
 
+**THIS MODULE IS NOT OPERATIVE YET. METHODS WILL NOT WORK UNTIL eJWST ARCHIVE IS OFFICIALLY RELEASED**
+
 The James Webb Space Telescope (JWST) is a collaborative project between NASA,
 ESA, and the Canadian Space Agency (CSA). Although radically different in
 design, and emphasizing the infrared part of the electromagnetic spectrum,
 JWST is widely seen as the successor to the Hubble Space Telescope (HST).
-The JWST observatory will consist of a deployable 6.6 meter passively cooled
-telescope optimized for infrared wavelengths, and will be operated in deep
-space at the anti-Sun Earth-Sun Lagrangian point (L2). It will carry four
+The JWST observatory consist of a deployable 6.6 meter passively cooled
+telescope optimized for infrared wavelengths, and is operated in deep
+space at the anti-Sun Earth-Sun Lagrangian point (L2). It carries four
 scientific instruments: a near-infrared camera (NIRCam), a
 near-infrared multi-object spectrograph (NIRSpec) covering the 0.6 - 5 μm
 spectral region, a near-infrared slit-less spectrograph (NIRISS), and a
@@ -45,7 +47,7 @@ TAP provides two operation modes: Synchronous and Asynchronous:
 * Synchronous: the response to the request will be generated as soon as the
   request received by the server.
   (Do not use this method for queries that generate a big amount of results.)
-* Asynchronous: the server will start a job that will execute the request.
+* Asynchronous: the server starts a job that will execute the request.
   The first response to the request is the required information (a link)
   to obtain the job status.
   Once the job is finished, the results can be retrieved.
@@ -78,6 +80,16 @@ This python module provides an Astroquery API access.
 ========
 Examples
 ========
+
+It is highly recommended checking the status of JWST TAP before executing this module. To do this:
+
+.. code-block:: python
+
+  >>> from astroquery.esa.jwst import Jwst
+  >>> Jwst.get_status_messages()
+
+This method will retrieve the same warning messages shown in JWST Science Archive with information about
+service degradation.
 
 ---------------------------
 1. Non authenticated access

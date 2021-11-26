@@ -31,10 +31,7 @@ def get_product_mock(params, *args, **kwargs):
 
 @pytest.fixture(autouse=True)
 def get_product_request(request):
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
+    mp = request.getfixturevalue("monkeypatch")
     mp.setattr(JwstClass, '_query_get_product', get_product_mock)
     return mp
 
@@ -43,14 +40,13 @@ class TestData:
 
     def test_get_product(self):
         dummyTapHandler = DummyTapHandler()
-        jwst = JwstClass(dummyTapHandler)
+        jwst = JwstClass(tap_plus_handler=dummyTapHandler)
         # default parameters
         parameters = {}
         parameters['artifact_id'] = None
         with pytest.raises(ValueError) as err:
             jwst.get_product()
         assert "Missing required argument: 'artifact_id'" in err.value.args[0]
-        # dummyDataHandler.check_call('get_product', parameters)
         # test with parameters
         dummyTapHandler.reset()
         parameters = {}
@@ -59,8 +55,7 @@ class TestData:
         params_dict['DATA_RETRIEVAL_ORIGIN'] = 'ASTROQUERY'
         params_dict['ARTIFACTID'] = '00000000-0000-0000-8740-65e2827c9895'
         parameters['params_dict'] = params_dict
-        parameters['output_file'] = 'jw00617023001_02102_00001_nrcb4_'\
-                                    'uncal.fits'
+        parameters['output_file'] = 'jw00617023001_02102_00001_nrcb4_uncal.fits'
         parameters['verbose'] = False
         jwst.get_product(artifact_id='00000000-0000-0000-8740-65e2827c9895')
         dummyTapHandler.check_call('load_data', parameters)

@@ -26,6 +26,8 @@ class Conf(_config.ConfigNamespace):
 
     JWST_TAP_SERVER = _config.ConfigItem("http://jwstdummytap.com")
     JWST_DATA_SERVER = _config.ConfigItem("http://jwstdummydata.com")
+    JWST_TOKEN = _config.ConfigItem("jwstToken")
+    JWST_MESSAGES = _config.ConfigItem("notification?action=GetNotifications")
 
     JWST_MAIN_TABLE = _config.ConfigItem("jwst.main", "JWST main table, combination of observation and plane tables.")
 
