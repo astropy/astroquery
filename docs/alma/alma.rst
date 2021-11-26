@@ -126,7 +126,7 @@ You can query by object name or by circular region:
 .. doctest-remote-data::
     >>> from astroquery.alma import Alma
     >>> m83_data = Alma.query_object('M83')
-    >>> m83_data.colnames
+    >>> m83_data.colnames # doctest: +SKIP
     ['obs_publisher_did', 'obs_collection', 'facility_name', 'instrument_name',
     'obs_id', 'dataproduct_type', 'calib_level', 'target_name', 's_ra',
     's_dec', 's_fov', 's_region', 's_resolution', 't_min', 't_max',
@@ -153,6 +153,11 @@ Region queries are just like any other in astroquery:
     >>> galactic_center = coordinates.SkyCoord(0*u.deg, 0*u.deg,
     ...                                        frame='galactic')
     >>> gc_data = Alma.query_region(galactic_center, 1*u.deg)
+    >>> print(gc_data) # doctest: +IGNORE_OUTPUT
+         obs_publisher_did      obs_collection facility_name ...     scientific_category           lastModified
+                                                             ...
+    --------------------------- -------------- ------------- ... --------------------------- -----------------------
+    ADS/JAO.ALMA#2012.1.00133.S           ALMA           JAO ...      ISM and star formation 2021-09-30T16:34:41.133
 
 Querying by other parameters
 ============================
@@ -169,7 +174,7 @@ subset of keywords returning results in 'ObsCore' format.
 
 .. code-block:: python
 
-    >>> # Alma.query_sia(pol='XX')
+    >>> Alma.query_sia(pol='XX') # doctest: +SKIP
 
 Finally, the ''query_tap'' method is the most general way of querying the ALMA
 metadata. This method is used to send queries to the service using the
@@ -179,6 +184,12 @@ format.
 .. code-block:: python
 .. doctest-remote-data::
     >>> Alma.query_tap("select * from ivoa.obscore where target_name like '%M83%'") # doctest: +IGNORE_OUTPUT
+    <Table length=364>
+         obs_publisher_did      obs_collection facility_name ...                                   science_keyword                                     scientific_category         lastModified
+                                                             ...
+               str33                 str4           str3     ...                                        str200                                                str200                  object
+    --------------------------- -------------- ------------- ... ------------------------------------------------------------------------------------ ---------------------- -----------------------
+    ADS/JAO.ALMA#2016.1.00164.S           ALMA           JAO ...                                         Starbursts, star formation, Galaxy chemistry        Active galaxies 2021-09-30T16:34:41.133
 
 
 Use the ''help_tap'' method to learn about the ALMA 'ObsCore' keywords and
