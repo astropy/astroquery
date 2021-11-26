@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Produced with astropy.io.votable version 4.0.1.post1
+     http://www.astropy.org/ -->
+<VOTABLE version="1.4" xmlns="http://www.ivoa.net/xml/VOTable/v1.4" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.ivoa.net/xml/VOTable/v1.4">
+ <RESOURCE type="results">
+  <TABLE ID="II_336_apass9" name="II/336/apass9">
+   <DESCRIPTION>
+    The APASS catalog
+   </DESCRIPTION>
+   <FIELD ID="recno" datatype="int" name="recno" ucd="RECORD" width="8">
+    <DESCRIPTION>
+     Record number assigned by the VizieR team. Should Not be used for
+     identification.
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="RAJ2000" datatype="double" name="RAJ2000" precision="6" ucd="POS_EQ_RA_MAIN" unit="deg" width="10">
+    <DESCRIPTION>
+     Right ascension in decimal degrees (J2000)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="DEJ2000" datatype="double" name="DEJ2000" precision="6" ucd="POS_EQ_DEC_MAIN" unit="deg" width="10">
+    <DESCRIPTION>
+     Declination in decimal degrees (J2000)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="e_RAJ2000" datatype="float" name="e_RAJ2000" precision="3" ucd="ERROR" unit="arcsec" width="6">
+    <DESCRIPTION>
+     [0/2.4] RA uncertainty
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="e_DEJ2000" datatype="float" name="e_DEJ2000" precision="3" ucd="ERROR" unit="arcsec" width="6">
+    <DESCRIPTION>
+     [0/2.4] DEC uncertainty
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="Field" datatype="long" name="Field" ucd="ID_FIELD" width="10">
+    <DESCRIPTION>
+     [20110001/9999988888] Field name
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="nobs" datatype="short" name="nobs" ucd="NUMBER" width="3">
+    <DESCRIPTION>
+     [2/387] Number of observed nights
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="mobs" datatype="short" name="mobs" ucd="NUMBER" width="4">
+    <DESCRIPTION>
+     [2/3476] Number of images for this field, usually nobs*5
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="B-V" datatype="float" name="B-V" precision="3" ucd="PHOT_JHN_B-V" unit="mag" width="6">
+    <DESCRIPTION>
+     [-7.5/13]? B-V color index
+    </DESCRIPTION>
+    <VALUES null="nan"/>
+   </FIELD>
+   <FIELD ID="e_B-V" datatype="float" name="e_B-V" precision="3" ucd="ERROR" unit="mag" width="6">
+    <DESCRIPTION>
+     [0/10.1]? B-V uncertainty
+    </DESCRIPTION>
+    <VALUES null="nan"/>
+   </FIELD>
+   <FIELD ID="Vmag" datatype="float" name="Vmag" precision="3" ucd="PHOT_JHN_V" unit="mag" width="6">
+    <DESCRIPTION>
+     [5.5/27.4]? Johnson V-band magnitude
+    </DESCRIPTION>
+    <VALUES null="nan"/>
+   </FIELD>
+   <FIELD ID="e_Vmag" datatype="float" name="e_Vmag" precision="3" ucd="ERROR" unit="mag" width="6">
+    <DESCRIPTION>
+     [0/7]? Vmag uncertainty
+    </DESCRIPTION>
+    <VALUES null="nan"/>
+   </FIELD>
+   <FIELD ID="Bmag" datatype="float" name="Bmag" precision="3" ucd="PHOT_JHN_B" unit="mag" width="6">
+    <DESCRIPTION>
+     [5.4/27.3]? Johnson B-band magnitude
+    </DESCRIPTION>
+    <VALUES null="nan"/>
+   </FIELD>
+   <FIELD ID="e_Bmag" datatype="float" name="e_Bmag" precision="3" ucd="ERROR" unit="mag" width="6">
+    <DESCRIPTION>
+     [0/10]? Bmag uncertainty
+    </DESCRIPTION>
+    <VALUES null="nan"/>
+   </FIELD>
+   <FIELD ID="g_mag" datatype="float" name="g_mag" precision="3" ucd="PHOT_SDSS_G" unit="mag" width="6">
+    <DESCRIPTION>
+     [5.9/24.2]? g'-band AB magnitude, Sloan filter
+    </DESCRIPTION>
+    <VALUES null="nan"/>
+   </FIELD>
+   <FIELD ID="e_g_mag" datatype="float" name="e_g_mag" precision="3" ucd="ERROR" unit="mag" width="6">
+    <DESCRIPTION>
+     [0/9.7]? g'mag uncertainty
+    </DESCRIPTION>
+    <VALUES null="nan"/>
+   </FIELD>
+   <FIELD ID="r_mag" datatype="float" name="r_mag" precision="3" ucd="PHOT_SDSS_R" unit="mag" width="6">
+    <DESCRIPTION>
+     [5.1/23.9]? r'-band AB magnitude, Sloan filter
+    </DESCRIPTION>
+    <VALUES null="nan"/>
+   </FIELD>
+   <FIELD ID="e_r_mag" datatype="float" name="e_r_mag" precision="3" ucd="ERROR" unit="mag" width="6">
+    <DESCRIPTION>
+     [0/6.5]? r'mag uncertainty
+    </DESCRIPTION>
+    <VALUES null="nan"/>
+   </FIELD>
+   <FIELD ID="i_mag" datatype="float" name="i_mag" precision="3" ucd="PHOT_SDSS_I" unit="mag" width="6">
+    <DESCRIPTION>
+     [4.2/29.1]? i'-band AB magnitude, Sloan filter
+    </DESCRIPTION>
+    <VALUES null="nan"/>
+   </FIELD>
+   <FIELD ID="e_i_mag" datatype="float" name="e_i_mag" precision="3" ucd="ERROR" unit="mag" width="6">
+    <DESCRIPTION>
+     [0/9.6]? i'mag uncertainty
+    </DESCRIPTION>
+    <VALUES null="nan"/>
+   </FIELD>
+   <DATA>
+    <TABLEDATA>
+     <TR>
+      <TD>25168643</TD>
+      <TD> 83.652835</TD>
+      <TD> 21.987047</TD>
+      <TD> 1.383</TD>
+      <TD> 1.076</TD>
+      <TD>20151087</TD>
+      <TD>3</TD>
+      <TD>6</TD>
+      <TD> 0.822</TD>
+      <TD> 0.328</TD>
+      <TD>15.468</TD>
+      <TD> 0.068</TD>
+      <TD>16.290</TD>
+      <TD> 0.320</TD>
+      <TD>15.648</TD>
+      <TD> 0.000</TD>
+      <TD/>
+      <TD/>
+      <TD>14.602</TD>
+      <TD> 0.000</TD>
+     </TR>
+     <TR>
+      <TD>25168645</TD>
+      <TD> 83.655449</TD>
+      <TD> 21.999445</TD>
+      <TD> 1.187</TD>
+      <TD> 0.909</TD>
+      <TD>20151087</TD>
+      <TD>6</TD>
+      <TD>27</TD>
+      <TD> 0.930</TD>
+      <TD> 0.056</TD>
+      <TD>14.773</TD>
+      <TD> 0.031</TD>
+      <TD>15.702</TD>
+      <TD> 0.047</TD>
+      <TD>15.332</TD>
+      <TD> 0.170</TD>
+      <TD>14.651</TD>
+      <TD> 0.183</TD>
+      <TD>14.072</TD>
+      <TD> 0.036</TD>
+     </TR>
+     <TR>
+      <TD>25169359</TD>
+      <TD> 83.625453</TD>
+      <TD> 21.982948</TD>
+      <TD> 0.421</TD>
+      <TD> 0.323</TD>
+      <TD>20151087</TD>
+      <TD>6</TD>
+      <TD>30</TD>
+      <TD> 0.902</TD>
+      <TD> 0.068</TD>
+      <TD>13.885</TD>
+      <TD> 0.043</TD>
+      <TD>14.787</TD>
+      <TD> 0.054</TD>
+      <TD>14.242</TD>
+      <TD> 0.067</TD>
+      <TD>13.536</TD>
+      <TD> 0.055</TD>
+      <TD>13.330</TD>
+      <TD> 0.034</TD>
+     </TR>
+     <TR>
+      <TD>25169364</TD>
+      <TD> 83.634518</TD>
+      <TD> 22.009752</TD>
+      <TD> 0.982</TD>
+      <TD> 0.621</TD>
+      <TD>20121088</TD>
+      <TD>2</TD>
+      <TD>3</TD>
+      <TD> 0.693</TD>
+      <TD> 0.199</TD>
+      <TD>15.461</TD>
+      <TD> 0.000</TD>
+      <TD>16.154</TD>
+      <TD> 0.199</TD>
+      <TD/>
+      <TD/>
+      <TD>15.099</TD>
+      <TD> 0.000</TD>
+      <TD/>
+      <TD/>
+     </TR>
+     <TR>
+      <TD>25169365</TD>
+      <TD> 83.630254</TD>
+      <TD> 22.017264</TD>
+      <TD> 0.733</TD>
+      <TD> 1.240</TD>
+      <TD>20151087</TD>
+      <TD>4</TD>
+      <TD>11</TD>
+      <TD> 0.678</TD>
+      <TD> 0.024</TD>
+      <TD>14.622</TD>
+      <TD> 0.023</TD>
+      <TD>15.300</TD>
+      <TD> 0.006</TD>
+      <TD>15.054</TD>
+      <TD> 0.064</TD>
+      <TD>14.279</TD>
+      <TD> 0.000</TD>
+      <TD>13.756</TD>
+      <TD> 0.095</TD>
+     </TR>
+     <TR>
+      <TD>25169366</TD>
+      <TD> 83.631052</TD>
+      <TD> 22.016343</TD>
+      <TD> 1.459</TD>
+      <TD> 1.385</TD>
+      <TD>20151087</TD>
+      <TD>4</TD>
+      <TD>7</TD>
+      <TD> 0.880</TD>
+      <TD> 0.000</TD>
+      <TD>14.487</TD>
+      <TD> 0.000</TD>
+      <TD>15.367</TD>
+      <TD> 0.000</TD>
+      <TD>15.049</TD>
+      <TD> 0.038</TD>
+      <TD>14.383</TD>
+      <TD> 0.094</TD>
+      <TD/>
+      <TD/>
+     </TR>
+     <TR>
+      <TD>25169367</TD>
+      <TD> 83.642783</TD>
+      <TD> 22.033328</TD>
+      <TD> 0.455</TD>
+      <TD> 0.802</TD>
+      <TD>20151087</TD>
+      <TD>6</TD>
+      <TD>30</TD>
+      <TD> 0.869</TD>
+      <TD> 0.060</TD>
+      <TD>13.969</TD>
+      <TD> 0.026</TD>
+      <TD>14.838</TD>
+      <TD> 0.055</TD>
+      <TD>14.364</TD>
+      <TD> 0.061</TD>
+      <TD>13.585</TD>
+      <TD> 0.049</TD>
+      <TD>13.387</TD>
+      <TD> 0.058</TD>
+     </TR>
+     <TR>
+      <TD>25169368</TD>
+      <TD> 83.659578</TD>
+      <TD> 22.029752</TD>
+      <TD> 1.151</TD>
+      <TD> 0.817</TD>
+      <TD>20151087</TD>
+      <TD>4</TD>
+      <TD>17</TD>
+      <TD> 0.644</TD>
+      <TD> 0.104</TD>
+      <TD>14.839</TD>
+      <TD> 0.080</TD>
+      <TD>15.483</TD>
+      <TD> 0.066</TD>
+      <TD>15.100</TD>
+      <TD> 0.022</TD>
+      <TD>14.548</TD>
+      <TD> 0.139</TD>
+      <TD>14.296</TD>
+      <TD> 0.011</TD>
+     </TR>
+     <TR>
+      <TD>25169369</TD>
+      <TD> 83.667646</TD>
+      <TD> 22.021452</TD>
+      <TD> 1.180</TD>
+      <TD> 0.453</TD>
+      <TD>20151087</TD>
+      <TD>3</TD>
+      <TD>9</TD>
+      <TD> 1.512</TD>
+      <TD> 0.000</TD>
+      <TD>15.483</TD>
+      <TD> 0.000</TD>
+      <TD>16.995</TD>
+      <TD> 0.000</TD>
+      <TD>16.115</TD>
+      <TD> 0.013</TD>
+      <TD>15.103</TD>
+      <TD> 0.147</TD>
+      <TD>14.798</TD>
+      <TD> 0.000</TD>
+     </TR>
+     <TR>
+      <TD>25169370</TD>
+      <TD> 83.620278</TD>
+      <TD> 22.026738</TD>
+      <TD> 0.746</TD>
+      <TD> 1.356</TD>
+      <TD>20151087</TD>
+      <TD>2</TD>
+      <TD>6</TD>
+      <TD> 0.691</TD>
+      <TD> 0.115</TD>
+      <TD>15.125</TD>
+      <TD> 0.112</TD>
+      <TD>15.816</TD>
+      <TD> 0.027</TD>
+      <TD>15.673</TD>
+      <TD> 0.000</TD>
+      <TD>15.053</TD>
+      <TD> 0.000</TD>
+      <TD/>
+      <TD/>
+     </TR>
+     <TR>
+      <TD>25169372</TD>
+      <TD> 83.610487</TD>
+      <TD> 22.037842</TD>
+      <TD> 0.534</TD>
+      <TD> 1.403</TD>
+      <TD>20151088</TD>
+      <TD>2</TD>
+      <TD>7</TD>
+      <TD> 0.891</TD>
+      <TD> 0.042</TD>
+      <TD>14.357</TD>
+      <TD> 0.034</TD>
+      <TD>15.248</TD>
+      <TD> 0.024</TD>
+      <TD>14.857</TD>
+      <TD> 0.000</TD>
+      <TD>14.141</TD>
+      <TD> 0.000</TD>
+      <TD>13.807</TD>
+      <TD> 0.000</TD>
+     </TR>
+    </TABLEDATA>
+   </DATA>
+  </TABLE>
+ </RESOURCE>
+</VOTABLE>

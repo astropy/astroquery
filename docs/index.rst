@@ -180,6 +180,7 @@ The following modules have been completed using a common API:
   cds/cds.rst
   esa/hubble.rst
   esa/iso.rst
+  esa/jwst.rst
   esa/xmm_newton.rst
   esasky/esasky.rst
   eso/eso.rst
@@ -292,6 +293,7 @@ generally return a table listing the available data first.
   cadc/cadc.rst
   casda/casda.rst
   esa/hubble.rst
+  esa/jwst.rst
   eso/eso.rst
   fermi/fermi.rst
   gaia/gaia.rst
