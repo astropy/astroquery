@@ -1,6 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-
 import pytest
 import os
 from collections import OrderedDict
@@ -47,10 +46,8 @@ def nonremote_request(self, request_type, url, **kwargs):
 # that mocks(monkeypatches) the actual 'requests.get' function:
 @pytest.fixture
 def patch_request(request):
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
+    mp = request.getfixturevalue("monkeypatch")
+
     mp.setattr(jplhorizons.core.HorizonsClass, '_request',
                nonremote_request)
     return mp

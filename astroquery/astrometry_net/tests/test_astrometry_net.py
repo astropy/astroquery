@@ -1,16 +1,10 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
 import json
-from distutils.version import LooseVersion
 
 import pytest
 
-from ...utils.testing_tools import MockResponse
-from ...exceptions import (InvalidQueryError)
-
 from .. import AstrometryNet
-
-_pytest_is_old = LooseVersion(pytest.__version__) < LooseVersion('3.3')
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 
@@ -19,8 +13,6 @@ def data_path(filename):
     return os.path.join(DATA_DIR, filename)
 
 
-@pytest.mark.skipif(_pytest_is_old,
-                    reason='pytest version too old for caplog')
 def test_api_key_property(caplog):
     """
     Check that an empty key is returned if the api key is not in
@@ -46,8 +38,6 @@ def test_empty_settings_property():
     assert set(empty.keys()) == set(anet._constraints.keys())
 
 
-@pytest.mark.skipif(_pytest_is_old,
-                    reason='pytest version too old for output attributes')
 def test_show_allowed_settings(capsys):
     """
     Check that the expected content is printed to standard out when the

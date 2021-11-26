@@ -39,10 +39,8 @@ def data_path(filename):
 
 @pytest.fixture
 def patch_get(request):
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
+    mp = request.getfixturevalue("monkeypatch")
+
     mp.setattr(ned.Ned, '_request', get_mockreturn)
     return mp
 
@@ -55,10 +53,9 @@ def patch_get_readable_fileobj(request):
         # otherwise
         assert encoding == 'binary'
         return open(data_path(DATA_FILES['image']), 'rb')
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
+
+    mp = request.getfixturevalue("monkeypatch")
+
     mp.setattr(commons, 'get_readable_fileobj',
                get_readable_fileobj_mockreturn)
     return mp

@@ -52,10 +52,8 @@ def format(coord):
 
 @pytest.fixture
 def patch_request(request):
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
+    mp = request.getfixturevalue("monkeypatch")
+
     mp.setattr(irsa_dust.IrsaDustClass, '_request',
                TestDust().send_request_mockreturn)
     return mp
@@ -63,10 +61,7 @@ def patch_request(request):
 
 @pytest.fixture
 def patch_fromname(request):
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
+    mp = request.getfixturevalue("monkeypatch")
 
     def fromname(self, name):
         if isinstance(name, str):

@@ -1,6 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-
 import os
 
 import numpy.testing as npt
@@ -23,20 +22,16 @@ def data_path(filename):
 def patch_parse_coordinates(request):
     def parse_coordinates_mock_return(c):
         return c
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
+    mp = request.getfixturevalue("monkeypatch")
+
     mp.setattr(commons, 'parse_coordinates', parse_coordinates_mock_return)
     return mp
 
 
 @pytest.fixture
 def patch_post(request):
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
+    mp = request.getfixturevalue("monkeypatch")
+
     mp.setattr(magpis.Magpis, '_request', post_mockreturn)
     return mp
 

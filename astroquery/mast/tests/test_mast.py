@@ -60,10 +60,7 @@ def data_path(filename):
 
 @pytest.fixture
 def patch_post(request):
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
+    mp = request.getfixturevalue("monkeypatch")
 
     mp.setattr(mast.utils, '_simple_request', resolver_mockreturn)
     mp.setattr(mast.discovery_portal.PortalAPI, '_request', post_mockreturn)

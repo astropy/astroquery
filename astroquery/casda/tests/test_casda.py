@@ -16,7 +16,7 @@ from astroquery import log
 from astroquery.casda import Casda
 
 try:
-    from unittest.mock import Mock, patch, PropertyMock, MagicMock
+    from unittest.mock import Mock, patch, MagicMock
 except ImportError:
     pytest.skip("Install mock for the casda tests.", allow_module_level=True)
 
@@ -94,10 +94,8 @@ def create_auth_failure_response():
 
 @pytest.fixture
 def patch_get(request):
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
+    mp = request.getfixturevalue("monkeypatch")
+
     mp.setattr(requests.Session, 'request', get_mockreturn)
     return mp
 
