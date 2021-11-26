@@ -926,6 +926,9 @@ class TestTap:
 
     def test_query_target(self):
         jwst = JwstClass()
+        simbad = Simbad()
+        ned = Ned()
+        vizier = Vizier()
         # Testing default parameters
         with pytest.raises(ValueError) as err:
             jwst.query_target(target_name="M1", target_resolver="")
@@ -942,13 +945,13 @@ class TestTap:
         # Testing no valid coordinates from resolvers
         simbad_file = data_path('test_query_by_target_name_simbad_ned_error.vot')
         simbad_table = Table.read(simbad_file)
-        Simbad.query_object = MagicMock(return_value=simbad_table)
+        simbad.query_object = MagicMock(return_value=simbad_table)
         ned_file = data_path('test_query_by_target_name_simbad_ned_error.vot')
         ned_table = Table.read(ned_file)
-        Ned.query_object = MagicMock(return_value=ned_table)
+        ned.query_object = MagicMock(return_value=ned_table)
         vizier_file = data_path('test_query_by_target_name_vizier_error.vot')
         vizier_table = Table.read(vizier_file)
-        Vizier.query_object = MagicMock(return_value=vizier_table)
+        vizier.query_object = MagicMock(return_value=vizier_table)
 
         coordinate_error = 'coordinate must be either a string or astropy.coordinates'
         with pytest.raises(ValueError) as err:
@@ -980,14 +983,14 @@ class TestTap:
         parameters['upload_table_name'] = None
         simbad_file = data_path('test_query_by_target_name_simbad.vot')
         simbad_table = Table.read(simbad_file)
-        Simbad.query_object = MagicMock(return_value=simbad_table)
+        simbad.query_object = MagicMock(return_value=simbad_table)
         ned_file = data_path('test_query_by_target_name_ned.vot')
         ned_table = Table.read(ned_file)
-        Ned.query_object = MagicMock(return_value=ned_table)
+        ned.query_object = MagicMock(return_value=ned_table)
         vizier_file = data_path('test_query_by_target_name_vizier.vot')
         vizier_table = Table.read(vizier_file)
         vizier_table_list = TableList({'1': vizier_table})
-        Vizier.query_object = MagicMock(return_value=vizier_table_list)
+        vizier.query_object = MagicMock(return_value=vizier_table_list)
 
         with open(data_path('test_query_by_target_name_simbad_query.txt'), 'r') as file:
             parameters['query'] = file.read()
