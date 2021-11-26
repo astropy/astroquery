@@ -1,6 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-
 import os
 import re
 
@@ -10,8 +9,6 @@ from astropy.table import Table
 from astropy.tests.helper import pytest
 from astropy.coordinates import SkyCoord
 from astropy.io import fits
-from astropy.tests.helper import catch_warnings
-from astropy.utils.exceptions import AstropyDeprecationWarning
 
 import astropy.units as u
 

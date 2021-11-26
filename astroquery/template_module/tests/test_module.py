@@ -1,6 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-
 # astroquery uses the pytest framework for testing
 # this is already available in astropy and does
 # not require a separate install. Import it using:
@@ -14,9 +13,7 @@ import pytest
 
 # Now import other commonly used modules for tests
 import os
-import requests
 
-from numpy import testing as npt
 from astropy.table import Table
 import astropy.coordinates as coord
 import astropy.units as u
