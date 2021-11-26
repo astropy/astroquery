@@ -1,10 +1,17 @@
 version: 2
 
-conda:
-  file: .rtd-environment.yml
-
 python:
+   # Revise build version once more dependencies support python 3.9+
+   version: 3.8
    setup_py_install: true
+   system_packages: false
+   install:
+     - method: pip
+       path: .
+       extra_requirements:
+          - docs
+          - all_lt_39
 
 sphinx:
    fail_on_warning: true
+   configuration: docs/conf.py
