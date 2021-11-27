@@ -348,7 +348,7 @@ extract the FITS file, then delete the tarball:
     >>> small_uid_url_table = uid_url_table[uid_url_table['content_length'] < 10**9]
     >>> # get the first 10 files...
     >>> tarball_files = uid_url_table[uid_url_table['content_type'] == 'application/x-tar']
-    >>> filelist = Alma.download_and_extract_files(tarball_files[1:10]['access_url])
+    >>> filelist = Alma.download_and_extract_files(tarball_files[1:10]['access_url'])
 
 You might want to look at the READMEs from a bunch of files so you know what kind of S/N to expect:
 
