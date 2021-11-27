@@ -7,8 +7,7 @@ from astropy.coordinates import SkyCoord
 from astropy import units as u
 from ...utils.testing_tools import MockResponse
 
-DATA_FILES = {'gal_0_3': 'gal_0_3.txt',
-              }
+DATA_FILES = {'gal_0_3': 'gal_0_3.txt'}
 
 
 def data_path(filename):
@@ -18,10 +17,8 @@ def data_path(filename):
 
 @pytest.fixture
 def patch_post(request):
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
+    mp = request.getfixturevalue("monkeypatch")
+
     mp.setattr(ogle.Ogle, '_request', post_mockreturn)
     return mp
 

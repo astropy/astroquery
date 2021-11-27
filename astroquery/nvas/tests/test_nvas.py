@@ -29,10 +29,8 @@ def data_path(filename):
 
 @pytest.fixture
 def patch_post(request):
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
+    mp = request.getfixturevalue("monkeypatch")
+
     mp.setattr(nvas.Nvas, '_request', post_mockreturn)
     return mp
 
@@ -41,10 +39,9 @@ def patch_post(request):
 def patch_parse_coordinates(request):
     def parse_coordinates_mock_return(c):
         return c
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
+
+    mp = request.getfixturevalue("monkeypatch")
+
     mp.setattr(commons, 'parse_coordinates', parse_coordinates_mock_return)
     return mp
 
@@ -67,10 +64,9 @@ def patch_get_readable_fileobj(request):
             file_obj = open(data_path(DATA_FILES["image"]),
                             "r", encoding=encoding)
         yield file_obj
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
+
+    mp = request.getfixturevalue("monkeypatch")
+
     mp.setattr(commons, 'get_readable_fileobj',
                get_readable_fileobj_mockreturn)
     return mp

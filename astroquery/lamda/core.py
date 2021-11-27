@@ -250,10 +250,7 @@ def write_lamda_datafile(filename, tables):
     coll_part_hdr = re.sub('^ +', '', coll_part_hdr, flags=re.MULTILINE)
 
     if platform.system() == 'Windows':
-        if sys.version_info[0] >= 3:
-            stream = open(filename, 'w', newline='')
-        else:
-            stream = open(filename, 'wb')
+        stream = open(filename, 'w', newline='')
     else:
         stream = open(filename, 'w')
 

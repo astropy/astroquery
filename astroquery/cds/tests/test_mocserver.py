@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*
 
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import sys
 import pytest
 import os
 import requests
@@ -33,10 +32,8 @@ DATA_FILES = {
 
 @pytest.fixture
 def patch_get(request):
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
+    mp = request.getfixturevalue("monkeypatch")
+
     mp.setattr(requests.Session, 'request', get_mockreturn)
     return mp
 

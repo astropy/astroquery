@@ -32,10 +32,8 @@ class MockResponse:
 @pytest.fixture
 def patch_get(request):
     """ mock get requests so they return our canned JSON to mimic Gemini's archive website """
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
+    mp = request.getfixturevalue("monkeypatch")
+
     mp.setattr(requests.Session, 'request', get_mockreturn)
     return mp
 
