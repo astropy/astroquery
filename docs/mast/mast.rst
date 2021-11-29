@@ -343,26 +343,21 @@ the *local_path* keyword argument.
 
 Cloud Data Access
 ------------------
-Public datasets from the Hubble, Kepler and TESS telescopes are also available on Amazon Web Services
+Public datasets from the Hubble, Kepler and TESS telescopes are also available for free on Amazon Web Services
 in `public S3 buckets <https://registry.opendata.aws/collab/stsci/>`__.
 
-Using AWS resources to process public data requires an `AWS account <https://aws.amazon.com/>`__ and associated
-`credentials file <https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html>`__. The `boto3
-<https://boto3.amazonaws.com/v1/documentation/api/latest/index.html>`__ library is also required as it handles
-connections to the AWS servers. Instructions for creating AWS credentials are available `here
-<https://stackoverflow.com/questions/21440709/how-do-i-get-aws-access-key-id-for-amazon>`__. Data transfer charges
-are the responsibility of the requester  (see `request pricing <https://aws.amazon.com/s3/pricing/>`__), however
-transfers are free within the US-East AWS region.
+Using AWS resources to process public data no longer requires an `AWS account for all AWS regions. To enable cloud data access for the Hubble, Kepler, and TESS missions, follow the steps below:
 
-Cload data access is enabled using the `~astroquery.mast.ObservationsClass.enable_cloud_dataset` function, which
-will cause AWS to become the prefered source for data access until it is disabled
+Enable cloud data access via the `~astroquery.mast.ObservationsClass.enable_cloud_dataset` function, which
+will cause AWS to become the preferred source for data access until it is disabled
 (`~astroquery.mast.ObservationsClass.disable_cloud_dataset`).
 
 To directly access a list of cloud URIs for a given dataset, use the `~astroquery.mast.ObservationsClass.get_cloud_uris`
-function, however when cloud access is enabled, the standatd download function
-`~astroquery.mast.ObservationsClass.download_products` will preferentially pull files from AWS when they are avilable.
-There is also a ``cloud_only`` flag, which when set to True will cause all data products not available in the
-cloud to be skipped.
+function (Python will prompt you to enable cloud access if you haven't already).
+
+When cloud access is enabled, the standard download function
+`~astroquery.mast.ObservationsClass.download_products` will preferentially pull files from AWS when they are available.
+When set to `True`, the ``cloud_only`` parameter in `download_products` will cause all data products not available in the cloud to be skipped.
 
 
 Getting a list of S3 URIs:
@@ -770,7 +765,7 @@ be accessed in Astroquery by using the Tesscut class.
 After the user has reached this limit TESScut will return a
 ``503 Service Temporarily Unavailable Error``.
 
-If you use TESSCut for your work, please cite Brasseur et al. 2019 
+If you use TESSCut for your work, please cite Brasseur et al. 2019
 https://ui.adsabs.harvard.edu/abs/2019ascl.soft05007B/abstract
 
 
@@ -870,9 +865,9 @@ Zcut
 ====
 
 
-Zcut for MAST allows users to request cutouts from various Hubble deep field surveys. The cutouts can 
-be returned as either fits or image files (jpg and png are supported). This tool can be accessed in 
-Astroquery by using the Zcut class. The list of supported deep field surveys can be found here: 
+Zcut for MAST allows users to request cutouts from various Hubble deep field surveys. The cutouts can
+be returned as either fits or image files (jpg and png are supported). This tool can be accessed in
+Astroquery by using the Zcut class. The list of supported deep field surveys can be found here:
 https://mast.stsci.edu/zcut/
 
 
@@ -882,7 +877,7 @@ Cutouts
 The `~astroquery.mast.ZcutClass.get_cutouts` function takes a coordinate and cutout size (in pixels or
 an angular quantity) and returns the cutout FITS file(s) as a list of ~astropy.io.fits.HDUList objects.
 
-If the given coordinate appears in more than one Zcut survey, a FITS file will be produced for each survey. 
+If the given coordinate appears in more than one Zcut survey, a FITS file will be produced for each survey.
 
 .. code-block:: python
 
@@ -1084,4 +1079,3 @@ Reference/API
 .. automodapi:: astroquery.mast
     :no-inheritance-diagram:
     :inherited-members:
-
