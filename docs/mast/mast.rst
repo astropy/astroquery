@@ -367,15 +367,9 @@ Getting a list of S3 URIs:
                 >>> import os
                 >>> from astroquery.mast import Observations
 
-                >>> # If credential environment are not already set, we can set them within python.
-                >>> os.environ['AWS_ACCESS_KEY_ID'] = 'myaccesskeyid'
-                >>> os.environ['AWS_SECRET_ACCESS_KEY'] = 'mysecretaccesskey'
-
-                >>> # If your profile is not called [default], update the next line:
-                >>> Observations.enable_cloud_dataset(provider='AWS', profile='default')
+                >>> # Simply call the `enable_cloud_dataset` method from `Observations`. The default provider is `AWS`, but we will write it in manually for this example:
+                >>> Observations.enable_cloud_dataset(provider='AWS')
                 INFO: Using the S3 STScI public dataset [astroquery.mast.core]
-                INFO: See Request Pricing in https://aws.amazon.com/s3/pricing/ for details [astroquery.mast.core]
-                INFO: If you have not configured boto3, follow the instructions here: https://boto3.readthedocs.io/en/latest/guide/configuration.html [astroquery.mast.core]
 
                 >>> # Getting the cloud URIs
                 >>> obs_table = Observations.query_criteria(obs_collection='HST',
@@ -388,8 +382,8 @@ Getting a list of S3 URIs:
                 ...                                         productSubGroupDescription='DRZ')
                 >>> s3_uris = Observations.get_cloud_uris(filtered)
                 >>> print(s3_uris)
-                ['s3://stpubdata/hst/public/jbev/jbeveo010/jbeveo010_drz.fits',
-                 's3://stpubdata/hst/public/jbev/jbevet010/jbevet010_drz.fits']
+                ['s3://stpubdata/hst/public/jbev/jbeveo010/jbeveo010_drz.fits', 's3://stpubdata/hst/public/jbev/jbeveo010/jbeveo010_drz.fits', 's3://stpubdata/hst/public/jbev/jbevet010/jbevet010_drz.fits', 's3://stpubdata/hst/public/jbev/jbevet010/jbevet010_drz.fits']
+
 
                 >>> Observations.disable_cloud_dataset()
 
@@ -401,45 +395,45 @@ Downloading data products from S3:
                 >>> import os
                 >>> from astroquery.mast import Observations
 
-                >>> # If credential environment are not already set, we can set them within python.
-                >>> os.environ['AWS_ACCESS_KEY_ID'] = 'myaccesskeyid'
-                >>> os.environ['AWS_SECRET_ACCESS_KEY'] = 'mysecretaccesskey'
-
-                >>> # If your profile is not called [default], update the next line:
-                >>> Observations.enable_cloud_dataset(provider='AWS', profile='default')
+                >>> # Simply call the `enable_cloud_dataset` method from `Observations`. The default provider is `AWS`, but we will write it in manually for this example:
+                >>> Observations.enable_cloud_dataset(provider='AWS')
                 INFO: Using the S3 STScI public dataset [astroquery.mast.core]
-                INFO: See Request Pricing in https://aws.amazon.com/s3/pricing/ for details [astroquery.mast.core]
-                INFO: If you have not configured boto3, follow the instructions here: https://boto3.readthedocs.io/en/latest/guide/configuration.html [astroquery.mast.core]
 
                 >>> # Downloading from the cloud
                 >>> obs_table = Observations.query_criteria(obs_collection=['Kepler'],
                 ...                                         objectname="Kepler 12b", radius=0)
                 >>> products = Observations.get_product_list(obs_table[0])
                 >>> manifest = Observations.download_products(products[:10], cloud_only=True)
-                ERROR: Error pulling from S3 bucket: Parameter validation failed: Invalid type for parameter Key, value: None, type: <class 'NoneType'>, valid types: <class 'str'> [astroquery.mast.core]
-                WARNING: Skipping file... [astroquery.mast.core]
-                ERROR: Error pulling from S3 bucket: Parameter validation failed: Invalid type for parameter Key, value: None, type: <class 'NoneType'>, valid types: <class 'str'> [astroquery.mast.core]
-                WARNING: Skipping file... [astroquery.mast.core]
-                ERROR: Error pulling from S3 bucket: Parameter validation failed: Invalid type for parameter Key, value: None, type: <class 'NoneType'>, valid types: <class 'str'> [astroquery.mast.core]
-                WARNING: Skipping file... [astroquery.mast.core]
-                ERROR: Error pulling from S3 bucket: Parameter validation failed: Invalid type for parameter Key, value: None, type: <class 'NoneType'>, valid types: <class 'str'> [astroquery.mast.core]
-                WARNING: Skipping file... [astroquery.mast.core]
-                ERROR: Error pulling from S3 bucket: Parameter validation failed: Invalid type for parameter Key, value: None, type: <class 'NoneType'>, valid types: <class 'str'> [astroquery.mast.core]
-                WARNING: Skipping file... [astroquery.mast.core]
-                Downloading URL s3://stpubdata/kepler/public/lightcurves/0118/011804465/kplr011804465-2009131105131_llc.fits to ./mastDownload/Kepler/kplr011804465_lc_Q111111110111011101/kplr011804465-2009131105131_llc.fits ... [Done]
-                Downloading URL s3://stpubdata/kepler/public/lightcurves/0118/011804465/kplr011804465-2009166043257_llc.fits to ./mastDownload/Kepler/kplr011804465_lc_Q111111110111011101/kplr011804465-2009166043257_llc.fits ... [Done]
-                Downloading URL s3://stpubdata/kepler/public/lightcurves/0118/011804465/kplr011804465-2009259160929_llc.fits to ./mastDownload/Kepler/kplr011804465_lc_Q111111110111011101/kplr011804465-2009259160929_llc.fits ... [Done]
-                Downloading URL s3://stpubdata/kepler/public/lightcurves/0118/011804465/kplr011804465-2009350155506_llc.fits to ./mastDownload/Kepler/kplr011804465_lc_Q111111110111011101/kplr011804465-2009350155506_llc.fits ... [Done]
-                Downloading URL s3://stpubdata/kepler/public/lightcurves/0118/011804465/kplr011804465-2010009091648_llc.fits to ./mastDownload/Kepler/kplr011804465_lc_Q111111110111011101/kplr011804465-2010009091648_llc.fits ... [Done]
+
+                manifestDownloading URL https://mast.stsci.edu/api/v0.1/Download/file?uri=mast:KEPLER/url/missions/kepler/dv_files/0118/011804465/kplr011804465-01-20160209194854_dvs.pdf to ./mastDownload/Kepler/kplr011804465_lc_Q111111110111011101/kplr011804465-01-20160209194854_dvs.pdf ...
+                |==========================================| 1.5M/1.5M (100.00%)         0s
+                Downloading URL https://mast.stsci.edu/api/v0.1/Download/file?uri=mast:KEPLER/url/missions/kepler/dv_files/0118/011804465/kplr011804465-20160128150956_dvt.fits to ./mastDownload/Kepler/kplr011804465_lc_Q111111110111011101/kplr011804465-20160128150956_dvt.fits ...
+                |==========================================|  17M/ 17M (100.00%)         1s
+                Downloading URL https://mast.stsci.edu/api/v0.1/Download/file?uri=mast:KEPLER/url/missions/kepler/dv_files/0118/011804465/kplr011804465-20160209194854_dvr.pdf to ./mastDownload/Kepler/kplr011804465_lc_Q111111110111011101/kplr011804465-20160209194854_dvr.pdf ...
+                |==========================================| 5.8M/5.8M (100.00%)         0s
+                Downloading URL https://mast.stsci.edu/api/v0.1/Download/file?uri=mast:KEPLER/url/missions/kepler/dv_files/0118/011804465/kplr011804465_q1_q17_dr25_obs_tcert.pdf to ./mastDownload/Kepler/kplr011804465_lc_Q111111110111011101/kplr011804465_q1_q17_dr25_obs_tcert.pdf ...
+                |==========================================| 2.2M/2.2M (100.00%)         0s
+                Downloading URL https://mast.stsci.edu/api/v0.1/Download/file?uri=mast:KEPLER/url/missions/kepler/previews/0118/011804465/kplr011804465-2013011073258_llc_bw_large.png to ./mastDownload/Kepler/kplr011804465_lc_Q111111110111011101/kplr011804465-2013011073258_llc_bw_large.png ...
+                |==========================================|  24k/ 24k (100.00%)         0s
+                Downloading URL https://mast.stsci.edu/api/v0.1/Download/file?uri=mast:KEPLER/url/missions/kepler/target_pixel_files/0118/011804465/kplr011804465_tpf_lc_Q111111110111011101.tar to ./mastDownload/Kepler/kplr011804465_lc_Q111111110111011101/kplr011804465_tpf_lc_Q111111110111011101.tar ...
+                |==========================================|  43M/ 43M (100.00%)         4s
+                Downloading URL https://mast.stsci.edu/api/v0.1/Download/file?uri=mast:KEPLER/url/missions/kepler/lightcurves/0118/011804465/kplr011804465_lc_Q111111110111011101.tar to ./mastDownload/Kepler/kplr011804465_lc_Q111111110111011101/kplr011804465_lc_Q111111110111011101.tar ...
+                |==========================================| 5.9M/5.9M (100.00%)         0s
+                Downloading URL https://mast.stsci.edu/api/v0.1/Download/file?uri=mast:KEPLER/url/missions/kepler/lightcurves/0118/011804465/kplr011804465-2009131105131_llc.fits to ./mastDownload/Kepler/kplr011804465_lc_Q111111110111011101/kplr011804465-2009131105131_llc.fits ...
+                |==========================================|  77k/ 77k (100.00%)         0s
+                Downloading URL https://mast.stsci.edu/api/v0.1/Download/file?uri=mast:KEPLER/url/missions/kepler/lightcurves/0118/011804465/kplr011804465-2009166043257_llc.fits to ./mastDownload/Kepler/kplr011804465_lc_Q111111110111011101/kplr011804465-2009166043257_llc.fits ...
+                |==========================================| 192k/192k (100.00%)         0s
+                Downloading URL https://mast.stsci.edu/api/v0.1/Download/file?uri=mast:KEPLER/url/missions/kepler/lightcurves/0118/011804465/kplr011804465-2009259160929_llc.fits to ./mastDownload/Kepler/kplr011804465_lc_Q111111110111011101/kplr011804465-2009259160929_llc.fits ...
+                |==========================================| 466k/466k (100.00%)         0s
 
                 >>> print(manifest["Status"])
-                 Status
+                Status
                 --------
-                 SKIPPED
-                 SKIPPED
-                 SKIPPED
-                 SKIPPED
-                 SKIPPED
+                COMPLETE
+                COMPLETE
+                COMPLETE
+                COMPLETE
+                COMPLETE
                 COMPLETE
                 COMPLETE
                 COMPLETE
