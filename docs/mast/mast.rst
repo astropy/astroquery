@@ -346,7 +346,7 @@ Cloud Data Access
 Public datasets from the Hubble, Kepler and TESS telescopes are also available for free on Amazon Web Services
 in `public S3 buckets <https://registry.opendata.aws/collab/stsci/>`__.
 
-Using AWS resources to process public data no longer requires an `AWS account for all AWS regions. To enable cloud data access for the Hubble, Kepler, and TESS missions, follow the steps below:
+Using AWS resources to process public data no longer requires an AWS account for all AWS regions. To enable cloud data access for the Hubble, Kepler, and TESS missions, follow the steps below:
 
 Enable cloud data access via the `~astroquery.mast.ObservationsClass.enable_cloud_dataset` function, which
 will cause AWS to become the preferred source for data access until it is disabled
