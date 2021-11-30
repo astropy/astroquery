@@ -348,8 +348,7 @@ in `public S3 buckets <https://registry.opendata.aws/collab/stsci/>`__.
 
 Using AWS resources to process public data no longer requires an AWS account for all AWS regions. To enable cloud data access for the Hubble, Kepler, and TESS missions, follow the steps below:
 
-Enable cloud data access via the `~astroquery.mast.ObservationsClass.enable_cloud_dataset` function, which
-will cause AWS to become the preferred source for data access until it is disabled
+You can enable cloud data access via the `~astroquery.mast.ObservationsClass.enable_cloud_dataset` function, which sets AWS to become the preferred source for data access as opposed to on-premise MAST until it is disabled with 
 (`~astroquery.mast.ObservationsClass.disable_cloud_dataset`).
 
 To directly access a list of cloud URIs for a given dataset, use the `~astroquery.mast.ObservationsClass.get_cloud_uris`
