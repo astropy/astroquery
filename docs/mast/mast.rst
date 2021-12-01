@@ -343,26 +343,18 @@ the *local_path* keyword argument.
 
 Cloud Data Access
 ------------------
-Public datasets from the Hubble, Kepler and TESS telescopes are also available on Amazon Web Services
+Public datasets from the Hubble, Kepler and TESS telescopes are also available for free on Amazon Web Services
 in `public S3 buckets <https://registry.opendata.aws/collab/stsci/>`__.
 
-Using AWS resources to process public data requires an `AWS account <https://aws.amazon.com/>`__ and associated
-`credentials file <https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html>`__. The `boto3
-<https://boto3.amazonaws.com/v1/documentation/api/latest/index.html>`__ library is also required as it handles
-connections to the AWS servers. Instructions for creating AWS credentials are available `here
-<https://stackoverflow.com/questions/21440709/how-do-i-get-aws-access-key-id-for-amazon>`__. Data transfer charges
-are the responsibility of the requester  (see `request pricing <https://aws.amazon.com/s3/pricing/>`__), however
-transfers are free within the US-East AWS region.
+Using AWS resources to process public data no longer requires an AWS account for all AWS regions. To enable cloud data access for the Hubble, Kepler, and TESS missions, follow the steps below:
 
-Cload data access is enabled using the `~astroquery.mast.ObservationsClass.enable_cloud_dataset` function, which
-will cause AWS to become the prefered source for data access until it is disabled
-(`~astroquery.mast.ObservationsClass.disable_cloud_dataset`).
+You can enable cloud data access via the `~astroquery.mast.ObservationsClass.enable_cloud_dataset` function, which sets AWS to become the preferred source for data access as opposed to on-premise MAST until it is disabled with `~astroquery.mast.ObservationsClass.disable_cloud_dataset`.
 
 To directly access a list of cloud URIs for a given dataset, use the `~astroquery.mast.ObservationsClass.get_cloud_uris`
-function, however when cloud access is enabled, the standatd download function
-`~astroquery.mast.ObservationsClass.download_products` will preferentially pull files from AWS when they are avilable.
-There is also a ``cloud_only`` flag, which when set to True will cause all data products not available in the
-cloud to be skipped.
+function (Python will prompt you to enable cloud access if you haven't already).
+
+When cloud access is enabled, the standard download function
+`~astroquery.mast.ObservationsClass.download_products` preferentially pulls files from AWS when they are available. When set to `True`, the ``cloud_only`` parameter in `~astroquery.mast.ObservationsClass.download_products` skips all data products not available in the cloud.
 
 
 Getting a list of S3 URIs:
@@ -372,15 +364,9 @@ Getting a list of S3 URIs:
                 >>> import os
                 >>> from astroquery.mast import Observations
 
-                >>> # If credential environment are not already set, we can set them within python.
-                >>> os.environ['AWS_ACCESS_KEY_ID'] = 'myaccesskeyid'
-                >>> os.environ['AWS_SECRET_ACCESS_KEY'] = 'mysecretaccesskey'
-
-                >>> # If your profile is not called [default], update the next line:
-                >>> Observations.enable_cloud_dataset(provider='AWS', profile='default')
+                >>> # Simply call the `enable_cloud_dataset` method from `Observations`. The default provider is `AWS`, but we will write it in manually for this example:
+                >>> Observations.enable_cloud_dataset(provider='AWS')
                 INFO: Using the S3 STScI public dataset [astroquery.mast.core]
-                INFO: See Request Pricing in https://aws.amazon.com/s3/pricing/ for details [astroquery.mast.core]
-                INFO: If you have not configured boto3, follow the instructions here: https://boto3.readthedocs.io/en/latest/guide/configuration.html [astroquery.mast.core]
 
                 >>> # Getting the cloud URIs
                 >>> obs_table = Observations.query_criteria(obs_collection='HST',
@@ -393,8 +379,8 @@ Getting a list of S3 URIs:
                 ...                                         productSubGroupDescription='DRZ')
                 >>> s3_uris = Observations.get_cloud_uris(filtered)
                 >>> print(s3_uris)
-                ['s3://stpubdata/hst/public/jbev/jbeveo010/jbeveo010_drz.fits',
-                 's3://stpubdata/hst/public/jbev/jbevet010/jbevet010_drz.fits']
+                ['s3://stpubdata/hst/public/jbev/jbeveo010/jbeveo010_drz.fits', 's3://stpubdata/hst/public/jbev/jbeveo010/jbeveo010_drz.fits', 's3://stpubdata/hst/public/jbev/jbevet010/jbevet010_drz.fits', 's3://stpubdata/hst/public/jbev/jbevet010/jbevet010_drz.fits']
+
 
                 >>> Observations.disable_cloud_dataset()
 
@@ -406,45 +392,45 @@ Downloading data products from S3:
                 >>> import os
                 >>> from astroquery.mast import Observations
 
-                >>> # If credential environment are not already set, we can set them within python.
-                >>> os.environ['AWS_ACCESS_KEY_ID'] = 'myaccesskeyid'
-                >>> os.environ['AWS_SECRET_ACCESS_KEY'] = 'mysecretaccesskey'
-
-                >>> # If your profile is not called [default], update the next line:
-                >>> Observations.enable_cloud_dataset(provider='AWS', profile='default')
+                >>> # Simply call the `enable_cloud_dataset` method from `Observations`. The default provider is `AWS`, but we will write it in manually for this example:
+                >>> Observations.enable_cloud_dataset(provider='AWS')
                 INFO: Using the S3 STScI public dataset [astroquery.mast.core]
-                INFO: See Request Pricing in https://aws.amazon.com/s3/pricing/ for details [astroquery.mast.core]
-                INFO: If you have not configured boto3, follow the instructions here: https://boto3.readthedocs.io/en/latest/guide/configuration.html [astroquery.mast.core]
 
                 >>> # Downloading from the cloud
                 >>> obs_table = Observations.query_criteria(obs_collection=['Kepler'],
                 ...                                         objectname="Kepler 12b", radius=0)
                 >>> products = Observations.get_product_list(obs_table[0])
                 >>> manifest = Observations.download_products(products[:10], cloud_only=True)
-                ERROR: Error pulling from S3 bucket: Parameter validation failed: Invalid type for parameter Key, value: None, type: <class 'NoneType'>, valid types: <class 'str'> [astroquery.mast.core]
-                WARNING: Skipping file... [astroquery.mast.core]
-                ERROR: Error pulling from S3 bucket: Parameter validation failed: Invalid type for parameter Key, value: None, type: <class 'NoneType'>, valid types: <class 'str'> [astroquery.mast.core]
-                WARNING: Skipping file... [astroquery.mast.core]
-                ERROR: Error pulling from S3 bucket: Parameter validation failed: Invalid type for parameter Key, value: None, type: <class 'NoneType'>, valid types: <class 'str'> [astroquery.mast.core]
-                WARNING: Skipping file... [astroquery.mast.core]
-                ERROR: Error pulling from S3 bucket: Parameter validation failed: Invalid type for parameter Key, value: None, type: <class 'NoneType'>, valid types: <class 'str'> [astroquery.mast.core]
-                WARNING: Skipping file... [astroquery.mast.core]
-                ERROR: Error pulling from S3 bucket: Parameter validation failed: Invalid type for parameter Key, value: None, type: <class 'NoneType'>, valid types: <class 'str'> [astroquery.mast.core]
-                WARNING: Skipping file... [astroquery.mast.core]
-                Downloading URL s3://stpubdata/kepler/public/lightcurves/0118/011804465/kplr011804465-2009131105131_llc.fits to ./mastDownload/Kepler/kplr011804465_lc_Q111111110111011101/kplr011804465-2009131105131_llc.fits ... [Done]
-                Downloading URL s3://stpubdata/kepler/public/lightcurves/0118/011804465/kplr011804465-2009166043257_llc.fits to ./mastDownload/Kepler/kplr011804465_lc_Q111111110111011101/kplr011804465-2009166043257_llc.fits ... [Done]
-                Downloading URL s3://stpubdata/kepler/public/lightcurves/0118/011804465/kplr011804465-2009259160929_llc.fits to ./mastDownload/Kepler/kplr011804465_lc_Q111111110111011101/kplr011804465-2009259160929_llc.fits ... [Done]
-                Downloading URL s3://stpubdata/kepler/public/lightcurves/0118/011804465/kplr011804465-2009350155506_llc.fits to ./mastDownload/Kepler/kplr011804465_lc_Q111111110111011101/kplr011804465-2009350155506_llc.fits ... [Done]
-                Downloading URL s3://stpubdata/kepler/public/lightcurves/0118/011804465/kplr011804465-2010009091648_llc.fits to ./mastDownload/Kepler/kplr011804465_lc_Q111111110111011101/kplr011804465-2010009091648_llc.fits ... [Done]
+
+                manifestDownloading URL https://mast.stsci.edu/api/v0.1/Download/file?uri=mast:KEPLER/url/missions/kepler/dv_files/0118/011804465/kplr011804465-01-20160209194854_dvs.pdf to ./mastDownload/Kepler/kplr011804465_lc_Q111111110111011101/kplr011804465-01-20160209194854_dvs.pdf ...
+                |==========================================| 1.5M/1.5M (100.00%)         0s
+                Downloading URL https://mast.stsci.edu/api/v0.1/Download/file?uri=mast:KEPLER/url/missions/kepler/dv_files/0118/011804465/kplr011804465-20160128150956_dvt.fits to ./mastDownload/Kepler/kplr011804465_lc_Q111111110111011101/kplr011804465-20160128150956_dvt.fits ...
+                |==========================================|  17M/ 17M (100.00%)         1s
+                Downloading URL https://mast.stsci.edu/api/v0.1/Download/file?uri=mast:KEPLER/url/missions/kepler/dv_files/0118/011804465/kplr011804465-20160209194854_dvr.pdf to ./mastDownload/Kepler/kplr011804465_lc_Q111111110111011101/kplr011804465-20160209194854_dvr.pdf ...
+                |==========================================| 5.8M/5.8M (100.00%)         0s
+                Downloading URL https://mast.stsci.edu/api/v0.1/Download/file?uri=mast:KEPLER/url/missions/kepler/dv_files/0118/011804465/kplr011804465_q1_q17_dr25_obs_tcert.pdf to ./mastDownload/Kepler/kplr011804465_lc_Q111111110111011101/kplr011804465_q1_q17_dr25_obs_tcert.pdf ...
+                |==========================================| 2.2M/2.2M (100.00%)         0s
+                Downloading URL https://mast.stsci.edu/api/v0.1/Download/file?uri=mast:KEPLER/url/missions/kepler/previews/0118/011804465/kplr011804465-2013011073258_llc_bw_large.png to ./mastDownload/Kepler/kplr011804465_lc_Q111111110111011101/kplr011804465-2013011073258_llc_bw_large.png ...
+                |==========================================|  24k/ 24k (100.00%)         0s
+                Downloading URL https://mast.stsci.edu/api/v0.1/Download/file?uri=mast:KEPLER/url/missions/kepler/target_pixel_files/0118/011804465/kplr011804465_tpf_lc_Q111111110111011101.tar to ./mastDownload/Kepler/kplr011804465_lc_Q111111110111011101/kplr011804465_tpf_lc_Q111111110111011101.tar ...
+                |==========================================|  43M/ 43M (100.00%)         4s
+                Downloading URL https://mast.stsci.edu/api/v0.1/Download/file?uri=mast:KEPLER/url/missions/kepler/lightcurves/0118/011804465/kplr011804465_lc_Q111111110111011101.tar to ./mastDownload/Kepler/kplr011804465_lc_Q111111110111011101/kplr011804465_lc_Q111111110111011101.tar ...
+                |==========================================| 5.9M/5.9M (100.00%)         0s
+                Downloading URL https://mast.stsci.edu/api/v0.1/Download/file?uri=mast:KEPLER/url/missions/kepler/lightcurves/0118/011804465/kplr011804465-2009131105131_llc.fits to ./mastDownload/Kepler/kplr011804465_lc_Q111111110111011101/kplr011804465-2009131105131_llc.fits ...
+                |==========================================|  77k/ 77k (100.00%)         0s
+                Downloading URL https://mast.stsci.edu/api/v0.1/Download/file?uri=mast:KEPLER/url/missions/kepler/lightcurves/0118/011804465/kplr011804465-2009166043257_llc.fits to ./mastDownload/Kepler/kplr011804465_lc_Q111111110111011101/kplr011804465-2009166043257_llc.fits ...
+                |==========================================| 192k/192k (100.00%)         0s
+                Downloading URL https://mast.stsci.edu/api/v0.1/Download/file?uri=mast:KEPLER/url/missions/kepler/lightcurves/0118/011804465/kplr011804465-2009259160929_llc.fits to ./mastDownload/Kepler/kplr011804465_lc_Q111111110111011101/kplr011804465-2009259160929_llc.fits ...
+                |==========================================| 466k/466k (100.00%)         0s
 
                 >>> print(manifest["Status"])
-                 Status
+                Status
                 --------
-                 SKIPPED
-                 SKIPPED
-                 SKIPPED
-                 SKIPPED
-                 SKIPPED
+                COMPLETE
+                COMPLETE
+                COMPLETE
+                COMPLETE
+                COMPLETE
                 COMPLETE
                 COMPLETE
                 COMPLETE
@@ -770,7 +756,7 @@ be accessed in Astroquery by using the Tesscut class.
 After the user has reached this limit TESScut will return a
 ``503 Service Temporarily Unavailable Error``.
 
-If you use TESSCut for your work, please cite Brasseur et al. 2019 
+If you use TESSCut for your work, please cite Brasseur et al. 2019
 https://ui.adsabs.harvard.edu/abs/2019ascl.soft05007B/abstract
 
 
@@ -870,9 +856,9 @@ Zcut
 ====
 
 
-Zcut for MAST allows users to request cutouts from various Hubble deep field surveys. The cutouts can 
-be returned as either fits or image files (jpg and png are supported). This tool can be accessed in 
-Astroquery by using the Zcut class. The list of supported deep field surveys can be found here: 
+Zcut for MAST allows users to request cutouts from various Hubble deep field surveys. The cutouts can
+be returned as either fits or image files (jpg and png are supported). This tool can be accessed in
+Astroquery by using the Zcut class. The list of supported deep field surveys can be found here:
 https://mast.stsci.edu/zcut/
 
 
@@ -882,7 +868,7 @@ Cutouts
 The `~astroquery.mast.ZcutClass.get_cutouts` function takes a coordinate and cutout size (in pixels or
 an angular quantity) and returns the cutout FITS file(s) as a list of ~astropy.io.fits.HDUList objects.
 
-If the given coordinate appears in more than one Zcut survey, a FITS file will be produced for each survey. 
+If the given coordinate appears in more than one Zcut survey, a FITS file will be produced for each survey.
 
 .. code-block:: python
 
@@ -1084,4 +1070,3 @@ Reference/API
 .. automodapi:: astroquery.mast
     :no-inheritance-diagram:
     :inherited-members:
-
