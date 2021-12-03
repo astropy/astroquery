@@ -85,7 +85,7 @@ class TestTap:
 
     def test_load_tables(self):
         dummyTapHandler = DummyTapHandler()
-        tap = JwstClass(tap_plus_handler=dummyTapHandler)
+        tap = JwstClass(tap_plus_handler=dummyTapHandler, show_messages=False)
         # default parameters
         parameters = {}
         parameters['only_names'] = False
@@ -104,7 +104,7 @@ class TestTap:
 
     def test_load_table(self):
         dummyTapHandler = DummyTapHandler()
-        tap = JwstClass(tap_plus_handler=dummyTapHandler)
+        tap = JwstClass(tap_plus_handler=dummyTapHandler, show_messages=False)
         # default parameters
         parameters = {}
         parameters['table'] = 'table'
@@ -121,7 +121,7 @@ class TestTap:
 
     def test_launch_sync_job(self):
         dummyTapHandler = DummyTapHandler()
-        tap = JwstClass(tap_plus_handler=dummyTapHandler)
+        tap = JwstClass(tap_plus_handler=dummyTapHandler, show_messages=False)
         query = "query"
         # default parameters
         parameters = {}
@@ -164,7 +164,7 @@ class TestTap:
 
     def test_launch_async_job(self):
         dummyTapHandler = DummyTapHandler()
-        tap = JwstClass(tap_plus_handler=dummyTapHandler)
+        tap = JwstClass(tap_plus_handler=dummyTapHandler, show_messages=False)
         query = "query"
         # default parameters
         parameters = {}
@@ -212,7 +212,7 @@ class TestTap:
 
     def test_list_async_jobs(self):
         dummyTapHandler = DummyTapHandler()
-        tap = JwstClass(tap_plus_handler=dummyTapHandler)
+        tap = JwstClass(tap_plus_handler=dummyTapHandler, show_messages=False)
         # default parameters
         parameters = {}
         parameters['verbose'] = False
@@ -227,7 +227,7 @@ class TestTap:
     def test_query_region(self):
         connHandler = DummyConnHandler()
         tapplus = TapPlus("http://test:1111/tap", connhandler=connHandler)
-        tap = JwstClass(tap_plus_handler=tapplus)
+        tap = JwstClass(tap_plus_handler=tapplus, show_messages=False)
 
         # Launch response: we use default response because the
         # query contains decimals
@@ -367,7 +367,7 @@ class TestTap:
     def test_query_region_async(self):
         connHandler = DummyConnHandler()
         tapplus = TapPlus("http://test:1111/tap", connhandler=connHandler)
-        tap = JwstClass(tap_plus_handler=tapplus)
+        tap = JwstClass(tap_plus_handler=tapplus, show_messages=False)
         jobid = '12345'
         # Launch response
         responseLaunchJob = DummyResponse()
@@ -456,7 +456,7 @@ class TestTap:
     def test_cone_search_sync(self):
         connHandler = DummyConnHandler()
         tapplus = TapPlus("http://test:1111/tap", connhandler=connHandler)
-        tap = JwstClass(tap_plus_handler=tapplus)
+        tap = JwstClass(tap_plus_handler=tapplus, show_messages=False)
         # Launch response: we use default response because the
         # query contains decimals
         responseLaunchJob = DummyResponse()
@@ -548,7 +548,7 @@ class TestTap:
     def test_cone_search_async(self):
         connHandler = DummyConnHandler()
         tapplus = TapPlus("http://test:1111/tap", connhandler=connHandler)
-        tap = JwstClass(tap_plus_handler=tapplus)
+        tap = JwstClass(tap_plus_handler=tapplus, show_messages=False)
         jobid = '12345'
         # Launch response
         responseLaunchJob = DummyResponse()
@@ -618,7 +618,7 @@ class TestTap:
 
     def test_get_product_by_artifactid(self):
         dummyTapHandler = DummyTapHandler()
-        jwst = JwstClass(tap_plus_handler=dummyTapHandler, data_handler=dummyTapHandler)
+        jwst = JwstClass(tap_plus_handler=dummyTapHandler, data_handler=dummyTapHandler, show_messages=False)
         # default parameters
         with pytest.raises(ValueError) as err:
             jwst.get_product()
@@ -642,7 +642,7 @@ class TestTap:
 
     def test_get_product_by_filename(self):
         dummyTapHandler = DummyTapHandler()
-        jwst = JwstClass(tap_plus_handler=dummyTapHandler, data_handler=dummyTapHandler)
+        jwst = JwstClass(tap_plus_handler=dummyTapHandler, data_handler=dummyTapHandler, show_messages=False)
         # default parameters
         with pytest.raises(ValueError) as err:
             jwst.get_product()
@@ -666,7 +666,7 @@ class TestTap:
 
     def test_get_products_list(self):
         dummyTapHandler = DummyTapHandler()
-        jwst = JwstClass(tap_plus_handler=dummyTapHandler, data_handler=dummyTapHandler)
+        jwst = JwstClass(tap_plus_handler=dummyTapHandler, data_handler=dummyTapHandler, show_messages=False)
         # default parameters
         with pytest.raises(ValueError) as err:
             jwst.get_product_list()
@@ -700,7 +700,7 @@ class TestTap:
 
     def test_get_obs_products(self):
         dummyTapHandler = DummyTapHandler()
-        jwst = JwstClass(tap_plus_handler=dummyTapHandler, data_handler=dummyTapHandler)
+        jwst = JwstClass(tap_plus_handler=dummyTapHandler, data_handler=dummyTapHandler, show_messages=False)
         # default parameters
         with pytest.raises(ValueError) as err:
             jwst.get_obs_products()
@@ -925,7 +925,7 @@ class TestTap:
                 raise ValueError(f"Not found expected file: {f}")
 
     def test_query_target_error(self):
-        jwst = JwstClass()
+        jwst = JwstClass(show_messages=False)
         simbad = Simbad()
         ned = Ned()
         vizier = Vizier()
@@ -955,16 +955,16 @@ class TestTap:
 
         # coordinate_error = 'coordinate must be either a string or astropy.coordinates'
         with pytest.raises(ValueError) as err:
-            jwst.query_target(target_name="M1", target_resolver="SIMBAD",
+            jwst.query_target(target_name="test", target_resolver="SIMBAD",
                               radius=units.Quantity(5, units.deg))
         assert 'This target name cannot be determined with this resolver: SIMBAD' in err.value.args[0]
 
         with pytest.raises(ValueError) as err:
-            jwst.query_target(target_name="M1", target_resolver="NED",
+            jwst.query_target(target_name="test", target_resolver="NED",
                               radius=units.Quantity(5, units.deg))
         assert 'This target name cannot be determined with this resolver: NED' in err.value.args[0]
 
         with pytest.raises(ValueError) as err:
-            jwst.query_target(target_name="M1", target_resolver="VIZIER",
+            jwst.query_target(target_name="test", target_resolver="VIZIER",
                               radius=units.Quantity(5, units.deg))
         assert 'This target name cannot be determined with this resolver: VIZIER' in err.value.args[0]

@@ -23,8 +23,8 @@ class Conf(_config.ConfigNamespace):
     Configuration parameters for `astroquery.esa.jwst`.
     """
 
-    JWST_TAP_SERVER = _config.ConfigItem("http://jwstdummytap.com", "eJWST TAP Server")
-    JWST_DATA_SERVER = _config.ConfigItem("http://jwstdummydata.com", "eJWST Data Server")
+    JWST_TAP_SERVER = _config.ConfigItem("https://jwst.esac.esa.int/server/tap", "eJWST TAP Server")
+    JWST_DATA_SERVER = _config.ConfigItem("https://jwst.esac.esa.int/server/data?", "eJWST Data Server")
     JWST_TOKEN = _config.ConfigItem("jwstToken", "eJWST token")
     JWST_MESSAGES = _config.ConfigItem("notification?action=GetNotifications", "eJWST Messages")
 
