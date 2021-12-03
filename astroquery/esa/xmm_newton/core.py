@@ -20,6 +20,8 @@ import cgi
 from pathlib import Path
 import tarfile
 import os
+from astroquery import log
+import configparser
 
 from astropy.io import fits
 from . import conf, config
@@ -27,12 +29,10 @@ from astroquery import log
 from astropy.coordinates import SkyCoord
 from ...exceptions import LoginError
 
-
 __all__ = ['XMMNewton', 'XMMNewtonClass']
 
 
 class XMMNewtonClass(BaseQuery):
-
     data_url = conf.DATA_ACTION
     data_aio_url = conf.DATA_ACTION_AIO
     metadata_url = conf.METADATA_ACTION
@@ -40,6 +40,7 @@ class XMMNewtonClass(BaseQuery):
 
     def __init__(self, tap_handler=None):
         super(XMMNewtonClass, self).__init__()
+        self.configuration = configparser.ConfigParser()
 
         if tap_handler is None:
             self._tap = TapPlus(url="https://nxsa.esac.esa.int/tap-server/tap")
@@ -48,7 +49,7 @@ class XMMNewtonClass(BaseQuery):
         self._rmf_ftp = str("http://sasdev-xmm.esac.esa.int/pub/ccf/constituents/extras/responses/")
 
     def download_data(self, observation_id, *, filename=None, verbose=False,
-                      cache=True, prop=False, username=None, password=None, **kwargs):
+                      cache=True, prop=False, credentials_file=None, **kwargs):
         """
         Download data from XMM-Newton
 
@@ -113,7 +114,11 @@ class XMMNewtonClass(BaseQuery):
         # If the user wants to access proprietary data, ask them for there credentials
         if prop:
             username, password = self._get_username_and_password(credentials_file)
+<<<<<<< HEAD
             link = f"{link}&AIOUSER={username}&AIOPWD={password}"
+=======
+            link = link + "&AIOUSER=" + username + "&AIOPWD=" + password
+>>>>>>> 40576ad4 (xmm_newton-1.1_issue1093 Refactored the download data method and added the corresponding tests)
 
         if verbose:
             log.info(link)
@@ -130,7 +135,11 @@ class XMMNewtonClass(BaseQuery):
         self._download_file(link, filename, head_safe=True, cache=cache)
 
         if verbose:
+<<<<<<< HEAD
             log.info(f"Wrote {link} to {filename}")
+=======
+            log.info("Wrote {0} to {1}".format(link, filename))
+>>>>>>> 40576ad4 (xmm_newton-1.1_issue1093 Refactored the download data method and added the corresponding tests)
         log.setLevel(previouslevel)
 
     def get_postcard(self, observation_id, *, image_type="OBS_EPIC",
@@ -277,7 +286,11 @@ class XMMNewtonClass(BaseQuery):
             return columns
 
     def _create_link(self, observation_id, **kwargs):
+<<<<<<< HEAD
         link = f"{self.data_aio_url}obsno={observation_id}"
+=======
+        link = self.data_aio_url + "obsno=" + observation_id
+>>>>>>> 40576ad4 (xmm_newton-1.1_issue1093 Refactored the download data method and added the corresponding tests)
         link = link + "".join("&{0}={1}".format(key, val)
                               for key, val in kwargs.items())
         return link

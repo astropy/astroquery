@@ -199,6 +199,7 @@ class TestXMMNewtonRemote():
         parameters = {'observation_id': "0762470101",
                       'prop': 'True',
                       'credentials_file': "astroquery/esa/xmm_newton/tests/my_config.ini",
+<<<<<<< HEAD
                       'level': "PPS",
                       'name': 'OBSMLI',
                       'filename': 'single',
@@ -212,6 +213,8 @@ class TestXMMNewtonRemote():
     @pytest.mark.xfail(raises=LoginError)
     def test_download_proprietary_data_without_credentials(self):
         parameters = {'observation_id': "0883780101",
+=======
+>>>>>>> 40576ad4 (xmm_newton-1.1_issue1093 Refactored the download data method and added the corresponding tests)
                       'level': "PPS",
                       'name': 'OBSMLI',
                       'filename': 'single',
