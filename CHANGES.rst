@@ -7,7 +7,7 @@ New Tools and Services
 esa.jwst
 ^^^^^^^^^^
 
-- New module to provide access to eJWST Science Archive metadata and datasets. [#2140]
+- New module to provide access to eJWST Science Archive metadata and datasets. [#2140] [#2238]
 
 
 Service fixes and enhancements
