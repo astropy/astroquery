@@ -36,8 +36,37 @@ it will store them in a tar called 'result0505720401.tar'. The parameters availa
 For more details of the parameters check the section 3.4 at:
 		'http://nxsa.esac.esa.int/nxsa-web/#aio'
 
+------------------------------
+2. Getting XMM-Newton proprietary data
+------------------------------
+To access proprietary data an extra variable is needed in the XMMNewton.download_data method. This variabe is prop which
+can be True or False. If True a username and password is needed. A username and password can be passed by adding another
+variable to the XMMNewton.download_data method called credentials_file. This variable is a string with the path to a
+config.ini file with the desired username and password, e.g. credentials_file = "users/joe.bloggs/config.ini"
+
+Example config.ini file,
+
+.. code-block::
+
+    [user]
+    username = test
+    password = test
+
+If the credentials_file variable is not provided the method will ask for the username and password to be added manually
+from the commandline
+
+.. code-block:: python
+
+  >>> from astroquery.esa.xmm_newton import XMMNewton
+  >>>
+  >>> XMMNewton.download_data('0505720401',level="PPS",extension="PDF",instname="M1",filename="result0505720401.tar",prop=True)
+  INFO: File result0505720401.tar downloaded to current directory [astroquery.esa.xmm_newton.core]
+
+This will download all PPS files for the observation '0505720401' and instrument MOS1, with 'PDF' extension and any
+proprietary data. It will store them in a tar called 'result0505720401.tar'.
+
 -------------------------------
-2. Getting XMM-Newton postcards
+3. Getting XMM-Newton postcards
 -------------------------------
 
 .. code-block:: python
@@ -52,7 +81,7 @@ This will download the EPIC postcard for the observation '0505720401' and it wil
 'P0505720401EPX000OIMAGE8000.PNG'.
 
 ------------------------------------------
-3. Getting XMM-Newton metadata through TAP 
+4. Getting XMM-Newton metadata through TAP
 ------------------------------------------
 
 This function provides access to the XMM-Newton Science Archive database using the Table Access Protocol (TAP) and via the Astronomical Data
@@ -81,7 +110,7 @@ This will execute an ADQL query to download the first 10 observations in the XMM
 stored in the file 'results10.csv'. The result of this query can be printed by doing print(result).
             
 -----------------------------------
-4. Getting table details of XSA TAP 
+5. Getting table details of XSA TAP
 -----------------------------------
 
 .. code-block:: python
@@ -104,7 +133,7 @@ stored in the file 'results10.csv'. The result of this query can be printed by d
 This will show the available tables in XSA TAP service in the XMM-Newton Science Archive.
             
 -------------------------------------
-5. Getting columns details of XSA TAP 
+6. Getting columns details of XSA TAP
 -------------------------------------
 
 .. code-block:: python
@@ -123,7 +152,7 @@ This will show the available tables in XSA TAP service in the XMM-Newton Science
 This will show the column details of the table 'v_all_observations' in XSA TAP service in the XMM-Newton Science Archive.
 
 --------------------------------------------
-6. Getting EPIC images from a given TAR file 
+7. Getting EPIC images from a given TAR file
 --------------------------------------------
 
 .. code-block:: python
@@ -139,7 +168,7 @@ This will show the column details of the table 'v_all_observations' in XSA TAP s
 This will extract the European Photon Imaging Camera (EPIC) images within the specified TAR file, bands, and instruments. It will also return a dictionary containing the paths to the extracted files.
 
 ------------------------------------------------------------------------------
-7. Getting the European Photon Imaging Camera (EPIC) metadata from the XSA TAP 
+8. Getting the European Photon Imaging Camera (EPIC) metadata from the XSA TAP
 ------------------------------------------------------------------------------
 
 This function retrieves the EPIC metadata from a given target.
