@@ -340,22 +340,26 @@ extract the FITS file, then delete the tarball:
     >>> from astroquery.alma.core import Alma
     >>> from astropy import coordinates
     >>> from astropy import units as u
-    >>> orionkl = coordinates.SkyCoord('5:35:14.461 -5:21:54.41', frame='fk5',
-    ...                                unit=(u.hour, u.deg))
-    >>> result = Alma.query_region(orionkl, radius=0.034*u.deg)
-    >>> uid_url_table = Alma.get_data_info(result['obs_id'])
+    >>> s255ir = coordinates.SkyCoord(93.26708333, 17.97888889, frame='fk5',
+    ...                               unit=(u.deg, u.deg))
+    >>> result = Alma.query_region(s255ir, radius=0.034*u.deg)
+    >>> uid_url_table = Alma.get_data_info(result['obs_id'][0])
     >>> # Extract the data with tarball file size < 1GB
     >>> small_uid_url_table = uid_url_table[uid_url_table['content_length'] < 10**9]
-    >>> # get the first 10 files...
+    >>> # get the first 3 files...
     >>> tarball_files = uid_url_table[uid_url_table['content_type'] == 'application/x-tar']
-    >>> filelist = Alma.download_and_extract_files(tarball_files[1:10]['access_url'])
+    >>> # sort so we only have to download smaller files for this example
+    >>> tarball_files.sort('content_length')
+    >>> # this will download a big file or few
+    >>> # filelist = Alma.download_files(tarball_files['access_url'])
 
 You might want to look at the READMEs from a bunch of files so you know what kind of S/N to expect:
 
 .. code-block:: python
 .. doctest-remote-data::
 
-    >>> filelist = Alma.download_and_extract_files(uid_url_table['URL'], regex='.*README$') # doctest: +IGNORE_OUTPUT
+    >>> readmes = [url for url in uid_url_table['access_url'] if 'README' in url]
+    >>> filelist = Alma.download_files(readmes[:2])
 
 
 Further Examples
