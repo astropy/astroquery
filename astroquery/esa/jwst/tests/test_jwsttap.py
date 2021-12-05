@@ -73,6 +73,8 @@ def get_product_mock(params, *args, **kwargs):
 
 @pytest.fixture(autouse=True)
 def get_product_request(request):
+    if 'noautofixt' in request.keywords:
+        return
     mp = request.getfixturevalue("monkeypatch")
     mp.setattr(JwstClass, '_query_get_product', get_product_mock)
     return mp
@@ -968,3 +970,88 @@ class TestTap:
             jwst.query_target(target_name="test", target_resolver="VIZIER",
                               radius=units.Quantity(5, units.deg))
         assert 'This target name cannot be determined with this resolver: VIZIER' in err.value.args[0]
+
+    def test_remove_jobs(self):
+        dummyTapHandler = DummyTapHandler()
+        tap = JwstClass(tap_plus_handler=dummyTapHandler, show_messages=False)
+        job_list = ['dummyJob']
+        parameters = {}
+        parameters['jobs_list'] = job_list
+        parameters['verbose'] = False
+        tap.remove_jobs(job_list)
+        dummyTapHandler.check_call('remove_jobs', parameters)
+
+    def test_save_results(self):
+        dummyTapHandler = DummyTapHandler()
+        tap = JwstClass(tap_plus_handler=dummyTapHandler, show_messages=False)
+        job = 'dummyJob'
+        parameters = {}
+        parameters['job'] = job
+        parameters['verbose'] = False
+        tap.save_results(job)
+        dummyTapHandler.check_call('save_results', parameters)
+
+    def test_login(self):
+        dummyTapHandler = DummyTapHandler()
+        tap = JwstClass(tap_plus_handler=dummyTapHandler, show_messages=False)
+        parameters = {}
+        parameters['user'] = 'test_user'
+        parameters['password'] = 'test_password'
+        parameters['credentials_file'] = None
+        parameters['verbose'] = False
+        tap.login(user='test_user', password='test_password')
+        dummyTapHandler.check_call('login', parameters)
+
+    def test_login_gui(self):
+        dummyTapHandler = DummyTapHandler()
+        tap = JwstClass(tap_plus_handler=dummyTapHandler, show_messages=False)
+        parameters = {}
+        parameters['verbose'] = False
+        tap.login_gui()
+        dummyTapHandler.check_call('login_gui', parameters)
+
+    def test_logout(self):
+        dummyTapHandler = DummyTapHandler()
+        tap = JwstClass(tap_plus_handler=dummyTapHandler, show_messages=False)
+        parameters = {}
+        parameters['verbose'] = False
+        tap.logout()
+        dummyTapHandler.check_call('logout', parameters)
+
+    @pytest.mark.noautofixt
+    def test_query_get_product(self):
+        dummyTapHandler = DummyTapHandler()
+        tap = JwstClass(tap_plus_handler=dummyTapHandler, show_messages=False)
+        file = 'test_file'
+        parameters = {}
+        parameters['query'] = f"select * from jwst.artifact a where a.filename = '{file}'"
+        parameters['name'] = None
+        parameters['output_file'] = None
+        parameters['output_format'] = 'votable'
+        parameters['verbose'] = False
+        parameters['dump_to_file'] = False
+        parameters['upload_resource'] = None
+        parameters['upload_table_name'] = None
+        tap._query_get_product(file_name=file)
+        dummyTapHandler.check_call('launch_job', parameters)
+
+        artifact = 'test_artifact'
+        parameters['query'] = f"select * from jwst.artifact a where a.artifactid = '{artifact}'"
+        tap._query_get_product(artifact_id=artifact)
+        dummyTapHandler.check_call('launch_job', parameters)
+
+    def test_get_related_observations(self):
+        dummyTapHandler = DummyTapHandler()
+        tap = JwstClass(tap_plus_handler=dummyTapHandler, show_messages=False)
+        obs = 'dummyObs'
+        tap.get_related_observations(observation_id=obs)
+        parameters = {}
+        parameters['query'] = f"select * from jwst.main m where m.members like '%{obs}%'"
+        parameters['name'] = None
+        parameters['output_file'] = None
+        parameters['output_format'] = 'votable'
+        parameters['verbose'] = False
+        parameters['dump_to_file'] = False
+        parameters['upload_resource'] = None
+        parameters['upload_table_name'] = None
+        dummyTapHandler.check_call('launch_job', parameters)

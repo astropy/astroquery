@@ -935,7 +935,7 @@ class JwstClass(BaseQuery):
         return output_file_name
 
     def _query_get_product(self, *, artifact_id=None, file_name=None):
-        if(file_name):
+        if file_name:
             query_artifactid = (f"select * from {conf.JWST_ARTIFACT_TABLE} "
                                 f"a where a.filename = "
                                 f"'{file_name}'")

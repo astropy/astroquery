@@ -8,6 +8,8 @@ European Space Astronomy Centre (ESAC)
 European Space Agency (ESA)
 
 """
+from astropy.table import Table
+import numpy as np
 
 from astroquery.utils.tap.model.job import Job
 
@@ -17,14 +19,18 @@ class DummyTapHandler:
     def __init__(self):
         self.__invokedMethod = None
         self.__parameters = {}
-        self.__dummy_results = "dummy_results"
+        self.__dummy_results = {"filename": ["dummy_filename"],
+                                "artifactid": ["dummy_artifact"],
+                                "observationid": Table({'obs': np.arange(1)})}
         self.__job = Job(async_job=False)
         self.__job.set_results(self.__dummy_results)
 
     def reset(self):
         self.__parameters = {}
         self.__invokedMethod = None
-        self.__dummy_results = "dummy_results"
+        self.__dummy_results = {"filename": ["dummy_filename"],
+                                "artifactid": ["dummy_artifact"],
+                                "observationid": Table({'a': np.arange(1)})}
         self.__job = Job(async_job=False)
         self.__job.set_results(self.__dummy_results)
 
@@ -217,9 +223,9 @@ class DummyTapHandler:
     def login(self, user=None, password=None, credentials_file=None,
               verbose=False):
         self.__invokedMethod = 'login'
-        self.__parameters['user'] = verbose
-        self.__parameters['password'] = verbose
-        self.__parameters['credentials_file'] = verbose
+        self.__parameters['user'] = user
+        self.__parameters['password'] = password
+        self.__parameters['credentials_file'] = credentials_file
         self.__parameters['verbose'] = verbose
         return None
 
@@ -238,3 +244,7 @@ class DummyTapHandler:
         self.__parameters['params_dict'] = params_dict
         self.__parameters['output_file'] = output_file
         self.__parameters['verbose'] = verbose
+
+    def set_job_results(self, results):
+        self.__dummy_results = results
+        self.__job.set_results(self.__dummy_results)
