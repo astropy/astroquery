@@ -163,14 +163,22 @@ Querying by other parameters
 ============================
 
 As of version 0.3.4, you can also query other fields by keyword. For example,
-if you want to find all projects with a particular PI, you could do:
+if you want to find all projects in a region with a particular PI, you could do:
 
 .. code-block:: python
 
-    >>> rslt = Alma.query_object('W51', pi_name='*Ginsburg*', public=False) # doctest: +REMOTE_DATA
+    >>> rslt = Alma.query_region('W51', radius=25*u.arcmin, pi_name='*Ginsburg*') # doctest: +REMOTE_DATA
+
+or if you wanted all projects by a given PI:
+
+.. code-block:: python
+
+   >>> rslt = Alma.query(payload=dict(pi_name='Ginsburg, Adam')) # doctest: +REMOTE_DATA
 
 The ''query_sia'' method offers another way to query ALMA using the IVOA SIA
-subset of keywords returning results in 'ObsCore' format.
+subset of keywords returning results in 'ObsCore' format.  For example,
+to query for all images that have `XX` polarization (note that this query is too large
+to run, it is just shown as an example):
 
 .. code-block:: python
 
@@ -191,12 +199,18 @@ format.
     --------------------------- -------------- ------------- ... ------------------------------------------------------------------------------------ ---------------------- -----------------------
     ADS/JAO.ALMA#2016.1.00164.S           ALMA           JAO ...                                         Starbursts, star formation, Galaxy chemistry        Active galaxies 2021-09-30T16:34:41.133
 
+One can also query by keyword, spatial resolution, etc:
+
+.. code-block:: python
+.. doctest-remote-data::
+    >>> Alma.query_tap(f"select * from ivoa.obscore WHERE spatial_resolution<=0.1 AND science_keyword in ('Disks around high-mass stars', 'Asymptotic Giant Branch (AGB) stars') AND science_observation='T'") # doctest: +IGNORE_OUTPUT
+
 
 Use the ''help_tap'' method to learn about the ALMA 'ObsCore' keywords and
 their types.
 
 .. code-block:: python
-    >>> Alma.help_tap() # doctest: +REMOTE_DATA
+    >>> Alma.help_tap() # doctest: +REMOTE_DATA +IGNORE_OUTPUT
     Table to query is "voa.ObsCore".
     For example: "select top 1 * from ivoa.ObsCore"
     The scheme of the table is as follows.
@@ -270,24 +284,26 @@ their types.
 Downloading Data
 ================
 
-You can download ALMA data with astroquery, but be forewarned, cycle 0 and
-cycle 1 data sets tend to be >100 GB!
+You can download ALMA data with astroquery, but be forewarned, many data sets
+are >100 GB!
 
 
 .. code-block:: python
 .. doctest-remote-data::
-   >>> import numpy as np
-   >>> uids = np.unique(m83_data['member_ous_uid'])
-   >>> print(uids) # doctest: +IGNORE_OUTPUT
-        member_ous_uid
-    -----------------------
-    uid://A001/X11f/X30
-    uid://A001/X122/Xf3
+    >>> import numpy as np
+    >>> from astroquery.alma import Alma
+    >>> m83_data = Alma.query_object('M83')
+    >>> uids = np.unique(m83_data['member_ous_uid'])
+    >>> print(uids) # doctest: +IGNORE_OUTPUT
+         member_ous_uid
+     -----------------------
+     uid://A001/X11f/X30
+     uid://A001/X122/Xf3
 
-New to most recent versions of the library is that data does not need to be
-staged any longer. The ```stage_data``` method has been deprecated, but the
-new ```get_data_info``` method can be used instead to get information about
-the data such as the files, their urls, sizes etc:
+The new ```get_data_info``` method can be used to get information about the
+data such as the file names, their urls, sizes etc (this method replaces
+```stage_data```, which served the same role in older versions of astroquery
+but is now deprecated):
 
 .. code-block:: python
 .. doctest-remote-data::
@@ -301,10 +317,10 @@ on the individual files:
 .. doctest-remote-data::
     >>> link_list = Alma.get_data_info(uids, expand_tarfiles=True)
 
-You can then go on to download that data.  The download will be cached so that repeat
-queries of the same file will not re-download the data.  The default cache
-directory is ``~/.astropy/cache/astroquery/Alma/``, but this can be changed by
-changing the ``cache_location`` variable:
+You can then go on to download those files.  The download will be cached so
+that repeat queries of the same file will not re-download the data.  The
+default cache directory is ``~/.astropy/cache/astroquery/Alma/``, but this can
+be changed by changing the ``cache_location`` variable:
 
 .. code-block:: python
 .. doctest-remote-data::
@@ -332,8 +348,8 @@ download but will return useful information about the state of your downloads:
 Downloading FITS data
 =====================
 
-If you want just the QA2-produced FITS files, you can download the tarball,
-extract the FITS file, then delete the tarball:
+If you want just the QA2-produced FITS files, you can directly access the FITS
+files:
 
 .. code-block:: python
 .. doctest-remote-data::
@@ -343,23 +359,19 @@ extract the FITS file, then delete the tarball:
     >>> s255ir = coordinates.SkyCoord(93.26708333, 17.97888889, frame='fk5',
     ...                               unit=(u.deg, u.deg))
     >>> result = Alma.query_region(s255ir, radius=0.034*u.deg)
-    >>> uid_url_table = Alma.get_data_info(result['obs_id'][0])
-    >>> # Extract the data with tarball file size < 1GB
-    >>> small_uid_url_table = uid_url_table[uid_url_table['content_length'] < 10**9]
-    >>> # get the first 3 files...
-    >>> tarball_files = uid_url_table[uid_url_table['content_type'] == 'application/x-tar']
-    >>> # sort so we only have to download smaller files for this example
-    >>> tarball_files.sort('content_length')
-    >>> # this will download a big file or few
-    >>> # filelist = Alma.download_files(tarball_files['access_url'])
+    >>> uid_url_table = Alma.get_data_info(result['obs_id'][0], expand_tarfiles=True)
+    >>> # downselect to just the FITSf files
+    >>> fits_urls = [url for url in uid_url_table['access_url'] if '.fits' in url]
+    >>> filelist = Alma.download_files(fits_urls[:5])
 
-You might want to look at the READMEs from a bunch of files so you know what kind of S/N to expect:
+You might want to look at the READMEs from a bunch of files so you know what
+kind of S/N to expect:
 
 .. code-block:: python
 .. doctest-remote-data::
 
     >>> readmes = [url for url in uid_url_table['access_url'] if 'README' in url]
-    >>> filelist = Alma.download_files(readmes[:2])
+    >>> filelist = Alma.download_files(readmes)
 
 
 Further Examples
