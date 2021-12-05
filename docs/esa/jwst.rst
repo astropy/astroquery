@@ -31,12 +31,10 @@ origins of life
 * The birth of stars and proto-planetary systems.
 * Planetary systems and the origins of life.
 
-This package allows the access to the European Space Agency JWST Archive
-(http://jwstdummyarchive.com/)
-
-ESA JWST Archive access is based on a TAP+ REST service. TAP+ is an extension of
-Table Access Protocol (TAP: http://www.ivoa.net/documents/TAP/) specified by the
-International Virtual Observatory Alliance (IVOA: http://www.ivoa.net).
+This package provides access to the metadata and datasets provided by the
+European Space Agency JWST Archive using a TAP+ REST service. TAP+ is an
+extension of Table Access Protocol (TAP: http://www.ivoa.net/documents/TAP/)
+specified by the International Virtual Observatory Alliance (IVOA: http://www.ivoa.net).
 
 The TAP query language is Astronomical Data Query Language
 (ADQL: http://www.ivoa.net/documents/ADQL/2.0), which is similar

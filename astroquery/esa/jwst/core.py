@@ -694,13 +694,16 @@ class JwstClass(BaseQuery):
         the status of JWST TAP
         """
 
-        subContext = conf.JWST_MESSAGES
-        connHandler = self.__jwsttap._TapPlus__getconnhandler()
-        response = connHandler.execute_tapget(subContext, False)
-        if response.status == 200:
-            for line in response:
-                string_message = line.decode("utf-8")
-                print(string_message[string_message.index('=')+1:])
+        try:
+            subContext = conf.JWST_MESSAGES
+            connHandler = self.__jwsttap._TapPlus__getconnhandler()
+            response = connHandler.execute_tapget(subContext, False)
+            if response.status == 200:
+                for line in response:
+                    string_message = line.decode("utf-8")
+                    print(string_message[string_message.index('=')+1:])
+        except OSError as e:
+            print("Status messages could not be retrieved")
 
     def get_product_list(self, *, observation_id=None,
                          cal_level="ALL",
@@ -1241,7 +1244,4 @@ class JwstClass(BaseQuery):
             return str
 
 
-if "pytest" in sys.modules:
-    Jwst = JwstClass(show_messages=False)
-else:
-    Jwst = JwstClass()
+Jwst = JwstClass()
