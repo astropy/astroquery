@@ -73,6 +73,8 @@ def get_product_mock(params, *args, **kwargs):
 
 @pytest.fixture(autouse=True)
 def get_product_request(request):
+    if 'noautofixt' in request.keywords:
+        return
     mp = request.getfixturevalue("monkeypatch")
     mp.setattr(JwstClass, '_query_get_product', get_product_mock)
     return mp
@@ -85,7 +87,7 @@ class TestTap:
 
     def test_load_tables(self):
         dummyTapHandler = DummyTapHandler()
-        tap = JwstClass(tap_plus_handler=dummyTapHandler)
+        tap = JwstClass(tap_plus_handler=dummyTapHandler, show_messages=False)
         # default parameters
         parameters = {}
         parameters['only_names'] = False
@@ -104,7 +106,7 @@ class TestTap:
 
     def test_load_table(self):
         dummyTapHandler = DummyTapHandler()
-        tap = JwstClass(tap_plus_handler=dummyTapHandler)
+        tap = JwstClass(tap_plus_handler=dummyTapHandler, show_messages=False)
         # default parameters
         parameters = {}
         parameters['table'] = 'table'
@@ -121,7 +123,7 @@ class TestTap:
 
     def test_launch_sync_job(self):
         dummyTapHandler = DummyTapHandler()
-        tap = JwstClass(tap_plus_handler=dummyTapHandler)
+        tap = JwstClass(tap_plus_handler=dummyTapHandler, show_messages=False)
         query = "query"
         # default parameters
         parameters = {}
@@ -164,7 +166,7 @@ class TestTap:
 
     def test_launch_async_job(self):
         dummyTapHandler = DummyTapHandler()
-        tap = JwstClass(tap_plus_handler=dummyTapHandler)
+        tap = JwstClass(tap_plus_handler=dummyTapHandler, show_messages=False)
         query = "query"
         # default parameters
         parameters = {}
@@ -212,7 +214,7 @@ class TestTap:
 
     def test_list_async_jobs(self):
         dummyTapHandler = DummyTapHandler()
-        tap = JwstClass(tap_plus_handler=dummyTapHandler)
+        tap = JwstClass(tap_plus_handler=dummyTapHandler, show_messages=False)
         # default parameters
         parameters = {}
         parameters['verbose'] = False
@@ -227,7 +229,7 @@ class TestTap:
     def test_query_region(self):
         connHandler = DummyConnHandler()
         tapplus = TapPlus("http://test:1111/tap", connhandler=connHandler)
-        tap = JwstClass(tap_plus_handler=tapplus)
+        tap = JwstClass(tap_plus_handler=tapplus, show_messages=False)
 
         # Launch response: we use default response because the
         # query contains decimals
@@ -367,7 +369,7 @@ class TestTap:
     def test_query_region_async(self):
         connHandler = DummyConnHandler()
         tapplus = TapPlus("http://test:1111/tap", connhandler=connHandler)
-        tap = JwstClass(tap_plus_handler=tapplus)
+        tap = JwstClass(tap_plus_handler=tapplus, show_messages=False)
         jobid = '12345'
         # Launch response
         responseLaunchJob = DummyResponse()
@@ -456,7 +458,7 @@ class TestTap:
     def test_cone_search_sync(self):
         connHandler = DummyConnHandler()
         tapplus = TapPlus("http://test:1111/tap", connhandler=connHandler)
-        tap = JwstClass(tap_plus_handler=tapplus)
+        tap = JwstClass(tap_plus_handler=tapplus, show_messages=False)
         # Launch response: we use default response because the
         # query contains decimals
         responseLaunchJob = DummyResponse()
@@ -548,7 +550,7 @@ class TestTap:
     def test_cone_search_async(self):
         connHandler = DummyConnHandler()
         tapplus = TapPlus("http://test:1111/tap", connhandler=connHandler)
-        tap = JwstClass(tap_plus_handler=tapplus)
+        tap = JwstClass(tap_plus_handler=tapplus, show_messages=False)
         jobid = '12345'
         # Launch response
         responseLaunchJob = DummyResponse()
@@ -618,7 +620,7 @@ class TestTap:
 
     def test_get_product_by_artifactid(self):
         dummyTapHandler = DummyTapHandler()
-        jwst = JwstClass(tap_plus_handler=dummyTapHandler, data_handler=dummyTapHandler)
+        jwst = JwstClass(tap_plus_handler=dummyTapHandler, data_handler=dummyTapHandler, show_messages=False)
         # default parameters
         with pytest.raises(ValueError) as err:
             jwst.get_product()
@@ -642,7 +644,7 @@ class TestTap:
 
     def test_get_product_by_filename(self):
         dummyTapHandler = DummyTapHandler()
-        jwst = JwstClass(tap_plus_handler=dummyTapHandler, data_handler=dummyTapHandler)
+        jwst = JwstClass(tap_plus_handler=dummyTapHandler, data_handler=dummyTapHandler, show_messages=False)
         # default parameters
         with pytest.raises(ValueError) as err:
             jwst.get_product()
@@ -666,7 +668,7 @@ class TestTap:
 
     def test_get_products_list(self):
         dummyTapHandler = DummyTapHandler()
-        jwst = JwstClass(tap_plus_handler=dummyTapHandler, data_handler=dummyTapHandler)
+        jwst = JwstClass(tap_plus_handler=dummyTapHandler, data_handler=dummyTapHandler, show_messages=False)
         # default parameters
         with pytest.raises(ValueError) as err:
             jwst.get_product_list()
@@ -700,7 +702,7 @@ class TestTap:
 
     def test_get_obs_products(self):
         dummyTapHandler = DummyTapHandler()
-        jwst = JwstClass(tap_plus_handler=dummyTapHandler, data_handler=dummyTapHandler)
+        jwst = JwstClass(tap_plus_handler=dummyTapHandler, data_handler=dummyTapHandler, show_messages=False)
         # default parameters
         with pytest.raises(ValueError) as err:
             jwst.get_obs_products()
@@ -925,7 +927,7 @@ class TestTap:
                 raise ValueError(f"Not found expected file: {f}")
 
     def test_query_target_error(self):
-        jwst = JwstClass()
+        jwst = JwstClass(show_messages=False)
         simbad = Simbad()
         ned = Ned()
         vizier = Vizier()
@@ -955,16 +957,101 @@ class TestTap:
 
         # coordinate_error = 'coordinate must be either a string or astropy.coordinates'
         with pytest.raises(ValueError) as err:
-            jwst.query_target(target_name="M1", target_resolver="SIMBAD",
+            jwst.query_target(target_name="test", target_resolver="SIMBAD",
                               radius=units.Quantity(5, units.deg))
         assert 'This target name cannot be determined with this resolver: SIMBAD' in err.value.args[0]
 
         with pytest.raises(ValueError) as err:
-            jwst.query_target(target_name="M1", target_resolver="NED",
+            jwst.query_target(target_name="test", target_resolver="NED",
                               radius=units.Quantity(5, units.deg))
         assert 'This target name cannot be determined with this resolver: NED' in err.value.args[0]
 
         with pytest.raises(ValueError) as err:
-            jwst.query_target(target_name="M1", target_resolver="VIZIER",
+            jwst.query_target(target_name="test", target_resolver="VIZIER",
                               radius=units.Quantity(5, units.deg))
         assert 'This target name cannot be determined with this resolver: VIZIER' in err.value.args[0]
+
+    def test_remove_jobs(self):
+        dummyTapHandler = DummyTapHandler()
+        tap = JwstClass(tap_plus_handler=dummyTapHandler, show_messages=False)
+        job_list = ['dummyJob']
+        parameters = {}
+        parameters['jobs_list'] = job_list
+        parameters['verbose'] = False
+        tap.remove_jobs(job_list)
+        dummyTapHandler.check_call('remove_jobs', parameters)
+
+    def test_save_results(self):
+        dummyTapHandler = DummyTapHandler()
+        tap = JwstClass(tap_plus_handler=dummyTapHandler, show_messages=False)
+        job = 'dummyJob'
+        parameters = {}
+        parameters['job'] = job
+        parameters['verbose'] = False
+        tap.save_results(job)
+        dummyTapHandler.check_call('save_results', parameters)
+
+    def test_login(self):
+        dummyTapHandler = DummyTapHandler()
+        tap = JwstClass(tap_plus_handler=dummyTapHandler, show_messages=False)
+        parameters = {}
+        parameters['user'] = 'test_user'
+        parameters['password'] = 'test_password'
+        parameters['credentials_file'] = None
+        parameters['verbose'] = False
+        tap.login(user='test_user', password='test_password')
+        dummyTapHandler.check_call('login', parameters)
+
+    def test_login_gui(self):
+        dummyTapHandler = DummyTapHandler()
+        tap = JwstClass(tap_plus_handler=dummyTapHandler, show_messages=False)
+        parameters = {}
+        parameters['verbose'] = False
+        tap.login_gui()
+        dummyTapHandler.check_call('login_gui', parameters)
+
+    def test_logout(self):
+        dummyTapHandler = DummyTapHandler()
+        tap = JwstClass(tap_plus_handler=dummyTapHandler, show_messages=False)
+        parameters = {}
+        parameters['verbose'] = False
+        tap.logout()
+        dummyTapHandler.check_call('logout', parameters)
+
+    @pytest.mark.noautofixt
+    def test_query_get_product(self):
+        dummyTapHandler = DummyTapHandler()
+        tap = JwstClass(tap_plus_handler=dummyTapHandler, show_messages=False)
+        file = 'test_file'
+        parameters = {}
+        parameters['query'] = f"select * from jwst.artifact a where a.filename = '{file}'"
+        parameters['name'] = None
+        parameters['output_file'] = None
+        parameters['output_format'] = 'votable'
+        parameters['verbose'] = False
+        parameters['dump_to_file'] = False
+        parameters['upload_resource'] = None
+        parameters['upload_table_name'] = None
+        tap._query_get_product(file_name=file)
+        dummyTapHandler.check_call('launch_job', parameters)
+
+        artifact = 'test_artifact'
+        parameters['query'] = f"select * from jwst.artifact a where a.artifactid = '{artifact}'"
+        tap._query_get_product(artifact_id=artifact)
+        dummyTapHandler.check_call('launch_job', parameters)
+
+    def test_get_related_observations(self):
+        dummyTapHandler = DummyTapHandler()
+        tap = JwstClass(tap_plus_handler=dummyTapHandler, show_messages=False)
+        obs = 'dummyObs'
+        tap.get_related_observations(observation_id=obs)
+        parameters = {}
+        parameters['query'] = f"select * from jwst.main m where m.members like '%{obs}%'"
+        parameters['name'] = None
+        parameters['output_file'] = None
+        parameters['output_format'] = 'votable'
+        parameters['verbose'] = False
+        parameters['dump_to_file'] = False
+        parameters['upload_resource'] = None
+        parameters['upload_table_name'] = None
+        dummyTapHandler.check_call('launch_job', parameters)

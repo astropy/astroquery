@@ -40,7 +40,7 @@ class TestData:
 
     def test_get_product(self):
         dummyTapHandler = DummyTapHandler()
-        jwst = JwstClass(tap_plus_handler=dummyTapHandler)
+        jwst = JwstClass(tap_plus_handler=dummyTapHandler, show_messages=False)
         # default parameters
         parameters = {}
         parameters['artifact_id'] = None

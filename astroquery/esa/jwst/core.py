@@ -12,6 +12,7 @@ import binascii
 import gzip
 import os
 import shutil
+import sys
 import tarfile
 import zipfile
 from builtins import isinstance
@@ -41,7 +42,6 @@ class JwstClass(BaseQuery):
 
     """
     Proxy class to default TapPlus object (pointing to JWST Archive)
-    THIS MODULE IS NOT OPERATIVE YET. METHODS WILL NOT WORK UNTIL eJWST ARCHIVE IS OFFICIALLY RELEASED
     """
 
     JWST_DEFAULT_COLUMNS = ['observationid', 'calibrationlevel', 'public',
@@ -58,7 +58,7 @@ class JwstClass(BaseQuery):
     CAL_LEVELS = ['ALL', 1, 2, 3, -1]
     REQUESTED_OBSERVATION_ID = "Missing required argument: 'observation_id'"
 
-    def __init__(self, *, tap_plus_handler=None, data_handler=None):
+    def __init__(self, *, tap_plus_handler=None, data_handler=None, show_messages=True):
         if tap_plus_handler is None:
             self.__jwsttap = TapPlus(url=conf.JWST_TAP_SERVER,
                                      data_context='data')
@@ -70,7 +70,9 @@ class JwstClass(BaseQuery):
                 base_url=conf.JWST_DATA_SERVER)
         else:
             self.__jwstdata = data_handler
-        print("THIS MODULE IS NOT OPERATIVE YET. METHODS WILL NOT WORK UNTIL eJWST ARCHIVE IS OFFICIALLY RELEASED")
+
+        if show_messages:
+            self.get_status_messages()
 
     def load_tables(self, *, only_names=False, include_shared_tables=False,
                     verbose=False):
@@ -692,13 +694,16 @@ class JwstClass(BaseQuery):
         the status of JWST TAP
         """
 
-        subContext = conf.JWST_MESSAGES
-        connHandler = self.__jwsttap._TapPlus__getconnhandler()
-        response = connHandler.execute_tapget(subContext, False)
-        if response.status == 200:
-            for line in response:
-                string_message = line.decode("utf-8")
-                print(string_message[string_message.index('=')+1:])
+        try:
+            subContext = conf.JWST_MESSAGES
+            connHandler = self.__jwsttap._TapPlus__getconnhandler()
+            response = connHandler.execute_tapget(subContext, False)
+            if response.status == 200:
+                for line in response:
+                    string_message = line.decode("utf-8")
+                    print(string_message[string_message.index('=')+1:])
+        except OSError as e:
+            print("Status messages could not be retrieved")
 
     def get_product_list(self, *, observation_id=None,
                          cal_level="ALL",
@@ -930,7 +935,7 @@ class JwstClass(BaseQuery):
         return output_file_name
 
     def _query_get_product(self, *, artifact_id=None, file_name=None):
-        if(file_name):
+        if file_name:
             query_artifactid = (f"select * from {conf.JWST_ARTIFACT_TABLE} "
                                 f"a where a.filename = "
                                 f"'{file_name}'")
