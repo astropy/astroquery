@@ -64,6 +64,13 @@ class XMMNewtonClass(BaseQuery):
         verbose : bool
             optional, default 'False'
             flag to display information about the process
+        prop: boolean
+            optional, default 'False'
+            flag to download proprietary data, the method will then ask the user to
+            input their username and password either manually or using the credentials_file
+        credentials_file: string
+            optional, default None
+            path to where the users config.ini file is stored with their username and password
         level : string
             level to download, optional, by default everything is downloaded
             values: ODF, PPS
