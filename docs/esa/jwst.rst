@@ -6,8 +6,6 @@
 JWST TAP+ (`astroquery.esa.jwst`)
 *********************************
 
-**THIS MODULE IS NOT OPERATIVE YET. METHODS WILL NOT WORK UNTIL eJWST ARCHIVE IS OFFICIALLY RELEASED**
-
 The James Webb Space Telescope (JWST) is a collaborative project between NASA,
 ESA, and the Canadian Space Agency (CSA). Although radically different in
 design, and emphasizing the infrared part of the electromagnetic spectrum,
