@@ -4,13 +4,8 @@
 eJWST Init
 ==========
 
-@author: Raul Gutierrez-Sanchez
-@contact: raul.gutierrez@sciops.esa.int
-
 European Space Astronomy Centre (ESAC)
 European Space Agency (ESA)
-
-Created on 23 oct. 2018
 
 """
 
