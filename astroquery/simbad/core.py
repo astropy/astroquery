@@ -501,7 +501,7 @@ class SimbadClass(SimbadBaseQuery):
         """
         Queries Simbad for the given object and returns the result as a
         `~astropy.table.Table`. Object names may also be specified with
-        wildcard.  See examples below. 
+        wildcard.  See examples below.
         The async version serves the same function as `query_object`, but
         only collects the response from the Simbad server and returns.
 
