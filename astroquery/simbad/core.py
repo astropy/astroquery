@@ -869,7 +869,7 @@ class SimbadClass(SimbadBaseQuery):
 
         if 'query bibcode' in script:
             return SimbadBibcodeResult
-        elif 'query id ' in script:
+        elif 'format object "%IDLIST"' in script:
             return SimbadObjectIDsResult
         else:
             return SimbadVOTableResult
