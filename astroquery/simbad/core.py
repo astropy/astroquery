@@ -854,7 +854,27 @@ class SimbadClass(SimbadBaseQuery):
         script += votable_footer
         return dict(script=script)
 
-    def _parse_result(self, result, resultclass=SimbadVOTableResult,
+    def _infer_simbad_class(self, text):
+        """
+        Determine the appropriate "Result Class" for the data
+        """
+        lines = text.split("\n")
+        if "::script" not in lines[0]:
+            raise ValueError("SIMBAD query was not called as a script; "
+                             "this is likely a bug")
+
+        console_line = text.index("::console:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
+        # find the script between ::script and ::console
+        script = " ".join(lines[1:console_line])
+
+        if 'query bibcode' in script:
+            return SimbadBibcodeResult
+        elif 'query id ' in script:
+            return SimbadObjectIDsResult
+        else:
+            return SimbadVOTableResult
+
+    def _parse_result(self, result,
                       verbose=False):
         """
         Instantiate a Simbad*Result class and try to parse the
@@ -866,6 +886,7 @@ class SimbadClass(SimbadBaseQuery):
         self.last_response = result
         try:
             content = result.text
+            resultclass = self._infer_simbad_class(content)
             self.last_parsed_result = resultclass(content, verbose=verbose)
             if self.last_parsed_result.data is None:
                 return None
