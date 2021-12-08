@@ -108,7 +108,8 @@ class TestSimbad:
         s = simbad.core.Simbad()
         response = s.query_objects_async(['M32', 'M81'])
 
-        result = s._parse_result(response, simbad.core.SimbadVOTableResult)
+        asseert s._infer_simbad_class(response.text) == simbad.core.SimbadVOTableResult
+        result = s._parse_result(response)
         assert len(result) == 2
 
     def test_query_object_ids(self):

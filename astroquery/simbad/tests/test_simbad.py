@@ -118,12 +118,19 @@ def test_get_frame_coordinates(coordinates, expected_frame):
 
 
 def test_parse_result():
-    result1 = simbad.core.Simbad._parse_result(
-        MockResponseSimbad('query id '), simbad.core.SimbadVOTableResult)
+    mock = MockResponseSimbad('query id ')
+    # check that the appropriate result class is inferred
+    assert simbad.core.Simbad._infer_simbad_class(mock.text) == simbad.core.SimbadVOTableResult
+    result1 = simbad.core.Simbad._parse_result(mock)
     assert isinstance(result1, Table)
+
+
+    # check that the correct error is raised
+    mockerror = MockResponseSimbad('query error ')
+    assert simbad.core.Simbad._infer_simbad_class(mockerror.text) == simbad.core.SimbadVOTableResult
+
     with pytest.raises(TableParseError) as ex:
-        simbad.core.Simbad._parse_result(MockResponseSimbad('query error '),
-                                         simbad.core.SimbadVOTableResult)
+        simbad.core.Simbad._parse_result(mockerror)
     assert str(ex.value) == ('Failed to parse SIMBAD result! The raw response '
                              'can be found in self.last_response, and the '
                              'error in self.last_table_parse_error. '
@@ -430,8 +437,10 @@ def test_regression_issue388():
                                   'open\nquery id  m1  \nvotable close')
     with open(data_path('m1.data'), "rb") as f:
         response.content = f.read()
-    parsed_table = simbad.Simbad._parse_result(response,
-                                               simbad.core.SimbadVOTableResult)
+
+    assert simbad.Simbad._infer_simbad_class(response.text) == simbad.core.SimbadVOTableResult
+
+    parsed_table = simbad.Simbad._parse_result(response)
     truth = b'M   1' if commons.ASTROPY_LT_4_1 else 'M   1'
     assert parsed_table['MAIN_ID'][0] == truth
     assert len(parsed_table) == 1
