@@ -722,11 +722,6 @@ class AlmaClass(QueryWithLogin):
                     else:
                         raise(ex)
 
-            if 'text/html' in check_filename.headers.get('Content-Type', ''):
-                raise ValueError("Bad query.  This can happen if you "
-                                 "attempt to download proprietary "
-                                 "data when not logged in")
-
             try:
                 filename = re.search("filename=(.*)",
                                      check_filename.headers['Content-Disposition']).groups()[0]
