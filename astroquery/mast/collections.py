@@ -36,6 +36,8 @@ class CatalogsClass(MastQueryWithLogin):
     Class for querying MAST catalog data.
     """
 
+    _catalogs_filtered_tic = 'Mast.Catalogs.Filtered.Tic'
+    
     def __init__(self):
 
         super().__init__()
@@ -271,7 +273,7 @@ class CatalogsClass(MastQueryWithLogin):
             self._current_connection = self._portal_api_connection
 
             if catalog.lower() == "tic":
-                service = "Mast.Catalogs.Filtered.Tic"
+                service = _catalogs_filtered_tic
                 if coordinates or objectname:
                     service += ".Position"
                 service += ".Rows"  # Using the rowstore version of the query for speed
