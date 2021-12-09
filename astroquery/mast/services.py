@@ -101,14 +101,15 @@ class ServiceAPI(BaseQuery):
     Should be used to facilitate all microservice API queries.
     """
 
+    SERVICE_URL = conf.server
+    REQUEST_URL = conf.server + "/api/v0.1/"
+    SERVICES = {}
+
     def __init__(self, session=None):
 
         super().__init__()
         if session:
             self._session = session
-
-        self.REQUEST_URL = conf.server + "/api/v0.1/"
-        self.SERVICES = {}
 
         self.TIMEOUT = conf.timeout
 
@@ -128,7 +129,7 @@ class ServiceAPI(BaseQuery):
             vs. the default of mast.stsci.edu/service_name
         """
 
-        service_url = conf.server
+        service_url = self.SERVICE_URL
         if server_prefix:
             service_url = service_url.replace("mast", f"{service_name}.mast")
         else:
