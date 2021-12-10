@@ -7,7 +7,7 @@
         <name>user_mhenar</name>
         <description/>
         <table type="base_table" esatapplus:size="3" esatapplus:flags="0">
-            <name>user_mhenar.table1</name>
+            <name>user_test.table1</name>
             <description>
             <![CDATA[ Uploaded from disk ]]>
             </description>

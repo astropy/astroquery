@@ -11,8 +11,7 @@ European Space Astronomy Centre (ESAC)
 European Space Agency (ESA)
 
 Created on 30 jun. 2016
-Modified on 1 jun. 2021 by mhsarmiento
-Version: gaia-astroquery-1.0
+
 
 """
 from requests import HTTPError
@@ -173,9 +172,12 @@ class GaiaClass(TapPlus):
             By default, it takes the current default one.
         data_structure: str, optional, default 'INDIVIDUAL'
             it can be 'INDIVIDUAL', 'COMBINED', 'RAW':
-            'INDIVIDUAL' means...
-            'COMBINED' means...
-            'RAW' means...
+            'INDIVIDUAL' products are provided in separate files for each sourceId. All files are zipped in a single
+                bundle, even if only one source/file is considered
+            'COMBINED' products are provided in a single file concatenating the data of all sourceIds together.
+                How this is organised depends on the chosen format
+            'RAW' products are provided following a Data Model similar to that used in the MDB, meaning in
+                particular that parameters stored as arrays will remain as such. Like in the COMBINED structure, a single file is provided for the data of all sourceIds together, but in this case there will be always be one row per sourceId
         retrieval_type : str, optional, default 'ALL'
             retrieval type identifier. It can be either 'epoch_photometry'
             for compatibility reasons or 'ALL' to retrieve all data from
@@ -194,7 +196,7 @@ class GaiaClass(TapPlus):
             By default, this value will be set to False. If it is set to 'true'
             the Datalink items tags will not be checked.
         format : str, optional, default 'votable'
-            loading format
+            loading format. Other available formats are 'csv' and 'fits'
         output_file : string, optional, default None
             file where the results are saved.
             If it is not provided, the http response contents are returned.
@@ -903,23 +905,20 @@ class GaiaClass(TapPlus):
 
     def rename_table(self, table_name=None, new_table_name=None, new_column_names_dict={},
                      verbose=False):
-        """ This new method allows you to update the column names of a user table.
-
-        Parameters
-        ----------
-        table_name: str, required
-            old name of the user's table
-        new_table_name: str, required
-            new name of the user's table
-        new_column_names_dict: dict str:str, required
-            dict with pairs "old_column1_name:new_column1_name"
-        verbose : bool, optional, default 'False'
-            flag to display information about the process
-
-        Example
-        -------
-        TapPlus.rename_table.rename_table(table_name=old_table_name, new_table_name=new_table_name,
-        new_column_names_dict=[old_column1:new_column1, old_column2:new_column2, ...])
+        """
+            This new method allows to update the column names of a user table.
+            header example: rename_table(table_name=old_table_name, new_table_name=new_table_name -optional-
+             , new_column_names_dict=[old_column1:new_column1, old_column2:new_colum2...])
+            Parameters
+            ----------
+            table_name: str, required
+                old name of the user's table
+            new_table_name: str, required
+                new name of the user's table
+            new_column_names_dict: dict str:str, required
+                dict with pairs "old_column1_name:new_column1_name"
+            verbose : bool, optional, default 'False'
+                flag to display information about the process
         """
         return TapPlus.rename_table(self, table_name=table_name, new_table_name=new_table_name,
                                     new_column_names_dict=new_column_names_dict, verbose=verbose)

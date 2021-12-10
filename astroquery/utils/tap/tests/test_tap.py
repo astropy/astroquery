@@ -205,13 +205,13 @@ def test_launch_sync_job():
     results = job.get_results()
     assert len(results) == 3
     __check_results_column(results,
-                           'alpha',
-                           'alpha',
+                           'ra',
+                           'ra',
                            None,
                            np.float64)
     __check_results_column(results,
-                           'delta',
-                           'delta',
+                           'dec',
+                           'dec',
                            None,
                            np.float64)
     __check_results_column(results,
@@ -308,13 +308,13 @@ def test_launch_sync_job_redirect():
     results = job.get_results()
     assert len(results) == 3
     __check_results_column(results,
-                           'alpha',
-                           'alpha',
+                           'ra',
+                           'ra',
                            None,
                            np.float64)
     __check_results_column(results,
-                           'delta',
-                           'delta',
+                           'dec',
+                           'dec',
                            None,
                            np.float64)
     __check_results_column(results,
@@ -404,13 +404,13 @@ def test_launch_async_job():
     results = job.get_results()
     assert len(results) == 3
     __check_results_column(results,
-                           'alpha',
-                           'alpha',
+                           'ra',
+                           'ra',
                            None,
                            np.float64)
     __check_results_column(results,
-                           'delta',
-                           'delta',
+                           'dec',
+                           'dec',
                            None,
                            np.float64)
     __check_results_column(results,
@@ -954,8 +954,8 @@ def test_update_user_table():
 
 
 def test_rename_table():
-    tableName = 'user_mhenar.table_test_rename'
-    newTableName = 'user_mhenar.table_test_rename_new'
+    tableName = 'user_test.table_test_rename'
+    newTableName = 'user_test.table_test_rename_new'
     newColumnNames = {'ra': 'alpha', 'dec': 'delta'}
     connHandler = DummyConnHandler()
     tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
@@ -996,8 +996,6 @@ def test_rename_table():
     connHandler.set_response(req, responseRenameTable)
     tap.rename_table(table_name=tableName, new_table_name=newTableName, new_column_names_dict=newColumnNames)
 
-
-# __end_of_Test
 
 def __find_table(schemaName, tableName, tables):
     qualifiedName = f"{schemaName}.{tableName}"

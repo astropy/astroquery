@@ -87,7 +87,7 @@ class TapConn:
         self.__connPort = port
         self.__connPortSsl = sslport
         if server_context is not None:
-            if (server_context.startswith("/")):
+            if(server_context.startswith("/")):
                 self.__serverContext = server_context
             else:
                 self.__serverContext = f"/{server_context}"
@@ -107,7 +107,7 @@ class TapConn:
 
     def __create_context(self, context):
         if (context is not None and context != ""):
-            if (str(context).startswith("/")):
+            if(str(context).startswith("/")):
                 return f"{self.__serverContext}{context}"
             else:
                 return f"{self.__serverContext}/{context}"
@@ -125,7 +125,7 @@ class TapConn:
         self.__postHeaders = {
             "Content-type": CONTENT_TYPE_POST_DEFAULT,
             "Accept": "text/plain"
-        }
+            }
         self.__getHeaders = {}
         self.__cookie = None
         self.__currentStatus = 0
@@ -414,6 +414,9 @@ class TapConn:
         context = self.__get_table_edit_context()
         return self.__execute_post(context, data, content_type, verbose)
 
+
+
+
     def __execute_post(self, context, data,
                        content_type=CONTENT_TYPE_POST_DEFAULT,
                        verbose=False):
@@ -599,7 +602,7 @@ class TapConn:
         if content_disposition is not None:
             p = content_disposition.find('filename="')
             if p >= 0:
-                filename = content_disposition[p + 10:len(content_disposition) - 1]
+                filename = content_disposition[p+10:len(content_disposition)-1]
                 content_encoding = self.find_header(headers, 'Content-Encoding')
                 if content_encoding is not None:
                     if "gzip" == content_encoding.lower():
@@ -733,7 +736,7 @@ class TapConn:
 
     def __str__(self):
         return f"\tHost: {self.__connHost}\n\tUse HTTPS: {self.__isHttps}" \
-               f"\n\tPort: {self.__connPort}\n\tSSL Port: {self.__connPortSsl}"
+            f"\n\tPort: {self.__connPort}\n\tSSL Port: {self.__connPortSsl}"
 
 
 class ConnectionHandler:
