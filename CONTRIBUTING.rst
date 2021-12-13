@@ -8,7 +8,7 @@ workflow involving git, etc.  Everything below is astroquery-specific.
 
 We strongly encourage draft pull requests to be opened early in development.
 If you are thinking of contributing a new module, please open a pull request
-as soon as you start developing code and mark it "WIP" (work in progress).
+as soon as you start developing code and mark it as a Draft PR on github.
 
 
 New Features
@@ -64,7 +64,10 @@ Dependencies
 ------------
 New contributions are generally not allowed to bring along additional dependencies.
 
-File reading, table parsing, etc. should be done with astropy tables.
+The astropy ecosystem tools should be used whenever possible.
+For example, astropy.table should be used for table handling,
+astropy.io.ascii for ascii-table parsing, and astropy.units for unit and quantity
+handling.
 
 
 
