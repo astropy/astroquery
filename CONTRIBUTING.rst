@@ -65,8 +65,8 @@ Dependencies
 New contributions are generally not allowed to bring along additional dependencies.
 
 The astropy ecosystem tools should be used whenever possible.
-For example, astropy.table should be used for table handling,
-astropy.io.ascii for ascii-table parsing, and astropy.units for unit and quantity
+For example, `astropy.table` should be used for table handling,
+`astropy.io.ascii` for ascii-table parsing, and `astropy.units` for unit and quantity
 handling.
 
 
