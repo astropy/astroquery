@@ -6,6 +6,11 @@ Please see `astropy's contributing guildelines
 <http://www.astropy.org/contribute.html>`__ for a general guide to the
 workflow involving git, etc.  Everything below is astroquery-specific.
 
+We strongly encourage draft pull requests to be opened early in development.
+If you are thinking of contributing a new module, please open a pull request
+as soon as you start developing code and mark it "WIP" (work in progress).
+
+
 New Features
 ------------
 We welcome any and all new features!  If you have your own little query tool
@@ -54,6 +59,14 @@ from, provides access to its own `_request` method.  This custom `_request`
 method is a wrapper around the `requests.request` function that provides
 important astroquery-specific utility, including caching, HTTP header
 generation, progressbars, and local writing-to-disk.
+
+Dependencies
+------------
+New contributions are generally not allowed to bring along additional dependencies.
+
+File reading, table parsing, etc. should be done with astropy tables.
+
+
 
 .. _astroquery API: docs/api.rst
 .. _template: docs/template.rst
