@@ -1,5 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
+from typing import Union
 import warnings
 from io import StringIO, BytesIO
 from astropy.table import Table
@@ -86,8 +87,10 @@ class HeasarcClass(BaseQuery):
         All other parameters have no effect
         """
 
-        response = self.query_region_async(position='0.0 0.0', mission=mission,
-                                           radius='361 degree', cache=cache,
+        response = self.query_region_async(position=coordinates.SkyCoord(0.0, 0.0, unit='deg'),
+                                           mission=mission,
+                                           radius='361 degree',
+                                           cache=cache,
                                            get_query_payload=get_query_payload,
                                            resultsmax=1,
                                            fields='All')
@@ -127,8 +130,8 @@ class HeasarcClass(BaseQuery):
 
         return self.query_async(request_payload, cache=cache)
 
-    def query_region_async(self, position, mission, radius,
-                           cache=True, get_query_payload=False,
+    def query_region_async(self, position: Union[coordinates.SkyCoord, str],
+                           mission, radius, cache=True, get_query_payload=False,
                            **kwargs):
         """
         Query around specific set of coordinates within a given mission
@@ -138,7 +141,7 @@ class HeasarcClass(BaseQuery):
 
         Parameters
         ----------
-        position : `astropy.coordinates` or str
+        position : `astropy.coordinates.SkyCoord` or str
             The position around which to search. It may be specified as a
             string in which case it is resolved using online services or as
             the appropriate `astropy.coordinates` object. ICRS coordinates
