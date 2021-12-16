@@ -223,7 +223,6 @@ class HeasarcClass(BaseQuery):
         data = StringIO(text.replace(old_table, "\n".join(new_table)))
         return Table.read(data, hdu=1, unit_parse_strict='silent')
 
-    
     def _parse_result(self, response, verbose=False):
         # if verbose is False then suppress any VOTable related warnings
         if not verbose:

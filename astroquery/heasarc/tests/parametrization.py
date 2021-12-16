@@ -47,7 +47,7 @@ def get_mockreturn(session, method, url, params=None, timeout=10, **kwargs):
         content = open(filename, "rt").read()
     except FileNotFoundError:
         log.error(
-            f"no stored mock data in {filename} for url=\"{url}\" and params=\"{params}\""
+            f'no stored mock data in {filename} for url="{url}" and params="{params}"'
             "perhaps you need to clean test data and regenerate it? "
             "It will be regenerated automatically if cleaned, try `rm -fv astroquery/heasarc/tests/data/* build`"
         )
@@ -65,7 +65,7 @@ def save_response_of_get(session, method, url, params=None, timeout=10, **kwargs
     filename = filename_for_request(url, params, output=True)
 
     with open(filename, "wt") as f:
-        log.info(f"saving output to {filename} for url=\"{url}\" and params=\"{params}\"")
+        log.info(f'saving output to {filename} for url="{url}" and params="{params}"')
         log.warning(
             f"you may want to run `cp -fv {os.path.dirname(filename)}/* astroquery/heasarc/tests/data/; rm -rfv build`"
         )
@@ -89,7 +89,7 @@ def patch_get(request):
     return mp
 
 
-def have_mock_data():    
+def have_mock_data():
     return len(glob.glob(data_path("*"))) > 0
 
 
