@@ -19,9 +19,9 @@ XMM-Newton Science Operations Centre.
 Examples
 ========
 
-------------------------------
+--------------------------
 1. Getting XMM-Newton data
-------------------------------
+--------------------------
 
 .. code-block:: python
 
@@ -36,9 +36,9 @@ it will store them in a tar called 'result0505720401.tar'. The parameters availa
 For more details of the parameters check the section 3.4 at:
 		'http://nxsa.esac.esa.int/nxsa-web/#aio'
 
-------------------------------
+--------------------------------------
 2. Getting XMM-Newton proprietary data
-------------------------------
+--------------------------------------
 To access proprietary data an extra variable is needed in the XMMNewton.download_data method. This variabe is prop which
 can be True or False. If True a username and password is needed. A username and password can be passed by adding another
 variable to the XMMNewton.download_data method called credentials_file. This variable is a string with the path to a
