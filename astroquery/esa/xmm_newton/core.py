@@ -306,7 +306,7 @@ class XMMNewtonClass(BaseQuery):
         return params
 
     def _get_username_and_password(self, credentials_file):
-        if credentials_file != None:
+        if credentials_file is not None:
             self.configuration.read(credentials_file)
             username = self.configuration.get('user', 'username')
             password = self.configuration.get('user', 'password')

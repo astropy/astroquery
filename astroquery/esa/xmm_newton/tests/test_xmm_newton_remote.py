@@ -21,6 +21,7 @@ from astroquery.utils.tap.core import TapPlus
 from ..core import XMMNewtonClass
 from ..tests.dummy_tap_handler import DummyXMMNewtonTapHandler
 
+
 class TestXMMNewtonRemote():
     _files = {
         "0405320501": {
@@ -220,7 +221,6 @@ class TestXMMNewtonRemote():
                       'verbose': False}
         xsa = XMMNewtonClass(self.get_dummy_tap_handler())
         xsa.download_data(**parameters)
-
 
     @pytest.mark.remote_data
     def test_get_epic_spectra(self):
