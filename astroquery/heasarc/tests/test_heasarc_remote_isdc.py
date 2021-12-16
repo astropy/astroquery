@@ -1,14 +1,15 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-
 import pytest
 import requests
 
 from ...heasarc import Heasarc, Conf
 from ...utils import commons
 
+from .parametrization import parametrization_local_save_remote, patch_get, MockResponse
 
-@pytest.mark.remote_data
+
+@parametrization_local_save_remote
 class TestHeasarcISDC:
 
     @property
@@ -181,7 +182,7 @@ class TestHeasarcISDC:
         heasarc = Heasarc()
         response = heasarc.query_object_async(object_name, mission=mission)
         assert response is not None
-        assert type(response) is requests.models.Response
+        assert isinstance(response, (requests.models.Response, MockResponse))
 
     def test_query_region_async(self):
         heasarc = Heasarc()
@@ -192,7 +193,7 @@ class TestHeasarcISDC:
             response = heasarc.query_region_async(c, mission=mission,
                                                   radius='1 degree')
         assert response is not None
-        assert type(response) is requests.models.Response
+        assert isinstance(response, (requests.models.Response, MockResponse))
 
     def test_query_region(self):
         heasarc = Heasarc()

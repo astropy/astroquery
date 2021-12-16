@@ -1,0 +1,15 @@
+BatchStart
+Table xxx does not seem to exist!
+
+
+
+Available tables:
+
+|Mission      |Table                 |Table Description                              |
++-------------+----------------------+-----------------------------------------------+
+|CTASST1M-REV1|cta_sst1m_rev1_run    |Run                                            |
+|FACT-REV1    |fact_rev1_run         |Run                                            |
+|INTEGRAL-REV3|integral_rev3_prop    |Proposals                                      |
+|INTEGRAL-REV3|integral_rev3_prop_obs|Proposal Information and Observation Parameters|
+|INTEGRAL-REV3|integral_rev3_scw     |SCW - Science Window Data                      |
+BatchEnd

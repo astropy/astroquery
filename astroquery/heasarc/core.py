@@ -87,7 +87,7 @@ class HeasarcClass(BaseQuery):
         All other parameters have no effect
         """
 
-        response = self.query_region_async(position=coordinates.SkyCoord(0.0, 0.0, unit='deg'),
+        response = self.query_region_async(position=coordinates.SkyCoord(10, 10, unit='deg', frame='fk5'),
                                            mission=mission,
                                            radius='361 degree',
                                            cache=cache,
@@ -191,7 +191,7 @@ class HeasarcClass(BaseQuery):
         f.writeto(I)
         I.seek(0)
 
-        return Table.read(I)
+        return Table.read(I, unit_parse_strict='silent')
 
     def _fallback(self, text):
         """
@@ -221,8 +221,9 @@ class HeasarcClass(BaseQuery):
             new_table.append("".join(newline))
 
         data = StringIO(text.replace(old_table, "\n".join(new_table)))
-        return Table.read(data, hdu=1)
+        return Table.read(data, hdu=1, unit_parse_strict='silent')
 
+    
     def _parse_result(self, response, verbose=False):
         # if verbose is False then suppress any VOTable related warnings
         if not verbose:
@@ -242,7 +243,7 @@ class HeasarcClass(BaseQuery):
 
         try:
             data = BytesIO(response.content)
-            table = Table.read(data, hdu=1)
+            table = Table.read(data, hdu=1, unit_parse_strict='silent')
             return table
         except ValueError:
             try:
