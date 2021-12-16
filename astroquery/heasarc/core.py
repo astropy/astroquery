@@ -191,9 +191,9 @@ class HeasarcClass(BaseQuery):
         f.writeto(I)
         I.seek(0)
 
-        if commons.ASTROPY_LT_5_0:
+        try:
             return Table.read(I)
-        else:
+        except:
             return Table.read(I, unit_parse_strict='silent')
 
     def _fallback(self, text):
@@ -225,9 +225,9 @@ class HeasarcClass(BaseQuery):
 
         data = StringIO(text.replace(old_table, "\n".join(new_table)))
 
-        if commons.ASTROPY_LT_5_0:
+        try:
             return Table.read(data, hdu=1)
-        else:
+        except:
             return Table.read(data, hdu=1, unit_parse_strict='silent')
 
     def _parse_result(self, response, verbose=False):
@@ -250,9 +250,10 @@ class HeasarcClass(BaseQuery):
         try:
             data = BytesIO(response.content)
 
-            if commons.ASTROPY_LT_5_0:
+            # why does if commons.ASTROPY_LT_5_0 not work on Windows?
+            try:
                 return Table.read(data, hdu=1)
-            else:
+            except:
                 return Table.read(data, hdu=1, unit_parse_strict='silent')
         except ValueError:
             try:
