@@ -17,9 +17,9 @@ else
 
 
 class MockResponse:
-    def __init__(self, content):
-        self.content = content
-        self.text = content.decode()
+    def __init__(self, text):
+        self.text = text
+        self.content = text.encode()
 
 
 def data_path(filename, output=False):
@@ -44,7 +44,7 @@ def get_mockreturn(session, method, url, params=None, timeout=10, **kwargs):
 
     filename = filename_for_request(url, params)
     try:
-        content = open(filename, "rb").read()
+        content = open(filename, "rt").read()
     except FileNotFoundError:
         log.error(
             f"no stored mock data in {filename} for url=\"{url}\" and params=\"{params}\""
@@ -58,20 +58,20 @@ def get_mockreturn(session, method, url, params=None, timeout=10, **kwargs):
 
 def save_response_of_get(session, method, url, params=None, timeout=10, **kwargs):
 
-    content = requests.Session._original_request(
+    text = requests.Session._original_request(
         session, method, url, params=params, timeout=timeout
-    ).content
+    ).text
 
     filename = filename_for_request(url, params, output=True)
 
-    with open(filename, "wb") as f:
+    with open(filename, "wt") as f:
         log.info(f"saving output to {filename} for url=\"{url}\" and params=\"{params}\"")
         log.warning(
             f"you may want to run `cp -fv {os.path.dirname(filename)}/* astroquery/heasarc/tests/data/; rm -rfv build`"
         )
-        f.write(content)
+        f.write(text)
 
-    return MockResponse(content)
+    return MockResponse(text)
 
 
 @pytest.fixture(autouse=True)
