@@ -191,7 +191,10 @@ class HeasarcClass(BaseQuery):
         f.writeto(I)
         I.seek(0)
 
-        return Table.read(I, unit_parse_strict='silent')
+        if commons.ASTROPY_LT_5_0:
+            return Table.read(I)
+        else:
+            return Table.read(I, unit_parse_strict='silent')
 
     def _fallback(self, text):
         """
@@ -221,7 +224,11 @@ class HeasarcClass(BaseQuery):
             new_table.append("".join(newline))
 
         data = StringIO(text.replace(old_table, "\n".join(new_table)))
-        return Table.read(data, hdu=1, unit_parse_strict='silent')
+
+        if commons.ASTROPY_LT_5_0:
+            return Table.read(data, hdu=1)
+        else:
+            return Table.read(data, hdu=1, unit_parse_strict='silent')
 
     def _parse_result(self, response, verbose=False):
         # if verbose is False then suppress any VOTable related warnings
@@ -242,8 +249,11 @@ class HeasarcClass(BaseQuery):
 
         try:
             data = BytesIO(response.content)
-            table = Table.read(data, hdu=1, unit_parse_strict='silent')
-            return table
+
+            if commons.ASTROPY_LT_5_0:
+                return Table.read(data, hdu=1)
+            else:
+                return Table.read(data, hdu=1, unit_parse_strict='silent')
         except ValueError:
             try:
                 return self._fallback(response.text)
