@@ -16,6 +16,14 @@ from . import conf
 __all__ = ['Heasarc', 'HeasarcClass']
 
 
+def Table_read(*args, **kwargs):
+    # why does if commons.ASTROPY_LT_5_0 not work on Windows?
+    try:
+        return Table.read(*args, **kwargs, unit_parse_strict='silent')
+    except TypeError:
+        return Table.read(*args, **kwargs)
+
+
 @async_to_sync
 class HeasarcClass(BaseQuery):
 
@@ -191,10 +199,7 @@ class HeasarcClass(BaseQuery):
         f.writeto(I)
         I.seek(0)
 
-        try:
-            return Table.read(I)
-        except:
-            return Table.read(I, unit_parse_strict='silent')
+        return Table_read(I)
 
     def _fallback(self, text):
         """
@@ -225,10 +230,7 @@ class HeasarcClass(BaseQuery):
 
         data = StringIO(text.replace(old_table, "\n".join(new_table)))
 
-        try:
-            return Table.read(data, hdu=1)
-        except:
-            return Table.read(data, hdu=1, unit_parse_strict='silent')
+        return Table_read(data, hdu=1)
 
     def _parse_result(self, response, verbose=False):
         # if verbose is False then suppress any VOTable related warnings
@@ -249,12 +251,7 @@ class HeasarcClass(BaseQuery):
 
         try:
             data = BytesIO(response.content)
-
-            # why does if commons.ASTROPY_LT_5_0 not work on Windows?
-            try:
-                return Table.read(data, hdu=1)
-            except:
-                return Table.read(data, hdu=1, unit_parse_strict='silent')
+            return Table_read(data, hdu=1)
         except ValueError:
             try:
                 return self._fallback(response.text)
