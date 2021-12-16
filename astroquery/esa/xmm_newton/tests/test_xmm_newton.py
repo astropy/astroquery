@@ -20,6 +20,11 @@ from ..tests.dummy_handler import DummyHandler
 from astroquery.exceptions import LoginError
 
 
+def data_path(filename):
+    data_dir = os.path.join(os.path.dirname(__file__), 'data')
+    return os.path.join(data_dir, filename)
+
+
 class mockResponse():
     headers = {'Date': 'Wed, 24 Nov 2021 13:43:50 GMT',
                'Server': 'Apache/2.4.6 (Red Hat Enterprise Linux) OpenSSL/1.0.2k-fips',
@@ -548,7 +553,8 @@ class TestXMMNewton():
 
     def test_get_username_and_password(self):
         xsa = XMMNewtonClass(self.get_dummy_tap_handler())
-        username, password = xsa._get_username_and_password("astroquery/esa/xmm_newton/tests/my_config.ini")
+        file = data_path("my_config.ini")
+        username, password = xsa._get_username_and_password(file)
         assert username == "test"
         assert password == "test"
 

@@ -19,7 +19,7 @@ import os
 def get_package_data():
     paths = [os.path.join('data', '*.tar'),
              os.path.join('data', '*.xml'),
-             os.path.join('my_config.ini')
+             os.path.join('data', '*.ini')
              ]  # etc, add other extensions
     # you can also enlist files individually by names
     # finally construct and return a dict for the sub module
