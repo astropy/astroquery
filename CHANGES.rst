@@ -29,6 +29,9 @@ Infrastructure, Utility and Other Changes and Additions
 - Adding ``--alma-site`` pytest option for testing to have a control over
   which specific site to test. [#2224]
 
+- The function ``astroquery.utils.download_list_of_fitsfiles()`` has been
+  deprecated. [#2247]
+
 utils.tap
 ^^^^^^^^^
 
