@@ -94,35 +94,16 @@ def have_mock_data():
 
 
 parametrization_local_save_remote = pytest.mark.parametrize(
-    "patch_get",
-    [
-        pytest.param(
-            "local",
-            marks=pytest.mark.skipif(
-                not have_mock_data(),
-                reason="No test data found. If remote_data is allowed, we'll generate some.",
-            ),
-        ),
-        pytest.param(
-            "save",
-            marks=[
-                pytest.mark.remote_data,
-                pytest.mark.skipif(
-                    have_mock_data(),
-                    reason="found some test data: please delete them to save again.",
-                ),
-            ],
-        ),
-        pytest.param(
-            "remote",
-            marks=[
-                pytest.mark.remote_data,
-                pytest.mark.skipif(
-                    not have_mock_data(),
-                    reason="No test data found, [save] will run remote tests and save data.",
-                ),
-            ],
-        ),
-    ],
-    indirect=True,
-)
+    "patch_get", [
+        pytest.param("local", marks=[
+            pytest.mark.skipif(not have_mock_data(),
+                               reason="No test data found. If remote_data is allowed, we'll generate some.")]),
+        pytest.param("save", marks=[
+            pytest.mark.remote_data,
+            pytest.mark.skipif(have_mock_data(),
+                               reason="found some test data: please delete them to save again.")]),
+        pytest.param("remote", marks=[
+            pytest.mark.remote_data,
+            pytest.mark.skipif(not have_mock_data(),
+                               reason="No test data found, [save] will run remote tests and save data.")])],
+    indirect=True)
