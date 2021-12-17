@@ -102,18 +102,11 @@ class XMMNewtonClass(BaseQuery):
             file format, optional, by default all formats
             values: ASC, ASZ, FTZ, HTM, IND, PDF, PNG
 
-
         Returns
         -------
         None if not verbose. It downloads the observation indicated
         If verbose returns the filename
         """
-        """
-        Here we change the log level so that it is above 20, this is to stop a log.debug in query.py. this debug
-        reveals the url being sent which in turn reveals the users username and password
-        """
-        previouslevel = log.getEffectiveLevel()
-        log.setLevel(21)
 
         # create url to access the aio
         link = self._create_link(observation_id, **kwargs)
@@ -134,11 +127,20 @@ class XMMNewtonClass(BaseQuery):
         # get desired filename
         filename = self._create_filename(filename, observation_id, suffixes)
 
-        self._download_file(link, filename, head_safe=True, cache=cache)
+        if prop:
+            """
+            Here we change the log level so that it is above 20, this is to stop a log.debug (line 431) in query.py. 
+            This debug reveals the url being sent which in turn reveals the users username and password
+            """
+            previouslevel = log.getEffectiveLevel()
+            log.setLevel(21)
+            self._download_file(link, filename, head_safe=True, cache=cache)
+            log.setLevel(previouslevel)
+        else:
+            self._download_file(link, filename, head_safe=True, cache=cache)
 
         if verbose:
             log.info(f"Wrote {link} to {filename}")
-        log.setLevel(previouslevel)
 
     def get_postcard(self, observation_id, *, image_type="OBS_EPIC",
                      filename=None, verbose=False):
