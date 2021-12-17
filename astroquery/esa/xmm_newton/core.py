@@ -126,12 +126,11 @@ class XMMNewtonClass(BaseQuery):
 
         # get desired filename
         filename = self._create_filename(filename, observation_id, suffixes)
-
+        """
+        If prop we change the log level so that it is above 20, this is to stop a log.debug (line 431) in query.py.
+        This debug reveals the url being sent which in turn reveals the users username and password
+        """
         if prop:
-            """
-            Here we change the log level so that it is above 20, this is to stop a log.debug (line 431) in query.py. 
-            This debug reveals the url being sent which in turn reveals the users username and password
-            """
             previouslevel = log.getEffectiveLevel()
             log.setLevel(21)
             self._download_file(link, filename, head_safe=True, cache=cache)
