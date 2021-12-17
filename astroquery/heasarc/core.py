@@ -18,10 +18,10 @@ __all__ = ['Heasarc', 'HeasarcClass']
 
 def Table_read(*args, **kwargs):
     # why does if commons.ASTROPY_LT_5_0 not work on Windows?
-    try:
-        return Table.read(*args, **kwargs, unit_parse_strict='silent')
-    except TypeError:
+    if commons.ASTROPY_LT_5_1:
         return Table.read(*args, **kwargs)
+    else:
+        return Table.read(*args, **kwargs, unit_parse_strict='silent')
 
 
 @async_to_sync
