@@ -147,7 +147,7 @@ class TestHeasarcISDC:
                         radius='1 degree'
                     )
 
-        assert len(table) == 274
+        assert len(table) >= 274
 
     def test_mission_list(self):
         heasarc = Heasarc()
@@ -207,4 +207,4 @@ class TestHeasarcISDC:
                 )
             table = heasarc.query_region(c, mission=mission, radius='1 degree')
 
-        assert len(table) == 274
+        assert len(table) >= 274
