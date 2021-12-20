@@ -78,8 +78,7 @@ def save_response_of_get(session, method, url, params=None, timeout=10, **kwargs
 @pytest.fixture(autouse=True)
 def patch_get(request):
     """
-    If mode is not remote, patch `requests.Session` such that all `request`s will 
-    return either a saved response or a locally defined get_mockreturn.
+    If the mode is not remote, patch `requests.Session` to either return saved local data or run save data new local data
     """
     mode = request.param
     mp = request.getfixturevalue("monkeypatch")
