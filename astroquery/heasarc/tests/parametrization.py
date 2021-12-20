@@ -57,7 +57,7 @@ def get_mockreturn(session, method, url, params=None, timeout=10, **kwargs):
 
 
 def save_response_of_get(session, method, url, params=None, timeout=10, **kwargs):
-
+    # _original_request is a monkeypatch-added attribute in patch_get
     text = requests.Session._original_request(
         session, method, url, params=params, timeout=timeout
     ).text
