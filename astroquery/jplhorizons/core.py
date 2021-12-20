@@ -20,7 +20,6 @@ from astropy.utils.exceptions import AstropyDeprecationWarning
 from ..query import BaseQuery
 # async_to_sync generates the relevant query tools from _async methods
 from ..utils import async_to_sync
-from ..exceptions import TableParseError
 # import configurable items declared in __init__.py
 from . import conf
 
@@ -1301,10 +1300,7 @@ class HorizonsClass(BaseQuery):
                     # this is allowed: if `cache` was set to False, this
                     # won't be needed
                     pass
-                raise TableParseError("Failed to parse JPL Horizons result. "
-                                      "The raw response can be found in "
-                                      "`self.last_response`.  Exception: "
-                                      + str(ex)) from ex
+                raise
         return data
 
 

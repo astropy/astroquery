@@ -1,5 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
+from multiprocessing import Value
 import pytest
 import os
 from collections import OrderedDict
@@ -62,7 +63,7 @@ def test_parse_result(patch_request):
     q = jplhorizons.Horizons(id='tlist_error')
     # need _last_query to be defined
     q._last_query = AstroQuery('GET', 'http://dummy')
-    with pytest.raises(TableParseError):
+    with pytest.raises(ValueError):
         res = q.ephemerides()
 
 
