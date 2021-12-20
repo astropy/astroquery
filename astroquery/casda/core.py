@@ -66,12 +66,12 @@ class CasdaClass(BaseQuery):
         ----------
         coordinates : str or `astropy.coordinates`.
             coordinates around which to query
-        radius : str or `astropy.units.Quantity`.
+        radius : str or `astropy.units.Quantity`, optional
             the radius of the cone search
-        width : str or `astropy.units.Quantity`
-            the width for a box region
-        height : str or `astropy.units.Quantity`
+        height : str or `astropy.units.Quantity`, optional
             the height for a box region
+        width : str or `astropy.units.Quantity`, optional
+            the width for a box region
         get_query_payload : bool, optional
             Just return the dict of HTTP request parameters.
         cache: bool, optional
@@ -159,22 +159,34 @@ class CasdaClass(BaseQuery):
         now = str(datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%S.%f'))
         return table[(table['obs_release_date'] != '') & (table['obs_release_date'] < now)]
 
-    def stage_data(self, table, verbose=False):
+    def stage_data(self, table, coordinates=None, radius=None, height=None, width=None, verbose=False):
         """
         Request access to a set of data files. All requests for data must use authentication. If you have access to the
         data, the requested files will be brought online and a set of URLs to download the files will be returned.
+
+        This method can also be used to produce a cutout from the data files. If a set of coordinates is provided along 
+        with either a radius or a box height and width, then CASDA will produce a cutout at that location from each 
+        data file specified in the table.
 
         Parameters
         ----------
         table: `astropy.table.Table`
             A table describing the files to be staged, such as produced by query_region. It must include an
             access_url column.
+        coordinates : str or `astropy.coordinates`, optional
+            coordinates around which to produce a cutout
+        radius : str or `astropy.units.Quantity`, optional
+            the radius of the cutout
+        height : str or `astropy.units.Quantity`, optional
+            the height for a box cutout
+        width : str or `astropy.units.Quantity`, optional
+            the width for a box cutout
         verbose: bool, optional
             Should status message be logged periodically, defaults to False
 
         Returns
         -------
-        A list of urls of both the requested files and the checksums for the files
+        A list of urls of both the requested files/cutouts and the checksums for the files/cutouts
         """
         if not self._authenticated:
             raise ValueError("Credentials must be supplied to download CASDA image data")
@@ -182,16 +194,26 @@ class CasdaClass(BaseQuery):
         if table is None or len(table) == 0:
             return []
 
+
+        if coordinates is not None:
+            cutout_spec = self._args_to_payload(coordinates=coordinates, radius=radius, height=height,
+                                                width=width)
+            is_cutout = True
+        else:
+            cutout_spec = None
+            is_cutout = False
+
         # Use datalink to get authenticated access for each file
         tokens = []
         soda_url = None
+        service_name = 'cutout_service' if is_cutout else 'async_service'
         for row in table:
             access_url = row['access_url']
             if access_url:
                 response = self._request('GET', access_url, auth=self._auth,
                                         timeout=self.TIMEOUT, cache=False)
                 response.raise_for_status()
-                service_url, id_token = self._parse_datalink_for_service_and_id(response, 'async_service')
+                service_url, id_token = self._parse_datalink_for_service_and_id(response, service_name)
                 if id_token:
                     tokens.append(id_token)
                     soda_url = service_url
@@ -205,6 +227,10 @@ class CasdaClass(BaseQuery):
         if verbose:
             log.info("Created data staging job " + job_url)
 
+        # Add cutout parameters, if they have been specified
+        if cutout_spec is not None:
+            self._add_cutout_params(job_url, verbose, cutout_spec)
+        
         # Wait for job to be complete
         final_status = self._run_job(job_url, verbose, poll_interval=self.POLL_INTERVAL)
         if final_status != 'COMPLETED':
@@ -316,6 +342,29 @@ class CasdaClass(BaseQuery):
         resp = self._request('POST', async_url, params=id_params, cache=False)
         resp.raise_for_status()
         return resp.url
+
+
+    def _add_cutout_params(self, job_location, verbose, cutout_spec):
+        """
+        Add a cutout specification to an async SODA job. This will change the job 
+        from just retrieving the full file to producing a cutout from the target file.
+
+        Parameters
+        ----------
+        job_location: str
+            The url to query the job status and details
+        verbose: bool
+            Should progress be logged periodically
+        cutout_spec: map
+            The map containing the POS parameter defining the cutout.
+        """
+        #params = list(map((lambda value: (param_key, value)), cutout_spec))
+        if verbose:
+            log.info("Adding parameters: " + str(cutout_spec))
+        resp = self._request('POST', job_location + '/parameters', data=cutout_spec, cache=False)
+        resp.raise_for_status()
+        return
+
 
     def _run_job(self, job_location, verbose, poll_interval=20):
         """

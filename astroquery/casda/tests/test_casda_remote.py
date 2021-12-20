@@ -8,6 +8,7 @@ import pytest
 
 from astropy.table import Table, Column
 import astropy.units as u
+from astropy.coordinates import SkyCoord 
 
 from astroquery.casda import Casda
 
@@ -52,4 +53,30 @@ class TestCasdaRemote:
 
         assert str(urls[0]).endswith('image_cube_g300to310.q.fits')
         assert str(urls[1]).endswith('image_cube_g300to310.q.fits.checksum')
+        assert len(urls) == 2
+
+    @pytest.mark.skipif(('CASDA_USER' not in os.environ or
+                        'CASDA_PASSWD' not in os.environ),
+                        reason='Requires real CASDA user/password (CASDA_USER '
+                               'and CASDA_PASSWD environment variables)')
+    def test_stage_data_cutouts(self):
+        prefix = 'https://data.csiro.au/casda_vo_proxy/vo/datalink/links?ID='
+        access_urls = [prefix + 'cube-44705']
+        table = Table([Column(data=access_urls, name='access_url')])
+        print (os.environ.keys)
+        casda = Casda(os.environ['CASDA_USER'], os.environ['CASDA_PASSWD'])
+        casda.POLL_INTERVAL = 3
+        pos = SkyCoord(196.49583333*u.deg, -62.7*u.deg)
+        urls = casda.stage_data(table, pos, radius=15*u.arcmin)
+
+        # URLs may come back in any order
+        for url in urls:
+            if url.endswith('.checksum'):
+                checksum_url = str(url)
+            else:
+                cutout_url = str(url)
+        
+        assert cutout_url.endswith('-imagecube-44705.fits')
+        assert 'cutout-' in cutout_url
+        assert checksum_url.endswith('-imagecube-44705.fits.checksum')
         assert len(urls) == 2

@@ -21,7 +21,8 @@ except ImportError:
     pytest.skip("Install mock for the casda tests.", allow_module_level=True)
 
 DATA_FILES = {'CIRCLE': 'cone.xml', 'RANGE': 'box.xml', 'DATALINK': 'datalink.xml', 'RUN_JOB': 'run_job.xml',
-              'COMPLETED_JOB': 'completed_job.xml', 'DATALINK_NOACCESS': 'datalink_noaccess.xml'}
+              'COMPLETED_JOB': 'completed_job.xml', 'DATALINK_NOACCESS': 'datalink_noaccess.xml',
+              'cutout_CIRCLE_333.9092_-45.8418_0.5000': 'cutout_333.9092_-45.8418_0.5000.xml'}
 
 
 class MockResponse:
@@ -32,9 +33,6 @@ class MockResponse:
 
     def raise_for_status(self):
         return
-
-
-first_job_pass = True
 
 
 def get_mockreturn(self, method, url, data=None, timeout=10,
@@ -50,11 +48,20 @@ def get_mockreturn(self, method, url, data=None, timeout=10,
         # Responses for an asynchronous SODA job
         if str(url).endswith('data/async'):
             self.first_job_pass = True
+            self.completed_job_key = "COMPLETED_JOB"
             return create_soda_create_response('111-000-111-000')
         elif str(url).endswith('/phase') and method == 'POST':
             key = "RUN_JOB"
+        elif str(url).endswith('111-000-111-000/parameters') and method == 'POST':
+            assert "POS" in data
+            print(data['POS'])
+            pos_parts = data['POS'].split(' ')
+            assert len(pos_parts) == 4
+            self.completed_job_key = 'cutout_{}_{:.4f}_{:.4f}_{:.4f}'.format(pos_parts[0], float(pos_parts[1]), 
+                float(pos_parts[2]), float(pos_parts[3]))
+            return create_soda_create_response('111-000-111-000')
         elif str(url).endswith('111-000-111-000') and method == 'GET':
-            key = "RUN_JOB" if self.first_job_pass else "COMPLETED_JOB"
+            key = "RUN_JOB" if self.first_job_pass else self.completed_job_key
             self.first_job_pass = False
         else:
             raise ValueError("Unexpected SODA async {} call to url {}".format(method, url))
@@ -282,3 +289,19 @@ def test_stage_data(patch_get):
     urls = casda.stage_data(table, verbose=True)
     assert urls == ['http://casda.csiro.au/download/web/111-000-111-000/askap_img.fits.checksum',
                     'http://casda.csiro.au/download/web/111-000-111-000/askap_img.fits']
+
+
+def test_stage_data_cutout(patch_get):
+    prefix = 'https://somewhere/casda/datalink/links?'
+    access_urls = [prefix + 'cube-244']
+    table = Table([Column(data=access_urls, name='access_url')])
+    ra = 333.9092*u.deg
+    dec = -45.8418*u.deg
+    radius = 30*u.arcmin
+    centre = SkyCoord(ra, dec)
+
+    casda = Casda('user', 'password')
+    casda.POLL_INTERVAL = 1
+    urls = casda.stage_data(table, coordinates=centre, radius=radius, verbose=True)
+    assert urls == ['http://casda.csiro.au/download/web/111-000-111-000/cutout.fits.checksum',
+                    'http://casda.csiro.au/download/web/111-000-111-000/cutout.fits']
