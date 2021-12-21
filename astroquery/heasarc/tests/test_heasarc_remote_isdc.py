@@ -73,7 +73,10 @@ class TestHeasarcISDC:
         assert len(table_isdc) == 11
         assert len(table_isdc) == len(table_heasarc)
 
-    def test_compare_time(self):
+    def test_compare_time(self, patch_get):
+        patch_get.assume_fileid_for_request(
+            lambda url, params: f"last-month-{params['tablehead'].split()[-1]}")
+
         from astropy.time import Time, TimeDelta
 
         object_name = 'Crab'

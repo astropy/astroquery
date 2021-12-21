@@ -34,12 +34,16 @@ def data_path(filename, output=False):
     return os.path.join(data_dir, filename + ".dat")
 
 
+def fileid_for_request(url, params):
+    return hashlib.md5(str((url, sorted(params.items()))).encode()).hexdigest()[:8]
+
+
 def filename_for_request(url, params, output=False):
-    fileid = hashlib.md5(str((url, sorted(params.items()))).encode()).hexdigest()[:8]
+    fileid = fileid_for_request(url, params)
     return data_path(fileid, output=output)
 
 
-# TODO: are get_mockreturn args up-to-date in example in https://astroquery.readthedocs.io/en/latest/testing.html ?
+# TODO: update get_mockreturn args in example in https://astroquery.readthedocs.io/en/latest/testing.html
 def get_mockreturn(session, method, url, params=None, timeout=10, **kwargs):
 
     filename = filename_for_request(url, params)
@@ -47,9 +51,9 @@ def get_mockreturn(session, method, url, params=None, timeout=10, **kwargs):
         content = open(filename, "rt").read()
     except FileNotFoundError:
         log.error(
-            f'no stored mock data in {filename} for url="{url}" and params="{params}"'
-            "perhaps you need to clean test data and regenerate it? "
-            "It will be regenerated automatically if cleaned, try `rm -fv astroquery/heasarc/tests/data/* build`"
+            f'no stored mock data in {filename} for url="{url}" and params="{params}", '
+            f'perhaps you need to clean test data and regenerate it? '
+            f'It will be regenerated automatically if cleaned, try `rm -fv astroquery/heasarc/tests/data/* ./build`'
         )
         raise
 
@@ -66,9 +70,10 @@ def save_response_of_get(session, method, url, params=None, timeout=10, **kwargs
 
     with open(filename, "wt") as f:
         log.info(f'saving output to {filename} for url="{url}" and params="{params}"')
+        # TODO: add doc and a reference to it here
         log.warning(
             f"you may want to run `cp -fv {os.path.dirname(filename)}/* astroquery/heasarc/tests/data/; rm -rfv build`"
-            "you may also want to `git add astroquery/heasarc/tests/data/*`."
+            "`git add astroquery/heasarc/tests/data/*`."
         )
         f.write(text)
 
@@ -90,6 +95,13 @@ def patch_get(request):
             "request",
             {"save": save_response_of_get, "local": get_mockreturn}[mode],
         )
+
+    mp.assume_fileid_for_request = lambda patched_fileid_for_request: \
+        mp.setattr('astroquery.heasarc.tests.parametrization.fileid_for_request', patched_fileid_for_request)
+
+    mp.reset_default_fileid_for_request = lambda: \
+        mp.delattr('astroquery.heasarc.tests.parametrization.fileid_for_request')
+
     return mp
 
 
