@@ -553,7 +553,7 @@ class TestXMMNewton():
 
     def test_get_username_and_password(self):
         xsa = XMMNewtonClass(self.get_dummy_tap_handler())
-        file = data_path("my_config.ini")
+        file = data_path("dummy_config.ini")
         username, password = xsa._get_username_and_password(file)
         assert username == "test"
         assert password == "test"

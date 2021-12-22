@@ -41,16 +41,14 @@ For more details of the parameters check the section 3.4 at:
 --------------------------------------
 To access proprietary data an extra variable is needed in the XMMNewton.download_data method. This variabe is prop which
 can be True or False. If True a username and password is needed. A username and password can be passed by adding another
-variable to the XMMNewton.download_data method called credentials_file. This variable is a string with the path to a
-config.ini file with the desired username and password, e.g. credentials_file = "users/joe.bloggs/config.ini"
-
-Example config.ini file,
+variable to the XMMNewton.download_data method called credentials_file. This variable is a string with the path to
+~/.astropy/config/astroquery.cfg file. Inside this file add your desired username and password, e.g.
 
 .. code-block::
 
-    [user]
-    username = test
-    password = test
+    [xmm_newton]
+    username = your_username
+    password = your_password
 
 If the credentials_file variable is not provided the method will ask for the username and password to be added manually
 from the commandline

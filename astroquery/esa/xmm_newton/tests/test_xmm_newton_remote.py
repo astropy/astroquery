@@ -199,7 +199,7 @@ class TestXMMNewtonRemote():
     def test_download_proprietary_data_incorrect_credentials(self):
         parameters = {'observation_id': "0762470101",
                       'prop': 'True',
-                      'credentials_file': "astroquery/esa/xmm_newton/tests/my_config.ini",
+                      'credentials_file': "astroquery/esa/xmm_newton/tests/data/dummy_config.ini",
                       'level': "PPS",
                       'name': 'OBSMLI',
                       'filename': 'single',

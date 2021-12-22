@@ -14,13 +14,12 @@ Created on 3 Sept 2019
 import re
 from getpass import getpass
 from ...utils.tap.core import TapPlus
-from ...query import BaseQuery
+from ...query import BaseQuery, QueryWithLogin
 import shutil
 import cgi
 from pathlib import Path
 import tarfile
 import os
-from astroquery import log
 import configparser
 
 from astropy.io import fits
@@ -111,7 +110,7 @@ class XMMNewtonClass(BaseQuery):
         # create url to access the aio
         link = self._create_link(observation_id, **kwargs)
 
-        # If the user wants to access proprietary data, ask them for there credentials
+        # If the user wants to access proprietary data, ask them for their credentials
         if prop:
             username, password = self._get_username_and_password(credentials_file)
             link = f"{link}&AIOUSER={username}&AIOPWD={password}"
@@ -309,12 +308,13 @@ class XMMNewtonClass(BaseQuery):
     def _get_username_and_password(self, credentials_file):
         if credentials_file is not None:
             self.configuration.read(credentials_file)
-            username = self.configuration.get('user', 'username')
-            password = self.configuration.get('user', 'password')
+            xmm_username = self.configuration.get("xmm_newton", "username")
+            password = self.configuration.get("xmm_newton", "password")
         else:
-            username = input("Username: ")
-            password = getpass("Password: ")
-        return username, password
+            xmm_username = input("Username: ")
+            password, password_from_keyring = QueryWithLogin._get_password(self, service_name="xmm_newton",
+                                                                           username=xmm_username, reenter=False)
+        return xmm_username, password
 
     def _create_filename(self, filename, observation_id, suffixes):
         if filename is not None:
@@ -615,9 +615,9 @@ class XMMNewtonClass(BaseQuery):
             Tables containing the metadata of the target
         """
         if not target_name and not coordinates:
-            raise Exception("Input parameters needed, "
-                            "please provide the name "
-                            "or the coordinates of the target")
+            raise ValueError("Input parameters needed, "
+                             "please provide the name "
+                             "or the coordinates of the target")
 
         epic_source = {"table": "xsa.v_epic_source",
                        "column": "epic_source_equatorial_spoint"}
@@ -635,7 +635,7 @@ class XMMNewtonClass(BaseQuery):
             c = SkyCoord.from_name(target_name, parse=True)
 
         if type(c) is not SkyCoord:
-            raise Exception("The coordinates must be an "
+            raise TypeError("The coordinates must be an "
                             "astroquery.coordinates.SkyCoord object")
         if not radius:
             radius = 0.1
