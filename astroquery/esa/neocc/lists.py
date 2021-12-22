@@ -7,8 +7,8 @@ obtain it from the ESA NEOCC portal and parse it to show it properly.
 * Property: European Space Agency (ESA)
 * Developed by: Elecnor Deimos
 * Author: C. Álvaro Arroyo Parejo
-* Issue: 1.4.0
-* Date: 02-11-2021
+* Issue: 2.1.0
+* Date: 01-03-2021
 * Purpose: Module which request and parse list data from ESA NEOCC
 * Module: lists.py
 * History:
@@ -29,16 +29,19 @@ Version    Date          Change History
 1.4.0      29-10-2021    Adding Catalogue of NEAS (current date
                          and middle arc).\n
                          Update docstrings.
+2.0.0      21-01-2022    Prepare module for Astroquery integration
+2.1.0      01-03-2022    Remove *parse* dependency
 ========   ===========   ==========================================
 
-© Copyright [European Space Agency][2021]
+© Copyright [European Space Agency][2022]
 All rights reserved
 """
 
 import io
 from datetime import timedelta
+from astropy.table import Table
+from astropy.time import Time
 import pandas as pd
-from parse import parse
 import requests
 from astroquery.esa.neocc import conf
 
@@ -82,7 +85,7 @@ def get_list_url(list_name):
         "priority_list": 'esa_priority_neo_list',
         "priority_list_faint": 'esa_faint_neo_list',
         "close_encounter" : 'close_encounter2.txt',
-        "impacted_objects" : 'impactedObjectsList.txt',
+        "impacted_objects" : 'past_impactors_list',
         "neo_catalogue_current" : 'neo_kc.cat',
         "neo_catalogue_middle" : 'neo_km.cat'
         }
@@ -230,10 +233,11 @@ def parse_risk(data_byte_d):
     neocc_lst = neocc_lst.drop(neocc_lst.columns[-1], axis=1)
 
     # Convert column with date to datetime variable
-    neocc_lst['Date/Time'] = pd.to_datetime(neocc_lst['Date/Time'])
+    neocc_lst['Date/Time'] = pd.to_datetime(neocc_lst['Date/Time'],
+                                            errors='ignore')
     # Split Years into 2 columns to avoid dashed between integers
-    # Check dataframe is not empty (for special list)
-    if len(neocc_lst.index.values) != 0:
+    # Check dataframe column length is differnt from 8 (for special risk)
+    if len(neocc_lst.columns) != 8:
         neocc_lst[['First year', 'Last year']] = neocc_lst['Years']\
                                                     .str.split("-",
                                                     expand=True)\
@@ -467,17 +471,25 @@ def parse_impacted(data_byte_d):
         Decoded StringIO object.
     Returns
     -------
-    neocc_lst : *pandas.DataFrame*
-        Data frame with impacted objects list data parsed.
+    neocc_table : *astropy.table.table.Table*
+        Astropy table with impacted objects list data parsed.
     """
-    # Read data as csv
-    neocc_lst = pd.read_csv(data_byte_d, header=None,
-                            delim_whitespace=True)
+    # Read data as csv using astropy.table
+    neocc_table = Table.read(data_byte_d, format='pandas.csv',
+                             delimiter=r'\s+\|\s+|\s+\|',
+                             engine='python', header=1,
+                             dtype={'Object designator': str,
+                                    'Diameter in m': str,
+                                    'Impact date/time in UTC': str,
+                                    'Impact Velocity in km/s': float,
+                                    'Estimated energy in Mt': float,
+                                    'Measured energy in Mt': float})
+    neocc_table.remove_column('Unnamed: 6')
+    # Convert column with date to astropy.time ISO format variable
+    neocc_table['Impact date/time in UTC'] =\
+         Time(neocc_table['Impact date/time in UTC'], scale='utc')
 
-    # Convert column with date to datetime variable
-    neocc_lst[1] = pd.to_datetime(neocc_lst[1])
-
-    return neocc_lst
+    return neocc_table
 
 
 def parse_neo_catalogue(data_byte_d):
@@ -505,29 +517,22 @@ def parse_neo_catalogue(data_byte_d):
     data_byte_d.seek(0)
     # Read the header
     neocc_head = pd.read_fwf(data_byte_d, header=None, nrows=4)
-    # Template for format data
-    parse_format = "format  = '{format}'       ! file format"
-    # Parse required data for attributes
-    format_txt = parse(parse_format, neocc_head.iloc[0][0])
-    neocc_lst.form = format_txt['format']
-    # Template for record type
-    parse_rectype = "rectype = '{rectype}'           !"\
-        " record type (1L/ML)"
-    # Parse required data for attributes
-    rectype = parse(parse_rectype, neocc_head.iloc[1][0])
-    neocc_lst.rectype = rectype['rectype']
+    # Template for format data:
+    # format  = '{format}'       ! file format
+    format_txt = neocc_head.iloc[0][0].split("'")[1].strip()
+    neocc_lst.form = format_txt
+    # Template for record type:
+    # rectype = '{rectype}'           ! record type (1L/ML)
+    rectype = neocc_head.iloc[1][0].split("'")[1].strip()
+    neocc_lst.rectype = rectype
     # Template for type of orbital element
-    parse_elem = "elem    = '{elem}'          ! "\
-                "type of orbital elements"
-    # Parse required data for attributes
-    elem = parse(parse_elem, neocc_head.iloc[2][0])
-    neocc_lst.elem = elem['elem']
+    # elem    = '{elem}'          ! type of orbital elements
+    elem = neocc_head.iloc[2][0].split("'")[1].strip()
+    neocc_lst.elem = elem
     # Template for reference system
-    parse_refsys = "refsys  = {refsys}     !"\
-        " default reference system"
-    # Parse required data for attributes
-    refsys = parse(parse_refsys, neocc_head.iloc[3][0])
-    neocc_lst.refsys = refsys['refsys']
+    # refsys  = {refsys}     ! default reference system
+    refsys = neocc_head.iloc[3][0].split("=")[1].split("!")[0].strip()
+    neocc_lst.refsys = refsys
     neocc_lst.help = ('These catalogues represent the list of '
                       'Keplerian orbit for each asteroid in the '
                       'input list at mean epoch and at current epoch.'
@@ -546,3 +551,4 @@ def parse_neo_catalogue(data_byte_d):
 
 
     return neocc_lst
+

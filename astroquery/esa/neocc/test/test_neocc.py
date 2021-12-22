@@ -8,9 +8,9 @@ of different lists and object information from ESA NEOCC portal.
 * Property: European Space Agency (ESA)
 * Developed by: Elecnor Deimos
 * Author: C. Álvaro Arroyo Parejo
-* Date: 02-11-2021
+* Date: 21-08-2022
 
-© Copyright [European Space Agency][2021]
+© Copyright [European Space Agency][2022]
 All rights reserved
 """
 
@@ -19,12 +19,14 @@ import io
 import re
 import pytest
 
+import numpy as np
 import requests
 import pandas as pd
 from pandas._testing import assert_frame_equal, assert_series_equal
 import pandas.api.types as ptypes
 
-from astroquery.utils.testing_tools import MockResponse
+from astropy.table import Table
+from astropy.time import Time
 
 from astroquery.esa.neocc.__init__ import conf
 from astroquery.esa.neocc import lists
@@ -38,6 +40,11 @@ VERIFICATION = conf.SSL_CERT_VERIFICATION
 
 # Disable warning in pylint related to monkeypath functions
 # pylint: disable=W0613, W0621
+class MockResponse(object):
+
+    def __init__(self, content):
+        self.content = content
+
 class MockResponseESANEOCC(MockResponse):
     """MockResponse is an object intended to have any of the attributes
     that a normal requests.Response object would have. However, it
@@ -164,9 +171,10 @@ def test_parse_risk(patch_get):
            isinstance(risk_list_special, pd.DataFrame)
     # Assert is not empty
     assert not risk_list.empty and\
-           risk_list_special.empty
+           not risk_list_special.empty
     # Check size of the list (rows, columns)
     assert risk_list.shape == (1216, 12)
+    assert risk_list_special.shape == (2, 8)
     # Assert columns
     risk_columns = ['Object Name', 'Diameter in m', '*=Y',
                     'Date/Time', 'IP max', 'PS max', 'TS',
@@ -181,14 +189,20 @@ def test_parse_risk(patch_get):
                   'Vel in km/s', 'IP cum', 'PS cum']
     assert all(ptypes.is_float_dtype(risk_list[cols1])\
         for cols1 in float_cols)
+    assert all(ptypes.is_float_dtype(risk_list_special[cols1])\
+        for cols1 in float_cols[1:4])
     # int64
     int_cols = ['TS', 'First year', 'Last year']
     assert all(ptypes.is_int64_dtype(risk_list[cols2])\
         for cols2 in int_cols)
+    assert ptypes.is_int64_dtype(risk_list_special['Diameter in m'])
     # Object
     object_cols = ['Object Name', '*=Y']
     assert all(ptypes.is_object_dtype(risk_list[cols3])\
         for cols3 in object_cols)
+    assert all(ptypes.is_object_dtype(risk_list_special[cols3])\
+        for cols3 in object_cols)
+    assert ptypes.is_object_dtype(risk_list_special['TS'])
     # Datetime
     assert ptypes.is_datetime64_ns_dtype(
             risk_list['Date/Time'])
@@ -487,24 +501,34 @@ def test_parse_impacts(patch_get):
     """Check data: impacted objects list
     """
     impact_list = neocc.query_list("impacted_objects")
-    # Assert is a pandas DataFrame
-    assert isinstance(impact_list, pd.DataFrame)
+    # Assert is a astropy.table.Table
+    assert isinstance(impact_list, Table)
     # Assert dataframe is not empty, columns names and length
-    assert not impact_list.empty
-    # Check size of the list
-    assert impact_list.shape == (4, 2)
-    # Assert columns data types
-    # Object
-    assert ptypes.is_object_dtype(impact_list[0])
-    # Datetime
-    assert ptypes.is_datetime64_ns_dtype(impact_list[1])
-    # Assert Data frame
-    impacts_data = pd.DataFrame(data=[['2008TC3', '2008-10-07 00:00:00'],
-                                      ['2018LA', '2018-06-02 00:00:00'],
-                                      ['2014AA', '2014-01-02 00:00:00'],
-                                      ['2019MO', '2019-06-22 00:00:00']])
-    impacts_data[1] = pd.to_datetime(impacts_data[1])
-    assert_frame_equal(impacts_data, impact_list)
+    assert len(impact_list) != 0
+    # Check the number of rows
+    assert len(impact_list) == 5
+    # Check th number of columns
+    assert len(impact_list.columns) == 6
+    # Assert Table
+    column_names = ['Object designator', 'Diameter in m',
+                    'Impact date/time in UTC', 'Impact Velocity in km/s',
+                    'Estimated energy in Mt', 'Measured energy in Mt']
+    column_0 = ['2022EB5', '2019MO', '2018LA', '2014AA', '2008TC3']
+    column_1 = ['1.9*', '5*', '2.8*', '2.3*', '3*']
+    column_2 = Time(['2022-03-11 21:22:00.000', '2019-06-22 21:30:00.000',
+                     '2018-06-02 16:44:00.000', '2014-01-02 02:30:00.000',
+                     '2008-10-07 02:45:00.000'], format='iso', scale='utc')
+    column_3 = [18.53, 16.34, 16.98, 11.97, 11.77]
+    column_4 = [0.000296, 0.00382 , 0.00089 , 0.000244, 0.000677]
+    column_5 = [0.004, 0.006, 0.00098, np.nan, 0.001]
+
+    assert impact_list.colnames == column_names
+    assert (impact_list['Object designator']== column_0).all()
+    assert (impact_list['Diameter in m'] == column_1).all()
+    assert (impact_list['Impact date/time in UTC'] == column_2).all()
+    assert (impact_list['Impact Velocity in km/s'] == column_3).all()
+    assert (impact_list['Estimated energy in Mt'] == column_4).all()
+    assert (impact_list['Measured energy in Mt'].data == column_5).all()
 
 
 def test_parse_catalogues(patch_get):
@@ -1167,10 +1191,10 @@ def test_tabs_orbit_properties(patch_get):
     assert ast1.epoch, ast2.epoch == '59400.000000000 MJD'
     mag1 = pd.DataFrame([[18.937, 0.150]], index=['MAG'],
                         columns=['', ''])
-    mag2 = pd.DataFrame([[28.241, 0.150]], index=['MAG'],
+    mag2 = pd.DataFrame([[28.211, 0.150]], index=['MAG'],
                         columns=['', ''])
-    assert_frame_equal(ast1.mag, mag1)
-    assert_frame_equal(ast2.mag, mag2)
+    assert_frame_equal(ast1.mag, mag1) and\
+        assert_frame_equal(ast2.mag, mag2)
 
     lsp1 = pd.DataFrame([[1, 2, 7, 2]], index=['LSP'],
                 columns=['model used', 'number of model parameters',
@@ -1178,18 +1202,18 @@ def test_tabs_orbit_properties(patch_get):
     lsp2 = pd.DataFrame([[1, 2, 8, 1, 2]], index=['LSP'],
                 columns=['model used', 'number of model parameters',
                 'dimension', 'list of parameters determined', ''])
-    assert_frame_equal(ast1.lsp, lsp1)
-    assert_frame_equal(ast2.lsp, lsp2)
+    assert_frame_equal(ast1.lsp, lsp1) and\
+        assert_frame_equal(ast2.lsp, lsp2)
 
     ngr1 = pd.DataFrame([[0.0, -2.90058798774592e-04]], index=['NGR'],
                         columns=['Area-to-mass ratio in m^2/ton',
                         'Yarkovsky parameter in 1E-10au/day^2'])
-    ngr2 = pd.DataFrame([[3.92228537753657E-01, -5.47745799289690E-02]],
+    ngr2 = pd.DataFrame([[2.37035178629626e-01, -1.15784215281726e-02]],
                         index=['NGR'],
                         columns=['Area-to-mass ratio in m^2/ton',
                         'Yarkovsky parameter in 1E-10au/day^2'])
-    assert_frame_equal(ast1.ngr, ngr1)
-    assert_frame_equal(ast2.ngr, ngr2)
+    assert_frame_equal(ast1.ngr, ngr1) and\
+        assert_frame_equal(ast2.ngr, ngr2)
     # Check keplerian orbit properties
     keplerian_columns = ['a', 'e', 'i', 'long. node',
                          'arg. peric.', 'mean anomaly']
@@ -1210,35 +1234,21 @@ def test_tabs_orbit_properties(patch_get):
     assert ast1.orb_type    == 'Aten'
     matrix_idx = ['a', 'e', 'i', 'long. node', 'arg. peric', 'M',
                   'Yarkovsky parameter']
-    cov = pd.DataFrame([[ 7.333454e-21, -1.072918e-19, -4.176672e-18,
-                          9.884855e-17, -1.661416e-16,  6.524001e-17,  1.597276e-16],
-                        [-1.072918e-19,  2.019718e-18,  7.453443e-17,
-                         -2.218919e-15,  3.445852e-15, -1.246500e-15, -1.955611e-15],
-                        [-4.176672e-18,  7.453443e-17,  2.560049e-14,
-                         -1.198457e-12,  1.308002e-12, -1.641254e-13, -2.361241e-13],
-                        [ 9.884855e-17, -2.218919e-15, -1.198457e-12,
-                          6.206716e-11, -6.634024e-11,  7.109227e-12,  1.033311e-11],
-                        [-1.661416e-16,  3.445852e-15,  1.308002e-12,
-                         -6.634024e-11,  7.155222e-11, -8.205136e-12, -1.199513e-11],
-                        [ 6.524001e-17, -1.246500e-15, -1.641254e-13,
-                          7.109227e-12, -8.205136e-12,  1.397697e-12,  2.027096e-12],
-                        [ 1.597276e-16, -1.955611e-15, -2.361241e-13,
-                          1.033311e-11, -1.199513e-11,  2.027096e-12,  5.549616e-12]],
+    cov = pd.DataFrame([[ 7.333454e-21, -1.072918e-19, -4.176672e-18,  9.884855e-17, -1.661416e-16,  6.524001e-17,  1.597276e-16],
+                        [-1.072918e-19,  2.019718e-18,  7.453443e-17, -2.218919e-15,  3.445852e-15, -1.246500e-15, -1.955611e-15],
+                        [-4.176672e-18,  7.453443e-17,  2.560049e-14, -1.198457e-12,  1.308002e-12, -1.641254e-13, -2.361241e-13],
+                        [ 9.884855e-17, -2.218919e-15, -1.198457e-12,  6.206716e-11, -6.634024e-11,  7.109227e-12,  1.033311e-11],
+                        [-1.661416e-16,  3.445852e-15,  1.308002e-12, -6.634024e-11,  7.155222e-11, -8.205136e-12, -1.199513e-11],
+                        [ 6.524001e-17, -1.246500e-15, -1.641254e-13,  7.109227e-12, -8.205136e-12,  1.397697e-12,  2.027096e-12],
+                        [ 1.597276e-16, -1.955611e-15, -2.361241e-13,  1.033311e-11, -1.199513e-11,  2.027096e-12,  5.549616e-12]],
                         index=matrix_idx, columns=matrix_idx)
-    cor = pd.DataFrame([[ 1.000000, -0.881591, -0.304826,  0.146516,
-                         -0.229357,  0.644397,  0.791761],
-                        [-0.881591,  1.000000,  0.327784, -0.198182,
-                          0.286642, -0.741892, -0.584125],
-                        [-0.304826,  0.327784,  1.000000, -0.950752,
-                          0.966435, -0.867651, -0.626448],
-                        [ 0.146516, -0.198182, -0.950752,  1.000000,
-                         -0.995485,  0.763282,  0.556761],
-                        [-0.229357,  0.286642,  0.966435, -0.995485,
-                          1.000000, -0.820479, -0.601952],
-                        [ 0.644397, -0.741892, -0.867651,  0.763282,
-                         -0.820479,  1.000000,  0.727841],
-                        [ 0.791761, -0.584125, -0.626448,  0.556761,
-                         -0.601952,  0.727841,  1.000000]],
+    cor = pd.DataFrame([[ 1.000000, -0.881591, -0.304826,  0.146516, -0.229357,  0.644397,  0.791761],
+                        [-0.881591,  1.000000,  0.327784, -0.198182,  0.286642, -0.741892, -0.584125],
+                        [-0.304826,  0.327784,  1.000000, -0.950752,  0.966435, -0.867651, -0.626448],
+                        [ 0.146516, -0.198182, -0.950752,  1.000000, -0.995485,  0.763282,  0.556761],
+                        [-0.229357,  0.286642,  0.966435, -0.995485,  1.000000, -0.820479, -0.601952],
+                        [ 0.644397, -0.741892, -0.867651,  0.763282, -0.820479,  1.000000,  0.727841],
+                        [ 0.791761, -0.584125, -0.626448,  0.556761, -0.601952,  0.727841,  1.000000]],
                         index=matrix_idx, columns=matrix_idx)
     assert_frame_equal(ast1.cov, cov)
     assert_frame_equal(ast1.cor, cor)
@@ -1265,40 +1275,24 @@ def test_tabs_orbit_properties(patch_get):
     assert_frame_equal(ast2.eig, eig)
     assert_frame_equal(ast2.wea, wea)
 
-    cov_equ = pd.DataFrame([[9.045991e-15, -4.310036e-15, -3.623923e-15,  7.951277e-16,
-                             2.433447e-16, -4.077556e-11,  1.856604e-09,  1.127419e-10],
-                           [-4.310036e-15,  2.852694e-15,  1.695013e-15, -5.107617e-16,
-                            -1.582486e-16,  2.134254e-11, -8.850409e-10, -3.395062e-11],
-                           [-3.623923e-15,  1.695013e-15,  2.002430e-15, -3.168327e-16,
-                            -9.416270e-17,  1.919931e-11, -1.458006e-09, -5.214811e-11],
-                           [ 7.951277e-16, -5.107617e-16, -3.168327e-16,  1.218404e-16,
-                             4.220573e-17, -3.756840e-12,  1.121701e-10,  5.572020e-12],
-                           [ 2.433447e-16, -1.582486e-16, -9.416270e-17,  4.220573e-17,
-                             1.540961e-17, -1.111871e-12,  2.171817e-11,  1.460839e-12],
-                           [-4.077556e-11,  2.134254e-11,  1.919931e-11, -3.756840e-12,
-                            -1.111871e-12,  2.057036e-07, -1.270112e-05, -5.031737e-07],
-                           [ 1.856604e-09, -8.850409e-10, -1.458006e-09,  1.121701e-10,
-                             2.171817e-11, -1.270112e-05,  1.474738e-03,  3.420817e-05],
-                           [ 1.127419e-10, -3.395062e-11, -5.214811e-11,  5.572020e-12,
-                             1.460839e-12, -5.031737e-07,  3.420817e-05,  2.020746e-06]],
+    cov_equ = pd.DataFrame([[9.045991e-15, -4.310036e-15, -3.623923e-15,  7.951277e-16,  2.433447e-16, -4.077556e-11,  1.856604e-09,  1.127419e-10],
+                           [-4.310036e-15,  2.852694e-15,  1.695013e-15, -5.107617e-16, -1.582486e-16,  2.134254e-11, -8.850409e-10, -3.395062e-11],
+                           [-3.623923e-15,  1.695013e-15,  2.002430e-15, -3.168327e-16, -9.416270e-17,  1.919931e-11, -1.458006e-09, -5.214811e-11],
+                           [ 7.951277e-16, -5.107617e-16, -3.168327e-16,  1.218404e-16,  4.220573e-17, -3.756840e-12,  1.121701e-10,  5.572020e-12],
+                           [ 2.433447e-16, -1.582486e-16, -9.416270e-17,  4.220573e-17,  1.540961e-17, -1.111871e-12,  2.171817e-11,  1.460839e-12],
+                           [-4.077556e-11,  2.134254e-11,  1.919931e-11, -3.756840e-12, -1.111871e-12,  2.057036e-07, -1.270112e-05, -5.031737e-07],
+                           [ 1.856604e-09, -8.850409e-10, -1.458006e-09,  1.121701e-10,  2.171817e-11, -1.270112e-05,  1.474738e-03,  3.420817e-05],
+                           [ 1.127419e-10, -3.395062e-11, -5.214811e-11,  5.572020e-12,  1.460839e-12, -5.031737e-07,  3.420817e-05,  2.020746e-06]],
                             index=eig_wea_name, columns=eig_wea_name)
     assert_frame_equal(ast2.cov, cov_equ)
-    nor = pd.DataFrame([[1.510392e+24,  3.010614e+22, -2.847190e+22, -3.923755e+22,
-                         7.119194e+22,  3.165996e+20,  1.559455e+18, -3.200500e+19],
-                       [ 3.010614e+22,  6.121981e+20, -5.623474e+20, -7.986576e+20,
-                         1.446145e+21,  6.307818e+18,  3.107870e+16, -6.382017e+17],
-                       [-2.847190e+22, -5.623474e+20,  5.389508e+20,  7.325948e+20,
-                        -1.330387e+21, -5.969337e+18, -2.939908e+16,  6.032061e+17],
-                       [-3.923755e+22, -7.986576e+20,  7.325948e+20,  1.042952e+21,
-                        -1.888458e+21, -8.220830e+18, -4.050471e+16,  8.317909e+17],
-                       [ 7.119194e+22,  1.446145e+21, -1.330387e+21, -1.888458e+21,
-                         3.420540e+21,  1.491642e+19,  7.349240e+16, -1.509124e+18],
-                       [ 3.165996e+20,  6.307818e+18, -5.969337e+18, -8.220830e+18,
-                         1.491642e+19,  6.636445e+16,  3.268853e+14, -6.708642e+15],
-                       [ 1.559455e+18,  3.107870e+16, -2.939908e+16, -4.050471e+16,
-                         7.349240e+16,  3.268853e+14,  1.610115e+12, -3.304453e+13],
-                       [-3.200500e+19, -6.382017e+17,  6.032061e+17,  8.317909e+17,
-                        -1.509124e+18, -6.708642e+15, -3.304453e+13,  6.781869e+14]],
+    nor = pd.DataFrame([[1.510392e+24,  3.010614e+22, -2.847190e+22, -3.923755e+22,  7.119194e+22,  3.165996e+20,  1.559455e+18, -3.200500e+19],
+                       [ 3.010614e+22,  6.121981e+20, -5.623474e+20, -7.986576e+20,  1.446145e+21,  6.307818e+18,  3.107870e+16, -6.382017e+17],
+                       [-2.847190e+22, -5.623474e+20,  5.389508e+20,  7.325948e+20, -1.330387e+21, -5.969337e+18, -2.939908e+16,  6.032061e+17],
+                       [-3.923755e+22, -7.986576e+20,  7.325948e+20,  1.042952e+21, -1.888458e+21, -8.220830e+18, -4.050471e+16,  8.317909e+17],
+                       [ 7.119194e+22,  1.446145e+21, -1.330387e+21, -1.888458e+21,  3.420540e+21,  1.491642e+19,  7.349240e+16, -1.509124e+18],
+                       [ 3.165996e+20,  6.307818e+18, -5.969337e+18, -8.220830e+18,  1.491642e+19,  6.636445e+16,  3.268853e+14, -6.708642e+15],
+                       [ 1.559455e+18,  3.107870e+16, -2.939908e+16, -4.050471e+16,  7.349240e+16,  3.268853e+14,  1.610115e+12, -3.304453e+13],
+                       [-3.200500e+19, -6.382017e+17,  6.032061e+17,  8.317909e+17, -1.509124e+18, -6.708642e+15, -3.304453e+13,  6.781869e+14]],
                         index=eig_wea_name, columns=eig_wea_name)
     assert_frame_equal(ast2.nor, nor)
 
@@ -1320,7 +1314,6 @@ def test_tabs_ephemerides(patch_get):
                                 '2020/09/02 00:00 UTC', '5 hours',
                                 (5, 26)]
             }
-
     # Assert blank file
     with pytest.raises(KeyError):
         neocc.query_object(name='foo', tab='ephemerides',
