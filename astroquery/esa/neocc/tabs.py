@@ -10,8 +10,8 @@ within this module.
 * Property: European Space Agency (ESA)
 * Developed by: Elecnor Deimos
 * Author: C. Álvaro Arroyo Parejo
-* Issue: 1.4.0
-* Date: 02-11-2021
+* Issue: 2.1.0
+* Date: 01-03-2021
 * Purpose: Module which request and parse list data from ESA NEOCC
 * Module: tabs.py
 * History:
@@ -48,9 +48,10 @@ Version    Date          Change History
                          Orb_type attribute added in tab *orbit_properties*.\n
                          Bug fix in tab *observations*.\n
                          Adding redundancy for tab *summary* parsing.
-========   ===========   =====================================================
+2.0.0      21-01-2022    Prepare module for Astroquery integration
+2.1.0      01-03-2022    Remove *parse* dependency
 
-© Copyright [European Space Agency][2021]
+© Copyright [European Space Agency][2022]
 All rights reserved
 """
 
@@ -60,7 +61,6 @@ import time
 import re
 from datetime import datetime, timedelta
 import pandas as pd
-from parse import parse
 import requests
 from bs4 import BeautifulSoup
 from astroquery.esa.neocc import conf
@@ -299,16 +299,21 @@ class Impacts:
 
         # Drop NaN values if necessary
         df_txt = df_txt.dropna(how='all')
-        # Template for observations data
-        parse_txt_obs = "Based on {total} optical observations "\
-                        "(of which {rejected} are rejected as "\
-                        "outliers)"
-        # Parse required data for attributes
-        obs = parse(parse_txt_obs, df_txt.iloc[-7-j][0].split(' and')[0])
-        # Template for date of observations
-        parse_txt_arc = 'from {start} to {end}.'
-        # Parse required data for attributes
-        arc = parse(parse_txt_arc, df_txt.iloc[-6-j][0])
+        # Template for observations data:
+        # Based on {total} optical observations (of which {rejected}
+        # are rejected as outliers)
+        obs_total = df_txt.iloc[-7-j][0].split('on ')[1].\
+            split('optical')[0].strip()
+        obs_rejected = df_txt.iloc[-7-j][0].split('which ')[1].\
+            split('are')[0].strip()
+        obs = [obs_total, obs_rejected]
+        # Template for date of observations: from {start} to {end}.
+        arc_start = df_txt.iloc[-6-j][0].split('from ')[1].\
+            split('to ')[0].strip()
+        arc_end = df_txt.iloc[-6-j][0].split('to ')[1].\
+            split('.')[0] + '.' + df_txt.iloc[-6-j][0].\
+            split('to ')[1].split('.')[1]
+        arc = [arc_start, arc_end]
         # Computation date
         comp = df_txt.iloc[-1-j][0].split('=')[2].strip()
         # Get information text
@@ -429,18 +434,18 @@ class Impacts:
         footer = self._get_footer(data_obj)
         # Assign parsed data to attributes
         # Change format to datetime and show in isoformat()
-        arc_start = footer[1]['start'].split('.')
+        arc_start = footer[1][0].split('.')
         arc_start = datetime.strptime(arc_start[0], '%Y/%m/%d') +\
                     timedelta(float(arc_start[1])/1e3)
         self.arc_start = arc_start.isoformat()
         # Change format to datetime and show in isoformat()
-        arc_end = footer[1]['end'].split('.')
+        arc_end = footer[1][1].split('.')
         arc_end = datetime.strptime(arc_end[0], '%Y/%m/%d') +\
                     timedelta(float(arc_end[1])/1e3)
         self.arc_end = arc_end.isoformat()
-        self.observation_accepted = int(footer[0]['total']) - \
-            int(footer[0]['rejected'])
-        self.observation_rejected = int(footer[0]['rejected'])
+        self.observation_accepted = int(footer[0][0]) - \
+            int(footer[0][1])
+        self.observation_rejected = int(footer[0][1])
         self.computation = footer[2]
         self.additional_note = footer[4]
         # Assign info text from pandas
@@ -614,7 +619,6 @@ class PhysicalProperties:
         # Initialize index
         index = 0
         if len(df_check.columns) > 4:
-            # rest = len(df_check.columns) - 4
             # Iterate over each element in last col to find
             # rows with additional elements separated by commas
             for element in df_check.iloc[:, -1]:
@@ -732,29 +736,21 @@ class AsteroidObservations:
             Root Mean Square for magnitude.
         """
         df_head = pd.read_csv(df_d, nrows=4, header=None)
-        # Template for version
-        parse_ver = 'version =   {ver}'
-        # Parse required data for attributes
-        ver = parse(parse_ver, df_head[0][0])
-        ver = float(ver['ver'])
-        # Template for errmod
-        parse_err = "errmod  = '{err}'"
-        # Parse required data for attributes
-        err = parse(parse_err, df_head[0][1])
-        err = err['err']
-        # Template for RMSast
-        parse_ast = "RMSast  =   {ast}"
-        # Parse required data for attributes
-        ast = parse(parse_ast, df_head[0][2])
-        ast = float(ast['ast'])
-        # Template for RMSast
-        parse_mag = "RMSmag  =   {mag}"
-        # Parse required data for attributes
-        mag = parse(parse_mag, df_head[0][3])
-        if mag is None:
+        # Template for version: version =   {ver}
+        ver = df_head.iloc[0][0].split('=')[1].strip()
+        ver = float(ver)
+        # Template for errmod: errmod  = '{err}'
+        err = df_head.iloc[1][0].split("'")[1].strip()
+        # Template for RMSast: RMSast  =   {ast}
+        ast = df_head.iloc[2][0].split('=')[1].strip()
+        ast = float(ast)
+        # Template for RMSast: RMSmag  =   {mag}
+        mag = df_head.iloc[3][0]
+        if mag == 'END_OF_HEADER':
             mag = 'No data for RMSmag'
         else:
-            mag = float(mag['mag'])
+            mag = float(df_head.iloc[3][0].split('=')[1].strip())
+
 
         return ver, err, ast, mag
 
@@ -1351,23 +1347,16 @@ class OrbitProperties:
         df_info_d = io.StringIO(data_obj.decode('utf-8'))
         # Read as txt file
         df_info = pd.read_fwf(df_info_d, nrows=3, header=None)
-        # Template for format data
-        parse_format = "format  = '{format}'       ! file format"
-        # Parse required data for attributes
-        format_txt = parse(parse_format, df_info.iloc[0][0])
-        form = format_txt['format']
-        # Template for record type
-        parse_rectype = "rectype = '{rectype}'           !"\
-            " record type (1L/ML)"
-        # Parse required data for attributes
-        rectype = parse(parse_rectype, df_info.iloc[1][0])
-        rectype = rectype['rectype']
-        # Template for reference system
-        parse_refsys = "refsys  = {refsys}     !"\
-            " default reference system"
-        # Parse required data for attributes
-        refsys = parse(parse_refsys, df_info.iloc[2][0])
-        refsys = refsys['refsys']
+        # Template for format data:
+        # format  = '{format}'       ! file format
+        format_txt = df_info.iloc[0][0].split("'")[1].strip()
+        form = format_txt
+        # Template for record type:
+        # rectype = '{rectype}'           ! record type (1L/ML)
+        rectype = df_info.iloc[1][0].split("'")[1].strip()
+        # Template for reference system:
+        # refsys  = {refsys}     ! default reference system"
+        refsys = df_info.iloc[2][0].split("=")[1].split("!")[0].strip()
 
         return form, rectype, refsys
 
@@ -1827,26 +1816,17 @@ class Ephemerides:
         """
         data_d = io.StringIO(data_obj.decode('utf-8'))
         head_ephe = pd.read_fwf(data_d, nrows=5, header=None)
-        # Template for observatory
-        parse_obs = 'Observatory: {observatory}'
-        # Parse required data for attributes
-        obs = parse(parse_obs, head_ephe[0][1])
-        obs = obs['observatory']
-        # Template for initial date
-        parse_idate = 'Initial Date: {init_date}'
-        # Parse required data for attributes
-        idate = parse(parse_idate, head_ephe[0][2])
-        idate = idate['init_date']
-        # Template for initial date
-        parse_fdate = 'Final Date: {final_date}'
-        # Parse required data for attributes
-        fdate = parse(parse_fdate, head_ephe[0][3])
-        fdate = fdate['final_date']
-        # Template for initial date
-        parse_step = 'Time step: {step}'
-        # Parse required data for attributes
-        tstep = parse(parse_step, head_ephe[0][4])
-        tstep = tstep['step']
+        # Template for observatory: Observatory: {observatory}
+        obs = head_ephe.iloc[1][0].split(':')[1].strip()
+        # Template for initial date: Initial Date: {init_date}
+        idate = head_ephe.iloc[2][0].split(':')[1].strip() + ':' +\
+            head_ephe.iloc[2][0].split(':')[2].strip()
+        # Template for initial date: Final Date: {final_date}
+        fdate = head_ephe.iloc[3][0].split(':')[1].strip() + ':' +\
+            head_ephe.iloc[3][0].split(':')[2].strip()
+        # Template for initial date: Time step: {step}
+        tstep = head_ephe.iloc[4][0].split(':')[1].strip()
+
 
         return obs, idate, fdate, tstep
 

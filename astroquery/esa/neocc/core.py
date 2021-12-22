@@ -9,8 +9,8 @@ portal: https://neo.ssa.esa.int/.
 * Property: European Space Agency (ESA)
 * Developed by: Elecnor Deimos
 * Author: C. Álvaro Arroyo Parejo
-* Issue: 1.4.0
-* Date: 02-11-2021
+* Issue: 2.1.0
+* Date: 01-03-2021
 * Purpose: Main module which gets NEAs data from https://neo.ssa.esa.int/
 * Module: core.py
 * History:
@@ -35,10 +35,10 @@ Version    Date          Change History
 1.4.0      29-10-2021    Adding new docstrings.\n
                          Change method for obtaining physical
                          properties
-========   ===========   ============================================
+2.0.0      21-01-2022    Prepare module for Astroquery integration
+2.1.0      01-03-2022    Remove *parse* dependency
 
-
-© Copyright [European Space Agency][2021]
+© Copyright [European Space Agency][2022]
 All rights reserved
 """
 
