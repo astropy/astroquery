@@ -590,6 +590,26 @@ ESANEOCC Change Log
 ##########################################
 
 ==============================
+Version 2.1
+==============================
+
+----------------------
+Changes
+----------------------
+
+* Remove *parse* library dependency for Astroquery integration.
+
+==============================
+Version 2.0
+==============================
+
+----------------------
+Changes
+----------------------
+
+* Configuration and file layout changes to start the Astroquery integration.
+
+==============================
 Version 1.4
 ==============================
 

@@ -7,19 +7,20 @@ tests is requested to ESA NEOCC portal.
 * Property: European Space Agency (ESA)
 * Developed by: Elecnor Deimos
 * Author: C. Álvaro Arroyo Parejo
-* Date: 02-11-2021
+* Date: 21-08-2022
 
-© Copyright [European Space Agency][2021]
+© Copyright [European Space Agency][2022]
 All rights reserved
 """
-
 
 import io
 import os
 import re
-
 import random
 import pytest
+import astropy
+
+from astropy.table import Table
 import pandas as pd
 import pandas.testing as pdtesting
 import pandas.api.types as ptypes
@@ -28,15 +29,13 @@ import requests
 from astroquery.esa.neocc.__init__ import conf
 from astroquery.esa.neocc import neocc, lists, tabs
 
-import astropy
-
 # Import BASE URL and TIMEOUT
 API_URL = conf.API_URL
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 TIMEOUT = conf.TIMEOUT
 VERIFICATION = conf.SSL_CERT_VERIFICATION
 
-@astropy.tests.helper.remote_data
+@pytest.mark.remote_data
 class TestLists:
     """Class which contains the unitary tests for lists module.
     """
@@ -52,7 +51,7 @@ class TestLists:
         "priority_list": 'esa_priority_neo_list',
         "priority_list_faint": 'esa_faint_neo_list',
         "close_encounter" : 'close_encounter2.txt',
-        "impacted_objects" : 'impactedObjectsList.txt',
+        "impacted_objects" : 'past_impactors_list',
         "neo_catalogue_current" : 'neo_kc.cat',
         "neo_catalogue_middle" : 'neo_km.cat'
         }
@@ -127,8 +126,11 @@ class TestLists:
                                      verify=VERIFICATION).content
             # Decode the data using UTF-8
             data_list_d = io.StringIO(data_list.decode('utf-8'))
-
-            assert isinstance(lists.parse_list(url, data_list_d),
+            if url == 'impacted_objects':
+                assert isinstance(lists.parse_list(url, data_list_d),
+                                                    Table)
+            else:
+                assert isinstance(lists.parse_list(url, data_list_d),
                                                     pd.DataFrame)
         # Invalid inputs
         bad_names = ["ASedfe", "%&$", "ÁftR+", 154]
@@ -222,9 +224,22 @@ class TestLists:
                         new_list['Date/Time'])
 
             else:
-            # Currently risk special list is empty
-                assert new_list.empty
+             # Assert dataframe is not empty, columns names
+                assert not new_list.empty
                 assert (new_list.columns == risk_special_columns).all()
+            # Assert columns data types
+                # Floats
+                float_cols = ['IP max', 'PS max', 'Vel in km/s']
+                assert all(ptypes.is_float_dtype(new_list[cols1])\
+                    for cols1 in float_cols)
+                # int64
+                int_cols = ['Diameter in m']
+                assert all(ptypes.is_int64_dtype(new_list[cols2])\
+                    for cols2 in int_cols)
+                # Object
+                object_cols = ['Object Name', '*=Y', 'TS']
+                assert all(ptypes.is_object_dtype(new_list[cols3])\
+                    for cols3 in object_cols)
 
 
     def test_parse_clo(self):
@@ -254,7 +269,7 @@ class TestLists:
             # Assert dataframe is not empty, columns names and length
             assert not new_list.empty
             assert (new_list.columns == close_columns).all()
-            assert len(new_list.index) > 100
+            assert len(new_list.index) > 10
             # Assert Connection Error. In case of internal server error
             # the request provided an empty file
             foo_error = io.StringIO('This site cant be reached\n'
@@ -383,15 +398,11 @@ class TestLists:
         # Parse using parse_nea
         new_list = lists.parse_impacted(data_list_d)
         # Assert is a pandas DataFrame
-        assert isinstance(new_list, pd.DataFrame)
+        assert isinstance(new_list, Table)
         # Assert dataframe is not empty and length
-        assert not new_list.empty
-        assert len(new_list.index) < 100
-        # Assert columns data types
-        # Object
-        assert ptypes.is_object_dtype(new_list[0])
-        # Datetime
-        assert ptypes.is_datetime64_ns_dtype(new_list[1])
+        # Assert dataframe is not empty, columns names and length
+        assert len(new_list) != 0
+        assert len(new_list) < 100
 
 
     def test_parse_neo_catalogue(self):
@@ -431,11 +442,11 @@ class TestLists:
             # Int
             assert ptypes.is_int64_dtype(new_list['non-grav param.'])
 
-@astropy.tests.helper.remote_data
+@pytest.mark.remote_data
 class TestTabs:
     """Class which contains the unitary tests for tabs module.
     """
-    path_nea = 'test/data/allneo.lst'
+    path_nea = os.path.join(DATA_DIR, 'allneo.lst')
     nea_list = pd.read_csv(path_nea, header=None)
     nea_list = nea_list[0].str.strip().replace(r'\s+', ' ',
                                                regex=True)\
@@ -460,14 +471,16 @@ class TestTabs:
                        'observations', 'orbit_properties', '&cefrgfe',
                        4851]
         # Possible additional argument
+        orbital_element = ['keplerian', 'equinoctial']
         orbit_epoch = ['present', 'middle']
         # Iterate to obtain all possible urls
         for tab in object_tabs:
             if tab == 'orbit_properties':
-                for epoch in orbit_epoch:
-                    with pytest.raises(ValueError):
-                        tabs.get_object_url(rnd_object, tab,
-                        orbital_elements=None, orbit_epoch=epoch)
+                for element in orbital_element:
+                    for epoch in orbit_epoch:
+                        with pytest.raises(ValueError):
+                            tabs.get_object_url(rnd_object, tab,
+                            orbital_elements=None, orbit_epoch=epoch)
             elif tab in ['&cefrgfe', 4851]:
                 with pytest.raises(KeyError):
                     tabs.get_object_url(rnd_object, tab)
