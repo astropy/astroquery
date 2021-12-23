@@ -43,7 +43,6 @@ def filename_for_request(url, params, output=False):
     return data_path(fileid, output=output)
 
 
-# TODO: update get_mockreturn args in example in https://astroquery.readthedocs.io/en/latest/testing.html
 def get_mockreturn(session, method, url, params=None, timeout=10, **kwargs):
 
     filename = filename_for_request(url, params)
@@ -70,7 +69,6 @@ def save_response_of_get(session, method, url, params=None, timeout=10, **kwargs
 
     with open(filename, "wt") as f:
         log.info(f'saving output to {filename} for url="{url}" and params="{params}"')
-        # TODO: add doc and a reference to it here
         log.warning(
             f"you may want to run `cp -fv {os.path.dirname(filename)}/* astroquery/heasarc/tests/data/; rm -rfv build`"
             "`git add astroquery/heasarc/tests/data/*`."
