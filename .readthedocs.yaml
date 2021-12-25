@@ -9,7 +9,7 @@ python:
        path: .
        extra_requirements:
           - docs
-          - all_lt_39
+          - all
 
 sphinx:
    fail_on_warning: true
