@@ -27,12 +27,6 @@ jobs:
             python: 3.x
             toxenv: codestyle
 
-          - name: docs build
-            os: ubuntu-latest
-            python: 3.9
-            toxenv: build_docs
-            toxargs: -v
-
           - name: oldest dependencies
             os: ubuntu-latest
             python: 3.7
@@ -45,16 +39,16 @@ jobs:
             toxenv: py310-test-alldeps-devastropy-cov
             toxargs: -v
 
-          - name: Python 3.7 with all optional dependencies (MacOS X)
+          - name: Python 3.8 with all optional dependencies (MacOS X)
             os: macos-latest
-            python: 3.7
-            toxenv: py37-test-alldeps
+            python: 3.8
+            toxenv: py38-test-alldeps
             toxargs: -v
 
-          - name: Python 3.8 with mandatory dependencies (Windows)
+          - name: Python 3.9 with mandatory dependencies (Windows)
             os: windows-latest
-            python: 3.8
-            toxenv: py38-test
+            python: 3.9
+            toxenv: py39-test
             toxargs: -v
 
     steps:
