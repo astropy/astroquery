@@ -1,4 +1,4 @@
-0.4.5 (unreleased)
+0.4.5 (2021-12-24)
 ==================
 
 New Tools and Services
@@ -7,7 +7,7 @@ New Tools and Services
 esa.jwst
 ^^^^^^^^^^
 
-- New module to provide access to eJWST Science Archive metadata and datasets. [#2140, #2238, #2243]
+- New module to provide access to eJWST Science Archive metadata and datasets. [#2140, #2238]
 
 
 Service fixes and enhancements
@@ -16,7 +16,12 @@ Service fixes and enhancements
 eso
 ^^^
 
-- Add option to retrieve_data from an earlier archive query [#1614]
+- Add option to retrieve_data from an earlier archive query. [#1614]
+
+jplhorizons
+^^^^^^^^^^^
+
+- Fix result parsing issues by disabling caching of failed queries. [#2253]
 
 sdss
 ^^^^
