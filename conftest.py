@@ -19,10 +19,6 @@ def pytest_configure(config):
     # keyring doesn't provide __version__ any more
     # PYTEST_HEADER_MODULES['keyring'] = 'keyring'
 
-    del PYTEST_HEADER_MODULES['h5py']
-    del PYTEST_HEADER_MODULES['Scipy']
-    del PYTEST_HEADER_MODULES['Pandas']
-
     # add '_testrun' to the version name so that the user-agent indicates that
     # it's being run in a test
     from astroquery import version
