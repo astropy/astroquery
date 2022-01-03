@@ -18,8 +18,8 @@ import pytest
 from numpy.testing import assert_allclose
 
 # ASTROPY
-from astropy.tests.helper import catch_warnings
 from astropy.utils.data import get_pkg_data_filename
+from astropy.utils.exceptions import AstropyUserWarning
 
 # LOCAL
 from .. import conf, validate, tstquery
@@ -83,9 +83,8 @@ class TestConeSearchValidation:
 
 @pytest.mark.remote_data
 def test_tstquery():
-    with catch_warnings() as w:
+    with pytest.warns(AstropyUserWarning, match='too large') as w:
         d = tstquery.parse_cs('ivo://cds.vizier/i/252', cap_index=4)
     assert len(w) == 1
-    assert 'too large' in str(w[0].message)
     assert_allclose([d['RA'], d['DEC'], d['SR']],
                     [45, 0.07460390065517808, 0.1])

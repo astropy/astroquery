@@ -85,7 +85,7 @@ the ``test_module.py`` file.
 -------------------------
 
 The remote tests are much easier.  Just decorate the test class or test
-functions with ``astropy.tests.helper.remote_data``.
+functions with ``@pytest.mark.remote_data``.
 
 ``setup_package.py``
 --------------------

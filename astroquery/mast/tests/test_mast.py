@@ -2,11 +2,11 @@
 
 import os
 import re
-
 from shutil import copyfile
 
+import pytest
+
 from astropy.table import Table
-from astropy.tests.helper import pytest
 from astropy.coordinates import SkyCoord
 from astropy.io import fits
 
@@ -667,7 +667,7 @@ def test_zcut_download_cutouts(patch_post, tmpdir):
 
     # Testing with png
     cutout_table = mast.Zcut.download_cutouts(coordinates=coord, size=5,
-                                             cutout_format="jpg", path=str(tmpdir))
+                                              cutout_format="jpg", path=str(tmpdir))
     assert isinstance(cutout_table, Table)
     assert len(cutout_table) == 3
     assert cutout_table["Local Path"][0][-4:] == ".jpg"
@@ -675,7 +675,7 @@ def test_zcut_download_cutouts(patch_post, tmpdir):
 
     # Testing with img_param
     cutout_table = mast.Zcut.download_cutouts(coordinates=coord, size=5,
-                                             cutout_format="jpg", path=str(tmpdir), invert=True)
+                                              cutout_format="jpg", path=str(tmpdir), invert=True)
     assert isinstance(cutout_table, Table)
     assert len(cutout_table) == 3
     assert cutout_table["Local Path"][0][-4:] == ".jpg"

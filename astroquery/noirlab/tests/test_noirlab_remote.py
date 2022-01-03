@@ -2,21 +2,21 @@
 # Python library
 
 # External packages
+import pytest
 from astropy import units as u
 from astropy.coordinates import SkyCoord
-from astropy.tests.helper import remote_data
+
 # Local packages
 from .. import Noirlab
 from . import expected as expsia
-# #!import pytest
 
 # performs similar tests as test_module.py, but performs
 # the actual HTTP request rather than monkeypatching them.
 # should be disabled or enabled at will - use the
-# remote_data decorator from astropy:
+# remote_data decorator from pytest-remotedata:
 
 
-@remote_data
+@pytest.mark.remote_data
 class TestNoirlabClass:
 
     def test_query_region_1(self):

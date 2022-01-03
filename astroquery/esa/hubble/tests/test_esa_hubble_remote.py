@@ -13,21 +13,12 @@ Created on 13 Jan. 2021
 """
 import tempfile
 
-import unittest
 import os
 
 import pytest
-from astropy.tests.helper import remote_data
-from requests.models import Response
 from astroquery.esa.hubble import ESAHubble
-from astroquery.utils.testing_tools import MockResponse
 from astropy import coordinates
-from unittest.mock import MagicMock
-from astropy.table.table import Table
-import shutil
 import random
-from PIL import Image
-
 
 esa_hubble = ESAHubble()
 
