@@ -114,7 +114,7 @@ class HSAClass(BaseQuery):
         suffixes = Path(r_filename).suffixes
 
         if len(suffixes) > 1 and suffixes[len(suffixes) - 1] == ".jpg":
-            filename += suffixes[len(suffixes) - 1]
+            filename += suffixes[-1]
         else:
             filename += "".join(suffixes)
 
