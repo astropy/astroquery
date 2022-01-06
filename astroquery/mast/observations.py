@@ -158,13 +158,13 @@ class ObservationsClass(MastQueryWithLogin):
         # Build the mashup filter object and store it in the correct service_name entry
         if coordinates or objectname:
             mashup_filters = self._portal_api_connection.build_filter_set(self._caom_cone,
-                                                         self._caom_filtered_position,
-                                                         **criteria)
+                                                            self._caom_filtered_position,
+                                                            **criteria)
             coordinates = utils.parse_input_location(coordinates, objectname)
         else:
             mashup_filters = self._portal_api_connection.build_filter_set(self._caom_cone,
-                                                         self._caom_filtered,
-                                                         **criteria)
+                                                            self._caom_filtered,
+                                                            **criteria)
 
         # handle position info (if any)
         position = None
@@ -173,7 +173,7 @@ class ObservationsClass(MastQueryWithLogin):
             # if radius is just a number we assume degrees
             radius = coord.Angle(radius, u.deg)
 
-            # build the coordinates string needed by Mast.Caom.Filtered.Position
+            # build the coordinates string needed by ObservationsClass._caom_filtered_position
             position = ', '.join([str(x) for x in (coordinates.ra.deg, coordinates.dec.deg, radius.deg)])
 
         return position, mashup_filters
@@ -327,7 +327,7 @@ class ObservationsClass(MastQueryWithLogin):
         response : int
         """
 
-        # build the coordinates string needed by Mast.Caom.Filtered.Position
+        # build the coordinates string needed by ObservationsClass._caom_filtered_position
         coordinates = commons.parse_coordinates(coordinates)
 
         # if radius is just a number we assume degrees
