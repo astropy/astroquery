@@ -100,7 +100,7 @@ class HSAClass(BaseQuery):
         if 'Content-Type' in response.headers and 'text' not in response.headers['Content-Type']:
             _, params = cgi.parse_header(response.headers['Content-Disposition'])
         else:
-            error = "Data protected by propietary rights. Please check your credentials"
+            error = "Data protected by proprietary rights. Please check your credentials"
             raise LoginError(error)
 
         if filename is None:
