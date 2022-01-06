@@ -108,7 +108,7 @@ class HSAClass(BaseQuery):
                 filename = observation_id
             else:
                 error = "Please set a filename for the output"
-                raise InputWarning(error)
+                raise ValueError(error)
 
         r_filename = params["filename"]
         suffixes = Path(r_filename).suffixes
