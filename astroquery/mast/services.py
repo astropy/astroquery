@@ -249,6 +249,7 @@ class ServiceAPI(BaseQuery):
             compiled_service_args[service_argument] = found_argument.lower()
 
         request_url = self.REQUEST_URL + service_url.format(**compiled_service_args)
+
         headers = {
             'User-Agent': self._session.headers['User-Agent'],
             'Content-type': 'application/x-www-form-urlencoded',
