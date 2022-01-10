@@ -651,7 +651,7 @@ To remove asynchronous
 -----------------------
 
 Authenticated users are able to access to TAP+ capabilities (shared tables, persistent jobs, etc.)
-In order to authenticate a user, ``login``, ``login_gui`` or ``login_token_gui`` methods must be called. After a successful
+In order to authenticate a user, ``login`` method must be called. After a successful
 authentication, the user will be authenticated until ``logout`` method is called.
 
 All previous methods (``query_object``, ``cone_search``, ``load_table``, ``load_tables``, ``launch_job``) explained for
@@ -666,18 +666,6 @@ The main differences are:
 
 2.1. Login/Logout
 ~~~~~~~~~~~~~~~~~
-
-Using the graphic interface:
-
-
-*Note: Tkinter module is required to use login_gui method.*
-
-.. code-block:: python
-
-  >>> from astroquery.esa.jwst import Jwst
-  >>> from astroquery.esa.jwst import Jwst
-  >>> Jwst.login_gui()
-
 
 Using the command line:
 
