@@ -1002,14 +1002,6 @@ class TestTap:
         tap.login(user='test_user', password='test_password')
         dummyTapHandler.check_call('login', parameters)
 
-    def test_login_gui(self):
-        dummyTapHandler = DummyTapHandler()
-        tap = JwstClass(tap_plus_handler=dummyTapHandler, show_messages=False)
-        parameters = {}
-        parameters['verbose'] = False
-        tap.login_gui()
-        dummyTapHandler.check_call('login_gui', parameters)
-
     def test_logout(self):
         dummyTapHandler = DummyTapHandler()
         tap = JwstClass(tap_plus_handler=dummyTapHandler, show_messages=False)
