@@ -8,6 +8,10 @@ New Tools and Services
 Service fixes and enhancements
 ------------------------------
 
+esa.jwst
+^^^^^^^^^^
+
+- Minor fixes, documentation updated. [#2257]
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
