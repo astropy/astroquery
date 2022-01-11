@@ -386,8 +386,8 @@ class GaiaClass(TapPlus):
         coord = self.__getCoordInput(coordinate, "coordinate")
         job = None
         if radius is not None:
-            job = self.__cone_search(coord, radius,
-                                     async_job=async_job, verbose=verbose)
+            job = self.__cone_search(coord, radius, async_job=async_job,
+                                     verbose=verbose, columns=columns)
         else:
             raHours, dec = commons.coord_to_radec(coord)
             ra = raHours * 15.0  # Converts to degrees
