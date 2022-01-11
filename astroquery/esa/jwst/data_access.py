@@ -10,6 +10,7 @@ European Space Agency (ESA)
 """
 
 from astropy.utils import data
+from . import conf
 
 __all__ = ['JwstDataHandler']
 
@@ -17,7 +18,7 @@ __all__ = ['JwstDataHandler']
 class JwstDataHandler:
     def __init__(self, base_url=None):
         if base_url is None:
-            self.base_url = "http://jwstdummydata.com"
+            self.base_url = conf.JWST_DATA_SERVER
         else:
             self.base_url = base_url
 

@@ -647,17 +647,6 @@ class JwstClass(BaseQuery):
         if token:
             self.set_token(token=token)
 
-    def login_gui(self, *, verbose=False):
-        """Performs a login using a GUI dialog
-        TAP+ only
-
-        Parameters
-        ----------
-        verbose : bool, optional, default 'False'
-            flag to display information about the process
-        """
-        return self.__jwsttap.login_gui(verbose)
-
     def logout(self, *, verbose=False):
         """Performs a logout
         TAP+ only
