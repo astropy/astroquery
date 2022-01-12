@@ -40,15 +40,14 @@ def remove_last_job():
 
 @pytest.mark.remote_data
 class TestEsaHubbleRemoteData:
-
     obs_query = "select top 2050 o.observation_id from ehst.observation o"
 
     top_obs_query = "select top 100 o.observation_id from ehst.observation o"
 
-    hst_query = "select top 50 o.observation_id from ehst.observation "\
+    hst_query = "select top 50 o.observation_id from ehst.observation " \
                 "o where o.collection='HST'"
 
-    top_artifact_query = "select top 50 a.artifact_id, a.observation_id "\
+    top_artifact_query = "select top 50 a.artifact_id, a.observation_id " \
                          " from ehst.artifact a"
 
     temp_folder = create_temp_folder()
@@ -75,12 +74,6 @@ class TestEsaHubbleRemoteData:
         esa_hubble.get_artifact(artifact_id, temp_file)
         assert os.path.exists(temp_file)
 
-    def test_query_target(self):
-        temp_file = self.temp_folder.name + "/" + "m31_query.xml"
-        table = esa_hubble.query_target("m31", temp_file)
-        assert os.path.exists(temp_file)
-        assert 'OBSERVATION_ID' in table.columns
-
     def test_cone_search(self):
         esa_hubble = ESAHubble()
         c = coordinates.SkyCoord("00h42m44.51s +41d16m08.45s", frame='icrs')
@@ -90,3 +83,42 @@ class TestEsaHubbleRemoteData:
         assert 'observation_id' in table.columns
         assert len(table) > 0
         remove_last_job()
+
+    # tests for get_related_members
+    def test_hst_composite_to_hst_simple(self):
+        esa_hubble = ESAHubble()
+        result = esa_hubble.get_member_observations('jdrz0c010')
+        assert result == ['jdrz0cjxq', 'jdrz0cjyq']
+
+    def test_hst_simple_to_hst_composite(self):
+        esa_hubble = ESAHubble()
+        result = esa_hubble.get_member_observations('jdrz0cjxq')
+        assert result == ['jdrz0c010']
+
+    def test_hap_composite_to_hap_simple(self):
+        esa_hubble = ESAHubble()
+        result = esa_hubble.get_member_observations('hst_15446_4v_acs_wfc_f606w_jdrz4v')
+        assert result == ['hst_15446_4v_acs_wfc_f606w_jdrz4vkv', 'hst_15446_4v_acs_wfc_f606w_jdrz4vkw']
+
+    def test_hap_simple_to_hap_composite(self):
+        esa_hubble = ESAHubble()
+        result = esa_hubble.get_member_observations('hst_16316_71_acs_sbc_f150lp_jec071i9')
+        assert result == ['hst_16316_71_acs_sbc_f150lp_jec071']
+
+    def test_hap_simple_to_hst_simple(self):
+        esa_hubble = ESAHubble()
+        result = esa_hubble.get_hap_hst_link('hst_16316_71_acs_sbc_f150lp_jec071i9')
+        assert result == ['jec071i9q']
+
+    def test_hst_simple_to_hap_simple(self):
+        esa_hubble = ESAHubble()
+        result = esa_hubble.get_hap_hst_link('jec071i9q')
+        assert result == ['hst_16316_71_acs_sbc_f150lp_jec071i9']
+
+"""
+    def test_query_target(self):
+        temp_file = self.temp_folder.name + "/" + "m31_query.xml"
+        table = esa_hubble.query_target("m31", temp_file)
+        assert os.path.exists(temp_file)
+        assert 'OBSERVATION_ID' in table.columns
+"""

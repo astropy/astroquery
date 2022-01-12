@@ -603,24 +603,3 @@ class TestESAHubble:
             ehst = ESAHubbleClass(self.get_dummy_tap_handler())
             dummy_obs_id = None
             ehst.get_member_observations(dummy_obs_id)
-
-
-"""
-    def test_get_member_observations(self):
-        parameters = {}
-        obs = 'dummyObs'
-        parameters['query'] = f"select observation_id from ehst.observation where members like '%{obs}%'"
-        parameters['name'] = None
-        parameters['output_file'] = None
-        parameters['output_format'] = 'votable'
-        parameters['verbose'] = False
-        parameters['dump_to_file'] = False
-        parameters['upload_resource'] = None
-        parameters['upload_table_name'] = None
-
-        dummyTapHandler = DummyHubbleTapHandler("launch_job", parameters)
-        tap = ESAHubbleClass(dummyTapHandler)
-
-        tap.get_member_observations(observation_id=obs)
-        dummyTapHandler.check_call('launch_job', parameters)
-"""
