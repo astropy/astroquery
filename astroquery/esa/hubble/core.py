@@ -119,6 +119,70 @@ class ESAHubbleClass(BaseQuery):
 
         shutil.move(response, filename)
 
+    def get_member_observations(self, observation_id):
+        """
+        Parameters
+        ----------
+        observation_id : str, mandatory
+            Observation identifier.
+
+        Returns
+        -------
+        A list of strings with the observation_id of the associated
+        observations that can be used in get_product_list and
+        get_obs_products functions
+        """
+        if observation_id is None:
+            raise ValueError(self.REQUESTED_OBSERVATION_ID)
+        observation_type = self.get_observation_type(observation_id)
+
+        if 'Composite' in observation_type:
+            oids = self._select_members(observation_id)
+        elif 'Simple' in observation_type:
+            oids = self._select_composite(observation_id)
+        else:
+            raise ValueError("Invalid observation id")
+        return oids
+
+    def get_hap_hst_link(self, observation_id):
+        if observation_id is None:
+            raise ValueError(self.REQUESTED_OBSERVATION_ID)
+        observation_type = self.get_observation_type(observation_id)
+
+        if 'HAP' in observation_type:
+            oids = self._select_members(observation_id)
+        elif 'HST' in observation_type:
+            query = f"select observation_id from ehst.observation where obs_type='HAP Simple' and members like '%{observation_id}%'"
+            job = self.query_hst_tap(query=query)
+            oids = job["observation_id"].pformat(show_name=False)
+        else:
+            raise ValueError("Invalid observation id")
+        return oids
+
+    def get_observation_type(self, observation_id):
+        if observation_id is None:
+            raise ValueError(self.REQUESTED_OBSERVATION_ID)
+
+        query = f"select obs_type from ehst.observation where observation_id='{observation_id}'"
+        job = self.query_hst_tap(query=query)
+        if any(job["obs_type"]):
+            obs_type = ESAHubbleClass.get_decoded_string(job["obs_type"][0])
+        else:
+            raise ValueError("Invalid Observation ID")
+        return obs_type
+
+    def _select_members(self, observation_id):
+        query = f"select members from ehst.observation where observation_id='{observation_id}'"
+        job = self.query_hst_tap(query=query)
+        oids = ESAHubbleClass.get_decoded_string(job["members"][0]).replace("caom:HST/", "").split(" ")
+        return oids
+
+    def _select_composite(self, observation_id):
+        query = f"select observation_id from ehst.observation where members like '%{observation_id}%'"
+        job = self.query_hst_tap(query=query)
+        oids = job["observation_id"].pformat(show_name=False)
+        return oids
+
     def __validate_product_type(self, product_type):
         if(product_type not in self.product_types):
             raise ValueError("This product_type is not allowed")
@@ -695,6 +759,14 @@ class ESAHubbleClass(BaseQuery):
             return SkyCoord(value)
         else:
             return value
+
+    @staticmethod
+    def get_decoded_string(str):
+        try:
+            return str.decode('utf-8')
+            # return str
+        except (UnicodeDecodeError, AttributeError):
+            return str
 
 
 ESAHubble = ESAHubbleClass()
