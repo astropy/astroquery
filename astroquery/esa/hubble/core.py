@@ -148,8 +148,9 @@ class ESAHubbleClass(BaseQuery):
         if observation_id is None:
             raise ValueError(self.REQUESTED_OBSERVATION_ID)
         observation_type = self.get_observation_type(observation_id)
-
-        if 'HAP' in observation_type:
+        if 'Composite' in observation_type:
+            raise ValueError("HAP-HST link is only available for simple observations. Input observation is Composite.")
+        elif 'HAP' in observation_type:
             oids = self._select_members(observation_id)
         elif 'HST' in observation_type:
             query = f"select observation_id from ehst.observation where obs_type='HAP Simple' and members like '%{observation_id}%'"

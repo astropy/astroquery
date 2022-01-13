@@ -339,6 +339,39 @@ votable). The result of the query will be stored in the file
 result.get_results() or printing it by doing print(result).
 
 
+-------------------------------
+9. Getting related members of HAP and HST observations
+-------------------------------
+
+This function takes in an observation id of a Composite or Simple observation.
+If the observation is Simple the method returns the Composite observation that
+is built on this simple observation. If the observation is Composite then the
+method returns the simple observations that make it up.
+
+.. code-block:: python
+
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = ESAHubble()
+  >>> result = esahubble.get_member_observations("jdrz0c010")
+  >>> print(result)
+
+
+-------------------------------
+10. Getting link between Simple HAP and HST observations
+-------------------------------
+
+This function takes in an observation id of a Simple HAP or HST observation and
+returns the corresponding HAP or HST observation
+
+.. code-block:: python
+
+  >>> from astroquery.esa.hubble import ESAHubble
+  >>> esahubble = ESAHubble()
+  >>> result = esahubble.get_hap_hst_link("hst_16316_71_acs_sbc_f150lp_jec071i9")
+  >>> print(result)
+
+
+
 Reference/API
 =============
 

@@ -73,6 +73,7 @@ class MockResponse:
     def pformat():
         return True
 
+
 class TestESAHubble:
 
     def get_dummy_tap_handler(self):
@@ -568,6 +569,14 @@ class TestESAHubble:
         with pytest.raises(AttributeError):
             ehst = ESAHubbleClass(self.get_dummy_tap_handler())
             dummy_obs_id = None
+            ehst.get_hap_hst_link(dummy_obs_id)
+
+    @patch.object(ESAHubbleClass, 'get_observation_type')
+    def test_get_hap_hst_link_compositeerror(self, mock_observation_type):
+        with pytest.raises(ValueError):
+            mock_observation_type.return_value = "HAP Composite"
+            ehst = ESAHubbleClass(self.get_dummy_tap_handler())
+            dummy_obs_id = "1234"
             ehst.get_hap_hst_link(dummy_obs_id)
 
     @patch.object(ESAHubbleClass, '_select_members')
