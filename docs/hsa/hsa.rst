@@ -73,7 +73,7 @@ For more details of the parameters check the section 6.2 of the 'Direct Product 
 		'http://archives.esac.esa.int/hsa/whsa/'
 
 ------------------------------------------
-3. Getting Herschel metadata through TAP
+4. Getting Herschel metadata through TAP
 ------------------------------------------
 
 This function provides access to the Herschel Science Archive database using the Table Access Protocol (TAP) and via the Astronomical Data
@@ -102,7 +102,7 @@ This will execute an ADQL query to download the first 10 observations in the Her
 stored in the file 'results.csv'. The result of this query can be printed by doing print(result).
 
 -----------------------------------
-4. Getting table details of HSA TAP
+5. Getting table details of HSA TAP
 -----------------------------------
 
 .. code-block:: python
@@ -118,7 +118,7 @@ stored in the file 'results.csv'. The result of this query can be printed by doi
 This will show the available tables in HSA TAP service in the Herschel Science Archive.
 
 -------------------------------------
-5. Getting columns details of HSA TAP
+6. Getting columns details of HSA TAP
 -------------------------------------
 
 .. code-block:: python
@@ -132,6 +132,44 @@ This will show the available tables in HSA TAP service in the Herschel Science A
   ['aor', 'bii', 'dec', 'duration', 'end_time', 'fov', 'global_science_area', 'icon_image', 'icon_location', 'image_2_5_location', 'image_location', 'ingest_queue_oid', 'instrument_oid', 'is_active_version', 'is_public', 'lii', 'naif_id', 'num_publications', 'observation_id', 'observation_oid', 'observer', 'observing_mode_oid', 'obsstate', 'od_number', 'pa', 'polygon_fov', 'position', 'prop_end', 'proposal_id', 'quality_report_location', 'ra', 'science_area', 'science_category', 'spg_id', 'start_time', 'status', 'target_name', 'urn_version']
 
 This will show the column details of the table 'hsa.v_active_observation' in HSA TAP service in the Herschel Science Archive.
+
+-------------------------------------
+7. Procedure example
+-------------------------------------
+
+First retrieve the observation IDs based on a position on the sky. To achive this, query the TAP service.
+
+.. code-block:: python
+
+  >>> from astroquery.hsa import HSA
+  >>>
+  >>> HSA.query_hsa_tap("select top 10 observation_id from hsa.v_active_observation where contains(point('ICRS', hsa.v_active_observation.ra, hsa.v_active_observation.dec),circle('ICRS', 100.2417,9.895, 1.1))=1", output_format='csv', output_file='results.cvs')
+  <Table length=9>
+  observation_id
+      int64     
+  --------------
+      1342228342
+      1342228371
+      1342228372
+      1342219315
+      1342205057
+      1342205056
+      1342205058
+      1342205056
+      1342205057
+
+In this example we are doing a circle search of 1.1 degrees in an ICRS (Right ascension [RA], Declination [DEC]) position (100.2417, 9.895).
+
+For more information on how to use ADQL see:
+    'https://www.ivoa.net/documents/latest/ADQL.html'
+ 
+After obtaining the desire ID, download the product of the observation '1342205057' with the instrument 'PACS'.
+
+.. code-block:: python
+
+  >>> HSA.download_data(observation_id='1342205057', retrieval_type='OBSERVATION', instrument_name='PACS')
+  Downloading URL http://archives.esac.esa.int/hsa/whsa-tap-server/data?&retrieval_type=OBSERVATION&observation_id=1342205057&instrument_name=PACS to 1342205057.tar ... [Done]
+  '1342205057.tar'
 
 Reference/API
 =============
