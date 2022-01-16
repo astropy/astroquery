@@ -168,7 +168,7 @@ class SDSSClass(BaseQuery):
         if get_query_payload:
             return request_payload
         url = self._get_crossid_url(data_release)
-        response = self._request("POST", url, params=request_payload,
+        response = self._request("POST", url, data=request_payload,
                                  timeout=timeout, cache=cache)
         return response
 
