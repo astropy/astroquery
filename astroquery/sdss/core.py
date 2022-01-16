@@ -144,7 +144,10 @@ class SDSSClass(BaseQuery):
 
         sql_query += ',dbo.fPhotoTypeN(p.type) as type \
                       FROM #upload u JOIN #x x ON x.up_id = u.up_id \
-                      JOIN PhotoObjAll p ON p.objID = x.objID ORDER BY x.up_id'
+                      JOIN PhotoObjAll p ON p.objID = x.objID '
+        if specobj_fields:
+            sql_query += 'JOIN SpecObjAll s ON p.objID = s.bestObjID '
+        sql_query += 'ORDER BY x.up_id'
 
         data = "obj_id ra dec \n"
         data += " \n ".join(['{0} {1} {2}'.format(obj_names[i],
