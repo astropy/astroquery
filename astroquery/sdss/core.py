@@ -81,7 +81,7 @@ class SDSSClass(BaseQuery):
         radius : str or `~astropy.units.Quantity` object, optional The
             string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from
-            `astropy.units` may also be used. Defaults to 2 arcsec.
+            `astropy.units` may also be used. Defaults to 5 arcsec.
         timeout : float, optional
             Time limit (in seconds) for establishing successful connection with
             remote server.  Defaults to `SDSSClass.TIMEOUT`.
