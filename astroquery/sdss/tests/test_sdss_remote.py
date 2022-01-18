@@ -179,8 +179,8 @@ class TestSDSSRemote:
         query1 = sdss.SDSS.query_crossid_async(
             self.coords, specobj_fields=['specObjID', 'z'], cache=False)
         query2 = sdss.SDSS.query_crossid_async(
-            [self.coords, self.coords], 
-            specobj_fields=['specObjID', 'z'], 
+            [self.coords, self.coords],
+            specobj_fields=['specObjID', 'z'],
             cache=False)
         assert isinstance(query1, Table)
         assert query1['specObjID'][0] == 845594848269461504
