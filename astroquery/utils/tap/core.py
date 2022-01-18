@@ -245,6 +245,8 @@ class Tap:
         ----------
         query : str, mandatory
             query to be executed
+        name : str, optional, default None
+            custom name defined by the user for the job that is going to be created
         output_file : str, optional, default None
             file name where the results are saved if dumpToFile is True.
             If this parameter is not provided, the jobid is used instead
@@ -357,6 +359,8 @@ class Tap:
         ----------
         query : str, mandatory
             query to be executed
+        name : str, optional, default None
+            custom name defined by the user for the job that is going to be created
         output_file : str, optional, default None
             file name where the results are saved if dumpToFile is True.
             If this parameter is not provided, the jobid is used instead

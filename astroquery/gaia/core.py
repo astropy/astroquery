@@ -32,6 +32,7 @@ from astropy.io import votable
 from astropy.io import fits
 from astropy.table import Table
 from astropy import units as u
+import warnings
 
 
 class GaiaClass(TapPlus):
@@ -429,7 +430,8 @@ class GaiaClass(TapPlus):
                       dist ASC
                     """.format(**{'row_limit': "TOP {0}".format(self.ROW_LIMIT) if self.ROW_LIMIT > 0 else "",
                                   'ra_column': self.MAIN_GAIA_TABLE_RA, 'dec_column': self.MAIN_GAIA_TABLE_DEC,
-                                  'columns': columns, 'table_name': self.MAIN_GAIA_TABLE or conf.MAIN_GAIA_TABLE, 'ra': ra, 'dec': dec,
+                                  'columns': columns, 'table_name': self.MAIN_GAIA_TABLE or conf.MAIN_GAIA_TABLE,
+                                  'ra': ra, 'dec': dec,
                                   'width': widthDeg.value, 'height': heightDeg.value})
             if async_job:
                 job = self.launch_job_async(query, verbose=verbose)
@@ -566,7 +568,8 @@ class GaiaClass(TapPlus):
                 """.format(**{'ra_column': ra_column_name,
                               'row_limit': "TOP {0}".format(self.ROW_LIMIT) if self.ROW_LIMIT > 0 else "",
                               'dec_column': dec_column_name, 'columns': columns, 'ra': ra, 'dec': dec,
-                              'radius': radiusDeg, 'table_name': table_name or self.MAIN_GAIA_TABLE or conf.MAIN_GAIA_TABLE})
+                              'radius': radiusDeg,
+                              'table_name': table_name or self.MAIN_GAIA_TABLE or conf.MAIN_GAIA_TABLE})
 
         if async_job:
             return self.launch_job_async(query=query,
@@ -823,12 +826,14 @@ class GaiaClass(TapPlus):
         ----------
         query : str, mandatory
             query to be executed
+        name : str, optional, default None
+            custom name defined by the user for the job that is going to be created
         output_file : str, optional, default None
             file name where the results are saved if dumpToFile is True.
             If this parameter is not provided, the jobid is used instead
         output_format : str, optional, default 'votable'
             results format. Available formats are: 'votable', 'votable_plain',
-             'fits', 'csv' and 'json', default is 'votable'.
+             'fits', 'csv', 'ecsv' and 'json', default is 'votable'.
              Returned results for 'votable' and 'fits' formats are compressed
              gzip files.
         verbose : bool, optional, default 'False'
@@ -845,8 +850,30 @@ class GaiaClass(TapPlus):
         -------
         A Job object
         """
+        compressed_extension = ".gz"
+        format_with_results_compressed = ['votable', 'fits']
+        output_file_with_extension = output_file
+
+        if output_file is not None:
+            if output_format in format_with_results_compressed:
+                # In this case we will have to take also into account the .fits format
+                if not output_file.endswith(compressed_extension):
+                    warnings.warn('WARNING!!! By default, results in "votable" and "fits" format are returned in '
+                                  f'compressed format therefore your file {output_file} '
+                                  f'will be renamed to {output_file}.gz')
+                    if output_format == 'votable':
+                        if output_file.endswith('.vot'):
+                            output_file_with_extension = output_file + '.gz'
+                        else:
+                            output_file_with_extension = output_file + '.vot.gz'
+                    elif output_format == 'fits':
+                        if output_file.endswith('.fits'):
+                            output_file_with_extension = output_file + '.gz'
+                        else:
+                            output_file_with_extension = output_file + '.fits.gz'
+
         return TapPlus.launch_job(self, query=query, name=name,
-                                  output_file=output_file,
+                                  output_file=output_file_with_extension,
                                   output_format=output_format,
                                   verbose=verbose,
                                   dump_to_file=dump_to_file,
@@ -864,6 +891,8 @@ class GaiaClass(TapPlus):
         ----------
         query : str, mandatory
             query to be executed
+        name : str, optional, default None
+            custom name defined by the user for the job that is going to be created
         output_file : str, optional, default None
             file name where the results are saved if dumpToFile is True.
             If this parameter is not provided, the jobid is used instead
@@ -892,9 +921,31 @@ class GaiaClass(TapPlus):
         -------
         A Job object
         """
+        compressed_extension = ".gz"
+        format_with_results_compressed = ['votable', 'fits']
+        output_file_with_extension = output_file
+
+        if output_file is not None:
+            if output_format in format_with_results_compressed:
+                # In this case we will have to take also into account the .fits format
+                if not output_file.endswith(compressed_extension):
+                    warnings.warn('WARNING!!! By default, results in "votable" and "fits" format are returned in '
+                                  f'compressed format therefore your file {output_file} '
+                                  f'will be renamed to {output_file}.gz')
+                    if output_format == 'votable':
+                        if output_file.endswith('.vot'):
+                            output_file_with_extension = output_file + '.gz'
+                        else:
+                            output_file_with_extension = output_file + '.vot.gz'
+                    elif output_format == 'fits':
+                        if output_file.endswith('.fits'):
+                            output_file_with_extension = output_file + '.gz'
+                        else:
+                            output_file_with_extension = output_file + '.fits.gz'
+
         return TapPlus.launch_job_async(self, query=query,
                                         name=name,
-                                        output_file=output_file,
+                                        output_file=output_file_with_extension,
                                         output_format=output_format,
                                         verbose=verbose,
                                         dump_to_file=dump_to_file,
