@@ -7,6 +7,10 @@ New Tools and Services
 
 Service fixes and enhancements
 ------------------------------
+esa.xmm_newton
+^^^^^^^^^^^^^^
+
+- Add option to download proprietary data [#2251]
 
 esa.jwst
 ^^^^^^^^^^
@@ -33,10 +37,6 @@ esa.jwst
 
 Service fixes and enhancements
 ------------------------------
-esa.xmm_newton
-^^^^^^^^^^^^^^
-
-- Add option to download proprietary data [#2251]
 
 eso
 ^^^
