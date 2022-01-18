@@ -81,7 +81,7 @@ class SDSSClass(BaseQuery):
         radius : str or `~astropy.units.Quantity` object, optional The
             string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from
-            `astropy.units` may also be used. Defaults to 2 arcsec.
+            `astropy.units` may also be used. Defaults to 5 arcsec.
         timeout : float, optional
             Time limit (in seconds) for establishing successful connection with
             remote server.  Defaults to `SDSSClass.TIMEOUT`.
@@ -144,7 +144,10 @@ class SDSSClass(BaseQuery):
 
         sql_query += ',dbo.fPhotoTypeN(p.type) as type \
                       FROM #upload u JOIN #x x ON x.up_id = u.up_id \
-                      JOIN PhotoObjAll p ON p.objID = x.objID ORDER BY x.up_id'
+                      JOIN PhotoObjAll p ON p.objID = x.objID '
+        if specobj_fields:
+            sql_query += 'JOIN SpecObjAll s ON p.objID = s.bestObjID '
+        sql_query += 'ORDER BY x.up_id'
 
         data = "obj_id ra dec \n"
         data += " \n ".join(['{0} {1} {2}'.format(obj_names[i],
@@ -165,7 +168,7 @@ class SDSSClass(BaseQuery):
         if get_query_payload:
             return request_payload
         url = self._get_crossid_url(data_release)
-        response = self._request("POST", url, params=request_payload,
+        response = self._request("POST", url, data=request_payload,
                                  timeout=timeout, cache=cache)
         return response
 
