@@ -2,9 +2,9 @@
 
 .. _astroquery.esa.hubble:
 
-************************************
-esa.hubble (`astroquery.esa.hubble`)
-************************************
+*****************************************
+ESA HST Archive (`astroquery.esa.hubble`)
+*****************************************
 
 The Hubble Space Telescope (HST) is a joint ESA/NASA orbiting astronomical
 observatory operating from the near-infrared into the ultraviolet.  Launched
