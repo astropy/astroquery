@@ -2,9 +2,9 @@
 
 .. _astroquery.esa.jwst:
 
-*********************************
-JWST TAP+ (`astroquery.esa.jwst`)
-*********************************
+****************************************
+ESA JWST Archive (`astroquery.esa.jwst`)
+****************************************
 
 The James Webb Space Telescope (JWST) is a collaborative project between NASA,
 ESA, and the Canadian Space Agency (CSA). Although radically different in

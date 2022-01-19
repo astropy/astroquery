@@ -2,9 +2,9 @@
 
 .. _astroquery.esa.xmm_newton:
 
-****************************************
-xmm_newton (`astroquery.esa.xmm_newton`)
-****************************************
+****************************************************
+ESA XMM-Newton Archive (`astroquery.esa.xmm_newton`)
+****************************************************
 
 
 The X-ray Multi-Mirror Mission, XMM-Newton, is an ESA X-ray observatory launched on 10 December 1999. 
