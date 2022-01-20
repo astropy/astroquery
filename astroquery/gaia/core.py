@@ -11,7 +11,7 @@ European Space Astronomy Centre (ESAC)
 European Space Agency (ESA)
 
 Created on 30 jun. 2016
-
+Modified on 18 Ene. 2022 by mhsarmiento
 
 """
 from requests import HTTPError
@@ -173,16 +173,18 @@ class GaiaClass(TapPlus):
             By default, it takes the current default one.
         data_structure: str, optional, default 'INDIVIDUAL'
             it can be 'INDIVIDUAL', 'COMBINED', 'RAW':
-            'INDIVIDUAL' products are provided in separate files for each sourceId. All files are zipped in a single
-                bundle, even if only one source/file is considered
-            'COMBINED' products are provided in a single file concatenating the data of all sourceIds together.
-                How this is organised depends on the chosen format
-            'RAW' products are provided following a Data Model similar to that used in the MDB, meaning in
-                particular that parameters stored as arrays will remain as such. Like in the COMBINED structure, a single file is provided for the data of all sourceIds together, but in this case there will be always be one row per sourceId
-        retrieval_type : str, optional, default 'ALL'
-            retrieval type identifier. It can be either 'epoch_photometry'
-            for compatibility reasons or 'ALL' to retrieve all data from
-            the list of sources.
+            'INDIVIDUAL' means products are provided in separate files for each sourceId. All files are zipped in a single
+            bundle, even if only one source/file is considered
+            'COMBINED' means products are provided in a single file concatenating the data of all sourceIds together.
+            How this is organised depends on the chosen format
+            'RAW' means products are provided following a Data Model similar to that used in the MDB, meaning in
+            particular that parameters stored as arrays will remain as such. Like in the COMBINED structure, a single
+            file is provided for the data of all sourceIds together, but in this case there will be always be one
+            row per sourceId
+        retrieval_type : str, optional, default 'ALL' to retrieve all data  from the list of sources
+            retrieval type identifier. For GAIA DR2 possible values are ['EPOCH_PHOTOMETRY']
+            For future GAIA DR3 (Once published), possible values will be ['EPOC_PHOTOMETRY', 'RVS', 'XP_CONTINUOUS',
+            'XP_SAMPLED', 'MCMC_GSPPHOT' or 'MCMC_MSC']
         valid_data : bool, optional, default True
             By default, the epoch photometry service returns only valid data,
             that is, all data rows where flux is not null and
@@ -197,7 +199,7 @@ class GaiaClass(TapPlus):
             By default, this value will be set to False. If it is set to 'true'
             the Datalink items tags will not be checked.
         format : str, optional, default 'votable'
-            loading format. Other available formats are 'csv' and 'fits'
+            loading format. Other available formats are 'csv', 'ecsv', 'votable_plain' and 'fits'
         output_file : string, optional, default None
             file where the results are saved.
             If it is not provided, the http response contents are returned.
@@ -210,6 +212,7 @@ class GaiaClass(TapPlus):
         -------
         A table object
         """
+
         if retrieval_type is None:
             raise ValueError("Missing mandatory argument 'retrieval_type'")
 
