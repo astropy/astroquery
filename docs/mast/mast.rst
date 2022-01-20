@@ -306,7 +306,7 @@ with a `~astropy.table.Table` of data products, or a list (or single) obsid as t
 
                 >>> print(manifest)
 
-                                   Local Path                     Status  Message URL 
+                                   Local Path                     Status  Message URL
                 ------------------------------------------------ -------- ------- ----
                     ./mastDownload/IUE/lwp13058/lwp13058.mxlo.gz COMPLETE    None None
                 ./mastDownload/IUE/lwp13058/lwp13058mxlo_vo.fits COMPLETE    None None
@@ -317,12 +317,10 @@ with a `~astropy.table.Table` of data products, or a list (or single) obsid as t
 
                 >>> from astroquery.mast import Observations
 
-                >>> single_obs = Observations.query_criteria(obs_collection="IUE",obs_id="lwp13058")
+                >>> single_obs = Observations.query_criteria(obs_collection="IUE", obs_id="lwp13058")
                 >>> data_products = Observations.get_product_list(single_obs)
-                
-                >>> Observations.download_products(data_products,
-                ...                                productType="SCIENCE",
-                ...                                curl_flag=True)
+
+                >>> table = Observations.download_products(data_products, productType="SCIENCE", curl_flag=True)
 
                 Downloading URL https://mast.stsci.edu/portal/Download/stage/anonymous/public/514cfaa9-fdc1-4799-b043-4488b811db4f/mastDownload_20170629162916.sh to ./mastDownload_20170629162916.sh ... [Done]
 
@@ -340,11 +338,11 @@ the ``local_path`` keyword argument.
 
                 >>> single_obs = Observations.query_criteria(obs_collection="IUE",obs_id="lwp13058")
                 >>> data_products = Observations.get_product_list(single_obs)
-                
+
                 >>> product = data_products[0]["dataURI"]
                 >>> print(product)
                 mast:IUE/url/pub/iue/data/lwp/13000/lwp13058.elbll.gz
-                
+
                 >>> result = Observations.download_file(product)
                 Downloading URL https://mast.stsci.edu/api/v0.1/Download/file?uri=mast:IUE/url/pub/iue/data/lwp/13000/lwp13058.elbll.gz to ./lwp13058.elbll.gz ... [Done]
 
@@ -829,13 +827,13 @@ The moving_target may be any object name or ID understood by the
                 >>> hdulist[0].info()
                 Filename: <class '_io.BytesIO'>
                 No.    Name      Ver    Type      Cards   Dimensions   Format
-                0  PRIMARY       1 PrimaryHDU      54   ()      
-                1  PIXELS        1 BinTableHDU    150   356R x 16C   [D, E, J, 25J, 25E, 25E, 25E, 25E, J, E, E, 38A, D, D, D, D]   
-                2  APERTURE      1 ImageHDU        97   (2136, 2078)   int32   
+                0  PRIMARY       1 PrimaryHDU      54   ()
+                1  PIXELS        1 BinTableHDU    150   355R x 16C   [D, E, J, 25J, 25E, 25E, 25E, 25E, J, E, E, 38A, D, D, D, D]
+                2  APERTURE      1 ImageHDU        97   (2136, 2078)   int32
 
 
 
-                  
+
 The `~astroquery.mast.TesscutClass.download_cutouts` function takes a coordinate, object name
 (i.e. "M104" or "TIC 32449963"), or moving target (i.e. "Eleonora") and cutout size
 (in pixels or an angular quantity) and downloads the cutout target pixel file(s).
@@ -856,7 +854,7 @@ more than one camera or ccd a target pixel file will be produced for each one.
                 Inflating...
 
                 >>> print(manifest)
-                                       Local Path                        
+                                       Local Path
                 ----------------------------------------------------------
                 ./tess-s0009-4-1_107.186960_-70.509190_21x15_astrocut.fits
 
@@ -899,7 +897,7 @@ To access sector information for a particular coordinate, object, or moving targ
                   sectorName   sector camera ccd
                 -------------- ------ ------ ---
                 tess-s0029-1-4     29      1   4
-   
+
 Zcut
 ====
 

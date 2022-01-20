@@ -291,7 +291,7 @@ class TestMast:
 
     def test_observations_download_file(self, tmpdir):
         test_obs_id = OBSID
-        test_obs = mast.Observations.query_criteria(filters=["NUV","FUV"],objectname="M101")
+        test_obs = mast.Observations.query_criteria(filters=["NUV", "FUV"], objectname="M101")
 
         # pull a single data product
         products = mast.Observations.get_product_list(test_obs[0]["obsid"])
@@ -895,4 +895,3 @@ class TestMast:
         assert isinstance(cutout_list, list)
         assert len(cutout_list) == 1
         assert isinstance(cutout_list[0], fits.HDUList)
-
