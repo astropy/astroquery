@@ -290,15 +290,24 @@ class TestMast:
         assert len(result2) == 1
 
     def test_observations_download_file(self, tmpdir):
-        test_obs_id = OBSID
-        test_obs = mast.Observations.query_criteria(filters=["NUV", "FUV"], objectname="M101")
 
-        # pull a single data product
-        products = mast.Observations.get_product_list(test_obs[0]["obsid"])
+        # enabling cloud connection
+        mast.Observations.enable_cloud_dataset(provider='AWS')
+
+        # get observations from GALEX instrument with query_criteria
+        observations = mast.Observations.query_criteria(objectname='M1',
+                                                        radius=0.2, instrument_name='GALEX')
+
+        assert len(observations) > 0, 'No results found for GALEX query.'
+
+        # pull data products from a single observation
+        products = mast.Observations.get_product_list(observations['obsid'][0])
+
+        # pull the URI of a single product
         uri = products['dataURI'][0]
 
         # download it
-        result = mast.Observations.download_file(uri)
+        result = mast.Observations.download_file(uri, cloud_only=True)
         assert result == ('COMPLETE', None, None)
 
     def test_get_cloud_uri(self):
