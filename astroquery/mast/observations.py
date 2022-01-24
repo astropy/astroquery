@@ -76,7 +76,7 @@ class ObservationsClass(MastQueryWithLogin):
         Lists data missions archived by MAST and avaiable through `astroquery.mast`.
 
         Returns
-        --------
+        -------
         response : list
             List of available missions.
         """
@@ -106,7 +106,7 @@ class ObservationsClass(MastQueryWithLogin):
             The query to get metadata for. Options are observations, and products.
 
         Returns
-        --------
+        -------
         response : `~astropy.table.Table`
             The metadata table.
         """

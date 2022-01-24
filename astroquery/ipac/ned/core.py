@@ -385,7 +385,7 @@ class NedClass(BaseQuery):
             request.  Defaults to `False`
 
         Returns
-        --------
+        -------
         A list of context-managers that yield readable file-like objects
 
         """
@@ -438,7 +438,7 @@ class NedClass(BaseQuery):
             request.  Defaults to `False`
 
         Returns
-        --------
+        -------
         A list of context-managers that yield readable file-like objects
 
         """

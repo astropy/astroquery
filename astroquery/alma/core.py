@@ -397,6 +397,8 @@ class AlmaClass(QueryWithLogin):
 
         Parameters
         ----------
+        **kwargs
+            Parameters for the SIA service.
 
         Returns
         -------
