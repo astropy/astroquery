@@ -53,7 +53,7 @@ class CloudAccess:  # pragma:no-cover
         import boto3
         import botocore
 
-        self.supported_missions = ["mast:hst/product", "mast:tess/product", "mast:kepler"]
+        self.supported_missions = ["mast:hst/product", "mast:tess/product", "mast:kepler", "mast:galex/product"]
 
         self.boto3 = boto3
         self.botocore = botocore
