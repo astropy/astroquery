@@ -20,6 +20,7 @@ from astropy.utils.console import ProgressBar
 from astropy.utils.exceptions import AstropyDeprecationWarning
 from astropy import units as u
 from astropy.time import Time
+from pyvo.dal.sia2 import SIA_PARAMETERS_DESC
 
 from ..exceptions import LoginError
 from ..utils import commons
@@ -397,8 +398,7 @@ class AlmaClass(QueryWithLogin):
 
         Parameters
         ----------
-        **kwargs
-            Parameters for the SIA service.
+        _SIA2_PARAMETERS
 
         Returns
         -------
@@ -425,6 +425,8 @@ class AlmaClass(QueryWithLogin):
             res_format=res_format,
             maxrec=maxrec,
             **kwargs)
+
+    query_sia.__doc__ = query_sia.__doc__.replace('_SIA2_PARAMETERS', SIA_PARAMETERS_DESC)
 
     def query_tap(self, query, maxrec=None):
         """
