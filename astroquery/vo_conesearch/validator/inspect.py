@@ -138,7 +138,7 @@ class ConeSearchResults:
         If not found, nothing is written out.
 
         Parameters
-        -----------
+        ----------
         key : str
             Catalog key.
 

@@ -320,7 +320,7 @@ class CatalogsClass(MastQueryWithLogin):
             one sepcific page of results.
 
         Returns
-        --------
+        -------
         response : list of `~requests.Response`
         """
 
@@ -356,7 +356,7 @@ class CatalogsClass(MastQueryWithLogin):
             one sepcific page of results.
 
         Returns
-        --------
+        -------
         response : list of `~requests.Response`
         """
 
@@ -387,7 +387,7 @@ class CatalogsClass(MastQueryWithLogin):
             will be downloaded that can be used to download the data files at a later time.
 
         Returns
-        --------
+        -------
         response : list of `~requests.Response`
         """
 

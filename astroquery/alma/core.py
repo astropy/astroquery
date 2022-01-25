@@ -20,6 +20,7 @@ from astropy.utils.console import ProgressBar
 from astropy.utils.exceptions import AstropyDeprecationWarning
 from astropy import units as u
 from astropy.time import Time
+from pyvo.dal.sia2 import SIA_PARAMETERS_DESC
 
 from ..exceptions import LoginError
 from ..utils import commons
@@ -397,6 +398,7 @@ class AlmaClass(QueryWithLogin):
 
         Parameters
         ----------
+        _SIA2_PARAMETERS
 
         Returns
         -------
@@ -423,6 +425,12 @@ class AlmaClass(QueryWithLogin):
             res_format=res_format,
             maxrec=maxrec,
             **kwargs)
+
+    # SIA_PARAMETERS_DESC contains links that Sphinx can't resolve.
+    for var in ('POLARIZATION_STATES', 'CALIBRATION_LEVELS'):
+        SIA_PARAMETERS_DESC = SIA_PARAMETERS_DESC.replace(f'`pyvo.dam.obscore.{var}`',
+                                                          f'pyvo.dam.obscore.{var}')
+    query_sia.__doc__ = query_sia.__doc__.replace('_SIA2_PARAMETERS', SIA_PARAMETERS_DESC)
 
     def query_tap(self, query, maxrec=None):
         """

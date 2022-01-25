@@ -191,12 +191,12 @@ class JPLSpecClass(BaseQuery):
         | (I6,X, A13, I6, 7F7.4,  I2)
 
         Parameters
-        -----------
+        ----------
         catfile : str, name of file, default 'catdir.cat'
             The catalog file, installed locally along with the package
 
         Returns
-        --------
+        -------
         Table: `~astropy.table.Table`
             | TAG : The species tag or molecular identifier.
             | NAME : An ASCII name for the species.

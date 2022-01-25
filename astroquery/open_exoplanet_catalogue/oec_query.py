@@ -19,7 +19,7 @@ def get_catalogue(filepath=None):
     Parses the Open Exoplanet Catalogue file.
 
     Parameters
-    -----------
+    ----------
     filepath : str or None
         if no filepath is given, remote source is used.
 

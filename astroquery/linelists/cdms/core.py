@@ -254,12 +254,12 @@ class CDMSClass(BaseQuery):
         The table is derived from https://cdms.astro.uni-koeln.de/classic/entries/partition_function.html
 
         Parameters
-        -----------
+        ----------
         catfile : str, name of file, default 'catdir.cat'
             The catalog file, installed locally along with the package
 
         Returns
-        --------
+        -------
         Table: `~astropy.table.Table`
             | tag : The species tag or molecular identifier.
             | molecule : An ASCII name for the species.

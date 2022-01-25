@@ -123,7 +123,7 @@ class IrsaDustClass(BaseQuery):
             to remote server. Defaults to `False`.
 
         Returns
-        --------
+        -------
         list : list
             A list of context-managers that yield readable file-like objects.
         """
@@ -146,7 +146,7 @@ class IrsaDustClass(BaseQuery):
         of URLs to the Irsa-Dust images.
 
         Parameters
-        -----------
+        ----------
         coordinate : str
             Can be either the name of an object or a coordinate string
             If a name, must be resolvable by NED, SIMBAD, 2MASS, or SWAS.
@@ -169,7 +169,7 @@ class IrsaDustClass(BaseQuery):
             to remote server. Defaults to `False`.
 
         Returns
-        --------
+        -------
         url_list : list
             A list of URLs to the FITS images corresponding to the queried
             object.
@@ -203,7 +203,7 @@ class IrsaDustClass(BaseQuery):
             server. Defaults to `~astroquery.ipac.irsa.irsa_dust.IrsaDustClass.TIMEOUT`.
 
         Returns
-        --------
+        -------
         table : `~astropy.table.Table`
         """
         readable_obj = self.get_extinction_table_async(
@@ -289,7 +289,7 @@ class IrsaDustClass(BaseQuery):
             Defaults to `~astroquery.ipac.irsa.irsa_dust.IrsaDustClass.DUST_SERVICE_URL`.
 
         Returns
-        --------
+        -------
         table : `~astropy.table.Table`
             Table representing the query results, (all or as per  specified).
         """
