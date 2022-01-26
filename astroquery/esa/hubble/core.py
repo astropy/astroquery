@@ -501,9 +501,9 @@ class ESAHubbleClass(BaseQuery):
         output_format : string
             optional, default 'votable'
             output format of the query
-        verbose : bool
-            optional, default 'False'
-            Flag to display information about the process
+        radius : int
+            optional, default None
+            radius in arcmin (int, float) or quantity of the cone_search
 
         Returns
         -------
