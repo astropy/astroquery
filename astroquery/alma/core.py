@@ -685,7 +685,8 @@ class AlmaClass(QueryWithLogin):
         return data_sizes, totalsize.to(u.GB)
 
     def download_files(self, files, savedir=None, cache=True,
-                       continuation=True, skip_unauthorized=True,):
+                       continuation=True, skip_unauthorized=True,
+                       verify_only=False):
         """
         Given a list of file URLs, download them
 
@@ -706,6 +707,10 @@ class AlmaClass(QueryWithLogin):
             If you receive "unauthorized" responses for some of the download
             requests, skip over them.  If this is False, an exception will be
             raised.
+        verify_only : bool
+            Option to go through the process of checking the files to see if
+            they're the right size, but not actually download them.  This
+            option may be useful if a previous download run failed partway.
         """
 
         if self.USERNAME:
@@ -744,14 +749,15 @@ class AlmaClass(QueryWithLogin):
                                         filename)
 
             try:
-                self._download_file(file_link,
-                                    filename,
-                                    timeout=self.TIMEOUT,
-                                    auth=auth,
-                                    cache=cache,
-                                    method='GET',
-                                    head_safe=False,
-                                    continuation=continuation)
+                if not verify_only:
+                    self._download_file(file_link,
+                                        filename,
+                                        timeout=self.TIMEOUT,
+                                        auth=auth,
+                                        cache=cache,
+                                        method='GET',
+                                        head_safe=False,
+                                        continuation=continuation)
 
                 downloaded_files.append(filename)
             except requests.HTTPError as ex:
