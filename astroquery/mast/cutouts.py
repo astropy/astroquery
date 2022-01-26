@@ -110,7 +110,7 @@ class TesscutClass(MastQueryWithLogin):
                     }
         self._service_api_connection.set_service_params(services, "tesscut")
 
-    def get_sectors(self, coordinates=None, radius=0*u.deg, objectname=None, moving_target=None, mt_type=None):
+    def get_sectors(self, coordinates=None, radius=0*u.deg, objectname=None, moving_target=False, mt_type=None):
         """
         Get a list of the TESS data sectors whose footprints intersect
         with the given search area.
@@ -120,27 +120,36 @@ class TesscutClass(MastQueryWithLogin):
         coordinates : str or `astropy.coordinates` object, optional
             The target around which to search. It may be specified as a
             string or as the appropriate `astropy.coordinates` object.
-            One and only one of coordinates, objectname, and moving_target must be supplied.
+
+            NOTE: If moving_targets or objectname is supplied, this argument cannot be used.
+
         radius : str, float, or `~astropy.units.Quantity` object, optional
             Default 0 degrees.
             If supplied as a float degrees is the assumed unit.
             The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from
             `astropy.units` may also be used.
-            This argument is ignored if moving_target is supplied.
+
+            NOTE: If moving_target is supplied, this argument is ignored.
+
         objectname : str, optional
             The target around which to search, by name (objectname="M104")
-            or TIC ID (objectname="TIC 141914082").
-            One and only one of coordinates, objectname, moving_target must be supplied.
-        moving_target : str, optional
-            The name or ID (as understood by the
+            or TIC ID (objectname="TIC 141914082"). If moving_target is True, input must be the name or ID (as understood by the
             `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__)
             of a moving target such as an asteroid or comet.
-            One and only one of coordinates, objectname, and moving_target must be supplied.
+
+            NOTE: If coordinates is supplied, this argument cannot be used.
+
+        moving_target : bool, optional
+            Indicate whether the object is a moving target or not. Default is set to False, in other words, not a moving target.
+
+            NOTE: If coordinates is supplied, this argument cannot be used.
+
         mt_type : str, optional
             The moving target type, valid inputs are majorbody and smallbody. If not supplied
             first majorbody is tried and then smallbody if a matching majorbody is not found.
-            This argument is ignored unless moving_target is supplied.
+
+            NOTE: If moving_target is supplied, this argument is ignored.
 
         Returns
         -------
@@ -150,11 +159,14 @@ class TesscutClass(MastQueryWithLogin):
 
         if moving_target:
 
-            # Check only ony object designator has been passed in
-            if objectname or coordinates:
-                raise InvalidQueryError("Only one of objectname, coordinates, and moving_target may be specified.")
+            # Check that objectname has been passed in
+            if coordinates:
+                raise InvalidQueryError("Only one of moving_target and coordinates may be specified.")
 
-            params = {"obj_id": moving_target}
+            if not objectname:
+                raise InvalidQueryError("Please specify the object name or ID (as understood by the `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__) of a moving target such as an asteroid or comet.")
+
+            params = {"obj_id": objectname}
 
             # Add optional parameter is present
             if mt_type:
