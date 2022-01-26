@@ -132,12 +132,14 @@ class TestESAHubble:
                           filename="X0MC5101T.vot",
                           verbose=True)
 
-    def test_query_target(self):
-        parameters = {'name': "m31",
-                      'verbose': True}
+    @patch.object(ESAHubbleClass, 'cone_search')
+    @patch.object(ESAHubbleClass, '_query_tap_target')
+    def test_query_target(self, mock_query_tap_target, mock_cone_search):
+        mock_query_tap_target.return_value = 10, 10
+        mock_cone_search.return_value = "test"
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
-        ehst.query_target(name=parameters['name'],
-                          verbose=parameters['verbose'])
+        table = ehst.query_target(name="test")
+        assert table == "test"
 
     def test_cone_search(self):
         coords = coordinates.SkyCoord("00h42m44.51s +41d16m08.45s",

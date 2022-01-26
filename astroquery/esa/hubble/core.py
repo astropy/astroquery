@@ -185,13 +185,13 @@ class ESAHubbleClass(BaseQuery):
         return oids
 
     def __validate_product_type(self, product_type):
-        if(product_type not in self.product_types):
+        if (product_type not in self.product_types):
             raise ValueError("This product_type is not allowed")
 
     def _get_product_filename(self, product_type, filename):
-        if(product_type == "PRODUCT"):
+        if (product_type == "PRODUCT"):
             return filename
-        elif(product_type == "SCIENCE_PRODUCT"):
+        elif (product_type == "SCIENCE_PRODUCT"):
             log.info("This is a SCIENCE_PRODUCT, the filename will be "
                      "renamed to " + filename + ".fits.gz")
             return filename + ".fits.gz"
@@ -328,25 +328,25 @@ class ESAHubbleClass(BaseQuery):
             radius_in_grades = radius.to(units.deg).value
         ra = coord.ra.deg
         dec = coord.dec.deg
-        query = "select o.observation_id, "\
-                "o.start_time, o.end_time, o.start_time_mjd, "\
-                "o.end_time_mjd, o.exposure_duration, o.release_date, "\
-                "o.run_id, o.program_id, o.set_id, o.collection, "\
-                "o.members_number, o.instrument_configuration, "\
-                "o.instrument_name, o.obs_type, o.target_moving, "\
-                "o.target_name, o.target_description, o.proposal_id, "\
-                "o.pi_name, prop.title, pl.metadata_provenance, "\
-                "pl.data_product_type, pl.software_version, pos.ra, "\
-                "pos.dec, pos.gal_lat, pos.gal_lon, pos.ecl_lat, "\
-                "pos.ecl_lon, pos.fov_size, en.wave_central, "\
-                "en.wave_bandwidth, en.wave_max, en.wave_min, "\
-                "en.filter from ehst.observation o join ehst.proposal "\
-                "prop on o.proposal_id=prop.proposal_id join ehst.plane "\
-                "pl on pl.observation_id=o.observation_id join "\
-                "ehst.position pos on pos.plane_id = pl.plane_id join "\
-                "ehst.energy en on en.plane_id=pl.plane_id where "\
-                "pl.main_science_plane='true' and 1=CONTAINS(POINT('ICRS', "\
-                "pos.ra, pos.dec),CIRCLE('ICRS', {0}, {1}, {2})) order "\
+        query = "select o.observation_id, " \
+                "o.start_time, o.end_time, o.start_time_mjd, " \
+                "o.end_time_mjd, o.exposure_duration, o.release_date, " \
+                "o.run_id, o.program_id, o.set_id, o.collection, " \
+                "o.members_number, o.instrument_configuration, " \
+                "o.instrument_name, o.obs_type, o.target_moving, " \
+                "o.target_name, o.target_description, o.proposal_id, " \
+                "o.pi_name, prop.title, pl.metadata_provenance, " \
+                "pl.data_product_type, pl.software_version, pos.ra, " \
+                "pos.dec, pos.gal_lat, pos.gal_lon, pos.ecl_lat, " \
+                "pos.ecl_lon, pos.fov_size, en.wave_central, " \
+                "en.wave_bandwidth, en.wave_max, en.wave_min, " \
+                "en.filter from ehst.observation o join ehst.proposal " \
+                "prop on o.proposal_id=prop.proposal_id join ehst.plane " \
+                "pl on pl.observation_id=o.observation_id join " \
+                "ehst.position pos on pos.plane_id = pl.plane_id join " \
+                "ehst.energy en on en.plane_id=pl.plane_id where " \
+                "pl.main_science_plane='true' and 1=CONTAINS(POINT('ICRS', " \
+                "pos.ra, pos.dec),CIRCLE('ICRS', {0}, {1}, {2})) order " \
                 "by prop.proposal_id desc".format(str(ra), str(dec),
                                                   str(radius_in_grades))
         if verbose:
@@ -455,9 +455,9 @@ class ESAHubbleClass(BaseQuery):
             radius_in_grades = Angle(radius, units.arcmin).deg
         else:
             radius_in_grades = radius.to(units.deg).value
-        cone_query = "1=CONTAINS(POINT('ICRS', pos.ra, pos.dec),"\
-                     "CIRCLE('ICRS', {0}, {1}, {2}))".\
-                     format(str(ra), str(dec), str(radius_in_grades))
+        cone_query = "1=CONTAINS(POINT('ICRS', pos.ra, pos.dec)," \
+                     "CIRCLE('ICRS', {0}, {1}, {2}))". \
+            format(str(ra), str(dec), str(radius_in_grades))
         query = "{}{})".format(crit_query, cone_query)
         if verbose:
             log.info(query)
@@ -487,8 +487,8 @@ class ESAHubbleClass(BaseQuery):
     def query_metadata(self, output_format='votable', verbose=False):
         return
 
-    def query_target(self, name, filename=None, output_format='votable',
-                     verbose=False):
+    def query_target(self, name, filename=None, async_job=False,
+                     output_format='votable', radius=None):
         """
         It executes a query over EHST and download the xml with the results.
 
@@ -510,28 +510,18 @@ class ESAHubbleClass(BaseQuery):
         Table with the result of the query. It downloads metadata as a file.
         """
 
-        params = {"RESOURCE_CLASS": "OBSERVATION",
-                  "USERNAME": "ehst-astroquery",
-                  "SELECTED_FIELDS": "OBSERVATION",
-                  "QUERY": "(TARGET.TARGET_NAME=='" + name + "')",
-                  "RETURN_TYPE": str(output_format)}
-        response = self._request('GET', self.metadata_url, save=True,
-                                 cache=True,
-                                 params=params)
+        if radius is None:
+            radius = 7
 
-        if verbose:
-            log.info(self.metadata_url + "?RESOURCE_CLASS=OBSERVATION&"
-                     "SELECTED_FIELDS=OBSERVATION&QUERY=(TARGET.TARGET_NAME"
-                     "=='" + name + "')&USERNAME=ehst-astroquery&"
-                     "RETURN_TYPE=" + str(output_format))
-            log.info(self.copying_string.format(filename))
-        if filename is None:
-            filename = "target.xml"
+        ra, dec = self._query_tap_target(name)
+        coordinates = SkyCoord(ra=str(ra), dec=str(dec), unit="deg", frame='icrs')
 
-        shutil.move(response, filename)
+        if async_job:
+            table = self.cone_search(coordinates, radius, filename=filename, output_format=output_format, async_job=True)
+        else:
+            table = self.cone_search(coordinates, radius, filename=filename, output_format=output_format)
 
-        return modelutils.read_results_table_from_file(filename,
-                                                       str(output_format))
+        return table
 
     def query_hst_tap(self, query, async_job=False, output_file=None,
                       output_format="votable", verbose=False):
@@ -562,7 +552,7 @@ class ESAHubbleClass(BaseQuery):
                                              output_format=output_format,
                                              verbose=False,
                                              dump_to_file=output_file
-                                             is not None)
+                                                          is not None)
         else:
             job = self._tap.launch_job(query=query, output_file=output_file,
                                        output_format=output_format,
@@ -647,9 +637,9 @@ class ESAHubbleClass(BaseQuery):
             parameters.append("(o.instrument_configuration LIKE '%{}%')"
                               .format("%' OR o.instrument_configuration "
                                       "LIKE '%".join(filters)))
-        query = "select o.*, p.calibration_level, p.data_product_type, "\
-                "pos.ra, pos.dec from ehst.observation AS o JOIN "\
-                "ehst.plane as p on o.observation_uuid=p.observation_uuid "\
+        query = "select o.*, p.calibration_level, p.data_product_type, " \
+                "pos.ra, pos.dec from ehst.observation AS o JOIN " \
+                "ehst.plane as p on o.observation_uuid=p.observation_uuid " \
                 "JOIN ehst.position as pos on p.plane_id = pos.plane_id"
         if parameters:
             query += " where({})".format(" AND ".join(parameters))
@@ -665,7 +655,7 @@ class ESAHubbleClass(BaseQuery):
 
     def __get_calibration_level(self, calibration_level):
         condition = ""
-        if(calibration_level is not None):
+        if (calibration_level is not None):
             if isinstance(calibration_level, str):
                 condition = calibration_level
             elif isinstance(calibration_level, int):
