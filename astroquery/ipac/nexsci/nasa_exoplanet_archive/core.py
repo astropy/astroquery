@@ -392,7 +392,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
         url = requests.get("https://exoplanetarchive.ipac.caltech.edu/cgi-bin/Lookup/nph-aliaslookup.py?objname="+object_name)
         data = json.loads(url.text)
 
-        try :
+        try:
             objname_split = object_name.split()
             if len(objname_split) > 1 and len(objname_split[-1]) == 1 and objname_split[-1].isalpha():
                 pl_letter = object_name.split()[-1]
@@ -412,7 +412,6 @@ class NasaExoplanetArchiveClass(BaseQuery):
             warnings.warn("No aliases found for name: '{0}'".format(object_name), NoResultsWarning)
 
         return aliases
-
 
     @class_or_instance
     def _regularize_object_name(self, object_name):
