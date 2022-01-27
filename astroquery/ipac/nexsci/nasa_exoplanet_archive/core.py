@@ -5,6 +5,8 @@ import copy
 import io
 import re
 import warnings
+import requests
+import json
 
 # Import various astropy modules
 import astropy.coordinates as coord
@@ -370,14 +372,14 @@ class NasaExoplanetArchiveClass(BaseQuery):
         return self.query_criteria_async(table, get_query_payload=get_query_payload, cache=cache, **criteria)
 
     @class_or_instance
-    def query_aliases(self, object_name, *, cache=None):
+    def query_aliases(self, object_name):
         """
         Search for aliases for a given confirmed planet or planet host
 
         Parameters
         ----------
         object_name : str
-            The name of a planet or star to regularize using the ``aliastable`` table.
+            The name of a planet or star to regularize using the ``aliaslookup`` service.
         cache : bool, optional
             Should the request result be cached? This can be useful for large repeated queries,
             but since the data in the archive is updated regularly, this defaults to ``False``.
@@ -387,18 +389,37 @@ class NasaExoplanetArchiveClass(BaseQuery):
         response : list
             A list of aliases found for the object name. The default name will be listed first.
         """
-        return list(
-            self.query_criteria(
-                "aliastable", objname=object_name.strip(), cache=cache, format="csv"
-            )["aliasdis"]
-        )
+        url = requests.get("https://exoplanetarchive.ipac.caltech.edu/cgi-bin/Lookup/nph-aliaslookup.py?objname="+object_name)
+        data = json.loads(url.text)
+
+        try :
+            objname_split = object_name.split()
+            if len(objname_split) > 1 and len(objname_split[-1]) == 1 and objname_split[-1].isalpha():
+                pl_letter = object_name.split()[-1]
+            else:
+                pl_letter = ''
+
+            default_objname = [data['system']['system_info']['alias_set']['default_name']]
+            other_objnames = list(set(data['system']['objects']['stellar_set']['stars'][default_objname[0]]['alias_set']['aliases']) - set(default_objname))
+            other_objnames.sort()
+            aliases = default_objname + other_objnames
+
+            if pl_letter:
+                aliases = [a + ' ' + pl_letter for a in aliases]
+
+        except KeyError:
+            aliases = []
+            warnings.warn("No aliases found for name: '{0}'".format(object_name), NoResultsWarning)
+
+        return aliases
+
 
     @class_or_instance
     def _regularize_object_name(self, object_name):
-        """Regularize the name of a planet or planet host using the ``aliastable`` table"""
+        """Regularize the name of a planet or planet host using the ``aliaslookup`` service"""
         try:
-            aliases = self.query_aliases(object_name, cache=False)
-        except RemoteServiceError:
+            aliases = self.query_aliases(object_name)
+        except KeyError:
             aliases = []
         if aliases:
             return aliases[0]
