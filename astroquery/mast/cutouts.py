@@ -121,8 +121,7 @@ class TesscutClass(MastQueryWithLogin):
             The target around which to search. It may be specified as a
             string or as the appropriate `astropy.coordinates` object.
 
-            NOTE: If moving_targets or objectname is supplied, this argument cannot be used.
-
+            NOTE: If moving_target or objectname is supplied, this argument cannot be used.
         radius : str, float, or `~astropy.units.Quantity` object, optional
             Default 0 degrees.
             If supplied as a float degrees is the assumed unit.
@@ -131,7 +130,6 @@ class TesscutClass(MastQueryWithLogin):
             `astropy.units` may also be used.
 
             NOTE: If moving_target is supplied, this argument is ignored.
-
         objectname : str, optional
             The target around which to search, by name (objectname="M104")
             or TIC ID (objectname="TIC 141914082"). If moving_target is True, input must be the name or ID (as understood by the
@@ -139,12 +137,10 @@ class TesscutClass(MastQueryWithLogin):
             of a moving target such as an asteroid or comet.
 
             NOTE: If coordinates is supplied, this argument cannot be used.
-
         moving_target : bool, optional
             Indicate whether the object is a moving target or not. Default is set to False, in other words, not a moving target.
 
             NOTE: If coordinates is supplied, this argument cannot be used.
-
         mt_type : str, optional
             The moving target type, valid inputs are majorbody and smallbody. If not supplied
             first majorbody is tried and then smallbody if a matching majorbody is not found.
@@ -208,7 +204,7 @@ class TesscutClass(MastQueryWithLogin):
         return Table(sector_dict)
 
     def download_cutouts(self, coordinates=None, size=5, sector=None, path=".", inflate=True,
-                         objectname=None, moving_target=None, mt_type=None):
+                         objectname=None, moving_target=False, mt_type=None):
         """
         Download cutout target pixel file(s) around the given coordinates with indicated size.
 
@@ -217,7 +213,8 @@ class TesscutClass(MastQueryWithLogin):
         coordinates : str or `astropy.coordinates` object, optional
             The target around which to search. It may be specified as a
             string or as the appropriate `astropy.coordinates` object.
-            One and only one of coordinates, objectname, and moving_target must be supplied.
+
+            NOTE: If moving_target or objectname is supplied, this argument cannot be used.
         size : int, array-like, `~astropy.units.Quantity`
             Optional, default 5 pixels.
             The size of the cutout array. If ``size`` is a scalar number or
@@ -241,17 +238,20 @@ class TesscutClass(MastQueryWithLogin):
             Set inflate to false to stop before the inflate step.
         objectname : str, optional
             The target around which to search, by name (objectname="M104")
-            or TIC ID (objectname="TIC 141914082").
-            One and only one of coordinates, objectname, and moving_target must be supplied.
-        moving_target : str, optional
-            The name or ID (as understood by the
+            or TIC ID (objectname="TIC 141914082"). If moving_target is True, input must be the name or ID (as understood by the
             `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__)
             of a moving target such as an asteroid or comet.
-            One and only one of coordinates, objectname, and moving_target must be supplied.
+
+            NOTE: If coordinates is supplied, this argument cannot be used.
+        moving_target : str, optional
+            Indicate whether the object is a moving target or not. Default is set to False, in other words, not a moving target.
+
+            NOTE: If coordinates is supplied, this argument cannot be used.
         mt_type : str, optional
             The moving target type, valid inputs are majorbody and smallbody. If not supplied
             first majorbody is tried and then smallbody if a matching majorbody is not found.
-            This argument is ignored unless moving_target is supplied.
+
+            NOTE: If moving_target is supplied, this argument is ignored.
 
         Returns
         -------
@@ -309,7 +309,7 @@ class TesscutClass(MastQueryWithLogin):
         return localpath_table
 
     def get_cutouts(self, coordinates=None, size=5, sector=None,
-                    objectname=None, moving_target=None, mt_type=None):
+                    objectname=None, moving_target=False, mt_type=None):
         """
         Get cutout target pixel file(s) around the given coordinates with indicated size,
         and return them as a list of  `~astropy.io.fits.HDUList` objects.
@@ -319,7 +319,8 @@ class TesscutClass(MastQueryWithLogin):
         coordinates : str or `astropy.coordinates` object, optional
             The target around which to search. It may be specified as a
             string or as the appropriate `astropy.coordinates` object.
-            One and only one of coordinates, objectname, and moving_target must be supplied.
+
+            NOTE: If moving_target or objectname is supplied, this argument cannot be used.
         size : int, array-like, `~astropy.units.Quantity`
             Optional, default 5 pixels.
             The size of the cutout array. If ``size`` is a scalar number or
@@ -334,17 +335,20 @@ class TesscutClass(MastQueryWithLogin):
             from all available sectors on which the coordinate appears will be returned.
         objectname : str, optional
             The target around which to search, by name (objectname="M104")
-            or TIC ID (objectname="TIC 141914082").
-            One and only one of coordinates, objectname, and moving_target must be supplied.
-        moving_target : str, optional
-            The name or ID (as understood by the
+            or TIC ID (objectname="TIC 141914082"). If moving_target is True, input must be the name or ID (as understood by the
             `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__)
             of a moving target such as an asteroid or comet.
-            One and only one of coordinates, objectname, and moving_target must be supplied.
+
+            NOTE: If coordinates is supplied, this argument cannot be used.
+        moving_target : str, optional
+            Indicate whether the object is a moving target or not. Default is set to False, in other words, not a moving target.
+
+            NOTE: If coordinates is supplied, this argument cannot be used.
         mt_type : str, optional
             The moving target type, valid inputs are majorbody and smallbody. If not supplied
             first majorbody is tried and then smallbody if a matching majorbody is not found.
-            This argument is ignored unless moving_target is supplied.
+
+            NOTE: If moving_target is supplied, this argument is ignored.
 
         Returns
         -------
