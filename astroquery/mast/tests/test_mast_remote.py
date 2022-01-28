@@ -11,10 +11,10 @@ from astropy.coordinates import SkyCoord
 from astropy.io import fits
 import astropy.units as u
 
-from astroquery.exceptions import NoResultsWarning
 from astroquery import mast
 
-from ...exceptions import RemoteServiceError, MaxResultsWarning
+from ..utils import ResolverError
+from ...exceptions import InvalidQueryError, MaxResultsWarning, NoResultsWarning, RemoteServiceError
 
 
 OBSID = '1647157'
@@ -702,13 +702,48 @@ class TestMast:
         assert sector_table['camera'][0] > 0
         assert sector_table['ccd'][0] > 0
 
-        sector_table = mast.Tesscut.get_sectors(moving_target="Stichius")
+        # Moving target functionality testing
+
+        moving_target_name = 'Eleonora'
+
+        sector_table = mast.Tesscut.get_sectors(objectname=moving_target_name,
+                                                moving_target=True)
         assert isinstance(sector_table, Table)
         assert len(sector_table) >= 1
-        assert sector_table['sectorName'][0] == "tess-s0001-1-1"
-        assert sector_table['sector'][0] == 1
+        assert sector_table['sectorName'][0] == "tess-s0006-1-1"
+        assert sector_table['sector'][0] == 6
         assert sector_table['camera'][0] == 1
         assert sector_table['ccd'][0] == 1
+
+        error_noname = "Please specify the object name or ID (as understood by the `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__) of a moving target such as an asteroid or comet."
+        error_nameresolve = f"Could not resolve {moving_target_name} to a sky position."
+        error_mt_coord = "Only one of moving_target and coordinates may be specified."
+        error_name_coord = "Only one of objectname and coordinates may be specified."
+
+        with pytest.raises(InvalidQueryError) as error_msg:
+            mast.Tesscut.get_sectors(moving_target=True)
+        assert error_noname in str(error_msg.value)
+
+        with pytest.raises(ResolverError) as error_msg:
+            mast.Tesscut.get_sectors(objectname=moving_target_name)
+        assert error_nameresolve in str(error_msg.value)
+
+        with pytest.raises(InvalidQueryError) as error_msg:
+            mast.Tesscut.get_sectors(coordinates=coord, moving_target=True)
+        assert error_mt_coord in str(error_msg.value)
+
+        with pytest.raises(InvalidQueryError) as error_msg:
+            mast.Tesscut.get_sectors(objectname=moving_target_name,
+                                     coordinates=coord)
+        assert error_name_coord in str(error_msg.value)
+
+        with pytest.raises(InvalidQueryError) as error_msg:
+            mast.Tesscut.get_sectors(objectname=moving_target_name,
+                                     coordinates=coord,
+                                     moving_target=True)
+        assert error_mt_coord in str(error_msg.value)
+
+
 
     def test_tesscut_download_cutouts(self, tmpdir):
 
@@ -749,12 +784,48 @@ class TestMast:
         for row in manifest:
             assert os.path.isfile(row['Local Path'])
 
-        manifest = mast.Tesscut.download_cutouts(moving_target="Eleonora", sector=6, size=5, path=str(tmpdir))
+        # Moving target functionality testing
+
+        moving_target_name = 'Eleonora'
+
+        manifest = mast.Tesscut.download_cutouts(objectname=moving_target_name,
+                                                 moving_target=True,
+                                                 sector=6,
+                                                 size=5,
+                                                 path=str(tmpdir))
         assert isinstance(manifest, Table)
         assert len(manifest) == 1
         assert manifest["Local Path"][0][-4:] == "fits"
         for row in manifest:
             assert os.path.isfile(row['Local Path'])
+
+        error_noname = "Please specify the object name or ID (as understood by the `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__) of a moving target such as an asteroid or comet."
+        error_nameresolve = f"Could not resolve {moving_target_name} to a sky position."
+        error_mt_coord = "Only one of moving_target and coordinates may be specified."
+        error_name_coord = "Only one of objectname and coordinates may be specified."
+
+        with pytest.raises(InvalidQueryError) as error_msg:
+            mast.Tesscut.download_cutouts(moving_target=True)
+        assert error_noname in str(error_msg.value)
+
+        with pytest.raises(ResolverError) as error_msg:
+            mast.Tesscut.download_cutouts(objectname=moving_target_name)
+        assert error_nameresolve in str(error_msg.value)
+
+        with pytest.raises(InvalidQueryError) as error_msg:
+            mast.Tesscut.download_cutouts(coordinates=coord, moving_target=True)
+        assert error_mt_coord in str(error_msg.value)
+
+        with pytest.raises(InvalidQueryError) as error_msg:
+            mast.Tesscut.download_cutouts(objectname=moving_target_name,
+                                     coordinates=coord)
+        assert error_name_coord in str(error_msg.value)
+
+        with pytest.raises(InvalidQueryError) as error_msg:
+            mast.Tesscut.download_cutouts(objectname=moving_target_name,
+                                     coordinates=coord,
+                                     moving_target=True)
+        assert error_mt_coord in str(error_msg.value)
 
     def test_tesscut_get_cutouts(self, tmpdir):
 
@@ -782,10 +853,45 @@ class TestMast:
         assert len(cutout_hdus_list) >= 1
         assert isinstance(cutout_hdus_list[0], fits.HDUList)
 
-        cutout_hdus_list = mast.Tesscut.get_cutouts(moving_target="Eleonora", sector=6, size=5)
+        # Moving target functionality testing
+
+        moving_target_name = 'Eleonora'
+
+        cutout_hdus_list = mast.Tesscut.get_cutouts(objectname=moving_target_name,
+                                moving_target=True,
+                                sector=6,
+                                size=5)
         assert isinstance(cutout_hdus_list, list)
         assert len(cutout_hdus_list) == 1
         assert isinstance(cutout_hdus_list[0], fits.HDUList)
+
+        error_noname = "Please specify the object name or ID (as understood by the `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__) of a moving target such as an asteroid or comet."
+        error_nameresolve = f"Could not resolve {moving_target_name} to a sky position."
+        error_mt_coord = "Only one of moving_target and coordinates may be specified."
+        error_name_coord = "Only one of objectname and coordinates may be specified."
+
+        with pytest.raises(InvalidQueryError) as error_msg:
+            mast.Tesscut.download_cutouts(moving_target=True)
+        assert error_noname in str(error_msg.value)
+
+        with pytest.raises(ResolverError) as error_msg:
+            mast.Tesscut.download_cutouts(objectname=moving_target_name)
+        assert error_nameresolve in str(error_msg.value)
+
+        with pytest.raises(InvalidQueryError) as error_msg:
+            mast.Tesscut.download_cutouts(coordinates=coord, moving_target=True)
+        assert error_mt_coord in str(error_msg.value)
+
+        with pytest.raises(InvalidQueryError) as error_msg:
+            mast.Tesscut.download_cutouts(objectname=moving_target_name,
+                                          coordinates=coord)
+        assert error_name_coord in str(error_msg.value)
+
+        with pytest.raises(InvalidQueryError) as error_msg:
+            mast.Tesscut.download_cutouts(objectname=moving_target_name,
+                                          coordinates=coord,
+                                          moving_target=True)
+        assert error_mt_coord in str(error_msg.value)
 
     ###################
     # ZcutClass tests #

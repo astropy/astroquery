@@ -155,9 +155,10 @@ class TesscutClass(MastQueryWithLogin):
 
         if moving_target:
 
-            # Check that objectname has been passed in
+            # Check that objectname has been passed in and coordinates
+            # is not
             if coordinates:
-                raise InvalidQueryError("Only one of moving_target and coordinates may be specified.")
+                raise InvalidQueryError("Only one of moving_target and coordinates may be specified. Please remove coordinates if using moving_target and objectname.")
 
             if not objectname:
                 raise InvalidQueryError("Please specify the object name or ID (as understood by the `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__) of a moving target such as an asteroid or comet.")
@@ -259,14 +260,21 @@ class TesscutClass(MastQueryWithLogin):
         """
 
         if moving_target:
-            # Check only ony object designator has been passed in
-            if objectname or coordinates:
-                raise InvalidQueryError("Only one of objectname, coordinates, and moving_target may be specified.")
 
-            astrocut_request = f"moving_target/astrocut?obj_id={moving_target}"
+            # Check that objectname has been passed in and coordinates
+            # is not
+            if coordinates:
+                raise InvalidQueryError("Only one of moving_target and coordinates may be specified. Please remove coordinates if using moving_target and objectname.")
+
+            if not objectname:
+                raise InvalidQueryError("Please specify the object name or ID (as understood by the `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__) of a moving target such as an asteroid or comet.")
+
+            astrocut_request = f"moving_target/astrocut?obj_id={objectname}"
             if mt_type:
                 astrocut_request += f"&obj_type={mt_type}"
+
         else:
+
             # Get Skycoord object for coordinates/object
             coordinates = parse_input_location(coordinates, objectname)
 
@@ -364,11 +372,15 @@ class TesscutClass(MastQueryWithLogin):
 
         if moving_target:
 
-            # Check only on object designator has been passed in
-            if objectname or coordinates:
-                raise InvalidQueryError("Only one of objectname, coordinates, and moving_target may be specified.")
+            # Check that objectname has been passed in and coordinates
+            # is not
+            if coordinates:
+                raise InvalidQueryError("Only one of moving_target and coordinates may be specified. Please remove coordinates if using moving_target and objectname.")
 
-            param_dict["obj_id"] = moving_target
+            if not objectname:
+                raise InvalidQueryError("Please specify the object name or ID (as understood by the `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__) of a moving target such as an asteroid or comet.")
+
+            param_dict["obj_id"] = objectname
 
             # Add optional parameter if present
             if mt_type:
