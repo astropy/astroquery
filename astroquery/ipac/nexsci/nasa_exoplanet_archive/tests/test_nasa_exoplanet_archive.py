@@ -306,7 +306,7 @@ def test_query_aliases():
         assert url == conf.url_aliaslookup
         assert object_name == "HD 209458"
         result = PropertyMock()
-        result = ['HD 209458', '2MASS J22031077+1853036', 'BD+18 4917', 'Gaia DR2 1779546757669063552',\
+        result = ['HD 209458', '2MASS J22031077+1853036', 'BD+18 4917', 'Gaia DR2 1779546757669063552',
              'HIP 108859', 'SAO 107623', 'TIC 420814525', 'TYC 1688-01821-1', 'V0376 Peg', 'WISE J220310.79+185303.3']
         return result
     nasa_exoplanet_archive.query_aliases = mock_run_query
