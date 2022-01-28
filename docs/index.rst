@@ -185,23 +185,25 @@ The following modules have been completed using a common API:
   cadc/cadc.rst
   casda/casda.rst
   cds/cds.rst
+  linelists/cdms/cdms.rst
+  dace/dace.rst
   esa/hubble.rst
   esa/iso.rst
   esa/jwst.rst
   esa/xmm_newton.rst
   esasky/esasky.rst
   eso/eso.rst
+  image_cutouts/first/first.rst
   gaia/gaia.rst
   gama/gama.rst
   gemini/gemini.rst
   heasarc/heasarc.rst
   hips2fits/hips2fits.rst
   hitran/hitran.rst
+  ipac/irsa/irsa_dust/irsa_dust.rst
   ipac/irsa/ibe/ibe.rst
   ipac/irsa/irsa.rst
-  ipac/irsa/irsa_dust/irsa_dust.rst
   jplspec/jplspec.rst
-  linelists/cdms/cdms.rst
   magpis/magpis.rst
   mast/mast.rst
   mpc/mpc.rst
@@ -221,7 +223,6 @@ The following modules have been completed using a common API:
   vo_conesearch/vo_conesearch.rst
   vsa/vsa.rst
   xmatch/xmatch.rst
-  dace/dace.rst
 
 
 These others are functional, but do not follow a common & consistent API:
@@ -269,22 +270,22 @@ for each source)
   alfalfa/alfalfa.rst
   exoplanet_orbit_database/exoplanet_orbit_database.rst
   gama/gama.rst
+  ipac/irsa/irsa_dust/irsa_dust.rst
   ipac/irsa/ibe/ibe.rst
   ipac/irsa/irsa.rst
-  ipac/irsa/irsa_dust/irsa_dust.rst
   mast/mast.rst
   ipac/nexsci/nasa_exoplanet_archive.rst
   ipac/ned/ned.rst
   ogle/ogle.rst
   open_exoplanet_catalogue/open_exoplanet_catalogue.rst
   sdss/sdss.rst
-  ipac/irsa/sha/sha.rst
   simbad/simbad.rst
+  ipac/irsa/sha/sha.rst
   ukidss/ukidss.rst
-  vsa/vsa.rst
   vizier/vizier.rst
-  xmatch/xmatch.rst
   vo_conesearch/vo_conesearch.rst
+  vsa/vsa.rst
+  xmatch/xmatch.rst
 
 Archives
 --------
@@ -301,25 +302,25 @@ generally return a table listing the available data first.
   casda/casda.rst
   esa/hubble.rst
   esa/jwst.rst
+  esa/xmm_newton.rst
   eso/eso.rst
   fermi/fermi.rst
   gaia/gaia.rst
+  gemini/gemini.rst
   heasarc/heasarc.rst
   ipac/irsa/ibe/ibe.rst
   ipac/irsa/irsa.rst
   magpis/magpis.rst
-  gemini/gemini.rst
   mast/mast.rst
   ipac/ned/ned.rst
   noirlab/noirlab.rst
   nrao/nrao.rst
   nvas/nvas.rst
   sdss/sdss.rst
+  skyview/skyview.rst
   ipac/irsa/sha/sha.rst
   ukidss/ukidss.rst
   vsa/vsa.rst
-  skyview/skyview.rst
-  esa/xmm_newton.rst
 
 Simulations
 -----------
@@ -342,13 +343,13 @@ well as  cross section and collision rates.  Those services are:
   :maxdepth: 1
 
   atomic/atomic.rst
+  linelists/cdms/cdms.rst
+  hitran/hitran.rst
+  jplspec/jplspec.rst
   lamda/lamda.rst
   nist/nist.rst
   splatalogue/splatalogue.rst
   vamdc/vamdc.rst
-  hitran/hitran.rst
-  linelists/cdms/cdms.rst
-  jplspec/jplspec.rst
 
 Other
 -----
@@ -359,12 +360,12 @@ above categories. Those services are here:
 .. toctree::
   :maxdepth: 1
 
-  nasa_ads/nasa_ads.rst
-  utils/tap.rst
+  astrometry_net/astrometry_net.rst
+  imcce/imcce.rst
   jplhorizons/jplhorizons.rst
   jplsbdb/jplsbdb.rst
-  imcce/imcce.rst
-  astrometry_net/astrometry_net.rst
+  nasa_ads/nasa_ads.rst
+  utils/tap.rst
 
 
 Topical Collections
@@ -376,8 +377,8 @@ topical submodules:
 .. toctree::
   :maxdepth: 1
 
-  solarsystem/solarsystem.rst
   image_cutouts/image_cutouts.rst
+  solarsystem/solarsystem.rst
 
 
 Developer documentation
