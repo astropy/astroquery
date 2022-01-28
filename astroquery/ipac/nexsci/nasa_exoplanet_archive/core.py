@@ -372,7 +372,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
         return self.query_criteria_async(table, get_query_payload=get_query_payload, cache=cache, **criteria)
 
     @class_or_instance
-    def query_aliases(self, object_name):
+    def query_aliases(self, object_name, *, cache=None):
         """
         Search for aliases for a given confirmed planet or planet host
 
@@ -417,7 +417,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
     def _regularize_object_name(self, object_name):
         """Regularize the name of a planet or planet host using the ``aliaslookup`` service"""
         try:
-            aliases = self.query_aliases(object_name)
+            aliases = self.query_aliases(object_name, cache=False)
         except KeyError:
             aliases = []
         if aliases:
