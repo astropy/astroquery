@@ -41,6 +41,11 @@ gaia
   the name provided by the user for the output file when the results are
   returned by the TAP in compressed format. [#2077]
 
+ipac.nexsci.nasa_exoplanet_archive
+^^^^^^^^^^
+
+- Fixes to alias query, and regularize keyword removed from deprecated query_star() method. [#2264]
+
 mast
 ^^^^
 
