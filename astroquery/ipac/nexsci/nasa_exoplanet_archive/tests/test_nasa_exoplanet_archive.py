@@ -66,7 +66,8 @@ API_TABLES = [
 
 
 def mock_get(self, method, url, *args, **kwargs):  # pragma: nocover
-    assert url == conf.url_api
+    if method!='test_regularize_object_name':
+        assert url == conf.url_api
 
     params = kwargs.get("params", None)
     assert params is not None
