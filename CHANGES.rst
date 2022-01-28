@@ -42,7 +42,7 @@ gaia
   returned by the TAP in compressed format. [#2077]
 
 ipac.nexsci.nasa_exoplanet_archive
-^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Fixes to alias query, and regularize keyword removed from deprecated query_star() method. [#2264]
 
