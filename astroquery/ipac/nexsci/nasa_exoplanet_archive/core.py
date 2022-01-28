@@ -107,6 +107,8 @@ def get_access_url(service='tap'):
         url = conf.url_tap
     elif service == 'api':
         url = conf.url_api
+    elif service == 'aliaslookup':
+        url = conf.url_aliaslookup
     return url
 
 
@@ -673,7 +675,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
     @deprecated(since="v0.4.1", alternative="query_object")
     @deprecated_renamed_argument(["show_progress", "table_path"],
                                  [None, None], "v0.4.1", arg_in_kwargs=True)
-    def query_planet(self, planet_name, cache=None, regularize=True, **criteria):
+    def query_planet(self, planet_name, cache=None, **criteria):
         """
         Search the ``exoplanets`` table for a confirmed planet
 
@@ -685,14 +687,10 @@ class NasaExoplanetArchiveClass(BaseQuery):
         cache : bool, optional
             Should the request result be cached? This can be useful for large repeated queries,
             but since the data in the archive is updated regularly, this defaults to ``False``.
-        regularize : bool, optional
-            If ``True``, the ``aliastable`` will be used to regularize the target name.
         **criteria
             Any other filtering criteria to apply. Values provided using the ``where`` keyword will
             be ignored.
         """
-        if regularize:
-            planet_name = self._regularize_object_name(planet_name)
         criteria = self._handle_all_columns_argument(**criteria)
         criteria["where"] = "pl_name='{0}'".format(planet_name.strip())
         return self.query_criteria("exoplanets", cache=cache, **criteria)
@@ -700,7 +698,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
     @deprecated(since="v0.4.1", alternative="query_object")
     @deprecated_renamed_argument(["show_progress", "table_path"],
                                  [None, None], "v0.4.1", arg_in_kwargs=True)
-    def query_star(self, host_name, cache=None, regularize=True, **criteria):
+    def query_star(self, host_name, cache=None, **criteria):
         """
         Search the ``exoplanets`` table for a confirmed planet host
 
@@ -712,14 +710,10 @@ class NasaExoplanetArchiveClass(BaseQuery):
         cache : bool, optional
             Should the request result be cached? This can be useful for large repeated queries,
             but since the data in the archive is updated regularly, this defaults to ``False``.
-        regularize : bool, optional
-            If ``True``, the ``aliastable`` will be used to regularize the target name.
         **criteria
             Any other filtering criteria to apply. Values provided using the ``where`` keyword will
             be ignored.
         """
-        if regularize:
-            host_name = self._regularize_object_name(host_name)
         criteria = self._handle_all_columns_argument(**criteria)
         criteria["where"] = "pl_hostname='{0}'".format(host_name.strip())
         return self.query_criteria("exoplanets", cache=cache, **criteria)
