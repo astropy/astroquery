@@ -27,7 +27,7 @@ For example, the following query searches the ``ps`` table of confirmed exoplane
 .. doctest-remote-data::
 
     >>> from astroquery.ipac.nexsci.nasa_exoplanet_archive import NasaExoplanetArchive
-    >>> NasaExoplanetArchive.query_object("K2-18 b")
+    >>> NasaExoplanetArchive.query_object("K2-18 b") # doctest: +IGNORE_OUTPUT
     <QTable masked=True length=11>
     pl_name pl_letter hostname ... sy_kmagerr1 sy_kmagerr2      sky_coord
                                ...                               deg,deg
@@ -71,7 +71,7 @@ For example, a full table can be queried as follows:
 .. doctest-remote-data::
 
     >>> from astroquery.ipac.nexsci.nasa_exoplanet_archive import NasaExoplanetArchive
-    >>> NasaExoplanetArchive.query_criteria(table="cumulative", select="*")
+    >>> NasaExoplanetArchive.query_criteria(table="cumulative", select="*") # doctest: +IGNORE_OUTPUT
     <QTable masked=True length=9564>
      kepid   kepoi_name kepler_name  ... koi_fittype koi_score      sky_coord
                                      ...                             deg,deg
@@ -113,7 +113,7 @@ In this section, we demonstrate
 
     >>> from astroquery.ipac.nexsci.nasa_exoplanet_archive import NasaExoplanetArchive
     >>> NasaExoplanetArchive.query_criteria(table="pscomppars", select="top 10 pl_name,ra,dec",
-    ...                                     where="disc_facility like '%TESS%'")
+    ...                                     where="disc_facility like '%TESS%'") # doctest: +IGNORE_OUTPUT
     <QTable masked=True length=10>
        pl_name         ra         dec            sky_coord
                       deg         deg             deg,deg
@@ -155,7 +155,7 @@ In this section, we demonstrate
 
     >>> from astroquery.ipac.nexsci.nasa_exoplanet_archive import NasaExoplanetArchive
     >>> NasaExoplanetArchive.query_criteria(
-    ...     table="pscomppars", where="hostname like 'Kepler%'", order="hostname")
+    ...     table="pscomppars", where="hostname like 'Kepler%'", order="hostname") # doctest: +IGNORE_OUTPUT
     <QTable masked=True length=2370>
        pl_name    pl_letter   hostname  ...    htm20          sky_coord
                                         ...                    deg,deg
@@ -182,7 +182,7 @@ In this section, we demonstrate
     >>> from astroquery.ipac.nexsci.nasa_exoplanet_archive import NasaExoplanetArchive
     >>> NasaExoplanetArchive.query_criteria(
     ...     table="koi", where="koi_vet_date>to_date('2015-01-24','yyyy-mm-dd')",
-    ...     select="kepoi_name,koi_vet_date", order="koi_vet_date")
+    ...     select="kepoi_name,koi_vet_date", order="koi_vet_date") # doctest: +IGNORE_OUTPUT
     <QTable length=34652>
     kepoi_name koi_vet_date
        str9       str10

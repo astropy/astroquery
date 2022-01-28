@@ -391,7 +391,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
         response : list
             A list of aliases found for the object name. The default name will be listed first.
         """
-        url = requests.get("https://exoplanetarchive.ipac.caltech.edu/cgi-bin/Lookup/nph-aliaslookup.py?objname="+object_name)
+        url = requests.get(get_access_url('aliaslookup')+object_name)
         data = json.loads(url.text)
 
         try:

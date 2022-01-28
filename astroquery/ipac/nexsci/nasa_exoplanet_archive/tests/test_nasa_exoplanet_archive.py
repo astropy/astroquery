@@ -119,18 +119,6 @@ def patch_get(request):  # pragma: nocover
     return mp
 
 
-# def test_regularize_object_name(patch_get):
-#     NasaExoplanetArchiveMock = NasaExoplanetArchiveClass()
-
-#     NasaExoplanetArchiveMock._tap_tables = ['list']
-#     assert NasaExoplanetArchiveMock._regularize_object_name("kepler 2") == "HAT-P-7"
-#     assert NasaExoplanetArchiveMock._regularize_object_name("kepler 1 b") == "TrES-2 b"
-
-#     with pytest.warns(NoResultsWarning) as warning:
-#         NasaExoplanetArchiveMock._regularize_object_name("not a planet")
-#     assert "No aliases found for name: 'not a planet'" == str(warning[0].message)
-
-
 def test_backwards_compat(patch_get):
     """
     These are the tests from the previous version of this interface.
