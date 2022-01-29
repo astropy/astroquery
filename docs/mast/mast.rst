@@ -823,7 +823,7 @@ The moving_target is an optional bool argument where `True` signifies that the a
 
                 >>> from astroquery.mast import Tesscut
 
-                  >>> hdulist = Tesscut.get_cutouts(objectname="Eleonora", moving_target=True, size=5, sector=6)
+                >>> hdulist = Tesscut.get_cutouts(objectname="Eleonora", moving_target=True, size=5, sector=6)
                 >>> hdulist[0].info()
                 Filename: <class '_io.BytesIO'>
                 No.    Name      Ver    Type      Cards   Dimensions   Format
