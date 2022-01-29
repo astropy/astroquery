@@ -816,14 +816,14 @@ Requesting a cutout by moving_target accesses the
 `MAST Moving Target TESScut API <https://mast.stsci.edu/tesscut/docs/getting_started.html#moving-target-cutouts>`__
 and returns a target pixel file, with format described
 `here <https://astrocut.readthedocs.io/en/latest/astrocut/file_formats.html#path-focused-target-pixel-files>`__.
-The moving_target may be any object name or ID understood by the
-`JPL Horizonf ephemerades interface <https://ssd.jpl.nasa.gov/horizons.cgi>`__.
+The moving_target is an optional bool argument where `True` signifies that the accompanying `objectname` input is the object name or ID understood by the
+`JPL Horizon ephemerades interface <https://ssd.jpl.nasa.gov/horizons.cgi>`__. The default value for moving_target is set to False. Therefore, a non-moving target can be input simply with either the objectname or coordinates.
 
 .. code-block:: python
 
                 >>> from astroquery.mast import Tesscut
 
-                >>> hdulist = Tesscut.get_cutouts(moving_target="Eleonora", size=5, sector=6)
+                  >>> hdulist = Tesscut.get_cutouts(objectname="Eleonora", moving_target=True, size=5, sector=6)
                 >>> hdulist[0].info()
                 Filename: <class '_io.BytesIO'>
                 No.    Name      Ver    Type      Cards   Dimensions   Format
@@ -834,13 +834,11 @@ The moving_target may be any object name or ID understood by the
 
 
 
-The `~astroquery.mast.TesscutClass.download_cutouts` function takes a coordinate, object name
-(i.e. "M104" or "TIC 32449963"), or moving target (i.e. "Eleonora") and cutout size
-(in pixels or an angular quantity) and downloads the cutout target pixel file(s).
+The `~astroquery.mast.TesscutClass.download_cutouts` function takes a coordinate, cutout size
+(in pixels or an angular quantity), or object name
+(i.e. "M104" or "TIC 32449963") and moving target (True or False). It uses these parameters to download the cutout target pixel file(s).
 
-If a given coordinate/object/moving target appears in more than one TESS sector a
-target pixel file will be produced for each sector.  If the cutout area overlaps
-more than one camera or ccd a target pixel file will be produced for each one.
+If a given coordinate/object/moving target appears in more than one TESS sector, a target pixel file will be produced for each sector.  If the cutout area overlaps more than one camera or ccd, a target pixel file will be produced for each one.
 
 .. code-block:: python
 
@@ -892,11 +890,13 @@ To access sector information for a particular coordinate, object, or moving targ
 
                 >>> from astroquery.mast import Tesscut
 
-                >>> sector_table = Tesscut.get_sectors(moving_target="Ceres")
+                >>> sector_table = Tesscut.get_sectors(objectname="Ceres", moving_target=True)
                 >>> print(sector_table)
-                  sectorName   sector camera ccd
+                 sectorName   sector camera  ccd
                 -------------- ------ ------ ---
                 tess-s0029-1-4     29      1   4
+                tess-s0043-3-3     43      3   3
+                tess-s0044-2-4     44      2   4
 
 Zcut
 ====
