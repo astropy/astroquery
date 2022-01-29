@@ -743,8 +743,6 @@ class TestMast:
                                      moving_target=True)
         assert error_mt_coord in str(error_msg.value)
 
-
-
     def test_tesscut_download_cutouts(self, tmpdir):
 
         coord = SkyCoord(349.62609, -47.12424, unit="deg")
