@@ -892,7 +892,7 @@ To access sector information for a particular coordinate, object, or moving targ
 
                 >>> sector_table = Tesscut.get_sectors(objectname="Ceres", moving_target=True)
                 >>> print(sector_table)
-                 sectorName   sector camera  ccd
+                  sectorName   sector camera ccd
                 -------------- ------ ------ ---
                 tess-s0029-1-4     29      1   4
                 tess-s0043-3-3     43      3   3
