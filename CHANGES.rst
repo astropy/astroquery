@@ -17,6 +17,13 @@ esa.jwst
 
 - Minor fixes, documentation updated. [#2257]
 
+gaia
+^^^^
+
+- The ``query_object()`` and ``query_object_async()`` methods of
+  ``astroquery.gaia.Gaia`` no longer ignore their ``columns`` argument when
+  ``radius`` is specified. [#2249]
+
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
 
