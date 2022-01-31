@@ -515,11 +515,8 @@ class ESAHubbleClass(BaseQuery):
 
         ra, dec = self._query_tap_target(name)
         coordinates = SkyCoord(ra=str(ra), dec=str(dec), unit="deg", frame='icrs')
-
-        if async_job:
-            table = self.cone_search(coordinates, radius, filename=filename, output_format=output_format, async_job=True)
-        else:
-            table = self.cone_search(coordinates, radius, filename=filename, output_format=output_format)
+        table = self.cone_search(coordinates, radius, filename=filename, output_format=output_format,
+                                 async_job=async_job)
 
         return table
 
