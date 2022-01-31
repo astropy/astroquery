@@ -24,6 +24,12 @@ gaia
   ``astroquery.gaia.Gaia`` no longer ignore their ``columns`` argument when
   ``radius`` is specified. [#2249]
 
+mast
+^^^^
+
+- Adding moving target functionality to ``astroquery.mast.Tesscut`` [#2121]
+
+
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
 
