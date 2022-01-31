@@ -816,7 +816,7 @@ Requesting a cutout by moving_target accesses the
 `MAST Moving Target TESScut API <https://mast.stsci.edu/tesscut/docs/getting_started.html#moving-target-cutouts>`__
 and returns a target pixel file, with format described
 `here <https://astrocut.readthedocs.io/en/latest/astrocut/file_formats.html#path-focused-target-pixel-files>`__.
-The moving_target is an optional bool argument where `True` signifies that the accompanying `objectname` input is the object name or ID understood by the
+The moving_target is an optional bool argument where `True` signifies that the accompanying ``objectname`` input is the object name or ID understood by the
 `JPL Horizon ephemerades interface <https://ssd.jpl.nasa.gov/horizons.cgi>`__. The default value for moving_target is set to False. Therefore, a non-moving target can be input simply with either the objectname or coordinates.
 
 .. code-block:: python
