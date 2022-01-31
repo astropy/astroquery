@@ -13,7 +13,7 @@ from astropy.io import fits
 import astropy.units as u
 
 from ...utils.testing_tools import MockResponse
-from ...exceptions import (InvalidQueryError, InputWarning)
+from ...exceptions import InvalidQueryError, InputWarning
 
 from ... import mast
 
@@ -589,6 +589,23 @@ def test_tesscut_get_sector(patch_post):
     assert sector_table['camera'][0] == 1
     assert sector_table['ccd'][0] == 3
 
+    # Exercising the search by moving target
+    sector_table = mast.Tesscut.get_sectors(objectname="Ceres",
+                                            moving_target=True)
+    assert isinstance(sector_table, Table)
+    assert len(sector_table) == 1
+    assert sector_table['sectorName'][0] == "tess-s0001-1-3"
+    assert sector_table['sector'][0] == 1
+    assert sector_table['camera'][0] == 1
+    assert sector_table['ccd'][0] == 3
+
+    # Testing catch for multiple designators'
+    error_str = "Only one of moving_target and coordinates may be specified. Please remove coordinates if using moving_target and objectname."
+
+    with pytest.raises(InvalidQueryError) as invalid_query:
+        mast.Tesscut.get_sectors(objectname='Ceres', moving_target=True, coordinates=coord)
+    assert error_str in str(invalid_query.value)
+
 
 def test_tesscut_download_cutouts(patch_post, tmpdir):
 
@@ -616,6 +633,27 @@ def test_tesscut_download_cutouts(patch_post, tmpdir):
     assert manifest["Local Path"][0][-4:] == "fits"
     assert os.path.isfile(manifest[0]['Local Path'])
 
+    # Exercising the search by moving target
+    manifest = mast.Tesscut.download_cutouts(objectname="Eleonora",
+                                             moving_target=True,
+                                             size=5,
+                                             path=str(tmpdir))
+    assert isinstance(manifest, Table)
+    assert len(manifest) == 1
+    assert manifest["Local Path"][0][-4:] == "fits"
+    assert os.path.isfile(manifest[0]['Local Path'])
+
+    # Testing catch for multiple designators'
+    error_str = "Only one of moving_target and coordinates may be specified. Please remove coordinates if using moving_target and objectname."
+
+    with pytest.raises(InvalidQueryError) as invalid_query:
+        mast.Tesscut.download_cutouts(objectname="Eleonora",
+                                      moving_target=True,
+                                      coordinates=coord,
+                                      size=5,
+                                      path=str(tmpdir))
+    assert error_str in str(invalid_query.value)
+
 
 def test_tesscut_get_cutouts(patch_post, tmpdir):
 
@@ -630,6 +668,25 @@ def test_tesscut_get_cutouts(patch_post, tmpdir):
     assert isinstance(cutout_hdus_list, list)
     assert len(cutout_hdus_list) == 1
     assert isinstance(cutout_hdus_list[0], fits.HDUList)
+
+    # Exercising the search by object name
+    cutout_hdus_list = mast.Tesscut.get_cutouts(objectname='Eleonora',
+                                                moving_target=True,
+                                                size=5)
+    assert isinstance(cutout_hdus_list, list)
+    assert len(cutout_hdus_list) == 1
+    assert isinstance(cutout_hdus_list[0], fits.HDUList)
+
+    # Testing catch for multiple designators'
+    error_str = "Only one of moving_target and coordinates may be specified. Please remove coordinates if using moving_target and objectname."
+
+    with pytest.raises(InvalidQueryError) as invalid_query:
+        mast.Tesscut.get_cutouts(objectname="Eleonora",
+                                 moving_target=True,
+                                 coordinates=coord,
+                                 size=5)
+    assert error_str in str(invalid_query.value)
+
 
 ######################
 # ZcutClass tests #

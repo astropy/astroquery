@@ -104,10 +104,13 @@ class TesscutClass(MastQueryWithLogin):
         super().__init__()
 
         services = {"sector": {"path": "sector"},
-                    "astrocut": {"path": "astrocut"}}
+                    "astrocut": {"path": "astrocut"},
+                    "mt_sector": {"path": "moving_target/sector"},
+                    "mt_astrocut": {"path": "moving_target/astrocut"}
+                    }
         self._service_api_connection.set_service_params(services, "tesscut")
 
-    def get_sectors(self, coordinates=None, radius=0*u.deg, objectname=None):
+    def get_sectors(self, coordinates=None, radius=0*u.deg, objectname=None, moving_target=False, mt_type=None):
         """
         Get a list of the TESS data sectors whose footprints intersect
         with the given search area.
@@ -117,36 +120,73 @@ class TesscutClass(MastQueryWithLogin):
         coordinates : str or `astropy.coordinates` object, optional
             The target around which to search. It may be specified as a
             string or as the appropriate `astropy.coordinates` object.
-            One and only one of coordinates and objectname must be supplied.
+
+            NOTE: If moving_target or objectname is supplied, this argument cannot be used.
         radius : str, float, or `~astropy.units.Quantity` object, optional
             Default 0 degrees.
             If supplied as a float degrees is the assumed unit.
             The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from
             `astropy.units` may also be used.
+
+            NOTE: If moving_target is supplied, this argument is ignored.
         objectname : str, optional
             The target around which to search, by name (objectname="M104")
-            or TIC ID (objectname="TIC 141914082").
-            One and only one of coordinates and objectname must be supplied.
+            or TIC ID (objectname="TIC 141914082"). If moving_target is True, input must be the name or ID (as understood by the
+            `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__)
+            of a moving target such as an asteroid or comet.
+
+            NOTE: If coordinates is supplied, this argument cannot be used.
+        moving_target : bool, optional
+            Indicate whether the object is a moving target or not. Default is set to False, in other words, not a moving target.
+
+            NOTE: If coordinates is supplied, this argument cannot be used.
+        mt_type : str, optional
+            The moving target type, valid inputs are majorbody and smallbody. If not supplied
+            first majorbody is tried and then smallbody if a matching majorbody is not found.
+
+            NOTE: If moving_target is supplied, this argument is ignored.
 
         Returns
         -------
         response : `~astropy.table.Table`
-            Sector/camera/chip information for given coordinates/raduis.
+            Sector/camera/chip information for given coordinates/objectname/moving_target.
         """
 
-        # Get Skycoord object for coordinates/object
-        coordinates = parse_input_location(coordinates, objectname)
+        if moving_target:
 
-        # If radius is just a number we assume degrees
-        radius = Angle(radius, u.deg)
+            # Check that objectname has been passed in and coordinates
+            # is not
+            if coordinates:
+                raise InvalidQueryError("Only one of moving_target and coordinates may be specified. Please remove coordinates if using moving_target and objectname.")
 
-        params = {"ra": coordinates.ra.deg,
-                  "dec": coordinates.dec.deg,
-                  "radius": radius.deg}
+            if not objectname:
+                raise InvalidQueryError("Please specify the object name or ID (as understood by the `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__) of a moving target such as an asteroid or comet.")
 
-        response = self._service_api_connection.service_request_async("sector", params)
-        response.raise_for_status()  # Raise any errors
+            params = {"obj_id": objectname}
+
+            # Add optional parameter is present
+            if mt_type:
+                params["obj_type"] = mt_type
+
+            response = self._service_api_connection.service_request_async("mt_sector", params)
+
+        else:
+
+            # Get Skycoord object for coordinates/object
+            coordinates = parse_input_location(coordinates, objectname)
+
+            # If radius is just a number we assume degrees
+            radius = Angle(radius, u.deg)
+
+            params = {"ra": coordinates.ra.deg,
+                      "dec": coordinates.dec.deg,
+                      "radius": radius.deg}
+
+            response = self._service_api_connection.service_request_async("sector", params)
+
+        # Raise any errors
+        response.raise_for_status()
 
         sector_json = response.json()['results']
         sector_dict = {'sectorName': [],
@@ -164,7 +204,8 @@ class TesscutClass(MastQueryWithLogin):
             warnings.warn("Coordinates are not in any TESS sector.", NoResultsWarning)
         return Table(sector_dict)
 
-    def download_cutouts(self, coordinates=None, size=5, sector=None, path=".", inflate=True, objectname=None):
+    def download_cutouts(self, coordinates=None, size=5, sector=None, path=".", inflate=True,
+                         objectname=None, moving_target=False, mt_type=None):
         """
         Download cutout target pixel file(s) around the given coordinates with indicated size.
 
@@ -173,7 +214,8 @@ class TesscutClass(MastQueryWithLogin):
         coordinates : str or `astropy.coordinates` object, optional
             The target around which to search. It may be specified as a
             string or as the appropriate `astropy.coordinates` object.
-            One and only one of coordinates and objectname must be supplied.
+
+            NOTE: If moving_target or objectname is supplied, this argument cannot be used.
         size : int, array-like, `~astropy.units.Quantity`
             Optional, default 5 pixels.
             The size of the cutout array. If ``size`` is a scalar number or
@@ -197,28 +239,56 @@ class TesscutClass(MastQueryWithLogin):
             Set inflate to false to stop before the inflate step.
         objectname : str, optional
             The target around which to search, by name (objectname="M104")
-            or TIC ID (objectname="TIC 141914082").
-            One and only one of coordinates and objectname must be supplied.
+            or TIC ID (objectname="TIC 141914082"). If moving_target is True, input must be the name or ID (as understood by the
+            `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__)
+            of a moving target such as an asteroid or comet.
+
+            NOTE: If coordinates is supplied, this argument cannot be used.
+        moving_target : str, optional
+            Indicate whether the object is a moving target or not. Default is set to False, in other words, not a moving target.
+
+            NOTE: If coordinates is supplied, this argument cannot be used.
+        mt_type : str, optional
+            The moving target type, valid inputs are majorbody and smallbody. If not supplied
+            first majorbody is tried and then smallbody if a matching majorbody is not found.
+
+            NOTE: If moving_target is supplied, this argument is ignored.
 
         Returns
         -------
         response : `~astropy.table.Table`
         """
 
-        # Get Skycoord object for coordinates/object
-        coordinates = parse_input_location(coordinates, objectname)
-        size_dict = _parse_cutout_size(size)
+        if moving_target:
 
-        path = os.path.join(path, '')
-        astrocut_request = "ra={}&dec={}&y={}&x={}&units={}".format(coordinates.ra.deg,
-                                                                    coordinates.dec.deg,
-                                                                    size_dict["y"],
-                                                                    size_dict["x"],
-                                                                    size_dict["units"])
+            # Check that objectname has been passed in and coordinates
+            # is not
+            if coordinates:
+                raise InvalidQueryError("Only one of moving_target and coordinates may be specified. Please remove coordinates if using moving_target and objectname.")
+
+            if not objectname:
+                raise InvalidQueryError("Please specify the object name or ID (as understood by the `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__) of a moving target such as an asteroid or comet.")
+
+            astrocut_request = f"moving_target/astrocut?obj_id={objectname}"
+            if mt_type:
+                astrocut_request += f"&obj_type={mt_type}"
+
+        else:
+
+            # Get Skycoord object for coordinates/object
+            coordinates = parse_input_location(coordinates, objectname)
+
+            astrocut_request = f"astrocut?ra={coordinates.ra.deg}&dec={coordinates.dec.deg}"
+
+        # Adding the arguments that are common between moving/still astrocut requests
+        size_dict = _parse_cutout_size(size)
+        astrocut_request += f"&y={size_dict['y']}&x={size_dict['x']}&units={size_dict['units']}"
+
         if sector:
             astrocut_request += "&sector={}".format(sector)
 
-        astrocut_url = self._service_api_connection.REQUEST_URL + "astrocut?" + astrocut_request
+        astrocut_url = self._service_api_connection.REQUEST_URL + astrocut_request
+        path = os.path.join(path, '')
         zipfile_path = "{}tesscut_{}.zip".format(path, time.strftime("%Y%m%d%H%M%S"))
         self._download_file(astrocut_url, zipfile_path)
 
@@ -246,7 +316,8 @@ class TesscutClass(MastQueryWithLogin):
         localpath_table['Local Path'] = [path+x for x in cutout_files]
         return localpath_table
 
-    def get_cutouts(self, coordinates=None, size=5, sector=None, objectname=None):
+    def get_cutouts(self, coordinates=None, size=5, sector=None,
+                    objectname=None, moving_target=False, mt_type=None):
         """
         Get cutout target pixel file(s) around the given coordinates with indicated size,
         and return them as a list of  `~astropy.io.fits.HDUList` objects.
@@ -256,7 +327,8 @@ class TesscutClass(MastQueryWithLogin):
         coordinates : str or `astropy.coordinates` object, optional
             The target around which to search. It may be specified as a
             string or as the appropriate `astropy.coordinates` object.
-            One and only one of coordinates and objectname must be supplied.
+
+            NOTE: If moving_target or objectname is supplied, this argument cannot be used.
         size : int, array-like, `~astropy.units.Quantity`
             Optional, default 5 pixels.
             The size of the cutout array. If ``size`` is a scalar number or
@@ -271,25 +343,61 @@ class TesscutClass(MastQueryWithLogin):
             from all available sectors on which the coordinate appears will be returned.
         objectname : str, optional
             The target around which to search, by name (objectname="M104")
-            or TIC ID (objectname="TIC 141914082").
-            One and only one of coordinates and objectname must be supplied.
+            or TIC ID (objectname="TIC 141914082"). If moving_target is True, input must be the name or ID (as understood by the
+            `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__)
+            of a moving target such as an asteroid or comet.
+
+            NOTE: If coordinates is supplied, this argument cannot be used.
+        moving_target : str, optional
+            Indicate whether the object is a moving target or not. Default is set to False, in other words, not a moving target.
+
+            NOTE: If coordinates is supplied, this argument cannot be used.
+        mt_type : str, optional
+            The moving target type, valid inputs are majorbody and smallbody. If not supplied
+            first majorbody is tried and then smallbody if a matching majorbody is not found.
+
+            NOTE: If moving_target is supplied, this argument is ignored.
 
         Returns
         -------
         response : A list of `~astropy.io.fits.HDUList` objects.
         """
 
-        # Get Skycoord object for coordinates/object
-        coordinates = parse_input_location(coordinates, objectname)
-
+        # Setting up the cutout size
         param_dict = _parse_cutout_size(size)
-        param_dict["ra"] = coordinates.ra.deg
-        param_dict["dec"] = coordinates.dec.deg
 
+        # Add sector if present
         if sector:
             param_dict["sector"] = sector
 
-        response = self._service_api_connection.service_request_async("astrocut", param_dict)
+        if moving_target:
+
+            # Check that objectname has been passed in and coordinates
+            # is not
+            if coordinates:
+                raise InvalidQueryError("Only one of moving_target and coordinates may be specified. Please remove coordinates if using moving_target and objectname.")
+
+            if not objectname:
+                raise InvalidQueryError("Please specify the object name or ID (as understood by the `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__) of a moving target such as an asteroid or comet.")
+
+            param_dict["obj_id"] = objectname
+
+            # Add optional parameter if present
+            if mt_type:
+                param_dict["obj_type"] = mt_type
+
+            response = self._service_api_connection.service_request_async("mt_astrocut", param_dict)
+
+        else:
+
+            # Get Skycoord object for coordinates/object
+            coordinates = parse_input_location(coordinates, objectname)
+
+            param_dict["ra"] = coordinates.ra.deg
+            param_dict["dec"] = coordinates.dec.deg
+
+            response = self._service_api_connection.service_request_async("astrocut", param_dict)
+
         response.raise_for_status()  # Raise any errors
 
         try:

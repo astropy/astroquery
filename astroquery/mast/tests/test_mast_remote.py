@@ -11,8 +11,10 @@ from astropy.coordinates import SkyCoord
 from astropy.io import fits
 import astropy.units as u
 
-from astroquery.exceptions import NoResultsWarning
 from astroquery import mast
+
+from ..utils import ResolverError
+from ...exceptions import InvalidQueryError, MaxResultsWarning, NoResultsWarning, RemoteServiceError
 
 
 OBSID = '1647157'
@@ -195,10 +197,13 @@ class TestMast:
 
     # product functions
     def test_observations_get_product_list_async(self):
-        responses = mast.Observations.get_product_list_async('2003738726')
+
+        test_obs = mast.Observations.query_criteria(filters=["NUV", "FUV"], objectname="M101")
+
+        responses = mast.Observations.get_product_list_async(test_obs[0]["obsid"])
         assert isinstance(responses, list)
 
-        responses = mast.Observations.get_product_list_async('2003738726,3000007760')
+        responses = mast.Observations.get_product_list_async(test_obs[2:3])
         assert isinstance(responses, list)
 
         observations = mast.Observations.query_object("M8", radius=".02 deg")
@@ -269,7 +274,7 @@ class TestMast:
                 assert os.path.isfile(row['Local Path'])
 
         # just get the curl script
-        result = mast.Observations.download_products(test_obs_id,
+        result = mast.Observations.download_products(test_obs[0]["obsid"],
                                                      download_dir=str(tmpdir),
                                                      curl_flag=True,
                                                      productType=["SCIENCE"],
@@ -278,7 +283,7 @@ class TestMast:
         assert os.path.isfile(result['Local Path'][0])
 
         # check for row input
-        result1 = mast.Observations.get_product_list(test_obs_id)
+        result1 = mast.Observations.get_product_list(test_obs[0]["obsid"])
         result2 = mast.Observations.download_products(result1[0])
         assert isinstance(result2, Table)
         assert os.path.isfile(result2['Local Path'][0])
@@ -286,9 +291,10 @@ class TestMast:
 
     def test_observations_download_file(self, tmpdir):
         test_obs_id = OBSID
+        test_obs = mast.Observations.query_criteria(filters=["NUV", "FUV"], objectname="M101")
 
         # pull a single data product
-        products = mast.Observations.get_product_list(test_obs_id)
+        products = mast.Observations.get_product_list(test_obs[0]["obsid"])
         uri = products['dataURI'][0]
 
         # download it
@@ -364,6 +370,10 @@ class TestMast:
                                             catalog="HSC",
                                             magtype=2)
         row = np.where(result['MatchID'] == '78095437')
+
+        with pytest.warns(MaxResultsWarning):
+            result = mast.Catalogs.query_region("322.49324 12.16683", catalog="HSC", magtype=2)
+
         assert isinstance(result, Table)
         assert result[row]['NumImages'] == 1
         assert result[row]['TargetName'] == 'M15'
@@ -374,6 +384,10 @@ class TestMast:
                                             version=2,
                                             magtype=2)
         row = np.where(result['MatchID'] == '82368728')
+
+        with pytest.warns(MaxResultsWarning):
+            result = mast.Catalogs.query_region("322.49324 12.16683", catalog="HSC",
+                                                version=2, magtype=2)
         assert isinstance(result, Table)
         assert result[row]['NumImages'] == 11
         assert result[row]['TargetName'] == 'NGC7078'
@@ -666,12 +680,19 @@ class TestMast:
         assert sector_table['ccd'][0] > 0
 
         # This should always return no results
+
         with pytest.warns(NoResultsWarning):
             coord = SkyCoord(90, -66.5, unit="deg")
             sector_table = mast.Tesscut.get_sectors(coordinates=coord,
                                                     radius=0)
             assert isinstance(sector_table, Table)
             assert len(sector_table) == 0
+
+        coord = SkyCoord(90, -66.5, unit="deg")
+        with pytest.warns(NoResultsWarning):
+            sector_table = mast.Tesscut.get_sectors(coordinates=coord, radius=0)
+        assert isinstance(sector_table, Table)
+        assert len(sector_table) == 0
 
         sector_table = mast.Tesscut.get_sectors(objectname="M104")
         assert isinstance(sector_table, Table)
@@ -680,6 +701,47 @@ class TestMast:
         assert sector_table['sector'][0] > 0
         assert sector_table['camera'][0] > 0
         assert sector_table['ccd'][0] > 0
+
+        # Moving target functionality testing
+
+        moving_target_name = 'Eleonora'
+
+        sector_table = mast.Tesscut.get_sectors(objectname=moving_target_name,
+                                                moving_target=True)
+        assert isinstance(sector_table, Table)
+        assert len(sector_table) >= 1
+        assert sector_table['sectorName'][0] == "tess-s0006-1-1"
+        assert sector_table['sector'][0] == 6
+        assert sector_table['camera'][0] == 1
+        assert sector_table['ccd'][0] == 1
+
+        error_noname = "Please specify the object name or ID (as understood by the `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__) of a moving target such as an asteroid or comet."
+        error_nameresolve = f"Could not resolve {moving_target_name} to a sky position."
+        error_mt_coord = "Only one of moving_target and coordinates may be specified."
+        error_name_coord = "Only one of objectname and coordinates may be specified."
+
+        with pytest.raises(InvalidQueryError) as error_msg:
+            mast.Tesscut.get_sectors(moving_target=True)
+        assert error_noname in str(error_msg.value)
+
+        with pytest.raises(ResolverError) as error_msg:
+            mast.Tesscut.get_sectors(objectname=moving_target_name)
+        assert error_nameresolve in str(error_msg.value)
+
+        with pytest.raises(InvalidQueryError) as error_msg:
+            mast.Tesscut.get_sectors(coordinates=coord, moving_target=True)
+        assert error_mt_coord in str(error_msg.value)
+
+        with pytest.raises(InvalidQueryError) as error_msg:
+            mast.Tesscut.get_sectors(objectname=moving_target_name,
+                                     coordinates=coord)
+        assert error_name_coord in str(error_msg.value)
+
+        with pytest.raises(InvalidQueryError) as error_msg:
+            mast.Tesscut.get_sectors(objectname=moving_target_name,
+                                     coordinates=coord,
+                                     moving_target=True)
+        assert error_mt_coord in str(error_msg.value)
 
     def test_tesscut_download_cutouts(self, tmpdir):
 
@@ -720,6 +782,49 @@ class TestMast:
         for row in manifest:
             assert os.path.isfile(row['Local Path'])
 
+        # Moving target functionality testing
+
+        moving_target_name = 'Eleonora'
+
+        manifest = mast.Tesscut.download_cutouts(objectname=moving_target_name,
+                                                 moving_target=True,
+                                                 sector=6,
+                                                 size=5,
+                                                 path=str(tmpdir))
+        assert isinstance(manifest, Table)
+        assert len(manifest) == 1
+        assert manifest["Local Path"][0][-4:] == "fits"
+        for row in manifest:
+            assert os.path.isfile(row['Local Path'])
+
+        error_noname = "Please specify the object name or ID (as understood by the `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__) of a moving target such as an asteroid or comet."
+        error_nameresolve = f"Could not resolve {moving_target_name} to a sky position."
+        error_mt_coord = "Only one of moving_target and coordinates may be specified."
+        error_name_coord = "Only one of objectname and coordinates may be specified."
+
+        with pytest.raises(InvalidQueryError) as error_msg:
+            mast.Tesscut.download_cutouts(moving_target=True)
+        assert error_noname in str(error_msg.value)
+
+        with pytest.raises(ResolverError) as error_msg:
+            mast.Tesscut.download_cutouts(objectname=moving_target_name)
+        assert error_nameresolve in str(error_msg.value)
+
+        with pytest.raises(InvalidQueryError) as error_msg:
+            mast.Tesscut.download_cutouts(coordinates=coord, moving_target=True)
+        assert error_mt_coord in str(error_msg.value)
+
+        with pytest.raises(InvalidQueryError) as error_msg:
+            mast.Tesscut.download_cutouts(objectname=moving_target_name,
+                                     coordinates=coord)
+        assert error_name_coord in str(error_msg.value)
+
+        with pytest.raises(InvalidQueryError) as error_msg:
+            mast.Tesscut.download_cutouts(objectname=moving_target_name,
+                                     coordinates=coord,
+                                     moving_target=True)
+        assert error_mt_coord in str(error_msg.value)
+
     def test_tesscut_get_cutouts(self, tmpdir):
 
         coord = SkyCoord(107.18696, -70.50919, unit="deg")
@@ -746,9 +851,49 @@ class TestMast:
         assert len(cutout_hdus_list) >= 1
         assert isinstance(cutout_hdus_list[0], fits.HDUList)
 
-    ######################
+        # Moving target functionality testing
+
+        moving_target_name = 'Eleonora'
+
+        cutout_hdus_list = mast.Tesscut.get_cutouts(objectname=moving_target_name,
+                                moving_target=True,
+                                sector=6,
+                                size=5)
+        assert isinstance(cutout_hdus_list, list)
+        assert len(cutout_hdus_list) == 1
+        assert isinstance(cutout_hdus_list[0], fits.HDUList)
+
+        error_noname = "Please specify the object name or ID (as understood by the `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__) of a moving target such as an asteroid or comet."
+        error_nameresolve = f"Could not resolve {moving_target_name} to a sky position."
+        error_mt_coord = "Only one of moving_target and coordinates may be specified."
+        error_name_coord = "Only one of objectname and coordinates may be specified."
+
+        with pytest.raises(InvalidQueryError) as error_msg:
+            mast.Tesscut.download_cutouts(moving_target=True)
+        assert error_noname in str(error_msg.value)
+
+        with pytest.raises(ResolverError) as error_msg:
+            mast.Tesscut.download_cutouts(objectname=moving_target_name)
+        assert error_nameresolve in str(error_msg.value)
+
+        with pytest.raises(InvalidQueryError) as error_msg:
+            mast.Tesscut.download_cutouts(coordinates=coord, moving_target=True)
+        assert error_mt_coord in str(error_msg.value)
+
+        with pytest.raises(InvalidQueryError) as error_msg:
+            mast.Tesscut.download_cutouts(objectname=moving_target_name,
+                                          coordinates=coord)
+        assert error_name_coord in str(error_msg.value)
+
+        with pytest.raises(InvalidQueryError) as error_msg:
+            mast.Tesscut.download_cutouts(objectname=moving_target_name,
+                                          coordinates=coord,
+                                          moving_target=True)
+        assert error_mt_coord in str(error_msg.value)
+
+    ###################
     # ZcutClass tests #
-    ######################
+    ###################
     def test_zcut_get_surveys(self):
 
         coord = SkyCoord(189.49206, 62.20615, unit="deg")
@@ -766,6 +911,12 @@ class TestMast:
             assert isinstance(survey_list, list)
             assert len(survey_list) == 0
 
+        coord = SkyCoord(57.10523, -30.08085, unit="deg")
+        with pytest.warns(NoResultsWarning):
+            survey_list = mast.Zcut.get_surveys(coordinates=coord, radius=0)
+        assert isinstance(survey_list, list)
+        assert len(survey_list) == 0
+
     def test_zcut_download_cutouts(self, tmpdir):
 
         coord = SkyCoord(34.47320, -5.24271, unit="deg")
@@ -777,7 +928,7 @@ class TestMast:
         for row in cutout_table:
             assert os.path.isfile(cutout_table[0]['Local Path'])
 
-        coord = SkyCoord(189.49206, 62.20615, unit="deg")
+        coord = SkyCoord(189.28065571, 62.17415175, unit="deg")
 
         cutout_table = mast.Zcut.download_cutouts(coordinates=coord, size=[200, 300], path=str(tmpdir))
         assert isinstance(cutout_table, Table)
@@ -809,6 +960,13 @@ class TestMast:
             assert isinstance(cutout_table, Table)
             assert len(cutout_table) == 0
 
+        cutout_table = mast.Zcut.download_cutouts(coordinates=coord, survey='goods_north', cutout_format="jpg", path=str(tmpdir))
+        assert isinstance(cutout_table, Table)
+        assert len(cutout_table) == 4
+        assert cutout_table["Local Path"][0][-4:] == ".jpg"
+        for row in cutout_table:
+            assert os.path.isfile(cutout_table[0]['Local Path'])
+
         cutout_table = mast.Zcut.download_cutouts(coordinates=coord, cutout_format="jpg", path=str(tmpdir), stretch='asinh', invert=True)
         assert isinstance(cutout_table, Table)
         assert len(cutout_table) >= 1
@@ -818,7 +976,7 @@ class TestMast:
 
     def test_zcut_get_cutouts(self):
 
-        coord = SkyCoord(189.49206, 62.20615, unit="deg")
+        coord = SkyCoord(189.28065571, 62.17415175, unit="deg")
 
         cutout_list = mast.Zcut.get_cutouts(coordinates=coord)
         assert isinstance(cutout_list, list)
@@ -836,3 +994,8 @@ class TestMast:
                                                 survey='candels_gn_30mas')
             assert isinstance(cutout_list, list)
             assert len(cutout_list) == 0
+
+        cutout_list = mast.Zcut.get_cutouts(coordinates=coord, survey='3dhst_goods-n')
+        assert isinstance(cutout_list, list)
+        assert len(cutout_list) == 1
+        assert isinstance(cutout_list[0], fits.HDUList)
