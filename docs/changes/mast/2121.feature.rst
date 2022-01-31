@@ -1,0 +1,1 @@
+Moving target cutouts can now be retrieved for Tesscut via the ``astroquery.mast.cutouts.Tesscut`` methods.
