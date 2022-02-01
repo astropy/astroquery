@@ -117,7 +117,7 @@ class MastMissionsClass(MastQueryWithLogin):
             Valid criteria are coordinates, objectname, radius (as in `query_region` and `query_object`),
             and all fields listed in the column documentation for the mission being queried.
             Fields that can be used to match results on criteria. See the TAP schema link below for all field names.
-            https://vao.stsci.edu/missionmast/tapservice.aspx/tables#folder38
+            https://vao.stsci.edu/missionmast/tapservice.aspx/tables
             some common fields for criteria are sci_pep_id, sci_spec_1234 and sci_actual_duration.
 
         Returns
