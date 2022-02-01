@@ -173,8 +173,7 @@ class BaseQuery(metaclass=LoginABCMeta):
         self.cache_location = os.path.join(
             paths.get_cache_dir(), 'astroquery',
             self.__class__.__name__.split("Class")[0])
-        if not os.path.exists(self.cache_location):
-            os.makedirs(self.cache_location)
+        os.makedirs(self.cache_location, exist_ok=True)
         self._cache_active = True
 
     def __call__(self, *args, **kwargs):
