@@ -41,7 +41,10 @@ class CatalogsClass(MastQueryWithLogin):
         super().__init__()
 
         services = {"panstarrs": {"path": "panstarrs/{data_release}/{table}.json",
-                                  "args": {"data_release": "dr2", "table": "mean"}}}
+                                  "args": {"data_release": "dr2", "table": "mean"}},
+                    "plato": {"path": "plato/{data_release}/{table}.json",
+                                         "args": {"data_release": ["dr1", "dr2"], "table": "mean"}}}
+
         self._service_api_connection.set_service_params(services, "catalogs", True)
 
         self.catalog_limit = None
@@ -141,9 +144,16 @@ class CatalogsClass(MastQueryWithLogin):
                 if version == 1:
                     service = "Mast.Catalogs.GaiaDR1.Cone"
                 else:
-                    if version not in (2, None):
+                    if version not in (None, 2):
                         warnings.warn("Invalid Gaia version number, defaulting to DR2.", InputWarning)
                     service = "Mast.Catalogs.GaiaDR2.Cone"
+
+            elif catalog.lower() == 'plato':
+                if version in (None, 1):
+                    service = "Mast.Catalogs.Plato.Cone"
+                else:
+                    warnings.warn("Invalid PLATO catalog version number, defaulting to DR1.", InputWarning)
+                    service = "Mast.Catalogs.Plato.Cone"
 
             else:
                 service = "Mast.Catalogs." + catalog + ".Cone"

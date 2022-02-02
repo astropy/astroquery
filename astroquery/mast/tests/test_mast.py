@@ -433,6 +433,9 @@ def test_catalogs_query_region(patch_post):
     result = mast.Catalogs.query_region(regionCoords, radius=0.002 * u.deg, catalog="Sample")
     assert isinstance(result, Table)
 
+    result = mast.Catalogs.query_region(regionCoords, radius=0.002 * u.deg, catalog="plato")
+    assert isinstance(result, Table)
+
 
 def test_catalogs_fabric_query_region(patch_post):
     result = mast.Catalogs.query_region(regionCoords, radius=0.002 * u.deg, catalog="panstarrs", table="mean")
