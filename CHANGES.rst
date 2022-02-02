@@ -323,6 +323,8 @@ mast
 
 - Added Zcut functionality to astroquery [#1911]
 
+- Added searching missions(HST) metadata functiona;ity to astroquery. [#2095]
+
 svo_fps
 ^^^^^^^
 
