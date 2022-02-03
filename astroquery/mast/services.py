@@ -169,7 +169,7 @@ class ServiceAPI(BaseQuery):
         cache : bool
             Default False. Use of bulit in _request caching
         use_json: bool
-            Default False. if True then use the json parameter for passing data to super()._request
+            Default False. if True then data is already in json format.
 
         Returns
         -------
