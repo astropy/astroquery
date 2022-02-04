@@ -32,7 +32,7 @@ To return the orbit of Ceres and an ephemeris for the next 20 days:
 
     >>> from astroquery.mpc import MPC
     >>> from pprint import pprint
-    >>> result = MPC.query_object('asteroid', name='ceres')
+    >>> result = MPC().query_object('asteroid', name='ceres')
     >>> pprint(result)
 
     [{'absolute_magnitude': '3.34',
@@ -85,7 +85,7 @@ To return the orbit of Ceres and an ephemeris for the next 20 days:
       'uranus_moid': 15.6642,
       'venus_moid': 1.84632}]
 
-    >>> eph = MPC.get_ephemeris('ceres')
+    >>> eph = MPC().get_ephemeris('ceres')
     >>> print(eph)
     
               Date                  RA                Dec        Delta   r   Elongation Phase  V  Proper motion Direction Uncertainty 3sig Unc. P.A.
@@ -110,8 +110,8 @@ Orbits and parameters
 Search parameters
 -----------------
 
-Individual objects can be found with ``MPC.query_object``, and
-``MPC.query_objects`` can return multiple objects.  Parameters can be
+Individual objects can be found with ``MPC().query_object``, and
+``MPC().query_objects`` can return multiple objects.  Parameters can be
 queried in three manners:
 
     - exact match
@@ -123,7 +123,7 @@ An example of an exact match:
 .. code-block:: python
 
     >>> from astroquery.mpc import MPC
-    >>> result = MPC.query_object('asteroid', name='ceres')
+    >>> result = MPC().query_object('asteroid', name='ceres')
     >>> print(result)
 
     [{'absolute_magnitude': '3.34', 'aphelion_distance': '2.976', 'arc_length': 79247, 'argument_of_perihelion': '73.11528', 'ascending_node': '80.3099167', 'critical_list_numbered_object': False, 'delta_v': 10.5, 'designation': None, 'earth_moid': 1.59353, 'eccentricity': '0.0755347', 'epoch': '2018-03-23.0', 'epoch_jd': '2458200.5', 'first_observation_date_used': '1801-01-31.0', 'first_opposition_used': '1801', 'inclination': '10.59351', 'jupiter_moid': 2.09509, 'km_neo': False, 'last_observation_date_used': '2018-01-20.0', 'last_opposition_used': '2018', 'mars_moid': 0.939285, 'mean_anomaly': '352.23052', 'mean_daily_motion': '0.2141308', 'mercury_moid': 2.18454, 'name': 'Ceres', 'neo': False, 'number': 1, 'observations': 6689, 'oppositions': 114, 'orbit_type': 0, 'orbit_uncertainty': '0', 'p_vector_x': '-0.87827466', 'p_vector_y': '0.33795664', 'p_vector_z': '0.33825868', 'perihelion_date': '2018-04-28.28378', 'perihelion_date_jd': '2458236.78378', 'perihelion_distance': '2.5580384', 'period': '4.6', 'pha': False, 'phase_slope': '0.12', 'q_vector_x': '-0.44248615', 'q_vector_y': '-0.84255514', 'q_vector_z': '-0.30709419', 'residual_rms': '0.6', 'saturn_moid': 6.38856, 'semimajor_axis': '2.7670463', 'tisserand_jupiter': 3.3, 'updated_at': '2018-02-26T17:29:46Z', 'uranus_moid': 15.6642, 'venus_moid': 1.84632}]
@@ -132,7 +132,7 @@ A minimum value:
 
 .. code-block:: python
 
-    >>> result = MPC.query_objects('asteroid', inclination_min=170)
+    >>> result = MPC().query_objects('asteroid', inclination_min=170)
 
 which will get all asteroids with an inclination of greater than or
 equal to 170.
@@ -141,7 +141,7 @@ A maximum value:
 
 .. code-block:: python
 
-    >>> result = MPC.query_objects('asteroid', inclination_max=1.0)
+    >>> result = MPC().query_objects('asteroid', inclination_max=1.0)
     
 which will get all asteroids with an inclination of less than or equal to 1.
 
@@ -150,7 +150,7 @@ can be used in the following fashion:
 
 .. code-block:: python
 
-    >>> result = MPC.query_objects('asteroid', name="is_not_null")
+    >>> result = MPC().query_objects('asteroid', name="is_not_null")
 
 This will, predictably, find all named objects in the MPC
 database--but that would take a while!
@@ -169,7 +169,7 @@ options.
 
 .. code-block:: python
 
-    >>> result = MPC.query_objects('asteroid', order_by_desc="semimajor_axis", limit=10)
+    >>> result = MPC().query_objects('asteroid', order_by_desc="semimajor_axis", limit=10)
 
 This will return the 10 furthest asteroids.
 
@@ -181,7 +181,7 @@ MPC to limit the fields they're interested in.
 
 .. code-block:: python
 
-    >>> result = MPC.query_object('asteroid', name="ceres", return_fields="name,number")
+    >>> result = MPC().query_object('asteroid', name="ceres", return_fields="name,number")
     >>> print(result)
     [{'name': 'Ceres', 'number': 1}]
 

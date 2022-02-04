@@ -542,8 +542,9 @@ class MPCClass(BaseQuery):
         Examples
         --------
         >>> from astroquery.mpc import MPC
-        >>> tab = astroquery.mpc.MPC.get_ephemeris('(24)', location=568,
-        ...            start='2003-02-26', step='100d', number=3)  # doctest: +SKIP
+        >>> tab = MPC().get_ephemeris('(24)', location=568,
+        ...                           start='2003-02-26', step='100d',
+        ...                           number=3)  # doctest: +SKIP
         >>> print(tab)  # doctest: +SKIP
 
         """
@@ -641,7 +642,7 @@ class MPCClass(BaseQuery):
         Examples
         --------
         >>> from astroquery.mpc import MPC
-        >>> obs = MPC.get_observatory_codes()  # doctest: +SKIP
+        >>> obs = MPC().get_observatory_codes()  # doctest: +SKIP
         >>> print(obs[295])  # doctest: +SKIP
         Code Longitude   cos       sin         Name
         ---- --------- -------- --------- -------------
@@ -697,7 +698,7 @@ class MPCClass(BaseQuery):
         Examples
         --------
         >>> from astroquery.mpc import MPC
-        >>> obs = MPC.get_observatory_location('000')
+        >>> obs = MPC().get_observatory_location('000')
         >>> print(obs)  # doctest: +SKIP
         (<Angle 0. deg>, 0.62411, 0.77873, 'Greenwich')
 
@@ -882,7 +883,7 @@ class MPCClass(BaseQuery):
         Examples
         --------
         >>> from astroquery.mpc import MPC
-        >>> MPC.get_observations(12893)  # doctest: +SKIP
+        >>> MPC().get_observations(12893)  # doctest: +SKIP
         <QTable masked=True length=1401>
         number   desig   discovery note1 ...   mag   band observatory
                                          ...   mag
