@@ -459,7 +459,7 @@ The Catalogs class provides access to a subset of the astronomical catalogs stor
 - The TESS Candidate Target List (CTL)
 - The Disk Detective Catalog
 - The PanSTARRS Catalog (DR1 and DR2)
-- The PLATO Catalog (DR1 and DR2)
+- The All-Sky PLATO Input Catalog (DR1)
 
 Positional Queries
 ------------------

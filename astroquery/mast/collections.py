@@ -41,9 +41,7 @@ class CatalogsClass(MastQueryWithLogin):
         super().__init__()
 
         services = {"panstarrs": {"path": "panstarrs/{data_release}/{table}.json",
-                                  "args": {"data_release": "dr2", "table": "mean"}},
-                    "plato": {"path": "plato/{data_release}/{table}.json",
-                                         "args": {"data_release": ["dr1", "dr2"], "table": "mean"}}}
+                                  "args": {"data_release": "dr2", "table": "mean"}}}
 
         self._service_api_connection.set_service_params(services, "catalogs", True)
 
