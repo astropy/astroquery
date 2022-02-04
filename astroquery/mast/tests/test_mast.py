@@ -116,6 +116,8 @@ def service_mockreturn(self, method="POST", url=None, data=None, timeout=10, use
             filename = data_path(DATA_FILES['z_survey'])
         else:
             filename = data_path(DATA_FILES['z_cutout_fit'])
+    elif use_json and data['radius'] == 5:
+        filename = data_path(DATA_FILES["mission_incorrect_results"])
     elif use_json:
         filename = data_path(DATA_FILES["mission_search_results"])
     content = open(filename, 'rb').read()
@@ -226,6 +228,36 @@ def test_missions_query_criteria_async(patch_post):
                                                                    obs_type,
                                                                    aec])
     assert isinstance(responses, MockResponse)
+
+
+def test_missions_query_criteria_async_with_missing_results(patch_post):
+    pep_id = {'sci_pep_id': '12556'}
+    obs_type = {'sci_obs_type': "SPECTRUM"}
+    instruments = {'sci_instrume': "stis,acs,wfc3,cos,fos,foc,nicmos,ghrs"}
+    datasets = {'sci_data_set_name': ""}
+    pi_lname = {'sci_pi_last_name': ""}
+    actual_duration = {'sci_actual_duration': ""}
+    spec_1234 = {'sci_spec_1234': ""}
+    release_date = {'sci_release_date': ""}
+    start_time = {'sci_start_time': ""}
+    obs_type = {'sci_obs_type': 'all'}
+    aec = {'sci_aec': 'S'}
+    aperture = {'sci_aper_1234': 'WF3'}
+
+    with pytest.raises(KeyError) as e_info:
+        responses = mast.MastMissions.query_criteria_async(coordinates=regionCoords,
+                                                           radius=5,
+                                                           conditions=[pep_id,
+                                                                       obs_type,
+                                                                       instruments,
+                                                                       datasets,
+                                                                       pi_lname,
+                                                                       spec_1234,
+                                                                       release_date,
+                                                                       start_time,
+                                                                       obs_type,
+                                                                       aec,
+                                                                       aperture])
 
 
 ###################
