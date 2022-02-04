@@ -167,7 +167,7 @@ class ServiceAPI(BaseQuery):
         stream : bool
             See `~requests.request`
         cache : bool
-            Default False. Use of bulit in _request caching
+            Default False. Use of built in caching
         use_json: bool
             Default False. if True then data is already in json format.
 
