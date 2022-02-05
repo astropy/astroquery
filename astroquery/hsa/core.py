@@ -131,9 +131,10 @@ class HSAClass(BaseQuery):
         """
         Download observation from Herschel.
         This consists of a .tar file containing:
-        -The auxiliary directory: contains all Herschel non-science spacecraft data
-        -The calibarion directory: contains the uplink and downlink calibration products
-        -<obs_id> directory: contains the science data distributed in sub-directories called level0/0.5/1/2/2.5/3.
+
+        - The auxiliary directory: contains all Herschel non-science spacecraft data
+        - The calibarion directory: contains the uplink and downlink calibration products
+        - <obs_id> directory: contains the science data distributed in sub-directories called level0/0.5/1/2/2.5/3.
 
         More information can be found here:
             https://www.cosmos.esa.int/web/herschel/data-products-overview

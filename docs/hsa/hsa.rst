@@ -6,10 +6,10 @@
 Herschel Science Archive (`astroquery.hsa`)
 *******************************************
 
-Herschel was the fourth cornerstone in ESA's Horizon 2000 science programme, designed to observe the 'cool' universe. 
-It performed photometry and spectroscopy in the poorly explored 55-670 µm spectral range with a 3.5 m diameter 
-Cassegrain telescope, providing unique observing capabilities and bridging the gap between earlier infrared space 
-missions and groundbased facilities. Herschel successfully performed ~37000 science observations and ~6600 science 
+`Herschel <https://www.cosmos.esa.int/web/herschel/home/>`__ was the fourth cornerstone in ESA's Horizon 2000 science programme, designed to observe the 'cool' universe.
+It performed photometry and spectroscopy in the poorly explored 55-670 µm spectral range with a 3.5 m diameter
+Cassegrain telescope, providing unique observing capabilities and bridging the gap between earlier infrared space
+missions and groundbased facilities. Herschel successfully performed ~37000 science observations and ~6600 science
 calibration observations which are publicly available to the worldwide astronomical community through the Herschel Science Archive.
 
 This package allows the access to the `Herschel Science Archive <http://archives.esac.esa.int/hsa/whsa/>`__.
@@ -24,32 +24,41 @@ Examples
 
 .. code-block:: python
 
-  >>> from astroquery.hsa import HSA 
+  >>> from astroquery.hsa import HSA
   >>>
   >>> HSA.download_data(observation_id='1342195355',retrieval_type='OBSERVATION', instrument_name='PACS')
   Downloading URL http://archives.esac.esa.int/hsa/whsa-tap-server/data?&retrieval_type=OBSERVATION&observation_id=1342195355&instrument_name=PACS to 1342195355.tar ... [Done]
   '1342195355.tar'
 
-This will download the product of the observation '1342195355' with the instrument 'PACS' and 
+This will download the product of the observation '1342195355' with the instrument 'PACS' and
 it will store them in a tar called '1342195355.tar'. The parameters available are detailed in the API.
 
 For more details of the parameters check the section 6 of the 'Direct Product Access using TAP' in the 'HSA users guide' at:
 		'http://archives.esac.esa.int/hsa/whsa/'
 
+For more details about the products check:
+                'https://www.cosmos.esa.int/web/herschel/data-products-overview'
+
 -------------------------------
-2. Getting Observation Product
+2. Getting Observation Products
 -------------------------------
 
 .. code-block:: python
 
-  >>> from astroquery.hsa import HSA 
+  >>> from astroquery.hsa import HSA
   >>>
   >>> HSA.get_observation('1342195355', instrument_name='PACS')
   Downloading URL http://archives.esac.esa.int/hsa/whsa-tap-server/data?&retrieval_type=OBSERVATION&observation_id=1342195355&instrument_name=PACS to 1342195355.tar ... [Done]
   '1342195355.tar'
 
-This will download the product of the observation '1342195355' with the instrument 'PACS' and 
+This will download the product of the observation '1342195355' with the instrument 'PACS' and
 it will store them in a tar called '1342195355.tar'. The parameters available are detailed in the API.
+
+`Notice`: There is no difference between the product retrieved with this method and `download_data`. `download_data` is a more generic
+interface that allows the user to retrieve any product or metadata and `get_observation` allows the user to retrieve only observation products.
+
+For more information check the section 6.1 of the of the 'direct Product Access using TAP' in the 'HSA users guide' at:
+                'http://archives.esac.esa.int/hsa/whsa/'
 
 For more details of the parameters check the section 6.2 of the 'Direct Product Access using TAP' in the 'HSA users guide' at:
 		'http://archives.esac.esa.int/hsa/whsa/'
@@ -60,13 +69,13 @@ For more details of the parameters check the section 6.2 of the 'Direct Product 
 
 .. code-block:: python
 
-  >>> from astroquery.hsa import HSA 
+  >>> from astroquery.hsa import HSA
   >>>
   >>> HSA.get_postcard('1342195355', instrument_name='PACS')
   Downloading URL http://archives.esac.esa.int/hsa/whsa-tap-server/data?&retrieval_type=POSTCARD&observation_id=1342195355&instrument_name=PACS to /home/dev/.astropy/cache/astroquery/HSA/data?&retrieval_type=POSTCARD&observation_id=1342195355&instrument_name=PACS ... [Done]
   '1342195355.jpg'
 
-This will download the postcard of the observation '1342195355' with the instrument 'PACS' and 
+This will download the postcard (static representation in JPG-format of the final product) of the observation '1342195355' with the instrument 'PACS' and
 it will store them in a tar called '1342195355.jpg'. The parameters available are detailed in the API.
 
 For more details of the parameters check the section 6.2 of the 'Direct Product Access using TAP' in the 'HSA users guide' at:
@@ -77,7 +86,7 @@ For more details of the parameters check the section 6.2 of the 'Direct Product 
 ------------------------------------------
 
 This function provides access to the Herschel Science Archive database using the Table Access Protocol (TAP) and via the Astronomical Data
-Query Language (ADQL).
+Query Language (`ADQL <https://www.ivoa.net/documents/ADQL/20180112/PR-ADQL-2.1-20180112.html>`__).
 
 .. code-block:: python
 
@@ -99,7 +108,7 @@ Query Language (ADQL).
                                               PPhot.AM06-perp  -74.22638888888889  -74.22638888888889  1759000.0 ... FAILED                         AM0644-741      925338
 
 This will execute an ADQL query to download the first 10 observations in the Herschel Science Archive. The result of the query will be
-stored in the file 'results.csv'. The result of this query can be printed by doing print(result).
+stored in the file 'results.csv'. The result of this query can be printed by doing `print(result)`.
 
 -----------------------------------
 5. Getting table details of HSA TAP
@@ -146,7 +155,7 @@ First retrieve the observation IDs based on a position on the sky. To achive thi
   >>> HSA.query_hsa_tap("select top 10 observation_id from hsa.v_active_observation where contains(point('ICRS', hsa.v_active_observation.ra, hsa.v_active_observation.dec),circle('ICRS', 100.2417,9.895, 1.1))=1", output_format='csv', output_file='results.cvs')
   <Table length=9>
   observation_id
-      int64     
+      int64
   --------------
       1342228342
       1342228371
@@ -162,7 +171,7 @@ In this example we are doing a circle search of 1.1 degrees in an ICRS (Right as
 
 For more information on how to use ADQL see:
     'https://www.ivoa.net/documents/latest/ADQL.html'
- 
+
 After obtaining the desire ID, download the product of the observation '1342205057' with the instrument 'PACS'.
 
 .. code-block:: python
