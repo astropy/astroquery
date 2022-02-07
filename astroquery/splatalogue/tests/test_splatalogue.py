@@ -7,7 +7,7 @@ import requests
 from astropy import units as u
 
 from ... import splatalogue
-from ...utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
 
 SPLAT_DATA = 'CO_colons.csv'
 

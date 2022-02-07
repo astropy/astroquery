@@ -21,7 +21,7 @@ except ImportError:
     HAS_REGIONS = False
 
 from ..core import cds
-from ...utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
 
 
 DATA_FILES = {

@@ -9,7 +9,7 @@ import astropy.units as u
 
 from ... import ukidss
 from ...utils import commons
-from ...utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
 from ...exceptions import InvalidQueryError
 
 DATA_FILES = {"vo_results": "vo_results.html",

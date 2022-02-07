@@ -8,7 +8,7 @@ from astropy.table import Table
 import numpy as np
 
 from ... import simbad
-from ...utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
 from ...utils import commons
 from ...query import AstroQuery
 from ...exceptions import TableParseError

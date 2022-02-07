@@ -7,7 +7,7 @@ import pytest
 import astropy.units as u
 
 from ...utils import commons
-from ...utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
 from ... import magpis
 
 DATA_FILES = {'image': 'image.fits'}

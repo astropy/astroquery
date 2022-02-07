@@ -4,7 +4,7 @@ import os
 import requests
 import pytest
 import astropy.coordinates as coord
-from ...utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
 from ... import fermi
 
 DATA_FILES = {'async': "query_result_m31.html",

@@ -17,7 +17,7 @@ import os
 from requests.models import Response
 from astroquery.esa.hubble import ESAHubbleClass
 from astroquery.esa.hubble.tests.dummy_tap_handler import DummyHubbleTapHandler
-from astroquery.utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
 from astropy import coordinates
 from unittest.mock import MagicMock
 from astropy.table.table import Table

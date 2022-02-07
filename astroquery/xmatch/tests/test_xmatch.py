@@ -8,7 +8,7 @@ from astropy.table import Table
 from astropy.units import arcsec
 
 from ...utils import commons
-from ...utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
 from ...xmatch import XMatch
 
 DATA_FILES = {

@@ -6,7 +6,7 @@ import pytest
 from astropy.io.ascii.tests.common import assert_equal
 from ... import besancon
 from ...utils import commons
-from ...utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
 
 # SKIP - don't run tests because Besancon folks don't want them (based on
 # the fact that your@email.net is now rejected)

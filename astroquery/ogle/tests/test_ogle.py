@@ -5,7 +5,7 @@ import os
 import pytest
 from astropy.coordinates import SkyCoord
 from astropy import units as u
-from ...utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
 
 DATA_FILES = {'gal_0_3': 'gal_0_3.txt'}
 
