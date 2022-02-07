@@ -339,9 +339,9 @@ votable). The result of the query will be stored in the file
 result.get_results() or printing it by doing print(result).
 
 
--------------------------------
+------------------------------------------------------
 9. Getting related members of HAP and HST observations
--------------------------------
+------------------------------------------------------
 
 This function takes in an observation id of a Composite or Simple observation.
 If the observation is Simple the method returns the Composite observation that
@@ -356,9 +356,9 @@ method returns the simple observations that make it up.
   >>> print(result)
 
 
--------------------------------
+--------------------------------------------------------
 10. Getting link between Simple HAP and HST observations
--------------------------------
+--------------------------------------------------------
 
 This function takes in an observation id of a Simple HAP or HST observation and
 returns the corresponding HAP or HST observation
