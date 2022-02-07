@@ -6,7 +6,7 @@ import pytest
 import astropy.units as u
 
 from ....utils import commons
-from ....utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
 from ... import first
 
 DATA_FILES = {'image': 'image.fits'}

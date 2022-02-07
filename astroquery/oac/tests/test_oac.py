@@ -6,7 +6,7 @@ from astropy.table import Table
 import astropy.coordinates as coord
 import astropy.units as u
 
-from ...utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
 
 from .. import OAC
 

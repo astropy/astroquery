@@ -12,7 +12,7 @@ from astropy.io import fits
 
 import astropy.units as u
 
-from ...utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
 from ...exceptions import InvalidQueryError, InputWarning
 
 from ... import mast

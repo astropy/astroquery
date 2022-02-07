@@ -8,7 +8,7 @@ import astropy.units as u
 
 from ... import vizier
 from ...utils import commons
-from ...utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
 
 
 VO_DATA = {'HIP,NOMAD,UCAC': "viz.xml",

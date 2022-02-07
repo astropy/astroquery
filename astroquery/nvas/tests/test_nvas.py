@@ -10,7 +10,7 @@ import astropy.units as u
 import pytest
 
 from ...import nvas
-from ...utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
 from ...utils import commons
 
 COORDS_GAL = commons.GalacticCoordGenerator(

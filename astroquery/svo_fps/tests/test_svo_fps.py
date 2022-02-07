@@ -2,7 +2,7 @@ import pytest
 import os
 from astropy import units as u
 
-from ...utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
 from ..core import SvoFps
 
 DATA_FILES = {'filter_index': 'svo_fps_WavelengthEff_min=12000_WavelengthEff_max=12100.xml',

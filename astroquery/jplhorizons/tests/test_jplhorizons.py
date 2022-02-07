@@ -9,7 +9,7 @@ from numpy.ma import is_masked
 from astropy.tests.helper import assert_quantity_allclose
 from astropy.utils.exceptions import AstropyDeprecationWarning
 
-from ...utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
 from ...query import AstroQuery
 from ...exceptions import TableParseError
 from ... import jplhorizons

@@ -11,7 +11,7 @@ from astropy.table import Column, Table
 import pytest
 
 from ... import sdss
-from ...utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
 from ...exceptions import TimeoutError
 from ...utils import commons
 

@@ -8,7 +8,7 @@ import astropy.units as u
 from astropy.table import Table
 
 from ... import nrao
-from ...utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
 from ...utils import commons
 
 

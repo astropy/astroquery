@@ -9,7 +9,7 @@ from astropy.table import Table
 import astropy.coordinates as coord
 import astropy.units as u
 
-from astroquery.utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
 from astroquery.utils import commons
 from astroquery.ipac.irsa import Irsa, conf
 from astroquery.ipac import irsa

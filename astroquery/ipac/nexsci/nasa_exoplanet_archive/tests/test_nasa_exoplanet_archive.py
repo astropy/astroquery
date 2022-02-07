@@ -13,7 +13,7 @@ from astropy.coordinates import SkyCoord
 from astropy.utils.exceptions import AstropyDeprecationWarning
 
 from astroquery.exceptions import NoResultsWarning
-from astroquery.utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
 from astroquery.ipac.nexsci.nasa_exoplanet_archive.core import NasaExoplanetArchiveClass, conf, InvalidTableError
 try:
     from unittest.mock import Mock, patch, PropertyMock
