@@ -6,6 +6,8 @@ MAST Missions
 This module contains methods for searching MAST missions.
 """
 
+import requests
+
 import astropy.units as u
 import astropy.coordinates as coord
 
@@ -15,6 +17,8 @@ from astroquery.exceptions import InvalidQueryError
 
 from astroquery.mast import utils
 from astroquery.mast.core import MastQueryWithLogin
+
+from . import conf
 
 __all__ = ['MastMissionsClass', 'MastMissions']
 
@@ -183,5 +187,28 @@ class MastMissionsClass(MastQueryWithLogin):
 
         return self.query_region_async(coordinates, radius, **kwargs)
 
+    @class_or_instance
+    def get_column_list(self):
+        """
+        For a mission, return a list of all searchable columns and their descriptions
+
+        Returns
+        -------
+        json data that contains columns names and their descriptions
+        """
+
+        url = f"{conf.server}/search/util/api/v0.1/column_list?mission={self.mission}"
+
+        try:
+            results = requests.get(url)
+            results = results.json()
+            for result in results:
+                result.pop('field_name')
+                result.pop('queryable')
+                result.pop('indexed')
+                result.pop('default_output')
+            return results
+        except:
+            raise Exception(f"Error occured while trying to get column list for mission {self.mission}")
 
 MastMissions = MastMissionsClass()
