@@ -121,6 +121,8 @@ class ESAHubbleClass(BaseQuery):
 
     def get_member_observations(self, observation_id):
         """
+        Returns the related members of simple and composite observations
+
         Parameters
         ----------
         observation_id : str, mandatory
@@ -129,8 +131,7 @@ class ESAHubbleClass(BaseQuery):
         Returns
         -------
         A list of strings with the observation_id of the associated
-        observations that can be used in get_product_list and
-        get_obs_products functions
+        observations
         """
         if observation_id is None:
             raise ValueError(self.REQUESTED_OBSERVATION_ID)
@@ -145,6 +146,21 @@ class ESAHubbleClass(BaseQuery):
         return oids
 
     def get_hap_hst_link(self, observation_id):
+        """
+        Returns the related members of hap and hst observations
+
+        Parameters
+        ----------
+        observation_id : string
+           id of the observation to be downloaded, mandatory
+           The identifier of the observation we want to retrieve, regardless
+           of whether it is simple or composite.
+
+        Returns
+        -------
+        A list of strings with the observation_id of the associated
+        observations
+        """
         if observation_id is None:
             raise ValueError(self.REQUESTED_OBSERVATION_ID)
         observation_type = self.get_observation_type(observation_id)
@@ -161,6 +177,20 @@ class ESAHubbleClass(BaseQuery):
         return oids
 
     def get_observation_type(self, observation_id):
+        """
+        Returns the type of an observation
+
+        Parameters
+        ----------
+        observation_id : string
+           id of the observation to be downloaded, mandatory
+           The identifier of the observation we want to retrieve, regardless
+           of whether it is simple or composite.
+
+        Returns
+        -------
+        String with the observation type
+        """
         if observation_id is None:
             raise ValueError(self.REQUESTED_OBSERVATION_ID)
 
