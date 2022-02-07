@@ -33,7 +33,8 @@ mast
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
 
-
+- The obsolete file ``astroquery/utils/testing_tools.py`` has been removed.
+  [#2287]
 
 
 0.4.5 (2021-12-24)
