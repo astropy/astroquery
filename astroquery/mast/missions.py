@@ -208,7 +208,8 @@ class MastMissionsClass(MastQueryWithLogin):
                 result.pop('indexed')
                 result.pop('default_output')
             return results
-        except:
+        except Exception:
             raise Exception(f"Error occured while trying to get column list for mission {self.mission}")
+
 
 MastMissions = MastMissionsClass()
