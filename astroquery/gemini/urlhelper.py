@@ -73,6 +73,38 @@ class URLHelper:
         -------
         response : `string` url to execute the query
         """
+        return self.build_raw_url('jsonsummary', *args, **kwargs)
+
+    def build_calibration_url(self, *args, **kwargs):
+        """ Build a calibration query URL with the given args and kwargs as the query parameters.
+
+        Parameters
+        ----------
+        args : list
+            The arguments to be passed in the URL without a key.  Each of
+            these is simply added as another component of the path in the url.
+        kwargs : dict of key/value parameters for the url
+            The arguments to be passed in key=value form.
+        Returns
+        -------
+        response : `string` url to execute the query
+        """
+        return self.build_raw_url('associated_cals/body_only', *args, **kwargs)
+
+    def build_raw_url(self, base_url_path, *args, **kwargs):
+        """ Build a URL with the given base url path and the args and kwargs as the query parameters.
+
+        Parameters
+        ----------
+        args : list
+            The arguments to be passed in the URL without a key.  Each of
+            these is simply added as another component of the path in the url.
+        kwargs : dict of key/value parameters for the url
+            The arguments to be passed in key=value form.
+        Returns
+        -------
+        response : `string` url to execute the query
+        """
         qa_parm = ''
         eng_parm = ''
 
@@ -99,7 +131,7 @@ class URLHelper:
             eng_parm = 'notengineering/'
         if not any(qa_parm in args for qa_parm in qa_parameters):
             qa_parm = 'NotFail/'
-        url = "%s/jsonsummary/%s%s" % (self.server, eng_parm, qa_parm)
+        url = "%s/%s/%s%s" % (self.server, base_url_path, eng_parm, qa_parm)
         url = url[:-1]  # strip trailing /
 
         for arg in args:
