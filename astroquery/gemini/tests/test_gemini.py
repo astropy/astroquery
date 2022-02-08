@@ -69,11 +69,19 @@ def test_observations_query_region(patch_get):
     result = gemini.Observations.query_region(coords, radius=0.3 * units.deg)
     assert isinstance(result, Table)
     assert len(result) > 0
+    result = gemini.Observations.query_calibrations_for_region(coords, radius=0.3 * units.deg)
+    assert isinstance(result, Table)
+    assert len(result) > 0
 
 
 def test_observations_query_criteria(patch_get):
     """ test query against an instrument/program via criteria """
     result = gemini.Observations.query_criteria(instrument='GMOS-N', program_id='GN-CAL20191122',
+                                                observation_type='BIAS',
+                                                utc_date=(date(2019, 10, 1), date(2019, 11, 25)))
+    assert isinstance(result, Table)
+    assert len(result) > 0
+    result = gemini.Observations.query_calibrations_for_criteria(instrument='GMOS-N', program_id='GN-CAL20191122',
                                                 observation_type='BIAS',
                                                 utc_date=(date(2019, 10, 1), date(2019, 11, 25)))
     assert isinstance(result, Table)
@@ -104,6 +112,9 @@ def test_observations_query_raw(patch_get):
     result = gemini.Observations.query_raw('GMOS-N', 'BIAS', progid='GN-CAL20191122')
     assert isinstance(result, Table)
     assert len(result) > 0
+    result = gemini.Observations.query_calibrations_raw('GMOS-N', 'BIAS', progid='GN-CAL20191122')
+    assert isinstance(result, Table)
+    assert len(result) > 0
 
 
 def test_url_helper_arg():
@@ -113,6 +124,8 @@ def test_url_helper_arg():
     kwargs = {}
     url = urlh.build_url(*args, **kwargs)
     assert url == "https://archive.gemini.edu/jsonsummary/notengineering/NotFail/foo"
+    url = urlh.build_calibration_url(*args, **kwargs)
+    assert url == "https://archive.gemini.edu/associated_cals/body_only/notengineering/NotFail/foo"
 
 
 def test_url_helper_kwarg():
@@ -122,6 +135,8 @@ def test_url_helper_kwarg():
     kwargs = {"foo": "bar"}
     url = urlh.build_url(*args, **kwargs)
     assert url == "https://archive.gemini.edu/jsonsummary/notengineering/NotFail/foo=bar"
+    url = urlh.build_calibration_url(*args, **kwargs)
+    assert url == "https://archive.gemini.edu/associated_cals/body_only/notengineering/NotFail/foo=bar"
 
 
 def test_url_helper_radius():
@@ -131,6 +146,8 @@ def test_url_helper_radius():
     kwargs = {"radius": "0.4d"}
     url = urlh.build_url(*args, **kwargs)
     assert url == "https://archive.gemini.edu/jsonsummary/notengineering/NotFail/sr=0.400000d"
+    url = urlh.build_calibration_url(*args, **kwargs)
+    assert url == "https://archive.gemini.edu/associated_cals/body_only/notengineering/NotFail/sr=0.400000d"
 
 
 def test_url_helper_coordinates():
@@ -140,6 +157,9 @@ def test_url_helper_coordinates():
     kwargs = {"coordinates": "210.80242917 54.348753"}
     url = urlh.build_url(*args, **kwargs)
     assert url == "https://archive.gemini.edu/jsonsummary/notengineering/NotFail/ra=210.802429/dec=54.348753"
+    url = urlh.build_calibration_url(*args, **kwargs)
+    assert url == "https://archive.gemini.edu/associated_cals/body_only/notengineering/NotFail/" \
+                  "ra=210.802429/dec=54.348753"
 
 
 # send arg, should it have notengineering?, should it have NotFail?
