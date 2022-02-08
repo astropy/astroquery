@@ -59,7 +59,7 @@ class TestCasdaRemote:
                         'CASDA_PASSWD' not in os.environ),
                         reason='Requires real CASDA user/password (CASDA_USER '
                                'and CASDA_PASSWD environment variables)')
-    def test_stage_data_cutouts(self):
+    def test_cutout(self):
         prefix = 'https://data.csiro.au/casda_vo_proxy/vo/datalink/links?ID='
         access_urls = [prefix + 'cube-44705']
         table = Table([Column(data=access_urls, name='access_url')])
@@ -67,7 +67,7 @@ class TestCasdaRemote:
         casda = Casda(os.environ['CASDA_USER'], os.environ['CASDA_PASSWD'])
         casda.POLL_INTERVAL = 3
         pos = SkyCoord(196.49583333*u.deg, -62.7*u.deg)
-        urls = casda.stage_data(table, pos, radius=15*u.arcmin)
+        urls = casda.cutout(table, pos, radius=15*u.arcmin)
 
         # URLs may come back in any order
         for url in urls:

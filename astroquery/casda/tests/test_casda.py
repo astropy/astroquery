@@ -291,7 +291,7 @@ def test_stage_data(patch_get):
                     'http://casda.csiro.au/download/web/111-000-111-000/askap_img.fits']
 
 
-def test_stage_data_cutout(patch_get):
+def test_cutout(patch_get):
     prefix = 'https://somewhere/casda/datalink/links?'
     access_urls = [prefix + 'cube-244']
     table = Table([Column(data=access_urls, name='access_url')])
@@ -302,6 +302,165 @@ def test_stage_data_cutout(patch_get):
 
     casda = Casda('user', 'password')
     casda.POLL_INTERVAL = 1
-    urls = casda.stage_data(table, coordinates=centre, radius=radius, verbose=True)
+    urls = casda.cutout(table, coordinates=centre, radius=radius, verbose=True)
     assert urls == ['http://casda.csiro.au/download/web/111-000-111-000/cutout.fits.checksum',
                     'http://casda.csiro.au/download/web/111-000-111-000/cutout.fits']
+
+
+def test_cutout_no_args(patch_get):
+    prefix = 'https://somewhere/casda/datalink/links?'
+    access_urls = [prefix + 'cube-244']
+    table = Table([Column(data=access_urls, name='access_url')])
+    ra = 333.9092*u.deg
+    dec = -45.8418*u.deg
+    radius = 30*u.arcmin
+    centre = SkyCoord(ra, dec)
+
+    casda = Casda('user', 'password')
+    casda.POLL_INTERVAL = 1
+    with pytest.raises(ValueError) as excinfo:
+        casda.cutout(table)
+    assert "Please provide cutout parameters such as coordinates, band or channel." in str(excinfo.value)
+
+
+def test_args_to_payload_band():
+    casda = Casda('user', 'password')
+    payload = casda._args_to_payload(band=(0.195*u.m,0.215*u.m))
+    assert payload['BAND'] == '0.195 0.215'
+    assert list(payload.keys()) == ['BAND']
+
+    payload = casda._args_to_payload(band=(0.195*u.m,21.5*u.cm))
+    assert payload['BAND'] == '0.195 0.215'
+    assert list(payload.keys()) == ['BAND']
+
+    payload = casda._args_to_payload(band=(None,0.215*u.m))
+    assert payload['BAND'] == '-Inf 0.215'
+    assert list(payload.keys()) == ['BAND']
+
+    payload = casda._args_to_payload(band=(0.195*u.m,None))
+    assert payload['BAND'] == '0.195 +Inf'
+    assert list(payload.keys()) == ['BAND']
+
+    payload = casda._args_to_payload(band=(1.42*u.GHz, 1.5*u.GHz))
+    assert payload['BAND'] == '0.19986163866666667 0.21112144929577467'
+    assert list(payload.keys()) == ['BAND']
+
+    payload = casda._args_to_payload(band=(None, 1.5*u.GHz))
+    assert payload['BAND'] == '0.19986163866666667 +Inf'
+    assert list(payload.keys()) == ['BAND']
+
+    payload = casda._args_to_payload(band=(1.42*u.GHz, None))
+    assert payload['BAND'] == '-Inf 0.21112144929577467'
+    assert list(payload.keys()) == ['BAND']
+
+
+def test_args_to_payload_band_invalid():
+    casda = Casda('user', 'password')
+
+    with pytest.raises(ValueError) as excinfo:
+        casda._args_to_payload(band='foo')
+    assert "The 'band' value must be a list of 2 wavelength or frequency values." in str(excinfo.value)
+
+    with pytest.raises(ValueError) as excinfo:
+        casda._args_to_payload(band=(0.195*u.m,0.215*u.m,0.3*u.m))
+    assert "The 'band' value must be a list of 2 wavelength or frequency values." in str(excinfo.value)
+
+    with pytest.raises(ValueError) as excinfo:
+        casda._args_to_payload(band=('a', 0.215*u.m))
+    assert "The 'band' value must be a list of 2 wavelength or frequency values." in str(excinfo.value)
+
+    with pytest.raises(ValueError) as excinfo:
+        casda._args_to_payload(band=(1.42*u.GHz, 21*u.cm))
+    assert "The 'band' values must have the same kind of units." in str(excinfo.value)
+
+    with pytest.raises(ValueError) as excinfo:
+        casda._args_to_payload(band=(1.42*u.radian, 21*u.deg))
+    assert "The 'band' values must be wavelengths or frequencies." in str(excinfo.value)
+
+    with pytest.raises(ValueError) as excinfo:
+        casda._args_to_payload(band=(1.42*u.GHz, 1.5*u.GHz), channel=(5,10))
+    assert "Either 'channel' or 'band' values may be provided but not both." in str(excinfo.value)
+
+
+def test_args_to_payload_channel():
+    casda = Casda('user', 'password')
+    payload = casda._args_to_payload(channel=(0, 30))
+    assert payload['CHANNEL'] == '0 30'
+    assert list(payload.keys()) == ['CHANNEL']
+
+    payload = casda._args_to_payload(channel=(17, 23))
+    assert payload['CHANNEL'] == '17 23'
+    assert list(payload.keys()) == ['CHANNEL']
+
+
+def test_args_to_payload_channel_invalid():
+    casda = Casda('user', 'password')
+
+    with pytest.raises(ValueError) as excinfo:
+        casda._args_to_payload(channel='one')
+    assert "The 'channel' value must be a list of 2 integer values." in str(excinfo.value)
+
+    with pytest.raises(ValueError) as excinfo:
+        casda._args_to_payload(channel=(1.42*u.GHz, 1.5*u.GHz))
+    assert "The 'channel' value must be a list of 2 integer values." in str(excinfo.value)
+
+    with pytest.raises(ValueError) as excinfo:
+        casda._args_to_payload(channel=(None, 5))
+    assert "The 'channel' value must be a list of 2 integer values." in str(excinfo.value)
+
+    with pytest.raises(ValueError) as excinfo:
+        casda._args_to_payload(channel=(5))
+    assert "The 'channel' value must be a list of 2 integer values." in str(excinfo.value)
+
+
+def test_args_to_payload_coordinates():
+    casda = Casda('user', 'password')
+    cutout_coords = SkyCoord(ra=345.245*u.degree, dec=-32.125*u.degree, frame='icrs')
+    payload = casda._args_to_payload(coordinates=cutout_coords)
+    assert payload['POS'].startswith('CIRCLE 345')
+    pos_parts = payload['POS'].split(' ')
+    assert pos_parts[0] == 'CIRCLE'
+    assert isclose(float(pos_parts[1]), 345.245, abs_tol=1e-4)
+    assert isclose(float(pos_parts[2]), -32.125, abs_tol=1e-4)
+    assert isclose(float(pos_parts[3]), 1/60)
+    assert len(pos_parts) == 4
+    assert list(payload.keys()) == ['POS']
+
+    cutout_coords = SkyCoord(ra=187.5*u.degree, dec=-60.0*u.degree, frame='icrs')
+    payload = casda._args_to_payload(coordinates=cutout_coords, radius=900*u.arcsec)
+    assert payload['POS'].startswith('CIRCLE 187')
+    pos_parts = payload['POS'].split(' ')
+    assert pos_parts[0] == 'CIRCLE'
+    assert isclose(float(pos_parts[1]), 187.5, abs_tol=1e-4)
+    assert isclose(float(pos_parts[2]), -60.0, abs_tol=1e-4)
+    assert isclose(float(pos_parts[3]), 0.25)
+    assert len(pos_parts) == 4
+    assert list(payload.keys()) == ['POS']
+
+    cutout_coords = SkyCoord(ra=187.5*u.degree, dec=-60.0*u.degree, frame='icrs')
+    payload = casda._args_to_payload(coordinates=cutout_coords, width=2*u.arcmin, height=3*u.arcmin)
+    assert payload['POS'].startswith('RANGE 187')
+    pos_parts = payload['POS'].split(' ')
+    assert pos_parts[0] == 'RANGE'
+    assert isclose(float(pos_parts[1]), 187.5-1/60, abs_tol=1e-4)
+    assert isclose(float(pos_parts[2]), 187.5+1/60, abs_tol=1e-4)
+    assert isclose(float(pos_parts[3]), -60.0-1.5/60, abs_tol=1e-4)
+    assert isclose(float(pos_parts[4]), -60.0+1.5/60, abs_tol=1e-4)
+    assert len(pos_parts) == 5
+    assert list(payload.keys()) == ['POS']
+
+
+def test_args_to_payload_combined():
+    casda = Casda('user', 'password')
+    cutout_coords = SkyCoord(ra=187.5*u.degree, dec=-60.0*u.degree, frame='icrs')
+    payload = casda._args_to_payload(coordinates=cutout_coords, channel=(17, 23))
+    assert payload['POS'].startswith('CIRCLE 187')
+    pos_parts = payload['POS'].split(' ')
+    assert pos_parts[0] == 'CIRCLE'
+    assert isclose(float(pos_parts[1]), 187.5, abs_tol=1e-4)
+    assert isclose(float(pos_parts[2]), -60.0, abs_tol=1e-4)
+    assert isclose(float(pos_parts[3]), 1/60)
+    assert len(pos_parts) == 4
+    assert payload['CHANNEL'] == '17 23'
+    assert set(payload.keys()) == set(['CHANNEL', 'POS'])
+

@@ -142,25 +142,28 @@ Cutouts
 =======
 
 As well as accessing full data products, the CASDA service can produce cutout images and cubes from larger data products.
-The cutout support in AstroQuery is only spatial at this time.
-To produce a cutout, pass in a coordinate and either a radius or a height and a width to the :meth:`~astroquery.casda.CasdaClass.stage_data` method.
+The cutout support in AstroQuery allows both spatial an spectral cutouts.
+To produce a spatial cutout, pass in a coordinate and either a radius or a height and a width to the :meth:`~astroquery.casda.CasdaClass.cutout` method.
+To produce a spectral cutout, pass in either a band or a channel value. 
+For band, the value must be a list or tuple of two `astropy.units.Quantity` objects specifying a low and high frequency or wavelength. For an open ended range use `None` as the open value.
+For channel, the value must be a list or tuple of two integers specifying the low and high channels (i.e. planes of a cube) inclusive.
 
-Once completed the cutouts can be downloaded as described in the section above.
+Once completed, the cutouts can be downloaded as described in the section above.
 
-An example script to download a cutout from public continuum images of the NGC 7232 region taken in scheduling block 2338 is shown below:
+An example script to download a cutout from public spectral line cubes of the NGC 5044 region taken in scheduling block 25750 is shown below:
 .. code-block:: python
 
     >>> from astropy import coordinates, units as u, wcs
     >>> from astroquery.casda import Casda
     >>> import getpass
-    >>> centre = coordinates.SkyCoord.from_name('NGC 7232')
+    >>> centre = coordinates.SkyCoord.from_name('NGC 5044')
     >>> username = 'email@somewhere.edu.au'
     >>> password = getpass.getpass(str("Enter your OPAL password: "))
     >>> casda = Casda(username, password)
     >>> result = Casda.query_region(centre, radius=30*u.arcmin)
     >>> public_data = Casda.filter_out_unreleased(result)
-    >>> subset = public_data[(public_data['dataproduct_subtype']=='cont.restored.t0') & (public_data['obs_id']=='2338')]
-    >>> url_list = casda.stage_data(subset, coordinates=centre, radius=12*u.arcmin)
+    >>> subset = public_data[(public_data['dataproduct_subtype']=='spectral_restored_3d') & (public_data['obs_id']=='25750')]
+    >>> url_list = casda.cutout(subset, coordinates=centre, radius=12*u.arcmin, band=(1340*u.MHz,1365*u.MHz))
     >>> filelist = casda.download_files(url_list, savedir='/tmp')
 
 
