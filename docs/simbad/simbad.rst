@@ -565,6 +565,17 @@ Astroquery configuration file.
 
     >>> from astroquery.simbad import Simbad
     >>> Simbad.TIMEOUT = 60 # sets the timeout to 60s
+    
+Changing the server
+--------------------
+
+
+The default Simbad server is `http://simbad.u_strasburg.fr/simbad/sim`. You may may want to modify it to use the Harvard mirror site.
+
+.. code-block:: python
+
+    >>> from astroquery.simbad import Simbad
+    >>> Simbad.SIMBAD_URL = 'http://harvard.simbad.edu/simbad/sim-script' # uses the Harvard mirror
 
 Specifying which VOTable fields to include in the result
 --------------------------------------------------------
