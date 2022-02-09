@@ -210,21 +210,29 @@ and 'hst' mission.
                 >>> missions.service
                 'search'
 
-The missions object can be used to search meta data using region coordinates. the kwargs can be
-used to specify output characteristics like selec_cols and sort_by and conditions that filter on 
-values like proposal id, pi last name etc. The available column names to filter and
-their descriptions can be found here https://vao.stsci.edu/missionmast/tapservice.aspx/tables#folder38
+The missions object can be used to search metadata using region coordinates. the keywoed argumentss 
+can be used to specify output characteristics like selec_cols and sort_by and conditions that filter
+on values like proposal id, pi last name etc. The available column names for a mission can be found out
+by using the ~astroquery.mast.MastMissionsClass.get_column_list function.
 
-For a cone search, select_cols would always include ang_sep, sci_data_set_name, search_key and 
-search_position, in addition to the columns specified using select_cols.
+.. code-block:: python
 
-for a non cone search, select_cols would always include search_key and sci_data_set_name.
+                >>> from astroquery.mast.missions import MastMissions
+                >>> missions = MastMissions(mission='hst')
+                >>> columns = missions.get_column_list()
+
+For positional searches, the columns "ang_sep", "sci_data_set_name", "search_key" and "search_position"
+will always be included, in addition to any columns specified using "select_cols". For non-positional
+searches, "search_key" and "sci_data_set_name" will always be included, in addition to any columns
+specified using "select_cols". 
+
+For a non positional search, select_cols would always include search_key and sci_data_set_name.
 
 .. code-block:: python
 
                 >>> from astroquery.mast.missions import MastMissions
                 >>> from astropy.coordinates import SkyCoord
-                >>> missions = MastMissions()
+                >>> missions = MastMissions(mission='hst')
                 >>> regionCoords = SkyCoord(210.80227, 54.34895, unit=('deg', 'deg'))
                 >>> results = missions.query_region(regionCoords, 3, sci_pep_id=12556, select_cols=["sci_stop_time", "sci_targname", "sci_start_time", "sci_status"], sort_by=['sci_targname'])
                 >>> results[:5]
@@ -251,7 +259,8 @@ of returned records. the default values for offset and limit is 0 and 5000 respe
                 >>> len(results)
                 >>> 1000 
 
-Meta data search can also be performed using object names like M101.
+Metadata queries can also be performed using object names with the
+~astroquery.mast.MastMissionsClass.query_object function.
 
 .. code-block:: python
 
@@ -267,7 +276,8 @@ Meta data search can also be performed using object names like M101.
                 1.1454431087675097 210.80227 54.34895     PUBLIC 210.80227 54.34895JD6V01012 2017-06-15T18:33:25.983000   ANY        2017-06-15T18:10:12.037000         JD6V01012
                 1.1457795862361977 210.80227 54.34895     PUBLIC 210.80227 54.34895JD6V01013 2017-06-15T20:08:44.063000   ANY        2017-06-15T19:45:30.023000         JD6V01013
 
-Meta search can be performed by using key value pairs for search filters.
+Metadata queries can also be performed using non-positional parameters with the
+~astroquery.mast.MastMissionsClass.query_criteria function.
 
 .. code-block:: python
 
