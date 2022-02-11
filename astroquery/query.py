@@ -4,6 +4,7 @@ from __future__ import (absolute_import, division, print_function,
 import abc
 import inspect
 import pickle
+import copy
 import getpass
 import hashlib
 import keyring
@@ -26,6 +27,10 @@ __all__ = ['BaseQuery', 'QueryWithLogin']
 
 def to_cache(response, cache_file):
     log.debug("Caching data to {0}".format(cache_file))
+    response = copy.deepcopy(response)
+    if hasattr(response, 'request'):
+        for key in tuple(response.request.hooks.keys()):
+            del response.request.hooks[key]
     with open(cache_file, "wb") as f:
         pickle.dump(response, f)
 
