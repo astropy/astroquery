@@ -29,6 +29,7 @@ mast
 
 - Adding moving target functionality to ``astroquery.mast.Tesscut`` [#2121]
 
+- GALEX data is now available to download anonymously from the public STScI S3 buckets. [#2261]
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------

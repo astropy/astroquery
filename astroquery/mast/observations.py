@@ -565,7 +565,6 @@ class ObservationsClass(MastQueryWithLogin):
                         self._download_file(data_url, local_path,
                                             cache=cache, head_safe=True, continuation=False)
             else:
-                log.warn("Cloud connection disabled or mission does not have cloud support. Falling back to mast download...")
                 self._download_file(data_url, local_path,
                                     cache=cache, head_safe=True, continuation=False)
 

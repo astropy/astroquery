@@ -296,7 +296,8 @@ class TestMast:
 
         # get observations from GALEX instrument with query_criteria
         observations = mast.Observations.query_criteria(objectname='M1',
-                                                        radius=0.2, instrument_name='GALEX')
+                                                        radius=0.2,
+                                                        instrument_name='GALEX')
 
         assert len(observations) > 0, 'No results found for GALEX query.'
 
