@@ -125,12 +125,19 @@ degrees around an specific point in RA/Dec coordinates.
    0.021615117161838747 1635721458409799680 ...
   Length = 50 rows
 
-Queries return a limited number of rows controlled by ``Gaia.ROW_LIMIT``. To change the default behaviour set this appropriately.
+By default the number of rows returned by a query is limited by the
+``astroquery.gaia.conf.ROW_LIMIT`` value. This value can be overruled in a
+single function call with the ``row_limit`` argument. Alternatively, if the
+class attribute ``Gaia.ROW_LIMIT`` is set then it will take precedence over
+``conf.ROW_LIMIT``. If you call the function with ``verbose=True`` then you
+will be warned if the length of the query result is equal to the row limit.
 
 .. code-block:: python
 
-  >>> Gaia.ROW_LIMIT = 8
-  >>> r = Gaia.query_object_async(coordinate=coord, width=width, height=height)
+  >>> from astroquery.gaia import conf
+  >>> conf.ROW_LIMIT = 8       # Or Gaia.ROW_LIMIT = 8
+  >>> r = Gaia.query_object_async(coordinate=coord, width=width, height=height,
+                                  verbose=True)
   >>> r.pprint()
 
            dist             solution_id     ... epoch_photometry_url
@@ -144,13 +151,15 @@ Queries return a limited number of rows controlled by ``Gaia.ROW_LIMIT``. To cha
    0.006209042666371929 1635721458409799680 ...
    0.007469463683838576 1635721458409799680 ...
    0.008202004514524316 1635721458409799680 ...
+  MaxResultsWarning: The number of rows in the result matches the current row
+  limit of 8. You might wish to specify a different "row_limit" value.
 
-To return an unlimited number of rows set ``Gaia.ROW_LIMIT`` to -1.
+To return an unlimited number of rows set the row limit to ``-1``.
 
 .. code-block:: python
 
-  >>> Gaia.ROW_LIMIT = -1
-  >>> r = Gaia.query_object_async(coordinate=coord, width=width, height=height)
+  >>> r = Gaia.query_object_async(coordinate=coord, width=width, height=height,
+  ...                             row_limit=-1)
   >>> r.pprint()
 
            dist             solution_id     ... epoch_photometry_url
@@ -184,7 +193,7 @@ To return an unlimited number of rows set ``Gaia.ROW_LIMIT`` to -1.
 ~~~~~~~~~~~~~~~~
 
 This query performs a cone search centered at the specified RA/Dec coordinates with the provided
-radius argument.
+radius argument. The number of rows is limited just like in object queries.
 
 .. code-block:: python
 

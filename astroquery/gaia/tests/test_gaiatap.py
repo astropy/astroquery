@@ -18,6 +18,7 @@ import unittest
 import os
 import pytest
 
+from astroquery.exceptions import MaxResultsWarning
 from astroquery.gaia import conf
 from astroquery.gaia.core import GaiaClass
 from astroquery.gaia.tests.DummyTapHandler import DummyTapHandler
@@ -214,6 +215,12 @@ class TestTap(unittest.TestCase):
                                     'table1_oid',
                                     None,
                                     np.int32)
+        # No warning without verbose=True
+        job = tap.query_object_async(sc, radius, row_limit=3)
+        msg = ('The number of rows in the result matches the current row limit of 3. You might '
+               'wish to specify a different "row_limit" value.')
+        with pytest.warns(MaxResultsWarning, match=msg):
+            job = tap.query_object_async(sc, radius, row_limit=3, verbose=True)
 
     def test_cone_search_sync(self):
         connHandler = DummyConnHandler()
@@ -359,6 +366,29 @@ class TestTap(unittest.TestCase):
         assert 'name_from_class' in job.parameters['query']
         # Cleanup.
         conf.reset('MAIN_GAIA_TABLE')
+
+        # Test the default value from conf.
+        assert 'TOP 50' in job.parameters['query']
+        # Test changing the row limit through conf at runtime.
+        with conf.set_temp('ROW_LIMIT', 42):
+            job = tap.cone_search_async(sc, radius)
+            assert 'TOP 42' in job.parameters['query']
+        # Changing the value through the class should overrule conf.
+        tap.ROW_LIMIT = 17
+        job = tap.cone_search_async(sc, radius)
+        assert 'TOP 17' in job.parameters['query']
+        # Function argument has highest priority.
+        job = tap.cone_search_async(sc, radius, row_limit=9)
+        assert 'TOP 9' in job.parameters['query']
+        # No row limit
+        job = tap.cone_search_async(sc, radius, row_limit=-1)
+        assert 'TOP' not in job.parameters['query']
+        # No warning without verbose=True
+        job = tap.cone_search_async(sc, radius, row_limit=3)
+        msg = ('The number of rows in the result matches the current row limit of 3. You might '
+               'wish to specify a different "row_limit" value.')
+        with pytest.warns(MaxResultsWarning, match=msg):
+            job = tap.cone_search_async(sc, radius, row_limit=3, verbose=True)
 
     def __check_results_column(self, results, columnName, description, unit,
                                dataType):
