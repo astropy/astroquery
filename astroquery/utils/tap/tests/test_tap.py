@@ -13,8 +13,12 @@ European Space Agency (ESA)
 Created on 30 jun. 2016
 """
 import os
+from unittest.mock import patch
+
 import numpy as np
 import pytest
+from requests import HTTPError
+
 from astroquery.utils.tap.model.tapcolumn import TapColumn
 
 from astroquery.utils.tap.conn.tests.DummyConnHandler import DummyConnHandler
@@ -968,11 +972,6 @@ def test_rename_table():
                            context=None,
                            body=tableData,
                            headers=None)
-    # tableRequest = f"tables?tables={tableName}"
-    # connHandler.set_response(tableRequest, dummyResponse)
-
-    # data = connHandler.url_encode(dictArgs)
-    # response = connHandler.execute_table_tool(data, verbose=verbose)
 
     with pytest.raises(Exception):
         tap.rename_table()
@@ -1027,3 +1026,40 @@ def __check_results_column(results, columnName, description, unit,
     assert c.description == description
     assert c.unit == unit
     assert c.dtype == dataType
+
+
+@patch.object(TapPlus, 'login')
+def test_login(mock_login):
+    conn_handler = DummyConnHandler()
+    tap = TapPlus("http://test:1111/tap", connhandler=conn_handler)
+    tap.login("user", "password")
+    assert (mock_login.call_count == 1)
+    mock_login.side_effect = HTTPError("Login error")
+    with pytest.raises(HTTPError):
+        tap.login("user", "password")
+    assert (mock_login.call_count == 2)
+
+
+@patch.object(TapPlus, 'login_gui')
+@patch.object(TapPlus, 'login')
+def test_login_gui(mock_login_gui, mock_login):
+    conn_handler = DummyConnHandler()
+    tap = TapPlus("http://test:1111/tap", connhandler=conn_handler)
+    tap.login_gui()
+    assert (mock_login_gui.call_count == 0)
+    mock_login_gui.side_effect = HTTPError("Login error")
+    with pytest.raises(HTTPError):
+        tap.login("user", "password")
+    assert (mock_login.call_count == 1)
+
+
+@patch.object(TapPlus, 'logout')
+def test_logout(mock_logout):
+    conn_handler = DummyConnHandler()
+    tap = TapPlus("http://test:1111/tap", connhandler=conn_handler)
+    tap.logout()
+    assert (mock_logout.call_count == 1)
+    mock_logout.side_effect = HTTPError("Login error")
+    with pytest.raises(HTTPError):
+        tap.logout()
+    assert (mock_logout.call_count == 2)

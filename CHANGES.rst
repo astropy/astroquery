@@ -4,6 +4,10 @@
 New Tools and Services
 ----------------------
 
+gaia
+^^^^
+- New method, rename_table, which allows the user to rename table and column names
+
 
 Service fixes and enhancements
 ------------------------------
@@ -29,6 +33,9 @@ gaia
   ``astroquery.gaia.Gaia`` no longer ignore their ``columns`` argument when
   ``radius`` is specified. [#2249]
 
+- Enhanced methods 'launch_job' and 'launch_job_async' to avoid issues with the name provided by the user for the
+  output file when the results are returned by the TAP in compressed format.
+
 mast
 ^^^^
 
@@ -37,6 +44,7 @@ mast
 - GALEX data is now available to download anonymously from the public STScI S3 buckets. [#2261]
 
 - Adding the All-Sky PLATO Input Catalog ('plato') as a catalog option for methods of ``astroquery.mast.Catalogs``. [#2279]
+
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------

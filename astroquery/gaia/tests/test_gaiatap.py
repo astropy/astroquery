@@ -16,7 +16,10 @@ Created on 30 jun. 2016
 """
 import unittest
 import os
+from unittest.mock import patch
+
 import pytest
+from requests import HTTPError
 
 from astroquery.gaia import conf
 from astroquery.gaia.core import GaiaClass
@@ -40,22 +43,22 @@ def data_path(filename):
 class TestTap(unittest.TestCase):
 
     def test_query_object(self):
-        connHandler = DummyConnHandler()
-        tapplus = TapPlus("http://test:1111/tap", connhandler=connHandler)
-        tap = GaiaClass(connHandler, tapplus)
+        conn_handler = DummyConnHandler()
+        tapplus = TapPlus("http://test:1111/tap", connhandler=conn_handler)
+        tap = GaiaClass(conn_handler, tapplus)
         # Launch response: we use default response because the query contains
         # decimals
-        responseLaunchJob = DummyResponse()
-        responseLaunchJob.set_status_code(200)
-        responseLaunchJob.set_message("OK")
-        jobDataFile = data_path('job_1.vot')
-        jobData = utils.read_file_content(jobDataFile)
-        responseLaunchJob.set_data(method='POST',
-                                   context=None,
-                                   body=jobData,
-                                   headers=None)
+        response_launch_job = DummyResponse()
+        response_launch_job.set_status_code(200)
+        response_launch_job.set_message("OK")
+        job_data_file = data_path('job_1.vot')
+        job_data = utils.read_file_content(job_data_file)
+        response_launch_job.set_data(method='POST',
+                                     context=None,
+                                     body=job_data,
+                                     headers=None)
         # The query contains decimals: force default response
-        connHandler.set_default_response(responseLaunchJob)
+        conn_handler.set_default_response(response_launch_job)
         sc = SkyCoord(ra=29.0, dec=15.0, unit=(u.degree, u.degree),
                       frame='icrs')
         with pytest.raises(ValueError) as err:
@@ -121,45 +124,45 @@ class TestTap(unittest.TestCase):
                                     np.int32)
 
     def test_query_object_async(self):
-        connHandler = DummyConnHandler()
-        tapplus = TapPlus("http://test:1111/tap", connhandler=connHandler)
-        tap = GaiaClass(connHandler, tapplus)
+        conn_handler = DummyConnHandler()
+        tapplus = TapPlus("http://test:1111/tap", connhandler=conn_handler)
+        tap = GaiaClass(conn_handler, tapplus)
         jobid = '12345'
         # Launch response
-        responseLaunchJob = DummyResponse()
-        responseLaunchJob.set_status_code(303)
-        responseLaunchJob.set_message("OK")
+        response_launch_job = DummyResponse()
+        response_launch_job.set_status_code(303)
+        response_launch_job.set_message("OK")
         # list of list (httplib implementation for headers in response)
-        launchResponseHeaders = [
+        launch_response_headers = [
             ['location', 'http://test:1111/tap/async/' + jobid]
-            ]
-        responseLaunchJob.set_data(method='POST',
-                                   context=None,
-                                   body=None,
-                                   headers=launchResponseHeaders)
-        connHandler.set_default_response(responseLaunchJob)
+        ]
+        response_launch_job.set_data(method='POST',
+                                     context=None,
+                                     body=None,
+                                     headers=launch_response_headers)
+        conn_handler.set_default_response(response_launch_job)
         # Phase response
-        responsePhase = DummyResponse()
-        responsePhase.set_status_code(200)
-        responsePhase.set_message("OK")
-        responsePhase.set_data(method='GET',
-                               context=None,
-                               body="COMPLETED",
-                               headers=None)
+        response_phase = DummyResponse()
+        response_phase.set_status_code(200)
+        response_phase.set_message("OK")
+        response_phase.set_data(method='GET',
+                                context=None,
+                                body="COMPLETED",
+                                headers=None)
         req = "async/" + jobid + "/phase"
-        connHandler.set_response(req, responsePhase)
+        conn_handler.set_response(req, response_phase)
         # Results response
-        responseResultsJob = DummyResponse()
-        responseResultsJob.set_status_code(200)
-        responseResultsJob.set_message("OK")
-        jobDataFile = data_path('job_1.vot')
-        jobData = utils.read_file_content(jobDataFile)
-        responseResultsJob.set_data(method='GET',
-                                    context=None,
-                                    body=jobData,
-                                    headers=None)
+        response_results_job = DummyResponse()
+        response_results_job.set_status_code(200)
+        response_results_job.set_message("OK")
+        job_data_file = data_path('job_1.vot')
+        job_data = utils.read_file_content(job_data_file)
+        response_results_job.set_data(method='GET',
+                                      context=None,
+                                      body=job_data,
+                                      headers=None)
         req = "async/" + jobid + "/results/result"
-        connHandler.set_response(req, responseResultsJob)
+        conn_handler.set_response(req, response_results_job)
         sc = SkyCoord(ra=29.0, dec=15.0, unit=(u.degree, u.degree),
                       frame='icrs')
         width = Quantity(12, u.deg)
@@ -216,25 +219,25 @@ class TestTap(unittest.TestCase):
                                     np.int32)
 
     def test_cone_search_sync(self):
-        connHandler = DummyConnHandler()
-        tapplus = TapPlus("http://test:1111/tap", connhandler=connHandler)
-        tap = GaiaClass(connHandler, tapplus)
+        conn_handler = DummyConnHandler()
+        tapplus = TapPlus("http://test:1111/tap", connhandler=conn_handler)
+        tap = GaiaClass(conn_handler, tapplus)
         # Launch response: we use default response because the query contains
         # decimals
-        responseLaunchJob = DummyResponse()
-        responseLaunchJob.set_status_code(200)
-        responseLaunchJob.set_message("OK")
-        jobDataFile = data_path('job_1.vot')
-        jobData = utils.read_file_content(jobDataFile)
-        responseLaunchJob.set_data(method='POST',
-                                   context=None,
-                                   body=jobData,
-                                   headers=None)
+        response_launch_job = DummyResponse()
+        response_launch_job.set_status_code(200)
+        response_launch_job.set_message("OK")
+        job_data_file = data_path('job_1.vot')
+        job_data = utils.read_file_content(job_data_file)
+        response_launch_job.set_data(method='POST',
+                                     context=None,
+                                     body=job_data,
+                                     headers=None)
         ra = 19.0
         dec = 20.0
         sc = SkyCoord(ra=ra, dec=dec, unit=(u.degree, u.degree), frame='icrs')
         radius = Quantity(1.0, u.deg)
-        connHandler.set_default_response(responseLaunchJob)
+        conn_handler.set_default_response(response_launch_job)
         job = tap.cone_search(sc, radius)
         assert job is not None, "Expected a valid job"
         assert job.async_ is False, "Expected a synchronous job"
@@ -269,49 +272,49 @@ class TestTap(unittest.TestCase):
                                     np.int32)
 
     def test_cone_search_async(self):
-        connHandler = DummyConnHandler()
-        tapplus = TapPlus("http://test:1111/tap", connhandler=connHandler)
-        tap = GaiaClass(connHandler, tapplus)
+        conn_handler = DummyConnHandler()
+        tapplus = TapPlus("http://test:1111/tap", connhandler=conn_handler)
+        tap = GaiaClass(conn_handler, tapplus)
         jobid = '12345'
         # Launch response
-        responseLaunchJob = DummyResponse()
-        responseLaunchJob.set_status_code(303)
-        responseLaunchJob.set_message("OK")
+        response_launch_job = DummyResponse()
+        response_launch_job.set_status_code(303)
+        response_launch_job.set_message("OK")
         # list of list (httplib implementation for headers in response)
-        launchResponseHeaders = [
+        launch_response_headers = [
             ['location', 'http://test:1111/tap/async/' + jobid]
-            ]
-        responseLaunchJob.set_data(method='POST',
-                                   context=None,
-                                   body=None,
-                                   headers=launchResponseHeaders)
+        ]
+        response_launch_job.set_data(method='POST',
+                                     context=None,
+                                     body=None,
+                                     headers=launch_response_headers)
         ra = 19
         dec = 20
         sc = SkyCoord(ra=ra, dec=dec, unit=(u.degree, u.degree), frame='icrs')
         radius = Quantity(1.0, u.deg)
-        connHandler.set_default_response(responseLaunchJob)
+        conn_handler.set_default_response(response_launch_job)
         # Phase response
-        responsePhase = DummyResponse()
-        responsePhase.set_status_code(200)
-        responsePhase.set_message("OK")
-        responsePhase.set_data(method='GET',
-                               context=None,
-                               body="COMPLETED",
-                               headers=None)
+        response_phase = DummyResponse()
+        response_phase.set_status_code(200)
+        response_phase.set_message("OK")
+        response_phase.set_data(method='GET',
+                                context=None,
+                                body="COMPLETED",
+                                headers=None)
         req = "async/" + jobid + "/phase"
-        connHandler.set_response(req, responsePhase)
+        conn_handler.set_response(req, response_phase)
         # Results response
-        responseResultsJob = DummyResponse()
-        responseResultsJob.set_status_code(200)
-        responseResultsJob.set_message("OK")
-        jobDataFile = data_path('job_1.vot')
-        jobData = utils.read_file_content(jobDataFile)
-        responseResultsJob.set_data(method='GET',
-                                    context=None,
-                                    body=jobData,
-                                    headers=None)
+        response_results_job = DummyResponse()
+        response_results_job.set_status_code(200)
+        response_results_job.set_message("OK")
+        job_data_file = data_path('job_1.vot')
+        job_data = utils.read_file_content(job_data_file)
+        response_results_job.set_data(method='GET',
+                                      context=None,
+                                      body=job_data,
+                                      headers=None)
         req = "async/" + jobid + "/results/result"
-        connHandler.set_response(req, responseResultsJob)
+        conn_handler.set_response(req, response_results_job)
         job = tap.cone_search_async(sc, radius)
         assert job is not None, "Expected a valid job"
         assert job.async_ is True, "Expected an asynchronous job"
@@ -360,25 +363,25 @@ class TestTap(unittest.TestCase):
         # Cleanup.
         conf.reset('MAIN_GAIA_TABLE')
 
-    def __check_results_column(self, results, columnName, description, unit,
-                               dataType):
-        c = results[columnName]
+    def __check_results_column(self, results, column_name, description, unit,
+                               data_type):
+        c = results[column_name]
         assert c.description == description, \
             "Wrong description for results column '%s'. " % \
             "Expected: '%s', found '%s'" % \
-            (columnName, description, c.description)
+            (column_name, description, c.description)
         assert c.unit == unit, \
             "Wrong unit for results column '%s'. " % \
             "Expected: '%s', found '%s'" % \
-            (columnName, unit, c.unit)
-        assert c.dtype == dataType, \
+            (column_name, unit, c.unit)
+        assert c.dtype == data_type, \
             "Wrong dataType for results column '%s'. " % \
             "Expected: '%s', found '%s'" % \
-            (columnName, dataType, c.dtype)
+            (column_name, data_type, c.dtype)
 
     def test_load_data(self):
-        dummyHandler = DummyTapHandler()
-        tap = GaiaClass(dummyHandler, dummyHandler)
+        dummy_handler = DummyTapHandler()
+        tap = GaiaClass(dummy_handler, dummy_handler)
 
         ids = "1,2,3,4"
         retrieval_type = "epoch_photometry"
@@ -410,81 +413,79 @@ class TestTap(unittest.TestCase):
         parameters = {}
         parameters['params_dict'] = params_dict
         # Output file name contains a timestamp: cannot be verified
-        of = dummyHandler._DummyTapHandler__parameters['output_file']
+        of = dummy_handler._DummyTapHandler__parameters['output_file']
         parameters['output_file'] = of
         parameters['verbose'] = verbose
-        dummyHandler.check_call('load_data', parameters)
+        dummy_handler.check_call('load_data', parameters)
 
     def test_get_datalinks(self):
-        dummyHandler = DummyTapHandler()
-        tap = GaiaClass(dummyHandler, dummyHandler)
+        dummy_handler = DummyTapHandler()
+        tap = GaiaClass(dummy_handler, dummy_handler)
         ids = ["1", "2", "3", "4"]
         verbose = True
         parameters = {}
         parameters['ids'] = ids
         parameters['verbose'] = verbose
         tap.get_datalinks(ids, verbose)
-        dummyHandler.check_call('get_datalinks', parameters)
-        tap.get_datalinks(ids, verbose)
-        dummyHandler.check_call('get_datalinks', parameters)
+        dummy_handler.check_call('get_datalinks', parameters)
 
     def test_xmatch(self):
-        connHandler = DummyConnHandler()
-        tapplus = TapPlus("http://test:1111/tap", connhandler=connHandler)
-        tap = GaiaClass(connHandler, tapplus)
+        conn_handler = DummyConnHandler()
+        tapplus = TapPlus("http://test:1111/tap", connhandler=conn_handler)
+        tap = GaiaClass(conn_handler, tapplus)
         jobid = '12345'
         # Launch response
-        responseLaunchJob = DummyResponse()
-        responseLaunchJob.set_status_code(303)
-        responseLaunchJob.set_message("OK")
+        response_launch_job = DummyResponse()
+        response_launch_job.set_status_code(303)
+        response_launch_job.set_message("OK")
         # list of list (httplib implementation for headers in response)
-        launchResponseHeaders = [
+        launch_response_headers = [
             ['location', 'http://test:1111/tap/async/' + jobid]
-            ]
-        responseLaunchJob.set_data(method='POST',
-                                   context=None,
-                                   body=None,
-                                   headers=launchResponseHeaders)
-        connHandler.set_default_response(responseLaunchJob)
+        ]
+        response_launch_job.set_data(method='POST',
+                                     context=None,
+                                     body=None,
+                                     headers=launch_response_headers)
+        conn_handler.set_default_response(response_launch_job)
         # Phase response
-        responsePhase = DummyResponse()
-        responsePhase.set_status_code(200)
-        responsePhase.set_message("OK")
-        responsePhase.set_data(method='GET',
-                               context=None,
-                               body="COMPLETED",
-                               headers=None)
+        response_phase = DummyResponse()
+        response_phase.set_status_code(200)
+        response_phase.set_message("OK")
+        response_phase.set_data(method='GET',
+                                context=None,
+                                body="COMPLETED",
+                                headers=None)
         req = "async/" + jobid + "/phase"
-        connHandler.set_response(req, responsePhase)
+        conn_handler.set_response(req, response_phase)
         # Results response
-        responseResultsJob = DummyResponse()
-        responseResultsJob.set_status_code(200)
-        responseResultsJob.set_message("OK")
-        jobDataFile = data_path('job_1.vot')
-        jobData = utils.read_file_content(jobDataFile)
-        responseResultsJob.set_data(method='GET',
-                                    context=None,
-                                    body=jobData,
-                                    headers=None)
+        response_results_job = DummyResponse()
+        response_results_job.set_status_code(200)
+        response_results_job.set_message("OK")
+        job_data_file = data_path('job_1.vot')
+        job_data = utils.read_file_content(job_data_file)
+        response_results_job.set_data(method='GET',
+                                      context=None,
+                                      body=job_data,
+                                      headers=None)
         req = "async/" + jobid + "/results/result"
-        connHandler.set_response(req, responseResultsJob)
+        conn_handler.set_response(req, response_results_job)
         query = ("SELECT crossmatch_positional(",
                  "'schemaA','tableA','schemaB','tableB',1.0,'results')",
                  "FROM dual;")
-        dTmp = {"q": query}
-        dTmpEncoded = connHandler.url_encode(dTmp)
-        p = dTmpEncoded.find("=")
-        q = dTmpEncoded[p+1:]
-        dictTmp = {
+        d_tmp = {"q": query}
+        d_tmp_encoded = conn_handler.url_encode(d_tmp)
+        p = d_tmp_encoded.find("=")
+        q = d_tmp_encoded[p + 1:]
+        dict_tmp = {
             "REQUEST": "doQuery",
             "LANG": "ADQL",
             "FORMAT": "votable",
             "tapclient": str(TAP_CLIENT_ID),
             "PHASE": "RUN",
             "QUERY": str(q)}
-        sortedKey = taputils.taputil_create_sorted_dict_key(dictTmp)
-        jobRequest = "sync?" + sortedKey
-        connHandler.set_response(jobRequest, responseLaunchJob)
+        sorted_key = taputils.taputil_create_sorted_dict_key(dict_tmp)
+        job_request = "sync?" + sorted_key
+        conn_handler.set_response(job_request, response_launch_job)
         # check parameters
         # missing table A
         with pytest.raises(ValueError) as err:
@@ -498,7 +499,7 @@ class TestTap(unittest.TestCase):
                             full_qualified_table_name_b='schemaB.tableB',
                             results_table_name='results')
         assert "Not found schema name in full qualified table A: 'tableA'" \
-            in err.value.args[0]
+               in err.value.args[0]
         # missing table B
         with pytest.raises(ValueError) as err:
             tap.cross_match(full_qualified_table_name_a='schemaA.tableA',
@@ -511,7 +512,7 @@ class TestTap(unittest.TestCase):
                             full_qualified_table_name_b='tableB',
                             results_table_name='results')
         assert "Not found schema name in full qualified table B: 'tableB'" \
-            in err.value.args[0]
+               in err.value.args[0]
         # missing results table
         with pytest.raises(ValueError) as err:
             tap.cross_match(full_qualified_table_name_a='schemaA.tableA',
@@ -524,21 +525,21 @@ class TestTap(unittest.TestCase):
                             full_qualified_table_name_b='schemaB.tableB',
                             results_table_name='schema.results')
         assert "Please, do not specify schema for 'results_table_name'" \
-            in err.value.args[0]
+               in err.value.args[0]
         # radius < 0.1
         with pytest.raises(ValueError) as err:
             tap.cross_match(full_qualified_table_name_a='schemaA.tableA',
                             full_qualified_table_name_b='schemaB.tableB',
                             results_table_name='results', radius=0.01)
         assert "Invalid radius value. Found 0.01, valid range is: 0.1 to 10.0" \
-            in err.value.args[0]
+               in err.value.args[0]
         # radius > 10.0
         with pytest.raises(ValueError) as err:
             tap.cross_match(full_qualified_table_name_a='schemaA.tableA',
                             full_qualified_table_name_b='schemaB.tableB',
                             results_table_name='results', radius=10.1)
         assert "Invalid radius value. Found 10.1, valid range is: 0.1 to 10.0" \
-            in err.value.args[0]
+               in err.value.args[0]
         # check default parameters
         parameters = {}
         query = "SELECT crossmatch_positional(\
@@ -565,15 +566,49 @@ class TestTap(unittest.TestCase):
             ('COMPLETED', job.get_phase())
         assert job.failed is False, "Wrong job status (set Failed = True)"
         job = tap.cross_match(
-                        full_qualified_table_name_a='schemaA.tableA',
-                        full_qualified_table_name_b='schemaB.tableB',
-                        results_table_name='results',
-                        background=True)
+            full_qualified_table_name_a='schemaA.tableA',
+            full_qualified_table_name_b='schemaB.tableB',
+            results_table_name='results',
+            background=True)
         assert job.async_ is True, "Expected an asynchronous job"
         assert job.get_phase() == 'EXECUTING', \
             "Wrong job phase. Expected: %s, found %s" % \
             ('EXECUTING', job.get_phase())
         assert job.failed is False, "Wrong job status (set Failed = True)"
+
+    @patch.object(TapPlus, 'login')
+    def test_login(self, mock_login):
+        conn_handler = DummyConnHandler()
+        tapplus = TapPlus("http://test:1111/tap", connhandler=conn_handler)
+        tap = GaiaClass(conn_handler, tapplus)
+        tap.login("user", "password")
+        assert (mock_login.call_count == 2)
+        mock_login.side_effect = HTTPError("Login error")
+        tap.login("user", "password")
+        assert (mock_login.call_count == 3)
+
+    @patch.object(TapPlus, 'login_gui')
+    @patch.object(TapPlus, 'login')
+    def test_login_gui(self, mock_login_gui, mock_login):
+        conn_handler = DummyConnHandler()
+        tapplus = TapPlus("http://test:1111/tap", connhandler=conn_handler)
+        tap = GaiaClass(conn_handler, tapplus)
+        tap.login_gui()
+        assert (mock_login_gui.call_count == 1)
+        mock_login_gui.side_effect = HTTPError("Login error")
+        tap.login("user", "password")
+        assert (mock_login.call_count == 1)
+
+    @patch.object(TapPlus, 'logout')
+    def test_logout(self, mock_logout):
+        conn_handler = DummyConnHandler()
+        tapplus = TapPlus("http://test:1111/tap", connhandler=conn_handler)
+        tap = GaiaClass(conn_handler, tapplus)
+        tap.logout()
+        assert (mock_logout.call_count == 2)
+        mock_logout.side_effect = HTTPError("Login error")
+        tap.logout()
+        assert (mock_logout.call_count == 3)
 
 
 if __name__ == "__main__":

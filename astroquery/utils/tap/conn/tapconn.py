@@ -87,7 +87,7 @@ class TapConn:
         self.__connPort = port
         self.__connPortSsl = sslport
         if server_context is not None:
-            if(server_context.startswith("/")):
+            if server_context.startswith("/"):
                 self.__serverContext = server_context
             else:
                 self.__serverContext = f"/{server_context}"
@@ -106,8 +106,8 @@ class TapConn:
             self.__connectionHandler = connhandler
 
     def __create_context(self, context):
-        if (context is not None and context != ""):
-            if(str(context).startswith("/")):
+        if context is not None and context != "":
+            if str(context).startswith("/"):
                 return f"{self.__serverContext}{context}"
             else:
                 return f"{self.__serverContext}/{context}"

@@ -12,7 +12,6 @@ European Space Agency (ESA)
 
 Created on 30 jun. 2016
 Modified on 18 Ene. 2022 by mhsarmiento
-
 """
 from requests import HTTPError
 
@@ -33,6 +32,7 @@ from astropy.io import fits
 from astropy.table import Table
 from astropy import units as u
 import warnings
+from astroquery.exceptions import InputWarning
 
 
 class GaiaClass(TapPlus):
@@ -78,9 +78,9 @@ class GaiaClass(TapPlus):
               verbose=False):
         """Performs a login.
         User and password arguments can be used or a file that contains
-        user name and password
-        (2 lines: one for user name and the following one for the password).
-        If no arguments are provided, a prompt asking for user name and
+        username and password
+        (2 lines: one for username and the following one for the password).
+        If no arguments are provided, a prompt asking for username and
         password will appear.
 
         Parameters
@@ -199,7 +199,7 @@ class GaiaClass(TapPlus):
             By default, this value will be set to False. If it is set to 'true'
             the Datalink items tags will not be checked.
         format : str, optional, default 'votable'
-            loading format. Other available formats are 'csv', 'ecsv', 'votable_plain' and 'fits'
+            loading format. Other available formats are 'csv', 'ecsv','json','votable_plain' and 'fits'
         output_file : string, optional, default None
             file where the results are saved.
             If it is not provided, the http response contents are returned.
@@ -371,12 +371,11 @@ class GaiaClass(TapPlus):
         ----------
         coordinate : astropy.coordinate, mandatory
             coordinates center point
-        radius : astropy.units, required if no 'width' nor 'height' are
-        provided
+        radius : astropy.units if no 'width' nor 'height' are provided
             radius (deg)
-        width : astropy.units, required if no 'radius' is provided
+        width : astropy.units if no 'radius' is provided
             box width
-        height : astropy.units, required if no 'radius' is provided
+        height : astropy.units if no 'radius' is provided
             box height
         async_job : bool, optional, default 'False'
             executes the query (job) in asynchronous/synchronous mode (default
@@ -451,11 +450,11 @@ class GaiaClass(TapPlus):
         ----------
         coordinate : astropy.coordinates, mandatory
             coordinates center point
-        radius : astropy.units, required if no 'width'/'height' are provided
+        radius : astropy.units if no 'width'/'height' are provided
             radius (deg)
-        width : astropy.units, required if no 'radius' is provided
+        width : astropy.units if no 'radius' is provided
             box width
-        height : astropy.units, required if no 'radius' is provided
+        height : astropy.units if no 'radius' is provided
             box height
         verbose : bool, optional, default 'False'
             flag to display information about the process
@@ -477,11 +476,11 @@ class GaiaClass(TapPlus):
         ----------
         coordinate : astropy.coordinates, mandatory
             coordinates center point
-        radius : astropy.units, required if no 'width'/'height' are provided
+        radius : astropy.units if no 'width'/'height' are provided
             radius
-        width : astropy.units, required if no 'radius' is provided
+        width : astropy.units if no 'radius' is provided
             box width
-        height : astropy.units, required if no 'radius' is provided
+        height : astropy.units if no 'radius' is provided
             box height
         verbose : bool, optional, default 'False'
             flag to display information about the process
@@ -511,8 +510,7 @@ class GaiaClass(TapPlus):
             coordinates center point
         radius : astropy.units, mandatory
             radius
-        table_name : str, optional, default main gaia table
-            table name doing the cone search against
+        table_name : str, optional, default main gaia table name doing the cone search against
         ra_column_name : str, optional, default ra column in main gaia table
             ra column doing the cone search against
         dec_column_name : str, optional, default dec column in main gaia table
@@ -539,6 +537,7 @@ class GaiaClass(TapPlus):
         -------
         A Job object
         """
+        radiusDeg = None
         coord = self.__getCoordInput(coordinate, "coordinate")
         raHours, dec = commons.coord_to_radec(coord)
         ra = raHours * 15.0  # Converts to degrees
@@ -605,8 +604,7 @@ class GaiaClass(TapPlus):
             coordinates center point
         radius : astropy.units, mandatory
             radius
-        table_name : str, optional, default main gaia table
-            table name doing the cone search against
+        table_name : str, optional, default main gaia table name doing the cone search against
         ra_column_name : str, optional, default ra column in main gaia table
             ra column doing the cone search against
         dec_column_name : str, optional, default dec column in main gaia table
@@ -655,8 +653,7 @@ class GaiaClass(TapPlus):
             coordinates center point
         radius : astropy.units, mandatory
             radius
-        table_name : str, optional, default main gaia table
-            table name doing the cone search against
+        table_name : str, optional, default main gaia table name doing the cone search against
         ra_column_name : str, optional, default ra column in main gaia table
             ra column doing the cone search against
         dec_column_name : str, optional, default dec column in main gaia table
@@ -759,7 +756,7 @@ class GaiaClass(TapPlus):
                     radius=1.0,
                     background=False,
                     verbose=False):
-        """Performs a cross match between the specified tables
+        """Performs a cross-match between the specified tables
         The result is a join table (stored in the user storage area)
         with the identifies of both tables and the distance.
         TAP+ only
@@ -861,9 +858,9 @@ class GaiaClass(TapPlus):
             if output_format in format_with_results_compressed:
                 # In this case we will have to take also into account the .fits format
                 if not output_file.endswith(compressed_extension):
-                    warnings.warn('WARNING!!! By default, results in "votable" and "fits" format are returned in '
+                    warnings.warn('By default, results in "votable" and "fits" format are returned in '
                                   f'compressed format therefore your file {output_file} '
-                                  f'will be renamed to {output_file}.gz')
+                                  f'will be renamed to {output_file}.gz', InputWarning)
                     if output_format == 'votable':
                         if output_file.endswith('.vot'):
                             output_file_with_extension = output_file + '.gz'
@@ -925,7 +922,7 @@ class GaiaClass(TapPlus):
         A Job object
         """
         compressed_extension = ".gz"
-        format_with_results_compressed = ['votable', 'fits']
+        format_with_results_compressed = ['votable', 'fits', 'ecsv']
         output_file_with_extension = output_file
 
         if output_file is not None:
@@ -945,6 +942,16 @@ class GaiaClass(TapPlus):
                             output_file_with_extension = output_file + '.gz'
                         else:
                             output_file_with_extension = output_file + '.fits.gz'
+                    elif output_format == 'ecsv':
+                        if output_file.endswith('.ecsv'):
+                            output_file_with_extension = output_file + '.gz'
+                        else:
+                            output_file_with_extension = output_file + '.ecsv.gz'
+            # the output type is not compressed by default by the TAP SERVER but the users gives a .gz extension
+            elif output_file.endswith(compressed_extension):
+                output_file_renamed = output_file.removesuffix('.gz')
+                warnings.warn(f'WARNING!!! The output format selected is not compatible with compression. {output_file}'
+                              f' will be renamed to {output_file}')
 
         return TapPlus.launch_job_async(self, query=query,
                                         name=name,
@@ -956,26 +963,6 @@ class GaiaClass(TapPlus):
                                         upload_resource=upload_resource,
                                         upload_table_name=upload_table_name,
                                         autorun=autorun)
-
-    def rename_table(self, table_name=None, new_table_name=None, new_column_names_dict={},
-                     verbose=False):
-        """
-            This new method allows to update the column names of a user table.
-            header example: rename_table(table_name=old_table_name, new_table_name=new_table_name -optional-
-             , new_column_names_dict=[old_column1:new_column1, old_column2:new_colum2...])
-            Parameters
-            ----------
-            table_name: str, required
-                old name of the user's table
-            new_table_name: str, required
-                new name of the user's table
-            new_column_names_dict: dict str:str, required
-                dict with pairs "old_column1_name:new_column1_name"
-            verbose : bool, optional, default 'False'
-                flag to display information about the process
-        """
-        return TapPlus.rename_table(self, table_name=table_name, new_table_name=new_table_name,
-                                    new_column_names_dict=new_column_names_dict, verbose=verbose)
 
 
 Gaia = GaiaClass()

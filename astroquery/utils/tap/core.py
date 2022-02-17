@@ -12,7 +12,6 @@ European Space Agency (ESA)
 
 Created on 30 jun. 2016
 Modified on 1 jun. 2021 by mhsarmiento
-Version: gaia-astroquery-1.0
 """
 from astroquery.utils.tap import taputils
 from astroquery.utils.tap.conn.tapconn import TapConn
@@ -1654,7 +1653,7 @@ class TapPlus(Tap):
 
     def rename_table(self, table_name=None, new_table_name=None, new_column_names_dict=None,
                      verbose=False):
-        """ This new method allows you to update the column names of a user table.
+        """ This method allows you to update the column names of a user table.
 
         Parameters
         ----------
@@ -1662,121 +1661,70 @@ class TapPlus(Tap):
             old name of the user's table
         new_table_name: str, required
             new name of the user's table
-        new_column_names_dict: dict str:str, required
+        new_column_names_dict: dict str:str
             dict with pairs "old_column1_name:new_column1_name"
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
-        Example
-        -------
-        rename_table(table_name=old_table_name, new_table_name=new_table_name,
-        new_column_names_dict=[old_column1:new_column1, old_column2:new_column2, ...])
         """
         if new_column_names_dict is None:
             new_column_names_dict = {}
         args = {}
 
         if table_name is None:
-            raise ValueError("Table name cannot be null")
-        if (new_table_name is None or new_table_name == '') and \
-                (new_column_names_dict is None or not new_column_names_dict):
-            raise ValueError("Please introduce as minimum a new table tame or a new name for a column with format "
-                             "old_column1_name:new_column1_name, ... ,old_columnN_name:new_columnN_name")
-
-        if new_table_name is not None or new_table_name != '':
-            if new_column_names_dict is None or not new_column_names_dict:
+            raise ValueError(
+                "Argument 'table_name' is mandatory. "
+                "Please introduce the name of the table that is going to be updated")
+        if (new_table_name is None) and (new_column_names_dict is None):
+            raise ValueError("Please introduce as minimum a new name for the table or a new name for a column with "
+                             "format old_column1_name:new_column1_name, ... ,old_columnN_name:new_columnN_name")
+        if new_table_name is not None:
+            if new_column_names_dict is None:
                 # case 1: We only need to rename the table
-                args = self.get_args_4_rename_table_only_table_name(table_name, new_table_name)
+                args = self.get_args_4_rename_table(table_name, new_table_name)
             else:
-                # case 2: We need to rename both, columns and column name
-                args = self.get_args_4_rename_table_all(table_name, new_table_name, new_column_names_dict)
+                # case 2: We need to rename both, table and column names
+                args = self.get_args_4_rename_table(table_name, new_table_name, new_column_names_dict)
 
-        if new_table_name is None or new_table_name == '':
-            if new_column_names_dict is not None or new_column_names_dict:
-                # case 3: We only need to rename the columns but same column name
-                args = self.get_args_4_rename_table_only_columns(table_name, new_column_names_dict)
+        if new_table_name is None:
+            if new_column_names_dict:
+                # case 3: We only need to rename the columns but same table name
+                args = self.get_args_4_rename_table(table_name, table_name, new_column_names_dict)
 
         connHandler = self.__getconnhandler()
         data = connHandler.url_encode(args)
         response = connHandler.execute_table_tool(data, verbose=verbose)
+
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
         connHandler.check_launch_response_status(response,
                                                  verbose,
                                                  200)
-        msg = f"Table '{table_name}' updated."
-        print(msg)
+        if verbose:
+            msg = f"Table '{table_name}' updated."
+            print(msg)
 
-    def get_args_4_rename_table_only_table_name(self, table_name, new_table_name):
+    def get_args_4_rename_table(self, table_name, new_table_name, new_column_names_dict):
 
-        args = {
-            "action": "rename",
-            "new_table_name": new_table_name,
-            "table_name": table_name
-        }
+        args = {}
+
+        if not new_column_names_dict:
+            args = {
+                "action": "rename",
+                "new_table_name": new_table_name,
+                "table_name": table_name
+            }
+        else:
+            new_column_names = ','.join(f'{key}:{value}' for key, value in new_column_names_dict.items())
+
+            args = {
+                "action": "rename",
+                "new_column_names": new_column_names,
+                "new_table_name": new_table_name,
+                "table_name": table_name
+            }
         return args
-
-    def get_args_4_rename_table_all(self, table_name, new_table_name, new_column_names_dict):
-        count = 0
-        new_column_names = ""
-        # check if the changes proposed for the columns are correct.
-        for key, value in new_column_names_dict.items():
-            if key == '':
-                raise ValueError(f" Old column name introduced "f"{key}"f" cannot be empty")
-            if key == value:
-                raise ValueError(f" Old column name introduced "f"{key}"f" and new column name introduced "
-                                 f" "f"{key}"f" cannot be the same")
-            if value == "":
-                raise ValueError(f" New column name introduced "f"{value}"f" cannot be empty")
-
-            # Converting dict into a string with the format expected by the TAP server
-            new_pair = key + ":" + value
-            new_column_names = new_column_names + new_pair
-            count = count + 1
-            if count < len(new_column_names_dict):
-                new_column_names = new_column_names + ','
-        # __end_for_loop
-
-        args = {
-            "action": "rename",
-            "new_column_names": new_column_names,
-            "new_table_name": new_table_name,
-            "table_name": table_name
-        }
-        return args
-
-    def get_args_4_rename_table_only_columns(self, table_name, new_column_names_dict):
-        # check if the changes proposed for the columns are correct.
-
-        new_column_names = ""
-
-        count = 0
-        for key, value in new_column_names_dict.items():
-            if key == '':
-                raise ValueError(f" Old column name introduced "f"{key}"f" cannot be empty")
-            if key == value:
-                raise ValueError(f" Old column name introduced "f"{key}"f" and new column name introduced "
-                                 f" "f"{key}"f" cannot be the same")
-            if value == "":
-                raise ValueError(f" New column name introduced "f"{value}"f" cannot be empty")
-
-            # Converting dict into a string with the format expected by the TAP server
-            new_pair = key + ":" + value
-            new_column_names = new_column_names + new_pair
-            count = count + 1
-            if count < len(new_column_names_dict):
-                new_column_names = new_column_names + ','
-        # __end_for_loop
-
-        args = {
-            "action": "rename",
-            "new_column_names": new_column_names,
-            "table_name": table_name
-        }
-        return args
-
-    # __end_of_rename_table_only_columns
 
     def update_user_table(self, table_name=None, list_of_changes=[],
                           verbose=False):
@@ -1784,9 +1732,9 @@ class TapPlus(Tap):
 
         Parameters
         ----------
-        table_name : str, required
+        table_name : str
             table to be updated
-        list_of_changes : list, required
+        list_of_changes : list
             list of lists, each one of them containing sets of
             [column_name, field_name, value].
             column_name is the name of the column to be updated
@@ -2002,11 +1950,11 @@ class TapPlus(Tap):
 
         Parameters
         ----------
-        table_name : str, required
+        table_name : str
             table to be set
-        ra_column_name : str, required
+        ra_column_name : str
             ra column to be set
-        dec_column_name : str, required
+        dec_column_name : str
             dec column to be set
         verbose : bool, optional, default 'False'
             flag to display information about the process

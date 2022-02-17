@@ -14,7 +14,7 @@ Created on 30 jun. 2016
 
 
 """
-
+import gzip
 import io
 from astropy import units as u
 from astropy.table import Table as APTable
@@ -24,11 +24,18 @@ def util_create_string_from_buffer(buffer):
     return ''.join(map(str, buffer))
 
 
-def read_http_response(response, outputFormat, correct_units=True):
-    astropyFormat = get_suitable_astropy_format(outputFormat)
+def read_http_response(response, output_format, correct_units=True):
+    astropy_format = get_suitable_astropy_format(output_format)
+
     # If we want to use astropy.table, we have to read the data
     data = io.BytesIO(response.read())
-    result = APTable.read(data, format=astropyFormat)
+
+    try:
+        result = APTable.read(io.BytesIO(gzip.decompress(data.read())), format=astropy_format)
+    except gzip.BadGzipFile:
+        # data is not a valid gzip file by BadGzipFile.
+        result = APTable.read(data, format=astropy_format)
+        pass
 
     if correct_units:
         for cn in result.colnames:
@@ -44,14 +51,18 @@ def read_http_response(response, outputFormat, correct_units=True):
     return result
 
 
-def get_suitable_astropy_format(outputFormat):
-    if "csv" == outputFormat:
-        return "ascii.csv"
-    return outputFormat
+def get_suitable_astropy_format(output_format):
+    if 'ecsv' == output_format:
+        return 'ascii.ecsv'
+    elif 'csv' == output_format:
+        return 'ascii.csv'
+    elif 'votable_plain' == output_format:
+        return 'ascii'
+    return output_format
 
 
-def read_file_content(filePath):
-    fileHandler = open(filePath, 'r')
-    fileContent = fileHandler.read()
-    fileHandler.close()
-    return fileContent
+def read_file_content(file_path):
+    file_handler = open(file_path, 'r')
+    file_content = file_handler.read()
+    file_handler.close()
+    return file_content
