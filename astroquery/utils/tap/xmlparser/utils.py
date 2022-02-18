@@ -32,7 +32,7 @@ def read_http_response(response, output_format, correct_units=True):
 
     try:
         result = APTable.read(io.BytesIO(gzip.decompress(data.read())), format=astropy_format)
-    except gzip.BadGzipFile:
+    except OSError:
         # data is not a valid gzip file by BadGzipFile.
         result = APTable.read(data, format=astropy_format)
         pass
