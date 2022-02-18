@@ -57,7 +57,7 @@ def get_suitable_astropy_format(output_format):
     elif 'csv' == output_format:
         return 'ascii.csv'
     elif 'votable_plain' == output_format:
-        return 'ascii'
+        return 'votable'
     return output_format
 
 
