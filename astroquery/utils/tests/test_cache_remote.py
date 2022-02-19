@@ -6,6 +6,7 @@ import tempfile
 
 from astroquery.mpc import MPC
 
+
 @pytest.mark.remote_data
 class TestRandomThings:
 
