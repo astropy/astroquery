@@ -68,7 +68,7 @@ With a user defined astropy WCS
     ...    cmap=Colormap('viridis'),
     ... )
     >>> im = plt.imshow(result)
-    >>> plt.show()            # doctest: +IGNORE_OUTPUT
+    >>> plt.show()            # doctest: +SKIP
 
 .. image:: ./query_wcs.png
 
@@ -97,7 +97,7 @@ Without WCS
     ...    cmap=Colormap('viridis'),
     ... )
     >>> im = plt.imshow(result)
-    >>> plt.show()    # doctest: +IGNORE_OUTPUT
+    >>> plt.show()    # doctest: +SKIP
 
 .. image:: ./query_no_wcs.png
 
