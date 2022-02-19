@@ -515,6 +515,11 @@ class TestMast:
         assert isinstance(result, Table)
         assert '441662144' in result['ID']
 
+        result = mast.Catalogs.query_object('M1',
+                                            radius=0.001,
+                                            catalog='plato')
+        assert 'PICidDR1' in result.colnames
+
     def test_catalogs_query_criteria_async(self):
         # without position
         responses = mast.Catalogs.query_criteria_async(catalog="Tic",

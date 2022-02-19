@@ -31,6 +31,8 @@ mast
 
 - GALEX data is now available to download anonymously from the public STScI S3 buckets. [#2261]
 
+- Adding the All-Sky PLATO Input Catalog ('plato') as a catalog option for methods of ``astroquery.mast.Catalogs``. [#2279]
+
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
 
