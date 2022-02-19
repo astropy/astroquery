@@ -7,6 +7,9 @@ DACE (`astroquery.dace`)
 This module let you query DACE (Data Analysis Center for Exoplanets) data. This project is developed
 at Observatory of Geneva and can be accessed online at https://dace.unige.ch
 
+Getting started
+===============
+
 
 Query radial velocities
 -----------------------
