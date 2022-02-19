@@ -10,12 +10,12 @@ Getting Started
 This module can be used to query the Gemini Archive. Below are examples of querying the data with various
 parameters.
 
+
 Positional Queries
 ------------------
 
 Positional queries can be based on a sky position.  Radius is an optional parameter and the default is 0.3 degrees.
 
-.. code-block:: python
 
 .. doctest-remote-data::
 
@@ -30,7 +30,7 @@ Positional queries can be based on a sky position.  Radius is an optional parame
                     119.9983           Full Frame ... 2008-09-25 54.376194395654
                     119.9986           Full Frame ... 2008-09-25 54.366916626746
                     119.9983           Full Frame ... 2008-09-25 54.274527402457
-                         99.9983           Full Frame ... 2013-08-16 54.307561057825
+                     99.9983           Full Frame ... 2013-08-16 54.307561057825
 
 
 Observation Name Queries
@@ -38,7 +38,6 @@ Observation Name Queries
 
 You may also do a query by the name of the object you are interested in.
 
-.. code-block:: python
 .. doctest-remote-data::
 
                 >>> from astroquery.gemini import Observations
@@ -52,6 +51,7 @@ You may also do a query by the name of the object you are interested in.
                       49.9987           Full Frame ... 2013-08-28 54.346975563951
                       49.9989           Full Frame ... 2013-08-28 54.347048438693
 
+
 Observation Criteria Queries
 ----------------------------
 
@@ -64,7 +64,6 @@ Some examples of available search fields are the instrument used, such as GMOS-N
 and the program ID.  For a complete list of available search fields, see
 `~astroquery.gemini.ObservationsClass.query_criteria`
 
-.. code-block:: python
 .. doctest-remote-data::
 
                 >>> from astroquery.gemini import Observations
@@ -87,7 +86,6 @@ optional parameters.
 
 The ``orderby`` parameter can be used to pass the desired sort order.
 
-.. code-block:: python
 .. doctest-remote-data::
 
                 >>> from astroquery.gemini import Observations
@@ -117,7 +115,6 @@ Note that *NotFail*, *notengineering*, *RAW*, and *cols* are all sent automatica
 terms need be passed into the method.  If QA or engineering search terms are passed, those will replace
 the *NotFail* or *notengineering* terms respectively.
 
-.. code-block:: python
 .. doctest-remote-data::
 
                 >>> from astroquery.gemini import Observations
@@ -139,7 +136,6 @@ The Gemini module allows for authenticated sessions using your GOA account.  Thi
 with on the GOA homepage at `<https://archive.gemini.edu/>`__.  The `astroquery.gemini.ObservationsClass.login`
 method returns `True` if successful.
 
-.. code-block:: python
 .. doctest-skip::
 
                 >>> from astroquery.gemini import Observations
@@ -154,11 +150,10 @@ As a convenience, you can request file downloads directly from the Gemini module
 URL and fetches the file.  It will use any authenticated session you may have, so it will retrieve any
 proprietary data you may be permissioned for.
 
-.. code-block:: python
-.. doctest-skip::
+.. doctest-remote-data::
 
                 >>> from astroquery.gemini import Observations
-                >>> Observations.get_file("GS2020AQ319-10.fits", download_dir="/tmp") # doctest: +REMOTE_DATA
+                >>> Observations.get_file("GS2020AQ319-10.fits", download_dir="/tmp")  # doctest: +IGNORE_OUTPUT
 
 
 Reference/API
