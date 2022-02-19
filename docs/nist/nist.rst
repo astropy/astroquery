@@ -21,7 +21,6 @@ parameters you can also specify. For instance use the ``linename`` parameter to
 specify the spectrum you wish to fetch. By default this is set to "H I", but
 you can set it to several other values like "Na;Mg", etc. Lets now see a simple example.
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> from astroquery.nist import Nist
@@ -67,7 +66,6 @@ Similarly you can set the ``output_order`` to any one of 'wavelength' or
 'multiplet'. A final parameter you may also set is the ``wavelength_type`` to one of 'vacuum'
 or 'vac+air'. Here is an example with all these parameters.
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> from astroquery.nist import Nist
