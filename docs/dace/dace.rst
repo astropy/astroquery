@@ -8,31 +8,25 @@ This module let you query DACE (Data Analysis Center for Exoplanets) data. This 
 at Observatory of Geneva and can be accessed online at https://dace.unige.ch
 
 
-API
-===
-
 Query radial velocities
 -----------------------
 If you need to get radial velocities data for an object you can do the following and get a `~astropy.table.Table` :
 
-.. code-block:: python
+
 .. doctest-remote-data::
 
     >>> from astroquery.dace import Dace
     >>> radial_velocities_table = Dace.query_radial_velocities('HD40307')
-    >>> print(radial_velocities_table) # doctest: +IGNORE_OUTPUT
+    >>> radial_velocities_table.pprint(max_lines=5, max_width=120)
+       berv       berv_err ... date_night                                  raw_file
+    ----------------- -------- ... ---------- -------------------------------------------------------------------------
+    1.73905237267071      NaN ... 1998-11-13 coralie98/DRS-3.3/reduced/1998-11-13/CORALIE.1998-11-14T07:42:28.001.fits
+    1.30280483191029      NaN ... 1998-11-21 coralie98/DRS-3.3/reduced/1998-11-21/CORALIE.1998-11-22T07:21:45.001.fits
+                 ...      ... ...        ...                                                                       ...
+    -3.37421721287255      NaN ... 2014-03-31       harps/DRS-3.5/reduced/2014-03-31/HARPS.2014-03-31T23:53:00.821.fits
+    -3.32906204496065      NaN ... 2014-04-05       harps/DRS-3.5/reduced/2014-04-05/HARPS.2014-04-06T01:00:15.375.fits
+    Length = 600 rows
 
-          rjd                 rv               rv_err        ins_name
-    ------------------ ------------------ ------------------ --------- ...
-    51131.82401522994   31300.4226771379  5.420218247708816 CORALIE98
-    51139.809670339804   31295.5671320506 4.0697289792344185 CORALIE98
-    51188.67579095997   31294.3391634734 3.4386352834851026 CORALIE98
-    51259.531961040106   31298.3278930888 7.0721030870398245 CORALIE98
-
-               ...                ...                ...       ...
-    56403.48691046983   31333.3379143329 0.5476157667089154   HARPS03
-    56596.82446234021   31334.9563430348  0.508056405864858   HARPS03
-    56602.871036310215   31337.4095684621 0.4167374664543639   HARPS03
 
 Reference/API
 =============
