@@ -37,7 +37,7 @@ Infrastructure, Utility and Other Changes and Additions
   [#2287]
 
 - Callback hooks are deleted before caching.  Potentially all cached queries
-  prior to this PR will be rendered invalid.  [#2294]
+  prior to this PR will be rendered invalid.  [#2295]
 
 
 0.4.5 (2021-12-24)
