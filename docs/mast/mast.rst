@@ -197,10 +197,8 @@ Currenlty, the API only includes the search functionality. The functionality to
 download data products associated with search results is not currently supported. 
 
 An object of MastMissions class is instantiated with a default mission of 'hst' and 
-default service set to 'search'. set_service() and set_mission() can be used to change
-the service and mission to other values but right now, API only supports search service
-and 'hst' mission.
-
+default service set to 'search'.
+ 
 .. code-block:: python
 
                 >>> from astroquery.mast.missions import MastMissions
