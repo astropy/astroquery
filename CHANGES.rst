@@ -42,6 +42,10 @@ Infrastructure, Utility and Other Changes and Additions
 - Callback hooks are deleted before caching.  Potentially all cached queries
   prior to this PR will be rendered invalid.  [#2295]
 
+- The modules that make use of the ``astroquery.utils.tap.model.job.Job`` class
+  (e.g. Gaia) no longer print messages about where the results of async queries
+  were written if the ``verbose`` setting is ``False``. [#2299]
+
 
 0.4.5 (2021-12-24)
 ==================
