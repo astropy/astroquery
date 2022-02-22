@@ -13,7 +13,6 @@ arcsecond radius for optical counterparts in SDSS. Note use of the keyword
 argument spectro, which requires matches to have spectroscopy, not just
 photometry:
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> from astroquery.sdss import SDSS
@@ -21,9 +20,9 @@ photometry:
     >>> pos = coords.SkyCoord('0h8m05.63s +14d50m23.3s', frame='icrs')
     >>> xid = SDSS.query_region(pos, spectro=True)
     >>> print(xid)
-           ra              dec               objid        ... run2d instrument
-    ---------------- ---------------- ------------------- ... ----- ----------
-    2.02344596573482 14.8398237551311 1237652943176138868 ...    26       SDSS
+           ra              dec        ...     specobjid      run2d
+    ---------------- ---------------- ... ------------------ -----
+    2.02344596573482 14.8398237551311 ... 845594848269461504    26
 
 The result is an astropy.Table.
 
@@ -32,7 +31,6 @@ Downloading data
 If we'd like to download spectra and/or images for our match, we have all
 the information we need in the elements of "xid" from the above example.
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> sp = SDSS.get_spectra(matches=xid)
@@ -58,7 +56,6 @@ Spectral templates
 It is also possible to download spectral templates from SDSS. To see what is
 available, do
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> from astroquery.sdss import SDSS
