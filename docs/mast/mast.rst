@@ -18,7 +18,6 @@ Positional queries can be based on a sky position or a target name.
 The observation fields are documented
 `here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`__.
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Observations
@@ -40,7 +39,6 @@ The observation fields are documented
 
 Radius is an optional parameter and the default is 0.2 degrees.
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Observations
@@ -79,7 +77,6 @@ However, only one wildcarded value can be processed per criterion.
 
 RA and Dec must be given in decimal degrees, and datetimes in MJD.
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Observations
@@ -118,7 +115,6 @@ Getting Observation Counts
 To get the number of observations and not the observations themselves, query_counts functions are available.
 This can be useful if trying to decide whether the available memory is sufficient for the number of observations.
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Observations
@@ -141,7 +137,6 @@ Metadata Queries
 
 To list data missions archived by MAST and avaiable through `astroquery.mast`, use the `~astroquery.mast.ObservationsClass.list_missions` function.
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Observations
@@ -154,7 +149,6 @@ To list data missions archived by MAST and avaiable through `astroquery.mast`, u
 To get a table of metadata associated with observation or product lists use the
 `~astroquery.mast.ObservationsClass.get_metadata` function.
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Observations
@@ -304,7 +298,6 @@ Given one or more observations or observation ids ("obsid")
 a `~astropy.table.Table` containing the associated data products.
 The product fields are documented `here <https://mast.stsci.edu/api/v0/_productsfields.html>`__.
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Observations
@@ -381,7 +374,6 @@ and all products fields listed `here <https://mast.stsci.edu/api/v0/_productsfie
 The ‘AND' operation is performed for a list of filters, and the ‘OR' operation is performed within a filter set.
 The below example illustrates downloading all product files with the extension "fits" that are either "RAW" or "UNCAL."
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Observations
@@ -400,7 +392,6 @@ The below example illustrates downloading all product files with the extension "
 
 Product filtering can also be applied directly to a table of products without proceeding to the download step.
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Observations
@@ -422,7 +413,6 @@ Downloading Data Products
 Products can be downloaded by using `~astroquery.mast.ObservationsClass.download_products`,
 with a `~astropy.table.Table` of data products, or a list (or single) obsid as the argument.
 
-.. code-block:: python
 .. doctest-skip::
 
    >>> from astroquery.mast import Observations
@@ -442,7 +432,6 @@ with a `~astropy.table.Table` of data products, or a list (or single) obsid as t
 
 ​As an alternative to downloading the data files now, the ``curl_flag`` can be used instead to instead get a curl script that can be used to download the files at a later time.
 
-.. code-block:: python
 .. doctest-remote-data::
  
    >>> from astroquery.mast import Observations
@@ -461,7 +450,6 @@ You can download a single data product file using the `~astroquery.mast.Observat
 a MAST Data URI.  The default is to download the file the current working directory, which can be changed with
 the ``local_path`` keyword argument.
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Observations
@@ -497,7 +485,6 @@ When cloud access is enabled, the standard download function
 
 Getting a list of S3 URIs:
 
-.. code-block:: python
 .. doctest-skip::
 
    >>> import os
@@ -525,7 +512,6 @@ Getting a list of S3 URIs:
 
 Downloading data products from S3:
 
-.. code-block:: python
 .. doctest-skip::
 
    >>> import os
@@ -597,7 +583,6 @@ Positional Queries
 Positional queries can be based on a sky position or a target name.
 The returned fields vary by catalog, find the field documentation for specific catalogs `here <https://mast.stsci.edu/api/v0/pages.html>`__. If no catalog is specified, the Hubble Source Catalog will be queried.
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Catalogs
@@ -621,7 +606,6 @@ The returned fields vary by catalog, find the field documentation for specific c
 Some catalogs have a maximum number of results they will return.
 If a query results in this maximum number of results a warning will be displayed to alert the user that they might be getting a subset of the true result set.
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Catalogs
@@ -648,7 +632,6 @@ If a query results in this maximum number of results a warning will be displayed
 
 Radius is an optional parameter and the default is 0.2 degrees.
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Catalogs
@@ -672,7 +655,6 @@ Radius is an optional parameter and the default is 0.2 degrees.
 The Hubble Source Catalog, the Gaia Catalog, and the PanSTARRS Catalog have multiple versions.
 An optional version parameter allows you to select which version you want, the default is the highest version.
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> catalog_data = Catalogs.query_region("158.47924 -7.30962", radius=0.1,
@@ -692,7 +674,6 @@ The PanSTARRS Catalog has multiple data releases as well as multiple queryable t
 An optional data release parameter allows you to select which data release is desired, with the default being the latest version (dr2).
 The table to query is a required parameter.
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> catalog_data = Catalogs.query_region("158.47924 -7.30962", radius=0.1,
@@ -719,7 +700,6 @@ Catalog Criteria Queries
 
 The TESS Input Catalog (TIC), Disk Detective Catalog, and PanSTARRS Catalog can also be queried based on non-positional criteria.
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Catalogs
@@ -743,7 +723,6 @@ The TESS Input Catalog (TIC), Disk Detective Catalog, and PanSTARRS Catalog can 
    406300991 20190415  --  -- ... 0.0518318978617112        0      0 1411465651
 
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Catalogs
@@ -763,7 +742,6 @@ The TESS Input Catalog (TIC), Disk Detective Catalog, and PanSTARRS Catalog can 
    441662028 20190415  -- 3855-00941-1 ...        1      0 150395533
 
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Catalogs
@@ -796,7 +774,6 @@ column name criteria, and the 'OR' operation is performed within column name cri
 parameter, criteria may consist of either a value or a list. The list may consist of a mix of values and
 tuples of criteria decorator (min, gte, gt, max, lte, lt, like, contains) and value.
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> catalog_data = Catalogs.query_criteria(coordinates="5.97754 32.53617", radius=0.01,
@@ -824,7 +801,6 @@ Hubble Source Catalog (HSC) specific queries
 
 Given an HSC Match ID, return all catalog results.
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Catalogs
@@ -849,7 +825,6 @@ Given an HSC Match ID, return all catalog results.
 
 HSC spectra accessed through this class as well. `~astroquery.mast.CatalogsClass.get_hsc_spectra` does not take any arguments, and simply loads all HSC spectra.
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Catalogs
@@ -872,7 +847,6 @@ HSC spectra accessed through this class as well. `~astroquery.mast.CatalogsClass
 
 Individual or ranges of spectra can be downloaded using the `~astroquery.mast.CatalogsClass.download_hsc_spectra` function.
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Catalogs
@@ -925,7 +899,6 @@ Requesting a cutout by coordinate or objectname accesses the
 `MAST TESScut API <https://mast.stsci.edu/tesscut/docs/getting_started.html#requesting-a-cutout>`__
 and returns a target pixel file, with format described `here <https://astrocut.readthedocs.io/en/latest/astrocut/file_formats.html#target-pixel-files>`__.
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Tesscut
@@ -941,7 +914,6 @@ and returns a target pixel file, with format described `here <https://astrocut.r
    2  APERTURE      1 ImageHDU        79   (5, 5)   int32
 
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Tesscut
@@ -962,7 +934,6 @@ and returns a target pixel file, with format described
 The moving_target is an optional bool argument where `True` signifies that the accompanying ``objectname`` input is the object name or ID understood by the
 `JPL Horizon ephemerades interface <https://ssd.jpl.nasa.gov/horizons.cgi>`__. The default value for moving_target is set to False. Therefore, a non-moving target can be input simply with either the objectname or coordinates.
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Tesscut
@@ -984,7 +955,6 @@ The `~astroquery.mast.TesscutClass.download_cutouts` function takes a coordinate
 
 If a given coordinate/object/moving target appears in more than one TESS sector, a target pixel file will be produced for each sector.  If the cutout area overlaps more than one camera or ccd, a target pixel file will be produced for each one.
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Tesscut
@@ -1008,7 +978,6 @@ Sector information
 To access sector information for a particular coordinate, object, or moving target there is
 `~astroquery.mast.TesscutClass.get_sectors`.
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Tesscut
@@ -1021,7 +990,6 @@ To access sector information for a particular coordinate, object, or moving targ
    -------------- ------ ------ ---
    tess-s0028-1-4     28      1   4
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Tesscut
@@ -1033,7 +1001,6 @@ To access sector information for a particular coordinate, object, or moving targ
    tess-s0010-1-4     10      1   4
 
 
-.. code-block:: python
 .. doctest-remote-data::
    
    >>> from astroquery.mast import Tesscut
@@ -1064,7 +1031,6 @@ an angular quantity) and returns the cutout FITS file(s) as a list of ~astropy.i
 
 If the given coordinate appears in more than one Zcut survey, a FITS file will be produced for each survey.
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Zcut
@@ -1087,7 +1053,6 @@ files.
 
 If a given coordinate appears in more than one Zcut survey, a cutout will be produced for each survey.
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Zcut
@@ -1104,7 +1069,6 @@ If a given coordinate appears in more than one Zcut survey, a cutout will be pro
    ./candels_gn_30mas_189.492060_62.206150_300.0pix-x-200.0pix_astrocut.fits
 
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Zcut
@@ -1127,7 +1091,6 @@ Survey information
 
 To list the available deep field surveys at a particular location there is `~astroquery.mast.ZcutClass.get_surveys`.
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Zcut
@@ -1151,7 +1114,6 @@ If a token is not supplied, the user will be prompted to enter one.
 
 To view tokens accessible through your account, visit https://auth.mast.stsci.edu
 
-.. code-block:: python
 .. doctest-skip::
 
    >>> from astroquery.mast import Observations
@@ -1164,7 +1126,6 @@ To view tokens accessible through your account, visit https://auth.mast.stsci.ed
    ezid: uname
    ...
 
-.. code-block:: python
 .. doctest-skip::
 
    >>> from astroquery.mast import Observations
@@ -1201,7 +1162,6 @@ astroquery, this class does allow access.  See the `MAST api documentation
 
 The basic MAST query function returns query results as an `~astropy.table.Table`.
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Mast
@@ -1242,7 +1202,6 @@ The basic MAST query function returns query results as an `~astropy.table.Table`
 If the output is not the MAST json result type it cannot be properly parsed into a `~astropy.table.Table`.
 In this case, the async method should be used to get the raw http response, which can then be manually parsed.
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Mast
