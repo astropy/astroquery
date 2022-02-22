@@ -35,7 +35,7 @@ def test_job_basic():
         job.get_results()
 
 
-def test_job_get_results():
+def test_job_get_results(capsys, tmpdir):
     job = Job(async_job=True)
     jobid = "12345"
     outputFormat = "votable"
@@ -81,6 +81,14 @@ def test_job_get_results():
     for cn in ['alpha', 'delta', 'source_id', 'table1_oid']:
         if cn not in res.colnames:
             pytest.fail(f"{cn} column name not found: {res.colnames}")
+
+    # Regression test for #2299; messages were printed even with `verbose=False`
+    capsys.readouterr()
+    job._Job__resultInMemory = False
+    job.save_results(verbose=False)
+    assert 'Saving results to:' not in capsys.readouterr().out
+    job.save_results(verbose=True)
+    assert 'Saving results to:' in capsys.readouterr().out
 
 
 def test_job_phase():
