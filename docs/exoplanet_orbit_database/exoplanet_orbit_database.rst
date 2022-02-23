@@ -10,23 +10,21 @@ Accessing the planet table
 You can access the complete tables from each table source, with units assigned
 to columns wherever possible.
 
-.. code-block:: python
 .. doctest-remote-data::
 
         >>> from astroquery.exoplanet_orbit_database import ExoplanetOrbitDatabase
         >>> eod_table = ExoplanetOrbitDatabase.get_table()
         >>> eod_table[:2]
         <QTable length=2>
-            A        AUPPER   ... NAME_LOWERCASE              sky_coord             
-            AU         AU     ...                              deg,deg              
-         float64    float64   ...     str19                     object              
+            A        AUPPER   ... NAME_LOWERCASE              sky_coord
+            AU         AU     ...                              deg,deg
+         float64    float64   ...     str19                     object
         --------- ----------- ... -------------- -----------------------------------
         0.0780099  0.00130017 ...    kepler-107d 297.0282083332539,48.20861111111111
         0.0344721 0.000675924 ...   kepler-1049b  287.3467499971389,47.7729444445504
 
 You can query for the row from each table corresponding to one exoplanet:
 
-.. code-block:: python
 .. doctest-remote-data::
 
         >>> from astroquery.exoplanet_orbit_database import ExoplanetOrbitDatabase
@@ -40,7 +38,6 @@ The properties of each planet are stored in a table, with `columns defined by
 the Exoplanet Orbit Database <http://exoplanets.org/help/common/data>`_. There
 is also a special column of sky coordinates for each target, named ``sky_coord``.
 
-.. code-block:: python
 .. doctest-remote-data::
 
         >>> from astroquery.exoplanet_orbit_database import ExoplanetOrbitDatabase
