@@ -167,7 +167,7 @@ class SDSSClass(BaseQuery):
             request_payload['searchtool'] = 'CrossID'
 
         if get_query_payload:
-            return request_payload
+            return request_payload, files
 
         url = self._get_crossid_url(data_release)
         response = self._request("POST", url, data=request_payload,
