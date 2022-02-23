@@ -176,9 +176,9 @@ class TestSDSSRemote:
         assert query2['objID'][0] == query1['objID'][0] == query2['objID'][1]
 
     def test_spectro_query_crossid(self):
-        query1 = sdss.SDSS.query_crossid_async(
+        query1 = sdss.SDSS.query_crossid(
             self.coords, specobj_fields=['specObjID', 'z'], cache=False)
-        query2 = sdss.SDSS.query_crossid_async(
+        query2 = sdss.SDSS.query_crossid(
             [self.coords, self.coords],
             specobj_fields=['specObjID', 'z'],
             cache=False)
