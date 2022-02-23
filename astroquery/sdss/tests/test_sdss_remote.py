@@ -3,7 +3,7 @@ import numpy as np
 from numpy.testing import assert_allclose
 import pytest
 
-from astropy import coordinates
+from astropy.coordinates import SkyCoord
 from astropy.table import Table
 
 from urllib.error import URLError
@@ -18,8 +18,13 @@ dr_list = (8, 9, 10, 12, 13, 14, 15, 16, 17)
 @pytest.mark.remote_data
 class TestSDSSRemote:
     # Test Case: A Seyfert 1 galaxy
-    coords = coordinates.SkyCoord('0h8m05.63s +14d50m23.3s')
+    coords = SkyCoord('0h8m05.63s +14d50m23.3s')
     mintimeout = 1e-2
+
+    # Large list of objects for regression tests
+    query_large = "select top 1000 z, ra, dec, bestObjID from specObj where class = 'galaxy' and programname = 'eboss'"
+    results_large = sdss.SDSS.query_sql(query_large)
+    coords_large = SkyCoord(ra=results_large['ra'], dec=results_large['dec'], unit='deg')
 
     def test_images_timeout(self):
         """
@@ -191,3 +196,9 @@ class TestSDSSRemote:
 
         assert isinstance(query2, Table)
         assert query2['specObjID'][0] == query2['specObjID'][1] == query1['specObjID'][0]
+
+    def test_large_crossid(self):
+        # Regression test for #589
+
+        results = sdss.SDSS.query_crossid(self.coords_large)
+        assert len(results) == 894
