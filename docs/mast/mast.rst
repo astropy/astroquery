@@ -23,7 +23,7 @@ The observation fields are documented
    >>> from astroquery.mast import Observations
    ...
    >>> obs_table = Observations.query_region("322.49324 12.16683")
-   >>> print(obs_table[:10])
+   >>> print(obs_table[:10])  # doctest: +IGNORE_OUTPUT
    intentType obs_collection provenance_name ... srcDen    obsid    distance
    ---------- -------------- --------------- ... ------ ----------- --------
       science          SWIFT              -- ... 5885.0 15000731855      0.0
@@ -44,7 +44,7 @@ Radius is an optional parameter and the default is 0.2 degrees.
    >>> from astroquery.mast import Observations
    ...
    >>> obs_table = Observations.query_object("M8",radius=".02 deg")
-   >>> print(obs_table[:10])
+   >>> print(obs_table[:10])  # doctest: +IGNORE_OUTPUT
    intentType obs_collection provenance_name ... srcDen    obsid    distance
    ---------- -------------- --------------- ... ------ ----------- --------
       science    SPITZER_SHA    SSC Pipeline ...    nan 19000016510      0.0
@@ -84,7 +84,7 @@ RA and Dec must be given in decimal degrees, and datetimes in MJD.
    >>> obs_table = Observations.query_criteria(dataproduct_type=["image"],
    ...                                         proposal_pi="Osten*",
    ...                                         s_dec=[43.5,45.5])
-   >>> print(obs_table)
+   >>> print(obs_table)  # doctest: +IGNORE_OUTPUT
    dataproduct_type calib_level obs_collection ... intentType   obsid      objID
    ---------------- ----------- -------------- ... ---------- ---------- ----------
               image           1            HST ...    science 2003520267 2023816094
@@ -119,15 +119,15 @@ This can be useful if trying to decide whether the available memory is sufficien
 
    >>> from astroquery.mast import Observations
    ...
-   >>> print(Observations.query_region_count("322.49324 12.16683"))
+   >>> print(Observations.query_region_count("322.49324 12.16683"))  # doctest: +IGNORE_OUTPUT
    2364
    ...
-   >>> print(Observations.query_object_count("M8",radius=".02 deg"))
+   >>> print(Observations.query_object_count("M8",radius=".02 deg"))  # doctest: +IGNORE_OUTPUT
    469
    ...
    >>> print(Observations.query_criteria_count(dataproduct_type="image",
    ...                                         filters=["NUV","FUV"],
-   ...                                         t_max=[52264.4586,54452.8914]))
+   ...                                         t_max=[52264.4586,54452.8914]))  # doctest: +IGNORE_OUTPUT
    59033
 
 
@@ -141,7 +141,7 @@ To list data missions archived by MAST and avaiable through `astroquery.mast`, u
 
    >>> from astroquery.mast import Observations
    ...
-   >>> print(Observations.list_missions())
+   >>> print(Observations.list_missions())  # doctest: +IGNORE_OUTPUT
    ['BEFS', 'EUVE', 'FUSE', 'GALEX', 'HLA', 'HLSP', 'HST', 'HUT',
    'IUE', 'JWST', 'K2', 'K2FFI', 'Kepler', 'KeplerFFI', 'PS1',
    'SPITZER_SHA', 'SWIFT', 'TESS', 'TUES', 'WUPPE']
@@ -154,7 +154,7 @@ To get a table of metadata associated with observation or product lists use the
    >>> from astroquery.mast import Observations
    ...
    >>> meta_table = Observations.get_metadata("observations")
-   >>> print(meta_table[:5])
+   >>> print(meta_table[:5])  # doctest: +IGNORE_OUTPUT
      Column Name     Column Label   ...       Examples/Valid Values
    --------------- ---------------- ... ----------------------------------
         intentType Observation Type ... Valid values: science, calibration
@@ -164,7 +164,7 @@ To get a table of metadata associated with observation or product lists use the
            project          Project ...    E.g. HST, HLA, EUVE, hlsp_legus
    ...
    >>> meta_table = Observations.get_metadata("products")
-   >>> print(meta_table[:3])
+   >>> print(meta_table[:3])  # doctest: +IGNORE_OUTPUT
     Column Name     Column Label   ...         Examples/Valid Values
    -------------- ---------------- ... -------------------------------------
            obs_id   Observation ID ...                  U24Z0101T, N4QF18030
@@ -304,7 +304,7 @@ The product fields are documented `here <https://mast.stsci.edu/api/v0/_products
    ...
    >>> obs_table = Observations.query_object("M8",radius=".02 deg")
    >>> data_products_by_obs = Observations.get_product_list(obs_table[0:2])
-   >>> print(data_products_by_obs)
+   >>> print(data_products_by_obs)  # doctest: +IGNORE_OUTPUT
       obsID    obs_collection dataproduct_type ...   size  parent_obsid
    ----------- -------------- ---------------- ... ------- ------------
    19000016510    SPITZER_SHA            image ...  316800  19000016510
@@ -333,7 +333,7 @@ The product fields are documented `here <https://mast.stsci.edu/api/v0/_products
    ...
    >>> obsids = obs_table[0:2]['obsid']
    >>> data_products_by_id = Observations.get_product_list(obsids)
-   >>> print(data_products_by_id)
+   >>> print(data_products_by_id)  # doctest: +IGNORE_OUTPUT
       obsID    obs_collection dataproduct_type ...   size  parent_obsid
    ----------- -------------- ---------------- ... ------- ------------
    19000016510    SPITZER_SHA            image ...  316800  19000016510
@@ -378,17 +378,16 @@ The below example illustrates downloading all product files with the extension "
 
    >>> from astroquery.mast import Observations
    ...
-   >>> Observations.download_products('2003839997',
-   ...                                productSubGroupDescription=["RAW", "UNCAL"],
+   >>> Observations.download_products('25119363',
+   ...                                productType=["SCIENCE", "PREVIEW"],
    ...                                extension="fits")   # doctest: +IGNORE_OUTPUT
-   <Table length=4>
+   <Table length=3>
                       Local Path                    Status  Message  URL
                         str47                        str8    object object
    ----------------------------------------------- -------- ------- ------
-   ./mastDownload/HST/ib3p11p7q/ib3p11p7q_raw.fits COMPLETE    None   None
-   ./mastDownload/HST/ib3p11p8q/ib3p11p8q_raw.fits COMPLETE    None   None
-   ./mastDownload/HST/ib3p11phq/ib3p11phq_raw.fits COMPLETE    None   None
-   ./mastDownload/HST/ib3p11q9q/ib3p11q9q_raw.fits COMPLETE    None   None
+   ./mastDownload/HST/fa2f0101m/fa2f0101m_a1f.fits COMPLETE    None   None
+   ./mastDownload/HST/fa2f0101m/fa2f0101m_a2f.fits COMPLETE    None   None
+   ./mastDownload/HST/fa2f0101m/fa2f0101m_a3f.fits COMPLETE    None   None
 
 Product filtering can also be applied directly to a table of products without proceeding to the download step.
 
@@ -396,15 +395,14 @@ Product filtering can also be applied directly to a table of products without pr
 
    >>> from astroquery.mast import Observations
    ...
-   >>> data_products = Observations.get_product_list('2003839997')
+   >>> data_products = Observations.get_product_list('25588063')
    >>> print(len(data_products))
-   62
-   ...
+   27
    >>> products = Observations.filter_products(data_products,
-   ...                                         productSubGroupDescription=["RAW", "UNCAL"],
+   ...                                         productType=["SCIENCE", "PREVIEW"],
    ...                                         extension="fits")
    >>> print(len(products))
-   4
+   8
 
 
 Downloading Data Products
@@ -439,7 +437,7 @@ with a `~astropy.table.Table` of data products, or a list (or single) obsid as t
    >>> single_obs = Observations.query_criteria(obs_collection="IUE", obs_id="lwp13058")
    >>> data_products = Observations.get_product_list(single_obs)
    ...
-   >>> table = Observations.download_products(data_products, productType="SCIENCE", curl_flag=True)
+   >>> table = Observations.download_products(data_products, productType="SCIENCE", curl_flag=True)   # doctest: +IGNORE_OUTPUT
    Downloading URL https://mast.stsci.edu/portal/Download/stage/anonymous/public/514cfaa9-fdc1-4799-b043-4488b811db4f/mastDownload_20170629162916.sh to ./mastDownload_20170629162916.sh ... [Done]
 
 
@@ -460,8 +458,8 @@ the ``local_path`` keyword argument.
    >>> product = data_products[0]["dataURI"]
    >>> print(product)
    mast:IUE/url/pub/iue/data/lwp/13000/lwp13058.elbll.gz
-   ...
-   >>> result = Observations.download_file(product)
+   
+   >>> result = Observations.download_file(product)   # doctest: +IGNORE_OUTPUT
    Downloading URL https://mast.stsci.edu/api/v0.1/Download/file?uri=mast:IUE/url/pub/iue/data/lwp/13000/lwp13058.elbll.gz to ./lwp13058.elbll.gz ... [Done]
    ...
    >>> print(result)
@@ -606,11 +604,11 @@ The returned fields vary by catalog, find the field documentation for specific c
 Some catalogs have a maximum number of results they will return.
 If a query results in this maximum number of results a warning will be displayed to alert the user that they might be getting a subset of the true result set.
 
-.. doctest-remote-data::
+.. doctest-skip::
 
    >>> from astroquery.mast import Catalogs
    ...
-   >>> catalog_data = Catalogs.query_region("322.49324 12.16683", catalog="HSC", magtype=2)   # doctest: +IGNORE_OUTPUT
+   >>> catalog_data = Catalogs.query_region("322.49324 12.16683", catalog="HSC", magtype=2)
    WARNING: InputWarning: Coordinate string is being interpreted as an ICRS coordinate
    provided in degrees. [astroquery.utils.commons]
    WARNING: MaxResultsWarning: Maximum catalog results returned, may not include all
@@ -637,7 +635,7 @@ Radius is an optional parameter and the default is 0.2 degrees.
    >>> from astroquery.mast import Catalogs
    ...
    >>> catalog_data = Catalogs.query_object("M10", radius=.02, catalog="TIC")
-   >>> print(catalog_data[:10])
+   >>> print(catalog_data[:10])   # doctest: +IGNORE_OUTPUT
        ID            ra               dec        ... wdflag     dstArcSec
    ---------- ---------------- ----------------- ... ------ ------------------
     510188144 254.287449269816 -4.09954224264168 ...     -1 0.7650443624931581
@@ -661,7 +659,6 @@ An optional version parameter allows you to select which version you want, the d
    ...                                       catalog="Gaia", version=2)
    >>> print("Number of results:",len(catalog_data))
    Number of results: 111
-   ...
    >>> print(catalog_data[:4])
        solution_id             designation          ...      distance
    ------------------- ---------------------------- ... ------------------
@@ -680,7 +677,7 @@ The table to query is a required parameter.
    ...                                       catalog="Panstarrs", data_release="dr1", table="mean")
    >>> print("Number of results:",len(catalog_data))
    Number of results: 7007
-   ...
+   
    >>> print(catalog_data[:10])     # doctest: +IGNORE_OUTPUT
             ObjName           objAltName1 ... yFlags       distance
    -------------------------- ----------- ... ------ --------------------
@@ -781,7 +778,7 @@ tuples of criteria decorator (min, gte, gt, max, lte, lt, like, contains) and va
    ...                                        nStackDetections=[("gte", 2)],
    ...                                        columns=["objName", "objID", "nStackDetections", "distance"],
    ...                                        sort_by=[("desc", "distance")], pagesize=15)
-   >>> print(catalog_data[:10])
+   >>> print(catalog_data[:10])   # doctest: +IGNORE_OUTPUT
           objName              objID        nStackDetections        distance
    --------------------- ------------------ ---------------- ---------------------
    PSO J005.9812+32.5270 147030059812483022                5  0.009651200148871086
@@ -809,7 +806,7 @@ Given an HSC Match ID, return all catalog results.
    >>> matchid = catalog_data[0]["MatchID"]
    >>> print(matchid)
    63980492
-   ...
+   
    >>> matches = Catalogs.query_hsc_matchid(matchid)
    >>> print(matches)
      CatID   MatchID  ...                       cd_matrix
@@ -909,9 +906,9 @@ and returns a target pixel file, with format described `here <https://astrocut.r
    >>> hdulist[0].info()
    Filename: <class '_io.BytesIO'>
    No.    Name      Ver    Type      Cards   Dimensions   Format
-   0  PRIMARY       1 PrimaryHDU      55   ()
-   1  PIXELS        1 BinTableHDU    279   1282R x 12C   [D, E, J, 25J, 25E, 25E, 25E, 25E, J, E, E, 38A]
-   2  APERTURE      1 ImageHDU        79   (5, 5)   int32
+   0  PRIMARY       1 PrimaryHDU      56   ()
+   1  PIXELS        1 BinTableHDU    280   1288R x 12C   [D, E, J, 25J, 25E, 25E, 25E, 25E, J, E, E, 38A]
+   2  APERTURE      1 ImageHDU        81   (5, 5)   int32
 
 
 .. doctest-remote-data::
@@ -924,8 +921,8 @@ and returns a target pixel file, with format described `here <https://astrocut.r
    No.    Name      Ver    Type      Cards   Dimensions   Format
    0  PRIMARY       1 PrimaryHDU      56   ()
    1  PIXELS        1 BinTableHDU    280   1211R x 12C   [D, E, J, 25J, 25E, 25E, 25E, 25E, J, E, E, 38A]
-   2  APERTURE      1 ImageHDU        80   (5, 5)   int32
-
+   2  APERTURE      1 ImageHDU        81   (5, 5)   int32
+   
 
 Requesting a cutout by moving_target accesses the
 `MAST Moving Target TESScut API <https://mast.stsci.edu/tesscut/docs/getting_started.html#moving-target-cutouts>`__
@@ -1038,7 +1035,7 @@ If the given coordinate appears in more than one Zcut survey, a FITS file will b
    ...
    >>> cutout_coord = SkyCoord(189.49206, 62.20615, unit="deg")
    >>> hdulist = Zcut.get_cutouts(coordinates=cutout_coord, size=5)
-   >>> hdulist[0].info()
+   >>> hdulist[0].info()    # doctest: +IGNORE_OUTPUT
    Filename: <class '_io.BytesIO'>
    No.    Name      Ver    Type      Cards   Dimensions   Format
    0  PRIMARY       1 PrimaryHDU      11   ()
@@ -1062,7 +1059,7 @@ If a given coordinate appears in more than one Zcut survey, a cutout will be pro
    >>> manifest = Zcut.download_cutouts(coordinates=cutout_coord, size=[200, 300], units="px")    # doctest: +IGNORE_OUTPUT
    Downloading URL https://mast.stsci.edu/zcut/api/v0.1/astrocut?ra=189.49206&dec=62.20615&y=200&x=300&units=px&format=fits to ./zcut_20210125155545.zip ... [Done]
    Inflating...
-   ...
+   
    >>> print(manifest)    # doctest: +IGNORE_OUTPUT
                                  Local Path
    -------------------------------------------------------------------------
@@ -1098,7 +1095,7 @@ To list the available deep field surveys at a particular location there is `~ast
    ...
    >>> coord = SkyCoord(189.49206, 62.20615, unit="deg")
    >>> survey_list = Zcut.get_surveys(coordinates=coord)
-   >>> print(survey_list)
+   >>> print(survey_list)    # doctest: +IGNORE_OUTPUT
    ['candels_gn_60mas', 'candels_gn_30mas', 'goods_north']
 
 
@@ -1171,7 +1168,7 @@ The basic MAST query function returns query results as an `~astropy.table.Table`
    ...           'dec':54.5,
    ...           'radius':0.2}
    >>> observations = Mast.service_request(service, params)
-   >>> print(observations)
+   >>> print(observations)    # doctest: +IGNORE_OUTPUT
    intentType obs_collection provenance_name ...    obsid         distance
    ---------- -------------- --------------- ... ----------- ------------------
       science           TESS            SPOC ... 17001016097                0.0
