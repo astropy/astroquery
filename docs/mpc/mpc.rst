@@ -26,7 +26,6 @@ In addition, the module provides access to the MPC's hosted list of
 
 To return the orbit of Ceres and an ephemeris for the next 20 days:
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> from astroquery.mpc import MPC
@@ -127,7 +126,6 @@ queried in three manners:
 
 An example of an exact match:
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> from astroquery.mpc import MPC
@@ -196,7 +194,6 @@ Customizing return fields
 If a consumer isn't interested in some return fields, they can use the
 MPC to limit the fields they're interested in.
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> result = MPC.query_object('asteroid', name="ceres", return_fields="name,number")
@@ -224,7 +221,7 @@ Dates and intervals
 For the ephemeris of asteroid (24) Themis, starting today with the
 default time step (1 day) and location (geocenter):
 
-.. code-block:: python
+
 .. doctest-remote-data::
 
     >>> from astroquery.mpc import MPC
@@ -246,7 +243,7 @@ default time step (1 day) and location (geocenter):
 
 Step sizes are parsed with Astropy's `~astropy.units.Quantity`.  For a time step of 1 hour:
 
-.. code-block:: python
+
 .. doctest-remote-data::
 
     >>> eph = MPC.get_ephemeris('24', step='1h')
@@ -268,7 +265,7 @@ Step sizes are parsed with Astropy's `~astropy.units.Quantity`.  For a time step
 Start dates are parsed with Astropy's `~astropy.time.Time`.  For a
 weekly ephemeris in 2020:
 
-.. code-block:: python
+
 .. doctest-remote-data::
 
     >>> eph = MPC.get_ephemeris('24', start='2020-01-01', step='7d', number=52)
@@ -295,7 +292,7 @@ Ephemerides may be calculated for Earth-based observers.  To calculate
 Makemake's ephemeris for the Discovery Channel Telescope (IAU
 observatory code G37):
 
-.. code-block:: python
+
 .. doctest-remote-data::
 
     >>> eph = MPC.get_ephemeris('Makemake', location='G37')
@@ -322,7 +319,7 @@ an array of longitude (east), latitude, and altitude (parsed with
 `~astropy.coordinates.EarthLocation`.  For example, to compute
 Encke's parallax between Mauna Kea and Botswana:
 
-.. code-block:: python
+
 .. doctest-remote-data::
 
     >>> from astropy.table import Table
@@ -357,7 +354,7 @@ Convert the columns to Astropy quantities using the ``.quantity``
 attribute.  To find comet Hyakutake's peak proper motion in the sky in
 degrees per hour:
 
-.. code-block:: python
+
 .. doctest-remote-data::
 
     >>> eph = MPC.get_ephemeris('C/1996 B2', start='1996-03-01', step='1h', number=30 * 24)
@@ -370,7 +367,7 @@ strings using the ``ra_format`` and ``dec_format`` keyword arguments
 (see ``Angle``'s `~astropy.coordinates.Angle.to_string` for formatting
 options):
 
-.. code-block:: python
+
 .. doctest-remote-data::
 
     >>> eph = MPC.get_ephemeris('2P', ra_format={'sep': ':', 'unit': 'hourangle', 'precision': 1}, dec_format={'sep': ':', 'precision': 0})
@@ -396,7 +393,7 @@ IAU Observatory Codes and Locations
 Two methods are available for working with the MPC's observatory list.
 To retrieve a list of all observatories:
 
-.. code-block:: python
+
 .. doctest-remote-data::
 
     >>> obs = MPC.get_observatory_codes()
@@ -444,7 +441,6 @@ Observations
 The following code snippet queries all reported observations for
 asteroid 12893:
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> obs = MPC.get_observations(12893)
