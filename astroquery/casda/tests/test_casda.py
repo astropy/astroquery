@@ -280,3 +280,17 @@ def test_stage_data(patch_get):
     urls = casda.stage_data(table, verbose=True)
     assert urls == ['http://casda.csiro.au/download/web/111-000-111-000/askap_img.fits.checksum',
                     'http://casda.csiro.au/download/web/111-000-111-000/askap_img.fits']
+
+
+def test_download_file(patch_get):
+    urls = ['https://ingest.pawsey.org/bucket_name/path/askap_img.fits?security=stuff',
+            'http://casda.csiro.au/download/web/111-000-111-000/askap_img.fits.checksum']
+    casda = Casda('user', 'password')
+
+    # skip the actual downloading of the file
+    download_mock = MagicMock()
+    casda._download_file = download_mock
+
+    filenames = casda.download_files(urls)
+    assert filenames[0].endswith('askap_img.fits')
+    assert filenames[1].endswith('askap_img.fits.checksum')

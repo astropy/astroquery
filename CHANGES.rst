@@ -7,6 +7,11 @@ New Tools and Services
 
 Service fixes and enhancements
 ------------------------------
+casda
+^^^^^
+
+- Simplify file names produced by ``astroquery.casda.download_files`` to avoid filename too long errors [#2308]
+
 esa.xmm_newton
 ^^^^^^^^^^^^^^
 
