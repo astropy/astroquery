@@ -7,6 +7,7 @@ New Tools and Services
 
 Service fixes and enhancements
 ------------------------------
+
 casda
 ^^^^^
 
@@ -43,6 +44,8 @@ sdss
 ^^^^
 
 - Fix ``query_crossid`` for spectral data and DR17. [#2258, #2304]
+
+- Fix ``query_crossid`` to be able to query larger list of coordinates. [#2305]
 
 
 Infrastructure, Utility and Other Changes and Additions
