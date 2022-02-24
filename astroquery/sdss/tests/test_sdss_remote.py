@@ -12,7 +12,7 @@ from ... import sdss
 from ...exceptions import TimeoutError
 
 # DR11 is a quasi-internal data release that does not have SkyServer support.
-dr_list = (8, 9, 10, 12, 13, 14, 15, 16)
+dr_list = (8, 9, 10, 12, 13, 14, 15, 16, 17)
 
 
 @pytest.mark.remote_data
@@ -166,8 +166,10 @@ class TestSDSSRemote:
         assert query1.colnames == ['r', 'psfMag_r']
         assert query2.colnames == ['ra', 'dec', 'r']
 
-    def test_query_crossid(self):
-        query1 = sdss.SDSS.query_crossid(self.coords)
+    # crossid doesn't work for DR<10, remove limitation once #2303 is fixed
+    @pytest.mark.parametrize("dr", dr_list[2:])
+    def test_query_crossid(self, dr):
+        query1 = sdss.SDSS.query_crossid(self.coords, data_release=dr)
         query2 = sdss.SDSS.query_crossid([self.coords, self.coords])
         assert isinstance(query1, Table)
         assert query1['objID'][0] == 1237652943176138868
@@ -175,13 +177,15 @@ class TestSDSSRemote:
         assert isinstance(query2, Table)
         assert query2['objID'][0] == query1['objID'][0] == query2['objID'][1]
 
-    def test_spectro_query_crossid(self):
-        query1 = sdss.SDSS.query_crossid_async(
-            self.coords, specobj_fields=['specObjID', 'z'], cache=False)
-        query2 = sdss.SDSS.query_crossid_async(
-            [self.coords, self.coords],
-            specobj_fields=['specObjID', 'z'],
-            cache=False)
+    # crossid doesn't work for DR<10, remove limitation once #2303 is fixed
+    @pytest.mark.parametrize("dr", dr_list[2:])
+    def test_spectro_query_crossid(self, dr):
+        query1 = sdss.SDSS.query_crossid(self.coords,
+                                         specobj_fields=['specObjID', 'z'],
+                                         data_release=dr, cache=False)
+        query2 = sdss.SDSS.query_crossid([self.coords, self.coords],
+                                         specobj_fields=['specObjID', 'z'],
+                                         data_release=dr, cache=False)
         assert isinstance(query1, Table)
         assert query1['specObjID'][0] == 845594848269461504
 

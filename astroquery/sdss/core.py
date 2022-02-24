@@ -138,7 +138,7 @@ class SDSSClass(BaseQuery):
                 photobj_fields.append('p.objID as obj_id')
             else:
                 photobj_fields = []
-                specobj_fields.append('s.objID as obj_id')
+                specobj_fields.append('s.SpecObjID as obj_id')
 
         sql_query += ', '.join(photobj_fields + specobj_fields)
 
