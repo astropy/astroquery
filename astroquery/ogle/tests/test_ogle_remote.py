@@ -19,7 +19,7 @@ def test_ogle_list():
     co_list = [co, co, co]
     response = Ogle.query_region(coord=co_list)
     assert len(response) == 3
-    assert response['RA/Lon'][0] == response['RA/Lon'][1] == response['RA/Lon'][2]
+    assert response['RA[hr]'][0] == response['RA[hr]'][1] == response['RA[hr]'][2]
 
 
 @pytest.mark.remote_data
@@ -27,4 +27,4 @@ def test_ogle_list_values():
     co_list = [[0, 0, 0], [3, 3, 3]]
     response = Ogle.query_region(coord=co_list)
     assert len(response) == 3
-    assert response['RA/Lon'][0] == response['RA/Lon'][1] == response['RA/Lon'][2]
+    assert response['RA[hr]'][0] == response['RA[hr]'][1] == response['RA[hr]'][2]
