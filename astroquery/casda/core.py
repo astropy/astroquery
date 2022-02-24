@@ -2,7 +2,8 @@
 
 # 1. standard library imports
 from io import BytesIO
-from urllib.parse import unquote
+import os
+from urllib.parse import unquote, urlparse
 import time
 from xml.etree import ElementTree
 from datetime import datetime, timezone
@@ -239,9 +240,15 @@ class CasdaClass(BaseQuery):
         # for each url in list, download file and checksum
         filenames = []
         for url in urls:
-            fn = self._request('GET', url, save=True, savedir=savedir, timeout=self.TIMEOUT, cache=False)
-            if fn:
-                filenames.append(fn)
+            parseResult = urlparse(url)
+            local_filename = os.path.basename(parseResult.path)
+            if os.name == 'nt':
+                # Windows doesn't allow special characters in filenames like
+                # ":" so replace them with an underscore
+                local_filename = local_filename.replace(':', '_')
+            local_filepath = os.path.join(savedir or self.cache_location or '.', local_filename)
+            self._download_file(url, local_filepath, timeout=self.TIMEOUT, cache=False)
+            filenames.append(local_filepath)
 
         return filenames
 
