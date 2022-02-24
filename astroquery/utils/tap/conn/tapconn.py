@@ -414,9 +414,6 @@ class TapConn:
         context = self.__get_table_edit_context()
         return self.__execute_post(context, data, content_type, verbose)
 
-
-
-
     def __execute_post(self, context, data,
                        content_type=CONTENT_TYPE_POST_DEFAULT,
                        verbose=False):
