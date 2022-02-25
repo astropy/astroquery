@@ -16,6 +16,7 @@ Created on 30 jun. 2016
 """
 
 import re
+import warnings
 from datetime import datetime
 
 TAP_UTILS_QUERY_TOP_PATTERN = re.compile(
@@ -101,7 +102,7 @@ def set_top_in_query(query, top):
         else:
             # no all nor distinct: add top after select
             p = q.replace("\n", " ").find("SELECT ")
-            nq = f"{query[0:p+7]} TOP {top} {query[p+7:]}"
+            nq = f"{query[0:p + 7]} TOP {top} {query[p + 7:]}"
         return nq
 
 
@@ -140,7 +141,7 @@ def parse_http_response_error(responseStr, status):
     pos2 = responseStr.find('</li>', pos1)
     if pos2 == -1:
         return parse_http_votable_response_error(responseStr, status)
-    msg = responseStr[(pos1+len(TAP_UTILS_HTTP_ERROR_MSG_START)):pos2]
+    msg = responseStr[(pos1 + len(TAP_UTILS_HTTP_ERROR_MSG_START)):pos2]
     return f"Error {status}:\n{msg}"
 
 
@@ -162,7 +163,7 @@ def parse_http_votable_response_error(responseStr, status):
     pos2 = responseStr.find(TAP_UTILS_VOTABLE_INFO, pos1)
     if pos2 == -1:
         return f"Error {status}:\n{responseStr}"
-    msg = responseStr[(pos1+len(TAP_UTILS_HTTP_VOTABLE_ERROR)):pos2]
+    msg = responseStr[(pos1 + len(TAP_UTILS_HTTP_VOTABLE_ERROR)):pos2]
     return f"Error {status}: {msg}"
 
 
@@ -178,7 +179,7 @@ def get_jobid_from_location(location):
     -------
     A jobid.
     """
-    pos = location.rfind('/')+1
+    pos = location.rfind('/') + 1
     jobid = location[pos:]
     return jobid
 
@@ -217,26 +218,75 @@ def get_table_name(full_qualified_table_name):
     pos = full_qualified_table_name.rfind('.')
     if pos == -1:
         return full_qualified_table_name
-    name = full_qualified_table_name[pos+1:]
+    name = full_qualified_table_name[pos + 1:]
     return name
 
 
-def get_suitable_output_file(conn_handler, async_job, outputFile, headers,
-                             isError, output_format):
-    dateTime = datetime.now().strftime("%Y%m%d%H%M%S")
-    fileName = ""
-    if outputFile is None:
-        fileName = conn_handler.get_file_from_header(headers)
-        if fileName is None:
+def get_suitable_output_file(conn_handler, async_job, output_file, headers,
+                             is_error, output_format):
+    date_time = datetime.now().strftime("%Y%m%d%H%M%S")
+    if output_file is None:
+        file_name = conn_handler.get_file_from_header(headers)
+        if file_name is None:
             ext = conn_handler.get_suitable_extension(headers)
             if not async_job:
-                fileName = f"sync_{dateTime}{ext}"
+                file_name = f"sync_{date_time}{ext}"
             else:
                 ext = conn_handler.get_suitable_extension_by_format(
                     output_format)
-                fileName = f"async_{dateTime}{ext}"
+                file_name = f"async_{date_time}{ext}"
     else:
-        fileName = outputFile
-    if isError:
-        fileName += ".error"
-    return fileName
+        file_name = output_file
+    if is_error:
+        file_name += ".error"
+    return file_name
+
+
+def get_suitable_output_file_name_for_current_output_format(output_file, output_format):
+    """ renames the name given for the output_file if the results for current_output format are returned compressed by default
+    and the name selected by the user does not contain the correct extension.
+
+    output_file : str, optional, default None
+        file name selected by the user
+    output_format : str, optional, default 'votable'
+        results format. Available formats in TAP are: 'votable', 'votable_plain',
+        'fits', 'csv', 'ecsv' and 'json'. Default is 'votable'.
+        Returned results for formats 'votable' 'ecsv' and 'fits' are compressed
+        gzip files.
+
+    Returns
+    -------
+    A string with the new name for the file.
+    """
+    compressed_extension = ".gz"
+    format_with_results_compressed = ['votable', 'fits', 'ecsv']
+    output_file_with_extension = output_file
+
+    if output_file is not None:
+        if output_format in format_with_results_compressed:
+            # In this case we will have to take also into account the .fits format
+            if not output_file.endswith(compressed_extension):
+                warnings.warn('WARNING!!! By default, results in "votable" and "fits" format are returned in '
+                              f'compressed format therefore your file {output_file} '
+                              f'will be renamed to {output_file}.gz')
+                if output_format == 'votable':
+                    if output_file.endswith('.vot'):
+                        output_file_with_extension = output_file + '.gz'
+                    else:
+                        output_file_with_extension = output_file + '.vot.gz'
+                elif output_format == 'fits':
+                    if output_file.endswith('.fits'):
+                        output_file_with_extension = output_file + '.gz'
+                    else:
+                        output_file_with_extension = output_file + '.fits.gz'
+                elif output_format == 'ecsv':
+                    if output_file.endswith('.ecsv'):
+                        output_file_with_extension = output_file + '.gz'
+                    else:
+                        output_file_with_extension = output_file + '.ecsv.gz'
+        # the output type is not compressed by default by the TAP SERVER but the users gives a .gz extension
+        elif output_file.endswith(compressed_extension):
+            output_file_renamed = output_file.removesuffix('.gz')
+            warnings.warn(f'WARNING!!! The output format selected is not compatible with compression. {output_file}'
+                          f' will be renamed to {output_file}')
+    return output_file_with_extension

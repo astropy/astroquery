@@ -265,6 +265,8 @@ class Tap:
         -------
         A Job object
         """
+        output_file_updated = taputils.get_suitable_output_file_name_for_current_output_format(output_file,
+                                                                                               output_format)
         query = taputils.set_top_in_query(query, 2000)
         if verbose:
             print(f"Launched query: '{query}'")
@@ -310,7 +312,7 @@ class Tap:
         headers = response.getheaders()
         suitableOutputFile = taputils.get_suitable_output_file(self.__connHandler,
                                                                False,
-                                                               output_file,
+                                                               output_file_updated,
                                                                headers,
                                                                isError,
                                                                output_format)
@@ -385,6 +387,10 @@ class Tap:
         -------
         A Job object
         """
+
+        output_file_updated = taputils.get_suitable_output_file_name_for_current_output_format(output_file,
+                                                                                               output_format)
+
         if verbose:
             print(f"Launched query: '{query}'")
         if upload_resource is not None:
@@ -414,7 +420,7 @@ class Tap:
         headers = response.getheaders()
         suitableOutputFile = taputils.get_suitable_output_file(self.__connHandler,
                                                                True,
-                                                               output_file,
+                                                               output_file_updated,
                                                                headers,
                                                                isError,
                                                                output_format)
