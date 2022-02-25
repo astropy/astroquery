@@ -20,6 +20,12 @@ esa.hubble
 
 - Changed query_target method to use TAP instead of AIO [#2268]
 
+alma
+^^^^
+
+- Deprecated keywords and ``stage_data`` method has been removed. Optional
+  keyword arguments are now keyword only. [#2309]
+
 casda
 ^^^^^
 
