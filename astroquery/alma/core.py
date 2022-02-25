@@ -365,7 +365,7 @@ class AlmaClass(QueryWithLogin):
             return legacy_result
         return result
 
-    def query_sia(self, pos=None, band=None, time=None, pol=None,
+    def query_sia(self, *, pos=None, band=None, time=None, pol=None,
                   field_of_view=None, spatial_resolution=None,
                   spectral_resolving_power=None, exptime=None,
                   timeres=None, publisher_did=None,
@@ -480,7 +480,7 @@ class AlmaClass(QueryWithLogin):
                              "on github.")
         return self.dataarchive_url
 
-    def get_data_info(self, uids, expand_tarfiles=False,
+    def get_data_info(self, uids, *, expand_tarfiles=False,
                       with_auxiliary=True, with_rawdata=True):
 
         """
@@ -618,7 +618,8 @@ class AlmaClass(QueryWithLogin):
 
         return data_sizes, totalsize.to(u.GB)
 
-    def download_files(self, files, savedir=None, cache=True,
+
+    def download_files(self, files, *, savedir=None, cache=True,
                        continuation=True, skip_unauthorized=True,
                        verify_only=False):
         """
@@ -754,7 +755,7 @@ class AlmaClass(QueryWithLogin):
 
         return response
 
-    def retrieve_data_from_uid(self, uids, cache=True):
+    def retrieve_data_from_uid(self, uids, *, cache=True):
         """
         Stage & Download ALMA data.  Will print out the expected file size
         before attempting the download.
@@ -787,7 +788,7 @@ class AlmaClass(QueryWithLogin):
         downloaded_files = self.download_files(file_urls)
         return downloaded_files
 
-    def _get_auth_info(self, username, store_password=False,
+    def _get_auth_info(self, username, *, store_password=False,
                        reenter_password=False):
         """
         Get the auth info (user, password) for use in another function
@@ -965,7 +966,7 @@ class AlmaClass(QueryWithLogin):
             self._cycle0_table.rename_column('col2', 'uid')
         return self._cycle0_table
 
-    def get_files_from_tarballs(self, downloaded_files, regex=r'.*\.fits$',
+    def get_files_from_tarballs(self, downloaded_files, *, regex=r'.*\.fits$',
                                 path='cache_path', verbose=True):
         """
         Given a list of successfully downloaded tarballs, extract files
@@ -1015,7 +1016,7 @@ class AlmaClass(QueryWithLogin):
 
         return filelist
 
-    def download_and_extract_files(self, urls, delete=True, regex=r'.*\.fits$',
+    def download_and_extract_files(self, urls, *, delete=True, regex=r'.*\.fits$',
                                    include_asdm=False, path='cache_path',
                                    verbose=True):
         """
@@ -1175,7 +1176,7 @@ class AlmaClass(QueryWithLogin):
         tbl = Table([Column(name=k, data=v) for k, v in columns.items()])
         return tbl
 
-    def get_project_metadata(self, projectid, cache=True):
+    def get_project_metadata(self, projectid, *, cache=True):
         """
         Get the metadata - specifically, the project abstract - for a given project ID.
         """
