@@ -7,7 +7,6 @@ import re
 import tarfile
 import string
 import requests
-import warnings
 from pkg_resources import resource_filename
 from bs4 import BeautifulSoup
 import pyvo
@@ -15,9 +14,7 @@ import pyvo
 from urllib.parse import urljoin
 from astropy.table import Table, Column, vstack
 from astroquery import log
-from astropy.utils import deprecated
 from astropy.utils.console import ProgressBar
-from astropy.utils.exceptions import AstropyDeprecationWarning
 from astropy import units as u
 from astropy.time import Time
 from pyvo.dal.sia2 import SIA_PARAMETERS_DESC
@@ -236,7 +233,7 @@ class AlmaClass(QueryWithLogin):
             self._tap = pyvo.dal.tap.TAPService(baseurl=self.tap_url)
         return self._tap
 
-    def query_object_async(self, object_name, cache=None, public=True,
+    def query_object_async(self, object_name, *, public=True,
                            science=True, payload=None, **kwargs):
         """
         Query the archive for a source name.
@@ -245,7 +242,6 @@ class AlmaClass(QueryWithLogin):
         ----------
         object_name : str
             The object name.  Will be resolved by astropy.coord.SkyCoord
-        cache : deprecated
         public : bool
             True to return only public datasets, False to return private only,
             None to return both
@@ -262,7 +258,7 @@ class AlmaClass(QueryWithLogin):
         return self.query_async(public=public, science=science,
                                 payload=payload, **kwargs)
 
-    def query_region_async(self, coordinate, radius, cache=None, public=True,
+    def query_region_async(self, coordinate, radius, *, public=True,
                            science=True, payload=None, **kwargs):
         """
         Query the ALMA archive with a source name and radius
@@ -273,8 +269,6 @@ class AlmaClass(QueryWithLogin):
             the identifier or coordinates around which to query.
         radius : str / `~astropy.units.Quantity`, optional
             the radius of the region
-        cache : Deprecated
-            Cache the query?
         public : bool
             True to return only public datasets, False to return private only,
             None to return both
@@ -299,10 +293,8 @@ class AlmaClass(QueryWithLogin):
         return self.query_async(public=public, science=science,
                                 payload=payload, **kwargs)
 
-    def query_async(self, payload, cache=None, public=True, science=True,
-                    legacy_columns=False, max_retries=None,
-                    get_html_version=None,
-                    get_query_payload=None, **kwargs):
+    def query_async(self, payload, *, public=True, science=True,
+                    legacy_columns=False, get_query_payload=None, **kwargs):
         """
         Perform a generic query with user-specified payload
 
@@ -310,7 +302,6 @@ class AlmaClass(QueryWithLogin):
         ----------
         payload : dictionary
             Please consult the `help` method
-        cache : deprecated
         public : bool
             True to return only public datasets, False to return private only,
             None to return both
@@ -327,17 +318,6 @@ class AlmaClass(QueryWithLogin):
         Table with results. Columns are those in the ALMA ObsCore model
         (see ``help_tap``) unless ``legacy_columns`` argument is set to True.
         """
-        local_args = dict(locals().items())
-
-        for arg in local_args:
-            # check if the deprecated attributes have been used
-            for dep in ['cache', 'max_retries', 'get_html_version']:
-                if arg[0] == dep and arg[1] is not None:
-                    warnings.warn(
-                        ("Argument '{}' has been deprecated "
-                         "since version 4.0.1 and will be ignored".format(arg[0])),
-                        AstropyDeprecationWarning)
-                    del kwargs[arg[0]]
 
         if payload is None:
             payload = {}
@@ -499,53 +479,6 @@ class AlmaClass(QueryWithLogin):
                              "Alma.archive_url.  Otherwise, report an error "
                              "on github.")
         return self.dataarchive_url
-
-    @deprecated(since="v0.4.1", alternative="get_data_info")
-    def stage_data(self, uids, expand_tarfiles=False, return_json=False):
-        """
-        Obtain table of ALMA files
-
-        DEPRECATED: Data is no longer staged. This method is deprecated and
-        kept here for backwards compatibility reasons but it's not fully
-        compatible with the original implementation.
-
-        Parameters
-        ----------
-        uids : list or str
-            A list of valid UIDs or a single UID.
-            UIDs should have the form: 'uid://A002/X391d0b/X7b'
-        expand_tarfiles : DEPRECATED
-        return_json : DEPRECATED
-            Note: The returned astropy table can be easily converted to json
-            through pandas:
-            output = StringIO()
-            stage_data(...).to_pandas().to_json(output)
-            table_json = output.getvalue()
-
-        Returns
-        -------
-        data_file_table : Table
-            A table containing 3 columns: the UID, the file URL (for future
-            downloading), and the file size
-        """
-
-        if return_json:
-            raise AttributeError(
-                'return_json is deprecated. See method docs for a workaround')
-        table = Table()
-        res = self.get_data_info(uids, expand_tarfiles=expand_tarfiles)
-        p = re.compile(r'.*(uid__.*)\.asdm.*')
-        if res:
-            table['name'] = [u.split('/')[-1] for u in res['access_url']]
-            table['id'] = [p.search(x).group(1) if 'asdm' in x else 'None'
-                           for x in table['name']]
-            table['type'] = res['content_type']
-            table['size'] = res['content_length']
-            table['permission'] = ['UNKNOWN'] * len(res)
-            table['mous_uid'] = [uids] * len(res)
-            table['URL'] = res['access_url']
-            table['isProprietary'] = res['readable']
-        return table
 
     def get_data_info(self, uids, expand_tarfiles=False,
                       with_auxiliary=True, with_rawdata=True):
