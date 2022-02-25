@@ -19,7 +19,6 @@ This sends an SQL query, passed as a string, to the GAMA server and returns
 a `~astropy.table.Table`. For example, to return basic information on the
 first 100 spectroscopic objects in the database:
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> from astroquery.gama import GAMA
