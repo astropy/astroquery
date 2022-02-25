@@ -30,6 +30,10 @@ gaia
   ``astroquery.gaia.Gaia`` no longer ignore their ``columns`` argument when
   ``radius`` is specified. [#2249]
 
+- Enhanced methods 'launch_job' and 'launch_job_async' to avoid issues with
+  the name provided by the user for the output file when the results are
+  returned by the TAP in compressed format. [#2077]
+
 mast
 ^^^^
 
@@ -48,6 +52,7 @@ sdss
 - Fix ``query_crossid`` to be able to query larger list of coordinates. [#2305]
 
 
+
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
 
@@ -57,9 +62,16 @@ Infrastructure, Utility and Other Changes and Additions
 - Callback hooks are deleted before caching.  Potentially all cached queries
   prior to this PR will be rendered invalid.  [#2295]
 
+utils.tap
+^^^^^^^^^
+
 - The modules that make use of the ``astroquery.utils.tap.model.job.Job`` class
   (e.g. Gaia) no longer print messages about where the results of async queries
   were written if the ``verbose`` setting is ``False``. [#2299]
+
+- New method, ``rename_table``, which allows the user to rename table and
+  column names. [#2077]
+
 
 
 0.4.5 (2021-12-24)

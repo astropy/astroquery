@@ -849,7 +849,7 @@ will be able to access to your shared table in a query.
   >>> from astroquery.gaia import Gaia
   >>> Gaia.login()
   >>> Gaia.share_table(group_name="my_group",
-  ...                  table_name="user_<user_loign_name>.my_table",
+  ...                  table_name="user_<user_login_name>.my_table",
   ...                  description="description")
 
 

@@ -1,0 +1,52 @@
+<vod:tableset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xmlns:vod="http://www.ivoa.net/xml/VODataService/v1.1"
+              xmlns:esatapplus="http://esa.int/xml/EsaTapPlus"
+              xsi:type="vod:TableSet"
+              xsi:schemaLocation="http://www.ivoa.net/xml/VODataService/v1.1 http://www.ivoa.net/xml/VODataService/v1.1 http://esa.int/xml/EsaTapPlus https://gea.esac.esa.int/tap-server/xml/esaTapPlusAttributes.xsd">
+    <schema esatapplus:public="false">
+        <name>user_mhenar</name>
+        <description/>
+        <table type="base_table" esatapplus:size="3" esatapplus:flags="0">
+            <name>user_test.table1</name>
+            <description>
+            <![CDATA[ Uploaded from disk ]]>
+            </description>
+             <column std="false" esatapplus:flags="16" esatapplus:ref="">
+                <name>table1_oid</name>
+                <description>
+                <![CDATA[ Object Identifier ]]>
+                </description>
+                <unit/>
+                <ucd/>
+                <utype/>
+                <dataType xsi:type="vod:TAPType">INTEGER</dataType>
+                <flag>indexed</flag>
+                <flag>primary</flag>
+            </column>
+            <column std="false" esatapplus:flags="0" esatapplus:ref="">
+                <name>source_id</name>
+                <description/>
+                <unit/>
+                <ucd>None</ucd>
+                <utype>None</utype>
+                <dataType xsi:type="vod:TAPType">VARCHAR</dataType>
+            </column>
+            <column std="false" esatapplus:flags="0" esatapplus:ref="">
+                <name>ra</name>
+                <description/>
+                <unit/>
+                <ucd/>
+                <utype/>
+                <dataType xsi:type="vod:TAPType">DOUBLE</dataType>
+            </column>
+            <column std="false" esatapplus:flags="0" esatapplus:ref="">
+                <name>dec</name>
+                <description/>
+                <unit/>
+                <ucd/>
+                <utype/>
+                <dataType xsi:type="vod:TAPType">DOUBLE</dataType>
+            </column>
+        </table>
+    </schema>
+</vod:tableset>

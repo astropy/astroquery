@@ -11,12 +11,14 @@ European Space Astronomy Centre (ESAC)
 European Space Agency (ESA)
 
 Created on 30 jun. 2016
-
-
 """
 import os
+from unittest.mock import patch
+
 import numpy as np
 import pytest
+from requests import HTTPError
+
 from astroquery.utils.tap.model.tapcolumn import TapColumn
 
 from astroquery.utils.tap.conn.tests.DummyConnHandler import DummyConnHandler
@@ -179,7 +181,7 @@ def test_launch_sync_job():
     dTmp = {"q": query}
     dTmpEncoded = connHandler.url_encode(dTmp)
     p = dTmpEncoded.find("=")
-    q = dTmpEncoded[p+1:]
+    q = dTmpEncoded[p + 1:]
     dictTmp = {
         "REQUEST": "doQuery",
         "LANG": "ADQL",
@@ -207,13 +209,13 @@ def test_launch_sync_job():
     results = job.get_results()
     assert len(results) == 3
     __check_results_column(results,
-                           'alpha',
-                           'alpha',
+                           'ra',
+                           'ra',
                            None,
                            np.float64)
     __check_results_column(results,
-                           'delta',
-                           'delta',
+                           'dec',
+                           'dec',
                            None,
                            np.float64)
     __check_results_column(results,
@@ -238,8 +240,8 @@ def test_launch_sync_job_redirect():
     resultsReq = f'sync/{jobid}'
     resultsLocation = f'http://test:1111/tap/{resultsReq}'
     launchResponseHeaders = [
-            ['location', resultsLocation]
-        ]
+        ['location', resultsLocation]
+    ]
     responseLaunchJob.set_data(method='POST',
                                context=None,
                                body=None,
@@ -248,7 +250,7 @@ def test_launch_sync_job_redirect():
     dTmp = {"q": query}
     dTmpEncoded = connHandler.url_encode(dTmp)
     p = dTmpEncoded.find("=")
-    q = dTmpEncoded[p+1:]
+    q = dTmpEncoded[p + 1:]
     dictTmp = {
         "REQUEST": "doQuery",
         "LANG": "ADQL",
@@ -310,13 +312,13 @@ def test_launch_sync_job_redirect():
     results = job.get_results()
     assert len(results) == 3
     __check_results_column(results,
-                           'alpha',
-                           'alpha',
+                           'ra',
+                           'ra',
                            None,
                            np.float64)
     __check_results_column(results,
-                           'delta',
-                           'delta',
+                           'dec',
+                           'dec',
                            None,
                            np.float64)
     __check_results_column(results,
@@ -341,8 +343,8 @@ def test_launch_async_job():
     responseLaunchJob.set_message("ERROR")
     # list of list (httplib implementation for headers in response)
     launchResponseHeaders = [
-            ['location', f'http://test:1111/tap/async/{jobid}']
-        ]
+        ['location', f'http://test:1111/tap/async/{jobid}']
+    ]
     responseLaunchJob.set_data(method='POST',
                                context=None,
                                body=None,
@@ -406,13 +408,13 @@ def test_launch_async_job():
     results = job.get_results()
     assert len(results) == 3
     __check_results_column(results,
-                           'alpha',
-                           'alpha',
+                           'ra',
+                           'ra',
                            None,
                            np.float64)
     __check_results_column(results,
-                           'delta',
-                           'delta',
+                           'dec',
+                           'dec',
                            None,
                            np.float64)
     __check_results_column(results,
@@ -447,8 +449,8 @@ def test_start_job():
     responseLaunchJob.set_message("OK")
     # list of list (httplib implementation for headers in response)
     launchResponseHeaders = [
-            ['location', f'http://test:1111/tap/async/{jobid}']
-        ]
+        ['location', f'http://test:1111/tap/async/{jobid}']
+    ]
     responseLaunchJob.set_data(method='POST',
                                context=None,
                                body=None,
@@ -525,8 +527,8 @@ def test_abort_job():
     responseLaunchJob.set_message("OK")
     # list of list (httplib implementation for headers in response)
     launchResponseHeaders = [
-            ['location', f'http://test:1111/tap/async/{jobid}']
-        ]
+        ['location', f'http://test:1111/tap/async/{jobid}']
+    ]
     responseLaunchJob.set_data(method='POST',
                                context=None,
                                body=None,
@@ -563,8 +565,8 @@ def test_job_parameters():
     responseLaunchJob.set_message("OK")
     # list of list (httplib implementation for headers in response)
     launchResponseHeaders = [
-            ['location', f'http://test:1111/tap/async/{jobid}']
-        ]
+        ['location', f'http://test:1111/tap/async/{jobid}']
+    ]
     responseLaunchJob.set_data(method='POST',
                                context=None,
                                body=None,
@@ -955,6 +957,45 @@ def test_update_user_table():
     tap.update_user_table(table_name=tableName, list_of_changes=list_of_changes)
 
 
+def test_rename_table():
+    tableName = 'user_test.table_test_rename'
+    newTableName = 'user_test.table_test_rename_new'
+    newColumnNames = {'ra': 'alpha', 'dec': 'delta'}
+    connHandler = DummyConnHandler()
+    tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
+    dummyResponse = DummyResponse()
+    dummyResponse.set_status_code(200)
+    dummyResponse.set_message("OK")
+    tableDataFile = data_path('test_table_rename.xml')
+    tableData = utils.read_file_content(tableDataFile)
+    dummyResponse.set_data(method='GET',
+                           context=None,
+                           body=tableData,
+                           headers=None)
+
+    with pytest.raises(Exception):
+        tap.rename_table()
+    with pytest.raises(Exception):
+        tap.rename_table(table_name=tableName)
+    with pytest.raises(Exception):
+        tap.rename_table(table_name=tableName, new_table_name=None, new_column_names_dict=None)
+
+    # Test OK.
+    responseRenameTable = DummyResponse()
+    responseRenameTable.set_status_code(200)
+    responseRenameTable.set_message("OK")
+    dictArgs = {
+        "action": "rename",
+        "new_column_names": "ra:alpha,dec:delta",
+        "new_table_name": newTableName,
+        "table_name": tableName,
+    }
+    data = connHandler.url_encode(dictArgs)
+    req = f"TableTool?{data}"
+    connHandler.set_response(req, responseRenameTable)
+    tap.rename_table(table_name=tableName, new_table_name=newTableName, new_column_names_dict=newColumnNames)
+
+
 def __find_table(schemaName, tableName, tables):
     qualifiedName = f"{schemaName}.{tableName}"
     for table in (tables):
@@ -985,3 +1026,40 @@ def __check_results_column(results, columnName, description, unit,
     assert c.description == description
     assert c.unit == unit
     assert c.dtype == dataType
+
+
+@patch.object(TapPlus, 'login')
+def test_login(mock_login):
+    conn_handler = DummyConnHandler()
+    tap = TapPlus("http://test:1111/tap", connhandler=conn_handler)
+    tap.login("user", "password")
+    assert (mock_login.call_count == 1)
+    mock_login.side_effect = HTTPError("Login error")
+    with pytest.raises(HTTPError):
+        tap.login("user", "password")
+    assert (mock_login.call_count == 2)
+
+
+@patch.object(TapPlus, 'login_gui')
+@patch.object(TapPlus, 'login')
+def test_login_gui(mock_login_gui, mock_login):
+    conn_handler = DummyConnHandler()
+    tap = TapPlus("http://test:1111/tap", connhandler=conn_handler)
+    tap.login_gui()
+    assert (mock_login_gui.call_count == 0)
+    mock_login_gui.side_effect = HTTPError("Login error")
+    with pytest.raises(HTTPError):
+        tap.login("user", "password")
+    assert (mock_login.call_count == 1)
+
+
+@patch.object(TapPlus, 'logout')
+def test_logout(mock_logout):
+    conn_handler = DummyConnHandler()
+    tap = TapPlus("http://test:1111/tap", connhandler=conn_handler)
+    tap.logout()
+    assert (mock_logout.call_count == 1)
+    mock_logout.side_effect = HTTPError("Login error")
+    with pytest.raises(HTTPError):
+        tap.logout()
+    assert (mock_logout.call_count == 2)
