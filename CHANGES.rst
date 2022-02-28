@@ -3,10 +3,17 @@
 
 New Tools and Services
 ----------------------
+esa.hubble
+^^^^^^^^^^
 
+- Added new method ``get_hap_hst_link`` and ``get_member_observations`` to get related observations [#2268]
 
 Service fixes and enhancements
 ------------------------------
+esa.hubble
+^^^^^^^^^^
+
+- Changed query_target method to use TAP instead of AIO [#2268]
 
 casda
 ^^^^^

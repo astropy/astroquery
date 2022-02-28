@@ -498,6 +498,9 @@ class ESAHubbleClass(BaseQuery):
             target name to be requested, mandatory
         filename : string
             file name to be used to store the metadata, optional, default None
+        async_job : bool, optional, default 'False'
+            executes the query (job) in asynchronous/synchronous mode (default
+            synchronous)
         output_format : string
             optional, default 'votable'
             output format of the query
