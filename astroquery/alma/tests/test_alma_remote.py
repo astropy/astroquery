@@ -652,6 +652,6 @@ def test_big_download_regression(alma):
 
 
 @pytest.mark.remote_data
-def test_download_html_file():
+def test_download_html_file(alma):
     result = alma.download_files(['https://almascience.nao.ac.jp/dataPortal/member.uid___A001_X1284_X1353.qa2_report.html'])
     assert result
