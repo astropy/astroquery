@@ -435,7 +435,7 @@ with a `~astropy.table.Table` of data products, or a list (or single) obsid as t
 ​As an alternative to downloading the data files now, the ``curl_flag`` can be used instead to instead get a curl script that can be used to download the files at a later time.
 
 .. doctest-remote-data::
- 
+
    >>> from astroquery.mast import Observations
    ...
    >>> single_obs = Observations.query_criteria(obs_collection="IUE", obs_id="lwp13058")
@@ -462,12 +462,12 @@ the ``local_path`` keyword argument.
    >>> product = data_products[0]["dataURI"]
    >>> print(product)
    mast:IUE/url/pub/iue/data/lwp/13000/lwp13058.elbll.gz
-   
    >>> result = Observations.download_file(product)   # doctest: +IGNORE_OUTPUT
    Downloading URL https://mast.stsci.edu/api/v0.1/Download/file?uri=mast:IUE/url/pub/iue/data/lwp/13000/lwp13058.elbll.gz to ./lwp13058.elbll.gz ... [Done]
    ...
    >>> print(result)
    ('COMPLETE', None, None)
+
 
 Cloud Data Access
 ------------------
@@ -681,7 +681,6 @@ The table to query is a required parameter.
    ...                                       catalog="Panstarrs", data_release="dr1", table="mean")
    >>> print("Number of results:",len(catalog_data))
    Number of results: 7007
-   
    >>> print(catalog_data[:10])     # doctest: +IGNORE_OUTPUT
             ObjName           objAltName1 ... yFlags       distance
    -------------------------- ----------- ... ------ --------------------
@@ -810,7 +809,6 @@ Given an HSC Match ID, return all catalog results.
    >>> matchid = catalog_data[0]["MatchID"]
    >>> print(matchid)
    63980492
-   
    >>> matches = Catalogs.query_hsc_matchid(matchid)
    >>> print(matches)
      CatID   MatchID  ...                       cd_matrix
@@ -907,12 +905,12 @@ and returns a target pixel file, with format described `here <https://astrocut.r
    ...
    >>> cutout_coord = SkyCoord(107.18696, -70.50919, unit="deg")
    >>> hdulist = Tesscut.get_cutouts(coordinates=cutout_coord, size=5)
-   >>> hdulist[0].info()
+   >>> hdulist[0].info()  # doctest: +IGNORE_OUTPUT
    Filename: <class '_io.BytesIO'>
    No.    Name      Ver    Type      Cards   Dimensions   Format
-   0  PRIMARY       1 PrimaryHDU      56   ()
-   1  PIXELS        1 BinTableHDU    280   1288R x 12C   [D, E, J, 25J, 25E, 25E, 25E, 25E, J, E, E, 38A]
-   2  APERTURE      1 ImageHDU        81   (5, 5)   int32
+     0  PRIMARY       1 PrimaryHDU      56   ()
+     1  PIXELS        1 BinTableHDU    280   1060R x 12C   [D, E, J, 25J, 25E, 25E, 25E, 25E, J, E, E, 38A]
+     2  APERTURE      1 ImageHDU        81   (5, 5)   int32
 
 
 .. doctest-remote-data::
@@ -920,13 +918,13 @@ and returns a target pixel file, with format described `here <https://astrocut.r
    >>> from astroquery.mast import Tesscut
    ...
    >>> hdulist = Tesscut.get_cutouts(objectname="TIC 32449963", size=5)
-   >>> hdulist[0].info()
+   >>> hdulist[0].info()  # doctest: +IGNORE_OUTPUT
    Filename: <class '_io.BytesIO'>
    No.    Name      Ver    Type      Cards   Dimensions   Format
-   0  PRIMARY       1 PrimaryHDU      56   ()
-   1  PIXELS        1 BinTableHDU    280   1211R x 12C   [D, E, J, 25J, 25E, 25E, 25E, 25E, J, E, E, 38A]
-   2  APERTURE      1 ImageHDU        81   (5, 5)   int32
-   
+     0  PRIMARY       1 PrimaryHDU      56   ()
+     1  PIXELS        1 BinTableHDU    280   3477R x 12C   [D, E, J, 25J, 25E, 25E, 25E, 25E, J, E, E, 38A]
+     2  APERTURE      1 ImageHDU        81   (5, 5)   int32
+
 
 Requesting a cutout by moving_target accesses the
 `MAST Moving Target TESScut API <https://mast.stsci.edu/tesscut/docs/getting_started.html#moving-target-cutouts>`__
@@ -943,11 +941,9 @@ The moving_target is an optional bool argument where `True` signifies that the a
    >>> hdulist[0].info()
    Filename: <class '_io.BytesIO'>
    No.    Name      Ver    Type      Cards   Dimensions   Format
-   0  PRIMARY       1 PrimaryHDU      54   ()
-   1  PIXELS        1 BinTableHDU    150   355R x 16C   [D, E, J, 25J, 25E, 25E, 25E, 25E, J, E, E, 38A, D, D, D, D]
-   2  APERTURE      1 ImageHDU        97   (2136, 2078)   int32
-
-
+     0  PRIMARY       1 PrimaryHDU      54   ()
+     1  PIXELS        1 BinTableHDU    150   355R x 16C   [D, E, J, 25J, 25E, 25E, 25E, 25E, J, E, E, 38A, D, D, D, D]
+     2  APERTURE      1 ImageHDU        97   (2136, 2078)   int32
 
 
 The `~astroquery.mast.TesscutClass.download_cutouts` function takes a coordinate, cutout size
@@ -1063,7 +1059,7 @@ If a given coordinate appears in more than one Zcut survey, a cutout will be pro
    >>> manifest = Zcut.download_cutouts(coordinates=cutout_coord, size=[200, 300], units="px")    # doctest: +IGNORE_OUTPUT
    Downloading URL https://mast.stsci.edu/zcut/api/v0.1/astrocut?ra=189.49206&dec=62.20615&y=200&x=300&units=px&format=fits to ./zcut_20210125155545.zip ... [Done]
    Inflating...
-   
+   ...
    >>> print(manifest)    # doctest: +IGNORE_OUTPUT
                                  Local Path
    -------------------------------------------------------------------------
