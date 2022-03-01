@@ -68,7 +68,10 @@ Criteria are supplied as keyword arguments, where valid criteria are "coordinate
 "objectname", "radius" (as in `~astroquery.mast.ObservationsClass.query_region` and
 `~astroquery.mast.ObservationsClass.query_object`), and all observation fields listed
 `here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`__.
-**Note:** The obstype keyword has been replaced by intentType, with valid values "calibration" and "science." If the intentType keyword is not supplied, both science and calibration observations will be returned.
+
+**Note:** The obstype keyword has been replaced by intentType, with valid values
+"calibration" and "science." If the intentType keyword is not supplied, both
+science and calibration observations will be returned.
 
 Argument values are one or more acceptable values for the criterion,
 except for fields with a float datatype where the argument should be in the form
@@ -194,7 +197,7 @@ default service set to 'search'.
 
 .. code-block:: python
 
-   >>> from astroquery.mast.missions import MastMissions
+   >>> from astroquery.mast import MastMissions
    >>> missions = MastMissions()
    >>> missions.mission
    'hst'
@@ -208,7 +211,7 @@ by using the ~astroquery.mast.MastMissionsClass.get_column_list function.
 
 .. doctest-remote-data::
 
-   >>> from astroquery.mast.missions import MastMissions
+   >>> from astroquery.mast import MastMissions
    >>> missions = MastMissions(mission='hst')
    >>> columns = missions.get_column_list()
 
@@ -222,7 +225,7 @@ For a non positional search, select_cols would always include search_key and sci
 
 .. doctest-remote-data::
 
-   >>> from astroquery.mast.missions import MastMissions
+   >>> from astroquery.mast import MastMissions
    >>> from astropy.coordinates import SkyCoord
    >>> missions = MastMissions(mission='hst')
    >>> regionCoords = SkyCoord(210.80227, 54.34895, unit=('deg', 'deg'))
@@ -246,7 +249,7 @@ of returned records. the default values for offset and limit is 0 and 5000 respe
 
 .. doctest-remote-data::
 
-   >>> from astroquery.mast.missions import MastMissions
+   >>> from astroquery.mast import MastMissions
    >>> from astropy.coordinates import SkyCoord
    >>> missions = MastMissions()
    >>> results = missions.query_criteria(sci_start_time=">=2021-01-01 00:00:00",
@@ -432,7 +435,8 @@ with a `~astropy.table.Table` of data products, or a list (or single) obsid as t
        ./mastDownload/IUE/lwp13058/lwp13058.mxlo.gz COMPLETE    None None
    ./mastDownload/IUE/lwp13058/lwp13058mxlo_vo.fits COMPLETE    None None
 
-​As an alternative to downloading the data files now, the ``curl_flag`` can be used instead to instead get a curl script that can be used to download the files at a later time.
+​As an alternative to downloading the data files now, the ``curl_flag`` can be used instead to instead get a curl
+script that can be used to download the files at a later time.
 
 .. doctest-remote-data::
 
@@ -474,15 +478,20 @@ Cloud Data Access
 Public datasets from the Hubble, Kepler and TESS telescopes are also available for free on Amazon Web Services
 in `public S3 buckets <https://registry.opendata.aws/collab/stsci/>`__.
 
-Using AWS resources to process public data no longer requires an AWS account for all AWS regions. To enable cloud data access for the Hubble, Kepler, TESS, and GALEX missions, follow the steps below:
+Using AWS resources to process public data no longer requires an AWS account for all AWS regions. To enable
+cloud data access for the Hubble, Kepler, TESS, and GALEX missions, follow the steps below:
 
-You can enable cloud data access via the `~astroquery.mast.ObservationsClass.enable_cloud_dataset` function, which sets AWS to become the preferred source for data access as opposed to on-premise MAST until it is disabled with `~astroquery.mast.ObservationsClass.disable_cloud_dataset`.
+You can enable cloud data access via the `~astroquery.mast.ObservationsClass.enable_cloud_dataset` function,
+which sets AWS to become the preferred source for data access as opposed to on-premise MAST until it
+is disabled with `~astroquery.mast.ObservationsClass.disable_cloud_dataset`.
 
 To directly access a list of cloud URIs for a given dataset, use the `~astroquery.mast.ObservationsClass.get_cloud_uris`
 function (Python will prompt you to enable cloud access if you haven't already).
 
 When cloud access is enabled, the standard download function
-`~astroquery.mast.ObservationsClass.download_products` preferentially pulls files from AWS when they are available. When set to `True`, the ``cloud_only`` parameter in `~astroquery.mast.ObservationsClass.download_products` skips all data products not available in the cloud.
+`~astroquery.mast.ObservationsClass.download_products` preferentially pulls files from AWS when they are available.
+When set to `True`, the ``cloud_only`` parameter in `~astroquery.mast.ObservationsClass.download_products`
+skips all data products not available in the cloud.
 
 
 Getting a list of S3 URIs:
@@ -568,7 +577,8 @@ Downloading data products from S3:
 Catalog Queries
 ===============
 
-The Catalogs class provides access to a subset of the astronomical catalogs stored at MAST.  The catalogs currently available through this interface are:
+The Catalogs class provides access to a subset of the astronomical catalogs stored at MAST.
+The catalogs currently available through this interface are:
 
 - The Hubble Source Catalog (HSC)
 - The GALEX Catalog (V2 and V3)
@@ -583,7 +593,9 @@ Positional Queries
 ------------------
 
 Positional queries can be based on a sky position or a target name.
-The returned fields vary by catalog, find the field documentation for specific catalogs `here <https://mast.stsci.edu/api/v0/pages.html>`__. If no catalog is specified, the Hubble Source Catalog will be queried.
+The returned fields vary by catalog, find the field documentation for specific catalogs
+`here <https://mast.stsci.edu/api/v0/pages.html>`__.
+If no catalog is specified, the Hubble Source Catalog will be queried.
 
 .. doctest-remote-data::
 
@@ -822,7 +834,8 @@ Given an HSC Match ID, return all catalog results.
    410574498 63980492 ...   -1.10056e-005 1.56577e-009 1.56577e-009 1.10056e-005
    410574497 63980492 ...   -1.10056e-005 1.56577e-009 1.56577e-009 1.10056e-005
 
-HSC spectra accessed through this class as well. `~astroquery.mast.CatalogsClass.get_hsc_spectra` does not take any arguments, and simply loads all HSC spectra.
+HSC spectra accessed through this class as well. `~astroquery.mast.CatalogsClass.get_hsc_spectra`
+does not take any arguments, and simply loads all HSC spectra.
 
 .. doctest-remote-data::
 
@@ -930,8 +943,9 @@ Requesting a cutout by moving_target accesses the
 `MAST Moving Target TESScut API <https://mast.stsci.edu/tesscut/docs/getting_started.html#moving-target-cutouts>`__
 and returns a target pixel file, with format described
 `here <https://astrocut.readthedocs.io/en/latest/astrocut/file_formats.html#path-focused-target-pixel-files>`__.
-The moving_target is an optional bool argument where `True` signifies that the accompanying ``objectname`` input is the object name or ID understood by the
-`JPL Horizon ephemerades interface <https://ssd.jpl.nasa.gov/horizons.cgi>`__. The default value for moving_target is set to False. Therefore, a non-moving target can be input simply with either the objectname or coordinates.
+The moving_target is an optional bool argument where `True` signifies that the accompanying ``objectname`` input is
+the object name or ID understood by the `JPL Horizon ephemerades interface <https://ssd.jpl.nasa.gov/horizons.cgi>`__.
+The default value for ``moving_target`` is set to `False`. Therefore, a non-moving target can be input simply with either the objectname or coordinates.
 
 .. doctest-remote-data::
 
@@ -950,7 +964,8 @@ The `~astroquery.mast.TesscutClass.download_cutouts` function takes a coordinate
 (in pixels or an angular quantity), or object name
 (i.e. "M104" or "TIC 32449963") and moving target (True or False). It uses these parameters to download the cutout target pixel file(s).
 
-If a given coordinate/object/moving target appears in more than one TESS sector, a target pixel file will be produced for each sector.  If the cutout area overlaps more than one camera or ccd, a target pixel file will be produced for each one.
+If a given coordinate/object/moving target appears in more than one TESS sector, a target pixel file will be produced for each sector.
+If the cutout area overlaps more than one camera or ccd, a target pixel file will be produced for each one.
 
 .. doctest-remote-data::
 
@@ -999,7 +1014,7 @@ To access sector information for a particular coordinate, object, or moving targ
 
 
 .. doctest-remote-data::
-   
+
    >>> from astroquery.mast import Tesscut
    ...
    >>> sector_table = Tesscut.get_sectors(objectname="Ceres", moving_target=True)
@@ -1009,6 +1024,7 @@ To access sector information for a particular coordinate, object, or moving targ
    tess-s0029-1-4     29      1   4
    tess-s0043-3-3     43      3   3
    tess-s0044-2-4     44      2   4
+
 
 Zcut
 ====
