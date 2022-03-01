@@ -70,8 +70,8 @@ Criteria are supplied as keyword arguments, where valid criteria are "coordinate
 `here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`__.
 
 **Note:** The obstype keyword has been replaced by intentType, with valid values
-"calibration" and "science." If the intentType keyword is not supplied, both
-science and calibration observations will be returned.
+"calibration" and "science." If the intentType keyword is not supplied, both science
+and calibration observations will be returned.
 
 Argument values are one or more acceptable values for the criterion,
 except for fields with a float datatype where the argument should be in the form
@@ -138,16 +138,15 @@ This can be useful if trying to decide whether the available memory is sufficien
 Metadata Queries
 ----------------
 
-To list data missions archived by MAST and avaiable through `astroquery.mast`, use the `~astroquery.mast.ObservationsClass.list_missions` function.
+To list data missions archived by MAST and avaiable through `astroquery.mast`,
+use the `~astroquery.mast.ObservationsClass.list_missions` function.
 
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Observations
    ...
-   >>> print(Observations.list_missions())  # doctest: +IGNORE_OUTPUT
-   ['BEFS', 'EUVE', 'FUSE', 'GALEX', 'HLA', 'HLSP', 'HST', 'HUT',
-   'IUE', 'JWST', 'K2', 'K2FFI', 'Kepler', 'KeplerFFI', 'PS1',
-   'SPITZER_SHA', 'SWIFT', 'TESS', 'TUES', 'WUPPE']
+   >>> print(Observations.list_missions())
+   ['BEFS', 'EUVE', 'FUSE', 'GALEX', 'HLA', 'HLSP', 'HST', 'HUT', 'IUE', 'JWST', 'K2', 'K2FFI', 'Kepler', 'KeplerFFI', 'OPO', 'PS1', 'SPITZER_SHA', 'SWIFT', 'TESS', 'TUES', 'WUPPE']
 
 To get a table of metadata associated with observation or product lists use the
 `~astroquery.mast.ObservationsClass.get_metadata` function.
@@ -173,125 +172,6 @@ To get a table of metadata associated with observation or product lists use the
            obs_id   Observation ID ...                  U24Z0101T, N4QF18030
             obsID Product Group ID ...         Long integer, e.g. 2007590987
    obs_collection          Mission ... HST, HLA, SWIFT, GALEX, Kepler, K2...
-
-
-
-Mission Searches
-================
-
-Mission-Specific Search Queries
--------------------------------
-
-These queries allow for searches based on mission-specific metadata for a given
-data collection.  Currently it provides access to a broad set of Hubble Space
-Telescope (HST) metadata, including header keywords, proposal information, and
-observational parameters.  The available metadata includes all information that
-was previously available in the original HST web search form, and are present in
-the current Mission Search interface.
-
-Currenlty, the API only includes the search functionality. The functionality to
-download data products associated with search results is not currently supported.
-
-An object of MastMissions class is instantiated with a default mission of 'hst' and
-default service set to 'search'.
-
-.. code-block:: python
-
-   >>> from astroquery.mast import MastMissions
-   >>> missions = MastMissions()
-   >>> missions.mission
-   'hst'
-   >>> missions.service
-   'search'
-
-The missions object can be used to search metadata using region coordinates. the keywoed argumentss
-can be used to specify output characteristics like selec_cols and sort_by and conditions that filter
-on values like proposal id, pi last name etc. The available column names for a mission can be found out
-by using the ~astroquery.mast.MastMissionsClass.get_column_list function.
-
-.. doctest-remote-data::
-
-   >>> from astroquery.mast import MastMissions
-   >>> missions = MastMissions(mission='hst')
-   >>> columns = missions.get_column_list()
-
-
-For positional searches, the columns "ang_sep", "sci_data_set_name", "search_key" and "search_position"
-will always be included, in addition to any columns specified using "select_cols". For non-positional
-searches, "search_key" and "sci_data_set_name" will always be included, in addition to any columns
-specified using "select_cols".
-
-For a non positional search, select_cols would always include search_key and sci_data_set_name.
-
-.. doctest-remote-data::
-
-   >>> from astroquery.mast import MastMissions
-   >>> from astropy.coordinates import SkyCoord
-   >>> missions = MastMissions(mission='hst')
-   >>> regionCoords = SkyCoord(210.80227, 54.34895, unit=('deg', 'deg'))
-   >>> results = missions.query_region(regionCoords, radius=3, sci_pep_id=12556,
-   ...                                 select_cols=["sci_stop_time", "sci_targname", "sci_start_time", "sci_status"],
-   ...                                 sort_by=['sci_targname'])
-   >>> results[:5]   # doctest: +IGNORE_OUTPUT
-   <Table masked=True length=5>
-    sci_status   sci_targname   sci_data_set_name       ang_sep        sci_pep_id     search_pos     sci_pi_last_name          search_key
-       str6         str16              str9              str20           int64          str18              str6                  str27
-    ---------- ---------------- ----------------- -------------------- ---------- ------------------ ---------------- ---------------------------
-        PUBLIC NUCLEUS+HODGE602         OBQU010H0 0.017460048037303017      12556 210.80227 54.34895           GORDON 210.80227 54.34895OBQU010H0
-        PUBLIC NUCLEUS+HODGE602         OBQU01050 0.017460048037303017      12556 210.80227 54.34895           GORDON 210.80227 54.34895OBQU01050
-        PUBLIC NUCLEUS+HODGE602         OBQU01030 0.022143836477276503      12556 210.80227 54.34895           GORDON 210.80227 54.34895OBQU01030
-        PUBLIC NUCLEUS+HODGE602         OBQU010F0 0.022143836477276503      12556 210.80227 54.34895           GORDON 210.80227 54.34895OBQU010F0
-        PUBLIC NUCLEUS+HODGE602         OBQU010J0  0.04381046755938432      12556 210.80227 54.34895           GORDON 210.80227 54.34895OBQU010J0
-
-
-for paging through the results, offset and limit can be used to specify the starting record and the number
-of returned records. the default values for offset and limit is 0 and 5000 respectively.
-
-.. doctest-remote-data::
-
-   >>> from astroquery.mast import MastMissions
-   >>> from astropy.coordinates import SkyCoord
-   >>> missions = MastMissions()
-   >>> results = missions.query_criteria(sci_start_time=">=2021-01-01 00:00:00",
-   ...                                   select_cols=["sci_stop_time", "sci_targname", "sci_start_time", "sci_status", "sci_pep_id"],
-   ...                                   sort_by=['sci_pep_id'], limit=1000, offset=1000)  # doctest: +IGNORE_WARNINGS
-   ... # MaxResultsWarning('Maximum results returned, may not include all sources within radius.')
-   >>> len(results)
-   1000
-
-Metadata queries can also be performed using object names with the
-~astroquery.mast.MastMissionsClass.query_object function.
-
-.. doctest-remote-data::
-
-   >>> results = missions.query_object('M101', radius=3, select_cols=["sci_stop_time", "sci_targname", "sci_start_time", "sci_status"],
-   ...                                 sort_by=['sci_targname'])
-   >>> results[:5]  # doctest: +IGNORE_OUTPUT
-   <Table masked=True length=5>
-        ang_sep           search_pos     sci_status          search_key               sci_stop_time        sci_targname       sci_start_time       sci_data_set_name
-        str20              str18           str6               str27                      str26               str16               str26                   str9
-   ------------------ ------------------ ---------- --------------------------- -------------------------- ------------ -------------------------- -----------------
-   2.751140575012458  210.80227 54.34895     PUBLIC 210.80227 54.34895LDJI01010 2019-02-19T05:52:40.020000   +164.6+9.9 2019-02-19T00:49:58.010000         LDJI01010
-   0.8000626246647815 210.80227 54.34895     PUBLIC 210.80227 54.34895J8OB02011 2003-08-27T08:27:34.513000   ANY        2003-08-27T07:44:47.417000         J8OB02011
-   1.1261718338567348 210.80227 54.34895     PUBLIC 210.80227 54.34895J8D711J1Q 2003-01-17T00:50:22.250000   ANY        2003-01-17T00:42:06.993000         J8D711J1Q
-   1.1454431087675097 210.80227 54.34895     PUBLIC 210.80227 54.34895JD6V01012 2017-06-15T18:33:25.983000   ANY        2017-06-15T18:10:12.037000         JD6V01012
-   1.1457795862361977 210.80227 54.34895     PUBLIC 210.80227 54.34895JD6V01013 2017-06-15T20:08:44.063000   ANY        2017-06-15T19:45:30.023000         JD6V01013
-
-Metadata queries can also be performed using non-positional parameters with the
-~astroquery.mast.MastMissionsClass.query_criteria function.
-
-.. doctest-remote-data::
-
-   >>> results = missions.query_criteria(sci_data_set_name="Z06G0101T", sci_pep_id="1455",
-   ...                                   select_cols=["sci_stop_time", "sci_targname", "sci_start_time", "sci_status"],
-   ...                                   sort_by=['sci_targname'])
-   >>> results[:5]  # doctest: +IGNORE_OUTPUT
-   <Table masked=True length=5>
-   search_key       sci_stop_time        sci_data_set_name       sci_start_time       sci_targname sci_status
-   str9              str26      str9    str26               str19        str6
-   ---------- -------------------------- ----------------- -------------------------- ------------ ----------
-   Z06G0101T  1990-05-13T11:02:34.567000         Z06G0101T 1990-05-13T10:38:09.193000           --     PUBLIC
-
 
 
 Downloading Data
@@ -379,8 +259,9 @@ Filter keyword arguments can be applied to download only data products that meet
 Available filters are "mrp_only" (Minimum Recommended Products), "extension" (file extension),
 and all products fields listed `here <https://mast.stsci.edu/api/v0/_productsfields.html>`_.
 
-The ‘AND' operation is performed for a list of filters, and the ‘OR' operation is performed within a filter set.
-The below example illustrates downloading all product files with the extension "fits" that are either "RAW" or "UNCAL."
+The ‘AND' operation is performed for a list of filters, and the ‘OR' operation is performed within a
+filter set. The below example illustrates downloading all product files with the extension "fits" that
+are either "RAW" or "UNCAL."
 
 .. doctest-remote-data::
 
@@ -436,8 +317,8 @@ with a `~astropy.table.Table` of data products, or a list (or single) obsid as t
        ./mastDownload/IUE/lwp13058/lwp13058.mxlo.gz COMPLETE    None None
    ./mastDownload/IUE/lwp13058/lwp13058mxlo_vo.fits COMPLETE    None None
 
-​As an alternative to downloading the data files now, the ``curl_flag`` can be used instead to instead get a curl
-script that can be used to download the files at a later time.
+​As an alternative to downloading the data files now, the ``curl_flag`` can be used instead to instead get a
+curl script that can be used to download the files at a later time.
 
 .. doctest-remote-data::
 
@@ -453,9 +334,9 @@ script that can be used to download the files at a later time.
 Downloading a Single File
 -------------------------
 
-You can download a single data product file using the `~astroquery.mast.ObservationsClass.download_file` method, and passing in
-a MAST Data URI.  The default is to download the file the current working directory, which can be changed with
-the ``local_path`` keyword argument.
+You can download a single data product file using the `~astroquery.mast.ObservationsClass.download_file`
+method, and passing in a MAST Data URI.  The default is to download the file the current working directory,
+which can be changed with the ``local_path`` keyword argument.
 
 .. doctest-remote-data::
 
@@ -473,26 +354,26 @@ the ``local_path`` keyword argument.
    >>> print(result)
    ('COMPLETE', None, None)
 
-
 Cloud Data Access
 ------------------
 Public datasets from the Hubble, Kepler and TESS telescopes are also available for free on Amazon Web Services
 in `public S3 buckets <https://registry.opendata.aws/collab/stsci/>`__.
 
-Using AWS resources to process public data no longer requires an AWS account for all AWS regions. To enable
-cloud data access for the Hubble, Kepler, TESS, and GALEX missions, follow the steps below:
+Using AWS resources to process public data no longer requires an AWS account for all AWS regions.
+To enable cloud data access for the Hubble, Kepler, TESS, and GALEX missions, follow the steps below:
 
-You can enable cloud data access via the `~astroquery.mast.ObservationsClass.enable_cloud_dataset` function,
-which sets AWS to become the preferred source for data access as opposed to on-premise MAST until it
-is disabled with `~astroquery.mast.ObservationsClass.disable_cloud_dataset`.
+You can enable cloud data access via the `~astroquery.mast.ObservationsClass.enable_cloud_dataset`
+function, which sets AWS to become the preferred source for data access as opposed to on-premise
+MAST until it is disabled with `~astroquery.mast.ObservationsClass.disable_cloud_dataset`.
 
-To directly access a list of cloud URIs for a given dataset, use the `~astroquery.mast.ObservationsClass.get_cloud_uris`
+To directly access a list of cloud URIs for a given dataset, use the
+`~astroquery.mast.ObservationsClass.get_cloud_uris`
 function (Python will prompt you to enable cloud access if you haven't already).
 
 When cloud access is enabled, the standard download function
-`~astroquery.mast.ObservationsClass.download_products` preferentially pulls files from AWS when they are available.
-When set to `True`, the ``cloud_only`` parameter in `~astroquery.mast.ObservationsClass.download_products`
-skips all data products not available in the cloud.
+`~astroquery.mast.ObservationsClass.download_products` preferentially pulls files from AWS when they
+are available. When set to `True`, the ``cloud_only`` parameter in
+`~astroquery.mast.ObservationsClass.download_products` skips all data products not available in the cloud.
 
 
 Getting a list of S3 URIs:
@@ -575,6 +456,109 @@ Downloading data products from S3:
    ...
    >>> Observations.disable_cloud_dataset()
 
+   
+
+Mission Searches
+================
+
+Mission-Specific Search Queries
+-------------------------------
+
+These queries allow for searches based on mission-specific metadata for a given
+data collection.  Currently it provides access to a broad set of Hubble Space
+Telescope (HST) metadata, including header keywords, proposal information, and
+observational parameters.  The available metadata includes all information that
+was previously available in the original HST web search form, and are present in
+the current `Mission Search interface <https://mast.stsci.edu/search/ui/#/hst>`__.
+
+**Note:**, this API interface does not yet support data product download, only
+metadata earch access.
+
+An object of MastMissions class is instantiated with a default mission of 'hst' and 
+default service set to 'search'.
+
+.. doctest-remote-data::
+
+   >>> from astroquery.mast.missions import MastMissions
+   >>> missions = MastMissions()
+   >>> missions.mission
+   'hst'
+   >>> missions.service
+   'search'
+
+The missions object can be used to search metadata using by sky position, or other criteria.
+The keyword arguments can be used to specify output characteristics like selec_cols and
+sort_by and conditions that filter on values like proposal id, pi last name etc.
+The available column names for a mission are returned by the
+`~astroquery.mast.MastMissionsClass.get_column_list` function.
+
+.. doctest-remote-data::
+   
+   >>> from astroquery.mast.missions import MastMissions
+   >>> missions = MastMissions(mission='hst')
+   >>> columns = missions.get_column_list()
+
+For positional searches, the columns "ang_sep", "sci_data_set_name", "search_key" and "search_position"
+will always be included, in addition to any columns specified using "select_cols". For non-positional
+searches, "search_key" and "sci_data_set_name" will always be included, in addition to any columns
+specified using "select_cols". 
+
+.. doctest-remote-data::
+   
+   >>> from astroquery.mast.missions import MastMissions
+   >>> from astropy.coordinates import SkyCoord
+   ...
+   >>> missions = MastMissions(mission='hst')
+   >>> regionCoords = SkyCoord(210.80227, 54.34895, unit=('deg', 'deg'))
+   >>> results = missions.query_region(regionCoords, radius=3, sci_pep_id=12556,
+   ...                                 select_cols=["sci_stop_time", "sci_targname", "sci_start_time", "sci_status"],
+   ...                                 sort_by=['sci_targname'])
+   >>> print(results[:5])   # doctest: +IGNORE_OUTPUT
+         sci_stop_time              sci_start_time       sci_data_set_name ...       ang_sep        sci_status
+   -------------------------- -------------------------- ----------------- ... -------------------- ----------
+   2012-05-24T09:20:44.570000 2012-05-24T09:17:38.570000         OBQU010H0 ... 0.017460048037303017     PUBLIC
+   2012-05-24T07:54:46.553000 2012-05-24T07:51:40.553000         OBQU01050 ... 0.017460048037303017     PUBLIC
+   2012-05-24T07:46:26.553000 2012-05-24T07:43:20.553000         OBQU01030 ... 0.022143836477276503     PUBLIC
+   2012-05-24T09:12:24.570000 2012-05-24T09:09:18.570000         OBQU010F0 ... 0.022143836477276503     PUBLIC
+   2012-05-24T09:29:04.570000 2012-05-24T09:25:58.570000         OBQU010J0 ...  0.04381046755938432     PUBLIC
+
+Metadata queries can be performed using object names with the
+`~astroquery.mast.MastMissionsClass.query_object` function.
+
+.. doctest-remote-data::
+
+   >>> from astroquery.mast.missions import MastMissions
+   ...
+   >>> missions = MastMissions(mission='hst')
+   >>> results = missions.query_object('M101', radius=3, select_cols=["sci_stop_time", "sci_targname",
+   ...                                                         "sci_start_time", "sci_status"],
+   ...                                 sort_by=['sci_targname'])
+   >>> print(results[:5])   # doctest: +IGNORE_OUTPUT
+        ang_sep       sci_targname       sci_stop_time        ...     search_pos           sci_start_time
+   ------------------ ------------ -------------------------- ... ------------------ --------------------------
+    2.751140575012458   +164.6+9.9 2019-02-19T05:52:40.020000 ... 210.80227 54.34895 2019-02-19T00:49:58.010000
+   0.8000626246647815          ANY 2003-08-27T08:27:34.513000 ... 210.80227 54.34895 2003-08-27T07:44:47.417000
+   1.1261718338567348          ANY 2003-01-17T00:50:22.250000 ... 210.80227 54.34895 2003-01-17T00:42:06.993000
+   1.1454431087675097          ANY 2017-06-15T18:33:25.983000 ... 210.80227 54.34895 2017-06-15T18:10:12.037000
+   1.1457795862361977          ANY 2017-06-15T20:08:44.063000 ... 210.80227 54.34895 2017-06-15T19:45:30.023000   
+
+Metadata queries can be performed using non-positional search criteria with the
+`~astroquery.mast.MastMissionsClass.query_criteria` function.
+
+.. doctest-remote-data::
+
+   >>> from astroquery.mast.missions import MastMissions
+   ...
+   >>> missions = MastMissions(mission='hst')
+   >>> results = missions.query_criteria(sci_data_set_name="Z06G0101T", sci_pep_id="1455",
+   ...                                   select_cols=["sci_stop_time", "sci_targname", "sci_start_time", "sci_status"],
+   ...                                   sort_by=['sci_targname'])
+   >>> print(results)   # doctest: +IGNORE_OUTPUT
+   sci_data_set_name sci_targname       sci_stop_time              sci_start_time       sci_status
+   ----------------- ------------ -------------------------- -------------------------- ----------
+           Z06G0101T           -- 1990-05-13T11:02:34.567000 1990-05-13T10:38:09.193000     PUBLIC
+
+
 Catalog Queries
 ===============
 
@@ -619,18 +603,16 @@ If no catalog is specified, the Hubble Source Catalog will be queried.
 
 
 Some catalogs have a maximum number of results they will return.
-If a query results in this maximum number of results a warning will be displayed to alert the user that they might be getting a subset of the true result set.
+If a query results in this maximum number of results a warning will be displayed to alert
+the user that they might be getting a subset of the true result set.
 
-.. doctest-skip::
+.. doctest-remote-data::
 
    >>> from astroquery.mast import Catalogs
    ...
-   >>> catalog_data = Catalogs.query_region("322.49324 12.16683", catalog="HSC", magtype=2)
-   WARNING: InputWarning: Coordinate string is being interpreted as an ICRS coordinate
-   provided in degrees. [astroquery.utils.commons]
-   WARNING: MaxResultsWarning: Maximum catalog results returned, may not include all
-   sources within radius. [astroquery.mast.core]
-   ...
+   >>> catalog_data = Catalogs.query_region("322.49324 12.16683", catalog="HSC", magtype=2)  # doctest: +SHOW_WARNINGS
+   InputWarning: Coordinate string is being interpreted as an ICRS coordinate provided in degrees.
+   MaxResultsWarning: Maximum catalog results returned, may not include all sources within radius.
    >>> print(catalog_data[:10])
     MatchID        Distance            MatchRA       ... W3_F160W_MAD W3_F160W_N
    --------- -------------------- ------------------ ... ------------ ----------
@@ -858,7 +840,8 @@ does not take any arguments, and simply loads all HSC spectra.
    20019 HAG_J072656.41+691734.9_J8HPAOZMQ_V01.SPEC1D 19656620 ...   9482        Y
 
 
-Individual or ranges of spectra can be downloaded using the `~astroquery.mast.CatalogsClass.download_hsc_spectra` function.
+Individual or ranges of spectra can be downloaded using the
+`~astroquery.mast.CatalogsClass.download_hsc_spectra` function.
 
 .. doctest-remote-data::
 
@@ -910,7 +893,8 @@ ccd a target pixel file will be produced for each one.
 
 Requesting a cutout by coordinate or objectname accesses the
 `MAST TESScut API <https://mast.stsci.edu/tesscut/docs/getting_started.html#requesting-a-cutout>`__
-and returns a target pixel file, with format described `here <https://astrocut.readthedocs.io/en/latest/astrocut/file_formats.html#target-pixel-files>`__.
+and returns a target pixel file, with format described
+`here <https://astrocut.readthedocs.io/en/latest/astrocut/file_formats.html#target-pixel-files>`__.
 
 .. doctest-remote-data::
 
@@ -923,7 +907,7 @@ and returns a target pixel file, with format described `here <https://astrocut.r
    Filename: <class '_io.BytesIO'>
    No.    Name      Ver    Type      Cards   Dimensions   Format
      0  PRIMARY       1 PrimaryHDU      56   ()
-     1  PIXELS        1 BinTableHDU    280   1060R x 12C   [D, E, J, 25J, 25E, 25E, 25E, 25E, J, E, E, 38A]
+     1  PIXELS        1 BinTableHDU    280   1196R x 12C   [D, E, J, 25J, 25E, 25E, 25E, 25E, J, E, E, 38A]
      2  APERTURE      1 ImageHDU        81   (5, 5)   int32
 
 
@@ -944,16 +928,18 @@ Requesting a cutout by moving_target accesses the
 `MAST Moving Target TESScut API <https://mast.stsci.edu/tesscut/docs/getting_started.html#moving-target-cutouts>`__
 and returns a target pixel file, with format described
 `here <https://astrocut.readthedocs.io/en/latest/astrocut/file_formats.html#path-focused-target-pixel-files>`__.
-The moving_target is an optional bool argument where `True` signifies that the accompanying ``objectname`` input is
-the object name or ID understood by the `JPL Horizon ephemerades interface <https://ssd.jpl.nasa.gov/horizons.cgi>`__.
-The default value for ``moving_target`` is set to `False`. Therefore, a non-moving target can be input simply with either the objectname or coordinates.
+The moving_target is an optional bool argument where `True` signifies that the accompanying ``objectname``
+input is the object name or ID understood by the
+`JPL Horizon ephemerades interface <https://ssd.jpl.nasa.gov/horizons.cgi>`__.
+The default value for moving_target is set to False. Therefore, a non-moving target can be input
+simply with either the objectname or coordinates.
 
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Tesscut
    ...
    >>> hdulist = Tesscut.get_cutouts(objectname="Eleonora", moving_target=True, size=5, sector=6)
-   >>> hdulist[0].info()
+   >>> hdulist[0].info()  # doctest: +IGNORE_OUTPUT
    Filename: <class '_io.BytesIO'>
    No.    Name      Ver    Type      Cards   Dimensions   Format
      0  PRIMARY       1 PrimaryHDU      54   ()
@@ -962,11 +948,12 @@ The default value for ``moving_target`` is set to `False`. Therefore, a non-movi
 
 
 The `~astroquery.mast.TesscutClass.download_cutouts` function takes a coordinate, cutout size
-(in pixels or an angular quantity), or object name
-(i.e. "M104" or "TIC 32449963") and moving target (True or False). It uses these parameters to download the cutout target pixel file(s).
+(in pixels or an angular quantity), or object name (i.e. "M104" or "TIC 32449963") and moving target
+(True or False). It uses these parameters to download the cutout target pixel file(s).
 
-If a given coordinate/object/moving target appears in more than one TESS sector, a target pixel file will be produced for each sector.
-If the cutout area overlaps more than one camera or ccd, a target pixel file will be produced for each one.
+If a given coordinate/object/moving target appears in more than one TESS sector, a target pixel file
+will be produced for each sector.  If the cutout area overlaps more than one camera or ccd, a target
+pixel file will be produced for each one.
 
 .. doctest-remote-data::
 
