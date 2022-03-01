@@ -463,26 +463,26 @@ class TestESAHubble:
         assert "One of the lists is empty or there are " \
                "elements that are not strings" in err.value.args[0]
 
-    def test_get_decoded_string(self):
+    def test__get_decoded_string(self):
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
         dummy = '\x74\x65\x73\x74'
-        decoded_string = ehst.get_decoded_string(dummy)
+        decoded_string = ehst._get_decoded_string(dummy)
         assert decoded_string == 'test'
 
-    def test_get_decoded_string_unicodedecodeerror(self):
+    def test__get_decoded_string_unicodedecodeerror(self):
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
         dummy = '\xd0\x91'
-        decoded_string = ehst.get_decoded_string(dummy)
+        decoded_string = ehst._get_decoded_string(dummy)
         assert decoded_string == dummy
 
-    def test_get_decoded_string_attributeerror(self):
+    def test__get_decoded_string_attributeerror(self):
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
         dummy = True
-        decoded_string = ehst.get_decoded_string(dummy)
+        decoded_string = ehst._get_decoded_string(dummy)
         assert decoded_string == dummy
 
     @patch.object(ESAHubbleClass, 'query_hst_tap')
-    def test__select_composite(self, mock_query):
+    def test__select_related_composite(self, mock_query):
         arr = {'a': np.array([1, 4], dtype=np.int32),
                'b': [2.0, 5.0],
                'observation_id': ['x', 'y']}
@@ -490,11 +490,11 @@ class TestESAHubble:
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
         mock_query.return_value = data_table
         dummy_obs_id = "1234"
-        oids = ehst._select_composite(dummy_obs_id)
+        oids = ehst._select_related_composite(dummy_obs_id)
         assert oids == ['x', 'y']
 
     @patch.object(ESAHubbleClass, 'query_hst_tap')
-    def test__select_members(self, mock_query):
+    def test__select_related_members(self, mock_query):
         arr = {'a': np.array([1, 4], dtype=np.int32),
                'b': [2.0, 5.0],
                'members': ['caom:HST/test', 'y']}
@@ -502,7 +502,7 @@ class TestESAHubble:
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
         mock_query.return_value = data_table
         dummy_obs_id = "1234"
-        oids = ehst._select_members(dummy_obs_id)
+        oids = ehst._select_related_members(dummy_obs_id)
         assert oids == ['test']
 
     @patch.object(ESAHubbleClass, 'query_hst_tap')
@@ -517,14 +517,14 @@ class TestESAHubble:
         oids = ehst.get_observation_type(dummy_obs_id)
         assert oids == 'HST Test'
 
-    def test_get_observation_type_attributeerror(self):
-        with pytest.raises(AttributeError):
+    def test_get_observation_type_obs_id_none_valueerror(self):
+        with pytest.raises(ValueError):
             ehst = ESAHubbleClass(self.get_dummy_tap_handler())
             dummy_obs_id = None
             ehst.get_observation_type(dummy_obs_id)
 
     @patch.object(ESAHubbleClass, 'query_hst_tap')
-    def test_get_observation_type_valueerror(self, mock_query):
+    def test_get_observation_type_invalid_obs_id_valueerror(self, mock_query):
         with pytest.raises(ValueError):
             arr = {'a': np.array([], dtype=np.int32),
                    'b': [],
@@ -550,9 +550,9 @@ class TestESAHubble:
         assert oids == ['1234']
 
     @patch.object(ESAHubbleClass, 'get_observation_type')
-    @patch.object(ESAHubbleClass, '_select_members')
-    def test_get_hap_link(self, mock_select_members, mock_observation_type):
-        mock_select_members.return_value = 'test'
+    @patch.object(ESAHubbleClass, '_select_related_members')
+    def test_get_hap_link(self, mock_select_related_members, mock_observation_type):
+        mock_select_related_members.return_value = 'test'
         mock_observation_type.return_value = "HAP"
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
         dummy_obs_id = "1234"
@@ -560,17 +560,11 @@ class TestESAHubble:
         assert oids == 'test'
 
     @patch.object(ESAHubbleClass, 'get_observation_type')
-    def test_get_hap_hst_link_valueerror(self, mock_observation_type):
+    def test_get_hap_hst_link_invalid_id_valueerror(self, mock_observation_type):
         with pytest.raises(ValueError):
             mock_observation_type.return_value = "valueerror"
             ehst = ESAHubbleClass(self.get_dummy_tap_handler())
             dummy_obs_id = "1234"
-            ehst.get_hap_hst_link(dummy_obs_id)
-
-    def test_get_hap_hst_link_attributeerror(self):
-        with pytest.raises(AttributeError):
-            ehst = ESAHubbleClass(self.get_dummy_tap_handler())
-            dummy_obs_id = None
             ehst.get_hap_hst_link(dummy_obs_id)
 
     @patch.object(ESAHubbleClass, 'get_observation_type')
@@ -581,36 +575,30 @@ class TestESAHubble:
             dummy_obs_id = "1234"
             ehst.get_hap_hst_link(dummy_obs_id)
 
-    @patch.object(ESAHubbleClass, '_select_members')
+    @patch.object(ESAHubbleClass, '_select_related_members')
     @patch.object(ESAHubbleClass, 'get_observation_type')
-    def test_get_member_observations_composite(self, mock_observation_type, mock_select_members):
+    def test_get_member_observations_composite(self, mock_observation_type, mock_select_related_members):
         mock_observation_type.return_value = "Composite"
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
-        mock_select_members.return_value = 'test'
+        mock_select_related_members.return_value = 'test'
         dummy_obs_id = "1234"
         oids = ehst.get_member_observations(dummy_obs_id)
         assert oids == 'test'
 
-    @patch.object(ESAHubbleClass, '_select_composite')
+    @patch.object(ESAHubbleClass, '_select_related_composite')
     @patch.object(ESAHubbleClass, 'get_observation_type')
-    def test_get_member_observations_simple(self, mock_observation_type, mock_select_composite):
+    def test_get_member_observations_simple(self, mock_observation_type, mock_select_related_composite):
         mock_observation_type.return_value = "Simple"
         ehst = ESAHubbleClass(self.get_dummy_tap_handler())
-        mock_select_composite.return_value = 'test'
+        mock_select_related_composite.return_value = 'test'
         dummy_obs_id = "1234"
         oids = ehst.get_member_observations(dummy_obs_id)
         assert oids == 'test'
 
     @patch.object(ESAHubbleClass, 'get_observation_type')
-    def test_get_member_observations_valueerror(self, mock_observation_type):
+    def test_get_member_observations_invalid_id_valueerror(self, mock_observation_type):
         with pytest.raises(ValueError):
             mock_observation_type.return_value = "valueerror"
             ehst = ESAHubbleClass(self.get_dummy_tap_handler())
             dummy_obs_id = "1234"
-            ehst.get_member_observations(dummy_obs_id)
-
-    def test_get_member_observations_attributeerror(self):
-        with pytest.raises(AttributeError):
-            ehst = ESAHubbleClass(self.get_dummy_tap_handler())
-            dummy_obs_id = None
             ehst.get_member_observations(dummy_obs_id)
