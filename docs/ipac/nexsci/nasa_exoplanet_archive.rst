@@ -55,7 +55,7 @@ Similarly, cone searches can be executed using the `~astroquery.ipac.nexsci.nasa
     >>> from astroquery.ipac.nexsci.nasa_exoplanet_archive import NasaExoplanetArchive
     >>> NasaExoplanetArchive.query_region(
     ...     table="pscomppars", coordinates=SkyCoord(ra=172.56 * u.deg, dec=7.59 * u.deg),
-    ...     radius=1.0 * u.deg)
+    ...     radius=1.0 * u.deg) # doctest: +IGNORE_OUTPUT
     <QTable masked=True length=2>
     pl_name pl_letter hostname ...   htm20         sky_coord
                                ...                  deg,deg

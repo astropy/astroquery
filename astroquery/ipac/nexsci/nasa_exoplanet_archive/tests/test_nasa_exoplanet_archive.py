@@ -14,7 +14,7 @@ from astropy.utils.exceptions import AstropyDeprecationWarning
 
 from astroquery.exceptions import NoResultsWarning
 from astroquery.utils.mocks import MockResponse
-from astroquery.ipac.nexsci.nasa_exoplanet_archive.core import NasaExoplanetArchiveClass, conf, InvalidTableError
+from astroquery.ipac.nexsci.nasa_exoplanet_archive.core import NasaExoplanetArchiveClass, conf, InvalidTableError, get_access_url
 try:
     from unittest.mock import Mock, patch, PropertyMock
 except ImportError:
@@ -153,6 +153,30 @@ def test_query_aliases(patch_request):
     assert 'GJ 219' in result
     assert 'bet Pic' in result
     assert '2MASS J05471708-5103594' in result
+
+
+@pytest.mark.remote_data
+def test_query_aliases_planet(patch_request):
+    nasa_exoplanet_archive = NasaExoplanetArchiveClass()
+    result = nasa_exoplanet_archive.query_aliases('bet Pic b')
+    assert len(result) > 10
+    assert 'GJ 219 b' in result
+    assert 'bet Pic b' in result
+    assert '2MASS J05471708-5103594 b' in result
+
+
+@pytest.mark.remote_data
+def test_query_aliases_noresult(patch_request):
+    nasa_exoplanet_archive = NasaExoplanetArchiveClass()
+    with pytest.warns(NoResultsWarning):
+        result = nasa_exoplanet_archive.query_aliases('invalid')
+    assert len(result) == 0
+
+
+def test_get_access_url():
+    assert get_access_url('tap') == conf.url_tap
+    assert get_access_url('api') == conf.url_api
+    assert get_access_url('aliaslookup') == conf.url_aliaslookup
 
 
 def test_backwards_compat(patch_get):

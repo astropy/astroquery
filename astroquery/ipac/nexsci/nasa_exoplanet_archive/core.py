@@ -142,7 +142,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
     """
 
     # When module us imported, __init__.py runs and loads a configuration object,
-    # setting the configuration parameters con.url, conf.timeout and conf.cache
+    # setting the configuration parameters conf.url, conf.timeout and conf.cache
     URL_API = conf.url_api
     URL_TAP = conf.url_tap
     TIMEOUT = conf.timeout
