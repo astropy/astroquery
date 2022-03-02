@@ -386,7 +386,7 @@ class TestESAHubble:
                                "'%WFPC2%') AND (o.instrument_configuration " \
                                "LIKE '%F606W%'))"
         ehst.query_criteria = MagicMock(return_value=query_criteria_query)
-        target = {'RA_DEGREES': '10.6847083', 'DEC_DEGREES': '41.26875'}
+        target = coordinates.SkyCoord("00h42m44.51s +41d16m08.45s", frame='icrs')
         ehst._query_tap_target = MagicMock(return_value=target)
         ehst.cone_search_criteria(target=parameters1['target'],
                                   radius=parameters1['radius'],
@@ -602,3 +602,30 @@ class TestESAHubble:
             ehst = ESAHubbleClass(self.get_dummy_tap_handler())
             dummy_obs_id = "1234"
             ehst.get_member_observations(dummy_obs_id)
+
+    @patch.object(ESAHubbleClass, 'query_criteria')
+    @patch.object(ESAHubbleClass, '_query_tap_target')
+    @patch.object(ESAHubbleClass, 'query_hst_tap')
+    def test_cone_search_criteria_only_target(self, mock_query_hst_tap, mock__query_tap_target, mock_query_criteria):
+        mock_query_criteria.return_value = "Simple query"
+        mock__query_tap_target.return_value = coordinates.SkyCoord("00h42m44.51s +41d16m08.45s", frame='icrs')
+        mock_query_hst_tap.return_value = "table"
+        ehst = ESAHubbleClass(self.get_dummy_tap_handler())
+        oids = ehst.cone_search_criteria(target="m11", radius=1)
+        assert oids == 'table'
+
+    @patch.object(ESAHubbleClass, 'query_criteria')
+    @patch.object(ESAHubbleClass, 'query_hst_tap')
+    def test_cone_search_criteria_only_coordinates(self, mock_query_hst_tap, mock_query_criteria):
+        mock_query_criteria.return_value = "Simple query"
+        mock_query_hst_tap.return_value = "table"
+        ehst = ESAHubbleClass(self.get_dummy_tap_handler())
+        oids = ehst.cone_search_criteria(coordinates="00h42m44.51s +41d16m08.45s", radius=1)
+        assert oids == 'table'
+
+    @patch.object(ESAHubbleClass, 'query_criteria')
+    def test_cone_search_criteria_typeerror(self, mock_query_criteria):
+        mock_query_criteria.return_value = "Simple query"
+        with pytest.raises(TypeError):
+            ehst = ESAHubbleClass(self.get_dummy_tap_handler())
+            ehst.cone_search_criteria(coordinates="00h42m44.51s +41d16m08.45s", target="m11", radius=1)

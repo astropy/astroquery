@@ -42,7 +42,6 @@ class ESAHubbleClass(BaseQuery):
                           3: "PRODUCT"}
     product_types = ["PRODUCT", "SCIENCE_PRODUCT", "POSTCARD"]
     copying_string = "Copying file to {0}..."
-    obs_id_none = "Please input an observation id"
 
     def __init__(self, tap_handler=None):
         super(ESAHubbleClass, self).__init__()
@@ -182,7 +181,7 @@ class ESAHubbleClass(BaseQuery):
         String with the observation type
         """
         if observation_id is None:
-            raise ValueError(self.obs_id_none)
+            raise ValueError("Please input an observation id")
 
         query = f"select obs_type from ehst.observation where observation_id='{observation_id}'"
         job = self.query_hst_tap(query=query)
@@ -466,14 +465,11 @@ class ESAHubbleClass(BaseQuery):
                             "parameter.")
         if target:
             coord = self._query_tap_target(target)
-            ra = coord.get('RA_DEGREES')
-            dec = coord.get('DEC_DEGREES')
-
-            # ra, dec = self._query_tap_target(target)
         else:
             coord = self._getCoordInput(coordinates)
-            ra = coord.ra.deg
-            dec = coord.dec.deg
+
+        ra = coord.ra.deg
+        dec = coord.dec.deg
 
         if type(radius) == int or type(radius) == float:
             radius_in_grades = Angle(radius, units.arcmin).deg
@@ -505,7 +501,6 @@ class ESAHubbleClass(BaseQuery):
             ra = target_result['RA_DEGREES']
             dec = target_result['DEC_DEGREES']
             return SkyCoord(ra=ra, dec=dec, unit="deg")
-            # return ra, dec
         except KeyError as e:
             raise ValueError("This target cannot be resolved")
 
