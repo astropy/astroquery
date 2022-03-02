@@ -119,6 +119,41 @@ def patch_get(request):  # pragma: nocover
     return mp
 
 
+# aliaslookup file in data/
+LOOKUP_DATA_FILE = 'bpic_aliaslookup.json'
+
+
+def data_path(filename):
+    data_dir = os.path.join(os.path.dirname(__file__), 'data')
+    return os.path.join(data_dir, filename)
+
+
+# monkeypatch replacement request function
+def nonremote_request(self, url, **kwargs):
+    with open(data_path(LOOKUP_DATA_FILE), 'rb') as f:
+        response = MockResponse(content=json.loads(f), url=url)
+    return response
+
+
+# use a pytest fixture to create a dummy 'requests.get' function,
+# that mocks(monkeypatches) the actual 'requests.get' function:
+@pytest.fixture
+def patch_request(request):
+    mp = request.getfixturevalue("monkeypatch")
+
+    mp.setattr(NasaExoplanetArchiveClass, '_request', nonremote_request)
+    return mp
+
+
+def test_query_aliases(patch_request):
+    nasa_exoplanet_archive = NasaExoplanetArchiveClass()
+    result = nasa_exoplanet_archive.query_aliases('bet Pic')
+    assert len(result) > 10
+    assert 'GJ 219' in result
+    assert 'bet Pic' in result
+    assert '2MASS J05471708-5103594' in result
+
+
 def test_backwards_compat(patch_get):
     """
     These are the tests from the previous version of this interface.
@@ -283,25 +318,6 @@ def test_get_tap_tables():
     result = nasa_exoplanet_archive.get_tap_tables()
     assert 'ps' in result
     assert 'pscomppars' in result
-
-
-@patch('astroquery.ipac.nexsci.nasa_exoplanet_archive.core.get_access_url',
-       Mock(side_effect=lambda x: 'https://some.url'))
-def test_query_aliases():
-    nasa_exoplanet_archive = NasaExoplanetArchiveClass()
-
-    def mock_run_query(url=conf.url_aliaslookup, object_name="HD 209458"):
-        assert url == conf.url_aliaslookup
-        assert object_name == "HD 209458"
-        result = PropertyMock()
-        result = ['HD 209458', '2MASS J22031077+1853036', 'BD+18 4917', 'Gaia DR2 1779546757669063552',
-             'HIP 108859', 'SAO 107623', 'TIC 420814525', 'TYC 1688-01821-1', 'V0376 Peg', 'WISE J220310.79+185303.3']
-        return result
-    nasa_exoplanet_archive.query_aliases = mock_run_query
-    result = nasa_exoplanet_archive.query_aliases()
-    assert 'HD 209458' in result
-    assert 'HIP 108859' in result
-    assert 'V0376 Peg' in result
 
 
 def test_deprecated_namespace_import_warning():
