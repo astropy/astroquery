@@ -145,6 +145,7 @@ def patch_request(request):
     return mp
 
 
+@pytest.mark.remote_data
 def test_query_aliases(patch_request):
     nasa_exoplanet_archive = NasaExoplanetArchiveClass()
     result = nasa_exoplanet_archive.query_aliases('bet Pic')
