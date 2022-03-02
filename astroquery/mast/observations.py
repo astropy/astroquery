@@ -56,7 +56,7 @@ class ObservationsClass(MastQueryWithLogin):
     _caom_filtered = 'Mast.Caom.Filtered'
     _caom_products = 'Mast.Caom.Products'
 
-    def _parse_result(self, responses, verbose=False):  # Used by the async_to_sync decorator functionality
+    def _parse_result(self, responses, *, verbose=False):  # Used by the async_to_sync decorator functionality
         """
         Parse the results of a list of `~requests.Response` objects and returns an `~astropy.table.Table` of results.
 
@@ -179,7 +179,7 @@ class ObservationsClass(MastQueryWithLogin):
         return position, mashup_filters
 
     @class_or_instance
-    def query_region_async(self, coordinates, radius=0.2*u.deg, pagesize=None, page=None):
+    def query_region_async(self, coordinates, *, radius=0.2*u.deg, pagesize=None, page=None):
         """
         Given a sky position and radius, returns a list of MAST observations.
         See column documentation `here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`__.
@@ -219,10 +219,10 @@ class ObservationsClass(MastQueryWithLogin):
                   'dec': coordinates.dec.deg,
                   'radius': radius.deg}
 
-        return self._portal_api_connection.service_request_async(service, params, pagesize, page)
+        return self._portal_api_connection.service_request_async(service, params, pagesize=pagesize, page=page)
 
     @class_or_instance
-    def query_object_async(self, objectname, radius=0.2*u.deg, pagesize=None, page=None):
+    def query_object_async(self, objectname, *, radius=0.2*u.deg, pagesize=None, page=None):
         """
         Given an object name, returns a list of MAST observations.
         See column documentation `here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`__.
@@ -252,10 +252,10 @@ class ObservationsClass(MastQueryWithLogin):
 
         coordinates = utils.resolve_object(objectname)
 
-        return self.query_region_async(coordinates, radius, pagesize, page)
+        return self.query_region_async(coordinates, radius=radius, pagesize=pagesize, page=page)
 
     @class_or_instance
-    def query_criteria_async(self, pagesize=None, page=None, **criteria):
+    def query_criteria_async(self, *, pagesize=None, page=None, **criteria):
         """
         Given an set of criteria, returns a list of MAST observations.
         Valid criteria are returned by ``get_metadata("observations")``
@@ -302,7 +302,7 @@ class ObservationsClass(MastQueryWithLogin):
 
         return self._portal_api_connection.service_request_async(service, params)
 
-    def query_region_count(self, coordinates, radius=0.2*u.deg, pagesize=None, page=None):
+    def query_region_count(self, coordinates, *, radius=0.2*u.deg, pagesize=None, page=None):
         """
         Given a sky position and radius, returns the number of MAST observations in that region.
 
@@ -343,7 +343,7 @@ class ObservationsClass(MastQueryWithLogin):
 
         return int(self._portal_api_connection.service_request(service, params, pagesize, page)[0][0])
 
-    def query_object_count(self, objectname, radius=0.2*u.deg, pagesize=None, page=None):
+    def query_object_count(self, objectname, *, radius=0.2*u.deg, pagesize=None, page=None):
         """
         Given an object name, returns the number of MAST observations.
 
@@ -369,9 +369,9 @@ class ObservationsClass(MastQueryWithLogin):
 
         coordinates = utils.resolve_object(objectname)
 
-        return self.query_region_count(coordinates, radius, pagesize, page)
+        return self.query_region_count(coordinates, radius=radius, pagesize=pagesize, page=page)
 
-    def query_criteria_count(self, pagesize=None, page=None, **criteria):
+    def query_criteria_count(self, *, pagesize=None, page=None, **criteria):
         """
         Given an set of filters, returns the number of MAST observations meeting those criteria.
 
@@ -450,7 +450,7 @@ class ObservationsClass(MastQueryWithLogin):
 
         return self._portal_api_connection.service_request_async(service, params)
 
-    def filter_products(self, products, mrp_only=False, extension=None, **filters):
+    def filter_products(self, products, *, mrp_only=False, extension=None, **filters):
         """
         Takes an `~astropy.table.Table` of MAST observation data products and filters it based on given filters.
 
@@ -505,7 +505,7 @@ class ObservationsClass(MastQueryWithLogin):
 
         return products[np.where(filter_mask)]
 
-    def download_file(self, uri, local_path=None, base_url=None, cache=True, cloud_only=False):
+    def download_file(self, uri, *, local_path=None, base_url=None, cache=True, cloud_only=False):
         """
         Downloads a single file based on the data URI
 
@@ -582,7 +582,7 @@ class ObservationsClass(MastQueryWithLogin):
 
         return status, msg, url
 
-    def _download_files(self, products, base_dir, cache=True, cloud_only=False,):
+    def _download_files(self, products, base_dir, *, cache=True, cloud_only=False,):
         """
         Takes an `~astropy.table.Table` of data products and downloads them into the directory given by base_dir.
 
@@ -658,7 +658,7 @@ class ObservationsClass(MastQueryWithLogin):
                           'Message': [msg]})
         return manifest
 
-    def download_products(self, products, download_dir=None,
+    def download_products(self, products, *, download_dir=None,
                           cache=True, curl_flag=False, mrp_only=False, cloud_only=False, **filters):
         """
         Download data products.
@@ -734,7 +734,7 @@ class ObservationsClass(MastQueryWithLogin):
 
         return manifest
 
-    def get_cloud_uris(self, data_products, include_bucket=True, full_url=False):
+    def get_cloud_uris(self, data_products, *, include_bucket=True, full_url=False):
         """
         Takes an `~astropy.table.Table` of data products and returns the associated cloud data uris.
 
@@ -763,7 +763,7 @@ class ObservationsClass(MastQueryWithLogin):
 
         return self._cloud_connection.get_cloud_uri_list(data_products, include_bucket, full_url)
 
-    def get_cloud_uri(self, data_product, include_bucket=True, full_url=False):
+    def get_cloud_uri(self, data_product, *, include_bucket=True, full_url=False):
         """
         For a given data product, returns the associated cloud URI.
         If the product is from a mission that does not support cloud access an
@@ -806,7 +806,7 @@ class MastClass(MastQueryWithLogin):
     more flexible but less user friendly than `ObservationsClass`.
     """
 
-    def _parse_result(self, responses, verbose=False):  # Used by the async_to_sync decorator functionality
+    def _parse_result(self, responses, *, verbose=False):  # Used by the async_to_sync decorator functionality
         """
         Parse the results of a list of `~requests.Response` objects and returns an `~astropy.table.Table` of results.
 
@@ -827,7 +827,7 @@ class MastClass(MastQueryWithLogin):
         return self._portal_api_connection._parse_result(responses, verbose)
 
     @class_or_instance
-    def service_request_async(self, service, params, pagesize=None, page=None, **kwargs):
+    def service_request_async(self, service, params, *, pagesize=None, page=None, **kwargs):
         """
         Given a Mashup service and parameters, builds and excecutes a Mashup query.
         See documentation `here <https://mast.stsci.edu/api/v0/class_mashup_1_1_mashup_request.html>`__

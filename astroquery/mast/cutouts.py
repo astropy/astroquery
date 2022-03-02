@@ -110,7 +110,7 @@ class TesscutClass(MastQueryWithLogin):
                     }
         self._service_api_connection.set_service_params(services, "tesscut")
 
-    def get_sectors(self, coordinates=None, radius=0*u.deg, objectname=None, moving_target=False, mt_type=None):
+    def get_sectors(self, *, coordinates=None, radius=0*u.deg, objectname=None, moving_target=False, mt_type=None):
         """
         Get a list of the TESS data sectors whose footprints intersect
         with the given search area.
@@ -204,7 +204,7 @@ class TesscutClass(MastQueryWithLogin):
             warnings.warn("Coordinates are not in any TESS sector.", NoResultsWarning)
         return Table(sector_dict)
 
-    def download_cutouts(self, coordinates=None, size=5, sector=None, path=".", inflate=True,
+    def download_cutouts(self, *, coordinates=None, size=5, sector=None, path=".", inflate=True,
                          objectname=None, moving_target=False, mt_type=None):
         """
         Download cutout target pixel file(s) around the given coordinates with indicated size.
@@ -316,7 +316,7 @@ class TesscutClass(MastQueryWithLogin):
         localpath_table['Local Path'] = [path+x for x in cutout_files]
         return localpath_table
 
-    def get_cutouts(self, coordinates=None, size=5, sector=None,
+    def get_cutouts(self, *, coordinates=None, size=5, sector=None,
                     objectname=None, moving_target=False, mt_type=None):
         """
         Get cutout target pixel file(s) around the given coordinates with indicated size,
@@ -442,7 +442,7 @@ class ZcutClass(MastQueryWithLogin):
                     "astrocut": {"path": "astrocut"}}
         self._service_api_connection.set_service_params(services, "zcut")
 
-    def get_surveys(self, coordinates, radius="0d"):
+    def get_surveys(self, coordinates, *, radius="0d"):
         """
         Gives a list of deep field surveys available for a position in the sky
 
@@ -481,7 +481,7 @@ class ZcutClass(MastQueryWithLogin):
             warnings.warn("Coordinates are not in an available deep field survey.", NoResultsWarning)
         return survey_json
 
-    def download_cutouts(self, coordinates, size=5, survey=None, cutout_format="fits", path=".", inflate=True, **img_params):
+    def download_cutouts(self, coordinates, *, size=5, survey=None, cutout_format="fits", path=".", inflate=True, **img_params):
         """
         Download cutout FITS/image file(s) around the given coordinates with indicated size.
 
@@ -575,7 +575,7 @@ class ZcutClass(MastQueryWithLogin):
         localpath_table['Local Path'] = [path+x for x in cutout_files]
         return localpath_table
 
-    def get_cutouts(self, coordinates, size=5, survey=None):
+    def get_cutouts(self, coordinates, *, size=5, survey=None):
         """
         Get cutout  FITS file(s) around the given coordinates with indicated size,
         and return them as a list of  `~astropy.io.fits.HDUList` objects.

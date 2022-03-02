@@ -48,9 +48,9 @@ class CatalogsClass(MastQueryWithLogin):
         self.catalog_limit = None
         self._current_connection = None
 
-    def _parse_result(self, response, verbose=False):
+    def _parse_result(self, response, *, verbose=False):
 
-        results_table = self._current_connection._parse_result(response, verbose)
+        results_table = self._current_connection._parse_result(response, verbose=verbose)
 
         if len(results_table) == self.catalog_limit:
             warnings.warn("Maximum catalog results returned, may not include all sources within radius.",
@@ -59,7 +59,7 @@ class CatalogsClass(MastQueryWithLogin):
         return results_table
 
     @class_or_instance
-    def query_region_async(self, coordinates, radius=0.2*u.deg, catalog="Hsc",
+    def query_region_async(self, coordinates, *, radius=0.2*u.deg, catalog="Hsc",
                            version=None, pagesize=None, page=None, **kwargs):
         """
         Given a sky position and radius, returns a list of catalog entries.
@@ -161,10 +161,10 @@ class CatalogsClass(MastQueryWithLogin):
         for prop, value in kwargs.items():
             params[prop] = value
 
-        return self._current_connection.service_request_async(service, params, pagesize, page)
+        return self._current_connection.service_request_async(service, params, pagesize=pagesize, page=page)
 
     @class_or_instance
-    def query_object_async(self, objectname, radius=0.2*u.deg, catalog="Hsc",
+    def query_object_async(self, objectname, *, radius=0.2*u.deg, catalog="Hsc",
                            pagesize=None, page=None, version=None, **kwargs):
         """
         Given an object name, returns a list of catalog entries.
@@ -208,7 +208,7 @@ class CatalogsClass(MastQueryWithLogin):
                                        version=version, pagesize=pagesize, page=page, **kwargs)
 
     @class_or_instance
-    def query_criteria_async(self, catalog, pagesize=None, page=None, **criteria):
+    def query_criteria_async(self, catalog, *, pagesize=None, page=None, **criteria):
         """
         Given an set of filters, returns a list of catalog entries.
         See column documentation for specific catalogs `here <https://mast.stsci.edu/api/v0/pages.htmll>`__.
@@ -310,7 +310,7 @@ class CatalogsClass(MastQueryWithLogin):
         return self._current_connection.service_request_async(service, params, pagesize=pagesize, page=page)
 
     @class_or_instance
-    def query_hsc_matchid_async(self, match, version=3, pagesize=None, page=None):
+    def query_hsc_matchid_async(self, match, *, version=3, pagesize=None, page=None):
         """
         Returns all the matches for a given Hubble Source Catalog MatchID.
 
@@ -347,10 +347,10 @@ class CatalogsClass(MastQueryWithLogin):
 
         params = {"input": match}
 
-        return self._current_connection.service_request_async(service, params, pagesize, page)
+        return self._current_connection.service_request_async(service, params, pagesize=pagesize, page=page)
 
     @class_or_instance
-    def get_hsc_spectra_async(self, pagesize=None, page=None):
+    def get_hsc_spectra_async(self, *, pagesize=None, page=None):
         """
         Returns all Hubble Source Catalog spectra.
 
@@ -375,7 +375,7 @@ class CatalogsClass(MastQueryWithLogin):
 
         return self._current_connection.service_request_async(service, params, pagesize, page)
 
-    def download_hsc_spectra(self, spectra, download_dir=None, cache=True, curl_flag=False):
+    def download_hsc_spectra(self, spectra, *, download_dir=None, cache=True, curl_flag=False):
         """
         Download one or more Hubble Source Catalog spectra.
 
