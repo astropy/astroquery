@@ -51,6 +51,7 @@ sdss
 
 - Fix ``query_crossid`` to be able to query larger list of coordinates. [#2305]
 
+- Fix ``query_crossid`` for very old data releases (< DR10). [#2345]
 
 
 Infrastructure, Utility and Other Changes and Additions

@@ -174,8 +174,7 @@ class TestSDSSRemote:
         assert query1.colnames == ['r', 'psfMag_r']
         assert query2.colnames == ['ra', 'dec', 'r']
 
-    # crossid doesn't work for DR<10, remove limitation once #2303 is fixed
-    @pytest.mark.parametrize("dr", dr_list[2:])
+    @pytest.mark.parametrize("dr", dr_list)
     def test_query_crossid(self, dr):
         query1 = sdss.SDSS.query_crossid(self.coords, data_release=dr)
         query2 = sdss.SDSS.query_crossid([self.coords, self.coords])
@@ -185,8 +184,7 @@ class TestSDSSRemote:
         assert isinstance(query2, Table)
         assert query2['objID'][0] == query1['objID'][0] == query2['objID'][1]
 
-    # crossid doesn't work for DR<10, remove limitation once #2303 is fixed
-    @pytest.mark.parametrize("dr", dr_list[2:])
+    @pytest.mark.parametrize("dr", dr_list)
     def test_spectro_query_crossid(self, dr):
         query1 = sdss.SDSS.query_crossid(self.coords,
                                          specobj_fields=['specObjID', 'z'],
