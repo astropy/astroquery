@@ -241,7 +241,7 @@ class CasdaClass(BaseQuery):
         filenames = []
         for url in urls:
             parseResult = urlparse(url)
-            local_filename = os.path.basename(parseResult.path)
+            local_filename = unquote(os.path.basename(parseResult.path))
             if os.name == 'nt':
                 # Windows doesn't allow special characters in filenames like
                 # ":" so replace them with an underscore
