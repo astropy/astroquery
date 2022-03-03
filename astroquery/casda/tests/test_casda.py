@@ -296,4 +296,3 @@ def test_download_file(patch_get):
     assert filenames[0].endswith('askap_img.fits')
     assert filenames[1].endswith('askap_img.fits.checksum')
     assert filenames[2].endswith('RACS-DR1_0000+18A.fits')
-    
