@@ -32,7 +32,8 @@ class SDSSClass(BaseQuery):
     QUERY_URL_SUFFIX_DR_OLD = '/dr{dr}/en/tools/search/x_sql.asp'
     QUERY_URL_SUFFIX_DR_10 = '/dr{dr}/en/tools/search/x_sql.aspx'
     QUERY_URL_SUFFIX_DR_NEW = '/dr{dr}/en/tools/search/x_results.aspx'
-    XID_URL_SUFFIX_OLD = '/dr{dr}/en/tools/crossid/x_crossid.aspx'
+    XID_URL_SUFFIX_OLD = '/dr{dr}/en/tools/crossid/x_crossid.asp'
+    XID_URL_SUFFIX_DR_10 = '/dr{dr}/en/tools/crossid/x_crossid.aspx'
     XID_URL_SUFFIX_NEW = '/dr{dr}/en/tools/search/X_Results.aspx'
     IMAGING_URL_SUFFIX = ('{base}/dr{dr}/{instrument}/photoObj/frames/'
                           '{rerun}/{run}/{camcol}/'
@@ -123,7 +124,7 @@ class SDSSClass(BaseQuery):
                 raise TypeError("radius should be either Quantity or "
                                 "convertible to float.")
 
-        sql_query = 'SELECT '
+        sql_query = 'SELECT\r\n'  # Older versions expect the CRLF to be there.
 
         if specobj_fields is None:
             if photoobj_fields is None:
@@ -1078,8 +1079,10 @@ class SDSSClass(BaseQuery):
         return url
 
     def _get_crossid_url(self, data_release):
-        if data_release < 11:
+        if data_release < 10:
             suffix = self.XID_URL_SUFFIX_OLD
+        elif data_release == 10:
+            suffix = self.XID_URL_SUFFIX_DR_10
         else:
             suffix = self.XID_URL_SUFFIX_NEW
 

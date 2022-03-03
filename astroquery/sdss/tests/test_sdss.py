@@ -136,7 +136,9 @@ def url_tester(data_release):
 
 
 def url_tester_crossid(data_release):
-    if data_release < 11:
+    if data_release < 10:
+        baseurl = 'http://skyserver.sdss.org/dr{}/en/tools/crossid/x_crossid.asp'
+    if data_release == 10:
         baseurl = 'http://skyserver.sdss.org/dr{}/en/tools/crossid/x_crossid.aspx'
     if data_release == 11:
         return
