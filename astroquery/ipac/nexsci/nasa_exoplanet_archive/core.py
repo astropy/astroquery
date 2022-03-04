@@ -431,7 +431,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
         url = requests.get(get_access_url('aliaslookup')+object_name)
         response = json.loads(url.text)
         return response
-    
+
     # Look for response errors. This might need to be updated for TAP
     def _handle_error(self, text):
         """
