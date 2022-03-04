@@ -21,6 +21,9 @@ class Conf(_config.ConfigNamespace):
     url_tap = _config.ConfigItem(
         "https://exoplanetarchive.ipac.caltech.edu/TAP/",
         "URL for the NASA Exoplanet Archive TAP")
+    url_aliaslookup = _config.ConfigItem(
+        "https://exoplanetarchive.ipac.caltech.edu/cgi-bin/Lookup/nph-aliaslookup.py?objname=",
+        "URL for the NASA Exoplanet Archive aliaslookup")
     timeout = _config.ConfigItem(
         600, "Time limit for requests from the NASA Exoplanet Archive servers")
     cache = _config.ConfigItem(False, "Should the requests be cached?")

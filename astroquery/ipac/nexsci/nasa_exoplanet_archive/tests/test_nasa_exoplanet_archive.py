@@ -14,7 +14,7 @@ from astropy.utils.exceptions import AstropyDeprecationWarning
 
 from astroquery.exceptions import NoResultsWarning
 from astroquery.utils.mocks import MockResponse
-from astroquery.ipac.nexsci.nasa_exoplanet_archive.core import NasaExoplanetArchiveClass, conf, InvalidTableError
+from astroquery.ipac.nexsci.nasa_exoplanet_archive.core import NasaExoplanetArchiveClass, conf, InvalidTableError, get_access_url
 try:
     from unittest.mock import Mock, patch, PropertyMock
 except ImportError:
@@ -119,16 +119,53 @@ def patch_get(request):  # pragma: nocover
     return mp
 
 
-def test_regularize_object_name(patch_get):
-    NasaExoplanetArchiveMock = NasaExoplanetArchiveClass()
+# aliaslookup file in data/
+LOOKUP_DATA_FILE = 'bpic_aliaslookup.json'
 
-    NasaExoplanetArchiveMock._tap_tables = ['list']
-    assert NasaExoplanetArchiveMock._regularize_object_name("kepler 2") == "HAT-P-7"
-    assert NasaExoplanetArchiveMock._regularize_object_name("kepler 1 b") == "TrES-2 b"
 
-    with pytest.warns(NoResultsWarning) as warning:
-        NasaExoplanetArchiveMock._regularize_object_name("not a planet")
-    assert "No aliases found for name: 'not a planet'" == str(warning[0].message)
+def data_path(filename):
+    data_dir = os.path.join(os.path.dirname(__file__), 'data')
+    return os.path.join(data_dir, filename)
+
+
+# monkeypatch replacement request function
+def query_aliases_mock(self, *args, **kwargs):
+    with open(data_path(LOOKUP_DATA_FILE), 'rb') as f:
+        response = json.load(f)
+    return response
+
+
+# use a pytest fixture to create a dummy 'requests.get' function,
+# that mocks(monkeypatches) the actual 'requests.get' function:
+@pytest.fixture
+def query_aliases_request(request):
+    mp = request.getfixturevalue("monkeypatch")
+    mp.setattr(NasaExoplanetArchiveClass, '_request_query_aliases', query_aliases_mock)
+    return mp
+
+
+def test_query_aliases(query_aliases_request):
+    nasa_exoplanet_archive = NasaExoplanetArchiveClass()
+    result = nasa_exoplanet_archive.query_aliases(object_name='bet Pic')
+    assert len(result) > 10
+    assert 'GJ 219' in result
+    assert 'bet Pic' in result
+    assert '2MASS J05471708-5103594' in result
+
+
+def test_query_aliases_planet(query_aliases_request):
+    nasa_exoplanet_archive = NasaExoplanetArchiveClass()
+    result = nasa_exoplanet_archive.query_aliases('bet Pic b')
+    assert len(result) > 10
+    assert 'GJ 219 b' in result
+    assert 'bet Pic b' in result
+    assert '2MASS J05471708-5103594 b' in result
+
+
+def test_get_access_url():
+    assert get_access_url('tap') == conf.url_tap
+    assert get_access_url('api') == conf.url_api
+    assert get_access_url('aliaslookup') == conf.url_aliaslookup
 
 
 def test_backwards_compat(patch_get):

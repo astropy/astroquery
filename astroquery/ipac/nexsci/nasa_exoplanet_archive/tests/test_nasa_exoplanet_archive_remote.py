@@ -159,7 +159,7 @@ def test_query_region():
 def test_query_aliases():
     name = "bet Pic"
     aliases = NasaExoplanetArchive.query_aliases(name)
-    assert len(aliases) == 12
+    assert len(aliases) > 10
     assert "HD 39060" in aliases
 
 
