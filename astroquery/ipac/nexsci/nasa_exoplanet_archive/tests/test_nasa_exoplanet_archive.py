@@ -129,48 +129,37 @@ def data_path(filename):
 
 
 # monkeypatch replacement request function
-def nonremote_request(self, url, **kwargs):
+def query_aliases_mock(self, *args, **kwargs):
     with open(data_path(LOOKUP_DATA_FILE), 'rb') as f:
-        response = MockResponse(content=json.loads(f), url=url)
+        response = json.load(f)
     return response
 
 
 # use a pytest fixture to create a dummy 'requests.get' function,
 # that mocks(monkeypatches) the actual 'requests.get' function:
 @pytest.fixture
-def patch_request(request):
+def query_aliases_request(request):
     mp = request.getfixturevalue("monkeypatch")
-
-    mp.setattr(NasaExoplanetArchiveClass, '_request', nonremote_request)
+    mp.setattr(NasaExoplanetArchiveClass, '_request_query_aliases', query_aliases_mock)
     return mp
 
 
-@pytest.mark.remote_data
-def test_query_aliases(patch_request):
+def test_query_aliases(query_aliases_request):
     nasa_exoplanet_archive = NasaExoplanetArchiveClass()
-    result = nasa_exoplanet_archive.query_aliases('bet Pic')
+    result = nasa_exoplanet_archive.query_aliases(object_name='bet Pic')
     assert len(result) > 10
     assert 'GJ 219' in result
     assert 'bet Pic' in result
     assert '2MASS J05471708-5103594' in result
 
 
-@pytest.mark.remote_data
-def test_query_aliases_planet(patch_request):
+def test_query_aliases_planet(query_aliases_request):
     nasa_exoplanet_archive = NasaExoplanetArchiveClass()
     result = nasa_exoplanet_archive.query_aliases('bet Pic b')
     assert len(result) > 10
     assert 'GJ 219 b' in result
     assert 'bet Pic b' in result
     assert '2MASS J05471708-5103594 b' in result
-
-
-@pytest.mark.remote_data
-def test_query_aliases_noresult(patch_request):
-    nasa_exoplanet_archive = NasaExoplanetArchiveClass()
-    with pytest.warns(NoResultsWarning):
-        result = nasa_exoplanet_archive.query_aliases('invalid')
-    assert len(result) == 0
 
 
 def test_get_access_url():

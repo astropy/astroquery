@@ -391,8 +391,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
         response : list
             A list of aliases found for the object name. The default name will be listed first.
         """
-        url = requests.get(get_access_url('aliaslookup')+object_name)
-        data = json.loads(url.text)
+        data = self._request_query_aliases(object_name)
 
         try:
             objname_split = object_name.split()
@@ -427,6 +426,12 @@ class NasaExoplanetArchiveClass(BaseQuery):
         warnings.warn("No aliases found for name: '{0}'".format(object_name), NoResultsWarning)
         return object_name
 
+    def _request_query_aliases(self, object_name):
+        """Service request for query_aliases()"""
+        url = requests.get(get_access_url('aliaslookup')+object_name)
+        response = json.loads(url.text)
+        return response
+    
     # Look for response errors. This might need to be updated for TAP
     def _handle_error(self, text):
         """
