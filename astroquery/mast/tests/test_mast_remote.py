@@ -516,7 +516,7 @@ class TestMast:
         assert '441662144' in result['ID']
 
         result = mast.Catalogs.query_object('M1',
-                                            radius=0.001,
+                                            radius=0.2,
                                             catalog='plato')
         assert 'PICidDR1' in result.colnames
 

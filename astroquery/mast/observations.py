@@ -715,7 +715,7 @@ class ObservationsClass(MastQueryWithLogin):
             products = vstack(product_lists)
 
         # apply filters
-        products = self.filter_products(products, mrp_only, **filters)
+        products = self.filter_products(products, mrp_only=mrp_only, **filters)
 
         if not len(products):
             warnings.warn("No products to download.", NoResultsWarning)
@@ -726,11 +726,15 @@ class ObservationsClass(MastQueryWithLogin):
             download_dir = '.'
 
         if curl_flag:  # don't want to download the files now, just the curl script
-            manifest = self._download_curl_script(products, download_dir)
+            manifest = self._download_curl_script(products,
+                                                  download_dir)
 
         else:
             base_dir = download_dir.rstrip('/') + "/mastDownload"
-            manifest = self._download_files(products, base_dir, cache, cloud_only)
+            manifest = self._download_files(products,
+                                            base_dir=base_dir,
+                                            cache=cache,
+                                            cloud_only=cloud_only)
 
         return manifest
 

@@ -204,8 +204,13 @@ class CatalogsClass(MastQueryWithLogin):
 
         coordinates = utils.resolve_object(objectname)
 
-        return self.query_region_async(coordinates, radius, catalog,
-                                       version=version, pagesize=pagesize, page=page, **kwargs)
+        return self.query_region_async(coordinates,
+                                       radius=radius,
+                                       catalog=catalog,
+                                       version=version,
+                                       pagesize=pagesize,
+                                       page=page,
+                                       **kwargs)
 
     @class_or_instance
     def query_criteria_async(self, catalog, *, pagesize=None, page=None, **criteria):
