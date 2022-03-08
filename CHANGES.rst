@@ -56,6 +56,8 @@ mast
 - Adding the All-Sky PLATO Input Catalog ('plato') as a catalog option for
   methods of ``astroquery.mast.Catalogs``. [#2279]
 
+- Optional keyword arguments for are now keyword only in ``astroquery.mast.Observations``, ``astroquery.mast.Catalogs``, and ``astroquery.mast.Cutouts``. [#2317]
+
 sdss
 ^^^^
 
