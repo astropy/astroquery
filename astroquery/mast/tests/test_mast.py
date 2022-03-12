@@ -1,5 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
+import json
 import os
 import re
 from shutil import copyfile
@@ -12,6 +13,7 @@ from astropy.io import fits
 
 import astropy.units as u
 
+from astroquery.mast.services import _json_to_table
 from astroquery.utils.mocks import MockResponse
 from astroquery.exceptions import InvalidQueryError, InputWarning
 
@@ -258,6 +260,7 @@ def test_missions_query_criteria_async_with_missing_results(patch_post):
                                                                        obs_type,
                                                                        aec,
                                                                        aperture])
+        table = _json_to_table(json.loads(responses), 'results')
 
 
 ###################
