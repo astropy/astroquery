@@ -229,7 +229,7 @@ For a non positional search, select_cols would always include search_key and sci
    >>> from astropy.coordinates import SkyCoord
    >>> missions = MastMissions(mission='hst')
    >>> regionCoords = SkyCoord(210.80227, 54.34895, unit=('deg', 'deg'))
-   >>> results = missions.query_region(regionCoords, 3, sci_pep_id=12556,
+   >>> results = missions.query_region(regionCoords, radius=3, sci_pep_id=12556,
    ...                                 select_cols=["sci_stop_time", "sci_targname", "sci_start_time", "sci_status"],
    ...                                 sort_by=['sci_targname'])
    >>> results[:5]   # doctest: +IGNORE_OUTPUT
@@ -263,7 +263,7 @@ Metadata queries can also be performed using object names with the
 
 .. doctest-remote-data::
 
-   >>> results = missions.query_object('M101', 3, select_cols=["sci_stop_time", "sci_targname", "sci_start_time", "sci_status"],
+   >>> results = missions.query_object('M101', radius=3, select_cols=["sci_stop_time", "sci_targname", "sci_start_time", "sci_status"],
    ...                                 sort_by=['sci_targname'])
    >>> results[:5]  # doctest: +IGNORE_OUTPUT
    <Table masked=True length=5>
