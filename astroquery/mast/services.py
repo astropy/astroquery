@@ -31,7 +31,7 @@ def _json_to_table(json_obj, data_key='data'):
 
     Parameters
     ----------
-    json_obj : data array or list of dictionaries
+    json_obj : dict
         A MAST microservice response JSON object (python dictionary)
     data_key : str
         string that contains the key name in json_obj that stores the data rows
@@ -50,7 +50,6 @@ def _json_to_table(json_obj, data_key='data'):
 
     # for each item in info, store the type and column name
     # for each item in info, type has to be converted from DB data types (SQL server in most cases)
-    # from missions_mast search service such as varchar, integer, float, boolean etc
     # to corresponding numpy type
     for idx, col, col_type, ignore_value in \
             [(idx, x['name'], x[type_key].lower(), None) for idx, x in enumerate(json_obj['info'])]:
@@ -79,7 +78,6 @@ def _json_to_table(json_obj, data_key='data'):
             # Step through data array of values
             col_data = np.array([x[idx] for x in json_obj[data_key]], dtype=object)
         except KeyError:
-            # it's not a data array, fall back to using column name as it is array of dictionaries
             col_data = np.array([x[col] for x in json_obj[data_key]], dtype=object)
         if ignore_value is not None:
             col_data[np.where(np.equal(col_data, None))] = ignore_value
