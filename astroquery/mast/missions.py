@@ -7,13 +7,15 @@ This module contains methods for searching MAST missions.
 """
 
 import requests
+import warnings
 
+from astropy.table import Table
 import astropy.units as u
 import astropy.coordinates as coord
 
 from astroquery.utils import commons, async_to_sync
 from astroquery.utils.class_or_instance import class_or_instance
-from astroquery.exceptions import InvalidQueryError
+from astroquery.exceptions import InvalidQueryError, MaxResultsWarning
 
 from astroquery.mast import utils
 from astroquery.mast.core import MastQueryWithLogin
@@ -27,8 +29,7 @@ __all__ = ['MastMissionsClass', 'MastMissions']
 class MastMissionsClass(MastQueryWithLogin):
     """
     MastMissions search class.
-
-    Class that allows direct programatic access to the MAST search API for a given mission.
+    Class that allows direct programatic access to retrieve metadata via the MAST search API for a given mission.
     """
 
     def __init__(self, *, mission='hst', service='search'):
@@ -38,11 +39,12 @@ class MastMissionsClass(MastQueryWithLogin):
                                       'skip_count', 'user_fields']
         self.service = service
         self.mission = mission
+        self.limit = 5000
 
         service_dict = {self.service: {'path': self.service, 'args': {}}}
         self._service_api_connection.set_service_params(service_dict, f"{self.service}/{self.mission}")
 
-    def _parse_result(self, response, verbose=False):  # Used by the async_to_sync decorator functionality
+    def _parse_result(self, response, *, verbose=False):  # Used by the async_to_sync decorator functionality
         """
         Parse the results of a `~requests.Response` objects and return an `~astropy.table.Table` of results.
 
@@ -53,17 +55,22 @@ class MastMissionsClass(MastQueryWithLogin):
         verbose : bool
             (presently does nothing - there is no output with verbose set to
             True or False)
-            Default False.  Setting to True provides more extensive output.
+            Default False. Setting to True provides more extensive output.
 
         Returns
         -------
         response : `~astropy.table.Table`
         """
 
-        return self._service_api_connection._parse_result(response, verbose, data_key='results')
+        results = self._service_api_connection._parse_result(response, verbose, data_key='results')
+        if len(results) >= self.limit:
+            warnings.warn("Maximum results returned, may not include all sources within radius.",
+                          MaxResultsWarning)
+
+        return results
 
     @class_or_instance
-    def query_region_async(self, coordinates, radius=3*u.arcmin, **kwargs):
+    def query_region_async(self, coordinates, *, radius=3*u.arcmin, limit=5000, offset=0, **kwargs):
         """
         Given a sky position and radius, returns a list of matching dataset IDs.
 
@@ -77,16 +84,25 @@ class MastMissionsClass(MastQueryWithLogin):
             The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from
             `~astropy.units` may also be used. Defaults to 3 arcminutes.
+        limit : int
+            Optional and default is 5000.
+            the maximun number of dataset IDs in the results.
+        offset : int
+            Optional and default is 0
+            the number of records you wish to skip before selecting records.
         **kwargs
             Other mission-specific keyword args.
-            These can be found at the following link
-            https://mast.stsci.edu/search/docs/#/Hubble%20Search/post_search_hst_api_v0_1_search_post
+            Any invalid keys are ignored by the API.
+            All valid key names can be found using `~astroquery.mast.missions.MastMissionsClass.get_column_list`
+            function.
             For example one can specify the output columns(select_cols) or use other filters(conditions)
 
         Returns
         -------
         response : list of `~requests.Response`
         """
+
+        self.limit = limit
 
         # Put coordinates and radius into consistant format
         coordinates = commons.parse_coordinates(coordinates)
@@ -97,7 +113,9 @@ class MastMissionsClass(MastQueryWithLogin):
         # basic params
         params = {'target': [f"{coordinates.ra.deg} {coordinates.dec.deg}"],
                   'radius': radius.arcmin,
-                  'radius_units': 'arcminutes'}
+                  'radius_units': 'arcminutes',
+                  'limit': limit,
+                  'offset': offset}
 
         params['conditions'] = []
         # adding additional user specified parameters
@@ -110,29 +128,47 @@ class MastMissionsClass(MastQueryWithLogin):
         return self._service_api_connection.service_request_async(self.service, params, use_json=True)
 
     @class_or_instance
-    def query_criteria_async(self, **criteria):
+    def query_criteria_async(self, *, coordinates=None, objectname=None, radius=3*u.arcmin,
+                             limit=5000, offset=0, select_cols=[], **criteria):
         """
         Given a set of search criteria, returns a list of mission metadata.
 
         Parameters
         ----------
+        coordinates : str or `~astropy.coordinates` object
+            The target around which to search. It may be specified as a
+            string or as the appropriate `~astropy.coordinates` object.
+        objectname : str
+            The name of the target around which to search.
+        radius : str or `~astropy.units.Quantity` object, optional
+            Default 3 degrees.
+            The string must be parsable by `~astropy.coordinates.Angle`. The
+            appropriate `~astropy.units.Quantity` object from
+            `~astropy.units` may also be used. Defaults to 3 arcminutes.
+        limit : int
+            Optional and default is 5000.
+            the maximun number of dataset IDs in the results.
+        offset : int
+            Optional and default is 0.
+            the number of records you wish to skip before selecting records.
+        select_cols: list
+            names of columns that will be included in the astropy table
         **criteria
             Criteria to apply. At least one non-positional criteria must be supplied.
-            Valid criteria are coordinates, objectname, radius (as in `query_region` and `query_object`),
+            Valid criteria are coordinates, objectname, radius (as in
+            `~astroquery.mast.missions.MastMissionsClass.query_region` and
+            `~astroquery.mast.missions.MastMissionsClass.query_object` functions),
             and all fields listed in the column documentation for the mission being queried.
-            Fields that can be used to match results on criteria. See the TAP schema link below for all field names.
-            https://vao.stsci.edu/missionmast/tapservice.aspx/tables
-            some common fields for criteria are sci_pep_id, sci_spec_1234 and sci_actual_duration.
+            Any invalid keys passed in criteria are ignored by the API.
+            List of all valid fields that can be used to match results on criteria can be retrieved by calling
+            `~astroquery.mast.missions.MastMissionsClass.get_column_list` function.
 
         Returns
         -------
         response : list of `~requests.Response`
         """
 
-        # Seperating any position info from the rest of the filters
-        coordinates = criteria.pop('coordinates', None)
-        objectname = criteria.pop('objectname', None)
-        radius = criteria.pop('radius', 0.2*u.deg)
+        self.limit = limit
 
         if objectname or coordinates:
             coordinates = utils.parse_input_location(coordinates, objectname)
@@ -141,7 +177,7 @@ class MastMissionsClass(MastQueryWithLogin):
         radius = coord.Angle(radius, u.arcmin)
 
         # build query
-        params = {}
+        params = {"limit": self.limit, "offset": offset, 'select_cols': select_cols}
         if coordinates:
             params["target"] = [f"{coordinates.ra.deg} {coordinates.dec.deg}"]
             params["radius"] = radius.arcmin
@@ -160,7 +196,7 @@ class MastMissionsClass(MastQueryWithLogin):
         return self._service_api_connection.service_request_async(self.service, params, use_json=True)
 
     @class_or_instance
-    def query_object_async(self, objectname, radius=3*u.arcmin, **kwargs):
+    def query_object_async(self, objectname, *, radius=3*u.arcmin, limit=5000, offset=0, **kwargs):
         """
         Given an object name, returns a list of matching rows.
 
@@ -173,10 +209,17 @@ class MastMissionsClass(MastQueryWithLogin):
             The string must be parsable by `~astropy.coordinates.Angle`.
             The appropriate `~astropy.units.Quantity` object from
             `~astropy.units` may also be used. Defaults to 3 arcminutes.
+        limit : int
+            Optional and default is 5000.
+            the maximun number of dataset IDs in the results.
+        offset : int
+            Optional and default is 0.
+            the number of records you wish to skip before selecting records.
         **kwargs
             Mission-specific keyword args.
-            These can be found in the `service documentation <https://mast.stsci.edu/api/v0/_services.html>`__.
-            for specific catalogs. For example one can specify the magtype for an HSC search.
+            Any invalid keys are ignored by the API.
+            All valid keys can be found by calling `~astroquery.mast.missions.MastMissionsClass.get_column_list`
+            function.
 
         Returns
         -------
@@ -185,7 +228,7 @@ class MastMissionsClass(MastQueryWithLogin):
 
         coordinates = utils.resolve_object(objectname)
 
-        return self.query_region_async(coordinates, radius, **kwargs)
+        return self.query_region_async(coordinates, radius=radius, limit=limit, offset=offset, **kwargs)
 
     @class_or_instance
     def get_column_list(self):
@@ -194,7 +237,7 @@ class MastMissionsClass(MastQueryWithLogin):
 
         Returns
         -------
-        json data that contains columns names and their descriptions
+        response : `~astropy.table.Table` that contains columns names, types  and their descriptions
         """
 
         url = f"{conf.server}/search/util/api/v0.1/column_list?mission={self.mission}"
@@ -202,12 +245,15 @@ class MastMissionsClass(MastQueryWithLogin):
         try:
             results = requests.get(url)
             results = results.json()
+            rows = []
             for result in results:
                 result.pop('field_name')
                 result.pop('queryable')
                 result.pop('indexed')
                 result.pop('default_output')
-            return results
+                rows.append((result['column_name'], result['qual_type'], result['description']))
+            data_table = Table(rows=rows, names=('name', 'data_type', 'description'))
+            return data_table
         except Exception:
             raise Exception(f"Error occured while trying to get column list for mission {self.mission}")
 
