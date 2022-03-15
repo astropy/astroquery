@@ -229,7 +229,7 @@ For a non positional search, select_cols would always include search_key and sci
    >>> from astropy.coordinates import SkyCoord
    >>> missions = MastMissions(mission='hst')
    >>> regionCoords = SkyCoord(210.80227, 54.34895, unit=('deg', 'deg'))
-   >>> results = missions.query_region(regionCoords, 3, sci_pep_id=12556,
+   >>> results = missions.query_region(regionCoords, radius=3, sci_pep_id=12556,
    ...                                 select_cols=["sci_stop_time", "sci_targname", "sci_start_time", "sci_status"],
    ...                                 sort_by=['sci_targname'])
    >>> results[:5]   # doctest: +IGNORE_OUTPUT
@@ -254,7 +254,8 @@ of returned records. the default values for offset and limit is 0 and 5000 respe
    >>> missions = MastMissions()
    >>> results = missions.query_criteria(sci_start_time=">=2021-01-01 00:00:00",
    ...                                   select_cols=["sci_stop_time", "sci_targname", "sci_start_time", "sci_status", "sci_pep_id"],
-   ...                                   sort_by=['sci_pep_id'], limit=1000, offset=1000)
+   ...                                   sort_by=['sci_pep_id'], limit=1000, offset=1000)  # doctest: +IGNORE_WARNINGS
+   ... # MaxResultsWarning('Maximum results returned, may not include all sources within radius.')
    >>> len(results)
    1000
 
@@ -263,7 +264,7 @@ Metadata queries can also be performed using object names with the
 
 .. doctest-remote-data::
 
-   >>> results = missions.query_object('M101', 3, select_cols=["sci_stop_time", "sci_targname", "sci_start_time", "sci_status"],
+   >>> results = missions.query_object('M101', radius=3, select_cols=["sci_stop_time", "sci_targname", "sci_start_time", "sci_status"],
    ...                                 sort_by=['sci_targname'])
    >>> results[:5]  # doctest: +IGNORE_OUTPUT
    <Table masked=True length=5>
