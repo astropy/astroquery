@@ -254,7 +254,8 @@ of returned records. the default values for offset and limit is 0 and 5000 respe
    >>> missions = MastMissions()
    >>> results = missions.query_criteria(sci_start_time=">=2021-01-01 00:00:00",
    ...                                   select_cols=["sci_stop_time", "sci_targname", "sci_start_time", "sci_status", "sci_pep_id"],
-   ...                                   sort_by=['sci_pep_id'], limit=1000, offset=1000)
+   ...                                   sort_by=['sci_pep_id'], limit=1000, offset=1000)  # doctest: +IGNORE_WARNINGS
+   ... # MaxResultsWarning('Maximum results returned, may not include all sources within radius.')
    >>> len(results)
    1000
 
