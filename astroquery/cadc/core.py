@@ -525,8 +525,11 @@ class CadcClass(BaseQuery):
                                urlencode({'ID': pid_sublist,
                                           'REQUEST': 'downloads-only'}, True)))
             for service_def in datalink:
-                if service_def.semantics == 'http://www.openadc.org/caom2#pkg':
-                    # pkg is an alternative for downloading multiple
+                if service_def.semantics in \
+                        ['http://www.opencadc.org/caom2#pkg', '#package']:
+                    # TODO http://www.openadc.org/caom2#pkg has been replaced
+                    # by "package". Removed it after CADC rolls out the change
+                    # package is an alternative for downloading multiple
                     # data files in a tar file as an alternative to separate
                     # downloads. It doesn't make much sense in this case so
                     # filter it out.
