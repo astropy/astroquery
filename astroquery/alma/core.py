@@ -764,8 +764,6 @@ class AlmaClass(QueryWithLogin):
                         warnings.warn(f"Found cached file {filename} with size {existing_file_length} > expected "
                                       f"size {length}.  The download is likely corrupted.",
                                       CorruptDataWarning)
-                    else:
-                        raise ValueError("It should not be possible to reach this state.")
                 else:
                     warnings.warn(f"Could not verify {url} because it has no 'content-length'")
 
