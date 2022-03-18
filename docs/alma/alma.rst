@@ -325,6 +325,17 @@ You can also do the downloading all in one step:
 
    >>> myAlma.retrieve_data_from_uid(uids[0])
 
+If you have huge files, sometimes the transfer fails, so you will need to
+restart the download.  By default, the module will resume downloading where the
+failure occurred.  You can check whether the downloads all succeeded before
+triggering a new download by using the ``verify_only`` keyword, which will not
+download but will return useful information about the state of your downloads:
+
+.. code-block:: python
+
+   >>> myAlma.download_files(link_list, cache=True, verify_only=True)
+
+
 Downloading FITS data
 =====================
 
