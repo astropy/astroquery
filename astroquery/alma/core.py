@@ -750,6 +750,7 @@ class AlmaClass(QueryWithLogin):
 
             if verify_only:
                 existing_file_length = os.stat(filename).st_size
+                print(f"{filename}: {existing_file_length}")
                 if 'content-length' in check_filename.headers:
                     length = int(check_filename.headers['content-length'])
                     if length == 0:
@@ -760,8 +761,11 @@ class AlmaClass(QueryWithLogin):
                         log.info(f"Found cached file {filename} with size {existing_file_length} < expected "
                                  f"size {length}.  The download should be continued.")
                     elif existing_file_length > length:
+                        print("Issuing a warning")
                         warnings.warn(f"Found cached file {filename} with size {existing_file_length} > expected "
                                       f"size {length}.  The download is likely corrupted.")
+                    else:
+                        raise ValueError("It should not be possible to reach this state.")
                 else:
                     warnings.warn(f"Could not verify {url} because it has no 'content-length'")
 

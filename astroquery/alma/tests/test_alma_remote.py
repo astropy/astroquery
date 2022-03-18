@@ -686,12 +686,15 @@ def test_verify_html_file(alma, caplog):
     with open(local_filepath, 'ab') as fh:
         fh.write(b"Extra Text")
 
+    print("Trying the failed version now")
     caplog.clear()
-    with warnings.catch_warnings() as ww:
+    with warnings.catch_warnings(record=True) as ww:
         result = alma.download_files(['https://almascience.nao.ac.jp/dataPortal/member.uid___A001_X1284_X1353.qa2_report.html'], verify_only=True)
         assert result
         length = 66336
         existing_file_length = length + 10
+        print(f"WARNING: {str(ww)}")
+        print(f"caplog: {caplog.text}")
         assert f"Found cached file {local_filepath} with size {existing_file_length} > expected size {length}.  The download is likely corrupted." in str(ww)
 
     # manipulate the file: make it small
