@@ -31,6 +31,7 @@ from .tapsql import _gen_pos_sql, _gen_str_sql, _gen_numeric_sql,\
     _gen_science_sql, _gen_spec_res_sql, ALMA_DATE_FORMAT
 from . import conf, auth_urls
 from astroquery.utils.commons import ASTROPY_LT_4_1
+from astroquery.exceptions import CorruptDataWarning
 
 __all__ = {'AlmaClass', 'ALMA_BANDS'}
 
@@ -685,7 +686,8 @@ class AlmaClass(QueryWithLogin):
         return data_sizes, totalsize.to(u.GB)
 
     def download_files(self, files, savedir=None, cache=True,
-                       continuation=True, skip_unauthorized=True,):
+                       continuation=True, skip_unauthorized=True,
+                       verify_only=False):
         """
         Given a list of file URLs, download them
 
@@ -706,6 +708,10 @@ class AlmaClass(QueryWithLogin):
             If you receive "unauthorized" responses for some of the download
             requests, skip over them.  If this is False, an exception will be
             raised.
+        verify_only : bool
+            Option to go through the process of checking the files to see if
+            they're the right size, but not actually download them.  This
+            option may be useful if a previous download run failed partway.
         """
 
         if self.USERNAME:
@@ -743,15 +749,34 @@ class AlmaClass(QueryWithLogin):
                 filename = os.path.join(savedir,
                                         filename)
 
+            if verify_only:
+                existing_file_length = os.stat(filename).st_size
+                if 'content-length' in check_filename.headers:
+                    length = int(check_filename.headers['content-length'])
+                    if length == 0:
+                        warnings.warn('URL {0} has length=0'.format(url))
+                    elif existing_file_length == length:
+                        log.info(f"Found cached file {filename} with expected size {existing_file_length}.")
+                    elif existing_file_length < length:
+                        log.info(f"Found cached file {filename} with size {existing_file_length} < expected "
+                                 f"size {length}.  The download should be continued.")
+                    elif existing_file_length > length:
+                        warnings.warn(f"Found cached file {filename} with size {existing_file_length} > expected "
+                                      f"size {length}.  The download is likely corrupted.",
+                                      CorruptDataWarning)
+                else:
+                    warnings.warn(f"Could not verify {url} because it has no 'content-length'")
+
             try:
-                self._download_file(file_link,
-                                    filename,
-                                    timeout=self.TIMEOUT,
-                                    auth=auth,
-                                    cache=cache,
-                                    method='GET',
-                                    head_safe=False,
-                                    continuation=continuation)
+                if not verify_only:
+                    self._download_file(file_link,
+                                        filename,
+                                        timeout=self.TIMEOUT,
+                                        auth=auth,
+                                        cache=cache,
+                                        method='GET',
+                                        head_safe=False,
+                                        continuation=continuation)
 
                 downloaded_files.append(filename)
             except requests.HTTPError as ex:

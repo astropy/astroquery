@@ -3,6 +3,7 @@ import tempfile
 import shutil
 import numpy as np
 import pytest
+import warnings
 from datetime import datetime
 import os
 from urllib.parse import urlparse
@@ -12,6 +13,7 @@ from unittest.mock import Mock, MagicMock, patch
 from astropy import coordinates
 from astropy import units as u
 
+from astroquery.exceptions import CorruptDataWarning
 from astroquery.utils.commons import ASTROPY_LT_4_1
 from .. import Alma
 
@@ -655,3 +657,55 @@ def test_big_download_regression(alma):
 def test_download_html_file(alma):
     result = alma.download_files(['https://almascience.nao.ac.jp/dataPortal/member.uid___A001_X1284_X1353.qa2_report.html'])
     assert result
+
+
+@pytest.mark.remote_data
+def test_verify_html_file(alma, caplog):
+    # first, make sure the file is not cached (in case this test gets called repeatedly)
+    # (we are hacking the file later in this test to trigger different failure modes so
+    # we need it fresh)
+    try:
+        result = alma.download_files(['https://almascience.nao.ac.jp/dataPortal/member.uid___A001_X1284_X1353.qa2_report.html'], verify_only=True)
+        local_filepath = result[0]
+        os.remove(local_filepath)
+    except FileNotFoundError:
+        pass
+
+    caplog.clear()
+
+    # download the file
+    result = alma.download_files(['https://almascience.nao.ac.jp/dataPortal/member.uid___A001_X1284_X1353.qa2_report.html'])
+    assert 'member.uid___A001_X1284_X1353.qa2_report.html' in result[0]
+
+    result = alma.download_files(['https://almascience.nao.ac.jp/dataPortal/member.uid___A001_X1284_X1353.qa2_report.html'], verify_only=True)
+    assert 'member.uid___A001_X1284_X1353.qa2_report.html' in result[0]
+    local_filepath = result[0]
+    existing_file_length = 66336
+    assert f"Found cached file {local_filepath} with expected size {existing_file_length}." in caplog.text
+
+    # manipulate the file
+    with open(local_filepath, 'ab') as fh:
+        fh.write(b"Extra Text")
+
+    caplog.clear()
+    length = 66336
+    existing_file_length = length + 10
+    with pytest.warns(expected_warning=CorruptDataWarning,
+            match=f"Found cached file {local_filepath} with size {existing_file_length} > expected size {length}.  The download is likely corrupted."):
+        result = alma.download_files(['https://almascience.nao.ac.jp/dataPortal/member.uid___A001_X1284_X1353.qa2_report.html'], verify_only=True)
+    assert 'member.uid___A001_X1284_X1353.qa2_report.html' in result[0]
+
+    # manipulate the file: make it small
+    with open(local_filepath, 'wb') as fh:
+        fh.write(b"Empty Text")
+
+    caplog.clear()
+    result = alma.download_files(['https://almascience.nao.ac.jp/dataPortal/member.uid___A001_X1284_X1353.qa2_report.html'], verify_only=True)
+    assert 'member.uid___A001_X1284_X1353.qa2_report.html' in result[0]
+    length = 66336
+    existing_file_length = 10
+    assert f"Found cached file {local_filepath} with size {existing_file_length} < expected size {length}.  The download should be continued." in caplog.text
+
+    # cleanup: we don't want `test_download_html_file` to fail if this test is re-run
+    if os.path.exists(local_filepath):
+        os.remove(local_filepath)

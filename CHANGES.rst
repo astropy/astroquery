@@ -10,6 +10,11 @@ esa.hubble
 
 Service fixes and enhancements
 ------------------------------
+alma
+^^^^
+
+- Added ``verify_only`` option to check if data downloaded with correct file size [#2263]
+
 esa.hubble
 ^^^^^^^^^^
 
