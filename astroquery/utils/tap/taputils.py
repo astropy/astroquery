@@ -266,7 +266,7 @@ def get_suitable_output_file_name_for_current_output_format(output_file, output_
         if output_format in format_with_results_compressed:
             # In this case we will have to take also into account the .fits format
             if not output_file.endswith(compressed_extension):
-                warnings.warn('WARNING!!! By default, results in "votable" and "fits" format are returned in '
+                warnings.warn('By default, results in "votable", "ecsv" and "fits" format are returned in '
                               f'compressed format therefore your file {output_file} '
                               f'will be renamed to {output_file}.gz')
                 if output_format == 'votable':
@@ -287,6 +287,6 @@ def get_suitable_output_file_name_for_current_output_format(output_file, output_
         # the output type is not compressed by default by the TAP SERVER but the users gives a .gz extension
         elif output_file.endswith(compressed_extension):
             output_file_renamed = output_file.removesuffix('.gz')
-            warnings.warn(f'WARNING!!! The output format selected is not compatible with compression. {output_file}'
+            warnings.warn(f'The output format selected is not compatible with compression. {output_file}'
                           f' will be renamed to {output_file}')
     return output_file_with_extension
