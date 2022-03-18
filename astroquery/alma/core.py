@@ -31,6 +31,7 @@ from .tapsql import _gen_pos_sql, _gen_str_sql, _gen_numeric_sql,\
     _gen_science_sql, _gen_spec_res_sql, ALMA_DATE_FORMAT
 from . import conf, auth_urls
 from astroquery.utils.commons import ASTROPY_LT_4_1
+from astroquery.exceptions import CorruptDataWarning
 
 __all__ = {'AlmaClass', 'ALMA_BANDS'}
 
@@ -750,7 +751,6 @@ class AlmaClass(QueryWithLogin):
 
             if verify_only:
                 existing_file_length = os.stat(filename).st_size
-                print(f"{filename}: {existing_file_length}")
                 if 'content-length' in check_filename.headers:
                     length = int(check_filename.headers['content-length'])
                     if length == 0:
@@ -761,9 +761,9 @@ class AlmaClass(QueryWithLogin):
                         log.info(f"Found cached file {filename} with size {existing_file_length} < expected "
                                  f"size {length}.  The download should be continued.")
                     elif existing_file_length > length:
-                        print("Issuing a warning")
                         warnings.warn(f"Found cached file {filename} with size {existing_file_length} > expected "
-                                      f"size {length}.  The download is likely corrupted.")
+                                      f"size {length}.  The download is likely corrupted.",
+                                      CorruptDataWarning)
                     else:
                         raise ValueError("It should not be possible to reach this state.")
                 else:
