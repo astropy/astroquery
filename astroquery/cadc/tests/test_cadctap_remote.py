@@ -206,6 +206,7 @@ class TestCadcClass:
 
     @pytest.mark.skipif(one_test, reason='One test mode')
     @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
+    @pytest.mark.skip('https://github.com/astropy/astroquery/issues/2325')
     def test_get_images(self):
         cadc = Cadc()
         coords = '08h45m07.5s +54d18m00s'
@@ -253,6 +254,7 @@ class TestCadcClass:
 
     @pytest.mark.skipif(one_test, reason='One test mode')
     @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
+    @pytest.mark.skip('https://github.com/astropy/astroquery/issues/2325')
     def test_get_images_async(self):
         cadc = Cadc()
         coords = '01h45m07.5s +23d18m00s'
@@ -313,6 +315,7 @@ class TestCadcClass:
                         reason='Requires real CADC certificate (CADC_CERT '
                                'environment variable)')
     @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
+    @pytest.mark.skip('https://github.com/astropy/astroquery/issues/2325')
     def test_list_jobs(self):
         cadc = Cadc()
         cadc.login(certificate_file=os.environ['CADC_CERT'])
