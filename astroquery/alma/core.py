@@ -620,7 +620,6 @@ class AlmaClass(QueryWithLogin):
 
         return data_sizes, totalsize.to(u.GB)
 
-
     def download_files(self, files, *, savedir=None, cache=True,
                        continuation=True, skip_unauthorized=True,
                        verify_only=False):
