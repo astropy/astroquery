@@ -310,9 +310,7 @@ are >100 GB!
         ...
 
 The new ```get_data_info``` method can be used to get information about the
-data such as the file names, their urls, sizes etc (this method replaces
-```stage_data```, which served the same role in older versions of astroquery
-but is now deprecated):
+data such as the file names, their urls, sizes etc.
 
 .. doctest-remote-data::
 
