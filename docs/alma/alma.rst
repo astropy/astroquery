@@ -181,7 +181,7 @@ or if you wanted all projects by a given PI:
 
 The ''query_sia'' method offers another way to query ALMA using the IVOA SIA
 subset of keywords returning results in 'ObsCore' format.  For example,
-to query for all images that have `XX` polarization (note that this query is too large
+to query for all images that have ``'XX'`` polarization (note that this query is too large
 to run, it is just shown as an example):
 
 .. doctest-remote-data::
@@ -333,7 +333,6 @@ default cache directory is ``~/.astropy/cache/astroquery/Alma/``, but this can
 be changed by changing the ``cache_location`` variable:
 
 
-.. doctest-remote-data::
 .. doctest-skip::
 
    >>> 1/0
