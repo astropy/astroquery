@@ -135,7 +135,7 @@ class TestAlma:
 
         m83_data = alma.query_object('M83', science=True, legacy_columns=True)
         uids = np.unique(m83_data['Member ous id'])
-        link_list = alma.stage_data(uids)
+        link_list = alma.get_data_info(uids)
 
         # On Feb 8, 2016 there were 83 hits.  This number should never go down.
         # Except it has.  On May 18, 2016, there were 47.
@@ -156,82 +156,6 @@ class TestAlma:
         #                           'same UIDs, the result returned is probably correct,'
         #                           ' otherwise you may need to create a fresh astroquery.Alma instance.'))
 
-    @pytest.mark.skipif("SKIP_SLOW", reason="Known issue")
-    def test_stage_data(self, temp_dir, alma):
-        alma.cache_location = temp_dir
-
-        result_s = alma.query_object('Sgr A*', legacy_columns=True)
-
-        if ASTROPY_LT_4_1:
-            assert b'2013.1.00857.S' in result_s['Project code']
-            assert b'uid://A002/X40d164/X1b3' in result_s['Asdm uid']
-            assert b'uid://A002/X391d0b/X23d' in result_s['Member ous id']
-            match_val = b'uid://A002/X40d164/X1b3'
-        else:
-            assert '2013.1.00857.S' in result_s['Project code']
-            assert 'uid://A002/X40d164/X1b3' in result_s['Asdm uid']
-            assert 'uid://A002/X391d0b/X23d' in result_s['Member ous id']
-            match_val = 'uid://A002/X40d164/X1b3'
-
-        match = result_s['Asdm uid'] == match_val
-        uid = result_s['Member ous id'][match]
-        # this is temporary to switch back to ALMA servers
-        # del alma.dataarchive_url
-        # alma.archive_url = 'http://almascience.org'
-        result = alma.stage_data(uid)
-
-        found = False
-        for url in result['URL']:
-            if 'uid___A002_X40d164_X1b3' in url:
-                found = True
-                break
-        assert found, 'URL to uid___A002_X40d164_X1b3 expected'
-
-    def test_stage_data_listall(self, temp_dir, alma):
-        """
-        test for expanded capability created in #1683
-        """
-        alma.cache_location = temp_dir
-
-        uid = 'uid://A001/X12a3/Xe9'
-        result1 = alma.stage_data(uid, expand_tarfiles=False)
-        result2 = alma.stage_data(uid, expand_tarfiles=True)
-
-        expected_names = [
-            '2017.1.01185.S_uid___A002_Xd28a9e_X71b8.asdm.sdm.tar',
-            '2017.1.01185.S_uid___A002_Xd28a9e_X7b4d.asdm.sdm.tar',
-            '2017.1.01185.S_uid___A002_Xd29c1f_X1f74.asdm.sdm.tar',
-            '2017.1.01185.S_uid___A002_Xd29c1f_X5cf.asdm.sdm.tar']
-        expected_names_with_aux = expected_names + \
-            ['2017.1.01185.S_uid___A001_X12a3_Xe9_auxiliary.tar']
-        for name in expected_names_with_aux:
-            assert name in result1['name']
-        for res in result1:
-            p = re.compile(r'.*(uid__.*)\.asdm.*')
-            if res['name'] in expected_names:
-                assert 'application/x-tar' == res['type']
-                assert res['id'] == p.search(res['name']).group(1)
-            else:
-                assert res['type'] in ['application/x-tar', 'application/x-votable+xml;content=datalink', 'text/plain']
-                assert res['id'] == 'None'
-            assert 'UNKNOWN' == res['permission']
-            assert res['mous_uid'] == uid
-        assert len(result2) > len(result1)
-
-    def test_stage_data_json(self, temp_dir, alma):
-        """
-        test for json returns
-        """
-        alma.cache_location = temp_dir
-
-        uid = 'uid://A001/X12a3/Xe9'
-        # this is temporary to switch back to ALMA servers
-        # alma.archive_url = 'http://almascience.org'
-        result = alma.stage_data(uid, return_json=False)
-        assert len(result) > 0
-        with pytest.raises(AttributeError):
-            # this no longer works
-            alma.stage_data(uid, return_json=True)
 
     def test_data_proprietary(self, alma):
         # public
@@ -372,11 +296,11 @@ class TestAlma:
 
         assert X30.sum() == 4  # Jul 13, 2020
         assert X31.sum() == 4  # Jul 13, 2020
-        mous1 = alma.stage_data('uid://A001/X11f/X30')
+        mous1 = alma.get_data_info('uid://A001/X11f/X30')
         totalsize_mous1 = mous1['size'].sum() * u.Unit(mous1['size'].unit)
         assert (totalsize_mous1.to(u.B) > 1.9*u.GB)
 
-        mous = alma.stage_data('uid://A002/X3216af/X31')
+        mous = alma.get_data_info('uid://A002/X3216af/X31')
         totalsize_mous = mous['size'].sum() * u.Unit(mous['size'].unit)
         # More recent ALMA request responses do not include any information
         # about file size, so we have to allow for the possibility that all
@@ -493,9 +417,9 @@ class TestAlma:
 
         # Need new Alma() instances each time
         a1 = alma()
-        uid_url_table_mous = a1.stage_data(result['Member ous id'])
+        uid_url_table_mous = a1.get_data_info(result['Member ous id'])
         a2 = alma()
-        uid_url_table_asdm = a2.stage_data(result['Asdm uid'])
+        uid_url_table_asdm = a2.get_data_info(result['Asdm uid'])
         # I believe the fixes as part of #495 have resulted in removal of a
         # redundancy in the table creation, so a 1-row table is OK here.
         # A 2-row table may not be OK any more, but that's what it used to
@@ -542,8 +466,8 @@ class TestAlma:
 
         alma1 = alma()
         alma2 = alma()
-        uid_url_table_mous = alma1.stage_data(result['Member ous id'])
-        uid_url_table_asdm = alma2.stage_data(result['Asdm uid'])
+        uid_url_table_mous = alma1.get_data_info(result['Member ous id'])
+        uid_url_table_asdm = alma2.get_data_info(result['Asdm uid'])
         assert len(uid_url_table_asdm) == 1
         assert len(uid_url_table_mous) == 32
 
@@ -609,7 +533,7 @@ def test_project_metadata(alma):
 @pytest.mark.skip('Not working for now - Investigating')
 def test_staging_postfeb2020(alma):
 
-    tbl = alma.stage_data('uid://A001/X121/X4ba')
+    tbl = alma.get_data_info('uid://A001/X121/X4ba')
 
     assert 'mous_uid' in tbl.colnames
 
@@ -619,7 +543,7 @@ def test_staging_postfeb2020(alma):
 @pytest.mark.remote_data
 @pytest.mark.skip('Not working for now - Investigating')
 def test_staging_uptofeb2020(alma):
-    tbl = alma.stage_data('uid://A001/X121/X4ba')
+    tbl = alma.get_data_info('uid://A001/X121/X4ba')
 
     assert 'mous_uid' in tbl.colnames
 
@@ -629,9 +553,9 @@ def test_staging_uptofeb2020(alma):
 
 
 @pytest.mark.remote_data
-def test_staging_stacking(alma):
-    alma.stage_data(['uid://A001/X13d5/X1d', 'uid://A002/X3216af/X31',
-                     'uid://A001/X12a3/X240'])
+def test_data_info_stacking(alma):
+    alma.get_data_info(['uid://A001/X13d5/X1d', 'uid://A002/X3216af/X31',
+                        'uid://A001/X12a3/X240'])
 
 
 @pytest.mark.remote_data
