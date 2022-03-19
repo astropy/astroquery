@@ -7,11 +7,13 @@ import re
 import tarfile
 import string
 import requests
+import warnings
+
 from pkg_resources import resource_filename
 from bs4 import BeautifulSoup
 import pyvo
-
 from urllib.parse import urljoin
+
 from astropy.table import Table, Column, vstack
 from astroquery import log
 from astropy.utils.console import ProgressBar

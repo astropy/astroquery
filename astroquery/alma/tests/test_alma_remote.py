@@ -75,13 +75,6 @@ class TestAlma:
         # "The Brick", g0.253, is in this one
         # assert b'2011.0.00217.S' in result_c['Project code'] # missing cycle 1 data
 
-    def test_docs_example(self, temp_dir, alma):
-        alma.cache_location = temp_dir
-
-        rslt = alma.query(payload=dict(obs_creator_name='*Ginsburg*'))
-
-        assert 'ADS/JAO.ALMA#2013.1.00269.S' in rslt['obs_publisher_did']
-
     def test_freq(self, alma):
         payload = {'frequency': '85..86'}
         result = alma.query(payload)
@@ -141,22 +134,6 @@ class TestAlma:
         # Except it has.  On May 18, 2016, there were 47.
         assert len(link_list) >= 47
 
-        # test re-staging
-        # (has been replaced with warning)
-        # with pytest.raises(requests.HTTPError) as ex:
-        #    link_list = alma.stage_data(uids)
-        # assert ex.value.args[0] == ('Received an error 405: this may indicate you have '
-        #                            'already staged the data.  Try downloading the '
-        #                            'file URLs directly with download_files.')
-
-        # log.warning doesn't actually make a warning
-        # link_list = alma.stage_data(uids)
-        # w = recwarn.pop()
-        # assert (str(w.message) == ('Error 405 received.  If you have previously staged the '
-        #                           'same UIDs, the result returned is probably correct,'
-        #                           ' otherwise you may need to create a fresh astroquery.Alma instance.'))
-
-
     def test_data_proprietary(self, alma):
         # public
         assert not alma.is_proprietary('uid://A001/X12a3/Xe9')
@@ -198,7 +175,7 @@ class TestAlma:
                 file_url = url
                 break
         assert file_url
-        alma.download_files([file_url], temp_dir)
+        alma.download_files([file_url], savedir=temp_dir)
         assert os.stat(os.path.join(temp_dir, file)).st_size
 
         # mock downloading an entire program
@@ -206,8 +183,7 @@ class TestAlma:
         alma.download_files = download_files_mock
         alma.retrieve_data_from_uid([uid])
 
-        comparison = download_files_mock.mock_calls[0][1] == data_info_tar[
-            'access_url']
+        comparison = download_files_mock.mock_calls[0][1] == data_info_tar['access_url']
         assert comparison.all()
 
     def test_download_data(self, temp_dir, alma):
@@ -224,7 +200,7 @@ class TestAlma:
         alma._download_file = download_mock
         urls = [x['access_url'] for x in data_info
                 if fitsre.match(x['access_url'])]
-        results = alma.download_files(urls, temp_dir)
+        results = alma.download_files(urls, savedir=temp_dir)
         alma._download_file.call_count == len(results)
         assert len(results) == len(urls)
 
