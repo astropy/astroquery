@@ -22,8 +22,9 @@ supports object and region based querying and data staging and retrieval.
 You can get interactive help to find out what keywords to query for:
 
 .. code-block:: python
+
     >>> from astroquery.alma import Alma
-    >>> Alma.help() # doctest: +IGNORE_OUTPUT
+    >>> Alma.help()  # doctest: +IGNORE_OUTPUT
     <BLANKLINE>
     Most common ALMA query keywords are listed below. These keywords are part of the ALMA ObsCore model, an IVOA standard for metadata representation (3rd column). They were also present in original ALMA Web form and, for backwards compatibility can be accessed with their old names (2nd column).
     More elaborate queries on the ObsCore model are possible with `query_sia` or `query_tap` methods
@@ -123,8 +124,8 @@ Querying Targets and Regions
 
 You can query by object name or by circular region:
 
-.. code-block:: python
 .. doctest-remote-data::
+
     >>> from astroquery.alma import Alma
     >>> m83_data = Alma.query_object('M83')
     >>> m83_data.colnames  # doctest: +IGNORE_OUTPUT
@@ -147,8 +148,9 @@ You can query by object name or by circular region:
 
 Region queries are just like any other in astroquery:
 
-.. code-block:: python
+
 .. doctest-remote-data::
+
     >>> from astropy import coordinates
     >>> from astropy import units as u
     >>> galactic_center = coordinates.SkyCoord(0*u.deg, 0*u.deg,
@@ -167,22 +169,22 @@ Querying by other parameters
 As of version 0.3.4, you can also query other fields by keyword. For example,
 if you want to find all projects in a region with a particular PI, you could do:
 
-.. code-block:: python
+.. doctest-remote-data::
 
-    >>> rslt = Alma.query_region('W51', radius=25*u.arcmin, pi_name='*Ginsburg*') # doctest: +REMOTE_DATA
+    >>> rslt = Alma.query_region('W51', radius=25*u.arcmin, pi_name='*Ginsburg*')
 
 or if you wanted all projects by a given PI:
 
-.. code-block:: python
+.. doctest-remote-data::
 
-   >>> rslt = Alma.query(payload=dict(pi_name='Ginsburg, Adam')) # doctest: +REMOTE_DATA
+   >>> rslt = Alma.query(payload=dict(pi_name='Ginsburg, Adam'))
 
 The ''query_sia'' method offers another way to query ALMA using the IVOA SIA
 subset of keywords returning results in 'ObsCore' format.  For example,
 to query for all images that have `XX` polarization (note that this query is too large
 to run, it is just shown as an example):
 
-.. code-block:: python
+.. doctest-remote-data::
 
     >>> Alma.query_sia(pol='XX')  # doctest: +SKIP
 
@@ -191,7 +193,6 @@ metadata. This method is used to send queries to the service using the
 'ObsCore' columns as constraints. The returned result is also in 'ObsCore'
 format.
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> Alma.query_tap("select * from ivoa.obscore where target_name like '%M83%'")  # doctest: +IGNORE_OUTPUT
@@ -204,7 +205,6 @@ format.
 
 One can also query by keyword, spatial resolution, etc:
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> Alma.query_tap("select * from ivoa.obscore WHERE spatial_resolution<=0.1 AND science_keyword "
@@ -296,8 +296,8 @@ You can download ALMA data with astroquery, but be forewarned, many data sets
 are >100 GB!
 
 
-.. code-block:: python
 .. doctest-remote-data::
+
     >>> import numpy as np
     >>> from astroquery.alma import Alma
     >>> m83_data = Alma.query_object('M83')
@@ -314,7 +314,6 @@ data such as the file names, their urls, sizes etc (this method replaces
 ```stage_data```, which served the same role in older versions of astroquery
 but is now deprecated):
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> link_list = Alma.get_data_info(uids[:3])
@@ -323,7 +322,7 @@ By default, ALMA data is delivered as tarball files. However, the content of
 some of these files can be listed and accessed individually. To get information
 on the individual files:
 
-.. code-block:: python
+
 .. doctest-remote-data::
 
     >>> link_list = Alma.get_data_info(uids[:3], expand_tarfiles=True)
@@ -333,7 +332,7 @@ that repeat queries of the same file will not re-download the data.  The
 default cache directory is ``~/.astropy/cache/astroquery/Alma/``, but this can
 be changed by changing the ``cache_location`` variable:
 
-.. code-block:: python
+
 .. doctest-remote-data::
 .. doctest-skip::
 
@@ -365,8 +364,8 @@ Downloading FITS data
 If you want just the QA2-produced FITS files, you can directly access the FITS
 files:
 
-.. code-block:: python
 .. doctest-remote-data::
+
     >>> from astroquery.alma.core import Alma
     >>> from astropy import coordinates
     >>> from astropy import units as u
@@ -381,7 +380,6 @@ files:
 You might want to look at the READMEs from a bunch of files so you know what
 kind of S/N to expect:
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> readmes = [url for url in uid_url_table['access_url'] if 'README' in url]
