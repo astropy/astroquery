@@ -1132,52 +1132,6 @@ class AlmaClass(QueryWithLogin):
         print("Alma.query(payload=dict(project_code='2017.1.01355.L', "
               "source_name_alma='G008.67'))")
 
-    def _json_summary_to_table(self, data, base_url):
-        """
-        Special tool to convert some JSON metadata to a table Obsolete as of
-        March 2020 - should be removed along with stage_data_prefeb2020
-        """
-        from ..utils import url_helpers
-        columns = {'mous_uid': [], 'URL': [], 'size': []}
-        for entry in data['node_data']:
-            # de_type can be useful (e.g., MOUS), but it is not necessarily
-            # specified
-            # file_name and file_key *must* be specified.
-            is_file = \
-                (entry['file_name'] != 'null' and entry['file_key'] != 'null')
-            if is_file:
-                # "de_name": "ALMA+uid://A001/X122/X35e",
-                columns['mous_uid'].append(entry['de_name'][5:])
-                if entry['file_size'] == 'null':
-                    columns['size'].append(np.nan * u.Gbyte)
-                else:
-                    columns['size'].append(
-                        (int(entry['file_size']) * u.B).to(u.Gbyte))
-                # example template for constructing url:
-                # https://almascience.eso.org/dataPortal/requests/keflavich/940238268/ALMA/
-                # uid___A002_X9d6f4c_X154/2013.1.00546.S_uid___A002_X9d6f4c_X154.asdm.sdm.tar
-                # above is WRONG... except for ASDMs, when it's right
-                # should be:
-                # 2013.1.00546.S_uid___A002_X9d6f4c_X154.asdm.sdm.tar/2013.1.00546.S_uid___A002_X9d6f4c_X154.asdm.sdm.tar
-                #
-                # apparently ASDMs are different from others:
-                # templates:
-                # https://almascience.eso.org/dataPortal/requests/keflavich/946895898/ALMA/
-                # 2013.1.00308.S_uid___A001_X196_X93_001_of_001.tar/2013.1.00308.S_uid___A001_X196_X93_001_of_001.tar
-                # uid___A002_X9ee74a_X26f0/2013.1.00308.S_uid___A002_X9ee74a_X26f0.asdm.sdm.tar
-                url = url_helpers.join(base_url,
-                                       entry['file_key'],
-                                       entry['file_name'])
-                if 'null' in url:
-                    raise ValueError("The URL {0} was created containing "
-                                     "'null', which is invalid.".format(url))
-                columns['URL'].append(url)
-
-        columns['size'] = u.Quantity(columns['size'], u.Gbyte)
-
-        tbl = Table([Column(name=k, data=v) for k, v in columns.items()])
-        return tbl
-
     def get_project_metadata(self, projectid, *, cache=True):
         """
         Get the metadata - specifically, the project abstract - for a given project ID.
