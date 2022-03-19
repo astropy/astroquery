@@ -90,23 +90,24 @@ Authentication
 Users can log in to acquire proprietary data products.  Login is performed
 via the ALMA CAS (central authentication server).
 
-.. code-block:: python
+.. doctest-skip::
+
     >>> from astroquery.alma import Alma
     >>> alma = Alma()
     >>> # First example: TEST is not a valid username, it will fail
-    >>> alma.login("TEST") # doctest: +SKIP
+    >>> alma.login("TEST")
     TEST, enter your ALMA password:
-
+    <BLANKLINE>
     Authenticating TEST on asa.alma.cl ...
     Authentication failed!
     >>> # Second example: pretend ICONDOR is a valid username
-    >>> alma.login("ICONDOR", store_password=True) # doctest: +SKIP
+    >>> alma.login("ICONDOR", store_password=True)
     ICONDOR, enter your ALMA password:
-
+    <BLANKLINE>
     Authenticating ICONDOR on asa.alma.cl...
     Authentication successful!
     >>> # After the first login, your password has been stored
-    >>> alma.login("ICONDOR") # doctest: +SKIP
+    >>> alma.login("ICONDOR")
     Authenticating ICONDOR on asa.alma.cl...
     Authentication successful!
 
@@ -126,7 +127,7 @@ You can query by object name or by circular region:
 .. doctest-remote-data::
     >>> from astroquery.alma import Alma
     >>> m83_data = Alma.query_object('M83')
-    >>> m83_data.colnames # doctest: +SKIP
+    >>> m83_data.colnames  # doctest: +IGNORE_OUTPUT
     ['obs_publisher_did', 'obs_collection', 'facility_name', 'instrument_name',
     'obs_id', 'dataproduct_type', 'calib_level', 'target_name', 's_ra',
     's_dec', 's_fov', 's_region', 's_resolution', 't_min', 't_max',
@@ -153,11 +154,12 @@ Region queries are just like any other in astroquery:
     >>> galactic_center = coordinates.SkyCoord(0*u.deg, 0*u.deg,
     ...                                        frame='galactic')
     >>> gc_data = Alma.query_region(galactic_center, 1*u.deg)
-    >>> print(gc_data) # doctest: +IGNORE_OUTPUT
+    >>> print(gc_data)  # doctest: +IGNORE_OUTPUT
          obs_publisher_did      obs_collection facility_name ...     scientific_category           lastModified
                                                              ...
     --------------------------- -------------- ------------- ... --------------------------- -----------------------
     ADS/JAO.ALMA#2012.1.00133.S           ALMA           JAO ...      ISM and star formation 2021-09-30T16:34:41.133
+
 
 Querying by other parameters
 ============================
@@ -182,7 +184,7 @@ to run, it is just shown as an example):
 
 .. code-block:: python
 
-    >>> Alma.query_sia(pol='XX') # doctest: +SKIP
+    >>> Alma.query_sia(pol='XX')  # doctest: +SKIP
 
 Finally, the ''query_tap'' method is the most general way of querying the ALMA
 metadata. This method is used to send queries to the service using the
@@ -191,26 +193,31 @@ format.
 
 .. code-block:: python
 .. doctest-remote-data::
-    >>> Alma.query_tap("select * from ivoa.obscore where target_name like '%M83%'") # doctest: +IGNORE_OUTPUT
+
+    >>> Alma.query_tap("select * from ivoa.obscore where target_name like '%M83%'")  # doctest: +IGNORE_OUTPUT
     <Table length=364>
-         obs_publisher_did      obs_collection facility_name ...                                   science_keyword                                     scientific_category         lastModified
+         obs_publisher_did      obs_collection facility_name ...       scientific_category         lastModified
                                                              ...
-               str33                 str4           str3     ...                                        str200                                                str200                  object
-    --------------------------- -------------- ------------- ... ------------------------------------------------------------------------------------ ---------------------- -----------------------
-    ADS/JAO.ALMA#2016.1.00164.S           ALMA           JAO ...                                         Starbursts, star formation, Galaxy chemistry        Active galaxies 2021-09-30T16:34:41.133
+               str33                 str4           str3     ...              str200                  object
+    --------------------------- -------------- ------------- ... ---------------------- -----------------------
+    ADS/JAO.ALMA#2016.1.00164.S           ALMA           JAO ...        Active galaxies 2021-09-30T16:34:41.133
 
 One can also query by keyword, spatial resolution, etc:
 
 .. code-block:: python
 .. doctest-remote-data::
-    >>> Alma.query_tap(f"select * from ivoa.obscore WHERE spatial_resolution<=0.1 AND science_keyword in ('Disks around high-mass stars', 'Asymptotic Giant Branch (AGB) stars') AND science_observation='T'") # doctest: +IGNORE_OUTPUT
+
+    >>> Alma.query_tap("select * from ivoa.obscore WHERE spatial_resolution<=0.1 AND science_keyword "
+    ...                "in ('Disks around high-mass stars', 'Asymptotic Giant Branch (AGB) stars') "
+    ...                "AND science_observation='T'")  # doctest: +IGNORE_OUTPUT
 
 
 Use the ''help_tap'' method to learn about the ALMA 'ObsCore' keywords and
 their types.
 
-.. code-block:: python
-    >>> Alma.help_tap() # doctest: +REMOTE_DATA +IGNORE_OUTPUT
+.. doctest-remote-data::
+
+    >>> Alma.help_tap()  # doctest: +IGNORE_OUTPUT
     Table to query is "voa.ObsCore".
     For example: "select top 1 * from ivoa.ObsCore"
     The scheme of the table is as follows.
@@ -281,6 +288,7 @@ their types.
       type                 char(16*)                  Type flags.
       velocity_resolution  double          m/s        Estimated velocity resolution from all the spectral windows, from frequency resolution.
 
+
 Downloading Data
 ================
 
@@ -294,11 +302,12 @@ are >100 GB!
     >>> from astroquery.alma import Alma
     >>> m83_data = Alma.query_object('M83')
     >>> uids = np.unique(m83_data['member_ous_uid'])
-    >>> print(uids) # doctest: +IGNORE_OUTPUT
+    >>> print(uids)
          member_ous_uid
-     -----------------------
-     uid://A001/X11f/X30
-     uid://A001/X122/Xf3
+    -----------------------
+        uid://A001/X11f/X30
+        uid://A001/X122/Xf3
+        ...
 
 The new ```get_data_info``` method can be used to get information about the
 data such as the file names, their urls, sizes etc (this method replaces
@@ -307,7 +316,8 @@ but is now deprecated):
 
 .. code-block:: python
 .. doctest-remote-data::
-   >>> link_list = Alma.get_data_info(uids)
+
+    >>> link_list = Alma.get_data_info(uids[:3])
 
 By default, ALMA data is delivered as tarball files. However, the content of
 some of these files can be listed and accessed individually. To get information
@@ -315,7 +325,8 @@ on the individual files:
 
 .. code-block:: python
 .. doctest-remote-data::
-    >>> link_list = Alma.get_data_info(uids, expand_tarfiles=True)
+
+    >>> link_list = Alma.get_data_info(uids[:3], expand_tarfiles=True)
 
 You can then go on to download those files.  The download will be cached so
 that repeat queries of the same file will not re-download the data.  The
@@ -324,15 +335,18 @@ be changed by changing the ``cache_location`` variable:
 
 .. code-block:: python
 .. doctest-remote-data::
-   >>> myAlma = Alma() # doctest: +SKIP
-   >>> myAlma.cache_location = '/big/external/drive/' # doctest: +SKIP
-   >>> myAlma.download_files(link_list, cache=True) # doctest: +SKIP
+.. doctest-skip::
+
+   >>> 1/0
+   >>> myAlma = Alma()
+   >>> myAlma.cache_location = '/big/external/drive/'
+   >>> myAlma.download_files(link_list, cache=True)
 
 You can also do the downloading all in one step:
 
 .. code-block:: python
-.. doctest-remote-data::
-   >>> myAlma.retrieve_data_from_uid(uids[0]) # doctest: +SKIP
+
+   >>> myAlma.retrieve_data_from_uid(uids[0])  # doctest: +SKIP
 
 If you have huge files, sometimes the transfer fails, so you will need to
 restart the download.  By default, the module will resume downloading where the
@@ -342,7 +356,7 @@ download but will return useful information about the state of your downloads:
 
 .. code-block:: python
 
-   >>> myAlma.download_files(link_list, cache=True, verify_only=True)
+   >>> myAlma.download_files(link_list, cache=True, verify_only=True)  # doctest: +SKIP
 
 
 Downloading FITS data
@@ -362,7 +376,7 @@ files:
     >>> uid_url_table = Alma.get_data_info(result['obs_id'][0], expand_tarfiles=True)
     >>> # downselect to just the FITSf files
     >>> fits_urls = [url for url in uid_url_table['access_url'] if '.fits' in url]
-    >>> filelist = Alma.download_files(fits_urls[:5])
+    >>> filelist = Alma.download_files(fits_urls[:5])  # doctest: +SKIP
 
 You might want to look at the READMEs from a bunch of files so you know what
 kind of S/N to expect:
@@ -371,13 +385,14 @@ kind of S/N to expect:
 .. doctest-remote-data::
 
     >>> readmes = [url for url in uid_url_table['access_url'] if 'README' in url]
-    >>> filelist = Alma.download_files(readmes)
+    >>> filelist = Alma.download_files(readmes)  # doctest: +IGNORE_OUTPUT
 
 
 Further Examples
 ================
 There are some nice examples of using the ALMA query tool in conjunction with other astroquery
 tools in :doc:`../gallery`, especially :ref:`gallery-almaskyview`.
+
 
 Reference/API
 =============
