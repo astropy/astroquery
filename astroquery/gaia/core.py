@@ -850,30 +850,9 @@ class GaiaClass(TapPlus):
         -------
         A Job object
         """
-        compressed_extension = ".gz"
-        format_with_results_compressed = ['votable', 'fits']
-        output_file_with_extension = output_file
-
-        if output_file is not None:
-            if output_format in format_with_results_compressed:
-                # In this case we will have to take also into account the .fits format
-                if not output_file.endswith(compressed_extension):
-                    warnings.warn('By default, results in "votable" and "fits" format are returned in '
-                                  f'compressed format therefore your file {output_file} '
-                                  f'will be renamed to {output_file}.gz', InputWarning)
-                    if output_format == 'votable':
-                        if output_file.endswith('.vot'):
-                            output_file_with_extension = output_file + '.gz'
-                        else:
-                            output_file_with_extension = output_file + '.vot.gz'
-                    elif output_format == 'fits':
-                        if output_file.endswith('.fits'):
-                            output_file_with_extension = output_file + '.gz'
-                        else:
-                            output_file_with_extension = output_file + '.fits.gz'
 
         return TapPlus.launch_job(self, query=query, name=name,
-                                  output_file=output_file_with_extension,
+                                  output_file=output_file,
                                   output_format=output_format,
                                   verbose=verbose,
                                   dump_to_file=dump_to_file,
@@ -899,7 +878,7 @@ class GaiaClass(TapPlus):
         output_format : str, optional, default 'votable'
             results format. Available formats are: 'votable', 'votable_plain',
              'fits', 'csv' and 'json', default is 'votable'.
-             Returned results for 'votable' and 'fits' formats are compressed
+             Returned results for 'votable' 'ecsv' and 'fits' format are compressed
              gzip files.
         verbose : bool, optional, default 'False'
             flag to display information about the process
@@ -921,41 +900,9 @@ class GaiaClass(TapPlus):
         -------
         A Job object
         """
-        compressed_extension = ".gz"
-        format_with_results_compressed = ['votable', 'fits', 'ecsv']
-        output_file_with_extension = output_file
-
-        if output_file is not None:
-            if output_format in format_with_results_compressed:
-                # In this case we will have to take also into account the .fits format
-                if not output_file.endswith(compressed_extension):
-                    warnings.warn('WARNING!!! By default, results in "votable" and "fits" format are returned in '
-                                  f'compressed format therefore your file {output_file} '
-                                  f'will be renamed to {output_file}.gz')
-                    if output_format == 'votable':
-                        if output_file.endswith('.vot'):
-                            output_file_with_extension = output_file + '.gz'
-                        else:
-                            output_file_with_extension = output_file + '.vot.gz'
-                    elif output_format == 'fits':
-                        if output_file.endswith('.fits'):
-                            output_file_with_extension = output_file + '.gz'
-                        else:
-                            output_file_with_extension = output_file + '.fits.gz'
-                    elif output_format == 'ecsv':
-                        if output_file.endswith('.ecsv'):
-                            output_file_with_extension = output_file + '.gz'
-                        else:
-                            output_file_with_extension = output_file + '.ecsv.gz'
-            # the output type is not compressed by default by the TAP SERVER but the users gives a .gz extension
-            elif output_file.endswith(compressed_extension):
-                output_file_renamed = output_file.removesuffix('.gz')
-                warnings.warn(f'WARNING!!! The output format selected is not compatible with compression. {output_file}'
-                              f' will be renamed to {output_file}')
-
         return TapPlus.launch_job_async(self, query=query,
                                         name=name,
-                                        output_file=output_file_with_extension,
+                                        output_file=output_file,
                                         output_format=output_format,
                                         verbose=verbose,
                                         dump_to_file=dump_to_file,
