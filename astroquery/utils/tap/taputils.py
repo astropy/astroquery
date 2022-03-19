@@ -288,5 +288,5 @@ def get_suitable_output_file_name_for_current_output_format(output_file, output_
         elif output_file.endswith(compressed_extension):
             output_file_renamed = output_file.removesuffix('.gz')
             warnings.warn(f'The output format selected is not compatible with compression. {output_file}'
-                          f' will be renamed to {output_file}')
+                          f' will be renamed to {output_file_renamed}')
     return output_file_with_extension
