@@ -8,7 +8,6 @@ import hashlib
 import keyring
 import io
 import os
-import warnings
 import requests
 import textwrap
 
@@ -16,14 +15,13 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 from astropy.config import paths
-from astroquery import log
 import astropy.units as u
 from astropy.utils.console import ProgressBarOrSpinner
 import astropy.utils.data
 
-from . import version
-from .utils import system_tools
-from astroquery import conf
+from astroquery import version, log, conf
+from astroquery.utils import system_tools
+
 
 __all__ = ['BaseQuery', 'QueryWithLogin']
 
@@ -199,7 +197,6 @@ class BaseQuery(metaclass=LoginABCMeta):
 
         self.name = self.__class__.__name__.split("Class")[0]
         self._cache_active = conf.use_cache
-        self.use_cache = conf.use_cache
         self.cache_timeout = conf.default_cache_timeout
 
 
@@ -255,7 +252,7 @@ class BaseQuery(metaclass=LoginABCMeta):
             conf.cache_location,
             self.__class__.__name__.split("Class")[0])
 
-        self.use_cache = conf.use_cache
+        self._cache_active = conf.use_cache
         self.cache_timeout = conf.default_cache_timeout
 
     def _request(self, method, url,
@@ -320,7 +317,7 @@ class BaseQuery(metaclass=LoginABCMeta):
             is True.
         """
 
-        if (cache is not False) and self.use_cache:
+        if (cache is not False) and self._cache_active:
             cache = True
         else:
             cache = False

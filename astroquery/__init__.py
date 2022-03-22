@@ -44,7 +44,7 @@ log = _init_log()
 class Conf(_config.ConfigNamespace):
 
     default_cache_timeout = _config.ConfigItem(
-          86400,  # 24 hours
+          604800 ,  # 1 week
           'Astroquery-wide default cache timeout (seconds).'
           )
     cache_location = _config.ConfigItem(
