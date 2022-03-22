@@ -40,11 +40,12 @@ logging.addLevelName(5, "TRACE")
 log = logging.getLogger()
 log = _init_log()
 
+
 # Set up cache configuration
 class Conf(_config.ConfigNamespace):
 
     default_cache_timeout = _config.ConfigItem(
-          604800 ,  # 1 week
+          604800,  # 1 week
           'Astroquery-wide default cache timeout (seconds).'
           )
     cache_location = _config.ConfigItem(

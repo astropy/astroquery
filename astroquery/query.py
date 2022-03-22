@@ -199,7 +199,6 @@ class BaseQuery(metaclass=LoginABCMeta):
         self._cache_active = conf.use_cache
         self.cache_timeout = conf.default_cache_timeout
 
-
     def __call__(self, *args, **kwargs):
         """ init a fresh copy of self """
         return self.__class__(*args, **kwargs)
@@ -237,7 +236,7 @@ class BaseQuery(metaclass=LoginABCMeta):
                     f"{response.text}\n"
                     f"-----------------------------------------", '\t')
             log.log(5, f"HTTP response\n{response_log}")
-     
+
     def clear_cache(self):
         """Removes all cache files."""
 
