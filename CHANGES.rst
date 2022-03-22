@@ -15,7 +15,7 @@ alma
 
 - Added ``verify_only`` option to check if data downloaded with correct file size [#2263]
 
-- Deprecate functionalities from ``alma.utils``. [#2332]
+- Deprecate broken functions from ``alma.utils``. [#2332]
 
 esa.hubble
 ^^^^^^^^^^

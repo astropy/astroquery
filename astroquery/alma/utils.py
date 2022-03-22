@@ -18,6 +18,9 @@ from astroquery.skyview import SkyView
 from astroquery.alma import Alma
 
 
+__all__ = ['parse_frequency_support', 'footprint_to_reg', 'approximate_primary_beam_sizes']
+
+
 @deprecated('0.4.6', 'this function has been deprecated and will be removed in the next release.')
 def pyregion_subset(region, data, mywcs):
     """
