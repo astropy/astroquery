@@ -506,29 +506,6 @@ def test_project_metadata(alma):
 
 
 @pytest.mark.remote_data
-@pytest.mark.skip('Not working for now - Investigating')
-def test_staging_postfeb2020(alma):
-
-    tbl = alma.get_data_info('uid://A001/X121/X4ba')
-
-    assert 'mous_uid' in tbl.colnames
-
-    assert '2013.1.00269.S_uid___A002_X9de499_X3d6c.asdm.sdm.tar' in tbl['name']
-
-
-@pytest.mark.remote_data
-@pytest.mark.skip('Not working for now - Investigating')
-def test_staging_uptofeb2020(alma):
-    tbl = alma.get_data_info('uid://A001/X121/X4ba')
-
-    assert 'mous_uid' in tbl.colnames
-
-    names = [x.split("/")[-1] for x in tbl['URL']]
-
-    assert '2013.1.00269.S_uid___A002_X9de499_X3d6c.asdm.sdm.tar' in names
-
-
-@pytest.mark.remote_data
 def test_data_info_stacking(alma):
     alma.get_data_info(['uid://A001/X13d5/X1d', 'uid://A002/X3216af/X31',
                         'uid://A001/X12a3/X240'])
