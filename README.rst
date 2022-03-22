@@ -55,19 +55,23 @@ installed using `pip <https://pypi.python.org/pypi/pip>`_ or `anaconda
 <http://continuum.io/>`_.  Running the tests requires `curl
 <https://curl.haxx.se/>`_ to be installed.
 
-The latest version of astroquery can be conda installed:
-
-.. code-block:: bash
-
-    $ conda install -c conda-forge astroquery
-
-or pip installed:
+The latest version of astroquery can be pip installed (note the --pre for
+picking up released developer versions):
 
 .. code-block:: bash
 
     $ pip install --pre astroquery
 
-and the 'bleeding edge' main version:
+To install all the mandatory and optional dependencies add the ``[all]``
+identifyer to the pip command above (or use ``[docs]`` or ``[test]`` for the
+dependencies required to build the documentation or run the tests):
+
+.. code-block:: bash
+
+    $ pip install --pre astroquery[all]
+
+
+To install the 'bleeding edge' version:
 
 .. code-block:: bash
 
