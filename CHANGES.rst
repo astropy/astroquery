@@ -1,47 +1,40 @@
-0.4.6 (unreleased)
+0.4.6 (2022-03-22)
 ==================
-
-New Tools and Services
-----------------------
-esa.hubble
-^^^^^^^^^^
-
-- Added new method ``get_hap_hst_link`` and ``get_member_observations`` to get related observations [#2268]
 
 Service fixes and enhancements
 ------------------------------
+
 alma
 ^^^^
 
-- Added ``verify_only`` option to check if data downloaded with correct file size [#2263]
+- Added ``verify_only`` option to check if data downloaded with correct file
+  size. [#2263]
+
+- Deprecated keywords and ``stage_data`` method has been removed. [#2309]
 
 - Deprecate broken functions from ``alma.utils``. [#2332]
 
-esa.hubble
-^^^^^^^^^^
-
-- Changed query_target method to use TAP instead of AIO [#2268]
-
-alma
-^^^^
-
-- Deprecated keywords and ``stage_data`` method has been removed. Optional
-  keyword arguments are now keyword only. [#2309]
+- Optional keyword arguments are now keyword only. [#2309]
 
 casda
 ^^^^^
 
-- Simplify file names produced by ``astroquery.casda.download_files`` to avoid filename too long errors [#2308]
+- Simplify file names produced by ``download_files`` to avoid filename too
+  long errors. [#2308]
+
+esa.hubble
+^^^^^^^^^^
+
+- Changed ``query_target`` method to use TAP instead of AIO. [#2268]
+
+
+- Added new method ``get_hap_hst_link`` and ``get_member_observations`` to
+  get related observations. [#2268]
 
 esa.xmm_newton
 ^^^^^^^^^^^^^^
 
-- Add option to download proprietary data [#2251]
-
-esa.jwst
-^^^^^^^^^^
-
-- Minor fixes, documentation updated. [#2257]
+- Add option to download proprietary data. [#2251]
 
 gaia
 ^^^^
@@ -50,26 +43,31 @@ gaia
   ``astroquery.gaia.Gaia`` no longer ignore their ``columns`` argument when
   ``radius`` is specified. [#2249]
 
-- Enhanced methods 'launch_job' and 'launch_job_async' to avoid issues with
+- Enhanced methods ``launch_job`` and ``launch_job_async`` to avoid issues with
   the name provided by the user for the output file when the results are
   returned by the TAP in compressed format. [#2077]
 
 ipac.nexsci.nasa_exoplanet_archive
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-- Fixes to alias query, and regularize keyword removed from deprecated query_star() method. [#2264]
+- Fixes to alias query, and regularize keyword removed from deprecated
+  ``query_star`` method. [#2264]
 
 mast
 ^^^^
 
-- Adding moving target functionality to ``astroquery.mast.Tesscut`` [#2121]
+- Adding moving target functionality to ``Tesscut`` [#2121]
 
-- GALEX data is now available to download anonymously from the public STScI S3 buckets. [#2261]
+- Adding ``MastMissions`` class to provide mission-specific metadata query
+  functionalities. [#2095]
+
+- GALEX data is now available to download anonymously from the public
+  STScI S3 buckets. [#2261]
 
 - Adding the All-Sky PLATO Input Catalog ('plato') as a catalog option for
-  methods of ``astroquery.mast.Catalogs``. [#2279]
+  methods of ``Catalogs``. [#2279]
 
-- Optional keyword arguments for are now keyword only in ``astroquery.mast.Observations``, ``astroquery.mast.Catalogs``, and ``astroquery.mast.Cutouts``. [#2317]
+- Optional keyword arguments are now keyword only. [#2317]
 
 sdss
 ^^^^
@@ -84,11 +82,10 @@ sdss
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
 
-- The obsolete file ``astroquery/utils/testing_tools.py`` has been removed.
-  [#2287]
+- Remove obsolete testing tools. [#2287]
 
-- Callback hooks are deleted before caching.  Potentially all cached queries
-  prior to this PR will be rendered invalid.  [#2295]
+- Callback hooks are deleted before caching. Potentially all cached queries
+  prior to this PR will be rendered invalid. [#2295]
 
 utils.tap
 ^^^^^^^^^
@@ -377,8 +374,6 @@ mast
 ^^^^
 
 - Added Zcut functionality to astroquery [#1911]
-
-- Added searching missions(HST) metadata functiona;ity to astroquery. [#2095]
 
 svo_fps
 ^^^^^^^
