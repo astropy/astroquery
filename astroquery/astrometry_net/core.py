@@ -258,7 +258,6 @@ class AstrometryNetClass(BaseQuery):
         return wcs
 
     def solve_from_source_list(self, x, y, image_width, image_height,
-                               solve_timeout=TIMEOUT,
                                **settings
                                ):
         """
@@ -275,9 +274,6 @@ class AstrometryNetClass(BaseQuery):
             Size of the image in the x-direction.
         image_height : int
             Size of the image in the y-direction.
-        solve_timeout : int
-            Time, in seconds, to wait for the astrometry.net solver to find
-            a solution.
 
         For a list of the remaining settings, use the method
         `~AstrometryNetClass.show_allowed_settings`.
@@ -299,15 +295,12 @@ class AstrometryNetClass(BaseQuery):
         if response.status_code != 200:
             raise RuntimeError('Post of job failed')
         response_d = response.json()
-        submission_id = response_d['subid']
-        return self.monitor_submission(submission_id,
-                                       solve_timeout=solve_timeout)
+        return response_d['subid']
 
     def solve_from_image(self, image_file_path, force_image_upload=False,
                          ra_key=None, dec_key=None,
                          ra_dec_units=None,
                          fwhm=3, detect_threshold=5,
-                         solve_timeout=TIMEOUT,
                          **settings):
         """
         Plate solve from an image, either by uploading the image to
@@ -343,9 +336,6 @@ class AstrometryNetClass(BaseQuery):
         ra_dec_units : tuple, optional
             Tuple specifying the units of the right ascension and declination in
             the header. The default value is ``('hour', 'degree')``.
-        solve_timeout : int
-            Time, in seconds, to wait for the astrometry.net solver to find
-            a solution.
 
         For a list of the remaining settings, use the method
         `~AstrometryNetClass.show_allowed_settings`.
@@ -409,9 +399,7 @@ class AstrometryNetClass(BaseQuery):
         if response.status_code != 200:
             raise RuntimeError('Post of job failed')
         response_d = response.json()
-        submission_id = response_d['subid']
-        return self.monitor_submission(submission_id,
-                                       solve_timeout=solve_timeout)
+        return response_d['subid']
 
 
 # the default tool for users to interact with is an instance of the Class
