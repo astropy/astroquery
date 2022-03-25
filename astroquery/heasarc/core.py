@@ -1,5 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
+from typing import Union
 import warnings
 from io import StringIO, BytesIO
 from astropy.table import Table
@@ -13,6 +14,13 @@ from ..exceptions import InvalidQueryError, NoResultsWarning
 from . import conf
 
 __all__ = ['Heasarc', 'HeasarcClass']
+
+
+def Table_read(*args, **kwargs):
+    if commons.ASTROPY_LT_5_1:
+        return Table.read(*args, **kwargs)
+    else:
+        return Table.read(*args, **kwargs, unit_parse_strict='silent')
 
 
 @async_to_sync
@@ -86,8 +94,10 @@ class HeasarcClass(BaseQuery):
         All other parameters have no effect
         """
 
-        response = self.query_region_async(position='0.0 0.0', mission=mission,
-                                           radius='361 degree', cache=cache,
+        response = self.query_region_async(position=coordinates.SkyCoord(10, 10, unit='deg', frame='fk5'),
+                                           mission=mission,
+                                           radius='361 degree',
+                                           cache=cache,
                                            get_query_payload=get_query_payload,
                                            resultsmax=1,
                                            fields='All')
@@ -127,8 +137,8 @@ class HeasarcClass(BaseQuery):
 
         return self.query_async(request_payload, cache=cache)
 
-    def query_region_async(self, position, mission, radius,
-                           cache=True, get_query_payload=False,
+    def query_region_async(self, position: Union[coordinates.SkyCoord, str],
+                           mission, radius, cache=True, get_query_payload=False,
                            **kwargs):
         """
         Query around specific set of coordinates within a given mission
@@ -138,7 +148,7 @@ class HeasarcClass(BaseQuery):
 
         Parameters
         ----------
-        position : `astropy.coordinates` or str
+        position : `astropy.coordinates.SkyCoord` or str
             The position around which to search. It may be specified as a
             string in which case it is resolved using online services or as
             the appropriate `astropy.coordinates` object. ICRS coordinates
@@ -188,7 +198,7 @@ class HeasarcClass(BaseQuery):
         f.writeto(I)
         I.seek(0)
 
-        return Table.read(I)
+        return Table_read(I)
 
     def _fallback(self, text):
         """
@@ -218,7 +228,8 @@ class HeasarcClass(BaseQuery):
             new_table.append("".join(newline))
 
         data = StringIO(text.replace(old_table, "\n".join(new_table)))
-        return Table.read(data, hdu=1)
+
+        return Table_read(data, hdu=1)
 
     def _parse_result(self, response, verbose=False):
         # if verbose is False then suppress any VOTable related warnings
@@ -239,8 +250,7 @@ class HeasarcClass(BaseQuery):
 
         try:
             data = BytesIO(response.content)
-            table = Table.read(data, hdu=1)
-            return table
+            return Table_read(data, hdu=1)
         except ValueError:
             try:
                 return self._fallback(response.text)
