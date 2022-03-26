@@ -67,7 +67,7 @@ object within the ``MockResponse`` class:
 
 .. code-block:: python
 
-    def get_mockreturn(url, params=None, timeout=10):
+    def get_mockreturn(session, method, url, params=None, timeout=10, **kwargs):
         filename = data_path(DATA_FILES['votable'])
         content = open(filename, 'r').read()
         return MockResponse(content)

@@ -6,7 +6,7 @@ import requests
 from ...heasarc import Heasarc, Conf
 from ...utils import commons
 
-from .parametrization import parametrization_local_save_remote, patch_get, MockResponse
+from ...utils.testing_parametrization import parametrization_local_save_remote, patch_get, MockResponse
 
 
 @parametrization_local_save_remote

@@ -59,6 +59,7 @@ __all__ = ['send_request',
 ASTROPY_LT_4_1 = not minversion('astropy', '4.1')
 ASTROPY_LT_4_3 = not minversion('astropy', '4.3')
 ASTROPY_LT_5_0 = not minversion('astropy', '5.0')
+ASTROPY_LT_5_1 = not minversion('astropy', '5.1')
 
 ASTROPY_LT_5_1 = not minversion('astropy', '5.1dev197')
 # Update the line above once 5.1 is released
