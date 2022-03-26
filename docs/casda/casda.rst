@@ -18,7 +18,6 @@ The method takes a location and either a radius or a height and width of the reg
 The location should be specified in ICRS coordinates or an `astropy.coordinates.SkyCoord` object.
 For example:
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> from astroquery.casda import Casda
@@ -26,32 +25,15 @@ For example:
     >>> from astropy import units as u
     >>> centre = SkyCoord.from_name('NGC 7232')
     >>> result_table = Casda.query_region(centre, radius=30*u.arcmin)
-    >>> print(result_table['obs_publisher_did','s_ra', 's_dec', 'obs_release_date'])
-    obs_publisher_did       s_ra           s_dec          obs_release_date
+    >>> print(result_table['obs_publisher_did','s_ra', 's_dec', 'obs_release_date'][:5])
+    obs_publisher_did       s_ra           s_dec           obs_release_date
                             deg             deg
     ----------------- --------------- ---------------- ------------------------
-             cube-502 333.16767306594 -45.302084636451 2017-08-02T03:51:19.728Z
-             cube-503 333.16767306594 -45.302084636451 2017-08-02T03:51:19.728Z
-             cube-504 333.16767306594 -45.302084636451 2017-08-02T03:51:19.728Z
-             cube-505 333.16767306594 -45.302084636451 2017-08-02T03:51:19.728Z
-             cube-506 333.16767306594 -45.302084636451 2017-08-02T03:51:19.728Z
-             cube-507 333.16767306594 -45.302084636451 2017-08-02T03:51:19.728Z
-             cube-508 333.16767306594 -45.302084636451 2017-08-02T03:51:19.728Z
-             cube-453 332.53629746595 -44.850153699406 2017-07-10T05:18:13.482Z
-             cube-454 332.53629746595 -44.850153699406 2017-07-10T05:18:13.482Z
-             cube-455 332.53629746595 -44.850153699406 2017-07-10T05:18:13.482Z
-                  ...             ...              ...                      ...
-             cube-468 332.53644868638 -44.834926604835 2017-07-10T05:18:48.812Z
-             cube-469 332.53644868638 -44.834926604835 2017-07-10T05:18:48.812Z
-             cube-470 332.53644868638 -44.834926604835 2017-07-10T05:18:48.812Z
-             cube-471 332.53644868638 -44.834926604835 2017-07-10T05:18:48.812Z
-             cube-472 332.53644868638 -44.834926604835 2017-07-10T05:18:48.812Z
-             cube-473 332.53644868638 -44.834926604835 2017-07-10T05:18:48.812Z
-            cube-1170 333.70448386919 -45.966341151806 2019-01-30T13:00:00.000Z
-             cube-612 333.30189344648 -50.033321773361 2018-05-25T08:22:51.025Z
-             cube-650 326.04487794126 -42.033324601808
-             cube-651 335.54487794126 -42.033324601808
-    Length = 121 rows
+           cube-11460 326.52250211117 -43.891190432671 2020-11-18T09:49:27.134Z
+           cube-11461 326.52250211117 -43.891190432671 2020-11-18T09:49:27.134Z
+           cube-11462 326.52250211117 -43.891190432671 2020-11-18T09:49:27.134Z
+           cube-11463 326.52250211117 -43.891190432671 2020-11-18T09:49:27.134Z
+           cube-11464 326.52250211117 -43.891190432671 2020-11-18T09:49:27.134Z
 
 
 In most cases only public data is required. While most ASKAP data is public, some data products may not be released for quality reasons.
@@ -60,48 +42,38 @@ To filter down to just the public data you can use the :meth:`~astroquery.casda.
 
 For example to filter out the 30 non-public results from the above data set:
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> public_results = Casda.filter_out_unreleased(result_table)
-    >>> print(public_results['obs_publisher_did','s_ra', 's_dec', 'obs_release_date'])
-    obs_publisher_did       s_ra           s_dec          obs_release_date
+    >>> print(public_results['obs_publisher_did','s_ra', 's_dec', 'obs_release_date'][:5])
+    obs_publisher_did       s_ra           s_dec           obs_release_date
                             deg             deg
     ----------------- --------------- ---------------- ------------------------
-             cube-502 333.16767306594 -45.302084636451 2017-08-02T03:51:19.728Z
-             cube-503 333.16767306594 -45.302084636451 2017-08-02T03:51:19.728Z
-             cube-504 333.16767306594 -45.302084636451 2017-08-02T03:51:19.728Z
-             cube-505 333.16767306594 -45.302084636451 2017-08-02T03:51:19.728Z
-             cube-506 333.16767306594 -45.302084636451 2017-08-02T03:51:19.728Z
-             cube-507 333.16767306594 -45.302084636451 2017-08-02T03:51:19.728Z
-             cube-508 333.16767306594 -45.302084636451 2017-08-02T03:51:19.728Z
-             cube-453 332.53629746595 -44.850153699406 2017-07-10T05:18:13.482Z
-             cube-454 332.53629746595 -44.850153699406 2017-07-10T05:18:13.482Z
-             cube-455 332.53629746595 -44.850153699406 2017-07-10T05:18:13.482Z
-                  ...             ...              ...                      ...
-             cube-468 332.53644868638 -44.834926604835 2017-07-10T05:18:48.812Z
-             cube-469 332.53644868638 -44.834926604835 2017-07-10T05:18:48.812Z
-             cube-470 332.53644868638 -44.834926604835 2017-07-10T05:18:48.812Z
-             cube-471 332.53644868638 -44.834926604835 2017-07-10T05:18:48.812Z
-             cube-472 332.53644868638 -44.834926604835 2017-07-10T05:18:48.812Z
-             cube-473 332.53644868638 -44.834926604835 2017-07-10T05:18:48.812Z
-            cube-1170 333.70448386919 -45.966341151806 2019-01-30T13:00:00.000Z
-             cube-612 333.30189344648 -50.033321773361 2018-05-25T08:22:51.025Z
-    Length = 81 rows
+           cube-11460 326.52250211117 -43.891190432671 2020-11-18T09:49:27.134Z
+           cube-11461 326.52250211117 -43.891190432671 2020-11-18T09:49:27.134Z
+           cube-11462 326.52250211117 -43.891190432671 2020-11-18T09:49:27.134Z
+           cube-11463 326.52250211117 -43.891190432671 2020-11-18T09:49:27.134Z
+           cube-11464 326.52250211117 -43.891190432671 2020-11-18T09:49:27.134Z
 
 
 Authentication
 ==============
 
-User authentication is required to access data files from CASDA, including calibrated visibilities, images and image cubes.
+User authentication is required to access data files from CASDA, including
+calibrated visibilities, images and image cubes.
 Authentication is made with OPAL credentials.
-To register with OPAL, go to https://opal.atnf.csiro.au/ and click on the link to 'Register'. Enter your email address, name, affiliation and a password. The OPAL application will register you straight away.
+To register with OPAL, go to https://opal.atnf.csiro.au/ and click on the
+link to 'Register'. Enter your email address, name, affiliation and a password.
+The OPAL application will register you straight away.
 
-OPAL user accounts are self-managed. Please keep your account details up to date. To change user-registration details, or to request a new OPAL password, use the link to 'Log in or reset password'.
+OPAL user accounts are self-managed. Please keep your account details up to
+date. To change user-registration details, or to request a new OPAL password,
+use the link to 'Log in or reset password'.
 
-To use download tasks, you should create an instance of the Casda object with a username and password. e.g.:
+To use download tasks, you should create an instance of the ``Casda`` class
+with a username and password. e.g.:
 
-.. code-block:: python
+.. doctest-skip::
 
     >>> from astroquery.casda import Casda
     >>> import getpass
@@ -121,9 +93,10 @@ This column should contain the datalink address of the data product.
 Once the data has been assembled you can then download the data using the :meth:`~astroquery.casda.CasdaClass.download_files` method, or using tools such as wget.
 Authentication is required when staging the data, but not for the download.
 
-An example script to download public continuum images of the NGC 7232 region taken in scheduling block 2338 is shown below:
-.. code-block:: python
-.. doctest-remote-data::
+An example script to download public continuum images of the NGC 7232 region
+taken in scheduling block 2338 is shown below:
+
+.. doctest-skip::
 
     >>> from astropy import coordinates, units as u, wcs
     >>> from astroquery.casda import Casda
