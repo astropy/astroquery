@@ -13,7 +13,6 @@ on the interstellar extinction towards the Galactic Bulge. The
 an `~astropy.table.Table` instance with the same data. To run a single query
 using an `astropy.coordinates` instance use:
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> from astropy import coordinates
@@ -28,7 +27,6 @@ passing a list-like object of string/float values or a list-like object of
 `astropy.coordinates` instances. All of coordinates will be internally converted
 to FK5.
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> # list of coordinate instances

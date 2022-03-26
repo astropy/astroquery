@@ -16,13 +16,12 @@ Using the standard imports:
 
 .. code-block:: python
 
-    >>> from astroquery import sha
+    >>> from astroquery.ipac.irsa import sha
     >>> from astropy import coordinates as coord
     >>> from astropy import units as u
 
 Query with an astropy coordinate instance (preferred):
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> pos_t1 = sha.query(coord=coord.SkyCoord(ra=163.6136, dec=-11.784,
@@ -30,29 +29,29 @@ Query with an astropy coordinate instance (preferred):
 
 Query with the alternate ``ra`` and ``dec`` parameters:
 
-.. code-block:: python
+.. doctest-remote-data::
 
-    >>> pos_t2 = sha.query(ra=163.6136, dec=-11.784, size=0.5) # doctest: +REMOTE_DATA
+    >>> pos_t2 = sha.query(ra=163.6136, dec=-11.784, size=0.5)
 
 Query by NAIFID:
 
-.. code-block:: python
+.. doctest-remote-data::
 
-    >>> nid_t = sha.query(naifid=2003226) # doctest: +REMOTE_DATA
+    >>> nid_t = sha.query(naifid=2003226)
 
 Query by PID:
 
-.. code-block:: python
+.. doctest-remote-data::
 
-    >>> pid_t = sha.query(pid=30080) # doctest: +REMOTE_DATA
+    >>> pid_t = sha.query(pid=30080)
 
 Query by ReqKey:
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> # by ReqKey
     >>> rqk_t = sha.query(reqkey=21641216)
+
 
 Additional Documentation
 ========================
@@ -66,7 +65,6 @@ Saving files to disk
 Using the access URLs found in the SHA queries, the functions `astroquery.ipac.irsa.sha.save_file`
 writes the file to disk. To save a file:
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> pid_t = sha.query(pid=30080)
@@ -75,12 +73,12 @@ writes the file to disk. To save a file:
 
 or alternatively with a name and path specified:
 
-.. code-block:: python
 .. doctest-skip::
 
    >>> sha.save_file(url, out_dir='proj_files/', out_name='sha_file1')
 
 The extension will automatically be added depending on the filetype.
+
 
 Reading files into python
 =========================
@@ -89,7 +87,6 @@ Given an access URL, `astroquery.ipac.irsa.sha.get_file` returns an appropriate 
 either a `~astropy.table.Table` instance for tabular data, or
 `~astropy.io.fits.PrimaryHDU` instance for FITS files.
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> pid_t = sha.query(pid=30080)
