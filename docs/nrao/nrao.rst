@@ -16,7 +16,6 @@ astropy functions using online services. The coordinates may also be specified
 directly using the appropriate coordinate system from
 `astropy.coordinates`. Here is a basic example:
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> from astroquery.nrao import Nrao
@@ -49,6 +48,7 @@ directly using the appropriate coordinate system from
     J0433+0521  16B-353-lock 17-Jan-03 05:58:26 ... +05d21'15.62"    536739153
     Length = 1614 rows
 
+
 More detailed parameters
 ------------------------
 
@@ -76,7 +76,6 @@ bands for observation ::
 
 Here's an example with all these optional parameters.
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> from astroquery.nrao import Nrao
