@@ -161,7 +161,8 @@ class AtomicLineListClass(BaseQuery):
             output_columns=output_columns, cache=cache,
             get_query_payload=get_query_payload)
         if get_query_payload:
-            return input
+            return response
+
         table = self._parse_result(response)
         return table
 
