@@ -27,7 +27,7 @@ class AtomicLineListClass(BaseQuery):
 
     def __init__(self):
         super(AtomicLineListClass, self).__init__()
-        self.__default_form_values = None
+        self.__default_form_values = self._default_form_values()
 
     def query_object(self, wavelength_range=None, wavelength_type=None, wavelength_accuracy=None, element_spectrum=None,
                      minimal_abundance=None, depl_factor=None, lower_level_energy_range=None,
