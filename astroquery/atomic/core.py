@@ -302,8 +302,8 @@ class AtomicLineListClass(BaseQuery):
         return response
 
     def _default_form_values(self):
-        response = self._request("GET", url=self.FORM_URL, data={},
-                                 timeout=self.TIMEOUT, cache=True)
+        response = self._request("GET", url=self.FORM_URL, params={},
+                                 timeout=self.TIMEOUT, cache=False)
         bs = BeautifulSoup(response.text, features='html5lib')
         form = bs.find('form')
         default_form_values = self._get_default_form_values(form)
