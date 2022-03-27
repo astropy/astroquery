@@ -29,7 +29,7 @@ class AtomicLineListClass(BaseQuery):
         super(AtomicLineListClass, self).__init__()
         self.__default_form_values = self._default_form_values()
 
-    def query_object(self, wavelength_range=None, wavelength_type=None, wavelength_accuracy=None, element_spectrum=None,
+    def query_object(self, *, wavelength_range=None, wavelength_type=None, wavelength_accuracy=None, element_spectrum=None,
                      minimal_abundance=None, depl_factor=None, lower_level_energy_range=None,
                      upper_level_energy_range=None, nmax=None, multiplet=None, transitions=None,
                      show_fine_structure=None, show_auto_ionizing_transitions=None,
@@ -167,7 +167,7 @@ class AtomicLineListClass(BaseQuery):
         return table
 
     @prepend_docstr_nosections(query_object.__doc__)
-    def query_object_async(self, wavelength_range=None, wavelength_type='', wavelength_accuracy=None,
+    def query_object_async(self, *, wavelength_range=None, wavelength_type='', wavelength_accuracy=None,
                            element_spectrum=None, minimal_abundance=None, depl_factor=None,
                            lower_level_energy_range=None, upper_level_energy_range=None, nmax=None, multiplet=None,
                            transitions=None, show_fine_structure=None, show_auto_ionizing_transitions=None,
