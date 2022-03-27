@@ -294,24 +294,22 @@ class AtomicLineListClass(BaseQuery):
         for k, v in input.items():
             if v is not None:
                 payload[k] = v
-        url = urlparse.urljoin(self.FORM_URL, self._default_form.get('action'))
+        url = self._form_action_url
         log.debug(f"final payload = {payload} from url={url}")
         response = self._request("POST", url=url, data=payload,
                                  timeout=self.TIMEOUT, cache=cache)
         log.debug("Retrieved data from POST request")
         return response
 
-    @property
     def _default_form_values(self):
+        response = self._request("GET", url=self.FORM_URL, data={},
+                                 timeout=self.TIMEOUT, cache=True)
+        bs = BeautifulSoup(response.text, features='html5lib')
+        form = bs.find('form')
+        default_form_values = self._get_default_form_values(form)
+        self._form_action_url = urlparse.urljoin(self.FORM_URL, form.get('action'))
 
-        if self.__default_form_values is None:
-            response = self._request("GET", url=self.FORM_URL, data={},
-                                     timeout=self.TIMEOUT, cache=True)
-            bs = BeautifulSoup(response.text, features='html5lib')
-            self._default_form = form = bs.find('form')
-            self.__default_form_values = self._get_default_form_values(form)
-
-        return self.__default_form_values
+        return default_form_values
 
     def _get_default_form_values(self, form):
         """Return the already selected values of a given form (a BeautifulSoup
