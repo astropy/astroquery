@@ -247,7 +247,7 @@ class AtomicLineListClass(BaseQuery):
         return response
 
     def _parse_result(self, response):
-        data = StringIO(BeautifulSoup(response.text, 'html5').find('pre').text.strip())
+        data = StringIO(BeautifulSoup(response.text, features='html5lib').find('pre').text.strip())
         # `header` is e.g.:
         # "u'-LAMBDA-VAC-ANG-|-SPECTRUM--|TT|--------TERM---------|---J-J---|----LEVEL-ENERGY--CM-1----'"
         # `colnames` is then
@@ -307,7 +307,7 @@ class AtomicLineListClass(BaseQuery):
         if self.__default_form_values is None:
             response = self._request("GET", url=self.FORM_URL, data={},
                                      timeout=self.TIMEOUT, cache=True)
-            bs = BeautifulSoup(response.text, 'html5')
+            bs = BeautifulSoup(response.text, features='html5lib')
             self._default_form = form = bs.find('form')
             self.__default_form_values = self._get_default_form_values(form)
 
