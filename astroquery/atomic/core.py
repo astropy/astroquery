@@ -220,7 +220,7 @@ class AtomicLineListClass(BaseQuery):
         if upper_level_erange is not None:
             upper_level_erange = upper_level_erange.to(
                 u.cm ** -1, equivalencies=u.spectral()).value
-        input = {
+        input_payload = {
             'wavl': ' '.join(map(str, wlrange_in_angstroms)),
             'wave': 'Angstrom',
             'air': air,
@@ -242,8 +242,8 @@ class AtomicLineListClass(BaseQuery):
             'tptype': 'as_a',
         }
         if get_query_payload:
-            return input
-        response = self._submit_form(input, cache=cache)
+            return input_payload
+        response = self._submit_form(input_payload, cache=cache)
         return response
 
     def _parse_result(self, response):
@@ -259,7 +259,7 @@ class AtomicLineListClass(BaseQuery):
         colnames = [colname.strip('-').replace('-', ' ')
                     for colname in header.split('|') if colname.strip()]
         indices = [i for i, c in enumerate(header) if c == '|']
-        input = []
+        result_data = []
         for line in data:
             row = []
             for start, end in zip([0] + indices, indices + [None]):
@@ -272,26 +272,26 @@ class AtomicLineListClass(BaseQuery):
                     # maintain table dimensions when data missing
                     row.append('None')
             if row:
-                input.append('\t'.join(row))
-        if input:
-            return ascii.read(input, data_start=0, delimiter='\t',
+                result_data.append('\t'.join(row))
+        if result_data:
+            return ascii.read(result_data, data_start=0, delimiter='\t',
                               names=colnames, fast_reader=False)
         else:
             # return an empty table if the query yielded no results
             return Table()
 
-    def _submit_form(self, input=None, cache=True):
+    def _submit_form(self, input_data=None, cache=True):
         """Fill out the form of the SkyView site and submit it with the
-        values given in `input` (a dictionary where the keys are the form
+        values given in ``input_data`` (a dictionary where the keys are the form
         element's names and the values are their respective values).
 
         """
-        if input is None:
-            input = {}
-        # only overwrite payload's values if the `input` value is not None
+        if input_data is None:
+            input_data = {}
+        # only overwrite payload's values if the ``input_data`` value is not None
         # to avoid overwriting of the form's default values
-        payload = self._default_form_values.copy()
-        for k, v in input.items():
+        payload = self.__default_form_values.copy()
+        for k, v in input_data.items():
             if v is not None:
                 payload[k] = v
         url = self._form_action_url
