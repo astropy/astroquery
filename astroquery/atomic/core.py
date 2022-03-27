@@ -179,7 +179,7 @@ class AtomicLineListClass(BaseQuery):
         response : `requests.Response`
             The HTTP response returned from the service.
         """
-        default_values = self._default_form_values
+        default_values = self.__default_form_values
         wltype = (wavelength_type or default_values.get('air', '')).lower()
         if wltype in ('air', 'vacuum'):
             air = wltype.capitalize()
@@ -197,8 +197,8 @@ class AtomicLineListClass(BaseQuery):
             raise ValueError('Invalid parameter "transitions": {0!r}'
                              .format(transitions))
         if transitions is None:
-            _type = self._default_form_values.get('type')
-            type2 = self._default_form_values.get('type2')
+            _type = default_values.get('type')
+            type2 = default_values.get('type2')
         else:
             s = str(transitions)
             if len(s.split(',')) > 1:
