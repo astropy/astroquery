@@ -41,10 +41,20 @@ class TemplateClass(BaseQuery):
     cases, new methods may be added if necessary, follow the guidelines at
     <http://astroquery.readthedocs.io/en/latest/api.html>
     """
-    # use the Configuration Items imported from __init__.py to set the URL,
-    # TIMEOUT, etc.
-    URL = conf.server
-    TIMEOUT = conf.timeout
+
+    # The private properties defined here allow the users to change the
+    # configuration values at runtime, or to completely override them with
+    # instance attributes.
+    URL = ''          # A falsy default that cannot be mistaken for a valid value.
+    TIMEOUT = None    # Use `None` if the falsy value could be valid.
+
+    @property
+    def _url(self):
+        return self.URL or conf.server
+
+    @property
+    def _timeout(self):
+        return conf.timeout if self.TIMEOUT is None else self.TIMEOUT
 
     # all query methods are implemented with an "async" method that handles
     # making the actual HTTP request and returns the raw HTTP response, which
@@ -124,8 +134,8 @@ class TemplateClass(BaseQuery):
             return request_payload
         # BaseQuery classes come with a _request method that includes a
         # built-in caching system
-        response = self._request('GET', self.URL, params=request_payload,
-                                 timeout=self.TIMEOUT, cache=cache)
+        response = self._request('GET', self._url, params=request_payload,
+                                 timeout=self._timeout, cache=cache)
         return response
 
     # For services that can query coordinates, use the query_region method.
@@ -169,8 +179,8 @@ class TemplateClass(BaseQuery):
                                                 width)
         if get_query_payload:
             return request_payload
-        response = self._request('GET', self.URL, params=request_payload,
-                                 timeout=self.TIMEOUT, cache=cache)
+        response = self._request('GET', self._url, params=request_payload,
+                                 timeout=self._timeout, cache=cache)
         return response
 
     # as we mentioned earlier use various python regular expressions, etc
@@ -294,9 +304,9 @@ class TemplateClass(BaseQuery):
         request_payload = self._args_to_payload(coordinates, radius)
         if get_query_payload:
             return request_payload
-        response = self._request(method="GET", url=self.URL,
+        response = self._request(method="GET", url=self._url,
                                  data=request_payload,
-                                 timeout=self.TIMEOUT, cache=cache)
+                                 timeout=self._timeout, cache=cache)
 
         return self.extract_image_urls(response.text)
 
