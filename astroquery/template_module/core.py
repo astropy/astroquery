@@ -45,16 +45,16 @@ class TemplateClass(BaseQuery):
     # The private properties defined here allow the users to change the
     # configuration values at runtime, or to completely override them with
     # instance attributes.
-    URL = ''          # A falsy default that cannot be mistaken for a valid value.
-    TIMEOUT = None    # Use `None` if the falsy value could be valid.
+    url = ''          # A falsy default that cannot be mistaken for a valid value.
+    timeout = None    # Use `None` if the falsy value could be valid.
 
     @property
     def _url(self):
-        return self.URL or conf.server
+        return self.url or conf.url
 
     @property
     def _timeout(self):
-        return conf.timeout if self.TIMEOUT is None else self.TIMEOUT
+        return conf.timeout if self.timeout is None else self.timeout
 
     # all query methods are implemented with an "async" method that handles
     # making the actual HTTP request and returns the raw HTTP response, which
