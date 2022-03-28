@@ -36,17 +36,16 @@ __all__ = ['Template', 'TemplateClass']
 @async_to_sync
 class TemplateClass(BaseQuery):
 
-    """
-    Not all the methods below are necessary but these cover most of the common
-    cases, new methods may be added if necessary, follow the guidelines at
-    <http://astroquery.readthedocs.io/en/latest/api.html>
-    """
+    # `__init__()` allows the user to conveniently set the instance attributes
+    # to override the configuration items. The default attribute values should
+    # be falsy (`x` is called falsy if `bool(x)` is `False`) or `None`.
+    def __init__(self, url='', timeout=None):
+        self.url = url          # A falsy default that cannot be mistaken for a valid value.
+        self.timeout = timeout  # Use `None` as default if the falsy value could be valid.
 
     # The private properties defined here allow the users to change the
-    # configuration values at runtime, or to completely override them with
-    # instance attributes.
-    url = ''          # A falsy default that cannot be mistaken for a valid value.
-    timeout = None    # Use `None` if the falsy value could be valid.
+    # configuration values at runtime if the corresponding instance attributes
+    # have default values.
 
     @property
     def _url(self):
@@ -55,6 +54,12 @@ class TemplateClass(BaseQuery):
     @property
     def _timeout(self):
         return conf.timeout if self.timeout is None else self.timeout
+
+    """
+    Not all the methods below are necessary but these cover most of the common
+    cases, new methods may be added if necessary, follow the guidelines at
+    <http://astroquery.readthedocs.io/en/latest/api.html>
+    """
 
     # all query methods are implemented with an "async" method that handles
     # making the actual HTTP request and returns the raw HTTP response, which
@@ -332,7 +337,7 @@ class TemplateClass(BaseQuery):
         pass
 
 
-# the default tool for users to interact with is an instance of the Class
+# the default tool for users to interact with is a default instance of the Class
 Template = TemplateClass()
 
 # once your class is done, tests should be written
