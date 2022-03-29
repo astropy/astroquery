@@ -27,7 +27,7 @@ class AtomicLineListClass(BaseQuery):
 
     def __init__(self):
         super(AtomicLineListClass, self).__init__()
-        self.__default_form_values = self._default_form_values()
+        self.__default_form_values = None
 
     def query_object(self, *, wavelength_range=None, wavelength_type=None, wavelength_accuracy=None, element_spectrum=None,
                      minimal_abundance=None, depl_factor=None, lower_level_energy_range=None,
@@ -179,7 +179,7 @@ class AtomicLineListClass(BaseQuery):
         response : `requests.Response`
             The HTTP response returned from the service.
         """
-        default_values = self.__default_form_values
+        default_values = self._default_form_values()
         wltype = (wavelength_type or default_values.get('air', '')).lower()
         if wltype in ('air', 'vacuum'):
             air = wltype.capitalize()
@@ -290,7 +290,7 @@ class AtomicLineListClass(BaseQuery):
             input_data = {}
         # only overwrite payload's values if the ``input_data`` value is not None
         # to avoid overwriting of the form's default values
-        payload = self.__default_form_values.copy()
+        payload = self._default_form_values().copy()
         for k, v in input_data.items():
             if v is not None:
                 payload[k] = v
@@ -302,14 +302,17 @@ class AtomicLineListClass(BaseQuery):
         return response
 
     def _default_form_values(self):
-        response = self._request("GET", url=self.FORM_URL, params={},
-                                 timeout=self.TIMEOUT, cache=False)
-        bs = BeautifulSoup(response.text, features='html5lib')
-        form = bs.find('form')
-        default_form_values = self._get_default_form_values(form)
-        self._form_action_url = urlparse.urljoin(self.FORM_URL, form.get('action'))
-
-        return default_form_values
+        if self.__default_form_values is None:
+            response = self._request("GET", url=self.FORM_URL, params={},
+                                     timeout=self.TIMEOUT, cache=False)
+            bs = BeautifulSoup(response.text, features='html5lib')
+            form = bs.find('form')
+            default_form_values = self._get_default_form_values(form)
+            self._form_action_url = urlparse.urljoin(self.FORM_URL, form.get('action'))
+            self.__default_form_values = default_form_values
+        else:
+            raise ValueError(self.__default_form_values)
+        return self.__default_form_values
 
     def _get_default_form_values(self, form):
         """Return the already selected values of a given form (a BeautifulSoup
