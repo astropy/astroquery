@@ -1,8 +1,11 @@
+from asyncio.log import logger
 import os
+import json
 import glob
 import hashlib
 import requests
 import pytest
+from difflib import Differ, SequenceMatcher
 from ... import log
 
 """
@@ -31,7 +34,7 @@ def data_path(filename, output=False):
     else:
         data_dir = os.path.join(os.path.dirname(__file__), "data")
 
-    return os.path.join(data_dir, filename + ".dat")
+    return os.path.join(data_dir, filename + ".json")
 
 
 def fileid_for_request(url, params):
@@ -43,20 +46,61 @@ def filename_for_request(url, params, output=False):
     return data_path(fileid, output=output)
 
 
+def request_dict_to_string_list(request_dict):
+    return json.dumps(request_dict, sort_keys=True, indent=4).split("\n")
+
+
 def get_mockreturn(session, method, url, params=None, timeout=10, **kwargs):
 
     filename = filename_for_request(url, params)
     try:
-        content = open(filename, "rt").read()
+        with open(filename, "rt") as f:
+            content = json.load(f)['response_text']    
+    except (json.decoder.JSONDecodeError, IndexError) as e:
+        log.error(
+            f'stored mock data in {filename} for url="{url}" and params="{params}"',
+            f'causes IndexError: {e}. You might need to regenerate it.'
+        )
+        raise
     except FileNotFoundError:
         log.error(
             f'no stored mock data in {filename} for url="{url}" and params="{params}", '
             f'perhaps you need to clean test data and regenerate it? '
             f'It will be regenerated automatically if cleaned, try `rm -fv astroquery/heasarc/tests/data/* ./build`'
         )
+
+        unavailable_request = request_to_dict(url, params)
+
+        log.error('overall, have %s mock data entries', len(list_mock_data()))
+
+        
+                
+        available_requests = []
+        for available_mock_data in list_mock_data():
+            with open(available_mock_data) as f:
+                available_request = json.load(f)['request']
+                a = request_dict_to_string_list(available_request)
+                ua = request_dict_to_string_list(unavailable_request)
+                try:
+                    available_requests.append([
+                        SequenceMatcher(a=a, b=ua).ratio(),
+                        Differ().compare(a=a, b=ua),
+                    ])
+                except json.decoder.JSONDecodeError as e:
+                    log.warning('undecodable mock result in %s', available_mock_data)
+                    continue
+                
+        for ratio, differ in sorted(available_requests):
+            log.error('available: %s %s', ratio, "\n".join(differ))
+            
+
         raise
 
     return MockResponse(content)
+
+
+def request_to_dict(url: str, params: dict):
+    return {"url": url, "params": params}
 
 
 def save_response_of_get(session, method, url, params=None, timeout=10, **kwargs):
@@ -73,7 +117,10 @@ def save_response_of_get(session, method, url, params=None, timeout=10, **kwargs
             f"you may want to run `cp -fv {os.path.dirname(filename)}/* astroquery/heasarc/tests/data/; rm -rfv build`"
             "`git add astroquery/heasarc/tests/data/*`."
         )
-        f.write(text)
+        json.dump({
+            "request": request_to_dict(url, params),
+            "response_text": text,
+        }, f)
 
     return MockResponse(text)
 
@@ -103,8 +150,12 @@ def patch_get(request):
     return mp
 
 
+def list_mock_data():
+    return glob.glob(data_path("*"))
+    
+
 def have_mock_data():
-    return len(glob.glob(data_path("*"))) > 0
+    return len(list_mock_data()) > 0
 
 
 parametrization_local_save_remote = pytest.mark.parametrize(
