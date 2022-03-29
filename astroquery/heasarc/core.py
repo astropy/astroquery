@@ -3,7 +3,7 @@
 from typing import Union
 import warnings
 from io import StringIO, BytesIO
-from astropy.table import Table
+from astropy.table import QTable, Table
 from astropy.io import fits
 from astropy import coordinates
 from astropy import units as u
@@ -16,11 +16,17 @@ from . import conf
 __all__ = ['Heasarc', 'HeasarcClass']
 
 
+UNIT_MAPPER = {'DEGREE': u.deg,
+               'CT': u.count,
+               'ERG': u.erg,
+               'ARCSEC': u.arcsec}
+
+
 def Table_read(*args, **kwargs):
     if commons.ASTROPY_LT_5_1:
-        return Table.read(*args, **kwargs)
+        return QTable.read(*args, **kwargs)
     else:
-        return Table.read(*args, **kwargs, unit_parse_strict='silent')
+        return QTable.read(*args, **kwargs, unit_parse_strict='silent')
 
 
 @async_to_sync
@@ -250,11 +256,12 @@ class HeasarcClass(BaseQuery):
 
         try:
             data = BytesIO(response.content)
-            return Table_read(data, hdu=1)
+            with u.add_enabled_aliases(UNIT_MAPPER):
+                return Table_read(data, hdu=1)
         except ValueError:
             try:
                 return self._fallback(response.text)
-            except Exception as e:
+            except Exception:
                 return self._old_w3query_fallback(response.content)
 
     def _args_to_payload(self, **kwargs):
