@@ -1,13 +1,12 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
-
-@author: Jesus Salgado
-@contact: jesusjuansalgado@gmail.com
+=====================
+ISO Astroquery Module
+=====================
 
 European Space Astronomy Centre (ESAC)
 European Space Agency (ESA)
 
-Created on 15 July 2020
 """
 
 import pytest
@@ -61,7 +60,7 @@ class TestISO():
     @pytest.mark.remote_data
     def test_download_data(self):
         parameters = {'tdt': "40001501",
-                      'level': "DEFAULT_DATA_SET",
+                      'product_level': "DEFAULT_DATA_SET",
                       'retrieval_type': "OBSERVATION",
                       'filename': "file",
                       'verbose': False}
