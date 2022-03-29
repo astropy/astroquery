@@ -1,5 +1,3 @@
-.. doctest-skip-all
-
 .. _astroquery.ogle:
 
 ********************************
@@ -15,7 +13,7 @@ on the interstellar extinction towards the Galactic Bulge. The
 an `~astropy.table.Table` instance with the same data. To run a single query
 using an `astropy.coordinates` instance use:
 
-.. code-block:: python
+.. doctest-remote-data::
 
     >>> from astropy import coordinates
     >>> from astropy import units as u
@@ -29,14 +27,14 @@ passing a list-like object of string/float values or a list-like object of
 `astropy.coordinates` instances. All of coordinates will be internally converted
 to FK5.
 
-.. code-block:: python
+.. doctest-remote-data::
 
     >>> # list of coordinate instances
     >>> co_list = [co, co, co]
     >>> t1 = Ogle.query_region(coord=co_list)
     >>> # (2 x N) list of values
     >>> co_list_values = [[0, 0, 0], [3, 3, 3]]
-    >>> t2 = Ogle.query_region(coord=co_list_values, coord_sys='LB')
+    >>> t2 = Ogle.query_region(coord=co_list_values, coord_sys='LB')  # doctest: +IGNORE_WARNINGS
 
 Note that non-Astropy coordinates may not be supported in a future version.
 

@@ -5,6 +5,8 @@ import copy
 import io
 import re
 import warnings
+import requests
+import json
 
 # Import various astropy modules
 import astropy.coordinates as coord
@@ -105,6 +107,8 @@ def get_access_url(service='tap'):
         url = conf.url_tap
     elif service == 'api':
         url = conf.url_api
+    elif service == 'aliaslookup':
+        url = conf.url_aliaslookup
     return url
 
 
@@ -138,7 +142,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
     """
 
     # When module us imported, __init__.py runs and loads a configuration object,
-    # setting the configuration parameters con.url, conf.timeout and conf.cache
+    # setting the configuration parameters conf.url, conf.timeout and conf.cache
     URL_API = conf.url_api
     URL_TAP = conf.url_tap
     TIMEOUT = conf.timeout
@@ -377,7 +381,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
         Parameters
         ----------
         object_name : str
-            The name of a planet or star to regularize using the ``aliastable`` table.
+            The name of a planet or star to regularize using the ``aliaslookup`` service.
         cache : bool, optional
             Should the request result be cached? This can be useful for large repeated queries,
             but since the data in the archive is updated regularly, this defaults to ``False``.
@@ -387,23 +391,46 @@ class NasaExoplanetArchiveClass(BaseQuery):
         response : list
             A list of aliases found for the object name. The default name will be listed first.
         """
-        return list(
-            self.query_criteria(
-                "aliastable", objname=object_name.strip(), cache=cache, format="csv"
-            )["aliasdis"]
-        )
+        data = self._request_query_aliases(object_name)
+
+        try:
+            objname_split = object_name.split()
+            if len(objname_split) > 1 and len(objname_split[-1]) == 1 and objname_split[-1].isalpha():
+                pl_letter = object_name.split()[-1]
+            else:
+                pl_letter = ''
+
+            default_objname = [data['system']['system_info']['alias_set']['default_name']]
+            other_objnames = list(set(data['system']['objects']['stellar_set']['stars'][default_objname[0]]['alias_set']['aliases']) - set(default_objname))
+            other_objnames.sort()
+            aliases = default_objname + other_objnames
+
+            if pl_letter:
+                aliases = [a + ' ' + pl_letter for a in aliases]
+
+        except KeyError:
+            aliases = []
+            warnings.warn("No aliases found for name: '{0}'".format(object_name), NoResultsWarning)
+
+        return aliases
 
     @class_or_instance
     def _regularize_object_name(self, object_name):
-        """Regularize the name of a planet or planet host using the ``aliastable`` table"""
+        """Regularize the name of a planet or planet host using the ``aliaslookup`` service"""
         try:
             aliases = self.query_aliases(object_name, cache=False)
-        except RemoteServiceError:
+        except KeyError:
             aliases = []
         if aliases:
             return aliases[0]
         warnings.warn("No aliases found for name: '{0}'".format(object_name), NoResultsWarning)
         return object_name
+
+    def _request_query_aliases(self, object_name):
+        """Service request for query_aliases()"""
+        url = requests.get(get_access_url('aliaslookup')+object_name)
+        response = json.loads(url.text)
+        return response
 
     # Look for response errors. This might need to be updated for TAP
     def _handle_error(self, text):
@@ -653,7 +680,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
     @deprecated(since="v0.4.1", alternative="query_object")
     @deprecated_renamed_argument(["show_progress", "table_path"],
                                  [None, None], "v0.4.1", arg_in_kwargs=True)
-    def query_planet(self, planet_name, cache=None, regularize=True, **criteria):
+    def query_planet(self, planet_name, cache=None, **criteria):
         """
         Search the ``exoplanets`` table for a confirmed planet
 
@@ -665,14 +692,10 @@ class NasaExoplanetArchiveClass(BaseQuery):
         cache : bool, optional
             Should the request result be cached? This can be useful for large repeated queries,
             but since the data in the archive is updated regularly, this defaults to ``False``.
-        regularize : bool, optional
-            If ``True``, the ``aliastable`` will be used to regularize the target name.
         **criteria
             Any other filtering criteria to apply. Values provided using the ``where`` keyword will
             be ignored.
         """
-        if regularize:
-            planet_name = self._regularize_object_name(planet_name)
         criteria = self._handle_all_columns_argument(**criteria)
         criteria["where"] = "pl_name='{0}'".format(planet_name.strip())
         return self.query_criteria("exoplanets", cache=cache, **criteria)
@@ -680,7 +703,7 @@ class NasaExoplanetArchiveClass(BaseQuery):
     @deprecated(since="v0.4.1", alternative="query_object")
     @deprecated_renamed_argument(["show_progress", "table_path"],
                                  [None, None], "v0.4.1", arg_in_kwargs=True)
-    def query_star(self, host_name, cache=None, regularize=True, **criteria):
+    def query_star(self, host_name, cache=None, **criteria):
         """
         Search the ``exoplanets`` table for a confirmed planet host
 
@@ -692,14 +715,10 @@ class NasaExoplanetArchiveClass(BaseQuery):
         cache : bool, optional
             Should the request result be cached? This can be useful for large repeated queries,
             but since the data in the archive is updated regularly, this defaults to ``False``.
-        regularize : bool, optional
-            If ``True``, the ``aliastable`` will be used to regularize the target name.
         **criteria
             Any other filtering criteria to apply. Values provided using the ``where`` keyword will
             be ignored.
         """
-        if regularize:
-            host_name = self._regularize_object_name(host_name)
         criteria = self._handle_all_columns_argument(**criteria)
         criteria["where"] = "pl_hostname='{0}'".format(host_name.strip())
         return self.query_criteria("exoplanets", cache=cache, **criteria)

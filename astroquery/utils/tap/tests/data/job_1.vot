@@ -1,14 +1,14 @@
 <VOTABLE version="1.3" xmlns="http://www.ivoa.net/xml/VOTable/v1.3">
 <RESOURCE type="results">
 <INFO name="QUERY_STATUS" value="OK"/>
-<INFO name="ADQL_QUERY" value="select * from user_jsegovia.table1" />
+<INFO name="ADQL_QUERY" value="select * from user_test.table_test_update" />
 <INFO name="CAPTION" value="If you use public Gaia DR1 data in your paper, please take note of our guide on how to acknowledge and cite Gaia DR1: http://gaia.esac.esa.int/documentation/GDR1/Miscellaneous/sec_credit_and_citation_instructions.html" />
 <TABLE>
-<FIELD datatype="double" name="alpha">
-<DESCRIPTION>alpha</DESCRIPTION>
+<FIELD datatype="double" name="ra">
+<DESCRIPTION>ra</DESCRIPTION>
 </FIELD>
-<FIELD datatype="double" name="delta">
-<DESCRIPTION>delta</DESCRIPTION>
+<FIELD datatype="double" name="dec">
+<DESCRIPTION>dec</DESCRIPTION>
 </FIELD>
 <FIELD arraysize="*" datatype="char" name="source_id">
 <DESCRIPTION>source_id</DESCRIPTION>

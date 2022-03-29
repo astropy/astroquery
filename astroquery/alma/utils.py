@@ -10,12 +10,18 @@ from astropy import wcs
 from astroquery import log
 from astropy import units as u
 from astropy.io import fits
+from astropy.utils import deprecated
+
 from astroquery.utils.commons import ASTROPY_LT_4_1
 
 from astroquery.skyview import SkyView
 from astroquery.alma import Alma
 
 
+__all__ = ['parse_frequency_support', 'footprint_to_reg', 'approximate_primary_beam_sizes']
+
+
+@deprecated('0.4.6', 'this function has been deprecated and will be removed in the next release.')
 def pyregion_subset(region, data, mywcs):
     """
     Return a subset of an image (``data``) given a region.
@@ -153,6 +159,7 @@ def footprint_to_reg(footprint):
     return reglist
 
 
+@deprecated('0.4.6', 'this function has been deprecated and will be removed in the next release.')
 def add_meta_to_reg(reg, meta):
     reg.meta = meta
     return reg
@@ -181,6 +188,7 @@ def approximate_primary_beam_sizes(frequency_support_str,
     return u.Quantity(beam_sizes)
 
 
+@deprecated('0.4.6', 'this function has been deprecated and will be removed in the next release.')
 def make_finder_chart(target, radius, save_prefix, service=SkyView.get_images,
                       service_kwargs={'survey': ['2MASS-K'], 'pixels': 500},
                       alma_kwargs={'public': False, 'science': False},
@@ -229,6 +237,7 @@ def make_finder_chart(target, radius, save_prefix, service=SkyView.get_images,
                                         **kwargs)
 
 
+@deprecated('0.4.6', 'this function has been deprecated and will be removed in the next release.')
 def make_finder_chart_from_image(image, target, radius, save_prefix,
                                  alma_kwargs={'public': False,
                                               'science': False,
@@ -273,6 +282,7 @@ def make_finder_chart_from_image(image, target, radius, save_prefix,
                                                     **kwargs)
 
 
+@deprecated('0.4.6', 'this function has been deprecated and will be removed in the next release.')
 def make_finder_chart_from_image_and_catalog(image, catalog, save_prefix,
                                              alma_kwargs={'public': False,
                                                           'science': False},

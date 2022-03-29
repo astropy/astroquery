@@ -42,14 +42,15 @@ class CatalogsClass(MastQueryWithLogin):
 
         services = {"panstarrs": {"path": "panstarrs/{data_release}/{table}.json",
                                   "args": {"data_release": "dr2", "table": "mean"}}}
+
         self._service_api_connection.set_service_params(services, "catalogs", True)
 
         self.catalog_limit = None
         self._current_connection = None
 
-    def _parse_result(self, response, verbose=False):
+    def _parse_result(self, response, *, verbose=False):
 
-        results_table = self._current_connection._parse_result(response, verbose)
+        results_table = self._current_connection._parse_result(response, verbose=verbose)
 
         if len(results_table) == self.catalog_limit:
             warnings.warn("Maximum catalog results returned, may not include all sources within radius.",
@@ -58,7 +59,7 @@ class CatalogsClass(MastQueryWithLogin):
         return results_table
 
     @class_or_instance
-    def query_region_async(self, coordinates, radius=0.2*u.deg, catalog="Hsc",
+    def query_region_async(self, coordinates, *, radius=0.2*u.deg, catalog="Hsc",
                            version=None, pagesize=None, page=None, **kwargs):
         """
         Given a sky position and radius, returns a list of catalog entries.
@@ -141,9 +142,16 @@ class CatalogsClass(MastQueryWithLogin):
                 if version == 1:
                     service = "Mast.Catalogs.GaiaDR1.Cone"
                 else:
-                    if version not in (2, None):
+                    if version not in (None, 2):
                         warnings.warn("Invalid Gaia version number, defaulting to DR2.", InputWarning)
                     service = "Mast.Catalogs.GaiaDR2.Cone"
+
+            elif catalog.lower() == 'plato':
+                if version in (None, 1):
+                    service = "Mast.Catalogs.Plato.Cone"
+                else:
+                    warnings.warn("Invalid PLATO catalog version number, defaulting to DR1.", InputWarning)
+                    service = "Mast.Catalogs.Plato.Cone"
 
             else:
                 service = "Mast.Catalogs." + catalog + ".Cone"
@@ -153,10 +161,10 @@ class CatalogsClass(MastQueryWithLogin):
         for prop, value in kwargs.items():
             params[prop] = value
 
-        return self._current_connection.service_request_async(service, params, pagesize, page)
+        return self._current_connection.service_request_async(service, params, pagesize=pagesize, page=page)
 
     @class_or_instance
-    def query_object_async(self, objectname, radius=0.2*u.deg, catalog="Hsc",
+    def query_object_async(self, objectname, *, radius=0.2*u.deg, catalog="Hsc",
                            pagesize=None, page=None, version=None, **kwargs):
         """
         Given an object name, returns a list of catalog entries.
@@ -196,11 +204,16 @@ class CatalogsClass(MastQueryWithLogin):
 
         coordinates = utils.resolve_object(objectname)
 
-        return self.query_region_async(coordinates, radius, catalog,
-                                       version=version, pagesize=pagesize, page=page, **kwargs)
+        return self.query_region_async(coordinates,
+                                       radius=radius,
+                                       catalog=catalog,
+                                       version=version,
+                                       pagesize=pagesize,
+                                       page=page,
+                                       **kwargs)
 
     @class_or_instance
-    def query_criteria_async(self, catalog, pagesize=None, page=None, **criteria):
+    def query_criteria_async(self, catalog, *, pagesize=None, page=None, **criteria):
         """
         Given an set of filters, returns a list of catalog entries.
         See column documentation for specific catalogs `here <https://mast.stsci.edu/api/v0/pages.htmll>`__.
@@ -302,7 +315,7 @@ class CatalogsClass(MastQueryWithLogin):
         return self._current_connection.service_request_async(service, params, pagesize=pagesize, page=page)
 
     @class_or_instance
-    def query_hsc_matchid_async(self, match, version=3, pagesize=None, page=None):
+    def query_hsc_matchid_async(self, match, *, version=3, pagesize=None, page=None):
         """
         Returns all the matches for a given Hubble Source Catalog MatchID.
 
@@ -339,10 +352,10 @@ class CatalogsClass(MastQueryWithLogin):
 
         params = {"input": match}
 
-        return self._current_connection.service_request_async(service, params, pagesize, page)
+        return self._current_connection.service_request_async(service, params, pagesize=pagesize, page=page)
 
     @class_or_instance
-    def get_hsc_spectra_async(self, pagesize=None, page=None):
+    def get_hsc_spectra_async(self, *, pagesize=None, page=None):
         """
         Returns all Hubble Source Catalog spectra.
 
@@ -367,7 +380,7 @@ class CatalogsClass(MastQueryWithLogin):
 
         return self._current_connection.service_request_async(service, params, pagesize, page)
 
-    def download_hsc_spectra(self, spectra, download_dir=None, cache=True, curl_flag=False):
+    def download_hsc_spectra(self, spectra, *, download_dir=None, cache=True, curl_flag=False):
         """
         Download one or more Hubble Source Catalog spectra.
 

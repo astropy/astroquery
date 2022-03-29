@@ -13,8 +13,8 @@ Getting started
 ===============
 
 This module supports fetching the table of observation summaries from
-the `NOIRLab data archive <https://astroarchive.noao.edu/>`_. The `Rest API
-documentation <https://astroarchive.noao.edu/api/docs/>`_ is the most
+the `NOIRLab data archive <https://astroarchive.noirlab.edu/>`_. The `Rest API
+documentation <https://astroarchive.noirlab.edu/api/docs/>`_ is the most
 up-to-date info on the web-services used by this module.
 The archive is hosted at
 `NOIR-CSDC <https://nationalastro.org/programs/csdc/>`_.
