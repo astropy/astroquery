@@ -310,8 +310,7 @@ class AtomicLineListClass(BaseQuery):
             default_form_values = self._get_default_form_values(form)
             self._form_action_url = urlparse.urljoin(self.FORM_URL, form.get('action'))
             self.__default_form_values = default_form_values
-        else:
-            raise ValueError(self.__default_form_values)
+
         return self.__default_form_values
 
     def _get_default_form_values(self, form):
