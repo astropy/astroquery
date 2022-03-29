@@ -170,7 +170,7 @@ radius argument.
   INFO: Query finished. [astroquery.utils.tap.core]
   >>> r = j.get_results()
   >>> r.pprint()
-      solution_id             designation          ...          dist
+      solution_id             DESIGNATION          ...          dist
                                                    ...
   ------------------- ---------------------------- ... ---------------------
   1635721458409799680 Gaia DR2 6636090334814214528 ... 0.0026034636994048854
@@ -184,7 +184,6 @@ radius argument.
   1635721458409799680 Gaia DR2 6636089583198817664 ...  0.008338509690874027
   1635721458409799680 Gaia DR2 6636089578899968384 ...  0.008406677772258921
                   ...                          ... ...                   ...
-
   1635721458409799680 Gaia DR2 6636089510180765312 ...   0.01943176697471851
   1635721458409799680 Gaia DR2 6636066871411763712 ...  0.019464719601172412
   1635721458409799680 Gaia DR2 6636089514475519232 ...  0.019467068628703368
@@ -418,8 +417,8 @@ Query without saving results in a file:
   INFO: Query finished. [astroquery.utils.tap.core]
   >>> r = job.get_results()
   >>> print(r)
-     designation               ra                 dec
-                              deg                 deg
+       DESIGNATION               ra                 dec
+                                deg                 deg
   ---------------------- ------------------ --------------------
      Gaia DR2 4295806720 44.996153684159594 0.005615806210679649
     Gaia DR2 34361129088 45.004316164207644 0.021045032689712983
