@@ -11,7 +11,7 @@ def test_query_remote():
     tbl = Hitran.query_lines(molecule_number=1, isotopologue_number=1,
                              min_frequency=0. / u.cm, max_frequency=10. / u.cm)
     assert isinstance(tbl, Table)
-    assert len(tbl) == 122
+    assert len(tbl) == 29
     assert set(tbl.keys()) == set(['molec_id', 'local_iso_id', 'nu', 'sw', 'a',
                                    'gamma_air', 'gamma_self', 'elower',
                                    'n_air', 'delta_air', 'global_upper_quanta',
@@ -22,4 +22,4 @@ def test_query_remote():
                                    'line_mixing_flag', 'gp', 'gpp'])
     assert tbl['molec_id'][0] == 1
     assert tbl['local_iso_id'][0] == 1
-    np.testing.assert_almost_equal(tbl['nu'][0], 0.072059)
+    np.testing.assert_almost_equal(tbl['nu'][0], 0.072049)
