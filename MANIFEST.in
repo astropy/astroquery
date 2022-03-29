@@ -3,12 +3,12 @@ include README.rst
 include CHANGES.rst
 include CITATION
 include astroquery/CITATION
-include astroquery/splatalogue/data/*
 
 include ah_bootstrap.py
 include setup.py
 include setup.cfg
 include pyproject.toml
+include tox.ini
 
 recursive-include astroquery *.py
 recursive-include docs *
