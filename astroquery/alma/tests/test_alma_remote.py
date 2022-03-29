@@ -40,7 +40,7 @@ def alma(request):
     """
     alma = Alma()
     alma_site = request.config.getoption('--alma-site',
-                                         'almascience.org')
+                                         'almascience.eso.org')
     alma.archive_url = 'https://{}'.format(alma_site)
     return alma
 
