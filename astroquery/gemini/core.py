@@ -756,8 +756,15 @@ def _gemini_cal_html_to_table(html):
     if table_header is not None:
         header_in_body = False
         cols = dict()
+        idx = 0
         for th in table_header.find_all("th"):
-            print(th)
+            # Archive has a bug (no closing tag) that interferes with BeautifulSoup, chop at newline
+            val = th.text
+            if '\n' in val:
+                val = val[:val.find('\n')]
+            if val != 'Download':
+                cols[val] = idx
+            idx = idx+1
 
     table_body = table.find("tbody")
 
