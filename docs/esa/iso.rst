@@ -105,7 +105,7 @@ provided by this service, see section 'Getting Tables Details'.
   -rw-r--r-- idaops/0      14400 2005-12-23 12:02:55 ././ISO1601052542/EXTRAKON//psph80000203.fits 
   -rw-r--r-- idaops/0       5599 2005-12-23 12:02:55 ././ISO1601052542/EXTRAKON//ppch80000203.gif 
   -rw-r--r-- idaops/0     266240 2005-12-23 12:02:54 ././ISO1601052542/EXTRAKON//C10180000203.tar 
-  >>> tar.extract("././ISO1601052542/EXTRAKON//psph80000203.fits")
+  >>> tar.extract("././ISO1648561466/EXTRAKON//psph80000203.fits")
   >>> tar.extractall()
 
 'download_data' method invokes the data download of files from the ISO Data Archive, using the 
@@ -350,7 +350,7 @@ Images can be displayed by using the following code:
   >>> from matplotlib.colors import LogNorm
   >>> 
   >>> #We configure the plot to be interactive
-  >>> %matplotlib widget
+  >>> # matplotlib widget
   >>> plt.ion()
   >>> plt.imshow(image_data, cmap='Reds')
   >>> plt.colorbar()
@@ -422,7 +422,7 @@ And spectra can be displayed by using the following code:
   >>> lamb = specdata['WAVE']  * u.um
   >>> flux = specdata['FLUX']  * u.Unit('W cm-2 um-1')
   >>> spec = Spectrum1D(spectral_axis=lamb, flux=flux)
-  >>> %matplotlib widget
+  >>> # matplotlib widget
   >>> plt.ion()
   >>> f, ax = plt.subplots()  
   >>> ax.step(spec.spectral_axis, spec.flux) 
