@@ -88,7 +88,7 @@ class FirstClass(BaseQuery):
         if get_query_payload:
             return request_payload
         response = self._request("POST", url=self.URL, data=request_payload,
-                                 timeout=self.TIMEOUT, verify=False)
+                                 timeout=self.TIMEOUT)
         return response
 
 
