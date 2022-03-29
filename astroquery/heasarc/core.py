@@ -171,7 +171,7 @@ class HeasarcClass(BaseQuery):
         # Generate the request
         request_payload = self._args_to_payload(
             mission=mission,
-            entry="{:10f},{:.10f}".format(c.ra.degree, c.dec.degree),
+            entry=f"{c.ra.degree:.10f},{c.dec.degree:.10f}",
             radius=u.Quantity(radius),
             **kwargs
         )
