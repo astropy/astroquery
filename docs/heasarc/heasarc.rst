@@ -166,7 +166,7 @@ It is also possible to select time range:
 Getting list of available missions
 ----------------------------------
 
-The `~astroquery.heasarc.Heasarc.query_mission_list` method will return a list of available missions
+The `~astroquery.heasarc.HeasarcClass.query_mission_list` method will return a list of available missions
 that can be queried.
 
 .. doctest-remote-data::
