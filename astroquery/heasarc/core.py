@@ -169,9 +169,11 @@ class HeasarcClass(BaseQuery):
         kwargs['equinox'] = 2000
 
         # Generate the request
+        # Fixed string representation of coordinates ensures that request payload
+        # does not depend on python/astropy version for the same input coordinates
         request_payload = self._args_to_payload(
             mission=mission,
-            entry="{},{}".format(c.ra.degree, c.dec.degree),
+            entry=f"{c.ra.degree:.10f},{c.dec.degree:.10f}",
             radius=u.Quantity(radius),
             **kwargs
         )

@@ -1,3 +1,4 @@
+import json
 import os
 import glob
 import hashlib
@@ -40,7 +41,11 @@ def fileid_for_request(url, params):
 
 def filename_for_request(url, params, output=False):
     fileid = fileid_for_request(url, params)
-    return data_path(fileid, output=output)
+
+    filename = data_path(fileid, output=output)
+    log.debug(f'constructed filename {filename} for request: ' + json.dumps(dict(url=url, params=params), sort_keys=True, indent=4))
+
+    return filename
 
 
 def get_mockreturn(session, method, url, params=None, timeout=10, **kwargs):
