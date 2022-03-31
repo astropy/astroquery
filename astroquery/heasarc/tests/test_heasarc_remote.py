@@ -64,13 +64,15 @@ class TestHeasarc:
         mission = 'rosmaster'
         cols = heasarc.query_mission_cols(mission=mission)
 
-        assert len(cols) == 29
+        assert len(cols) >= 29
+
+        print(cols)
 
         # Test that the cols list contains known names
-        assert 'EXPOSURE' in cols
-        assert 'RA' in cols
-        assert 'DEC' in cols
-        assert 'SEARCH_OFFSET_' in cols
+        assert 'exposure' in cols
+        assert 'ra' in cols
+        assert 'dec' in cols
+        assert 'Search_Offset' in cols
 
     def test_query_object_async(self):
         mission = 'rosmaster'

@@ -328,7 +328,7 @@ Available tables:
 |FERMI           |fermilgrb   |Fermi LAT Second Gamma-Ray Burst Catalog                                        |
 |FERMI           |fermilhesc  |Fermi LAT High-Energy Source Catalog (1FHL)                                     |
 |FERMI           |fermille    |Fermi LAT Low-Energy Events Catalog                                             |
-|FERMI           |fermilpsc   |Fermi LAT 10-Year Point Source Catalog (4FGL-DR2)                               |
+|FERMI           |fermilpsc   |Fermi LAT 12-Year Point Source Catalog (4FGL-DR3)                               |
 |FERMI           |fermiltrns  |Fermi LAT Long-Term Transient Source Catalog                                    |
 |FERMI           |fermilweek  |Fermi LAT Weekly Data                                                           |
 |FERMI           |wisehspcat  |2WHSP Catalog of High Synchrotron Peaked Blazars and Candidates                 |
@@ -550,6 +550,7 @@ Available tables:
 |ISO             |elaisfbmc   |European Large-Area ISO Survey (ELAIS) Final Band-Merged Catalog                |
 |ISO             |isolog      |ISO (Infrared Space Observatory) Observation Log                                |
 |IUE             |iuelog      |IUE (International Ultraviolet Explorer) Final Merged Observation Log           |
+|IXPE            |ixmaster    |IXPE Master Catalog                                                             |
 |KVANT           |kvttmcomis  |Kvant TTM/COMIS X-Ray Source Catalog                                            |
 |LPF             |lpffiles    |LISA Pathfinder Archive Data Summary                                            |
 |MASTER CATALOG  |cmbmaster   |LAMBDA Cosmic Microwave Background Experiments Master Catalog                   |

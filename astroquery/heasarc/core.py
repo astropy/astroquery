@@ -252,7 +252,7 @@ class HeasarcClass(BaseQuery):
 
         try:
             data = BytesIO(response.content)
-            return Table_read(data, hdu=1)
+            return Table_read(data)
         except ValueError:
             try:
                 return self._fallback(response.text)
@@ -317,7 +317,7 @@ class HeasarcClass(BaseQuery):
                        .format(mission)),
             Entry=kwargs.pop('entry', 'none'),
             Action=kwargs.pop('action', 'Query'),
-            displaymode=kwargs.pop('displaymode', 'FitsDisplay'),
+            displaymode=kwargs.pop('displaymode', 'VODisplay'),
             resultsmax=kwargs.pop('resultsmax', '10')
         )
 

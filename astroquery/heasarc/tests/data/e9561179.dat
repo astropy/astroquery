@@ -1,0 +1,110 @@
+<?xml version="1.0"?>
+<!DOCTYPE VOTABLE SYSTEM "http://us-vo.org/xml/VOTable.dtd">
+<VOTABLE version="1.0">
+    
+  <RESOURCE ID="T9001">
+     <DESCRIPTION>
+       HEASARC Browse data service
+       Please send inquiries to mailto:request@athena.gsfc.nasa.gov
+    </DESCRIPTION>
+    <PARAM ID="default_search_radius" ucd="OBS_ANG-SIZE" value="10" ></PARAM>
+    <TABLE>
+      <DESCRIPTION> INTEGRAL Science Window Data </DESCRIPTION>
+      
+      <FIELD name="w3___row" datatype="int"  >
+        <DESCRIPTION>  </DESCRIPTION>
+      </FIELD>
+      
+      <FIELD name="scw_id" datatype="char" arraysize="*"  ucd="meta.id;meta.main">
+        <DESCRIPTION> Science Window Identifier </DESCRIPTION>
+      </FIELD>
+      
+      <FIELD name="scw_ver" datatype="char" arraysize="*"  ucd="meta.version">
+        <DESCRIPTION> Science Window Version </DESCRIPTION>
+      </FIELD>
+      
+      <FIELD name="scw_type" datatype="char" arraysize="*"  ucd="meta.code">
+        <DESCRIPTION> Science Window Type: pointing, slew, engineering </DESCRIPTION>
+      </FIELD>
+      
+      <FIELD name="status" datatype="char" arraysize="*"  >
+        <DESCRIPTION> Proprietary Status: private or public </DESCRIPTION>
+      </FIELD>
+      
+      <FIELD name="data_in_heasarc" datatype="char" arraysize="*"  ucd="meta.code;meta.dataset">
+        <DESCRIPTION> Flag Indicates Whether Dataset Is Available in HEASARC Archive [YN] </DESCRIPTION>
+      </FIELD>
+      
+      <FIELD name="ra" datatype="double" unit="degree" ucd="pos.eq.ra;meta.main">
+        <DESCRIPTION> Right Ascension of the Spacecraft x-Axis </DESCRIPTION>
+      </FIELD>
+      
+      <FIELD name="dec" datatype="double" unit="degree" ucd="pos.eq.dec;meta.main">
+        <DESCRIPTION> Declination of the Spacecraft x-Axis </DESCRIPTION>
+      </FIELD>
+      
+      <FIELD name="good_spi" datatype="int" unit="s" ucd="time.duration;obs.exposure">
+        <DESCRIPTION> Good SPI Time (s) </DESCRIPTION>
+      </FIELD>
+      
+      <FIELD name="good_isgri" datatype="int" unit="s" ucd="time.duration;obs.exposure">
+        <DESCRIPTION> Good ISGRI Time (s) </DESCRIPTION>
+      </FIELD>
+      
+      <FIELD name="good_picsit" datatype="int" unit="s" ucd="time.duration;obs.exposure">
+        <DESCRIPTION> Good PICSIT Time (s) </DESCRIPTION>
+      </FIELD>
+      
+      <FIELD name="good_jemx1" datatype="int" unit="s" ucd="time.duration;obs.exposure">
+        <DESCRIPTION> Good JEMX1 Time (s) </DESCRIPTION>
+      </FIELD>
+      
+      <FIELD name="good_jemx2" datatype="int" unit="s" ucd="time.duration;obs.exposure">
+        <DESCRIPTION> Good JEMX2 Time (s) </DESCRIPTION>
+      </FIELD>
+      
+      <FIELD name="good_omc" datatype="int" unit="s" ucd="time.duration;obs.exposure">
+        <DESCRIPTION> Good OMC Time (s) </DESCRIPTION>
+      </FIELD>
+      
+      <FIELD name="start_date" datatype="double" unit="mjd" ucd="time.start;obs">
+        <DESCRIPTION> Start Date of the Science Window </DESCRIPTION>
+      </FIELD>
+      
+      <FIELD name="end_date" datatype="double" unit="mjd" ucd="time.end;obs">
+        <DESCRIPTION> End Date of the Science Window </DESCRIPTION>
+      </FIELD>
+      
+      <FIELD name="obs_id" datatype="char" arraysize="*"  ucd="meta.id;obs">
+        <DESCRIPTION> Observation Identifier(s) </DESCRIPTION>
+      </FIELD>
+      
+      <FIELD name="obs_type" datatype="char" arraysize="*"  ucd="meta.code;obs">
+        <DESCRIPTION> Observation Type: GPS, GCDE, Core, General, Special, Calibration, TOO, etc. </DESCRIPTION>
+      </FIELD>
+      
+      <FIELD name="pi_name" datatype="char" arraysize="*"  ucd="meta.id.PI">
+        <DESCRIPTION> Name(s) of the Principal Investigator(s) </DESCRIPTION>
+      </FIELD>
+      
+      <FIELD name="data_size" datatype="double" unit="byte" >
+        <DESCRIPTION> Total Size of All Data Stored in Science Window Directory Tree (bytes) </DESCRIPTION>
+      </FIELD>
+      
+      <FIELD name="Search_Offset" datatype="double" unit="'" >
+        <DESCRIPTION> Offset of target/observation from query center </DESCRIPTION>
+      </FIELD>
+      <DATA>
+        <TABLEDATA>
+<TR><TD>282227</TD><TD>228000160010</TD><TD>001</TD><TD>pointing</TD><TD>public</TD><TD>Y</TD><TD>83.76971</TD><TD>22.02981</TD><TD>3539</TD><TD>3117</TD><TD>3509</TD><TD>3539</TD><TD>3539</TD><TD>3539</TD><TD>59121.9224768039</TD><TD>59121.9640740517</TD><TD>88603930001</TD><TD>Calibration</TD><TD>Public</TD><TD>169156608</TD><TD>7.653</TD></TR>
+<TR><TD>282194</TD><TD>228100180010</TD><TD>001</TD><TD>pointing</TD><TD>public</TD><TD>Y</TD><TD>83.77921</TD><TD>22.02342</TD><TD>3591</TD><TD>3150</TD><TD>3550</TD><TD>3591</TD><TD>3589</TD><TD>3568</TD><TD>59124.621448346</TD><TD>59124.6631034646</TD><TD>88603930002</TD><TD>Calibration</TD><TD>Public</TD><TD>170160128</TD><TD>8.144</TD></TR>
+<TR><TD>282265</TD><TD>228400320010</TD><TD>001</TD><TD>pointing</TD><TD>public</TD><TD>Y</TD><TD>83.78096</TD><TD>22.03517</TD><TD>3479</TD><TD>3073</TD><TD>3462</TD><TD>3479</TD><TD>3479</TD><TD>3479</TD><TD>59133.1240350252</TD><TD>59133.1649378378</TD><TD>88603930003</TD><TD>Calibration</TD><TD>Public</TD><TD>171876352</TD><TD>8.316</TD></TR>
+<TR><TD>282266</TD><TD>228400320020</TD><TD>001</TD><TD>pointing</TD><TD>public</TD><TD>Y</TD><TD>83.78096</TD><TD>22.03517</TD><TD>3516</TD><TD>3124</TD><TD>3499</TD><TD>3517</TD><TD>3516</TD><TD>3517</TD><TD>59133.1649378378</TD><TD>59133.2056438911</TD><TD>88603930003</TD><TD>Calibration</TD><TD>Public</TD><TD>171249664</TD><TD>8.316</TD></TR>
+<TR><TD>282267</TD><TD>228400320030</TD><TD>001</TD><TD>pointing</TD><TD>public</TD><TD>Y</TD><TD>83.78096</TD><TD>22.03517</TD><TD>4172</TD><TD>3857</TD><TD>4231</TD><TD>4190</TD><TD>4186</TD><TD>4269</TD><TD>59133.2056438911</TD><TD>59133.25506523</TD><TD>88603930003</TD><TD>Calibration</TD><TD>Public</TD><TD>206376960</TD><TD>8.316</TD></TR>
+<TR><TD>282181</TD><TD>228400180010</TD><TD>001</TD><TD>pointing</TD><TD>public</TD><TD>Y</TD><TD>83.78692</TD><TD>22.02178</TD><TD>3355</TD><TD>3104</TD><TD>3329</TD><TD>3355</TD><TD>3345</TD><TD>3355</TD><TD>59132.5807938628</TD><TD>59132.6203425016</TD><TD>88603930004</TD><TD>Calibration</TD><TD>Public</TD><TD>164859904</TD><TD>8.566</TD></TR>
+<TR><TD>284606</TD><TD>228400460010</TD><TD>001</TD><TD>pointing</TD><TD>public</TD><TD>Y</TD><TD>83.78246</TD><TD>22.94744</TD><TD>3176</TD><TD>3062</TD><TD>3150</TD><TD>3176</TD><TD>3176</TD><TD>3176</TD><TD>59133.7302276857</TD><TD>59133.7675656821</TD><TD>88603930005</TD><TD>Calibration</TD><TD>Public</TD><TD>154292224</TD><TD>56.586</TD></TR>
+        </TABLEDATA>
+      </DATA>
+    </TABLE>
+  </RESOURCE>
+</VOTABLE>
