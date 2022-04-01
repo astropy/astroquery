@@ -252,7 +252,7 @@ class HeasarcClass(BaseQuery):
 
         try:
             data = BytesIO(response.content)
-            return Table_read(data)
+            return Table.read(data)
         except ValueError:
             try:
                 return self._fallback(response.text)

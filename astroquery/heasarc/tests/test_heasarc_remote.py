@@ -4,6 +4,9 @@ from time import time
 import pytest
 import requests
 
+from astropy.coordinates import SkyCoord
+import astropy.units as u
+
 from ...heasarc import Heasarc
 from ...utils import commons
 
@@ -101,3 +104,20 @@ class TestHeasarc:
         table = heasarc.query_region(c, mission=mission, radius='1 degree')
 
         assert len(table) == 63
+
+    def test_strange_units(self):
+        coords = SkyCoord('150.01d 2.2d', frame='icrs')  #COSMOS center acording to Simbad
+        #first get an X-ray catalog from Heasarc
+        heasarc = Heasarc()
+        table = heasarc.query_mission_list()
+        mask = (table['Mission'] =="CHANDRA")
+        chandratable = table[mask]  
+
+
+        #want ccosmoscat
+        mission = 'ccosmoscat'
+        ccosmoscat_rad = 1 #radius of chandra cosmos catalog
+        ccosmoscat = heasarc.query_region(coords, mission=mission, radius='1 degree', resultmax = 5000, fields = "ALL")
+
+        #need to make the chandra catalog into a fits table 
+        ccosmoscat.write('COSMOS_chandra.fits', overwrite = "True")
