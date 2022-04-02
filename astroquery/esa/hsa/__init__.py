@@ -11,7 +11,7 @@ from astropy import config as _config
 
 class Conf(_config.ConfigNamespace):
     """
-    Configuration parameters for `astroquery.hsa`.
+    Configuration parameters for `astroquery.esa.hsa`.
     """
     DATA_ACTION = _config.ConfigItem("http://archives.esac.esa.int/hsa/whsa-tap-server/data?",
                                      "Main url for retrieving HSA Data Archive files")

@@ -144,7 +144,7 @@ This will show the column details of the table 'hsa.v_active_observation' in HSA
 7. Query Observations
 -------------------------------------
 
-.. code-block:: python
+.. doctest-skip::
 
   >>> from astroquery.esa.hsa import HSA
   >>> from astropy.coordinates import SkyCoord
@@ -154,7 +154,7 @@ This will show the column details of the table 'hsa.v_active_observation' in HSA
   >>> HSA.query_observations(c, 0.5)
   <Table length=5>
   observation_id
-      object    
+      object
   --------------
       1342219315
       1342205057
@@ -170,7 +170,7 @@ Retrieve a VOTable with the observation IDs of a given region
 
 First retrieve the observation IDs based on a position on the sky. To achive this, query the TAP service.
 
-.. code-block:: python
+.. doctest-skip::
 
   >>> from astroquery.esa.hsa import HSA
   >>>
@@ -196,7 +196,7 @@ For more information on how to use ADQL see:
 
 After obtaining the desire ID, download the product of the observation '1342205057' with the instrument 'PACS'.
 
-.. code-block:: python
+.. doctest-skip::
 
   >>> HSA.download_data(observation_id='1342205057', retrieval_type='OBSERVATION', instrument_name='PACS')
   Downloading URL http://archives.esac.esa.int/hsa/whsa-tap-server/data?&retrieval_type=OBSERVATION&observation_id=1342205057&instrument_name=PACS to 1342205057.tar ... [Done]
@@ -205,5 +205,5 @@ After obtaining the desire ID, download the product of the observation '13422050
 Reference/API
 =============
 
-.. automodapi:: astroquery.hsa
+.. automodapi:: astroquery.esa.hsa
     :no-inheritance-diagram:
