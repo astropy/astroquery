@@ -6,6 +6,8 @@ import re
 import shutil
 from pathlib import Path
 
+from astropy import units as u
+from ...utils import commons
 from astroquery import log
 from astroquery.exceptions import LoginError, InputWarning
 from astroquery.query import BaseQuery
@@ -29,13 +31,9 @@ class HSAClass(BaseQuery):
         else:
             self._tap = tap_handler
 
-    def download_data(self, *, retrieval_type=None,
-                      observation_id=None,
-                      instrument_name=None,
-                      filename=None,
-                      verbose=False,
-                      cache=True,
-                      **kwargs):
+    def download_data(self, *, retrieval_type="OBSERVATION", observation_id=None,
+                      instrument_name=None, filename=None, verbose=False,
+                      download_dir="", cache=True, **kwargs):
         """
         Download data from Herschel
 
@@ -64,6 +62,8 @@ class HSAClass(BaseQuery):
         product_level : string, optional
             level to download
             values: ALL, AUXILIARY, CALIBRATION, LEVEL0, LEVEL0_5, LEVEL1, LEVEL2, LEVEL2_5, LEVEL3, ALL-LEVEL3
+        download_dir : string, optional
+            The directory in which the file will be downloaded
 
         Returns
         -------
@@ -71,9 +71,6 @@ class HSAClass(BaseQuery):
         """
         if filename is not None:
             filename = os.path.splitext(filename)[0]
-
-        if retrieval_type is None:
-            retrieval_type = "OBSERVATION"
 
         params = {'retrieval_type': retrieval_type}
         if observation_id is not None:
@@ -85,11 +82,9 @@ class HSAClass(BaseQuery):
         if instrument_name is not None:
             params['instrument_name'] = instrument_name
 
-        link = self.data_url + "".join("&{0}={1}".format(key, val)
-                                       for key, val in params.items())
+        link = self.data_url + "".join("&{0}={1}".format(key, val) for key, val in params.items())
 
-        link += "".join("&{0}={1}".format(key, val)
-                        for key, val in kwargs.items())
+        link += "".join("&{0}={1}".format(key, val) for key, val in kwargs.items())
 
         if verbose:
             log.info(link)
@@ -107,7 +102,7 @@ class HSAClass(BaseQuery):
             if observation_id is not None:
                 filename = observation_id
             else:
-                error = "Please set a filename for the output"
+                error = "Please set either 'obervation_id' or 'filename' for the output"
                 raise ValueError(error)
 
         r_filename = params["filename"]
@@ -118,6 +113,8 @@ class HSAClass(BaseQuery):
         else:
             filename += "".join(suffixes)
 
+        filename = os.path.join(download_dir, filename)
+
         self._download_file(link, filename, head_safe=True, cache=cache)
 
         if verbose:
@@ -126,8 +123,7 @@ class HSAClass(BaseQuery):
         return filename
 
     def get_observation(self, observation_id, instrument_name, *, filename=None,
-                        verbose=False,
-                        cache=True, **kwargs):
+                        verbose=False, download_dir="", cache=True, **kwargs):
         """
         Download observation from Herschel.
         This consists of a .tar file containing:
@@ -141,11 +137,11 @@ class HSAClass(BaseQuery):
 
         Parameters
         ----------
-        observation_id : string, mandatory
+        observation_id : string
             id of the observation to be downloaded
             The identifies of the observation we want to retrieve, 10 digits
             example: 1342195355
-        instrument_name : string, mandatory
+        instrument_name : string
             The instrument name
             values: PACS, SPIRE, HIFI
         filename : string, optional, default None
@@ -161,6 +157,8 @@ class HSAClass(BaseQuery):
         product_level : string, optional
             level to download
             values: ALL, AUXILIARY, CALIBRATION, LEVEL0, LEVEL0_5, LEVEL1, LEVEL2, LEVEL2_5, LEVEL3, ALL-LEVEL3
+        download_dir : string, optional
+            The directory in which the file will be downloaded
 
         Returns
         -------
@@ -173,11 +171,9 @@ class HSAClass(BaseQuery):
                   'observation_id': observation_id,
                   'instrument_name': instrument_name}
 
-        link = self.data_url + "".join("&{0}={1}".format(key, val)
-                                       for key, val in params.items())
+        link = self.data_url + "".join("&{0}={1}".format(key, val) for key, val in params.items())
 
-        link += "".join("&{0}={1}".format(key, val)
-                        for key, val in kwargs.items())
+        link += "".join("&{0}={1}".format(key, val) for key, val in kwargs.items())
 
         if verbose:
             log.info(link)
@@ -199,6 +195,8 @@ class HSAClass(BaseQuery):
 
         filename += "".join(suffixes)
 
+        filename = os.path.join(download_dir, filename)
+
         self._download_file(link, filename, head_safe=True, cache=cache)
 
         if verbose:
@@ -207,18 +205,17 @@ class HSAClass(BaseQuery):
         return filename
 
     def get_postcard(self, observation_id, instrument_name, *, filename=None,
-                     verbose=False,
-                     cache=True, **kwargs):
+                     verbose=False, download_dir="", cache=True, **kwargs):
         """
         Download postcard from Herschel
 
         Parameters
         ----------
-        observation_id : string, mandatory
+        observation_id : string
             id of the observation to be downloaded
             The identifies of the observation we want to retrieve, 10 digits
             example: 1342195355
-        instrument_name : string, mandatory
+        instrument_name : string
             The instrument name
             values: PACS, SPIRE, HIFI
         filename : string, optional, default None
@@ -237,6 +234,8 @@ class HSAClass(BaseQuery):
         postcard_single : string, optional
             'true' to retrieve one single postcard (main one)
             values: true, false
+        download_dir : string, optional
+            The directory in which the file will be downloaded
 
         Returns
         -------
@@ -249,11 +248,9 @@ class HSAClass(BaseQuery):
                   'observation_id': observation_id,
                   'instrument_name': instrument_name}
 
-        link = self.data_url + "".join("&{0}={1}".format(key, val)
-                                       for key, val in params.items())
+        link = self.data_url + "".join("&{0}={1}".format(key, val) for key, val in params.items())
 
-        link += "".join("&{0}={1}".format(key, val)
-                        for key, val in kwargs.items())
+        link += "".join("&{0}={1}".format(key, val) for key, val in kwargs.items())
 
         if verbose:
             log.info(link)
@@ -270,6 +267,8 @@ class HSAClass(BaseQuery):
 
         filename += ext
 
+        filename = os.path.join(download_dir, filename)
+
         shutil.move(local_filepath, filename)
 
         if verbose:
@@ -284,7 +283,7 @@ class HSAClass(BaseQuery):
 
         Parameters
         ----------
-        query : string, mandatory
+        query : string
             query (adql) to be executed
         output_file : string, optional, default None
             file name where the results are saved if dumpToFile is True.
@@ -332,13 +331,13 @@ class HSAClass(BaseQuery):
 
         Parameters
         ----------
-        table_name : string, mandatory
+        table_name : string
             table name of which, columns will be returned
         only_names : bool, optional, default True
             True to load column names only
         verbose : bool, optional, default False
-
             flag to display information about the process
+
         Returns
         -------
         A list of columns
@@ -359,6 +358,34 @@ class HSAClass(BaseQuery):
             return [c.name for c in columns]
         else:
             return columns
+
+    def query_observations(self, coordinate, radius, n_obs=10):
+        """
+        Get the observation IDs from a given region
+
+        Parameters
+        ----------
+        coordinate : string / `astropy.coordinates`
+            the identifier or coordinates around which to query
+        radius : int / `~astropy.units.Quantity`
+            the radius of the region
+        n_obs : int, optional
+            the number of observations
+
+        Returns
+        -------
+        A table object with the list of observations in the region
+        """
+        r = radius
+        if not isinstance(radius, u.Quantity):
+            r = radius*u.deg
+        coord = commons.parse_coordinates(coordinate).icrs
+
+        query = ("select top {} observation_id from hsa.v_active_observation "
+                "where contains(point('ICRS', hsa.v_active_observation.ra, "
+                "hsa.v_active_observation.dec), circle('ICRS', {},{},{}))=1")\
+                        .format(n_obs, coord.ra.degree, coord.dec.degree, r.to(u.deg).value)
+        return self.query_hsa_tap(query)
 
 
 HSA = HSAClass()

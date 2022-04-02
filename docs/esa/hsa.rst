@@ -1,10 +1,8 @@
-.. doctest-skip-all
+.. _astroquery.esa.hsa:
 
-.. _astroquery.hsa:
-
-*******************************************
-Herschel Science Archive (`astroquery.hsa`)
-*******************************************
+***********************************************
+Herschel Science Archive (`astroquery.esa.hsa`)
+***********************************************
 
 `Herschel <https://www.cosmos.esa.int/web/herschel/home/>`__ was the fourth cornerstone in ESA's Horizon 2000 science programme, designed to observe the 'cool' universe.
 It performed photometry and spectroscopy in the poorly explored 55-670 µm spectral range with a 3.5 m diameter
@@ -22,9 +20,9 @@ Examples
 1. Getting Herschel data
 ------------------------------
 
-.. code-block:: python
+.. doctest-remote-data::
 
-  >>> from astroquery.hsa import HSA
+  >>> from astroquery.esa.hsa import HSA
   >>>
   >>> HSA.download_data(observation_id='1342195355',retrieval_type='OBSERVATION', instrument_name='PACS')
   Downloading URL http://archives.esac.esa.int/hsa/whsa-tap-server/data?&retrieval_type=OBSERVATION&observation_id=1342195355&instrument_name=PACS to 1342195355.tar ... [Done]
@@ -43,9 +41,9 @@ For more details about the products check:
 2. Getting Observation Products
 -------------------------------
 
-.. code-block:: python
+.. doctest-remote-data::
 
-  >>> from astroquery.hsa import HSA
+  >>> from astroquery.esa.hsa import HSA
   >>>
   >>> HSA.get_observation('1342195355', instrument_name='PACS')
   Downloading URL http://archives.esac.esa.int/hsa/whsa-tap-server/data?&retrieval_type=OBSERVATION&observation_id=1342195355&instrument_name=PACS to 1342195355.tar ... [Done]
@@ -67,9 +65,9 @@ For more details of the parameters check the section 6.2 of the 'Direct Product 
 3. Getting Herschel Postcard
 -------------------------------
 
-.. code-block:: python
+.. doctest-remote-data::
 
-  >>> from astroquery.hsa import HSA
+  >>> from astroquery.esa.hsa import HSA
   >>>
   >>> HSA.get_postcard('1342195355', instrument_name='PACS')
   Downloading URL http://archives.esac.esa.int/hsa/whsa-tap-server/data?&retrieval_type=POSTCARD&observation_id=1342195355&instrument_name=PACS to /home/dev/.astropy/cache/astroquery/HSA/data?&retrieval_type=POSTCARD&observation_id=1342195355&instrument_name=PACS ... [Done]
@@ -88,9 +86,9 @@ For more details of the parameters check the section 6.2 of the 'Direct Product 
 This function provides access to the Herschel Science Archive database using the Table Access Protocol (TAP) and via the Astronomical Data
 Query Language (`ADQL <https://www.ivoa.net/documents/ADQL/20180112/PR-ADQL-2.1-20180112.html>`__).
 
-.. code-block:: python
+.. doctest-remote-data::
 
-  >>> from astroquery.hsa import HSA
+  >>> from astroquery.esa.hsa import HSA
   >>>
   >>> result = HSA.query_hsa_tap("select top 10 * from hsa.v_active_observation", output_format='csv', output_file='results.csv')
   >>> print(result)
@@ -114,9 +112,9 @@ stored in the file 'results.csv'. The result of this query can be printed by doi
 5. Getting table details of HSA TAP
 -----------------------------------
 
-.. code-block:: python
+.. doctest-remote-data::
 
-  >>> from astroquery.hsa import HSA
+  >>> from astroquery.esa.hsa import HSA
   >>>
   >>> HSA.get_tables()
   INFO: Retrieving tables... [astroquery.utils.tap.core]
@@ -130,9 +128,9 @@ This will show the available tables in HSA TAP service in the Herschel Science A
 6. Getting columns details of HSA TAP
 -------------------------------------
 
-.. code-block:: python
+.. doctest-remote-data::
 
-  >>> from astroquery.hsa import HSA
+  >>> from astroquery.esa.hsa import HSA
   >>>
   >>> HSA.get_columns('hsa.v_active_observation')
   INFO: Retrieving tables... [astroquery.utils.tap.core]
@@ -143,14 +141,38 @@ This will show the available tables in HSA TAP service in the Herschel Science A
 This will show the column details of the table 'hsa.v_active_observation' in HSA TAP service in the Herschel Science Archive.
 
 -------------------------------------
-7. Procedure example
+7. Query Observations
+-------------------------------------
+
+.. code-block:: python
+
+  >>> from astroquery.esa.hsa import HSA
+  >>> from astropy.coordinates import SkyCoord
+  >>> from astropy import units as u
+  >>>
+  >>> c = SkyCoord(ra=100.2417*u.degree, dec=9.895*u.degree, frame='icrs')
+  >>> HSA.query_observations(c, 0.5)
+  <Table length=5>
+  observation_id
+      object    
+  --------------
+      1342219315
+      1342205057
+      1342205056
+      1342205056
+      1342205057
+
+Retrieve a VOTable with the observation IDs of a given region
+
+-------------------------------------
+8. Procedure example
 -------------------------------------
 
 First retrieve the observation IDs based on a position on the sky. To achive this, query the TAP service.
 
 .. code-block:: python
 
-  >>> from astroquery.hsa import HSA
+  >>> from astroquery.esa.hsa import HSA
   >>>
   >>> HSA.query_hsa_tap("select top 10 observation_id from hsa.v_active_observation where contains(point('ICRS', hsa.v_active_observation.ra, hsa.v_active_observation.dec),circle('ICRS', 100.2417,9.895, 1.1))=1", output_format='csv', output_file='results.cvs')
   <Table length=9>

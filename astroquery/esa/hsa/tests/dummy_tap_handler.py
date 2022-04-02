@@ -1,7 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-from ...utils.tap.model.taptable import TapTableMeta
-from ...utils.tap.model.job import Job
+from ....utils.tap.model.taptable import TapTableMeta
+from ....utils.tap.model.job import Job
 
 
 class DummyHSATapHandler(object):

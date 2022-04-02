@@ -187,6 +187,7 @@ The following modules have been completed using a common API:
   cds/cds.rst
   linelists/cdms/cdms.rst
   dace/dace.rst
+  esa/hsa.rst
   esa/hubble.rst
   esa/iso.rst
   esa/jwst.rst
@@ -200,7 +201,6 @@ The following modules have been completed using a common API:
   heasarc/heasarc.rst
   hips2fits/hips2fits.rst
   hitran/hitran.rst
-  hsa/hsa.rst
   ipac/irsa/irsa_dust/irsa_dust.rst
   ipac/irsa/ibe/ibe.rst
   ipac/irsa/irsa.rst

@@ -1,6 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import pytest
 
+from astropy import units as u
+from astropy.coordinates import SkyCoord
 from ..core import HSAClass
 from ..tests.dummy_handler import DummyHandler
 from ..tests.dummy_tap_handler import DummyHSATapHandler
@@ -46,3 +48,12 @@ class TestHSA():
         hsa = HSAClass(self.get_dummy_tap_handler())
         hsa.get_columns(**parameters)
         dummyTapHandler.check_call("get_columns", parameters)
+
+    def test_query_observations(self):
+        c = SkyCoord(ra=100.2417*u.degree, dec=9.895*u.degree, frame='icrs')
+        parameters = {'coordinate': c,
+                      'radius': 0.5}
+        dummyTapHandler = DummyHSATapHandler("query_observations",parameters)
+        hsa = HSAClass(self.get_dummy_tap_handler())
+        hsa.query_observations(**parameters)
+        dummyTapHandler.check_call("query_observations", parameters)
