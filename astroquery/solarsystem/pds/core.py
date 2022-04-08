@@ -69,6 +69,8 @@ class RingNodeClass(BaseQuery):
     # --- pretty stuff above this line, get it working below this line ---  
     
     def ephemeris_async(self, 
+                        observer_coords = None,
+                        neptune_arcmodel = 3,
                         get_query_payload=False,
                         get_raw_response=False, 
                         cache=True):
@@ -76,6 +78,11 @@ class RingNodeClass(BaseQuery):
         send query to server
         
         note this interacts with utils.async_to_sync to be called as ephemeris()
+                        
+        Parameters
+        ----------
+        self : 
+        observer_coords : three-element list/array/tuple of format (lat (deg), lon (deg east), altitude (m))
         
         Returns
         -------
@@ -95,14 +102,28 @@ class RingNodeClass(BaseQuery):
         URL = conf.pds_server
         #URL = 'https://pds-rings.seti.org/cgi-bin/tools/viewer3_xxx.pl?'
         
-        # check for required information
+        # check inputs and set defaults for optional inputs
         if self.planet is None:
             raise ValueError("'planet' parameter not set. Query aborted.")
         if self.obs_time is None:
             self.obs_time = Time.now().jd
+        if observer_coords is None:
+            viewpoint = 'observatory'
+            latitude, longitude, altitude = '', '', ''
+        else:
+            viewpoint = 'latlon'
+            try:
+                latitude, longitude, altitude = [float(j) for j in observer_coords]
+                assert -90. <= latitude <= 90.
+                assert -360. <= longitude <= 360.
+            except:
+                raise ValueError(f"Illegal observatory coordinates {observer_coords}. must be of format [lat(deg), lon(deg east), alt(m)]")
+        if neptune_arcmodel not in [1,2,3]:
+            raise ValueError(f"Illegal Neptune arc model {neptune_arcmodel}. must be one of 1, 2, or 3 (see https://pds-rings.seti.org/tools/viewer3_nep.shtml for details)")
             
-        '''    
-        https://pds-rings.seti.org/cgi-bin/tools/viewer3_xxx.pl?abbrev=jup&ephem=000+JUP365+%2B+DE440&time=2021-10-07+07%3A25&fov=10&fov_unit=Jupiter+radii&center=body&center_body=Jupiter&center_ansa=Main+Ring&center_ew=east&center_ra=&center_ra_type=hours&center_dec=&center_star=&viewpoint=observatory&observatory=Earth%27s+center&latitude=&longitude=&lon_dir=east&altitude=&moons=516+All+inner+moons+%28J1-J5%2CJ14-J16%29&rings=Main+%26+Gossamer&torus_inc=6.8&torus_rad=422000&extra_ra=&extra_ra_type=hours&extra_dec=&extra_name=&title=&labels=Small+%286+points%29&moonpts=0&blank=No&meridians=Yes&output=HTML
+            
+        ''' 
+        https://pds-rings.seti.org/cgi-bin/tools/viewer3_xxx.pl?abbrev=nep&ephem=000+NEP081+%2B+NEP095+%2B+DE440&time=2020-01-01+00%3A00&fov=10&fov_unit=Neptune+radii&center=body&center_body=Neptune&center_ansa=Adams+Ring&center_ew=east&center_ra=&center_ra_type=hours&center_dec=&center_star=&observatory=Earth%27s+center&viewpoint=latlon&latitude=19.827&longitude=-155.472&lon_dir=east&altitude=4216&moons=814+All+inner+moons+%28N1-N8%2CN14%29&rings=Galle%2C+LeVerrier%2C+Arago%2C+Adams&arcmodel=%233+%28820.1121+deg%2Fday%29&extra_ra=&extra_ra_type=hours&extra_dec=&extra_name=&title=&labels=Small+%286+points%29&moonpts=0&blank=No&arcpts=4&meridians=Yes&output=HTML   
         '''
     
         # configure request_payload for ephemeris query
@@ -112,7 +133,7 @@ class RingNodeClass(BaseQuery):
             ('abbrev', self.planet[:3]),
             ('ephem', conf.planet_defaults[self.planet]['ephem']), # change hardcoding for other planets
             ('time', self.obs_time),
-            ('fov', 10), #for now do not care about the diagram. next few hardcoded
+            ('fov', 10), #next few are figure options, can be hardcoded and ignored
             ('fov_unit', self.planet.capitalize()+' radii'),
             ('center', 'body'), 
             ('center_body', self.planet.capitalize()),
@@ -122,16 +143,16 @@ class RingNodeClass(BaseQuery):
             ('center_ra_type', 'hours'),
             ('center_dec', ''),
             ('center_star', ''),
-            ('viewpoint', 'observatory'), # de-hardcode later!
-            ('observatory', "Earth's center"), # de-hardcode later!
-            ('latitude',''), # de-hardcode later!
-            ('longitude',''), # de-hardcode later!
-            ('lon_dir',''), # de-hardcode later!
-            ('altitude',''), # de-hardcode later!
-            ('moons',conf.planet_defaults[self.planet]['moons']), # change hardcoding for other planets
-            ('rings',conf.planet_defaults[self.planet]['rings']), # check if this works for other planets
-            ('arcmodel','#3 (820.1121 deg/day)'), # check if this works for other planets 
-            ('extra_ra',''), # diagram stuff. next few can be hardcoded
+            ('viewpoint', viewpoint),
+            ('observatory', "Earth's center"), # has no effect if viewpoint != observatory so can hardcode. no plans to implement calling observatories by name since ring node only names like 8 observatories
+            ('latitude',latitude), 
+            ('longitude',longitude), 
+            ('lon_dir','east'), 
+            ('altitude',altitude), 
+            ('moons',conf.planet_defaults[self.planet]['moons']),
+            ('rings',conf.planet_defaults[self.planet]['rings']),
+            ('arcmodel',conf.neptune_arcmodels[neptune_arcmodel]),
+            ('extra_ra',''), # figure options below this line, can all be hardcoded and ignored
             ('extra_ra_type','hours'),
             ('extra_dec',''),
             ('extra_name',''),
@@ -269,7 +290,7 @@ class RingNodeClass(BaseQuery):
                             names = ('ring', 'pericenter', 'ascending node')
                             )
             
-            # Saturn F-ring data - NEEDS TESTING
+            # Saturn F-ring data
             elif group.startswith('F Ring'):
                 lines = group.split('\n')
                 for line in lines:
@@ -280,7 +301,7 @@ class RingNodeClass(BaseQuery):
                         ascn = float(l[1].strip(', \n'))
                 ringtable = table.Table([['F'], [peri], [ascn]], names=('ring', 'pericenter', 'ascending node'))
             
-            # Neptune ring arcs data - NEEDS TESTING  
+            # Neptune ring arcs data 
             elif group.startswith('Courage'): 
                 lines = group.split('\n')
                 for i in range(len(lines)):
@@ -334,7 +355,11 @@ if __name__ == "__main__":
     
     # single basic query
     neptune = RingNodeClass('Neptune', '2019-10-28 00:00')
-    systemtable, bodytable, ringtable = neptune.ephemeris()
+    systemtable, bodytable, ringtable = neptune.ephemeris(neptune_arcmodel = 2, observer_coords = (10.0, -120.355, 1000))
+    print(systemtable)
+    print(bodytable)
+    print(ringtable)
+    
     
     '''
     # basic query for all six targets

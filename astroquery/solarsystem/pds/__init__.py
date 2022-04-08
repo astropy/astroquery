@@ -63,6 +63,10 @@ class Conf(_config.ConfigNamespace):
                                  'rings':'Styx, Nix, Kerberos, Hydra',
                                  }
                        }
+                       
+    neptune_arcmodels = {1:'#1 (820.1194 deg/day)',
+                         2:'#2 (820.1118 deg/day)',
+                         3:'#3 (820.1121 deg/day)'}
     
 
 
