@@ -115,7 +115,6 @@ class HSAClass(BaseQuery):
 
         _, res_params = cgi.parse_header(response.headers['Content-Disposition'])
 
-
         r_filename = res_params["filename"]
         suffixes = Path(r_filename).suffixes
 

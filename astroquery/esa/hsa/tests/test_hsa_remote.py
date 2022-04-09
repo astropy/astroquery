@@ -27,7 +27,6 @@ class TestHSARemote:
                 pass
         return None
 
-
     def test_download_data_observation_pacs(self):
         obs_id = "1342191813"
         parameters = {'retrieval_type': "OBSERVATION",
@@ -38,16 +37,13 @@ class TestHSARemote:
                       'download_dir': self.tmp_dir.name}
         expected_res = os.path.join(self.tmp_dir.name, obs_id + ".tar")
         hsa = HSAClass()
-        #res = hsa.download_data(**parameters)
         res = self.access_archive_with_retries(hsa.download_data, parameters)
-        if res == None:
+        if res is None:
             pytest.skip("Archive broke the connection {} times, unable to test".format(self.retries))
         assert res == expected_res
         assert os.path.isfile(res)
-        chksum = []
         tar = tarfile.open(res)
-        for m in tar.getmembers():
-            chksum.append(m.chksum)
+        chksum = [m.chksum for m in tar.getmembers()]
         assert chksum.sort() == pacs_chksum.sort()
         os.remove(res)
 
@@ -63,16 +59,13 @@ class TestHSARemote:
                       'download_dir': self.tmp_dir.name}
         expected_res = os.path.join(self.tmp_dir.name, fname + ".tar")
         hsa = HSAClass()
-        #res = hsa.download_data(**parameters)
         res = self.access_archive_with_retries(hsa.download_data, parameters)
-        if res == None:
+        if res is None:
             pytest.skip("Archive broke the connection {} times, unable to test".format(self.retries))
         assert res == expected_res
         assert os.path.isfile(res)
-        chksum = []
         tar = tarfile.open(res)
-        for m in tar.getmembers():
-            chksum.append(m.chksum)
+        chksum = [m.chksum for m in tar.getmembers()]
         assert chksum.sort() == pacs_chksum.sort()
         os.remove(res)
 
@@ -87,16 +80,13 @@ class TestHSARemote:
                       'download_dir': self.tmp_dir.name}
         expected_res = os.path.join(self.tmp_dir.name, obs_id + ".tgz")
         hsa = HSAClass()
-        #res = hsa.download_data(**parameters)
         res = self.access_archive_with_retries(hsa.download_data, parameters)
-        if res == None:
+        if res is None:
             pytest.skip("Archive broke the connection {} times, unable to test".format(self.retries))
         assert res == expected_res
         assert os.path.isfile(res)
-        chksum = []
         tar = tarfile.open(res)
-        for m in tar.getmembers():
-            chksum.append(m.chksum)
+        chksum = [m.chksum for m in tar.getmembers()]
         assert chksum.sort() == pacs_chksum.sort()
         os.remove(res)
 
@@ -110,16 +100,13 @@ class TestHSARemote:
                       'download_dir': self.tmp_dir.name}
         expected_res = os.path.join(self.tmp_dir.name, obs_id + ".tar")
         hsa = HSAClass()
-        #res = hsa.download_data(**parameters)
         res = self.access_archive_with_retries(hsa.download_data, parameters)
-        if res == None:
+        if res is None:
             pytest.skip("Archive broke the connection {} times, unable to test".format(self.retries))
         assert res == expected_res
         assert os.path.isfile(res)
-        chksum = []
         tar = tarfile.open(res)
-        for m in tar.getmembers():
-            chksum.append(m.chksum)
+        chksum = [m.chksum for m in tar.getmembers()]
         assert chksum.sort() == spire_chksum.sort()
         os.remove(res)
 
@@ -132,9 +119,8 @@ class TestHSARemote:
                       'download_dir': self.tmp_dir.name}
         expected_res = os.path.join(self.tmp_dir.name, obs_id + ".jpg")
         hsa = HSAClass()
-        #res = hsa.download_data(**parameters)
         res = self.access_archive_with_retries(hsa.download_data, parameters)
-        if res == None:
+        if res is None:
             pytest.skip("Archive broke the connection {} times, unable to test".format(self.retries))
         assert res == expected_res
         assert os.path.isfile(res)
@@ -151,9 +137,8 @@ class TestHSARemote:
                       'download_dir': self.tmp_dir.name}
         expected_res = os.path.join(self.tmp_dir.name, fname + ".jpg")
         hsa = HSAClass()
-        #res = hsa.download_data(**parameters)
         res = self.access_archive_with_retries(hsa.download_data, parameters)
-        if res == None:
+        if res is None:
             pytest.skip("Archive broke the connection {} times, unable to test".format(self.retries))
         assert res == expected_res
         assert os.path.isfile(res)
@@ -168,16 +153,13 @@ class TestHSARemote:
                       'download_dir': self.tmp_dir.name}
         expected_res = os.path.join(self.tmp_dir.name, obs_id + ".tar")
         hsa = HSAClass()
-        #res = hsa.get_observation(**parameters)
         res = self.access_archive_with_retries(hsa.get_observation, parameters)
-        if res == None:
+        if res is None:
             pytest.skip("Archive broke the connection {} times, unable to test".format(self.retries))
         assert res == expected_res
         assert os.path.isfile(res)
-        chksum = []
         tar = tarfile.open(res)
-        for m in tar.getmembers():
-            chksum.append(m.chksum)
+        chksum = [m.chksum for m in tar.getmembers()]
         assert chksum.sort() == pacs_chksum.sort()
         os.remove(res)
 
@@ -189,9 +171,8 @@ class TestHSARemote:
                       'download_dir': self.tmp_dir.name}
         expected_res = os.path.join(self.tmp_dir.name, obs_id + ".jpg")
         hsa = HSAClass()
-        #res = hsa.get_postcard(**parameters)
         res = self.access_archive_with_retries(hsa.get_postcard, parameters)
-        if res == None:
+        if res is None:
             pytest.skip("Archive broke the connection {} times, unable to test".format(self.retries))
         assert res == expected_res
         assert os.path.isfile(res)
