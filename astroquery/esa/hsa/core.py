@@ -9,7 +9,7 @@ from pathlib import Path
 from astropy import units as u
 from ...utils import commons
 from astroquery import log
-from astroquery.exceptions import LoginError, InputWarning
+from astroquery.exceptions import LoginError
 from astroquery.query import BaseQuery
 from astroquery.utils.tap.core import Tap
 
@@ -32,7 +32,8 @@ class HSAClass(BaseQuery):
             self._tap = tap_handler
 
     def download_data(self, *, retrieval_type="OBSERVATION", observation_id=None,
-                      instrument_name=None, filename=None, verbose=False,
+                      instrument_name=None, filename=None, observation_oid=None,
+                      instrument_oid=None, product_level=None, verbose=False,
                       download_dir="", cache=True, **kwargs):
         """
         Download data from Herschel
@@ -82,6 +83,15 @@ class HSAClass(BaseQuery):
         if instrument_name is not None:
             params['instrument_name'] = instrument_name
 
+        if observation_oid is not None:
+            params['observation_oid'] = observation_oid
+
+        if instrument_oid is not None:
+            params['instrument_oid'] = instrument_oid
+
+        if product_level is not None:
+            params['product_level'] = product_level
+
         link = self.data_url + "".join("&{0}={1}".format(key, val) for key, val in params.items())
 
         link += "".join("&{0}={1}".format(key, val) for key, val in kwargs.items())
@@ -90,13 +100,11 @@ class HSAClass(BaseQuery):
             log.info(link)
 
         response = self._request('HEAD', link, save=False, cache=cache)
-        response.raise_for_status()
-
-        if 'Content-Type' in response.headers and 'text' not in response.headers['Content-Type']:
-            _, params = cgi.parse_header(response.headers['Content-Disposition'])
-        else:
+        if response.status_code == 401:
             error = "Data protected by proprietary rights. Please check your credentials"
             raise LoginError(error)
+
+        response.raise_for_status()
 
         if filename is None:
             if observation_id is not None:
@@ -105,7 +113,10 @@ class HSAClass(BaseQuery):
                 error = "Please set either 'obervation_id' or 'filename' for the output"
                 raise ValueError(error)
 
-        r_filename = params["filename"]
+        _, res_params = cgi.parse_header(response.headers['Content-Disposition'])
+
+
+        r_filename = res_params["filename"]
         suffixes = Path(r_filename).suffixes
 
         if len(suffixes) > 1 and suffixes[-1] == ".jpg":
@@ -123,6 +134,7 @@ class HSAClass(BaseQuery):
         return filename
 
     def get_observation(self, observation_id, instrument_name, *, filename=None,
+                        observation_oid=None, instrument_oid=None, product_level=None,
                         verbose=False, download_dir="", cache=True, **kwargs):
         """
         Download observation from Herschel.
@@ -171,6 +183,15 @@ class HSAClass(BaseQuery):
                   'observation_id': observation_id,
                   'instrument_name': instrument_name}
 
+        if observation_oid is not None:
+            params['observation_oid'] = observation_oid
+
+        if instrument_oid is not None:
+            params['instrument_oid'] = instrument_oid
+
+        if product_level is not None:
+            params['product_level'] = product_level
+
         link = self.data_url + "".join("&{0}={1}".format(key, val) for key, val in params.items())
 
         link += "".join("&{0}={1}".format(key, val) for key, val in kwargs.items())
@@ -179,15 +200,15 @@ class HSAClass(BaseQuery):
             log.info(link)
 
         response = self._request('HEAD', link, save=False, cache=cache)
-        response.raise_for_status()
-
-        if 'Content-Type' in response.headers and 'text' not in response.headers['Content-Type']:
-            _, params = cgi.parse_header(response.headers['Content-Disposition'])
-        else:
-            error = "Data protected by propietary rights. Please check your credentials"
+        if response.status_code == 401:
+            error = "Data protected by proprietary rights. Please check your credentials"
             raise LoginError(error)
 
-        r_filename = params["filename"]
+        response.raise_for_status()
+
+        _, res_params = cgi.parse_header(response.headers['Content-Disposition'])
+
+        r_filename = res_params["filename"]
         suffixes = Path(r_filename).suffixes
 
         if filename is None:
@@ -359,7 +380,7 @@ class HSAClass(BaseQuery):
         else:
             return columns
 
-    def query_observations(self, coordinate, radius, n_obs=10):
+    def query_observations(self, coordinate, radius, *, n_obs=10):
         """
         Get the observation IDs from a given region
 
