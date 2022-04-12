@@ -1,6 +1,6 @@
 import pytest
-from collections import OrderedDict
 from astropy.tests.helper import assert_quantity_allclose
+import numpy as np
 
 from ... import pds
 
@@ -22,7 +22,7 @@ class TestRingNodeClass:
         ).ephemeris(observer_coords=(10.0, -120.355, 1000))
 
         # check system table
-        systemclose = assert_quantity_allclose(
+        assert_quantity_allclose(
             [
                 -56.12233,
                 -56.13586,
@@ -58,7 +58,7 @@ class TestRingNodeClass:
         mab = bodytable[bodytable.loc_indices["Mab"]]
         assert mab["NAIF ID"] == 726
         assert mab["Body"] == "Mab"
-        mabclose = assert_quantity_allclose(
+        assert_quantity_allclose(
             [
                 42.011201,
                 15.801323,

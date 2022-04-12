@@ -1,5 +1,5 @@
 # 1. standard library imports
-import numpy as np
+
 from collections import OrderedDict
 import re
 import warnings
@@ -25,13 +25,13 @@ class RingNodeClass(BaseQuery):
     """
     for querying the Planetary Ring Node ephemeris tools
     <https://pds-rings.seti.org/tools/>
-    
-    
+
+
     # basic query for all six targets
     for major_body in ['mars', 'jupiter', 'uranus', 'saturn', 'neptune', 'pluto']:
         nodequery = RingNode(major_body, '2022-05-03 00:00')
         systemtable, bodytable, ringtable = nodequery.ephemeris()
-        
+
         print(' ')
         print(' ')
         print('~'*40)
@@ -40,15 +40,15 @@ class RingNodeClass(BaseQuery):
         print(systemtable)
         print(bodytable)
         print(ringtable)
-    
-    
+
+
     """
 
     TIMEOUT = conf.timeout
 
     def __init__(self, planet=None, obs_time=None):
         """Instantiate Planetary Ring Node query
-        
+
         Parameters
         ----------
         planet : str, required. one of Jupiter, Saturn, Uranus, or Neptune
@@ -64,7 +64,7 @@ class RingNodeClass(BaseQuery):
     def __str__(self):
         """
         String representation of RingNodeClass object instance'
-        
+
         Examples
         --------
         >>> from astroquery.solarsystem.pds import RingNode
@@ -89,19 +89,19 @@ class RingNodeClass(BaseQuery):
     ):
         """
         send query to server
-        
+
         note this interacts with utils.async_to_sync to be called as ephemeris()
-                        
+
         Parameters
         ----------
-        self : 
+        self : RingNodeClass instance
         observer_coords : three-element list/array/tuple of format (lat (deg), lon (deg east), altitude (m))
-        
+
         Returns
         -------
         response : `requests.Response`
             The response of the HTTP request.
-        
+
         Examples
         --------
         >>> from astroquery.solarsystem.pds import RingNode
@@ -138,7 +138,7 @@ class RingNodeClass(BaseQuery):
         else:
             try:
                 Time.strptime(self.obs_time, "%Y-%m-%d %H:%M").jd
-            except:
+            except Exception as e:
                 raise ValueError(
                     "illegal value for 'obs_time' parameter. must have format 'yyyy-mm-dd hh:mm'"
                 )
@@ -153,7 +153,7 @@ class RingNodeClass(BaseQuery):
                 latitude, longitude, altitude = [float(j) for j in observer_coords]
                 assert -90.0 <= latitude <= 90.0
                 assert -360.0 <= longitude <= 360.0
-            except:
+            except Exception as e:
                 raise ValueError(
                     f"Illegal observatory coordinates {observer_coords}. must be of format [lat(deg), lon(deg east), alt(m)]"
                 )
@@ -161,10 +161,6 @@ class RingNodeClass(BaseQuery):
             raise ValueError(
                 f"Illegal Neptune arc model {neptune_arcmodel}. must be one of 1, 2, or 3 (see https://pds-rings.seti.org/tools/viewer3_nep.shtml for details)"
             )
-
-        """ 
-        https://pds-rings.seti.org/cgi-bin/tools/viewer3_xxx.pl?abbrev=nep&ephem=000+NEP081+%2B+NEP095+%2B+DE440&time=2020-01-01+00%3A00&fov=10&fov_unit=Neptune+radii&center=body&center_body=Neptune&center_ansa=Adams+Ring&center_ew=east&center_ra=&center_ra_type=hours&center_dec=&center_star=&observatory=Earth%27s+center&viewpoint=latlon&latitude=19.827&longitude=-155.472&lon_dir=east&altitude=4216&moons=814+All+inner+moons+%28N1-N8%2CN14%29&rings=Galle%2C+LeVerrier%2C+Arago%2C+Adams&arcmodel=%233+%28820.1121+deg%2Fday%29&extra_ra=&extra_ra_type=hours&extra_dec=&extra_name=&title=&labels=Small+%286+points%29&moonpts=0&blank=No&arcpts=4&meridians=Yes&output=HTML   
-        """
 
         # configure request_payload for ephemeris query
         # start with successful query and incrementally de-hardcode stuff
@@ -241,7 +237,7 @@ class RingNodeClass(BaseQuery):
     def _parse_ringnode(self, src):
         """
         Routine for parsing data from ring node
-        
+
         Parameters
         ----------
         self : RingNodeClass instance
@@ -307,7 +303,6 @@ class RingNodeClass(BaseQuery):
                         "distance",
                     ),
                 )
-                ## to do: add units!!
 
             # ring plane data
             elif group.startswith("Ring s"):
@@ -340,7 +335,6 @@ class RingNodeClass(BaseQuery):
                         systemtable["sub_obs_lon"] = float(l[1].strip(", \n"))
                     else:
                         pass
-                ## to do: add units?
 
             # basic info about the planet
             elif group.startswith("Sun-planet"):
@@ -363,8 +357,6 @@ class RingNodeClass(BaseQuery):
                         systemtable["light_time"] = float(l[1].strip(", \n"))
                     else:
                         pass
-
-                ## to do: add units?
 
             # --------- below this line, planet-specific info ------------
             # Uranus individual rings data
@@ -423,13 +415,13 @@ class RingNodeClass(BaseQuery):
         """
         Routine for managing parser calls
         note this MUST be named exactly _parse_result so it interacts with async_to_sync properly
-        
+
         Parameters
         ----------
         self :  RingNodeClass instance
         response : string
             raw response from server
-        
+
         Returns
         -------
         data : `astropy.Table`
@@ -437,7 +429,7 @@ class RingNodeClass(BaseQuery):
         self.last_response = response
         try:
             systemtable, bodytable, ringtable = self._parse_ringnode(response.text)
-        except:
+        except Exception as e:
             try:
                 self._last_query.remove_cache_file(self.cache_location)
             except OSError:

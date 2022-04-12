@@ -15,7 +15,7 @@ class Conf(_config.ConfigNamespace):
 
     # server settings
     pds_server = _config.ConfigItem(
-        ["https://pds-rings.seti.org/cgi-bin/tools/viewer3_xxx.pl?",], "Ring Node"
+        ["https://pds-rings.seti.org/cgi-bin/tools/viewer3_xxx.pl?"], "Ring Node"
     )
 
     # implement later: other pds tools
