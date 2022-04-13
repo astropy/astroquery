@@ -21,30 +21,30 @@ class DummyHandler(object):
         if method == self._invokedMethod:
             return
         else:
-            raise ValueError("Method '{}' is not invoked. (Invoked method \
-                             is '{}'.)").format(method, self_invokedMethod)
+            raise ValueError("Method '{}' is not invoked. (Invoked method "
+                             "is '{}'.)".format(method, self._invokedMethod))
 
     def check_parameters(self, parameters, method_name):
         if parameters is None:
             return len(self._parameters) == 0
         if len(parameters) != len(self._parameters):
-            raise ValueError("Wrong number of parameters for method '{}'. \
-                              Found: {}. Expected {}").format(
+            raise ValueError("Wrong number of parameters for method '{}'. "
+                             "Found: {}. Expected {}".format(
                                     method_name,
                                     len(self._parameters),
-                                    len(parameters))
+                                    len(parameters)))
         for key in parameters:
             if key in self._parameters:
                 # check value
                 if self._parameters[key] != parameters[key]:
-                    raise ValueError("Wrong '{}' parameter \
-                                     value for method '{}'. \
-                                     Found:'{}'. Expected:'{}'").format(
+                    raise ValueError("Wrong '{}' parameter "
+                                     "value for method '{}'. "
+                                     "Found:'{}'. Expected:'{}'".format(
                                         method_name,
                                         key,
                                         self._parameters[key],
-                                        parameters[key])
+                                        parameters[key]))
             else:
-                raise ValueError("Parameter '%s' not found in method '%s'",
-                                 (str(key), method_name))
+                raise ValueError("Parameter '{}' not found in method '{}'"
+                                 .format(str(key), method_name))
         return True

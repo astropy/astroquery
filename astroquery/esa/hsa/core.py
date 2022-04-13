@@ -7,7 +7,7 @@ import shutil
 from pathlib import Path
 
 from astropy import units as u
-from ...utils import commons
+from astroquery.utils import commons
 from astroquery import log
 from astroquery.exceptions import LoginError
 from astroquery.query import BaseQuery
@@ -25,7 +25,7 @@ class HSAClass(BaseQuery):
     timeout = conf.TIMEOUT
 
     def __init__(self, tap_handler=None):
-        super(HSAClass, self).__init__()
+        super().__init__()
         if tap_handler is None:
             self._tap = Tap(url=self.metadata_url)
         else:
