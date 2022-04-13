@@ -4,21 +4,21 @@
 Herschel Science Archive (`astroquery.esa.hsa`)
 ***********************************************
 
-`Herschel <https://www.cosmos.esa.int/web/herschel/home/>`__ was the fourth cornerstone in ESA's Horizon 2000 science programme, designed to observe the 'cool' universe.
+`Herschel <https://www.cosmos.esa.int/web/herschel/home/>`__ was the fourth
+cornerstone in ESA's Horizon 2000 science programme, designed to observe the 'cool' universe.
 It performed photometry and spectroscopy in the poorly explored 55-670 µm spectral range with a 3.5 m diameter
-Cassegrain telescope, providing unique observing capabilities and bridging the gap between earlier infrared space
-missions and groundbased facilities. Herschel successfully performed ~37000 science observations and ~6600 science
-calibration observations which are publicly available to the worldwide astronomical community through the Herschel Science Archive.
+Cassegrain telescope, providing unique observing capabilities and bridging the gap between earlier infrared
+space missions and groundbased facilities. Herschel successfully performed ~37000 science observations and
+~6600 science calibration observations which are publicly available to the worldwide astronomical community
+through the Herschel Science Archive.
 
 This package allows the access to the `Herschel Science Archive <http://archives.esac.esa.int/hsa/whsa/>`__.
 
-========
 Examples
 ========
 
-------------------------------
 1. Getting Herschel data
-------------------------------
+------------------------
 
 .. doctest-remote-data::
 
@@ -31,13 +31,13 @@ Examples
 This will download the product of the observation '1342195355' with the instrument 'PACS' and
 it will store them in a tar called '1342195355.tar'. The parameters available are detailed in the API.
 
-For more details of the parameters check the section 6 of the 'Direct Product Access using TAP' in the 'HSA users guide' at:
-		'http://archives.esac.esa.int/hsa/whsa/'
+For more details of the parameters check the section 6 of the ``Direct Product Access using TAP`` in the
+`HSA users guide <http://archives.esac.esa.int/hsa/whsa/>`_.
 
 For more details about the products check:
-                'https://www.cosmos.esa.int/web/herschel/data-products-overview'
+  https://www.cosmos.esa.int/web/herschel/data-products-overview
 
--------------------------------
+
 2. Getting Observation Products
 -------------------------------
 
@@ -52,18 +52,20 @@ For more details about the products check:
 This will download the product of the observation '1342195355' with the instrument 'PACS' and
 it will store them in a tar called '1342195355.tar'. The parameters available are detailed in the API.
 
-`Notice`: There is no difference between the product retrieved with this method and `download_data`. `download_data` is a more generic
-interface that allows the user to retrieve any product or metadata and `get_observation` allows the user to retrieve only observation products.
+.. Note:: There is no difference between the product retrieved with this method and
+          `~astroquery.esa.hsa.HSAClass.download_data`. `~astroquery.esa.hsa.HSAClass.download_data`
+          is a more generic interface that allows the user to retrieve any product or metadata and
+          `~astroquery.esa.hsa.HSAClass.get_observation` allows the user to retrieve only observation products.
 
-For more information check the section 6.1 of the of the 'direct Product Access using TAP' in the 'HSA users guide' at:
-                'http://archives.esac.esa.int/hsa/whsa/'
+For more information check the section 6.1 of the of the ``Direct Product Access using TAP`` in the
+`HSA users guide`_.
 
-For more details of the parameters check the section 6.2 of the 'Direct Product Access using TAP' in the 'HSA users guide' at:
-		'http://archives.esac.esa.int/hsa/whsa/'
+For more details of the parameters check the section 6.2 of the ``Direct Product Access using TAP`` in the
+`HSA users guide`_.
 
--------------------------------
+
 3. Getting Herschel Postcard
--------------------------------
+----------------------------
 
 .. doctest-remote-data::
 
@@ -73,15 +75,16 @@ For more details of the parameters check the section 6.2 of the 'Direct Product 
   Downloading URL http://archives.esac.esa.int/hsa/whsa-tap-server/data?&retrieval_type=POSTCARD&observation_id=1342195355&instrument_name=PACS to /home/dev/.astropy/cache/astroquery/HSA/data?&retrieval_type=POSTCARD&observation_id=1342195355&instrument_name=PACS ... [Done]
   '1342195355.jpg'
 
-This will download the postcard (static representation in JPG-format of the final product) of the observation '1342195355' with the instrument 'PACS' and
-it will store them in a tar called '1342195355.jpg'. The parameters available are detailed in the API.
+This will download the postcard (static representation in JPG-format of the final product) of the observation
+'1342195355' with the instrument 'PACS' and it will store them in a tar called '1342195355.jpg'.
+The parameters available are detailed in the API.
 
-For more details of the parameters check the section 6.2 of the 'Direct Product Access using TAP' in the 'HSA users guide' at:
-		'http://archives.esac.esa.int/hsa/whsa/'
+For more details of the parameters check the section 6.2 of the ``Direct Product Access using TAP`` in the
+`HSA users guide`_.
 
-------------------------------------------
+
 4. Getting Herschel metadata through TAP
-------------------------------------------
+----------------------------------------
 
 This function provides access to the Herschel Science Archive database using the Table Access Protocol (TAP) and via the Astronomical Data
 Query Language (`ADQL <https://www.ivoa.net/documents/ADQL/20180112/PR-ADQL-2.1-20180112.html>`__).
@@ -106,7 +109,10 @@ Query Language (`ADQL <https://www.ivoa.net/documents/ADQL/20180112/PR-ADQL-2.1-
                     PACS-A - G345.39-3.97  -43.47405026924179 ... G345.39-3.97-1      883176
           PRISMAS_g34_hifi7b_1897GHz_B_C3  1.2495150652937468 ...      G34.3+0.1      921086
 
------------------------------------
+This will execute an ADQL query to download the first 10 observations in the Herschel Science Archive.
+The result of the query will be stored in the file ``results.csv``.
+
+
 5. Getting table details of HSA TAP
 -----------------------------------
 
@@ -122,7 +128,7 @@ Query Language (`ADQL <https://www.ivoa.net/documents/ADQL/20180112/PR-ADQL-2.1-
 
 This will show the available tables in HSA TAP service in the Herschel Science Archive.
 
--------------------------------------
+
 6. Getting columns details of HSA TAP
 -------------------------------------
 
@@ -138,9 +144,9 @@ This will show the available tables in HSA TAP service in the Herschel Science A
 
 This will show the column details of the table 'hsa.v_active_observation' in HSA TAP service in the Herschel Science Archive.
 
--------------------------------------
+
 7. Query Observations
--------------------------------------
+---------------------
 
 .. doctest-skip::
 
@@ -162,9 +168,9 @@ This will show the column details of the table 'hsa.v_active_observation' in HSA
 
 Retrieve a VOTable with the observation IDs of a given region
 
--------------------------------------
+
 8. Procedure example
--------------------------------------
+--------------------
 
 First retrieve the observation IDs based on a position on the sky. To achive this, query the TAP service.
 
@@ -194,11 +200,13 @@ For more information on how to use ADQL see:
 
 After obtaining the desire ID, download the product of the observation '1342205057' with the instrument 'PACS'.
 
+
 .. doctest-skip::
 
   >>> HSA.download_data(observation_id='1342205057', retrieval_type='OBSERVATION', instrument_name='PACS')
   Downloading URL http://archives.esac.esa.int/hsa/whsa-tap-server/data?&retrieval_type=OBSERVATION&observation_id=1342205057&instrument_name=PACS to 1342205057.tar ... [Done]
   '1342205057.tar'
+
 
 Reference/API
 =============
