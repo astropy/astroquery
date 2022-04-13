@@ -24,7 +24,7 @@ Examples
 
   >>> from astroquery.esa.hsa import HSA
   >>>
-  >>> HSA.download_data(observation_id='1342195355',retrieval_type='OBSERVATION', instrument_name='PACS')
+  >>> HSA.download_data(observation_id='1342195355',retrieval_type='OBSERVATION', instrument_name='PACS')  # doctest: +IGNORE_OUTPUT
   Downloading URL http://archives.esac.esa.int/hsa/whsa-tap-server/data?&retrieval_type=OBSERVATION&observation_id=1342195355&instrument_name=PACS to 1342195355.tar ... [Done]
   '1342195355.tar'
 
@@ -45,7 +45,7 @@ For more details about the products check:
 
   >>> from astroquery.esa.hsa import HSA
   >>>
-  >>> HSA.get_observation('1342195355', instrument_name='PACS')
+  >>> HSA.get_observation('1342195355', instrument_name='PACS')  # doctest: +IGNORE_OUTPUT
   Downloading URL http://archives.esac.esa.int/hsa/whsa-tap-server/data?&retrieval_type=OBSERVATION&observation_id=1342195355&instrument_name=PACS to 1342195355.tar ... [Done]
   '1342195355.tar'
 
@@ -69,7 +69,7 @@ For more details of the parameters check the section 6.2 of the 'Direct Product 
 
   >>> from astroquery.esa.hsa import HSA
   >>>
-  >>> HSA.get_postcard('1342195355', instrument_name='PACS')
+  >>> HSA.get_postcard('1342195355', instrument_name='PACS')  # doctest: +IGNORE_OUTPUT
   Downloading URL http://archives.esac.esa.int/hsa/whsa-tap-server/data?&retrieval_type=POSTCARD&observation_id=1342195355&instrument_name=PACS to /home/dev/.astropy/cache/astroquery/HSA/data?&retrieval_type=POSTCARD&observation_id=1342195355&instrument_name=PACS ... [Done]
   '1342195355.jpg'
 
@@ -90,23 +90,21 @@ Query Language (`ADQL <https://www.ivoa.net/documents/ADQL/20180112/PR-ADQL-2.1-
 
   >>> from astroquery.esa.hsa import HSA
   >>>
-  >>> result = HSA.query_hsa_tap("select top 10 * from hsa.v_active_observation", output_format='csv', output_file='results.csv')
-  >>> print(result)
-                                aor                                      bii                 dec          duration  ... status            target_name             urn_version
-  ------------------------------------------------------------ ------------------- ------------------- ---------- ... ------ ---------------------------------- -----------
-                                              PPhot.Cart-perp  -33.71633333333334  -33.71633333333334  1759000.0 ... FAILED                          Cartwheel      925353
-                                                    PPhot.Cart  -33.71633333333334  -33.71633333333334  1759000.0 ... FAILED                          Cartwheel      925352
-  PPhoto-0005 - cosmos6 - cosmos_328-1 - XMMXCS J2215.9-1738-1 -17.633888888888887 -17.633888888888887 18149000.0 ... FAILED XMMXCS J2215.9-1738-1 cross scan-1      925351
-                                                DRT-B-HD013246  -59.67941666666666  -59.67941666666666  2250000.0 ... FAILED                         HD013246-1      925350
-                                                DRT-A-HD013246  -59.67941666666666  -59.67941666666666  2250000.0 ... FAILED                         HD013246-1      925348
-                                    e0102green1_135  - hsc rec  -72.03119444444444  -72.03119444444444  4272000.0 ... FAILED                      1e0102.2-7219      925346
-                                    e0102green1_45  - hsc rec  -72.03119444444444  -72.03119444444444  4272000.0 ... FAILED                      1e0102.2-7219      925344
-                                    e0102blue1_135  - hsc rec  -72.03119444444444  -72.03119444444444  4272000.0 ... FAILED                      1e0102.2-7219      925342
-                                      e0102blue1_45  - hsc rec  -72.03119444444444  -72.03119444444444  4272000.0 ... FAILED                      1e0102.2-7219      925340
-                                              PPhot.AM06-perp  -74.22638888888889  -74.22638888888889  1759000.0 ... FAILED                         AM0644-741      925338
-
-This will execute an ADQL query to download the first 10 observations in the Herschel Science Archive. The result of the query will be
-stored in the file 'results.csv'. The result of this query can be printed by doing `print(result)`.
+  >>> result = HSA.query_hsa_tap("select top 10 * from hsa.v_active_observation",
+  ...                            output_format='csv', output_file='results.csv')
+  >>> result.pprint(max_width=100)
+                    aor                           bii         ...  target_name   urn_version
+  --------------------------------------- ------------------- ... -------------- -----------
+                          PP2-SWa-NGC3265  28.797292629881316 ...        NGC3265      915907
+         PRISMAS_W33a_hifi3b_898GHz_A_D2O  -17.86672520275456 ...           W33A      806737
+    GOODS-S_70_d+8+8_forward_r3_shortaxis  -27.80919396603746 ...  GOODS-S d+8+8      894819
+        PSP2_HStars-Set12f - RedRectangle -10.637417697356986 ...  Red Rectangle      800938
+                   SPIRE-A - G126.24-5.52  57.195030974713134 ...   G126.24-5.52      810242
+  PSP1_PRISMAS_W31C_hifi6a_1477GHz_A_D2H+  -19.93074108498436 ...           W31C      920099
+         Spire Level-2 GOODS-S 37  - copy  -27.81104151290488 ...        GOODS-S      898135
+               PSP2_HStars-Set13  - 10216   13.27923027337195 ...      IRC+10216      801364
+                    PACS-A - G345.39-3.97  -43.47405026924179 ... G345.39-3.97-1      883176
+          PRISMAS_g34_hifi7b_1897GHz_B_C3  1.2495150652937468 ...      G34.3+0.1      921086
 
 -----------------------------------
 5. Getting table details of HSA TAP
