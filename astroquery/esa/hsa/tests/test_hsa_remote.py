@@ -39,7 +39,7 @@ class TestHSARemote:
         hsa = HSAClass()
         res = self.access_archive_with_retries(hsa.download_data, parameters)
         if res is None:
-            pytest.skip("Archive broke the connection {} times, unable to test".format(self.retries))
+            pytest.xfail(f"Archive broke the connection {self.retries} times, unable to test")
         assert res == expected_res
         assert os.path.isfile(res)
         tar = tarfile.open(res)
@@ -61,7 +61,7 @@ class TestHSARemote:
         hsa = HSAClass()
         res = self.access_archive_with_retries(hsa.download_data, parameters)
         if res is None:
-            pytest.skip("Archive broke the connection {} times, unable to test".format(self.retries))
+            pytest.xfail(f"Archive broke the connection {self.retries} times, unable to test")
         assert res == expected_res
         assert os.path.isfile(res)
         tar = tarfile.open(res)
@@ -82,7 +82,7 @@ class TestHSARemote:
         hsa = HSAClass()
         res = self.access_archive_with_retries(hsa.download_data, parameters)
         if res is None:
-            pytest.skip("Archive broke the connection {} times, unable to test".format(self.retries))
+            pytest.xfail(f"Archive broke the connection {self.retries} times, unable to test")
         assert res == expected_res
         assert os.path.isfile(res)
         tar = tarfile.open(res)
@@ -102,7 +102,7 @@ class TestHSARemote:
         hsa = HSAClass()
         res = self.access_archive_with_retries(hsa.download_data, parameters)
         if res is None:
-            pytest.skip("Archive broke the connection {} times, unable to test".format(self.retries))
+            pytest.xfail(f"Archive broke the connection {self.retries} times, unable to test")
         assert res == expected_res
         assert os.path.isfile(res)
         tar = tarfile.open(res)
@@ -121,7 +121,7 @@ class TestHSARemote:
         hsa = HSAClass()
         res = self.access_archive_with_retries(hsa.download_data, parameters)
         if res is None:
-            pytest.skip("Archive broke the connection {} times, unable to test".format(self.retries))
+            pytest.xfail(f"Archive broke the connection {self.retries} times, unable to test")
         assert res == expected_res
         assert os.path.isfile(res)
         os.remove(res)
@@ -139,7 +139,7 @@ class TestHSARemote:
         hsa = HSAClass()
         res = self.access_archive_with_retries(hsa.download_data, parameters)
         if res is None:
-            pytest.skip("Archive broke the connection {} times, unable to test".format(self.retries))
+            pytest.xfail(f"Archive broke the connection {self.retries} times, unable to test")
         assert res == expected_res
         assert os.path.isfile(res)
         os.remove(res)
@@ -155,7 +155,7 @@ class TestHSARemote:
         hsa = HSAClass()
         res = self.access_archive_with_retries(hsa.get_observation, parameters)
         if res is None:
-            pytest.skip("Archive broke the connection {} times, unable to test".format(self.retries))
+            pytest.xfail(f"Archive broke the connection {self.retries} times, unable to test")
         assert res == expected_res
         assert os.path.isfile(res)
         tar = tarfile.open(res)
@@ -173,7 +173,7 @@ class TestHSARemote:
         hsa = HSAClass()
         res = self.access_archive_with_retries(hsa.get_postcard, parameters)
         if res is None:
-            pytest.skip("Archive broke the connection {} times, unable to test".format(self.retries))
+            pytest.xfail(f"Archive broke the connection {self.retries} times, unable to test")
         assert res == expected_res
         assert os.path.isfile(res)
         os.remove(res)

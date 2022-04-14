@@ -20,32 +20,25 @@ class DummyHSATapHandler(object):
 
     def check_method(self, method):
         if method != self.__invokedMethod:
-            raise Exception("Method '" + str(method) + ""
-                            "' not invoked. (Invoked method is '"
-                            "" + str(self.__invokedMethod)+"')")
+            raise Exception(f"Method '{method}' "
+                            f"not invoked. (Invoked method is "
+                            f"'{self.__invokedMethod}')")
 
     def check_parameters(self, parameters, method_name):
         if parameters is None:
             return len(self._parameters) == 0
         if len(parameters) != len(self._parameters):
-            raise Exception("Wrong number of parameters for method '%s'. \
-            Found: %d. Expected %d",
-                            (method_name,
-                             len(self._parameters),
-                             len(parameters)))
+            raise Exception(f"Wrong number of parameters for method '{method_name}'. "
+                            f"Found: {len(self._parameters)}. Expected {len(parameters)}")
         for key in parameters:
             if key in self._parameters:
                 # check value
                 if self._parameters[key] != parameters[key]:
-                    raise Exception("Wrong '%s' parameter value for method '%s'. \
-                    Found: '%s'. Expected: '%s'", (
-                        method_name,
-                        key,
-                        self._parameters[key],
-                        parameters[key]))
+                    raise Exception(f"Wrong '{key}' parameter value for method "
+                                    f"'{method_name}'. "
+                                    f"Found: '{self._parameters[key]}'. Expected: '{parameters[key]}'")
             else:
-                raise Exception("Parameter '%s' not found for method '%s'",
-                                (str(key), method_name))
+                raise Exception("Parameter '{key}' not found for method 'method_name'")
         return False
 
     def launch_job(self, query, name=None, output_file=None,

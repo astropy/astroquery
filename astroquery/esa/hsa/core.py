@@ -92,9 +92,9 @@ class HSAClass(BaseQuery):
         if product_level is not None:
             params['product_level'] = product_level
 
-        link = self.data_url + "".join("&{0}={1}".format(key, val) for key, val in params.items())
+        link = self.data_url + "".join(f"&{key}={val}" for key, val in params.items())
 
-        link += "".join("&{0}={1}".format(key, val) for key, val in kwargs.items())
+        link += "".join(f"&{key}={val}" for key, val in kwargs.items())
 
         if verbose:
             log.info(link)
@@ -128,7 +128,7 @@ class HSAClass(BaseQuery):
         self._download_file(link, filename, head_safe=True, cache=cache)
 
         if verbose:
-            log.info("Wrote {0} to {1}".format(link, filename))
+            log.info(f"Wrote {link} to {filename}")
 
         return filename
 
@@ -191,9 +191,9 @@ class HSAClass(BaseQuery):
         if product_level is not None:
             params['product_level'] = product_level
 
-        link = self.data_url + "".join("&{0}={1}".format(key, val) for key, val in params.items())
+        link = self.data_url + "".join(f"&{key}={val}" for key, val in params.items())
 
-        link += "".join("&{0}={1}".format(key, val) for key, val in kwargs.items())
+        link += "".join(f"&{key}={val}" for key, val in kwargs.items())
 
         if verbose:
             log.info(link)
@@ -220,7 +220,7 @@ class HSAClass(BaseQuery):
         self._download_file(link, filename, head_safe=True, cache=cache)
 
         if verbose:
-            log.info("Wrote {0} to {1}".format(link, filename))
+            log.info(f"Wrote {link} to {filename}")
 
         return filename
 
@@ -268,9 +268,9 @@ class HSAClass(BaseQuery):
                   'observation_id': observation_id,
                   'instrument_name': instrument_name}
 
-        link = self.data_url + "".join("&{0}={1}".format(key, val) for key, val in params.items())
+        link = self.data_url + "".join(f"&{key}={val}" for key, val in params.items())
 
-        link += "".join("&{0}={1}".format(key, val) for key, val in kwargs.items())
+        link += "".join(f"&{key}={val}" for key, val in kwargs.items())
 
         if verbose:
             log.info(link)
@@ -292,7 +292,7 @@ class HSAClass(BaseQuery):
         shutil.move(local_filepath, filename)
 
         if verbose:
-            log.info("Wrote {0} to {1}".format(link, filename))
+            log.info(f"Wrote {link} to {filename}")
 
         return filename
 
@@ -401,10 +401,10 @@ class HSAClass(BaseQuery):
             r = radius*u.deg
         coord = commons.parse_coordinates(coordinate).icrs
 
-        query = ("select top {} observation_id from hsa.v_active_observation "
-                "where contains(point('ICRS', hsa.v_active_observation.ra, "
-                "hsa.v_active_observation.dec), circle('ICRS', {},{},{}))=1")\
-                        .format(n_obs, coord.ra.degree, coord.dec.degree, r.to(u.deg).value)
+        query = (f"select top {n_obs} observation_id from hsa.v_active_observation "
+                 f"where contains("
+                 f"point('ICRS', hsa.v_active_observation.ra, hsa.v_active_observation.dec), "
+                 f"circle('ICRS', {coord.ra.degree},{coord.dec.degree},{r.to(u.deg).value}))=1")
         return self.query_hsa_tap(query)
 
 
