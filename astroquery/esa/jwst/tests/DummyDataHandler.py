@@ -52,7 +52,6 @@ class DummyDataHandler:
             else:
                 raise ValueError(f"Parameter '{str(key)}' not found for "
                                  f"method '{method_name}'")
-        return True
 
     def download_file(self, url=None):
         self.__invokedMethod = 'download_file'
