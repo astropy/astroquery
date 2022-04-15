@@ -40,4 +40,3 @@ class DummyHandler(object):
                                      f"Expected:'{parameters[key]}'")
             else:
                 raise ValueError(f"Parameter '{key}' not found in method '{method_name}'")
-        return True
