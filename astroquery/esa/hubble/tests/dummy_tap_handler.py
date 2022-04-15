@@ -49,7 +49,6 @@ class DummyHubbleTapHandler:
                                      f"Found:'{self._parameters[key]}'. Expected:'{parameters[key]}'")
             else:
                 raise ValueError(f"Parameter '{key}' not found in method '{method_name}'")
-        return True
 
     def launch_job(self, query, name=None, output_file=None,
                    output_format="votable", verbose=False, dump_to_file=False,
