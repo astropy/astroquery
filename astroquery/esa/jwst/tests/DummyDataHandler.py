@@ -45,14 +45,14 @@ class DummyDataHandler:
             if key in self.__parameters:
                 # check value
                 if self.__parameters[key] != parameters[key]:
-                    raise ValueError(f"Wrong '{method_name}' parameter "
-                                     f"value for method '{key}'. "
+                    raise ValueError(f"Wrong '{key}' parameter "
+                                     f"value for method '{method_name}'. "
                                      f"Found: '{self.__parameters[key]}'. "
                                      f"Expected: '{parameters[key]}'")
             else:
                 raise ValueError(f"Parameter '{str(key)}' not found for "
                                  f"method '{method_name}'")
-        return False
+        return True
 
     def download_file(self, url=None):
         self.__invokedMethod = 'download_file'

@@ -18,46 +18,38 @@ from astroquery.utils.tap.model.job import Job
 class DummyHubbleTapHandler:
 
     def __init__(self, method, parameters):
-        self.__invokedMethod = method
+        self._invokedMethod = method
         self._parameters = parameters
 
     def reset(self):
         self._parameters = {}
-        self.__invokedMethod = None
+        self._invokedMethod = None
 
     def check_call(self, method_name, parameters):
         self.check_method(method_name)
         self.check_parameters(parameters, method_name)
 
     def check_method(self, method):
-        if method != self.__invokedMethod:
-            raise Exception("Method '" + str(method) + ""
-                            "' not invoked. (Invoked method is '"
-                            "" + str(self.__invokedMethod)+"')")
+        if method != self._invokedMethod:
+            raise ValueError(f"Method '{method}' is not invoked. (Invoked method "
+                             f"is '{self._invokedMethod}').")
 
     def check_parameters(self, parameters, method_name):
         if parameters is None:
             return len(self._parameters) == 0
         if len(parameters) != len(self._parameters):
-            raise Exception("Wrong number of parameters for method '%s'. "
-                            "Found: %d. Expected %d",
-                            (method_name,
-                             len(self._parameters),
-                             len(parameters)))
+            raise ValueError(f"Wrong number of parameters for method '{method_name}'. "
+                             f"Found: {len(self._parameters)}. Expected {len(parameters)}")
         for key in parameters:
             if key in self._parameters:
                 # check value
                 if self._parameters[key] != parameters[key]:
-                    raise Exception("Wrong '%s' parameter value for method '%s'. \
-                                    Found: '%s'. Expected: '%s'", (
-                        method_name,
-                        key,
-                        self._parameters[key],
-                        parameters[key]))
+                    raise ValueError(f"Wrong '{key}' parameter "
+                                     f"value for method '{method_name}'. "
+                                     f"Found:'{self._parameters[key]}'. Expected:'{parameters[key]}'")
             else:
-                raise Exception("Parameter '%s' not found for method '%s'",
-                                (str(key), method_name))
-        return False
+                raise ValueError(f"Parameter '{key}' not found in method '{method_name}'")
+        return True
 
     def launch_job(self, query, name=None, output_file=None,
                    output_format="votable", verbose=False, dump_to_file=False,
