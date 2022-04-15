@@ -5,6 +5,11 @@ New Tools and Services
 ----------------------
 
 
+hsa
+^^^
+
+- New module to access ESA Herschel mission. [#2122]
+
 Service fixes and enhancements
 ------------------------------
 
