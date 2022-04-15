@@ -379,7 +379,7 @@ class HSAClass(BaseQuery):
         else:
             return columns
 
-    def query_observations(self, coordinate, radius, *, n_obs=10):
+    def query_observations(self, coordinate, radius, *, n_obs=10, **kwargs):
         """
         Get the observation IDs from a given region
 
@@ -391,6 +391,8 @@ class HSAClass(BaseQuery):
             the radius of the region
         n_obs : int, optional
             the number of observations
+        kwargs : dict
+            passed to `query_hsa_tap`
 
         Returns
         -------
@@ -405,7 +407,40 @@ class HSAClass(BaseQuery):
                  f"where contains("
                  f"point('ICRS', hsa.v_active_observation.ra, hsa.v_active_observation.dec), "
                  f"circle('ICRS', {coord.ra.degree},{coord.dec.degree},{r.to(u.deg).value}))=1")
-        return self.query_hsa_tap(query)
+        return self.query_hsa_tap(query, **kwargs)
+
+
+    def query_region(self, coordinate, radius, *, n_obs=10, columns='*', **kwargs):
+        """
+        Get the observation metadata from a given region
+
+        Parameters
+        ----------
+        coordinate : string / `astropy.coordinates`
+            the identifier or coordinates around which to query
+        radius : int / `~astropy.units.Quantity`
+            the radius of the region
+        n_obs : int, optional
+            the number of observations
+        columns : str, optional
+            the columns to retrieve from the data table
+        kwargs : dict
+            passed to `query_hsa_tap`
+
+        Returns
+        -------
+        A table object with the list of observations in the region
+        """
+        r = radius
+        if not isinstance(radius, u.Quantity):
+            r = radius*u.deg
+        coord = commons.parse_coordinates(coordinate).icrs
+
+        query = (f"select top {n_obs} {columns} from hsa.v_active_observation "
+                 f"where contains("
+                 f"point('ICRS', hsa.v_active_observation.ra, hsa.v_active_observation.dec), "
+                 f"circle('ICRS', {coord.ra.degree},{coord.dec.degree},{r.to(u.deg).value}))=1")
+        return self.query_hsa_tap(query, **kwargs)
 
 
 HSA = HSAClass()
