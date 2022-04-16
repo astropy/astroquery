@@ -409,7 +409,6 @@ class HSAClass(BaseQuery):
                  f"circle('ICRS', {coord.ra.degree},{coord.dec.degree},{r.to(u.deg).value}))=1")
         return self.query_hsa_tap(query, **kwargs)
 
-
     def query_region(self, coordinate, radius, *, n_obs=10, columns='*', **kwargs):
         """
         Get the observation metadata from a given region
