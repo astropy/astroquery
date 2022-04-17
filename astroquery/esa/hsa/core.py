@@ -398,16 +398,7 @@ class HSAClass(BaseQuery):
         -------
         A table object with the list of observations in the region
         """
-        r = radius
-        if not isinstance(radius, u.Quantity):
-            r = radius*u.deg
-        coord = commons.parse_coordinates(coordinate).icrs
-
-        query = (f"select top {n_obs} observation_id from hsa.v_active_observation "
-                 f"where contains("
-                 f"point('ICRS', hsa.v_active_observation.ra, hsa.v_active_observation.dec), "
-                 f"circle('ICRS', {coord.ra.degree},{coord.dec.degree},{r.to(u.deg).value}))=1")
-        return self.query_hsa_tap(query, **kwargs)
+        return self.query_region(coordinate, radius, n_obs=n_obs, columns="observation_id", **kwargs)
 
     def query_region(self, coordinate, radius, *, n_obs=10, columns='*', **kwargs):
         """

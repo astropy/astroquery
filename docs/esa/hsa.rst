@@ -145,7 +145,31 @@ This will show the available tables in HSA TAP service in the Herschel Science A
 This will show the column details of the table 'hsa.v_active_observation' in HSA TAP service in the Herschel Science Archive.
 
 
-7. Query Observations
+7. Query Region
+---------------
+
+.. doctest-skip::
+
+  >>> from astroquery.esa.hsa import HSA
+  >>> from astropy.coordinates import SkyCoord
+  >>> from astropy import units as u
+  >>>
+  >>> c = SkyCoord(ra=100.2417*u.degree, dec=9.895*u.degree, frame='icrs')
+  >>> result = HSA.query_region(c, 0.5)
+  >>> result.pprint(max_width=100)
+                        aor                            bii         ...   target_name    urn_version
+                                                                ...                             
+  ------------------------------------------- ------------------ ... ---------------- -----------
+  KPOT_wlanger_1-HPoint-0007 - CII_G202.6+2.0 10.062774289985356 ... CII_G202.6+2.0-1      921022
+                                      n2264-o   9.45754288889945 ...          NGC2264      919399
+                                      n2264-n   9.45754288889945 ...          NGC2264      919398
+                                      n2264-n  9.450299102175919 ...          NGC2264      898497
+                                      n2264-o  9.450499719127244 ...          NGC2264      898535
+
+Retrieve a VOTable with the observations metadata of a given region
+
+
+8. Query Observations
 ---------------------
 
 .. doctest-skip::
@@ -169,7 +193,7 @@ This will show the column details of the table 'hsa.v_active_observation' in HSA
 Retrieve a VOTable with the observation IDs of a given region
 
 
-8. Procedure example
+9. Procedure example
 --------------------
 
 First retrieve the observation IDs based on a position on the sky. To achive this, query the TAP service.
