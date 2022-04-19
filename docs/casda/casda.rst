@@ -142,28 +142,32 @@ Cutouts
 =======
 
 As well as accessing full data products, the CASDA service can produce cutout images and cubes from larger data products.
-The cutout support in AstroQuery allows both spatial an spectral cutouts.
+The cutout support in AstroQuery allows both spatial and spectral cutouts.
 To produce a spatial cutout, pass in a coordinate and either a radius or a height and a width to the :meth:`~astroquery.casda.CasdaClass.cutout` method.
 To produce a spectral cutout, pass in either a band or a channel value. 
 For band, the value must be a list or tuple of two `astropy.units.Quantity` objects specifying a low and high frequency or wavelength. For an open ended range use `None` as the open value.
 For channel, the value must be a list or tuple of two integers specifying the low and high channels (i.e. planes of a cube) inclusive.
+Spatial and spectral parameters can be combined to produce sub-cubes.
 
 Once completed, the cutouts can be downloaded as described in the section above.
 
-An example script to download a cutout from public spectral line cubes of the NGC 5044 region taken in scheduling block 25750 is shown below:
+An example script to download a cutout from the Rapid ASKAP Continuum Survey (RACS) at a specified position is shown below:
 .. code-block:: python
 
     >>> from astropy import coordinates, units as u, wcs
     >>> from astroquery.casda import Casda
     >>> import getpass
-    >>> centre = coordinates.SkyCoord.from_name('NGC 5044')
+    >>> centre = coordinates.SkyCoord.from_name('2MASX J08161181-7039447')
     >>> username = 'email@somewhere.edu.au'
     >>> password = getpass.getpass(str("Enter your OPAL password: "))
     >>> casda = Casda(username, password)
     >>> result = Casda.query_region(centre, radius=30*u.arcmin)
     >>> public_data = Casda.filter_out_unreleased(result)
-    >>> subset = public_data[(public_data['dataproduct_subtype']=='spectral_restored_3d') & (public_data['obs_id']=='25750')]
-    >>> url_list = casda.cutout(subset, coordinates=centre, radius=12*u.arcmin, band=(1340*u.MHz,1365*u.MHz))
+    >>> subset = public_data[((public_data['obs_collection'] == 'The Rapid ASKAP Continuum Survey') & #
+                      (np.char.startswith(public_data['filename'], 'RACS-DR1_')) & #
+                      (np.char.endswith(public_data['filename'], 'A.fits'))
+                     )]
+    >>> url_list = casda.cutout(subset[:1], coordinates=centre, radius=14*u.arcmin)
     >>> filelist = casda.download_files(url_list, savedir='/tmp')
 
 
