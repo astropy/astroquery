@@ -195,11 +195,11 @@ The following modules have been completed using a common API:
   cds/cds.rst
   linelists/cdms/cdms.rst
   dace/dace.rst
-  esa/hsa.rst
-  esa/hubble.rst
-  esa/iso.rst
-  esa/jwst.rst
-  esa/xmm_newton.rst
+  esa/hsa/hsa.rst
+  esa/hubble/hubble.rst
+  esa/iso/iso.rst
+  esa/jwst/jwst.rst
+  esa/xmm_newton/xmm_newton.rst
   esasky/esasky.rst
   eso/eso.rst
   image_cutouts/first/first.rst
@@ -309,9 +309,9 @@ generally return a table listing the available data first.
   alma/alma.rst
   cadc/cadc.rst
   casda/casda.rst
-  esa/hubble.rst
-  esa/jwst.rst
-  esa/xmm_newton.rst
+  esa/hubble/hubble.rst
+  esa/jwst/jwst.rst
+  esa/xmm_newton/xmm_newton.rst
   eso/eso.rst
   fermi/fermi.rst
   gaia/gaia.rst
