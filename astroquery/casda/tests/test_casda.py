@@ -57,7 +57,7 @@ def get_mockreturn(self, method, url, data=None, timeout=10,
             print(data['POS'])
             pos_parts = data['POS'].split(' ')
             assert len(pos_parts) == 4
-            self.completed_job_key = 'cutout_{}_{:.4f}_{:.4f}_{:.4f}'.format(pos_parts[0], float(pos_parts[1]), 
+            self.completed_job_key = 'cutout_{}_{:.4f}_{:.4f}_{:.4f}'.format(pos_parts[0], float(pos_parts[1]),
                 float(pos_parts[2]), float(pos_parts[3]))
             return create_soda_create_response('111-000-111-000')
         elif str(url).endswith('111-000-111-000') and method == 'GET':
@@ -323,19 +323,19 @@ def test_cutout_no_args(patch_get):
 
 def test_args_to_payload_band():
     casda = Casda('user', 'password')
-    payload = casda._args_to_payload(band=(0.195*u.m,0.215*u.m))
+    payload = casda._args_to_payload(band=(0.195*u.m, 0.215*u.m))
     assert payload['BAND'] == '0.195 0.215'
     assert list(payload.keys()) == ['BAND']
 
-    payload = casda._args_to_payload(band=(0.195*u.m,21.5*u.cm))
+    payload = casda._args_to_payload(band=(0.195*u.m, 21.5*u.cm))
     assert payload['BAND'] == '0.195 0.215'
     assert list(payload.keys()) == ['BAND']
 
-    payload = casda._args_to_payload(band=(None,0.215*u.m))
+    payload = casda._args_to_payload(band=(None, 0.215*u.m))
     assert payload['BAND'] == '-Inf 0.215'
     assert list(payload.keys()) == ['BAND']
 
-    payload = casda._args_to_payload(band=(0.195*u.m,None))
+    payload = casda._args_to_payload(band=(0.195*u.m, None))
     assert payload['BAND'] == '0.195 +Inf'
     assert list(payload.keys()) == ['BAND']
 
@@ -360,7 +360,7 @@ def test_args_to_payload_band_invalid():
     assert "The 'band' value must be a list of 2 wavelength or frequency values." in str(excinfo.value)
 
     with pytest.raises(ValueError) as excinfo:
-        casda._args_to_payload(band=(0.195*u.m,0.215*u.m,0.3*u.m))
+        casda._args_to_payload(band=(0.195*u.m, 0.215*u.m, 0.3*u.m))
     assert "The 'band' value must be a list of 2 wavelength or frequency values." in str(excinfo.value)
 
     with pytest.raises(ValueError) as excinfo:
@@ -376,7 +376,7 @@ def test_args_to_payload_band_invalid():
     assert "The 'band' values must be wavelengths or frequencies." in str(excinfo.value)
 
     with pytest.raises(ValueError) as excinfo:
-        casda._args_to_payload(band=(1.42*u.GHz, 1.5*u.GHz), channel=(5,10))
+        casda._args_to_payload(band=(1.42*u.GHz, 1.5*u.GHz), channel=(5, 10))
     assert "Either 'channel' or 'band' values may be provided but not both." in str(excinfo.value)
 
 

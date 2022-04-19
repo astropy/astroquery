@@ -124,9 +124,9 @@ class CasdaClass(BaseQuery):
         if kwargs.get('band') is not None:
             if kwargs.get('channel') is not None:
                 raise ValueError("Either 'channel' or 'band' values may be provided but not both.")
-            
+
             band = kwargs.get('band')
-            if not isinstance(band, (list,tuple)) or len(band) != 2:
+            if not isinstance(band, (list, tuple)) or len(band) != 2:
                 raise ValueError("The 'band' value must be a list of 2 wavelength or frequency values.")
             if (band[0] is not None and not isinstance(band[0], u.Quantity)) or (band[1] is not None and not isinstance(band[1], u.Quantity)):
                 raise ValueError("The 'band' value must be a list of 2 wavelength or frequency values.")
@@ -134,26 +134,26 @@ class CasdaClass(BaseQuery):
                 raise ValueError("The 'band' values must have the same kind of units.")
             if band[0] is not None or band[1] is not None:
                 unit = band[0].unit if band[0] is not None else band[1].unit
-                if unit.physical_type  == 'length':
+                if unit.physical_type == 'length':
                     min_band = '-Inf' if band[0] is None else str(band[0].to(u.m).value)
                     max_band = '+Inf' if band[1] is None else str(band[1].to(u.m).value)
-                elif unit.physical_type  == 'frequency':
+                elif unit.physical_type == 'frequency':
                     # Swap the order when changing frequency to wavelength
                     min_band = '-Inf' if band[1] is None else str(band[1].to(u.m, equivalencies=u.spectral()).value)
                     max_band = '+Inf' if band[0] is None else str(band[0].to(u.m, equivalencies=u.spectral()).value)
                 else:
                     raise ValueError("The 'band' values must be wavelengths or frequencies.")
-                
+
                 request_payload['BAND'] = '{} {}'.format(min_band, max_band)
 
         if kwargs.get('channel') is not None:
             channel = kwargs.get('channel')
-            if not isinstance(channel, (list,tuple)) or len(channel) != 2:
+            if not isinstance(channel, (list, tuple)) or len(channel) != 2:
                 raise ValueError("The 'channel' value must be a list of 2 integer values.")
             if (not isinstance(channel[0], int)) or (not isinstance(channel[1], int)):
                 raise ValueError("The 'channel' value must be a list of 2 integer values.")
             request_payload['CHANNEL'] = '{} {}'.format(channel[0], channel[1])
-            
+
         return request_payload
 
     # the methods above implicitly call the private _parse_result method.
@@ -194,7 +194,6 @@ class CasdaClass(BaseQuery):
         now = str(datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%S.%f'))
         return table[(table['obs_release_date'] != '') & (table['obs_release_date'] < now)]
 
-
     def _create_job(self, table, service_name, verbose):
         # Use datalink to get authenticated access for each file
         tokens = []
@@ -218,7 +217,7 @@ class CasdaClass(BaseQuery):
         job_url = self._create_soda_job(tokens, soda_url=soda_url)
         if verbose:
             log.info("Created data staging job " + job_url)
-        
+
         return job_url
 
     def _complete_job(self, job_url, verbose):
@@ -262,19 +261,18 @@ class CasdaClass(BaseQuery):
             return []
 
         job_url = self._create_job(table, 'async_service', verbose)
-        
-        return self._complete_job(job_url, verbose)
 
+        return self._complete_job(job_url, verbose)
 
     def cutout(self, table, coordinates=None, radius=None, height=None, width=None, band=None, channel=None, verbose=False):
         """
-        Produce a cutout from each selected file. All requests for data must use authentication. If you have access to 
-        the data, the requested files will be brought online, a cutout produced from each file and a set of URLs to 
+        Produce a cutout from each selected file. All requests for data must use authentication. If you have access to
+        the data, the requested files will be brought online, a cutout produced from each file and a set of URLs to
         download the cutouts will be returned.
 
-        If a set of coordinates is provided along with either a radius or a box height and width, then CASDA will produce a 
-        spatial cutout at that location from each data file specified in the table. If a band or channel pair is provided 
-        then CASDA will produce a spectral cutout of that range from each data file. These can be combined to produce 
+        If a set of coordinates is provided along with either a radius or a box height and width, then CASDA will produce a
+        spatial cutout at that location from each data file specified in the table. If a band or channel pair is provided
+        then CASDA will produce a spectral cutout of that range from each data file. These can be combined to produce
         subcubes with restrictions in both spectral and spatial axes.
 
         Parameters
@@ -422,10 +420,9 @@ class CasdaClass(BaseQuery):
         resp.raise_for_status()
         return resp.url
 
-
     def _add_cutout_params(self, job_location, verbose, cutout_spec):
         """
-        Add a cutout specification to an async SODA job. This will change the job 
+        Add a cutout specification to an async SODA job. This will change the job
         from just retrieving the full file to producing a cutout from the target file.
 
         Parameters
@@ -437,7 +434,6 @@ class CasdaClass(BaseQuery):
         cutout_spec: map
             The map containing the POS parameter defining the cutout.
         """
-        #params = list(map((lambda value: (param_key, value)), cutout_spec))
         if verbose:
             log.info("Adding parameters: " + str(cutout_spec))
         resp = self._request('POST', job_location + '/parameters', data=cutout_spec, cache=False)
