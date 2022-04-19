@@ -462,6 +462,7 @@ def test_args_to_payload_combined():
     assert payload['CHANNEL'] == '17 23'
     assert set(payload.keys()) == set(['CHANNEL', 'POS'])
 
+
 def test_download_file(patch_get):
     urls = ['https://ingest.pawsey.org/bucket_name/path/askap_img.fits?security=stuff',
             'http://casda.csiro.au/download/web/111-000-111-000/askap_img.fits.checksum',

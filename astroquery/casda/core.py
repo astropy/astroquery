@@ -317,7 +317,6 @@ class CasdaClass(BaseQuery):
 
         return self._complete_job(job_url, verbose)
 
-
     def download_files(self, urls, savedir=''):
         """
         Download a series of files
@@ -439,7 +438,6 @@ class CasdaClass(BaseQuery):
         resp = self._request('POST', job_location + '/parameters', data=cutout_spec, cache=False)
         resp.raise_for_status()
         return
-
 
     def _run_job(self, job_location, verbose, poll_interval=20):
         """
