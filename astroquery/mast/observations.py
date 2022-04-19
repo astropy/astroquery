@@ -6,7 +6,6 @@ MAST Observations
 This module contains various methods for querying MAST observations.
 """
 
-
 import warnings
 import json
 import time
@@ -38,7 +37,6 @@ from ..exceptions import (TimeoutError, InvalidQueryError, RemoteServiceError,
 from . import conf, utils
 from .core import MastQueryWithLogin
 
-
 __all__ = ['Observations', 'ObservationsClass',
            'MastClass', 'Mast']
 
@@ -51,7 +49,14 @@ class ObservationsClass(MastQueryWithLogin):
     Class for querying MAST observational data.
     """
 
-    def _parse_result(self, responses, verbose=False):  # Used by the async_to_sync decorator functionality
+    # Calling static class variables
+    _caom_all = 'Mast.Caom.All'
+    _caom_cone = 'Mast.Caom.Cone'
+    _caom_filtered_position = 'Mast.Caom.Filtered.Position'
+    _caom_filtered = 'Mast.Caom.Filtered'
+    _caom_products = 'Mast.Caom.Products'
+
+    def _parse_result(self, responses, *, verbose=False):  # Used by the async_to_sync decorator functionality
         """
         Parse the results of a list of `~requests.Response` objects and returns an `~astropy.table.Table` of results.
 
@@ -76,13 +81,13 @@ class ObservationsClass(MastQueryWithLogin):
         Lists data missions archived by MAST and avaiable through `astroquery.mast`.
 
         Returns
-        --------
+        -------
         response : list
             List of available missions.
         """
 
         # getting all the histogram information
-        service = "Mast.Caom.All"
+        service = self._caom_all
         params = {}
         response = self._portal_api_connection.service_request_async(service, params, format='extjs')
         json_response = response[0].json()
@@ -106,15 +111,15 @@ class ObservationsClass(MastQueryWithLogin):
             The query to get metadata for. Options are observations, and products.
 
         Returns
-        --------
+        -------
         response : `~astropy.table.Table`
             The metadata table.
         """
 
         if query_type.lower() == "observations":
-            colconf_name = "Mast.Caom.Cone"
+            colconf_name = self._caom_cone
         elif query_type.lower() == "products":
-            colconf_name = "Mast.Caom.Products"
+            colconf_name = self._caom_products
         else:
             raise InvalidQueryError("Unknown query type.")
 
@@ -152,14 +157,14 @@ class ObservationsClass(MastQueryWithLogin):
 
         # Build the mashup filter object and store it in the correct service_name entry
         if coordinates or objectname:
-            mashup_filters = self._portal_api_connection.build_filter_set("Mast.Caom.Cone",
-                                                                           "Mast.Caom.Filtered.Position",
-                                                                           **criteria)
+            mashup_filters = self._portal_api_connection.build_filter_set(self._caom_cone,
+                                                            self._caom_filtered_position,
+                                                            **criteria)
             coordinates = utils.parse_input_location(coordinates, objectname)
         else:
-            mashup_filters = self._portal_api_connection.build_filter_set("Mast.Caom.Cone",
-                                                                           "Mast.Caom.Filtered",
-                                                                           **criteria)
+            mashup_filters = self._portal_api_connection.build_filter_set(self._caom_cone,
+                                                            self._caom_filtered,
+                                                            **criteria)
 
         # handle position info (if any)
         position = None
@@ -168,13 +173,13 @@ class ObservationsClass(MastQueryWithLogin):
             # if radius is just a number we assume degrees
             radius = coord.Angle(radius, u.deg)
 
-            # build the coordinates string needed by Mast.Caom.Filtered.Position
+            # build the coordinates string needed by ObservationsClass._caom_filtered_position
             position = ', '.join([str(x) for x in (coordinates.ra.deg, coordinates.dec.deg, radius.deg)])
 
         return position, mashup_filters
 
     @class_or_instance
-    def query_region_async(self, coordinates, radius=0.2*u.deg, pagesize=None, page=None):
+    def query_region_async(self, coordinates, *, radius=0.2*u.deg, pagesize=None, page=None):
         """
         Given a sky position and radius, returns a list of MAST observations.
         See column documentation `here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`__.
@@ -209,15 +214,15 @@ class ObservationsClass(MastQueryWithLogin):
         # if radius is just a number we assume degrees
         radius = coord.Angle(radius, u.deg)
 
-        service = 'Mast.Caom.Cone'
+        service = self._caom_cone
         params = {'ra': coordinates.ra.deg,
                   'dec': coordinates.dec.deg,
                   'radius': radius.deg}
 
-        return self._portal_api_connection.service_request_async(service, params, pagesize, page)
+        return self._portal_api_connection.service_request_async(service, params, pagesize=pagesize, page=page)
 
     @class_or_instance
-    def query_object_async(self, objectname, radius=0.2*u.deg, pagesize=None, page=None):
+    def query_object_async(self, objectname, *, radius=0.2*u.deg, pagesize=None, page=None):
         """
         Given an object name, returns a list of MAST observations.
         See column documentation `here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`__.
@@ -247,10 +252,10 @@ class ObservationsClass(MastQueryWithLogin):
 
         coordinates = utils.resolve_object(objectname)
 
-        return self.query_region_async(coordinates, radius, pagesize, page)
+        return self.query_region_async(coordinates, radius=radius, pagesize=pagesize, page=page)
 
     @class_or_instance
-    def query_criteria_async(self, pagesize=None, page=None, **criteria):
+    def query_criteria_async(self, *, pagesize=None, page=None, **criteria):
         """
         Given an set of criteria, returns a list of MAST observations.
         Valid criteria are returned by ``get_metadata("observations")``
@@ -286,18 +291,18 @@ class ObservationsClass(MastQueryWithLogin):
             raise InvalidQueryError("At least one non-positional criterion must be supplied.")
 
         if position:
-            service = "Mast.Caom.Filtered.Position"
+            service = self._caom_filtered_position
             params = {"columns": "*",
                       "filters": mashup_filters,
                       "position": position}
         else:
-            service = "Mast.Caom.Filtered"
+            service = self._caom_filtered
             params = {"columns": "*",
                       "filters": mashup_filters}
 
         return self._portal_api_connection.service_request_async(service, params)
 
-    def query_region_count(self, coordinates, radius=0.2*u.deg, pagesize=None, page=None):
+    def query_region_count(self, coordinates, *, radius=0.2*u.deg, pagesize=None, page=None):
         """
         Given a sky position and radius, returns the number of MAST observations in that region.
 
@@ -322,7 +327,7 @@ class ObservationsClass(MastQueryWithLogin):
         response : int
         """
 
-        # build the coordinates string needed by Mast.Caom.Filtered.Position
+        # build the coordinates string needed by ObservationsClass._caom_filtered_position
         coordinates = commons.parse_coordinates(coordinates)
 
         # if radius is just a number we assume degrees
@@ -331,14 +336,14 @@ class ObservationsClass(MastQueryWithLogin):
         # turn coordinates into the format
         position = ', '.join([str(x) for x in (coordinates.ra.deg, coordinates.dec.deg, radius.deg)])
 
-        service = "Mast.Caom.Filtered.Position"
+        service = self._caom_filtered_position
         params = {"columns": "COUNT_BIG(*)",
                   "filters": [],
                   "position": position}
 
         return int(self._portal_api_connection.service_request(service, params, pagesize, page)[0][0])
 
-    def query_object_count(self, objectname, radius=0.2*u.deg, pagesize=None, page=None):
+    def query_object_count(self, objectname, *, radius=0.2*u.deg, pagesize=None, page=None):
         """
         Given an object name, returns the number of MAST observations.
 
@@ -364,9 +369,9 @@ class ObservationsClass(MastQueryWithLogin):
 
         coordinates = utils.resolve_object(objectname)
 
-        return self.query_region_count(coordinates, radius, pagesize, page)
+        return self.query_region_count(coordinates, radius=radius, pagesize=pagesize, page=page)
 
-    def query_criteria_count(self, pagesize=None, page=None, **criteria):
+    def query_criteria_count(self, *, pagesize=None, page=None, **criteria):
         """
         Given an set of filters, returns the number of MAST observations meeting those criteria.
 
@@ -399,12 +404,12 @@ class ObservationsClass(MastQueryWithLogin):
 
         # send query
         if position:
-            service = "Mast.Caom.Filtered.Position"
+            service = self._caom_filtered_position
             params = {"columns": "COUNT_BIG(*)",
                       "filters": mashup_filters,
                       "position": position}
         else:
-            service = "Mast.Caom.Filtered"
+            service = self._caom_filtered
             params = {"columns": "COUNT_BIG(*)",
                       "filters": mashup_filters}
 
@@ -440,12 +445,12 @@ class ObservationsClass(MastQueryWithLogin):
         if len(observations) == 0:
             raise InvalidQueryError("Observation list is empty, no associated products.")
 
-        service = 'Mast.Caom.Products'
+        service = self._caom_products
         params = {'obsid': ','.join(observations)}
 
         return self._portal_api_connection.service_request_async(service, params)
 
-    def filter_products(self, products, mrp_only=False, extension=None, **filters):
+    def filter_products(self, products, *, mrp_only=False, extension=None, **filters):
         """
         Takes an `~astropy.table.Table` of MAST observation data products and filters it based on given filters.
 
@@ -500,7 +505,7 @@ class ObservationsClass(MastQueryWithLogin):
 
         return products[np.where(filter_mask)]
 
-    def download_file(self, uri, local_path=None, base_url=None, cache=True, cloud_only=False):
+    def download_file(self, uri, *, local_path=None, base_url=None, cache=True, cloud_only=False):
         """
         Downloads a single file based on the data URI
 
@@ -577,7 +582,7 @@ class ObservationsClass(MastQueryWithLogin):
 
         return status, msg, url
 
-    def _download_files(self, products, base_dir, cache=True, cloud_only=False,):
+    def _download_files(self, products, base_dir, *, cache=True, cloud_only=False,):
         """
         Takes an `~astropy.table.Table` of data products and downloads them into the directory given by base_dir.
 
@@ -653,7 +658,7 @@ class ObservationsClass(MastQueryWithLogin):
                           'Message': [msg]})
         return manifest
 
-    def download_products(self, products, download_dir=None,
+    def download_products(self, products, *, download_dir=None,
                           cache=True, curl_flag=False, mrp_only=False, cloud_only=False, **filters):
         """
         Download data products.
@@ -710,7 +715,7 @@ class ObservationsClass(MastQueryWithLogin):
             products = vstack(product_lists)
 
         # apply filters
-        products = self.filter_products(products, mrp_only, **filters)
+        products = self.filter_products(products, mrp_only=mrp_only, **filters)
 
         if not len(products):
             warnings.warn("No products to download.", NoResultsWarning)
@@ -721,15 +726,19 @@ class ObservationsClass(MastQueryWithLogin):
             download_dir = '.'
 
         if curl_flag:  # don't want to download the files now, just the curl script
-            manifest = self._download_curl_script(products, download_dir)
+            manifest = self._download_curl_script(products,
+                                                  download_dir)
 
         else:
             base_dir = download_dir.rstrip('/') + "/mastDownload"
-            manifest = self._download_files(products, base_dir, cache, cloud_only)
+            manifest = self._download_files(products,
+                                            base_dir=base_dir,
+                                            cache=cache,
+                                            cloud_only=cloud_only)
 
         return manifest
 
-    def get_cloud_uris(self, data_products, include_bucket=True, full_url=False):
+    def get_cloud_uris(self, data_products, *, include_bucket=True, full_url=False):
         """
         Takes an `~astropy.table.Table` of data products and returns the associated cloud data uris.
 
@@ -758,7 +767,7 @@ class ObservationsClass(MastQueryWithLogin):
 
         return self._cloud_connection.get_cloud_uri_list(data_products, include_bucket, full_url)
 
-    def get_cloud_uri(self, data_product, include_bucket=True, full_url=False):
+    def get_cloud_uri(self, data_product, *, include_bucket=True, full_url=False):
         """
         For a given data product, returns the associated cloud URI.
         If the product is from a mission that does not support cloud access an
@@ -801,7 +810,7 @@ class MastClass(MastQueryWithLogin):
     more flexible but less user friendly than `ObservationsClass`.
     """
 
-    def _parse_result(self, responses, verbose=False):  # Used by the async_to_sync decorator functionality
+    def _parse_result(self, responses, *, verbose=False):  # Used by the async_to_sync decorator functionality
         """
         Parse the results of a list of `~requests.Response` objects and returns an `~astropy.table.Table` of results.
 
@@ -822,7 +831,7 @@ class MastClass(MastQueryWithLogin):
         return self._portal_api_connection._parse_result(responses, verbose)
 
     @class_or_instance
-    def service_request_async(self, service, params, pagesize=None, page=None, **kwargs):
+    def service_request_async(self, service, params, *, pagesize=None, page=None, **kwargs):
         """
         Given a Mashup service and parameters, builds and excecutes a Mashup query.
         See documentation `here <https://mast.stsci.edu/api/v0/class_mashup_1_1_mashup_request.html>`__

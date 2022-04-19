@@ -5,7 +5,7 @@ import requests
 from astropy import coordinates
 import pytest
 from ...utils import commons
-from ...utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
 from ... import alfalfa
 
 DATA_FILES = {'catalog': 'alfalfa_cat_small.txt',
@@ -27,10 +27,8 @@ class MockResponseAlfalfa(MockResponse):
 
 @pytest.fixture
 def patch_get(request):
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
+    mp = request.getfixturevalue("monkeypatch")
+
     mp.setattr(requests, 'get', get_mockreturn)
     return mp
 
@@ -41,10 +39,9 @@ def patch_get_readable_fileobj(request):
     def get_readable_fileobj_mockreturn(filename, **kwargs):
         file_obj = data_path(DATA_FILES['spectrum'])  # TODO: add images option
         yield open(file_obj, 'rb')  # read as bytes, assuming FITS
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
+
+    mp = request.getfixturevalue("monkeypatch")
+
     mp.setattr(commons, 'get_readable_fileobj',
                get_readable_fileobj_mockreturn)
     return mp

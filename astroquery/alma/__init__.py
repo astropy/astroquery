@@ -11,8 +11,6 @@ _url_list = ['http://almascience.org',
              'https://almascience.nrao.edu',
              'https://almascience.nao.ac.jp']
 
-_test_url_list = ['https://beta.cadc-ccda.hia-ha.nrc-cnrc.gc.ca']
-
 auth_urls = ['asa.alma.cl', 'rh-cas.alma.cl']
 
 
@@ -26,11 +24,6 @@ class Conf(_config.ConfigNamespace):
     archive_url = _config.ConfigItem(
         _url_list,
         'The ALMA Archive mirror to use.')
-
-    test_archive_url = _config.ConfigItem(
-        _test_url_list,
-        'ALMA Archive Test Mirrors (temporary)'
-    )
 
     auth_url = _config.ConfigItem(
         auth_urls,

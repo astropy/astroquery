@@ -1,41 +1,50 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
-
 @author: Elena Colomo
 @contact: ecolomo@esa.int
-
 European Space Astronomy Centre (ESAC)
 European Space Agency (ESA)
-
 Created on 4 Sept. 2019
 """
+from unittest.mock import patch
 
 import pytest
-
-import sys
 import tarfile
 import os
 import errno
 import shutil
-from astropy.coordinates import SkyCoord
-from astropy.utils.diff import report_diff_values
-from astroquery.utils.tap.core import TapPlus
 
 from ..core import XMMNewtonClass
 from ..tests.dummy_tap_handler import DummyXMMNewtonTapHandler
 from ..tests.dummy_handler import DummyHandler
-from fileinput import filename
-from tarfile import is_tarfile
+from astroquery.exceptions import LoginError
+
+
+def data_path(filename):
+    data_dir = os.path.join(os.path.dirname(__file__), 'data')
+    return os.path.join(data_dir, filename)
+
+
+class mockResponse():
+    headers = {'Date': 'Wed, 24 Nov 2021 13:43:50 GMT',
+               'Server': 'Apache/2.4.6 (Red Hat Enterprise Linux) OpenSSL/1.0.2k-fips',
+               'Content-Disposition': 'inline; filename="0560181401.tar.gz"',
+               'Content-Type': 'application/x-gzip',
+               'Content-Length': '6590874', 'Connection': 'close'}
+    status_code = 400
+
+    @staticmethod
+    def raise_for_status():
+        pass
 
 
 class TestXMMNewton():
-
     def get_dummy_tap_handler(self):
-        parameterst = {'query': "select top 10 * from v_public_observations",
-                       'output_file': "test2.vot",
-                       'output_format': "votable",
-                       'verbose': False}
-        dummyTapHandler = DummyXMMNewtonTapHandler("launch_job", parameterst)
+        parameters = {'query': "select top 10 * from v_public_observations",
+                      'output_file': "test2.vot",
+                      'output_format': "votable",
+                      'verbose': False}
+        dummyTapHandler = DummyXMMNewtonTapHandler("launch_job", parameters)
         return dummyTapHandler
 
     def test_query_xsa_tap(self):
@@ -71,6 +80,11 @@ class TestXMMNewton():
         xsa = XMMNewtonClass(self.get_dummy_tap_handler())
         xsa.get_columns("table", only_names=True, verbose=True)
         dummyTapHandler.check_call("get_columns", parameters2)
+
+    def test_get_columns_valueerror(self):
+        with pytest.raises(ValueError):
+            xsa = XMMNewtonClass(self.get_dummy_tap_handler())
+            xsa.get_columns("", only_names=True, verbose=True)
 
     def test_dummy_handler(self):
         parameters2 = {'table_name': "table",
@@ -235,7 +249,7 @@ class TestXMMNewton():
                             os.makedirs(os.path.join(ob_name, ftype))
                         except OSError as exc:
                             if exc.errno == errno.EEXIST and \
-                              os.path.isdir(os.path.join(ob_name, ftype)):
+                                    os.path.isdir(os.path.join(ob_name, ftype)):
                                 pass
                             else:
                                 raise
@@ -255,7 +269,7 @@ class TestXMMNewton():
                             os.makedirs(os.path.join(ob_name, ftype))
                         except OSError as exc:
                             if exc.errno == errno.EEXIST and \
-                              os.path.isdir(os.path.join(ob_name, ftype)):
+                                    os.path.isdir(os.path.join(ob_name, ftype)):
                                 pass
                             else:
                                 raise
@@ -377,7 +391,7 @@ class TestXMMNewton():
         xsa = XMMNewtonClass(self.get_dummy_tap_handler())
         res = xsa.get_epic_images(_tarname, band=[], instrument=[],
                                   get_detmask=True, get_exposure_map=True)
-        assert len(res) == 6     # Number of different bands
+        assert len(res) == 6  # Number of different bands
         assert len(res[1]) == 9  # Number of different inst within band 1
         assert len(res[2]) == 9  # Number of different inst within band 2
         assert len(res[3]) == 9  # Number of different inst within band 3
@@ -510,3 +524,61 @@ class TestXMMNewton():
                        % (_tarname, _invalid_source_number,
                           _default_instrument))
         os.remove(_tarname)
+
+    def test_create_link(self):
+        xsa = XMMNewtonClass(self.get_dummy_tap_handler())
+        link = xsa._create_link("0560181401")
+        assert link == "https://nxsa.esac.esa.int/nxsa-sl/servlet/data-action-aio?obsno=0560181401"
+
+    @patch('astroquery.query.BaseQuery._request')
+    def test_request_link(self, mock_request):
+        xsa = XMMNewtonClass(self.get_dummy_tap_handler())
+        mock_request.return_value = mockResponse
+        params = xsa._request_link("https://nxsa.esac.esa.int/nxsa-sl/servlet/data-action-aio?obsno=0560181401", None)
+        assert params == {'filename': '0560181401.tar.gz'}
+
+    @patch('astroquery.query.BaseQuery._request')
+    def test_request_link_protected(self, mock_request):
+        with pytest.raises(LoginError):
+            xsa = XMMNewtonClass(self.get_dummy_tap_handler())
+            dummyclass = mockResponse
+            dummyclass.headers = {}
+            mock_request.return_value = dummyclass
+            xsa._request_link("https://nxsa.esac.esa.int/nxsa-sl/servlet/data-action-aio?obsno=0560181401", None)
+
+    @patch('astroquery.query.BaseQuery._request')
+    def test_request_link_incorrect_credentials(self, mock_request):
+        with pytest.raises(LoginError):
+            xsa = XMMNewtonClass(self.get_dummy_tap_handler())
+            dummyclass = mockResponse
+            dummyclass.headers = {}
+            dummyclass.status_code = 10
+            mock_request.return_value = dummyclass
+            xsa._request_link("https://nxsa.esac.esa.int/nxsa-sl/servlet/data-action-aio?obsno=0560181401", None)
+
+    @patch('astroquery.query.BaseQuery._request')
+    def test_request_link_with_statuscode_401(self, mock_request):
+        with pytest.raises(LoginError):
+            xsa = XMMNewtonClass(self.get_dummy_tap_handler())
+            dummyclass = mockResponse
+            dummyclass.headers = {}
+            dummyclass.status_code = 401
+            mock_request.return_value = dummyclass
+            xsa._request_link("https://nxsa.esac.esa.int/nxsa-sl/servlet/data-action-aio?obsno=0560181401", None)
+
+    def test_get_username_and_password(self):
+        xsa = XMMNewtonClass(self.get_dummy_tap_handler())
+        file = data_path("dummy_config.ini")
+        username, password = xsa._get_username_and_password(file)
+        assert username == "test"
+        assert password == "test"
+
+    def test_create_filename_None(self):
+        xsa = XMMNewtonClass(self.get_dummy_tap_handler())
+        filename = xsa._create_filename(None, "0560181401", ['.tar', '.gz'])
+        assert filename == "0560181401.tar.gz"
+
+    def test_create_filename_Not_None(self):
+        xsa = XMMNewtonClass(self.get_dummy_tap_handler())
+        filename = xsa._create_filename("Test", "0560181401", ['.tar', '.gz'])
+        assert filename == "Test.tar.gz"

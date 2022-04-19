@@ -1,3 +1,0 @@
-ERROR<br>
-Error Type: exoLookup call failure<br>
-Message:    Object not found by Exoplanet Archive, SIMBAD, or NED.

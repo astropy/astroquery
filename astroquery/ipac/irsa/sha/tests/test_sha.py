@@ -4,7 +4,7 @@ import pytest
 import requests
 
 from astroquery.ipac.irsa import sha
-from astroquery.utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
 
 DATA_FILES = {'img': 'img.fits',
               'nid_t': 'nid_t.txt',
@@ -41,10 +41,8 @@ def get_mockreturn(url, params=None, stream=False, timeout=10, **kwargs):
 
 @pytest.fixture
 def patch_get(request):
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
+    mp = request.getfixturevalue("monkeypatch")
+
     mp.setattr(requests, 'get', get_mockreturn)
     return mp
 

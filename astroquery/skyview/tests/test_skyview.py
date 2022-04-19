@@ -7,7 +7,7 @@ from astropy import coordinates
 from astropy import units as u
 
 from ...utils import commons
-from ...utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
 from ...skyview import SkyView
 
 objcoords = {'Eta Carinae': coordinates.SkyCoord(ra=161.264775 * u.deg,
@@ -65,10 +65,8 @@ def data_path(filename):
 
 @pytest.fixture
 def patch_get(request):
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
+    mp = request.getfixturevalue("monkeypatch")
+
     mp.setattr(SkyView, '_request', MockResponseSkyviewForm)
     return mp
 

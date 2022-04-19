@@ -9,7 +9,7 @@ from astropy.table import Table
 import astropy.coordinates as coord
 import astropy.units as u
 
-from astroquery.utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
 from astroquery.utils import commons
 from astroquery.ipac.irsa import Irsa, conf
 from astroquery.ipac import irsa
@@ -30,10 +30,8 @@ def data_path(filename):
 
 @pytest.fixture
 def patch_get(request):
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
+    mp = request.getfixturevalue("monkeypatch")
+
     mp.setattr(Irsa, '_request', get_mockreturn)
     return mp
 

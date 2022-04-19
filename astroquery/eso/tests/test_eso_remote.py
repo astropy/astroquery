@@ -3,7 +3,9 @@ import numpy as np
 import pytest
 import tempfile
 import shutil
-from ...exceptions import LoginError
+import warnings
+
+from astroquery.exceptions import LoginError, NoResultsWarning
 
 from ...eso import Eso
 
@@ -93,8 +95,9 @@ class TestEso:
         surveys = eso.list_surveys(cache=False)
         assert len(surveys) > 0
         # Avoid SESAME
-        result_s = eso.query_surveys(surveys[0], coord1=202.469575,
-                                     coord2=47.195258, cache=False)
+        with pytest.warns(NoResultsWarning):
+            result_s = eso.query_surveys(surveys[0], coord1=202.469575,
+                                         coord2=47.195258, cache=False)
 
         assert result_s is None
 
@@ -163,7 +166,7 @@ class TestEso:
         tbl = eso.query_apex_quicklooks(prog_id='095.F-9802')
         tblb = eso.query_apex_quicklooks('095.F-9802')
 
-        assert len(tbl) == 4
+        assert len(tbl) == 5
         assert set(tbl['Release Date']) == {'2015-07-17', '2015-07-18',
                                             '2015-09-15', '2015-09-18'}
 
@@ -174,20 +177,35 @@ class TestEso:
         eso.cache_location = temp_dir
 
         instruments = eso.list_instruments(cache=False)
-        for instrument in instruments:
-            result_i = eso.query_instrument(instrument, coord1=266.41681662,
-                                            coord2=-29.00782497, cache=False)
 
+        for instrument in instruments:
+            with pytest.warns(None) as record:
+                result_i = eso.query_instrument(instrument, coord1=266.41681662,
+                                                coord2=-29.00782497, cache=False)
+                # Sometimes there are ResourceWarnings, we ignore those for this test
+                if len(record) > 0 and NoResultsWarning in {record[i].category for i in range(len(record))}:
+                    assert result_i is None
+                else:
+                    assert len(result_i) > 0
+
+    @pytest.mark.filterwarnings("ignore::ResourceWarning")
     def test_each_survey_SgrAstar(self, temp_dir):
         eso = Eso()
         eso.cache_location = temp_dir
 
         surveys = eso.list_surveys(cache=False)
         for survey in surveys:
-            result_s = eso.query_surveys(survey, coord1=266.41681662,
-                                         coord2=-29.00782497,
-                                         box='01 00 00',
-                                         cache=False)
+            with pytest.warns(None) as record:
+                result_s = eso.query_surveys(survey, coord1=266.41681662,
+                                             coord2=-29.00782497,
+                                             box='01 00 00',
+                                             cache=False)
+                # Sometimes there are ResourceWarnings, we ignore those for this test
+                if len(record) > 0 and NoResultsWarning in {record[i].category for i in range(len(record))}:
+                    assert result_s is None
+                else:
+                    print([record[i].message for i in range(len(record))])
+                    assert len(result_s) > 0
 
     @pytest.mark.skipif("SKIP_SLOW")
     @pytest.mark.parametrize('cache', (False, True))

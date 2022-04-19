@@ -299,7 +299,8 @@ class Job:
                     output = self.outputFile
                 else:
                     output = self.outputFileUser
-                print(f"Saving results to: {output}")
+                if verbose:
+                    print(f"Saving results to: {output}")
                 self.connHandler.dump_to_file(output, response)
 
     def wait_for_job_end(self, verbose=False):

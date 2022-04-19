@@ -32,7 +32,8 @@ class SDSSClass(BaseQuery):
     QUERY_URL_SUFFIX_DR_OLD = '/dr{dr}/en/tools/search/x_sql.asp'
     QUERY_URL_SUFFIX_DR_10 = '/dr{dr}/en/tools/search/x_sql.aspx'
     QUERY_URL_SUFFIX_DR_NEW = '/dr{dr}/en/tools/search/x_results.aspx'
-    XID_URL_SUFFIX_OLD = '/dr{dr}/en/tools/crossid/x_crossid.aspx'
+    XID_URL_SUFFIX_OLD = '/dr{dr}/en/tools/crossid/x_crossid.asp'
+    XID_URL_SUFFIX_DR_10 = '/dr{dr}/en/tools/crossid/x_crossid.aspx'
     XID_URL_SUFFIX_NEW = '/dr{dr}/en/tools/search/X_Results.aspx'
     IMAGING_URL_SUFFIX = ('{base}/dr{dr}/{instrument}/photoObj/frames/'
                           '{rerun}/{run}/{camcol}/'
@@ -81,7 +82,7 @@ class SDSSClass(BaseQuery):
         radius : str or `~astropy.units.Quantity` object, optional The
             string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from
-            `astropy.units` may also be used. Defaults to 2 arcsec.
+            `astropy.units` may also be used. Defaults to 5 arcsec.
         timeout : float, optional
             Time limit (in seconds) for establishing successful connection with
             remote server.  Defaults to `SDSSClass.TIMEOUT`.
@@ -123,7 +124,7 @@ class SDSSClass(BaseQuery):
                 raise TypeError("radius should be either Quantity or "
                                 "convertible to float.")
 
-        sql_query = 'SELECT '
+        sql_query = 'SELECT\r\n'  # Older versions expect the CRLF to be there.
 
         if specobj_fields is None:
             if photoobj_fields is None:
@@ -138,13 +139,16 @@ class SDSSClass(BaseQuery):
                 photobj_fields.append('p.objID as obj_id')
             else:
                 photobj_fields = []
-                specobj_fields.append('s.objID as obj_id')
+                specobj_fields.append('s.SpecObjID as obj_id')
 
         sql_query += ', '.join(photobj_fields + specobj_fields)
 
         sql_query += ',dbo.fPhotoTypeN(p.type) as type \
                       FROM #upload u JOIN #x x ON x.up_id = u.up_id \
-                      JOIN PhotoObjAll p ON p.objID = x.objID ORDER BY x.up_id'
+                      JOIN PhotoObjAll p ON p.objID = x.objID '
+        if specobj_fields:
+            sql_query += 'JOIN SpecObjAll s ON p.objID = s.bestObjID '
+        sql_query += 'ORDER BY x.up_id'
 
         data = "obj_id ra dec \n"
         data += " \n ".join(['{0} {1} {2}'.format(obj_names[i],
@@ -153,7 +157,8 @@ class SDSSClass(BaseQuery):
                              for i in range(len(coordinates))])
 
         # firstcol is hardwired, as obj_names is always passed
-        request_payload = dict(uquery=sql_query, paste=data,
+        files = {'upload': ('astroquery', data)}
+        request_payload = dict(uquery=sql_query,
                                firstcol=1,
                                format='csv', photoScope='nearPrim',
                                radius=radius,
@@ -163,9 +168,11 @@ class SDSSClass(BaseQuery):
             request_payload['searchtool'] = 'CrossID'
 
         if get_query_payload:
-            return request_payload
+            return request_payload, files
+
         url = self._get_crossid_url(data_release)
-        response = self._request("POST", url, params=request_payload,
+        response = self._request("POST", url, data=request_payload,
+                                 files=files,
                                  timeout=timeout, cache=cache)
         return response
 
@@ -1072,8 +1079,10 @@ class SDSSClass(BaseQuery):
         return url
 
     def _get_crossid_url(self, data_release):
-        if data_release < 11:
+        if data_release < 10:
             suffix = self.XID_URL_SUFFIX_OLD
+        elif data_release == 10:
+            suffix = self.XID_URL_SUFFIX_DR_10
         else:
             suffix = self.XID_URL_SUFFIX_NEW
 

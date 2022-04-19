@@ -1,0 +1,16 @@
+version: 2
+
+python:
+   # Revise build version once more dependencies support python 3.9+
+   version: 3.8
+   system_packages: false
+   install:
+     - method: pip
+       path: .
+       extra_requirements:
+          - docs
+          - all
+
+sphinx:
+   fail_on_warning: true
+   configuration: docs/conf.py

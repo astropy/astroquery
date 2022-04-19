@@ -5,7 +5,7 @@ import os
 
 
 def get_package_data():
-    paths = [os.path.join('data', '*.dat'),
-             os.path.join('data', '*.xml'),
-             ]
-    return {'astroquery.heasarc.tests': paths}
+    paths = [
+        os.path.join("data", "*.dat"),
+    ]
+    return {"astroquery.heasarc.tests": paths}

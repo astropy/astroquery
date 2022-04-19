@@ -4,6 +4,7 @@ from __future__ import (absolute_import, division, print_function,
 import abc
 import inspect
 import pickle
+import copy
 import getpass
 import hashlib
 import keyring
@@ -26,6 +27,10 @@ __all__ = ['BaseQuery', 'QueryWithLogin']
 
 def to_cache(response, cache_file):
     log.debug("Caching data to {0}".format(cache_file))
+    response = copy.deepcopy(response)
+    if hasattr(response, 'request'):
+        for key in tuple(response.request.hooks.keys()):
+            del response.request.hooks[key]
     with open(cache_file, "wb") as f:
         pickle.dump(response, f)
 
@@ -173,8 +178,7 @@ class BaseQuery(metaclass=LoginABCMeta):
         self.cache_location = os.path.join(
             paths.get_cache_dir(), 'astroquery',
             self.__class__.__name__.split("Class")[0])
-        if not os.path.exists(self.cache_location):
-            os.makedirs(self.cache_location)
+        os.makedirs(self.cache_location, exist_ok=True)
         self._cache_active = True
 
     def __call__(self, *args, **kwargs):

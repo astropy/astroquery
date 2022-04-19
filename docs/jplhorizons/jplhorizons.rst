@@ -82,9 +82,8 @@ calendar dates/times and Julian Dates, refer to UTC for ephemerides queries, TDB
 for element queries and vector queries. By default, ``epochs=None``, which uses
 the current date and time.
 
-``id_type`` controls how `Horizons resolves the ``id``
-<https://ssd.jpl.nasa.gov/horizons/manual.html#select>_` to match a Solar System
-body:
+``id_type`` controls how `Horizons resolves the 'id' <https://ssd.jpl.nasa.gov/horizons/manual.html#select>`_
+to match a Solar System body:
 
 +--------------------+------------------------------------------------------------------------------------------------------------------------------------------+
 | ``id_type``        | Query behavior                                                                                                                           |
@@ -329,8 +328,8 @@ As we have seen before, we can display a truncated version of table
 .. code-block:: python
 
    >>> print(eph)
-           targetname            datetime_str   ...  PABLon   PABLat 
-              ---                    ---        ...   deg      deg   
+           targetname            datetime_str   ...  PABLon   PABLat
+              ---                    ---        ...   deg      deg
    -------------------------- ----------------- ... -------- --------
    3552 Don Quixote (1983 SA) 2010-Jan-01 00:00 ...   8.0371  18.9349
    3552 Don Quixote (1983 SA) 2011-Jan-01 00:00 ...  85.4082  34.5611
@@ -354,6 +353,7 @@ Columns
 -------
 
 We can get at list of all the columns in this table with:
+
 .. code-block:: python
 
    >>> print(eph.columns)
@@ -362,12 +362,11 @@ We can get at list of all the columns in this table with:
 We can address each column individually by indexing it using its name as
 provided in this list. For instance, we can get all RAs for Don Quixote by using
 
-
 .. code-block:: python
 
    >>> print(eph['RA'])
-       RA   
-      deg   
+       RA
+      deg
    ---------
    345.50204
     78.77158
@@ -385,9 +384,10 @@ This column is formatted like the entire table; it has a column name and a unit.
 We can select several columns at a time, for instance RA and DEC for each epoch
 
 .. code-block:: python
+
    >>> print(eph['datetime_str', 'RA', 'DEC'])
-      datetime_str       RA      DEC   
-          ---           deg      deg   
+      datetime_str       RA      DEC
+          ---           deg      deg
    ----------------- --------- --------
    2010-Jan-01 00:00 345.50204 13.43621
    2011-Jan-01 00:00  78.77158 61.48831
@@ -409,7 +409,7 @@ in quadrature:
 
    >>> import numpy as np
    >>> print(np.sqrt(eph['RA_rate']**2 + eph['DEC_rate']**2))
-        dRA*cosD     
+        dRA*cosD
    ------------------
     86.18728612153883
    26.337249029653798
@@ -437,7 +437,7 @@ h`` - arcseconds per hour:
 .. code-block:: python
 
    >>> print(eph['RA_rate'])
-    RA_rate  
+    RA_rate
    arcsec / h
    ----------
      72.35438
@@ -459,8 +459,8 @@ same dimensions. For instance, we can turn ``RA_rate`` into ``arcsec / s``:
 
    >>> eph['RA_rate'].convert_unit_to('arcsec/s')
    >>> print(eph['RA_rate'])
-          RA_rate        
-         arcsec / s      
+          RA_rate
+         arcsec / s
    ----------------------
       0.02009843888888889
    -0.0066177499999999995

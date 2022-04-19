@@ -8,7 +8,7 @@ import astropy.units as u
 from astropy.table import Table
 
 from ... import nrao
-from ...utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
 from ...utils import commons
 
 
@@ -26,20 +26,16 @@ DATA_FILES = {'votable': 'votable.xml',
 def patch_parse_coordinates(request):
     def parse_coordinates_mock_return(c):
         return c
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
+    mp = request.getfixturevalue("monkeypatch")
+
     mp.setattr(commons, 'parse_coordinates', parse_coordinates_mock_return)
     return mp
 
 
 @pytest.fixture
 def patch_post(request):
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
+    mp = request.getfixturevalue("monkeypatch")
+
     mp.setattr(requests.Session, 'request', post_mockreturn)
     return mp
 

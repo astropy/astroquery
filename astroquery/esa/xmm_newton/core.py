@@ -12,13 +12,15 @@ Created on 3 Sept 2019
 
 """
 import re
+from getpass import getpass
 from ...utils.tap.core import TapPlus
-from ...query import BaseQuery
+from ...query import BaseQuery, QueryWithLogin
 import shutil
 import cgi
 from pathlib import Path
 import tarfile
 import os
+import configparser
 
 from astropy.io import fits
 from . import conf
@@ -26,12 +28,10 @@ from astroquery import log
 from astropy.coordinates import SkyCoord
 from ...exceptions import LoginError
 
-
 __all__ = ['XMMNewton', 'XMMNewtonClass']
 
 
 class XMMNewtonClass(BaseQuery):
-
     data_url = conf.DATA_ACTION
     data_aio_url = conf.DATA_ACTION_AIO
     metadata_url = conf.METADATA_ACTION
@@ -39,16 +39,16 @@ class XMMNewtonClass(BaseQuery):
 
     def __init__(self, tap_handler=None):
         super(XMMNewtonClass, self).__init__()
+        self.configuration = configparser.ConfigParser()
 
         if tap_handler is None:
-            self._tap = TapPlus(url="http://nxsa.esac.esa.int"
-                                    "/tap-server/tap/")
+            self._tap = TapPlus(url="https://nxsa.esac.esa.int/tap-server/tap")
         else:
             self._tap = tap_handler
         self._rmf_ftp = str("http://sasdev-xmm.esac.esa.int/pub/ccf/constituents/extras/responses/")
 
     def download_data(self, observation_id, *, filename=None, verbose=False,
-                      cache=True, **kwargs):
+                      cache=True, prop=False, credentials_file=None, **kwargs):
         """
         Download data from XMM-Newton
 
@@ -63,6 +63,13 @@ class XMMNewtonClass(BaseQuery):
         verbose : bool
             optional, default 'False'
             flag to display information about the process
+        prop: boolean
+            optional, default 'False'
+            flag to download proprietary data, the method will then ask the user to
+            input their username and password either manually or using the credentials_file
+        credentials_file: string
+            optional, default None
+            path to where the users config.ini file is stored with their username and password
         level : string
             level to download, optional, by default everything is downloaded
             values: ODF, PPS
@@ -94,48 +101,44 @@ class XMMNewtonClass(BaseQuery):
             file format, optional, by default all formats
             values: ASC, ASZ, FTZ, HTM, IND, PDF, PNG
 
-
         Returns
         -------
         None if not verbose. It downloads the observation indicated
         If verbose returns the filename
         """
-        if filename is not None:
-            filename = os.path.splitext(filename)[0]
 
-        link = self.data_aio_url + "obsno=" + observation_id
+        # create url to access the aio
+        link = self._create_link(observation_id, **kwargs)
 
-        link = link + "".join("&{0}={1}".format(key, val)
-                              for key, val in kwargs.items())
+        # If the user wants to access proprietary data, ask them for their credentials
+        if prop:
+            username, password = self._get_username_and_password(credentials_file)
+            link = f"{link}&AIOUSER={username}&AIOPWD={password}"
 
         if verbose:
             log.info(link)
 
-        # we can cache this HEAD request - the _download_file one will check
-        # the file size and will never cache
-        response = self._request('HEAD', link, save=False, cache=cache)
-
-        # Get original extension
-        if 'Content-Type' in response.headers and 'text' not in response.headers['Content-Type']:
-            _, params = cgi.parse_header(response.headers['Content-Disposition'])
-        else:
-            if response.status_code == 401:
-                error = "Data protected by proprietary rights. Please check your credentials"
-                raise LoginError(error)
-        response.raise_for_status()
-
+        # get response of created url
+        params = self._request_link(link, cache)
         r_filename = params["filename"]
         suffixes = Path(r_filename).suffixes
 
-        if filename is None:
-            filename = observation_id
-
-        filename += "".join(suffixes)
-
-        self._download_file(link, filename, head_safe=True, cache=cache)
+        # get desired filename
+        filename = self._create_filename(filename, observation_id, suffixes)
+        """
+        If prop we change the log level so that it is above 20, this is to stop a log.debug (line 431) in query.py.
+        This debug reveals the url being sent which in turn reveals the users username and password
+        """
+        if prop:
+            previouslevel = log.getEffectiveLevel()
+            log.setLevel(21)
+            self._download_file(link, filename, head_safe=True, cache=cache)
+            log.setLevel(previouslevel)
+        else:
+            self._download_file(link, filename, head_safe=True, cache=cache)
 
         if verbose:
-            log.info("Wrote {0} to {1}".format(link, filename))
+            log.info(f"Wrote {link} to {filename}")
 
     def get_postcard(self, observation_id, *, image_type="OBS_EPIC",
                      filename=None, verbose=False):
@@ -186,12 +189,12 @@ class XMMNewtonClass(BaseQuery):
         else:
             filename = observation_id + ".png"
 
-        log.info("Copying file to {0}...".format(filename))
+        log.info(f"Copying file to {filename}...")
 
         shutil.move(local_filepath, filename)
 
         if verbose:
-            log.info("Wrote {0} to {1}".format(link, filename))
+            log.info(f"Wrote {link} to {filename}")
 
         return filename
 
@@ -273,13 +276,53 @@ class XMMNewtonClass(BaseQuery):
                 break
 
         if columns is None:
-            raise ValueError("table name specified is not found in "
-                             "XSA TAP service")
+            raise ValueError("table name specified is not found in XSA TAP service")
 
         if only_names:
             return [c.name for c in columns]
         else:
             return columns
+
+    def _create_link(self, observation_id, **kwargs):
+        link = f"{self.data_aio_url}obsno={observation_id}"
+        link = link + "".join("&{0}={1}".format(key, val)
+                              for key, val in kwargs.items())
+        return link
+
+    def _request_link(self, link, cache):
+        # we can cache this HEAD request - the _download_file one will check
+        # the file size and will never cache
+        response = self._request('HEAD', link, save=False, cache=cache)
+        # Get original extension
+        if 'Content-Type' in response.headers and 'text' not in response.headers['Content-Type']:
+            _, params = cgi.parse_header(response.headers['Content-Disposition'])
+        elif response.status_code == 401:
+            error = "Data protected by proprietary rights. Please check your credentials"
+            raise LoginError(error)
+        elif 'Content-Type' not in response.headers:
+            error = "Incorrect credentials"
+            raise LoginError(error)
+        response.raise_for_status()
+        return params
+
+    def _get_username_and_password(self, credentials_file):
+        if credentials_file is not None:
+            self.configuration.read(credentials_file)
+            xmm_username = self.configuration.get("xmm_newton", "username")
+            password = self.configuration.get("xmm_newton", "password")
+        else:
+            xmm_username = input("Username: ")
+            password, password_from_keyring = QueryWithLogin._get_password(self, service_name="xmm_newton",
+                                                                           username=xmm_username, reenter=False)
+        return xmm_username, password
+
+    def _create_filename(self, filename, observation_id, suffixes):
+        if filename is not None:
+            filename = os.path.splitext(filename)[0]
+        else:
+            filename = observation_id
+        filename += "".join(suffixes)
+        return filename
 
     def _parse_filename(self, filename):
         """Parses the file's name of a product
@@ -572,9 +615,9 @@ class XMMNewtonClass(BaseQuery):
             Tables containing the metadata of the target
         """
         if not target_name and not coordinates:
-                raise Exception("Input parameters needed, "
-                                "please provide the name "
-                                "or the coordinates of the target")
+            raise ValueError("Input parameters needed, "
+                             "please provide the name "
+                             "or the coordinates of the target")
 
         epic_source = {"table": "xsa.v_epic_source",
                        "column": "epic_source_equatorial_spoint"}
@@ -592,7 +635,7 @@ class XMMNewtonClass(BaseQuery):
             c = SkyCoord.from_name(target_name, parse=True)
 
         if type(c) is not SkyCoord:
-            raise Exception("The coordinates must be an "
+            raise TypeError("The coordinates must be an "
                             "astroquery.coordinates.SkyCoord object")
         if not radius:
             radius = 0.1
@@ -600,29 +643,29 @@ class XMMNewtonClass(BaseQuery):
         query_fmt = ("select {} from {} "
                      "where 1=contains({}, circle('ICRS', {}, {}, {}));")
         epic_source_table = self.query_xsa_tap(query_fmt.format(cols,
-                                               epic_source["table"],
-                                               epic_source["column"],
-                                               c.ra.degree,
-                                               c.dec.degree,
-                                               radius))
+                                                                epic_source["table"],
+                                                                epic_source["column"],
+                                                                c.ra.degree,
+                                                                c.dec.degree,
+                                                                radius))
         cat_4xmm_table = self.query_xsa_tap(query_fmt.format(cols,
-                                            cat_4xmm["table"],
-                                            cat_4xmm["column"],
-                                            c.ra.degree,
-                                            c.dec.degree,
-                                            radius))
+                                                             cat_4xmm["table"],
+                                                             cat_4xmm["column"],
+                                                             c.ra.degree,
+                                                             c.dec.degree,
+                                                             radius))
         stack_4xmm_table = self.query_xsa_tap(query_fmt.format(cols,
-                                              stack_4xmm["table"],
-                                              stack_4xmm["column"],
-                                              c.ra.degree,
-                                              c.dec.degree,
-                                              radius))
+                                                               stack_4xmm["table"],
+                                                               stack_4xmm["column"],
+                                                               c.ra.degree,
+                                                               c.dec.degree,
+                                                               radius))
         slew_source_table = self.query_xsa_tap(query_fmt.format(cols,
-                                               slew_source["table"],
-                                               slew_source["column"],
-                                               c.ra.degree,
-                                               c.dec.degree,
-                                               radius))
+                                                                slew_source["table"],
+                                                                slew_source["column"],
+                                                                c.ra.degree,
+                                                                c.dec.degree,
+                                                                radius))
         return epic_source_table, cat_4xmm_table, stack_4xmm_table, slew_source_table
 
     def get_epic_lightcurve(self, filename, source_number, *,

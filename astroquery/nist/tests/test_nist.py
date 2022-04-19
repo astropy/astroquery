@@ -6,7 +6,7 @@ import pytest
 from astropy.table import Table
 import astropy.units as u
 
-from ...utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
 from ... import nist
 
 DATA_FILES = {'lines': 'nist_out.html'}
@@ -19,10 +19,8 @@ def data_path(filename):
 
 @pytest.fixture
 def patch_get(request):
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
+    mp = request.getfixturevalue("monkeypatch")
+
     mp.setattr(nist.Nist, '_request', get_mockreturn)
     return mp
 

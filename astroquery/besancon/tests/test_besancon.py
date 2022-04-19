@@ -6,7 +6,7 @@ import pytest
 from astropy.io.ascii.tests.common import assert_equal
 from ... import besancon
 from ...utils import commons
-from ...utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
 
 # SKIP - don't run tests because Besancon folks don't want them (based on
 # the fact that your@email.net is now rejected)
@@ -52,10 +52,8 @@ def test_reader(filename, length, ncols, d1, mv1):
 
 @pytest.fixture
 def patch_post(request):
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
+    mp = request.getfixturevalue("monkeypatch")
+
     mp.setattr(besancon.Besancon, '_request', post_mockreturn)
     return mp
 
@@ -72,10 +70,9 @@ def patch_get_readable_fileobj(request):
         else:
             file_obj = filename
         yield file_obj
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
+
+    mp = request.getfixturevalue("monkeypatch")
+
     mp.setattr(commons, 'get_readable_fileobj',
                get_readable_fileobj_mockreturn)
     return mp

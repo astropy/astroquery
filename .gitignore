@@ -18,6 +18,7 @@ MANIFEST
 .ipynb_checkpoints
 .eggs
 pip-wheel-metadata
+.hypothesis
 
 # Sphinx
 _build

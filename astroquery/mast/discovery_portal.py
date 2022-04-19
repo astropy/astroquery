@@ -116,22 +116,22 @@ class PortalAPI(BaseQuery):
     Should be used to facilitate all Portal API queries.
     """
 
+    MAST_REQUEST_URL = conf.server + "/api/v0/invoke"
+    COLUMNS_CONFIG_URL = conf.server + "/portal/Mashup/Mashup.asmx/columnsconfig"
+    MAST_DOWNLOAD_URL = conf.server + "/api/v0.1/Download/file"
+    MAST_BUNDLE_URL = conf.server + "/api/v0.1/Download/bundle"
+
+    TIMEOUT = conf.timeout
+    PAGESIZE = conf.pagesize
+
+    _column_configs = dict()
+    _current_service = None
+
     def __init__(self, session=None):
 
         super(PortalAPI, self).__init__()
         if session:
             self._session = session
-
-        self.MAST_REQUEST_URL = conf.server + "/api/v0/invoke"
-        self.COLUMNS_CONFIG_URL = conf.server + "/portal/Mashup/Mashup.asmx/columnsconfig"
-        self.MAST_DOWNLOAD_URL = conf.server + "/api/v0.1/Download/file"
-        self.MAST_BUNDLE_URL = conf.server + "/api/v0.1/Download/bundle"
-
-        self.TIMEOUT = conf.timeout
-        self.PAGESIZE = conf.pagesize
-
-        self._column_configs = dict()
-        self._current_service = None
 
     def _request(self, method, url, params=None, data=None, headers=None,
                  files=None, stream=False, auth=None, retrieve_all=True):
@@ -482,6 +482,7 @@ class PortalAPI(BaseQuery):
         headers = {"User-Agent": self._session.headers["User-Agent"],
                    "Content-type": "application/x-www-form-urlencoded",
                    "Accept": "text/plain"}
+
         response = self._request("POST", self.COLUMNS_CONFIG_URL,
                                  data=("colConfigId={}".format(colconf_name)), headers=headers)
 

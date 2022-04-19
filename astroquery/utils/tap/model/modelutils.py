@@ -14,9 +14,12 @@ Created on 30 jun. 2016
 
 
 """
+
 import os
 from astropy.table import Table as APTable
-from astropy import units as u
+from astropy import units as u, io
+
+from astroquery.utils.tap.xmlparser import utils
 
 
 def check_file_exists(file_name):
@@ -28,8 +31,13 @@ def check_file_exists(file_name):
 
 
 def read_results_table_from_file(file_name, output_format, correct_units=True):
+
+    astropy_format = utils.get_suitable_astropy_format(output_format)
+
     if check_file_exists(file_name):
-        result = APTable.read(file_name, format=output_format)
+
+        result = APTable.read(file_name, format=astropy_format)
+
         if correct_units:
             for cn in result.colnames:
                 col = result[cn]

@@ -1,14 +1,15 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-
 import pytest
 import requests
 
 from ...heasarc import Heasarc, Conf
 from ...utils import commons
 
+from .parametrization import parametrization_local_save_remote, patch_get, MockResponse
 
-@pytest.mark.remote_data
+
+@parametrization_local_save_remote
 class TestHeasarcISDC:
 
     @property
@@ -31,6 +32,7 @@ class TestHeasarcISDC:
                         time="2020-09-01 .. 2020-12-01",
                         resultmax=10,
                         good_isgri=">1000",
+                        cache=False
                     )
 
     def test_filter_custom_args(self):
@@ -72,7 +74,10 @@ class TestHeasarcISDC:
         assert len(table_isdc) == 11
         assert len(table_isdc) == len(table_heasarc)
 
-    def test_compare_time(self):
+    def test_compare_time(self, patch_get):
+        patch_get.assume_fileid_for_request(
+            lambda url, params: f"last-month-{params['tablehead'].split()[-1]}")
+
         from astropy.time import Time, TimeDelta
 
         object_name = 'Crab'
@@ -146,7 +151,7 @@ class TestHeasarcISDC:
                         radius='1 degree'
                     )
 
-        assert len(table) == 270
+        assert len(table) >= 274
 
     def test_mission_list(self):
         heasarc = Heasarc()
@@ -181,7 +186,7 @@ class TestHeasarcISDC:
         heasarc = Heasarc()
         response = heasarc.query_object_async(object_name, mission=mission)
         assert response is not None
-        assert type(response) is requests.models.Response
+        assert isinstance(response, (requests.models.Response, MockResponse))
 
     def test_query_region_async(self):
         heasarc = Heasarc()
@@ -192,7 +197,7 @@ class TestHeasarcISDC:
             response = heasarc.query_region_async(c, mission=mission,
                                                   radius='1 degree')
         assert response is not None
-        assert type(response) is requests.models.Response
+        assert isinstance(response, (requests.models.Response, MockResponse))
 
     def test_query_region(self):
         heasarc = Heasarc()
@@ -206,4 +211,4 @@ class TestHeasarcISDC:
                 )
             table = heasarc.query_region(c, mission=mission, radius='1 degree')
 
-        assert len(table) == 270
+        assert len(table) >= 274

@@ -6,7 +6,7 @@ from astropy.table import Table
 import astropy.coordinates as coord
 import astropy.units as u
 
-from ...utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
 
 from .. import OAC
 
@@ -23,10 +23,8 @@ def data_path(filename):
 
 @pytest.fixture
 def patch_get(request):
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
+    mp = request.getfixturevalue("monkeypatch")
+
     mp.setattr(OAC, '_request', get_mockreturn)
     return mp
 

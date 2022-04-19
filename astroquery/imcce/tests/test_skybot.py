@@ -3,7 +3,7 @@
 import pytest
 import os
 
-from astroquery.utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
 import astropy.units as u
 from astropy.time import Time
 from astropy.coordinates import SkyCoord, Angle
@@ -32,12 +32,9 @@ def nonremote_request(self, url, **kwargs):
 # that mocks(monkeypatches) the actual 'requests.get' function:
 @pytest.fixture
 def patch_request(request):
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(SkybotClass, '_request',
-               nonremote_request)
+    mp = request.getfixturevalue("monkeypatch")
+
+    mp.setattr(SkybotClass, '_request', nonremote_request)
     return mp
 
 

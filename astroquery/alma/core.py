@@ -8,18 +8,18 @@ import tarfile
 import string
 import requests
 import warnings
+
 from pkg_resources import resource_filename
 from bs4 import BeautifulSoup
 import pyvo
-
 from urllib.parse import urljoin
+
 from astropy.table import Table, Column, vstack
 from astroquery import log
-from astropy.utils import deprecated
 from astropy.utils.console import ProgressBar
-from astropy.utils.exceptions import AstropyDeprecationWarning
 from astropy import units as u
 from astropy.time import Time
+from pyvo.dal.sia2 import SIA_PARAMETERS_DESC
 
 from ..exceptions import LoginError
 from ..utils import commons
@@ -30,6 +30,7 @@ from .tapsql import _gen_pos_sql, _gen_str_sql, _gen_numeric_sql,\
     _gen_science_sql, _gen_spec_res_sql, ALMA_DATE_FORMAT
 from . import conf, auth_urls
 from astroquery.utils.commons import ASTROPY_LT_4_1
+from astroquery.exceptions import CorruptDataWarning
 
 __all__ = {'AlmaClass', 'ALMA_BANDS'}
 
@@ -110,7 +111,7 @@ ALMA_FORM_KEYS = {
     },
     'Energy': {
         'Frequency (GHz)': ['frequency', 'frequency', _gen_numeric_sql],
-        'Bandwidth (GHz)': ['bandwidth', 'bandwidth', _gen_numeric_sql],
+        'Bandwidth (Hz)': ['bandwidth', 'bandwidth', _gen_numeric_sql],
         'Spectral resolution (KHz)': ['spectral_resolution',
                                       'em_resolution', _gen_spec_res_sql],
         'Band': ['band_list', 'band_list', _gen_band_list_sql]
@@ -234,7 +235,7 @@ class AlmaClass(QueryWithLogin):
             self._tap = pyvo.dal.tap.TAPService(baseurl=self.tap_url)
         return self._tap
 
-    def query_object_async(self, object_name, cache=None, public=True,
+    def query_object_async(self, object_name, *, public=True,
                            science=True, payload=None, **kwargs):
         """
         Query the archive for a source name.
@@ -243,7 +244,6 @@ class AlmaClass(QueryWithLogin):
         ----------
         object_name : str
             The object name.  Will be resolved by astropy.coord.SkyCoord
-        cache : deprecated
         public : bool
             True to return only public datasets, False to return private only,
             None to return both
@@ -260,7 +260,7 @@ class AlmaClass(QueryWithLogin):
         return self.query_async(public=public, science=science,
                                 payload=payload, **kwargs)
 
-    def query_region_async(self, coordinate, radius, cache=None, public=True,
+    def query_region_async(self, coordinate, radius, *, public=True,
                            science=True, payload=None, **kwargs):
         """
         Query the ALMA archive with a source name and radius
@@ -271,8 +271,6 @@ class AlmaClass(QueryWithLogin):
             the identifier or coordinates around which to query.
         radius : str / `~astropy.units.Quantity`, optional
             the radius of the region
-        cache : Deprecated
-            Cache the query?
         public : bool
             True to return only public datasets, False to return private only,
             None to return both
@@ -297,10 +295,8 @@ class AlmaClass(QueryWithLogin):
         return self.query_async(public=public, science=science,
                                 payload=payload, **kwargs)
 
-    def query_async(self, payload, cache=None, public=True, science=True,
-                    legacy_columns=False, max_retries=None,
-                    get_html_version=None,
-                    get_query_payload=None, **kwargs):
+    def query_async(self, payload, *, public=True, science=True,
+                    legacy_columns=False, get_query_payload=None, **kwargs):
         """
         Perform a generic query with user-specified payload
 
@@ -308,7 +304,6 @@ class AlmaClass(QueryWithLogin):
         ----------
         payload : dictionary
             Please consult the `help` method
-        cache : deprecated
         public : bool
             True to return only public datasets, False to return private only,
             None to return both
@@ -325,17 +320,6 @@ class AlmaClass(QueryWithLogin):
         Table with results. Columns are those in the ALMA ObsCore model
         (see ``help_tap``) unless ``legacy_columns`` argument is set to True.
         """
-        local_args = dict(locals().items())
-
-        for arg in local_args:
-            # check if the deprecated attributes have been used
-            for dep in ['cache', 'max_retries', 'get_html_version']:
-                if arg[0] == dep and arg[1] is not None:
-                    warnings.warn(
-                        ("Argument '{}' has been deprecated "
-                         "since version 4.0.1 and will be ignored".format(arg[0])),
-                        AstropyDeprecationWarning)
-                    del kwargs[arg[0]]
 
         if payload is None:
             payload = {}
@@ -383,7 +367,7 @@ class AlmaClass(QueryWithLogin):
             return legacy_result
         return result
 
-    def query_sia(self, pos=None, band=None, time=None, pol=None,
+    def query_sia(self, *, pos=None, band=None, time=None, pol=None,
                   field_of_view=None, spatial_resolution=None,
                   spectral_resolving_power=None, exptime=None,
                   timeres=None, publisher_did=None,
@@ -397,6 +381,7 @@ class AlmaClass(QueryWithLogin):
 
         Parameters
         ----------
+        _SIA2_PARAMETERS
 
         Returns
         -------
@@ -423,6 +408,12 @@ class AlmaClass(QueryWithLogin):
             res_format=res_format,
             maxrec=maxrec,
             **kwargs)
+
+    # SIA_PARAMETERS_DESC contains links that Sphinx can't resolve.
+    for var in ('POLARIZATION_STATES', 'CALIBRATION_LEVELS'):
+        SIA_PARAMETERS_DESC = SIA_PARAMETERS_DESC.replace(f'`pyvo.dam.obscore.{var}`',
+                                                          f'pyvo.dam.obscore.{var}')
+    query_sia.__doc__ = query_sia.__doc__.replace('_SIA2_PARAMETERS', SIA_PARAMETERS_DESC)
 
     def query_tap(self, query, maxrec=None):
         """
@@ -491,54 +482,7 @@ class AlmaClass(QueryWithLogin):
                              "on github.")
         return self.dataarchive_url
 
-    @deprecated(since="v0.4.1", alternative="get_data_info")
-    def stage_data(self, uids, expand_tarfiles=False, return_json=False):
-        """
-        Obtain table of ALMA files
-
-        DEPRECATED: Data is no longer staged. This method is deprecated and
-        kept here for backwards compatibility reasons but it's not fully
-        compatible with the original implementation.
-
-        Parameters
-        ----------
-        uids : list or str
-            A list of valid UIDs or a single UID.
-            UIDs should have the form: 'uid://A002/X391d0b/X7b'
-        expand_tarfiles : DEPRECATED
-        return_json : DEPRECATED
-            Note: The returned astropy table can be easily converted to json
-            through pandas:
-            output = StringIO()
-            stage_data(...).to_pandas().to_json(output)
-            table_json = output.getvalue()
-
-        Returns
-        -------
-        data_file_table : Table
-            A table containing 3 columns: the UID, the file URL (for future
-            downloading), and the file size
-        """
-
-        if return_json:
-            raise AttributeError(
-                'return_json is deprecated. See method docs for a workaround')
-        table = Table()
-        res = self.get_data_info(uids, expand_tarfiles=expand_tarfiles)
-        p = re.compile(r'.*(uid__.*)\.asdm.*')
-        if res:
-            table['name'] = [u.split('/')[-1] for u in res['access_url']]
-            table['id'] = [p.search(x).group(1) if 'asdm' in x else 'None'
-                           for x in table['name']]
-            table['type'] = res['content_type']
-            table['size'] = res['content_length']
-            table['permission'] = ['UNKNOWN'] * len(res)
-            table['mous_uid'] = [uids] * len(res)
-            table['URL'] = res['access_url']
-            table['isProprietary'] = res['readable']
-        return table
-
-    def get_data_info(self, uids, expand_tarfiles=False,
+    def get_data_info(self, uids, *, expand_tarfiles=False,
                       with_auxiliary=True, with_rawdata=True):
 
         """
@@ -676,8 +620,9 @@ class AlmaClass(QueryWithLogin):
 
         return data_sizes, totalsize.to(u.GB)
 
-    def download_files(self, files, savedir=None, cache=True,
-                       continuation=True, skip_unauthorized=True):
+    def download_files(self, files, *, savedir=None, cache=True,
+                       continuation=True, skip_unauthorized=True,
+                       verify_only=False):
         """
         Given a list of file URLs, download them
 
@@ -698,6 +643,10 @@ class AlmaClass(QueryWithLogin):
             If you receive "unauthorized" responses for some of the download
             requests, skip over them.  If this is False, an exception will be
             raised.
+        verify_only : bool
+            Option to go through the process of checking the files to see if
+            they're the right size, but not actually download them.  This
+            option may be useful if a previous download run failed partway.
         """
 
         if self.USERNAME:
@@ -708,31 +657,25 @@ class AlmaClass(QueryWithLogin):
         downloaded_files = []
         if savedir is None:
             savedir = self.cache_location
-        for fileLink in unique(files):
-            log.debug("Downloading {0} to {1}".format(fileLink, savedir))
+        for file_link in unique(files):
+            log.debug("Downloading {0} to {1}".format(file_link, savedir))
             try:
-                check_filename = self._request('HEAD', fileLink, auth=auth,
-                                               stream=True)
+                check_filename = self._request('HEAD', file_link, auth=auth)
                 check_filename.raise_for_status()
             except requests.HTTPError as ex:
                 if ex.response.status_code == 401:
                     if skip_unauthorized:
                         log.info("Access denied to {url}.  Skipping to"
-                                 " next file".format(url=fileLink))
+                                 " next file".format(url=file_link))
                         continue
                     else:
                         raise(ex)
-
-            if 'text/html' in check_filename.headers['Content-Type']:
-                raise ValueError("Bad query.  This can happen if you "
-                                 "attempt to download proprietary "
-                                 "data when not logged in")
 
             try:
                 filename = re.search("filename=(.*)",
                                      check_filename.headers['Content-Disposition']).groups()[0]
             except KeyError:
-                log.info(f"Unable to find filename for {fileLink}  "
+                log.info(f"Unable to find filename for {file_link}  "
                          "(missing Content-Disposition in header).  "
                          "Skipping to next file.")
                 continue
@@ -741,43 +684,62 @@ class AlmaClass(QueryWithLogin):
                 filename = os.path.join(savedir,
                                         filename)
 
+            if verify_only:
+                existing_file_length = os.stat(filename).st_size
+                if 'content-length' in check_filename.headers:
+                    length = int(check_filename.headers['content-length'])
+                    if length == 0:
+                        warnings.warn('URL {0} has length=0'.format(url))
+                    elif existing_file_length == length:
+                        log.info(f"Found cached file {filename} with expected size {existing_file_length}.")
+                    elif existing_file_length < length:
+                        log.info(f"Found cached file {filename} with size {existing_file_length} < expected "
+                                 f"size {length}.  The download should be continued.")
+                    elif existing_file_length > length:
+                        warnings.warn(f"Found cached file {filename} with size {existing_file_length} > expected "
+                                      f"size {length}.  The download is likely corrupted.",
+                                      CorruptDataWarning)
+                else:
+                    warnings.warn(f"Could not verify {url} because it has no 'content-length'")
+
             try:
-                self._download_file(fileLink,
-                                    filename,
-                                    timeout=self.TIMEOUT,
-                                    auth=auth,
-                                    cache=cache,
-                                    method='GET',
-                                    head_safe=True,
-                                    continuation=continuation)
+                if not verify_only:
+                    self._download_file(file_link,
+                                        filename,
+                                        timeout=self.TIMEOUT,
+                                        auth=auth,
+                                        cache=cache,
+                                        method='GET',
+                                        head_safe=False,
+                                        continuation=continuation)
 
                 downloaded_files.append(filename)
             except requests.HTTPError as ex:
                 if ex.response.status_code == 401:
                     if skip_unauthorized:
                         log.info("Access denied to {url}.  Skipping to"
-                                 " next file".format(url=fileLink))
+                                 " next file".format(url=file_link))
                         continue
                     else:
                         raise(ex)
                 elif ex.response.status_code == 403:
-                    log.error("Access denied to {url}".format(url=fileLink))
-                    if 'dataPortal' in fileLink and 'sso' not in fileLink:
+                    log.error("Access denied to {url}".format(url=file_link))
+                    if 'dataPortal' in file_link and 'sso' not in file_link:
                         log.error("The URL may be incorrect.  Try using "
                                   "{0} instead of {1}"
-                                  .format(fileLink.replace('dataPortal/',
-                                                           'dataPortal/sso/'),
-                                          fileLink))
+                                  .format(file_link.replace('dataPortal/',
+                                                            'dataPortal/sso/'),
+                                          file_link))
                     raise ex
                 elif ex.response.status_code == 500:
                     # empirically, this works the second time most of the time...
-                    self._download_file(fileLink,
+                    self._download_file(file_link,
                                         filename,
                                         timeout=self.TIMEOUT,
                                         auth=auth,
                                         cache=cache,
                                         method='GET',
-                                        head_safe=True,
+                                        head_safe=False,
                                         continuation=continuation)
 
                     downloaded_files.append(filename)
@@ -794,7 +756,7 @@ class AlmaClass(QueryWithLogin):
 
         return response
 
-    def retrieve_data_from_uid(self, uids, cache=True):
+    def retrieve_data_from_uid(self, uids, *, cache=True):
         """
         Stage & Download ALMA data.  Will print out the expected file size
         before attempting the download.
@@ -827,7 +789,7 @@ class AlmaClass(QueryWithLogin):
         downloaded_files = self.download_files(file_urls)
         return downloaded_files
 
-    def _get_auth_info(self, username, store_password=False,
+    def _get_auth_info(self, username, *, store_password=False,
                        reenter_password=False):
         """
         Get the auth info (user, password) for use in another function
@@ -1005,7 +967,7 @@ class AlmaClass(QueryWithLogin):
             self._cycle0_table.rename_column('col2', 'uid')
         return self._cycle0_table
 
-    def get_files_from_tarballs(self, downloaded_files, regex=r'.*\.fits$',
+    def get_files_from_tarballs(self, downloaded_files, *, regex=r'.*\.fits$',
                                 path='cache_path', verbose=True):
         """
         Given a list of successfully downloaded tarballs, extract files
@@ -1055,7 +1017,7 @@ class AlmaClass(QueryWithLogin):
 
         return filelist
 
-    def download_and_extract_files(self, urls, delete=True, regex=r'.*\.fits$',
+    def download_and_extract_files(self, urls, *, delete=True, regex=r'.*\.fits$',
                                    include_asdm=False, path='cache_path',
                                    verbose=True):
         """
@@ -1107,7 +1069,7 @@ class AlmaClass(QueryWithLogin):
                 expanded_files += [x for x in files['access_url'] if
                                    filere.match(x.split('/')[-1])]
             else:
-                tar_files.append(tar_file)
+                tar_files.append(url)
 
         try:
             # get the tar files
@@ -1169,53 +1131,7 @@ class AlmaClass(QueryWithLogin):
         print("Alma.query(payload=dict(project_code='2017.1.01355.L', "
               "source_name_alma='G008.67'))")
 
-    def _json_summary_to_table(self, data, base_url):
-        """
-        Special tool to convert some JSON metadata to a table Obsolete as of
-        March 2020 - should be removed along with stage_data_prefeb2020
-        """
-        from ..utils import url_helpers
-        columns = {'mous_uid': [], 'URL': [], 'size': []}
-        for entry in data['node_data']:
-            # de_type can be useful (e.g., MOUS), but it is not necessarily
-            # specified
-            # file_name and file_key *must* be specified.
-            is_file = \
-                (entry['file_name'] != 'null' and entry['file_key'] != 'null')
-            if is_file:
-                # "de_name": "ALMA+uid://A001/X122/X35e",
-                columns['mous_uid'].append(entry['de_name'][5:])
-                if entry['file_size'] == 'null':
-                    columns['size'].append(np.nan * u.Gbyte)
-                else:
-                    columns['size'].append(
-                        (int(entry['file_size']) * u.B).to(u.Gbyte))
-                # example template for constructing url:
-                # https://almascience.eso.org/dataPortal/requests/keflavich/940238268/ALMA/
-                # uid___A002_X9d6f4c_X154/2013.1.00546.S_uid___A002_X9d6f4c_X154.asdm.sdm.tar
-                # above is WRONG... except for ASDMs, when it's right
-                # should be:
-                # 2013.1.00546.S_uid___A002_X9d6f4c_X154.asdm.sdm.tar/2013.1.00546.S_uid___A002_X9d6f4c_X154.asdm.sdm.tar
-                #
-                # apparently ASDMs are different from others:
-                # templates:
-                # https://almascience.eso.org/dataPortal/requests/keflavich/946895898/ALMA/
-                # 2013.1.00308.S_uid___A001_X196_X93_001_of_001.tar/2013.1.00308.S_uid___A001_X196_X93_001_of_001.tar
-                # uid___A002_X9ee74a_X26f0/2013.1.00308.S_uid___A002_X9ee74a_X26f0.asdm.sdm.tar
-                url = url_helpers.join(base_url,
-                                       entry['file_key'],
-                                       entry['file_name'])
-                if 'null' in url:
-                    raise ValueError("The URL {0} was created containing "
-                                     "'null', which is invalid.".format(url))
-                columns['URL'].append(url)
-
-        columns['size'] = u.Quantity(columns['size'], u.Gbyte)
-
-        tbl = Table([Column(name=k, data=v) for k, v in columns.items()])
-        return tbl
-
-    def get_project_metadata(self, projectid, cache=True):
+    def get_project_metadata(self, projectid, *, cache=True):
         """
         Get the metadata - specifically, the project abstract - for a given project ID.
         """

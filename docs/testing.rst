@@ -50,10 +50,8 @@ either be ``post`` or ``get``.
 
     @pytest.fixture
     def patch_get(request):
-        try:
-            mp = request.getfixturevalue("monkeypatch")
-        except AttributeError:  # pytest < 3
-            mp = request.getfuncargvalue("monkeypatch")
+        mp = request.getfixturevalue("monkeypatch")
+
         mp.setattr(requests.Session, 'request', get_mockreturn)
         return mp
 
@@ -87,7 +85,7 @@ the ``test_module.py`` file.
 -------------------------
 
 The remote tests are much easier.  Just decorate the test class or test
-functions with ``astropy.tests.helper.remote_data``.
+functions with ``@pytest.mark.remote_data``.
 
 ``setup_package.py``
 --------------------

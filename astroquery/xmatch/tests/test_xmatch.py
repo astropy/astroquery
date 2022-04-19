@@ -8,7 +8,7 @@ from astropy.table import Table
 from astropy.units import arcsec
 
 from ...utils import commons
-from ...utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
 from ...xmatch import XMatch
 
 DATA_FILES = {
@@ -34,10 +34,8 @@ class MockResponseXmatch(MockResponse):
 
 @pytest.fixture
 def patch_request(request):
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
+    mp = request.getfixturevalue("monkeypatch")
+
     mp.setattr(requests, "_request", request_mockreturn)
     return mp
 

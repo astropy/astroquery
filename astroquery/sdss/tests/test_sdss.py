@@ -11,7 +11,7 @@ from astropy.table import Column, Table
 import pytest
 
 from ... import sdss
-from ...utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
 from ...exceptions import TimeoutError
 from ...utils import commons
 
@@ -26,30 +26,24 @@ DATA_FILES = {'spectra_id': 'xid_sp.txt',
 
 @pytest.fixture
 def patch_get(request):
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
+    mp = request.getfixturevalue("monkeypatch")
+
     mp.setattr(sdss.SDSS, '_request', get_mockreturn)
     return mp
 
 
 @pytest.fixture
 def patch_post(request):
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
+    mp = request.getfixturevalue("monkeypatch")
+
     mp.setattr(sdss.SDSS, '_request', post_mockreturn)
     return mp
 
 
 @pytest.fixture
 def patch_get_slow(request):
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
+    mp = request.getfixturevalue("monkeypatch")
+
     mp.setattr(sdss.SDSS, '_request', get_mockreturn_slow)
     return mp
 
@@ -65,10 +59,8 @@ def patch_get_readable_fileobj(request):
         else:
             yield open(file_obj, 'r', encoding=encoding)
 
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
+    mp = request.getfixturevalue("monkeypatch")
+
     mp.setattr(commons, 'get_readable_fileobj',
                get_readable_fileobj_mockreturn)
     return mp
@@ -82,10 +74,9 @@ def patch_get_readable_fileobj_slow(request):
         error.reason = socket.timeout()
         raise error
         yield True
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
+
+    mp = request.getfixturevalue("monkeypatch")
+
     mp.setattr(commons, 'get_readable_fileobj',
                get_readable_fileobj_mockreturn)
     return mp
@@ -145,7 +136,9 @@ def url_tester(data_release):
 
 
 def url_tester_crossid(data_release):
-    if data_release < 11:
+    if data_release < 10:
+        baseurl = 'http://skyserver.sdss.org/dr{}/en/tools/crossid/x_crossid.asp'
+    if data_release == 10:
         baseurl = 'http://skyserver.sdss.org/dr{}/en/tools/crossid/x_crossid.aspx'
     if data_release == 11:
         return

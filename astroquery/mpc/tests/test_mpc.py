@@ -52,7 +52,7 @@ from astropy.time import Time
 
 from ...exceptions import InvalidQueryError
 from ... import mpc
-from ...utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
 from requests import Request
 
 
@@ -78,20 +78,16 @@ def data_path(filename):
 
 @pytest.fixture
 def patch_post(request):
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
+    mp = request.getfixturevalue("monkeypatch")
+
     mp.setattr(mpc.MPCClass, '_request', post_mockreturn)
     return mp
 
 
 @pytest.fixture
 def patch_get(request):
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
+    mp = request.getfixturevalue("monkeypatch")
+
     mp.setattr(mpc.MPCClass, '_request', get_mockreturn)
     return mp
 

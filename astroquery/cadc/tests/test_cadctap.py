@@ -230,10 +230,13 @@ def test_get_data_urls():
     file3.semantics = '#preview'
     file3.access_url = 'https://get.your.data/previewpath'
     # add the package file that should be filtered out
+    package_file_old = Mock()
+    package_file_old.semantics = 'http://www.opencadc.org/caom2#pkg'
     package_file = Mock()
-    package_file.semantics = 'http://www.openadc.org/caom2#pkg'
-    result = [file1, file2, file3, package_file]
-    with patch('pyvo.dal.adhoc.DatalinkResults.from_result_url') as dl_results_mock:
+    package_file.semantics = '#package'
+    result = [file1, file2, file3, package_file_old, package_file]
+    with patch('pyvo.dal.adhoc.DatalinkResults.from_result_url') as \
+            dl_results_mock:
         dl_results_mock.return_value = result
         cadc = Cadc()
         cadc._request = get  # mock the request

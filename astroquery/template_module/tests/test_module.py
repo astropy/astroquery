@@ -1,6 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-
 # astroquery uses the pytest framework for testing
 # this is already available in astropy and does
 # not require a separate install. Import it using:
@@ -14,14 +13,12 @@ import pytest
 
 # Now import other commonly used modules for tests
 import os
-import requests
 
-from numpy import testing as npt
 from astropy.table import Table
 import astropy.coordinates as coord
 import astropy.units as u
 
-from ...utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
 
 # finally import the module which is to be tested
 # and the various configuration items created
@@ -67,10 +64,8 @@ def nonremote_request(self, request_type, url, **kwargs):
 # that mocks(monkeypatches) the actual 'requests.get' function:
 @pytest.fixture
 def patch_request(request):
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
+    mp = request.getfixturevalue("monkeypatch")
+
     mp.setattr(template_module.core.TemplateClass, '_request',
                nonremote_request)
     return mp

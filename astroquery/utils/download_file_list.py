@@ -6,6 +6,7 @@ import gzip
 from io import StringIO
 
 import astropy.io.fits as fits
+from astropy.utils.decorators import deprecated
 from .commons import get_readable_fileobj
 
 __all__ = ['download_list_of_fitsfiles']
@@ -26,6 +27,7 @@ def validify_filename(filestr):
     return filestr
 
 
+@deprecated('0.4.5')
 def download_list_of_fitsfiles(linklist, output_directory=None,
                                output_prefix=None, save=False,
                                overwrite=False, verbose=False,

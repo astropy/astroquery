@@ -1,6 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
-from ...utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
 
 from ...eso import Eso
 
@@ -36,10 +36,8 @@ def eso_request(request_type, url, **kwargs):
 
 # @pytest.fixture
 # def patch_get(request):
-#    try:
-#        mp = request.getfixturevalue("monkeypatch")
-#    except AttributeError:  # pytest < 3
-#        mp = request.getfuncargvalue("monkeypatch")
+#    mp = request.getfixturevalue("monkeypatch")
+#
 #    mp.setattr(Eso, 'request', eso_request)
 #    return mp
 

@@ -1,6 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-
+from multiprocessing import Value
 import pytest
 import os
 from collections import OrderedDict
@@ -9,14 +9,17 @@ from numpy.ma import is_masked
 from astropy.tests.helper import assert_quantity_allclose
 from astropy.utils.exceptions import AstropyDeprecationWarning
 
-from ...utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
+from ...query import AstroQuery
+from ...exceptions import TableParseError
 from ... import jplhorizons
 
 # files in data/ for different query types
 DATA_FILES = {'ephemerides': 'ceres_ephemerides.txt',
               'elements': 'ceres_elements.txt',
               'vectors': 'ceres_vectors.txt',
-              '"1935 UZ"': 'no_H.txt'}
+              '"1935 UZ"': 'no_H.txt',
+              '"tlist_error"': 'tlist_error.txt'}
 
 
 def data_path(filename):
@@ -47,16 +50,21 @@ def nonremote_request(self, request_type, url, **kwargs):
 # that mocks(monkeypatches) the actual 'requests.get' function:
 @pytest.fixture
 def patch_request(request):
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
+    mp = request.getfixturevalue("monkeypatch")
+
     mp.setattr(jplhorizons.core.HorizonsClass, '_request',
                nonremote_request)
     return mp
 
 
 # --------------------------------- actual test functions
+
+def test_parse_result(patch_request):
+    q = jplhorizons.Horizons(id='tlist_error')
+    # need _last_query to be defined
+    q._last_query = AstroQuery('GET', 'http://dummy')
+    with pytest.raises(ValueError):
+        res = q.ephemerides()
 
 
 def test_ephemerides_query(patch_request):

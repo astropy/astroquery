@@ -3,7 +3,7 @@
 import pytest
 import os
 
-from astroquery.utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
 import astropy.units as u
 from astropy.tests.helper import assert_quantity_allclose
 from .. import SBDB, SBDBClass
@@ -49,10 +49,8 @@ def nonremote_request(self, url, **kwargs):
 # that mocks(monkeypatches) the actual 'requests.get' function:
 @pytest.fixture
 def patch_request(request):
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
+    mp = request.getfixturevalue("monkeypatch")
+
     mp.setattr(SBDBClass, '_request',
                nonremote_request)
     return mp

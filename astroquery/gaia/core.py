@@ -11,8 +11,7 @@ European Space Astronomy Centre (ESAC)
 European Space Agency (ESA)
 
 Created on 30 jun. 2016
-
-
+Modified on 18 Ene. 2022 by mhsarmiento
 """
 from requests import HTTPError
 
@@ -32,6 +31,8 @@ from astropy.io import votable
 from astropy.io import fits
 from astropy.table import Table
 from astropy import units as u
+import warnings
+from astroquery.exceptions import InputWarning
 
 
 class GaiaClass(TapPlus):
@@ -77,9 +78,9 @@ class GaiaClass(TapPlus):
               verbose=False):
         """Performs a login.
         User and password arguments can be used or a file that contains
-        user name and password
-        (2 lines: one for user name and the following one for the password).
-        If no arguments are provided, a prompt asking for user name and
+        username and password
+        (2 lines: one for username and the following one for the password).
+        If no arguments are provided, a prompt asking for username and
         password will appear.
 
         Parameters
@@ -172,13 +173,18 @@ class GaiaClass(TapPlus):
             By default, it takes the current default one.
         data_structure: str, optional, default 'INDIVIDUAL'
             it can be 'INDIVIDUAL', 'COMBINED', 'RAW':
-            'INDIVIDUAL' means...
-            'COMBINED' means...
-            'RAW' means...
-        retrieval_type : str, optional, default 'ALL'
-            retrieval type identifier. It can be either 'epoch_photometry'
-            for compatibility reasons or 'ALL' to retrieve all data from
-            the list of sources.
+            'INDIVIDUAL' means products are provided in separate files for each sourceId. All files are zipped in a single
+            bundle, even if only one source/file is considered
+            'COMBINED' means products are provided in a single file concatenating the data of all sourceIds together.
+            How this is organised depends on the chosen format
+            'RAW' means products are provided following a Data Model similar to that used in the MDB, meaning in
+            particular that parameters stored as arrays will remain as such. Like in the COMBINED structure, a single
+            file is provided for the data of all sourceIds together, but in this case there will be always be one
+            row per sourceId
+        retrieval_type : str, optional, default 'ALL' to retrieve all data  from the list of sources
+            retrieval type identifier. For GAIA DR2 possible values are ['EPOCH_PHOTOMETRY']
+            For future GAIA DR3 (Once published), possible values will be ['EPOC_PHOTOMETRY', 'RVS', 'XP_CONTINUOUS',
+            'XP_SAMPLED', 'MCMC_GSPPHOT' or 'MCMC_MSC']
         valid_data : bool, optional, default True
             By default, the epoch photometry service returns only valid data,
             that is, all data rows where flux is not null and
@@ -193,7 +199,7 @@ class GaiaClass(TapPlus):
             By default, this value will be set to False. If it is set to 'true'
             the Datalink items tags will not be checked.
         format : str, optional, default 'votable'
-            loading format
+            loading format. Other available formats are 'csv', 'ecsv','json','votable_plain' and 'fits'
         output_file : string, optional, default None
             file where the results are saved.
             If it is not provided, the http response contents are returned.
@@ -206,6 +212,7 @@ class GaiaClass(TapPlus):
         -------
         A table object
         """
+
         if retrieval_type is None:
             raise ValueError("Missing mandatory argument 'retrieval_type'")
 
@@ -364,12 +371,11 @@ class GaiaClass(TapPlus):
         ----------
         coordinate : astropy.coordinate, mandatory
             coordinates center point
-        radius : astropy.units, required if no 'width' nor 'height' are
-        provided
+        radius : astropy.units if no 'width' nor 'height' are provided
             radius (deg)
-        width : astropy.units, required if no 'radius' is provided
+        width : astropy.units if no 'radius' is provided
             box width
-        height : astropy.units, required if no 'radius' is provided
+        height : astropy.units if no 'radius' is provided
             box height
         async_job : bool, optional, default 'False'
             executes the query (job) in asynchronous/synchronous mode (default
@@ -386,8 +392,8 @@ class GaiaClass(TapPlus):
         coord = self.__getCoordInput(coordinate, "coordinate")
         job = None
         if radius is not None:
-            job = self.__cone_search(coord, radius,
-                                     async_job=async_job, verbose=verbose)
+            job = self.__cone_search(coord, radius, async_job=async_job,
+                                     verbose=verbose, columns=columns)
         else:
             raHours, dec = commons.coord_to_radec(coord)
             ra = raHours * 15.0  # Converts to degrees
@@ -426,7 +432,8 @@ class GaiaClass(TapPlus):
                       dist ASC
                     """.format(**{'row_limit': "TOP {0}".format(self.ROW_LIMIT) if self.ROW_LIMIT > 0 else "",
                                   'ra_column': self.MAIN_GAIA_TABLE_RA, 'dec_column': self.MAIN_GAIA_TABLE_DEC,
-                                  'columns': columns, 'table_name': self.MAIN_GAIA_TABLE or conf.MAIN_GAIA_TABLE, 'ra': ra, 'dec': dec,
+                                  'columns': columns, 'table_name': self.MAIN_GAIA_TABLE or conf.MAIN_GAIA_TABLE,
+                                  'ra': ra, 'dec': dec,
                                   'width': widthDeg.value, 'height': heightDeg.value})
             if async_job:
                 job = self.launch_job_async(query, verbose=verbose)
@@ -443,11 +450,11 @@ class GaiaClass(TapPlus):
         ----------
         coordinate : astropy.coordinates, mandatory
             coordinates center point
-        radius : astropy.units, required if no 'width'/'height' are provided
+        radius : astropy.units if no 'width'/'height' are provided
             radius (deg)
-        width : astropy.units, required if no 'radius' is provided
+        width : astropy.units if no 'radius' is provided
             box width
-        height : astropy.units, required if no 'radius' is provided
+        height : astropy.units if no 'radius' is provided
             box height
         verbose : bool, optional, default 'False'
             flag to display information about the process
@@ -469,11 +476,11 @@ class GaiaClass(TapPlus):
         ----------
         coordinate : astropy.coordinates, mandatory
             coordinates center point
-        radius : astropy.units, required if no 'width'/'height' are provided
+        radius : astropy.units if no 'width'/'height' are provided
             radius
-        width : astropy.units, required if no 'radius' is provided
+        width : astropy.units if no 'radius' is provided
             box width
-        height : astropy.units, required if no 'radius' is provided
+        height : astropy.units if no 'radius' is provided
             box height
         verbose : bool, optional, default 'False'
             flag to display information about the process
@@ -503,8 +510,7 @@ class GaiaClass(TapPlus):
             coordinates center point
         radius : astropy.units, mandatory
             radius
-        table_name : str, optional, default main gaia table
-            table name doing the cone search against
+        table_name : str, optional, default main gaia table name doing the cone search against
         ra_column_name : str, optional, default ra column in main gaia table
             ra column doing the cone search against
         dec_column_name : str, optional, default dec column in main gaia table
@@ -531,6 +537,7 @@ class GaiaClass(TapPlus):
         -------
         A Job object
         """
+        radiusDeg = None
         coord = self.__getCoordInput(coordinate, "coordinate")
         raHours, dec = commons.coord_to_radec(coord)
         ra = raHours * 15.0  # Converts to degrees
@@ -563,7 +570,8 @@ class GaiaClass(TapPlus):
                 """.format(**{'ra_column': ra_column_name,
                               'row_limit': "TOP {0}".format(self.ROW_LIMIT) if self.ROW_LIMIT > 0 else "",
                               'dec_column': dec_column_name, 'columns': columns, 'ra': ra, 'dec': dec,
-                              'radius': radiusDeg, 'table_name': table_name or self.MAIN_GAIA_TABLE or conf.MAIN_GAIA_TABLE})
+                              'radius': radiusDeg,
+                              'table_name': table_name or self.MAIN_GAIA_TABLE or conf.MAIN_GAIA_TABLE})
 
         if async_job:
             return self.launch_job_async(query=query,
@@ -596,8 +604,7 @@ class GaiaClass(TapPlus):
             coordinates center point
         radius : astropy.units, mandatory
             radius
-        table_name : str, optional, default main gaia table
-            table name doing the cone search against
+        table_name : str, optional, default main gaia table name doing the cone search against
         ra_column_name : str, optional, default ra column in main gaia table
             ra column doing the cone search against
         dec_column_name : str, optional, default dec column in main gaia table
@@ -646,8 +653,7 @@ class GaiaClass(TapPlus):
             coordinates center point
         radius : astropy.units, mandatory
             radius
-        table_name : str, optional, default main gaia table
-            table name doing the cone search against
+        table_name : str, optional, default main gaia table name doing the cone search against
         ra_column_name : str, optional, default ra column in main gaia table
             ra column doing the cone search against
         dec_column_name : str, optional, default dec column in main gaia table
@@ -750,7 +756,7 @@ class GaiaClass(TapPlus):
                     radius=1.0,
                     background=False,
                     verbose=False):
-        """Performs a cross match between the specified tables
+        """Performs a cross-match between the specified tables
         The result is a join table (stored in the user storage area)
         with the identifies of both tables and the distance.
         TAP+ only
@@ -820,12 +826,14 @@ class GaiaClass(TapPlus):
         ----------
         query : str, mandatory
             query to be executed
+        name : str, optional, default None
+            custom name defined by the user for the job that is going to be created
         output_file : str, optional, default None
             file name where the results are saved if dumpToFile is True.
             If this parameter is not provided, the jobid is used instead
         output_format : str, optional, default 'votable'
             results format. Available formats are: 'votable', 'votable_plain',
-             'fits', 'csv' and 'json', default is 'votable'.
+             'fits', 'csv', 'ecsv' and 'json', default is 'votable'.
              Returned results for 'votable' and 'fits' formats are compressed
              gzip files.
         verbose : bool, optional, default 'False'
@@ -842,6 +850,7 @@ class GaiaClass(TapPlus):
         -------
         A Job object
         """
+
         return TapPlus.launch_job(self, query=query, name=name,
                                   output_file=output_file,
                                   output_format=output_format,
@@ -861,13 +870,15 @@ class GaiaClass(TapPlus):
         ----------
         query : str, mandatory
             query to be executed
+        name : str, optional, default None
+            custom name defined by the user for the job that is going to be created
         output_file : str, optional, default None
             file name where the results are saved if dumpToFile is True.
             If this parameter is not provided, the jobid is used instead
         output_format : str, optional, default 'votable'
             results format. Available formats are: 'votable', 'votable_plain',
              'fits', 'csv' and 'json', default is 'votable'.
-             Returned results for 'votable' and 'fits' formats are compressed
+             Returned results for 'votable' 'ecsv' and 'fits' format are compressed
              gzip files.
         verbose : bool, optional, default 'False'
             flag to display information about the process

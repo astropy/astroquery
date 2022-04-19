@@ -8,7 +8,7 @@ from astropy.table import Table
 import astropy.coordinates as coord
 import astropy.units as u
 from astroquery.exceptions import RemoteServiceError
-from astroquery.utils.testing_tools import MockResponse
+from astroquery.utils.mocks import MockResponse
 
 from astroquery.ipac import ned
 from astroquery.utils import commons
@@ -39,10 +39,8 @@ def data_path(filename):
 
 @pytest.fixture
 def patch_get(request):
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
+    mp = request.getfixturevalue("monkeypatch")
+
     mp.setattr(ned.Ned, '_request', get_mockreturn)
     return mp
 
@@ -55,10 +53,9 @@ def patch_get_readable_fileobj(request):
         # otherwise
         assert encoding == 'binary'
         return open(data_path(DATA_FILES['image']), 'rb')
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
+
+    mp = request.getfixturevalue("monkeypatch")
+
     mp.setattr(commons, 'get_readable_fileobj',
                get_readable_fileobj_mockreturn)
     return mp
