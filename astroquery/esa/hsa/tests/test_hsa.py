@@ -57,3 +57,12 @@ class TestHSA():
         hsa = HSAClass(self.get_dummy_tap_handler())
         hsa.query_observations(**parameters)
         dummyTapHandler.check_call("query_observations", parameters)
+
+    def test_query_region(self):
+        c = SkyCoord(ra=100.2417*u.degree, dec=9.895*u.degree, frame='icrs')
+        parameters = {'coordinate': c,
+                      'radius': 0.5}
+        dummyTapHandler = DummyHSATapHandler("query_region", parameters)
+        hsa = HSAClass(self.get_dummy_tap_handler())
+        hsa.query_region(**parameters)
+        dummyTapHandler.check_call("query_region", parameters)
