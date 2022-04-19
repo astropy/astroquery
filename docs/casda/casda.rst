@@ -126,7 +126,8 @@ Spatial and spectral parameters can be combined to produce sub-cubes.
 Once completed, the cutouts can be downloaded as described in the section above.
 
 An example script to download a cutout from the Rapid ASKAP Continuum Survey (RACS) at a specified position is shown below:
-.. code-block:: python
+
+.. doctest-skip::
 
     >>> from astropy import coordinates, units as u, wcs
     >>> from astroquery.casda import Casda
