@@ -173,7 +173,7 @@ Retrieve a VOTable with the observations metadata of a given region.
 8. Query Observations
 ---------------------
 
-.. doctest-skip::
+.. doctest-remote-data::
 
   >>> from astroquery.esa.hsa import HSA
   >>> from astropy.coordinates import SkyCoord
@@ -199,7 +199,7 @@ Retrieve a VOTable with the observation IDs of a given region.
 
 First retrieve the observation IDs based on a position on the sky. To achive this, query the TAP service.
 
-.. doctest-skip::
+.. doctest-remote-data::
 
   >>> from astroquery.esa.hsa import HSA
   >>>
