@@ -12,7 +12,7 @@ space missions and groundbased facilities. Herschel successfully performed ~3700
 ~6600 science calibration observations which are publicly available to the worldwide astronomical community
 through the Herschel Science Archive.
 
-This package allows the access to the `Herschel Science Archive <http://archives.esac.esa.int/hsa/whsa/>`__.
+This package allows the access to the `Herschel Science Archive <http://archives.esac.esa.int/hsa/whsa/>`_.
 
 Examples
 ========
@@ -109,7 +109,7 @@ Query Language (`ADQL <https://www.ivoa.net/documents/ADQL/20180112/PR-ADQL-2.1-
                     PACS-A - G345.39-3.97  -43.47405026924179 ... G345.39-3.97-1      883176
           PRISMAS_g34_hifi7b_1897GHz_B_C3  1.2495150652937468 ...      G34.3+0.1      921086
 
-This will execute an ADQL query to download the first 10 observations in the Herschel Science Archive.
+This will execute an ADQL query to download the first 10 observations in the `Herschel Science Archive`_.
 The result of the query will be stored in the file ``results.csv``.
 
 
@@ -126,7 +126,7 @@ The result of the query will be stored in the file ``results.csv``.
   INFO: Done. [astroquery.utils.tap.core]
   ['hpdp.latest_observation_hpdp', 'hpdp.vizier_links', 'hpdp.unique_observation_hpdp', 'hpdp.latest_unique_observation_requests', 'hpdp.files', 'hpdp.latest_requests', 'public.dual', 'public.image_formats', 'tap_schema.tables', 'tap_schema.columns', 'tap_schema.keys', 'tap_schema.schemas', 'tap_schema.key_columns', 'hsa.observation_science', 'hsa.proposal_coauthor', 'hsa.proposal_observation', 'hsa.instrument', 'hsa.observing_mode_per_instrument', 'hsa.spire_spectral_feature_finder_catalogue', 'hsa.hifi_spectral_line_smoothed', 'hsa.publication', 'hsa.quality_flag', 'hsa.v_active_observation', 'hsa.proposal_info', 'hsa.pacs_point_source_070', 'hsa.observing_mode', 'hsa.proposal', 'hsa.proposal_pi_user', 'hsa.spire_point_source_350', 'hsa.spire_point_source_250', 'hsa.v_publication', 'hsa.spire_point_source_500', 'hsa.pacs_point_source_100', 'hsa.v_proposal_observation', 'hsa.hifi_spectral_line_native', 'hsa.pacs_point_source_160', 'hsa.ancillary', 'hsa.metadata_expert_panels', 'pubtool.institutions', 'pubtool.v_first_pub_date', 'pubtool.v_first_pub_date_single', 'pubtool.archival_type', 'pubtool.publication', 'pubtool.publication_details', 'pubtool.authors_institutions', 'pubtool.publication_observation', 'pubtool.authors', 'updp2.latest_observation_updp', 'updp2.vizier_links', 'updp2.latest_unique_observation_requests', 'updp2.files', 'updp2.latest_requests', 'updp2.unique_observation_updp']
 
-This will show the available tables in HSA TAP service in the Herschel Science Archive.
+This will show the available tables in HSA TAP service in the `Herschel Science Archive`_.
 
 
 6. Getting columns details of HSA TAP
@@ -142,13 +142,14 @@ This will show the available tables in HSA TAP service in the Herschel Science A
   INFO: Done. [astroquery.utils.tap.core]
   ['aor', 'bii', 'dec', 'duration', 'end_time', 'fov', 'global_science_area', 'icon_image', 'icon_location', 'image_2_5_location', 'image_location', 'ingest_queue_oid', 'instrument_oid', 'is_active_version', 'is_public', 'lii', 'naif_id', 'num_publications', 'observation_id', 'observation_oid', 'observer', 'observing_mode_oid', 'obsstate', 'od_number', 'pa', 'polygon_fov', 'position', 'prop_end', 'proposal_id', 'quality_report_location', 'ra', 'science_area', 'science_category', 'spg_id', 'start_time', 'status', 'target_name', 'urn_version']
 
-This will show the column details of the table 'hsa.v_active_observation' in HSA TAP service in the Herschel Science Archive.
+This will show the column details of the table ``'hsa.v_active_observation'`` in HSA TAP service in the
+`Herschel Science Archive`_.
 
 
 7. Query Region
 ---------------
 
-.. doctest-skip::
+.. doctest-remote-data::
 
   >>> from astroquery.esa.hsa import HSA
   >>> from astropy.coordinates import SkyCoord
@@ -158,7 +159,7 @@ This will show the column details of the table 'hsa.v_active_observation' in HSA
   >>> result = HSA.query_region(c, 0.5)
   >>> result.pprint(max_width=100)
                         aor                            bii         ...   target_name    urn_version
-                                                                ...                             
+                                                                ...
   ------------------------------------------- ------------------ ... ---------------- -----------
   KPOT_wlanger_1-HPoint-0007 - CII_G202.6+2.0 10.062774289985356 ... CII_G202.6+2.0-1      921022
                                       n2264-o   9.45754288889945 ...          NGC2264      919399
@@ -166,7 +167,7 @@ This will show the column details of the table 'hsa.v_active_observation' in HSA
                                       n2264-n  9.450299102175919 ...          NGC2264      898497
                                       n2264-o  9.450499719127244 ...          NGC2264      898535
 
-Retrieve a VOTable with the observations metadata of a given region
+Retrieve a VOTable with the observations metadata of a given region.
 
 
 8. Query Observations
@@ -190,7 +191,7 @@ Retrieve a VOTable with the observations metadata of a given region
       1342205056
       1342205057
 
-Retrieve a VOTable with the observation IDs of a given region
+Retrieve a VOTable with the observation IDs of a given region.
 
 
 9. Procedure example
