@@ -281,7 +281,7 @@ class CasdaClass(BaseQuery):
             A table describing the files to be staged, such as produced by query_region. It must include an
             access_url column.
         coordinates : str or `astropy.coordinates`, optional
-            coordinates around which to produce a cutout, the radius will be 1 arcmin if no radius, height or width is 
+            coordinates around which to produce a cutout, the radius will be 1 arcmin if no radius, height or width is
             provided.
         radius : str or `astropy.units.Quantity`, optional
             the radius of the cutout
@@ -290,7 +290,7 @@ class CasdaClass(BaseQuery):
         width : str or `astropy.units.Quantity`, optional
             the width for a box cutout
         band : list of `astropy.units.Quantity` with two elements, optional
-            the spectral range to be included, may be low and high wavelengths in metres or low and high frequencies in 
+            the spectral range to be included, may be low and high wavelengths in metres or low and high frequencies in
             Hertz. Use None for an open bound.
         channel : list of int with two elements, optional
             the spectral range to be included, the low and high channels (i.e. planes of a cube) inclusive
