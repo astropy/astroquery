@@ -321,6 +321,27 @@ def test_cutout_no_args(patch_get):
     assert "Please provide cutout parameters such as coordinates, band or channel." in str(excinfo.value)
 
 
+def test_cutout_unauthorised(patch_get):
+    prefix = 'https://somewhere/casda/datalink/links?'
+    access_urls = [prefix + 'cube-244']
+    table = Table([Column(data=access_urls, name='access_url')])
+    ra = 333.9092*u.deg
+    dec = -45.8418*u.deg
+    radius = 30*u.arcmin
+    centre = SkyCoord(ra, dec)
+
+    with pytest.raises(ValueError) as excinfo:
+        Casda.cutout(table, coordinates=centre, radius=radius, verbose=True)
+    assert "Credentials must be supplied to download CASDA image data" in str(excinfo.value)
+
+
+def test_cutout_no_table():
+    casda = Casda('user', 'password')
+    casda.POLL_INTERVAL = 1
+    result = casda.cutout(None)
+    assert result == []
+
+
 def test_args_to_payload_band():
     casda = Casda('user', 'password')
     payload = casda._args_to_payload(band=(0.195*u.m, 0.215*u.m))
