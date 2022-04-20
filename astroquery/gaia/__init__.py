@@ -39,6 +39,8 @@ class Conf(_config.ConfigNamespace):
                                       'MCMC_GSPPHOT',
                                       'MCMC_MSC']
 
+    GAIA_MESSAGES = _config.ConfigItem("notification?action=GetNotifications", "Gaia Messages")
+
 
 conf = Conf()
 

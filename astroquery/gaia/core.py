@@ -51,7 +51,7 @@ class GaiaClass(TapPlus):
                  gaia_data_server='https://gea.esac.esa.int/',
                  tap_server_context="tap-server",
                  data_server_context="data-server",
-                 verbose=False):
+                 verbose=False, show_messages=True):
         super(GaiaClass, self).__init__(url=gaia_tap_server,
                                         server_context=tap_server_context,
                                         tap_context="tap",
@@ -73,6 +73,10 @@ class GaiaClass(TapPlus):
                                       verbose=verbose)
         else:
             self.__gaiadata = datalink_handler
+
+        # Enable notifications
+        if show_messages:
+            self.get_status_messages()
 
     def login(self, user=None, password=None, credentials_file=None,
               verbose=False):
@@ -910,6 +914,21 @@ class GaiaClass(TapPlus):
                                         upload_resource=upload_resource,
                                         upload_table_name=upload_table_name,
                                         autorun=autorun)
+
+    def get_status_messages(self):
+        """Retrieve the messages to inform users about
+        the status of JWST TAP
+        """
+        try:
+            subContext = conf.GAIA_MESSAGES
+            connHandler = self._TapPlus__getconnhandler()
+            response = connHandler.execute_tapget(subContext, False)
+            if response.status == 200:
+                for line in response:
+                    string_message = line.decode("utf-8")
+                    print(string_message[string_message.index('=') + 1:])
+        except OSError as e:
+            print("Status messages could not be retrieved")
 
 
 Gaia = GaiaClass()
