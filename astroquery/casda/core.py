@@ -58,7 +58,7 @@ class CasdaClass(BaseQuery):
             # self._password = password
             self._auth = (user, password)
 
-    def query_region_async(self, coordinates, radius=None, height=None, width=None,
+    def query_region_async(self, coordinates, radius=1*u.arcmin, height=None, width=None,
                            get_query_payload=False, cache=True):
         """
         Queries a region around the specified coordinates. Either a radius or both a height and a width must be provided.
@@ -97,7 +97,7 @@ class CasdaClass(BaseQuery):
 
     # Create the dict of HTTP request parameters by parsing the user
     # entered values.
-    def _args_to_payload(self, **kwargs):
+    def _args_to_payload(self, radius=1*u.arcmin, **kwargs):
         request_payload = dict()
 
         # Convert the coordinates to FK5
@@ -105,54 +105,54 @@ class CasdaClass(BaseQuery):
         if coordinates is not None:
             fk5_coords = commons.parse_coordinates(coordinates).transform_to(coord.FK5)
 
-            if kwargs.get('radius') is not None:
-                radius = u.Quantity(kwargs['radius']).to(u.deg)
-                pos = 'CIRCLE {} {} {}'.format(fk5_coords.ra.degree, fk5_coords.dec.degree, radius.value)
-            elif kwargs.get('width') is not None and kwargs.get('height') is not None:
+            if kwargs.get('width') is not None and kwargs.get('height') is not None:
                 width = u.Quantity(kwargs['width']).to(u.deg).value
                 height = u.Quantity(kwargs['height']).to(u.deg).value
                 top = fk5_coords.dec.degree + (height/2)
                 bottom = fk5_coords.dec.degree - (height/2)
                 left = fk5_coords.ra.degree - (width/2)
                 right = fk5_coords.ra.degree + (width/2)
-                pos = 'RANGE {} {} {} {}'.format(left, right, bottom, top)
+                pos = f'RANGE {left} {right} {bottom} {top}'
             else:
-                pos = 'CIRCLE {} {} {}'.format(fk5_coords.ra.degree, fk5_coords.dec.degree, 1*u.arcmin.to(u.deg))
+                radius = u.Quantity(radius).to(u.deg)
+                pos = f'CIRCLE {fk5_coords.ra.degree} {fk5_coords.dec.degree} {radius.value}'
 
             request_payload['POS'] = pos
 
-        if kwargs.get('band') is not None:
-            if kwargs.get('channel') is not None:
+        band = kwargs.get('band')
+        channel = kwargs.get('channel')
+        if band is not None:
+            if channel is not None:
                 raise ValueError("Either 'channel' or 'band' values may be provided but not both.")
 
-            band = kwargs.get('band')
-            if not isinstance(band, (list, tuple)) or len(band) != 2:
+            if (not isinstance(band, (list, tuple))) or len(band) != 2 or \
+                    (band[0] is not None and not isinstance(band[0], u.Quantity)) or \
+                    (band[1] is not None and not isinstance(band[1], u.Quantity)):
                 raise ValueError("The 'band' value must be a list of 2 wavelength or frequency values.")
-            if (band[0] is not None and not isinstance(band[0], u.Quantity)) or (band[1] is not None and not isinstance(band[1], u.Quantity)):
-                raise ValueError("The 'band' value must be a list of 2 wavelength or frequency values.")
-            if band[0] is not None and band[1] is not None and band[0].unit.physical_type != band[1].unit.physical_type:
+
+            bandBoundedLow = band[0] is not None
+            bandBoundedHigh = band[1] is not None
+            if bandBoundedLow and bandBoundedHigh and band[0].unit.physical_type != band[1].unit.physical_type:
                 raise ValueError("The 'band' values must have the same kind of units.")
-            if band[0] is not None or band[1] is not None:
-                unit = band[0].unit if band[0] is not None else band[1].unit
+            if bandBoundedLow or bandBoundedHigh:
+                unit = band[0].unit if bandBoundedLow else band[1].unit
                 if unit.physical_type == 'length':
-                    min_band = '-Inf' if band[0] is None else str(band[0].to(u.m).value)
-                    max_band = '+Inf' if band[1] is None else str(band[1].to(u.m).value)
+                    min_band = '-Inf' if not bandBoundedLow else str(band[0].to(u.m).value)
+                    max_band = '+Inf' if not bandBoundedHigh else str(band[1].to(u.m).value)
                 elif unit.physical_type == 'frequency':
                     # Swap the order when changing frequency to wavelength
-                    min_band = '-Inf' if band[1] is None else str(band[1].to(u.m, equivalencies=u.spectral()).value)
-                    max_band = '+Inf' if band[0] is None else str(band[0].to(u.m, equivalencies=u.spectral()).value)
+                    min_band = '-Inf' if not bandBoundedHigh else str(band[1].to(u.m, equivalencies=u.spectral()).value)
+                    max_band = '+Inf' if not bandBoundedLow else str(band[0].to(u.m, equivalencies=u.spectral()).value)
                 else:
                     raise ValueError("The 'band' values must be wavelengths or frequencies.")
 
-                request_payload['BAND'] = '{} {}'.format(min_band, max_band)
+                request_payload['BAND'] = f'{min_band} {max_band}'
 
-        if kwargs.get('channel') is not None:
-            channel = kwargs.get('channel')
-            if not isinstance(channel, (list, tuple)) or len(channel) != 2:
+        if channel is not None:
+            if not isinstance(channel, (list, tuple)) or len(channel) != 2 or \
+                    not isinstance(channel[0], int) or not isinstance(channel[1], int):
                 raise ValueError("The 'channel' value must be a list of 2 integer values.")
-            if (not isinstance(channel[0], int)) or (not isinstance(channel[1], int)):
-                raise ValueError("The 'channel' value must be a list of 2 integer values.")
-            request_payload['CHANNEL'] = '{} {}'.format(channel[0], channel[1])
+            request_payload['CHANNEL'] = f'{channel[0]} {channel[1]}'
 
         return request_payload
 
@@ -264,16 +264,16 @@ class CasdaClass(BaseQuery):
 
         return self._complete_job(job_url, verbose)
 
-    def cutout(self, table, coordinates=None, radius=None, height=None, width=None, band=None, channel=None, verbose=False):
+    def cutout(self, table, radius=1*u.arcmin, verbose=False, **kwargs):
         """
         Produce a cutout from each selected file. All requests for data must use authentication. If you have access to
         the data, the requested files will be brought online, a cutout produced from each file and a set of URLs to
         download the cutouts will be returned.
 
-        If a set of coordinates is provided along with either a radius or a box height and width, then CASDA will produce a
-        spatial cutout at that location from each data file specified in the table. If a band or channel pair is provided
-        then CASDA will produce a spectral cutout of that range from each data file. These can be combined to produce
-        subcubes with restrictions in both spectral and spatial axes.
+        If a set of coordinates is provided along with either a radius or a box height and width, then CASDA will
+        produce a spatial cutout at that location from each data file specified in the table. If a band or channel pair
+        is provided then CASDA will produce a spectral cutout of that range from each data file. These can be combined
+        to produce subcubes with restrictions in both spectral and spatial axes.
 
         Parameters
         ----------
@@ -281,7 +281,8 @@ class CasdaClass(BaseQuery):
             A table describing the files to be staged, such as produced by query_region. It must include an
             access_url column.
         coordinates : str or `astropy.coordinates`, optional
-            coordinates around which to produce a cutout, the radius will be 1 arcmin if no radius, height or width is provided.
+            coordinates around which to produce a cutout, the radius will be 1 arcmin if no radius, height or width is 
+            provided.
         radius : str or `astropy.units.Quantity`, optional
             the radius of the cutout
         height : str or `astropy.units.Quantity`, optional
@@ -289,7 +290,8 @@ class CasdaClass(BaseQuery):
         width : str or `astropy.units.Quantity`, optional
             the width for a box cutout
         band : list of `astropy.units.Quantity` with two elements, optional
-            the spectral range to be included, may be low and high wavelengths in metres or low and high frequencies in Hertz. Use None for an open bound.
+            the spectral range to be included, may be low and high wavelengths in metres or low and high frequencies in 
+            Hertz. Use None for an open bound.
         channel : list of int with two elements, optional
             the spectral range to be included, the low and high channels (i.e. planes of a cube) inclusive
         verbose: bool, optional
@@ -307,8 +309,7 @@ class CasdaClass(BaseQuery):
 
         job_url = self._create_job(table, 'cutout_service', verbose)
 
-        cutout_spec = self._args_to_payload(coordinates=coordinates, radius=radius, height=height,
-                                                width=width, band=band, channel=channel)
+        cutout_spec = self._args_to_payload(radius=radius, **kwargs)
 
         if not cutout_spec:
             raise ValueError("Please provide cutout parameters such as coordinates, band or channel.")
@@ -437,7 +438,6 @@ class CasdaClass(BaseQuery):
             log.info("Adding parameters: " + str(cutout_spec))
         resp = self._request('POST', job_location + '/parameters', data=cutout_spec, cache=False)
         resp.raise_for_status()
-        return
 
     def _run_job(self, job_location, verbose, poll_interval=20):
         """

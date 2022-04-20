@@ -85,12 +85,15 @@ with a username and password. e.g.:
 Data Access
 ===========
 
-In order to access data in CASDA you must first stage the data using the :meth:`~astroquery.casda.CasdaClass.stage_data` method.
+In order to access data in CASDA you must first stage the data using the :meth:`~astroquery.casda.CasdaClass.stage_data` 
+method.
 This is because only some of the data in CASDA is held on disc at any particular time.
-The :meth:`~astroquery.casda.CasdaClass.stage_data` method should be passed an astropy Table object containing an 'access_url' column.
+The :meth:`~astroquery.casda.CasdaClass.stage_data` method should be passed an astropy Table object containing an 
+'access_url' column.
 This column should contain the datalink address of the data product.
 
-Once the data has been assembled you can then download the data using the :meth:`~astroquery.casda.CasdaClass.download_files` method, or using tools such as wget.
+Once the data has been assembled you can then download the data using the :meth:`~astroquery.casda.CasdaClass.download_files` 
+method, or using tools such as wget.
 Authentication is required when staging the data, but not for the download.
 
 An example script to download public continuum images of the NGC 7232 region
@@ -117,15 +120,19 @@ Cutouts
 
 As well as accessing full data products, the CASDA service can produce cutout images and cubes from larger data products.
 The cutout support in AstroQuery allows both spatial and spectral cutouts.
-To produce a spatial cutout, pass in a coordinate and either a radius or a height and a width to the :meth:`~astroquery.casda.CasdaClass.cutout` method.
+To produce a spatial cutout, pass in a coordinate and either a radius or a height and a width to the 
+:meth:`~astroquery.casda.CasdaClass.cutout` method.
 To produce a spectral cutout, pass in either a band or a channel value. 
-For band, the value must be a list or tuple of two `astropy.units.Quantity` objects specifying a low and high frequency or wavelength. For an open ended range use `None` as the open value.
-For channel, the value must be a list or tuple of two integers specifying the low and high channels (i.e. planes of a cube) inclusive.
+For band, the value must be a list or tuple of two `astropy.units.Quantity` objects specifying a low and high frequency
+or wavelength. For an open ended range use `None` as the open value.
+For channel, the value must be a list or tuple of two integers specifying the low and high channels (i.e. planes of a
+cube) inclusive.
 Spatial and spectral parameters can be combined to produce sub-cubes.
 
 Once completed, the cutouts can be downloaded as described in the section above.
 
-An example script to download a cutout from the Rapid ASKAP Continuum Survey (RACS) at a specified position is shown below:
+An example script to download a cutout from the Rapid ASKAP Continuum Survey (RACS) at a specified position is shown
+below:
 
 .. doctest-skip::
 
