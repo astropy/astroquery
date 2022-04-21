@@ -162,7 +162,7 @@ class GaiaClass(TapPlus):
         except HTTPError as err:
             log.error("Error logging out data server")
 
-    def load_data(self, ids, data_release=None, data_structure='INDIVIDUAL', retrieval_type="ALL", valid_data=True,
+    def load_data(self, ids, data_release=None, data_structure='INDIVIDUAL', retrieval_type="ALL", valid_data=False,
                   band=None, avoid_datatype_check=False, format="votable", output_file=None,
                   overwrite_output_file=False, verbose=False):
         """Loads the specified table
@@ -189,12 +189,10 @@ class GaiaClass(TapPlus):
             retrieval type identifier. For GAIA DR2 possible values are ['EPOCH_PHOTOMETRY']
             For future GAIA DR3 (Once published), possible values will be ['EPOC_PHOTOMETRY', 'RVS', 'XP_CONTINUOUS',
             'XP_SAMPLED', 'MCMC_GSPPHOT' or 'MCMC_MSC']
-        valid_data : bool, optional, default True
-            By default, the epoch photometry service returns only valid data,
-            that is, all data rows where flux is not null and
-            rejected_by_photometry flag is not true. In order to retrieve
-            all data associated to a given source without this filter,
-            this request parameter should be included (valid_data=False)
+        valid_data : bool, optional, default False
+            By default, the epoch photometry service returns all data associated to a given source.
+            In order to retrieve only valid data, that is, all data rows where flux is not null and
+            rejected_by_photometry flag is not true, this parameter should be included (valid_data=True)
         band : str, optional, default None, valid values: G, BP, RP
             By default, the epoch photometry service returns all the
             available photometry bands for the requested source.
@@ -250,9 +248,9 @@ class GaiaClass(TapPlus):
         params_dict = {}
 
         if not valid_data or str(retrieval_type) == 'ALL':
-            params_dict['VALID_DATA'] = "false"
-        elif valid_data:
             params_dict['VALID_DATA'] = "true"
+        elif valid_data:
+            params_dict['VALID_DATA'] = "false"
 
         if band is not None:
             if band != 'G' and band != 'BP' and band != 'RP':
