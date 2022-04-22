@@ -264,7 +264,8 @@ class CasdaClass(BaseQuery):
 
         return self._complete_job(job_url, verbose)
 
-    def cutout(self, table, radius=1*u.arcmin, verbose=False, **kwargs):
+    def cutout(self, table, *, coordinates=None, radius=None, height=None,
+               width=None, band=None, channel=None, verbose=False):
         """
         Produce a cutout from each selected file. All requests for data must use authentication. If you have access to
         the data, the requested files will be brought online, a cutout produced from each file and a set of URLs to
