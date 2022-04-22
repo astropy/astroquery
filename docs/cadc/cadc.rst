@@ -25,7 +25,7 @@ The CADC hosts a number of collections and
 `~astroquery.cadc.CadcClass.get_collections` returns a list of all
 these collections:
 
-.. code-block:: python
+
 .. doctest-remote-data::
 
     >>> from astroquery.cadc import Cadc
@@ -77,7 +77,7 @@ region or by name. The following example queries CADC for Canada
 France Hawaii Telescope (CFHT) data for a given region and resolves
 the URLs for downloading the corresponding data.
 
-.. code-block:: python
+
 .. doctest-remote-data::
 
     >>> from astroquery.cadc import Cadc
@@ -118,7 +118,7 @@ the results on the name of the target (as an example - any other
 filtering possible) and resolves the URLs for both the primary and
 auxiliary data (in this case preview files)
 
-.. code-block:: python
+
 .. doctest-remote-data::
 
     >>> from astroquery.cadc import Cadc
@@ -145,7 +145,7 @@ CADC data can also be queried on the target name. Note that the name
 is not resolved. Instead it is matched against the target name in
 the CADC metadata.
 
-.. code-block:: python
+
 .. doctest-remote-data::
 
     >>> from astroquery.cadc import Cadc
@@ -165,7 +165,7 @@ the CADC metadata.
 If only a subsection of the FITS file is needed, CADC can query an
 area and resolve the cutout of a result.
 
-.. code-block:: python
+
 .. doctest-skip::
 
     >>> from astropy import units as u
@@ -182,7 +182,7 @@ area and resolve the cutout of a result.
 Alternatively, if the query result is large and data does not need to be
 in memory, lazy access to the downloaded FITS file can be used.
 
-.. code-block:: python
+
 .. doctest-remote-data::
 
     >>> from astropy import units as u
@@ -210,7 +210,7 @@ are needed, the result table can be passed into the
 `~astroquery.cadc.CadcClass.get_image_list` function, along with the
 cutout coordinates and radius.
 
-.. code-block:: python
+
 .. doctest-remote-data::
 
     >>> from astroquery.cadc import Cadc
@@ -238,6 +238,7 @@ CADC metadata is available through a TAP service. While the above
 interfaces offer a quick and simple access to the data, the TAP
 interface presented in the next sections allows for more complex
 queries.
+
 
 =============================
 Query CADC metadata using TAP
@@ -315,7 +316,7 @@ Examples of TAP access
 
 To get a list of table objects:
 
-.. code-block:: python
+
 .. doctest-remote-data::
 
 
@@ -354,7 +355,7 @@ To get a list of table objects:
 
 To get a single table object:
 
-.. code-block:: python
+
 .. doctest-remote-data::
 
     >>> from astroquery.cadc import Cadc
@@ -428,7 +429,7 @@ The results can be saved in memory (default) or in a file.
 
 Query without saving results in a file:
 
-.. code-block:: python
+
 .. doctest-remote-data::
 
     >>> from astroquery.cadc import Cadc
@@ -449,7 +450,7 @@ Query without saving results in a file:
 
 Query saving results in a file:
 
-.. code-block:: python
+
 .. doctest-skip::
 
     >>> from astroquery.cadc import Cadc
@@ -463,7 +464,7 @@ Query saving results in a file:
 
 A table can be uploaded to the server in order to be used in a query.
 
-.. code-block:: python
+
 .. doctest-skip::
 
     >>> from astroquery.cadc import Cadc
@@ -491,7 +492,7 @@ The results can be saved in memory (default) or in a file.
 
 Query without saving results in a file:
 
-.. code-block:: python
+
 .. doctest-remote-data::
 
     >>> from astroquery.cadc import Cadc
@@ -525,16 +526,15 @@ Query without saving results in a file:
                         GS-CAL20181117-2-061-G-BIAS calibration
                        GS-CAL20181018-10-086-G-BIAS calibration
     Length = 100 rows
- 
+
 
 1.7 Load job
-~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~
 
 Asynchronous jobs can be loaded. You need the jobid in order to load
 the job.
 
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> from astroquery.cadc import Cadc
@@ -582,9 +582,9 @@ the job.
     Length = 100 rows
 
 
----------------------------
+-----------------------
 2. Authenticated access
----------------------------
+-----------------------
 
 Some capabilities (shared tables, persistent jobs, etc.) are only
 available to authenticated users.
@@ -614,7 +614,6 @@ users are applicable for authenticated ones.
 
 Login with username and password:
 
-.. code-block:: python
 .. doctest-skip::
 
     >>> from astroquery.cadc import Cadc
@@ -624,7 +623,6 @@ Login with username and password:
 
 Login with certificate:
 
-.. code-block:: python
 .. doctest-skip::
 
     >>> from astroquery.cadc import Cadc
@@ -635,12 +633,12 @@ Login with certificate:
 To perform a logout:
 
 
-.. code-block:: python
 .. doctest-skip::
 
     >>> from astroquery.cadc import Cadc
     >>> cadc = Cadc()
     >>> cadc.logout()
+
 
 Reference/API
 =============
