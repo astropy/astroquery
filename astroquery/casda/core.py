@@ -320,7 +320,7 @@ class CasdaClass(BaseQuery):
 
         job_url = self._create_job(table, 'cutout_service', verbose)
 
-        cutout_spec = self._args_to_payload(radius=radius, coordinates=coordinates, height=height, width=width, 
+        cutout_spec = self._args_to_payload(radius=radius, coordinates=coordinates, height=height, width=width,
                band=band, channel=channel, verbose=verbose)
 
         if not cutout_spec:
