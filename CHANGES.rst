@@ -13,6 +13,11 @@ hsa
 Service fixes and enhancements
 ------------------------------
 
+casda
+^^^^^
+
+- Add the ability to produce 2D and 3D cutouts from ASKAP images and cubes. [#2366]
+
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------

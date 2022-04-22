@@ -14,6 +14,7 @@ import astropy.coordinates as coord
 from astropy.table import Table
 from astropy.io.votable import parse
 from astroquery import log
+import numpy as np
 
 # 3. local imports - use relative imports
 # commonly required local imports shown below as example
@@ -58,7 +59,7 @@ class CasdaClass(BaseQuery):
             # self._password = password
             self._auth = (user, password)
 
-    def query_region_async(self, coordinates, radius=None, height=None, width=None,
+    def query_region_async(self, coordinates, radius=1*u.arcmin, height=None, width=None,
                            get_query_payload=False, cache=True):
         """
         Queries a region around the specified coordinates. Either a radius or both a height and a width must be provided.
@@ -67,12 +68,12 @@ class CasdaClass(BaseQuery):
         ----------
         coordinates : str or `astropy.coordinates`.
             coordinates around which to query
-        radius : str or `astropy.units.Quantity`.
+        radius : str or `astropy.units.Quantity`, optional
             the radius of the cone search
-        width : str or `astropy.units.Quantity`
-            the width for a box region
-        height : str or `astropy.units.Quantity`
+        height : str or `astropy.units.Quantity`, optional
             the height for a box region
+        width : str or `astropy.units.Quantity`, optional
+            the width for a box region
         get_query_payload : bool, optional
             Just return the dict of HTTP request parameters.
         cache: bool, optional
@@ -97,28 +98,71 @@ class CasdaClass(BaseQuery):
 
     # Create the dict of HTTP request parameters by parsing the user
     # entered values.
-    def _args_to_payload(self, **kwargs):
+    def _args_to_payload(self, radius=1*u.arcmin, **kwargs):
         request_payload = dict()
 
         # Convert the coordinates to FK5
         coordinates = kwargs.get('coordinates')
-        fk5_coords = commons.parse_coordinates(coordinates).transform_to(coord.FK5)
+        if coordinates is not None:
+            fk5_coords = commons.parse_coordinates(coordinates).transform_to(coord.FK5)
 
-        if kwargs['radius'] is not None:
-            radius = u.Quantity(kwargs['radius']).to(u.deg)
-            pos = 'CIRCLE {} {} {}'.format(fk5_coords.ra.degree, fk5_coords.dec.degree, radius.value)
-        elif kwargs['width'] is not None and kwargs['height'] is not None:
-            width = u.Quantity(kwargs['width']).to(u.deg).value
-            height = u.Quantity(kwargs['height']).to(u.deg).value
-            top = fk5_coords.dec.degree - (height/2)
-            bottom = fk5_coords.dec.degree + (height/2)
-            left = fk5_coords.ra.degree - (width/2)
-            right = fk5_coords.ra.degree + (width/2)
-            pos = 'RANGE {} {} {} {}'.format(left, right, top, bottom)
-        else:
-            raise ValueError("Either 'radius' or both 'height' and 'width' must be supplied.")
+            if kwargs.get('width') is not None and kwargs.get('height') is not None:
+                width = u.Quantity(kwargs['width']).to(u.deg).value
+                height = u.Quantity(kwargs['height']).to(u.deg).value
+                top = fk5_coords.dec.degree + (height/2)
+                bottom = fk5_coords.dec.degree - (height/2)
+                left = fk5_coords.ra.degree - (width/2)
+                right = fk5_coords.ra.degree + (width/2)
+                pos = f'RANGE {left} {right} {bottom} {top}'
+            else:
+                radius = u.Quantity(radius).to(u.deg)
+                pos = f'CIRCLE {fk5_coords.ra.degree} {fk5_coords.dec.degree} {radius.value}'
 
-        request_payload['POS'] = pos
+            request_payload['POS'] = pos
+
+        band = kwargs.get('band')
+        channel = kwargs.get('channel')
+        if band is not None:
+            if channel is not None:
+                raise ValueError("Either 'channel' or 'band' values may be provided but not both.")
+
+            if (not isinstance(band, (list, tuple, np.ndarray))) or len(band) != 2 or \
+                    (band[0] is not None and not isinstance(band[0], u.Quantity)) or \
+                    (band[1] is not None and not isinstance(band[1], u.Quantity)):
+                raise ValueError("The 'band' value must be a list of 2 wavelength or frequency values.")
+
+            bandBoundedLow = band[0] is not None
+            bandBoundedHigh = band[1] is not None
+            if bandBoundedLow and bandBoundedHigh and band[0].unit.physical_type != band[1].unit.physical_type:
+                raise ValueError("The 'band' values must have the same kind of units.")
+            if bandBoundedLow or bandBoundedHigh:
+                unit = band[0].unit if bandBoundedLow else band[1].unit
+                if unit.physical_type == 'length':
+                    min_band = '-Inf' if not bandBoundedLow else band[0].to(u.m).value
+                    max_band = '+Inf' if not bandBoundedHigh else band[1].to(u.m).value
+                elif unit.physical_type == 'frequency':
+                    # Swap the order when changing frequency to wavelength
+                    min_band = '-Inf' if not bandBoundedHigh else band[1].to(u.m, equivalencies=u.spectral()).value
+                    max_band = '+Inf' if not bandBoundedLow else band[0].to(u.m, equivalencies=u.spectral()).value
+                else:
+                    raise ValueError("The 'band' values must be wavelengths or frequencies.")
+                # If values were provided in the wrong order, swap them
+                if bandBoundedLow and bandBoundedHigh and min_band > max_band:
+                    temp_val = min_band
+                    min_band = max_band
+                    max_band = temp_val
+
+                request_payload['BAND'] = f'{min_band} {max_band}'
+
+        if channel is not None:
+            if not isinstance(channel, (list, tuple, np.ndarray)) or len(channel) != 2 or \
+                    not isinstance(channel[0], (int, np.integer)) or not isinstance(channel[1], (int, np.integer)):
+                raise ValueError("The 'channel' value must be a list of 2 integer values.")
+            if channel[0] <= channel[1]:
+                request_payload['CHANNEL'] = f'{channel[0]} {channel[1]}'
+            else:
+                # If values were provided in the wrong order, swap them
+                request_payload['CHANNEL'] = f'{channel[1]} {channel[0]}'
 
         return request_payload
 
@@ -160,29 +204,7 @@ class CasdaClass(BaseQuery):
         now = str(datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%S.%f'))
         return table[(table['obs_release_date'] != '') & (table['obs_release_date'] < now)]
 
-    def stage_data(self, table, verbose=False):
-        """
-        Request access to a set of data files. All requests for data must use authentication. If you have access to the
-        data, the requested files will be brought online and a set of URLs to download the files will be returned.
-
-        Parameters
-        ----------
-        table: `astropy.table.Table`
-            A table describing the files to be staged, such as produced by query_region. It must include an
-            access_url column.
-        verbose: bool, optional
-            Should status message be logged periodically, defaults to False
-
-        Returns
-        -------
-        A list of urls of both the requested files and the checksums for the files
-        """
-        if not self._authenticated:
-            raise ValueError("Credentials must be supplied to download CASDA image data")
-
-        if table is None or len(table) == 0:
-            return []
-
+    def _create_job(self, table, service_name, verbose):
         # Use datalink to get authenticated access for each file
         tokens = []
         soda_url = None
@@ -192,7 +214,7 @@ class CasdaClass(BaseQuery):
                 response = self._request('GET', access_url, auth=self._auth,
                                         timeout=self.TIMEOUT, cache=False)
                 response.raise_for_status()
-                service_url, id_token = self._parse_datalink_for_service_and_id(response, 'async_service')
+                service_url, id_token = self._parse_datalink_for_service_and_id(response, service_name)
                 if id_token:
                     tokens.append(id_token)
                     soda_url = service_url
@@ -206,6 +228,9 @@ class CasdaClass(BaseQuery):
         if verbose:
             log.info("Created data staging job " + job_url)
 
+        return job_url
+
+    def _complete_job(self, job_url, verbose):
         # Wait for job to be complete
         final_status = self._run_job(job_url, verbose, poll_interval=self.POLL_INTERVAL)
         if final_status != 'COMPLETED':
@@ -221,6 +246,89 @@ class CasdaClass(BaseQuery):
             fileurls.append(file_location)
 
         return fileurls
+
+    def stage_data(self, table, verbose=False):
+        """
+        Request access to a set of data files. All requests for data must use authentication. If you have access to the
+        data, the requested files will be brought online and a set of URLs to download the files will be returned.
+
+        Parameters
+        ----------
+        table: `astropy.table.Table`
+            A table describing the files to be staged, such as produced by query_region. It must include an
+            access_url column.
+        verbose: bool, optional
+            Should status message be logged periodically, defaults to False
+
+        Returns
+        -------
+        A list of urls of both the requested files/cutouts and the checksums for the files/cutouts
+        """
+        if not self._authenticated:
+            raise ValueError("Credentials must be supplied to download CASDA image data")
+
+        if table is None or len(table) == 0:
+            return []
+
+        job_url = self._create_job(table, 'async_service', verbose)
+
+        return self._complete_job(job_url, verbose)
+
+    def cutout(self, table, *, coordinates=None, radius=None, height=None,
+               width=None, band=None, channel=None, verbose=False):
+        """
+        Produce a cutout from each selected file. All requests for data must use authentication. If you have access to
+        the data, the requested files will be brought online, a cutout produced from each file and a set of URLs to
+        download the cutouts will be returned.
+
+        If a set of coordinates is provided along with either a radius or a box height and width, then CASDA will
+        produce a spatial cutout at that location from each data file specified in the table. If a band or channel pair
+        is provided then CASDA will produce a spectral cutout of that range from each data file. These can be combined
+        to produce subcubes with restrictions in both spectral and spatial axes.
+
+        Parameters
+        ----------
+        table: `astropy.table.Table`
+            A table describing the files to be staged, such as produced by query_region. It must include an
+            access_url column.
+        coordinates : str or `astropy.coordinates`, optional
+            coordinates around which to produce a cutout, the radius will be 1 arcmin if no radius, height or width is
+            provided.
+        radius : str or `astropy.units.Quantity`, optional
+            the radius of the cutout
+        height : str or `astropy.units.Quantity`, optional
+            the height for a box cutout
+        width : str or `astropy.units.Quantity`, optional
+            the width for a box cutout
+        band : list of `astropy.units.Quantity` with two elements, optional
+            the spectral range to be included, may be low and high wavelengths in metres or low and high frequencies in
+            Hertz. Use None for an open bound.
+        channel : list of int with two elements, optional
+            the spectral range to be included, the low and high channels (i.e. planes of a cube) inclusive
+        verbose: bool, optional
+            Should status messages be logged periodically, defaults to False
+
+        Returns
+        -------
+        A list of urls of both the requested files/cutouts and the checksums for the files/cutouts
+        """
+        if not self._authenticated:
+            raise ValueError("Credentials must be supplied to download CASDA image data")
+
+        if table is None or len(table) == 0:
+            return []
+
+        job_url = self._create_job(table, 'cutout_service', verbose)
+
+        cutout_spec = self._args_to_payload(radius=radius, coordinates=coordinates, height=height, width=width,
+               band=band, channel=channel, verbose=verbose)
+
+        if not cutout_spec:
+            raise ValueError("Please provide cutout parameters such as coordinates, band or channel.")
+
+        self._add_cutout_params(job_url, verbose, cutout_spec)
+
+        return self._complete_job(job_url, verbose)
 
     def download_files(self, urls, savedir=''):
         """
@@ -323,6 +431,25 @@ class CasdaClass(BaseQuery):
         resp = self._request('POST', async_url, params=id_params, cache=False)
         resp.raise_for_status()
         return resp.url
+
+    def _add_cutout_params(self, job_location, verbose, cutout_spec):
+        """
+        Add a cutout specification to an async SODA job. This will change the job
+        from just retrieving the full file to producing a cutout from the target file.
+
+        Parameters
+        ----------
+        job_location: str
+            The url to query the job status and details
+        verbose: bool
+            Should progress be logged periodically
+        cutout_spec: map
+            The map containing the POS parameter defining the cutout.
+        """
+        if verbose:
+            log.info("Adding parameters: " + str(cutout_spec))
+        resp = self._request('POST', job_location + '/parameters', data=cutout_spec, cache=False)
+        resp.raise_for_status()
 
     def _run_job(self, job_location, verbose, poll_interval=20):
         """
