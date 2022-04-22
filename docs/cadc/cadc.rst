@@ -33,36 +33,42 @@ these collections:
     >>> for collection, details in sorted(cadc.get_collections().items()):
     ...    print('{} : {}'.format(collection, details))
     ...
-    APASS : {'Description': 'The APASS collection at the CADC', 'Bands': ['Optical', 'Infrared', '']}
+    APASS : {'Description': 'The APASS collection at the CADC', 'Bands': ['Optical', 'Infrared|Optical', '']}
     BLAST : {'Description': 'The BLAST collection at the CADC', 'Bands': ['', 'Millimeter']}
     CFHT : {'Description': 'The CFHT collection at the CADC', 'Bands': ['Infrared|Optical', 'Infrared|Optical|UV', '', 'Infrared|Optical|UV|EUV|X-ray|Ga', 'Optical', 'Infrared', 'X-ray|Gamma-ray']}
     CFHTMEGAPIPE : {'Description': 'The CFHTMEGAPIPE collection at the CADC', 'Bands': ['', 'Infrared|Optical', 'Infrared', 'Optical']}
-    CFHTTERAPIX : {'Description': 'The CFHTTERAPIX collection at the CADC', 'Bands': ['Optical', 'Infrared']}
+    CFHTTERAPIX : {'Description': 'The CFHTTERAPIX collection at the CADC', 'Bands': ['Infrared|Optical', 'Optical', 'Infrared']}
     CFHTWIRWOLF : {'Description': 'The CFHTWIRWOLF collection at the CADC', 'Bands': ['Infrared']}
-    CGPS : {'Description': 'The CGPS collection at the CADC', 'Bands': ['Infrared', 'Radio', 'Millimeter', '']}
+    CGPS : {'Description': 'The CGPS collection at the CADC', 'Bands': ['Infrared', 'Radio', 'Millimeter', '', 'Millimeter|Infrared']}
     CHANDRA : {'Description': 'The CHANDRA collection at the CADC', 'Bands': ['X-ray']}
-    DAO : {'Description': 'The DAO collection at the CADC', 'Bands': ['UV|EUV|X-ray|Gamma-ray', '', 'EUV|X-ray|Gamma-ray', 'Infrared|Optical', 'Optical|UV|EUV|X-ray|Gamma-ray', 'Infrared', 'Optical', 'X-ray|Gamma-ray', 'Infrared|Optical|UV|EUV|X-ray|Ga']}
+    DAO : {'Description': 'The DAO collection at the CADC', 'Bands': ['', 'Infrared|Optical', 'Infrared', 'Optical']}
+    DAOCADC : {'Description': 'The DAOCADC collection at the CADC', 'Bands': ['Optical', '']}
     DAOPLATES : {'Description': 'The DAOPLATES collection at the CADC', 'Bands': ['Optical', '']}
     DRAO : {'Description': 'The DRAO collection at the CADC', 'Bands': ['Radio']}
-    FUSE : {'Description': 'The FUSE collection at the CADC', 'Bands': ['UV', '']}
-    GEMINI : {'Description': 'The GEMINI collection at the CADC', 'Bands': ['Gamma-ray', 'Infrared|Optical|UV|EUV|X-ray|Ga', 'Infrared', 'Optical', 'Infrared|Optical', '']}
+    FUSE : {'Description': 'The FUSE collection at the CADC', 'Bands': ['UV|EUV', '']}
+    GEMINI : {'Description': 'The GEMINI collection at the CADC', 'Bands': ['Infrared|Optical|UV|EUV|X-ray|Ga', 'Infrared', 'Optical', 'Infrared|Optical', 'Optical|UV', '']}
+    GEMINICADC : {'Description': 'The GEMINICADC collection at the CADC', 'Bands': ['', 'Infrared|Optical', 'Infrared']}
     HST : {'Description': 'The HST collection at the CADC', 'Bands': ['', 'Infrared', 'Optical', 'UV']}
-    HSTHLA : {'Description': 'The HSTHLA collection at the CADC', 'Bands': ['Optical', 'Infrared', 'UV']}
-    IRIS : {'Description': 'The IRIS collection at the CADC', 'Bands': ['Infrared']}
+    HSTHLA : {'Description': 'The HSTHLA collection at the CADC', 'Bands': ['Optical', 'Infrared', 'UV', 'Infrared|Optical', 'Infrared|Optical|UV', 'Optical|UV']}
+    IRIS : {'Description': 'The IRIS collection at the CADC', 'Bands': ['Millimeter|Infrared', 'Infrared']}
     JCMT : {'Description': 'The JCMT collection at the CADC', 'Bands': ['', 'Millimeter']}
     JCMTLS : {'Description': 'The JCMTLS collection at the CADC', 'Bands': ['Millimeter', '']}
+    JWST : {'Description': 'The JWST collection at the CADC', 'Bands': ['', 'Infrared']}
     MACHO : {'Description': 'The MACHO collection at the CADC', 'Bands': ['Optical']}
     MOST : {'Description': 'The MOST collection at the CADC', 'Bands': ['Optical']}
     NEOSSAT : {'Description': 'The NEOSSAT collection at the CADC', 'Bands': ['Optical']}
     NGVS : {'Description': 'The NGVS collection at the CADC', 'Bands': ['Infrared|Optical', '', 'Optical']}
     NOAO : {'Description': 'The NOAO collection at the CADC', 'Bands': ['Optical', 'Infrared']}
     OMM : {'Description': 'The OMM collection at the CADC', 'Bands': ['Optical', 'Infrared', '']}
+    RACS : {'Description': 'The RACS collection at the CADC', 'Bands': ['Radio']}
     SDSS : {'Description': 'The SDSS collection at the CADC', 'Bands': ['Infrared', 'Optical']}
     SUBARU : {'Description': 'The SUBARU collection at the CADC', 'Bands': ['Optical']}
+    SUBARUCADC : {'Description': 'The SUBARUCADC collection at the CADC', 'Bands': ['Optical', 'Infrared|Optical']}
     TESS : {'Description': 'The TESS collection at the CADC', 'Bands': ['Optical']}
-    UKIRT : {'Description': 'The UKIRT collection at the CADC', 'Bands': ['', 'Optical', 'Infrared']}
+    UKIRT : {'Description': 'The UKIRT collection at the CADC', 'Bands': ['Infrared|Optical', '', 'Optical', 'Infrared']}
     VGPS : {'Description': 'The VGPS collection at the CADC', 'Bands': ['Radio']}
-    VLASS : {'Description': 'The VLASS collection at the CADC', 'Bands': ['Radio']}
+    VLASS : {'Description': 'The VLASS collection at the CADC', 'Bands': ['', 'Radio']}
+    WALLABY : {'Description': 'The WALLABY collection at the CADC', 'Bands': ['Radio']}
     XMM : {'Description': 'The XMM collection at the CADC', 'Bands': ['Optical', 'UV', 'X-ray']}
 
 
@@ -78,17 +84,21 @@ the URLs for downloading the corresponding data.
     >>> cadc = Cadc()
     >>> result = cadc.query_region('08h45m07.5s +54d18m00s', collection='CFHT')
     >>> print(result)
-      observationURI  sequenceNumber ...           accMetaChecksum2          
-                                     ...                                     
-    ----------------- -------------- ... ------------------------------------
-    caom:CFHT/2366432        2366432 ... md5:76a5e97c9d2f726f456c92b6d2303dd3
-    caom:CFHT/2366432        2366432 ... md5:eff6ecab03761186d6ce699dff43ddc7
-    caom:CFHT/2366188        2366188 ... md5:896250159a7e80eecdad34150201f361
-    caom:CFHT/2376828        2376828 ... md5:1c9008a82af8e5b0ed377c8544ded497
-    caom:CFHT/2376828        2376828 ... md5:297b56e1f2e80602e0cb0cc901505108
-    caom:CFHT/2366188        2366188 ... md5:f0ec6252250a86963a102351c23d0ca7
-    caom:CFHT/2480747        2480747 ... md5:a7cccd9710cbca222dc8f8b1eedff3b5
-    caom:CFHT/2480747        2480747 ... md5:c24ace389b760c290a5bf31842fb4ea9
+      observationURI  sequenceNumber ...     maxLastModified2
+                                     ...
+    ----------------- -------------- ... -----------------------
+    caom:CFHT/2366432        2366432 ... 2020-09-14T04:24:28.932
+    caom:CFHT/2366188        2366188 ... 2020-09-14T06:58:23.094
+    caom:CFHT/2366432        2366432 ... 2020-09-14T04:24:28.932
+    caom:CFHT/2480747        2480747 ... 2020-09-09T12:47:39.890
+    caom:CFHT/2366188        2366188 ... 2020-09-14T06:58:23.094
+    caom:CFHT/2480747        2480747 ... 2021-02-26T14:40:21.695
+    caom:CFHT/2583703        2583703 ... 2021-02-18T01:32:51.542
+    caom:CFHT/2583527        2583527 ... 2021-09-01T20:37:05.647
+    caom:CFHT/2583527        2583527 ... 2021-09-01T20:37:05.647
+    caom:CFHT/2583703        2583703 ... 2021-02-26T10:37:42.355
+    caom:CFHT/2376828        2376828 ... 2021-09-01T23:48:18.790
+    caom:CFHT/2376828        2376828 ... 2021-09-01T23:48:18.790
     >>> urls = cadc.get_data_urls(result)
     >>> for url in urls:
     ...     print(url)   #doctest: +IGNORE_OUTPUT
@@ -115,7 +125,7 @@ auxiliary data (in this case preview files)
     >>> cadc = Cadc()
     >>> result = cadc.query_region('08h45m07.5s +54d18m00s')
     >>> print(len(result))
-    3034
+    3044
     >>> urls = cadc.get_data_urls(result[result['target_name'] == 'Nr3491_1'],
     ...                           include_auxiliaries=True)
     >>> for url in urls:
@@ -145,18 +155,18 @@ the CADC metadata.
     103949
     >>> result = cadc.query_name('Nr3491_1')
     >>> print(result)
-      observationURI  sequenceNumber metaReadGroups ...           accMetaChecksum2                lastModified2          maxLastModified2
-                                                    ...
-    ----------------- -------------- -------------- ... ------------------------------------ ----------------------- -----------------------
-    caom:CFHT/2376828        2376828                ... md5:a3e8ccba7bc69d14a07d261d8615cc47 2019-04-10T22:14:33.111 2019-11-06T08:56:14.246
-    caom:CFHT/2376828        2376828                ... md5:7c84ae4b76485a28336f03b2b5af18b3 2019-03-04T08:19:23.766 2019-03-04T10:55:53.572
+      observationURI  sequenceNumber ...     maxLastModified2
+                                     ...
+    ----------------- -------------- ... -----------------------
+    caom:CFHT/2376828        2376828 ... 2021-09-01T23:48:18.790
+    caom:CFHT/2376828        2376828 ... 2021-09-01T23:48:18.790
 
 
 If only a subsection of the FITS file is needed, CADC can query an
 area and resolve the cutout of a result.
 
 .. code-block:: python
-.. doctest-remote-data::
+.. doctest-skip::
 
     >>> from astropy import units as u
     >>> from astroquery.cadc import Cadc
@@ -164,9 +174,7 @@ area and resolve the cutout of a result.
     >>> coords = '01h45m07.5s +23d18m00s'
     >>> radius = 0.01*u.deg
     >>> images = cadc.get_images(coords, radius, collection='CFHT')
-    >>> for image in images:
-    ...    print(image)    # doctest: +IGNORE_OUTPUT
-    ...
+    >>> images
     [<astropy.io.fits.hdu.image.PrimaryHDU object at 0x7f3805a06ef0>]
     [<astropy.io.fits.hdu.image.PrimaryHDU object at 0x7f3805b23b38>]
 
@@ -183,11 +191,8 @@ in memory, lazy access to the downloaded FITS file can be used.
     >>> cadc = Cadc()
     >>> coords = SkyCoord(10, 20, unit='deg')
     >>> radius = 0.01*u.deg
-    >>> readable_objs = cadc.get_images_async(coords, radius,
-    ...                                       collection='CFHT')
-    >>> for obj in readable_objs:
-    ...    print(obj)   # doctest: +IGNORE_OUTPUT
-    ...
+    >>> readable_objs = cadc.get_images_async(coords, radius, collection='CFHT')
+    >>> readable_objs  # doctest: +IGNORE_OUTPUT
     Downloaded object from URL https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=ad%3ACFHT%2F2234132o.fits.fz&RUNID=pot39nwwtaht03wc&POS=CIRCLE+26.2812589776878+23.299999818906816+0.01 with ID 140045451168112
     Downloaded object from URL https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=ad%3ACFHT%2F2368279p.fits.fz&RUNID=pot39nwwtaht03wc&POS=CIRCLE+26.2812589776878+23.299999818906816+0.01 with ID 140045451142576
     Downloaded object from URL https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync?ID=ad%3ACFHT%2F2228383o.fits.fz&RUNID=pot39nwwtaht03wc&POS=CIRCLE+26.2812589776878+23.299999818906816+0.01 with ID 140045452176880
@@ -430,42 +435,28 @@ Query without saving results in a file:
     >>> cadc = Cadc()
     >>> results = cadc.exec_sync("SELECT top 100 observationID, intent FROM caom2.Observation")
     >>> print(results)
-                     observationID                     intent  
-    ----------------------------------------------- -----------
-                                          j8eh03boq     science
-                                          j8f635020     science
-                                          jbfkb1peq     science
-                                          j8ff06s2q     science
-                                          icdx40oxq     science
-                                          j8fd13rgq     science
-                                          j8ff03020     science
-                            GN-2014B-SV-101-761-010     science
-                                          j8ff07020     science
-                                          jbfh14020     science
-                                                ...         ...
-               hst_10476_50_acs_wfc_f850lp_j9fo50ul     science
-                       GS-CAL20181018-10-026-G-BIAS calibration
-                              GN-2020B-Q-120-40-050 calibration
-                       GS-CAL20181018-10-021-G-BIAS calibration
-                       GS-CAL20181018-10-036-G-BIAS calibration
-                       GS-CAL20181018-10-061-G-BIAS calibration
-                                          icdx13u2q     science
-                        GS-CAL20181117-2-046-G-BIAS calibration
-    tess2019357164649-s0020-0000000159539617-0165-s     science
-                        GS-CAL20181117-2-061-G-BIAS calibration
-                       GS-CAL20181018-10-086-G-BIAS calibration
-    Length = 100 rows
+              observationID               intent
+    ---------------------------------- -----------
+        VLASS2.2.T18t28.J204443+293000     science
+            c4d_141029_044031_oki_g_v1     science
+        VLASS2.2.T18t28.J203534+293000     science
+                                   ...         ...
+                          C170323_0155 calibration
+                          C180513_0208     science
+                         2019101223440     science
+     Length = 100 rows
 
 
 Query saving results in a file:
 
 .. code-block:: python
-.. doctest-remote-data::
+.. doctest-skip::
 
     >>> from astroquery.cadc import Cadc
     >>> cadc = Cadc()
     >>> job = cadc.exec_sync("SELECT TOP 10 observationID, obsID FROM caom2.Observation AS Observation",
-    ...                      output_file='test_output_noauth.tsv', output_format='tsv')
+    ...                      output_file='test_output_noauth.tsv')
+
 
 1.5 Synchronous query with temporary uploaded table
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -473,7 +464,7 @@ Query saving results in a file:
 A table can be uploaded to the server in order to be used in a query.
 
 .. code-block:: python
-.. doctest-remote-data::
+.. doctest-skip::
 
     >>> from astroquery.cadc import Cadc
     >>> cadc = Cadc()
@@ -506,10 +497,10 @@ Query without saving results in a file:
     >>> from astroquery.cadc import Cadc
     >>> cadc = Cadc()
     >>> job = cadc.create_async("SELECT TOP 100 observationID, instrument_name, target_name FROM caom2.Observation AS Observation")
-    >>> job.run().wait()
+    >>> job.run().wait()  # doctest: +IGNORE_OUTPUT
     >>> job.raise_if_error()
-    >>> print(job.fetch_result().to_table())   # doctest: +IGNORE_OUTPUT
-                     observationID                     intent  
+    >>> print(job.fetch_result().to_table())  # doctest: +IGNORE_OUTPUT
+                     observationID                     intent
     ----------------------------------------------- -----------
                                           j8eh03boq     science
                                           j8f635020     science
@@ -549,7 +540,7 @@ the job.
     >>> from astroquery.cadc import Cadc
     >>> cadc = Cadc()
     >>> job = cadc.create_async("SELECT TOP 100 observationID, instrument_name, target_name FROM caom2.Observation AS Observation")
-    >>> job.run().wait()
+    >>> job.run().wait()  # doctest: +IGNORE_OUTPUT
     >>> job.raise_if_error()
     >>> loaded_job = cadc.load_async_job(jobid=job.job_id)
     >>> print(loaded_job.fetch_result().to_table())     # doctest: +IGNORE_OUTPUT
