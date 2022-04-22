@@ -204,6 +204,8 @@ def test_get_access_url():
 
 @patch('astroquery.cadc.core.get_access_url',
        Mock(side_effect=lambda x, y=None: 'https://some.url'))
+@patch('astroquery.cadc.core.pyvo.dal.adhoc.DatalinkService',
+       Mock(return_value=Mock(capabilities=[])))  # DL capabilities not needed
 @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
 def test_get_data_urls():
 
@@ -283,6 +285,8 @@ def test_misc():
 
 @patch('astroquery.cadc.core.get_access_url',
        Mock(side_effect=lambda x, y=None: 'https://some.url'))
+@patch('astroquery.cadc.core.pyvo.dal.TAPService',
+       Mock(return_value=Mock(capabilities=[])))  # TAP capabilities not needed
 @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
 def test_get_image_list():
     def get(*args, **kwargs):

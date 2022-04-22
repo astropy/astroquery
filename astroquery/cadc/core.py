@@ -104,15 +104,15 @@ class CadcClass(BaseQuery):
 
         super(CadcClass, self).__init__()
         self.baseurl = url
+        # _auth_session contains the credentials that are used by both
+        # the cadc tap and cadc datalink services
         if auth_session:
             self._auth_session = auth_session
         else:
-            self._auth_session = None
+            self._auth_session = authsession.AuthSession()
 
     @property
     def cadctap(self):
-        if not self._auth_session:
-            self._auth_session = authsession.AuthSession()
         if not hasattr(self, '_cadctap'):
             if self.baseurl is None:
                 self.baseurl = get_access_url(self.CADCTAP_SERVICE_URI)
@@ -124,6 +124,13 @@ class CadcClass(BaseQuery):
                 self._cadctap = pyvo.dal.TAPService(
                     self.baseurl, session=self._auth_session)
         return self._cadctap
+
+    @property
+    def cadcdatalink(self):
+        if not hasattr(self, '_datalink'):
+            self._datalink = pyvo.dal.adhoc.DatalinkService(
+                self.data_link_url, session=self._auth_session)
+        return self._datalink
 
     @property
     def data_link_url(self):
@@ -216,13 +223,23 @@ class CadcClass(BaseQuery):
         if verbose is not None:
             warnings.warn('verbose deprecated since 0.4.0')
 
-        # the only way to ensure complete logout is to start with a new
-        # session. This is mainly because of certificates. Adding cert
-        # argument to a session already in use does not force it to
-        # re-do the HTTPS hand shake
-        self.cadctap._session = authsession.AuthSession()
-        self.cadctap._session.update_from_capabilities(
-            self.cadctap.capabilities)
+        if isinstance(self._auth_session, pyvo.auth.AuthSession):
+            # Remove the existing credentials (if any)
+            # PyVO should provide this reset credentials functionality
+            self._auth_session.credentials.credentials = \
+                {key: value for (key, value) in self._auth_session.credentials.credentials.items()
+                    if key == pyvo.auth.securitymethods.ANONYMOUS}
+        elif isinstance(self._auth_session, requests.Session):
+            # the only way to ensure complete logout is to start with a new
+            # session. This is mainly because of certificates. Removing cert
+            # argument to a session already in use does not force it to
+            # re-do the HTTPS hand shake
+            self._auth_session = requests.Session()
+            self.cadctap._session = self._auth_session
+            self.cadcdatalink._session = self._auth_session
+        else:
+            raise RuntimeError(
+                'Do not know how to log out from custom session')
 
     @class_or_instance
     def query_region_async(self, coordinates, radius=0.016666666666667*u.deg,
@@ -456,7 +473,8 @@ class CadcClass(BaseQuery):
                             range(0, len(publisher_ids), batch_size)):
             datalink = pyvo.dal.adhoc.DatalinkResults.from_result_url(
                 '{}?{}'.format(self.data_link_url,
-                               urlencode({'ID': pid_sublist}, True)))
+                               urlencode({'ID': pid_sublist}, True),
+                               session=self.cadcdatalink._session))
             for service_def in datalink.bysemantics('#cutout'):
                 access_url = service_def.access_url
                 if isinstance(access_url, bytes):  # ASTROPY_LT_4_1
@@ -523,7 +541,8 @@ class CadcClass(BaseQuery):
             datalink = pyvo.dal.adhoc.DatalinkResults.from_result_url(
                 '{}?{}'.format(self.data_link_url,
                                urlencode({'ID': pid_sublist,
-                                          'REQUEST': 'downloads-only'}, True)))
+                                          'REQUEST': 'downloads-only'}, True)),
+                session=self.cadcdatalink._session)
             for service_def in datalink:
                 if service_def.semantics in ['http://www.opencadc.org/caom2#pkg', '#package']:
                     # TODO http://www.openadc.org/caom2#pkg has been replaced

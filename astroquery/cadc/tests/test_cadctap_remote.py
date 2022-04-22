@@ -151,6 +151,12 @@ class TestCadcClass:
                 format(now.strftime('%Y-%m-%dT%H:%M:%S.%f'))
             result = cadc.exec_sync(query)
             assert len(result) == 0
+            # login in again
+            cadc.login(os.environ['CADC_USER'], os.environ['CADC_PASSWD'])
+            query = "select top 1 * from caom2.Plane where metaRelease>'{}'". \
+                format(now.strftime('%Y-%m-%dT%H:%M:%S.%f'))
+            result = cadc.exec_sync(query)
+            assert len(result) == 1
 
     @pytest.mark.skipif(one_test, reason='One test mode')
     @pytest.mark.skipif('CADC_CERT' not in os.environ,
