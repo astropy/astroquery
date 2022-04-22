@@ -131,7 +131,7 @@ Spatial and spectral parameters can be combined to produce sub-cubes.
 
 Once completed, the cutouts can be downloaded as described in the section above.
 
-An example script to download a cutout from the Rapid ASKAP Continuum Survey (RACS) at a specified position is shown
+An example script to download a 2D cutout from the Rapid ASKAP Continuum Survey (RACS) at a specified position is shown
 below:
 
 .. doctest-skip::
@@ -150,6 +150,26 @@ below:
                       (np.char.endswith(public_data['filename'], 'A.fits'))
                      )]
     >>> url_list = casda.cutout(subset[:1], coordinates=centre, radius=14*u.arcmin)
+    >>> filelist = casda.download_files(url_list, savedir='/tmp')
+
+An example script to download a 3D cutout from the WALLABY Pre-Pilot Eridanus cube at a specified position and velocity
+is shown below:
+
+.. doctest-skip::
+
+    >>> from astropy import coordinates, units as u, wcs
+    >>> from astroquery.casda import Casda
+    >>> import getpass
+    >>> centre = coordinates.SkyCoord.from_name('NGC 1371')
+    >>> username = 'email@somewhere.edu.au'
+    >>> password = getpass.getpass(str("Enter your OPAL password: "))
+    >>> casda = Casda(username, password)
+    >>> result = Casda.query_region(centre, radius=30*u.arcmin)
+    >>> public_data = Casda.filter_out_unreleased(result)
+    >>> eridanus_cube = public_data[public_data['filename'] == 'Eridanus_full_image_V3.fits']
+    >>> vel = np.array([1250, 1600])*u.km/u.s
+    >>> freq = vel.to(u.Hz, equivalencies=u.doppler_radio(1.420405751786*u.GHz))
+    >>> url_list = casda.cutout(eridanus_cube, coordinates=centre, radius=9*u.arcmin, band=freq)
     >>> filelist = casda.download_files(url_list, savedir='/tmp')
 
 

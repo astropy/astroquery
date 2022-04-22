@@ -12,6 +12,7 @@ import astropy.units as u
 from astropy.table import Table, Column
 from astropy.io.votable import parse
 from astroquery import log
+import numpy as np
 
 from astroquery.casda import Casda
 
@@ -348,6 +349,10 @@ def test_args_to_payload_band():
     assert payload['BAND'] == '0.195 0.215'
     assert list(payload.keys()) == ['BAND']
 
+    payload = casda._args_to_payload(band=(0.215*u.m, 0.195*u.m))
+    assert payload['BAND'] == '0.195 0.215'
+    assert list(payload.keys()) == ['BAND']
+
     payload = casda._args_to_payload(band=(0.195*u.m, 21.5*u.cm))
     assert payload['BAND'] == '0.195 0.215'
     assert list(payload.keys()) == ['BAND']
@@ -361,6 +366,10 @@ def test_args_to_payload_band():
     assert list(payload.keys()) == ['BAND']
 
     payload = casda._args_to_payload(band=(1.42*u.GHz, 1.5*u.GHz))
+    assert payload['BAND'] == '0.19986163866666667 0.21112144929577467'
+    assert list(payload.keys()) == ['BAND']
+
+    payload = casda._args_to_payload(band=np.array([1.5, 1.42])*u.GHz)
     assert payload['BAND'] == '0.19986163866666667 0.21112144929577467'
     assert list(payload.keys()) == ['BAND']
 
@@ -393,7 +402,7 @@ def test_args_to_payload_band_invalid():
     assert "The 'band' values must have the same kind of units." in str(excinfo.value)
 
     with pytest.raises(ValueError) as excinfo:
-        casda._args_to_payload(band=(1.42*u.radian, 21*u.deg))
+        casda._args_to_payload(band=[1.42*u.radian, 21*u.deg])
     assert "The 'band' values must be wavelengths or frequencies." in str(excinfo.value)
 
     with pytest.raises(ValueError) as excinfo:
@@ -407,7 +416,11 @@ def test_args_to_payload_channel():
     assert payload['CHANNEL'] == '0 30'
     assert list(payload.keys()) == ['CHANNEL']
 
-    payload = casda._args_to_payload(channel=(17, 23))
+    payload = casda._args_to_payload(channel=np.array([17, 23]))
+    assert payload['CHANNEL'] == '17 23'
+    assert list(payload.keys()) == ['CHANNEL']
+
+    payload = casda._args_to_payload(channel=(23, 17))
     assert payload['CHANNEL'] == '17 23'
     assert list(payload.keys()) == ['CHANNEL']
 

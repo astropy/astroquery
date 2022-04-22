@@ -14,6 +14,7 @@ import astropy.coordinates as coord
 from astropy.table import Table
 from astropy.io.votable import parse
 from astroquery import log
+import numpy as np
 
 # 3. local imports - use relative imports
 # commonly required local imports shown below as example
@@ -125,7 +126,7 @@ class CasdaClass(BaseQuery):
             if channel is not None:
                 raise ValueError("Either 'channel' or 'band' values may be provided but not both.")
 
-            if (not isinstance(band, (list, tuple))) or len(band) != 2 or \
+            if (not isinstance(band, (list, tuple, np.ndarray))) or len(band) != 2 or \
                     (band[0] is not None and not isinstance(band[0], u.Quantity)) or \
                     (band[1] is not None and not isinstance(band[1], u.Quantity)):
                 raise ValueError("The 'band' value must be a list of 2 wavelength or frequency values.")
@@ -137,22 +138,31 @@ class CasdaClass(BaseQuery):
             if bandBoundedLow or bandBoundedHigh:
                 unit = band[0].unit if bandBoundedLow else band[1].unit
                 if unit.physical_type == 'length':
-                    min_band = '-Inf' if not bandBoundedLow else str(band[0].to(u.m).value)
-                    max_band = '+Inf' if not bandBoundedHigh else str(band[1].to(u.m).value)
+                    min_band = '-Inf' if not bandBoundedLow else band[0].to(u.m).value
+                    max_band = '+Inf' if not bandBoundedHigh else band[1].to(u.m).value
                 elif unit.physical_type == 'frequency':
                     # Swap the order when changing frequency to wavelength
-                    min_band = '-Inf' if not bandBoundedHigh else str(band[1].to(u.m, equivalencies=u.spectral()).value)
-                    max_band = '+Inf' if not bandBoundedLow else str(band[0].to(u.m, equivalencies=u.spectral()).value)
+                    min_band = '-Inf' if not bandBoundedHigh else band[1].to(u.m, equivalencies=u.spectral()).value
+                    max_band = '+Inf' if not bandBoundedLow else band[0].to(u.m, equivalencies=u.spectral()).value
                 else:
                     raise ValueError("The 'band' values must be wavelengths or frequencies.")
+                # If values were provided in the wrong order, swap them
+                if bandBoundedLow and bandBoundedHigh and min_band > max_band:
+                    temp_val = min_band
+                    min_band = max_band
+                    max_band = temp_val
 
                 request_payload['BAND'] = f'{min_band} {max_band}'
 
         if channel is not None:
-            if not isinstance(channel, (list, tuple)) or len(channel) != 2 or \
-                    not isinstance(channel[0], int) or not isinstance(channel[1], int):
+            if not isinstance(channel, (list, tuple, np.ndarray)) or len(channel) != 2 or \
+                    not isinstance(channel[0], (int, np.integer)) or not isinstance(channel[1], (int, np.integer)):
                 raise ValueError("The 'channel' value must be a list of 2 integer values.")
-            request_payload['CHANNEL'] = f'{channel[0]} {channel[1]}'
+            if channel[0] <= channel[1]:
+                request_payload['CHANNEL'] = f'{channel[0]} {channel[1]}'
+            else:
+                # If values were provided in the wrong order, swap them
+                request_payload['CHANNEL'] = f'{channel[1]} {channel[0]}'
 
         return request_payload
 
@@ -310,7 +320,8 @@ class CasdaClass(BaseQuery):
 
         job_url = self._create_job(table, 'cutout_service', verbose)
 
-        cutout_spec = self._args_to_payload(radius=radius, **kwargs)
+        cutout_spec = self._args_to_payload(radius=radius, coordinates=coordinates, height=height, width=width, 
+               band=band, channel=channel, verbose=verbose)
 
         if not cutout_spec:
             raise ValueError("Please provide cutout parameters such as coordinates, band or channel.")
