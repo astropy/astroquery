@@ -1,7 +1,7 @@
 .. _astroquery.cadc:
 
 ************************
-Cadc (`astroquery.cadc`)
+CADC (`astroquery.cadc`)
 ************************
 
 The Canadian Astronomy Data Centre (CADC) is a world-wide distribution
@@ -31,7 +31,7 @@ these collections:
     >>> from astroquery.cadc import Cadc
     >>> cadc = Cadc()
     >>> for collection, details in sorted(cadc.get_collections().items()):
-    ...    print('{} : {}'.format(collection, details))
+    ...    print(f'{collection} : {details}')
     ...
     APASS : {'Description': 'The APASS collection at the CADC', 'Bands': ['Optical', 'Infrared|Optical', '']}
     BLAST : {'Description': 'The BLAST collection at the CADC', 'Bands': ['', 'Millimeter']}
@@ -150,9 +150,8 @@ the CADC metadata.
 
     >>> from astroquery.cadc import Cadc
     >>> cadc = Cadc()
-    >>> result = cadc.query_name('M31')
-    >>> print(len(result))
-    103949
+    >>> result_m31 = cadc.query_name('M31')
+    >>>
     >>> result = cadc.query_name('Nr3491_1')
     >>> print(result)
       observationURI  sequenceNumber ...     maxLastModified2
