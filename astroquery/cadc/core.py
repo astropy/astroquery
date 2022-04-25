@@ -12,6 +12,7 @@ import warnings
 import requests
 from numpy import ma
 from urllib.parse import urlencode
+from urllib.error import HTTPError
 
 from ..utils.class_or_instance import class_or_instance
 from ..utils import async_to_sync, commons
@@ -370,7 +371,7 @@ class CadcClass(BaseQuery):
         for fn in filenames:
             try:
                 images.append(fn.get_fits())
-            except requests.exceptions.HTTPError as err:
+            except (requests.exceptions.HTTPError, HTTPError) as err:
                 # Catch HTTPError if user is unauthorized to access file
                 log.debug(
                     "{} - Problem retrieving the file: {}".
@@ -601,7 +602,8 @@ class CadcClass(BaseQuery):
             if table == t.name:
                 return t
 
-    def exec_sync(self, query, maxrec=None, uploads=None, output_file=None):
+    def exec_sync(self, query, maxrec=None, uploads=None, output_file=None,
+                  output_format='basic'):
         """
         Run a query and return the results or save them in an output_file
 
@@ -615,6 +617,9 @@ class CadcClass(BaseQuery):
             Temporary tables to upload and run with the queries
         output_file: str or file handler:
             File to save the results to
+        output_format:
+            Format of the output (default is basic). Must be one
+            of the formats supported by `astropy.table`
 
         Returns
         -------
@@ -630,10 +635,12 @@ class CadcClass(BaseQuery):
         result = response.to_table()
         if output_file:
             if isinstance(output_file, str):
-                with open(output_file, 'bw') as f:
-                    f.write(result)
+                fname = output_file
+            elif hasattr(output_file, 'name'):
+                fname = output_file.name
             else:
-                output_file.write(result)
+                raise AttributeError('Not a valid file name or file handler')
+            result.write(fname, format=output_format, overwrite=True)
         return result
 
     def create_async(self, query, maxrec=None, uploads=None):
@@ -731,7 +738,7 @@ class CadcClass(BaseQuery):
             warnings.warn('verbose deprecated since 0.4.0')
 
         return pyvo.dal.AsyncTAPJob('{}/async/{}'.format(
-            self.cadctap.baseurl, jobid))
+            self.cadctap.baseurl, jobid), session=self._auth_session)
 
     def list_async_jobs(self, phases=None, after=None, last=None,
                         short_description=True, verbose=None):

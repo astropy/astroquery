@@ -461,24 +461,15 @@ Query saving results in a file:
 1.5 Synchronous query with temporary uploaded table
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A table can be uploaded to the server in order to be used in a query.
+A temporary table can be uploaded to the server from a local file and used in a query.
+The ``uploads`` argument in ``exec_sync`` is a map where the key is the name of the
+table and the value is the name of the ``VOTable`` temporary file with the content.
+In the query, the temporary table is referred to as ``tap_upload.table_name``.
+For example, if ``uploads = {'temp_table': 'table_file_name'}``, then the simplest query
+to return the content of that table would be ``SELECT * FROM tap_upload.temp_table``.
+Multiple temporary tables to be used at once can be specified as such.
 
-
-.. doctest-skip::
-
-    >>> from astroquery.cadc import Cadc
-    >>> cadc = Cadc()
-    >>> upload_resource = 'data/votable.xml'
-    >>> j = cadc.exec_sync("SELECT * FROM tap_upload.test_table_upload",
-    ...                    uploads=upload_resource,
-    ...                    output_file="test_output_table")
-    >>> print(j.get_results())
-             uri                    contentChecksum            ...   contentType
-                                                               ...
-    --------------------- ------------------------------------ ... ----------------
-    ad:IRIS/I001B1H0.fits md5:b6ead425ae84289246e4528bbdd7da9a ... application/fits
-    ad:IRIS/I001B2H0.fits md5:a6b082ca530bf5db5a691985d0c1a6ca ... application/fits
-    ad:IRIS/I001B3H0.fits md5:2ada853a8ae135e16504aeba4e47489e ... application/fits
+More details about temporary table upload can be found in the IVOA TAP specification.
 
 
 1.6 Asynchronous query
