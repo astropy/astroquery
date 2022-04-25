@@ -920,6 +920,7 @@ class GaiaClass(TapPlus):
         the status of JWST TAP
         """
         try:
+            print("parsing notification messages")
             subContext = conf.GAIA_MESSAGES
             connHandler = self._TapPlus__getconnhandler()
             response = connHandler.execute_tapget(subContext, False)
