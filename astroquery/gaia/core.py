@@ -190,9 +190,11 @@ class GaiaClass(TapPlus):
             For future GAIA DR3 (Once published), possible values will be ['EPOC_PHOTOMETRY', 'RVS', 'XP_CONTINUOUS',
             'XP_SAMPLED', 'MCMC_GSPPHOT' or 'MCMC_MSC']
         valid_data : bool, optional, default False
-            By default, the epoch photometry service returns all data associated to a given source.
-            In order to retrieve only valid data, that is, all data rows where flux is not null and
-            rejected_by_photometry flag is not true, this parameter should be included (valid_data=True)
+            By default, the epoch photometry service returns all available data, including
+            data rows where flux is null and/or the rejected_by_photometry flag is set to True.
+            In order to retrieve only valid data (data rows where flux is not null and/or the
+            rejected_by_photometry flag is set to False) this request parameter should be included
+            with valid_data=True.
         band : str, optional, default None, valid values: G, BP, RP
             By default, the epoch photometry service returns all the
             available photometry bands for the requested source.
