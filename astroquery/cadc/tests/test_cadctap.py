@@ -287,6 +287,8 @@ def test_misc():
        Mock(side_effect=lambda x, y=None: 'https://some.url'))
 @patch('astroquery.cadc.core.pyvo.dal.TAPService',
        Mock(return_value=Mock(capabilities=[])))  # TAP capabilities not needed
+@patch('astroquery.cadc.core.pyvo.dal.adhoc.DatalinkService',
+       Mock(return_value=Mock(capabilities=[])))  # DL capabilities not needed
 @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
 def test_get_image_list():
     def get(*args, **kwargs):
@@ -375,7 +377,7 @@ def test_exec_sync():
     votable.to_xml(buffer)
     cadc = Cadc(auth_session=requests.Session())
     response = Mock()
-    response.to_table.return_value = buffer.getvalue()
+    response.to_table.return_value = table.to_table()
     cadc.cadctap.search = Mock(return_value=response)
     output_file = '{}/test_vooutput.xml'.format(tempfile.tempdir)
     cadc.exec_sync('some query', output_file=output_file)

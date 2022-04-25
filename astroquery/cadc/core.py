@@ -603,7 +603,7 @@ class CadcClass(BaseQuery):
                 return t
 
     def exec_sync(self, query, maxrec=None, uploads=None, output_file=None,
-                  output_format='basic'):
+                  output_format='votable'):
         """
         Run a query and return the results or save them in an output_file
 
