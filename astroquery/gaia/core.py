@@ -250,9 +250,9 @@ class GaiaClass(TapPlus):
         params_dict = {}
 
         if not valid_data or str(retrieval_type) == 'ALL':
-            params_dict['VALID_DATA'] = "true"
-        elif valid_data:
             params_dict['VALID_DATA'] = "false"
+        elif valid_data:
+            params_dict['VALID_DATA'] = "true"
 
         if band is not None:
             if band != 'G' and band != 'BP' and band != 'RP':
@@ -917,7 +917,7 @@ class GaiaClass(TapPlus):
 
     def get_status_messages(self):
         """Retrieve the messages to inform users about
-        the status of JWST TAP
+        the status of Gaia TAP
         """
         try:
             print("parsing notification messages")
