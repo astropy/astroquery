@@ -33,10 +33,10 @@ jobs:
             toxenv: py37-test-oldestdeps
             toxargs: -v
 
-          - name: astropy dev with all dependencies with coverage
+          - name: dev dependencies with all dependencies with coverage
             os: ubuntu-latest
             python: '3.10'
-            toxenv: py310-test-alldeps-devastropy-cov
+            toxenv: py310-test-alldeps-devdeps-cov
             toxargs: -v
 
           - name: Python 3.8 with all optional dependencies (MacOS X)
