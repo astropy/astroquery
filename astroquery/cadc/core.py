@@ -291,7 +291,7 @@ class CadcClass(BaseQuery):
 
         Parameters
         ----------
-        name: str
+        name : str
                 name of object to query for
 
         Returns
@@ -615,11 +615,11 @@ class CadcClass(BaseQuery):
             SQL to execute
         maxrec : int
             the maximum records to return. defaults to the service default
-        uploads:
+        uploads :
             Temporary tables to upload and run with the queries
-        output_file: str or file handler:
+        output_file : str or file handler
             File to save the results to
-        output_format:
+        output_format :
             Format of the output (default is basic). Must be one
             of the formats supported by `astropy.table`
 
@@ -709,9 +709,9 @@ class CadcClass(BaseQuery):
             when the job is executed in asynchronous mode,
             this flag specifies whether the execution will wait until results
             are available
-        upload_resource: str, optional, default None
+        upload_resource : str, optional, default None
             resource to be uploaded to UPLOAD_SCHEMA
-        upload_table_name: str, required if uploadResource is provided,
+        upload_table_name : str, required if uploadResource is provided,
             default None
             resource temporary table name associated to the uploaded resource
 
@@ -749,13 +749,13 @@ class CadcClass(BaseQuery):
 
         Parameters
         ----------
-        phases: list of str
+        phases : list of str
             Union of job phases to filter the results by.
-        after: datetime
+        after : datetime
             Return only jobs created after this datetime
-        last: int
+        last : int
             Return only the most recent number of jobs
-        short_description: flag - True or False
+        short_description : flag - True or False
             If True, the jobs in the list will contain only the information
             corresponding to the TAP ShortJobDescription object (job ID, phase,
             run ID, owner ID and creation ID) whereas if False, a separate GET
@@ -811,12 +811,19 @@ def get_access_url(service, capability=None):
     """
     Returns the URL corresponding to a service by doing a lookup in the cadc
     registry. It returns the access URL corresponding to cookie authentication.
-    :param service: the service the capability belongs to. It can be identified
-    by a CADC uri ('ivo://cadc.nrc.ca/) which is looked up in the CADC registry
-    or by the URL where the service capabilities is found.
-    :param capability: uri representing the capability for which the access
-    url is sought
-    :return: the access url
+
+    Parameters
+    ----------
+    service : str
+        the service the capability belongs to. It can be identified
+        by a CADC uri ('ivo://cadc.nrc.ca/) which is looked up in the CADC registry
+        or by the URL where the service capabilities is found.
+    capability : str
+        uri representing the capability for which the access url is sought
+
+    Returns
+    -------
+    The access url
 
     Note
     ------
