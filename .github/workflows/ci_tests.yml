@@ -39,6 +39,12 @@ jobs:
             toxenv: py310-test-alldeps-devdeps-cov
             toxargs: -v
 
+          - name: pre-repease dependencies with all dependencies
+            os: ubuntu-latest
+            python: '3.10'
+            toxenv: py310-test-alldeps-predeps
+            toxargs: -v
+
           - name: Python 3.8 with all optional dependencies (MacOS X)
             os: macos-latest
             python: 3.8
