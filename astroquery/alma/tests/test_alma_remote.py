@@ -3,7 +3,7 @@ import tempfile
 import shutil
 import numpy as np
 import pytest
-import warnings
+
 from datetime import datetime
 import os
 from urllib.parse import urlparse
@@ -40,7 +40,7 @@ def alma(request):
     """
     alma = Alma()
     alma_site = request.config.getoption('--alma-site',
-                                         'almascience.org')
+                                         'almascience.eso.org')
     alma.archive_url = 'https://{}'.format(alma_site)
     return alma
 
@@ -85,9 +85,6 @@ class TestAlma:
             assert row['frequency'] <= 100
             assert '3' in row['band_list']
 
-    @pytest.mark.skipif("SKIP_SLOW",
-                        reason="Extremely slow due to limitations of "
-                               "the implementation")
     def test_bands(self, alma):
         payload = {'band_list': ['5', '7']}
         result = alma.query(payload)
@@ -116,7 +113,6 @@ class TestAlma:
         for row in result:
             assert 'GRB021004' == row['target_name']
 
-    @pytest.mark.skipif("SKIP_SLOW", reason="Known issue")
     def test_ra_dec(self, alma):
         payload = {'ra_dec': '181.0192d -0.01928d'}
         result = alma.query(payload)
@@ -124,6 +120,7 @@ class TestAlma:
 
     @pytest.mark.skipif("SKIP_SLOW")
     def test_m83(self, temp_dir, alma):
+        # Runs for over 9 minutes
         alma.cache_location = temp_dir
 
         m83_data = alma.query_object('M83', science=True, legacy_columns=True)
@@ -205,6 +202,8 @@ class TestAlma:
         assert len(results) == len(urls)
 
     def test_download_and_extract(self, temp_dir, alma):
+        # TODO: slowish, runs for ~90s
+
         alma.cache_location = temp_dir
         alma._cycle0_tarfile_content_table = {'ID': ''}
 
@@ -247,7 +246,6 @@ class TestAlma:
             'cache_path/' + asdm_url.split('/')[-1])
         assert downloaded_asdm == [os.path.join(temp_dir, 'foo.py')]
 
-    @pytest.mark.skipif("SKIP_SLOW", reason="Known issue")
     def test_doc_example(self, temp_dir, alma):
         alma.cache_location = temp_dir
         m83_data = alma.query_object('M83', legacy_columns=True)
@@ -304,7 +302,7 @@ class TestAlma:
         #                     science=True)
         # assert len(result) == 1
 
-    @pytest.mark.skipif("SKIP_SLOW", reason="ra dec search known issue")
+    @pytest.mark.xfail(reason="ra dec search known issue")
     def test_misc(self, alma):
         # miscellaneous set of common tests
         #
@@ -367,7 +365,6 @@ class TestAlma:
             assert '6' == row['band_list']
             assert 'ginsburg' in row['obs_creator_name'].lower()
 
-    @pytest.mark.skipif("SKIP_SLOW")
     def test_user(self, alma):
         # miscellaneous set of tests from current users
         rslt = alma.query({'band_list': [6], 'project_code': '2012.1.*'},
@@ -380,7 +377,6 @@ class TestAlma:
     # This has been reported, as it is definitely a bug.
     @pytest.mark.xfail
     @pytest.mark.bigdata
-    @pytest.mark.skipif("SKIP_SLOW")
     def test_cycle1(self, temp_dir, alma):
         # About 500 MB
         alma.cache_location = temp_dir
@@ -427,7 +423,7 @@ class TestAlma:
         assert len(data) == 6
 
     @pytest.mark.skipif("SKIP_SLOW")
-    @pytest.mark.skip("Not working anymore")
+    @pytest.mark.xfail(reason="Not working anymore")
     def test_cycle0(self, temp_dir, alma):
         # About 20 MB
         alma.cache_location = temp_dir
