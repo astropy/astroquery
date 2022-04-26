@@ -16,11 +16,6 @@ This package allows the access to the data at the `CADC
 Basic Access
 ============
 
-.. note::
-
-    ``astroquery.cadc`` is dependent on the ``pyvo`` package. Please
-    install it prior to using the ``astroquery.cadc`` module.
-
 The CADC hosts a number of collections and
 `~astroquery.cadc.CadcClass.get_collections` returns a list of all
 these collections:
