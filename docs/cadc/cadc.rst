@@ -479,11 +479,22 @@ More details about temporary table upload can be found in the IVOA TAP specifica
     >>> results = cadc.exec_sync("SELECT TOP 3 observationID FROM caom2.Observation",
     ...                          output_file='my_observations.xml')
     >>> print(results)
+                  observationID
+    ----------------------------------
+                c13a_060826_044314_ori
+    tess2021167190903-s0039-1-3-0210-s
+                             tu1657207
     >>> # now use them to join with the remote table
     >>> results = cadc.exec_sync("SELECT o.observationID, intent FROM caom2.Observation o "
     ...                          "JOIN tap_upload.test_upload tu ON o.observationID=tu.observationID",
     ...                           uploads={'test_upload': 'my_datasets.xml'})
     >>> print(results)
+              observationID             intent
+    ---------------------------------- -------
+                c13a_060826_044314_ori science
+    tess2021167190903-s0039-1-3-0210-s science
+                             tu1657207 science
+
 
 .. testcleanup::
 
@@ -491,20 +502,6 @@ More details about temporary table upload can be found in the IVOA TAP specifica
     >>> if os.path.isfile('my_observations.xml'):
     ...  os.remove('my_observations.xml')
 
-This will produce an output similar to:
-
-                  observationID
-    ----------------------------------
-                c13a_060826_044314_ori
-    tess2021167190903-s0039-1-3-0210-s
-                             tu1657207
-
-and
-              observationID             intent
-    ---------------------------------- -------
-                c13a_060826_044314_ori science
-    tess2021167190903-s0039-1-3-0210-s science
-                             tu1657207 science
 
 The feature allows a user to save the results of a query to use them later or
 correlate them with data in other TAP services.
