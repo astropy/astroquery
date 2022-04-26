@@ -454,8 +454,8 @@ Query saving results in a file:
 
     >>> from astroquery.cadc import Cadc
     >>> cadc = Cadc()
-    >>> job = cadc.exec_sync("SELECT TOP 10 observationID, obsID FROM caom2.Observation AS Observation",
-    ...                      output_file='test_output_noauth.tsv')
+    >>> job = cadc.exec_sync("SELECT TOP 10 observationID, obsID FROM caom2.Observation",
+    ...                      output_file='test_output_noauth.xml')
 
 
 1.5 Synchronous query with temporary uploaded table
@@ -470,6 +470,44 @@ to return the content of that table would be ``SELECT * FROM tap_upload.temp_tab
 Multiple temporary tables to be used at once can be specified as such.
 
 More details about temporary table upload can be found in the IVOA TAP specification.
+
+.. doctest-remote-data::
+
+    >>> from astroquery.cadc import Cadc
+    >>> cadc = Cadc()
+    >>> # save a few observations on a local file
+    >>> results = cadc.exec_sync("SELECT TOP 3 observationID FROM caom2.Observation",
+    ...                          output_file='my_observations.xml')
+    >>> print(results)
+    >>> # now use them to join with the remote table
+    >>> results = cadc.exec_sync("SELECT o.observationID, intent FROM caom2.Observation o "
+    ...                          "JOIN tap_upload.test_upload tu ON o.observationID=tu.observationID",
+    ...                           uploads={'test_upload': 'my_datasets.xml'})
+    >>> print(results)
+
+.. testcleanup::
+
+    >>> import os
+    >>> if os.path.isfile('my_observations.xml'):
+    ...  os.remove('my_observations.xml')
+
+This will produce an output similar to:
+
+                  observationID
+    ----------------------------------
+                c13a_060826_044314_ori
+    tess2021167190903-s0039-1-3-0210-s
+                             tu1657207
+
+and
+              observationID             intent
+    ---------------------------------- -------
+                c13a_060826_044314_ori science
+    tess2021167190903-s0039-1-3-0210-s science
+                             tu1657207 science
+
+The feature allows a user to save the results of a query to use them later or
+correlate them with data in other TAP services.
 
 
 1.6 Asynchronous query

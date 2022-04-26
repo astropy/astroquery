@@ -162,9 +162,9 @@ class CadcClass(BaseQuery):
         # start with a new session
         if not isinstance(self.cadctap._session, (requests.Session,
                                                   authsession.AuthSession)):
-            raise TypeError('Cannot login with user provided session that is '
-                            'not an pyvo.authsession.AuthSession or '
-                            'requests.Session')
+            raise AttributeError('Cannot login with user provided session that is '
+                                 'not an pyvo.authsession.AuthSession or '
+                                 'requests.Session')
         if not certificate_file and not (user and password):
             raise AttributeError('login credentials missing (user/password '
                                  'or certificate)')
@@ -227,6 +227,8 @@ class CadcClass(BaseQuery):
         if isinstance(self._auth_session, pyvo.auth.AuthSession):
             # Remove the existing credentials (if any)
             # PyVO should provide this reset credentials functionality
+            # TODO - this should be implemented in PyVO to avoid this deep
+            # intrusion into that package
             self._auth_session.credentials.credentials = \
                 {key: value for (key, value) in self._auth_session.credentials.credentials.items()
                     if key == pyvo.auth.securitymethods.ANONYMOUS}
