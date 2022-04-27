@@ -43,7 +43,7 @@ class AstrometryNetClass(BaseQuery):
     TIMEOUT = conf.timeout
     API_URL = url_helpers.join(URL, 'api')
 
-    # These are drawn from http://astrometry.net/doc/net/api.html#submitting-a-url
+    # These are drawn from https://astrometry.net/doc/net/api.html#submitting-a-url
     _constraints = {
         'allow_commercial_use': {'default': 'd', 'type': str, 'allowed': ('d', 'y', 'n')},
         'allow_modifications': {'default': 'd', 'type': str, 'allowed': ('d', 'y', 'n')},
