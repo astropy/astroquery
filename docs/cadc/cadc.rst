@@ -495,7 +495,7 @@ More details about temporary table upload can be found in the IVOA TAP specifica
 
     >>> import os
     >>> if os.path.isfile('my_observations.xml'):
-    ...  os.remove('my_observations.xml')
+    ...    os.remove('my_observations.xml')
 
 
 The feature allows a user to save the results of a query to use them later or
