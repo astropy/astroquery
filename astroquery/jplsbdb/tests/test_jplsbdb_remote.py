@@ -44,3 +44,6 @@ class TestSBDBClass:
         assert sbdb['orbit']['model_pars']['A2'].unit.bases == [u.au, u.d]
         assert sbdb['orbit']['model_pars']['A2'].unit.is_equivalent(u.au / u.d**2)
         assert sbdb['orbit']['elements']['tp'].unit.bases[0] == u.d
+
+        sbdb = SBDB.query('Bennu', id_type='search', phys=True)
+        assert sbdb['phys_par']['I'].unit == u.Unit('J / (K m2 s(1/2))')

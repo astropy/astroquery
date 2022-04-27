@@ -18,6 +18,11 @@ casda
 
 - Add the ability to produce 2D and 3D cutouts from ASKAP images and cubes. [#2366]
 
+jplsbdb
+^^^^^^^
+
+- Fix a bug for jplsdbd query when the returned physical quantity contains
+  a unit with exponential. [#2377]
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
