@@ -38,25 +38,25 @@ store the password in your operating system. As such you should have to enter yo
 correct password only once, and later be able to use this package for automated
 interaction with the ESO archive.
 
- .. doctest-skip::
+.. doctest-skip::
 
     >>> from astroquery.eso import Eso
     >>> eso = Eso()
     >>> # First example: TEST is not a valid username, it will fail
-    >>> eso.login("TEST") # doctest: +SKIP
+    >>> eso.login("TEST")
     TEST, enter your ESO password:
 
     Authenticating TEST on www.eso.org...
     Authentication failed!
     >>> # Second example: pretend ICONDOR is a valid username
-    >>> eso.login("Tinuade", store_password=True)  # doctest: +SKIP
-    Tinuade, enter your ESO password:
+    >>> eso.login("ICONDOR", store_password=True) # doctest: +SKIP
+    ICONDOR, enter your ESO password:
 
     Authenticating ICONDOR on www.eso.org...
     Authentication successful!
     >>> # After the first login, your password has been stored
-    >>> eso.login("Tinuade")    # doctest: +SKIP
-    Authenticating Tinuade on www.eso.org...
+    >>> eso.login("ICONDOR") # doctest: +SKIP
+    Authenticating ICONDOR on www.eso.org...
     Authentication successful!
 
 Automatic password
@@ -311,9 +311,8 @@ This method is detailed in the example below.
     ...                                                      'stime':'2007-01-01',
     ...                                                      'etime':'2008-01-01'},
     ...                              columns=['night'])
-
     >>> table_headers = eso.get_headers(table['DP.ID'])
-    >>> table_headers.pprint()  # doctest: +SKIP
+    >>> table_headers.pprint()  # doctest: +IGNORE_OUTPUT
                DP.ID             SIMPLE BITPIX ... HIERARCH ESO OCS TPL NFILE   HIERARCH ESO OCS EXPO1 FNAME3
     ---------------------------- ------ ------ ... -------------------------- ---------------------------------
     MIDI.2007-02-07T07:01:51.000   True     16 ...                          0
@@ -376,7 +375,7 @@ would like to download datasets from an existing request, either submitted
 through the functions here or externally, call ``retrieve_data`` with the
 ``request_id`` option:
 
-.. doctest-skip::
+.. doctest-skip:: 
 
     >>> data_files = eso.retrieve_data(table['DP.ID'][:2], request_id=999999)
 
