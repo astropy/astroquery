@@ -22,7 +22,7 @@ import tempfile
 import requests
 try:
     pyvo_OK = True
-    from pyvo.auth import authsession
+    from pyvo.auth import authsession, securitymethods
     from astroquery.cadc import Cadc, conf
     import astroquery.cadc.core as cadc_core
 except ImportError:
@@ -134,13 +134,14 @@ def test_list_async_jobs():
 
 @patch('astroquery.cadc.core.get_access_url',
        Mock(side_effect=lambda x, y=None: 'https://some.url'))
+@patch('astroquery.cadc.core.pyvo.dal.TAPService.capabilities', [])  # TAP capabilities not needed
+@patch('astroquery.cadc.core.pyvo.dal.adhoc.DatalinkService.capabilities', [])  # DL capabilities not needed
 @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
 def test_auth():
     # the Cadc() will cause a remote data call to TAP service capabilities
     # To avoid this, use an anonymous session and replace it with an
     # auth session later
-    cadc = Cadc(auth_session=requests.Session())
-    cadc.cadctap._session = authsession.AuthSession()
+    cadc = Cadc()
     user = 'user'
     password = 'password'
     cert = 'cert'
@@ -153,8 +154,13 @@ def test_auth():
     cadc.login(certificate_file=cert)
     assert cadc.cadctap._session.credentials.get(
         'ivo://ivoa.net/sso#tls-with-certificate').cert == cert
+    assert cadc.cadcdatalink._session.credentials.get(
+        'ivo://ivoa.net/sso#tls-with-certificate').cert == cert
     # reset and try with user password/cookies
-    cadc.cadctap._session = authsession.AuthSession()
+    cadc.logout()
+    for service in (cadc.cadctap, cadc.cadcdatalink):
+        assert len(service._session.credentials.credentials) == 1
+        assert securitymethods.ANONYMOUS in service._session.credentials.credentials.keys()
     post_mock = Mock()
     cookie = 'ABC'
     mock_resp = Mock()
@@ -166,6 +172,13 @@ def test_auth():
     assert cadc.cadctap._session.credentials.get(
         'ivo://ivoa.net/sso#cookie').cookies[cadc_core.CADC_COOKIE_PREFIX] == \
         '"{}"'.format(cookie)
+    assert cadc.cadcdatalink._session.credentials.get(
+        'ivo://ivoa.net/sso#cookie').cookies[cadc_core.CADC_COOKIE_PREFIX] == \
+        '"{}"'.format(cookie)
+    cadc.logout()
+    for service in (cadc.cadctap, cadc.cadcdatalink):
+        assert len(service._session.credentials.credentials) == 1
+        assert securitymethods.ANONYMOUS in service._session.credentials.credentials.keys()
 
 
 # make sure that caps is reset at the end of the test
@@ -204,6 +217,8 @@ def test_get_access_url():
 
 @patch('astroquery.cadc.core.get_access_url',
        Mock(side_effect=lambda x, y=None: 'https://some.url'))
+@patch('astroquery.cadc.core.pyvo.dal.adhoc.DatalinkService',
+       Mock(return_value=Mock(capabilities=[])))  # DL capabilities not needed
 @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
 def test_get_data_urls():
 
@@ -283,6 +298,10 @@ def test_misc():
 
 @patch('astroquery.cadc.core.get_access_url',
        Mock(side_effect=lambda x, y=None: 'https://some.url'))
+@patch('astroquery.cadc.core.pyvo.dal.TAPService',
+       Mock(return_value=Mock(capabilities=[])))  # TAP capabilities not needed
+@patch('astroquery.cadc.core.pyvo.dal.adhoc.DatalinkService',
+       Mock(return_value=Mock(capabilities=[])))  # DL capabilities not needed
 @pytest.mark.skipif(not pyvo_OK, reason='not pyvo_OK')
 def test_get_image_list():
     def get(*args, **kwargs):
@@ -371,7 +390,7 @@ def test_exec_sync():
     votable.to_xml(buffer)
     cadc = Cadc(auth_session=requests.Session())
     response = Mock()
-    response.to_table.return_value = buffer.getvalue()
+    response.to_table.return_value = table.to_table()
     cadc.cadctap.search = Mock(return_value=response)
     output_file = '{}/test_vooutput.xml'.format(tempfile.tempdir)
     cadc.exec_sync('some query', output_file=output_file)

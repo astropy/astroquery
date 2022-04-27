@@ -16,11 +16,6 @@ This package allows the access to the data at the `CADC
 Basic Access
 ============
 
-.. note::
-
-    ``astroquery.cadc`` is dependent on the ``pyvo`` package. Please
-    install it prior to using the ``astroquery.cadc`` module.
-
 The CADC hosts a number of collections and
 `~astroquery.cadc.CadcClass.get_collections` returns a list of all
 these collections:
@@ -434,7 +429,7 @@ Query without saving results in a file:
     >>> from astroquery.cadc import Cadc
     >>> cadc = Cadc()
     >>> results = cadc.exec_sync("SELECT top 100 observationID, intent FROM caom2.Observation")
-    >>> print(results)
+    >>> print(results)  # doctest: +IGNORE_OUTPUT
               observationID               intent
     ---------------------------------- -----------
         VLASS2.2.T18t28.J204443+293000     science
@@ -454,31 +449,57 @@ Query saving results in a file:
 
     >>> from astroquery.cadc import Cadc
     >>> cadc = Cadc()
-    >>> job = cadc.exec_sync("SELECT TOP 10 observationID, obsID FROM caom2.Observation AS Observation",
-    ...                      output_file='test_output_noauth.tsv')
+    >>> job = cadc.exec_sync("SELECT TOP 10 observationID, obsID FROM caom2.Observation",
+    ...                      output_file='test_output_noauth.xml')
 
 
 1.5 Synchronous query with temporary uploaded table
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A table can be uploaded to the server in order to be used in a query.
+A temporary table can be uploaded to the server from a local file and used in a query.
+The ``uploads`` argument in ``exec_sync`` is a map where the key is the name of the
+table and the value is the name of the ``VOTable`` temporary file with the content.
+In the query, the temporary table is referred to as ``tap_upload.table_name``.
+For example, if ``uploads = {'temp_table': 'table_file_name'}``, then the simplest query
+to return the content of that table would be ``SELECT * FROM tap_upload.temp_table``.
+Multiple temporary tables to be used at once can be specified as such.
 
+More details about temporary table upload can be found in the IVOA TAP specification.
 
-.. doctest-skip::
+.. doctest-remote-data::
 
     >>> from astroquery.cadc import Cadc
     >>> cadc = Cadc()
-    >>> upload_resource = 'data/votable.xml'
-    >>> j = cadc.exec_sync("SELECT * FROM tap_upload.test_table_upload",
-    ...                    uploads=upload_resource,
-    ...                    output_file="test_output_table")
-    >>> print(j.get_results())
-             uri                    contentChecksum            ...   contentType
-                                                               ...
-    --------------------- ------------------------------------ ... ----------------
-    ad:IRIS/I001B1H0.fits md5:b6ead425ae84289246e4528bbdd7da9a ... application/fits
-    ad:IRIS/I001B2H0.fits md5:a6b082ca530bf5db5a691985d0c1a6ca ... application/fits
-    ad:IRIS/I001B3H0.fits md5:2ada853a8ae135e16504aeba4e47489e ... application/fits
+    >>> # save a few observations on a local file
+    >>> results = cadc.exec_sync("SELECT TOP 3 observationID FROM caom2.Observation",
+    ...                          output_file='my_observations.xml')
+    >>> print(results)  # doctest: +IGNORE_OUTPUT
+                  observationID
+    ----------------------------------
+                c13a_060826_044314_ori
+    tess2021167190903-s0039-1-3-0210-s
+                             tu1657207
+    >>> # now use them to join with the remote table
+    >>> results = cadc.exec_sync("SELECT o.observationID, intent FROM caom2.Observation o "
+    ...                          "JOIN tap_upload.test_upload tu ON o.observationID=tu.observationID",
+    ...                          uploads={'test_upload': 'my_observations.xml'})
+    >>> print(results)  # doctest: +IGNORE_OUTPUT
+              observationID             intent
+    ---------------------------------- -------
+                c13a_060826_044314_ori science
+    tess2021167190903-s0039-1-3-0210-s science
+                             tu1657207 science
+
+
+.. testcleanup::
+
+    >>> import os
+    >>> if os.path.isfile('my_observations.xml'):
+    ...    os.remove('my_observations.xml')
+
+
+The feature allows a user to save the results of a query to use them later or
+correlate them with data in other TAP services.
 
 
 1.6 Asynchronous query
