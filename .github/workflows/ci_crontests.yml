@@ -1,0 +1,46 @@
+name: CI-crontests
+
+on:
+  push:
+    # Run this job on release tags, but not on pushes to the main branch
+    tags:
+    - '*'
+  schedule:
+    # run every Monday at 5am UTC
+    - cron: '0 5 * * 1'
+
+jobs:
+  tests:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    if: github.event_name == 'schedule' && github.repository == 'astropy/astroquery'
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - name: Python 3.8 with all dependencies with remote data
+            os: ubuntu-latest
+            python: '3.8'
+            toxenv: py38-test-alldeps-devdeps
+            toxargs: -v
+            toxposargs: --remote-data
+
+          - name: pre-repease dependencies with all dependencies
+            os: ubuntu-latest
+            python: '3.10'
+            toxenv: py310-test-alldeps-predeps
+            toxargs: -v
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python }}
+    - name: Install Python dependencies
+      run: python -m pip install --upgrade tox
+    - name: Run tests
+      run: tox ${{ matrix.toxargs }} -e ${{ matrix.toxenv }} -- ${{ matrix.toxposargs }}
