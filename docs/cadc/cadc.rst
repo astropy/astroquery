@@ -160,7 +160,7 @@ If only a subsection of the FITS file is needed, CADC can query an
 area and resolve the cutout of a result.
 
 
-.. doctest-skip::
+.. doctest-remote-data::
 
     >>> from astropy import units as u
     >>> from astroquery.cadc import Cadc
@@ -168,7 +168,7 @@ area and resolve the cutout of a result.
     >>> coords = '01h45m07.5s +23d18m00s'
     >>> radius = 0.01*u.deg
     >>> images = cadc.get_images(coords, radius, collection='CFHT')
-    >>> images
+    >>> images # doctest: +IGNORE_OUTPUT
     [<astropy.io.fits.hdu.image.PrimaryHDU object at 0x7f3805a06ef0>]
     [<astropy.io.fits.hdu.image.PrimaryHDU object at 0x7f3805b23b38>]
 
@@ -445,7 +445,7 @@ Query without saving results in a file:
 Query saving results in a file:
 
 
-.. doctest-skip::
+.. doctest-remote-data::
 
     >>> from astroquery.cadc import Cadc
     >>> cadc = Cadc()
