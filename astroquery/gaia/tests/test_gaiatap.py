@@ -14,7 +14,6 @@ Created on 30 jun. 2016
 
 
 """
-import unittest
 import os
 from unittest.mock import patch
 
@@ -40,7 +39,7 @@ def data_path(filename):
     return os.path.join(data_dir, filename)
 
 
-class TestTap(unittest.TestCase):
+class TestTap():
 
     def test_query_object(self):
         conn_handler = DummyConnHandler()
@@ -609,8 +608,3 @@ class TestTap(unittest.TestCase):
         mock_logout.side_effect = HTTPError("Login error")
         tap.logout()
         assert (mock_logout.call_count == 3)
-
-
-if __name__ == "__main__":
-    # import sys;sys.argv = ['', 'Test.testName']
-    unittest.main()
