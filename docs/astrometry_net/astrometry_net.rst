@@ -304,7 +304,7 @@ but often it's convenient to force it to be the center of the image. This can be
 License and Sharing
 -------------------
 
-The Astrometry.net [website](http://nova.astrometry.net/) allows users to upload images
+The Astrometry.net [website](https://nova.astrometry.net/) allows users to upload images
 as well as catalogs to be used in generating an astrometric solution, so the site gives
 users the choice of licenses for their publically available images. Since the astroquery
 astrometry.net api is only uploading a source catalog the choice of ``public_visibility``,
@@ -346,5 +346,5 @@ Reference/API
 .. automodapi:: astroquery.astrometry_net
     :no-inheritance-diagram:
 
-.. _astrometry.net: http://astrometry.net/
+.. _astrometry.net: https://astrometry.net/
 .. _photutils: https://photutils.readthedocs.io

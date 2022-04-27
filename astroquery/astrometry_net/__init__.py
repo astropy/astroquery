@@ -18,7 +18,7 @@ class Conf(_config.ConfigNamespace):
         '',
         "The Astrometry.net API key."
     )
-    server = _config.ConfigItem('http://nova.astrometry.net', 'Name of server')
+    server = _config.ConfigItem('https://nova.astrometry.net', 'Name of server')
     timeout = _config.ConfigItem(120,
                                  'Default timeout for connecting to server')
 
