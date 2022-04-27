@@ -22,7 +22,7 @@ jplsbdb
 ^^^^^^^
 
 - Fix a bug for jplsdbd query when the returned physical quantity contains
-a unit with exponential. [#2377]
+  a unit with exponential. [#2377]
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
