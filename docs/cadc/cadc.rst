@@ -429,7 +429,7 @@ Query without saving results in a file:
     >>> from astroquery.cadc import Cadc
     >>> cadc = Cadc()
     >>> results = cadc.exec_sync("SELECT top 100 observationID, intent FROM caom2.Observation")
-    >>> print(results)
+    >>> print(results)  # doctest: +IGNORE_OUTPUT
               observationID               intent
     ---------------------------------- -----------
         VLASS2.2.T18t28.J204443+293000     science
@@ -473,7 +473,7 @@ More details about temporary table upload can be found in the IVOA TAP specifica
     >>> # save a few observations on a local file
     >>> results = cadc.exec_sync("SELECT TOP 3 observationID FROM caom2.Observation",
     ...                          output_file='my_observations.xml')
-    >>> print(results)
+    >>> print(results)  # doctest: +IGNORE_OUTPUT
                   observationID
     ----------------------------------
                 c13a_060826_044314_ori
@@ -482,8 +482,8 @@ More details about temporary table upload can be found in the IVOA TAP specifica
     >>> # now use them to join with the remote table
     >>> results = cadc.exec_sync("SELECT o.observationID, intent FROM caom2.Observation o "
     ...                          "JOIN tap_upload.test_upload tu ON o.observationID=tu.observationID",
-    ...                           uploads={'test_upload': 'my_datasets.xml'})
-    >>> print(results)
+    ...                          uploads={'test_upload': 'my_observations.xml'})
+    >>> print(results)  # doctest: +IGNORE_OUTPUT
               observationID             intent
     ---------------------------------- -------
                 c13a_060826_044314_ori science
