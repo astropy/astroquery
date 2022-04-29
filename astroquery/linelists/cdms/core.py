@@ -52,6 +52,8 @@ class CDMSClass(BaseQuery):
         molecule : list, string of regex if parse_name_locally=True, optional
             Identifiers of the molecules to search for. If this parameter
             is not provided the search will match any species. Default is 'All'.
+            Note that if the molecule name contains parentheses, they must be
+            escaped.  For exmaple, 'H2C(CN)2' must be specified as 'H2C\(CN\)2'.
 
         temperature_for_intensity : float
             The temperature to use when computing the intensity Smu^2.  Set
@@ -123,15 +125,24 @@ class CDMSClass(BaseQuery):
         self._last_query_temperature = temperature_for_intensity
 
         if molecule is not None:
+
+            # escape parentheses in molecule names if needed
+            # (assumes _no_ escapes done; if you give 'XY\(ZG)', i.e.,
+            # escape one and not the other, this won't work)
+            if re.search("[()]", molecule):
+                if len(re.findall(r'\(', molecule)) != len(re.findall(r'(', molecule)):
+                    molecule = re.sub(r'(', r'\(', molecule)
+                if len(re.findall(r'\)', molecule)) != len(re.findall(r')', molecule))
+                    molecule = re.sub(r')', r'\)', molecule)
             if parse_name_locally:
                 self.lookup_ids = build_lookup()
                 luts = self.lookup_ids.find(molecule, flags)
-                payload['Molecules'] = tuple(f"{val:06d} {key}"
-                                             for key, val in luts.items())[0]
-                if len(molecule) == 0:
+                if len(luts) == 0:
                     raise InvalidQueryError('No matching species found. Please '
                                             'refine your search or read the Docs '
                                             'for pointers on how to search.')
+                payload['Molecules'] = tuple(f"{val:06d} {key}"
+                                             for key, val in luts.items())[0]
             else:
                 payload['Molecules'] = molecule
 
