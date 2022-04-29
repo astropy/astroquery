@@ -6,6 +6,8 @@ import glob
 import os
 import shutil
 
+__all__ = ['cleanup_saved_downloads']
+
 
 def cleanup_saved_downloads(names):
     """ Function to clean up save files.
@@ -13,7 +15,7 @@ def cleanup_saved_downloads(names):
     Parameters
     ----------
     names : str or list of str
-        Files or directories to clean up. Wildcards are excepted.
+        Files or directories to clean up. Wildcards are accepted.
     """
 
     if isinstance(names, str):

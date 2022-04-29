@@ -110,4 +110,4 @@ Narrative documentation should also be tested, the ``doctest-remote-data`` direc
 to mark code snippets that relies on remote data access.
 
 If any of the examples include saving data files locally, use the ``testcleanup`` directive and the
-`~astroquery.utils.cleanup_downloads.cleanup_saved_downloads` function at the end of the narrative documentation.
+`~astroquery.utils.cleanup_saved_downloads` function at the end of the narrative documentation.

@@ -103,5 +103,5 @@ Reference/API
 
 .. testcleanup::
 
-    >>> from astroquery.utils.cleanup_downloads import cleanup_saved_downloads
+    >>> from astroquery.utils import cleanup_saved_downloads
     >>> cleanup_saved_downloads(['sha_tmp'])
