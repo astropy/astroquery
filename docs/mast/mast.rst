@@ -304,7 +304,7 @@ with a `~astropy.table.Table` of data products, or a list (or single) obsid as t
 
    >>> from astroquery.mast import Observations
    ...
-   >>> single_obs = Observations.query_criteria(obs_collection="IUE",obs_id="lwp13058")
+   >>> single_obs = Observations.query_criteria(obs_collection="IUE", obs_id="lwp13058")
    >>> data_products = Observations.get_product_list(single_obs)
    ...
    >>> manifest = Observations.download_products(data_products, productType="SCIENCE")
@@ -1259,3 +1259,10 @@ Reference/API
 .. automodapi:: astroquery.mast
     :no-inheritance-diagram:
     :inherited-members:
+
+
+.. testcleanup::
+
+    >>> from astroquery.utils.cleanup_downloads import cleanup_saved_downloads
+    >>> cleanup_saved_downloads(['mastDownload*', 'tess-*', 'lwp13058*', '3dhst*'])
+

@@ -490,14 +490,6 @@ More details about temporary table upload can be found in the IVOA TAP specifica
     tess2021167190903-s0039-1-3-0210-s science
                              tu1657207 science
 
-
-.. testcleanup::
-
-    >>> import os
-    >>> if os.path.isfile('my_observations.xml'):
-    ...    os.remove('my_observations.xml')
-
-
 The feature allows a user to save the results of a query to use them later or
 correlate them with data in other TAP services.
 
@@ -665,3 +657,9 @@ Reference/API
 
 .. automodapi:: astroquery.cadc
     :no-inheritance-diagram:
+
+
+.. testcleanup::
+
+    >>> from astroquery.utils.cleanup_downloads import cleanup_saved_downloads
+    >>> cleanup_saved_downloads(['my_observations.xml', 'test_output_noauth.xml'])

@@ -238,3 +238,9 @@ Reference/API
 
 .. automodapi:: astroquery.esa.hsa
     :no-inheritance-diagram:
+
+
+.. testcleanup::
+
+    >>> from astroquery.utils.cleanup_downloads import cleanup_saved_downloads
+    >>> cleanup_saved_downloads(['1342195355*', 'results.csv'])
