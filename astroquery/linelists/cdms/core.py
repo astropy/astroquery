@@ -252,7 +252,6 @@ class CDMSClass(BaseQuery):
                             col_starts=list(starts.values()),
                             format='fixed_width', fast_reader=False)
 
-
         result['FREQ'].unit = u.MHz
         result['ERR'].unit = u.MHz
 
@@ -267,7 +266,6 @@ class CDMSClass(BaseQuery):
                     intcol = np.array(list(map(parse_letternumber, result[qnind])),
                                       dtype=int)
                     result[qnind] = intcol
-
 
         # if there is a crash at this step, something went wrong with the query
         # and the _last_query_temperature was not set.  This shouldn't ever

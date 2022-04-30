@@ -10,6 +10,7 @@ colname_set = set(['FREQ', 'ERR', 'LGINT', 'DR', 'ELO', 'GUP', 'TAG', 'QNFMT',
                    'Ju', 'Jl', "vu", "F1u", "F2u", "F3u", "vl", "Ku", "Kl",
                    "F1l", "F2l", "F3l", "name", "MOLWT", "Lab"])
 
+
 def data_path(filename):
 
     data_dir = os.path.join(os.path.dirname(__file__), 'data')

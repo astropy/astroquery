@@ -4,6 +4,7 @@ from astropy import units as u
 from astropy.table import Table
 
 from astroquery.linelists.cdms import CDMS
+from .test_cdms import colname_set
 
 
 @pytest.mark.remote_data
@@ -15,8 +16,8 @@ def test_remote():
                            molecule="018505 H2O+")
     assert isinstance(tbl, Table)
     assert len(tbl) == 116
-    assert set(tbl.keys()) == set(['FREQ', 'ERR', 'LGAIJ', 'DR', 'ELO', 'GUP',
-                                   'TAG', 'QNFMT', 'Ju', 'Jl', "vu", "vl", "Ku", "Kl", "F", "name"])
+    # when 'temperature_for_intensity = 0', we use LGAIJ instead of LGINT
+    assert set(tbl.keys()) == (colname_set | {'LGAIJ'}) - {'LGINT'}
 
     assert tbl['FREQ'][0] == 505366.7875
     assert tbl['ERR'][0] == 49.13
@@ -32,8 +33,7 @@ def test_remote_300K():
                            molecule="018505 H2O+")
     assert isinstance(tbl, Table)
     assert len(tbl) == 116
-    assert set(tbl.keys()) == set(['FREQ', 'ERR', 'LGINT', 'DR', 'ELO', 'GUP',
-                                   'TAG', 'QNFMT', 'Ju', 'Jl', "vu", "vl", "Ku", "Kl", "F", "name"])
+    assert set(tbl.keys()) == colname_set
 
     assert tbl['FREQ'][0] == 505366.7875
     assert tbl['ERR'][0] == 49.13
@@ -50,8 +50,7 @@ def test_remote_regex():
 
     assert isinstance(tbl, Table)
     assert len(tbl) == 557
-    assert set(tbl.keys()) == set(['FREQ', 'ERR', 'LGINT', 'DR', 'ELO', 'GUP',
-                                   'TAG', 'QNFMT', 'Ju', 'Jl', "vu", "vl", "Ku", "Kl", "F", "name"])
+    assert set(tbl.keys()) == colname_set
 
     assert set(tbl['name']) == {'H2CN', 'HC-13-N, v=0'}
 
