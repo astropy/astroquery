@@ -1,4 +1,5 @@
 import pytest
+import numpy as np
 from astropy import units as u
 from astropy.table import Table
 
@@ -57,4 +58,18 @@ def test_remote_regex():
 
 @pytest.mark.remote_data
 def test_2375():
-    pass
+    """
+    Regression test for 2375
+    """
+    tbl = CDMS.query_lines(232567.224454 * u.MHz, 234435.809432 * u.MHz, molecule='H2C(CN)2', parse_name_locally=True)
+
+    assert len(tbl) == 49
+
+    MC = np.ma.core.MaskedConstant()
+
+    for col, val in zip(tbl[0].colnames,
+                        (232588.7246, 0.2828, -4.1005, 3, '293.85404', 45, 66, 506, 303, 44, 14, 30, MC, MC, MC, 45, 13, 33, MC, MC, MC, 'H2C(CN)2', False)):
+        if val is MC:
+            assert tbl[0][col].mask
+        else:
+            assert tbl[0][col] == val
