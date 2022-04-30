@@ -7,6 +7,7 @@ from urllib.parse import unquote, urlparse
 import time
 from xml.etree import ElementTree
 from datetime import datetime, timezone
+import keyring
 
 # 2. third party imports
 import astropy.units as u
@@ -17,10 +18,7 @@ from astroquery import log
 import numpy as np
 
 # 3. local imports - use relative imports
-# commonly required local imports shown below as example
-# all Query classes should inherit from BaseQuery.
-from ..query import BaseQuery
-# has common functions required by most modules
+from ..query import QueryWithLogin
 from ..utils import commons
 # prepend_docstr is a way to copy docstrings between methods
 from ..utils import prepend_docstr_nosections
@@ -28,13 +26,14 @@ from ..utils import prepend_docstr_nosections
 from ..utils import async_to_sync
 # import configurable items declared in __init__.py
 from . import conf
+from ..exceptions import LoginError
 
 # export all the public classes and methods
 __all__ = ['Casda', 'CasdaClass']
 
 
 @async_to_sync
-class CasdaClass(BaseQuery):
+class CasdaClass(QueryWithLogin):
 
     """
     Class for accessing ASKAP data through the CSIRO ASKAP Science Data Archive (CASDA). Typical usage:
@@ -46,18 +45,69 @@ class CasdaClass(BaseQuery):
     URL = conf.server
     TIMEOUT = conf.timeout
     POLL_INTERVAL = conf.poll_interval
+    USERNAME = conf.username
     _soda_base_url = conf.soda_base_url
+    _login_url =conf.login_url
     _uws_ns = {'uws': 'http://www.ivoa.net/xml/UWS/v1.0'}
 
     def __init__(self, user=None, password=None):
         super().__init__()
-        if user is None:
-            self._authenticated = False
+
+    def _login(self, *, username=None, store_password=False,
+               reenter_password=False, password=None):
+        """
+        login to non-public data as a known user
+
+        Parameters
+        ----------
+        username : str, optional
+            Username to the CASDA archive, uses ATNF OPAL credentials. If not given, it should be
+            specified in the config file.
+        store_password : bool, optional
+            Stores the password securely in your keyring. Default is False.
+        reenter_password : bool, optional
+            Asks for the password even if it is already stored in the
+            keyring. This is the way to overwrite an already stored passwork
+            on the keyring. Default is False.
+        password : str, optional
+            Password for the CASDA archive. If not given, it will obtained either from the keyring or interactively.
+        """
+
+        if username is None:
+            if not self.USERNAME:
+                raise LoginError("If you do not pass a username to login(), "
+                                 "you should configure a default one!")
+            else:
+                username = self.USERNAME
+
+        if password is None:
+            # Get password from keyring or prompt
+            password, password_from_keyring = self._get_password(
+                "astroquery:casda.csiro.au", username, reenter=reenter_password)
         else:
-            self._authenticated = True
-            # self._user = user
-            # self._password = password
-            self._auth = (user, password)
+            # Bypass the keyring if a password is supplied
+            password_from_keyring = None
+            store_password = False
+
+        # Login to CASDA to test credentals
+        log.info("Authenticating {0} on CASDA ...".format(username))
+        auth = (username, password)
+        login_response = self._request("GET", self._login_url, auth=auth,
+                                        timeout=self.TIMEOUT, cache=False)
+        authenticated = login_response.status_code == 200
+
+        if authenticated:
+            log.info("Authentication successful!")
+            self.USERNAME = username
+            self._auth = (username, password)
+
+            # When authenticated, save password in keyring if needed
+            if password_from_keyring is None and store_password:
+                keyring.set_password("astroquery:casda.csiro.au", username, password)
+        else:
+            log.exception("Authentication failed")
+
+        return authenticated
 
     def query_region_async(self, coordinates, radius=1*u.arcmin, height=None, width=None,
                            get_query_payload=False, cache=True):
