@@ -56,7 +56,7 @@ class TestCasdaRemote:
         prefix = 'https://data.csiro.au/casda_vo_proxy/vo/datalink/links?ID='
         access_urls = [prefix + 'cube-1262']
         table = Table([Column(data=access_urls, name='access_url')])
-        casda = Casda() #os.environ['CASDA_USER'], os.environ['CASDA_PASSWD'])
+        casda = Casda()
         casda.login(username=os.environ['CASDA_USER'])
         casda.POLL_INTERVAL = 3
         urls = casda.stage_data(table)
@@ -65,9 +65,10 @@ class TestCasdaRemote:
         assert str(urls[1]).endswith('image_cube_g300to310.q.fits.checksum')
         assert len(urls) == 2
 
-    @pytest.mark.skipif(('CASDA_USER' not in os.environ),
+    @pytest.mark.skipif(('CASDA_USER' not in os.environ or
+                        'CASDA_PASSWD' not in os.environ),
                         reason='Requires real CASDA user/password (CASDA_USER '
-                               'and CASDA_PASSWD environment variables or password in keyring)')
+                               'and CASDA_PASSWD environment variables)')
     def test_cutout(self):
         prefix = 'https://data.csiro.au/casda_vo_proxy/vo/datalink/links?ID='
         access_urls = [prefix + 'cube-44705']

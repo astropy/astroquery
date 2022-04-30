@@ -25,10 +25,11 @@ except ImportError:
 DATA_FILES = {'CIRCLE': 'cone.xml', 'RANGE': 'box.xml', 'DATALINK': 'datalink.xml', 'RUN_JOB': 'run_job.xml',
               'COMPLETED_JOB': 'completed_job.xml', 'DATALINK_NOACCESS': 'datalink_noaccess.xml',
               'cutout_CIRCLE_333.9092_-45.8418_0.5000': 'cutout_333.9092_-45.8418_0.5000.xml',
-              'AVAILABILITY' : 'availability.xml'}
+              'AVAILABILITY': 'availability.xml'}
 
-USERNAME='user'
-PASSWORD='password'
+USERNAME = 'user'
+PASSWORD = 'password'
+
 
 class MockResponse:
 
@@ -114,6 +115,7 @@ def patch_get(request):
     mp.setattr(requests.Session, 'request', get_mockreturn)
     return mp
 
+
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     return os.path.join(data_dir, filename)
@@ -122,39 +124,43 @@ def data_path(filename):
 def isclose(value1, value2, abs_tol=1e-09):
     return abs(value1 - value2) < abs_tol
 
+
 def test_login(patch_get):
     casda = Casda()
-    assert casda._authenticated == False
+    assert casda._authenticated is False
     assert casda.USERNAME == ''
 
     casda.login(username=USERNAME, password=PASSWORD)
-    assert casda._authenticated == True
+    assert casda._authenticated is True
     assert casda.USERNAME == USERNAME
     assert casda._auth == (USERNAME, 'password')
 
+
 def test_login_badpassword(patch_get):
     casda = Casda()
-    assert casda._authenticated == False
+    assert casda._authenticated is False
     assert casda.USERNAME == ''
 
     casda.login(username=USERNAME, password='notthepassword')
-    assert casda._authenticated == False
+    assert casda._authenticated is False
     assert casda.USERNAME == ''
-    assert hasattr(casda, '_auth') == False
+    assert hasattr(casda, '_auth') is False
+
 
 def test_login_default_user(patch_get):
     casda = Casda()
     casda.USERNAME = USERNAME
-    assert casda._authenticated == False
+    assert casda._authenticated is False
 
     casda.login(password=PASSWORD)
-    assert casda._authenticated == True
+    assert casda._authenticated is True
     assert casda.USERNAME == USERNAME
     assert casda._auth == (USERNAME, 'password')
 
+
 def test_login_no_default_user():
     casda = Casda()
-    assert casda._authenticated == False
+    assert casda._authenticated is False
     assert casda.USERNAME == ''
 
     with pytest.raises(LoginError) as excinfo:
@@ -162,21 +168,24 @@ def test_login_no_default_user():
 
     assert "If you do not pass a username to login()," in str(excinfo.value)
 
-    assert casda._authenticated == False
+    assert casda._authenticated is False
     assert casda.USERNAME == ''
-    assert hasattr(casda, '_auth') == False
+    assert hasattr(casda, '_auth') is False
 
+
+@pytest.mark.skip('No keyring backend on the CI server')
 def test_login_keyring(patch_get):
     casda = Casda()
-    assert casda._authenticated == False
+    assert casda._authenticated is False
     assert casda.USERNAME == ''
     keyring.set_password("astroquery:casda.csiro.au", USERNAME, PASSWORD)
 
     casda.login(username=USERNAME)
     keyring.delete_password("astroquery:casda.csiro.au", USERNAME)
-    assert casda._authenticated == True
+    assert casda._authenticated is True
     assert casda.USERNAME == USERNAME
     assert casda._auth == (USERNAME, PASSWORD)
+
 
 def test_query_region_text_radius(patch_get):
     ra = 333.9092
@@ -324,7 +333,7 @@ def test_stage_data_invalid_credentials(patch_get):
     table = Table([Column(data=access_urls, name='access_url')])
 
     casda = Casda()
-    #Update the casda object to indicate that it has been authenticated
+    # Update the casda object to indicate that it has been authenticated
     casda.USERNAME = USERNAME
     casda._auth = (USERNAME, 'notthepassword')
     casda._authenticated = True

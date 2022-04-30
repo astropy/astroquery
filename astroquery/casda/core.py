@@ -47,7 +47,7 @@ class CasdaClass(QueryWithLogin):
     POLL_INTERVAL = conf.poll_interval
     USERNAME = conf.username
     _soda_base_url = conf.soda_base_url
-    _login_url =conf.login_url
+    _login_url = conf.login_url
     _uws_ns = {'uws': 'http://www.ivoa.net/xml/UWS/v1.0'}
 
     def __init__(self, user=None, password=None):

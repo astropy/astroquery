@@ -34,6 +34,7 @@ class Conf(_config.ConfigNamespace):
         'Optional default username for CASDA archive.'
     )
 
+
 conf = Conf()
 
 from .core import Casda, CasdaClass
