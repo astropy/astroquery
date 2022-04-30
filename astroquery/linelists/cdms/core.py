@@ -10,9 +10,9 @@ from astroquery.query import BaseQuery
 from astroquery.utils import async_to_sync
 # import configurable items declared in __init__.py
 from astroquery.linelists.cdms import conf
-from astroquery.jplspec import lookup_table
 from astroquery.exceptions import InvalidQueryError, EmptyResponseError
 
+import re
 
 __all__ = ['CDMS', 'CDMSClass']
 
@@ -129,11 +129,11 @@ class CDMSClass(BaseQuery):
             # escape parentheses in molecule names if needed
             # (assumes _no_ escapes done; if you give 'XY\(ZG)', i.e.,
             # escape one and not the other, this won't work)
-            if re.search("[()]", molecule):
-                if len(re.findall(r'\(', molecule)) != len(re.findall(r'(', molecule)):
-                    molecule = re.sub(r'(', r'\(', molecule)
-                if len(re.findall(r'\)', molecule)) != len(re.findall(r')', molecule))
-                    molecule = re.sub(r')', r'\)', molecule)
+            # if re.search("[()]", molecule):
+            #     if len(re.findall(r'\(', molecule)) != len(re.findall(r'(', molecule)):
+            #         molecule = re.sub(r'(', r'\(', molecule)
+            #     if len(re.findall(r'\)', molecule)) != len(re.findall(r')', molecule))
+            #         molecule = re.sub(r')', r'\)', molecule)
             if parse_name_locally:
                 self.lookup_ids = build_lookup()
                 luts = self.lookup_ids.find(molecule, flags)
@@ -227,7 +227,7 @@ class CDMSClass(BaseQuery):
                   'ELO': 38,
                   'GUP': 48,
                   'TAG': 51,
-                  'QNFMT': 57,
+                  'QNFMT': 58,
                   'Ju': 61,
                   'Ku': 63,
                   'vu': 65,
@@ -314,12 +314,48 @@ class CDMSClass(BaseQuery):
 CDMS = CDMSClass()
 
 
+class Lookuptable(dict):
+
+    def find(self, st, flags):
+        """
+        Search dictionary keys for a regex match to string s
+
+        Parameters
+        ----------
+        s : str
+            String to compile as a regular expression
+            Can be entered non-specific for broader results
+            ('H2O' yields 'H2O' but will also yield 'HCCCH2OD')
+            or as the specific desired regular expression for
+            catered results, for example: ('H20$' yields only 'H2O')
+
+        flags : int
+            Regular expression flags.
+
+        Returns
+        -------
+        The list of values corresponding to the matches
+
+        """
+
+        R = re.compile(st, flags)
+
+        out = {}
+
+        for kk, vv in self.items():
+            match = (st in kk) or R.search(str(kk))
+            if match:
+                out[kk] = vv
+
+        return out
+
+
 def build_lookup():
 
     result = CDMS.get_species_table()
     keys = list(result[1][:])  # convert NAME column to list
     values = list(result[0][:])  # convert TAG column to list
     dictionary = dict(zip(keys, values))  # make k,v dictionary
-    lookuptable = lookup_table.Lookuptable(dictionary)  # apply the class above
+    lookuptable = Lookuptable(dictionary)  # apply the class above
 
     return lookuptable

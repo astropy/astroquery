@@ -53,3 +53,8 @@ def test_remote_regex():
                                    'TAG', 'QNFMT', 'Ju', 'Jl', "vu", "vl", "Ku", "Kl", "F", "name"])
 
     assert set(tbl['name']) == {'H2CN', 'HC-13-N, v=0'}
+
+
+@pytest.mark.remote_data
+def test_2375():
+    pass
