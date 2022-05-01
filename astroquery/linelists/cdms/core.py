@@ -53,8 +53,13 @@ class CDMSClass(BaseQuery):
         molecule : list, string of regex if parse_name_locally=True, optional
             Identifiers of the molecules to search for. If this parameter
             is not provided the search will match any species. Default is 'All'.
-            Note that if the molecule name contains parentheses, they must be
-            escaped.  For exmaple, 'H2C(CN)2' must be specified as 'H2C\\(CN\\)2'.
+            As a first pass, the molecule will be searched for with a direct
+            string match.  If no string match is found, a regular expression
+            match is attempted.  Note that if the molecule name regex contains
+            parentheses, they must be escaped.  For example, 'H2C(CN)2.*' must be
+            specified as 'H2C\\(CN\\)2.*'  (but because of the first-attempt
+            full-string matching, 'H2C(CN)2' will match that molecule
+            successfully).
 
         temperature_for_intensity : float
             The temperature to use when computing the intensity Smu^2.  Set
@@ -126,15 +131,6 @@ class CDMSClass(BaseQuery):
         self._last_query_temperature = temperature_for_intensity
 
         if molecule is not None:
-
-            # escape parentheses in molecule names if needed
-            # (assumes _no_ escapes done; if you give 'XY\(ZG)', i.e.,
-            # escape one and not the other, this won't work)
-            # if re.search("[()]", molecule):
-            #     if len(re.findall(r'\(', molecule)) != len(re.findall(r'(', molecule)):
-            #         molecule = re.sub(r'(', r'\(', molecule)
-            #     if len(re.findall(r'\)', molecule)) != len(re.findall(r')', molecule))
-            #         molecule = re.sub(r')', r'\)', molecule)
             if parse_name_locally:
                 self.lookup_ids = build_lookup()
                 luts = self.lookup_ids.find(molecule, flags)
@@ -339,11 +335,11 @@ def parse_letternumber(st):
     """
     Parse CDMS's two-letter QNs
 
-    Very Important:
-    Exactly two characters are available for each quantum number. Therefore, half
+    From the CDMS docs:
+    "Exactly two characters are available for each quantum number. Therefore, half
     integer quanta are rounded up ! In addition, capital letters are used to
     indicate quantum numbers larger than 99. E. g. A0 is 100, Z9 is 359. Small
-    types are used to signal corresponding negative quantum numbers.
+    types are used to signal corresponding negative quantum numbers."
     """
     asc = string.ascii_lowercase
     ASC = string.ascii_uppercase
@@ -377,12 +373,12 @@ class Lookuptable(dict):
 
         """
 
-        R = re.compile(st, flags)
-
         out = {}
 
         for kk, vv in self.items():
-            match = (st in kk) or R.search(str(kk))
+            # note that the string-match attempt here differs from the jplspec
+            # implementation
+            match = (st in kk) or re.search(st, str(kk), flags=flags)
             if match:
                 out[kk] = vv
 
