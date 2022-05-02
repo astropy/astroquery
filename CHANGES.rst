@@ -24,9 +24,12 @@ jplsbdb
 - Fix a bug for jplsdbd query when the returned physical quantity contains
   a unit with exponential. [#2377]
 
+
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
 
+- New function, ``utils.cleanup_downloads.cleanup_saved_downloads``, is
+  added to help the testcleanup narrative in narrative documentations. [#2384]
 
 
 0.4.6 (2022-03-22)

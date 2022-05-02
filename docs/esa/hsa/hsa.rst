@@ -203,7 +203,9 @@ First retrieve the observation IDs based on a position on the sky. To achive thi
 
   >>> from astroquery.esa.hsa import HSA
   >>>
-  >>> HSA.query_hsa_tap("select top 10 observation_id from hsa.v_active_observation where contains(point('ICRS', hsa.v_active_observation.ra, hsa.v_active_observation.dec),circle('ICRS', 100.2417,9.895, 1.1))=1", output_format='csv', output_file='results.cvs')
+  >>> HSA.query_hsa_tap("select top 10 observation_id from hsa.v_active_observation where "
+  ...                   "contains(point('ICRS', hsa.v_active_observation.ra, hsa.v_active_observation.dec), "
+  ...                   "circle('ICRS', 100.2417,9.895, 1.1))=1", output_format='csv', output_file='results.csv')
   <Table length=9>
   observation_id
       int64
@@ -238,3 +240,9 @@ Reference/API
 
 .. automodapi:: astroquery.esa.hsa
     :no-inheritance-diagram:
+
+
+.. testcleanup::
+
+    >>> from astroquery.utils import cleanup_saved_downloads
+    >>> cleanup_saved_downloads(['1342195355*', 'results.csv'])
