@@ -1,10 +1,13 @@
 import numpy as np
+import pytest
 
 import os
+import requests
 
 from astropy import units as u
 from astropy.table import Table
 from astroquery.linelists.cdms.core import CDMS, parse_letternumber
+from astroquery.utils.mocks import MockResponse
 
 colname_set = set(['FREQ', 'ERR', 'LGINT', 'DR', 'ELO', 'GUP', 'TAG', 'QNFMT',
                    'Ju', 'Jl', "vu", "F1u", "F2u", "F3u", "vl", "Ku", "Kl",
@@ -17,15 +20,25 @@ def data_path(filename):
     return os.path.join(data_dir, filename)
 
 
-class MockResponseSpec:
+def mockreturn(*args, method='GET', data={}, url='', **kwargs):
+    if method == 'GET':
+        molecule = url.split('cdmstab')[1].split('.')[0]
+        with open(data_path(molecule+".data"), 'rb') as fh:
+            content = fh.read()
+        return MockResponse(content=content)
+    elif method == 'POST':
+        molecule = dict(data)['Molecules']
+        with open(data_path("post_response.html"), 'r') as fh:
+            content = fh.read().format(replace=molecule).encode()
+        return MockResponse(content=content)
 
-    def __init__(self, filename):
-        self.filename = data_path(filename)
 
-    @property
-    def text(self):
-        with open(self.filename) as f:
-            return f.read()
+@pytest.fixture
+def patch_post(request):
+    mp = request.getfixturevalue("monkeypatch")
+
+    mp.setattr(CDMS, '_request', mockreturn)
+    return mp
 
 
 def test_input_async():
@@ -33,10 +46,10 @@ def test_input_async():
     response = CDMS.query_lines_async(min_frequency=100 * u.GHz,
                                       max_frequency=1000 * u.GHz,
                                       min_strength=-500,
-                                      molecule="028001 CO",
+                                      molecule="028503 CO, v=0",
                                       get_query_payload=True)
     response = dict(response)
-    assert response['Molecules'] == "028001 CO"
+    assert response['Molecules'] == "028503 CO, v=0"
     np.testing.assert_almost_equal(response['MinNu'], 100.)
     np.testing.assert_almost_equal(response['MaxNu'], 1000.)
 
@@ -55,10 +68,12 @@ def test_input_multi():
     np.testing.assert_almost_equal(response['MaxNu'], 1000.)
 
 
-def test_query():
+def test_query(patch_post):
 
-    response = MockResponseSpec('CO.data')
-    tbl = CDMS._parse_result(response)
+    tbl = CDMS.query_lines(min_frequency=100 * u.GHz,
+                           max_frequency=1000 * u.GHz,
+                           min_strength=-500,
+                           molecule="CO")
     assert isinstance(tbl, Table)
     assert len(tbl) == 8
     assert set(tbl.keys()) == colname_set
@@ -86,15 +101,14 @@ def test_parseletternumber():
     assert parse_letternumber("ZZ") == 3535
 
 
-def test_hc7s():
+def test_hc7s(patch_post):
     """
     Test for a very complicated molecule
 
     CDMS.query_lines_async(100*u.GHz, 100.755608*u.GHz, molecule='HC7S', parse_name_locally=True)
     """
 
-    response = MockResponseSpec('HC7S.data')
-    tbl = CDMS._parse_result(response)
+    tbl = CDMS.query_lines(100*u.GHz, 100.755608*u.GHz, molecule='HC7S',)
     assert isinstance(tbl, Table)
     assert len(tbl) == 5
     assert set(tbl.keys()) == colname_set
