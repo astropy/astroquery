@@ -8,7 +8,7 @@ import warnings
 
 # Remove module altogether if API update is not done in 6 months (2022-11-02).
 warnings.warn("The legacy NRAO archive this module uses has been retired causing astroquery.nrao to be "
-              "broken. We will remove this exception once the sufficient updates are done to use the new "
+              "broken. We will remove this exception once sufficient updates are done to use the new "
               "NRAO archive API.")
 
 
