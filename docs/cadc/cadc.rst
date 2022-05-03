@@ -35,28 +35,7 @@ these collections:
     CFHTTERAPIX : {'Description': 'The CFHTTERAPIX collection at the CADC', 'Bands': ['Infrared|Optical', 'Optical', 'Infrared']}
     CFHTWIRWOLF : {'Description': 'The CFHTWIRWOLF collection at the CADC', 'Bands': ['Infrared']}
     CGPS : {'Description': 'The CGPS collection at the CADC', 'Bands': ['Infrared', 'Radio', 'Millimeter', '', 'Millimeter|Infrared']}
-    CHANDRA : {'Description': 'The CHANDRA collection at the CADC', 'Bands': ['X-ray']}
-    DAO : {'Description': 'The DAO collection at the CADC', 'Bands': ['', 'Infrared|Optical', 'Infrared', 'Optical']}
-    DAOCADC : {'Description': 'The DAOCADC collection at the CADC', 'Bands': ['Optical', '']}
-    DAOPLATES : {'Description': 'The DAOPLATES collection at the CADC', 'Bands': ['Optical', '']}
-    DRAO : {'Description': 'The DRAO collection at the CADC', 'Bands': ['Radio']}
-    FUSE : {'Description': 'The FUSE collection at the CADC', 'Bands': ['UV|EUV', '']}
-    GEMINI : {'Description': 'The GEMINI collection at the CADC', 'Bands': ['Infrared|Optical|UV|EUV|X-ray|Ga', 'Infrared', 'Optical', 'Infrared|Optical', 'Optical|UV', '']}
-    GEMINICADC : {'Description': 'The GEMINICADC collection at the CADC', 'Bands': ['', 'Infrared|Optical', 'Infrared']}
-    HST : {'Description': 'The HST collection at the CADC', 'Bands': ['', 'Infrared', 'Optical', 'UV']}
-    HSTHLA : {'Description': 'The HSTHLA collection at the CADC', 'Bands': ['Optical', 'Infrared', 'UV', 'Infrared|Optical', 'Infrared|Optical|UV', 'Optical|UV']}
-    IRIS : {'Description': 'The IRIS collection at the CADC', 'Bands': ['Millimeter|Infrared', 'Infrared']}
-    JCMT : {'Description': 'The JCMT collection at the CADC', 'Bands': ['', 'Millimeter']}
-    JCMTLS : {'Description': 'The JCMTLS collection at the CADC', 'Bands': ['Millimeter', '']}
-    JWST : {'Description': 'The JWST collection at the CADC', 'Bands': ['', 'Infrared']}
-    MACHO : {'Description': 'The MACHO collection at the CADC', 'Bands': ['Optical']}
-    MOST : {'Description': 'The MOST collection at the CADC', 'Bands': ['Optical']}
-    NEOSSAT : {'Description': 'The NEOSSAT collection at the CADC', 'Bands': ['Optical']}
-    NGVS : {'Description': 'The NGVS collection at the CADC', 'Bands': ['Infrared|Optical', '', 'Optical']}
-    NOAO : {'Description': 'The NOAO collection at the CADC', 'Bands': ['Optical', 'Infrared']}
-    OMM : {'Description': 'The OMM collection at the CADC', 'Bands': ['Optical', 'Infrared', '']}
-    RACS : {'Description': 'The RACS collection at the CADC', 'Bands': ['Radio']}
-    SDSS : {'Description': 'The SDSS collection at the CADC', 'Bands': ['Infrared', 'Optical']}
+    ...
     SUBARU : {'Description': 'The SUBARU collection at the CADC', 'Bands': ['Optical']}
     SUBARUCADC : {'Description': 'The SUBARUCADC collection at the CADC', 'Bands': ['Optical', 'Infrared|Optical']}
     TESS : {'Description': 'The TESS collection at the CADC', 'Bands': ['Optical']}
