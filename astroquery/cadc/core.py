@@ -21,19 +21,11 @@ from bs4 import BeautifulSoup
 from astropy.utils.exceptions import AstropyDeprecationWarning
 from astropy.utils.decorators import deprecated
 from astropy import units as u
+import pyvo
+from pyvo.auth import authsession
+
 from . import conf
 
-try:
-    import pyvo
-    from pyvo.auth import authsession
-except ImportError:
-    print('Please install pyvo. astropy.cadc does not work without it.')
-except AstropyDeprecationWarning as e:
-    if str(e) == 'The astropy.vo.samp module has now been moved to astropy.samp':
-        # CADC does not use samp and this only affects Python 2.7
-        print('AstropyDeprecationWarning: {}'.format(str(e)))
-    else:
-        raise e
 
 __all__ = ['Cadc', 'CadcClass']
 
