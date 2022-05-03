@@ -1,3 +1,7 @@
+.. doctest-skip-all
+.. # Skip tests in this file until the new API is implemented:
+.. # https://github.com/astropy/astroquery/issues/2316
+
 .. _astroquery.nrao:
 
 ********************************
