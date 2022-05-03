@@ -595,8 +595,7 @@ After a successful authentication, user credentials will be used
 until the `~astroquery.cadc.CadcClass.logout` method is called.
 
 All previous methods (`~astroquery.cadc.CadcClass.get_tables`,
-`~astroquery.cadc.CadcClass.get_table`,
-`~astroquery.cadc.CadcClass.run_query`) explained for non authenticated
+`~astroquery.cadc.CadcClass.get_table`) explained for non authenticated
 users are applicable for authenticated ones.
 
 
