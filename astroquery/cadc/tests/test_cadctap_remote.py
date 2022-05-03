@@ -18,11 +18,6 @@ from astroquery.utils.commons import parse_coordinates, FileContainer
 
 from pyvo.auth import authsession
 
-
-# to run just one test during development, set this variable to True
-# and comment out the skipif of the single test to run.
-one_test = False
-
 # Skip the very slow tests to avoid timeout errors
 skip_slow = True
 
@@ -30,7 +25,6 @@ skip_slow = True
 @pytest.mark.remote_data
 class TestCadcClass:
     # now write tests for each method here
-    @pytest.mark.skipif(one_test, reason='One test mode')
     def test_get_collections(self):
         cadc = Cadc()
         result = cadc.get_collections()
@@ -50,7 +44,6 @@ class TestCadcClass:
         assert 'Infrared' in result['DAO']['Bands']
         assert 'Optical' in result['DAO']['Bands']
 
-    @pytest.mark.skipif(one_test, reason='One test mode')
     def test_query_region(self):
         cadc = Cadc()
         result = cadc.query_region('08h45m07.5s +54d18m00s', collection='CFHT')
@@ -76,7 +69,6 @@ class TestCadcClass:
         results = cadc.query_region(SkyCoord.from_name('M31'), radius=0.016)
         assert len(results) > 20
 
-    @pytest.mark.skipif(one_test, reason='One test mode')
     def test_query_name(self):
         cadc = Cadc()
         result1 = cadc.query_name('M31-B14')
@@ -85,7 +77,6 @@ class TestCadcClass:
         result2 = cadc.query_name('m31-b14')
         assert len(result1) == len(result2)
 
-    @pytest.mark.skipif(one_test, reason='One test mode')
     def test_query(self):
         cadc = Cadc()
         result = cadc.exec_sync(
@@ -99,7 +90,6 @@ class TestCadcClass:
         result = cadc.exec_sync(query)
         assert len(result) == 0
 
-    @pytest.mark.skipif(one_test, reason='One test mode')
     @pytest.mark.skip('Disabled for now until pyvo starts supporting '
                       'different output formats')
     def test_query_format(self):
@@ -108,7 +98,6 @@ class TestCadcClass:
         result = cadc.exec_sync(query, output_format='csv')
         print(result)
 
-    @pytest.mark.skipif(one_test, reason='One test mode')
     @pytest.mark.skipif(('CADC_USER' not in os.environ
                         or 'CADC_PASSWD' not in os.environ),
                         reason='Requires real CADC user/password (CADC_USER '
@@ -142,7 +131,6 @@ class TestCadcClass:
             result = cadc.exec_sync(query)
             assert len(result) == 1
 
-    @pytest.mark.skipif(one_test, reason='One test mode')
     @pytest.mark.skipif('CADC_CERT' not in os.environ,
                         reason='Requires real CADC certificate (CADC_CERT '
                                'environment variable)')
@@ -170,7 +158,6 @@ class TestCadcClass:
             result = cadc.exec_sync(query)
             assert len(result) == 0
 
-    @pytest.mark.skipif(one_test, reason='One test mode')
     @pytest.mark.skipif('CADC_CERT' not in os.environ,
                         reason='Requires real CADC certificate (CADC_CERT '
                                'environment variable)')
@@ -192,7 +179,6 @@ class TestCadcClass:
         result = cadc.exec_sync(query)
         assert len(result) == 0
 
-    @pytest.mark.skipif(one_test, reason='One test mode')
     @pytest.mark.xfail(reason='#2325')
     def test_get_images(self):
         cadc = Cadc()
@@ -204,7 +190,6 @@ class TestCadcClass:
         for image in images:
             assert isinstance(image, fits.HDUList)
 
-    @pytest.mark.skipif(one_test, reason='One test mode')
     @pytest.mark.skipif(skip_slow, reason='Avoid timeout errors')
     def test_get_images_against_AS(self):
         cadc = Cadc()
@@ -238,7 +223,6 @@ class TestCadcClass:
 
         assert len(filtered_resp_urls) == len(image_urls)
 
-    @pytest.mark.skipif(one_test, reason='One test mode')
     @pytest.mark.xfail(reason='#2325')
     def test_get_images_async(self):
         cadc = Cadc()
@@ -249,7 +233,6 @@ class TestCadcClass:
         for obj in readable_objs:
             assert isinstance(obj, FileContainer)
 
-    @pytest.mark.skipif(one_test, reason='One test mode')
     def test_async(self):
         # test async calls
         cadc = Cadc()
@@ -277,7 +260,6 @@ class TestCadcClass:
             assert expected['observationID'][ii] == result['observationID'][ii]
         # job.delete()  # BUG in CADC
 
-    @pytest.mark.skipif(one_test, reason='One test mode')
     def test_list_tables(self):
         cadc = Cadc()
         table_names = cadc.get_tables(only_names=True)
@@ -293,7 +275,6 @@ class TestCadcClass:
         table = cadc.get_table('caom2.Observation')
         assert 'caom2.Observation' == table.name
 
-    @pytest.mark.skipif(one_test, reason='One test mode')
     @pytest.mark.skipif('CADC_CERT' not in os.environ,
                         reason='Requires real CADC certificate (CADC_CERT '
                                'environment variable)')
