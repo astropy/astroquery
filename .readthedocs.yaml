@@ -9,7 +9,6 @@ python:
        path: .
        extra_requirements:
           - docs
-          - all
 
 sphinx:
    fail_on_warning: true
