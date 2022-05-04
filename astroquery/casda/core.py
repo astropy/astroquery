@@ -50,11 +50,11 @@ class CasdaClass(QueryWithLogin):
     _login_url = conf.login_url
     _uws_ns = {'uws': 'http://www.ivoa.net/xml/UWS/v1.0'}
 
-    def __init__(self, user=None, password=None):
+    def __init__(self):
         super().__init__()
 
     def _login(self, *, username=None, store_password=False,
-               reenter_password=False, password=None):
+               reenter_password=False):
         """
         login to non-public data as a known user
 
@@ -69,8 +69,6 @@ class CasdaClass(QueryWithLogin):
             Asks for the password even if it is already stored in the
             keyring. This is the way to overwrite an already stored passwork
             on the keyring. Default is False.
-        password : str, optional
-            Password for the CASDA archive. If not given, it will obtained either from the keyring or interactively.
         """
 
         if username is None:
@@ -80,14 +78,9 @@ class CasdaClass(QueryWithLogin):
             else:
                 username = self.USERNAME
 
-        if password is None:
-            # Get password from keyring or prompt
-            password, password_from_keyring = self._get_password(
-                "astroquery:casda.csiro.au", username, reenter=reenter_password)
-        else:
-            # Bypass the keyring if a password is supplied
-            password_from_keyring = None
-            store_password = False
+        # Get password from keyring or prompt
+        password, password_from_keyring = self._get_password(
+            "astroquery:casda.csiro.au", username, reenter=reenter_password)
 
         # Login to CASDA to test credentals
         log.info("Authenticating {0} on CASDA ...".format(username))

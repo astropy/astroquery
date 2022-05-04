@@ -125,37 +125,10 @@ def isclose(value1, value2, abs_tol=1e-09):
     return abs(value1 - value2) < abs_tol
 
 
-def test_login(patch_get):
-    casda = Casda()
-    assert casda._authenticated is False
-    assert casda.USERNAME == ''
-
-    casda.login(username=USERNAME, password=PASSWORD)
-    assert casda._authenticated is True
-    assert casda.USERNAME == USERNAME
-    assert casda._auth == (USERNAME, 'password')
-
-
-def test_login_badpassword(patch_get):
-    casda = Casda()
-    assert casda._authenticated is False
-    assert casda.USERNAME == ''
-
-    casda.login(username=USERNAME, password='notthepassword')
-    assert casda._authenticated is False
-    assert casda.USERNAME == ''
-    assert hasattr(casda, '_auth') is False
-
-
-def test_login_default_user(patch_get):
-    casda = Casda()
-    casda.USERNAME = USERNAME
-    assert casda._authenticated is False
-
-    casda.login(password=PASSWORD)
-    assert casda._authenticated is True
-    assert casda.USERNAME == USERNAME
-    assert casda._auth == (USERNAME, 'password')
+def fake_login(casda, username, password):
+    casda.USERNAME = username
+    casda._auth = (username, password)
+    casda._authenticated = True
 
 
 def test_login_no_default_user():
@@ -322,7 +295,7 @@ def test_stage_data_unauthorised(patch_get):
 def test_stage_data_empty(patch_get):
     table = Table()
     casda = Casda()
-    casda.login(username=USERNAME, password=PASSWORD)
+    fake_login(casda, USERNAME, PASSWORD)
     urls = casda.stage_data(table)
     assert urls == []
 
@@ -347,7 +320,7 @@ def test_stage_data_no_link(patch_get):
     access_urls = [prefix + 'cube-240']
     table = Table([Column(data=access_urls, name='access_url')])
     casda = Casda()
-    casda.login(username=USERNAME, password=PASSWORD)
+    fake_login(casda, USERNAME, PASSWORD)
     casda.POLL_INTERVAL = 1
 
     with pytest.raises(ValueError) as excinfo:
@@ -361,7 +334,7 @@ def test_stage_data(patch_get):
     access_urls = [prefix + 'cube-244']
     table = Table([Column(data=access_urls, name='access_url')])
     casda = Casda()
-    casda.login(username=USERNAME, password=PASSWORD)
+    fake_login(casda, USERNAME, PASSWORD)
     casda.POLL_INTERVAL = 1
     urls = casda.stage_data(table, verbose=True)
     assert urls == ['http://casda.csiro.au/download/web/111-000-111-000/askap_img.fits.checksum',
@@ -378,7 +351,7 @@ def test_cutout(patch_get):
     centre = SkyCoord(ra, dec)
 
     casda = Casda()
-    casda.login(username=USERNAME, password=PASSWORD)
+    fake_login(casda, USERNAME, PASSWORD)
     casda.POLL_INTERVAL = 1
     urls = casda.cutout(table, coordinates=centre, radius=radius, verbose=True)
     assert urls == ['http://casda.csiro.au/download/web/111-000-111-000/cutout.fits.checksum',
@@ -395,7 +368,7 @@ def test_cutout_no_args(patch_get):
     centre = SkyCoord(ra, dec)
 
     casda = Casda()
-    casda.login(username=USERNAME, password=PASSWORD)
+    fake_login(casda, USERNAME, PASSWORD)
     casda.POLL_INTERVAL = 1
     with pytest.raises(ValueError) as excinfo:
         casda.cutout(table)
@@ -418,7 +391,7 @@ def test_cutout_unauthorised(patch_get):
 
 def test_cutout_no_table(patch_get):
     casda = Casda()
-    casda.login(username=USERNAME, password=PASSWORD)
+    fake_login(casda, USERNAME, PASSWORD)
 
     casda.POLL_INTERVAL = 1
     result = casda.cutout(None)
@@ -427,7 +400,7 @@ def test_cutout_no_table(patch_get):
 
 def test_args_to_payload_band(patch_get):
     casda = Casda()
-    casda.login(username=USERNAME, password=PASSWORD)
+    fake_login(casda, USERNAME, PASSWORD)
 
     payload = casda._args_to_payload(band=(0.195*u.m, 0.215*u.m))
     assert payload['BAND'] == '0.195 0.215'
@@ -468,7 +441,7 @@ def test_args_to_payload_band(patch_get):
 
 def test_args_to_payload_band_invalid(patch_get):
     casda = Casda()
-    casda.login(username=USERNAME, password=PASSWORD)
+    fake_login(casda, USERNAME, PASSWORD)
 
     with pytest.raises(ValueError) as excinfo:
         casda._args_to_payload(band='foo')
@@ -497,7 +470,7 @@ def test_args_to_payload_band_invalid(patch_get):
 
 def test_args_to_payload_channel(patch_get):
     casda = Casda()
-    casda.login(username=USERNAME, password=PASSWORD)
+    fake_login(casda, USERNAME, PASSWORD)
 
     payload = casda._args_to_payload(channel=(0, 30))
     assert payload['CHANNEL'] == '0 30'
@@ -514,7 +487,7 @@ def test_args_to_payload_channel(patch_get):
 
 def test_args_to_payload_channel_invalid(patch_get):
     casda = Casda()
-    casda.login(username=USERNAME, password=PASSWORD)
+    fake_login(casda, USERNAME, PASSWORD)
 
     with pytest.raises(ValueError) as excinfo:
         casda._args_to_payload(channel='one')
@@ -535,7 +508,7 @@ def test_args_to_payload_channel_invalid(patch_get):
 
 def test_args_to_payload_coordinates(patch_get):
     casda = Casda()
-    casda.login(username=USERNAME, password=PASSWORD)
+    fake_login(casda, USERNAME, PASSWORD)
 
     cutout_coords = SkyCoord(ra=345.245*u.degree, dec=-32.125*u.degree, frame='icrs')
     payload = casda._args_to_payload(coordinates=cutout_coords)
@@ -574,7 +547,7 @@ def test_args_to_payload_coordinates(patch_get):
 
 def test_args_to_payload_combined(patch_get):
     casda = Casda()
-    casda.login(username=USERNAME, password=PASSWORD)
+    fake_login(casda, USERNAME, PASSWORD)
     cutout_coords = SkyCoord(ra=187.5*u.degree, dec=-60.0*u.degree, frame='icrs')
     payload = casda._args_to_payload(coordinates=cutout_coords, channel=(17, 23))
     assert payload['POS'].startswith('CIRCLE 187')
@@ -593,7 +566,7 @@ def test_download_file(patch_get):
             'http://casda.csiro.au/download/web/111-000-111-000/askap_img.fits.checksum',
             'https://ingest.pawsey.org.au/casda-prd-as110-01/dc52217/primary_images/RACS-DR1_0000%2B18A.fits?security=stuff']
     casda = Casda()
-    casda.login(username=USERNAME, password=PASSWORD)
+    fake_login(casda, USERNAME, PASSWORD)
 
     # skip the actual downloading of the file
     download_mock = MagicMock()

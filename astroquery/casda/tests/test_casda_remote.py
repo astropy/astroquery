@@ -65,16 +65,15 @@ class TestCasdaRemote:
         assert str(urls[1]).endswith('image_cube_g300to310.q.fits.checksum')
         assert len(urls) == 2
 
-    @pytest.mark.skipif(('CASDA_USER' not in os.environ or
-                        'CASDA_PASSWD' not in os.environ),
+    @pytest.mark.skipif(('CASDA_USER' not in os.environ),
                         reason='Requires real CASDA user/password (CASDA_USER '
-                               'and CASDA_PASSWD environment variables)')
-    def test_cutout(self):
+                               'and CASDA_PASSWD environment variables or password in keyring)')
+    def test_cutout(self, cached_credentials):
         prefix = 'https://data.csiro.au/casda_vo_proxy/vo/datalink/links?ID='
         access_urls = [prefix + 'cube-44705']
         table = Table([Column(data=access_urls, name='access_url')])
         casda = Casda()
-        casda.login(username=os.environ['CASDA_USER'], password=os.environ['CASDA_PASSWD'])
+        casda.login(username=os.environ['CASDA_USER'])
         casda.POLL_INTERVAL = 3
         pos = SkyCoord(196.49583333*u.deg, -62.7*u.deg)
         urls = casda.cutout(table, coordinates=pos, radius=15*u.arcmin)
