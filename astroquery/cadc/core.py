@@ -21,19 +21,11 @@ from bs4 import BeautifulSoup
 from astropy.utils.exceptions import AstropyDeprecationWarning
 from astropy.utils.decorators import deprecated
 from astropy import units as u
+import pyvo
+from pyvo.auth import authsession
+
 from . import conf
 
-try:
-    import pyvo
-    from pyvo.auth import authsession
-except ImportError:
-    print('Please install pyvo. astropy.cadc does not work without it.')
-except AstropyDeprecationWarning as e:
-    if str(e) == 'The astropy.vo.samp module has now been moved to astropy.samp':
-        # CADC does not use samp and this only affects Python 2.7
-        print('AstropyDeprecationWarning: {}'.format(str(e)))
-    else:
-        raise e
 
 __all__ = ['Cadc', 'CadcClass']
 
@@ -78,8 +70,7 @@ class CadcClass(BaseQuery):
     CADCLOGIN_SERVICE_URI = conf.CADCLOGIN_SERVICE_URI
     TIMEOUT = conf.TIMEOUT
 
-    def __init__(self, url=None, tap_plus_handler=None, verbose=None,
-                 auth_session=None):
+    def __init__(self, url=None, auth_session=None):
         """
         Initialize Cadc object
 
@@ -87,8 +78,6 @@ class CadcClass(BaseQuery):
         ----------
         url : str, optional, default 'None;
             a url to use instead of the default
-        tap_plus_handler : deprecated
-        verbose : deprecated
         auth_session: `requests.Session` or `pyvo.auth.authsession.AuthSession`
             A existing authenticated session containing the appropriate
             credentials to be used by the client to communicate with the
@@ -98,10 +87,6 @@ class CadcClass(BaseQuery):
         -------
         Cadc object
         """
-        if tap_plus_handler:
-            raise AttributeError('tap handler no longer supported')
-        if verbose is not None:
-            warnings.warn('verbose deprecated since version 0.4.0')
 
         super(CadcClass, self).__init__()
         self.baseurl = url
@@ -210,19 +195,12 @@ class CadcClass(BaseQuery):
                     self.cadctap._session.cookies.set(
                         CADC_COOKIE_PREFIX, cookie)
 
-    def logout(self, verbose=None):
+    def logout(self):
         """
         Logout. Anonymous access with all the subsequent use of the
         object. Note that the original session is not affected (in case
         it was passed when the object was first instantiated)
-
-        Parameters
-        ----------
-        verbose : deprecated
-
         """
-        if verbose is not None:
-            warnings.warn('verbose deprecated since 0.4.0')
 
         if isinstance(self._auth_session, pyvo.auth.AuthSession):
             # Remove the existing credentials (if any)
@@ -561,7 +539,7 @@ class CadcClass(BaseQuery):
                 result.append(service_def.access_url)
         return result
 
-    def get_tables(self, only_names=False, verbose=None):
+    def get_tables(self, only_names=False):
         """
         Gets all public tables
 
@@ -569,21 +547,18 @@ class CadcClass(BaseQuery):
         ----------
         only_names : bool, optional, default False
             True to load table names only
-        verbose : deprecated
 
         Returns
         -------
         A list of table objects
         """
-        if verbose is not None:
-            warnings.warn('verbose deprecated since 0.4.0')
         table_set = self.cadctap.tables
         if only_names:
             return list(table_set.keys())
         else:
             return list(table_set.values())
 
-    def get_table(self, table, verbose=None):
+    def get_table(self, table):
         """
         Gets the specified table
 
@@ -591,14 +566,11 @@ class CadcClass(BaseQuery):
         ----------
         table : str, mandatory
             full qualified table name (i.e. schema name + table name)
-        verbose : deprecated
 
         Returns
         -------
         A table object
         """
-        if verbose is not None:
-            warnings.warn('verbose deprecated since 0.4.0')
         tables = self.get_tables()
         for t in tables:
             if table == t.name:
@@ -683,46 +655,7 @@ class CadcClass(BaseQuery):
         return self.cadctap.submit_job(query, language='ADQL',
                                        uploads=uploads)
 
-    @deprecated('0.4.0', 'Use exec_sync or create_async instead')
-    def run_query(self, query, operation, output_file=None,
-                  output_format="votable", verbose=None,
-                  background=False, upload_resource=None,
-                  upload_table_name=None):
-        """
-        Runs a query
-
-        Parameters
-        ----------
-        query : str, mandatory
-            query to be executed
-        operation : str, mandatory,
-            'sync' or 'async' to run a synchronous or asynchronous job
-        output_file : str, optional, default None
-            file name where the results are saved if dumpToFile is True.
-            If this parameter is not provided, the jobid is used instead
-        output_format : str, optional, default 'votable'
-            results format, 'csv', 'tsv' and 'votable'
-        verbose : deprecated
-        save_to_file : bool, optional, default 'False'
-            if True, the results are saved in a file instead of using memory
-        background : bool, optional, default 'False'
-            when the job is executed in asynchronous mode,
-            this flag specifies whether the execution will wait until results
-            are available
-        upload_resource : str, optional, default None
-            resource to be uploaded to UPLOAD_SCHEMA
-        upload_table_name : str, required if uploadResource is provided,
-            default None
-            resource temporary table name associated to the uploaded resource
-
-        Returns
-        -------
-        A Job object
-        """
-        raise NotImplementedError('No longer supported. '
-                                  'Use exec_sync or create_async instead.')
-
-    def load_async_job(self, jobid, verbose=None):
+    def load_async_job(self, jobid):
         """
         Loads an asynchronous job
 
@@ -730,20 +663,17 @@ class CadcClass(BaseQuery):
         ----------
         jobid : str, mandatory
             job identifier
-        verbose : deprecated
 
         Returns
         -------
         A Job object
         """
-        if verbose is not None:
-            warnings.warn('verbose deprecated since 0.4.0')
 
         return pyvo.dal.AsyncTAPJob('{}/async/{}'.format(
             self.cadctap.baseurl, jobid), session=self._auth_session)
 
     def list_async_jobs(self, phases=None, after=None, last=None,
-                        short_description=True, verbose=None):
+                        short_description=True):
         """
         Returns all the asynchronous jobs
 
@@ -760,14 +690,11 @@ class CadcClass(BaseQuery):
             corresponding to the TAP ShortJobDescription object (job ID, phase,
             run ID, owner ID and creation ID) whereas if False, a separate GET
             call to each job is performed for the complete job description
-        verbose : deprecated
 
         Returns
         -------
         A list of Job objects
         """
-        if verbose is not None:
-            warnings.warn('verbose deprecated since 0.4.0')
 
         return self.cadctap.get_job_list(phases=phases, after=after, last=last,
                                          short_description=short_description)

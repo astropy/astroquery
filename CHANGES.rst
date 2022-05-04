@@ -13,6 +13,11 @@ hsa
 Service fixes and enhancements
 ------------------------------
 
+cadc
+^^^^
+
+- Deprecated keywords and ``run_query`` method have been removed. [#2389]
+
 casda
 ^^^^^
 
