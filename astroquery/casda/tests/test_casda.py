@@ -136,10 +136,8 @@ def test_login_no_default_user():
     assert casda._authenticated is False
     assert casda.USERNAME == ''
 
-    with pytest.raises(LoginError) as excinfo:
+    with pytest.raises(LoginError, match=r"If you do not pass a username to login\(\),") as excinfo:
         Casda.login()
-
-    assert "If you do not pass a username to login()," in str(excinfo.value)
 
     assert casda._authenticated is False
     assert casda.USERNAME == ''
@@ -286,10 +284,8 @@ def test_filter_out_unreleased():
 def test_stage_data_unauthorised(patch_get):
     table = Table()
 
-    with pytest.raises(ValueError) as excinfo:
+    with pytest.raises(ValueError, match=r"Credentials must be supplied") as excinfo:
         Casda.stage_data(table)
-
-    assert "Credentials must be supplied" in str(excinfo.value)
 
 
 def test_stage_data_empty(patch_get):
@@ -323,10 +319,8 @@ def test_stage_data_no_link(patch_get):
     fake_login(casda, USERNAME, PASSWORD)
     casda.POLL_INTERVAL = 1
 
-    with pytest.raises(ValueError) as excinfo:
+    with pytest.raises(ValueError, match=r"You do not have access to any of the requested data files\.") as excinfo:
         casda.stage_data(table)
-
-    assert "You do not have access to any of the requested data files." in str(excinfo.value)
 
 
 def test_stage_data(patch_get):
@@ -370,9 +364,9 @@ def test_cutout_no_args(patch_get):
     casda = Casda()
     fake_login(casda, USERNAME, PASSWORD)
     casda.POLL_INTERVAL = 1
-    with pytest.raises(ValueError) as excinfo:
+    with pytest.raises(ValueError,
+            match=r"Please provide cutout parameters such as coordinates, band or channel\.") as excinfo:
         casda.cutout(table)
-    assert "Please provide cutout parameters such as coordinates, band or channel." in str(excinfo.value)
 
 
 def test_cutout_unauthorised(patch_get):
@@ -384,9 +378,8 @@ def test_cutout_unauthorised(patch_get):
     radius = 30*u.arcmin
     centre = SkyCoord(ra, dec)
 
-    with pytest.raises(ValueError) as excinfo:
+    with pytest.raises(ValueError, match=r"Credentials must be supplied to download CASDA image data") as excinfo:
         Casda.cutout(table, coordinates=centre, radius=radius, verbose=True)
-    assert "Credentials must be supplied to download CASDA image data" in str(excinfo.value)
 
 
 def test_cutout_no_table(patch_get):
