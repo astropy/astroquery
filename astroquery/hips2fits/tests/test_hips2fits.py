@@ -15,7 +15,7 @@ from astropy.coordinates import Angle, Longitude, Latitude
 import astropy.units as u
 
 
-class TestHips2fitsRemote(object):
+class TestHips2fitsRemote():
 
     # Create a new WCS astropy object
     w = astropy_wcs.WCS(header={
