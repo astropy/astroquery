@@ -808,7 +808,7 @@ class EsoClass(QueryWithLogin):
                 href = link.attrs['href']
                 script = self._request("GET", href, cache=False)
                 fileLinks = re.findall(
-                    r'"(https://dataportal.eso.org/dataPortal/api/requests/.*)"',
+                    r'"(https://dataportal\.eso\.org/dataPortal/api/requests/.*)"',
                     script.text)
 
                 # urls with api/ require using Basic Authentication, though
