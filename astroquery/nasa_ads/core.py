@@ -123,7 +123,7 @@ class ADSClass(BaseQuery):
             with open(token_file) as f:
                 self.TOKEN = f.read().strip()
             return self.TOKEN
-        except IOError:
+        except OSError:
             raise RuntimeError('No API token found! Get yours from: '
                                'https://ui.adsabs.harvard.edu/#user/settings/token '
                                'and store it in the API_DEV_KEY environment variable.')

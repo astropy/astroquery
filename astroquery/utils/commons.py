@@ -408,7 +408,7 @@ class FileContainer:
         if link_cache == 'hard':
             try:
                 os.link(target, savepath)
-            except (IOError, OSError, AttributeError):
+            except (OSError, AttributeError):
                 shutil.copy(target, savepath)
         elif link_cache == 'sym':
             try:

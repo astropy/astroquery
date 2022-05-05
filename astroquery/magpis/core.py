@@ -90,7 +90,7 @@ class MagpisClass(BaseQuery):
         content_buffer = BytesIO(response.content)
         try:
             return fits.open(content_buffer, ignore_missing_end=True)
-        except IOError:
+        except OSError:
             raise InvalidQueryError(response.content)
 
     @prepend_docstr_nosections("\n" + _args_to_payload.__doc__)

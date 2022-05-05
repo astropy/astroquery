@@ -71,7 +71,7 @@ def download_list_of_fitsfiles(linklist, output_directory=None,
         try:
             # try to open as a fits file
             fitsfile = fits.open(S, ignore_missing_end=True)
-        except IOError:
+        except OSError:
             # if that fails, try to open as a gzip'd fits file
             # have to rewind to the start
             S.seek(0)
@@ -117,7 +117,7 @@ def download_list_of_fitsfiles(linklist, output_directory=None,
 
             try:
                 fitsfile.writeto(final_file, clobber=overwrite)
-            except IOError:
+            except OSError:
                 print("Skipped writing file {0} because it exists "
                       "and overwrite=False".format(final_file))
 
