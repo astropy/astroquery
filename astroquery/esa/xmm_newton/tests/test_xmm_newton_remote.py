@@ -22,7 +22,7 @@ from ..core import XMMNewtonClass
 from ..tests.dummy_tap_handler import DummyXMMNewtonTapHandler
 
 
-class TestXMMNewtonRemote():
+class TestXMMNewtonRemote:
     _files = {
         "0405320501": {
             "pps": [

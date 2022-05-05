@@ -8,7 +8,7 @@ from ..tests.dummy_handler import DummyHandler
 from ..tests.dummy_tap_handler import DummyHSATapHandler
 
 
-class TestHSA():
+class TestHSA:
 
     def get_dummy_tap_handler(self):
         parameterst = {'query': "select top 10 * from hsa.v_active_observation",

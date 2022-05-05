@@ -3,7 +3,7 @@
 __all__ = ['DummyHandler']
 
 
-class DummyHandler(object):
+class DummyHandler:
 
     def __init__(self, method, parameters):
         self._invokedMethod = method

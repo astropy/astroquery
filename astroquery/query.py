@@ -114,7 +114,7 @@ class AstroQuery:
                 response = pickle.load(f)
             if not isinstance(response, requests.Response):
                 response = None
-        except IOError:  # TODO: change to FileNotFoundError once drop py2 support
+        except FileNotFoundError:
             response = None
         if response:
             log.debug("Retrieving data from {0}".format(request_file))
@@ -130,8 +130,8 @@ class AstroQuery:
         if os.path.exists(request_file):
             os.remove(request_file)
         else:
-            raise OSError(f"Tried to remove cache file {request_file} but "
-                          "it does not exist")
+            raise FileNotFoundError(f"Tried to remove cache file {request_file} but "
+                                    "it does not exist")
 
 
 class LoginABCMeta(abc.ABCMeta):
@@ -146,7 +146,7 @@ class LoginABCMeta(abc.ABCMeta):
     """
 
     def __new__(cls, name, bases, attrs):
-        newcls = super(LoginABCMeta, cls).__new__(cls, name, bases, attrs)
+        newcls = super().__new__(cls, name, bases, attrs)
 
         if '_login' in attrs and name not in ('BaseQuery', 'QueryWithLogin'):
             # skip theses two classes, BaseQuery and QueryWithLogin, so
@@ -473,7 +473,7 @@ class QueryWithLogin(BaseQuery):
     """
 
     def __init__(self):
-        super(QueryWithLogin, self).__init__()
+        super().__init__()
         self._authenticated = False
 
     def _get_password(self, service_name, username, reenter=False):

@@ -39,7 +39,7 @@ class LamdaClass(BaseQuery):
     url = "http://home.strw.leidenuniv.nl/~moldata/datafiles/{0}.dat"
 
     def __init__(self, **kwargs):
-        super(LamdaClass, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.moldict_path = os.path.join(self.cache_location,
                                          "molecules.json")
 

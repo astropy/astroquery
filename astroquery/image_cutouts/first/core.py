@@ -67,7 +67,7 @@ class FirstClass(BaseQuery):
         S = BytesIO(response.content)
         try:
             return fits.open(S, ignore_missing_end=True)
-        except IOError:
+        except OSError:
             raise InvalidQueryError(response.content)
 
     @prepend_docstr_nosections("\n" + _args_to_payload.__doc__)

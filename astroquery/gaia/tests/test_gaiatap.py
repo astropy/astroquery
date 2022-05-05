@@ -39,7 +39,7 @@ def data_path(filename):
     return os.path.join(data_dir, filename)
 
 
-class TestTap():
+class TestTap:
 
     def test_query_object(self):
         conn_handler = DummyConnHandler()

@@ -104,7 +104,7 @@ class AstrometryNetClass(BaseQuery):
 
     def __init__(self):
         """ Show a warning message if the API key is not in the configuration file. """
-        super(AstrometryNetClass, self).__init__()
+        super().__init__()
         if not conf.api_key:
             log.warning("Astrometry.net API key not found in configuration file")
             log.warning("You need to manually edit the configuration file and add it")

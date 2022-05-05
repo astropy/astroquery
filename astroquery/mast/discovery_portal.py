@@ -129,7 +129,7 @@ class PortalAPI(BaseQuery):
 
     def __init__(self, session=None):
 
-        super(PortalAPI, self).__init__()
+        super().__init__()
         if session:
             self._session = session
 

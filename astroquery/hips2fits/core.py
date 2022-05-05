@@ -57,7 +57,7 @@ class hips2fitsClass(BaseQuery):
     timeout = conf.timeout
 
     def __init__(self, *args):
-        super(hips2fitsClass, self).__init__()
+        super().__init__()
 
     def query_with_wcs(self, hips, wcs, format="fits", min_cut=0.5, max_cut=99.5, stretch="linear", cmap="Greys_r", get_query_payload=False, verbose=False):
         """

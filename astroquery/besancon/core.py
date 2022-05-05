@@ -87,7 +87,7 @@ class BesanconClass(BaseQuery):
     result_re = re.compile(r"[0-9]{10}\.[0-9]{6}\.resu")
 
     def __init__(self, email=None):
-        super(BesanconClass, self).__init__()
+        super().__init__()
         self.email = email
 
     def get_besancon_model_file(self, filename, verbose=True, timeout=5.0):
