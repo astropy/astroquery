@@ -114,7 +114,7 @@ class AstroQuery:
                 response = pickle.load(f)
             if not isinstance(response, requests.Response):
                 response = None
-        except OSError:  # TODO: change to FileNotFoundError once drop py2 support
+        except FileNotFoundError:
             response = None
         if response:
             log.debug("Retrieving data from {0}".format(request_file))
@@ -130,8 +130,8 @@ class AstroQuery:
         if os.path.exists(request_file):
             os.remove(request_file)
         else:
-            raise OSError(f"Tried to remove cache file {request_file} but "
-                          "it does not exist")
+            raise FileNotFoundError(f"Tried to remove cache file {request_file} but "
+                                    "it does not exist")
 
 
 class LoginABCMeta(abc.ABCMeta):
