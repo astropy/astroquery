@@ -44,7 +44,7 @@ class ESAHubbleClass(BaseQuery):
     copying_string = "Copying file to {0}..."
 
     def __init__(self, tap_handler=None):
-        super(ESAHubbleClass, self).__init__()
+        super().__init__()
 
         if tap_handler is None:
             self._tap = TapPlus(url="http://hst.esac.esa.int"

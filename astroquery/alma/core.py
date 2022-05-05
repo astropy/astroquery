@@ -193,7 +193,7 @@ class AlmaClass(QueryWithLogin):
 
     def __init__(self):
         # sia service does not need disambiguation but tap does
-        super(AlmaClass, self).__init__()
+        super().__init__()
         self._sia = None
         self._tap = None
         self._datalink = None

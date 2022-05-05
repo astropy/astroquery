@@ -49,7 +49,7 @@ class ConeSearchClass(BaseQuery):
     """
 
     def __init__(self):
-        super(ConeSearchClass, self).__init__()
+        super().__init__()
 
     def query_region_async(self, *args, **kwargs):
         """

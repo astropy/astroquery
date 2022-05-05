@@ -99,7 +99,7 @@ class VOSCatalog(VOSBase):
     _compulsory_keys = ('title', 'url')
 
     def __init__(self, tree):
-        super(VOSCatalog, self).__init__(tree)
+        super().__init__(tree)
 
         for key in self._compulsory_keys:
             if key not in self._tree:
@@ -187,7 +187,7 @@ class VOSDatabase(VOSBase):
         if 'catalogs' not in tree:
             raise VOSError("Invalid VO service catalog database")
 
-        super(VOSDatabase, self).__init__(tree)
+        super().__init__(tree)
         self._catalogs = tree['catalogs']
 
         if self.version > __dbversion__:  # pragma: no cover

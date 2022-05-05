@@ -50,7 +50,7 @@ class CasdaClass(BaseQuery):
     _uws_ns = {'uws': 'http://www.ivoa.net/xml/UWS/v1.0'}
 
     def __init__(self, user=None, password=None):
-        super(CasdaClass, self).__init__()
+        super().__init__()
         if user is None:
             self._authenticated = False
         else:

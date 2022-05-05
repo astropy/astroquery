@@ -31,7 +31,7 @@ class ISOClass(BaseQuery):
     TIMEOUT = conf.TIMEOUT
 
     def __init__(self, tap_handler=None):
-        super(ISOClass, self).__init__()
+        super().__init__()
 
         if tap_handler is None:
             self._tap = TapPlus(url=self.metadata_url)

@@ -38,7 +38,7 @@ class XMMNewtonClass(BaseQuery):
     TIMEOUT = conf.TIMEOUT
 
     def __init__(self, tap_handler=None):
-        super(XMMNewtonClass, self).__init__()
+        super().__init__()
         self.configuration = configparser.ConfigParser()
 
         if tap_handler is None:

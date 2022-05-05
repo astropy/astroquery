@@ -41,7 +41,7 @@ class BaseWFAUClass(QueryWithLogin):
         """
         The BaseWFAUClass __init__ is meant to be overwritten
         """
-        super(BaseWFAUClass, self).__init__()
+        super().__init__()
         self.database = database
         self.programme_id = programme_id
         self.session = None

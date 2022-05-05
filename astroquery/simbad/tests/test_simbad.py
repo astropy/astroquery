@@ -40,7 +40,7 @@ class MockResponseSimbad(MockResponse):
 
     def __init__(self, script, cache=False, **kwargs):
         # preserve, e.g., headers
-        super(MockResponseSimbad, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.content = self.get_content(script)
 
     def get_content(self, script):

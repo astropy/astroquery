@@ -39,7 +39,7 @@ class ADSClass(BaseQuery):
 
     def __init__(self, *args):
         """ set some parameters """
-        super(ADSClass, self).__init__()
+        super().__init__()
 
     @class_or_instance
     def query_simple(self, query_string, get_query_payload=False,

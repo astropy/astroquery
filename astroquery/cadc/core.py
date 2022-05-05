@@ -88,7 +88,7 @@ class CadcClass(BaseQuery):
         Cadc object
         """
 
-        super(CadcClass, self).__init__()
+        super().__init__()
         self.baseurl = url
         # _auth_session contains the credentials that are used by both
         # the cadc tap and cadc datalink services

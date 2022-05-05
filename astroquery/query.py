@@ -146,7 +146,7 @@ class LoginABCMeta(abc.ABCMeta):
     """
 
     def __new__(cls, name, bases, attrs):
-        newcls = super(LoginABCMeta, cls).__new__(cls, name, bases, attrs)
+        newcls = super().__new__(cls, name, bases, attrs)
 
         if '_login' in attrs and name not in ('BaseQuery', 'QueryWithLogin'):
             # skip theses two classes, BaseQuery and QueryWithLogin, so
@@ -473,7 +473,7 @@ class QueryWithLogin(BaseQuery):
     """
 
     def __init__(self):
-        super(QueryWithLogin, self).__init__()
+        super().__init__()
         self._authenticated = False
 
     def _get_password(self, service_name, username, reenter=False):

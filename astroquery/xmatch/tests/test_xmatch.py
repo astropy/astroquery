@@ -21,7 +21,7 @@ DATA_FILES = {
 
 class MockResponseXmatch(MockResponse):
     def __init__(self, method, url, data, **kwargs):
-        super(MockResponseXmatch, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
         self.data = data
         fn = data_path(DATA_FILES[method.lower()])
