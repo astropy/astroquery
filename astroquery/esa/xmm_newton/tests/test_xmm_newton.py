@@ -25,7 +25,7 @@ def data_path(filename):
     return os.path.join(data_dir, filename)
 
 
-class mockResponse():
+class mockResponse:
     headers = {'Date': 'Wed, 24 Nov 2021 13:43:50 GMT',
                'Server': 'Apache/2.4.6 (Red Hat Enterprise Linux) OpenSSL/1.0.2k-fips',
                'Content-Disposition': 'inline; filename="0560181401.tar.gz"',
@@ -38,7 +38,7 @@ class mockResponse():
         pass
 
 
-class TestXMMNewton():
+class TestXMMNewton:
     def get_dummy_tap_handler(self):
         parameters = {'query': "select top 10 * from v_public_observations",
                       'output_file': "test2.vot",

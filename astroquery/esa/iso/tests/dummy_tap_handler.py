@@ -13,7 +13,7 @@ from ....utils.tap.model.taptable import TapTableMeta
 from ....utils.tap.model.job import Job
 
 
-class DummyISOTapHandler():
+class DummyISOTapHandler:
 
     def __init__(self, method, parameters):
         self.__invokedMethod = method
