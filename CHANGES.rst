@@ -23,6 +23,9 @@ casda
 
 - Add the ability to produce 2D and 3D cutouts from ASKAP images and cubes. [#2366]
 
+- Use the standard ``login`` method for authenticating, which supports the system
+  keyring [#2386]
+
 jplsbdb
 ^^^^^^^
 

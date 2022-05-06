@@ -71,15 +71,14 @@ date. To change user-registration details, or to request a new OPAL password,
 use the link to 'Log in or reset password'.
 
 To use download tasks, you should create an instance of the ``Casda`` class
-with a username and password. e.g.:
+and call the :meth:`~astroquery.casda.CasdaClass.login` method with a username. The password will either be taken 
+from the keyring, or if in an interactive environment then it will be requested. e.g.:
 
 .. doctest-skip::
 
     >>> from astroquery.casda import Casda
-    >>> import getpass
-    >>> username = 'email@somewhere.edu.au'
-    >>> password = getpass.getpass(str("Enter your OPAL password: "))
-    >>> casda = Casda(username, password)
+    >>> casda = Casda()
+    >>> casda.login(username='email@somewhere.edu.au')
 
 
 Data Access
@@ -103,11 +102,9 @@ taken in scheduling block 2338 is shown below:
 
     >>> from astropy import coordinates, units as u, wcs
     >>> from astroquery.casda import Casda
-    >>> import getpass
     >>> centre = coordinates.SkyCoord.from_name('NGC 7232')
-    >>> username = 'email@somewhere.edu.au'
-    >>> password = getpass.getpass(str("Enter your OPAL password: "))
-    >>> casda = Casda(username, password)
+    >>> casda = Casda()
+    >>> casda.login(username='email@somewhere.edu.au')
     >>> result = Casda.query_region(centre, radius=30*u.arcmin)
     >>> public_data = Casda.filter_out_unreleased(result)
     >>> subset = public_data[(public_data['dataproduct_subtype']=='cont.restored.t0') & (public_data['obs_id']=='2338')]
@@ -138,11 +135,9 @@ below:
 
     >>> from astropy import coordinates, units as u, wcs
     >>> from astroquery.casda import Casda
-    >>> import getpass
     >>> centre = coordinates.SkyCoord.from_name('2MASX J08161181-7039447')
-    >>> username = 'email@somewhere.edu.au'
-    >>> password = getpass.getpass(str("Enter your OPAL password: "))
-    >>> casda = Casda(username, password)
+    >>> casda = Casda()
+    >>> casda.login(username='email@somewhere.edu.au')
     >>> result = Casda.query_region(centre, radius=30*u.arcmin)
     >>> public_data = Casda.filter_out_unreleased(result)
     >>> subset = public_data[((public_data['obs_collection'] == 'The Rapid ASKAP Continuum Survey') & #
@@ -159,11 +154,9 @@ is shown below:
 
     >>> from astropy import coordinates, units as u, wcs
     >>> from astroquery.casda import Casda
-    >>> import getpass
     >>> centre = coordinates.SkyCoord.from_name('NGC 1371')
-    >>> username = 'email@somewhere.edu.au'
-    >>> password = getpass.getpass(str("Enter your OPAL password: "))
-    >>> casda = Casda(username, password)
+    >>> casda = Casda()
+    >>> casda.login(username='email@somewhere.edu.au')
     >>> result = Casda.query_region(centre, radius=30*u.arcmin)
     >>> public_data = Casda.filter_out_unreleased(result)
     >>> eridanus_cube = public_data[public_data['filename'] == 'Eridanus_full_image_V3.fits']
