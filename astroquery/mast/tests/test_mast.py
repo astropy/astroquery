@@ -67,8 +67,8 @@ def patch_post(request):
     mp.setattr(mast.services.ServiceAPI, '_request', service_mockreturn)
     mp.setattr(mast.auth.MastAuth, 'session_info', session_info_mockreturn)
 
-    mp.setattr(mast.Observations, '_download_file', download_mockreturn)
-    mp.setattr(mast.Observations, 'download_file', download_mockreturn)
+    mp.setattr(mast.MastObservations, '_download_file', download_mockreturn)
+    mp.setattr(mast.MastObservations, 'download_file', download_mockreturn)
     mp.setattr(mast.Catalogs, '_download_file', download_mockreturn)
     mp.setattr(mast.Tesscut, '_download_file', tesscut_download_mockreturn)
     mp.setattr(mast.Zcut, '_download_file', zcut_download_mockreturn)
@@ -269,7 +269,7 @@ def test_missions_query_criteria_async_with_missing_results(patch_post):
 
 
 def test_list_missions(patch_post):
-    missions = mast.Observations.list_missions()
+    missions = mast.MastObservations.list_missions()
     assert isinstance(missions, list)
     for m in ['HST', 'HLA', 'GALEX', 'Kepler']:
         assert m in missions
@@ -322,7 +322,7 @@ def test_session_info(patch_post):
 
 
 ###########################
-# ObservationsClass tests #
+# MastObservationsClass tests #
 ###########################
 
 
@@ -331,120 +331,120 @@ regionCoords = SkyCoord(23.34086, 60.658, unit=('deg', 'deg'))
 
 # query functions
 def test_observations_query_region_async(patch_post):
-    responses = mast.Observations.query_region_async(regionCoords, radius=0.2)
+    responses = mast.MastObservations.query_region_async(regionCoords, radius=0.2)
     assert isinstance(responses, list)
 
 
 def test_observations_query_region(patch_post):
-    result = mast.Observations.query_region(regionCoords, radius=0.2 * u.deg)
+    result = mast.MastObservations.query_region(regionCoords, radius=0.2 * u.deg)
     assert isinstance(result, Table)
 
 
 def test_observations_query_object_async(patch_post):
-    responses = mast.Observations.query_object_async("M103", radius="0.2 deg")
+    responses = mast.MastObservations.query_object_async("M103", radius="0.2 deg")
     assert isinstance(responses, list)
 
 
 def test_observations_query_object(patch_post):
-    result = mast.Observations.query_object("M103", radius=".02 deg")
+    result = mast.MastObservations.query_object("M103", radius=".02 deg")
     assert isinstance(result, Table)
 
 
 def test_query_observations_criteria_async(patch_post):
     # without position
-    responses = mast.Observations.query_criteria_async(dataproduct_type=["image"],
+    responses = mast.MastObservations.query_criteria_async(dataproduct_type=["image"],
                                                        proposal_pi="Ost*",
                                                        s_dec=[43.5, 45.5])
     assert isinstance(responses, list)
 
     # with position
-    responses = mast.Observations.query_criteria_async(filters=["NUV", "FUV"],
+    responses = mast.MastObservations.query_criteria_async(filters=["NUV", "FUV"],
                                                        objectname="M101")
     assert isinstance(responses, list)
 
 
 def test_observations_query_criteria(patch_post):
     # without position
-    result = mast.Observations.query_criteria(dataproduct_type=["image"],
+    result = mast.MastObservations.query_criteria(dataproduct_type=["image"],
                                               proposal_pi="Ost*",
                                               s_dec=[43.5, 45.5])
     assert isinstance(result, Table)
 
     # with position
-    result = mast.Observations.query_criteria(filters=["NUV", "FUV"],
+    result = mast.MastObservations.query_criteria(filters=["NUV", "FUV"],
                                               objectname="M101")
     assert isinstance(result, Table)
 
     with pytest.raises(InvalidQueryError) as invalid_query:
-        mast.Observations.query_criteria(objectname="M101")
+        mast.MastObservations.query_criteria(objectname="M101")
     assert "least one non-positional criterion" in str(invalid_query.value)
 
     with pytest.raises(InvalidQueryError) as invalid_query:
-        mast.Observations.query_criteria(objectname="M101", coordinates=regionCoords, intentType="science")
+        mast.MastObservations.query_criteria(objectname="M101", coordinates=regionCoords, intentType="science")
     assert "one of objectname and coordinates" in str(invalid_query.value)
 
 
 # count functions
 def test_observations_query_region_count(patch_post):
-    result = mast.Observations.query_region_count(regionCoords, radius="0.2 deg")
+    result = mast.MastObservations.query_region_count(regionCoords, radius="0.2 deg")
     assert result == 599
 
 
 def test_observations_query_object_count(patch_post):
-    result = mast.Observations.query_object_count("M8", radius=0.2*u.deg)
+    result = mast.MastObservations.query_object_count("M8", radius=0.2*u.deg)
     assert result == 599
 
 
 def test_observations_query_criteria_count(patch_post):
-    result = mast.Observations.query_criteria_count(dataproduct_type=["image"],
+    result = mast.MastObservations.query_criteria_count(dataproduct_type=["image"],
                                                     proposal_pi="Ost*",
                                                     s_dec=[43.5, 45.5])
     assert result == 599
 
-    result = mast.Observations.query_criteria_count(dataproduct_type=["image"],
+    result = mast.MastObservations.query_criteria_count(dataproduct_type=["image"],
                                                     proposal_pi="Ost*",
                                                     s_dec=[43.5, 45.5], coordinates=regionCoords)
     assert result == 599
 
     with pytest.raises(InvalidQueryError) as invalid_query:
-        mast.Observations.query_criteria_count(coordinates=regionCoords, objectname="M101", proposal_pi="Ost*")
+        mast.MastObservations.query_criteria_count(coordinates=regionCoords, objectname="M101", proposal_pi="Ost*")
     assert "one of objectname and coordinates" in str(invalid_query.value)
 
 
 # product functions
 def test_observations_get_product_list_async(patch_post):
-    responses = mast.Observations.get_product_list_async('2003738726')
+    responses = mast.MastObservations.get_product_list_async('2003738726')
     assert isinstance(responses, list)
 
-    responses = mast.Observations.get_product_list_async('2003738726,3000007760')
+    responses = mast.MastObservations.get_product_list_async('2003738726,3000007760')
     assert isinstance(responses, list)
 
-    observations = mast.Observations.query_object("M8", radius=".02 deg")
-    responses = mast.Observations.get_product_list_async(observations[0])
+    observations = mast.MastObservations.query_object("M8", radius=".02 deg")
+    responses = mast.MastObservations.get_product_list_async(observations[0])
     assert isinstance(responses, list)
 
-    responses = mast.Observations.get_product_list_async(observations[0:4])
+    responses = mast.MastObservations.get_product_list_async(observations[0:4])
     assert isinstance(responses, list)
 
 
 def test_observations_get_product_list(patch_post):
-    result = mast.Observations.get_product_list('2003738726')
+    result = mast.MastObservations.get_product_list('2003738726')
     assert isinstance(result, Table)
 
-    result = mast.Observations.get_product_list('2003738726,3000007760')
+    result = mast.MastObservations.get_product_list('2003738726,3000007760')
     assert isinstance(result, Table)
 
-    observations = mast.Observations.query_object("M8", radius=".02 deg")
-    result = mast.Observations.get_product_list(observations[0])
+    observations = mast.MastObservations.query_object("M8", radius=".02 deg")
+    result = mast.MastObservations.get_product_list(observations[0])
     assert isinstance(result, Table)
 
-    result = mast.Observations.get_product_list(observations[0:4])
+    result = mast.MastObservations.get_product_list(observations[0:4])
     assert isinstance(result, Table)
 
 
 def test_observations_filter_products(patch_post):
-    products = mast.Observations.get_product_list('2003738726')
-    result = mast.Observations.filter_products(products,
+    products = mast.MastObservations.get_product_list('2003738726')
+    result = mast.MastObservations.filter_products(products,
                                                productType=["SCIENCE"],
                                                mrp_only=False)
     assert isinstance(result, Table)
@@ -453,14 +453,14 @@ def test_observations_filter_products(patch_post):
 
 def test_observations_download_products(patch_post, tmpdir):
     # actually download the products
-    result = mast.Observations.download_products('2003738726',
+    result = mast.MastObservations.download_products('2003738726',
                                                  download_dir=str(tmpdir),
                                                  productType=["SCIENCE"],
                                                  mrp_only=False)
     assert isinstance(result, Table)
 
     # just get the curl script
-    result = mast.Observations.download_products('2003738726',
+    result = mast.MastObservations.download_products('2003738726',
                                                  download_dir=str(tmpdir),
                                                  curl_flag=True,
                                                  productType=["SCIENCE"],
@@ -468,18 +468,18 @@ def test_observations_download_products(patch_post, tmpdir):
     assert isinstance(result, Table)
 
     # passing row product
-    products = mast.Observations.get_product_list('2003738726')
-    result1 = mast.Observations.download_products(products[0])
+    products = mast.MastObservations.get_product_list('2003738726')
+    result1 = mast.MastObservations.download_products(products[0])
     assert isinstance(result1, Table)
 
 
 def test_observations_download_file(patch_post, tmpdir):
     # pull a single data product
-    products = mast.Observations.get_product_list('2003738726')
+    products = mast.MastObservations.get_product_list('2003738726')
     uri = products['dataURI'][0]
 
     # download it
-    result = mast.Observations.download_file(uri)
+    result = mast.MastObservations.download_file(uri)
     assert result == ('COMPLETE', None, None)
 
 

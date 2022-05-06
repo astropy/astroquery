@@ -66,14 +66,14 @@ coords = SkyCoord(210.80242917, 54.34875, unit="deg")
 
 def test_observations_query_region(patch_get):
     """ test query against a region of the sky """
-    result = gemini.Observations.query_region(coords, radius=0.3 * units.deg)
+    result = gemini.GeminiObservations.query_region(coords, radius=0.3 * units.deg)
     assert isinstance(result, Table)
     assert len(result) > 0
 
 
 def test_observations_query_criteria(patch_get):
     """ test query against an instrument/program via criteria """
-    result = gemini.Observations.query_criteria(instrument='GMOS-N', program_id='GN-CAL20191122',
+    result = gemini.GeminiObservations.query_criteria(instrument='GMOS-N', program_id='GN-CAL20191122',
                                                 observation_type='BIAS',
                                                 utc_date=(date(2019, 10, 1), date(2019, 11, 25)))
     assert isinstance(result, Table)
@@ -82,18 +82,18 @@ def test_observations_query_criteria(patch_get):
 
 def test_observations_query_criteria_radius_defaults(patch_get):
     """ test query against an instrument/program via criteria """
-    result = gemini.Observations.query_criteria(instrument='GMOS-N', program_id='GN-CAL20191122',
+    result = gemini.GeminiObservations.query_criteria(instrument='GMOS-N', program_id='GN-CAL20191122',
                                                 observation_type='BIAS')
     global saved_request
     assert(saved_request is not None and 'args' in saved_request and len(saved_request['args']) >= 2)
     assert('/sr=' not in saved_request['args'][1])
     saved_request = None
-    result = gemini.Observations.query_criteria(instrument='GMOS-N', program_id='GN-2016A-Q-9',
+    result = gemini.GeminiObservations.query_criteria(instrument='GMOS-N', program_id='GN-2016A-Q-9',
                                                 observation_type='BIAS', coordinates=coords)
     assert(saved_request is not None and 'args' in saved_request and len(saved_request['args']) >= 2)
     assert('/sr=0.300000d' in saved_request['args'][1])
     saved_request = None
-    result = gemini.Observations.query_criteria(instrument='GMOS-N', program_id='GN-2016A-Q-9',
+    result = gemini.GeminiObservations.query_criteria(instrument='GMOS-N', program_id='GN-2016A-Q-9',
                                                 observation_type='BIAS', objectname='m101')
     assert(saved_request is not None and 'args' in saved_request and len(saved_request['args']) >= 2)
     assert('/sr=0.300000d' in saved_request['args'][1])
@@ -101,7 +101,7 @@ def test_observations_query_criteria_radius_defaults(patch_get):
 
 def test_observations_query_raw(patch_get):
     """ test querying raw """
-    result = gemini.Observations.query_raw('GMOS-N', 'BIAS', progid='GN-CAL20191122')
+    result = gemini.GeminiObservations.query_raw('GMOS-N', 'BIAS', progid='GN-CAL20191122')
     assert isinstance(result, Table)
     assert len(result) > 0
 

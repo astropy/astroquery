@@ -1,7 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
-MAST Observations
-=================
+MAST MastObservations
+=====================
 
 This module contains various methods for querying MAST observations.
 """
@@ -37,14 +37,14 @@ from ..exceptions import (TimeoutError, InvalidQueryError, RemoteServiceError,
 from . import conf, utils
 from .core import MastQueryWithLogin
 
-__all__ = ['Observations', 'ObservationsClass',
+__all__ = ['MastObservations', 'MastObservationsClass',
            'MastClass', 'Mast']
 
 
 @async_to_sync
-class ObservationsClass(MastQueryWithLogin):
+class MastObservationsClass(MastQueryWithLogin):
     """
-    MAST Observations query class.
+    MAST MastObservations query class.
 
     Class for querying MAST observational data.
     """
@@ -173,7 +173,7 @@ class ObservationsClass(MastQueryWithLogin):
             # if radius is just a number we assume degrees
             radius = coord.Angle(radius, u.deg)
 
-            # build the coordinates string needed by ObservationsClass._caom_filtered_position
+            # build the coordinates string needed by MastObservationsClass._caom_filtered_position
             position = ', '.join([str(x) for x in (coordinates.ra.deg, coordinates.dec.deg, radius.deg)])
 
         return position, mashup_filters
@@ -327,7 +327,7 @@ class ObservationsClass(MastQueryWithLogin):
         response : int
         """
 
-        # build the coordinates string needed by ObservationsClass._caom_filtered_position
+        # build the coordinates string needed by MastObservationsClass._caom_filtered_position
         coordinates = commons.parse_coordinates(coordinates)
 
         # if radius is just a number we assume degrees
@@ -807,7 +807,7 @@ class MastClass(MastQueryWithLogin):
     MAST query class.
 
     Class that allows direct programatic access to the MAST Portal,
-    more flexible but less user friendly than `ObservationsClass`.
+    more flexible but less user friendly than `MastObservationsClass`.
     """
 
     def _parse_result(self, responses, *, verbose=False):  # Used by the async_to_sync decorator functionality
@@ -864,5 +864,5 @@ class MastClass(MastQueryWithLogin):
         return self._portal_api_connection.service_request_async(service, params, pagesize, page, **kwargs)
 
 
-Observations = ObservationsClass()
+MastObservations = MastObservationsClass()
 Mast = MastClass()

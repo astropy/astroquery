@@ -11,6 +11,7 @@ from datetime import date
 from astroquery import log
 from astropy import units
 from astropy.table import Table, MaskedColumn
+from astropy.utils import deprecated
 
 from astroquery.gemini.urlhelper import URLHelper
 import numpy as np
@@ -21,7 +22,7 @@ from . import conf
 from ..exceptions import AuthenticationWarning
 
 
-__all__ = ['Observations', 'ObservationsClass']  # specifies what to import
+__all__ = ['GeminiObservations', 'GeminiObservationsClass']  # specifies what to import
 
 
 __valid_instruments__ = [
@@ -97,7 +98,7 @@ __valid_raw_reduced__ = [
 ]
 
 
-class ObservationsClass(QueryWithLogin):
+class GeminiObservationsClass(QueryWithLogin):
 
     server = conf.server
     url_helper = URLHelper(server)
@@ -526,4 +527,11 @@ __keys__ = ["exposure_time",
         "release",
         "dec"]
 
+
+@deprecated(since='v0.4.3', alternative='GeminiObservationsClass')
+class ObservationsClass(GeminiObservationsClass):
+    pass
+
+
+GeminiObservations = GeminiObservationsClass()
 Observations = ObservationsClass()

@@ -349,6 +349,12 @@ esa.xmm_newton
 - Use astroquery downloader tool to get progressbar, caching, and prevent
   memory leaks. [#2087]
 
+observations
+^^^^^^^^^^^^
+
+- Renamed and deprecated Observations and ObservationsClass in MAST
+  and GEMINI modules. [#1885]
+
 gaia
 ^^^^
 
