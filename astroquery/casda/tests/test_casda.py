@@ -145,7 +145,6 @@ def test_login_no_default_user():
     assert hasattr(casda, '_auth') is False
 
 
-@pytest.mark.xfail("CI", reason='No keyring backend on the CI server')
 def test_login_keyring(patch_get):
     casda = Casda()
     assert casda._authenticated is False
