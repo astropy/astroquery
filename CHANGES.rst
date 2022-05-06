@@ -24,7 +24,7 @@ jplsbdb
 - Fix a bug for jplsdbd query when the returned physical quantity contains
   a unit with exponential. [#2377]
 
-linelists/cdms
+linelists.cdms
 ^^^^^^^^^^^^^^
 
 - Fix issues with the line name parser and the line data parser; the original

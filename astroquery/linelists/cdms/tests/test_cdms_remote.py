@@ -56,7 +56,7 @@ def test_remote_regex():
 
 
 @pytest.mark.remote_data
-def test_2375():
+def test_molecule_with_parens():
     """
     Regression test for 2375
     """
