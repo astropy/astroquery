@@ -1,6 +1,7 @@
 import pytest
 from astropy.tests.helper import assert_quantity_allclose
 import numpy as np
+import astropy.units as u
 
 from ... import pds
 
@@ -15,12 +16,10 @@ from ... import pds
 
 @pytest.mark.remote_data
 class TestRingNodeClass:
-    def test_ephemeris_query():
+    def test_ephemeris_query(self):
 
-        systemtable, bodytable, ringtable = pds.RingNode(
-            planet="Uranus", obs_time="2022-05-03 00:00"
-        ).ephemeris(observer_coords=(10.0, -120.355, 1000))
-
+        systemtable, bodytable, ringtable = pds.RingNode().ephemeris(
+                    planet="Uranus", obs_time="2022-05-03 00:00",location=(10.0*u.deg, -120.355*u.deg, 1000*u.m))
         # check system table
         assert_quantity_allclose(
             [
@@ -31,27 +30,23 @@ class TestRingNodeClass:
                 0.10924,
                 354.11072,
                 354.12204,
-                19.70547,
-                20.71265,
                 2947896667.0,
                 3098568884.0,
                 10335.713263,
             ],
             [
-                systemtable["sub_sun_lat"],
-                systemtable["sub_sun_lat_min"],
-                systemtable["sub_sun_lat_max"],
-                systemtable["opening_angle"],
-                systemtable["phase_angle"],
-                systemtable["sub_sun_lon"],
-                systemtable["sub_obs_lon"],
-                systemtable["d_sun_AU"],
-                systemtable["d_obs_AU"],
-                systemtable["d_sun_km"],
-                systemtable["d_obs_km"],
-                systemtable["light_time"],
+                systemtable["sub_sun_lat"].to(u.deg).value,
+                systemtable["sub_sun_lat_min"].to(u.deg).value,
+                systemtable["sub_sun_lat_max"].to(u.deg).value,
+                systemtable["opening_angle"].to(u.deg).value,
+                systemtable["phase_angle"].to(u.deg).value,
+                systemtable["sub_sun_lon"].to(u.deg).value,
+                systemtable["sub_obs_lon"].to(u.deg).value,
+                systemtable["d_sun"].to(u.km).value,
+                systemtable["d_obs"].to(u.km).value,
+                systemtable["light_time"].to(u.second).value,
             ],
-            rtol=1e-3,
+            rtol=1e-2,
         )
 
         # check a moon in body table
@@ -72,39 +67,39 @@ class TestRingNodeClass:
                 3098.514,
             ],
             [
-                mab["RA (deg)"],
-                mab["Dec (deg)"],
-                mab["dRA"],
-                mab["dDec"],
-                mab["sub_obs_lon"],
-                mab["sub_obs_lat"],
-                mab["sub_sun_lon"],
-                mab["sub_sun_lat"],
-                mab["phase"],
-                mab["distance"],
+                mab["RA (deg)"].to(u.deg).value,
+                mab["Dec (deg)"].to(u.deg).value,
+                mab["dRA"].to(u.arcsec).value,
+                mab["dDec"].to(u.arcsec).value,
+                mab["sub_obs_lon"].to(u.deg).value,
+                mab["sub_obs_lat"].to(u.deg).value,
+                mab["sub_sun_lon"].to(u.deg).value,
+                mab["sub_sun_lat"].to(u.deg).value,
+                mab["phase"].to(u.deg).value,
+                mab["distance"].to(u.km * 1e6).value,
             ],
-            rtol=1e-3,
+            rtol=1e-2,
         )
 
         # check a ring in ringtable
         beta = ringtable[ringtable.loc_indices["Beta"]]
-        assert np.isclose(beta["pericenter"], 231.051, rtol=1e-3)
-        assert np.isclose(beta["ascending node"], 353.6, rtol=1e-2)
+        assert np.isclose(beta["pericenter"].to(u.deg).value, 231.051, rtol=1e-3)
+        assert np.isclose(beta["ascending node"].to(u.deg).value, 353.6, rtol=1e-2)
 
-    def test_bad_query_exception_throw():
-
-        with pytest.raises(ValueError):
-            pds.RingNode(planet="Mercury", obs_time="2022-05-03 00:00").ephemeris()
+    def test_bad_query_exception_throw(self):
 
         with pytest.raises(ValueError):
-            pds.RingNode(planet="Uranus", obs_time="2022-13-03 00:00").ephemeris()
+            pds.RingNode().ephemeris(planet="Mercury", obs_time="2022-05-03 00:00")
 
         with pytest.raises(ValueError):
-            pds.RingNode(planet="Neptune", obs_time="2022-05-03 00:00").ephemeris(
-                observer_coords=(1000, 10.0, -120.355)
+            pds.RingNode().ephemeris(planet="Uranus", obs_time="2022-13-03 00:00")
+
+        with pytest.raises(ValueError):
+            pds.RingNode().ephemeris(
+                planet="Neptune", obs_time="2022-05-03 00:00", location=(10.0*u.deg, -120.355*u.deg)
             )
 
         with pytest.raises(ValueError):
-            pds.RingNode(planet="Neptune", obs_time="2022-05-03 00:00").ephemeris(
-                observer_coords=(10.0, -120.355, 1000), neptune_arcmodel=0
+            pds.RingNode().ephemeris(
+                planet="Neptune", obs_time="2022-05-03 00:00", location=(10.0*u.deg, -120.355*u.deg, 1000*u.m), neptune_arcmodel=0
             )
