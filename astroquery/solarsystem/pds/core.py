@@ -37,7 +37,7 @@ class RingNodeClass(BaseQuery):
 
         Parameters
         ----------
-        
+
         """
 
         super().__init__()
@@ -53,7 +53,7 @@ class RingNodeClass(BaseQuery):
         >>> print(nodeobj)  # doctest: +SKIP
         PDSRingNode instance
         """
-        return 'PDSRingNode instance'
+        return "PDSRingNode instance"
 
     # --- pretty stuff above this line, get it working below this line ---
 
@@ -76,8 +76,8 @@ class RingNodeClass(BaseQuery):
         ----------
         self : RingNodeClass instance
         planet : str, required. one of Mars, Jupiter, Saturn, Uranus, Neptune, or Pluto
-        obs_time : astropy.Time object, or str in format YYYY-MM-DD hh:mm, optional. 
-                If str is provided then UTC is assumed. If no obs_time is provided, 
+        obs_time : astropy.Time object, or str in format YYYY-MM-DD hh:mm, optional.
+                If str is provided then UTC is assumed. If no obs_time is provided,
                 the current time is used.
         location : array-like, or `~astropy.coordinates.EarthLocation`, optional
             Observer's location as a
@@ -141,7 +141,7 @@ class RingNodeClass(BaseQuery):
                 )
         elif type(obs_time) == Time:
             try:
-                obs_time = obs_time.utc.to_value('iso', subfmt = 'date_hm')
+                obs_time = obs_time.utc.to_value("iso", subfmt="date_hm")
             except Exception as e:
                 raise ValueError(
                     "illegal value for 'obs_time' parameter. could not parse astropy.time.core.Time object into format 'yyyy-mm-dd hh:mm' (UTC)"
@@ -154,25 +154,27 @@ class RingNodeClass(BaseQuery):
         else:
             viewpoint = "latlon"
             if type(location) != EarthLocation:
-                if hasattr(location, '__iter__'):
+                if hasattr(location, "__iter__"):
                     if len(location) != 3:
                         raise ValueError(
                             "location arrays require three values:"
-                            " longitude, latitude, and altitude")
+                            " longitude, latitude, and altitude"
+                        )
                 else:
                     raise TypeError(
-                        "location must be array-like or astropy EarthLocation")
-                        
+                        "location must be array-like or astropy EarthLocation"
+                    )
+
             if isinstance(location, EarthLocation):
                 loc = location.geodetic
                 longitude = loc[0].deg
                 latitude = loc[1].deg
                 altitude = loc[2].to(u.m).value
-            elif hasattr(location, '__iter__'):
-                longitude = Angle(location[0]).deg
-                latitude = Angle(location[1]).deg
-                altitude = u.Quantity(location[2]).to('m').value
-            
+            elif hasattr(location, "__iter__"):
+                latitude = Angle(location[0]).deg
+                longitude = Angle(location[1]).deg
+                altitude = u.Quantity(location[2]).to("m").value
+
         if int(neptune_arcmodel) not in [1, 2, 3]:
             raise ValueError(
                 f"Illegal Neptune arc model {neptune_arcmodel}. must be one of 1, 2, or 3 (see https://pds-rings.seti.org/tools/viewer3_nep.shtml for details)"
@@ -183,12 +185,9 @@ class RingNodeClass(BaseQuery):
         # thankfully, adding extra planet-specific keywords here does not break query for other planets
         request_payload = OrderedDict(
             [
-                ("abbrev", planet[:3]),
-                (
-                    "ephem",
-                    conf.planet_defaults[planet]["ephem"],
-                ),  # change hardcoding for other planets
-                ("time", obs_time), #UTC. this should be enforced when checking inputs
+                ("abbrev", planet.lower()[:3]),
+                ("ephem", conf.planet_defaults[planet]["ephem"],),
+                ("time", obs_time),  # UTC. this should be enforced when checking inputs
                 (
                     "fov",
                     10,
@@ -297,17 +296,10 @@ class RingNodeClass(BaseQuery):
                         "dRA",
                         "dDec",
                     ),
-                    )
-                units_list = [None, 
-                        None,
-                        None,
-                        None,
-                        u.deg, 
-                        u.deg,
-                        u.arcsec,
-                        u.arcsec]
-                bodytable = table.QTable(bodytable, units = units_list)
-                #for i in range(len(bodytable.colnames)):
+                )
+                units_list = [None, None, None, None, u.deg, u.deg, u.arcsec, u.arcsec]
+                bodytable = table.QTable(bodytable, units=units_list)
+                # for i in range(len(bodytable.colnames)):
                 #    bodytable[bodytable.colnames[i]].unit = units_list[i]
             # minor body table part 2
             elif group.startswith("Sub-"):
@@ -327,18 +319,11 @@ class RingNodeClass(BaseQuery):
                         "sub_sun_lat",
                         "phase",
                         "distance",
-                    ))
-                units_list=[
-                    None,
-                    None,
-                    u.deg,
-                    u.deg,
-                    u.deg,
-                    u.deg,
-                    u.deg,
-                    u.km * 1e6]
-                bodytable2 = table.QTable(bodytable2, units = units_list)
-                #for i in range(len(bodytable2.colnames)):
+                    ),
+                )
+                units_list = [None, None, u.deg, u.deg, u.deg, u.deg, u.deg, u.km * 1e6]
+                bodytable2 = table.QTable(bodytable2, units=units_list)
+                # for i in range(len(bodytable2.colnames)):
                 #    bodytable2[bodytable2.colnames[i]].unit = units_list[i]
 
             # ring plane data
@@ -359,15 +344,15 @@ class RingNodeClass(BaseQuery):
                         }
 
                     elif "Ring plane opening angle" in l[0]:
-                        systemtable["opening_angle"] = float(
-                            re.sub("[a-zA-Z]+", "", l[1]).strip(", \n()")
-                        ) * u.deg
+                        systemtable["opening_angle"] = (
+                            float(re.sub("[a-zA-Z]+", "", l[1]).strip(", \n()")) * u.deg
+                        )
                     elif "Ring center phase angle" in l[0]:
                         systemtable["phase_angle"] = float(l[1].strip(", \n")) * u.deg
                     elif "Sub-solar longitude" in l[0]:
-                        systemtable["sub_sun_lon"] = float(
-                            re.sub("[a-zA-Z]+", "", l[1]).strip(", \n()")
-                        ) * u.deg
+                        systemtable["sub_sun_lon"] = (
+                            float(re.sub("[a-zA-Z]+", "", l[1]).strip(", \n()")) * u.deg
+                        )
                     elif "Sub-observer longitude" in l[0]:
                         systemtable["sub_obs_lon"] = float(l[1].strip(", \n")) * u.deg
                     else:
@@ -379,10 +364,10 @@ class RingNodeClass(BaseQuery):
                 for line in lines:
                     l = line.split(":")
                     if "Sun-planet distance (AU)" in l[0]:
-                        #systemtable["d_sun_AU"] = float(l[1].strip(", \n"))
+                        # systemtable["d_sun_AU"] = float(l[1].strip(", \n"))
                         pass
                     elif "Observer-planet distance (AU)" in l[0]:
-                        #systemtable["d_obs_AU"] = float(l[1].strip(", \n"))
+                        # systemtable["d_obs_AU"] = float(l[1].strip(", \n"))
                         pass
                     elif "Sun-planet distance (km)" in l[0]:
                         systemtable["d_sun"] = (
@@ -405,11 +390,12 @@ class RingNodeClass(BaseQuery):
                     format="fixed_width",
                     col_starts=(5, 18, 29),
                     col_ends=(18, 29, 36),
-                    names=("ring", "pericenter", "ascending node"))
-                    
-                units_list=[None, u.deg, u.deg]
-                ringtable = table.QTable(ringtable, units = units_list)
-                
+                    names=("ring", "pericenter", "ascending node"),
+                )
+
+                units_list = [None, u.deg, u.deg]
+                ringtable = table.QTable(ringtable, units=units_list)
+
             # Saturn F-ring data
             elif group.startswith("F Ring"):
                 lines = group.split("\n")
@@ -422,7 +408,7 @@ class RingNodeClass(BaseQuery):
                 ringtable = table.Table(
                     [["F"], [peri], [ascn]],
                     names=("ring", "pericenter", "ascending node"),
-                    units=(None, u.deg, u.deg)
+                    units=(None, u.deg, u.deg),
                 )
 
             # Neptune ring arcs data
@@ -439,7 +425,7 @@ class RingNodeClass(BaseQuery):
                         ringtable = table.Table(
                             [[ring], [min_angle], [max_angle]],
                             names=("ring", "min_angle", "max_angle"),
-                            units=(None, u.deg, u.deg)
+                            units=(None, u.deg, u.deg),
                         )
                     else:
                         ringtable.add_row([ring, min_angle, max_angle])
@@ -447,16 +433,15 @@ class RingNodeClass(BaseQuery):
             else:
                 pass
 
-        #
-        ## do some cleanup from the parsing job
-        # 
+        # do some cleanup from the parsing job
         ringtable.add_index("ring")
-        
-        bodytable = table.join(bodytable, bodytable2) # concatenate minor body table
+
+        bodytable = table.join(bodytable, bodytable2)  # concatenate minor body table
         bodytable.add_index("Body")
-        
-        systemtable["obs_time"] = Time(obs_time, format = 'iso', scale = 'utc') # add obs time to systemtable
-        
+
+        systemtable["obs_time"] = Time(
+            obs_time, format="iso", scale="utc"
+        )  # add obs time to systemtable
 
         return systemtable, bodytable, ringtable
 
