@@ -1136,25 +1136,13 @@ To view tokens accessible through your account, visit https://auth.mast.stsci.ed
 
    >>> from astroquery.mast import Observations
    ...
-   >>> Observations.login(token="12348r9w0sa2392ff94as841")
-   INFO: MAST API token accepted, welcome User Name [astroquery.mast.core]
-   ...
-   >>> sessioninfo = Observations.session_info()
-   eppn: user_name@stsci.edu
-   ezid: uname
-   ...
-
-.. doctest-skip::
-
-   >>> from astroquery.mast import Observations
-   ...
    >>> my_session = Observations(token="12348r9w0sa2392ff94as841")
    INFO: MAST API token accepted, welcome User Name [astroquery.mast.core]
    ...
    >>> sessioninfo = Observations.session_info()
    eppn: user_name@stsci.edu
    ezid: uname
-                ...
+   ...
 
 \* For security tokens should not be typed into a terminal or Jupyter notebook
 but instead input using a more secure method such as `~getpass.getpass`.
