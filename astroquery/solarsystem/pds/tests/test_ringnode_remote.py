@@ -88,26 +88,3 @@ class TestRingNodeClass:
         beta = ringtable[ringtable.loc_indices["Beta"]]
         assert np.isclose(beta["pericenter"].to(u.deg).value, 231.051, rtol=1e-3)
         assert np.isclose(beta["ascending node"].to(u.deg).value, 353.6, rtol=1e-2)
-
-    def test_bad_query_exception_throw(self):
-
-        with pytest.raises(ValueError):
-            pds.RingNode().ephemeris(planet="Mercury", obs_time="2022-05-03 00:00")
-
-        with pytest.raises(ValueError):
-            pds.RingNode().ephemeris(planet="Uranus", obs_time="2022-13-03 00:00")
-
-        with pytest.raises(ValueError):
-            pds.RingNode().ephemeris(
-                planet="Neptune",
-                obs_time="2022-05-03 00:00",
-                location=(10.0 * u.deg, -120.355 * u.deg),
-            )
-
-        with pytest.raises(ValueError):
-            pds.RingNode().ephemeris(
-                planet="Neptune",
-                obs_time="2022-05-03 00:00",
-                location=(10.0 * u.deg, -120.355 * u.deg, 1000 * u.m),
-                neptune_arcmodel=0,
-            )

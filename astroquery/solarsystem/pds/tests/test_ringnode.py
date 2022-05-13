@@ -35,6 +35,7 @@ def patch_request(request):
 
 
 # --------------------------------- actual test functions
+
 def test_ephemeris_query(patch_request):
 
     systemtable, bodytable, ringtable = pds.RingNode().ephemeris(
@@ -140,7 +141,7 @@ def test_ephemeris_query_payload():
             (
                 "observatory",
                 "Earth's center",
-            ),  # has no effect if viewpoint != observatory so can hardcode. no plans to implement calling observatories by name since ring node only names like 8 observatories
+            ), 
             ("latitude", 10),
             ("longitude", -120.355),
             ("lon_dir", "east"),
@@ -167,3 +168,27 @@ def test_ephemeris_query_payload():
             ("output", "html"),
         ]
     )
+
+
+def test_bad_query_exception_throw():
+
+    with pytest.raises(ValueError):
+        pds.RingNode().ephemeris(planet="Mercury", obs_time="2022-05-03 00:00")
+
+    with pytest.raises(ValueError):
+        pds.RingNode().ephemeris(planet="Uranus", obs_time="2022-13-03 00:00")
+
+    with pytest.raises(ValueError):
+        pds.RingNode().ephemeris(
+            planet="Neptune",
+            obs_time="2022-05-03 00:00",
+            location=(10.0 * u.deg, -120.355 * u.deg),
+        )
+
+    with pytest.raises(ValueError):
+        pds.RingNode().ephemeris(
+            planet="Neptune",
+            obs_time="2022-05-03 00:00",
+            location=(10.0 * u.deg, -120.355 * u.deg, 1000 * u.m),
+            neptune_arcmodel=0,
+        )

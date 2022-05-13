@@ -13,7 +13,6 @@ from astropy.coordinates import EarthLocation, Angle
 from bs4 import BeautifulSoup
 
 # 3. local imports - use relative imports
-# commonly required local imports shown below as example
 # all Query classes should inherit from BaseQuery.
 from ...query import BaseQuery
 from ...utils import async_to_sync
@@ -25,26 +24,21 @@ from . import conf
 @async_to_sync
 class RingNodeClass(BaseQuery):
     """
-    for querying the Planetary Ring Node ephemeris tools
+    a class for querying the Planetary Ring Node ephemeris tools
     <https://pds-rings.seti.org/tools/>
-
     """
 
     TIMEOUT = conf.timeout
 
-    def __init__(self, planet=None, obs_time=None):
-        """Instantiate Planetary Ring Node query
-
-        Parameters
-        ----------
-
-        """
-
+    def __init__(self):
+        '''
+        Instantiate Planetary Ring Node query
+        '''
         super().__init__()
 
     def __str__(self):
         """
-        String representation of RingNodeClass object instance
+        String representation of `~RingNodeClass` object instance
 
         Examples
         --------
@@ -68,46 +62,61 @@ class RingNodeClass(BaseQuery):
         cache=True,
     ):
         """
-        send query to server
-
-        note this interacts with utils.async_to_sync to be called as ephemeris()
+        send query to Planetary Ring Node server
 
         Parameters
         ----------
-        self : RingNodeClass instance
+        self : `~RingNodeClass` instance
         planet : str, required. one of Mars, Jupiter, Saturn, Uranus, Neptune, or Pluto
-        obs_time : astropy.Time object, or str in format YYYY-MM-DD hh:mm, optional.
-                If str is provided then UTC is assumed. If no obs_time is provided,
-                the current time is used.
+        obs_time : `~astropy.Time` object, or str in format YYYY-MM-DD hh:mm, optional.
+                If str is provided then UTC is assumed.
+                If no obs_time is provided, the current time is used.
         location : array-like, or `~astropy.coordinates.EarthLocation`, optional
             Observer's location as a
             3-element array of Earth longitude, latitude, altitude, or
-            a `~astropy.coordinates.EarthLocation`.  Longitude and
+            `~astropy.coordinates.EarthLocation`.  Longitude and
             latitude should be anything that initializes an
             `~astropy.coordinates.Angle` object, and altitude should
             initialize an `~astropy.units.Quantity` object (with units
-            of length).  If ``None``, then the geocenter (code 500) is
-            used.
+            of length).  If ``None``, then the geocenter is used.
         neptune_arcmodel : float, optional. which ephemeris to assume for Neptune's ring arcs
             must be one of 1, 2, or 3 (see https://pds-rings.seti.org/tools/viewer3_nep.shtml for details)
             has no effect if planet != 'Neptune'
+        get_query_payload : boolean, optional
+            When set to `True` the method returns the HTTP request parameters as
+            a dict, default: False
+        get_raw_response : boolean, optional
+            Return raw data as obtained by the Planetary Ring Node without parsing the data
+            into a table, default: False
+
 
         Returns
         -------
         response : `requests.Response`
             The response of the HTTP request.
 
+
         Examples
         --------
         >>> from astroquery.solarsystem.pds import RingNode
-        >>> nodeobj = RingNode()
-        >>> eph = obj.ephemeris(planet='Uranus',
-        ...                 obs_time='2017-01-01 00:00')  # doctest: +SKIP
-        >>> print(eph)  # doctest: +SKIP
-            table here...
+        >>> systemtable, bodytable, ringtable = RingNode().ephemeris(planet='Uranus',
+        ...                 obs_time='2024-05-08 22:39',
+        ...                 location = (-23.029 * u.deg, -67.755 * u.deg, 5000 * u.m))  # doctest: +SKIP
+        >>> print(ringtable)  # doctest: +SKIP
+              ring  pericenter ascending node
+                       deg          deg
+            ------- ---------- --------------
+                Six    293.129           52.0
+               Five    109.438           81.1
+               Four    242.882           66.9
+              Alpha    184.498          253.9
+               Beta     287.66          299.2
+                Eta        0.0            0.0
+              Gamma     50.224            0.0
+              Delta        0.0            0.0
+             Lambda        0.0            0.0
+            Epsilon    298.022            0.0
         """
-        planet = planet
-        obs_time = obs_time
 
         URL = conf.pds_server
         # URL = 'https://pds-rings.seti.org/cgi-bin/tools/viewer3_xxx.pl?'
@@ -126,7 +135,7 @@ class RingNodeClass(BaseQuery):
                 "pluto",
             ]:
                 raise ValueError(
-                    "illegal value for 'planet' parameter (must be 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', or 'Pluto'"
+                    "illegal value for 'planet' parameter (must be 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', or 'Pluto')"
                 )
 
         if obs_time is None:
@@ -181,7 +190,6 @@ class RingNodeClass(BaseQuery):
             )
 
         # configure request_payload for ephemeris query
-        # start with successful query and incrementally de-hardcode stuff
         # thankfully, adding extra planet-specific keywords here does not break query for other planets
         request_payload = OrderedDict(
             [
@@ -262,7 +270,9 @@ class RingNodeClass(BaseQuery):
 
         Returns
         -------
-        data : `astropy.Table`
+        systemtable : dict
+        bodytable : `astropy.Table`
+        ringtable : `astropy.Table`
         """
 
         self.raw_response = src
@@ -448,7 +458,6 @@ class RingNodeClass(BaseQuery):
     def _parse_result(self, response, verbose=None):
         """
         Routine for managing parser calls
-        note this MUST be named exactly _parse_result so it interacts with async_to_sync properly
 
         Parameters
         ----------
@@ -458,7 +467,9 @@ class RingNodeClass(BaseQuery):
 
         Returns
         -------
-        data : `astropy.Table`
+        systemtable : dict
+        bodytable : `astropy.Table`
+        ringtable : `astropy.Table`
         """
         self.last_response = response
         try:
@@ -475,7 +486,7 @@ class RingNodeClass(BaseQuery):
             systemtable,
             bodytable,
             ringtable,
-        )  # astropy table, astropy table, astropy table
+        )
 
 
 RingNode = RingNodeClass()
