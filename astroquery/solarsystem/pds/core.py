@@ -144,14 +144,14 @@ class RingNodeClass(BaseQuery):
         elif type(obs_time) == str:
             try:
                 Time.strptime(obs_time, "%Y-%m-%d %H:%M").jd
-            except Exception as e:
+            except Exception as ex:
                 raise ValueError(
                     "illegal value for 'obs_time' parameter. string must have format 'yyyy-mm-dd hh:mm'"
                 )
         elif type(obs_time) == Time:
             try:
                 obs_time = obs_time.utc.to_value("iso", subfmt="date_hm")
-            except Exception as e:
+            except Exception as ex:
                 raise ValueError(
                     "illegal value for 'obs_time' parameter. could not parse astropy.time.core.Time object into format 'yyyy-mm-dd hh:mm' (UTC)"
                 )
@@ -444,7 +444,8 @@ class RingNodeClass(BaseQuery):
                 pass
 
         # do some cleanup from the parsing job
-        ringtable.add_index("ring")
+        if ringtable is not None:
+            ringtable.add_index("ring")
 
         bodytable = table.join(bodytable, bodytable2)  # concatenate minor body table
         bodytable.add_index("Body")
@@ -474,7 +475,7 @@ class RingNodeClass(BaseQuery):
         self.last_response = response
         try:
             systemtable, bodytable, ringtable = self._parse_ringnode(response.text)
-        except Exception as e:
+        except Exception as ex:
             try:
                 self._last_query.remove_cache_file(self.cache_location)
             except OSError:

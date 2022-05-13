@@ -11,484 +11,122 @@ Overview
 
 
 The :class:`~astroquery.solarsystem.pds.RingNodeClass` class provides an
-interface to services provided by the `Planetary Data System's Ring Node System hosted by SETI institute`_.
-
-In order to query information for a specific Solar System body, a
-``RingNode`` object has to be instantiated:
-
-.. code-block:: python
-
-   >>> from astroquery.solarsystem.pds import RingNode
-   >>> obj = RingNode(planet='Uranus', obs_time='2022-05-03 11:55')
-   >>> print(obj)
-   PDSRingNode instance "Uranus"; obs_time=2022-05-03 11:55
-
-``planet`` must be one of ['mars', 'jupiter', 'uranus', 'saturn', 'neptune', 'pluto'] (case-insensitive)
-
-``obs_time`` is the UTC datetime to query in format 'YYYY-MM-DD HH:MM'. If not set, will assume the current time. Unlike the Horizons tool, the Planetary Ring Node unfortunately does not support querying multiple epochs at once.
-
-
+interface to the ephemeris tools provided by the `NASA Planetary Data System's Ring Node System`_ hosted by SETI institute.
 
 Ephemeris
 -----------
 
-:meth:`~astroquery.solarsystem.pds.RingNodeClass.ephemeris` returns ephemeris information
-for rings and small bodies around the given planet at a given observer location (``observer_coords``) and epoch
-(``obs_time``) in the form of astropy tables. The following example queries the
+In order to query information for a specific Solar System body, a
+``RingNode`` object is instantiated and the :meth:`~astroquery.solarsystem.pds.RingNodeClass.ephemeris` method is called. The following example queries the
 ephemerides of the rings and small moons around Uranus as viewed from ALMA:
 
 .. code-block:: python
 
    >>> from astroquery.solarsystem.pds import RingNode
-   >>> obj = RingNode(planet='Uranus', obs_time='2022-05-03 11:55')
-   >>> systemtable, bodytable, ringtable = obj.ephemeris(observer_coords=(-23.029, -67.755, 5000))
-   >>> print(eph) ## edited to here
-   targetname    datetime_str   datetime_jd ...   GlxLat  RA_3sigma DEC_3sigma
-      ---            ---             d      ...    deg      arcsec    arcsec
-   ---------- ----------------- ----------- ... --------- --------- ----------
-      1 Ceres 2010-Jan-01 00:00   2455197.5 ... 24.120057       0.0        0.0
-      1 Ceres 2010-Jan-11 00:00   2455207.5 ... 20.621496       0.0        0.0
-      1 Ceres 2010-Jan-21 00:00   2455217.5 ... 17.229529       0.0        0.0
-      1 Ceres 2010-Jan-31 00:00   2455227.5 ...  13.97264       0.0        0.0
-      1 Ceres 2010-Feb-10 00:00   2455237.5 ... 10.877201       0.0        0.0
-      1 Ceres 2010-Feb-20 00:00   2455247.5 ...  7.976737       0.0        0.0
+   >>> systemtable, bodytable, ringtable = RingNode().ephemeris(planet='Uranus',
+   ...                 obs_time='2024-05-08 22:39',
+   ...                 location = (-23.029 * u.deg, -67.755 * u.deg, 5000 * u.m))  # doctest: +SKIP
+   >>> print(ringtable)
+         ring  pericenter ascending node
+                  deg          deg
+       ------- ---------- --------------
+           Six    293.129           52.0
+          Five    109.438           81.1
+          Four    242.882           66.9
+         Alpha    184.498          253.9
+          Beta     287.66          299.2
+           Eta        0.0            0.0
+         Gamma     50.224            0.0
+         Delta        0.0            0.0
+        Lambda        0.0            0.0
+       Epsilon    298.022            0.0
 
+``planet`` must be one of ['mars', 'jupiter', 'uranus', 'saturn', 'neptune', 'pluto'] (case-insensitive)
 
-The following fields are available for each ephemerides query:
+``obs_time`` is the datetime to query. Accepts a string in format 'YYYY-MM-DD HH:MM' (UTC assumed), or an ```astropy.Time`` object. If no obs_time is provided, the current time is used.
 
-.. code-block:: python
+``location`` is the observer's location. Accepts an ``astropy.coordinates.EarthLocation``, or any 3-element array-like (e.g. list, tuple) of format (latitude, longitude, elevation). Longitude and latitude should be anything that initializes an ``astropy.coordinates.Angle`` object, and altitude should initialize an ``astropy.units.Quantity`` object (with units of length).  If ``None``, then the geocenter is used.
 
-   >>> print(eph.columns)
-   <TableColumns names=('targetname','datetime_str','datetime_jd','H','G','solar_presence','flags','RA','DEC','RA_app','DEC_app','RA_rate','DEC_rate','AZ','EL','AZ_rate','EL_rate','sat_X','sat_Y','sat_PANG','siderealtime','airmass','magextinct','V','surfbright','illumination','illum_defect','sat_sep','sat_vis','ang_width','PDObsLon','PDObsLat','PDSunLon','PDSunLat','SubSol_ang','SubSol_dist','NPole_ang','NPole_dist','EclLon','EclLat','r','r_rate','delta','delta_rate','lighttime','vel_sun','vel_obs','elong','elongFlag','alpha','lunar_elong','lunar_illum','sat_alpha','sunTargetPA','velocityPA','OrbPlaneAng','constellation','TDB-UT','ObsEclLon','ObsEclLat','NPole_RA','NPole_DEC','GlxLon','GlxLat','solartime','earth_lighttime','RA_3sigma','DEC_3sigma','SMAA_3sigma','SMIA_3sigma','Theta_3sigma','Area_3sigma','RSS_3sigma','r_3sigma','r_rate_3sigma','SBand_3sigma','XBand_3sigma','DoppDelay_3sigma','true_anom','hour_angle','alpha_true','PABLon','PABLat')>
+``neptune_arcmodel`` is the choice of which ephemeris to assume for Neptune's ring arcs. accepts a float. must be one of 1, 2, or 3 (see https://pds-rings.seti.org/tools/viewer3_nep.shtml for details). default 3. has no effect if planet != 'Neptune'
 
-The values in these columns are the same as those defined in the Horizons
-`Definition of Observer Table Quantities`_; names have been simplified in a few
-cases. Quantities ``H`` and ``G`` are the target's Solar System absolute
-magnitude and photometric phase curve slope, respectively. In the case of
-comets, ``H`` and ``G`` are replaced by ``M1``, ``M2``, ``k1``, ``k2``, and
-``phasecoeff``; please refer to the `Horizons documentation`_ for definitions.
-
-Optional parameters of :meth:`~astroquery.jplhorizons.HorizonsClass.ephemerides`
-correspond to optional features of the Horizons system: ``airmass_lessthan``
-sets an upper limit to airmass, ``solar_elongation`` enables the definition of a
-solar elongation range, ``max_hour_angle`` sets a cutoff of the hour angle,
-``skip_daylight=True`` rejects epochs during daylight, ``rate_cutoff`` rejects
-targets with sky motion rates higher than provided (in units of arcsec/h),
-``refraction`` accounts for refraction in the computation of the ephemerides
-(disabled by default), and ``refsystem`` defines the coordinate reference system
-used (ICRF by default). For comets, the options ``closest_apparition`` and
-``no_fragments`` are available, which selects the closest apparition in time and
-limits fragment matching (73P-B would only match 73P-B), respectively.  Note
-that these options should only be used for comets and will crash the query for
-other object types. Extra precision in the queried properties can be requested
-using the ``extra_precision`` option.  Furthermore, ``get_query_payload=True``
-skips the query and only returns the query payload, whereas
-``get_raw_response=True`` returns the raw query response instead of the astropy
-table.
-
-:meth:`~astroquery.jplhorizons.HorizonsClass.ephemerides` queries by default all
-available quantities from the JPL Horizons servers. This might take a while. If
-you are only interested in a subset of the available quantities, you can query
-only those. The corresponding optional parameter to be set is ``quantities``.
-This parameter uses the same numerical codes as JPL Horizons defined in the `JPL
-Horizons User Manual Definition of Observer Table Quantities
-<https://ssd.jpl.nasa.gov/horizons/manual.html#observer-table>`_. For instance,
-if you only want to query astrometric RA and Dec, you can use ``quantities=1``;
-if you only want the heliocentric and geocentric distances, you can use
-``quantities='19,20'`` (note that in this case a string with comma-separated
-codes has to be provided).
-
-
-Orbital elements
-----------------
-
-:meth:`~astroquery.jplhorizons.HorizonsClass.elements` returns orbital elements
-relative to some Solar System body (``location``, referred to as "CENTER" in
-Horizons) and for a given epoch or a range of epochs (``epochs``) in the form of
-an astropy table. The following example queries the osculating elements of
-asteroid (433) Eros for a given date relative to the Sun:
+Outputs
+---------
+``systemtable`` is a dictionary containing system-wide ephemeris data. Every value is an `astropy Quantity`_ object. We can get a list of all the keys in this dictionary with:
 
 .. code-block:: python
 
-   >>> from astroquery.jplhorizons import Horizons
-   >>> obj = Horizons(id='433', location='500@10',
-   ...                epochs=2458133.33546)
-   >>> el = obj.elements()
-   >>> print(el)
-       targetname      datetime_jd  ...       Q            P
-          ---               d       ...       AU           d
-   ------------------ ------------- ... ------------- ------------
-   433 Eros (A898 PA) 2458133.33546 ... 1.78244263804 642.93873484
+	>>> print(systemtable.keys())
+	dict_keys(['sub_sun_lat', 'sub_sun_lat_min', 'sub_sun_lat_max', 'opening_angle', 'phase_angle', 'sub_sun_lon', 'sub_obs_lon', 'd_sun', 'd_obs', 'light_time', 'obs_time'])
 
-
-The following fields are queried:
+``bodytable`` is an `astropy table`_ containing ephemeris information on the moons in the planetary system. Every column is assigned a unit from `astropy units`_. We can get a list of all the columns in this table with:
 
 .. code-block:: python
 
-   >>> print(el.columns)
-   <TableColumns names=('targetname','datetime_jd','datetime_str','H','G','e','q','incl','Omega','w','Tp_jd','n','M','nu','a','Q','P')>
+	>>> print(bodytable.columns)
+	<TableColumns names=('NAIF ID','Body','RA','Dec','RA (deg)','Dec (deg)','dRA','dDec','sub_obs_lon','sub_obs_lat','sub_sun_lon','sub_sun_lat','phase','distance')>
 
-Optional parameters of :meth:`~astroquery.jplhorizons.HorizonsClass.elements`
-include ``refsystem``, which defines the coordinate reference system used (ICRF
-by default), ``refplane`` which defines the reference plane of the orbital
-elements queried, and ``tp_type``, which switches between a relative and
-absolute representation of the time of perihelion passage.  For comets, the
-options ``closest_apparition`` and ``no_fragments`` are available, which select
-the closest apparition in time and reject fragments, respectively. Note that
-these options should only be used for comets and will crash the query for other
-object types. Also available are ``get_query_payload=True``, which skips the
-query and only returns the query payload, and ``get_raw_response=True``, which
-returns the raw query response instead of the astropy table.
-
-Vectors
--------
-
-:meth:`~astroquery.jplhorizons.HorizonsClass.vectors` returns the
-state vector of the target body in cartesian coordinates relative to
-some Solar System body (``location``, referred to as "CENTER" in
-Horizons) and for a given epoch or a range of epochs (``epochs``) in
-the form of an astropy table. The following example queries the state
-vector of asteroid 2012 TC4 as seen from Goldstone for a range of
-epochs:
+``ringtable`` is an `astropy table`_ containing ephemeris information on the individual rings in the planetary system. Every column is assigned a unit from `astropy units`_. We can get a list of all the columns in this table with:
 
 .. code-block:: python
 
-   >>> from astroquery.jplhorizons import Horizons
-   >>> obj = Horizons(id='2012 TC4', location='257',
-   ...                epochs={'start':'2017-10-01', 'stop':'2017-10-02',
-   ...                        'step':'10m'})
-   >>> vec = obj.vectors()
-   >>> print(vec)
-   targetname  datetime_jd  ...      range          range_rate
-       ---           d       ...        AU             AU / d
-   ---------- ------------- ... --------------- -----------------
-   (2012 TC4)     2458027.5 ... 0.0429332099306 -0.00408018711862
-   (2012 TC4) 2458027.50694 ... 0.0429048742906 -0.00408040726527
-   (2012 TC4) 2458027.51389 ... 0.0428765385796 -0.00408020747595
-   (2012 TC4) 2458027.52083 ... 0.0428482057142  -0.0040795878561
-   (2012 TC4) 2458027.52778 ...  0.042819878607 -0.00407854931543
-   (2012 TC4) 2458027.53472 ... 0.0427915601617  -0.0040770935665
-          ...           ... ...             ...               ...
-   (2012 TC4) 2458028.45833 ... 0.0392489462501 -0.00405496595173
-   (2012 TC4) 2458028.46528 ...   0.03922077771 -0.00405750632914
-   (2012 TC4) 2458028.47222 ...  0.039192592935 -0.00405964084539
-   (2012 TC4) 2458028.47917 ...  0.039164394759 -0.00406136516755
-   (2012 TC4) 2458028.48611 ... 0.0391361860433 -0.00406267574646
-   (2012 TC4) 2458028.49306 ... 0.0391079696711  -0.0040635698239
-   (2012 TC4)     2458028.5 ... 0.0390797485422 -0.00406404543822
-   Length = 145 rows
-
-The following fields are queried:
-
-   >>> print(vec.columns)
-   <TableColumns names=('targetname','datetime_jd','datetime_str','H','G','x','y','z','vx','vy','vz','lighttime','range','range_rate')>
-
-
-Similar to the other :class:`~astroquery.jplhorizons.HorizonsClass` functions,
-optional parameters of :meth:`~astroquery.jplhorizons.HorizonsClass.vectors` are
-``get_query_payload=True``, which skips the query and only returns the query
-payload, and ``get_raw_response=True``, which returns the raw query response
-instead of the astropy table. For comets, the options ``closest_apparation`` and
-``no_fragments`` are available, which select the closest apparition in time and
-reject fragments, respectively. Note that these options should only be used for
-comets and will crash the query for other object types. Options ``aberrations``
-and ``delta_T`` provide different choices for aberration corrections as well as
-a measure for time-varying differences between TDB and UT time-scales,
-respectively.
-
-
-How to Use the Query Tables
-===========================
-
-`astropy table`_ objects created by the query functions are extremely versatile
-and easy to use. Since all query functions return the same type of table, they
-can all be used in the same way.
-
-We provide some examples to illustrate how to use them based on the following
-JPL Horizons ephemerides query of near-Earth asteroid (3552) Don Quixote since
-its year of Discovery:
+	>>> print(ringtable.columns)
+	<TableColumns names=('ring','pericenter','ascending node')>
+	
+Note that the behavior of ``ringtable`` changes depending on the planet you query. For Uranus and Saturn the table columns are as above. For Jupiter, Mars, and Pluto, there are no individual named rings returned by the Ring Node, so ``ringtable`` returns None; ephemeris for the ring systems of these bodies is still contained in ``systemtable`` as usual. For Neptune, the ring table shows the minimum and maximum longitudes (from the ring plane ascending node) of the five ring arcs according to the orbital evolution assumed by ``neptune_arcmodel``, e.g.:
 
 .. code-block:: python
 
-   >>> from astroquery.jplhorizons import Horizons
-   >>> obj = Horizons(id='3552', location='568',
-   ...                epochs={'start':'2010-01-01', 'stop':'2019-12-31',
-   ...                        'step':'1y'})
-   >>> eph = obj.ephemerides()
-
-As we have seen before, we can display a truncated version of table
-``eph`` by simply using
-
-.. code-block:: python
-
-   >>> print(eph)
-           targetname            datetime_str   ...  PABLon   PABLat
-              ---                    ---        ...   deg      deg
-   -------------------------- ----------------- ... -------- --------
-   3552 Don Quixote (1983 SA) 2010-Jan-01 00:00 ...   8.0371  18.9349
-   3552 Don Quixote (1983 SA) 2011-Jan-01 00:00 ...  85.4082  34.5611
-   3552 Don Quixote (1983 SA) 2012-Jan-01 00:00 ... 109.2959  30.3834
-   3552 Don Quixote (1983 SA) 2013-Jan-01 00:00 ... 123.0777   26.136
-   3552 Don Quixote (1983 SA) 2014-Jan-01 00:00 ... 133.9392  21.8962
-   3552 Don Quixote (1983 SA) 2015-Jan-01 00:00 ... 144.2701  17.1908
-   3552 Don Quixote (1983 SA) 2016-Jan-01 00:00 ... 156.1007  11.1447
-   3552 Don Quixote (1983 SA) 2017-Jan-01 00:00 ... 174.0245   1.3487
-   3552 Don Quixote (1983 SA) 2018-Jan-01 00:00 ... 228.9956 -21.6723
-   3552 Don Quixote (1983 SA) 2019-Jan-01 00:00 ...  45.1979  32.3885
+	>>> systemtable, bodytable, ringtable = RingNode().ephemeris(planet='Neptune')
+	>>> print(ringtable)
+	   ring    min_angle max_angle
+	              deg       deg   
+	---------- --------- ---------
+	   Courage  46.39438  47.39438
+	   Liberte  37.59439  41.69437
+	 Egalite A  26.79437  27.79437
+	 Egalite B  22.99439  25.99439
+	Fraternite   8.99439  18.59439
 
 
-Please note the formatting of this table, which is done automatically. Above the
-dashes in the first two lines, you have the column name and its unit. Every
-column is assigned a unit from `astropy units`_. We will learn later how to use
-these units.
-
-
-Columns
--------
-
-We can get at list of all the columns in this table with:
-
-.. code-block:: python
-
-   >>> print(eph.columns)
-   <TableColumns names=('targetname','datetime_str','datetime_jd','H','G','solar_presence','flags','RA','DEC','RA_app','DEC_app','RA_rate','DEC_rate','AZ','EL','AZ_rate','EL_rate','sat_X','sat_Y','sat_PANG','siderealtime','airmass','magextinct','V','surfbright','illumination','illum_defect','sat_sep','sat_vis','ang_width','PDObsLon','PDObsLat','PDSunLon','PDSunLat','SubSol_ang','SubSol_dist','NPole_ang','NPole_dist','EclLon','EclLat','r','r_rate','delta','delta_rate','lighttime','vel_sun','vel_obs','elong','elongFlag','alpha','lunar_elong','lunar_illum','sat_alpha','sunTargetPA','velocityPA','OrbPlaneAng','constellation','TDB-UT','ObsEclLon','ObsEclLat','NPole_RA','NPole_DEC','GlxLon','GlxLat','solartime','earth_lighttime','RA_3sigma','DEC_3sigma','SMAA_3sigma','SMIA_3sigma','Theta_3sigma','Area_3sigma','RSS_3sigma','r_3sigma','r_rate_3sigma','SBand_3sigma','XBand_3sigma','DoppDelay_3sigma','true_anom','hour_angle','alpha_true','PABLon','PABLat')>
-
-We can address each column individually by indexing it using its name as
-provided in this list. For instance, we can get all RAs for Don Quixote by using
-
-.. code-block:: python
-
-   >>> print(eph['RA'])
-       RA
-      deg
-   ---------
-   345.50204
-    78.77158
-   119.85659
-   136.60021
-   147.44947
-   156.58967
-   166.32129
-    180.6992
-   232.11974
-     16.1066
-
-
-This column is formatted like the entire table; it has a column name and a unit.
-We can select several columns at a time, for instance RA and DEC for each epoch
-
-.. code-block:: python
-
-   >>> print(eph['datetime_str', 'RA', 'DEC'])
-      datetime_str       RA      DEC
-          ---           deg      deg
-   ----------------- --------- --------
-   2010-Jan-01 00:00 345.50204 13.43621
-   2011-Jan-01 00:00  78.77158 61.48831
-   2012-Jan-01 00:00 119.85659 54.21955
-   2013-Jan-01 00:00 136.60021 45.82409
-   2014-Jan-01 00:00 147.44947 37.79876
-   2015-Jan-01 00:00 156.58967 29.23058
-   2016-Jan-01 00:00 166.32129 18.48174
-   2017-Jan-01 00:00  180.6992  1.20453
-   2018-Jan-01 00:00 232.11974 -37.9554
-   2019-Jan-01 00:00   16.1066 45.50296
-
-
-We can use the same representation to do math with these columns. For instance,
-let's calculate the total rate of the object by summing 'RA_rate' and 'DEC_rate'
-in quadrature:
-
-.. code-block:: python
-
-   >>> import numpy as np
-   >>> print(np.sqrt(eph['RA_rate']**2 + eph['DEC_rate']**2))
-        dRA*cosD
-   ------------------
-    86.18728612153883
-   26.337249029653798
-   21.520859656742434
-   17.679843758686584
-   14.775809055378625
-   11.874886005626538
-    7.183281978025435
-    7.295600209387093
-    94.84824546372009
-   23.952470898018017
-
-
-Please note that the column name is wrong (copied from the name of the first
-column used), and that the unit is lost.
-
-Units
------
-
-Columns have units assigned to them. For instance, the ``RA`` column has
-the unit ``deg`` assigned to it, i.e., degrees. More complex units are
-available, too, e.g., the ``RA_rate`` column is expressed in ``arcsec /
-h`` - arcseconds per hour:
-
-.. code-block:: python
-
-   >>> print(eph['RA_rate'])
-    RA_rate
-   arcsec / h
-   ----------
-     72.35438
-     -23.8239
-     -20.7151
-     -15.5509
-      -12.107
-     -9.32616
-     -5.80004
-     3.115853
-     85.22719
-     19.02548
-
-
-The unit of this column can be easily converted to any other unit describing the
-same dimensions. For instance, we can turn ``RA_rate`` into ``arcsec / s``:
-
-.. code-block:: python
-
-   >>> eph['RA_rate'].convert_unit_to('arcsec/s')
-   >>> print(eph['RA_rate'])
-          RA_rate
-         arcsec / s
-   ----------------------
-      0.02009843888888889
-   -0.0066177499999999995
-    -0.005754194444444445
-    -0.004319694444444445
-   -0.0033630555555555553
-   -0.0025905999999999998
-   -0.0016111222222222222
-    0.0008655147222222222
-     0.023674219444444443
-     0.005284855555555556
-
-
-Please refer to the `astropy table`_ and `astropy units`_ documentations for
-more information.
 
 Hints and Tricks
 ================
 
-Checking the original JPL Horizons output
+Checking the original RingNode output
 -----------------------------------------
 
-Once either of the query methods has been called, the retrieved raw response is
+Once the query method has been called, the retrieved raw response is
 stored in the attribute ``raw_response``. Inspecting this response can help to
 understand issues with your query, or you can process the results differently.
 
-For all query types, the query URI (the URI is what you would put into the URL
-field of your web browser) that is used to request the data from the JPL
-Horizons server can be obtained from the
-:class:`~astroquery.jplhorizons.HorizonsClass` object after a query has been
+The query URI (the URI is what you would put into the URL
+field of your web browser) that is used to request the data from the Planetary Ring Node server can be obtained from the
+:class:`~astroquery.solarsystem.pds.RingNode` object after a query has been
 performed (before the query only ``None`` would be returned):
 
    >>> print(obj.uri)
-   https://ssd.jpl.nasa.gov/api/horizons.api?format=text&EPHEM_TYPE=OBSERVER&QUANTITIES=%271%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9%2C10%2C11%2C12%2C13%2C14%2C15%2C16%2C17%2C18%2C19%2C20%2C21%2C22%2C23%2C24%2C25%2C26%2C27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36%2C37%2C38%2C39%2C40%2C41%2C42%2C43%27&COMMAND=%223552%22&SOLAR_ELONG=%220%2C180%22&LHA_CUTOFF=0&CSV_FORMAT=YES&CAL_FORMAT=BOTH&ANG_FORMAT=DEG&APPARENT=AIRLESS&REF_SYSTEM=ICRF&EXTRA_PREC=NO&CENTER=%27568%27&START_TIME=%222010-01-01%22&STOP_TIME=%222019-12-31%22&STEP_SIZE=%221y%22&SKIP_DAYLT=NO
+   https://pds-rings.seti.org/cgi-bin/tools/viewer3_xxx.pl?abbrev=ura&ephem=000+URA111+%2B+URA115+%2B+DE440&time=2024-05-08+22%3A39&fov=10&fov_unit=Uranus+radii&center=body&center_body=Uranus&center_ansa=Epsilon&center_ew=east&center_ra=&center_ra_type=hours&center_dec=&center_star=&viewpoint=latlon&observatory=Earth%27s+center&latitude=-67.75499999999998&longitude=-23.028999999999996&lon_dir=east&altitude=4999.999999999843&moons=727+All+inner+moons+%28U1-U15%2CU25-U27%29&rings=All+rings&arcmodel=%233+%28820.1121+deg%2Fday%29&extra_ra=&extra_ra_type=hours&extra_dec=&extra_name=&title=&labels=Small+%286+points%29&moonpts=0&blank=No&opacity=Transparent&peris=None&peripts=4&arcpts=4&meridians=Yes&output=html
 
 If your query failed, it might be useful for you to put the URI into a web
 browser to get more information why it failed. Please note that ``uri`` is an
-attribute of :class:`~astroquery.jplhorizons.HorizonsClass` and not the results
+attribute of :class:`~astroquery.solarsystem.pds.RingNode` and not the results
 table.
-
-Date Formats
-------------
-
-JPL Horizons puts somewhat strict guidelines on the date formats: individual
-epochs have to be provided as Julian dates, whereas epoch ranges have to be
-provided as ISO dates (YYYY-MM-DD HH-MM UT). If you have your epoch dates in one
-of these formats but you need the other format, make use of
-:class:`astropy.time.Time` for the conversion. An example is provided here:
-
-.. doctest-requires:: astropy
-
-    >>> from astropy.time import Time
-    >>> mydate_fromiso = Time('2018-07-23 15:55:23')  # pass date as string
-    >>> print(mydate_fromiso.jd)  # convert Time object to Julian date
-    2458323.163460648
-    >>> mydate_fromjd = Time(2458323.163460648, format='jd')
-    >>> print(mydate_fromjd.iso) # convert Time object to ISO
-    2018-07-23 15:55:23.000
-
-:class:`astropy.time.Time` allows you to convert dates across a wide range of
-formats. Please note that when reading in Julian dates, you have to specify the
-date format as ``'jd'``, as number passed to :class:`~astropy.time.Time` is
-ambiguous.
-
-Keep Queries Short
-------------------
-
-Keep in mind that queries are sent as URIs to the Horizons server. If
-you query a large number of epochs (in the form of a list), this list
-might be truncated as URIs are typically expected to be shorter than
-2,000 symbols and your results might be compromised. If your query URI
-is longer than this limit, a warning is given. In that case, please
-try using a range of dates instead of a list of individual dates.
-
-.. _jpl-horizons-reference-frames:
-
-Reference Frames
-----------------
-
-The coordinate reference frame for Horizons output is controlled by the
-``refplane`` and ``refsystem`` keyword arguments.  See the `Horizons
-documentation`_ for details. Some output reference frames are included in
-astropy's `~astropy.coordinates`:
-
-+----------------+--------------+----------------+----------------+---------------------------------+
-| Method         | ``location`` | ``refplane``   | ``refsystem``  | astropy frame                   |
-+================+==============+================+================+=================================+
-| ``.vectors()`` | ``'@0'``     | ``'ecliptic'`` | N/A            | ``'custombarycentricecliptic'`` |
-+----------------+--------------+----------------+----------------+---------------------------------+
-| ``.vectors()`` | ``'@0'``     | ``'earth'``    | N/A            | ``'icrs'``                      |
-+----------------+--------------+----------------+----------------+---------------------------------+
-| ``.vectors()`` | ``'@10'``    | ``'ecliptic'`` | N/A            | ``'heliocentriceclipticiau76'`` |
-+----------------+--------------+----------------+----------------+---------------------------------+
-
-For example, get the barycentric coordinates of Jupiter as an astropy
-`~astropy.coordinates.SkyCoord` object:
-
-.. code-block:: python
-
-   >>> from astropy.coordinates import SkyCoord
-   >>> from astropy.time import Time
-   >>> from astroquery.jplhorizons import Horizons
-   >>> epoch = Time('2021-01-01')
-   >>> q = Horizons('599', location='@0', epochs=epoch.tdb.jd)
-   >>> tab = q.vectors(refplane='earth')
-   >>> c = SkyCoord(tab['x'].quantity, tab['y'].quantity, tab['z'].quantity,
-   ...              representation_type='cartesian', frame='icrs',
-   ...              obstime=epoch)
-   >>> print(c)
-   <SkyCoord (ICRS): (x, y, z) in AU
-       [(3.03483263, -3.72503309, -1.67054586)]>
-
-
 
 
 Acknowledgements
 ================
 
-This submodule makes use of the `JPL Horizons
-<https://ssd.jpl.nasa.gov/horizons/>`_ system.
-
-The development of this submodule is in part funded through NASA PDART Grant No.
-80NSSC18K0987 to the `sbpy project <http://sbpy.org>`_.
+This submodule makes use of the NASA Planetary Data System's `Planetary Ring Node
+<https://pds-rings.seti.org/>`_ .
 
 
 Reference/API
 =============
 
-.. automodapi:: astroquery.jplhorizons
+.. automodapi:: astroquery.solarsystem.pds
     :no-inheritance-diagram:
 
-.. _Solar System Dynamics group at the Jet Propulation Laboratory: http://ssd.jpl.nasa.gov/
-.. _MPC Observatory codes: http://minorplanetcenter.net/iau/lists/ObsCodesF.html
+.. _NASA Planetary Data System's Ring Node System: https://pds-rings.seti.org/
+.. _astropy Quantity: https://docs.astropy.org/en/stable/units/quantity.html
 .. _astropy table: http://docs.astropy.org/en/stable/table/index.html
 .. _astropy units: http://docs.astropy.org/en/stable/units/index.html
-.. _Definition of Observer Table Quantities: https://ssd.jpl.nasa.gov/horizons/manual.html#observer-table
-.. _Horizons documentation: https://ssd.jpl.nasa.gov/horizons/manual.html#observer-table

@@ -9,6 +9,11 @@ import astropy.units as u
 from astroquery.utils.mocks import MockResponse
 from ... import pds
 
+# files in data/ for different planets
+DATA_FILES = {'Uranus': 'uranus_ephemeris.html',
+              'Pluto': 'pluto_ephemeris.html',
+              }
+
 
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), "data")
@@ -18,7 +23,8 @@ def data_path(filename):
 # monkeypatch replacement request function
 def nonremote_request(self, request_type, url, **kwargs):
 
-    with open(data_path("uranus_ephemeris.html"), "rb") as f:
+    planet_name = kwargs['params']['center_body']
+    with open(data_path(DATA_FILES[planet_name.capitalize()]), "rb") as f:
         response = MockResponse(content=f.read(), url=url)
 
     return response
@@ -36,7 +42,7 @@ def patch_request(request):
 
 # --------------------------------- actual test functions
 
-def test_ephemeris_query(patch_request):
+def test_ephemeris_query_Uranus(patch_request):
 
     systemtable, bodytable, ringtable = pds.RingNode().ephemeris(
         planet="Uranus",
@@ -110,6 +116,79 @@ def test_ephemeris_query(patch_request):
     assert np.isclose(beta["ascending node"].to(u.deg).value, 353.6, rtol=1e-2)
 
 
+def test_ephemeris_query_Pluto(patch_request):
+
+    systemtable, bodytable, ringtable = pds.RingNode().ephemeris(
+        planet="Pluto",
+        obs_time="2021-10-07 07:25",
+    )
+    print(systemtable)
+    print(bodytable[bodytable.loc_indices["Styx"]])
+    # check system table
+    assert_quantity_allclose(
+        [
+            57.57737,
+             57.56961,
+            57.56961,
+            56.50534,
+            1.64048,
+            116.55873,
+            118.8369,
+            5142696000,
+            5114486810,
+            17060.091666,
+        ],
+        [
+            systemtable["sub_sun_lat"].to(u.deg).value,
+            systemtable["sub_sun_lat_min"].to(u.deg).value,
+            systemtable["sub_sun_lat_max"].to(u.deg).value,
+            systemtable["opening_angle"].to(u.deg).value,
+            systemtable["phase_angle"].to(u.deg).value,
+            systemtable["sub_sun_lon"].to(u.deg).value,
+            systemtable["sub_obs_lon"].to(u.deg).value,
+            systemtable["d_sun"].to(u.km).value,
+            systemtable["d_obs"].to(u.km).value,
+            systemtable["light_time"].to(u.second).value,
+        ],
+        rtol=1e-2,
+    )
+
+    # check a moon in body table
+    styx = bodytable[bodytable.loc_indices["Styx"]]
+    assert styx["NAIF ID"] == 905
+    assert styx["Body"] == "Styx"
+    assert_quantity_allclose(
+        [
+            296.212477,
+            -22.93533,
+            -0.557,
+            -1.259,
+            350.443,
+            56.472,
+            352.72,
+            57.544,
+            1.64047,
+            5114.509238,
+        ],
+        [
+            styx["RA (deg)"].to(u.deg).value,
+            styx["Dec (deg)"].to(u.deg).value,
+            styx["dRA"].to(u.arcsec).value,
+            styx["dDec"].to(u.arcsec).value,
+            styx["sub_obs_lon"].to(u.deg).value,
+            styx["sub_obs_lat"].to(u.deg).value,
+            styx["sub_sun_lon"].to(u.deg).value,
+            styx["sub_sun_lat"].to(u.deg).value,
+            styx["phase"].to(u.deg).value,
+            styx["distance"].to(u.km * 1e6).value,
+        ],
+        rtol=1e-2,
+    )
+
+    # check ringtable is None
+    assert ringtable is None
+
+
 def test_ephemeris_query_payload():
     res = pds.RingNode().ephemeris(
         planet="Neptune",
@@ -141,7 +220,7 @@ def test_ephemeris_query_payload():
             (
                 "observatory",
                 "Earth's center",
-            ), 
+            ),
             ("latitude", 10),
             ("longitude", -120.355),
             ("lon_dir", "east"),
