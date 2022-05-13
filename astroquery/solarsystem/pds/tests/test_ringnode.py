@@ -44,7 +44,7 @@ def patch_request(request):
 
 def test_ephemeris_query_Uranus(patch_request):
 
-    systemtable, bodytable, ringtable = pds.RingNode().ephemeris(
+    systemtable, bodytable, ringtable = pds.RingNode.ephemeris(
         planet="Uranus",
         obs_time="2022-05-03 00:00",
         location=(10.0 * u.deg, -120.355 * u.deg, 1000 * u.m),
@@ -118,7 +118,7 @@ def test_ephemeris_query_Uranus(patch_request):
 
 def test_ephemeris_query_Pluto(patch_request):
 
-    systemtable, bodytable, ringtable = pds.RingNode().ephemeris(
+    systemtable, bodytable, ringtable = pds.RingNode.ephemeris(
         planet="Pluto",
         obs_time="2021-10-07 07:25",
     )
@@ -190,7 +190,7 @@ def test_ephemeris_query_Pluto(patch_request):
 
 
 def test_ephemeris_query_payload():
-    res = pds.RingNode().ephemeris(
+    res = pds.RingNode.ephemeris(
         planet="Neptune",
         obs_time="2022-05-03 00:00",
         neptune_arcmodel=1,
@@ -252,20 +252,20 @@ def test_ephemeris_query_payload():
 def test_bad_query_exception_throw():
 
     with pytest.raises(ValueError):
-        pds.RingNode().ephemeris(planet="Mercury", obs_time="2022-05-03 00:00")
+        pds.RingNode.ephemeris(planet="Mercury", obs_time="2022-05-03 00:00")
 
     with pytest.raises(ValueError):
-        pds.RingNode().ephemeris(planet="Uranus", obs_time="2022-13-03 00:00")
+        pds.RingNode.ephemeris(planet="Uranus", obs_time="2022-13-03 00:00")
 
     with pytest.raises(ValueError):
-        pds.RingNode().ephemeris(
+        pds.RingNode.ephemeris(
             planet="Neptune",
             obs_time="2022-05-03 00:00",
             location=(10.0 * u.deg, -120.355 * u.deg),
         )
 
     with pytest.raises(ValueError):
-        pds.RingNode().ephemeris(
+        pds.RingNode.ephemeris(
             planet="Neptune",
             obs_time="2022-05-03 00:00",
             location=(10.0 * u.deg, -120.355 * u.deg, 1000 * u.m),

@@ -43,7 +43,7 @@ class RingNodeClass(BaseQuery):
         Examples
         --------
         >>> from astroquery.solarsystem.pds import RingNode
-        >>> nodeobj = RingNode()
+        >>> nodeobj = RingNode
         >>> print(nodeobj)  # doctest: +SKIP
         PDSRingNode instance
         """
@@ -68,7 +68,7 @@ class RingNodeClass(BaseQuery):
         ----------
         self : `~RingNodeClass` instance
         planet : str, required. one of Mars, Jupiter, Saturn, Uranus, Neptune, or Pluto
-        obs_time : `~astropy.Time` object, or str in format YYYY-MM-DD hh:mm, optional.
+        obs_time : `~astropy.time.Time` object, or str in format YYYY-MM-DD hh:mm, optional.
                 If str is provided then UTC is assumed.
                 If no obs_time is provided, the current time is used.
         location : array-like, or `~astropy.coordinates.EarthLocation`, optional
@@ -99,7 +99,7 @@ class RingNodeClass(BaseQuery):
         Examples
         --------
         >>> from astroquery.solarsystem.pds import RingNode
-        >>> systemtable, bodytable, ringtable = RingNode().ephemeris(planet='Uranus',
+        >>> systemtable, bodytable, ringtable = RingNode.ephemeris(planet='Uranus',
         ...                 obs_time='2024-05-08 22:39',
         ...                 location = (-23.029 * u.deg, -67.755 * u.deg, 5000 * u.m))  # doctest: +SKIP
         >>> print(ringtable)  # doctest: +SKIP

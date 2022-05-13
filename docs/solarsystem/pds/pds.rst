@@ -23,7 +23,7 @@ ephemerides of the rings and small moons around Uranus as viewed from ALMA:
 .. code-block:: python
 
    >>> from astroquery.solarsystem.pds import RingNode
-   >>> systemtable, bodytable, ringtable = RingNode().ephemeris(planet='Uranus',
+   >>> systemtable, bodytable, ringtable = RingNode.ephemeris(planet='Uranus',
    ...                 obs_time='2024-05-08 22:39',
    ...                 location = (-23.029 * u.deg, -67.755 * u.deg, 5000 * u.m))  # doctest: +SKIP
    >>> print(ringtable)
@@ -76,7 +76,7 @@ Note that the behavior of ``ringtable`` changes depending on the planet you quer
 
 .. code-block:: python
 
-	>>> systemtable, bodytable, ringtable = RingNode().ephemeris(planet='Neptune')
+	>>> systemtable, bodytable, ringtable = RingNode.ephemeris(planet='Neptune')
 	>>> print(ringtable)
 	   ring    min_angle max_angle
 	              deg       deg   
@@ -101,7 +101,7 @@ understand issues with your query, or you can process the results differently.
 
 The query URI (the URI is what you would put into the URL
 field of your web browser) that is used to request the data from the Planetary Ring Node server can be obtained from the
-:class:`~astroquery.solarsystem.pds.RingNode` object after a query has been
+:class:`~astroquery.solarsystem.pds.RingNodeClass` object after a query has been
 performed (before the query only ``None`` would be returned):
 
    >>> print(obj.uri)
@@ -109,7 +109,7 @@ performed (before the query only ``None`` would be returned):
 
 If your query failed, it might be useful for you to put the URI into a web
 browser to get more information why it failed. Please note that ``uri`` is an
-attribute of :class:`~astroquery.solarsystem.pds.RingNode` and not the results
+attribute of :class:`~astroquery.solarsystem.pds.RingNodeClass` and not the results
 table.
 
 
