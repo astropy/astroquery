@@ -45,28 +45,28 @@ class AlfalfaClass(BaseQuery):
             return self.ALFALFACAT
 
         result = requests.get(self.CATALOG_PREFIX)
-        iterable_lines = result.iter_lines()
+        iterable_lines = result.text.split('\n')
 
         # Read header
-        cols = [col for col in next(iterable_lines).rstrip(b'\n').split(b',')]
+        cols = iterable_lines[0].split(',')
 
         catalog = {}
         for col in cols:
             catalog[col] = []
 
         # Parse result
-        for line in iterable_lines:
+        for line in iterable_lines[1:]:
             # skip blank lines or trailing newlines
             if line == "":
                 continue
-            col_values = line.rstrip(b'\n').split(b',')
+            col_values = line.split(',')
             for i, col in enumerate(cols):
                 item = col_values[i].strip()
                 if item == '\"\"':
                     catalog[col].append(self.PLACEHOLDER)
                 elif item.isdigit():
                     catalog[col].append(int(item))
-                elif item.replace(b'.', b'').isdigit():
+                elif item.replace('.', '').isdigit():
                     catalog[col].append(float(item))
                 else:
                     catalog[col].append(item)
@@ -139,11 +139,11 @@ class AlfalfaClass(BaseQuery):
 
         # Use RA and DEC to find appropriate AGC
         if optical_counterpart:
-            ra_ref = cat[b'RAdeg_OC']
-            dec_ref = cat[b'DECdeg_OC']
+            ra_ref = cat['RAdeg_OC']
+            dec_ref = cat['DECdeg_OC']
         else:
-            ra_ref = cat[b'RAdeg_HI']
-            dec_ref = cat[b'Decdeg_HI']
+            ra_ref = cat['RAdeg_HI']
+            dec_ref = cat['Decdeg_HI']
 
         dra = np.abs(ra_ref - ra) \
             * np.cos(dec * np.pi / 180.)
@@ -155,7 +155,7 @@ class AlfalfaClass(BaseQuery):
 
         # Matched object within our search radius?
         if minsep < dr:
-            return cat[b'AGCNr'][i_minsep]
+            return cat['AGCNr'][i_minsep]
         else:
             return None
 
@@ -185,7 +185,7 @@ class AlfalfaClass(BaseQuery):
         agc = str(agc).zfill(6)
 
         link = "%s/A%s.fits" % (self.FITS_PREFIX, agc)
-        result = commons.FileContainer(link, show_progress=show_progress, encoding='binary')
+        result = commons.FileContainer(link, show_progress=show_progress)
         return result
 
     @prepend_docstr_nosections(get_spectrum_async.__doc__)
