@@ -10,14 +10,14 @@ This example shows how to perform an object cross-ID with ALFALFA. We'll start
 with the position of a source that exists in another survey (same object we
 used in the SDSS example).
 
-.. code-block:: python
 .. doctest-remote-data::
 
     >>> from astroquery.alfalfa import Alfalfa
     >>> from astropy import coordinates as coords
     >>> pos = coords.SkyCoord('0h8m05.63s +14d50m23.3s')
     >>> agc = Alfalfa.query_region(pos, optical_counterpart=True)
-
+    >>> agc
+    100051
 
 This retrieves the AGC number of the object closest to the supplied ra and dec
 (within search radius dr=3 arcminutes by default). The "optical_counterpart" keyword
@@ -27,18 +27,24 @@ determined by members of the ALFALFA team), rather than their radio centroids.
 The AGC number is an identification number for objects in the ALFALFA survey,
 and once we know it, we can download spectra (if they are available) easily,
 
-.. code-block:: python
+.. Remove the skip once #2403 is fixed
+.. .. doctest-remote-data::
+.. doctest-skip::
 
-    >>> # sp = Alfalfa.get_spectrum(agc) 
+    >>> sp = Alfalfa.get_spectrum(agc)
 
-This returns a PyFITS HDUList object.  If we want to have a look at the entire ALFALFA catalog, we can do that too:
+This returns a `~astropy.io.fits.HDUList` object.  If we want to have a look at the
+entire ALFALFA catalog as a dictionary, we can do that too:
 
-.. code-block:: python
+.. doctest-remote-data::
 
-    >>> cat = Alfalfa.get_catalog() # doctest: +REMOTE_DATA
+    >>> cat = Alfalfa.get_catalog()
+    >>> cat.keys()
+    dict_keys(['AGCNr', 'Name', 'RAdeg_HI', 'Decdeg_HI', 'RAdeg_OC', 'DECdeg_OC', 'Vhelio', 'W50', 'errW50', 'HIflux', 'errflux', 'SNR', 'RMS', 'Dist', 'logMsun', 'HIcode', 'OCcode', 'NoteFlag'])
 
 which returns a dictionary containing HI measurements for nearly 16,000
 objects.
+
 
 Reference/API
 -------------
