@@ -20,14 +20,15 @@ class Conf(_config.ConfigNamespace):
     """
     Configuration parameters for `astroquery.desi`.
     """
-    server = _config.ConfigItem(
-        ['https://portal.nersc.gov/cfs/cosmo/data/legacysurvey/',
+    legacysurvey_service_url = _config.ConfigItem(
+        ['https://www.legacysurvey.org/viewer/fits-cutout',
          ],
-        'base url')
+        'url for the LegacySurvey service')
 
-    timeout = _config.ConfigItem(
-        30,
-        'Time limit for connecting to template_module server.')
+    tap_service_url = _config.ConfigItem(
+        ['https://datalab.noirlab.edu/tap',
+         ],
+        'url for the TAP service')
 
 
 conf = Conf()

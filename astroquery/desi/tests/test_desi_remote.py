@@ -1,7 +1,10 @@
-# Licensed under a 3-clause BSD style license - see LICENSE.rst
-
 import pytest
+import astroquery.desi
+
 from astropy.io.fits import HDUList
+from astropy.coordinates import SkyCoord
+from astropy.coordinates import Angle
+from astropy.table import Table
 from astroquery.exceptions import NoResultsWarning
 
 
@@ -9,10 +12,6 @@ from astroquery.exceptions import NoResultsWarning
 class TestLegacySurveyClass:
 
     def test_query_region(self):
-        import astroquery.desi
-        from astropy.coordinates import SkyCoord
-        from astropy.coordinates import Angle
-        from astropy.table import Table
 
         ra = Angle('11h04m27s', unit='hourangle').degree
         dec = Angle('+38d12m32s', unit='hourangle').degree
@@ -26,9 +25,6 @@ class TestLegacySurveyClass:
 
     @pytest.mark.parametrize("valid_inputs", [True, False])
     def test_get_images(self, valid_inputs):
-        import astroquery.desi
-        from astropy.coordinates import SkyCoord
-        from astropy.coordinates import Angle
 
         if valid_inputs:
             ra = Angle('11h04m27s', unit='hourangle').degree
@@ -45,9 +41,9 @@ class TestLegacySurveyClass:
         radius = Angle(radius_input, unit='arcmin')
 
         if valid_inputs:
-            query1 = astroquery.desi.DESILegacySurvey.get_images(pos, data_release=9, radius=radius, pixels=pixels)
+            query1 = astroquery.desi.DESILegacySurvey.get_images(pos, pixels, radius, data_release=9)
             assert isinstance(query1, list)
             assert isinstance(query1[0], HDUList)
         else:
             with pytest.raises(NoResultsWarning):
-                astroquery.desi.DESILegacySurvey.get_images(pos, data_release=9, radius=radius, pixels=pixels)
+                astroquery.desi.DESILegacySurvey.get_images(pos, pixels, radius, data_release=9)

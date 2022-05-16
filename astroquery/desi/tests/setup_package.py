@@ -5,6 +5,5 @@ import os
 def get_package_data():
     paths = [os.path.join('data', '*.txt'),
              os.path.join('data', '*.fits'),
-             os.path.join('data', '*.fits.gz'),
              ]
     return {'astroquery.desi.tests': paths}

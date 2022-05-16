@@ -6,13 +6,13 @@ import pyvo as vo
 
 from astropy.table import Table
 from astropy.io import fits
-from pyvo.dal import TAPResults
+from astropy import coordinates as coord
+from astroquery.utils.mocks import MockResponse
+from astroquery.utils import commons
+from astroquery import desi
 from urllib import parse
 from contextlib import contextmanager
 
-from ... import desi
-from ...utils.mocks import MockResponse
-from ...utils import commons
 
 DATA_FILES = {
     'dummy_tap_table': 'dummy_table.txt',
@@ -21,7 +21,7 @@ DATA_FILES = {
 }
 
 coords = commons.ICRSCoord('11h04m27s +38d12m32s')
-radius = commons.ArcminRadiusGenerator(0.5)
+radius = coord.Angle(0.5, unit='arcmin')
 pixels = 60
 data_release = 9
 emispheres_list = ['north', 'south']
@@ -29,10 +29,7 @@ emispheres_list = ['north', 'south']
 
 @pytest.fixture
 def patch_get(request):
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
+    mp = request.getfixturevalue("monkeypatch")
 
     mp.setattr(desi.DESILegacySurvey, '_request', get_mockreturn)
     return mp
@@ -68,10 +65,7 @@ def patch_get_readable_fileobj(request):
 
 @pytest.fixture
 def patch_tap(request):
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:  # pytest < 3
-        mp = request.getfuncargvalue("monkeypatch")
+    mp = request.getfixturevalue("monkeypatch")
 
     mp.setattr(vo.dal.TAPService, 'run_sync', tap_mockreturn)
     return mp
@@ -95,7 +89,7 @@ def tap_mockreturn(url, params=None, timeout=10, **kwargs):
     content_table = Table.read(data_path(DATA_FILES['dummy_tap_table']),
                                format='ascii.csv', comment='#')
     votable_table = astropy.io.votable.from_table(content_table)
-    return TAPResults(votable_table)
+    return vo.dal.TAPResults(votable_table)
 
 
 def data_path(filename):
