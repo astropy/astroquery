@@ -551,7 +551,7 @@ astropy's `~astropy.coordinates`:
 For example, get the barycentric coordinates of Jupiter as an astropy
 `~astropy.coordinates.SkyCoord` object:
 
-.. code-block:: python
+.. doctest-remote-data::
 
    >>> from astropy.coordinates import SkyCoord
    >>> from astropy.time import Time
@@ -572,8 +572,7 @@ For example, get the barycentric coordinates of Jupiter as an astropy
 Acknowledgements
 ================
 
-This submodule makes use of the `JPL Horizons
-<https://ssd.jpl.nasa.gov/horizons/>`_ system.
+This submodule makes use of the `JPL Horizons <https://ssd.jpl.nasa.gov/horizons/>`_ system.
 
 The development of this submodule is in part funded through NASA PDART Grant No.
 80NSSC18K0987 to the `sbpy project <http://sbpy.org>`_.
