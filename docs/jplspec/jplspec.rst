@@ -24,7 +24,6 @@ The default option to return the query payload is set to false, in the
 following examples we have explicitly set it to False and True to show the
 what each setting yields:
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> from astroquery.jplspec import JPLSpec
@@ -49,7 +48,6 @@ what each setting yields:
 
 The following example, with ``get_query_payload = True``, returns the payload:
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> response = JPLSpec.query_lines(min_frequency=100 * u.GHz,
@@ -64,7 +62,6 @@ The following example, with ``get_query_payload = True``, returns the payload:
 The units of the columns of the query can be displayed by calling
 ``response.info``:
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> response = JPLSpec.query_lines(min_frequency=100 * u.GHz,
@@ -90,7 +87,6 @@ The units of the columns of the query can be displayed by calling
 These come in handy for converting to other units easily, an example using a
 simplified version of the data above is shown below:
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> print (response['FREQ', 'ERR', 'ELO'])
@@ -122,7 +118,6 @@ molecule information such as the partition functions at different
 temperatures. Keep in mind that a negative TAG value signifies that
 the line frequency has been measured in the laboratory
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> import matplotlib.pyplot as plt
@@ -137,7 +132,6 @@ the line frequency has been measured in the laboratory
 You can also access the temperature of the partition function
 through metadata:
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> result['QLOG2'].meta
@@ -152,7 +146,6 @@ continuation of the example above, an example that accesses and plots the
 partition function against the temperatures found in the metadata is shown
 below:
 
-.. code-block:: python
 .. doctest-skip::
 
    >>> temp = result.meta['Temperature (K)']
@@ -177,7 +170,6 @@ calculate production rates at different temperatures with the proportionality:
 for the CO molecule) we can continue to determine the partition function at
 other temperatures using curve fitting models:
 
-.. code-block:: python
 .. doctest-skip::
 
    >>> from scipy.optimize import curve_fit
@@ -217,29 +209,36 @@ in the JPL query catalog or a string with the exact name found in the catalog,
 that you do not set the local parse parameter since the module will be able
 to query these directly.
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> from astroquery.jplspec import JPLSpec
    >>> import astropy.units as u
    >>> response = JPLSpec.query_lines_async(min_frequency=100 * u.GHz,
-   ...                                         max_frequency=1000 * u.GHz,
-   ...                                         min_strength=-500,
-   ...                                         molecule="H2O",
-   ...                                         parse_name_locally=True)
-   >>> # Searches like these can lead to very broad queries. Since the table yields
-   >>> # extensive results, we will only show a dictionary of the tags that
-   >>> # went into the payload to create a response:
-   {'CH2OO': 46014,
-    'H2O': 18003,
-    'H2O v2,2v2,v': 18005,
-    'H2O-17': 19003,
-    'H2O-18': 20003,
-    'H2O2': 34004,
-    'HCCCH2OD': 57003,
-    'HCCCH2OH': 56010,
-    'HCOCH2OH': 60006,
-    'NH2CH2CH2OH': 61004}
+   ...                                      max_frequency=1000 * u.GHz,
+   ...                                      min_strength=-500,
+   ...                                      molecule="H2O",
+   ...                                      parse_name_locally=True)
+
+Searches like these can lead to very broad queries. Since the table yields
+extensive results, we will only show a dictionary of the tags that
+went into the payload to create a response:
+
+
+.. We don't get these dictionaries as reponses, fix these examples and
+   remove skip. #2408
+
+.. doctest-skip::
+
+    >>> {'CH2OO': 46014,
+    ...  'H2O': 18003,
+    ...  'H2O v2,2v2,v': 18005,
+    ...  'H2O-17': 19003,
+    ...  'H2O-18': 20003,
+    ...  'H2O2': 34004,
+    ...  'HCCCH2OD': 57003,
+    ...  'HCCCH2OH': 56010,
+    ...  'HCOCH2OH': 60006,
+    ...  'NH2CH2CH2OH': 61004}
 
 As you can see, the 'H2O' string was processed as a regular expression,
 and the search matched any molecule that contained the combination of
@@ -247,44 +246,52 @@ characters 'H20'.
 
 A few examples that show the power of the regex option are the following:
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> response = JPLSpec.query_lines_async(min_frequency=100 * u.GHz,
-   ...                                         max_frequency=1000 * u.GHz,
-   ...                                         min_strength=-500,
-   ...                                         molecule="H2O$",
-   ...                                         parse_name_locally=True)
-   >>> # The response:
-   {'H2O': 18003}
+   ...                                      max_frequency=1000 * u.GHz,
+   ...                                      min_strength=-500,
+   ...                                      molecule="H2O$",
+   ...                                      parse_name_locally=True)
+
+
+The response:
+
+.. doctest-skip::
+
+   >>> {'H2O': 18003}
 
 
 As seen above, the regular expression "H2O$" yields only an exact match because
 the special character $ matches the end of the line. This functionality allows
 you to be as specific or vague as you want to allow the results to be:
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> from astroquery.jplspec import JPLSpec
    >>> import astropy.units as u
    >>> response = JPLSpec.query_lines_async(min_frequency=100 * u.GHz,
-   ...                                         max_frequency=1000 * u.GHz,
-   ...                                         min_strength=-500,
-   ...                                         molecule="^H.O$",
-   ...                                         parse_name_locally=True)
-   >>> # This pattern matches any word that starts with an H, ends with an O, and
-   >>> # contains any character in between, it results in the following molecules
-   >>> # being queried:
-   {'H2O': 18003,
-    'HDO': 19002
-    'HCO': 29004
-    'HNO': 31005 }
+   ...                                      max_frequency=1000 * u.GHz,
+   ...                                      min_strength=-500,
+   ...                                      molecule="^H.O$",
+   ...                                      parse_name_locally=True)
+
+
+This pattern matches any word that starts with an H, ends with an O, and
+contains any character in between, it results in the following molecules
+being queried:
+
+.. doctest-skip::
+
+   >>> {'H2O': 18003,
+   ...  'HDO': 19002
+   ...  'HCO': 29004
+   ...  'HNO': 31005 }
+
 
 Another example of the functionality of this option is the option to obtain
 results from a molecule and its isotopes, in this case H2O and HDO:
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> from astroquery.jplspec import JPLSpec
@@ -294,13 +301,18 @@ results from a molecule and its isotopes, in this case H2O and HDO:
    ...                                      min_strength=-500,
    ...                                      molecule=r"^H[2D]O(-\d\d|)$",
    ...                                      parse_name_locally=True)
-   >>> # This pattern matches any H2O and HDO isotopes and it results in the following
-   >>> # molecules being part of the payload:
-   {'H2O': 18003,
-    'H2O-17': 19003,
-    'H2O-18': 20003,
-    'HDO': 19002,
-    'HDO-18': 21001}
+
+
+This pattern matches any H2O and HDO isotopes and it results in the following
+molecules being part of the payload:
+
+.. doctest-skip::
+
+   >>> {'H2O': 18003,
+   ...  'H2O-17': 19003,
+   ...  'H2O-18': 20003,
+   ...  'HDO': 19002,
+   ...  'HDO-18': 21001}
 
 Remember to print your response to see the table of your results.
 

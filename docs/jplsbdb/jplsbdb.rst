@@ -38,7 +38,6 @@ Example
 The most simple query to obtain information for a specific Solar
 System small-body works as follows:
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> from astroquery.jplsbdb import SBDB
@@ -65,7 +64,6 @@ schematic. Please consult the `Data Output section
 <https://ssd-api.jpl.nasa.gov/doc/sbdb.html#data-output>`__ of the SBDB API
 documentation to learn more about the meaning of the different output fields:
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> print(SBDB.schematic(sbdb))   # doctest: +IGNORE_OUTPUT

@@ -33,7 +33,6 @@ identical to the one presented here.
 In order to query information for a specific Solar System body, a
 ``Horizons`` object has to be instantiated:
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> from astroquery.jplhorizons import Horizons
@@ -61,7 +60,7 @@ location is on Earth if it has not been specifically set. The following example
 uses the coordinates of the `Statue of Liberty
 <https://www.google.com/maps/place/Statue+of+Liberty+National+Monument/@40.6892534,-74.0466891,17z/data=!3m1!4b1!4m5!3m4!1s0x89c25090129c363d:0x40c6a5770d25022b!8m2!3d40.6892494!4d-74.0445004>`_
 as the observer's location:
-.. code-block:: python
+
 .. doctest-remote-data::
 
     >>> statue_of_liberty = {'lon': -74.0466891,
@@ -106,8 +105,6 @@ In the case of ambiguities in the name resolution, a list of matching objects
 will be provided. In order to select an object from this list, provide the
 respective id number or record number as ``id`` and use ``id_type=None``:
 
-
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> from astroquery.jplhorizons import Horizons
@@ -145,7 +142,6 @@ for a given observer location (``location``) and epoch or range of epochs
 (``epochs``) in the form of an astropy table. The following example queries the
 ephemerides of asteroid (1) Ceres for a range of dates as seen from Mauna Kea:
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> from astroquery.jplhorizons import Horizons
@@ -163,8 +159,13 @@ ephemerides of asteroid (1) Ceres for a range of dates as seen from Mauna Kea:
     1 Ceres (A801 AA) 2010-Jan-31 00:00   2455227.5 ...    17.2067 247.2518 3.7289
     1 Ceres (A801 AA) 2010-Feb-10 00:00   2455237.5 ...    18.5029 250.0576 3.4415
     1 Ceres (A801 AA) 2010-Feb-20 00:00   2455247.5 ...    19.5814 252.7383 3.1451
-   >>> # The following fields are available for each ephemerides query:
-   >>> print(eph.columns)
+
+
+The following fields are available for each ephemerides query:
+
+.. code-block:: python
+
+   >>> print(eph.columns)  # doctest: +REMOTE_DATA
    <TableColumns names=('targetname','datetime_str','datetime_jd','H','G','solar_presence','flags','RA','DEC','RA_app','DEC_app','RA_rate','DEC_rate','AZ','EL','AZ_rate','EL_rate','sat_X','sat_Y','sat_PANG','siderealtime','airmass','magextinct','V','surfbright','illumination','illum_defect','sat_sep','sat_vis','ang_width','PDObsLon','PDObsLat','PDSunLon','PDSunLat','SubSol_ang','SubSol_dist','NPole_ang','NPole_dist','EclLon','EclLat','r','r_rate','delta','delta_rate','lighttime','vel_sun','vel_obs','elong','elongFlag','alpha','lunar_elong','lunar_illum','sat_alpha','sunTargetPA','velocityPA','OrbPlaneAng','constellation','TDB-UT','ObsEclLon','ObsEclLat','NPole_RA','NPole_DEC','GlxLon','GlxLat','solartime','earth_lighttime','RA_3sigma','DEC_3sigma','SMAA_3sigma','SMIA_3sigma','Theta_3sigma','Area_3sigma','RSS_3sigma','r_3sigma','r_rate_3sigma','SBand_3sigma','XBand_3sigma','DoppDelay_3sigma','true_anom','hour_angle','alpha_true','PABLon','PABLat')>
 
 The values in these columns are the same as those defined in the Horizons
@@ -214,7 +215,6 @@ Horizons) and for a given epoch or a range of epochs (``epochs``) in the form of
 an astropy table. The following example queries the osculating elements of
 asteroid (433) Eros for a given date relative to the Sun:
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> from astroquery.jplhorizons import Horizons
@@ -226,8 +226,13 @@ asteroid (433) Eros for a given date relative to the Sun:
            ---               d       ...         AU                d
     ------------------ ------------- ... ----------------- -----------------
     433 Eros (A898 PA) 2458133.33546 ... 1.782442696867877 642.9387350660577
-   >>> # The following fields are queried:
-   >>> print(el.columns)
+
+
+The following fields are queried:
+
+.. code-block:: python
+
+   >>> print(el.columns)  # doctest: +REMOTE_DATA
    <TableColumns names=('targetname','datetime_jd','datetime_str','H','G','e','q','incl','Omega','w','Tp_jd','n','M','nu','a','Q','P')>
 
 Optional parameters of :meth:`~astroquery.jplhorizons.HorizonsClass.elements`
@@ -253,7 +258,6 @@ the form of an astropy table. The following example queries the state
 vector of asteroid 2012 TC4 as seen from Goldstone for a range of
 epochs:
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> from astroquery.jplhorizons import Horizons
@@ -275,8 +279,13 @@ epochs:
     (2012 TC4) 2458028.493055556 ... 0.03910796987365932 -0.004063569840032833
     (2012 TC4)         2458028.5 ... 0.03907974874463358 -0.004064045454467904
    Length = 145 rows
-   >>> # The following fields are queried:
-   >>> print(vec.columns)
+
+
+The following fields are queried:
+
+.. code-block:: python
+
+   >>> print(vec.columns)  # doctest: +REMOTE_DATA
    <TableColumns names=('targetname','datetime_jd','datetime_str','H','G','x','y','z','vx','vy','vz','lighttime','range','range_rate')>
 
 
@@ -304,7 +313,6 @@ We provide some examples to illustrate how to use them based on the following
 JPL Horizons ephemerides query of near-Earth asteroid (3552) Don Quixote since
 its year of Discovery:
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> from astroquery.jplhorizons import Horizons
@@ -312,9 +320,14 @@ its year of Discovery:
    ...                epochs={'start':'2010-01-01', 'stop':'2019-12-31',
    ...                        'step':'1y'})
    >>> eph = obj.ephemerides()
-   >>> # As we have seen before, we can display a truncated version of table
-   >>> # ``eph`` by simply using
-   >>> print(eph)
+
+
+As we have seen before, we can display a truncated version of table
+``eph`` by simply using
+
+.. code-block:: python
+
+   >>> print(eph)  # doctest: +REMOTE_DATA
            targetname            datetime_str   ...  PABLon   PABLat
               ---                    ---        ...   deg      deg
    -------------------------- ----------------- ... -------- --------
@@ -394,7 +407,6 @@ let's calculate the total rate of the object by summing 'RA_rate' and 'DEC_rate'
 in quadrature:
 
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> import numpy as np
@@ -425,9 +437,8 @@ available, too, e.g., the ``RA_rate`` column is expressed in ``arcsec /
 h`` - arcseconds per hour:
 
 .. code-block:: python
-.. doctest-remote-data::
 
-   >>> print(eph['RA_rate'])
+   >>> print(eph['RA_rate'])  # doctest: +REMOTE_DATA
     RA_rate
    arcsec / h
    ----------
@@ -446,7 +457,6 @@ h`` - arcseconds per hour:
 The unit of this column can be easily converted to any other unit describing the
 same dimensions. For instance, we can turn ``RA_rate`` into ``arcsec / s``:
 
-.. code-block:: python
 .. doctest-remote-data::
 
    >>> eph['RA_rate'].convert_unit_to('arcsec/s')
@@ -565,7 +575,6 @@ For example, get the barycentric coordinates of Jupiter as an astropy
    >>> print(c)
    <SkyCoord (ICRS): (x, y, z) in AU
        [(3.03483263, -3.72503309, -1.67054586)]>
-
 
 
 
