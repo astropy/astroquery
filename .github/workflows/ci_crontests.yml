@@ -18,18 +18,19 @@ jobs:
       fail-fast: true
       matrix:
         include:
-          - name: Python 3.8 with all dependencies with remote data
+          - name: Python 3.9 with all dependencies with remote data
             os: ubuntu-latest
-            python: '3.8'
-            toxenv: py38-test-alldeps-devdeps
+            python: '3.9'
+            toxenv: py39-test-alldeps-devdeps
             toxargs: -v
-            toxposargs: --remote-data
+            toxposargs: --remote-data -v --durations=50
 
           - name: pre-repease dependencies with all dependencies
             os: ubuntu-latest
             python: '3.10'
             toxenv: py310-test-alldeps-predeps
             toxargs: -v
+            toxposargs: -v
 
     steps:
     - name: Checkout code
