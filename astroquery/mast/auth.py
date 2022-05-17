@@ -81,7 +81,7 @@ class MastAuth:
         if not info["anon"]:
             log.info("MAST API token accepted, welcome {}".format(info["attrib"].get("display_name")))
         else:
-            raise LoginError("MAST API token invalid!\n To make create a new API token"
+            raise LoginError("MAST API token invalid!\n To create a new API token"
                              "visit to following link: " + self.AUTH_URL)
 
         return not info["anon"]
