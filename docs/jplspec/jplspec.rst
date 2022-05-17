@@ -30,22 +30,22 @@ what each setting yields:
    >>> from astroquery.jplspec import JPLSpec
    >>> import astropy.units as u
    >>> response = JPLSpec.query_lines(min_frequency=100 * u.GHz,
-   ...                                   max_frequency=1000 * u.GHz,
-   ...                                   min_strength=-500,
+   ...                                max_frequency=1000 * u.GHz,
+   ...                                min_strength=-500,
    ...                                molecule="28001 CO",
-   ...                                   max_lines = 7,
-   ...                                   get_query_payload=False)
+   ...                                max_lines = 7,
+   ...                                get_query_payload=False)
    >>> print(response)
-        FREQ     ERR    LGINT   DR   ELO    GUP  TAG   QNFMT QN' QN"
-        MHz      MHz   MHz nm2      1 / cm
-    ----------- ------ ------- --- -------- --- ------ ----- --- ---
-    115271.2018 0.0005 -5.0105   2      0.0   3 -28001   101   1   0
-    345795.9899 0.0005 -3.6118   2   11.535   7 -28001   101   3   2
-    461040.7682 0.0005 -3.2657   2  23.0695   9 -28001   101   4   3
-    576267.9305 0.0005 -3.0118   2  38.4481  11 -28001   101   5   4
-    691473.0763 0.0005 -2.8193   2  57.6704  13 -28001   101   6   5
-     806651.806  0.005 -2.6716   2  80.7354  15 -28001   101   7   6
-       921799.7  0.005  -2.559   2 107.6424  17 -28001   101   8   7
+       FREQ     ERR    LGINT   DR   ELO   GUP  TAG   QNFMT QN' QN"
+       MHz      MHz   MHz nm2      1 / cm
+   ----------- ------ ------- --- ------- --- ------ ----- --- ---
+   115271.2018 0.0005 -5.0105   2     0.0   3 -28001   101   1   0
+      230538.0 0.0005 -4.1197   2   3.845   5 -28001   101   2   1
+   345795.9899 0.0005 -3.6118   2  11.535   7 -28001   101   3   2
+   461040.7682 0.0005 -3.2657   2 23.0695   9 -28001   101   4   3
+   576267.9305 0.0005 -3.0118   2 38.4481  11 -28001   101   5   4
+   691473.0763 0.0005 -2.8193   2 57.6704  13 -28001   101   6   5
+    806651.806  0.005 -2.6716   2 80.7354  15 -28001   101   7   6
 
 The following example, with ``get_query_payload = True``, returns the payload:
 
@@ -59,8 +59,7 @@ The following example, with ``get_query_payload = True``, returns the payload:
    ...                                   max_lines = 7,
    ...                                   get_query_payload=True)
    >>> print(response)
-   {'MinNu': 100.0, 'MaxNu': 1000.0, 'Mol': '28001 CO', 'UnitNu': 'GHz',
-   'StrLim': -500, 'MaxLines': 7}
+   [('MinNu', 100.0), ('MaxNu', 1000.0), ('MaxLines', 7), ('UnitNu', 'GHz'), ('StrLim', -500), ('Mol', '28001 CO')]
 
 The units of the columns of the query can be displayed by calling
 ``response.info``:
@@ -69,11 +68,10 @@ The units of the columns of the query can be displayed by calling
 .. doctest-remote-data::
 
    >>> response = JPLSpec.query_lines(min_frequency=100 * u.GHz,
-   ...                                   max_frequency=1000 * u.GHz,
-   ...                                   min_strength=-500,
-   ...                                   molecule="28001 CO",
-   ...                                   max_lines = 7,
-   ...                                   get_query_payload=True)
+   ...                                max_frequency=1000 * u.GHz,
+   ...                                min_strength=-500,
+   ...                                molecule="28001 CO",
+   ...                                max_lines = 7)
    >>> print(response.info)
       <Table length=7>
       name  dtype    unit
@@ -95,20 +93,25 @@ simplified version of the data above is shown below:
 .. code-block:: python
 .. doctest-remote-data::
 
-   >>> print (response)
-       FREQ      ERR     ELO
-       MHz       MHz    1 / cm
-   ----------- ------- -------
-   115271.2018  0.0005     0.0
-   345795.9899  0.0005  11.535
-   461040.7682  0.0005 23.0695
+   >>> print (response['FREQ', 'ERR', 'ELO'])
+       FREQ     ERR     ELO
+       MHz      MHz    1 / cm
+   ----------- ------ -------
+   115271.2018 0.0005     0.0
+      230538.0 0.0005   3.845
+   345795.9899 0.0005  11.535
+   461040.7682 0.0005 23.0695
+   576267.9305 0.0005 38.4481
+   691473.0763 0.0005 57.6704
+    806651.806  0.005 80.7354
    >>> response['FREQ'].quantity
-   <Quantity [115271.2018,345795.9899,461040.7682] MHz>
+   <Quantity [115271.2018, 230538.    , 345795.9899, 461040.7682, 576267.9305, 691473.0763, 806651.806 ] MHz>
    >>> response['FREQ'].to('GHz')
-   <Quantity [115.2712018,345.7959899,461.0407682] GHz>
+   <Quantity [115.2712018, 230.538    , 345.7959899, 461.0407682, 576.2679305, 691.4730763, 806.651806 ] GHz>
 
 The parameters and response keys are described in detail under the
 Reference/API section.
+
 
 Looking Up More Information from the catdir.cat file
 ------------------------------------------------------
@@ -127,10 +130,9 @@ the line frequency has been measured in the laboratory
    >>> result = JPLSpec.get_species_table()
    >>> mol = result[result['TAG'] == 28001] #do not include signs of TAG for this
    >>> print(mol)
-   TAG   NAME NLINE  QLOG1   QLOG2  ...  QLOG5   QLOG6   QLOG7  VER
-   int64 str13 int64 float64 float64 ... float64 float64 float64 str2
-   ----- ----- ----- ------- ------- ... ------- ------- ------- ----
-   28001    CO    91  2.0369  1.9123 ...  1.1429  0.8526  0.5733   4*
+    TAG  NAME NLINE QLOG1  QLOG2  QLOG3 QLOG4  QLOG5  QLOG6  QLOG7  VER
+   ----- ---- ----- ------ ------ ----- ------ ------ ------ ------ ---
+   28001   CO    91 2.0369 1.9123 1.737 1.4386 1.1429 0.8526 0.5733  4*
 
 You can also access the temperature of the partition function
 through metadata:
@@ -139,7 +141,7 @@ through metadata:
 .. doctest-remote-data::
 
    >>> result['QLOG2'].meta
-   {'Temperature (K)' : 225}
+   {'Temperature (K)': 225}
    >>> result.meta
    {'Temperature (K)': [300, 225, 150, 75, 37.5, 18.5,
                         9.375]}
@@ -151,11 +153,11 @@ partition function against the temperatures found in the metadata is shown
 below:
 
 .. code-block:: python
-.. doctest-remote-data::
+.. doctest-skip::
 
    >>> temp = result.meta['Temperature (K)']
    >>> part = list(mol['QLOG1','QLOG2','QLOG3', 'QLOG4', 'QLOG5','QLOG6',
-                       'QLOG7'][0])
+   ...                 'QLOG7'][0])
    >>> plt.scatter(temp,part)
    >>> plt.xlabel('Temperature (K)')
    >>> plt.ylabel('Partition Function Value')
@@ -176,7 +178,7 @@ for the CO molecule) we can continue to determine the partition function at
 other temperatures using curve fitting models:
 
 .. code-block:: python
-.. doctest-remote-data::
+.. doctest-skip::
 
    >>> from scipy.optimize import curve_fit
    >>> def f(T,a):
@@ -199,6 +201,7 @@ other temperatures using curve fitting models:
    :alt: Plot of Partition Function vs Temperature and resulting Curve Fit
 
    The resulting plot from the example above
+
 
 Querying the Catalog with Regexes and Relative names
 ----------------------------------------------------
@@ -287,10 +290,10 @@ results from a molecule and its isotopes, in this case H2O and HDO:
    >>> from astroquery.jplspec import JPLSpec
    >>> import astropy.units as u
    >>> response = JPLSpec.query_lines_async(min_frequency=100 * u.GHz,
-   ...                                         max_frequency=1000 * u.GHz,
-   ...                                         min_strength=-500,
-   ...                                         molecule="^H[2D]O(-\d\d|)$",
-   ...                                         parse_name_locally=True)
+   ...                                      max_frequency=1000 * u.GHz,
+   ...                                      min_strength=-500,
+   ...                                      molecule=r"^H[2D]O(-\d\d|)$",
+   ...                                      parse_name_locally=True)
    >>> # This pattern matches any H2O and HDO isotopes and it results in the following
    >>> # molecules being part of the payload:
    {'H2O': 18003,
@@ -300,6 +303,7 @@ results from a molecule and its isotopes, in this case H2O and HDO:
     'HDO-18': 21001}
 
 Remember to print your response to see the table of your results.
+
 
 Reference/API
 =============
