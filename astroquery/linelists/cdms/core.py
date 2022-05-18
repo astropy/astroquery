@@ -266,7 +266,6 @@ class CDMSClass(BaseQuery):
                                   dtype=int)
                 result[key] = intcol
 
-
         # if there is a crash at this step, something went wrong with the query
         # and the _last_query_temperature was not set.  This shouldn't ever
         # happen, but, well, I anticipate it will.
