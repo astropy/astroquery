@@ -118,6 +118,7 @@ def test_hc7s(patch_post):
     assert tbl['LGINT'][0] == -3.9202
     assert tbl['MOLWT'][0] == 117
 
+    assert tbl['GUP'][0] == 255
     assert tbl['Ju'][0] == 126
     assert tbl['Jl'][0] == 125
     assert tbl['vu'][0] == 127
