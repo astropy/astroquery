@@ -133,7 +133,9 @@ def test_hc7s(patch_post):
 
 def test_hc7n(patch_post):
     """
-    Regression test for 2409
+    Regression test for 2409, specifically that GUP>1000 was not being
+    processed correctly b/c the first digit of GUP was being included in the
+    previous column (frequency)
 
     CDMS.query_lines(200*u.GHz, 230.755608*u.GHz, molecule='HC7N',parse_name_locally=True)
     """
