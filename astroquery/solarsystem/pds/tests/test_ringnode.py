@@ -12,6 +12,8 @@ from ... import pds
 # files in data/ for different planets
 DATA_FILES = {'Uranus': 'uranus_ephemeris.html',
               'Pluto': 'pluto_ephemeris.html',
+              'Neptune': 'neptune_ephemeris.html',
+              'Saturn': 'saturn_ephemeris.html',
               }
 
 
@@ -187,6 +189,59 @@ def test_ephemeris_query_Pluto(patch_request):
 
     # check ringtable is None
     assert ringtable is None
+
+
+def test_ephemeris_query_Neptune(patch_request):
+    '''Verify that the Neptune ring arcs are queried properly'''
+
+    systemtable, bodytable, ringtable = pds.RingNode.ephemeris(
+        planet="Neptune",
+        obs_time="2021-10-07 07:25",
+        neptune_arcmodel=2
+    )
+
+    print(ringtable[ringtable.loc_indices["Courage"]])
+
+    assert_quantity_allclose(
+                    [63.81977,
+                     55.01978,
+                     44.21976,
+                     40.41978,
+                     26.41978,
+                     64.81977,
+                     59.11976,
+                     45.21976,
+                     43.41978,
+                     36.01978],
+                     [ringtable[ringtable.loc_indices["Courage"]]["min_angle"].to(u.deg).value,
+                     ringtable[ringtable.loc_indices["Liberte"]]["min_angle"].to(u.deg).value,
+                     ringtable[ringtable.loc_indices["Egalite A"]]["min_angle"].to(u.deg).value,
+                     ringtable[ringtable.loc_indices["Egalite B"]]["min_angle"].to(u.deg).value,
+                     ringtable[ringtable.loc_indices["Fraternite"]]["min_angle"].to(u.deg).value,
+                     ringtable[ringtable.loc_indices["Courage"]]["max_angle"].to(u.deg).value,
+                     ringtable[ringtable.loc_indices["Liberte"]]["max_angle"].to(u.deg).value,
+                     ringtable[ringtable.loc_indices["Egalite A"]]["max_angle"].to(u.deg).value,
+                     ringtable[ringtable.loc_indices["Egalite B"]]["max_angle"].to(u.deg).value,
+                     ringtable[ringtable.loc_indices["Fraternite"]]["max_angle"].to(u.deg).value,
+                      ], rtol=1e-3)
+
+
+def test_ephemeris_query_Saturn(patch_request):
+    '''Check Saturn F ring is queried properly'''
+    systemtable, bodytable, ringtable = pds.RingNode.ephemeris(
+        planet="Saturn",
+        obs_time="2021-10-07 07:25",
+    )
+    print(ringtable)
+
+    assert_quantity_allclose(
+                    [249.23097,
+                     250.34081
+                     ],
+                     [
+                     ringtable[ringtable.loc_indices["F"]]["pericenter"].to(u.deg).value,
+                     ringtable[ringtable.loc_indices["F"]]["ascending node"].to(u.deg).value
+                     ], rtol=1e-3)
 
 
 def test_ephemeris_query_payload():

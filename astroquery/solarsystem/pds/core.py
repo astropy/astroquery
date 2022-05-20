@@ -415,7 +415,7 @@ class RingNodeClass(BaseQuery):
                         peri = float(re.sub("[a-zA-Z]+", "", l[1]).strip(", \n()"))
                     elif "F Ring ascending node" in l[0]:
                         ascn = float(l[1].strip(", \n"))
-                ringtable = table.Table(
+                ringtable = table.QTable(
                     [["F"], [peri], [ascn]],
                     names=("ring", "pericenter", "ascending node"),
                     units=(None, u.deg, u.deg),
@@ -432,13 +432,13 @@ class RingNodeClass(BaseQuery):
                         for s in re.sub("[a-zA-Z]+", "", l[1]).strip(", \n()").split()
                     ]
                     if i == 0:
-                        ringtable = table.Table(
+                        ringtable = table.QTable(
                             [[ring], [min_angle], [max_angle]],
                             names=("ring", "min_angle", "max_angle"),
                             units=(None, u.deg, u.deg),
                         )
                     else:
-                        ringtable.add_row([ring, min_angle, max_angle])
+                        ringtable.add_row([ring, min_angle*u.deg, max_angle*u.deg])
 
             else:
                 pass
