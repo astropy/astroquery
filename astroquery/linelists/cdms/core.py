@@ -224,7 +224,7 @@ class CDMSClass(BaseQuery):
                   'LGINT': 25,
                   'DR': 36,
                   'ELO': 38,
-                  'GUP': 48,
+                  'GUP': 47,
                   'MOLWT': 51,
                   'TAG': 54,
                   'QNFMT': 58,
@@ -255,13 +255,16 @@ class CDMSClass(BaseQuery):
         result['MOLWT'] = np.abs(result['MOLWT'])
         result['MOLWT'].unit = u.Da
 
+        fix_keys = ['GUP']
         for suf in 'ul':
             for qn in ('J', 'v', 'K', 'F1', 'F2', 'F3'):
                 qnind = qn+suf
-                if result[qnind].dtype != int:
-                    intcol = np.array(list(map(parse_letternumber, result[qnind])),
-                                      dtype=int)
-                    result[qnind] = intcol
+                fix_keys.append(qnind)
+        for key in fix_keys:
+            if result[key].dtype != int:
+                intcol = np.array(list(map(parse_letternumber, result[key])),
+                                  dtype=int)
+                result[key] = intcol
 
         # if there is a crash at this step, something went wrong with the query
         # and the _last_query_temperature was not set.  This shouldn't ever

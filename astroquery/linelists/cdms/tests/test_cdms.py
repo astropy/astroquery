@@ -81,6 +81,8 @@ def test_query(patch_post):
     assert tbl['FREQ'][0] == 115271.2018
     assert tbl['ERR'][0] == .0005
     assert tbl['LGINT'][0] == -7.1425
+    assert tbl['GUP'][0] == 3
+    assert tbl['GUP'][7] == 17
 
 
 def test_parseletternumber():
@@ -118,6 +120,7 @@ def test_hc7s(patch_post):
     assert tbl['LGINT'][0] == -3.9202
     assert tbl['MOLWT'][0] == 117
 
+    assert tbl['GUP'][0] == 255
     assert tbl['Ju'][0] == 126
     assert tbl['Jl'][0] == 125
     assert tbl['vu'][0] == 127
@@ -126,3 +129,34 @@ def test_hc7s(patch_post):
     assert tbl['Kl'][0] == 1
     assert tbl['F1u'][0] == 127
     assert tbl['F1l'][0] == 126
+
+
+def test_hc7n(patch_post):
+    """
+    Regression test for 2409, specifically that GUP>1000 was not being
+    processed correctly b/c the first digit of GUP was being included in the
+    previous column (frequency)
+
+    CDMS.query_lines(200*u.GHz, 230.755608*u.GHz, molecule='HC7N',parse_name_locally=True)
+    """
+
+    tbl = CDMS.query_lines(200*u.GHz, 230.755608*u.GHz, molecule='HC7N')
+    assert isinstance(tbl, Table)
+    assert len(tbl) == 27
+    assert set(tbl.keys()) == colname_set
+
+    assert tbl['FREQ'][0] == 200693.406
+    assert tbl['ERR'][0] == 0.01
+    assert tbl['LGINT'][0] == -2.241
+    assert tbl['MOLWT'][0] == 99
+
+    assert tbl['GUP'][0] == 1071
+    assert tbl['Ju'][0] == 178
+    assert tbl['Jl'][0] == 177
+    assert tbl['vu'][0].mask
+    assert tbl['vl'][0].mask
+    assert tbl['Ku'][0].mask
+    assert tbl['Kl'][0].mask
+    assert tbl['F1u'][0].mask
+    assert tbl['F1l'][0].mask
+    assert tbl['Lab'][0]
