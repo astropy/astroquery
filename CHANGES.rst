@@ -36,7 +36,7 @@ linelists.cdms
 ^^^^^^^^^^^^^^
 
 - Fix issues with the line name parser and the line data parser; the original
-  implementation was incomplete. [#2385]
+  implementation was incomplete and upstream was not fully documented. [#2385, #2411]
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
