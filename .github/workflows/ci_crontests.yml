@@ -9,6 +9,9 @@ on:
     # run every Monday at 5am UTC
     - cron: '0 5 * * 1'
 
+permissions:
+  contents: read
+
 jobs:
   tests:
     name: ${{ matrix.name }}
