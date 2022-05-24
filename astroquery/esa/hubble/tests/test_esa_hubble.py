@@ -24,6 +24,7 @@ from astropy import coordinates
 from unittest.mock import MagicMock
 from astropy.table.table import Table
 import shutil
+import tempfile
 
 
 def data_path(filename):
@@ -35,8 +36,10 @@ def get_mockreturn(method, request, url, params, *args, **kwargs):
     file = 'm31.vot'
     if 'OBSERVATION_ID' in params:
         file = params['OBSERVATION_ID'] + ".vot"
-    response = data_path(file)
-    shutil.copy(response + '.test', response)
+    initial_response = data_path(file)
+    tmp_dir = tempfile.mkdtemp()
+    response = os.path.join(tmp_dir, file)
+    shutil.copy(initial_response + '.test', response)
     return response
 
 
@@ -54,8 +57,10 @@ def get_cone_mockreturn(method, request, url, params, *args, **kwargs):
     file = data_path('cone_search_m31_5.vot')
     if 'OBSERVATION_ID' in params:
         file = params['OBSERVATION_ID'] + ".vot"
-    response = data_path(file)
-    shutil.copy(response + '.test', response)
+    filename = os.path.basename(file)
+    tmp_dir = tempfile.mkdtemp()
+    response = os.path.join(tmp_dir, filename)
+    shutil.copy(file + '.test', response)
     return response
 
 
