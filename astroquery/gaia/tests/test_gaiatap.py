@@ -41,10 +41,50 @@ def data_path(filename):
 
 class TestTap:
 
+    def test_show_message(self):
+        connHandler = DummyConnHandler()
+
+        dummy_response = DummyResponse()
+        dummy_response.set_status_code(200)
+        dummy_response.set_message("OK")
+
+        message_text = "1653401204784D[type: -100,-1]=Gaia dev is under maintenance"
+
+        dummy_response.set_data(method='GET',
+                                context=None,
+                                body=message_text,
+                                headers=None)
+        connHandler.set_default_response(dummy_response)
+
+        # show_messages
+        tableRequest = 'notification?action=GetNotifications'
+        connHandler.set_response(tableRequest, dummy_response)
+
+        tapplus = TapPlus("http://test:1111/tap", connhandler=connHandler)
+        tap = GaiaClass(connHandler, tapplus, show_messages=True)
+
     def test_query_object(self):
         conn_handler = DummyConnHandler()
+        # Launch response: we use default response because the query contains
+        # decimals
+        dummy_response = DummyResponse()
+        dummy_response.set_status_code(200)
+        dummy_response.set_message("OK")
+
+        message_text = "1653401204784D[type: -100,-1]=Gaia dev is under maintenance"
+
+        dummy_response.set_data(method='GET',
+                                context=None,
+                                body=message_text,
+                                headers=None)
+        conn_handler.set_default_response(dummy_response)
+
+        # show_messages
+        tableRequest = 'notification?action=GetNotifications'
+        conn_handler.set_response(tableRequest, dummy_response)
+
         tapplus = TapPlus("http://test:1111/tap", connhandler=conn_handler)
-        tap = GaiaClass(conn_handler, tapplus, show_messages=False)
+        tap = GaiaClass(conn_handler, tapplus, show_messages=True)
         # Launch response: we use default response because the query contains
         # decimals
         response_launch_job = DummyResponse()
@@ -395,7 +435,7 @@ class TestTap:
             output_file = os.path.abspath(path_to_end_with)
 
         params_dict = {}
-        params_dict['VALID_DATA'] = "false"
+        params_dict['VALID_DATA'] = "true"
         params_dict['ID'] = ids
         params_dict['FORMAT'] = str(format)
         params_dict['RETRIEVAL_TYPE'] = str(retrieval_type)

@@ -33,6 +33,7 @@ from astropy.table import Table
 from astropy import units as u
 import warnings
 from astroquery.exceptions import InputWarning
+from collections.abc import Iterable
 
 
 class GaiaClass(TapPlus):
@@ -925,10 +926,14 @@ class GaiaClass(TapPlus):
             connHandler = self._TapPlus__getconnhandler()
             response = connHandler.execute_tapget(subContext, False)
             if response.status == 200:
-                for line in response:
-                    string_message = line.decode("utf-8")
-                    print(string_message[string_message.index('=') + 1:])
-        except OSError as e:
+                if isinstance(response, Iterable):
+                    for line in response:
+                        try:
+                            print(line.decode("utf-8").split('=', 1)[1])
+                        except ValueError as e:
+                            print(e)
+                            pass
+        except OSError:
             print("Status messages could not be retrieved")
 
 
