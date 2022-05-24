@@ -20,7 +20,7 @@ class TestRingNodeClass:
 
         systemtable, bodytable, ringtable = pds.RingNode.ephemeris(
             planet="Uranus",
-            obs_time="2022-05-03 00:00",
+            epoch="2022-05-03 00:00",
             location=(10.0 * u.deg, -120.355 * u.deg, 1000 * u.m),
         )
         # check system table

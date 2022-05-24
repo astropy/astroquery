@@ -11,6 +11,7 @@ from astropy.io import ascii
 import astropy.units as u
 from astropy.coordinates import EarthLocation, Angle
 from bs4 import BeautifulSoup
+from astroquery import log
 
 # 3. local imports - use relative imports
 # all Query classes should inherit from BaseQuery.
@@ -35,6 +36,8 @@ class RingNodeClass(BaseQuery):
         Instantiate Planetary Ring Node query
         '''
         super().__init__()
+        self.URL = conf.pds_server
+        self.planet_defaults = conf.planet_defaults
 
     def __str__(self):
         """
@@ -49,28 +52,17 @@ class RingNodeClass(BaseQuery):
         """
         return "PDSRingNode instance"
 
-    # --- pretty stuff above this line, get it working below this line ---
-
-    def ephemeris_async(
-        self,
-        planet,
-        obs_time=None,
-        location=None,
-        neptune_arcmodel=3,
-        get_query_payload=False,
-        get_raw_response=False,
-        cache=True,
-    ):
+    def ephemeris_async(self, planet, *, epoch=None, location=None, neptune_arcmodel=3,
+                            get_query_payload=False, get_raw_response=False, cache=True):
         """
         send query to Planetary Ring Node server
 
         Parameters
         ----------
-        self : `~RingNodeClass` instance
         planet : str, required. one of Mars, Jupiter, Saturn, Uranus, Neptune, or Pluto
-        obs_time : `~astropy.time.Time` object, or str in format YYYY-MM-DD hh:mm, optional.
+        epoch : `~astropy.time.Time` object, or str in format YYYY-MM-DD hh:mm, optional.
                 If str is provided then UTC is assumed.
-                If no obs_time is provided, the current time is used.
+                If no epoch is provided, the current time is used.
         location : array-like, or `~astropy.coordinates.EarthLocation`, optional
             Observer's location as a
             3-element array of Earth longitude, latitude, altitude, or
@@ -85,9 +77,6 @@ class RingNodeClass(BaseQuery):
         get_query_payload : boolean, optional
             When set to `True` the method returns the HTTP request parameters as
             a dict, default: False
-        get_raw_response : boolean, optional
-            Return raw data as obtained by the Planetary Ring Node without parsing the data
-            into a table, default: False
 
 
         Returns
@@ -99,10 +88,11 @@ class RingNodeClass(BaseQuery):
         Examples
         --------
         >>> from astroquery.solarsystem.pds import RingNode
+        >>> import astropy.units as u
         >>> systemtable, bodytable, ringtable = RingNode.ephemeris(planet='Uranus',
-        ...                 obs_time='2024-05-08 22:39',
-        ...                 location = (-23.029 * u.deg, -67.755 * u.deg, 5000 * u.m))  # doctest: +SKIP
-        >>> print(ringtable)  # doctest: +SKIP
+        ...                 epoch='2024-05-08 22:39',
+        ...                 location = (-23.029 * u.deg, -67.755 * u.deg, 5000 * u.m))  # doctest: +REMOTE_DATA
+        >>> print(ringtable)  # doctest: +REMOTE_DATA
               ring  pericenter ascending node
                        deg          deg
             ------- ---------- --------------
@@ -118,62 +108,26 @@ class RingNodeClass(BaseQuery):
             Epsilon    298.022            0.0
         """
 
-        URL = conf.pds_server
-        # URL = 'https://pds-rings.seti.org/cgi-bin/tools/viewer3_xxx.pl?'
+        planet = planet.lower()
+        if planet not in ["mars", "jupiter", "saturn", "uranus", "neptune", "pluto", ]:
+            raise ValueError(
+                "illegal value for 'planet' parameter (must be 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', or 'Pluto')"
+            )
 
-        # check inputs and set defaults for optional inputs
-        if planet is None:
-            raise ValueError("'planet' parameter not set. Query aborted.")
-        else:
-            planet = planet.lower()
-            if planet not in [
-                "mars",
-                "jupiter",
-                "saturn",
-                "uranus",
-                "neptune",
-                "pluto",
-            ]:
-                raise ValueError(
-                    "illegal value for 'planet' parameter (must be 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', or 'Pluto')"
-                )
-
-        if obs_time is None:
-            obs_time = Time.now().strftime("%Y-%m-%d %H:%M")
-            warnings.warn("obs_time not set. using current time instead.")
-        elif type(obs_time) == str:
-            try:
-                Time.strptime(obs_time, "%Y-%m-%d %H:%M").jd
-            except Exception as ex:
-                raise ValueError(
-                    "illegal value for 'obs_time' parameter. string must have format 'yyyy-mm-dd hh:mm'"
-                )
-        elif type(obs_time) == Time:
-            try:
-                obs_time = obs_time.utc.to_value("iso", subfmt="date_hm")
-            except Exception as ex:
-                raise ValueError(
-                    "illegal value for 'obs_time' parameter. could not parse astropy.time.core.Time object into format 'yyyy-mm-dd hh:mm' (UTC)"
-                )
+        if isinstance(epoch, (int, float)):
+            epoch = Time(epoch, format='jd')
+        elif isinstance(epoch, str):
+            epoch = Time(epoch, format='iso')
+        elif epoch is None:
+            epoch = Time.now()
+            log.warning("Observation time not set. Using current time.")
 
         if location is None:
             viewpoint = "observatory"
             latitude, longitude, altitude = "", "", ""
-            print("Observatory coordinates not set. Using center of Earth.")
+            log.warning("Observatory coordinates not set. Using center of Earth.")
         else:
             viewpoint = "latlon"
-            if type(location) != EarthLocation:
-                if hasattr(location, "__iter__"):
-                    if len(location) != 3:
-                        raise ValueError(
-                            "location arrays require three values:"
-                            " longitude, latitude, and altitude"
-                        )
-                else:
-                    raise TypeError(
-                        "location must be array-like or astropy EarthLocation"
-                    )
-
             if isinstance(location, EarthLocation):
                 loc = location.geodetic
                 longitude = loc[0].deg
@@ -193,38 +147,29 @@ class RingNodeClass(BaseQuery):
         # thankfully, adding extra planet-specific keywords here does not break query for other planets
         request_payload = OrderedDict(
             [
-                ("abbrev", planet.lower()[:3]),
-                ("ephem", conf.planet_defaults[planet]["ephem"],),
-                ("time", obs_time),  # UTC. this should be enforced when checking inputs
-                (
-                    "fov",
-                    10,
-                ),  # next few are figure options, can be hardcoded and ignored
+                ("abbrev", planet[:3]),
+                ("ephem", self.planet_defaults[planet]["ephem"]),
+                ("time", epoch.utc.to_value("iso", subfmt="date_hm")),  # UTC. this should be enforced when checking inputs
+                ("fov", 10),  # next few are figure options, can be hardcoded and ignored
                 ("fov_unit", planet.capitalize() + " radii"),
                 ("center", "body"),
                 ("center_body", planet.capitalize()),
-                ("center_ansa", conf.planet_defaults[planet]["center_ansa"]),
+                ("center_ansa", self.planet_defaults[planet]["center_ansa"]),
                 ("center_ew", "east"),
                 ("center_ra", ""),
                 ("center_ra_type", "hours"),
                 ("center_dec", ""),
                 ("center_star", ""),
                 ("viewpoint", viewpoint),
-                (
-                    "observatory",
-                    "Earth's center",
-                ),  # has no effect if viewpoint != observatory so can hardcode. no plans to implement calling observatories by name since ring node only names like 8 observatories
+                ("observatory", "Earth's center"),  # has no effect if viewpoint != observatory so can hardcode. no plans to implement calling observatories by name since ring node only names like 8 observatories
                 ("latitude", latitude),
                 ("longitude", longitude),
                 ("lon_dir", "east"),
                 ("altitude", altitude),
-                ("moons", conf.planet_defaults[planet]["moons"]),
-                ("rings", conf.planet_defaults[planet]["rings"]),
+                ("moons", self.planet_defaults[planet]["moons"]),
+                ("rings", self.planet_defaults[planet]["rings"]),
                 ("arcmodel", conf.neptune_arcmodels[int(neptune_arcmodel)]),
-                (
-                    "extra_ra",
-                    "",
-                ),  # figure options below this line, can all be hardcoded and ignored
+                ("extra_ra", ""),  # figure options below this line, can all be hardcoded and ignored
                 ("extra_ra_type", "hours"),
                 ("extra_dec", ""),
                 ("extra_name", ""),
@@ -245,26 +190,21 @@ class RingNodeClass(BaseQuery):
         if get_query_payload:
             return request_payload
 
-        # set return_raw flag, if raw response desired
-        if get_raw_response:
-            self.return_raw = True
-
         # query and parse
         response = self._request(
-            "GET", URL, params=request_payload, timeout=self.TIMEOUT, cache=cache
+            "GET", self.URL, params=request_payload, timeout=self.TIMEOUT, cache=cache
         )
-        self.uri = response.url
 
         return response
 
-    def _parse_ringnode(self, src):
+    def _parse_result(self, response, verbose=None):
         """
         Routine for parsing data from ring node
 
         Parameters
         ----------
         self : RingNodeClass instance
-        src : list
+        response : list
             raw response from server
 
 
@@ -274,9 +214,15 @@ class RingNodeClass(BaseQuery):
         bodytable : `astropy.Table`
         ringtable : `astropy.Table`
         """
+        self.last_response = response
+        try:
+            self._last_query.remove_cache_file(self.cache_location)
+        except OSError:
+            # this is allowed: if `cache` was set to False, this
+            # won't be needed
+            pass
 
-        self.raw_response = src
-        soup = BeautifulSoup(src, "html.parser")
+        soup = BeautifulSoup(response.text, "html.parser")
         text = soup.get_text()
         # print(repr(text))
         textgroups = re.split("\n\n|\n \n", text)
@@ -284,57 +230,28 @@ class RingNodeClass(BaseQuery):
         for group in textgroups:
             group = group.strip(", \n")
 
-            # input parameters. only thing needed is obs_time
+            # input parameters. only thing needed is epoch
             if group.startswith("Observation"):
-                obs_time = group.split("\n")[0].split("e: ")[-1].strip(", \n")
+                epoch = group.split("\n")[0].split("e: ")[-1].strip(", \n")
 
             # minor body table part 1
             elif group.startswith("Body"):
                 group = "NAIF " + group  # fixing lack of header for NAIF ID
-                bodytable = ascii.read(
-                    group,
-                    format="fixed_width",
-                    col_starts=(0, 4, 18, 35, 54, 68, 80, 91),
-                    col_ends=(4, 18, 35, 54, 68, 80, 91, 102),
-                    names=(
-                        "NAIF ID",
-                        "Body",
-                        "RA",
-                        "Dec",
-                        "RA (deg)",
-                        "Dec (deg)",
-                        "dRA",
-                        "dDec",
-                    ),
-                )
-                units_list = [None, None, None, None, u.deg, u.deg, u.arcsec, u.arcsec]
-                bodytable = table.QTable(bodytable, units=units_list)
-                # for i in range(len(bodytable.colnames)):
-                #    bodytable[bodytable.colnames[i]].unit = units_list[i]
+                bodytable = table.QTable.read(group, format="ascii.fixed_width",
+                                        col_starts=(0, 4, 18, 35, 54, 68, 80, 91),
+                                        col_ends=(4, 18, 35, 54, 68, 80, 91, 102),
+                                        names=("NAIF ID", "Body", "RA", "Dec", "RA (deg)", "Dec (deg)", "dRA", "dDec"),
+                                        units=([None, None, None, None, u.deg, u.deg, u.arcsec, u.arcsec]))
+
             # minor body table part 2
             elif group.startswith("Sub-"):
                 group = "\n".join(group.split("\n")[1:])  # fixing two-row header
                 group = "NAIF" + group[4:]
-                bodytable2 = ascii.read(
-                    group,
-                    format="fixed_width",
-                    col_starts=(0, 4, 18, 28, 37, 49, 57, 71),
-                    col_ends=(4, 18, 28, 37, 49, 57, 71, 90),
-                    names=(
-                        "NAIF ID",
-                        "Body",
-                        "sub_obs_lon",
-                        "sub_obs_lat",
-                        "sub_sun_lon",
-                        "sub_sun_lat",
-                        "phase",
-                        "distance",
-                    ),
-                )
-                units_list = [None, None, u.deg, u.deg, u.deg, u.deg, u.deg, u.km * 1e6]
-                bodytable2 = table.QTable(bodytable2, units=units_list)
-                # for i in range(len(bodytable2.colnames)):
-                #    bodytable2[bodytable2.colnames[i]].unit = units_list[i]
+                bodytable2 = table.QTable.read(group, format="ascii.fixed_width",
+                                        col_starts=(0, 4, 18, 28, 37, 49, 57, 71),
+                                        col_ends=(4, 18, 28, 37, 49, 57, 71, 90),
+                                        names=("NAIF ID", "Body", "sub_obs_lon", "sub_obs_lat", "sub_sun_lon", "sub_sun_lat", "phase", "distance"),
+                                        units=([None, None, u.deg, u.deg, u.deg, u.deg, u.deg, u.km * 1e6]))
 
             # ring plane data
             elif group.startswith("Ring s"):
@@ -345,8 +262,6 @@ class RingNodeClass(BaseQuery):
                         [sub_sun_lat, sub_sun_lat_min, sub_sun_lat_max] = [
                             float(s.strip(", \n()")) for s in re.split("\(|to", l[1])
                         ]
-                        # systemtable = table.Table([[sub_sun_lat], [sub_sun_lat_max], [sub_sun_lat_min]],
-                        #                         names = ('sub_sun_lat', 'sub_sun_lat_max', 'sub_sun_lat_min'))
                         systemtable = {
                             "sub_sun_lat": sub_sun_lat * u.deg,
                             "sub_sun_lat_min": sub_sun_lat_min * u.deg,
@@ -374,10 +289,10 @@ class RingNodeClass(BaseQuery):
                 for line in lines:
                     l = line.split(":")
                     if "Sun-planet distance (AU)" in l[0]:
-                        # systemtable["d_sun_AU"] = float(l[1].strip(", \n"))
+                        # this is redundant with sun distance in km
                         pass
                     elif "Observer-planet distance (AU)" in l[0]:
-                        # systemtable["d_obs_AU"] = float(l[1].strip(", \n"))
+                        # this is redundant with observer distance in km
                         pass
                     elif "Sun-planet distance (km)" in l[0]:
                         systemtable["d_sun"] = (
@@ -395,16 +310,11 @@ class RingNodeClass(BaseQuery):
             # --------- below this line, planet-specific info ------------
             # Uranus individual rings data
             elif group.startswith("Ring    "):
-                ringtable = ascii.read(
-                    "     " + group,
-                    format="fixed_width",
+                ringtable = table.QTable.read("     " + group, format="ascii.fixed_width",
                     col_starts=(5, 18, 29),
                     col_ends=(18, 29, 36),
                     names=("ring", "pericenter", "ascending node"),
-                )
-
-                units_list = [None, u.deg, u.deg]
-                ringtable = table.QTable(ringtable, units=units_list)
+                    units=([None, u.deg, u.deg]))
 
             # Saturn F-ring data
             elif group.startswith("F Ring"):
@@ -450,44 +360,9 @@ class RingNodeClass(BaseQuery):
         bodytable = table.join(bodytable, bodytable2)  # concatenate minor body table
         bodytable.add_index("Body")
 
-        systemtable["obs_time"] = Time(
-            obs_time, format="iso", scale="utc"
-        )  # add obs time to systemtable
+        systemtable["epoch"] = Time(epoch, format="iso", scale="utc")  # add obs time to systemtable
 
         return systemtable, bodytable, ringtable
-
-    def _parse_result(self, response, verbose=None):
-        """
-        Routine for managing parser calls
-
-        Parameters
-        ----------
-        self :  RingNodeClass instance
-        response : string
-            raw response from server
-
-        Returns
-        -------
-        systemtable : dict
-        bodytable : `astropy.Table`
-        ringtable : `astropy.Table`
-        """
-        self.last_response = response
-        try:
-            systemtable, bodytable, ringtable = self._parse_ringnode(response.text)
-        except Exception as ex:
-            try:
-                self._last_query.remove_cache_file(self.cache_location)
-            except OSError:
-                # this is allowed: if `cache` was set to False, this
-                # won't be needed
-                pass
-            raise
-        return (
-            systemtable,
-            bodytable,
-            ringtable,
-        )
 
 
 RingNode = RingNodeClass()

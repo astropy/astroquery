@@ -1,5 +1,3 @@
-.. doctest-skip-all
-
 .. _astroquery.solarsystem.pds:
 
 ***********************************************************************************
@@ -10,7 +8,7 @@ Overview
 ========
 
 
-The :class:`~astroquery.solarsystem.pds.RingNodeClass` class provides an
+The :class:`~astroquery.solarsystem.pds.RingNodeClass` provides an
 interface to the ephemeris tools provided by the `NASA Planetary Data System's Ring Node System`_ hosted by SETI institute.
 
 Ephemeris
@@ -23,9 +21,10 @@ ephemerides of the rings and small moons around Uranus as viewed from ALMA:
 .. code-block:: python
 
    >>> from astroquery.solarsystem.pds import RingNode
+   >>> import astropy.units as u
    >>> systemtable, bodytable, ringtable = RingNode.ephemeris(planet='Uranus',
-   ...                 obs_time='2024-05-08 22:39',
-   ...                 location = (-23.029 * u.deg, -67.755 * u.deg, 5000 * u.m))  # doctest: +SKIP
+   ...                 epoch='2024-05-08 22:39',
+   ...                 location = (-23.029 * u.deg, -67.755 * u.deg, 5000 * u.m))  # doctest: +REMOTE_DATA
    >>> print(ringtable)
          ring  pericenter ascending node
                   deg          deg
@@ -43,29 +42,29 @@ ephemerides of the rings and small moons around Uranus as viewed from ALMA:
 
 ``planet`` must be one of ['mars', 'jupiter', 'uranus', 'saturn', 'neptune', 'pluto'] (case-insensitive)
 
-``obs_time`` is the datetime to query. Accepts a string in format 'YYYY-MM-DD HH:MM' (UTC assumed), or an ```astropy.Time`` object. If no obs_time is provided, the current time is used.
+``epoch`` is the datetime to query. Accepts a string in format 'YYYY-MM-DD HH:MM' (UTC assumed), or a `~astropy.time.Time` object. If no epoch is provided, the current time is used.
 
-``location`` is the observer's location. Accepts an ``astropy.coordinates.EarthLocation``, or any 3-element array-like (e.g. list, tuple) of format (latitude, longitude, elevation). Longitude and latitude should be anything that initializes an ``astropy.coordinates.Angle`` object, and altitude should initialize an ``astropy.units.Quantity`` object (with units of length).  If ``None``, then the geocenter is used.
+``location`` is the observer's location. Accepts an `~astropy.coordinates.EarthLocation`, or any 3-element array-like (e.g. list, tuple) of format (latitude, longitude, elevation). Longitude and latitude should be anything that initializes an `~astropy.coordinates.Angle` object, and altitude should initialize a `~astropy.units.Quantity` object (with units of length).  If ``None``, then the geocenter is used.
 
 ``neptune_arcmodel`` is the choice of which ephemeris to assume for Neptune's ring arcs. accepts a float. must be one of 1, 2, or 3 (see https://pds-rings.seti.org/tools/viewer3_nep.shtml for details). default 3. has no effect if planet != 'Neptune'
 
 Outputs
 ---------
-``systemtable`` is a dictionary containing system-wide ephemeris data. Every value is an `astropy Quantity`_ object. We can get a list of all the keys in this dictionary with:
+``systemtable`` is a dict containing system-wide ephemeris data. Every value is a `~astropy.units.Quantity`. We can get a list of all the keys in this dictionary with:
 
 .. code-block:: python
 
 	>>> print(systemtable.keys())
-	dict_keys(['sub_sun_lat', 'sub_sun_lat_min', 'sub_sun_lat_max', 'opening_angle', 'phase_angle', 'sub_sun_lon', 'sub_obs_lon', 'd_sun', 'd_obs', 'light_time', 'obs_time'])
+	dict_keys(['sub_sun_lat', 'sub_sun_lat_min', 'sub_sun_lat_max', 'opening_angle', 'phase_angle', 'sub_sun_lon', 'sub_obs_lon', 'd_sun', 'd_obs', 'light_time', 'epoch'])
 
-``bodytable`` is an `astropy table`_ containing ephemeris information on the moons in the planetary system. Every column is assigned a unit from `astropy units`_. We can get a list of all the columns in this table with:
+``bodytable`` is a `~astropy.table.QTable` containing ephemeris information on the moons in the planetary system. Every column is assigned a unit from `~astropy.units`. We can get a list of all the columns in this table with:
 
 .. code-block:: python
 
 	>>> print(bodytable.columns)
 	<TableColumns names=('NAIF ID','Body','RA','Dec','RA (deg)','Dec (deg)','dRA','dDec','sub_obs_lon','sub_obs_lat','sub_sun_lon','sub_sun_lat','phase','distance')>
 
-``ringtable`` is an `astropy table`_ containing ephemeris information on the individual rings in the planetary system. Every column is assigned a unit from `astropy units`_. We can get a list of all the columns in this table with:
+``ringtable`` is a `~astropy.table.QTable` containing ephemeris information on the individual rings in the planetary system. Every column is assigned a unit from `~astropy.units`. We can get a list of all the columns in this table with:
 
 .. code-block:: python
 
@@ -76,41 +75,16 @@ Note that the behavior of ``ringtable`` changes depending on the planet you quer
 
 .. code-block:: python
 
-	>>> systemtable, bodytable, ringtable = RingNode.ephemeris(planet='Neptune')
+	>>> systemtable, bodytable, ringtable = RingNode.ephemeris(planet='Neptune', epoch='2022-05-24 00:00') # doctest: +REMOTE_DATA
 	>>> print(ringtable)
-	   ring    min_angle max_angle
-	              deg       deg   
-	---------- --------- ---------
-	   Courage  46.39438  47.39438
-	   Liberte  37.59439  41.69437
-	 Egalite A  26.79437  27.79437
-	 Egalite B  22.99439  25.99439
-	Fraternite   8.99439  18.59439
-
-
-
-Hints and Tricks
-================
-
-Checking the original RingNode output
------------------------------------------
-
-Once the query method has been called, the retrieved raw response is
-stored in the attribute ``raw_response``. Inspecting this response can help to
-understand issues with your query, or you can process the results differently.
-
-The query URI (the URI is what you would put into the URL
-field of your web browser) that is used to request the data from the Planetary Ring Node server can be obtained from the
-:class:`~astroquery.solarsystem.pds.RingNodeClass` object after a query has been
-performed (before the query only ``None`` would be returned):
-
-   >>> print(obj.uri)
-   https://pds-rings.seti.org/cgi-bin/tools/viewer3_xxx.pl?abbrev=ura&ephem=000+URA111+%2B+URA115+%2B+DE440&time=2024-05-08+22%3A39&fov=10&fov_unit=Uranus+radii&center=body&center_body=Uranus&center_ansa=Epsilon&center_ew=east&center_ra=&center_ra_type=hours&center_dec=&center_star=&viewpoint=latlon&observatory=Earth%27s+center&latitude=-67.75499999999998&longitude=-23.028999999999996&lon_dir=east&altitude=4999.999999999843&moons=727+All+inner+moons+%28U1-U15%2CU25-U27%29&rings=All+rings&arcmodel=%233+%28820.1121+deg%2Fday%29&extra_ra=&extra_ra_type=hours&extra_dec=&extra_name=&title=&labels=Small+%286+points%29&moonpts=0&blank=No&opacity=Transparent&peris=None&peripts=4&arcpts=4&meridians=Yes&output=html
-
-If your query failed, it might be useful for you to put the URI into a web
-browser to get more information why it failed. Please note that ``uri`` is an
-attribute of :class:`~astroquery.solarsystem.pds.RingNodeClass` and not the results
-table.
+    	   ring    min_angle max_angle
+    	              deg       deg   
+    	---------- --------- ---------
+    	   Courage   53.4818   54.4818
+    	   Liberte  44.68181  48.78178
+    	 Egalite A  33.88179  34.88179
+    	 Egalite B   30.0818   33.0818
+    	Fraternite   16.0818  25.68181
 
 
 Acknowledgements
