@@ -1098,26 +1098,39 @@ class HorizonsClass(BaseQuery):
 
     # ---------------------------------- parser functions
 
-    def _parse_horizons(self, src):
+    def _parse_result(self, response, verbose=None):
         """
-        Routine for parsing data from JPL Horizons
+        Parse query result to a `~astropy.table.Table` object.
 
 
         Parameters
         ----------
 
-        src : list
-            raw response from server
+        response : `~requests.Response`
+            Response from server.
 
 
         Returns
         -------
 
-        data : `astropy.Table`
+        data : `~astropy.table.Table`
 
         """
 
-        self.raw_response = src
+        self.last_response = response
+        try:
+            response.raise_for_status()
+        except HTTPError:
+            # don't cache any HTTP errored queries (especially when the API is down!)
+            try:
+                self._last_query.remove_cache_file(self.cache_location)
+            except OSError:
+                # this is allowed: if `cache` was set to False, this
+                # won't be needed
+                pass
+            raise
+
+        self.raw_response = response.text
 
         # return raw response, if desired
         if self.return_raw:
@@ -1126,7 +1139,7 @@ class HorizonsClass(BaseQuery):
             return self.raw_response
 
         # split response by line break
-        src = src.split('\n')
+        src = response.text.split('\n')
 
         data_start_idx = 0
         data_end_idx = 0
@@ -1313,43 +1326,6 @@ class HorizonsClass(BaseQuery):
             except KeyError:
                 pass
 
-        return data
-
-    def _parse_result(self, response, verbose=None):
-        """
-        Routine for managing parser calls;
-
-        This routine decides based on `self.query_type` which parser
-        has to be used.
-
-
-        Parameters
-        ----------
-
-        response : string
-            raw response from server
-
-
-        Returns
-        -------
-
-        data : `astropy.Table`
-
-        """
-
-        self.last_response = response
-        try:
-            response.raise_for_status()
-        except HTTPError:
-            # don't cache any HTTP errored queries (especially when the API is down!)
-            try:
-                self._last_query.remove_cache_file(self.cache_location)
-            except OSError:
-                # this is allowed: if `cache` was set to False, this
-                # won't be needed
-                pass
-            raise
-        data = self._parse_horizons(response.text)
         return data
 
 
