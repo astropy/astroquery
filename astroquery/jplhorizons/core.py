@@ -9,6 +9,7 @@ from collections import OrderedDict
 import warnings
 
 # 2. third party imports
+from requests.exceptions import HTTPError
 from astropy.table import Table, Column
 from astropy.io import ascii
 from astropy.time import Time
@@ -1337,19 +1338,18 @@ class HorizonsClass(BaseQuery):
         """
 
         self.last_response = response
-        if self.query_type not in ['ephemerides', 'elements', 'vectors']:
-            return None
-        else:
+        try:
+            response.raise_for_status()
+        except HTTPError:
+            # don't cache any HTTP errored queries (especially when the API is down!)
             try:
-                data = self._parse_horizons(response.text)
-            except Exception as ex:
-                try:
-                    self._last_query.remove_cache_file(self.cache_location)
-                except OSError:
-                    # this is allowed: if `cache` was set to False, this
-                    # won't be needed
-                    pass
-                raise
+                self._last_query.remove_cache_file(self.cache_location)
+            except OSError:
+                # this is allowed: if `cache` was set to False, this
+                # won't be needed
+                pass
+            raise
+        data = self._parse_horizons(response.text)
         return data
 
 
