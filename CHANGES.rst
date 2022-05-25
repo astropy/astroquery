@@ -31,6 +31,12 @@ ipac.nexsci.nasa_exoplanet_archive
 
 - The deprecated methods ``query_planet()`` and ``query_star()`` have been removed.
 
+jplhorizons
+^^^^^^^^^^^
+
+- Deprecate ``get_raw_response`` options in query methods.  The raw response may
+  be retrieved from the _async() methods. [#2418]
+
 jplsbdb
 ^^^^^^^
 
