@@ -22,9 +22,9 @@ ephemerides of the rings and small moons around Uranus as viewed from ALMA:
 
    >>> from astroquery.solarsystem.pds import RingNode
    >>> import astropy.units as u
-   >>> systemtable, bodytable, ringtable = RingNode.ephemeris(planet='Uranus',
+   >>> bodytable, ringtable = RingNode.ephemeris(planet='Uranus',
    ...                 epoch='2024-05-08 22:39',
-   ...                 location = (-23.029 * u.deg, -67.755 * u.deg, 5000 * u.m))  # doctest: +REMOTE_DATA
+   ...                 location = (-67.755 * u.deg, -23.029 * u.deg, 5000 * u.m))  # doctest: +REMOTE_DATA
    >>> print(ringtable)
          ring  pericenter ascending node
                   deg          deg
@@ -42,21 +42,23 @@ ephemerides of the rings and small moons around Uranus as viewed from ALMA:
 
 ``planet`` must be one of ['mars', 'jupiter', 'uranus', 'saturn', 'neptune', 'pluto'] (case-insensitive)
 
+.. code-block:: python
+
+   >>> bodytable, ringtable = RingNode.ephemeris(planet='Venus',
+   ...                 epoch='2024-05-08 22:39',
+   ...                 location = (-67.755 * u.deg, -23.029 * u.deg, 5000 * u.m)) # doctest: +IGNORE_EXCEPTION_DETAIL
+   Traceback (most recent call last):
+   ...
+   ValueError: illegal value for 'planet' parameter (must be 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', or 'Pluto')
+
 ``epoch`` is the datetime to query. Accepts a string in format 'YYYY-MM-DD HH:MM' (UTC assumed), or a `~astropy.time.Time` object. If no epoch is provided, the current time is used.
 
-``location`` is the observer's location. Accepts an `~astropy.coordinates.EarthLocation`, or any 3-element array-like (e.g. list, tuple) of format (latitude, longitude, elevation). Longitude and latitude should be anything that initializes an `~astropy.coordinates.Angle` object, and altitude should initialize a `~astropy.units.Quantity` object (with units of length).  If ``None``, then the geocenter is used.
+``location`` is the observer's location. Accepts an `~astropy.coordinates.EarthLocation`, or any 3-element array-like (e.g. list, tuple) of format (longitude, latitude, elevation). Longitude and latitude should be anything that initializes an `~astropy.coordinates.Angle` object, and altitude should initialize a `~astropy.units.Quantity` object (with units of length).  If ``None``, then the geocenter is used.
 
 ``neptune_arcmodel`` is the choice of which ephemeris to assume for Neptune's ring arcs. accepts a float. must be one of 1, 2, or 3 (see https://pds-rings.seti.org/tools/viewer3_nep.shtml for details). default 3. has no effect if planet != 'Neptune'
 
 Outputs
 ---------
-``systemtable`` is a dict containing system-wide ephemeris data. Every value is a `~astropy.units.Quantity`. We can get a list of all the keys in this dictionary with:
-
-.. code-block:: python
-
-	>>> print(systemtable.keys())
-	dict_keys(['sub_sun_lat', 'sub_sun_lat_min', 'sub_sun_lat_max', 'opening_angle', 'phase_angle', 'sub_sun_lon', 'sub_obs_lon', 'd_sun', 'd_obs', 'light_time', 'epoch'])
-
 ``bodytable`` is a `~astropy.table.QTable` containing ephemeris information on the moons in the planetary system. Every column is assigned a unit from `~astropy.units`. We can get a list of all the columns in this table with:
 
 .. code-block:: python
@@ -75,7 +77,7 @@ Note that the behavior of ``ringtable`` changes depending on the planet you quer
 
 .. code-block:: python
 
-	>>> systemtable, bodytable, ringtable = RingNode.ephemeris(planet='Neptune', epoch='2022-05-24 00:00') # doctest: +REMOTE_DATA
+	>>> bodytable, ringtable = RingNode.ephemeris(planet='Neptune', epoch='2022-05-24 00:00') # doctest: +REMOTE_DATA
 	>>> print(ringtable)
     	   ring    min_angle max_angle
     	              deg       deg   
@@ -85,6 +87,14 @@ Note that the behavior of ``ringtable`` changes depending on the planet you quer
     	 Egalite A  33.88179  34.88179
     	 Egalite B   30.0818   33.0818
     	Fraternite   16.0818  25.68181
+		
+System-wide data are available as metadata in both ``bodytable`` and ``ringtable`` (if ``ringtable`` exists), e.g.:
+
+.. code-block:: python
+
+	>>> systemtable = bodytable.meta
+	>>> print(systemtable.keys())
+	dict_keys(['sub_sun_lat', 'sub_sun_lat_min', 'sub_sun_lat_max', 'opening_angle', 'phase_angle', 'sub_sun_lon', 'sub_obs_lon', 'd_sun', 'd_obs', 'light_time', 'epoch'])
 
 
 Acknowledgements

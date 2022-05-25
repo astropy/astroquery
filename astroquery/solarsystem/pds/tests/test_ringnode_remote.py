@@ -1,30 +1,22 @@
 import pytest
-from astropy.tests.helper import assert_quantity_allclose
 import numpy as np
 import astropy.units as u
 
 from ... import pds
 
 
-# Horizons has machinery here to mock request from a text file
-# is that necessary? why is that done?
-# wouldn't we want to know if the website we are querying changes something that makes code fail?
-
-
-# --------------------------------- actual test functions
-
-
 @pytest.mark.remote_data
 class TestRingNodeClass:
     def test_ephemeris_query(self):
 
-        systemtable, bodytable, ringtable = pds.RingNode.ephemeris(
+        bodytable, ringtable = pds.RingNode.ephemeris(
             planet="Uranus",
             epoch="2022-05-03 00:00",
-            location=(10.0 * u.deg, -120.355 * u.deg, 1000 * u.m),
+            location=(-120.355 * u.deg, 10.0 * u.deg, 1000 * u.m),
         )
         # check system table
-        assert_quantity_allclose(
+        systemtable = bodytable.meta
+        assert np.allclose(
             [
                 -56.12233,
                 -56.13586,
@@ -56,7 +48,7 @@ class TestRingNodeClass:
         mab = bodytable[bodytable.loc_indices["Mab"]]
         assert mab["NAIF ID"] == 726
         assert mab["Body"] == "Mab"
-        assert_quantity_allclose(
+        assert np.allclose(
             [
                 42.011201,
                 15.801323,

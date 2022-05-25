@@ -2,7 +2,6 @@ import pytest
 import os
 import numpy as np
 
-from astropy.tests.helper import assert_quantity_allclose
 import astropy.units as u
 
 from astroquery.utils.mocks import MockResponse
@@ -45,13 +44,14 @@ def patch_request(request):
 
 def test_ephemeris_query_Uranus(patch_request):
 
-    systemtable, bodytable, ringtable = pds.RingNode.ephemeris(
+    bodytable, ringtable = pds.RingNode.ephemeris(
         planet="Uranus",
         epoch="2022-05-03 00:00",
-        location=(10.0 * u.deg, -120.355 * u.deg, 1000 * u.m),
+        location=(-120.355 * u.deg, 10.0 * u.deg, 1000 * u.m),
     )
     # check system table
-    assert_quantity_allclose(
+    systemtable = bodytable.meta
+    assert np.allclose(
         [
             -56.12233,
             -56.13586,
@@ -83,7 +83,7 @@ def test_ephemeris_query_Uranus(patch_request):
     mab = bodytable[bodytable.loc_indices["Mab"]]
     assert mab["NAIF ID"] == 726
     assert mab["Body"] == "Mab"
-    assert_quantity_allclose(
+    assert np.allclose(
         [
             42.011201,
             15.801323,
@@ -119,14 +119,13 @@ def test_ephemeris_query_Uranus(patch_request):
 
 def test_ephemeris_query_Pluto(patch_request):
 
-    systemtable, bodytable, ringtable = pds.RingNode.ephemeris(
+    bodytable, ringtable = pds.RingNode.ephemeris(
         planet="Pluto",
         epoch="2021-10-07 07:25",
     )
-    print(systemtable)
-    print(bodytable[bodytable.loc_indices["Styx"]])
+    systemtable = bodytable.meta
     # check system table
-    assert_quantity_allclose(
+    assert np.allclose(
         [
             57.57737,
              57.56961,
@@ -158,7 +157,7 @@ def test_ephemeris_query_Pluto(patch_request):
     styx = bodytable[bodytable.loc_indices["Styx"]]
     assert styx["NAIF ID"] == 905
     assert styx["Body"] == "Styx"
-    assert_quantity_allclose(
+    assert np.allclose(
         [
             296.212477,
             -22.93533,
@@ -193,15 +192,13 @@ def test_ephemeris_query_Pluto(patch_request):
 def test_ephemeris_query_Neptune(patch_request):
     '''Verify that the Neptune ring arcs are queried properly'''
 
-    systemtable, bodytable, ringtable = pds.RingNode.ephemeris(
+    bodytable, ringtable = pds.RingNode.ephemeris(
         planet="Neptune",
         epoch="2021-10-07 07:25",
         neptune_arcmodel=2
     )
 
-    print(ringtable[ringtable.loc_indices["Courage"]])
-
-    assert_quantity_allclose(
+    assert np.allclose(
                     [63.81977,
                      55.01978,
                      44.21976,
@@ -227,13 +224,12 @@ def test_ephemeris_query_Neptune(patch_request):
 
 def test_ephemeris_query_Saturn(patch_request):
     '''Check Saturn F ring is queried properly'''
-    systemtable, bodytable, ringtable = pds.RingNode.ephemeris(
+    bodytable, ringtable = pds.RingNode.ephemeris(
         planet="Saturn",
         epoch="2021-10-07 07:25",
     )
-    print(ringtable)
 
-    assert_quantity_allclose(
+    assert np.allclose(
                     [249.23097,
                      250.34081
                      ],
@@ -248,7 +244,7 @@ def test_ephemeris_query_payload():
         planet="Neptune",
         epoch="2022-05-03 00:00",
         neptune_arcmodel=1,
-        location=(10.0 * u.deg, -120.355 * u.deg, 1000 * u.m),
+        location=(-120.355 * u.deg, 10.0 * u.deg, 1000 * u.m),
         get_query_payload=True,
     )
 
@@ -301,3 +297,12 @@ def test_ephemeris_query_payload():
             ("output", "html"),
         ]
     )
+
+
+def test_bad_query_raise():
+
+    with pytest.raises(ValueError):
+        bodytable, ringtable = pds.RingNode.ephemeris(
+            planet="Venus",
+            epoch="2021-10-07 07:25",
+            )

@@ -1,6 +1,5 @@
 # 1. standard library imports
 
-from collections import OrderedDict
 import re
 import warnings
 
@@ -11,7 +10,6 @@ from astropy.io import ascii
 import astropy.units as u
 from astropy.coordinates import EarthLocation, Angle
 from bs4 import BeautifulSoup
-from astroquery import log
 
 # 3. local imports - use relative imports
 # all Query classes should inherit from BaseQuery.
@@ -29,27 +27,17 @@ class RingNodeClass(BaseQuery):
     <https://pds-rings.seti.org/tools/>
     """
 
-    TIMEOUT = conf.timeout
-
-    def __init__(self):
+    def __init__(self, timeout=None):
         '''
         Instantiate Planetary Ring Node query
         '''
         super().__init__()
-        self.URL = conf.pds_server
+        self.url = conf.pds_server
+        self.timeout = conf.timeout
         self.planet_defaults = conf.planet_defaults
 
     def __str__(self):
-        """
-        String representation of `~RingNodeClass` object instance
 
-        Examples
-        --------
-        >>> from astroquery.solarsystem.pds import RingNode
-        >>> nodeobj = RingNode
-        >>> print(nodeobj)  # doctest: +SKIP
-        PDSRingNode instance
-        """
         return "PDSRingNode instance"
 
     def ephemeris_async(self, planet, *, epoch=None, location=None, neptune_arcmodel=3,
@@ -89,7 +77,7 @@ class RingNodeClass(BaseQuery):
         --------
         >>> from astroquery.solarsystem.pds import RingNode
         >>> import astropy.units as u
-        >>> systemtable, bodytable, ringtable = RingNode.ephemeris(planet='Uranus',
+        >>> bodytable, ringtable = RingNode.ephemeris(planet='Uranus',
         ...                 epoch='2024-05-08 22:39',
         ...                 location = (-23.029 * u.deg, -67.755 * u.deg, 5000 * u.m))  # doctest: +REMOTE_DATA
         >>> print(ringtable)  # doctest: +REMOTE_DATA
@@ -120,12 +108,10 @@ class RingNodeClass(BaseQuery):
             epoch = Time(epoch, format='iso')
         elif epoch is None:
             epoch = Time.now()
-            log.warning("Observation time not set. Using current time.")
 
         if location is None:
             viewpoint = "observatory"
             latitude, longitude, altitude = "", "", ""
-            log.warning("Observatory coordinates not set. Using center of Earth.")
         else:
             viewpoint = "latlon"
             if isinstance(location, EarthLocation):
@@ -134,8 +120,8 @@ class RingNodeClass(BaseQuery):
                 latitude = loc[1].deg
                 altitude = loc[2].to(u.m).value
             elif hasattr(location, "__iter__"):
-                latitude = Angle(location[0]).deg
-                longitude = Angle(location[1]).deg
+                longitude = Angle(location[0]).deg
+                latitude = Angle(location[1]).deg
                 altitude = u.Quantity(location[2]).to("m").value
 
         if int(neptune_arcmodel) not in [1, 2, 3]:
@@ -145,11 +131,11 @@ class RingNodeClass(BaseQuery):
 
         # configure request_payload for ephemeris query
         # thankfully, adding extra planet-specific keywords here does not break query for other planets
-        request_payload = OrderedDict(
+        request_payload = dict(
             [
                 ("abbrev", planet[:3]),
                 ("ephem", self.planet_defaults[planet]["ephem"]),
-                ("time", epoch.utc.to_value("iso", subfmt="date_hm")),  # UTC. this should be enforced when checking inputs
+                ("time", epoch.utc.iso[:16]),
                 ("fov", 10),  # next few are figure options, can be hardcoded and ignored
                 ("fov_unit", planet.capitalize() + " radii"),
                 ("center", "body"),
@@ -192,7 +178,7 @@ class RingNodeClass(BaseQuery):
 
         # query and parse
         response = self._request(
-            "GET", self.URL, params=request_payload, timeout=self.TIMEOUT, cache=cache
+            "GET", self.url, params=request_payload, timeout=self.timeout, cache=cache
         )
 
         return response
@@ -210,21 +196,19 @@ class RingNodeClass(BaseQuery):
 
         Returns
         -------
-        systemtable : dict
-        bodytable : `astropy.Table`
-        ringtable : `astropy.Table`
+        bodytable : `astropy.QTable`
+        ringtable : `astropy.QTable`
         """
         self.last_response = response
         try:
             self._last_query.remove_cache_file(self.cache_location)
-        except OSError:
+        except FileNotFoundError:
             # this is allowed: if `cache` was set to False, this
             # won't be needed
             pass
 
         soup = BeautifulSoup(response.text, "html.parser")
         text = soup.get_text()
-        # print(repr(text))
         textgroups = re.split("\n\n|\n \n", text)
         ringtable = None
         for group in textgroups:
@@ -354,15 +338,17 @@ class RingNodeClass(BaseQuery):
                 pass
 
         # do some cleanup from the parsing job
+        # and make system-wide parameters metadata of bodytable and ringtable
+        systemtable["epoch"] = Time(epoch, format="iso", scale="utc")  # add obs time to systemtable
         if ringtable is not None:
             ringtable.add_index("ring")
+            ringtable.meta = systemtable
 
         bodytable = table.join(bodytable, bodytable2)  # concatenate minor body table
         bodytable.add_index("Body")
+        bodytable.meta = systemtable
 
-        systemtable["epoch"] = Time(epoch, format="iso", scale="utc")  # add obs time to systemtable
-
-        return systemtable, bodytable, ringtable
+        return bodytable, ringtable
 
 
 RingNode = RingNodeClass()
