@@ -809,7 +809,7 @@ class HorizonsClass(BaseQuery):
             request_payload['TLIST'] = "\n".join([str(epoch) for
                                                   epoch in
                                                   self.epochs])
-        elif type(self.epochs) is dict:
+        elif isinstance(self.epochs, dict):
             if ('start' not in self.epochs or 'stop' not in self.epochs or
                     'step' not in self.epochs):
                 raise ValueError("'epochs' must contain start, "
@@ -1052,7 +1052,7 @@ class HorizonsClass(BaseQuery):
         if isinstance(self.epochs, (list, tuple, ndarray)):
             request_payload['TLIST'] = "\n".join([str(epoch) for epoch in
                                                   self.epochs])
-        elif type(self.epochs) is dict:
+        elif isinstance(self.epochs, dict):
             if ('start' not in self.epochs or 'stop' not in self.epochs or
                     'step' not in self.epochs):
                 raise ValueError("'epochs' must contain start, " +
