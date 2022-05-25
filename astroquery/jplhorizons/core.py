@@ -176,7 +176,7 @@ class HorizonsClass(BaseQuery):
                           closest_apparition=False, no_fragments=False,
                           quantities=conf.eph_quantities,
                           get_query_payload=False,
-                          get_raw_response=False, cache=True,
+                          cache=True,
                           extra_precision=False):
         """
         Query JPL Horizons for ephemerides.
@@ -480,10 +480,6 @@ class HorizonsClass(BaseQuery):
             When set to `True` the method returns the HTTP request parameters as
             a dict, default: False
 
-        get_raw_response : boolean, optional
-            Return raw data as obtained by JPL Horizons without parsing the data
-            into a table, default: False
-
         extra_precision : boolean, optional
             Enables extra precision in RA and DEC values; default: False
 
@@ -614,10 +610,6 @@ class HorizonsClass(BaseQuery):
         if get_query_payload:
             return request_payload
 
-        # set return_raw flag, if raw response desired
-        if get_raw_response:
-            self.return_raw = True
-
         # query and parse
         response = self._request('GET', self.server_url, params=request_payload,
                                  timeout=self.TIMEOUT, cache=cache)
@@ -637,7 +629,7 @@ class HorizonsClass(BaseQuery):
                        refplane='ecliptic',
                        tp_type='absolute',
                        closest_apparition=False, no_fragments=False,
-                       get_raw_response=False, cache=True):
+                       cache=True):
         """
         Query JPL Horizons for osculating orbital elements.
 
@@ -727,10 +719,6 @@ class HorizonsClass(BaseQuery):
         get_query_payload : boolean, optional
             When set to ``True`` the method returns the HTTP request parameters
             as a dict, default: False
-
-        get_raw_response: boolean, optional
-            Return raw data as obtained by JPL Horizons without parsing the data
-            into a table, default: False
 
 
         Returns
@@ -830,10 +818,6 @@ class HorizonsClass(BaseQuery):
         if get_query_payload:
             return request_payload
 
-        # set return_raw flag, if raw response desired
-        if get_raw_response:
-            self.return_raw = True
-
         # query and parse
         response = self._request('GET', self.server_url, params=request_payload,
                                  timeout=self.TIMEOUT, cache=cache)
@@ -850,7 +834,7 @@ class HorizonsClass(BaseQuery):
 
     def vectors_async(self, get_query_payload=False,
                       closest_apparition=False, no_fragments=False,
-                      get_raw_response=False, cache=True,
+                      cache=True,
                       refplane='ecliptic', aberrations='geometric',
                       delta_T=False,):
         """
@@ -932,10 +916,6 @@ class HorizonsClass(BaseQuery):
         get_query_payload : boolean, optional
             When set to `True` the method returns the HTTP request parameters as
             a dict, default: False
-
-        get_raw_response: boolean, optional
-            Return raw data as obtained by JPL Horizons without parsing the data
-            into a table, default: False
 
         refplane : string
             Reference plane for all output quantities: ``'ecliptic'`` (ecliptic
@@ -1073,10 +1053,6 @@ class HorizonsClass(BaseQuery):
         # return request_payload if desired
         if get_query_payload:
             return request_payload
-
-        # set return_raw flag, if raw response desired
-        if get_raw_response:
-            self.return_raw = True
 
         # query and parse
         response = self._request('GET', self.server_url, params=request_payload,
