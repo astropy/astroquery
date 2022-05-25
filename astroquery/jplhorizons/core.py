@@ -91,11 +91,11 @@ class HorizonsClass(BaseQuery):
 
         >>> from astroquery.jplhorizons import Horizons
         >>> eros = Horizons(id='433', location='568',
-        ...              epochs={'start':'2017-01-01',
-        ...                      'stop':'2017-02-01',
-        ...                      'step':'1d'})
-        >>> print(eros)  # doctest: +SKIP
-        JPLHorizons instance "433"; location=568, epochs={'start': '2017-01-01', 'step': '1d', 'stop': '2017-02-01'}, id_type=None
+        ...                 epochs={'start': '2017-01-01',
+        ...                         'stop': '2017-02-01',
+        ...                         'step': '1d'})
+        >>> print(eros)
+        JPLHorizons instance "433"; location=568, epochs={'start': '2017-01-01', 'stop': '2017-02-01', 'step': '1d'}, id_type=None
 
         """
 
@@ -150,8 +150,8 @@ class HorizonsClass(BaseQuery):
         ...                 epochs={'start':'2017-01-01',
         ...                         'stop':'2017-02-01',
         ...                         'step':'1d'})
-        >>> print(eros)  # doctest: +SKIP
-        JPLHorizons instance "433"; location=568, epochs={'start': '2017-01-01', 'step': '1d', 'stop': '2017-02-01'}, id_type=None
+        >>> print(eros)
+        JPLHorizons instance "433"; location=568, epochs={'start': '2017-01-01', 'stop': '2017-02-01', 'step': '1d'}, id_type=None
 
         """
 
@@ -500,7 +500,7 @@ class HorizonsClass(BaseQuery):
         ...             epochs={'start':'2010-01-01',
         ...                     'stop':'2010-03-01',
         ...                     'step':'10d'})
-        >>> eph = obj.ephemerides()  # doctest: +SKIP
+        >>> eph = obj.ephemerides()  # doctest: +REMOTE_DATA
         >>> print(eph)  # doctest: +SKIP
             targetname       datetime_str   datetime_jd ...  PABLon  PABLat
                ---               ---             d      ...   deg     deg
@@ -745,10 +745,10 @@ class HorizonsClass(BaseQuery):
         >>> from astroquery.jplhorizons import Horizons
         >>> obj = Horizons(id='433', location='500@10',
         ...                epochs=2458133.33546)
-        >>> el = obj.elements()  # doctest: +SKIP
+        >>> el = obj.elements()  # doctest: +REMOTE_DATA
         >>> print(el)  # doctest: +SKIP
             targetname      datetime_jd  ...       Q            P
-                ---               d       ...       AU           d
+                ---              d       ...       AU           d
         ------------------ ------------- ... ------------- ------------
         433 Eros (1898 DQ) 2458133.33546 ... 1.78244263804 642.93873484
 
@@ -968,13 +968,13 @@ class HorizonsClass(BaseQuery):
 
         >>> from astroquery.jplhorizons import Horizons
         >>> obj = Horizons(id='2012 TC4', location='257',
-        ...             epochs={'start':'2017-10-01',
-        ...                     'stop':'2017-10-02',
-        ...                     'step':'10m'})
-        >>> vec = obj.vectors()  # doctest: +SKIP
+        ...                epochs={'start': '2017-10-01',
+        ...                        'stop': '2017-10-02',
+        ...                        'step': '10m'})
+        >>> vec = obj.vectors()  # doctest: +REMOTE_DATA
         >>> print(vec)  # doctest: +SKIP
         targetname  datetime_jd  ...      range          range_rate
-            ---           d       ...        AU             AU / d
+           ---           d       ...        AU             AU / d
         ---------- ------------- ... --------------- -----------------
         (2012 TC4)     2458027.5 ... 0.0429332099306 -0.00408018711862
         (2012 TC4) 2458027.50694 ... 0.0429048742906 -0.00408040726527
@@ -982,7 +982,7 @@ class HorizonsClass(BaseQuery):
         (2012 TC4) 2458027.52083 ... 0.0428482057142  -0.0040795878561
         (2012 TC4) 2458027.52778 ...  0.042819878607 -0.00407854931543
         (2012 TC4) 2458027.53472 ... 0.0427915601617  -0.0040770935665
-                ...           ... ...             ...               ...
+               ...           ... ...             ...               ...
         (2012 TC4) 2458028.45833 ... 0.0392489462501 -0.00405496595173
         (2012 TC4) 2458028.46528 ...   0.03922077771 -0.00405750632914
         (2012 TC4) 2458028.47222 ...  0.039192592935 -0.00405964084539
