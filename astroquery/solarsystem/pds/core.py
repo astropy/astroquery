@@ -202,7 +202,7 @@ class RingNodeClass(BaseQuery):
         self.last_response = response
         try:
             self._last_query.remove_cache_file(self.cache_location)
-        except FileNotFoundError:
+        except (FileNotFoundError, AttributeError):
             # this is allowed: if `cache` was set to False, this
             # won't be needed
             pass
