@@ -104,6 +104,8 @@ class HorizonsClass(BaseQuery):
         self.id = id
         self.location = location
 
+        self.server_url = conf.horizons_server
+
         # check for epochs to be dict or list-like; else: make it a list
         if epochs is not None:
             if isinstance(epochs, (list, tuple, ndarray)):
@@ -515,8 +517,6 @@ class HorizonsClass(BaseQuery):
 
         """
 
-        URL = conf.horizons_server
-
         # check for required information
         if self.id is None:
             raise ValueError("'id' parameter not set. Query aborted.")
@@ -619,7 +619,7 @@ class HorizonsClass(BaseQuery):
             self.return_raw = True
 
         # query and parse
-        response = self._request('GET', URL, params=request_payload,
+        response = self._request('GET', self.server_url, params=request_payload,
                                  timeout=self.TIMEOUT, cache=cache)
         self.uri = response.url
 
@@ -755,8 +755,6 @@ class HorizonsClass(BaseQuery):
 
         """
 
-        URL = conf.horizons_server
-
         # check for required information
         if self.id is None:
             raise ValueError("'id' parameter not set. Query aborted.")
@@ -837,7 +835,7 @@ class HorizonsClass(BaseQuery):
             self.return_raw = True
 
         # query and parse
-        response = self._request('GET', URL, params=request_payload,
+        response = self._request('GET', self.server_url, params=request_payload,
                                  timeout=self.TIMEOUT, cache=cache)
         self.uri = response.url
 
@@ -995,8 +993,6 @@ class HorizonsClass(BaseQuery):
 
         """
 
-        URL = conf.horizons_server
-
         # check for required information
         if self.id is None:
             raise ValueError("'id' parameter not set. Query aborted.")
@@ -1083,7 +1079,7 @@ class HorizonsClass(BaseQuery):
             self.return_raw = True
 
         # query and parse
-        response = self._request('GET', URL, params=request_payload,
+        response = self._request('GET', self.server_url, params=request_payload,
                                  timeout=self.TIMEOUT, cache=cache)
         self.uri = response.url
 
