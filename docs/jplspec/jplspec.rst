@@ -218,9 +218,7 @@ to query these directly.
    ...                              min_strength=-500,
    ...                              molecule="H2O",
    ...                              parse_name_locally=True)
-   >>> print([1, 2, 3])  # doctest: +ELLIPSIS
-   [1, ... 3]
-   >>> print(result)  # doctest: +ELLIPSIS
+   >>> print(result)
        FREQ      ERR     LGINT    DR    ELO    GUP  TAG   QNFMT   QN'      QN"   
        MHz       MHz    MHz nm2        1 / cm                                    
    ----------- -------- -------- --- --------- --- ------ ----- -------- --------
