@@ -71,7 +71,7 @@ The units of the columns of the query can be displayed by calling
    ...                                max_lines = 7)
    >>> print(response.info)
       <Table length=7>
-      name  dtype    unit
+     name  dtype    unit
     ----- ------- -------
      FREQ float64     MHz
       ERR float64     MHz
@@ -213,54 +213,58 @@ to query these directly.
 
    >>> from astroquery.jplspec import JPLSpec
    >>> import astropy.units as u
-   >>> response = JPLSpec.query_lines_async(min_frequency=100 * u.GHz,
-   ...                                      max_frequency=1000 * u.GHz,
-   ...                                      min_strength=-500,
-   ...                                      molecule="H2O",
-   ...                                      parse_name_locally=True)
+   >>> result = JPLSpec.query_lines(min_frequency=100 * u.GHz,
+   ...                              max_frequency=1000 * u.GHz,
+   ...                              min_strength=-500,
+   ...                              molecule="H2O",
+   ...                              parse_name_locally=True)
+   >>> print(result)
+       FREQ      ERR     LGINT    DR    ELO    GUP  TAG   QNFMT   QN'      QN"   
+       MHz       MHz    MHz nm2        1 / cm                                    
+   ----------- -------- -------- --- --------- --- ------ ----- -------- --------
+   115542.5692   0.6588 -13.2595   3 4606.1683  35  18003  1404 17 810 0 18 513 0
+    139614.293     0.15  -9.3636   3 3080.1788  87 -18003  1404 14 6 9 0 15 312 0
+    177317.068     0.15 -10.3413   3 3437.2774  31 -18003  1404 15 610 0 16 313 0
+    183310.087    0.001  -3.6463   3  136.1639   7 -18003  1404  3 1 3 0  2 2 0 0
+   ...
+   Length = 2000 rows
 
-Searches like these can lead to very broad queries. Since the table yields
-extensive results, we will only show a dictionary of the tags that
-went into the payload to create a response:
+Searches like these can lead to very broad queries, and may be limited in
+response length:
 
+.. doctest-remote-data::
 
-.. We don't get these dictionaries as reponses, fix these examples and
-   remove skip. #2408
+   >>> print(result.meta['comments'])
+   ['', '', '', '', '', 'form is currently limited to 2000 lines. Please limit your search.']
 
-.. doctest-skip::
+Inspecting the returned molecules shows that the 'H2O' string was processed as a
+regular expression, and the search matched any molecule that contained the
+combination of characters 'H2O':
 
-    >>> {'CH2OO': 46014,
-    ...  'H2O': 18003,
-    ...  'H2O v2,2v2,v': 18005,
-    ...  'H2O-17': 19003,
-    ...  'H2O-18': 20003,
-    ...  'H2O2': 34004,
-    ...  'HCCCH2OD': 57003,
-    ...  'HCCCH2OH': 56010,
-    ...  'HCOCH2OH': 60006,
-    ...  'NH2CH2CH2OH': 61004}
+.. doctest-remote-data::
 
-As you can see, the 'H2O' string was processed as a regular expression,
-and the search matched any molecule that contained the combination of
-characters 'H20'.
+   >>> tags = set(abs(result['TAG']))  # discard negative signs
+   >>> species = {species: tag
+   ...            for (species, tag) in JPLSpec.lookup_ids.items()
+   ...            if tag in tags}
+   >>> print(species)
+   {'H2O': 18003, 'H2O v2,2v2,v': 18005, 'H2O-17': 19003, 'H2O-18': 20003, 'H2O2': 34004}
 
 A few examples that show the power of the regex option are the following:
 
 .. doctest-remote-data::
 
-   >>> response = JPLSpec.query_lines_async(min_frequency=100 * u.GHz,
-   ...                                      max_frequency=1000 * u.GHz,
-   ...                                      min_strength=-500,
-   ...                                      molecule="H2O$",
-   ...                                      parse_name_locally=True)
-
-
-The response:
-
-.. doctest-skip::
-
-   >>> {'H2O': 18003}
-
+   >>> result = JPLSpec.query_lines(min_frequency=100 * u.GHz,
+   ...                              max_frequency=1000 * u.GHz,
+   ...                              min_strength=-500,
+   ...                              molecule="H2O$",
+   ...                              parse_name_locally=True)
+   >>> tags = set(abs(result['TAG']))  # discard negative signs
+   >>> species = {species: tag
+   ...            for (species, tag) in JPLSpec.lookup_ids.items()
+   ...            if tag in tags}
+   >>> print(species)
+   {'H2O': 18003}
 
 As seen above, the regular expression "H2O$" yields only an exact match because
 the special character $ matches the end of the line. This functionality allows
@@ -268,53 +272,40 @@ you to be as specific or vague as you want to allow the results to be:
 
 .. doctest-remote-data::
 
-   >>> from astroquery.jplspec import JPLSpec
-   >>> import astropy.units as u
-   >>> response = JPLSpec.query_lines_async(min_frequency=100 * u.GHz,
-   ...                                      max_frequency=1000 * u.GHz,
-   ...                                      min_strength=-500,
-   ...                                      molecule="^H.O$",
-   ...                                      parse_name_locally=True)
+   >>> result = JPLSpec.query_lines(min_frequency=100 * u.GHz,
+   ...                              max_frequency=1000 * u.GHz,
+   ...                              min_strength=-500,
+   ...                              molecule="^H.O$",
+   ...                              parse_name_locally=True)
+   >>> tags = set(abs(result['TAG']))  # discard negative signs
+   >>> species = {species: tag
+   ...            for (species, tag) in JPLSpec.lookup_ids.items()
+   ...            if tag in tags}
+   >>> print(species)
+   {'H2O': 18003, 'HDO': 19002, 'HCO': 29004, 'HNO': 31005}
 
 
 This pattern matches any word that starts with an H, ends with an O, and
-contains any character in between, it results in the following molecules
-being queried:
-
-.. doctest-skip::
-
-   >>> {'H2O': 18003,
-   ...  'HDO': 19002
-   ...  'HCO': 29004
-   ...  'HNO': 31005 }
-
+contains any character in between.
 
 Another example of the functionality of this option is the option to obtain
 results from a molecule and its isotopes, in this case H2O and HDO:
 
 .. doctest-remote-data::
 
-   >>> from astroquery.jplspec import JPLSpec
-   >>> import astropy.units as u
-   >>> response = JPLSpec.query_lines_async(min_frequency=100 * u.GHz,
-   ...                                      max_frequency=1000 * u.GHz,
-   ...                                      min_strength=-500,
-   ...                                      molecule=r"^H[2D]O(-\d\d|)$",
-   ...                                      parse_name_locally=True)
+   >>> result = JPLSpec.query_lines(min_frequency=100 * u.GHz,
+   ...                              max_frequency=1000 * u.GHz,
+   ...                              min_strength=-500,
+   ...                              molecule=r"^H[2D]O(-\d\d|)$",
+   ...                              parse_name_locally=True)
+   >>> tags = set(abs(result['TAG']))  # discard negative signs
+   >>> species = {species: tag
+   ...            for (species, tag) in JPLSpec.lookup_ids.items()
+   ...            if tag in tags}
+   >>> print(species)
+   {'H2O': 18003, 'HDO': 19002, 'H2O-17': 19003, 'H2O-18': 20003, 'HDO-18': 21001}
 
-
-This pattern matches any H2O and HDO isotopes and it results in the following
-molecules being part of the payload:
-
-.. doctest-skip::
-
-   >>> {'H2O': 18003,
-   ...  'H2O-17': 19003,
-   ...  'H2O-18': 20003,
-   ...  'HDO': 19002,
-   ...  'HDO-18': 21001}
-
-Remember to print your response to see the table of your results.
+This pattern matches any H2O and HDO isotopes.
 
 
 Reference/API
