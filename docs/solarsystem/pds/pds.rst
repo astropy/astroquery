@@ -46,7 +46,7 @@ ephemerides of the rings and small moons around Uranus as viewed from ALMA:
 
    >>> bodytable, ringtable = RingNode.ephemeris(planet='Venus',
    ...                 epoch='2024-05-08 22:39',
-   ...                 location = (-67.755 * u.deg, -23.029 * u.deg, 5000 * u.m)) # doctest: +IGNORE_EXCEPTION_DETAIL
+   ...                 location = (-67.755 * u.deg, -23.029 * u.deg, 5000 * u.m))
    Traceback (most recent call last):
    ...
    ValueError: illegal value for 'planet' parameter (must be 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', or 'Pluto')

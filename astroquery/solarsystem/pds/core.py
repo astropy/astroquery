@@ -19,6 +19,51 @@ from ...utils import async_to_sync
 # import configurable items declared in __init__.py, e.g. hardcoded dictionaries
 from . import conf
 
+planet_defaults = {
+    "mars": {
+        "ephem": "000 MAR097 + DE440",
+        "moons": "402 Phobos, Deimos",
+        "center_ansa": "Phobos Ring",
+        "rings": "Phobos, Deimos",
+    },
+    "jupiter": {
+        "ephem": "000 JUP365 + DE440",
+        "moons": "516 All inner moons (J1-J5,J14-J16)",
+        "center_ansa": "Main Ring",
+        "rings": "Main & Gossamer",
+    },
+    "saturn": {
+        "ephem": "000 SAT389 + SAT393 + SAT427 + DE440",
+        "moons": "653 All inner moons (S1-S18,S32-S35,S49,S53)",
+        "center_ansa": "A",
+        "rings": "A,B,C,F,G,E",
+    },
+    "uranus": {
+        "ephem": "000 URA111 + URA115 + DE440",
+        "moons": "727 All inner moons (U1-U15,U25-U27)",
+        "center_ansa": "Epsilon",
+        "rings": "All rings",
+    },
+    "neptune": {
+        "ephem": "000 NEP081 + NEP095 + DE440",
+        "moons": "814 All inner moons (N1-N8,N14)",
+        "center_ansa": "Adams Ring",
+        "rings": "Galle, LeVerrier, Arago, Adams",
+    },
+    "pluto": {
+        "ephem": "000 PLU058 + DE440",
+        "moons": "905 All moons (P1-P5)",
+        "center_ansa": "Hydra",
+        "rings": "Styx, Nix, Kerberos, Hydra",
+    },
+}
+
+neptune_arcmodels = {
+    1: "#1 (820.1194 deg/day)",
+    2: "#2 (820.1118 deg/day)",
+    3: "#3 (820.1121 deg/day)",
+}
+
 
 @async_to_sync
 class RingNodeClass(BaseQuery):
@@ -27,14 +72,21 @@ class RingNodeClass(BaseQuery):
     <https://pds-rings.seti.org/tools/>
     """
 
-    def __init__(self, timeout=None):
+    def __init__(self, url='', timeout=None):
         '''
         Instantiate Planetary Ring Node query
         '''
         super().__init__()
-        self.url = conf.pds_server
-        self.timeout = conf.timeout
-        self.planet_defaults = conf.planet_defaults
+        self.url = url
+        self.timeout = timeout
+
+    @property
+    def _url(self):
+        return self.url or conf.url
+
+    @property
+    def _timeout(self):
+        return conf.timeout if self.timeout is None else self.timeout
 
     def __str__(self):
 
@@ -134,13 +186,13 @@ class RingNodeClass(BaseQuery):
         request_payload = dict(
             [
                 ("abbrev", planet[:3]),
-                ("ephem", self.planet_defaults[planet]["ephem"]),
+                ("ephem", planet_defaults[planet]["ephem"]),
                 ("time", epoch.utc.iso[:16]),
                 ("fov", 10),  # next few are figure options, can be hardcoded and ignored
                 ("fov_unit", planet.capitalize() + " radii"),
                 ("center", "body"),
                 ("center_body", planet.capitalize()),
-                ("center_ansa", self.planet_defaults[planet]["center_ansa"]),
+                ("center_ansa", planet_defaults[planet]["center_ansa"]),
                 ("center_ew", "east"),
                 ("center_ra", ""),
                 ("center_ra_type", "hours"),
@@ -152,9 +204,9 @@ class RingNodeClass(BaseQuery):
                 ("longitude", longitude),
                 ("lon_dir", "east"),
                 ("altitude", altitude),
-                ("moons", self.planet_defaults[planet]["moons"]),
-                ("rings", self.planet_defaults[planet]["rings"]),
-                ("arcmodel", conf.neptune_arcmodels[int(neptune_arcmodel)]),
+                ("moons", planet_defaults[planet]["moons"]),
+                ("rings", planet_defaults[planet]["rings"]),
+                ("arcmodel", neptune_arcmodels[int(neptune_arcmodel)]),
                 ("extra_ra", ""),  # figure options below this line, can all be hardcoded and ignored
                 ("extra_ra_type", "hours"),
                 ("extra_dec", ""),
@@ -178,7 +230,7 @@ class RingNodeClass(BaseQuery):
 
         # query and parse
         response = self._request(
-            "GET", self.url, params=request_payload, timeout=self.timeout, cache=cache
+            "GET", self._url, params=request_payload, timeout=self._timeout, cache=cache
         )
 
         return response
@@ -202,7 +254,7 @@ class RingNodeClass(BaseQuery):
         self.last_response = response
         try:
             self._last_query.remove_cache_file(self.cache_location)
-        except (FileNotFoundError, AttributeError):
+        except FileNotFoundError:
             # this is allowed: if `cache` was set to False, this
             # won't be needed
             pass
