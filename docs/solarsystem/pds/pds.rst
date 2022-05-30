@@ -25,7 +25,7 @@ ephemerides of the rings and small moons around Uranus as viewed from ALMA:
    >>> bodytable, ringtable = RingNode.ephemeris(planet='Uranus',
    ...                 epoch='2024-05-08 22:39',
    ...                 location = (-67.755 * u.deg, -23.029 * u.deg, 5000 * u.m))  # doctest: +REMOTE_DATA
-   >>> print(ringtable)
+   >>> print(ringtable) # doctest: +REMOTE_DATA
          ring  pericenter ascending node
                   deg          deg
        ------- ---------- --------------

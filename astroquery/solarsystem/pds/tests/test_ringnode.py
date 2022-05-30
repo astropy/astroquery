@@ -3,6 +3,7 @@ import os
 import numpy as np
 
 import astropy.units as u
+from ....query import AstroQuery
 
 from astroquery.utils.mocks import MockResponse
 from ... import pds
@@ -41,6 +42,14 @@ def patch_request(request):
 
 
 # --------------------------------- actual test functions
+
+def test_parse_result(patch_request):
+    q = pds.RingNode()
+    # need _last_query to be defined
+    q._last_query = AstroQuery('GET', 'http://dummy')
+    with pytest.raises(ValueError):
+        res = q.ephemeris('dummy-planet-name')
+
 
 def test_ephemeris_query_Uranus(patch_request):
 
