@@ -80,9 +80,15 @@ from the keyring, or if in an interactive environment then it will be requested.
     >>> casda = Casda()
     >>> casda.login(username='email@somewhere.edu.au')
 
+.. Note::
+
+   Prior to Astroquery v0.4.7, authentication required creating an instance of the ``Casda`` class
+   with a username and password. e.g.: ``casda = Casda(username, password)``
 
 Data Access
 ===========
+
+.. versionadded:: 0.4.4
 
 In order to access data in CASDA you must first stage the data using the :meth:`~astroquery.casda.CasdaClass.stage_data` 
 method.
@@ -111,9 +117,14 @@ taken in scheduling block 2338 is shown below:
     >>> url_list = casda.stage_data(subset)
     >>> filelist = casda.download_files(url_list, savedir='/tmp')
 
+.. Note::
+
+   Due to server side changes, downloads now require Astroquery v0.4.6 or later.
 
 Cutouts
 =======
+
+.. versionadded:: 0.4.7
 
 As well as accessing full data products, the CASDA service can produce cutout images and cubes from larger data products.
 The cutout support in AstroQuery allows both spatial and spectral cutouts.
