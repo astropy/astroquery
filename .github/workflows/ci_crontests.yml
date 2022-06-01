@@ -24,9 +24,9 @@ jobs:
           - name: Python 3.9 with all dependencies with remote data
             os: ubuntu-latest
             python: '3.9'
-            toxenv: py39-test-alldeps-devdeps
+            toxenv: py39-test-alldeps-devdeps-online
             toxargs: -v
-            toxposargs: --remote-data -v --durations=50
+            toxposargs: -v --durations=50
 
           - name: pre-repease dependencies with all dependencies
             os: ubuntu-latest
