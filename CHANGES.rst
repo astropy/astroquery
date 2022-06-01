@@ -38,6 +38,13 @@ linelists.cdms
 - Fix issues with the line name parser and the line data parser; the original
   implementation was incomplete and upstream was not fully documented. [#2385, #2411]
 
+oac
+^^^
+
+- Fix bug in parsing events that contain html tags (e.g. in their alias
+  field). [#2423]
+
+
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
 
