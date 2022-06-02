@@ -26,6 +26,11 @@ casda
 - Use the standard ``login`` method for authenticating, which supports the system
   keyring [#2386]
 
+ipac.nexsci.nasa_exoplanet_archive
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- The deprecated methods ``query_planet()`` and ``query_star()`` have been removed.
+
 jplsbdb
 ^^^^^^^
 

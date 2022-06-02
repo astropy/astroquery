@@ -168,46 +168,6 @@ def test_get_access_url():
     assert get_access_url('aliaslookup') == conf.url_aliaslookup
 
 
-def test_backwards_compat(patch_get):
-    """
-    These are the tests from the previous version of this interface.
-    They query old tables by default and should return InvalidTableError.
-    """
-    NasaExoplanetArchiveMock = NasaExoplanetArchiveClass()
-
-    NasaExoplanetArchiveMock._tap_tables = ['list']
-
-    # test_hd209458b_exoplanets_archive
-    with pytest.warns(AstropyDeprecationWarning):
-        with pytest.raises(InvalidTableError) as error:
-            NasaExoplanetArchiveMock.query_planet("HD 209458 b ")
-        assert "replaced" in str(error)
-
-    # test_hd209458b_exoplanet_archive_coords
-    with pytest.warns(AstropyDeprecationWarning):
-        with pytest.raises(InvalidTableError) as error:
-            NasaExoplanetArchiveMock.query_planet("HD 209458 b ")
-        assert "replaced" in str(error)
-
-    # test_hd209458_stellar_exoplanet
-    with pytest.warns(AstropyDeprecationWarning):
-        with pytest.raises(InvalidTableError) as error:
-            NasaExoplanetArchiveMock.query_star("HD 209458")
-        assert "replaced" in str(error)
-
-    # test_hd136352_stellar_exoplanet_archive
-    with pytest.warns(AstropyDeprecationWarning):
-        with pytest.raises(InvalidTableError) as error:
-            NasaExoplanetArchiveMock.query_star("HD 136352")
-        assert "replaced" in str(error)
-
-    # test_exoplanet_archive_query_all_columns
-    with pytest.warns(AstropyDeprecationWarning):
-        with pytest.raises(InvalidTableError) as error:
-            NasaExoplanetArchiveMock.query_planet("HD 209458 b ", all_columns=True)
-        assert "replaced" in str(error)
-
-
 @pytest.mark.parametrize("table,query", API_TABLES)
 def test_api_tables(patch_get, table, query):
     NasaExoplanetArchiveMock = NasaExoplanetArchiveClass()
