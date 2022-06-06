@@ -5,8 +5,6 @@ Exoplanet Orbit Database Query Tool
 
 :Author: Brett M. Morris (brettmorris21@gmail.com)
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 from .exoplanet_orbit_database import (ExoplanetOrbitDatabase,
                                        ExoplanetOrbitDatabaseClass)
 from astropy import config as _config
