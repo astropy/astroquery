@@ -932,7 +932,9 @@ class GaiaClass(TapPlus):
                             print(line.decode("utf-8").split('=', 1)[1])
                         except ValueError as e:
                             print(e)
-                            pass
+                        except IndexError as e:
+                            print("Archive down for maintenance")
+
         except OSError:
             print("Status messages could not be retrieved")
 
