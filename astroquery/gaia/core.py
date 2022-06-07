@@ -45,6 +45,7 @@ class GaiaClass(TapPlus):
     MAIN_GAIA_TABLE_DEC = conf.MAIN_GAIA_TABLE_DEC
     ROW_LIMIT = conf.ROW_LIMIT
     VALID_DATALINK_RETRIEVAL_TYPES = conf.VALID_DATALINK_RETRIEVAL_TYPES
+    GAIA_MESSAGES = "notification?action=GetNotifications"
 
     def __init__(self, tap_plus_conn_handler=None,
                  datalink_handler=None,
@@ -52,7 +53,7 @@ class GaiaClass(TapPlus):
                  gaia_data_server='https://gea.esac.esa.int/',
                  tap_server_context="tap-server",
                  data_server_context="data-server",
-                 verbose=False, show_messages=True):
+                 verbose=False, show_server_messages=True):
         super(GaiaClass, self).__init__(url=gaia_tap_server,
                                         server_context=tap_server_context,
                                         tap_context="tap",
@@ -76,7 +77,7 @@ class GaiaClass(TapPlus):
             self.__gaiadata = datalink_handler
 
         # Enable notifications
-        if show_messages:
+        if show_server_messages:
             self.get_status_messages()
 
     def login(self, user=None, password=None, credentials_file=None,
@@ -921,18 +922,18 @@ class GaiaClass(TapPlus):
         the status of Gaia TAP
         """
         try:
-            print("parsing notification messages")
-            subContext = conf.GAIA_MESSAGES
+            subContext = self.GAIA_MESSAGES
             connHandler = self._TapPlus__getconnhandler()
             response = connHandler.execute_tapget(subContext, False)
             if response.status == 200:
                 if isinstance(response, Iterable):
                     for line in response:
+
                         try:
                             print(line.decode("utf-8").split('=', 1)[1])
                         except ValueError as e:
                             print(e)
-                        except IndexError as e:
+                        except IndexError:
                             print("Archive down for maintenance")
 
         except OSError:

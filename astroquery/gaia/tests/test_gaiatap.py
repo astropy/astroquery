@@ -56,12 +56,12 @@ class TestTap:
                                 headers=None)
         connHandler.set_default_response(dummy_response)
 
-        # show_messages
+        # show_server_messages
         tableRequest = 'notification?action=GetNotifications'
         connHandler.set_response(tableRequest, dummy_response)
 
         tapplus = TapPlus("http://test:1111/tap", connhandler=connHandler)
-        tap = GaiaClass(connHandler, tapplus, show_messages=True)
+        tap = GaiaClass(connHandler, tapplus, show_server_messages=True)
 
     def test_query_object(self):
         conn_handler = DummyConnHandler()
@@ -79,12 +79,12 @@ class TestTap:
                                 headers=None)
         conn_handler.set_default_response(dummy_response)
 
-        # show_messages
+        # show_server_messages
         tableRequest = 'notification?action=GetNotifications'
         conn_handler.set_response(tableRequest, dummy_response)
 
         tapplus = TapPlus("http://test:1111/tap", connhandler=conn_handler)
-        tap = GaiaClass(conn_handler, tapplus, show_messages=True)
+        tap = GaiaClass(conn_handler, tapplus, show_server_messages=True)
         # Launch response: we use default response because the query contains
         # decimals
         response_launch_job = DummyResponse()
@@ -165,7 +165,7 @@ class TestTap:
     def test_query_object_async(self):
         conn_handler = DummyConnHandler()
         tapplus = TapPlus("http://test:1111/tap", connhandler=conn_handler)
-        tap = GaiaClass(conn_handler, tapplus, show_messages=False)
+        tap = GaiaClass(conn_handler, tapplus, show_server_messages=False)
         jobid = '12345'
         # Launch response
         response_launch_job = DummyResponse()
@@ -260,7 +260,7 @@ class TestTap:
     def test_cone_search_sync(self):
         conn_handler = DummyConnHandler()
         tapplus = TapPlus("http://test:1111/tap", connhandler=conn_handler)
-        tap = GaiaClass(conn_handler, tapplus, show_messages=False)
+        tap = GaiaClass(conn_handler, tapplus, show_server_messages=False)
         # Launch response: we use default response because the query contains
         # decimals
         response_launch_job = DummyResponse()
@@ -313,7 +313,7 @@ class TestTap:
     def test_cone_search_async(self):
         conn_handler = DummyConnHandler()
         tapplus = TapPlus("http://test:1111/tap", connhandler=conn_handler)
-        tap = GaiaClass(conn_handler, tapplus, show_messages=False)
+        tap = GaiaClass(conn_handler, tapplus, show_server_messages=False)
         jobid = '12345'
         # Launch response
         response_launch_job = DummyResponse()
@@ -420,7 +420,7 @@ class TestTap:
 
     def test_load_data(self):
         dummy_handler = DummyTapHandler()
-        tap = GaiaClass(dummy_handler, dummy_handler, show_messages=False)
+        tap = GaiaClass(dummy_handler, dummy_handler, show_server_messages=False)
 
         ids = "1,2,3,4"
         retrieval_type = "epoch_photometry"
@@ -459,7 +459,7 @@ class TestTap:
 
     def test_get_datalinks(self):
         dummy_handler = DummyTapHandler()
-        tap = GaiaClass(dummy_handler, dummy_handler, show_messages=False)
+        tap = GaiaClass(dummy_handler, dummy_handler, show_server_messages=False)
         ids = ["1", "2", "3", "4"]
         verbose = True
         parameters = {}
@@ -471,7 +471,7 @@ class TestTap:
     def test_xmatch(self):
         conn_handler = DummyConnHandler()
         tapplus = TapPlus("http://test:1111/tap", connhandler=conn_handler)
-        tap = GaiaClass(conn_handler, tapplus, show_messages=False)
+        tap = GaiaClass(conn_handler, tapplus, show_server_messages=False)
         jobid = '12345'
         # Launch response
         response_launch_job = DummyResponse()
@@ -619,7 +619,7 @@ class TestTap:
     def test_login(self, mock_login):
         conn_handler = DummyConnHandler()
         tapplus = TapPlus("http://test:1111/tap", connhandler=conn_handler)
-        tap = GaiaClass(conn_handler, tapplus, show_messages=False)
+        tap = GaiaClass(conn_handler, tapplus, show_server_messages=False)
         tap.login("user", "password")
         assert (mock_login.call_count == 2)
         mock_login.side_effect = HTTPError("Login error")
@@ -631,7 +631,7 @@ class TestTap:
     def test_login_gui(self, mock_login_gui, mock_login):
         conn_handler = DummyConnHandler()
         tapplus = TapPlus("http://test:1111/tap", connhandler=conn_handler)
-        tap = GaiaClass(conn_handler, tapplus, show_messages=False)
+        tap = GaiaClass(conn_handler, tapplus, show_server_messages=False)
         tap.login_gui()
         assert (mock_login_gui.call_count == 1)
         mock_login_gui.side_effect = HTTPError("Login error")
@@ -642,7 +642,7 @@ class TestTap:
     def test_logout(self, mock_logout):
         conn_handler = DummyConnHandler()
         tapplus = TapPlus("http://test:1111/tap", connhandler=conn_handler)
-        tap = GaiaClass(conn_handler, tapplus, show_messages=False)
+        tap = GaiaClass(conn_handler, tapplus, show_server_messages=False)
         tap.logout()
         assert (mock_logout.call_count == 2)
         mock_logout.side_effect = HTTPError("Login error")
