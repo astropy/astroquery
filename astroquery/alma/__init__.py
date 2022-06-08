@@ -6,7 +6,7 @@ from astropy import config as _config
 
 
 # separate list of ARC URLs as they each deploy their own IVOA services.
-_arc_url_list = ['https://almascience.eso.org', 
+_arc_url_list = ['https://almascience.eso.org',
                  'https://almascience.nrao.edu',
                  'https://almascience.nao.ac.jp']
 
@@ -22,23 +22,23 @@ class Conf(_config.ConfigNamespace):
     """
 
     registry_path = _config.ConfigItem(
-        '/reg/resource-caps', 
+        '/reg/resource-caps',
         'ALMA Registry path')
 
     registry_url = _config.ConfigItem(
-        'https://almascience.org/reg/resource-caps', 
+        'https://almascience.org/reg/resource-caps',
         'ALMA registry information')
 
     tap_service_uri_path = _config.ConfigItem(
-        '/tap', 
+        '/tap',
         'ALMA TAP ObsCore service URI path')
 
     tap_standard_id = _config.ConfigItem(
-        'ivo://ivoa.net/std/TAP', 
+        'ivo://ivoa.net/std/TAP',
         'ALMA TAP service standard ID')
 
     datalink_service_uri_path = _config.ConfigItem(
-        '/datalink', 
+        '/datalink',
         'ALMA DataLink service URI path')
 
     datalink_standard_id = _config.ConfigItem(
@@ -47,11 +47,11 @@ class Conf(_config.ConfigNamespace):
     )
 
     sia_service_uri_path = _config.ConfigItem(
-        '/sia', 
+        '/sia',
         'ALMA SIAv2 service URI path')
 
     sia_standard_id = _config.ConfigItem(
-        'ivo://ivoa.net/std/SIA#query-2.0', 
+        'ivo://ivoa.net/std/SIA#query-2.0',
         'ALMA SIAv2 service standard ID')
 
     timeout = _config.ConfigItem(60, "Timeout in seconds.")

@@ -1177,12 +1177,14 @@ class AlmaClass(QueryWithLogin):
         else:
             return [result[0]['proposal_abstract']]
 
+
 def static_vars(**kwargs):
     def decorate(func):
         for k in kwargs:
             setattr(func, k, kwargs[k])
         return func
     return decorate
+
 
 @static_vars(caps={})
 def get_access_url(service, capability=None):
