@@ -1234,7 +1234,6 @@ def get_access_url(service, capability=None):
         if not get_access_url.caps:
             try:
                 reg_url = "https://{}{}".format(service_host, conf.registry_path)
-                print("Registry URL: {}".format(reg_url))
                 response = requests.get(reg_url)
                 response.raise_for_status()
             except requests.exceptions.HTTPError as err:
