@@ -197,43 +197,55 @@ class AlmaClass(QueryWithLogin):
         self._sia = None
         self._tap = None
         self._datalink = None
-        self.sia_url = None
-        self.tap_url = None
-        self.datalink_url = None
+        self._sia_url = None
+        self._tap_url = None
+        self._datalink_url = None
 
     @property
     def datalink(self):
         if not self._datalink:
-            base_url = self._get_dataarchive_url()
-            if base_url.endswith('/'):
-                self.datalink_url = base_url + ALMA_DATALINK_PATH
-            else:
-                self.datalink_url = base_url + '/' + ALMA_DATALINK_PATH
             self._datalink = pyvo.dal.adhoc.DatalinkService(
-                baseurl=self.datalink_url)
+                self.datalink_url, session=self._auth_session)
         return self._datalink
+
+    @property
+    def datalink_url(self):
+        if not self._datalink_url:
+            base_url_host = requests.utils.parse_url(self._get_dataarchive_url()).host
+            self._datalink_url = get_access_url(
+                "ivo://{}{}".format(base_url_host, conf.datalink_service_uri_path),
+                conf.datalink_standard_id)
+        return self._datalink_url
 
     @property
     def sia(self):
         if not self._sia:
-            base_url = self._get_dataarchive_url()
-            if base_url.endswith('/'):
-                self.sia_url = base_url + ALMA_SIA_PATH
-            else:
-                self.sia_url = base_url + '/' + ALMA_SIA_PATH
             self._sia = pyvo.dal.sia2.SIAService(baseurl=self.sia_url)
         return self._sia
 
     @property
+    def sia_url(self):
+        if not self._sia_url:
+            base_url_host = requests.utils.parse_url(self._get_dataarchive_url()).host
+            self._sia_url = get_access_url(
+                "ivo://{}{}".format(base_url_host, conf.sia_service_uri_path),
+                conf.sia_standard_id)
+        return self._sia_url
+
+    @property
     def tap(self):
         if not self._tap:
-            base_url = self._get_dataarchive_url()
-            if base_url.endswith('/'):
-                self.tap_url = base_url + ALMA_TAP_PATH
-            else:
-                self.tap_url = base_url + '/' + ALMA_TAP_PATH
             self._tap = pyvo.dal.tap.TAPService(baseurl=self.tap_url)
         return self._tap
+
+    @property
+    def tap_url(self):
+        if not self._tap_url:
+            base_url_host = requests.utils.parse_url(self._get_dataarchive_url()).host
+            self._tap_url = get_access_url(
+                "ivo://{}{}".format(base_url_host, conf.tap_service_uri_path),
+                conf.tap_standard_id)
+        return self._tap_url
 
     def query_object_async(self, object_name, *, public=True,
                            science=True, payload=None, **kwargs):
@@ -1146,6 +1158,106 @@ class AlmaClass(QueryWithLogin):
             return [result[0]['proposal_abstract'].astype(str)]
         else:
             return [result[0]['proposal_abstract']]
+
+def static_vars(**kwargs):
+    def decorate(func):
+        for k in kwargs:
+            setattr(func, k, kwargs[k])
+        return func
+    return decorate
+
+@static_vars(caps={})
+def get_access_url(service, capability=None):
+    """
+    Returns the URL corresponding to a service by doing a lookup in the cadc
+    registry. It returns the access URL corresponding to cookie authentication.
+
+    Parameters
+    ----------
+    service : str
+        the service the capability belongs to. It can be identified
+        by a URI ('ivo://almascience.nrao.edu/) which is looked up in the Registry
+        or by the URL where the service capabilities is found.
+    capability : str
+        uri representing the capability for which the access url is sought
+
+    Returns
+    -------
+    The access url
+
+    Note
+    ------
+    This function implements the functionality of a Registry as defined
+    by the IVOA. It should be eventually moved to its own directory.
+
+    Caching should be considered to reduce the number of remote calls to Registry
+    """
+
+    service_url = requests.utils.parse_url(service)
+    service_scheme = service_url.scheme
+    service_host = service_url.host
+    caps_url = ''
+
+    if service_host is None:
+        msg = "ERROR looking up service with no authority (null host): {}".format(service)
+        log.error(msg)
+        raise Exception(msg)
+
+    # ensure the scheme is present
+    if service_scheme is None:
+        service_scheme = 'ivo'
+
+    if service_scheme.startswith('http'):
+        if not capability:
+            return service
+        caps_url = service
+    else:
+        # get caps from the Registry
+        if not get_access_url.caps:
+            try:
+                reg_url = "https://{}{}".format(service_host, conf.registry_path)
+                print("Registry URL: {}".format(reg_url))
+                response = requests.get(reg_url)
+                response.raise_for_status()
+            except requests.exceptions.HTTPError as err:
+                log.debug(
+                    "ERROR getting the Registry: {}".format(str(err)))
+                raise err
+            for line in response.text.splitlines():
+                if len(line) > 0 and not line.startswith('#'):
+                    service_id, capabilies_url = line.split('=')
+                    get_access_url.caps[service_id.strip()] = \
+                        capabilies_url.strip()
+        # lookup the service
+        service_uri = service
+        if service_uri not in get_access_url.caps:
+            raise AttributeError(
+                "Cannot find the capabilities of service {}".format(service))
+        # look up in the Registry for the service capabilities
+        caps_url = get_access_url.caps[service_uri]
+        if not capability:
+            return caps_url
+    try:
+        response2 = requests.get(caps_url)
+        response2.raise_for_status()
+    except Exception as e:
+        log.debug(
+            "ERROR getting the service capabilities: {}".format(str(e)))
+        raise e
+
+    soup = BeautifulSoup(response2.text, features="html5lib")
+    for cap in soup.find_all('capability'):
+        if cap.get("standardid", None) == capability:
+            if len(cap.find_all('interface')) == 1:
+                return cap.find_all('interface')[0].accessurl.text
+            for i in cap.find_all('interface'):
+                if hasattr(i, 'securitymethod'):
+                    sm = i.securitymethod
+                    if not sm or sm.get("standardid", None) is None or\
+                    sm['standardid'] == "ivo://ivoa.net/sso#cookie":
+                        return i.accessurl.text
+    raise RuntimeError("ERROR - capability {} not found or not working with "
+                    "anonymous or cookie access".format(capability))
 
 
 Alma = AlmaClass()
