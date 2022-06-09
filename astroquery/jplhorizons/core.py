@@ -14,6 +14,7 @@ from astropy.table import Table, Column
 from astropy.io import ascii
 from astropy.time import Time
 from astropy.utils.exceptions import AstropyDeprecationWarning
+from astropy.utils.decorators import deprecated_renamed_argument
 
 # 3. local imports - use relative imports
 # commonly required local imports shown below as example
@@ -165,6 +166,8 @@ class HorizonsClass(BaseQuery):
 
     # ---------------------------------- query functions
 
+    @deprecated_renamed_argument("get_raw_response", None, since="0.4.7",
+                                 alternative="async methods")
     def ephemerides_async(self, airmass_lessthan=99,
                           solar_elongation=(0, 180), max_hour_angle=0,
                           rate_cutoff=None,
@@ -178,6 +181,10 @@ class HorizonsClass(BaseQuery):
                           extra_precision=False):
         """
         Query JPL Horizons for ephemerides.
+
+        .. deprecated:: 0.4.7
+           The ``get_raw_response`` keyword argument is deprecated.  The
+           `~HorizonsClass.ephemerides_async` method will return a raw response.
 
         The ``location`` parameter in ``HorizonsClass`` refers in this case to
         the location of the observer.
@@ -492,7 +499,6 @@ class HorizonsClass(BaseQuery):
         response : `requests.Response`
             The response of the HTTP request.
 
-
         Examples
         --------
 
@@ -632,6 +638,8 @@ class HorizonsClass(BaseQuery):
 
         return response
 
+    @deprecated_renamed_argument("get_raw_response", None, since="0.4.7",
+                                 alternative="async methods")
     def elements_async(self, get_query_payload=False,
                        refsystem='ICRF',
                        refplane='ecliptic',
@@ -640,6 +648,10 @@ class HorizonsClass(BaseQuery):
                        get_raw_response=False, cache=True):
         """
         Query JPL Horizons for osculating orbital elements.
+
+        .. deprecated:: 0.4.7
+           The ``get_raw_response`` keyword argument is deprecated.  The
+           `~HorizonsClass.elements_async` method will return a raw response.
 
         The ``location`` parameter in ``HorizonsClass`` refers in this case to
         the center body relative to which the elements are provided.
@@ -850,6 +862,8 @@ class HorizonsClass(BaseQuery):
 
         return response
 
+    @deprecated_renamed_argument("get_raw_response", None, since="0.4.7",
+                                 alternative="async methods")
     def vectors_async(self, get_query_payload=False,
                       closest_apparition=False, no_fragments=False,
                       get_raw_response=False, cache=True,
@@ -857,6 +871,10 @@ class HorizonsClass(BaseQuery):
                       delta_T=False,):
         """
         Query JPL Horizons for state vectors.
+
+        .. deprecated:: 0.4.7
+           The ``get_raw_response`` keyword argument is deprecated.  The
+           `~HorizonsClass.vectors_async` method will return a raw response.
 
         The ``location`` parameter in ``HorizonsClass`` refers in this case to
         the center body relative to which the vectors are provided.

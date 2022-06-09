@@ -2,8 +2,10 @@
 
 
 import pytest
-from astropy.tests.helper import assert_quantity_allclose
 from numpy.ma import is_masked
+
+from astropy.tests.helper import assert_quantity_allclose
+from astropy.utils.exceptions import AstropyDeprecationWarning
 
 from ... import jplhorizons
 
@@ -175,9 +177,13 @@ class TestHorizonsClass:
         assert len(res) == 32
 
     def test_ephemerides_query_raw(self):
-        res = (jplhorizons.Horizons(id='Ceres', location='500',
-                                    id_type='smallbody', epochs=2451544.5).
-               ephemerides(get_raw_response=True))
+        # deprecated as of #2418
+        with pytest.warns(AstropyDeprecationWarning):
+            res = (jplhorizons.Horizons(id='Ceres',
+                                        location='500',
+                                        id_type='smallbody',
+                                        epochs=2451544.5)
+                   .ephemerides(get_raw_response=True))
 
         assert len(res) >= 15400
 
@@ -227,10 +233,13 @@ class TestHorizonsClass:
                                  rtol=1e-3)
 
     def test_elements_query_raw(self):
-        res = jplhorizons.Horizons(id='Ceres', location='500@10',
-                                   id_type='smallbody',
-                                   epochs=2451544.5).elements(
-                                       get_raw_response=True)
+        # deprecated as of #2418
+        with pytest.warns(AstropyDeprecationWarning):
+            res = (jplhorizons.Horizons(id='Ceres',
+                                        location='500@10',
+                                        id_type='smallbody',
+                                        epochs=2451544.5)
+                   .elements(get_raw_response=True))
 
         assert len(res) >= 6686
 
@@ -261,10 +270,13 @@ class TestHorizonsClass:
              res['range_rate']], rtol=1e-3)
 
     def test_vectors_query_raw(self):
-        res = jplhorizons.Horizons(id='Ceres', location='500@10',
-                                   id_type='smallbody',
-                                   epochs=2451544.5).vectors(
-                                       get_raw_response=True)
+        # deprecated as of #2418
+        with pytest.warns(AstropyDeprecationWarning):
+            res = (jplhorizons.Horizons(id='Ceres',
+                                        location='500@10',
+                                        id_type='smallbody',
+                                        epochs=2451544.5)
+                   .vectors(get_raw_response=True))
 
         assert len(res) >= 6412
 
