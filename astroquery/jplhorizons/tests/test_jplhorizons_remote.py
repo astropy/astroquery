@@ -174,6 +174,13 @@ class TestHorizonsClass:
 
         assert len(res) == 32
 
+    def test_ephemerides_query_raw(self):
+        res = (jplhorizons.Horizons(id='Ceres', location='500',
+                                    id_type='smallbody', epochs=2451544.5).
+               ephemerides(get_raw_response=True))
+
+        assert len(res) >= 15400
+
     def test_elements_query(self):
         res = jplhorizons.Horizons(id='Ceres', location='500@10',
                                    id_type='smallbody',
@@ -219,6 +226,14 @@ class TestHorizonsClass:
                                  [res['Omega'], res['w'], res['Tp_jd']],
                                  rtol=1e-3)
 
+    def test_elements_query_raw(self):
+        res = jplhorizons.Horizons(id='Ceres', location='500@10',
+                                   id_type='smallbody',
+                                   epochs=2451544.5).elements(
+                                       get_raw_response=True)
+
+        assert len(res) >= 6686
+
     def test_vectors_query(self):
         # check values of Ceres for a given epoch
         # orbital uncertainty of Ceres is basically zero
@@ -244,6 +259,14 @@ class TestHorizonsClass:
              res['vz'],
              res['lighttime'], res['range'],
              res['range_rate']], rtol=1e-3)
+
+    def test_vectors_query_raw(self):
+        res = jplhorizons.Horizons(id='Ceres', location='500@10',
+                                   id_type='smallbody',
+                                   epochs=2451544.5).vectors(
+                                       get_raw_response=True)
+
+        assert len(res) >= 6412
 
     def test_unknownobject(self):
         with pytest.raises(ValueError):

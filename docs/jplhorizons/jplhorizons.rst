@@ -189,7 +189,9 @@ limits fragment matching (73P-B would only match 73P-B), respectively.  Note
 that these options should only be used for comets and will crash the query for
 other object types. Extra precision in the queried properties can be requested
 using the ``extra_precision`` option.  Furthermore, ``get_query_payload=True``
-skips the query and only returns the query payload.
+skips the query and only returns the query payload, whereas
+``get_raw_response=True`` returns the raw query response instead of the astropy
+table.
 
 :meth:`~astroquery.jplhorizons.HorizonsClass.ephemerides` queries by default all
 available quantities from the JPL Horizons servers. This might take a while. If
@@ -241,8 +243,9 @@ absolute representation of the time of perihelion passage.  For comets, the
 options ``closest_apparition`` and ``no_fragments`` are available, which select
 the closest apparition in time and reject fragments, respectively. Note that
 these options should only be used for comets and will crash the query for other
-object types. Also available is ``get_query_payload=True``, which skips the
-query and only returns the query payload.
+object types. Also available are ``get_query_payload=True``, which skips the
+query and only returns the query payload, and ``get_raw_response=True``, which
+returns the raw query response instead of the astropy table.
 
 Vectors
 -------
@@ -287,15 +290,16 @@ The following fields are queried:
 
 
 Similar to the other :class:`~astroquery.jplhorizons.HorizonsClass` functions,
-an optional parameter of :meth:`~astroquery.jplhorizons.HorizonsClass.vectors`
-is ``get_query_payload=True``, which skips the query and only returns the query
-payload for diagnostic purposes. For comets, the options ``closest_apparation``
-and ``no_fragments`` are available, which select the closest apparition in time
-and reject fragments, respectively. Note that these options should only be used
-for comets and will crash the query for other object types. Options
-``aberrations`` and ``delta_T`` provide different choices for aberration
-corrections as well as a measure for time-varying differences between TDB and UT
-time-scales, respectively.
+optional parameters of :meth:`~astroquery.jplhorizons.HorizonsClass.vectors` are
+``get_query_payload=True``, which skips the query and only returns the query
+payload, and ``get_raw_response=True``, which returns the raw query response
+instead of the astropy table. For comets, the options ``closest_apparation`` and
+``no_fragments`` are available, which select the closest apparition in time and
+reject fragments, respectively. Note that these options should only be used for
+comets and will crash the query for other object types. Options ``aberrations``
+and ``delta_T`` provide different choices for aberration corrections as well as
+a measure for time-varying differences between TDB and UT time-scales,
+respectively.
 
 
 How to Use the Query Tables
