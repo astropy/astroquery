@@ -378,17 +378,22 @@ def test_tap():
                                             language='ADQL', maxrec=None)
 
 
-def test_get_data_info():
+def test_get_data_info():   
     datalink_mock = Mock()
     dl_result = Table.read(data_path('alma-datalink.xml'), format='votable')
-    mock_response = Mock(to_table=Mock(return_value=dl_result))
+
+    # Emulate the DatalinkResults
+    service_def_1 = type('',(object,),{'service_def': 'DataLink.2017.1.01185.S_uid___A001_X12a3_Xe9_001_of_001.tar', 'access_url': 'https://almascience.org/datalink/sync?ID=2017.1.01185.S_uid___A001_X12a3_Xe9_001_of_001.tar'})()
+    service_def_2 = type('',(object,),{'service_def': 'DataLink.2017.1.01185.S_uid___A001_X12a3_Xe9_auxiliary.tar', 'access_url': 'https://almascience.org/datalink/sync?ID=2017.1.01185.S_uid___A001_X12a3_Xe9_auxiliary.tar'})()
+
+    mock_response = Mock(to_table=Mock(return_value=dl_result), iter_procs=Mock(return_value=[service_def_1, service_def_2]))
     mock_response.status = ['OK']
     datalink_mock.run_sync.return_value = mock_response
     alma = Alma()
     alma._get_dataarchive_url = Mock()
     alma._datalink = datalink_mock
     result = alma.get_data_info(uids='uid://A001/X12a3/Xe9')
-    assert len(result) == 7
+    assert len(result) == 9
 
     datalink_mock.run_sync.assert_called_once_with('uid://A001/X12a3/Xe9')
 

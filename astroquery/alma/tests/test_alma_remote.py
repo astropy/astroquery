@@ -163,6 +163,8 @@ class TestAlma:
 
         # compare with tarball version
         data_info_tar = alma.get_data_info(uid, expand_tarfiles=False)
+
+        # The expanded table should be much longer than the non-expanded table.
         assert len(data_info) > len(data_info_tar)
         # size is the same - not working because service inconsistencies
         # assert sum(data_info['content_length']) == \
