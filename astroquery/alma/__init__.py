@@ -3,15 +3,21 @@
 ALMA Archive service.
 """
 from astropy import config as _config
+import os
 
+
+# map Service IDs to their ARC hosts
+_arc_service_id_map = {
+    'almascience.eso.org': 'alma.eu',
+    'almascience.nrao.edu': 'alma.na',
+    'almascience.nao.ac.jp': 'alma.ea'
+}
 
 # separate list of ARC URLs as they each deploy their own IVOA services.
-_arc_url_list = ['https://almascience.eso.org',
-                 'https://almascience.nrao.edu',
-                 'https://almascience.nao.ac.jp']
+_arc_url_list = list(map(lambda id: 'https://{}'.format(id), _arc_service_id_map.keys()))
 
 # list the URLs here separately so they can be used in tests.
-_url_list = ['http://almascience.org'] + _arc_url_list
+_url_list = ['https://almascience.org'] + _arc_url_list
 
 auth_urls = ['asa.alma.cl', 'rh-cas.alma.cl']
 
@@ -21,13 +27,16 @@ class Conf(_config.ConfigNamespace):
     Configuration parameters for `astroquery.alma`.
     """
 
+    # Used if the current discovered host has no Service ID equivalent.  This
+    # is used when overriding the default registry, which assumes to have
+    # just almascience.org as the authority in the Service IDs.
+    default_service_id_auth = 'almascience.org'
+
+    service_uri_map = _arc_service_id_map
+
     registry_path = _config.ConfigItem(
         '/reg/resource-caps',
         'ALMA Registry path')
-
-    registry_url = _config.ConfigItem(
-        'https://almascience.org/reg/resource-caps',
-        'ALMA registry information')
 
     tap_service_uri_path = _config.ConfigItem(
         '/tap',
@@ -56,8 +65,11 @@ class Conf(_config.ConfigNamespace):
 
     timeout = _config.ConfigItem(60, "Timeout in seconds.")
 
+    # override for testing or alternate archive location.
+    _configured_archive_url = [os.environ["ARCHIVE_URL"]] if "ARCHIVE_URL" in os.environ else _url_list
+
     archive_url = _config.ConfigItem(
-        _url_list,
+        _configured_archive_url,
         'The ALMA Archive mirror to use.')
 
     auth_url = _config.ConfigItem(

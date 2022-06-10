@@ -36,9 +36,6 @@ __all__ = {'AlmaClass', 'ALMA_BANDS'}
 
 __doctest_skip__ = ['AlmaClass.*']
 
-ALMA_TAP_PATH = 'tap'
-ALMA_SIA_PATH = 'sia2'
-ALMA_DATALINK_PATH = 'datalink/sync'
 
 # Map from ALMA ObsCore result to ALMA original query result
 # The map is provided in order to preserve the name of the columns in the
@@ -214,20 +211,44 @@ class AlmaClass(QueryWithLogin):
         self._tap_url = None
         self._datalink_url = None
 
+    def service_id_auth(self, archive_host):
+        """
+        Convenience property to get the current Service ID authority.  Each ARC will have a different authority in
+        the Service IDs, so we'll need to look it up.  In the case where the Registry host has been overridden, 
+        use the default value.
+
+        Parameters
+        ----------
+
+        archvie_host : str
+        The discovered ARC hostname.
+
+        Returns
+        -------
+
+        The Service ID authority.  Never None.
+        """
+        return conf.service_uri_map[archive_host] if archive_host in conf.service_uri_map else conf.default_service_id_auth
+
     @property
     def datalink(self):
         if not self._datalink:
-            self._datalink = pyvo.dal.adhoc.DatalinkService(
-                self.datalink_url, session=self._auth_session)
+            self._datalink = pyvo.dal.adhoc.DatalinkService(self.datalink_url)
         return self._datalink
 
     @property
     def datalink_url(self):
         if not self._datalink_url:
             base_url_host = requests.utils.parse_url(self._get_dataarchive_url()).host
-            self._datalink_url = get_access_url(
-                "ivo://{}{}".format(base_url_host, conf.datalink_service_uri_path),
-                conf.datalink_standard_id)
+            try:
+                self._datalink_url = commons.get_access_url(
+                    "ivo://{}{}".format(self.service_id_auth(base_url_host), conf.datalink_service_uri_path),
+                    "https://{}{}".format(base_url_host, conf.registry_path),
+                    conf.datalink_standard_id)
+            except requests.exceptions.HTTPError as err:
+                log.debug(
+                    "ERROR getting the CADC registry: {}".format(str(err)))
+                raise err
         return self._datalink_url
 
     @property
@@ -240,9 +261,15 @@ class AlmaClass(QueryWithLogin):
     def sia_url(self):
         if not self._sia_url:
             base_url_host = requests.utils.parse_url(self._get_dataarchive_url()).host
-            self._sia_url = get_access_url(
-                "ivo://{}{}".format(base_url_host, conf.sia_service_uri_path),
-                conf.sia_standard_id)
+            try:
+                self._sia_url = commons.get_access_url(
+                    "ivo://{}{}".format(self.service_id_auth(base_url_host), conf.sia_service_uri_path),
+                    "https://{}{}".format(base_url_host, conf.registry_path),
+                    conf.sia_standard_id)
+            except requests.exceptions.HTTPError as err:
+                log.debug(
+                    "ERROR getting the CADC registry: {}".format(str(err)))
+                raise err
         return self._sia_url
 
     @property
@@ -255,9 +282,15 @@ class AlmaClass(QueryWithLogin):
     def tap_url(self):
         if not self._tap_url:
             base_url_host = requests.utils.parse_url(self._get_dataarchive_url()).host
-            self._tap_url = get_access_url(
-                "ivo://{}{}".format(base_url_host, conf.tap_service_uri_path),
-                conf.tap_standard_id)
+            try:
+                self._tap_url = commons.get_access_url(
+                    "ivo://{}{}".format(self.service_id_auth(base_url_host), conf.tap_service_uri_path),
+                    "https://{}{}".format(base_url_host, conf.registry_path),
+                    conf.tap_standard_id)
+            except requests.exceptions.HTTPError as err:
+                log.debug(
+                    "ERROR getting the CADC registry: {}".format(str(err)))
+                raise err
         return self._tap_url
 
     def query_object_async(self, object_name, *, public=True,
@@ -535,7 +568,7 @@ class AlmaClass(QueryWithLogin):
         Returns
         -------
         Table with results or None. Table has the following columns: id (UID),
-        access_url (URL to access data), content_length, content_type (MIME
+        access_url (URL to access data), service_def, content_length, content_type (MIME
         type), semantics, description (optional), error_message (optional)
         """
         if uids is None:
@@ -546,11 +579,16 @@ class AlmaClass(QueryWithLogin):
             raise TypeError("Datasets must be given as a list of strings.")
         # TODO remove this loop and send uids at once when pyvo fixed
         result = None
+        service_def_dict = {}
         for uid in uids:
             res = self.datalink.run_sync(uid)
             if res.status[0] != 'OK':
                 raise Exception('ERROR {}: {}'.format(res.status[0],
                                                       res.status[1]))
+
+            # Dictionary of service_def entries
+            service_def_dict.update({ row.service_def:row.access_url for row in res.iter_procs() })
+
             temp = res.to_table()
             if ASTROPY_LT_4_1:
                 # very annoying
@@ -580,17 +618,20 @@ class AlmaClass(QueryWithLogin):
         # require an extra call to the datalink service to get the list of
         # files.
         DATALINK_FILE_TYPE = 'application/x-votable+xml;content=datalink'
-        DATALINK_SEMANTICS = '#datalink'
+        # if expand_tarfiles:
+        # identify the tarballs that can be expandable and replace them
+        # with the list of components
+        expanded_result = None
+        to_delete = []
         if expand_tarfiles:
-            # identify the tarballs that can be expandable and replace them
-            # with the list of components
-            expanded_result = None
-            to_delete = []
             for index, row in enumerate(result):
-                if DATALINK_SEMANTICS in row['semantics'] and \
-                        row['content_type'] == DATALINK_FILE_TYPE:
+                # Recursive DataLink, so look for service_def
+                if row['service_def'] and row['content_type'] == DATALINK_FILE_TYPE:
                     # subsequent call to datalink
-                    file_id = row['access_url'].split('ID=')[1]
+                
+                    # Lookup the access_url from the service_def RESOURCE entries.
+                    recursive_access_url = service_def_dict[row['service_def']]
+                    file_id = recursive_access_url.split('ID=')[1]
                     expanded_tar = self.get_data_info(file_id)
                     expanded_tar = expanded_tar[
                         expanded_tar['semantics'] != '#cutout']
@@ -599,16 +640,19 @@ class AlmaClass(QueryWithLogin):
                     else:
                         expanded_result = vstack(
                             [expanded_result, expanded_tar], join_type='exact')
+
+                    # These DataLink entries have no access_url and are links to service_def RESOURCEs only,
+                    # so they can be removed if expanded.
                     to_delete.append(index)
-            # cleanup
-            result.remove_rows(to_delete)
-            # add the extra rows
-            if expanded_result:
-                result = vstack([result, expanded_result], join_type='exact')
-        else:
-            result = result[np.logical_or(np.core.defchararray.find(
-                result['semantics'].astype(str), DATALINK_SEMANTICS) == -1,
-                result['content_type'].astype(str) != DATALINK_FILE_TYPE)]
+        # cleanup
+        result.remove_rows(to_delete)
+        # add the extra rows
+        if expanded_result:
+            result = vstack([result, expanded_result], join_type='exact')
+        # else:
+        #     result = result[np.logical_or(np.core.defchararray.find(
+        #         result['semantics'].astype(str), DATALINK_SEMANTICS) == -1,
+        #         result['content_type'].astype(str) != DATALINK_FILE_TYPE)]
 
         return result
 
@@ -1176,107 +1220,6 @@ class AlmaClass(QueryWithLogin):
             return [result[0]['proposal_abstract'].astype(str)]
         else:
             return [result[0]['proposal_abstract']]
-
-
-def static_vars(**kwargs):
-    def decorate(func):
-        for k in kwargs:
-            setattr(func, k, kwargs[k])
-        return func
-    return decorate
-
-
-@static_vars(caps={})
-def get_access_url(service, capability=None):
-    """
-    Returns the URL corresponding to a service by doing a lookup in the cadc
-    registry. It returns the access URL corresponding to cookie authentication.
-
-    Parameters
-    ----------
-    service : str
-        the service the capability belongs to. It can be identified
-        by a URI ('ivo://almascience.nrao.edu/) which is looked up in the Registry
-        or by the URL where the service capabilities is found.
-    capability : str
-        uri representing the capability for which the access url is sought
-
-    Returns
-    -------
-    The access url
-
-    Note
-    ------
-    This function implements the functionality of a Registry as defined
-    by the IVOA. It should be eventually moved to its own directory.
-
-    Caching should be considered to reduce the number of remote calls to Registry
-    """
-
-    service_url = requests.utils.parse_url(service)
-    service_scheme = service_url.scheme
-    service_host = service_url.host
-    caps_url = ''
-
-    if service_host is None:
-        msg = "ERROR looking up service with no authority (null host): {}".format(service)
-        log.error(msg)
-        raise Exception(msg)
-
-    # ensure the scheme is present
-    if service_scheme is None:
-        service_scheme = 'ivo'
-
-    if service_scheme.startswith('http'):
-        if not capability:
-            return service
-        caps_url = service
-    else:
-        # get caps from the Registry
-        if not get_access_url.caps:
-            try:
-                reg_url = "https://{}{}".format(service_host, conf.registry_path)
-                response = requests.get(reg_url)
-                response.raise_for_status()
-            except requests.exceptions.HTTPError as err:
-                log.debug(
-                    "ERROR getting the Registry: {}".format(str(err)))
-                raise err
-            for line in response.text.splitlines():
-                if len(line) > 0 and not line.startswith('#'):
-                    service_id, capabilies_url = line.split('=')
-                    get_access_url.caps[service_id.strip()] = \
-                        capabilies_url.strip()
-        # lookup the service
-        service_uri = service
-        if service_uri not in get_access_url.caps:
-            raise AttributeError(
-                "Cannot find the capabilities of service {}".format(service))
-        # look up in the Registry for the service capabilities
-        caps_url = get_access_url.caps[service_uri]
-        if not capability:
-            return caps_url
-    try:
-        response2 = requests.get(caps_url)
-        response2.raise_for_status()
-    except Exception as e:
-        log.debug(
-            "ERROR getting the service capabilities: {}".format(str(e)))
-        raise e
-
-    soup = BeautifulSoup(response2.text, features="html5lib")
-    for cap in soup.find_all('capability'):
-        if cap.get("standardid", None) == capability:
-            if len(cap.find_all('interface')) == 1:
-                return cap.find_all('interface')[0].accessurl.text
-            for i in cap.find_all('interface'):
-                if hasattr(i, 'securitymethod'):
-                    sm = i.securitymethod
-                    if not sm or sm.get("standardid", None) is None or\
-                    sm['standardid'] == "ivo://ivoa.net/sso#cookie":
-                        return i.accessurl.text
-    raise RuntimeError("ERROR - capability {} not found or not working with "
-                    "anonymous or cookie access".format(capability))
 
 
 Alma = AlmaClass()
