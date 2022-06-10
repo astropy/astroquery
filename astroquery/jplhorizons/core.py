@@ -31,7 +31,7 @@ __all__ = ['Horizons', 'HorizonsClass']
 @async_to_sync
 class HorizonsClass(BaseQuery):
     """
-    Query the `JPL Horizons` <https://ssd.jpl.nasa.gov/horizons/>`_ service.
+    Query the `JPL Horizons <https://ssd.jpl.nasa.gov/horizons/>`_ service.
     """
 
     TIMEOUT = conf.timeout
