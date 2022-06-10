@@ -201,7 +201,7 @@ class AlmaClass(QueryWithLogin):
     def service_id_auth(self, archive_host):
         """
         Convenience property to get the current Service ID authority.  Each ARC will have a different authority in
-        the Service IDs, so we'll need to look it up.  In the case where the Registry host has been overridden, 
+        the Service IDs, so we'll need to look it up.  In the case where the Registry host has been overridden,
         use the default value.
 
         Parameters
@@ -569,7 +569,7 @@ class AlmaClass(QueryWithLogin):
                                                       res.status[1]))
 
             # Dictionary of service_def entries
-            service_def_dict.update({ row.service_def:row.access_url for row in res.iter_procs() })
+            service_def_dict.update({row.service_def: row.access_url for row in res.iter_procs()})
 
             temp = res.to_table()
             if ASTROPY_LT_4_1:
@@ -610,7 +610,7 @@ class AlmaClass(QueryWithLogin):
                 # Recursive DataLink, so look for service_def
                 if row['service_def'] and row['content_type'] == DATALINK_FILE_TYPE:
                     # subsequent call to datalink
-                
+
                     # Lookup the access_url from the service_def RESOURCE entries.
                     recursive_access_url = service_def_dict[row['service_def']]
                     file_id = recursive_access_url.split('ID=')[1]
