@@ -506,7 +506,7 @@ def get_access_url(service, reg_url, capability=None):
 
     Caching should be considered to reduce the number of remote calls to Registry
     """
-   
+
     service_url = requests.utils.parse_url(service)
     service_scheme = service_url.scheme
     caps_url = ''

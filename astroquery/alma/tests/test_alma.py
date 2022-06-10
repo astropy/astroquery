@@ -400,13 +400,13 @@ def test_tap():
                                             language='ADQL', maxrec=None)
 
 
-def test_get_data_info():   
+def test_get_data_info():
     datalink_mock = Mock()
     dl_result = Table.read(data_path('alma-datalink.xml'), format='votable')
 
     # Emulate the DatalinkResults
-    service_def_1 = type('',(object,),{'service_def': 'DataLink.2017.1.01185.S_uid___A001_X12a3_Xe9_001_of_001.tar', 'access_url': 'https://almascience.org/datalink/sync?ID=2017.1.01185.S_uid___A001_X12a3_Xe9_001_of_001.tar'})()
-    service_def_2 = type('',(object,),{'service_def': 'DataLink.2017.1.01185.S_uid___A001_X12a3_Xe9_auxiliary.tar', 'access_url': 'https://almascience.org/datalink/sync?ID=2017.1.01185.S_uid___A001_X12a3_Xe9_auxiliary.tar'})()
+    service_def_1 = type('', (object, ), {'service_def': 'DataLink.2017.1.01185.S_uid___A001_X12a3_Xe9_001_of_001.tar', 'access_url': 'https://almascience.org/datalink/sync?ID=2017.1.01185.S_uid___A001_X12a3_Xe9_001_of_001.tar'})()
+    service_def_2 = type('', (object, ), {'service_def': 'DataLink.2017.1.01185.S_uid___A001_X12a3_Xe9_auxiliary.tar', 'access_url': 'https://almascience.org/datalink/sync?ID=2017.1.01185.S_uid___A001_X12a3_Xe9_auxiliary.tar'})()
 
     mock_response = Mock(to_table=Mock(return_value=dl_result), iter_procs=Mock(return_value=[service_def_1, service_def_2]))
     mock_response.status = ['OK']
