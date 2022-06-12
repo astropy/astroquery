@@ -64,7 +64,7 @@ class DESILegacySurveyClass(BaseQuery):
 
         Parameters
         -------
-        position: `~astropy.coordinates`.
+        position: `astropy.coordinates`.
             coordinates around which we define our region of interest.
         radius: `~astropy.units.Quantity`,  optional
             the radius of our region of interest.

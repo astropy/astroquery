@@ -4,7 +4,7 @@
 DESI LegacySurvery
 
 https://www.legacysurvey.org/
--------------------------
+-----------------------------
 
 :author: Gabriele Barni (Gabriele.Barni@unige.ch)
 """

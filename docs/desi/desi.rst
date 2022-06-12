@@ -90,3 +90,10 @@ All the information we need can be found within the object "im".
 
 The variable "im" is a list of `~astropy.io.fits.HDUList` objects, one entry for
 each corresponding object.
+
+
+Reference/API
+=============
+
+.. automodapi:: astroquery.desi
+  :no-inheritance-diagram:
