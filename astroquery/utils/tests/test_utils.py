@@ -568,6 +568,7 @@ def test_get_access_url(service, capability, expected):
     """
     _test_get_access_url(service, capability, expected)
 
+
 @unittest.mock.patch('requests.get', side_effect=_mocked_requests_get)
 def _test_get_access_url(service, capability, expected, mock_get):
     orig_caps = commons.get_access_url.caps
@@ -588,4 +589,3 @@ def _test_get_access_url(service, capability, expected, mock_get):
         assert str(runtime_error) == f'No or invalid service provided ({service}).'
     finally:
         commons.get_access_url.caps = orig_caps
-
