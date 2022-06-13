@@ -115,9 +115,9 @@ respective id number or record number as ``id`` and use ``id_type=None``:
        Record #  Epoch-yr  Primary Desig  >MATCH NAME<
        --------  --------  -------------  -------------------------
            9134            4822 P-L        Encke
-       90000034    1786    2P              Encke
-       90000035    1796    2P              Encke
-       90000036    1805    2P              Encke
+       90000031    1786    2P              Encke
+       90000032    1796    2P              Encke
+       90000033    1805    2P              Encke
 	    ...     ...    ...               ...
    >>> print(Horizons(id='90000034', id_type=None).ephemerides())  # doctest: +IGNORE_OUTPUT
    targetname       datetime_str          datetime_jd    ... RA_3sigma DEC_3sigma

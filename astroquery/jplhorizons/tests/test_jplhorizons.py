@@ -1,13 +1,10 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-from curses.ascii import HT
-from multiprocessing import Value
 import pytest
 import os
 from collections import OrderedDict
 
 from numpy.ma import is_masked
-from requests.exceptions import HTTPError
 from astropy.tests.helper import assert_quantity_allclose
 from astropy.utils.exceptions import AstropyDeprecationWarning
 
