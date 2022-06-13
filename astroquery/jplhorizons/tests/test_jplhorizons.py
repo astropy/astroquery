@@ -39,7 +39,7 @@ def nonremote_request(self, request_type, url, **kwargs):
                       'ELEMENTS': 'elements',
                       'VECTORS': 'vectors'}[kwargs['params']['EPHEM_TYPE']]
 
-        if ('TLIST' in kwargs['params']):
+        if 'TLIST' in kwargs['params']:
             query_type += '-single'
         elif ('START_TIME' in kwargs['params']
               and 'STOP_TIME' in kwargs['params']
